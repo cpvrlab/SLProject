@@ -19,7 +19,7 @@
 
 //-----------------------------------------------------------------------------
 //! Default values for static fields
-SLstring        SL::version             = "2.1.200";
+SLstring        SL::version             = "2.2.000";
 SLint           SL::dpi                 = 0;
 SLint           SL::testDurationSec     = 0;
 SLint           SL::testFactor          = 1;
@@ -45,19 +45,29 @@ const SLVstring SL::testSceneNames =
     "sceneTextureBlend          ",
     "sceneFrustumCull           ",
     "sceneMassiveData           ",
+    "scene2Dand3DText           ",
+    "scenePointClouds           ",
+
     "sceneShaderPerVertexBlinn  ",
     "sceneShaderPerPixelBlinn   ",
     "sceneShaderPerVertexWave   ",
     "sceneShaderWater           ",
+    "sceneShaderCookTorrance    ",
     "sceneShaderBumpNormal      ",
     "sceneShaderBumpParallax    ",
+    "sceneShaderSkyBox          ",
     "sceneShaderEarth           ",
-    "sceneTerrain               ",
+
+    "sceneVolumeRayCast         ",
+    "sceneVolumeRayCastLighted  ",
+
     "sceneAnimationMass         ",
     "sceneAnimationSkeletal     ",
     "sceneAnimationNode         ",
     "sceneAnimationArmy         ",
-    "sceneVideoTexture          ",
+
+    "sceneVideoTextureLive      ",
+    "sceneVideoTextureVideo     ",
     "sceneVideoChristoffel      ",
     "sceneVideoCalibrateMain    ",
     "sceneVideoCalibrateScnd    ",
@@ -67,6 +77,8 @@ const SLVstring SL::testSceneNames =
     "sceneVideoTrackArucoScnd   ",
     "sceneVideoTrackFeat2DMain  ",
     "sceneVideoTrackFeat2DScnd  ",
+    "sceneVideoSensorAR         ",
+
     "sceneRTMuttenzerBox        ",
     "sceneRTSpheres             ",
     "sceneRTSoftShadows         ",
@@ -98,6 +110,7 @@ void SL::exitMsg(const SLchar* msg, const SLint line, const SLchar* file)
     #if defined(SL_OS_ANDROID)
     __android_log_print(ANDROID_LOG_INFO, "SLProject", 
                         "Exit %s at line %d in %s\n", msg, line, file);
+    #else
     SL::log("Exit %s at line %d in %s\n", msg, line, file);
     #endif
    

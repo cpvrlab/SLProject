@@ -48,7 +48,7 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     prepareImage();
 
     // Set second image for render update to the same size
-    _images.push_back(new SLCVImage(_sv->scrW(), _sv->scrH(), PF_rgb));
+    _images.push_back(new SLCVImage(_sv->scrW(), _sv->scrH(), PF_rgb, "Pathtracer"));
 
     // Measure time 
     double t1 = SLScene::current->timeSec();
@@ -154,6 +154,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
             {  
                 if (SLScene::current->timeSec()-t1 > 0.5f)
                 {  
+                    finishBeforeUpdate();
                     _sv->onWndUpdate(); // update window
                     t1 = SLScene::current->timeSec();
                 }
@@ -169,7 +170,7 @@ Recursively traces Ray in Scene.
 SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
 {
     SLScene* s = SLScene::current;
-    SLCol4f finalColor(SLCol4f::BLACK);
+    SLCol4f finalColor(ray->backgroundColor);
 
     // Participating Media init
     SLfloat  absorbtion = 1.0f;    // used to calculate absorbtion along the ray
@@ -182,7 +183,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
         return SLCol4f::BLACK;
 
     // hit material
-    SLMaterial* mat = ray->hitMesh->mat;
+    SLMaterial* mat = ray->hitMesh->mat();
     ray->hitMesh->preShade(ray);
 
     SLCol4f objectEmission = mat->emissive();

@@ -37,6 +37,9 @@
     <Filter Include="DBoW2">
       <UniqueIdentifier>{b0e24e04-37a0-4aa2-8b43-d510a44f876b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="spa">
+      <UniqueIdentifier>{37cdd96d-9800-46db-a7e4-8d8cab537122}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="randomc\mersenne.cpp">
@@ -216,6 +219,9 @@
     <ClCompile Include="DBoW2\DBoW2\ScoringObject.cpp">
       <Filter>DBoW2</Filter>
     </ClCompile>
+    <ClCompile Include="spa\spa.cpp">
+      <Filter>spa</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="randomc\random.h">
@@ -355,6 +361,9 @@
     </ClInclude>
     <ClInclude Include="imgui\stb_truetype.h">
       <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="spa\spa.h">
+      <Filter>spa</Filter>
     </ClInclude>
     <ClInclude Include="DBoW2\DUtils\Random.h">
       <Filter>DBoW2</Filter>

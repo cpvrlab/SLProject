@@ -41,7 +41,7 @@ vec3 reflect2(vec3 I, vec3 N)
 //-----------------------------------------------------------------------------
 void main(void)
 {  
-    vec3 P_VS = vec3(u_mvMatrix * a_position);   // pos. in viewspace
+    vec3 P_VS = vec3(u_mvMatrix * a_position);   // pos. in viewspace (VS)
     vec3 I_VS = normalize(P_VS);                 // incident vector in VS
     vec3 N_VS = normalize(u_nMatrix * a_normal); // normal vector in VS
 

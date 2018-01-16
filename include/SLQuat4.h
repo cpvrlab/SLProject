@@ -408,19 +408,19 @@ void SLQuat4<T>::toEulerAnglesXYZ(T& rollRAD, T& pitchRAD, T& yawRAD) const
     // yaw (z-axis rotation)
     double siny = (T)2 * ( _x * _y - _w * _z );
     double cosy = 1 - (T)2 * (_x * _x  + _z * _z );
-    yawRAD = - atan2( siny, cosy );
+    yawRAD = (T)-atan2(siny, cosy );
 
     // pitch (y-axis rotation)
     double sinp = -(T)2 * (_x * _z - _w * _y);
     double cosp = 1 - (T)2 * (_x * _x + _y * _y);
-    pitchRAD = atan2(sinp, cosp);
+    pitchRAD = (T)atan2(sinp, cosp);
 
     // roll (x-axis rotation)
     double sinr = (T)2 * (_y * _z + _w * _x);
     if (fabs(sinr) >= 1)
-        rollRAD = copysign(M_PI / 2, sinr); // use 90 degrees if out of range
+        rollRAD = (T)copysign(M_PI / 2, sinr); // use 90 degrees if out of range
     else
-        rollRAD = asin(sinr);
+        rollRAD = (T)asin(sinr);
 }
 //-----------------------------------------------------------------------------
 template<class T>

@@ -40,7 +40,7 @@ SLint       lastWidth;              //!< Last window width in pixels
 SLint       lastHeight;             //!< Last window height in pixels
 SLint       lastMouseWheelPos;      //!< Last mouse wheel position
 SLfloat     lastMouseDownTime = 0.0f; //!< Last mouse press time
-SLKey       modifiers=K_none;      //!< last modifier keys
+SLKey       modifiers=K_none;       //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 NewNodeSceneView* nodeTestSV;       //!< pointer to the sceneview
 
@@ -431,6 +431,7 @@ int main(int argc, char *argv[])
                   exeDir + "../_data/shaders/",
                   exeDir + "../_data/models/",
                   exeDir + "../_data/images/textures/",
+                  exeDir + "../_data/videos/",
                   exeDir + "../_data/images/fonts/",
                   exeDir + "../_data/calibrations/",
                   configPath);
@@ -442,7 +443,6 @@ int main(int argc, char *argv[])
                                 (void*)&onPaint,
                                 0,
                                 (void*)createNewNodeSceneView,
-                                0,
                                 (void*)NewNodeGui::buildDemoGui);
 
     // Set GLFW callback functions

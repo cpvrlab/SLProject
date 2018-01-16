@@ -23,6 +23,9 @@
 #include <SLCVCamera.h>
 
 //-----------------------------------------------------------------------------
+// Static update counter
+SLuint SLNode::numWMUpdates = 0;
+//-----------------------------------------------------------------------------
 /*! 
 Default constructor just setting the name. 
 */ 
@@ -189,14 +192,48 @@ SLbool SLNode::deleteMesh(SLMesh* mesh)
 }
 //-----------------------------------------------------------------------------
 /*! 
-SLNode::findMesh finds the specified mesh by name.
 */
-SLMesh* SLNode::findMesh(SLstring name)
+SLMesh* SLNode::findMesh(SLstring name, SLbool recursive)
 {  
     assert(name!="");
     for (auto mesh : _meshes)
         if (mesh->name() == name) return mesh;
-    return 0;
+    
+    if (recursive && children().size() > 0)
+    {
+        for (auto child : _children)
+        {   SLMesh* foundMesh = child->findMesh(name, true);
+            if (foundMesh)
+                return foundMesh;
+        }
+    }
+    
+    return nullptr;
+}
+
+//-----------------------------------------------------------------------------
+/*! SLNode::setAllMeshMaterials set on all meshes of the node to the passed
+material. If recursive is true the material is also applied to all child node
+and their meshes.
+*/
+void SLNode::setAllMeshMaterials(SLMaterial* mat, SLbool recursive)
+{
+    assert(mat!=nullptr);
+    
+    // Reset the nodes alpha flag
+    _aabb.hasAlpha(false);
+    
+    for (auto mesh : _meshes)
+    {   mesh->mat(mat);
+
+        // set transparent flag of the node if mesh contains alpha material
+        if (!_aabb.hasAlpha() && mat->hasAlpha())
+            _aabb.hasAlpha(true);
+    }
+    
+    if (recursive && children().size() > 0)
+        for (auto child : _children)
+            child->setAllMeshMaterials(mat, recursive);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -246,8 +283,8 @@ the opaque pass only the opaque meshes.
 void SLNode::drawMeshes(SLSceneView* sv)
 {
     for (auto mesh : _meshes)
-        if (( _stateGL->blend() &&  mesh->mat->hasAlpha()) ||
-            (!_stateGL->blend() && !mesh->mat->hasAlpha()))
+        if (( _stateGL->blend() &&  mesh->mat()->hasAlpha()) ||
+            (!_stateGL->blend() && !mesh->mat()->hasAlpha()))
             mesh->draw(sv, this);
 }
 //-----------------------------------------------------------------------------
@@ -418,7 +455,7 @@ void SLNode::cull2DRec(SLSceneView* sv)
         
     // Add all nodes to the opaque list
     // A node that has alpha meshes still can have opaque meshes  
-    sv->visibleNodes()->push_back(this);
+    sv->visibleNodes2D()->push_back(this);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -669,6 +706,7 @@ void SLNode::updateWM() const
     _wmN.setMatrix(_wm.mat3());
 
     _isWMUpToDate = true;
+    numWMUpdates++;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -720,6 +758,11 @@ SLAABBox& SLNode::updateAABBRec()
     {   _aabb.minWS(SLVec3f( FLT_MAX, FLT_MAX, FLT_MAX));
         _aabb.maxWS(SLVec3f(-FLT_MAX,-FLT_MAX,-FLT_MAX));  
     }
+    
+    if (typeid(*this)==typeid(SLCamera))
+    {
+        ((SLCamera*)this)->buildAABB(_aabb, updateAndGetWM());
+    }
 
     // Build or update AABB of meshes & merge them to the nodes aabb in WS
     for (auto mesh : _meshes)
@@ -730,13 +773,14 @@ SLAABBox& SLNode::updateAABBRec()
     
     // Merge children in WS except for cameras except if cameras have children
     for (auto child : _children)
-    {
+    {   /*
         bool childIsCamera = typeid(*child)==typeid(SLCamera);
         bool cameraHasChildren = false;
         if (childIsCamera)
             cameraHasChildren = child->children().size() > 0;
             
         if (!childIsCamera || cameraHasChildren)
+        */
             _aabb.mergeWS(child->updateAABBRec());
     }
 
@@ -763,10 +807,10 @@ void SLNode::dumpRec()
     if (_meshes.size() > 0)
     {   for (auto mesh : _meshes)
         {   for (SLint i = 0; i < _depth; ++i) cout << "   ";
-            cout << "- Mesh: " << mesh->name();
+                cout << "- Mesh: " << mesh->name();
             cout << ", " << mesh->numI()*3 << " tri";
-            if (mesh->mat)
-            cout << ", Mat: " << mesh->mat->name();
+            if (mesh->mat())
+                cout << ", Mat: " << mesh->mat()->name();
             cout << endl;
         }
     }
@@ -925,9 +969,7 @@ Rotates the node around its local origin relative to the space expressed by 'rel
 */
 void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
 {
-    SLQuat4f norm = rot.normalized();
     SLMat4f rotation = rot.toMat4();
-
 
     if (relativeTo == TS_object)
     {

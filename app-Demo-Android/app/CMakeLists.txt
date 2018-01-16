@@ -62,7 +62,8 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLFileSystem.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLImporter.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLInterface.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLTexFont.cpp 
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLTexFont.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLSkybox.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLTimer.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLImGui.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLOculus.cpp 
@@ -161,6 +162,8 @@ file(GLOB_RECURSE SLEXTERNAL_SOURCES    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/mersenne.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui/imgui.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui/imgui_draw.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa/spa.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa/spa.h
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/Decompose.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/Decompose.h
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/EulerAngles.cpp
@@ -185,6 +188,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/nvwa)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/zlib)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code)
@@ -282,8 +286,10 @@ file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/t
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LiveVideoError.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LogoCPVR_256L.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/features_stones.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/mountain_lake*_C.jpg
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Desert*_C.jpg
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/i*_0000b.png)
+
+file(GLOB_RECURSE VIDEOS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/street3.mp4)
 
 file(GLOB_RECURSE FONTS         ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.ttf)
@@ -306,6 +312,7 @@ set(APK_ASSETS                  ${CMAKE_CURRENT_SOURCE_DIR}/src/main/assets)
 
 file(MAKE_DIRECTORY             ${APK_ASSETS}/fonts
                                 ${APK_ASSETS}/textures
+                                ${APK_ASSETS}/videos
                                 ${APK_ASSETS}/models
                                 ${APK_ASSETS}/shaders
                                 ${APK_ASSETS}/calibrations
@@ -315,6 +322,7 @@ message("${MODELS}: ************************************************************
 
 file(COPY ${FONTS}          DESTINATION ${APK_ASSETS}/fonts)
 file(COPY ${TEXTURES}       DESTINATION ${APK_ASSETS}/textures)
+file(COPY ${VIDEOS}         DESTINATION ${APK_ASSETS}/videos)
 file(COPY ${MODELS}         DESTINATION ${APK_ASSETS}/models)
 file(COPY ${SHADERS}        DESTINATION ${APK_ASSETS}/shaders)
 file(COPY ${CALIBRATIONS}   DESTINATION ${APK_ASSETS}/calibrations)

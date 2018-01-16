@@ -20,8 +20,10 @@
 //! Default path for texture files used when only filename is passed in load.
 SLstring SLGLTexture::defaultPath = "../_data/images/textures/";
 SLstring SLGLTexture::defaultPathFonts = "../_data/images/fonts/";
+
 //! maxAnisotropy=-1 show that GL_EXT_texture_filter_anisotropic is not checked
 SLfloat SLGLTexture::maxAnisotropy = -1.0f;
+
 //! NO. of texture byte allocated on GPU
 SLuint SLGLTexture::numBytesInTextures = 0;
 //-----------------------------------------------------------------------------
@@ -227,7 +229,7 @@ void SLGLTexture::load(const SLVCol4f& colors)
 //-----------------------------------------------------------------------------
 void SLGLTexture::setVideoImage(SLstring videoImageFile)
 {
-     load(videoImageFile);
+    load(videoImageFile);
     _min_filter = GL_LINEAR;
     _mag_filter = GL_LINEAR;
     _needsUpdate = false;
@@ -253,7 +255,15 @@ SLbool SLGLTexture::copyVideoImage(SLint camWidth,
                                    SLbool isContinuous,
                                    SLbool isTopLeft)
 {                         
-    bool needsRebuild = _images[0]->load(camWidth,
+    // Add image for the first time
+    if (_images.size() == 0)
+         _images.push_back(new SLCVImage(camWidth, 
+                                         camHeight, 
+                                         PF_rgb,
+                                         "LiveVideoImageFromMemory"));
+    
+    // load returns true if size or format changes
+    bool needsBuild = _images[0]->load(camWidth,
                                          camHeight,
                                          srcFormat,
                                          PF_rgb,
@@ -265,11 +275,14 @@ SLbool SLGLTexture::copyVideoImage(SLint camWidth,
     _wrap_s = GL_CLAMP_TO_EDGE;
     _wrap_t = GL_CLAMP_TO_EDGE;
     
-    if (needsRebuild)
+    if (needsBuild || _texName == 0)
+    {   SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s\n",
+               _texName, _images[0]->name().c_str());
         build();
+    }
     
     _needsUpdate = true;
-    return needsRebuild;
+    return needsBuild;
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -287,8 +300,13 @@ void SLGLTexture::build(SLint texID)
   
     // delete texture name if it already exits
     if (_texName) 
-    {   glDeleteTextures(1, &_texName);
+    {   glBindTexture(_target, _texName);
+        glDeleteTextures(1, &_texName);
+        SL_LOG("SLGLTexture::build: Deleted: %d, %s\n",
+               _texName, _images[0]->name().c_str());
+        glBindTexture(_target, 0);
         _texName = 0;
+        numBytesInTextures -= _bytesOnGPU;
     }
     
     // get max texture size
@@ -469,6 +487,11 @@ void SLGLTexture::build(SLint texID)
         }
     }
 
+    // Check if texture name is valid only for debug purpose
+    //if (glIsTexture(_texName))
+    //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
+    //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
+
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
@@ -483,11 +506,19 @@ void SLGLTexture::bindActive(SLint texID)
     assert(texID>=0 && texID<32);
    
     // if texture not exists build it
-    if (!_texName) build(texID);
+    if (!_texName)
+        build(texID);
    
     if (_texName)
     {   _stateGL->activeTexture(GL_TEXTURE0 + texID);
         _stateGL->bindTexture(_target, _texName);
+
+        // Check if texture name is valid only for debug purpose
+        //if (!glIsTexture(_texName))
+        //{   SL_LOG("\n\n****** SLGLTexture::bindActive: Invalid texName: %u, texID: %u, File: %s\n\n",
+        //           _texName, texID, _images[0]->name().c_str());
+        //}
+
         SLScene* s = SLScene::current;
         
         if (this == s->videoTexture() &&
@@ -590,22 +621,38 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
     ////////////////////////////////////////////
 }
 //-----------------------------------------------------------------------------
-/*!
-getTexelf returns a pixel color with its s & t texture coordinates.
-If the OpenGL filtering is set to GL_LINEAR a bilinear interpolated color out
+//! SLGLTexture::getTexelf returns a pixel color from s & t texture coordinates.
+/*! If the OpenGL filtering is set to GL_LINEAR a bilinear interpolated color out
 of four neighboring pixels is return. Otherwise the nearest pixel is returned.
 */
-SLCol4f SLGLTexture::getTexelf(SLfloat s, SLfloat t)
-{     
+SLCol4f SLGLTexture::getTexelf(SLfloat s, SLfloat t, SLuint imgIndex)
+{
+    assert(imgIndex < _images.size() && "Image index to big!");
+    
     // transform tex coords with the texture matrix
     s = s * _tm.m(0) + _tm.m(12);
     t = t * _tm.m(5) + _tm.m(13); 
 
     // Bilinear interpolation
     if (_min_filter==GL_LINEAR || _mag_filter==GL_LINEAR)
-         return _images[0]->getPixelf(s, t);
-    else return _images[0]->getPixeli((SLint)(s*_images[0]->width()),
-                                      (SLint)(t*_images[0]->height()));
+         return _images[imgIndex]->getPixelf(s, t);
+    else return _images[imgIndex]->getPixeli((SLint)(s*_images[imgIndex]->width()),
+                                             (SLint)(t*_images[imgIndex]->height()));
+}
+//-----------------------------------------------------------------------------
+//! SLGLTexture::getTexelf returns a pixel color at the specified cubemap direction
+SLCol4f SLGLTexture::getTexelf(SLVec3f cubemapDir)
+{
+    assert(_images.size() == 6 &&
+           _target == GL_TEXTURE_CUBE_MAP &&
+           "SLGLTexture::getTexelf: Not a cubemap!");
+    
+    SLint index;
+    SLfloat u, v;
+    
+    cubeXYZ2UV(cubemapDir.x, cubemapDir.y, cubemapDir.z, index, u, v);
+    
+    return getTexelf(u, v, index);
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -837,3 +884,128 @@ void SLGLTexture::smooth3DGradients(SLint smoothRadius)
     }
 }
 //-----------------------------------------------------------------------------
+//! Computes the unnormalised vector x,y,z from tex. coords. uv with cubemap index.
+/*! A cube texture indexes six texture maps from 0 to 5 in order Positive X,
+Negative X, Positive Y, Negative Y, Positive Z, Negative Z. The images are
+stored with the origin at the lower left of the image. The Positive X and Y
+faces must reverse the Z coordinate and the Negative Z face must negate the X
+coordinate. If given the face, and texture coordinates (u,v), the unnormalized
+vector (x,y,z) are computed. Source:\n
+https://en.wikipedia.org/wiki/Cube_mapping
+*/
+void SLGLTexture::cubeUV2XYZ(SLint index, SLfloat u, SLfloat v,
+                             SLfloat& x, SLfloat& y, SLfloat& z)
+{
+    assert(_images.size() == 6 &&
+           _target == GL_TEXTURE_CUBE_MAP &&
+           "SLGLTexture::cubeUV2XYZ: Not a cubemap!");
+    
+    // convert range 0 to 1 to -1 to 1
+    SLfloat uc = 2.0f * u - 1.0f;
+    SLfloat vc = 2.0f * v - 1.0f;
+    switch (index)
+    {
+        case 0: x =  1.0f; y =    vc; z =   -uc; break;    // POSITIVE X
+        case 1: x = -1.0f; y =    vc; z =    uc; break;    // NEGATIVE X
+        case 2: x =    uc; y =  1.0f; z =   -vc; break;    // POSITIVE Y
+        case 3: x =    uc; y = -1.0f; z =    vc; break;    // NEGATIVE Y
+        case 4: x =    uc; y =    vc; z =  1.0f; break;    // POSITIVE Z
+        case 5: x =   -uc; y =    vc; z = -1.0f; break;    // NEGATIVE Z
+    }
+}
+//------------------------------------------------------------------------------
+//! Computes the uv and cubemap image index from a unnormalized vector x,y,z.
+/*! See also SLGLTexture::cubeUV2XYZ. Source:\n
+https://en.wikipedia.org/wiki/Cube_mapping
+*/
+void SLGLTexture::cubeXYZ2UV(SLfloat x, SLfloat y, SLfloat z,
+                             SLint& index, SLfloat& u, SLfloat& v)
+{
+    assert(_images.size() == 6 &&
+           _target == GL_TEXTURE_CUBE_MAP &&
+           "SLGLTexture::cubeXYZ2UV: Not a cubemap!");
+    
+    SLfloat absX = fabs(x);
+    SLfloat absY = fabs(y);
+    SLfloat absZ = fabs(z);
+    
+    SLint isXPositive = x > 0 ? 1 : 0;
+    SLint isYPositive = y > 0 ? 1 : 0;
+    SLint isZPositive = z > 0 ? 1 : 0;
+    
+    SLfloat maxAxis, uc, vc;
+    
+    // POSITIVE X
+    if (isXPositive && absX >= absY && absX >= absZ)
+    {
+        // u (0 to 1) goes from +z to -z
+        // v (0 to 1) goes from -y to +y
+        maxAxis = absX;
+        uc = -z;
+        vc = y;
+        index = 0;
+    }
+    
+    // NEGATIVE X
+    if (!isXPositive && absX >= absY && absX >= absZ)
+    {
+        // u (0 to 1) goes from -z to +z
+        // v (0 to 1) goes from -y to +y
+        maxAxis = absX;
+        uc = z;
+        vc = y;
+        index = 1;
+    }
+    
+    // POSITIVE Y
+    if (isYPositive && absY >= absX && absY >= absZ)
+    {
+        // u (0 to 1) goes from -x to +x
+        // v (0 to 1) goes from +z to -z
+        maxAxis = absY;
+        uc = x;
+        vc = -z;
+        index = 2;
+    }
+    
+    // NEGATIVE Y
+    if (!isYPositive && absY >= absX && absY >= absZ)
+    {
+        // u (0 to 1) goes from -x to +x
+        // v (0 to 1) goes from -z to +z
+        maxAxis = absY;
+        uc = x;
+        vc = z;
+        index = 3;
+    }
+    
+    // POSITIVE Z
+    if (isZPositive && absZ >= absX && absZ >= absY)
+    {
+        // u (0 to 1) goes from -x to +x
+        // v (0 to 1) goes from -y to +y
+        maxAxis = absZ;
+        uc = x;
+        vc = y;
+        index = 4;
+    }
+    
+    // NEGATIVE Z
+    if (!isZPositive && absZ >= absX && absZ >= absY)
+    {
+        // u (0 to 1) goes from +x to -x
+        // v (0 to 1) goes from -y to +y
+        maxAxis = absZ;
+        uc = -x;
+        vc = y;
+        index = 5;
+    }
+    
+    // Convert range from -1 to 1 to 0 to 1
+    u =  0.5f * (uc / maxAxis + 1.0f);
+    v = -0.5f * (vc / maxAxis + 1.0f);
+}
+//------------------------------------------------------------------------------
+
+
+

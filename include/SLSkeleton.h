@@ -77,13 +77,13 @@ public:
             SLJoint*    getJoint        (const SLstring& name);
             SLint       numJoints       () const {return (SLint)_joints.size();}
     const   SLVJoint&   joints          () const {return _joints;}
-            SLJoint*    root            () {return _root;}
+            SLJoint*    rootJoint       () {return _rootJoint;}
             SLbool      changed         () const {return _changed;}
     const   SLVec3f&    minOS           ();
     const   SLVec3f&    maxOS           ();
 
             // Setters
-            void        root            (SLJoint* joint);
+            void        rootJoint       (SLJoint* joint) {_rootJoint = joint;}
             void        changed         (SLbool changed) {_changed = changed; _minMaxOutOfDate = true;}
 
             SLbool      updateAnimations(SLfloat elapsedTimeSec);
@@ -91,10 +91,10 @@ public:
 protected:
     void                updateMinMax();
 
-    SLJoint*            _root;              //!< root joint
-    SLVJoint            _joints;            //!< joint list for fast access and index to joint mapping
-    SLMAnimation        _animations;        //!< animations for this skeleton
-    SLMAnimPlayback     _animPlaybacks;     //!< animation playbacks for this skeleton
+    SLJoint*            _rootJoint;         //!< pointer to the root joint of skeleton
+    SLVJoint            _joints;            //!< joint vector for fast access and index to joint mapping
+    SLMAnimation        _animations;        //!< map of animations for this skeleton
+    SLMAnimPlayback     _animPlaybacks;     //!< map of animation playbacks for this skeleton
     SLbool              _changed;           //!< did this skeleton change this frame (attribute for skeleton instance)
     SLVec3f             _minOS;             //!< min point in os for this skeleton (attribute for skeleton instance)
     SLVec3f             _maxOS;             //!< max point in os for this skeleton (attribute for skeleton instance)

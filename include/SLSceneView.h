@@ -15,6 +15,7 @@
 
 #include <SLScene.h>
 #include <SLNode.h>
+#include <SLSkybox.h>
 #include <SLEventHandler.h>
 #include <SLRaytracer.h>
 #include <SLPathtracer.h>
@@ -41,9 +42,6 @@ typedef SLbool (SL_STDCALL *cbOnWndUpdate)(void);
 
 //! Callback function typedef for select node 
 typedef void (SL_STDCALL *cbOnSelectNodeMesh)(SLNode*, SLMesh*);
-
-//! Callback function typedef for showing and hiding the system cursor
-typedef void(SL_STDCALL *cbOnShowSysCursor)(bool);
 
 //! Callback function typedef for ImGui build function
 typedef void(SL_STDCALL *cbOnBuildImGui)(SLScene* s, SLSceneView* sv);
@@ -75,7 +73,6 @@ class SLSceneView: public SLObject
                                              SLint screenHeight,
                                              void* onWndUpdateCallback,
                                              void* onSelectNodeMeshCallback,
-                                             void* onToggleSystemCursorCallback,
                                              void* onBuildImGui);
 
 		      // virtual hooks for subclasses of SLSceneView
@@ -136,10 +133,10 @@ class SLSceneView: public SLObject
             // Callback routines
             cbOnWndUpdate       onWndUpdate;        //!< Callback for intermediate window repaint
             cbOnSelectNodeMesh  onSelectedNodeMesh; //!< Callback on node selection
-            cbOnShowSysCursor   onShowSysCursor;    //!< Callback for hiding and showing system cursor
    
             // Setters
             void            camera              (SLCamera* camera) {_camera = camera;}
+            void            skybox              (SLSkybox* skybox) {_skybox = skybox;}
             void            scrW                (SLint  scrW){_scrW = scrW;}
             void            scrH                (SLint  scrH){_scrH = scrH;}
             void            waitEvents          (SLbool wait){_waitEvents = wait;}
@@ -149,6 +146,7 @@ class SLSceneView: public SLObject
     inline  SLuint          index               () const {return _index;}
     inline  SLCamera*       camera              () {return _camera;}
     inline  SLCamera*       sceneViewCamera     () {return &_sceneViewCamera;}
+    inline  SLSkybox*       skybox              () {return _skybox;}
     inline  SLint           scrW                () const {return _scrW;}
     inline  SLint           scrH                () const {return _scrH;}
     inline  SLint           scrWdiv2            () const {return _scrWdiv2;}
@@ -162,6 +160,7 @@ class SLSceneView: public SLObject
     inline  SLbool          doDepthTest         () const {return _doDepthTest;}
     inline  SLbool          waitEvents          () const {return _waitEvents;}
     inline  SLVNode*        visibleNodes        () {return &_visibleNodes;}
+    inline  SLVNode*        visibleNodes2D      () {return &_visibleNodes2D;}
     inline  SLVNode*        blendNodes          () {return &_blendNodes;}
     inline  SLRaytracer*    raytracer           () {return &_raytracer;}
     inline  SLPathtracer*   pathtracer          () {return &_pathtracer;}
@@ -183,6 +182,7 @@ class SLSceneView: public SLObject
             SLCamera*       _camera;            //!< Pointer to the _active camera
             SLCamera        _sceneViewCamera;   //!< Default camera for this SceneView (default cam not in scenegraph)         
             SLGLImGui       _gui;               //!< ImGui instance
+            SLSkybox*       _skybox;            //!< pointer to skybox 
 
             SLNodeStats     _stats2D;           //!< Statistic numbers for 2D nodes
             SLNodeStats     _stats3D;           //!< Statistic numbers for 3D nodes
@@ -209,8 +209,7 @@ class SLSceneView: public SLObject
             SLVec2i         _touch[3];          //!< up to 3 finger touch coordinates
             SLGLVertexArrayExt _vaoTouch;       //!< Buffer for touch pos. rendering
             SLGLVertexArrayExt _vaoCursor;      //!< Virtual cursor for stereo rendering
-            
-            SLVec2i         _posCursor;         //!< Cursor position as reported by the os
+
             SLint           _scrW;              //!< Screen width in pixels
             SLint           _scrH;              //!< Screen height in pixels
             SLint           _scrWdiv2;          //!< Screen half width in pixels
@@ -218,10 +217,10 @@ class SLSceneView: public SLObject
             SLfloat         _scrWdivH;          //!< Screen side aspect ratio
 
             SLGLOculusFB    _oculusFB;          //!< Oculus framebuffer
-			SLbool			_vrMode;			//!< Flag if we're in VR mode (forces camera to stereoD)
 
             SLVNode         _blendNodes;        //!< Vector of visible and blended nodes
             SLVNode         _visibleNodes;      //!< Vector of all visible nodes
+            SLVNode         _visibleNodes2D;    //!< Vector of all visible 2D nodes drawn in ortho projection
             
             SLRaytracer     _raytracer;         //!< Whitted style raytracer
             SLbool          _stopRT;            //!< Flag to stop the RT

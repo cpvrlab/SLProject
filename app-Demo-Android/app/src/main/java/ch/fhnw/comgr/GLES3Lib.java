@@ -40,6 +40,7 @@ public class GLES3Lib {
     public static final int VIDEO_TYPE_NONE = 0;
     public static final int VIDEO_TYPE_MAIN = 1;    // Maps to Androids back facing camera
     public static final int VIDEO_TYPE_SCND = 2;    // Maps to Androids front facing camera
+    public static final int VIDEO_TYPE_FILE = 3;    // Maps to Androids front facing camera
 
     public static native void    onInit             (int width, int height, int dotsPerInch, String FilePath);
     public static native boolean onUpdateAndPaint   ();
@@ -52,7 +53,6 @@ public class GLES3Lib {
     public static native boolean onTouch2Up         (int x1, int y1, int x2, int y2);
     public static native boolean onTouch2Move       (int x1, int y1, int x2, int y2);
     public static native boolean onDoubleClick      (int button, int x, int y);
-    public static native void    onRotationPYR      (float pitchRAD, float yawRAD, float rollRAD);
     public static native void    onRotationQUAT     (float quatX, float quatY, float quatZ, float quatW);
     public static native void    onClose            ();
     public static native boolean shouldClose        ();
@@ -62,6 +62,7 @@ public class GLES3Lib {
     public static native void    onLocationLLA      (double latitudeDEG, double longitudeDEG, double altitudeM, float accuracyM);
     public static native int     getVideoType       ();
     public static native int     getVideoSizeIndex  ();
+    public static native void    grabVideoFileFrame ();
     public static native void    copyVideoImage     (int imgWidth, int imgHeight, byte[] imgBuffer);
     public static native void    copyVideoYUVPlanes (int srcW, int srcH,
                                                      byte[] y, int ySize, int yPixStride, int yLineStride,
@@ -95,6 +96,7 @@ public class GLES3Lib {
         FilesPath = App.getApplicationContext().getFilesDir().getAbsolutePath();
         Log.i("SLProject", "Destination: " + FilesPath);
         extractAPKFolder(FilesPath, "textures");
+        extractAPKFolder(FilesPath, "videos");
         extractAPKFolder(FilesPath, "fonts");
         extractAPKFolder(FilesPath, "models");
         extractAPKFolder(FilesPath, "shaders");

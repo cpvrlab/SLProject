@@ -162,7 +162,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
     }
 
     //Set one default material index
-    mat = material;
+    mat(material);
 
     /////////////////
     //   Normals   //

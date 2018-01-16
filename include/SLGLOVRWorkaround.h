@@ -1153,10 +1153,14 @@ void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
         distortion.LensCenter.x *= -1;
     }
 
-    createSLDistortionMesh((DistortionMeshVertexData**)&vertexData, (uint16_t**)&indexData, 
-                           &vertexCount, &triangleCount,
+    createSLDistortionMesh((DistortionMeshVertexData**)&vertexData,
+                           (uint16_t**)&indexData,
+                           &vertexCount,
+                           &triangleCount,
                            rightEye,
-                           hmdri, distortion, eyeToSourceNDC);
+                           hmdri,
+                           distortion,
+                           eyeToSourceNDC);
 
     SLuint indexCount = triangleCount * 3;
 

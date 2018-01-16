@@ -54,6 +54,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
                    SLstring shaderPath,
                    SLstring modelPath,
                    SLstring texturePath,
+                   SLstring videoPath,
                    SLstring fontPath,
                    SLstring calibrationPath,
                    SLstring configPath)
@@ -65,6 +66,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
     SLGLTexture::defaultPath      = texturePath;
     SLGLTexture::defaultPathFonts = fontPath;
     SLAssimpImporter::defaultPath = modelPath;
+    SLCVCapture::videoDefaultPath = videoPath;
     SLCVCalibration::calibIniPath = calibrationPath;
     SL::configPath                = configPath;
 
@@ -75,6 +77,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
     SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
     SL_LOG("Path to Textures: %s\n", texturePath.c_str());
+    SL_LOG("Path to Textures: %s\n", videoPath.c_str());
     SL_LOG("Path to Fonts   : %s\n", fontPath.c_str());
     SL_LOG("Path to Calibr. : %s\n", calibrationPath.c_str());
     SL_LOG("Path to Config. : %s\n", configPath.c_str());
@@ -112,7 +115,6 @@ int slCreateSceneView(int screenWidth,
                       void* onWndUpdateCallback,
                       void* onSelectNodeMeshCallback,
                       void* onNewSceneViewCallback,
-                      void* onShowSystemCursorCallback,
                       void* onBuildImGui)
 {
     assert(SLScene::current && "No SLScene::current!");
@@ -132,7 +134,6 @@ int slCreateSceneView(int screenWidth,
              screenHeight, 
              onWndUpdateCallback,
              onSelectNodeMeshCallback,
-             onShowSystemCursorCallback,
              onBuildImGui);
 
     // Load configuration no matter if ImGui is used
@@ -395,15 +396,6 @@ bool slUsesRotation()
     return false;
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for device rotation change with Euler angles pitch
-yaw and roll.
-*/
-void slRotationPYR(float pitchRAD, float yawRAD, float rollRAD)
-{
-    if (SLScene::current)
-        SLScene::current->devRot().onRotationPYR(pitchRAD, yawRAD, rollRAD);
-}
-//-----------------------------------------------------------------------------
 /*! Global event handler for device rotation change with angle & and axis.
 */
 void slRotationQUAT(float quatX, float quatY, float quatZ, float quatW)
@@ -468,6 +460,15 @@ An index of +n return the n-th bigger one. \n
 int slGetVideoSizeIndex()
 {
     return SLCVCapture::requestedSizeIndex;
+}
+//-----------------------------------------------------------------------------
+/*! Global function to grab the next frame with the OpenCV capture device. This
+should be used by Android and iOS apps for grabbing the next video frame from
+a video file.
+*/
+void slGrabVideoFileFrame()
+{
+    SLCVCapture::grabAndAdjustForSL();
 }
 //-----------------------------------------------------------------------------
 /*! Global function to copy a new video image to the SLScene::_videoTexture.

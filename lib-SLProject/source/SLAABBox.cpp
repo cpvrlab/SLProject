@@ -43,7 +43,7 @@ void SLAABBox::reset()
     _axisYWS = SLVec3f::ZERO;
     _axisZWS = SLVec3f::ZERO;
 
-    _hasTransp = false;
+    _hasAlpha = false;
     _isVisible = true;
 }
 //-----------------------------------------------------------------------------

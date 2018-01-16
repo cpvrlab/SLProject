@@ -19,8 +19,10 @@
 //-----------------------------------------------------------------------------
 /*! Constructor
 */
-SLSkeleton::SLSkeleton()
-: _minOS(-1, -1, -1), _maxOS(1, 1, 1), _minMaxOutOfDate(true)
+SLSkeleton::SLSkeleton() : _minOS(-1, -1, -1),
+                           _maxOS(1, 1, 1),
+                           _minMaxOutOfDate(true),
+                           _rootJoint(nullptr)
 {
     SLScene::current->animManager().addSkeleton(this);
 }
@@ -30,7 +32,7 @@ SLSkeleton::SLSkeleton()
 */
 SLSkeleton::~SLSkeleton()
 {
-    delete _root;
+    delete _rootJoint;
     for (auto it : _animations) delete it.second;
     for (auto it : _animPlaybacks) delete it.second;
 }
@@ -89,8 +91,8 @@ SLJoint* SLSkeleton::getJoint(SLuint id)
 */
 SLJoint* SLSkeleton::getJoint(const SLstring& name)
 {
-    if (!_root) return nullptr;
-    SLJoint* result = _root->find<SLJoint>(name);
+    if (!_rootJoint) return nullptr;
+    SLJoint* result = _rootJoint->find<SLJoint>(name);
     return result;
 }
 
@@ -103,15 +105,6 @@ void SLSkeleton::getJointMatrices(SLVMat4f& jointWM)
     {
         jointWM[i] = _joints[i]->updateAndGetWM() * _joints[i]->offsetMat();
     }
-}
-
-//-----------------------------------------------------------------------------
-/*! Setter for the root joint of this skeleton.
-*/
-void SLSkeleton::root(SLJoint* joint)
-{
-    if (_root)
-        _root = joint;
 }
 
 //-----------------------------------------------------------------------------

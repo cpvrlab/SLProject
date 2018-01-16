@@ -108,6 +108,7 @@ class SLScene: public SLObject
             // Video stuff
             SLVideoType         videoType       () {return _videoType;}
             SLGLTexture*        videoTexture    () {return &_videoTexture;}
+            SLGLTexture*        videoTextureErr () {return &_videoTextureErr;}
             SLCVCalibration*    activeCalib     () {return _activeCalib;}
             SLCVCalibration*    calibMainCam    () {return &_calibMainCam;}
             SLCVCalibration*    calibScndCam    () {return &_calibScndCam;}
@@ -197,6 +198,7 @@ class SLScene: public SLObject
             // Video stuff
             SLVideoType         _videoType;         //!< Flag for using the live video image
             SLGLTexture         _videoTexture;      //!< Texture for live video image
+            SLGLTexture         _videoTextureErr;   //!< Texture for live video error
             SLCVCalibration*    _activeCalib;       //!< Pointer to the active calibration
             SLCVCalibration     _calibMainCam;      //!< OpenCV calibration for main video camera
             SLCVCalibration     _calibScndCam;      //!< OpenCV calibration for secondary video camera

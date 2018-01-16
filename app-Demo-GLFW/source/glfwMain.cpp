@@ -381,17 +381,6 @@ void onGLFWError(int error, const char* description)
 }
 //-----------------------------------------------------------------------------
 /*!
-Toggle system cursor callback
-*/
-void onShowCursor(bool val)
-{
-    if (!val)
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-    else
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-}
-//-----------------------------------------------------------------------------
-/*!
 The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char *argv[])
@@ -489,6 +478,7 @@ int main(int argc, char *argv[])
                   exeDir + "../_data/shaders/",
                   exeDir + "../_data/models/",
                   exeDir + "../_data/images/textures/",
+                  exeDir + "../_data/videos/",
                   exeDir + "../_data/images/fonts/",
                   exeDir + "../_data/calibrations/",
                   configDir);
@@ -500,7 +490,6 @@ int main(int argc, char *argv[])
                                 (void*)&onPaint, 
                                 0,
                                 0,
-                                (void*)&onShowCursor,
                                 (void*)SLDemoGui::buildDemoGui);
 
     // Set GLFW callback functions

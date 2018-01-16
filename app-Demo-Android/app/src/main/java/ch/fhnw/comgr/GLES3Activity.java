@@ -123,14 +123,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     @Override
     protected void onPause() {
         Log.i(TAG, "GLES3Activity.onPause");
-
-        // The ActivityCompat.requestPermissions calls also onPause
-        if (!_permissionRequestIsOpen) {
-            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onClose();}});
-            cameraStop();
-            finishAndRemoveTask();
-        }
-
         super.onPause();
     }
 
@@ -208,7 +200,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
 
             // Send the quaternion as x,y,z & w to SLScene::onRotationQUAT
             // See the following routines how the rotation is used:
-            // SLScene::onRotationPYR just sets the private members for the euler angles
             // SLScene::onRotationQUAT calculates the offset if _zeroYawAtStart is true
             // SLCamera::setView how the device rotation is processed for the camera's view
             myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQUAT(Q[1],Q[2],Q[3],Q[0]);}});

@@ -46,6 +46,9 @@
     <Filter Include="CV\OrbSlam">
       <UniqueIdentifier>{b72b86e1-1096-47ad-9092-880625583243}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Nodes\Meshes\Revolver">
+      <UniqueIdentifier>{613281b3-f68d-4d4a-90c3-95998dc6ad69}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\SLAABBox.h">
@@ -57,13 +60,7 @@
     <ClInclude Include="..\include\SLBox.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLCone.h">
-      <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLMesh.h">
-      <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLCylinder.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLPolygon.h">
@@ -92,9 +89,6 @@
     </ClInclude>
     <ClInclude Include="..\include\SLSceneView.h">
       <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLRevolver.h">
-      <Filter>Nodes\Meshes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLRectangle.h">
       <Filter>Nodes\Meshes</Filter>
@@ -231,9 +225,6 @@
     <ClInclude Include="..\include\SLAnimTrack.h">
       <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLLens.h">
-      <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLInputDevice.h">
       <Filter>Input</Filter>
     </ClInclude>
@@ -247,9 +238,6 @@
       <Filter>Raytracer</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLTriangle.h">
-      <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLDisk.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLCompactGrid.h">
@@ -286,12 +274,6 @@
       <Filter>Nodes\Lights</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLPolyline.h">
-      <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLSpheric.h">
-      <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLSphere.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLLightSpot.h">
@@ -366,26 +348,50 @@
     <ClInclude Include="..\include\SLCVTrackedRaulMur.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLSkybox.h">
+      <Filter>Nodes</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\SLCVFrame.h">
       <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCone.h">
+      <Filter>Nodes\Meshes\Revolver</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ORBextractor.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLCylinder.h">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\OrbSlam\Converter.h">
       <Filter>CV\OrbSlam</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLDisk.h">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\OrbSlam\ORBmatcher.h">
       <Filter>CV\OrbSlam</Filter>
+    </ClInclude>      
+    <ClInclude Include="..\include\SLLens.h">
+      <Filter>Nodes\Meshes\Revolver</Filter>
     </ClInclude>
     <ClInclude Include="..\include\OrbSlam\PnPsolver.h">
       <Filter>CV\OrbSlam</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLRevolver.h">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\OrbSlam\Optimizer.h">
       <Filter>CV\OrbSlam</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLSphere.h">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\SLCVCamera.h">
       <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLSpheric.h">
+      <Filter>Nodes\Meshes\Revolver</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -428,19 +434,10 @@
     <ClCompile Include="source\SLBox.cpp">
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLCone.cpp">
-      <Filter>Nodes\Meshes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLCylinder.cpp">
-      <Filter>Nodes\Meshes</Filter>
-    </ClCompile>
     <ClCompile Include="source\SLPolygon.cpp">
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLRectangle.cpp">
-      <Filter>Nodes\Meshes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLRevolver.cpp">
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLMesh.cpp">
@@ -500,9 +497,6 @@
     <ClCompile Include="source\SLAnimTrack.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLLens.cpp">
-      <Filter>Nodes\Meshes</Filter>
-    </ClCompile>
     <ClCompile Include="source\SLInputDevice.cpp">
       <Filter>Input</Filter>
     </ClCompile>
@@ -516,9 +510,6 @@
       <Filter>SL</Filter>
     </ClCompile>
     <ClCompile Include="source\SLTriangle.cpp">
-      <Filter>Nodes\Meshes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLDisk.cpp">
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLCompactGrid.cpp">
@@ -568,9 +559,6 @@
     </ClCompile>
     <ClCompile Include="source\SLLightRect.cpp">
       <Filter>Nodes\Lights</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLSpheric.cpp">
-      <Filter>Nodes\Meshes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLLightSpot.cpp">
       <Filter>Nodes\Lights</Filter>
@@ -635,23 +623,44 @@
     <ClCompile Include="source\CV\SLCVTrackedRaulMur.cpp">
       <Filter>CV</Filter>
     </ClCompile>
+    <ClCompile Include="source\SL\SLSkybox.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
     <ClCompile Include="source\CV\SLCVFrame.cpp">
       <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLCone.cpp">
+      <Filter>Nodes\Meshes\Revolver</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\ORBextractor.cpp">
       <Filter>CV</Filter>
     </ClCompile>
+    <ClCompile Include="source\SLCylinder.cpp">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClCompile>
     <ClCompile Include="source\CV\OrbSlam\Converter.cpp">
       <Filter>CV\OrbSlam</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLDisk.cpp">
+      <Filter>Nodes\Meshes\Revolver</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\OrbSlam\ORBmatcher.cpp">
       <Filter>CV\OrbSlam</Filter>
     </ClCompile>
+    <ClCompile Include="source\SLLens.cpp">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClCompile>
     <ClCompile Include="source\CV\OrbSlam\PnPsolver.cpp">
       <Filter>CV\OrbSlam</Filter>
     </ClCompile>
+    <ClCompile Include="source\SLRevolver.cpp">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClCompile>
     <ClCompile Include="source\CV\OrbSlam\Optimizer.cpp">
       <Filter>CV\OrbSlam</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLSpheric.cpp">
+      <Filter>Nodes\Meshes\Revolver</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\SLCVCamera.cpp">
       <Filter>CV</Filter>

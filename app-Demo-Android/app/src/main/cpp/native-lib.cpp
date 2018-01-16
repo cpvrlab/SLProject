@@ -38,15 +38,15 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTouch2Up(JNIEnv *env, jobje
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTouch2Down(JNIEnv *env, jobject obj, jint x1, jint y1, jint x2, jint y2);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTouch2Move(JNIEnv *env, jobject obj, jint x1, jint y1, jint x2, jint y2);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onDoubleClick(JNIEnv *env, jobject obj, jint button, jint x, jint y);
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationPYR(JNIEnv *env, jobject obj, jfloat pitchRAD, jfloat yawRAD, jfloat rollRAD);
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQUAT(JNIEnv *env, jobject obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv *env, jobject obj);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_shouldClose(JNIEnv *env, jobject obj);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesRotation(JNIEnv *env, jobject obj);
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQUAT(JNIEnv *env, jobject obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesLocation(JNIEnv *env, jobject obj);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onLocationLLA(JNIEnv *env, jobject obj, jdouble latitudeDEG, jdouble longitudeDEG, jdouble altitudeM, jfloat accuracyM);
 JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoType(JNIEnv *env, jobject obj);
 JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoSizeIndex(JNIEnv *env, jobject obj);
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_grabVideoFileFrame(JNIEnv *env, jobject obj);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, jobject obj, jint imgWidth, jint imgHeight, jbyteArray srcBuffer);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes(JNIEnv *env, jobject obj, jint  srcW, jint srcH,
                                                                       jbyteArray yBuf, jint ySize, jint yPixStride, jint yLineStride,
@@ -89,6 +89,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject o
                   devicePath + "/shaders/",
                   devicePath + "/models/",
                   devicePath + "/textures/",
+                  devicePath + "/videos/",
                   devicePath + "/fonts/",
                   devicePath + "/calibrations/",
                   devicePath + "/config/"
@@ -99,7 +100,6 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject o
                                 (int) dpi,
                                 C_sceneRevolver,
                                 (void *) &Java_renderRaytracingCallback,
-                                0,
                                 0,
                                 0,
                                 (void*)SLDemoGui::buildDemoGui);
@@ -158,11 +158,6 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onDoubleClick(JNIEnv *env, jo
     slDoubleClick(svIndex, MB_left, x, y, K_none);
 }
 //-----------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationPYR(JNIEnv *env, jobject obj, jfloat pitchRAD, jfloat yawRAD, jfloat rollRAD)
-{
-    slRotationPYR(pitchRAD, yawRAD, rollRAD);
-}
-//-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQUAT(JNIEnv *env, jobject obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW)
 {
     slRotationQUAT(quatX, quatY, quatZ, quatW);
@@ -198,6 +193,11 @@ JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoType(JNIEnv *env, job
 JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoSizeIndex(JNIEnv *env, jobject obj)
 {
     return slGetVideoSizeIndex();
+}
+//-----------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_grabVideoFileFrame(JNIEnv *env, jobject obj)
+{
+    return slGrabVideoFileFrame();
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, jobject obj, jint imgWidth, jint imgHeight, jbyteArray imgBuffer)

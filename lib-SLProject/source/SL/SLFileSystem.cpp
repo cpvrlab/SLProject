@@ -92,7 +92,11 @@ SLstring SLFileSystem::getCurrentWorkingDir()
         SLint size = 256;
         char* buffer = (char *) malloc (size);
         if (_getcwd(buffer, size) == buffer)
-            return SLstring(buffer) + "/";
+        {
+            SLstring dir = buffer;
+            SLUtils::replaceString(dir, "\\", "/");
+            return dir + "/";
+        }
 
         free (buffer);
         return "";

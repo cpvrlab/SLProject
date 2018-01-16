@@ -13,6 +13,7 @@
 #endif
 
 #include <SLRay.h>
+#include <SLSceneView.h>
 
 // init static variables
 SLint   SLRay::maxDepth = 0;
@@ -43,7 +44,7 @@ SLfloat rnd01(){return random01();}
 /*! 
 SLRay::SLRay default constructor
 */
-SLRay::SLRay()
+SLRay::SLRay(SLSceneView* sceneView)
 {  
     origin          = SLVec3f::ZERO;
     setDir(SLVec3f::ZERO);
@@ -64,12 +65,18 @@ SLRay::SLRay()
     contrib         = 1.0f;
     isOutside       = true;
     isInsideVolume  = false;
+    sv              = sceneView;
 }
 //-----------------------------------------------------------------------------
 /*! 
 SLRay::SLRay constructor for primary rays
 */
-SLRay::SLRay(SLVec3f Origin, SLVec3f Dir, SLfloat X, SLfloat Y, SLCol4f backColor)
+SLRay::SLRay(SLVec3f Origin, 
+             SLVec3f Dir, 
+             SLfloat X, 
+             SLfloat Y, 
+             SLCol4f backColor,
+             SLSceneView* sceneView)
 {  
     origin          = Origin;
     setDir(Dir);
@@ -91,6 +98,7 @@ SLRay::SLRay(SLVec3f Origin, SLVec3f Dir, SLfloat X, SLfloat Y, SLCol4f backColo
     isOutside       = true;
     isInsideVolume  = false;
     backgroundColor = backColor;
+    sv              = sceneView;
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -118,6 +126,7 @@ SLRay::SLRay(SLfloat distToLight,
     x               = rayFromHitPoint->x;
     y               = rayFromHitPoint->y;
     backgroundColor = rayFromHitPoint->backgroundColor;
+    sv              = rayFromHitPoint->sv;
     contrib         = 0.0f;
     isOutside       = rayFromHitPoint->isOutside;
     shadowRays++;
@@ -137,7 +146,7 @@ void SLRay::print() const
 /*!
 SLRay::reflect calculates a secondary ray reflected at the normal, starting at 
 the intersection point. All vectors must be normalized vectors.
-R = 2(-I�N) N + I
+R = 2(-I*N) N + I
 */
 void SLRay::reflect(SLRay* reflected)
 {
@@ -152,7 +161,7 @@ void SLRay::reflect(SLRay* reflected)
     reflected->origin.set(hitPoint);
     reflected->depth = depth + 1;
     reflected->length = FLT_MAX;
-    reflected->contrib = contrib * hitMesh->mat->kr();
+    reflected->contrib = contrib * hitMesh->mat()->kr();
     reflected->srcNode = hitNode;
     reflected->srcMesh = hitMesh;
     reflected->srcTriangle = hitTriangle;
@@ -160,7 +169,11 @@ void SLRay::reflect(SLRay* reflected)
     reflected->isOutside = isOutside;
     reflected->x = x;
     reflected->y = y;
-    reflected->backgroundColor = backgroundColor;
+    reflected->sv = sv;
+    if (sv->skybox())
+         reflected->backgroundColor = sv->skybox()->colorAtDir(reflected->dir);
+    else reflected->backgroundColor = backgroundColor;
+    
     depthReached = reflected->depth;
     ++reflectedRays;
 }
@@ -184,9 +197,9 @@ void SLRay::refract(SLRay* refracted)
     SLfloat c1 = hitNormal.dot(-dir);
     SLbool  hitFrontSide = c1 > 0.0f;
 
-    SLMaterial* srcMat = srcMesh ? srcMesh->mat : nullptr;
-    SLMaterial* hitMat = hitMesh ? hitMesh->mat : nullptr;
-    SLMaterial* hitMatOut = hitMesh ? hitMesh->matOut : nullptr;
+    SLMaterial* srcMat = srcMesh ? srcMesh->mat() : nullptr;
+    SLMaterial* hitMat = hitMesh ? hitMesh->mat() : nullptr;
+    SLMaterial* hitMatOut = hitMesh ? hitMesh->matOut() : nullptr;
 
     #ifdef DEBUG_RAY
     for (SLint i=0; i<depth; ++i) cout << " ";
@@ -264,7 +277,6 @@ void SLRay::refract(SLRay* refracted)
         ++tirRays;
     }
 
-
     refracted->setDir(T);
     refracted->origin.set(hitPoint);
     refracted->length = FLT_MAX;
@@ -274,7 +286,10 @@ void SLRay::refract(SLRay* refracted)
     refracted->depth = depth + 1;
     refracted->x = x;
     refracted->y = y;
-    refracted->backgroundColor = backgroundColor;
+    refracted->sv = sv;
+    if (sv->skybox())
+         refracted->backgroundColor = sv->skybox()->colorAtDir(refracted->dir);
+    else refracted->backgroundColor = backgroundColor;
     depthReached = refracted->depth;
 
     #ifdef DEBUG_RAY
@@ -300,7 +315,7 @@ bool SLRay::reflectMC(SLRay* reflected,SLMat3f rotMat)
 {
     SLfloat eta1, eta2;
     SLVec3f randVec;
-    SLfloat shininess = hitMesh->mat->shininess();
+    SLfloat shininess = hitMesh->mat()->shininess();
 
     //scatter within specular lobe
     eta1 = rnd01();
@@ -323,6 +338,14 @@ bool SLRay::reflectMC(SLRay* reflected,SLMat3f rotMat)
    
     //apply rotation
     reflected->setDir(rotMat*randVec);
+    
+    // Set pixel and background
+    reflected->x = x;
+    reflected->y = y;
+    reflected->sv = sv;
+    if (sv->skybox())
+         reflected->backgroundColor = sv->skybox()->colorAtDir(reflected->dir);
+    else reflected->backgroundColor = backgroundColor;
    
     //true if in direction of normal
     return (hitNormal * reflected->dir >= 0.0f);
@@ -342,7 +365,7 @@ void SLRay::refractMC(SLRay* refracted,SLMat3f rotMat)
 {
     SLfloat eta1, eta2;
     SLVec3f randVec;
-    SLfloat translucency = hitMesh->mat->translucency();
+    SLfloat translucency = hitMesh->mat()->translucency();
 
     //scatter within transmissive lobe
     eta1 = rnd01();
@@ -363,7 +386,16 @@ void SLRay::refractMC(SLRay* refracted,SLMat3f rotMat)
         refracted->hitNormal = SLVec3f::ZERO;
     }
    
+    // Apply rotation
     refracted->setDir(rotMat*randVec);
+    
+    // Set pixel and background
+    refracted->x = x;
+    refracted->y = y;
+    refracted->sv = sv;
+    if (sv->skybox())
+         refracted->backgroundColor = sv->skybox()->colorAtDir(refracted->dir);
+    else refracted->backgroundColor = backgroundColor;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -397,10 +429,21 @@ void SLRay::diffuseMC(SLRay* scattered)
     eta1 = rnd01();
     eta2 = SL_2PI*rnd01();
     eta1sqrt = sqrt(1-eta1);
+    
     //transform to cartesian
     randVec.set(eta1sqrt * cos(eta2),
                 eta1sqrt * sin(eta2),
                 sqrt(eta1));
-
+    
+    // Apply rotation
     scattered->setDir(rotMat*randVec);
+    
+    // Set pixel and background
+    scattered->x = x;
+    scattered->y = y;
+    scattered->sv = sv;
+    if (sv->skybox())
+         scattered->backgroundColor = sv->skybox()->colorAtDir(scattered->dir);
+    else scattered->backgroundColor = backgroundColor;
 }
+//-----------------------------------------------------------------------------

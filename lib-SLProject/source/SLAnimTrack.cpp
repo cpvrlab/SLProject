@@ -289,7 +289,7 @@ void SLNodeAnimTrack::buildInterpolationCurve() const
 
         // Build curve data w. cumulated times
         SLVVec4f points; points.resize(numKeyframes());
-        SLfloat  curTime = 0;
+        //SLfloat  curTime = 0;
         for (SLint i=0; i<numKeyframes(); ++i)
         {   SLVec3f t = ((SLTransformKeyframe*)_keyframes[i])->translation();
             points[i].set(t.x, t.y, t.z, _keyframes[i]->time());

@@ -137,7 +137,8 @@ in real time rendering and ray tracing. The framework is developed \
 in C++ with OpenGL ES so that it can run also on mobile devices. \
 Ray tracing provides in addition high quality transparencies, reflections and soft shadows. \
 Click to close and use the menu to choose different scenes and view settings. \
-For more information please visit: https://github.com/cpvrlab/SLProject";
+For more information please visit: https://github.com/cpvrlab/SLProject\n\
+";
 
 SLstring SLDemoGui::infoCredits =
 "Contributors since 2005 in alphabetic order: Martin Christen, Manuel Frischknecht, Michael \
@@ -148,7 +149,10 @@ Credits for external libraries:\n\
 - glew: glew.sourceforge.net\n\
 - glfw: glfw.org\n\
 - OpenCV: opencv.org\n\
-- OpenGL: opengl.org";
+- OpenGL: opengl.org\n\
+- spa: Solar Position Algorithm\n\
+- zlib: zlib.net\n\
+";
 
 SLstring SLDemoGui::infoHelp =
 "Help for mouse or finger control:\n\
@@ -156,7 +160,9 @@ SLstring SLDemoGui::infoHelp =
 - Use mouse-wheel or pinch 2 fingers to go forward/backward\n\
 - Use CTRL-mouse or 2 fingers to move sidewards/up-down\n\
 - Double click or double tap to select object\n\
-- If no menu is visible press ESC";
+- On Desktop see shortcuts behind menu commands\n\
+- Check out the different test scenes under File > Load Test Scene\n\
+";
 
 SLstring SLDemoGui::infoCalibrate =
 "The calibration process requires a chessboard image to be printed \
@@ -167,7 +173,8 @@ chessboard corners. To take an image you have to click with the mouse \
 or tap with finger into the screen. You can mirror the video image under \
 Preferences > Video. \n\
 After calibration the yellow wireframe cube should stick on the chessboard.\n\n\
-Please close first this info dialog.";
+Please close first this info dialog.\n\
+";
 
 //-----------------------------------------------------------------------------
 //! This is the main building function for the GUI of the Demo apps
@@ -193,11 +200,11 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         centerNextWindow(sv);
         ImGui::Begin("About SLProject", &showAbout);
-        ImGui::Image((ImTextureID)cpvrLogo->texName(), ImVec2(100,100), ImVec2(0,1), ImVec2(1,0));
+        ImGui::Image((ImTextureID)(intptr_t)cpvrLogo->texName(), ImVec2(100,100), ImVec2(0,1), ImVec2(1,0));
         ImGui::SameLine();
         ImGui::Text("Version %s", SL::version.c_str());
         ImGui::Separator();
-        ImGui::TextWrapped(infoAbout.c_str());
+        ImGui::TextWrapped("%s", infoAbout.c_str());
         ImGui::End();
     }
 
@@ -207,7 +214,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         ImGui::Begin("Help on Interaction", &showHelp);
         ImGui::Separator();
 
-        ImGui::TextWrapped(infoHelp.c_str());
+        ImGui::TextWrapped("%s", infoHelp.c_str());
         ImGui::End();
     }
 
@@ -215,7 +222,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
     {
         centerNextWindow(sv);
         ImGui::Begin("Help on Camera Calibration", &showHelpCalibration, ImVec2(400,0));
-        ImGui::TextWrapped(infoCalibrate.c_str());
+        ImGui::TextWrapped("%s", infoCalibrate.c_str());
         ImGui::End();
     }
 
@@ -223,14 +230,13 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
     {
         centerNextWindow(sv);
         ImGui::Begin("Credits for all Contributors and external Libraries", &showCredits);
-        ImGui::TextWrapped(infoCredits.c_str());
+        ImGui::TextWrapped("%s", infoCredits.c_str());
         ImGui::End();
     }
 
     if (showStatsTiming)
     {
         SLRenderType rType = sv->renderType();
-        SLCamera* cam = sv->camera();
         SLfloat ft = s->frameTimesMS().average();
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
@@ -261,47 +267,53 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
             SLfloat draw2DTimePC    = SL_clamp(draw2DTime   / ft * 100.0f, 0.0f,100.0f);
             SLfloat cullTimePC      = SL_clamp(cullTime     / ft * 100.0f, 0.0f,100.0f);
 
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
-            ImGui::Text("Renderer      : OpenGL");
-            ImGui::Text("Frame size    : %d x %d", sv->scrW(), sv->scrH());
-            ImGui::Text("NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
-            ImGui::Text("Frames per s. : %4.1f", s->fps());
-            ImGui::Text("Frame time    : %4.1f ms (100%%)", ft);
-            ImGui::Text("  Capture     : %4.1f ms (%3d%%)", captureTime,  (SLint)captureTimePC);
-            ImGui::Text("  Update      : %4.1f ms (%3d%%)", updateTime,   (SLint)updateTimePC);
-            ImGui::Text("    Tracking  : %4.1f ms (%3d%%)", trackingTime, (SLint)trackingTimePC);
-            ImGui::Text("      Detect  : %4.1f ms (%3d%%)", detectTime,   (SLint)detectTimePC);
-            ImGui::Text("      Match   : %4.1f ms (%3d%%)", matchTime,    (SLint)matchTimePC);
-            ImGui::Text("      Opt.Flow: %4.1f ms (%3d%%)", optFlowTime,  (SLint)optFlowTimePC);
-            ImGui::Text("      Pose    : %4.1f ms (%3d%%)", poseTime,     (SLint)poseTimePC);
-            ImGui::Text("  Culling     : %4.1f ms (%3d%%)", cullTime,     (SLint)cullTimePC);
-            ImGui::Text("  Drawing 3D  : %4.1f ms (%3d%%)", draw3DTime,   (SLint)draw3DTimePC);
-            ImGui::Text("  Drawing 2D  : %4.1f ms (%3d%%)", draw2DTime,   (SLint)draw2DTimePC);
-
-            ImGui::End();
-            ImGui::PopFont();
-
+            sprintf(m+strlen(m), "Renderer      : OpenGL\n");
+            sprintf(m+strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
+            sprintf(m+strlen(m), "NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
+            sprintf(m+strlen(m), "Frames per s. : %4.1f\n", s->fps());
+            sprintf(m+strlen(m), "Frame time    : %4.1f ms (100%%)\n", ft);
+            sprintf(m+strlen(m), "  Capture     : %4.1f ms (%3d%%)\n", captureTime,  (SLint)captureTimePC);
+            sprintf(m+strlen(m), "  Update      : %4.1f ms (%3d%%)\n", updateTime,   (SLint)updateTimePC);
+            sprintf(m+strlen(m), "    Tracking  : %4.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
+            sprintf(m+strlen(m), "      Detect  : %4.1f ms (%3d%%)\n", detectTime,   (SLint)detectTimePC);
+            sprintf(m+strlen(m), "      Match   : %4.1f ms (%3d%%)\n", matchTime,    (SLint)matchTimePC);
+            sprintf(m+strlen(m), "      Opt.Flow: %4.1f ms (%3d%%)\n", optFlowTime,  (SLint)optFlowTimePC);
+            sprintf(m+strlen(m), "      Pose    : %4.1f ms (%3d%%)\n", poseTime,     (SLint)poseTimePC);
+            sprintf(m+strlen(m), "  Culling     : %4.1f ms (%3d%%)\n", cullTime,     (SLint)cullTimePC);
+            sprintf(m+strlen(m), "  Drawing 3D  : %4.1f ms (%3d%%)\n", draw3DTime,   (SLint)draw3DTimePC);
+            sprintf(m+strlen(m), "  Drawing 2D  : %4.1f ms (%3d%%)\n", draw2DTime,   (SLint)draw2DTimePC);
         } else
         if (rType == RT_rt)
         {
             SLRaytracer* rt = sv->raytracer();
-            SLint primaries = sv->scrW() * sv->scrH();
-            SLuint total = primaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
-            SLfloat rpms = rt->renderSec() ? total/rt->renderSec()/1000.0f : 0.0f;
+            SLuint rayPrimaries = sv->scrW() * sv->scrH();
+            SLuint rayTotal = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
+            SLfloat rpms = rt->renderSec() ? rayTotal/rt->renderSec()/1000.0f : 0.0f;
+
             sprintf(m+strlen(m), "Renderer      : Ray Tracer\n");
             sprintf(m+strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
-            sprintf(m+strlen(m), "Frames per s. : %4.1f\n", s->fps());
-            sprintf(m+strlen(m), "Frame Time    : %4.2f sec.\n", rt->renderSec());
-            sprintf(m+strlen(m), "Rays per ms   : %6.0f\n", rpms);
+            sprintf(m+strlen(m), "Frames per s. : %0.2f\n", 1.0f/rt->renderSec());
+            sprintf(m+strlen(m), "Frame Time    : %0.2f sec.\n", rt->renderSec());
+            sprintf(m+strlen(m), "Rays per ms   : %0.0f\n", rpms);
             sprintf(m+strlen(m), "Threads       : %d\n", rt->numThreads());
-
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
-            ImGui::TextWrapped(m);
-            ImGui::End();
-            ImGui::PopFont();
+            sprintf(m+strlen(m), "-------------------------------\n");
+            sprintf(m+strlen(m), "Primary rays  : %8d (%3d%%)\n", rayPrimaries,          (int)((float)rayPrimaries/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "Reflected rays: %8d (%3d%%)\n", SLRay::reflectedRays,  (int)((float)SLRay::reflectedRays/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "Refracted rays: %8d (%3d%%)\n", SLRay::refractedRays,  (int)((float)SLRay::refractedRays/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "TIR rays      : %8d\n",         SLRay::tirRays);
+            sprintf(m+strlen(m), "Shadow rays   : %8d (%3d%%)\n", SLRay::shadowRays,     (int)((float)SLRay::shadowRays/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "AA rays       : %8d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "Total rays    : %8d (%3d%%)\n", rayTotal, 100);
+            sprintf(m+strlen(m), "-------------------------------\n");
+            sprintf(m+strlen(m), "Maximum depth : %u\n", SLRay::maxDepthReached);
+            sprintf(m+strlen(m), "Average depth : %0.3f\n", SLRay::avgDepth/rayPrimaries);
         }
+
+        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+        ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
+        ImGui::TextWrapped("%s", m);
+        ImGui::End();
+        ImGui::PopFont();
     }
 
     if (showStatsScene)
@@ -309,7 +321,6 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
 
-        SLNodeStats& stats2D  = sv->stats2D();
         SLNodeStats& stats3D  = sv->stats3D();
         SLfloat vox           = (SLfloat)stats3D.numVoxels;
         SLfloat voxEmpty      = (SLfloat)stats3D.numVoxEmpty;
@@ -353,8 +364,9 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         sprintf(m+strlen(m), "- Opaque Nodes  : %5d (%3d%%)\n", numOpaqueNodes, numOpaquePC);
         sprintf(m+strlen(m), "- Blended Nodes : %5d (%3d%%)\n", numBlendedNodes, numBlendedPC);
         sprintf(m+strlen(m), "- Visible Nodes : %5d (%3d%%)\n", numVisibleNodes, numVisiblePC);
-        sprintf(m+strlen(m), "No. of Meshes   : %u\n", stats3D.numMeshes);
-        sprintf(m+strlen(m), "No. of Triangles: %u\n", stats3D.numTriangles);
+        sprintf(m+strlen(m), "- WM Updates    : %5d\n", SLNode::numWMUpdates);
+        sprintf(m+strlen(m), "No. of Meshes   : %5u\n", stats3D.numMeshes);
+        sprintf(m+strlen(m), "No. of Triangles: %5u\n", stats3D.numTriangles);
         sprintf(m+strlen(m), "CPU MB in Total : %6.2f (100%%)\n", cpuMBTotal);
         sprintf(m+strlen(m), "-   MB in Tex.  : %6.2f (%3d%%)\n", cpuMBTexture, cpuMBTexturePC);
         sprintf(m+strlen(m), "-   MB in Meshes: %6.2f (%3d%%)\n", cpuMBMeshes, cpuMBMeshesPC);
@@ -365,7 +377,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         sprintf(m+strlen(m), "No. of Voxels   : %d\n", stats3D.numVoxels);
         sprintf(m+strlen(m), "- empty Voxels  : %4.1f%%\n", voxelsEmpty);
-        sprintf(m+strlen(m), "Avg. Tria/Voxel : %4.1F\n", avgTriPerVox);
+        sprintf(m+strlen(m), "Avg. Tria/Voxel : %4.1f\n", avgTriPerVox);
         sprintf(m+strlen(m), "Max. Tria/Voxel : %d\n", stats3D.numVoxMaxTria);
 
         // Switch to fixed font
@@ -424,7 +436,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         ImGui::SetNextWindowPos(ImVec2(0,sv->scrH()-h));
         ImGui::SetNextWindowSize(ImVec2(w,h));
         ImGui::Begin("Scene Information", &showInfosScene, window_flags);
-        ImGui::TextWrapped(info.c_str());
+        ImGui::TextWrapped("%s", info.c_str());
         ImGui::End();
     }
 
@@ -451,8 +463,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
     if (showInfosSensors)
     {
-        SLGLState* stateGL = SLGLState::getInstance();
-        SLchar m[2550];   // message character array
+        SLchar m[1024];   // message character array
         m[0]=0;           // set zero length
         SLVec3d offsetToOrigin = s->devLoc().originENU() - s->devLoc().locENU();
         sprintf(m+strlen(m), "Uses Rotation       : %s\n",    s->devRot().isUsed() ? "yes" : "no");
@@ -470,6 +481,8 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         sprintf(m+strlen(m), "Dist. to Origin (m) : %6.1f\n" ,offsetToOrigin.length());
         sprintf(m+strlen(m), "Max. Dist. (m)      : %6.1f\n" ,s->devLoc().locMaxDistanceM());
         sprintf(m+strlen(m), "Origin improve time : %6.1f sec.\n",s->devLoc().improveTime());
+        sprintf(m+strlen(m), "Sun Zenit (deg)     : %6.1f sec.\n",s->devLoc().originSolarZenit());
+        sprintf(m+strlen(m), "Sun Azimut (deg)    : %6.1f sec.\n",s->devLoc().originSolarAzimut());
 
 
         sprintf(m+strlen(m), "Uses Location       : %s\n",    s->usesLocation() ? "yes" : "no");
@@ -506,7 +519,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         // Get scene nodes once
         if (!bern)
-        {   bern        = s->root3D()->findChild<SLNode>("RootNode");
+        {   bern        = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz.fbx");
             boden       = bern->findChild<SLNode>("Boden", false);
             balda_stahl = bern->findChild<SLNode>("Baldachin-Stahl", false);
             balda_glas  = bern->findChild<SLNode>("Baldachin-Glas", false);
@@ -560,7 +573,8 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         }
 
         ImGui::End();
-    } else
+    } 
+    else
     {
         bern        = nullptr;
         boden       = nullptr;
@@ -615,6 +629,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneLargeModel);
                     if (ImGui::MenuItem("Mesh Loader", 0, curS==C_sceneMeshLoad))
                         sv->onCommand(C_sceneMeshLoad);
+                    if (ImGui::MenuItem("Revolver Meshes", 0, curS==C_sceneRevolver))
+                        sv->onCommand(C_sceneRevolver);
                     if (ImGui::MenuItem("Texture Blending", 0, curS==C_sceneTextureBlend))
                         sv->onCommand(C_sceneTextureBlend);
                     if (ImGui::MenuItem("Texture Filters", 0, curS==C_sceneTextureFilter))
@@ -633,12 +649,12 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Shader"))
                 {
-                    if (ImGui::MenuItem("Per Vertex Blinn-Phong Lighting", 0, curS==C_sceneShaderPerVertexBlinn))
+                    if (ImGui::MenuItem("Per Vertex Blinn-Phong", 0, curS==C_sceneShaderPerVertexBlinn))
                         sv->onCommand(C_sceneShaderPerVertexBlinn);
-                    if (ImGui::MenuItem("Per Pixel Blinn-Phing Lighting", 0, curS==C_sceneShaderPerPixelBlinn))
+                    if (ImGui::MenuItem("Per Pixel Blinn-Phing", 0, curS==C_sceneShaderPerPixelBlinn))
                         sv->onCommand(C_sceneShaderPerPixelBlinn);
-                    if (ImGui::MenuItem("Per Pixel Cook-Torrance Lighting", 0, curS==C_sceneShaderPerPixelCookTorrance))
-                        sv->onCommand(C_sceneShaderPerPixelCookTorrance);
+                    if (ImGui::MenuItem("Per Pixel Cook-Torrance", 0, curS==C_sceneShaderCookTorrance))
+                        sv->onCommand(C_sceneShaderCookTorrance);
                     if (ImGui::MenuItem("Per Vertex Wave", 0, curS==C_sceneShaderPerVertexWave))
                         sv->onCommand(C_sceneShaderPerVertexWave);
                     if (ImGui::MenuItem("Water", 0, curS==C_sceneShaderWater))
@@ -647,8 +663,6 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneShaderBumpNormal);
                     if (ImGui::MenuItem("Parallax Mapping", 0, curS==C_sceneShaderBumpParallax))
                         sv->onCommand(C_sceneShaderBumpParallax);
-                    if (ImGui::MenuItem("Glass Shader", 0, curS==C_sceneRevolver))
-                        sv->onCommand(C_sceneRevolver);
                     if (ImGui::MenuItem("Skybox Shader", 0, curS==C_sceneShaderSkyBox))
                         sv->onCommand(C_sceneShaderSkyBox);
                     if (ImGui::MenuItem("Earth Shader", 0, curS==C_sceneShaderEarth))
@@ -659,20 +673,24 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Animation"))
                 {
+                    if (ImGui::MenuItem("Node Animation", 0, curS==C_sceneAnimationNode))
+                        sv->onCommand(C_sceneAnimationNode);
                     if (ImGui::MenuItem("Mass Animation", 0, curS==C_sceneAnimationMass))
                         sv->onCommand(C_sceneAnimationMass);
                     if (ImGui::MenuItem("Astroboy Army", 0, curS==C_sceneAnimationArmy))
                         sv->onCommand(C_sceneAnimationArmy);
                     if (ImGui::MenuItem("Skeletal Animation", 0, curS==C_sceneAnimationSkeletal))
                         sv->onCommand(C_sceneAnimationSkeletal);
-                    if (ImGui::MenuItem("Node Animation", 0, curS==C_sceneAnimationNode))
-                        sv->onCommand(C_sceneAnimationNode);
 
                     ImGui::EndMenu();
                 }
 
                 if (ImGui::BeginMenu("Using Video"))
                 {
+                    if (ImGui::MenuItem("Texture from Video Live", 0, curS==C_sceneVideoTextureLive))
+                        sv->onCommand(C_sceneVideoTextureLive);
+                    if (ImGui::MenuItem("Texture from Video File", 0, curS==C_sceneVideoTextureFile))
+                        sv->onCommand(C_sceneVideoTextureFile);
                     if (ImGui::MenuItem("Track ArUco Marker (Main)", 0, curS==C_sceneVideoTrackArucoMain))
                         sv->onCommand(C_sceneVideoTrackArucoMain);
                     if (ImGui::MenuItem("Track ArUco Marker (Scnd)", 0, curS==C_sceneVideoTrackArucoScnd, SLCVCapture::hasSecondaryCamera))
@@ -683,8 +701,6 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneVideoTrackChessScnd);
                     if (ImGui::MenuItem("Track Features (Main)", 0, curS==C_sceneVideoTrackFeature2DMain))
                         sv->onCommand(C_sceneVideoTrackFeature2DMain);
-                    if (ImGui::MenuItem("Texture from live video", 0, curS==C_sceneVideoTexture))
-                        sv->onCommand(C_sceneVideoTexture);
                     if (ImGui::MenuItem("Sensor AR (Main)", 0, curS==C_sceneVideoSensorAR))
                         sv->onCommand(C_sceneVideoSensorAR);
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", 0, curS==C_sceneVideoChristoffel))
@@ -697,12 +713,12 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Volume Rendering"))
                 {
-                    if (ImGui::MenuItem("Head MRI Ray Cast", 0, curS==C_sceneVolumeRayCastHeadMRI))
-                        sv->onCommand(C_sceneVolumeRayCastHeadMRI);
+                    if (ImGui::MenuItem("Head MRI Ray Cast", 0, curS==C_sceneVolumeRayCast))
+                        sv->onCommand(C_sceneVolumeRayCast);
 
                     #ifndef SL_GLES
-                    if (ImGui::MenuItem("Head MRI Ray Cast Lighted", 0, curS==C_sceneVolumeRayCastLightedMRIHead))
-                        sv->onCommand(C_sceneVolumeRayCastLightedMRIHead);
+                    if (ImGui::MenuItem("Head MRI Ray Cast Lighted", 0, curS==C_sceneVolumeRayCastLighted))
+                        sv->onCommand(C_sceneVolumeRayCastLighted);
                     #endif
 
                     ImGui::EndMenu();
@@ -739,7 +755,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Quit & Save"))
+            if (ImGui::MenuItem("Quit & Save", "ESC"))
                 sv->onCommand(C_quit);
 
             ImGui::EndMenu();
@@ -747,19 +763,19 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Preferences"))
         {
-            if (ImGui::MenuItem("Slow down on Idle", 0, sv->waitEvents()))
-                sv->onCommand(C_waitEventsToggle);
+            if (ImGui::MenuItem("Slow down on Idle", "I", sv->waitEvents()))
+                sv->onCommand(C_waitOnIdleToggle);
 
-            if (ImGui::MenuItem("Do Multi Sampling", 0, sv->doMultiSampling()))
+            if (ImGui::MenuItem("Do Multi Sampling", "M", sv->doMultiSampling()))
                 sv->onCommand(C_multiSampleToggle);
 
-            if (ImGui::MenuItem("Do Frustum Culling", 0, sv->doFrustumCulling()))
+            if (ImGui::MenuItem("Do Frustum Culling", "F", sv->doFrustumCulling()))
                 sv->onCommand(C_frustCullToggle);
 
-            if (ImGui::MenuItem("Do Depth Test", 0, sv->doDepthTest()))
+            if (ImGui::MenuItem("Do Depth Test", "T", sv->doDepthTest()))
                 sv->onCommand(C_depthTestToggle);
 
-            if (ImGui::MenuItem("Animation off", 0, s->stopAnimations()))
+            if (ImGui::MenuItem("Animation off", "O", s->stopAnimations()))
                 s->stopAnimations(!s->stopAnimations());
 
             ImGui::Separator();
@@ -927,13 +943,13 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Renderer"))
         {
-            if (ImGui::MenuItem("OpenGL", 0, rType==RT_gl))
+            if (ImGui::MenuItem("OpenGL (GL)", "G", rType==RT_gl))
                 sv->onCommand(C_renderOpenGL);
 
-            if (ImGui::MenuItem("Ray Tracing", 0, rType==RT_rt))
+            if (ImGui::MenuItem("Ray Tracing (RT)", "R", rType==RT_rt))
                 sv->onCommand(C_rt5);
 
-            if (ImGui::MenuItem("Path Tracing", 0, rType==RT_pt))
+            if (ImGui::MenuItem("Path Tracing (PT)", 0, rType==RT_pt))
                 sv->onCommand(C_pt10);
 
             ImGui::EndMenu();
@@ -941,31 +957,28 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (rType == RT_gl)
         {
-            if (ImGui::BeginMenu("Setting"))
+            if (ImGui::BeginMenu("GL-Setting"))
             {
-                if (ImGui::MenuItem("Wired Mesh", 0, sv->drawBits()->get(SL_DB_WIREMESH)))
+                if (ImGui::MenuItem("Wired Mesh", "P", sv->drawBits()->get(SL_DB_WIREMESH)))
                     sv->onCommand(C_wireMeshToggle);
 
-                if (ImGui::MenuItem("Normals", 0, sv->drawBits()->get(SL_DB_NORMALS)))
+                if (ImGui::MenuItem("Normals", "N", sv->drawBits()->get(SL_DB_NORMALS)))
                     sv->onCommand(C_normalsToggle);
 
-                if (ImGui::MenuItem("Voxels", 0, sv->drawBits()->get(SL_DB_VOXELS)))
-                    sv->onCommand(C_voxelsToggle);
-
-                if (ImGui::MenuItem("Axis", 0, sv->drawBits()->get(SL_DB_AXIS)))
-                    sv->onCommand(C_axisToggle);
-
-                if (ImGui::MenuItem("Bounding Boxes", 0, sv->drawBits()->get(SL_DB_BBOX)))
+                if (ImGui::MenuItem("Bounding Boxes", "B", sv->drawBits()->get(SL_DB_BBOX)))
                     sv->onCommand(C_bBoxToggle);
 
-                if (ImGui::MenuItem("Skeleton", 0, sv->drawBits()->get(SL_DB_SKELETON)))
-                    sv->onCommand(C_skeletonToggle);
+                if (ImGui::MenuItem("Voxels", "V", sv->drawBits()->get(SL_DB_VOXELS)))
+                    sv->onCommand(C_voxelsToggle);
 
-                if (ImGui::MenuItem("Back Faces", 0, sv->drawBits()->get(SL_DB_CULLOFF)))
+                if (ImGui::MenuItem("Axis", "X", sv->drawBits()->get(SL_DB_AXIS)))
+                    sv->onCommand(C_axisToggle);
+
+                if (ImGui::MenuItem("Back Faces", "C", sv->drawBits()->get(SL_DB_CULLOFF)))
                     sv->onCommand(C_faceCullToggle);
 
-                if (ImGui::MenuItem("Textures off", 0, sv->drawBits()->get(SL_DB_TEXOFF)))
-                    sv->onCommand(C_textureToggle);
+                if (ImGui::MenuItem("Skeleton", "K", sv->drawBits()->get(SL_DB_SKELETON)))
+                    sv->onCommand(C_skeletonToggle);
 
                 if (ImGui::MenuItem("All off"))
                     sv->drawBits()->allOff();
@@ -987,15 +1000,22 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         }
         else if (rType == RT_rt)
         {
-            if (ImGui::BeginMenu("Settings"))
+            if (ImGui::BeginMenu("RT-Settings"))
             {
                 SLRaytracer* rt = sv->raytracer();
 
-                if (ImGui::MenuItem("Parallel distributed", 0, rt->distributed()))
-                    sv->onCommand(C_rtDistributed);
+                if (ImGui::MenuItem("Parallel distributed", 0, rt->doDistributed()))
+                {   rt->doDistributed(!rt->doDistributed());
+                    sv->startRaytracing(rt->maxDepth());
+                }
 
-                if (ImGui::MenuItem("Continuously", 0, rt->continuous()))
-                    sv->onCommand(C_rtContinuously);
+                if (ImGui::MenuItem("Continuously", 0, rt->doContinuous()))
+                    rt->doContinuous(!rt->doContinuous());
+
+                if (ImGui::MenuItem("Fresnel Reflection", 0, rt->doFresnel()))
+                {   rt->doFresnel(!rt->doFresnel());
+                    sv->startRaytracing(rt->maxDepth());
+                }
 
                 if (ImGui::BeginMenu("Max. Depth"))
                 {
@@ -1013,7 +1033,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Anti-Aliasing Sub Samples"))
+                if (ImGui::BeginMenu("Anti-Aliasing Samples"))
                 {
                     if (ImGui::MenuItem("Off", 0, rt->aaSamples()==1))
                         rt->aaSamples(1);
@@ -1037,7 +1057,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         }
         else if (rType == RT_pt)
         {
-            if (ImGui::BeginMenu("Settings"))
+            if (ImGui::BeginMenu("PT-Settings"))
             {
                 SLPathtracer* pt = sv->pathtracer();
 
@@ -1071,14 +1091,26 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::MenuItem("Reset"))
                 sv->onCommand(C_camReset);
-
-            if (s->numSceneCameras())
+            
+            if (ImGui::BeginMenu("Look from"))
             {
-                if (ImGui::MenuItem("Set next camera in Scene"))
-                    sv->onCommand(C_camSetNextInScene);
+                if (ImGui::MenuItem("Left (+X)",   "3"))        cam->lookFrom( SLVec3f::AXISX);
+                if (ImGui::MenuItem("Right (-X)",  "CTRL-3"))   cam->lookFrom(-SLVec3f::AXISX);
+                if (ImGui::MenuItem("Top (+Y)",    "7"))        cam->lookFrom( SLVec3f::AXISY, -SLVec3f::AXISZ);
+                if (ImGui::MenuItem("Bottom (-Y)", "CTRL-7"))   cam->lookFrom(-SLVec3f::AXISY,  SLVec3f::AXISZ);
+                if (ImGui::MenuItem("Front (+Z)",  "1"))        cam->lookFrom( SLVec3f::AXISZ);
+                if (ImGui::MenuItem("Back (-Z)",   "CTRL-1"))   cam->lookFrom(-SLVec3f::AXISZ);
 
-                if (ImGui::MenuItem("Set SceneView Camera"))
-                    sv->onCommand(C_camSetSceneViewCamera);
+                if (s->numSceneCameras())
+                {
+                    if (ImGui::MenuItem("Next camera in Scene", "TAB"))
+                        sv->onCommand(C_camSetNextInScene);
+
+                    if (ImGui::MenuItem("Sceneview Camera", "TAB"))
+                        sv->onCommand(C_camSetSceneViewCamera);
+                }
+                
+                ImGui::EndMenu();
             }
 
             if (ImGui::BeginMenu("Projection"))
@@ -1090,11 +1122,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 ImGui::PushItemWidth(100);
 
-
-                if (ImGui::MenuItem("Perspective", 0, proj==P_monoPerspective))
+                if (ImGui::MenuItem("Perspective", "5", proj==P_monoPerspective))
                     sv->onCommand(C_projPersp);
 
-                if (ImGui::MenuItem("Orthographic", 0, proj==P_monoOrthographic))
+                if (ImGui::MenuItem("Orthographic", "5", proj==P_monoOrthographic))
                     sv->onCommand(C_projOrtho);
 
                 if (ImGui::BeginMenu("Stereo"))
@@ -1124,12 +1155,12 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::SliderFloat("Near Clip", &clipN, 0.001f, 10.f))
                     cam->clipNear(clipN);
+                
+                if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
+                    cam->focalDist(focalDist);
 
                 if (ImGui::SliderFloat("Far Clip",  &clipF, clipN, SL_min(clipF*1.1f,1000000.f)))
                     cam->clipFar(clipF);
-
-                if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
-                    cam->focalDist(focalDist);
 
                 ImGui::PopItemWidth();
                 ImGui::EndMenu();
@@ -1139,13 +1170,16 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             {
                 SLCamAnim ca = cam->camAnim();
 
-                ImGui::PushItemWidth(80);
+                ImGui::PushItemWidth(100);
 
                 if (ImGui::MenuItem("Turntable Y up", 0, ca==CA_turntableYUp))
                     sv->camera()->camAnim(CA_turntableYUp);
 
                 if (ImGui::MenuItem("Turntable Z up", 0, ca==CA_turntableZUp))
                     sv->camera()->camAnim(CA_turntableZUp);
+                
+                if (ImGui::MenuItem("Trackball", 0, ca==CA_trackball))
+                    sv->camera()->camAnim(CA_trackball);
 
                 if (ImGui::MenuItem("Walk Y up", 0, ca==CA_walkingYUp))
                     sv->camera()->camAnim(CA_walkingYUp);
@@ -1153,10 +1187,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Walk Z up", 0, ca==CA_walkingZUp))
                     sv->camera()->camAnim(CA_walkingZUp);
 
-                if (ImGui::MenuItem("IMU rotated Y up", 0, ca==CA_deviceRotYUp))
+                if (ImGui::MenuItem("IMU rotated", 0, ca==CA_deviceRotYUp))
                     sv->camera()->camAnim(CA_deviceRotYUp);
 
-                if (ImGui::MenuItem("IMU rotated & GPS located Y up", 0, ca == CA_deviceRotLocYUp))
+                if (ImGui::MenuItem("IMU rotated & GPS located", 0, ca == CA_deviceRotLocYUp))
                     sv->camera()->camAnim(CA_deviceRotLocYUp);
 
                 if (ca==CA_walkingZUp || ca==CA_walkingYUp )
@@ -1178,6 +1212,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             SLVstring animations = s->animManager().allAnimNames();
             if (curAnimIx == -1) curAnimIx = 0;
             SLAnimPlayback* anim = s->animManager().allAnimPlayback(curAnimIx);
+
+            ImGui::PushItemWidth(100);
 
             if (myComboBox("", &curAnimIx, animations))
                 anim = s->animManager().allAnimPlayback(curAnimIx);
@@ -1225,6 +1261,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::Combo("Easing", &curEasing, easings,  IM_ARRAYSIZE(easings)))
                 anim->easing((SLEasingCurve)curEasing);
 
+            ImGui::PopItemWidth();
             ImGui::EndMenu();
         }
 
@@ -1294,13 +1331,13 @@ void SLDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     {
         for(auto mesh : node->meshes())
         {
-            ImGui::PushStyleColor(ImGuiCol_Text, ImColor(1.0f,1.0f,0.0f));
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f,1.0f,0.0f,1.0f));
 
             ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
             if (s->selectedMesh()==mesh)
                 meshFlags |= ImGuiTreeNodeFlags_Selected;
-          //ImGui::TreeNodeEx(mesh->name().c_str(), meshFlags);
-            ImGui::TreeNodeEx(mesh, meshFlags, mesh->name().c_str());
+
+            ImGui::TreeNodeEx(mesh, meshFlags, "%s", mesh->name().c_str());
 
             if (ImGui::IsItemClicked())
                 s->selectNodeMesh(node, mesh);
@@ -1320,7 +1357,6 @@ void SLDemoGui::buildProperties(SLScene* s)
 {
     SLNode* node = s->selectedNode();
     SLMesh* mesh = s->selectedMesh();
-    ImGuiColorEditFlags colFlags = ImGuiColorEditFlags_NoSliders;
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
     ImGui::Begin("Properties", &showProperties);
@@ -1442,7 +1478,7 @@ void SLDemoGui::buildProperties(SLScene* s)
                 typeid(*node)==typeid(SLLightRect) ||
                 typeid(*node)==typeid(SLLightDirect))
             {
-                SLLight* light;
+                SLLight* light = nullptr;
                 SLstring typeName;
                 if (typeid(*node)==typeid(SLLightSpot))
                 {   light = (SLLight*)(SLLightSpot*)node;
@@ -1457,7 +1493,7 @@ void SLDemoGui::buildProperties(SLScene* s)
                     typeName = "Light (directional):";
                 }
 
-                if (ImGui::TreeNode(typeName.c_str()))
+                if (light && ImGui::TreeNode(typeName.c_str()))
                 {
                     SLbool on = light->isOn();
                     if (ImGui::Checkbox("Is on", &on))
@@ -1502,14 +1538,14 @@ void SLDemoGui::buildProperties(SLScene* s)
         ImGui::TreePop();
     }
 
-    ImGui::PushStyleColor(ImGuiCol_Text, ImColor(1.0f,1.0f,0.0f));
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f,1.0f,0.0f,1.0f));
     ImGui::Separator();
     if (ImGui::TreeNode("Mesh Properties"))
     {
         if (mesh)
         {   SLuint v = (SLuint)mesh->P.size();
             SLuint t = (SLuint)(mesh->I16.size() ? mesh->I16.size() : mesh->I32.size());
-            SLMaterial* m = mesh->mat;
+            SLMaterial* m = mesh->mat();
             ImGui::Text("Mesh Name       : %s", mesh->name().c_str());
             ImGui::Text("No. of Vertices : %u", v);
             ImGui::Text("No. of Triangles: %u", t);
@@ -1521,19 +1557,19 @@ void SLDemoGui::buildProperties(SLScene* s)
                 if (ImGui::TreeNode("Reflection colors"))
                 {
                     SLCol4f ac = m->ambient();
-                    if (ImGui::ColorEdit3("Ambient color",  (float*)&ac, colFlags))
+                    if (ImGui::ColorEdit3("Ambient color",  (float*)&ac))
                         m->ambient(ac);
 
                     SLCol4f dc = m->diffuse();
-                    if (ImGui::ColorEdit3("Diffuse color",  (float*)&dc, colFlags))
+                    if (ImGui::ColorEdit3("Diffuse color",  (float*)&dc))
                         m->diffuse(dc);
 
                     SLCol4f sc = m->specular();
-                    if (ImGui::ColorEdit3("Specular color",  (float*)&sc, colFlags))
+                    if (ImGui::ColorEdit3("Specular color",  (float*)&sc))
                         m->specular(sc);
 
                     SLCol4f ec = m->emissive();
-                    if (ImGui::ColorEdit3("Emissive color",  (float*)&ec, colFlags))
+                    if (ImGui::ColorEdit3("Emissive color",  (float*)&ec))
                         m->emissive(ec);
 
                     ImGui::TreePop();
@@ -1573,16 +1609,16 @@ void SLDemoGui::buildProperties(SLScene* s)
 
                 if (m->textures().size() && ImGui::TreeNode("Textures"))
                 {
-                    ImGui::Text("No. of textures: %u", m->textures().size());
+                    ImGui::Text("No. of textures: %lu", m->textures().size());
 
-                    SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
+                    //SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
                     SLfloat texW  = ImGui::GetWindowWidth() - 4*ImGui::GetTreeNodeToLabelSpacing() - 10;
 
 
                     for (SLint i=0; i<m->textures().size(); ++i)
                     {
                         SLGLTexture* t = m->textures()[i];
-                        void* tid = (ImTextureID)t->texName();
+                        void* tid = (ImTextureID)(intptr_t)t->texName();
                         SLfloat w = (SLfloat)t->width();
                         SLfloat h = (SLfloat)t->height();
                         SLfloat h_to_w = h / w;
@@ -1593,7 +1629,12 @@ void SLDemoGui::buildProperties(SLScene* s)
                             ImGui::Text("Type    : %s", t->typeName().c_str());
 
                             if (t->depth() > 1)
-                                ImGui::Text("3D textures can not be displayed.");
+                            {
+                                if (t->target() == GL_TEXTURE_CUBE_MAP)
+                                    ImGui::Text("Cube maps can not be displayed.");
+                                else if (t->target() == GL_TEXTURE_3D)
+                                    ImGui::Text("3D textures can not be displayed.");
+                            }
                             else
                             {   if (typeid(*t)==typeid(SLTransferFunction))
                                 {
@@ -1604,7 +1645,7 @@ void SLDemoGui::buildProperties(SLScene* s)
                                         {
                                             SLCol3f color = tf->colors()[c].color;
                                             SLchar label[20]; sprintf(label, "Color %u", c);
-                                            if (ImGui::ColorEdit3(label, (float*)&color, colFlags))
+                                            if (ImGui::ColorEdit3(label, (float*)&color))
                                             {   tf->colors()[c].color = color;
                                                 tf->generateTexture();
                                             }
@@ -1909,11 +1950,12 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
 
     if (!SLFileSystem::fileExists(fullPathAndFilename))
     {
-        SLfloat dpiScale = dotsPerInch / 142.0f;
+        SLfloat dpiScaleProp = dotsPerInch / 120.0f;
+        SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
 
         // Default settings for the first time
-        SLGLImGui::fontPropDots  = SL_max(16.0f * dpiScale, 16.0f);
-        SLGLImGui::fontFixedDots = SL_max(13.0f * dpiScale, 13.0f);
+        SLGLImGui::fontPropDots  = SL_max(16.0f * dpiScaleProp, 16.0f);
+        SLGLImGui::fontFixedDots = SL_max(13.0f * dpiScaleFixed, 13.0f);
         SLDemoGui::showAbout = true;
         SLDemoGui::showInfosScene = true;
         SLDemoGui::showStatsTiming = false;
@@ -1923,11 +1965,11 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
         SLDemoGui::showInfosSensors = false;
         SLDemoGui::showSceneGraph = false;
         SLDemoGui::showProperties = false;
-        style.FramePadding.x = SL_max(8.0f * dpiScale, 8.0f);
+        style.FramePadding.x = SL_max(8.0f * dpiScaleFixed, 8.0f);
         style.WindowPadding.x = style.FramePadding.x;
-        style.FramePadding.y = SL_max(3.0f * dpiScale, 3.0f);
-        style.ItemSpacing.x = SL_max(8.0f * dpiScale, 8.0f);
-        style.ItemSpacing.y = SL_max(3.0f * dpiScale, 3.0f);
+        style.FramePadding.y = SL_max(3.0f * dpiScaleFixed, 3.0f);
+        style.ItemSpacing.x = SL_max(8.0f * dpiScaleFixed, 8.0f);
+        style.ItemSpacing.y = SL_max(3.0f * dpiScaleFixed, 3.0f);
         style.ItemInnerSpacing.x = style.ItemSpacing.y;
         return;
     }

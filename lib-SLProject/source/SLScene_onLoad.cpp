@@ -32,11 +32,13 @@
 #include <SLGrid.h>
 #include <SLLens.h>
 #include <SLCoordAxis.h>
+#include <SLCVCapture.h>
 #include <SLCVTrackedAruco.h>
 #include <SLCVTrackedChessboard.h>
 #include <SLCVTrackedFeatures.h>
 #include <SLCVTrackedRaulMur.h>
 #include <SLTransferFunction.h>
+#include <SLSkybox.h>
 
 #include <SLCVMapPoint.h>
 #include <SLCVMap.h>
@@ -516,17 +518,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         anim = SLAnimation::create("anim_light2_updown", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
         anim->createSimpleTranslationNodeTrack(light2, SLVec3f(0.0f, 5.0f, 0.0f));
 
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLAssimpImporter importer;
-        SLNode* mesh3DS = importer.load("jackolan.3ds");
-        SLNode* meshFBX = importer.load("duck.fbx");
-        SLNode* meshDAE = importer.load("AstroBoy.dae");
-        #else
         SLAssimpImporter importer;
         SLNode* mesh3DS = importer.load("3DS/Halloween/jackolan.3ds");
         SLNode* meshFBX = importer.load("FBX/Duck/duck.fbx");
         SLNode* meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
-        #endif
 
         // Start animation
         SLAnimPlayback* charAnim = _animManager.lastAnimPlayback();
@@ -587,9 +582,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                                             1, 1, "rectF", matFloor), "rectFNode"); 
         floor->rotate(-90, 1,0,0);
         scene->addChild(floor);
-
-        // scene sky box
-        // TODO...
 
         // table
         SLNode* table = importer.load("DAE/Table/table.dae");
@@ -845,7 +837,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         revW.push_back(SLVec3f(1.95f, 5.40f));
         revW.push_back(SLVec3f(2.05f, 6.00f));
         SLMesh* wineMesh = new SLRevolver(revW, SLVec3f(0,1,0), res, true, false, "WineRev", mat6);
-        wineMesh->matOut = mat5;
+        wineMesh->matOut(mat5);
         SLNode* wine = new SLNode(wineMesh);
         wine->translate(0.0f,-3.5f, 0.0f, TS_object);
 
@@ -928,7 +920,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->attenuation(1,0,0);
 
         SLAssimpImporter importer;
-        SLNode* largeModel = importer.load("PLY/switzerland.ply", true
+        SLNode* largeModel = importer.load("PLY/switzerland.ply", true, nullptr
                                             //,SLProcess_JoinIdenticalVertices
                                             //|SLProcess_RemoveRedundantMaterials
                                             //|SLProcess_SortByPType
@@ -1120,7 +1112,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Create 3D textured pyramid mesh and node
         SLMesh* pyramid = new SLMesh("Pyramid");
-        pyramid->mat = mat3D;
+        pyramid->mat(mat3D);
         pyramid->P = {{-1,-1,1},{1,-1,1},{1,-1,-1},{-1,-1,-1},{0,2,0}};
         pyramid->I16 = {0,3,1, 1,3,2, 4,0,1, 4,1,2, 4,2,3, 4,3,0};
         SLNode* pyramidNode = new SLNode(pyramid, "Pyramid");
@@ -1362,7 +1354,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->clipFar(100);
         cam1->translation(0,0,15);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(5);
+        cam1->focalDist(15);
         cam1->background().colors(SLCol4f(0.1f,0.1f,0.1f));
         cam1->setInitialState();
 
@@ -1491,7 +1483,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneShaderPerPixelCookTorrance) //................................
+    if (SL::currentSceneID == C_sceneShaderCookTorrance) //................................
     {
         name("Cook-Torrance per pixel lighting");
        _info = "Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. The center sphere has roughness and metallic encoded in textures.";
@@ -1503,6 +1495,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->translation(0,0,28);
         cam1->lookAt(0,0,0);
         cam1->background().colors(SLCol4f(0.2f,0.2f,0.2f));
+        cam1->focalDist(28);
         cam1->setInitialState();
         scene->addChild(cam1);
 
@@ -1574,7 +1567,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0,3,8);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(8);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
         cam1->setInitialState();
 
@@ -1625,7 +1618,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0,3,8);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(8);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
         cam1->setInitialState();
 
@@ -1800,41 +1793,61 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Set scene name and info string
         name("Sky Box Texture Example");
         _info = "Sky box cube with cubemap skybox shader";
-
+        
         // Create textures and materials
-        SLGLTexture* cubeMap = new SLGLTexture("mountain_lake+X1024_C.jpg","mountain_lake-X1024_C.jpg"
-                                              ,"mountain_lake+Y1024_C.jpg","mountain_lake-Y1024_C.jpg"
-                                              ,"mountain_lake+Z1024_C.jpg","mountain_lake-Z1024_C.jpg");
-        SLMaterial* matCubeMap = new SLMaterial("matCubeMap");
-        matCubeMap->textures().push_back(cubeMap);
-        SLGLProgram* sp = new SLGLGenericProgram("SkyBox.vert", "SkyBox.frag");
-        sp->addUniform1f(new SLGLUniform1f(UT_const, "u_centerX", 0.0f));
-        sp->addUniform1f(new SLGLUniform1f(UT_const, "u_centerY", 0.0f));
-        sp->addUniform1f(new SLGLUniform1f(UT_const, "u_centerZ", 0.0f));
-        matCubeMap->program(sp);
-
+        SLSkybox* skybox = new SLSkybox("Desert+X1024_C.jpg","Desert-X1024_C.jpg",
+                                        "Desert+Y1024_C.jpg","Desert-Y1024_C.jpg",
+                                        "Desert+Z1024_C.jpg","Desert-Z1024_C.jpg");
+        SLGLTexture* skyboxTex = skybox->meshes()[0]->mat()->textures()[0];
+        
+        // Material for mirror
+        SLMaterial* refl = new SLMaterial("refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
+        refl->textures().push_back(skyboxTex);
+        refl->program(new SLGLGenericProgram("Reflect.vert", "Reflect.frag"));
+        
+        // Material for glass
+        SLMaterial* refr = new SLMaterial("refr", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
+        refr->translucency(1000);
+        refr->transmissiv(SLCol4f::WHITE);
+        refr->textures().push_back(skyboxTex);
+        refr->program(new SLGLGenericProgram("RefractReflect.vert", "RefractReflect.frag"));
+        
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
 
         // Create camera in the center
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0,0,0);
-        cam1->lookAt(0, 0, -1);
-        cam1->background().colors(SLCol4f(0.5f,0.5f,0.5f));
+        cam1->translation(0,0,5);
         cam1->setInitialState();
         scene->addChild(cam1);
+        
+        // There is no light needed in this scene. All reflections come from cube maps
+        // But ray tracing needs light sources
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(0.5f);
+        light->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+        light->attenuation(1,0,0);
+        light->translate(1,1,-1);
+        light->lookAt(-1, -1, 1);
+        scene->addChild(light);
+        
+        // Center sphere
+        SLNode* sphere = new SLNode(new SLSphere(0.5f, 32, 32, "Sphere", refr));
+        scene->addChild(sphere);
 
-        // Create a light source node
-        SLLightSpot* light1 = new SLLightSpot(0.3f);
-        light1->translation(0,0,5);
-        light1->lookAt(0,0,0);
-        light1->name("light node");
-        scene->addChild(light1);
-
-        SLNode* boxNode = new SLNode(new SLBox(10,10,10, -10,-10,-10, "box", matCubeMap));
-        scene->addChild(boxNode);
-
+        // load teapot
+        SLAssimpImporter importer;
+        SLNode* teapot = importer.load("FBX/Teapot/Teapot.fbx", true, refl);
+        teapot->translate(-1.5f,-0.5f,0);
+        scene->addChild(teapot);
+        
+        // load Suzanne
+        SLNode* suzanne = importer.load("FBX/Suzanne/Suzanne.fbx", true, refr);
+        suzanne->translate(1.5f,-0.5f,0);
+        scene->addChild(suzanne);
+        
         sv->camera(cam1);
+        sv->skybox(skybox);
 
         // pass the scene group as root node
         _root3D = scene;
@@ -1917,7 +1930,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneVolumeRayCastHeadMRI) //......................................
+    if (SL::currentSceneID == C_sceneVolumeRayCast) //......................................
     {
         name("Volume Ray Cast Head MRI");
 
@@ -1982,7 +1995,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneVolumeRayCastLightedMRIHead) //...............................
+    if (SL::currentSceneID == C_sceneVolumeRayCastLighted) //...............................
     {
         name("Volume Ray Cast Lighted Head MRI");
 
@@ -2063,6 +2076,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0,2,10);
         cam1->lookAt(0, 2, 0);
+        cam1->focalDist(10);
         cam1->setInitialState();
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
         cam1->setInitialState();
@@ -2082,20 +2096,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(new SLNode(grid, "grid"));
 
         // Astro boy character
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* char1 = importer.load("AstroBoy.dae");
-        #else
         SLNode* char1 = importer.load("DAE/AstroBoy/AstroBoy.dae");
-        #endif
         char1->translate(-1,0,0);
         SLAnimPlayback* char1Anim = _animManager.lastAnimPlayback();
         char1Anim->playForward();
         scene->addChild(char1);
         
         // Sintel character
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* char2 = importer.load("SintelLowResOwnRig.dae");
-        #else
         SLNode* char2 = importer.load("DAE/Sintel/SintelLowResOwnRig.dae"
                                         //,true
                                         //,SLProcess_JoinIdenticalVertices
@@ -2105,18 +2112,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                                         //|SLProcess_FindInvalidData
                                         //|SLProcess_SplitLargeMeshes
                                         );
-        #endif
         char2->translate(1,0,0);
         SLAnimPlayback* char2Anim = _animManager.lastAnimPlayback();
         char2Anim->playForward();
         scene->addChild(char2);
 
         // Skinned cube 1
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* cube1 = importer.load("skinnedcube2.dae");
-        #else
         SLNode* cube1 = importer.load("DAE/SkinnedCube/skinnedcube2.dae");
-        #endif
         cube1->translate(3, 0, 0);
         SLAnimPlayback* cube1Anim = _animManager.lastAnimPlayback();
         cube1Anim->easing(EC_inOutSine);
@@ -2124,11 +2126,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(cube1);
         
         // Skinned cube 2
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* cube2 = importer.load("skinnedcube4.dae");
-        #else
         SLNode* cube2 = importer.load("DAE/SkinnedCube/skinnedcube4.dae");
-        #endif
         cube2->translate(-3, 0, 0);
         SLAnimPlayback* cube2Anim = _animManager.lastAnimPlayback();
         cube2Anim->easing(EC_inOutSine);
@@ -2136,11 +2134,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(cube2);
         
         // Skinned cube 3
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* cube3 = importer.load("skinnedcube5.dae");
-        #else
         SLNode* cube3 = importer.load("DAE/SkinnedCube/skinnedcube5.dae");
-        #endif
         cube3->translate(0, 3, 0);
         SLAnimPlayback* cube3Anim = _animManager.lastAnimPlayback();
         cube3Anim->loop(AL_pingPongLoop);
@@ -2268,9 +2262,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         init();
 
-        SLLightSpot* light1 = new SLLightSpot(7,7,0, 0.1f, 5, 10);
-        light1->attenuation(0,0,1);
-        light1->translate(-3, 5, 2, TS_object);
+        SLLightSpot* light1 = new SLLightSpot(0.1f);
+        light1->translate(0, 10, 0);
 
         // build a basic scene to have a reference for the occuring rotations
         SLMaterial* genericMat = new SLMaterial("some material");
@@ -2289,7 +2282,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         const SLint gridSize = 3;
         const SLint gridHalf = gridSize / 2;
         const SLint nodesPerLvl = gridSize * gridSize;
-
 
         // node spacing per level
         // nodes are 1^3 in size, we want to space the levels so that the densest levels meet
@@ -2341,7 +2333,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         name("Astroboy army skinned on CPU");
         _info = "Mass animation scene of identitcal Astroboy models";
 
-
         // Create materials
         SLMaterial* m1 = new SLMaterial("m1", SLCol4f::GRAY); m1->specular(SLCol4f::BLACK);
 
@@ -2356,6 +2347,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0, 20, 20);
         cam1->lookAt(0, 0, 0);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
         cam1->setInitialState();
 
@@ -2367,12 +2359,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         rect->rotate(90, -1,0,0);
 
         SLAssimpImporter importer;
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* center = importer.load("AstroBoy.dae");
-        #else
         SLNode* center = importer.load("DAE/AstroBoy/AstroBoy.dae");
-        #endif
-        //center->scale(100);
         _animManager.lastAnimPlayback()->playForward();
 
 
@@ -2409,40 +2396,56 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneVideoTexture) //..............................................
+    if (SL::currentSceneID == C_sceneVideoTextureLive ||
+        SL::currentSceneID == C_sceneVideoTextureFile) //..........................................
     {
         // Set scene name and info string
-        name("Live Video Texture Example");
-        _info = "Minimal texture mapping example with live video source.";
+        if (SL::currentSceneID == C_sceneVideoTextureLive)
+        {   name("Texture from live video");
+            _info = "Minimal texture mapping example with live video source.";
+            videoType(VT_SCND); // on desktop it will be the main camera
+        } else
+        {   name("Texture from video file");
+            _info = "Minimal texture mapping example with video file source.";
+            videoType(VT_FILE);
+            SLCVCapture::videoFilename = "street3.mp4";
+            SLCVCapture::videoLoops = true;
+        }
 
         // Back wall material with live video texture
         SLMaterial* m1 = new SLMaterial("mat3", &_videoTexture);
-        videoType(VT_SCND);
+
+        // Create a root scene group for all nodes
+        SLNode* scene = new SLNode("scene node");
 
         // Create a camera node
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0,0,20);
+        cam1->focalDist(20);
         cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f(0.7f,0.7f,0.7f), SLCol4f(0.2f,0.2f,0.2f));
         cam1->setInitialState();
-
-        // Create a light source node
-        SLLightSpot* light1 = new SLLightSpot(0.3f);
-        light1->translation(0,0,5);
-        light1->lookAt(0, 0, 0);
-        light1->name("light node");
+        scene->addChild(cam1);
 
         // Create rectangle meshe and nodes
         SLfloat h = 5.0f;
         SLfloat w = h * sv->scrWdivH();
         SLMesh* rectMesh = new SLRectangle(SLVec2f(-w,-h), SLVec2f(w,h), 1,1, "rect mesh", m1);
         SLNode* rectNode = new SLNode(rectMesh, "rect node");
-
-        // Create a scene group and add all nodes
-        SLNode* scene = new SLNode("scene node");
-        scene->addChild(light1);
-        scene->addChild(cam1);
+        rectNode->translation(0,0,-5);
         scene->addChild(rectNode);
+
+        // Center sphere
+        SLNode* sphere = new SLNode(new SLSphere(2, 32, 32, "Sphere", m1));
+        sphere->rotate(-90, 1,0,0);
+        scene->addChild(sphere);
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(0.3f);
+        light1->translation(0,0,5);
+        light1->lookAt(0, 0, 0);
+        light1->name("light node");
+        scene->addChild(light1);
 
         _root3D = scene;
 
@@ -2667,11 +2670,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Christoffel tower
         SLAssimpImporter importer;
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* tower = importer.load("christoffelturm.obj");
-        #else
         SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
-        #endif
         //we we could not find the tower, load a Box
         if (!tower) {
             SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
@@ -2712,16 +2711,21 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->fov(_activeCalib->cameraFovDeg());
         cam1->clipNear(0.1f);
         cam1->clipFar(10000.0f);
-        cam1->background().texture(&_videoTexture);
         cam1->setInitialState();
 
+        // Turn on main video
+        cam1->background().texture(&_videoTexture);
         videoType(VT_MAIN);
 
-        SLLightSpot* light1 = new SLLightSpot(2,2,2, .1f);
-        light1->ambient(SLCol4f(1,1,1));
-        light1->diffuse(SLCol4f(1,1,1));
-        light1->specular(SLCol4f(1,1,1));
-        light1->attenuation(1,0,0);
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(1.0f);
+        light->ambient(SLCol4f(1,1,1));
+        light->diffuse(SLCol4f(1,1,1));
+        light->specular(SLCol4f(1,1,1));
+        light->attenuation(1,0,0);
+
+        // Let the sun be rotated by time and location
+        _devLoc.sunLightNode(light);
 
         SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
         axis->setDrawBitsRec(SL_DB_WIREMESH, false);
@@ -2734,7 +2738,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Scene structure
         SLNode* scene = new SLNode("Scene");
-        scene->addChild(light1);
+        scene->addChild(light);
         scene->addChild(cam1);
         scene->addChild(box);
         scene->addChild(axis);
@@ -2744,9 +2748,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
 
         #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        //initialize global reference position of this scene
-        //_devLoc.originLla(47.140624, 7.247405, 442.0);
-
         //activate rotation and gps sensor
         _devRot.isUsed(true);
         _devRot.zeroYawAtStart(false);
@@ -2772,30 +2773,30 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->lookAt(-10,2,0);
         cam1->clipNear(0.1f);
         cam1->clipFar(500.0f);
-        cam1->background().texture(&_videoTexture);
         cam1->setInitialState();
+
+        // Turn on main video
+        cam1->background().texture(&_videoTexture);
         videoType(VT_MAIN);
 
-        SLLightDirect* light = new SLLightDirect();
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(5.0f);
         light->ambient(SLCol4f(1,1,1));
         light->diffuse(SLCol4f(1,1,1));
         light->specular(SLCol4f(1,1,1));
-        light->translation(10.0f, 10.0f, 10.0f);
-        light->lookAt(0, 0, 0);
         light->attenuation(1,0,0);
 
+        // Let the sun be rotated by time and location 
+        _devLoc.sunLightNode(light);
+
         SLAssimpImporter importer;
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* bern = importer.load("Bern-Bahnhofsplatz.fbx");
-        #else
         SLNode* bern = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
-        #endif
 
         // Make city transparent
-        for (auto mesh : bern->findChild<SLNode>("Umgebung-Daecher")->meshes()) mesh->mat->kt(0.5f);
-        for (auto mesh : bern->findChild<SLNode>("Umgebung-Fassaden")->meshes()) mesh->mat->kt(0.5f);
+        for (auto mesh : bern->findChild<SLNode>("Umgebung-Daecher")->meshes()) mesh->mat()->kt(0.5f);
+        for (auto mesh : bern->findChild<SLNode>("Umgebung-Fassaden")->meshes()) mesh->mat()->kt(0.5f);
 
-        /* Hide some objects
+        // Hide some objects
         bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Christoffel-Tor")->drawBits()->set(SL_DB_HIDDEN, true);
@@ -2806,12 +2807,17 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Mauer-Weg")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Boden")->drawBits()->set(SL_DB_HIDDEN, true);
-        */
+        bern->findChild<SLNode>("Graben-Mauern")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Bruecken")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Grass")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
 
         // Set ambient on all child nodes and reinit meshes to reset the correct hasAlpha flag
         for (auto node : bern->children())
         {   for (auto mesh : node->meshes())
-            {   mesh->mat->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+            {   mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
                 mesh->init(node);
             }
         }
@@ -2825,7 +2831,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light);
         scene->addChild(axis);
-        if (bern) scene->addChild(bern);
+        scene->addChild(bern);
         scene->addChild(cam1);
 
         //initialize sensor stuff
@@ -2837,7 +2843,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _devLoc.hasOrigin(true);
         _devRot.zeroYawAtStart(false);
 
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         _devLoc.isUsed(true);
         _devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
@@ -2880,10 +2886,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLMaterial* cream = new SLMaterial("cream", grayRGB,  SLCol4f::BLACK, 0);
         SLMaterial* red   = new SLMaterial("red",   redRGB ,  SLCol4f::BLACK, 0);
         SLMaterial* blue  = new SLMaterial("blue",  blueRGB,  SLCol4f::BLACK, 0);
-        SLMaterial* gray  = new SLMaterial("gray",  SLCol4f::WHITE*0.3f, SLCol4f::WHITE*10, 250, 0);
-        SLMaterial* black = new SLMaterial("black",  SLCol4f::WHITE*0.2f, SLCol4f::WHITE*10, 250, 0);
-        //black->diffuse(SLCol4f(0.1f,0.1f,0.1f, 0.1f));
-
 
         // Material for mirror sphere
         SLMaterial* refl=new SLMaterial("refl", blackRGB, SLCol4f::WHITE, 1000, 1.0f);
@@ -2927,7 +2929,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->translation(0.0f, 0.40f, 6.35f);
         cam1->lookAt(0.0f,-0.05f, 0.0f);
         cam1->fov(27);
-        cam1->focalDist(6.35f);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.0f,0.0f,0.0f));
         cam1->setInitialState();
       
@@ -2986,7 +2988,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera();
         cam1->translation(0, 0.1f, 2.5f);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(4);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
         cam1->setInitialState();
 
@@ -3009,7 +3011,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* scene  = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(3, 0,0,0, 1, 30*SL::testFactor, matGla, matRed));
+        scene->addChild(SphereGroup(1, 0,0,0, 1, 30*SL::testFactor, matGla, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 
@@ -3031,7 +3033,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0, 0.1f, 6);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(6);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
         cam1->setInitialState();
         
@@ -3096,7 +3098,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 7);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(7);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->lensDiameter(0.4f);
         cam1->lensSamples()->samples(numSamples, numSamples);
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
@@ -3157,7 +3159,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0, 8, 0);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(6);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->lensDiameter(0.4f);
         cam1->lensSamples()->samples(numSamples, numSamples);
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
@@ -3182,15 +3184,15 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Lens from eye prescription card   
         //SLNode* lensA = new SLNode(new SLLens(0.50f, -0.50f, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));   // Weitsichtig
+        //lensA->translate(-2, 1, -2);
         //SLNode* lensB = new SLNode(new SLLens(-0.65f, -0.10f, 4.0f, 0.0f, 32, 32, "myopic", matLens));      // Kurzsichtig
-        //lensA->translate(-2, 1, -2, TS_Object);
-        //lensB->translate(2, 1, -2, TS_Object);
+        //lensB->translate(2, 1, -2);
 
         // Lens with radius
         //SLNode* lensC = new SLNode(new SLLens(5.0, 4.0, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));        // Weitsichtig
+        //lensC->translate(-2, 1, 2);
         SLNode* lensD = new SLNode(new SLLens(-15.0f, -15.0f, 1.0f, 0.1f, res, res, "myopic", matLens));      // Kurzsichtig
-        //lensC->translate(-2, 1, 2, TS_Object);
-        lensD->translate(0, 6, 0, TS_object);
+        lensD->translate(0, 6, 0);
 
         // Node
         SLNode* scene = new SLNode;

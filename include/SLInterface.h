@@ -29,6 +29,7 @@ void    slCreateScene           (SLVstring& cmdLineArgs,
                                  SLstring shaderPath,
                                  SLstring modelPath,
                                  SLstring texturePath,
+                                 SLstring videoPath,
                                  SLstring fontPath,
                                  SLstring calibrationPath,
                                  SLstring configPath);
@@ -39,7 +40,6 @@ int     slCreateSceneView       (int screenWidth,
                                  void* onWndUpdateCallback,
                                  void* onSelectNodeMeshCallback = 0,
                                  void* onNewSceneViewCallback = 0,
-                                 void* onShowSystemCursorCallback = 0,
                                  void* onBuildImGui = 0);
 int     slNewSceneView          ();
 bool    slShouldClose           ();
@@ -61,13 +61,13 @@ void    slKeyRelease            (int sceneViewIndex, SLKey key, SLKey modifier);
 void    slCharInput             (int sceneViewIndex, unsigned int character);
 void    slCommand               (int sceneViewIndex, SLCommand command);
 bool    slUsesRotation          ();
-void    slRotationPYR           (float pitchRAD, float yawRAD, float rollRAD);
 void    slRotationQUAT          (float quatX, float quatY, float quatZ, float quatW);
 bool    slUsesLocation          ();
 void    slLocationLLA           (double latitudeDEG, double longitudeDEG, double altitudeM, float accuracyM);
 string  slGetWindowTitle        (int sceneViewIndex);
 int     slGetVideoType          ();
 int     slGetVideoSizeIndex     ();
+void    slGrabVideoFileFrame    ();
 void    slCopyVideoImage        (int srcW, int srcH, SLPixelFormat glFormat, SLuchar* data, bool isContinuous);
 void    slCopyVideoYUVPlanes    (int srcW, int srcH,
                                  SLuchar* y, int ySize, int yPixStride, int yLineStride,

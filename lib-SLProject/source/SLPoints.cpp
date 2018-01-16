@@ -30,7 +30,7 @@ SLPoints::SLPoints(const SLVVec3f& points,
 
     P = points;
 
-    mat = material;
+    mat(material);
 }
 //-----------------------------------------------------------------------------
 //! SLPoints ctor with a givven vector of points
@@ -66,6 +66,6 @@ SLPoints::SLPoints(SLfloat nPoints, SLRnd3f& rnd, SLstring name,
     for (int i=0; i<nPoints; ++i)
         P.push_back(rnd.generate());
 
-    mat = material;
+    mat(material);
 }
 //-----------------------------------------------------------------------------

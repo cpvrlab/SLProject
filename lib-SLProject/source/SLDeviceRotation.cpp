@@ -28,32 +28,18 @@ void SLDeviceRotation::init()
     _isUsed = false;
 }
 //-----------------------------------------------------------------------------
-/*! Event handler for rotation change of a mobile device with Euler angles for
-pitch, yaw and roll. This function will only be called in an Android or iOS
-project. See onRotationPYR in GLES3Activity.java in the Android project.
+/*! onRotationQUAT: Event handler for rotation change of a mobile device from a
+rotation quaternion. This function will only be called in an Android or iOS
+project. See e.g. onSensorChanged in GLES3Activity.java in the Android project.
 This handler is only called if the flag SLScene::_usesRotation is true. If so
 the mobile device turns on it's IMU sensor system. The device rotation is so
 far only used in SLCamera::setViev if the cameras animation is on CA_deciveRotYUp.
 If _zeroYawAfterStart is true the start yaw value is subtracted. This means
 that the magnetic north will be ignored.
 The angles should be:\n
+Roll  from -halfpi (ccw)   to zero (horizontal) to +halfpi (clockwise)\n
 Pitch from -halfpi (down)  to zero (horizontal) to +halfpi (up)\n
 Yaw   from -pi     (south) to zero (north)      to +pi     (south)\n
-Roll  from -halfpi (ccw)   to zero (horizontal) to +halfpi (clockwise)\n
-*/
-void SLDeviceRotation::onRotationPYR(SLfloat pitchRAD,
-                                     SLfloat yawRAD,
-                                     SLfloat rollRAD)
-{
-    /*
-    _pitchRAD = pitchRAD;
-    _yawRAD   = yawRAD;
-    _rollRAD  = rollRAD;
-    */
-}
-//-----------------------------------------------------------------------------
-/*! onRotationQUAT: Event handler for rotation change of a mobile device with
-rotation quaternion.
 */
 void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
                                       SLfloat quatY,
@@ -63,6 +49,8 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
     SLQuat4f quat(quatX, quatY, quatZ, quatW);
     _rotation = quat.toMat3();
     quat.toEulerAnglesXYZ(_rollRAD, _pitchRAD, _yawRAD);
+
+
     //_rotation.print("Rotation:\n");
 
     /*   Up   North
@@ -81,8 +69,8 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
          | /
          |/                       iOS           Android
          +------ East        +-         -+   +-         -+
-         +------------+      |  0  0 -1  |   |  0 -1  0  |
-         | +------+   |      |  0  1  0  |   |  0  0 -1  |
+         +------------+      |  0  0 -1  |   |  0  0  1  |
+         | +------+   |      |  0  1  0  |   |  0 -1  0  |
          | |      | 0 |      |  1  0  0  |   |  1  0  0  |
          | +------+   |      +-         -+   +-         -+
          +------------+

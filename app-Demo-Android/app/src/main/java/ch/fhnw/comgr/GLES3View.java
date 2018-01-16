@@ -27,7 +27,8 @@ public class GLES3View extends GLSurfaceView
     private static final boolean DEBUG = false;
     private static final int VT_NONE = 0;
     private static final int VT_MAIN = 1;
-    private static final int VT_SECOND = 2;
+    private static final int VT_SCND = 2;
+    private static final int VT_FILE = 3;
 
     public GLES3View(Context context)
     {
@@ -45,11 +46,10 @@ public class GLES3View extends GLSurfaceView
         setRenderer(new Renderer());
 
         // From Android r15
-        //setPreserveEGLContextOnPause(true);
+        setPreserveEGLContextOnPause(true);
 
         // Render only when needed. Without this it would render continuously with lots of power consumption
         setRenderMode(RENDERMODE_WHEN_DIRTY);
-
     }
 
     /**
@@ -87,7 +87,7 @@ public class GLES3View extends GLSurfaceView
             boolean usesRotation = GLES3Lib.usesRotation();
             boolean usesLocation = GLES3Lib.usesLocation();
 
-            if (videoType!=VT_NONE)
+            if (videoType==VT_MAIN || videoType==VT_SCND)
                  mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStart(videoType, sizeIndex);}});
             else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStop();}});
 
@@ -98,6 +98,9 @@ public class GLES3View extends GLSurfaceView
             if(usesLocation)
                  mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.locationSensorStart();}});
             else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.locationSensorStop();}});
+
+            if (videoType==VT_FILE)
+                GLES3Lib.grabVideoFileFrame();
 
             if (GLES3Lib.onUpdateAndPaint())
                 GLES3Lib.view.requestRender();

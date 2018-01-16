@@ -56,10 +56,10 @@ the C-interface function slCreateScene in SLInterface.cpp that is called by the
 platform and UI-toolkit dependent window initialization.
 As examples you can see it in:
   - app-Demo-GLFW: glfwMain.cpp in function main()
-  - app-Demo-Qt: qtGLWidget::initializeGL()
-  - app-Viewer-Qt: qtGLWidget::initializeGL()
   - app-Demo-Android: Java_ch_fhnw_comgRT_glES2Lib_onInit()
   - app-Demo-iOS: ViewController.m in method viewDidLoad()
+  - _old/app-Demo-Qt: qtGLWidget::initializeGL()
+  - _old/app-Viewer-Qt: qtGLWidget::initializeGL()
 */
 SLScene::SLScene(SLstring name) : SLObject(name)
 {  
@@ -103,7 +103,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     SLTexFont::generateFonts();
 
     // load default video image that is displayed when no live video is available
-    _videoTexture.setVideoImage("LiveVideoError.png");
+    _videoTextureErr.setVideoImage("LiveVideoError.png");
 
     // Set video type to none (this also sets the active calibration to the main calibration)
     videoType(VT_NONE);
@@ -181,10 +181,8 @@ SLScene::~SLScene()
    
     current = nullptr;
 
-    #ifdef SL_USES_CVCAPTURE
     // release the capture device
     SLCVCapture::release();
-    #endif
 
     SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
@@ -228,9 +226,12 @@ void SLScene::unInit()
 
     // reset existing sceneviews
     for (auto sv : _sceneViews)
-        if (sv != nullptr)
-            sv->camera(sv->sceneViewCamera());
-
+    {   if (sv != nullptr)
+        {   sv->camera(sv->sceneViewCamera());
+            sv->skybox(nullptr);
+        }
+    }
+    
     // delete entire scene graph
     delete _root3D;
     _root3D = nullptr;
@@ -269,7 +270,11 @@ void SLScene::unInit()
     for (auto t : _trackers) delete t;
         _trackers.clear();
 
-    _videoType = VT_NONE;
+    // close video if running
+    if (_videoType != VT_NONE)
+    {   SLCVCapture::release();
+        _videoType = VT_NONE;
+    }
 
     _eventHandlers.clear();
 
@@ -494,6 +499,7 @@ bool SLScene::onUpdate()
     /////////////////////
 
     // The updateAABBRec call won't generate any overhead if nothing changed
+    SLNode::numWMUpdates = 0;
     SLGLState::getInstance()->modelViewMatrix.identity();
     if (_root3D)
         _root3D->updateAABBRec();
@@ -513,23 +519,49 @@ bool SLScene::onUpdate()
 void SLScene::onAfterLoad()
 {
     #ifdef SL_USES_CVCAPTURE
-    if (_videoType!=VT_NONE)
+    if (_videoType != VT_NONE)
     {   if (!SLCVCapture::isOpened())
-        #ifdef SL_VIDEO_DEBUG
-        //SLCVCapture::open("D:/Development/ORB_SLAM2/data/test_tisch.mp4");
-        //SLCVCapture::open("../_data/videos/testvid_" + string(SL_TRACKER_IMAGE_NAME) +".mp4");
-        //SLCVCapture::open("../_data/images/sequences/rgbd_dataset_freiburg1_desk/rgb_renamed/image%03d.png");
-        //SLCVCapture::open("../_data/videos/test_tisch.mp4");
-        //SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero4.wmv");
-        //SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero_handy_2.mp4");
-        //SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero_handy_calib.mp4");
-        //SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero_handy_calib_43.mp4");
+        {
+            SLVec2i videoSize;
+            if (_videoType == VT_FILE && SLCVCapture::videoFilename != "")
+                 videoSize = SLCVCapture::openFile();
+            else videoSize = SLCVCapture::open(0);
 
-        //SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero_handy_3_43.mp4");
-        SLCVCapture::open("D:/Development/ORB_SLAM2/data/street3.mp4");
-        #else
-        SLCVCapture::open(0);
-        #endif
+            if (videoSize != SLVec2i::ZERO)
+            {
+                SLCVCapture::grabAndAdjustForSL();
+                _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+                                             SLCVCapture::lastFrame.rows,
+                                             SLCVCapture::format,
+                                             SLCVCapture::lastFrame.data,
+                                             SLCVCapture::lastFrame.isContinuous(),
+                                             true);
+            } else
+            {
+                _videoTexture.setVideoImage("LiveVideoError.png");
+            }
+        }
+    }
+    #else
+    if (_videoType == VT_FILE && SLCVCapture::videoFilename != "")
+    {   if (!SLCVCapture::isOpened())
+        {
+            SLVec2i videoSize = SLCVCapture::openFile();
+
+            if (videoSize != SLVec2i::ZERO)
+            {
+                SLCVCapture::grabAndAdjustForSL();
+                _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+                                             SLCVCapture::lastFrame.rows,
+                                             SLCVCapture::format,
+                                             SLCVCapture::lastFrame.data,
+                                             SLCVCapture::lastFrame.isContinuous(),
+                                             true);
+            } else
+            {
+                _videoTexture.setVideoImage("LiveVideoError.png");
+            }
+        }
     }
     #endif
 }
@@ -611,9 +643,9 @@ void SLScene::onLoadAsset(SLstring assetFile,
     // Try to load assed and add it to the scene root node
     SLAssimpImporter importer;
 
-    //////////////////////////////////////////////////////////////
-    SLNode* loaded = importer.load(assetFile, true, processFlags);
-    //////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    SLNode* loaded = importer.load(assetFile, true, nullptr, processFlags);
+    ///////////////////////////////////////////////////////////////////////
 
     // Add root node on empty scene
     if (!_root3D)

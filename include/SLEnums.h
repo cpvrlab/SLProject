@@ -76,16 +76,15 @@ enum SLCommand
 {   
     C_sceneFromFile = -2,   // Custom assted loaded over menu
     C_sceneEmpty = -1,      // No data in scene
+
     C_sceneAll = 0,         // Loads all scenes one after the other
     C_sceneMinimal,
-    C_sceneVideoSensorAR,
     C_sceneSensorTest,
     C_sceneFigure,
     C_sceneMeshLoad,
     C_sceneVRSizeTest,
     C_sceneLargeModel,
     C_sceneRevolver,
-
     C_sceneTextureFilter,
     C_sceneTextureBlend,
     C_sceneFrustumCull,
@@ -96,22 +95,23 @@ enum SLCommand
     C_sceneShaderPerVertexBlinn,
     C_sceneShaderPerPixelBlinn,
     C_sceneShaderPerVertexWave,
-    C_sceneShaderPerPixelCookTorrance,
+    C_sceneShaderCookTorrance,
     C_sceneShaderWater,
     C_sceneShaderBumpNormal,
     C_sceneShaderBumpParallax,
     C_sceneShaderSkyBox,
     C_sceneShaderEarth,
-    C_sceneVolumeRayCastHeadMRI,
-    C_sceneVolumeRayCastLightedMRIHead,
-    C_sceneTerrain,
+
+    C_sceneVolumeRayCast,
+    C_sceneVolumeRayCastLighted,
 
     C_sceneAnimationMass,
     C_sceneAnimationSkeletal,
     C_sceneAnimationNode,
     C_sceneAnimationArmy,
 
-    C_sceneVideoTexture,
+    C_sceneVideoTextureLive,
+    C_sceneVideoTextureFile,
     C_sceneVideoChristoffel,
     C_sceneVideoCalibrateMain,
     C_sceneVideoCalibrateScnd,
@@ -138,16 +138,15 @@ enum SLCommand
     C_multiSampleToggle,    // Toggles multisampling
     C_depthTestToggle,      // Toggles the depth test flag
     C_frustCullToggle,      // Toggles frustum culling
-    C_waitEventsToggle,     // Toggles the wait event flag
+    C_waitOnIdleToggle,     // Toggles the wait event flag
 
-    C_skeletonToggle,       // Toggles skeleton drawing bit
+    C_wireMeshToggle,       // Toggles wireframe drawing bit
+    C_normalsToggle,        // Toggles normal drawing bit
     C_bBoxToggle,           // Toggles bounding box drawing bit
     C_axisToggle,           // Toggles axis drawing bit
     C_faceCullToggle,       // Toggles face culling
-    C_wireMeshToggle,       // Toggles wireframe drawing bit
-    C_normalsToggle,        // Toggles normal drawing bit
-    C_textureToggle,        // Texture drawing bit toggle
-    C_voxelsToggle,         // Voxel drawing bit toggle
+    C_voxelsToggle,         // Toggles Voxel drawing bit toggle
+    C_skeletonToggle,       // Toggles skeleton drawing bit
    
     C_projPersp,            // Perspective projection
     C_projOrtho,            // Orthographic projection
@@ -200,8 +199,6 @@ enum SLCommand
     C_mirrorVScndVideoToggle,       // Mirror video image from secondary camera vertically
 
     C_renderOpenGL,     // Render with GL
-    C_rtContinuously,   // Do ray tracing continuously
-    C_rtDistributed,    // Do ray tracing distributed
     C_rtStop,           // Stop ray tracing
     C_rt1,              //1: Do ray tracing with max. depth 1
     C_rt2,              //2: Do ray tracing with max. depth 2
@@ -244,6 +241,7 @@ enum SLTextAlign
 enum SLCamAnim
 {   CA_turntableYUp,        //!< Orbiting around central object w. turnrable rotation around y & right axis.
     CA_turntableZUp,        //!< Orbiting around central object w. turnrable rotation around z & right axis.
+    CA_trackball,           //!< Orbiting around central object w. one rotation around one axis
     CA_walkingYUp,          //!< Walk translation with AWSD and look around rotation around y & right axis.
     CA_walkingZUp,          //!< Walk translation with AWSD and look around rotation around z & right axis.
     CA_deviceRotYUp,        //!< The device rotation controls the camera rotation.
@@ -398,7 +396,7 @@ enum SLVideoType
 {   VT_NONE =  0,  //!< No camera needed
     VT_MAIN =  1,  //!< Main camera on all on all all devices
     VT_SCND =  2,  //!< Selfie camera on mobile devices
-    VT_SEQU =  3,  //!< Image sequence from file
+    VT_FILE =  3,  //!< Loads a video from file with OpenCV
 };
 //-----------------------------------------------------------------------------
 //! Feature detector-decriptor types

@@ -266,10 +266,13 @@ SLQuat4f getRotation(SLfloat time, const KeyframeMap& keyframes)
 //-----------------------------------------------------------------------------
 /*! Loads the scene from a file and creates materials with textures, the 
 meshes and the nodes for the scene graph. Materials, textures and meshes are
-added to the according vectors of SLScene for later deallocation.
+added to the according vectors of SLScene for later deallocation. If an
+override material is provided it will be assigned to all meshes and all
+materials within the file are ignored.
 */
 SLNode* SLAssimpImporter::load(SLstring file,           //!< File with path or on default path
                                SLbool loadMeshesOnly,   //!< Only load nodes with meshes
+                               SLMaterial* overrideMat, //!< Override material
                                SLuint flags)            //!< Import flags (see assimp/postprocess.h)
 {
     // clear the intermediate data
@@ -281,7 +284,12 @@ SLNode* SLAssimpImporter::load(SLstring file,           //!< File with path or o
         if (!SLFileSystem::fileExists(file))
         {   SLstring msg = "SLAssimpImporter: File not found: " + file + "\n";
             SL_WARN_MSG(msg.c_str());
-            return nullptr;
+            file = defaultPath + SLUtils::getFileName(file);
+            if (!SLFileSystem::fileExists(file))
+            {   SLstring msg = "SLAssimpImporter: File not found: " + file + "\n";
+                SL_WARN_MSG(msg.c_str());
+                return nullptr;
+            }
         }
     }
 
@@ -303,18 +311,24 @@ SLNode* SLAssimpImporter::load(SLstring file,           //!< File with path or o
     // load materials
     SLstring modelPath = SLUtils::getPath(file);
     SLVMaterial materials;
-    for(SLint i = 0; i < (SLint)scene->mNumMaterials; i++)
-        materials.push_back(loadMaterial(i, scene->mMaterials[i], modelPath));
-        
+    if (!overrideMat)
+    {   for(SLint i = 0; i < (SLint)scene->mNumMaterials; i++)
+            materials.push_back(loadMaterial(i, scene->mMaterials[i], modelPath));
+    }
+    
     // load meshes & set their material
     std::map<int, SLMesh*> meshMap;  // map from the ai index to our mesh
     for(SLint i = 0; i < (SLint)scene->mNumMeshes; i++)
     {   SLMesh* mesh = loadMesh(scene->mMeshes[i]);
         if (mesh != 0)
-        {   mesh->mat = materials[scene->mMeshes[i]->mMaterialIndex];
+        {   if (overrideMat)
+                 mesh->mat(overrideMat);
+            else mesh->mat(materials[scene->mMeshes[i]->mMaterialIndex]);
             _meshes.push_back(mesh);
             meshMap[i] = mesh;
-        } else SL_LOG("SLAsssimpImporter::load failed: %s\nin path: %s\n", file.c_str(), modelPath.c_str());
+        } else SL_LOG("SLAsssimpImporter::load failed: %s\nin path: %s\n",
+                      file.c_str(),
+                      modelPath.c_str());
     }
 
     // load the scene nodes recursively
@@ -326,6 +340,10 @@ SLNode* SLAssimpImporter::load(SLstring file,           //!< File with path or o
         animations.push_back(loadAnimation(scene->mAnimations[i]));
 
     logMessage(LV_minimal, "\n---------------------------\n\n");
+    
+    // Rename root node to the more meaningfull filename
+    if (_sceneRoot)
+        _sceneRoot->name(SLUtils::getFileName(file));
 
     return _sceneRoot;
 }
@@ -446,7 +464,10 @@ void SLAssimpImporter::findJoints(const aiScene* scene)
         if(!mesh->HasBones())
             continue;
 
-		logMessage(LV_normal, "   Mesh '%s' contains %d joints.\n", mesh->mName.C_Str(), mesh->mNumBones);
+		logMessage(LV_normal,
+                   "   Mesh '%s' contains %d joints.\n",
+                   mesh->mName.C_Str(),
+                   mesh->mNumBones);
         
         for (SLuint j = 0; j < mesh->mNumBones; j++)
         {
@@ -496,9 +517,15 @@ void SLAssimpImporter::findSkeletonRoot()
 
         // log the gathered ancestor list if on diagnostic
         if (LV_diagnostic)
-        {   logMessage(LV_diagnostic, "   '%s' ancestor list: ", it->first.c_str());
+        {   logMessage(LV_diagnostic,
+                       "   '%s' ancestor list: ",
+                       it->first.c_str());
+            
             for (SLint i = 0; i < list.size(); i++)
-                logMessage(LV_diagnostic, "'%s' ", list[i]->mName.C_Str());
+                logMessage(LV_diagnostic,
+                           "'%s' ",
+                           list[i]->mName.C_Str());
+            
             logMessage(LV_diagnostic, "\n");
         } else
             logMessage(LV_detailed, "   '%s' lies at a depth of %d\n",
@@ -508,10 +535,13 @@ void SLAssimpImporter::findSkeletonRoot()
         minDepth = min(minDepth, (SLint)list.size());
     }
 
-
-    logMessage(LV_detailed, "Bone ancestor lists completed, min depth: %d\n", minDepth);
+    logMessage(LV_detailed,
+               "Bone ancestor lists completed, min depth: %d\n",
+               minDepth);
     
-    logMessage(LV_detailed, "Searching ancestor lists for common ancestor.\n");
+    logMessage(LV_detailed,
+               "Searching ancestor lists for common ancestor.\n");
+    
     // now we have a ancestor list for each joint node beginning with the root node
     for (SLint i = 0; i < minDepth; i++) 
     {
@@ -529,7 +559,9 @@ void SLAssimpImporter::findSkeletonRoot()
         if (!failed)
         {
             _skeletonRoot = lastMatch;
-            logMessage(LV_detailed, "Found matching ancestor '%s'.\n", _skeletonRoot->mName.C_Str());
+            logMessage(LV_detailed,
+                       "Found matching ancestor '%s'.\n",
+                       _skeletonRoot->mName.C_Str());
         }
         else
         {
@@ -537,12 +569,15 @@ void SLAssimpImporter::findSkeletonRoot()
         }
     }
 
-    // seems like the above can be wrong, we should just select the common ancestor that is one below the assimps root
+    // seems like the above can be wrong, we should just select the common
+    // ancestor that is one below the assimps root.
     // @todo fix this function up and make sure there exists a second element
     if (!_skeletonRoot)
     _skeletonRoot = ancestorList[0][1];
 
-    logMessage(LV_normal, "Determined '%s' to be the skeleton's root node.\n", _skeletonRoot->mName.C_Str());
+    logMessage(LV_normal,
+               "Determined '%s' to be the skeleton's root node.\n",
+               _skeletonRoot->mName.C_Str());
 }
 //-----------------------------------------------------------------------------
 //! Loads the skeleton
@@ -562,7 +597,7 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
         _jointIndex = 0;
 
         joint = _skeleton->createJoint(name, _jointIndex++);
-        _skeleton->root(joint);
+        _skeleton->rootJoint(joint);
     }
     else
     {
@@ -571,13 +606,14 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
 
     joint->offsetMat(getOffsetMat(name));
     
-    // set the initial state for the joints (in case we render the model without playing its animation)
-    // an other possibility is to set the joints to the inverse offset matrix so that the model remains in
-    // its bind pose
-    // some files will report the node transformation as the animation state transformation that the
-    // model had when exporting (in case of our astroboy its in the middle of the animation=
-    // it might be more desirable to have ZERO joint transformations in the initial pose
-    // to be able to see the model without any joint modifications applied
+    // set the initial state for the joints (in case we render the model
+    // without playing its animation) an other possibility is to set the joints
+    // to the inverse offset matrix so that the model remains in its bind pose
+    // some files will report the node transformation as the animation state
+    // transformation that the model had when exporting (in case of our astroboy
+    // its in the middle of the animation.
+    // It might be more desirable to have ZERO joint transformations in the initial
+    // pose to be able to see the model without any joint modifications applied
     // exported state
     
     // set the current node transform as the initial state

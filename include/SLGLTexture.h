@@ -102,6 +102,10 @@ class SLGLTexture : public SLObject
             void            bindActive          (SLint texID=0);
             void            fullUpdate          ();
             void            drawSprite          (SLbool doUpdate = false);
+            void            cubeUV2XYZ          (SLint index, SLfloat u, SLfloat v,
+                                                 SLfloat& x, SLfloat& y, SLfloat& z);
+            void            cubeXYZ2UV          (SLfloat x, SLfloat y, SLfloat z,
+                                                 SLint& index, SLfloat& u, SLfloat& v);
 
             // Setters
             void            texType             (SLTextureType bt)  {_texType = bt;}
@@ -115,7 +119,8 @@ class SLGLTexture : public SLObject
             SLuint          texName             (){return _texName;}
             SLTextureType   texType             (){return _texType;}
             SLfloat         bumpScale           (){return _bumpScale;}
-            SLCol4f         getTexelf           (SLfloat s, SLfloat t);
+            SLCol4f         getTexelf           (SLfloat s, SLfloat t, SLuint imgIndex = 0);
+            SLCol4f         getTexelf           (SLVec3f cubemapDir);
             SLbool          hasAlpha            (){return (_images.size() &&
                                                           ((_images[0]->format()==PF_rgba  ||
                                                             _images[0]->format()==PF_bgra) ||
