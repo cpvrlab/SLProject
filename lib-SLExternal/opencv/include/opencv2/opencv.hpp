@@ -83,7 +83,7 @@
 #include "opencv2/shape.hpp"
 #endif
 #ifdef HAVE_OPENCV_STITCHING
-//#include "opencv2/stitching.hpp"
+#include "opencv2/stitching.hpp"
 #endif
 #ifdef HAVE_OPENCV_SUPERRES
 #include "opencv2/superres.hpp"
