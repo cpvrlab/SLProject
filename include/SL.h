@@ -46,7 +46,6 @@
 #include <string.h>              // for string functions
 //-----------------------------------------------------------------------------
 
-//#define SL_VIDEO_DEBUG 1;
 //////////////////////////////////////////////////////////
 // Preprocessor constant definitions used in the SLProject
 //////////////////////////////////////////////////////////

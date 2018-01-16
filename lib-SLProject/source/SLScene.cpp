@@ -512,8 +512,6 @@ bool SLScene::onUpdate()
     return sceneHasChanged;
 }
 
-//#define SL_VIDEO_DEBUG 1;
-
 //-----------------------------------------------------------------------------
 //! SLScene::onAfterLoad gets called after onLoad
 void SLScene::onAfterLoad()
@@ -732,12 +730,12 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
 
     //find next camera, that is not of type SLCVCamera if "allow SLCVCamera as
     //active camera" is deactivated
- /*   do {
+   do {
         activeIndex = activeIndex > cams.size()-2 ? 0 : ++activeIndex;
     }
     while ( dynamic_cast<SLCVCamera*>(cams[activeIndex]) && 
         !dynamic_cast<SLCVCamera*>(cams[activeIndex])->allowAsActiveCam());
-*/
+
     return cams[activeIndex];
 }
 //------------------------------------------------------------------------------
