@@ -42,11 +42,6 @@ add_definitions(-DASSIMP_BUILD_NO_IFC_IMPORTER)
 add_definitions(-DASSIMP_BUILD_NO_XGL_IMPORTER)
 
 #
-# OpenCV
-#
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/main/jniInclude/include)
-
-#
 # SLProject
 #
 file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/math/SLCurveBezier.cpp
@@ -154,6 +149,7 @@ list(REMOVE_ITEM SLEXTERNAL_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/opencv/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/nvwa)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa)

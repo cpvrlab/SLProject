@@ -78,7 +78,7 @@ bool myListBox(const char* label, int* currIndex, SLVstring& values)
 }
 //-----------------------------------------------------------------------------
 //! Centers the next ImGui window in the parent
-void centerNextWindow(SLSceneView* sv, SLfloat widthPC=0.9f, SLfloat heightPC=0.7f)
+void centerNextWindow(SLSceneView* sv, SLfloat widthPC=0.9f, SLfloat heightPC=0.9f)
 {
     SLfloat width  = (SLfloat)sv->scrW()*widthPC;
     SLfloat height = (SLfloat)sv->scrH()*heightPC;
@@ -165,7 +165,7 @@ chessboard corners. To take an image you have to click with the mouse \
 or tap with finger into the screen. You can mirror the video image under \
 Preferences > Video. \n\
 After calibration the yellow wireframe cube should stick on the chessboard.\n\n\
-Please close first this info dialog.\n\
+Please close first this info dialog on the top-left.\n\
 ";
 
 //-----------------------------------------------------------------------------
@@ -177,8 +177,9 @@ Please close first this info dialog.\n\
  */
 void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 {
-    if (!showAbout && !showCredits)
-        buildMenuBar(s, sv);
+    ///////////////////////////////////
+    // Show modeless fullscreen dialogs
+    ///////////////////////////////////
 
     if (showAbout)
     {
@@ -190,41 +191,51 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
                 cpvrLogo->bindActive();
         } else  cpvrLogo->bindActive();
 
+        SLfloat iconSize = sv->scrW()*0.15f;
+
         centerNextWindow(sv);
-        ImGui::Begin("About SLProject", &showAbout);
-        ImGui::Image((ImTextureID)(intptr_t)cpvrLogo->texName(), ImVec2(100,100), ImVec2(0,1), ImVec2(1,0));
+        ImGui::Begin("About SLProject", &showAbout, ImGuiWindowFlags_NoResize);
+        ImGui::Image((ImTextureID)(intptr_t)cpvrLogo->texName(), ImVec2(iconSize,iconSize), ImVec2(0,1), ImVec2(1,0));
         ImGui::SameLine();
         ImGui::Text("Version %s", SL::version.c_str());
         ImGui::Separator();
         ImGui::TextWrapped("%s", infoAbout.c_str());
         ImGui::End();
+        return;
     }
 
     if (showHelp)
     {
         centerNextWindow(sv);
-        ImGui::Begin("Help on Interaction", &showHelp);
-        ImGui::Separator();
-
+        ImGui::Begin("Help on Interaction", &showHelp, ImGuiWindowFlags_NoResize);
         ImGui::TextWrapped("%s", infoHelp.c_str());
         ImGui::End();
+        return;
     }
 
     if (showHelpCalibration)
     {
         centerNextWindow(sv);
-        ImGui::Begin("Help on Camera Calibration", &showHelpCalibration, ImVec2(400,0));
+        ImGui::Begin("Help on Camera Calibration", &showHelpCalibration, ImGuiWindowFlags_NoResize);
         ImGui::TextWrapped("%s", infoCalibrate.c_str());
         ImGui::End();
+        return;
     }
 
     if (showCredits)
     {
         centerNextWindow(sv);
-        ImGui::Begin("Credits for all Contributors and external Libraries", &showCredits);
+        ImGui::Begin("Credits for all Contributors and external Libraries", &showCredits, ImGuiWindowFlags_NoResize);
         ImGui::TextWrapped("%s", infoCredits.c_str());
         ImGui::End();
+        return;
     }
+
+    //////////////////
+    // Show rest modal
+    //////////////////
+
+    buildMenuBar(s, sv);
 
     if (showStatsTiming)
     {
@@ -302,8 +313,8 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         }
 
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
-        ImGui::TextWrapped("%s", m);
+        ImGui::Begin("Timing", &showStatsTiming, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::TextUnformatted(m);
         ImGui::End();
         ImGui::PopFont();
     }
@@ -348,7 +359,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         SLint   gpuMBTexturePC = (SLint)(gpuMBTexture / gpuMBTotal * 100.0f);
         SLint   gpuMBVboPC     = (SLint)(gpuMBVbo / gpuMBTotal * 100.0f);
 
-        sprintf(m+strlen(m), "Scene Name      : %s\n", s->name().c_str());
+        sprintf(m+strlen(m), "Name: %s\n", s->name().c_str());
         sprintf(m+strlen(m), "No. of Nodes    : %5d (100%%)\n", stats3D.numNodes);
         sprintf(m+strlen(m), "- Group Nodes   : %5d (%3d%%)\n", stats3D.numGroupNodes, numGroupPC);
         sprintf(m+strlen(m), "- Leaf  Nodes   : %5d (%3d%%)\n", stats3D.numLeafNodes, numLeafPC);
@@ -374,7 +385,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::Begin("Scene Statistics", &showStatsScene, ImVec2(300,0));
+        ImGui::Begin("Scene Statistics", &showStatsScene, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::TextUnformatted(m);
         ImGui::End();
         ImGui::PopFont();
@@ -408,13 +419,13 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::Begin("Video", &showStatsVideo, ImVec2(300,0));
+        ImGui::Begin("Video", &showStatsVideo, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::TextUnformatted(m);
         ImGui::End();
         ImGui::PopFont();
     }
 
-    if (showInfosScene && !showAbout && !showCredits)
+    if (showInfosScene)
     {
         // Calculate window position for dynamic status bar at the bottom of the main window
         ImGuiWindowFlags window_flags = 0;
@@ -447,7 +458,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::Begin("Framework Informations", &showInfosFrameworks, ImVec2(300,0));
+        ImGui::Begin("Framework Informations", &showInfosFrameworks, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::TextUnformatted(m);
         ImGui::End();
         ImGui::PopFont();
@@ -478,7 +489,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::Begin("Sensor Informations", &showInfosSensors, ImVec2(300,0));
+        ImGui::Begin("Sensor Informations", &showInfosSensors, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::TextUnformatted(m);
         ImGui::End();
         ImGui::PopFont();
@@ -1094,7 +1105,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 static SLfloat focalDist = cam->focalDist();
                 static SLfloat fov = cam->fov();
 
-                ImGui::PushItemWidth(100);
+                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
 
                 if (ImGui::MenuItem("Perspective", "5", proj==P_monoPerspective))
                     sv->onCommand(C_projPersp);
@@ -1144,7 +1155,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             {
                 SLCamAnim ca = cam->camAnim();
 
-                ImGui::PushItemWidth(100);
+                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
 
                 if (ImGui::MenuItem("Turntable Y up", 0, ca==CA_turntableYUp))
                     sv->camera()->camAnim(CA_turntableYUp);
@@ -1186,10 +1197,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (curAnimIx == -1) curAnimIx = 0;
             SLAnimPlayback* anim = s->animManager().allAnimPlayback(curAnimIx);
 
-            ImGui::PushItemWidth(100);
-
+            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.8f);
             if (myComboBox("", &curAnimIx, animations))
                 anim = s->animManager().allAnimPlayback(curAnimIx);
+            ImGui::PopItemWidth();
 
             if (ImGui::MenuItem("Play forward", 0, anim->isPlayingForward()))
                 anim->playForward();
@@ -1203,10 +1214,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Stop", 0, anim->isStopped()))
                 anim->enabled(false);
 
-            if (ImGui::MenuItem("Skip to next keyframe", 0, false))
+            if (ImGui::MenuItem("Skip to next keyfr.", 0, false))
                 anim->skipToNextKeyframe();
 
-            if (ImGui::MenuItem("Skip to previous keyframe", 0, false))
+            if (ImGui::MenuItem("Skip to prev. keyfr.", 0, false))
                 anim->skipToPrevKeyframe();
 
             if (ImGui::MenuItem("Skip to start", 0, false))
@@ -1214,6 +1225,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::MenuItem("Skip to end", 0, false))
                 anim->skipToEnd();
+
+            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.6f);
 
             SLfloat speed = anim->playbackRate();
             if (ImGui::SliderFloat("Speed", &speed, 0.f, 4.f))

@@ -78,12 +78,15 @@ void SLGLImGui::init()
     // The screen size is set again in onResize
     io.DisplaySize = ImVec2(0, 0);
     io.DisplayFramebufferScale = ImVec2(1,1);
+
+    // Change default style to show the widget border
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.FrameBorderSize = 1;
 }
 //-----------------------------------------------------------------------------
 //! Loads the proportional and fixed size font depending on the passed DPI
 void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
 {
-
     _fontPropDots = fontPropDots;
     _fontFixedDots = fontFixedDots;
 

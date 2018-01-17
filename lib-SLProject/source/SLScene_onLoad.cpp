@@ -214,7 +214,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     if (SL::currentSceneID == C_sceneMinimal) //...................................................
     {
         // Set scene name and info string
-        name("Minimal Texture Example");
+        name("Minimal Scene Test");
         _info = "Minimal texture mapping example with one light source.";
 
         // Create textures and materials
@@ -251,7 +251,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneFigure) //....................................................
     {
-        name("Hierarchical Figure Scene");
+        name("Hierarchical Figure Test");
         _info = "Hierarchical scenegraph with multiple subgroups.";
 
         // Create textures and materials
@@ -373,7 +373,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneVRSizeTest) //................................................
     {
-        name("Virtual Reality test scene");
+        name("VR Test");
         _info = "Test scene for virtual reality size perception.";
         
 
@@ -557,7 +557,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneRevolver) //..................................................
     {
-        name("Revolving Mesh Test w. glass shader");
+        name("Revolving Mesh Test");
         _info = "Examples of revolving mesh objects constructed by rotating a 2D curve. The glass shader reflects and refracts the environment map. Try ray tracing.";
 
         // Test map material
@@ -755,7 +755,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneTextureBlend) //..............................................
     {
-        name("Blending: Texture Transparency with sorting");
+        name("Texture Blending Test");
         _info = "Texture map blending with depth sorting. Trees in view frustum are rendered back to front.";
 
         SLGLTexture* t1 = new SLGLTexture("tree1_1024_C.png",
@@ -852,7 +852,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneTextureFilter) //.............................................
     {
-        name("Texturing: Filter Compare and 3D texture");
+        name("Texture Filer Test");
         _info = "Texture filters: Bottom: nearest, left: linear, top: linear mipmap, right: anisotropic";
         
         // Create 4 textures with different filter modes
@@ -1015,7 +1015,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_scene2Dand3DText) //...............................................
     {  
-        name("2D and 3D Text Test");
+        name("2D & 3D Text Test");
         _info = "All 3D objects are in the _root3D scene and the center text is in the _root2D scene and rendered in orthographic projection in screen space.";
 
         SLMaterial* m1 = new SLMaterial("m1", SLCol4f::RED);
@@ -1296,7 +1296,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneShaderCookTorrance) //................................
     {
-        name("Cook-Torrance per pixel lighting");
+        name("Cook-Torrance Test");
        _info = "Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. The center sphere has roughness and metallic encoded in textures.";
 
         // Base root group node for the scene
@@ -1370,7 +1370,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneShaderPerVertexWave) //.......................................
     {
-        name("Wave Shader");
+        name("Wave Shader Test");
         _info = "Vertex Shader with wave displacment.";
         if (SL::noTestIsRunning())
             SL_LOG("Use H-Key to increment (decrement w. shift) the wave height.\n\n");
@@ -1421,7 +1421,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneShaderWater) //...............................................
     {
-        name("Water Shader");
+        name("Water Shader Test");
         _info = "Water Shader with reflection & refraction mapping.";
         if (SL::noTestIsRunning())
             SL_LOG("Use H-Key to increment (decrement w. shift) the wave height.\n\n");
@@ -1506,7 +1506,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneShaderBumpNormal) //..........................................
     {
-        name("Normal Map Bump Mapping");
+        name("Normal Map Test");
         _info = "Normal map bump mapping combined with a per pixel spot lighting.";
 
         // Create textures
@@ -1546,7 +1546,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneShaderBumpParallax) //........................................
     {
-        name("Parallax Bump Mapping");
+        name("Parallax Map Test");
         if (SL::noTestIsRunning())
         {   SL_LOG("Demo application for parallax bump mapping.\n");
             SL_LOG("Use S-Key to increment (decrement w. shift) parallax scale.\n");
@@ -1602,7 +1602,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     if (SL::currentSceneID == C_sceneShaderSkyBox) //..............................................
     {
         // Set scene name and info string
-        name("Sky Box Texture Example");
+        name("Sky Box Test");
         _info = "Sky box cube with cubemap skybox shader";
         
         // Create textures and materials
@@ -1669,7 +1669,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneShaderEarth) //...............................................
     {
-        name("Earth Shader from Markus Knecht");
+        name("Earth Shader Test");
         if (SL::noTestIsRunning())
         {   SL_LOG("Earth Shader from Markus Knecht\n");
             SL_LOG("Use (SHIFT) & key Y to change scale of the parallax mapping\n");
@@ -1743,7 +1743,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneVolumeRayCast) //......................................
     {
-        name("Volume Ray Cast Head MRI");
+        name("Volume Ray Cast Test");
 
         _info = "Volume Rendering of an angiographic MRI scan";
 
@@ -1808,7 +1808,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneVolumeRayCastLighted) //...............................
     {
-        name("Volume Ray Cast Lighted Head MRI");
+        name("Volume Ray Cast Lighted Test");
 
         _info = "Volume Rendering of an angiographic MRI scan with lighting";
 
@@ -1960,7 +1960,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneAnimationNode) //.............................................
     {
-        name("Node Animations");
+        name("Node Animations Test");
         _info = "Node animations with different easing curves.";
 
         // Create textures and materials
@@ -2068,7 +2068,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneAnimationMass) //.............................................
     {
-        name("Mass Animation");
+        name("Mass Animation Test");
         _info = "Performance test for transform updates from many animations.";
 
         init();
@@ -2141,7 +2141,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneAnimationArmy) //.............................................
     {
-        name("Astroboy army skinned on CPU");
+        name("Astroboy Army Test");
         _info = "Mass animation scene of identitcal Astroboy models";
 
         // Create materials
@@ -2212,11 +2212,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     {
         // Set scene name and info string
         if (SL::currentSceneID == C_sceneVideoTextureLive)
-        {   name("Texture from live video");
+        {   name("Live Video Texture");
             _info = "Minimal texture mapping example with live video source.";
             videoType(VT_SCND); // on desktop it will be the main camera
         } else
-        {   name("Texture from video file");
+        {   name("File Video Texture");
             _info = "Minimal texture mapping example with video file source.";
             videoType(VT_FILE);
             SLCVCapture::videoFilename = "street3.mp4";
@@ -2286,22 +2286,22 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             SL::currentSceneID == C_sceneVideoTrackChessScnd)
         {   if (SL::currentSceneID == C_sceneVideoTrackChessMain)
             {   videoType(VT_MAIN);
-                name("Track Chessboard with main camera");
+                name("Track Chessboard (main cam.)");
             } else
             {   videoType(VT_SCND);
-                name("Track Chessboard with secondary camera");
+                name("Track Chessboard (scnd. cam.");
             }
         } else
         if (SL::currentSceneID == C_sceneVideoCalibrateMain)
         {   videoType(VT_MAIN);
             _activeCalib->clear();
 
-            name("Calibrate Main Camera");
+            name("Calibrate Main Cam.");
         } else
         if (SL::currentSceneID == C_sceneVideoCalibrateScnd)
         {   videoType(VT_SCND);
             _activeCalib->clear();
-            name("Calibrate Secondary Camera");
+            name("Calibrate Scnd. Cam.");
         }
 
         // Material
@@ -2370,11 +2370,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         if (SL::currentSceneID == C_sceneVideoTrackArucoMain)
         {   videoType(VT_MAIN);
-            name("Track Aruco Marker on main camera");
+            name("Track Aruco (main cam.)");
             _info = "Hold Aruco Marker 0 and/or 1 into the field of view of the main camera. You can find the Aruco markers in the file _data/Calibrations/ArucoMarkersDict0_Marker0-9.pdf";
         } else
         {   videoType(VT_SCND);
-            name("Track Aruco Marker on secondary camera");
+            name("Track Aruco (scnd. cam.)");
             _info = "Hold Aruco Marker 0 and/or 1 into the field of view of the secondary camera. You can find the Aruco markers in the file _data/Calibrations/ArucoMarkersDict0_Marker0-9.pdf";
         }
 
@@ -2449,7 +2449,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         use case.
         */
 
-        name("2D Feature Tracking");
+        name("Track 2D Features");
         _info = "Augmented Reality 2D Feature Tracking: You need to print out the stones image target from the file _data/calibrations/vuforia_markers.pdf";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -2506,7 +2506,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     if (SL::currentSceneID == C_sceneVideoSensorAR) //.............................................
     {
         // Set scene name and info string
-        name("Video Sensor Augmented Reality");
+        name("Video Sensor AR");
         _info = "Minimal scene to test the devices IMU and GPS Sensors. See the sensor information. GPS needs a few sec. to improve the accuracy.";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -2569,7 +2569,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneVideoChristoffel) //..........................................
     {
-        name("Christoffel Tower");
+        name("Christoffel Tower AR");
         _info = "Augmented Reality Christoffel Tower";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -2876,7 +2876,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneRTDoF) //.....................................................
     {
-        name("Ray tracing: Depth of Field");
+        name("Ray tracing depth of field");
 
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture("Checkerboard0512_C.png");
@@ -2938,7 +2938,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneRTLens) //....................................................
 	{
-        name("Ray tracing: Lens test");
+        name("Ray tracing lens test");
         _info = "Ray tracing lens test scene.";
 
         // Create textures and materials
@@ -3015,7 +3015,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     if (SL::currentSceneID == C_sceneRTTest) //....................................................
     {
         // Set scene name and info string
-        name("RT Test Scene");
+        name("Ray tracing test");
         _info = "RT Test Scene";
 
         // Create a camera node
