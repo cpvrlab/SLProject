@@ -2224,7 +2224,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         }
 
         // Back wall material with live video texture
-        SLMaterial* m1 = new SLMaterial("mat3", &_videoTexture);
+        SLMaterial* m1 = new SLMaterial("VideoMat", &_videoTexture);
 
         // Create a root scene group for all nodes
         SLNode* scene = new SLNode("scene node");

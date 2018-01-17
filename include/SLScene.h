@@ -107,7 +107,6 @@ class SLScene: public SLObject
             // Video stuff
             SLVideoType         videoType       () {return _videoType;}
             SLGLTexture*        videoTexture    () {return &_videoTexture;}
-            SLGLTexture*        videoTextureErr () {return &_videoTextureErr;}
             SLCVCalibration*    activeCalib     () {return _activeCalib;}
             SLCVCalibration*    calibMainCam    () {return &_calibMainCam;}
             SLCVCalibration*    calibScndCam    () {return &_calibScndCam;}
