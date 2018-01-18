@@ -100,7 +100,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     SLTexFont::generateFonts();
 
     // load default video image that is displayed when no live video is available
-    _videoTextureErr.setVideoImage("LiveVideoError.png");
+    _videoTexture.setVideoImage("LiveVideoError.png");
 
     // Set video type to none (this also sets the active calibration to the main calibration)
     videoType(VT_NONE);
@@ -178,6 +178,9 @@ SLScene::~SLScene()
 
     // release the capture device
     SLCVCapture::release();
+
+    // reset video texture
+    _videoTexture.setVideoImage("LiveVideoError.png");
 
     SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
@@ -518,15 +521,17 @@ void SLScene::onAfterLoad()
             if (videoSize != SLVec2i::ZERO)
             {
                 SLCVCapture::grabAndAdjustForSL();
-                _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
-                                             SLCVCapture::lastFrame.rows,
-                                             SLCVCapture::format,
-                                             SLCVCapture::lastFrame.data,
-                                             SLCVCapture::lastFrame.isContinuous(),
-                                             true);
-            } else
-            {
-                _videoTexture.setVideoImage("LiveVideoError.png");
+                
+                if (SLCVCapture::lastFrame.cols > 0 &&
+                    SLCVCapture::lastFrame.rows > 0)
+                {
+                    _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+                                                 SLCVCapture::lastFrame.rows,
+                                                 SLCVCapture::format,
+                                                 SLCVCapture::lastFrame.data,
+                                                 SLCVCapture::lastFrame.isContinuous(),
+                                                 true);
+                }
             }
         }
     }
@@ -538,16 +543,16 @@ void SLScene::onAfterLoad()
 
             if (videoSize != SLVec2i::ZERO)
             {
-                SLCVCapture::grabAndAdjustForSL();
-                _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
-                                             SLCVCapture::lastFrame.rows,
-                                             SLCVCapture::format,
-                                             SLCVCapture::lastFrame.data,
-                                             SLCVCapture::lastFrame.isContinuous(),
-                                             true);
-            } else
-            {
-                _videoTexture.setVideoImage("LiveVideoError.png");
+                if (SLCVCapture::lastFrame.cols > 0 &&
+                    SLCVCapture::lastFrame.rows > 0)
+                {
+                    _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+                                                 SLCVCapture::lastFrame.rows,
+                                                 SLCVCapture::format,
+                                                 SLCVCapture::lastFrame.data,
+                                                 SLCVCapture::lastFrame.isContinuous(),
+                                                 true);
+                }
             }
         }
     }

@@ -264,12 +264,12 @@ SLbool SLGLTexture::copyVideoImage(SLint camWidth,
     
     // load returns true if size or format changes
     bool needsBuild = _images[0]->load(camWidth,
-                                         camHeight,
-                                         srcFormat,
-                                         PF_rgb,
-                                         data,
-                                         isContinuous,
-                                         isTopLeft);
+                                       camHeight,
+                                       srcFormat,
+                                       PF_rgb,
+                                       data,
+                                       isContinuous,
+                                       isTopLeft);
 
     // OpenGL ES 2 only can resize non-power-of-two texture with clamp to edge
     _wrap_s = GL_CLAMP_TO_EDGE;
