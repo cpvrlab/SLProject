@@ -160,6 +160,7 @@ LATCH is a binary descriptor based on learned comparisons of triplets of image p
 * rotationInvariance - whether or not the descriptor should compansate for orientation changes.
 * half_ssd_size - the size of half of the mini-patches size. For example, if we would like to compare triplets of patches of size 7x7x
     then the half_ssd_size should be (7-1)/2 = 3.
+* sigma - sigma value for GaussianBlur smoothing of the source image. Source image will be used without smoothing in case sigma value is 0.
 
 Note: the descriptor can be coupled with any keypoint extractor. The only demand is that if you use set rotationInvariance = True then
     you will have to use an extractor which estimates the patch orientation (in degrees). Examples for such extractors are ORB and SIFT.
@@ -170,7 +171,7 @@ Note: a complete example can be found under /samples/cpp/tutorial_code/xfeatures
 class CV_EXPORTS_W LATCH : public Feature2D
 {
 public:
-    CV_WRAP static Ptr<LATCH> create(int bytes = 32, bool rotationInvariance = true, int half_ssd_size=3);
+    CV_WRAP static Ptr<LATCH> create(int bytes = 32, bool rotationInvariance = true, int half_ssd_size = 3, double sigma = 2.0);
 };
 
 /** @brief Class implementing DAISY descriptor, described in @cite Tola10
@@ -311,13 +312,6 @@ public:
     CV_WRAP static Ptr<VGG> create( int desc = VGG::VGG_120, float isigma = 1.4f,
                                     bool img_normalize = true, bool use_scale_orientation = true,
                                     float scale_factor = 6.25f, bool dsc_normalize = false );
-    /**
-     * @param image image to extract descriptors
-     * @param keypoints of interest within image
-     * @param descriptors resulted descriptors array
-     */
-    CV_WRAP virtual void compute( InputArray image, std::vector<KeyPoint>& keypoints, OutputArray descriptors ) = 0;
-
 };
 
 /** @brief Class implementing BoostDesc (Learning Image Descriptors with Boosting), described in
@@ -605,7 +599,7 @@ public:
     * @brief Weights (multiplicative constants) that linearly stretch individual axes of the feature space
     *       (x,y = position; L,a,b = color in CIE Lab space; c = contrast. e = entropy)
     */
-    CV_WRAP virtual float getWeightConstrast() const = 0;
+    CV_WRAP virtual float getWeightContrast() const = 0;
     /**
     * @brief Weights (multiplicative constants) that linearly stretch individual axes of the feature space
     *       (x,y = position; L,a,b = color in CIE Lab space; c = contrast. e = entropy)
@@ -924,6 +918,26 @@ public:
         OutputArray descriptors,
         bool useProvidedKeypoints=false ) = 0;
 };
+
+
+/** @brief Estimates cornerness for prespecified KeyPoints using the FAST algorithm
+
+@param image grayscale image where keypoints (corners) are detected.
+@param keypoints keypoints which should be tested to fit the FAST criteria. Keypoints not beeing
+detected as corners are removed.
+@param threshold threshold on difference between intensity of the central pixel and pixels of a
+circle around this pixel.
+@param nonmaxSuppression if true, non-maximum suppression is applied to detected corners
+(keypoints).
+@param type one of the three neighborhoods as defined in the paper:
+FastFeatureDetector::TYPE_9_16, FastFeatureDetector::TYPE_7_12,
+FastFeatureDetector::TYPE_5_8
+
+Detects corners using the FAST algorithm by @cite Rosten06 .
+ */
+CV_EXPORTS void FASTForPointSet( InputArray image, CV_IN_OUT std::vector<KeyPoint>& keypoints,
+                      int threshold, bool nonmaxSuppression=true, int type=FastFeatureDetector::TYPE_9_16);
+
 
 //! @}
 

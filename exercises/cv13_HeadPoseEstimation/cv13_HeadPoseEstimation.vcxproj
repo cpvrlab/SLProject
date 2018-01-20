@@ -153,7 +153,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opencv_aruco320d.lib;opencv_calib3d320d.lib;opencv_core320d.lib;opencv_features2d320d.lib;opencv_highgui320d.lib;opencv_flann320d.lib;opencv_imgproc320d.lib;opencv_imgcodecs320d.lib;opencv_objdetect320d.lib;opencv_video320d.lib;opencv_videoio320d.lib;opencv_xfeatures2d320d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_aruco340d.lib;opencv_calib3d340d.lib;opencv_core340d.lib;opencv_features2d340d.lib;opencv_highgui340d.lib;opencv_flann340d.lib;opencv_imgproc340d.lib;opencv_imgcodecs340d.lib;opencv_objdetect340d.lib;opencv_video340d.lib;opencv_videoio340d.lib;opencv_xfeatures2d340d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -230,7 +230,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opencv_aruco320.lib;opencv_calib3d320.lib;opencv_core320.lib;opencv_features2d320.lib;opencv_highgui320.lib;opencv_flann320.lib;opencv_imgproc320.lib;opencv_imgcodecs320.lib;opencv_objdetect320.lib;opencv_video320.lib;opencv_videoio320.lib;opencv_xfeatures2d320.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_aruco340.lib;opencv_calib3d340.lib;opencv_core340.lib;opencv_features2d340.lib;opencv_highgui340.lib;opencv_flann340.lib;opencv_imgproc340.lib;opencv_imgcodecs340.lib;opencv_objdetect340.lib;opencv_video340.lib;opencv_videoio340.lib;opencv_xfeatures2d340.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>

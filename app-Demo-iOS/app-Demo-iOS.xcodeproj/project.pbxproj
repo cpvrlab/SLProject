@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		411949C51F0CBCB7009C8A9F /* LogoCPVR_256L.png in Resources */ = {isa = PBXBuildFile; fileRef = 411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */; };
+		4119D3D820138F8F00612254 /* WebPDecoder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4119D3D620138F8F00612254 /* WebPDecoder.framework */; };
+		4119D3D920138F8F00612254 /* WebP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4119D3D720138F8F00612254 /* WebP.framework */; };
 		411BA72718C0702600F10475 /* Icon_120.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72618C0702600F10475 /* Icon_120.png */; };
 		411BA72918C0716700F10475 /* Icon_76.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72818C0716700F10475 /* Icon_76.png */; };
 		411BA72B18C071CA00F10475 /* Icon_152.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72A18C071CA00F10475 /* Icon_152.png */; };
@@ -635,6 +637,8 @@
 
 /* Begin PBXFileReference section */
 		411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LogoCPVR_256L.png; path = ../_data/images/textures/LogoCPVR_256L.png; sourceTree = SOURCE_ROOT; };
+		4119D3D620138F8F00612254 /* WebPDecoder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebPDecoder.framework; path = ../_lib/prebuilt/OpenCV/ios/WebPDecoder.framework; sourceTree = "<group>"; };
+		4119D3D720138F8F00612254 /* WebP.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebP.framework; path = ../_lib/prebuilt/OpenCV/ios/WebP.framework; sourceTree = "<group>"; };
 		411BA72618C0702600F10475 /* Icon_120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_120.png; path = images/Icon_120.png; sourceTree = SOURCE_ROOT; };
 		411BA72818C0716700F10475 /* Icon_76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_76.png; path = images/Icon_76.png; sourceTree = SOURCE_ROOT; };
 		411BA72A18C071CA00F10475 /* Icon_152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_152.png; path = images/Icon_152.png; sourceTree = SOURCE_ROOT; };
@@ -1545,8 +1549,10 @@
 				419BCD3C14865C0800D576F1 /* UIKit.framework in Frameworks */,
 				419BCD3E14865C0800D576F1 /* Foundation.framework in Frameworks */,
 				419BCD4014865C0800D576F1 /* CoreGraphics.framework in Frameworks */,
+				4119D3D820138F8F00612254 /* WebPDecoder.framework in Frameworks */,
 				419BCD4214865C0800D576F1 /* GLKit.framework in Frameworks */,
 				419BCD4414865C0800D576F1 /* OpenGLES.framework in Frameworks */,
+				4119D3D920138F8F00612254 /* WebP.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2542,18 +2548,20 @@
 		419BCD3A14865C0800D576F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				4181782D1FC70F6E00200D02 /* CoreLocation.framework */,
-				41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */,
-				41BEFC0B1B78F865009EF31F /* CoreVideo.framework */,
-				41BEFC091B78F85A009EF31F /* CoreMedia.framework */,
 				41BEFC061B78F84F009EF31F /* AVFoundation.framework */,
-				419BCD3B14865C0800D576F1 /* UIKit.framework */,
-				419BCD3D14865C0800D576F1 /* Foundation.framework */,
 				419BCD3F14865C0800D576F1 /* CoreGraphics.framework */,
-				419BCD4114865C0800D576F1 /* GLKit.framework */,
-				419BCD4314865C0800D576F1 /* OpenGLES.framework */,
+				4181782D1FC70F6E00200D02 /* CoreLocation.framework */,
+				41BEFC091B78F85A009EF31F /* CoreMedia.framework */,
 				41A16C3B1B836835001EA07E /* CoreMotion.framework */,
+				41BEFC0B1B78F865009EF31F /* CoreVideo.framework */,
+				419BCD3D14865C0800D576F1 /* Foundation.framework */,
+				419BCD4114865C0800D576F1 /* GLKit.framework */,
+				41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */,
 				41ABC8BE1B875C1E009F6C37 /* opencv2.framework */,
+				419BCD4314865C0800D576F1 /* OpenGLES.framework */,
+				419BCD3B14865C0800D576F1 /* UIKit.framework */,
+				4119D3D720138F8F00612254 /* WebP.framework */,
+				4119D3D620138F8F00612254 /* WebPDecoder.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
