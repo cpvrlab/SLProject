@@ -59,7 +59,7 @@ public:
         fs["minCornerDistanceRate"] >> arucoParams->minCornerDistanceRate;
         fs["minDistanceToBorder"] >> arucoParams->minDistanceToBorder;
         //fs["minMarkerDistanceRate"] >> arucoParams->minMarkerDistanceRate; //achtung minMarkerDistance -> minMarkerDistanceRate
-        fs["doCornerRefinement"] >> arucoParams->doCornerRefinement;
+        //fs["doCornerRefinement"] >> arucoParams->doCornerRefinement;
         fs["cornerRefinementWinSize"] >> arucoParams->cornerRefinementWinSize;
         fs["cornerRefinementMaxIterations"] >> arucoParams->cornerRefinementMaxIterations;
         fs["cornerRefinementMinAccuracy"] >> arucoParams->cornerRefinementMinAccuracy;
