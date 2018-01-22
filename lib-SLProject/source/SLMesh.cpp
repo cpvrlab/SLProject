@@ -760,9 +760,7 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
     assert(node && "node pointer is null");
     assert(_mat && "material pointer is null");
 
-    #if _DEBUG
     ++SLRay::tests;
-    #endif
  
     if (_primitive != PT_triangles)
         return false;
@@ -868,9 +866,7 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
     ray->hitNode = node;
     ray->hitMesh = this;
 
-    #if _DEBUG
     ++SLRay::intersections;
-    #endif
 
     return true;
 }
