@@ -60,11 +60,16 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     SLbool drawDetection,
     SLSceneView* sv)
 {
+    //SLCVMat imageGrayResized;
+    //cv::resize(imageGray, imageGrayResized,
+    //    cv::Size(640, 480));
+
     //_image = image;
     if (_frameCount == 0) {
         _calib = calib;
     }
     _frameCount++;
+
     //SLCVMat imageGrayScaled;
     //imageGray.copyTo(imageGrayScaled);
     //cv::resize(imageGrayScaled, imageGrayScaled, 640.0, 480.0);
@@ -73,7 +78,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     //Frame constructor call in ORB-SLAM:
     // Current Frame
     double timestamp = 0.0; //todo
-    mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor, 
+    mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor,
         calib->cameraMat(), calib->distortion(), mpVocabulary );
     /************************************************************/
 
