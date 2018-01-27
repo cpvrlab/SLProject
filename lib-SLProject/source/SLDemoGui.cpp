@@ -404,7 +404,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         if (c->isMirroredH()) mirrored = "horizontally"; else
         if (c->isMirroredV()) mirrored = "vertically";
 
-        sprintf(m+strlen(m), "Video Type    : %s\n", vt==0 ? "None" : vt==1 ? "Main Camera" : "Secondary Camera");
+        sprintf(m+strlen(m), "Video Type    : %s\n", vt==VT_NONE ? "None" : vt==VT_MAIN ? "Main Camera" : vt==VT_FILE ? "File" : "Secondary Camera");
         sprintf(m+strlen(m), "Display size  : %d x %d\n", SLCVCapture::lastFrame.cols, SLCVCapture::lastFrame.rows);
         sprintf(m+strlen(m), "Capture size  : %d x %d\n", capSize.width, capSize.height);
         sprintf(m+strlen(m), "Requested size: %d\n", SLCVCapture::requestedSizeIndex);
