@@ -13,11 +13,12 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLApplication.h>
+#include <SLSceneView.h>
 #include <SLNode.h>
 #include <SLSkybox.h>
 #include <SLRay.h>
 #include <SLRaytracer.h>
-#include <SLSceneView.h>
 #include <SLCompactGrid.h>
 #include <SLLightSpot.h>
 #include <SLLightRect.h>
@@ -46,7 +47,7 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     _accelStructOutOfDate = true;
 
     // Add this mesh to the global resource vector for deallocation
-    SLScene::current->meshes().push_back(this);
+    SLApplication::scene->meshes().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! The destructor deletes everything by calling deleteData.
@@ -346,9 +347,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 7: Draw selected mesh with points
     ////////////////////////////////////
 
-    if (SLScene::current->selectedMesh())
+    if (SLApplication::scene->selectedMesh())
     {   _stateGL->polygonOffset(true, 1.0f, 1.0f);
-        if (SLScene::current->selectedMesh()==this)
+        if (SLApplication::scene->selectedMesh()==this)
         {   _vaoS.generateVertexPos(_finalP);
             _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
         }
@@ -1028,7 +1029,7 @@ void SLMesh::transformSkin()
 //-----------------------------------------------------------------------------
 void SLMesh::notifyParentNodesAABBUpdate() const
 {
-    SLVNode nodes = SLScene::current->root3D()->findChildren(this);
+    SLVNode nodes = SLApplication::scene->root3D()->findChildren(this);
     for (auto node : nodes)
         node->needAABBUpdate();
 }

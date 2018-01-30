@@ -14,8 +14,9 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
-#include "SLTexFont.h"
-#include "SLScene.h"
+#include <SLApplication.h>
+#include <SLScene.h>
+#include <SLTexFont.h>
 
 //-----------------------------------------------------------------------------
 // Initialize static font pointers
@@ -361,7 +362,7 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
     }
       
     // create buffers on GPU
-    SLGLProgram* sp = SLScene::current->programs(SP_fontTex);
+    SLGLProgram* sp = SLApplication::scene->programs(SP_fontTex);
     sp->useProgram();
     vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
     vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);

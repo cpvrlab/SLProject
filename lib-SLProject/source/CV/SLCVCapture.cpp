@@ -19,6 +19,8 @@ All classes that use OpenCV begin with SLCV.
 See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
+
+#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLCVCapture.h>
@@ -126,7 +128,7 @@ capture functionality.
 */
 void SLCVCapture::grabAndAdjustForSL()
 {
-    SLCVCapture::startCaptureTimeMS = SLScene::current->timeMilliSec();
+    SLCVCapture::startCaptureTimeMS = SLApplication::scene->timeMilliSec();
 
     try
     {   if (_captureDevice.isOpened())
@@ -177,7 +179,7 @@ We therefore create a copy that is grayscale converted.
 */
 void SLCVCapture::adjustForSL()
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     format = SLCVImage::cv2glPixelFormat(lastFrame.type());
 
     // Set capture size before cropping
@@ -219,16 +221,16 @@ void SLCVCapture::adjustForSL()
     // Mirroring is done for most selfie cameras.
     // So this is Android image copy loop #3
 
-    if (s->activeCalib()->isMirroredH())
+    if (SLApplication::activeCalib->isMirroredH())
     {   SLCVMat mirrored;
-        if (s->activeCalib()->isMirroredV())
+        if (SLApplication::activeCalib->isMirroredV())
             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
         else cv::flip(SLCVCapture::lastFrame, mirrored, 1);
         SLCVCapture::lastFrame = mirrored;
     } else
-    if (s->activeCalib()->isMirroredV())
+    if (SLApplication::activeCalib->isMirroredV())
     {   SLCVMat mirrored;
-        if (s->activeCalib()->isMirroredH())
+        if (SLApplication::activeCalib->isMirroredH())
             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
         else cv::flip(SLCVCapture::lastFrame, mirrored, 0);
         SLCVCapture::lastFrame = mirrored;
@@ -259,7 +261,7 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
                                     const SLuchar* data,
                                     const SLbool isContinuous)
 {
-    SLCVCapture::startCaptureTimeMS = SLScene::current->timeMilliSec();
+    SLCVCapture::startCaptureTimeMS = SLApplication::scene->timeMilliSec();
 
     // treat Android YUV to RGB conversion special
     if (format == PF_yuv_420_888)
@@ -472,7 +474,7 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
                                 SLuchar* v, int vBytes, int vColOffset, int vRowOffset)
 {
     // pointer to the active scene
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
 
     // Set the start time to measure the MS for the whole conversion
     SLCVCapture::startCaptureTimeMS = s->timeMilliSec();
@@ -503,8 +505,8 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
     }
 
     // Get the infos if the destination image must be mirrored
-    bool mirrorH = s->activeCalib()->isMirroredH();
-    bool mirrorV = s->activeCalib()->isMirroredV();
+    bool mirrorH = SLApplication::activeCalib->isMirroredH();
+    bool mirrorV = SLApplication::activeCalib->isMirroredV();
 
     // Create output color (BGR) and grayscale images
     lastFrame     = SLCVMat(dstH, dstW, CV_8UC(3));

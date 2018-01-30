@@ -12,8 +12,9 @@
 
 #include <iomanip>
 
-#include <SLAssimpImporter.h>
+#include <SLApplication.h>
 #include <SLScene.h>
+#include <SLAssimpImporter.h>
 #include <SLGLTexture.h>
 #include <SLMaterial.h>
 #include <SLSkeleton.h>
@@ -725,7 +726,7 @@ SLAssimpImporter::loadTexture loads the AssImp texture an returns the SLGLTextur
 SLGLTexture* SLAssimpImporter::loadTexture(SLstring& textureFile,
                                            SLTextureType texType)
 {
-    SLVGLTexture& sceneTex = SLScene::current->textures();
+    SLVGLTexture& sceneTex = SLApplication::scene->textures();
 
     // return if a texture with the same file allready exists
     for (SLint i=0; i<sceneTex.size(); ++i)
@@ -1001,7 +1002,7 @@ SLAssimpImporter::loadAnimation loads the scene graph node tree recursively.
 SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 {
     ostringstream oss;
-    oss << "unnamed_anim_" << SLScene::current->animManager().allAnimNames().size();
+    oss << "unnamed_anim_" << SLApplication::scene->animManager().allAnimNames().size();
     SLstring animName = oss.str();
     SLfloat animTicksPerSec = (anim->mTicksPerSecond == 0) ? 30.0f : (SLfloat)anim->mTicksPerSecond;
     SLfloat animDuration = (SLfloat)anim->mDuration / animTicksPerSec;
@@ -1026,7 +1027,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         result = _skeleton->createAnimation(animName, animDuration);
     else
     {
-        result = SLScene::current->animManager().createNodeAnimation(animName, animDuration);
+        result = SLApplication::scene->animManager().createNodeAnimation(animName, animDuration);
         _nodeAnimations.push_back(result);
     }
 

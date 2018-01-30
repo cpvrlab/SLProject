@@ -15,10 +15,11 @@
 using namespace std::placeholders;
 using namespace std::chrono;
 
+#include <SLApplication.h>
+#include <SLSceneView.h>
 #include <SLRay.h>
 #include <SLRaytracer.h>
 #include <SLCamera.h>
-#include <SLSceneView.h>
 #include <SLLightSpot.h>
 #include <SLLightRect.h>
 #include <SLText.h>
@@ -66,7 +67,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     prepareImage();                     // Setup image & precalculations
 
     // Measure time 
-    double t1 = SLScene::current->timeSec();
+    double t1 = SLApplication::scene->timeSec();
     double tStart = t1;
 
     for (SLuint y = 0; y < _images[0]->height(); ++y)
@@ -91,16 +92,16 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
         }
 
         // Update image after 500 ms
-        double t2 = SLScene::current->timeSec();
+        double t2 = SLApplication::scene->timeSec();
         if (t2-t1 > 0.5)
         {   _pcRendered = (SLint)((SLfloat)y/(SLfloat)_images[0]->height()*100);
             finishBeforeUpdate();
             _sv->onWndUpdate();
-            t1 = SLScene::current->timeSec();
+            t1 = SLApplication::scene->timeSec();
         }
     }
 
-    _renderSec = (SLfloat)(SLScene::current->timeSec() - tStart);
+    _renderSec = (SLfloat)(SLApplication::scene->timeSec() - tStart);
     _pcRendered = 100;
 
     if (_doContinuous)
@@ -127,7 +128,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     prepareImage();                     // Setup image & precalculations
    
     // Measure time 
-    double t1 = SLScene::current->timeSec();
+    double t1 = SLApplication::scene->timeSec();
    
     // Bind render functions to be called multithreaded
     auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1);
@@ -169,7 +170,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
         for(auto& thread : threads) thread.join();
     }
    
-    _renderSec = (SLfloat)(SLScene::current->timeSec() - t1);
+    _renderSec = (SLfloat)(SLApplication::scene->timeSec() - t1);
     _pcRendered = 100;
 
     if (_doContinuous)
@@ -221,12 +222,12 @@ void SLRaytracer::renderSlices(const bool isMainThread)
 
             // Update image after 500 ms
             if (isMainThread && !_doContinuous)
-            {   if (SLScene::current->timeSec() - t1 > 0.5)
+            {   if (SLApplication::scene->timeSec() - t1 > 0.5)
                 {   _pcRendered = (SLint)((SLfloat)y/(SLfloat)_images[0]->height()*100);
                     if (_aaSamples > 0) _pcRendered /= 2;
                     finishBeforeUpdate();
                     _sv->onWndUpdate();
-                    t1 = SLScene::current->timeSec();
+                    t1 = SLApplication::scene->timeSec();
                 }
             }
         }
@@ -302,10 +303,10 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
             }
 
             if (isMainThread && !_doContinuous)
-            {   if (SLScene::current->timeSec() - t1 > 0.5)
+            {   if (SLApplication::scene->timeSec() - t1 > 0.5)
                 {   finishBeforeUpdate();
                     _sv->onWndUpdate();
-                    t1 = SLScene::current->timeSec();
+                    t1 = SLApplication::scene->timeSec();
                 }
             }
         }
@@ -321,7 +322,7 @@ background color is return.
 */
 SLCol4f SLRaytracer::trace(SLRay* ray)
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     SLCol4f color(ray->backgroundColor);
     
     s->root3D()->hitRec(ray);
@@ -414,7 +415,7 @@ color = material emission +
 */
 SLCol4f SLRaytracer::shade(SLRay* ray)
 {  
-    SLScene*    s = SLScene::current;
+    SLScene*    s = SLApplication::scene;
     SLCol4f     localColor = SLCol4f::BLACK;
     SLMaterial* mat = ray->hitMesh->mat();
     SLVGLTexture& texture = mat->textures();
@@ -596,12 +597,12 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
         }
 
         if (isMainThread && !_doContinuous)
-        {   t2 = SLScene::current->timeSec();
+        {   t2 = SLApplication::scene->timeSec();
             if (t2-t1 > 0.5)
             {   _pcRendered = 50 + (SLint)((SLfloat)_next/(SLfloat)_aaPixels.size()*50);
                 finishBeforeUpdate();
                 _sv->onWndUpdate();
-                t1 = SLScene::current->timeSec();
+                t1 = SLApplication::scene->timeSec();
             }
         }
     }

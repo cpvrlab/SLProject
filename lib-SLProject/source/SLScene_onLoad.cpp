@@ -13,6 +13,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLAssimpImporter.h>
@@ -192,13 +193,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                           SL::singleTestIsRunning() ? SL::testScene : SL::testSceneAll;
 
     // Reset calibration process at scene change
-    if (_activeCalib->state() != CS_calibrated &&
-        _activeCalib->state() != CS_uncalibrated)
-        _activeCalib->state(CS_uncalibrated);
+    if (SLApplication::activeCalib->state() != CS_calibrated &&
+        SLApplication::activeCalib->state() != CS_uncalibrated)
+        SLApplication::activeCalib->state(CS_uncalibrated);
 
     // Deactivate in general the device sensors
-    _devRot.isUsed(false);
-    _devLoc.isUsed(false);
+    SLApplication::devRot.isUsed(false);
+    SLApplication::devLoc.isUsed(false);
 
     if (SL::currentSceneID == C_sceneEmpty) //.....................................................
     {   
@@ -2294,13 +2295,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         } else
         if (SL::currentSceneID == C_sceneVideoCalibrateMain)
         {   videoType(VT_MAIN);
-            _activeCalib->clear();
+            SLApplication::activeCalib->clear();
 
             name("Calibrate Main Cam.");
         } else
         if (SL::currentSceneID == C_sceneVideoCalibrateScnd)
         {   videoType(VT_SCND);
-            _activeCalib->clear();
+            SLApplication::activeCalib->clear();
             name("Calibrate Scnd. Cam.");
         }
 
@@ -2322,7 +2323,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(5);
         cam1->clipFar(10);
-        cam1->fov(_activeCalib->cameraFovDeg());
+        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
         cam1->background().texture(&_videoTexture);
         cam1->setInitialState();
         scene->addChild(cam1);
@@ -2389,7 +2390,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0,0,5);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(_activeCalib->cameraFovDeg());
+        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
         cam1->background().texture(&_videoTexture);
         cam1->setInitialState();
         scene->addChild(cam1);
@@ -2500,7 +2501,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->camera(cam1);
 
         _root3D = scene;
-        _devRot.isUsed(true);
+        SLApplication::devRot.isUsed(true);
     }
     else
     if (SL::currentSceneID == C_sceneVideoSensorAR) //.............................................
@@ -2512,7 +2513,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0,0,60);
         cam1->lookAt(0,0,0);
-        cam1->fov(_activeCalib->cameraFovDeg());
+        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
         cam1->clipNear(0.1f);
         cam1->clipFar(10000.0f);
         cam1->setInitialState();
@@ -2529,7 +2530,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light->attenuation(1,0,0);
 
         // Let the sun be rotated by time and location
-        _devLoc.sunLightNode(light);
+        SLApplication::devLoc.sunLightNode(light);
 
         SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
         axis->setDrawBitsRec(SL_DB_WIREMESH, false);
@@ -2553,15 +2554,15 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         //activate rotation and gps sensor
-        _devRot.isUsed(true);
-        _devRot.zeroYawAtStart(false);
-        _devLoc.isUsed(true);
-        _devLoc.useOriginAltitude(true);
-        _devLoc.hasOrigin(false);
+        SLApplication::devRot.isUsed(true);
+        SLApplication::devRot.zeroYawAtStart(false);
+        SLApplication::devLoc.isUsed(true);
+        SLApplication::devLoc.useOriginAltitude(true);
+        SLApplication::devLoc.hasOrigin(false);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
         #else
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
-        _devRot.zeroYawAtStart(true);
+        SLApplication::devRot.zeroYawAtStart(true);
         #endif
 
         sv->waitEvents(false); // for constant video feed
@@ -2591,7 +2592,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light->attenuation(1,0,0);
 
         // Let the sun be rotated by time and location 
-        _devLoc.sunLightNode(light);
+        SLApplication::devLoc.sunLightNode(light);
 
         SLAssimpImporter importer;
         SLNode* bern = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
@@ -2639,22 +2640,22 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        _devLoc.originLLA(46.947629, 7.440754, 442.0);          // Loeb Ecken
-        _devLoc.defaultLLA(46.948551, 7.440093, 442.0 + 1.7);   // Bahnhof Ausgang in Augenhöhe
-        _devLoc.locMaxDistanceM(1000.0f);               // Max. Distanz. zum Loeb Ecken
-        _devLoc.improveOrigin(false);                   // Keine autom. Verbesserung vom Origin
-        _devLoc.useOriginAltitude(true);
-        _devLoc.hasOrigin(true);
-        _devRot.zeroYawAtStart(false);
+        SLApplication::devLoc.originLLA(46.947629, 7.440754, 442.0);          // Loeb Ecken
+        SLApplication::devLoc.defaultLLA(46.948551, 7.440093, 442.0 + 1.7);   // Bahnhof Ausgang in Augenhöhe
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);               // Max. Distanz. zum Loeb Ecken
+        SLApplication::devLoc.improveOrigin(false);                   // Keine autom. Verbesserung vom Origin
+        SLApplication::devLoc.useOriginAltitude(true);
+        SLApplication::devLoc.hasOrigin(true);
+        SLApplication::devRot.zeroYawAtStart(false);
 
         #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        _devLoc.isUsed(true);
-        _devRot.isUsed(true);
+        SLApplication::devLoc.isUsed(true);
+        SLApplication::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
         #else
-        _devLoc.isUsed(false);
-        _devRot.isUsed(false);
-        SLVec3d pos_d = _devLoc.defaultENU() - _devLoc.originENU();;
+        SLApplication::devLoc.isUsed(false);
+        SLApplication::devRot.isUsed(false);
+        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();;
         SLVec3f pos_f ((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
         cam1->lookAt(SLVec3f::ZERO);

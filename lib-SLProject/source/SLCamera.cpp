@@ -13,6 +13,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLApplication.h>
 #include <SLSceneView.h>
 
 //-----------------------------------------------------------------------------
@@ -388,7 +389,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
             break;
 
         case P_stereoSideBySideD:
-            _stateGL->projectionMatrix = SLScene::current->oculus()->projection(eye);
+            _stateGL->projectionMatrix = SLApplication::scene->oculus()->projection(eye);
 
             break;
         // all other stereo projections
@@ -487,7 +488,7 @@ nodes inverse world matrix.
 */
 void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
 
     if (_camAnim == CA_deviceRotYUp)
     {
@@ -501,12 +502,12 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
         //sensor rotation w.r.t. east-north-down
         SLMat3f enuRs;
-        enuRs.setMatrix(s->devRot().rotation());
+        enuRs.setMatrix(SLApplication::devRot.rotation());
 
         SLMat3f wyRenu;
-        if(s->devRot().zeroYawAtStart()) {
+        if(SLApplication::devRot.zeroYawAtStart()) {
             //east-north-down w.r.t. world-yaw
-            SLfloat rotYawOffsetDEG = -s->devRot().startYawRAD() * SL_RAD2DEG + 90;
+            SLfloat rotYawOffsetDEG = -SLApplication::devRot.startYawRAD() * SL_RAD2DEG + 90;
             if (rotYawOffsetDEG > 180)
                 rotYawOffsetDEG -= 360;
             wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
@@ -545,19 +546,19 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     //location sensor is turned on and the scene has a global reference position
     if(_camAnim == CA_deviceRotLocYUp)
     {
-        if(s->devRot().isUsed())
+        if(SLApplication::devRot.isUsed())
         {   SLMat3f sRc;
             sRc.rotation(-90, 0, 0, 1);
 
             //sensor rotation w.r.t. east-north-down
             SLMat3f enuRs;
-            enuRs.setMatrix(s->devRot().rotation());
+            enuRs.setMatrix(SLApplication::devRot.rotation());
 
             //east-north-down w.r.t. world-yaw
             SLMat3f wyRenu;
-            if(s->devRot().zeroYawAtStart()) {
+            if(SLApplication::devRot.zeroYawAtStart()) {
                 //east-north-down w.r.t. world-yaw
-                SLfloat rotYawOffsetDEG = -s->devRot().startYawRAD() * SL_RAD2DEG + 90;
+                SLfloat rotYawOffsetDEG = -SLApplication::devRot.startYawRAD() * SL_RAD2DEG + 90;
                 if (rotYawOffsetDEG > 180)
                     rotYawOffsetDEG -= 360;
                 wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
@@ -575,14 +576,14 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         }
 
         //location sensor is turned on and the scene has a global reference position
-        if( s->devLoc().isUsed() && s->devLoc().hasOrigin())
+        if(SLApplication::devLoc.isUsed() && SLApplication::devLoc.hasOrigin())
         {
             // Direction vector from camera to world origin
-            SLVec3d wtc = s->devLoc().locENU() - s->devLoc().originENU();
+            SLVec3d wtc = SLApplication::devLoc.locENU() - SLApplication::devLoc.originENU();
 
             // Reset to default if device is too far away
-            if (wtc.length() > s->devLoc().locMaxDistanceM())
-                wtc = s->devLoc().defaultENU() - s->devLoc().originENU();
+            if (wtc.length() > SLApplication::devLoc.locMaxDistanceM())
+                wtc = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
 
             // Set the camera position
             SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y, (SLfloat)wtc.z);
@@ -687,7 +688,7 @@ implement the camera animation.
 SLbool SLCamera::onMouseDown(const SLMouseButton button,
                              const SLint x, const SLint y, const SLKey mod)
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
 
     // Init both position in case that the second finger came with delay
     _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
@@ -866,7 +867,7 @@ SLCamera::onMouseWheel event handler moves camera forwards or backwards
 */
 SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     SLfloat sign = (SLfloat)SL_sign(delta);
 
     if (_camAnim==CA_turntableYUp ||
@@ -901,7 +902,7 @@ screen.
 SLbool SLCamera::onTouch2Down(const SLint x1, const SLint y1,
                               const SLint x2, const SLint y2)
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
 
     _oldTouchPos1.set((SLfloat)x1, (SLfloat)y1);
     _oldTouchPos2.set((SLfloat)x2, (SLfloat)y2);

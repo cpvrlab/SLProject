@@ -18,6 +18,7 @@ All classes that use OpenCV begin with SLCV.
 See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
+#include <SLApplication.h>
 #include <SLSceneView.h>
 #include <SLCVTrackedAruco.h>
 
@@ -78,7 +79,7 @@ SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
         // Detect //
         ////////////
 
-        SLScene* s = SLScene::current;
+        SLScene* s = SLApplication::scene;
         SLfloat startMS = s->timeMilliSec();
 
         arucoIDs.clear();

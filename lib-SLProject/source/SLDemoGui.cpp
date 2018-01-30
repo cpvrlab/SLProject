@@ -14,6 +14,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLApplication.h>
 #include <SLDemoGui.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
@@ -396,7 +397,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
 
-        SLCVCalibration* c = s->activeCalib();
+        SLCVCalibration* c = SLApplication::activeCalib;
         SLCVSize capSize = SLCVCapture::captureSize;
         SLVideoType vt = s->videoType();
         SLstring mirrored = "None";
@@ -468,24 +469,24 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
     {
         SLchar m[1024];   // message character array
         m[0]=0;           // set zero length
-        SLVec3d offsetToOrigin = s->devLoc().originENU() - s->devLoc().locENU();
-        sprintf(m+strlen(m), "Uses Rotation       : %s\n",    s->devRot().isUsed() ? "yes" : "no");
-        sprintf(m+strlen(m), "Orientation Pitch   : %1.0f\n", s->devRot().pitchRAD()*SL_RAD2DEG);
-        sprintf(m+strlen(m), "Orientation Yaw     : %1.0f\n", s->devRot().yawRAD()*SL_RAD2DEG);
-        sprintf(m+strlen(m), "Orientation Roll    : %1.0f\n", s->devRot().rollRAD()*SL_RAD2DEG);
-        sprintf(m+strlen(m), "Zero Yaw at Start   : %s\n",    s->devRot().zeroYawAtStart() ? "yes" : "no");
-        sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->devRot().startYawRAD() * SL_RAD2DEG);
+        SLVec3d offsetToOrigin = SLApplication::devLoc.originENU() - SLApplication::devLoc.locENU();
+        sprintf(m+strlen(m), "Uses Rotation       : %s\n",    SLApplication::devRot.isUsed() ? "yes" : "no");
+        sprintf(m+strlen(m), "Orientation Pitch   : %1.0f\n", SLApplication::devRot.pitchRAD()*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Orientation Yaw     : %1.0f\n", SLApplication::devRot.yawRAD()*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Orientation Roll    : %1.0f\n", SLApplication::devRot.rollRAD()*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Zero Yaw at Start   : %s\n",    SLApplication::devRot.zeroYawAtStart() ? "yes" : "no");
+        sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", SLApplication::devRot.startYawRAD() * SL_RAD2DEG);
         sprintf(m+strlen(m), "---------------------\n");
-        sprintf(m+strlen(m), "Uses Location       : %s\n",    s->devLoc().isUsed() ? "yes" : "no");
-        sprintf(m+strlen(m), "Latitude (deg)      : %11.6f\n",s->devLoc().locLLA().x);
-        sprintf(m+strlen(m), "Longitude (deg)     : %11.6f\n",s->devLoc().locLLA().y);
-        sprintf(m+strlen(m), "Altitude (m)        : %11.6f\n",s->devLoc().locLLA().z);
-        sprintf(m+strlen(m), "Accuracy Radius (m) : %6.1f\n", s->devLoc().locAccuracyM());
+        sprintf(m+strlen(m), "Uses Location       : %s\n",    SLApplication::devLoc.isUsed() ? "yes" : "no");
+        sprintf(m+strlen(m), "Latitude (deg)      : %11.6f\n",SLApplication::devLoc.locLLA().x);
+        sprintf(m+strlen(m), "Longitude (deg)     : %11.6f\n",SLApplication::devLoc.locLLA().y);
+        sprintf(m+strlen(m), "Altitude (m)        : %11.6f\n",SLApplication::devLoc.locLLA().z);
+        sprintf(m+strlen(m), "Accuracy Radius (m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
         sprintf(m+strlen(m), "Dist. to Origin (m) : %6.1f\n" ,offsetToOrigin.length());
-        sprintf(m+strlen(m), "Max. Dist. (m)      : %6.1f\n" ,s->devLoc().locMaxDistanceM());
-        sprintf(m+strlen(m), "Origin improve time : %6.1f sec.\n",s->devLoc().improveTime());
-        sprintf(m+strlen(m), "Sun Zenit (deg)     : %6.1f sec.\n",s->devLoc().originSolarZenit());
-        sprintf(m+strlen(m), "Sun Azimut (deg)    : %6.1f sec.\n",s->devLoc().originSolarAzimut());
+        sprintf(m+strlen(m), "Max. Dist. (m)      : %6.1f\n" ,SLApplication::devLoc.locMaxDistanceM());
+        sprintf(m+strlen(m), "Origin improve time : %6.1f sec.\n",SLApplication::devLoc.improveTime());
+        sprintf(m+strlen(m), "Sun Zenit (deg)     : %6.1f sec.\n",SLApplication::devLoc.originSolarZenit());
+        sprintf(m+strlen(m), "Sun Azimut (deg)    : %6.1f sec.\n",SLApplication::devLoc.originSolarAzimut());
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -770,28 +771,28 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("Rotation Sensor"))
             {
-                if (ImGui::MenuItem("Use Device Rotation (IMU)", 0, s->devRot().isUsed()))
-                    s->devRot().isUsed(!s->devRot().isUsed());
+                if (ImGui::MenuItem("Use Device Rotation (IMU)", 0, SLApplication::devRot.isUsed()))
+                    SLApplication::devRot.isUsed(!SLApplication::devRot.isUsed());
 
-                if (ImGui::MenuItem("Zero Yaw at Start", 0, s->devRot().zeroYawAtStart()))
-                    s->devRot().zeroYawAtStart(!s->devRot().zeroYawAtStart());
+                if (ImGui::MenuItem("Zero Yaw at Start", 0, SLApplication::devRot.zeroYawAtStart()))
+                    SLApplication::devRot.zeroYawAtStart(!SLApplication::devRot.zeroYawAtStart());
 
                 if (ImGui::MenuItem("Reset Zero Yaw"))
-                    s->devRot().hasStarted(true);
+                    SLApplication::devRot.hasStarted(true);
 
                 ImGui::EndMenu();
             }
 
             if (ImGui::BeginMenu("Location Sensor"))
             {
-                if (ImGui::MenuItem("Use Device Location (GPS)", 0, s->devLoc().isUsed()))
-                    s->devLoc().isUsed(!s->devLoc().isUsed());
+                if (ImGui::MenuItem("Use Device Location (GPS)", 0, SLApplication::devLoc.isUsed()))
+                    SLApplication::devLoc.isUsed(!SLApplication::devLoc.isUsed());
 
-                if (ImGui::MenuItem("Use Origin Altitude", 0, s->devLoc().useOriginAltitude()))
-                    s->devLoc().useOriginAltitude(!s->devLoc().useOriginAltitude());
+                if (ImGui::MenuItem("Use Origin Altitude", 0, SLApplication::devLoc.useOriginAltitude()))
+                    SLApplication::devLoc.useOriginAltitude(!SLApplication::devLoc.useOriginAltitude());
 
                 if (ImGui::MenuItem("Reset Origin to here"))
-                    s->devLoc().hasOrigin(false);
+                    SLApplication::devLoc.hasOrigin(false);
 
                 ImGui::EndMenu();
             }
@@ -800,9 +801,9 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("Video"))
             {
-                SLCVCalibration* ac = s->activeCalib();
-                SLCVCalibration* mc = s->calibMainCam();
-                SLCVCalibration* sc = s->calibScndCam();
+                SLCVCalibration* ac = SLApplication::activeCalib;
+                SLCVCalibration* mc = &SLApplication::calibMainCam;
+                SLCVCalibration* sc = &SLApplication::calibScndCam;
 
                 SLCVTrackedFeatures* featureTracker = nullptr;
                 for (auto tracker : s->trackers())
@@ -1795,7 +1796,7 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
     fs["showSceneGraph"]        >> b; SLDemoGui::showSceneGraph = b;
     fs["showProperties"]        >> b; SLDemoGui::showProperties = b;
     fs["showChristoffel"]       >> b; SLDemoGui::showChristoffel = b;
-    fs["showDetection"]         >> b; SLScene::current->showDetection(b);
+    fs["showDetection"]         >> b; SLApplication::scene->showDetection(b);
 
     fs.release();
     SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
@@ -1830,7 +1831,7 @@ void SLDemoGui::saveConfig()
     fs << "showSceneGraph"          << SLDemoGui::showSceneGraph;
     fs << "showProperties"          << SLDemoGui::showProperties;
     fs << "showChristoffel"         << SLDemoGui::showChristoffel;
-    fs << "showDetection"           << SLScene::current->showDetection();
+    fs << "showDetection"           << SLApplication::scene->showDetection();
 
     fs.release();
     SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());
