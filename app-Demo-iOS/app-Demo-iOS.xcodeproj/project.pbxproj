@@ -82,6 +82,7 @@
 		4166ED0D200260D700B42D17 /* Desert+Y1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED07200260D600B42D17 /* Desert+Y1024_C.jpg */; };
 		4166ED0E200260D700B42D17 /* Desert-Z1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED08200260D700B42D17 /* Desert-Z1024_C.jpg */; };
 		4166ED0F200260D700B42D17 /* Desert+Z1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED09200260D700B42D17 /* Desert+Z1024_C.jpg */; };
+		4178D6672020A9C100F4F699 /* SLApplication.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4178D6662020A9C000F4F699 /* SLApplication.cpp */; };
 		417981141F13833000EB5315 /* i0000_0000b.png in Resources */ = {isa = PBXBuildFile; fileRef = 417980451F13832F00EB5315 /* i0000_0000b.png */; };
 		417981151F13833000EB5315 /* i0001_0000b.png in Resources */ = {isa = PBXBuildFile; fileRef = 417980461F13832F00EB5315 /* i0001_0000b.png */; };
 		417981161F13833000EB5315 /* i0002_0000b.png in Resources */ = {isa = PBXBuildFile; fileRef = 417980471F13832F00EB5315 /* i0002_0000b.png */; };
@@ -760,6 +761,8 @@
 		4166ED09200260D700B42D17 /* Desert+Z1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert+Z1024_C.jpg"; path = "../_data/images/textures/Desert+Z1024_C.jpg"; sourceTree = "<group>"; };
 		416EE8ED148E388300AE5F6B /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "images/Default@2x.png"; sourceTree = SOURCE_ROOT; };
 		416EE8EE148E388300AE5F6B /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "images/Icon@2x.png"; sourceTree = SOURCE_ROOT; };
+		4178D6652020A9AF00F4F699 /* SLApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLApplication.h; path = ../include/SLApplication.h; sourceTree = "<group>"; };
+		4178D6662020A9C000F4F699 /* SLApplication.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLApplication.cpp; path = "../lib-SLProject/source/SL/SLApplication.cpp"; sourceTree = "<group>"; };
 		417980451F13832F00EB5315 /* i0000_0000b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = i0000_0000b.png; path = ../_data/images/textures/i0000_0000b.png; sourceTree = SOURCE_ROOT; };
 		417980461F13832F00EB5315 /* i0001_0000b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = i0001_0000b.png; path = ../_data/images/textures/i0001_0000b.png; sourceTree = SOURCE_ROOT; };
 		417980471F13832F00EB5315 /* i0002_0000b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = i0002_0000b.png; path = ../_data/images/textures/i0002_0000b.png; sourceTree = SOURCE_ROOT; };
@@ -1631,6 +1634,8 @@
 		41627E8D15CA8CA90023B936 /* SL */ = {
 			isa = PBXGroup;
 			children = (
+				4178D6662020A9C000F4F699 /* SLApplication.cpp */,
+				4178D6652020A9AF00F4F699 /* SLApplication.h */,
 				418178261FC5D68F00200D02 /* SLDeviceLocation.cpp */,
 				418178251FC5D68F00200D02 /* SLDeviceRotation.cpp */,
 				418178241FC5D66B00200D02 /* SLDeviceLocation.h */,
@@ -3321,6 +3326,7 @@
 				419808D61959BA670048085E /* IRRShared.cpp in Sources */,
 				419808C51959BA670048085E /* ColladaParser.cpp in Sources */,
 				419808BE1959BA670048085E /* B3DImporter.cpp in Sources */,
+				4178D6672020A9C100F4F699 /* SLApplication.cpp in Sources */,
 				419808E71959BA670048085E /* Q3BSPFileParser.cpp in Sources */,
 				4156501A148AA64F00A3CAA6 /* main.m in Sources */,
 				4156501B148AA64F00A3CAA6 /* ViewController.mm in Sources */,

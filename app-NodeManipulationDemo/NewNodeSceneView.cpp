@@ -14,6 +14,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLApplication.h>
 #include <SLBox.h>
 #include <SLLightSpot.h>
 #include <SLText.h>
@@ -165,12 +166,12 @@ void NewNodeSceneView::postSceneLoad()
     SLAssimpImporter importer;
     _axesNode = importer.load("FBX/Axes/axes_blender.fbx");
 
-    SLScene::current->root3D()->addChild(_moveBox);
-    SLScene::current->root3D()->addChild(_axesNode);
+    SLApplication::scene->root3D()->addChild(_moveBox);
+    SLApplication::scene->root3D()->addChild(_axesNode);
 
     if (!_curObject)
     {   _curObject = _moveBoxChild;
-        SLScene::current->selectNodeMesh(_curObject, _curObject->meshes()[0]);
+        SLApplication::scene->selectNodeMesh(_curObject, _curObject->meshes()[0]);
     }
     updateInfoText();
     updateCurOrigin();
@@ -178,8 +179,8 @@ void NewNodeSceneView::postSceneLoad()
 //-----------------------------------------------------------------------------
 void NewNodeSceneView::preDraw()
 {
-    static SLfloat lastTime = SLScene::current->timeSec();
-    SLfloat currentTime = SLScene::current->timeSec();
+    static SLfloat lastTime = SLApplication::scene->timeSec();
+    SLfloat currentTime = SLApplication::scene->timeSec();
     _deltaTime = currentTime - lastTime;
     lastTime = currentTime;
 
@@ -336,7 +337,7 @@ SLbool NewNodeSceneView::onKeyPress(const SLKey key, const SLKey mod)
         // select parent object
         case K_F1:
             _curObject = (_curObject == _moveBox) ? _moveBoxChild : _moveBox;
-            SLScene::current->selectNodeMesh(_curObject, _curObject->meshes()[0]);
+            SLApplication::scene->selectNodeMesh(_curObject, _curObject->meshes()[0]);
             break;
         case K_F2: _continuousInput = ! _continuousInput; break;
         case 'R': reset(); break;
