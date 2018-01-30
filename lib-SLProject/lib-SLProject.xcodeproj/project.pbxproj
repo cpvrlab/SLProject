@@ -183,6 +183,8 @@
 		41030CFA1FED49E2005CFF1A /* SLTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030CB91FED49E1005CFF1A /* SLTimer.h */; };
 		41030CFB1FED49E2005CFF1A /* SLDrawBits.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030CBA1FED49E1005CFF1A /* SLDrawBits.h */; };
 		41030CFC1FED49E2005CFF1A /* SLSpheric.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030CBB1FED49E1005CFF1A /* SLSpheric.h */; };
+		4178D66220205C8E00F4F699 /* SLApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 4178D66120205C8E00F4F699 /* SLApplication.h */; };
+		4178D66420205E1700F4F699 /* SLApplication.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4178D66320205E1700F4F699 /* SLApplication.cpp */; };
 		41B5768A1FF53D1A00542824 /* SLSkybox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41B576881FF53D1A00542824 /* SLSkybox.cpp */; };
 		41B5768D1FF53D8B00542824 /* SLSkybox.h in Headers */ = {isa = PBXBuildFile; fileRef = 41B5768C1FF53D8B00542824 /* SLSkybox.h */; };
 /* End PBXBuildFile section */
@@ -365,6 +367,8 @@
 		41030CBA1FED49E1005CFF1A /* SLDrawBits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDrawBits.h; path = ../include/SLDrawBits.h; sourceTree = "<group>"; };
 		41030CBB1FED49E1005CFF1A /* SLSpheric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLSpheric.h; path = ../include/SLSpheric.h; sourceTree = "<group>"; };
 		4168FDE01FED45EA007C56B3 /* liblib-SLProject.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "liblib-SLProject.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4178D66120205C8E00F4F699 /* SLApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLApplication.h; path = ../include/SLApplication.h; sourceTree = "<group>"; };
+		4178D66320205E1700F4F699 /* SLApplication.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLApplication.cpp; path = source/SL/SLApplication.cpp; sourceTree = "<group>"; };
 		41B576461FF5399D00542824 /* ADSTex.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ADSTex.vert; path = ../_data/shaders/ADSTex.vert; sourceTree = "<group>"; };
 		41B576471FF5399D00542824 /* ADSTex3D.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ADSTex3D.vert; path = ../_data/shaders/ADSTex3D.vert; sourceTree = "<group>"; };
 		41B576481FF5399D00542824 /* PerPixBlinnSkinned.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerPixBlinnSkinned.vert; path = ../_data/shaders/PerPixBlinnSkinned.vert; sourceTree = "<group>"; };
@@ -496,6 +500,7 @@
 		41030B921FED468B005CFF1A /* GL */ = {
 			isa = PBXGroup;
 			children = (
+				41030CB21FED49E0005CFF1A /* glUtils.h */,
 				41030C4E1FED4956005CFF1A /* SLGLEnums.h */,
 				41030C541FED4956005CFF1A /* SLGLGenericProgram.h */,
 				41030C1B1FED48B7005CFF1A /* SLGLImGui.cpp */,
@@ -562,9 +567,6 @@
 				41030BB51FED4701005CFF1A /* SLDeviceLocation.cpp */,
 				41030BB91FED4701005CFF1A /* SLDeviceRotation.cpp */,
 				41030CAD1FED49DF005CFF1A /* SLImporter.h */,
-				41030BB71FED4701005CFF1A /* SLInputDevice.cpp */,
-				41030BA81FED4700005CFF1A /* SLInputManager.cpp */,
-				41030C821FED49D9005CFF1A /* SLInputManager.h */,
 				41030B9B1FED46FF005CFF1A /* SLMaterial.cpp */,
 				41030C891FED49DA005CFF1A /* SLMaterial.h */,
 				41030BBE1FED4702005CFF1A /* SLSamples2D.cpp */,
@@ -581,9 +583,10 @@
 		41030B951FED46A2005CFF1A /* SL */ = {
 			isa = PBXGroup;
 			children = (
-				41030CB21FED49E0005CFF1A /* glUtils.h */,
 				41030BF51FED4884005CFF1A /* SL.cpp */,
 				41030C861FED49DA005CFF1A /* SL.h */,
+				4178D66320205E1700F4F699 /* SLApplication.cpp */,
+				4178D66120205C8E00F4F699 /* SLApplication.h */,
 				41030BF81FED4884005CFF1A /* SLAssimpImporter.cpp */,
 				41030CA21FED49DD005CFF1A /* SLAssimpImporter.h */,
 				41030C931FED49DB005CFF1A /* SLAverage.h */,
@@ -595,8 +598,11 @@
 				41030BF61FED4884005CFF1A /* SLFileSystem.cpp */,
 				41030C7D1FED49D8005CFF1A /* SLFileSystem.h */,
 				41030BF91FED4884005CFF1A /* SLImporter.cpp */,
+				41030BB71FED4701005CFF1A /* SLInputDevice.cpp */,
 				41030CAA1FED49DF005CFF1A /* SLInputDevice.h */,
 				41030C9F1FED49DD005CFF1A /* SLInputEvent.h */,
+				41030BA81FED4700005CFF1A /* SLInputManager.cpp */,
+				41030C821FED49D9005CFF1A /* SLInputManager.h */,
 				41030BF71FED4884005CFF1A /* SLInterface.cpp */,
 				41030C871FED49DA005CFF1A /* SLInterface.h */,
 				41030C8F1FED49DB005CFF1A /* SLObject.h */,
@@ -856,6 +862,7 @@
 				41030CD11FED49E2005CFF1A /* TriangleBoxIntersect.h in Headers */,
 				41030C781FED497E005CFF1A /* SLCVFeatureManager.h in Headers */,
 				41030C771FED497E005CFF1A /* SLCVImage.h in Headers */,
+				4178D66220205C8E00F4F699 /* SLApplication.h in Headers */,
 				41030C711FED497E005CFF1A /* SLCVCalibration.h in Headers */,
 				41030CCC1FED49E2005CFF1A /* SLTriangle.h in Headers */,
 				41030CCE1FED49E2005CFF1A /* SLCurveBezier.h in Headers */,
@@ -1032,6 +1039,7 @@
 				41030BD71FED4703005CFF1A /* SLSkeleton.cpp in Sources */,
 				41030BFF1FED4884005CFF1A /* SLAssimpImporter.cpp in Sources */,
 				41030BCA1FED4703005CFF1A /* SLPoints.cpp in Sources */,
+				4178D66420205E1700F4F699 /* SLApplication.cpp in Sources */,
 				41030C141FED48A3005CFF1A /* SLCVImage.cpp in Sources */,
 				41030C241FED48B7005CFF1A /* SLGLState.cpp in Sources */,
 				41030BEA1FED4703005CFF1A /* SLRay.cpp in Sources */,

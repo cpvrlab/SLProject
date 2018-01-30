@@ -478,7 +478,8 @@ int main(int argc, char *argv[])
                   exeDir + "../_data/videos/",
                   exeDir + "../_data/images/fonts/",
                   exeDir + "../_data/calibrations/",
-                  configDir);
+                  configDir,
+                  "DemoApp_GLFW");
 
     svIndex = slCreateSceneView((int)(scrWidth  * scr2fbX),
                                 (int)(scrHeight * scr2fbY),

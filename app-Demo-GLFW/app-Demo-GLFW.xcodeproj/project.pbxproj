@@ -9,12 +9,15 @@
 /* Begin PBXBuildFile section */
 		41030D081FED58EC005CFF1A /* glfwMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030D071FED58EC005CFF1A /* glfwMain.cpp */; };
 		41030D111FED595B005CFF1A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41030D101FED595B005CFF1A /* OpenGL.framework */; };
+		411838A7201CDD9E0026A4C6 /* libwebp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 411838A4201CDD9D0026A4C6 /* libwebp.a */; };
+		411838A8201CDD9E0026A4C6 /* libwebpdemux.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 411838A5201CDD9E0026A4C6 /* libwebpdemux.a */; };
+		411838A9201CDD9E0026A4C6 /* libwebpmux.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 411838A6201CDD9E0026A4C6 /* libwebpmux.a */; };
 		412F12941FF280B30003687F /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12931FF280B30003687F /* IOKit.framework */; };
 		412F12961FF280D40003687F /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12951FF280D40003687F /* CoreFoundation.framework */; };
 		412F12981FF281240003687F /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12971FF281240003687F /* QuartzCore.framework */; };
 		412F129A1FF281390003687F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12991FF281390003687F /* CoreGraphics.framework */; };
 		412F129C1FF2815A0003687F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F129B1FF2815A0003687F /* Cocoa.framework */; };
-		41B159D11FF3FA79002D8D73 /* liblib-SLExternal-macxcode.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41B159D21FF3FA79002D8D73 /* liblib-SLExternal-macxcode.a */; };
+		4178D6852020B09C00F4F699 /* liblib-SLExternal-macxcode.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4178D6842020B09C00F4F699 /* liblib-SLExternal-macxcode.a */; };
 		41C841CD1FF26BB000E1A99F /* liblib-SLProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */; };
 		41CAE1372011CEF600B2830F /* libopencv_calib3d.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CAE1362011CEF600B2830F /* libopencv_calib3d.3.4.0.dylib */; };
 		41CAE1392011CF3A00B2830F /* libopencv_ccalib.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CAE1382011CF3A00B2830F /* libopencv_ccalib.3.4.0.dylib */; };
@@ -46,13 +49,16 @@
 /* Begin PBXFileReference section */
 		41030D071FED58EC005CFF1A /* glfwMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glfwMain.cpp; path = source/glfwMain.cpp; sourceTree = "<group>"; };
 		41030D101FED595B005CFF1A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		411838A4201CDD9D0026A4C6 /* libwebp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwebp.a; path = ../_lib/prebuilt/OpenCV/macx/libwebp.a; sourceTree = "<group>"; };
+		411838A5201CDD9E0026A4C6 /* libwebpdemux.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwebpdemux.a; path = ../_lib/prebuilt/OpenCV/macx/libwebpdemux.a; sourceTree = "<group>"; };
+		411838A6201CDD9E0026A4C6 /* libwebpmux.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwebpmux.a; path = ../_lib/prebuilt/OpenCV/macx/libwebpmux.a; sourceTree = "<group>"; };
 		412F12931FF280B30003687F /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		412F12951FF280D40003687F /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		412F12971FF281240003687F /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		412F12991FF281390003687F /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		412F129B1FF2815A0003687F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		4178D6842020B09C00F4F699 /* liblib-SLExternal-macxcode.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLExternal-macxcode.a"; path = "../_bin-Debug-macxcode/liblib-SLExternal-macxcode.a"; sourceTree = "<group>"; };
 		41A062931FED08E3000AC2C1 /* app-Demo-GLFW */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "app-Demo-GLFW"; sourceTree = BUILT_PRODUCTS_DIR; };
-		41B159D21FF3FA79002D8D73 /* liblib-SLExternal-macxcode.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "liblib-SLExternal-macxcode.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLProject.a"; path = "../_bin-Debug-macxcode/liblib-SLProject.a"; sourceTree = "<group>"; };
 		41CAE1362011CEF600B2830F /* libopencv_calib3d.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_calib3d.3.4.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.4.0.dylib; sourceTree = "<group>"; };
 		41CAE1382011CF3A00B2830F /* libopencv_ccalib.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_ccalib.3.4.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_ccalib.3.4.0.dylib; sourceTree = "<group>"; };
@@ -74,13 +80,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				41B159D11FF3FA79002D8D73 /* liblib-SLExternal-macxcode.a in Frameworks */,
+				411838A7201CDD9E0026A4C6 /* libwebp.a in Frameworks */,
+				411838A8201CDD9E0026A4C6 /* libwebpdemux.a in Frameworks */,
+				411838A9201CDD9E0026A4C6 /* libwebpmux.a in Frameworks */,
 				412F129C1FF2815A0003687F /* Cocoa.framework in Frameworks */,
 				412F129A1FF281390003687F /* CoreGraphics.framework in Frameworks */,
 				41CAE13B2011CF6700B2830F /* libopencv_core.3.4.0.dylib in Frameworks */,
 				412F12981FF281240003687F /* QuartzCore.framework in Frameworks */,
 				412F12961FF280D40003687F /* CoreFoundation.framework in Frameworks */,
 				41CAE1412011CFB700B2830F /* libopencv_imgproc.3.4.0.dylib in Frameworks */,
+				4178D6852020B09C00F4F699 /* liblib-SLExternal-macxcode.a in Frameworks */,
 				41CAE1422011CFB700B2830F /* libopencv_video.3.4.0.dylib in Frameworks */,
 				412F12941FF280B30003687F /* IOKit.framework in Frameworks */,
 				41CAE1392011CF3A00B2830F /* libopencv_ccalib.3.4.0.dylib in Frameworks */,
@@ -104,11 +113,14 @@
 		41030D091FED5923005CFF1A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4178D6842020B09C00F4F699 /* liblib-SLExternal-macxcode.a */,
+				411838A4201CDD9D0026A4C6 /* libwebp.a */,
+				411838A5201CDD9E0026A4C6 /* libwebpdemux.a */,
+				411838A6201CDD9E0026A4C6 /* libwebpmux.a */,
 				412F129B1FF2815A0003687F /* Cocoa.framework */,
 				412F12951FF280D40003687F /* CoreFoundation.framework */,
 				412F12991FF281390003687F /* CoreGraphics.framework */,
 				412F12931FF280B30003687F /* IOKit.framework */,
-				41B159D21FF3FA79002D8D73 /* liblib-SLExternal-macxcode.a */,
 				41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */,
 				41CAE14E2011D08900B2830F /* libopencv_aruco.3.4.0.dylib */,
 				41CAE1362011CEF600B2830F /* libopencv_calib3d.3.4.0.dylib */,

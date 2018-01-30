@@ -107,15 +107,8 @@ class SLScene: public SLObject
             // Video stuff
             SLVideoType         videoType       () {return _videoType;}
             SLGLTexture*        videoTexture    () {return &_videoTexture;}
-            SLCVCalibration*    activeCalib     () {return _activeCalib;}
-            SLCVCalibration*    calibMainCam    () {return &_calibMainCam;}
-            SLCVCalibration*    calibScndCam    () {return &_calibScndCam;}
             SLVCVTracker&       trackers        () {return _trackers;}
             SLbool              showDetection   () {return _showDetection;}
-
-            // Device sensors stuff
-            SLDeviceRotation&   devRot          () {return _devRot;}
-            SLDeviceLocation&   devLoc          () {return _devLoc;}
 
             // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
@@ -135,8 +128,6 @@ class SLScene: public SLObject
                                                  SLuchar* data,
                                                  SLbool isContinuous,
                                                  SLbool isTopLeft);
-
-     static SLScene*        current;            //!< global static scene pointer
 
    protected:
             SLVSceneView    _sceneViews;        //!< Vector of all sceneview pointers
@@ -182,15 +173,8 @@ class SLScene: public SLObject
             SLVideoType         _videoType;         //!< Flag for using the live video image
             SLGLTexture         _videoTexture;      //!< Texture for live video image
             SLGLTexture         _videoTextureErr;   //!< Texture for live video error
-            SLCVCalibration*    _activeCalib;       //!< Pointer to the active calibration
-            SLCVCalibration     _calibMainCam;      //!< OpenCV calibration for main video camera
-            SLCVCalibration     _calibScndCam;      //!< OpenCV calibration for secondary video camera
             SLVCVTracker        _trackers;          //!< Vector of all AR trackers
             SLbool              _showDetection;     //!< Flag if detection should be visualized
-
-            // Mobile device sensor data
-            SLDeviceRotation    _devRot;            //!< Mobile device rotation from IMU
-            SLDeviceLocation    _devLoc;            //!< Mobile device location from GPS
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -14,6 +14,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
@@ -38,7 +39,7 @@ SLGLProgram::SLGLProgram(SLstring vertShaderFile,
     addShader(new SLGLShader(defaultPath+fragShaderFile, ST_fragment));
 
     // Add pointer to the global resource vectors for deallocation
-    SLScene::current->programs().push_back(this);
+    SLApplication::scene->programs().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! The destructor detaches all shader objects and deletes them
@@ -186,7 +187,7 @@ void SLGLProgram::beginUse(SLMaterial* mat)
         _stateGL->useProgram(_objectGL);
             
         // 2: Pass light & material parameters
-        _stateGL->globalAmbientLight = SLScene::current->globalAmbiLight();
+        _stateGL->globalAmbientLight = SLApplication::scene->globalAmbiLight();
         SLint loc = uniform4fv("u_globalAmbient",  1,  (SLfloat*) _stateGL->globalAmbient());
         loc = uniform1i("u_numLightsUsed", _stateGL->numLightsUsed);
         

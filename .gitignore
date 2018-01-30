@@ -43,3 +43,4 @@ GenerateHTMLDoc.log
 *.classpath
 *.project
 .settings
+.vs

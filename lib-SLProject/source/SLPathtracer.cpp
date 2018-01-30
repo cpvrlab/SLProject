@@ -16,6 +16,7 @@
 using namespace std::placeholders;
 using namespace std::chrono;
 
+#include <SLApplication.h>
 #include <SLPathtracer.h>
 #include <SLCamera.h>
 #include <SLSceneView.h>
@@ -51,7 +52,7 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     _images.push_back(new SLCVImage(_sv->scrW(), _sv->scrH(), PF_rgb, "Pathtracer"));
 
     // Measure time 
-    double t1 = SLScene::current->timeSec();
+    double t1 = SLApplication::scene->timeSec();
 
     auto renderSlicesFunction   = bind(&SLPathtracer::renderSlices, this, _1, _2);
 
@@ -79,7 +80,7 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     
 
     ////////////////////////////////////////////////////////////////////////////
-    _renderSec = SLScene::current->timeSec() - (SLfloat)t1;
+    _renderSec = SLApplication::scene->timeSec() - (SLfloat)t1;
 
     SL_LOG("\nTime to render image: %6.3fsec", _renderSec);
 
@@ -152,11 +153,11 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
             // update image after 500 ms
             if (isMainThread)
             {  
-                if (SLScene::current->timeSec()-t1 > 0.5f)
+                if (SLApplication::scene->timeSec()-t1 > 0.5f)
                 {  
                     finishBeforeUpdate();
                     _sv->onWndUpdate(); // update window
-                    t1 = SLScene::current->timeSec();
+                    t1 = SLApplication::scene->timeSec();
                 }
             }
         }
@@ -169,7 +170,7 @@ Recursively traces Ray in Scene.
 */
 SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     SLCol4f finalColor(ray->backgroundColor);
 
     // Participating Media init
@@ -317,7 +318,7 @@ Calculates direct illumination for intersection point of ray
 */
 SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor)
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     SLCol4f  color = SLCol4f::BLACK;
     SLCol4f  diffuseColor = SLCol4f::BLACK;
     SLVec3f  L, N;

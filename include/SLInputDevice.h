@@ -28,7 +28,7 @@ public:
     event's being sent out that were accepted by some receiver. */
     virtual SLbool  poll    () = 0;
 };
-
+//-----------------------------------------------------------------------------
 typedef vector<SLInputDevice*> SLVInputDevice;
-
+//-----------------------------------------------------------------------------
 #endif

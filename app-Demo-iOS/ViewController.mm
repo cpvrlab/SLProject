@@ -130,7 +130,8 @@ float GetSeconds()
                   exeDir,
                   exeDir,
                   exeDir,
-                  configDir);
+                  configDir,
+                  "DemoApp_iOS");
     //////////////////////////
    
     ///////////////////////////////////////////////////////////////////////

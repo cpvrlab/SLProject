@@ -40,8 +40,8 @@ win32 {
 macx {
     # mac only
     QMAKE_MAC_SDK = macosx10.13
-    QMAKE_CXXFLAGS += -mmacosx-version-min=10.7
-    QMAKE_LFLAGS   += -mmacosx-version-min=10.7
+    QMAKE_CXXFLAGS += -mmacosx-version-min=10.10
+    QMAKE_LFLAGS   += -mmacosx-version-min=10.10
     CONFIG += c++11
     DEFINES += GLEW_NO_GLU
     QMAKE_RPATHDIR += -L$$PWD/_lib/prebuilt/OpenCV/macx

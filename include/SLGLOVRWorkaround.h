@@ -13,8 +13,9 @@
 #define SLOVRWORKAROUND_H
 
 #include <stdafx.h>
-#include <SLGLOculus.h>
+#include <SLApplication.h>
 #include <SLScene.h>
+#include <SLGLOculus.h>
 #include <SLGLVertexArray.h>
 
 //-------------------------------------------------------------------------------------
@@ -1191,7 +1192,7 @@ void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
     for (SLuint i = 0; i < indexCount; i++)
         tempIndex.push_back(indexData[i]);
 
-    SLGLProgram* sp = SLScene::current->programs(SP_stereoOculusDistortion);
+    SLGLProgram* sp = SLApplication::scene->programs(SP_stereoOculusDistortion);
     sp->useProgram();
 
     // set attributes with all the same data pointer to the interleaved array

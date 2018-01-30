@@ -275,6 +275,7 @@
     <ClInclude Include="..\include\SLAnimManager.h" />
     <ClInclude Include="..\include\SLAnimPlayback.h" />
     <ClInclude Include="..\include\SLAnimTrack.h" />
+    <ClInclude Include="..\include\SLApplication.h" />
     <ClInclude Include="..\include\SLArrow.h" />
     <ClInclude Include="..\include\SLAssimpImporter.h" />
     <ClInclude Include="..\include\SLAverage.h" />
@@ -441,6 +442,7 @@
     <ClCompile Include="source\SLTransferFunction.cpp" />
     <ClCompile Include="source\SLTriangle.cpp" />
     <ClCompile Include="source\SL\SL.cpp" />
+    <ClCompile Include="source\SL\SLApplication.cpp" />
     <ClCompile Include="source\SL\SLAssimpImporter.cpp" />
     <ClCompile Include="source\SL\SLFileSystem.cpp" />
     <ClCompile Include="source\SL\SLImporter.cpp" />

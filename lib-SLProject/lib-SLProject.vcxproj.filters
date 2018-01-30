@@ -351,6 +351,9 @@
     <ClInclude Include="..\include\SLSpheric.h">
       <Filter>Nodes\Meshes\Revolver</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLApplication.h">
+      <Filter>SL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -583,6 +586,9 @@
     </ClCompile>
     <ClCompile Include="source\SLSpheric.cpp">
       <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLApplication.cpp">
+      <Filter>SL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

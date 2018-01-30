@@ -12,9 +12,11 @@
 #ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
 #include <debug_new.h>        // memory leak detector
 #endif
-#include <SLSkeleton.h>
+
+#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
+#include <SLSkeleton.h>
 
 //-----------------------------------------------------------------------------
 /*! Constructor
@@ -24,7 +26,7 @@ SLSkeleton::SLSkeleton() : _minOS(-1, -1, -1),
                            _minMaxOutOfDate(true),
                            _rootJoint(nullptr)
 {
-    SLScene::current->animManager().addSkeleton(this);
+    SLApplication::scene->animManager().addSkeleton(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -122,7 +124,7 @@ SLAnimation* SLSkeleton::createAnimation(const SLstring& name, SLfloat duration)
     _animPlaybacks[name] = play;
 
     // Add node animation to the combined vector
-    SLAnimManager& aniMan = SLScene::current->animManager();
+    SLAnimManager& aniMan = SLApplication::scene->animManager();
     aniMan.allAnimNames().push_back(name);
     aniMan.allAnimPlaybacks().push_back(play);
 
