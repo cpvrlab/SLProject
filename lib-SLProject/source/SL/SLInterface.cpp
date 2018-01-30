@@ -17,7 +17,7 @@
 #include <SLAssimpImporter.h>
 #include <SLInputManager.h>
 #include <SLCVCapture.h>
-#include <SLDemoGui.h>
+//#include <SLDemoGui.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -59,7 +59,8 @@ void slCreateScene(SLVstring& cmdLineArgs,
                    SLstring fontPath,
                    SLstring calibrationPath,
                    SLstring configPath,
-                   SLstring applicationName)
+                   SLstring applicationName,
+                   void*    onSceneLoadCallback)
 {
     assert(SLApplication::scene==nullptr && "SLScene is already created!");
    
@@ -94,7 +95,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
                                            stateGL->getSLVersionNO().c_str());
     SL_LOG("------------------------------------------------------------------\n");
 
-    SLApplication::createAppAndScene(applicationName);
+    SLApplication::createAppAndScene(applicationName, onSceneLoadCallback);
 }
 //-----------------------------------------------------------------------------
 /*! Global creation function for a SLSceneview instance returning the index of 
@@ -104,9 +105,7 @@ have to provide a similar function and pass it function pointer to
 slCreateSceneView. You can create multiple sceneview per application.<br>
 <br>
 See examples usages in:
-  - app-Demo-GLFW: glfwMain.cpp in function main()
-  - app-Demo-Qt: qtGLWidget::initializeGL()
-  - app-Viewer-Qt: qtGLWidget::initializeGL()
+  - app-Demo-GLFW: AppDemoMainGLFW.cpp in function main()
   - app-Demo-Android: Java_ch_fhnw_comgRT_glES2Lib_onInit()
   - app-Demo-iOS: ViewController.m in method viewDidLoad()
 */
@@ -117,7 +116,7 @@ int slCreateSceneView(int screenWidth,
                       void* onWndUpdateCallback,
                       void* onSelectNodeMeshCallback,
                       void* onNewSceneViewCallback,
-                      void* onBuildImGui)
+                      void* onImGuiBuild)
 {
     assert(SLApplication::scene && "No SLApplication::scene!");
 
@@ -136,11 +135,7 @@ int slCreateSceneView(int screenWidth,
              screenHeight, 
              onWndUpdateCallback,
              onSelectNodeMeshCallback,
-             onBuildImGui);
-
-    // Load configuration no matter if ImGui is used
-    if (index==0)
-        SLDemoGui::loadConfig(dotsPerInch);
+             onImGuiBuild);
 
     // Set default font sizes depending on the dpi no matter if ImGui is used
     if (!SL::dpi) SL::dpi = dotsPerInch;
@@ -151,10 +146,9 @@ int slCreateSceneView(int screenWidth,
     // Set active sceneview and load scene. This is done for the first sceneview
     if (!SLApplication::scene->root3D())
     {   if (SL::currentSceneID == C_sceneEmpty)
-             SLApplication::scene->onLoad(sv, initScene);
-        else SLApplication::scene->onLoad(sv, SL::currentSceneID);
-    } else
-        sv->onInitialize();
+             SLApplication::scene->onLoad(SLApplication::scene, sv, initScene);
+        else SLApplication::scene->onLoad(SLApplication::scene, sv, SL::currentSceneID);
+    } else sv->onInitialize();
    
     // return the identifier index
     return sv->index();
@@ -194,9 +188,6 @@ the GUI app terminates.
 */
 void slTerminate()
 {
-    // Save UI configuration no matter if ImGui is used
-    SLDemoGui::saveConfig();
-
     // Deletes all remaining sceneviews the current scene instance  
     SLApplication::deleteAppAndScene();
 }

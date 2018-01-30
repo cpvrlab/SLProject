@@ -80,7 +80,7 @@ void SLSceneView::init(SLstring name,
                        SLint screenHeight,
                        void* onWndUpdateCallback,
                        void* onSelectNodeMeshCallback,
-                       void* onBuildImGui)
+                       void* onImGuiBuild)
 {  
     _name = name;
     _scrW = screenWidth;
@@ -97,7 +97,7 @@ void SLSceneView::init(SLstring name,
     onSelectedNodeMesh = (cbOnSelectNodeMesh)onSelectNodeMeshCallback;
 
     // Set the ImGui build function. Every sceneview could have it's own GUI.
-    _gui.build = (cbOnBuildImGui)onBuildImGui;
+    _gui.build = (cbOnImGuiBuild)onImGuiBuild;
 
     _stateGL = 0;
    
@@ -1268,7 +1268,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
 
     // Handle scene changes (inkl. calibration start)
     if (cmd >= C_sceneMinimal && cmd < C_sceneMaximal)
-    {   s->onLoad(this, cmd);
+    {   s->onLoad(s, this, cmd);
         return true;
     }
 

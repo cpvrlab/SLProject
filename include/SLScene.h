@@ -31,6 +31,9 @@ class SLCVTracked;
 typedef vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
 typedef vector<SLCVTracked*> SLVCVTracker; //!< Vector of CV tracker pointers
 //-----------------------------------------------------------------------------
+//! C-Callback function typedef for scene load function
+typedef void(SL_STDCALL *cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint sceneID);
+//-----------------------------------------------------------------------------
 //! The SLScene class represents the top level instance holding the scene structure
 /*!      
 The SLScene class holds everything that is common for all scene views such as 
@@ -54,7 +57,8 @@ class SLScene: public SLObject
 {  
     friend class SLNode;
    
-    public:                 SLScene             (SLstring name="");
+    public:                 SLScene             (SLstring name,
+                                                 cbOnSceneLoad onSceneLoadCallback);
                            ~SLScene             ();
             // Setters
             void            root3D              (SLNode* root3D){_root3D = root3D;}
@@ -63,6 +67,7 @@ class SLScene: public SLObject
             void            stopAnimations      (SLbool stop) {_stopAnimations = stop;}
             void            videoType           (SLVideoType vt);
             void            showDetection       (SLbool st) {_showDetection = st;}
+            void            info                (SLstring i) {_info = i;}
                            
             // Getters
             SLAnimManager&  animManager         () {return _animManager;}
@@ -105,14 +110,15 @@ class SLScene: public SLObject
             SLCamera*       nextCameraInScene   (SLSceneView* activeSV);
 
             // Video stuff
-            SLVideoType         videoType       () {return _videoType;}
-            SLGLTexture*        videoTexture    () {return &_videoTexture;}
-            SLVCVTracker&       trackers        () {return _trackers;}
-            SLbool              showDetection   () {return _showDetection;}
+            SLVideoType     videoType           () {return _videoType;}
+            SLGLTexture*    videoTexture        () {return &_videoTexture;}
+            SLVCVTracker&   trackers            () {return _trackers;}
+            SLbool          showDetection       () {return _showDetection;}
+    
+            cbOnSceneLoad   onLoad;             //!< C-Callback for scene load
 
             // Misc.
-   virtual  void            onLoad              (SLSceneView* sv, 
-                                                 SLCommand _currentID);
+   //virtual  void            onLoad              (SLSceneView* sv, SLCommand _currentID);
    virtual  void            onLoadAsset         (SLstring assetFile, 
                                                  SLuint processFlags);
    virtual  void            onAfterLoad         ();
@@ -170,11 +176,11 @@ class SLScene: public SLObject
             SLGLOculus      _oculus;            //!< Oculus Rift interface
             
             // Video stuff
-            SLVideoType         _videoType;         //!< Flag for using the live video image
-            SLGLTexture         _videoTexture;      //!< Texture for live video image
-            SLGLTexture         _videoTextureErr;   //!< Texture for live video error
-            SLVCVTracker        _trackers;          //!< Vector of all AR trackers
-            SLbool              _showDetection;     //!< Flag if detection should be visualized
+            SLVideoType     _videoType;         //!< Flag for using the live video image
+            SLGLTexture     _videoTexture;      //!< Texture for live video image
+            SLGLTexture     _videoTextureErr;   //!< Texture for live video error
+            SLVCVTracker    _trackers;          //!< Vector of all AR trackers
+            SLbool          _showDetection;     //!< Flag if detection should be visualized
 };
 //-----------------------------------------------------------------------------
 #endif

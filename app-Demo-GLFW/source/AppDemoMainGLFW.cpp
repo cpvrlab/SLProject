@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      glfwMain.cpp
+//  File:      AppDemoMainGLFW.cpp
 //  Purpose:   Implementation of the GUI with the GLFW3 (http://www.glfw.org/)
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
@@ -16,11 +16,14 @@
 #include <GLFW/glfw3.h>
 #include <thread>
 #include <future>
+
+#include <AppDemoGui.h>
 #include <SLInterface.h>
 #include <SLSceneView.h>
 #include <SLEnums.h>
 #include <SLCVCapture.h>
-#include <SLDemoGui.h>
+
+extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLCommand sceneName);
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -479,7 +482,10 @@ int main(int argc, char *argv[])
                   exeDir + "../_data/images/fonts/",
                   exeDir + "../_data/calibrations/",
                   configDir,
-                  "DemoApp_GLFW");
+                  "AppDemoGLFW",
+                  (void*)appDemoLoadScene);
+    
+    AppDemoGui::loadConfig(dpi);
 
     svIndex = slCreateSceneView((int)(scrWidth  * scr2fbX),
                                 (int)(scrHeight * scr2fbY),
@@ -488,7 +494,7 @@ int main(int argc, char *argv[])
                                 (void*)&onPaint, 
                                 0,
                                 0,
-                                (void*)SLDemoGui::buildDemoGui);
+                                (void*)AppDemoGui::build);
 
     // Set GLFW callback functions
     glfwSetKeyCallback(window, onKeyPress);
@@ -517,6 +523,8 @@ int main(int argc, char *argv[])
              glfwWaitEvents();
         else glfwPollEvents();
     }
+    
+    AppDemoGui::saveConfig();
 
     slTerminate();
     glfwDestroyWindow(window);

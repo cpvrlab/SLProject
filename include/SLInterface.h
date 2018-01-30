@@ -33,7 +33,8 @@ void    slCreateScene           (SLVstring& cmdLineArgs,
                                  SLstring fontPath,
                                  SLstring calibrationPath,
                                  SLstring configPath,
-                                 SLstring applicationName);
+                                 SLstring applicationName,
+                                 void*    onSceneLoadCallback = 0);
 
 int     slCreateSceneView       (int screenWidth,
                                  int screenHeight,
@@ -42,7 +43,7 @@ int     slCreateSceneView       (int screenWidth,
                                  void* onWndUpdateCallback,
                                  void* onSelectNodeMeshCallback = 0,
                                  void* onNewSceneViewCallback = 0,
-                                 void* onBuildImGui = 0);
+                                 void* onImGuiBuild = 0);
 
 int     slNewSceneView          ();
 bool    slShouldClose           ();

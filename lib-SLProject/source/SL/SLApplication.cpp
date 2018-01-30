@@ -31,12 +31,13 @@ SLCVCalibration     SLApplication::calibScndCam;
 SLDeviceRotation    SLApplication::devRot;
 SLDeviceLocation    SLApplication::devLoc;
 //-----------------------------------------------------------------------------
-void SLApplication::createAppAndScene(SLstring name)
+void SLApplication::createAppAndScene(SLstring name,
+                                      void* onSceneLoadCallback)
 {
     assert(SLApplication::scene == nullptr &&
            "You can create only one SLApplication");
     
-    scene = new SLScene(name);
+    scene = new SLScene(name, (cbOnSceneLoad)onSceneLoadCallback);
     
     // load opencv camera calibration for main and secondary camera
     #if defined(SL_USES_CVCAPTURE)

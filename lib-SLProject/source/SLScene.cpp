@@ -56,9 +56,12 @@ As examples you can see it in:
   - _old/app-Demo-Qt: qtGLWidget::initializeGL()
   - _old/app-Viewer-Qt: qtGLWidget::initializeGL()
 */
-SLScene::SLScene(SLstring name) : SLObject(name)
+SLScene::SLScene(SLstring name,
+                 cbOnSceneLoad onSceneLoadCallback) : SLObject(name)
 {
     SLApplication::scene = this;
+    
+    onLoad          = onSceneLoadCallback;
     
     _root3D         = nullptr;
     _root2D         = nullptr;
@@ -398,8 +401,8 @@ bool SLScene::onUpdate()
             if (ac->calculate())
             {   _sceneViews[0]->camera()->fov(ac->cameraFovDeg());
                 if (SL::currentSceneID == C_sceneVideoCalibrateMain)
-                     onLoad(_sceneViews[0], C_sceneVideoTrackChessMain);
-                else onLoad(_sceneViews[0], C_sceneVideoTrackChessScnd);
+                     onLoad(this, _sceneViews[0], C_sceneVideoTrackChessMain);
+                else onLoad(this, _sceneViews[0], C_sceneVideoTrackChessScnd);
             }
         } else
         if (ac->state() == CS_calibrated || ac->state() == CS_guessed) //......

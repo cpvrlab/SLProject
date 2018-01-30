@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		41030D081FED58EC005CFF1A /* glfwMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030D071FED58EC005CFF1A /* glfwMain.cpp */; };
+		41030D081FED58EC005CFF1A /* AppDemoMainGLFW.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030D071FED58EC005CFF1A /* AppDemoMainGLFW.cpp */; };
 		41030D111FED595B005CFF1A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41030D101FED595B005CFF1A /* OpenGL.framework */; };
 		411838A7201CDD9E0026A4C6 /* libwebp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 411838A4201CDD9D0026A4C6 /* libwebp.a */; };
 		411838A8201CDD9E0026A4C6 /* libwebpdemux.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 411838A5201CDD9E0026A4C6 /* libwebpdemux.a */; };
@@ -17,6 +17,8 @@
 		412F12981FF281240003687F /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12971FF281240003687F /* QuartzCore.framework */; };
 		412F129A1FF281390003687F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12991FF281390003687F /* CoreGraphics.framework */; };
 		412F129C1FF2815A0003687F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F129B1FF2815A0003687F /* Cocoa.framework */; };
+		4168A03B2020B87C00560A5B /* AppDemoGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4168A03A2020B87C00560A5B /* AppDemoGui.cpp */; };
+		4168A03D2020C92300560A5B /* AppDemoLoad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4168A03C2020C92300560A5B /* AppDemoLoad.cpp */; };
 		4178D6852020B09C00F4F699 /* liblib-SLExternal-macxcode.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4178D6842020B09C00F4F699 /* liblib-SLExternal-macxcode.a */; };
 		41C841CD1FF26BB000E1A99F /* liblib-SLProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */; };
 		41CAE1372011CEF600B2830F /* libopencv_calib3d.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CAE1362011CEF600B2830F /* libopencv_calib3d.3.4.0.dylib */; };
@@ -47,7 +49,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		41030D071FED58EC005CFF1A /* glfwMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glfwMain.cpp; path = source/glfwMain.cpp; sourceTree = "<group>"; };
+		41030D071FED58EC005CFF1A /* AppDemoMainGLFW.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDemoMainGLFW.cpp; path = source/AppDemoMainGLFW.cpp; sourceTree = "<group>"; };
 		41030D101FED595B005CFF1A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		411838A4201CDD9D0026A4C6 /* libwebp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwebp.a; path = ../_lib/prebuilt/OpenCV/macx/libwebp.a; sourceTree = "<group>"; };
 		411838A5201CDD9E0026A4C6 /* libwebpdemux.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwebpdemux.a; path = ../_lib/prebuilt/OpenCV/macx/libwebpdemux.a; sourceTree = "<group>"; };
@@ -57,6 +59,9 @@
 		412F12971FF281240003687F /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		412F12991FF281390003687F /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		412F129B1FF2815A0003687F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		4168A0392020B87C00560A5B /* AppDemoGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDemoGui.h; path = source/AppDemoGui.h; sourceTree = "<group>"; };
+		4168A03A2020B87C00560A5B /* AppDemoGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDemoGui.cpp; path = source/AppDemoGui.cpp; sourceTree = "<group>"; };
+		4168A03C2020C92300560A5B /* AppDemoLoad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDemoLoad.cpp; path = source/AppDemoLoad.cpp; sourceTree = "<group>"; };
 		4178D6842020B09C00F4F699 /* liblib-SLExternal-macxcode.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLExternal-macxcode.a"; path = "../_bin-Debug-macxcode/liblib-SLExternal-macxcode.a"; sourceTree = "<group>"; };
 		41A062931FED08E3000AC2C1 /* app-Demo-GLFW */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "app-Demo-GLFW"; sourceTree = BUILT_PRODUCTS_DIR; };
 		41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLProject.a"; path = "../_bin-Debug-macxcode/liblib-SLProject.a"; sourceTree = "<group>"; };
@@ -144,7 +149,10 @@
 		41A0628A1FED08E3000AC2C1 = {
 			isa = PBXGroup;
 			children = (
-				41030D071FED58EC005CFF1A /* glfwMain.cpp */,
+				4168A03C2020C92300560A5B /* AppDemoLoad.cpp */,
+				4168A03A2020B87C00560A5B /* AppDemoGui.cpp */,
+				4168A0392020B87C00560A5B /* AppDemoGui.h */,
+				41030D071FED58EC005CFF1A /* AppDemoMainGLFW.cpp */,
 				41030D091FED5923005CFF1A /* Frameworks */,
 				41A062941FED08E3000AC2C1 /* Products */,
 			);
@@ -232,7 +240,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				41030D081FED58EC005CFF1A /* glfwMain.cpp in Sources */,
+				4168A03D2020C92300560A5B /* AppDemoLoad.cpp in Sources */,
+				41030D081FED58EC005CFF1A /* AppDemoMainGLFW.cpp in Sources */,
+				4168A03B2020B87C00560A5B /* AppDemoGui.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -365,6 +375,7 @@
 				HEADER_SEARCH_PATHS = (
 					"../include/**",
 					"../lib-SLExternal/**",
+					"source/**",
 				);
 				INSTALL_PATH = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				LIBRARY_SEARCH_PATHS = (
@@ -390,6 +401,7 @@
 				HEADER_SEARCH_PATHS = (
 					"../include/**",
 					"../lib-SLExternal/**",
+					"source/**",
 				);
 				INSTALL_PATH = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				LIBRARY_SEARCH_PATHS = (

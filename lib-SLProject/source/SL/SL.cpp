@@ -15,7 +15,6 @@
 #include <SLCV.h>
 #include <SLSceneView.h>
 #include <SLCVCapture.h>
-#include <SLDemoGui.h>
 
 //-----------------------------------------------------------------------------
 //! Default values for static fields

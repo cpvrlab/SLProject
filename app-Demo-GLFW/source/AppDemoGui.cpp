@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLDemoGui.cpp
+//  File:      appDemoGui.cpp
 //  Purpose:   UI with the ImGUI framework fully rendered in OpenGL 3+
 //  Author:    Marcus Hudritsch
 //  Date:      Summer 2017
@@ -14,8 +14,8 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <appDemoGui.h>
 #include <SLApplication.h>
-#include <SLDemoGui.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLInterface.h>
@@ -88,21 +88,21 @@ void centerNextWindow(SLSceneView* sv, SLfloat widthPC=0.9f, SLfloat heightPC=0.
 }
 //-----------------------------------------------------------------------------
 // Init global static variables
-SLGLTexture*    SLDemoGui::cpvrLogo            = nullptr;
-SLstring        SLDemoGui::configTime          = "-";
-SLbool          SLDemoGui::showAbout           = false;
-SLbool          SLDemoGui::showHelp            = false;
-SLbool          SLDemoGui::showHelpCalibration = false;
-SLbool          SLDemoGui::showCredits         = false;
-SLbool          SLDemoGui::showStatsTiming     = false;
-SLbool          SLDemoGui::showStatsScene      = false;
-SLbool          SLDemoGui::showStatsVideo      = false;
-SLbool          SLDemoGui::showInfosFrameworks = false;
-SLbool          SLDemoGui::showInfosScene      = false;
-SLbool          SLDemoGui::showInfosSensors    = false;
-SLbool          SLDemoGui::showSceneGraph      = false;
-SLbool          SLDemoGui::showProperties      = false;
-SLbool          SLDemoGui::showChristoffel     = false;
+SLGLTexture*    AppDemoGui::cpvrLogo            = nullptr;
+SLstring        AppDemoGui::configTime          = "-";
+SLbool          AppDemoGui::showAbout           = false;
+SLbool          AppDemoGui::showHelp            = false;
+SLbool          AppDemoGui::showHelpCalibration = false;
+SLbool          AppDemoGui::showCredits         = false;
+SLbool          AppDemoGui::showStatsTiming     = false;
+SLbool          AppDemoGui::showStatsScene      = false;
+SLbool          AppDemoGui::showStatsVideo      = false;
+SLbool          AppDemoGui::showInfosFrameworks = false;
+SLbool          AppDemoGui::showInfosScene      = false;
+SLbool          AppDemoGui::showInfosSensors    = false;
+SLbool          AppDemoGui::showSceneGraph      = false;
+SLbool          AppDemoGui::showProperties      = false;
+SLbool          AppDemoGui::showChristoffel     = false;
 
 // Scene node for Christoffel objects
 SLNode* bern        = nullptr;
@@ -122,7 +122,7 @@ SLNode* grab_t_dach = nullptr;
 SLNode* grab_t_fahn = nullptr;
 SLNode* grab_t_stein= nullptr;
 
-SLstring SLDemoGui::infoAbout =
+SLstring AppDemoGui::infoAbout =
 "Welcome to the SLProject demo app. It is developed at the \
 Computer Science Department of the Bern University of Applied Sciences. \
 The app shows what you can learn in two semesters about 3D computer graphics \
@@ -133,7 +133,7 @@ Click to close and use the menu to choose different scenes and view settings. \
 For more information please visit: https://github.com/cpvrlab/SLProject\n\
 ";
 
-SLstring SLDemoGui::infoCredits =
+SLstring AppDemoGui::infoCredits =
 "Contributors since 2005 in alphabetic order: Martin Christen, Manuel Frischknecht, Michael \
 Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
 Credits for external libraries:\n\
@@ -147,7 +147,7 @@ Credits for external libraries:\n\
 - zlib: zlib.net\n\
 ";
 
-SLstring SLDemoGui::infoHelp =
+SLstring AppDemoGui::infoHelp =
 "Help for mouse or finger control:\n\
 - Use mouse or your finger to rotate the scene\n\
 - Use mouse-wheel or pinch 2 fingers to go forward/backward\n\
@@ -157,7 +157,7 @@ SLstring SLDemoGui::infoHelp =
 - Check out the different test scenes under File > Load Test Scene\n\
 ";
 
-SLstring SLDemoGui::infoCalibrate =
+SLstring AppDemoGui::infoCalibrate =
 "The calibration process requires a chessboard image to be printed \
 and glued on a flat board. You can find the PDF with the chessboard image on: \n\
 https://github.com/cpvrlab/SLProject/tree/master/_data/calibrations/ \n\n\
@@ -171,12 +171,12 @@ Please close first this info dialog on the top-left.\n\
 
 //-----------------------------------------------------------------------------
 //! This is the main building function for the GUI of the Demo apps
-/*! Is is passed to the SLGLImGui::build function in main of the app-Demo-GLFW
+/*! Is is passed to the AppDemoGui::build function in main of the app-Demo-GLFW
  app. This function will be called once per frame roughly at the end of
  SLSceneView::onPaint in SLSceneView::draw2DGL by calling ImGui::Render.\n
  See also the comments on SLGLImGui.
  */
-void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
+void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 {
     ///////////////////////////////////
     // Show modeless fullscreen dialogs
@@ -589,7 +589,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
-void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
+void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 {
     SLCommand curS = SL::currentSceneID;
     SLRenderType rType = sv->renderType();
@@ -1282,7 +1282,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
-void SLDemoGui::buildSceneGraph(SLScene* s)
+void AppDemoGui::buildSceneGraph(SLScene* s)
 {
     ImGui::Begin("Scenegraph", &showSceneGraph);
 
@@ -1292,7 +1292,7 @@ void SLDemoGui::buildSceneGraph(SLScene* s)
     ImGui::End();
 }
 //-----------------------------------------------------------------------------
-void SLDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
+void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 {
     SLbool isSelectedNode = s->selectedNode()==node;
     SLbool isLeafNode = node->children().size()==0 && node->meshes().size()==0;
@@ -1336,7 +1336,7 @@ void SLDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     }
 }
 //-----------------------------------------------------------------------------
-void SLDemoGui::buildProperties(SLScene* s)
+void AppDemoGui::buildProperties(SLScene* s)
 {
     SLNode* node = s->selectedNode();
     SLMesh* mesh = s->selectedMesh();
@@ -1732,7 +1732,7 @@ void SLDemoGui::buildProperties(SLScene* s)
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
-void SLDemoGui::loadConfig(SLint dotsPerInch)
+void AppDemoGui::loadConfig(SLint dotsPerInch)
 {
     ImGuiStyle& style = ImGui::GetStyle();
     SLstring fullPathAndFilename = SL::configPath + "DemoGui.yml";
@@ -1745,15 +1745,15 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
         // Default settings for the first time
         SLGLImGui::fontPropDots  = SL_max(16.0f * dpiScaleProp, 16.0f);
         SLGLImGui::fontFixedDots = SL_max(13.0f * dpiScaleFixed, 13.0f);
-        SLDemoGui::showAbout = true;
-        SLDemoGui::showInfosScene = true;
-        SLDemoGui::showStatsTiming = false;
-        SLDemoGui::showStatsScene = false;
-        SLDemoGui::showStatsVideo = false;
-        SLDemoGui::showInfosFrameworks = false;
-        SLDemoGui::showInfosSensors = false;
-        SLDemoGui::showSceneGraph = false;
-        SLDemoGui::showProperties = false;
+        AppDemoGui::showAbout = true;
+        AppDemoGui::showInfosScene = true;
+        AppDemoGui::showStatsTiming = false;
+        AppDemoGui::showStatsScene = false;
+        AppDemoGui::showStatsVideo = false;
+        AppDemoGui::showInfosFrameworks = false;
+        AppDemoGui::showInfosSensors = false;
+        AppDemoGui::showSceneGraph = false;
+        AppDemoGui::showProperties = false;
         style.FramePadding.x = SL_max(8.0f * dpiScaleFixed, 8.0f);
         style.WindowPadding.x = style.FramePadding.x;
         style.FramePadding.y = SL_max(3.0f * dpiScaleFixed, 3.0f);
@@ -1777,7 +1777,7 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
     }
 
     SLint i; SLbool b;
-    fs["configTime"]            >> SLDemoGui::configTime;
+    fs["configTime"]            >> AppDemoGui::configTime;
     fs["fontPropDots"]          >> i; SLGLImGui::fontPropDots = (SLfloat)i;
     fs["fontFixedDots"]         >> i; SLGLImGui::fontFixedDots = (SLfloat)i;
     fs["FramePaddingX"]         >> i; style.FramePadding.x = (SLfloat)i;
@@ -1787,22 +1787,22 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
     fs["ItemSpacingY"]          >> i; style.ItemSpacing.y = (SLfloat)i;
                                       style.ItemInnerSpacing.x = style.ItemSpacing.y;
     fs["currentSceneID"]        >> i; SL::currentSceneID = (SLCommand)i;
-    fs["showInfosScene"]        >> b; SLDemoGui::showInfosScene = b;
-    fs["showStatsTiming"]       >> b; SLDemoGui::showStatsTiming = b;
-    fs["showStatsMemory"]       >> b; SLDemoGui::showStatsScene = b;
-    fs["showStatsVideo"]        >> b; SLDemoGui::showStatsVideo = b;
-    fs["showInfosFrameworks"]   >> b; SLDemoGui::showInfosFrameworks = b;
-    fs["showInfosSensors"]      >> b; SLDemoGui::showInfosSensors = b;
-    fs["showSceneGraph"]        >> b; SLDemoGui::showSceneGraph = b;
-    fs["showProperties"]        >> b; SLDemoGui::showProperties = b;
-    fs["showChristoffel"]       >> b; SLDemoGui::showChristoffel = b;
+    fs["showInfosScene"]        >> b; AppDemoGui::showInfosScene = b;
+    fs["showStatsTiming"]       >> b; AppDemoGui::showStatsTiming = b;
+    fs["showStatsMemory"]       >> b; AppDemoGui::showStatsScene = b;
+    fs["showStatsVideo"]        >> b; AppDemoGui::showStatsVideo = b;
+    fs["showInfosFrameworks"]   >> b; AppDemoGui::showInfosFrameworks = b;
+    fs["showInfosSensors"]      >> b; AppDemoGui::showInfosSensors = b;
+    fs["showSceneGraph"]        >> b; AppDemoGui::showSceneGraph = b;
+    fs["showProperties"]        >> b; AppDemoGui::showProperties = b;
+    fs["showChristoffel"]       >> b; AppDemoGui::showChristoffel = b;
     fs["showDetection"]         >> b; SLApplication::scene->showDetection(b);
 
     fs.release();
     SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------
-void SLDemoGui::saveConfig()
+void AppDemoGui::saveConfig()
 {
     ImGuiStyle& style = ImGui::GetStyle();
     SLstring fullPathAndFilename = SL::configPath + "DemoGui.yml";
@@ -1810,7 +1810,7 @@ void SLDemoGui::saveConfig()
 
     if (!fs.isOpened())
     {   SL_LOG("Failed to open file for writing: %s", fullPathAndFilename.c_str());
-        SL_EXIT_MSG("Exit in SLDemoGui::saveConfig");
+        SL_EXIT_MSG("Exit in AppDemoGui::saveConfig");
         return;
     }
 
@@ -1822,15 +1822,15 @@ void SLDemoGui::saveConfig()
     fs << "FramePaddingY"           << (SLint)style.FramePadding.y;
     fs << "ItemSpacingX"            << (SLint)style.ItemSpacing.x;
     fs << "ItemSpacingY"            << (SLint)style.ItemSpacing.y;
-    fs << "showStatsTiming"         << SLDemoGui::showStatsTiming;
-    fs << "showStatsMemory"         << SLDemoGui::showStatsScene;
-    fs << "showStatsVideo"          << SLDemoGui::showStatsVideo;
-    fs << "showInfosFrameworks"     << SLDemoGui::showInfosFrameworks;
-    fs << "showInfosScene"          << SLDemoGui::showInfosScene;
-    fs << "showInfosSensors"        << SLDemoGui::showInfosSensors;
-    fs << "showSceneGraph"          << SLDemoGui::showSceneGraph;
-    fs << "showProperties"          << SLDemoGui::showProperties;
-    fs << "showChristoffel"         << SLDemoGui::showChristoffel;
+    fs << "showStatsTiming"         << AppDemoGui::showStatsTiming;
+    fs << "showStatsMemory"         << AppDemoGui::showStatsScene;
+    fs << "showStatsVideo"          << AppDemoGui::showStatsVideo;
+    fs << "showInfosFrameworks"     << AppDemoGui::showInfosFrameworks;
+    fs << "showInfosScene"          << AppDemoGui::showInfosScene;
+    fs << "showInfosSensors"        << AppDemoGui::showInfosSensors;
+    fs << "showSceneGraph"          << AppDemoGui::showSceneGraph;
+    fs << "showProperties"          << AppDemoGui::showProperties;
+    fs << "showChristoffel"         << AppDemoGui::showChristoffel;
     fs << "showDetection"           << SLApplication::scene->showDetection();
 
     fs.release();

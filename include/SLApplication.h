@@ -29,7 +29,8 @@ functions slCreateScene and slTerminate.
 class SLApplication: public SLObject
 {
     public:
-    static void             createAppAndScene   (SLstring name);
+    static void             createAppAndScene   (SLstring name,
+                                                 void* onSceneLoadCallback);
     static void             deleteAppAndScene   ();
     
     static SLScene*         scene;          //!< scene pointer

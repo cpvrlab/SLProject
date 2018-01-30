@@ -44,7 +44,7 @@ typedef SLbool (SL_STDCALL *cbOnWndUpdate)(void);
 typedef void (SL_STDCALL *cbOnSelectNodeMesh)(SLNode*, SLMesh*);
 
 //! Callback function typedef for ImGui build function
-typedef void(SL_STDCALL *cbOnBuildImGui)(SLScene* s, SLSceneView* sv);
+typedef void(SL_STDCALL *cbOnImGuiBuild)(SLScene* s, SLSceneView* sv);
 
 //-----------------------------------------------------------------------------
 //! SceneView class represents a dynamic real time 3D view onto the scene.
@@ -73,7 +73,7 @@ class SLSceneView: public SLObject
                                              SLint screenHeight,
                                              void* onWndUpdateCallback,
                                              void* onSelectNodeMeshCallback,
-                                             void* onBuildImGui);
+                                             void* onImGuiBBuild);
 
 		      // virtual hooks for subclasses of SLSceneView
    virtual  void            onStartup       () { }
@@ -131,8 +131,8 @@ class SLSceneView: public SLObject
             SLbool          testRunIsFinished   ();
 
             // Callback routines
-            cbOnWndUpdate       onWndUpdate;        //!< Callback for intermediate window repaint
-            cbOnSelectNodeMesh  onSelectedNodeMesh; //!< Callback on node selection
+            cbOnWndUpdate       onWndUpdate;        //!< C-Callback for intermediate window repaint
+            cbOnSelectNodeMesh  onSelectedNodeMesh; //!< C-Callback on node selection
    
             // Setters
             void            camera              (SLCamera* camera) {_camera = camera;}

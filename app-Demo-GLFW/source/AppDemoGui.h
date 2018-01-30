@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLDemoGui.h
+//  File:      AppDemoGui.h
 //  Author:    Marcus Hudritsch
 //  Date:      Summer 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -20,16 +20,16 @@ class SLGLTexture;
 //-----------------------------------------------------------------------------
 //! ImGui UI class for the UI of the demo applications
 /* The UI is completely build within this class by calling build function
-SLDemoGui::buildDemoGui. This build function is passed in the
-SLInterface::slCreateSceneView and it is called in SLSceneView::onPaint in
-every frame. The entire UI is configured and built on every frame. That is why
-it is called "Im" for immediate. See also the SLGLImGui class to see how it
-minimaly integrated in the SLProject.
+AppDemoGui::build. This build function is passed in the slCreateSceneView and
+it is called in SLSceneView::onPaint in every frame.
+The entire UI is configured and built on every frame. That is why it is called
+"Im" for immediate. See also the SLGLImGui class to see how it minimaly
+integrated in the SLProject.
 */
-class SLDemoGui
+class AppDemoGui
 {
     public:
-    static void             buildDemoGui        (SLScene* s, SLSceneView* sv);
+    static void             build               (SLScene* s, SLSceneView* sv);
 
     static void             buildMenuBar        (SLScene* s, SLSceneView* sv);
     static void             buildSceneGraph     (SLScene* s);
