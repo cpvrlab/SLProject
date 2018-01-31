@@ -50,9 +50,8 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
 
         if (!_captureDevice.isOpened())
             return SLVec2i::ZERO;
-
-        if (SL::noTestIsRunning())
-            SL_LOG("Capture devices created.\n");
+        
+        SL_LOG("Capture devices created.\n");
 
         SLint w = (int)_captureDevice.get(CV_CAP_PROP_FRAME_WIDTH);
         SLint h = (int)_captureDevice.get(CV_CAP_PROP_FRAME_HEIGHT);
@@ -94,8 +93,7 @@ SLVec2i SLCVCapture::openFile()
             return SLVec2i::ZERO;
         }
 
-        if (SL::noTestIsRunning())
-            SL_LOG("Capture devices created with video.\n");
+        SL_LOG("Capture devices created with video.\n");
 
         SLint w = (int)_captureDevice.get(CV_CAP_PROP_FRAME_WIDTH);
         SLint h = (int)_captureDevice.get(CV_CAP_PROP_FRAME_HEIGHT);
@@ -149,8 +147,7 @@ void SLCVCapture::grabAndAdjustForSL()
         else
         {   static bool logOnce = true;
             if (logOnce)
-            {   if (SL::noTestIsRunning())
-                    SL_LOG("OpenCV: Capture device or video file is not open!\n");
+            {   SL_LOG("OpenCV: Capture device or video file is not open!\n");
                 logOnce = false;
             }
         }

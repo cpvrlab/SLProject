@@ -53,7 +53,7 @@ void SLGLImGui::init()
     _mousePressed[2] = false;
 
     ImGuiIO& io = ImGui::GetIO();
-    static const SLstring inifile = SL::configPath + "imgui.ini";
+    static const SLstring inifile = SLApplication::configPath + "imgui.ini";
     io.IniFilename = inifile.c_str();
 
     io.KeyMap[ImGuiKey_Tab]         = K_tab;

@@ -21,15 +21,17 @@
 
 //-----------------------------------------------------------------------------
 //! Global static objects
-//-----------------------------------------------------------------------------
-//! static instance variable declaration
 SLInputManager      SLApplication::inputManager;
-SLScene*            SLApplication::scene        = nullptr;
-SLCVCalibration*    SLApplication::activeCalib  = nullptr;
+SLScene*            SLApplication::scene            = nullptr;
+SLCVCalibration*    SLApplication::activeCalib      = nullptr;
 SLCVCalibration     SLApplication::calibMainCam;
 SLCVCalibration     SLApplication::calibScndCam;
 SLDeviceRotation    SLApplication::devRot;
 SLDeviceLocation    SLApplication::devLoc;
+SLstring            SLApplication::version          = "2.2.000";
+SLint               SLApplication::dpi              = 0;
+SLstring            SLApplication::configPath       = "../_data/config/";
+SLSceneID           SLApplication::sceneID   = SID_Empty;
 //-----------------------------------------------------------------------------
 void SLApplication::createAppAndScene(SLstring name,
                                       void* onSceneLoadCallback)

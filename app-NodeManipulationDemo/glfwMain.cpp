@@ -424,23 +424,23 @@ int main(int argc, char *argv[])
     cout << "DPI             : " << dpi << endl;
 
     // get executable path
-    SLstring exeDir = SLFileSystem::getCurrentWorkingDir();
+    SLstring exeDir     = SLFileSystem::getCurrentWorkingDir();
     SLstring configPath = SLFileSystem::getAppsWritableDir();
 
-    slCreateScene(cmdLineArgs,
-                  exeDir + "../_data/shaders/",
-                  exeDir + "../_data/models/",
-                  exeDir + "../_data/images/textures/",
-                  exeDir + "../_data/videos/",
-                  exeDir + "../_data/images/fonts/",
-                  exeDir + "../_data/calibrations/",
-                  configPath,
-                  "NewNodeDemoApp_GLFW");
+    slCreateAppAndScene(cmdLineArgs,
+                        exeDir + "../_data/shaders/",
+                        exeDir + "../_data/models/",
+                        exeDir + "../_data/images/textures/",
+                        exeDir + "../_data/videos/",
+                        exeDir + "../_data/images/fonts/",
+                        exeDir + "../_data/calibrations/",
+                        configPath,
+                        "NewNodeDemoApp_GLFW");
 
     svIndex = slCreateSceneView((int)(scrWidth  * scr2fbX),
                                 (int)(scrHeight * scr2fbY),
                                 dpi, 
-                                (SLCommand)SL_STARTSCENE,
+                                (SLSceneID)SL_STARTSCENE,
                                 (void*)&onPaint,
                                 0,
                                 (void*)createNewNodeSceneView,

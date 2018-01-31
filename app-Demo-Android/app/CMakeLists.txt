@@ -147,7 +147,13 @@ list(REMOVE_ITEM SLEXTERNAL_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/OgreSkeleton.cpp
                                         )
 
+file(GLOB_RECURSE APP_DEMO_SOURCES      ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoLoad.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGUI.h
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGUI.cpp
+                                        )
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/opencv/include)
@@ -173,6 +179,7 @@ set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SO
 add_library(native-lib
             SHARED
             src/main/cpp/native-lib.cpp
+            ${APP_DEMO_SOURCES}
             ${SLPROJECT_SOURCES}
             ${SLEXTERNAL_SOURCES}
 )
@@ -182,7 +189,7 @@ find_library( log-lib log )
 #
 # GLES
 #
-#set(OPENGL_LIB_v2 GLESv2)
+
 set(OPENGL_LIB_v3 GLESv3)
 
 # Specifies libraries CMake should link to your target library. You
@@ -191,7 +198,6 @@ set(OPENGL_LIB_v3 GLESv3)
 
 target_link_libraries(  native-lib
                         lib_opencv
-                        #${OPENGL_LIB_v2}
                         ${OPENGL_LIB_v3}
                         ${log-lib}
                      )

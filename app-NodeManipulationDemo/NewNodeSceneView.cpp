@@ -21,7 +21,6 @@
 #include <SLTexFont.h>
 #include <SLAssimpImporter.h>
 #include <SLGLVertexArrayExt.h>
-#include <SLDemoGui.h>
 
 #include "NewNodeGui.h"
 #include "NewNodeSceneView.h"

@@ -16,8 +16,11 @@
 // C++ includes for the SceneLibrary
 #include <SLInterface.h>
 #include <SLCVCapture.h>
-#include <SLDemoGui.h>
+#include <AppDemoGui.h>
 #include <mach/mach_time.h>
+
+// Declaration of scene load function
+extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
 
 //-----------------------------------------------------------------------------
 // C-Prototypes
@@ -122,27 +125,31 @@ float GetSeconds()
     SLstring exeDir = SLFileSystem::getCurrentWorkingDir();
     SLstring configDir = SLFileSystem::getAppsWritableDir();
     
-    //////////////////////////
-    slCreateScene(cmdLineArgs,
-                  exeDir,
-                  exeDir,
-                  exeDir,
-                  exeDir,
-                  exeDir,
-                  exeDir,
-                  configDir,
-                  "DemoApp_iOS");
-    //////////////////////////
+    /////////////////////////////////////////////
+    slCreateAppAndScene(cmdLineArgs,
+                        exeDir,
+                        exeDir,
+                        exeDir,
+                        exeDir,
+                        exeDir,
+                        exeDir,
+                        configDir,
+                        "AppDemo_iOS",
+                        (void*)appDemoLoadScene);
+    /////////////////////////////////////////////
+    
+    // This load the GUI configs that are locally stored
+    AppDemoGui::loadConfig(dpi);
    
     ///////////////////////////////////////////////////////////////////////
     svIndex = slCreateSceneView(self.view.bounds.size.height * screenScale,
                                 self.view.bounds.size.width * screenScale,
                                 dpi,
-                                C_sceneRevolver,
+                                SID_Revolver,
                                 (void*)&onPaintRTGL,
                                 0,
                                 0,
-                                (void*)SLDemoGui::buildDemoGui);
+                                (void*)AppDemoGui::build);
     ///////////////////////////////////////////////////////////////////////
     
     [self setupMotionManager: 1.0/20.0];

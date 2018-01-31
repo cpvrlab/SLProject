@@ -370,8 +370,8 @@ bool SLScene::onUpdate()
         //.....................................................................
         if (ac->state() == CS_uncalibrated)
         {
-            if (SL::currentSceneID == C_sceneVideoCalibrateMain ||
-                SL::currentSceneID == C_sceneVideoCalibrateScnd)
+            if (SLApplication::sceneID == SID_VideoCalibrateMain ||
+                SLApplication::sceneID == SID_VideoCalibrateScnd)
             {   ac->state(CS_calibrateStream);
             } else
             {   // Changes the state to CS_guessed
@@ -400,9 +400,9 @@ bool SLScene::onUpdate()
         {
             if (ac->calculate())
             {   _sceneViews[0]->camera()->fov(ac->cameraFovDeg());
-                if (SL::currentSceneID == C_sceneVideoCalibrateMain)
-                     onLoad(this, _sceneViews[0], C_sceneVideoTrackChessMain);
-                else onLoad(this, _sceneViews[0], C_sceneVideoTrackChessScnd);
+                if (SLApplication::sceneID == SID_VideoCalibrateMain)
+                     onLoad(this, _sceneViews[0], SID_VideoTrackChessMain);
+                else onLoad(this, _sceneViews[0], SID_VideoTrackChessScnd);
             }
         } else
         if (ac->state() == CS_calibrated || ac->state() == CS_guessed) //......
@@ -418,10 +418,10 @@ bool SLScene::onUpdate()
                                _sceneViews[0]);
 
             // Update info text only for chessboard scene
-            if (SL::currentSceneID == C_sceneVideoCalibrateMain ||
-                SL::currentSceneID == C_sceneVideoCalibrateScnd ||
-                SL::currentSceneID == C_sceneVideoTrackChessMain ||
-                SL::currentSceneID == C_sceneVideoTrackChessScnd)
+            if (SLApplication::sceneID == SID_VideoCalibrateMain ||
+                SLApplication::sceneID == SID_VideoCalibrateScnd ||
+                SLApplication::sceneID == SID_VideoTrackChessMain ||
+                SLApplication::sceneID == SID_VideoTrackChessScnd)
             {
                 SLfloat fov = ac->cameraFovDeg();
                 SLfloat err = ac->reprojectionError();
@@ -567,17 +567,6 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
     }
 }
 //-----------------------------------------------------------------------------
-//! Executes a command on all sceneview
-SLbool SLScene::onCommandAllSV(const SLCommand cmd)
-{
-    SLbool result = false;
-    for(auto sv : _sceneViews)
-        if (sv != nullptr)
-            result = sv->onCommand(cmd) ? true : result;
-
-    return true;
-}
-//-----------------------------------------------------------------------------
 //! Copies the image data from a video camera into image[0] of the video texture
 void SLScene::copyVideoImage(SLint width,
                              SLint height,
@@ -597,7 +586,7 @@ void SLScene::copyVideoImage(SLint width,
 void SLScene::onLoadAsset(SLstring assetFile, 
                           SLuint processFlags)
 {
-    SL::currentSceneID = C_sceneFromFile;
+    SLApplication::sceneID = SID_FromFile;
 
     // Set scene name for new scenes
     if (!_root3D)

@@ -45,22 +45,20 @@ present.<br>
 /param configPath Path where the config files are stored (read-write)
 <br>
 See examples usages in:
-  - app-Demo-GLFW: glfwMain.cpp in function main()
-  - app-Demo-Qt: qtGLWidget::initializeGL()
-  - app-Viewer-Qt: qtGLWidget::initializeGL()
-  - app-Demo-Android: Java_ch_fhnw_comgRT_glES2Lib_onInit()
-  - app-Demo-iOS: ViewController.m in method viewDidLoad()
+  - app-Demo-GLFW:    AppDemoMainGLFW.cpp in function main()
+  - app-Demo-Android: native-lib.cpp      in Java_ch_fhnw_comgr_GLES3Lib_onInit()
+  - app-Demo-iOS:     ViewController.m    in viewDidLoad()
 */
-void slCreateScene(SLVstring& cmdLineArgs,
-                   SLstring shaderPath,
-                   SLstring modelPath,
-                   SLstring texturePath,
-                   SLstring videoPath,
-                   SLstring fontPath,
-                   SLstring calibrationPath,
-                   SLstring configPath,
-                   SLstring applicationName,
-                   void*    onSceneLoadCallback)
+void slCreateAppAndScene(SLVstring& cmdLineArgs,
+                         SLstring shaderPath,
+                         SLstring modelPath,
+                         SLstring texturePath,
+                         SLstring videoPath,
+                         SLstring fontPath,
+                         SLstring calibrationPath,
+                         SLstring configPath,
+                         SLstring applicationName,
+                         void*    onSceneLoadCallback)
 {
     assert(SLApplication::scene==nullptr && "SLScene is already created!");
    
@@ -71,11 +69,9 @@ void slCreateScene(SLVstring& cmdLineArgs,
     SLAssimpImporter::defaultPath = modelPath;
     SLCVCapture::videoDefaultPath = videoPath;
     SLCVCalibration::calibIniPath = calibrationPath;
-    SL::configPath                = configPath;
+    SLApplication::configPath     = configPath;
 
     SLGLState* stateGL            = SLGLState::getInstance();
-
-    SL::parseCmdLineArgs(cmdLineArgs);
     
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
     SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
@@ -105,14 +101,14 @@ have to provide a similar function and pass it function pointer to
 slCreateSceneView. You can create multiple sceneview per application.<br>
 <br>
 See examples usages in:
-  - app-Demo-GLFW: AppDemoMainGLFW.cpp in function main()
-  - app-Demo-Android: Java_ch_fhnw_comgRT_glES2Lib_onInit()
-  - app-Demo-iOS: ViewController.m in method viewDidLoad()
+  - app-Demo-GLFW:    AppDemoMainGLFW.cpp in function main()
+  - app-Demo-Android: native-lib.cpp      in Java_ch_fhnw_comgr_GLES3Lib_onInit()
+  - app-Demo-iOS:     ViewController.m    in viewDidLoad()
 */
 int slCreateSceneView(int screenWidth,
                       int screenHeight,
                       int dotsPerInch,
-                      SLCommand initScene,
+                      SLSceneID initScene,
                       void* onWndUpdateCallback,
                       void* onSelectNodeMeshCallback,
                       void* onNewSceneViewCallback,
@@ -138,16 +134,16 @@ int slCreateSceneView(int screenWidth,
              onImGuiBuild);
 
     // Set default font sizes depending on the dpi no matter if ImGui is used
-    if (!SL::dpi) SL::dpi = dotsPerInch;
+    if (!SLApplication::dpi) SLApplication::dpi = dotsPerInch;
 
     // Load GUI fonts depending on the resolution
     sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
 
     // Set active sceneview and load scene. This is done for the first sceneview
     if (!SLApplication::scene->root3D())
-    {   if (SL::currentSceneID == C_sceneEmpty)
+    {   if (SLApplication::sceneID == SID_Empty)
              SLApplication::scene->onLoad(SLApplication::scene, sv, initScene);
-        else SLApplication::scene->onLoad(SLApplication::scene, sv, SL::currentSceneID);
+        else SLApplication::scene->onLoad(SLApplication::scene, sv, SLApplication::sceneID);
     } else sv->onInitialize();
    
     // return the identifier index
@@ -368,16 +364,6 @@ void slCharInput(int sceneViewIndex, unsigned int character)
     SLCharInputEvent* e = new SLCharInputEvent();
     e->svIndex = sceneViewIndex;
     e->character = character;
-    SLApplication::inputManager.queueEvent(e);
-}
-//-----------------------------------------------------------------------------
-/*! Global event handler for keyboard key release events. 
-*/
-void slCommand(int sceneViewIndex, SLCommand command) 
-{  
-    SLCommandEvent* e = new SLCommandEvent;
-    e->svIndex = sceneViewIndex;
-    e->cmd = command;
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------

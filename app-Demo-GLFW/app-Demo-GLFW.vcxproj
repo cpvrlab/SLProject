@@ -19,9 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\glfwMain.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="source\AppDemoGui.cpp" />
+    <ClCompile Include="source\AppDemoLoad.cpp" />
+    <ClCompile Include="source\AppDemoMainGLFW.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\AppDemoGui.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{54BE2CB2-A4BB-481D-9C74-AF8E4CD0764D}</ProjectGuid>
@@ -136,8 +139,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include;..\lib-SLExternal\imgui;..\lib-SLExternal\spa</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SL_STARTSCENE#C_sceneMinimal;SL_GUI_GLFW;GLEW_STATIC;_DEBUG;UNICODE;_WINDOWS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);../include;../app-Demo-GLFW/source;../lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include;..\lib-SLExternal\imgui;..\lib-SLExternal\spa</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SL_STARTSCENE#SID_Minimal;SL_GUI_GLFW;GLEW_STATIC;_DEBUG;UNICODE;_WINDOWS</PreprocessorDefinitions>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -243,8 +246,8 @@ xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_ffmpeg*.dll" "$(So
       <AdditionalOptions>/wd4996 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include;..\lib-SLExternal\imgui;..\lib-SLExternal\spa</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SL_STARTSCENE#C_sceneEmpty;HAS_OPENCV;SL_GUI_GLFW;GLEW_STATIC;UNICODE;_WINDOWS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);../include;../app-Demo-GLFW/source;../lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include;..\lib-SLExternal\imgui;..\lib-SLExternal\spa</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SL_STARTSCENE#SID_Minimal;HAS_OPENCV;SL_GUI_GLFW;GLEW_STATIC;UNICODE;_WINDOWS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>

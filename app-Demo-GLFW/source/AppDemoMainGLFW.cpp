@@ -23,7 +23,7 @@
 #include <SLEnums.h>
 #include <SLCVCapture.h>
 
-extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLCommand sceneName);
+extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -458,8 +458,6 @@ int main(int argc, char *argv[])
     // Get GL errors that occurred before our framework is involved
     GET_GL_ERROR;
 
-    SL::parseCmdLineArgs(cmdLineArgs);
-
     // Set your own physical screen dpi
     int dpi = (int)(142 * scr2fbX);
     cout << "------------------------------------------------------------------" << endl;
@@ -474,27 +472,32 @@ int main(int argc, char *argv[])
     SLstring exeDir = SLFileSystem::getCurrentWorkingDir();
     SLstring configDir = SLFileSystem::getAppsWritableDir();
 
-    slCreateScene(cmdLineArgs,
-                  exeDir + "../_data/shaders/",
-                  exeDir + "../_data/models/",
-                  exeDir + "../_data/images/textures/",
-                  exeDir + "../_data/videos/",
-                  exeDir + "../_data/images/fonts/",
-                  exeDir + "../_data/calibrations/",
-                  configDir,
-                  "AppDemoGLFW",
-                  (void*)appDemoLoadScene);
+    /////////////////////////////////////////////////////////
+    slCreateAppAndScene(cmdLineArgs,
+                        exeDir + "../_data/shaders/",
+                        exeDir + "../_data/models/",
+                        exeDir + "../_data/images/textures/",
+                        exeDir + "../_data/videos/",
+                        exeDir + "../_data/images/fonts/",
+                        exeDir + "../_data/calibrations/",
+                        configDir,
+                        "AppDemoGLFW",
+                        (void*)appDemoLoadScene);
+    /////////////////////////////////////////////////////////
     
+    // This load the GUI configs that are locally stored
     AppDemoGui::loadConfig(dpi);
-
+    
+    /////////////////////////////////////////////////////////
     svIndex = slCreateSceneView((int)(scrWidth  * scr2fbX),
                                 (int)(scrHeight * scr2fbY),
                                 dpi, 
-                                (SLCommand)SL_STARTSCENE,
+                                (SLSceneID)SL_STARTSCENE,
                                 (void*)&onPaint, 
                                 0,
                                 0,
                                 (void*)AppDemoGui::build);
+    /////////////////////////////////////////////////////////
 
     // Set GLFW callback functions
     glfwSetKeyCallback(window, onKeyPress);

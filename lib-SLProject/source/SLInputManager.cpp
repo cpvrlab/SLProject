@@ -75,8 +75,6 @@ SLbool SLInputManager::processQueuedEvents()
         if (sv)
         {   switch (e->type)
             {
-                case SLInputEvent::Command:             {const SLCommandEvent*   ce = (const SLCommandEvent*)e;     eventConsumed |= sv->onCommand(ce->cmd); } break;
-
                 case SLInputEvent::MouseMove:           {const SLMouseEvent*     me = (const SLMouseEvent*)e;       eventConsumed |= sv->onMouseMove(me->x, me->y); } break;
                 case SLInputEvent::MouseDown:           {const SLMouseEvent*     me = (const SLMouseEvent*)e;       eventConsumed |= sv->onMouseDown(me->button, me->x, me->y, me->modifier); } break;
                 case SLInputEvent::MouseUp:             {const SLMouseEvent*     me = (const SLMouseEvent*)e;       eventConsumed |= sv->onMouseUp(me->button, me->x, me->y, me->modifier); } break;

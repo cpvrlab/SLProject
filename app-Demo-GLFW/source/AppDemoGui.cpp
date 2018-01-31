@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      appDemoGui.cpp
+//  File:      AppDemoGui.cpp
 //  Purpose:   UI with the ImGUI framework fully rendered in OpenGL 3+
 //  Author:    Marcus Hudritsch
 //  Date:      Summer 2017
@@ -14,7 +14,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
-#include <appDemoGui.h>
+#include <AppDemoGui.h>
 #include <SLApplication.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
@@ -198,7 +198,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::Begin("About SLProject", &showAbout, ImGuiWindowFlags_NoResize);
         ImGui::Image((ImTextureID)(intptr_t)cpvrLogo->texName(), ImVec2(iconSize,iconSize), ImVec2(0,1), ImVec2(1,0));
         ImGui::SameLine();
-        ImGui::Text("Version %s", SL::version.c_str());
+        ImGui::Text("Version %s", SLApplication::version.c_str());
         ImGui::Separator();
         ImGui::TextWrapped("%s", infoAbout.c_str());
         ImGui::End();
@@ -506,7 +506,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         buildProperties(s);
     }
 
-    if (showChristoffel && SL::currentSceneID==C_sceneVideoChristoffel)
+    if (showChristoffel && SLApplication::sceneID==SID_VideoChristoffel)
     {
         ImGui::Begin("Christoffel", &showChristoffel, ImVec2(300,0));
 
@@ -591,7 +591,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 //-----------------------------------------------------------------------------
 void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 {
-    SLCommand curS = SL::currentSceneID;
+    SLSceneID sid = SLApplication::sceneID;
     SLRenderType rType = sv->renderType();
     SLbool hasAnimations = (s->animManager().allAnimNames().size() > 0);
     static SLint curAnimIx = -1;
@@ -612,102 +612,102 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                              SLFileSystem::fileExists(large2) ||
                                              SLFileSystem::fileExists(large3);
 
-                    if (ImGui::MenuItem("Minimal Scene", 0, curS==C_sceneMinimal))
-                        sv->onCommand(C_sceneMinimal);
-                    if (ImGui::MenuItem("Figure Scene", 0, curS==C_sceneFigure))
-                        sv->onCommand(C_sceneFigure);
-                    if (ImGui::MenuItem("Large Model", 0, curS==C_sceneLargeModel, largeFileExists))
-                        sv->onCommand(C_sceneLargeModel);
-                    if (ImGui::MenuItem("Mesh Loader", 0, curS==C_sceneMeshLoad))
-                        sv->onCommand(C_sceneMeshLoad);
-                    if (ImGui::MenuItem("Revolver Meshes", 0, curS==C_sceneRevolver))
-                        sv->onCommand(C_sceneRevolver);
-                    if (ImGui::MenuItem("Texture Blending", 0, curS==C_sceneTextureBlend))
-                        sv->onCommand(C_sceneTextureBlend);
-                    if (ImGui::MenuItem("Texture Filters", 0, curS==C_sceneTextureFilter))
-                        sv->onCommand(C_sceneTextureFilter);
-                    if (ImGui::MenuItem("Frustum Culling", 0, curS==C_sceneFrustumCull))
-                        sv->onCommand(C_sceneFrustumCull);
-                    if (ImGui::MenuItem("Massive Data Scene", 0, curS==C_sceneMassiveData))
-                        sv->onCommand(C_sceneMassiveData);
-                    if (ImGui::MenuItem("2D and 3D Text", 0, curS==C_scene2Dand3DText))
-                        sv->onCommand(C_scene2Dand3DText);
-                    if (ImGui::MenuItem("Point Clouds", 0, curS==C_scenePointClouds))
-                        sv->onCommand(C_scenePointClouds);
+                    if (ImGui::MenuItem("Minimal Scene", 0, sid==SID_Minimal))
+                        s->onLoad(s, sv, SID_Minimal);
+                    if (ImGui::MenuItem("Figure Scene", 0, sid==SID_Figure))
+                        s->onLoad(s, sv, SID_Figure);
+                    if (ImGui::MenuItem("Large Model", 0, sid==SID_LargeModel, largeFileExists))
+                        s->onLoad(s, sv, SID_LargeModel);
+                    if (ImGui::MenuItem("Mesh Loader", 0, sid==SID_MeshLoad))
+                        s->onLoad(s, sv, SID_MeshLoad);
+                    if (ImGui::MenuItem("Revolver Meshes", 0, sid==SID_Revolver))
+                        s->onLoad(s, sv, SID_Revolver);
+                    if (ImGui::MenuItem("Texture Blending", 0, sid==SID_TextureBlend))
+                        s->onLoad(s, sv, SID_TextureBlend);
+                    if (ImGui::MenuItem("Texture Filters", 0, sid==SID_TextureFilter))
+                        s->onLoad(s, sv, SID_TextureFilter);
+                    if (ImGui::MenuItem("Frustum Culling", 0, sid==SID_FrustumCull))
+                        s->onLoad(s, sv, SID_FrustumCull);
+                    if (ImGui::MenuItem("Massive Data Scene", 0, sid==SID_MassiveData))
+                        s->onLoad(s, sv, SID_MassiveData);
+                    if (ImGui::MenuItem("2D and 3D Text", 0, sid==SID_2Dand3DText))
+                        s->onLoad(s, sv, SID_2Dand3DText);
+                    if (ImGui::MenuItem("Point Clouds", 0, sid==SID_PointClouds))
+                        s->onLoad(s, sv, SID_PointClouds);
 
                     ImGui::EndMenu();
                 }
 
                 if (ImGui::BeginMenu("Shader"))
                 {
-                    if (ImGui::MenuItem("Per Vertex Blinn-Phong", 0, curS==C_sceneShaderPerVertexBlinn))
-                        sv->onCommand(C_sceneShaderPerVertexBlinn);
-                    if (ImGui::MenuItem("Per Pixel Blinn-Phing", 0, curS==C_sceneShaderPerPixelBlinn))
-                        sv->onCommand(C_sceneShaderPerPixelBlinn);
-                    if (ImGui::MenuItem("Per Pixel Cook-Torrance", 0, curS==C_sceneShaderCookTorrance))
-                        sv->onCommand(C_sceneShaderCookTorrance);
-                    if (ImGui::MenuItem("Per Vertex Wave", 0, curS==C_sceneShaderPerVertexWave))
-                        sv->onCommand(C_sceneShaderPerVertexWave);
-                    if (ImGui::MenuItem("Water", 0, curS==C_sceneShaderWater))
-                        sv->onCommand(C_sceneShaderWater);
-                    if (ImGui::MenuItem("Bump Mapping", 0, curS==C_sceneShaderBumpNormal))
-                        sv->onCommand(C_sceneShaderBumpNormal);
-                    if (ImGui::MenuItem("Parallax Mapping", 0, curS==C_sceneShaderBumpParallax))
-                        sv->onCommand(C_sceneShaderBumpParallax);
-                    if (ImGui::MenuItem("Skybox Shader", 0, curS==C_sceneShaderSkyBox))
-                        sv->onCommand(C_sceneShaderSkyBox);
-                    if (ImGui::MenuItem("Earth Shader", 0, curS==C_sceneShaderEarth))
-                        sv->onCommand(C_sceneShaderEarth);
+                    if (ImGui::MenuItem("Per Vertex Blinn-Phong", 0, sid==SID_ShaderPerVertexBlinn))
+                        s->onLoad(s, sv, SID_ShaderPerVertexBlinn);
+                    if (ImGui::MenuItem("Per Pixel Blinn-Phing", 0, sid==SID_ShaderPerPixelBlinn))
+                        s->onLoad(s, sv, SID_ShaderPerPixelBlinn);
+                    if (ImGui::MenuItem("Per Pixel Cook-Torrance", 0, sid==SID_ShaderCookTorrance))
+                        s->onLoad(s, sv, SID_ShaderCookTorrance);
+                    if (ImGui::MenuItem("Per Vertex Wave", 0, sid==SID_ShaderPerVertexWave))
+                        s->onLoad(s, sv, SID_ShaderPerVertexWave);
+                    if (ImGui::MenuItem("Water", 0, sid==SID_ShaderWater))
+                        s->onLoad(s, sv, SID_ShaderWater);
+                    if (ImGui::MenuItem("Bump Mapping", 0, sid==SID_ShaderBumpNormal))
+                        s->onLoad(s, sv, SID_ShaderBumpNormal);
+                    if (ImGui::MenuItem("Parallax Mapping", 0, sid==SID_ShaderBumpParallax))
+                        s->onLoad(s, sv, SID_ShaderBumpParallax);
+                    if (ImGui::MenuItem("Skybox Shader", 0, sid==SID_ShaderSkyBox))
+                        s->onLoad(s, sv, SID_ShaderSkyBox);
+                    if (ImGui::MenuItem("Earth Shader", 0, sid==SID_ShaderEarth))
+                        s->onLoad(s, sv, SID_ShaderEarth);
 
                     ImGui::EndMenu();
                 }
 
                 if (ImGui::BeginMenu("Animation"))
                 {
-                    if (ImGui::MenuItem("Node Animation", 0, curS==C_sceneAnimationNode))
-                        sv->onCommand(C_sceneAnimationNode);
-                    if (ImGui::MenuItem("Mass Animation", 0, curS==C_sceneAnimationMass))
-                        sv->onCommand(C_sceneAnimationMass);
-                    if (ImGui::MenuItem("Astroboy Army", 0, curS==C_sceneAnimationArmy))
-                        sv->onCommand(C_sceneAnimationArmy);
-                    if (ImGui::MenuItem("Skeletal Animation", 0, curS==C_sceneAnimationSkeletal))
-                        sv->onCommand(C_sceneAnimationSkeletal);
+                    if (ImGui::MenuItem("Node Animation", 0, sid==SID_AnimationNode))
+                        s->onLoad(s, sv, SID_AnimationNode);
+                    if (ImGui::MenuItem("Mass Animation", 0, sid==SID_AnimationMass))
+                        s->onLoad(s, sv, SID_AnimationMass);
+                    if (ImGui::MenuItem("Astroboy Army", 0, sid==SID_AnimationArmy))
+                        s->onLoad(s, sv, SID_AnimationArmy);
+                    if (ImGui::MenuItem("Skeletal Animation", 0, sid==SID_AnimationSkeletal))
+                        s->onLoad(s, sv, SID_AnimationSkeletal);
 
                     ImGui::EndMenu();
                 }
 
                 if (ImGui::BeginMenu("Using Video"))
                 {
-                    if (ImGui::MenuItem("Texture from Video Live", 0, curS==C_sceneVideoTextureLive))
-                        sv->onCommand(C_sceneVideoTextureLive);
-                    if (ImGui::MenuItem("Texture from Video File", 0, curS==C_sceneVideoTextureFile))
-                        sv->onCommand(C_sceneVideoTextureFile);
-                    if (ImGui::MenuItem("Track ArUco Marker (Main)", 0, curS==C_sceneVideoTrackArucoMain))
-                        sv->onCommand(C_sceneVideoTrackArucoMain);
-                    if (ImGui::MenuItem("Track ArUco Marker (Scnd)", 0, curS==C_sceneVideoTrackArucoScnd, SLCVCapture::hasSecondaryCamera))
-                        sv->onCommand(C_sceneVideoTrackArucoScnd);
-                    if (ImGui::MenuItem("Track Chessboard (Main)", 0, curS==C_sceneVideoTrackChessMain))
-                        sv->onCommand(C_sceneVideoTrackChessMain);
-                    if (ImGui::MenuItem("Track Chessboard (Scnd)", 0, curS==C_sceneVideoTrackChessScnd, SLCVCapture::hasSecondaryCamera))
-                        sv->onCommand(C_sceneVideoTrackChessScnd);
-                    if (ImGui::MenuItem("Track Features (Main)", 0, curS==C_sceneVideoTrackFeature2DMain))
-                        sv->onCommand(C_sceneVideoTrackFeature2DMain);
-                    if (ImGui::MenuItem("Sensor AR (Main)", 0, curS==C_sceneVideoSensorAR))
-                        sv->onCommand(C_sceneVideoSensorAR);
-                    if (ImGui::MenuItem("Christoffel Tower AR (Main)", 0, curS==C_sceneVideoChristoffel))
-                        sv->onCommand(C_sceneVideoChristoffel);
+                    if (ImGui::MenuItem("Texture from Video Live", 0, sid==SID_VideoTextureLive))
+                        s->onLoad(s, sv, SID_VideoTextureLive);
+                    if (ImGui::MenuItem("Texture from Video File", 0, sid==SID_VideoTextureFile))
+                        s->onLoad(s, sv, SID_VideoTextureFile);
+                    if (ImGui::MenuItem("Track ArUco Marker (Main)", 0, sid==SID_VideoTrackArucoMain))
+                        s->onLoad(s, sv, SID_VideoTrackArucoMain);
+                    if (ImGui::MenuItem("Track ArUco Marker (Scnd)", 0, sid==SID_VideoTrackArucoScnd, SLCVCapture::hasSecondaryCamera))
+                        s->onLoad(s, sv, SID_VideoTrackArucoScnd);
+                    if (ImGui::MenuItem("Track Chessboard (Main)", 0, sid==SID_VideoTrackChessMain))
+                        s->onLoad(s, sv, SID_VideoTrackChessMain);
+                    if (ImGui::MenuItem("Track Chessboard (Scnd)", 0, sid==SID_VideoTrackChessScnd, SLCVCapture::hasSecondaryCamera))
+                        s->onLoad(s, sv, SID_VideoTrackChessScnd);
+                    if (ImGui::MenuItem("Track Features (Main)", 0, sid==SID_VideoTrackFeature2DMain))
+                        s->onLoad(s, sv, SID_VideoTrackFeature2DMain);
+                    if (ImGui::MenuItem("Sensor AR (Main)", 0, sid==SID_VideoSensorAR))
+                        s->onLoad(s, sv, SID_VideoSensorAR);
+                    if (ImGui::MenuItem("Christoffel Tower AR (Main)", 0, sid==SID_VideoChristoffel))
+                        s->onLoad(s, sv, SID_VideoChristoffel);
 
                     ImGui::EndMenu();
                 }
 
                 if (ImGui::BeginMenu("Volume Rendering"))
                 {
-                    if (ImGui::MenuItem("Head MRI Ray Cast", 0, curS==C_sceneVolumeRayCast))
-                        sv->onCommand(C_sceneVolumeRayCast);
+                    if (ImGui::MenuItem("Head MRI Ray Cast", 0, sid==SID_VolumeRayCast))
+                        s->onLoad(s, sv, SID_VolumeRayCast);
 
                     #ifndef SL_GLES
-                    if (ImGui::MenuItem("Head MRI Ray Cast Lighted", 0, curS==C_sceneVolumeRayCastLighted))
-                        sv->onCommand(C_sceneVolumeRayCastLighted);
+                    if (ImGui::MenuItem("Head MRI Ray Cast Lighted", 0, sid==SID_VolumeRayCastLighted))
+                        s->onLoad(s, sv, SID_VolumeRayCastLighted);
                     #endif
 
                     ImGui::EndMenu();
@@ -715,26 +715,26 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Ray tracing"))
                 {
-                    if (ImGui::MenuItem("Spheres", 0, curS==C_sceneRTSpheres))
-                        sv->onCommand(C_sceneRTSpheres);
-                    if (ImGui::MenuItem("Muttenzer Box", 0, curS==C_sceneRTMuttenzerBox))
-                        sv->onCommand(C_sceneRTMuttenzerBox);
-                    if (ImGui::MenuItem("Soft Shadows", 0, curS==C_sceneRTSoftShadows))
-                        sv->onCommand(C_sceneRTSoftShadows);
-                    if (ImGui::MenuItem("Depth of Field", 0, curS==C_sceneRTDoF))
-                        sv->onCommand(C_sceneRTDoF);
-                    if (ImGui::MenuItem("Lens Test", 0, curS==C_sceneRTLens))
-                        sv->onCommand(C_sceneRTLens);
-                    if (ImGui::MenuItem("RT Test", 0, curS==C_sceneRTTest))
-                        sv->onCommand(C_sceneRTTest);
+                    if (ImGui::MenuItem("Spheres", 0, sid==SID_RTSpheres))
+                        s->onLoad(s, sv, SID_RTSpheres);
+                    if (ImGui::MenuItem("Muttenzer Box", 0, sid==SID_RTMuttenzerBox))
+                        s->onLoad(s, sv, SID_RTMuttenzerBox);
+                    if (ImGui::MenuItem("Soft Shadows", 0, sid==SID_RTSoftShadows))
+                        s->onLoad(s, sv, SID_RTSoftShadows);
+                    if (ImGui::MenuItem("Depth of Field", 0, sid==SID_RTDoF))
+                        s->onLoad(s, sv, SID_RTDoF);
+                    if (ImGui::MenuItem("Lens Test", 0, sid==SID_RTLens))
+                        s->onLoad(s, sv, SID_RTLens);
+                    if (ImGui::MenuItem("RT Test", 0, sid==SID_RTTest))
+                        s->onLoad(s, sv, SID_RTTest);
 
                     ImGui::EndMenu();
                 }
 
                 if (ImGui::BeginMenu("Path tracing"))
                 {
-                    if (ImGui::MenuItem("Muttenzer Box", 0, curS==C_sceneRTMuttenzerBox))
-                        sv->onCommand(C_sceneRTMuttenzerBox);
+                    if (ImGui::MenuItem("Muttenzer Box", 0, sid==SID_RTMuttenzerBox))
+                        s->onLoad(s, sv, SID_RTMuttenzerBox);
 
                     ImGui::EndMenu();
                 }
@@ -745,24 +745,24 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::Separator();
 
             if (ImGui::MenuItem("Quit & Save", "ESC"))
-                sv->onCommand(C_quit);
+                slShouldClose(true);
 
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("Preferences"))
         {
-            if (ImGui::MenuItem("Slow down on Idle", "I", sv->waitEvents()))
-                sv->onCommand(C_waitOnIdleToggle);
+            if (ImGui::MenuItem("Do Wait on Idle", "I", sv->doWaitOnIdle()))
+                sv->doWaitOnIdle(!sv->doWaitOnIdle());
 
             if (ImGui::MenuItem("Do Multi Sampling", "M", sv->doMultiSampling()))
-                sv->onCommand(C_multiSampleToggle);
+                sv->doMultiSampling(!sv->doMultiSampling());
 
             if (ImGui::MenuItem("Do Frustum Culling", "F", sv->doFrustumCulling()))
-                sv->onCommand(C_frustCullToggle);
+                sv->doFrustumCulling(!sv->doFrustumCulling());
 
             if (ImGui::MenuItem("Do Depth Test", "T", sv->doDepthTest()))
-                sv->onCommand(C_depthTestToggle);
+                sv->doDepthTest(!sv->doDepthTest());
 
             if (ImGui::MenuItem("Animation off", "O", s->stopAnimations()))
                 s->stopAnimations(!s->stopAnimations());
@@ -816,10 +816,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("Mirror Main Camera"))
                 {
                     if (ImGui::MenuItem("Horizontally", 0, mc->isMirroredH()))
-                        sv->onCommand(C_mirrorHMainVideoToggle);
+                        mc->toggleMirrorH();
 
                     if (ImGui::MenuItem("Vertically", 0, mc->isMirroredV()))
-                        sv->onCommand(C_mirrorVMainVideoToggle);
+                        mc->toggleMirrorV();
 
                     ImGui::EndMenu();
                 }
@@ -827,10 +827,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("Mirror Scnd. Camera", SLCVCapture::hasSecondaryCamera))
                 {
                     if (ImGui::MenuItem("Horizontally", 0, sc->isMirroredH()))
-                        sv->onCommand(C_mirrorHScndVideoToggle);
+                        sc->toggleMirrorH();
 
                     if (ImGui::MenuItem("Vertically", 0, sc->isMirroredV()))
-                        sv->onCommand(C_mirrorVScndVideoToggle);
+                        sc->toggleMirrorV();
 
                     ImGui::EndMenu();
                 }
@@ -839,29 +839,29 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("Start Calibration on Main Camera"))
                     {
-                        sv->onCommand(C_sceneVideoCalibrateMain);
+                        s->onLoad(s, sv, SID_VideoCalibrateMain);
                         showHelpCalibration = true;
                         showInfosScene = true;
                     }
 
                     if (ImGui::MenuItem("Start Calibration on Scnd. Camera", 0, false, SLCVCapture::hasSecondaryCamera))
                     {
-                        sv->onCommand(C_sceneVideoCalibrateScnd);
+                        s->onLoad(s, sv, SID_VideoCalibrateScnd);
                         showHelpCalibration = true;
                         showInfosScene = true;
                     }
 
                     if (ImGui::MenuItem("Undistort Image", 0, ac->showUndistorted(), ac->state()==CS_calibrated))
-                        sv->onCommand(C_undistortVideoToggle);
+                        ac->showUndistorted(!ac->showUndistorted());
 
                     if (ImGui::MenuItem("Zero Tangent Distortion", 0, ac->calibZeroTangentDist()))
-                        sv->onCommand(C_calibZeroTangentDistToggle);
+                        ac->toggleZeroTangentDist();
 
                     if (ImGui::MenuItem("Fix Aspect Ratio", 0, ac->calibFixAspectRatio()))
-                        sv->onCommand(C_calibFixAspectRatioToggle);
+                        ac->toggleFixAspectRatio();
 
                     if (ImGui::MenuItem("Fix Prinicpal Point", 0, ac->calibFixPrincipalPoint()))
-                        sv->onCommand(C_calibFixPrincipPointalToggle);
+                        ac->toggleFixPrincipalPoint();
 
                     ImGui::EndMenu();
                 }
@@ -916,9 +916,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::MenuItem("Reset User Interface"))
                 {
-                    SLstring fullPathFilename = SL::configPath + "DemoGui.yml";
+                    SLstring fullPathFilename = SLApplication::configPath + "DemoGui.yml";
                     SLFileSystem::deleteFile(fullPathFilename);
-                    loadConfig(SL::dpi);
+                    loadConfig(SLApplication::dpi);
                 }
 
                 ImGui::EndMenu();
@@ -930,13 +930,13 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         if (ImGui::BeginMenu("Renderer"))
         {
             if (ImGui::MenuItem("OpenGL (GL)", "G", rType==RT_gl))
-                sv->onCommand(C_renderOpenGL);
+                sv->renderType(RT_gl);
 
             if (ImGui::MenuItem("Ray Tracing (RT)", "R", rType==RT_rt))
-                sv->onCommand(C_rt5);
+                sv->startRaytracing(5);
 
             if (ImGui::MenuItem("Path Tracing (PT)", 0, rType==RT_pt))
-                sv->onCommand(C_pt10);
+                sv->startPathtracing(5, 10);
 
             ImGui::EndMenu();
         }
@@ -946,25 +946,25 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::BeginMenu("GL-Setting"))
             {
                 if (ImGui::MenuItem("Wired Mesh", "P", sv->drawBits()->get(SL_DB_WIREMESH)))
-                    sv->onCommand(C_wireMeshToggle);
+                    sv->drawBits()->toggle(SL_DB_WIREMESH);
 
                 if (ImGui::MenuItem("Normals", "N", sv->drawBits()->get(SL_DB_NORMALS)))
-                    sv->onCommand(C_normalsToggle);
+                    sv->drawBits()->toggle(SL_DB_NORMALS);
 
                 if (ImGui::MenuItem("Bounding Boxes", "B", sv->drawBits()->get(SL_DB_BBOX)))
-                    sv->onCommand(C_bBoxToggle);
+                    sv->drawBits()->toggle(SL_DB_BBOX);
 
                 if (ImGui::MenuItem("Voxels", "V", sv->drawBits()->get(SL_DB_VOXELS)))
-                    sv->onCommand(C_voxelsToggle);
+                    sv->drawBits()->toggle(SL_DB_NORMALS);
 
                 if (ImGui::MenuItem("Axis", "X", sv->drawBits()->get(SL_DB_AXIS)))
-                    sv->onCommand(C_axisToggle);
+                    sv->drawBits()->toggle(SL_DB_VOXELS);
 
                 if (ImGui::MenuItem("Back Faces", "C", sv->drawBits()->get(SL_DB_CULLOFF)))
-                    sv->onCommand(C_faceCullToggle);
+                    sv->drawBits()->toggle(SL_DB_CULLOFF);
 
                 if (ImGui::MenuItem("Skeleton", "K", sv->drawBits()->get(SL_DB_SKELETON)))
-                    sv->onCommand(C_skeletonToggle);
+                    sv->drawBits()->toggle(SL_DB_SKELETON);
 
                 if (ImGui::MenuItem("All off"))
                     sv->drawBits()->allOff();
@@ -1006,15 +1006,15 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("Max. Depth"))
                 {
                     if (ImGui::MenuItem("1", 0, rt->maxDepth()==1))
-                        sv->onCommand(C_rt1);
+                        sv->startRaytracing(1);
                     if (ImGui::MenuItem("2", 0, rt->maxDepth()==2))
-                        sv->onCommand(C_rt2);
+                        sv->startRaytracing(2);
                     if (ImGui::MenuItem("3", 0, rt->maxDepth()==3))
-                        sv->onCommand(C_rt3);
+                        sv->startRaytracing(3);
                     if (ImGui::MenuItem("5", 0, rt->maxDepth()==5))
-                        sv->onCommand(C_rt5);
+                        sv->startRaytracing(5);
                     if (ImGui::MenuItem("Max. Contribution", 0, rt->maxDepth()==0))
-                        sv->onCommand(C_rt0);
+                        sv->startRaytracing(0);
 
                     ImGui::EndMenu();
                 }
@@ -1036,7 +1036,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 }
 
                 if (ImGui::MenuItem("Save Rendered Image"))
-                    sv->onCommand(C_rtSaveImage);
+                    sv->raytracer()->saveImage();
 
                 ImGui::EndMenu();
             }
@@ -1050,21 +1050,21 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("NO. of Samples"))
                 {
                     if (ImGui::MenuItem("1", 0, pt->aaSamples()==1))
-                        sv->onCommand(C_pt1);
+                        sv->startPathtracing(5, 1);
                     if (ImGui::MenuItem("10", 0, pt->aaSamples()==10))
-                        sv->onCommand(C_pt10);
+                        sv->startPathtracing(5, 10);
                     if (ImGui::MenuItem("100", 0, pt->aaSamples()==100))
-                        sv->onCommand(C_pt100);
+                        sv->startPathtracing(5, 100);
                     if (ImGui::MenuItem("1000", 0, pt->aaSamples()==1000))
-                        sv->onCommand(C_pt1000);
+                        sv->startPathtracing(5, 1000);
                     if (ImGui::MenuItem("10000", 0, pt->aaSamples()==10000))
-                        sv->onCommand(C_pt10000);
+                        sv->startPathtracing(5, 10000);
 
                     ImGui::EndMenu();
                 }
 
                 if (ImGui::MenuItem("Save Rendered Image"))
-                    sv->onCommand(C_ptSaveImage);
+                    sv->pathtracer()->saveImage();
 
                 ImGui::EndMenu();
             }
@@ -1076,7 +1076,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             SLProjection proj = cam->projection();
 
             if (ImGui::MenuItem("Reset"))
-                sv->onCommand(C_camReset);
+                cam->resetToInitialState();
             
             if (ImGui::BeginMenu("Look from"))
             {
@@ -1090,10 +1090,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (s->numSceneCameras())
                 {
                     if (ImGui::MenuItem("Next camera in Scene", "TAB"))
-                        sv->onCommand(C_camSetNextInScene);
+                        sv->switchToNextCameraInScene();
 
                     if (ImGui::MenuItem("Sceneview Camera", "TAB"))
-                        sv->onCommand(C_camSetSceneViewCamera);
+                        sv->switchToSceneViewCamera();
                 }
                 
                 ImGui::EndMenu();
@@ -1109,18 +1109,25 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
 
                 if (ImGui::MenuItem("Perspective", "5", proj==P_monoPerspective))
-                    sv->onCommand(C_projPersp);
+                {   cam->projection(P_monoPerspective);
+                    if (sv->renderType() == RT_rt && !sv->raytracer()->doContinuous() &&
+                        sv->raytracer()->state() == rtFinished)
+                        sv->raytracer()->state(rtReady);
+                }
 
                 if (ImGui::MenuItem("Orthographic", "5", proj==P_monoOrthographic))
-                    sv->onCommand(C_projOrtho);
+                {   cam->projection(P_monoOrthographic);
+                    if (sv->renderType() == RT_rt && !sv->raytracer()->doContinuous() &&
+                        sv->raytracer()->state() == rtFinished)
+                        sv->raytracer()->state(rtReady);
+                }
 
                 if (ImGui::BeginMenu("Stereo"))
                 {
                     for (SLint p=P_stereoSideBySide; p<=P_stereoColorYB; ++p)
-                    {
-                        SLstring pStr = SLCamera::projectionToStr((SLProjection)p);
+                    {   SLstring pStr = SLCamera::projectionToStr((SLProjection)p);
                         if (ImGui::MenuItem(pStr.c_str(), 0, proj==(SLProjection)p))
-                            sv->onCommand((SLCommand)(C_projPersp+p));
+                            cam->projection((SLProjection)p);
                     }
 
                     if (proj >=P_stereoSideBySide)
@@ -1264,7 +1271,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Infos on Sensors",    0, &showInfosSensors);
             ImGui::MenuItem("Infos on Frameworks", 0, &showInfosFrameworks);
-            if (SL::currentSceneID==C_sceneVideoChristoffel)
+            if (SLApplication::sceneID==SID_VideoChristoffel)
             {   ImGui::Separator();
                 ImGui::MenuItem("Infos on Christoffel",0, &showChristoffel);
             }
@@ -1735,7 +1742,7 @@ void AppDemoGui::buildProperties(SLScene* s)
 void AppDemoGui::loadConfig(SLint dotsPerInch)
 {
     ImGuiStyle& style = ImGui::GetStyle();
-    SLstring fullPathAndFilename = SL::configPath + "DemoGui.yml";
+    SLstring fullPathAndFilename = SLApplication::configPath + "DemoGui.yml";
 
     if (!SLFileSystem::fileExists(fullPathAndFilename))
     {
@@ -1786,7 +1793,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
     fs["ItemSpacingX"]          >> i; style.ItemSpacing.x = (SLfloat)i;
     fs["ItemSpacingY"]          >> i; style.ItemSpacing.y = (SLfloat)i;
                                       style.ItemInnerSpacing.x = style.ItemSpacing.y;
-    fs["currentSceneID"]        >> i; SL::currentSceneID = (SLCommand)i;
+    fs["sceneID"]        >> i; SLApplication::sceneID = (SLSceneID)i;
     fs["showInfosScene"]        >> b; AppDemoGui::showInfosScene = b;
     fs["showStatsTiming"]       >> b; AppDemoGui::showStatsTiming = b;
     fs["showStatsMemory"]       >> b; AppDemoGui::showStatsScene = b;
@@ -1805,7 +1812,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
 void AppDemoGui::saveConfig()
 {
     ImGuiStyle& style = ImGui::GetStyle();
-    SLstring fullPathAndFilename = SL::configPath + "DemoGui.yml";
+    SLstring fullPathAndFilename = SLApplication::configPath + "DemoGui.yml";
     SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::WRITE);
 
     if (!fs.isOpened())
@@ -1817,7 +1824,7 @@ void AppDemoGui::saveConfig()
     fs << "configTime"              << SLUtils::getLocalTimeString();
     fs << "fontPropDots"            << (SLint)SLGLImGui::fontPropDots;
     fs << "fontFixedDots"           << (SLint)SLGLImGui::fontFixedDots;
-    fs << "currentSceneID"          << (SLint)SL::currentSceneID;
+    fs << "sceneID"          << (SLint)SLApplication::sceneID;
     fs << "FramePaddingX"           << (SLint)style.FramePadding.x;
     fs << "FramePaddingY"           << (SLint)style.FramePadding.y;
     fs << "ItemSpacingX"            << (SLint)style.ItemSpacing.x;

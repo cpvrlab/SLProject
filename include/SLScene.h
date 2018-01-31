@@ -125,7 +125,6 @@ class SLScene: public SLObject
             bool            onUpdate            ();
             void            init                ();
             void            unInit              ();
-            SLbool          onCommandAllSV      (const SLCommand cmd);
             void            selectNode          (SLNode* nodeToSelect);
             void            selectNodeMesh      (SLNode* nodeToSelect, SLMesh* meshToSelect);
             void            copyVideoImage      (SLint camWidth, 

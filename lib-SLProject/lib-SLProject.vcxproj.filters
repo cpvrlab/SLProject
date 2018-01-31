@@ -288,9 +288,6 @@
     <ClInclude Include="..\include\SLGLImGui.h">
       <Filter>GL</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLDemoGui.h">
-      <Filter>SL</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLTransferFunction.h">
       <Filter>SL</Filter>
     </ClInclude>
@@ -379,9 +376,6 @@
     </ClCompile>
     <ClCompile Include="source\SLMaterial.cpp">
       <Filter>Light &amp; Material</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLScene_onLoad.cpp">
-      <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="source\SLNode.cpp">
       <Filter>Nodes</Filter>
@@ -529,9 +523,6 @@
     </ClCompile>
     <ClCompile Include="source\GL\SLGLImGui.cpp">
       <Filter>GL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLDemoGui.cpp">
-      <Filter>SL</Filter>
     </ClCompile>
     <ClCompile Include="source\SLTransferFunction.cpp">
       <Filter>SL</Filter>
