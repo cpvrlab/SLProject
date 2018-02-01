@@ -14,9 +14,10 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLApplication.h>
+#include <SLScene.h>
 #include <SLGLVertexArrayExt.h>
 #include <SLGLProgram.h>
-#include <SLScene.h>
 
 //-----------------------------------------------------------------------------
 /*! Helper function that sets the vertex position attribute and generates or 
@@ -31,7 +32,7 @@ void SLGLVertexArrayExt::generateVertexPos(SLuint numVertices,
     assert(elementSize);
     assert(numVertices);
     
-    SLGLProgram* sp = SLScene::current->programs(SP_colorUniform);
+    SLGLProgram* sp = SLApplication::scene->programs(SP_colorUniform);
     sp->useProgram();
     SLint location = sp->getAttribLocation("a_position");
     
@@ -61,7 +62,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
    
     // Prepare shader
     SLMaterial::current = 0;
-    SLGLProgram* sp = SLScene::current->programs(SP_colorUniform);
+    SLGLProgram* sp = SLApplication::scene->programs(SP_colorUniform);
     SLGLState* state = SLGLState::getInstance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());

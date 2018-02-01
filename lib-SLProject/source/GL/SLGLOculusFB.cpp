@@ -14,9 +14,10 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLApplication.h>
+#include <SLScene.h>
 #include <SLGLOculusFB.h>
 #include <SLGLProgram.h>
-#include <SLScene.h>
 
 //-----------------------------------------------------------------------------
 /*! Constructor initializing with default values
@@ -149,7 +150,7 @@ void SLGLOculusFB::drawFramebuffer()
     glDisable(GL_DEPTH_TEST);
 
     //bind the rift shader
-    SLGLProgram* sp = SLScene::current->programs(SP_stereoOculus);
+    SLGLProgram* sp = SLApplication::scene->programs(SP_stereoOculus);
     sp->useProgram();
     SLint location = sp->getAttribLocation("a_position");
    

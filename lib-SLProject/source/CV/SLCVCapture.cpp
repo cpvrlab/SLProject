@@ -19,6 +19,8 @@ All classes that use OpenCV begin with SLCV.
 See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
+
+#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLCVCapture.h>
@@ -48,9 +50,8 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
 
         if (!_captureDevice.isOpened())
             return SLVec2i::ZERO;
-
-        if (SL::noTestIsRunning())
-            SL_LOG("Capture devices created.\n");
+        
+        SL_LOG("Capture devices created.\n");
 
         SLint w = (int)_captureDevice.get(CV_CAP_PROP_FRAME_WIDTH);
         SLint h = (int)_captureDevice.get(CV_CAP_PROP_FRAME_HEIGHT);
@@ -92,8 +93,7 @@ SLVec2i SLCVCapture::openFile()
             return SLVec2i::ZERO;
         }
 
-        if (SL::noTestIsRunning())
-            SL_LOG("Capture devices created with video.\n");
+        SL_LOG("Capture devices created with video.\n");
 
         SLint w = (int)_captureDevice.get(CV_CAP_PROP_FRAME_WIDTH);
         SLint h = (int)_captureDevice.get(CV_CAP_PROP_FRAME_HEIGHT);
@@ -126,7 +126,7 @@ capture functionality.
 */
 void SLCVCapture::grabAndAdjustForSL()
 {
-    SLCVCapture::startCaptureTimeMS = SLScene::current->timeMilliSec();
+    SLCVCapture::startCaptureTimeMS = SLApplication::scene->timeMilliSec();
 
     try
     {   if (_captureDevice.isOpened())
@@ -147,8 +147,7 @@ void SLCVCapture::grabAndAdjustForSL()
         else
         {   static bool logOnce = true;
             if (logOnce)
-            {   if (SL::noTestIsRunning())
-                    SL_LOG("OpenCV: Capture device or video file is not open!\n");
+            {   SL_LOG("OpenCV: Capture device or video file is not open!\n");
                 logOnce = false;
             }
         }
@@ -177,7 +176,7 @@ We therefore create a copy that is grayscale converted.
 */
 void SLCVCapture::adjustForSL()
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     format = SLCVImage::cv2glPixelFormat(lastFrame.type());
 
     // Set capture size before cropping
@@ -212,43 +211,6 @@ void SLCVCapture::adjustForSL()
         //imwrite("AfterCropping.bmp", lastFrame);
     }
 
-    //SLCVSize frameSize(640, 480);
-    //frameSize.width;
-    //frameSize.height;
-    //SLfloat inWdivH = (SLfloat)frameSize.width / (SLfloat)frameSize.height;
-    //SLfloat outWdivH = s->sceneViews()[0]->scrWdivH();
-
-    //if (SL_abs(inWdivH - outWdivH) > 0.01f)
-    //{
-    //    SLint width = 0;    // width in pixels of the destination image
-    //    SLint height = 0;   // height in pixels of the destination image
-    //    SLint cropH = 0;    // crop height in pixels of the source image
-    //    SLint cropW = 0;    // crop width in pixels of the source image
-
-    //    if (inWdivH > outWdivH) // crop input image left & right
-    //    {
-    //        width = (SLint)((SLfloat)frameSize.height * outWdivH);
-    //        height = frameSize.height;
-    //        cropW = (SLint)((SLfloat)(frameSize.width - width) * 0.5f);
-    //    }
-    //    else // crop input image at top & bottom
-    //    {
-    //        width = frameSize.width;
-    //        height = (SLint)((SLfloat)frameSize.width / outWdivH);
-    //        cropH = (SLint)((SLfloat)(frameSize.height - height) * 0.5f);
-    //    }
-    //    lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(lastFrame);
-    //    //imwrite("AfterCropping.bmp", lastFrame);
-    //}
-
-    //resize image
-    //cv::resize(lastFrame, lastFrame, 
-    //    cv::Size( s->sceneViews()[0]->scrW(), s->sceneViews()[0]->scrH()));
-
-    //todo: Achtung: Dieses resize wird zum laden von Videos benötigt!!!!
-    //cv::resize(lastFrame, lastFrame,
-    //    cv::Size(640, 480));
-
     //////////////////
     // 2) Mirroring //
     //////////////////
@@ -256,16 +218,16 @@ void SLCVCapture::adjustForSL()
     // Mirroring is done for most selfie cameras.
     // So this is Android image copy loop #3
 
-    if (s->activeCalib()->isMirroredH())
+    if (SLApplication::activeCalib->isMirroredH())
     {   SLCVMat mirrored;
-        if (s->activeCalib()->isMirroredV())
+        if (SLApplication::activeCalib->isMirroredV())
             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
         else cv::flip(SLCVCapture::lastFrame, mirrored, 1);
         SLCVCapture::lastFrame = mirrored;
     } else
-    if (s->activeCalib()->isMirroredV())
+    if (SLApplication::activeCalib->isMirroredV())
     {   SLCVMat mirrored;
-        if (s->activeCalib()->isMirroredH())
+        if (SLApplication::activeCalib->isMirroredH())
             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
         else cv::flip(SLCVCapture::lastFrame, mirrored, 0);
         SLCVCapture::lastFrame = mirrored;
@@ -296,7 +258,7 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
                                     const SLuchar* data,
                                     const SLbool isContinuous)
 {
-    SLCVCapture::startCaptureTimeMS = SLScene::current->timeMilliSec();
+    SLCVCapture::startCaptureTimeMS = SLApplication::scene->timeMilliSec();
 
     // treat Android YUV to RGB conversion special
     if (format == PF_yuv_420_888)
@@ -509,7 +471,7 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
                                 SLuchar* v, int vBytes, int vColOffset, int vRowOffset)
 {
     // pointer to the active scene
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
 
     // Set the start time to measure the MS for the whole conversion
     SLCVCapture::startCaptureTimeMS = s->timeMilliSec();
@@ -540,8 +502,8 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
     }
 
     // Get the infos if the destination image must be mirrored
-    bool mirrorH = s->activeCalib()->isMirroredH();
-    bool mirrorV = s->activeCalib()->isMirroredV();
+    bool mirrorH = SLApplication::activeCalib->isMirroredH();
+    bool mirrorV = SLApplication::activeCalib->isMirroredV();
 
     // Create output color (BGR) and grayscale images
     lastFrame     = SLCVMat(dstH, dstW, CV_8UC(3));

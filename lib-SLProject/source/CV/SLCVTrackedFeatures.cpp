@@ -19,6 +19,7 @@ See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 
+#include <SLApplication.h>
 #include <SLSceneView.h>
 #include <SLCVFeatureManager.h>
 #include <SLCVTrackedFeatures.h>
@@ -83,8 +84,8 @@ SLCVTrackedFeatures::~SLCVTrackedFeatures()
     SL_LOG("------------------------------------------------------------------\n");
     SL_LOG("SLCVTrackedFeatures statistics \n");
     SL_LOG("------------------------------------------------------------------\n");
-    SL_LOG("Avg frame rate                                   : %f FPS\n", SLScene::current->frameTimesMS().average());
-    SL_LOG("Avg calculation time per frame                   : %f ms\n", SLScene::current->trackingTimesMS().average());
+    SL_LOG("Avg frame rate                                   : %f FPS\n", SLApplication::scene->frameTimesMS().average());
+    SL_LOG("Avg calculation time per frame                   : %f ms\n", SLApplication::scene->trackingTimesMS().average());
     SL_LOG(" \n");
     SL_LOG("Settings for Pose estimation: ------------------------------------\n");
     SL_LOG("Features                                         : %d\n", nFeatures);
@@ -281,7 +282,7 @@ void SLCVTrackedFeatures::relocate()
     _currentFrame.foundPose = calculatePose();
 
     // Zero time keeping on the tracking branch
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     s->optFlowTimesMS().set(0);
 }
 
@@ -295,7 +296,7 @@ void SLCVTrackedFeatures::tracking()
     _currentFrame.foundPose = trackWithOptFlow(_prevFrame.rvec, _prevFrame.tvec);
 
     // Zero time keeping on the relocation branch
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     s->detectTimesMS().set(0);
     s->matchTimesMS().set(0);
 }
@@ -510,7 +511,7 @@ meaningful.
 */
 void SLCVTrackedFeatures::detectKeypointsAndDescriptors()
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     SLfloat startMS = s->timeMilliSec();
 
     _featureManager.detectAndDescribe(_currentFrame.imageGray,
@@ -528,7 +529,7 @@ not too identical with the so called ratio test.
 */
 SLCVVDMatch SLCVTrackedFeatures::getFeatureMatches()
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     SLfloat startMS = s->timeMilliSec();
 
     int k = 2;
@@ -599,7 +600,7 @@ bool SLCVTrackedFeatures::calculatePose()
     // RANSAC crashes if 0 points are given
     if (_currentFrame.matches.size() == 0) return 0;
 
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     SLfloat startMS = s->timeMilliSec();
 
     // Find 2D/3D correspondences
@@ -866,7 +867,7 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
 {
     if (_prevFrame.inlierPoints2D.size() < 4) return false;
 
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     SLfloat startMS = s->timeMilliSec();
 
     SLVuchar status;

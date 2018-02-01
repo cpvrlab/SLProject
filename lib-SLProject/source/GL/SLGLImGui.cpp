@@ -15,8 +15,9 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
-#include <SLGLImGui.h>
+#include <SLApplication.h>
 #include <SLScene.h>
+#include <SLGLImGui.h>
 
 //-----------------------------------------------------------------------------
 SLfloat     SLGLImGui::fontPropDots        = 0.0f;
@@ -55,7 +56,7 @@ void SLGLImGui::init()
     _mousePressed[2] = false;
 
     ImGuiIO& io = ImGui::GetIO();
-    static const SLstring inifile = SL::configPath + "imgui.ini";
+    static const SLstring inifile = SLApplication::configPath + "imgui.ini";
     io.IniFilename = inifile.c_str();
 
     io.KeyMap[ImGuiKey_Tab]         = K_tab;
@@ -302,7 +303,7 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
     ImGuiIO& io = ImGui::GetIO();
     
     // Setup time step
-    SLfloat nowSec =  SLScene::current->timeSec();
+    SLfloat nowSec =  SLApplication::scene->timeSec();
     io.DeltaTime = _timeSec > 0.0 ? nowSec-_timeSec : 1.0f/60.0f;
     if (io.DeltaTime < 0) io.DeltaTime = 1.0f/60.0f;
     _timeSec = nowSec;

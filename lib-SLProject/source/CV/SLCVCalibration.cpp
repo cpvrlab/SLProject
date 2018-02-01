@@ -18,6 +18,8 @@ All classes that use OpenCV begin with SLCV.
 See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
+
+#include <SLApplication.h>
 #include <SLCVCalibration.h>
 #include <SLCVCapture.h>
 
@@ -72,7 +74,7 @@ bool SLCVCalibration::load(SLstring calibFileName,
     _isMirroredV = mirrorVertically;
 
     //load camera parameter
-    SLstring fullPathAndFilename = SL::configPath + _calibFileName;
+    SLstring fullPathAndFilename = SLApplication::configPath + _calibFileName;
     FileStorage fs(fullPathAndFilename, FileStorage::READ);
 
     if (!fs.isOpened())
@@ -143,7 +145,7 @@ bool SLCVCalibration::load(SLstring calibFileName,
 //! Saves the camera calibration parameters to the config file
 void SLCVCalibration::save()
 {
-    SLstring fullPathAndFilename = SL::configPath + _calibFileName;
+    SLstring fullPathAndFilename = SLApplication::configPath + _calibFileName;
 
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 

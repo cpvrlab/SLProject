@@ -280,6 +280,7 @@
     <ClInclude Include="..\include\SLAnimManager.h" />
     <ClInclude Include="..\include\SLAnimPlayback.h" />
     <ClInclude Include="..\include\SLAnimTrack.h" />
+    <ClInclude Include="..\include\SLApplication.h" />
     <ClInclude Include="..\include\SLArrow.h" />
     <ClInclude Include="..\include\SLAssimpImporter.h" />
     <ClInclude Include="..\include\SLAverage.h" />
@@ -305,7 +306,6 @@
     <ClInclude Include="..\include\SLCVTracked.h" />
     <ClInclude Include="..\include\SLCVTrackedFeatures.h" />
     <ClInclude Include="..\include\SLCVTrackedRaulMur.h" />
-    <ClInclude Include="..\include\SLDemoGui.h" />
     <ClInclude Include="..\include\SLDeviceLocation.h" />
     <ClInclude Include="..\include\SLDeviceRotation.h" />
     <ClInclude Include="..\include\SLDisk.h" />
@@ -431,7 +431,6 @@
     <ClCompile Include="source\SLCoordAxis.cpp" />
     <ClCompile Include="source\SLBackground.cpp" />
     <ClCompile Include="source\SLCompactGrid.cpp" />
-    <ClCompile Include="source\SLDemoGui.cpp" />
     <ClCompile Include="source\SLDeviceLocation.cpp" />
     <ClCompile Include="source\SLDeviceRotation.cpp" />
     <ClCompile Include="source\SLDisk.cpp" />
@@ -457,7 +456,6 @@
     <ClCompile Include="source\SLRevolver.cpp" />
     <ClCompile Include="source\SLText.cpp" />
     <ClCompile Include="source\SLNode.cpp" />
-    <ClCompile Include="source\SLScene_onLoad.cpp" />
     <ClCompile Include="source\SLAABBox.cpp" />
     <ClCompile Include="source\SLScene.cpp" />
     <ClCompile Include="source\SLSceneView.cpp" />
@@ -470,6 +468,7 @@
     <ClCompile Include="source\SLTransferFunction.cpp" />
     <ClCompile Include="source\SLTriangle.cpp" />
     <ClCompile Include="source\SL\SL.cpp" />
+    <ClCompile Include="source\SL\SLApplication.cpp" />
     <ClCompile Include="source\SL\SLAssimpImporter.cpp" />
     <ClCompile Include="source\SL\SLFileSystem.cpp" />
     <ClCompile Include="source\SL\SLImporter.cpp" />

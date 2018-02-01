@@ -291,9 +291,6 @@
     <ClInclude Include="..\include\SLGLImGui.h">
       <Filter>GL</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLDemoGui.h">
-      <Filter>SL</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLTransferFunction.h">
       <Filter>SL</Filter>
     </ClInclude>
@@ -371,7 +368,7 @@
     </ClInclude>
     <ClInclude Include="..\include\OrbSlam\ORBmatcher.h">
       <Filter>CV\OrbSlam</Filter>
-    </ClInclude>      
+    </ClInclude>
     <ClInclude Include="..\include\SLLens.h">
       <Filter>Nodes\Meshes\Revolver</Filter>
     </ClInclude>
@@ -392,6 +389,9 @@
     </ClInclude>
     <ClInclude Include="..\include\SLSpheric.h">
       <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLApplication.h">
+      <Filter>SL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -418,9 +418,6 @@
     </ClCompile>
     <ClCompile Include="source\SLMaterial.cpp">
       <Filter>Light &amp; Material</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLScene_onLoad.cpp">
-      <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="source\SLNode.cpp">
       <Filter>Nodes</Filter>
@@ -569,9 +566,6 @@
     <ClCompile Include="source\GL\SLGLImGui.cpp">
       <Filter>GL</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLDemoGui.cpp">
-      <Filter>SL</Filter>
-    </ClCompile>
     <ClCompile Include="source\SLTransferFunction.cpp">
       <Filter>SL</Filter>
     </ClCompile>
@@ -664,6 +658,9 @@
     </ClCompile>
     <ClCompile Include="source\CV\SLCVCamera.cpp">
       <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLApplication.cpp">
+      <Filter>SL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

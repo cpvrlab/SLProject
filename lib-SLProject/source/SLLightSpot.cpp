@@ -13,11 +13,12 @@
 #include <nvwa/debug_new.h>   // memory leak detector
 #endif
 
+#include <SLApplication.h>
+#include <SLSceneView.h>
 #include <SLLightSpot.h>
 #include <SLSpheric.h>
 #include <SLRay.h>
 #include <SLScene.h>
-#include <SLSceneView.h>
 #include <SLSphere.h>
 
 //-----------------------------------------------------------------------------
@@ -90,18 +91,18 @@ emissive mat.
 void SLLightSpot::init()
 {  
     // Check if OpenGL lights are available
-    if (SLScene::current->lights().size() >= SL_MAX_LIGHTS) 
+    if (SLApplication::scene->lights().size() >= SL_MAX_LIGHTS)
         SL_EXIT_MSG("Max. NO. of lights is exceeded!");
 
     // Add the light to the lights array of the scene
     if (_id==-1)
-    {   _id = (SLint)SLScene::current->lights().size();
-        SLScene::current->lights().push_back(this);
+    {   _id = (SLint)SLApplication::scene->lights().size();
+        SLApplication::scene->lights().push_back(this);
     }
    
     // Set the OpenGL light states
     SLLightSpot::setState();
-    _stateGL->numLightsUsed = (SLint)SLScene::current->lights().size();
+    _stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
    
     // Set emissive light material to the lights diffuse color
     if (_meshes.size() > 0)
@@ -142,7 +143,7 @@ void SLLightSpot::drawMeshes(SLSceneView* sv)
     {  
         // Set the OpenGL light states
         SLLightSpot::setState();
-        _stateGL->numLightsUsed = (SLint)SLScene::current->lights().size();
+        _stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
    
         // Set emissive light material to the lights diffuse color
         if (_meshes.size() > 0)
@@ -167,7 +168,7 @@ SLfloat SLLightSpot::shadowTest(SLRay* ray,         // ray of hit point
     {  
         // define shadow ray and shoot 
         SLRay shadowRay(lightDist, L, ray);      
-        SLScene::current->root3D()->hitRec(&shadowRay);
+        SLApplication::scene->root3D()->hitRec(&shadowRay);
       
         if (shadowRay.length < lightDist)
         {  
@@ -214,7 +215,7 @@ SLfloat SLLightSpot::shadowTest(SLRay* ray,         // ray of hit point
 
                 SLRay shadowRay(lightDist, LDisc, ray);
             
-                SLScene::current->root3D()->hitRec(&shadowRay);
+                SLApplication::scene->root3D()->hitRec(&shadowRay);
 
                 if (shadowRay.length < lightDist) 
                     outerCircleIsLighting = false;               
@@ -251,7 +252,7 @@ SLfloat SLLightSpot::shadowTestMC(SLRay* ray,         // ray of hit point
     {
         // define shadow ray and shoot 
         SLRay shadowRay(lightDist, L, ray);
-        SLScene::current->root3D()->hitRec(&shadowRay);
+        SLApplication::scene->root3D()->hitRec(&shadowRay);
 
         if (shadowRay.length < lightDist)
         {
@@ -303,7 +304,7 @@ SLfloat SLLightSpot::shadowTestMC(SLRay* ray,         // ray of hit point
 
                 SLRay shadowRay(lightDist, LDisc, ray);
 
-                SLScene::current->root3D()->hitRec(&shadowRay);
+                SLApplication::scene->root3D()->hitRec(&shadowRay);
 
                 if (shadowRay.length < lightDist)
                     outerCircleIsLighting = false;

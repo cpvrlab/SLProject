@@ -31,6 +31,9 @@ class SLCVTracked;
 typedef vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
 typedef vector<SLCVTracked*> SLVCVTracker; //!< Vector of CV tracker pointers
 //-----------------------------------------------------------------------------
+//! C-Callback function typedef for scene load function
+typedef void(SL_STDCALL *cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint sceneID);
+//-----------------------------------------------------------------------------
 //! The SLScene class represents the top level instance holding the scene structure
 /*!      
 The SLScene class holds everything that is common for all scene views such as 
@@ -54,7 +57,8 @@ class SLScene: public SLObject
 {  
     friend class SLNode;
    
-    public:                 SLScene             (SLstring name="");
+    public:                 SLScene             (SLstring name,
+                                                 cbOnSceneLoad onSceneLoadCallback);
                            ~SLScene             ();
             // Setters
             void            root3D              (SLNode* root3D){_root3D = root3D;}
@@ -63,7 +67,7 @@ class SLScene: public SLObject
             void            stopAnimations      (SLbool stop) {_stopAnimations = stop;}
             void            videoType           (SLVideoType vt);
             void            showDetection       (SLbool st) {_showDetection = st;}
-            void            usesLocation        (SLbool use);
+            void            info                (SLstring i) {_info = i;}
                            
             // Getters
             SLAnimManager&  animManager         () {return _animManager;}
@@ -106,54 +110,30 @@ class SLScene: public SLObject
             SLCamera*       nextCameraInScene   (SLSceneView* activeSV);
 
             // Video stuff
-            SLVideoType         videoType       () {return _videoType;}
-            SLGLTexture*        videoTexture    () {return &_videoTexture;}
-            SLGLTexture*        videoTextureErr () {return &_videoTextureErr;}
-            SLCVCalibration*    activeCalib     () {return _activeCalib;}
-            SLCVCalibration*    calibMainCam    () {return &_calibMainCam;}
-            SLCVCalibration*    calibScndCam    () {return &_calibScndCam;}
-            SLVCVTracker&       trackers        () {return _trackers;}
-            SLbool              showDetection   () {return _showDetection;}
+            SLVideoType     videoType           () {return _videoType;}
+            SLGLTexture*    videoTexture        () {return &_videoTexture;}
+            SLGLTexture*    videoTextureErr     () {return &_videoTextureErr;}
+            SLVCVTracker&   trackers            () {return _trackers;}
+            SLbool          showDetection       () {return _showDetection;}
+    
+            cbOnSceneLoad   onLoad;             //!< C-Callback for scene load
 
-            // Device sensors stuff
-            SLDeviceRotation&   devRot          () {return _devRot;}
-            SLDeviceLocation&   devLoc          () {return _devLoc;}
-
-            // Device GPS location stuff
-            SLbool              usesLocation    () const {return _usesLocation;}
-            double              gpsLongitude    () const {return _gpsLongitude;}
-            double              gpsLatitude     () const {return _gpsLatitude;}
-            double              gpsAltitude     () const {return _gpsAltitude;}
-
-            SLbool              hasGlobalRefPos () const {return _hasGlobalRefPos; }
-            const SLVec3d&      globalRefPosEcef() const {return _globalRefPosEcef; }
-            const SLMat3<double>& wRecef        () const {return _wRecef; }
-    // Misc.
-   virtual  void            onLoad              (SLSceneView* sv, 
-                                                 SLCommand _currentID);
+            // Misc.
    virtual  void            onLoadAsset         (SLstring assetFile, 
                                                  SLuint processFlags);
    virtual  void            onAfterLoad         ();
             bool            onUpdate            ();
             void            init                ();
             void            unInit              ();
-            SLbool          onCommandAllSV      (const SLCommand cmd);
             void            selectNode          (SLNode* nodeToSelect);
             void            selectNodeMesh      (SLNode* nodeToSelect, SLMesh* meshToSelect);
+            bool            removeMesh          (SLMesh* mesh);
             void            copyVideoImage      (SLint camWidth, 
                                                  SLint camHeight,
                                                  SLPixelFormat srcPixelFormat,
                                                  SLuchar* data,
                                                  SLbool isContinuous,
                                                  SLbool isTopLeft);
-            void            onLocationGPS       (double latitude, double longitude, double altitude);
-
-     static SLScene*        current;            //!< global static scene pointer
-
-            void            initGlobalRefPos    (double latDeg, double lonDeg, double altM);
-
-            //vectors manipulation
-            bool            removeMesh          (SLMesh* mesh);
 
    protected:
             SLVSceneView    _sceneViews;        //!< Vector of all sceneview pointers
@@ -196,28 +176,11 @@ class SLScene: public SLObject
             SLGLOculus      _oculus;            //!< Oculus Rift interface
             
             // Video stuff
-            SLVideoType         _videoType;         //!< Flag for using the live video image
-            SLGLTexture         _videoTexture;      //!< Texture for live video image
-            SLGLTexture         _videoTextureErr;   //!< Texture for live video error
-            SLCVCalibration*    _activeCalib;       //!< Pointer to the active calibration
-            SLCVCalibration     _calibMainCam;      //!< OpenCV calibration for main video camera
-            SLCVCalibration     _calibScndCam;      //!< OpenCV calibration for secondary video camera
-            SLVCVTracker        _trackers;          //!< Vector of all AR trackers
-            SLbool              _showDetection;     //!< Flag if detection should be visualized
-
-            // Mobile device sensor data
-            SLDeviceRotation    _devRot;            //!< Mobile device rotation from IMU
-            SLDeviceLocation    _devLoc;            //!< Mobile device location from GPS
-
-            // GPS Sensor stuff
-            SLbool              _usesLocation;      //!< Flag if GPS Sensor is used
-            SLbool              _deviceLocStarted;  //!< Flag for the first sensor values
-            double              _gpsLongitude;      //!< gps longitude value
-            double              _gpsLatitude;      //!< gps latitude value
-            double              _gpsAltitude;      //!< gps altitude value
-            SLbool              _hasGlobalRefPos;  //!< Flag if this scene has a global reference position
-            SLVec3d             _globalRefPosEcef; //!< Global ecef reference position of scene origin (world)
-            SLMat3<double>      _wRecef;           //!< ecef frame to world frame rotation: rotates a point defined in ecef frame to world frame
+            SLVideoType     _videoType;         //!< Flag for using the live video image
+            SLGLTexture     _videoTexture;      //!< Texture for live video image
+            SLGLTexture     _videoTextureErr;   //!< Texture for live video error
+            SLVCVTracker    _trackers;          //!< Vector of all AR trackers
+            SLbool          _showDetection;     //!< Flag if detection should be visualized
 };
 //-----------------------------------------------------------------------------
 #endif

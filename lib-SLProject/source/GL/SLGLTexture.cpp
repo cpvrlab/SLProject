@@ -13,6 +13,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLApplication.h>
 #include <SLGLTexture.h>
 #include <SLScene.h>
 
@@ -72,7 +73,7 @@ SLGLTexture::SLGLTexture(SLstring       filename,
     _bytesOnGPU   = 0;
    
     // Add pointer to the global resource vectors for deallocation
-    SLScene::current->textures().push_back(this);
+    SLApplication::scene->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! ctor for 3D texture
@@ -105,7 +106,7 @@ SLGLTexture::SLGLTexture(SLVstring files,
     _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
-    SLScene::current->textures().push_back(this);
+    SLApplication::scene->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! ctor for 1D texture
@@ -138,7 +139,7 @@ SLGLTexture::SLGLTexture(SLVCol4f  colors,
     _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
-    SLScene::current->textures().push_back(this);
+    SLApplication::scene->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! ctor for cube mapping with internal image allocation
@@ -174,7 +175,7 @@ SLGLTexture::SLGLTexture(SLstring  filenameXPos,
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
 
-    SLScene::current->textures().push_back(this);
+    SLApplication::scene->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 SLGLTexture::~SLGLTexture()
@@ -519,7 +520,7 @@ void SLGLTexture::bindActive(SLint texID)
         //           _texName, texID, _images[0]->name().c_str());
         //}
 
-        SLScene* s = SLScene::current;
+        SLScene* s = SLApplication::scene;
         
         if (this == s->videoTexture() &&
             s->videoType()!=VT_NONE &&
@@ -598,7 +599,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
         // Indexes for a triangle strip
         SLVushort I = {0,1,2,3};
     
-        SLGLProgram* sp = SLScene::current->programs(SP_TextureOnly);
+        SLGLProgram* sp = SLApplication::scene->programs(SP_TextureOnly);
         sp->useProgram();
         _vaoSprite.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
         _vaoSprite.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
@@ -611,7 +612,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
    
     // Draw the character triangles
     SLMat4f mvp(_stateGL->projectionMatrix * _stateGL->modelViewMatrix);
-    SLGLProgram* sp = SLScene::current->programs(SP_TextureOnly);
+    SLGLProgram* sp = SLApplication::scene->programs(SP_TextureOnly);
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
     sp->uniform1i("u_texture0", 0);

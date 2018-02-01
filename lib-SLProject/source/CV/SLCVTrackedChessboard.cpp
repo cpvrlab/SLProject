@@ -18,13 +18,15 @@ All classes that use OpenCV begin with SLCV.
 See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
+
+#include <SLApplication.h>
 #include <SLCVTrackedChessboard.h>
 
 using namespace cv;
 //-----------------------------------------------------------------------------
 SLCVTrackedChessboard::SLCVTrackedChessboard(SLNode* node) : SLCVTracked(node)
 {
-    SLCVCalibration* calib = SLScene::current->activeCalib();
+    SLCVCalibration* calib = SLApplication::activeCalib;
     SLCVCalibration::calcBoardCorners3D(calib->boardSize(),
                                         calib->boardSquareM(),
                                         _boardPoints3D);
@@ -49,7 +51,7 @@ bool SLCVTrackedChessboard::track(SLCVMat imageGray,
     // Detect //
     ////////////
 
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     SLfloat startMS = s->timeMilliSec();
 
     //detect chessboard corners

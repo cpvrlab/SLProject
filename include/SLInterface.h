@@ -22,25 +22,35 @@ The SLInterface.h has all declarations of the SLProject C-Interface.
 Only these functions should called by the OS-dependent GUI applications.
 These functions can be called from any C, C++ or ObjectiveC GUI framework or
 by a native API such as Java Native Interface (JNI).
-See the implementation for more information.
+See the implementation for more information.<br>
+ <br>
+ See examples usages in:
+ - app-Demo-GLFW:    in AppDemoMainGLFW.cpp
+ - app-Demo-Android: in AppDemoAndroidJNI.cpp
+ - app-Demo-iOS:     in ViewController.m
+ <br>
 */
 //-----------------------------------------------------------------------------
-void    slCreateScene           (SLVstring& cmdLineArgs,
+void    slCreateAppAndScene     (SLVstring& cmdLineArgs,
                                  SLstring shaderPath,
                                  SLstring modelPath,
                                  SLstring texturePath,
                                  SLstring videoPath,
                                  SLstring fontPath,
                                  SLstring calibrationPath,
-                                 SLstring configPath);
+                                 SLstring configPath,
+                                 SLstring applicationName,
+                                 void*    onSceneLoadCallback = 0);
+
 int     slCreateSceneView       (int screenWidth,
                                  int screenHeight,
                                  int dotsPerInch,
-                                 SLCommand initScene,
+                                 SLSceneID initScene,
                                  void* onWndUpdateCallback,
                                  void* onSelectNodeMeshCallback = 0,
                                  void* onNewSceneViewCallback = 0,
-                                 void* onBuildImGui = 0);
+                                 void* onImGuiBuild = 0);
+
 int     slNewSceneView          ();
 bool    slShouldClose           ();
 void    slShouldClose           (bool val);
@@ -59,7 +69,6 @@ void    slMouseWheel            (int sceneViewIndex, int pos, SLKey modifier);
 void    slKeyPress              (int sceneViewIndex, SLKey key, SLKey modifier);
 void    slKeyRelease            (int sceneViewIndex, SLKey key, SLKey modifier);
 void    slCharInput             (int sceneViewIndex, unsigned int character);
-void    slCommand               (int sceneViewIndex, SLCommand command);
 bool    slUsesRotation          ();
 void    slRotationQUAT          (float quatX, float quatY, float quatZ, float quatW);
 bool    slUsesLocation          ();

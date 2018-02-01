@@ -19,9 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\glfwMain.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="source\AppDemoGui.cpp" />
+    <ClCompile Include="source\AppDemoLoad.cpp" />
+    <ClCompile Include="source\AppDemoMainGLFW.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\AppDemoGui.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{54BE2CB2-A4BB-481D-9C74-AF8E4CD0764D}</ProjectGuid>
@@ -136,8 +139,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include;..\lib-SLExternal\imgui;..\lib-SLExternal\spa</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SL_STARTSCENE#C_sceneMinimal;SL_GUI_GLFW;GLEW_STATIC;_DEBUG;UNICODE;_WINDOWS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\include;../app-Demo-GLFW/source;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include;..\lib-SLExternal\imgui;..\lib-SLExternal\spa</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SL_STARTSCENE#SID_Minimal;SL_GUI_GLFW;GLEW_STATIC;_DEBUG;UNICODE;_WINDOWS</PreprocessorDefinitions>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -150,7 +153,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <BrowseInformation>true</BrowseInformation>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;opencv_stitching340d.lib;opencv_superres340d.lib;opencv_videostab340d.lib;opencv_aruco340d.lib;opencv_bgsegm340d.lib;opencv_ccalib340d.lib;opencv_dpm340d.lib;opencv_fuzzy340d.lib;opencv_line_descriptor340d.lib;opencv_optflow340d.lib;opencv_reg340d.lib;opencv_saliency340d.lib;opencv_stereo340d.lib;opencv_structured_light340d.lib;opencv_phase_unwrapping340d.lib;opencv_rgbd340d.lib;opencv_surface_matching340d.lib;opencv_tracking340d.lib;opencv_datasets340d.lib;opencv_dnn340d.lib;opencv_face340d.lib;opencv_plot340d.lib;opencv_text340d.lib;opencv_xfeatures2d340d.lib;opencv_shape340d.lib;opencv_video340d.lib;opencv_ximgproc340d.lib;opencv_calib3d340d.lib;opencv_features2d340d.lib;opencv_flann340d.lib;opencv_xobjdetect340d.lib;opencv_objdetect340d.lib;opencv_ml340d.lib;opencv_xphoto340d.lib;opencv_highgui340d.lib;opencv_photo340d.lib;opencv_videoio340d.lib;opencv_imgcodecs340d.lib;opencv_imgproc340d.lib;opencv_core340d.lib;g2o_types_slam3d_d.lib;g2o_core_d.lib;g2o_stuff_d.lib;g2o_types_sba_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -255,8 +258,8 @@ xcopy "$(SolutionDir)_lib/prebuilt/g2o/x64\vc14\bin\g2o_*.dll" "$(SolutionDir)_b
       <AdditionalOptions>/wd4996 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include;..\lib-SLExternal\imgui;..\lib-SLExternal\spa</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SL_STARTSCENE#C_sceneEmpty;HAS_OPENCV;SL_GUI_GLFW;GLEW_STATIC;UNICODE;_WINDOWS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\include;../app-Demo-GLFW/source;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include;..\lib-SLExternal\imgui;..\lib-SLExternal\spa</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SL_STARTSCENE#SID_Minimal;HAS_OPENCV;SL_GUI_GLFW;GLEW_STATIC;UNICODE;_WINDOWS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>

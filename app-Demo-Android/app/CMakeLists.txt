@@ -52,7 +52,8 @@ add_definitions(-DASSIMP_BUILD_NO_XGL_IMPORTER)
 #
 file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/math/SLCurveBezier.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/math/SLPlane.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SL.cpp 
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SL.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLApplication.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLAssimpImporter.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLFileSystem.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLImporter.cpp 
@@ -81,7 +82,6 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedChessboard.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedFeatures.cpp
 
-
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/Converter.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/Optimizer.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/ORBmatcher.cpp
@@ -97,7 +97,6 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVSlamStateLoader.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedRaulMur.cpp
 
-
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAABBox.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimation.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimManager.cpp 
@@ -110,7 +109,7 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCompactGrid.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCoordAxis.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCylinder.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDemoGui.cpp
+
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDeviceRotation.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDeviceLocation.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDisk.cpp
@@ -136,8 +135,7 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLRevolver.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSamples2D.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLScene.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSceneView.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLScene_onLoad.cpp 
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSceneView.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSkeleton.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSpheric.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLText.cpp
@@ -170,8 +168,15 @@ list(REMOVE_ITEM SLEXTERNAL_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/OgreSkeleton.cpp
                                         )
 
+file(GLOB_RECURSE APP_DEMO_SOURCES      ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoAndroidJNI.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoLoad.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGUI.h
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGUI.cpp
+                                        )
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include/OrbSlam)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/nvwa)
@@ -219,7 +224,7 @@ set_target_properties(lib_g2o_types_sim3 PROPERTIES IMPORTED_LOCATION ${CMAKE_CU
 
 add_library(native-lib
             SHARED
-            src/main/cpp/native-lib.cpp
+            ${APP_DEMO_SOURCES}
             ${SLPROJECT_SOURCES}
             ${SLEXTERNAL_SOURCES}
 )

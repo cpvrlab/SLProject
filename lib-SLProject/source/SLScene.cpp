@@ -13,6 +13,7 @@
 #include <debug_new.h>      // memory leak detector
 #endif
 
+#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLText.h>
@@ -22,13 +23,7 @@
 #include <SLLightDirect.h>
 #include <SLCVTracked.h>
 #include <SLCVTrackedAruco.h>
-#include <SLCVCamera.h>
 
-//-----------------------------------------------------------------------------
-/*! Global static scene pointer that can be used throughout the entire library
-to access the current scene and its sceneviews. 
-*/
-SLScene* SLScene::current = nullptr;
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene does all one time initialization such as 
 loading the standard shader programs from which the pointers are stored in
@@ -61,22 +56,22 @@ As examples you can see it in:
   - _old/app-Demo-Qt: qtGLWidget::initializeGL()
   - _old/app-Viewer-Qt: qtGLWidget::initializeGL()
 */
-SLScene::SLScene(SLstring name) : SLObject(name)
-{  
-    current = this;
-
+SLScene::SLScene(SLstring name,
+                 cbOnSceneLoad onSceneLoadCallback) : SLObject(name)
+{
+    SLApplication::scene = this;
+    
+    onLoad          = onSceneLoadCallback;
+    
     _root3D         = nullptr;
     _root2D         = nullptr;
     _info           = "";
     _selectedMesh   = nullptr;
     _selectedNode   = nullptr;
-    _activeCalib    = nullptr;
     _stopAnimations = false;
     _fps            = 0;
     _elapsedTimeMS  = 0;
     _lastUpdateTimeMS = 0;
-
-    _hasGlobalRefPos = false;
      
     // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
     // In the constructor they are added the _shaderProgs vector
@@ -103,26 +98,10 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     SLTexFont::generateFonts();
 
     // load default video image that is displayed when no live video is available
-    _videoTextureErr.setVideoImage("LiveVideoError.png");
+    _videoTexture.setVideoImage("LiveVideoError.png");
 
     // Set video type to none (this also sets the active calibration to the main calibration)
     videoType(VT_NONE);
-
-    // load opencv camera calibration for main and secondary camera
-    #if defined(SL_USES_CVCAPTURE)
-    _calibMainCam.load("cam_calibration_main.xml", true, false);
-    _calibMainCam.loadCalibParams();
-    _activeCalib = &_calibMainCam;
-    SLCVCapture::hasSecondaryCamera = false;
-    #else
-    _calibMainCam.load("cam_calibration_main.xml", false, false);
-    _calibMainCam.loadCalibParams();
-    _calibScndCam.load("cam_calibration_scnd.xml", true, false);
-    _calibScndCam.loadCalibParams();
-    _activeCalib = &_calibMainCam;
-    SLCVCapture::hasSecondaryCamera = true;
-    #endif
-
     _showDetection = false;
 
     _oculus.init();
@@ -133,16 +112,6 @@ The destructor is called in slTerminate.
 */
 SLScene::~SLScene()
 {
-    //this does not work because distortion and camera matrix are not the ones
-    //that were loaded anymore, but the default ones... I dont know why!
-    //// load opencv camera calibration for main and secondary camera
-    //#if defined(SL_USES_CVCAPTURE)
-    //_calibMainCam.save();
-    //#else
-    //_calibMainCam.save();
-    //_calibScndCam.save();
-    //#endif
-
     // Delete all remaining sceneviews
     for (auto sv : _sceneViews)
         if (sv != nullptr)
@@ -178,11 +147,12 @@ SLScene::~SLScene()
    
     // delete fonts   
     SLTexFont::deleteFonts();
-   
-    current = nullptr;
 
     // release the capture device
     SLCVCapture::release();
+
+    // reset video texture
+    _videoTexture.setVideoImage("LiveVideoError.png");
 
     SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
@@ -209,9 +179,6 @@ void SLScene::init()
     _optFlowTimesMS.init();
     _poseTimesMS.init();
     _captureTimesMS.init(200);
-
-    _gpsLongitude    = 0.0;
-    _gpsLatitude     = 0.0;
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -355,10 +322,11 @@ bool SLScene::onUpdate()
     //////////////////////////////
 
     // Process queued up system events and poll custom input devices
-    SLbool sceneHasChanged = SLInputManager::instance().pollAndProcessEvents();
+    SLbool sceneHasChanged = SLApplication::inputManager.pollAndProcessEvents();
 
 
     //////////////////////////////
+#include <SLDeviceLocation.h>
     // 3) Update all animations //
     //////////////////////////////
 
@@ -388,37 +356,35 @@ bool SLScene::onUpdate()
     if (_videoType!=VT_NONE && !SLCVCapture::lastFrame.empty())
     {   
         SLfloat trackingTimeStartMS = timeMilliSec();
+        SLCVCalibration* ac = SLApplication::activeCalib;
 
         // Invalidate calibration if camera input aspect doesn't match output
-        SLfloat calibWdivH = _activeCalib->imageAspectRatio();
+        SLfloat calibWdivH = ac->imageAspectRatio();
         SLbool aspectRatioDoesNotMatch = SL_abs(_sceneViews[0]->scrWdivH() - calibWdivH) > 0.01f;
-        if (aspectRatioDoesNotMatch && _activeCalib->state() == CS_calibrated)
-        {   _activeCalib->clear();
+        if (aspectRatioDoesNotMatch && ac->state() == CS_calibrated)
+        {   ac->clear();
         }
 
         stringstream ss; // info line text
 
         //.....................................................................
-        if (_activeCalib->state() == CS_uncalibrated)
+        if (ac->state() == CS_uncalibrated)
         {
-            if (SL::currentSceneID == C_sceneVideoCalibrateMain ||
-                SL::currentSceneID == C_sceneVideoCalibrateScnd)
-            {   _activeCalib->state(CS_calibrateStream);
+            if (SLApplication::sceneID == SID_VideoCalibrateMain ||
+                SLApplication::sceneID == SID_VideoCalibrateScnd)
+            {   ac->state(CS_calibrateStream);
             } else
             {   // Changes the state to CS_guessed
-                _activeCalib->createFromGuessedFOV(SLCVCapture::lastFrame.cols,
-                                                   SLCVCapture::lastFrame.rows);
-                _sceneViews[0]->camera()->fov(_activeCalib->cameraFovDeg());
+                ac->createFromGuessedFOV(SLCVCapture::lastFrame.cols,
+                                         SLCVCapture::lastFrame.rows);
+                _sceneViews[0]->camera()->fov(ac->cameraFovDeg());
             }
         } else //..............................................................
-        if (_activeCalib->state() == CS_calibrateStream ||
-            _activeCalib->state() == CS_calibrateGrab)
+        if (ac->state() == CS_calibrateStream || ac->state() == CS_calibrateGrab)
         {
-            _activeCalib->findChessboard(SLCVCapture::lastFrame,
-                                         SLCVCapture::lastFrameGray,
-                                         true);
-            int imgsToCap = _activeCalib->numImgsToCapture();
-            int imgsCaped = _activeCalib->numCapturedImgs();
+            ac->findChessboard(SLCVCapture::lastFrame, SLCVCapture::lastFrameGray, true);
+            int imgsToCap = ac->numImgsToCapture();
+            int imgsCaped = ac->numCapturedImgs();
 
             //update info line
             if(imgsCaped < imgsToCap)
@@ -426,21 +392,20 @@ bool SLScene::onUpdate()
                    << imgsCaped << " of " << imgsToCap;
             else
             {   ss << "Calculating, please wait ...";
-                _activeCalib->state(CS_startCalculating);
+                ac->state(CS_startCalculating);
             }
             _info = ss.str();
         } else //..............................................................
-        if (_activeCalib->state() == CS_startCalculating)
+        if (ac->state() == CS_startCalculating)
         {
-            if (_activeCalib->calculate())
-            {   _sceneViews[0]->camera()->fov(_activeCalib->cameraFovDeg());
-                if (SL::currentSceneID == C_sceneVideoCalibrateMain)
-                     onLoad(_sceneViews[0], C_sceneVideoTrackChessMain);
-                else onLoad(_sceneViews[0], C_sceneVideoTrackChessScnd);
+            if (ac->calculate())
+            {   _sceneViews[0]->camera()->fov(ac->cameraFovDeg());
+                if (SLApplication::sceneID == SID_VideoCalibrateMain)
+                     onLoad(this, _sceneViews[0], SID_VideoTrackChessMain);
+                else onLoad(this, _sceneViews[0], SID_VideoTrackChessScnd);
             }
         } else
-        if (_activeCalib->state() == CS_calibrated ||
-            _activeCalib->state() == CS_guessed) //............................
+        if (ac->state() == CS_calibrated || ac->state() == CS_guessed) //......
         {
             SLCVTrackedAruco::trackAllOnce = true;
         
@@ -448,21 +413,20 @@ bool SLScene::onUpdate()
             for (auto tracker : _trackers)
                 tracker->track(SLCVCapture::lastFrameGray,
                                SLCVCapture::lastFrame,
-                               _activeCalib,
+                               ac,
                                _showDetection,
                                _sceneViews[0]);
 
             // Update info text only for chessboard scene
-            if (SL::currentSceneID == C_sceneVideoCalibrateMain ||
-                SL::currentSceneID == C_sceneVideoCalibrateScnd ||
-                SL::currentSceneID == C_sceneVideoTrackChessMain ||
-                SL::currentSceneID == C_sceneVideoTrackChessScnd ||
-                SL::currentSceneID == C_sceneVideoTrackKeyFrames)
+            if (SLApplication::sceneID == SID_VideoCalibrateMain ||
+                SLApplication::sceneID == SID_VideoCalibrateScnd ||
+                SLApplication::sceneID == SID_VideoTrackChessMain ||
+                SLApplication::sceneID == SID_VideoTrackChessScnd)
             {
-                SLfloat fov = _activeCalib->cameraFovDeg();
-                SLfloat err = _activeCalib->reprojectionError();
+                SLfloat fov = ac->cameraFovDeg();
+                SLfloat err = ac->reprojectionError();
                 ss << "Tracking " << (_videoType==VT_MAIN ? "main " : "scnd. ") << "camera. ";
-                if (_activeCalib->state() == CS_calibrated)
+                if (ac->state() == CS_calibrated)
                      ss << "FOV: " << fov << ", error: " << err;
                 else ss << "Camera is not calibrated. A FOV is guessed of: " << fov << " degrees.";
                 _info = ss.str();
@@ -470,10 +434,10 @@ bool SLScene::onUpdate()
         } //...................................................................
 
         //copy image to video texture
-        if(_activeCalib->state() == CS_calibrated && _activeCalib->showUndistorted())
+        if(ac->state() == CS_calibrated && ac->showUndistorted())
         {
             SLCVMat undistorted;
-            _activeCalib->remap(SLCVCapture::lastFrame, undistorted);
+            ac->remap(SLCVCapture::lastFrame, undistorted);
 
             _videoTexture.copyVideoImage(undistorted.cols,
                                          undistorted.rows,
@@ -511,7 +475,6 @@ bool SLScene::onUpdate()
     
     return sceneHasChanged;
 }
-
 //-----------------------------------------------------------------------------
 //! SLScene::onAfterLoad gets called after onLoad
 void SLScene::onAfterLoad()
@@ -528,15 +491,17 @@ void SLScene::onAfterLoad()
             if (videoSize != SLVec2i::ZERO)
             {
                 SLCVCapture::grabAndAdjustForSL();
-                _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
-                                             SLCVCapture::lastFrame.rows,
-                                             SLCVCapture::format,
-                                             SLCVCapture::lastFrame.data,
-                                             SLCVCapture::lastFrame.isContinuous(),
-                                             true);
-            } else
-            {
-                _videoTexture.setVideoImage("LiveVideoError.png");
+                
+                if (SLCVCapture::lastFrame.cols > 0 &&
+                    SLCVCapture::lastFrame.rows > 0)
+                {
+                    _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+                                                 SLCVCapture::lastFrame.rows,
+                                                 SLCVCapture::format,
+                                                 SLCVCapture::lastFrame.data,
+                                                 SLCVCapture::lastFrame.isContinuous(),
+                                                 true);
+                }
             }
         }
     }
@@ -548,16 +513,16 @@ void SLScene::onAfterLoad()
 
             if (videoSize != SLVec2i::ZERO)
             {
-                SLCVCapture::grabAndAdjustForSL();
-                _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
-                                             SLCVCapture::lastFrame.rows,
-                                             SLCVCapture::format,
-                                             SLCVCapture::lastFrame.data,
-                                             SLCVCapture::lastFrame.isContinuous(),
-                                             true);
-            } else
-            {
-                _videoTexture.setVideoImage("LiveVideoError.png");
+                if (SLCVCapture::lastFrame.cols > 0 &&
+                    SLCVCapture::lastFrame.rows > 0)
+                {
+                    _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+                                                 SLCVCapture::lastFrame.rows,
+                                                 SLCVCapture::format,
+                                                 SLCVCapture::lastFrame.data,
+                                                 SLCVCapture::lastFrame.isContinuous(),
+                                                 true);
+                }
             }
         }
     }
@@ -602,17 +567,6 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
     }
 }
 //-----------------------------------------------------------------------------
-//! Executes a command on all sceneview
-SLbool SLScene::onCommandAllSV(const SLCommand cmd)
-{
-    SLbool result = false;
-    for(auto sv : _sceneViews)
-        if (sv != nullptr)
-            result = sv->onCommand(cmd) ? true : result;
-
-    return true;
-}
-//-----------------------------------------------------------------------------
 //! Copies the image data from a video camera into image[0] of the video texture
 void SLScene::copyVideoImage(SLint width,
                              SLint height,
@@ -632,7 +586,7 @@ void SLScene::copyVideoImage(SLint width,
 void SLScene::onLoadAsset(SLstring assetFile, 
                           SLuint processFlags)
 {
-    SL::currentSceneID = C_sceneFromFile;
+    SLApplication::sceneID = SID_FromFile;
 
     // Set scene name for new scenes
     if (!_root3D)
@@ -691,7 +645,7 @@ void SLScene::videoType(SLVideoType vt)
 {
     if (SLCVCapture::hasSecondaryCamera && vt==VT_SCND)
     {   _videoType = VT_SCND;
-        _activeCalib = &_calibScndCam;
+        SLApplication::activeCalib = &SLApplication::calibScndCam;
         return;
     }
 
@@ -699,7 +653,7 @@ void SLScene::videoType(SLVideoType vt)
          _videoType = VT_MAIN;
     else _videoType = vt;
 
-    _activeCalib = &_calibMainCam;
+    SLApplication::activeCalib = &SLApplication::calibMainCam;
 }
 //-----------------------------------------------------------------------------
 //! Returns the number of camera nodes in the scene
@@ -728,57 +682,12 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
         }
     }
 
-    //find next camera, that is not of type SLCVCamera if "allow SLCVCamera as
-    //active camera" is deactivated
-   do {
-        activeIndex = activeIndex > cams.size()-2 ? 0 : ++activeIndex;
-    }
-    while ( dynamic_cast<SLCVCamera*>(cams[activeIndex]) && 
-        !dynamic_cast<SLCVCamera*>(cams[activeIndex])->allowAsActiveCam());
+    // return next if not last else return first
+    if (activeIndex < cams.size()-1)
+        return cams[activeIndex+1];
+    else 
+        return cams[0];
 
-    return cams[activeIndex];
-}
-//------------------------------------------------------------------------------
-//! Setter that turns on the device rotation sensor
-void SLScene::usesLocation (SLbool use)
-{
-    if (!_usesLocation && use==true)
-        _deviceLocStarted = true;
-
-    _usesLocation = use;
-}
-//-----------------------------------------------------------------------------
-void SLScene::onLocationGPS(double latitude, double longitude, double altitude)
-{
-    _gpsLatitude = latitude;
-    _gpsLongitude = longitude;
-    _gpsAltitude = altitude;
-}
-//-----------------------------------------------------------------------------
-//! Initialize global reference position in latitude, longitude and altitude.
-//! The calculated values can be used for global camera positioning via gps sensor
-void SLScene::initGlobalRefPos(double latDeg, double lonDeg, double altM )
-{
-    SLVec3d globalRefLla = SLVec3d(latDeg, lonDeg, altM);
-    _globalRefPosEcef.lla2ecef(globalRefLla);
-    //calculation of ecef to world (scene) rotation matrix
-
-    //definition of rotation matrix for ecef to world frame rotation:
-    //world frame (scene) w.r.t. enu frame
-    double phiRad = latDeg * SL_DEG2RAD;  //phi == lattitude
-    double lamRad = lonDeg * SL_DEG2RAD;  //lambda == longitude
-    SLMat3<double> enuRecef( -sin(lamRad),                          cos(lamRad),           0,
-                             -cos(lamRad)*sin(phiRad), -sin(lamRad)*sin(phiRad), cos(phiRad),
-                              cos(lamRad)*cos(phiRad),  sin(lamRad)*cos(phiRad), sin(phiRad));
-    //world frame (scene) w.r.t. enu frame
-    SLMat3<double> wRenu; //same as before
-    wRenu.rotation(-90, 1, 0, 0);
-    //world frame (scene) w.r.t. ecef
-    _wRecef = wRenu * enuRecef;
-
-    //flag, that this scene has a valid global reference position. The values can
-    //be used for camera positioning
-    _hasGlobalRefPos = true;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -797,3 +706,4 @@ bool SLScene::removeMesh(SLMesh* mesh)
     }
     return false;
 }
+//-----------------------------------------------------------------------------

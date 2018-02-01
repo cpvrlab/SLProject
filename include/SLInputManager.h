@@ -23,26 +23,22 @@ subclasses and will be queued up before being sent to the relevant SLSceneView.
 Custom SLInputDevices can also be created. The SLInputDevices are guaranteed to 
 receive a call to their poll() function whenever the SLInputManager requires them
 to send out new events.
-
-SLInputManager is a singleton class and only ever exists once.
+One static instance of SLInputManager is used in SLApplication
 */
 class SLInputManager
 {
-friend class SLInputDevice;
+    friend class SLInputDevice;
 
-public:
-    static  SLInputManager& instance        ();
+    public:
+                            SLInputManager      (){;}
 
-            SLbool          pollAndProcessEvents      ();
-            void            queueEvent      (const SLInputEvent* e);
+            SLbool          pollAndProcessEvents();
+            void            queueEvent          (const SLInputEvent* e);
+            SLVInputDevice& devices             () {return _devices;}
 
-private:
-    static  SLInputManager  _instance;      //!< the singleton instance of the input manager
+    private:
             SLQInputEvent   _systemEvents;  //!< queue for known system events
             SLVInputDevice  _devices;       //!< list of activated SLInputDevices
-
-                            // Constructor is private to prevent instantiation
-                            SLInputManager  (){ }
 
             SLbool          processQueuedEvents();
 };

@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      glfwMain.cpp
+//  File:      AppDemoMainGLFW.cpp
 //  Purpose:   Implementation of the GUI with the GLFW3 (http://www.glfw.org/)
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
@@ -16,11 +16,14 @@
 #include <GLFW/glfw3.h>
 #include <thread>
 #include <future>
+
+#include <AppDemoGui.h>
 #include <SLInterface.h>
 #include <SLSceneView.h>
 #include <SLEnums.h>
 #include <SLCVCapture.h>
-#include <SLDemoGui.h>
+
+extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -408,9 +411,6 @@ int main(int argc, char *argv[])
 
     scrWidth = 640;
     scrHeight = 480;
-    //scrWidth = 640;
-    //scrHeight = 360;
-
     touch2.set(-1,-1);
     touchDelta.set(-1,-1);
 
@@ -458,8 +458,6 @@ int main(int argc, char *argv[])
     // Get GL errors that occurred before our framework is involved
     GET_GL_ERROR;
 
-    SL::parseCmdLineArgs(cmdLineArgs);
-
     // Set your own physical screen dpi
     int dpi = (int)(142 * scr2fbX);
     cout << "------------------------------------------------------------------" << endl;
@@ -474,23 +472,32 @@ int main(int argc, char *argv[])
     SLstring exeDir = SLFileSystem::getCurrentWorkingDir();
     SLstring configDir = SLFileSystem::getAppsWritableDir();
 
-    slCreateScene(cmdLineArgs,
-                  exeDir + "../_data/shaders/",
-                  exeDir + "../_data/models/",
-                  exeDir + "../_data/images/textures/",
-                  exeDir + "../_data/videos/",
-                  exeDir + "../_data/images/fonts/",
-                  exeDir + "../_data/calibrations/",
-                  configDir);
-
+    /////////////////////////////////////////////////////////
+    slCreateAppAndScene(cmdLineArgs,
+                        exeDir + "../_data/shaders/",
+                        exeDir + "../_data/models/",
+                        exeDir + "../_data/images/textures/",
+                        exeDir + "../_data/videos/",
+                        exeDir + "../_data/images/fonts/",
+                        exeDir + "../_data/calibrations/",
+                        configDir,
+                        "AppDemoGLFW",
+                        (void*)appDemoLoadScene);
+    /////////////////////////////////////////////////////////
+    
+    // This load the GUI configs that are locally stored
+    AppDemoGui::loadConfig(dpi);
+    
+    /////////////////////////////////////////////////////////
     svIndex = slCreateSceneView((int)(scrWidth  * scr2fbX),
                                 (int)(scrHeight * scr2fbY),
                                 dpi, 
-                                (SLCommand)SL_STARTSCENE,
+                                (SLSceneID)SL_STARTSCENE,
                                 (void*)&onPaint, 
                                 0,
                                 0,
-                                (void*)SLDemoGui::buildDemoGui);
+                                (void*)AppDemoGui::build);
+    /////////////////////////////////////////////////////////
 
     // Set GLFW callback functions
     glfwSetKeyCallback(window, onKeyPress);
@@ -519,6 +526,8 @@ int main(int argc, char *argv[])
              glfwWaitEvents();
         else glfwPollEvents();
     }
+    
+    AppDemoGui::saveConfig();
 
     slTerminate();
     glfwDestroyWindow(window);
