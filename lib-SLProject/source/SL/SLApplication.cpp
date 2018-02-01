@@ -28,16 +28,32 @@ SLCVCalibration     SLApplication::calibMainCam;
 SLCVCalibration     SLApplication::calibScndCam;
 SLDeviceRotation    SLApplication::devRot;
 SLDeviceLocation    SLApplication::devLoc;
+SLstring            SLApplication::name             = "SLProjectApp";
 SLstring            SLApplication::version          = "2.2.000";
 SLint               SLApplication::dpi              = 0;
 SLstring            SLApplication::configPath       = "../_data/config/";
-SLSceneID           SLApplication::sceneID   = SID_Empty;
+SLSceneID           SLApplication::sceneID          = SID_Empty;
 //-----------------------------------------------------------------------------
-void SLApplication::createAppAndScene(SLstring name,
+//! Application and Scene creation function
+/*! Writes and inits the static application information and create the single
+instance of the scene. Gets called by the C-interface function slCreateAppAndScene.
+<br>
+<br>
+See examples usages in:
+  - app-Demo-GLFW:    AppDemoMainGLFW.cpp   in function main()
+  - app-Demo-Android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
+  - app-Demo-iOS:     ViewController.m      in viewDidLoad()
+<br>
+/param applicationName The apps name
+/param onSceneLoadCallback C Callback function as void* pointer for the scene creation.
+*/
+void SLApplication::createAppAndScene(SLstring appName,
                                       void* onSceneLoadCallback)
 {
     assert(SLApplication::scene == nullptr &&
            "You can create only one SLApplication");
+    
+    name  = appName;
     
     scene = new SLScene(name, (cbOnSceneLoad)onSceneLoadCallback);
     
@@ -57,6 +73,12 @@ void SLApplication::createAppAndScene(SLstring name,
     #endif
 }
 //-----------------------------------------------------------------------------
+//! Calls the destructor of the single scene instance.
+/*! Destroys all data by calling the destructor of the single scene instance.
+All other date gets destroyed from there. This function gets called by the
+SLProject C-Interface function slTerminate that should be called at the end of
+any SLProject application.
+*/
 void SLApplication::deleteAppAndScene()
 {
     assert(SLApplication::scene != nullptr &&

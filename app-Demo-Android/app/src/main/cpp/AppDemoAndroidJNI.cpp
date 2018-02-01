@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      native-lib.cpp
+//  File:      AppDemoAndroidJNI.cpp
 //  Author:    Marcus Hudritsch, Zingg Pascal
 //  Date:      Spring 2017
 //  Purpose:   Android Java native interface into the SLProject C++ library
@@ -23,7 +23,8 @@ int svIndex;            //!< SceneView index
 /*! Java Native Interface (JNI) function declarations. These functions are
 called by the Java interface class GLES3Lib. The function name follows the pattern
 Java_{package name}_{JNI class name}_{function name}(JNIEnv* env,jobject obj,*);
-In the function implementations we simply forward the C++ framework.
+The functions mostly forward to the C-Interface functions of SLProject declared
+in SLInterface.h.
 */
 extern "C"
 {

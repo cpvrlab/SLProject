@@ -1742,16 +1742,20 @@ void AppDemoGui::buildProperties(SLScene* s)
 void AppDemoGui::loadConfig(SLint dotsPerInch)
 {
     ImGuiStyle& style = ImGui::GetStyle();
-    SLstring fullPathAndFilename = SLApplication::configPath + "DemoGui.yml";
+    SLstring fullPathAndFilename = SLApplication::configPath + 
+                                   SLApplication::name + ".yml";
 
     if (!SLFileSystem::fileExists(fullPathAndFilename))
     {
+        // Scale for proportioanl and fixed size fonts
         SLfloat dpiScaleProp = dotsPerInch / 120.0f;
         SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
 
         // Default settings for the first time
         SLGLImGui::fontPropDots  = SL_max(16.0f * dpiScaleProp, 16.0f);
         SLGLImGui::fontFixedDots = SL_max(13.0f * dpiScaleFixed, 13.0f);
+
+        // Store dialog show states
         AppDemoGui::showAbout = true;
         AppDemoGui::showInfosScene = true;
         AppDemoGui::showStatsTiming = false;
@@ -1761,12 +1765,15 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         AppDemoGui::showInfosSensors = false;
         AppDemoGui::showSceneGraph = false;
         AppDemoGui::showProperties = false;
+
+        // Adjust UI paddings on DPI
         style.FramePadding.x = SL_max(8.0f * dpiScaleFixed, 8.0f);
         style.WindowPadding.x = style.FramePadding.x;
         style.FramePadding.y = SL_max(3.0f * dpiScaleFixed, 3.0f);
         style.ItemSpacing.x = SL_max(8.0f * dpiScaleFixed, 8.0f);
         style.ItemSpacing.y = SL_max(3.0f * dpiScaleFixed, 3.0f);
         style.ItemInnerSpacing.x = style.ItemSpacing.y;
+
         return;
     }
 
@@ -1793,7 +1800,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
     fs["ItemSpacingX"]          >> i; style.ItemSpacing.x = (SLfloat)i;
     fs["ItemSpacingY"]          >> i; style.ItemSpacing.y = (SLfloat)i;
                                       style.ItemInnerSpacing.x = style.ItemSpacing.y;
-    fs["sceneID"]        >> i; SLApplication::sceneID = (SLSceneID)i;
+    fs["sceneID"]               >> i; SLApplication::sceneID = (SLSceneID)i;
     fs["showInfosScene"]        >> b; AppDemoGui::showInfosScene = b;
     fs["showStatsTiming"]       >> b; AppDemoGui::showStatsTiming = b;
     fs["showStatsMemory"]       >> b; AppDemoGui::showStatsScene = b;
@@ -1812,7 +1819,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
 void AppDemoGui::saveConfig()
 {
     ImGuiStyle& style = ImGui::GetStyle();
-    SLstring fullPathAndFilename = SLApplication::configPath + "DemoGui.yml";
+    SLstring fullPathAndFilename = SLApplication::configPath +
+                                   SLApplication::name + ".yml";
     SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::WRITE);
 
     if (!fs.isOpened())
@@ -1824,7 +1832,7 @@ void AppDemoGui::saveConfig()
     fs << "configTime"              << SLUtils::getLocalTimeString();
     fs << "fontPropDots"            << (SLint)SLGLImGui::fontPropDots;
     fs << "fontFixedDots"           << (SLint)SLGLImGui::fontFixedDots;
-    fs << "sceneID"          << (SLint)SLApplication::sceneID;
+    fs << "sceneID"                 << (SLint)SLApplication::sceneID;
     fs << "FramePaddingX"           << (SLint)style.FramePadding.x;
     fs << "FramePaddingY"           << (SLint)style.FramePadding.y;
     fs << "ItemSpacingX"            << (SLint)style.ItemSpacing.x;

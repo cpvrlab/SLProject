@@ -52,7 +52,9 @@ passed as a void*-pointer to slCreateScene. It will be called from within
 slCreateSceneView as soon as the view is initialized.
 */
 void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
-{  
+{
+    SLApplication::sceneID = sceneID;
+    
     // Initialize all preloaded stuff from SLScene
     s->init();
 

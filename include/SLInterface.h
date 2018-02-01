@@ -22,7 +22,13 @@ The SLInterface.h has all declarations of the SLProject C-Interface.
 Only these functions should called by the OS-dependent GUI applications.
 These functions can be called from any C, C++ or ObjectiveC GUI framework or
 by a native API such as Java Native Interface (JNI).
-See the implementation for more information.
+See the implementation for more information.<br>
+ <br>
+ See examples usages in:
+ - app-Demo-GLFW:    in AppDemoMainGLFW.cpp
+ - app-Demo-Android: in AppDemoAndroidJNI.cpp
+ - app-Demo-iOS:     in ViewController.m
+ <br>
 */
 //-----------------------------------------------------------------------------
 void    slCreateAppAndScene     (SLVstring& cmdLineArgs,

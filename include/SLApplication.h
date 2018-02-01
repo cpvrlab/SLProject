@@ -26,10 +26,10 @@ pointer, the camera calibration objects and the device rotation and location
 information. The static function createAppAndScene is called by the C-interface
 functions slCreateAppAndScene and the function deleteAppAndScene by slTerminate.
 */
-class SLApplication: public SLObject
+class SLApplication
 {
     public:
-    static void             createAppAndScene   (SLstring name,
+    static void             createAppAndScene   (SLstring appName,
                                                  void* onSceneLoadCallback);
     static void             deleteAppAndScene   ();
     
@@ -41,12 +41,13 @@ class SLApplication: public SLObject
     static SLDeviceRotation devRot;         //!< Mobile device rotation from IMU
     static SLDeviceLocation devLoc;         //!< Mobile device location from GPS
     
+    static SLstring         name;           //!< Applcation name
     static SLstring         version;        //!< SLProject version string
     static SLint            dpi;            //!< Current UI dot per inch resolution
     static SLstring         configPath;     //!< Default path for calibration files
     static SLSceneID        sceneID;        //!< ID of last loaded scene
     
-    static SLfloat          dpmm() {return (float)dpi/25.4f;}
+    static SLfloat          dpmm() {return (float)dpi/25.4f;} //!< return dots per mm
 };
 //-----------------------------------------------------------------------------
 #endif

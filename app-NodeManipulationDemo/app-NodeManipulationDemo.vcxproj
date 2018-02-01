@@ -221,13 +221,13 @@ xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_ffmpeg*.dll" "$(So
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="NewNodeGui.cpp" />
-    <ClCompile Include="NewNodeSceneView.cpp" />
-    <ClCompile Include="glfwMain.cpp" />
+    <ClCompile Include="AppNodeGui.cpp" />
+    <ClCompile Include="AppNodeSceneView.cpp" />
+    <ClCompile Include="AppNodeMainGLFW.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="NewNodeGui.h" />
-    <ClInclude Include="NewNodeSceneView.h" />
+    <ClInclude Include="AppNodeGui.h" />
+    <ClInclude Include="AppNodeSceneView.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

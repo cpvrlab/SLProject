@@ -36,13 +36,15 @@ bool gShouldClose = false;
 called only once per application. The SLScene constructor call is delayed until
 the first SLSceneView is created to guarantee, that the OpenGL context is
 present.<br>
-/param cmdLineArgs Command line arguments
+/param cmdLineArgs Command line arguments (not used yet)
 /param shaderPath Path to the shader files (readonly)
 /param modelPath Path to the 3D model files (readonly)
 /param texturePath Path to the texture image files (readonly)
 /param fontPath Path to the font image files (readonly)
 /param calibrationPath Path to the calibration ini files (readonly)
 /param configPath Path where the config files are stored (read-write)
+/param applicationName The apps name
+/param onSceneLoadCallback C Callback function as void* pointer for the scene creation.
 <br>
 See examples usages in:
   - app-Demo-GLFW:    AppDemoMainGLFW.cpp in function main()
@@ -101,9 +103,9 @@ have to provide a similar function and pass it function pointer to
 slCreateSceneView. You can create multiple sceneview per application.<br>
 <br>
 See examples usages in:
-  - app-Demo-GLFW:    AppDemoMainGLFW.cpp in function main()
-  - app-Demo-Android: native-lib.cpp      in Java_ch_fhnw_comgr_GLES3Lib_onInit()
-  - app-Demo-iOS:     ViewController.m    in viewDidLoad()
+  - app-Demo-GLFW:    AppDemoMainGLFW.cpp   in function main()
+  - app-Demo-Android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
+  - app-Demo-iOS:     ViewController.m      in viewDidLoad()
 */
 int slCreateSceneView(int screenWidth,
                       int screenHeight,
