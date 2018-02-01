@@ -43,11 +43,6 @@ add_definitions(-DASSIMP_BUILD_NO_IFC_IMPORTER)
 add_definitions(-DASSIMP_BUILD_NO_XGL_IMPORTER)
 
 #
-# OpenCV
-#
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/main/jniInclude/include)
-
-#
 # g2o
 #
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/main/jniIncludeG2O/include)
@@ -154,12 +149,6 @@ file(GLOB_RECURSE SLEXTERNAL_SOURCES    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/*.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/*.c
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/*.cc
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/sobol.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/ranrotw.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/ranrotb.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/random.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/mother.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/mersenne.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui/imgui.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui/imgui_draw.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa/spa.cpp
@@ -169,7 +158,6 @@ file(GLOB_RECURSE SLEXTERNAL_SOURCES    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/EulerAngles.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/EulerAngles.h
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/TypeDefs.h
-
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DUtils/Random.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DUtils/Timestamp.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DBoW2/BowVector.cpp
@@ -186,7 +174,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include/OrbSlam)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/nvwa)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/zlib)
@@ -198,8 +185,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/cont
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/poly2tri)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/BoostWorkaround)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/eigen)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/opencv/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/g2o)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/g2o/BUILD_ANDROID)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DBoW2)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DUtils)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2)

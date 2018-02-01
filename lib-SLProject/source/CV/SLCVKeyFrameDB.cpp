@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLCVKeyframeDB.cpp
-//  Author:    Raúl Mur-Artal, Michael Göttlicher
+//  Author:    Raúl Mur-Artal, Michael Goettlicher
 //  Date:      October 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include "stdafx.h"
-#include "SLCVKeyFrameDB.h"
+#include <stdafx.h>
+#include <SLCVKeyFrameDB.h>
 //-----------------------------------------------------------------------------
 SLCVKeyFrameDB::SLCVKeyFrameDB(const ORBVocabulary &voc) :
     mpVoc(&voc)

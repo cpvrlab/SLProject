@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLCamera.cpp
-//  Author:    Michael Göttlicher
+//  Author:    Michael Goettlicher
 //  Date:      Dezember 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch

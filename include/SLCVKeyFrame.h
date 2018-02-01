@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLCVKeyframe.h
-//  Author:    Michael Göttlicher
+//  Author:    Michael Goettlicher
 //  Date:      October 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -13,10 +13,9 @@
 
 #include <vector>
 #include <SLCVCamera.h>
-//#include <SLCVMapPoint.h>
 #include <DBoW2/DBoW2/BowVector.h>
 #include <DBoW2/DBoW2/FeatureVector.h>
-#include <OrbSlam\ORBVocabulary.h>
+#include <OrbSlam/ORBVocabulary.h>
 #include <SLGLTexture.h>
 
 using namespace ORB_SLAM2;

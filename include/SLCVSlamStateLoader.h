@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLCVSlamStateLoader.h
-//  Author:    Michael Göttlicher
+//  Author:    Michael Goettlicher
 //  Date:      October 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -16,7 +16,7 @@
 
 #include <SLCVMapPoint.h>
 #include <SLCVKeyFrame.h>
-#include <OrbSlam\ORBVocabulary.h>
+#include <OrbSlam/ORBVocabulary.h>
 
 class SLCVKeyFrameDB;
 using namespace ORB_SLAM2;

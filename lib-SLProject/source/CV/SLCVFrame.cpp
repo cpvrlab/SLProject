@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLCVFrame.cpp
-//  Author:    Raúl Mur-Artal, Michael Göttlicher
+//  Author:    Raúl Mur-Artal, Michael Goettlicher
 //  Date:      Dez 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch, Michael Goettlicher
@@ -11,7 +11,7 @@
 #include <stdafx.h>         // precompiled headers
 #include <SLCVFrame.h>
 #include <SLCVMapPoint.h>
-#include <OrbSlam\Converter.h>
+#include <OrbSlam/Converter.h>
 
 using namespace cv;
 

@@ -51,7 +51,7 @@
 #include <stdafx.h>
 #include <iostream>
 
-#include <OrbSlam\PnPsolver.h>
+#include <OrbSlam/PnPsolver.h>
 
 #include <vector>
 #include <cmath>

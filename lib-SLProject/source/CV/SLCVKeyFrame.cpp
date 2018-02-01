@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLCVKeyframe.cpp
-//  Author:    Michael Göttlicher
+//  Author:    Michael Goettlicher
 //  Date:      October 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -11,7 +11,7 @@
 #include "stdafx.h"
 #include "SLCVKeyframe.h"
 #include <SLCVMapPoint.h>
-#include <OrbSlam\Converter.h>
+#include <OrbSlam/Converter.h>
 #include <SLCVKeyFrameDB.h>
 
 //-----------------------------------------------------------------------------
