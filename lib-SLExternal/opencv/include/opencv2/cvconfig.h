@@ -23,7 +23,7 @@
 #define CUDA_ARCH_PTX ""
 
 /* AVFoundation video libraries */
-/* #undef HAVE_AVFOUNDATION */
+#define HAVE_AVFOUNDATION
 
 /* V4L capturing support */
 /* #undef HAVE_CAMV4L */
@@ -44,7 +44,7 @@
 /* #undef HAVE_CLP */
 
 /* Cocoa API */
-/* #undef HAVE_COCOA */
+#define HAVE_COCOA
 
 /* C= */
 /* #undef HAVE_CSTRIPES */
@@ -65,20 +65,20 @@
 /* #undef HAVE_DC1394_2 */
 
 /* DirectX */
-#define HAVE_DIRECTX
-#define HAVE_DIRECTX_NV12
-#define HAVE_D3D11
-#define HAVE_D3D10
-#define HAVE_D3D9
+/* #undef HAVE_DIRECTX */
+/* #undef HAVE_DIRECTX_NV12 */
+/* #undef HAVE_D3D11 */
+/* #undef HAVE_D3D10 */
+/* #undef HAVE_D3D9 */
 
 /* DirectShow Video Capture library */
-#define HAVE_DSHOW
+/* #undef HAVE_DSHOW */
 
 /* Eigen Matrix & Linear Algebra Library */
 /* #undef HAVE_EIGEN */
 
 /* FFMpeg video library */
-#define HAVE_FFMPEG
+/* #undef HAVE_FFMPEG */
 
 /* Geospatial Data Abstraction Library */
 /* #undef HAVE_GDAL */
@@ -135,7 +135,7 @@
 
 /* OpenCL Support */
 #define HAVE_OPENCL
-/* #undef HAVE_OPENCL_STATIC */
+#define HAVE_OPENCL_STATIC
 /* #undef HAVE_OPENCL_SVM */
 
 /* OpenEXR codec */
@@ -154,10 +154,10 @@
 #define HAVE_PNG
 
 /* Posix threads (pthreads) */
-/* #undef HAVE_PTHREAD */
+#define HAVE_PTHREAD
 
 /* parallel_for with pthreads */
-/* #undef HAVE_PTHREADS_PF */
+#define HAVE_PTHREADS_PF
 
 /* Qt support */
 /* #undef HAVE_QT */
@@ -181,13 +181,13 @@
 /* #undef HAVE_UNICAP */
 
 /* Video for Windows support */
-#define HAVE_VFW
+/* #undef HAVE_VFW */
 
 /* V4L2 capturing support in videoio.h */
 /* #undef HAVE_VIDEOIO */
 
 /* Win32 UI */
-#define HAVE_WIN32UI
+/* #undef HAVE_WIN32UI */
 
 /* XIMEA camera support */
 /* #undef HAVE_XIMEA */
@@ -212,7 +212,7 @@
 /* #undef HAVE_MFX */
 
 /* Lapack */
-/* #undef HAVE_LAPACK */
+#define HAVE_LAPACK
 
 /* Library was compiled with functions instrumentation */
 /* #undef ENABLE_INSTRUMENTATION */
