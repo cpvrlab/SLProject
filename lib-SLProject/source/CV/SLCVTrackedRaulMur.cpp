@@ -1166,25 +1166,25 @@ void SLCVTrackedRaulMur::applyTransformation(double value, TransformType type)
     {
     case ROT_X:
         //build different transformation matrices for x,y and z rotation
-        rotate(value, 0);
+        rotate((float)value, 0);
         break;
     case ROT_Y:
-        rotate(value, 1);
+        rotate((float)value, 1);
         break;
     case ROT_Z:
-        rotate(value, 2);
+        rotate((float)value, 2);
         break;
     case TRANS_X:
-        translate(value, 0);
+        translate((float)value, 0);
         break;
     case TRANS_Y:
-        translate(value, 1);
+        translate((float)value, 1);
         break;
     case TRANS_Z:
-        translate(value, 2);
+        translate((float)value, 2);
         break;
     case SCALE:
-        scale(value);
+        scale((float)value);
         break;
     }
 
@@ -1193,7 +1193,8 @@ void SLCVTrackedRaulMur::applyTransformation(double value, TransformType type)
 
     //todo: we have to remove all meshes of keyframes from scene
     _keyFrames->deleteChildren();
-    for (auto* kf : mpKeyFrameDatabase->keyFrames()) {
+    for (auto* kf : mpKeyFrameDatabase->keyFrames()) 
+    {
         SLCVCamera* cam = kf->getNewSceneObject(); //old objects should be deleted now
         cam->fov(_calib->cameraFovDeg());
         cam->focalDist(0.11);

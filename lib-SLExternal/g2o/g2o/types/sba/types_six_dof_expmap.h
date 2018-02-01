@@ -247,14 +247,16 @@ public:
 
     bool write(std::ostream& os) const;
 
-    void computeError() {
+    void computeError() 
+    {
         const VertexSE3Expmap* v1 = static_cast<const VertexSE3Expmap*>(_vertices[1]);
         const VertexSBAPointXYZ* v2 = static_cast<const VertexSBAPointXYZ*>(_vertices[0]);
         Vector3D obs(_measurement);
         _error = obs - cam_project(v1->estimate().map(v2->estimate()), bf);
     }
 
-    bool isDepthPositive() {
+    bool isDepthPositive() 
+    {
         const VertexSE3Expmap* v1 = static_cast<const VertexSE3Expmap*>(_vertices[1]);
         const VertexSBAPointXYZ* v2 = static_cast<const VertexSBAPointXYZ*>(_vertices[0]);
         return (v1->estimate().map(v2->estimate()))(2)>0.0;

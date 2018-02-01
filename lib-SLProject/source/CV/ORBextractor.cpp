@@ -422,8 +422,8 @@ ORBextractor::ORBextractor(int _nfeatures, float _scaleFactor, int _nlevels,
     mvLevelSigma2[0]=1.0f;
     for(int i=1; i<nlevels; i++)
     {
-        mvScaleFactor[i]=mvScaleFactor[i-1]*scaleFactor;
-        mvLevelSigma2[i]=mvScaleFactor[i]*mvScaleFactor[i];
+        mvScaleFactor[i]=(float)(mvScaleFactor[i-1]*scaleFactor);
+        mvLevelSigma2[i]=(float)(mvScaleFactor[i]*mvScaleFactor[i]);
     }
 
     mvInvScaleFactor.resize(nlevels);
@@ -680,7 +680,7 @@ vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint>&
             while(!bFinish)
             {
 
-                prevSize = lNodes.size();
+                prevSize = (int)lNodes.size();
 
                 vector<pair<int,ExtractorNode*> > vPrevSizeAndPointerToNode = vSizeAndPointerToNode;
                 vSizeAndPointerToNode.clear();
@@ -798,7 +798,7 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoin
             if(iniY>=maxBorderY-3)
                 continue;
             if(maxY>maxBorderY)
-                maxY = maxBorderY;
+                maxY = (float)maxBorderY;
 
             for(int j=0; j<nCols; j++)
             {
@@ -807,7 +807,7 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoin
                 if(iniX>=maxBorderX-6)
                     continue;
                 if(maxX>maxBorderX)
-                    maxX = maxBorderX;
+                    maxX = (float)maxBorderX;
 
                 vector<cv::KeyPoint> vKeysCell;
                 FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
@@ -847,7 +847,7 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoin
             keypoints[i].pt.x+=minBorderX;
             keypoints[i].pt.y+=minBorderY;
             keypoints[i].octave=level;
-            keypoints[i].size = scaledPatchSize;
+            keypoints[i].size = (float)scaledPatchSize;
         }
     }
 
@@ -898,7 +898,7 @@ void ORBextractor::ComputeKeyPointsOld(std::vector<std::vector<KeyPoint> > &allK
         for(int i=0; i<levelRows; i++)
         {
             const float iniY = minBorderY + i*cellH - 3;
-            iniYRow[i] = iniY;
+            iniYRow[i] = (int)iniY;
 
             if(i == levelRows-1)
             {
@@ -915,12 +915,12 @@ void ORBextractor::ComputeKeyPointsOld(std::vector<std::vector<KeyPoint> > &allK
 
                 if(i==0)
                 {
-                    iniX = minBorderX + j*cellW - 3;
-                    iniXCol[j] = iniX;
+                    iniX = (float)(minBorderX + j*cellW - 3);
+                    iniXCol[j] = (int)iniX;
                 }
                 else
                 {
-                    iniX = iniXCol[j];
+                    iniX = (float)iniXCol[j];
                 }
 
 
@@ -1017,7 +1017,7 @@ void ORBextractor::ComputeKeyPointsOld(std::vector<std::vector<KeyPoint> > &allK
                     keysCell[k].pt.x+=iniXCol[j];
                     keysCell[k].pt.y+=iniYRow[i];
                     keysCell[k].octave=level;
-                    keysCell[k].size = scaledPatchSize;
+                    keysCell[k].size = (float)scaledPatchSize;
                     keypoints.push_back(keysCell[k]);
                 }
             }

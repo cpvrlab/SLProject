@@ -898,7 +898,7 @@ void TemplatedVocabulary<TDescriptor,F>::initiateClustersKMpp(
       }
       
       if(dit == min_dists.end()) 
-        ifeature = pfeatures.size()-1;
+        ifeature = (int)pfeatures.size()-1;
       else
         ifeature = dit - min_dists.begin();
       
@@ -1000,7 +1000,7 @@ void TemplatedVocabulary<TDescriptor,F>::setNodeWeights
 template<class TDescriptor, class F>
 inline unsigned int TemplatedVocabulary<TDescriptor,F>::size() const
 {
-  return m_words.size();
+  return (unsigned int)m_words.size();
 }
 
 // --------------------------------------------------------------------------

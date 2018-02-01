@@ -78,7 +78,7 @@ SLCVFrame::SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextracto
     // ORB extraction
     ExtractORB(imGray);
 
-    N = mvKeys.size();
+    N = (int)mvKeys.size();
 
     if (mvKeys.empty())
         return;
@@ -100,10 +100,10 @@ SLCVFrame::SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextracto
         mfGridElementWidthInv = static_cast<float>(FRAME_GRID_COLS) / static_cast<float>(mnMaxX - mnMinX);
         mfGridElementHeightInv = static_cast<float>(FRAME_GRID_ROWS) / static_cast<float>(mnMaxY - mnMinY);
 
-        fx = K.at<double>(0, 0);
-        fy = K.at<double>(1, 1);
-        cx = K.at<double>(0, 2);
-        cy = K.at<double>(1, 2);
+        fx = (float)K.at<double>(0, 0);
+        fy = (float)K.at<double>(1, 1);
+        cx = (float)K.at<double>(0, 2);
+        cy = (float)K.at<double>(1, 2);
         invfx = 1.0f / fx;
         invfy = 1.0f / fy;
 
@@ -146,8 +146,8 @@ void SLCVFrame::UndistortKeyPoints()
     for (int i = 0; i<N; i++)
     {
         cv::KeyPoint kp = mvKeys[i];
-        kp.pt.x = mat.at<double>(i, 0);
-        kp.pt.y = mat.at<double>(i, 1);
+        kp.pt.x = (float)mat.at<double>(i, 0);
+        kp.pt.y = (float)mat.at<double>(i, 1);
         mvKeysUn[i] = kp;
     }
 }
@@ -167,18 +167,18 @@ void SLCVFrame::ComputeImageBounds(const cv::Mat &imLeft)
         cv::undistortPoints(mat, mat, mK, mDistCoef, cv::Mat(), mK);
         mat = mat.reshape(1);
 
-        mnMinX = min(mat.at<double>(0, 0), mat.at<double>(2, 0));
-        mnMaxX = max(mat.at<double>(1, 0), mat.at<double>(3, 0));
-        mnMinY = min(mat.at<double>(0, 1), mat.at<double>(1, 1));
-        mnMaxY = max(mat.at<double>(2, 1), mat.at<double>(3, 1));
+        mnMinX = (float)min(mat.at<double>(0, 0), mat.at<double>(2, 0));
+        mnMaxX = (float)max(mat.at<double>(1, 0), mat.at<double>(3, 0));
+        mnMinY = (float)min(mat.at<double>(0, 1), mat.at<double>(1, 1));
+        mnMaxY = (float)max(mat.at<double>(2, 1), mat.at<double>(3, 1));
 
     }
     else
     {
         mnMinX = 0.0f;
-        mnMaxX = imLeft.cols;
+        mnMaxX = (float)imLeft.cols;
         mnMinY = 0.0f;
-        mnMaxY = imLeft.rows;
+        mnMaxY = (float)imLeft.rows;
     }
 }
 //-----------------------------------------------------------------------------
@@ -201,8 +201,8 @@ void SLCVFrame::AssignFeaturesToGrid()
 //-----------------------------------------------------------------------------
 bool SLCVFrame::PosInGrid(const cv::KeyPoint &kp, int &posX, int &posY)
 {
-    posX = round((kp.pt.x - mnMinX)*mfGridElementWidthInv);
-    posY = round((kp.pt.y - mnMinY)*mfGridElementHeightInv);
+    posX = (int)round((kp.pt.x - mnMinX)*mfGridElementWidthInv);
+    posY = (int)round((kp.pt.y - mnMinY)*mfGridElementHeightInv);
 
     //Keypoint's coordinates are undistorted, which could cause to go out of the image
     if (posX<0 || posX >= FRAME_GRID_COLS || posY<0 || posY >= FRAME_GRID_ROWS)

@@ -159,8 +159,8 @@ void SLCVMapPoint::ComputeDistinctiveDescriptors()
         for (size_t j = i + 1; j<N; j++)
         {
             int distij = ORBmatcher::DescriptorDistance(vDescriptors[i], vDescriptors[j]);
-            Distances[i][j] = distij;
-            Distances[j][i] = distij;
+            Distances[i][j] = (float)distij;
+            Distances[j][i] = (float)distij;
         }
     }
 #else

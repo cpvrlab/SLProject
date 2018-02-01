@@ -152,7 +152,7 @@ public:
    * Returns the number of values still to be returned
    * @return amount of values to return
    */
-  inline unsigned int left() const { return m_values.size(); }
+  inline unsigned int left() const { return (unsigned int)m_values.size(); }
   
   /**
    * Resets the randomizer as it were just created

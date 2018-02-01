@@ -254,164 +254,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Save energy
         sv->waitEvents(true);
     }
-    else if (SL::currentSceneID == C_sceneVideoTrackKeyFrames)
-    {
-        // Set scene name and info string
-        name("Track Keyframe based Features");
-        _info = "Example for loading an existing pose graph with map points.";
-
-        videoType(VT_FILE);
-        SLCVCapture::videoFilename = "street3.mp4";
-        SLCVCapture::videoLoops = true;
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 2, 60);
-        cam1->lookAt(15, 15, 0);
-        cam1->fov(_activeCalib->cameraFovDeg());
-        cam1->clipNear(0.001f);
-        cam1->clipFar(1000000.0f); // Increase to infinity?
-        cam1->setInitialState();
-        cam1->background().texture(&_videoTexture);
-        //videoType(VT_MAIN);
-
-        SLCVMap* map = new SLCVMap("Map");
-
-
-        ORBVocabulary* vocabulary = new ORBVocabulary();
-#if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-#else
-        string strVocFile = "D:/Development/ORB_SLAM2/Vocabulary/ORBvoc.txt";
-#endif
-        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-        if (!bVocLoad)
-        {
-            cerr << "Wrong path to vocabulary. " << endl;
-            cerr << "Failed to open at: " << strVocFile << endl;
-            exit(-1);
-        }
-        cout << "Vocabulary loaded!" << endl << endl;
-
-        SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
-
-        //load map points and keyframes from json file
-        //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-2.json", vocabulary);
-        //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero-test.json", vocabulary, false);
-        //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero3.json", vocabulary);
-
-        string mapPath = SLCVCalibration::calibIniPath + "street1_manip.json";
-        if (SLFileSystem::fileExists(mapPath)) {
-            cout << "file exists!" << endl;
-        }
-
-        mapPath = "calibrations/test.yml";
-        if (SLFileSystem::fileExists(mapPath)) {
-            cout << "file exists!" << endl;
-        }
-
-#if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLCVSlamStateLoader loader(SLCVCalibration::calibIniPath + "street1_manip.json", vocabulary, false);
-#else
-        SLCVSlamStateLoader loader("../_data/calibrations/street1_manip.json", vocabulary, false );
-#endif
-        loader.load(map->mapPoints(), *kfDB );
-
-        SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
-        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-        light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
-        light1->specular(SLCol4f(1, 1, 1));
-        light1->attenuation(1, 0, 0);
-
-        SLNode* scene = new SLNode("scene");
-        scene->addChild(light1);
-
-        SLNode* mapNode = new SLNode("map");
-        //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
-        //y-axis down and z-forward
-        mapNode->rotate(180, 1, 0, 0);
-        scene->addChild(mapNode);
-        mapNode->addChild(cam1);
-
-        //add visual representations of map and keyFrame database to scene
-        bool addVisualMap = true;
-        bool addVisualKFs = true;
-        SLNode* mapPC=NULL; 
-        SLNode* mapMatchedPC = NULL;
-        SLNode* mapLocalPC = NULL;
-        if (addVisualMap)
-        {
-            mapPC = new SLNode(map->getSceneObject(), "MapPoints");
-            mapNode->addChild(mapPC);
-
-            //add additional empty point clouds for visualization of local map and map point matches:
-            //1. map point matches
-            //material
-            SLMaterial* pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
-            pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-            pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
-            //mesh
-            SLVVec3f points, normals;
-            points.push_back(SLVec3f(0.f, 0.f, 0.f));
-            normals.push_back(SLVec3f(0.0001f, 0.0001f, 0.0001f));
-            SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", pcMat1);
-            //node
-            mapMatchedPC = new SLNode(mapMatchesMesh, "MapMatchedPC");
-            mapNode->addChild(mapMatchedPC);
-
-            //2. local map points
-            //material
-            SLMaterial* pcMat2 = new SLMaterial("Magenta", SLCol4f::MAGENTA);
-            pcMat2->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-            pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-            //mesh
-            SLPoints* mapLocalMesh = new SLPoints(points, normals, "MapPointsLocal", pcMat2);
-            //node
-            mapLocalPC = new SLNode(mapLocalMesh, "MapLocalPC");
-            mapNode->addChild(mapLocalPC);
-        }
-
-        SLNode* keyFrames = NULL;
-        if(addVisualKFs)
-        {
-            keyFrames = new SLNode("KeyFrames");
-            //add keyFrames
-            for (auto* kf : kfDB->keyFrames()) {
-                SLCVCamera* cam = kf->getSceneObject();
-                cam->fov(_activeCalib->cameraFovDeg());
-                cam->focalDist(0.11);
-                cam->clipNear(0.1);
-                cam->clipFar(1000.0);
-                keyFrames->addChild(cam);
-            }
-            mapNode->addChild(keyFrames);
-        }
-
-        //add tracker
-        _trackers.push_back( new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map, 
-            mapPC, mapMatchedPC, mapLocalPC, keyFrames));
-
-        //add yellow augmented box
-        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-        //SLfloat he = 25.;
-        //SLBox* box1 = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
-        SLfloat l = 1.75, b = 0.75, h = 0.74;
-        SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
-
-        SLNode* boxNode = new SLNode(box1, "boxNode");
-        //boxNode->rotate(40, 1, 0, 0);
-        //boxNode->translate(0, -0.5, -1.5);
-        //boxNode->translate(1, 1, 1);
-        scene->addChild(boxNode);
-
-        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
-        scene->addChild(axisNode);
-
-        // Save no energy
-        sv->waitEvents(false); //for constant video feed
-        sv->camera(cam1);
-
-        _root3D = scene;
-    }
     else
     if (SL::currentSceneID == C_sceneFigure) //....................................................
     {
@@ -2834,6 +2676,157 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         sv->waitEvents(false); // for constant video feed
         sv->camera(cam1);
+        _root3D = scene;
+    }
+    else
+        if (SL::currentSceneID == C_sceneVideoTrackKeyFrames)
+    {
+        // Set scene name and info string
+        name("Track Keyframe based Features");
+        _info = "Example for loading an existing pose graph with map points.";
+
+        videoType(VT_FILE);
+        SLCVCapture::videoFilename = "street3.mp4";
+        SLCVCapture::videoLoops = true;
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 2, 60);
+        cam1->lookAt(15, 15, 0);
+        cam1->fov(_activeCalib->cameraFovDeg());
+        cam1->clipNear(0.001f);
+        cam1->clipFar(1000000.0f); // Increase to infinity?
+        cam1->setInitialState();
+        cam1->background().texture(&_videoTexture);
+        //videoType(VT_MAIN);
+
+        SLCVMap* map = new SLCVMap("Map");
+
+
+        ORBVocabulary* vocabulary = new ORBVocabulary();
+        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
+        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
+        if (!bVocLoad)
+        {
+            cerr << "Wrong path to vocabulary. " << endl;
+            cerr << "Failed to open at: " << strVocFile << endl;
+            exit(-1);
+        }
+        cout << "Vocabulary loaded!" << endl << endl;
+
+        SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
+
+        //load map points and keyframes from json file
+        //SLCVSlamStateLoader loader(SLCVCalibration::calibIniPath + "orb-slam-state-2.json", vocabulary);
+        //SLCVSlamStateLoader loader(SLCVCalibration::calibIniPath + "orb-slam-state-buero-test.json", vocabulary, false);
+        //SLCVSlamStateLoader loader(SLCVCalibration::calibIniPath + "orb-slam-state-buero3.json", vocabulary);
+
+        string mapPath = SLCVCalibration::calibIniPath + "street1_manip.json";
+        if (SLFileSystem::fileExists(mapPath)) {
+            cout << "file exists!" << endl;
+        }
+
+        mapPath = "calibrations/test.yml";
+        if (SLFileSystem::fileExists(mapPath)) {
+            cout << "file exists!" << endl;
+        }
+
+        SLCVSlamStateLoader loader(SLCVCalibration::calibIniPath + "street1_manip.json", vocabulary, false);
+        loader.load(map->mapPoints(), *kfDB );
+
+        SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
+        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
+        light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
+        light1->specular(SLCol4f(1, 1, 1));
+        light1->attenuation(1, 0, 0);
+
+        SLNode* scene = new SLNode("scene");
+        scene->addChild(light1);
+
+        SLNode* mapNode = new SLNode("map");
+        //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
+        //y-axis down and z-forward
+        mapNode->rotate(180, 1, 0, 0);
+        scene->addChild(mapNode);
+        mapNode->addChild(cam1);
+
+        //add visual representations of map and keyFrame database to scene
+        bool addVisualMap = true;
+        bool addVisualKFs = true;
+        SLNode* mapPC=NULL; 
+        SLNode* mapMatchedPC = NULL;
+        SLNode* mapLocalPC = NULL;
+        if (addVisualMap)
+        {
+            mapPC = new SLNode(map->getSceneObject(), "MapPoints");
+            mapNode->addChild(mapPC);
+
+            //add additional empty point clouds for visualization of local map and map point matches:
+            //1. map point matches
+            //material
+            SLMaterial* pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
+            pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+            pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+            //mesh
+            SLVVec3f points, normals;
+            points.push_back(SLVec3f(0.f, 0.f, 0.f));
+            normals.push_back(SLVec3f(0.0001f, 0.0001f, 0.0001f));
+            SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", pcMat1);
+            //node
+            mapMatchedPC = new SLNode(mapMatchesMesh, "MapMatchedPC");
+            mapNode->addChild(mapMatchedPC);
+
+            //2. local map points
+            //material
+            SLMaterial* pcMat2 = new SLMaterial("Magenta", SLCol4f::MAGENTA);
+            pcMat2->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+            pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+            //mesh
+            SLPoints* mapLocalMesh = new SLPoints(points, normals, "MapPointsLocal", pcMat2);
+            //node
+            mapLocalPC = new SLNode(mapLocalMesh, "MapLocalPC");
+            mapNode->addChild(mapLocalPC);
+        }
+
+        SLNode* keyFrames = NULL;
+        if(addVisualKFs)
+        {
+            keyFrames = new SLNode("KeyFrames");
+            //add keyFrames
+            for (auto* kf : kfDB->keyFrames()) {
+                SLCVCamera* cam = kf->getSceneObject();
+                cam->fov(_activeCalib->cameraFovDeg());
+                cam->focalDist(0.11);
+                cam->clipNear(0.1);
+                cam->clipFar(1000.0);
+                keyFrames->addChild(cam);
+            }
+            mapNode->addChild(keyFrames);
+        }
+
+        //add tracker
+        _trackers.push_back( new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map, 
+            mapPC, mapMatchedPC, mapLocalPC, keyFrames));
+
+        //add yellow augmented box
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        //SLfloat he = 25.;
+        //SLBox* box1 = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
+        SLfloat l = 1.75, b = 0.75, h = 0.74;
+        SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
+
+        SLNode* boxNode = new SLNode(box1, "boxNode");
+        //boxNode->rotate(40, 1, 0, 0);
+        //boxNode->translate(0, -0.5, -1.5);
+        //boxNode->translate(1, 1, 1);
+        scene->addChild(boxNode);
+
+        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
+        scene->addChild(axisNode);
+
+        // Save no energy
+        sv->waitEvents(false); //for constant video feed
+        sv->camera(cam1);
+
         _root3D = scene;
     }
     else

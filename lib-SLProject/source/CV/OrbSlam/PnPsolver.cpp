@@ -129,7 +129,7 @@ void PnPsolver::SetRansacParameters(double probability, int minInliers, int maxI
     mRansacEpsilon = epsilon;
     mRansacMinSet = minSet;
 
-    N = mvP2D.size(); // number of correspondences
+    N = (int)mvP2D.size(); // number of correspondences
 
     mvbInliersi.resize(N);
 
@@ -150,7 +150,7 @@ void PnPsolver::SetRansacParameters(double probability, int minInliers, int maxI
     if(mRansacMinInliers==N)
         nIterations=1;
     else
-        nIterations = ceil(log(1-mRansacProb)/log(1-pow(mRansacEpsilon,3)));
+        nIterations = (int)ceil(log(1-mRansacProb)/log(1-pow(mRansacEpsilon,3)));
 
     mRansacMaxIts = max(1,min(nIterations,mRansacMaxIts));
 
