@@ -4,9 +4,6 @@
     <Filter Include="glew">
       <UniqueIdentifier>{d409be97-4b49-4cf7-8ac2-683d193606b9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="randomc">
-      <UniqueIdentifier>{0d99598e-dd82-4fae-9528-2aaf6b783ee7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shoemake">
       <UniqueIdentifier>{1105022c-8b93-4e89-930b-23c69e612afc}</UniqueIdentifier>
     </Filter>
@@ -39,27 +36,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="randomc\mersenne.cpp">
-      <Filter>randomc</Filter>
-    </ClCompile>
-    <ClCompile Include="randomc\mother.cpp">
-      <Filter>randomc</Filter>
-    </ClCompile>
-    <ClCompile Include="randomc\rancombi.cpp">
-      <Filter>randomc</Filter>
-    </ClCompile>
-    <ClCompile Include="randomc\random.cpp">
-      <Filter>randomc</Filter>
-    </ClCompile>
-    <ClCompile Include="randomc\ranrotb.cpp">
-      <Filter>randomc</Filter>
-    </ClCompile>
-    <ClCompile Include="randomc\ranrotw.cpp">
-      <Filter>randomc</Filter>
-    </ClCompile>
-    <ClCompile Include="randomc\sobol.cpp">
-      <Filter>randomc</Filter>
-    </ClCompile>
     <ClCompile Include="Shoemake\EulerAngles.cpp">
       <Filter>Shoemake</Filter>
     </ClCompile>
@@ -203,12 +179,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="randomc\random.h">
-      <Filter>randomc</Filter>
-    </ClInclude>
-    <ClInclude Include="randomc\randomc.h">
-      <Filter>randomc</Filter>
-    </ClInclude>
     <ClInclude Include="Shoemake\EulerAngles.h">
       <Filter>Shoemake</Filter>
     </ClInclude>
@@ -344,11 +314,6 @@
     <ClInclude Include="spa\spa.h">
       <Filter>spa</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="randomc\RANDOMC.HTM">
-      <Filter>randomc</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="glew\build\glew.rc">

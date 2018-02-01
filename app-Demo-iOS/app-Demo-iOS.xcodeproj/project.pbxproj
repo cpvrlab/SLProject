@@ -2643,8 +2643,9 @@
 				41C1FD601FD18EF800B1C190 /* spa.cpp */,
 				41C1FD611FD18EF800B1C190 /* spa.h */,
 			);
-			path = spa;
-			sourceTree = "<group>";
+			name = spa;
+			path = "../lib-SLExternal/spa";
+			sourceTree = SOURCE_ROOT;
 		};
 		41CF01DB1F096ABB00CA36C9 /* Shoemake */ = {
 			isa = PBXGroup;
