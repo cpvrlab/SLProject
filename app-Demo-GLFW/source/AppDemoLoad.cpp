@@ -48,8 +48,12 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation = false);
 //-----------------------------------------------------------------------------
 //! appDemoLoadScene builds a scene from source code.
 /*! appDemoLoadScene builds a scene from source code. Such a function must be
-passed as a void*-pointer to slCreateScene. It will be called from within
-slCreateSceneView as soon as the view is initialized.
+ passed as a void*-pointer to slCreateScene. It will be called from within
+ slCreateSceneView as soon as the view is initialized. You could separate
+ different scene by a different sceneID.<br>
+ The purpose is to assemble a scene by creating scenegraph objects with nodes
+ (SLNode) and meshes (SLMesh). See the scene with SID_Minimal for a minimal
+ example of the different steps.
 */
 void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 {
@@ -57,15 +61,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     
     // Initialize all preloaded stuff from SLScene
     s->init();
-
-    // Reset calibration process at scene change
-    if (SLApplication::activeCalib->state() != CS_calibrated &&
-        SLApplication::activeCalib->state() != CS_uncalibrated)
-        SLApplication::activeCalib->state(CS_uncalibrated);
-
-    // Deactivate in general the device sensors
-    SLApplication::devRot.isUsed(false);
-    SLApplication::devLoc.isUsed(false);
 
     if (SLApplication::sceneID == SID_Empty) //.....................................................
     {   
@@ -2911,7 +2906,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
     }
 
-    // call onInitialize on all scene views to initialize the scenegraph and stats
+    ////////////////////////////////////////////////////////////////////////////
+    // call onInitialize on all scene views to init the scenegraph and stats
     for (auto sv : s->sceneViews())
     {   if (sv != nullptr)
         {   sv->onInitialize();

@@ -25,6 +25,7 @@ The SLApplication holds static instances of top-level items such as the scene
 pointer, the camera calibration objects and the device rotation and location
 information. The static function createAppAndScene is called by the C-interface
 functions slCreateAppAndScene and the function deleteAppAndScene by slTerminate.
+At the moment only one scene can be open at the time.
 */
 class SLApplication
 {

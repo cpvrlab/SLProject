@@ -1,6 +1,9 @@
 //#############################################################################
 //  File:      AppDemoMainGLFW.cpp
-//  Purpose:   Implementation of the GUI with the GLFW3 (http://www.glfw.org/)
+//  Purpose:   The demo application demonstrates most features of the SLProject
+//             framework. Implementation of the GUI with the GLFW3 framework
+//             that can create a window and receive system event on desktop OS
+//             such as Windows, MacOS and Linux.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Copyright: Marcus Hudritsch
@@ -14,8 +17,6 @@
 #endif
 
 #include <GLFW/glfw3.h>
-#include <thread>
-#include <future>
 
 #include <AppDemoGui.h>
 #include <SLInterface.h>
@@ -23,6 +24,8 @@
 #include <SLEnums.h>
 #include <SLCVCapture.h>
 
+//-----------------------------------------------------------------------------
+//! Forward declaration of the scene definition function from AppDemoLoad.cpp
 extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
 
 //-----------------------------------------------------------------------------
