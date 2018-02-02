@@ -18,7 +18,7 @@
 //! Encapsulation of a mobile device rotation set by the device's IMU sensor
 /*! This class is only used if SLProject runs on a mobile device. Check out the
 app-Demo-Android and app-Demo-iOS how the sensor data is generated and passed
-to this object hold by SLScene.
+to this object hold by SLApplication.
 It stores the devices rotation that it gets from its IMU (inertial measurment
 unit) sensor. This is a fused orientation that is calculated from the
 magnetometer, the acceleronometer and the gyroscope. The device rotation can
