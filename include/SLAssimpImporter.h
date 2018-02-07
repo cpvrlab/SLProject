@@ -37,7 +37,7 @@ class SLAssimpImporter : public SLImporter
                 SLAssimpImporter() {}
                 SLAssimpImporter(SLLogVerbosity consoleVerb)
                     : SLImporter(consoleVerb) { }
-                SLAssimpImporter(const SLstring& logFile,
+                SLAssimpImporter(SLstring& logFile,
                                  SLLogVerbosity logConsoleVerb = LV_normal,
                                  SLLogVerbosity logFileVerb = LV_diagnostic)
                     : SLImporter(logFile, logConsoleVerb, logFileVerb) { }

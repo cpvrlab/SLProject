@@ -44,6 +44,7 @@ HEADERS += \
 ../include/SL.h \
 ../include/SLAABBox.h \
 ../include/SLAccelStruct.h \
+../include/SLApplication.h \
 ../include/SLAnimation.h \
 ../include/SLAnimManager.h \
 ../include/SLAnimPlayback.h \
@@ -63,7 +64,6 @@ HEADERS += \
 ../include/SLCVCapture.h \
 ../include/SLCV.h \
 ../include/SLCV*.h \
-../include/SLDemoGui.h \
 ../include/SLDeviceRotation.h \
 ../include/SLDeviceLocation.h \
 ../include/SLDisk.h \
@@ -125,6 +125,7 @@ SOURCES += \
 source/math/SLCurveBezier.cpp \
 source/math/SLPlane.cpp \
 source/SL/SL.cpp \
+source/SL/SLApplication.cpp \
 source/SL/SLAssimpImporter.cpp \
 source/SL/SLFileSystem.cpp \
 source/SL/SLImporter.cpp \
@@ -163,7 +164,6 @@ source/SLCone.cpp \
 source/SLCompactGrid.cpp \
 source/SLCoordAxis.cpp \
 source/SLCylinder.cpp \
-source/SLDemoGui.cpp \
 source/SLDeviceRotation.cpp \
 source/SLDeviceLocation.cpp \
 source/SLDisk.cpp \
@@ -190,7 +190,6 @@ source/SLRevolver.cpp \
 source/SLSamples2D.cpp \
 source/SLScene.cpp \
 source/SLSceneView.cpp \
-source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
 source/SL/SLSkybox.cpp \
 source/SLSpheric.cpp \
