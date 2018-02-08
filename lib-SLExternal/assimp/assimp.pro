@@ -71,9 +71,10 @@ win32 {
 macx {
     CONFIG -= app_bundle
     CONFIG += c++11
-    QMAKE_MAC_SDK = macosx10.13
-    QMAKE_CXXFLAGS += -mmacosx-version-min=10.7
-    QMAKE_LFLAGS   += -mmacosx-version-min=10.7
+    #QMAKE_MAC_SDK = macosx10.13
+    #QMAKE_CXXFLAGS += -mmacosx-version-min=10.10
+    #QMAKE_LFLAGS   += -mmacosx-version-min=10.10
+    #INCLUDEPATH += /usr/include
     QMAKE_CXXFLAGS += -stdlib=libc++
     QMAKE_CXXFLAGS += -std=c++11
     QMAKE_CXXFLAGS += -Wno-unused-parameter
@@ -82,7 +83,6 @@ macx {
     LIBS += -framework OpenGL
     LIBS += -framework QuartzCore
     LIBS += -stdlib=libc++
-    INCLUDEPATH += /usr/include
 }
 unix:!macx:!android {
     # linux only
