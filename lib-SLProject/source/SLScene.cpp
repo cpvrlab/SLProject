@@ -23,6 +23,7 @@
 #include <SLLightDirect.h>
 #include <SLCVTracked.h>
 #include <SLCVTrackedAruco.h>
+#include <SLCVCamera.h>
 
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene does all one time initialization such as 
@@ -682,12 +683,21 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
         }
     }
 
-    // return next if not last else return first
-    if (activeIndex < cams.size()-1)
-        return cams[activeIndex+1];
-    else 
-        return cams[0];
+    //// return next if not last else return first
+    //if (activeIndex < cams.size()-1)
+    //    return cams[activeIndex+1];
+    //else 
+    //    return cams[0];
 
+    //find next camera, that is not of type SLCVCamera if "allow SLCVCamera as
+    //active camera" is deactivated
+    do {
+        activeIndex = activeIndex > cams.size() - 2 ? 0 : ++activeIndex;
+    } 
+    while (dynamic_cast<SLCVCamera*>(cams[activeIndex]) &&
+        !dynamic_cast<SLCVCamera*>(cams[activeIndex])->allowAsActiveCam());
+
+    return cams[activeIndex];
 }
 //-----------------------------------------------------------------------------
 /*!

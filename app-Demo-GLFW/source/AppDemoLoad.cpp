@@ -2537,9 +2537,19 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Track Keyframe based Features");
         s->info("Example for loading an existing pose graph with map points.");
 
-        s->videoType(VT_FILE);
-        SLCVCapture::videoFilename = "street3.mp4";
-        SLCVCapture::videoLoops = true;
+        s->videoType(VT_MAIN);
+        //s->videoType(VT_FILE);
+        //SLCVCapture::videoLoops = true;
+
+        //SLCVCalibration::calibIniPath + "orb-slam-state-2.json"
+        //SLCVCalibration::calibIniPath + "orb-slam-state-buero-test.json"
+        //SLCVCalibration::calibIniPath + "orb-slam-state-buero3.json"
+
+        //SLCVCapture::videoFilename = "street3.mp4";
+        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "street1_manip.json";
+
+        SLCVCapture::videoFilename = "altstadt_biel1.mp4";
+        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-altstadtbiel1_manip.json";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 60);
@@ -2566,23 +2576,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
 
         //load map points and keyframes from json file
-        //SLCVSlamStateLoader loader(SLCVCalibration::calibIniPath + "orb-slam-state-2.json", vocabulary);
-        //SLCVSlamStateLoader loader(SLCVCalibration::calibIniPath + "orb-slam-state-buero-test.json", vocabulary, false);
-        //SLCVSlamStateLoader loader(SLCVCalibration::calibIniPath + "orb-slam-state-buero3.json", vocabulary);
-
-        string mapPath = SLCVCalibration::calibIniPath + "street1_manip.json";
-        if (SLFileSystem::fileExists(mapPath))
-        {
-            cout << "file exists!" << endl;
-        }
-
-        mapPath = "calibrations/test.yml";
-        if (SLFileSystem::fileExists(mapPath))
-        {
-            cout << "file exists!" << endl;
-        }
-
-        SLCVSlamStateLoader loader(SLCVCalibration::calibIniPath + "street1_manip.json", vocabulary, false);
+        SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
         loader.load(map->mapPoints(), *kfDB );
 
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);

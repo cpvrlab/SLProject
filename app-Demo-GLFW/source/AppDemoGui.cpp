@@ -1291,6 +1291,11 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             {   ImGui::Separator();
                 ImGui::MenuItem("Infos on Christoffel",0, &showChristoffel);
             }
+            if (SLApplication::sceneID == SID_VideoTrackKeyFrames)
+            {
+                ImGui::Separator();
+                ImGui::MenuItem("Infos on Tracking", 0, &showInfosTracking);
+            }
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", 0, &showHelp);
             ImGui::MenuItem("Help on Calibration", 0, &showHelpCalibration);

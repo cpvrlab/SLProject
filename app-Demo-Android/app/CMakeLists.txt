@@ -296,6 +296,7 @@ file(GLOB_RECURSE SHADERS       ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/
 file(GLOB_RECURSE CALIBRATIONS  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/calib_in_params.yml
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/aruco_detector_params.yml
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/street1_manip.json
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-altstadtbiel1_manip.json
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/test.yml
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/ORBvoc.txt)
 

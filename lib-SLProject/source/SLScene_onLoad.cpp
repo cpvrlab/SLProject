@@ -2720,17 +2720,17 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         //SLCVSlamStateLoader loader(SLCVCalibration::calibIniPath + "orb-slam-state-buero-test.json", vocabulary, false);
         //SLCVSlamStateLoader loader(SLCVCalibration::calibIniPath + "orb-slam-state-buero3.json", vocabulary);
 
-        string mapPath = SLCVCalibration::calibIniPath + "street1_manip.json";
-        if (SLFileSystem::fileExists(mapPath)) {
-            cout << "file exists!" << endl;
-        }
+        //string mapPath = SLCVCalibration::calibIniPath + "street1_manip.json";
+        //if (SLFileSystem::fileExists(mapPath)) {
+        //    cout << "file exists!" << endl;
+        //}
 
-        mapPath = "calibrations/test.yml";
-        if (SLFileSystem::fileExists(mapPath)) {
-            cout << "file exists!" << endl;
-        }
+        //mapPath = "calibrations/test.yml";
+        //if (SLFileSystem::fileExists(mapPath)) {
+        //    cout << "file exists!" << endl;
+        //}
 
-        SLCVSlamStateLoader loader(SLCVCalibration::calibIniPath + "street1_manip.json", vocabulary, false);
+        SLCVSlamStateLoader loader(SLCVCalibration::calibIniPath + "orb-slam-state-altstadtbiel1.json", vocabulary, false);
         loader.load(map->mapPoints(), *kfDB );
 
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
