@@ -2537,9 +2537,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Track Keyframe based Features");
         s->info("Example for loading an existing pose graph with map points.");
 
-        s->videoType(VT_MAIN);
-        //s->videoType(VT_FILE);
-        //SLCVCapture::videoLoops = true;
+        //s->videoType(VT_MAIN);
+        s->videoType(VT_FILE);
+        SLCVCapture::videoLoops = true;
 
         //SLCVCalibration::calibIniPath + "orb-slam-state-2.json"
         //SLCVCalibration::calibIniPath + "orb-slam-state-buero-test.json"
