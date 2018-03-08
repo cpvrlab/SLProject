@@ -14,8 +14,8 @@
 #endif
 
 #include <SLApplication.h>
-#include <SLGLTexture.h>
 #include <SLScene.h>
+#include <SLGLTexture.h>
 
 //-----------------------------------------------------------------------------
 //! Default path for texture files used when only filename is passed in load.
@@ -265,12 +265,12 @@ SLbool SLGLTexture::copyVideoImage(SLint camWidth,
     
     // load returns true if size or format changes
     bool needsBuild = _images[0]->load(camWidth,
-                                         camHeight,
-                                         srcFormat,
-                                         PF_rgb,
-                                         data,
-                                         isContinuous,
-                                         isTopLeft);
+                                       camHeight,
+                                       srcFormat,
+                                       PF_rgb,
+                                       data,
+                                       isContinuous,
+                                       isTopLeft);
 
     // OpenGL ES 2 only can resize non-power-of-two texture with clamp to edge
     _wrap_s = GL_CLAMP_TO_EDGE;

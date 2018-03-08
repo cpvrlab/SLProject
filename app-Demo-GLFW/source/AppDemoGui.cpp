@@ -104,8 +104,8 @@ SLbool          AppDemoGui::showInfosScene      = false;
 SLbool          AppDemoGui::showInfosSensors    = false;
 SLbool          AppDemoGui::showSceneGraph      = false;
 SLbool          AppDemoGui::showProperties      = false;
-SLbool          AppDemoGui::showChristoffel     = false;
 SLbool          AppDemoGui::showInfosTracking   = false;
+SLbool          AppDemoGui::showChristoffel     = false;
 
 // SLCVTrackedRaulMur tracker pointer
 SLCVTrackedRaulMur* raulMurTracker = nullptr;
@@ -519,8 +519,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         buildInfosTracking(s, sv);
     }
 
-
-    if (showChristoffel && SLApplication::sceneID==SID_VideoChristoffel)
+    if (showChristoffel && SLApplication::sceneID == SID_VideoChristoffel)
     {
         ImGui::Begin("Christoffel", &showChristoffel, ImVec2(300,0));
 
@@ -710,7 +709,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoSensorAR);
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", 0, sid==SID_VideoChristoffel))
                         s->onLoad(s, sv, SID_VideoChristoffel);
-                    if (ImGui::MenuItem("Track Features from Keyframes", 0, sid==SID_VideoTrackKeyFrames))
+                    if (ImGui::MenuItem("Track Features from Keyframes", 0, sid == sid==SID_VideoTrackKeyFrames))
                         s->onLoad(s, sv, SID_VideoTrackKeyFrames);
 
                     ImGui::EndMenu();
@@ -1202,8 +1201,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("IMU rotated & GPS located", 0, ca == CA_deviceRotLocYUp))
                     sv->camera()->camAnim(CA_deviceRotLocYUp);
 
-                if (ca==CA_walkingZUp || ca==CA_walkingYUp || ca==CA_deviceRotYUp)
-                {   static SLfloat ms = cam->maxSpeed();
+                if (ca==CA_walkingZUp || ca==CA_walkingYUp )
+                {
+                    static SLfloat ms = cam->maxSpeed();
                     if (ImGui::SliderFloat("Walk Speed",  &ms, 0.01f, SL_min(ms*1.1f,10000.f)))
                         cam->maxSpeed(ms);
                 }
@@ -1291,8 +1291,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             {   ImGui::Separator();
                 ImGui::MenuItem("Infos on Christoffel",0, &showChristoffel);
             }
-            if (SLApplication::sceneID == SID_VideoTrackKeyFrames)
-            {
+            if (SLApplication::sceneID == SID_VideoTrackKeyFrames) {
                 ImGui::Separator();
                 ImGui::MenuItem("Infos on Tracking", 0, &showInfosTracking);
             }
@@ -1881,7 +1880,7 @@ void AppDemoGui::buildInfosTracking(SLScene* s, SLSceneView* sv)
         //get keyframe database
         if (SLCVKeyFrameDB* kfDB = raulMurTracker->getKfDB())
         {
-            //if backgound rendering is active kf images will be rendered on
+            //if backgound rendering is active kf images will be rendered on 
             //near clipping plane if kf is not the active camera
             b = kfDB->renderKfBackground();
             if (ImGui::Checkbox("Show Image", &b))
@@ -1911,7 +1910,7 @@ void AppDemoGui::buildInfosTracking(SLScene* s, SLSceneView* sv)
         SLGLImGui::transformationRotValue = ImClamp(SLGLImGui::transformationRotValue, -360.0f, 360.0f);
 
         static SLfloat sp = 3; //spacing
-        SLfloat bW = (ImGui::GetContentRegionAvailWidth() - 2*sp) / 3;
+        SLfloat bW = (ImGui::GetContentRegionAvailWidth() - 2 * sp) / 3;
         if (ImGui::Button("RotX", ImVec2(bW, 0.0f))) {
             raulMurTracker->applyTransformation(SLGLImGui::transformationRotValue, SLCVTrackedRaulMur::ROT_X);
         } ImGui::SameLine(0.0, sp);
@@ -1999,7 +1998,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         {   SL_LOG("Failed to open file for reading: %s", fullPathAndFilename.c_str());
             return;
         }
-    } 
+    }
     catch(...)
     {   SL_LOG("Parsing of file failed: %s", fullPathAndFilename.c_str());
         return;
@@ -2024,6 +2023,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
     fs["showInfosSensors"]      >> b; AppDemoGui::showInfosSensors = b;
     fs["showSceneGraph"]        >> b; AppDemoGui::showSceneGraph = b;
     fs["showProperties"]        >> b; AppDemoGui::showProperties = b;
+    fs["showInfosTracking"]     >> b; AppDemoGui::showInfosTracking = b;
     fs["showChristoffel"]       >> b; AppDemoGui::showChristoffel = b;
     fs["showDetection"]         >> b; SLApplication::scene->showDetection(b);
 
@@ -2061,6 +2061,7 @@ void AppDemoGui::saveConfig()
     fs << "showSceneGraph"          << AppDemoGui::showSceneGraph;
     fs << "showProperties"          << AppDemoGui::showProperties;
     fs << "showChristoffel"         << AppDemoGui::showChristoffel;
+    fs << "showInfosTracking"       << AppDemoGui::showInfosTracking;
     fs << "showDetection"           << SLApplication::scene->showDetection();
 
     fs.release();

@@ -3,6 +3,7 @@
 *.suo
 *.vsp
 *.user
+*.user.*
 *.sdf
 *.opensdf
 *.idb
@@ -52,3 +53,4 @@ GenerateHTMLDoc.log
 *.classpath
 *.project
 .settings
+.vs

@@ -109,7 +109,7 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCompactGrid.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCoordAxis.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCylinder.cpp
-
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDemoGui.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDeviceRotation.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDeviceLocation.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDisk.cpp
@@ -179,6 +179,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include/OrbSlam)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/opencv/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/nvwa)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/zlib)
@@ -234,7 +235,7 @@ find_library( log-lib log )
 #
 # GLES
 #
-#set(OPENGL_LIB_v2 GLESv2)
+
 set(OPENGL_LIB_v3 GLESv3)
 
 # Specifies libraries CMake should link to your target library. You
@@ -250,7 +251,6 @@ target_link_libraries(  native-lib
                         lib_g2o_solver_eigen
                         lib_g2o_types_sba
                         lib_g2o_types_sim3
-                        #${OPENGL_LIB_v2}
                         ${OPENGL_LIB_v3}
                         ${log-lib}
                      )

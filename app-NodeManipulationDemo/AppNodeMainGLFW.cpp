@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      glfwMain.cpp
+//  File:      AppNodeMainGLFW.cpp
 //  Purpose:   Implementation of the GUI with the GLFW3 (http://www.glfw.org/)
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
@@ -19,8 +19,10 @@
 #include <SLEnums.h>
 #include <opencv2/opencv.hpp>
 
-#include "NewNodeGui.h"
-#include "NewNodeSceneView.h"
+#include "AppNodeGui.h"
+#include "AppNodeSceneView.h"
+
+extern void onLoad(SLScene* s, SLSceneView* sv, SLSceneID sid);
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -375,8 +377,8 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    scrWidth = 400;
-    scrHeight = 320;
+    scrWidth = 640;
+    scrHeight = 480;
 
     window = glfwCreateWindow(scrWidth, scrHeight, "My Title", NULL, NULL);
     if (!window)
@@ -424,26 +426,32 @@ int main(int argc, char *argv[])
     cout << "DPI             : " << dpi << endl;
 
     // get executable path
-    SLstring exeDir = SLFileSystem::getCurrentWorkingDir();
+    SLstring exeDir     = SLFileSystem::getCurrentWorkingDir();
     SLstring configPath = SLFileSystem::getAppsWritableDir();
 
-    slCreateScene(cmdLineArgs,
-                  exeDir + "../_data/shaders/",
-                  exeDir + "../_data/models/",
-                  exeDir + "../_data/images/textures/",
-                  exeDir + "../_data/videos/",
-                  exeDir + "../_data/images/fonts/",
-                  exeDir + "../_data/calibrations/",
-                  configPath);
+    //////////////////////////////////////////////////////////
+    slCreateAppAndScene(cmdLineArgs,
+                        exeDir + "../_data/shaders/",
+                        exeDir + "../_data/models/",
+                        exeDir + "../_data/images/textures/",
+                        exeDir + "../_data/videos/",
+                        exeDir + "../_data/images/fonts/",
+                        exeDir + "../_data/calibrations/",
+                        configPath,
+                        "AppNode_GLFW",
+                        (void*)onLoad);
+    //////////////////////////////////////////////////////////
 
+    //////////////////////////////////////////////////////////
     svIndex = slCreateSceneView((int)(scrWidth  * scr2fbX),
                                 (int)(scrHeight * scr2fbY),
                                 dpi, 
-                                (SLCommand)SL_STARTSCENE,
+                                (SLSceneID)0,
                                 (void*)&onPaint,
                                 0,
                                 (void*)createNewNodeSceneView,
-                                (void*)NewNodeGui::buildDemoGui);
+                                (void*)AppNodeGui::build);
+    //////////////////////////////////////////////////////////
 
     // Set GLFW callback functions
     glfwSetKeyCallback(window, onKeyAction);

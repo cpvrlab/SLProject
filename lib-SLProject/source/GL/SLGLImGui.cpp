@@ -15,16 +15,16 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLGLImGui.h>
 #include <SLApplication.h>
 #include <SLScene.h>
-#include <SLGLImGui.h>
 
 //-----------------------------------------------------------------------------
-SLfloat     SLGLImGui::fontPropDots        = 0.0f;
-SLfloat     SLGLImGui::fontFixedDots       = 0.0f;
-SLfloat     SLGLImGui::transformationRotValue = 0.01f;
-SLfloat     SLGLImGui::transformationTransValue = 0.01f;
-SLfloat     SLGLImGui::transformationScaleValue = 0.01f;
+SLfloat SLGLImGui::fontPropDots     = 16.0f;
+SLfloat SLGLImGui::fontFixedDots    = 13.0f;
+SLfloat SLGLImGui::transformationRotValue = 0.01f;
+SLfloat SLGLImGui::transformationTransValue = 0.01f;
+SLfloat SLGLImGui::transformationScaleValue = 0.01f;
 //-----------------------------------------------------------------------------
 SLGLImGui::SLGLImGui()
 {
@@ -82,12 +82,15 @@ void SLGLImGui::init()
     // The screen size is set again in onResize
     io.DisplaySize = ImVec2(0, 0);
     io.DisplayFramebufferScale = ImVec2(1,1);
+
+    // Change default style to show the widget border
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.FrameBorderSize = 1;
 }
 //-----------------------------------------------------------------------------
 //! Loads the proportional and fixed size font depending on the passed DPI
 void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
 {
-
     _fontPropDots = fontPropDots;
     _fontFixedDots = fontFixedDots;
 

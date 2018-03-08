@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		411949C51F0CBCB7009C8A9F /* LogoCPVR_256L.png in Resources */ = {isa = PBXBuildFile; fileRef = 411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */; };
+		4119D3D820138F8F00612254 /* WebPDecoder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4119D3D620138F8F00612254 /* WebPDecoder.framework */; };
+		4119D3D920138F8F00612254 /* WebP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4119D3D720138F8F00612254 /* WebP.framework */; };
 		411BA72718C0702600F10475 /* Icon_120.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72618C0702600F10475 /* Icon_120.png */; };
 		411BA72918C0716700F10475 /* Icon_76.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72818C0716700F10475 /* Icon_76.png */; };
 		411BA72B18C071CA00F10475 /* Icon_152.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72A18C071CA00F10475 /* Icon_152.png */; };
@@ -63,10 +65,10 @@
 		4155FAF11C3EC3C30094BF61 /* SLGLVertexArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4155FAF01C3EC3C30094BF61 /* SLGLVertexArray.cpp */; };
 		4156500C148AA62400A3CAA6 /* ViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41565008148AA62400A3CAA6 /* ViewController_iPad.xib */; };
 		4156500D148AA62400A3CAA6 /* ViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4156500A148AA62400A3CAA6 /* ViewController_iPhone.xib */; };
-		41565010148AA63200A3CAA6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4156500E148AA63200A3CAA6 /* InfoPlist.strings */; };
 		41565018148AA64F00A3CAA6 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41565012148AA64F00A3CAA6 /* AppDelegate.mm */; };
 		4156501A148AA64F00A3CAA6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 41565015148AA64F00A3CAA6 /* main.m */; };
 		4156501B148AA64F00A3CAA6 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41565017148AA64F00A3CAA6 /* ViewController.mm */; };
+		4156B8DF20299BF10019EFC2 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4156B8DE20299BF10019EFC2 /* opencv2.framework */; };
 		41618D6816C1855500641165 /* Default-Landscape@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 41618D6316C1855500641165 /* Default-Landscape@2x~ipad.png */; };
 		41627EA215CA8CE70023B936 /* SL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E8F15CA8CE70023B936 /* SL.cpp */; };
 		41627EA315CA8CE70023B936 /* SLFileSystem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9415CA8CE70023B936 /* SLFileSystem.mm */; };
@@ -80,6 +82,9 @@
 		4166ED0D200260D700B42D17 /* Desert+Y1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED07200260D600B42D17 /* Desert+Y1024_C.jpg */; };
 		4166ED0E200260D700B42D17 /* Desert-Z1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED08200260D700B42D17 /* Desert-Z1024_C.jpg */; };
 		4166ED0F200260D700B42D17 /* Desert+Z1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED09200260D700B42D17 /* Desert+Z1024_C.jpg */; };
+		416DA7D32021B8FD00406B83 /* AppDemoLoad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416DA7D02021B8FC00406B83 /* AppDemoLoad.cpp */; };
+		416DA7D42021B8FD00406B83 /* AppDemoGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416DA7D12021B8FD00406B83 /* AppDemoGui.cpp */; };
+		4178D6672020A9C100F4F699 /* SLApplication.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4178D6662020A9C000F4F699 /* SLApplication.cpp */; };
 		417981141F13833000EB5315 /* i0000_0000b.png in Resources */ = {isa = PBXBuildFile; fileRef = 417980451F13832F00EB5315 /* i0000_0000b.png */; };
 		417981151F13833000EB5315 /* i0001_0000b.png in Resources */ = {isa = PBXBuildFile; fileRef = 417980461F13832F00EB5315 /* i0001_0000b.png */; };
 		417981161F13833000EB5315 /* i0002_0000b.png in Resources */ = {isa = PBXBuildFile; fileRef = 417980471F13832F00EB5315 /* i0002_0000b.png */; };
@@ -378,7 +383,6 @@
 		418BF46D1B8B0D500049E387 /* WaveRefractReflect.vert in Resources */ = {isa = PBXBuildFile; fileRef = 418BF4401B8B0D4F0049E387 /* WaveRefractReflect.vert */; };
 		418E0C1B148927D700C6274F /* SLScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418E0C19148927D700C6274F /* SLScene.cpp */; };
 		418E0C1C148927D700C6274F /* SLSceneView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418E0C1A148927D700C6274F /* SLSceneView.cpp */; };
-		418E0C1E148927F200C6274F /* SLScene_onLoad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418E0C1D148927F200C6274F /* SLScene_onLoad.cpp */; };
 		418E0C3F148929C800C6274F /* SLBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418E0C27148929C800C6274F /* SLBox.cpp */; };
 		418E0C41148929C800C6274F /* SLCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418E0C29148929C800C6274F /* SLCamera.cpp */; };
 		418E0C42148929C800C6274F /* SLCone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418E0C2A148929C800C6274F /* SLCone.cpp */; };
@@ -549,7 +553,6 @@
 		419BCD4014865C0800D576F1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD3F14865C0800D576F1 /* CoreGraphics.framework */; };
 		419BCD4214865C0800D576F1 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD4114865C0800D576F1 /* GLKit.framework */; };
 		419BCD4414865C0800D576F1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD4314865C0800D576F1 /* OpenGLES.framework */; };
-		419BEFC51DE5C91E00C3E171 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41ABC8BE1B875C1E009F6C37 /* opencv2.framework */; };
 		419BEFC71DE5EE9300C3E171 /* aruco_detector_params.yml in Resources */ = {isa = PBXBuildFile; fileRef = 419BEFC61DE5EE9300C3E171 /* aruco_detector_params.yml */; };
 		419E11A81B74AF0000203E70 /* SLBackground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419E11A71B74AF0000203E70 /* SLBackground.cpp */; };
 		419E11AA1B74B02000203E70 /* LiveVideoError.png in Resources */ = {isa = PBXBuildFile; fileRef = 419E11A91B74B02000203E70 /* LiveVideoError.png */; };
@@ -586,7 +589,6 @@
 		41C48E9D1F01254A0059B48C /* ProggyClean.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41C48E971F01254A0059B48C /* ProggyClean.ttf */; };
 		41C48E9E1F01254A0059B48C /* ProggyTiny.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41C48E981F01254A0059B48C /* ProggyTiny.ttf */; };
 		41C48E9F1F01254A0059B48C /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41C48E991F01254A0059B48C /* Roboto-Medium.ttf */; };
-		41C48EA11F0128130059B48C /* SLDemoGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C48EA01F0128130059B48C /* SLDemoGui.cpp */; };
 		41C99E7818D4316A0045FD2D /* Icon_57.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7518D4316A0045FD2D /* Icon_57.png */; };
 		41C99E7918D4316A0045FD2D /* Icon_114.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7618D4316A0045FD2D /* Icon_114.png */; };
 		41C99E7A18D4316A0045FD2D /* Icon_144.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7718D4316A0045FD2D /* Icon_144.png */; };
@@ -635,6 +637,8 @@
 
 /* Begin PBXFileReference section */
 		411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LogoCPVR_256L.png; path = ../_data/images/textures/LogoCPVR_256L.png; sourceTree = SOURCE_ROOT; };
+		4119D3D620138F8F00612254 /* WebPDecoder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebPDecoder.framework; path = ../_lib/prebuilt/OpenCV/ios/WebPDecoder.framework; sourceTree = "<group>"; };
+		4119D3D720138F8F00612254 /* WebP.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebP.framework; path = ../_lib/prebuilt/OpenCV/ios/WebP.framework; sourceTree = "<group>"; };
 		411BA72618C0702600F10475 /* Icon_120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_120.png; path = images/Icon_120.png; sourceTree = SOURCE_ROOT; };
 		411BA72818C0716700F10475 /* Icon_76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_76.png; path = images/Icon_76.png; sourceTree = SOURCE_ROOT; };
 		411BA72A18C071CA00F10475 /* Icon_152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_152.png; path = images/Icon_152.png; sourceTree = SOURCE_ROOT; };
@@ -715,13 +719,13 @@
 		4155FAF01C3EC3C30094BF61 /* SLGLVertexArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexArray.cpp; path = "../lib-SLProject/source/GL/SLGLVertexArray.cpp"; sourceTree = SOURCE_ROOT; };
 		41565009148AA62400A3CAA6 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController_iPad.xib; sourceTree = SOURCE_ROOT; };
 		4156500B148AA62400A3CAA6 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController_iPhone.xib; sourceTree = SOURCE_ROOT; };
-		4156500F148AA63200A3CAA6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = SOURCE_ROOT; };
 		41565011148AA64F00A3CAA6 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = SOURCE_ROOT; };
 		41565012148AA64F00A3CAA6 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = SOURCE_ROOT; };
 		41565014148AA64F00A3CAA6 /* comgr-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "comgr-Prefix.pch"; sourceTree = SOURCE_ROOT; };
 		41565015148AA64F00A3CAA6 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = SOURCE_ROOT; };
 		41565016148AA64F00A3CAA6 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = SOURCE_ROOT; };
 		41565017148AA64F00A3CAA6 /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = SOURCE_ROOT; };
+		4156B8DE20299BF10019EFC2 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../_lib/prebuilt/OpenCV/ios/opencv2.framework; sourceTree = "<group>"; };
 		41618D6316C1855500641165 /* Default-Landscape@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Landscape@2x~ipad.png"; path = "images/Default-Landscape@2x~ipad.png"; sourceTree = SOURCE_ROOT; };
 		41627E8F15CA8CE70023B936 /* SL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SL.cpp; path = "../lib-SLProject/source/SL/SL.cpp"; sourceTree = SOURCE_ROOT; };
 		41627E9015CA8CE70023B936 /* SL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SL.h; path = ../include/SL.h; sourceTree = SOURCE_ROOT; };
@@ -754,8 +758,13 @@
 		4166ED07200260D600B42D17 /* Desert+Y1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert+Y1024_C.jpg"; path = "../_data/images/textures/Desert+Y1024_C.jpg"; sourceTree = "<group>"; };
 		4166ED08200260D700B42D17 /* Desert-Z1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert-Z1024_C.jpg"; path = "../_data/images/textures/Desert-Z1024_C.jpg"; sourceTree = "<group>"; };
 		4166ED09200260D700B42D17 /* Desert+Z1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert+Z1024_C.jpg"; path = "../_data/images/textures/Desert+Z1024_C.jpg"; sourceTree = "<group>"; };
+		416DA7D02021B8FC00406B83 /* AppDemoLoad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDemoLoad.cpp; path = "../app-Demo-GLFW/source/AppDemoLoad.cpp"; sourceTree = "<group>"; };
+		416DA7D12021B8FD00406B83 /* AppDemoGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDemoGui.cpp; path = "../app-Demo-GLFW/source/AppDemoGui.cpp"; sourceTree = "<group>"; };
+		416DA7D22021B8FD00406B83 /* AppDemoGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDemoGui.h; path = "../app-Demo-GLFW/source/AppDemoGui.h"; sourceTree = "<group>"; };
 		416EE8ED148E388300AE5F6B /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "images/Default@2x.png"; sourceTree = SOURCE_ROOT; };
 		416EE8EE148E388300AE5F6B /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "images/Icon@2x.png"; sourceTree = SOURCE_ROOT; };
+		4178D6652020A9AF00F4F699 /* SLApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLApplication.h; path = ../include/SLApplication.h; sourceTree = "<group>"; };
+		4178D6662020A9C000F4F699 /* SLApplication.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLApplication.cpp; path = "../lib-SLProject/source/SL/SLApplication.cpp"; sourceTree = "<group>"; };
 		417980451F13832F00EB5315 /* i0000_0000b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = i0000_0000b.png; path = ../_data/images/textures/i0000_0000b.png; sourceTree = SOURCE_ROOT; };
 		417980461F13832F00EB5315 /* i0001_0000b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = i0001_0000b.png; path = ../_data/images/textures/i0001_0000b.png; sourceTree = SOURCE_ROOT; };
 		417980471F13832F00EB5315 /* i0002_0000b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = i0002_0000b.png; path = ../_data/images/textures/i0002_0000b.png; sourceTree = SOURCE_ROOT; };
@@ -1058,7 +1067,6 @@
 		418E0C18148927CB00C6274F /* SLSceneView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLSceneView.h; path = ../include/SLSceneView.h; sourceTree = SOURCE_ROOT; };
 		418E0C19148927D700C6274F /* SLScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLScene.cpp; path = "../lib-SLProject/source/SLScene.cpp"; sourceTree = SOURCE_ROOT; };
 		418E0C1A148927D700C6274F /* SLSceneView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLSceneView.cpp; path = "../lib-SLProject/source/SLSceneView.cpp"; sourceTree = SOURCE_ROOT; };
-		418E0C1D148927F200C6274F /* SLScene_onLoad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLScene_onLoad.cpp; path = "../lib-SLProject/source/SLScene_onLoad.cpp"; sourceTree = SOURCE_ROOT; };
 		418E0C27148929C800C6274F /* SLBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLBox.cpp; path = "../lib-SLProject/source/SLBox.cpp"; sourceTree = SOURCE_ROOT; };
 		418E0C29148929C800C6274F /* SLCamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCamera.cpp; path = "../lib-SLProject/source/SLCamera.cpp"; sourceTree = SOURCE_ROOT; };
 		418E0C2A148929C800C6274F /* SLCone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCone.cpp; path = "../lib-SLProject/source/SLCone.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1452,7 +1460,6 @@
 		41A355091A7E676800791841 /* SLInputManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLInputManager.cpp; path = "../lib-SLProject/source/SLInputManager.cpp"; sourceTree = SOURCE_ROOT; };
 		41A6A07F1FF5887200C795A4 /* SLSkybox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLSkybox.cpp; path = "../lib-SLProject/source/SL/SLSkybox.cpp"; sourceTree = SOURCE_ROOT; };
 		41A6A0811FF588A400C795A4 /* SLSkybox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLSkybox.h; path = ../include/SLSkybox.h; sourceTree = SOURCE_ROOT; };
-		41ABC8BE1B875C1E009F6C37 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../_lib/prebuilt/OpenCV/ios/opencv2.framework; sourceTree = SOURCE_ROOT; };
 		41B3821E18D593D1000F37CC /* SLAverage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAverage.h; path = ../include/SLAverage.h; sourceTree = SOURCE_ROOT; };
 		41B7BDDC1E49B4BC007B8B39 /* cursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cursor.png; path = ../_data/images/textures/cursor.png; sourceTree = "<group>"; };
 		41B7BDDF1E49B553007B8B39 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SLProject/Images.xcassets; sourceTree = SOURCE_ROOT; };
@@ -1466,7 +1473,6 @@
 		41C1FD601FD18EF800B1C190 /* spa.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spa.cpp; path = "../lib-SLExternal/spa/spa.cpp"; sourceTree = SOURCE_ROOT; };
 		41C1FD611FD18EF800B1C190 /* spa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spa.h; path = "../lib-SLExternal/spa/spa.h"; sourceTree = SOURCE_ROOT; };
 		41C48E8A1F0124750059B48C /* SLGLImGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLImGui.cpp; path = "../lib-SLProject/source/GL/SLGLImGui.cpp"; sourceTree = SOURCE_ROOT; };
-		41C48E8D1F0124AE0059B48C /* SLDemoGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDemoGui.h; path = ../include/SLDemoGui.h; sourceTree = SOURCE_ROOT; };
 		41C48E8E1F0124AE0059B48C /* SLGLImGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLImGui.h; path = ../include/SLGLImGui.h; sourceTree = SOURCE_ROOT; };
 		41C48E8F1F01250E0059B48C /* imgui_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imgui_draw.cpp; path = "../lib-SLExternal/imgui/imgui_draw.cpp"; sourceTree = SOURCE_ROOT; };
 		41C48E901F01250E0059B48C /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imgui.cpp; path = "../lib-SLExternal/imgui/imgui.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1477,7 +1483,6 @@
 		41C48E971F01254A0059B48C /* ProggyClean.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ProggyClean.ttf; path = ../_data/images/fonts/ProggyClean.ttf; sourceTree = "<group>"; };
 		41C48E981F01254A0059B48C /* ProggyTiny.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ProggyTiny.ttf; path = ../_data/images/fonts/ProggyTiny.ttf; sourceTree = "<group>"; };
 		41C48E991F01254A0059B48C /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Medium.ttf"; path = "../_data/images/fonts/Roboto-Medium.ttf"; sourceTree = "<group>"; };
-		41C48EA01F0128130059B48C /* SLDemoGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLDemoGui.cpp; path = "../lib-SLProject/source/SLDemoGui.cpp"; sourceTree = "<group>"; };
 		41C5EEE0175B1A340005A588 /* SLParallel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SLParallel.h; path = ../include/SLParallel.h; sourceTree = SOURCE_ROOT; };
 		41C99E7518D4316A0045FD2D /* Icon_57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_57.png; path = images/Icon_57.png; sourceTree = SOURCE_ROOT; };
 		41C99E7618D4316A0045FD2D /* Icon_114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_114.png; path = images/Icon_114.png; sourceTree = SOURCE_ROOT; };
@@ -1537,16 +1542,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				4181782F1FC7110600200D02 /* CoreLocation.framework in Frameworks */,
-				419BEFC51DE5C91E00C3E171 /* opencv2.framework in Frameworks */,
 				41A16C3C1B836835001EA07E /* CoreMotion.framework in Frameworks */,
 				41BEFC0C1B78F866009EF31F /* CoreVideo.framework in Frameworks */,
 				41BEFC0A1B78F85A009EF31F /* CoreMedia.framework in Frameworks */,
 				41BEFC071B78F84F009EF31F /* AVFoundation.framework in Frameworks */,
+				4156B8DF20299BF10019EFC2 /* opencv2.framework in Frameworks */,
 				419BCD3C14865C0800D576F1 /* UIKit.framework in Frameworks */,
 				419BCD3E14865C0800D576F1 /* Foundation.framework in Frameworks */,
 				419BCD4014865C0800D576F1 /* CoreGraphics.framework in Frameworks */,
+				4119D3D820138F8F00612254 /* WebPDecoder.framework in Frameworks */,
 				419BCD4214865C0800D576F1 /* GLKit.framework in Frameworks */,
 				419BCD4414865C0800D576F1 /* OpenGLES.framework in Frameworks */,
+				4119D3D920138F8F00612254 /* WebP.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1625,14 +1632,14 @@
 		41627E8D15CA8CA90023B936 /* SL */ = {
 			isa = PBXGroup;
 			children = (
+				4178D6662020A9C000F4F699 /* SLApplication.cpp */,
+				4178D6652020A9AF00F4F699 /* SLApplication.h */,
 				418178261FC5D68F00200D02 /* SLDeviceLocation.cpp */,
 				418178251FC5D68F00200D02 /* SLDeviceRotation.cpp */,
 				418178241FC5D66B00200D02 /* SLDeviceLocation.h */,
 				418178221FC5D66B00200D02 /* SLDeviceRotation.h */,
 				414FE8F31F1506CF00F2FD4D /* SLTransferFunction.h */,
 				414FE8F01F1506BC00F2FD4D /* SLTransferFunction.cpp */,
-				41C48EA01F0128130059B48C /* SLDemoGui.cpp */,
-				41C48E8D1F0124AE0059B48C /* SLDemoGui.h */,
 				41627E9015CA8CE70023B936 /* SL.h */,
 				41627E8F15CA8CE70023B936 /* SL.cpp */,
 				4198070E1959B91C0048085E /* SLEnums.h */,
@@ -1688,7 +1695,6 @@
 			children = (
 				4198070B1959B63C0048085E /* SLScene.h */,
 				418E0C19148927D700C6274F /* SLScene.cpp */,
-				418E0C1D148927F200C6274F /* SLScene_onLoad.cpp */,
 				418E0C1A148927D700C6274F /* SLSceneView.cpp */,
 				418E0C18148927CB00C6274F /* SLSceneView.h */,
 			);
@@ -2147,23 +2153,25 @@
 			name = "Accelerator & Animation";
 			sourceTree = SOURCE_ROOT;
 		};
-		41901CF41959C478006795A8 /* iOS_Code */ = {
+		41901CF41959C478006795A8 /* AppDemo_iOS */ = {
 			isa = PBXGroup;
 			children = (
-				41B849FF148B2C3700305DB5 /* Images */,
-				41B9939A148AAD2B00D98AB7 /* SceneLib-Info.plist */,
 				41565011148AA64F00A3CAA6 /* AppDelegate.h */,
 				41565012148AA64F00A3CAA6 /* AppDelegate.mm */,
+				416DA7D12021B8FD00406B83 /* AppDemoGui.cpp */,
+				416DA7D22021B8FD00406B83 /* AppDemoGui.h */,
+				416DA7D02021B8FC00406B83 /* AppDemoLoad.cpp */,
+				CF3F57211DE5945F00928DDD /* calib_in_params.yml */,
 				41565014148AA64F00A3CAA6 /* comgr-Prefix.pch */,
+				41B849FF148B2C3700305DB5 /* Images */,
 				41565015148AA64F00A3CAA6 /* main.m */,
-				41565016148AA64F00A3CAA6 /* ViewController.h */,
-				41565017148AA64F00A3CAA6 /* ViewController.mm */,
-				4156500E148AA63200A3CAA6 /* InfoPlist.strings */,
+				41B9939A148AAD2B00D98AB7 /* SceneLib-Info.plist */,
 				41565008148AA62400A3CAA6 /* ViewController_iPad.xib */,
 				4156500A148AA62400A3CAA6 /* ViewController_iPhone.xib */,
-				CF3F57211DE5945F00928DDD /* calib_in_params.yml */,
+				41565016148AA64F00A3CAA6 /* ViewController.h */,
+				41565017148AA64F00A3CAA6 /* ViewController.mm */,
 			);
-			name = iOS_Code;
+			name = AppDemo_iOS;
 			sourceTree = "<group>";
 		};
 		419807101959B9910048085E /* assimp */ = {
@@ -2519,7 +2527,7 @@
 		419BCD2C14865C0800D576F1 = {
 			isa = PBXGroup;
 			children = (
-				41901CF41959C478006795A8 /* iOS_Code */,
+				41901CF41959C478006795A8 /* AppDemo_iOS */,
 				419BCD4514865C0800D576F1 /* SLProject */,
 				419BCD3A14865C0800D576F1 /* Frameworks */,
 				419BCD3814865C0800D576F1 /* Products */,
@@ -2542,18 +2550,20 @@
 		419BCD3A14865C0800D576F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				4181782D1FC70F6E00200D02 /* CoreLocation.framework */,
-				41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */,
-				41BEFC0B1B78F865009EF31F /* CoreVideo.framework */,
-				41BEFC091B78F85A009EF31F /* CoreMedia.framework */,
+				4156B8DE20299BF10019EFC2 /* opencv2.framework */,
 				41BEFC061B78F84F009EF31F /* AVFoundation.framework */,
-				419BCD3B14865C0800D576F1 /* UIKit.framework */,
-				419BCD3D14865C0800D576F1 /* Foundation.framework */,
 				419BCD3F14865C0800D576F1 /* CoreGraphics.framework */,
-				419BCD4114865C0800D576F1 /* GLKit.framework */,
-				419BCD4314865C0800D576F1 /* OpenGLES.framework */,
+				4181782D1FC70F6E00200D02 /* CoreLocation.framework */,
+				41BEFC091B78F85A009EF31F /* CoreMedia.framework */,
 				41A16C3B1B836835001EA07E /* CoreMotion.framework */,
-				41ABC8BE1B875C1E009F6C37 /* opencv2.framework */,
+				41BEFC0B1B78F865009EF31F /* CoreVideo.framework */,
+				419BCD3D14865C0800D576F1 /* Foundation.framework */,
+				419BCD4114865C0800D576F1 /* GLKit.framework */,
+				41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */,
+				419BCD4314865C0800D576F1 /* OpenGLES.framework */,
+				419BCD3B14865C0800D576F1 /* UIKit.framework */,
+				4119D3D720138F8F00612254 /* WebP.framework */,
+				4119D3D620138F8F00612254 /* WebPDecoder.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -2574,8 +2584,8 @@
 				41B7BDDF1E49B553007B8B39 /* Images.xcassets */,
 			);
 			name = SLProject;
-			path = comgr;
-			sourceTree = "<group>";
+			path = "../lib-SLProject";
+			sourceTree = SOURCE_ROOT;
 		};
 		41A354ED1A7E638200791841 /* Animation */ = {
 			isa = PBXGroup;
@@ -2624,8 +2634,8 @@
 				416EE8EE148E388300AE5F6B /* Icon@2x.png */,
 			);
 			name = Images;
-			path = comgr;
-			sourceTree = "<group>";
+			path = images;
+			sourceTree = SOURCE_ROOT;
 		};
 		41C1FD5E1FD18ED100B1C190 /* spa */ = {
 			isa = PBXGroup;
@@ -2633,8 +2643,9 @@
 				41C1FD601FD18EF800B1C190 /* spa.cpp */,
 				41C1FD611FD18EF800B1C190 /* spa.h */,
 			);
-			path = spa;
-			sourceTree = "<group>";
+			name = spa;
+			path = "../lib-SLExternal/spa";
+			sourceTree = SOURCE_ROOT;
 		};
 		41CF01DB1F096ABB00CA36C9 /* Shoemake */ = {
 			isa = PBXGroup;
@@ -3042,7 +3053,6 @@
 				418BF4511B8B0D500049E387 /* PerPixBlinnSkinned.vert in Resources */,
 				417981831F13833000EB5315 /* i0111_0000b.png in Resources */,
 				4156500D148AA62400A3CAA6 /* ViewController_iPhone.xib in Resources */,
-				41565010148AA63200A3CAA6 /* InfoPlist.strings in Resources */,
 				417981771F13833000EB5315 /* i0099_0000b.png in Resources */,
 				4179818F1F13833000EB5315 /* i0123_0000b.png in Resources */,
 				41FD9D141E523AD70063A1B7 /* Font10.png in Resources */,
@@ -3122,7 +3132,6 @@
 				41FC947B19F7D6410026919B /* SLGLOculus.cpp in Sources */,
 				419808B31959BA670048085E /* UnrealLoader.cpp in Sources */,
 				4198087E1959BA670048085E /* FindDegenerates.cpp in Sources */,
-				41C48EA11F0128130059B48C /* SLDemoGui.cpp in Sources */,
 				419808671959BA670048085E /* Bitmap.cpp in Sources */,
 				41654BD914866F6B0003DF5E /* SLPlane.cpp in Sources */,
 				419808B91959BA670048085E /* DeboneProcess.cpp in Sources */,
@@ -3131,7 +3140,6 @@
 				418E0C1B148927D700C6274F /* SLScene.cpp in Sources */,
 				419808ED1959BA670048085E /* StandardShapes.cpp in Sources */,
 				418E0C1C148927D700C6274F /* SLSceneView.cpp in Sources */,
-				418E0C1E148927F200C6274F /* SLScene_onLoad.cpp in Sources */,
 				4124EC111959C137003AA059 /* shapes.cc in Sources */,
 				419808A71959BA670048085E /* RemoveVCProcess.cpp in Sources */,
 				41EBB5E31C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp in Sources */,
@@ -3190,6 +3198,7 @@
 				41A354E81A7E628300791841 /* SLGLProgram.cpp in Sources */,
 				418E0C54148929C800C6274F /* SLText.cpp in Sources */,
 				41A3550A1A7E676800791841 /* SLInputDevice.cpp in Sources */,
+				416DA7D42021B8FD00406B83 /* AppDemoGui.cpp in Sources */,
 				419808681959BA670048085E /* BlenderBMesh.cpp in Sources */,
 				419808B51959BA670048085E /* XFileParser.cpp in Sources */,
 				411E93181B3D92DC007B0C6F /* SLDisk.cpp in Sources */,
@@ -3202,6 +3211,7 @@
 				41C48E8B1F0124750059B48C /* SLGLImGui.cpp in Sources */,
 				41FC948019F7D6410026919B /* SLGLTexture.cpp in Sources */,
 				419808AC1959BA670048085E /* SpatialSort.cpp in Sources */,
+				416DA7D32021B8FD00406B83 /* AppDemoLoad.cpp in Sources */,
 				419808951959BA670048085E /* ObjExporter.cpp in Sources */,
 				419808C21959BA670048085E /* BlenderScene.cpp in Sources */,
 				419E11A81B74AF0000203E70 /* SLBackground.cpp in Sources */,
@@ -3313,6 +3323,7 @@
 				419808D61959BA670048085E /* IRRShared.cpp in Sources */,
 				419808C51959BA670048085E /* ColladaParser.cpp in Sources */,
 				419808BE1959BA670048085E /* B3DImporter.cpp in Sources */,
+				4178D6672020A9C100F4F699 /* SLApplication.cpp in Sources */,
 				419808E71959BA670048085E /* Q3BSPFileParser.cpp in Sources */,
 				4156501A148AA64F00A3CAA6 /* main.m in Sources */,
 				4156501B148AA64F00A3CAA6 /* ViewController.mm in Sources */,
@@ -3362,7 +3373,6 @@
 				41565009148AA62400A3CAA6 /* en */,
 			);
 			name = ViewController_iPad.xib;
-			path = comgr;
 			sourceTree = SOURCE_ROOT;
 		};
 		4156500A148AA62400A3CAA6 /* ViewController_iPhone.xib */ = {
@@ -3371,16 +3381,6 @@
 				4156500B148AA62400A3CAA6 /* en */,
 			);
 			name = ViewController_iPhone.xib;
-			path = comgr;
-			sourceTree = SOURCE_ROOT;
-		};
-		4156500E148AA63200A3CAA6 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				4156500F148AA63200A3CAA6 /* en */,
-			);
-			name = InfoPlist.strings;
-			path = comgr;
 			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXVariantGroup section */
@@ -3637,7 +3637,7 @@
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
-				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject;
+				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject.2.2;
 				PRODUCT_NAME = SLProject;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
@@ -3702,7 +3702,7 @@
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
-				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject;
+				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject.2.2;
 				PRODUCT_NAME = SLProject;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;

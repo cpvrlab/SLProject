@@ -18,7 +18,7 @@ CONFIG -= qt
 CONFIG += glfw
 CONFIG += warn_off
 
-DEFINES += "SL_STARTSCENE=C_sceneMinimal"
+DEFINES += "SL_STARTSCENE=SID_Minimal"
 
 include(../SLProjectCommon.pro)
 
@@ -34,7 +34,12 @@ win32 {POST_TARGETDEPS += $$PWD/../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLProject
 else  {POST_TARGETDEPS += $$PWD/../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProject.a}
 
 SOURCES += \
-    source/glfwMain.cpp
+    source/AppDemoGui.cpp \
+    source/AppDemoLoad.cpp \
+    source/AppDemoMainGLFW.cpp
 
 include(../SLProjectCommonLibraries.pro)
 include(../SLProjectDeploy.pro)
+
+HEADERS += \
+    source/AppDemoGui.h

@@ -16,10 +16,10 @@ using namespace std::placeholders;
 using namespace std::chrono;
 
 #include <SLApplication.h>
+#include <SLSceneView.h>
 #include <SLRay.h>
 #include <SLRaytracer.h>
 #include <SLCamera.h>
-#include <SLSceneView.h>
 #include <SLLightSpot.h>
 #include <SLLightRect.h>
 #include <SLText.h>

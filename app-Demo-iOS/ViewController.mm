@@ -1,6 +1,10 @@
 //#############################################################################
 //  File:      ViewController.m
 //  Purpose:   Top level iOS view controller code that interfaces SLProject
+//             The demo application demonstrates most features of the SLProject
+//             framework. Implementation of the GUI with the GLFW3 framework
+//             that can create a window and receive system event on desktop OS
+//             such as Windows, MacOS and Linux.
 //  Author:    Marcus Hudritsch
 //  Date:      November 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -16,8 +20,11 @@
 // C++ includes for the SceneLibrary
 #include <SLInterface.h>
 #include <SLCVCapture.h>
-#include <SLDemoGui.h>
+#include <AppDemoGui.h>
 #include <mach/mach_time.h>
+
+// Declaration of scene load function
+extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
 
 //-----------------------------------------------------------------------------
 // C-Prototypes
@@ -122,26 +129,31 @@ float GetSeconds()
     SLstring exeDir = SLFileSystem::getCurrentWorkingDir();
     SLstring configDir = SLFileSystem::getAppsWritableDir();
     
-    //////////////////////////
-    slCreateScene(cmdLineArgs,
-                  exeDir,
-                  exeDir,
-                  exeDir,
-                  exeDir,
-                  exeDir,
-                  exeDir,
-                  configDir);
-    //////////////////////////
+    /////////////////////////////////////////////
+    slCreateAppAndScene(cmdLineArgs,
+                        exeDir,
+                        exeDir,
+                        exeDir,
+                        exeDir,
+                        exeDir,
+                        exeDir,
+                        configDir,
+                        "AppDemo_iOS",
+                        (void*)appDemoLoadScene);
+    /////////////////////////////////////////////
+    
+    // This load the GUI configs that are locally stored
+    AppDemoGui::loadConfig(dpi);
    
     ///////////////////////////////////////////////////////////////////////
     svIndex = slCreateSceneView(self.view.bounds.size.height * screenScale,
                                 self.view.bounds.size.width * screenScale,
                                 dpi,
-                                C_sceneRevolver,
+                                SID_Revolver,
                                 (void*)&onPaintRTGL,
                                 0,
                                 0,
-                                (void*)SLDemoGui::buildDemoGui);
+                                (void*)AppDemoGui::build);
     ///////////////////////////////////////////////////////////////////////
     
     [self setupMotionManager: 1.0/20.0];

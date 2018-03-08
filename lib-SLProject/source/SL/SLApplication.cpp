@@ -32,7 +32,7 @@ SLstring            SLApplication::name             = "SLProjectApp";
 SLstring            SLApplication::version          = "2.2.000";
 SLint               SLApplication::dpi              = 0;
 SLstring            SLApplication::configPath       = "../_data/config/";
-SLSceneID           SLApplication::sceneID          = SID_Minimal;
+SLSceneID           SLApplication::sceneID          = SID_Empty;
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function
 /*! Writes and inits the static application information and create the single

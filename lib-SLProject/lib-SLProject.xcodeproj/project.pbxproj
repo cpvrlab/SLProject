@@ -13,14 +13,12 @@
 		41030BC81FED4703005CFF1A /* SLAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030B9A1FED46FF005CFF1A /* SLAnimation.cpp */; };
 		41030BC91FED4703005CFF1A /* SLMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030B9B1FED46FF005CFF1A /* SLMaterial.cpp */; };
 		41030BCA1FED4703005CFF1A /* SLPoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030B9C1FED46FF005CFF1A /* SLPoints.cpp */; };
-		41030BCB1FED4703005CFF1A /* SLScene_onLoad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030B9D1FED46FF005CFF1A /* SLScene_onLoad.cpp */; };
 		41030BCC1FED4703005CFF1A /* SLLightDirect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030B9E1FED46FF005CFF1A /* SLLightDirect.cpp */; };
 		41030BCD1FED4703005CFF1A /* SLText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030B9F1FED46FF005CFF1A /* SLText.cpp */; };
 		41030BCE1FED4703005CFF1A /* SLLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030BA01FED46FF005CFF1A /* SLLight.cpp */; };
 		41030BCF1FED4703005CFF1A /* SLKeyframe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030BA11FED46FF005CFF1A /* SLKeyframe.cpp */; };
 		41030BD01FED4703005CFF1A /* SLBackground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030BA21FED46FF005CFF1A /* SLBackground.cpp */; };
 		41030BD11FED4703005CFF1A /* SLCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030BA31FED46FF005CFF1A /* SLCamera.cpp */; };
-		41030BD21FED4703005CFF1A /* SLDemoGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030BA41FED46FF005CFF1A /* SLDemoGui.cpp */; };
 		41030BD31FED4703005CFF1A /* SLPolygon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030BA51FED4700005CFF1A /* SLPolygon.cpp */; };
 		41030BD41FED4703005CFF1A /* SLRevolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030BA61FED4700005CFF1A /* SLRevolver.cpp */; };
 		41030BD51FED4703005CFF1A /* SLNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030BA71FED4700005CFF1A /* SLNode.cpp */; };
@@ -142,7 +140,6 @@
 		41030CD01FED49E2005CFF1A /* SLObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030C8F1FED49DB005CFF1A /* SLObject.h */; };
 		41030CD11FED49E2005CFF1A /* TriangleBoxIntersect.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030C901FED49DB005CFF1A /* TriangleBoxIntersect.h */; };
 		41030CD21FED49E2005CFF1A /* SLDeviceLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030C911FED49DB005CFF1A /* SLDeviceLocation.h */; };
-		41030CD31FED49E2005CFF1A /* SLDemoGui.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030C921FED49DB005CFF1A /* SLDemoGui.h */; };
 		41030CD41FED49E2005CFF1A /* SLAverage.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030C931FED49DB005CFF1A /* SLAverage.h */; };
 		41030CD51FED49E2005CFF1A /* SLCompactGrid.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030C941FED49DB005CFF1A /* SLCompactGrid.h */; };
 		41030CD61FED49E2005CFF1A /* SLPolygon.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030C951FED49DB005CFF1A /* SLPolygon.h */; };
@@ -183,6 +180,8 @@
 		41030CFA1FED49E2005CFF1A /* SLTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030CB91FED49E1005CFF1A /* SLTimer.h */; };
 		41030CFB1FED49E2005CFF1A /* SLDrawBits.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030CBA1FED49E1005CFF1A /* SLDrawBits.h */; };
 		41030CFC1FED49E2005CFF1A /* SLSpheric.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030CBB1FED49E1005CFF1A /* SLSpheric.h */; };
+		4178D66220205C8E00F4F699 /* SLApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 4178D66120205C8E00F4F699 /* SLApplication.h */; };
+		4178D66420205E1700F4F699 /* SLApplication.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4178D66320205E1700F4F699 /* SLApplication.cpp */; };
 		41B5768A1FF53D1A00542824 /* SLSkybox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41B576881FF53D1A00542824 /* SLSkybox.cpp */; };
 		41B5768D1FF53D8B00542824 /* SLSkybox.h in Headers */ = {isa = PBXBuildFile; fileRef = 41B5768C1FF53D8B00542824 /* SLSkybox.h */; };
 /* End PBXBuildFile section */
@@ -194,14 +193,12 @@
 		41030B9A1FED46FF005CFF1A /* SLAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLAnimation.cpp; path = source/SLAnimation.cpp; sourceTree = "<group>"; };
 		41030B9B1FED46FF005CFF1A /* SLMaterial.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLMaterial.cpp; path = source/SLMaterial.cpp; sourceTree = "<group>"; };
 		41030B9C1FED46FF005CFF1A /* SLPoints.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLPoints.cpp; path = source/SLPoints.cpp; sourceTree = "<group>"; };
-		41030B9D1FED46FF005CFF1A /* SLScene_onLoad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLScene_onLoad.cpp; path = source/SLScene_onLoad.cpp; sourceTree = "<group>"; };
 		41030B9E1FED46FF005CFF1A /* SLLightDirect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLLightDirect.cpp; path = source/SLLightDirect.cpp; sourceTree = "<group>"; };
 		41030B9F1FED46FF005CFF1A /* SLText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLText.cpp; path = source/SLText.cpp; sourceTree = "<group>"; };
 		41030BA01FED46FF005CFF1A /* SLLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLLight.cpp; path = source/SLLight.cpp; sourceTree = "<group>"; };
 		41030BA11FED46FF005CFF1A /* SLKeyframe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLKeyframe.cpp; path = source/SLKeyframe.cpp; sourceTree = "<group>"; };
 		41030BA21FED46FF005CFF1A /* SLBackground.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLBackground.cpp; path = source/SLBackground.cpp; sourceTree = "<group>"; };
 		41030BA31FED46FF005CFF1A /* SLCamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCamera.cpp; path = source/SLCamera.cpp; sourceTree = "<group>"; };
-		41030BA41FED46FF005CFF1A /* SLDemoGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLDemoGui.cpp; path = source/SLDemoGui.cpp; sourceTree = "<group>"; };
 		41030BA51FED4700005CFF1A /* SLPolygon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLPolygon.cpp; path = source/SLPolygon.cpp; sourceTree = "<group>"; };
 		41030BA61FED4700005CFF1A /* SLRevolver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLRevolver.cpp; path = source/SLRevolver.cpp; sourceTree = "<group>"; };
 		41030BA71FED4700005CFF1A /* SLNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLNode.cpp; path = source/SLNode.cpp; sourceTree = "<group>"; };
@@ -323,7 +320,6 @@
 		41030C8F1FED49DB005CFF1A /* SLObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLObject.h; path = ../include/SLObject.h; sourceTree = "<group>"; };
 		41030C901FED49DB005CFF1A /* TriangleBoxIntersect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TriangleBoxIntersect.h; path = ../include/TriangleBoxIntersect.h; sourceTree = "<group>"; };
 		41030C911FED49DB005CFF1A /* SLDeviceLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDeviceLocation.h; path = ../include/SLDeviceLocation.h; sourceTree = "<group>"; };
-		41030C921FED49DB005CFF1A /* SLDemoGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDemoGui.h; path = ../include/SLDemoGui.h; sourceTree = "<group>"; };
 		41030C931FED49DB005CFF1A /* SLAverage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAverage.h; path = ../include/SLAverage.h; sourceTree = "<group>"; };
 		41030C941FED49DB005CFF1A /* SLCompactGrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCompactGrid.h; path = ../include/SLCompactGrid.h; sourceTree = "<group>"; };
 		41030C951FED49DB005CFF1A /* SLPolygon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLPolygon.h; path = ../include/SLPolygon.h; sourceTree = "<group>"; };
@@ -365,6 +361,8 @@
 		41030CBA1FED49E1005CFF1A /* SLDrawBits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDrawBits.h; path = ../include/SLDrawBits.h; sourceTree = "<group>"; };
 		41030CBB1FED49E1005CFF1A /* SLSpheric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLSpheric.h; path = ../include/SLSpheric.h; sourceTree = "<group>"; };
 		4168FDE01FED45EA007C56B3 /* liblib-SLProject.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "liblib-SLProject.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4178D66120205C8E00F4F699 /* SLApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLApplication.h; path = ../include/SLApplication.h; sourceTree = "<group>"; };
+		4178D66320205E1700F4F699 /* SLApplication.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLApplication.cpp; path = source/SL/SLApplication.cpp; sourceTree = "<group>"; };
 		41B576461FF5399D00542824 /* ADSTex.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ADSTex.vert; path = ../_data/shaders/ADSTex.vert; sourceTree = "<group>"; };
 		41B576471FF5399D00542824 /* ADSTex3D.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ADSTex3D.vert; path = ../_data/shaders/ADSTex3D.vert; sourceTree = "<group>"; };
 		41B576481FF5399D00542824 /* PerPixBlinnSkinned.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerPixBlinnSkinned.vert; path = ../_data/shaders/PerPixBlinnSkinned.vert; sourceTree = "<group>"; };
@@ -496,6 +494,7 @@
 		41030B921FED468B005CFF1A /* GL */ = {
 			isa = PBXGroup;
 			children = (
+				41030CB21FED49E0005CFF1A /* glUtils.h */,
 				41030C4E1FED4956005CFF1A /* SLGLEnums.h */,
 				41030C541FED4956005CFF1A /* SLGLGenericProgram.h */,
 				41030C1B1FED48B7005CFF1A /* SLGLImGui.cpp */,
@@ -557,18 +556,14 @@
 			children = (
 				41030BA21FED46FF005CFF1A /* SLBackground.cpp */,
 				41030CB31FED49E0005CFF1A /* SLBackground.h */,
-				41030BA41FED46FF005CFF1A /* SLDemoGui.cpp */,
-				41030C921FED49DB005CFF1A /* SLDemoGui.h */,
 				41030BB51FED4701005CFF1A /* SLDeviceLocation.cpp */,
+				41030C911FED49DB005CFF1A /* SLDeviceLocation.h */,
 				41030BB91FED4701005CFF1A /* SLDeviceRotation.cpp */,
+				41030CB71FED49E1005CFF1A /* SLDeviceRotation.h */,
 				41030CAD1FED49DF005CFF1A /* SLImporter.h */,
-				41030BB71FED4701005CFF1A /* SLInputDevice.cpp */,
-				41030BA81FED4700005CFF1A /* SLInputManager.cpp */,
-				41030C821FED49D9005CFF1A /* SLInputManager.h */,
 				41030B9B1FED46FF005CFF1A /* SLMaterial.cpp */,
 				41030C891FED49DA005CFF1A /* SLMaterial.h */,
 				41030BBE1FED4702005CFF1A /* SLSamples2D.cpp */,
-				41030B9D1FED46FF005CFF1A /* SLScene_onLoad.cpp */,
 				41030BAA1FED4700005CFF1A /* SLScene.cpp */,
 				41030CA71FED49DE005CFF1A /* SLScene.h */,
 				41030BAD1FED4700005CFF1A /* SLSceneView.cpp */,
@@ -581,22 +576,24 @@
 		41030B951FED46A2005CFF1A /* SL */ = {
 			isa = PBXGroup;
 			children = (
-				41030CB21FED49E0005CFF1A /* glUtils.h */,
 				41030BF51FED4884005CFF1A /* SL.cpp */,
 				41030C861FED49DA005CFF1A /* SL.h */,
+				4178D66320205E1700F4F699 /* SLApplication.cpp */,
+				4178D66120205C8E00F4F699 /* SLApplication.h */,
 				41030BF81FED4884005CFF1A /* SLAssimpImporter.cpp */,
 				41030CA21FED49DD005CFF1A /* SLAssimpImporter.h */,
 				41030C931FED49DB005CFF1A /* SLAverage.h */,
-				41030C911FED49DB005CFF1A /* SLDeviceLocation.h */,
-				41030CB71FED49E1005CFF1A /* SLDeviceRotation.h */,
 				41030CBA1FED49E1005CFF1A /* SLDrawBits.h */,
 				41030CA51FED49DE005CFF1A /* SLEnums.h */,
 				41030C961FED49DC005CFF1A /* SLEventHandler.h */,
 				41030BF61FED4884005CFF1A /* SLFileSystem.cpp */,
 				41030C7D1FED49D8005CFF1A /* SLFileSystem.h */,
 				41030BF91FED4884005CFF1A /* SLImporter.cpp */,
+				41030BB71FED4701005CFF1A /* SLInputDevice.cpp */,
 				41030CAA1FED49DF005CFF1A /* SLInputDevice.h */,
 				41030C9F1FED49DD005CFF1A /* SLInputEvent.h */,
+				41030BA81FED4700005CFF1A /* SLInputManager.cpp */,
+				41030C821FED49D9005CFF1A /* SLInputManager.h */,
 				41030BF71FED4884005CFF1A /* SLInterface.cpp */,
 				41030C871FED49DA005CFF1A /* SLInterface.h */,
 				41030C8F1FED49DB005CFF1A /* SLObject.h */,
@@ -851,11 +848,11 @@
 				41030CEA1FED49E2005CFF1A /* SLAccelStruct.h in Headers */,
 				41030CDF1FED49E2005CFF1A /* SLDisk.h in Headers */,
 				41030CE61FED49E2005CFF1A /* SLEnums.h in Headers */,
-				41030CD31FED49E2005CFF1A /* SLDemoGui.h in Headers */,
 				41030CCD1FED49E2005CFF1A /* SLLens.h in Headers */,
 				41030CD11FED49E2005CFF1A /* TriangleBoxIntersect.h in Headers */,
 				41030C781FED497E005CFF1A /* SLCVFeatureManager.h in Headers */,
 				41030C771FED497E005CFF1A /* SLCVImage.h in Headers */,
+				4178D66220205C8E00F4F699 /* SLApplication.h in Headers */,
 				41030C711FED497E005CFF1A /* SLCVCalibration.h in Headers */,
 				41030CCC1FED49E2005CFF1A /* SLTriangle.h in Headers */,
 				41030CCE1FED49E2005CFF1A /* SLCurveBezier.h in Headers */,
@@ -993,7 +990,6 @@
 				41030BCF1FED4703005CFF1A /* SLKeyframe.cpp in Sources */,
 				41030BD01FED4703005CFF1A /* SLBackground.cpp in Sources */,
 				41030BC71FED4703005CFF1A /* SLMesh.cpp in Sources */,
-				41030BD21FED4703005CFF1A /* SLDemoGui.cpp in Sources */,
 				41030BDF1FED4703005CFF1A /* SLAnimPlayback.cpp in Sources */,
 				41030BC61FED4703005CFF1A /* SLLightRect.cpp in Sources */,
 				41030C0D1FED48A3005CFF1A /* SLCVCalibration.cpp in Sources */,
@@ -1032,6 +1028,7 @@
 				41030BD71FED4703005CFF1A /* SLSkeleton.cpp in Sources */,
 				41030BFF1FED4884005CFF1A /* SLAssimpImporter.cpp in Sources */,
 				41030BCA1FED4703005CFF1A /* SLPoints.cpp in Sources */,
+				4178D66420205E1700F4F699 /* SLApplication.cpp in Sources */,
 				41030C141FED48A3005CFF1A /* SLCVImage.cpp in Sources */,
 				41030C241FED48B7005CFF1A /* SLGLState.cpp in Sources */,
 				41030BEA1FED4703005CFF1A /* SLRay.cpp in Sources */,
@@ -1043,7 +1040,6 @@
 				41030BE51FED4703005CFF1A /* SLInputDevice.cpp in Sources */,
 				41030C101FED48A3005CFF1A /* SLCVTracked.cpp in Sources */,
 				41B5768A1FF53D1A00542824 /* SLSkybox.cpp in Sources */,
-				41030BCB1FED4703005CFF1A /* SLScene_onLoad.cpp in Sources */,
 				41030BDE1FED4703005CFF1A /* SLJoint.cpp in Sources */,
 				41030BE91FED4703005CFF1A /* SLLens.cpp in Sources */,
 			);

@@ -19,28 +19,28 @@
 //-----------------------------------------------------------------------------
 //! Encapsulation of a mobile device location set by the device's GPS sensor
 /*! This class is only used if SLProject runs on a mobile device. Check out the
-app-Demo-Android and app-Demo-iOS how the sensor data is generated and passed
-to this object hold by SLScene. The class stores the devices location that it
-gets from its GPS (global positioning system) sensor. The device location can
-be used in the active camera to apply it to the scene camera
-(s. SLCamera::setView).\n
+ app-Demo-Android and app-Demo-iOS how the sensor data is generated and passed
+ to this object hold by SLApplication. The class stores the devices location that it
+ gets from its GPS (global positioning system) sensor. The device location can
+ be used in the active camera to apply it to the scene camera
+ (s. SLCamera::setView).\n
   - LLA: The device location from GPS comes as a latitude (deg.), longitude
-(deg.) and altitude (m) LLA-tripple. These two angles are a position and height
-on the WGS84 ellipsoid (World Geodetic System 1984).\n
+ (deg.) and altitude (m) LLA-tripple. These two angles are a position and height
+ on the WGS84 ellipsoid (World Geodetic System 1984).\n
   - ECEF (Earth Centered Earth Fixed) are right-handed cartesian world
-coordinates with the z-axis at the north pole the x-axis at the prime meridian
-(0 deg. longitude) and the y-axis at 90 deg. longitude. x- and y-axis form the
+ coordinates with the z-axis at the north pole the x-axis at the prime meridian
+ (0 deg. longitude) and the y-axis at 90 deg. longitude. x- and y-axis form the
  equator plane.\n
   - ENU (East North Up) is the local frame (= right-handed coordinate system)
-on the surface of the ellipsoid with the E=East tangential vector, the N=North
-tangential vector and U=Up as the ellipsoid's normal vector. Be aware that the
-up vector is normal to the ellipsoid and not to the terrain above. This normal
-does not point the center of the ellipsoid.\n
-If we want to show a local scene on the earth, we do this allways in the ENU
-frame because in the ECEF frame with have not enough precision for float
-coordinates. Therefore we have define a local origin in the ENU frame and
-convert all locations from LLA to ECEF and the with the wRecef rotation matrix
-to the ENU frame.
+ on the surface of the ellipsoid with the E=East tangential vector, the N=North
+ tangential vector and U=Up as the ellipsoid's normal vector. Be aware that the
+ up vector is normal to the ellipsoid and not to the terrain above. This normal
+ does not point the center of the ellipsoid.\n
+ If we want to show a local scene on the earth, we do this allways in the ENU
+ frame because in the ECEF frame with have not enough precision for float
+ coordinates. Therefore we have define a local origin in the ENU frame and
+ convert all locations from LLA to ECEF and the with the wRecef rotation matrix
+ to the ENU frame.
 */
 class SLDeviceLocation
 {

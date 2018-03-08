@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      SLCVTrackedChessboard.cpp
-//  Author:    Michael G�ttlicher, Marcus Hudritsch
+//  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch, Michael G�ttlicher
+//  Copyright: Marcus Hudritsch, Michael Goettlicher
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -18,7 +18,6 @@ All classes that use OpenCV begin with SLCV.
 See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
-
 #include <SLApplication.h>
 #include <SLCVTrackedChessboard.h>
 

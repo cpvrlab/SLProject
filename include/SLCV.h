@@ -21,11 +21,8 @@ for a good top down information.
 */
 
 #include <stdafx.h>
-#include <opencv/cv.h>
-#include <opencv2/core.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/ocl.hpp>
-#include <opencv2/core/hal/interface.h>
 #include <opencv2/xfeatures2d.hpp>
 
 //-----------------------------------------------------------------------------

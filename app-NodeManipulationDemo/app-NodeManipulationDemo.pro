@@ -33,13 +33,13 @@ win32 {POST_TARGETDEPS += $$PWD/../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLProject
 else  {POST_TARGETDEPS += $$PWD/../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProject.a}
    
 SOURCES += \
-    glfwMain.cpp \
-    NewNodeSceneView.cpp \
-    NewNodeGui.cpp
+    AppNodeGui.cpp \
+    AppNodeMainGLFW.cpp \
+    AppNodeSceneView.cpp
 	   
 HEADERS += \
-    NewNodeSceneView.h \
-    NewNodeGui.h
+    AppNodeGui.h \
+    AppNodeSceneView.h
 
 include(../SLProjectCommonLibraries.pro)
 include(../SLProjectDeploy.pro)

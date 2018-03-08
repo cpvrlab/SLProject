@@ -33,19 +33,18 @@
 #include <SLGrid.h>
 #include <SLLens.h>
 #include <SLCoordAxis.h>
-
-#include <SLCVMapPoint.h>
-#include <SLCVMap.h>
-#include <SLCVKeyFrameDB.h>
-#include <SLCVSlamStateLoader.h>
 #include <SLCVCapture.h>
 #include <SLCVTrackedAruco.h>
 #include <SLCVTrackedChessboard.h>
 #include <SLCVTrackedFeatures.h>
 #include <SLCVTrackedRaulMur.h>
-
 #include <SLTransferFunction.h>
 #include <SLSkybox.h>
+
+#include <SLCVMapPoint.h>
+#include <SLCVMap.h>
+#include <SLCVKeyFrameDB.h>
+#include <SLCVSlamStateLoader.h>
 
 //-----------------------------------------------------------------------------
 // Foreward declarations for helper functions used only in this file
@@ -55,8 +54,12 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation = false);
 //-----------------------------------------------------------------------------
 //! appDemoLoadScene builds a scene from source code.
 /*! appDemoLoadScene builds a scene from source code. Such a function must be
-passed as a void*-pointer to slCreateScene. It will be called from within
-slCreateSceneView as soon as the view is initialized.
+ passed as a void*-pointer to slCreateScene. It will be called from within
+ slCreateSceneView as soon as the view is initialized. You could separate
+ different scene by a different sceneID.<br>
+ The purpose is to assemble a scene by creating scenegraph objects with nodes
+ (SLNode) and meshes (SLMesh). See the scene with SID_Minimal for a minimal
+ example of the different steps.
 */
 void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 {
@@ -64,15 +67,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     
     // Initialize all preloaded stuff from SLScene
     s->init();
-
-    // Reset calibration process at scene change
-    if (SLApplication::activeCalib->state() != CS_calibrated &&
-        SLApplication::activeCalib->state() != CS_uncalibrated)
-        SLApplication::activeCalib->state(CS_uncalibrated);
-
-    // Deactivate in general the device sensors
-    SLApplication::devRot.isUsed(false);
-    SLApplication::devLoc.isUsed(false);
 
     if (SLApplication::sceneID == SID_Empty) //.....................................................
     {   
@@ -242,190 +236,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
-    }
-    else
-    if (SLApplication::sceneID == SID_VRSizeTest) //................................................
-    {
-        s->name("VR Test");
-        s->info("Test scene for virtual reality size perception.");
-        
-
-        SLAssimpImporter importer;
-        SLNode* scene = new SLNode;
-        scene->scale(1);
-        
-        // scene floor
-        SLMaterial* matFloor = new SLMaterial("floor", new SLGLTexture("tron_floor2.png"
-                                            ,SL_ANISOTROPY_MAX
-                                            ,GL_LINEAR),
-                                            nullptr, nullptr, nullptr,
-                                            s->programs()[SP_TextureOnly]);
-        SLNode* floor = new SLNode(
-                            new SLRectangle(SLVec2f(-1000, -1000), SLVec2f(1000,1000),
-                                            SLVec2f(-1000, -1000), SLVec2f(1000,1000),
-                                            1, 1, "rectF", matFloor), "rectFNode"); 
-        floor->rotate(-90, 1,0,0);
-        scene->addChild(floor);
-
-        // table
-        SLNode* table = importer.load("DAE/Table/table.dae");
-        table->translate(0, 0, -1);
-        scene->addChild(table);
-
-        // create crates of various sizes
-        SLNode* crate = importer.load("DAE/Crate/crate.dae");
-        SLMesh* crateMesh = importer.meshes()[3];
-        
-        
-        crate->rotate(20, 0, 1, 0);
-        crate->translate(2, 0, -1, TS_world);
-        scene->addChild(crate);
-        
-        crate = new SLNode;
-        crate->addMesh(crateMesh);
-        crate->rotate(20, 0, 1, 0);
-        crate->translate(3.1f, 0, -1, TS_world);
-        scene->addChild(crate);
-        
-        crate = new SLNode(crateMesh);
-        crate->rotate(-10, 0, 1, 0);
-        crate->translate(2.5f, 1, -1, TS_world);
-        scene->addChild(crate);
-
-        crate = new SLNode(crateMesh);
-        crate->rotate(60, 0, 1, 0);
-        crate->translate(-4, 0, 1, TS_world);
-        crate->scale(2);
-        scene->addChild(crate);
-        
-        crate = new SLNode(crateMesh);
-        crate->rotate(30, 0, 1, 0);
-        crate->translate(-5, 0, -8, TS_world);
-        crate->scale(4);
-        scene->addChild(crate);
-
-        SLCamera* cam1 = new SLCamera();
-        cam1->translation(0, 1.67f, 5);    // eye height for 180cm high male
-        cam1->lookAt(0, 1.67f, -1.0f);
-        cam1->focalDist(22);
-        cam1->setInitialState();
-        cam1->camAnim(CA_walkingYUp);
-        cam1->background().colors(SLCol4f(0.0f,0.0f,0.0f));
-        scene->addChild(cam1);
-        cam1->setInitialState();
-
-        // big astroboy
-        // Start animation
-        SLNode* astroboyBig = importer.load("DAE/AstroBoy/AstroBoy.dae");
-        SLAnimPlayback* charAnim = s->animManager().lastAnimPlayback();
-        charAnim->playForward();
-        charAnim->playbackRate(0.8f);
-
-        astroboyBig->translate(-1.5f, 0.0f, -1.0f);
-
-        scene->addChild(astroboyBig);
-
-        // small astroboy on table
-        SLNode* astroboySmall = importer.load("DAE/AstroBoy/AstroBoy.dae");
-        charAnim = s->animManager().lastAnimPlayback();
-        charAnim->playForward();
-        charAnim->playbackRate(2.0f);
-        
-        astroboySmall->translate(0.0f, 1.1f, -1.0f);
-        astroboySmall->scale(0.1f);
-        scene->addChild(astroboySmall);
-
-        sv->camera(cam1);
-        
-        SLLightSpot* light1 = new SLLightSpot(5, 20, 5, 0.5f, 1.0f, 1.0f, 2.0f);
-        light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
-        light1->diffuse(SLCol4f(1.0f, 0.7f, 0.3f));
-        light1->specular(SLCol4f(0.5f, 0.3f, 0.1f));
-        light1->attenuation(1,0,0);
-                
-        SLLightSpot* light2 = new SLLightSpot(-10.0f, -15.0, 10.0f, 0.2f, 1.0f, 1.0f, 0.0f);
-        light2->ambient(SLCol4f(0.0f, 0.0f, 0.0f));
-        light2->diffuse(SLCol4f(0.0f, 4.0f, 10.0f));
-        light2->specular(SLCol4f(0.0f, 0.0f, 0.0f));
-        light2->attenuation(1,0.5f,0);
-        
-        SLLightSpot* light3 = new SLLightSpot(-10.0f, -15.0, -10.0f, 0.2f, 1.0f, 1.0f, 0.0f);
-        light3->ambient(SLCol4f(0.0f, 0.0f, 0.0f));
-        light3->diffuse(SLCol4f(0.0f, 4.0f, 10.0f));
-        light3->specular(SLCol4f(0.0f, 0.0f, 0.0f));
-        light3->attenuation(1,0.5f,0);
-        
-        SLLightSpot* light4 = new SLLightSpot(10.0f, -15.0, -10.0f, 0.2f, 1.0f, 1.0f, 0.0f);
-        light4->ambient(SLCol4f(0.0f, 0.0f, 0.0f));
-        light4->diffuse(SLCol4f(0.0f, 4.0f, 10.0f));
-        light4->specular(SLCol4f(0.0f, 0.0f, 0.0f));
-        light4->attenuation(1,0.5f,0);
-        
-        SLLightSpot* light5 = new SLLightSpot(10.0f, -15.0, 10.0f, 0.2f, 1.0f, 1.0f, 0.0f);
-        light5->ambient(SLCol4f(0.0f, 0.0f, 0.0f));
-        light5->diffuse(SLCol4f(0.0f, 4.0f, 10.0f));
-        light5->specular(SLCol4f(0.0f, 0.0f, 0.0f));
-        light5->attenuation(1,0.5f,0);
-
-        SLAnimation* anim = SLAnimation::create("anim_light2_updown", 10.0f, true, EC_inOutSine, AL_pingPongLoop);
-        anim->createSimpleTranslationNodeTrack(light2, SLVec3f(0.0f, 1.0f, 0.0f));
-        anim->createSimpleTranslationNodeTrack(light3, SLVec3f(0.0f, 2.0f, 0.0f));
-        anim->createSimpleTranslationNodeTrack(light4, SLVec3f(0.0f, 1.0f, 0.0f));
-        anim->createSimpleTranslationNodeTrack(light5, SLVec3f(0.0f, 2.0f, 0.0f));
-
-        SLMaterial* whiteMat = new SLMaterial("mat", SLCol4f::WHITE, SLCol4f::WHITE, 1.0f, 1.0, 0.0f, 0.0f);
-        whiteMat->emissive(SLCol4f::WHITE);
-        SLRectangle* plane0 = new SLRectangle(SLVec2f(-0.01f, 0.0f), SLVec2f(0.01f, 1.0f), 1, 1, "sizeIndicator0", whiteMat);
-        SLRectangle* plane1 = new SLRectangle(SLVec2f(0.005f, 0.0f), SLVec2f(-0.005f, 1.0f), 1, 1, "sizeIndicator1", whiteMat);
-
-        struct indicatorData {
-            indicatorData(SLfloat px, SLfloat py, SLfloat pz, SLfloat r, SLfloat s, const SLstring& t)
-                : pos(px, py, pz), yRot(r), yScale(s), text(t)
-            { }
-
-            SLVec3f pos;
-            SLfloat yRot;
-            SLfloat yScale;
-            SLstring text;
-        };
-        indicatorData indicators[] = {
-                // pos                       y rot    y scale text
-            indicatorData( 3.0f, 0.0f, -0.2f,-20.0f,   1.0f,   "1m"),
-            indicatorData( 0.7f, 0.0f, -0.8f,  0.0f,   1.1f,   "1.10m"),
-            indicatorData(0.05f, 1.1f, -1.0f,  0.0f,  0.18f,   "18cm"),
-            indicatorData(-1.2f, 0.0f, -1.0f,  0.0f,   1.8f,   "1.80m"),
-            indicatorData(-2.8f, 0.0f,  0.2f, 60.0f,   2.0f,   "2m"),
-            indicatorData(-2.0f, 0.0f, -7.0f, 20.0f,   4.0f,   "4m")
-        };        
-
-        for (SLint i = 0; i < 6; i++)
-        {
-            SLNode* sizeIndicator = new SLNode;
-            sizeIndicator->addMesh(plane0);
-            sizeIndicator->addMesh(plane1);
-            //sizeIndicator->scale();
-            SLVec3f pos = indicators[i].pos;
-            sizeIndicator->translate(pos, TS_world);
-            sizeIndicator->scale(1, indicators[i].yScale, 1);
-            sizeIndicator->rotate(indicators[i].yRot, 0, 1, 0, TS_world);
-        
-            SLText* sizeText1M = new SLText(indicators[i].text, SLTexFont::font22);
-            sizeText1M->translate(pos.x + 0.05f, pos.y + 0.5f * indicators[i].yScale, pos.z);
-            sizeText1M->rotate(indicators[i].yRot, 0, 1, 0, TS_world);
-            sizeText1M->scale(0.005f);
-
-
-            scene->addChild(sizeText1M);
-            scene->addChild(sizeIndicator);
-        }
-        
-        scene->addChild(light1);
-        scene->addChild(light2);
-        scene->addChild(light3);
-        scene->addChild(light4);
-        scene->addChild(light5);
-
         s->root3D(scene);
     }
     else
@@ -2278,7 +2088,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         boxNode1->addChild(axisNode1);
         boxNode1->setDrawBitsRec(SL_DB_CULLOFF, true);
         scene->addChild(boxNode1);
-        
+
         // Build mesh & node that will be tracked by the 2nd marker  
         SLBox* box2 = new SLBox(-he,-he, 0.0f, he, he, 2*he, "Box 2", cyan);
         SLNode* boxNode2 = new SLNode(box2, "Box Node 2");
@@ -2347,7 +2157,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Christoffel tower
         SLAssimpImporter importer;
         SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
-        tower->rotate(180, 1,0,0);
+        //we we could not find the tower, load a Box
+        if (!tower) {
+            SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+            SLfloat s = 10.f;
+            tower = new SLNode(new SLBox(-s, -s, -s, s, s, s, "Box", yellow), "Box Node");
+        }
+
+        tower->rotate(180, 1, 0, 0);
         tower->translate(80, -80, 0);
         tower->scale(4);
 
@@ -2530,26 +2347,19 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_VideoTrackKeyFrames)
+    else if (SLApplication::sceneID == SID_VideoTrackKeyFrames)
     {
         // Set scene name and info string
         s->name("Track Keyframe based Features");
         s->info("Example for loading an existing pose graph with map points.");
 
-        //s->videoType(VT_MAIN);
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
 
-        //SLCVCalibration::calibIniPath + "orb-slam-state-2.json"
-        //SLCVCalibration::calibIniPath + "orb-slam-state-buero-test.json"
-        //SLCVCalibration::calibIniPath + "orb-slam-state-buero3.json"
-
-        //SLCVCapture::videoFilename = "street3.mp4";
-        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "street1_manip.json";
-
-        SLCVCapture::videoFilename = "altstadt_biel1.mp4";
-        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-altstadtbiel1_manip.json";
+        SLCVCapture::videoFilename = "street3.mp4";
+        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "street1_manip.json";
+        //SLCVCapture::videoFilename = "altstadt_biel1.mp4";
+        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-altstadtbiel1_manip.json";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 60);
@@ -2559,8 +2369,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipFar(1000000.0f); // Increase to infinity?
         cam1->setInitialState();
         cam1->background().texture(s->videoTexture());
+        //s->videoType(VT_MAIN);
 
         SLCVMap* map = new SLCVMap("Map");
+
 
         ORBVocabulary* vocabulary = new ORBVocabulary();
         string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
@@ -2589,7 +2401,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light1);
 
         SLNode* mapNode = new SLNode("map");
-        //the map is rotated w.r.t world because ORB-SLAM uses x-axis right,
+        //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
         //y-axis down and z-forward
         mapNode->rotate(180, 1, 0, 0);
         scene->addChild(mapNode);
@@ -2598,10 +2410,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //add visual representations of map and keyFrame database to scene
         bool addVisualMap = true;
         bool addVisualKFs = true;
-        SLNode* mapPC=NULL;
+        SLNode* mapPC=NULL; 
         SLNode* mapMatchedPC = NULL;
         SLNode* mapLocalPC = NULL;
-
         if (addVisualMap)
         {
             mapPC = new SLNode(map->getSceneObject(), "MapPoints");
@@ -2632,15 +2443,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             //node
             mapLocalPC = new SLNode(mapLocalMesh, "MapLocalPC");
             mapNode->addChild(mapLocalPC);
-            }
+        }
 
         SLNode* keyFrames = NULL;
         if(addVisualKFs)
         {
             keyFrames = new SLNode("KeyFrames");
             //add keyFrames
-            for (auto* kf : kfDB->keyFrames())
-            {
+            for (auto* kf : kfDB->keyFrames()) {
                 SLCVCamera* cam = kf->getSceneObject();
                 cam->fov(SLApplication::activeCalib->cameraFovDeg());
                 cam->focalDist(0.11);
@@ -2653,7 +2463,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //add tracker
         s->trackers().push_back( new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map,
-        mapPC, mapMatchedPC, mapLocalPC, keyFrames));
+            mapPC, mapMatchedPC, mapLocalPC, keyFrames));
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
@@ -3065,7 +2875,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
     }
 
-    // call onInitialize on all scene views to initialize the scenegraph and stats
+    ////////////////////////////////////////////////////////////////////////////
+    // call onInitialize on all scene views to init the scenegraph and stats
     for (auto sv : s->sceneViews())
     {   if (sv != nullptr)
         {   sv->onInitialize();

@@ -159,7 +159,7 @@ SLScene::~SLScene()
     SL_LOG("------------------------------------------------------------------\n");
 }
 //-----------------------------------------------------------------------------
-/*! The scene init is called whenever the scene is new loaded.
+/*! The scene init is called before a new scene is assembled.
 */
 void SLScene::init()
 {     
@@ -168,6 +168,7 @@ void SLScene::init()
     _globalAmbiLight.set(0.2f,0.2f,0.2f,0.0f);
     _selectedNode = 0;
 
+    // Reset timing variables
     _timer.start();
     _frameTimesMS.init();
     _updateTimesMS.init();
@@ -180,6 +181,15 @@ void SLScene::init()
     _optFlowTimesMS.init();
     _poseTimesMS.init();
     _captureTimesMS.init(200);
+
+    // Reset calibration process at scene change
+    if (SLApplication::activeCalib->state() != CS_calibrated &&
+        SLApplication::activeCalib->state() != CS_uncalibrated)
+        SLApplication::activeCalib->state(CS_uncalibrated);
+    
+    // Deactivate in general the device sensors
+    SLApplication::devRot.isUsed(false);
+    SLApplication::devLoc.isUsed(false);
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global

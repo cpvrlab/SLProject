@@ -13,8 +13,8 @@
 #include <iomanip>
 
 #include <SLApplication.h>
-#include <SLAssimpImporter.h>
 #include <SLScene.h>
+#include <SLAssimpImporter.h>
 #include <SLGLTexture.h>
 #include <SLMaterial.h>
 #include <SLSkeleton.h>

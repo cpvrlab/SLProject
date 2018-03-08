@@ -18,18 +18,18 @@ win32 {
     LIBS += -lshell32
     LIBS += -lsetupapi
     LIBS += -lws2_32
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_aruco320.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_calib3d320.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_core320.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_features2d320.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_flann320.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_highgui320.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgproc320.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgcodecs320.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_objdetect320.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_video320.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_videoio320.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_xfeatures2d320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_aruco340.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_calib3d340.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_core340.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_features2d340.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_flann340.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_highgui340.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgproc340.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgcodecs340.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_objdetect340.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_video340.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_videoio340.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_xfeatures2d340.lib
     DEFINES += GLEW_STATIC
     DEFINES += GLEW_NO_GLU
     DEFINES += _GLFW_NO_DLOAD_GDI32
@@ -39,17 +39,18 @@ win32 {
 }
 macx {
     # mac only
-    QMAKE_MAC_SDK = macosx10.13
-    QMAKE_CXXFLAGS += -mmacosx-version-min=10.7
-    QMAKE_LFLAGS   += -mmacosx-version-min=10.7
     CONFIG += c++11
+    #QMAKE_MAC_SDK = macosx10.13
+    #QMAKE_CXXFLAGS += -mmacosx-version-min=10.10
+    #QMAKE_LFLAGS   += -mmacosx-version-min=10.10
+    #INCLUDEPATH += /usr/include
+    #LIBS += -stdlib=libc++
     DEFINES += GLEW_NO_GLU
     QMAKE_RPATHDIR += -L$$PWD/_lib/prebuilt/OpenCV/macx
     LIBS += -framework Cocoa
     LIBS += -framework IOKit
     LIBS += -framework OpenGL
     LIBS += -framework QuartzCore
-    LIBS += -stdlib=libc++
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_aruco
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_calib3d
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_core
@@ -62,7 +63,6 @@ macx {
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_video
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_videoio
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_xfeatures2d
-    INCLUDEPATH += /usr/include
 }
 unix:!macx:!android {
     # Setup the linux system as described in:

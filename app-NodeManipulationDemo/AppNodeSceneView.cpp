@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      NewNodeSceneView.cpp
+//  File:      AppNodeSceneView.cpp
 //  Purpose:   Node transform test application that demonstrates all transform
 //             possibilities of SLNode
 //  Author:    Marc Wacker
@@ -14,16 +14,16 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLApplication.h>
 #include <SLBox.h>
 #include <SLLightSpot.h>
 #include <SLText.h>
 #include <SLTexFont.h>
 #include <SLAssimpImporter.h>
 #include <SLGLVertexArrayExt.h>
-#include <SLDemoGui.h>
 
-#include "NewNodeGui.h"
-#include "NewNodeSceneView.h"
+#include "AppNodeGui.h"
+#include "AppNodeSceneView.h"
 #include <GLFW/glfw3.h>
 
 //-----------------------------------------------------------------------------
@@ -101,9 +101,9 @@ void drawXZGrid(const SLMat4f& mat)
     state->popModelViewMatrix();
 }
 //-----------------------------------------------------------------------------
-void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
+void onLoad(SLScene* s, SLSceneView* sv, SLSceneID sid)
 {
-    init();
+    s->init();
 
     SLCamera* cam1 = new SLCamera;
     cam1->translation(2, 3, 5);
@@ -118,10 +118,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
     scene->addChild(light1);
     scene->addChild(cam1);
     
-    _root3D = scene;
+    s->root3D(scene);
 
     sv->camera(cam1);
-    sv->waitEvents(false);
+    sv->doWaitOnIdle(false);
     sv->onInitialize();
 }
 //-----------------------------------------------------------------------------
@@ -476,7 +476,7 @@ void NewNodeSceneView::updateInfoText()
     string title = _curObject->name() + " in " + mode + " mode in " + space;
     glfwSetWindowTitle(window, title.c_str());
     
-    SLTexFont* f = SLTexFont::getFont(1.2f, SL::dpi);
-    NewNodeGui::infoText = m;
+    SLTexFont* f = SLTexFont::getFont(1.2f, SLApplication::dpi);
+    AppNodeGui::infoText = m;
 }
 //-----------------------------------------------------------------------------

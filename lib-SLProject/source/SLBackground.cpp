@@ -29,7 +29,7 @@ SLBackground::SLBackground() : SLObject("Background")
     _colors.push_back(SLCol4f::BLACK); // top left
     _isUniform  = true;
     _texture = nullptr;
-    _textureError = SLApplication::scene->videoTextureErr();
+    _textureError = SLApplication::scene->videoTexture();
     _resX = -1;
     _resY = -1;
 }

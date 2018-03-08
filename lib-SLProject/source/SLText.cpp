@@ -13,9 +13,9 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLText.h>
 #include <SLApplication.h>
 #include <SLScene.h>
-#include <SLText.h>
 
 //-----------------------------------------------------------------------------
 /*! 

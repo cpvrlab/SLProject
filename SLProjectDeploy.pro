@@ -452,38 +452,38 @@ win32 {
 }
 macx {
     cvlibs.files += \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_core.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_video.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_flann.dylib
 }
 unix:!macx:!android {
