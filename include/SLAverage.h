@@ -64,7 +64,10 @@ class SLAverage
 
             //! Gets the avaraged value
             T average() {return _average;}
-
+            //! Gets the sum of all values
+            T sum() {return _sum;}
+            //! Gets the number  values
+            SLint numValues() { return _numValue; }
    private:
             SLint    _numValue;           //!< size of value array
             T        _oneOverNumValues;   //!< multiplier instead of devider

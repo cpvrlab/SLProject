@@ -36,6 +36,7 @@ class AppDemoGui
     static void             addSceneGraphNode   (SLScene* s, SLNode* node);
     static void             buildProperties     (SLScene* s);
     static void             buildInfosTracking  (SLScene* s, SLSceneView* sv);
+    static void             buildStatsTrackTime (SLScene* s, SLSceneView* sv);
     static void             loadConfig          (SLint dotsPerInch);
     static void             saveConfig          ();
 
@@ -58,6 +59,7 @@ class AppDemoGui
     static SLbool           showSceneGraph;     //!< Flag if scene graph should be shown
     static SLbool           showProperties;     //!< Flag if properties should be shown
     static SLbool           showInfosTracking;  //!< Flag if tracking info should be shown
+    static SLbool           showStatsTrackTime; //!< Flag if tracking info should be shown   
     static SLbool           showChristoffel;    //!< Flag if Christoffel infos should be shown
 };
 //-----------------------------------------------------------------------------

@@ -393,6 +393,9 @@
     <ClInclude Include="..\include\SLApplication.h">
       <Filter>SL</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLAverageTiming.h">
+      <Filter>SL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -660,6 +663,9 @@
       <Filter>CV</Filter>
     </ClCompile>
     <ClCompile Include="source\SL\SLApplication.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLAverageTiming.cpp">
       <Filter>SL</Filter>
     </ClCompile>
   </ItemGroup>

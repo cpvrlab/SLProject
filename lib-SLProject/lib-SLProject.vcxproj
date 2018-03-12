@@ -284,6 +284,7 @@
     <ClInclude Include="..\include\SLArrow.h" />
     <ClInclude Include="..\include\SLAssimpImporter.h" />
     <ClInclude Include="..\include\SLAverage.h" />
+    <ClInclude Include="..\include\SLAverageTiming.h" />
     <ClInclude Include="..\include\SLCoordAxis.h" />
     <ClInclude Include="..\include\SLBackground.h" />
     <ClInclude Include="..\include\SLCompactGrid.h" />
@@ -470,6 +471,7 @@
     <ClCompile Include="source\SL\SL.cpp" />
     <ClCompile Include="source\SL\SLApplication.cpp" />
     <ClCompile Include="source\SL\SLAssimpImporter.cpp" />
+    <ClCompile Include="source\SL\SLAverageTiming.cpp" />
     <ClCompile Include="source\SL\SLFileSystem.cpp" />
     <ClCompile Include="source\SL\SLImporter.cpp" />
     <ClCompile Include="source\SL\SLInterface.cpp" />

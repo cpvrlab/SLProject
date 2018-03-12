@@ -35,6 +35,7 @@ class SLAverageTiming
 
 public:
     SLAverageTiming();
+    ~SLAverageTiming();
 
     //!start timer for a new or existing block
     static void start(const std::string& name);
@@ -44,16 +45,19 @@ public:
     static SLfloat getTime(const std::string& name);
     //!get time for multiple blocks with given names
     static SLfloat getTime(const std::vector<std::string>& names);
-
+    //!get the number of values
+    static SLint getNumValues(const std::string& name);
 private:
-    //!start timer for a new or existing block
+    //!do start timer for a new or existing block
     void doStart(const std::string& name);
-    //!stop timer for a running block with name
+    //!do stop timer for a running block with name
     void doStop(const std::string& name);
-    //!get time for block with name
+    //!do get time for block with name
     SLfloat doGetTime(const std::string& name);
-    //!get time for multiple blocks with given names
+    //!do get time for multiple blocks with given names
     SLfloat doGetTime(const std::vector<std::string>& names);
+    //!do get the number of values
+    SLint doGetNumValues(const std::string& name);
 
     //!singleton
     static SLAverageTiming& instance()
@@ -63,7 +67,7 @@ private:
     }
 
     //!time measurement blocks
-    std::map<std::string, Block> _blocks;
+    std::map<std::string, Block*> _blocks;
 };
 //-----------------------------------------------------------------------------
 

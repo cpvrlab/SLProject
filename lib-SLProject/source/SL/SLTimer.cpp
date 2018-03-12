@@ -39,7 +39,7 @@ SLTimer::getElapsedTimeInMicroSec computes elapsed time in micro-second
 resolution. Other getElapsedTime will call this first, then convert to 
 correspond resolution.
 */
-inline SLint64 SLTimer::elapsedTimeInMicroSec()
+SLint64 SLTimer::elapsedTimeInMicroSec()
 {
     return duration_cast<microseconds>(SLClock::now()-_timePoint1).count();
 }

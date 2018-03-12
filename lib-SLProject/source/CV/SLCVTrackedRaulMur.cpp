@@ -24,6 +24,7 @@ for a good top down information.
 #include <OrbSlam/ORBmatcher.h>
 #include <OrbSlam/PnPsolver.h>
 #include <OrbSlam/Optimizer.h>
+#include <SLAverageTiming.h>
 
 using namespace cv;
 using namespace ORB_SLAM2;
@@ -60,6 +61,20 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     SLbool drawDetection,
     SLSceneView* sv)
 {
+    //SLTimer t;
+    //t.start();
+    SLAverageTiming::start("SLCVTrackedRaulMur::track");
+    //int calc;
+    //for (int i = 0; i < 10000000; ++i)
+    //    calc = i*i;
+    //SLAverageTiming::stop("SLCVTrackedRaulMur::track");
+    //t.stop();
+
+    //SLfloat time = SLAverageTiming::getTime("SLCVTrackedRaulMur::track");
+    //SLfloat t2 = t.elapsedTimeInMilliSec();
+
+    //return true;
+
     //SLCVMat imageGrayResized;
     //cv::resize(imageGray, imageGrayResized,
     //    cv::Size(640, 480));
@@ -74,6 +89,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     //imageGray.copyTo(imageGrayScaled);
     //cv::resize(imageGrayScaled, imageGrayScaled, 640.0, 480.0);
 
+    SLAverageTiming::start("SLCVTrackedRaulMur::newFrame");
     /************************************************************/
     //Frame constructor call in ORB-SLAM:
     // Current Frame
@@ -81,6 +97,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor,
         calib->cameraMat(), calib->distortion(), mpVocabulary );
     /************************************************************/
+    SLAverageTiming::stop("SLCVTrackedRaulMur::newFrame");
 
     //undistort color video image
     //calib->remap(image, image);
@@ -92,7 +109,9 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     // Localization Mode: Local Mapping is deactivated
     if (mState == LOST)
     {
+        SLAverageTiming::start("SLCVTrackedRaulMur::Relocalization");
         bOK = Relocalization();
+        SLAverageTiming::stop("SLCVTrackedRaulMur::Relocalization");
     }
     else
     {
@@ -100,14 +119,18 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
         if (!mbVO) // In last frame we tracked enough MapPoints from the Map
         {
             if (!mVelocity.empty()) { //we have a valid motion model
+                SLAverageTiming::start("SLCVTrackedRaulMur::TrackWithMotionModel");
                 bOK = TrackWithMotionModel();
+                SLAverageTiming::stop("SLCVTrackedRaulMur::TrackWithMotionModel");
             }
             else { //we have NO valid motion model
                 // All keyframes that observe a map point are included in the local map.
                 // Every current frame gets a reference keyframe assigned which is the keyframe 
                 // from the local map that shares most matches with the current frames local map points matches.
                 // It is updated in UpdateLocalKeyFrames().
+                SLAverageTiming::start("SLCVTrackedRaulMur::TrackReferenceKeyFrame");
                 bOK = TrackReferenceKeyFrame();
+                SLAverageTiming::stop("SLCVTrackedRaulMur::TrackReferenceKeyFrame");
             }
         }
         else // In last frame we tracked mainly "visual odometry" points.
@@ -115,6 +138,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
             // We compute two camera poses, one from motion model and one doing relocalization.
             // If relocalization is sucessfull we choose that solution, otherwise we retain
             // the "visual odometry" solution.
+            SLAverageTiming::start("SLCVTrackedRaulMur::mbVO");
 
             bool bOKMM = false;
             bool bOKReloc = false;
@@ -154,6 +178,8 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
             }
 
             bOK = bOKReloc || bOKMM;
+
+            SLAverageTiming::stop("SLCVTrackedRaulMur::mbVO");
         }
     }
 
@@ -161,8 +187,11 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     // mbVO true means that there are few matches to MapPoints in the map. We cannot retrieve
     // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
     // the camera we will use the local map again.
+
+    SLAverageTiming::start("SLCVTrackedRaulMur::TrackLocalMap");
     if (bOK && !mbVO)
         bOK = TrackLocalMap();
+    SLAverageTiming::stop("SLCVTrackedRaulMur::TrackLocalMap");
 
     if (bOK)
         mState = OK;
@@ -256,6 +285,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
         mlbLost.push_back(mState == LOST);
     }
     
+    SLAverageTiming::stop("SLCVTrackedRaulMur::track");
     return false;
 }
 //-----------------------------------------------------------------------------
