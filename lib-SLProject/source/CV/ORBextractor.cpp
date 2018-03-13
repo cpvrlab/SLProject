@@ -1053,13 +1053,18 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
     Mat image = _image.getMat();
     assert(image.type() == CV_8UC1 );
 
+    SLAverageTiming::start("ComputePyramid", 3, 3);
     // Pre-compute the scale pyramid
     ComputePyramid(image);
+    SLAverageTiming::stop("ComputePyramid");
 
     vector < vector<KeyPoint> > allKeypoints;
+    SLAverageTiming::start("ComputeKeyPointsOctTree", 4, 3);
     ComputeKeyPointsOctTree(allKeypoints);
+    SLAverageTiming::stop("ComputeKeyPointsOctTree");
     //ComputeKeyPointsOld(allKeypoints);
 
+    SLAverageTiming::start("computeDescriptors", 5, 3);
     Mat descriptors;
 
     int nkeypoints = 0;
@@ -1106,6 +1111,7 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
         // And add the keypoints to the output
         _keypoints.insert(_keypoints.end(), keypoints.begin(), keypoints.end());
     }
+    SLAverageTiming::stop("computeDescriptors");
 }
 
 void ORBextractor::ComputePyramid(cv::Mat image)

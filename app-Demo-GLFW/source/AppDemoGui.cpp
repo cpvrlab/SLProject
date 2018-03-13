@@ -106,7 +106,7 @@ SLbool          AppDemoGui::showInfosSensors    = false;
 SLbool          AppDemoGui::showSceneGraph      = false;
 SLbool          AppDemoGui::showProperties      = false;
 SLbool          AppDemoGui::showInfosTracking   = false;
-SLbool          AppDemoGui::showStatsTrackTime = false;
+SLbool          AppDemoGui::showStatsDebugTiming = false;
 SLbool          AppDemoGui::showChristoffel     = false;
 
 // SLCVTrackedRaulMur tracker pointer
@@ -521,9 +521,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         buildInfosTracking(s, sv);
     }
 
-    if (showStatsTrackTime)
+    if (showStatsDebugTiming)
     {
-        buildStatsTrackTime(s, sv);
+        buildStatsDebugTiming(s, sv);
     }
 
     if (showChristoffel && SLApplication::sceneID == SID_VideoChristoffel)
@@ -1286,6 +1286,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         {
             ImGui::MenuItem("Infos on Scene",      0, &showInfosScene);
             ImGui::MenuItem("Stats on Timing"    , 0, &showStatsTiming);
+            if (SLAverageTiming::instance().size()) {
+                ImGui::MenuItem("Stats on Debug Time", 0, &showStatsDebugTiming);
+            }
             ImGui::MenuItem("Stats on Scene"     , 0, &showStatsScene);
             ImGui::MenuItem("Stats on Video"     , 0, &showStatsVideo);
             ImGui::Separator();
@@ -1301,7 +1304,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (SLApplication::sceneID == SID_VideoTrackKeyFrames) {
                 ImGui::Separator();
                 ImGui::MenuItem("Infos on Tracking", 0, &showInfosTracking);
-                ImGui::MenuItem("Stats on Tracking Time", 0, &showStatsTrackTime);
             }
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", 0, &showHelp);
@@ -1767,39 +1769,45 @@ void AppDemoGui::buildProperties(SLScene* s)
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
-void AppDemoGui::buildStatsTrackTime(SLScene* s, SLSceneView* sv)
+void AppDemoGui::buildStatsDebugTiming(SLScene* s, SLSceneView* sv)
 {
-    SLfloat tt = SLAverageTiming::getTime("SLCVTrackedRaulMur::track");
+    if (!SLAverageTiming::instance().size())
+        return;
+
     SLchar m[2550];  // message character array
     m[0] = 0;        // set zero length
 
-    // Get averages from average variables (see SLAverage)
-    SLfloat newFrame = SLAverageTiming::getTime("SLCVTrackedRaulMur::newFrame");
-    SLfloat relocalization = SLAverageTiming::getTime("SLCVTrackedRaulMur::Relocalization");
-    SLfloat trackWithMotionModel = SLAverageTiming::getTime("SLCVTrackedRaulMur::TrackWithMotionModel");
-    SLfloat trackReferenceKeyFrame = SLAverageTiming::getTime("SLCVTrackedRaulMur::TrackReferenceKeyFrame");
-    SLfloat vOTime = SLAverageTiming::getTime("SLCVTrackedRaulMur::mbVO");
-    SLfloat trackLocalMap = SLAverageTiming::getTime("SLCVTrackedRaulMur::TrackLocalMap");
+    //sort vertically
+    std::vector<SLAverageTimingBlock*> blocks;
+    for (auto& block : SLAverageTiming::instance())
+    {
+        blocks.push_back(block.second);
+    }
+    std::sort(blocks.begin(), blocks.end(), [](SLAverageTimingBlock* lhs, SLAverageTimingBlock* rhs)-> bool {
+        return lhs->posV < rhs->posV;
+    });
 
-    // Calculate percentage from tracking time
-    SLfloat newFramePC = SL_clamp(newFrame / tt * 100.0f, 0.0f, 100.0f);
-    SLfloat relocalizationPC = SL_clamp(relocalization / tt * 100.0f, 0.0f, 100.0f);
-    SLfloat trackWithMotionModelPC = SL_clamp(trackWithMotionModel / tt * 100.0f, 0.0f, 100.0f);
-    SLfloat trackReferenceKeyFramePC = SL_clamp(trackReferenceKeyFrame / tt * 100.0f, 0.0f, 100.0f);
-    SLfloat vOTimePC = SL_clamp(vOTime / tt * 100.0f, 0.0f, 100.0f);
-    SLfloat trackLocalMapPC = SL_clamp(trackLocalMap / tt * 100.0f, 0.0f, 100.0f);
+    //find reference time
+    SLfloat refTime = 1.0f;
+    if (blocks.size())
+        refTime = (*blocks.begin())->val.average();
 
-    sprintf(m + strlen(m), "Frame time    : %4.1f ms (100%%)\n", tt);
-    sprintf(m + strlen(m), "  newFrame     : %4.1f ms (%3d%%)\n", newFrame, (SLint)newFramePC);
-    sprintf(m + strlen(m), "  Relocalization     : %4.1f ms (%3d%%)\n", relocalization, (SLint)relocalizationPC);
-    sprintf(m + strlen(m), "  TrackWithMotionModel     : %4.1f ms (%3d%%)\n", trackWithMotionModel, (SLint)trackWithMotionModelPC);
-    sprintf(m + strlen(m), "  TrackReferenceKeyFrame     : %4.1f ms (%3d%%)\n", trackReferenceKeyFrame, (SLint)trackReferenceKeyFramePC);
-    sprintf(m + strlen(m), "  VisualOdometry     : %4.1f ms (%3d%%)\n", vOTime, (SLint)vOTimePC);
-    sprintf(m + strlen(m), "  TrackLocalMapPC     : %4.1f ms (%3d%%)\n", trackLocalMap, (SLint)trackLocalMapPC);
+    //insert time measurements
+    for (auto* block : blocks)
+    {
+        SLfloat val = block->val.average();
+        SLfloat valPC = SL_clamp(val / refTime * 100.0f, 0.0f, 100.0f);
+        string name = block->name;
+        stringstream ss;
+        for (int i = 0; i < block->posH; ++i)
+            ss << " ";
+        ss << "%s: %4.1f ms (%3d%%)\n";
+        sprintf(m + strlen(m), ss.str().c_str(), name.c_str(), val, (SLint)valPC);
+    }
 
-
+    //define ui elements
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-    ImGui::Begin("Tracking Timing", &showStatsTrackTime, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("Tracking Timing", &showStatsDebugTiming, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::TextUnformatted(m);
     ImGui::End();
     ImGui::PopFont();

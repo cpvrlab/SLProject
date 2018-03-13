@@ -61,19 +61,63 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     SLbool drawDetection,
     SLSceneView* sv)
 {
-    //SLTimer t;
-    //t.start();
-    SLAverageTiming::start("SLCVTrackedRaulMur::track");
-    //int calc;
-    //for (int i = 0; i < 10000000; ++i)
-    //    calc = i*i;
-    //SLAverageTiming::stop("SLCVTrackedRaulMur::track");
-    //t.stop();
+    ////find map point matches
+    //std::vector<SLCVMapPoint*> mapPointMatches;
 
-    //SLfloat time = SLAverageTiming::getTime("SLCVTrackedRaulMur::track");
-    //SLfloat t2 = t.elapsedTimeInMilliSec();
+    //for (int i = 0; i < mCurrentFrame.N; i++)
+    //{
+    //    if (mCurrentFrame.mvpMapPoints[i])
+    //    {
+    //        if (!mCurrentFrame.mvbOutlier[i])
+    //        {
+    //            if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
+    //                mapPointMatches.push_back(mCurrentFrame.mvpMapPoints[i]);
+    //        }
+    //    }
+    //}
 
-    //return true;
+    ////update scene:
+    ////make a new SLPoints object
+    //if (!_pcMat1) {
+    //    _pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
+    //    _pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+    //    _pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+    //}
+
+    ////get points as Vec3f
+    //SLVVec3f points, normals;
+    //for (auto mapPt : mapPointMatches) {
+    //    points.push_back(mapPt->worldPosVec());
+    //    normals.push_back(mapPt->normalVec());
+    //}
+
+    //SLRnd3fUniform rndU(SLVec3f(0, 0, 0), SLVec3f(2, 3, 5));
+    ////SLNode* pc2 = new SLNode(new SLPoints(1000, rndU, "PC2", pcMat2));
+    ////SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", _pcMat1);
+    //SLPoints* mapMatchesMesh = new SLPoints(1000, rndU, "MapPointsMatches", _pcMat1);
+    ////add to map node
+    //if (SLMesh* mesh = _mapMatchesPC->findMesh("MapPointsMatches")) {
+    //    _mapMatchesPC->deleteMesh(mesh);
+    //}
+    ////_mapMatchesPC->removeMesh("MapPointsMatches");
+    //_mapMatchesPC->addMesh(mapMatchesMesh);
+    //_mapMatchesPC->updateAABBRec();
+
+
+    //return false;
+
+
+
+
+
+
+
+
+
+
+
+
+    SLAverageTiming::start("track", 0, 0);
 
     //SLCVMat imageGrayResized;
     //cv::resize(imageGray, imageGrayResized,
@@ -89,7 +133,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     //imageGray.copyTo(imageGrayScaled);
     //cv::resize(imageGrayScaled, imageGrayScaled, 640.0, 480.0);
 
-    SLAverageTiming::start("SLCVTrackedRaulMur::newFrame");
+    SLAverageTiming::start("newFrame", 1, 1);
     /************************************************************/
     //Frame constructor call in ORB-SLAM:
     // Current Frame
@@ -97,7 +141,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor,
         calib->cameraMat(), calib->distortion(), mpVocabulary );
     /************************************************************/
-    SLAverageTiming::stop("SLCVTrackedRaulMur::newFrame");
+    SLAverageTiming::stop("newFrame");
 
     //undistort color video image
     //calib->remap(image, image);
@@ -109,9 +153,9 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     // Localization Mode: Local Mapping is deactivated
     if (mState == LOST)
     {
-        SLAverageTiming::start("SLCVTrackedRaulMur::Relocalization");
+        SLAverageTiming::start("Relocalization",8, 1);
         bOK = Relocalization();
-        SLAverageTiming::stop("SLCVTrackedRaulMur::Relocalization");
+        SLAverageTiming::stop("Relocalization");
     }
     else
     {
@@ -119,18 +163,18 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
         if (!mbVO) // In last frame we tracked enough MapPoints from the Map
         {
             if (!mVelocity.empty()) { //we have a valid motion model
-                SLAverageTiming::start("SLCVTrackedRaulMur::TrackWithMotionModel");
+                SLAverageTiming::start("TrackWithMotionModel", 13, 1);
                 bOK = TrackWithMotionModel();
-                SLAverageTiming::stop("SLCVTrackedRaulMur::TrackWithMotionModel");
+                SLAverageTiming::stop("TrackWithMotionModel");
             }
             else { //we have NO valid motion model
                 // All keyframes that observe a map point are included in the local map.
                 // Every current frame gets a reference keyframe assigned which is the keyframe 
                 // from the local map that shares most matches with the current frames local map points matches.
                 // It is updated in UpdateLocalKeyFrames().
-                SLAverageTiming::start("SLCVTrackedRaulMur::TrackReferenceKeyFrame");
+                SLAverageTiming::start("TrackReferenceKeyFrame", 18, 1);
                 bOK = TrackReferenceKeyFrame();
-                SLAverageTiming::stop("SLCVTrackedRaulMur::TrackReferenceKeyFrame");
+                SLAverageTiming::stop("TrackReferenceKeyFrame");
             }
         }
         else // In last frame we tracked mainly "visual odometry" points.
@@ -138,7 +182,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
             // We compute two camera poses, one from motion model and one doing relocalization.
             // If relocalization is sucessfull we choose that solution, otherwise we retain
             // the "visual odometry" solution.
-            SLAverageTiming::start("SLCVTrackedRaulMur::mbVO");
+            SLAverageTiming::start("visualOdometry", 19, 1);
 
             bool bOKMM = false;
             bool bOKReloc = false;
@@ -179,7 +223,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
 
             bOK = bOKReloc || bOKMM;
 
-            SLAverageTiming::stop("SLCVTrackedRaulMur::mbVO");
+            SLAverageTiming::stop("visualOdometry");
         }
     }
 
@@ -188,10 +232,10 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
     // the camera we will use the local map again.
 
-    SLAverageTiming::start("SLCVTrackedRaulMur::TrackLocalMap");
+    SLAverageTiming::start("TrackLocalMap", 20, 1);
     if (bOK && !mbVO)
         bOK = TrackLocalMap();
-    SLAverageTiming::stop("SLCVTrackedRaulMur::TrackLocalMap");
+    SLAverageTiming::stop("TrackLocalMap");
 
     if (bOK)
         mState = OK;
@@ -285,7 +329,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
         mlbLost.push_back(mState == LOST);
     }
     
-    SLAverageTiming::stop("SLCVTrackedRaulMur::track");
+    SLAverageTiming::stop("track");
     return false;
 }
 //-----------------------------------------------------------------------------
@@ -418,9 +462,11 @@ void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
 
             //update scene:
             //make a new SLPoints object
-            SLMaterial* pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
-            pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-            pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+            if (!_pcMat1) {
+                _pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
+                _pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+                _pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+            }
 
             //get points as Vec3f
             SLVVec3f points, normals;
@@ -429,16 +475,20 @@ void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
                 normals.push_back(mapPt->normalVec());
             }
 
-            SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", pcMat1);
+            SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", _pcMat1);
             //add to map node
-            _mapMatchesPC->removeMesh("MapPointsMatches");
+            if (SLMesh* mesh = _mapMatchesPC->findMesh("MapPointsMatches")) {
+                _mapMatchesPC->deleteMesh(mesh);
+            }
             _mapMatchesPC->addMesh(mapMatchesMesh);
             _mapMatchesPC->updateAABBRec();
         }
         else
         {
             //remove point cloud
-            _mapMatchesPC->removeMesh("MapPointsMatches");
+            if (SLMesh* mesh = _mapMatchesPC->findMesh("MapPointsMatches")) {
+                _mapMatchesPC->deleteMesh(mesh);
+            }
         }
     }
 
@@ -450,9 +500,12 @@ void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
         {
             //update scene:
             //make a new SLPoints object
-            SLMaterial* pcMat2 = new SLMaterial("Magenta", SLCol4f::MAGENTA);
-            pcMat2->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-            pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+            if (!_pcMat2)
+            {
+                _pcMat2 = new SLMaterial("Magenta", SLCol4f::MAGENTA);
+                _pcMat2->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+                _pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+            }
 
             //get points as Vec3f
             SLVVec3f points, normals;
@@ -461,15 +514,19 @@ void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
                 normals.push_back(mapPt->normalVec());
             }
 
-            SLPoints* mapLocalMesh = new SLPoints(points, normals, "MapPointsLocal", pcMat2);
+            SLPoints* mapLocalMesh = new SLPoints(points, normals, "MapPointsLocal", _pcMat2);
             //add to map node
-            _mapLocalPC->removeMesh("MapPointsLocal");
+            if (SLMesh* mesh = _mapLocalPC->findMesh("MapPointsLocal")) {
+                _mapLocalPC->deleteMesh(mesh);
+            }
             _mapLocalPC->addMesh(mapLocalMesh);
             _mapLocalPC->updateAABBRec();
         }
         else
         {
-            _mapLocalPC->removeMesh("MapPointsLocal");
+            if (SLMesh* mesh = _mapLocalPC->findMesh("MapPointsLocal")) {
+                _mapLocalPC->deleteMesh(mesh);
+            }
         }
     }
 }
@@ -490,11 +547,15 @@ bool SLCVTrackedRaulMur::Relocalization()
     //10. if more than 50 good matches remain after optimization, relocalization was successful
 
     // Compute Bag of Words Vector
+    SLAverageTiming::start("ComputeBoW", 9, 2);
     mCurrentFrame.ComputeBoW();
+    SLAverageTiming::stop("ComputeBoW");
 
     // Relocalization is performed when tracking is lost
     // Track Lost: Query SLCVKeyFrame Database for keyframe candidates for relocalisation
+    SLAverageTiming::start("DetectRelocalizationCandidates", 10, 2);
     vector<SLCVKeyFrame*> vpCandidateKFs = mpKeyFrameDatabase->DetectRelocalizationCandidates(&mCurrentFrame);
+    SLAverageTiming::stop("DetectRelocalizationCandidates");
 
     if (vpCandidateKFs.empty())
         return false;
@@ -503,6 +564,8 @@ bool SLCVTrackedRaulMur::Relocalization()
 
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
+
+    SLAverageTiming::start("MatchCandsAndSolvePose", 11, 2);
     ORBmatcher matcher(0.75, true);
 
     vector<PnPsolver*> vpPnPsolvers;
@@ -538,7 +601,9 @@ bool SLCVTrackedRaulMur::Relocalization()
             }
         }
     }
+    SLAverageTiming::stop("MatchCandsAndSolvePose");
 
+    SLAverageTiming::start("SearchCandsUntil50Matches", 12, 2);
     // Alternatively perform some iterations of P4P RANSAC
     // Until we found a camera pose supported by enough inliers
     bool bMatch = false;
@@ -639,6 +704,7 @@ bool SLCVTrackedRaulMur::Relocalization()
             }
         }
     }
+    SLAverageTiming::stop("SearchCandsUntil50Matches");
 
     if (!bMatch)
     {
@@ -676,22 +742,29 @@ bool SLCVTrackedRaulMur::TrackWithMotionModel()
     fill(mCurrentFrame.mvpMapPoints.begin(), mCurrentFrame.mvpMapPoints.end(), static_cast<SLCVMapPoint*>(NULL));
 
     // Project points seen in previous frame
+    SLAverageTiming::start("SearchByProjection7", 14, 2);
     int th = 7;
     int nmatches = matcher.SearchByProjection(mCurrentFrame, mLastFrame, th, true);
+    SLAverageTiming::stop("SearchByProjection7");
 
     // If few matches, uses a wider window search
+    SLAverageTiming::start("SearchByProjection14", 15, 2);
     if (nmatches<20)
     {
         fill(mCurrentFrame.mvpMapPoints.begin(), mCurrentFrame.mvpMapPoints.end(), static_cast<SLCVMapPoint*>(NULL));
         nmatches = matcher.SearchByProjection(mCurrentFrame, mLastFrame, 2 * th, true);
     }
+    SLAverageTiming::stop("SearchByProjection14");
 
     if (nmatches<20)
         return false;
 
+    SLAverageTiming::start("PoseOptimizationTWMM", 16, 2);
     // Optimize frame pose with all matches
     Optimizer::PoseOptimization(&mCurrentFrame);
+    SLAverageTiming::stop("PoseOptimizationTWMM");
 
+    SLAverageTiming::start("DiscardOutliers", 17, 2);
     // Discard outliers
     int nmatchesMap = 0;
     for (int i = 0; i<mCurrentFrame.N; i++)
@@ -712,6 +785,7 @@ bool SLCVTrackedRaulMur::TrackWithMotionModel()
                 nmatchesMap++;
         }
     }
+    SLAverageTiming::stop("DiscardOutliers");
 
     //if (mbOnlyTracking)
     //{
@@ -739,14 +813,21 @@ bool SLCVTrackedRaulMur::TrackLocalMap()
     //5.
     //(this function)
     //6. The Pose is optimized using the found additional matches and the already found pose as initial guess
+    SLAverageTiming::start("UpdateLocalMap", 21, 2);
     UpdateLocalMap();
+    SLAverageTiming::stop("UpdateLocalMap");
 
+    SLAverageTiming::start("SearchLocalPoints", 22, 2);
     SearchLocalPoints();
+    SLAverageTiming::stop("SearchLocalPoints");
 
     // Optimize Pose
+    SLAverageTiming::start("PoseOptimizationTLM", 23, 2);
     Optimizer::PoseOptimization(&mCurrentFrame);
+    SLAverageTiming::stop("PoseOptimizationTLM");
     mnMatchesInliers = 0;
 
+    SLAverageTiming::start("UpdateMapPointsStat", 24, 2);
     // Update MapPoints Statistics
     for (int i = 0; i<mCurrentFrame.N; i++)
     {
@@ -762,6 +843,7 @@ bool SLCVTrackedRaulMur::TrackLocalMap()
             //    mCurrentFrame.mvpMapPoints[i] = static_cast<SLCVMapPoint*>(NULL);
         }
     }
+    SLAverageTiming::stop("UpdateMapPointsStat");
 
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently

@@ -164,7 +164,8 @@ bool SLNode::removeMesh(SLstring name)
 {
     assert(name!="");
     SLMesh* found = findMesh(name);
-    if (found) return removeMesh(found);
+    if (found) 
+        return removeMesh(found);
     return false;
 }
 //-----------------------------------------------------------------------------

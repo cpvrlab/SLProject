@@ -36,5 +36,12 @@
 #include <SLUtils.h>
 #include <SLFileSystem.h>
 #include <SLTimer.h>
+#include <SLAverageTiming.h>
 //-----------------------------------------------------------------------------
+#include <OrbSlam/Optimizer.h>
+#include <OrbSlam/Converter.h>
+#include <OrbSlam/ORBmatcher.h>
+#include <OrbSlam/PnPsolver.h>
+//-----------------------------------------------------------------------------
+
 #endif

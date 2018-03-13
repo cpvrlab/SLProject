@@ -20,16 +20,16 @@ SLAverageTiming::SLAverageTiming()
 //-----------------------------------------------------------------------------
 SLAverageTiming::~SLAverageTiming()
 {
-    for (auto& block : _blocks) {
+    for (auto& block : *this) {
         if (block.second)
             delete block.second;
     }
 }
 //-----------------------------------------------------------------------------
 //!start timer for a new or existing block
-void SLAverageTiming::start(const std::string& name)
+void SLAverageTiming::start(const std::string& name, SLint posV, SLint posH)
 {
-    SLAverageTiming::instance().doStart(name);
+    SLAverageTiming::instance().doStart(name, posV, posH);
 }
 //-----------------------------------------------------------------------------
 //!stop timer for a running block with name
@@ -57,23 +57,24 @@ SLint SLAverageTiming::getNumValues(const std::string& name)
 }
 //-----------------------------------------------------------------------------
 //!start timer for a new or existing block
-void SLAverageTiming::doStart(const std::string& name)
+void SLAverageTiming::doStart(const std::string& name, SLint posV, SLint posH)
 {
-    if (_blocks.find(name) == _blocks.end()) {
-        Block* block = new Block();
-        _blocks[name] = block;
+    if ( find(name) == end()) {
+        SLAverageTimingBlock* block = new SLAverageTimingBlock(
+            _averageNumValues, name, posV, posH);
+        (*this)[name] = block;
     }
 
-    _blocks[name]->timer.start();
+    (*this)[name]->timer.start();
 }
 
 //-----------------------------------------------------------------------------
 //!stop timer for a running block with name
 void SLAverageTiming::doStop(const std::string& name)
 {
-    if (_blocks.find(name) != _blocks.end()) {
-        _blocks[name]->timer.stop();
-        _blocks[name]->val.set(_blocks[name]->timer.elapsedTimeInMilliSec());
+    if ( find(name) != end()) {
+        (*this)[name]->timer.stop();
+        (*this)[name]->val.set((*this)[name]->timer.elapsedTimeInMilliSec());
     }
     else
         SL_LOG("SLAverageTiming: A block with name %s does not exist!\n", name.c_str());
@@ -83,8 +84,8 @@ void SLAverageTiming::doStop(const std::string& name)
 //!get time for block with name
 SLfloat SLAverageTiming::doGetTime(const std::string& name)
 {
-    if (_blocks.find(name) != _blocks.end()) {
-        return _blocks[name]->val.average();
+    if ( find(name) != end()) {
+        return (*this)[name]->val.average();
     }
     else
         SL_LOG("SLAverageTiming: A block with name %s does not exist!\n", name.c_str());
@@ -107,8 +108,8 @@ SLfloat SLAverageTiming::doGetTime(const std::vector<std::string>& names)
 //-----------------------------------------------------------------------------
 SLint SLAverageTiming::doGetNumValues(const std::string& name)
 {
-    if (_blocks.find(name) != _blocks.end()) {
-        return _blocks[name]->val.numValues();
+    if ( find(name) != end()) {
+        return (*this)[name]->val.numValues();
     }
     else
         SL_LOG("SLAverageTiming: A block with name %s does not exist!\n", name.c_str());

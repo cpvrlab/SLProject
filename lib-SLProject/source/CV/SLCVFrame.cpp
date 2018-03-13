@@ -76,19 +76,24 @@ SLCVFrame::SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextracto
     mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
 
     // ORB extraction
+    SLAverageTiming::start("ExtractORB", 2, 2);
     ExtractORB(imGray);
+    SLAverageTiming::stop("ExtractORB");
 
     N = (int)mvKeys.size();
 
     if (mvKeys.empty())
         return;
 
+    SLAverageTiming::start("UndistortKeyPoints", 6, 2);
     UndistortKeyPoints();
+    SLAverageTiming::stop("UndistortKeyPoints");
 
     //// Set no stereo information
     //mvuRight = vector<float>(N, -1);
     //mvDepth = vector<float>(N, -1);
 
+    SLAverageTiming::start("AssignFeaturesToGrid", 7, 2);
     mvpMapPoints = vector<SLCVMapPoint*>(N, static_cast<SLCVMapPoint*>(NULL));
     mvbOutlier = vector<bool>(N, false);
 
@@ -111,8 +116,8 @@ SLCVFrame::SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextracto
     }
 
     //mb = mbf / fx;
-
     AssignFeaturesToGrid();
+    SLAverageTiming::stop("AssignFeaturesToGrid");
 }
 //-----------------------------------------------------------------------------
 void SLCVFrame::ExtractORB(const cv::Mat &im)

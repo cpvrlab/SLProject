@@ -191,6 +191,8 @@ private:
     bool _showLocalMapPC = true;
     bool _showKeyPoints = true;
     bool _showKeyPointsMatched = true;
+    SLMaterial* _pcMat1 = NULL;
+    SLMaterial* _pcMat2 = NULL;
 
     //mean reprojection error
     double _meanReprojectionError = -1.0;

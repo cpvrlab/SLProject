@@ -19,26 +19,42 @@
 #include <SLAverage.h>
 #include <sstream>
 
+
+//!concatenation of average value and timer
+/*!
+Define a hierarchy by posV and posH which is used in ui to arrange the measurements.
+The first found content with posV==0 is used as reference measurement for the percental value.
+*/
+struct SLAverageTimingBlock {
+    SLAverageTimingBlock(SLint averageNumValues, SLstring name, SLint posV, SLint posH)
+        : val(averageNumValues),
+        name(name),
+        posV(posV),
+        posH(posH)
+    {}
+    SLAvgFloat val;
+    SLstring name;
+    SLTimer timer;
+    SLint posV=0;
+    SLint posH=0;
+};
+
 //-----------------------------------------------------------------------------
 //! Singleton timing class for average measurement of different timing blocks
 /*!
-Call start("name") to define a new timing block and start timing or start timing
-of an existing block. Call stop("name")
+Call start("name", posV, posH) to define a new timing block and start timing or start timing
+of an existing block. Call stop("name") to finish measurement for this block.
+Define a hierarchy by posV and posH which is used in ui to arrange the measurements.
+The first found content with posV==0 is used as reference measurement for the percental value.
 */
-class SLAverageTiming
+class SLAverageTiming : public std::map<std::string, SLAverageTimingBlock*>
 {
-    //!concatenation of average value and timer
-    struct Block {
-        SLAvgFloat val;
-        SLTimer timer;
-    };
-
 public:
     SLAverageTiming();
     ~SLAverageTiming();
 
     //!start timer for a new or existing block
-    static void start(const std::string& name);
+    static void start(const std::string& name, SLint posV, SLint posH);
     //!stop timer for a running block with name
     static void stop(const std::string& name);
     //!get time for block with name
@@ -47,9 +63,16 @@ public:
     static SLfloat getTime(const std::vector<std::string>& names);
     //!get the number of values
     static SLint getNumValues(const std::string& name);
+
+    //!singleton
+    static SLAverageTiming& instance()
+    {
+        static SLAverageTiming timing;
+        return timing;
+    }
 private:
     //!do start timer for a new or existing block
-    void doStart(const std::string& name);
+    void doStart(const std::string& name, SLint posV, SLint posH);
     //!do stop timer for a running block with name
     void doStop(const std::string& name);
     //!do get time for block with name
@@ -59,15 +82,10 @@ private:
     //!do get the number of values
     SLint doGetNumValues(const std::string& name);
 
-    //!singleton
-    static SLAverageTiming& instance()
-    {
-        static SLAverageTiming timing;
-        return timing;
-    }
-
     //!time measurement blocks
-    std::map<std::string, Block*> _blocks;
+    //std::map<std::string, Block*> _blocks;
+    //average numValues
+    SLint _averageNumValues = 200;
 };
 //-----------------------------------------------------------------------------
 
