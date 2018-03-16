@@ -75,6 +75,7 @@ void SLAverageTiming::doStop(const std::string& name)
     if ( find(name) != end()) {
         (*this)[name]->timer.stop();
         (*this)[name]->val.set((*this)[name]->timer.elapsedTimeInMilliSec());
+        (*this)[name]->nCalls++;
     }
     else
         SL_LOG("SLAverageTiming: A block with name %s does not exist!\n", name.c_str());

@@ -526,7 +526,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         buildStatsDebugTiming(s, sv);
     }
 
-    if (showChristoffel && SLApplication::sceneID == SID_VideoChristoffel)
+    if (showChristoffel && SLApplication::sceneID == SID_VideoChristoffel ||
+        showChristoffel && SLApplication::sceneID == SID_VideoChristoffelOrbSlam )
     {
         ImGui::Begin("Christoffel", &showChristoffel, ImVec2(300,0));
 
@@ -716,6 +717,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoSensorAR);
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", 0, sid==SID_VideoChristoffel))
                         s->onLoad(s, sv, SID_VideoChristoffel);
+                    if (ImGui::MenuItem("Christoffel Tower AR ORB-SLAM", 0, sid == SID_VideoChristoffelOrbSlam))
+                        s->onLoad(s, sv, SID_VideoChristoffelOrbSlam);
                     if (ImGui::MenuItem("Track Features from Keyframes", 0, sid == sid==SID_VideoTrackKeyFrames))
                         s->onLoad(s, sv, SID_VideoTrackKeyFrames);
 
@@ -1297,11 +1300,13 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Infos on Sensors",    0, &showInfosSensors);
             ImGui::MenuItem("Infos on Frameworks", 0, &showInfosFrameworks);
-            if (SLApplication::sceneID==SID_VideoChristoffel)
+            if (SLApplication::sceneID == SID_VideoChristoffel || 
+                SLApplication::sceneID == SID_VideoChristoffelOrbSlam )
             {   ImGui::Separator();
                 ImGui::MenuItem("Infos on Christoffel",0, &showChristoffel);
             }
-            if (SLApplication::sceneID == SID_VideoTrackKeyFrames) {
+            if (SLApplication::sceneID == SID_VideoTrackKeyFrames ||
+                SLApplication::sceneID == SID_VideoChristoffelOrbSlam ) {
                 ImGui::Separator();
                 ImGui::MenuItem("Infos on Tracking", 0, &showInfosTracking);
             }
@@ -1790,7 +1795,11 @@ void AppDemoGui::buildStatsDebugTiming(SLScene* s, SLSceneView* sv)
     //find reference time
     SLfloat refTime = 1.0f;
     if (blocks.size())
+    {
         refTime = (*blocks.begin())->val.average();
+        //insert number of measurment calls
+        sprintf(m + strlen(m), "Num. calls: %i\n", (SLint)(*blocks.begin())->nCalls);
+    }
 
     //insert time measurements
     for (auto* block : blocks)

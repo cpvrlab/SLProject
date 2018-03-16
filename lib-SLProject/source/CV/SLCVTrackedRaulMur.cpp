@@ -793,6 +793,7 @@ bool SLCVTrackedRaulMur::TrackWithMotionModel()
     return nmatches>20;
     //}
 
+
     //return nmatchesMap >= 10;
 }
 
@@ -1337,7 +1338,7 @@ void SLCVTrackedRaulMur::applyTransformation(double value, TransformType type)
 
 void SLCVTrackedRaulMur::saveState()
 {
-    string filename = "../_data/calibrations/street1_manip.json";
+    string filename = "../_data/calibrations/orb-slam-state-bern3-ct.json";
     cv::FileStorage fs(filename, cv::FileStorage::WRITE);
 
     //save keyframes (without graph/neigbourhood information)

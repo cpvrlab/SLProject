@@ -283,7 +283,9 @@ file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/t
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Desert*_C.jpg
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/i*_0000b.png)
 
-file(GLOB_RECURSE VIDEOS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/street3.mp4)
+file(GLOB_RECURSE VIDEOS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/street3.mp4
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/altstadt_biel1.mp4
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/Bern1.mp4)
 
 file(GLOB_RECURSE FONTS         ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.ttf)
@@ -298,6 +300,7 @@ file(GLOB_RECURSE CALIBRATIONS  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrat
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/aruco_detector_params.yml
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/street1_manip.json
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-altstadtbiel1_manip.json
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-bern1-manip1.json
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/test.yml
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/ORBvoc.txt)
 

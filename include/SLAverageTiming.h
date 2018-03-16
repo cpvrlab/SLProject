@@ -37,10 +37,11 @@ struct SLAverageTimingBlock {
     SLTimer timer;
     SLint posV=0;
     SLint posH=0;
+    SLint nCalls=0;
 };
 
 //-----------------------------------------------------------------------------
-//! Singleton timing class for average measurement of different timing blocks
+//! Singleton timing class for average measurement of different timing blocks in loops
 /*!
 Call start("name", posV, posH) to define a new timing block and start timing or start timing
 of an existing block. Call stop("name") to finish measurement for this block.
@@ -82,10 +83,8 @@ private:
     //!do get the number of values
     SLint doGetNumValues(const std::string& name);
 
-    //!time measurement blocks
-    //std::map<std::string, Block*> _blocks;
     //average numValues
-    SLint _averageNumValues = 200;
+    SLint _averageNumValues = 1000;
 };
 //-----------------------------------------------------------------------------
 

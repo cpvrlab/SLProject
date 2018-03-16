@@ -415,7 +415,8 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     scrWidth = 640;
-    scrHeight = 480;
+    //scrHeight = 480;
+    scrHeight = 380;
     touch2.set(-1,-1);
     touchDelta.set(-1,-1);
 

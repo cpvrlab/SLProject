@@ -188,8 +188,8 @@ private:
 
     //flags, if we have to update the scene object of the map point matches
     bool _showMatchesPC = true;
-    bool _showLocalMapPC = true;
-    bool _showKeyPoints = true;
+    bool _showLocalMapPC = false;
+    bool _showKeyPoints = false;
     bool _showKeyPointsMatched = true;
     SLMaterial* _pcMat1 = NULL;
     SLMaterial* _pcMat2 = NULL;

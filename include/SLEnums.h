@@ -112,6 +112,7 @@ enum SLSceneID
     SID_VideoTextureLive,
     SID_VideoTextureFile,
     SID_VideoChristoffel,
+    SID_VideoChristoffelOrbSlam,
     SID_VideoCalibrateMain,
     SID_VideoCalibrateScnd,
     SID_VideoTrackChessMain,
