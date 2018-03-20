@@ -3,6 +3,7 @@
 *.suo
 *.vsp
 *.user
+*.user.*
 *.sdf
 *.opensdf
 *.idb

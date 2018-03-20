@@ -17,13 +17,14 @@
 
 //-----------------------------------------------------------------------------
 //! SLInputManager. manages system input and custom input devices.
-/*! Every user input has to go through the SLInputManager. System event's
-like touch, mouse, character input will be encapsulated in SLInputEvent
-subclasses and will be queued up before being sent to the relevant SLSceneView.
-Custom SLInputDevices can also be created. The SLInputDevices are guaranteed to 
-receive a call to their poll() function whenever the SLInputManager requires them
-to send out new events.
-One static instance of SLInputManager is used in SLApplication
+/*!  One static instance of SLInputManager is used in SLApplication. Every user
+ input has to go through the SLInputManager. System event's like touch, mouse,
+ character input will be encapsulated in SLInputEvent subclasses and will be
+ queued up before being sent to the relevant SLSceneView.
+ Custom SLInputDevices can also be created. The SLInputDevices are guaranteed to
+ receive a call to their poll() function whenever the SLInputManager requires
+ them to send out new events. The method pollAndProcessEvents is called every
+ frame in SLScene::onUpdate.
 */
 class SLInputManager
 {

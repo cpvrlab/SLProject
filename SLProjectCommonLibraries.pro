@@ -39,17 +39,18 @@ win32 {
 }
 macx {
     # mac only
-    QMAKE_MAC_SDK = macosx10.13
-    QMAKE_CXXFLAGS += -mmacosx-version-min=10.10
-    QMAKE_LFLAGS   += -mmacosx-version-min=10.10
     CONFIG += c++11
+    #QMAKE_MAC_SDK = macosx10.13
+    #QMAKE_CXXFLAGS += -mmacosx-version-min=10.10
+    #QMAKE_LFLAGS   += -mmacosx-version-min=10.10
+    #INCLUDEPATH += /usr/include
+    #LIBS += -stdlib=libc++
     DEFINES += GLEW_NO_GLU
     QMAKE_RPATHDIR += -L$$PWD/_lib/prebuilt/OpenCV/macx
     LIBS += -framework Cocoa
     LIBS += -framework IOKit
     LIBS += -framework OpenGL
     LIBS += -framework QuartzCore
-    LIBS += -stdlib=libc++
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_aruco
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_calib3d
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_core
@@ -62,7 +63,6 @@ macx {
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_video
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_videoio
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_xfeatures2d
-    INCLUDEPATH += /usr/include
 }
 unix:!macx:!android {
     # Setup the linux system as described in:

@@ -188,13 +188,6 @@
     <ClCompile Include="ktx\lib\loader.c" />
     <ClCompile Include="ktx\lib\swap.c" />
     <ClCompile Include="ktx\lib\writer.c" />
-    <ClCompile Include="randomc\mersenne.cpp" />
-    <ClCompile Include="randomc\mother.cpp" />
-    <ClCompile Include="randomc\rancombi.cpp" />
-    <ClCompile Include="randomc\random.cpp" />
-    <ClCompile Include="randomc\ranrotb.cpp" />
-    <ClCompile Include="randomc\ranrotw.cpp" />
-    <ClCompile Include="randomc\sobol.cpp" />
     <ClCompile Include="Shoemake\Decompose.cpp" />
     <ClCompile Include="Shoemake\EulerAngles.cpp" />
     <ClCompile Include="spa\spa.cpp" />
@@ -244,8 +237,6 @@
     <ClInclude Include="ktx\lib\ktxmemstream.h" />
     <ClInclude Include="ktx\lib\ktxstream.h" />
     <ClInclude Include="ktx\lib\uthash.h" />
-    <ClInclude Include="randomc\random.h" />
-    <ClInclude Include="randomc\randomc.h" />
     <ClInclude Include="Shoemake\Decompose.h" />
     <ClInclude Include="Shoemake\EulerAngles.h" />
     <ClInclude Include="Shoemake\TypeDefs.h" />
@@ -265,11 +256,6 @@
     <ClInclude Include="zlib\zconf.in.h" />
     <ClInclude Include="zlib\zlib.h" />
     <ClInclude Include="zlib\zutil.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="randomc\RANDOMC.HTM">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="glew\build\glew.rc" />

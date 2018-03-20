@@ -36,22 +36,18 @@ typedef void(SL_STDCALL *cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint scene
 //-----------------------------------------------------------------------------
 //! The SLScene class represents the top level instance holding the scene structure
 /*!      
-The SLScene class holds everything that is common for all scene views such as 
-the root pointer (_root3D) to the scene, an array of lights as well as the
-global resources (_meshes (SLMesh), _materials (SLMaterial), _textures
-(SLGLTexture) and _shaderProgs (SLGLProgram)).
-All these resources and the scene with all nodes to which _root3D pointer points
-get deleted in the method unInit. \n
-A scene could have multiple scene views. A pointer of each is stored in the
-vector _sceneViews. \n
-The onLoad method can build a of several built in test and demo scenes.
-You can access the current scene from everywhere with the static pointer _current.
-\n
-The SLScene instance has two video camera calibrations, one for a main camera
-(SLScene::_calibMainCam) and one for the selfie camera on mobile devices
-(SLScene::_calibScndCam). The member SLScene::_activeCalib references the active
-one and is set by the SLScene::videoType (VT_NONE, VT_MAIN, VT_SCND) during the
-scene assembly in SLScene::onLoad.
+ The SLScene class holds everything that is common for all scene views such as
+ the root pointer (_root3D) to the scene, an array of lights as well as the
+ global resources (_meshes (SLMesh), _materials (SLMaterial), _textures
+ (SLGLTexture) and _shaderProgs (SLGLProgram)).
+ All these resources and the scene with all nodes to which _root3D pointer points
+ get deleted in the method unInit.\n
+ A scene could have multiple scene views. A pointer of each is stored in the
+ vector _sceneViews.\n
+ A single instance of this SLScene class is holded by the SLApplication.
+ The scene assembly takes place outside of the library in function of the application.
+ A pointer for this function must be passed to the SLScene constructor. For the
+ demo project this function is in AppDemoSceneLoad.cpp.
 */
 class SLScene: public SLObject    
 {  
@@ -133,7 +129,6 @@ class SLScene: public SLObject
                                                  SLuchar* data,
                                                  SLbool isContinuous,
                                                  SLbool isTopLeft);
-
    protected:
             SLVSceneView    _sceneViews;        //!< Vector of all sceneview pointers
             SLVMesh         _meshes;            //!< Vector of all meshes

@@ -21,10 +21,15 @@ class SLScene;
 //-----------------------------------------------------------------------------
 //! Top level class for an SLProject application.
 /*!      
-The SLApplication holds static instances of top-level items such as the scene
-pointer, the camera calibration objects and the device rotation and location
-information. The static function createAppAndScene is called by the C-interface
-functions slCreateAppAndScene and the function deleteAppAndScene by slTerminate.
+ The SLApplication holds static instances of top-level items such as the scene
+ pointer, the camera calibration objects and the device rotation and location
+ information. The static function createAppAndScene is called by the C-interface
+ functions slCreateAppAndScene and the function deleteAppAndScene by slTerminate.
+ At the moment only one scene can be open at the time.
+ <br>
+ SLApplication holds two static video camera calibrations, one for a main camera
+ (calibMainCam) and one for the selfie camera on mobile devices (calibScndCam).
+ The pointer activeCalib points to the active one.
 */
 class SLApplication
 {

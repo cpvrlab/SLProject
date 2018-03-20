@@ -89,7 +89,6 @@ INCLUDEPATH += \
     half/include \
     glfw3/src \
     nvwa \
-    randomc \
     zlib \
     imgui \
     spa \
@@ -100,8 +99,6 @@ HEADERS += \
     glfw3/include/GLFW/glfw3native.h \
     glfw3/src/glfw_config.h \
     glfw3/src/internal.h \
-    randomc/randomc.h \
-    randomc/random.h \
     Shoemake/Decompose.h \
     Shoemake/EulerAngles.h \
     Shoemake/TypeDefs.h \
@@ -120,12 +117,6 @@ SOURCES += \
     glfw3/src/input.c \
     glfw3/src/monitor.c \
     glfw3/src/window.c \
-    randomc/sobol.cpp \
-    randomc/ranrotw.cpp \
-    randomc/ranrotb.cpp \
-    randomc/random.cpp \
-    randomc/mother.cpp \
-    randomc/mersenne.cpp \
     Shoemake/EulerAngles.cpp \
     Shoemake/Decompose.cpp \
     imgui/imgui_draw.cpp \
