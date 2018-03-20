@@ -23,6 +23,7 @@
     <RootNamespace>lib-SLExternal</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>lib-SLExternal</ProjectName>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -32,7 +33,7 @@
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <PlatformToolset>v140</PlatformToolset>
@@ -43,7 +44,7 @@
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
@@ -77,6 +78,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)_lib\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -122,6 +124,10 @@
     <Bscmake>
       <PreserveSbr>false</PreserveSbr>
     </Bscmake>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ws2_32.lib;opengl32.lib;opencv_aruco340d.lib;opencv_calib3d340d.lib;opencv_core340d.lib;opencv_features2d340d.lib;opencv_highgui340d.lib;opencv_flann340d.lib;opencv_imgproc340d.lib;opencv_imgcodecs340d.lib;opencv_objdetect340d.lib;opencv_video340d.lib;opencv_videoio340d.lib;opencv_xfeatures2d340d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -160,6 +166,10 @@
       <TargetMachine>MachineX64</TargetMachine>
       <AdditionalDependencies>Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ws2_32.lib;opengl32.lib;opencv_aruco340.lib;opencv_calib3d340.lib;opencv_core340.lib;opencv_features2d340.lib;opencv_highgui340.lib;opencv_flann340.lib;opencv_imgproc340.lib;opencv_imgcodecs340.lib;opencv_objdetect340.lib;opencv_video340.lib;opencv_videoio340.lib;opencv_xfeatures2d340.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DBoW2\DBoW2\BowVector.cpp" />
