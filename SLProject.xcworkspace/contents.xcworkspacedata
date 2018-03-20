@@ -22,6 +22,9 @@
       <FileRef
          location = "group:exercises/cv13_HeadPoseEstimation/cv13_HeadPoseEstimation.xcodeproj">
       </FileRef>
+      <FileRef
+         location = "group:exercises/cv13_FacialLandmarkDetection/cv13_FacialLandmarkDetection.xcodeproj">
+      </FileRef>
    </Group>
    <FileRef
       location = "group:app-Demo-GLFW/app-Demo-GLFW.xcodeproj">

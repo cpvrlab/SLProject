@@ -7,19 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		413078CA1FF3DFD800BBE7B5 /* libopencv_video.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 413078C71FF3DFD800BBE7B5 /* libopencv_video.3.2.0.dylib */; };
-		413078CB1FF3DFD800BBE7B5 /* libopencv_videoio.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 413078C81FF3DFD800BBE7B5 /* libopencv_videoio.3.2.0.dylib */; };
-		413078CC1FF3DFD800BBE7B5 /* libopencv_objdetect.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 413078C91FF3DFD800BBE7B5 /* libopencv_objdetect.3.2.0.dylib */; };
-		413078CE1FF3E01A00BBE7B5 /* libopencv_calib3d.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 413078CD1FF3E01A00BBE7B5 /* libopencv_calib3d.3.2.0.dylib */; };
-		415109531FF3DCA100238817 /* libopencv_highgui.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 415109521FF3DCA100238817 /* libopencv_highgui.3.2.0.dylib */; };
+		413212CA2060EF5800A4F858 /* libopencv_face.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 413212C52060EF5700A4F858 /* libopencv_face.3.4.0.dylib */; };
+		413212CB2060EF5800A4F858 /* libopencv_highgui.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 413212C62060EF5700A4F858 /* libopencv_highgui.3.4.0.dylib */; };
+		413212CC2060EF5800A4F858 /* libopencv_imgcodecs.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 413212C72060EF5700A4F858 /* libopencv_imgcodecs.3.4.0.dylib */; };
+		413212CE2060EF5800A4F858 /* libopencv_core.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 413212C92060EF5700A4F858 /* libopencv_core.3.4.0.dylib */; };
+		413212D22060EFD500A4F858 /* libopencv_imgproc.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 413212CF2060EFD500A4F858 /* libopencv_imgproc.3.4.0.dylib */; };
+		413212D42060EFD500A4F858 /* libopencv_features2d.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 413212D12060EFD500A4F858 /* libopencv_features2d.3.4.0.dylib */; };
+		413212D92060F03B00A4F858 /* libopencv_xobjdetect.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 413212D62060F03A00A4F858 /* libopencv_xobjdetect.3.4.0.dylib */; };
+		413212DA2060F03B00A4F858 /* libopencv_tracking.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 413212D72060F03A00A4F858 /* libopencv_tracking.3.4.0.dylib */; };
+		413212DD2060F08600A4F858 /* libopencv_flann.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 413212DB2060F08600A4F858 /* libopencv_flann.3.4.0.dylib */; };
+		413212DE2060F08600A4F858 /* libopencv_calib3d.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 413212DC2060F08600A4F858 /* libopencv_calib3d.3.4.0.dylib */; };
 		415109571FF3DDCE00238817 /* cv13_HeadPoseEstimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 415109561FF3DDCE00238817 /* cv13_HeadPoseEstimation.cpp */; };
 		41EE03BE1FF3D0B600E5DC9C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03BD1FF3D0B600E5DC9C /* Cocoa.framework */; };
 		41EE03C01FF3D0BF00E5DC9C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03BF1FF3D0BF00E5DC9C /* CoreFoundation.framework */; };
 		41EE03C21FF3D0CB00E5DC9C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03C11FF3D0CB00E5DC9C /* CoreGraphics.framework */; };
 		41EE03C41FF3D0D600E5DC9C /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03C31FF3D0D600E5DC9C /* IOKit.framework */; };
-		41EE03D41FF3D22200E5DC9C /* libopencv_imgproc.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03D11FF3D22100E5DC9C /* libopencv_imgproc.3.2.0.dylib */; };
-		41EE03D51FF3D22200E5DC9C /* libopencv_core.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03D21FF3D22200E5DC9C /* libopencv_core.3.2.0.dylib */; };
-		41EE03D61FF3D22200E5DC9C /* libopencv_imgcodecs.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03D31FF3D22200E5DC9C /* libopencv_imgcodecs.3.2.0.dylib */; };
 		41EE03D81FF3D28000E5DC9C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03D71FF3D28000E5DC9C /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
@@ -36,20 +38,25 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		413078C71FF3DFD800BBE7B5 /* libopencv_video.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_video.3.2.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_video.3.2.0.dylib; sourceTree = "<group>"; };
-		413078C81FF3DFD800BBE7B5 /* libopencv_videoio.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_videoio.3.2.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.2.0.dylib; sourceTree = "<group>"; };
-		413078C91FF3DFD800BBE7B5 /* libopencv_objdetect.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_objdetect.3.2.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.2.0.dylib; sourceTree = "<group>"; };
-		413078CD1FF3E01A00BBE7B5 /* libopencv_calib3d.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_calib3d.3.2.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.2.0.dylib; sourceTree = "<group>"; };
-		415109521FF3DCA100238817 /* libopencv_highgui.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_highgui.3.2.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_highgui.3.2.0.dylib; sourceTree = "<group>"; };
+		413212C52060EF5700A4F858 /* libopencv_face.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_face.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_face.3.4.0.dylib; sourceTree = "<group>"; };
+		413212C62060EF5700A4F858 /* libopencv_highgui.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_highgui.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_highgui.3.4.0.dylib; sourceTree = "<group>"; };
+		413212C72060EF5700A4F858 /* libopencv_imgcodecs.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgcodecs.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.4.0.dylib; sourceTree = "<group>"; };
+		413212C82060EF5700A4F858 /* libopencv_objdetect.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_objdetect.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.4.0.dylib; sourceTree = "<group>"; };
+		413212C92060EF5700A4F858 /* libopencv_core.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_core.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_core.3.4.0.dylib; sourceTree = "<group>"; };
+		413212CF2060EFD500A4F858 /* libopencv_imgproc.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgproc.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.4.0.dylib; sourceTree = "<group>"; };
+		413212D02060EFD500A4F858 /* libopencv_plot.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_plot.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_plot.3.4.0.dylib; sourceTree = "<group>"; };
+		413212D12060EFD500A4F858 /* libopencv_features2d.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_features2d.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.4.0.dylib; sourceTree = "<group>"; };
+		413212D52060F03A00A4F858 /* libopencv_xfeatures2d.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_xfeatures2d.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.4.0.dylib; sourceTree = "<group>"; };
+		413212D62060F03A00A4F858 /* libopencv_xobjdetect.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_xobjdetect.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_xobjdetect.3.4.0.dylib; sourceTree = "<group>"; };
+		413212D72060F03A00A4F858 /* libopencv_tracking.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_tracking.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_tracking.3.4.0.dylib; sourceTree = "<group>"; };
+		413212DB2060F08600A4F858 /* libopencv_flann.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_flann.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.4.0.dylib; sourceTree = "<group>"; };
+		413212DC2060F08600A4F858 /* libopencv_calib3d.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_calib3d.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.4.0.dylib; sourceTree = "<group>"; };
 		415109561FF3DDCE00238817 /* cv13_HeadPoseEstimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cv13_HeadPoseEstimation.cpp; sourceTree = "<group>"; };
 		4160DA4D1FF3C88400343C0D /* cv13_HeadPoseEstimation */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cv13_HeadPoseEstimation; sourceTree = BUILT_PRODUCTS_DIR; };
 		41EE03BD1FF3D0B600E5DC9C /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		41EE03BF1FF3D0BF00E5DC9C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		41EE03C11FF3D0CB00E5DC9C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		41EE03C31FF3D0D600E5DC9C /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
-		41EE03D11FF3D22100E5DC9C /* libopencv_imgproc.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgproc.3.2.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.2.0.dylib; sourceTree = "<group>"; };
-		41EE03D21FF3D22200E5DC9C /* libopencv_core.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_core.3.2.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_core.3.2.0.dylib; sourceTree = "<group>"; };
-		41EE03D31FF3D22200E5DC9C /* libopencv_imgcodecs.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgcodecs.3.2.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.2.0.dylib; sourceTree = "<group>"; };
 		41EE03D71FF3D28000E5DC9C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -58,15 +65,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				413078CE1FF3E01A00BBE7B5 /* libopencv_calib3d.3.2.0.dylib in Frameworks */,
-				413078CA1FF3DFD800BBE7B5 /* libopencv_video.3.2.0.dylib in Frameworks */,
-				413078CB1FF3DFD800BBE7B5 /* libopencv_videoio.3.2.0.dylib in Frameworks */,
-				413078CC1FF3DFD800BBE7B5 /* libopencv_objdetect.3.2.0.dylib in Frameworks */,
-				415109531FF3DCA100238817 /* libopencv_highgui.3.2.0.dylib in Frameworks */,
+				413212DD2060F08600A4F858 /* libopencv_flann.3.4.0.dylib in Frameworks */,
+				413212DE2060F08600A4F858 /* libopencv_calib3d.3.4.0.dylib in Frameworks */,
+				413212D92060F03B00A4F858 /* libopencv_xobjdetect.3.4.0.dylib in Frameworks */,
+				413212DA2060F03B00A4F858 /* libopencv_tracking.3.4.0.dylib in Frameworks */,
+				413212D22060EFD500A4F858 /* libopencv_imgproc.3.4.0.dylib in Frameworks */,
+				413212D42060EFD500A4F858 /* libopencv_features2d.3.4.0.dylib in Frameworks */,
+				413212CA2060EF5800A4F858 /* libopencv_face.3.4.0.dylib in Frameworks */,
+				413212CB2060EF5800A4F858 /* libopencv_highgui.3.4.0.dylib in Frameworks */,
+				413212CC2060EF5800A4F858 /* libopencv_imgcodecs.3.4.0.dylib in Frameworks */,
+				413212CE2060EF5800A4F858 /* libopencv_core.3.4.0.dylib in Frameworks */,
 				41EE03D81FF3D28000E5DC9C /* QuartzCore.framework in Frameworks */,
-				41EE03D41FF3D22200E5DC9C /* libopencv_imgproc.3.2.0.dylib in Frameworks */,
-				41EE03D51FF3D22200E5DC9C /* libopencv_core.3.2.0.dylib in Frameworks */,
-				41EE03D61FF3D22200E5DC9C /* libopencv_imgcodecs.3.2.0.dylib in Frameworks */,
 				41EE03C41FF3D0D600E5DC9C /* IOKit.framework in Frameworks */,
 				41EE03C21FF3D0CB00E5DC9C /* CoreGraphics.framework in Frameworks */,
 				41EE03C01FF3D0BF00E5DC9C /* CoreFoundation.framework in Frameworks */,
@@ -97,18 +106,23 @@
 		41EE03BA1FF3D0A800E5DC9C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				413078CD1FF3E01A00BBE7B5 /* libopencv_calib3d.3.2.0.dylib */,
-				413078C91FF3DFD800BBE7B5 /* libopencv_objdetect.3.2.0.dylib */,
-				413078C71FF3DFD800BBE7B5 /* libopencv_video.3.2.0.dylib */,
-				413078C81FF3DFD800BBE7B5 /* libopencv_videoio.3.2.0.dylib */,
+				413212DC2060F08600A4F858 /* libopencv_calib3d.3.4.0.dylib */,
+				413212DB2060F08600A4F858 /* libopencv_flann.3.4.0.dylib */,
+				413212D72060F03A00A4F858 /* libopencv_tracking.3.4.0.dylib */,
+				413212D52060F03A00A4F858 /* libopencv_xfeatures2d.3.4.0.dylib */,
+				413212D62060F03A00A4F858 /* libopencv_xobjdetect.3.4.0.dylib */,
+				413212D12060EFD500A4F858 /* libopencv_features2d.3.4.0.dylib */,
+				413212CF2060EFD500A4F858 /* libopencv_imgproc.3.4.0.dylib */,
+				413212D02060EFD500A4F858 /* libopencv_plot.3.4.0.dylib */,
+				413212C92060EF5700A4F858 /* libopencv_core.3.4.0.dylib */,
+				413212C52060EF5700A4F858 /* libopencv_face.3.4.0.dylib */,
+				413212C62060EF5700A4F858 /* libopencv_highgui.3.4.0.dylib */,
+				413212C72060EF5700A4F858 /* libopencv_imgcodecs.3.4.0.dylib */,
+				413212C82060EF5700A4F858 /* libopencv_objdetect.3.4.0.dylib */,
 				41EE03BD1FF3D0B600E5DC9C /* Cocoa.framework */,
 				41EE03BF1FF3D0BF00E5DC9C /* CoreFoundation.framework */,
 				41EE03C11FF3D0CB00E5DC9C /* CoreGraphics.framework */,
 				41EE03C31FF3D0D600E5DC9C /* IOKit.framework */,
-				41EE03D21FF3D22200E5DC9C /* libopencv_core.3.2.0.dylib */,
-				415109521FF3DCA100238817 /* libopencv_highgui.3.2.0.dylib */,
-				41EE03D31FF3D22200E5DC9C /* libopencv_imgcodecs.3.2.0.dylib */,
-				41EE03D11FF3D22100E5DC9C /* libopencv_imgproc.3.2.0.dylib */,
 				41EE03D71FF3D28000E5DC9C /* QuartzCore.framework */,
 			);
 			name = Frameworks;

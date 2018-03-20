@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTrackedAruco.cpp
+//  File:      SLCVTrackedAruco.h
 //  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines

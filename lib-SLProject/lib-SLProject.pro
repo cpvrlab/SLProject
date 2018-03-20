@@ -61,7 +61,6 @@ HEADERS += \
 ../include/SLCurve.h \
 ../include/SLCurveBezier.h \
 ../include/SLCylinder.h \
-../include/SLCVCapture.h \
 ../include/SLCV.h \
 ../include/SLCV*.h \
 ../include/SLDeviceRotation.h \
@@ -141,6 +140,7 @@ source/CV/SLCVRaulMurOrb.cpp \
 source/CV/SLCVTracked.cpp \
 source/CV/SLCVTrackedAruco.cpp \
 source/CV/SLCVTrackedChessboard.cpp \
+source/CV/SLCVTrackedFace.cpp \
 source/CV/SLCVTrackedFeatures.cpp \
 source/GL/SLGLImGui.cpp \
 source/GL/SLGLOculus.cpp \

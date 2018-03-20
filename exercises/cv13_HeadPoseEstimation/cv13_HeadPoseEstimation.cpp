@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      cv13_HeadPoseEstimation.cpp
-//  Purpose:   Minimal OpenCV application that changes brightness and contrast
+//  Purpose:   Minimal OpenCV app for head pose estimation
 //  Taken from Satya Mallic on:
 //  http://www.learnopencv.com/head-pose-estimation-using-opencv-and-dlib/
 //  Date:      Authumn 2017
