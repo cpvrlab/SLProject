@@ -33,9 +33,12 @@ for a good top down information.
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node, ORBVocabulary* vocabulary)
+SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node, ORBVocabulary* vocabulary, 
+    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map)
     : SLCVTracked(node),
-    mpVocabulary(vocabulary)
+    mpVocabulary(vocabulary),
+    mpKeyFrameDatabase(keyFrameDB),
+    _map(map)
 {
     //instantiate Orb extractor
     _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
@@ -190,45 +193,44 @@ void SLCVTrackedMapping::trackOpticalFlow()
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::CreateInitialMapMonocular()
 {
-    //// Create KeyFrames
-    //SLCVFrame* pKFini = new SLCVFrame(mInitialFrame, mpMap, mpKeyFrameDB);
-    //SLCVFrame* pKFcur = new SLCVFrame(mCurrentFrame, mpMap, mpKeyFrameDB);
+    // Create KeyFrames
+    SLCVKeyFrame* pKFini = new SLCVKeyFrame(mInitialFrame, _map, mpKeyFrameDatabase);
+    SLCVKeyFrame* pKFcur = new SLCVKeyFrame(mCurrentFrame, _map, mpKeyFrameDatabase);
 
-
-    //pKFini->ComputeBoW();
-    //pKFcur->ComputeBoW();
+    pKFini->ComputeBoW( mpVocabulary );
+    pKFcur->ComputeBoW( mpVocabulary );
 
     //// Insert KFs in the map
-    //mpMap->AddKeyFrame(pKFini);
-    //mpMap->AddKeyFrame(pKFcur);
+    //_map->AddKeyFrame(pKFini);
+    //_map->AddKeyFrame(pKFcur);
 
-    //// Create MapPoints and asscoiate to keyframes
-    //for (size_t i = 0; i<mvIniMatches.size(); i++)
-    //{
-    //    if (mvIniMatches[i]<0)
-    //        continue;
+    // Create MapPoints and asscoiate to keyframes
+    for (size_t i = 0; i<mvIniMatches.size(); i++)
+    {
+        if (mvIniMatches[i]<0)
+            continue;
 
-    //    //Create MapPoint.
-    //    cv::Mat worldPos(mvIniP3D[i]);
+        //Create MapPoint.
+        cv::Mat worldPos(mvIniP3D[i]);
 
-    //    MapPoint* pMP = new MapPoint(worldPos, pKFcur, mpMap);
+        SLCVMapPoint* pMP = new SLCVMapPoint(worldPos, pKFcur/*, _map*/);
 
-    //    pKFini->AddMapPoint(pMP, i);
-    //    pKFcur->AddMapPoint(pMP, mvIniMatches[i]);
+        pKFini->AddMapPoint(pMP, i);
+        pKFcur->AddMapPoint(pMP, mvIniMatches[i]);
 
-    //    pMP->AddObservation(pKFini, i);
-    //    pMP->AddObservation(pKFcur, mvIniMatches[i]);
+        pMP->AddObservation(pKFini, i);
+        pMP->AddObservation(pKFcur, mvIniMatches[i]);
 
-    //    pMP->ComputeDistinctiveDescriptors();
-    //    pMP->UpdateNormalAndDepth();
+        pMP->ComputeDistinctiveDescriptors();
+        pMP->UpdateNormalAndDepth();
 
-    //    //Fill Current Frame structure
-    //    mCurrentFrame.mvpMapPoints[mvIniMatches[i]] = pMP;
-    //    mCurrentFrame.mvbOutlier[mvIniMatches[i]] = false;
+        //Fill Current Frame structure
+        mCurrentFrame.mvpMapPoints[mvIniMatches[i]] = pMP;
+        mCurrentFrame.mvbOutlier[mvIniMatches[i]] = false;
 
-    //    //Add to Map
-    //    mpMap->AddMapPoint(pMP);
-    //}
+        //Add to Map
+        _map->mapPoints().push_back(pMP);
+    }
 
     //// Update Connections
     //pKFini->UpdateConnections();

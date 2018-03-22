@@ -29,7 +29,7 @@ public:
     SLCVFrame();
     SLCVFrame(const SLCVFrame &frame);
     SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,
-        cv::Mat &K, cv::Mat &distCoef, ORBVocabulary* orbVocabulary);
+        cv::Mat &K, cv::Mat &distCoef, ORBVocabulary* orbVocabulary, bool retainImg=false);
 
     // Compute Bag of Words representation.
     void ComputeBoW();
@@ -158,6 +158,9 @@ public:
     static float mnMaxY;
 
     static bool mbInitialComputations;
+
+    //frame image
+    cv::Mat imgGray;
 
     // Reference Keyframe.
     SLCVKeyFrame* mpReferenceKF = NULL;

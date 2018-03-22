@@ -1224,8 +1224,8 @@ void SLCVTrackedRaulMur::rotate(float value, int type)
     Mat rot33 = rot.rowRange(0, 3).colRange(0, 3);
     for (auto& pt : _map->mapPoints())
     {
-        Pw = rot33 * pt.worldPos();
-        pt.worldPos(rot33 * pt.worldPos());
+        Pw = rot33 * pt->worldPos();
+        pt->worldPos(rot33 * pt->worldPos());
     }
 }
 
@@ -1249,7 +1249,7 @@ void SLCVTrackedRaulMur::translate(float value, int type)
     //rotate keypoints
     for (auto& pt : _map->mapPoints())
     {
-        pt.worldPos(trans + pt.worldPos());
+        pt->worldPos(trans + pt->worldPos());
     }
 }
 
@@ -1267,7 +1267,7 @@ void SLCVTrackedRaulMur::scale(float value)
     //rotate keypoints
     for (auto& pt : _map->mapPoints())
     {
-        pt.worldPos(value * pt.worldPos());
+        pt->worldPos(value * pt->worldPos());
     }
 }
 
@@ -1331,8 +1331,8 @@ void SLCVTrackedRaulMur::applyTransformation(double value, TransformType type)
     //compute resulting values for map points
     for (auto& mp : _map->mapPoints()) {
         //mean viewing direction and depth
-        mp.UpdateNormalAndDepth();
-        mp.ComputeDistinctiveDescriptors();
+        mp->UpdateNormalAndDepth();
+        mp->ComputeDistinctiveDescriptors();
     }
 }
 
@@ -1392,22 +1392,24 @@ void SLCVTrackedRaulMur::saveState()
     fs << "]"; //close sequence keyframes
 
                //save keypoints (map)
-    SLCVVMapPoint& mpts = _map->mapPoints();
+    //SLCVVMapPoint& mpts = _map->mapPoints();
+    auto& mpts = _map->mapPoints();
+
     //start map points sequence
     fs << "MapPoints" << "[";
     for (int i = 0; i < mpts.size(); ++i)
     {
-        SLCVMapPoint& mpt = mpts[i];
-        if (mpt.isBad())
+        SLCVMapPoint* mpt = mpts[i];
+        if (mpt->isBad())
             continue;
 
         fs << "{"; //new map for MapPoint
                    //add id
-        fs << "id" << (int)mpt.id();
+        fs << "id" << (int)mpt->id();
         //add position
-        fs << "mWorldPos" << mpt.worldPos();
+        fs << "mWorldPos" << mpt->worldPos();
         //save keyframe observations
-        auto observations = mpt.GetObservations();
+        auto observations = mpt->GetObservations();
         vector<int> observingKfIds;
         vector<int> corrKpIndices; //corresponding keypoint indices in observing keyframe
         for (auto it : observations)
@@ -1423,11 +1425,11 @@ void SLCVTrackedRaulMur::saveState()
 
         //reference key frame (I think this is the keyframe from which this
         //map point was generated -> first reference?)
-        fs << "refKfId" << (int)mpt.refKf()->id();
+        fs << "refKfId" << (int)mpt->refKf()->id();
 
         //keypoint octave (level)
-        size_t kpIndex = mpt.mObservations[mpt.mpRefKF];
-        fs << "level" << mpt.refKf()->mvKeysUn[kpIndex].octave;
+        size_t kpIndex = mpt->mObservations[mpt->mpRefKF];
+        fs << "level" << mpt->refKf()->mvKeysUn[kpIndex].octave;
 
         fs << "}"; //close map
     }

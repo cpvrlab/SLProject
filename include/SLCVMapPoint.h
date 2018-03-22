@@ -24,6 +24,9 @@ class SLCVFrame;
 class SLCVMapPoint
 {
 public:
+    SLCVMapPoint() {}
+    SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF/*, SLCVMap* pMap*/);
+
     int id() const { return _id; }
     int Observations() { return _nObs; }
     void id(int id) { _id = id; }
@@ -70,6 +73,10 @@ public:
     long unsigned int mnLastFrameSeen = 0;
     long unsigned int mnTrackReferenceForFrame = 0;
 
+    // Variables used by local mapping
+    long unsigned int mnBALocalForKF;
+    long unsigned int mnFuseCandidateForKF;
+
     // Keyframes observing the point and associated index in keyframe
     std::map<SLCVKeyFrame*, size_t> mObservations;
     // Reference KeyFrame
@@ -77,6 +84,7 @@ public:
 
 private:
     int _id=-1;
+    static long unsigned int nNextId;
     //open cv coordinate representation: z-axis points to principlal point,
     // x-axis to the right and y-axis down
     SLCVMat _worldPos;

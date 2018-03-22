@@ -2536,7 +2536,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Track Keyframe based Features");
         s->info("Example for loading an existing pose graph with map points.");
 
-        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-buero1.json";
+        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-buero2.json";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 60);
@@ -2683,7 +2683,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //SLCVCapture::videoFilename = "Bern3_cut.mp4";
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern3-ct.json";
         SLCVCapture::videoFilename = "buero2_huawei_16_9.mp4";
-        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-buero1.json";
+        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-buero2.json";
 
 
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -2840,7 +2840,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1, 0, 0);
 
-        //ORBVocabulary* vocabulary = new ORBVocabulary();
+        ORBVocabulary* vocabulary = new ORBVocabulary();
         //string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
         //bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
         ////bool bVocLoad = true;
@@ -2852,8 +2852,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //}
         //cout << "Vocabulary loaded!" << endl << endl;
 
+        SLCVMap* map = new SLCVMap("Map");
+        SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
+
         //add tracker
-        s->trackers().push_back(new SLCVTrackedMapping(cam1, NULL));
+        s->trackers().push_back(new SLCVTrackedMapping(cam1, vocabulary, kfDB, map));
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));

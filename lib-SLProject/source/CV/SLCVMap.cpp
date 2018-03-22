@@ -20,6 +20,14 @@ SLCVMap::SLCVMap(const string& name)
 
 }
 //-----------------------------------------------------------------------------
+SLCVMap::~SLCVMap()
+{
+    for (auto* pt : _mapPoints) {
+        if (pt)
+            delete pt;
+    }
+}
+//-----------------------------------------------------------------------------
 //! get visual representation as SLPoints
 SLPoints* SLCVMap::getSceneObject()
 {
@@ -46,8 +54,8 @@ SLPoints* SLCVMap::getNewSceneObject()
     //get points as Vec3f and collect normals
     SLVVec3f points, normals;
     for (auto mapPt : _mapPoints) {
-        points.push_back(mapPt.worldPosVec());
-        normals.push_back(mapPt.normalVec());
+        points.push_back(mapPt->worldPosVec());
+        normals.push_back(mapPt->normalVec());
     }
 
     _sceneObject = new SLPoints(points, normals, "MapPoints", pcMat1);

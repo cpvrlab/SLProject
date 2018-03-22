@@ -14,10 +14,46 @@
 #include <OrbSlam/Converter.h>
 #include <SLCVKeyFrameDB.h>
 
+long unsigned int SLCVKeyFrame::nNextId = 0;
+
 //-----------------------------------------------------------------------------
 SLCVKeyFrame::SLCVKeyFrame(size_t N)
+    : mnFrameId(0), mTimeStamp(0), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
+    mfGridElementWidthInv(0), mfGridElementHeightInv(0)
 {
     mvpMapPoints = vector<SLCVMapPoint*>(N, static_cast<SLCVMapPoint*>(NULL));
+}
+//-----------------------------------------------------------------------------
+SLCVKeyFrame::SLCVKeyFrame(SLCVFrame &F, SLCVMap* pMap, SLCVKeyFrameDB* pKFDB, bool retainImg)
+    : mnFrameId(F.mnId), mTimeStamp(F.mTimeStamp), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
+    mfGridElementWidthInv(F.mfGridElementWidthInv), mfGridElementHeightInv(F.mfGridElementHeightInv),
+    mnTrackReferenceForFrame(0), /*mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0),
+    mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0), mnBAGlobalForKF(0),*/
+    /*fx(F.fx), fy(F.fy), cx(F.cx), cy(F.cy), invfx(F.invfx), invfy(F.invfy),*/
+   /* mbf(F.mbf), mb(F.mb), mThDepth(F.mThDepth), N(F.N), mvKeys(F.mvKeys),*/ mvKeysUn(F.mvKeysUn),
+   /* mvuRight(F.mvuRight), mvDepth(F.mvDepth),*/ mDescriptors(F.mDescriptors.clone()),
+    mBowVec(F.mBowVec), mFeatVec(F.mFeatVec), mnScaleLevels(F.mnScaleLevels), mfScaleFactor(F.mfScaleFactor),
+    mfLogScaleFactor(F.mfLogScaleFactor), mvScaleFactors(F.mvScaleFactors), /*mvLevelSigma2(F.mvLevelSigma2),
+    mvInvLevelSigma2(F.mvInvLevelSigma2), mnMinX(F.mnMinX), mnMinY(F.mnMinY), mnMaxX(F.mnMaxX),
+    mnMaxY(F.mnMaxY), mK(F.mK),*/ mvpMapPoints(F.mvpMapPoints), /*mpKeyFrameDB(pKFDB),
+    mpORBvocabulary(F.mpORBvocabulary),*/ mbFirstConnection(true), mpParent(NULL) /*mbNotErase(false),
+    mbToBeErased(false), mbBad(false), mHalfBaseline(F.mb / 2), mpMap(pMap)*/
+{
+    _id = nNextId++;
+
+    mGrid.resize(mnGridCols);
+    for (int i = 0; i<mnGridCols; i++)
+    {
+        mGrid[i].resize(mnGridRows);
+        for (int j = 0; j<mnGridRows; j++)
+            mGrid[i][j] = F.mGrid[i][j];
+    }
+
+    Tcw(F.mTcw);
+    //SetPose(F.mTcw);
+
+    if (retainImg && !F.imgGray.empty())
+        imgGray = F.imgGray;
 }
 //-----------------------------------------------------------------------------
 SLCVKeyFrame::~SLCVKeyFrame()

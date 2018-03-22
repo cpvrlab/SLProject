@@ -35,7 +35,7 @@ class SLCVTrackedMapping : public SLCVTracked
     public:
         enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
 
-                SLCVTrackedMapping    (SLNode* node, ORBVocabulary* vocabulary);
+                SLCVTrackedMapping    (SLNode* node, ORBVocabulary* vocabulary, SLCVKeyFrameDB* keyFrameDB, SLCVMap* map );
                ~SLCVTrackedMapping    () {}
 
         SLbool  track               (SLCVMat imageGray,
@@ -62,6 +62,11 @@ class SLCVTrackedMapping : public SLCVTracked
 
         // ORB vocabulary used for place recognition and feature matching.
         ORBVocabulary* mpVocabulary;
+        // KeyFrame database for place recognition (relocalization and loop detection).
+        SLCVKeyFrameDB* mpKeyFrameDatabase;
+        //map containing map points
+        SLCVMap* _map = NULL;
+
         // Current Frame
         SLCVFrame mCurrentFrame;
 

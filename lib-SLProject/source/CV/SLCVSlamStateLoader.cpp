@@ -32,7 +32,7 @@ SLCVSlamStateLoader::~SLCVSlamStateLoader()
 }
 //-----------------------------------------------------------------------------
 //! add map point
-void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB )
+void SLCVSlamStateLoader::load( vector<SLCVMapPoint*>& mapPts, SLCVKeyFrameDB& kfDB )
 {
     SLCVVKeyFrame& kfs = kfDB.keyFrames();
 
@@ -70,8 +70,8 @@ void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB )
     //compute resulting values for map points
     for (auto& mp : mapPts) {
         //mean viewing direction and depth
-        mp.UpdateNormalAndDepth();
-        mp.ComputeDistinctiveDescriptors();
+        mp->UpdateNormalAndDepth();
+        mp->ComputeDistinctiveDescriptors();
     }
 
     cout << "Read Done." << endl;
@@ -161,7 +161,7 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
     }
 }
 //-----------------------------------------------------------------------------
-void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
+void SLCVSlamStateLoader::loadMapPoints(vector<SLCVMapPoint*>& mapPts )
 {
     cv::FileNode n = _fs["MapPoints"];
     if (n.type() != cv::FileNode::SEQ)
@@ -174,20 +174,20 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
     //read and add map points
     for (auto it = n.begin(); it != n.end(); ++it)
     {
-        SLCVMapPoint newPt;
-        newPt.id( (int)(*it)["id"]);
+        SLCVMapPoint* newPt = new SLCVMapPoint;
+        newPt->id( (int)(*it)["id"]);
         cv::Mat mWorldPos; //has to be here!
         (*it)["mWorldPos"] >> mWorldPos;
         //scale pos
         //mWorldPos += _t;
         //mWorldPos = _rot.rowRange(0, 3).colRange(0,3) * mWorldPos;
         //mWorldPos *= _s;
-        newPt.worldPos(mWorldPos);
+        newPt->worldPos(mWorldPos);
 
         //level
         int level;
         (*it)["level"] >> level;
-        newPt.level(level);
+        newPt->level(level);
 
         //get observing keyframes
         vector<int> observingKfIds;
@@ -203,7 +203,7 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
 
         //find and add pointers of observing keyframes to map point
         {
-            SLCVMapPoint* mapPt = &mapPts.back();
+            SLCVMapPoint* mapPt = mapPts.back();
             for (int i=0; i<observingKfIds.size(); ++i)
             {
                 const int kfId = observingKfIds[i];

@@ -27,16 +27,18 @@ class SLCVMap
 {
 public:
     SLCVMap(const string& name);
+    ~SLCVMap();
 
     //! get reference to map points vector
-    SLCVVMapPoint& mapPoints() { return _mapPoints; }
+    std::vector<SLCVMapPoint*>& mapPoints() { return _mapPoints; }
 
     //! get visual representation as SLPoints
     SLPoints* getSceneObject();
     SLPoints* getNewSceneObject();
 
 private:
-    SLCVVMapPoint _mapPoints;
+    //SLCVVMapPoint _mapPoints;
+    std::vector<SLCVMapPoint*> _mapPoints;
     //Pointer to visual representation object (ATTENTION: do not delete this object)
     SLPoints* _sceneObject = NULL;
 };

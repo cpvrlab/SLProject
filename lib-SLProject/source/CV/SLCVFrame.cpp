@@ -56,10 +56,13 @@ SLCVFrame::SLCVFrame(const SLCVFrame &frame)
 
     if (!frame.mTcw.empty())
         SetPose(frame.mTcw);
+
+    if (!frame.imgGray.empty())
+        imgGray = frame.imgGray;
 }
 //-----------------------------------------------------------------------------
-SLCVFrame::SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor, 
-    cv::Mat &K, cv::Mat &distCoef, ORBVocabulary* orbVocabulary)
+SLCVFrame::SLCVFrame( const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor, 
+    cv::Mat &K, cv::Mat &distCoef, ORBVocabulary* orbVocabulary, bool retainImg )
     : mpORBextractorLeft(extractor), mTimeStamp(timeStamp), mK(K.clone()), mDistCoef(distCoef.clone()),
     mpORBvocabulary(orbVocabulary)
 {

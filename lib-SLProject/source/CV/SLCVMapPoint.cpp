@@ -13,6 +13,24 @@
 #include <SLCVKeyFrame.h>
 #include <SLCVFrame.h>
 #include <OrbSlam/ORBmatcher.h>
+
+long unsigned int SLCVMapPoint::nNextId = 0;
+
+//-----------------------------------------------------------------------------
+SLCVMapPoint::SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF/*, SLCVMap* pMap*/) :
+   /* mnFirstKFid(pRefKF->mnId), mnFirstFrame(pRefKF->mnFrameId), */_nObs(0), mnTrackReferenceForFrame(0),
+    mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), /*mnLoopPointForKF(0), mnCorrectedByKF(0),
+    mnCorrectedReference(0), mnBAGlobalForKF(0),*/ mpRefKF(pRefKF), mnVisible(1), mnFound(1), /*mbBad(false),*/
+    /*mpReplaced(static_cast<MapPoint*>(NULL)),*/ mfMinDistance(0), mfMaxDistance(0)/*, mpMap(pMap)*/
+{
+    worldPos(Pos);
+    //Pos.copyTo(mWorldPos);
+    mNormalVector = cv::Mat::zeros(3, 1, CV_32F);
+
+    // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
+    //unique_lock<mutex> lock(mpMap->mMutexPointCreation);
+    _id = nNextId++;
+}
 //-----------------------------------------------------------------------------
 SLVec3f SLCVMapPoint::worldPosVec()
 { 
@@ -76,9 +94,10 @@ void SLCVMapPoint::UpdateNormalAndDepth()
 
     cv::Mat PC = Pos - pRefKF->GetCameraCenter();
     const float dist = cv::norm(PC);
-    //const int level = pRefKF->mvKeysUn[observations[pRefKF]].octave;
-    //const float levelScaleFactor = pRefKF->mvScaleFactors[level];
-    const float levelScaleFactor = pRefKF->mvScaleFactors[_level];
+
+    const int level = pRefKF->mvKeysUn[observations[pRefKF]].octave;
+    const float levelScaleFactor = pRefKF->mvScaleFactors[level];
+    //const float levelScaleFactor = pRefKF->mvScaleFactors[_level];
     const int nLevels = pRefKF->mnScaleLevels;
 
     {

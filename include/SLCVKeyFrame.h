@@ -33,6 +33,8 @@ class SLCVKeyFrame
 {
 public:
     SLCVKeyFrame(size_t N);
+    SLCVKeyFrame(SLCVFrame &F, SLCVMap* pMap, SLCVKeyFrameDB* pKFDB, bool retainImg = true);
+
     ~SLCVKeyFrame();
 
     //getters
@@ -112,6 +114,9 @@ public:
     float mfLogScaleFactor;
     std::vector<float> mvScaleFactors;
 
+    //original image
+    cv::Mat imgGray;
+
     //image feature descriptors
     SLCVMat mDescriptors;
 
@@ -122,7 +127,18 @@ public:
     void addBackgroundTexture(string pathToImg);
 
 private:
+    static long unsigned int nNextId;
     int _id = -1;
+    const long unsigned int mnFrameId;
+
+    const double mTimeStamp;
+
+    // Grid (to speed up feature matching)
+    const int mnGridCols;
+    const int mnGridRows;
+    const float mfGridElementWidthInv;
+    const float mfGridElementHeightInv;
+
     //! opencv coordinate representation: z-axis points to principlal point,
     //! x-axis to the right and y-axis down
     //! Infos about the pose: https://github.com/raulmur/ORB_SLAM2/issues/249
@@ -130,6 +146,9 @@ private:
     SLCVMat _Tcw; //world wrt camera
     //! camera center
     SLCVMat Ow;
+
+    // Grid over the image to speed up feature matching
+    std::vector< std::vector <std::vector<size_t> > > mGrid;
 
     // MapPoints associated to keypoints (this array contains NULL for every
     //unassociated keypoint from original frame)
@@ -156,6 +175,9 @@ private:
 
     //path to background texture image
     string _pathToTexture;
+
+    // Calibration parameters
+    //const float fx, fy, cx, cy, invfx, invfy; /*mbf, mb, mThDepth;*/
 };
 
 typedef std::vector<SLCVKeyFrame*> SLCVVKeyFrame;
