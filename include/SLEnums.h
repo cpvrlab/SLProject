@@ -123,6 +123,7 @@ enum SLSceneID
     SID_VideoTrackFeature2DScnd,
     SID_VideoSensorAR,
     SID_VideoTrackKeyFrames,
+    SID_VideoFilesTrackKeyFrames,
 
     SID_RTMuttenzerBox,
     SID_RTSpheres,

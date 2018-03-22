@@ -721,7 +721,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoChristoffelOrbSlam);
                     if (ImGui::MenuItem("Track Features from Keyframes", 0, sid == sid==SID_VideoTrackKeyFrames))
                         s->onLoad(s, sv, SID_VideoTrackKeyFrames);
-
+                    if (ImGui::MenuItem("Track Features from Keyframes in Video Files", 0, sid == sid == SID_VideoFilesTrackKeyFrames))
+                        s->onLoad(s, sv, SID_VideoFilesTrackKeyFrames);
+                    
                     ImGui::EndMenu();
                 }
 
@@ -1306,6 +1308,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::MenuItem("Infos on Christoffel",0, &showChristoffel);
             }
             if (SLApplication::sceneID == SID_VideoTrackKeyFrames ||
+                SLApplication::sceneID == SID_VideoFilesTrackKeyFrames ||
                 SLApplication::sceneID == SID_VideoChristoffelOrbSlam ) {
                 ImGui::Separator();
                 ImGui::MenuItem("Infos on Tracking", 0, &showInfosTracking);

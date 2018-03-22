@@ -609,9 +609,12 @@ bool SLCVTrackedFeatures::calculatePose()
     // Train index --> "SLCVPoint" in the model
     // Query index --> "SLCVPoint" in the actual frame
 
+    if (_currentFrame.matches.size() < 10)
+        return false;
+
     SLCVVPoint3f modelPoints(_currentFrame.matches.size());
     SLCVVPoint2f framePoints(_currentFrame.matches.size());
-
+ 
     for (size_t i = 0; i < _currentFrame.matches.size(); i++)
     {   modelPoints[i] = _marker.keypoints3D[_currentFrame.matches[i].trainIdx];
         framePoints[i] = _currentFrame.keypoints[_currentFrame.matches[i].queryIdx].pt;

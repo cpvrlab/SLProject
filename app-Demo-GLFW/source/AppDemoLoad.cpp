@@ -78,8 +78,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(nullptr);
         sv->doWaitOnIdle(true);
     } 
-    else
-    if (SLApplication::sceneID == SID_Minimal) //...................................................
+    else if (SLApplication::sceneID == SID_Minimal) //...................................................
     {
         // Set scene name and info string
         s->name("Minimal Scene Test");
@@ -116,8 +115,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
-    else
-    if (SLApplication::sceneID == SID_Figure) //....................................................
+    else if (SLApplication::sceneID == SID_Figure) //....................................................
     {
         s->name("Hierarchical Figure Test");
         s->info("Hierarchical scenegraph with multiple subgroups.");
@@ -157,8 +155,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_MeshLoad) //..................................................
+    else if (SLApplication::sceneID == SID_MeshLoad) //..................................................
     {
         s->name("Mesh 3D Loader Test");
         s->info("3D file import test for: 3DS, DAE & FBX");
@@ -238,8 +235,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_Revolver) //..................................................
+    else if (SLApplication::sceneID == SID_Revolver) //..................................................
     {
         s->name("Revolving Mesh Test");
         s->info("Examples of revolving mesh objects constructed by rotating a 2D curve. The glass shader reflects and refracts the environment map. Try ray tracing.");
@@ -394,8 +390,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_LargeModel) //................................................
+    else if (SLApplication::sceneID == SID_LargeModel) //................................................
     {
         s->name("Large Model Test");
         s->info("Large Model with 7.2 mio. triangles.");
@@ -436,8 +431,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
         
     }
-    else
-    if (SLApplication::sceneID == SID_TextureBlend) //..............................................
+    else if (SLApplication::sceneID == SID_TextureBlend) //..............................................
     {
         s->name("Texture Blending Test");
         s->info("Texture map blending with depth sorting. Trees in view frustum are rendered back to front.");
@@ -533,8 +527,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_TextureFilter) //.............................................
+    else if (SLApplication::sceneID == SID_TextureFilter) //.............................................
     {
         s->name("Texture Filer Test");
         s->info("Texture filters: Bottom: nearest, left: linear, top: linear mipmap, right: anisotropic");
@@ -639,8 +632,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_FrustumCull) //...............................................
+    else if (SLApplication::sceneID == SID_FrustumCull) //...............................................
     {  
         s->name("Frustum Culling Test");
         s->info("View frustum culling: Only objects in view frustum are rendered. You can turn view culling off in the render flags.");
@@ -695,8 +687,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_2Dand3DText) //...............................................
+    else if (SLApplication::sceneID == SID_2Dand3DText) //...............................................
     {  
         s->name("2D & 3D Text Test");
         s->info("All 3D objects are in the _root3D scene and the center text is in the _root2D scene and rendered in orthographic projection in screen space.");
@@ -777,8 +768,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene3D);
         s->root2D(scene2D);
     }
-    else
-    if (SLApplication::sceneID == SID_MassiveData) //...............................................
+    else if (SLApplication::sceneID == SID_MassiveData) //...............................................
     {
         s->name("Massive Data Test");
         s->info("No data is shared on the GPU. Check Memory consumption.");
@@ -837,8 +827,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_PointClouds) //...............................................
+    else if (SLApplication::sceneID == SID_PointClouds) //...............................................
     {
         s->name("Point Clouds Test");
         s->info("Point Clouds with normal and uniform distribution");
@@ -881,8 +870,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_ShaderPerPixelBlinn ||
+    else if (SLApplication::sceneID == SID_ShaderPerPixelBlinn ||
         SLApplication::sceneID == SID_ShaderPerVertexBlinn) //......................................
     {
         SLMaterial* m1;
@@ -976,8 +964,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_ShaderCookTorrance) //................................
+    else if (SLApplication::sceneID == SID_ShaderCookTorrance) //................................
     {
        s->name("Cook-Torrance Test");
        s->info("Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. The center sphere has roughness and metallic encoded in textures.");
@@ -1050,8 +1037,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_ShaderPerVertexWave) //.......................................
+    else if (SLApplication::sceneID == SID_ShaderPerVertexWave) //.......................................
     {
         s->name("Wave Shader Test");
         s->info("Vertex Shader with wave displacment.");
@@ -1100,8 +1086,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
         sv->doWaitOnIdle(false);
     }
-    else
-    if (SLApplication::sceneID == SID_ShaderWater) //...............................................
+    else if (SLApplication::sceneID == SID_ShaderWater) //...............................................
     {
         s->name("Water Shader Test");
         s->info("Water Shader with reflection & refraction mapping.");
@@ -1184,8 +1169,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
         sv->doWaitOnIdle(false);
     }
-    else
-    if (SLApplication::sceneID == SID_ShaderBumpNormal) //..........................................
+    else if (SLApplication::sceneID == SID_ShaderBumpNormal) //..........................................
     {
         s->name("Normal Map Test");
         s->info("Normal map bump mapping combined with a per pixel spot lighting.");
@@ -1224,8 +1208,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_ShaderBumpParallax) //........................................
+    else if (SLApplication::sceneID == SID_ShaderBumpParallax) //........................................
     {
         s->name("Parallax Map Test");
         s->info("Normal map parallax mapping.");
@@ -1277,8 +1260,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_ShaderSkyBox) //..............................................
+    else if (SLApplication::sceneID == SID_ShaderSkyBox) //..............................................
     {
         // Set scene name and info string
         s->name("Sky Box Test");
@@ -1345,8 +1327,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
-    else
-    if (SLApplication::sceneID == SID_ShaderEarth) //...............................................
+    else if (SLApplication::sceneID == SID_ShaderEarth) //...............................................
     {
         s->name("Earth Shader Test");
         s->info("Complex earth shader with 7 textures: daycolor, nightcolor, normal, height & gloss map of earth, color & alphamap of clouds");
@@ -1417,8 +1398,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_VolumeRayCast) //......................................
+    else if (SLApplication::sceneID == SID_VolumeRayCast) //......................................
     {
         s->name("Volume Ray Cast Test");
         s->info("Volume Rendering of an angiographic MRI scan");
@@ -1481,8 +1461,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_VolumeRayCastLighted) //...............................
+    else if (SLApplication::sceneID == SID_VolumeRayCastLighted) //...............................
     {
         s->name("Volume Ray Cast Lighted Test");
         s->info("Volume Rendering of an angiographic MRI scan with lighting");
@@ -1547,8 +1526,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_AnimationSkeletal) //.........................................
+    else if (SLApplication::sceneID == SID_AnimationSkeletal) //.........................................
     {
         s->name("Skeletal Animation Test");
         s->info("Skeletal Animation Test Scene");
@@ -1632,8 +1610,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_AnimationNode) //.............................................
+    else if (SLApplication::sceneID == SID_AnimationNode) //.............................................
     {
         s->name("Node Animations Test");
         s->info("Node animations with different easing curves.");
@@ -1740,8 +1717,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_AnimationMass) //.............................................
+    else if (SLApplication::sceneID == SID_AnimationMass) //.............................................
     {
         s->name("Mass Animation Test");
         s->info("Performance test for transform updates from many animations.");
@@ -1813,8 +1789,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             }
         }
     }
-    else
-    if (SLApplication::sceneID == SID_AnimationArmy) //.............................................
+    else if (SLApplication::sceneID == SID_AnimationArmy) //.............................................
     {
         s->name("Astroboy Army Test");
         s->info("Mass animation scene of identitcal Astroboy models");
@@ -1881,8 +1856,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_VideoTextureLive ||
+    else if (SLApplication::sceneID == SID_VideoTextureLive ||
         SLApplication::sceneID == SID_VideoTextureFile) //..........................................
     {
         // Set scene name and info string
@@ -1890,7 +1864,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         {   s->name("Live Video Texture");
             s->info("Minimal texture mapping example with live video source.");
             s->videoType(VT_SCND); // on desktop it will be the main camera
-        } else
+        } 
+        else
         {   s->name("File Video Texture");
             s->info("Minimal texture mapping example with video file source.");
             s->videoType(VT_FILE);
@@ -1939,8 +1914,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
-    else
-    if (SLApplication::sceneID == SID_VideoTrackChessMain ||
+    else if (SLApplication::sceneID == SID_VideoTrackChessMain ||
         SLApplication::sceneID == SID_VideoTrackChessScnd ||
         SLApplication::sceneID == SID_VideoCalibrateMain ||
         SLApplication::sceneID == SID_VideoCalibrateScnd) //........................................
@@ -1961,12 +1935,13 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLApplication::sceneID == SID_VideoTrackChessScnd)
         {   
             if (SLApplication::sceneID == SID_VideoTrackChessMain) {   
-                s->videoType(VT_FILE);
-                SLCVCapture::videoLoops = true;
-                SLCVCapture::videoFilename = "calib_honor9_marcus.mp4";
-                //SLCVCapture::videoFilename = "webcam_calib.wmv";
+                //s->videoType(VT_FILE);
+                //SLCVCapture::videoLoops = true;
+                ////SLCVCapture::videoFilename = "calib_honor9_marcus.mp4";
+                //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
+                ////SLCVCapture::videoFilename = "webcam_calib.wmv";
 
-                //s->videoType(VT_MAIN);
+                s->videoType(VT_MAIN);
                 s->name("Track Chessboard (main cam.)");
             } 
             else {   
@@ -1975,12 +1950,13 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             }
         } 
         else if (SLApplication::sceneID == SID_VideoCalibrateMain) {   
-            s->videoType(VT_FILE);
-            SLCVCapture::videoLoops = true;
-            SLCVCapture::videoFilename = "calib_honor9_marcus.mp4";
-            //SLCVCapture::videoFilename = "webcam_calib.wmv";
+            //s->videoType(VT_FILE);
+            //SLCVCapture::videoLoops = true;
+            ////SLCVCapture::videoFilename = "calib_honor9_marcus.mp4";
+            //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
+            ////SLCVCapture::videoFilename = "webcam_calib.wmv";
 
-            //s->videoType(VT_MAIN);
+            s->videoType(VT_MAIN);
             SLApplication::activeCalib->clear();
 
             s->name("Calibrate Main Cam.");
@@ -2043,8 +2019,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
-    else
-    if (SLApplication::sceneID == SID_VideoTrackArucoMain ||
+    else if (SLApplication::sceneID == SID_VideoTrackArucoMain ||
         SLApplication::sceneID == SID_VideoTrackArucoScnd) //.......................................
     {
         /*
@@ -2125,8 +2100,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Turn on constant redraw
         sv->doWaitOnIdle(false);
     }
-    else
-    if (SLApplication::sceneID == SID_VideoTrackFeature2DMain) //...................................
+    else if (SLApplication::sceneID == SID_VideoTrackFeature2DMain) //...................................
     {
         /*
         The tracking of markers is done in SLScene::onUpdate by calling the specific
@@ -2173,12 +2147,17 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (!tower) {
             SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
             SLfloat s = 10.f;
-            tower = new SLNode(new SLBox(-s, -s, -s, s, s, s, "Box", yellow), "Box Node");
-        }
+            tower = new SLNode(new SLBox(0, 0, 0, s, s, s, "Box", yellow), "Box Node");
 
-        tower->rotate(180, 1, 0, 0);
-        tower->translate(80, -80, 0);
-        tower->scale(4);
+            SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
+            axis->scale(10);
+            tower->addChild(axis);
+        }
+        else {
+            tower->rotate(180, 1, 0, 0);
+            tower->translate(80, -80, 0);
+            tower->scale(4);
+        }
 
         // Scene structure
         SLNode* scene = new SLNode("Scene");
@@ -2196,8 +2175,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
         SLApplication::devRot.isUsed(true);
     }
-    else
-    if (SLApplication::sceneID == SID_VideoSensorAR) //.............................................
+    else if (SLApplication::sceneID == SID_VideoSensorAR) //.............................................
     {
         // Set scene name and info string
         s->name("Video Sensor AR");
@@ -2260,8 +2238,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         sv->doWaitOnIdle(false); // for constant video feed
     }
-    else
-    if (SLApplication::sceneID == SID_VideoChristoffel) //..........................................
+    else if (SLApplication::sceneID == SID_VideoChristoffel) //..........................................
     {
         s->name("Christoffel Tower AR");
         s->info("Augmented Reality Christoffel Tower");
@@ -2359,201 +2336,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-        if (SLApplication::sceneID == SID_VideoChristoffelOrbSlam) //..........................................
-        {
-            // Set scene name and info string
-            s->name("Track Keyframe based Features");
-            s->info("Example for loading an existing pose graph with map points.");
-
-            s->videoType(VT_FILE);
-            SLCVCapture::videoLoops = true;
-
-            //SLCVCapture::videoFilename = "street3.mp4";
-            //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "street1_manip.json";
-            //SLCVCapture::videoFilename = "altstadt_biel1.mp4";
-            //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-altstadtbiel1_manip.json";
-            //SLCVCapture::videoFilename = "Bern1.mp4";
-            //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern1-manip1.json";
-            //SLCVCapture::videoFilename = "Bern3_cut_baldachin.mp4";
-            SLCVCapture::videoFilename = "Bern3_cut.mp4";
-            SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern3-ct.json";
-
-
-            SLCamera* cam1 = new SLCamera("Camera 1");
-            cam1->translation(0, 2, 60);
-            cam1->lookAt(15, 15, 0);
-            cam1->fov(SLApplication::activeCalib->cameraFovDeg());
-            cam1->clipNear(0.001f);
-            cam1->clipFar(1000000.0f); // Increase to infinity?
-            cam1->setInitialState();
-            cam1->background().texture(s->videoTexture());
-            //s->videoType(VT_MAIN);
-
-            SLCVMap* map = new SLCVMap("Map");
-
-
-            ORBVocabulary* vocabulary = new ORBVocabulary();
-            string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-            bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-            //bool bVocLoad = true;
-            if (!bVocLoad)
-            {
-                cerr << "Wrong path to vocabulary. " << endl;
-                cerr << "Failed to open at: " << strVocFile << endl;
-                exit(-1);
-            }
-            cout << "Vocabulary loaded!" << endl << endl;
-
-            SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
-
-            //load map points and keyframes from json file
-            SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
-            loader.load(map->mapPoints(), *kfDB);
-
-            SLLightSpot* light1 = new SLLightSpot(100, 100, 100, 0.3f);
-            light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-            light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
-            light1->specular(SLCol4f(1, 1, 1));
-            light1->attenuation(1, 0, 0);
-            SLLightSpot* light2 = new SLLightSpot(-100, 100, -100, 0.3f);
-            light2->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-            light2->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
-            light2->specular(SLCol4f(1, 1, 1));
-            light2->attenuation(1, 0, 0);
-
-            SLNode* scene = new SLNode("scene");
-            scene->addChild(light1);
-            scene->addChild(light2);
-
-            SLNode* mapNode = new SLNode("map");
-            //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
-            //y-axis down and z-forward
-            mapNode->rotate(180, 1, 0, 0);
-            scene->addChild(mapNode);
-            mapNode->addChild(cam1);
-
-            //add visual representations of map and keyFrame database to scene
-            bool addVisualMap = true;
-            bool addVisualKFs = true;
-            SLNode* mapPC = NULL;
-            SLNode* mapMatchedPC = NULL;
-            SLNode* mapLocalPC = NULL;
-            if (addVisualMap)
-            {
-                mapPC = new SLNode(map->getSceneObject(), "MapPoints");
-                mapNode->addChild(mapPC);
-
-                //add additional empty point clouds for visualization of local map and map point matches:
-                //1. map point matches
-                //material
-                SLMaterial* pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
-                pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-                pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
-                //mesh
-                SLVVec3f points, normals;
-                points.push_back(SLVec3f(0.f, 0.f, 0.f));
-                normals.push_back(SLVec3f(0.0001f, 0.0001f, 0.0001f));
-                SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", pcMat1);
-                //node
-                mapMatchedPC = new SLNode(mapMatchesMesh, "MapMatchedPC");
-                mapNode->addChild(mapMatchedPC);
-
-                //2. local map points
-                //material
-                SLMaterial* pcMat2 = new SLMaterial("Magenta", SLCol4f::MAGENTA);
-                pcMat2->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-                pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-                //mesh
-                SLPoints* mapLocalMesh = new SLPoints(points, normals, "MapPointsLocal", pcMat2);
-                //node
-                mapLocalPC = new SLNode(mapLocalMesh, "MapLocalPC");
-                mapNode->addChild(mapLocalPC);
-            }
-
-            SLNode* keyFrames = NULL;
-            if (addVisualKFs)
-            {
-                keyFrames = new SLNode("KeyFrames");
-                //add keyFrames
-                for (auto* kf : kfDB->keyFrames()) {
-                    SLCVCamera* cam = kf->getSceneObject();
-                    cam->fov(SLApplication::activeCalib->cameraFovDeg());
-                    cam->focalDist(0.11);
-                    cam->clipNear(0.1);
-                    cam->clipFar(1000.0);
-                    keyFrames->addChild(cam);
-                }
-                keyFrames->drawBits()->set(SL_DB_HIDDEN, true);
-                mapNode->addChild(keyFrames);
-            }
-
-            //add tracker
-            s->trackers().push_back(new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map,
-                mapPC, mapMatchedPC, mapLocalPC, keyFrames));
-
-            //---------------------------------------------------------------------------------
-            SLAssimpImporter importer;
-            SLNode* bern = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
-
-            // Make city transparent
-            for (auto mesh : bern->findChild<SLNode>("Umgebung-Daecher")->meshes()) mesh->mat()->kt(0.5f);
-            for (auto mesh : bern->findChild<SLNode>("Umgebung-Fassaden")->meshes()) mesh->mat()->kt(0.5f);
-
-            // Hide some objects
-            bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
-            bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
-            bern->findChild<SLNode>("Christoffel-Tor")->drawBits()->set(SL_DB_HIDDEN, true);
-            bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, false);
-            bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, false);
-            bern->findChild<SLNode>("Mauer-Wand")->drawBits()->set(SL_DB_HIDDEN, true);
-            bern->findChild<SLNode>("Mauer-Turm")->drawBits()->set(SL_DB_HIDDEN, true);
-            bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
-            bern->findChild<SLNode>("Mauer-Weg")->drawBits()->set(SL_DB_HIDDEN, true);
-            bern->findChild<SLNode>("Boden")->drawBits()->set(SL_DB_HIDDEN, true);
-            bern->findChild<SLNode>("Graben-Mauern")->drawBits()->set(SL_DB_HIDDEN, true);
-            bern->findChild<SLNode>("Graben-Bruecken")->drawBits()->set(SL_DB_HIDDEN, true);
-            bern->findChild<SLNode>("Graben-Grass")->drawBits()->set(SL_DB_HIDDEN, true);
-            bern->findChild<SLNode>("Graben-Turm-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
-            bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
-            bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
-
-            // Set ambient on all child nodes and reinit meshes to reset the correct hasAlpha flag
-            for (auto node : bern->children())
-            {
-                for (auto mesh : node->meshes())
-                {
-                    mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-                    mesh->init(node);
-                }
-            }
-            scene->addChild(bern);
-            //---------------------------------------------------------------------------------
-
-            ////add yellow augmented box
-            //SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-            ////SLfloat he = 25.;
-            ////SLBox* box1 = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
-            //SLfloat l = 1.75, b = 0.75, h = 0.74;
-            //SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
-
-            //SLNode* boxNode = new SLNode(box1, "boxNode");
-            ////boxNode->rotate(40, 1, 0, 0);
-            ////boxNode->translate(0, -0.5, -1.5);
-            ////boxNode->translate(1, 1, 1);
-            //scene->addChild(boxNode);
-
-            SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
-            axisNode->scale(10.0f);
-            scene->addChild(axisNode);
-
-            // Save no energy
-            sv->doWaitOnIdle(false); //for constant video feed
-            sv->camera(cam1);
-
-            s->root3D(scene);
-        }
-    else if (SLApplication::sceneID == SID_VideoTrackKeyFrames)
+    else if (SLApplication::sceneID == SID_VideoChristoffelOrbSlam) //..........................................
     {
         // Set scene name and info string
         s->name("Track Keyframe based Features");
@@ -2568,6 +2351,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-altstadtbiel1_manip.json";
         //SLCVCapture::videoFilename = "Bern1.mp4";
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern1-manip1.json";
+        //SLCVCapture::videoFilename = "Bern3_cut_baldachin.mp4";
         SLCVCapture::videoFilename = "Bern3_cut.mp4";
         SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern3-ct.json";
 
@@ -2601,16 +2385,22 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //load map points and keyframes from json file
         SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
-        loader.load(map->mapPoints(), *kfDB );
+        loader.load(map->mapPoints(), *kfDB);
 
-        SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
+        SLLightSpot* light1 = new SLLightSpot(100, 100, 100, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
         light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1, 0, 0);
+        SLLightSpot* light2 = new SLLightSpot(-100, 100, -100, 0.3f);
+        light2->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
+        light2->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
+        light2->specular(SLCol4f(1, 1, 1));
+        light2->attenuation(1, 0, 0);
 
         SLNode* scene = new SLNode("scene");
         scene->addChild(light1);
+        scene->addChild(light2);
 
         SLNode* mapNode = new SLNode("map");
         //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
@@ -2622,7 +2412,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //add visual representations of map and keyFrame database to scene
         bool addVisualMap = true;
         bool addVisualKFs = true;
-        SLNode* mapPC=NULL; 
+        SLNode* mapPC = NULL;
         SLNode* mapMatchedPC = NULL;
         SLNode* mapLocalPC = NULL;
         if (addVisualMap)
@@ -2658,7 +2448,182 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         SLNode* keyFrames = NULL;
-        if(addVisualKFs)
+        if (addVisualKFs)
+        {
+            keyFrames = new SLNode("KeyFrames");
+            //add keyFrames
+            for (auto* kf : kfDB->keyFrames()) {
+                SLCVCamera* cam = kf->getSceneObject();
+                cam->fov(SLApplication::activeCalib->cameraFovDeg());
+                cam->focalDist(0.11);
+                cam->clipNear(0.1);
+                cam->clipFar(1000.0);
+                keyFrames->addChild(cam);
+            }
+            keyFrames->drawBits()->set(SL_DB_HIDDEN, true);
+            mapNode->addChild(keyFrames);
+        }
+
+        //add tracker
+        s->trackers().push_back(new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map,
+            mapPC, mapMatchedPC, mapLocalPC, keyFrames));
+
+        //---------------------------------------------------------------------------------
+        SLAssimpImporter importer;
+        SLNode* bern = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
+
+        // Make city transparent
+        for (auto mesh : bern->findChild<SLNode>("Umgebung-Daecher")->meshes()) mesh->mat()->kt(0.5f);
+        for (auto mesh : bern->findChild<SLNode>("Umgebung-Fassaden")->meshes()) mesh->mat()->kt(0.5f);
+
+        // Hide some objects
+        bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Christoffel-Tor")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, false);
+        bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, false);
+        bern->findChild<SLNode>("Mauer-Wand")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Turm")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Weg")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Boden")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Mauern")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Bruecken")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Grass")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
+
+        // Set ambient on all child nodes and reinit meshes to reset the correct hasAlpha flag
+        for (auto node : bern->children())
+        {
+            for (auto mesh : node->meshes())
+            {
+                mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+                mesh->init(node);
+            }
+        }
+        scene->addChild(bern);
+        //---------------------------------------------------------------------------------
+
+        ////add yellow augmented box
+        //SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        ////SLfloat he = 25.;
+        ////SLBox* box1 = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
+        //SLfloat l = 1.75, b = 0.75, h = 0.74;
+        //SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
+
+        //SLNode* boxNode = new SLNode(box1, "boxNode");
+        ////boxNode->rotate(40, 1, 0, 0);
+        ////boxNode->translate(0, -0.5, -1.5);
+        ////boxNode->translate(1, 1, 1);
+        //scene->addChild(boxNode);
+
+        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
+        axisNode->scale(10.0f);
+        scene->addChild(axisNode);
+
+        // Save no energy
+        sv->doWaitOnIdle(false); //for constant video feed
+        sv->camera(cam1);
+
+        s->root3D(scene);
+    }
+    else if (SLApplication::sceneID == SID_VideoTrackKeyFrames)
+    {
+        // Set scene name and info string
+        s->name("Track Keyframe based Features");
+        s->info("Example for loading an existing pose graph with map points.");
+
+        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-buero1.json";
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 2, 60);
+        cam1->lookAt(15, 15, 0);
+        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
+        cam1->clipNear(0.001f);
+        cam1->clipFar(1000000.0f); // Increase to infinity?
+        cam1->setInitialState();
+        cam1->background().texture(s->videoTexture());
+        s->videoType(VT_MAIN);
+
+        SLCVMap* map = new SLCVMap("Map");
+
+
+        ORBVocabulary* vocabulary = new ORBVocabulary();
+        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
+        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
+        //bool bVocLoad = true;
+        if (!bVocLoad)
+        {
+            cerr << "Wrong path to vocabulary. " << endl;
+            cerr << "Failed to open at: " << strVocFile << endl;
+            exit(-1);
+        }
+        cout << "Vocabulary loaded!" << endl << endl;
+
+        SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
+
+        //load map points and keyframes from json file
+        SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
+        loader.load(map->mapPoints(), *kfDB);
+
+        SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
+        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
+        light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
+        light1->specular(SLCol4f(1, 1, 1));
+        light1->attenuation(1, 0, 0);
+
+        SLNode* scene = new SLNode("scene");
+        scene->addChild(light1);
+
+        SLNode* mapNode = new SLNode("map");
+        //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
+        //y-axis down and z-forward
+        mapNode->rotate(180, 1, 0, 0);
+        scene->addChild(mapNode);
+        mapNode->addChild(cam1);
+
+        //add visual representations of map and keyFrame database to scene
+        bool addVisualMap = true;
+        bool addVisualKFs = true;
+        SLNode* mapPC = NULL;
+        SLNode* mapMatchedPC = NULL;
+        SLNode* mapLocalPC = NULL;
+        if (addVisualMap)
+        {
+            mapPC = new SLNode(map->getSceneObject(), "MapPoints");
+            mapNode->addChild(mapPC);
+
+            //add additional empty point clouds for visualization of local map and map point matches:
+            //1. map point matches
+            //material
+            SLMaterial* pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
+            pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+            pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+            //mesh
+            SLVVec3f points, normals;
+            points.push_back(SLVec3f(0.f, 0.f, 0.f));
+            normals.push_back(SLVec3f(0.0001f, 0.0001f, 0.0001f));
+            SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", pcMat1);
+            //node
+            mapMatchedPC = new SLNode(mapMatchesMesh, "MapMatchedPC");
+            mapNode->addChild(mapMatchedPC);
+
+            //2. local map points
+            //material
+            SLMaterial* pcMat2 = new SLMaterial("Magenta", SLCol4f::MAGENTA);
+            pcMat2->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+            pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+            //mesh
+            SLPoints* mapLocalMesh = new SLPoints(points, normals, "MapPointsLocal", pcMat2);
+            //node
+            mapLocalPC = new SLNode(mapLocalMesh, "MapLocalPC");
+            mapNode->addChild(mapLocalPC);
+        }
+
+        SLNode* keyFrames = NULL;
+        if (addVisualKFs)
         {
             keyFrames = new SLNode("KeyFrames");
             //add keyFrames
@@ -2674,7 +2639,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         //add tracker
-        s->trackers().push_back( new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map,
+        s->trackers().push_back(new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map,
             mapPC, mapMatchedPC, mapLocalPC, keyFrames));
 
         //add yellow augmented box
@@ -2699,8 +2664,155 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_RTMuttenzerBox) //............................................
+    else if (SLApplication::sceneID == SID_VideoFilesTrackKeyFrames)
+    {
+        // Set scene name and info string
+        s->name("Track Keyframe based Features (from video files)");
+        s->info("Example for loading an existing pose graph with map points.");
+
+        s->videoType(VT_FILE);
+        SLCVCapture::videoLoops = true;
+
+        //SLCVCapture::videoFilename = "street3.mp4";
+        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "street1_manip.json";
+        //SLCVCapture::videoFilename = "altstadt_biel1.mp4";
+        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-altstadtbiel1_manip.json";
+        //SLCVCapture::videoFilename = "Bern1.mp4";
+        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern1-manip1.json";
+        //SLCVCapture::videoFilename = "Bern3_cut.mp4";
+        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern3-ct.json";
+        SLCVCapture::videoFilename = "buero2_huawei_16_9.mp4";
+        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-buero1.json";
+
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 2, 60);
+        cam1->lookAt(15, 15, 0);
+        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
+        cam1->clipNear(0.001f);
+        cam1->clipFar(1000000.0f); // Increase to infinity?
+        cam1->setInitialState();
+        cam1->background().texture(s->videoTexture());
+        //s->videoType(VT_MAIN);
+
+        SLCVMap* map = new SLCVMap("Map");
+
+
+        ORBVocabulary* vocabulary = new ORBVocabulary();
+        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
+        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
+        //bool bVocLoad = true;
+        if (!bVocLoad)
+        {
+            cerr << "Wrong path to vocabulary. " << endl;
+            cerr << "Failed to open at: " << strVocFile << endl;
+            exit(-1);
+        }
+        cout << "Vocabulary loaded!" << endl << endl;
+
+        SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
+
+        //load map points and keyframes from json file
+        SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
+        loader.load(map->mapPoints(), *kfDB);
+
+        SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
+        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
+        light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
+        light1->specular(SLCol4f(1, 1, 1));
+        light1->attenuation(1, 0, 0);
+
+        SLNode* scene = new SLNode("scene");
+        scene->addChild(light1);
+
+        SLNode* mapNode = new SLNode("map");
+        //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
+        //y-axis down and z-forward
+        mapNode->rotate(180, 1, 0, 0);
+        scene->addChild(mapNode);
+        mapNode->addChild(cam1);
+
+        //add visual representations of map and keyFrame database to scene
+        bool addVisualMap = true;
+        bool addVisualKFs = true;
+        SLNode* mapPC = NULL;
+        SLNode* mapMatchedPC = NULL;
+        SLNode* mapLocalPC = NULL;
+        if (addVisualMap)
+        {
+            mapPC = new SLNode(map->getSceneObject(), "MapPoints");
+            mapNode->addChild(mapPC);
+
+            //add additional empty point clouds for visualization of local map and map point matches:
+            //1. map point matches
+            //material
+            SLMaterial* pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
+            pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+            pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+            //mesh
+            SLVVec3f points, normals;
+            points.push_back(SLVec3f(0.f, 0.f, 0.f));
+            normals.push_back(SLVec3f(0.0001f, 0.0001f, 0.0001f));
+            SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", pcMat1);
+            //node
+            mapMatchedPC = new SLNode(mapMatchesMesh, "MapMatchedPC");
+            mapNode->addChild(mapMatchedPC);
+
+            //2. local map points
+            //material
+            SLMaterial* pcMat2 = new SLMaterial("Magenta", SLCol4f::MAGENTA);
+            pcMat2->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+            pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+            //mesh
+            SLPoints* mapLocalMesh = new SLPoints(points, normals, "MapPointsLocal", pcMat2);
+            //node
+            mapLocalPC = new SLNode(mapLocalMesh, "MapLocalPC");
+            mapNode->addChild(mapLocalPC);
+        }
+
+        SLNode* keyFrames = NULL;
+        if (addVisualKFs)
+        {
+            keyFrames = new SLNode("KeyFrames");
+            //add keyFrames
+            for (auto* kf : kfDB->keyFrames()) {
+                SLCVCamera* cam = kf->getSceneObject();
+                cam->fov(SLApplication::activeCalib->cameraFovDeg());
+                cam->focalDist(0.11);
+                cam->clipNear(0.1);
+                cam->clipFar(1000.0);
+                keyFrames->addChild(cam);
+            }
+            mapNode->addChild(keyFrames);
+        }
+
+        //add tracker
+        s->trackers().push_back(new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map,
+            mapPC, mapMatchedPC, mapLocalPC, keyFrames));
+
+        //add yellow augmented box
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        //SLfloat he = 25.;
+        //SLBox* box1 = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
+        SLfloat l = 1.75, b = 0.75, h = 0.74;
+        SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
+
+        SLNode* boxNode = new SLNode(box1, "boxNode");
+        //boxNode->rotate(40, 1, 0, 0);
+        //boxNode->translate(0, -0.5, -1.5);
+        //boxNode->translate(1, 1, 1);
+        scene->addChild(boxNode);
+
+        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
+        scene->addChild(axisNode);
+
+        // Save no energy
+        sv->doWaitOnIdle(false); //for constant video feed
+        sv->camera(cam1);
+
+        s->root3D(scene);
+    }
+    else if (SLApplication::sceneID == SID_RTMuttenzerBox) //............................................
     {
         s->name("Muttenzer Box (RT)");
         s->info("Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
@@ -2806,8 +2918,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_RTSpheres) //.................................................
+    else if (SLApplication::sceneID == SID_RTSpheres) //.................................................
     {
         s->name("Ray tracing Spheres");
         s->info("Classic ray tracing scene with transparent and reflective spheres. Be patient on mobile devices.");
@@ -2856,8 +2967,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
         sv->camera(cam1);
     }
-    else
-    if (SLApplication::sceneID == SID_RTSoftShadows) //.............................................
+    else if (SLApplication::sceneID == SID_RTSoftShadows) //.............................................
     {
         s->name("Ray tracing soft shadows");
         s->info("Ray tracing with soft shadow light sampling. Each light source is sampled 64x per pixel. Be patient on mobile devices.");
@@ -2907,8 +3017,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_RTDoF) //.....................................................
+    else if (SLApplication::sceneID == SID_RTDoF) //.....................................................
     {
         s->name("Ray tracing depth of field");
 
@@ -2969,8 +3078,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_RTLens) //....................................................
+    else if (SLApplication::sceneID == SID_RTLens) //....................................................
 	{
         s->name("Ray tracing lens test");
         s->info("Ray tracing lens test scene.");
@@ -3045,8 +3153,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else
-    if (SLApplication::sceneID == SID_RTTest) //....................................................
+    else if (SLApplication::sceneID == SID_RTTest) //....................................................
     {
         // Set scene name and info string
         s->name("Ray tracing test");
