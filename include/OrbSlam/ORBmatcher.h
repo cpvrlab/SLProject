@@ -64,8 +64,8 @@ public:
     int SearchByBoW(SLCVKeyFrame *pKF, SLCVFrame &F, std::vector<SLCVMapPoint*> &vpMapPointMatches);
     //int SearchByBoW(SLCVKeyFrame *pKF1, SLCVKeyFrame* pKF2, std::vector<SLCVMapPoint*> &vpMatches12);
 
-    //// Matching for the Map Initialization (only used in the monocular case)
-    //int SearchForInitialization(SLCVFrame &F1, Frame &F2, std::vector<cv::Point2f> &vbPrevMatched, std::vector<int> &vnMatches12, int windowSize=10);
+    // Matching for the Map Initialization (only used in the monocular case)
+    int SearchForInitialization(SLCVFrame &F1, SLCVFrame &F2, std::vector<cv::Point2f> &vbPrevMatched, std::vector<int> &vnMatches12, int windowSize=10);
 
     //// Matching to triangulate new MapPoints. Check Epipolar Constraint.
     //int SearchForTriangulation(SLCVKeyFrame *pKF1, SLCVKeyFrame* pKF2, cv::Mat F12,

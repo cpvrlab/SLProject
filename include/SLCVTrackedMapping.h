@@ -24,12 +24,18 @@ for a good top down information.
 #include <SLCVTracked.h>
 #include <SLNode.h>
 
+namespace ORB_SLAM2 {
+    class Initializer;
+}
+
 //-----------------------------------------------------------------------------
 
 class SLCVTrackedMapping : public SLCVTracked
 {
     public:
-                SLCVTrackedMapping    (SLNode* node, SLint arucoID);
+        enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
+
+                SLCVTrackedMapping    (SLNode* node, ORBVocabulary* vocabulary);
                ~SLCVTrackedMapping    () {}
 
         SLbool  track               (SLCVMat imageGray,
@@ -38,8 +44,44 @@ class SLCVTrackedMapping : public SLCVTracked
                                      SLbool drawDetection,
                                      SLSceneView* sv);
 
+        void setState(TrackingStates state) { _currentState = state; }
     private:
+        // Map initialization for monocular
+        void CreateInitialMapMonocular();
 
+        //! initialization routine
+        void initialize();
+        void trackVO();
+        void track3DPts();
+        void trackOpticalFlow();
+
+        //! states, that we try to make a new key frame out of the next frame
+        bool _addKeyframe;
+        //! current tracking state
+        TrackingStates _currentState = IDLE;
+
+        // ORB vocabulary used for place recognition and feature matching.
+        ORBVocabulary* mpVocabulary;
+        // Current Frame
+        SLCVFrame mCurrentFrame;
+
+        // Initialization Variables (Monocular)
+        //std::vector<int> mvIniLastMatches;
+        std::vector<int> mvIniMatches;
+        std::vector<cv::Point2f> mvbPrevMatched;
+        std::vector<cv::Point3f> mvIniP3D;
+        SLCVFrame mInitialFrame;
+
+        //Last Frame, KeyFrame and Relocalisation Info
+        //KeyFrame* mpLastKeyFrame;
+        SLCVFrame mLastFrame;
+
+        //extractor instance
+        ORB_SLAM2::ORBextractor* _extractor = NULL;
+        // Initalization (only for monocular)
+        Initializer* mpInitializer = NULL;
+
+        SLCVMat _img;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedMapping_H

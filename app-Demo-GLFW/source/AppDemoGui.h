@@ -36,6 +36,7 @@ class AppDemoGui
     static void             addSceneGraphNode   (SLScene* s, SLNode* node);
     static void             buildProperties     (SLScene* s);
     static void             buildInfosTracking  (SLScene* s, SLSceneView* sv);
+    static void             buildSlamInteraction(SLScene* s, SLSceneView* sv);
     static void             buildStatsDebugTiming(SLScene* s, SLSceneView* sv);
     static void             loadConfig          (SLint dotsPerInch);
     static void             saveConfig          ();
@@ -61,6 +62,7 @@ class AppDemoGui
     static SLbool           showInfosTracking;  //!< Flag if tracking info should be shown
     static SLbool           showStatsDebugTiming;//!< Flag if tracking info should be shown   
     static SLbool           showChristoffel;    //!< Flag if Christoffel infos should be shown
+    static SLbool           showSlamInteraction;//!< Flag if SLAM interaction should be shown
 };
 //-----------------------------------------------------------------------------
 #endif

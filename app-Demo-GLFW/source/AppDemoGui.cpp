@@ -36,6 +36,7 @@
 #include <SLTransferFunction.h>
 #include <SLCVTrackedFeatures.h>
 #include <SLCVTrackedRaulMur.h>
+#include <SLCVTrackedMapping.h>
 #include <SLAverageTiming.h>
 
 #include <imgui.h>
@@ -108,11 +109,14 @@ SLbool          AppDemoGui::showProperties      = false;
 SLbool          AppDemoGui::showInfosTracking   = false;
 SLbool          AppDemoGui::showStatsDebugTiming = false;
 SLbool          AppDemoGui::showChristoffel     = false;
+SLbool          AppDemoGui::showSlamInteraction = false;
 
 // SLCVTrackedRaulMur tracker pointer
 SLCVTrackedRaulMur* raulMurTracker = nullptr;
 SLNode* keyFrames   = nullptr;
 SLNode* mapPoints   = nullptr;
+// SLCVTrackedMapping instance pointer
+SLCVTrackedMapping* mappingTracker = nullptr;
 
 // Scene node for Christoffel objects
 SLNode* bern        = nullptr;
@@ -521,6 +525,11 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         buildInfosTracking(s, sv);
     }
 
+    if (showSlamInteraction)
+    {
+        buildSlamInteraction(s, sv);
+    }
+
     if (showStatsDebugTiming)
     {
         buildStatsDebugTiming(s, sv);
@@ -723,7 +732,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoTrackKeyFrames);
                     if (ImGui::MenuItem("Track Features from Keyframes in Video Files", 0, sid == sid == SID_VideoFilesTrackKeyFrames))
                         s->onLoad(s, sv, SID_VideoFilesTrackKeyFrames);
-                    
+                    if (ImGui::MenuItem("Orb SLAM mapping example", 0, sid == sid == SID_VideoMapping))
+                        s->onLoad(s, sv, SID_VideoMapping);
+
                     ImGui::EndMenu();
                 }
 
@@ -1312,6 +1323,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 SLApplication::sceneID == SID_VideoChristoffelOrbSlam ) {
                 ImGui::Separator();
                 ImGui::MenuItem("Infos on Tracking", 0, &showInfosTracking);
+            }
+            if (SLApplication::sceneID == SID_VideoMapping) {
+                ImGui::Separator();
+                ImGui::MenuItem("SLAM Interaction", 0, &showSlamInteraction);
             }
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", 0, &showHelp);
@@ -2019,6 +2034,38 @@ void AppDemoGui::buildInfosTracking(SLScene* s, SLSceneView* sv)
     ImGui::End();
 }
 //-----------------------------------------------------------------------------
+void AppDemoGui::buildSlamInteraction(SLScene* s, SLSceneView* sv)
+{
+    //try to find SLCVTrackedMapping instance
+    if (!mappingTracker)
+    {
+        for (SLCVTracked* tracker : s->trackers()) {
+            if (mappingTracker = dynamic_cast<SLCVTrackedMapping*>(tracker))
+                break;
+        }
+
+        if (!mappingTracker)
+            return;
+    }
+
+    ImGui::Begin("SLAM interaction", &showSlamInteraction, ImVec2(300, 0), -1.f, ImGuiWindowFlags_NoCollapse);
+
+    if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+        mappingTracker->setState(SLCVTrackedMapping::INITIALIZE);
+    }
+    else if (ImGui::Button("Track VO", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+        mappingTracker->setState(SLCVTrackedMapping::TRACK_VO);
+    }
+    else if (ImGui::Button("Track 3D Pts", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+        mappingTracker->setState(SLCVTrackedMapping::TRACK_3DPTS);
+    }
+    else if (ImGui::Button("Track optical flow", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+        mappingTracker->setState(SLCVTrackedMapping::TRACK_OPTICAL_FLOW);
+    }
+
+    ImGui::End();
+}
+//-----------------------------------------------------------------------------
 void AppDemoGui::loadConfig(SLint dotsPerInch)
 {
     ImGuiStyle& style = ImGui::GetStyle();
@@ -2091,8 +2138,9 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
     fs["showProperties"]        >> b; AppDemoGui::showProperties = b;
     fs["showInfosTracking"]     >> b; AppDemoGui::showInfosTracking = b;
     fs["showChristoffel"]       >> b; AppDemoGui::showChristoffel = b;
+    fs["showSlamInteraction"]   >> b; AppDemoGui::showSlamInteraction = b;
     fs["showDetection"]         >> b; SLApplication::scene->showDetection(b);
-
+    
     fs.release();
     SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
 }
@@ -2128,6 +2176,7 @@ void AppDemoGui::saveConfig()
     fs << "showProperties"          << AppDemoGui::showProperties;
     fs << "showChristoffel"         << AppDemoGui::showChristoffel;
     fs << "showInfosTracking"       << AppDemoGui::showInfosTracking;
+    fs << "showSlamInteraction"     << AppDemoGui::showSlamInteraction;
     fs << "showDetection"           << SLApplication::scene->showDetection();
 
     fs.release();

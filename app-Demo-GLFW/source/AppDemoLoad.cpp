@@ -38,6 +38,7 @@
 #include <SLCVTrackedChessboard.h>
 #include <SLCVTrackedFeatures.h>
 #include <SLCVTrackedRaulMur.h>
+#include <SLCVTrackedMapping.h>
 #include <SLTransferFunction.h>
 #include <SLSkybox.h>
 
@@ -2805,6 +2806,68 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
         scene->addChild(axisNode);
+
+        // Save no energy
+        sv->doWaitOnIdle(false); //for constant video feed
+        sv->camera(cam1);
+
+        s->root3D(scene);
+    }
+    else if (SLApplication::sceneID == SID_VideoMapping)
+    {
+        // Set scene name and info string
+        s->name("Mapping example");
+        s->info("Example for mapping using functionality from ORB-SLAM.");
+
+        s->videoType(VT_MAIN);
+        //s->videoType(VT_FILE);
+        //SLCVCapture::videoLoops = true;
+        //SLCVCapture::videoFilename = "buero2_huawei_16_9.mp4";
+
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 2, 60);
+        cam1->lookAt(15, 15, 0);
+        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
+        cam1->clipNear(0.001f);
+        cam1->clipFar(1000000.0f); // Increase to infinity?
+        cam1->setInitialState();
+        cam1->background().texture(s->videoTexture());
+
+        SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
+        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
+        light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
+        light1->specular(SLCol4f(1, 1, 1));
+        light1->attenuation(1, 0, 0);
+
+        //ORBVocabulary* vocabulary = new ORBVocabulary();
+        //string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
+        //bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
+        ////bool bVocLoad = true;
+        //if (!bVocLoad)
+        //{
+        //    cerr << "Wrong path to vocabulary. " << endl;
+        //    cerr << "Failed to open at: " << strVocFile << endl;
+        //    exit(-1);
+        //}
+        //cout << "Vocabulary loaded!" << endl << endl;
+
+        //add tracker
+        s->trackers().push_back(new SLCVTrackedMapping(cam1, NULL));
+
+        //add yellow augmented box
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        SLfloat l = 1.75, b = 0.75, h = 0.74;
+        SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
+
+        SLNode* boxNode = new SLNode(box1, "boxNode");
+        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
+
+        SLNode* scene = new SLNode("scene");
+        scene->addChild(light1);
+        scene->addChild(boxNode);
+        scene->addChild(axisNode);
+
 
         // Save no energy
         sv->doWaitOnIdle(false); //for constant video feed
