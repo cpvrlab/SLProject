@@ -34,6 +34,7 @@ namespace ORB_SLAM2
 Initializer::Initializer(const SLCVFrame &ReferenceFrame, float sigma, int iterations)
 {
     mK = ReferenceFrame.mK.clone();
+    mK.convertTo(mK, CV_32F);
 
     mvKeys1 = ReferenceFrame.mvKeysUn;
 
@@ -112,11 +113,11 @@ bool Initializer::Initialize(const SLCVFrame &CurrentFrame, const vector<int> &v
     // Compute ratio of scores
     float RH = SH/(SH+SF);
 
-    //// Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
-    //if(RH>0.40)
-    //    return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
-    //else //if(pF_HF>0.6)
-    //    return ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
+    // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
+    if(RH>0.40)
+        return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
+    else //if(pF_HF>0.6)
+        return ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
 
     return false;
 }
@@ -574,9 +575,11 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
                       cv::Mat &R21, cv::Mat &t21, vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated, float minParallax, int minTriangulated)
 {
     int N=0;
-    for(size_t i=0, iend = vbMatchesInliers.size() ; i<iend; i++)
-        if(vbMatchesInliers[i])
+    for (size_t i = 0, iend = vbMatchesInliers.size(); i < iend; i++) {
+        if (vbMatchesInliers[i]) {
             N++;
+        }
+    }
 
     // We recover 8 motion hypotheses using the method of Faugeras et al.
     // Motion and structure from motion in a piecewise planar environment.
