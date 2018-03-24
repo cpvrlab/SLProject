@@ -24,6 +24,7 @@ for a good top down information.
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/ocl.hpp>
 #include <opencv2/xfeatures2d.hpp>
+#include <opencv2/face.hpp>
 
 //-----------------------------------------------------------------------------
 typedef cv::Mat                     SLCVMat;
@@ -41,9 +42,12 @@ typedef cv::DMatch                  SLCVDMatch;
 typedef cv::InputArray              SLCVInputArray;
 typedef cv::OutputArray             SLCVOutputArray;
 typedef cv::Feature2D               SLCVFeature2D;
+typedef cv::CascadeClassifier       SLCVCascadeClassifier;
+typedef cv::face::Facemark          SLCVFacemark;
 
 // 1D STL vectors
 typedef vector<cv::Mat>             SLCVVMat;
+typedef vector<cv::Rect>            SLCVVRect;
 typedef vector<cv::Point>           SLCVVPoint;
 typedef vector<cv::Point2f>         SLCVVPoint2f;
 typedef vector<cv::Point2d>         SLCVVPoint2d;

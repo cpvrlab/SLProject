@@ -36,6 +36,7 @@
 #include <SLCVCapture.h>
 #include <SLCVTrackedAruco.h>
 #include <SLCVTrackedChessboard.h>
+#include <SLCVTrackedFace.h>
 #include <SLCVTrackedFeatures.h>
 #include <SLTransferFunction.h>
 #include <SLSkybox.h>

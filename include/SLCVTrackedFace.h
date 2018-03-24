@@ -32,7 +32,7 @@ class SLCVTrackedFace : public SLCVTracked
 {
     public:
                 SLCVTrackedFace     (SLNode* node);
-               ~SLCVTrackedFace     () {;}
+               ~SLCVTrackedFace     ();
 
         SLbool  track               (SLCVMat imageGray,
                                      SLCVMat imageRgb,
@@ -43,6 +43,8 @@ class SLCVTrackedFace : public SLCVTracked
     private:
         static SLbool           paramsLoaded;   //!< Flag for loaded parameters
         static SLVMat4f         objectViewMats; //!< object view matrices
+        SLCVCascadeClassifier*  _faceDetector;  //!< Viola-Jones face detector
+        SLCVFacemark*           _facemark;      //!< Facial landmarks detector
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedFace_H

@@ -22,18 +22,19 @@ for a good top down information.
 #include <SLSceneView.h>
 #include <SLCVTrackedFace.h>
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/core/utility.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/calib3d.hpp>
-#include <opencv2/video/tracking.hpp>
-
-using namespace cv;
 //-----------------------------------------------------------------------------
 SLCVTrackedFace::SLCVTrackedFace(SLNode* node) :
                  SLCVTracked(node)
 {
+    _faceDetector = new SLCVCascadeClassifier("../_data/opencv/haarcascades/haarcascade_frontalface_alt2.xml");
+    _facemark = cv::face::FacemarkLBF::create();
+    _facemark->loadModel("../_data/calibrations/lbfmodel.yaml");
+}
+//-----------------------------------------------------------------------------
+SLCVTrackedFace::~SLCVTrackedFace()
+{
+    delete _faceDetector;
+    delete _facemark;
 }
 //-----------------------------------------------------------------------------
 //! Tracks the ...
@@ -52,106 +53,32 @@ SLbool SLCVTrackedFace::track(SLCVMat imageGray,
     assert(sv && "No sceneview pointer passed");
     assert(sv->camera() && "No active camera in sceneview");
    
-    /*
-    // Load aruco parameter once
-    if (!paramsLoaded)
+    ////////////
+    // Detect //
+    ////////////
+    
+    SLScene* s = SLApplication::scene;
+    SLfloat startMS = s->timeMilliSec();
+    
+    // Detect faces
+    SLCVVRect faces;
+    _faceDetector->detectMultiScale(imageGray, faces);
+    
+    // Detect landmarks in multiple faces
+    SLCVVVPoint2f landmarks;
+    SLbool foundLandmarks = _facemark->fit(imageRgb, faces, landmarks);
+    
+    s->detectTimesMS().set(s->timeMilliSec()-startMS);
+    
+    if(foundLandmarks)
     {
-        paramsLoaded = params.loadFromFile();
-        if (!paramsLoaded)
-            SL_EXIT_MSG("SLCVTrackedAruco::track: Failed to load Aruco parameters.");
-    }
-
-    if(params.arucoParams.empty() || params.dictionary.empty())
-    {   SL_WARN_MSG("SLCVTrackedAruco::track: Aruco paramters are empty.");
-        return false;
-    }
-
-    // Track all Aruco markers only once per frame
-    if (trackAllOnce)
-    {
-        ////////////
-        // Detect //
-        ////////////
-
-        SLScene* s = SLApplication::scene;
-        SLfloat startMS = s->timeMilliSec();
-
-        arucoIDs.clear();
-        objectViewMats.clear();
-        SLCVVVPoint2f corners, rejected;
-
-        aruco::detectMarkers(imageGray,
-                             params.dictionary, 
-                             corners, 
-                             arucoIDs, 
-                             params.arucoParams, 
-                             rejected);
-
-        s->detectTimesMS().set(s->timeMilliSec()-startMS);
-
-        if(arucoIDs.size() > 0)
-        {
-            if (drawDetection)
-            {
-                aruco::drawDetectedMarkers(imageRgb, corners, arucoIDs, Scalar(0,0,255));
-            }
-
-            /////////////////////
-            // Pose Estimation //
-            /////////////////////
-
-            startMS = s->timeMilliSec();
-
-            //cout << "Aruco IdS: " << arucoIDs.size() << " : ";
-
-            //find the camera extrinsic parameters (rVec & tVec)
-            SLCVVPoint3d rVecs, tVecs;
-            aruco::estimatePoseSingleMarkers(corners, 
-                                             params.edgeLength, 
-                                             calib->cameraMat(),
-                                             calib->distortion(),
-                                             rVecs,
-                                             tVecs);
-
-            s->poseTimesMS().set(s->timeMilliSec() - startMS);
-
-            // Get the object view matrix for all aruco markers
-            for(size_t i=0; i < arucoIDs.size(); ++i)
-            {   //cout << arucoIDs[i] << ",";
-                SLMat4f ovm = createGLMatrix(cv::Mat(tVecs[i]), cv::Mat(rVecs[i]));
-                objectViewMats.push_back(ovm);
-            }
-            //cout << endl;
+        if (drawDetection)
+        {   for(int i = 0; i < landmarks.size(); i++)
+                for(int j=0; j < landmarks[i].size(); j++)
+                    circle(imageRgb, landmarks[i][j], 3, cv::Scalar(0,0,255), -1);
         }
-        trackAllOnce = false;
     }
-
-    if(arucoIDs.size() > 0)
-    {   
-        // Find the marker with the matching id
-        for(size_t i=0; i < arucoIDs.size(); ++i)
-        {   if (arucoIDs[i] == _arucoID)
-            {
-                // set the object matrix depending if the
-                // tracked node is attached to a camera or not
-                if (typeid(*_node)==typeid(SLCamera))
-                    _node->om(objectViewMats[i].inverted());
-                else
-                {   _node->om(calcObjectMatrix(sv->camera()->om(),
-                                               objectViewMats[i]));
-                    _node->setDrawBitsRec(SL_DB_HIDDEN, false);
-                }
-            }
-        }
-        return true;
-    } else
-    {
-        // Hide tracked node if not visible
-        //if (_node != sv->camera())
-            //_node->setDrawBitsRec(SL_DB_HIDDEN, true);
-    }
-    */
-
+    
     return false;
 }
 //-----------------------------------------------------------------------------
