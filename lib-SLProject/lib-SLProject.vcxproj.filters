@@ -351,6 +351,9 @@
     <ClInclude Include="..\include\SLApplication.h">
       <Filter>SL</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLCVTrackedFaces.h">
+      <Filter>CV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -580,6 +583,9 @@
     </ClCompile>
     <ClCompile Include="source\SL\SLApplication.cpp">
       <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVTrackedFaces.cpp">
+      <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

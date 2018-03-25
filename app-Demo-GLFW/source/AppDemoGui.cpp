@@ -252,6 +252,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             SLfloat updateTime      = s->updateTimesMS().average();
             SLfloat trackingTime    = s->trackingTimesMS().average();
             SLfloat detectTime      = s->detectTimesMS().average();
+            SLfloat detect1Time     = s->detect1TimesMS().average();
+            SLfloat detect2Time     = s->detect2TimesMS().average();
             SLfloat matchTime       = s->matchTimesMS().average();
             SLfloat optFlowTime     = s->optFlowTimesMS().average();
             SLfloat poseTime        = s->poseTimesMS().average();
@@ -264,6 +266,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             SLfloat updateTimePC    = SL_clamp(updateTime   / ft * 100.0f, 0.0f,100.0f);
             SLfloat trackingTimePC  = SL_clamp(trackingTime / ft * 100.0f, 0.0f,100.0f);
             SLfloat detectTimePC    = SL_clamp(detectTime   / ft * 100.0f, 0.0f,100.0f);
+            SLfloat detect1TimePC   = SL_clamp(detect1Time  / ft * 100.0f, 0.0f,100.0f);
+            SLfloat detect2TimePC   = SL_clamp(detect2Time  / ft * 100.0f, 0.0f,100.0f);
             SLfloat matchTimePC     = SL_clamp(matchTime    / ft * 100.0f, 0.0f,100.0f);
             SLfloat optFlowTimePC   = SL_clamp(optFlowTime  / ft * 100.0f, 0.0f,100.0f);
             SLfloat poseTimePC      = SL_clamp(poseTime     / ft * 100.0f, 0.0f,100.0f);
@@ -280,6 +284,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             sprintf(m+strlen(m), "  Update      : %4.1f ms (%3d%%)\n", updateTime,   (SLint)updateTimePC);
             sprintf(m+strlen(m), "    Tracking  : %4.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
             sprintf(m+strlen(m), "      Detect  : %4.1f ms (%3d%%)\n", detectTime,   (SLint)detectTimePC);
+            sprintf(m+strlen(m), "        Det1  : %4.1f ms (%3d%%)\n", detect1Time,  (SLint)detectTimePC);
+            sprintf(m+strlen(m), "        Det2  : %4.1f ms (%3d%%)\n", detect2Time,  (SLint)detectTimePC);
             sprintf(m+strlen(m), "      Match   : %4.1f ms (%3d%%)\n", matchTime,    (SLint)matchTimePC);
             sprintf(m+strlen(m), "      Opt.Flow: %4.1f ms (%3d%%)\n", optFlowTime,  (SLint)optFlowTimePC);
             sprintf(m+strlen(m), "      Pose    : %4.1f ms (%3d%%)\n", poseTime,     (SLint)poseTimePC);
@@ -692,6 +698,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoTrackChessScnd);
                     if (ImGui::MenuItem("Track Features (Main)", 0, sid==SID_VideoTrackFeature2DMain))
                         s->onLoad(s, sv, SID_VideoTrackFeature2DMain);
+                    if (ImGui::MenuItem("Track Face (Main)", 0, sid==SID_VideoTrackFaceMain))
+                        s->onLoad(s, sv, SID_VideoTrackFaceMain);
                     if (ImGui::MenuItem("Sensor AR (Main)", 0, sid==SID_VideoSensorAR))
                         s->onLoad(s, sv, SID_VideoSensorAR);
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", 0, sid==SID_VideoChristoffel))

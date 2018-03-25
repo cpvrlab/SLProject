@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTrackedFace.h
+//  File:      SLCVTrackedFaces.h
 //  Author:    Marcus Hudritsch
 //  Date:      Spring 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,11 +8,11 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLCVTrackedFace_H
-#define SLCVTrackedFace_H
+#ifndef SLCVTrackedFaces_H
+#define SLCVTrackedFaces_H
 
 /*
-The OpenCV library version 3.1 with extra module must be present.
+The OpenCV library version 3.4 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
@@ -28,11 +28,11 @@ for a good top down information.
 //! OpenCV face & facial landmark tracker class derived from SLCVTracked
 /*! Tracking class for face and facial landmark tracking.
 */
-class SLCVTrackedFace : public SLCVTracked
+class SLCVTrackedFaces : public SLCVTracked
 {
     public:
-                SLCVTrackedFace     (SLNode* node);
-               ~SLCVTrackedFace     ();
+                SLCVTrackedFaces    (SLNode* node);
+               ~SLCVTrackedFaces    ();
 
         SLbool  track               (SLCVMat imageGray,
                                      SLCVMat imageRgb,
@@ -44,7 +44,7 @@ class SLCVTrackedFace : public SLCVTracked
         static SLbool           paramsLoaded;   //!< Flag for loaded parameters
         static SLVMat4f         objectViewMats; //!< object view matrices
         SLCVCascadeClassifier*  _faceDetector;  //!< Viola-Jones face detector
-        SLCVFacemark*           _facemark;      //!< Facial landmarks detector
+        cv::Ptr<SLCVFacemark>   _facemark;      //!< Facial landmarks detector smart pointer
 };
 //-----------------------------------------------------------------------------
-#endif // SLCVTrackedFace_H
+#endif // SLCVTrackedFaces_H

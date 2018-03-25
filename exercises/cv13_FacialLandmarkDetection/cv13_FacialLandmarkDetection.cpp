@@ -65,8 +65,9 @@ int main(int argc,char** argv)
         // Display results
         imshow("Facial Landmark Detection", frame);
         
-        // Exit loop if ESC is pressed
-        if (waitKey(1) == 27) break;
+        // Wait for key to exit loop
+        if (waitKey(10) != -1)
+            return 0;
     }
     return 0;
 }

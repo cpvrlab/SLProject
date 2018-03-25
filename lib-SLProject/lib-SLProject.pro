@@ -140,7 +140,6 @@ source/CV/SLCVRaulMurOrb.cpp \
 source/CV/SLCVTracked.cpp \
 source/CV/SLCVTrackedAruco.cpp \
 source/CV/SLCVTrackedChessboard.cpp \
-source/CV/SLCVTrackedFace.cpp \
 source/CV/SLCVTrackedFeatures.cpp \
 source/GL/SLGLImGui.cpp \
 source/GL/SLGLOculus.cpp \
@@ -194,7 +193,8 @@ source/SLSkeleton.cpp \
 source/SL/SLSkybox.cpp \
 source/SLSpheric.cpp \
 source/SLText.cpp \
-source/SLTransferFunction.cpp
+source/SLTransferFunction.cpp \
+    source/CV/SLCVTrackedFaces.cpp
 
 OTHER_FILES += \
 ../_data/shaders/*.vert \

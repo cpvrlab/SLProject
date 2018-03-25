@@ -292,6 +292,7 @@
     <ClInclude Include="..\include\SLCVCapture.h" />
     <ClInclude Include="..\include\SLCVTrackedChessboard.h" />
     <ClInclude Include="..\include\SLCVTracked.h" />
+    <ClInclude Include="..\include\SLCVTrackedFaces.h" />
     <ClInclude Include="..\include\SLCVTrackedFeatures.h" />
     <ClInclude Include="..\include\SLDeviceLocation.h" />
     <ClInclude Include="..\include\SLDeviceRotation.h" />
@@ -382,6 +383,7 @@
     <ClCompile Include="source\CV\SLCVCalibration.cpp" />
     <ClCompile Include="source\CV\SLCVCapture.cpp" />
     <ClCompile Include="source\CV\SLCVTrackedChessboard.cpp" />
+    <ClCompile Include="source\CV\SLCVTrackedFaces.cpp" />
     <ClCompile Include="source\CV\SLCVTrackedFeatures.cpp" />
     <ClCompile Include="source\GL\SLGLImGui.cpp" />
     <ClCompile Include="source\GL\SLGLOculus.cpp" />

@@ -598,6 +598,7 @@
 		41E46000176C8F6800AB4653 /* SLTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E45FFE176C8F6800AB4653 /* SLTimer.cpp */; };
 		41E9843A1E3BABB1003D5CCF /* SLCVImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E984391E3BABB1003D5CCF /* SLCVImage.cpp */; };
 		41EA2F4D1F558DDF00C34BC7 /* features_stones.png in Resources */ = {isa = PBXBuildFile; fileRef = 41EA2F4C1F558DDF00C34BC7 /* features_stones.png */; };
+		41EAAE0B2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EAAE0A2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp */; };
 		41EBB5E31C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */; };
 		41EDCB591B67B47B00DDC945 /* SLCompactGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */; };
 		41F365182008E49B00782F42 /* street3.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41F365162008E49A00782F42 /* street3.mp4 */; };
@@ -1499,6 +1500,8 @@
 		41E984381E3BAB7D003D5CCF /* SLCVImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVImage.h; path = ../include/SLCVImage.h; sourceTree = SOURCE_ROOT; };
 		41E984391E3BABB1003D5CCF /* SLCVImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVImage.cpp; path = "../lib-SLProject/source/CV/SLCVImage.cpp"; sourceTree = SOURCE_ROOT; };
 		41EA2F4C1F558DDF00C34BC7 /* features_stones.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = features_stones.png; path = ../_data/images/textures/features_stones.png; sourceTree = SOURCE_ROOT; };
+		41EAAE092067BB2800F7E9B9 /* SLCVTrackedFaces.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVTrackedFaces.h; path = ../include/SLCVTrackedFaces.h; sourceTree = "<group>"; };
+		41EAAE0A2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVTrackedFaces.cpp; path = "../lib-SLProject/source/CV/SLCVTrackedFaces.cpp"; sourceTree = "<group>"; };
 		41EBB5E01C44D96900C9BAA5 /* SLGLVertexArrayExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLVertexArrayExt.h; path = ../include/SLGLVertexArrayExt.h; sourceTree = SOURCE_ROOT; };
 		41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexArrayExt.cpp; path = "../lib-SLProject/source/GL/SLGLVertexArrayExt.cpp"; sourceTree = SOURCE_ROOT; };
 		41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCompactGrid.cpp; path = "../lib-SLProject/source/SLCompactGrid.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1595,6 +1598,8 @@
 				414333801DE03DAD0027E1C3 /* SLCVTrackedAruco.h */,
 				414333781DE03D590027E1C3 /* SLCVTrackedChessboard.cpp */,
 				414333811DE03DAD0027E1C3 /* SLCVTrackedChessboard.h */,
+				41EAAE0A2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp */,
+				41EAAE092067BB2800F7E9B9 /* SLCVTrackedFaces.h */,
 				414AC53A1F52A8070003867A /* SLCVTrackedFeatures.cpp */,
 				414AC5431F52A8430003867A /* SLCVTrackedFeatures.h */,
 			);
@@ -3237,6 +3242,7 @@
 				419808EB1959BA670048085E /* SMDLoader.cpp in Sources */,
 				419808841959BA670048085E /* IFCMaterial.cpp in Sources */,
 				419808AE1959BA670048085E /* STEPFileReader.cpp in Sources */,
+				41EAAE0B2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp in Sources */,
 				414AC53B1F52A8070003867A /* SLCVFeatureManager.cpp in Sources */,
 				419808AF1959BA670048085E /* TargetAnimation.cpp in Sources */,
 				41A355031A7E63E100791841 /* SLAnimTrack.cpp in Sources */,

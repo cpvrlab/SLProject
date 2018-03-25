@@ -86,6 +86,8 @@ class SLScene: public SLObject
             SLAvgFloat&     updateTimesMS       () {return _updateTimesMS;}
             SLAvgFloat&     trackingTimesMS     () {return _trackingTimesMS;}
             SLAvgFloat&     detectTimesMS       () {return _detectTimesMS;}
+            SLAvgFloat&     detect1TimesMS      () {return _detect1TimesMS;}
+            SLAvgFloat&     detect2TimesMS      () {return _detect2TimesMS;}
             SLAvgFloat&     matchTimesMS        () {return _matchTimesMS;}
             SLAvgFloat&     optFlowTimesMS      () {return _optFlowTimesMS;}
             SLAvgFloat&     poseTimesMS         () {return _poseTimesMS;}
@@ -156,6 +158,8 @@ class SLScene: public SLObject
             SLAvgFloat      _updateTimesMS;     //!< Averaged time for update in ms
             SLAvgFloat      _trackingTimesMS;   //!< Averaged time for video tracking in ms
             SLAvgFloat      _detectTimesMS;     //!< Averaged time for video feature detection & description in ms
+            SLAvgFloat      _detect1TimesMS;    //!< Averaged time for video feature detection subpart 1 in ms
+            SLAvgFloat      _detect2TimesMS;    //!< Averaged time for video feature detection subpart 2 in ms
             SLAvgFloat      _matchTimesMS;      //!< Averaged time for video feature matching in ms
             SLAvgFloat      _optFlowTimesMS;    //!< Averaged time for video feature optical flow tracking in ms
             SLAvgFloat      _poseTimesMS;       //!< Averaged time for video feature pose estimation in ms
