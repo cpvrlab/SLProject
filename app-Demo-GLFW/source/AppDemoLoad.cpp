@@ -2206,12 +2206,17 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->diffuse(SLCol4f(1,1,1));
         light1->specular(SLCol4f(1,1,1));
         light1->attenuation(1,0,0);
-
+        
+        SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(0.1f);
+        axis->rotate(90, 1, 0, 0);
 
         // Scene structure
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
         scene->addChild(cam1);
+        scene->addChild(axis);
 
         s->trackers().push_back(new SLCVTrackedFaces(cam1));
 
