@@ -45,6 +45,7 @@ class SLCVTrackedFaces : public SLCVTracked
         static SLVMat4f         objectViewMats; //!< object view matrices
         SLCVCascadeClassifier*  _faceDetector;  //!< Viola-Jones face detector
         cv::Ptr<SLCVFacemark>   _facemark;      //!< Facial landmarks detector smart pointer
+        SLVAvgVec2f             _points2D;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedFaces_H

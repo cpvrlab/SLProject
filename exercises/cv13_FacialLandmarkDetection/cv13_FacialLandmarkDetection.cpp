@@ -41,7 +41,11 @@ int main(int argc,char** argv)
         cvtColor(frame, gray, COLOR_BGR2GRAY);
 
         // Detect faces
-        faceDetector.detectMultiScale(gray, faces);
+        int min = (int)(frame.rows*0.4f); // the bigger min the faster
+        int max = (int)(frame.rows*0.8f); // the smaller max the faster
+        cv::Size minSize(min, min);
+        cv::Size maxSize(max, max);
+        faceDetector.detectMultiScale(gray, faces, 1.1, 3, 0, minSize, maxSize);
 
         // Variable for landmarks.
         // Landmarks for one face is a vector of points
@@ -54,11 +58,18 @@ int main(int argc,char** argv)
 
         if(success)
         {
-            // If successful, render the landmarks on the face
-            for(int i = 0; i < landmarks.size(); i++)
+            for(int i=0; i < landmarks.size(); i++)
             {
+                rectangle(frame, faces[i], cv::Scalar(255, 0, 255), 2);
+
                 for(int j=0; j < landmarks[i].size(); j++)
-                    circle(frame, landmarks[i][j], 3, Scalar(0,0,255), -1);
+                {
+                    // Landmark indexes from
+                    // https://cdn-images-1.medium.com/max/1600/1*AbEg31EgkbXSQehuNJBlWg.png
+                    if (j==36 || j==45 || j==48 || j==54 || j==30 || j==33 || j==8)
+                         circle(frame, landmarks[i][j], 3, cv::Scalar(0, 255, 0), -1);
+                    else circle(frame, landmarks[i][j], 3, cv::Scalar(0, 0, 255), -1);
+                }
             }
         }
 

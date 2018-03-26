@@ -34,6 +34,8 @@
 		412F897B1FF58D94004D5982 /* ADS.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89711FF58D94004D5982 /* ADS.vert */; };
 		413B3631156CF93100B8284A /* SLCurveBezier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B362D156CF93100B8284A /* SLCurveBezier.cpp */; };
 		413B3635156CF97900B8284A /* SLAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B3634156CF97900B8284A /* SLAnimation.cpp */; };
+		413F1C4B2067DCD900AEF871 /* lbfmodel.yaml in Resources */ = {isa = PBXBuildFile; fileRef = 413F1C492067DCD900AEF871 /* lbfmodel.yaml */; };
+		413F1C4C2067DCD900AEF871 /* haarcascade_frontalface_alt2.xml in Resources */ = {isa = PBXBuildFile; fileRef = 413F1C4A2067DCD900AEF871 /* haarcascade_frontalface_alt2.xml */; };
 		414333791DE03D590027E1C3 /* SLCVCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333751DE03D590027E1C3 /* SLCVCalibration.cpp */; };
 		4143337A1DE03D590027E1C3 /* SLCVCapture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333761DE03D590027E1C3 /* SLCVCapture.cpp */; };
 		4143337B1DE03D590027E1C3 /* SLCVTrackedAruco.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333771DE03D590027E1C3 /* SLCVTrackedAruco.cpp */; };
@@ -677,6 +679,8 @@
 		413B3632156CF96700B8284A /* SLKeyframe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLKeyframe.h; path = ../include/SLKeyframe.h; sourceTree = SOURCE_ROOT; };
 		413B3633156CF96F00B8284A /* SLAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAnimation.h; path = ../include/SLAnimation.h; sourceTree = SOURCE_ROOT; };
 		413B3634156CF97900B8284A /* SLAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLAnimation.cpp; path = "../lib-SLProject/source/SLAnimation.cpp"; sourceTree = SOURCE_ROOT; };
+		413F1C492067DCD900AEF871 /* lbfmodel.yaml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = lbfmodel.yaml; path = ../_data/calibrations/lbfmodel.yaml; sourceTree = "<group>"; };
+		413F1C4A2067DCD900AEF871 /* haarcascade_frontalface_alt2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = haarcascade_frontalface_alt2.xml; path = ../_data/calibrations/haarcascade_frontalface_alt2.xml; sourceTree = "<group>"; };
 		414333751DE03D590027E1C3 /* SLCVCalibration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVCalibration.cpp; path = "../lib-SLProject/source/CV/SLCVCalibration.cpp"; sourceTree = SOURCE_ROOT; };
 		414333761DE03D590027E1C3 /* SLCVCapture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVCapture.cpp; path = "../lib-SLProject/source/CV/SLCVCapture.cpp"; sourceTree = SOURCE_ROOT; };
 		414333771DE03D590027E1C3 /* SLCVTrackedAruco.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVTrackedAruco.cpp; path = "../lib-SLProject/source/CV/SLCVTrackedAruco.cpp"; sourceTree = SOURCE_ROOT; };
@@ -2611,6 +2615,8 @@
 		41B7BDDA1E49AE4C007B8B39 /* Calibrations */ = {
 			isa = PBXGroup;
 			children = (
+				413F1C4A2067DCD900AEF871 /* haarcascade_frontalface_alt2.xml */,
+				413F1C492067DCD900AEF871 /* lbfmodel.yaml */,
 				419BEFC61DE5EE9300C3E171 /* aruco_detector_params.yml */,
 			);
 			name = Calibrations;
@@ -2787,6 +2793,7 @@
 				411BA72B18C071CA00F10475 /* Icon_152.png in Resources */,
 				417981E71F13836300EB5315 /* VolumeRenderingRayCast.vert in Resources */,
 				417981521F13833000EB5315 /* i0062_0000b.png in Resources */,
+				413F1C4B2067DCD900AEF871 /* lbfmodel.yaml in Resources */,
 				418BF4411B8B0D4F0049E387 /* BumpNormal.frag in Resources */,
 				418BF4451B8B0D4F0049E387 /* Color.frag in Resources */,
 				411BA72718C0702600F10475 /* Icon_120.png in Resources */,
@@ -2986,6 +2993,7 @@
 				419808691959BA670048085E /* BlenderDNA.inl in Resources */,
 				417E0ED6148A70DE0015B5B0 /* wood2_0256_C.jpg in Resources */,
 				417981161F13833000EB5315 /* i0002_0000b.png in Resources */,
+				413F1C4C2067DCD900AEF871 /* haarcascade_frontalface_alt2.xml in Resources */,
 				417E0ED7148A70DE0015B5B0 /* wood2_0512_C.jpg in Resources */,
 				417981BA1F13833000EB5315 /* i0166_0000b.png in Resources */,
 				4179817F1F13833000EB5315 /* i0107_0000b.png in Resources */,

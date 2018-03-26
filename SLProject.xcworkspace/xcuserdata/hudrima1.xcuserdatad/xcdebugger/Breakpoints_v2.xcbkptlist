@@ -243,5 +243,69 @@
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "lib-SLProject/source/CV/SLCVTrackedFaces.cpp"
+            timestampString = "543682634.03027"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "55"
+            endingLineNumber = "55"
+            landmarkName = "SLCVTrackedFaces::SLCVTrackedFaces(SLNode* node)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "include/SLAverage.h"
+            timestampString = "543683457.788545"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "39"
+            endingLineNumber = "39"
+            landmarkName = "init(SLint numValue, T initValue)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SLAverage&lt;SLVec2&lt;float&gt; &gt;::init(int, SLVec2&lt;float&gt;)"
+                  moduleName = "app-Demo-GLFW"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/hudrima1/Documents/GitHub/SLProject/include/SLAverage.h"
+                  timestampString = "543683457.867847"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "39"
+                  endingLineNumber = "39"
+                  offsetFromSymbolStart = "30">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SLAverage&lt;float&gt;::init(int, float)"
+                  moduleName = "app-Demo-GLFW"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/hudrima1/Documents/GitHub/SLProject/include/SLAverage.h"
+                  timestampString = "543683457.870407"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "39"
+                  endingLineNumber = "39"
+                  offsetFromSymbolStart = "32">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

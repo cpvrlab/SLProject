@@ -50,6 +50,14 @@ SLCVTrackedFaces::SLCVTrackedFaces(SLNode* node) :
 
     _facemark = cv::face::FacemarkLBF::create();
     _facemark->loadModel(filename);
+
+    // Init averaged 2D points
+    _points2D.push_back(SLAvgVec2f(5, SLVec2f(0,0))); // Nose tip
+    _points2D.push_back(SLAvgVec2f(5, SLVec2f(0,0))); // Chin
+    _points2D.push_back(SLAvgVec2f(5, SLVec2f(0,0))); // Left eye left corner
+    _points2D.push_back(SLAvgVec2f(5, SLVec2f(0,0))); // Right eye right corner
+    _points2D.push_back(SLAvgVec2f(5, SLVec2f(0,0))); // Left mouth corner
+    _points2D.push_back(SLAvgVec2f(5, SLVec2f(0,0))); // Right mouth corner
 }
 //-----------------------------------------------------------------------------
 SLCVTrackedFaces::~SLCVTrackedFaces()
@@ -110,13 +118,22 @@ SLbool SLCVTrackedFaces::track(SLCVMat imageGray,
             {
                 rectangle(imageRgb, faces[i], cv::Scalar(255, 0, 255), 2);
 
+                // Landmark indexes from
+                // https://cdn-images-1.medium.com/max/1600/1*AbEg31EgkbXSQehuNJBlWg.png
+                _points2D[0].set(SLVec2f(landmarks[i][30].x, landmarks[i][30].y)); // Nose tip
+                _points2D[1].set(SLVec2f(landmarks[i][ 8].x, landmarks[i][ 8].y)); // Chin
+                _points2D[2].set(SLVec2f(landmarks[i][36].x, landmarks[i][36].y)); // Left eye left corner
+                _points2D[3].set(SLVec2f(landmarks[i][45].x, landmarks[i][45].y)); // Right eye right corner
+                _points2D[4].set(SLVec2f(landmarks[i][48].x, landmarks[i][48].y)); // Left mouth corner
+                _points2D[5].set(SLVec2f(landmarks[i][54].x, landmarks[i][54].y)); // Right mouth corner
+
                 for(int j=0; j < landmarks[i].size(); j++)
+                    circle(imageRgb, landmarks[i][j], 2, cv::Scalar(0, 0, 255), -1);
+
+                for(int p=0; p < _points2D.size(); p++)
                 {
-                    // Landmark indexes from
-                    // https://cdn-images-1.medium.com/max/1600/1*AbEg31EgkbXSQehuNJBlWg.png
-                    if (j==36 || j==45 || j==48 || j==54 || j==30 || j==33 || j==8)
-                         circle(imageRgb, landmarks[i][j], 3, cv::Scalar(0, 255, 0), -1);
-                    else circle(imageRgb, landmarks[i][j], 3, cv::Scalar(0, 0, 255), -1);
+                    SLCVPoint2f cvP2D(_points2D[i].average().x, _points2D[i].average().y);
+                    cv::circle(imageRgb, cvP2D, 5, cv::Scalar(0, 255, 0), -1);
                 }
             }
         }

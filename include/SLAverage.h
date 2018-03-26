@@ -25,22 +25,22 @@ class SLAverage
 {
     public:
             //! Ctor with a default value array size
-            SLAverage(SLint numValues=60)
+            SLAverage(SLint numValues, T initValue)
             {   _value = 0;
-                init(numValues, 0);
+                init(numValues, initValue);
             }
 
             //! Deletes the array on the heap
-            ~SLAverage() {delete[] _value;}
+           ~SLAverage() {delete[] _value;}
 
             //! Initializes the average value array to a given value
-            void init(SLint numValue=60, T initValue = 0.0f)
+            void init(SLint numValue, T initValue)
             {  
                 _numValue = numValue;
-                _oneOverNumValues = (T)1 / (T)_numValue;
+                _oneOverNumValues = 1.0f / (SLfloat)_numValue;
                 if (_value) delete[] _value;
                 _value = new T[_numValue];
-                _sum = (T)0;
+                _sum = initValue;
                 for (SLint i=0; i<_numValue; ++i)
                 {   _value[i] = initValue;
                     _sum += initValue;
@@ -67,14 +67,17 @@ class SLAverage
 
    private:
             SLint    _numValue;           //!< size of value array
-            T        _oneOverNumValues;   //!< multiplier instead of devider
+            SLfloat  _oneOverNumValues;   //!< multiplier instead of devider
             T*       _value;              //!< value array
             SLint    _currentValueNo;     //!< current value index
             T        _sum;                //!< sum of all values
             T        _average;            //!< average value
 };
 //-----------------------------------------------------------------------------
-typedef SLAverage<SLfloat> SLAvgFloat;
+typedef SLAverage<SLfloat>  SLAvgFloat;
+typedef vector<SLAvgFloat>  SLVAvgFloat;
+typedef SLAverage<SLVec2f>  SLAvgVec2f;
+typedef vector<SLAvgVec2f>  SLVAvgVec2f;
 //-----------------------------------------------------------------------------
 #endif
 
