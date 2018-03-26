@@ -54,6 +54,9 @@ class SLCVTracked
 
         SLMat4f     createGLMatrix      (const SLCVMat& tVec,
                                          const SLCVMat& rVec);
+        void        createRvecTvec      (const SLMat4f glMat,
+                                         SLCVMat& tVec,
+                                         SLCVMat& rVec);
         SLMat4f     calcObjectMatrix    (const SLMat4f& cameraObjectMat,
                                          const SLMat4f& objectViewMat);
 

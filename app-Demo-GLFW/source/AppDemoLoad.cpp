@@ -2194,8 +2194,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Face and facial landmark detection.");
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0,2,60);
-        cam1->lookAt(15,15,0);
+        cam1->translation(0,0,0.5f);
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
@@ -2207,18 +2206,25 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->specular(SLCol4f(1,1,1));
         light1->attenuation(1,0,0);
         
+        // Load sunglasses
+        SLAssimpImporter importer;
+        SLNode* glasses = importer.load("FBX/Sunglasses.fbx");
+        glasses->scale(0.01f);
+        
+        
         SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
         axis->setDrawBitsRec(SL_DB_WIREMESH, false);
-        axis->scale(0.1f);
-        axis->rotate(90, 1, 0, 0);
+        axis->scale(0.03f);
 
         // Scene structure
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
         scene->addChild(cam1);
+        scene->addChild(glasses);
         scene->addChild(axis);
 
-        s->trackers().push_back(new SLCVTrackedFaces(cam1));
+        s->trackers().push_back(new SLCVTrackedFaces(cam1,2));
+        s->showDetection(true);
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);

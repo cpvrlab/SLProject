@@ -243,37 +243,5 @@
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "lib-SLProject/source/CV/SLCVTrackedFaces.cpp"
-            timestampString = "543763979.419116"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "175"
-            endingLineNumber = "175"
-            landmarkName = "SLCVTrackedFaces::track(SLCVMat imageGray, SLCVMat imageRgb, SLCVCalibration* calib, SLbool drawDetection, SLSceneView* sv)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "lib-SLProject/source/CV/SLCVTrackedFaces.cpp"
-            timestampString = "543763979.4194731"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "182"
-            endingLineNumber = "182"
-            landmarkName = "SLCVTrackedFaces::track(SLCVMat imageGray, SLCVMat imageRgb, SLCVCalibration* calib, SLbool drawDetection, SLSceneView* sv)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

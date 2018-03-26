@@ -417,6 +417,9 @@ models_FBX_Christoffel.files = \
   ../_data/models/FBX/Christoffel/Sandstein1.png \
   ../_data/models/FBX/Christoffel/Ziegel1.png \
 
+models_FBX.files = \
+  ../_data/models/FBX/Sunglasses.fbx \
+
 calibrations.files = \
   ../_data/calibrations/calib_in_params.yml \
   ../_data/calibrations/aruco_detector_params.yml \
@@ -514,6 +517,7 @@ macx: {
     models_FBX_Suzanne.path = Contents/_data/models/FBX/Suzanne
     models_FBX_Teapot.path = Contents/_data/models/FBX/Teapot
     models_FBX_Christoffel.path = Contents/_data/models/FBX/Christoffel
+    models_FBX.path = Contents/_data/models/FBX
     calibrations.path = Contents/_data/calibrations
     cvlibs.path = Contents/Frameworks
 
@@ -532,6 +536,7 @@ macx: {
     QMAKE_BUNDLE_DATA += models_FBX_Suzanne
     QMAKE_BUNDLE_DATA += models_FBX_Teapot
     QMAKE_BUNDLE_DATA += models_FBX_Christoffel
+    QMAKE_BUNDLE_DATA += models_FBX
     QMAKE_BUNDLE_DATA += calibrations
     QMAKE_BUNDLE_DATA += haarcascades
     QMAKE_BUNDLE_DATA += cvlibs

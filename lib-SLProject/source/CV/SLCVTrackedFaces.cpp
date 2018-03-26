@@ -53,22 +53,22 @@ SLCVTrackedFaces::SLCVTrackedFaces(SLNode*  node,
 
     // Init averaged 2D facial landmark points
     _smoothLenght = smoothLenght;
-    _avgPnt2D.push_back(SLAvgVec2f(smoothLenght, SLVec2f::ZERO)); // Nose tip
-    _avgPnt2D.push_back(SLAvgVec2f(smoothLenght, SLVec2f::ZERO)); // Chin
-    _avgPnt2D.push_back(SLAvgVec2f(smoothLenght, SLVec2f::ZERO)); // Left eye left corner
-    _avgPnt2D.push_back(SLAvgVec2f(smoothLenght, SLVec2f::ZERO)); // Right eye right corner
-    _avgPnt2D.push_back(SLAvgVec2f(smoothLenght, SLVec2f::ZERO)); // Left mouth corner
-    _avgPnt2D.push_back(SLAvgVec2f(smoothLenght, SLVec2f::ZERO)); // Right mouth corner
+    _avgFacePoints2D.push_back(SLAvgVec2f(smoothLenght, SLVec2f::ZERO)); // Nose tip
+    _avgFacePoints2D.push_back(SLAvgVec2f(smoothLenght, SLVec2f::ZERO)); // Chin
+    _avgFacePoints2D.push_back(SLAvgVec2f(smoothLenght, SLVec2f::ZERO)); // Left eye left corner
+    _avgFacePoints2D.push_back(SLAvgVec2f(smoothLenght, SLVec2f::ZERO)); // Right eye right corner
+    _avgFacePoints2D.push_back(SLAvgVec2f(smoothLenght, SLVec2f::ZERO)); // Left mouth corner
+    _avgFacePoints2D.push_back(SLAvgVec2f(smoothLenght, SLVec2f::ZERO)); // Right mouth corner
     
-    _cvPnt2D.resize(6, SLCVPoint2d(0,0));
+    _cvFacePoints2D.resize(6, SLCVPoint2d(0,0));
 
     // Set 3D facial points in mm
-    _cvPnt3D.push_back(SLCVPoint3d( .000f,  .000f,  .000f)); // Nose tip
-    _cvPnt3D.push_back(SLCVPoint3d( .000f, -.078f, -.035f)); // Chin
-    _cvPnt3D.push_back(SLCVPoint3d(-.047f,  .041f, -.036f)); // Left eye left corner
-    _cvPnt3D.push_back(SLCVPoint3d( .047f,  .041f, -.036f)); // Right eye right corner
-    _cvPnt3D.push_back(SLCVPoint3d(-.025f, -.035f, -.036f)); // Left Mouth corner
-    _cvPnt3D.push_back(SLCVPoint3d( .025f, -.035f, -.036f)); // Right mouth corner
+    _cvFacePoints3D.push_back(SLCVPoint3d( .000f,  .000f,  .000f)); // Nose tip
+    _cvFacePoints3D.push_back(SLCVPoint3d( .000f, -.078f, -.035f)); // Chin
+    _cvFacePoints3D.push_back(SLCVPoint3d(-.047f,  .041f, -.036f)); // Left eye left corner
+    _cvFacePoints3D.push_back(SLCVPoint3d( .047f,  .041f, -.036f)); // Right eye right corner
+    _cvFacePoints3D.push_back(SLCVPoint3d(-.025f, -.035f, -.036f)); // Left Mouth corner
+    _cvFacePoints3D.push_back(SLCVPoint3d( .025f, -.035f, -.036f)); // Right mouth corner
     
     _solved = false;
 }
@@ -127,28 +127,37 @@ SLbool SLCVTrackedFaces::track(SLCVMat imageGray,
     {
         for(int i = 0; i < landmarks.size(); i++)
         {
-            rectangle(imageRgb, faces[i], cv::Scalar(255, 0, 255), 2);
             
             // Landmark indexes from
             // https://cdn-images-1.medium.com/max/1600/1*AbEg31EgkbXSQehuNJBlWg.png
-            _avgPnt2D[0].set(SLVec2f(landmarks[i][30].x, landmarks[i][30].y)); // Nose tip
-            _avgPnt2D[1].set(SLVec2f(landmarks[i][ 8].x, landmarks[i][ 8].y)); // Chin
-            _avgPnt2D[2].set(SLVec2f(landmarks[i][36].x, landmarks[i][36].y)); // Left eye left corner
-            _avgPnt2D[3].set(SLVec2f(landmarks[i][45].x, landmarks[i][45].y)); // Right eye right corner
-            _avgPnt2D[4].set(SLVec2f(landmarks[i][48].x, landmarks[i][48].y)); // Left mouth corner
-            _avgPnt2D[5].set(SLVec2f(landmarks[i][54].x, landmarks[i][54].y)); // Right mouth corner
+            _avgFacePoints2D[0].set(SLVec2f(landmarks[i][30].x, landmarks[i][30].y)); // Nose tip
+            _avgFacePoints2D[1].set(SLVec2f(landmarks[i][ 8].x, landmarks[i][ 8].y)); // Chin
+            _avgFacePoints2D[2].set(SLVec2f(landmarks[i][36].x, landmarks[i][36].y)); // Left eye left corner
+            _avgFacePoints2D[3].set(SLVec2f(landmarks[i][45].x, landmarks[i][45].y)); // Right eye right corner
+            _avgFacePoints2D[4].set(SLVec2f(landmarks[i][48].x, landmarks[i][48].y)); // Left mouth corner
+            _avgFacePoints2D[5].set(SLVec2f(landmarks[i][54].x, landmarks[i][54].y)); // Right mouth corner
 
             // Converte averaged 2D points to OpenCV points2d
-            for(SLint p=0; p < _avgPnt2D.size(); p++)
-                _cvPnt2D[p] = SLCVPoint2d(_avgPnt2D[p].average().x, _avgPnt2D[p].average().y);
+            for(SLint p=0; p < _avgFacePoints2D.size(); p++)
+                _cvFacePoints2D[p] = SLCVPoint2d(_avgFacePoints2D[p].average().x, _avgFacePoints2D[p].average().y);
+            
+            
+            ///////////////////
+            // Visualization //
+            ///////////////////
             
             if (drawDetection)
             {
+                // Draw rectangle of detected face
+                rectangle(imageRgb, faces[i], cv::Scalar(255, 0, 0), 2);
+                
+                // Draw detected landmarks
                 for(int j=0; j < landmarks[i].size(); j++)
                     cv::circle(imageRgb, landmarks[i][j], 2, cv::Scalar(0, 0, 255), -1);
                 
-                for(int p=0; p < _avgPnt2D.size(); p++)
-                    cv::circle(imageRgb, _cvPnt2D[p], 5, cv::Scalar(0, 255, 0), 1);
+                // Draw averaged face points used for pose estimation
+                for(int p=0; p < _avgFacePoints2D.size(); p++)
+                    cv::circle(imageRgb, _cvFacePoints2D[p], 5, cv::Scalar(0, 255, 0), 1);
             }
             
             // Do pose estimation for the first face found
@@ -161,14 +170,14 @@ SLbool SLCVTrackedFaces::track(SLCVMat imageGray,
                 startMS = s->timeMilliSec();
                 
                 //find the camera extrinsic parameters (rVec & tVec)
-                _solved = solvePnP(SLCVMat(_cvPnt3D),
-                                   SLCVMat(_cvPnt2D),
+                _solved = solvePnP(SLCVMat(_cvFacePoints3D),
+                                   SLCVMat(_cvFacePoints2D),
                                    calib->cameraMat(),
                                    calib->distortion(),
                                    _rVec,
                                    _tVec,
-                                   _solved,
-                                   cv::SOLVEPNP_ITERATIVE);
+                                   false,
+                                   cv::SOLVEPNP_EPNP);
                 
                 s->poseTimesMS().set(s->timeMilliSec() - startMS);
                 
