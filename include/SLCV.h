@@ -33,7 +33,9 @@ typedef cv::Rect2f                  SLCVRect2f;
 typedef cv::Point                   SLCVPoint;
 typedef cv::Point2i                 SLCVPoint2i;
 typedef cv::Point2f                 SLCVPoint2f;
+typedef cv::Point2d                 SLCVPoint2d;
 typedef cv::Point3f                 SLCVPoint3f;
+typedef cv::Point3d                 SLCVPoint3d;
 typedef cv::Size                    SLCVSize;
 typedef cv::Size2f                  SLCVSize2f;
 typedef cv::KeyPoint                SLCVKeyPoint;
@@ -49,6 +51,7 @@ typedef cv::face::Facemark          SLCVFacemark;
 typedef vector<cv::Mat>             SLCVVMat;
 typedef vector<cv::Rect>            SLCVVRect;
 typedef vector<cv::Point>           SLCVVPoint;
+typedef vector<cv::Point2i>         SLCVVPoint2i;
 typedef vector<cv::Point2f>         SLCVVPoint2f;
 typedef vector<cv::Point2d>         SLCVVPoint2d;
 typedef vector<cv::Point3f>         SLCVVPoint3f;
@@ -58,8 +61,12 @@ typedef vector<cv::DMatch>          SLCVVDMatch;
 
 // 2D STL vectors
 typedef vector<vector<cv::Point>>    SLCVVVPoint;
+typedef vector<vector<cv::Point2i>>  SLCVVVPoint2i;
 typedef vector<vector<cv::Point2f>>  SLCVVVPoint2f;
+typedef vector<vector<cv::Point2d>>  SLCVVVPoint2d;
+typedef vector<vector<cv::Point3i>>  SLCVVVPoint3i;
 typedef vector<vector<cv::Point3f>>  SLCVVVPoint3f;
+typedef vector<vector<cv::Point3d>>  SLCVVVPoint3d;
 typedef vector<vector<cv::DMatch>>   SLCVVVDMatch;
 typedef vector<vector<cv::KeyPoint>> SLCVVVKeyPoint;
 //-----------------------------------------------------------------------------

@@ -421,10 +421,9 @@ calibrations.files = \
   ../_data/calibrations/calib_in_params.yml \
   ../_data/calibrations/aruco_detector_params.yml \
   ../_data/calibrations/lbfmodel.yaml \
-
-haarcascades.files = \
-  ../_data/opencv/haarcascades/haarcascade_frontalface_alt2.xml \
-
+  ../_data/calibrations/haarcascade_frontalface_alt.xml \
+  ../_data/calibrations/haarcascade_frontalface_alt2.xml \
+  ../_data/calibrations/haarcascade_frontalface_default.xml \
 
 # Copies the given files to the destination directory
 defineTest(copyToDestdir) {
@@ -516,7 +515,6 @@ macx: {
     models_FBX_Teapot.path = Contents/_data/models/FBX/Teapot
     models_FBX_Christoffel.path = Contents/_data/models/FBX/Christoffel
     calibrations.path = Contents/_data/calibrations
-    haarcascades.path = Contents/_data/opencv/haarcascades
     cvlibs.path = Contents/Frameworks
 
     QMAKE_BUNDLE_DATA += textures

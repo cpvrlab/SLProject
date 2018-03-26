@@ -187,9 +187,9 @@ class SLVec3
 
             //! Conversion to string
             SLstring toString   (SLstring delimiter = ", ")
-            {   return SLUtils::toString(x) + delimiter +
-                       SLUtils::toString(y) + delimiter +
-                       SLUtils::toString(z);
+            {   return SLUtils::toString(x,2) + delimiter +
+                       SLUtils::toString(y,2) + delimiter +
+                       SLUtils::toString(z,2);
             }
 
             //! Conversion from string
