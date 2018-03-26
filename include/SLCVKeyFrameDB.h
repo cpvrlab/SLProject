@@ -29,6 +29,8 @@ public:
 
     void add(SLCVKeyFrame* pKF);
 
+    void clear();
+
     // Relocalization
     std::vector<SLCVKeyFrame*> DetectRelocalizationCandidates(SLCVFrame* F);
 

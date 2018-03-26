@@ -33,9 +33,49 @@ namespace ORB_SLAM2 {
 class SLCVTrackedMapping : public SLCVTracked
 {
     public:
+        string getPrintableState() {
+            switch (mState)
+            {
+            case SYSTEM_NOT_READY:
+                return "SYSTEM_NOT_READY";
+            case NO_IMAGES_YET:
+                return "NO_IMAGES_YET";
+            case NOT_INITIALIZED:
+                return "NOT_INITIALIZED";
+            case OK:
+                //if (!mbVO) {
+                //    if (!mVelocity.empty())
+                //        return "OK_MM"; //motion model tracking
+                //    else
+                //        return "OK_RF"; //reference frame tracking
+                //}
+                //else {
+                //    return "OK_VO";
+                //}
+                return "OK";
+            case LOST:
+                return "LOST";
+
+                return "";
+            }
+        }
+
+        // Tracking states
+        enum eTrackingState {
+            SYSTEM_NOT_READY = -1,
+            NO_IMAGES_YET = 0,
+            NOT_INITIALIZED = 1,
+            OK = 2,
+            LOST = 3
+        };
+
+        eTrackingState mState = LOST;
+        eTrackingState mLastProcessedState;
+
         enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
 
-                SLCVTrackedMapping    (SLNode* node, ORBVocabulary* vocabulary, SLCVKeyFrameDB* keyFrameDB, SLCVMap* map );
+                SLCVTrackedMapping    (SLNode* node, ORBVocabulary* vocabulary, 
+                    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLNode* mapPC=NULL);
                ~SLCVTrackedMapping    () {}
 
         SLbool  track               (SLCVMat imageGray,
@@ -54,6 +94,19 @@ class SLCVTrackedMapping : public SLCVTracked
         void trackVO();
         void track3DPts();
         void trackOpticalFlow();
+
+        void Reset();
+        void decorate();
+        bool Relocalization();
+        bool TrackReferenceKeyFrame();
+        bool TrackLocalMap();
+        void UpdateLocalMap();
+        void SearchLocalPoints();
+        void UpdateLocalKeyFrames();
+        void UpdateLocalPoints();
+
+        //Last Frame, KeyFrame and Relocalisation Info
+        unsigned int mnLastRelocFrameId = 0;
 
         //! states, that we try to make a new key frame out of the next frame
         bool _addKeyframe;
@@ -87,6 +140,35 @@ class SLCVTrackedMapping : public SLCVTracked
         Initializer* mpInitializer = NULL;
 
         SLCVMat _img;
+
+        // In case of performing only localization, this flag is true when there are no matches to
+        // points in the map. Still tracking will continue if there are enough matches with temporal points.
+        // In that case we are doing visual odometry. The system will try to do relocalization to recover
+        // "zero-drift" localization to the map.
+        bool mbVO = false;
+
+        //Local Map 
+        //(maybe always the last inserted keyframe?)
+        SLCVKeyFrame* mpReferenceKF = NULL;
+        std::vector<SLCVMapPoint*> mvpLocalMapPoints;
+        std::vector<SLCVKeyFrame*> mvpLocalKeyFrames;
+
+        //New KeyFrame rules (according to fps)
+        // Max/Min Frames to insert keyframes and to check relocalisation
+        int mMinFrames = 0;
+        int mMaxFrames = 30; //= fps
+
+        //Current matches in frame
+        int mnMatchesInliers = 0;
+
+        //render flags
+        bool _drawMapPoints = true; 
+        bool _drawMapPointsMatches = true;
+        bool _drawKeyFrames = true;
+
+        SLNode* _mapPC;
+        SLPoints* _mapMesh = NULL;
+        SLMaterial* _pcMatRed = NULL;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedMapping_H

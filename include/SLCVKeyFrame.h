@@ -100,6 +100,12 @@ public:
 
     bool isBad() { return false; }
 
+    // MapPoint observation functions
+    int TrackedMapPoints(const int &minObs);
+
+    // Compute Scene Depth (q=2 median). Used in monocular.
+    float ComputeSceneMedianDepth(const int q);
+
     // Variables used by the keyframe database
     long unsigned int mnRelocQuery=0;
     int mnRelocWords=0;
@@ -113,6 +119,8 @@ public:
     float mfScaleFactor;
     float mfLogScaleFactor;
     std::vector<float> mvScaleFactors;
+    const std::vector<float> mvLevelSigma2;
+    const std::vector<float> mvInvLevelSigma2;
 
     //original image
     cv::Mat imgGray;
@@ -125,6 +133,17 @@ public:
 
     //instantiate and add texture
     void addBackgroundTexture(string pathToImg);
+
+    // Variables used by loop closing
+    cv::Mat mTcwGBA;
+    cv::Mat mTcwBefGBA;
+    long unsigned int mnBAGlobalForKF;
+
+    // Calibration parameters
+    const float fx, fy, cx, cy; /*, invfx, invfy, mbf, mb, mThDepth;*/
+
+    // Number of KeyPoints
+    const int N=0;
 
 private:
     static long unsigned int nNextId;
@@ -175,9 +194,6 @@ private:
 
     //path to background texture image
     string _pathToTexture;
-
-    // Calibration parameters
-    //const float fx, fy, cx, cy, invfx, invfy; /*mbf, mb, mThDepth;*/
 };
 
 typedef std::vector<SLCVKeyFrame*> SLCVVKeyFrame;

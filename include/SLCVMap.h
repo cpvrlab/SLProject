@@ -16,6 +16,8 @@
 #include <SLCVMapPoint.h>
 
 class SLPoints;
+class SLCVKeyFrameDB;
+//class SLCVVKeyFrame;
 
 using namespace std;
 
@@ -31,16 +33,21 @@ public:
 
     //! get reference to map points vector
     std::vector<SLCVMapPoint*>& mapPoints() { return _mapPoints; }
+    SLCVKeyFrameDB* getKeyFrameDB() { return mpKeyFrameDatabase; }
 
     //! get visual representation as SLPoints
     SLPoints* getSceneObject();
     SLPoints* getNewSceneObject();
 
+    void setKeyFrameDB(SLCVKeyFrameDB* kfDB) { mpKeyFrameDatabase = kfDB; }
+    void clear();
 private:
     //SLCVVMapPoint _mapPoints;
     std::vector<SLCVMapPoint*> _mapPoints;
     //Pointer to visual representation object (ATTENTION: do not delete this object)
     SLPoints* _sceneObject = NULL;
+
+    SLCVKeyFrameDB* mpKeyFrameDatabase=NULL;
 };
 
 #endif // !SLCVMAP_H

@@ -19,7 +19,7 @@ long unsigned int SLCVKeyFrame::nNextId = 0;
 //-----------------------------------------------------------------------------
 SLCVKeyFrame::SLCVKeyFrame(size_t N)
     : mnFrameId(0), mTimeStamp(0), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
-    mfGridElementWidthInv(0), mfGridElementHeightInv(0)
+    mfGridElementWidthInv(0), mfGridElementHeightInv(0), fx(0), fy(0), cx(0), cy(0)
 {
     mvpMapPoints = vector<SLCVMapPoint*>(N, static_cast<SLCVMapPoint*>(NULL));
 }
@@ -28,15 +28,15 @@ SLCVKeyFrame::SLCVKeyFrame(SLCVFrame &F, SLCVMap* pMap, SLCVKeyFrameDB* pKFDB, b
     : mnFrameId(F.mnId), mTimeStamp(F.mTimeStamp), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
     mfGridElementWidthInv(F.mfGridElementWidthInv), mfGridElementHeightInv(F.mfGridElementHeightInv),
     mnTrackReferenceForFrame(0), /*mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0),
-    mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0), mnBAGlobalForKF(0),*/
-    /*fx(F.fx), fy(F.fy), cx(F.cx), cy(F.cy), invfx(F.invfx), invfy(F.invfy),*/
-   /* mbf(F.mbf), mb(F.mb), mThDepth(F.mThDepth), N(F.N), mvKeys(F.mvKeys),*/ mvKeysUn(F.mvKeysUn),
+    mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0),*/ mnBAGlobalForKF(0),
+    fx(F.fx), fy(F.fy), cx(F.cx), cy(F.cy), /*invfx(F.invfx), invfy(F.invfy),*/
+   /* mbf(F.mbf), mb(F.mb), mThDepth(F.mThDepth),*/ N(F.N), /*mvKeys(F.mvKeys),*/ mvKeysUn(F.mvKeysUn),
    /* mvuRight(F.mvuRight), mvDepth(F.mvDepth),*/ mDescriptors(F.mDescriptors.clone()),
     mBowVec(F.mBowVec), mFeatVec(F.mFeatVec), mnScaleLevels(F.mnScaleLevels), mfScaleFactor(F.mfScaleFactor),
-    mfLogScaleFactor(F.mfLogScaleFactor), mvScaleFactors(F.mvScaleFactors), /*mvLevelSigma2(F.mvLevelSigma2),
-    mvInvLevelSigma2(F.mvInvLevelSigma2), mnMinX(F.mnMinX), mnMinY(F.mnMinY), mnMaxX(F.mnMaxX),
-    mnMaxY(F.mnMaxY), mK(F.mK),*/ mvpMapPoints(F.mvpMapPoints), /*mpKeyFrameDB(pKFDB),
-    mpORBvocabulary(F.mpORBvocabulary),*/ mbFirstConnection(true), mpParent(NULL) /*mbNotErase(false),
+    mfLogScaleFactor(F.mfLogScaleFactor), mvScaleFactors(F.mvScaleFactors), mvLevelSigma2(F.mvLevelSigma2),
+    mvInvLevelSigma2(F.mvInvLevelSigma2), /*mnMinX(F.mnMinX), mnMinY(F.mnMinY), mnMaxX(F.mnMaxX),
+    mnMaxY(F.mnMaxY), mK(F.mK),*/ mvpMapPoints(F.mvpMapPoints), _kfDb(pKFDB),
+    /*mpORBvocabulary(F.mpORBvocabulary),*/ mbFirstConnection(true), mpParent(NULL) /*mbNotErase(false),
     mbToBeErased(false), mbBad(false), mHalfBaseline(F.mb / 2), mpMap(pMap)*/
 {
     _id = nNextId++;
@@ -275,4 +275,63 @@ void SLCVKeyFrame::AddChild(SLCVKeyFrame *pKF)
     //unique_lock<mutex> lockCon(mMutexConnections);
     mspChildrens.insert(pKF);
 }
+//-----------------------------------------------------------------------------
+float SLCVKeyFrame::ComputeSceneMedianDepth(const int q)
+{
+    vector<SLCVMapPoint*> vpMapPoints;
+    cv::Mat Tcw_;
+    {
+        //unique_lock<mutex> lock(mMutexFeatures);
+        //unique_lock<mutex> lock2(mMutexPose);
+        vpMapPoints = mvpMapPoints;
+        Tcw_ = _Tcw.clone();
+    }
 
+    vector<float> vDepths;
+    vDepths.reserve(N);
+    cv::Mat Rcw2 = Tcw_.row(2).colRange(0, 3);
+    Rcw2 = Rcw2.t();
+    float zcw = Tcw_.at<float>(2, 3);
+    for (int i = 0; i<N; i++)
+    {
+        if (mvpMapPoints[i])
+        {
+            SLCVMapPoint* pMP = mvpMapPoints[i];
+            //cv::Mat x3Dw = pMP->GetWorldPos();
+            cv::Mat x3Dw = pMP->worldPos();
+            float z = Rcw2.dot(x3Dw) + zcw;
+            vDepths.push_back(z);
+        }
+    }
+
+    sort(vDepths.begin(), vDepths.end());
+
+    return vDepths[(vDepths.size() - 1) / q];
+}
+//-----------------------------------------------------------------------------
+int SLCVKeyFrame::TrackedMapPoints(const int &minObs)
+{
+    //unique_lock<mutex> lock(mMutexFeatures);
+
+    int nPoints = 0;
+    const bool bCheckObs = minObs>0;
+    for (int i = 0; i<N; i++)
+    {
+        SLCVMapPoint* pMP = mvpMapPoints[i];
+        if (pMP)
+        {
+            if (!pMP->isBad())
+            {
+                if (bCheckObs)
+                {
+                    if (mvpMapPoints[i]->Observations() >= minObs)
+                        nPoints++;
+                }
+                else
+                    nPoints++;
+            }
+        }
+    }
+
+    return nPoints;
+}

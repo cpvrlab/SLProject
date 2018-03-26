@@ -122,7 +122,7 @@ public:
     SLCVMat mDistCoef;
 
     // Number of KeyPoints.
-    int N;
+    int N=0;
 
 
     // Vector of keypoints (original for visualization) and undistorted (actually used by the system).

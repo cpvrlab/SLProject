@@ -35,11 +35,11 @@ namespace ORB_SLAM2
 class Optimizer
 {
 public:
-    //void static BundleAdjustment(const std::vector<SLCVKeyFrame*> &vpKF, const std::vector<SLCVMapPoint*> &vpMP,
-    //                             int nIterations = 5, bool *pbStopFlag=NULL, const unsigned long nLoopKF=0,
-    //                             const bool bRobust = true);
-    //void static GlobalBundleAdjustemnt(SLCVMap* pMap, int nIterations=5, bool *pbStopFlag=NULL,
-    //                                   const unsigned long nLoopKF=0, const bool bRobust = true);
+    void static BundleAdjustment(const std::vector<SLCVKeyFrame*> &vpKF, const std::vector<SLCVMapPoint*> &vpMP,
+                                 int nIterations = 5, bool *pbStopFlag=NULL, const unsigned long nLoopKF=0,
+                                 const bool bRobust = true);
+    void static GlobalBundleAdjustemnt(SLCVMap* pMap, int nIterations=5, bool *pbStopFlag=NULL,
+                                       const unsigned long nLoopKF=0, const bool bRobust = true);
     //void static LocalBundleAdjustment(SLCVKeyFrame* pKF, bool *pbStopFlag, SLCVMap *pMap);
     int static PoseOptimization(SLCVFrame* pFrame);
 

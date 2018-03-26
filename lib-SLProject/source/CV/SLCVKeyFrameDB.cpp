@@ -34,6 +34,21 @@ void SLCVKeyFrameDB::add(SLCVKeyFrame* pKF)
 
     //add pointer to keyframe db
     pKF->setKeyFrameDB(this);
+
+    //ghm1
+    _keyFrames.push_back(pKF);
+}
+//-----------------------------------------------------------------------------
+void SLCVKeyFrameDB::clear()
+{
+    mvInvertedFile.clear();
+    mvInvertedFile.resize(mpVoc->size());
+
+    for (SLCVKeyFrame* kf : _keyFrames) {
+        if (kf)
+            delete kf;
+    }
+    _keyFrames.clear();
 }
 //-----------------------------------------------------------------------------
 vector<SLCVKeyFrame*> SLCVKeyFrameDB::DetectRelocalizationCandidates(SLCVFrame *F)

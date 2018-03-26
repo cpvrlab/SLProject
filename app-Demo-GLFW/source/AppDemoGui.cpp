@@ -2050,6 +2050,9 @@ void AppDemoGui::buildSlamInteraction(SLScene* s, SLSceneView* sv)
 
     ImGui::Begin("SLAM interaction", &showSlamInteraction, ImVec2(300, 0), -1.f, ImGuiWindowFlags_NoCollapse);
 
+    //add tracking state
+    ImGui::Text("Tracking State : %s ", mappingTracker->getPrintableState().c_str());
+
     if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
         mappingTracker->setState(SLCVTrackedMapping::INITIALIZE);
     }

@@ -20,7 +20,7 @@ long unsigned int SLCVMapPoint::nNextId = 0;
 SLCVMapPoint::SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF/*, SLCVMap* pMap*/) :
    /* mnFirstKFid(pRefKF->mnId), mnFirstFrame(pRefKF->mnFrameId), */_nObs(0), mnTrackReferenceForFrame(0),
     mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), /*mnLoopPointForKF(0), mnCorrectedByKF(0),
-    mnCorrectedReference(0), mnBAGlobalForKF(0),*/ mpRefKF(pRefKF), mnVisible(1), mnFound(1), /*mbBad(false),*/
+    mnCorrectedReference(0),*/ mnBAGlobalForKF(0), mpRefKF(pRefKF), mnVisible(1), mnFound(1), mbBad(false),
     /*mpReplaced(static_cast<MapPoint*>(NULL)),*/ mfMinDistance(0), mfMaxDistance(0)/*, mpMap(pMap)*/
 {
     worldPos(Pos);

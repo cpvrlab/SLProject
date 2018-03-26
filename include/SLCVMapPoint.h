@@ -42,7 +42,7 @@ public:
 
     void refKf(SLCVKeyFrame* refKf) { mpRefKF = refKf; }
     void level(int level) { _level = level; }
-    bool isBad() const { return false; } //we have no bad systematic
+    bool isBad() const { return mbBad; } //we have no bad systematic
     cv::Mat GetNormal() { return mNormalVector.clone(); }
     SLCVKeyFrame* refKf() const { return mpRefKF; }
 
@@ -82,6 +82,10 @@ public:
     // Reference KeyFrame
     SLCVKeyFrame* mpRefKF;
 
+    // Variables used by bundle adjustment
+    cv::Mat mPosGBA;
+    long unsigned int mnBAGlobalForKF;
+
 private:
     int _id=-1;
     static long unsigned int nNextId;
@@ -96,6 +100,9 @@ private:
     cv::Mat mDescriptor;
 
     int _nObs=0;
+
+    // Bad flag (we do not currently erase MapPoint from memory)
+    bool mbBad=false;
 
     // Scale invariance distances
     float mfMinDistance = 0.f;

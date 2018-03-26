@@ -2826,8 +2826,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 2, 60);
-        cam1->lookAt(15, 15, 0);
+        cam1->translation(0, 0, 5);
+        cam1->lookAt(0, 0, 0);
         cam1->fov(SLApplication::activeCalib->cameraFovDeg());
         cam1->clipNear(0.001f);
         cam1->clipFar(1000000.0f); // Increase to infinity?
@@ -2841,36 +2841,81 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->attenuation(1, 0, 0);
 
         ORBVocabulary* vocabulary = new ORBVocabulary();
-        //string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-        //bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-        ////bool bVocLoad = true;
-        //if (!bVocLoad)
-        //{
-        //    cerr << "Wrong path to vocabulary. " << endl;
-        //    cerr << "Failed to open at: " << strVocFile << endl;
-        //    exit(-1);
-        //}
-        //cout << "Vocabulary loaded!" << endl << endl;
+        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
+        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
+        //bool bVocLoad = true;
+        if (!bVocLoad)
+        {
+            cerr << "Wrong path to vocabulary. " << endl;
+            cerr << "Failed to open at: " << strVocFile << endl;
+            exit(-1);
+        }
+        cout << "Vocabulary loaded!" << endl << endl;
 
         SLCVMap* map = new SLCVMap("Map");
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
+        map->setKeyFrameDB(kfDB);
+
+
+        SLNode* keyFrames = new SLNode("KeyFrames");
+        SLNode* mapPC = new SLNode("MapPC");
+        //{
+        //    //add empty point cloud for visualization of map point matches:
+        //    //material
+        //    SLMaterial* pcMat0 = new SLMaterial("Red", SLCol4f::RED);
+        //    pcMat0->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+        //    pcMat0->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+        //    //mesh
+        //    SLVVec3f points, normals;
+        //    //points.push_back(SLVec3f(0.f, 0.f, 0.f));
+        //    //normals.push_back(SLVec3f(0.0001f, 0.0001f, 0.0001f));
+        //    SLPoints* mapMesh = new SLPoints(points, normals, "MapPoints", pcMat0);
+        //    //node
+        //    mapPC = new SLNode(mapMesh, "MapPC");
+        //}
+
+        //{
+        //    //add empty point cloud for visualization of map point matches:
+        //    //material
+        //    SLMaterial* pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
+        //    pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+        //    pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+        //    //mesh
+        //    SLVVec3f points, normals;
+        //    points.push_back(SLVec3f(0.f, 0.f, 0.f));
+        //    normals.push_back(SLVec3f(0.0001f, 0.0001f, 0.0001f));
+        //    SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", pcMat1);
+        //    //node
+        //    SLNode* mapMatchedPC = new SLNode(mapMatchesMesh, "MapMatchedPC");
+        //}
+
+        SLNode* mapNode = new SLNode("map");
+        //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
+        //y-axis down and z-forward
+        mapNode->rotate(180, 1, 0, 0);
+        mapNode->addChild(cam1);
+        mapNode->addChild(keyFrames);
+        mapNode->addChild(mapPC);
+        //mapNode->addChild(mapMatchedPC);
 
         //add tracker
-        s->trackers().push_back(new SLCVTrackedMapping(cam1, vocabulary, kfDB, map));
+        s->trackers().push_back(new SLCVTrackedMapping(cam1, vocabulary, kfDB, map, mapPC));
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
         SLfloat l = 1.75, b = 0.75, h = 0.74;
         SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
-
         SLNode* boxNode = new SLNode(box1, "boxNode");
         SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
+        boxNode->addChild(axisNode);
+        boxNode->translate(0, 0, -1.5);
+        boxNode->scale(0.5);
 
         SLNode* scene = new SLNode("scene");
         scene->addChild(light1);
         scene->addChild(boxNode);
-        scene->addChild(axisNode);
-
+        //scene->addChild(axisNode);
+        scene->addChild(mapNode);
 
         // Save no energy
         sv->doWaitOnIdle(false); //for constant video feed

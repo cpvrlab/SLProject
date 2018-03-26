@@ -62,3 +62,12 @@ SLPoints* SLCVMap::getNewSceneObject()
     //vectos must habe the same size
     return _sceneObject;
 }
+//-----------------------------------------------------------------------------
+void SLCVMap::clear()
+{
+    for (auto* pt : _mapPoints) {
+        if (pt)
+            delete pt;
+    }
+    _mapPoints.clear();
+}
