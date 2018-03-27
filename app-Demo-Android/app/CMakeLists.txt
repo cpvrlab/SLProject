@@ -237,6 +237,7 @@ file(GLOB_RECURSE SHADERS       ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/
 file(GLOB_RECURSE CALIBRATIONS  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/calib_in_params.yml
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/aruco_detector_params.yml
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/lbfmodel.yaml
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/haarcascade_frontalface_alt.xml
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/haarcascade_frontalface_alt2.xml)
 
 file(GLOB_RECURSE CONFIG        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/config/dummyFile.txt)

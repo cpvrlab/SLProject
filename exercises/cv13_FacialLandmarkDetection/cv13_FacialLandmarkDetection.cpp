@@ -60,16 +60,10 @@ int main(int argc,char** argv)
         {
             for(int i=0; i < landmarks.size(); i++)
             {
-                rectangle(frame, faces[i], cv::Scalar(255, 0, 255), 2);
+                rectangle(frame, faces[i], cv::Scalar(255, 0, 0), 2);
 
                 for(int j=0; j < landmarks[i].size(); j++)
-                {
-                    // Landmark indexes from
-                    // https://cdn-images-1.medium.com/max/1600/1*AbEg31EgkbXSQehuNJBlWg.png
-                    if (j==36 || j==45 || j==48 || j==54 || j==30 || j==8)
-                         circle(frame, landmarks[i][j], 3, cv::Scalar(0, 255, 0), -1);
-                    else circle(frame, landmarks[i][j], 3, cv::Scalar(0, 0, 255), -1);
-                }
+                    circle(frame, landmarks[i][j], 3, cv::Scalar(0, 0, 255), -1);
             }
         }
 

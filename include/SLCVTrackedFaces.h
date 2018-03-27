@@ -31,8 +31,8 @@ for a good top down information.
 class SLCVTrackedFaces : public SLCVTracked
 {
     public:
-                SLCVTrackedFaces    (SLNode*  nodeSL,
-                                     SLint    smoothLength = 5,
+                SLCVTrackedFaces    (SLNode* nodeSL,
+                                     SLint smoothLength = 5,
                                      SLstring faceClassifierFilename = "haarcascade_frontalface_alt.xml",
                                      SLstring faceMarkModelFilename = "lbfmodel.yaml");
                ~SLCVTrackedFaces    ();
@@ -42,6 +42,9 @@ class SLCVTrackedFaces : public SLCVTracked
                                      SLCVCalibration* calib,
                                      SLbool drawDetection,
                                      SLSceneView* sv);
+        void    delaunayTriangulate (SLCVMat imageRgb,
+                                     SLCVVPoint2f points,
+                                     SLbool drawDetection);
     private:
         SLCVCascadeClassifier*  _faceDetector;      //!< Viola-Jones face detector
         cv::Ptr<SLCVFacemark>   _facemark;          //!< Facial landmarks detector smart pointer
@@ -49,8 +52,6 @@ class SLCVTrackedFaces : public SLCVTracked
         SLCVVPoint2d            _cvFacePoints2D;    //!< vector of OpenCV point2D
         SLCVVPoint3d            _cvFacePoints3D;    //!< vector of OpenCV point2D
         SLbool                  _solved;            //<! Flag if last solvePnP was solved
-        SLCVMat                 _rVec;              //<! rotation angle vector from solvePnP
-        SLCVMat                 _tVec;              //<! translation vector from solvePnP
         SLint                   _smoothLenght;      //<! Smoothing filter lenght
 };
 //-----------------------------------------------------------------------------

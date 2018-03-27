@@ -127,7 +127,6 @@ SLbool SLCVTrackedFaces::track(SLCVMat imageGray,
     {
         for(int i = 0; i < landmarks.size(); i++)
         {
-            
             // Landmark indexes from
             // https://cdn-images-1.medium.com/max/1600/1*AbEg31EgkbXSQehuNJBlWg.png
             _avgFacePoints2D[0].set(SLVec2f(landmarks[i][30].x, landmarks[i][30].y)); // Nose tip
@@ -141,6 +140,7 @@ SLbool SLCVTrackedFaces::track(SLCVMat imageGray,
             for(SLint p=0; p < _avgFacePoints2D.size(); p++)
                 _cvFacePoints2D[p] = SLCVPoint2d(_avgFacePoints2D[p].average().x, _avgFacePoints2D[p].average().y);
             
+            delaunayTriangulate(imageRgb, landmarks[i], drawDetection);
             
             ///////////////////
             // Visualization //
@@ -170,12 +170,14 @@ SLbool SLCVTrackedFaces::track(SLCVMat imageGray,
                 startMS = s->timeMilliSec();
                 
                 //find the camera extrinsic parameters (rVec & tVec)
+                SLCVMat rVec; // rotation angle vector as axis (length as angle)
+                SLCVMat tVec; // translation vector
                 _solved = solvePnP(SLCVMat(_cvFacePoints3D),
                                    SLCVMat(_cvFacePoints2D),
                                    calib->cameraMat(),
                                    calib->distortion(),
-                                   _rVec,
-                                   _tVec,
+                                   rVec,
+                                   tVec,
                                    false,
                                    cv::SOLVEPNP_EPNP);
                 
@@ -183,7 +185,7 @@ SLbool SLCVTrackedFaces::track(SLCVMat imageGray,
                 
                 if (_solved)
                 {
-                    _objectViewMat = createGLMatrix(_tVec, _rVec);
+                    _objectViewMat = createGLMatrix(tVec, rVec);
                     
                     // set the object matrix depending if the
                     // tracked node is attached to a camera or not
@@ -201,5 +203,57 @@ SLbool SLCVTrackedFaces::track(SLCVMat imageGray,
     }
     
     return false;
+}
+//-----------------------------------------------------------------------------
+// Returns the Delaunay triangulation on the points within the image
+void SLCVTrackedFaces::delaunayTriangulate(SLCVMat imageRgb,
+                                           SLCVVPoint2f points,
+                                           SLbool drawDetection)
+{
+    // Get rect of image
+    SLCVSize size = imageRgb.size();
+    SLCVRect rect(0, 0, size.width, size.height);
+ 
+    // Create an instance of Subdiv2D
+    cv::Subdiv2D subdiv(rect);
+    
+    // Do Delaunay trianglulation for the landmarks
+    for(SLCVPoint2f point : points)
+        if (rect.contains(point))
+            subdiv.insert(point);
+    
+    // Add additional points in the corners and middle of the sides
+    subdiv.insert(SLCVPoint2f(0,0));
+    subdiv.insert(SLCVPoint2f(size.width/2,0));
+    subdiv.insert(SLCVPoint2f(size.width-1,0));
+    subdiv.insert(SLCVPoint2f(size.width-1,size.height/2));
+    subdiv.insert(SLCVPoint2f(size.width-1,size.height-1));
+    subdiv.insert(SLCVPoint2f(size.width/2,size.height-1));
+    subdiv.insert(SLCVPoint2f(0,size.height-1));
+    subdiv.insert(SLCVPoint2f(0,size.height/2));
+
+    // Draw Delaunay triangles
+    if (drawDetection)
+    {
+        vector<cv::Vec6f> triangleList;
+        subdiv.getTriangleList(triangleList);
+        SLCVVPoint pt(3);
+     
+        for( size_t i = 0; i < triangleList.size(); i++ )
+        {
+            cv::Vec6f t = triangleList[i];
+            pt[0] = SLCVPoint(cvRound(t[0]), cvRound(t[1]));
+            pt[1] = SLCVPoint(cvRound(t[2]), cvRound(t[3]));
+            pt[2] = SLCVPoint(cvRound(t[4]), cvRound(t[5]));
+            
+            // Draw rectangles completely inside the image.
+            if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2]))
+            {
+                line(imageRgb, pt[0], pt[1], cv::Scalar(255, 255, 255), 1, CV_AA, 0);
+                line(imageRgb, pt[1], pt[2], cv::Scalar(255, 255, 255), 1, CV_AA, 0);
+                line(imageRgb, pt[2], pt[0], cv::Scalar(255, 255, 255), 1, CV_AA, 0);
+            }
+        }
+    }
 }
 //-----------------------------------------------------------------------------
