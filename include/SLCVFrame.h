@@ -82,6 +82,9 @@ public:
     long unsigned int mnId = -1;
 
     // MapPoints associated to keypoints, NULL pointer if no association.
+    //ghm1: this is a vector in the size of the number of detected keypoints in this frame. It is
+    //initialized with a NULL pointer. If the matcher could associate a map point with with keypoint i, then
+    //mvpMapPoints[i] will contain the pointer to this associated mapPoint.
     std::vector<SLCVMapPoint*> mvpMapPoints;
 
 //public:
@@ -163,6 +166,9 @@ public:
     cv::Mat imgGray;
 
     // Reference Keyframe.
+    //ghm1: the reference keyframe is changed after initialization (pKFini),
+    //in UpdateLocalKeyFrames it gets assigned the keyframe which observes the most points in the current local map (pKFmax) and
+    //if a new Keyframe is created in CreateNewKeyFrame() this is automatically the new reference keyframe
     SLCVKeyFrame* mpReferenceKF = NULL;
 
 private:

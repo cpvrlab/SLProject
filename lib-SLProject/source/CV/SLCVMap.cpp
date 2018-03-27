@@ -71,3 +71,9 @@ void SLCVMap::clear()
     }
     _mapPoints.clear();
 }
+//-----------------------------------------------------------------------------
+void SLCVMap::SetReferenceMapPoints(const vector<SLCVMapPoint*> &vpMPs)
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    mvpReferenceMapPoints = vpMPs;
+}

@@ -43,15 +43,15 @@ class SLCVTrackedMapping : public SLCVTracked
             case NOT_INITIALIZED:
                 return "NOT_INITIALIZED";
             case OK:
-                //if (!mbVO) {
-                //    if (!mVelocity.empty())
-                //        return "OK_MM"; //motion model tracking
-                //    else
-                //        return "OK_RF"; //reference frame tracking
-                //}
-                //else {
-                //    return "OK_VO";
-                //}
+                if (!mbVO) {
+                    if (!mVelocity.empty())
+                        return "OK_MM"; //motion model tracking
+                    else
+                        return "OK_RF"; //reference frame tracking
+                }
+                else {
+                    return "OK_VO";
+                }
                 return "OK";
             case LOST:
                 return "LOST";
@@ -85,6 +85,14 @@ class SLCVTrackedMapping : public SLCVTracked
                                      SLSceneView* sv);
 
         void setState(TrackingStates state) { _currentState = state; }
+        int getNMapMatches() { return mnMatchesInliers; }
+        int mapPointsCount() {
+            if (_map)
+                return _map->mapPoints().size();
+            else
+                return 0;
+        }
+        void Reset();
     private:
         // Map initialization for monocular
         void CreateInitialMapMonocular();
@@ -95,7 +103,6 @@ class SLCVTrackedMapping : public SLCVTracked
         void track3DPts();
         void trackOpticalFlow();
 
-        void Reset();
         void decorate();
         bool Relocalization();
         bool TrackReferenceKeyFrame();
@@ -104,6 +111,11 @@ class SLCVTrackedMapping : public SLCVTracked
         void SearchLocalPoints();
         void UpdateLocalKeyFrames();
         void UpdateLocalPoints();
+        bool TrackWithMotionModel();
+        void UpdateLastFrame();
+
+        //Motion Model
+        cv::Mat mVelocity;
 
         //Last Frame, KeyFrame and Relocalisation Info
         unsigned int mnLastRelocFrameId = 0;
@@ -111,7 +123,7 @@ class SLCVTrackedMapping : public SLCVTracked
         //! states, that we try to make a new key frame out of the next frame
         bool _addKeyframe;
         //! current tracking state
-        TrackingStates _currentState = IDLE;
+        TrackingStates _currentState = INITIALIZE;
 
         // ORB vocabulary used for place recognition and feature matching.
         ORBVocabulary* mpVocabulary;
@@ -160,6 +172,19 @@ class SLCVTrackedMapping : public SLCVTracked
 
         //Current matches in frame
         int mnMatchesInliers = 0;
+
+        // Lists used to recover the full camera trajectory at the end of the execution.
+        // Basically we store the reference keyframe for each frame and its relative transformation
+        list<cv::Mat> mlRelativeFramePoses;
+        list<SLCVKeyFrame*> mlpReferences;
+        list<double> mlFrameTimes;
+        list<bool> mlbLost;
+
+        //Last Frame, KeyFrame and Relocalisation Info
+        SLCVKeyFrame* mpLastKeyFrame=NULL;
+        //SLCVFrame mLastFrame;
+        unsigned int mnLastKeyFrameId;
+        //unsigned int mnLastRelocFrameId;
 
         //render flags
         bool _drawMapPoints = true; 

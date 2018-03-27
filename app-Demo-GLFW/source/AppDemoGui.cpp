@@ -2052,8 +2052,13 @@ void AppDemoGui::buildSlamInteraction(SLScene* s, SLSceneView* sv)
 
     //add tracking state
     ImGui::Text("Tracking State : %s ", mappingTracker->getPrintableState().c_str());
+    //add number of matches map points in current frame
+    ImGui::Text("Num Map Matches: %d ", mappingTracker->getNMapMatches());
+    //number of map points
+    ImGui::Text("Num Map Pts: %d ", mappingTracker->mapPointsCount());
 
     if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+        mappingTracker->Reset();
         mappingTracker->setState(SLCVTrackedMapping::INITIALIZE);
     }
     else if (ImGui::Button("Track VO", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {

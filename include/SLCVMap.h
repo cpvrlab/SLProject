@@ -38,12 +38,18 @@ public:
     //! get visual representation as SLPoints
     SLPoints* getSceneObject();
     SLPoints* getNewSceneObject();
+    void SetReferenceMapPoints(const std::vector<SLCVMapPoint*> &vpMPs);
 
     void setKeyFrameDB(SLCVKeyFrameDB* kfDB) { mpKeyFrameDatabase = kfDB; }
     void clear();
+
+    vector<SLCVKeyFrame*> mvpKeyFrameOrigins;
 private:
     //SLCVVMapPoint _mapPoints;
     std::vector<SLCVMapPoint*> _mapPoints;
+
+    std::vector<SLCVMapPoint*> mvpReferenceMapPoints;
+
     //Pointer to visual representation object (ATTENTION: do not delete this object)
     SLPoints* _sceneObject = NULL;
 

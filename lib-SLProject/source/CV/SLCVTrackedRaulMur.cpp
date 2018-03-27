@@ -148,7 +148,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
 
     // System is initialized. Track Frame.
     mLastProcessedState = mState;
-    bool bOK;
+    bool bOK=false;
 
     // Localization Mode: Local Mapping is deactivated
     if (mState == LOST)
@@ -743,7 +743,7 @@ bool SLCVTrackedRaulMur::TrackWithMotionModel()
 
     // Project points seen in previous frame
     SLAverageTiming::start("SearchByProjection7", 14, 2);
-    int th = 7;
+    int th = 15;
     int nmatches = matcher.SearchByProjection(mCurrentFrame, mLastFrame, th, true);
     SLAverageTiming::stop("SearchByProjection7");
 

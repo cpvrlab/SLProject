@@ -145,8 +145,9 @@ public:
     // Number of KeyPoints
     const int N=0;
 
-private:
     static long unsigned int nNextId;
+private:
+
     int _id = -1;
     const long unsigned int mnFrameId;
 
