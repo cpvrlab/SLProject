@@ -284,6 +284,7 @@ file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/t
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/i*_0000b.png)
 
 file(GLOB_RECURSE VIDEOS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/street3.mp4
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/calib_huawei_4_3.mp4
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/altstadt_biel1.mp4
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/buero1_huawei_16_9.mp4
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/buero2_huawei_16_9.mp4
