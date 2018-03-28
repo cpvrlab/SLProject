@@ -40,7 +40,7 @@ public:
                                  const bool bRobust = true);
     void static GlobalBundleAdjustemnt(SLCVMap* pMap, int nIterations=5, bool *pbStopFlag=NULL,
                                        const unsigned long nLoopKF=0, const bool bRobust = true);
-    //void static LocalBundleAdjustment(SLCVKeyFrame* pKF, bool *pbStopFlag, SLCVMap *pMap);
+    void static LocalBundleAdjustment(SLCVKeyFrame* pKF, bool *pbStopFlag, SLCVMap *pMap);
     int static PoseOptimization(SLCVFrame* pFrame);
 
     //// if bFixScale is true, optimize SE3 (stereo,rgbd), Sim3 otherwise (mono)

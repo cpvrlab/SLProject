@@ -13,6 +13,7 @@
 #include <SLMaterial.h>
 #include <SLGLGenericProgram.h>
 #include <SLPoints.h>
+#include <SLCVKeyFrameDB.h>
 
 //-----------------------------------------------------------------------------
 SLCVMap::SLCVMap(const string& name)
@@ -76,4 +77,11 @@ void SLCVMap::SetReferenceMapPoints(const vector<SLCVMapPoint*> &vpMPs)
 {
     //unique_lock<mutex> lock(mMutexMap);
     mvpReferenceMapPoints = vpMPs;
+}
+//-----------------------------------------------------------------------------
+long unsigned int SLCVMap::KeyFramesInMap()
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    //return mspKeyFrames.size();
+    return mpKeyFrameDatabase->keyFrames().size();
 }

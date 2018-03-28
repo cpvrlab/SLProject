@@ -42,6 +42,7 @@ public:
 
     void setKeyFrameDB(SLCVKeyFrameDB* kfDB) { mpKeyFrameDatabase = kfDB; }
     void clear();
+    long unsigned int KeyFramesInMap();
 
     vector<SLCVKeyFrame*> mvpKeyFrameOrigins;
 private:

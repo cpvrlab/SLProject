@@ -69,7 +69,7 @@ class SLCVTrackedMapping : public SLCVTracked
             LOST = 3
         };
 
-        eTrackingState mState = LOST;
+        eTrackingState mState = NOT_INITIALIZED;
         eTrackingState mLastProcessedState;
 
         enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
@@ -148,6 +148,8 @@ class SLCVTrackedMapping : public SLCVTracked
 
         //extractor instance
         ORB_SLAM2::ORBextractor* _extractor = NULL;
+        ORBextractor* mpIniORBextractor = NULL;
+
         // Initalization (only for monocular)
         Initializer* mpInitializer = NULL;
 

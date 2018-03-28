@@ -273,6 +273,7 @@
     <ClInclude Include="..\include\ORBextractor.h" />
     <ClInclude Include="..\include\OrbSlam\Converter.h" />
     <ClInclude Include="..\include\OrbSlam\Initializer.h" />
+    <ClInclude Include="..\include\OrbSlam\LocalMapping.h" />
     <ClInclude Include="..\include\OrbSlam\Optimizer.h" />
     <ClInclude Include="..\include\OrbSlam\ORBmatcher.h" />
     <ClInclude Include="..\include\OrbSlam\PnPsolver.h" />
@@ -396,6 +397,7 @@
     </ClCompile>
     <ClCompile Include="source\CV\OrbSlam\Converter.cpp" />
     <ClCompile Include="source\CV\OrbSlam\Initializer.cpp" />
+    <ClCompile Include="source\CV\OrbSlam\LocalMapping.cpp" />
     <ClCompile Include="source\CV\OrbSlam\Optimizer.cpp" />
     <ClCompile Include="source\CV\OrbSlam\ORBmatcher.cpp" />
     <ClCompile Include="source\CV\OrbSlam\PnPsolver.cpp" />

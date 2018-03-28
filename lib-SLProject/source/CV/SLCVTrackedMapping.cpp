@@ -42,8 +42,17 @@ SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node, ORBVocabulary* vocabulary,
     _map(map),
     _mapPC(mapPC)
 {
+
+    int nFeatures = 1000;
+    float fScaleFactor = 1.2;
+    int nLevels = 8;
+    int fIniThFAST = 20;
+    int fMinThFAST = 7;
+
     //instantiate Orb extractor
-    _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
+    _extractor = new ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+    mpIniORBextractor = new ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+
 }
 //-----------------------------------------------------------------------------
 SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
@@ -58,8 +67,15 @@ SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
     // Current Frame
     double timestamp = 0.0; //todo
     if (_currentState != IDLE) {
-        mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor,
-            calib->cameraMat(), calib->distortion(), mpVocabulary);
+
+        if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET) {
+            mCurrentFrame = SLCVFrame(imageGray, timestamp, mpIniORBextractor,
+                calib->cameraMat(), calib->distortion(), mpVocabulary);
+        }
+        else {
+            mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor,
+                calib->cameraMat(), calib->distortion(), mpVocabulary);
+        }
 
         if ( true /*_showKeyPoints*/)
         {
@@ -213,7 +229,7 @@ void SLCVTrackedMapping::track3DPts()
     if (mState == LOST)
     {
         bOK = Relocalization();
-        cout << "Relocalization: " << bOK << endl;
+        //cout << "Relocalization: " << bOK << endl;
     }
     else
     {
@@ -222,7 +238,7 @@ void SLCVTrackedMapping::track3DPts()
         {
             if (!mVelocity.empty()) { //we have a valid motion model
                 bOK = TrackWithMotionModel();
-                cout << "TrackWithMotionModel: " << bOK << endl;
+                //cout << "TrackWithMotionModel: " << bOK << endl;
             }
             else {
                 //we have NO valid motion model
@@ -231,7 +247,7 @@ void SLCVTrackedMapping::track3DPts()
                    // from the local map that shares most matches with the current frames local map points matches.
                    // It is updated in UpdateLocalKeyFrames().
                 bOK = TrackReferenceKeyFrame();
-                cout << "TrackReferenceKeyFrame" << endl;
+                //cout << "TrackReferenceKeyFrame" << endl;
             }
         }
         else // In last frame we tracked mainly "visual odometry" points.
@@ -287,7 +303,7 @@ void SLCVTrackedMapping::track3DPts()
 
     if (bOK && !mbVO) {
         bOK = TrackLocalMap();
-        cout << "TrackLocalMap: " << bOK << endl;
+        //cout << "TrackLocalMap: " << bOK << endl;
     }
 
     if (bOK)
@@ -301,15 +317,15 @@ void SLCVTrackedMapping::track3DPts()
         // Update motion model
         if (!mLastFrame.mTcw.empty())
         {
-            cout << "mLastFrame.mTcw: " << mLastFrame.mTcw << endl;
+            //cout << "mLastFrame.mTcw: " << mLastFrame.mTcw << endl;
             cv::Mat LastTwc = cv::Mat::eye(4, 4, CV_32F);
-            cout << "LastTwc eye: " << LastTwc << endl;
+            //cout << "LastTwc eye: " << LastTwc << endl;
             mLastFrame.GetRotationInverse().copyTo(LastTwc.rowRange(0, 3).colRange(0, 3)); //mRwc
-            cout << "LastTwc rot: " << LastTwc << endl;
+            //cout << "LastTwc rot: " << LastTwc << endl;
             const auto& cc = mLastFrame.GetCameraCenter(); //this is the translation of the frame w.r.t the world
-            cout << cc << endl;
+            //cout << cc << endl;
             cc.copyTo(LastTwc.rowRange(0, 3).col(3));
-            cout << "LastTwc total: " << LastTwc << endl;
+            //cout << "LastTwc total: " << LastTwc << endl;
             //this concatenates the motion difference between the last and the before-last frame (so it is no real velocity but a transformation)
             mVelocity = mCurrentFrame.mTcw*LastTwc;
         }
@@ -397,6 +413,9 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
     // Create KeyFrames
     SLCVKeyFrame* pKFini = new SLCVKeyFrame(mInitialFrame, _map, mpKeyFrameDatabase);
     SLCVKeyFrame* pKFcur = new SLCVKeyFrame(mCurrentFrame, _map, mpKeyFrameDatabase);
+
+    cout << "pKFini num keypoints: " << mInitialFrame.N << endl;
+    cout << "pKFcur num keypoints: " << mCurrentFrame.N << endl;
 
     pKFini->ComputeBoW( mpVocabulary );
     pKFcur->ComputeBoW( mpVocabulary );

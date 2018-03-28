@@ -402,6 +402,9 @@
     <ClInclude Include="..\include\OrbSlam\Initializer.h">
       <Filter>CV\OrbSlam</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\OrbSlam\LocalMapping.h">
+      <Filter>CV\OrbSlam</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -678,6 +681,9 @@
       <Filter>CV</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\OrbSlam\Initializer.cpp">
+      <Filter>CV\OrbSlam</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\OrbSlam\LocalMapping.cpp">
       <Filter>CV\OrbSlam</Filter>
     </ClCompile>
   </ItemGroup>

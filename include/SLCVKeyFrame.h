@@ -140,7 +140,7 @@ public:
     long unsigned int mnBAGlobalForKF;
 
     // Calibration parameters
-    const float fx, fy, cx, cy; /*, invfx, invfy, mbf, mb, mThDepth;*/
+    const float fx, fy, cx, cy, invfx, invfy;/*, mbf, mb, mThDepth;*/
 
     // Number of KeyPoints
     const int N=0;
