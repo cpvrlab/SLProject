@@ -80,6 +80,11 @@ public:
 
     // MapPoint observation functions
     void AddMapPoint(SLCVMapPoint* pMP, size_t idx);
+    void EraseMapPointMatch(SLCVMapPoint* pMP);
+    void EraseMapPointMatch(const size_t &idx);
+    SLCVMapPoint* GetMapPoint(const size_t &idx);
+
+    std::vector<SLCVKeyFrame* > GetVectorCovisibleKeyFrames();
 
     //BoW
     DBoW2::BowVector mBowVec;
@@ -99,6 +104,9 @@ public:
     SLCVKeyFrame* GetParent() { return mpParent; }
 
     bool isBad() { return false; }
+
+    // Image
+    bool IsInImage(const float &x, const float &y) const;
 
     // MapPoint observation functions
     int TrackedMapPoints(const int &minObs);
@@ -121,6 +129,12 @@ public:
     std::vector<float> mvScaleFactors;
     const std::vector<float> mvLevelSigma2;
     const std::vector<float> mvInvLevelSigma2;
+
+    // Image bounds and calibration
+    const int mnMinX;
+    const int mnMinY;
+    const int mnMaxX;
+    const int mnMaxY;
 
     //original image
     cv::Mat imgGray;
@@ -146,6 +160,15 @@ public:
     const int N=0;
 
     static long unsigned int nNextId;
+
+    // Variables used by the local mapping
+    long unsigned int mnBALocalForKF;
+    long unsigned int mnBAFixedForKF;
+
+    // Variables used by the tracking
+    //long unsigned int mnTrackReferenceForFrame;
+    long unsigned int mnFuseTargetForKF;
+
 private:
 
     int _id = -1;
@@ -197,6 +220,6 @@ private:
     string _pathToTexture;
 };
 
-typedef std::vector<SLCVKeyFrame*> SLCVVKeyFrame;
+//typedef std::vector<SLCVKeyFrame*> SLCVVKeyFrame;
 
 #endif // !SLCVKEYFRAME_H

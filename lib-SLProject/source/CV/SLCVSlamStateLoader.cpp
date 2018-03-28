@@ -34,7 +34,7 @@ SLCVSlamStateLoader::~SLCVSlamStateLoader()
 //! add map point
 void SLCVSlamStateLoader::load( vector<SLCVMapPoint*>& mapPts, SLCVKeyFrameDB& kfDB )
 {
-    SLCVVKeyFrame& kfs = kfDB.keyFrames();
+    std::vector<SLCVKeyFrame*>& kfs = kfDB.keyFrames();
 
     ////set up translation
     //_t = cv::Mat(3, 1, CV_32F);
@@ -77,7 +77,7 @@ void SLCVSlamStateLoader::load( vector<SLCVMapPoint*>& mapPts, SLCVKeyFrameDB& k
     cout << "Read Done." << endl;
 }
 //-----------------------------------------------------------------------------
-void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
+void SLCVSlamStateLoader::loadKeyFrames(std::vector<SLCVKeyFrame*>& kfs )
 {
     //load intrinsics (calibration parameters): only store once
     float fx, fy, cx, cy;

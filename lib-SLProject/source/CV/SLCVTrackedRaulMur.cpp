@@ -1222,7 +1222,8 @@ void SLCVTrackedRaulMur::rotate(float value, int type)
     //rotate keypoints
     Mat Pw;
     Mat rot33 = rot.rowRange(0, 3).colRange(0, 3);
-    for (auto& pt : _map->mapPoints())
+    auto ptsInMap = _map->GetAllMapPoints();
+    for (auto& pt : ptsInMap)
     {
         Pw = rot33 * pt->worldPos();
         pt->worldPos(rot33 * pt->worldPos());
@@ -1247,7 +1248,8 @@ void SLCVTrackedRaulMur::translate(float value, int type)
     }
 
     //rotate keypoints
-    for (auto& pt : _map->mapPoints())
+    auto ptsInMap = _map->GetAllMapPoints();
+    for (auto& pt : ptsInMap)
     {
         pt->worldPos(trans + pt->worldPos());
     }
@@ -1265,7 +1267,8 @@ void SLCVTrackedRaulMur::scale(float value)
     }
 
     //rotate keypoints
-    for (auto& pt : _map->mapPoints())
+    auto ptsInMap = _map->GetAllMapPoints();
+    for (auto& pt : ptsInMap)
     {
         pt->worldPos(value * pt->worldPos());
     }
@@ -1329,7 +1332,8 @@ void SLCVTrackedRaulMur::applyTransformation(double value, TransformType type)
 
 
     //compute resulting values for map points
-    for (auto& mp : _map->mapPoints()) {
+    auto ptsInMap = _map->GetAllMapPoints();
+    for (auto& mp : ptsInMap) {
         //mean viewing direction and depth
         mp->UpdateNormalAndDepth();
         mp->ComputeDistinctiveDescriptors();
@@ -1393,7 +1397,7 @@ void SLCVTrackedRaulMur::saveState()
 
                //save keypoints (map)
     //SLCVVMapPoint& mpts = _map->mapPoints();
-    auto& mpts = _map->mapPoints();
+    auto& mpts = _map->GetAllMapPoints();
 
     //start map points sequence
     fs << "MapPoints" << "[";

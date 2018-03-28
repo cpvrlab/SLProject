@@ -435,7 +435,7 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
         //Create MapPoint.
         cv::Mat worldPos(mvIniP3D[i]);
 
-        SLCVMapPoint* pMP = new SLCVMapPoint(worldPos, pKFcur/*, _map*/);
+        SLCVMapPoint* pMP = new SLCVMapPoint(worldPos, pKFcur, _map);
 
         pKFini->AddMapPoint(pMP, i);
         pKFcur->AddMapPoint(pMP, mvIniMatches[i]);
@@ -451,7 +451,7 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
         mCurrentFrame.mvbOutlier[mvIniMatches[i]] = false;
 
         //Add to Map
-        _map->mapPoints().push_back(pMP);
+        _map->AddMapPoint(pMP);
     }
 
     // Update Connections
@@ -459,7 +459,7 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
     pKFcur->UpdateConnections();
 
     // Bundle Adjustment
-    cout << "New Map created with " << _map->mapPoints().size() << " points" << endl;
+    cout << "New Map created with " << _map->MapPointsInMap() << " points" << endl;
 
     Optimizer::GlobalBundleAdjustemnt(_map, 20);
 
@@ -501,8 +501,8 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
 
     mvpLocalKeyFrames.push_back(pKFcur);
     mvpLocalKeyFrames.push_back(pKFini);
-    //mvpLocalMapPoints = _map->GetAllMapPoints();
-    mvpLocalMapPoints = _map->mapPoints();
+    mvpLocalMapPoints = _map->GetAllMapPoints();
+
     mpReferenceKF = pKFcur;
     mCurrentFrame.mpReferenceKF = pKFcur;
 
@@ -593,7 +593,7 @@ void SLCVTrackedMapping::decorate()
 
         //add new (current) points
         SLVVec3f points, normals;
-        const auto& mpts = _map->mapPoints();
+        const auto& mpts = _map->GetAllMapPointsRef();
         for (const auto& mpt : mpts) {
             points.push_back(mpt->worldPosVec());
             normals.push_back(mpt->normalVec());

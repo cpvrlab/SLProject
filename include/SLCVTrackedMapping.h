@@ -88,7 +88,7 @@ class SLCVTrackedMapping : public SLCVTracked
         int getNMapMatches() { return mnMatchesInliers; }
         int mapPointsCount() {
             if (_map)
-                return _map->mapPoints().size();
+                return _map->MapPointsInMap();
             else
                 return 0;
         }

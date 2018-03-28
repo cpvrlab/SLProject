@@ -36,7 +36,7 @@ public:
 protected:
     
 private:
-    void loadKeyFrames( SLCVVKeyFrame& kfs );
+    void loadKeyFrames(std::vector<SLCVKeyFrame*>& kfs );
     void loadMapPoints(vector<SLCVMapPoint*>& mapPts );
 
     cv::FileStorage _fs;

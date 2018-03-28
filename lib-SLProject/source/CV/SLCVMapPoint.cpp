@@ -17,11 +17,11 @@
 long unsigned int SLCVMapPoint::nNextId = 0;
 
 //-----------------------------------------------------------------------------
-SLCVMapPoint::SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF/*, SLCVMap* pMap*/) :
-   /* mnFirstKFid(pRefKF->mnId), mnFirstFrame(pRefKF->mnFrameId), */_nObs(0), mnTrackReferenceForFrame(0),
+SLCVMapPoint::SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF, SLCVMap* pMap) :
+    mnFirstKFid(pRefKF->id()), /* mnFirstFrame(pRefKF->mnFrameId), */_nObs(0), mnTrackReferenceForFrame(0),
     mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), /*mnLoopPointForKF(0), mnCorrectedByKF(0),
     mnCorrectedReference(0),*/ mnBAGlobalForKF(0), mpRefKF(pRefKF), mnVisible(1), mnFound(1), mbBad(false),
-    /*mpReplaced(static_cast<MapPoint*>(NULL)),*/ mfMinDistance(0), mfMaxDistance(0)/*, mpMap(pMap)*/
+    /*mpReplaced(static_cast<MapPoint*>(NULL)),*/ mfMinDistance(0), mfMaxDistance(0), mpMap(pMap)
 {
     worldPos(Pos);
     //Pos.copyTo(mWorldPos);
@@ -60,6 +60,61 @@ void SLCVMapPoint::AddObservation(SLCVKeyFrame* pKF, size_t idx)
         return;
     mObservations[pKF] = idx;
     _nObs++;
+}
+//-----------------------------------------------------------------------------
+void SLCVMapPoint::EraseObservation(SLCVKeyFrame* pKF)
+{
+    bool bBad = false;
+    {
+        //unique_lock<mutex> lock(mMutexFeatures);
+        if (mObservations.count(pKF))
+        {
+            //int idx = mObservations[pKF];
+            //if (pKF->mvuRight[idx] >= 0)
+            //    nObs -= 2;
+            //else
+            //    nObs--;
+            int idx = mObservations[pKF];
+            _nObs--;
+
+            mObservations.erase(pKF);
+
+            if (mpRefKF == pKF)
+                mpRefKF = mObservations.begin()->first;
+
+            // If only 2 observations or less, discard point
+            if (_nObs <= 2)
+                bBad = true;
+        }
+    }
+
+    if (bBad)
+        SetBadFlag();
+}
+//-----------------------------------------------------------------------------
+bool SLCVMapPoint::IsInKeyFrame(SLCVKeyFrame *pKF)
+{
+    //unique_lock<mutex> lock(mMutexFeatures);
+    return (mObservations.count(pKF));
+}
+//-----------------------------------------------------------------------------
+void SLCVMapPoint::SetBadFlag()
+{
+    map<SLCVKeyFrame*, size_t> obs;
+    {
+        //unique_lock<mutex> lock1(mMutexFeatures);
+        //unique_lock<mutex> lock2(mMutexPos);
+        mbBad = true;
+        obs = mObservations;
+        mObservations.clear();
+    }
+    for (map<SLCVKeyFrame*, size_t>::iterator mit = obs.begin(), mend = obs.end(); mit != mend; mit++)
+    {
+        SLCVKeyFrame* pKF = mit->first;
+        pKF->EraseMapPointMatch(mit->second);
+    }
+
+    mpMap->EraseMapPoint(this);
 }
 //-----------------------------------------------------------------------------
 //we calculate normal and depth from
@@ -106,6 +161,22 @@ void SLCVMapPoint::UpdateNormalAndDepth()
         mfMinDistance = mfMaxDistance / pRefKF->mvScaleFactors[nLevels - 1];
         mNormalVector = normal / n;
     }
+}
+int SLCVMapPoint::PredictScale(const float &currentDist, SLCVKeyFrame* pKF)
+{
+    float ratio;
+    {
+        //unique_lock<mutex> lock(mMutexPos);
+        ratio = mfMaxDistance / currentDist;
+    }
+
+    int nScale = ceil(log(ratio) / pKF->mfLogScaleFactor);
+    if (nScale<0)
+        nScale = 0;
+    else if (nScale >= pKF->mnScaleLevels)
+        nScale = pKF->mnScaleLevels - 1;
+
+    return nScale;
 }
 //-----------------------------------------------------------------------------
 int SLCVMapPoint::PredictScale(const float &currentDist, SLCVFrame* pF)
@@ -224,4 +295,10 @@ void SLCVMapPoint::ComputeDistinctiveDescriptors()
         //unique_lock<mutex> lock(mMutexFeatures);
         mDescriptor = vDescriptors[BestIdx].clone();
     }
+}
+//-----------------------------------------------------------------------------
+float SLCVMapPoint::GetFoundRatio()
+{
+    //unique_lock<mutex> lock(mMutexFeatures);
+    return static_cast<float>(mnFound) / mnVisible;
 }

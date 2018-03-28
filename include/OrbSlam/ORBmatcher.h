@@ -67,16 +67,16 @@ public:
     // Matching for the Map Initialization (only used in the monocular case)
     int SearchForInitialization(SLCVFrame &F1, SLCVFrame &F2, std::vector<cv::Point2f> &vbPrevMatched, std::vector<int> &vnMatches12, int windowSize=10);
 
-    //// Matching to triangulate new MapPoints. Check Epipolar Constraint.
-    //int SearchForTriangulation(SLCVKeyFrame *pKF1, SLCVKeyFrame* pKF2, cv::Mat F12,
-    //                           std::vector<pair<size_t, size_t> > &vMatchedPairs, const bool bOnlyStereo);
+    // Matching to triangulate new MapPoints. Check Epipolar Constraint.
+    int SearchForTriangulation(SLCVKeyFrame *pKF1, SLCVKeyFrame* pKF2, cv::Mat F12,
+                               std::vector<pair<size_t, size_t> > &vMatchedPairs, const bool bOnlyStereo);
 
     //// Search matches between MapPoints seen in KF1 and KF2 transforming by a Sim3 [s12*R12|t12]
     //// In the stereo and RGB-D case, s12=1
     //int SearchBySim3(SLCVKeyFrame* pKF1, SLCVKeyFrame* pKF2, std::vector<SLCVMapPoint *> &vpMatches12, const float &s12, const cv::Mat &R12, const cv::Mat &t12, const float th);
 
-    //// Project MapPoints into KeyFrame and search for duplicated MapPoints.
-    //int Fuse(SLCVKeyFrame* pKF, const vector<SLCVMapPoint *> &vpMapPoints, const float th=3.0);
+    // Project MapPoints into KeyFrame and search for duplicated MapPoints.
+    int Fuse(SLCVKeyFrame* pKF, const vector<SLCVMapPoint *> &vpMapPoints, const float th=3.0);
 
     //// Project MapPoints into KeyFrame using a given Sim3 and search for duplicated MapPoints.
     //int Fuse(SLCVKeyFrame* pKF, cv::Mat Scw, const std::vector<SLCVMapPoint*> &vpPoints, float th, vector<SLCVMapPoint *> &vpReplacePoint);
@@ -90,7 +90,7 @@ public:
 
 protected:
 
-    //bool CheckDistEpipolarLine(const cv::KeyPoint &kp1, const cv::KeyPoint &kp2, const cv::Mat &F12, const SLCVKeyFrame *pKF);
+    bool CheckDistEpipolarLine(const cv::KeyPoint &kp1, const cv::KeyPoint &kp2, const cv::Mat &F12, const SLCVKeyFrame *pKF);
 
     float RadiusByViewingCos(const float &viewCos);
 

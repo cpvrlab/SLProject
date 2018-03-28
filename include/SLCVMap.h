@@ -17,7 +17,7 @@
 
 class SLPoints;
 class SLCVKeyFrameDB;
-//class SLCVVKeyFrame;
+class SLCVVKeyFrame;
 
 using namespace std;
 
@@ -32,22 +32,34 @@ public:
     ~SLCVMap();
 
     //! get reference to map points vector
-    std::vector<SLCVMapPoint*>& mapPoints() { return _mapPoints; }
+    //std::vector<SLCVMapPoint*>& mapPoints() { return _mapPoints; }
+    std::vector<SLCVMapPoint*> GetAllMapPoints();
+    const std::set<SLCVMapPoint*>& GetAllMapPointsRef();
+    void AddMapPoint(SLCVMapPoint *pMP);
     SLCVKeyFrameDB* getKeyFrameDB() { return mpKeyFrameDatabase; }
+    void AddKeyFrame(SLCVKeyFrame* pKF);
 
     //! get visual representation as SLPoints
     SLPoints* getSceneObject();
     SLPoints* getNewSceneObject();
     void SetReferenceMapPoints(const std::vector<SLCVMapPoint*> &vpMPs);
 
+    long unsigned int MapPointsInMap();
+
     void setKeyFrameDB(SLCVKeyFrameDB* kfDB) { mpKeyFrameDatabase = kfDB; }
     void clear();
     long unsigned int KeyFramesInMap();
 
+    void EraseMapPoint(SLCVMapPoint *pMP);
+
     vector<SLCVKeyFrame*> mvpKeyFrameOrigins;
 private:
     //SLCVVMapPoint _mapPoints;
-    std::vector<SLCVMapPoint*> _mapPoints;
+    //std::vector<SLCVMapPoint*> _mapPoints;
+    long unsigned int mnMaxKFid;
+
+    std::set<SLCVMapPoint*> mspMapPoints;
+    std::set<SLCVKeyFrame*> mspKeyFrames;
 
     std::vector<SLCVMapPoint*> mvpReferenceMapPoints;
 

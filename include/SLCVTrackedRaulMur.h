@@ -77,7 +77,7 @@ public:
     double meanReprojectionError() { return _meanReprojectionError; }
     int mapPointsCount() {
         if (_map)
-            return _map->mapPoints().size();
+            return _map->MapPointsInMap();
         else
             return 0;
     }

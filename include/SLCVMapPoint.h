@@ -17,6 +17,7 @@
 
 class SLCVKeyFrame;
 class SLCVFrame;
+class SLCVMap;
 //-----------------------------------------------------------------------------
 //! 
 /*! 
@@ -24,8 +25,10 @@ class SLCVFrame;
 class SLCVMapPoint
 {
 public:
-    SLCVMapPoint() {}
-    SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF/*, SLCVMap* pMap*/);
+    SLCVMapPoint() 
+        : mnFirstKFid(-1)
+    {}
+    SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF, SLCVMap* pMap);
 
     int id() const { return _id; }
     int Observations() { return _nObs; }
@@ -43,23 +46,28 @@ public:
     void refKf(SLCVKeyFrame* refKf) { mpRefKF = refKf; }
     void level(int level) { _level = level; }
     bool isBad() const { return mbBad; } //we have no bad systematic
+    void SetBadFlag();
     cv::Mat GetNormal() { return mNormalVector.clone(); }
     SLCVKeyFrame* refKf() const { return mpRefKF; }
 
     void AddObservation(SLCVKeyFrame* pKF, size_t idx);
+    void EraseObservation(SLCVKeyFrame* pKF);
     std::map<SLCVKeyFrame*, size_t> GetObservations() const { return mObservations; }
+    bool IsInKeyFrame(SLCVKeyFrame *pKF);
 
     int GetIndexInKeyFrame(SLCVKeyFrame* pKF);
 
     float GetMaxDistanceInvariance() { return 1.2f*mfMaxDistance; }
     float GetMinDistanceInvariance() { return 0.8f*mfMinDistance; }
     void UpdateNormalAndDepth();
+    int PredictScale(const float &currentDist, SLCVKeyFrame* pF);
     int PredictScale(const float &currentDist, SLCVFrame* pF);
     cv::Mat GetDescriptor() { return mDescriptor.clone(); }
     void ComputeDistinctiveDescriptors();
 
     void IncreaseFound(int n=1) { mnFound += n; }
     void IncreaseVisible(int n=1) { mnVisible += n; }
+    float GetFoundRatio();
 
     // Variables used by the tracking
     //ghm1: projection point
@@ -86,9 +94,12 @@ public:
     cv::Mat mPosGBA;
     long unsigned int mnBAGlobalForKF;
 
+    long int mnFirstKFid;
+
 private:
     int _id=-1;
     static long unsigned int nNextId;
+
     //open cv coordinate representation: z-axis points to principlal point,
     // x-axis to the right and y-axis down
     SLCVMat _worldPos;
@@ -114,6 +125,8 @@ private:
     // Tracking counters
     int mnVisible = 0;
     int mnFound = 0;
+
+    SLCVMap* mpMap = NULL;
 };
 
 typedef std::vector<SLCVMapPoint> SLCVVMapPoint;

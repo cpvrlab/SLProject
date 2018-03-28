@@ -34,13 +34,14 @@ class SLCVMap;
 namespace ORB_SLAM2
 {
 
+
 //class Tracking;
 //class LoopClosing;
 
 class LocalMapping
 {
 public:
-    LocalMapping(SLCVMap* pMap, const float bMonocular);
+    LocalMapping(SLCVMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary);
 
     //void SetLoopCloser(LoopClosing* pLoopCloser);
 
@@ -121,6 +122,8 @@ protected:
 
     bool mbAcceptKeyFrames;
     //std::mutex mMutexAccept;
+
+    ORBVocabulary* mpORBvocabulary=NULL;
 };
 
 } //namespace ORB_SLAM

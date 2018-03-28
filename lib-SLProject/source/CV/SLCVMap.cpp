@@ -17,13 +17,18 @@
 
 //-----------------------------------------------------------------------------
 SLCVMap::SLCVMap(const string& name)
+    : mnMaxKFid(0)
 {
 
 }
 //-----------------------------------------------------------------------------
 SLCVMap::~SLCVMap()
 {
-    for (auto* pt : _mapPoints) {
+    //for (auto* pt : _mapPoints) {
+    //    if (pt)
+    //        delete pt;
+    //}
+    for (auto* pt : mspMapPoints) {
         if (pt)
             delete pt;
     }
@@ -54,7 +59,7 @@ SLPoints* SLCVMap::getNewSceneObject()
 
     //get points as Vec3f and collect normals
     SLVVec3f points, normals;
-    for (auto mapPt : _mapPoints) {
+    for (auto mapPt : mspMapPoints) {
         points.push_back(mapPt->worldPosVec());
         normals.push_back(mapPt->normalVec());
     }
@@ -66,11 +71,19 @@ SLPoints* SLCVMap::getNewSceneObject()
 //-----------------------------------------------------------------------------
 void SLCVMap::clear()
 {
-    for (auto* pt : _mapPoints) {
+    for (auto* pt : mspMapPoints) {
         if (pt)
             delete pt;
     }
-    _mapPoints.clear();
+    for (auto* kf : mspKeyFrames) {
+        if (kf)
+            delete kf;
+    }
+    mspMapPoints.clear();
+    mspKeyFrames.clear();
+    mnMaxKFid = 0;
+    mvpReferenceMapPoints.clear();
+    mvpKeyFrameOrigins.clear();
 }
 //-----------------------------------------------------------------------------
 void SLCVMap::SetReferenceMapPoints(const vector<SLCVMapPoint*> &vpMPs)
@@ -84,4 +97,45 @@ long unsigned int SLCVMap::KeyFramesInMap()
     //unique_lock<mutex> lock(mMutexMap);
     //return mspKeyFrames.size();
     return mpKeyFrameDatabase->keyFrames().size();
+}
+//-----------------------------------------------------------------------------
+void SLCVMap::EraseMapPoint(SLCVMapPoint *pMP)
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    mspMapPoints.erase(pMP);
+
+    // TODO: This only erase the pointer.
+    // Delete the MapPoint
+}
+//-----------------------------------------------------------------------------
+vector<SLCVMapPoint*> SLCVMap::GetAllMapPoints()
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    return vector<SLCVMapPoint*>(mspMapPoints.begin(), mspMapPoints.end());
+}
+//-----------------------------------------------------------------------------
+const std::set<SLCVMapPoint*>& SLCVMap::GetAllMapPointsRef()
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    return mspMapPoints;
+}
+//-----------------------------------------------------------------------------
+void SLCVMap::AddMapPoint(SLCVMapPoint *pMP)
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    mspMapPoints.insert(pMP);
+}
+//-----------------------------------------------------------------------------
+void SLCVMap::AddKeyFrame(SLCVKeyFrame *pKF)
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    mspKeyFrames.insert(pKF);
+    if (pKF->id()>mnMaxKFid)
+        mnMaxKFid = pKF->id();
+}
+//-----------------------------------------------------------------------------
+long unsigned int SLCVMap::MapPointsInMap()
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    return mspMapPoints.size();
 }
