@@ -48,10 +48,9 @@ class SLCVTrackedFaces : public SLCVTracked
     private:
         SLCVCascadeClassifier*  _faceDetector;      //!< Viola-Jones face detector
         cv::Ptr<SLCVFacemark>   _facemark;          //!< Facial landmarks detector smart pointer
-        SLVAvgVec2f             _avgFacePoints2D;   //!< vector of averaged facial landmark 2D points
-        SLCVVPoint2d            _cvFacePoints2D;    //!< vector of OpenCV point2D
-        SLCVVPoint3d            _cvFacePoints3D;    //!< vector of OpenCV point2D
-        SLbool                  _solved;            //<! Flag if last solvePnP was solved
+        SLVAvgVec2f             _avgPosePoints2D;   //!< vector of averaged facial landmark 2D points
+        SLCVVPoint2f            _cvPosePoints2D;    //!< vector of OpenCV point2D
+        SLCVVPoint3f            _cvPosePoints3D;    //!< vector of OpenCV point2D
         SLint                   _smoothLenght;      //<! Smoothing filter lenght
 };
 //-----------------------------------------------------------------------------

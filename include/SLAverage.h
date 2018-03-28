@@ -57,6 +57,9 @@ class SLAverage
 
             //! Gets the avaraged value
             T average() {return _average;}
+    
+            //! Get the last entry
+            T last()    {return _currentValueNo>0? _currentValueNo-1:_values.size()-1;}
 
    private:
             SLfloat     _oneOverNumValues;   //!< multiplier instead of devider
