@@ -1935,13 +1935,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLApplication::sceneID == SID_VideoTrackChessScnd)
         {   
             if (SLApplication::sceneID == SID_VideoTrackChessMain) {   
-                //s->videoType(VT_FILE);
-                //SLCVCapture::videoLoops = true;
-                ////SLCVCapture::videoFilename = "calib_honor9_marcus.mp4";
-                //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
-                ////SLCVCapture::videoFilename = "webcam_calib.wmv";
 
-                s->videoType(VT_MAIN);
+                //SLCVCapture::videoFilename = "calib_honor9_marcus.mp4";
+                //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
+                //SLCVCapture::videoFilename = "webcam_calib.wmv";
+                SLCVCapture::videoFilename = "calib_huawei_4_3.mp4";
+                SLCVCapture::videoLoops = true;
+                s->videoType(VT_FILE);
+                //s->videoType(VT_MAIN);
                 s->name("Track Chessboard (main cam.)");
             } 
             else {   
@@ -1950,13 +1951,15 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             }
         } 
         else if (SLApplication::sceneID == SID_VideoCalibrateMain) {   
-            //s->videoType(VT_FILE);
-            //SLCVCapture::videoLoops = true;
-            ////SLCVCapture::videoFilename = "calib_honor9_marcus.mp4";
-            //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
-            ////SLCVCapture::videoFilename = "webcam_calib.wmv";
 
-            s->videoType(VT_MAIN);
+            //SLCVCapture::videoFilename = "calib_honor9_marcus.mp4";
+            //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
+            //SLCVCapture::videoFilename = "webcam_calib.wmv";
+            SLCVCapture::videoFilename = "calib_huawei_4_3.mp4";
+            SLCVCapture::videoLoops = true;
+            s->videoType(VT_FILE);
+            //s->videoType(VT_MAIN);
+
             SLApplication::activeCalib->clear();
 
             s->name("Calibrate Main Cam.");
@@ -2672,17 +2675,17 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
+        SLCVCapture::videoFilename = "street3.mp4";
 
-        //SLCVCapture::videoFilename = "street3.mp4";
-        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "street1_manip.json";
+        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "street1_manip.json";
         //SLCVCapture::videoFilename = "altstadt_biel1.mp4";
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-altstadtbiel1_manip.json";
         //SLCVCapture::videoFilename = "Bern1.mp4";
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern1-manip1.json";
         //SLCVCapture::videoFilename = "Bern3_cut.mp4";
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern3-ct.json";
-        SLCVCapture::videoFilename = "buero2_huawei_16_9.mp4";
-        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-buero1.json";
+        //SLCVCapture::videoFilename = "buero2_huawei_16_9.mp4";
+        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-buero1.json";
 
 
         SLCamera* cam1 = new SLCamera("Camera 1");
