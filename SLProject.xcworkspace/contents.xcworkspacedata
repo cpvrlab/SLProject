@@ -20,10 +20,10 @@
          location = "group:exercises/cv13_FaceTracking/cv13_FaceTracking.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:exercises/cv13_HeadPoseEstimation/cv13_HeadPoseEstimation.xcodeproj">
+         location = "group:exercises/cv13_FacialLandmarkDetection/cv13_FacialLandmarkDetection.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:exercises/cv13_FacialLandmarkDetection/cv13_FacialLandmarkDetection.xcodeproj">
+         location = "group:exercises/cv13_HeadPoseEstimation/cv13_HeadPoseEstimation.xcodeproj">
       </FileRef>
    </Group>
    <FileRef

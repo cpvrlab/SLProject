@@ -82,8 +82,12 @@ SLCVTrackedFaces::~SLCVTrackedFaces()
     delete _faceDetector;
 }
 //-----------------------------------------------------------------------------
-//! Tracks the ...
-/* The tracking ...
+//! Tracks the a face and its landmarks
+/* The tracking is done by first detecting the face with a pretrained cascaded
+face classifier implemented in OpenCV. The facial landmarks are detected with
+the OpenCV face module using the facemarkLBF detector. More information about
+OpenCV facial landmark detection can be found on:
+https://www.learnopencv.com/facemark-facial-landmark-detection-using-opencv
 */
 SLbool SLCVTrackedFaces::track(SLCVMat imageGray,
                                SLCVMat imageRgb,
@@ -112,6 +116,10 @@ SLbool SLCVTrackedFaces::track(SLCVMat imageGray,
     SLCVSize minSize(min, min);
     SLCVSize maxSize(max, max);
     _faceDetector->detectMultiScale(imageGray, faces, 1.05, 3, 0, minSize, maxSize);
+    
+    // Enlarge the face rect at the bottom to cover also the chin
+    for (SLint f=0; f<faces.size(); ++f)
+        faces[f].height = (SLint)(faces[f].height * 1.2f);
 
     SLfloat time2MS = s->timeMilliSec();
     s->detect1TimesMS().set(time2MS-startMS);
@@ -156,7 +164,7 @@ SLbool SLCVTrackedFaces::track(SLCVMat imageGray,
             if (drawDetection)
             {
                 // Draw rectangle of detected face
-                rectangle(imageRgb, faces[i], cv::Scalar(255, 0, 0), 2);
+                cv::rectangle(imageRgb, faces[i], cv::Scalar(255, 0, 0), 2);
                 
                 // Draw detected landmarks
                 for(int j=0; j < landmarks[i].size(); j++)

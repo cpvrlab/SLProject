@@ -33,7 +33,7 @@ class SLCVTrackedFaces : public SLCVTracked
     public:
                 SLCVTrackedFaces    (SLNode* nodeSL,
                                      SLint smoothLength = 5,
-                                     SLstring faceClassifierFilename = "haarcascade_frontalface_alt.xml",
+                                     SLstring faceClassifierFilename = "haarcascade_frontalface_alt2.xml",
                                      SLstring faceMarkModelFilename = "lbfmodel.yaml");
                ~SLCVTrackedFaces    ();
 
@@ -49,6 +49,7 @@ class SLCVTrackedFaces : public SLCVTracked
         SLCVCascadeClassifier*  _faceDetector;      //!< Viola-Jones face detector
         cv::Ptr<SLCVFacemark>   _facemark;          //!< Facial landmarks detector smart pointer
         SLVAvgVec2f             _avgPosePoints2D;   //!< vector of averaged facial landmark 2D points
+        SLCVRect                _boundingRect;      //!< Bounding rectangle around landmarks
         SLCVVPoint2f            _cvPosePoints2D;    //!< vector of OpenCV point2D
         SLCVVPoint3f            _cvPosePoints3D;    //!< vector of OpenCV point2D
         SLint                   _smoothLenght;      //<! Smoothing filter lenght

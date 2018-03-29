@@ -23,6 +23,16 @@
 		41EE03D81FF3D28000E5DC9C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03D71FF3D28000E5DC9C /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		41EA7DC7206CD8FE00BF3C30 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 41EA7DC3206CD8FE00BF3C30 /* cv13_FacialLandmarkDetection.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4160DA4D1FF3C88400343C0D;
+			remoteInfo = cv13_FacialLandmarkDetection;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		4160DA4B1FF3C88400343C0D /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -46,6 +56,7 @@
 		417EC0F62060F6DF0016F7CB /* libopencv_core.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_core.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_core.3.4.0.dylib; sourceTree = "<group>"; };
 		417EC0F72060F6DF0016F7CB /* libopencv_imgproc.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgproc.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.4.0.dylib; sourceTree = "<group>"; };
 		417EC0F82060F6DF0016F7CB /* libopencv_video.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_video.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_video.3.4.0.dylib; sourceTree = "<group>"; };
+		41EA7DC3206CD8FE00BF3C30 /* cv13_FacialLandmarkDetection.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = cv13_FacialLandmarkDetection.xcodeproj; path = ../cv13_FacialLandmarkDetection/cv13_FacialLandmarkDetection.xcodeproj; sourceTree = "<group>"; };
 		41EE03BD1FF3D0B600E5DC9C /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		41EE03BF1FF3D0BF00E5DC9C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		41EE03C11FF3D0CB00E5DC9C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -80,6 +91,7 @@
 		4160DA441FF3C88400343C0D = {
 			isa = PBXGroup;
 			children = (
+				41EA7DC3206CD8FE00BF3C30 /* cv13_FacialLandmarkDetection.xcodeproj */,
 				415109541FF3DD5A00238817 /* cv13_FaceTracking.cpp */,
 				4160DA4E1FF3C88400343C0D /* Products */,
 				41EE03BA1FF3D0A800E5DC9C /* Frameworks */,
@@ -90,6 +102,14 @@
 			isa = PBXGroup;
 			children = (
 				4160DA4D1FF3C88400343C0D /* cv13_FaceTracking */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		41EA7DC4206CD8FE00BF3C30 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				41EA7DC8206CD8FE00BF3C30 /* cv13_FacialLandmarkDetection */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -160,12 +180,28 @@
 			mainGroup = 4160DA441FF3C88400343C0D;
 			productRefGroup = 4160DA4E1FF3C88400343C0D /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 41EA7DC4206CD8FE00BF3C30 /* Products */;
+					ProjectRef = 41EA7DC3206CD8FE00BF3C30 /* cv13_FacialLandmarkDetection.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				4160DA4C1FF3C88400343C0D /* cv13_FaceTracking */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		41EA7DC8206CD8FE00BF3C30 /* cv13_FacialLandmarkDetection */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = cv13_FacialLandmarkDetection;
+			remoteRef = 41EA7DC7206CD8FE00BF3C30 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		41EE03DB1FF3D50900E5DC9C /* ShellScript */ = {
