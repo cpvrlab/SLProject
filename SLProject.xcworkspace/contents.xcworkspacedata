@@ -17,6 +17,9 @@
          location = "group:exercises/cv01_ChangeBrightnessAndContrast/cv01_ChangeBrightnessAndContrast.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:exercises/cv06_WarpTriangle/cv06_WarpTriangle.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:exercises/cv13_FaceTracking/cv13_FaceTracking.xcodeproj">
       </FileRef>
       <FileRef
