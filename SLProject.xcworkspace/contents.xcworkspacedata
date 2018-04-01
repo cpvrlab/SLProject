@@ -20,6 +20,9 @@
          location = "group:exercises/cv06_WarpTriangle/cv06_WarpTriangle.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:exercises/cv07_MeshWarping/cv07_MeshWarping.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:exercises/cv13_FaceTracking/cv13_FaceTracking.xcodeproj">
       </FileRef>
       <FileRef

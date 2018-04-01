@@ -12,10 +12,19 @@
 #include <iostream>
 
 using namespace cv;
+using namespace std;
 
 int main()
 {
+    // Read input image
+    // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
+    // with: Right Click on Project > Properties > Debugging
     Mat image = imread("../_data/images/textures/Lena.tiff");
+    if (image.empty())
+    {   cout << "Could not load image. Is the working dir correct?" << endl;
+        exit(1);
+    }
+
     Mat new_image = Mat::zeros(image.size(), image.type() );
 
     double alpha = 2.0;

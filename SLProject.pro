@@ -11,6 +11,7 @@ SUBDIRS += exercises/ch07_DiffuseCube
 SUBDIRS += exercises/ch09_TextureMapping
 SUBDIRS += exercises/cv01_ChangeBrightnessAndContrast
 SUBDIRS += exercises/cv06_WarpTriangle
+SUBDIRS += exercises/cv07_MeshWarping
 SUBDIRS += exercises/cv13_FacialLandmarkDetection
 SUBDIRS += exercises/cv13_HeadPoseEstimation
 SUBDIRS += exercises/cv13_FaceTracking

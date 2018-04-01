@@ -11,8 +11,9 @@
 using namespace std;
 using namespace cv;
 using namespace cv::face;
- 
-int main(int argc,char** argv)
+
+//-----------------------------------------------------------------------------
+int main()
 {
     // Load Face Detector
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
@@ -76,3 +77,4 @@ int main(int argc,char** argv)
     }
     return 0;
 }
+//-----------------------------------------------------------------------------
