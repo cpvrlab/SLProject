@@ -23,6 +23,9 @@
          location = "group:exercises/cv07_MeshWarping/cv07_MeshWarping.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:exercises/cv08_MeshMorphing/cv08_MeshMorphing.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:exercises/cv13_FaceTracking/cv13_FaceTracking.xcodeproj">
       </FileRef>
       <FileRef
