@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -22,7 +22,7 @@
     <ClCompile Include="cv08_MeshMorphing.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{37ED35A4-DE24-4ED6-A93D-AFE9792F182B}</ProjectGuid>
+    <ProjectGuid>{BDD63B0D-BFAC-4A0D-A294-0D7B969B09F0}</ProjectGuid>
     <RootNamespace>SceneLib</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>cv08_MeshMorphing</ProjectName>

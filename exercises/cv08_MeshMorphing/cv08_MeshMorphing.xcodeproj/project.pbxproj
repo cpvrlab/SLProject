@@ -285,6 +285,7 @@
 		4160DA551FF3C88400343C0D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../../_bin-$(CONFIGURATION)-macxcode";
 				CONFIGURATION_TEMP_DIR = "$(PROJECT_DIR)/../../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
@@ -307,6 +308,7 @@
 		4160DA561FF3C88400343C0D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../../_bin-$(CONFIGURATION)-macxcode";
 				CONFIGURATION_TEMP_DIR = "$(PROJECT_DIR)/../../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";

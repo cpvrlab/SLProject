@@ -14,7 +14,7 @@ using namespace std;
 
 //-----------------------------------------------------------------------------
 // Warps a triangular regions from img1 to img2
-void warp_triangle(Mat &img1,
+void warpTriangle(Mat &img1,
                    Mat &img2,
                    vector<Point2f>& tri1,
                    vector<Point2f>& tri2)
@@ -96,7 +96,7 @@ int main()
     triOut.push_back(Point2f(400,400));
     
     // Warp all pixels inside input triangle to output triangle
-    warp_triangle(imgIn, imgOut, triIn, triOut);
+    warpTriangle(imgIn, imgOut, triIn, triOut);
     
     // Draw triangle on the input and output image.
     

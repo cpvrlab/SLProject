@@ -13,12 +13,7 @@ using namespace cv;
 using namespace std;
 
 //-----------------------------------------------------------------------------
-static void draw_point(Mat& img, Point2f fp, Scalar color)
-{
-    circle(img, fp, 2, color, CV_FILLED, CV_AA, 0);
-}
-//-----------------------------------------------------------------------------
-static void draw_delaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
+static void drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
 {
     vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
@@ -42,11 +37,11 @@ static void draw_delaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
     }
 }
 //-----------------------------------------------------------------------------
-static void create_delaunay(Mat& img,
+static void createDelaunay(Mat& img,
                             Subdiv2D& subdiv,
                             vector<Point2f>& points,
                             bool drawAnimated,
-                            vector<vector<int>>& delaunayTri)
+                            vector<vector<int>>& triangleIndexes)
 {
     // Insert points into subdiv
     for (Point2f p : points)
@@ -55,7 +50,7 @@ static void create_delaunay(Mat& img,
 
         if (drawAnimated)
         {   Mat img_copy = img.clone();
-            draw_delaunay(img_copy, subdiv, Scalar(255, 255, 255));
+            drawDelaunay(img_copy, subdiv, Scalar(255, 255, 255));
             imshow("Delaunay Triangulation", img_copy);
             waitKey(100);
         }
@@ -78,19 +73,22 @@ static void create_delaunay(Mat& img,
         pt[1] = Point2f(t[2], t[3]);
         pt[2] = Point2f(t[4], t[5 ]);
         
-        if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2]))
+        if (rect.contains(pt[0]) &&
+            rect.contains(pt[1]) &&
+            rect.contains(pt[2]))
         {
             for(int j = 0; j < 3; j++)
                 for(size_t k = 0; k < points.size(); k++)
-                    if(abs(pt[j].x - points[k].x) < 1.0 && abs(pt[j].y - points[k].y) < 1)
+                    if(abs(pt[j].x - points[k].x) < 1.0 &&
+                       abs(pt[j].y - points[k].y) < 1)
                         ind[j] = (int)k;
             
-            delaunayTri.push_back(ind);
+            triangleIndexes.push_back(ind);
         }
     }
 }
 //-----------------------------------------------------------------------------
-static void draw_voronoi(Mat& img, Subdiv2D& subdiv)
+static void drawVoronoi(Mat& img, Subdiv2D& subdiv)
 {
     vector<vector<Point2f> > facets;
     vector<Point2f> centers;
@@ -118,7 +116,7 @@ static void draw_voronoi(Mat& img, Subdiv2D& subdiv)
 }
 //-----------------------------------------------------------------------------
 // Warps a triangular regions from img1 to img2
-void warp_triangle(Mat &img1,
+void warpTriangle(Mat &img1,
                    Mat &img2,
                    vector<Point2f>& tri1,
                    vector<Point2f>& tri2)
@@ -169,7 +167,7 @@ void warp_triangle(Mat &img1,
     img2(rect2) = img2(rect2) + img2Cropped;
 }
 //-----------------------------------------------------------------------------
-static void warp_image(Mat& img1,
+static void warpImage(Mat& img1,
                        Mat& img2,
                        vector<Point2f>& points1,
                        vector<Point2f>& points2,
@@ -187,7 +185,7 @@ static void warp_image(Mat& img1,
         tri2.push_back(points2[triangles[i][1]]);
         tri2.push_back(points2[triangles[i][2]]);
         
-        warp_triangle(img1, img2, tri1, tri2);
+        warpTriangle(img1, img2, tri1, tri2);
     }
 }
 //-----------------------------------------------------------------------------
@@ -247,18 +245,18 @@ int main()
 
     // Create and draw the Delaunay triangulation
     vector<vector<int>> triIndexes1;
-    create_delaunay(img1, subdiv, points, true, triIndexes1);
-    draw_delaunay(img1, subdiv, Scalar(255, 255, 255));
+    createDelaunay(img1, subdiv, points, true, triIndexes1);
+    drawDelaunay(img1, subdiv, Scalar(255, 255, 255));
 
     // Draw all points red
     for (Point2f p : points)
-        draw_point(img1, p, Scalar(0, 0, 255));
+        circle(img1, p, 2, Scalar(0, 0, 255), CV_FILLED, CV_AA, 0);
     
     // Allocate space for voronoi Diagram
     Mat img_voronoi = Mat::zeros(img1.rows, img1.cols, CV_8UC3);
     
     // Draw voronoi diagram
-    draw_voronoi(img_voronoi, subdiv);
+    drawVoronoi(img_voronoi, subdiv);
 
     // Show results.
     imshow("Delaunay Triangulation", img1);
@@ -283,7 +281,7 @@ int main()
             wPoints[i] = ((points[i]-center) * scale) + center;
 
         // Warp all triangles
-        warp_image(img_orig, imgW, points, wPoints, triIndexes1);
+        warpImage(img_orig, imgW, points, wPoints, triIndexes1);
         imshow("Warped Image", imgW);
 
         // Wait for key to exit loop
