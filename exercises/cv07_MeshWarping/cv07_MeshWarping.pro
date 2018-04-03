@@ -9,7 +9,7 @@
 ##############################################################################
 
 TEMPLATE = app
-TARGET = cv07_MeshWarping.pro
+TARGET = cv07_MeshWarping
 
 CONFIG += warn_off
 CONFIG -= qml_debug

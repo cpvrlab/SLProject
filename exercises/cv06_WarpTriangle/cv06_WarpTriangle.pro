@@ -9,7 +9,7 @@
 ##############################################################################
 
 TEMPLATE = app
-TARGET = cv06_WarpTriangle.pro
+TARGET = cv06_WarpTriangle
 
 CONFIG += warn_off
 CONFIG -= qml_debug
