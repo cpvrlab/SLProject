@@ -1397,7 +1397,7 @@ void SLCVTrackedRaulMur::saveState()
 
                //save keypoints (map)
     //SLCVVMapPoint& mpts = _map->mapPoints();
-    auto& mpts = _map->GetAllMapPoints();
+    auto mpts = _map->GetAllMapPoints();
 
     //start map points sequence
     fs << "MapPoints" << "[";

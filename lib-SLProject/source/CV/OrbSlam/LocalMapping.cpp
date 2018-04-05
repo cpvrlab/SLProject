@@ -30,7 +30,7 @@ namespace ORB_SLAM2
 {
 
 LocalMapping::LocalMapping(SLCVMap *pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary):
-    mbMonocular(bMonocular), mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mpMap(pMap),
+    mpMap(pMap), mbMonocular(bMonocular), mpORBvocabulary(mpORBvocabulary), mbResetRequested(false), mbFinishRequested(false), mbFinished(true),
     mbAbortBA(false), mbStopped(false), mbStopRequested(false), mbNotStop(false), mbAcceptKeyFrames(true)
 {
 }
@@ -45,82 +45,82 @@ LocalMapping::LocalMapping(SLCVMap *pMap, const float bMonocular, ORBVocabulary*
 //    mpTracker=pTracker;
 //}
 
-void LocalMapping::Run()
-{
-
-    mbFinished = false;
-
-    while(1)
-    {
-        // Tracking will see that Local Mapping is busy
-        SetAcceptKeyFrames(false);
-
-        // Check if there are keyframes in the queue
-        if(CheckNewKeyFrames())
-        {
-            // BoW conversion and insertion in Map
-            ProcessNewKeyFrame();
-
-            // Check recent MapPoints
-            MapPointCulling();
-
-            // Triangulate new MapPoints
-            CreateNewMapPoints();
-
-            if(!CheckNewKeyFrames())
-            {
-                // Find more matches in neighbor keyframes and fuse point duplications
-                SearchInNeighbors();
-            }
-
-            mbAbortBA = false;
-
-            if(!CheckNewKeyFrames() && !stopRequested())
-            {
-                // Local BA
-                //if(mpMap->KeyFramesInMap()>2)
-                if (mpMap->KeyFramesInMap()>2)
-                    Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame,&mbAbortBA, mpMap);
-
-                // Check redundant local Keyframes
-                KeyFrameCulling();
-            }
-
-            //ghm1:
-            //mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
-        }
-        else if(Stop())
-        {
-            // Safe area to stop
-            while(isStopped() && !CheckFinish())
-            {
-#ifdef _WINDOWS
-                Sleep(3);
-#else
-                usleep(3000);
-#endif
-            }
-            if(CheckFinish())
-                break;
-        }
-
-        ResetIfRequested();
-
-        // Tracking will see that Local Mapping is busy
-        SetAcceptKeyFrames(true);
-
-        if(CheckFinish())
-            break;
-
-#ifdef _WINDOWS
-                Sleep(3);
-#else
-                usleep(3000);
-#endif
-    }
-
-    SetFinish();
-}
+//void LocalMapping::Run()
+//{
+//
+//    mbFinished = false;
+//
+//    while(1)
+//    {
+//        // Tracking will see that Local Mapping is busy
+//        SetAcceptKeyFrames(false);
+//
+//        // Check if there are keyframes in the queue
+//        if(CheckNewKeyFrames())
+//        {
+//            // BoW conversion and insertion in Map
+//            ProcessNewKeyFrame();
+//
+//            // Check recent MapPoints
+//            MapPointCulling();
+//
+//            // Triangulate new MapPoints
+//            CreateNewMapPoints();
+//
+//            if(!CheckNewKeyFrames())
+//            {
+//                // Find more matches in neighbor keyframes and fuse point duplications
+//                SearchInNeighbors();
+//            }
+//
+//            mbAbortBA = false;
+//
+//            if(!CheckNewKeyFrames() && !stopRequested())
+//            {
+//                // Local BA
+//                //if(mpMap->KeyFramesInMap()>2)
+//                if (mpMap->KeyFramesInMap()>2)
+//                    Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame,&mbAbortBA, mpMap);
+//
+//                // Check redundant local Keyframes
+//                KeyFrameCulling();
+//            }
+//
+//            //ghm1:
+//            //mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
+//        }
+//        else if(Stop())
+//        {
+//            // Safe area to stop
+//            while(isStopped() && !CheckFinish())
+//            {
+//#ifdef _WINDOWS
+//                Sleep(3);
+//#else
+//                usleep(3000);
+//#endif
+//            }
+//            if(CheckFinish())
+//                break;
+//        }
+//
+//        ResetIfRequested();
+//
+//        // Tracking will see that Local Mapping is busy
+//        SetAcceptKeyFrames(true);
+//
+//        if(CheckFinish())
+//            break;
+//
+//#ifdef _WINDOWS
+//                Sleep(3);
+//#else
+//                usleep(3000);
+//#endif
+//    }
+//
+//    SetFinish();
+//}
 
 void LocalMapping::RunOnce()
 {
@@ -746,32 +746,33 @@ void LocalMapping::KeyFrameCulling()
 
 cv::Mat LocalMapping::SkewSymmetricMatrix(const cv::Mat &v)
 {
-    return (cv::Mat_<float>(3,3) <<             0, -v.at<float>(2), v.at<float>(1),
-            v.at<float>(2),               0,-v.at<float>(0),
-            -v.at<float>(1),  v.at<float>(0),              0);
+    return (cv::Mat_<float>(3,3) <<
+        0.0f, -v.at<float>(2), v.at<float>(1),
+        v.at<float>(2), 0.0f ,-v.at<float>(0),
+        -v.at<float>(1), v.at<float>(0), 0.0f );
 }
 
-void LocalMapping::RequestReset()
-{
-    {
-        //unique_lock<mutex> lock(mMutexReset);
-        mbResetRequested = true;
-    }
-
-    while(1)
-    {
-        {
-            //unique_lock<mutex> lock2(mMutexReset);
-            if(!mbResetRequested)
-                break;
-        }
-#ifdef _WINDOWS
-                Sleep(3);
-#else
-                usleep(3000);
-#endif
-    }
-}
+//void LocalMapping::RequestReset()
+//{
+//    {
+//        //unique_lock<mutex> lock(mMutexReset);
+//        mbResetRequested = true;
+//    }
+//
+//    while(1)
+//    {
+//        {
+//            //unique_lock<mutex> lock2(mMutexReset);
+//            if(!mbResetRequested)
+//                break;
+//        }
+//#ifdef _WINDOWS
+//                Sleep(3);
+//#else
+//                usleep(3000);
+//#endif
+//    }
+//}
 
 void LocalMapping::ResetIfRequested()
 {

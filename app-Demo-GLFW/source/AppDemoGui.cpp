@@ -728,12 +728,12 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoChristoffel);
                     if (ImGui::MenuItem("Christoffel Tower AR ORB-SLAM", 0, sid == SID_VideoChristoffelOrbSlam))
                         s->onLoad(s, sv, SID_VideoChristoffelOrbSlam);
+                    if (ImGui::MenuItem("Orb SLAM mapping example", 0, sid == sid == SID_VideoMapping))
+                        s->onLoad(s, sv, SID_VideoMapping);
                     if (ImGui::MenuItem("Track Features from Keyframes", 0, sid == sid==SID_VideoTrackKeyFrames))
                         s->onLoad(s, sv, SID_VideoTrackKeyFrames);
                     if (ImGui::MenuItem("Track Features from Keyframes in Video Files", 0, sid == sid == SID_VideoFilesTrackKeyFrames))
                         s->onLoad(s, sv, SID_VideoFilesTrackKeyFrames);
-                    if (ImGui::MenuItem("Orb SLAM mapping example", 0, sid == sid == SID_VideoMapping))
-                        s->onLoad(s, sv, SID_VideoMapping);
 
                     ImGui::EndMenu();
                 }
@@ -2056,6 +2056,8 @@ void AppDemoGui::buildSlamInteraction(SLScene* s, SLSceneView* sv)
     ImGui::Text("Num Map Matches: %d ", mappingTracker->getNMapMatches());
     //number of map points
     ImGui::Text("Num Map Pts: %d ", mappingTracker->mapPointsCount());
+    //add number of keyframes
+    ImGui::Text("Number of Keyframes : %d ", mappingTracker->getNumberOfKeyFrames());
 
     if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
         mappingTracker->Reset();
@@ -2069,6 +2071,9 @@ void AppDemoGui::buildSlamInteraction(SLScene* s, SLSceneView* sv)
     }
     else if (ImGui::Button("Track optical flow", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
         mappingTracker->setState(SLCVTrackedMapping::TRACK_OPTICAL_FLOW);
+    }
+    else if (ImGui::Button("Add key frame", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+        mappingTracker->mapNextFrame();
     }
 
     ImGui::End();

@@ -37,12 +37,13 @@ using namespace cv;
 
 //-----------------------------------------------------------------------------
 SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node, ORBVocabulary* vocabulary, 
-    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLNode* mapPC)
+    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLNode* mapPC, SLNode* keyFrames )
     : SLCVTracked(node),
     mpVocabulary(vocabulary),
     mpKeyFrameDatabase(keyFrameDB),
     _map(map),
-    _mapPC(mapPC)
+    _mapPC(mapPC),
+    _keyFrames(keyFrames)
 {
 
     int nFeatures = 1000;
@@ -378,6 +379,18 @@ void SLCVTrackedMapping::track3DPts()
                 }
         }
 
+        //ghm1: manual local mapping of current frame
+        if (bOK && _mapNextFrame)
+        {
+            CreateNewKeyFrame();
+            //call local mapper
+            mpLocalMapper->RunOnce();
+            //global bundle adjustment
+
+            addKeyFrameToScene(mpLastKeyFrame);
+            _mapNextFrame = false;
+        }
+
         // We allow points with high innovation (considererd outliers by the Huber Function)
         // pass to the new keyframe, so that bundle adjustment will finally decide
         // if they are outliers or not. We don't want next frame to estimate its position
@@ -537,6 +550,90 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
     // Bundle Adjustment
     cout << "Number of Map points after local mapping: " << _map->MapPointsInMap() << endl;
 
+    //ghm1: add keyframe to scene graph. this position is wrong after bundle adjustment!
+    //todo: correct position of keyframes in scene after bundle adjustment
+    addKeyFrameToScene(pKFini);
+    addKeyFrameToScene(pKFcur);
+}
+//-----------------------------------------------------------------------------
+void SLCVTrackedMapping::CreateNewKeyFrame()
+{
+    if (!mpLocalMapper->SetNotStop(true))
+        return;
+
+    SLCVKeyFrame* pKF = new SLCVKeyFrame(mCurrentFrame, _map, mpKeyFrameDatabase);
+
+    mpReferenceKF = pKF;
+    mCurrentFrame.mpReferenceKF = pKF;
+
+    //if (mSensor != System::MONOCULAR)
+    //{
+    //    mCurrentFrame.UpdatePoseMatrices();
+
+    //    // We sort points by the measured depth by the stereo/RGBD sensor.
+    //    // We create all those MapPoints whose depth < mThDepth.
+    //    // If there are less than 100 close points we create the 100 closest.
+    //    vector<pair<float, int> > vDepthIdx;
+    //    vDepthIdx.reserve(mCurrentFrame.N);
+    //    for (int i = 0; i<mCurrentFrame.N; i++)
+    //    {
+    //        float z = mCurrentFrame.mvDepth[i];
+    //        if (z>0)
+    //        {
+    //            vDepthIdx.push_back(make_pair(z, i));
+    //        }
+    //    }
+
+    //    if (!vDepthIdx.empty())
+    //    {
+    //        sort(vDepthIdx.begin(), vDepthIdx.end());
+
+    //        int nPoints = 0;
+    //        for (size_t j = 0; j<vDepthIdx.size(); j++)
+    //        {
+    //            int i = vDepthIdx[j].second;
+
+    //            bool bCreateNew = false;
+
+    //            MapPoint* pMP = mCurrentFrame.mvpMapPoints[i];
+    //            if (!pMP)
+    //                bCreateNew = true;
+    //            else if (pMP->Observations()<1)
+    //            {
+    //                bCreateNew = true;
+    //                mCurrentFrame.mvpMapPoints[i] = static_cast<MapPoint*>(NULL);
+    //            }
+
+    //            if (bCreateNew)
+    //            {
+    //                cv::Mat x3D = mCurrentFrame.UnprojectStereo(i);
+    //                MapPoint* pNewMP = new MapPoint(x3D, pKF, mpMap);
+    //                pNewMP->AddObservation(pKF, i);
+    //                pKF->AddMapPoint(pNewMP, i);
+    //                pNewMP->ComputeDistinctiveDescriptors();
+    //                pNewMP->UpdateNormalAndDepth();
+    //                mpMap->AddMapPoint(pNewMP);
+
+    //                mCurrentFrame.mvpMapPoints[i] = pNewMP;
+    //                nPoints++;
+    //            }
+    //            else
+    //            {
+    //                nPoints++;
+    //            }
+
+    //            if (vDepthIdx[j].first>mThDepth && nPoints>100)
+    //                break;
+    //        }
+    //    }
+    //}
+
+    mpLocalMapper->InsertKeyFrame(pKF);
+
+    mpLocalMapper->SetNotStop(false);
+
+    mnLastKeyFrameId = mCurrentFrame.mnId;
+    mpLastKeyFrame = pKF;
 }
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::Reset()
@@ -1196,4 +1293,14 @@ void SLCVTrackedMapping::UpdateLastFrame()
     //Refer last frame pose to world: Tlw = Tlr * Trw
     //So it seems, that the frames pose does not always refer to world frame...?
     mLastFrame.SetPose(Tlr*pRef->GetPose());
+}
+
+void SLCVTrackedMapping::addKeyFrameToScene(SLCVKeyFrame* kf)
+{
+    //SLCVCamera* cam = kf->getSceneObject();
+    //cam->fov(SLApplication::activeCalib->cameraFovDeg());
+    //cam->focalDist(0.11);
+    //cam->clipNear(0.1);
+    //cam->clipFar(1000.0);
+    //_keyFrames->addChild(cam);
 }

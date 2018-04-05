@@ -76,7 +76,7 @@ class SLCVTrackedMapping : public SLCVTracked
         enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
 
                 SLCVTrackedMapping    (SLNode* node, ORBVocabulary* vocabulary, 
-                    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLNode* mapPC=NULL);
+                    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLNode* mapPC=NULL, SLNode* keyFrames = NULL);
                 ~SLCVTrackedMapping();
 
         SLbool  track               (SLCVMat imageGray,
@@ -87,6 +87,7 @@ class SLCVTrackedMapping : public SLCVTracked
 
         void setState(TrackingStates state) { _currentState = state; }
         int getNMapMatches() { return mnMatchesInliers; }
+        int getNumberOfKeyFrames() { return _map->KeyFramesInMap(); }
         int mapPointsCount() {
             if (_map)
                 return _map->MapPointsInMap();
@@ -94,9 +95,15 @@ class SLCVTrackedMapping : public SLCVTracked
                 return 0;
         }
         void Reset();
+
+        //ghm1: the next tracked frame gets mapped (local mapping, keyframe generation and adding to map)
+        void mapNextFrame() { _mapNextFrame = true; }
+
+        void addKeyFrameToScene(SLCVKeyFrame* kf);
     private:
         // Map initialization for monocular
         void CreateInitialMapMonocular();
+        void CreateNewKeyFrame();
 
         //! initialization routine
         void initialize();
@@ -197,8 +204,11 @@ class SLCVTrackedMapping : public SLCVTracked
         bool _drawKeyFrames = true;
 
         SLNode* _mapPC;
+        SLNode* _keyFrames;
         SLPoints* _mapMesh = NULL;
         SLMaterial* _pcMatRed = NULL;
+
+        bool _mapNextFrame = false;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedMapping_H

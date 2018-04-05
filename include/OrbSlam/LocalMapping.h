@@ -48,7 +48,7 @@ public:
     //void SetTracker(Tracking* pTracker);
 
     // Main function
-    void Run();
+    //void Run();
     //ghm1
     void RunOnce();
 
@@ -56,7 +56,7 @@ public:
 
     // Thread Synch
     void RequestStop();
-    void RequestReset();
+    //void RequestReset();
     bool Stop();
     void Release();
     bool isStopped();
