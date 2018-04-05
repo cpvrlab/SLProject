@@ -95,8 +95,8 @@ void SLCVMap::SetReferenceMapPoints(const vector<SLCVMapPoint*> &vpMPs)
 long unsigned int SLCVMap::KeyFramesInMap()
 {
     //unique_lock<mutex> lock(mMutexMap);
-    //return mspKeyFrames.size();
-    return mpKeyFrameDatabase->keyFrames().size();
+    return mspKeyFrames.size();
+    //return mpKeyFrameDatabase->keyFrames().size();
 }
 //-----------------------------------------------------------------------------
 void SLCVMap::EraseMapPoint(SLCVMapPoint *pMP)
@@ -114,7 +114,13 @@ vector<SLCVMapPoint*> SLCVMap::GetAllMapPoints()
     return vector<SLCVMapPoint*>(mspMapPoints.begin(), mspMapPoints.end());
 }
 //-----------------------------------------------------------------------------
-const std::set<SLCVMapPoint*>& SLCVMap::GetAllMapPointsRef()
+const std::set<SLCVMapPoint*>& SLCVMap::GetAllMapPointsConstRef() const
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    return mspMapPoints;
+}
+//-----------------------------------------------------------------------------
+std::set<SLCVMapPoint*>& SLCVMap::GetAllMapPointsRef()
 {
     //unique_lock<mutex> lock(mMutexMap);
     return mspMapPoints;
@@ -138,4 +144,13 @@ long unsigned int SLCVMap::MapPointsInMap()
 {
     //unique_lock<mutex> lock(mMutexMap);
     return mspMapPoints.size();
+}
+//-----------------------------------------------------------------------------
+void SLCVMap::EraseKeyFrame(SLCVKeyFrame *pKF)
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    mspKeyFrames.erase(pKF);
+
+    // TODO: This only erase the pointer.
+    // Delete the MapPoint
 }

@@ -32,7 +32,7 @@ SLCVSlamStateLoader::~SLCVSlamStateLoader()
 }
 //-----------------------------------------------------------------------------
 //! add map point
-void SLCVSlamStateLoader::load( vector<SLCVMapPoint*>& mapPts, SLCVKeyFrameDB& kfDB )
+void SLCVSlamStateLoader::load( set<SLCVMapPoint*>& mapPts, SLCVKeyFrameDB& kfDB )
 {
     std::vector<SLCVKeyFrame*>& kfs = kfDB.keyFrames();
 
@@ -161,75 +161,76 @@ void SLCVSlamStateLoader::loadKeyFrames(std::vector<SLCVKeyFrame*>& kfs )
     }
 }
 //-----------------------------------------------------------------------------
-void SLCVSlamStateLoader::loadMapPoints(vector<SLCVMapPoint*>& mapPts )
+void SLCVSlamStateLoader::loadMapPoints(set<SLCVMapPoint*>& mapPts )
 {
-    cv::FileNode n = _fs["MapPoints"];
-    if (n.type() != cv::FileNode::SEQ)
-    {
-        cerr << "strings is not a sequence! FAIL" << endl;
-    }
+    //cv::FileNode n = _fs["MapPoints"];
+    //if (n.type() != cv::FileNode::SEQ)
+    //{
+    //    cerr << "strings is not a sequence! FAIL" << endl;
+    //}
 
-    //reserve space in mapPts
-    mapPts.reserve(n.size());
-    //read and add map points
-    for (auto it = n.begin(); it != n.end(); ++it)
-    {
-        SLCVMapPoint* newPt = new SLCVMapPoint;
-        newPt->id( (int)(*it)["id"]);
-        cv::Mat mWorldPos; //has to be here!
-        (*it)["mWorldPos"] >> mWorldPos;
-        //scale pos
-        //mWorldPos += _t;
-        //mWorldPos = _rot.rowRange(0, 3).colRange(0,3) * mWorldPos;
-        //mWorldPos *= _s;
-        newPt->worldPos(mWorldPos);
+    ////reserve space in mapPts
+    ////mapPts.reserve(n.size());
+    ////read and add map points
+    //for (auto it = n.begin(); it != n.end(); ++it)
+    //{
+    //    SLCVMapPoint* newPt = new SLCVMapPoint;
+    //    newPt->id( (int)(*it)["id"]);
+    //    cv::Mat mWorldPos; //has to be here!
+    //    (*it)["mWorldPos"] >> mWorldPos;
+    //    //scale pos
+    //    //mWorldPos += _t;
+    //    //mWorldPos = _rot.rowRange(0, 3).colRange(0,3) * mWorldPos;
+    //    //mWorldPos *= _s;
+    //    newPt->worldPos(mWorldPos);
 
-        //level
-        int level;
-        (*it)["level"] >> level;
-        newPt->level(level);
+    //    //level
+    //    int level;
+    //    (*it)["level"] >> level;
+    //    newPt->level(level);
 
-        //get observing keyframes
-        vector<int> observingKfIds;
-        (*it)["observingKfIds"] >> observingKfIds;
-        //get corresponding keypoint indices in observing keyframe
-        vector<int> corrKpIndices;
-        (*it)["corrKpIndices"] >> corrKpIndices;
+    //    //get observing keyframes
+    //    vector<int> observingKfIds;
+    //    (*it)["observingKfIds"] >> observingKfIds;
+    //    //get corresponding keypoint indices in observing keyframe
+    //    vector<int> corrKpIndices;
+    //    (*it)["corrKpIndices"] >> corrKpIndices;
 
-        mapPts.push_back(newPt);
+    //    //mapPts.push_back(newPt);
+    //    mapPts.insert(newPt);
 
-        //get reference keyframe id
-        int refKfId = (int)(*it)["refKfId"];
+    //    //get reference keyframe id
+    //    int refKfId = (int)(*it)["refKfId"];
 
-        //find and add pointers of observing keyframes to map point
-        {
-            SLCVMapPoint* mapPt = mapPts.back();
-            for (int i=0; i<observingKfIds.size(); ++i)
-            {
-                const int kfId = observingKfIds[i];
-                if (_kfsMap.find(kfId) != _kfsMap.end()) {
-                    SLCVKeyFrame* kf = _kfsMap[kfId];
-                    mapPt->AddObservation(kf, corrKpIndices[i]);
-                    kf->AddMapPoint(mapPt, corrKpIndices[i]);
-                }
-                else {
-                    cout << "keyframe with id " << i << " not found!";
-                }
-            }
+    //    //find and add pointers of observing keyframes to map point
+    //    {
+    //        SLCVMapPoint* mapPt = mapPts.back();
+    //        for (int i=0; i<observingKfIds.size(); ++i)
+    //        {
+    //            const int kfId = observingKfIds[i];
+    //            if (_kfsMap.find(kfId) != _kfsMap.end()) {
+    //                SLCVKeyFrame* kf = _kfsMap[kfId];
+    //                mapPt->AddObservation(kf, corrKpIndices[i]);
+    //                kf->AddMapPoint(mapPt, corrKpIndices[i]);
+    //            }
+    //            else {
+    //                cout << "keyframe with id " << i << " not found!";
+    //            }
+    //        }
 
-            //map reference key frame pointer
-            if (_kfsMap.find(refKfId) != _kfsMap.end())
-                mapPt->refKf(_kfsMap[refKfId]);
-            else {
-                cout << "no reference keyframe found!" << endl;
-                if (observingKfIds.size()) {
-                    //we use the first of the observing keyframes
-                    int kfId = observingKfIds[0];
-                    if (_kfsMap.find(kfId) != _kfsMap.end())
-                        mapPt->refKf(_kfsMap[kfId]);
-                }
-            }
-        }
-    }
+    //        //map reference key frame pointer
+    //        if (_kfsMap.find(refKfId) != _kfsMap.end())
+    //            mapPt->refKf(_kfsMap[refKfId]);
+    //        else {
+    //            cout << "no reference keyframe found!" << endl;
+    //            if (observingKfIds.size()) {
+    //                //we use the first of the observing keyframes
+    //                int kfId = observingKfIds[0];
+    //                if (_kfsMap.find(kfId) != _kfsMap.end())
+    //                    mapPt->refKf(_kfsMap[kfId]);
+    //            }
+    //        }
+    //    }
+    //}
 }
 //-----------------------------------------------------------------------------

@@ -22,8 +22,10 @@ for a good top down information.
 #include <SLSceneView.h>
 #include <SLPoints.h>
 #include <SLCVTrackedMapping.h>
-#include <OrbSlam/Initializer.h>
 #include <SLCVKeyFrameDB.h>
+#include <OrbSlam/Initializer.h>
+#include <OrbSlam/LocalMapping.h>
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/utility.hpp>
 #include <opencv2/highgui.hpp>
@@ -53,6 +55,17 @@ SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node, ORBVocabulary* vocabulary,
     _extractor = new ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
     mpIniORBextractor = new ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
 
+    mpLocalMapper = new LocalMapping(map, 1, vocabulary);
+}
+//-----------------------------------------------------------------------------
+SLCVTrackedMapping::~SLCVTrackedMapping()
+{
+    if (_extractor)
+        delete _extractor;
+    if (mpIniORBextractor)
+        delete mpIniORBextractor;
+    if (mpLocalMapper)
+        delete mpLocalMapper;
 }
 //-----------------------------------------------------------------------------
 SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
@@ -492,8 +505,8 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
         }
     }
 
-    //mpLocalMapper->InsertKeyFrame(pKFini);
-    //mpLocalMapper->InsertKeyFrame(pKFcur);
+    mpLocalMapper->InsertKeyFrame(pKFini);
+    mpLocalMapper->InsertKeyFrame(pKFcur);
 
     mCurrentFrame.SetPose(pKFcur->GetPose());
     mnLastKeyFrameId = mCurrentFrame.mnId;
@@ -517,6 +530,13 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
     mState = OK;
 
     _currentState = TRACK_3DPTS;
+
+    //ghm1: run local mapping once
+    mpLocalMapper->RunOnce();
+    mpLocalMapper->RunOnce();
+    // Bundle Adjustment
+    cout << "Number of Map points after local mapping: " << _map->MapPointsInMap() << endl;
+
 }
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::Reset()
@@ -535,10 +555,11 @@ void SLCVTrackedMapping::Reset()
 //        }
 //    }
 
-    //// Reset Local Mapping
-    //cout << "Reseting Local Mapper...";
+    // Reset Local Mapping
+    cout << "Reseting Local Mapper...";
     //mpLocalMapper->RequestReset();
-    //cout << " done" << endl;
+    mpLocalMapper->reset();
+    cout << " done" << endl;
 
     //// Reset Loop Closing
     //cout << "Reseting Loop Closing...";
@@ -593,7 +614,7 @@ void SLCVTrackedMapping::decorate()
 
         //add new (current) points
         SLVVec3f points, normals;
-        const auto& mpts = _map->GetAllMapPointsRef();
+        const auto& mpts = _map->GetAllMapPointsConstRef();
         for (const auto& mpt : mpts) {
             points.push_back(mpt->worldPosVec());
             normals.push_back(mpt->normalVec());

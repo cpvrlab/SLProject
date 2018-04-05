@@ -2386,7 +2386,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //load map points and keyframes from json file
         SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
-        loader.load(map->mapPoints(), *kfDB);
+        loader.load(map->GetAllMapPointsRef(), *kfDB);
 
         SLLightSpot* light1 = new SLLightSpot(100, 100, 100, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
@@ -2567,7 +2567,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //load map points and keyframes from json file
         SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
-        loader.load(map->mapPoints(), *kfDB);
+        loader.load(map->GetAllMapPointsRef(), *kfDB);
 
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
@@ -2715,7 +2715,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //load map points and keyframes from json file
         SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
-        loader.load(map->mapPoints(), *kfDB);
+        loader.load(map->GetAllMapPointsRef(), *kfDB);
 
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));

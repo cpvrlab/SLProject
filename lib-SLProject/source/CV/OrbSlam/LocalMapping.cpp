@@ -122,6 +122,41 @@ void LocalMapping::Run()
     SetFinish();
 }
 
+void LocalMapping::RunOnce()
+{
+    // Check if there are keyframes in the queue
+    if (CheckNewKeyFrames())
+    {
+        // BoW conversion and insertion in Map
+        ProcessNewKeyFrame();
+
+        // Check recent MapPoints
+        MapPointCulling();
+
+        // Triangulate new MapPoints
+        CreateNewMapPoints();
+
+        if (!CheckNewKeyFrames())
+        {
+            // Find more matches in neighbor keyframes and fuse point duplications
+            SearchInNeighbors();
+        }
+
+        mbAbortBA = false;
+
+        if (!CheckNewKeyFrames())
+        {
+            // Local BA
+            //if(mpMap->KeyFramesInMap()>2)
+            if (mpMap->KeyFramesInMap() > 2)
+                Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame, &mbAbortBA, mpMap);
+
+            // Check redundant local Keyframes
+            KeyFrameCulling();
+        }
+    }
+}
+
 void LocalMapping::InsertKeyFrame(SLCVKeyFrame *pKF)
 {
     //unique_lock<mutex> lock(mMutexNewKFs);
@@ -669,11 +704,11 @@ void LocalMapping::KeyFrameCulling()
             {
                 if(!pMP->isBad())
                 {
-                    if(!mbMonocular)
-                    {
-                        if(pKF->mvDepth[i]>pKF->mThDepth || pKF->mvDepth[i]<0)
-                            continue;
-                    }
+                    //if(!mbMonocular)
+                    //{
+                    //    if(pKF->mvDepth[i]>pKF->mThDepth || pKF->mvDepth[i]<0)
+                    //        continue;
+                    //}
 
                     nMPs++;
                     if(pMP->Observations()>thObs)
@@ -747,6 +782,14 @@ void LocalMapping::ResetIfRequested()
         mlpRecentAddedMapPoints.clear();
         mbResetRequested=false;
     }
+}
+
+//ghm1
+void LocalMapping::reset()
+{
+    mlNewKeyFrames.clear();
+    mlpRecentAddedMapPoints.clear();
+    mbResetRequested = false;
 }
 
 void LocalMapping::RequestFinish()

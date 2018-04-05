@@ -20,7 +20,8 @@ long unsigned int SLCVKeyFrame::nNextId = 0;
 SLCVKeyFrame::SLCVKeyFrame(size_t N)
     : mnFrameId(0), mTimeStamp(0), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
     mfGridElementWidthInv(0), mfGridElementHeightInv(0), fx(0), fy(0), cx(0), cy(0), invfx(0), invfy(0),
-    mnBALocalForKF(0), mnBAFixedForKF(0)
+    mnBALocalForKF(0), mnBAFixedForKF(0), mnMinX(0), mnMinY(0), mnMaxX(0), mnMaxY(0), mbNotErase(false),
+    mbToBeErased(false), mbBad(false)
 {
     mvpMapPoints = vector<SLCVMapPoint*>(N, static_cast<SLCVMapPoint*>(NULL));
 }
@@ -36,9 +37,9 @@ SLCVKeyFrame::SLCVKeyFrame(SLCVFrame &F, SLCVMap* pMap, SLCVKeyFrameDB* pKFDB, b
     mBowVec(F.mBowVec), mFeatVec(F.mFeatVec), mnScaleLevels(F.mnScaleLevels), mfScaleFactor(F.mfScaleFactor),
     mfLogScaleFactor(F.mfLogScaleFactor), mvScaleFactors(F.mvScaleFactors), mvLevelSigma2(F.mvLevelSigma2),
     mvInvLevelSigma2(F.mvInvLevelSigma2), mnMinX(F.mnMinX), mnMinY(F.mnMinY), mnMaxX(F.mnMaxX),
-    mnMaxY(F.mnMaxY), /*mK(F.mK),*/ mvpMapPoints(F.mvpMapPoints), _kfDb(pKFDB),
-    /*mpORBvocabulary(F.mpORBvocabulary),*/ mbFirstConnection(true), mpParent(NULL) /*mbNotErase(false),
-    mbToBeErased(false), mbBad(false), mHalfBaseline(F.mb / 2), mpMap(pMap)*/
+    mnMaxY(F.mnMaxY), mK(F.mK), mvpMapPoints(F.mvpMapPoints), _kfDb(pKFDB),
+    /*mpORBvocabulary(F.mpORBvocabulary),*/ mbFirstConnection(true), mpParent(NULL), mbNotErase(false),
+    mbToBeErased(false), mbBad(false)/*, mHalfBaseline(F.mb / 2)*/, mpMap(pMap)
 {
     _id = nNextId++;
 
@@ -64,6 +65,106 @@ SLCVKeyFrame::~SLCVKeyFrame()
 SLCVKeyFrameDB* SLCVKeyFrame::getKeyFrameDB()
 {
     return _kfDb;
+}
+//-----------------------------------------------------------------------------
+bool SLCVKeyFrame::isBad()
+{
+    //unique_lock<mutex> lock(mMutexConnections);
+    return mbBad;
+}
+//-----------------------------------------------------------------------------
+void SLCVKeyFrame::SetBadFlag()
+{
+    {
+        //unique_lock<mutex> lock(mMutexConnections);
+        if (_id == 0)
+            return;
+        else if (mbNotErase)
+        {
+            mbToBeErased = true;
+            return;
+        }
+    }
+
+    for (map<SLCVKeyFrame*, int>::iterator mit = mConnectedKeyFrameWeights.begin(), mend = mConnectedKeyFrameWeights.end(); mit != mend; mit++)
+        mit->first->EraseConnection(this);
+
+    for (size_t i = 0; i<mvpMapPoints.size(); i++)
+        if (mvpMapPoints[i])
+            mvpMapPoints[i]->EraseObservation(this);
+    {
+        //unique_lock<mutex> lock(mMutexConnections);
+        //unique_lock<mutex> lock1(mMutexFeatures);
+
+        mConnectedKeyFrameWeights.clear();
+        mvpOrderedConnectedKeyFrames.clear();
+
+        // Update Spanning Tree
+        set<SLCVKeyFrame*> sParentCandidates;
+        sParentCandidates.insert(mpParent);
+
+        // Assign at each iteration one children with a parent (the pair with highest covisibility weight)
+        // Include that children as new parent candidate for the rest
+        while (!mspChildrens.empty())
+        {
+            bool bContinue = false;
+
+            int max = -1;
+            SLCVKeyFrame* pC;
+            SLCVKeyFrame* pP;
+
+            for (set<SLCVKeyFrame*>::iterator sit = mspChildrens.begin(), send = mspChildrens.end(); sit != send; sit++)
+            {
+                SLCVKeyFrame* pKF = *sit;
+                if (pKF->isBad())
+                    continue;
+
+                // Check if a parent candidate is connected to the keyframe
+                vector<SLCVKeyFrame*> vpConnected = pKF->GetVectorCovisibleKeyFrames();
+                for (size_t i = 0, iend = vpConnected.size(); i<iend; i++)
+                {
+                    for (set<SLCVKeyFrame*>::iterator spcit = sParentCandidates.begin(), spcend = sParentCandidates.end(); spcit != spcend; spcit++)
+                    {
+                        if (vpConnected[i]->id() == (*spcit)->id())
+                        {
+                            int w = pKF->GetWeight(vpConnected[i]);
+                            if (w>max)
+                            {
+                                pC = pKF;
+                                pP = vpConnected[i];
+                                max = w;
+                                bContinue = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (bContinue)
+            {
+                pC->ChangeParent(pP);
+                sParentCandidates.insert(pC);
+                mspChildrens.erase(pC);
+            }
+            else
+                break;
+        }
+
+        // If a children has no covisibility links with any parent candidate, assign to the original parent of this KF
+        if (!mspChildrens.empty())
+            for (set<SLCVKeyFrame*>::iterator sit = mspChildrens.begin(); sit != mspChildrens.end(); sit++)
+            {
+                (*sit)->ChangeParent(mpParent);
+            }
+
+        mpParent->EraseChild(this);
+        mTcp = _Tcw*mpParent->GetPoseInverse();
+        mbBad = true;
+    }
+
+    //ghm1: map pointer is only used to erase key frames here
+    mpMap->EraseKeyFrame(this);
+    _kfDb->erase(this);
 }
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::setKeyFrameDB(SLCVKeyFrameDB* kfDb)
@@ -365,4 +466,88 @@ SLCVMapPoint* SLCVKeyFrame::GetMapPoint(const size_t &idx)
 bool SLCVKeyFrame::IsInImage(const float &x, const float &y) const
 {
     return (x >= mnMinX && x<mnMaxX && y >= mnMinY && y<mnMaxY);
+}
+//-----------------------------------------------------------------------------
+vector<size_t> SLCVKeyFrame::GetFeaturesInArea(const float &x, const float &y, const float &r) const
+{
+    vector<size_t> vIndices;
+    vIndices.reserve(N);
+
+    const int nMinCellX = max(0, (int)floor((x - mnMinX - r)*mfGridElementWidthInv));
+    if (nMinCellX >= mnGridCols)
+        return vIndices;
+
+    const int nMaxCellX = min((int)mnGridCols - 1, (int)ceil((x - mnMinX + r)*mfGridElementWidthInv));
+    if (nMaxCellX<0)
+        return vIndices;
+
+    const int nMinCellY = max(0, (int)floor((y - mnMinY - r)*mfGridElementHeightInv));
+    if (nMinCellY >= mnGridRows)
+        return vIndices;
+
+    const int nMaxCellY = min((int)mnGridRows - 1, (int)ceil((y - mnMinY + r)*mfGridElementHeightInv));
+    if (nMaxCellY<0)
+        return vIndices;
+
+    for (int ix = nMinCellX; ix <= nMaxCellX; ix++)
+    {
+        for (int iy = nMinCellY; iy <= nMaxCellY; iy++)
+        {
+            const vector<size_t> vCell = mGrid[ix][iy];
+            for (size_t j = 0, jend = vCell.size(); j<jend; j++)
+            {
+                const cv::KeyPoint &kpUn = mvKeysUn[vCell[j]];
+                const float distx = kpUn.pt.x - x;
+                const float disty = kpUn.pt.y - y;
+
+                if (fabs(distx)<r && fabs(disty)<r)
+                    vIndices.push_back(vCell[j]);
+            }
+        }
+    }
+
+    return vIndices;
+}
+//-----------------------------------------------------------------------------
+void SLCVKeyFrame::ReplaceMapPointMatch(const size_t &idx, SLCVMapPoint* pMP)
+{
+    mvpMapPoints[idx] = pMP;
+}
+//-----------------------------------------------------------------------------
+void SLCVKeyFrame::EraseConnection(SLCVKeyFrame* pKF)
+{
+    bool bUpdate = false;
+    {
+        //unique_lock<mutex> lock(mMutexConnections);
+        if (mConnectedKeyFrameWeights.count(pKF))
+        {
+            mConnectedKeyFrameWeights.erase(pKF);
+            bUpdate = true;
+        }
+    }
+
+    if (bUpdate)
+        UpdateBestCovisibles();
+}
+//-----------------------------------------------------------------------------
+int SLCVKeyFrame::GetWeight(SLCVKeyFrame *pKF)
+{
+    //unique_lock<mutex> lock(mMutexConnections);
+    if (mConnectedKeyFrameWeights.count(pKF))
+        return mConnectedKeyFrameWeights[pKF];
+    else
+        return 0;
+}
+//-----------------------------------------------------------------------------
+void SLCVKeyFrame::ChangeParent(SLCVKeyFrame *pKF)
+{
+    //unique_lock<mutex> lockCon(mMutexConnections);
+    mpParent = pKF;
+    pKF->AddChild(this);
+}
+//-----------------------------------------------------------------------------
+void SLCVKeyFrame::EraseChild(SLCVKeyFrame *pKF)
+{
+    //unique_lock<mutex> lockCon(mMutexConnections);
+    mspChildrens.erase(pKF);
 }

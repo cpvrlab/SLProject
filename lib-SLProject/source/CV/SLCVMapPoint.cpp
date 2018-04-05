@@ -21,7 +21,7 @@ SLCVMapPoint::SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF, SLCVMap* pM
     mnFirstKFid(pRefKF->id()), /* mnFirstFrame(pRefKF->mnFrameId), */_nObs(0), mnTrackReferenceForFrame(0),
     mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), /*mnLoopPointForKF(0), mnCorrectedByKF(0),
     mnCorrectedReference(0),*/ mnBAGlobalForKF(0), mpRefKF(pRefKF), mnVisible(1), mnFound(1), mbBad(false),
-    /*mpReplaced(static_cast<MapPoint*>(NULL)),*/ mfMinDistance(0), mfMaxDistance(0), mpMap(pMap)
+    mpReplaced(static_cast<SLCVMapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0), mpMap(pMap)
 {
     worldPos(Pos);
     //Pos.copyTo(mWorldPos);
@@ -285,7 +285,7 @@ void SLCVMapPoint::ComputeDistinctiveDescriptors()
     }
 
     //free Distances
-#ifdef WINDOWS
+#ifdef _WINDOWS
     for (size_t i = 0; i < N; ++i)
         delete Distances[i];
     delete Distances;
@@ -301,4 +301,44 @@ float SLCVMapPoint::GetFoundRatio()
 {
     //unique_lock<mutex> lock(mMutexFeatures);
     return static_cast<float>(mnFound) / mnVisible;
+}
+//-----------------------------------------------------------------------------
+void SLCVMapPoint::Replace(SLCVMapPoint* pMP)
+{
+    if (pMP->id() == this->id())
+        return;
+
+    int nvisible, nfound;
+    map<SLCVKeyFrame*, size_t> obs;
+    {
+        //unique_lock<mutex> lock1(mMutexFeatures);
+        //unique_lock<mutex> lock2(mMutexPos);
+        obs = mObservations;
+        mObservations.clear();
+        mbBad = true;
+        nvisible = mnVisible;
+        nfound = mnFound;
+        mpReplaced = pMP;
+    }
+
+    for (map<SLCVKeyFrame*, size_t>::iterator mit = obs.begin(), mend = obs.end(); mit != mend; mit++)
+    {
+        // Replace measurement in keyframe
+        SLCVKeyFrame* pKF = mit->first;
+
+        if (!pMP->IsInKeyFrame(pKF))
+        {
+            pKF->ReplaceMapPointMatch(mit->second, pMP);
+            pMP->AddObservation(pKF, mit->second);
+        }
+        else
+        {
+            pKF->EraseMapPointMatch(mit->second);
+        }
+    }
+    pMP->IncreaseFound(nfound);
+    pMP->IncreaseVisible(nvisible);
+    pMP->ComputeDistinctiveDescriptors();
+
+    mpMap->EraseMapPoint(this);
 }

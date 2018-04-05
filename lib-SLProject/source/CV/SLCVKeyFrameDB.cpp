@@ -19,10 +19,10 @@ SLCVKeyFrameDB::SLCVKeyFrameDB(const ORBVocabulary &voc) :
 //-----------------------------------------------------------------------------
 SLCVKeyFrameDB::~SLCVKeyFrameDB()
 {
-    for (SLCVKeyFrame* kf : _keyFrames) {
-        if (kf) 
-            delete kf;
-    }
+    //for (SLCVKeyFrame* kf : _keyFrames) {
+    //    if (kf) 
+    //        delete kf;
+    //}
 }
 //-----------------------------------------------------------------------------
 void SLCVKeyFrameDB::add(SLCVKeyFrame* pKF)
@@ -39,15 +39,36 @@ void SLCVKeyFrameDB::add(SLCVKeyFrame* pKF)
     _keyFrames.push_back(pKF);
 }
 //-----------------------------------------------------------------------------
+void SLCVKeyFrameDB::erase(SLCVKeyFrame* pKF)
+{
+    //unique_lock<mutex> lock(mMutex);
+
+    // Erase elements in the Inverse File for the entry
+    for (DBoW2::BowVector::const_iterator vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
+    {
+        // List of keyframes that share the word
+        list<SLCVKeyFrame*> &lKFs = mvInvertedFile[vit->first];
+
+        for (list<SLCVKeyFrame*>::iterator lit = lKFs.begin(), lend = lKFs.end(); lit != lend; lit++)
+        {
+            if (pKF == *lit)
+            {
+                lKFs.erase(lit);
+                break;
+            }
+        }
+    }
+}
+//-----------------------------------------------------------------------------
 void SLCVKeyFrameDB::clear()
 {
     mvInvertedFile.clear();
     mvInvertedFile.resize(mpVoc->size());
 
-    for (SLCVKeyFrame* kf : _keyFrames) {
-        if (kf)
-            delete kf;
-    }
+    //for (SLCVKeyFrame* kf : _keyFrames) {
+    //    if (kf)
+    //        delete kf;
+    //}
     _keyFrames.clear();
 }
 //-----------------------------------------------------------------------------

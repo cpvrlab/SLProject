@@ -96,6 +96,8 @@ public:
 
     long int mnFirstKFid;
 
+    void Replace(SLCVMapPoint* pMP);
+
 private:
     int _id=-1;
     static long unsigned int nNextId;
@@ -114,6 +116,7 @@ private:
 
     // Bad flag (we do not currently erase MapPoint from memory)
     bool mbBad=false;
+    SLCVMapPoint* mpReplaced;
 
     // Scale invariance distances
     float mfMinDistance = 0.f;

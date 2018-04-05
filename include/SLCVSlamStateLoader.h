@@ -31,13 +31,13 @@ public:
     SLCVSlamStateLoader(const string& filename, ORBVocabulary* orbVoc, bool loadKfImgs=true);
     ~SLCVSlamStateLoader();
     //! execute loading procedure
-    void load(vector<SLCVMapPoint*>& mapPts, SLCVKeyFrameDB& kfDB);
+    void load(set<SLCVMapPoint*>& mapPts, SLCVKeyFrameDB& kfDB);
 
 protected:
     
 private:
     void loadKeyFrames(std::vector<SLCVKeyFrame*>& kfs );
-    void loadMapPoints(vector<SLCVMapPoint*>& mapPts );
+    void loadMapPoints(set<SLCVMapPoint*>& mapPts );
 
     cv::FileStorage _fs;
     ORBVocabulary* _orbVoc;

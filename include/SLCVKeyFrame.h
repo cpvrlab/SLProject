@@ -77,18 +77,24 @@ public:
 
     // Covisibility graph functions
     vector<SLCVKeyFrame*> GetBestCovisibilityKeyFrames(const int &N);
+    void EraseConnection(SLCVKeyFrame* pKF);
+    int GetWeight(SLCVKeyFrame* pKF);
 
     // MapPoint observation functions
     void AddMapPoint(SLCVMapPoint* pMP, size_t idx);
     void EraseMapPointMatch(SLCVMapPoint* pMP);
     void EraseMapPointMatch(const size_t &idx);
     SLCVMapPoint* GetMapPoint(const size_t &idx);
+    void ReplaceMapPointMatch(const size_t &idx, SLCVMapPoint* pMP);
 
     std::vector<SLCVKeyFrame* > GetVectorCovisibleKeyFrames();
 
     //BoW
     DBoW2::BowVector mBowVec;
     DBoW2::FeatureVector mFeatVec;
+
+    // Pose relative to parent (this is computed when bad flag is activated)
+    cv::Mat mTcp;
 
     // Bag of Words Representation
     void ComputeBoW(ORBVocabulary* orbVocabulary);
@@ -100,10 +106,17 @@ public:
 
     // Spanning tree functions
     void AddChild(SLCVKeyFrame* pKF);
+    void EraseChild(SLCVKeyFrame* pKF);
     std::set<SLCVKeyFrame*> GetChilds() { return mspChildrens; }
     SLCVKeyFrame* GetParent() { return mpParent; }
+    void ChangeParent(SLCVKeyFrame* pKF);
 
-    bool isBad() { return false; }
+    // Set/check bad flag
+    void SetBadFlag();
+    bool isBad();
+
+    // KeyPoint functions
+    std::vector<size_t> GetFeaturesInArea(const float &x, const float  &y, const float  &r) const;
 
     // Image
     bool IsInImage(const float &x, const float &y) const;
@@ -135,6 +148,7 @@ public:
     const int mnMinY;
     const int mnMaxX;
     const int mnMaxY;
+    const cv::Mat mK;
 
     //original image
     cv::Mat imgGray;
@@ -218,6 +232,13 @@ private:
 
     //path to background texture image
     string _pathToTexture;
+
+    // Bad flags
+    bool mbNotErase;
+    bool mbToBeErased;
+    bool mbBad;
+
+    SLCVMap* mpMap;
 };
 
 //typedef std::vector<SLCVKeyFrame*> SLCVVKeyFrame;

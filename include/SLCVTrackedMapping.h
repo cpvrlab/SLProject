@@ -26,6 +26,7 @@ for a good top down information.
 
 namespace ORB_SLAM2 {
     class Initializer;
+    class LocalMapping;
 }
 
 //-----------------------------------------------------------------------------
@@ -76,7 +77,7 @@ class SLCVTrackedMapping : public SLCVTracked
 
                 SLCVTrackedMapping    (SLNode* node, ORBVocabulary* vocabulary, 
                     SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLNode* mapPC=NULL);
-               ~SLCVTrackedMapping    () {}
+                ~SLCVTrackedMapping();
 
         SLbool  track               (SLCVMat imageGray,
                                      SLCVMat imageRgb,
@@ -160,6 +161,8 @@ class SLCVTrackedMapping : public SLCVTracked
         // In that case we are doing visual odometry. The system will try to do relocalization to recover
         // "zero-drift" localization to the map.
         bool mbVO = false;
+
+        LocalMapping* mpLocalMapper = NULL;
 
         //Local Map 
         //(maybe always the last inserted keyframe?)

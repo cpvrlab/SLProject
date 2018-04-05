@@ -34,7 +34,8 @@ public:
     //! get reference to map points vector
     //std::vector<SLCVMapPoint*>& mapPoints() { return _mapPoints; }
     std::vector<SLCVMapPoint*> GetAllMapPoints();
-    const std::set<SLCVMapPoint*>& GetAllMapPointsRef();
+    const std::set<SLCVMapPoint*>& GetAllMapPointsConstRef() const;
+    std::set<SLCVMapPoint*>& GetAllMapPointsRef();
     void AddMapPoint(SLCVMapPoint *pMP);
     SLCVKeyFrameDB* getKeyFrameDB() { return mpKeyFrameDatabase; }
     void AddKeyFrame(SLCVKeyFrame* pKF);
@@ -51,6 +52,7 @@ public:
     long unsigned int KeyFramesInMap();
 
     void EraseMapPoint(SLCVMapPoint *pMP);
+    void EraseKeyFrame(SLCVKeyFrame* pKF);
 
     vector<SLCVKeyFrame*> mvpKeyFrameOrigins;
 private:

@@ -49,6 +49,8 @@ public:
 
     // Main function
     void Run();
+    //ghm1
+    void RunOnce();
 
     void InsertKeyFrame(SLCVKeyFrame* pKF);
 
@@ -62,6 +64,8 @@ public:
     bool AcceptKeyFrames();
     void SetAcceptKeyFrames(bool flag);
     bool SetNotStop(bool flag);
+    //ghm1
+    void reset();
 
     void InterruptBA();
 

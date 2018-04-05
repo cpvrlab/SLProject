@@ -28,6 +28,7 @@ public:
     std::vector<SLCVKeyFrame*>& keyFrames() { return _keyFrames; }
 
     void add(SLCVKeyFrame* pKF);
+    void erase(SLCVKeyFrame* pKF);
 
     void clear();
 
