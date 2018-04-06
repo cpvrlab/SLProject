@@ -45,7 +45,6 @@ SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node, ORBVocabulary* vocabulary,
     _mapPC(mapPC),
     _keyFrames(keyFrames)
 {
-
     int nFeatures = 1000;
     float fScaleFactor = 1.2;
     int nLevels = 8;
@@ -55,7 +54,7 @@ SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node, ORBVocabulary* vocabulary,
     //instantiate Orb extractor
     _extractor = new ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
     mpIniORBextractor = new ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
-
+    //instantiate local mapping
     mpLocalMapper = new LocalMapping(map, 1, vocabulary);
 }
 //-----------------------------------------------------------------------------
@@ -82,6 +81,7 @@ SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
     double timestamp = 0.0; //todo
     if (_currentState != IDLE) {
 
+        //we use different extractors for initialization and tracking
         if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET) {
             mCurrentFrame = SLCVFrame(imageGray, timestamp, mpIniORBextractor,
                 calib->cameraMat(), calib->distortion(), mpVocabulary);
