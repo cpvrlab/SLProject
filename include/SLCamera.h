@@ -11,7 +11,7 @@
 #ifndef SLCAMERA_H
 #define SLCAMERA_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLEnums.h>
 #include <SLNode.h>
 #include <SLGLState.h>

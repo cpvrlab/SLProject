@@ -12,7 +12,7 @@
 #ifndef SLINPUTEVENT_H
 #define SLINPUTEVENT_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLEnums.h>
 
 

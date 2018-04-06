@@ -12,7 +12,7 @@
 #ifndef SLGLSHADER_H
 #define SLGLSHADER_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLEnums.h>
 
 //-----------------------------------------------------------------------------

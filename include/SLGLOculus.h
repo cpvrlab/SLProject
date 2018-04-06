@@ -12,7 +12,7 @@
 #ifndef SLOCULUS_H
 #define SLOCULUS_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLCamera.h>
 
 //-----------------------------------------------------------------------------

@@ -8,10 +8,11 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
-
 #ifndef SLFILESYSTEM_H
 #define SLFILESYSTEM_H
+
+//#include <stdafx.h>
+#include <SL.h>
 
 //-----------------------------------------------------------------------------
 //! SLFileSystem provides basic filesystem functions

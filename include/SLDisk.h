@@ -11,7 +11,7 @@
 #ifndef SLDISK_h
 #define SLDISK_h
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLRevolver.h>
 
 //-----------------------------------------------------------------------------

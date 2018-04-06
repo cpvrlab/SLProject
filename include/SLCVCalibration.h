@@ -20,7 +20,7 @@ See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLCV.h>
 #include <SLCVCalibration.h>
 using namespace std;

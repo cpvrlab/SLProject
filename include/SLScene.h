@@ -11,25 +11,38 @@
 #ifndef SLSCENE_H
 #define SLSCENE_H
 
-#include <stdafx.h>
-#include <SLMaterial.h>
-#include <SLEventHandler.h>
+//#include <stdafx.h>
+//#include <SLMaterial.h>
+//#include <SLEventHandler.h>
+//#include <SLLight.h>
+//#include <SLNode.h>
+//#include <SLSkeleton.h>
+//#include <SLGLOculus.h>
+//#include <SLAnimManager.h>
+//#include <SLAverage.h>
+//#include <SLCVCalibration.h>
+//#include <SLDeviceRotation.h>
+//#include <SLDeviceLocation.h>
+
+#include <vector>
+#include <SL.h>
+#include <SLVec3.h>
+#include <SLVec4.h>
 #include <SLLight.h>
-#include <SLNode.h>
-#include <SLSkeleton.h>
+#include <SLAverage.h>
+#include <SLMaterial.h>
+#include <SLMesh.h>
+#include <SLEventHandler.h>
 #include <SLGLOculus.h>
 #include <SLAnimManager.h>
-#include <SLAverage.h>
-#include <SLCVCalibration.h>
-#include <SLDeviceRotation.h>
-#include <SLDeviceLocation.h>
 
 class SLSceneView;
 class SLCVTracked;
+class SLCamera;
 
 //-----------------------------------------------------------------------------
-typedef vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
-typedef vector<SLCVTracked*> SLVCVTracker; //!< Vector of CV tracker pointers
+typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
+typedef std::vector<SLCVTracked*> SLVCVTracker; //!< Vector of CV tracker pointers
 //-----------------------------------------------------------------------------
 //! C-Callback function typedef for scene load function
 typedef void(SL_STDCALL *cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint sceneID);

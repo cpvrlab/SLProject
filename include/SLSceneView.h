@@ -11,7 +11,7 @@
 #ifndef SLSCENEVIEW_H
 #define SLSCENEVIEW_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 
 #include <SLScene.h>
 #include <SLNode.h>

@@ -12,7 +12,7 @@
 #ifndef SLOVRWORKAROUND_H
 #define SLOVRWORKAROUND_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLApplication.h>
 #include <SLScene.h>
 #include <SLGLOculus.h>

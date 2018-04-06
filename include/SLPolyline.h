@@ -11,7 +11,7 @@
 #ifndef SLPOLYLINE_H
 #define SLPOLYLINE_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLMesh.h>
 
 //-----------------------------------------------------------------------------

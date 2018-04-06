@@ -12,7 +12,7 @@
 #ifndef SLGLSTATE_H
 #define SLGLSTATE_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLStack.h>
 
 //-----------------------------------------------------------------------------

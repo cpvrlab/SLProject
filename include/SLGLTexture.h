@@ -11,7 +11,7 @@
 #ifndef SLGLTEXTURE_H
 #define SLGLTEXTURE_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLCVImage.h>
 #include <SLGLVertexArray.h>
 

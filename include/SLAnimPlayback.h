@@ -11,7 +11,7 @@
 #ifndef SLANIMPLAYBACK_h
 #define SLANIMPLAYBACK_h
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLEnums.h>
 
 class SLAnimation;

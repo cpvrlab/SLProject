@@ -11,7 +11,7 @@
 #ifndef SLMESH_H
 #define SLMESH_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLAABBox.h>
 #include <SLGLVertexArray.h>
 #include <SLEnums.h>

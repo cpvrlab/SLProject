@@ -11,7 +11,7 @@
 #ifndef SLANIMTRACK_h
 #define SLANIMTRACK_h
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLEnums.h>
 #include <SLKeyframe.h>
 

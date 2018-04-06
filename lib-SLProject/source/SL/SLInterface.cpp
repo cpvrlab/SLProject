@@ -17,6 +17,7 @@
 #include <SLAssimpImporter.h>
 #include <SLInputManager.h>
 #include <SLCVCapture.h>
+#include <SLCVCalibration.h>
 //#include <SLDemoGui.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.

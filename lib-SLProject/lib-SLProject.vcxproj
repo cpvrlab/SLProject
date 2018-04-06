@@ -342,6 +342,7 @@
     <ClInclude Include="..\include\SLTimer.h" />
     <ClInclude Include="..\include\SLTransferFunction.h" />
     <ClInclude Include="..\include\SLTriangle.h" />
+    <ClInclude Include="..\include\SLStdTypes.h" />
     <ClInclude Include="..\include\SLUtils.h" />
     <ClInclude Include="..\include\SLVec2.h" />
     <ClInclude Include="..\include\SLVec3.h" />
@@ -452,6 +453,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

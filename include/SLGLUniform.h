@@ -10,7 +10,7 @@
 #ifndef SLGLUNIFORM_H
 #define SLGLUNIFORM_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLEventHandler.h>
 
 //-----------------------------------------------------------------------------

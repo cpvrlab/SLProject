@@ -11,7 +11,7 @@
 #ifndef SLNODE_H
 #define SLNODE_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLEnums.h>
 #include <SLMesh.h>
 #include <SLNode.h>

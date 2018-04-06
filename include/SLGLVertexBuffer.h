@@ -12,7 +12,7 @@
 #ifndef SLGLVERTEXBUFFER_H
 #define SLGLVERTEXBUFFER_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLGLEnums.h>
 
 //-----------------------------------------------------------------------------

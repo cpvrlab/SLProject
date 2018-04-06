@@ -11,7 +11,7 @@
 #ifndef SLANIMATION_H
 #define SLANIMATION_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLAnimTrack.h>
 #include <SLJoint.h>
 #include <SLEnums.h>

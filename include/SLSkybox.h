@@ -11,7 +11,7 @@
 #ifndef SLSKYBOX_H
 #define SLSKYBOX_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLEnums.h>
 #include <SLNode.h>
 

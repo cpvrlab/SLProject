@@ -11,7 +11,7 @@
 #ifndef SLIMAGE_H
 #define SLIMAGE_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLCV.h>
 
 //-----------------------------------------------------------------------------

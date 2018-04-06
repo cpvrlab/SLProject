@@ -10,7 +10,9 @@
 #ifndef SLSAMPLES2D_H
 #define SLSAMPLES2D_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
+#include <SL.h>
+#include <SLVec2.h>
 
 //-----------------------------------------------------------------------------
 //! Class for 2D disk samplepoints

@@ -12,7 +12,7 @@
 #ifndef SLGLVERTEXARRAY_H
 #define SLGLVERTEXARRAY_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLGLEnums.h>
 #include <SLGLVertexBuffer.h>
 

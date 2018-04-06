@@ -12,7 +12,7 @@
 #ifndef SLANIMMANAGER_H
 #define SLANIMMANAGER_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLAnimation.h>
 #include <SLAnimManager.h>
 #include <SLAnimPlayback.h>

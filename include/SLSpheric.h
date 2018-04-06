@@ -11,7 +11,7 @@
 #ifndef SLSPHERIC_H
 #define SLSPHERIC_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLRevolver.h>
 
 class SLRay;

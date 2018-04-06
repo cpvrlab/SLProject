@@ -11,7 +11,7 @@
 #ifndef SLPOLYGON_H
 #define SLPOLYGON_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLMesh.h>
 
 //-----------------------------------------------------------------------------

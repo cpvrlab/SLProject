@@ -12,7 +12,7 @@
 #ifndef SLGLPROGRAM_H
 #define SLGLPROGRAM_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include "SLGLUniform.h"
 
 class SLGLShader;

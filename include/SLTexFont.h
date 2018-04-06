@@ -9,13 +9,13 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
-
-#include <SLGLTexture.h>
-#include <SLGLVertexArray.h>
-
 #ifndef SLTEXFONT
 #define SLTEXFONT
+
+//#include <stdafx.h>
+
+#include <SLGLTexture.h>
+//#include <SLGLVertexArray.h>
 
 //-----------------------------------------------------------------------------
 //! Texture Font class inherits SLGLTexture for alpha blended font rendering.

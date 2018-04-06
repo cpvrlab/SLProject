@@ -11,7 +11,7 @@
 #ifndef SLINPUTMANAGER_H
 #define SLINPUTMANAGER_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLInputEvent.h>
 #include <SLInputDevice.h>
 

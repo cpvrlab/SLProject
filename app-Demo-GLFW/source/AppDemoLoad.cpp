@@ -75,6 +75,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     else
     if (SLApplication::sceneID == SID_Minimal) //...................................................
     {
+
         // Set scene name and info string
         s->name("Minimal Scene Test");
         s->info("Minimal texture mapping example with one light source.");

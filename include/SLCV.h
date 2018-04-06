@@ -20,7 +20,8 @@ See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 
-#include <stdafx.h>
+//#include <stdafx.h>
+#include <vector>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/ocl.hpp>
 #include <opencv2/xfeatures2d.hpp>
@@ -43,20 +44,20 @@ typedef cv::OutputArray             SLCVOutputArray;
 typedef cv::Feature2D               SLCVFeature2D;
 
 // 1D STL vectors
-typedef vector<cv::Mat>             SLCVVMat;
-typedef vector<cv::Point>           SLCVVPoint;
-typedef vector<cv::Point2f>         SLCVVPoint2f;
-typedef vector<cv::Point2d>         SLCVVPoint2d;
-typedef vector<cv::Point3f>         SLCVVPoint3f;
-typedef vector<cv::Point3d>         SLCVVPoint3d;
-typedef vector<cv::KeyPoint>        SLCVVKeyPoint;
-typedef vector<cv::DMatch>          SLCVVDMatch;
+typedef std::vector<cv::Mat>             SLCVVMat;
+typedef std::vector<cv::Point>           SLCVVPoint;
+typedef std::vector<cv::Point2f>         SLCVVPoint2f;
+typedef std::vector<cv::Point2d>         SLCVVPoint2d;
+typedef std::vector<cv::Point3f>         SLCVVPoint3f;
+typedef std::vector<cv::Point3d>         SLCVVPoint3d;
+typedef std::vector<cv::KeyPoint>        SLCVVKeyPoint;
+typedef std::vector<cv::DMatch>          SLCVVDMatch;
 
 // 2D STL vectors
-typedef vector<vector<cv::Point>>    SLCVVVPoint;
-typedef vector<vector<cv::Point2f>>  SLCVVVPoint2f;
-typedef vector<vector<cv::Point3f>>  SLCVVVPoint3f;
-typedef vector<vector<cv::DMatch>>   SLCVVVDMatch;
-typedef vector<vector<cv::KeyPoint>> SLCVVVKeyPoint;
+typedef std::vector<std::vector<cv::Point>>    SLCVVVPoint;
+typedef std::vector<std::vector<cv::Point2f>>  SLCVVVPoint2f;
+typedef std::vector<std::vector<cv::Point3f>>  SLCVVVPoint3f;
+typedef std::vector<std::vector<cv::DMatch>>   SLCVVVDMatch;
+typedef std::vector<std::vector<cv::KeyPoint>> SLCVVVKeyPoint;
 //-----------------------------------------------------------------------------
 #endif // SL_CV_H

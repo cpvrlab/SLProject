@@ -10,7 +10,7 @@
 #ifndef SLRAYTRACER_H
 #define SLRAYTRACER_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLGLTexture.h>
 #include <SLEventHandler.h>
 

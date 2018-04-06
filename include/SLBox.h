@@ -11,7 +11,7 @@
 #ifndef SLBOX_H
 #define SLBOX_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLMesh.h>
 #include <SLEnums.h>
 

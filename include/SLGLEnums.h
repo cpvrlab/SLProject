@@ -12,7 +12,7 @@
 #ifndef SLGLENUM_H
 #define SLGLENUM_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 
 //-----------------------------------------------------------------------------
 //! Enumeration for buffer data types
