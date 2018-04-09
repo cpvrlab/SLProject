@@ -36,8 +36,10 @@ public:
 protected:
     
 private:
-    void loadKeyFrames(std::vector<SLCVKeyFrame*>& kfs );
-    void loadMapPoints(set<SLCVMapPoint*>& mapPts );
+    void loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB);
+    void loadMapPoints(SLCVMap& map);
+    //calculation of scaleFactors , levelsigma2, invScaleFactors and invLevelSigma2
+    void calculateScaleFactors(float scaleFactor, int nlevels);
 
     cv::FileStorage _fs;
     ORBVocabulary* _orbVoc;
@@ -51,6 +53,12 @@ private:
     float _s=200.f;
     cv::Mat _t;
     cv::Mat _rot;
+
+    //vectors for precalculation of scalefactors
+    std::vector<float> _vScaleFactor;
+    std::vector<float> _vInvScaleFactor;
+    std::vector<float> _vLevelSigma2;
+    std::vector<float> _vInvLevelSigma2;
 };
 
 #endif // !SLCV_SLAMSTATELOADER_H

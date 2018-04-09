@@ -17,13 +17,55 @@
 long unsigned int SLCVKeyFrame::nNextId = 0;
 
 //-----------------------------------------------------------------------------
-SLCVKeyFrame::SLCVKeyFrame(size_t N)
-    : mnFrameId(0), mTimeStamp(0), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
-    mfGridElementWidthInv(0), mfGridElementHeightInv(0), fx(0), fy(0), cx(0), cy(0), invfx(0), invfy(0),
-    mnBALocalForKF(0), mnBAFixedForKF(0), mnMinX(0), mnMinY(0), mnMaxX(0), mnMaxY(0), mbNotErase(false),
-    mbToBeErased(false), mbBad(false)
+//SLCVKeyFrame::SLCVKeyFrame(size_t N)
+//    : mnFrameId(0), mTimeStamp(0), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
+//    mfGridElementWidthInv(0), mfGridElementHeightInv(0), fx(0), fy(0), cx(0), cy(0), invfx(0), invfy(0),
+//    mnBALocalForKF(0), mnBAFixedForKF(0), mnMinX(0), mnMinY(0), mnMaxX(0), mnMaxY(0), mbNotErase(false),
+//    mbToBeErased(false), mbBad(false)
+//{
+//    mvpMapPoints = vector<SLCVMapPoint*>(N, static_cast<SLCVMapPoint*>(NULL));
+//}
+/*
+params
+_id: unique keyframe identifier
+mnFrameId: unique identifier of corresponding frame (NOT keyframe!)
+mTimeStamp: timestamp not unused for tracking, only for documentation
+mnGridCols, mfGridElementWidthInv, mfGridElementHeightInv: parameter for grid to speed up matching performance
+mvKeysUn: all undistorted keypoints
+*/
+SLCVKeyFrame::SLCVKeyFrame(const cv::Mat& Tcw, unsigned long id,
+    float fx, float fy, float cx, float cy, size_t N, const std::vector<cv::KeyPoint>& vKeysUn, const cv::Mat& descriptors,
+    ORBVocabulary* mpORBvocabulary, int nScaleLevels, float fScaleFactor, const std::vector<float>& vScaleFactors,
+    const std::vector<float>& vLevelSigma2, const std::vector<float>& vInvLevelSigma2, int nMinX, int nMinY, int nMaxX, int nMaxY,
+    const cv::Mat& K, SLCVKeyFrameDB* pKFDB, SLCVMap* pMap)
+    : _id(id), mnFrameId(0), mTimeStamp(0), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
+    mfGridElementWidthInv(static_cast<float>(FRAME_GRID_COLS) / (mnMaxX - mnMinX)), 
+    mfGridElementHeightInv(static_cast<float>(FRAME_GRID_ROWS) / (mnMaxY - mnMinY)),
+    mnTrackReferenceForFrame(0), mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0), /*
+    mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0),*/ mnBAGlobalForKF(0),
+    fx(fx), fy(fy), cx(cx), cy(cy), invfx(1/fx), invfy(1/fy),
+    /* mbf(F.mbf), mb(F.mb), mThDepth(F.mThDepth),*/ N(N), /*mvKeys(F.mvKeys),*/ mvKeysUn(vKeysUn),
+    /* mvuRight(F.mvuRight), mvDepth(F.mvDepth),*/ mDescriptors(descriptors.clone()),
+    /*mBowVec(F.mBowVec), mFeatVec(F.mFeatVec),*/ mnScaleLevels(nScaleLevels), mfScaleFactor(fScaleFactor),
+    mfLogScaleFactor(log(fScaleFactor)), mvScaleFactors(vScaleFactors), mvLevelSigma2(vLevelSigma2),
+    mvInvLevelSigma2(vInvLevelSigma2), mnMinX(nMinX), mnMinY(nMinY), mnMaxX(nMaxX),
+    mnMaxY(nMaxY), mK(K.clone()), /*mvpMapPoints(F.mvpMapPoints),*/ _kfDb(pKFDB),
+    /*mpORBvocabulary(F.mpORBvocabulary),*/ mbFirstConnection(true), mpParent(NULL), mbNotErase(false),
+    mbToBeErased(false), mbBad(false)/*, mHalfBaseline(F.mb / 2)*/, mpMap(pMap)
 {
     mvpMapPoints = vector<SLCVMapPoint*>(N, static_cast<SLCVMapPoint*>(NULL));
+    //set camera position
+    Tcw(Tcw);
+
+    //compute mBowVec and mFeatVec???????
+    ComputeBoW(mpORBvocabulary);
+
+    //!!!!!!!!!!!!!!!!!!!!!!!!!
+    //assign features to grid?????
+    //!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!
+    AssignFeaturesToGrid();
 }
 //-----------------------------------------------------------------------------
 SLCVKeyFrame::SLCVKeyFrame(SLCVFrame &F, SLCVMap* pMap, SLCVKeyFrameDB* pKFDB, bool retainImg)
@@ -552,4 +594,35 @@ void SLCVKeyFrame::EraseChild(SLCVKeyFrame *pKF)
 {
     //unique_lock<mutex> lockCon(mMutexConnections);
     mspChildrens.erase(pKF);
+}
+//-----------------------------------------------------------------------------
+//! this is a function from Frame, but we need it here for map loading
+void SLCVKeyFrame::AssignFeaturesToGrid()
+{
+    int nReserve = 0.5f*N / (FRAME_GRID_COLS*FRAME_GRID_ROWS);
+    for (unsigned int i = 0; i<FRAME_GRID_COLS; i++)
+        for (unsigned int j = 0; j<FRAME_GRID_ROWS; j++)
+            mGrid[i][j].reserve(nReserve);
+
+    for (int i = 0; i<N; i++)
+    {
+        const cv::KeyPoint &kp = mvKeysUn[i];
+
+        int nGridPosX, nGridPosY;
+        if (PosInGrid(kp, nGridPosX, nGridPosY))
+            mGrid[nGridPosX][nGridPosY].push_back(i);
+    }
+}
+//-----------------------------------------------------------------------------
+//! this is a function from Frame, but we need it here for map loading
+bool SLCVKeyFrame::PosInGrid(const cv::KeyPoint &kp, int &posX, int &posY)
+{
+    posX = round((kp.pt.x - mnMinX)*mfGridElementWidthInv);
+    posY = round((kp.pt.y - mnMinY)*mfGridElementHeightInv);
+
+    //Keypoint's coordinates are undistorted, which could cause to go out of the image
+    if (posX<0 || posX >= FRAME_GRID_COLS || posY<0 || posY >= FRAME_GRID_ROWS)
+        return false;
+
+    return true;
 }

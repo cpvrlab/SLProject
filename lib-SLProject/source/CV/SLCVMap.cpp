@@ -154,3 +154,11 @@ void SLCVMap::EraseKeyFrame(SLCVKeyFrame *pKF)
     // TODO: This only erase the pointer.
     // Delete the MapPoint
 }
+////-----------------------------------------------------------------------------
+//SLCVMapPoint* SLCVMap::getMapPointForId(int id)
+//{
+//    if (mspMapPoints.find(id) != mspMapPoints.end())
+//        return mspMapPoints[id];
+//    else
+//        return NULL;
+//}

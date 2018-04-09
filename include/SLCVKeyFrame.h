@@ -32,7 +32,11 @@ keypoints.
 class SLCVKeyFrame
 {
 public:
-    SLCVKeyFrame(size_t N);
+    SLCVKeyFrame(const cv::Mat& Tcw, unsigned long id,
+        float fx, float fy, float cx, float cy, size_t N, const std::vector<cv::KeyPoint>& vKeysUn, const cv::Mat& descriptors,
+        ORBVocabulary* mpORBvocabulary, int nScaleLevels, float fScaleFactor, const std::vector<float>& vScaleFactors,
+        const std::vector<float>& vLevelSigma2, const std::vector<float>& vInvLevelSigma2, int nMinX, int nMinY, int nMaxX, int nMaxY,
+        const cv::Mat& K, SLCVKeyFrameDB* pKFDB, SLCVMap* pMap);
     SLCVKeyFrame(SLCVFrame &F, SLCVMap* pMap, SLCVKeyFrameDB* pKFDB, bool retainImg = true);
 
     ~SLCVKeyFrame();
@@ -133,13 +137,13 @@ public:
     float mRelocScore= -1.0f;
 
     //undistorted keypoints
-    std::vector<cv::KeyPoint> mvKeysUn;
+    const std::vector<cv::KeyPoint> mvKeysUn;
 
     // Scale
-    int mnScaleLevels;
-    float mfScaleFactor;
-    float mfLogScaleFactor;
-    std::vector<float> mvScaleFactors;
+    const int mnScaleLevels;
+    const float mfScaleFactor;
+    const float mfLogScaleFactor;
+    const std::vector<float> mvScaleFactors;
     const std::vector<float> mvLevelSigma2;
     const std::vector<float> mvInvLevelSigma2;
 
@@ -154,7 +158,7 @@ public:
     cv::Mat imgGray;
 
     //image feature descriptors
-    SLCVMat mDescriptors;
+    const cv::Mat mDescriptors;
 
     // Variables used by the tracking
     long unsigned int mnTrackReferenceForFrame = 0;
@@ -184,6 +188,8 @@ public:
     long unsigned int mnFuseTargetForKF;
 
 private:
+    void AssignFeaturesToGrid();
+    bool PosInGrid(const cv::KeyPoint &kp, int &posX, int &posY);
 
     int _id = -1;
     const long unsigned int mnFrameId;
