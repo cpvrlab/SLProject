@@ -282,6 +282,8 @@ void SLCVKeyFrame::UpdateBestCovisibles()
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::UpdateConnections()
 {
+    //ghm1: a covisibility graph between keyframes (nodes) is maintained:
+    //if two keyframes share more than 15 observations of the same map points an edge is added. The number of the common observations is the edge weight.
     map<SLCVKeyFrame*, int> KFcounter;
 
     vector<SLCVMapPoint*> vpMP;

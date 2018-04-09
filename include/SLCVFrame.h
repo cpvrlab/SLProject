@@ -74,7 +74,7 @@ public:
     vector<float> mvInvLevelSigma2;
 
     // Bag of Words Vector structures.
-    DBoW2::BowVector mBowVec;
+    DBoW2::BowVector mBowVec; //ghm1: used for search of relocalization candidates similar to current frame
     DBoW2::FeatureVector mFeatVec;
 
     // Current and Next Frame id.

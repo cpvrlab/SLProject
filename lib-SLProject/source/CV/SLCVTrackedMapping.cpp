@@ -127,6 +127,18 @@ SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::initialize()
 {
+    //1. if there are more than 100 keypoints in the current frame, the Initializer is instantiated
+    //2. if there are less than 100 keypoints in the next frame, the Initializer is deinstantiated again
+    //3. else if there are more than 100 keypoints we try to match the keypoints in the current with the initial frame
+    //4. if we found less than 100 matches between the current and the initial keypoints, the Initializer is deinstantiated
+    //5. else we try to initializer: that means a homograhy and a fundamental matrix are calculated in parallel and 3D points are triangulated initially
+    //6. if the initialization (by homograhy or fundamental matrix) was successful an inital map is created:  
+    //  - two keyframes are generated from the initial and the current frame and added to keyframe database and map
+    //  - a mappoint is instantiated from the triangulated 3D points and all necessary members are calculated (distinctive descriptor, depth and normal, add observation reference of keyframes)
+    //  - a global bundle adjustment is applied
+    //  - the two new keyframes are added to the local mapper and the local mapper is started twice
+    //  - the tracking state is changed to TRACKING/INITIALIZED
+
     if (!mpInitializer)
     {
         // Set Reference Frame
@@ -135,6 +147,8 @@ void SLCVTrackedMapping::initialize()
             mInitialFrame = SLCVFrame(mCurrentFrame);
             mLastFrame = SLCVFrame(mCurrentFrame);
             mvbPrevMatched.resize(mCurrentFrame.mvKeysUn.size());
+            //ghm1: we store the undistorted keypoints of the initial frame in an extra vector 
+            //todo: why not using mInitialFrame.mvKeysUn????
             for (size_t i = 0; i<mCurrentFrame.mvKeysUn.size(); i++)
                 mvbPrevMatched[i] = mCurrentFrame.mvKeysUn[i].pt;
 
@@ -142,7 +156,7 @@ void SLCVTrackedMapping::initialize()
                 delete mpInitializer;
 
             mpInitializer = new ORB_SLAM2::Initializer(mCurrentFrame, 1.0, 200);
-
+            //ghm1: clear mvIniMatches. it contains the index of the matched keypoint in the current frame
             fill(mvIniMatches.begin(), mvIniMatches.end(), -1);
 
             return;

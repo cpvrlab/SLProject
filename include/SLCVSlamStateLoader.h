@@ -31,7 +31,7 @@ public:
     SLCVSlamStateLoader(const string& filename, ORBVocabulary* orbVoc, bool loadKfImgs=true);
     ~SLCVSlamStateLoader();
     //! execute loading procedure
-    void load(set<SLCVMapPoint*>& mapPts, SLCVKeyFrameDB& kfDB);
+    void load(SLCVMap& map, SLCVKeyFrameDB& kfDB);
 
 protected:
     
