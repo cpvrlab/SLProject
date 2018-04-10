@@ -14,6 +14,7 @@
 #include <SLGLGenericProgram.h>
 #include <SLPoints.h>
 #include <SLCVKeyFrameDB.h>
+#include <SLCVKeyFrame.h>
 
 //-----------------------------------------------------------------------------
 SLCVMap::SLCVMap(const string& name)
@@ -162,3 +163,8 @@ void SLCVMap::EraseKeyFrame(SLCVKeyFrame *pKF)
 //    else
 //        return NULL;
 //}
+//-----------------------------------------------------------------------------
+std::vector<SLCVKeyFrame*> SLCVMap::GetAllKeyFrames()
+{
+    return vector<SLCVKeyFrame*>(mspKeyFrames.begin(), mspKeyFrames.end());
+}

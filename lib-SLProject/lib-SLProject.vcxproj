@@ -240,12 +240,12 @@
       <ProgramDataBaseFileName>$(TargetName).pdb</ProgramDataBaseFileName>
       <WarningLevel>Level2</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ExceptionHandling>Sync</ExceptionHandling>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;lib-SLExternal.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -267,6 +267,7 @@
     </PostBuildEvent>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -320,6 +321,8 @@
     <ClInclude Include="..\include\SLGLVertexArray.h" />
     <ClInclude Include="..\include\SLGLVertexArrayExt.h" />
     <ClInclude Include="..\include\SLGLVertexBuffer.h" />
+    <ClInclude Include="..\include\SLImGuiInfosDialog.h" />
+    <ClInclude Include="..\include\SLImGuiTrackedMapping.h" />
     <ClInclude Include="..\include\SLInputDevice.h" />
     <ClInclude Include="..\include\SLInputEvent.h" />
     <ClInclude Include="..\include\SLInputManager.h" />
@@ -432,6 +435,7 @@
     <ClCompile Include="source\GL\SLGLVertexArray.cpp" />
     <ClCompile Include="source\GL\SLGLVertexArrayExt.cpp" />
     <ClCompile Include="source\GL\SLGLVertexBuffer.cpp" />
+    <ClCompile Include="source\GUI\SLImGuiTrackedMapping.cpp" />
     <ClCompile Include="source\math\SLCurveBezier.cpp" />
     <ClCompile Include="source\math\SLPlane.cpp" />
     <ClCompile Include="source\SLAnimation.cpp" />

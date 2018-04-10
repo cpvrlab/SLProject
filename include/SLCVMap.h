@@ -40,6 +40,8 @@ public:
     SLCVKeyFrameDB* getKeyFrameDB() { return mpKeyFrameDatabase; }
     void AddKeyFrame(SLCVKeyFrame* pKF);
 
+    std::vector<SLCVKeyFrame*> GetAllKeyFrames();
+
     //! get visual representation as SLPoints
     SLPoints* getSceneObject();
     SLPoints* getNewSceneObject();

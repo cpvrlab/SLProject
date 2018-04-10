@@ -31,6 +31,7 @@
     <RootNamespace>app-Demo-GLFW-OPENCV</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>app-Demo-GLFW</ProjectName>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -42,7 +43,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <PlatformToolset>v140</PlatformToolset>
     <UseIntelTBB>true</UseIntelTBB>
     <UseIntelMKL>Parallel</UseIntelMKL>
@@ -85,7 +86,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)_bin-$(Configuration)-$(Platform)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)_bin-$(Configuration)-$(Platform)\</OutDir>
@@ -156,7 +157,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <BrowseInformation>true</BrowseInformation>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;opencv_aruco340d.lib;opencv_calib3d340d.lib;opencv_core340d.lib;opencv_features2d340d.lib;opencv_highgui340d.lib;opencv_flann340d.lib;opencv_imgproc340d.lib;opencv_imgcodecs340d.lib;opencv_objdetect340d.lib;opencv_video340d.lib;opencv_videoio340d.lib;opencv_xfeatures2d340d.lib;g2o_types_slam3d_d.lib;g2o_core_d.lib;g2o_stuff_d.lib;g2o_types_sba_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -275,7 +276,8 @@ xcopy "$(SolutionDir)_lib/prebuilt/g2o/x64\vc14\bin\g2o_*.dll" "$(SolutionDir)_b
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ExceptionHandling>Sync</ExceptionHandling>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;opencv_aruco340.lib;opencv_calib3d340.lib;opencv_core340.lib;opencv_features2d340.lib;opencv_highgui340.lib;opencv_flann340.lib;opencv_imgproc340.lib;opencv_imgcodecs340.lib;opencv_objdetect340.lib;opencv_video340.lib;opencv_videoio340.lib;opencv_xfeatures2d340.lib;g2o_types_slam3d.lib;g2o_core.lib;g2o_stuff.lib;g2o_types_sba.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -283,8 +285,10 @@ xcopy "$(SolutionDir)_lib/prebuilt/g2o/x64\vc14\bin\g2o_*.dll" "$(SolutionDir)_b
       <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\lib;$(SolutionDir)_lib/prebuilt/g2o/x64/vc14/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>
+      </OptimizeReferences>
+      <EnableCOMDATFolding>
+      </EnableCOMDATFolding>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>

@@ -26,6 +26,8 @@ for a good top down information.
 #include <SLCVKeyFrameDB.h>
 #include <SLCVMap.h>
 
+class SLCVMapNode;
+
 using namespace cv;
 
 //-----------------------------------------------------------------------------
@@ -48,8 +50,7 @@ public:
     eTrackingState mLastProcessedState;
 
     SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary,
-        SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLNode* mapPC = NULL,
-        SLNode* mapMatchesPC = NULL, SLNode* mapLocalPC = NULL, SLNode* _keyframes = NULL);
+        SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode = NULL );
     ~SLCVTrackedRaulMur();
     SLbool track(SLCVMat imageGray,
         SLCVMat image,
@@ -191,8 +192,8 @@ private:
     bool _showLocalMapPC = false;
     bool _showKeyPoints = false;
     bool _showKeyPointsMatched = true;
-    SLMaterial* _pcMat1 = NULL;
-    SLMaterial* _pcMat2 = NULL;
+    //SLMaterial* _pcMat1 = NULL;
+    //SLMaterial* _pcMat2 = NULL;
 
     //mean reprojection error
     double _meanReprojectionError = -1.0;
@@ -200,10 +201,11 @@ private:
     double _poseDifference = -1.0;
 
     //scene nodes to point clouds:
-    SLNode* _mapPC=NULL;
-    SLNode* _mapMatchesPC = NULL;
-    SLNode* _mapLocalPC = NULL;
-    SLNode* _keyFrames = NULL;
+    //SLNode* _mapPC=NULL;
+    //SLNode* _mapMatchesPC = NULL;
+    //SLNode* _mapLocalPC = NULL;
+    //SLNode* _keyFrames = NULL;
+    SLCVMapNode* _mapNode = NULL;
 
     //cv::Mat _image;
     SLCVCalibration*        _calib = NULL;         //!< Current calibration in use

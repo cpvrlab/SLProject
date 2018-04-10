@@ -39,6 +39,7 @@
 #include <SLCVTrackedFeatures.h>
 #include <SLCVTrackedRaulMur.h>
 #include <SLCVTrackedMapping.h>
+#include <SLCVMapNode.h>
 #include <SLTransferFunction.h>
 #include <SLSkybox.h>
 
@@ -51,7 +52,7 @@
 // Foreward declarations for helper functions used only in this file
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLint, SLMaterial*, SLMaterial*);
 SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation = false);
-
+SLNode* LoadBernModel();
 //-----------------------------------------------------------------------------
 //! appDemoLoadScene builds a scene from source code.
 /*! appDemoLoadScene builds a scene from source code. Such a function must be
@@ -2265,38 +2266,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Let the sun be rotated by time and location 
         SLApplication::devLoc.sunLightNode(light);
 
-        SLAssimpImporter importer;
-        SLNode* bern = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
-
-        // Make city transparent
-        for (auto mesh : bern->findChild<SLNode>("Umgebung-Daecher")->meshes()) mesh->mat()->kt(0.5f);
-        for (auto mesh : bern->findChild<SLNode>("Umgebung-Fassaden")->meshes()) mesh->mat()->kt(0.5f);
-
-        // Hide some objects
-        bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Christoffel-Tor")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Mauer-Wand")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Mauer-Turm")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Mauer-Weg")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Boden")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Mauern")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Bruecken")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Grass")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Turm-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
-
-        // Set ambient on all child nodes and reinit meshes to reset the correct hasAlpha flag
-        for (auto node : bern->children())
-        {   for (auto mesh : node->meshes())
-            {   mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-                mesh->init(node);
-            }
-        }
+        SLNode* bern = LoadBernModel();
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
@@ -2470,40 +2440,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             mapPC, mapMatchedPC, mapLocalPC, keyFrames));
 
         //---------------------------------------------------------------------------------
-        SLAssimpImporter importer;
-        SLNode* bern = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
-
-        // Make city transparent
-        for (auto mesh : bern->findChild<SLNode>("Umgebung-Daecher")->meshes()) mesh->mat()->kt(0.5f);
-        for (auto mesh : bern->findChild<SLNode>("Umgebung-Fassaden")->meshes()) mesh->mat()->kt(0.5f);
-
-        // Hide some objects
-        bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Christoffel-Tor")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, false);
-        bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, false);
-        bern->findChild<SLNode>("Mauer-Wand")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Mauer-Turm")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Mauer-Weg")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Boden")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Mauern")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Bruecken")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Grass")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Turm-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
-
-        // Set ambient on all child nodes and reinit meshes to reset the correct hasAlpha flag
-        for (auto node : bern->children())
-        {
-            for (auto mesh : node->meshes())
-            {
-                mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-                mesh->init(node);
-            }
-        }
+        SLNode* bern = LoadBernModel();
         scene->addChild(bern);
         //---------------------------------------------------------------------------------
 
@@ -2694,10 +2631,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipFar(1000000.0f); // Increase to infinity?
         cam1->setInitialState();
         cam1->background().texture(s->videoTexture());
-        //s->videoType(VT_MAIN);
 
         SLCVMap* map = new SLCVMap("Map");
-
 
         ORBVocabulary* vocabulary = new ORBVocabulary();
         string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
@@ -2726,70 +2661,19 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode("scene");
         scene->addChild(light1);
 
-        SLNode* mapNode = new SLNode("map");
+        //SLNode* mapNode = new SLNode("map");
+        SLCVMapNode* mapNode = new SLCVMapNode(map, "map");
         //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
         //y-axis down and z-forward
         mapNode->rotate(180, 1, 0, 0);
-        scene->addChild(mapNode);
         mapNode->addChild(cam1);
-
-        //add visual representations of map and keyFrame database to scene
-        bool addVisualMap = true;
-        bool addVisualKFs = true;
-        SLNode* mapPC = NULL;
-        SLNode* mapMatchedPC = NULL;
-        SLNode* mapLocalPC = NULL;
-        if (addVisualMap)
-        {
-            mapPC = new SLNode(map->getSceneObject(), "MapPoints");
-            mapNode->addChild(mapPC);
-
-            //add additional empty point clouds for visualization of local map and map point matches:
-            //1. map point matches
-            //material
-            SLMaterial* pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
-            pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-            pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
-            //mesh
-            SLVVec3f points, normals;
-            points.push_back(SLVec3f(0.f, 0.f, 0.f));
-            normals.push_back(SLVec3f(0.0001f, 0.0001f, 0.0001f));
-            SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", pcMat1);
-            //node
-            mapMatchedPC = new SLNode(mapMatchesMesh, "MapMatchedPC");
-            mapNode->addChild(mapMatchedPC);
-
-            //2. local map points
-            //material
-            SLMaterial* pcMat2 = new SLMaterial("Magenta", SLCol4f::MAGENTA);
-            pcMat2->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-            pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-            //mesh
-            SLPoints* mapLocalMesh = new SLPoints(points, normals, "MapPointsLocal", pcMat2);
-            //node
-            mapLocalPC = new SLNode(mapLocalMesh, "MapLocalPC");
-            mapNode->addChild(mapLocalPC);
-        }
-
-        SLNode* keyFrames = NULL;
-        if (addVisualKFs)
-        {
-            keyFrames = new SLNode("KeyFrames");
-            //add keyFrames
-            for (auto* kf : kfDB->keyFrames()) {
-                SLCVCamera* cam = kf->getSceneObject();
-                cam->fov(SLApplication::activeCalib->cameraFovDeg());
-                cam->focalDist(0.11);
-                cam->clipNear(0.1);
-                cam->clipFar(1000.0);
-                keyFrames->addChild(cam);
-            }
-            mapNode->addChild(keyFrames);
-        }
+        scene->addChild(mapNode);
+        //load map into scene objects
+        mapNode->addMapObjects(*map);
 
         //add tracker
         s->trackers().push_back(new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map,
-            mapPC, mapMatchedPC, mapLocalPC, keyFrames));
+            mapNode));
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
@@ -2857,21 +2741,22 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         map->setKeyFrameDB(kfDB);
 
 
-        SLNode* keyFrames = new SLNode("KeyFrames");
-        SLNode* mapPC = new SLNode("MapPC");
+        //SLNode* keyFrames = new SLNode("KeyFrames");
+        //SLNode* mapPC = new SLNode("MapPC");
 
 
-        SLNode* mapNode = new SLNode("map");
+        //SLNode* mapNode = new SLNode("map");
+        SLCVMapNode* mapNode = new SLCVMapNode(map, "map");
         //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
         //y-axis down and z-forward
         mapNode->rotate(180, 1, 0, 0);
         mapNode->addChild(cam1);
-        mapNode->addChild(keyFrames);
-        mapNode->addChild(mapPC);
+        //mapNode->addChild(keyFrames);
+        //mapNode->addChild(mapPC);
         //mapNode->addChild(mapMatchedPC);
 
         //add tracker
-        s->trackers().push_back(new SLCVTrackedMapping(cam1, vocabulary, kfDB, map, mapPC, keyFrames));
+        //s->trackers().push_back(new SLCVTrackedMapping(cam1, vocabulary, kfDB, map, mapPC, keyFrames));
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
@@ -3288,6 +3173,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     s->onAfterLoad();
 }
 //-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
 //! Creates a recursive sphere group used for the ray tracing scenes
 SLNode* SphereGroup(SLint depth,                    // depth of recursion
                     SLfloat x, SLfloat y, SLfloat z,// position of group
@@ -3421,5 +3308,45 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
     }
     
     return figure;
+}
+//-----------------------------------------------------------------------------
+SLNode* LoadBernModel()
+{
+    SLAssimpImporter importer;
+    SLNode* bern = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
+
+    // Make city transparent
+    for (auto mesh : bern->findChild<SLNode>("Umgebung-Daecher")->meshes()) mesh->mat()->kt(0.5f);
+    for (auto mesh : bern->findChild<SLNode>("Umgebung-Fassaden")->meshes()) mesh->mat()->kt(0.5f);
+
+    // Hide some objects
+    bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Christoffel-Tor")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, false);
+    bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, false);
+    bern->findChild<SLNode>("Mauer-Wand")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Mauer-Turm")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Mauer-Weg")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Boden")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Graben-Mauern")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Graben-Bruecken")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Graben-Grass")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Graben-Turm-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
+
+    // Set ambient on all child nodes and reinit meshes to reset the correct hasAlpha flag
+    for (auto node : bern->children())
+    {
+        for (auto mesh : node->meshes())
+        {
+            mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+            mesh->init(node);
+        }
+    }
+
+    return bern;
 }
 //-----------------------------------------------------------------------------
