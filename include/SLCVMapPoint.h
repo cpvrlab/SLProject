@@ -14,6 +14,7 @@
 #include <vector>
 #include <map>
 #include <SLCV.h>
+#include <opencv2/core/core.hpp>
 
 class SLCVKeyFrame;
 class SLCVFrame;

@@ -2036,45 +2036,9 @@ void AppDemoGui::buildInfosTracking(SLScene* s, SLSceneView* sv)
 //-----------------------------------------------------------------------------
 void AppDemoGui::buildSlamInteraction(SLScene* s, SLSceneView* sv)
 {
-    //try to find SLCVTrackedMapping instance
-    if (!mappingTracker)
-    {
-        for (SLCVTracked* tracker : s->trackers()) {
-            if (mappingTracker = dynamic_cast<SLCVTrackedMapping*>(tracker))
-                break;
-        }
-
-        if (!mappingTracker)
-            return;
-    }
-
     ImGui::Begin("SLAM interaction", &showSlamInteraction, ImVec2(300, 0), -1.f, ImGuiWindowFlags_NoCollapse);
 
-    //add tracking state
-    ImGui::Text("Tracking State : %s ", mappingTracker->getPrintableState().c_str());
-    //add number of matches map points in current frame
-    ImGui::Text("Num Map Matches: %d ", mappingTracker->getNMapMatches());
-    //number of map points
-    ImGui::Text("Num Map Pts: %d ", mappingTracker->mapPointsCount());
-    //add number of keyframes
-    ImGui::Text("Number of Keyframes : %d ", mappingTracker->getNumberOfKeyFrames());
 
-    if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        mappingTracker->Reset();
-        mappingTracker->setState(SLCVTrackedMapping::INITIALIZE);
-    }
-    else if (ImGui::Button("Track VO", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        mappingTracker->setState(SLCVTrackedMapping::TRACK_VO);
-    }
-    else if (ImGui::Button("Track 3D Pts", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        mappingTracker->setState(SLCVTrackedMapping::TRACK_3DPTS);
-    }
-    else if (ImGui::Button("Track optical flow", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        mappingTracker->setState(SLCVTrackedMapping::TRACK_OPTICAL_FLOW);
-    }
-    else if (ImGui::Button("Add key frame", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        mappingTracker->mapNextFrame();
-    }
 
     ImGui::End();
 }

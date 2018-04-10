@@ -2819,10 +2819,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Mapping example");
         s->info("Example for mapping using functionality from ORB-SLAM.");
 
-        s->videoType(VT_MAIN);
-        //s->videoType(VT_FILE);
-        //SLCVCapture::videoLoops = true;
-        //SLCVCapture::videoFilename = "webcam_office1.wmv";
+        //s->videoType(VT_MAIN);
+        s->videoType(VT_FILE);
+        SLCVCapture::videoLoops = true;
+        SLCVCapture::videoFilename = "webcam_office1.wmv";
 
 
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -2859,35 +2859,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLNode* keyFrames = new SLNode("KeyFrames");
         SLNode* mapPC = new SLNode("MapPC");
-        //{
-        //    //add empty point cloud for visualization of map point matches:
-        //    //material
-        //    SLMaterial* pcMat0 = new SLMaterial("Red", SLCol4f::RED);
-        //    pcMat0->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-        //    pcMat0->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
-        //    //mesh
-        //    SLVVec3f points, normals;
-        //    //points.push_back(SLVec3f(0.f, 0.f, 0.f));
-        //    //normals.push_back(SLVec3f(0.0001f, 0.0001f, 0.0001f));
-        //    SLPoints* mapMesh = new SLPoints(points, normals, "MapPoints", pcMat0);
-        //    //node
-        //    mapPC = new SLNode(mapMesh, "MapPC");
-        //}
 
-        //{
-        //    //add empty point cloud for visualization of map point matches:
-        //    //material
-        //    SLMaterial* pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
-        //    pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-        //    pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
-        //    //mesh
-        //    SLVVec3f points, normals;
-        //    points.push_back(SLVec3f(0.f, 0.f, 0.f));
-        //    normals.push_back(SLVec3f(0.0001f, 0.0001f, 0.0001f));
-        //    SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", pcMat1);
-        //    //node
-        //    SLNode* mapMatchedPC = new SLNode(mapMatchesMesh, "MapMatchedPC");
-        //}
 
         SLNode* mapNode = new SLNode("map");
         //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 

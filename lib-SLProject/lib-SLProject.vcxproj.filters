@@ -405,6 +405,9 @@
     <ClInclude Include="..\include\OrbSlam\LocalMapping.h">
       <Filter>CV\OrbSlam</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLCVMapNode.h">
+      <Filter>CV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -685,6 +688,9 @@
     </ClCompile>
     <ClCompile Include="source\CV\OrbSlam\LocalMapping.cpp">
       <Filter>CV\OrbSlam</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVMapNode.cpp">
+      <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

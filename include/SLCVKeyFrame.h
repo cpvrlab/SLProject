@@ -17,6 +17,7 @@
 #include <DBoW2/DBoW2/FeatureVector.h>
 #include <OrbSlam/ORBVocabulary.h>
 #include <SLGLTexture.h>
+#include <opencv2/core/core.hpp>
 
 using namespace ORB_SLAM2;
 

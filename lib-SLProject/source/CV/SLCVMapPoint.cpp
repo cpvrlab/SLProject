@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLCVMapPoint.cpp
-//  Author:    Michael G�ttlicher
+//  Author:    Michael Goettlicher
 //  Date:      October 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch

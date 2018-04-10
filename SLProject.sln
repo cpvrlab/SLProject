@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25402.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-Demo-GLFW", "app-Demo-GLFW\app-Demo-GLFW.vcxproj", "{54BE2CB2-A4BB-481D-9C74-AF8E4CD0764D}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -50,6 +50,12 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cv13_HeadPoseEstimation", "exercises\cv13_HeadPoseEstimation\cv13_HeadPoseEstimation.vcxproj", "{0D63243A-A87C-48F6-8822-6DE3C67E2F3A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cv13_FaceTracking", "exercises\cv13_FaceTracking\cv13_FaceTracking.vcxproj", "{0D63243A-A87C-48F6-8822-7DE3C67E2F3A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib-SLImGui", "lib-SLImGui\lib-SLImGui.vcxproj", "{321358C7-F1F3-4CD2-82AB-F31713D482C4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D} = {54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}
+		{CCC645D3-B20F-431C-824A-7895D6E404DF} = {CCC645D3-B20F-431C-824A-7895D6E404DF}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -162,6 +168,14 @@ Global
 		{0D63243A-A87C-48F6-8822-7DE3C67E2F3A}.Release|x64.Build.0 = Release|x64
 		{0D63243A-A87C-48F6-8822-7DE3C67E2F3A}.Release|x86.ActiveCfg = Release|Win32
 		{0D63243A-A87C-48F6-8822-7DE3C67E2F3A}.Release|x86.Build.0 = Release|Win32
+		{321358C7-F1F3-4CD2-82AB-F31713D482C4}.Debug|x64.ActiveCfg = Debug|x64
+		{321358C7-F1F3-4CD2-82AB-F31713D482C4}.Debug|x64.Build.0 = Debug|x64
+		{321358C7-F1F3-4CD2-82AB-F31713D482C4}.Debug|x86.ActiveCfg = Debug|Win32
+		{321358C7-F1F3-4CD2-82AB-F31713D482C4}.Debug|x86.Build.0 = Debug|Win32
+		{321358C7-F1F3-4CD2-82AB-F31713D482C4}.Release|x64.ActiveCfg = Release|x64
+		{321358C7-F1F3-4CD2-82AB-F31713D482C4}.Release|x64.Build.0 = Release|x64
+		{321358C7-F1F3-4CD2-82AB-F31713D482C4}.Release|x86.ActiveCfg = Release|Win32
+		{321358C7-F1F3-4CD2-82AB-F31713D482C4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

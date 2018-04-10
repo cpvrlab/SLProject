@@ -8,11 +8,11 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
-#include <dirent.h>
-
 #ifndef SLUTILS_H
 #define SLUTILS_H
+
+#include <stdafx.h>
+#include <dirent.h>
 
 //-----------------------------------------------------------------------------
 //! SLUtils provides static utility functions string handling

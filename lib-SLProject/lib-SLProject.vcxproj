@@ -299,6 +299,7 @@
     <ClInclude Include="..\include\SLCVKeyFrame.h" />
     <ClInclude Include="..\include\SLCVKeyFrameDB.h" />
     <ClInclude Include="..\include\SLCVMap.h" />
+    <ClInclude Include="..\include\SLCVMapNode.h" />
     <ClInclude Include="..\include\SLCVMapPoint.h" />
     <ClInclude Include="..\include\SLCVRaulMurExtractorNode.h" />
     <ClInclude Include="..\include\SLCVRaulMurOrb.h" />
@@ -408,6 +409,7 @@
     <ClCompile Include="source\CV\SLCVKeyFrame.cpp" />
     <ClCompile Include="source\CV\SLCVKeyFrameDB.cpp" />
     <ClCompile Include="source\CV\SLCVMap.cpp" />
+    <ClCompile Include="source\CV\SLCVMapNode.cpp" />
     <ClCompile Include="source\CV\SLCVMapPoint.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurExtractorNode.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurOrb.cpp" />

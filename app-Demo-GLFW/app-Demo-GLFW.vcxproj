@@ -142,7 +142,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);../include;../app-Demo-GLFW/source;../lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include;..\lib-SLExternal\imgui;..\lib-SLExternal\spa;..\lib-SLExternal\g2o;..\lib-SLExternal\g2o\BUILD;..\lib-SLExternal\eigen</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);../include;../app-Demo-GLFW/source;../lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include;..\lib-SLExternal\imgui;..\lib-SLExternal\spa;..\lib-SLExternal\g2o;..\lib-SLExternal\g2o\BUILD;..\lib-SLExternal\eigen;..\lib-SLImGui\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SL_STARTSCENE#SID_Minimal;SL_GUI_GLFW;GLEW_STATIC;_DEBUG;UNICODE;_WINDOWS</PreprocessorDefinitions>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
@@ -261,7 +261,7 @@ xcopy "$(SolutionDir)_lib/prebuilt/g2o/x64\vc14\bin\g2o_*.dll" "$(SolutionDir)_b
       <AdditionalOptions>/wd4996 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(ProjectDir);../include;../app-Demo-GLFW/source;../lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include;..\lib-SLExternal\imgui;..\lib-SLExternal\spa;..\lib-SLExternal\g2o;..\lib-SLExternal\g2o\BUILD;..\lib-SLExternal\eigen</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);../include;../app-Demo-GLFW/source;../lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include;..\lib-SLExternal\imgui;..\lib-SLExternal\spa;..\lib-SLExternal\g2o;..\lib-SLExternal\g2o\BUILD;..\lib-SLExternal\eigen;..\lib-SLImGui\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SL_STARTSCENE#SID_Minimal;HAS_OPENCV;SL_GUI_GLFW;GLEW_STATIC;UNICODE;_WINDOWS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
