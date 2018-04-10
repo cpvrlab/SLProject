@@ -11,6 +11,8 @@
 #ifndef SLUTILS_H
 #define SLUTILS_H
 
+#include <cstdarg>
+#include <cstring>
 #include <iomanip>
 #include <sstream>
 #include <algorithm>

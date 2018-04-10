@@ -113,6 +113,7 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
     #include <windows.h>
     #include <GL/glew.h>
 #elif defined(SL_OS_LINUX)
+    #include <sstream>
     #include <sys/time.h>
     #include <functional>
     #include <thread>

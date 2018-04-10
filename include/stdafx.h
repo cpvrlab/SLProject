@@ -51,6 +51,7 @@
 //-----------------------------------------------------------------------------
 // Core header files used by all files
 #include <SL.h>
+#include <SLUtils.h>
 #include <SLEnums.h>
 #include <SLObject.h>
 #include <SLMath.h>
@@ -63,7 +64,6 @@
 #include <SLQuat4.h>
 #include <SLPlane.h>
 #include <SLGLState.h>
-#include <SLUtils.h>
 #include <SLFileSystem.h>
 #include <SLTimer.h>
 //-----------------------------------------------------------------------------
