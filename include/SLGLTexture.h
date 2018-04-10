@@ -11,9 +11,12 @@
 #ifndef SLGLTEXTURE_H
 #define SLGLTEXTURE_H
 
-//#include <stdafx.h>
+#include <atomic>
 #include <SLCVImage.h>
 #include <SLGLVertexArray.h>
+#include <SLMat4.h>
+
+class SLGLState;
 
 //-----------------------------------------------------------------------------
 // Special constants for anisotropic filtering

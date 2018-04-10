@@ -11,7 +11,6 @@
 #ifndef SLUTILS_H
 #define SLUTILS_H
 
-//#include <stdafx.h>
 #include <iomanip>
 #include <sstream>
 #include <algorithm>

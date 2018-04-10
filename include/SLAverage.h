@@ -12,7 +12,6 @@
 #ifndef SLAVERAGE_H
 #define SLAVERAGE_H
 
-//#include <stdafx.h>
 #include <SL.h>
 
 //-----------------------------------------------------------------------------

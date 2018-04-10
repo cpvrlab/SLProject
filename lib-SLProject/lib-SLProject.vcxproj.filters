@@ -351,9 +351,6 @@
     <ClInclude Include="..\include\SLApplication.h">
       <Filter>SL</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLStdTypes.h">
-      <Filter>SL</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">

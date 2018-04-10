@@ -11,7 +11,6 @@
 #ifndef SLFILESYSTEM_H
 #define SLFILESYSTEM_H
 
-//#include <stdafx.h>
 #include <SL.h>
 
 //-----------------------------------------------------------------------------

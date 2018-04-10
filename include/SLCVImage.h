@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SL/SLCPImage.h
+//  File:      SL/SLCVImage.h
 //  Author:    Marcus Hudritsch
 //  Date:      Spring 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -11,8 +11,11 @@
 #ifndef SLIMAGE_H
 #define SLIMAGE_H
 
-//#include <stdafx.h>
 #include <SLCV.h>
+#include <SLEnums.h>
+#include <SLObject.h>
+#include <SLVec3.h>
+#include <SLVec4.h>
 
 //-----------------------------------------------------------------------------
 //! OpenCV image class with the same interface as the former SLImage class

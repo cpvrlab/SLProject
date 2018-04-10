@@ -13,8 +13,10 @@
 #ifndef SLGLIMGUI_H
 #define SLGLIMGUI_H
 
-//#include <stdafx.h>
 #include <imgui.h>
+#include <SL.h>
+#include <SLEnums.h>
+#include <SLVec2.h>
 
 class SLScene;
 class SLSceneView;

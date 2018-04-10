@@ -11,9 +11,7 @@
 #ifndef SLTEXT_H
 #define SLTEXT_H
 
-//#include <stdafx.h>
 #include <SLNode.h>
-//#include <SLAABBox.h>
 #include <SLGLVertexArray.h>
 #include <SLTexFont.h>
 

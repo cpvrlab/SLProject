@@ -11,41 +11,6 @@
 #ifndef SL_H
 #define SL_H
 
-//#include <SLEnums.h>
-//-----------------------------------------------------------------------------
-// Include standard C++ libraries
-//#include <iostream>
-//#include <iomanip>
-//#include <sstream>
-//#include <fstream>
-//#include <vector>
-//#include <list>
-//#include <queue>
-//#include <typeinfo>
-//#include <string>
-//#include <algorithm>
-//#include <map>
-//#include <chrono>
-//#include <thread>
-//#include <atomic>
-//#include <functional>
-//#include <random>
-//#include <cstdarg>
-//#include <ctime>
-
-////-----------------------------------------------------------------------------
-//// Include standard C libraries
-//#include <stdio.h>               // for the old ANSI C IO functions
-//#include <stdlib.h>              // srand, rand
-//#include <float.h>               // for defines like FLT_MAX & DBL_MAX
-//#include <limits.h>              // for defines like UINT_MAX
-//#include <assert.h>              // for debug asserts
-//#include <time.h>                // for clock()
-//#include <sys/stat.h>            // for file info used in SLUtils
-//#include <math.h>                // for math functions
-//#include <string.h>              // for string functions
-//-----------------------------------------------------------------------------
-
 //////////////////////////////////////////////////////////
 // Preprocessor constant definitions used in the SLProject
 //////////////////////////////////////////////////////////

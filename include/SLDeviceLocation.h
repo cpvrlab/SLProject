@@ -12,9 +12,8 @@
 #ifndef SLDEVICELOCATION_H
 #define SLDEVICELOCATION_H
 
-//#include <stdafx.h>
-//#include <SLNode.h>
 #include <SLLightDirect.h>
+#include <SLTimer.h>
 
 class SLNode;
 

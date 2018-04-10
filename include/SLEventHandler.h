@@ -11,7 +11,6 @@
 #ifndef SLEVENTHANDLER_H
 #define SLEVENTHANDLER_H
 
-//#include <stdafx.h>
 #include <SLEnums.h>
 #include <SL.h>
 

@@ -11,11 +11,8 @@
 #ifndef SLASSIMPIMPORTER_H
 #define SLASSIMPIMPORTER_H
 
-//#include <stdafx.h>
 #include <SLImporter.h>
-//#include <SLNode.h>
-//#include <SLGLTexture.h>
-//#include <SLSkeleton.h>
+#include <SLGLTexture.h>
 
 // forward declarations of assimp types
 struct aiScene;

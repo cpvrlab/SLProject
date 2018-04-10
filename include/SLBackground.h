@@ -13,6 +13,7 @@
 
 //#include <stdafx.h>
 #include <SLGLVertexArray.h>
+#include <SLObject.h>
 
 class SLGLTexture;
 

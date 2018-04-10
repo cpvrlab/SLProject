@@ -20,7 +20,6 @@ See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 
-//#include <stdafx.h>
 #include <vector>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/ocl.hpp>

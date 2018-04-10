@@ -11,7 +11,6 @@
 #ifndef SLREFOBJ_H
 #define SLREFOBJ_H
 
-//#include <stdafx.h>
 #include <SL.h>
 
 //-----------------------------------------------------------------------------

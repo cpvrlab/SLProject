@@ -11,9 +11,7 @@
 #ifndef SLAPPLICATION_H
 #define SLAPPLICATION_H
 
-//#include <stdafx.h>
 #include <SLInputManager.h>
-//#include <SLCVCalibration.h>
 #include <SLDeviceRotation.h>
 #include <SLDeviceLocation.h>
 

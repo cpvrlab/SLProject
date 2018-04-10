@@ -11,7 +11,6 @@
 #ifndef SLTRANSFERFUNCTUIN_H
 #define SLTRANSFERFUNCTUIN_H
 
-//#include <stdafx.h>
 #include <SL.h>
 #include <SLVec3.h>
 #include <SLGLTexture.h>

@@ -11,11 +11,8 @@
 #ifndef SLIMPORTER_H
 #define SLIMPORTER_H
 
-//#include <stdafx.h>
-//#include <SLNode.h>
-//#include <SLGLTexture.h>
-//#include <SLSkeleton.h>
 #include <map>
+#include <fstream>
 
 #include <SL.h>
 #include <SLEnums.h>

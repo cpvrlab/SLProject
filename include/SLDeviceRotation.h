@@ -12,7 +12,6 @@
 #ifndef SLDEVICEROTATION_H
 #define SLDEVICEROTATION_H
 
-//#include <stdafx.h>
 #include <SL.h>
 #include <SLMat3.h>
 

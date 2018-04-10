@@ -35,6 +35,7 @@
 #include <SLEventHandler.h>
 #include <SLGLOculus.h>
 #include <SLAnimManager.h>
+#include <SLTimer.h>
 
 class SLSceneView;
 class SLCVTracked;
