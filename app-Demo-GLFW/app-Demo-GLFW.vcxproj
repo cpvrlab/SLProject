@@ -31,6 +31,7 @@
     <RootNamespace>app-Demo-GLFW-OPENCV</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>app-Demo-GLFW</ProjectName>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -42,7 +43,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -82,7 +83,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)_bin-$(Configuration)-$(Platform)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)_bin-$(Configuration)-$(Platform)\</OutDir>
@@ -274,6 +275,8 @@ xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_ffmpeg*.dll" "$(So
       </DataExecutionPrevention>
       <Profile>false</Profile>
       <LargeAddressAware>true</LargeAddressAware>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_objdetect*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y

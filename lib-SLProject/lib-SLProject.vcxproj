@@ -266,6 +266,7 @@
     </PostBuildEvent>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
