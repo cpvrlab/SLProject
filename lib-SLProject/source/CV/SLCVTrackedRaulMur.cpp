@@ -828,7 +828,7 @@ bool SLCVTrackedRaulMur::TrackLocalMap()
     SLAverageTiming::stop("PoseOptimizationTLM");
     mnMatchesInliers = 0;
 
-    SLAverageTiming::start("UpdateMapPointsStat", 24, 2);
+    //SLAverageTiming::start("UpdateMapPointsStat", 24, 2);
     // Update MapPoints Statistics
     for (int i = 0; i<mCurrentFrame.N; i++)
     {
@@ -844,7 +844,7 @@ bool SLCVTrackedRaulMur::TrackLocalMap()
             //    mCurrentFrame.mvpMapPoints[i] = static_cast<SLCVMapPoint*>(NULL);
         }
     }
-    SLAverageTiming::stop("UpdateMapPointsStat");
+    //SLAverageTiming::stop("UpdateMapPointsStat");
 
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently

@@ -360,6 +360,7 @@ int Optimizer::PoseOptimization(SLCVFrame *pFrame)
         }
 
     }
+
     }
 
 
@@ -370,9 +371,10 @@ int Optimizer::PoseOptimization(SLCVFrame *pFrame)
     // At the next optimization, outliers are not included, but at the end they can be classified as inliers again.
     const float chi2Mono[4]={5.991,5.991,5.991,5.991};
     const float chi2Stereo[4]={7.815,7.815,7.815, 7.815};
-    const int its[4]={10,10,10,10};    
+    const int its[4]={10,10,10,10};
 
     int nBad=0;
+    SLAverageTiming::start("optimizing", 24, 2);
     for(size_t it=0; it<4; it++)
     {
 
@@ -441,7 +443,8 @@ int Optimizer::PoseOptimization(SLCVFrame *pFrame)
 
         if(optimizer.edges().size()<10)
             break;
-    }    
+    }
+    SLAverageTiming::stop("optimizing");
 
     // Recover optimized pose and return number of inliers
     g2o::VertexSE3Expmap* vSE3_recov = static_cast<g2o::VertexSE3Expmap*>(optimizer.vertex(0));

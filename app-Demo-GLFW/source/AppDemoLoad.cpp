@@ -2348,14 +2348,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
 
-        //SLCVCapture::videoFilename = "street3.mp4";
+        SLCVCapture::videoFilename = "street3.mp4";
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "street1_manip.json";
         //SLCVCapture::videoFilename = "altstadt_biel1.mp4";
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-altstadtbiel1_manip.json";
         //SLCVCapture::videoFilename = "Bern1.mp4";
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern1-manip1.json";
         //SLCVCapture::videoFilename = "Bern3_cut_baldachin.mp4";
-        SLCVCapture::videoFilename = "Bern3_cut.mp4";
+        //SLCVCapture::videoFilename = "Bern3_cut.mp4";
         SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern3-ct.json";
 
 

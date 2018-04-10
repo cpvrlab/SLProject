@@ -73,7 +73,7 @@ public:
     }
 private:
     //!do start timer for a new or existing block
-    void doStart(const std::string& name, SLint posV, SLint posH);
+    void doStart(const std::string& name);
     //!do stop timer for a running block with name
     void doStop(const std::string& name);
     //!do get time for block with name
@@ -84,7 +84,9 @@ private:
     SLint doGetNumValues(const std::string& name);
 
     //average numValues
-    SLint _averageNumValues = 1000;
+    SLint _averageNumValues = 200;
+    SLint _currentPosV = 0;
+    SLint _currentPosH = 0;
 };
 //-----------------------------------------------------------------------------
 

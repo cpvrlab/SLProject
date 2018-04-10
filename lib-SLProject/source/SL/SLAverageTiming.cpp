@@ -27,9 +27,10 @@ SLAverageTiming::~SLAverageTiming()
 }
 //-----------------------------------------------------------------------------
 //!start timer for a new or existing block
+// TODO(jan): remove the now unused posV and posH
 void SLAverageTiming::start(const std::string& name, SLint posV, SLint posH)
 {
-    SLAverageTiming::instance().doStart(name, posV, posH);
+    SLAverageTiming::instance().doStart(name);
 }
 //-----------------------------------------------------------------------------
 //!stop timer for a running block with name
@@ -57,11 +58,11 @@ SLint SLAverageTiming::getNumValues(const std::string& name)
 }
 //-----------------------------------------------------------------------------
 //!start timer for a new or existing block
-void SLAverageTiming::doStart(const std::string& name, SLint posV, SLint posH)
+void SLAverageTiming::doStart(const std::string& name)
 {
     if ( find(name) == end()) {
         SLAverageTimingBlock* block = new SLAverageTimingBlock(
-            _averageNumValues, name, posV, posH);
+            _averageNumValues, name, this->_currentPosV++, this->_currentPosH++);
         (*this)[name] = block;
     }
 
@@ -76,6 +77,7 @@ void SLAverageTiming::doStop(const std::string& name)
         (*this)[name]->timer.stop();
         (*this)[name]->val.set((*this)[name]->timer.elapsedTimeInMilliSec());
         (*this)[name]->nCalls++;
+        this->_currentPosH--;
     }
     else
         SL_LOG("SLAverageTiming: A block with name %s does not exist!\n", name.c_str());
