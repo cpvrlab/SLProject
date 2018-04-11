@@ -1075,217 +1075,222 @@ void SLCVTrackedRaulMur::UpdateLocalKeyFrames()
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
     }
 }
+//
+//// Build rotation matrix
+//Mat SLCVTrackedRaulMur::buildRotMat(float &valDeg, int type)
+//{
+//    Mat rot = Mat::ones(4, 4, CV_32F);
+//
+//    switch (type)
+//    {
+//    case 0:
+//        // Calculate rotation about x axis
+//        rot = (Mat_<float>(4, 4) <<
+//            1, 0, 0, 0,
+//            0, cos(valDeg), -sin(valDeg), 0,
+//            0, sin(valDeg), cos(valDeg), 0,
+//            0, 0, 0, 1
+//            );
+//        break;
+//
+//    case 1:
+//        // Calculate rotation about y axis
+//        rot = (Mat_<float>(4, 4) <<
+//            cos(valDeg), 0, sin(valDeg), 0,
+//            0, 1, 0, 0,
+//            -sin(valDeg), 0, cos(valDeg), 0,
+//            0, 0, 0, 1
+//            );
+//        //invert direction for Y
+//        rot = rot.inv();
+//        break;
+//
+//    case 2:
+//        // Calculate rotation about z axis
+//        rot = (Mat_<float>(4, 4) <<
+//            cos(valDeg), -sin(valDeg), 0, 0,
+//            sin(valDeg), cos(valDeg), 0, 0,
+//            0, 0, 1, 0,
+//            0, 0, 0, 1
+//            );
+//        //invert direction for Z
+//        rot = rot.inv();
+//        break;
+//    }
+//
+//    return rot;
+//}
 
-// Build rotation matrix
-Mat SLCVTrackedRaulMur::buildRotMat(float &valDeg, int type)
-{
-    Mat rot = Mat::ones(4, 4, CV_32F);
+//// Build rotation matrix
+//Mat SLCVTrackedRaulMur::buildTransMat(float &val, int type)
+//{
+//    Mat trans = cv::Mat::zeros(3, 1, CV_32F);
+//    switch (type)
+//    {
+//    case 0:
+//        trans.at<float>(0, 0) = val;
+//        break;
+//
+//    case 1:
+//        //!!turn sign of y coordinate
+//        trans.at<float>(1, 0) = -val;
+//        break;
+//
+//    case 2:
+//        //!!turn sign of z coordinate
+//        trans.at<float>(2, 0) = -val;
+//        break;
+//    }
+//
+//    return trans;
+//}
 
-    switch (type)
-    {
-    case 0:
-        // Calculate rotation about x axis
-        rot = (Mat_<float>(4, 4) <<
-            1, 0, 0, 0,
-            0, cos(valDeg), -sin(valDeg), 0,
-            0, sin(valDeg), cos(valDeg), 0,
-            0, 0, 0, 1
-            );
-        break;
+////todo: move to map
+//void SLCVTrackedRaulMur::rotate(float value, int type)
+//{
+//    //transform to degree
+//    value *= SL_DEG2RAD;
+//
+//    Mat rot = buildRotMat(value, type);
+//    cout << "rot: " << rot << endl;
+//
+//    //rotate keyframes
+//    Mat Twc;
+//    for (auto& kf : mpKeyFrameDatabase->keyFrames())
+//    {
+//        //get and rotate
+//        Twc = kf->GetPose().inv();
+//        Twc = rot * Twc;
+//        //set back
+//        kf->Tcw(Twc.inv());
+//    }
+//
+//    //rotate keypoints
+//    Mat Pw;
+//    Mat rot33 = rot.rowRange(0, 3).colRange(0, 3);
+//    auto ptsInMap = _map->GetAllMapPoints();
+//    for (auto& pt : ptsInMap)
+//    {
+//        Pw = rot33 * pt->worldPos();
+//        pt->worldPos(rot33 * pt->worldPos());
+//    }
+//}
+//
+////todo: move to map
+//void SLCVTrackedRaulMur::translate(float value, int type)
+//{
+//    Mat trans = buildTransMat(value, type);
+//
+//    cout << "trans: " << trans << endl;
+//
+//    //rotate keyframes
+//    Mat Twc;
+//    for (auto& kf : mpKeyFrameDatabase->keyFrames())
+//    {
+//        //get and translate
+//        cv::Mat Twc = kf->GetPose().inv();
+//        Twc.rowRange(0, 3).col(3) += trans;
+//        //set back
+//        kf->Tcw(Twc.inv());
+//    }
+//
+//    //rotate keypoints
+//    auto ptsInMap = _map->GetAllMapPoints();
+//    for (auto& pt : ptsInMap)
+//    {
+//        pt->worldPos(trans + pt->worldPos());
+//    }
+//}
+//
+////todo: move to map
+//void SLCVTrackedRaulMur::scale(float value)
+//{
+//    for (auto& kf : mpKeyFrameDatabase->keyFrames())
+//    {
+//        //get and translate
+//        cv::Mat Tcw = kf->GetPose();
+//        Tcw.rowRange(0, 3).col(3) *= value;
+//        //set back
+//        kf->Tcw(Tcw);
+//    }
+//
+//    //rotate keypoints
+//    auto ptsInMap = _map->GetAllMapPoints();
+//    for (auto& pt : ptsInMap)
+//    {
+//        pt->worldPos(value * pt->worldPos());
+//    }
+//}
+//
+////todo: move to map
+//void SLCVTrackedRaulMur::applyTransformation(double value, TransformType type)
+//{
+//    //apply rotation, translation and scale to Keyframe and MapPoint poses
+//    cout << "apply transform with value: " << value << endl;
+//    switch (type)
+//    {
+//    case ROT_X:
+//        //build different transformation matrices for x,y and z rotation
+//        rotate((float)value, 0);
+//        break;
+//    case ROT_Y:
+//        rotate((float)value, 1);
+//        break;
+//    case ROT_Z:
+//        rotate((float)value, 2);
+//        break;
+//    case TRANS_X:
+//        translate((float)value, 0);
+//        break;
+//    case TRANS_Y:
+//        translate((float)value, 1);
+//        break;
+//    case TRANS_Z:
+//        translate((float)value, 2);
+//        break;
+//    case SCALE:
+//        scale((float)value);
+//        break;
+//    }
+//
+//    //update scene objects
+//    //exchange all Keyframes (also change name)
+//
+//    //todo: call on keyframes in map
+//    //todo: we have to remove all meshes of keyframes from scene
+//    _keyFrames->deleteChildren();
+//    for (auto* kf : mpKeyFrameDatabase->keyFrames()) 
+//    {
+//        SLCVCamera* cam = kf->getNewSceneObject(); //old objects should be deleted now
+//        cam->fov(_calib->cameraFovDeg());
+//        cam->focalDist(0.11);
+//        cam->clipNear(0.1);
+//        cam->clipFar(1000.0);
+//        _keyFrames->addChild(cam);
+//    }
+//
+//    //exchange mappoints:
+//    //remove old mesh from map node
+//    SLPoints* pts = _map->getSceneObject();
+//    if (_mapPC->deleteMesh(pts))
+//    {
+//        _mapPC->addMesh(_map->getNewSceneObject());
+//        _mapPC->updateAABBRec();
+//    }
+//    else
+//        cout << "Mesh not found" << endl;
+//
+//
+//    //compute resulting values for map points
+//    auto ptsInMap = _map->GetAllMapPoints();
+//    for (auto& mp : ptsInMap) {
+//        //mean viewing direction and depth
+//        mp->UpdateNormalAndDepth();
+//        mp->ComputeDistinctiveDescriptors();
+//    }
+//}
 
-    case 1:
-        // Calculate rotation about y axis
-        rot = (Mat_<float>(4, 4) <<
-            cos(valDeg), 0, sin(valDeg), 0,
-            0, 1, 0, 0,
-            -sin(valDeg), 0, cos(valDeg), 0,
-            0, 0, 0, 1
-            );
-        //invert direction for Y
-        rot = rot.inv();
-        break;
-
-    case 2:
-        // Calculate rotation about z axis
-        rot = (Mat_<float>(4, 4) <<
-            cos(valDeg), -sin(valDeg), 0, 0,
-            sin(valDeg), cos(valDeg), 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-            );
-        //invert direction for Z
-        rot = rot.inv();
-        break;
-    }
-
-    return rot;
-}
-
-// Build rotation matrix
-Mat SLCVTrackedRaulMur::buildTransMat(float &val, int type)
-{
-    Mat trans = cv::Mat::zeros(3, 1, CV_32F);
-    switch (type)
-    {
-    case 0:
-        trans.at<float>(0, 0) = val;
-        break;
-
-    case 1:
-        //!!turn sign of y coordinate
-        trans.at<float>(1, 0) = -val;
-        break;
-
-    case 2:
-        //!!turn sign of z coordinate
-        trans.at<float>(2, 0) = -val;
-        break;
-    }
-
-    return trans;
-}
-
-//todo: move to map
-void SLCVTrackedRaulMur::rotate(float value, int type)
-{
-    //transform to degree
-    value *= SL_DEG2RAD;
-
-    Mat rot = buildRotMat(value, type);
-    cout << "rot: " << rot << endl;
-
-    //rotate keyframes
-    Mat Twc;
-    for (auto& kf : mpKeyFrameDatabase->keyFrames())
-    {
-        //get and rotate
-        Twc = kf->GetPose().inv();
-        Twc = rot * Twc;
-        //set back
-        kf->Tcw(Twc.inv());
-    }
-
-    //rotate keypoints
-    Mat Pw;
-    Mat rot33 = rot.rowRange(0, 3).colRange(0, 3);
-    auto ptsInMap = _map->GetAllMapPoints();
-    for (auto& pt : ptsInMap)
-    {
-        Pw = rot33 * pt->worldPos();
-        pt->worldPos(rot33 * pt->worldPos());
-    }
-}
-
-void SLCVTrackedRaulMur::translate(float value, int type)
-{
-    Mat trans = buildTransMat(value, type);
-
-    cout << "trans: " << trans << endl;
-
-    //rotate keyframes
-    Mat Twc;
-    for (auto& kf : mpKeyFrameDatabase->keyFrames())
-    {
-        //get and translate
-        cv::Mat Twc = kf->GetPose().inv();
-        Twc.rowRange(0, 3).col(3) += trans;
-        //set back
-        kf->Tcw(Twc.inv());
-    }
-
-    //rotate keypoints
-    auto ptsInMap = _map->GetAllMapPoints();
-    for (auto& pt : ptsInMap)
-    {
-        pt->worldPos(trans + pt->worldPos());
-    }
-}
-
-void SLCVTrackedRaulMur::scale(float value)
-{
-    for (auto& kf : mpKeyFrameDatabase->keyFrames())
-    {
-        //get and translate
-        cv::Mat Tcw = kf->GetPose();
-        Tcw.rowRange(0, 3).col(3) *= value;
-        //set back
-        kf->Tcw(Tcw);
-    }
-
-    //rotate keypoints
-    auto ptsInMap = _map->GetAllMapPoints();
-    for (auto& pt : ptsInMap)
-    {
-        pt->worldPos(value * pt->worldPos());
-    }
-}
-
-void SLCVTrackedRaulMur::applyTransformation(double value, TransformType type)
-{
-    //apply rotation, translation and scale to Keyframe and MapPoint poses
-    cout << "apply transform with value: " << value << endl;
-    switch (type)
-    {
-    case ROT_X:
-        //build different transformation matrices for x,y and z rotation
-        rotate((float)value, 0);
-        break;
-    case ROT_Y:
-        rotate((float)value, 1);
-        break;
-    case ROT_Z:
-        rotate((float)value, 2);
-        break;
-    case TRANS_X:
-        translate((float)value, 0);
-        break;
-    case TRANS_Y:
-        translate((float)value, 1);
-        break;
-    case TRANS_Z:
-        translate((float)value, 2);
-        break;
-    case SCALE:
-        scale((float)value);
-        break;
-    }
-
-    //update scene objects
-    //exchange all Keyframes (also change name)
-
-    //todo: we have to remove all meshes of keyframes from scene
-    _keyFrames->deleteChildren();
-    for (auto* kf : mpKeyFrameDatabase->keyFrames()) 
-    {
-        SLCVCamera* cam = kf->getNewSceneObject(); //old objects should be deleted now
-        cam->fov(_calib->cameraFovDeg());
-        cam->focalDist(0.11);
-        cam->clipNear(0.1);
-        cam->clipFar(1000.0);
-        _keyFrames->addChild(cam);
-    }
-
-    //exchange mappoints:
-    //remove old mesh from map node
-    SLPoints* pts = _map->getSceneObject();
-    if (_mapPC->deleteMesh(pts))
-    {
-        _mapPC->addMesh(_map->getNewSceneObject());
-        _mapPC->updateAABBRec();
-    }
-    else
-        cout << "Mesh not found" << endl;
-
-
-    //compute resulting values for map points
-    auto ptsInMap = _map->GetAllMapPoints();
-    for (auto& mp : ptsInMap) {
-        //mean viewing direction and depth
-        mp->UpdateNormalAndDepth();
-        mp->ComputeDistinctiveDescriptors();
-    }
-}
-
+//todo: move to 
 void SLCVTrackedRaulMur::saveState()
 {
     string filename = "../_data/calibrations/orb-slam-state-bern3-ct.json";

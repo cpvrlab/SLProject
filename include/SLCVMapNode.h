@@ -17,28 +17,34 @@
 class SLCVMap;
 class SLMaterial;
 class SLPoints;
+class SLCVKeyFrame;
 
 //-----------------------------------------------------------------------------
 class SLCVMapNode : public SLNode
 {
 public:
-    SLCVMapNode(SLCVMap* map, std::string name);
+    SLCVMapNode(std::string name);
+    SLCVMapNode(std::string name, SLCVMap& map);
     ~SLCVMapNode();
-
-    //!add objects in SLCVMap into SLCVMapNode
-    void addMapObjects(SLCVMap& map);
 
     //!update map with SLPoints of map points for current frame
     //!If an empty vector is provided, the mesh is only removed
     void updateMapPoints(const std::vector<SLCVMapPoint*>& pts);
     void updateMapPointsLocal(const std::vector<SLCVMapPoint*>& pts);
     void updateMapPointsMatched(const std::vector<SLCVMapPoint*>& mapPointMatches);
+    void updateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs);
+    void updateAll(SLCVMap& map); //todo: const SLCVMap
+
     //!Remove map points
     void removeMapPoints();
     void removeMapPointsLocal();
     void removeMapPointsMatched();
+    void removeKeyFrames();
 
 private:
+    //! add map nodes and instantiate materials
+    void init();
+
     //!convenience function: may be used to update all point clouds
     void doUpdateMapPoints(std::string name, const std::vector<SLCVMapPoint*>& pts,
         SLNode* node, SLMesh* mesh, SLMaterial* material);

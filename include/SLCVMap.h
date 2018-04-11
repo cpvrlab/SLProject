@@ -18,6 +18,7 @@
 class SLPoints;
 class SLCVKeyFrameDB;
 class SLCVVKeyFrame;
+class SLCVMapNode;
 
 using namespace std;
 
@@ -28,6 +29,10 @@ using namespace std;
 class SLCVMap
 {
 public:
+    enum TransformType {
+        ROT_X = 0, ROT_Y, ROT_Z, TRANS_X, TRANS_Y, TRANS_Z, SCALE
+    };
+
     SLCVMap(const string& name);
     ~SLCVMap();
 
@@ -57,6 +62,17 @@ public:
     void EraseKeyFrame(SLCVKeyFrame* pKF);
 
     vector<SLCVKeyFrame*> mvpKeyFrameOrigins;
+
+    //set map node for visu update
+    void setMapNode(SLCVMapNode* mapNode);
+
+    //transformation functions
+    void rotate(float value, int type);
+    void translate(float value, int type);
+    void scale(float value);
+    void applyTransformation(double value, TransformType type);
+    cv::Mat buildTransMat(float &val, int type);
+    cv::Mat buildRotMat(float &valDeg, int type);
 private:
     //SLCVVMapPoint _mapPoints;
     //std::vector<SLCVMapPoint*> _mapPoints;
@@ -71,6 +87,8 @@ private:
     SLPoints* _sceneObject = NULL;
 
     SLCVKeyFrameDB* mpKeyFrameDatabase=NULL;
+
+    SLCVMapNode* _mapNode = NULL;
 };
 
 #endif // !SLCVMAP_H

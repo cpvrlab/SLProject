@@ -2632,8 +2632,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
         cam1->background().texture(s->videoTexture());
 
-        SLCVMap* map = new SLCVMap("Map");
-
         ORBVocabulary* vocabulary = new ORBVocabulary();
         string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
         bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
@@ -2649,6 +2647,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
 
         //load map points and keyframes from json file
+        SLCVMap* map = new SLCVMap("Map");
         SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
         loader.load(*map, *kfDB);
 
@@ -2661,15 +2660,15 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode("scene");
         scene->addChild(light1);
 
-        //SLNode* mapNode = new SLNode("map");
-        SLCVMapNode* mapNode = new SLCVMapNode(map, "map");
+        //Mapnode instantiation and load map into scene objects
+        SLCVMapNode* mapNode = new SLCVMapNode("map", *map );
         //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
         //y-axis down and z-forward
         mapNode->rotate(180, 1, 0, 0);
         mapNode->addChild(cam1);
         scene->addChild(mapNode);
         //load map into scene objects
-        mapNode->addMapObjects(*map);
+
 
         //add tracker
         s->trackers().push_back(new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map,

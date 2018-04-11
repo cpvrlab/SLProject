@@ -16,18 +16,42 @@
 #include <SLApplication.h>
 
 //-----------------------------------------------------------------------------
-SLCVMapNode::SLCVMapNode(SLCVMap* map, std::string name)
-    : _keyFrames(new SLNode("KeyFrames")),
+SLCVMapNode::SLCVMapNode(std::string name)
+    : SLNode(name),
+    _keyFrames(new SLNode("KeyFrames")),
     _mapPC(new SLNode("MapPC")),
     _mapMatchedPC(new SLNode("MapMatchedPC")),
     _mapLocalPC(new SLNode("MapLocalPC"))
+{
+    init();
+}
+//-----------------------------------------------------------------------------
+SLCVMapNode::SLCVMapNode(std::string name, SLCVMap& map)
+    : SLNode(name),
+    _keyFrames(new SLNode("KeyFrames")),
+    _mapPC(new SLNode("MapPC")),
+    _mapMatchedPC(new SLNode("MapMatchedPC")),
+    _mapLocalPC(new SLNode("MapLocalPC"))
+{
+    init();
+    updateAll(map);
+}
+//-----------------------------------------------------------------------------
+SLCVMapNode::~SLCVMapNode()
+{
+    //children should be deleted in destructor of base class
+    //this->deleteChildren();
+}
+//-----------------------------------------------------------------------------
+void SLCVMapNode::init()
 {
     //add map nodes for keyframes, mappoints, matched mappoints and local mappoints
     addChild(_keyFrames);
     addChild(_mapPC);
     addChild(_mapMatchedPC);
+    addChild(_mapLocalPC);
 
-    //instantiate and assign meshes and materials to 
+    //instantiate materials
     _pcMat = new SLMaterial("Red", SLCol4f::RED);
     _pcMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
     _pcMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 2.0f));
@@ -41,61 +65,22 @@ SLCVMapNode::SLCVMapNode(SLCVMap* map, std::string name)
     _pcLocalMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
 }
 //-----------------------------------------------------------------------------
-SLCVMapNode::~SLCVMapNode()
+void SLCVMapNode::updateAll(SLCVMap& map) //todo: const SLCVMap
 {
-    //todo: wann müssen wir deleten? nur wenn nicht der scene angefügt??
-    if (_keyFrames)
-        delete _keyFrames;
-    if (_mapPC)
-        delete _mapPC;
-    if (_mapMatchedPC)
-        delete _mapMatchedPC;
-    if (_mapLocalPC)
-        delete _mapLocalPC;
-
-    //todo: ggf material und meshes deleten??
-}
-//-----------------------------------------------------------------------------
-void SLCVMapNode::addMapObjects(SLCVMap& map)
-{
-    //map points
-    //todo: komplett hier!!!
-    SLPoints* mapPtsMesh = map.getSceneObject();
-    _mapPC->addMesh(mapPtsMesh);
-
-    ////add additional empty point clouds for visualization of local map and map point matches:
-    ////map point matches
-    ////todo: notwendig einen punkt einzufügen???
-    //SLVVec3f points, normals;
-    //points.push_back(SLVec3f(0.f, 0.f, 0.f));
-    //normals.push_back(SLVec3f(0.0001f, 0.0001f, 0.0001f));
-    //SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", _pcMatchedMat);
-    //_mapLocalPC->addMesh(mapMatchesMesh);
-
-    ////local map points mesh
-    //SLPoints* mapLocalMesh = new SLPoints(points, normals, "MapPointsLocal", _pcLocalMat);
-    //_mapLocalPC->addMesh(mapLocalMesh);
-
-    //add keyFrames
-    auto keyFrames = map.GetAllKeyFrames();
-    for (auto* kf : keyFrames) {
-        SLCVCamera* cam = kf->getSceneObject();
-        cam->fov(SLApplication::activeCalib->cameraFovDeg());
-        cam->focalDist(0.11);
-        cam->clipNear(0.1);
-        cam->clipFar(1000.0);
-        _keyFrames->addChild(cam);
-    }
+    //remove and delete all old meshes, if existant
+    removeMapPointsLocal();
+    removeMapPointsMatched();
+    //remove and reinsert map points and keyframes
+    updateMapPoints(map.GetAllMapPoints());
+    updateKeyFrames( map.GetAllKeyFrames());
 }
 //-----------------------------------------------------------------------------
 void SLCVMapNode::doUpdateMapPoints(std::string name, const std::vector<SLCVMapPoint*>& pts,
     SLNode* node, SLMesh* mesh, SLMaterial* material)
 {
     //remove old mesh, if it exists
-    if (_mapMatchesMesh)
-    {
-        _mapMatchedPC->deleteMesh(_mapMatchesMesh);
-    }
+    if (mesh)
+        node->deleteMesh(mesh);
 
     //instantiate and add new mesh
     if (pts.size())
@@ -128,6 +113,19 @@ void SLCVMapNode::updateMapPointsMatched(const std::vector<SLCVMapPoint*>& pts)
     doUpdateMapPoints("MapPointsMatches", pts, _mapMatchedPC, _mapMatchesMesh, _pcMatchedMat);
 }
 //-----------------------------------------------------------------------------
+void SLCVMapNode::updateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
+{
+    _keyFrames->deleteChildren();
+    for (auto* kf : kfs) {
+        SLCVCamera* cam = kf->getSceneObject();
+        cam->fov(SLApplication::activeCalib->cameraFovDeg());
+        cam->focalDist(0.11);
+        cam->clipNear(0.1);
+        cam->clipFar(1000.0);
+        _keyFrames->addChild(cam);
+    }
+}
+//-----------------------------------------------------------------------------
 void SLCVMapNode::removeMapPoints()
 {
     if (_mapMesh)
@@ -144,4 +142,9 @@ void SLCVMapNode::removeMapPointsMatched()
 {
     if (_mapMatchesMesh)
         _mapMatchedPC->deleteMesh(_mapMatchesMesh);
+}
+//-----------------------------------------------------------------------------
+void SLCVMapNode::removeKeyFrames()
+{
+    _keyFrames->deleteChildren();
 }
