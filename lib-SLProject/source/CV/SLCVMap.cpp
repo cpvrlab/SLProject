@@ -35,40 +35,40 @@ SLCVMap::~SLCVMap()
     }
 }
 //-----------------------------------------------------------------------------
-//! get visual representation as SLPoints
-SLPoints* SLCVMap::getSceneObject()
-{
-    if (!_sceneObject)
-    {
-        _sceneObject = getNewSceneObject();
-    }
-    else
-    {
-        //todo: check if something has changed (e.g. size) and manipulate object
-    }
-
-    return _sceneObject;
-}
+////! get visual representation as SLPoints
+//SLPoints* SLCVMap::getSceneObject()
+//{
+//    if (!_sceneObject)
+//    {
+//        _sceneObject = getNewSceneObject();
+//    }
+//    else
+//    {
+//        //todo: check if something has changed (e.g. size) and manipulate object
+//    }
+//
+//    return _sceneObject;
+//}
 //-----------------------------------------------------------------------------
-//! get visual representation as SLPoints
-SLPoints* SLCVMap::getNewSceneObject()
-{
-    //make a new SLPoints object
-    SLMaterial* pcMat1 = new SLMaterial("Red", SLCol4f::RED);
-    pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-    pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 2.0f));
-
-    //get points as Vec3f and collect normals
-    SLVVec3f points, normals;
-    for (auto mapPt : mspMapPoints) {
-        points.push_back(mapPt->worldPosVec());
-        normals.push_back(mapPt->normalVec());
-    }
-
-    _sceneObject = new SLPoints(points, normals, "MapPoints", pcMat1);
-    //vectos must habe the same size
-    return _sceneObject;
-}
+////! get visual representation as SLPoints
+//SLPoints* SLCVMap::getNewSceneObject()
+//{
+//    //make a new SLPoints object
+//    SLMaterial* pcMat1 = new SLMaterial("Red", SLCol4f::RED);
+//    pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+//    pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 2.0f));
+//
+//    //get points as Vec3f and collect normals
+//    SLVVec3f points, normals;
+//    for (auto mapPt : mspMapPoints) {
+//        points.push_back(mapPt->worldPosVec());
+//        normals.push_back(mapPt->normalVec());
+//    }
+//
+//    _sceneObject = new SLPoints(points, normals, "MapPoints", pcMat1);
+//    //vectos must habe the same size
+//    return _sceneObject;
+//}
 //-----------------------------------------------------------------------------
 void SLCVMap::clear()
 {
@@ -179,20 +179,19 @@ void SLCVMap::rotate(float value, int type)
 
     //rotate keyframes
     Mat Twc;
-    for (auto& kf : mpKeyFrameDatabase->keyFrames())
+    for (auto& kf : mspKeyFrames)
     {
         //get and rotate
         Twc = kf->GetPose().inv();
         Twc = rot * Twc;
         //set back
-        kf->Tcw(Twc.inv());
+        kf->SetPose(Twc.inv());
     }
 
     //rotate keypoints
     Mat Pw;
     Mat rot33 = rot.rowRange(0, 3).colRange(0, 3);
-    auto ptsInMap = GetAllMapPoints();
-    for (auto& pt : ptsInMap)
+    for (auto& pt : mspMapPoints)
     {
         Pw = rot33 * pt->worldPos();
         pt->worldPos(rot33 * pt->worldPos());
@@ -207,18 +206,17 @@ void SLCVMap::translate(float value, int type)
 
     //rotate keyframes
     Mat Twc;
-    for (auto& kf : mpKeyFrameDatabase->keyFrames())
+    for (auto& kf : mspKeyFrames)
     {
         //get and translate
         cv::Mat Twc = kf->GetPose().inv();
         Twc.rowRange(0, 3).col(3) += trans;
         //set back
-        kf->Tcw(Twc.inv());
+        kf->SetPose(Twc.inv());
     }
 
     //rotate keypoints
-    auto ptsInMap = GetAllMapPoints();
-    for (auto& pt : ptsInMap)
+    for (auto& pt : mspMapPoints)
     {
         pt->worldPos(trans + pt->worldPos());
     }
@@ -226,18 +224,17 @@ void SLCVMap::translate(float value, int type)
 //-----------------------------------------------------------------------------
 void SLCVMap::scale(float value)
 {
-    for (auto& kf : mpKeyFrameDatabase->keyFrames())
+    for (auto& kf : mspKeyFrames)
     {
         //get and translate
         cv::Mat Tcw = kf->GetPose();
         Tcw.rowRange(0, 3).col(3) *= value;
         //set back
-        kf->Tcw(Tcw);
+        kf->SetPose(Tcw);
     }
 
     //rotate keypoints
-    auto ptsInMap = GetAllMapPoints();
-    for (auto& pt : ptsInMap)
+    for (auto& pt : mspMapPoints)
     {
         pt->worldPos(value * pt->worldPos());
     }
@@ -273,44 +270,19 @@ void SLCVMap::applyTransformation(double value, TransformType type)
         break;
     }
 
+    //compute resulting values for map points
+    for (auto& mp : mspMapPoints)
+    {
+        //mean viewing direction and depth
+        mp->UpdateNormalAndDepth();
+        mp->ComputeDistinctiveDescriptors();
+    }
 
     //update scene objects
     //exchange all Keyframes (also change name)
     if (_mapNode)
     {
         _mapNode->updateAll(*this);
-    }
-
-    //todo: call on keyframes in map
-    //todo: we have to remove all meshes of keyframes from scene
-    _keyFrames->deleteChildren();
-    for (auto* kf : mpKeyFrameDatabase->keyFrames())
-    {
-        SLCVCamera* cam = kf->getNewSceneObject(); //old objects should be deleted now
-        cam->fov(_calib->cameraFovDeg());
-        cam->focalDist(0.11);
-        cam->clipNear(0.1);
-        cam->clipFar(1000.0);
-        _keyFrames->addChild(cam);
-    }
-
-    //exchange mappoints:
-    //remove old mesh from map node
-    SLPoints* pts = _map->getSceneObject();
-    if (_mapPC->deleteMesh(pts))
-    {
-        _mapPC->addMesh(_map->getNewSceneObject());
-        _mapPC->updateAABBRec();
-    }
-    else
-        cout << "Mesh not found" << endl;
-
-    //compute resulting values for map points
-    auto ptsInMap = _map->GetAllMapPoints();
-    for (auto& mp : ptsInMap) {
-        //mean viewing direction and depth
-        mp->UpdateNormalAndDepth();
-        mp->ComputeDistinctiveDescriptors();
     }
 }
 //-----------------------------------------------------------------------------

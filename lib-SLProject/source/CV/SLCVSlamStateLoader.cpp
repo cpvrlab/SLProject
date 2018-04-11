@@ -182,6 +182,8 @@ void SLCVSlamStateLoader::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         }
         //kfs.push_back(newKf);
         map.AddKeyFrame(newKf);
+        //add to keyframe database
+        kfDB.add(newKf);
         
         //pointer goes out of scope und wird invalid!!!!!!
         //map pointer by id for look-up

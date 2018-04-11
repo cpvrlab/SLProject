@@ -48,8 +48,8 @@ public:
     std::vector<SLCVKeyFrame*> GetAllKeyFrames();
 
     //! get visual representation as SLPoints
-    SLPoints* getSceneObject();
-    SLPoints* getNewSceneObject();
+    //SLPoints* getSceneObject();
+    //SLPoints* getNewSceneObject();
     void SetReferenceMapPoints(const std::vector<SLCVMapPoint*> &vpMPs);
 
     long unsigned int MapPointsInMap();

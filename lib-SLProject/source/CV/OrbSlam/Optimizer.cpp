@@ -202,7 +202,7 @@ void Optimizer::BundleAdjustment(const vector<SLCVKeyFrame *> &vpKFs, const vect
         if(nLoopKF==0)
         {
             //pKF->SetPose(Converter::toCvMat(SE3quat));
-            pKF->Tcw(Converter::toCvMat(SE3quat));
+            pKF->SetPose(Converter::toCvMat(SE3quat));
         }
         else
         {
@@ -771,7 +771,7 @@ void Optimizer::LocalBundleAdjustment(SLCVKeyFrame *pKF, bool* pbStopFlag, SLCVM
         g2o::VertexSE3Expmap* vSE3 = static_cast<g2o::VertexSE3Expmap*>(optimizer.vertex(pKF->id()));
         g2o::SE3Quat SE3quat = vSE3->estimate();
         //pKF->SetPose(Converter::toCvMat(SE3quat));
-        pKF->Tcw(Converter::toCvMat(SE3quat));
+        pKF->SetPose(Converter::toCvMat(SE3quat));
     }
 
     //Points

@@ -18,6 +18,7 @@
 #include <OrbSlam/ORBVocabulary.h>
 #include <SLGLTexture.h>
 #include <opencv2/core/core.hpp>
+#include <SLCVFrame.h>
 
 using namespace ORB_SLAM2;
 
@@ -57,7 +58,7 @@ public:
     void id(int id) { _id = id; }
     void setKeyFrameDB( SLCVKeyFrameDB* kfDb );
 
-    void Tcw(const SLCVMat& Tcw) {
+    void SetPose(const SLCVMat& Tcw) {
         //_wTc = wTc; 
         //unique_lock<mutex> lock(mMutexPose);
         Tcw.copyTo(_Tcw);
@@ -78,7 +79,7 @@ public:
     void descriptors(const SLCVMat& descriptors) { descriptors.copyTo(mDescriptors); }
     //! get visual representation as SLPoints
     SLCVCamera* getSceneObject();
-    SLCVCamera* getNewSceneObject();
+    //SLCVCamera* getNewSceneObject();
 
     // Covisibility graph functions
     vector<SLCVKeyFrame*> GetBestCovisibilityKeyFrames(const int &N);
@@ -212,7 +213,7 @@ private:
     SLCVMat Ow;
 
     // Grid over the image to speed up feature matching
-    std::vector< std::vector <std::vector<size_t> > > mGrid;
+    std::vector<std::size_t> mGrid[FRAME_GRID_COLS][FRAME_GRID_ROWS];
 
     // MapPoints associated to keypoints (this array contains NULL for every
     //unassociated keypoint from original frame)
@@ -230,7 +231,7 @@ private:
 
     //Pointer to visual representation object (ATTENTION: do not delete this object)
     //We do not use inheritence, because the scene is responsible for all scene objects!
-    SLCVCamera* _camera = NULL;
+    //SLCVCamera* _camera = NULL;
 
     // KeyPoints, stereo coordinate and descriptors (all associated by an index)
 

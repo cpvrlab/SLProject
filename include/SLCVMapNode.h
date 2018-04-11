@@ -47,7 +47,7 @@ private:
 
     //!convenience function: may be used to update all point clouds
     void doUpdateMapPoints(std::string name, const std::vector<SLCVMapPoint*>& pts,
-        SLNode* node, SLMesh* mesh, SLMaterial* material);
+        SLNode*& node, SLPoints*& mesh, SLMaterial*& material);
 
     //Nodes:
     SLNode* _keyFrames = NULL;

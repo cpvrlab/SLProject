@@ -1222,73 +1222,75 @@ void SLCVTrackedRaulMur::UpdateLocalKeyFrames()
 //    }
 //}
 //
-////todo: move to map
-//void SLCVTrackedRaulMur::applyTransformation(double value, TransformType type)
-//{
-//    //apply rotation, translation and scale to Keyframe and MapPoint poses
-//    cout << "apply transform with value: " << value << endl;
-//    switch (type)
-//    {
-//    case ROT_X:
-//        //build different transformation matrices for x,y and z rotation
-//        rotate((float)value, 0);
-//        break;
-//    case ROT_Y:
-//        rotate((float)value, 1);
-//        break;
-//    case ROT_Z:
-//        rotate((float)value, 2);
-//        break;
-//    case TRANS_X:
-//        translate((float)value, 0);
-//        break;
-//    case TRANS_Y:
-//        translate((float)value, 1);
-//        break;
-//    case TRANS_Z:
-//        translate((float)value, 2);
-//        break;
-//    case SCALE:
-//        scale((float)value);
-//        break;
-//    }
-//
-//    //update scene objects
-//    //exchange all Keyframes (also change name)
-//
-//    //todo: call on keyframes in map
-//    //todo: we have to remove all meshes of keyframes from scene
-//    _keyFrames->deleteChildren();
-//    for (auto* kf : mpKeyFrameDatabase->keyFrames()) 
-//    {
-//        SLCVCamera* cam = kf->getNewSceneObject(); //old objects should be deleted now
-//        cam->fov(_calib->cameraFovDeg());
-//        cam->focalDist(0.11);
-//        cam->clipNear(0.1);
-//        cam->clipFar(1000.0);
-//        _keyFrames->addChild(cam);
-//    }
-//
-//    //exchange mappoints:
-//    //remove old mesh from map node
-//    SLPoints* pts = _map->getSceneObject();
-//    if (_mapPC->deleteMesh(pts))
-//    {
-//        _mapPC->addMesh(_map->getNewSceneObject());
-//        _mapPC->updateAABBRec();
-//    }
-//    else
-//        cout << "Mesh not found" << endl;
-//
-//
-//    //compute resulting values for map points
-//    auto ptsInMap = _map->GetAllMapPoints();
-//    for (auto& mp : ptsInMap) {
-//        //mean viewing direction and depth
-//        mp->UpdateNormalAndDepth();
-//        mp->ComputeDistinctiveDescriptors();
-//    }
-//}
+//todo: move to map
+void SLCVTrackedRaulMur::applyTransformation(double value, TransformType type)
+{
+    ////apply rotation, translation and scale to Keyframe and MapPoint poses
+    //cout << "apply transform with value: " << value << endl;
+    //switch (type)
+    //{
+    //case ROT_X:
+    //    //build different transformation matrices for x,y and z rotation
+    //    rotate((float)value, 0);
+    //    break;
+    //case ROT_Y:
+    //    rotate((float)value, 1);
+    //    break;
+    //case ROT_Z:
+    //    rotate((float)value, 2);
+    //    break;
+    //case TRANS_X:
+    //    translate((float)value, 0);
+    //    break;
+    //case TRANS_Y:
+    //    translate((float)value, 1);
+    //    break;
+    //case TRANS_Z:
+    //    translate((float)value, 2);
+    //    break;
+    //case SCALE:
+    //    scale((float)value);
+    //    break;
+    //}
+
+    ////update scene objects
+    ////exchange all Keyframes (also change name)
+
+    ////todo: call on keyframes in map
+    ////todo: we have to remove all meshes of keyframes from scene
+    //_keyFrames->deleteChildren();
+    //for (auto* kf : mpKeyFrameDatabase->keyFrames()) 
+    //{
+    //    SLCVCamera* cam = kf->getNewSceneObject(); //old objects should be deleted now
+    //    cam->fov(_calib->cameraFovDeg());
+    //    cam->focalDist(0.11);
+    //    cam->clipNear(0.1);
+    //    cam->clipFar(1000.0);
+    //    _keyFrames->addChild(cam);
+    //}
+
+    ////exchange mappoints:
+    ////remove old mesh from map node
+    //SLPoints* pts = _map->getSceneObject();
+    //if (_mapPC->deleteMesh(pts))
+    //{
+    //    _mapPC->addMesh(_map->getNewSceneObject());
+    //    _mapPC->updateAABBRec();
+    //}
+    //else
+    //    cout << "Mesh not found" << endl;
+
+    //apply transformation on map
+    _map->applyTransformation(value, (SLCVMap::TransformType)type);
+
+    //compute resulting values for map points
+    auto ptsInMap = _map->GetAllMapPoints();
+    for (auto& mp : ptsInMap) {
+        //mean viewing direction and depth
+        mp->UpdateNormalAndDepth();
+        mp->ComputeDistinctiveDescriptors();
+    }
+}
 
 //todo: move to 
 void SLCVTrackedRaulMur::saveState()

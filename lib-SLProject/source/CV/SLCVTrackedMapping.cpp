@@ -518,7 +518,7 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
     cv::Mat Tc2w = pKFcur->GetPose();
     Tc2w.col(3).rowRange(0, 3) = Tc2w.col(3).rowRange(0, 3)*invMedianDepth;
     //pKFcur->SetPose(Tc2w);
-    pKFcur->Tcw(Tc2w);
+    pKFcur->SetPose(Tc2w);
 
     // Scale points
     vector<SLCVMapPoint*> vpAllMapPoints = pKFini->GetMapPointMatches();

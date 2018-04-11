@@ -33,6 +33,9 @@ SLCVMapNode::SLCVMapNode(std::string name, SLCVMap& map)
     _mapMatchedPC(new SLNode("MapMatchedPC")),
     _mapLocalPC(new SLNode("MapLocalPC"))
 {
+    //set this map not in the map for updates of scene objects after map transformations
+    map.setMapNode(this);
+
     init();
     updateAll(map);
 }
@@ -76,7 +79,7 @@ void SLCVMapNode::updateAll(SLCVMap& map) //todo: const SLCVMap
 }
 //-----------------------------------------------------------------------------
 void SLCVMapNode::doUpdateMapPoints(std::string name, const std::vector<SLCVMapPoint*>& pts,
-    SLNode* node, SLMesh* mesh, SLMaterial* material)
+    SLNode*& node, SLPoints*& mesh, SLMaterial*& material)
 {
     //remove old mesh, if it exists
     if (mesh)
