@@ -12,10 +12,13 @@
 #define SLGUIDEMO_H
 
 #include <stdafx.h>
+#include <SLImGuiInfosDialog.h>
+
 class SLScene;
 class SLSceneView;
 class SLNode;
 class SLGLTexture;
+class SLImGuiInfosDialog;
 
 //-----------------------------------------------------------------------------
 //! ImGui UI class for the UI of the demo applications
@@ -28,7 +31,7 @@ integrated in the SLProject.<br>
 */
 class AppDemoGui
 {
-    public:
+public:
     static void             build               (SLScene* s, SLSceneView* sv);
 
     static void             buildMenuBar        (SLScene* s, SLSceneView* sv);
@@ -36,8 +39,9 @@ class AppDemoGui
     static void             addSceneGraphNode   (SLScene* s, SLNode* node);
     static void             buildProperties     (SLScene* s);
     static void             buildInfosTracking  (SLScene* s, SLSceneView* sv);
-    static void             buildSlamInteraction(SLScene* s, SLSceneView* sv);
     static void             buildStatsDebugTiming(SLScene* s, SLSceneView* sv);
+    static void             buildInfosDialogs();
+
     static void             loadConfig          (SLint dotsPerInch);
     static void             saveConfig          ();
 
@@ -62,7 +66,9 @@ class AppDemoGui
     static SLbool           showInfosTracking;  //!< Flag if tracking info should be shown
     static SLbool           showStatsDebugTiming;//!< Flag if tracking info should be shown   
     static SLbool           showChristoffel;    //!< Flag if Christoffel infos should be shown
-    static SLbool           showSlamInteraction;//!< Flag if SLAM interaction should be shown
+
+    //! Vector containing all info dialogs, that belong to special scenes
+    static std::vector<SLImGuiInfosDialog*> _infoDialogs;
 };
 //-----------------------------------------------------------------------------
 #endif

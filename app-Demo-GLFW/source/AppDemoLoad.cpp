@@ -48,6 +48,9 @@
 #include <SLCVKeyFrameDB.h>
 #include <SLCVSlamStateLoader.h>
 
+#include <AppDemoGui.h>
+#include <SLImGuiTrackedMapping.h>
+
 //-----------------------------------------------------------------------------
 // Foreward declarations for helper functions used only in this file
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLint, SLMaterial*, SLMaterial*);
@@ -2614,16 +2617,16 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->attenuation(1, 0, 0);
 
         ORBVocabulary* vocabulary = new ORBVocabulary();
-        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-        //bool bVocLoad = true;
-        if (!bVocLoad)
-        {
-            cerr << "Wrong path to vocabulary. " << endl;
-            cerr << "Failed to open at: " << strVocFile << endl;
-            exit(-1);
-        }
-        cout << "Vocabulary loaded!" << endl << endl;
+        //string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
+        //bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
+        ////bool bVocLoad = true;
+        //if (!bVocLoad)
+        //{
+        //    cerr << "Wrong path to vocabulary. " << endl;
+        //    cerr << "Failed to open at: " << strVocFile << endl;
+        //    exit(-1);
+        //}
+        //cout << "Vocabulary loaded!" << endl << endl;
 
         SLCVMap* map = new SLCVMap("Map");
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
@@ -2645,7 +2648,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //mapNode->addChild(mapMatchedPC);
 
         //add tracker
-        s->trackers().push_back(new SLCVTrackedMapping(cam1, vocabulary, kfDB, map, mapNode ));
+        SLCVTrackedMapping* tm = new SLCVTrackedMapping(cam1, vocabulary, kfDB, map, mapNode);
+        s->trackers().push_back(tm);
+
+        SLImGuiTrackedMapping* trackedMappingUI = new SLImGuiTrackedMapping("TrackedMappingUI", tm);
+        AppDemoGui::_infoDialogs.push_back(trackedMappingUI);
+
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));

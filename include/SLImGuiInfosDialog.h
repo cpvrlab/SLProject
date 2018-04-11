@@ -25,11 +25,15 @@ public:
     virtual ~SLImGuiInfosDialog() {}
     virtual void buildInfos() = 0;
 
-    std::string getName() const { return _name; }
+    const char* getName() const { return _name.c_str(); }
+
+    bool* status() { return &_active; };
+    bool setStatus(bool active) { _active = active; }
 
 private:
     //! name in imgui menu entry for this infos dialogue
     std::string _name;
+    bool _active = false;
 };
 
 #endif // !SLIMGUI_INFOSDIALOG_H

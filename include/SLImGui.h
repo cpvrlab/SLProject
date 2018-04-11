@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLImGuiInfos.h
+//  File:      SLImGuiTrackedMapping.h
 //  Author:    Michael Goettlicher
 //  Date:      April 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,30 +8,23 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLIMGUI_INFOS_H
-#define SLIMGUI_INFOS_H
+#ifndef SL_IMGUI_TRACKEDMAPPING_H
+#define SL_IMGUI_TRACKEDMAPPING_H
 
-#include <string>
+#include <SLImGuiInfosDialog.h>
+
+class SLCVTrackedMapping;
 
 //-----------------------------------------------------------------------------
-//! ImGui UI interface to show specific infos in an imgui dialogue
-class SLImGuiInfos
+class SLImGuiTrackedMapping : public SLImGuiInfosDialog
 {
 public:
-    SLImGuiInfos(std::string name)
-        : _name(name)
-    {
-    }
-    virtual ~SLImGuiInfos() {}
-    virtual void buildInfos() = 0;
+    SLImGuiTrackedMapping(std::string name, SLCVTrackedMapping* mappingTracker);
 
-    std::string getName() const { return _name; }
+    void buildInfos() override;
 
 private:
-    //! name in imgui menu entry for this infos dialogue
-    std::string _name;
+    SLCVTrackedMapping* _mappingTracker = nullptr;
 };
 
-#endif // !SLIMGUI_INFOS_H
-
-
+#endif //SL_IMGUI_TRACKEDMAPPING_H
