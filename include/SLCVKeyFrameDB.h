@@ -35,21 +35,21 @@ public:
     // Relocalization
     std::vector<SLCVKeyFrame*> DetectRelocalizationCandidates(SLCVFrame* F);
 
-    //getters
-    bool renderKfBackground() { 
-        return _renderKfBackground; 
-    }
-    bool allowAsActiveCam() {
-        return _allowAsActiveCam;
-    }
-    
-    //setters
-    void renderKfBackground(bool s) { 
-        _renderKfBackground = s; 
-    }
-    void allowAsActiveCam(bool s) {
-        _allowAsActiveCam = s;
-    }
+    ////getters
+    //bool renderKfBackground() { 
+    //    return _renderKfBackground; 
+    //}
+    //bool allowAsActiveCam() {
+    //    return _allowAsActiveCam;
+    //}
+    //
+    ////setters
+    //void renderKfBackground(bool s) { 
+    //    _renderKfBackground = s; 
+    //}
+    //void allowAsActiveCam(bool s) {
+    //    _allowAsActiveCam = s;
+    //}
 protected:
     // Associated vocabulary
     const ORBVocabulary* mpVoc;
@@ -59,11 +59,11 @@ protected:
 private:
     std::vector<SLCVKeyFrame*> _keyFrames;
 
-    //if backgound rendering is active kf images will be rendered on 
-    //near clipping plane if kf is not the active camera
-    bool _renderKfBackground = false;
-    //allow SLCVCameras as active camera so that we can look through it
-    bool _allowAsActiveCam = false;
+    ////if backgound rendering is active kf images will be rendered on 
+    ////near clipping plane if kf is not the active camera
+    //bool _renderKfBackground = false;
+    ////allow SLCVCameras as active camera so that we can look through it
+    //bool _allowAsActiveCam = false;
 };
 
 #endif // !SLCVKEYFRAMEDB_H

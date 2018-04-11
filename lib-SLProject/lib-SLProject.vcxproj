@@ -448,6 +448,7 @@
     <ClCompile Include="source\SLDeviceLocation.cpp" />
     <ClCompile Include="source\SLDeviceRotation.cpp" />
     <ClCompile Include="source\SLDisk.cpp" />
+    <ClCompile Include="source\SLImGuiInfosDialog.cpp" />
     <ClCompile Include="source\SLInputDevice.cpp" />
     <ClCompile Include="source\SLInputManager.cpp" />
     <ClCompile Include="source\SLJoint.cpp" />

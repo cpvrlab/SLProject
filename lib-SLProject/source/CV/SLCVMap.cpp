@@ -85,6 +85,10 @@ void SLCVMap::clear()
     mnMaxKFid = 0;
     mvpReferenceMapPoints.clear();
     mvpKeyFrameOrigins.clear();
+
+    //remove visual representation
+    if (_mapNode)
+        _mapNode->updateAll(*this);
 }
 //-----------------------------------------------------------------------------
 void SLCVMap::SetReferenceMapPoints(const vector<SLCVMapPoint*> &vpMPs)

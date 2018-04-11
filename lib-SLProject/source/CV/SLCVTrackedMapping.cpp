@@ -401,7 +401,9 @@ void SLCVTrackedMapping::track3DPts()
             CreateNewKeyFrame();
             //call local mapper
             mpLocalMapper->RunOnce();
-            //global bundle adjustment
+
+            //update visualization of map, it may have changed because of global bundle adjustment
+            //todo: at the moment we update it with every frame
 
             addKeyFrameToScene(mpLastKeyFrame);
             _mapNextFrame = false;

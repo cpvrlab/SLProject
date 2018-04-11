@@ -110,7 +110,7 @@ SLbool          AppDemoGui::showProperties      = false;
 SLbool          AppDemoGui::showInfosTracking   = false;
 SLbool          AppDemoGui::showStatsDebugTiming = false;
 SLbool          AppDemoGui::showChristoffel     = false;
-std::vector<SLImGuiInfosDialog*> AppDemoGui::_infoDialogs;
+map<string, SLImGuiInfosDialog*> AppDemoGui::_infoDialogs;
 
 // SLCVTrackedRaulMur tracker pointer
 SLCVTrackedRaulMur* raulMurTracker = nullptr;
@@ -616,6 +616,24 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         grab_t_stein= nullptr;
 
     }
+}
+//-----------------------------------------------------------------------------
+void AppDemoGui::addInfoDialog(SLImGuiInfosDialog* dialog)
+{
+    string name = string(dialog->getName());
+    if (_infoDialogs.find(name) == _infoDialogs.end())
+    {
+        _infoDialogs[name] = dialog;
+    }
+}
+//-----------------------------------------------------------------------------
+void AppDemoGui::clearInfoDialogs()
+{
+    for (auto dialog : _infoDialogs)
+    {
+        delete dialog.second;
+    }
+    _infoDialogs.clear();
 }
 //-----------------------------------------------------------------------------
 void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
@@ -1324,8 +1342,16 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::MenuItem("Infos on Tracking", 0, &showInfosTracking);
             }
             for (auto dialog : _infoDialogs) {
-                ImGui::Separator();
-                ImGui::MenuItem(dialog->getName(), 0, dialog->status());
+                if (dialog.second->getActiveForSceneID(SLApplication::sceneID))
+                {
+                    ImGui::Separator();
+                    ImGui::MenuItem(dialog.second->getName(), 0, &dialog.second->show);
+                }
+                else
+                {
+                    //deactivate dialog, it may be active after scene switch
+                    dialog.second->show = false;
+                }
             }
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", 0, &showHelp);
@@ -2037,12 +2063,15 @@ void AppDemoGui::buildInfosDialogs()
 {
     for (auto dialog : _infoDialogs)
     {
-        ImGui::Begin(dialog->getName(), dialog->status(),
-            ImVec2(300, 0), -1.f, ImGuiWindowFlags_NoCollapse);
+        if (dialog.second->show)
+        {
+            ImGui::Begin(dialog.second->getName(), &dialog.second->show,
+                ImVec2(300, 0), -1.f, ImGuiWindowFlags_NoCollapse);
 
-        dialog->buildInfos();
+            dialog.second->buildInfos();
 
-        ImGui::End();
+            ImGui::End();
+        }
     }
 }
 //-----------------------------------------------------------------------------

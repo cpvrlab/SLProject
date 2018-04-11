@@ -114,7 +114,17 @@ void SLCVMapNode::updateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
 {
     _keyFrames->deleteChildren();
     for (auto* kf : kfs) {
-        SLCVCamera* cam = kf->getSceneObject();
+
+        SLCVCamera* cam = new SLCVCamera(this, "KeyFrame" + kf->id());
+        //set background
+        if (kf->getTexturePath().size())
+        {
+            SLGLTexture* texture = new SLGLTexture(kf->getTexturePath());
+            cam->background().texture(texture);
+        }
+
+        cam->om(kf->getObjectMatrix());
+
         cam->fov(SLApplication::activeCalib->cameraFovDeg());
         cam->focalDist(0.11);
         cam->clipNear(0.1);

@@ -70,6 +70,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 {
     SLApplication::sceneID = sceneID;
     
+    // remove scene specific uis
+    AppDemoGui::clearInfoDialogs();
     // Initialize all preloaded stuff from SLScene
     s->init();
 
@@ -2600,62 +2602,69 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCVCapture::videoLoops = true;
         SLCVCapture::videoFilename = "webcam_office1.wmv";
 
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 5);
-        cam1->lookAt(0, 0, 0);
-        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
-        cam1->clipNear(0.001f);
-        cam1->clipFar(1000000.0f); // Increase to infinity?
-        cam1->setInitialState();
-        cam1->background().texture(s->videoTexture());
-
+        //make some light
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
         light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1, 0, 0);
 
-        ORBVocabulary* vocabulary = new ORBVocabulary();
-        //string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-        //bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-        ////bool bVocLoad = true;
-        //if (!bVocLoad)
-        //{
-        //    cerr << "Wrong path to vocabulary. " << endl;
-        //    cerr << "Failed to open at: " << strVocFile << endl;
-        //    exit(-1);
-        //}
-        //cout << "Vocabulary loaded!" << endl << endl;
 
+        /***************************************************************/
+        //always equal for tracking
+        //setup tracking camera
+        SLCamera* trackingCam = new SLCamera("Camera 1");
+        trackingCam->translation(0, 0, 5);
+        trackingCam->lookAt(0, 0, 0);
+        //for tracking we have to use the field of view from calibration
+        trackingCam->fov(SLApplication::activeCalib->cameraFovDeg());
+        trackingCam->clipNear(0.001f);
+        trackingCam->clipFar(1000000.0f); // Increase to infinity?
+        trackingCam->setInitialState();
+        trackingCam->background().texture(s->videoTexture());
+
+        //load visual vocabulary for relocalization
+        ORBVocabulary* vocabulary = new ORBVocabulary();
+        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
+        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
+        //bool bVocLoad = true;
+        if (!bVocLoad)
+        {
+            cerr << "Wrong path to vocabulary. " << endl;
+            cerr << "Failed to open at: " << strVocFile << endl;
+            exit(-1);
+        }
+        cout << "Vocabulary loaded!" << endl << endl;
+
+        //instantiate and load slam map
         SLCVMap* map = new SLCVMap("Map");
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
         map->setKeyFrameDB(kfDB);
 
-
-        //SLNode* keyFrames = new SLNode("KeyFrames");
-        //SLNode* mapPC = new SLNode("MapPC");
-
-
-        //SLNode* mapNode = new SLNode("map");
+        //the map node contains the visual representation of the slam map
         SLCVMapNode* mapNode = new SLCVMapNode("map", *map);
         //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
         //y-axis down and z-forward
         mapNode->rotate(180, 1, 0, 0);
-        mapNode->addChild(cam1);
-        //mapNode->addChild(keyFrames);
-        //mapNode->addChild(mapPC);
-        //mapNode->addChild(mapMatchedPC);
+        //the tracking camera has to be a child of the slam map, 
+        //because we manipulate its position (object matrix) in the maps coordinate system
+        mapNode->addChild(trackingCam);
+
+        // Save no energy
+        sv->doWaitOnIdle(false); //for constant video feed
+        sv->camera(trackingCam);
+        /***************************************************************/
+
 
         //add tracker
-        SLCVTrackedMapping* tm = new SLCVTrackedMapping(cam1, vocabulary, kfDB, map, mapNode);
+        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, vocabulary, kfDB, map, mapNode);
         s->trackers().push_back(tm);
 
         SLImGuiTrackedMapping* trackedMappingUI = new SLImGuiTrackedMapping("TrackedMappingUI", tm);
-        AppDemoGui::_infoDialogs.push_back(trackedMappingUI);
+        trackedMappingUI->setActiveForSceneID(SID_VideoMapping);
+        AppDemoGui::addInfoDialog(trackedMappingUI);
 
-
-        //add yellow augmented box
+        //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
         SLfloat l = 1.75, b = 0.75, h = 0.74;
         SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
@@ -2668,12 +2677,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode("scene");
         scene->addChild(light1);
         scene->addChild(boxNode);
-        //scene->addChild(axisNode);
         scene->addChild(mapNode);
-
-        // Save no energy
-        sv->doWaitOnIdle(false); //for constant video feed
-        sv->camera(cam1);
 
         s->root3D(scene);
     }

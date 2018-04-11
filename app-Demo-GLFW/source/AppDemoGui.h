@@ -12,6 +12,9 @@
 #define SLGUIDEMO_H
 
 #include <stdafx.h>
+#include <string>
+#include <map>
+
 #include <SLImGuiInfosDialog.h>
 
 class SLScene;
@@ -34,6 +37,9 @@ class AppDemoGui
 public:
     static void             build               (SLScene* s, SLSceneView* sv);
 
+    //!< Checks, if a dialog with this name already exists, and adds it if not
+    static void             addInfoDialog       (SLImGuiInfosDialog* dialog);
+    static void             clearInfoDialogs();
     static void             buildMenuBar        (SLScene* s, SLSceneView* sv);
     static void             buildSceneGraph     (SLScene* s);
     static void             addSceneGraphNode   (SLScene* s, SLNode* node);
@@ -67,8 +73,9 @@ public:
     static SLbool           showStatsDebugTiming;//!< Flag if tracking info should be shown   
     static SLbool           showChristoffel;    //!< Flag if Christoffel infos should be shown
 
+private:
     //! Vector containing all info dialogs, that belong to special scenes
-    static std::vector<SLImGuiInfosDialog*> _infoDialogs;
+    static std::map<std::string, SLImGuiInfosDialog*> _infoDialogs;
 };
 //-----------------------------------------------------------------------------
 #endif

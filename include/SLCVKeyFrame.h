@@ -75,10 +75,12 @@ public:
     }
     //set path to texture image
     void setTexturePath(const string& path) { _pathToTexture = path; }
+    const std::string& getTexturePath() { return _pathToTexture; }
 
     void descriptors(const SLCVMat& descriptors) { descriptors.copyTo(mDescriptors); }
     //! get visual representation as SLPoints
-    SLCVCamera* getSceneObject();
+    //SLCVCamera* getSceneObject();
+    SLMat4f getObjectMatrix();
     //SLCVCamera* getNewSceneObject();
 
     // Covisibility graph functions
@@ -166,7 +168,7 @@ public:
     long unsigned int mnTrackReferenceForFrame = 0;
 
     //instantiate and add texture
-    void addBackgroundTexture(string pathToImg);
+    //void addBackgroundTexture(string pathToImg);
 
     // Variables used by loop closing
     cv::Mat mTcwGBA;

@@ -40,6 +40,13 @@ public:
     void removeMapPointsMatched();
     void removeKeyFrames();
 
+    //getters
+    bool renderKfBackground() { return _renderKfBackground; }
+    bool allowAsActiveCam() { return _allowAsActiveCam; }
+    //setters
+    void renderKfBackground(bool s) { _renderKfBackground = s; }
+    void allowAsActiveCam(bool s) { _allowAsActiveCam = s; }
+
 private:
     //! add map nodes and instantiate materials
     void init();
@@ -61,6 +68,12 @@ private:
     SLMaterial* _pcMat = NULL;
     SLMaterial* _pcMatchedMat = NULL;
     SLMaterial* _pcLocalMat = NULL;
+
+    //if backgound rendering is active kf images will be rendered on 
+    //near clipping plane if kf is not the active camera
+    bool _renderKfBackground = false;
+    //allow SLCVCameras as active camera so that we can look through it
+    bool _allowAsActiveCam = false;
 };
 
 #endif //SLCV_MAP_NODE_H
