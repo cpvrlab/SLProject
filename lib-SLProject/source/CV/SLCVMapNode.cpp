@@ -40,12 +40,6 @@ SLCVMapNode::SLCVMapNode(std::string name, SLCVMap& map)
     updateAll(map);
 }
 //-----------------------------------------------------------------------------
-SLCVMapNode::~SLCVMapNode()
-{
-    //children should be deleted in destructor of base class
-    //this->deleteChildren();
-}
-//-----------------------------------------------------------------------------
 void SLCVMapNode::init()
 {
     //add map nodes for keyframes, mappoints, matched mappoints and local mappoints

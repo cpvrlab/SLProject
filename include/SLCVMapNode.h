@@ -25,7 +25,6 @@ class SLCVMapNode : public SLNode
 public:
     SLCVMapNode(std::string name);
     SLCVMapNode(std::string name, SLCVMap& map);
-    ~SLCVMapNode();
 
     //!update map with SLPoints of map points for current frame
     //!If an empty vector is provided, the mesh is only removed

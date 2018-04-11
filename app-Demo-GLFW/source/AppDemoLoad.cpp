@@ -2645,7 +2645,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //mapNode->addChild(mapMatchedPC);
 
         //add tracker
-        //s->trackers().push_back(new SLCVTrackedMapping(cam1, vocabulary, kfDB, map, mapPC, keyFrames));
+        s->trackers().push_back(new SLCVTrackedMapping(cam1, vocabulary, kfDB, map, mapNode ));
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));

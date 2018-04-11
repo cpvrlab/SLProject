@@ -23,6 +23,7 @@ for a good top down information.
 #include <SLPoints.h>
 #include <SLCVTrackedMapping.h>
 #include <SLCVKeyFrameDB.h>
+#include <SLCVMapNode.h>
 #include <OrbSlam/Initializer.h>
 #include <OrbSlam/LocalMapping.h>
 
@@ -37,13 +38,14 @@ using namespace cv;
 
 //-----------------------------------------------------------------------------
 SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node, ORBVocabulary* vocabulary, 
-    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLNode* mapPC, SLNode* keyFrames )
+    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode )
     : SLCVTracked(node),
     mpVocabulary(vocabulary),
     mpKeyFrameDatabase(keyFrameDB),
     _map(map),
-    _mapPC(mapPC),
-    _keyFrames(keyFrames)
+    _mapNode(mapNode)
+    //_mapPC(mapPC),
+    //_keyFrames(keyFrames)
 {
     int nFeatures = 1000;
     float fScaleFactor = 1.2;
@@ -709,40 +711,43 @@ void SLCVTrackedMapping::Reset()
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::decorate()
 {
-    //draw map points
-    if (_drawMapPoints && _mapPC) {
-        //instantiate material
-        if (!_pcMatRed) {
-            _pcMatRed = new SLMaterial("Red", SLCol4f::RED);
-            _pcMatRed->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-            _pcMatRed->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
-        }
+    //update map visualization
+    _mapNode->updateAll(*_map);
 
-        //remove old points
-        if (_mapMesh) {
-            _mapPC->deleteMesh(_mapMesh);
-        }
+    ////draw map points
+    //if (_drawMapPoints && _mapPC) {
+    //    //instantiate material
+    //    if (!_pcMatRed) {
+    //        _pcMatRed = new SLMaterial("Red", SLCol4f::RED);
+    //        _pcMatRed->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+    //        _pcMatRed->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+    //    }
 
-        //add new (current) points
-        SLVVec3f points, normals;
-        const auto& mpts = _map->GetAllMapPointsConstRef();
-        for (const auto& mpt : mpts) {
-            points.push_back(mpt->worldPosVec());
-            normals.push_back(mpt->normalVec());
-        }
-        _mapMesh = new SLPoints(points, normals, "MapPoints", _pcMatRed);
-        _mapPC->addMesh(_mapMesh);
-        _mapPC->updateAABBRec();
-    }
+    //    //remove old points
+    //    if (_mapMesh) {
+    //        _mapPC->deleteMesh(_mapMesh);
+    //    }
 
-    //draw matched map points
-    if (_drawMapPointsMatches) {
+    //    //add new (current) points
+    //    SLVVec3f points, normals;
+    //    const auto& mpts = _map->GetAllMapPointsConstRef();
+    //    for (const auto& mpt : mpts) {
+    //        points.push_back(mpt->worldPosVec());
+    //        normals.push_back(mpt->normalVec());
+    //    }
+    //    _mapMesh = new SLPoints(points, normals, "MapPoints", _pcMatRed);
+    //    _mapPC->addMesh(_mapMesh);
+    //    _mapPC->updateAABBRec();
+    //}
 
-    }
-    //draw key frames
-    if (_drawKeyFrames) {
+    ////draw matched map points
+    //if (_drawMapPointsMatches) {
 
-    }
+    //}
+    ////draw key frames
+    //if (_drawKeyFrames) {
+
+    //}
 }
 //-----------------------------------------------------------------------------
 bool SLCVTrackedMapping::Relocalization()
