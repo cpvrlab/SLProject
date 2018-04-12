@@ -2211,7 +2211,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* glasses = importer.load("FBX/Sunglasses.fbx");
         glasses->scale(0.01f);
         
-        
+        // Add axis arrows at world center
         SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
         axis->setDrawBitsRec(SL_DB_WIREMESH, false);
         axis->scale(0.03f);
@@ -2223,7 +2223,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(glasses);
         scene->addChild(axis);
 
-        s->trackers().push_back(new SLCVTrackedFaces(cam1,2));
+        // Add a face tracker that moves the camera node
+        s->trackers().push_back(new SLCVTrackedFaces(cam1, 3));
+
         s->showDetection(true);
 
         sv->doWaitOnIdle(false); // for constant video feed

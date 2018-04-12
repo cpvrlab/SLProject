@@ -23,10 +23,19 @@ for a good top down information.
 #include <SLCVTrackedFaces.h>
 
 //-----------------------------------------------------------------------------
+//! Constructor for the facial landmark tracker
+/*! The Constructor loads the training files for the face and the facial
+landmarks. It also defines an averaged set of facial landmark points in 3D
+used for pose estimation.
+\param node Node to track and move (usually the camera for AR)
+\param smoothlength length of averaging filter
+\param faceClassifierFilename Name of the cascaded face training file
+\param faceMarkModelFilename Name of the facial landmark training file
+*/
 SLCVTrackedFaces::SLCVTrackedFaces(SLNode*  node,
                                    SLint    smoothLenght,
                                    SLstring faceClassifierFilename,
-                                   SLstring faceMarkModelFilenema) :
+                                   SLstring faceMarkModelFilename) :
                   SLCVTracked(node)
 {
     // Load Haar cascade training file for the face detection
@@ -40,16 +49,16 @@ SLCVTrackedFaces::SLCVTrackedFaces(SLNode*  node,
     _faceDetector = new SLCVCascadeClassifier(faceClassifierFilename);
 
     // Load facemark model file for the facial landmark detection
-    if (!SLFileSystem::fileExists(faceMarkModelFilenema))
-    {   faceMarkModelFilenema = SLCVCalibration::calibIniPath + faceMarkModelFilenema;
-        if (!SLFileSystem::fileExists(faceMarkModelFilenema))
-        {   SLstring msg = "SLCVTrackedFaces: File not found: " + faceMarkModelFilenema;
+    if (!SLFileSystem::fileExists(faceMarkModelFilename))
+    {   faceMarkModelFilename = SLCVCalibration::calibIniPath + faceMarkModelFilename;
+        if (!SLFileSystem::fileExists(faceMarkModelFilename))
+        {   SLstring msg = "SLCVTrackedFaces: File not found: " + faceMarkModelFilename;
             SL_EXIT_MSG(msg.c_str());
         }
     }
 
     _facemark = cv::face::FacemarkLBF::create();
-    _facemark->loadModel(faceMarkModelFilenema);
+    _facemark->loadModel(faceMarkModelFilename);
 
     // Init averaged 2D facial landmark points
     _smoothLenght = smoothLenght;
@@ -88,6 +97,15 @@ face classifier implemented in OpenCV. The facial landmarks are detected with
 the OpenCV face module using the facemarkLBF detector. More information about
 OpenCV facial landmark detection can be found on:
 https://www.learnopencv.com/facemark-facial-landmark-detection-using-opencv
+\n
+The pose estimation is done using cv::solvePnP with 9 facial landmarks in 3D 
+and their corresponding 2D points detected by the cv::facemark detector. For
+smoothing out the jittering we average the last few detections.
+\param imageGray Image for processing
+\param imageRgb Image for visualizations
+\param calib Pointer to a valid camera calibration 
+\param drawDetection Flag for drawing the detected obbjects
+\param sv Pointer to the sceneview
 */
 SLbool SLCVTrackedFaces::track(SLCVMat imageGray,
                                SLCVMat imageRgb,
@@ -238,14 +256,16 @@ void SLCVTrackedFaces::delaunayTriangulate(SLCVMat imageRgb,
             subdiv.insert(point);
     
     // Add additional points in the corners and middle of the sides
-    subdiv.insert(SLCVPoint2f(0,0));
-    subdiv.insert(SLCVPoint2f(size.width/2,0));
-    subdiv.insert(SLCVPoint2f(size.width-1,0));
-    subdiv.insert(SLCVPoint2f(size.width-1,size.height/2));
-    subdiv.insert(SLCVPoint2f(size.width-1,size.height-1));
-    subdiv.insert(SLCVPoint2f(size.width/2,size.height-1));
-    subdiv.insert(SLCVPoint2f(0,size.height-1));
-    subdiv.insert(SLCVPoint2f(0,size.height/2));
+    SLfloat w = (SLfloat)size.width;
+    SLfloat h = (SLfloat)size.height;
+    subdiv.insert(SLCVPoint2f(0.0f,0.0f));
+    subdiv.insert(SLCVPoint2f(w*0.5f, 0.0f));
+    subdiv.insert(SLCVPoint2f(w-1.0f, 0.0f));
+    subdiv.insert(SLCVPoint2f(w-1.0f, h*0.5f));
+    subdiv.insert(SLCVPoint2f(w-1.0f, h-1.0f));
+    subdiv.insert(SLCVPoint2f(w*0.5f, h-1.0f));
+    subdiv.insert(SLCVPoint2f(0.0f, h-1.0f));
+    subdiv.insert(SLCVPoint2f(0.0f, h*0.5f));
 
     // Draw Delaunay triangles
     if (drawDetection)

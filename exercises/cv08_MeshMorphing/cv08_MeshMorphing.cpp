@@ -150,10 +150,10 @@ void morphTriangle(Mat &img1,
     vector<Point2f> t1RectFlt, t2RectFlt, tMRectFlt;
     vector<Point2i> tMRectInt; // for fillConvexPoly we need ints
     for(int i = 0; i < 3; i++)
-    {   tMRectFlt.push_back(Point2f((int)(tM[i].x - rM.x), (int)(tM[i].y - rM.y)));
+    {   tMRectFlt.push_back(Point2f(tM[i].x - rM.x, tM[i].y - rM.y));
         tMRectInt.push_back(Point2i((int)(tM[i].x - rM.x), (int)(tM[i].y - rM.y)));
-        t1RectFlt.push_back(Point2f((int)(t1[i].x - r1.x), (int)(t1[i].y - r1.y)));
-        t2RectFlt.push_back(Point2f((int)(t2[i].x - r2.x), (int)(t2[i].y - r2.y)));
+        t1RectFlt.push_back(Point2f(t1[i].x - r1.x, t1[i].y - r1.y));
+        t2RectFlt.push_back(Point2f(t2[i].x - r2.x, t2[i].y - r2.y));
     }
     
     // Create white triangle mask
