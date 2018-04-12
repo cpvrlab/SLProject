@@ -11,7 +11,8 @@
 #ifndef SLGUIDEMO_H
 #define SLGUIDEMO_H
 
-#include <stdafx.h>
+#include <SL.h>
+
 class SLScene;
 class SLSceneView;
 class SLNode;
