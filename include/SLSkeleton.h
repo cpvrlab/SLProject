@@ -11,7 +11,6 @@
 #ifndef SLSKELETON_H
 #define SLSKELETON_H
 
-#include <stdafx.h>
 #include <SLJoint.h>
 #include <SLAnimation.h>
 #include <SLAnimPlayback.h>

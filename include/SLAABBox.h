@@ -11,8 +11,8 @@
 #ifndef SLAABBox_H
 #define SLAABBox_H
 
-#include <stdafx.h>
 #include <SLGLVertexArrayExt.h>
+#include <SLMat4.h>
 
 class SLRay;
 class SLScene;

@@ -24,6 +24,7 @@ for a good top down information.
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLCVCapture.h>
+#include <SLCVCalibration.h>
 
 //-----------------------------------------------------------------------------
 // Global static variables

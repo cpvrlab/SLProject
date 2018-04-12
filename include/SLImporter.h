@@ -8,14 +8,19 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
-#include <SLNode.h>
-#include <SLGLTexture.h>
-#include <SLSkeleton.h>
-
-
 #ifndef SLIMPORTER_H
 #define SLIMPORTER_H
+
+#include <map>
+#include <fstream>
+
+#include <SL.h>
+#include <SLEnums.h>
+#include <SLMesh.h>
+#include <SLAnimation.h>
+
+class SLNode;
+class SLMaterial;
 
 //-----------------------------------------------------------------------------
 //! Copy of the aiPostProcessStep enum for usage in the wrapper load function

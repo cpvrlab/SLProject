@@ -10,7 +10,6 @@
 #ifndef SLRAY_H
 #define SLRAY_H
 
-#include <stdafx.h>
 #include <SLMaterial.h>
 #include <SLMesh.h>
 

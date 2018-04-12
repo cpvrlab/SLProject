@@ -12,7 +12,6 @@
 #ifndef SLGLOCULUSFB_H
 #define SLGLOCULUSFB_H
 
-#include <stdafx.h>
 #include <SLGLVertexArray.h>
 #include <SLCamera.h>
 

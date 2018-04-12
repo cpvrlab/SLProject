@@ -73,7 +73,7 @@ SLScene::SLScene(SLstring name,
     _fps            = 0;
     _elapsedTimeMS  = 0;
     _lastUpdateTimeMS = 0;
-     
+
     // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
     // In the constructor they are added the _shaderProgs vector
     // If you add a new shader here you have to update the SLShaderProgs enum accordingly.

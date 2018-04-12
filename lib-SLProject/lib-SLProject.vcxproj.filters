@@ -674,6 +674,7 @@
     <ClCompile Include="source\CV\SLCVTrackedMapping.cpp">
       <Filter>CV</Filter>
     </ClCompile>
+    <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_data\shaders\ADS.frag">

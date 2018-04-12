@@ -12,7 +12,6 @@
 #ifndef SLINTERFACE_H
 #define SLINTERFACE_H
 
-#include <stdafx.h>
 #include <SLEnums.h>
 #include <SLGLEnums.h>
 

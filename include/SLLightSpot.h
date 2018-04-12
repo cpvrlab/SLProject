@@ -11,7 +11,6 @@
 #ifndef SLLIGHTSPHERE_H
 #define SLLIGHTSPHERE_H
 
-#include <stdafx.h>
 #include <SLNode.h>
 #include <SLLight.h>
 #include <SLSamples2D.h>
