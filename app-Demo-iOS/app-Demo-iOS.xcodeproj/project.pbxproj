@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		411949C51F0CBCB7009C8A9F /* LogoCPVR_256L.png in Resources */ = {isa = PBXBuildFile; fileRef = 411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */; };
-		4119D3D820138F8F00612254 /* WebPDecoder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4119D3D620138F8F00612254 /* WebPDecoder.framework */; };
-		4119D3D920138F8F00612254 /* WebP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4119D3D720138F8F00612254 /* WebP.framework */; };
 		411BA72718C0702600F10475 /* Icon_120.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72618C0702600F10475 /* Icon_120.png */; };
 		411BA72918C0716700F10475 /* Icon_76.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72818C0716700F10475 /* Icon_76.png */; };
 		411BA72B18C071CA00F10475 /* Icon_152.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72A18C071CA00F10475 /* Icon_152.png */; };
@@ -22,7 +20,6 @@
 		4124EC131959C137003AA059 /* cdt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4124EC0B1959C137003AA059 /* cdt.cc */; };
 		4124EC141959C137003AA059 /* sweep_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4124EC0D1959C137003AA059 /* sweep_context.cc */; };
 		4124EC151959C137003AA059 /* sweep.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4124EC0F1959C137003AA059 /* sweep.cc */; };
-		412EA85D206A7DA900414AF3 /* haarcascade_frontalface_alt.xml in Resources */ = {isa = PBXBuildFile; fileRef = 412EA85C206A7DA800414AF3 /* haarcascade_frontalface_alt.xml */; };
 		412F89721FF58D94004D5982 /* ADSTex.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89681FF58D91004D5982 /* ADSTex.vert */; };
 		412F89731FF58D94004D5982 /* ADSTex3D.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89691FF58D92004D5982 /* ADSTex3D.vert */; };
 		412F89741FF58D94004D5982 /* ADSTex3D.frag in Resources */ = {isa = PBXBuildFile; fileRef = 412F896A1FF58D92004D5982 /* ADSTex3D.frag */; };
@@ -53,6 +50,28 @@
 		414AC53E1F52A8070003867A /* SLCVTrackedFeatures.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414AC53A1F52A8070003867A /* SLCVTrackedFeatures.cpp */; };
 		414B3FEB148AAE520074D939 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 414B3FE8148AAE520074D939 /* Default.png */; };
 		414B3FED148AAE520074D939 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 414B3FEA148AAE520074D939 /* Icon.png */; };
+		414C1423207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml in Resources */ = {isa = PBXBuildFile; fileRef = 414C1422207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml */; };
+		414C1454207FA570007587D8 /* libopencv_videoio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1444207FA56F007587D8 /* libopencv_videoio.a */; };
+		414C1455207FA570007587D8 /* libopencv_face.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1445207FA56F007587D8 /* libopencv_face.a */; };
+		414C1456207FA570007587D8 /* libopencv_optflow.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1446207FA56F007587D8 /* libopencv_optflow.a */; };
+		414C1457207FA570007587D8 /* libopencv_aruco.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1447207FA56F007587D8 /* libopencv_aruco.a */; };
+		414C1458207FA570007587D8 /* libopencv_hfs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1448207FA56F007587D8 /* libopencv_hfs.a */; };
+		414C1459207FA570007587D8 /* libopencv_imgproc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1449207FA56F007587D8 /* libopencv_imgproc.a */; };
+		414C145A207FA570007587D8 /* libopencv_highgui.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C144A207FA56F007587D8 /* libopencv_highgui.a */; };
+		414C145B207FA570007587D8 /* libopencv_calib3d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C144B207FA56F007587D8 /* libopencv_calib3d.a */; };
+		414C145C207FA570007587D8 /* libopencv_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C144C207FA56F007587D8 /* libopencv_core.a */; };
+		414C145D207FA570007587D8 /* libopencv_objdetect.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C144D207FA570007587D8 /* libopencv_objdetect.a */; };
+		414C145E207FA570007587D8 /* libopencv_xfeatures2d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C144E207FA570007587D8 /* libopencv_xfeatures2d.a */; };
+		414C145F207FA570007587D8 /* libopencv_imgcodecs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C144F207FA570007587D8 /* libopencv_imgcodecs.a */; };
+		414C1460207FA570007587D8 /* libopencv_features2d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1450207FA570007587D8 /* libopencv_features2d.a */; };
+		414C1461207FA570007587D8 /* libopencv_video.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1451207FA570007587D8 /* libopencv_video.a */; };
+		414C1462207FA570007587D8 /* libopencv_flann.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1452207FA570007587D8 /* libopencv_flann.a */; };
+		414C1463207FA570007587D8 /* libopencv_photo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1453207FA570007587D8 /* libopencv_photo.a */; };
+		414C146F207FAA20007587D8 /* liblibwebp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C146A207FAA20007587D8 /* liblibwebp.a */; };
+		414C1470207FAA20007587D8 /* liblibjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C146B207FAA20007587D8 /* liblibjpeg.a */; };
+		414C1471207FAA20007587D8 /* liblibprotobuf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C146C207FAA20007587D8 /* liblibprotobuf.a */; };
+		414C1472207FAA20007587D8 /* liblibpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C146D207FAA20007587D8 /* liblibpng.a */; };
+		414C1473207FAA20007587D8 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C146E207FAA20007587D8 /* libzlib.a */; };
 		414D37EC1EE6A72C009DB259 /* PerPixCookTorrance.frag in Resources */ = {isa = PBXBuildFile; fileRef = 414D37E81EE6A72C009DB259 /* PerPixCookTorrance.frag */; };
 		414D37ED1EE6A72C009DB259 /* PerPixCookTorrance.vert in Resources */ = {isa = PBXBuildFile; fileRef = 414D37E91EE6A72C009DB259 /* PerPixCookTorrance.vert */; };
 		414D37EE1EE6A72C009DB259 /* PerPixCookTorranceTex.frag in Resources */ = {isa = PBXBuildFile; fileRef = 414D37EA1EE6A72C009DB259 /* PerPixCookTorranceTex.frag */; };
@@ -70,7 +89,6 @@
 		41565018148AA64F00A3CAA6 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41565012148AA64F00A3CAA6 /* AppDelegate.mm */; };
 		4156501A148AA64F00A3CAA6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 41565015148AA64F00A3CAA6 /* main.m */; };
 		4156501B148AA64F00A3CAA6 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41565017148AA64F00A3CAA6 /* ViewController.mm */; };
-		4156B8DF20299BF10019EFC2 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4156B8DE20299BF10019EFC2 /* opencv2.framework */; };
 		41618D6816C1855500641165 /* Default-Landscape@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 41618D6316C1855500641165 /* Default-Landscape@2x~ipad.png */; };
 		41627EA215CA8CE70023B936 /* SL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E8F15CA8CE70023B936 /* SL.cpp */; };
 		41627EA315CA8CE70023B936 /* SLFileSystem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9415CA8CE70023B936 /* SLFileSystem.mm */; };
@@ -640,8 +658,6 @@
 
 /* Begin PBXFileReference section */
 		411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LogoCPVR_256L.png; path = ../_data/images/textures/LogoCPVR_256L.png; sourceTree = SOURCE_ROOT; };
-		4119D3D620138F8F00612254 /* WebPDecoder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebPDecoder.framework; path = ../_lib/prebuilt/OpenCV/ios/WebPDecoder.framework; sourceTree = "<group>"; };
-		4119D3D720138F8F00612254 /* WebP.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebP.framework; path = ../_lib/prebuilt/OpenCV/ios/WebP.framework; sourceTree = "<group>"; };
 		411BA72618C0702600F10475 /* Icon_120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_120.png; path = images/Icon_120.png; sourceTree = SOURCE_ROOT; };
 		411BA72818C0716700F10475 /* Icon_76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_76.png; path = images/Icon_76.png; sourceTree = SOURCE_ROOT; };
 		411BA72A18C071CA00F10475 /* Icon_152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_152.png; path = images/Icon_152.png; sourceTree = SOURCE_ROOT; };
@@ -662,7 +678,6 @@
 		4124EC0E1959C137003AA059 /* sweep_context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sweep_context.h; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/sweep/sweep_context.h"; sourceTree = SOURCE_ROOT; };
 		4124EC0F1959C137003AA059 /* sweep.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sweep.cc; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/sweep/sweep.cc"; sourceTree = SOURCE_ROOT; };
 		4124EC101959C137003AA059 /* sweep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sweep.h; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/sweep/sweep.h"; sourceTree = SOURCE_ROOT; };
-		412EA85C206A7DA800414AF3 /* haarcascade_frontalface_alt.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = haarcascade_frontalface_alt.xml; path = ../_data/calibrations/haarcascade_frontalface_alt.xml; sourceTree = "<group>"; };
 		412F89681FF58D91004D5982 /* ADSTex.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADSTex.vert; path = ../_data/shaders/ADSTex.vert; sourceTree = "<group>"; };
 		412F89691FF58D92004D5982 /* ADSTex3D.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADSTex3D.vert; path = ../_data/shaders/ADSTex3D.vert; sourceTree = "<group>"; };
 		412F896A1FF58D92004D5982 /* ADSTex3D.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADSTex3D.frag; path = ../_data/shaders/ADSTex3D.frag; sourceTree = "<group>"; };
@@ -708,6 +723,31 @@
 		414AC5431F52A8430003867A /* SLCVTrackedFeatures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVTrackedFeatures.h; path = ../include/SLCVTrackedFeatures.h; sourceTree = SOURCE_ROOT; };
 		414B3FE8148AAE520074D939 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = images/Default.png; sourceTree = SOURCE_ROOT; };
 		414B3FEA148AAE520074D939 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = images/Icon.png; sourceTree = SOURCE_ROOT; };
+		414C1422207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = haarcascade_frontalface_alt2.xml; path = ../_data/calibrations/haarcascade_frontalface_alt2.xml; sourceTree = SOURCE_ROOT; };
+		414C1444207FA56F007587D8 /* libopencv_videoio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_videoio.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_videoio.a; sourceTree = "<group>"; };
+		414C1445207FA56F007587D8 /* libopencv_face.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_face.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_face.a; sourceTree = "<group>"; };
+		414C1446207FA56F007587D8 /* libopencv_optflow.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_optflow.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_optflow.a; sourceTree = "<group>"; };
+		414C1447207FA56F007587D8 /* libopencv_aruco.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_aruco.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_aruco.a; sourceTree = "<group>"; };
+		414C1448207FA56F007587D8 /* libopencv_hfs.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_hfs.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_hfs.a; sourceTree = "<group>"; };
+		414C1449207FA56F007587D8 /* libopencv_imgproc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_imgproc.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_imgproc.a; sourceTree = "<group>"; };
+		414C144A207FA56F007587D8 /* libopencv_highgui.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_highgui.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_highgui.a; sourceTree = "<group>"; };
+		414C144B207FA56F007587D8 /* libopencv_calib3d.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_calib3d.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_calib3d.a; sourceTree = "<group>"; };
+		414C144C207FA56F007587D8 /* libopencv_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_core.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_core.a; sourceTree = "<group>"; };
+		414C144D207FA570007587D8 /* libopencv_objdetect.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_objdetect.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_objdetect.a; sourceTree = "<group>"; };
+		414C144E207FA570007587D8 /* libopencv_xfeatures2d.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_xfeatures2d.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_xfeatures2d.a; sourceTree = "<group>"; };
+		414C144F207FA570007587D8 /* libopencv_imgcodecs.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_imgcodecs.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_imgcodecs.a; sourceTree = "<group>"; };
+		414C1450207FA570007587D8 /* libopencv_features2d.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_features2d.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_features2d.a; sourceTree = "<group>"; };
+		414C1451207FA570007587D8 /* libopencv_video.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_video.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_video.a; sourceTree = "<group>"; };
+		414C1452207FA570007587D8 /* libopencv_flann.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_flann.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_flann.a; sourceTree = "<group>"; };
+		414C1453207FA570007587D8 /* libopencv_photo.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_photo.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_photo.a; sourceTree = "<group>"; };
+		414C1464207FA782007587D8 /* WebPDecoder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebPDecoder.framework; path = ../_lib/prebuilt/OpenCV/ios/WebPDecoder.framework; sourceTree = "<group>"; };
+		414C1465207FA783007587D8 /* WebP.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebP.framework; path = ../_lib/prebuilt/OpenCV/ios/WebP.framework; sourceTree = "<group>"; };
+		414C1468207FA96E007587D8 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		414C146A207FAA20007587D8 /* liblibwebp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibwebp.a; path = ../_lib/prebuilt/OpenCV/ios/liblibwebp.a; sourceTree = "<group>"; };
+		414C146B207FAA20007587D8 /* liblibjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibjpeg.a; path = ../_lib/prebuilt/OpenCV/ios/liblibjpeg.a; sourceTree = "<group>"; };
+		414C146C207FAA20007587D8 /* liblibprotobuf.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibprotobuf.a; path = ../_lib/prebuilt/OpenCV/ios/liblibprotobuf.a; sourceTree = "<group>"; };
+		414C146D207FAA20007587D8 /* liblibpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibpng.a; path = ../_lib/prebuilt/OpenCV/ios/liblibpng.a; sourceTree = "<group>"; };
+		414C146E207FAA20007587D8 /* libzlib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libzlib.a; path = ../_lib/prebuilt/OpenCV/ios/libzlib.a; sourceTree = "<group>"; };
 		414D37E81EE6A72C009DB259 /* PerPixCookTorrance.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerPixCookTorrance.frag; path = ../_data/shaders/PerPixCookTorrance.frag; sourceTree = SOURCE_ROOT; };
 		414D37E91EE6A72C009DB259 /* PerPixCookTorrance.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerPixCookTorrance.vert; path = ../_data/shaders/PerPixCookTorrance.vert; sourceTree = SOURCE_ROOT; };
 		414D37EA1EE6A72C009DB259 /* PerPixCookTorranceTex.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerPixCookTorranceTex.frag; path = ../_data/shaders/PerPixCookTorranceTex.frag; sourceTree = SOURCE_ROOT; };
@@ -730,7 +770,6 @@
 		41565015148AA64F00A3CAA6 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = SOURCE_ROOT; };
 		41565016148AA64F00A3CAA6 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = SOURCE_ROOT; };
 		41565017148AA64F00A3CAA6 /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = SOURCE_ROOT; };
-		4156B8DE20299BF10019EFC2 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../_lib/prebuilt/OpenCV/ios/opencv2.framework; sourceTree = "<group>"; };
 		41618D6316C1855500641165 /* Default-Landscape@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Landscape@2x~ipad.png"; path = "images/Default-Landscape@2x~ipad.png"; sourceTree = SOURCE_ROOT; };
 		41627E8F15CA8CE70023B936 /* SL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SL.cpp; path = "../lib-SLProject/source/SL/SL.cpp"; sourceTree = SOURCE_ROOT; };
 		41627E9015CA8CE70023B936 /* SL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SL.h; path = ../include/SL.h; sourceTree = SOURCE_ROOT; };
@@ -1548,19 +1587,37 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				414C146F207FAA20007587D8 /* liblibwebp.a in Frameworks */,
+				414C1470207FAA20007587D8 /* liblibjpeg.a in Frameworks */,
+				414C1471207FAA20007587D8 /* liblibprotobuf.a in Frameworks */,
+				414C1472207FAA20007587D8 /* liblibpng.a in Frameworks */,
+				414C1473207FAA20007587D8 /* libzlib.a in Frameworks */,
+				414C1454207FA570007587D8 /* libopencv_videoio.a in Frameworks */,
+				414C1455207FA570007587D8 /* libopencv_face.a in Frameworks */,
+				414C1456207FA570007587D8 /* libopencv_optflow.a in Frameworks */,
+				414C1457207FA570007587D8 /* libopencv_aruco.a in Frameworks */,
+				414C1458207FA570007587D8 /* libopencv_hfs.a in Frameworks */,
+				414C1459207FA570007587D8 /* libopencv_imgproc.a in Frameworks */,
+				414C145A207FA570007587D8 /* libopencv_highgui.a in Frameworks */,
+				414C145B207FA570007587D8 /* libopencv_calib3d.a in Frameworks */,
+				414C145C207FA570007587D8 /* libopencv_core.a in Frameworks */,
+				414C145D207FA570007587D8 /* libopencv_objdetect.a in Frameworks */,
+				414C145E207FA570007587D8 /* libopencv_xfeatures2d.a in Frameworks */,
+				414C145F207FA570007587D8 /* libopencv_imgcodecs.a in Frameworks */,
+				414C1460207FA570007587D8 /* libopencv_features2d.a in Frameworks */,
+				414C1461207FA570007587D8 /* libopencv_video.a in Frameworks */,
+				414C1462207FA570007587D8 /* libopencv_flann.a in Frameworks */,
+				414C1463207FA570007587D8 /* libopencv_photo.a in Frameworks */,
 				4181782F1FC7110600200D02 /* CoreLocation.framework in Frameworks */,
 				41A16C3C1B836835001EA07E /* CoreMotion.framework in Frameworks */,
 				41BEFC0C1B78F866009EF31F /* CoreVideo.framework in Frameworks */,
 				41BEFC0A1B78F85A009EF31F /* CoreMedia.framework in Frameworks */,
 				41BEFC071B78F84F009EF31F /* AVFoundation.framework in Frameworks */,
-				4156B8DF20299BF10019EFC2 /* opencv2.framework in Frameworks */,
 				419BCD3C14865C0800D576F1 /* UIKit.framework in Frameworks */,
 				419BCD3E14865C0800D576F1 /* Foundation.framework in Frameworks */,
 				419BCD4014865C0800D576F1 /* CoreGraphics.framework in Frameworks */,
-				4119D3D820138F8F00612254 /* WebPDecoder.framework in Frameworks */,
 				419BCD4214865C0800D576F1 /* GLKit.framework in Frameworks */,
 				419BCD4414865C0800D576F1 /* OpenGLES.framework in Frameworks */,
-				4119D3D920138F8F00612254 /* WebP.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2559,7 +2616,30 @@
 		419BCD3A14865C0800D576F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				4156B8DE20299BF10019EFC2 /* opencv2.framework */,
+				414C146B207FAA20007587D8 /* liblibjpeg.a */,
+				414C146D207FAA20007587D8 /* liblibpng.a */,
+				414C146C207FAA20007587D8 /* liblibprotobuf.a */,
+				414C146A207FAA20007587D8 /* liblibwebp.a */,
+				414C146E207FAA20007587D8 /* libzlib.a */,
+				414C1468207FA96E007587D8 /* CoreImage.framework */,
+				414C1465207FA783007587D8 /* WebP.framework */,
+				414C1464207FA782007587D8 /* WebPDecoder.framework */,
+				414C1447207FA56F007587D8 /* libopencv_aruco.a */,
+				414C144B207FA56F007587D8 /* libopencv_calib3d.a */,
+				414C144C207FA56F007587D8 /* libopencv_core.a */,
+				414C1445207FA56F007587D8 /* libopencv_face.a */,
+				414C1450207FA570007587D8 /* libopencv_features2d.a */,
+				414C1452207FA570007587D8 /* libopencv_flann.a */,
+				414C1448207FA56F007587D8 /* libopencv_hfs.a */,
+				414C144A207FA56F007587D8 /* libopencv_highgui.a */,
+				414C144F207FA570007587D8 /* libopencv_imgcodecs.a */,
+				414C1449207FA56F007587D8 /* libopencv_imgproc.a */,
+				414C144D207FA570007587D8 /* libopencv_objdetect.a */,
+				414C1446207FA56F007587D8 /* libopencv_optflow.a */,
+				414C1453207FA570007587D8 /* libopencv_photo.a */,
+				414C1451207FA570007587D8 /* libopencv_video.a */,
+				414C1444207FA56F007587D8 /* libopencv_videoio.a */,
+				414C144E207FA570007587D8 /* libopencv_xfeatures2d.a */,
 				41BEFC061B78F84F009EF31F /* AVFoundation.framework */,
 				419BCD3F14865C0800D576F1 /* CoreGraphics.framework */,
 				4181782D1FC70F6E00200D02 /* CoreLocation.framework */,
@@ -2571,8 +2651,6 @@
 				41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */,
 				419BCD4314865C0800D576F1 /* OpenGLES.framework */,
 				419BCD3B14865C0800D576F1 /* UIKit.framework */,
-				4119D3D720138F8F00612254 /* WebP.framework */,
-				4119D3D620138F8F00612254 /* WebPDecoder.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -2615,7 +2693,7 @@
 		41B7BDDA1E49AE4C007B8B39 /* Calibrations */ = {
 			isa = PBXGroup;
 			children = (
-				412EA85C206A7DA800414AF3 /* haarcascade_frontalface_alt.xml */,
+				414C1422207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml */,
 				413F1C492067DCD900AEF871 /* lbfmodel.yaml */,
 				419BEFC61DE5EE9300C3E171 /* aruco_detector_params.yml */,
 			);
@@ -2953,7 +3031,6 @@
 				417981DB1F13833000EB5315 /* i0199_0000b.png in Resources */,
 				417981A71F13833000EB5315 /* i0147_0000b.png in Resources */,
 				4179812F1F13833000EB5315 /* i0027_0000b.png in Resources */,
-				412EA85D206A7DA900414AF3 /* haarcascade_frontalface_alt.xml in Resources */,
 				417981651F13833000EB5315 /* i0081_0000b.png in Resources */,
 				418BF46C1B8B0D500049E387 /* Wave.vert in Resources */,
 				4179818B1F13833000EB5315 /* i0119_0000b.png in Resources */,
@@ -2994,6 +3071,7 @@
 				419808691959BA670048085E /* BlenderDNA.inl in Resources */,
 				417E0ED6148A70DE0015B5B0 /* wood2_0256_C.jpg in Resources */,
 				417981161F13833000EB5315 /* i0002_0000b.png in Resources */,
+				414C1423207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml in Resources */,
 				417E0ED7148A70DE0015B5B0 /* wood2_0512_C.jpg in Resources */,
 				417981BA1F13833000EB5315 /* i0166_0000b.png in Resources */,
 				4179817F1F13833000EB5315 /* i0107_0000b.png in Resources */,
@@ -3656,6 +3734,7 @@
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
+				LIBRARY_SEARCH_PATHS = ../_lib/prebuilt/OpenCV/ios;
 				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject.2.2;
 				PRODUCT_NAME = SLProject;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3722,6 +3801,7 @@
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
+				LIBRARY_SEARCH_PATHS = ../_lib/prebuilt/OpenCV/ios;
 				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject.2.2;
 				PRODUCT_NAME = SLProject;
 				TARGETED_DEVICE_FAMILY = "1,2";
