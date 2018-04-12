@@ -34,8 +34,6 @@ SLCVSlamStateLoader::~SLCVSlamStateLoader()
 //! add map point
 void SLCVSlamStateLoader::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
 {
-    std::vector<SLCVKeyFrame*>& kfs = kfDB.keyFrames();
-    std::set<SLCVMapPoint*>& mapPts = map.GetAllMapPointsRef();
     ////set up translation
     //_t = cv::Mat(3, 1, CV_32F);
     //_t.at<float>(0, 0) = 10.f;
@@ -58,16 +56,18 @@ void SLCVSlamStateLoader::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
     loadMapPoints(map);
 
     //compute resulting values for map keyframes
-    for (SLCVKeyFrame* kf : kfs) {
-        //compute bow
-        //kf->ComputeBoW(_orbVoc);
-        //add keyframe to keyframe database
-        kfDB.add(kf);
-        // Update links in the Covisibility Graph
-        kf->UpdateConnections();
-    }
+    //std::vector<SLCVKeyFrame*>& kfs = map.GetAllKeyFrames();
+    //for (SLCVKeyFrame* kf : kfs) {
+    //    //compute bow
+    //    //kf->ComputeBoW(_orbVoc);
+    //    //add keyframe to keyframe database
+    //    kfDB.add(kf);
+    //    // Update links in the Covisibility Graph
+    //    kf->UpdateConnections();
+    //}
 
     //compute resulting values for map points
+    const std::set<SLCVMapPoint*>& mapPts = map.GetAllMapPointsConstRef();
     for (auto& mp : mapPts) {
         //mean viewing direction and depth
         mp->UpdateNormalAndDepth();
@@ -182,9 +182,13 @@ void SLCVSlamStateLoader::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         }
         //kfs.push_back(newKf);
         map.AddKeyFrame(newKf);
+
+        //Update keyframe database:
         //add to keyframe database
         kfDB.add(newKf);
-        
+        // Update links in the Covisibility Graph
+        newKf->UpdateConnections();
+
         //pointer goes out of scope und wird invalid!!!!!!
         //map pointer by id for look-up
         _kfsMap[newKf->id()] = newKf;

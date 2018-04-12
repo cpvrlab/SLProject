@@ -47,6 +47,7 @@
 #include <SLCVMap.h>
 #include <SLCVKeyFrameDB.h>
 #include <SLCVSlamStateLoader.h>
+#include <SLImGuiInfosTracking.h>
 
 #include <AppDemoGui.h>
 #include <SLImGuiTrackedMapping.h>
@@ -2439,16 +2440,16 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
 
         ORBVocabulary* vocabulary = new ORBVocabulary();
-        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-        //bool bVocLoad = true;
-        if (!bVocLoad)
-        {
-            cerr << "Wrong path to vocabulary. " << endl;
-            cerr << "Failed to open at: " << strVocFile << endl;
-            exit(-1);
-        }
-        cout << "Vocabulary loaded!" << endl << endl;
+        //string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
+        //bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
+        ////bool bVocLoad = true;
+        //if (!bVocLoad)
+        //{
+        //    cerr << "Wrong path to vocabulary. " << endl;
+        //    cerr << "Failed to open at: " << strVocFile << endl;
+        //    exit(-1);
+        //}
+        //cout << "Vocabulary loaded!" << endl << endl;
 
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
 
@@ -2568,8 +2569,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
 
         //add tracker
-        s->trackers().push_back(new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map,
-            mapNode));
+        SLCVTrackedRaulMur* raulMurTracker = new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map, mapNode);
+        s->trackers().push_back(raulMurTracker);
+
+        SLImGuiInfosTracking* infosTracking = new SLImGuiInfosTracking("Tracking infos", raulMurTracker);
+        infosTracking->setActiveForSceneID(SID_VideoFilesTrackKeyFrames);
+        AppDemoGui::addInfoDialog(infosTracking);
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));

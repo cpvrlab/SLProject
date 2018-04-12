@@ -25,6 +25,7 @@ for a good top down information.
 #include <SLCVFrame.h>
 #include <SLCVKeyFrameDB.h>
 #include <SLCVMap.h>
+#include <SLTrackingInfosInterface.h>
 
 class SLCVMapNode;
 
@@ -34,7 +35,7 @@ using namespace cv;
 //! SLCVTrackedRaulMur is the main part of the AR Christoffelturm scene
 /*! 
 */
-class SLCVTrackedRaulMur : public SLCVTracked
+class SLCVTrackedRaulMur : public SLCVTracked, public SLTrackingInfosInterface
 {
 public:
     // Tracking states
@@ -49,34 +50,13 @@ public:
     eTrackingState mState;
     eTrackingState mLastProcessedState;
 
-    SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary,
-        SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode = NULL );
-    ~SLCVTrackedRaulMur();
-    SLbool track(SLCVMat imageGray,
-        SLCVMat image,
-        SLCVCalibration* calib,
-        SLbool drawDetection,
-        SLSceneView* sv);
+    /*******************************************************************/
+    //interface functions
+    int getNMapMatches() override { return mnMatchesInliers; }
+    float poseDifference() override { return _poseDifference; }
+    float meanReprojectionError() override { return _meanReprojectionError; }
 
-    //add map points to scene and keypoints to video image
-    void decorateSceneAndVideo(cv::Mat& image);
-
-    //setters
-    void showMatchesPC(bool s) { _showMatchesPC = s; }
-    void showLocalMapPC(bool s) { _showLocalMapPC = s; }
-    void showKeyPoints(bool s) { _showKeyPoints = s; }
-    void showKeyPointsMatched(bool s) { _showKeyPointsMatched = s; }
-    //getters
-    SLCVMap* getMap() { return _map; }
-    SLCVKeyFrameDB* getKfDB() { return mpKeyFrameDatabase; }
-    int getNMapMatches() { return mnMatchesInliers; }
-    bool showMatchesPC() { return _showMatchesPC; }
-    bool showLocalMapPC() { return _showLocalMapPC; }
-    bool showKeyPoints() { return _showKeyPoints; }
-    bool showKeyPointsMatched() { return _showKeyPointsMatched; }
-    double poseDifference() { return _poseDifference; }
-    double meanReprojectionError() { return _meanReprojectionError; }
-    int mapPointsCount() {
+    int mapPointsCount() override {
         if (_map)
             return _map->MapPointsInMap();
         else
@@ -105,9 +85,28 @@ public:
         case LOST:
             return "LOST";
 
-        return "";
+            return "";
         }
     }
+    /*******************************************************************/
+
+    SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary,
+        SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode = NULL );
+    ~SLCVTrackedRaulMur();
+    SLbool track(SLCVMat imageGray,
+        SLCVMat image,
+        SLCVCalibration* calib,
+        SLbool drawDetection,
+        SLSceneView* sv);
+
+    //add map points to scene and keypoints to video image
+    void decorateSceneAndVideo(cv::Mat& image);
+
+    //setters
+
+    //getters
+    SLCVMap* getMap() { return _map; }
+    SLCVKeyFrameDB* getKfDB() { return mpKeyFrameDatabase; }
 
     enum TransformType {
         ROT_X=0, ROT_Y, ROT_Z, TRANS_X, TRANS_Y, TRANS_Z, SCALE
@@ -188,10 +187,10 @@ private:
     int mnMatchesInliers = 0;
 
     //flags, if we have to update the scene object of the map point matches
-    bool _showMatchesPC = true;
-    bool _showLocalMapPC = false;
-    bool _showKeyPoints = false;
-    bool _showKeyPointsMatched = true;
+    //bool _showMatchesPC = true;
+    //bool _showLocalMapPC = false;
+    //bool _showKeyPoints = false;
+    //bool _showKeyPointsMatched = true;
     //SLMaterial* _pcMat1 = NULL;
     //SLMaterial* _pcMat2 = NULL;
 
@@ -206,6 +205,8 @@ private:
     //SLNode* _mapLocalPC = NULL;
     //SLNode* _keyFrames = NULL;
     SLCVMapNode* _mapNode = NULL;
+    //! flags, if map has changed (e.g. after key frame insertion or culling)
+    bool _mapHasChanged = false;
 
     //cv::Mat _image;
     SLCVCalibration*        _calib = NULL;         //!< Current calibration in use

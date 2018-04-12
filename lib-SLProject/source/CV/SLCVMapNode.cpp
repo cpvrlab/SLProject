@@ -156,3 +156,9 @@ void SLCVMapNode::removeKeyFrames()
 {
     _keyFrames->deleteChildren();
 }
+//-----------------------------------------------------------------------------
+void SLCVMapNode::setHideMapPoints(bool state)
+{
+    if(_mapPC->drawBits()->get(SL_DB_HIDDEN) != state)
+        _mapPC->drawBits()->set(SL_DB_HIDDEN, state);
+}

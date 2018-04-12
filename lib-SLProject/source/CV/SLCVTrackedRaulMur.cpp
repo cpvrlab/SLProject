@@ -436,6 +436,20 @@ void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
             }
         }
     }
+    //-------------------------------------------------------------------------
+    //decorate scene with all mappoints
+    if (_showMapPC && _mapHasChanged )
+    {
+        _mapHasChanged = false;
+        //update scene
+        auto mapPts = _map->GetAllMapPoints();
+        _mapNode->updateMapPoints(mapPts);
+    }
+    else
+    {
+        //remove point cloud
+        _mapNode->setHideMapPoints(!_showMapPC);
+    }
 
     //-------------------------------------------------------------------------
     //decorate scene with mappoints that were matched to keypoints in current frame

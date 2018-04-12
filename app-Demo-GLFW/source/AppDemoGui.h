@@ -44,7 +44,7 @@ public:
     static void             buildSceneGraph     (SLScene* s);
     static void             addSceneGraphNode   (SLScene* s, SLNode* node);
     static void             buildProperties     (SLScene* s);
-    static void             buildInfosTracking  (SLScene* s, SLSceneView* sv);
+    //static void             buildInfosTracking  (SLScene* s, SLSceneView* sv);
     static void             buildStatsDebugTiming(SLScene* s, SLSceneView* sv);
     static void             buildInfosDialogs();
 
@@ -69,7 +69,7 @@ public:
     static SLbool           showInfosScene;     //!< Flag if scene info should be shown
     static SLbool           showSceneGraph;     //!< Flag if scene graph should be shown
     static SLbool           showProperties;     //!< Flag if properties should be shown
-    static SLbool           showInfosTracking;  //!< Flag if tracking info should be shown
+    //static SLbool           showInfosTracking;  //!< Flag if tracking info should be shown
     static SLbool           showStatsDebugTiming;//!< Flag if tracking info should be shown   
     static SLbool           showChristoffel;    //!< Flag if Christoffel infos should be shown
 

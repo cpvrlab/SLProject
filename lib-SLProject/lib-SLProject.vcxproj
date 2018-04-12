@@ -322,6 +322,7 @@
     <ClInclude Include="..\include\SLGLVertexArrayExt.h" />
     <ClInclude Include="..\include\SLGLVertexBuffer.h" />
     <ClInclude Include="..\include\SLImGuiInfosDialog.h" />
+    <ClInclude Include="..\include\SLImGuiInfosTracking.h" />
     <ClInclude Include="..\include\SLImGuiTrackedMapping.h" />
     <ClInclude Include="..\include\SLInputDevice.h" />
     <ClInclude Include="..\include\SLInputEvent.h" />
@@ -347,6 +348,7 @@
     <ClInclude Include="..\include\SLInterface.h" />
     <ClInclude Include="..\include\SLLens.h" />
     <ClInclude Include="..\include\SLLightDirect.h" />
+    <ClInclude Include="..\include\SLTrackingInfosInterface.h" />
     <ClInclude Include="..\include\SLMat3.h" />
     <ClInclude Include="..\include\SLMat4.h" />
     <ClInclude Include="..\include\SLMath.h" />
@@ -436,6 +438,7 @@
     <ClCompile Include="source\GL\SLGLVertexArrayExt.cpp" />
     <ClCompile Include="source\GL\SLGLVertexBuffer.cpp" />
     <ClCompile Include="source\GUI\SLImGuiInfosDialog.cpp" />
+    <ClCompile Include="source\GUI\SLImGuiInfosTracking.cpp" />
     <ClCompile Include="source\GUI\SLImGuiTrackedMapping.cpp" />
     <ClCompile Include="source\math\SLCurveBezier.cpp" />
     <ClCompile Include="source\math\SLPlane.cpp" />
