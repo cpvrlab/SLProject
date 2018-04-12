@@ -2597,10 +2597,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Mapping example");
         s->info("Example for mapping using functionality from ORB-SLAM.");
 
-        //s->videoType(VT_MAIN);
-        s->videoType(VT_FILE);
-        SLCVCapture::videoLoops = true;
-        SLCVCapture::videoFilename = "webcam_office1.wmv";
+        s->videoType(VT_MAIN);
+        //s->videoType(VT_FILE);
+        //SLCVCapture::videoLoops = true;
+        //SLCVCapture::videoFilename = "webcam_office1.wmv";
 
         //make some light
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
@@ -2614,7 +2614,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //always equal for tracking
         //setup tracking camera
         SLCamera* trackingCam = new SLCamera("Camera 1");
-        trackingCam->translation(0, 0, 5);
+        trackingCam->translation(0, 0, 0.1);
         trackingCam->lookAt(0, 0, 0);
         //for tracking we have to use the field of view from calibration
         trackingCam->fov(SLApplication::activeCalib->cameraFovDeg());
