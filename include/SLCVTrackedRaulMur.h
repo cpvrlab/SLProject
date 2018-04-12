@@ -53,6 +53,8 @@ public:
     /*******************************************************************/
     //interface functions
     int getNMapMatches() override { return mnMatchesInliers; }
+    int getNumKeyFrames() override { return _map->KeyFramesInMap(); }
+
     float poseDifference() override { return _poseDifference; }
     float meanReprojectionError() override { return _meanReprojectionError; }
 

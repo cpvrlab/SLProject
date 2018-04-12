@@ -488,6 +488,12 @@ void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
     {
         _mapNode->removeMapPointsLocal();
     }
+
+    //-------------------------------------------------------------------------
+    //decorate scene with keyframes
+    _mapNode->setHideKeyFrames(!_showKeyFrames);
+    _mapNode->renderKfBackground(_renderKfBackground);
+    _mapNode->allowAsActiveCam(_allowKfsAsActiveCam);
 }
 //-----------------------------------------------------------------------------
 bool SLCVTrackedRaulMur::Relocalization()

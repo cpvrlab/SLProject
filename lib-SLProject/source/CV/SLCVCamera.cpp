@@ -14,6 +14,7 @@
 #include <SLCVKeyFrame.h>
 #include <SLCVKeyFrameDB.h>
 #include <SLCVMapNode.h>
+#include <SLGLTexture.h>
 
 SLCVCamera::SLCVCamera(SLCVMapNode* mapNode, SLstring name)
     : SLCamera(name), _mapNode(mapNode)
@@ -133,5 +134,13 @@ void SLCVCamera::drawMeshes(SLSceneView* sv)
 
         if(renderBackground())
             _background.renderInScene(nearLT, nearLB, nearRT, nearRB);
+
+
+        if (_background.texture()->images().size()) {
+            auto& imgs = _background.texture()->images();
+            SLCVImage* img = imgs[0];
+            auto mat = img->cvMat();
+            cv::imwrite("D:/Development/SLProject/_data/calibrations/imgs/kf0-test.jpg", mat);
+        }
     }
 }

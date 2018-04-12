@@ -162,3 +162,15 @@ void SLCVMapNode::setHideMapPoints(bool state)
     if(_mapPC->drawBits()->get(SL_DB_HIDDEN) != state)
         _mapPC->drawBits()->set(SL_DB_HIDDEN, state);
 }
+//-----------------------------------------------------------------------------
+void SLCVMapNode::setHideKeyFrames(bool state)
+{
+    if (_keyFrames->drawBits()->get(SL_DB_HIDDEN) != state)
+    {
+        _keyFrames->drawBits()->set(SL_DB_HIDDEN, state);
+        for (SLNode* child : _keyFrames->children()) {
+            if (child)
+                child->drawBits()->set(SL_DB_HIDDEN, state);
+        }
+    }
+}

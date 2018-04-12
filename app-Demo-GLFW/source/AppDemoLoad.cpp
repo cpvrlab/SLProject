@@ -2521,8 +2521,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-new-1.json";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 2, 60);
-        cam1->lookAt(15, 15, 0);
+        cam1->translation(0, 1, 1);
+        cam1->lookAt(0, 0, 0);
         cam1->fov(SLApplication::activeCalib->cameraFovDeg());
         cam1->clipNear(0.001f);
         cam1->clipFar(1000000.0f); // Increase to infinity?
@@ -2530,25 +2530,25 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().texture(s->videoTexture());
 
         ORBVocabulary* vocabulary = new ORBVocabulary();
-        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-        //bool bVocLoad = true;
-        if (!bVocLoad)
-        {
-            cerr << "Wrong path to vocabulary. " << endl;
-            cerr << "Failed to open at: " << strVocFile << endl;
-            exit(-1);
-        }
-        cout << "Vocabulary loaded!" << endl << endl;
+        //string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
+        //bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
+        ////bool bVocLoad = true;
+        //if (!bVocLoad)
+        //{
+        //    cerr << "Wrong path to vocabulary. " << endl;
+        //    cerr << "Failed to open at: " << strVocFile << endl;
+        //    exit(-1);
+        //}
+        //cout << "Vocabulary loaded!" << endl << endl;
 
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
 
         //load map points and keyframes from json file
         SLCVMap* map = new SLCVMap("Map");
-        SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
+        SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, true);
         loader.load(*map, *kfDB);
 
-        SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
+        SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
         light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
         light1->specular(SLCol4f(1, 1, 1));

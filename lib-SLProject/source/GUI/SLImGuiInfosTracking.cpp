@@ -89,48 +89,28 @@ void SLImGuiInfosTracking::buildInfos()
         }
     }
     //-------------------------------------------------------------------------
-    ////keyframe infos
-    //if (ImGui::CollapsingHeader("KeyFrames"))
-    //{
-    //    //ImGui::Text("KeyFrames");
-    //    //add number of keyframes
-    //    if (keyFrames) {
-    //        ImGui::Text("Number of Keyframes : %d ", keyFrames->children().size());
-    //    }
-    //    //show keyframe scene objects
-    //    if (keyFrames)
-    //    {
-    //        b = !keyFrames->drawBits()->get(SL_DB_HIDDEN);
-    //        if (ImGui::Checkbox("Show", &b))
-    //        {
-    //            keyFrames->drawBits()->set(SL_DB_HIDDEN, !b);
-    //            for (SLNode* child : keyFrames->children()) {
-    //                if (child)
-    //                    child->drawBits()->set(SL_DB_HIDDEN, !b);
-    //            }
-    //        }
-    //    }
+    //keyframe infos
+    if (ImGui::CollapsingHeader("KeyFrames"))
+    {
+        //add number of keyframes
+        ImGui::Text("Number of Keyframes : %d ", _interface->getNumKeyFrames());
+        //show keyframe scene objects
+        //show and update all mappoints
+        b = _interface->showKeyFrames();
+        ImGui::Checkbox("Show", &b);
+        _interface->showKeyFrames(b);
 
-    //    //get keyframe database
-    //    if (SLCVKeyFrameDB* kfDB = _interface->getKfDB())
-    //    {
-    //        //if backgound rendering is active kf images will be rendered on 
-    //        //near clipping plane if kf is not the active camera
-    //        b = kfDB->renderKfBackground();
-    //        if (ImGui::Checkbox("Show Image", &b))
-    //        {
-    //            kfDB->renderKfBackground(b);
-    //        }
+        //if backgound rendering is active kf images will be rendered on 
+        //near clipping plane if kf is not the active camera
+        b = _interface->renderKfBackground();
+        ImGui::Checkbox("Show Image", &b);
+        _interface->renderKfBackground(b);
 
-    //        //allow SLCVCameras as active camera so that we can look through it
-    //        b = kfDB->allowAsActiveCam();
-    //        if (ImGui::Checkbox("Allow as Active Cam", &b))
-    //        {
-    //            kfDB->allowAsActiveCam(b);
-    //        }
-    //    }
-    //    //ImGui::Separator();
-    //}
+        //allow SLCVCameras as active camera so that we can look through it
+        b = _interface->allowKfsAsActiveCam();
+        ImGui::Checkbox("Allow as Active Cam", &b);
+        _interface->allowKfsAsActiveCam(b);
+    }
 
     ////-------------------------------------------------------------------------
     //if (ImGui::CollapsingHeader("Alignment"))

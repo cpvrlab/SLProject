@@ -40,8 +40,9 @@ public:
     void removeMapPointsMatched();
     void removeKeyFrames();
 
-    //!hide map poinst
+    //!set hidden flags
     void setHideMapPoints(bool state);
+    void setHideKeyFrames(bool state);
 
     //getters
     bool renderKfBackground() { return _renderKfBackground; }

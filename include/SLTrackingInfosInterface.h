@@ -27,6 +27,8 @@ public:
     virtual float poseDifference() = 0;
     //!get number of map points
     virtual int mapPointsCount() = 0;
+    //!get number of key frames
+    virtual int getNumKeyFrames() = 0;
 
     //!getters
     bool showKeyPoints() const { return _showKeyPoints; }
@@ -34,6 +36,9 @@ public:
     bool showMapPC() const { return _showMapPC; }
     bool showMatchesPC() const { return _showMatchesPC; }
     bool showLocalMapPC() const { return _showLocalMapPC; }
+    bool showKeyFrames() const { return _showKeyFrames; }
+    bool renderKfBackground() const { return _renderKfBackground; }
+    bool allowKfsAsActiveCam() const { return _allowKfsAsActiveCam; }
 
     //!setters
     void showKeyPoints(bool state) { _showKeyPoints = state; }
@@ -41,6 +46,9 @@ public:
     void showMapPC(bool state) { _showMapPC = state; }
     void showMatchesPC(bool state) { _showMatchesPC = state; }
     void showLocalMapPC(bool state) { _showLocalMapPC = state; }
+    void showKeyFrames(bool state) { _showKeyFrames = state; }
+    void renderKfBackground(bool state) { _renderKfBackground = state; }
+    void allowKfsAsActiveCam(bool state) { _allowKfsAsActiveCam = state; }
 
 protected:
     //!flags, if keypoint positions should be rendered into current frame
@@ -53,6 +61,12 @@ protected:
     bool _showMatchesPC = true;
     //!flags, if the local map points should be visualized
     bool _showLocalMapPC = false;
+    //!flags, if keyframes should be shown
+    bool _showKeyFrames = true;
+    //!flags, if keyframes backgound should be rendered
+    bool _renderKfBackground = false;
+    //!flags, if we allow to iterate through keyframes and set them as active scene cameras
+    bool _allowKfsAsActiveCam = false;
 };
 
 #endif //SL_TRACKINGINFOSINTERFACE_H
