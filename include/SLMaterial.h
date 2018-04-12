@@ -11,7 +11,6 @@
 #ifndef SLMAT_H
 #define SLMAT_H
 
-#include <stdafx.h>
 #include <SLDrawBits.h>
 #include <SLGLTexture.h>
 #include <SLGLProgram.h>

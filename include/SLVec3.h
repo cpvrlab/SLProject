@@ -13,7 +13,6 @@
 
 #include <SL.h>
 #include <SLVec2.h>
-#include <SLUtils.h>
 
 //-----------------------------------------------------------------------------
 //! 3D vector template class for standard 3D vector algebra.

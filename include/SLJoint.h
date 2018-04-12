@@ -11,7 +11,6 @@
 #ifndef SLBONE_H
 #define SLBONE_H
 
-#include <stdafx.h>
 #include <SLNode.h>
 
 //-----------------------------------------------------------------------------

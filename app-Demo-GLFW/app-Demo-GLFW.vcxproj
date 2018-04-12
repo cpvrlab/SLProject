@@ -294,6 +294,8 @@ xcopy "$(SolutionDir)_lib/prebuilt/g2o/x64\vc14\bin\g2o_*.dll" "$(SolutionDir)_b
       </DataExecutionPrevention>
       <Profile>false</Profile>
       <LargeAddressAware>true</LargeAddressAware>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_objdetect*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y
@@ -321,7 +323,9 @@ xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_highgui*.dll" "$(S
 
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
 
-xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_ffmpeg*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y </Command>
+xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_ffmpeg*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
+xcopy "$(SolutionDir)_lib\prebuilt\g2o\x64\vc14\bin\g2o_*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

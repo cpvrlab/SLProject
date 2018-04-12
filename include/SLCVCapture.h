@@ -22,8 +22,9 @@ See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 
-#include <stdafx.h>
+#include <SLEnums.h>
 #include <SLCV.h>
+#include <SLVec2.h>
 #include <opencv2/opencv.hpp>
 
 //-----------------------------------------------------------------------------

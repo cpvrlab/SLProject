@@ -11,10 +11,10 @@
 #ifndef SLMESH_H
 #define SLMESH_H
 
-#include <stdafx.h>
+#include <SLEnums.h>
+#include <SLObject.h>
 #include <SLAABBox.h>
 #include <SLGLVertexArray.h>
-#include <SLEnums.h>
 
 class SLSceneView;
 class SLNode;
@@ -23,6 +23,7 @@ struct SLNodeStats;
 class SLMaterial;
 class SLRay;
 class SLSkeleton;
+class SLGLState;
 
 //-----------------------------------------------------------------------------
 //!An SLMesh object is a triangulated mesh that is drawn with one draw call.

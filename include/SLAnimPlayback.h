@@ -11,7 +11,10 @@
 #ifndef SLANIMPLAYBACK_h
 #define SLANIMPLAYBACK_h
 
-#include <stdafx.h>
+#include <vector>
+#include <map>
+
+#include <SL.h>
 #include <SLEnums.h>
 
 class SLAnimation;
@@ -88,7 +91,7 @@ protected:
     SLbool          _gotChanged;        //!< Did this playback change in the last frame
 };
 //-----------------------------------------------------------------------------
-typedef vector<SLAnimPlayback*>         SLVAnimPlayback;
-typedef map<SLstring, SLAnimPlayback*>  SLMAnimPlayback;
+typedef std::vector<SLAnimPlayback*>         SLVAnimPlayback;
+typedef std::map<SLstring, SLAnimPlayback*>  SLMAnimPlayback;
 //-----------------------------------------------------------------------------
 #endif

@@ -11,6 +11,7 @@
 #ifndef SLCVFEATUREMANAGER_H
 #define SLCVFEATUREMANAGER_H
 
+#include <SLEnums.h>
 #include <SLCV.h>
 
 //-----------------------------------------------------------------------------

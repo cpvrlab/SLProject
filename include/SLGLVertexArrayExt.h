@@ -12,7 +12,6 @@
 #ifndef SLGLVERTEXARRAYEXT_H
 #define SLGLVERTEXARRAYEXT_H
 
-#include <stdafx.h>
 #include <SLGLVertexArray.h>
 
 //-----------------------------------------------------------------------------

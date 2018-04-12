@@ -14,6 +14,7 @@
 #ifndef SLCVRAULMURORB_H
 #define SLCVRAULMURORB_H
 
+#include <SL.h>
 #include <SLCV.h>
 
 //-----------------------------------------------------------------------------

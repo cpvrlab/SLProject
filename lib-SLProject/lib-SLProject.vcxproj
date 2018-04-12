@@ -435,6 +435,7 @@
     <ClCompile Include="source\GL\SLGLVertexArray.cpp" />
     <ClCompile Include="source\GL\SLGLVertexArrayExt.cpp" />
     <ClCompile Include="source\GL\SLGLVertexBuffer.cpp" />
+    <ClCompile Include="source\GUI\SLImGuiInfosDialog.cpp" />
     <ClCompile Include="source\GUI\SLImGuiTrackedMapping.cpp" />
     <ClCompile Include="source\math\SLCurveBezier.cpp" />
     <ClCompile Include="source\math\SLPlane.cpp" />
@@ -448,7 +449,6 @@
     <ClCompile Include="source\SLDeviceLocation.cpp" />
     <ClCompile Include="source\SLDeviceRotation.cpp" />
     <ClCompile Include="source\SLDisk.cpp" />
-    <ClCompile Include="source\SLImGuiInfosDialog.cpp" />
     <ClCompile Include="source\SLInputDevice.cpp" />
     <ClCompile Include="source\SLInputManager.cpp" />
     <ClCompile Include="source\SLJoint.cpp" />
@@ -497,6 +497,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

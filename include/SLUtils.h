@@ -11,8 +11,15 @@
 #ifndef SLUTILS_H
 #define SLUTILS_H
 
-#include <stdafx.h>
+#include <cstdarg>
+#include <cstring>
+#include <iomanip>
+#include <sstream>
+#include <algorithm>
+
 #include <dirent.h>
+#include <SL.h>
+#include <SLMath.h>
 
 //-----------------------------------------------------------------------------
 //! SLUtils provides static utility functions string handling

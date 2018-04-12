@@ -14,6 +14,7 @@
 #include <SLMaterial.h>
 #include <SLPoints.h>
 #include <SLApplication.h>
+#include <SLCVCalibration.h>
 
 //-----------------------------------------------------------------------------
 SLCVMapNode::SLCVMapNode(std::string name)

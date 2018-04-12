@@ -178,8 +178,8 @@ list(REMOVE_ITEM SLEXTERNAL_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
 
 file(GLOB_RECURSE APP_DEMO_SOURCES      ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoAndroidJNI.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoLoad.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGUI.h
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGUI.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGui.h
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGui.cpp
                                         )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
@@ -291,6 +291,7 @@ file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/t
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/i*_0000b.png)
 
 file(GLOB_RECURSE VIDEOS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/street3.mp4
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/calib_huawei_4_3.mp4
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/altstadt_biel1.mp4
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/buero1_huawei_16_9.mp4
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/buero2_huawei_16_9.mp4

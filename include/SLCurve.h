@@ -13,6 +13,8 @@
 
 #include <SL.h>
 #include <SLVec3.h>
+#include <SLVec4.h>
+#include <SLMat4.h>
 
 //-----------------------------------------------------------------------------
 //!Base class for curves defined by multiple 3D points. 

@@ -704,7 +704,8 @@
     <ClCompile Include="source\GUI\SLImGuiTrackedMapping.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLImGuiInfosDialog.cpp">
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="source\GUI\SLImGuiInfosDialog.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
   </ItemGroup>

@@ -11,7 +11,7 @@
 #ifndef SLGUIDEMO_H
 #define SLGUIDEMO_H
 
-#include <stdafx.h>
+#include <SL.h>
 #include <string>
 #include <map>
 
