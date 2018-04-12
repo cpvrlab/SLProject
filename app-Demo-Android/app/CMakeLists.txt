@@ -170,9 +170,9 @@ list(REMOVE_ITEM SLEXTERNAL_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         )
 
 file(GLOB_RECURSE APP_DEMO_SOURCES      ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoAndroidJNI.cpp
-                                        /home/jdellsperger/projects/SLProject/app-Demo-GLFW/source/AppDemoLoad.cpp
-                                        /home/jdellsperger/projects/SLProject/app-Demo-GLFW/source/AppDemoGui.h
-                                        /home/jdellsperger/projects/SLProject/app-Demo-GLFW/source/AppDemoGui.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoLoad.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGui.h
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGui.cpp
                                         )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
