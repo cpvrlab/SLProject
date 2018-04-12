@@ -1,6 +1,6 @@
 ##############################################################################
 #  File:      cv13_HeadPoseEstimation.pro
-#  Purpose:   QMake project definition file head pose estimation using OpenCV
+#  Purpose:   QMake project file for head pose estimation using OpenCV
 #  Author:    Marcus Hudritsch
 #  Date:      Spring 2017 (HS17)
 #  Copyright: Marcus Hudritsch, Switzerland

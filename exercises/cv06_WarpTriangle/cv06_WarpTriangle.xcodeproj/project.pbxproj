@@ -1,0 +1,355 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		415109511FF3D87F00238817 /* cv06_WarpTriangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 415109501FF3D87F00238817 /* cv06_WarpTriangle.cpp */; };
+		417EC1052060F7990016F7CB /* libopencv_imgproc.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 417EC1012060F7980016F7CB /* libopencv_imgproc.3.4.0.dylib */; };
+		417EC1062060F7990016F7CB /* libopencv_highgui.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 417EC1022060F7980016F7CB /* libopencv_highgui.3.4.0.dylib */; };
+		417EC1072060F7990016F7CB /* libopencv_imgcodecs.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 417EC1032060F7980016F7CB /* libopencv_imgcodecs.3.4.0.dylib */; };
+		417EC1082060F7990016F7CB /* libopencv_core.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 417EC1042060F7980016F7CB /* libopencv_core.3.4.0.dylib */; };
+		41EE03BE1FF3D0B600E5DC9C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03BD1FF3D0B600E5DC9C /* Cocoa.framework */; };
+		41EE03C01FF3D0BF00E5DC9C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03BF1FF3D0BF00E5DC9C /* CoreFoundation.framework */; };
+		41EE03C21FF3D0CB00E5DC9C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03C11FF3D0CB00E5DC9C /* CoreGraphics.framework */; };
+		41EE03C41FF3D0D600E5DC9C /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03C31FF3D0D600E5DC9C /* IOKit.framework */; };
+		41EE03D81FF3D28000E5DC9C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03D71FF3D28000E5DC9C /* QuartzCore.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4160DA4B1FF3C88400343C0D /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		415109501FF3D87F00238817 /* cv06_WarpTriangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cv06_WarpTriangle.cpp; sourceTree = "<group>"; };
+		4160DA4D1FF3C88400343C0D /* cv06_WarpTriangle */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cv06_WarpTriangle; sourceTree = BUILT_PRODUCTS_DIR; };
+		417EC1012060F7980016F7CB /* libopencv_imgproc.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgproc.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.4.0.dylib; sourceTree = "<group>"; };
+		417EC1022060F7980016F7CB /* libopencv_highgui.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_highgui.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_highgui.3.4.0.dylib; sourceTree = "<group>"; };
+		417EC1032060F7980016F7CB /* libopencv_imgcodecs.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgcodecs.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.4.0.dylib; sourceTree = "<group>"; };
+		417EC1042060F7980016F7CB /* libopencv_core.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_core.3.4.0.dylib; path = ../../_lib/prebuilt/OpenCV/macx/libopencv_core.3.4.0.dylib; sourceTree = "<group>"; };
+		41EE03BD1FF3D0B600E5DC9C /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		41EE03BF1FF3D0BF00E5DC9C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		41EE03C11FF3D0CB00E5DC9C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		41EE03C31FF3D0D600E5DC9C /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		41EE03D71FF3D28000E5DC9C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4160DA4A1FF3C88400343C0D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				417EC1052060F7990016F7CB /* libopencv_imgproc.3.4.0.dylib in Frameworks */,
+				417EC1062060F7990016F7CB /* libopencv_highgui.3.4.0.dylib in Frameworks */,
+				417EC1072060F7990016F7CB /* libopencv_imgcodecs.3.4.0.dylib in Frameworks */,
+				417EC1082060F7990016F7CB /* libopencv_core.3.4.0.dylib in Frameworks */,
+				41EE03D81FF3D28000E5DC9C /* QuartzCore.framework in Frameworks */,
+				41EE03C41FF3D0D600E5DC9C /* IOKit.framework in Frameworks */,
+				41EE03C21FF3D0CB00E5DC9C /* CoreGraphics.framework in Frameworks */,
+				41EE03C01FF3D0BF00E5DC9C /* CoreFoundation.framework in Frameworks */,
+				41EE03BE1FF3D0B600E5DC9C /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4160DA441FF3C88400343C0D = {
+			isa = PBXGroup;
+			children = (
+				415109501FF3D87F00238817 /* cv06_WarpTriangle.cpp */,
+				4160DA4E1FF3C88400343C0D /* Products */,
+				41EE03BA1FF3D0A800E5DC9C /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		4160DA4E1FF3C88400343C0D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4160DA4D1FF3C88400343C0D /* cv06_WarpTriangle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		41EE03BA1FF3D0A800E5DC9C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				417EC1042060F7980016F7CB /* libopencv_core.3.4.0.dylib */,
+				417EC1022060F7980016F7CB /* libopencv_highgui.3.4.0.dylib */,
+				417EC1032060F7980016F7CB /* libopencv_imgcodecs.3.4.0.dylib */,
+				417EC1012060F7980016F7CB /* libopencv_imgproc.3.4.0.dylib */,
+				41EE03BD1FF3D0B600E5DC9C /* Cocoa.framework */,
+				41EE03BF1FF3D0BF00E5DC9C /* CoreFoundation.framework */,
+				41EE03C11FF3D0CB00E5DC9C /* CoreGraphics.framework */,
+				41EE03C31FF3D0D600E5DC9C /* IOKit.framework */,
+				41EE03D71FF3D28000E5DC9C /* QuartzCore.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4160DA4C1FF3C88400343C0D /* cv06_WarpTriangle */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4160DA541FF3C88400343C0D /* Build configuration list for PBXNativeTarget "cv06_WarpTriangle" */;
+			buildPhases = (
+				4160DA491FF3C88400343C0D /* Sources */,
+				4160DA4A1FF3C88400343C0D /* Frameworks */,
+				4160DA4B1FF3C88400343C0D /* CopyFiles */,
+				41EE03DB1FF3D50900E5DC9C /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = cv06_WarpTriangle;
+			productName = ch06_ColorCube;
+			productReference = 4160DA4D1FF3C88400343C0D /* cv06_WarpTriangle */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4160DA451FF3C88400343C0D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0920;
+				ORGANIZATIONNAME = "Marcus Hudritsch";
+				TargetAttributes = {
+					4160DA4C1FF3C88400343C0D = {
+						CreatedOnToolsVersion = 9.2;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 4160DA481FF3C88400343C0D /* Build configuration list for PBXProject "cv06_WarpTriangle" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 4160DA441FF3C88400343C0D;
+			productRefGroup = 4160DA4E1FF3C88400343C0D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4160DA4C1FF3C88400343C0D /* cv06_WarpTriangle */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		41EE03DB1FF3D50900E5DC9C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cp ../../_lib/prebuilt/OpenCV/macx/libopencv_* ../../_bin-Debug-macxcode/";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4160DA491FF3C88400343C0D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				415109511FF3D87F00238817 /* cv06_WarpTriangle.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4160DA521FF3C88400343C0D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4160DA531FF3C88400343C0D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4160DA551FF3C88400343C0D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../../_bin-$(CONFIGURATION)-macxcode";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_DIR)/../../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../../_bin-$(CONFIGURATION)-macxcode";
+				HEADER_SEARCH_PATHS = (
+					"../../include/**",
+					"../../lib-SLExternal/**",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../../_bin-$(CONFIGURATION)-macxcode",
+					"$(PROJECT_DIR)/../../_lib/prebuilt/OpenCV/macx",
+				);
+				OBJROOT = "$(PROJECT_DIR)/../../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SHARED_PRECOMPS_DIR = "$(PROJECT_DIR)/../../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
+				SYMROOT = "$(PROJECT_DIR)/../../_bin-$(CONFIGURATION)-macxcode";
+			};
+			name = Debug;
+		};
+		4160DA561FF3C88400343C0D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../../_bin-$(CONFIGURATION)-macxcode";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_DIR)/../../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../../_bin-$(CONFIGURATION)-macxcode";
+				HEADER_SEARCH_PATHS = (
+					"../../include/**",
+					"../../lib-SLExternal/**",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../../_bin-$(CONFIGURATION)-macxcode",
+					"$(PROJECT_DIR)/../../_lib/prebuilt/OpenCV/macx",
+				);
+				OBJROOT = "$(PROJECT_DIR)/../../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SHARED_PRECOMPS_DIR = "$(PROJECT_DIR)/../../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
+				SYMROOT = "$(PROJECT_DIR)/../../_bin-$(CONFIGURATION)-macxcode";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4160DA481FF3C88400343C0D /* Build configuration list for PBXProject "cv06_WarpTriangle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4160DA521FF3C88400343C0D /* Debug */,
+				4160DA531FF3C88400343C0D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4160DA541FF3C88400343C0D /* Build configuration list for PBXNativeTarget "cv06_WarpTriangle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4160DA551FF3C88400343C0D /* Debug */,
+				4160DA561FF3C88400343C0D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4160DA451FF3C88400343C0D /* Project object */;
+}

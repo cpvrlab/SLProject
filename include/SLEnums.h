@@ -118,6 +118,8 @@ enum SLSceneID
     SID_VideoTrackArucoScnd,
     SID_VideoTrackFeature2DMain,
     SID_VideoTrackFeature2DScnd,
+    SID_VideoTrackFaceMain,
+    SID_VideoTrackFaceScnd,
     SID_VideoSensorAR,
 
     SID_RTMuttenzerBox,

@@ -22,6 +22,7 @@ win32 {
     LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_calib3d340.lib
     LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_core340.lib
     LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_features2d340.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_flace340.lib
     LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_flann340.lib
     LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_highgui340.lib
     LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgproc340.lib
@@ -55,6 +56,7 @@ macx {
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_calib3d
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_core
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_features2d
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_face
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_flann
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_highgui
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_imgproc
@@ -83,6 +85,7 @@ unix:!macx:!android {
     LIBS += /usr/local/lib/libopencv_core.so
     LIBS += /usr/local/lib/libopencv_calib3d.so
     LIBS += /usr/local/lib/libopencv_features2d.so
+    LIBS += /usr/local/lib/libopencv_face.so
     LIBS += /usr/local/lib/libopencv_flann.so
     LIBS += /usr/local/lib/libopencv_highgui.so
     LIBS += /usr/local/lib/libopencv_imgproc.so

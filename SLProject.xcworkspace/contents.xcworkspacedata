@@ -17,7 +17,19 @@
          location = "group:exercises/cv01_ChangeBrightnessAndContrast/cv01_ChangeBrightnessAndContrast.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:exercises/cv06_WarpTriangle/cv06_WarpTriangle.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:exercises/cv07_MeshWarping/cv07_MeshWarping.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:exercises/cv08_MeshMorphing/cv08_MeshMorphing.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:exercises/cv13_FaceTracking/cv13_FaceTracking.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:exercises/cv13_FacialLandmarkDetection/cv13_FacialLandmarkDetection.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:exercises/cv13_HeadPoseEstimation/cv13_HeadPoseEstimation.xcodeproj">

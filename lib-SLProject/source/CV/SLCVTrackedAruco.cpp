@@ -11,7 +11,7 @@
 #include <stdafx.h>         // precompiled headers
 
 /*
-The OpenCV library version 3.1 with extra module must be present.
+The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
@@ -21,13 +21,6 @@ for a good top down information.
 #include <SLApplication.h>
 #include <SLSceneView.h>
 #include <SLCVTrackedAruco.h>
-
-#include <opencv2/core/core.hpp>
-#include <opencv2/core/utility.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/calib3d.hpp>
-#include <opencv2/video/tracking.hpp>
 
 using namespace cv;
 //-----------------------------------------------------------------------------

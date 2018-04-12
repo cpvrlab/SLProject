@@ -417,10 +417,16 @@ models_FBX_Christoffel.files = \
   ../_data/models/FBX/Christoffel/Sandstein1.png \
   ../_data/models/FBX/Christoffel/Ziegel1.png \
 
+models_FBX.files = \
+  ../_data/models/FBX/Sunglasses.fbx \
+
 calibrations.files = \
   ../_data/calibrations/calib_in_params.yml \
   ../_data/calibrations/aruco_detector_params.yml \
-
+  ../_data/calibrations/lbfmodel.yaml \
+  ../_data/calibrations/haarcascade_frontalface_alt.xml \
+  ../_data/calibrations/haarcascade_frontalface_alt2.xml \
+  ../_data/calibrations/haarcascade_frontalface_default.xml \
 
 # Copies the given files to the destination directory
 defineTest(copyToDestdir) {
@@ -436,55 +442,59 @@ defineTest(copyToDestdir) {
 
 # OpenCV
 win32 {
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_aruco320.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_calib3d320.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_core320.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_features2d320.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_highgui320.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann320.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_ffmpeg320_64.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgproc320.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgcodecs320.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_objdetect320.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_video320.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_videoio320.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_xfeatures2d320.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_aruco340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_calib3d340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_core340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_features2d340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_highgui340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_face340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_ffmpeg340_64.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgproc340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgcodecs340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_objdetect340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_video340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_videoio340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_xfeatures2d340.dll)
 }
 macx {
     cvlibs.files += \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.4.0.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_core.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_face.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_face.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_face.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.4.0.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.4.0.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_video.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.4.0.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.4.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.4.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.4.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.4.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.4.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.4.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.4.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.4.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.4.0.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.4.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.4.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.4.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.4.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.4.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.dylib
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.dylib
 }
 unix:!macx:!android {
     # linux only
@@ -507,6 +517,7 @@ macx: {
     models_FBX_Suzanne.path = Contents/_data/models/FBX/Suzanne
     models_FBX_Teapot.path = Contents/_data/models/FBX/Teapot
     models_FBX_Christoffel.path = Contents/_data/models/FBX/Christoffel
+    models_FBX.path = Contents/_data/models/FBX
     calibrations.path = Contents/_data/calibrations
     cvlibs.path = Contents/Frameworks
 
@@ -525,7 +536,9 @@ macx: {
     QMAKE_BUNDLE_DATA += models_FBX_Suzanne
     QMAKE_BUNDLE_DATA += models_FBX_Teapot
     QMAKE_BUNDLE_DATA += models_FBX_Christoffel
+    QMAKE_BUNDLE_DATA += models_FBX
     QMAKE_BUNDLE_DATA += calibrations
+    QMAKE_BUNDLE_DATA += haarcascades
     QMAKE_BUNDLE_DATA += cvlibs
 
     macx {ICON = ../lib-SLProject/SLProject-Icon.icns}

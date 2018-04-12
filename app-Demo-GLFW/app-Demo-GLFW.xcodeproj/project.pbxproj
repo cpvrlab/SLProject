@@ -34,6 +34,7 @@
 		41CAE14C2011D02200B2830F /* libopencv_objdetect.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CAE1482011D02200B2830F /* libopencv_objdetect.3.4.0.dylib */; };
 		41CAE14D2011D02200B2830F /* libopencv_xfeatures2d.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CAE1492011D02200B2830F /* libopencv_xfeatures2d.3.4.0.dylib */; };
 		41CAE14F2011D08900B2830F /* libopencv_aruco.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CAE14E2011D08900B2830F /* libopencv_aruco.3.4.0.dylib */; };
+		41EAAE042067A0FB00F7E9B9 /* libopencv_face.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EAAE032067A0FB00F7E9B9 /* libopencv_face.3.4.0.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -78,6 +79,7 @@
 		41CAE1482011D02200B2830F /* libopencv_objdetect.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_objdetect.3.4.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.4.0.dylib; sourceTree = "<group>"; };
 		41CAE1492011D02200B2830F /* libopencv_xfeatures2d.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_xfeatures2d.3.4.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.4.0.dylib; sourceTree = "<group>"; };
 		41CAE14E2011D08900B2830F /* libopencv_aruco.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_aruco.3.4.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.4.0.dylib; sourceTree = "<group>"; };
+		41EAAE032067A0FB00F7E9B9 /* libopencv_face.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_face.3.4.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_face.3.4.0.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +87,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41EAAE042067A0FB00F7E9B9 /* libopencv_face.3.4.0.dylib in Frameworks */,
 				411838A7201CDD9E0026A4C6 /* libwebp.a in Frameworks */,
 				411838A8201CDD9E0026A4C6 /* libwebpdemux.a in Frameworks */,
 				411838A9201CDD9E0026A4C6 /* libwebpmux.a in Frameworks */,
@@ -118,6 +121,7 @@
 		41030D091FED5923005CFF1A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				41EAAE032067A0FB00F7E9B9 /* libopencv_face.3.4.0.dylib */,
 				4178D6842020B09C00F4F699 /* liblib-SLExternal-macxcode.a */,
 				411838A4201CDD9D0026A4C6 /* libwebp.a */,
 				411838A5201CDD9E0026A4C6 /* libwebpdemux.a */,

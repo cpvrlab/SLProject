@@ -57,7 +57,21 @@ As examples you can see it in:
   - _old/app-Viewer-Qt: qtGLWidget::initializeGL()
 */
 SLScene::SLScene(SLstring name,
-                 cbOnSceneLoad onSceneLoadCallback) : SLObject(name)
+                 cbOnSceneLoad onSceneLoadCallback) : SLObject(name),
+                _frameTimesMS(60, 0.0f),
+                _updateTimesMS(60, 0.0f),
+                _cullTimesMS(60, 0.0f),
+                _draw3DTimesMS(60, 0.0f),
+                _draw2DTimesMS(60, 0.0f),
+                _trackingTimesMS(60, 0.0f),
+                _detectTimesMS(60, 0.0f),
+                _detect1TimesMS(60, 0.0f),
+                _detect2TimesMS(60, 0.0f),
+                _matchTimesMS(60, 0.0f),
+                _optFlowTimesMS(60, 0.0f),
+                _poseTimesMS(60, 0.0f),
+                _captureTimesMS(200, 0.0f)
+
 {
     SLApplication::scene = this;
     
@@ -169,17 +183,19 @@ void SLScene::init()
 
     // Reset timing variables
     _timer.start();
-    _frameTimesMS.init();
-    _updateTimesMS.init();
-    _cullTimesMS.init();
-    _draw3DTimesMS.init();
-    _draw2DTimesMS.init();
-    _trackingTimesMS.init();
-    _detectTimesMS.init();
-    _matchTimesMS.init();
-    _optFlowTimesMS.init();
-    _poseTimesMS.init();
-    _captureTimesMS.init(200);
+    _frameTimesMS.init(60, 0.0f);
+    _updateTimesMS.init(60, 0.0f);
+    _cullTimesMS.init(60, 0.0f);
+    _draw3DTimesMS.init(60, 0.0f);
+    _draw2DTimesMS.init(60, 0.0f);
+    _trackingTimesMS.init(60, 0.0f);
+    _detectTimesMS.init(60, 0.0f);
+    _detect1TimesMS.init(60, 0.0f);
+    _detect2TimesMS.init(60, 0.0f);
+    _matchTimesMS.init(60, 0.0f);
+    _optFlowTimesMS.init(60, 0.0f);
+    _poseTimesMS.init(60, 0.0f);
+    _captureTimesMS.init(200, 0.0f);
 
     // Reset calibration process at scene change
     if (SLApplication::activeCalib->state() != CS_calibrated &&
