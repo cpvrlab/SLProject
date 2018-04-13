@@ -2639,10 +2639,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Mapping example");
         s->info("Example for mapping using functionality from ORB-SLAM.");
 
-        s->videoType(VT_MAIN);
-        //s->videoType(VT_FILE);
-        //SLCVCapture::videoLoops = true;
-        //SLCVCapture::videoFilename = "webcam_office1.wmv";
+        //s->videoType(VT_MAIN);
+        s->videoType(VT_FILE);
+        SLCVCapture::videoLoops = true;
+        SLCVCapture::videoFilename = "webcam_office1.wmv";
+        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-new-1.json";
+        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-dynamic.json";
 
         //make some light
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
@@ -2679,8 +2681,16 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cout << "Vocabulary loaded!" << endl << endl;
 
         //instantiate and load slam map
-        SLCVMap* map = new SLCVMap("Map");
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
+
+        SLCVMap* map = new SLCVMap("Map");
+        //load map
+        //if (SLFileSystem::fileExists(slamStateFilePath))
+        //{
+        //    SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
+        //    loader.load(*map, *kfDB);
+        //}
+
         map->setKeyFrameDB(kfDB);
 
         //the map node contains the visual representation of the slam map
@@ -2697,14 +2707,21 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(trackingCam);
         /***************************************************************/
 
-
         //add tracker
         SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, vocabulary, kfDB, map, mapNode);
         s->trackers().push_back(tm);
 
-        SLImGuiTrackedMapping* trackedMappingUI = new SLImGuiTrackedMapping("TrackedMappingUI", tm);
-        trackedMappingUI->setActiveForSceneID(SID_VideoMapping);
-        AppDemoGui::addInfoDialog(trackedMappingUI);
+        {
+            SLImGuiTrackedMapping* trackedMappingUI = new SLImGuiTrackedMapping("TrackedMappingUI", tm);
+            trackedMappingUI->setActiveForSceneID(SID_VideoMapping);
+            AppDemoGui::addInfoDialog(trackedMappingUI);
+        }
+
+        {
+            SLImGuiInfosTracking* trackingInfos = new SLImGuiInfosTracking("Tracking infos", tm);
+            trackingInfos->setActiveForSceneID(SID_VideoMapping);
+            AppDemoGui::addInfoDialog(trackingInfos);
+        }
 
         //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));

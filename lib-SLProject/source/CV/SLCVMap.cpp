@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLCVMap.cpp
-//  Author:    Michael G�ttlicher
+//  Author:    Michael Goettlicher
 //  Date:      October 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -16,6 +16,7 @@
 #include <SLCVKeyFrameDB.h>
 #include <SLCVKeyFrame.h>
 #include <SLCVMapNode.h>
+#include <SLCVCalibration.h>
 
 using namespace cv;
 
@@ -34,41 +35,6 @@ SLCVMap::~SLCVMap()
             delete pt;
     }
 }
-//-----------------------------------------------------------------------------
-////! get visual representation as SLPoints
-//SLPoints* SLCVMap::getSceneObject()
-//{
-//    if (!_sceneObject)
-//    {
-//        _sceneObject = getNewSceneObject();
-//    }
-//    else
-//    {
-//        //todo: check if something has changed (e.g. size) and manipulate object
-//    }
-//
-//    return _sceneObject;
-//}
-//-----------------------------------------------------------------------------
-////! get visual representation as SLPoints
-//SLPoints* SLCVMap::getNewSceneObject()
-//{
-//    //make a new SLPoints object
-//    SLMaterial* pcMat1 = new SLMaterial("Red", SLCol4f::RED);
-//    pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-//    pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 2.0f));
-//
-//    //get points as Vec3f and collect normals
-//    SLVVec3f points, normals;
-//    for (auto mapPt : mspMapPoints) {
-//        points.push_back(mapPt->worldPosVec());
-//        normals.push_back(mapPt->normalVec());
-//    }
-//
-//    _sceneObject = new SLPoints(points, normals, "MapPoints", pcMat1);
-//    //vectos must habe the same size
-//    return _sceneObject;
-//}
 //-----------------------------------------------------------------------------
 void SLCVMap::clear()
 {
@@ -159,14 +125,6 @@ void SLCVMap::EraseKeyFrame(SLCVKeyFrame *pKF)
     // TODO: This only erase the pointer.
     // Delete the MapPoint
 }
-////-----------------------------------------------------------------------------
-//SLCVMapPoint* SLCVMap::getMapPointForId(int id)
-//{
-//    if (mspMapPoints.find(id) != mspMapPoints.end())
-//        return mspMapPoints[id];
-//    else
-//        return NULL;
-//}
 //-----------------------------------------------------------------------------
 std::vector<SLCVKeyFrame*> SLCVMap::GetAllKeyFrames()
 {
@@ -361,7 +319,7 @@ Mat SLCVMap::buildRotMat(float &valDeg, int type)
 //-----------------------------------------------------------------------------
 void SLCVMap::saveState()
 {
-    string filename = "../_data/calibrations/orb-slam-state-bern3-ct.json";
+    SLstring filename = SLCVCalibration::calibIniPath + "orb-slam-state-dynamic.json";
     cv::FileStorage fs(filename, cv::FileStorage::WRITE);
 
     //save keyframes (without graph/neigbourhood information)

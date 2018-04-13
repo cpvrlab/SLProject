@@ -40,10 +40,11 @@ using namespace cv;
 SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node, ORBVocabulary* vocabulary, 
     SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode )
     : SLCVTracked(node),
-    mpVocabulary(vocabulary),
-    mpKeyFrameDatabase(keyFrameDB),
-    _map(map),
-    _mapNode(mapNode)
+    SLCVMapTracking(keyFrameDB, map, mapNode),
+    mpVocabulary(vocabulary)
+    //mpKeyFrameDatabase(keyFrameDB),
+    //_map(map),
+    //_mapNode(mapNode)
     //_mapPC(mapPC),
     //_keyFrames(keyFrames)
 {
@@ -93,17 +94,7 @@ SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
                 calib->cameraMat(), calib->distortion(), mpVocabulary);
         }
 
-        if ( true /*_showKeyPoints*/)
-        {
-            for (size_t i = 0; i < mCurrentFrame.N; i++)
-            {
-                //Use distorted points because we have to undistort the image later
-                const auto& pt = mCurrentFrame.mvKeys[i].pt;
-                cv::rectangle(_img,
-                    cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
-                    cv::Scalar(0, 0, 255));
-            }
-        }
+        decorateVideoWithKeyPoints(_img);
     }
 
     switch (_currentState)
@@ -224,7 +215,7 @@ void SLCVTrackedMapping::initialize()
 
             //ghm1: in the original implementation the initialization is defined in the track() function and this part is always called at the end!
             // Store frame pose information to retrieve the complete camera trajectory afterwards.
-            if (!mCurrentFrame.mTcw.empty())
+            if (!mCurrentFrame.mTcw.empty() && mCurrentFrame.mpReferenceKF)
             {
                 cv::Mat Tcr = mCurrentFrame.mTcw*mCurrentFrame.mpReferenceKF->GetPoseInverse();
                 mlRelativeFramePoses.push_back(Tcr);
@@ -402,11 +393,10 @@ void SLCVTrackedMapping::track3DPts()
             //call local mapper
             mpLocalMapper->RunOnce();
 
-            //update visualization of map, it may have changed because of global bundle adjustment
-            //todo: at the moment we update it with every frame
-
-            addKeyFrameToScene(mpLastKeyFrame);
             _mapNextFrame = false;
+            //update visualization of map, it may have changed because of global bundle adjustment.
+            //map points will be updated with next decoration.
+            _mapHasChanged = true;
         }
 
         // We allow points with high innovation (considererd outliers by the Huber Function)
@@ -569,9 +559,8 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
     cout << "Number of Map points after local mapping: " << _map->MapPointsInMap() << endl;
 
     //ghm1: add keyframe to scene graph. this position is wrong after bundle adjustment!
-    //todo: correct position of keyframes in scene after bundle adjustment
-    addKeyFrameToScene(pKFini);
-    addKeyFrameToScene(pKFcur);
+    //set map dirty, the map will be updated in next decoration
+    _mapHasChanged = true;
 }
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::CreateNewKeyFrame()
@@ -713,8 +702,17 @@ void SLCVTrackedMapping::Reset()
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::decorate()
 {
-    //update map visualization
-    _mapNode->updateAll(*_map);
+    //calculation of mean reprojection error of all matches
+    calculateMeanReprojectionError();
+    //calculate pose difference
+    calculatePoseDifference();
+    //show rectangle for key points in video that where matched to map points
+    decorateVideoWithKeyPointMatches(_img);
+    //decorate scene with matched map points, local map points and matched map points
+    decorateScene();
+
+    ////update map visualization
+    //_mapNode->updateAll(*_map);
 
     ////draw map points
     //if (_drawMapPoints && _mapPC) {
@@ -1314,14 +1312,4 @@ void SLCVTrackedMapping::UpdateLastFrame()
     //Refer last frame pose to world: Tlw = Tlr * Trw
     //So it seems, that the frames pose does not always refer to world frame...?
     mLastFrame.SetPose(Tlr*pRef->GetPose());
-}
-
-void SLCVTrackedMapping::addKeyFrameToScene(SLCVKeyFrame* kf)
-{
-    //SLCVCamera* cam = kf->getSceneObject();
-    //cam->fov(SLApplication::activeCalib->cameraFovDeg());
-    //cam->focalDist(0.11);
-    //cam->clipNear(0.1);
-    //cam->clipFar(1000.0);
-    //_keyFrames->addChild(cam);
 }

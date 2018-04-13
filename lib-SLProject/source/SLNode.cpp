@@ -43,7 +43,7 @@ SLNode::SLNode(SLstring name) : SLObject(name)
     _animation = 0;
     _isWMUpToDate = false;
     _isAABBUpToDate = false;
-    _tracker = nullptr;
+    //_tracker = nullptr;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -62,7 +62,7 @@ SLNode::SLNode(SLMesh* mesh, SLstring name) : SLObject(name)
     _animation = 0;
     _isWMUpToDate = false;
     _isAABBUpToDate = false;
-    _tracker = nullptr;
+    //_tracker = nullptr;
 
     addMesh(mesh);
 }

@@ -302,6 +302,7 @@
     <ClInclude Include="..\include\SLCVMap.h" />
     <ClInclude Include="..\include\SLCVMapNode.h" />
     <ClInclude Include="..\include\SLCVMapPoint.h" />
+    <ClInclude Include="..\include\SLCVMapTracking.h" />
     <ClInclude Include="..\include\SLCVRaulMurExtractorNode.h" />
     <ClInclude Include="..\include\SLCVRaulMurOrb.h" />
     <ClInclude Include="..\include\SLCVSlamStateLoader.h" />
@@ -418,6 +419,7 @@
     <ClCompile Include="source\CV\SLCVMap.cpp" />
     <ClCompile Include="source\CV\SLCVMapNode.cpp" />
     <ClCompile Include="source\CV\SLCVMapPoint.cpp" />
+    <ClCompile Include="source\CV\SLCVMapTracking.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurExtractorNode.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurOrb.cpp" />
     <ClCompile Include="source\CV\SLCVSlamStateLoader.cpp" />

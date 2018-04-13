@@ -26,6 +26,7 @@ for a good top down information.
 #include <SLCVKeyFrameDB.h>
 #include <SLCVMap.h>
 #include <SLTrackingInfosInterface.h>
+#include <SLCVMapTracking.h>
 
 class SLCVMapNode;
 
@@ -35,35 +36,35 @@ using namespace cv;
 //! SLCVTrackedRaulMur is the main part of the AR Christoffelturm scene
 /*! 
 */
-class SLCVTrackedRaulMur : public SLCVTracked, public SLTrackingInfosInterface
+class SLCVTrackedRaulMur : public SLCVTracked, public SLCVMapTracking//SLTrackingInfosInterface
 {
 public:
-    // Tracking states
-    enum eTrackingState {
-        SYSTEM_NOT_READY = -1,
-        NO_IMAGES_YET = 0,
-        NOT_INITIALIZED = 1,
-        OK = 2,
-        LOST = 3
-    };
+    //// Tracking states
+    //enum eTrackingState {
+    //    SYSTEM_NOT_READY = -1,
+    //    NO_IMAGES_YET = 0,
+    //    NOT_INITIALIZED = 1,
+    //    OK = 2,
+    //    LOST = 3
+    //};
 
-    eTrackingState mState;
-    eTrackingState mLastProcessedState;
+    //eTrackingState mState;
+    //eTrackingState mLastProcessedState;
 
-    /*******************************************************************/
-    //interface functions
-    int getNMapMatches() override { return mnMatchesInliers; }
-    int getNumKeyFrames() override { return _map->KeyFramesInMap(); }
+    ///*******************************************************************/
+    ////interface functions
+    //int getNMapMatches() override { return mnMatchesInliers; }
+    //int getNumKeyFrames() override { return _map->KeyFramesInMap(); }
 
-    float poseDifference() override { return _poseDifference; }
-    float meanReprojectionError() override { return _meanReprojectionError; }
+    //float poseDifference() override { return _poseDifference; }
+    //float meanReprojectionError() override { return _meanReprojectionError; }
 
-    int mapPointsCount() override {
-        if (_map)
-            return _map->MapPointsInMap();
-        else
-            return 0;
-    }
+    //int mapPointsCount() override {
+    //    if (_map)
+    //        return _map->MapPointsInMap();
+    //    else
+    //        return 0;
+    //}
     string getPrintableState() {
         switch (mState)
         {
@@ -90,7 +91,7 @@ public:
             return "";
         }
     }
-    /*******************************************************************/
+    ///*******************************************************************/
 
     SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary,
         SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode = NULL );
@@ -101,14 +102,14 @@ public:
         SLbool drawDetection,
         SLSceneView* sv);
 
-    //add map points to scene and keypoints to video image
-    void decorateSceneAndVideo(cv::Mat& image);
+    ////add map points to scene and keypoints to video image
+    //void decorateSceneAndVideo(cv::Mat& image);
 
     //setters
 
-    //getters
-    SLCVMap* getMap() { return _map; }
-    SLCVKeyFrameDB* getKfDB() { return mpKeyFrameDatabase; }
+    ////getters
+    //SLCVMap* getMap() { return _map; }
+    //SLCVKeyFrameDB* getKfDB() { return mpKeyFrameDatabase; }
 
     //enum TransformType {
     //    ROT_X=0, ROT_Y, ROT_Z, TRANS_X, TRANS_Y, TRANS_Z, SCALE
@@ -148,14 +149,14 @@ private:
     // ORB vocabulary used for place recognition and feature matching.
     ORBVocabulary* mpVocabulary;
 
-    // KeyFrame database for place recognition (relocalization and loop detection).
-    SLCVKeyFrameDB* mpKeyFrameDatabase;
+    //// KeyFrame database for place recognition (relocalization and loop detection).
+    //SLCVKeyFrameDB* mpKeyFrameDatabase;
 
-    //map containing map points
-    SLCVMap* _map = NULL;
+    ////map containing map points
+    //SLCVMap* _map = NULL;
 
-    // Current Frame
-    SLCVFrame mCurrentFrame;
+    //// Current Frame
+    //SLCVFrame mCurrentFrame;
 
     //extractor instance
     ORB_SLAM2::ORBextractor* _extractor = NULL;
@@ -163,9 +164,9 @@ private:
     //Last Frame, KeyFrame and Relocalisation Info
     unsigned int mnLastRelocFrameId = 0;
 
-    //Last Frame, KeyFrame and Relocalisation Info
-    SLCVFrame mLastFrame;
-    unsigned int mnLastKeyFrameId;
+    ////Last Frame, KeyFrame and Relocalisation Info
+    //SLCVFrame mLastFrame;
+    //unsigned int mnLastKeyFrameId;
 
     // Lists used to recover the full camera trajectory at the end of the execution.
     // Basically we store the reference keyframe for each frame and its relative transformation
@@ -174,19 +175,19 @@ private:
     list<double> mlFrameTimes;
     list<bool> mlbLost;
 
-    //Local Map 
-    //(maybe always the last inserted keyframe?)
-    SLCVKeyFrame* mpReferenceKF = NULL;
-    std::vector<SLCVMapPoint*> mvpLocalMapPoints;
-    std::vector<SLCVKeyFrame*> mvpLocalKeyFrames;
+    ////Local Map 
+    ////(maybe always the last inserted keyframe?)
+    //SLCVKeyFrame* mpReferenceKF = NULL;
+    //std::vector<SLCVMapPoint*> mvpLocalMapPoints;
+    //std::vector<SLCVKeyFrame*> mvpLocalKeyFrames;
 
     //New KeyFrame rules (according to fps)
     // Max/Min Frames to insert keyframes and to check relocalisation
     int mMinFrames = 0;
     int mMaxFrames = 30; //= fps
 
-    //Current matches in frame
-    int mnMatchesInliers = 0;
+    ////Current matches in frame
+    //int mnMatchesInliers = 0;
 
     //flags, if we have to update the scene object of the map point matches
     //bool _showMatchesPC = true;
@@ -196,19 +197,19 @@ private:
     //SLMaterial* _pcMat1 = NULL;
     //SLMaterial* _pcMat2 = NULL;
 
-    //mean reprojection error
-    double _meanReprojectionError = -1.0;
-    //L2 norm of the difference between the last and the current camera pose
-    double _poseDifference = -1.0;
+    ////mean reprojection error
+    //double _meanReprojectionError = -1.0;
+    ////L2 norm of the difference between the last and the current camera pose
+    //double _poseDifference = -1.0;
 
     //scene nodes to point clouds:
     //SLNode* _mapPC=NULL;
     //SLNode* _mapMatchesPC = NULL;
     //SLNode* _mapLocalPC = NULL;
     //SLNode* _keyFrames = NULL;
-    SLCVMapNode* _mapNode = NULL;
-    //! flags, if map has changed (e.g. after key frame insertion or culling)
-    bool _mapHasChanged = false;
+    //SLCVMapNode* _mapNode = NULL;
+    ////! flags, if map has changed (e.g. after key frame insertion or culling)
+    //bool _mapHasChanged = false;
 
     //cv::Mat _image;
     SLCVCalibration*        _calib = NULL;         //!< Current calibration in use

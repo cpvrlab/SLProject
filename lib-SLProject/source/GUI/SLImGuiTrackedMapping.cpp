@@ -31,7 +31,7 @@ void SLImGuiTrackedMapping::buildInfos()
     //number of map points
     ImGui::Text("Num Map Pts: %d ", _mappingTracker->mapPointsCount());
     //add number of keyframes
-    ImGui::Text("Number of Keyframes : %d ", _mappingTracker->getNumberOfKeyFrames());
+    ImGui::Text("Number of Keyframes : %d ", _mappingTracker->getNumKeyFrames());
 
     if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
         _mappingTracker->Reset();

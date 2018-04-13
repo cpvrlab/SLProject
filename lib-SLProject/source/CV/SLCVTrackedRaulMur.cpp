@@ -34,10 +34,11 @@ using namespace ORB_SLAM2;
 SLCVTrackedRaulMur::SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary, 
     SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode)
     : SLCVTracked(node),
-    mpVocabulary(vocabulary),
-    mpKeyFrameDatabase(keyFrameDB),
-    _map(map),
-    _mapNode(mapNode)
+    SLCVMapTracking(keyFrameDB, map, mapNode),
+    mpVocabulary(vocabulary)
+    //mpKeyFrameDatabase(keyFrameDB),
+    //_map(map),
+    //_mapNode(mapNode)
 {
     //instantiate Orb extractor
     _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
@@ -53,7 +54,7 @@ SLCVTrackedRaulMur::~SLCVTrackedRaulMur()
 }
 //-----------------------------------------------------------------------------
 SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
-    SLCVMat image,
+    SLCVMat imageRgb,
     SLCVCalibration* calib,
     SLbool drawDetection,
     SLSceneView* sv)
@@ -240,7 +241,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
         mState = LOST;
 
     //add map points to scene and keypoints to video image
-    decorateSceneAndVideo(image);
+    decorateSceneAndVideo(imageRgb);
 
     // If tracking were good
     if (bOK)
@@ -328,172 +329,6 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     
     SLAverageTiming::stop("track");
     return false;
-}
-//-----------------------------------------------------------------------------
-void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
-{
-    //-------------------------------------------------------------------------
-    //calculation of mean reprojection error
-    double reprojectionError=0.0;
-    int n = 0;
-
-    //current frame extrinsic
-    const cv::Mat Rcw = mCurrentFrame.GetRotationCW();
-    const cv::Mat tcw = mCurrentFrame.GetTranslationCW();
-    //current frame intrinsics
-    const float fx = mCurrentFrame.fx;
-    const float fy = mCurrentFrame.fy;
-    const float cx = mCurrentFrame.cx;
-    const float cy = mCurrentFrame.cy;
-
-    for (size_t i = 0; i < mCurrentFrame.N; i++)
-    {
-        if (mCurrentFrame.mvpMapPoints[i])
-        {
-            if (!mCurrentFrame.mvbOutlier[i])
-            {
-                if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
-                {
-                    // 3D in absolute coordinates
-                    cv::Mat Pw = mCurrentFrame.mvpMapPoints[i]->worldPos();
-                    // 3D in camera coordinates
-                    const cv::Mat Pc = Rcw*Pw + tcw;
-                    const float &PcX = Pc.at<float>(0);
-                    const float &PcY = Pc.at<float>(1);
-                    const float &PcZ = Pc.at<float>(2);
-
-                    // Check positive depth
-                    if (PcZ<0.0f)
-                        continue;
-
-                    // Project in image and check it is not outside
-                    const float invz = 1.0f / PcZ;
-                    const float u = fx*PcX*invz + cx;
-                    const float v = fy*PcY*invz + cy;
-
-                    SLCVPoint2f ptProj(u, v);
-                    //Use distorted points because we have to undistort the image later
-                    const auto& ptImg = mCurrentFrame.mvKeysUn[i].pt;
-
-                    ////draw projected point
-                    //cv::rectangle(image,
-                    //    cv::Rect(ptProj.x - 3, ptProj.y - 3, 7, 7),
-                    //    Scalar(255, 0, 0));
-
-                    reprojectionError += norm(SLCVMat(ptImg), SLCVMat(ptProj));
-                    n++;
-                }
-            }
-        }
-    }
-
-    if (n > 0)
-        _meanReprojectionError = reprojectionError / n;
-    else
-        _meanReprojectionError = -1;
-
-    //-------------------------------------------------------------------------
-
-    //calculation of L2 norm of the difference between the last and the current camera pose
-    if (!mLastFrame.mTcw.empty() && !mCurrentFrame.mTcw.empty())
-        _poseDifference = norm(mLastFrame.mTcw - mCurrentFrame.mTcw);
-    else
-        _poseDifference = -1.0;
-
-    //-------------------------------------------------------------------------
-    //show rectangle for all keypoints in current image
-    if (_showKeyPoints)
-    {
-        for (size_t i = 0; i < mCurrentFrame.N; i++)
-        {
-            //Use distorted points because we have to undistort the image later
-            const auto& pt = mCurrentFrame.mvKeys[i].pt;
-            cv::rectangle(image,
-                cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
-                cv::Scalar(0, 0, 255));
-        }
-    }
-
-    //-------------------------------------------------------------------------
-    //show rectangle for key points in video that where matched to map points
-    if (_showKeyPointsMatched)
-    {
-        for (size_t i = 0; i < mCurrentFrame.N; i++)
-        {
-            if (mCurrentFrame.mvpMapPoints[i])
-            {
-                if (!mCurrentFrame.mvbOutlier[i])
-                {
-                    if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
-                    {
-                        //Use distorted points because we have to undistort the image later
-                        const auto& pt = mCurrentFrame.mvKeys[i].pt;
-                        cv::rectangle(image,
-                            cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
-                            Scalar(0, 255, 0));
-                    }
-                }
-            }
-        }
-    }
-    //-------------------------------------------------------------------------
-    //decorate scene with all mappoints
-    if (_showMapPC && _mapHasChanged )
-    {
-        _mapHasChanged = false;
-        //update scene
-        auto mapPts = _map->GetAllMapPoints();
-        _mapNode->updateMapPoints(mapPts);
-    }
-    else
-    {
-        //remove point cloud
-        _mapNode->setHideMapPoints(!_showMapPC);
-    }
-
-    //-------------------------------------------------------------------------
-    //decorate scene with mappoints that were matched to keypoints in current frame
-    if (mState == OK && _showMatchesPC)
-    {
-        //find map point matches
-        std::vector<SLCVMapPoint*> mapPointMatches;
-        for (int i = 0; i < mCurrentFrame.N; i++)
-        {
-            if (mCurrentFrame.mvpMapPoints[i])
-            {
-                if (!mCurrentFrame.mvbOutlier[i])
-                {
-                    if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
-                        mapPointMatches.push_back(mCurrentFrame.mvpMapPoints[i]);
-                }
-            }
-        }
-
-        //update scene
-        _mapNode->updateMapPointsMatched(mapPointMatches);
-    }
-    else
-    {
-        //remove point cloud
-        _mapNode->removeMapPointsMatched();
-    }
-
-    //-------------------------------------------------------------------------
-    //decorate scene with mappoints of local map
-    if (mState == OK && _showLocalMapPC)
-    {
-        _mapNode->updateMapPointsLocal(mvpLocalMapPoints);
-    }
-    else
-    {
-        _mapNode->removeMapPointsLocal();
-    }
-
-    //-------------------------------------------------------------------------
-    //decorate scene with keyframes
-    _mapNode->setHideKeyFrames(!_showKeyFrames);
-    _mapNode->renderKfBackground(_renderKfBackground);
-    _mapNode->allowAsActiveCam(_allowKfsAsActiveCam);
 }
 //-----------------------------------------------------------------------------
 bool SLCVTrackedRaulMur::Relocalization()
@@ -681,7 +516,7 @@ bool SLCVTrackedRaulMur::Relocalization()
         return true;
     }
 }
-
+//-----------------------------------------------------------------------------
 bool SLCVTrackedRaulMur::TrackWithMotionModel()
 {
     //This method is called if tracking is OK and we have a valid motion model
@@ -761,8 +596,7 @@ bool SLCVTrackedRaulMur::TrackWithMotionModel()
 
     //return nmatchesMap >= 10;
 }
-
-
+//-----------------------------------------------------------------------------
 bool SLCVTrackedRaulMur::TrackLocalMap()
 {
     // We have an estimation of the camera pose and some map points tracked in the frame.
@@ -821,7 +655,7 @@ bool SLCVTrackedRaulMur::TrackLocalMap()
     else
         return true;
 }
-
+//-----------------------------------------------------------------------------
 void SLCVTrackedRaulMur::SearchLocalPoints()
 {
     // Do not search map points already matched
@@ -879,7 +713,7 @@ void SLCVTrackedRaulMur::SearchLocalPoints()
         matcher.SearchByProjection(mCurrentFrame, mvpLocalMapPoints, th);
     }
 }
-
+//-----------------------------------------------------------------------------
 bool SLCVTrackedRaulMur::TrackReferenceKeyFrame()
 {
     //This routine is called if current tracking state is OK but we have NO valid motion model
@@ -932,8 +766,7 @@ bool SLCVTrackedRaulMur::TrackReferenceKeyFrame()
 
     return nmatchesMap >= 10;
 }
-
-
+//-----------------------------------------------------------------------------
 void SLCVTrackedRaulMur::UpdateLastFrame()
 {
     // Update pose according to reference keyframe
@@ -948,7 +781,7 @@ void SLCVTrackedRaulMur::UpdateLastFrame()
     //So it seems, that the frames pose does not always refer to world frame...?
     mLastFrame.SetPose(Tlr*pRef->GetPose());
 }
-
+//-----------------------------------------------------------------------------
 void SLCVTrackedRaulMur::UpdateLocalMap()
 {
     // This is for visualization
@@ -958,8 +791,7 @@ void SLCVTrackedRaulMur::UpdateLocalMap()
     UpdateLocalKeyFrames();
     UpdateLocalPoints();
 }
-
-
+//-----------------------------------------------------------------------------
 void SLCVTrackedRaulMur::UpdateLocalPoints()
 {
     mvpLocalMapPoints.clear();
@@ -984,8 +816,7 @@ void SLCVTrackedRaulMur::UpdateLocalPoints()
         }
     }
 }
-
-
+//-----------------------------------------------------------------------------
 void SLCVTrackedRaulMur::UpdateLocalKeyFrames()
 {
     // Each map point vote for the keyframes in which it has been observed
@@ -1095,326 +926,4 @@ void SLCVTrackedRaulMur::UpdateLocalKeyFrames()
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
     }
 }
-//
-//// Build rotation matrix
-//Mat SLCVTrackedRaulMur::buildRotMat(float &valDeg, int type)
-//{
-//    Mat rot = Mat::ones(4, 4, CV_32F);
-//
-//    switch (type)
-//    {
-//    case 0:
-//        // Calculate rotation about x axis
-//        rot = (Mat_<float>(4, 4) <<
-//            1, 0, 0, 0,
-//            0, cos(valDeg), -sin(valDeg), 0,
-//            0, sin(valDeg), cos(valDeg), 0,
-//            0, 0, 0, 1
-//            );
-//        break;
-//
-//    case 1:
-//        // Calculate rotation about y axis
-//        rot = (Mat_<float>(4, 4) <<
-//            cos(valDeg), 0, sin(valDeg), 0,
-//            0, 1, 0, 0,
-//            -sin(valDeg), 0, cos(valDeg), 0,
-//            0, 0, 0, 1
-//            );
-//        //invert direction for Y
-//        rot = rot.inv();
-//        break;
-//
-//    case 2:
-//        // Calculate rotation about z axis
-//        rot = (Mat_<float>(4, 4) <<
-//            cos(valDeg), -sin(valDeg), 0, 0,
-//            sin(valDeg), cos(valDeg), 0, 0,
-//            0, 0, 1, 0,
-//            0, 0, 0, 1
-//            );
-//        //invert direction for Z
-//        rot = rot.inv();
-//        break;
-//    }
-//
-//    return rot;
-//}
-
-//// Build rotation matrix
-//Mat SLCVTrackedRaulMur::buildTransMat(float &val, int type)
-//{
-//    Mat trans = cv::Mat::zeros(3, 1, CV_32F);
-//    switch (type)
-//    {
-//    case 0:
-//        trans.at<float>(0, 0) = val;
-//        break;
-//
-//    case 1:
-//        //!!turn sign of y coordinate
-//        trans.at<float>(1, 0) = -val;
-//        break;
-//
-//    case 2:
-//        //!!turn sign of z coordinate
-//        trans.at<float>(2, 0) = -val;
-//        break;
-//    }
-//
-//    return trans;
-//}
-
-////todo: move to map
-//void SLCVTrackedRaulMur::rotate(float value, int type)
-//{
-//    //transform to degree
-//    value *= SL_DEG2RAD;
-//
-//    Mat rot = buildRotMat(value, type);
-//    cout << "rot: " << rot << endl;
-//
-//    //rotate keyframes
-//    Mat Twc;
-//    for (auto& kf : mpKeyFrameDatabase->keyFrames())
-//    {
-//        //get and rotate
-//        Twc = kf->GetPose().inv();
-//        Twc = rot * Twc;
-//        //set back
-//        kf->Tcw(Twc.inv());
-//    }
-//
-//    //rotate keypoints
-//    Mat Pw;
-//    Mat rot33 = rot.rowRange(0, 3).colRange(0, 3);
-//    auto ptsInMap = _map->GetAllMapPoints();
-//    for (auto& pt : ptsInMap)
-//    {
-//        Pw = rot33 * pt->worldPos();
-//        pt->worldPos(rot33 * pt->worldPos());
-//    }
-//}
-//
-////todo: move to map
-//void SLCVTrackedRaulMur::translate(float value, int type)
-//{
-//    Mat trans = buildTransMat(value, type);
-//
-//    cout << "trans: " << trans << endl;
-//
-//    //rotate keyframes
-//    Mat Twc;
-//    for (auto& kf : mpKeyFrameDatabase->keyFrames())
-//    {
-//        //get and translate
-//        cv::Mat Twc = kf->GetPose().inv();
-//        Twc.rowRange(0, 3).col(3) += trans;
-//        //set back
-//        kf->Tcw(Twc.inv());
-//    }
-//
-//    //rotate keypoints
-//    auto ptsInMap = _map->GetAllMapPoints();
-//    for (auto& pt : ptsInMap)
-//    {
-//        pt->worldPos(trans + pt->worldPos());
-//    }
-//}
-//
-////todo: move to map
-//void SLCVTrackedRaulMur::scale(float value)
-//{
-//    for (auto& kf : mpKeyFrameDatabase->keyFrames())
-//    {
-//        //get and translate
-//        cv::Mat Tcw = kf->GetPose();
-//        Tcw.rowRange(0, 3).col(3) *= value;
-//        //set back
-//        kf->Tcw(Tcw);
-//    }
-//
-//    //rotate keypoints
-//    auto ptsInMap = _map->GetAllMapPoints();
-//    for (auto& pt : ptsInMap)
-//    {
-//        pt->worldPos(value * pt->worldPos());
-//    }
-//}
-//
-//todo: move to map
-//void SLCVTrackedRaulMur::applyTransformation(double value, TransformType type)
-//{
-    ////apply rotation, translation and scale to Keyframe and MapPoint poses
-    //cout << "apply transform with value: " << value << endl;
-    //switch (type)
-    //{
-    //case ROT_X:
-    //    //build different transformation matrices for x,y and z rotation
-    //    rotate((float)value, 0);
-    //    break;
-    //case ROT_Y:
-    //    rotate((float)value, 1);
-    //    break;
-    //case ROT_Z:
-    //    rotate((float)value, 2);
-    //    break;
-    //case TRANS_X:
-    //    translate((float)value, 0);
-    //    break;
-    //case TRANS_Y:
-    //    translate((float)value, 1);
-    //    break;
-    //case TRANS_Z:
-    //    translate((float)value, 2);
-    //    break;
-    //case SCALE:
-    //    scale((float)value);
-    //    break;
-    //}
-
-    ////update scene objects
-    ////exchange all Keyframes (also change name)
-
-    ////todo: call on keyframes in map
-    ////todo: we have to remove all meshes of keyframes from scene
-    //_keyFrames->deleteChildren();
-    //for (auto* kf : mpKeyFrameDatabase->keyFrames()) 
-    //{
-    //    SLCVCamera* cam = kf->getNewSceneObject(); //old objects should be deleted now
-    //    cam->fov(_calib->cameraFovDeg());
-    //    cam->focalDist(0.11);
-    //    cam->clipNear(0.1);
-    //    cam->clipFar(1000.0);
-    //    _keyFrames->addChild(cam);
-    //}
-
-    ////exchange mappoints:
-    ////remove old mesh from map node
-    //SLPoints* pts = _map->getSceneObject();
-    //if (_mapPC->deleteMesh(pts))
-    //{
-    //    _mapPC->addMesh(_map->getNewSceneObject());
-    //    _mapPC->updateAABBRec();
-    //}
-    //else
-    //    cout << "Mesh not found" << endl;
-
-//    //apply transformation on map
-//    _map->applyTransformation(value, (SLCVMap::TransformType)type);
-//
-//    //compute resulting values for map points
-//    auto ptsInMap = _map->GetAllMapPoints();
-//    for (auto& mp : ptsInMap) {
-//        //mean viewing direction and depth
-//        mp->UpdateNormalAndDepth();
-//        mp->ComputeDistinctiveDescriptors();
-//    }
-//}
-
-//todo: move to 
-//void SLCVTrackedRaulMur::saveState()
-//{
-//    string filename = "../_data/calibrations/orb-slam-state-bern3-ct.json";
-//    cv::FileStorage fs(filename, cv::FileStorage::WRITE);
-//
-//    //save keyframes (without graph/neigbourhood information)
-//    auto kfs = mpKeyFrameDatabase->keyFrames();
-//    if (!kfs.size())
-//        return;
-//
-//    //add intrinsics (calibration parameters): only store once
-//    fs << "fx" << _calib->fx();
-//    fs << "fy" << _calib->fy();
-//    fs << "cx" << _calib->cx();
-//    fs << "cy" << _calib->cy();
-//
-//    //start sequence keyframes
-//    fs << "KeyFrames" << "[";
-//    for (int i = 0; i < kfs.size(); ++i)
-//    {
-//        SLCVKeyFrame* kf = kfs[i];
-//        if (kf->isBad())
-//            continue;
-//
-//        fs << "{"; //new map keyFrame
-//                   //add id
-//        fs << "id" << (int)kf->id();
-//        //camera w.r.t world
-//        //fs << "Twc" << kf->Twc;
-//        // world w.r.t camera
-//        fs << "Tcw" << kf->GetPose();
-//        fs << "featureDescriptors" << kf->mDescriptors;
-//        fs << "keyPtsUndist" << kf->mvKeysUn;
-//
-//        //scale factor
-//        fs << "scaleFactor" << kf->mfScaleFactor;
-//        //number of pyriamid scale levels
-//        fs << "nScaleLevels" << kf->mnScaleLevels;
-//        //vector of pyramid scale factors
-//        fs << "scaleFactors" << kf->mvScaleFactors;
-//
-//        fs << "}"; //close map
-//
-//        //save the original frame image for this keyframe
-//        //    bool saveImgs = false;
-//        //cv::Mat imgColor;
-//        //if (saveImgs && !kf->imgGray.empty()) {
-//        //    std::stringstream ss; ss << "D:/Development/SLProject/_data/calibrations/imgs/" << "kf" << (int)kf->mnId << ".jpg";
-//
-//        //    cv::cvtColor(kf->imgGray, imgColor, cv::COLOR_GRAY2BGR);
-//        //    cv::imwrite(ss.str(), imgColor);
-//        //}
-//    }
-//    fs << "]"; //close sequence keyframes
-//
-//               //save keypoints (map)
-//    //SLCVVMapPoint& mpts = _map->mapPoints();
-//    auto mpts = _map->GetAllMapPoints();
-//
-//    //start map points sequence
-//    fs << "MapPoints" << "[";
-//    for (int i = 0; i < mpts.size(); ++i)
-//    {
-//        SLCVMapPoint* mpt = mpts[i];
-//        if (mpt->isBad())
-//            continue;
-//
-//        fs << "{"; //new map for MapPoint
-//                   //add id
-//        fs << "id" << (int)mpt->id();
-//        //add position
-//        fs << "mWorldPos" << mpt->worldPos();
-//        //save keyframe observations
-//        auto observations = mpt->GetObservations();
-//        vector<int> observingKfIds;
-//        vector<int> corrKpIndices; //corresponding keypoint indices in observing keyframe
-//        for (auto it : observations)
-//        {
-//            if (!it.first->isBad()) {
-//                observingKfIds.push_back(it.first->id());
-//                corrKpIndices.push_back(it.second);
-//            }
-//        }
-//        fs << "observingKfIds" << observingKfIds;
-//        fs << "corrKpIndices" << corrKpIndices;
-//        //(we calculate mean descriptor and mean deviation after loading)
-//
-//        //reference key frame (I think this is the keyframe from which this
-//        //map point was generated -> first reference?)
-//        fs << "refKfId" << (int)mpt->refKf()->id();
-//
-//        //keypoint octave (level)
-//        size_t kpIndex = mpt->mObservations[mpt->mpRefKF];
-//        fs << "level" << mpt->refKf()->mvKeysUn[kpIndex].octave;
-//
-//        fs << "}"; //close map
-//    }
-//    fs << "]";
-//
-//    //save graph information between keyframes
-//
-//    // explicit close
-//    fs.release();
-//    cout << "Write Done." << endl;
-//}
+//-----------------------------------------------------------------------------

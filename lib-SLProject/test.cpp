@@ -135,6 +135,7 @@
 //#include <SLCVTrackedFeatures.h>
 //#include <SLCVTrackedMapping.h>
 //#include <SLCVTrackedRaulMur.h>
+#include <SLCVMapTracking.h>
 
 //Animation:
 //#include <SLAnimation.h>
