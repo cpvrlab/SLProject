@@ -1090,7 +1090,7 @@ void SLCVTrackedMapping::SearchLocalPoints()
         matcher.SearchByProjection(mCurrentFrame, mvpLocalMapPoints, th);
     }
 }
-
+//-----------------------------------------------------------------------------
 void SLCVTrackedMapping::UpdateLocalKeyFrames()
 {
     // Each map point vote for the keyframes in which it has been observed
@@ -1200,7 +1200,7 @@ void SLCVTrackedMapping::UpdateLocalKeyFrames()
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
     }
 }
-
+//-----------------------------------------------------------------------------
 void SLCVTrackedMapping::UpdateLocalPoints()
 {
     mvpLocalMapPoints.clear();
@@ -1225,7 +1225,7 @@ void SLCVTrackedMapping::UpdateLocalPoints()
         }
     }
 }
-
+//-----------------------------------------------------------------------------
 bool SLCVTrackedMapping::TrackWithMotionModel()
 {
     //This method is called if tracking is OK and we have a valid motion model
@@ -1298,7 +1298,7 @@ bool SLCVTrackedMapping::TrackWithMotionModel()
 
     //return nmatchesMap >= 10;
 }
-
+//-----------------------------------------------------------------------------
 void SLCVTrackedMapping::UpdateLastFrame()
 {
     // Update pose according to reference keyframe
@@ -1313,3 +1313,9 @@ void SLCVTrackedMapping::UpdateLastFrame()
     //So it seems, that the frames pose does not always refer to world frame...?
     mLastFrame.SetPose(Tlr*pRef->GetPose());
 }
+//-----------------------------------------------------------------------------
+void SLCVTrackedMapping::saveMap()
+{
+    _map->saveState();
+}
+//-----------------------------------------------------------------------------

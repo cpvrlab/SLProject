@@ -49,6 +49,7 @@
 #include <SLCVSlamStateLoader.h>
 #include <SLImGuiInfosTracking.h>
 #include <SLImGuiInfosChristoffelTower.h>
+#include <SLImGuiInfosMapTransform.h>
 
 #include <AppDemoGui.h>
 #include <SLImGuiTrackedMapping.h>
@@ -2643,8 +2644,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
         SLCVCapture::videoFilename = "webcam_office1.wmv";
-        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-new-1.json";
-        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-dynamic.json";
+        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-new-1.json";
+        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-dynamic.json";
 
         //make some light
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
@@ -2685,11 +2686,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLCVMap* map = new SLCVMap("Map");
         //load map
-        //if (SLFileSystem::fileExists(slamStateFilePath))
-        //{
-        //    SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
-        //    loader.load(*map, *kfDB);
-        //}
+        if (SLFileSystem::fileExists(slamStateFilePath))
+        {
+            SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
+            loader.load(*map, *kfDB);
+        }
 
         map->setKeyFrameDB(kfDB);
 
@@ -2722,7 +2723,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             trackingInfos->setActiveForSceneID(SID_VideoMapping);
             AppDemoGui::addInfoDialog(trackingInfos);
         }
-
+        {
+            SLImGuiInfosMapTransform* mapTransform = new SLImGuiInfosMapTransform("Map transform", map);
+            mapTransform->setActiveForSceneID(SID_VideoMapping);
+            AppDemoGui::addInfoDialog(mapTransform);
+        }
         //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
         SLfloat l = 1.75, b = 0.75, h = 0.74;

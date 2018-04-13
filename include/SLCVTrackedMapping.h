@@ -104,6 +104,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         //ghm1: the next tracked frame gets mapped (local mapping, keyframe generation and adding to map)
         void mapNextFrame() { _mapNextFrame = true; }
 
+        void saveMap();
     private:
         // Map initialization for monocular
         void CreateInitialMapMonocular();

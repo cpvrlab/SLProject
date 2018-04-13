@@ -49,4 +49,7 @@ void SLImGuiTrackedMapping::buildInfos()
     else if (ImGui::Button("Add key frame", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
         _mappingTracker->mapNextFrame();
     }
+    else if (ImGui::Button("Save map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+        _mappingTracker->saveMap();
+    }
 }
