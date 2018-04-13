@@ -23,11 +23,15 @@ for a good top down information.
 #include <SLCV.h>
 #include <SLCVTracked.h>
 #include <SLNode.h>
+#include <SLCVFrame.h>
+#include <SLCVMap.h>
 
 namespace ORB_SLAM2 {
     class Initializer;
     class LocalMapping;
 }
+
+class SLCVKeyFrameDB;
 
 //-----------------------------------------------------------------------------
 

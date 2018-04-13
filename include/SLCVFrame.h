@@ -11,12 +11,16 @@
 #ifndef SLCVFRAME_H
 #define SLCVFRAME_H
 
+#include <SLCV.h>
 #include <opencv2/opencv.hpp>
 #include <ORBextractor.h>
-#include <SLCVMapPoint.h>
+//#include <SLCVMapPoint.h>
 #include <DBoW2/DBoW2/BowVector.h>
 #include <DBoW2/DBoW2/FeatureVector.h>
 #include <OrbSlam/ORBVocabulary.h>
+
+class SLCVMapPoint;
+class SLCVKeyFrame;
 
 #define FRAME_GRID_ROWS 48
 #define FRAME_GRID_COLS 64

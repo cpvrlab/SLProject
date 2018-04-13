@@ -15,6 +15,8 @@
 #include <SLPoints.h>
 #include <SLApplication.h>
 #include <SLCVCalibration.h>
+#include <SLCVCamera.h>
+#include <SLCVKeyFrame.h>
 
 //-----------------------------------------------------------------------------
 SLCVMapNode::SLCVMapNode(std::string name)

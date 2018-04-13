@@ -11,9 +11,10 @@
 #ifndef SLCVMAPPOINT_H
 #define SLCVMAPPOINT_H
 
-#include <vector>
-#include <map>
 #include <SLCV.h>
+#include <SLVec3.h>
+#include <map>
+#include <vector>
 #include <opencv2/core/core.hpp>
 
 class SLCVKeyFrame;

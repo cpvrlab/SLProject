@@ -12,6 +12,8 @@
 #define SLIMGUI_INFOSDIALOG_H
 
 #include <string>
+#include <set>
+#include <SLEnums.h>
 
 //-----------------------------------------------------------------------------
 //! ImGui UI interface to show scene specific infos in an imgui dialogue

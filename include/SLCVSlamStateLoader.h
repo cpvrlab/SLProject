@@ -14,11 +14,12 @@
 #include <vector>
 #include <opencv2/core/core.hpp>
 
-#include <SLCVMapPoint.h>
 #include <SLCVKeyFrame.h>
 #include <OrbSlam/ORBVocabulary.h>
 
 class SLCVKeyFrameDB;
+class SLCVMap;
+
 using namespace ORB_SLAM2;
 //-----------------------------------------------------------------------------
 //! 

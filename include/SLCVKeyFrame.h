@@ -24,6 +24,7 @@ using namespace ORB_SLAM2;
 
 class SLCVMapPoint;
 class SLCVKeyFrameDB;
+class SLCVMap;
 
 //-----------------------------------------------------------------------------
 //! AR Keyframe node class

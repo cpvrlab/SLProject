@@ -18,6 +18,7 @@ class SLCVMap;
 class SLMaterial;
 class SLPoints;
 class SLCVKeyFrame;
+class SLCVMapPoint;
 
 //-----------------------------------------------------------------------------
 class SLCVMapNode : public SLNode

@@ -11,19 +11,6 @@
 #ifndef SLSCENE_H
 #define SLSCENE_H
 
-//#include <stdafx.h>
-//#include <SLMaterial.h>
-//#include <SLEventHandler.h>
-//#include <SLLight.h>
-//#include <SLNode.h>
-//#include <SLSkeleton.h>
-//#include <SLGLOculus.h>
-//#include <SLAnimManager.h>
-//#include <SLAverage.h>
-//#include <SLCVCalibration.h>
-//#include <SLDeviceRotation.h>
-//#include <SLDeviceLocation.h>
-
 #include <vector>
 #include <SL.h>
 #include <SLVec3.h>
