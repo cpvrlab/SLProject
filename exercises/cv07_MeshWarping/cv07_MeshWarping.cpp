@@ -246,11 +246,11 @@ int main()
     // Create and draw the Delaunay triangulation
     vector<vector<int>> triIndexes1;
     createDelaunay(img1, subdiv, points, true, triIndexes1);
-    drawDelaunay(img1, subdiv, Scalar(255, 255, 255));
+    //drawDelaunay(img1, subdiv, Scalar(255, 255, 255));
 
     // Draw all points red
     for (Point2f p : points)
-        circle(img1, p, 2, Scalar(0, 0, 255), CV_FILLED, CV_AA, 0);
+        circle(img1, p, 3, Scalar(0, 0, 255), CV_FILLED, CV_AA, 0);
     
     // Allocate space for voronoi Diagram
     Mat img_voronoi = Mat::zeros(img1.rows, img1.cols, CV_8UC3);

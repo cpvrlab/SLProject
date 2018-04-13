@@ -961,10 +961,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     sv->drawBits()->toggle(SL_DB_BBOX);
 
                 if (ImGui::MenuItem("Voxels", "V", sv->drawBits()->get(SL_DB_VOXELS)))
-                    sv->drawBits()->toggle(SL_DB_NORMALS);
+                    sv->drawBits()->toggle(SL_DB_VOXELS);
 
                 if (ImGui::MenuItem("Axis", "X", sv->drawBits()->get(SL_DB_AXIS)))
-                    sv->drawBits()->toggle(SL_DB_VOXELS);
+                    sv->drawBits()->toggle(SL_DB_AXIS);
 
                 if (ImGui::MenuItem("Back Faces", "C", sv->drawBits()->get(SL_DB_CULLOFF)))
                     sv->drawBits()->toggle(SL_DB_CULLOFF);
