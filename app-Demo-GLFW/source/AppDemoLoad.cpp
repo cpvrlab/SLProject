@@ -48,6 +48,7 @@
 #include <SLCVKeyFrameDB.h>
 #include <SLCVSlamStateLoader.h>
 #include <SLImGuiInfosTracking.h>
+#include <SLImGuiInfosMapTransform.h>
 
 #include <AppDemoGui.h>
 #include <SLImGuiTrackedMapping.h>
@@ -2529,8 +2530,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
         cam1->background().texture(s->videoTexture());
 
+
         ORBVocabulary* vocabulary = new ORBVocabulary();
-        //string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
+        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
         //bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
         ////bool bVocLoad = true;
         //if (!bVocLoad)
@@ -2575,6 +2577,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLImGuiInfosTracking* infosTracking = new SLImGuiInfosTracking("Tracking infos", raulMurTracker);
         infosTracking->setActiveForSceneID(SID_VideoFilesTrackKeyFrames);
         AppDemoGui::addInfoDialog(infosTracking);
+
+        SLImGuiInfosMapTransform* infosMapTransform = new SLImGuiInfosMapTransform("Map Transformation", map);
+        infosMapTransform->setActiveForSceneID(SID_VideoFilesTrackKeyFrames);
+        AppDemoGui::addInfoDialog(infosMapTransform);
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));

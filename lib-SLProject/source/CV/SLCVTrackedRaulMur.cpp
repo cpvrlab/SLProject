@@ -1243,8 +1243,8 @@ void SLCVTrackedRaulMur::UpdateLocalKeyFrames()
 //}
 //
 //todo: move to map
-void SLCVTrackedRaulMur::applyTransformation(double value, TransformType type)
-{
+//void SLCVTrackedRaulMur::applyTransformation(double value, TransformType type)
+//{
     ////apply rotation, translation and scale to Keyframe and MapPoint poses
     //cout << "apply transform with value: " << value << endl;
     //switch (type)
@@ -1300,121 +1300,121 @@ void SLCVTrackedRaulMur::applyTransformation(double value, TransformType type)
     //else
     //    cout << "Mesh not found" << endl;
 
-    //apply transformation on map
-    _map->applyTransformation(value, (SLCVMap::TransformType)type);
-
-    //compute resulting values for map points
-    auto ptsInMap = _map->GetAllMapPoints();
-    for (auto& mp : ptsInMap) {
-        //mean viewing direction and depth
-        mp->UpdateNormalAndDepth();
-        mp->ComputeDistinctiveDescriptors();
-    }
-}
+//    //apply transformation on map
+//    _map->applyTransformation(value, (SLCVMap::TransformType)type);
+//
+//    //compute resulting values for map points
+//    auto ptsInMap = _map->GetAllMapPoints();
+//    for (auto& mp : ptsInMap) {
+//        //mean viewing direction and depth
+//        mp->UpdateNormalAndDepth();
+//        mp->ComputeDistinctiveDescriptors();
+//    }
+//}
 
 //todo: move to 
-void SLCVTrackedRaulMur::saveState()
-{
-    string filename = "../_data/calibrations/orb-slam-state-bern3-ct.json";
-    cv::FileStorage fs(filename, cv::FileStorage::WRITE);
-
-    //save keyframes (without graph/neigbourhood information)
-    auto kfs = mpKeyFrameDatabase->keyFrames();
-    if (!kfs.size())
-        return;
-
-    //add intrinsics (calibration parameters): only store once
-    fs << "fx" << _calib->fx();
-    fs << "fy" << _calib->fy();
-    fs << "cx" << _calib->cx();
-    fs << "cy" << _calib->cy();
-
-    //start sequence keyframes
-    fs << "KeyFrames" << "[";
-    for (int i = 0; i < kfs.size(); ++i)
-    {
-        SLCVKeyFrame* kf = kfs[i];
-        if (kf->isBad())
-            continue;
-
-        fs << "{"; //new map keyFrame
-                   //add id
-        fs << "id" << (int)kf->id();
-        //camera w.r.t world
-        //fs << "Twc" << kf->Twc;
-        // world w.r.t camera
-        fs << "Tcw" << kf->GetPose();
-        fs << "featureDescriptors" << kf->mDescriptors;
-        fs << "keyPtsUndist" << kf->mvKeysUn;
-
-        //scale factor
-        fs << "scaleFactor" << kf->mfScaleFactor;
-        //number of pyriamid scale levels
-        fs << "nScaleLevels" << kf->mnScaleLevels;
-        //vector of pyramid scale factors
-        fs << "scaleFactors" << kf->mvScaleFactors;
-
-        fs << "}"; //close map
-
-        //save the original frame image for this keyframe
-        //    bool saveImgs = false;
-        //cv::Mat imgColor;
-        //if (saveImgs && !kf->imgGray.empty()) {
-        //    std::stringstream ss; ss << "D:/Development/SLProject/_data/calibrations/imgs/" << "kf" << (int)kf->mnId << ".jpg";
-
-        //    cv::cvtColor(kf->imgGray, imgColor, cv::COLOR_GRAY2BGR);
-        //    cv::imwrite(ss.str(), imgColor);
-        //}
-    }
-    fs << "]"; //close sequence keyframes
-
-               //save keypoints (map)
-    //SLCVVMapPoint& mpts = _map->mapPoints();
-    auto mpts = _map->GetAllMapPoints();
-
-    //start map points sequence
-    fs << "MapPoints" << "[";
-    for (int i = 0; i < mpts.size(); ++i)
-    {
-        SLCVMapPoint* mpt = mpts[i];
-        if (mpt->isBad())
-            continue;
-
-        fs << "{"; //new map for MapPoint
-                   //add id
-        fs << "id" << (int)mpt->id();
-        //add position
-        fs << "mWorldPos" << mpt->worldPos();
-        //save keyframe observations
-        auto observations = mpt->GetObservations();
-        vector<int> observingKfIds;
-        vector<int> corrKpIndices; //corresponding keypoint indices in observing keyframe
-        for (auto it : observations)
-        {
-            if (!it.first->isBad()) {
-                observingKfIds.push_back(it.first->id());
-                corrKpIndices.push_back(it.second);
-            }
-        }
-        fs << "observingKfIds" << observingKfIds;
-        fs << "corrKpIndices" << corrKpIndices;
-        //(we calculate mean descriptor and mean deviation after loading)
-
-        //reference key frame (I think this is the keyframe from which this
-        //map point was generated -> first reference?)
-        fs << "refKfId" << (int)mpt->refKf()->id();
-
-        //keypoint octave (level)
-        size_t kpIndex = mpt->mObservations[mpt->mpRefKF];
-        fs << "level" << mpt->refKf()->mvKeysUn[kpIndex].octave;
-
-        fs << "}"; //close map
-    }
-    fs << "]";
-
-    //save graph information between keyframes
-
-    // explicit close
-    fs.release();
-    cout << "Write Done." << endl;
-}
+//void SLCVTrackedRaulMur::saveState()
+//{
+//    string filename = "../_data/calibrations/orb-slam-state-bern3-ct.json";
+//    cv::FileStorage fs(filename, cv::FileStorage::WRITE);
+//
+//    //save keyframes (without graph/neigbourhood information)
+//    auto kfs = mpKeyFrameDatabase->keyFrames();
+//    if (!kfs.size())
+//        return;
+//
+//    //add intrinsics (calibration parameters): only store once
+//    fs << "fx" << _calib->fx();
+//    fs << "fy" << _calib->fy();
+//    fs << "cx" << _calib->cx();
+//    fs << "cy" << _calib->cy();
+//
+//    //start sequence keyframes
+//    fs << "KeyFrames" << "[";
+//    for (int i = 0; i < kfs.size(); ++i)
+//    {
+//        SLCVKeyFrame* kf = kfs[i];
+//        if (kf->isBad())
+//            continue;
+//
+//        fs << "{"; //new map keyFrame
+//                   //add id
+//        fs << "id" << (int)kf->id();
+//        //camera w.r.t world
+//        //fs << "Twc" << kf->Twc;
+//        // world w.r.t camera
+//        fs << "Tcw" << kf->GetPose();
+//        fs << "featureDescriptors" << kf->mDescriptors;
+//        fs << "keyPtsUndist" << kf->mvKeysUn;
+//
+//        //scale factor
+//        fs << "scaleFactor" << kf->mfScaleFactor;
+//        //number of pyriamid scale levels
+//        fs << "nScaleLevels" << kf->mnScaleLevels;
+//        //vector of pyramid scale factors
+//        fs << "scaleFactors" << kf->mvScaleFactors;
+//
+//        fs << "}"; //close map
+//
+//        //save the original frame image for this keyframe
+//        //    bool saveImgs = false;
+//        //cv::Mat imgColor;
+//        //if (saveImgs && !kf->imgGray.empty()) {
+//        //    std::stringstream ss; ss << "D:/Development/SLProject/_data/calibrations/imgs/" << "kf" << (int)kf->mnId << ".jpg";
+//
+//        //    cv::cvtColor(kf->imgGray, imgColor, cv::COLOR_GRAY2BGR);
+//        //    cv::imwrite(ss.str(), imgColor);
+//        //}
+//    }
+//    fs << "]"; //close sequence keyframes
+//
+//               //save keypoints (map)
+//    //SLCVVMapPoint& mpts = _map->mapPoints();
+//    auto mpts = _map->GetAllMapPoints();
+//
+//    //start map points sequence
+//    fs << "MapPoints" << "[";
+//    for (int i = 0; i < mpts.size(); ++i)
+//    {
+//        SLCVMapPoint* mpt = mpts[i];
+//        if (mpt->isBad())
+//            continue;
+//
+//        fs << "{"; //new map for MapPoint
+//                   //add id
+//        fs << "id" << (int)mpt->id();
+//        //add position
+//        fs << "mWorldPos" << mpt->worldPos();
+//        //save keyframe observations
+//        auto observations = mpt->GetObservations();
+//        vector<int> observingKfIds;
+//        vector<int> corrKpIndices; //corresponding keypoint indices in observing keyframe
+//        for (auto it : observations)
+//        {
+//            if (!it.first->isBad()) {
+//                observingKfIds.push_back(it.first->id());
+//                corrKpIndices.push_back(it.second);
+//            }
+//        }
+//        fs << "observingKfIds" << observingKfIds;
+//        fs << "corrKpIndices" << corrKpIndices;
+//        //(we calculate mean descriptor and mean deviation after loading)
+//
+//        //reference key frame (I think this is the keyframe from which this
+//        //map point was generated -> first reference?)
+//        fs << "refKfId" << (int)mpt->refKf()->id();
+//
+//        //keypoint octave (level)
+//        size_t kpIndex = mpt->mObservations[mpt->mpRefKF];
+//        fs << "level" << mpt->refKf()->mvKeysUn[kpIndex].octave;
+//
+//        fs << "}"; //close map
+//    }
+//    fs << "]";
+//
+//    //save graph information between keyframes
+//
+//    // explicit close
+//    fs.release();
+//    cout << "Write Done." << endl;
+//}

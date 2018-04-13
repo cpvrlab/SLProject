@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLImGuiInfosTracking.h
+//  File:      SLImGuiInfosMapTransform.h
 //  Author:    Michael Goettlicher
 //  Date:      April 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,26 +8,28 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SL_IMGUI_INFOSTRACKING_H
-#define SL_IMGUI_INFOSTRACKING_H
+#ifndef SL_IMGUI_INFOSMAPTRANSFORM_H
+#define SL_IMGUI_INFOSMAPTRANSFORM_H
 
 #include <string>
 #include <SLImGuiInfosDialog.h>
 
 //interface
 class SLTrackingInfosInterface;
+class SLCVMap;
 
 //-----------------------------------------------------------------------------
-class SLImGuiInfosTracking : public SLImGuiInfosDialog
+class SLImGuiInfosMapTransform : public SLImGuiInfosDialog
 {
 public:
-    SLImGuiInfosTracking(std::string name, SLTrackingInfosInterface* tracker);
+    SLImGuiInfosMapTransform(std::string name, SLCVMap* map);
 
     void buildInfos() override;
 
 private:
-    SLTrackingInfosInterface* _interface = nullptr;
+    SLCVMap* _map = nullptr;
 };
 
-#endif //SL_IMGUI_INFOSTRACKING_H
+#endif //SL_IMGUI_INFOSMAPTRANSFORM_H
+
 

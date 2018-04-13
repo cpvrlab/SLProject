@@ -73,6 +73,7 @@ public:
     void applyTransformation(double value, TransformType type);
     cv::Mat buildTransMat(float &val, int type);
     cv::Mat buildRotMat(float &valDeg, int type);
+    void saveState();
 
 private:
     //SLCVVMapPoint _mapPoints;

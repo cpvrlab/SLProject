@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLImGuiInfosMapNode.cpp
+//  File:      SLImGuiInfosTracking.cpp
 //  Author:    Michael Goettlicher
 //  Date:      April 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -163,6 +163,4 @@ void SLImGuiInfosTracking::buildInfos()
     //        _interface->saveState();
     //    }
     //}
-
-    //ImGui::End();
 }

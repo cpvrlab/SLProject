@@ -110,9 +110,9 @@ public:
     SLCVMap* getMap() { return _map; }
     SLCVKeyFrameDB* getKfDB() { return mpKeyFrameDatabase; }
 
-    enum TransformType {
-        ROT_X=0, ROT_Y, ROT_Z, TRANS_X, TRANS_Y, TRANS_Z, SCALE
-    };
+    //enum TransformType {
+    //    ROT_X=0, ROT_Y, ROT_Z, TRANS_X, TRANS_Y, TRANS_Z, SCALE
+    //};
 
     //// Build rotation matrix
     //Mat buildRotMat(float &valDeg, int type);
@@ -120,8 +120,8 @@ public:
     //void rotate(float value, int type);
     //void translate(float value, int type);
     //void scale(float value);
-    void applyTransformation(double value, TransformType type);
-    void saveState();
+    //void applyTransformation(double value, TransformType type);
+    //void saveState();
 
 protected:
     bool Relocalization();
