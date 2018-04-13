@@ -323,7 +323,7 @@ void SLCVMap::saveState()
     cv::FileStorage fs(filename, cv::FileStorage::WRITE);
 
     //save keyframes (without graph/neigbourhood information)
-    auto kfs = mpKeyFrameDatabase->keyFrames();
+    auto kfs = GetAllKeyFrames();
     if (!kfs.size())
         return;
 

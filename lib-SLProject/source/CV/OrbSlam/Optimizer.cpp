@@ -42,7 +42,7 @@ namespace ORB_SLAM2
 
 void Optimizer::GlobalBundleAdjustemnt(SLCVMap* pMap, int nIterations, bool* pbStopFlag, const unsigned long nLoopKF, const bool bRobust)
 {
-    vector<SLCVKeyFrame*> vpKFs = pMap->getKeyFrameDB()->keyFrames();
+    vector<SLCVKeyFrame*> vpKFs = pMap->GetAllKeyFrames();
     vector<SLCVMapPoint*> vpMP = pMap->GetAllMapPoints();
     BundleAdjustment(vpKFs,vpMP,nIterations,pbStopFlag, nLoopKF, bRobust);
 }

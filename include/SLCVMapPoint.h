@@ -27,9 +27,10 @@ class SLCVMap;
 class SLCVMapPoint
 {
 public:
-    SLCVMapPoint() 
-        : mnFirstKFid(-1)
-    {}
+    //SLCVMapPoint() 
+    //    : mnFirstKFid(-1)
+    //{}
+    SLCVMapPoint(int id, const cv::Mat &Pos, SLCVMap* pMap);
     SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF, SLCVMap* pMap);
 
     int id() const { return _id; }
@@ -90,7 +91,7 @@ public:
     // Keyframes observing the point and associated index in keyframe
     std::map<SLCVKeyFrame*, size_t> mObservations;
     // Reference KeyFrame
-    SLCVKeyFrame* mpRefKF;
+    SLCVKeyFrame* mpRefKF=NULL;
 
     // Variables used by bundle adjustment
     cv::Mat mPosGBA;

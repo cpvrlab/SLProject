@@ -32,11 +32,11 @@ void SLCVKeyFrameDB::add(SLCVKeyFrame* pKF)
     for (DBoW2::BowVector::const_iterator vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
         mvInvertedFile[vit->first].push_back(pKF);
 
-    //add pointer to keyframe db
-    pKF->setKeyFrameDB(this);
+    ////add pointer to keyframe db
+    //pKF->setKeyFrameDB(this);
 
-    //ghm1
-    _keyFrames.push_back(pKF);
+    ////ghm1
+    //_keyFrames.push_back(pKF);
 }
 //-----------------------------------------------------------------------------
 void SLCVKeyFrameDB::erase(SLCVKeyFrame* pKF)
@@ -69,7 +69,7 @@ void SLCVKeyFrameDB::clear()
     //    if (kf)
     //        delete kf;
     //}
-    _keyFrames.clear();
+    //_keyFrames.clear();
 }
 //-----------------------------------------------------------------------------
 vector<SLCVKeyFrame*> SLCVKeyFrameDB::DetectRelocalizationCandidates(SLCVFrame *F)

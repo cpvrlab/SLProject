@@ -25,7 +25,7 @@ public:
     SLCVKeyFrameDB(const ORBVocabulary &voc);
     ~SLCVKeyFrameDB();
 
-    std::vector<SLCVKeyFrame*>& keyFrames() { return _keyFrames; }
+    //std::vector<SLCVKeyFrame*>& keyFrames() { return _keyFrames; }
 
     void add(SLCVKeyFrame* pKF);
     void erase(SLCVKeyFrame* pKF);
@@ -57,7 +57,7 @@ protected:
     std::vector<list<SLCVKeyFrame*> > mvInvertedFile;
 
 private:
-    std::vector<SLCVKeyFrame*> _keyFrames;
+    //std::vector<SLCVKeyFrame*> _keyFrames;
 
     ////if backgound rendering is active kf images will be rendered on 
     ////near clipping plane if kf is not the active camera

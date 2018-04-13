@@ -208,15 +208,18 @@ void SLCVSlamStateLoader::loadMapPoints(SLCVMap& map)
     //read and add map points
     for (auto it = n.begin(); it != n.end(); ++it)
     {
-        SLCVMapPoint* newPt = new SLCVMapPoint;
-        newPt->id( (int)(*it)["id"]);
+        //newPt->id( (int)(*it)["id"]);
+        int id = (int)(*it)["id"];
+
         cv::Mat mWorldPos; //has to be here!
         (*it)["mWorldPos"] >> mWorldPos;
         //scale pos
         //mWorldPos += _t;
         //mWorldPos = _rot.rowRange(0, 3).colRange(0,3) * mWorldPos;
         //mWorldPos *= _s;
-        newPt->worldPos(mWorldPos);
+        //newPt->worldPos(mWorldPos);
+
+        SLCVMapPoint* newPt = new SLCVMapPoint(id, mWorldPos, &map);
 
         //level
         int level;
@@ -266,6 +269,8 @@ void SLCVSlamStateLoader::loadMapPoints(SLCVMap& map)
                     if (_kfsMap.find(kfId) != _kfsMap.end())
                         mapPt->refKf(_kfsMap[kfId]);
                 }
+                else
+                    int stop = 0;
             }
         }
     }

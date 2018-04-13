@@ -33,6 +33,8 @@ mTimeStamp: timestamp not unused for tracking, only for documentation
 mnGridCols, mfGridElementWidthInv, mfGridElementHeightInv: parameter for grid to speed up matching performance
 mvKeysUn: all undistorted keypoints
 */
+
+//!load an existing keyframe (used during file load)
 SLCVKeyFrame::SLCVKeyFrame(const cv::Mat& Tcw, unsigned long id,
     float fx, float fy, float cx, float cy, size_t N, const std::vector<cv::KeyPoint>& vKeysUn, const cv::Mat& descriptors,
     ORBVocabulary* mpORBvocabulary, int nScaleLevels, float fScaleFactor, const std::vector<float>& vScaleFactors,
@@ -53,6 +55,9 @@ SLCVKeyFrame::SLCVKeyFrame(const cv::Mat& Tcw, unsigned long id,
     /*mpORBvocabulary(F.mpORBvocabulary),*/ mbFirstConnection(true), mpParent(NULL), mbNotErase(false),
     mbToBeErased(false), mbBad(false)/*, mHalfBaseline(F.mb / 2)*/, mpMap(pMap)
 {
+    if (id >= nNextId)
+        nNextId = id + 1;
+
     mvpMapPoints = vector<SLCVMapPoint*>(N, static_cast<SLCVMapPoint*>(NULL));
     //set camera position
     SetPose(Tcw);

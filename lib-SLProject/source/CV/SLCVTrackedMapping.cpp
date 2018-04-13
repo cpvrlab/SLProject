@@ -48,6 +48,17 @@ SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node, ORBVocabulary* vocabulary,
     //_mapPC(mapPC),
     //_keyFrames(keyFrames)
 {
+    if (_map->KeyFramesInMap())
+    {
+        _currentState = TRACK_3DPTS;
+        mState = LOST;
+    }
+    else
+    {
+        _currentState = INITIALIZE;
+        mState = NOT_INITIALIZED;
+    }
+
     int nFeatures = 1000;
     float fScaleFactor = 1.2;
     int nLevels = 8;
