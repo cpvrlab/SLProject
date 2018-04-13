@@ -413,9 +413,9 @@ void SLCVTrackedMapping::track3DPts()
     if (!mCurrentFrame.mpReferenceKF)
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
 
-    mLastFrame = SLCVFrame(mCurrentFrame);
-
     decorate();
+
+    mLastFrame = SLCVFrame(mCurrentFrame);
 
     // Store frame pose information to retrieve the complete camera trajectory afterwards.
     if (mCurrentFrame.mpReferenceKF && !mCurrentFrame.mTcw.empty())
