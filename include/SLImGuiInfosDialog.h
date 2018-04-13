@@ -14,7 +14,7 @@
 #include <string>
 
 //-----------------------------------------------------------------------------
-//! ImGui UI interface to show specific infos in an imgui dialogue
+//! ImGui UI interface to show scene specific infos in an imgui dialogue
 class SLImGuiInfosDialog
 {
 public:

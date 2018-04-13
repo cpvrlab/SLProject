@@ -79,9 +79,6 @@ class SLGLImGui
         // Default font dots
         static SLfloat fontPropDots;       //!< Default font size of proportional font
         static SLfloat fontFixedDots;      //!< Default font size of fixed size font
-        static SLfloat transformationRotValue;
-        static SLfloat transformationTransValue;
-        static SLfloat transformationScaleValue;
 
     private:
         SLfloat     _timeSec;               //!< Time in seconds

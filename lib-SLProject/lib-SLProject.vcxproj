@@ -321,6 +321,7 @@
     <ClInclude Include="..\include\SLGLVertexArray.h" />
     <ClInclude Include="..\include\SLGLVertexArrayExt.h" />
     <ClInclude Include="..\include\SLGLVertexBuffer.h" />
+    <ClInclude Include="..\include\SLImGuiInfosChristoffelTower.h" />
     <ClInclude Include="..\include\SLImGuiInfosDialog.h" />
     <ClInclude Include="..\include\SLImGuiInfosMapTransform.h" />
     <ClInclude Include="..\include\SLImGuiInfosTracking.h" />
@@ -438,6 +439,7 @@
     <ClCompile Include="source\GL\SLGLVertexArray.cpp" />
     <ClCompile Include="source\GL\SLGLVertexArrayExt.cpp" />
     <ClCompile Include="source\GL\SLGLVertexBuffer.cpp" />
+    <ClCompile Include="source\GUI\SLImGuiInfosChristoffelTower.cpp" />
     <ClCompile Include="source\GUI\SLImGuiInfosDialog.cpp" />
     <ClCompile Include="source\GUI\SLImGuiInfosMapTransform.cpp" />
     <ClCompile Include="source\GUI\SLImGuiInfosTracking.cpp" />

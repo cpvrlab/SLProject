@@ -51,8 +51,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cv13_HeadPoseEstimation", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cv13_FaceTracking", "exercises\cv13_FaceTracking\cv13_FaceTracking.vcxproj", "{0D63243A-A87C-48F6-8822-7DE3C67E2F3A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-Christoffel-GLFW", "app-Christoffel-GLFW\app-Christoffel-GLFW.vcxproj", "{E8803B00-A187-42D1-9D2F-6A76E8048FF2}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -164,14 +162,6 @@ Global
 		{0D63243A-A87C-48F6-8822-7DE3C67E2F3A}.Release|x64.Build.0 = Release|x64
 		{0D63243A-A87C-48F6-8822-7DE3C67E2F3A}.Release|x86.ActiveCfg = Release|Win32
 		{0D63243A-A87C-48F6-8822-7DE3C67E2F3A}.Release|x86.Build.0 = Release|Win32
-		{E8803B00-A187-42D1-9D2F-6A76E8048FF2}.Debug|x64.ActiveCfg = Debug|x64
-		{E8803B00-A187-42D1-9D2F-6A76E8048FF2}.Debug|x64.Build.0 = Debug|x64
-		{E8803B00-A187-42D1-9D2F-6A76E8048FF2}.Debug|x86.ActiveCfg = Debug|Win32
-		{E8803B00-A187-42D1-9D2F-6A76E8048FF2}.Debug|x86.Build.0 = Debug|Win32
-		{E8803B00-A187-42D1-9D2F-6A76E8048FF2}.Release|x64.ActiveCfg = Release|x64
-		{E8803B00-A187-42D1-9D2F-6A76E8048FF2}.Release|x64.Build.0 = Release|x64
-		{E8803B00-A187-42D1-9D2F-6A76E8048FF2}.Release|x86.ActiveCfg = Release|Win32
-		{E8803B00-A187-42D1-9D2F-6A76E8048FF2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

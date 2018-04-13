@@ -426,6 +426,9 @@
     <ClInclude Include="..\include\SLImGuiInfosMapTransform.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLImGuiInfosChristoffelTower.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -721,6 +724,9 @@
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="source\GUI\SLImGuiInfosMapTransform.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GUI\SLImGuiInfosChristoffelTower.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
   </ItemGroup>

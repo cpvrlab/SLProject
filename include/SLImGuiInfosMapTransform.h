@@ -28,6 +28,10 @@ public:
 
 private:
     SLCVMap* _map = nullptr;
+
+    float _transformationRotValue = 10.0f;;
+    float _transformationTransValue = 0.1f;
+    float _transformationScaleValue = 1.1f;
 };
 
 #endif //SL_IMGUI_INFOSMAPTRANSFORM_H

@@ -22,9 +22,6 @@
 //-----------------------------------------------------------------------------
 SLfloat SLGLImGui::fontPropDots     = 16.0f;
 SLfloat SLGLImGui::fontFixedDots    = 13.0f;
-SLfloat SLGLImGui::transformationRotValue = 0.01f;
-SLfloat SLGLImGui::transformationTransValue = 0.01f;
-SLfloat SLGLImGui::transformationScaleValue = 0.01f;
 //-----------------------------------------------------------------------------
 SLGLImGui::SLGLImGui()
 {
