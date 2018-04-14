@@ -2640,10 +2640,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Mapping example");
         s->info("Example for mapping using functionality from ORB-SLAM.");
 
-        //s->videoType(VT_MAIN);
-        s->videoType(VT_FILE);
-        SLCVCapture::videoLoops = true;
-        SLCVCapture::videoFilename = "webcam_office1.wmv";
+        s->videoType(VT_MAIN);
+        //s->videoType(VT_FILE);
+        //SLCVCapture::videoLoops = true;
+        //SLCVCapture::videoFilename = "webcam_office1.wmv";
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-new-1.json";
         SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-dynamic.json";
 

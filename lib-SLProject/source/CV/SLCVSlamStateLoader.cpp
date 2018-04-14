@@ -55,16 +55,13 @@ void SLCVSlamStateLoader::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
     //load map points
     loadMapPoints(map);
 
-    //compute resulting values for map keyframes
-    //std::vector<SLCVKeyFrame*>& kfs = map.GetAllKeyFrames();
-    //for (SLCVKeyFrame* kf : kfs) {
-    //    //compute bow
-    //    //kf->ComputeBoW(_orbVoc);
-    //    //add keyframe to keyframe database
-    //    kfDB.add(kf);
-    //    // Update links in the Covisibility Graph
-    //    kf->UpdateConnections();
-    //}
+    //update the covisibility graph, when all keyframes and mappoints are loaded
+    auto kfs = map.GetAllKeyFrames();
+    for (auto kf : kfs)
+    {
+        // Update links in the Covisibility Graph
+        kf->UpdateConnections();
+    }
 
     //compute resulting values for map points
     const std::set<SLCVMapPoint*>& mapPts = map.GetAllMapPointsConstRef();
@@ -186,8 +183,9 @@ void SLCVSlamStateLoader::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         //Update keyframe database:
         //add to keyframe database
         kfDB.add(newKf);
+
         // Update links in the Covisibility Graph
-        newKf->UpdateConnections();
+        //newKf->UpdateConnections();
 
         //pointer goes out of scope und wird invalid!!!!!!
         //map pointer by id for look-up

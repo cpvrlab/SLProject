@@ -403,6 +403,8 @@ void SLCVTrackedMapping::track3DPts()
             CreateNewKeyFrame();
             //call local mapper
             mpLocalMapper->RunOnce();
+            //normally the loop closing would feed the keyframe database, but we do it here
+            mpKeyFrameDatabase->add(mpLastKeyFrame);
 
             _mapNextFrame = false;
             //update visualization of map, it may have changed because of global bundle adjustment.
@@ -721,44 +723,6 @@ void SLCVTrackedMapping::decorate()
     decorateVideoWithKeyPointMatches(_img);
     //decorate scene with matched map points, local map points and matched map points
     decorateScene();
-
-    ////update map visualization
-    //_mapNode->updateAll(*_map);
-
-    ////draw map points
-    //if (_drawMapPoints && _mapPC) {
-    //    //instantiate material
-    //    if (!_pcMatRed) {
-    //        _pcMatRed = new SLMaterial("Red", SLCol4f::RED);
-    //        _pcMatRed->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-    //        _pcMatRed->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
-    //    }
-
-    //    //remove old points
-    //    if (_mapMesh) {
-    //        _mapPC->deleteMesh(_mapMesh);
-    //    }
-
-    //    //add new (current) points
-    //    SLVVec3f points, normals;
-    //    const auto& mpts = _map->GetAllMapPointsConstRef();
-    //    for (const auto& mpt : mpts) {
-    //        points.push_back(mpt->worldPosVec());
-    //        normals.push_back(mpt->normalVec());
-    //    }
-    //    _mapMesh = new SLPoints(points, normals, "MapPoints", _pcMatRed);
-    //    _mapPC->addMesh(_mapMesh);
-    //    _mapPC->updateAABBRec();
-    //}
-
-    ////draw matched map points
-    //if (_drawMapPointsMatches) {
-
-    //}
-    ////draw key frames
-    //if (_drawKeyFrames) {
-
-    //}
 }
 //-----------------------------------------------------------------------------
 bool SLCVTrackedMapping::Relocalization()
