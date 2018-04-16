@@ -200,7 +200,9 @@ float GetSeconds()
     m_lastVideoImageIsConsumed = true;
     
     if (slShouldClose())
-    {   slTerminate();
+    {
+        AppDemoGui::saveConfig();
+        slTerminate();
         exit(0);
     }
 }

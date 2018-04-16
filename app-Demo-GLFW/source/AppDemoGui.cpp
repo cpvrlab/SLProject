@@ -698,6 +698,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoTrackFeature2DMain);
                     if (ImGui::MenuItem("Track Face (Main)", 0, sid==SID_VideoTrackFaceMain))
                         s->onLoad(s, sv, SID_VideoTrackFaceMain);
+                    if (ImGui::MenuItem("Track Face (Scnd)", 0, sid==SID_VideoTrackFaceScnd))
+                        s->onLoad(s, sv, SID_VideoTrackFaceScnd);
                     if (ImGui::MenuItem("Sensor AR (Main)", 0, sid==SID_VideoSensorAR))
                         s->onLoad(s, sv, SID_VideoSensorAR);
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", 0, sid==SID_VideoChristoffel))
