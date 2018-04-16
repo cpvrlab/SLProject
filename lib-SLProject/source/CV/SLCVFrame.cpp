@@ -82,11 +82,12 @@ SLCVFrame::SLCVFrame(const SLCVFrame &frame)
 //-----------------------------------------------------------------------------
 SLCVFrame::SLCVFrame( const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor, 
     cv::Mat &K, cv::Mat &distCoef, ORBVocabulary* orbVocabulary, bool retainImg )
-    : mpORBextractorLeft(extractor), mTimeStamp(timeStamp), /*mK(K.clone()),*/ mDistCoef(distCoef.clone()),
+    : mpORBextractorLeft(extractor), mTimeStamp(timeStamp), /*mK(K.clone()),*/ /*mDistCoef(distCoef.clone()),*/
     mpORBvocabulary(orbVocabulary)
 {
     //ghm1: ORB_SLAM uses float precision
     K.convertTo(mK, CV_32F);
+    distCoef.convertTo(mDistCoef, CV_32F);
 
     // Frame ID
     mnId = nNextId++;
@@ -126,10 +127,10 @@ SLCVFrame::SLCVFrame( const cv::Mat &imGray, const double &timeStamp, ORBextract
         mfGridElementWidthInv = static_cast<float>(FRAME_GRID_COLS) / static_cast<float>(mnMaxX - mnMinX);
         mfGridElementHeightInv = static_cast<float>(FRAME_GRID_ROWS) / static_cast<float>(mnMaxY - mnMinY);
 
-        fx = (float)K.at<double>(0, 0);
-        fy = (float)K.at<double>(1, 1);
-        cx = (float)K.at<double>(0, 2);
-        cy = (float)K.at<double>(1, 2);
+        fx = mK.at<float>(0, 0);
+        fy = mK.at<float>(1, 1);
+        cx = mK.at<float>(0, 2);
+        cy = mK.at<float>(1, 2);
         invfx = 1.0f / fx;
         invfy = 1.0f / fy;
 
@@ -313,18 +314,18 @@ void SLCVFrame::ComputeBoW()
 //-----------------------------------------------------------------------------
 void SLCVFrame::UndistortKeyPoints()
 {
-    if (mDistCoef.at<double>(0) == 0.0f)
+    if (mDistCoef.at<float>(0) == 0.0f)
     {
         mvKeysUn = mvKeys;
         return;
     }
 
     // Fill matrix with points
-    cv::Mat mat(N, 2, CV_64F);
+    cv::Mat mat(N, 2, CV_32F);
     for (int i = 0; i<N; i++)
     {
-        mat.at<double>(i, 0) = mvKeys[i].pt.x;
-        mat.at<double>(i, 1) = mvKeys[i].pt.y;
+        mat.at<float>(i, 0) = mvKeys[i].pt.x;
+        mat.at<float>(i, 1) = mvKeys[i].pt.y;
     }
 
     // Undistort points
@@ -337,39 +338,39 @@ void SLCVFrame::UndistortKeyPoints()
     for (int i = 0; i<N; i++)
     {
         cv::KeyPoint kp = mvKeys[i];
-        kp.pt.x = (float)mat.at<double>(i, 0);
-        kp.pt.y = (float)mat.at<double>(i, 1);
+        kp.pt.x = mat.at<float>(i, 0);
+        kp.pt.y = mat.at<float>(i, 1);
         mvKeysUn[i] = kp;
     }
 }
 //-----------------------------------------------------------------------------
 void SLCVFrame::ComputeImageBounds(const cv::Mat &imLeft)
 {
-    if (mDistCoef.at<double>(0) != 0.0)
+    if (mDistCoef.at<float>(0) != 0.0)
     {
-        cv::Mat mat(4, 2, CV_64F);
-        mat.at<double>(0, 0) = 0.0; mat.at<double>(0, 1) = 0.0;
-        mat.at<double>(1, 0) = imLeft.cols; mat.at<double>(1, 1) = 0.0;
-        mat.at<double>(2, 0) = 0.0; mat.at<double>(2, 1) = imLeft.rows;
-        mat.at<double>(3, 0) = imLeft.cols; mat.at<double>(3, 1) = imLeft.rows;
+        cv::Mat mat(4, 2, CV_32F);
+        mat.at<float>(0, 0) = 0.0; mat.at<float>(0, 1) = 0.0;
+        mat.at<float>(1, 0) = imLeft.cols; mat.at<float>(1, 1) = 0.0;
+        mat.at<float>(2, 0) = 0.0; mat.at<float>(2, 1) = imLeft.rows;
+        mat.at<float>(3, 0) = imLeft.cols; mat.at<float>(3, 1) = imLeft.rows;
 
         // Undistort corners
         mat = mat.reshape(2);
         cv::undistortPoints(mat, mat, mK, mDistCoef, cv::Mat(), mK);
         mat = mat.reshape(1);
 
-        mnMinX = (float)min(mat.at<double>(0, 0), mat.at<double>(2, 0));
-        mnMaxX = (float)max(mat.at<double>(1, 0), mat.at<double>(3, 0));
-        mnMinY = (float)min(mat.at<double>(0, 1), mat.at<double>(1, 1));
-        mnMaxY = (float)max(mat.at<double>(2, 1), mat.at<double>(3, 1));
+        mnMinX = (float)min(mat.at<float>(0, 0), mat.at<float>(2, 0));
+        mnMaxX = (float)max(mat.at<float>(1, 0), mat.at<float>(3, 0));
+        mnMinY = (float)min(mat.at<float>(0, 1), mat.at<float>(1, 1));
+        mnMaxY = (float)max(mat.at<float>(2, 1), mat.at<float>(3, 1));
 
     }
     else
     {
         mnMinX = 0.0f;
-        mnMaxX = (float)imLeft.cols;
+        mnMaxX = imLeft.cols;
         mnMinY = 0.0f;
-        mnMaxY = (float)imLeft.rows;
+        mnMaxY = imLeft.rows;
     }
 }
 

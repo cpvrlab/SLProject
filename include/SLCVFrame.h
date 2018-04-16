@@ -113,7 +113,7 @@ public:
     static float cy;
     static float invfx;
     static float invfy;
-    SLCVMat mDistCoef;
+    cv::Mat mDistCoef;
 
     // Number of KeyPoints.
     int N = 0;
