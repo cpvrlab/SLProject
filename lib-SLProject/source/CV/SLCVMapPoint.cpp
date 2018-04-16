@@ -20,8 +20,8 @@ long unsigned int SLCVMapPoint::nNextId = 0;
 //!constructor used during map loading
 SLCVMapPoint::SLCVMapPoint(int id, const cv::Mat &Pos, SLCVMap* pMap)
     : mnId(id), mnFirstKFid(-1), /* mnFirstFrame(pRefKF->mnFrameId), */nObs(0), mnTrackReferenceForFrame(0),
-    mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), /*mnLoopPointForKF(0), mnCorrectedByKF(0),
-    mnCorrectedReference(0),*/ mnBAGlobalForKF(0), mpRefKF(NULL), mnVisible(1), mnFound(1), mbBad(false),
+    mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0),
+    mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(NULL), mnVisible(1), mnFound(1), mbBad(false),
     mpReplaced(static_cast<SLCVMapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0), mpMap(pMap)
 {
     SetWorldPos(Pos);
@@ -34,8 +34,8 @@ SLCVMapPoint::SLCVMapPoint(int id, const cv::Mat &Pos, SLCVMap* pMap)
 //-----------------------------------------------------------------------------
 SLCVMapPoint::SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF, SLCVMap* pMap) :
     mnFirstKFid(pRefKF->mnId), /* mnFirstFrame(pRefKF->mnFrameId), */nObs(0), mnTrackReferenceForFrame(0),
-    mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), /*mnLoopPointForKF(0), mnCorrectedByKF(0),
-    mnCorrectedReference(0),*/ mnBAGlobalForKF(0), mpRefKF(pRefKF), mnVisible(1), mnFound(1), mbBad(false),
+    mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0),
+    mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(pRefKF), mnVisible(1), mnFound(1), mbBad(false),
     mpReplaced(static_cast<SLCVMapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0), mpMap(pMap)
 {
     SetWorldPos(Pos);
@@ -85,6 +85,12 @@ cv::Mat SLCVMapPoint::GetNormal() const
 {
     //unique_lock<mutex> lock(mMutexPos);
     return mNormalVector.clone();
+}
+//-----------------------------------------------------------------------------
+SLCVKeyFrame* SLCVMapPoint::GetReferenceKeyFrame()
+{
+    //unique_lock<mutex> lock(mMutexFeatures);
+    return mpRefKF;
 }
 //-----------------------------------------------------------------------------
 void SLCVMapPoint::AddObservation(SLCVKeyFrame* pKF, size_t idx)

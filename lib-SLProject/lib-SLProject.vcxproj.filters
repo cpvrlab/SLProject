@@ -432,6 +432,9 @@
     <ClInclude Include="..\include\SLCVMapTracking.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\OrbSlam\LoopClosing.h">
+      <Filter>CV\OrbSlam</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -734,6 +737,9 @@
     </ClCompile>
     <ClCompile Include="source\CV\SLCVMapTracking.cpp">
       <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\OrbSlam\LoopClosing.cpp">
+      <Filter>CV\OrbSlam</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

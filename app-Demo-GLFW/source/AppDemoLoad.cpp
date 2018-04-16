@@ -2648,7 +2648,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-dynamic.json";
 
         //make some light
-        SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
+        SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
         light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
         light1->specular(SLCol4f(1, 1, 1));

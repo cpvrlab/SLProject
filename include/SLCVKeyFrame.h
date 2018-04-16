@@ -81,8 +81,10 @@ public:
     void EraseConnection(SLCVKeyFrame* pKF);
     void UpdateConnections();
     void UpdateBestCovisibles();
+    std::set<SLCVKeyFrame*> GetConnectedKeyFrames();
     std::vector<SLCVKeyFrame* > GetVectorCovisibleKeyFrames();
     vector<SLCVKeyFrame*> GetBestCovisibilityKeyFrames(const int &N);
+    std::vector<SLCVKeyFrame*> GetCovisiblesByWeight(const int &w);
     int GetWeight(SLCVKeyFrame* pKF);
 
     // Spanning tree functions
@@ -91,12 +93,18 @@ public:
     void ChangeParent(SLCVKeyFrame* pKF);
     std::set<SLCVKeyFrame*> GetChilds();
     SLCVKeyFrame* GetParent();
+    bool hasChild(SLCVKeyFrame* pKF);
+
+    // Loop Edges
+    void AddLoopEdge(SLCVKeyFrame* pKF);
+    std::set<SLCVKeyFrame*> GetLoopEdges();
 
     // MapPoint observation functions
     void AddMapPoint(SLCVMapPoint* pMP, size_t idx);
     void EraseMapPointMatch(SLCVMapPoint* pMP);
     void EraseMapPointMatch(const size_t &idx);
     void ReplaceMapPointMatch(const size_t &idx, SLCVMapPoint* pMP);
+    std::set<SLCVMapPoint*> GetMapPoints();
     vector<SLCVMapPoint*> GetMapPointMatches();
     int TrackedMapPoints(const int &minObs);
     SLCVMapPoint* GetMapPoint(const size_t &idx);
@@ -107,12 +115,25 @@ public:
     // Image
     bool IsInImage(const float &x, const float &y) const;
 
+    // Enable/Disable bad flag changes
+    void SetNotErase();
+    void SetErase();
+
     // Set/check bad flag
     void SetBadFlag();
     bool isBad();
 
     // Compute Scene Depth (q=2 median). Used in monocular.
     float ComputeSceneMedianDepth(const int q);
+
+    static bool weightComp(int a, int b) {
+        return a>b;
+    }
+
+    static bool lId(SLCVKeyFrame* pKF1, SLCVKeyFrame* pKF2) {
+        return pKF1->mnId<pKF2->mnId;
+    }
+
 
     // The following variables are accesed from only 1 thread or never change (no mutex needed).
 public:
@@ -137,6 +158,9 @@ public:
     long unsigned int mnBAFixedForKF;
 
     // Variables used by the keyframe database
+    long unsigned int mnLoopQuery = 0;
+    int mnLoopWords = 0;
+    float mLoopScore = -1.0;
     long unsigned int mnRelocQuery = 0;
     int mnRelocWords = 0;
     float mRelocScore = -1.0f;

@@ -89,6 +89,7 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/ORBmatcher.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/PnPsolver.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/LocalMapping.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/LoopClosing.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/Initializer.cpp
 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/ORBextractor.cpp

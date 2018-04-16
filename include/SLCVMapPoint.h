@@ -39,6 +39,7 @@ public:
     cv::Mat GetWorldPos() const;
 
     cv::Mat GetNormal() const;
+    SLCVKeyFrame* GetReferenceKeyFrame();
 
     std::map<SLCVKeyFrame*, size_t> GetObservations() const;
     int Observations();
@@ -95,10 +96,10 @@ public:
     long unsigned int mnBALocalForKF;
     long unsigned int mnFuseCandidateForKF;
 
-    //// Variables used by loop closing
-    //long unsigned int mnLoopPointForKF;
-    //long unsigned int mnCorrectedByKF;
-    //long unsigned int mnCorrectedReference;
+    // Variables used by loop closing
+    long unsigned int mnLoopPointForKF;
+    long unsigned int mnCorrectedByKF;
+    long unsigned int mnCorrectedReference;
     cv::Mat mPosGBA;
     long unsigned int mnBAGlobalForKF;
 

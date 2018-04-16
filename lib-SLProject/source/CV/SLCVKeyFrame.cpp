@@ -46,8 +46,8 @@ SLCVKeyFrame::SLCVKeyFrame(const cv::Mat& Tcw, unsigned long id,
     : mnId(id), mnFrameId(0), mTimeStamp(0), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
     mfGridElementWidthInv(static_cast<float>(FRAME_GRID_COLS) / (mnMaxX - mnMinX)), 
     mfGridElementHeightInv(static_cast<float>(FRAME_GRID_ROWS) / (mnMaxY - mnMinY)),
-    mnTrackReferenceForFrame(0), mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0), /*
-    mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0),*/ mnBAGlobalForKF(0),
+    mnTrackReferenceForFrame(0), mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0),
+    mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0), mnBAGlobalForKF(0),
     fx(fx), fy(fy), cx(cx), cy(cy), invfx(1/fx), invfy(1/fy),
     /* mbf(F.mbf), mb(F.mb), mThDepth(F.mThDepth),*/ N(N), /*mvKeys(F.mvKeys),*/ mvKeysUn(vKeysUn),
     /* mvuRight(F.mvuRight), mvDepth(F.mvDepth),*/ mDescriptors(descriptors.clone()),
@@ -75,8 +75,8 @@ SLCVKeyFrame::SLCVKeyFrame(const cv::Mat& Tcw, unsigned long id,
 SLCVKeyFrame::SLCVKeyFrame(SLCVFrame &F, SLCVMap* pMap, SLCVKeyFrameDB* pKFDB, bool retainImg)
     : mnFrameId(F.mnId), mTimeStamp(F.mTimeStamp), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
     mfGridElementWidthInv(F.mfGridElementWidthInv), mfGridElementHeightInv(F.mfGridElementHeightInv),
-    mnTrackReferenceForFrame(0), mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0), /*
-    mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0),*/ mnBAGlobalForKF(0),
+    mnTrackReferenceForFrame(0), mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0),
+    mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0), mnBAGlobalForKF(0),
     fx(F.fx), fy(F.fy), cx(F.cx), cy(F.cy), invfx(F.invfx), invfy(F.invfy),
    /* mbf(F.mbf), mb(F.mb), mThDepth(F.mThDepth),*/ N(F.N), /*mvKeys(F.mvKeys),*/ mvKeysUn(F.mvKeysUn),
    /* mvuRight(F.mvuRight), mvDepth(F.mvDepth),*/ mDescriptors(F.mDescriptors.clone()),
@@ -201,6 +201,15 @@ void SLCVKeyFrame::UpdateBestCovisibles()
     mvOrderedWeights = vector<int>(lWs.begin(), lWs.end());
 }
 //-----------------------------------------------------------------------------
+set<SLCVKeyFrame*> SLCVKeyFrame::GetConnectedKeyFrames()
+{
+    //unique_lock<mutex> lock(mMutexConnections);
+    set<SLCVKeyFrame*> s;
+    for (map<SLCVKeyFrame*, int>::iterator mit = mConnectedKeyFrameWeights.begin(); mit != mConnectedKeyFrameWeights.end(); mit++)
+        s.insert(mit->first);
+    return s;
+}
+//-----------------------------------------------------------------------------
 vector<SLCVKeyFrame*> SLCVKeyFrame::GetVectorCovisibleKeyFrames()
 {
     //unique_lock<mutex> lock(mMutexConnections);
@@ -214,6 +223,23 @@ vector<SLCVKeyFrame*> SLCVKeyFrame::GetBestCovisibilityKeyFrames(const int &N)
         return mvpOrderedConnectedKeyFrames;
     else
         return vector<SLCVKeyFrame*>(mvpOrderedConnectedKeyFrames.begin(), mvpOrderedConnectedKeyFrames.begin() + N);
+}
+//-----------------------------------------------------------------------------
+vector<SLCVKeyFrame*> SLCVKeyFrame::GetCovisiblesByWeight(const int &w)
+{
+    //unique_lock<mutex> lock(mMutexConnections);
+
+    if (mvpOrderedConnectedKeyFrames.empty())
+        return vector<SLCVKeyFrame*>();
+
+    vector<int>::iterator it = upper_bound(mvOrderedWeights.begin(), mvOrderedWeights.end(), w, SLCVKeyFrame::weightComp);
+    if (it == mvOrderedWeights.end())
+        return vector<SLCVKeyFrame*>();
+    else
+    {
+        int n = it - mvOrderedWeights.begin();
+        return vector<SLCVKeyFrame*>(mvpOrderedConnectedKeyFrames.begin(), mvpOrderedConnectedKeyFrames.begin() + n);
+    }
 }
 //-----------------------------------------------------------------------------
 int SLCVKeyFrame::GetWeight(SLCVKeyFrame *pKF)
@@ -248,6 +274,21 @@ void SLCVKeyFrame::EraseMapPointMatch(SLCVMapPoint* pMP)
 void SLCVKeyFrame::ReplaceMapPointMatch(const size_t &idx, SLCVMapPoint* pMP)
 {
     mvpMapPoints[idx] = pMP;
+}
+//-----------------------------------------------------------------------------
+set<SLCVMapPoint*> SLCVKeyFrame::GetMapPoints()
+{
+    //unique_lock<mutex> lock(mMutexFeatures);
+    set<SLCVMapPoint*> s;
+    for (size_t i = 0, iend = mvpMapPoints.size(); i<iend; i++)
+    {
+        if (!mvpMapPoints[i])
+            continue;
+        SLCVMapPoint* pMP = mvpMapPoints[i];
+        if (!pMP->isBad())
+            s.insert(pMP);
+    }
+    return s;
 }
 //-----------------------------------------------------------------------------
 int SLCVKeyFrame::TrackedMapPoints(const int &minObs)
@@ -412,6 +453,47 @@ SLCVKeyFrame* SLCVKeyFrame::GetParent()
 {
     //unique_lock<mutex> lockCon(mMutexConnections);
     return mpParent;
+}
+//-----------------------------------------------------------------------------
+bool SLCVKeyFrame::hasChild(SLCVKeyFrame *pKF)
+{
+    //unique_lock<mutex> lockCon(mMutexConnections);
+    return mspChildrens.count(pKF);
+}
+//-----------------------------------------------------------------------------
+void SLCVKeyFrame::AddLoopEdge(SLCVKeyFrame *pKF)
+{
+    //unique_lock<mutex> lockCon(mMutexConnections);
+    mbNotErase = true;
+    mspLoopEdges.insert(pKF);
+}
+//-----------------------------------------------------------------------------
+set<SLCVKeyFrame*> SLCVKeyFrame::GetLoopEdges()
+{
+    //unique_lock<mutex> lockCon(mMutexConnections);
+    return mspLoopEdges;
+}
+//-----------------------------------------------------------------------------
+void SLCVKeyFrame::SetNotErase()
+{
+    //unique_lock<mutex> lock(mMutexConnections);
+    mbNotErase = true;
+}
+//-----------------------------------------------------------------------------
+void SLCVKeyFrame::SetErase()
+{
+    {
+        //unique_lock<mutex> lock(mMutexConnections);
+        if (mspLoopEdges.empty())
+        {
+            mbNotErase = false;
+        }
+    }
+
+    if (mbToBeErased)
+    {
+        SetBadFlag();
+    }
 }
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::SetBadFlag()

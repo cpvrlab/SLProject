@@ -292,121 +292,121 @@ int ORBmatcher::SearchByBoW(SLCVKeyFrame* pKF,SLCVFrame &F, vector<SLCVMapPoint*
 
     return nmatches;
 }
-//
-//int ORBmatcher::SearchByProjection(SLCVKeyFrame* pKF, cv::Mat Scw, const vector<SLCVMapPoint*> &vpPoints, vector<SLCVMapPoint*> &vpMatched, int th)
-//{
-//    // Get Calibration Parameters for later projection
-//    const float &fx = pKF->fx;
-//    const float &fy = pKF->fy;
-//    const float &cx = pKF->cx;
-//    const float &cy = pKF->cy;
-//
-//    // Decompose Scw
-//    cv::Mat sRcw = Scw.rowRange(0,3).colRange(0,3);
-//    const float scw = sqrt(sRcw.row(0).dot(sRcw.row(0)));
-//    cv::Mat Rcw = sRcw/scw;
-//    cv::Mat tcw = Scw.rowRange(0,3).col(3)/scw;
-//    cv::Mat Ow = -Rcw.t()*tcw;
-//
-//    // Set of MapPoints already found in the SLCVKeyFrame
-//    set<SLCVMapPoint*> spAlreadyFound(vpMatched.begin(), vpMatched.end());
-//    spAlreadyFound.erase(static_cast<SLCVMapPoint*>(NULL));
-//
-//    int nmatches=0;
-//
-//    // For each Candidate SLCVMapPoint Project and Match
-//    for(int iMP=0, iendMP=vpPoints.size(); iMP<iendMP; iMP++)
-//    {
-//        SLCVMapPoint* pMP = vpPoints[iMP];
-//
-//        // Discard Bad MapPoints and already found
-//        if(pMP->isBad() || spAlreadyFound.count(pMP))
-//            continue;
-//
-//        // Get 3D Coords.
-//        cv::Mat p3Dw = pMP->GetWorldPos();
-//
-//        // Transform into Camera Coords.
-//        cv::Mat p3Dc = Rcw*p3Dw+tcw;
-//
-//        // Depth must be positive
-//        if(p3Dc.at<float>(2)<0.0)
-//            continue;
-//
-//        // Project into Image
-//        const float invz = 1/p3Dc.at<float>(2);
-//        const float x = p3Dc.at<float>(0)*invz;
-//        const float y = p3Dc.at<float>(1)*invz;
-//
-//        const float u = fx*x+cx;
-//        const float v = fy*y+cy;
-//
-//        // Point must be inside the image
-//        if(!pKF->IsInImage(u,v))
-//            continue;
-//
-//        // Depth must be inside the scale invariance region of the point
-//        const float maxDistance = pMP->GetMaxDistanceInvariance();
-//        const float minDistance = pMP->GetMinDistanceInvariance();
-//        cv::Mat PO = p3Dw-Ow;
-//        const float dist = cv::norm(PO);
-//
-//        if(dist<minDistance || dist>maxDistance)
-//            continue;
-//
-//        // Viewing angle must be less than 60 deg
-//        cv::Mat Pn = pMP->GetNormal();
-//
-//        if(PO.dot(Pn)<0.5*dist)
-//            continue;
-//
-//        int nPredictedLevel = pMP->PredictScale(dist,pKF);
-//
-//        // Search in a radius
-//        const float radius = th*pKF->mvScaleFactors[nPredictedLevel];
-//
-//        const vector<size_t> vIndices = pKF->GetFeaturesInArea(u,v,radius);
-//
-//        if(vIndices.empty())
-//            continue;
-//
-//        // Match to the most similar keypoint in the radius
-//        const cv::Mat dMP = pMP->GetDescriptor();
-//
-//        int bestDist = 256;
-//        int bestIdx = -1;
-//        for(vector<size_t>::const_iterator vit=vIndices.begin(), vend=vIndices.end(); vit!=vend; vit++)
-//        {
-//            const size_t idx = *vit;
-//            if(vpMatched[idx])
-//                continue;
-//
-//            const int &kpLevel= pKF->mvKeysUn[idx].octave;
-//
-//            if(kpLevel<nPredictedLevel-1 || kpLevel>nPredictedLevel)
-//                continue;
-//
-//            const cv::Mat &dKF = pKF->mDescriptors.row(idx);
-//
-//            const int dist = DescriptorDistance(dMP,dKF);
-//
-//            if(dist<bestDist)
-//            {
-//                bestDist = dist;
-//                bestIdx = idx;
-//            }
-//        }
-//
-//        if(bestDist<=TH_LOW)
-//        {
-//            vpMatched[bestIdx]=pMP;
-//            nmatches++;
-//        }
-//
-//    }
-//
-//    return nmatches;
-//}
+
+int ORBmatcher::SearchByProjection(SLCVKeyFrame* pKF, cv::Mat Scw, const vector<SLCVMapPoint*> &vpPoints, vector<SLCVMapPoint*> &vpMatched, int th)
+{
+    // Get Calibration Parameters for later projection
+    const float &fx = pKF->fx;
+    const float &fy = pKF->fy;
+    const float &cx = pKF->cx;
+    const float &cy = pKF->cy;
+
+    // Decompose Scw
+    cv::Mat sRcw = Scw.rowRange(0,3).colRange(0,3);
+    const float scw = sqrt(sRcw.row(0).dot(sRcw.row(0)));
+    cv::Mat Rcw = sRcw/scw;
+    cv::Mat tcw = Scw.rowRange(0,3).col(3)/scw;
+    cv::Mat Ow = -Rcw.t()*tcw;
+
+    // Set of MapPoints already found in the SLCVKeyFrame
+    set<SLCVMapPoint*> spAlreadyFound(vpMatched.begin(), vpMatched.end());
+    spAlreadyFound.erase(static_cast<SLCVMapPoint*>(NULL));
+
+    int nmatches=0;
+
+    // For each Candidate SLCVMapPoint Project and Match
+    for(int iMP=0, iendMP=vpPoints.size(); iMP<iendMP; iMP++)
+    {
+        SLCVMapPoint* pMP = vpPoints[iMP];
+
+        // Discard Bad MapPoints and already found
+        if(pMP->isBad() || spAlreadyFound.count(pMP))
+            continue;
+
+        // Get 3D Coords.
+        cv::Mat p3Dw = pMP->GetWorldPos();
+
+        // Transform into Camera Coords.
+        cv::Mat p3Dc = Rcw*p3Dw+tcw;
+
+        // Depth must be positive
+        if(p3Dc.at<float>(2)<0.0)
+            continue;
+
+        // Project into Image
+        const float invz = 1/p3Dc.at<float>(2);
+        const float x = p3Dc.at<float>(0)*invz;
+        const float y = p3Dc.at<float>(1)*invz;
+
+        const float u = fx*x+cx;
+        const float v = fy*y+cy;
+
+        // Point must be inside the image
+        if(!pKF->IsInImage(u,v))
+            continue;
+
+        // Depth must be inside the scale invariance region of the point
+        const float maxDistance = pMP->GetMaxDistanceInvariance();
+        const float minDistance = pMP->GetMinDistanceInvariance();
+        cv::Mat PO = p3Dw-Ow;
+        const float dist = cv::norm(PO);
+
+        if(dist<minDistance || dist>maxDistance)
+            continue;
+
+        // Viewing angle must be less than 60 deg
+        cv::Mat Pn = pMP->GetNormal();
+
+        if(PO.dot(Pn)<0.5*dist)
+            continue;
+
+        int nPredictedLevel = pMP->PredictScale(dist,pKF);
+
+        // Search in a radius
+        const float radius = th*pKF->mvScaleFactors[nPredictedLevel];
+
+        const vector<size_t> vIndices = pKF->GetFeaturesInArea(u,v,radius);
+
+        if(vIndices.empty())
+            continue;
+
+        // Match to the most similar keypoint in the radius
+        const cv::Mat dMP = pMP->GetDescriptor();
+
+        int bestDist = 256;
+        int bestIdx = -1;
+        for(vector<size_t>::const_iterator vit=vIndices.begin(), vend=vIndices.end(); vit!=vend; vit++)
+        {
+            const size_t idx = *vit;
+            if(vpMatched[idx])
+                continue;
+
+            const int &kpLevel= pKF->mvKeysUn[idx].octave;
+
+            if(kpLevel<nPredictedLevel-1 || kpLevel>nPredictedLevel)
+                continue;
+
+            const cv::Mat &dKF = pKF->mDescriptors.row(idx);
+
+            const int dist = DescriptorDistance(dMP,dKF);
+
+            if(dist<bestDist)
+            {
+                bestDist = dist;
+                bestIdx = idx;
+            }
+        }
+
+        if(bestDist<=TH_LOW)
+        {
+            vpMatched[bestIdx]=pMP;
+            nmatches++;
+        }
+
+    }
+
+    return nmatches;
+}
 
 int ORBmatcher::SearchForInitialization(SLCVFrame &F1, SLCVFrame &F2, vector<cv::Point2f> &vbPrevMatched, vector<int> &vnMatches12, int windowSize)
 {
@@ -525,141 +525,141 @@ int ORBmatcher::SearchForInitialization(SLCVFrame &F1, SLCVFrame &F2, vector<cv:
     return nmatches;
 }
 
-//int ORBmatcher::SearchByBoW(SLCVKeyFrame *pKF1, SLCVKeyFrame *pKF2, vector<SLCVMapPoint *> &vpMatches12)
-//{
-//    const vector<cv::KeyPoint> &vKeysUn1 = pKF1->mvKeysUn;
-//    const DBoW2::FeatureVector &vFeatVec1 = pKF1->mFeatVec;
-//    const vector<SLCVMapPoint*> vpMapPoints1 = pKF1->GetMapPointMatches();
-//    const cv::Mat &Descriptors1 = pKF1->mDescriptors;
-//
-//    const vector<cv::KeyPoint> &vKeysUn2 = pKF2->mvKeysUn;
-//    const DBoW2::FeatureVector &vFeatVec2 = pKF2->mFeatVec;
-//    const vector<SLCVMapPoint*> vpMapPoints2 = pKF2->GetMapPointMatches();
-//    const cv::Mat &Descriptors2 = pKF2->mDescriptors;
-//
-//    vpMatches12 = vector<SLCVMapPoint*>(vpMapPoints1.size(),static_cast<SLCVMapPoint*>(NULL));
-//    vector<bool> vbMatched2(vpMapPoints2.size(),false);
-//
-//    vector<int> rotHist[HISTO_LENGTH];
-//    for(int i=0;i<HISTO_LENGTH;i++)
-//        rotHist[i].reserve(500);
-//
-//    const float factor = 1.0f/HISTO_LENGTH;
-//
-//    int nmatches = 0;
-//
-//    DBoW2::FeatureVector::const_iterator f1it = vFeatVec1.begin();
-//    DBoW2::FeatureVector::const_iterator f2it = vFeatVec2.begin();
-//    DBoW2::FeatureVector::const_iterator f1end = vFeatVec1.end();
-//    DBoW2::FeatureVector::const_iterator f2end = vFeatVec2.end();
-//
-//    while(f1it != f1end && f2it != f2end)
-//    {
-//        if(f1it->first == f2it->first)
-//        {
-//            for(size_t i1=0, iend1=f1it->second.size(); i1<iend1; i1++)
-//            {
-//                const size_t idx1 = f1it->second[i1];
-//
-//                SLCVMapPoint* pMP1 = vpMapPoints1[idx1];
-//                if(!pMP1)
-//                    continue;
-//                if(pMP1->isBad())
-//                    continue;
-//
-//                const cv::Mat &d1 = Descriptors1.row(idx1);
-//
-//                int bestDist1=256;
-//                int bestIdx2 =-1 ;
-//                int bestDist2=256;
-//
-//                for(size_t i2=0, iend2=f2it->second.size(); i2<iend2; i2++)
-//                {
-//                    const size_t idx2 = f2it->second[i2];
-//
-//                    SLCVMapPoint* pMP2 = vpMapPoints2[idx2];
-//
-//                    if(vbMatched2[idx2] || !pMP2)
-//                        continue;
-//
-//                    if(pMP2->isBad())
-//                        continue;
-//
-//                    const cv::Mat &d2 = Descriptors2.row(idx2);
-//
-//                    int dist = DescriptorDistance(d1,d2);
-//
-//                    if(dist<bestDist1)
-//                    {
-//                        bestDist2=bestDist1;
-//                        bestDist1=dist;
-//                        bestIdx2=idx2;
-//                    }
-//                    else if(dist<bestDist2)
-//                    {
-//                        bestDist2=dist;
-//                    }
-//                }
-//
-//                if(bestDist1<TH_LOW)
-//                {
-//                    if(static_cast<float>(bestDist1)<mfNNratio*static_cast<float>(bestDist2))
-//                    {
-//                        vpMatches12[idx1]=vpMapPoints2[bestIdx2];
-//                        vbMatched2[bestIdx2]=true;
-//
-//                        if(mbCheckOrientation)
-//                        {
-//                            float rot = vKeysUn1[idx1].angle-vKeysUn2[bestIdx2].angle;
-//                            if(rot<0.0)
-//                                rot+=360.0f;
-//                            int bin = round(rot*factor);
-//                            if(bin==HISTO_LENGTH)
-//                                bin=0;
-//                            assert(bin>=0 && bin<HISTO_LENGTH);
-//                            rotHist[bin].push_back(idx1);
-//                        }
-//                        nmatches++;
-//                    }
-//                }
-//            }
-//
-//            f1it++;
-//            f2it++;
-//        }
-//        else if(f1it->first < f2it->first)
-//        {
-//            f1it = vFeatVec1.lower_bound(f2it->first);
-//        }
-//        else
-//        {
-//            f2it = vFeatVec2.lower_bound(f1it->first);
-//        }
-//    }
-//
-//    if(mbCheckOrientation)
-//    {
-//        int ind1=-1;
-//        int ind2=-1;
-//        int ind3=-1;
-//
-//        ComputeThreeMaxima(rotHist,HISTO_LENGTH,ind1,ind2,ind3);
-//
-//        for(int i=0; i<HISTO_LENGTH; i++)
-//        {
-//            if(i==ind1 || i==ind2 || i==ind3)
-//                continue;
-//            for(size_t j=0, jend=rotHist[i].size(); j<jend; j++)
-//            {
-//                vpMatches12[rotHist[i][j]]=static_cast<SLCVMapPoint*>(NULL);
-//                nmatches--;
-//            }
-//        }
-//    }
-//
-//    return nmatches;
-//}
-//
+int ORBmatcher::SearchByBoW(SLCVKeyFrame *pKF1, SLCVKeyFrame *pKF2, vector<SLCVMapPoint *> &vpMatches12)
+{
+    const vector<cv::KeyPoint> &vKeysUn1 = pKF1->mvKeysUn;
+    const DBoW2::FeatureVector &vFeatVec1 = pKF1->mFeatVec;
+    const vector<SLCVMapPoint*> vpMapPoints1 = pKF1->GetMapPointMatches();
+    const cv::Mat &Descriptors1 = pKF1->mDescriptors;
+
+    const vector<cv::KeyPoint> &vKeysUn2 = pKF2->mvKeysUn;
+    const DBoW2::FeatureVector &vFeatVec2 = pKF2->mFeatVec;
+    const vector<SLCVMapPoint*> vpMapPoints2 = pKF2->GetMapPointMatches();
+    const cv::Mat &Descriptors2 = pKF2->mDescriptors;
+
+    vpMatches12 = vector<SLCVMapPoint*>(vpMapPoints1.size(),static_cast<SLCVMapPoint*>(NULL));
+    vector<bool> vbMatched2(vpMapPoints2.size(),false);
+
+    vector<int> rotHist[HISTO_LENGTH];
+    for(int i=0;i<HISTO_LENGTH;i++)
+        rotHist[i].reserve(500);
+
+    const float factor = 1.0f/HISTO_LENGTH;
+
+    int nmatches = 0;
+
+    DBoW2::FeatureVector::const_iterator f1it = vFeatVec1.begin();
+    DBoW2::FeatureVector::const_iterator f2it = vFeatVec2.begin();
+    DBoW2::FeatureVector::const_iterator f1end = vFeatVec1.end();
+    DBoW2::FeatureVector::const_iterator f2end = vFeatVec2.end();
+
+    while(f1it != f1end && f2it != f2end)
+    {
+        if(f1it->first == f2it->first)
+        {
+            for(size_t i1=0, iend1=f1it->second.size(); i1<iend1; i1++)
+            {
+                const size_t idx1 = f1it->second[i1];
+
+                SLCVMapPoint* pMP1 = vpMapPoints1[idx1];
+                if(!pMP1)
+                    continue;
+                if(pMP1->isBad())
+                    continue;
+
+                const cv::Mat &d1 = Descriptors1.row(idx1);
+
+                int bestDist1=256;
+                int bestIdx2 =-1 ;
+                int bestDist2=256;
+
+                for(size_t i2=0, iend2=f2it->second.size(); i2<iend2; i2++)
+                {
+                    const size_t idx2 = f2it->second[i2];
+
+                    SLCVMapPoint* pMP2 = vpMapPoints2[idx2];
+
+                    if(vbMatched2[idx2] || !pMP2)
+                        continue;
+
+                    if(pMP2->isBad())
+                        continue;
+
+                    const cv::Mat &d2 = Descriptors2.row(idx2);
+
+                    int dist = DescriptorDistance(d1,d2);
+
+                    if(dist<bestDist1)
+                    {
+                        bestDist2=bestDist1;
+                        bestDist1=dist;
+                        bestIdx2=idx2;
+                    }
+                    else if(dist<bestDist2)
+                    {
+                        bestDist2=dist;
+                    }
+                }
+
+                if(bestDist1<TH_LOW)
+                {
+                    if(static_cast<float>(bestDist1)<mfNNratio*static_cast<float>(bestDist2))
+                    {
+                        vpMatches12[idx1]=vpMapPoints2[bestIdx2];
+                        vbMatched2[bestIdx2]=true;
+
+                        if(mbCheckOrientation)
+                        {
+                            float rot = vKeysUn1[idx1].angle-vKeysUn2[bestIdx2].angle;
+                            if(rot<0.0)
+                                rot+=360.0f;
+                            int bin = round(rot*factor);
+                            if(bin==HISTO_LENGTH)
+                                bin=0;
+                            assert(bin>=0 && bin<HISTO_LENGTH);
+                            rotHist[bin].push_back(idx1);
+                        }
+                        nmatches++;
+                    }
+                }
+            }
+
+            f1it++;
+            f2it++;
+        }
+        else if(f1it->first < f2it->first)
+        {
+            f1it = vFeatVec1.lower_bound(f2it->first);
+        }
+        else
+        {
+            f2it = vFeatVec2.lower_bound(f1it->first);
+        }
+    }
+
+    if(mbCheckOrientation)
+    {
+        int ind1=-1;
+        int ind2=-1;
+        int ind3=-1;
+
+        ComputeThreeMaxima(rotHist,HISTO_LENGTH,ind1,ind2,ind3);
+
+        for(int i=0; i<HISTO_LENGTH; i++)
+        {
+            if(i==ind1 || i==ind2 || i==ind3)
+                continue;
+            for(size_t j=0, jend=rotHist[i].size(); j<jend; j++)
+            {
+                vpMatches12[rotHist[i][j]]=static_cast<SLCVMapPoint*>(NULL);
+                nmatches--;
+            }
+        }
+    }
+
+    return nmatches;
+}
+
 int ORBmatcher::SearchForTriangulation(SLCVKeyFrame *pKF1, SLCVKeyFrame *pKF2, cv::Mat F12,
                                        vector<pair<size_t, size_t> > &vMatchedPairs, const bool bOnlyStereo)
 {    
@@ -982,356 +982,356 @@ int ORBmatcher::Fuse(SLCVKeyFrame *pKF, const vector<SLCVMapPoint *> &vpMapPoint
     return nFused;
 }
 
-//int ORBmatcher::Fuse(SLCVKeyFrame *pKF, cv::Mat Scw, const vector<SLCVMapPoint *> &vpPoints, float th, vector<SLCVMapPoint *> &vpReplacePoint)
-//{
-//    // Get Calibration Parameters for later projection
-//    const float &fx = pKF->fx;
-//    const float &fy = pKF->fy;
-//    const float &cx = pKF->cx;
-//    const float &cy = pKF->cy;
-//
-//    // Decompose Scw
-//    cv::Mat sRcw = Scw.rowRange(0,3).colRange(0,3);
-//    const float scw = sqrt(sRcw.row(0).dot(sRcw.row(0)));
-//    cv::Mat Rcw = sRcw/scw;
-//    cv::Mat tcw = Scw.rowRange(0,3).col(3)/scw;
-//    cv::Mat Ow = -Rcw.t()*tcw;
-//
-//    // Set of MapPoints already found in the SLCVKeyFrame
-//    const set<SLCVMapPoint*> spAlreadyFound = pKF->GetMapPoints();
-//
-//    int nFused=0;
-//
-//    const int nPoints = vpPoints.size();
-//
-//    // For each candidate SLCVMapPoint project and match
-//    for(int iMP=0; iMP<nPoints; iMP++)
-//    {
-//        SLCVMapPoint* pMP = vpPoints[iMP];
-//
-//        // Discard Bad MapPoints and already found
-//        if(pMP->isBad() || spAlreadyFound.count(pMP))
-//            continue;
-//
-//        // Get 3D Coords.
-//        cv::Mat p3Dw = pMP->GetWorldPos();
-//
-//        // Transform into Camera Coords.
-//        cv::Mat p3Dc = Rcw*p3Dw+tcw;
-//
-//        // Depth must be positive
-//        if(p3Dc.at<float>(2)<0.0f)
-//            continue;
-//
-//        // Project into Image
-//        const float invz = 1.0/p3Dc.at<float>(2);
-//        const float x = p3Dc.at<float>(0)*invz;
-//        const float y = p3Dc.at<float>(1)*invz;
-//
-//        const float u = fx*x+cx;
-//        const float v = fy*y+cy;
-//
-//        // Point must be inside the image
-//        if(!pKF->IsInImage(u,v))
-//            continue;
-//
-//        // Depth must be inside the scale pyramid of the image
-//        const float maxDistance = pMP->GetMaxDistanceInvariance();
-//        const float minDistance = pMP->GetMinDistanceInvariance();
-//        cv::Mat PO = p3Dw-Ow;
-//        const float dist3D = cv::norm(PO);
-//
-//        if(dist3D<minDistance || dist3D>maxDistance)
-//            continue;
-//
-//        // Viewing angle must be less than 60 deg
-//        cv::Mat Pn = pMP->GetNormal();
-//
-//        if(PO.dot(Pn)<0.5*dist3D)
-//            continue;
-//
-//        // Compute predicted scale level
-//        const int nPredictedLevel = pMP->PredictScale(dist3D,pKF);
-//
-//        // Search in a radius
-//        const float radius = th*pKF->mvScaleFactors[nPredictedLevel];
-//
-//        const vector<size_t> vIndices = pKF->GetFeaturesInArea(u,v,radius);
-//
-//        if(vIndices.empty())
-//            continue;
-//
-//        // Match to the most similar keypoint in the radius
-//
-//        const cv::Mat dMP = pMP->GetDescriptor();
-//
-//        int bestDist = INT_MAX;
-//        int bestIdx = -1;
-//        for(vector<size_t>::const_iterator vit=vIndices.begin(); vit!=vIndices.end(); vit++)
-//        {
-//            const size_t idx = *vit;
-//            const int &kpLevel = pKF->mvKeysUn[idx].octave;
-//
-//            if(kpLevel<nPredictedLevel-1 || kpLevel>nPredictedLevel)
-//                continue;
-//
-//            const cv::Mat &dKF = pKF->mDescriptors.row(idx);
-//
-//            int dist = DescriptorDistance(dMP,dKF);
-//
-//            if(dist<bestDist)
-//            {
-//                bestDist = dist;
-//                bestIdx = idx;
-//            }
-//        }
-//
-//        // If there is already a SLCVMapPoint replace otherwise add new measurement
-//        if(bestDist<=TH_LOW)
-//        {
-//            SLCVMapPoint* pMPinKF = pKF->GetMapPoint(bestIdx);
-//            if(pMPinKF)
-//            {
-//                if(!pMPinKF->isBad())
-//                    vpReplacePoint[iMP] = pMPinKF;
-//            }
-//            else
-//            {
-//                pMP->AddObservation(pKF,bestIdx);
-//                pKF->AddMapPoint(pMP,bestIdx);
-//            }
-//            nFused++;
-//        }
-//    }
-//
-//    return nFused;
-//}
-//
-//int ORBmatcher::SearchBySim3(SLCVKeyFrame *pKF1, SLCVKeyFrame *pKF2, vector<SLCVMapPoint*> &vpMatches12,
-//                             const float &s12, const cv::Mat &R12, const cv::Mat &t12, const float th)
-//{
-//    const float &fx = pKF1->fx;
-//    const float &fy = pKF1->fy;
-//    const float &cx = pKF1->cx;
-//    const float &cy = pKF1->cy;
-//
-//    // Camera 1 from world
-//    cv::Mat R1w = pKF1->GetRotation();
-//    cv::Mat t1w = pKF1->GetTranslation();
-//
-//    //Camera 2 from world
-//    cv::Mat R2w = pKF2->GetRotation();
-//    cv::Mat t2w = pKF2->GetTranslation();
-//
-//    //Transformation between cameras
-//    cv::Mat sR12 = s12*R12;
-//    cv::Mat sR21 = (1.0/s12)*R12.t();
-//    cv::Mat t21 = -sR21*t12;
-//
-//    const vector<SLCVMapPoint*> vpMapPoints1 = pKF1->GetMapPointMatches();
-//    const int N1 = vpMapPoints1.size();
-//
-//    const vector<SLCVMapPoint*> vpMapPoints2 = pKF2->GetMapPointMatches();
-//    const int N2 = vpMapPoints2.size();
-//
-//    vector<bool> vbAlreadyMatched1(N1,false);
-//    vector<bool> vbAlreadyMatched2(N2,false);
-//
-//    for(int i=0; i<N1; i++)
-//    {
-//        SLCVMapPoint* pMP = vpMatches12[i];
-//        if(pMP)
-//        {
-//            vbAlreadyMatched1[i]=true;
-//            int idx2 = pMP->GetIndexInKeyFrame(pKF2);
-//            if(idx2>=0 && idx2<N2)
-//                vbAlreadyMatched2[idx2]=true;
-//        }
-//    }
-//
-//    vector<int> vnMatch1(N1,-1);
-//    vector<int> vnMatch2(N2,-1);
-//
-//    // Transform from KF1 to KF2 and search
-//    for(int i1=0; i1<N1; i1++)
-//    {
-//        SLCVMapPoint* pMP = vpMapPoints1[i1];
-//
-//        if(!pMP || vbAlreadyMatched1[i1])
-//            continue;
-//
-//        if(pMP->isBad())
-//            continue;
-//
-//        cv::Mat p3Dw = pMP->GetWorldPos();
-//        cv::Mat p3Dc1 = R1w*p3Dw + t1w;
-//        cv::Mat p3Dc2 = sR21*p3Dc1 + t21;
-//
-//        // Depth must be positive
-//        if(p3Dc2.at<float>(2)<0.0)
-//            continue;
-//
-//        const float invz = 1.0/p3Dc2.at<float>(2);
-//        const float x = p3Dc2.at<float>(0)*invz;
-//        const float y = p3Dc2.at<float>(1)*invz;
-//
-//        const float u = fx*x+cx;
-//        const float v = fy*y+cy;
-//
-//        // Point must be inside the image
-//        if(!pKF2->IsInImage(u,v))
-//            continue;
-//
-//        const float maxDistance = pMP->GetMaxDistanceInvariance();
-//        const float minDistance = pMP->GetMinDistanceInvariance();
-//        const float dist3D = cv::norm(p3Dc2);
-//
-//        // Depth must be inside the scale invariance region
-//        if(dist3D<minDistance || dist3D>maxDistance )
-//            continue;
-//
-//        // Compute predicted octave
-//        const int nPredictedLevel = pMP->PredictScale(dist3D,pKF2);
-//
-//        // Search in a radius
-//        const float radius = th*pKF2->mvScaleFactors[nPredictedLevel];
-//
-//        const vector<size_t> vIndices = pKF2->GetFeaturesInArea(u,v,radius);
-//
-//        if(vIndices.empty())
-//            continue;
-//
-//        // Match to the most similar keypoint in the radius
-//        const cv::Mat dMP = pMP->GetDescriptor();
-//
-//        int bestDist = INT_MAX;
-//        int bestIdx = -1;
-//        for(vector<size_t>::const_iterator vit=vIndices.begin(), vend=vIndices.end(); vit!=vend; vit++)
-//        {
-//            const size_t idx = *vit;
-//
-//            const cv::KeyPoint &kp = pKF2->mvKeysUn[idx];
-//
-//            if(kp.octave<nPredictedLevel-1 || kp.octave>nPredictedLevel)
-//                continue;
-//
-//            const cv::Mat &dKF = pKF2->mDescriptors.row(idx);
-//
-//            const int dist = DescriptorDistance(dMP,dKF);
-//
-//            if(dist<bestDist)
-//            {
-//                bestDist = dist;
-//                bestIdx = idx;
-//            }
-//        }
-//
-//        if(bestDist<=TH_HIGH)
-//        {
-//            vnMatch1[i1]=bestIdx;
-//        }
-//    }
-//
-//    // Transform from KF2 to KF2 and search
-//    for(int i2=0; i2<N2; i2++)
-//    {
-//        SLCVMapPoint* pMP = vpMapPoints2[i2];
-//
-//        if(!pMP || vbAlreadyMatched2[i2])
-//            continue;
-//
-//        if(pMP->isBad())
-//            continue;
-//
-//        cv::Mat p3Dw = pMP->GetWorldPos();
-//        cv::Mat p3Dc2 = R2w*p3Dw + t2w;
-//        cv::Mat p3Dc1 = sR12*p3Dc2 + t12;
-//
-//        // Depth must be positive
-//        if(p3Dc1.at<float>(2)<0.0)
-//            continue;
-//
-//        const float invz = 1.0/p3Dc1.at<float>(2);
-//        const float x = p3Dc1.at<float>(0)*invz;
-//        const float y = p3Dc1.at<float>(1)*invz;
-//
-//        const float u = fx*x+cx;
-//        const float v = fy*y+cy;
-//
-//        // Point must be inside the image
-//        if(!pKF1->IsInImage(u,v))
-//            continue;
-//
-//        const float maxDistance = pMP->GetMaxDistanceInvariance();
-//        const float minDistance = pMP->GetMinDistanceInvariance();
-//        const float dist3D = cv::norm(p3Dc1);
-//
-//        // Depth must be inside the scale pyramid of the image
-//        if(dist3D<minDistance || dist3D>maxDistance)
-//            continue;
-//
-//        // Compute predicted octave
-//        const int nPredictedLevel = pMP->PredictScale(dist3D,pKF1);
-//
-//        // Search in a radius of 2.5*sigma(ScaleLevel)
-//        const float radius = th*pKF1->mvScaleFactors[nPredictedLevel];
-//
-//        const vector<size_t> vIndices = pKF1->GetFeaturesInArea(u,v,radius);
-//
-//        if(vIndices.empty())
-//            continue;
-//
-//        // Match to the most similar keypoint in the radius
-//        const cv::Mat dMP = pMP->GetDescriptor();
-//
-//        int bestDist = INT_MAX;
-//        int bestIdx = -1;
-//        for(vector<size_t>::const_iterator vit=vIndices.begin(), vend=vIndices.end(); vit!=vend; vit++)
-//        {
-//            const size_t idx = *vit;
-//
-//            const cv::KeyPoint &kp = pKF1->mvKeysUn[idx];
-//
-//            if(kp.octave<nPredictedLevel-1 || kp.octave>nPredictedLevel)
-//                continue;
-//
-//            const cv::Mat &dKF = pKF1->mDescriptors.row(idx);
-//
-//            const int dist = DescriptorDistance(dMP,dKF);
-//
-//            if(dist<bestDist)
-//            {
-//                bestDist = dist;
-//                bestIdx = idx;
-//            }
-//        }
-//
-//        if(bestDist<=TH_HIGH)
-//        {
-//            vnMatch2[i2]=bestIdx;
-//        }
-//    }
-//
-//    // Check agreement
-//    int nFound = 0;
-//
-//    for(int i1=0; i1<N1; i1++)
-//    {
-//        int idx2 = vnMatch1[i1];
-//
-//        if(idx2>=0)
-//        {
-//            int idx1 = vnMatch2[idx2];
-//            if(idx1==i1)
-//            {
-//                vpMatches12[i1] = vpMapPoints2[idx2];
-//                nFound++;
-//            }
-//        }
-//    }
-//
-//    return nFound;
-//}
+int ORBmatcher::Fuse(SLCVKeyFrame *pKF, cv::Mat Scw, const vector<SLCVMapPoint *> &vpPoints, float th, vector<SLCVMapPoint *> &vpReplacePoint)
+{
+    // Get Calibration Parameters for later projection
+    const float &fx = pKF->fx;
+    const float &fy = pKF->fy;
+    const float &cx = pKF->cx;
+    const float &cy = pKF->cy;
+
+    // Decompose Scw
+    cv::Mat sRcw = Scw.rowRange(0,3).colRange(0,3);
+    const float scw = sqrt(sRcw.row(0).dot(sRcw.row(0)));
+    cv::Mat Rcw = sRcw/scw;
+    cv::Mat tcw = Scw.rowRange(0,3).col(3)/scw;
+    cv::Mat Ow = -Rcw.t()*tcw;
+
+    // Set of MapPoints already found in the SLCVKeyFrame
+    const set<SLCVMapPoint*> spAlreadyFound = pKF->GetMapPoints();
+
+    int nFused=0;
+
+    const int nPoints = vpPoints.size();
+
+    // For each candidate SLCVMapPoint project and match
+    for(int iMP=0; iMP<nPoints; iMP++)
+    {
+        SLCVMapPoint* pMP = vpPoints[iMP];
+
+        // Discard Bad MapPoints and already found
+        if(pMP->isBad() || spAlreadyFound.count(pMP))
+            continue;
+
+        // Get 3D Coords.
+        cv::Mat p3Dw = pMP->GetWorldPos();
+
+        // Transform into Camera Coords.
+        cv::Mat p3Dc = Rcw*p3Dw+tcw;
+
+        // Depth must be positive
+        if(p3Dc.at<float>(2)<0.0f)
+            continue;
+
+        // Project into Image
+        const float invz = 1.0/p3Dc.at<float>(2);
+        const float x = p3Dc.at<float>(0)*invz;
+        const float y = p3Dc.at<float>(1)*invz;
+
+        const float u = fx*x+cx;
+        const float v = fy*y+cy;
+
+        // Point must be inside the image
+        if(!pKF->IsInImage(u,v))
+            continue;
+
+        // Depth must be inside the scale pyramid of the image
+        const float maxDistance = pMP->GetMaxDistanceInvariance();
+        const float minDistance = pMP->GetMinDistanceInvariance();
+        cv::Mat PO = p3Dw-Ow;
+        const float dist3D = cv::norm(PO);
+
+        if(dist3D<minDistance || dist3D>maxDistance)
+            continue;
+
+        // Viewing angle must be less than 60 deg
+        cv::Mat Pn = pMP->GetNormal();
+
+        if(PO.dot(Pn)<0.5*dist3D)
+            continue;
+
+        // Compute predicted scale level
+        const int nPredictedLevel = pMP->PredictScale(dist3D,pKF);
+
+        // Search in a radius
+        const float radius = th*pKF->mvScaleFactors[nPredictedLevel];
+
+        const vector<size_t> vIndices = pKF->GetFeaturesInArea(u,v,radius);
+
+        if(vIndices.empty())
+            continue;
+
+        // Match to the most similar keypoint in the radius
+
+        const cv::Mat dMP = pMP->GetDescriptor();
+
+        int bestDist = INT_MAX;
+        int bestIdx = -1;
+        for(vector<size_t>::const_iterator vit=vIndices.begin(); vit!=vIndices.end(); vit++)
+        {
+            const size_t idx = *vit;
+            const int &kpLevel = pKF->mvKeysUn[idx].octave;
+
+            if(kpLevel<nPredictedLevel-1 || kpLevel>nPredictedLevel)
+                continue;
+
+            const cv::Mat &dKF = pKF->mDescriptors.row(idx);
+
+            int dist = DescriptorDistance(dMP,dKF);
+
+            if(dist<bestDist)
+            {
+                bestDist = dist;
+                bestIdx = idx;
+            }
+        }
+
+        // If there is already a SLCVMapPoint replace otherwise add new measurement
+        if(bestDist<=TH_LOW)
+        {
+            SLCVMapPoint* pMPinKF = pKF->GetMapPoint(bestIdx);
+            if(pMPinKF)
+            {
+                if(!pMPinKF->isBad())
+                    vpReplacePoint[iMP] = pMPinKF;
+            }
+            else
+            {
+                pMP->AddObservation(pKF,bestIdx);
+                pKF->AddMapPoint(pMP,bestIdx);
+            }
+            nFused++;
+        }
+    }
+
+    return nFused;
+}
+
+int ORBmatcher::SearchBySim3(SLCVKeyFrame *pKF1, SLCVKeyFrame *pKF2, vector<SLCVMapPoint*> &vpMatches12,
+                             const float &s12, const cv::Mat &R12, const cv::Mat &t12, const float th)
+{
+    const float &fx = pKF1->fx;
+    const float &fy = pKF1->fy;
+    const float &cx = pKF1->cx;
+    const float &cy = pKF1->cy;
+
+    // Camera 1 from world
+    cv::Mat R1w = pKF1->GetRotation();
+    cv::Mat t1w = pKF1->GetTranslation();
+
+    //Camera 2 from world
+    cv::Mat R2w = pKF2->GetRotation();
+    cv::Mat t2w = pKF2->GetTranslation();
+
+    //Transformation between cameras
+    cv::Mat sR12 = s12*R12;
+    cv::Mat sR21 = (1.0/s12)*R12.t();
+    cv::Mat t21 = -sR21*t12;
+
+    const vector<SLCVMapPoint*> vpMapPoints1 = pKF1->GetMapPointMatches();
+    const int N1 = vpMapPoints1.size();
+
+    const vector<SLCVMapPoint*> vpMapPoints2 = pKF2->GetMapPointMatches();
+    const int N2 = vpMapPoints2.size();
+
+    vector<bool> vbAlreadyMatched1(N1,false);
+    vector<bool> vbAlreadyMatched2(N2,false);
+
+    for(int i=0; i<N1; i++)
+    {
+        SLCVMapPoint* pMP = vpMatches12[i];
+        if(pMP)
+        {
+            vbAlreadyMatched1[i]=true;
+            int idx2 = pMP->GetIndexInKeyFrame(pKF2);
+            if(idx2>=0 && idx2<N2)
+                vbAlreadyMatched2[idx2]=true;
+        }
+    }
+
+    vector<int> vnMatch1(N1,-1);
+    vector<int> vnMatch2(N2,-1);
+
+    // Transform from KF1 to KF2 and search
+    for(int i1=0; i1<N1; i1++)
+    {
+        SLCVMapPoint* pMP = vpMapPoints1[i1];
+
+        if(!pMP || vbAlreadyMatched1[i1])
+            continue;
+
+        if(pMP->isBad())
+            continue;
+
+        cv::Mat p3Dw = pMP->GetWorldPos();
+        cv::Mat p3Dc1 = R1w*p3Dw + t1w;
+        cv::Mat p3Dc2 = sR21*p3Dc1 + t21;
+
+        // Depth must be positive
+        if(p3Dc2.at<float>(2)<0.0)
+            continue;
+
+        const float invz = 1.0/p3Dc2.at<float>(2);
+        const float x = p3Dc2.at<float>(0)*invz;
+        const float y = p3Dc2.at<float>(1)*invz;
+
+        const float u = fx*x+cx;
+        const float v = fy*y+cy;
+
+        // Point must be inside the image
+        if(!pKF2->IsInImage(u,v))
+            continue;
+
+        const float maxDistance = pMP->GetMaxDistanceInvariance();
+        const float minDistance = pMP->GetMinDistanceInvariance();
+        const float dist3D = cv::norm(p3Dc2);
+
+        // Depth must be inside the scale invariance region
+        if(dist3D<minDistance || dist3D>maxDistance )
+            continue;
+
+        // Compute predicted octave
+        const int nPredictedLevel = pMP->PredictScale(dist3D,pKF2);
+
+        // Search in a radius
+        const float radius = th*pKF2->mvScaleFactors[nPredictedLevel];
+
+        const vector<size_t> vIndices = pKF2->GetFeaturesInArea(u,v,radius);
+
+        if(vIndices.empty())
+            continue;
+
+        // Match to the most similar keypoint in the radius
+        const cv::Mat dMP = pMP->GetDescriptor();
+
+        int bestDist = INT_MAX;
+        int bestIdx = -1;
+        for(vector<size_t>::const_iterator vit=vIndices.begin(), vend=vIndices.end(); vit!=vend; vit++)
+        {
+            const size_t idx = *vit;
+
+            const cv::KeyPoint &kp = pKF2->mvKeysUn[idx];
+
+            if(kp.octave<nPredictedLevel-1 || kp.octave>nPredictedLevel)
+                continue;
+
+            const cv::Mat &dKF = pKF2->mDescriptors.row(idx);
+
+            const int dist = DescriptorDistance(dMP,dKF);
+
+            if(dist<bestDist)
+            {
+                bestDist = dist;
+                bestIdx = idx;
+            }
+        }
+
+        if(bestDist<=TH_HIGH)
+        {
+            vnMatch1[i1]=bestIdx;
+        }
+    }
+
+    // Transform from KF2 to KF2 and search
+    for(int i2=0; i2<N2; i2++)
+    {
+        SLCVMapPoint* pMP = vpMapPoints2[i2];
+
+        if(!pMP || vbAlreadyMatched2[i2])
+            continue;
+
+        if(pMP->isBad())
+            continue;
+
+        cv::Mat p3Dw = pMP->GetWorldPos();
+        cv::Mat p3Dc2 = R2w*p3Dw + t2w;
+        cv::Mat p3Dc1 = sR12*p3Dc2 + t12;
+
+        // Depth must be positive
+        if(p3Dc1.at<float>(2)<0.0)
+            continue;
+
+        const float invz = 1.0/p3Dc1.at<float>(2);
+        const float x = p3Dc1.at<float>(0)*invz;
+        const float y = p3Dc1.at<float>(1)*invz;
+
+        const float u = fx*x+cx;
+        const float v = fy*y+cy;
+
+        // Point must be inside the image
+        if(!pKF1->IsInImage(u,v))
+            continue;
+
+        const float maxDistance = pMP->GetMaxDistanceInvariance();
+        const float minDistance = pMP->GetMinDistanceInvariance();
+        const float dist3D = cv::norm(p3Dc1);
+
+        // Depth must be inside the scale pyramid of the image
+        if(dist3D<minDistance || dist3D>maxDistance)
+            continue;
+
+        // Compute predicted octave
+        const int nPredictedLevel = pMP->PredictScale(dist3D,pKF1);
+
+        // Search in a radius of 2.5*sigma(ScaleLevel)
+        const float radius = th*pKF1->mvScaleFactors[nPredictedLevel];
+
+        const vector<size_t> vIndices = pKF1->GetFeaturesInArea(u,v,radius);
+
+        if(vIndices.empty())
+            continue;
+
+        // Match to the most similar keypoint in the radius
+        const cv::Mat dMP = pMP->GetDescriptor();
+
+        int bestDist = INT_MAX;
+        int bestIdx = -1;
+        for(vector<size_t>::const_iterator vit=vIndices.begin(), vend=vIndices.end(); vit!=vend; vit++)
+        {
+            const size_t idx = *vit;
+
+            const cv::KeyPoint &kp = pKF1->mvKeysUn[idx];
+
+            if(kp.octave<nPredictedLevel-1 || kp.octave>nPredictedLevel)
+                continue;
+
+            const cv::Mat &dKF = pKF1->mDescriptors.row(idx);
+
+            const int dist = DescriptorDistance(dMP,dKF);
+
+            if(dist<bestDist)
+            {
+                bestDist = dist;
+                bestIdx = idx;
+            }
+        }
+
+        if(bestDist<=TH_HIGH)
+        {
+            vnMatch2[i2]=bestIdx;
+        }
+    }
+
+    // Check agreement
+    int nFound = 0;
+
+    for(int i1=0; i1<N1; i1++)
+    {
+        int idx2 = vnMatch1[i1];
+
+        if(idx2>=0)
+        {
+            int idx1 = vnMatch2[idx2];
+            if(idx1==i1)
+            {
+                vpMatches12[i1] = vpMapPoints2[idx2];
+                nFound++;
+            }
+        }
+    }
+
+    return nFound;
+}
 
 int ORBmatcher::SearchByProjection(SLCVFrame &CurrentFrame, const SLCVFrame &LastFrame, const float th, const bool bMono)
 {

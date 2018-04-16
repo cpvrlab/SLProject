@@ -61,6 +61,8 @@ public:
     void EraseMapPoint(SLCVMapPoint *pMP);
     void EraseKeyFrame(SLCVKeyFrame* pKF);
     void SetReferenceMapPoints(const std::vector<SLCVMapPoint*> &vpMPs);
+    void InformNewBigChange();
+    int GetLastBigChangeIdx();
 
     std::vector<SLCVKeyFrame*> GetAllKeyFrames();
     std::vector<SLCVMapPoint*> GetAllMapPoints();
@@ -68,12 +70,11 @@ public:
     long unsigned int MapPointsInMap();
     long unsigned int KeyFramesInMap();
 
+    long unsigned int GetMaxKFid();
+
     void clear();
 
     vector<SLCVKeyFrame*> mvpKeyFrameOrigins;
-
-    //const std::set<SLCVMapPoint*>& GetAllMapPointsConstRef() const;
-    //std::set<SLCVMapPoint*>& GetAllMapPointsRef();
 
     //set map node for visu update
     void setMapNode(SLCVMapNode* mapNode);
@@ -95,22 +96,11 @@ protected:
 
     long unsigned int mnMaxKFid;
 
+    // Index related to a big change in the map (loop closure, global BA)
+    int mnBigChangeIdx;
+
 
     SLCVMapNode* _mapNode = NULL;
-
-    //SLCVKeyFrameDB* getKeyFrameDB() { return mpKeyFrameDatabase; }
-
-    //! get visual representation as SLPoints
-    //SLPoints* getSceneObject();
-    //SLPoints* getNewSceneObject();
-
-    //void setKeyFrameDB(SLCVKeyFrameDB* kfDB) { mpKeyFrameDatabase = kfDB; }
-
-
-    //Pointer to visual representation object (ATTENTION: do not delete this object)
-    //SLPoints* _sceneObject = NULL;
-
-    //SLCVKeyFrameDB* mpKeyFrameDatabase=NULL;
 };
 
 #endif // !SLCVMAP_H

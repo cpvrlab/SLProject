@@ -42,7 +42,7 @@ using namespace cv;
 
 //-----------------------------------------------------------------------------
 SLCVMap::SLCVMap(const string& name)
-    : mnMaxKFid(0),
+    : mnMaxKFid(0), mnBigChangeIdx(0),
     _mapNode(NULL)
 {
 }
@@ -90,6 +90,18 @@ void SLCVMap::SetReferenceMapPoints(const vector<SLCVMapPoint*> &vpMPs)
     mvpReferenceMapPoints = vpMPs;
 }
 //-----------------------------------------------------------------------------
+void SLCVMap::InformNewBigChange()
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    mnBigChangeIdx++;
+}
+//-----------------------------------------------------------------------------
+int SLCVMap::GetLastBigChangeIdx()
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    return mnBigChangeIdx;
+}
+//-----------------------------------------------------------------------------
 std::vector<SLCVKeyFrame*> SLCVMap::GetAllKeyFrames()
 {
     return vector<SLCVKeyFrame*>(mspKeyFrames.begin(), mspKeyFrames.end());
@@ -112,6 +124,12 @@ long unsigned int SLCVMap::MapPointsInMap()
 {
     //unique_lock<mutex> lock(mMutexMap);
     return mspMapPoints.size();
+}
+//-----------------------------------------------------------------------------
+long unsigned int SLCVMap::GetMaxKFid()
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    return mnMaxKFid;
 }
 //-----------------------------------------------------------------------------
 void SLCVMap::clear()

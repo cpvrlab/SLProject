@@ -50,6 +50,9 @@ public:
 
     void clear();
 
+    // Loop Detection
+    std::vector<SLCVKeyFrame *> DetectLoopCandidates(SLCVKeyFrame* pKF, float minScore);
+
     // Relocalization
     std::vector<SLCVKeyFrame*> DetectRelocalizationCandidates(SLCVFrame* F);
 
