@@ -64,7 +64,7 @@ void SLCVMapTracking::calculateMeanReprojectionError()
                 if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
                 {
                     // 3D in absolute coordinates
-                    cv::Mat Pw = mCurrentFrame.mvpMapPoints[i]->worldPos();
+                    cv::Mat Pw = mCurrentFrame.mvpMapPoints[i]->GetWorldPos();
                     // 3D in camera coordinates
                     const cv::Mat Pc = Rcw*Pw + tcw;
                     const float &PcX = Pc.at<float>(0);

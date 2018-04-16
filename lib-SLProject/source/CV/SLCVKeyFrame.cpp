@@ -485,8 +485,7 @@ float SLCVKeyFrame::ComputeSceneMedianDepth(const int q)
         if (mvpMapPoints[i])
         {
             SLCVMapPoint* pMP = mvpMapPoints[i];
-            //cv::Mat x3Dw = pMP->GetWorldPos();
-            cv::Mat x3Dw = pMP->worldPos();
+            cv::Mat x3Dw = pMP->GetWorldPos();
             float z = Rcw2.dot(x3Dw) + zcw;
             vDepths.push_back(z);
         }

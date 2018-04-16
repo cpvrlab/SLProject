@@ -220,9 +220,9 @@ void SLCVSlamStateLoader::loadMapPoints(SLCVMap& map)
         SLCVMapPoint* newPt = new SLCVMapPoint(id, mWorldPos, &map);
 
         //level
-        int level;
-        (*it)["level"] >> level;
-        newPt->level(level);
+        //int level;
+        //(*it)["level"] >> level;
+        //newPt->level(level);
 
         //get observing keyframes
         vector<int> observingKfIds;

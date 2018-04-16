@@ -155,8 +155,8 @@ void SLCVMap::rotate(float value, int type)
     Mat rot33 = rot.rowRange(0, 3).colRange(0, 3);
     for (auto& pt : mspMapPoints)
     {
-        Pw = rot33 * pt->worldPos();
-        pt->worldPos(rot33 * pt->worldPos());
+        Pw = rot33 * pt->GetWorldPos();
+        pt->SetWorldPos(rot33 * pt->GetWorldPos());
     }
 }
 //-----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ void SLCVMap::translate(float value, int type)
     //rotate keypoints
     for (auto& pt : mspMapPoints)
     {
-        pt->worldPos(trans + pt->worldPos());
+        pt->SetWorldPos(trans + pt->GetWorldPos());
     }
 }
 //-----------------------------------------------------------------------------
@@ -198,7 +198,7 @@ void SLCVMap::scale(float value)
     //rotate keypoints
     for (auto& pt : mspMapPoints)
     {
-        pt->worldPos(value * pt->worldPos());
+        pt->SetWorldPos(value * pt->GetWorldPos());
     }
 }
 //-----------------------------------------------------------------------------
@@ -396,9 +396,9 @@ void SLCVMap::saveState()
 
         fs << "{"; //new map for MapPoint
                    //add id
-        fs << "id" << (int)mpt->id();
+        fs << "id" << (int)mpt->mnId;
         //add position
-        fs << "mWorldPos" << mpt->worldPos();
+        fs << "mWorldPos" << mpt->GetWorldPos();
         //save keyframe observations
         auto observations = mpt->GetObservations();
         vector<int> observingKfIds;
@@ -418,9 +418,11 @@ void SLCVMap::saveState()
         //map point was generated -> first reference?)
         fs << "refKfId" << (int)mpt->refKf()->id();
 
-        //keypoint octave (level)
-        size_t kpIndex = mpt->mObservations[mpt->mpRefKF];
-        fs << "level" << mpt->refKf()->mvKeysUn[kpIndex].octave;
+        ////keypoint octave (level)
+        ////size_t kpIndex = mpt->mObservations[mpt->mpRefKF];
+        //auto obs = mpt->GetObservations();
+        //size_t kpIndex = obs[mpt->refKf()];
+        //fs << "level" << mpt->refKf()->mvKeysUn[kpIndex].octave;
 
         fs << "}"; //close map
     }

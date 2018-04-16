@@ -857,8 +857,7 @@ int ORBmatcher::Fuse(SLCVKeyFrame *pKF, const vector<SLCVMapPoint *> &vpMapPoint
         if(pMP->isBad() || pMP->IsInKeyFrame(pKF))
             continue;
 
-        //cv::Mat p3Dw = pMP->GetWorldPos();
-        cv::Mat p3Dw = pMP->worldPos();
+        cv::Mat p3Dw = pMP->GetWorldPos();
         cv::Mat p3Dc = Rcw*p3Dw + tcw;
 
         // Depth must be positive
@@ -1363,7 +1362,7 @@ int ORBmatcher::SearchByProjection(SLCVFrame &CurrentFrame, const SLCVFrame &Las
             if(!LastFrame.mvbOutlier[i])
             {
                 // Project
-                cv::Mat x3Dw = pMP->worldPos();
+                cv::Mat x3Dw = pMP->GetWorldPos();
                 cv::Mat x3Dc = Rcw*x3Dw+tcw;
 
                 const float xc = x3Dc.at<float>(0);
@@ -1495,7 +1494,7 @@ int ORBmatcher::SearchByProjection(SLCVFrame &CurrentFrame, SLCVKeyFrame *pKF, c
             if(!pMP->isBad() && !sAlreadyFound.count(pMP))
             {
                 //Project
-                cv::Mat x3Dw = pMP->worldPos();
+                cv::Mat x3Dw = pMP->GetWorldPos();
                 cv::Mat x3Dc = Rcw*x3Dw+tcw;
 
                 const float xc = x3Dc.at<float>(0);

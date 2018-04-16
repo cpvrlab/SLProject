@@ -534,8 +534,7 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
         if (vpAllMapPoints[iMP])
         {
             SLCVMapPoint* pMP = vpAllMapPoints[iMP];
-            //pMP->SetWorldPos(pMP->GetWorldPos()*invMedianDepth);
-            pMP->worldPos(pMP->worldPos()*invMedianDepth);
+            pMP->SetWorldPos(pMP->GetWorldPos()*invMedianDepth);
         }
     }
 
