@@ -12,7 +12,7 @@
 #include <stdafx.h>         // precompiled headers
 
 /*
-The OpenCV library version 3.1 with extra module must be present.
+The OpenCV library version 3.4 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
@@ -24,6 +24,7 @@ for a good top down information.
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLCVCapture.h>
+#include <SLCVCalibration.h>
 
 //-----------------------------------------------------------------------------
 // Global static variables

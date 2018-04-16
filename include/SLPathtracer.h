@@ -10,7 +10,6 @@
 #ifndef SLPATHTRACER_H
 #define SLPATHTRACER_H
 
-#include <stdafx.h>
 #include <SLRaytracer.h>
 
 //-----------------------------------------------------------------------------

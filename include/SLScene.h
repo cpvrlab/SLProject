@@ -11,25 +11,39 @@
 #ifndef SLSCENE_H
 #define SLSCENE_H
 
-#include <stdafx.h>
-#include <SLMaterial.h>
-#include <SLEventHandler.h>
+//#include <stdafx.h>
+//#include <SLMaterial.h>
+//#include <SLEventHandler.h>
+//#include <SLLight.h>
+//#include <SLNode.h>
+//#include <SLSkeleton.h>
+//#include <SLGLOculus.h>
+//#include <SLAnimManager.h>
+//#include <SLAverage.h>
+//#include <SLCVCalibration.h>
+//#include <SLDeviceRotation.h>
+//#include <SLDeviceLocation.h>
+
+#include <vector>
+#include <SL.h>
+#include <SLVec3.h>
+#include <SLVec4.h>
 #include <SLLight.h>
-#include <SLNode.h>
-#include <SLSkeleton.h>
+#include <SLAverage.h>
+#include <SLMaterial.h>
+#include <SLMesh.h>
+#include <SLEventHandler.h>
 #include <SLGLOculus.h>
 #include <SLAnimManager.h>
-#include <SLAverage.h>
-#include <SLCVCalibration.h>
-#include <SLDeviceRotation.h>
-#include <SLDeviceLocation.h>
+#include <SLTimer.h>
 
 class SLSceneView;
 class SLCVTracked;
+class SLCamera;
 
 //-----------------------------------------------------------------------------
-typedef vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
-typedef vector<SLCVTracked*> SLVCVTracker; //!< Vector of CV tracker pointers
+typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
+typedef std::vector<SLCVTracked*> SLVCVTracker; //!< Vector of CV tracker pointers
 //-----------------------------------------------------------------------------
 //! C-Callback function typedef for scene load function
 typedef void(SL_STDCALL *cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint sceneID);
@@ -86,6 +100,8 @@ class SLScene: public SLObject
             SLAvgFloat&     updateTimesMS       () {return _updateTimesMS;}
             SLAvgFloat&     trackingTimesMS     () {return _trackingTimesMS;}
             SLAvgFloat&     detectTimesMS       () {return _detectTimesMS;}
+            SLAvgFloat&     detect1TimesMS      () {return _detect1TimesMS;}
+            SLAvgFloat&     detect2TimesMS      () {return _detect2TimesMS;}
             SLAvgFloat&     matchTimesMS        () {return _matchTimesMS;}
             SLAvgFloat&     optFlowTimesMS      () {return _optFlowTimesMS;}
             SLAvgFloat&     poseTimesMS         () {return _poseTimesMS;}
@@ -156,6 +172,8 @@ class SLScene: public SLObject
             SLAvgFloat      _updateTimesMS;     //!< Averaged time for update in ms
             SLAvgFloat      _trackingTimesMS;   //!< Averaged time for video tracking in ms
             SLAvgFloat      _detectTimesMS;     //!< Averaged time for video feature detection & description in ms
+            SLAvgFloat      _detect1TimesMS;    //!< Averaged time for video feature detection subpart 1 in ms
+            SLAvgFloat      _detect2TimesMS;    //!< Averaged time for video feature detection subpart 2 in ms
             SLAvgFloat      _matchTimesMS;      //!< Averaged time for video feature matching in ms
             SLAvgFloat      _optFlowTimesMS;    //!< Averaged time for video feature optical flow tracking in ms
             SLAvgFloat      _poseTimesMS;       //!< Averaged time for video feature pose estimation in ms

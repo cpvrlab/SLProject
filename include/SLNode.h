@@ -11,12 +11,12 @@
 #ifndef SLNODE_H
 #define SLNODE_H
 
-#include <stdafx.h>
 #include <SLEnums.h>
 #include <SLMesh.h>
 #include <SLNode.h>
 #include <SLDrawBits.h>
 #include <SLEventHandler.h>
+#include <SLQuat4.h>
 
 class SLSceneView;
 class SLRay;

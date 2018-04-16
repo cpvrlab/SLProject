@@ -11,8 +11,6 @@
 #ifndef SLENUMSID_H
 #define SLENUMSID_H
 
-//#include <stdafx.h> // gets included before SL.h
-
 //-----------------------------------------------------------------------------
 //! Keyboard key codes enumeration
 enum SLKey
@@ -120,6 +118,8 @@ enum SLSceneID
     SID_VideoTrackArucoScnd,
     SID_VideoTrackFeature2DMain,
     SID_VideoTrackFeature2DScnd,
+    SID_VideoTrackFaceMain,
+    SID_VideoTrackFaceScnd,
     SID_VideoSensorAR,
 
     SID_RTMuttenzerBox,

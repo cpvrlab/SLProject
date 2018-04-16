@@ -12,7 +12,8 @@
 #ifndef SLDEVICEROTATION_H
 #define SLDEVICEROTATION_H
 
-#include <stdafx.h>
+#include <SL.h>
+#include <SLMat3.h>
 
 //-----------------------------------------------------------------------------
 //! Encapsulation of a mobile device rotation set by the device's IMU sensor

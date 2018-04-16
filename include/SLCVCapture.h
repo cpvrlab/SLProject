@@ -14,7 +14,7 @@
 #define SLCVCAPTURE_H
 
 /*
-The OpenCV library version 3.1 or above with extra module must be present.
+The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
@@ -22,8 +22,9 @@ See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 
-#include <stdafx.h>
+#include <SLEnums.h>
 #include <SLCV.h>
+#include <SLVec2.h>
 #include <opencv2/opencv.hpp>
 
 //-----------------------------------------------------------------------------

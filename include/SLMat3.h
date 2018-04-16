@@ -12,7 +12,9 @@
 #ifndef SLMAT3_H
 #define SLMAT3_H
 
+#include <iostream>
 #include <SL.h>
+#include <SLUtils.h>
 #include <SLVec3.h>
 
 //-----------------------------------------------------------------------------

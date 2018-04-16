@@ -11,7 +11,7 @@
 #ifndef SLDRAWBITS_H
 #define SLDRAWBITS_H
 
-#include <stdafx.h>
+#include <SL.h>
 
 //-----------------------------------------------------------------------------
 /*!

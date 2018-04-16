@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTracked.cpp
+//  File:      SLCVTracked.h
 //  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -12,7 +12,7 @@
 #define SLCVTRACKER_H
 
 /*
-The OpenCV library version 3.1 with extra module must be present.
+The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
@@ -20,7 +20,6 @@ See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 
-#include <stdafx.h>
 #include <SLNode.h>
 #include <SLSceneView.h>
 #include <SLCV.h>
@@ -54,6 +53,9 @@ class SLCVTracked
 
         SLMat4f     createGLMatrix      (const SLCVMat& tVec,
                                          const SLCVMat& rVec);
+        void        createRvecTvec      (const SLMat4f glMat,
+                                         SLCVMat& tVec,
+                                         SLCVMat& rVec);
         SLMat4f     calcObjectMatrix    (const SLMat4f& cameraObjectMat,
                                          const SLMat4f& objectViewMat);
 

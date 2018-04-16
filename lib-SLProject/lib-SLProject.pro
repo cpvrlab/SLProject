@@ -61,7 +61,6 @@ HEADERS += \
 ../include/SLCurve.h \
 ../include/SLCurveBezier.h \
 ../include/SLCylinder.h \
-../include/SLCVCapture.h \
 ../include/SLCV.h \
 ../include/SLCV*.h \
 ../include/SLDeviceRotation.h \
@@ -194,7 +193,8 @@ source/SLSkeleton.cpp \
 source/SL/SLSkybox.cpp \
 source/SLSpheric.cpp \
 source/SLText.cpp \
-source/SLTransferFunction.cpp
+source/SLTransferFunction.cpp \
+    source/CV/SLCVTrackedFaces.cpp
 
 OTHER_FILES += \
 ../_data/shaders/*.vert \

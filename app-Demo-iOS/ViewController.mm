@@ -18,6 +18,8 @@
 #import <CoreMotion/CoreMotion.h>
 
 // C++ includes for the SceneLibrary
+#include <SLMath.h>
+#include <SLFileSystem.h>
 #include <SLInterface.h>
 #include <SLCVCapture.h>
 #include <AppDemoGui.h>

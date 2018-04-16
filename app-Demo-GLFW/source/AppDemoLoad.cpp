@@ -36,6 +36,7 @@
 #include <SLCVCapture.h>
 #include <SLCVTrackedAruco.h>
 #include <SLCVTrackedChessboard.h>
+#include <SLCVTrackedFaces.h>
 #include <SLCVTrackedFeatures.h>
 #include <SLTransferFunction.h>
 #include <SLSkybox.h>
@@ -971,7 +972,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
     }
     else
-    if (SLApplication::sceneID == SID_ShaderCookTorrance) //................................
+    if (SLApplication::sceneID == SID_ShaderCookTorrance) //........................................
     {
        s->name("Cook-Torrance Test");
        s->info("Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. The center sphere has roughness and metallic encoded in textures.");
@@ -1412,7 +1413,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
     }
     else
-    if (SLApplication::sceneID == SID_VolumeRayCast) //......................................
+    if (SLApplication::sceneID == SID_VolumeRayCast) //.............................................
     {
         s->name("Volume Ray Cast Test");
         s->info("Volume Rendering of an angiographic MRI scan");
@@ -1476,7 +1477,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
     }
     else
-    if (SLApplication::sceneID == SID_VolumeRayCastLighted) //...............................
+    if (SLApplication::sceneID == SID_VolumeRayCastLighted) //......................................
     {
         s->name("Volume Ray Cast Lighted Test");
         s->info("Volume Rendering of an angiographic MRI scan with lighting");
@@ -2170,6 +2171,67 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         s->root3D(scene);
         SLApplication::devRot.isUsed(true);
+    }
+    else
+    if (SLApplication::sceneID == SID_VideoTrackFaceMain ||
+        SLApplication::sceneID == SID_VideoTrackFaceScnd) //........................................
+    {
+        /*
+        The tracking of markers is done in SLScene::onUpdate by calling the specific
+        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
+        object matrix (SLNode::_om). If the linked node is the active camera the found
+        transform is additionally inversed. This would be the standard augmented realtiy
+        use case.
+        */
+
+        if (SLApplication::sceneID == SID_VideoTrackFaceMain)
+        {   s->videoType(VT_MAIN);
+            s->name("Track Face (main cam.)");
+        } else
+        {   s->videoType(VT_SCND);
+            s->name("Track Face (scnd. cam.)");
+        }
+        s->info("Face and facial landmark detection.");
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0,0,0.5f);
+        cam1->clipNear(0.1f);
+        cam1->clipFar(1000.0f); // Increase to infinity?
+        cam1->setInitialState();
+        cam1->background().texture(s->videoTexture());
+
+        SLLightSpot* light1 = new SLLightSpot(10,10,10, 1);
+        light1->ambient(SLCol4f(1,1,1));
+        light1->diffuse(SLCol4f(1,1,1));
+        light1->specular(SLCol4f(1,1,1));
+        light1->attenuation(1,0,0);
+        
+        // Load sunglasses
+        SLAssimpImporter importer;
+        SLNode* glasses = importer.load("FBX/Sunglasses.fbx");
+        glasses->scale(0.01f);
+        
+        // Add axis arrows at world center
+        SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(0.03f);
+
+        // Scene structure
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light1);
+        scene->addChild(cam1);
+        scene->addChild(glasses);
+        scene->addChild(axis);
+
+        // Add a face tracker that moves the camera node
+        s->trackers().push_back(new SLCVTrackedFaces(cam1, 3));
+
+        s->showDetection(true);
+
+        sv->doWaitOnIdle(false); // for constant video feed
+        sv->camera(cam1);
+
+        s->root3D(scene);
     }
     else
     if (SLApplication::sceneID == SID_VideoSensorAR) //.............................................

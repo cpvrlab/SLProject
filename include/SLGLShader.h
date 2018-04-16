@@ -12,8 +12,8 @@
 #ifndef SLGLSHADER_H
 #define SLGLSHADER_H
 
-#include <stdafx.h>
 #include <SLEnums.h>
+#include <SLObject.h>
 
 //-----------------------------------------------------------------------------
 //! Encapsulation of an OpenGL shader object

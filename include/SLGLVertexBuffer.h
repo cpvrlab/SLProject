@@ -12,8 +12,10 @@
 #ifndef SLGLVERTEXBUFFER_H
 #define SLGLVERTEXBUFFER_H
 
-#include <stdafx.h>
 #include <SLGLEnums.h>
+#include <SLVec2.h>
+#include <SLVec3.h>
+#include <SLVec4.h>
 
 //-----------------------------------------------------------------------------
 //! Struct for vertex attribute information

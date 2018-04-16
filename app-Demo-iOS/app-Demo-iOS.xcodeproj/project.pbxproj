@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		411949C51F0CBCB7009C8A9F /* LogoCPVR_256L.png in Resources */ = {isa = PBXBuildFile; fileRef = 411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */; };
-		4119D3D820138F8F00612254 /* WebPDecoder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4119D3D620138F8F00612254 /* WebPDecoder.framework */; };
-		4119D3D920138F8F00612254 /* WebP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4119D3D720138F8F00612254 /* WebP.framework */; };
 		411BA72718C0702600F10475 /* Icon_120.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72618C0702600F10475 /* Icon_120.png */; };
 		411BA72918C0716700F10475 /* Icon_76.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72818C0716700F10475 /* Icon_76.png */; };
 		411BA72B18C071CA00F10475 /* Icon_152.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72A18C071CA00F10475 /* Icon_152.png */; };
@@ -34,6 +32,7 @@
 		412F897B1FF58D94004D5982 /* ADS.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89711FF58D94004D5982 /* ADS.vert */; };
 		413B3631156CF93100B8284A /* SLCurveBezier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B362D156CF93100B8284A /* SLCurveBezier.cpp */; };
 		413B3635156CF97900B8284A /* SLAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B3634156CF97900B8284A /* SLAnimation.cpp */; };
+		413F1C4B2067DCD900AEF871 /* lbfmodel.yaml in Resources */ = {isa = PBXBuildFile; fileRef = 413F1C492067DCD900AEF871 /* lbfmodel.yaml */; };
 		414333791DE03D590027E1C3 /* SLCVCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333751DE03D590027E1C3 /* SLCVCalibration.cpp */; };
 		4143337A1DE03D590027E1C3 /* SLCVCapture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333761DE03D590027E1C3 /* SLCVCapture.cpp */; };
 		4143337B1DE03D590027E1C3 /* SLCVTrackedAruco.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333771DE03D590027E1C3 /* SLCVTrackedAruco.cpp */; };
@@ -51,6 +50,28 @@
 		414AC53E1F52A8070003867A /* SLCVTrackedFeatures.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414AC53A1F52A8070003867A /* SLCVTrackedFeatures.cpp */; };
 		414B3FEB148AAE520074D939 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 414B3FE8148AAE520074D939 /* Default.png */; };
 		414B3FED148AAE520074D939 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 414B3FEA148AAE520074D939 /* Icon.png */; };
+		414C1423207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml in Resources */ = {isa = PBXBuildFile; fileRef = 414C1422207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml */; };
+		414C14A3207FAFC6007587D8 /* liblibwebp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C148E207FAFC3007587D8 /* liblibwebp.a */; };
+		414C14A4207FAFC6007587D8 /* libopencv_videoio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C148F207FAFC3007587D8 /* libopencv_videoio.a */; };
+		414C14A5207FAFC6007587D8 /* liblibprotobuf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1490207FAFC3007587D8 /* liblibprotobuf.a */; };
+		414C14A6207FAFC6007587D8 /* libopencv_face.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1491207FAFC4007587D8 /* libopencv_face.a */; };
+		414C14A7207FAFC6007587D8 /* libopencv_optflow.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1492207FAFC4007587D8 /* libopencv_optflow.a */; };
+		414C14A8207FAFC6007587D8 /* libopencv_aruco.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1493207FAFC4007587D8 /* libopencv_aruco.a */; };
+		414C14A9207FAFC6007587D8 /* libopencv_hfs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1494207FAFC4007587D8 /* libopencv_hfs.a */; };
+		414C14AA207FAFC6007587D8 /* libopencv_imgproc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1495207FAFC4007587D8 /* libopencv_imgproc.a */; };
+		414C14AB207FAFC6007587D8 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1496207FAFC4007587D8 /* libzlib.a */; };
+		414C14AC207FAFC6007587D8 /* liblibpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1497207FAFC4007587D8 /* liblibpng.a */; };
+		414C14AD207FAFC6007587D8 /* libopencv_highgui.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1498207FAFC4007587D8 /* libopencv_highgui.a */; };
+		414C14AE207FAFC6007587D8 /* libopencv_calib3d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1499207FAFC5007587D8 /* libopencv_calib3d.a */; };
+		414C14AF207FAFC6007587D8 /* libopencv_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C149A207FAFC5007587D8 /* libopencv_core.a */; };
+		414C14B0207FAFC6007587D8 /* libopencv_objdetect.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C149B207FAFC5007587D8 /* libopencv_objdetect.a */; };
+		414C14B1207FAFC6007587D8 /* libopencv_xfeatures2d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C149C207FAFC5007587D8 /* libopencv_xfeatures2d.a */; };
+		414C14B2207FAFC6007587D8 /* libopencv_imgcodecs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C149D207FAFC5007587D8 /* libopencv_imgcodecs.a */; };
+		414C14B3207FAFC6007587D8 /* liblibjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C149E207FAFC5007587D8 /* liblibjpeg.a */; };
+		414C14B4207FAFC6007587D8 /* libopencv_features2d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C149F207FAFC5007587D8 /* libopencv_features2d.a */; };
+		414C14B5207FAFC6007587D8 /* libopencv_video.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C14A0207FAFC6007587D8 /* libopencv_video.a */; };
+		414C14B6207FAFC6007587D8 /* libopencv_flann.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C14A1207FAFC6007587D8 /* libopencv_flann.a */; };
+		414C14B7207FAFC6007587D8 /* libopencv_photo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C14A2207FAFC6007587D8 /* libopencv_photo.a */; };
 		414D37EC1EE6A72C009DB259 /* PerPixCookTorrance.frag in Resources */ = {isa = PBXBuildFile; fileRef = 414D37E81EE6A72C009DB259 /* PerPixCookTorrance.frag */; };
 		414D37ED1EE6A72C009DB259 /* PerPixCookTorrance.vert in Resources */ = {isa = PBXBuildFile; fileRef = 414D37E91EE6A72C009DB259 /* PerPixCookTorrance.vert */; };
 		414D37EE1EE6A72C009DB259 /* PerPixCookTorranceTex.frag in Resources */ = {isa = PBXBuildFile; fileRef = 414D37EA1EE6A72C009DB259 /* PerPixCookTorranceTex.frag */; };
@@ -68,7 +89,6 @@
 		41565018148AA64F00A3CAA6 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41565012148AA64F00A3CAA6 /* AppDelegate.mm */; };
 		4156501A148AA64F00A3CAA6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 41565015148AA64F00A3CAA6 /* main.m */; };
 		4156501B148AA64F00A3CAA6 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41565017148AA64F00A3CAA6 /* ViewController.mm */; };
-		4156B8DF20299BF10019EFC2 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4156B8DE20299BF10019EFC2 /* opencv2.framework */; };
 		41618D6816C1855500641165 /* Default-Landscape@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 41618D6316C1855500641165 /* Default-Landscape@2x~ipad.png */; };
 		41627EA215CA8CE70023B936 /* SL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E8F15CA8CE70023B936 /* SL.cpp */; };
 		41627EA315CA8CE70023B936 /* SLFileSystem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9415CA8CE70023B936 /* SLFileSystem.mm */; };
@@ -598,6 +618,7 @@
 		41E46000176C8F6800AB4653 /* SLTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E45FFE176C8F6800AB4653 /* SLTimer.cpp */; };
 		41E9843A1E3BABB1003D5CCF /* SLCVImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E984391E3BABB1003D5CCF /* SLCVImage.cpp */; };
 		41EA2F4D1F558DDF00C34BC7 /* features_stones.png in Resources */ = {isa = PBXBuildFile; fileRef = 41EA2F4C1F558DDF00C34BC7 /* features_stones.png */; };
+		41EAAE0B2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EAAE0A2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp */; };
 		41EBB5E31C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */; };
 		41EDCB591B67B47B00DDC945 /* SLCompactGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */; };
 		41F365182008E49B00782F42 /* street3.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41F365162008E49A00782F42 /* street3.mp4 */; };
@@ -637,8 +658,6 @@
 
 /* Begin PBXFileReference section */
 		411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LogoCPVR_256L.png; path = ../_data/images/textures/LogoCPVR_256L.png; sourceTree = SOURCE_ROOT; };
-		4119D3D620138F8F00612254 /* WebPDecoder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebPDecoder.framework; path = ../_lib/prebuilt/OpenCV/ios/WebPDecoder.framework; sourceTree = "<group>"; };
-		4119D3D720138F8F00612254 /* WebP.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebP.framework; path = ../_lib/prebuilt/OpenCV/ios/WebP.framework; sourceTree = "<group>"; };
 		411BA72618C0702600F10475 /* Icon_120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_120.png; path = images/Icon_120.png; sourceTree = SOURCE_ROOT; };
 		411BA72818C0716700F10475 /* Icon_76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_76.png; path = images/Icon_76.png; sourceTree = SOURCE_ROOT; };
 		411BA72A18C071CA00F10475 /* Icon_152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_152.png; path = images/Icon_152.png; sourceTree = SOURCE_ROOT; };
@@ -676,6 +695,7 @@
 		413B3632156CF96700B8284A /* SLKeyframe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLKeyframe.h; path = ../include/SLKeyframe.h; sourceTree = SOURCE_ROOT; };
 		413B3633156CF96F00B8284A /* SLAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAnimation.h; path = ../include/SLAnimation.h; sourceTree = SOURCE_ROOT; };
 		413B3634156CF97900B8284A /* SLAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLAnimation.cpp; path = "../lib-SLProject/source/SLAnimation.cpp"; sourceTree = SOURCE_ROOT; };
+		413F1C492067DCD900AEF871 /* lbfmodel.yaml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = lbfmodel.yaml; path = ../_data/calibrations/lbfmodel.yaml; sourceTree = "<group>"; };
 		414333751DE03D590027E1C3 /* SLCVCalibration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVCalibration.cpp; path = "../lib-SLProject/source/CV/SLCVCalibration.cpp"; sourceTree = SOURCE_ROOT; };
 		414333761DE03D590027E1C3 /* SLCVCapture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVCapture.cpp; path = "../lib-SLProject/source/CV/SLCVCapture.cpp"; sourceTree = SOURCE_ROOT; };
 		414333771DE03D590027E1C3 /* SLCVTrackedAruco.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVTrackedAruco.cpp; path = "../lib-SLProject/source/CV/SLCVTrackedAruco.cpp"; sourceTree = SOURCE_ROOT; };
@@ -703,6 +723,29 @@
 		414AC5431F52A8430003867A /* SLCVTrackedFeatures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVTrackedFeatures.h; path = ../include/SLCVTrackedFeatures.h; sourceTree = SOURCE_ROOT; };
 		414B3FE8148AAE520074D939 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = images/Default.png; sourceTree = SOURCE_ROOT; };
 		414B3FEA148AAE520074D939 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = images/Icon.png; sourceTree = SOURCE_ROOT; };
+		414C1422207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = haarcascade_frontalface_alt2.xml; path = ../_data/calibrations/haarcascade_frontalface_alt2.xml; sourceTree = SOURCE_ROOT; };
+		414C1468207FA96E007587D8 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		414C148E207FAFC3007587D8 /* liblibwebp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibwebp.a; path = ../_lib/prebuilt/OpenCV/ios/liblibwebp.a; sourceTree = "<group>"; };
+		414C148F207FAFC3007587D8 /* libopencv_videoio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_videoio.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_videoio.a; sourceTree = "<group>"; };
+		414C1490207FAFC3007587D8 /* liblibprotobuf.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibprotobuf.a; path = ../_lib/prebuilt/OpenCV/ios/liblibprotobuf.a; sourceTree = "<group>"; };
+		414C1491207FAFC4007587D8 /* libopencv_face.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_face.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_face.a; sourceTree = "<group>"; };
+		414C1492207FAFC4007587D8 /* libopencv_optflow.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_optflow.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_optflow.a; sourceTree = "<group>"; };
+		414C1493207FAFC4007587D8 /* libopencv_aruco.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_aruco.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_aruco.a; sourceTree = "<group>"; };
+		414C1494207FAFC4007587D8 /* libopencv_hfs.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_hfs.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_hfs.a; sourceTree = "<group>"; };
+		414C1495207FAFC4007587D8 /* libopencv_imgproc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_imgproc.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_imgproc.a; sourceTree = "<group>"; };
+		414C1496207FAFC4007587D8 /* libzlib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libzlib.a; path = ../_lib/prebuilt/OpenCV/ios/libzlib.a; sourceTree = "<group>"; };
+		414C1497207FAFC4007587D8 /* liblibpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibpng.a; path = ../_lib/prebuilt/OpenCV/ios/liblibpng.a; sourceTree = "<group>"; };
+		414C1498207FAFC4007587D8 /* libopencv_highgui.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_highgui.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_highgui.a; sourceTree = "<group>"; };
+		414C1499207FAFC5007587D8 /* libopencv_calib3d.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_calib3d.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_calib3d.a; sourceTree = "<group>"; };
+		414C149A207FAFC5007587D8 /* libopencv_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_core.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_core.a; sourceTree = "<group>"; };
+		414C149B207FAFC5007587D8 /* libopencv_objdetect.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_objdetect.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_objdetect.a; sourceTree = "<group>"; };
+		414C149C207FAFC5007587D8 /* libopencv_xfeatures2d.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_xfeatures2d.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_xfeatures2d.a; sourceTree = "<group>"; };
+		414C149D207FAFC5007587D8 /* libopencv_imgcodecs.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_imgcodecs.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_imgcodecs.a; sourceTree = "<group>"; };
+		414C149E207FAFC5007587D8 /* liblibjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibjpeg.a; path = ../_lib/prebuilt/OpenCV/ios/liblibjpeg.a; sourceTree = "<group>"; };
+		414C149F207FAFC5007587D8 /* libopencv_features2d.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_features2d.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_features2d.a; sourceTree = "<group>"; };
+		414C14A0207FAFC6007587D8 /* libopencv_video.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_video.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_video.a; sourceTree = "<group>"; };
+		414C14A1207FAFC6007587D8 /* libopencv_flann.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_flann.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_flann.a; sourceTree = "<group>"; };
+		414C14A2207FAFC6007587D8 /* libopencv_photo.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_photo.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_photo.a; sourceTree = "<group>"; };
 		414D37E81EE6A72C009DB259 /* PerPixCookTorrance.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerPixCookTorrance.frag; path = ../_data/shaders/PerPixCookTorrance.frag; sourceTree = SOURCE_ROOT; };
 		414D37E91EE6A72C009DB259 /* PerPixCookTorrance.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerPixCookTorrance.vert; path = ../_data/shaders/PerPixCookTorrance.vert; sourceTree = SOURCE_ROOT; };
 		414D37EA1EE6A72C009DB259 /* PerPixCookTorranceTex.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerPixCookTorranceTex.frag; path = ../_data/shaders/PerPixCookTorranceTex.frag; sourceTree = SOURCE_ROOT; };
@@ -725,7 +768,6 @@
 		41565015148AA64F00A3CAA6 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = SOURCE_ROOT; };
 		41565016148AA64F00A3CAA6 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = SOURCE_ROOT; };
 		41565017148AA64F00A3CAA6 /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = SOURCE_ROOT; };
-		4156B8DE20299BF10019EFC2 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../_lib/prebuilt/OpenCV/ios/opencv2.framework; sourceTree = "<group>"; };
 		41618D6316C1855500641165 /* Default-Landscape@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Landscape@2x~ipad.png"; path = "images/Default-Landscape@2x~ipad.png"; sourceTree = SOURCE_ROOT; };
 		41627E8F15CA8CE70023B936 /* SL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SL.cpp; path = "../lib-SLProject/source/SL/SL.cpp"; sourceTree = SOURCE_ROOT; };
 		41627E9015CA8CE70023B936 /* SL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SL.h; path = ../include/SL.h; sourceTree = SOURCE_ROOT; };
@@ -1499,6 +1541,8 @@
 		41E984381E3BAB7D003D5CCF /* SLCVImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVImage.h; path = ../include/SLCVImage.h; sourceTree = SOURCE_ROOT; };
 		41E984391E3BABB1003D5CCF /* SLCVImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVImage.cpp; path = "../lib-SLProject/source/CV/SLCVImage.cpp"; sourceTree = SOURCE_ROOT; };
 		41EA2F4C1F558DDF00C34BC7 /* features_stones.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = features_stones.png; path = ../_data/images/textures/features_stones.png; sourceTree = SOURCE_ROOT; };
+		41EAAE092067BB2800F7E9B9 /* SLCVTrackedFaces.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVTrackedFaces.h; path = ../include/SLCVTrackedFaces.h; sourceTree = "<group>"; };
+		41EAAE0A2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVTrackedFaces.cpp; path = "../lib-SLProject/source/CV/SLCVTrackedFaces.cpp"; sourceTree = "<group>"; };
 		41EBB5E01C44D96900C9BAA5 /* SLGLVertexArrayExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLVertexArrayExt.h; path = ../include/SLGLVertexArrayExt.h; sourceTree = SOURCE_ROOT; };
 		41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexArrayExt.cpp; path = "../lib-SLProject/source/GL/SLGLVertexArrayExt.cpp"; sourceTree = SOURCE_ROOT; };
 		41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCompactGrid.cpp; path = "../lib-SLProject/source/SLCompactGrid.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1541,19 +1585,37 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				414C14A3207FAFC6007587D8 /* liblibwebp.a in Frameworks */,
+				414C14A4207FAFC6007587D8 /* libopencv_videoio.a in Frameworks */,
+				414C14A5207FAFC6007587D8 /* liblibprotobuf.a in Frameworks */,
+				414C14A6207FAFC6007587D8 /* libopencv_face.a in Frameworks */,
+				414C14A7207FAFC6007587D8 /* libopencv_optflow.a in Frameworks */,
+				414C14A8207FAFC6007587D8 /* libopencv_aruco.a in Frameworks */,
+				414C14A9207FAFC6007587D8 /* libopencv_hfs.a in Frameworks */,
+				414C14AA207FAFC6007587D8 /* libopencv_imgproc.a in Frameworks */,
+				414C14AB207FAFC6007587D8 /* libzlib.a in Frameworks */,
+				414C14AC207FAFC6007587D8 /* liblibpng.a in Frameworks */,
+				414C14AD207FAFC6007587D8 /* libopencv_highgui.a in Frameworks */,
+				414C14AE207FAFC6007587D8 /* libopencv_calib3d.a in Frameworks */,
+				414C14AF207FAFC6007587D8 /* libopencv_core.a in Frameworks */,
+				414C14B0207FAFC6007587D8 /* libopencv_objdetect.a in Frameworks */,
+				414C14B1207FAFC6007587D8 /* libopencv_xfeatures2d.a in Frameworks */,
+				414C14B2207FAFC6007587D8 /* libopencv_imgcodecs.a in Frameworks */,
+				414C14B3207FAFC6007587D8 /* liblibjpeg.a in Frameworks */,
+				414C14B4207FAFC6007587D8 /* libopencv_features2d.a in Frameworks */,
+				414C14B5207FAFC6007587D8 /* libopencv_video.a in Frameworks */,
+				414C14B6207FAFC6007587D8 /* libopencv_flann.a in Frameworks */,
+				414C14B7207FAFC6007587D8 /* libopencv_photo.a in Frameworks */,
 				4181782F1FC7110600200D02 /* CoreLocation.framework in Frameworks */,
 				41A16C3C1B836835001EA07E /* CoreMotion.framework in Frameworks */,
 				41BEFC0C1B78F866009EF31F /* CoreVideo.framework in Frameworks */,
 				41BEFC0A1B78F85A009EF31F /* CoreMedia.framework in Frameworks */,
 				41BEFC071B78F84F009EF31F /* AVFoundation.framework in Frameworks */,
-				4156B8DF20299BF10019EFC2 /* opencv2.framework in Frameworks */,
 				419BCD3C14865C0800D576F1 /* UIKit.framework in Frameworks */,
 				419BCD3E14865C0800D576F1 /* Foundation.framework in Frameworks */,
 				419BCD4014865C0800D576F1 /* CoreGraphics.framework in Frameworks */,
-				4119D3D820138F8F00612254 /* WebPDecoder.framework in Frameworks */,
 				419BCD4214865C0800D576F1 /* GLKit.framework in Frameworks */,
 				419BCD4414865C0800D576F1 /* OpenGLES.framework in Frameworks */,
-				4119D3D920138F8F00612254 /* WebP.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1595,6 +1657,8 @@
 				414333801DE03DAD0027E1C3 /* SLCVTrackedAruco.h */,
 				414333781DE03D590027E1C3 /* SLCVTrackedChessboard.cpp */,
 				414333811DE03DAD0027E1C3 /* SLCVTrackedChessboard.h */,
+				41EAAE0A2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp */,
+				41EAAE092067BB2800F7E9B9 /* SLCVTrackedFaces.h */,
 				414AC53A1F52A8070003867A /* SLCVTrackedFeatures.cpp */,
 				414AC5431F52A8430003867A /* SLCVTrackedFeatures.h */,
 			);
@@ -2550,7 +2614,28 @@
 		419BCD3A14865C0800D576F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				4156B8DE20299BF10019EFC2 /* opencv2.framework */,
+				414C149E207FAFC5007587D8 /* liblibjpeg.a */,
+				414C1497207FAFC4007587D8 /* liblibpng.a */,
+				414C1490207FAFC3007587D8 /* liblibprotobuf.a */,
+				414C148E207FAFC3007587D8 /* liblibwebp.a */,
+				414C1493207FAFC4007587D8 /* libopencv_aruco.a */,
+				414C1499207FAFC5007587D8 /* libopencv_calib3d.a */,
+				414C149A207FAFC5007587D8 /* libopencv_core.a */,
+				414C1491207FAFC4007587D8 /* libopencv_face.a */,
+				414C149F207FAFC5007587D8 /* libopencv_features2d.a */,
+				414C14A1207FAFC6007587D8 /* libopencv_flann.a */,
+				414C1494207FAFC4007587D8 /* libopencv_hfs.a */,
+				414C1498207FAFC4007587D8 /* libopencv_highgui.a */,
+				414C149D207FAFC5007587D8 /* libopencv_imgcodecs.a */,
+				414C1495207FAFC4007587D8 /* libopencv_imgproc.a */,
+				414C149B207FAFC5007587D8 /* libopencv_objdetect.a */,
+				414C1492207FAFC4007587D8 /* libopencv_optflow.a */,
+				414C14A2207FAFC6007587D8 /* libopencv_photo.a */,
+				414C14A0207FAFC6007587D8 /* libopencv_video.a */,
+				414C148F207FAFC3007587D8 /* libopencv_videoio.a */,
+				414C149C207FAFC5007587D8 /* libopencv_xfeatures2d.a */,
+				414C1496207FAFC4007587D8 /* libzlib.a */,
+				414C1468207FA96E007587D8 /* CoreImage.framework */,
 				41BEFC061B78F84F009EF31F /* AVFoundation.framework */,
 				419BCD3F14865C0800D576F1 /* CoreGraphics.framework */,
 				4181782D1FC70F6E00200D02 /* CoreLocation.framework */,
@@ -2562,8 +2647,6 @@
 				41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */,
 				419BCD4314865C0800D576F1 /* OpenGLES.framework */,
 				419BCD3B14865C0800D576F1 /* UIKit.framework */,
-				4119D3D720138F8F00612254 /* WebP.framework */,
-				4119D3D620138F8F00612254 /* WebPDecoder.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -2606,6 +2689,8 @@
 		41B7BDDA1E49AE4C007B8B39 /* Calibrations */ = {
 			isa = PBXGroup;
 			children = (
+				414C1422207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml */,
+				413F1C492067DCD900AEF871 /* lbfmodel.yaml */,
 				419BEFC61DE5EE9300C3E171 /* aruco_detector_params.yml */,
 			);
 			name = Calibrations;
@@ -2702,7 +2787,7 @@
 		419BCD2E14865C0800D576F1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0910;
+				LastUpgradeCheck = 0930;
 				TargetAttributes = {
 					419BCD3614865C0800D576F1 = {
 						DevelopmentTeam = 858Y9EWZ4B;
@@ -2782,6 +2867,7 @@
 				411BA72B18C071CA00F10475 /* Icon_152.png in Resources */,
 				417981E71F13836300EB5315 /* VolumeRenderingRayCast.vert in Resources */,
 				417981521F13833000EB5315 /* i0062_0000b.png in Resources */,
+				413F1C4B2067DCD900AEF871 /* lbfmodel.yaml in Resources */,
 				418BF4411B8B0D4F0049E387 /* BumpNormal.frag in Resources */,
 				418BF4451B8B0D4F0049E387 /* Color.frag in Resources */,
 				411BA72718C0702600F10475 /* Icon_120.png in Resources */,
@@ -2981,6 +3067,7 @@
 				419808691959BA670048085E /* BlenderDNA.inl in Resources */,
 				417E0ED6148A70DE0015B5B0 /* wood2_0256_C.jpg in Resources */,
 				417981161F13833000EB5315 /* i0002_0000b.png in Resources */,
+				414C1423207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml in Resources */,
 				417E0ED7148A70DE0015B5B0 /* wood2_0512_C.jpg in Resources */,
 				417981BA1F13833000EB5315 /* i0166_0000b.png in Resources */,
 				4179817F1F13833000EB5315 /* i0107_0000b.png in Resources */,
@@ -3237,6 +3324,7 @@
 				419808EB1959BA670048085E /* SMDLoader.cpp in Sources */,
 				419808841959BA670048085E /* IFCMaterial.cpp in Sources */,
 				419808AE1959BA670048085E /* STEPFileReader.cpp in Sources */,
+				41EAAE0B2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp in Sources */,
 				414AC53B1F52A8070003867A /* SLCVFeatureManager.cpp in Sources */,
 				419808AF1959BA670048085E /* TargetAnimation.cpp in Sources */,
 				41A355031A7E63E100791841 /* SLAnimTrack.cpp in Sources */,
@@ -3396,11 +3484,13 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
@@ -3493,11 +3583,13 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
@@ -3583,6 +3675,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = 858Y9EWZ4B;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -3637,6 +3730,7 @@
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
+				LIBRARY_SEARCH_PATHS = ../_lib/prebuilt/OpenCV/ios;
 				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject.2.2;
 				PRODUCT_NAME = SLProject;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3651,6 +3745,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = 858Y9EWZ4B;
 				ENABLE_OPENMP_SUPPORT = NO;
@@ -3702,6 +3797,7 @@
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
+				LIBRARY_SEARCH_PATHS = ../_lib/prebuilt/OpenCV/ios;
 				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject.2.2;
 				PRODUCT_NAME = SLProject;
 				TARGETED_DEVICE_FAMILY = "1,2";

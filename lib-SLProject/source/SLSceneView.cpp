@@ -25,6 +25,7 @@
 #include <SLTexFont.h>
 #include <SLImporter.h>
 #include <SLCVCapture.h>
+#include <SLCVCalibration.h>
 
 //-----------------------------------------------------------------------------
 // Milliseconds duration of a long touch event

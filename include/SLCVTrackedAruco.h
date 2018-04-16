@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTrackedAruco.cpp
+//  File:      SLCVTrackedAruco.h
 //  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -12,7 +12,7 @@
 #define SLCVTrackedAruco_H
 
 /*
-The OpenCV library version 3.1 with extra module must be present.
+The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.

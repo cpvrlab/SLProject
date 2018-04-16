@@ -11,14 +11,13 @@
 #ifndef SLTEXT_H
 #define SLTEXT_H
 
-#include <stdafx.h>
 #include <SLNode.h>
-#include <SLAABBox.h>
 #include <SLGLVertexArray.h>
 #include <SLTexFont.h>
 
 class SLSceneView;
 class SLRay;
+class SLAABBox;
 
 //-----------------------------------------------------------------------------
 //! SLText creates a mesh using a textured font from SLTexFont
@@ -27,7 +26,7 @@ The text is passed as standard string that can contain line breaks (\\n).
 Line breaks are only inserted if a maxWidth is defined. If the lineHeightFactor
 is 1.0 the minimal line spacing is used.
 */
-class SLText: public SLNode 
+class SLText : public SLNode 
 {  public:                     
                         SLText          (SLstring text,
                                          SLTexFont* font = SLTexFont::font09,

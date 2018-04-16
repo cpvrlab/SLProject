@@ -11,41 +11,6 @@
 #ifndef SL_H
 #define SL_H
 
-#include <SLEnums.h>
-//-----------------------------------------------------------------------------
-// Include standard C++ libraries
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <list>
-#include <queue>
-#include <typeinfo>
-#include <string>
-#include <algorithm>
-#include <map>
-#include <chrono>
-#include <thread>
-#include <atomic>
-#include <functional>
-#include <random>
-#include <cstdarg>
-#include <ctime>
-
-//-----------------------------------------------------------------------------
-// Include standard C libraries
-#include <stdio.h>               // for the old ANSI C IO functions
-#include <stdlib.h>              // srand, rand
-#include <float.h>               // for defines like FLT_MAX & DBL_MAX
-#include <limits.h>              // for defines like UINT_MAX
-#include <assert.h>              // for debug asserts
-#include <time.h>                // for clock()
-#include <sys/stat.h>            // for file info used in SLUtils
-#include <math.h>                // for math functions
-#include <string.h>              // for string functions
-//-----------------------------------------------------------------------------
-
 //////////////////////////////////////////////////////////
 // Preprocessor constant definitions used in the SLProject
 //////////////////////////////////////////////////////////
@@ -148,6 +113,7 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
     #include <windows.h>
     #include <GL/glew.h>
 #elif defined(SL_OS_LINUX)
+    #include <sstream>
     #include <sys/time.h>
     #include <functional>
     #include <thread>
@@ -263,17 +229,6 @@ template<class T> inline SLint SL_sizeOfVector(const T &vector)
 #define SL_LOG(...)     SL::log(__VA_ARGS__)
 #define SL_EXIT_MSG(M)  SL::exitMsg((M), __LINE__, __FILE__)
 #define SL_WARN_MSG(M)  SL::warnMsg((M), __LINE__, __FILE__)
-//-----------------------------------------------------------------------------
-/*! Since Android does not support full C++11 support, we have to override the
-to_string method manually.
-*/
-template<typename T>
-std::string to_string(T value)
-{
-    std::ostringstream os;
-    os << value;
-    return os.str();
-}
 //-----------------------------------------------------------------------------
 //! Class SL with some global static functions and members.
 class SL

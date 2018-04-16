@@ -11,7 +11,6 @@
 #ifndef SLLIGHTRECT_H
 #define SLLIGHTRECT_H
 
-#include <stdafx.h>
 #include <SLNode.h>
 #include <SLLight.h>
 
