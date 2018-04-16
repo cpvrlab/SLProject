@@ -41,53 +41,53 @@ LoopClosing::LoopClosing(SLCVMap *pMap, SLCVKeyFrameDB *pDB, ORBVocabulary *pVoc
     mnCovisibilityConsistencyTh = 3;
 }
 
-void LoopClosing::SetTracker(Tracking *pTracker)
-{
-    mpTracker=pTracker;
-}
+//void LoopClosing::SetTracker(Tracking *pTracker)
+//{
+//    mpTracker=pTracker;
+//}
 
-void LoopClosing::SetLocalMapper(LocalMapping *pLocalMapper)
-{
-    mpLocalMapper=pLocalMapper;
-}
+//void LoopClosing::SetLocalMapper(LocalMapping *pLocalMapper)
+//{
+//    mpLocalMapper=pLocalMapper;
+//}
 
 
-void LoopClosing::Run()
-{
-    mbFinished =false;
-
-    while(1)
-    {
-        // Check if there are keyframes in the queue
-        if(CheckNewKeyFrames())
-        {
-            // Detect loop candidates and check covisibility consistency
-            if(DetectLoop())
-            {
-               // Compute similarity transformation [sR|t]
-               // In the stereo/RGBD case s=1
-               if(ComputeSim3())
-               {
-                   // Perform loop fusion and pose graph optimization
-                   CorrectLoop();
-               }
-            }
-        }       
-
-        ResetIfRequested();
-
-        if(CheckFinish())
-            break;
-
-#ifdef _WINDOWS
-                Sleep(5);
-#else
-                usleep(5000);
-#endif
-    }
-
-    SetFinish();
-}
+//void LoopClosing::Run()
+//{
+//    mbFinished =false;
+//
+//    while(1)
+//    {
+//        // Check if there are keyframes in the queue
+//        if(CheckNewKeyFrames())
+//        {
+//            // Detect loop candidates and check covisibility consistency
+//            if(DetectLoop())
+//            {
+//               // Compute similarity transformation [sR|t]
+//               // In the stereo/RGBD case s=1
+//               if(ComputeSim3())
+//               {
+//                   // Perform loop fusion and pose graph optimization
+//                   CorrectLoop();
+//               }
+//            }
+//        }       
+//
+//        ResetIfRequested();
+//
+//        if(CheckFinish())
+//            break;
+//
+//#ifdef _WINDOWS
+//                Sleep(5);
+//#else
+//                usleep(5000);
+//#endif
+//    }
+//
+//    SetFinish();
+//}
 
 void LoopClosing::InsertKeyFrame(SLCVKeyFrame *pKF)
 {
