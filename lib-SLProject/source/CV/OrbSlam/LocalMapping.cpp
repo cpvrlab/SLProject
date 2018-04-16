@@ -218,7 +218,7 @@ void LocalMapping::MapPointCulling()
 {
     // Check Recent Added MapPoints
     list<SLCVMapPoint*>::iterator lit = mlpRecentAddedMapPoints.begin();
-    const unsigned long int nCurrentKFid = mpCurrentKeyFrame->id();
+    const unsigned long int nCurrentKFid = mpCurrentKeyFrame->mnId;
 
     int nThObs;
     if(mbMonocular)
@@ -511,17 +511,17 @@ void LocalMapping::SearchInNeighbors()
     for(vector<SLCVKeyFrame*>::const_iterator vit=vpNeighKFs.begin(), vend=vpNeighKFs.end(); vit!=vend; vit++)
     {
         SLCVKeyFrame* pKFi = *vit;
-        if(pKFi->isBad() || pKFi->mnFuseTargetForKF == mpCurrentKeyFrame->id())
+        if(pKFi->isBad() || pKFi->mnFuseTargetForKF == mpCurrentKeyFrame->mnId)
             continue;
         vpTargetKFs.push_back(pKFi);
-        pKFi->mnFuseTargetForKF = mpCurrentKeyFrame->id();
+        pKFi->mnFuseTargetForKF = mpCurrentKeyFrame->mnId;
 
         // Extend to some second neighbors
         const vector<SLCVKeyFrame*> vpSecondNeighKFs = pKFi->GetBestCovisibilityKeyFrames(5);
         for(vector<SLCVKeyFrame*>::const_iterator vit2=vpSecondNeighKFs.begin(), vend2=vpSecondNeighKFs.end(); vit2!=vend2; vit2++)
         {
             SLCVKeyFrame* pKFi2 = *vit2;
-            if(pKFi2->isBad() || pKFi2->mnFuseTargetForKF==mpCurrentKeyFrame->id() || pKFi2->id()==mpCurrentKeyFrame->id())
+            if(pKFi2->isBad() || pKFi2->mnFuseTargetForKF==mpCurrentKeyFrame->mnId || pKFi2->mnId==mpCurrentKeyFrame->mnId)
                 continue;
             vpTargetKFs.push_back(pKFi2);
         }
@@ -553,9 +553,9 @@ void LocalMapping::SearchInNeighbors()
             SLCVMapPoint* pMP = *vitMP;
             if(!pMP)
                 continue;
-            if(pMP->isBad() || pMP->mnFuseCandidateForKF == mpCurrentKeyFrame->id())
+            if(pMP->isBad() || pMP->mnFuseCandidateForKF == mpCurrentKeyFrame->mnId)
                 continue;
-            pMP->mnFuseCandidateForKF = mpCurrentKeyFrame->id();
+            pMP->mnFuseCandidateForKF = mpCurrentKeyFrame->mnId;
             vpFuseCandidates.push_back(pMP);
         }
     }
@@ -689,7 +689,7 @@ void LocalMapping::KeyFrameCulling()
     for(vector<SLCVKeyFrame*>::iterator vit=vpLocalKeyFrames.begin(), vend=vpLocalKeyFrames.end(); vit!=vend; vit++)
     {
         SLCVKeyFrame* pKF = *vit;
-        if(pKF->id()==0)
+        if(pKF->mnId==0)
             continue;
         const vector<SLCVMapPoint*> vpMapPoints = pKF->GetMapPointMatches();
 

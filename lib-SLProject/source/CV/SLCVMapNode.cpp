@@ -118,7 +118,7 @@ void SLCVMapNode::updateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
     _keyFrames->deleteChildren();
     for (auto* kf : kfs) {
 
-        SLCVCamera* cam = new SLCVCamera(this, "KeyFrame" + kf->id());
+        SLCVCamera* cam = new SLCVCamera(this, "KeyFrame" + kf->mnId);
         //set background
         if (kf->getTexturePath().size())
         {

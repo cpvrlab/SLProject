@@ -33,7 +33,7 @@ SLCVMapPoint::SLCVMapPoint(int id, const cv::Mat &Pos, SLCVMap* pMap)
 }
 //-----------------------------------------------------------------------------
 SLCVMapPoint::SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF, SLCVMap* pMap) :
-    mnFirstKFid(pRefKF->id()), /* mnFirstFrame(pRefKF->mnFrameId), */nObs(0), mnTrackReferenceForFrame(0),
+    mnFirstKFid(pRefKF->mnId), /* mnFirstFrame(pRefKF->mnFrameId), */nObs(0), mnTrackReferenceForFrame(0),
     mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), /*mnLoopPointForKF(0), mnCorrectedByKF(0),
     mnCorrectedReference(0),*/ mnBAGlobalForKF(0), mpRefKF(pRefKF), mnVisible(1), mnFound(1), mbBad(false),
     mpReplaced(static_cast<SLCVMapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0), mpMap(pMap)

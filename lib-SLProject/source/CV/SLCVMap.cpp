@@ -107,8 +107,8 @@ void SLCVMap::AddKeyFrame(SLCVKeyFrame *pKF)
 {
     //unique_lock<mutex> lock(mMutexMap);
     mspKeyFrames.insert(pKF);
-    if (pKF->id()>mnMaxKFid)
-        mnMaxKFid = pKF->id();
+    if (pKF->mnId>mnMaxKFid)
+        mnMaxKFid = pKF->mnId;
 }
 //-----------------------------------------------------------------------------
 long unsigned int SLCVMap::MapPointsInMap()
@@ -348,7 +348,7 @@ void SLCVMap::saveState()
 
         fs << "{"; //new map keyFrame
                    //add id
-        fs << "id" << (int)kf->id();
+        fs << "id" << (int)kf->mnId;
         //camera w.r.t world
         //fs << "Twc" << kf->Twc;
         // world w.r.t camera
@@ -406,7 +406,7 @@ void SLCVMap::saveState()
         for (auto it : observations)
         {
             if (!it.first->isBad()) {
-                observingKfIds.push_back(it.first->id());
+                observingKfIds.push_back(it.first->mnId);
                 corrKpIndices.push_back(it.second);
             }
         }
@@ -416,7 +416,7 @@ void SLCVMap::saveState()
 
         //reference key frame (I think this is the keyframe from which this
         //map point was generated -> first reference?)
-        fs << "refKfId" << (int)mpt->refKf()->id();
+        fs << "refKfId" << (int)mpt->refKf()->mnId;
 
         ////keypoint octave (level)
         ////size_t kpIndex = mpt->mObservations[mpt->mpRefKF];

@@ -77,11 +77,11 @@ void Optimizer::BundleAdjustment(const vector<SLCVKeyFrame *> &vpKFs, const vect
             continue;
         g2o::VertexSE3Expmap * vSE3 = new g2o::VertexSE3Expmap();
         vSE3->setEstimate(Converter::toSE3Quat(pKF->GetPose()));
-        vSE3->setId(pKF->id());
-        vSE3->setFixed(pKF->id()==0);
+        vSE3->setId(pKF->mnId);
+        vSE3->setFixed(pKF->mnId==0);
         optimizer.addVertex(vSE3);
-        if(pKF->id()>maxKFid)
-            maxKFid=pKF->id();
+        if(pKF->mnId>maxKFid)
+            maxKFid=pKF->mnId;
     }
 
     const float thHuber2D = sqrt(5.99);
@@ -108,7 +108,7 @@ void Optimizer::BundleAdjustment(const vector<SLCVKeyFrame *> &vpKFs, const vect
         {
 
             SLCVKeyFrame* pKF = mit->first;
-            if(pKF->isBad() || pKF->id()>maxKFid)
+            if(pKF->isBad() || pKF->mnId>maxKFid)
                 continue;
 
             nEdges++;
@@ -123,7 +123,7 @@ void Optimizer::BundleAdjustment(const vector<SLCVKeyFrame *> &vpKFs, const vect
                 g2o::EdgeSE3ProjectXYZ* e = new g2o::EdgeSE3ProjectXYZ();
 
                 e->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(id)));
-                e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(pKF->id())));
+                e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(pKF->mnId)));
                 e->setMeasurement(obs);
                 const float &invSigma2 = pKF->mvInvLevelSigma2[kpUn.octave];
                 e->setInformation(Eigen::Matrix2d::Identity()*invSigma2);
@@ -151,7 +151,7 @@ void Optimizer::BundleAdjustment(const vector<SLCVKeyFrame *> &vpKFs, const vect
             //    g2o::EdgeStereoSE3ProjectXYZ* e = new g2o::EdgeStereoSE3ProjectXYZ();
 
             //    e->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(id)));
-            //    e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(pKF->id())));
+            //    e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(pKF->mnId)));
             //    e->setMeasurement(obs);
             //    const float &invSigma2 = pKF->mvInvLevelSigma2[kpUn.octave];
             //    Eigen::Matrix3d Info = Eigen::Matrix3d::Identity()*invSigma2;
@@ -197,7 +197,7 @@ void Optimizer::BundleAdjustment(const vector<SLCVKeyFrame *> &vpKFs, const vect
         SLCVKeyFrame* pKF = vpKFs[i];
         if(pKF->isBad())
             continue;
-        g2o::VertexSE3Expmap* vSE3 = static_cast<g2o::VertexSE3Expmap*>(optimizer.vertex(pKF->id()));
+        g2o::VertexSE3Expmap* vSE3 = static_cast<g2o::VertexSE3Expmap*>(optimizer.vertex(pKF->mnId));
         g2o::SE3Quat SE3quat = vSE3->estimate();
         if(nLoopKF==0)
         {
@@ -460,14 +460,13 @@ void Optimizer::LocalBundleAdjustment(SLCVKeyFrame *pKF, bool* pbStopFlag, SLCVM
     list<SLCVKeyFrame*> lLocalKeyFrames;
 
     lLocalKeyFrames.push_back(pKF);
-    //pKF->mnBALocalForKF = pKF->id();
-    pKF->mnBALocalForKF = pKF->id();
+    pKF->mnBALocalForKF = pKF->mnId;
 
     const vector<SLCVKeyFrame*> vNeighKFs = pKF->GetVectorCovisibleKeyFrames();
     for(int i=0, iend=vNeighKFs.size(); i<iend; i++)
     {
         SLCVKeyFrame* pKFi = vNeighKFs[i];
-        pKFi->mnBALocalForKF = pKF->id();
+        pKFi->mnBALocalForKF = pKF->mnId;
         if(!pKFi->isBad())
             lLocalKeyFrames.push_back(pKFi);
     }
@@ -482,10 +481,10 @@ void Optimizer::LocalBundleAdjustment(SLCVKeyFrame *pKF, bool* pbStopFlag, SLCVM
             SLCVMapPoint* pMP = *vit;
             if(pMP)
                 if(!pMP->isBad())
-                    if(pMP->mnBALocalForKF!=pKF->id())
+                    if(pMP->mnBALocalForKF!=pKF->mnId)
                     {
                         lLocalMapPoints.push_back(pMP);
-                        pMP->mnBALocalForKF=pKF->id();
+                        pMP->mnBALocalForKF=pKF->mnId;
                     }
         }
     }
@@ -499,9 +498,9 @@ void Optimizer::LocalBundleAdjustment(SLCVKeyFrame *pKF, bool* pbStopFlag, SLCVM
         {
             SLCVKeyFrame* pKFi = mit->first;
 
-            if(pKFi->mnBALocalForKF!=pKF->id() && pKFi->mnBAFixedForKF!=pKF->id())
+            if(pKFi->mnBALocalForKF!=pKF->mnId && pKFi->mnBAFixedForKF!=pKF->mnId)
             {                
-                pKFi->mnBAFixedForKF=pKF->id();
+                pKFi->mnBAFixedForKF=pKF->mnId;
                 if(!pKFi->isBad())
                     lFixedCameras.push_back(pKFi);
             }
@@ -530,11 +529,11 @@ void Optimizer::LocalBundleAdjustment(SLCVKeyFrame *pKF, bool* pbStopFlag, SLCVM
         SLCVKeyFrame* pKFi = *lit;
         g2o::VertexSE3Expmap * vSE3 = new g2o::VertexSE3Expmap();
         vSE3->setEstimate(Converter::toSE3Quat(pKFi->GetPose()));
-        vSE3->setId(pKFi->id());
-        vSE3->setFixed(pKFi->id()==0);
+        vSE3->setId(pKFi->mnId);
+        vSE3->setFixed(pKFi->mnId==0);
         optimizer.addVertex(vSE3);
-        if(pKFi->id()>maxKFid)
-            maxKFid=pKFi->id();
+        if(pKFi->mnId>maxKFid)
+            maxKFid=pKFi->mnId;
     }
 
     // Set Fixed SLCVKeyFrame vertices
@@ -543,11 +542,11 @@ void Optimizer::LocalBundleAdjustment(SLCVKeyFrame *pKF, bool* pbStopFlag, SLCVM
         SLCVKeyFrame* pKFi = *lit;
         g2o::VertexSE3Expmap * vSE3 = new g2o::VertexSE3Expmap();
         vSE3->setEstimate(Converter::toSE3Quat(pKFi->GetPose()));
-        vSE3->setId(pKFi->id());
+        vSE3->setId(pKFi->mnId);
         vSE3->setFixed(true);
         optimizer.addVertex(vSE3);
-        if(pKFi->id()>maxKFid)
-            maxKFid=pKFi->id();
+        if(pKFi->mnId>maxKFid)
+            maxKFid=pKFi->mnId;
     }
 
     // Set SLCVMapPoint vertices
@@ -604,7 +603,7 @@ void Optimizer::LocalBundleAdjustment(SLCVKeyFrame *pKF, bool* pbStopFlag, SLCVM
                     g2o::EdgeSE3ProjectXYZ* e = new g2o::EdgeSE3ProjectXYZ();
 
                     e->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(id)));
-                    e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(pKFi->id())));
+                    e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(pKFi->mnId)));
                     e->setMeasurement(obs);
                     const float &invSigma2 = pKFi->mvInvLevelSigma2[kpUn.octave];
                     e->setInformation(Eigen::Matrix2d::Identity()*invSigma2);
@@ -632,7 +631,7 @@ void Optimizer::LocalBundleAdjustment(SLCVKeyFrame *pKF, bool* pbStopFlag, SLCVM
                 //    g2o::EdgeStereoSE3ProjectXYZ* e = new g2o::EdgeStereoSE3ProjectXYZ();
 
                 //    e->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(id)));
-                //    e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(pKFi->id())));
+                //    e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(pKFi->mnId)));
                 //    e->setMeasurement(obs);
                 //    const float &invSigma2 = pKFi->mvInvLevelSigma2[kpUn.octave];
                 //    Eigen::Matrix3d Info = Eigen::Matrix3d::Identity()*invSigma2;
@@ -767,7 +766,7 @@ void Optimizer::LocalBundleAdjustment(SLCVKeyFrame *pKF, bool* pbStopFlag, SLCVM
     for(list<SLCVKeyFrame*>::iterator lit=lLocalKeyFrames.begin(), lend=lLocalKeyFrames.end(); lit!=lend; lit++)
     {
         SLCVKeyFrame* pKF = *lit;
-        g2o::VertexSE3Expmap* vSE3 = static_cast<g2o::VertexSE3Expmap*>(optimizer.vertex(pKF->id()));
+        g2o::VertexSE3Expmap* vSE3 = static_cast<g2o::VertexSE3Expmap*>(optimizer.vertex(pKF->mnId));
         g2o::SE3Quat SE3quat = vSE3->estimate();
         //pKF->SetPose(Converter::toCvMat(SE3quat));
         pKF->SetPose(Converter::toCvMat(SE3quat));
