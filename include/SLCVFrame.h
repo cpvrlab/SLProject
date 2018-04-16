@@ -7,6 +7,25 @@
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
+/**
+* This file is part of ORB-SLAM2.
+*
+* Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
+* For more information see <https://github.com/raulmur/ORB_SLAM2>
+*
+* ORB-SLAM2 is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* ORB-SLAM2 is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef SLCVFRAME_H
 #define SLCVFRAME_H
@@ -14,7 +33,6 @@
 #include <SLCV.h>
 #include <opencv2/opencv.hpp>
 #include <ORBextractor.h>
-//#include <SLCVMapPoint.h>
 #include <DBoW2/DBoW2/BowVector.h>
 #include <DBoW2/DBoW2/FeatureVector.h>
 #include <OrbSlam/ORBVocabulary.h>
@@ -31,9 +49,14 @@ class SLCVFrame
 {
 public:
     SLCVFrame();
+    //!copy constructor
     SLCVFrame(const SLCVFrame &frame);
+    //!constructor used for detection in tracking
     SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,
         cv::Mat &K, cv::Mat &distCoef, ORBVocabulary* orbVocabulary, bool retainImg=false);
+
+    // Extract ORB on the image
+    void ExtractORB(const cv::Mat &im);
 
     // Compute Bag of Words representation.
     void ComputeBoW();
@@ -43,8 +66,6 @@ public:
 
     // Computes rotation, translation and camera center matrices from the camera pose.
     void UpdatePoseMatrices();
-
-    vector<size_t> GetFeaturesInArea(const float &x, const float  &y, const float  &r, const int minLevel = -1, const int maxLevel = -1) const;
 
     // Returns the camera center.
     inline cv::Mat GetCameraCenter() {
@@ -56,10 +77,11 @@ public:
         return mRwc.clone();
     }
 
+    //ghm1: added
     inline cv::Mat GetTranslationCW() {
         return mtcw.clone();
     }
-
+    //ghm1: added
     inline cv::Mat GetRotationCW() {
         return mRcw.clone();
     }
@@ -68,47 +90,12 @@ public:
     // and fill variables of the MapPoint to be used by the tracking
     bool isInFrustum(SLCVMapPoint* pMP, float viewingCosLimit);
 
-    // Scale pyramid info.
-    int mnScaleLevels;
-    float mfScaleFactor;
-    float mfLogScaleFactor;
-    vector<float> mvScaleFactors;
-    vector<float> mvInvScaleFactors;
-    vector<float> mvLevelSigma2;
-    vector<float> mvInvLevelSigma2;
-
-    // Bag of Words Vector structures.
-    DBoW2::BowVector mBowVec; //ghm1: used for search of relocalization candidates similar to current frame
-    DBoW2::FeatureVector mFeatVec;
-
-    // Current and Next Frame id.
-    static long unsigned int nNextId;
-    long unsigned int mnId = -1;
-
-    // MapPoints associated to keypoints, NULL pointer if no association.
-    //ghm1: this is a vector in the size of the number of detected keypoints in this frame. It is
-    //initialized with a NULL pointer. If the matcher could associate a map point with with keypoint i, then
-    //mvpMapPoints[i] will contain the pointer to this associated mapPoint.
-    std::vector<SLCVMapPoint*> mvpMapPoints;
-
-//public:
-    // Extract ORB on the image
-    void ExtractORB(const cv::Mat &im);
-
-    // Undistort keypoints given OpenCV distortion parameters.
-    // Only for the RGB-D case. Stereo must be already rectified!
-    // (called in the constructor).
-    void UndistortKeyPoints();
-
-    // Computes image bounds for the undistorted image (called in the constructor).
-    void ComputeImageBounds(const cv::Mat &imLeft);
-
-    // Assign keypoints to the grid for speed up feature matching (called in the constructor).
-    void AssignFeaturesToGrid();
-
     // Compute the cell of a keypoint (return false if outside the grid)
     bool PosInGrid(const cv::KeyPoint &kp, int &posX, int &posY);
 
+    vector<size_t> GetFeaturesInArea(const float &x, const float  &y, const float  &r, const int minLevel = -1, const int maxLevel = -1) const;
+
+public:
     // Vocabulary used for relocalization.
     ORBVocabulary* mpORBvocabulary = NULL;
 
@@ -129,8 +116,7 @@ public:
     SLCVMat mDistCoef;
 
     // Number of KeyPoints.
-    int N=0;
-
+    int N = 0;
 
     // Vector of keypoints (original for visualization) and undistorted (actually used by the system).
     // In the stereo case, mvKeysUn is redundant as images must be rectified.
@@ -143,8 +129,18 @@ public:
     std::vector<float> mvuRight;
     std::vector<float> mvDepth;
 
+    // Bag of Words Vector structures.
+    DBoW2::BowVector mBowVec; //ghm1: used for search of relocalization candidates similar to current frame
+    DBoW2::FeatureVector mFeatVec;
+
     // ORB descriptor, each row associated to a keypoint.
     cv::Mat mDescriptors;
+
+    // MapPoints associated to keypoints, NULL pointer if no association.
+    //ghm1: this is a vector in the size of the number of detected keypoints in this frame. It is
+    //initialized with a NULL pointer. If the matcher could associate a map point with with keypoint i, then
+    //mvpMapPoints[i] will contain the pointer to this associated mapPoint.
+    std::vector<SLCVMapPoint*> mvpMapPoints;
 
     // Flag to identify outlier associations.
     std::vector<bool> mvbOutlier;
@@ -157,7 +153,25 @@ public:
     // Camera pose.
     cv::Mat mTcw;
 
-//public:
+    // Current and Next Frame id.
+    static long unsigned int nNextId;
+    long unsigned int mnId = -1;
+
+    // Reference Keyframe.
+    //ghm1: the reference keyframe is changed after initialization (pKFini),
+    //in UpdateLocalKeyFrames it gets assigned the keyframe which observes the most points in the current local map (pKFmax) and
+    //if a new Keyframe is created in CreateNewKeyFrame() this is automatically the new reference keyframe
+    SLCVKeyFrame* mpReferenceKF = NULL;
+
+    // Scale pyramid info.
+    int mnScaleLevels;
+    float mfScaleFactor;
+    float mfLogScaleFactor;
+    vector<float> mvScaleFactors;
+    vector<float> mvInvScaleFactors;
+    vector<float> mvLevelSigma2;
+    vector<float> mvInvLevelSigma2;
+
     // Undistorted Image Bounds (computed once).
     static float mnMinX;
     static float mnMaxX;
@@ -169,13 +183,18 @@ public:
     //frame image
     cv::Mat imgGray;
 
-    // Reference Keyframe.
-    //ghm1: the reference keyframe is changed after initialization (pKFini),
-    //in UpdateLocalKeyFrames it gets assigned the keyframe which observes the most points in the current local map (pKFmax) and
-    //if a new Keyframe is created in CreateNewKeyFrame() this is automatically the new reference keyframe
-    SLCVKeyFrame* mpReferenceKF = NULL;
-
 private:
+    // Undistort keypoints given OpenCV distortion parameters.
+    // Only for the RGB-D case. Stereo must be already rectified!
+    // (called in the constructor).
+    void UndistortKeyPoints();
+
+    // Computes image bounds for the undistorted image (called in the constructor).
+    void ComputeImageBounds(const cv::Mat &imLeft);
+
+    // Assign keypoints to the grid for speed up feature matching (called in the constructor).
+    void AssignFeaturesToGrid();
+
     // Rotation, translation and camera center
     cv::Mat mRcw;
     cv::Mat mtcw;
