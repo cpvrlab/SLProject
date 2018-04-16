@@ -8,6 +8,26 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+/**
+* This file is part of ORB-SLAM2.
+*
+* Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
+* For more information see <https://github.com/raulmur/ORB_SLAM2>
+*
+* ORB-SLAM2 is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* ORB-SLAM2 is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "stdafx.h"
 #include "SLCVMap.h"
 #include <SLMaterial.h>
@@ -25,15 +45,73 @@ SLCVMap::SLCVMap(const string& name)
     : mnMaxKFid(0),
     _mapNode(NULL)
 {
-
 }
 //-----------------------------------------------------------------------------
 SLCVMap::~SLCVMap()
 {
-    for (auto* pt : mspMapPoints) {
-        if (pt)
-            delete pt;
-    }
+    clear();
+}
+//-----------------------------------------------------------------------------
+void SLCVMap::AddKeyFrame(SLCVKeyFrame *pKF)
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    mspKeyFrames.insert(pKF);
+    if (pKF->mnId>mnMaxKFid)
+        mnMaxKFid = pKF->mnId;
+}
+//-----------------------------------------------------------------------------
+void SLCVMap::AddMapPoint(SLCVMapPoint *pMP)
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    mspMapPoints.insert(pMP);
+}
+//-----------------------------------------------------------------------------
+void SLCVMap::EraseMapPoint(SLCVMapPoint *pMP)
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    mspMapPoints.erase(pMP);
+
+    // TODO: This only erase the pointer.
+    // Delete the MapPoint
+}
+//-----------------------------------------------------------------------------
+void SLCVMap::EraseKeyFrame(SLCVKeyFrame *pKF)
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    mspKeyFrames.erase(pKF);
+
+    // TODO: This only erase the pointer.
+    // Delete the MapPoint
+}
+//-----------------------------------------------------------------------------
+void SLCVMap::SetReferenceMapPoints(const vector<SLCVMapPoint*> &vpMPs)
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    mvpReferenceMapPoints = vpMPs;
+}
+//-----------------------------------------------------------------------------
+std::vector<SLCVKeyFrame*> SLCVMap::GetAllKeyFrames()
+{
+    return vector<SLCVKeyFrame*>(mspKeyFrames.begin(), mspKeyFrames.end());
+}
+//-----------------------------------------------------------------------------
+vector<SLCVMapPoint*> SLCVMap::GetAllMapPoints()
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    return vector<SLCVMapPoint*>(mspMapPoints.begin(), mspMapPoints.end());
+}
+//-----------------------------------------------------------------------------
+long unsigned int SLCVMap::KeyFramesInMap()
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    return mspKeyFrames.size();
+    //return mpKeyFrameDatabase->keyFrames().size();
+}
+//-----------------------------------------------------------------------------
+long unsigned int SLCVMap::MapPointsInMap()
+{
+    //unique_lock<mutex> lock(mMutexMap);
+    return mspMapPoints.size();
 }
 //-----------------------------------------------------------------------------
 void SLCVMap::clear()
@@ -55,80 +133,6 @@ void SLCVMap::clear()
     //remove visual representation
     if (_mapNode)
         _mapNode->updateAll(*this);
-}
-//-----------------------------------------------------------------------------
-void SLCVMap::SetReferenceMapPoints(const vector<SLCVMapPoint*> &vpMPs)
-{
-    //unique_lock<mutex> lock(mMutexMap);
-    mvpReferenceMapPoints = vpMPs;
-}
-//-----------------------------------------------------------------------------
-long unsigned int SLCVMap::KeyFramesInMap()
-{
-    //unique_lock<mutex> lock(mMutexMap);
-    return mspKeyFrames.size();
-    //return mpKeyFrameDatabase->keyFrames().size();
-}
-//-----------------------------------------------------------------------------
-void SLCVMap::EraseMapPoint(SLCVMapPoint *pMP)
-{
-    //unique_lock<mutex> lock(mMutexMap);
-    mspMapPoints.erase(pMP);
-
-    // TODO: This only erase the pointer.
-    // Delete the MapPoint
-}
-//-----------------------------------------------------------------------------
-vector<SLCVMapPoint*> SLCVMap::GetAllMapPoints()
-{
-    //unique_lock<mutex> lock(mMutexMap);
-    return vector<SLCVMapPoint*>(mspMapPoints.begin(), mspMapPoints.end());
-}
-//-----------------------------------------------------------------------------
-const std::set<SLCVMapPoint*>& SLCVMap::GetAllMapPointsConstRef() const
-{
-    //unique_lock<mutex> lock(mMutexMap);
-    return mspMapPoints;
-}
-//-----------------------------------------------------------------------------
-std::set<SLCVMapPoint*>& SLCVMap::GetAllMapPointsRef()
-{
-    //unique_lock<mutex> lock(mMutexMap);
-    return mspMapPoints;
-}
-//-----------------------------------------------------------------------------
-void SLCVMap::AddMapPoint(SLCVMapPoint *pMP)
-{
-    //unique_lock<mutex> lock(mMutexMap);
-    mspMapPoints.insert(pMP);
-}
-//-----------------------------------------------------------------------------
-void SLCVMap::AddKeyFrame(SLCVKeyFrame *pKF)
-{
-    //unique_lock<mutex> lock(mMutexMap);
-    mspKeyFrames.insert(pKF);
-    if (pKF->mnId>mnMaxKFid)
-        mnMaxKFid = pKF->mnId;
-}
-//-----------------------------------------------------------------------------
-long unsigned int SLCVMap::MapPointsInMap()
-{
-    //unique_lock<mutex> lock(mMutexMap);
-    return mspMapPoints.size();
-}
-//-----------------------------------------------------------------------------
-void SLCVMap::EraseKeyFrame(SLCVKeyFrame *pKF)
-{
-    //unique_lock<mutex> lock(mMutexMap);
-    mspKeyFrames.erase(pKF);
-
-    // TODO: This only erase the pointer.
-    // Delete the MapPoint
-}
-//-----------------------------------------------------------------------------
-std::vector<SLCVKeyFrame*> SLCVMap::GetAllKeyFrames()
-{
-    return vector<SLCVKeyFrame*>(mspKeyFrames.begin(), mspKeyFrames.end());
 }
 //-----------------------------------------------------------------------------
 void SLCVMap::rotate(float value, int type)

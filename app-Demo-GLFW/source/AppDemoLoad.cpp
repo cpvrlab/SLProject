@@ -2692,8 +2692,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             loader.load(*map, *kfDB);
         }
 
-        map->setKeyFrameDB(kfDB);
-
         //the map node contains the visual representation of the slam map
         SLCVMapNode* mapNode = new SLCVMapNode("map", *map);
         //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 

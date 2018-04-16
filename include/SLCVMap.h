@@ -8,6 +8,26 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+/**
+* This file is part of ORB-SLAM2.
+*
+* Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
+* For more information see <https://github.com/raulmur/ORB_SLAM2>
+*
+* ORB-SLAM2 is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* ORB-SLAM2 is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef SLCVMAP_H
 #define SLCVMAP_H
 
@@ -36,32 +56,24 @@ public:
     SLCVMap(const string& name);
     ~SLCVMap();
 
-    //! get reference to map points vector
-    //std::vector<SLCVMapPoint*>& mapPoints() { return _mapPoints; }
-    std::vector<SLCVMapPoint*> GetAllMapPoints();
-    const std::set<SLCVMapPoint*>& GetAllMapPointsConstRef() const;
-    std::set<SLCVMapPoint*>& GetAllMapPointsRef();
-    void AddMapPoint(SLCVMapPoint *pMP);
-    SLCVKeyFrameDB* getKeyFrameDB() { return mpKeyFrameDatabase; }
     void AddKeyFrame(SLCVKeyFrame* pKF);
-
-    std::vector<SLCVKeyFrame*> GetAllKeyFrames();
-
-    //! get visual representation as SLPoints
-    //SLPoints* getSceneObject();
-    //SLPoints* getNewSceneObject();
-    void SetReferenceMapPoints(const std::vector<SLCVMapPoint*> &vpMPs);
-
-    long unsigned int MapPointsInMap();
-
-    void setKeyFrameDB(SLCVKeyFrameDB* kfDB) { mpKeyFrameDatabase = kfDB; }
-    void clear();
-    long unsigned int KeyFramesInMap();
-
+    void AddMapPoint(SLCVMapPoint *pMP);
     void EraseMapPoint(SLCVMapPoint *pMP);
     void EraseKeyFrame(SLCVKeyFrame* pKF);
+    void SetReferenceMapPoints(const std::vector<SLCVMapPoint*> &vpMPs);
+
+    std::vector<SLCVKeyFrame*> GetAllKeyFrames();
+    std::vector<SLCVMapPoint*> GetAllMapPoints();
+
+    long unsigned int MapPointsInMap();
+    long unsigned int KeyFramesInMap();
+
+    void clear();
 
     vector<SLCVKeyFrame*> mvpKeyFrameOrigins;
+
+    //const std::set<SLCVMapPoint*>& GetAllMapPointsConstRef() const;
+    //std::set<SLCVMapPoint*>& GetAllMapPointsRef();
 
     //set map node for visu update
     void setMapNode(SLCVMapNode* mapNode);
@@ -75,22 +87,30 @@ public:
     cv::Mat buildRotMat(float &valDeg, int type);
     void saveState();
 
-private:
-    //SLCVVMapPoint _mapPoints;
-    //std::vector<SLCVMapPoint*> _mapPoints;
-    long unsigned int mnMaxKFid;
-
+protected:
     std::set<SLCVMapPoint*> mspMapPoints;
     std::set<SLCVKeyFrame*> mspKeyFrames;
 
     std::vector<SLCVMapPoint*> mvpReferenceMapPoints;
 
-    //Pointer to visual representation object (ATTENTION: do not delete this object)
-    SLPoints* _sceneObject = NULL;
+    long unsigned int mnMaxKFid;
 
-    SLCVKeyFrameDB* mpKeyFrameDatabase=NULL;
 
     SLCVMapNode* _mapNode = NULL;
+
+    //SLCVKeyFrameDB* getKeyFrameDB() { return mpKeyFrameDatabase; }
+
+    //! get visual representation as SLPoints
+    //SLPoints* getSceneObject();
+    //SLPoints* getNewSceneObject();
+
+    //void setKeyFrameDB(SLCVKeyFrameDB* kfDB) { mpKeyFrameDatabase = kfDB; }
+
+
+    //Pointer to visual representation object (ATTENTION: do not delete this object)
+    //SLPoints* _sceneObject = NULL;
+
+    //SLCVKeyFrameDB* mpKeyFrameDatabase=NULL;
 };
 
 #endif // !SLCVMAP_H

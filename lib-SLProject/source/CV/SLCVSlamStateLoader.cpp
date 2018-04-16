@@ -64,7 +64,7 @@ void SLCVSlamStateLoader::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
     }
 
     //compute resulting values for map points
-    const std::set<SLCVMapPoint*>& mapPts = map.GetAllMapPointsConstRef();
+    auto mapPts = map.GetAllMapPoints();
     for (auto& mp : mapPts) {
         //mean viewing direction and depth
         mp->UpdateNormalAndDepth();
