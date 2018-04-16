@@ -21,8 +21,13 @@ android {
     }
     sourceSets {
         main {
-            jniLibs.srcDirs = ['../../_lib/prebuilt/OpenCV/android']
             assets.srcDirs = ['src/main/assets']
+        }
+        debug {
+            jniLibs.srcDirs = ['../../_lib/prebuilt/OpenCV/android/Debug']
+        }
+        release {
+            jniLibs.srcDirs = ['../../_lib/prebuilt/OpenCV/android/Release']
         }
     }
     buildTypes {
