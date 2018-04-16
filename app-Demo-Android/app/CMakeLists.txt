@@ -167,9 +167,28 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code
 #
 # OpenCV
 #
-add_library(lib_opencv SHARED IMPORTED)
-set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${ANDROID_ABI}/libopencv_java3.so)
-
+add_library(lib_opencv_aruco SHARED IMPORTED)
+set_target_properties(lib_opencv_aruco PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_aruco.so)
+add_library(lib_opencv_video SHARED IMPORTED)
+set_target_properties(lib_opencv_video PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_video.so)
+add_library(lib_opencv_videoio SHARED IMPORTED)
+set_target_properties(lib_opencv_videoio PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_videoio.so)
+add_library(lib_opencv_core SHARED IMPORTED)
+set_target_properties(lib_opencv_core PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_core.so)
+add_library(lib_opencv_imgproc SHARED IMPORTED)
+set_target_properties(lib_opencv_imgproc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_imgproc.so)
+add_library(lib_opencv_features2d SHARED IMPORTED)
+set_target_properties(lib_opencv_features2d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_features2d.so)
+add_library(lib_opencv_calib3d SHARED IMPORTED)
+set_target_properties(lib_opencv_calib3d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_calib3d.so)
+add_library(lib_opencv_imgcodecs SHARED IMPORTED)
+set_target_properties(lib_opencv_imgcodecs PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_imgcodecs.so)
+add_library(lib_opencv_highgui SHARED IMPORTED)
+set_target_properties(lib_opencv_highgui PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_highgui.so)
+add_library(lib_opencv_xfeatures2d SHARED IMPORTED)
+set_target_properties(lib_opencv_xfeatures2d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_xfeatures2d.so)
+add_library(lib_opencv_face SHARED IMPORTED)
+set_target_properties(lib_opencv_face PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_face.so)
 
 add_library(native-lib
             SHARED
@@ -191,7 +210,17 @@ set(OPENGL_LIB_v3 GLESv3)
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries(  native-lib
-                        lib_opencv
+                        lib_opencv_aruco
+                        lib_opencv_video
+                        lib_opencv_videoio
+                        lib_opencv_core
+                        lib_opencv_imgproc
+                        lib_opencv_features2d
+                        lib_opencv_calib3d
+                        lib_opencv_imgcodecs
+                        lib_opencv_highgui
+                        lib_opencv_xfeatures2d
+                        lib_opencv_face
                         ${OPENGL_LIB_v3}
                         ${log-lib}
                      )
