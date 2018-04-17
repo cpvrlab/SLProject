@@ -29,6 +29,9 @@
 #include<mutex>
 #include<thread>
 
+#ifdef ANDROID
+#include <unistd.h>
+#endif
 
 namespace ORB_SLAM2
 {
@@ -89,7 +92,7 @@ void LoopClosing::SetLocalMapper(LocalMapping *pLocalMapper)
 //    SetFinish();
 //}
 
-void LoopClosing::RunOnce()
+bool LoopClosing::RunOnce()
 {
     // Check if there are keyframes in the queue
     if (CheckNewKeyFrames())
@@ -103,9 +106,11 @@ void LoopClosing::RunOnce()
             {
                 // Perform loop fusion and pose graph optimization
                 doCorrectLoop();
+                return true;
             }
         }
     }
+    return false;
 }
 
 void LoopClosing::InsertKeyFrame(SLCVKeyFrame *pKF)
@@ -644,6 +649,13 @@ void LoopClosing::SearchAndFuse(const KeyFrameAndPose &CorrectedPosesMap)
     }
 }
 
+//ghm1
+void LoopClosing::reset()
+{
+    mlpLoopKeyFrameQueue.clear();
+    mLastLoopKFid = 0;
+    mbResetRequested = false;
+}
 
 void LoopClosing::RequestReset()
 {

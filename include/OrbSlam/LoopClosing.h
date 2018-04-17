@@ -57,11 +57,12 @@ public:
 
     // Main function
     void Run();
-    void RunOnce();
+    bool RunOnce();
 
     void InsertKeyFrame(SLCVKeyFrame *pKF);
 
     void RequestReset();
+    void reset();
 
     // This function will run in a separate thread
     void RunGlobalBundleAdjustment(unsigned long nLoopKF);

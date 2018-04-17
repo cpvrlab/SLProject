@@ -24,6 +24,11 @@ SLImGuiTrackedMapping::SLImGuiTrackedMapping(string name, SLCVTrackedMapping* ma
 //-----------------------------------------------------------------------------
 void SLImGuiTrackedMapping::buildInfos()
 {
+    if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+        _mappingTracker->Reset();
+        _mappingTracker->setState(SLCVTrackedMapping::INITIALIZE);
+    }
+
     //add tracking state
     ImGui::Text("Tracking State : %s ", _mappingTracker->getPrintableState().c_str());
     //add number of matches map points in current frame
@@ -32,11 +37,10 @@ void SLImGuiTrackedMapping::buildInfos()
     ImGui::Text("Num Map Pts: %d ", _mappingTracker->mapPointsCount());
     //add number of keyframes
     ImGui::Text("Number of Keyframes : %d ", _mappingTracker->getNumKeyFrames());
+    //add loop closings counter
+    ImGui::Text("Number of LoopClosings : %d ", _mappingTracker->getNumLoopClosings());
 
-    if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        _mappingTracker->Reset();
-        _mappingTracker->setState(SLCVTrackedMapping::INITIALIZE);
-    }
+
     //else if (ImGui::Button("Track VO", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
     //    _mappingTracker->setState(SLCVTrackedMapping::TRACK_VO);
     //}
@@ -46,7 +50,14 @@ void SLImGuiTrackedMapping::buildInfos()
     //else if (ImGui::Button("Track optical flow", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
     //    _mappingTracker->setState(SLCVTrackedMapping::TRACK_OPTICAL_FLOW);
     //}
-    else if (ImGui::Button("Add key frame", ImVec2(ImGui::GetContentRegionAvailWidth(), 60.0f))) {
+
+#ifdef ANDROID
+    float bHeigth = 200.0f;
+#else
+    float bHeigth = 60.0f;
+#endif
+
+    if (ImGui::Button("Add key frame", ImVec2(ImGui::GetContentRegionAvailWidth(), bHeigth))) {
         _mappingTracker->mapNextFrame();
     }
     else if (ImGui::Button("Save map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {

@@ -412,7 +412,8 @@ void SLCVTrackedMapping::track3DPts()
 
             //loop closing
             mpLoopClosing->InsertKeyFrame(mpLastKeyFrame);
-            mpLoopClosing->RunOnce();
+            if (mpLoopClosing->RunOnce())
+                _numOfLoopClosings++;
 
             _mapNextFrame = false;
             //update visualization of map, it may have changed because of global bundle adjustment.
@@ -688,6 +689,7 @@ void SLCVTrackedMapping::Reset()
     //// Reset Loop Closing
     //cout << "Reseting Loop Closing...";
     //mpLoopClosing->RequestReset();
+    mpLoopClosing->reset();
     //cout << " done" << endl;
 
     // Clear BoW Database

@@ -66,6 +66,8 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
             }
         }
 
+        int getNumLoopClosings() { return _numOfLoopClosings; }
+
         //// Tracking states
         //enum eTrackingState {
         //    SYSTEM_NOT_READY = -1,
@@ -217,6 +219,8 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         //SLCVMapNode* _mapNode = NULL;
 
         bool _mapNextFrame = false;
+
+        int _numOfLoopClosings = 0;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedMapping_H
