@@ -36,6 +36,8 @@
 #include <SLCVFrame.h>
 #include <SLCVKeyFrame.h>
 
+#include <mutex>
+
 //-----------------------------------------------------------------------------
 //! AR Keyframe database class
 /*! 
@@ -61,6 +63,9 @@ protected:
     const ORBVocabulary* mpVoc;
     // Inverted file
     std::vector<list<SLCVKeyFrame*> > mvInvertedFile;
+
+    // Mutex
+    std::mutex mMutex;
 };
 
 #endif // !SLCVKEYFRAMEDB_H

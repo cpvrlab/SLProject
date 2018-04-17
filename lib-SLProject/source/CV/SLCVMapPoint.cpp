@@ -13,8 +13,10 @@
 #include <SLCVKeyFrame.h>
 #include <SLCVFrame.h>
 #include <OrbSlam/ORBmatcher.h>
+#include <mutex>
 
 long unsigned int SLCVMapPoint::nNextId = 0;
+mutex SLCVMapPoint::mGlobalMutex;
 
 //-----------------------------------------------------------------------------
 //!constructor used during map loading
@@ -43,7 +45,7 @@ SLCVMapPoint::SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF, SLCVMap* pM
     mNormalVector = cv::Mat::zeros(3, 1, CV_32F);
 
     // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
-    //unique_lock<mutex> lock(mpMap->mMutexPointCreation);
+    unique_lock<mutex> lock(mpMap->mMutexPointCreation);
     mnId = nNextId++;
 }
 //-----------------------------------------------------------------------------
@@ -70,32 +72,32 @@ SLVec3f SLCVMapPoint::normalVec()
 //-----------------------------------------------------------------------------
 void SLCVMapPoint::SetWorldPos(const cv::Mat &Pos)
 {
-    //unique_lock<mutex> lock2(mGlobalMutex);
-    //unique_lock<mutex> lock(mMutexPos);
+    unique_lock<mutex> lock2(mGlobalMutex);
+    unique_lock<mutex> lock(mMutexPos);
     Pos.copyTo(mWorldPos);
 }
 //-----------------------------------------------------------------------------
-cv::Mat SLCVMapPoint::GetWorldPos() const
+cv::Mat SLCVMapPoint::GetWorldPos()
 {
-    //unique_lock<mutex> lock(mMutexPos);
+    unique_lock<mutex> lock(mMutexPos);
     return mWorldPos.clone();
 }
 //-----------------------------------------------------------------------------
-cv::Mat SLCVMapPoint::GetNormal() const
+cv::Mat SLCVMapPoint::GetNormal()
 {
-    //unique_lock<mutex> lock(mMutexPos);
+    unique_lock<mutex> lock(mMutexPos);
     return mNormalVector.clone();
 }
 //-----------------------------------------------------------------------------
 SLCVKeyFrame* SLCVMapPoint::GetReferenceKeyFrame()
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     return mpRefKF;
 }
 //-----------------------------------------------------------------------------
 void SLCVMapPoint::AddObservation(SLCVKeyFrame* pKF, size_t idx)
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     if (mObservations.count(pKF))
         return;
     mObservations[pKF] = idx;
@@ -106,7 +108,7 @@ void SLCVMapPoint::EraseObservation(SLCVKeyFrame* pKF)
 {
     bool bBad = false;
     {
-        //unique_lock<mutex> lock(mMutexFeatures);
+        unique_lock<mutex> lock(mMutexFeatures);
         if (mObservations.count(pKF))
         {
             //int idx = mObservations[pKF];
@@ -132,15 +134,15 @@ void SLCVMapPoint::EraseObservation(SLCVKeyFrame* pKF)
         SetBadFlag();
 }
 //-----------------------------------------------------------------------------
-std::map<SLCVKeyFrame*, size_t> SLCVMapPoint::GetObservations() const
+std::map<SLCVKeyFrame*, size_t> SLCVMapPoint::GetObservations()
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     return mObservations;
 }
 //-----------------------------------------------------------------------------
 int SLCVMapPoint::Observations()
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     return nObs;
 }
 //-----------------------------------------------------------------------------
@@ -148,8 +150,8 @@ void SLCVMapPoint::SetBadFlag()
 {
     map<SLCVKeyFrame*, size_t> obs;
     {
-        //unique_lock<mutex> lock1(mMutexFeatures);
-        //unique_lock<mutex> lock2(mMutexPos);
+        unique_lock<mutex> lock1(mMutexFeatures);
+        unique_lock<mutex> lock2(mMutexPos);
         mbBad = true;
         obs = mObservations;
         mObservations.clear();
@@ -171,8 +173,8 @@ void SLCVMapPoint::Replace(SLCVMapPoint* pMP)
     int nvisible, nfound;
     map<SLCVKeyFrame*, size_t> obs;
     {
-        //unique_lock<mutex> lock1(mMutexFeatures);
-        //unique_lock<mutex> lock2(mMutexPos);
+        unique_lock<mutex> lock1(mMutexFeatures);
+        unique_lock<mutex> lock2(mMutexPos);
         obs = mObservations;
         mObservations.clear();
         mbBad = true;
@@ -203,28 +205,28 @@ void SLCVMapPoint::Replace(SLCVMapPoint* pMP)
     mpMap->EraseMapPoint(this);
 }
 //-----------------------------------------------------------------------------
-bool SLCVMapPoint::isBad() const
+bool SLCVMapPoint::isBad()
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
-    //unique_lock<mutex> lock2(mMutexPos);
+    unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock2(mMutexPos);
     return mbBad;
 }
 //-----------------------------------------------------------------------------
 void SLCVMapPoint::IncreaseVisible(int n)
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     mnVisible += n;
 }
 //-----------------------------------------------------------------------------
 void SLCVMapPoint::IncreaseFound(int n)
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     mnFound += n;
 }
 //-----------------------------------------------------------------------------
 float SLCVMapPoint::GetFoundRatio()
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     return static_cast<float>(mnFound) / mnVisible;
 }
 //-----------------------------------------------------------------------------
@@ -236,7 +238,7 @@ void SLCVMapPoint::ComputeDistinctiveDescriptors()
     map<SLCVKeyFrame*, size_t> observations;
 
     {
-        //unique_lock<mutex> lock1(mMutexFeatures);
+        unique_lock<mutex> lock1(mMutexFeatures);
         if (mbBad)
             return;
         observations = mObservations;
@@ -315,20 +317,20 @@ void SLCVMapPoint::ComputeDistinctiveDescriptors()
 #endif
 
     {
-        //unique_lock<mutex> lock(mMutexFeatures);
+        unique_lock<mutex> lock(mMutexFeatures);
         mDescriptor = vDescriptors[BestIdx].clone();
     }
 }
 //-----------------------------------------------------------------------------
 cv::Mat SLCVMapPoint::GetDescriptor()
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     return mDescriptor.clone();
 }
 //-----------------------------------------------------------------------------
 int SLCVMapPoint::GetIndexInKeyFrame(SLCVKeyFrame *pKF)
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     if (mObservations.count(pKF))
         return mObservations[pKF];
     else
@@ -337,7 +339,7 @@ int SLCVMapPoint::GetIndexInKeyFrame(SLCVKeyFrame *pKF)
 //-----------------------------------------------------------------------------
 bool SLCVMapPoint::IsInKeyFrame(SLCVKeyFrame *pKF)
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     return (mObservations.count(pKF));
 }
 //-----------------------------------------------------------------------------
@@ -348,8 +350,8 @@ void SLCVMapPoint::UpdateNormalAndDepth()
     SLCVKeyFrame* pRefKF;
     cv::Mat Pos;
     {
-        //unique_lock<mutex> lock1(mMutexFeatures);
-        //unique_lock<mutex> lock2(mMutexPos);
+        unique_lock<mutex> lock1(mMutexFeatures);
+        unique_lock<mutex> lock2(mMutexPos);
         if (mbBad)
             return;
         observations = mObservations;
@@ -378,7 +380,7 @@ void SLCVMapPoint::UpdateNormalAndDepth()
     const int nLevels = pRefKF->mnScaleLevels;
 
     {
-        //unique_lock<mutex> lock3(mMutexPos);
+        unique_lock<mutex> lock3(mMutexPos);
         mfMaxDistance = dist*levelScaleFactor;
         mfMinDistance = mfMaxDistance / pRefKF->mvScaleFactors[nLevels - 1];
         mNormalVector = normal / n;
@@ -387,13 +389,13 @@ void SLCVMapPoint::UpdateNormalAndDepth()
 //-----------------------------------------------------------------------------
 float SLCVMapPoint::GetMinDistanceInvariance()
 {
-    //unique_lock<mutex> lock(mMutexPos);
+    unique_lock<mutex> lock(mMutexPos);
     return 0.8f*mfMinDistance;
 }
 //-----------------------------------------------------------------------------
 float SLCVMapPoint::GetMaxDistanceInvariance()
 {
-    //unique_lock<mutex> lock(mMutexPos);
+    unique_lock<mutex> lock(mMutexPos);
     return 1.2f*mfMaxDistance;
 }
 //-----------------------------------------------------------------------------
@@ -401,7 +403,7 @@ int SLCVMapPoint::PredictScale(const float &currentDist, SLCVKeyFrame* pKF)
 {
     float ratio;
     {
-        //unique_lock<mutex> lock(mMutexPos);
+        unique_lock<mutex> lock(mMutexPos);
         ratio = mfMaxDistance / currentDist;
     }
 
@@ -418,7 +420,7 @@ int SLCVMapPoint::PredictScale(const float &currentDist, SLCVFrame* pF)
 {
     float ratio;
     {
-        //unique_lock<mutex> lock(mMutexPos);
+        unique_lock<mutex> lock(mMutexPos);
         ratio = mfMaxDistance / currentDist;
     }
 

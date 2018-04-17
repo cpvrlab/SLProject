@@ -40,7 +40,7 @@ SLCVKeyFrameDB::SLCVKeyFrameDB(const ORBVocabulary &voc) :
 //-----------------------------------------------------------------------------
 void SLCVKeyFrameDB::add(SLCVKeyFrame* pKF)
 {
-    //unique_lock<mutex> lock(mMutex);
+    unique_lock<mutex> lock(mMutex);
 
     for (DBoW2::BowVector::const_iterator vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
         mvInvertedFile[vit->first].push_back(pKF);
@@ -48,7 +48,7 @@ void SLCVKeyFrameDB::add(SLCVKeyFrame* pKF)
 //-----------------------------------------------------------------------------
 void SLCVKeyFrameDB::erase(SLCVKeyFrame* pKF)
 {
-    //unique_lock<mutex> lock(mMutex);
+    unique_lock<mutex> lock(mMutex);
 
     // Erase elements in the Inverse File for the entry
     for (DBoW2::BowVector::const_iterator vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
@@ -81,7 +81,7 @@ vector<SLCVKeyFrame*> SLCVKeyFrameDB::DetectLoopCandidates(SLCVKeyFrame* pKF, fl
     // Search all keyframes that share a word with current keyframes
     // Discard keyframes connected to the query keyframe
     {
-        //unique_lock<mutex> lock(mMutex);
+        unique_lock<mutex> lock(mMutex);
 
         for (DBoW2::BowVector::const_iterator vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
         {
@@ -202,7 +202,7 @@ vector<SLCVKeyFrame*> SLCVKeyFrameDB::DetectRelocalizationCandidates(SLCVFrame *
 
     // Search all keyframes that share a word with current frame
     {
-        //unique_lock<mutex> lock(mMutex);
+        unique_lock<mutex> lock(mMutex);
 
         for (DBoW2::BowVector::const_iterator vit = F->mBowVec.begin(), vend = F->mBowVec.end(); vit != vend; vit++)
         {

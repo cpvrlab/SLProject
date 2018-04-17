@@ -279,7 +279,7 @@ int Optimizer::PoseOptimization(SLCVFrame *pFrame)
 
 
     {
-    //unique_lock<mutex> lock(SLCVMapPoint::mGlobalMutex);
+    unique_lock<mutex> lock(SLCVMapPoint::mGlobalMutex);
 
     for(int i=0; i<N; i++)
     {
@@ -662,7 +662,7 @@ void Optimizer::OptimizeEssentialGraph(SLCVMap* pMap, SLCVKeyFrame* pLoopKF, SLC
     optimizer.initializeOptimization();
     optimizer.optimize(20);
 
-    //unique_lock<mutex> lock(pMap->mMutexMapUpdate);
+    unique_lock<mutex> lock(pMap->mMutexMapUpdate);
 
     // SE3 Pose Recovering. Sim3:[sR t;0 1] -> SE3:[R t/s;0 1]
     for (size_t i = 0; i<vpKFs.size(); i++)
@@ -1012,7 +1012,7 @@ void Optimizer::LocalBundleAdjustment(SLCVKeyFrame *pKF, bool* pbStopFlag, SLCVM
     }
 
     // Get SLCVMap Mutex
-    //unique_lock<mutex> lock(pMap->mMutexMapUpdate);
+    unique_lock<mutex> lock(pMap->mMutexMapUpdate);
 
     if(!vToErase.empty())
     {

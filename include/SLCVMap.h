@@ -33,6 +33,7 @@
 
 #include <vector>
 #include <string>
+#include <mutex>
 #include <SLCVMapPoint.h>
 
 class SLPoints;
@@ -76,6 +77,11 @@ public:
 
     vector<SLCVKeyFrame*> mvpKeyFrameOrigins;
 
+    std::mutex mMutexMapUpdate;
+
+    // This avoid that two points are created simultaneously in separate threads (id conflict)
+    std::mutex mMutexPointCreation;
+
     //set map node for visu update
     void setMapNode(SLCVMapNode* mapNode);
 
@@ -99,6 +105,7 @@ protected:
     // Index related to a big change in the map (loop closure, global BA)
     int mnBigChangeIdx;
 
+    std::mutex mMutexMap;
 
     SLCVMapNode* _mapNode = NULL;
 };

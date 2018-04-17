@@ -36,12 +36,12 @@ public:
     SLVec3f normalVec();
 
     void SetWorldPos(const cv::Mat &Pos);
-    cv::Mat GetWorldPos() const;
+    cv::Mat GetWorldPos();
 
-    cv::Mat GetNormal() const;
+    cv::Mat GetNormal();
     SLCVKeyFrame* GetReferenceKeyFrame();
 
-    std::map<SLCVKeyFrame*, size_t> GetObservations() const;
+    std::map<SLCVKeyFrame*, size_t> GetObservations();
     int Observations();
 
     void AddObservation(SLCVKeyFrame* pKF, size_t idx);
@@ -51,7 +51,7 @@ public:
     bool IsInKeyFrame(SLCVKeyFrame *pKF);
 
     void SetBadFlag();
-    bool isBad() const;
+    bool isBad();
 
     void Replace(SLCVMapPoint* pMP);
 
@@ -103,6 +103,8 @@ public:
     cv::Mat mPosGBA;
     long unsigned int mnBAGlobalForKF;
 
+    static std::mutex mGlobalMutex;
+
 protected:
     //open cv coordinate representation: z-axis points to principlal point,
     // x-axis to the right and y-axis down
@@ -133,6 +135,9 @@ protected:
     float mfMaxDistance = 0.f;
 
     SLCVMap* mpMap = NULL;
+
+    std::mutex mMutexPos;
+    std::mutex mMutexFeatures;
 };
 
 #endif // !SLCVMAPPOINT_H

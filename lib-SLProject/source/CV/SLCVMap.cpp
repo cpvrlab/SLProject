@@ -54,7 +54,7 @@ SLCVMap::~SLCVMap()
 //-----------------------------------------------------------------------------
 void SLCVMap::AddKeyFrame(SLCVKeyFrame *pKF)
 {
-    //unique_lock<mutex> lock(mMutexMap);
+    unique_lock<mutex> lock(mMutexMap);
     mspKeyFrames.insert(pKF);
     if (pKF->mnId>mnMaxKFid)
         mnMaxKFid = pKF->mnId;
@@ -62,13 +62,13 @@ void SLCVMap::AddKeyFrame(SLCVKeyFrame *pKF)
 //-----------------------------------------------------------------------------
 void SLCVMap::AddMapPoint(SLCVMapPoint *pMP)
 {
-    //unique_lock<mutex> lock(mMutexMap);
+    unique_lock<mutex> lock(mMutexMap);
     mspMapPoints.insert(pMP);
 }
 //-----------------------------------------------------------------------------
 void SLCVMap::EraseMapPoint(SLCVMapPoint *pMP)
 {
-    //unique_lock<mutex> lock(mMutexMap);
+    unique_lock<mutex> lock(mMutexMap);
     mspMapPoints.erase(pMP);
 
     // TODO: This only erase the pointer.
@@ -77,7 +77,7 @@ void SLCVMap::EraseMapPoint(SLCVMapPoint *pMP)
 //-----------------------------------------------------------------------------
 void SLCVMap::EraseKeyFrame(SLCVKeyFrame *pKF)
 {
-    //unique_lock<mutex> lock(mMutexMap);
+    unique_lock<mutex> lock(mMutexMap);
     mspKeyFrames.erase(pKF);
 
     // TODO: This only erase the pointer.
@@ -86,49 +86,49 @@ void SLCVMap::EraseKeyFrame(SLCVKeyFrame *pKF)
 //-----------------------------------------------------------------------------
 void SLCVMap::SetReferenceMapPoints(const vector<SLCVMapPoint*> &vpMPs)
 {
-    //unique_lock<mutex> lock(mMutexMap);
+    unique_lock<mutex> lock(mMutexMap);
     mvpReferenceMapPoints = vpMPs;
 }
 //-----------------------------------------------------------------------------
 void SLCVMap::InformNewBigChange()
 {
-    //unique_lock<mutex> lock(mMutexMap);
+    unique_lock<mutex> lock(mMutexMap);
     mnBigChangeIdx++;
 }
 //-----------------------------------------------------------------------------
 int SLCVMap::GetLastBigChangeIdx()
 {
-    //unique_lock<mutex> lock(mMutexMap);
+    unique_lock<mutex> lock(mMutexMap);
     return mnBigChangeIdx;
 }
 //-----------------------------------------------------------------------------
 std::vector<SLCVKeyFrame*> SLCVMap::GetAllKeyFrames()
 {
+    unique_lock<mutex> lock(mMutexMap);
     return vector<SLCVKeyFrame*>(mspKeyFrames.begin(), mspKeyFrames.end());
 }
 //-----------------------------------------------------------------------------
 vector<SLCVMapPoint*> SLCVMap::GetAllMapPoints()
 {
-    //unique_lock<mutex> lock(mMutexMap);
+    unique_lock<mutex> lock(mMutexMap);
     return vector<SLCVMapPoint*>(mspMapPoints.begin(), mspMapPoints.end());
 }
 //-----------------------------------------------------------------------------
 long unsigned int SLCVMap::KeyFramesInMap()
 {
-    //unique_lock<mutex> lock(mMutexMap);
+    unique_lock<mutex> lock(mMutexMap);
     return mspKeyFrames.size();
-    //return mpKeyFrameDatabase->keyFrames().size();
 }
 //-----------------------------------------------------------------------------
 long unsigned int SLCVMap::MapPointsInMap()
 {
-    //unique_lock<mutex> lock(mMutexMap);
+    unique_lock<mutex> lock(mMutexMap);
     return mspMapPoints.size();
 }
 //-----------------------------------------------------------------------------
 long unsigned int SLCVMap::GetMaxKFid()
 {
-    //unique_lock<mutex> lock(mMutexMap);
+    unique_lock<mutex> lock(mMutexMap);
     return mnMaxKFid;
 }
 //-----------------------------------------------------------------------------

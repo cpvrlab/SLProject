@@ -40,6 +40,7 @@
 #include <SLGLTexture.h>
 #include <opencv2/core/core.hpp>
 #include <SLCVFrame.h>
+#include <mutex>
 
 using namespace ORB_SLAM2;
 
@@ -245,6 +246,10 @@ protected:
     bool mbBad;
 
     SLCVMap* mpMap;
+
+    std::mutex mMutexPose;
+    std::mutex mMutexConnections;
+    std::mutex mMutexFeatures;
 
 public:
     //ghm1: added funtions

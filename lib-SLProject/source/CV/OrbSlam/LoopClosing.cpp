@@ -54,43 +54,42 @@ void LoopClosing::SetLocalMapper(LocalMapping *pLocalMapper)
     mpLocalMapper=pLocalMapper;
 }
 
+void LoopClosing::Run()
+{
+    mbFinished =false;
 
-//void LoopClosing::Run()
-//{
-//    mbFinished =false;
-//
-//    while(1)
-//    {
-//        // Check if there are keyframes in the queue
-//        if(CheckNewKeyFrames())
-//        {
-//            // Detect loop candidates and check covisibility consistency
-//            if(DetectLoop())
-//            {
-//               // Compute similarity transformation [sR|t]
-//               // In the stereo/RGBD case s=1
-//               if(ComputeSim3())
-//               {
-//                   // Perform loop fusion and pose graph optimization
-//                   CorrectLoop();
-//               }
-//            }
-//        }       
-//
-//        ResetIfRequested();
-//
-//        if(CheckFinish())
-//            break;
-//
-//#ifdef _WINDOWS
-//                Sleep(5);
-//#else
-//                usleep(5000);
-//#endif
-//    }
-//
-//    SetFinish();
-//}
+    while(1)
+    {
+        // Check if there are keyframes in the queue
+        if(CheckNewKeyFrames())
+        {
+            // Detect loop candidates and check covisibility consistency
+            if(DetectLoop())
+            {
+               // Compute similarity transformation [sR|t]
+               // In the stereo/RGBD case s=1
+               if(ComputeSim3())
+               {
+                   // Perform loop fusion and pose graph optimization
+                   CorrectLoop();
+               }
+            }
+        }       
+
+        ResetIfRequested();
+
+        if(CheckFinish())
+            break;
+
+#ifdef _WINDOWS
+                Sleep(5);
+#else
+                usleep(5000);
+#endif
+    }
+
+    SetFinish();
+}
 
 bool LoopClosing::RunOnce()
 {
@@ -443,7 +442,7 @@ void LoopClosing::doCorrectLoop()
 
     {
         // Get Map Mutex
-        //unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
+        unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
 
         for (vector<SLCVKeyFrame*>::iterator vit = mvpCurrentConnectedKFs.begin(), vend = mvpCurrentConnectedKFs.end(); vit != vend; vit++)
         {
@@ -636,7 +635,7 @@ void LoopClosing::SearchAndFuse(const KeyFrameAndPose &CorrectedPosesMap)
         matcher.Fuse(pKF,cvScw,mvpLoopMapPoints,4,vpReplacePoints);
 
         // Get Map Mutex
-        //unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
+        unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
         const int nLP = mvpLoopMapPoints.size();
         for(int i=0; i<nLP;i++)
         {
@@ -723,7 +722,7 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
             }
 
             // Get Map Mutex
-            //unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
+            unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
 
             // Correct keyframes starting at map first keyframe
             list<SLCVKeyFrame*> lpKFtoCheck(mpMap->mvpKeyFrameOrigins.begin(),mpMap->mvpKeyFrameOrigins.end());

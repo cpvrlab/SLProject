@@ -120,7 +120,7 @@ void SLCVKeyFrame::ComputeBoW(ORBVocabulary* orbVocabulary)
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::SetPose(const SLCVMat& Tcw)
 {
-    //unique_lock<mutex> lock(mMutexPose);
+    unique_lock<mutex> lock(mMutexPose);
     Tcw.copyTo(_Tcw);
     cv::Mat Rcw = _Tcw.rowRange(0, 3).colRange(0, 3);
     cv::Mat tcw = _Tcw.rowRange(0, 3).col(3);
@@ -137,38 +137,38 @@ void SLCVKeyFrame::SetPose(const SLCVMat& Tcw)
 //-----------------------------------------------------------------------------
 cv::Mat SLCVKeyFrame::GetPose()
 {
-    //unique_lock<mutex> lock(mMutexPose);
+    unique_lock<mutex> lock(mMutexPose);
     return _Tcw.clone();
 }
 //-----------------------------------------------------------------------------
 cv::Mat SLCVKeyFrame::GetPoseInverse()
 {
-    //unique_lock<mutex> lock(mMutexPose);
+    unique_lock<mutex> lock(mMutexPose);
     return _Twc.clone();
 }
 //-----------------------------------------------------------------------------
 cv::Mat SLCVKeyFrame::GetCameraCenter()
 {
-    //unique_lock<mutex> lock(mMutexPose);
+    unique_lock<mutex> lock(mMutexPose);
     return Ow.clone();
 }
 //-----------------------------------------------------------------------------
 cv::Mat SLCVKeyFrame::GetRotation()
 {
-    //unique_lock<mutex> lock(mMutexPose);
+    unique_lock<mutex> lock(mMutexPose);
     return _Tcw.rowRange(0, 3).colRange(0, 3).clone();
 }
 //-----------------------------------------------------------------------------
 cv::Mat SLCVKeyFrame::GetTranslation()
 {
-    //unique_lock<mutex> lock(mMutexPose);
+    unique_lock<mutex> lock(mMutexPose);
     return _Tcw.rowRange(0, 3).col(3).clone();
 }
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::AddConnection(SLCVKeyFrame *pKF, int weight)
 {
     {
-        //unique_lock<mutex> lock(mMutexConnections);
+        unique_lock<mutex> lock(mMutexConnections);
         if (!mConnectedKeyFrameWeights.count(pKF))
             mConnectedKeyFrameWeights[pKF] = weight;
         else if (mConnectedKeyFrameWeights[pKF] != weight)
@@ -182,7 +182,7 @@ void SLCVKeyFrame::AddConnection(SLCVKeyFrame *pKF, int weight)
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::UpdateBestCovisibles()
 {
-    //unique_lock<mutex> lock(mMutexConnections);
+    unique_lock<mutex> lock(mMutexConnections);
     vector<pair<int, SLCVKeyFrame*> > vPairs;
     vPairs.reserve(mConnectedKeyFrameWeights.size());
     for (map<SLCVKeyFrame*, int>::iterator mit = mConnectedKeyFrameWeights.begin(), mend = mConnectedKeyFrameWeights.end(); mit != mend; mit++)
@@ -203,7 +203,7 @@ void SLCVKeyFrame::UpdateBestCovisibles()
 //-----------------------------------------------------------------------------
 set<SLCVKeyFrame*> SLCVKeyFrame::GetConnectedKeyFrames()
 {
-    //unique_lock<mutex> lock(mMutexConnections);
+    unique_lock<mutex> lock(mMutexConnections);
     set<SLCVKeyFrame*> s;
     for (map<SLCVKeyFrame*, int>::iterator mit = mConnectedKeyFrameWeights.begin(); mit != mConnectedKeyFrameWeights.end(); mit++)
         s.insert(mit->first);
@@ -212,13 +212,13 @@ set<SLCVKeyFrame*> SLCVKeyFrame::GetConnectedKeyFrames()
 //-----------------------------------------------------------------------------
 vector<SLCVKeyFrame*> SLCVKeyFrame::GetVectorCovisibleKeyFrames()
 {
-    //unique_lock<mutex> lock(mMutexConnections);
+    unique_lock<mutex> lock(mMutexConnections);
     return mvpOrderedConnectedKeyFrames;
 }
 //-----------------------------------------------------------------------------
 vector<SLCVKeyFrame*> SLCVKeyFrame::GetBestCovisibilityKeyFrames(const int &N)
 {
-    //unique_lock<mutex> lock(mMutexConnections);
+    unique_lock<mutex> lock(mMutexConnections);
     if ((int)mvpOrderedConnectedKeyFrames.size()<N)
         return mvpOrderedConnectedKeyFrames;
     else
@@ -227,7 +227,7 @@ vector<SLCVKeyFrame*> SLCVKeyFrame::GetBestCovisibilityKeyFrames(const int &N)
 //-----------------------------------------------------------------------------
 vector<SLCVKeyFrame*> SLCVKeyFrame::GetCovisiblesByWeight(const int &w)
 {
-    //unique_lock<mutex> lock(mMutexConnections);
+    unique_lock<mutex> lock(mMutexConnections);
 
     if (mvpOrderedConnectedKeyFrames.empty())
         return vector<SLCVKeyFrame*>();
@@ -244,7 +244,7 @@ vector<SLCVKeyFrame*> SLCVKeyFrame::GetCovisiblesByWeight(const int &w)
 //-----------------------------------------------------------------------------
 int SLCVKeyFrame::GetWeight(SLCVKeyFrame *pKF)
 {
-    //unique_lock<mutex> lock(mMutexConnections);
+    unique_lock<mutex> lock(mMutexConnections);
     if (mConnectedKeyFrameWeights.count(pKF))
         return mConnectedKeyFrameWeights[pKF];
     else
@@ -253,19 +253,19 @@ int SLCVKeyFrame::GetWeight(SLCVKeyFrame *pKF)
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::AddMapPoint(SLCVMapPoint *pMP, size_t idx)
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     mvpMapPoints[idx] = pMP;
 }
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::EraseMapPointMatch(const size_t &idx)
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     mvpMapPoints[idx] = static_cast<SLCVMapPoint*>(NULL);
 }
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::EraseMapPointMatch(SLCVMapPoint* pMP)
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     int idx = pMP->GetIndexInKeyFrame(this);
     if (idx >= 0)
         mvpMapPoints[idx] = static_cast<SLCVMapPoint*>(NULL);
@@ -278,7 +278,7 @@ void SLCVKeyFrame::ReplaceMapPointMatch(const size_t &idx, SLCVMapPoint* pMP)
 //-----------------------------------------------------------------------------
 set<SLCVMapPoint*> SLCVKeyFrame::GetMapPoints()
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     set<SLCVMapPoint*> s;
     for (size_t i = 0, iend = mvpMapPoints.size(); i<iend; i++)
     {
@@ -293,7 +293,7 @@ set<SLCVMapPoint*> SLCVKeyFrame::GetMapPoints()
 //-----------------------------------------------------------------------------
 int SLCVKeyFrame::TrackedMapPoints(const int &minObs)
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
 
     int nPoints = 0;
     const bool bCheckObs = minObs>0;
@@ -320,13 +320,13 @@ int SLCVKeyFrame::TrackedMapPoints(const int &minObs)
 //-----------------------------------------------------------------------------
 vector<SLCVMapPoint*> SLCVKeyFrame::GetMapPointMatches()
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     return mvpMapPoints;
 }
 //-----------------------------------------------------------------------------
 SLCVMapPoint* SLCVKeyFrame::GetMapPoint(const size_t &idx)
 {
-    //unique_lock<mutex> lock(mMutexFeatures);
+    unique_lock<mutex> lock(mMutexFeatures);
     return mvpMapPoints[idx];
 }
 //-----------------------------------------------------------------------------
@@ -339,7 +339,7 @@ void SLCVKeyFrame::UpdateConnections()
     vector<SLCVMapPoint*> vpMP;
 
     {
-        //unique_lock<mutex> lockMPs(mMutexFeatures);
+        unique_lock<mutex> lockMPs(mMutexFeatures);
         vpMP = mvpMapPoints;
     }
 
@@ -407,7 +407,7 @@ void SLCVKeyFrame::UpdateConnections()
     }
 
     {
-        //unique_lock<mutex> lockCon(mMutexConnections);
+        unique_lock<mutex> lockCon(mMutexConnections);
 
         // mspConnectedKeyFrames = spConnectedKeyFrames;
         mConnectedKeyFrameWeights = KFcounter;
@@ -426,64 +426,64 @@ void SLCVKeyFrame::UpdateConnections()
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::AddChild(SLCVKeyFrame *pKF)
 {
-    //unique_lock<mutex> lockCon(mMutexConnections);
+    unique_lock<mutex> lockCon(mMutexConnections);
     mspChildrens.insert(pKF);
 }
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::EraseChild(SLCVKeyFrame *pKF)
 {
-    //unique_lock<mutex> lockCon(mMutexConnections);
+    unique_lock<mutex> lockCon(mMutexConnections);
     mspChildrens.erase(pKF);
 }
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::ChangeParent(SLCVKeyFrame *pKF)
 {
-    //unique_lock<mutex> lockCon(mMutexConnections);
+    unique_lock<mutex> lockCon(mMutexConnections);
     mpParent = pKF;
     pKF->AddChild(this);
 }
 //-----------------------------------------------------------------------------
 std::set<SLCVKeyFrame*> SLCVKeyFrame::GetChilds()
 {
-    //unique_lock<mutex> lockCon(mMutexConnections);
+    unique_lock<mutex> lockCon(mMutexConnections);
     return mspChildrens;
 }
 //-----------------------------------------------------------------------------
 SLCVKeyFrame* SLCVKeyFrame::GetParent()
 {
-    //unique_lock<mutex> lockCon(mMutexConnections);
+    unique_lock<mutex> lockCon(mMutexConnections);
     return mpParent;
 }
 //-----------------------------------------------------------------------------
 bool SLCVKeyFrame::hasChild(SLCVKeyFrame *pKF)
 {
-    //unique_lock<mutex> lockCon(mMutexConnections);
+    unique_lock<mutex> lockCon(mMutexConnections);
     return mspChildrens.count(pKF);
 }
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::AddLoopEdge(SLCVKeyFrame *pKF)
 {
-    //unique_lock<mutex> lockCon(mMutexConnections);
+    unique_lock<mutex> lockCon(mMutexConnections);
     mbNotErase = true;
     mspLoopEdges.insert(pKF);
 }
 //-----------------------------------------------------------------------------
 set<SLCVKeyFrame*> SLCVKeyFrame::GetLoopEdges()
 {
-    //unique_lock<mutex> lockCon(mMutexConnections);
+    unique_lock<mutex> lockCon(mMutexConnections);
     return mspLoopEdges;
 }
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::SetNotErase()
 {
-    //unique_lock<mutex> lock(mMutexConnections);
+    unique_lock<mutex> lock(mMutexConnections);
     mbNotErase = true;
 }
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::SetErase()
 {
     {
-        //unique_lock<mutex> lock(mMutexConnections);
+        unique_lock<mutex> lock(mMutexConnections);
         if (mspLoopEdges.empty())
         {
             mbNotErase = false;
@@ -499,7 +499,7 @@ void SLCVKeyFrame::SetErase()
 void SLCVKeyFrame::SetBadFlag()
 {
     {
-        //unique_lock<mutex> lock(mMutexConnections);
+        unique_lock<mutex> lock(mMutexConnections);
         if (mnId == 0)
             return;
         else if (mbNotErase)
@@ -516,8 +516,8 @@ void SLCVKeyFrame::SetBadFlag()
         if (mvpMapPoints[i])
             mvpMapPoints[i]->EraseObservation(this);
     {
-        //unique_lock<mutex> lock(mMutexConnections);
-        //unique_lock<mutex> lock1(mMutexFeatures);
+        unique_lock<mutex> lock(mMutexConnections);
+        unique_lock<mutex> lock1(mMutexFeatures);
 
         mConnectedKeyFrameWeights.clear();
         mvpOrderedConnectedKeyFrames.clear();
@@ -592,7 +592,7 @@ void SLCVKeyFrame::SetBadFlag()
 //-----------------------------------------------------------------------------
 bool SLCVKeyFrame::isBad()
 {
-    //unique_lock<mutex> lock(mMutexConnections);
+    unique_lock<mutex> lock(mMutexConnections);
     return mbBad;
 }
 //-----------------------------------------------------------------------------
@@ -600,7 +600,7 @@ void SLCVKeyFrame::EraseConnection(SLCVKeyFrame* pKF)
 {
     bool bUpdate = false;
     {
-        //unique_lock<mutex> lock(mMutexConnections);
+        unique_lock<mutex> lock(mMutexConnections);
         if (mConnectedKeyFrameWeights.count(pKF))
         {
             mConnectedKeyFrameWeights.erase(pKF);
@@ -663,8 +663,8 @@ float SLCVKeyFrame::ComputeSceneMedianDepth(const int q)
     vector<SLCVMapPoint*> vpMapPoints;
     cv::Mat Tcw_;
     {
-        //unique_lock<mutex> lock(mMutexFeatures);
-        //unique_lock<mutex> lock2(mMutexPose);
+        unique_lock<mutex> lock(mMutexFeatures);
+        unique_lock<mutex> lock2(mMutexPose);
         vpMapPoints = mvpMapPoints;
         Tcw_ = _Tcw.clone();
     }

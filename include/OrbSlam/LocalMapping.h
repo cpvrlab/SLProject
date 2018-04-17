@@ -27,28 +27,27 @@
 //#include "Tracking.h"
 #include "SLCVKeyFrameDB.h"
 
-//#include <mutex>
+#include <mutex>
 
 class SLCVMap;
 
 namespace ORB_SLAM2
 {
 
-
 //class Tracking;
-//class LoopClosing;
+class LoopClosing;
 
 class LocalMapping
 {
 public:
     LocalMapping(SLCVMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary);
 
-    //void SetLoopCloser(LoopClosing* pLoopCloser);
+    void SetLoopCloser(LoopClosing* pLoopCloser);
 
     //void SetTracker(Tracking* pTracker);
 
     // Main function
-    //void Run();
+    void Run();
     //ghm1
     void RunOnce();
 
@@ -56,7 +55,7 @@ public:
 
     // Thread Synch
     void RequestStop();
-    //void RequestReset();
+    void RequestReset();
     bool Stop();
     void Release();
     bool isStopped();
@@ -73,7 +72,7 @@ public:
     bool isFinished();
 
     int KeyframesInQueue(){
-        //unique_lock<std::mutex> lock(mMutexNewKFs);
+        unique_lock<std::mutex> lock(mMutexNewKFs);
         return mlNewKeyFrames.size();
     }
 
@@ -96,17 +95,17 @@ protected:
 
     void ResetIfRequested();
     bool mbResetRequested;
-    //std::mutex mMutexReset;
+    std::mutex mMutexReset;
 
     bool CheckFinish();
     void SetFinish();
     bool mbFinishRequested;
     bool mbFinished;
-    //std::mutex mMutexFinish;
+    std::mutex mMutexFinish;
 
     SLCVMap* mpMap;
 
-    //LoopClosing* mpLoopCloser;
+    LoopClosing* mpLoopCloser;
     //Tracking* mpTracker;
 
     std::list<SLCVKeyFrame*> mlNewKeyFrames;
@@ -115,17 +114,17 @@ protected:
 
     std::list<SLCVMapPoint*> mlpRecentAddedMapPoints;
 
-    //std::mutex mMutexNewKFs;
+    std::mutex mMutexNewKFs;
 
     bool mbAbortBA;
 
     bool mbStopped;
     bool mbStopRequested;
     bool mbNotStop;
-    //std::mutex mMutexStop;
+    std::mutex mMutexStop;
 
     bool mbAcceptKeyFrames;
-    //std::mutex mMutexAccept;
+    std::mutex mMutexAccept;
 
     ORBVocabulary* mpORBvocabulary=NULL;
 };
