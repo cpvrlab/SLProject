@@ -57,6 +57,7 @@ public:
 
     // Main function
     void Run();
+    void RunOnce();
 
     void InsertKeyFrame(SLCVKeyFrame *pKF);
 
@@ -91,6 +92,7 @@ protected:
     void SearchAndFuse(const KeyFrameAndPose &CorrectedPosesMap);
 
     void CorrectLoop();
+    void doCorrectLoop();
 
     void ResetIfRequested();
     bool mbResetRequested;

@@ -435,6 +435,9 @@
     <ClInclude Include="..\include\OrbSlam\LoopClosing.h">
       <Filter>CV\OrbSlam</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\OrbSlam\Sim3Solver.h">
+      <Filter>CV\OrbSlam</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -739,6 +742,9 @@
       <Filter>CV</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\OrbSlam\LoopClosing.cpp">
+      <Filter>CV\OrbSlam</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\OrbSlam\Sim3Solver.cpp">
       <Filter>CV\OrbSlam</Filter>
     </ClCompile>
   </ItemGroup>

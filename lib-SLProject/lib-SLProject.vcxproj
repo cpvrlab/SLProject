@@ -280,6 +280,7 @@
     <ClInclude Include="..\include\OrbSlam\Optimizer.h" />
     <ClInclude Include="..\include\OrbSlam\ORBmatcher.h" />
     <ClInclude Include="..\include\OrbSlam\PnPsolver.h" />
+    <ClInclude Include="..\include\OrbSlam\Sim3Solver.h" />
     <ClInclude Include="..\include\SL.h" />
     <ClInclude Include="..\include\SLAccelStruct.h" />
     <ClInclude Include="..\include\SLAnimation.h" />
@@ -413,6 +414,7 @@
     <ClCompile Include="source\CV\OrbSlam\Optimizer.cpp" />
     <ClCompile Include="source\CV\OrbSlam\ORBmatcher.cpp" />
     <ClCompile Include="source\CV\OrbSlam\PnPsolver.cpp" />
+    <ClCompile Include="source\CV\OrbSlam\Sim3Solver.cpp" />
     <ClCompile Include="source\CV\SLCVCamera.cpp" />
     <ClCompile Include="source\CV\SLCVFeatureManager.cpp" />
     <ClCompile Include="source\CV\SLCVFrame.cpp" />

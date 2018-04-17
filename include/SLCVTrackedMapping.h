@@ -176,6 +176,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         bool mbVO = false;
 
         LocalMapping* mpLocalMapper = NULL;
+        LoopClosing* mpLoopClosing = NULL;
 
         ////Local Map 
         ////(maybe always the last inserted keyframe?)

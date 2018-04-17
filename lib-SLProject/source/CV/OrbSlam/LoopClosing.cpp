@@ -46,10 +46,10 @@ LoopClosing::LoopClosing(SLCVMap *pMap, SLCVKeyFrameDB *pDB, ORBVocabulary *pVoc
 //    mpTracker=pTracker;
 //}
 
-//void LoopClosing::SetLocalMapper(LocalMapping *pLocalMapper)
-//{
-//    mpLocalMapper=pLocalMapper;
-//}
+void LoopClosing::SetLocalMapper(LocalMapping *pLocalMapper)
+{
+    mpLocalMapper=pLocalMapper;
+}
 
 
 //void LoopClosing::Run()
@@ -88,6 +88,25 @@ LoopClosing::LoopClosing(SLCVMap *pMap, SLCVKeyFrameDB *pDB, ORBVocabulary *pVoc
 //
 //    SetFinish();
 //}
+
+void LoopClosing::RunOnce()
+{
+    // Check if there are keyframes in the queue
+    if (CheckNewKeyFrames())
+    {
+        // Detect loop candidates and check covisibility consistency
+        if (DetectLoop())
+        {
+            // Compute similarity transformation [sR|t]
+            // In the stereo/RGBD case s=1
+            if (ComputeSim3())
+            {
+                // Perform loop fusion and pose graph optimization
+                doCorrectLoop();
+            }
+        }
+    }
+}
 
 void LoopClosing::InsertKeyFrame(SLCVKeyFrame *pKF)
 {
@@ -403,6 +422,164 @@ bool LoopClosing::ComputeSim3()
 
 }
 
+void LoopClosing::doCorrectLoop()
+{
+    // Ensure current keyframe is updated
+    mpCurrentKF->UpdateConnections();
+
+    // Retrive keyframes connected to the current keyframe and compute corrected Sim3 pose by propagation
+    mvpCurrentConnectedKFs = mpCurrentKF->GetVectorCovisibleKeyFrames();
+    mvpCurrentConnectedKFs.push_back(mpCurrentKF);
+
+    KeyFrameAndPose CorrectedSim3, NonCorrectedSim3;
+    CorrectedSim3[mpCurrentKF] = mg2oScw;
+    cv::Mat Twc = mpCurrentKF->GetPoseInverse();
+
+
+    {
+        // Get Map Mutex
+        //unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
+
+        for (vector<SLCVKeyFrame*>::iterator vit = mvpCurrentConnectedKFs.begin(), vend = mvpCurrentConnectedKFs.end(); vit != vend; vit++)
+        {
+            SLCVKeyFrame* pKFi = *vit;
+
+            cv::Mat Tiw = pKFi->GetPose();
+
+            if (pKFi != mpCurrentKF)
+            {
+                cv::Mat Tic = Tiw*Twc;
+                cv::Mat Ric = Tic.rowRange(0, 3).colRange(0, 3);
+                cv::Mat tic = Tic.rowRange(0, 3).col(3);
+                g2o::Sim3 g2oSic(Converter::toMatrix3d(Ric), Converter::toVector3d(tic), 1.0);
+                g2o::Sim3 g2oCorrectedSiw = g2oSic*mg2oScw;
+                //Pose corrected with the Sim3 of the loop closure
+                CorrectedSim3[pKFi] = g2oCorrectedSiw;
+            }
+
+            cv::Mat Riw = Tiw.rowRange(0, 3).colRange(0, 3);
+            cv::Mat tiw = Tiw.rowRange(0, 3).col(3);
+            g2o::Sim3 g2oSiw(Converter::toMatrix3d(Riw), Converter::toVector3d(tiw), 1.0);
+            //Pose without correction
+            NonCorrectedSim3[pKFi] = g2oSiw;
+        }
+
+        // Correct all MapPoints obsrved by current keyframe and neighbors, so that they align with the other side of the loop
+        for (KeyFrameAndPose::iterator mit = CorrectedSim3.begin(), mend = CorrectedSim3.end(); mit != mend; mit++)
+        {
+            SLCVKeyFrame* pKFi = mit->first;
+            g2o::Sim3 g2oCorrectedSiw = mit->second;
+            g2o::Sim3 g2oCorrectedSwi = g2oCorrectedSiw.inverse();
+
+            g2o::Sim3 g2oSiw = NonCorrectedSim3[pKFi];
+
+            vector<SLCVMapPoint*> vpMPsi = pKFi->GetMapPointMatches();
+            for (size_t iMP = 0, endMPi = vpMPsi.size(); iMP<endMPi; iMP++)
+            {
+                SLCVMapPoint* pMPi = vpMPsi[iMP];
+                if (!pMPi)
+                    continue;
+                if (pMPi->isBad())
+                    continue;
+                if (pMPi->mnCorrectedByKF == mpCurrentKF->mnId)
+                    continue;
+
+                // Project with non-corrected pose and project back with corrected pose
+                cv::Mat P3Dw = pMPi->GetWorldPos();
+                Eigen::Matrix<double, 3, 1> eigP3Dw = Converter::toVector3d(P3Dw);
+                Eigen::Matrix<double, 3, 1> eigCorrectedP3Dw = g2oCorrectedSwi.map(g2oSiw.map(eigP3Dw));
+
+                cv::Mat cvCorrectedP3Dw = Converter::toCvMat(eigCorrectedP3Dw);
+                pMPi->SetWorldPos(cvCorrectedP3Dw);
+                pMPi->mnCorrectedByKF = mpCurrentKF->mnId;
+                pMPi->mnCorrectedReference = pKFi->mnId;
+                pMPi->UpdateNormalAndDepth();
+            }
+
+            // Update keyframe pose with corrected Sim3. First transform Sim3 to SE3 (scale translation)
+            Eigen::Matrix3d eigR = g2oCorrectedSiw.rotation().toRotationMatrix();
+            Eigen::Vector3d eigt = g2oCorrectedSiw.translation();
+            double s = g2oCorrectedSiw.scale();
+
+            eigt *= (1. / s); //[R t/s;0 1]
+
+            cv::Mat correctedTiw = Converter::toCvSE3(eigR, eigt);
+
+            pKFi->SetPose(correctedTiw);
+
+            // Make sure connections are updated
+            pKFi->UpdateConnections();
+        }
+
+        // Start Loop Fusion
+        // Update matched map points and replace if duplicated
+        for (size_t i = 0; i<mvpCurrentMatchedPoints.size(); i++)
+        {
+            if (mvpCurrentMatchedPoints[i])
+            {
+                SLCVMapPoint* pLoopMP = mvpCurrentMatchedPoints[i];
+                SLCVMapPoint* pCurMP = mpCurrentKF->GetMapPoint(i);
+                if (pCurMP)
+                    pCurMP->Replace(pLoopMP);
+                else
+                {
+                    mpCurrentKF->AddMapPoint(pLoopMP, i);
+                    pLoopMP->AddObservation(mpCurrentKF, i);
+                    pLoopMP->ComputeDistinctiveDescriptors();
+                }
+            }
+        }
+
+    }
+
+    // Project MapPoints observed in the neighborhood of the loop keyframe
+    // into the current keyframe and neighbors using corrected poses.
+    // Fuse duplications.
+    SearchAndFuse(CorrectedSim3);
+
+
+    // After the MapPoint fusion, new links in the covisibility graph will appear attaching both sides of the loop
+    map<SLCVKeyFrame*, set<SLCVKeyFrame*> > LoopConnections;
+
+    for (vector<SLCVKeyFrame*>::iterator vit = mvpCurrentConnectedKFs.begin(), vend = mvpCurrentConnectedKFs.end(); vit != vend; vit++)
+    {
+        SLCVKeyFrame* pKFi = *vit;
+        vector<SLCVKeyFrame*> vpPreviousNeighbors = pKFi->GetVectorCovisibleKeyFrames();
+
+        // Update connections. Detect new links.
+        pKFi->UpdateConnections();
+        LoopConnections[pKFi] = pKFi->GetConnectedKeyFrames();
+        for (vector<SLCVKeyFrame*>::iterator vit_prev = vpPreviousNeighbors.begin(), vend_prev = vpPreviousNeighbors.end(); vit_prev != vend_prev; vit_prev++)
+        {
+            LoopConnections[pKFi].erase(*vit_prev);
+        }
+        for (vector<SLCVKeyFrame*>::iterator vit2 = mvpCurrentConnectedKFs.begin(), vend2 = mvpCurrentConnectedKFs.end(); vit2 != vend2; vit2++)
+        {
+            LoopConnections[pKFi].erase(*vit2);
+        }
+    }
+
+    // Optimize graph
+    Optimizer::OptimizeEssentialGraph(mpMap, mpMatchedKF, mpCurrentKF, NonCorrectedSim3, CorrectedSim3, LoopConnections, mbFixScale);
+
+    mpMap->InformNewBigChange();
+
+    // Add loop edge
+    mpMatchedKF->AddLoopEdge(mpCurrentKF);
+    mpCurrentKF->AddLoopEdge(mpMatchedKF);
+
+    // Launch a new thread to perform Global Bundle Adjustment
+    mbRunningGBA = true;
+    mbFinishedGBA = false;
+    mbStopGBA = false;
+    mpThreadGBA = new thread(&LoopClosing::RunGlobalBundleAdjustment, this, mpCurrentKF->mnId);
+
+    // Loop closed. Release Local Mapping.
+    mpLocalMapper->Release();
+
+    mLastLoopKFid = mpCurrentKF->mnId;
+}
+
 void LoopClosing::CorrectLoop()
 {
     cout << "Loop detected!" << endl;
@@ -436,160 +613,7 @@ void LoopClosing::CorrectLoop()
 #endif
     }
 
-    // Ensure current keyframe is updated
-    mpCurrentKF->UpdateConnections();
-
-    // Retrive keyframes connected to the current keyframe and compute corrected Sim3 pose by propagation
-    mvpCurrentConnectedKFs = mpCurrentKF->GetVectorCovisibleKeyFrames();
-    mvpCurrentConnectedKFs.push_back(mpCurrentKF);
-
-    KeyFrameAndPose CorrectedSim3, NonCorrectedSim3;
-    CorrectedSim3[mpCurrentKF]=mg2oScw;
-    cv::Mat Twc = mpCurrentKF->GetPoseInverse();
-
-
-    {
-        // Get Map Mutex
-        //unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
-
-        for(vector<SLCVKeyFrame*>::iterator vit=mvpCurrentConnectedKFs.begin(), vend=mvpCurrentConnectedKFs.end(); vit!=vend; vit++)
-        {
-            SLCVKeyFrame* pKFi = *vit;
-
-            cv::Mat Tiw = pKFi->GetPose();
-
-            if(pKFi!=mpCurrentKF)
-            {
-                cv::Mat Tic = Tiw*Twc;
-                cv::Mat Ric = Tic.rowRange(0,3).colRange(0,3);
-                cv::Mat tic = Tic.rowRange(0,3).col(3);
-                g2o::Sim3 g2oSic(Converter::toMatrix3d(Ric),Converter::toVector3d(tic),1.0);
-                g2o::Sim3 g2oCorrectedSiw = g2oSic*mg2oScw;
-                //Pose corrected with the Sim3 of the loop closure
-                CorrectedSim3[pKFi]=g2oCorrectedSiw;
-            }
-
-            cv::Mat Riw = Tiw.rowRange(0,3).colRange(0,3);
-            cv::Mat tiw = Tiw.rowRange(0,3).col(3);
-            g2o::Sim3 g2oSiw(Converter::toMatrix3d(Riw),Converter::toVector3d(tiw),1.0);
-            //Pose without correction
-            NonCorrectedSim3[pKFi]=g2oSiw;
-        }
-
-        // Correct all MapPoints obsrved by current keyframe and neighbors, so that they align with the other side of the loop
-        for(KeyFrameAndPose::iterator mit=CorrectedSim3.begin(), mend=CorrectedSim3.end(); mit!=mend; mit++)
-        {
-            SLCVKeyFrame* pKFi = mit->first;
-            g2o::Sim3 g2oCorrectedSiw = mit->second;
-            g2o::Sim3 g2oCorrectedSwi = g2oCorrectedSiw.inverse();
-
-            g2o::Sim3 g2oSiw =NonCorrectedSim3[pKFi];
-
-            vector<SLCVMapPoint*> vpMPsi = pKFi->GetMapPointMatches();
-            for(size_t iMP=0, endMPi = vpMPsi.size(); iMP<endMPi; iMP++)
-            {
-                SLCVMapPoint* pMPi = vpMPsi[iMP];
-                if(!pMPi)
-                    continue;
-                if(pMPi->isBad())
-                    continue;
-                if(pMPi->mnCorrectedByKF==mpCurrentKF->mnId)
-                    continue;
-
-                // Project with non-corrected pose and project back with corrected pose
-                cv::Mat P3Dw = pMPi->GetWorldPos();
-                Eigen::Matrix<double,3,1> eigP3Dw = Converter::toVector3d(P3Dw);
-                Eigen::Matrix<double,3,1> eigCorrectedP3Dw = g2oCorrectedSwi.map(g2oSiw.map(eigP3Dw));
-
-                cv::Mat cvCorrectedP3Dw = Converter::toCvMat(eigCorrectedP3Dw);
-                pMPi->SetWorldPos(cvCorrectedP3Dw);
-                pMPi->mnCorrectedByKF = mpCurrentKF->mnId;
-                pMPi->mnCorrectedReference = pKFi->mnId;
-                pMPi->UpdateNormalAndDepth();
-            }
-
-            // Update keyframe pose with corrected Sim3. First transform Sim3 to SE3 (scale translation)
-            Eigen::Matrix3d eigR = g2oCorrectedSiw.rotation().toRotationMatrix();
-            Eigen::Vector3d eigt = g2oCorrectedSiw.translation();
-            double s = g2oCorrectedSiw.scale();
-
-            eigt *=(1./s); //[R t/s;0 1]
-
-            cv::Mat correctedTiw = Converter::toCvSE3(eigR,eigt);
-
-            pKFi->SetPose(correctedTiw);
-
-            // Make sure connections are updated
-            pKFi->UpdateConnections();
-        }
-
-        // Start Loop Fusion
-        // Update matched map points and replace if duplicated
-        for(size_t i=0; i<mvpCurrentMatchedPoints.size(); i++)
-        {
-            if(mvpCurrentMatchedPoints[i])
-            {
-                SLCVMapPoint* pLoopMP = mvpCurrentMatchedPoints[i];
-                SLCVMapPoint* pCurMP = mpCurrentKF->GetMapPoint(i);
-                if(pCurMP)
-                    pCurMP->Replace(pLoopMP);
-                else
-                {
-                    mpCurrentKF->AddMapPoint(pLoopMP,i);
-                    pLoopMP->AddObservation(mpCurrentKF,i);
-                    pLoopMP->ComputeDistinctiveDescriptors();
-                }
-            }
-        }
-
-    }
-
-    // Project MapPoints observed in the neighborhood of the loop keyframe
-    // into the current keyframe and neighbors using corrected poses.
-    // Fuse duplications.
-    SearchAndFuse(CorrectedSim3);
-
-
-    // After the MapPoint fusion, new links in the covisibility graph will appear attaching both sides of the loop
-    map<SLCVKeyFrame*, set<SLCVKeyFrame*> > LoopConnections;
-
-    for(vector<SLCVKeyFrame*>::iterator vit=mvpCurrentConnectedKFs.begin(), vend=mvpCurrentConnectedKFs.end(); vit!=vend; vit++)
-    {
-        SLCVKeyFrame* pKFi = *vit;
-        vector<SLCVKeyFrame*> vpPreviousNeighbors = pKFi->GetVectorCovisibleKeyFrames();
-
-        // Update connections. Detect new links.
-        pKFi->UpdateConnections();
-        LoopConnections[pKFi]=pKFi->GetConnectedKeyFrames();
-        for(vector<SLCVKeyFrame*>::iterator vit_prev=vpPreviousNeighbors.begin(), vend_prev=vpPreviousNeighbors.end(); vit_prev!=vend_prev; vit_prev++)
-        {
-            LoopConnections[pKFi].erase(*vit_prev);
-        }
-        for(vector<SLCVKeyFrame*>::iterator vit2=mvpCurrentConnectedKFs.begin(), vend2=mvpCurrentConnectedKFs.end(); vit2!=vend2; vit2++)
-        {
-            LoopConnections[pKFi].erase(*vit2);
-        }
-    }
-
-    // Optimize graph
-    Optimizer::OptimizeEssentialGraph(mpMap, mpMatchedKF, mpCurrentKF, NonCorrectedSim3, CorrectedSim3, LoopConnections, mbFixScale);
-
-    mpMap->InformNewBigChange();
-
-    // Add loop edge
-    mpMatchedKF->AddLoopEdge(mpCurrentKF);
-    mpCurrentKF->AddLoopEdge(mpMatchedKF);
-
-    // Launch a new thread to perform Global Bundle Adjustment
-    mbRunningGBA = true;
-    mbFinishedGBA = false;
-    mbStopGBA = false;
-    mpThreadGBA = new thread(&LoopClosing::RunGlobalBundleAdjustment,this,mpCurrentKF->mnId);
-
-    // Loop closed. Release Local Mapping.
-    mpLocalMapper->Release();    
-
-    mLastLoopKFid = mpCurrentKF->mnId;   
+    doCorrectLoop();
 }
 
 void LoopClosing::SearchAndFuse(const KeyFrameAndPose &CorrectedPosesMap)

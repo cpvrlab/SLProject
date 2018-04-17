@@ -70,6 +70,8 @@ SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node, ORBVocabulary* vocabulary,
     mpIniORBextractor = new ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
     //instantiate local mapping
     mpLocalMapper = new LocalMapping(map, 1, vocabulary);
+    mpLoopClosing = new LoopClosing(map, keyFrameDB, vocabulary, false);
+    mpLoopClosing->SetLocalMapper(mpLocalMapper);
 }
 //-----------------------------------------------------------------------------
 SLCVTrackedMapping::~SLCVTrackedMapping()
@@ -80,6 +82,8 @@ SLCVTrackedMapping::~SLCVTrackedMapping()
         delete mpIniORBextractor;
     if (mpLocalMapper)
         delete mpLocalMapper;
+    if (mpLoopClosing)
+        delete mpLoopClosing;
 }
 //-----------------------------------------------------------------------------
 SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
@@ -234,7 +238,7 @@ void SLCVTrackedMapping::initialize()
                 mlFrameTimes.push_back(mCurrentFrame.mTimeStamp);
                 mlbLost.push_back(mState == LOST);
             }
-            else
+            else if(mlRelativeFramePoses.size())
             {
                 // This can happen if tracking is lost
                 mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
@@ -404,7 +408,11 @@ void SLCVTrackedMapping::track3DPts()
             //call local mapper
             mpLocalMapper->RunOnce();
             //normally the loop closing would feed the keyframe database, but we do it here
-            mpKeyFrameDatabase->add(mpLastKeyFrame);
+            //mpKeyFrameDatabase->add(mpLastKeyFrame);
+
+            //loop closing
+            mpLoopClosing->InsertKeyFrame(mpLastKeyFrame);
+            mpLoopClosing->RunOnce();
 
             _mapNextFrame = false;
             //update visualization of map, it may have changed because of global bundle adjustment.
@@ -763,7 +771,7 @@ bool SLCVTrackedMapping::Relocalization()
         else
         {
             int nmatches = matcher.SearchByBoW(pKF, mCurrentFrame, vvpMapPointMatches[i]);
-            cout << "Num matches: " << nmatches << endl;
+            //cout << "Num matches: " << nmatches << endl;
             if (nmatches<15)
             {
                 vbDiscarded[i] = true;
@@ -987,7 +995,7 @@ bool SLCVTrackedMapping::TrackLocalMap()
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently
     if (mCurrentFrame.mnId < mnLastRelocFrameId + mMaxFrames && mnMatchesInliers < 50) {
-        cout << "mnMatchesInliers: " << mnMatchesInliers << endl;
+        //cout << "mnMatchesInliers: " << mnMatchesInliers << endl;
         return false;
     }
 

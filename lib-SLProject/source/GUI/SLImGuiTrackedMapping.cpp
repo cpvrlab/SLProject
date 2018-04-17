@@ -37,16 +37,16 @@ void SLImGuiTrackedMapping::buildInfos()
         _mappingTracker->Reset();
         _mappingTracker->setState(SLCVTrackedMapping::INITIALIZE);
     }
-    else if (ImGui::Button("Track VO", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        _mappingTracker->setState(SLCVTrackedMapping::TRACK_VO);
-    }
-    else if (ImGui::Button("Track 3D Pts", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        _mappingTracker->setState(SLCVTrackedMapping::TRACK_3DPTS);
-    }
-    else if (ImGui::Button("Track optical flow", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        _mappingTracker->setState(SLCVTrackedMapping::TRACK_OPTICAL_FLOW);
-    }
-    else if (ImGui::Button("Add key frame", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+    //else if (ImGui::Button("Track VO", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+    //    _mappingTracker->setState(SLCVTrackedMapping::TRACK_VO);
+    //}
+    //else if (ImGui::Button("Track 3D Pts", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+    //    _mappingTracker->setState(SLCVTrackedMapping::TRACK_3DPTS);
+    //}
+    //else if (ImGui::Button("Track optical flow", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+    //    _mappingTracker->setState(SLCVTrackedMapping::TRACK_OPTICAL_FLOW);
+    //}
+    else if (ImGui::Button("Add key frame", ImVec2(ImGui::GetContentRegionAvailWidth(), 60.0f))) {
         _mappingTracker->mapNextFrame();
     }
     else if (ImGui::Button("Save map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
