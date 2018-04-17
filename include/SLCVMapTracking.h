@@ -72,8 +72,6 @@ protected:
     //! flags, if map has changed (e.g. after key frame insertion or culling)
     bool _mapHasChanged = false;
 
-
-
     //mean reprojection error
     double _meanReprojectionError = -1.0;
     //L2 norm of the difference between the last and the current camera pose

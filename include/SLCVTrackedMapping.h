@@ -68,18 +68,6 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 
         int getNumLoopClosings() { return _numOfLoopClosings; }
 
-        //// Tracking states
-        //enum eTrackingState {
-        //    SYSTEM_NOT_READY = -1,
-        //    NO_IMAGES_YET = 0,
-        //    NOT_INITIALIZED = 1,
-        //    OK = 2,
-        //    LOST = 3
-        //};
-
-        //eTrackingState mState = NOT_INITIALIZED;
-        //eTrackingState mLastProcessedState;
-
         enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
 
                 SLCVTrackedMapping    (SLNode* node, ORBVocabulary* vocabulary, 
@@ -93,14 +81,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
                                      SLSceneView* sv);
 
         void setState(TrackingStates state) { _currentState = state; }
-        //int getNMapMatches() { return mnMatchesInliers; }
-        //int getNumberOfKeyFrames() { return _map->KeyFramesInMap(); }
-        //int mapPointsCount() {
-        //    if (_map)
-        //        return _map->MapPointsInMap();
-        //    else
-        //        return 0;
-        //}
+
         void Reset();
 
         //ghm1: the next tracked frame gets mapped (local mapping, keyframe generation and adding to map)
@@ -143,24 +124,12 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         // ORB vocabulary used for place recognition and feature matching.
         ORBVocabulary* mpVocabulary;
 
-        //// KeyFrame database for place recognition (relocalization and loop detection).
-        //SLCVKeyFrameDB* mpKeyFrameDatabase;
-        ////map containing map points
-        //SLCVMap* _map = NULL;
-
-        // Current Frame
-        //SLCVFrame mCurrentFrame;
-
         // Initialization Variables (Monocular)
         //std::vector<int> mvIniLastMatches;
         std::vector<int> mvIniMatches;
         std::vector<cv::Point2f> mvbPrevMatched;
         std::vector<cv::Point3f> mvIniP3D;
         SLCVFrame mInitialFrame;
-
-        //Last Frame, KeyFrame and Relocalisation Info
-        //KeyFrame* mpLastKeyFrame;
-        //SLCVFrame mLastFrame;
 
         //extractor instance
         ORB_SLAM2::ORBextractor* _extractor = NULL;
@@ -180,19 +149,10 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         LocalMapping* mpLocalMapper = NULL;
         LoopClosing* mpLoopClosing = NULL;
 
-        ////Local Map 
-        ////(maybe always the last inserted keyframe?)
-        //SLCVKeyFrame* mpReferenceKF = NULL;
-        //std::vector<SLCVMapPoint*> mvpLocalMapPoints;
-        //std::vector<SLCVKeyFrame*> mvpLocalKeyFrames;
-
         //New KeyFrame rules (according to fps)
         // Max/Min Frames to insert keyframes and to check relocalisation
         int mMinFrames = 0;
         int mMaxFrames = 30; //= fps
-
-        ////Current matches in frame
-        //int mnMatchesInliers = 0;
 
         // Lists used to recover the full camera trajectory at the end of the execution.
         // Basically we store the reference keyframe for each frame and its relative transformation
@@ -211,12 +171,6 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         bool _drawMapPoints = true; 
         bool _drawMapPointsMatches = true;
         bool _drawKeyFrames = true;
-
-        //SLNode* _mapPC;
-        //SLNode* _keyFrames;
-        //SLPoints* _mapMesh = NULL;
-        //SLMaterial* _pcMatRed = NULL;
-        //SLCVMapNode* _mapNode = NULL;
 
         bool _mapNextFrame = false;
 
