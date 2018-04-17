@@ -53,7 +53,6 @@
 		414C1423207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml in Resources */ = {isa = PBXBuildFile; fileRef = 414C1422207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml */; };
 		414C14A3207FAFC6007587D8 /* liblibwebp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C148E207FAFC3007587D8 /* liblibwebp.a */; };
 		414C14A4207FAFC6007587D8 /* libopencv_videoio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C148F207FAFC3007587D8 /* libopencv_videoio.a */; };
-		414C14A5207FAFC6007587D8 /* liblibprotobuf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1490207FAFC3007587D8 /* liblibprotobuf.a */; };
 		414C14A6207FAFC6007587D8 /* libopencv_face.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1491207FAFC4007587D8 /* libopencv_face.a */; };
 		414C14A7207FAFC6007587D8 /* libopencv_optflow.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1492207FAFC4007587D8 /* libopencv_optflow.a */; };
 		414C14A8207FAFC6007587D8 /* libopencv_aruco.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1493207FAFC4007587D8 /* libopencv_aruco.a */; };
@@ -725,27 +724,26 @@
 		414B3FEA148AAE520074D939 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = images/Icon.png; sourceTree = SOURCE_ROOT; };
 		414C1422207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = haarcascade_frontalface_alt2.xml; path = ../_data/calibrations/haarcascade_frontalface_alt2.xml; sourceTree = SOURCE_ROOT; };
 		414C1468207FA96E007587D8 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
-		414C148E207FAFC3007587D8 /* liblibwebp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibwebp.a; path = ../_lib/prebuilt/OpenCV/ios/liblibwebp.a; sourceTree = "<group>"; };
-		414C148F207FAFC3007587D8 /* libopencv_videoio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_videoio.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_videoio.a; sourceTree = "<group>"; };
-		414C1490207FAFC3007587D8 /* liblibprotobuf.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibprotobuf.a; path = ../_lib/prebuilt/OpenCV/ios/liblibprotobuf.a; sourceTree = "<group>"; };
-		414C1491207FAFC4007587D8 /* libopencv_face.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_face.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_face.a; sourceTree = "<group>"; };
-		414C1492207FAFC4007587D8 /* libopencv_optflow.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_optflow.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_optflow.a; sourceTree = "<group>"; };
-		414C1493207FAFC4007587D8 /* libopencv_aruco.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_aruco.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_aruco.a; sourceTree = "<group>"; };
-		414C1494207FAFC4007587D8 /* libopencv_hfs.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_hfs.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_hfs.a; sourceTree = "<group>"; };
-		414C1495207FAFC4007587D8 /* libopencv_imgproc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_imgproc.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_imgproc.a; sourceTree = "<group>"; };
-		414C1496207FAFC4007587D8 /* libzlib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libzlib.a; path = ../_lib/prebuilt/OpenCV/ios/libzlib.a; sourceTree = "<group>"; };
-		414C1497207FAFC4007587D8 /* liblibpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibpng.a; path = ../_lib/prebuilt/OpenCV/ios/liblibpng.a; sourceTree = "<group>"; };
-		414C1498207FAFC4007587D8 /* libopencv_highgui.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_highgui.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_highgui.a; sourceTree = "<group>"; };
-		414C1499207FAFC5007587D8 /* libopencv_calib3d.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_calib3d.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_calib3d.a; sourceTree = "<group>"; };
-		414C149A207FAFC5007587D8 /* libopencv_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_core.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_core.a; sourceTree = "<group>"; };
-		414C149B207FAFC5007587D8 /* libopencv_objdetect.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_objdetect.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_objdetect.a; sourceTree = "<group>"; };
-		414C149C207FAFC5007587D8 /* libopencv_xfeatures2d.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_xfeatures2d.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_xfeatures2d.a; sourceTree = "<group>"; };
-		414C149D207FAFC5007587D8 /* libopencv_imgcodecs.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_imgcodecs.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_imgcodecs.a; sourceTree = "<group>"; };
-		414C149E207FAFC5007587D8 /* liblibjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibjpeg.a; path = ../_lib/prebuilt/OpenCV/ios/liblibjpeg.a; sourceTree = "<group>"; };
-		414C149F207FAFC5007587D8 /* libopencv_features2d.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_features2d.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_features2d.a; sourceTree = "<group>"; };
-		414C14A0207FAFC6007587D8 /* libopencv_video.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_video.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_video.a; sourceTree = "<group>"; };
-		414C14A1207FAFC6007587D8 /* libopencv_flann.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_flann.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_flann.a; sourceTree = "<group>"; };
-		414C14A2207FAFC6007587D8 /* libopencv_photo.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_photo.a; path = ../_lib/prebuilt/OpenCV/ios/libopencv_photo.a; sourceTree = "<group>"; };
+		414C148E207FAFC3007587D8 /* liblibwebp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibwebp.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/liblibwebp.a; sourceTree = "<group>"; };
+		414C148F207FAFC3007587D8 /* libopencv_videoio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_videoio.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_videoio.a; sourceTree = "<group>"; };
+		414C1491207FAFC4007587D8 /* libopencv_face.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_face.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_face.a; sourceTree = "<group>"; };
+		414C1492207FAFC4007587D8 /* libopencv_optflow.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_optflow.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_optflow.a; sourceTree = "<group>"; };
+		414C1493207FAFC4007587D8 /* libopencv_aruco.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_aruco.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_aruco.a; sourceTree = "<group>"; };
+		414C1494207FAFC4007587D8 /* libopencv_hfs.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_hfs.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_hfs.a; sourceTree = "<group>"; };
+		414C1495207FAFC4007587D8 /* libopencv_imgproc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_imgproc.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_imgproc.a; sourceTree = "<group>"; };
+		414C1496207FAFC4007587D8 /* libzlib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libzlib.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libzlib.a; sourceTree = "<group>"; };
+		414C1497207FAFC4007587D8 /* liblibpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibpng.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/liblibpng.a; sourceTree = "<group>"; };
+		414C1498207FAFC4007587D8 /* libopencv_highgui.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_highgui.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_highgui.a; sourceTree = "<group>"; };
+		414C1499207FAFC5007587D8 /* libopencv_calib3d.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_calib3d.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_calib3d.a; sourceTree = "<group>"; };
+		414C149A207FAFC5007587D8 /* libopencv_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_core.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_core.a; sourceTree = "<group>"; };
+		414C149B207FAFC5007587D8 /* libopencv_objdetect.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_objdetect.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_objdetect.a; sourceTree = "<group>"; };
+		414C149C207FAFC5007587D8 /* libopencv_xfeatures2d.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_xfeatures2d.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_xfeatures2d.a; sourceTree = "<group>"; };
+		414C149D207FAFC5007587D8 /* libopencv_imgcodecs.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_imgcodecs.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_imgcodecs.a; sourceTree = "<group>"; };
+		414C149E207FAFC5007587D8 /* liblibjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibjpeg.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/liblibjpeg.a; sourceTree = "<group>"; };
+		414C149F207FAFC5007587D8 /* libopencv_features2d.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_features2d.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_features2d.a; sourceTree = "<group>"; };
+		414C14A0207FAFC6007587D8 /* libopencv_video.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_video.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_video.a; sourceTree = "<group>"; };
+		414C14A1207FAFC6007587D8 /* libopencv_flann.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_flann.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_flann.a; sourceTree = "<group>"; };
+		414C14A2207FAFC6007587D8 /* libopencv_photo.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_photo.a; path = ../_lib/prebuilt/OpenCV/ios/Debug/libopencv_photo.a; sourceTree = "<group>"; };
 		414D37E81EE6A72C009DB259 /* PerPixCookTorrance.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerPixCookTorrance.frag; path = ../_data/shaders/PerPixCookTorrance.frag; sourceTree = SOURCE_ROOT; };
 		414D37E91EE6A72C009DB259 /* PerPixCookTorrance.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerPixCookTorrance.vert; path = ../_data/shaders/PerPixCookTorrance.vert; sourceTree = SOURCE_ROOT; };
 		414D37EA1EE6A72C009DB259 /* PerPixCookTorranceTex.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerPixCookTorranceTex.frag; path = ../_data/shaders/PerPixCookTorranceTex.frag; sourceTree = SOURCE_ROOT; };
@@ -1587,7 +1585,6 @@
 			files = (
 				414C14A3207FAFC6007587D8 /* liblibwebp.a in Frameworks */,
 				414C14A4207FAFC6007587D8 /* libopencv_videoio.a in Frameworks */,
-				414C14A5207FAFC6007587D8 /* liblibprotobuf.a in Frameworks */,
 				414C14A6207FAFC6007587D8 /* libopencv_face.a in Frameworks */,
 				414C14A7207FAFC6007587D8 /* libopencv_optflow.a in Frameworks */,
 				414C14A8207FAFC6007587D8 /* libopencv_aruco.a in Frameworks */,
@@ -2616,7 +2613,6 @@
 			children = (
 				414C149E207FAFC5007587D8 /* liblibjpeg.a */,
 				414C1497207FAFC4007587D8 /* liblibpng.a */,
-				414C1490207FAFC3007587D8 /* liblibprotobuf.a */,
 				414C148E207FAFC3007587D8 /* liblibwebp.a */,
 				414C1493207FAFC4007587D8 /* libopencv_aruco.a */,
 				414C1499207FAFC5007587D8 /* libopencv_calib3d.a */,
@@ -3680,7 +3676,7 @@
 				DEVELOPMENT_TEAM = 858Y9EWZ4B;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					../_lib/prebuilt/OpenCV/ios,
+					../_lib/prebuilt/OpenCV/ios/Debug,
 				);
 				"GCC_C_LANGUAGE_STANDARD[arch=*]" = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -3730,10 +3726,11 @@
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
-				LIBRARY_SEARCH_PATHS = ../_lib/prebuilt/OpenCV/ios;
+				LIBRARY_SEARCH_PATHS = ../_lib/prebuilt/OpenCV/ios/Debug;
 				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject.2.2;
 				PRODUCT_NAME = SLProject;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = arm64;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -3751,7 +3748,7 @@
 				ENABLE_OPENMP_SUPPORT = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					../_lib/prebuilt/OpenCV/ios,
+					../_lib/prebuilt/OpenCV/ios/Release,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "comgr-Prefix.pch";
@@ -3797,10 +3794,11 @@
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
-				LIBRARY_SEARCH_PATHS = ../_lib/prebuilt/OpenCV/ios;
+				LIBRARY_SEARCH_PATHS = ../_lib/prebuilt/OpenCV/ios/Release;
 				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject.2.2;
 				PRODUCT_NAME = SLProject;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = arm64;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

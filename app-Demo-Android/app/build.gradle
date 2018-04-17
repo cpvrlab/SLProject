@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            keyAlias 'cpvrlab'
+            keyPassword 'uwenadat'
+            storeFile file('/Users/hudrima1/Documents/GitHub/SLProject/app-Demo-Android/cpvrlab-release-key')
+            storePassword 'uwenadat'
+        }
+    }
     compileSdkVersion 24
     defaultConfig {
         applicationId "ch.fhnw.comgr"
@@ -34,6 +42,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            jniDebuggable true
         }
     }
     externalNativeBuild {
@@ -61,10 +73,10 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:24.+'
     /*
-            androidTestCompile('com.android.support.test.espresso:espresso-core:2.0', {
-                exclude group: 'com.android.support', module: 'support-annotations'
-            })
-            testCompile 'junit:junit:4.12'
-            compile project(':openCVLibrary310')
-            */
+                        androidTestCompile('com.android.support.test.espresso:espresso-core:2.0', {
+                            exclude group: 'com.android.support', module: 'support-annotations'
+                        })
+                        testCompile 'junit:junit:4.12'
+                        compile project(':openCVLibrary310')
+                        */
 }

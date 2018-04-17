@@ -698,7 +698,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoTrackFeature2DMain);
                     if (ImGui::MenuItem("Track Face (Main)", 0, sid==SID_VideoTrackFaceMain))
                         s->onLoad(s, sv, SID_VideoTrackFaceMain);
-                    if (ImGui::MenuItem("Track Face (Scnd)", 0, sid==SID_VideoTrackFaceScnd))
+                    if (ImGui::MenuItem("Track Face (Scnd)", 0, sid==SID_VideoTrackFaceScnd, SLCVCapture::hasSecondaryCamera))
                         s->onLoad(s, sv, SID_VideoTrackFaceScnd);
                     if (ImGui::MenuItem("Sensor AR (Main)", 0, sid==SID_VideoSensorAR))
                         s->onLoad(s, sv, SID_VideoSensorAR);
