@@ -2645,7 +2645,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //SLCVCapture::videoLoops = true;
         //SLCVCapture::videoFilename = "webcam_office1.wmv";
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-new-1.json";
-        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-dynamic.json";
+        SLstring slamStateFilePath = SLCVCalibration::externalDataPath + "orb-slam-state-dynamic.json";
 
         //make some light
         SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
@@ -2667,6 +2667,49 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         trackingCam->clipFar(1000000.0f); // Increase to infinity?
         trackingCam->setInitialState();
         trackingCam->background().texture(s->videoTexture());
+
+
+        /***************************************************************/
+        if (SLFileSystem::externalDirExists())
+        {
+            int highestId = 0;
+            SLstring mapPrefix = "vo-map-";
+            SLstring mapsDir = SLFileSystem::getExternalDir() + "/VO-Maps";
+            SLVstring existingMapNames;
+
+            //check if visual odometry maps directory exists
+            if (!SLFileSystem::dirExists(mapsDir))
+            {
+                SL_LOG("Making dir: %s\n", mapsDir.c_str());
+                SLFileSystem::makeDir(mapsDir);
+            }
+            else
+            {
+                //parse content: we search for directories in mapsDir
+                SLVstring content = SLUtils::getFileNamesInDir(mapsDir);
+                for (auto path : content)
+                {
+                    SLstring name = SLUtils::getFileName(path);
+                    //find json files that contain mapPrefix and estimate highest used id
+                    if (SLUtils::contains(name, mapPrefix)) {
+                        existingMapNames.push_back(name);
+                        SL_LOG("VO-Map found: %s\n", name.c_str());
+                        //estimate highest used id
+                        SLVstring splitted;
+                        SLUtils::split(name, '-', splitted);
+                        if (splitted.size()) {
+                            int id = atoi(splitted.back().c_str());
+                            if (id >= highestId) {
+                                highestId = id + 1;
+                                SL_LOG("New highest id: %i\n", highestId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        /***************************************************************/
+
 
         //load visual vocabulary for relocalization
         ORBVocabulary* vocabulary = new ORBVocabulary();

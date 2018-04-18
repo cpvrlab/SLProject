@@ -26,7 +26,7 @@
 #include <SLCVMap.h>
 #include<mutex>
 
-#ifdef ANDROID
+#ifdef SL_OS_ANDROID
 #include <unistd.h>
 #endif
 

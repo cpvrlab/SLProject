@@ -477,6 +477,7 @@ int main(int argc, char *argv[])
     //SLstring exeDir = SLUtils::getPath(cmdLineArgs[0]);
     SLstring exeDir = SLFileSystem::getCurrentWorkingDir();
     SLstring configDir = SLFileSystem::getAppsWritableDir();
+    slSetupExternalDirectories("../_data");
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,

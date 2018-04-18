@@ -23,10 +23,14 @@
     #include <unistd.h> //getcwd
 #elif defined(SL_OS_ANDROID)
     #include <unistd.h> //getcwd
+    #include <sys/stat.h>
 #elif defined(SL_OS_LINUX)
     #include <unistd.h> //getcwd
 #endif
 
+//-----------------------------------------------------------------------------
+SLstring SLFileSystem::_externalDir = "";
+SLbool SLFileSystem::_externalDirExists = false;
 
 //-----------------------------------------------------------------------------
 /*! Returns true if the directory exists. Be aware that on some OS file and
@@ -41,6 +45,17 @@ SLbool SLFileSystem::dirExists(SLstring& path)
         return true;
     else
         return false;
+}
+//-----------------------------------------------------------------------------
+/*! Make a directory with given path
+*/
+void SLFileSystem::makeDir(const string& path)
+{
+#ifdef SL_OS_WINDOWS
+    _mkdir(path.c_str());
+#else
+    mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#endif
 }
 //-----------------------------------------------------------------------------
 /*! Returns true if the file exists.Be aware that on some OS file and
@@ -118,3 +133,9 @@ SLbool SLFileSystem::deleteFile(SLstring& pathfilename)
     return false;
 }
 //-----------------------------------------------------------------------------
+//!setters
+void SLFileSystem::setExternalDir(const SLstring& dir)
+{
+    _externalDir = dir;
+    _externalDirExists = true;
+}

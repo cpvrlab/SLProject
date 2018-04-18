@@ -18,6 +18,7 @@
 #include <SLInputManager.h>
 #include <SLCVCapture.h>
 #include <SLCVCalibration.h>
+
 //#include <SLDemoGui.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
@@ -473,4 +474,16 @@ void slCopyVideoYUVPlanes(int srcW, int srcH,
                                v, vSize, vPixStride, vLineStride);
 }
 //-----------------------------------------------------------------------------
-
+/*! Get available external directories and inform slproject about them
+*/
+void slSetupExternalDirectories (SLstring externalDirPath)
+{
+    if ( SLFileSystem::dirExists(externalDirPath))
+    {
+        SL_LOG("External directory: %s\n", externalDirPath.c_str());
+        SLFileSystem::setExternalDir(externalDirPath);
+    }
+    else {
+        SL_LOG("ERROR: external directory does not exists: %s\n", externalDirPath.c_str());
+    }
+}
