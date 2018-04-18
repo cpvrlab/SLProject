@@ -22,14 +22,14 @@ SLImGuiInfosDialog::SLImGuiInfosDialog(std::string name, SLSceneID sceneId)
 {
     setActiveForSceneID(sceneId);
 }
-//-----------------------------------------------------------------------------
-//! check, if the given dialog should be enabled for the scene with given id
-bool SLImGuiInfosDialog::getActiveForSceneID(SLSceneID sceneId)
-{
-    return (_dialogScenes.find(sceneId) != _dialogScenes.end());
-}
-//-----------------------------------------------------------------------------
-void SLImGuiInfosDialog::setActiveForSceneID(SLSceneID sceneId)
-{
-    _dialogScenes.insert(sceneId);
-}
+////-----------------------------------------------------------------------------
+////! check, if the given dialog should be enabled for the scene with given id
+//bool SLImGuiInfosDialog::getActiveForSceneID(SLSceneID sceneId)
+//{
+//    return (_dialogScenes.find(sceneId) != _dialogScenes.end());
+//}
+////-----------------------------------------------------------------------------
+//void SLImGuiInfosDialog::setActiveForSceneID(SLSceneID sceneId)
+//{
+//    _dialogScenes.insert(sceneId);
+//}

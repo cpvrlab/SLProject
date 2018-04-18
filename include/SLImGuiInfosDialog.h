@@ -40,7 +40,7 @@ private:
     //! name in imgui menu entry for this infos dialogue
     std::string _name;
     //! scene ids, for which this dialog should be inserted in infos menu
-    std::set<SLSceneID> _dialogScenes;
+    //std::set<SLSceneID> _dialogScenes;
 };
 
 #endif // !SLIMGUI_INFOSDIALOG_H

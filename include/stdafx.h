@@ -37,6 +37,7 @@
 #include <random>
 #include <cstdarg>
 #include <ctime>
+#include <memory>
 //-----------------------------------------------------------------------------
 // Include standard C libraries
 #include <stdio.h>               // for the old ANSI C IO functions

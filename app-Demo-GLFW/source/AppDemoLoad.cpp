@@ -2304,8 +2304,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLNode* bern = LoadBernModel();
         //install gui
-        SLImGuiInfosChristoffelTower* ui = new SLImGuiInfosChristoffelTower("Christoffel", bern);
-        ui->setActiveForSceneID(SID_VideoChristoffel);
+        auto ui = make_shared<SLImGuiInfosChristoffelTower>("Christoffel", bern);
         AppDemoGui::addInfoDialog(ui);
 
         // Add axis object a world origin (Loeb Ecke)
@@ -2425,8 +2424,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* bern = LoadBernModel();
         scene->addChild(bern);
         //install gui
-        SLImGuiInfosChristoffelTower* ui = new SLImGuiInfosChristoffelTower("Christoffel", bern);
-        ui->setActiveForSceneID(SID_VideoChristoffelOrbSlam);
+        auto ui = make_shared<SLImGuiInfosChristoffelTower>("Christoffel", bern);
         AppDemoGui::addInfoDialog(ui);
         //---------------------------------------------------------------------------------
 
@@ -2608,8 +2606,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCVTrackedRaulMur* raulMurTracker = new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map, mapNode);
         s->trackers().push_back(raulMurTracker);
 
-        SLImGuiInfosTracking* infosTracking = new SLImGuiInfosTracking("Tracking infos", raulMurTracker);
-        infosTracking->setActiveForSceneID(SID_VideoFilesTrackKeyFrames);
+        auto infosTracking = shared_ptr<SLImGuiInfosTracking>("Tracking infos", raulMurTracker);
         AppDemoGui::addInfoDialog(infosTracking);
 
         //add yellow augmented box
@@ -2645,7 +2642,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //SLCVCapture::videoLoops = true;
         //SLCVCapture::videoFilename = "webcam_office1.wmv";
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-new-1.json";
-        SLstring slamStateFilePath = SLCVCalibration::externalDataPath + "orb-slam-state-dynamic.json";
+        SLstring slamStateFilePath = SLFileSystem::getExternalDir() + "orb-slam-state-dynamic.json";
 
         //make some light
         SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
@@ -2669,7 +2666,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         trackingCam->background().texture(s->videoTexture());
 
 
-        /***************************************************************/
         if (SLFileSystem::externalDirExists())
         {
             int highestId = 0;
@@ -2691,15 +2687,18 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                 {
                     SLstring name = SLUtils::getFileName(path);
                     //find json files that contain mapPrefix and estimate highest used id
-                    if (SLUtils::contains(name, mapPrefix)) {
+                    if (SLUtils::contains(name, mapPrefix))
+                    {
                         existingMapNames.push_back(name);
                         SL_LOG("VO-Map found: %s\n", name.c_str());
                         //estimate highest used id
                         SLVstring splitted;
                         SLUtils::split(name, '-', splitted);
-                        if (splitted.size()) {
+                        if (splitted.size())
+                        {
                             int id = atoi(splitted.back().c_str());
-                            if (id >= highestId) {
+                            if (id >= highestId)
+                            {
                                 highestId = id + 1;
                                 SL_LOG("New highest id: %i\n", highestId);
                             }
@@ -2753,22 +2752,13 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, vocabulary, kfDB, map, mapNode);
         s->trackers().push_back(tm);
 
-        {
-            SLImGuiTrackedMapping* trackedMappingUI = new SLImGuiTrackedMapping("TrackedMappingUI", tm);
-            trackedMappingUI->setActiveForSceneID(SID_VideoMapping);
-            AppDemoGui::addInfoDialog(trackedMappingUI);
-        }
+        auto trackedMappingUI = std::make_shared<SLImGuiTrackedMapping>("TrackedMappingUI", tm);
+        AppDemoGui::addInfoDialog(trackedMappingUI);
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm);
+        AppDemoGui::addInfoDialog(trackingInfos);
+        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", map);
+        AppDemoGui::addInfoDialog(mapTransform);
 
-        {
-            SLImGuiInfosTracking* trackingInfos = new SLImGuiInfosTracking("Tracking infos", tm);
-            trackingInfos->setActiveForSceneID(SID_VideoMapping);
-            AppDemoGui::addInfoDialog(trackingInfos);
-        }
-        {
-            SLImGuiInfosMapTransform* mapTransform = new SLImGuiInfosMapTransform("Map transform", map);
-            mapTransform->setActiveForSceneID(SID_VideoMapping);
-            AppDemoGui::addInfoDialog(mapTransform);
-        }
         //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
         SLfloat l = 1.75, b = 0.75, h = 0.74;

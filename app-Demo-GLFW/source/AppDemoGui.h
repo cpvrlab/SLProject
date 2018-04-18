@@ -14,7 +14,7 @@
 #include <SL.h>
 #include <string>
 #include <map>
-
+#include <memory>
 #include <SLImGuiInfosDialog.h>
 
 class SLScene;
@@ -38,7 +38,7 @@ public:
     static void             build(SLScene* s, SLSceneView* sv);
 
     //!< Checks, if a dialog with this name already exists, and adds it if not
-    static void             addInfoDialog(SLImGuiInfosDialog* dialog);
+    static void             addInfoDialog(const std::shared_ptr<SLImGuiInfosDialog>& dialog);
     static void             clearInfoDialogs();
     static void             buildMenuBar(SLScene* s, SLSceneView* sv);
     static void             buildSceneGraph(SLScene* s);
@@ -73,7 +73,7 @@ public:
 
 private:
     //! Vector containing all info dialogs, that belong to special scenes
-    static std::map<std::string, SLImGuiInfosDialog*> _infoDialogs;
+    static std::map<std::string, std::shared_ptr<SLImGuiInfosDialog>> _infoDialogs;
 };
 //-----------------------------------------------------------------------------
 #endif

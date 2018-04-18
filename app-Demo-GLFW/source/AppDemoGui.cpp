@@ -106,7 +106,7 @@ SLbool          AppDemoGui::showInfosSensors = false;
 SLbool          AppDemoGui::showSceneGraph = false;
 SLbool          AppDemoGui::showProperties = false;
 SLbool          AppDemoGui::showStatsDebugTiming = false;
-map<string, SLImGuiInfosDialog*> AppDemoGui::_infoDialogs;
+map<string, std::shared_ptr<SLImGuiInfosDialog>> AppDemoGui::_infoDialogs;
 
 SLstring AppDemoGui::infoAbout =
 "Welcome to the SLProject demo app. It is developed at the \
@@ -503,7 +503,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
     buildInfosDialogs();
 }
 //-----------------------------------------------------------------------------
-void AppDemoGui::addInfoDialog(SLImGuiInfosDialog* dialog)
+void AppDemoGui::addInfoDialog(const shared_ptr<SLImGuiInfosDialog>& dialog)
 {
     string name = string(dialog->getName());
     if (_infoDialogs.find(name) == _infoDialogs.end())
@@ -514,10 +514,6 @@ void AppDemoGui::addInfoDialog(SLImGuiInfosDialog* dialog)
 //-----------------------------------------------------------------------------
 void AppDemoGui::clearInfoDialogs()
 {
-    for (auto dialog : _infoDialogs)
-    {
-        delete dialog.second;
-    }
     _infoDialogs.clear();
 }
 //-----------------------------------------------------------------------------
@@ -1224,16 +1220,16 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Infos on Frameworks", 0, &showInfosFrameworks);
 
             for (auto dialog : _infoDialogs) {
-                if (dialog.second->getActiveForSceneID(SLApplication::sceneID))
-                {
+                //if (dialog.second->getActiveForSceneID(SLApplication::sceneID))
+                //{
                     ImGui::Separator();
                     ImGui::MenuItem(dialog.second->getName(), 0, &dialog.second->show);
-                }
-                else
-                {
-                    //deactivate dialog, it may be active after scene switch
-                    dialog.second->show = false;
-                }
+                //}
+                //else
+                //{
+                //    //deactivate dialog, it may be active after scene switch
+                //    dialog.second->show = false;
+                //}
             }
 
             ImGui::Separator();
