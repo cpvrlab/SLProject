@@ -20,8 +20,7 @@ SLstring SLCVMapStorage::_mapsDir = "";
 SLVstring SLCVMapStorage::existingMapNames;
 
 //-----------------------------------------------------------------------------
-SLCVMapStorage::SLCVMapStorage(const string& filename, ORBVocabulary* orbVoc,
-    bool loadKfImgs)
+SLCVMapStorage::SLCVMapStorage( ORBVocabulary* orbVoc, bool loadKfImgs)
     : _orbVoc(orbVoc),
     _loadKfImgs(loadKfImgs)
 {
@@ -79,103 +78,118 @@ void SLCVMapStorage::init()
 void SLCVMapStorage::saveMap(SLCVMap& map, bool saveImgs)
 {
     SLstring filename = SLFileSystem::getExternalDir() + "orb-slam-state-dynamic.json";
-    cv::FileStorage fs(filename, cv::FileStorage::WRITE);
 
-    //save keyframes (without graph/neigbourhood information)
-    auto kfs = map.GetAllKeyFrames();
-    if (!kfs.size())
-        return;
+    try {
+        cv::FileStorage fs(filename, cv::FileStorage::WRITE);
 
-    //store levels and scaleFactor here and not for every keyframe
-    if (kfs.size())
-    {
-        //scale factor
-        fs << "scaleFactor" << kfs[0]->mfScaleFactor;
-        //number of pyriamid scale levels
-        fs << "nScaleLevels" << kfs[0]->mnScaleLevels;
-        //store camera matrix
-        fs << "K" << kfs[0]->mK;
-    }
+        //save keyframes (without graph/neigbourhood information)
+        auto kfs = map.GetAllKeyFrames();
+        if (!kfs.size())
+            return;
 
-    //start sequence keyframes
-    fs << "KeyFrames" << "[";
-    for (int i = 0; i < kfs.size(); ++i)
-    {
-        SLCVKeyFrame* kf = kfs[i];
-        if (kf->isBad())
-            continue;
-
-        fs << "{"; //new map keyFrame
-                   //add id
-        fs << "id" << (int)kf->mnId;
-
-        // world w.r.t camera
-        fs << "Tcw" << kf->GetPose();
-        fs << "featureDescriptors" << kf->mDescriptors;
-        fs << "keyPtsUndist" << kf->mvKeysUn;
-
-        fs << "nMinX" << kf->mnMinX;
-        fs << "nMinY" << kf->mnMinY;
-        fs << "nMaxX" << kf->mnMaxX;
-        fs << "nMaxY" << kf->mnMaxY;
-
-        fs << "}"; //close map
-
-        //save the original frame image for this keyframe
-        if (saveImgs)
+        //store levels and scaleFactor here and not for every keyframe
+        if (kfs.size())
         {
-            cv::Mat imgColor;
-            if (saveImgs && !kf->imgGray.empty())
+            //scale factor
+            fs << "scaleFactor" << kfs[0]->mfScaleFactor;
+            //number of pyriamid scale levels
+            fs << "nScaleLevels" << kfs[0]->mnScaleLevels;
+            //store camera matrix
+            fs << "K" << kfs[0]->mK;
+        }
+
+        //start sequence keyframes
+        fs << "KeyFrames" << "[";
+        for (int i = 0; i < kfs.size(); ++i)
+        {
+            SLCVKeyFrame* kf = kfs[i];
+            if (kf->isBad())
+                continue;
+
+            fs << "{"; //new map keyFrame
+                       //add id
+            fs << "id" << (int)kf->mnId;
+
+            // world w.r.t camera
+            fs << "Tcw" << kf->GetPose();
+            fs << "featureDescriptors" << kf->mDescriptors;
+            fs << "keyPtsUndist" << kf->mvKeysUn;
+
+            fs << "nMinX" << kf->mnMinX;
+            fs << "nMinY" << kf->mnMinY;
+            fs << "nMaxX" << kf->mnMaxX;
+            fs << "nMaxY" << kf->mnMaxY;
+
+            fs << "}"; //close map
+
+            //save the original frame image for this keyframe
+            if (saveImgs)
             {
-                std::stringstream ss; ss << "D:/Development/SLProject/_data/calibrations/imgs/" << "kf" << (int)kf->mnId << ".jpg";
+                cv::Mat imgColor;
+                if (saveImgs && !kf->imgGray.empty())
+                {
+                    std::stringstream ss; ss << "D:/Development/SLProject/_data/calibrations/imgs/" << "kf" << (int)kf->mnId << ".jpg";
 
-                cv::cvtColor(kf->imgGray, imgColor, cv::COLOR_GRAY2BGR);
-                cv::imwrite(ss.str(), imgColor);
+                    cv::cvtColor(kf->imgGray, imgColor, cv::COLOR_GRAY2BGR);
+                    cv::imwrite(ss.str(), imgColor);
+                }
             }
         }
-    }
-    fs << "]"; //close sequence keyframes
+        fs << "]"; //close sequence keyframes
 
-    auto mpts = map.GetAllMapPoints();
-    //start map points sequence
-    fs << "MapPoints" << "[";
-    for (int i = 0; i < mpts.size(); ++i)
-    {
-        SLCVMapPoint* mpt = mpts[i];
-        if (mpt->isBad())
-            continue;
-
-        fs << "{"; //new map for MapPoint
-                   //add id
-        fs << "id" << (int)mpt->mnId;
-        //add position
-        fs << "mWorldPos" << mpt->GetWorldPos();
-        //save keyframe observations
-        auto observations = mpt->GetObservations();
-        vector<int> observingKfIds;
-        vector<int> corrKpIndices; //corresponding keypoint indices in observing keyframe
-        for (auto it : observations)
+        auto mpts = map.GetAllMapPoints();
+        //start map points sequence
+        fs << "MapPoints" << "[";
+        for (int i = 0; i < mpts.size(); ++i)
         {
-            if (!it.first->isBad()) {
-                observingKfIds.push_back(it.first->mnId);
-                corrKpIndices.push_back(it.second);
+            SLCVMapPoint* mpt = mpts[i];
+            if (mpt->isBad())
+                continue;
+
+            fs << "{"; //new map for MapPoint
+                       //add id
+            fs << "id" << (int)mpt->mnId;
+            //add position
+            fs << "mWorldPos" << mpt->GetWorldPos();
+            //save keyframe observations
+            auto observations = mpt->GetObservations();
+            vector<int> observingKfIds;
+            vector<int> corrKpIndices; //corresponding keypoint indices in observing keyframe
+            for (auto it : observations)
+            {
+                if (!it.first->isBad()) {
+                    observingKfIds.push_back(it.first->mnId);
+                    corrKpIndices.push_back(it.second);
+                }
             }
+            fs << "observingKfIds" << observingKfIds;
+            fs << "corrKpIndices" << corrKpIndices;
+            //(we calculate mean descriptor and mean deviation after loading)
+
+            //reference key frame (I think this is the keyframe from which this
+            //map point was generated -> first reference?)
+            fs << "refKfId" << (int)mpt->refKf()->mnId;
+
+            fs << "}"; //close map
         }
-        fs << "observingKfIds" << observingKfIds;
-        fs << "corrKpIndices" << corrKpIndices;
-        //(we calculate mean descriptor and mean deviation after loading)
+        fs << "]";
 
-        //reference key frame (I think this is the keyframe from which this
-        //map point was generated -> first reference?)
-        fs << "refKfId" << (int)mpt->refKf()->mnId;
+        // explicit close
+        fs.release();
+        SL_LOG("Slam map storage successful.");
 
-        fs << "}"; //close map
     }
-    fs << "]";
-
-    // explicit close
-    fs.release();
-    cout << "Write Done." << endl;
+    catch (std::exception& e)
+    {
+        string msg = "Exception during slam map storage: " + filename + "\n" +
+            e.what() + "\n";
+        SL_WARN_MSG(msg.c_str());
+    }
+    catch (...)
+    {
+        string msg = "Exception during slam map storage: " + filename + "\n";
+        SL_WARN_MSG(msg.c_str());
+    }
 }
 //-----------------------------------------------------------------------------
 void SLCVMapStorage::loadMap(int id, SLCVMap& map, SLCVKeyFrameDB& kfDB)
@@ -190,47 +204,57 @@ void SLCVMapStorage::loadMap(int id, SLCVMap& map, SLCVKeyFrameDB& kfDB)
     //check if dir and file exist
     if (!SLFileSystem::dirExists(path)) {
         string msg = "Failed to load map. Path does not exist: " + path + "\n";
-        SL_LOG(msg.c_str());
         SL_WARN_MSG(msg.c_str());
         return;
     }
     if (!SLFileSystem::fileExists(filename)) {
         string msg = "Failed to load map: " + filename + "\n";
-        SL_LOG(msg.c_str());
         SL_WARN_MSG(msg.c_str());
         return;
     }
 
-    _fs.open(filename, cv::FileStorage::READ);
-    if (!_fs.isOpened()) {
-        string msg = "Failed to open filestorage: " + filename + "\n";
-        SL_LOG(msg.c_str());
-        SL_WARN_MSG(msg.c_str());
-        return;
+    try {
+        _fs.open(filename, cv::FileStorage::READ);
+        if (!_fs.isOpened()) {
+            string msg = "Failed to open filestorage: " + filename + "\n";
+            SL_WARN_MSG(msg.c_str());
+            return;
+        }
+
+        //load keyframes
+        loadKeyFrames(map, kfDB);
+        //load map points
+        loadMapPoints(map);
+
+        //update the covisibility graph, when all keyframes and mappoints are loaded
+        auto kfs = map.GetAllKeyFrames();
+        for (auto kf : kfs)
+        {
+            // Update links in the Covisibility Graph
+            kf->UpdateConnections();
+        }
+
+        //compute resulting values for map points
+        auto mapPts = map.GetAllMapPoints();
+        for (auto& mp : mapPts) {
+            //mean viewing direction and depth
+            mp->UpdateNormalAndDepth();
+            mp->ComputeDistinctiveDescriptors();
+        }
+
+        SL_LOG("Slam map loading successful.");
     }
-
-    //load keyframes
-    loadKeyFrames(map, kfDB);
-    //load map points
-    loadMapPoints(map);
-
-    //update the covisibility graph, when all keyframes and mappoints are loaded
-    auto kfs = map.GetAllKeyFrames();
-    for (auto kf : kfs)
+    catch (std::exception& e)
     {
-        // Update links in the Covisibility Graph
-        kf->UpdateConnections();
+        string msg = "Exception during slam map loading: " + filename + 
+            e.what() + "\n";
+        SL_WARN_MSG(msg.c_str());
     }
-
-    //compute resulting values for map points
-    auto mapPts = map.GetAllMapPoints();
-    for (auto& mp : mapPts) {
-        //mean viewing direction and depth
-        mp->UpdateNormalAndDepth();
-        mp->ComputeDistinctiveDescriptors();
+    catch (...)
+    {
+        string msg = "Exception during slam map loading: " + filename + "\n";
+        SL_WARN_MSG(msg.c_str());
     }
-
-    cout << "Read Done." << endl;
 }
 //-----------------------------------------------------------------------------
 void SLCVMapStorage::loadKeyFrames( SLCVMap& map, SLCVKeyFrameDB& kfDB)

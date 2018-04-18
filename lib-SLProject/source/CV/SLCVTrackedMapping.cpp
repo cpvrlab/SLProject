@@ -60,13 +60,12 @@ SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
     mpKeyFrameDatabase = new SLCVKeyFrameDB(*mpVocabulary);
 
     _map = new SLCVMap("Map");
+
+    //initialize map storage
+    SLCVMapStorage::init();
     //load map
-    SLstring slamStateFilePath = SLFileSystem::getExternalDir() + "orb-slam-state-dynamic.json";
-    if (SLFileSystem::fileExists(slamStateFilePath))
-    {
-        SLCVSlamStateLoader loader(slamStateFilePath, mpVocabulary, false);
-        loader.load(*_map, *mpKeyFrameDatabase);
-    }
+    SLCVMapStorage storage(mpVocabulary, false);
+    storage.loadMap(0, *_map, *mpKeyFrameDatabase);
 
     //set SLCVMap in SLCVMapNode and update SLCVMapNode with scene objects
     mapNode->setMap(*_map);

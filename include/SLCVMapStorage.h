@@ -17,8 +17,7 @@
 class SLCVMapStorage
 {
 public:
-    SLCVMapStorage(const string& filename, ORBVocabulary* orbVoc,
-        bool loadKfImgs);
+    SLCVMapStorage(ORBVocabulary* orbVoc, bool loadKfImgs);
 
     //check if directory for map storage exists and read existing map names
     static void init();
