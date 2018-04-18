@@ -438,6 +438,9 @@
     <ClInclude Include="..\include\OrbSlam\Sim3Solver.h">
       <Filter>CV\OrbSlam</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLCVMapStorage.h">
+      <Filter>CV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -746,6 +749,9 @@
     </ClCompile>
     <ClCompile Include="source\CV\OrbSlam\Sim3Solver.cpp">
       <Filter>CV\OrbSlam</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVMapStorage.cpp">
+      <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

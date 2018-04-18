@@ -70,8 +70,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 
         enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
 
-                SLCVTrackedMapping    (SLNode* node, ORBVocabulary* vocabulary, 
-                    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode=NULL );
+                SLCVTrackedMapping    (SLNode* node, SLCVMapNode* mapNode=NULL );
                 ~SLCVTrackedMapping();
 
         SLbool  track               (SLCVMat imageGray,

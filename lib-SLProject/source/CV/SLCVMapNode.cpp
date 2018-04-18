@@ -36,10 +36,13 @@ SLCVMapNode::SLCVMapNode(std::string name, SLCVMap& map)
     _mapMatchedPC(new SLNode("MapMatchedPC")),
     _mapLocalPC(new SLNode("MapLocalPC"))
 {
-    //set this map not in the map for updates of scene objects after map transformations
-    map.setMapNode(this);
-
     init();
+    setMap(map);
+}
+//-----------------------------------------------------------------------------
+void SLCVMapNode::setMap(SLCVMap& map)
+{
+    map.setMapNode(this);
     updateAll(map);
 }
 //-----------------------------------------------------------------------------

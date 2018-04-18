@@ -2641,8 +2641,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //s->videoType(VT_FILE);
         //SLCVCapture::videoLoops = true;
         //SLCVCapture::videoFilename = "webcam_office1.wmv";
-        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-new-1.json";
-        SLstring slamStateFilePath = SLFileSystem::getExternalDir() + "orb-slam-state-dynamic.json";
 
         //make some light
         SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
@@ -2651,8 +2649,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1, 0, 0);
 
-
-        /***************************************************************/
         //always equal for tracking
         //setup tracking camera
         SLCamera* trackingCam = new SLCamera("Camera 1");
@@ -2665,98 +2661,23 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         trackingCam->setInitialState();
         trackingCam->background().texture(s->videoTexture());
 
-
-        if (SLFileSystem::externalDirExists())
-        {
-            int highestId = 0;
-            SLstring mapPrefix = "vo-map-";
-            SLstring mapsDir = SLFileSystem::getExternalDir() + "/VO-Maps";
-            SLVstring existingMapNames;
-
-            //check if visual odometry maps directory exists
-            if (!SLFileSystem::dirExists(mapsDir))
-            {
-                SL_LOG("Making dir: %s\n", mapsDir.c_str());
-                SLFileSystem::makeDir(mapsDir);
-            }
-            else
-            {
-                //parse content: we search for directories in mapsDir
-                SLVstring content = SLUtils::getFileNamesInDir(mapsDir);
-                for (auto path : content)
-                {
-                    SLstring name = SLUtils::getFileName(path);
-                    //find json files that contain mapPrefix and estimate highest used id
-                    if (SLUtils::contains(name, mapPrefix))
-                    {
-                        existingMapNames.push_back(name);
-                        SL_LOG("VO-Map found: %s\n", name.c_str());
-                        //estimate highest used id
-                        SLVstring splitted;
-                        SLUtils::split(name, '-', splitted);
-                        if (splitted.size())
-                        {
-                            int id = atoi(splitted.back().c_str());
-                            if (id >= highestId)
-                            {
-                                highestId = id + 1;
-                                SL_LOG("New highest id: %i\n", highestId);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        /***************************************************************/
-
-
-        //load visual vocabulary for relocalization
-        ORBVocabulary* vocabulary = new ORBVocabulary();
-        //string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-        //bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-        ////bool bVocLoad = true;
-        //if (!bVocLoad)
-        //{
-        //    cerr << "Wrong path to vocabulary. " << endl;
-        //    cerr << "Failed to open at: " << strVocFile << endl;
-        //    exit(-1);
-        //}
-        //cout << "Vocabulary loaded!" << endl << endl;
-
-        //instantiate and load slam map
-        SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
-
-        SLCVMap* map = new SLCVMap("Map");
-        //load map
-        if (SLFileSystem::fileExists(slamStateFilePath))
-        {
-            SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
-            loader.load(*map, *kfDB);
-        }
-
         //the map node contains the visual representation of the slam map
-        SLCVMapNode* mapNode = new SLCVMapNode("map", *map);
-        //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
-        //y-axis down and z-forward
-        mapNode->rotate(180, 1, 0, 0);
-        //the tracking camera has to be a child of the slam map, 
-        //because we manipulate its position (object matrix) in the maps coordinate system
-        mapNode->addChild(trackingCam);
+        SLCVMapNode* mapNode = new SLCVMapNode("map");
 
         // Save no energy
         sv->doWaitOnIdle(false); //for constant video feed
         sv->camera(trackingCam);
-        /***************************************************************/
 
         //add tracker
-        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, vocabulary, kfDB, map, mapNode);
+        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam,  mapNode);
         s->trackers().push_back(tm);
 
+        //setup scene specific gui dialoges
         auto trackedMappingUI = std::make_shared<SLImGuiTrackedMapping>("TrackedMappingUI", tm);
         AppDemoGui::addInfoDialog(trackedMappingUI);
         auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm);
         AppDemoGui::addInfoDialog(trackingInfos);
-        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", map);
+        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm->getMap());
         AppDemoGui::addInfoDialog(mapTransform);
 
         //add yellow box and axis for augmentation
@@ -2769,6 +2690,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         boxNode->translate(0, 0, -1.5);
         boxNode->scale(0.5);
 
+        //setup scene
         SLNode* scene = new SLNode("scene");
         scene->addChild(light1);
         scene->addChild(boxNode);

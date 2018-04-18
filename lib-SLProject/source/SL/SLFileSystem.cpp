@@ -136,6 +136,6 @@ SLbool SLFileSystem::deleteFile(SLstring& pathfilename)
 //!setters
 void SLFileSystem::setExternalDir(const SLstring& dir)
 {
-    _externalDir = dir;
+    _externalDir = SLUtils::unifySlashes(dir);
     _externalDirExists = true;
 }

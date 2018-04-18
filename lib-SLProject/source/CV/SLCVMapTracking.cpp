@@ -22,6 +22,11 @@ SLCVMapTracking::SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVM
 {
 }
 //-----------------------------------------------------------------------------
+SLCVMapTracking::SLCVMapTracking(SLCVMapNode* mapNode)
+    : _mapNode(mapNode)
+{
+}
+//-----------------------------------------------------------------------------
 int SLCVMapTracking::getNMapMatches()
 { 
     return mnMatchesInliers;

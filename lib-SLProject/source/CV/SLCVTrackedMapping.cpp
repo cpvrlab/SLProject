@@ -26,28 +26,61 @@ for a good top down information.
 #include <SLCVMapNode.h>
 #include <OrbSlam/Initializer.h>
 #include <OrbSlam/LocalMapping.h>
-
+#include <OrbSlam/ORBVocabulary.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/utility.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/calib3d.hpp>
 #include <opencv2/video/tracking.hpp>
+#include <SLCVSlamStateLoader.h>
+#include <SLCVMapStorage.h>
 
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node, ORBVocabulary* vocabulary, 
-    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode )
+SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
     : SLCVTracked(node),
-    SLCVMapTracking(keyFrameDB, map, mapNode),
-    mpVocabulary(vocabulary)
-    //mpKeyFrameDatabase(keyFrameDB),
-    //_map(map),
-    //_mapNode(mapNode)
-    //_mapPC(mapPC),
-    //_keyFrames(keyFrames)
+    SLCVMapTracking(mapNode)
 {
+    //load visual vocabulary for relocalization
+    mpVocabulary = new ORB_SLAM2::ORBVocabulary();
+    string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
+    bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
+    //bool bVocLoad = true;
+    if (!bVocLoad)
+    {
+        cerr << "Wrong path to vocabulary. " << endl;
+        cerr << "Failed to open at: " << strVocFile << endl;
+        exit(-1);
+    }
+    cout << "Vocabulary loaded!" << endl << endl;
+
+    //instantiate and load slam map
+    mpKeyFrameDatabase = new SLCVKeyFrameDB(*mpVocabulary);
+
+    _map = new SLCVMap("Map");
+    //load map
+    SLstring slamStateFilePath = SLFileSystem::getExternalDir() + "orb-slam-state-dynamic.json";
+    if (SLFileSystem::fileExists(slamStateFilePath))
+    {
+        SLCVSlamStateLoader loader(slamStateFilePath, mpVocabulary, false);
+        loader.load(*_map, *mpKeyFrameDatabase);
+    }
+
+    //set SLCVMap in SLCVMapNode and update SLCVMapNode with scene objects
+    mapNode->setMap(*_map);
+    //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
+    //y-axis down and z-forward
+    mapNode->rotate(180, 1, 0, 0);
+    //the tracking camera has to be a child of the slam map, 
+    //because we manipulate its position (object matrix) in the maps coordinate system
+    mapNode->addChild(node);
+
+    //setup file system and check for existing files
+    SLCVMapStorage::init();
+
+
     if (_map->KeyFramesInMap())
     {
         _currentState = TRACK_3DPTS;
@@ -69,8 +102,8 @@ SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node, ORBVocabulary* vocabulary,
     _extractor = new ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
     mpIniORBextractor = new ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
     //instantiate local mapping
-    mpLocalMapper = new LocalMapping(map, 1, vocabulary);
-    mpLoopClosing = new LoopClosing(map, keyFrameDB, vocabulary, false);
+    mpLocalMapper = new LocalMapping(_map, 1, mpVocabulary);
+    mpLoopClosing = new LoopClosing(_map, mpKeyFrameDatabase, mpVocabulary, false);
     mpLoopClosing->SetLocalMapper(mpLocalMapper);
 }
 //-----------------------------------------------------------------------------

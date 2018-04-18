@@ -30,6 +30,7 @@ class SLCVMapTracking : public SLTrackingInfosInterface
 {
 public:
     SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode);
+    SLCVMapTracking(SLCVMapNode* mapNode);
 
     // Tracking states
     enum eTrackingState {
