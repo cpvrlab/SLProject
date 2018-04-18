@@ -139,6 +139,10 @@ SLCVFrame::SLCVFrame( const cv::Mat &imGray, const double &timeStamp, ORBextract
 
     AssignFeaturesToGrid();
     SLAverageTiming::stop("AssignFeaturesToGrid");
+
+    //store image reference if required
+    if (retainImg)
+        imgGray = imGray.clone();
 }
 //-----------------------------------------------------------------------------
 void SLCVFrame::AssignFeaturesToGrid()

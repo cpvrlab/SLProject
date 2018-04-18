@@ -14,6 +14,7 @@
 
 //-----------------------------------------------------------------------------
 unsigned int SLCVMapStorage::_highestId = 0;
+unsigned int SLCVMapStorage::_currentId = 0;
 SLstring SLCVMapStorage::_mapPrefix = "slam-map-";
 SLstring SLCVMapStorage::_mapsDirName = "slam-maps";
 SLstring SLCVMapStorage::_mapsDir = "";
@@ -75,11 +76,38 @@ void SLCVMapStorage::init()
     }
 }
 //-----------------------------------------------------------------------------
-void SLCVMapStorage::saveMap(SLCVMap& map, bool saveImgs)
+void SLCVMapStorage::saveMap(int id, SLCVMap& map, bool saveImgs)
 {
-    SLstring filename = SLFileSystem::getExternalDir() + "orb-slam-state-dynamic.json";
+    //check if map exists
+    string mapName = _mapPrefix + to_string(id);
+    string path = SLUtils::unifySlashes(_mapsDir + mapName);
+    string pathImgs = path + "imgs/";
+    string filename = path + mapName + ".json";
 
     try {
+        //if path exists, delete content
+        if (SLFileSystem::fileExists(path))
+        {
+            //remove json file
+            if (SLFileSystem::fileExists(filename))
+                SLFileSystem::deleteFile(filename);
+            //check if imgs dir exists and delete all containing files
+            if (SLFileSystem::fileExists(pathImgs))
+            {
+                SLVstring content = SLUtils::getFileNamesInDir(pathImgs);
+                for (auto path : content)
+                {
+                    SLFileSystem::deleteFile(path);
+                }
+            }
+        }
+        else
+        {
+            //create map directory and imgs directory
+            SLFileSystem::makeDir(path);
+            SLFileSystem::makeDir(pathImgs);
+        }
+
         cv::FileStorage fs(filename, cv::FileStorage::WRITE);
 
         //save keyframes (without graph/neigbourhood information)
@@ -128,10 +156,14 @@ void SLCVMapStorage::saveMap(SLCVMap& map, bool saveImgs)
                 cv::Mat imgColor;
                 if (saveImgs && !kf->imgGray.empty())
                 {
-                    std::stringstream ss; ss << "D:/Development/SLProject/_data/calibrations/imgs/" << "kf" << (int)kf->mnId << ".jpg";
+                    std::stringstream ss; 
+                    ss << pathImgs << "kf" << (int)kf->mnId << ".jpg";
 
                     cv::cvtColor(kf->imgGray, imgColor, cv::COLOR_GRAY2BGR);
                     cv::imwrite(ss.str(), imgColor);
+
+                    //if this kf was never loaded, we still have to set the texture path
+                    kf->setTexturePath(ss.str());
                 }
             }
         }
@@ -197,8 +229,9 @@ void SLCVMapStorage::loadMap(int id, SLCVMap& map, SLCVKeyFrameDB& kfDB)
     clear();
 
     //check if map exists
-    string mapName = _mapPrefix + std::to_string(id);
+    string mapName = _mapPrefix + to_string(id);
     string path = SLUtils::unifySlashes(_mapsDir + mapName);
+    _currPathImgs = path + "imgs/";
     string filename = path + mapName + ".json";
 
     //check if dir and file exist
@@ -313,7 +346,7 @@ void SLCVMapStorage::loadKeyFrames( SLCVMap& map, SLCVKeyFrameDB& kfDB)
         (*it)["featureDescriptors"] >> featureDescriptors;
 
         //load undistorted keypoints in frame
-        //todo: braucht man diese wirklich oder kann man das umgehen, indem zusätzliche daten im MapPoint abgelegt werden (z.B. octave/level siehe UpdateNormalAndDepth)
+        //todo: braucht man diese wirklich oder kann man das umgehen, indem zusï¿½tzliche daten im MapPoint abgelegt werden (z.B. octave/level siehe UpdateNormalAndDepth)
         std::vector<cv::KeyPoint> keyPtsUndist;
         (*it)["keyPtsUndist"] >> keyPtsUndist;
 
@@ -329,13 +362,16 @@ void SLCVMapStorage::loadKeyFrames( SLCVMap& map, SLCVKeyFrameDB& kfDB)
             keyPtsUndist, featureDescriptors, _orbVoc, nScaleLevels, scaleFactor, _vScaleFactor,
             _vLevelSigma2, _vInvLevelSigma2, nMinX, nMinY, nMaxX, nMaxY, K, &kfDB, &map);
 
-        //if (!kfImg.empty()) {
         if (_loadKfImgs)
         {
             stringstream ss;
-            ss << "D:/Development/SLProject/_data/calibrations/imgs/" << "kf" << id << ".jpg";
+            ss << _currPathImgs << "kf" << id << ".jpg";
             //newKf->imgGray = kfImg;
-            newKf->setTexturePath(ss.str());
+            if (SLFileSystem::fileExists(ss.str()))
+            {
+                newKf->setTexturePath(ss.str());
+                newKf->imgGray = cv::imread(ss.str());
+            }
         }
         //kfs.push_back(newKf);
         map.AddKeyFrame(newKf);
@@ -343,9 +379,6 @@ void SLCVMapStorage::loadKeyFrames( SLCVMap& map, SLCVKeyFrameDB& kfDB)
         //Update keyframe database:
         //add to keyframe database
         kfDB.add(newKf);
-
-        // Update links in the Covisibility Graph
-        //newKf->UpdateConnections();
 
         //pointer goes out of scope und wird invalid!!!!!!
         //map pointer by id for look-up

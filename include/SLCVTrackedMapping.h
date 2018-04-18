@@ -174,6 +174,8 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         bool _mapNextFrame = false;
 
         int _numOfLoopClosings = 0;
+
+        bool _retainImg = true;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedMapping_H

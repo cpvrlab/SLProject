@@ -17,12 +17,15 @@
 class SLCVMapStorage
 {
 public:
-    SLCVMapStorage(ORBVocabulary* orbVoc, bool loadKfImgs);
+    SLCVMapStorage(ORBVocabulary* orbVoc, bool loadKfImgs=true);
 
     //check if directory for map storage exists and read existing map names
     static void init();
-    static void saveMap(SLCVMap& map, bool saveImgs);
+    static void saveMap(int id, SLCVMap& map, bool saveImgs);
     void loadMap(int id, SLCVMap& map, SLCVKeyFrameDB& kfDB);
+
+    //static unsigned int getHighestId() { return _highestId; }
+    static unsigned int getCurrentId() { return _currentId; }
 private:
     void loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB);
     void loadMapPoints(SLCVMap& map);
@@ -44,8 +47,10 @@ private:
     std::vector<float> _vInvScaleFactor;
     std::vector<float> _vLevelSigma2;
     std::vector<float> _vInvLevelSigma2;
+    SLstring _currPathImgs;
 
     static unsigned int _highestId;
+    static unsigned int _currentId;
     static SLstring _mapPrefix;
     static SLstring _mapsDirName;
     static SLstring _mapsDir;

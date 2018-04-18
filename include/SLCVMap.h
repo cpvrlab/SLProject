@@ -92,7 +92,6 @@ public:
     void applyTransformation(double value, TransformType type);
     cv::Mat buildTransMat(float &val, int type);
     cv::Mat buildRotMat(float &valDeg, int type);
-    void saveState();
 
 protected:
     std::set<SLCVMapPoint*> mspMapPoints;

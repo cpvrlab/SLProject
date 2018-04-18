@@ -58,10 +58,28 @@ void SLFileSystem::makeDir(const string& path)
 #endif
 }
 //-----------------------------------------------------------------------------
+/*! Remove a directory with given path. DOES ONLY WORK FOR EMPTY DIRECTORIES
+*/
+void SLFileSystem::removeDir(const string& path)
+{
+#ifdef SL_OS_WINDOWS
+    int ret = _rmdir(path.c_str());
+    if (ret != 0) {
+        errno_t err;
+        _get_errno(&err);
+        SL_LOG("Could not remove directory: %s\nErrno: %s\n", path.c_str(), strerror(errno));
+    }
+#else
+    int ret = rmdir(path.c_str());
+#endif
+
+
+}
+//-----------------------------------------------------------------------------
 /*! Returns true if the file exists.Be aware that on some OS file and
 paths are treated case sensitive.
 */
-SLbool SLFileSystem::fileExists(SLstring& pathfilename) 
+SLbool SLFileSystem::fileExists(const SLstring& pathfilename) 
 {  
     struct stat info;
     if (stat(pathfilename.c_str(), &info) == 0)

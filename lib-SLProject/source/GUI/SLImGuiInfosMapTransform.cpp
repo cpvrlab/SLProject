@@ -14,6 +14,7 @@
 
 #include <SLImGuiInfosMapTransform.h>
 #include <SLCVMap.h>
+#include <SLCVMapStorage.h>
 
 //-----------------------------------------------------------------------------
 SLImGuiInfosMapTransform::SLImGuiInfosMapTransform(std::string name, SLCVMap* map)
@@ -65,6 +66,6 @@ void SLImGuiInfosMapTransform::buildInfos()
     ImGui::Separator();
 
     if (ImGui::Button("Save State", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        _map->saveState();
+        SLCVMapStorage::saveMap(SLCVMapStorage::getCurrentId(), *_map, true);
     }
 }

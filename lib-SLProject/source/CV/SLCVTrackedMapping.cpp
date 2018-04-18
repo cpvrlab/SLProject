@@ -64,8 +64,8 @@ SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
     //initialize map storage
     SLCVMapStorage::init();
     //load map
-    SLCVMapStorage storage(mpVocabulary, false);
-    storage.loadMap(0, *_map, *mpKeyFrameDatabase);
+    SLCVMapStorage storage(mpVocabulary);
+    storage.loadMap(SLCVMapStorage::getCurrentId(), *_map, *mpKeyFrameDatabase);
 
     //set SLCVMap in SLCVMapNode and update SLCVMapNode with scene objects
     mapNode->setMap(*_map);
@@ -134,11 +134,11 @@ SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
         //we use different extractors for initialization and tracking
         if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET) {
             mCurrentFrame = SLCVFrame(imageGray, timestamp, mpIniORBextractor,
-                calib->cameraMat(), calib->distortion(), mpVocabulary);
+                calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
         }
         else {
             mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor,
-                calib->cameraMat(), calib->distortion(), mpVocabulary);
+                calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
         }
 
         decorateVideoWithKeyPoints(_img);
@@ -1332,6 +1332,8 @@ void SLCVTrackedMapping::UpdateLastFrame()
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::saveMap()
 {
-    _map->saveState();
+    SLCVMapStorage::saveMap(SLCVMapStorage ::getCurrentId(),*_map, true);
+    //update key frames, because there may be new textures in file system
+    _mapNode->updateKeyFrames(_map->GetAllKeyFrames());
 }
 //-----------------------------------------------------------------------------
