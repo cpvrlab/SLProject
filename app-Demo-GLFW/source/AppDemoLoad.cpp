@@ -2304,7 +2304,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLNode* bern = LoadBernModel();
         //install gui
-        auto ui = make_shared<SLImGuiInfosChristoffelTower>("Christoffel", bern);
+        auto ui = std::make_shared<SLImGuiInfosChristoffelTower>("Christoffel", bern);
         AppDemoGui::addInfoDialog(ui);
 
         // Add axis object a world origin (Loeb Ecke)
@@ -2606,7 +2606,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCVTrackedRaulMur* raulMurTracker = new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map, mapNode);
         s->trackers().push_back(raulMurTracker);
 
-        auto infosTracking = shared_ptr<SLImGuiInfosTracking>("Tracking infos", raulMurTracker);
+        auto infosTracking = make_shared<SLImGuiInfosTracking>("Tracking infos", raulMurTracker);
         AppDemoGui::addInfoDialog(infosTracking);
 
         //add yellow augmented box
@@ -2712,16 +2712,16 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //load visual vocabulary for relocalization
         ORBVocabulary* vocabulary = new ORBVocabulary();
-        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-        //bool bVocLoad = true;
-        if (!bVocLoad)
-        {
-            cerr << "Wrong path to vocabulary. " << endl;
-            cerr << "Failed to open at: " << strVocFile << endl;
-            exit(-1);
-        }
-        cout << "Vocabulary loaded!" << endl << endl;
+        //string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
+        //bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
+        ////bool bVocLoad = true;
+        //if (!bVocLoad)
+        //{
+        //    cerr << "Wrong path to vocabulary. " << endl;
+        //    cerr << "Failed to open at: " << strVocFile << endl;
+        //    exit(-1);
+        //}
+        //cout << "Vocabulary loaded!" << endl << endl;
 
         //instantiate and load slam map
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);

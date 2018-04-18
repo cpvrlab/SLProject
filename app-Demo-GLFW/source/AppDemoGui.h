@@ -44,7 +44,6 @@ public:
     static void             buildSceneGraph(SLScene* s);
     static void             addSceneGraphNode(SLScene* s, SLNode* node);
     static void             buildProperties(SLScene* s);
-    //static void             buildInfosTracking  (SLScene* s, SLSceneView* sv);
     static void             buildStatsDebugTiming(SLScene* s, SLSceneView* sv);
     static void             buildInfosDialogs();
 

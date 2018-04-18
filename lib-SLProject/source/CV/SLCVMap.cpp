@@ -341,7 +341,7 @@ Mat SLCVMap::buildRotMat(float &valDeg, int type)
 //-----------------------------------------------------------------------------
 void SLCVMap::saveState()
 {
-    SLstring filename = SLCVCalibration::externalDataPath + "orb-slam-state-dynamic.json";
+    SLstring filename = SLFileSystem::getExternalDir() + "orb-slam-state-dynamic.json";
     cv::FileStorage fs(filename, cv::FileStorage::WRITE);
 
     //save keyframes (without graph/neigbourhood information)
