@@ -11,7 +11,6 @@
 #ifndef SLPOINTS_H
 #define SLPOINTS_H
 
-#include <stdafx.h>
 #include <SLRnd3f.h>
 #include <SLMesh.h>
 

@@ -11,7 +11,6 @@
 #ifndef SLSPHERE_H
 #define SLSPHERE_H
 
-#include <stdafx.h>
 #include <SLSpheric.h>
 
 class SLRay;

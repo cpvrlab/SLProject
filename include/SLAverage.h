@@ -12,7 +12,7 @@
 #ifndef SLAVERAGE_H
 #define SLAVERAGE_H
 
-#include <stdafx.h>
+#include <SL.h>
 
 //-----------------------------------------------------------------------------
 //!SLAverage template class provides an average value from a fixed size array.

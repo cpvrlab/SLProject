@@ -11,8 +11,9 @@
 #ifndef SLBACKGROUND_H
 #define SLBACKGROUND_H
 
-#include <stdafx.h>
+//#include <stdafx.h>
 #include <SLGLVertexArray.h>
+#include <SLObject.h>
 
 class SLGLTexture;
 

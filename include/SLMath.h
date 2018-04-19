@@ -12,6 +12,7 @@
 #define SLMATH_H
 
 #include <SL.h>
+#include <cfloat>
 
 //-----------------------------------------------------------------------------
 // Math. constants

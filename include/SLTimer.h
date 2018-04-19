@@ -11,7 +11,7 @@
 #ifndef SLTIMER
 #define SLTIMER
 
-#include <stdafx.h>
+#include <SL.h>
 
 using namespace std::chrono;
 //-----------------------------------------------------------------------------

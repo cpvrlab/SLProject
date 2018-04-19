@@ -11,7 +11,7 @@
 #ifndef SLTRIANGLE_H
 #define SLTRIANGLE_H
 
-#include "SLMesh.h"
+#include <SLMesh.h>
 
 //-----------------------------------------------------------------------------
 //! A triangle class as the most simplest mesh

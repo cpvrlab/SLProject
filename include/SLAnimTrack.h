@@ -11,7 +11,8 @@
 #ifndef SLANIMTRACK_h
 #define SLANIMTRACK_h
 
-#include <stdafx.h>
+#include <map>
+
 #include <SLEnums.h>
 #include <SLKeyframe.h>
 
@@ -90,7 +91,7 @@ protected:
     SLbool              _rebuildInterpolationCurve; //!< dirty flag of the Bézier curve
 };
 //-----------------------------------------------------------------------------
-typedef map<SLuint, SLNodeAnimTrack*> SLMNodeAnimTrack;
+typedef std::map<SLuint, SLNodeAnimTrack*> SLMNodeAnimTrack;
 //-----------------------------------------------------------------------------
 #endif
 

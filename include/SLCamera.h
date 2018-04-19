@@ -11,7 +11,6 @@
 #ifndef SLCAMERA_H
 #define SLCAMERA_H
 
-#include <stdafx.h>
 #include <SLEnums.h>
 #include <SLNode.h>
 #include <SLGLState.h>
@@ -19,6 +18,7 @@
 #include <SLBackground.h>
 #include <SLRay.h>
 #include <SLGLVertexArrayExt.h>
+#include <SLPlane.h>
 
 class SLSceneView;
 

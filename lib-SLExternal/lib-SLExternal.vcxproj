@@ -166,6 +166,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX64</TargetMachine>
       <AdditionalDependencies>Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\lib</AdditionalLibraryDirectories>

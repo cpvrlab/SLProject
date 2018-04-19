@@ -11,8 +11,6 @@
 #ifndef SLENUMSID_H
 #define SLENUMSID_H
 
-//#include <stdafx.h> // gets included before SL.h
-
 //-----------------------------------------------------------------------------
 //! Keyboard key codes enumeration
 enum SLKey

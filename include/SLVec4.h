@@ -12,8 +12,8 @@
 #define SLVEC4_H
 
 #include <SL.h>
+#include <SLVec2.h>
 #include <SLVec3.h>
-#include <SLUtils.h>
 
 //-----------------------------------------------------------------------------
 //! 4D vector template class for standard 4D vector algebra.

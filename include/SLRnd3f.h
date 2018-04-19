@@ -11,7 +11,7 @@
 #ifndef SLRND3F_H
 #define SLRND3F_H
 
-#include <stdafx.h>
+#include <SLVec3.h>
 
 //-----------------------------------------------------------------------------
 //! Abstract base class for random 3D point generator

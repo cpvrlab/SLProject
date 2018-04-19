@@ -10,11 +10,13 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
-#include <imgui.h>
-
 #ifndef SLGLIMGUI_H
 #define SLGLIMGUI_H
+
+#include <imgui.h>
+#include <SL.h>
+#include <SLEnums.h>
+#include <SLVec2.h>
 
 class SLScene;
 class SLSceneView;

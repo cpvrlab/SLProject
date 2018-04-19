@@ -11,8 +11,7 @@
 #ifndef SLGRID_H
 #define SLGRID_H
 
-#include <stdafx.h>
-#include "SLMesh.h"
+#include <SLMesh.h>
 
 //-----------------------------------------------------------------------------
 //! SLGrid creates a rectangular grid with lines with a certain resolution

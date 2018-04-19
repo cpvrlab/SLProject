@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTracked.cpp
+//  File:      SLCVTracked.h
 //  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -20,7 +20,6 @@ See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 
-#include <stdafx.h>
 #include <SLNode.h>
 #include <SLSceneView.h>
 #include <SLCV.h>

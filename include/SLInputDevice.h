@@ -11,7 +11,8 @@
 #ifndef SLINPUTDEVICE_H
 #define SLINPUTDEVICE_H
 
-#include <stdafx.h>
+#include <vector>
+#include <SL.h>
 
 //-----------------------------------------------------------------------------
 //! Interface for input devices that have to be pollsed

@@ -11,10 +11,13 @@
 #ifndef SLMAT4_H
 #define SLMAT4_H
 
+#include <assert.h>
 #include <SL.h>
+#include <SLVec3.h>
+#include <SLVec4.h>
 #include <SLMath.h>
 #include <SLMat3.h>
-#include <SLVec4.h>
+//#include <SLVec4.h>
 #include <Shoemake/EulerAngles.h>
 #include <Shoemake/Decompose.h>
 

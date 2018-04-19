@@ -12,9 +12,9 @@
 #ifndef SLINPUTEVENT_H
 #define SLINPUTEVENT_H
 
-#include <stdafx.h>
+#include <queue>
+#include <SL.h>
 #include <SLEnums.h>
-
 
 //-----------------------------------------------------------------------------
 //! Baseclass for all system input events.
