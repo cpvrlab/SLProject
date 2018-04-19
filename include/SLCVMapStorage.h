@@ -26,6 +26,7 @@ public:
 
     //static unsigned int getHighestId() { return _highestId; }
     static unsigned int getCurrentId() { return _currentId; }
+    static SLVstring existingMapNames;
 private:
     void loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB);
     void loadMapPoints(SLCVMap& map);
@@ -54,7 +55,6 @@ private:
     static SLstring _mapPrefix;
     static SLstring _mapsDirName;
     static SLstring _mapsDir;
-    static SLVstring existingMapNames;
 };
 //-----------------------------------------------------------------------------
 

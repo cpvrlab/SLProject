@@ -45,23 +45,23 @@ SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
 {
     //load visual vocabulary for relocalization
     mpVocabulary = new ORB_SLAM2::ORBVocabulary();
-    string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-    bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
-    //bool bVocLoad = true;
-    if (!bVocLoad)
-    {
-        cerr << "Wrong path to vocabulary. " << endl;
-        cerr << "Failed to open at: " << strVocFile << endl;
-        exit(-1);
-    }
-    cout << "Vocabulary loaded!" << endl << endl;
+    //string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
+    //bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
+    ////bool bVocLoad = true;
+    //if (!bVocLoad)
+    //{
+    //    cerr << "Wrong path to vocabulary. " << endl;
+    //    cerr << "Failed to open at: " << strVocFile << endl;
+    //    exit(-1);
+    //}
+    //cout << "Vocabulary loaded!" << endl << endl;
 
     //instantiate and load slam map
     mpKeyFrameDatabase = new SLCVKeyFrameDB(*mpVocabulary);
 
     _map = new SLCVMap("Map");
 
-    //initialize map storage
+    //setup file system and check for existing files
     SLCVMapStorage::init();
     //load map
     SLCVMapStorage storage(mpVocabulary);
@@ -75,10 +75,6 @@ SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
     //the tracking camera has to be a child of the slam map, 
     //because we manipulate its position (object matrix) in the maps coordinate system
     mapNode->addChild(node);
-
-    //setup file system and check for existing files
-    SLCVMapStorage::init();
-
 
     if (_map->KeyFramesInMap())
     {

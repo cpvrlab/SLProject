@@ -25,6 +25,11 @@ public:
 
 private:
     SLCVTrackedMapping* _mappingTracker = nullptr;
+
+    void updateComboBoxItems(const std::vector<string>& newItems);
+    std::vector<string> _items;
+    static const char* _currItem;
+    static int _currN;
 };
 
 #endif //SL_IMGUI_TRACKEDMAPPING_H
