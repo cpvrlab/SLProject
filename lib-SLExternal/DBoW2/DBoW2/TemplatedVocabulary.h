@@ -1408,7 +1408,7 @@ bool TemplatedVocabulary<TDescriptor,F>::saveToBinaryFile(const std::string &fil
 template<class TDescriptor, class F>
 bool TemplatedVocabulary<TDescriptor,F>::loadFromBinaryFile(const std::string &filename)
 {
-    FILE* f = fopen(filename.c_str(), "r");
+    FILE* f = fopen(filename.c_str(), "rb");
     if (!f)
         return false;
 

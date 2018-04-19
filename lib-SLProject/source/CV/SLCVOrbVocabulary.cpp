@@ -23,9 +23,8 @@ SLCVOrbVocabulary::~SLCVOrbVocabulary()
 void SLCVOrbVocabulary::loadFromFile()
 {
     _vocabulary = new ORB_SLAM2::ORBVocabulary();
-    string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-    bool bVocLoad = _vocabulary->loadFromTextFile(strVocFile);
-
+    string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.bin";
+    bool bVocLoad = _vocabulary->loadFromBinaryFile(strVocFile);
     if (!bVocLoad)
     {
         SL_LOG("Wrong path to vocabulary. Failed to open at: %s", strVocFile.c_str());
