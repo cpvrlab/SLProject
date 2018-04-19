@@ -82,6 +82,7 @@ void SLCVMapStorage::init()
 //-----------------------------------------------------------------------------
 void SLCVMapStorage::saveMap(int id, SLCVMap& map, bool saveImgs)
 {
+    bool errorOccured = false;
     //check if map exists
     string mapName = _mapPrefix + to_string(id);
     string path = SLUtils::unifySlashes(_mapsDir + mapName);
@@ -228,11 +229,36 @@ void SLCVMapStorage::saveMap(int id, SLCVMap& map, bool saveImgs)
         string msg = "Exception during slam map storage: " + filename + "\n" +
             e.what() + "\n";
         SL_WARN_MSG(msg.c_str());
+        errorOccured = true;
     }
     catch (...)
     {
         string msg = "Exception during slam map storage: " + filename + "\n";
         SL_WARN_MSG(msg.c_str());
+        errorOccured = true;
+    }
+
+    //if an error occured, we delete the whole directory
+    if (errorOccured)
+    {
+        //if path exists, delete content
+        if (SLFileSystem::fileExists(path))
+        {
+            //remove json file
+            if (SLFileSystem::fileExists(filename))
+                SLFileSystem::deleteFile(filename);
+            //check if imgs dir exists and delete all containing files
+            if (SLFileSystem::fileExists(pathImgs))
+            {
+                SLVstring content = SLUtils::getFileNamesInDir(pathImgs);
+                for (auto path : content)
+                {
+                    SLFileSystem::deleteFile(path);
+                }
+                SLFileSystem::deleteFile(pathImgs);
+            }
+            SLFileSystem::deleteFile(path);
+        }
     }
 }
 //-----------------------------------------------------------------------------
@@ -246,10 +272,13 @@ void SLCVMapStorage::loadMap(const string& name, SLCVMap& map, SLCVKeyFrameDB& k
     SLVstring splitted;
     int id = -1;
     SLUtils::split(name, '-', splitted);
-    if (splitted.size())
+    if (splitted.size()) {
         id = atoi(splitted.back().c_str());
+        _currentId = id;
+    }
     else {
         SL_LOG("Could not load map. Map id not found in name: %s\n", name.c_str());
+        return;
     }
 
     //check if map exists
@@ -275,7 +304,7 @@ void SLCVMapStorage::loadMap(const string& name, SLCVMap& map, SLCVKeyFrameDB& k
         if (!_fs.isOpened()) {
             string msg = "Failed to open filestorage: " + filename + "\n";
             SL_WARN_MSG(msg.c_str());
-            return;
+            throw(std::runtime_error(msg));
         }
 
         //load keyframes
@@ -394,7 +423,8 @@ void SLCVMapStorage::loadKeyFrames( SLCVMap& map, SLCVKeyFrameDB& kfDB)
             if (SLFileSystem::fileExists(ss.str()))
             {
                 newKf->setTexturePath(ss.str());
-                newKf->imgGray = cv::imread(ss.str());
+                cv::Mat imgColor = cv::imread(ss.str());;
+                cv::cvtColor(imgColor, newKf->imgGray, cv::COLOR_BGR2GRAY);
             }
         }
         //kfs.push_back(newKf);
