@@ -24,8 +24,6 @@ SLImGuiTrackedMapping::SLImGuiTrackedMapping(string name, SLCVTrackedMapping* ma
     : SLImGuiInfosDialog(name),
     _mappingTracker(mappingTracker)
 {
-    std::vector<string> items = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO", "PPPP", "QQQQQQQQQQ", "RRR", "SSSS" };
-    updateComboBoxItems(items);
 }
 //-----------------------------------------------------------------------------
 void SLImGuiTrackedMapping::buildInfos()
@@ -96,11 +94,4 @@ void SLImGuiTrackedMapping::buildInfos()
     if (ImGui::Button("Load map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
         _mappingTracker->saveMap();
     }
-}
-//-----------------------------------------------------------------------------
-void SLImGuiTrackedMapping::updateComboBoxItems(const std::vector<string>& newItems)
-{
-    _items = newItems;
-    _currItem = NULL;
-    _currN = -1;
 }

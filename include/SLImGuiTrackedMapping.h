@@ -26,9 +26,9 @@ public:
 private:
     SLCVTrackedMapping* _mappingTracker = nullptr;
 
-    void updateComboBoxItems(const std::vector<string>& newItems);
-    std::vector<string> _items;
+    //!currently selected combobox item
     static const char* _currItem;
+    //!currently selected combobox index
     static int _currN;
 };
 
