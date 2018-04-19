@@ -1061,7 +1061,7 @@ static void computeDescriptorsAndScaleKeypoints(const Mat& image, vector<KeyPoin
     int keypointCount = (int)keypoints.size();
     descriptors = Mat::zeros(keypointCount, 32, CV_8UC1);
 
-    int threadCount = 7;
+    const int threadCount = 7;
     int startIndex = 0;
     int delta = keypointCount / (threadCount + 1);
 
