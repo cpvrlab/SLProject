@@ -2700,11 +2700,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLCVMap* map = new SLCVMap("Map");
 
-
         ORBVocabulary* vocabulary = new ORBVocabulary();
-        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-        //bool bVocLoad = true;
+        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.bin";
+        bool bVocLoad = vocabulary->loadFromBinaryFile(strVocFile);
         if (!bVocLoad)
         {
             cerr << "Wrong path to vocabulary. " << endl;

@@ -28,7 +28,16 @@ public:
   /// Pointer to a single descriptor
   typedef const TDescriptor *pDescriptor;
   /// Descriptor length (in bytes)
-  static const int L;
+  static const int L = 32;
+
+  struct BinNode
+  {
+    uint32_t id;
+    double weight;
+    uint32_t parent;
+    uint8_t descriptor[L];
+    bool isLeaf;
+  };
 
   /**
    * Calculates the mean value of a set of descriptors
