@@ -46,6 +46,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.releaseKey1
         }
+        debug {
+        }
     }
     externalNativeBuild {
         cmake {

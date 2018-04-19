@@ -93,8 +93,8 @@ public:
                                              SLCVVPoint3f& objectPoints3D);
     // Setters
     void            state                   (SLCVCalibState s) {_state = s;}
-    void            toggleMirrorH           () {clear(); _isMirroredH = !_isMirroredH;}
-    void            toggleMirrorV           () {clear(); _isMirroredV = !_isMirroredV;}
+    void            toggleMirrorH           () {clear(); _isMirroredH = !_isMirroredH; save();}
+    void            toggleMirrorV           () {clear(); _isMirroredV = !_isMirroredV; save();}
     void            toggleFixPrincipalPoint () {clear(); _calibFixPrincipalPoint = !_calibFixPrincipalPoint;}
     void            toggleFixAspectRatio    () {clear(); _calibFixAspectRatio = !_calibFixAspectRatio;}
     void            toggleZeroTangentDist   () {clear(); _calibZeroTangentDist = !_calibZeroTangentDist;}

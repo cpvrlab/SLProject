@@ -350,7 +350,8 @@ file(GLOB_RECURSE CALIBRATIONS  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrat
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-bern1-manip1.json
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-buero1.json
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/test.yml
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/ORBvoc.txt)
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/ORBvoc.txt
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/ORBvoc.bin)
 
 file(GLOB_RECURSE CONFIG        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/config/dummyFile.txt)
 

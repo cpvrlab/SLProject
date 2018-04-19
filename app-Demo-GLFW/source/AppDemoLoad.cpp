@@ -2356,14 +2356,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
 
-        //SLCVCapture::videoFilename = "street3.mp4";
+        SLCVCapture::videoFilename = "street3.mp4";
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "street1_manip.json";
         //SLCVCapture::videoFilename = "altstadt_biel1.mp4";
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-altstadtbiel1_manip.json";
         //SLCVCapture::videoFilename = "Bern1.mp4";
         //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern1-manip1.json";
         //SLCVCapture::videoFilename = "Bern3_cut_baldachin.mp4";
-        SLCVCapture::videoFilename = "Bern3_cut.mp4";
+        //SLCVCapture::videoFilename = "Bern3_cut.mp4";
         SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern3-ct.json";
 
 
@@ -2563,11 +2563,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
         cam1->background().texture(s->videoTexture());
 
-
         ORBVocabulary* vocabulary = new ORBVocabulary();
-        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-        //bool bVocLoad = true;
+        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.bin";
+        bool bVocLoad = vocabulary->loadFromBinaryFile(strVocFile);
         if (!bVocLoad)
         {
             cerr << "Wrong path to vocabulary. " << endl;

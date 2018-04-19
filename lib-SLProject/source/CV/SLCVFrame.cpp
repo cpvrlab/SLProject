@@ -111,11 +111,11 @@ SLCVFrame::SLCVFrame( const cv::Mat &imGray, const double &timeStamp, ORBextract
     if (mvKeys.empty())
         return;
 
-    SLAverageTiming::start("UndistortKeyPoints", 6, 2);
+    //SLAverageTiming::start("UndistortKeyPoints", 6, 2);
     UndistortKeyPoints();
-    SLAverageTiming::stop("UndistortKeyPoints");
+    //SLAverageTiming::stop("UndistortKeyPoints");
 
-    SLAverageTiming::start("AssignFeaturesToGrid", 7, 2);
+    //SLAverageTiming::start("AssignFeaturesToGrid", 7, 2);
     mvpMapPoints = vector<SLCVMapPoint*>(N, static_cast<SLCVMapPoint*>(NULL));
     mvbOutlier = vector<bool>(N, false);
 
@@ -138,7 +138,7 @@ SLCVFrame::SLCVFrame( const cv::Mat &imGray, const double &timeStamp, ORBextract
     }
 
     AssignFeaturesToGrid();
-    SLAverageTiming::stop("AssignFeaturesToGrid");
+    //SLAverageTiming::stop("AssignFeaturesToGrid");
 
     //store image reference if required
     if (retainImg)

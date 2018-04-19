@@ -92,6 +92,8 @@ INCLUDEPATH += \
     zlib \
     imgui \
     spa \
+    DBoW2 \
+    eigen
 
 HEADERS += \
     glew/include/GL/glew.h \
@@ -121,7 +123,13 @@ SOURCES += \
     Shoemake/Decompose.cpp \
     imgui/imgui_draw.cpp \
     imgui/imgui.cpp \
-    spa/spa.cpp
+    spa/spa.cpp \
+    DBoW2/DBoW2/BowVector.cpp \
+    DBoW2/DBoW2/FeatureVector.cpp \
+    DBoW2/DBoW2/FORB.cpp \
+    DBoW2/DBoW2/ScoringObject.cpp \
+    DBoW2/DUtils/Random.cpp \
+    DBoW2/DUtils/Timestamp.cpp
 
 macx {
 #Mac OSX only --------------------------------------

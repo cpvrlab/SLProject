@@ -240,6 +240,10 @@ public:
    */
   bool loadFromTextFile(const std::string &filename);
 
+  bool loadFromBinaryFile(const std::string &filename);
+
+  bool saveToBinaryFile(const std::string &filename);
+
   /**
    * Saves the vocabulary into a text file
    * @param filename
@@ -326,6 +330,17 @@ protected:
      * @return true iff the node is a leaf
      */
     inline bool isLeaf() const { return children.empty(); }
+  };
+
+  struct VocInfo
+  {
+      /// Branching factor
+      int m_k;
+
+      /// Depth levels
+      int m_L;
+
+      int n1, n2;
   };
 
 protected:
@@ -1335,13 +1350,162 @@ int TemplatedVocabulary<TDescriptor,F>::stopWords(double minWeight)
 // --------------------------------------------------------------------------
 
 template<class TDescriptor, class F>
+bool TemplatedVocabulary<TDescriptor,F>::saveToBinaryFile(const std::string &filename)
+{
+    int nodeCount = m_nodes.size();
+    typename F::BinNode* bN = (typename F::BinNode*)malloc(nodeCount * sizeof(typename F::BinNode));
+    typename F::BinNode* bNStart = bN;
+
+    for (int i = 1; i < nodeCount; i++)
+    {
+        Node n = m_nodes[i];
+        bN->id = n.id;
+        bN->parent = n.parent;
+        bN->weight = n.weight;
+        bN->isLeaf = n.isLeaf();
+
+        int channels = n.descriptor.channels();
+        int nRows = n.descriptor.rows;
+        int nCols = n.descriptor.cols * channels;
+
+        if (n.descriptor.isContinuous())
+        {
+            nCols *= nRows;
+            nRows = 1;
+        }
+
+        uint8_t* p;
+        int dIndex = 0;
+        for (int row = 0; row < nRows; row++) {
+            p = n.descriptor.ptr(row);
+            for (int col = 0; col < nCols; col++)
+            {
+                bN->descriptor[dIndex++] = p[col];
+            }
+        }
+
+        bN++;
+    }
+
+    FILE* f = fopen(filename.c_str(), "wb");
+    if (!f)
+        return false;
+
+    VocInfo i;
+    i.m_k = m_k;
+    i.m_L = m_L;
+    i.n1 = m_scoring;
+    i.n2 = m_weighting;
+    fwrite(&i, sizeof(VocInfo), 1, f);
+    fwrite(bNStart, sizeof(typename F::BinNode), nodeCount, f);
+    fclose(f);
+
+    free(bNStart);
+
+    return true;
+}
+
+template<class TDescriptor, class F>
+bool TemplatedVocabulary<TDescriptor,F>::loadFromBinaryFile(const std::string &filename)
+{
+    FILE* f = fopen(filename.c_str(), "r");
+    if (!f)
+        return false;
+
+    fseek(f, 0, SEEK_END);
+    uint32_t contentSize = ftell(f);
+    rewind(f);
+
+    uint8_t* fContent = (uint8_t*)malloc(sizeof(uint8_t*)*contentSize);
+    uint8_t* fContentStart = fContent;
+    if (!fContent)
+        return false;
+
+    size_t readResult = fread(fContent, 1, contentSize, f);
+    if (readResult != contentSize)
+        return false;
+
+    int nodeCount = (contentSize - sizeof(VocInfo)) / sizeof(typename F::BinNode);
+
+    fclose(f);
+
+    VocInfo* i = (VocInfo*)fContent;
+    typename F::BinNode* bN = (typename F::BinNode*)(fContent + sizeof(VocInfo));
+
+    m_words.clear();
+    m_nodes.clear();
+
+    m_k = i->m_k;
+    m_L = i->m_L;
+    int n1 = i->n1;
+    int n2 = i->n2;
+
+    if(m_k<0 || m_k>20 || m_L<1 || m_L>10 || n1<0 || n1>5 || n2<0 || n2>3)
+    {
+        std::cerr << "Vocabulary loading failure: This is not a correct text file!" << endl;
+        return false;
+    }
+
+    m_scoring = (ScoringType)n1;
+    m_weighting = (WeightingType)n2;
+    createScoringObject();
+
+    m_nodes.reserve(nodeCount + 1);
+    m_words.reserve(pow((double)m_k, (double)m_L + 1));
+
+    m_nodes.resize(nodeCount + 1);
+    m_nodes[0].id = 0;
+
+    for (int i = 1; i <= nodeCount; i++)
+    {
+        int nid = i;
+        Node* n = &m_nodes[nid];
+        n->id = nid;
+
+        int pid = bN->parent;
+        n->parent = pid;
+        m_nodes[pid].children.push_back(nid);
+
+        // NOTE(jan): since we initialize the mat with a size of 1xF::L, it is always continuous in memory
+        // according to https://docs.opencv.org/2.4/modules/core/doc/basic_structures.html#bool%20Mat::isContinuous()%20const
+        n->descriptor = cv::Mat(1, F::L, CV_8U);
+        int channels = n->descriptor.channels();
+        int nRows = n->descriptor.rows;
+        int nCols = n->descriptor.cols * channels;
+
+        memcpy(n->descriptor.ptr(0), bN->descriptor, sizeof(uint8_t)*F::L);
+
+        n->weight = bN->weight;
+
+        if(bN->isLeaf)
+        {
+            int wid = m_words.size();
+            m_words.resize(wid+1);
+
+            n->word_id = wid;
+            m_words[wid] = &m_nodes[nid];
+        }
+        else
+        {
+            n->children.reserve(m_k);
+        }
+
+        bN++;
+    }
+
+    free(fContentStart);
+
+    return true;
+}
+
+template<class TDescriptor, class F>
 bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &filename)
 {
     ifstream f;
     f.open(filename.c_str());
-	
+
     if(f.eof())
-	return false;
+        return false;
 
     m_words.clear();
     m_nodes.clear();
@@ -1359,9 +1523,9 @@ bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &fil
     if(m_k<0 || m_k>20 || m_L<1 || m_L>10 || n1<0 || n1>5 || n2<0 || n2>3)
     {
         std::cerr << "Vocabulary loading failure: This is not a correct text file!" << endl;
-	return false;
+        return false;
     }
-    
+
     m_scoring = (ScoringType)n1;
     m_weighting = (WeightingType)n2;
     createScoringObject();
@@ -1384,8 +1548,8 @@ bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &fil
 
         int nid = m_nodes.size();
         m_nodes.resize(m_nodes.size()+1);
-	m_nodes[nid].id = nid;
-	
+        m_nodes[nid].id = nid;
+
         int pid ;
         ssnode >> pid;
         m_nodes[nid].parent = pid;
@@ -1400,7 +1564,7 @@ bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &fil
             string sElement;
             ssnode >> sElement;
             ssd << sElement << " ";
-	}
+        }
         F::fromString(m_nodes[nid].descriptor, ssd.str());
 
         ssnode >> m_nodes[nid].weight;
@@ -1420,7 +1584,6 @@ bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &fil
     }
 
     return true;
-
 }
 
 // --------------------------------------------------------------------------

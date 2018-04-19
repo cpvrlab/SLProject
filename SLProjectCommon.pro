@@ -51,4 +51,5 @@ INCLUDEPATH += \
     ../lib-SLExternal/opencv/include \
     ../lib-SLExternal/imgui \
     ../lib-SLExternal/spa \
-
+    ../lib-SLExternal/DBoW2 \
+    ../lib-SLExternal/eigen

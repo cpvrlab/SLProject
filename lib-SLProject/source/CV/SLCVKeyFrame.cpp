@@ -29,7 +29,7 @@
 */
 
 #include "stdafx.h"
-#include "SLCVKeyframe.h"
+#include "SLCVKeyFrame.h"
 #include <SLCVMapPoint.h>
 #include <OrbSlam/Converter.h>
 #include <SLCVKeyFrameDB.h>
