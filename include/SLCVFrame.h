@@ -40,7 +40,7 @@
 class SLCVMapPoint;
 class SLCVKeyFrame;
 
-#define FRAME_GRID_ROWS 48
+#define FRAME_GRID_ROWS 36//48
 #define FRAME_GRID_COLS 64
 
 using namespace ORB_SLAM2;
