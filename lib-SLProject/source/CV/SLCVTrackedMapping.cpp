@@ -35,6 +35,7 @@ for a good top down information.
 #include <opencv2/video/tracking.hpp>
 #include <SLCVSlamStateLoader.h>
 #include <SLCVMapStorage.h>
+#include <SLCVOrbVocabulary.h>
 
 using namespace cv;
 
@@ -44,17 +45,7 @@ SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
     SLCVMapTracking(mapNode)
 {
     //load visual vocabulary for relocalization
-    mpVocabulary = new ORB_SLAM2::ORBVocabulary();
-    //string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-    //bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
-    ////bool bVocLoad = true;
-    //if (!bVocLoad)
-    //{
-    //    cerr << "Wrong path to vocabulary. " << endl;
-    //    cerr << "Failed to open at: " << strVocFile << endl;
-    //    exit(-1);
-    //}
-    //cout << "Vocabulary loaded!" << endl << endl;
+    mpVocabulary = SLCVOrbVocabulary::get();
 
     //instantiate and load slam map
     mpKeyFrameDatabase = new SLCVKeyFrameDB(*mpVocabulary);
@@ -63,9 +54,8 @@ SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
 
     //setup file system and check for existing files
     SLCVMapStorage::init();
-    //load map
-    SLCVMapStorage storage(mpVocabulary);
-    storage.loadMap(SLCVMapStorage::getCurrentId(), *_map, *mpKeyFrameDatabase);
+    //make new map
+    SLCVMapStorage::newMap();
 
     //set SLCVMap in SLCVMapNode and update SLCVMapNode with scene objects
     mapNode->setMap(*_map);
@@ -78,12 +68,12 @@ SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
 
     if (_map->KeyFramesInMap())
     {
-        _currentState = TRACK_3DPTS;
+        //_currentState = TRACK_3DPTS;
         mState = LOST;
     }
     else
     {
-        _currentState = INITIALIZE;
+        //_currentState = INITIALIZE;
         mState = NOT_INITIALIZED;
     }
 
@@ -125,38 +115,43 @@ SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
 
     // Current Frame
     double timestamp = 0.0; //todo
-    if (_currentState != IDLE) {
+    //if (_currentState != IDLE) {
 
         //we use different extractors for initialization and tracking
-        if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET) {
-            mCurrentFrame = SLCVFrame(imageGray, timestamp, mpIniORBextractor,
-                calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
-        }
-        else {
-            mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor,
-                calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
-        }
-
-        decorateVideoWithKeyPoints(_img);
+    if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET) {
+        mCurrentFrame = SLCVFrame(imageGray, timestamp, mpIniORBextractor,
+            calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
+    }
+    else {
+        mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor,
+            calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
     }
 
-    switch (_currentState)
-    {
-    case IDLE:
-        break;
-    case INITIALIZE:
+    decorateVideoWithKeyPoints(_img);
+    //}
+
+    if (mState == NOT_INITIALIZED)
         initialize();
-        break;
-    case TRACK_VO:
-        trackVO();
-        break;
-    case TRACK_3DPTS:
+    else
         track3DPts();
-        break;
-    case TRACK_OPTICAL_FLOW:
-        trackOpticalFlow();
-        break;
-    }
+
+    //switch (_currentState)
+    //{
+    //case IDLE:
+    //    break;
+    //case INITIALIZE:
+    //    initialize();
+    //    break;
+    //case TRACK_VO:
+    //    trackVO();
+    //    break;
+    //case TRACK_3DPTS:
+    //    track3DPts();
+    //    break;
+    //case TRACK_OPTICAL_FLOW:
+    //    trackOpticalFlow();
+    //    break;
+    //}
 
     return false;
 }
@@ -599,7 +594,7 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
 
     mState = OK;
 
-    _currentState = TRACK_3DPTS;
+    //_currentState = TRACK_3DPTS;
 
     //ghm1: run local mapping once
     mpLocalMapper->RunOnce();
@@ -745,7 +740,15 @@ void SLCVTrackedMapping::Reset()
     mlFrameTimes.clear();
     mlbLost.clear();
 
-    _currentState = INITIALIZE;
+    mpLastKeyFrame = NULL;
+    mpReferenceKF = NULL;
+    mvpLocalMapPoints.clear();
+    mvpLocalKeyFrames.clear();
+    mnMatchesInliers = 0;
+    _addKeyframe = false;
+
+    mState = eTrackingState::NOT_INITIALIZED;
+    //_currentState = INITIALIZE;
     //if (mpViewer)
     //    mpViewer->Release();
 }

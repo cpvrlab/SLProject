@@ -13,13 +13,15 @@
 #include <SLFileSystem.h>
 
 //-----------------------------------------------------------------------------
-unsigned int SLCVMapStorage::_highestId = 0;
+unsigned int SLCVMapStorage::_nextId = 0;
 unsigned int SLCVMapStorage::_currentId = 0;
 SLstring SLCVMapStorage::_mapPrefix = "slam-map-";
 SLstring SLCVMapStorage::_mapsDirName = "slam-maps";
 SLstring SLCVMapStorage::_mapsDir = "";
+//values used by imgui
 SLVstring SLCVMapStorage::existingMapNames;
-
+const char* SLCVMapStorage::currItem = NULL;
+int SLCVMapStorage::currN = -1;
 //-----------------------------------------------------------------------------
 SLCVMapStorage::SLCVMapStorage( ORBVocabulary* orbVoc, bool loadKfImgs)
     : _orbVoc(orbVoc),
@@ -29,6 +31,8 @@ SLCVMapStorage::SLCVMapStorage( ORBVocabulary* orbVoc, bool loadKfImgs)
 //-----------------------------------------------------------------------------
 void SLCVMapStorage::init()
 {
+    existingMapNames.clear();
+
     //setup file system and check for existing files
     if (SLFileSystem::externalDirExists())
     {
@@ -59,10 +63,10 @@ void SLCVMapStorage::init()
                     if (splitted.size())
                     {
                         int id = atoi(splitted.back().c_str());
-                        if (id >= _highestId)
+                        if (id >= _nextId)
                         {
-                            _highestId = id + 1;
-                            SL_LOG("New highest id: %i\n", _highestId);
+                            _nextId = id + 1;
+                            SL_LOG("New next id: %i\n", _nextId);
                         }
                     }
                 }
@@ -210,6 +214,14 @@ void SLCVMapStorage::saveMap(int id, SLCVMap& map, bool saveImgs)
         fs.release();
         SL_LOG("Slam map storage successful.");
 
+        //update list of existing maps
+        SLCVMapStorage::init();
+        //update current combobox item
+        auto it = std::find(existingMapNames.begin(), existingMapNames.end(), mapName);
+        if (it != existingMapNames.end()) {
+            currN = it - existingMapNames.begin();
+            currItem = existingMapNames[currN].c_str();
+        }
     }
     catch (std::exception& e)
     {
@@ -224,9 +236,21 @@ void SLCVMapStorage::saveMap(int id, SLCVMap& map, bool saveImgs)
     }
 }
 //-----------------------------------------------------------------------------
-void SLCVMapStorage::loadMap(int id, SLCVMap& map, SLCVKeyFrameDB& kfDB)
+void SLCVMapStorage::loadMap(const string& name, SLCVMap& map, SLCVKeyFrameDB& kfDB)
 {
     clear();
+    map.clear();
+    kfDB.clear();
+
+    //extract id from map name
+    SLVstring splitted;
+    int id = -1;
+    SLUtils::split(name, '-', splitted);
+    if (splitted.size())
+        id = atoi(splitted.back().c_str());
+    else {
+        SL_LOG("Could not load map. Map id not found in name: %s\n", name.c_str());
+    }
 
     //check if map exists
     string mapName = _mapPrefix + to_string(id);
@@ -485,4 +509,10 @@ void SLCVMapStorage::clear()
     _vInvScaleFactor.clear();
     _vLevelSigma2.clear();
     _vInvLevelSigma2.clear();
+}
+//-----------------------------------------------------------------------------
+void SLCVMapStorage::newMap()
+{
+    //assign next id to current id. The nextId will be increased after file save.
+    _currentId = _nextId;
 }

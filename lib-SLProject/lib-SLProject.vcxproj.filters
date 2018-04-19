@@ -441,6 +441,12 @@
     <ClInclude Include="..\include\SLCVMapStorage.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLImGuiMapStorage.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVOrbVocabulary.h">
+      <Filter>CV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -751,6 +757,12 @@
       <Filter>CV\OrbSlam</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\SLCVMapStorage.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GUI\SLImGuiMapStorage.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVOrbVocabulary.cpp">
       <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>

@@ -22,11 +22,20 @@ public:
     //check if directory for map storage exists and read existing map names
     static void init();
     static void saveMap(int id, SLCVMap& map, bool saveImgs);
-    void loadMap(int id, SLCVMap& map, SLCVKeyFrameDB& kfDB);
+    void loadMap(const string& name, SLCVMap& map, SLCVKeyFrameDB& kfDB);
+    //increase current id and maximum id in MapStorage
+    static void newMap();
 
-    //static unsigned int getHighestId() { return _highestId; }
     static unsigned int getCurrentId() { return _currentId; }
+
+    //values used by imgui:
+    //!currently existing names in storage
     static SLVstring existingMapNames;
+    //!currently selected combobox item
+    static const char* currItem;
+    //!currently selected combobox index
+    static int currN;
+
 private:
     void loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB);
     void loadMapPoints(SLCVMap& map);
@@ -50,7 +59,7 @@ private:
     std::vector<float> _vInvLevelSigma2;
     SLstring _currPathImgs;
 
-    static unsigned int _highestId;
+    static unsigned int _nextId;
     static unsigned int _currentId;
     static SLstring _mapPrefix;
     static SLstring _mapsDirName;

@@ -68,7 +68,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 
         int getNumLoopClosings() { return _numOfLoopClosings; }
 
-        enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
+        //enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
 
                 SLCVTrackedMapping    (SLNode* node, SLCVMapNode* mapNode=NULL );
                 ~SLCVTrackedMapping();
@@ -79,9 +79,9 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
                                      SLbool drawDetection,
                                      SLSceneView* sv);
 
-        void setState(TrackingStates state) { _currentState = state; }
+        //void setState(TrackingStates state) { _currentState = state; }
 
-        void Reset();
+        void Reset() override;
 
         //ghm1: the next tracked frame gets mapped (local mapping, keyframe generation and adding to map)
         void mapNextFrame() { _mapNextFrame = true; }
@@ -118,7 +118,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         //! states, that we try to make a new key frame out of the next frame
         bool _addKeyframe;
         //! current tracking state
-        TrackingStates _currentState = INITIALIZE;
+        //TrackingStates _currentState = INITIALIZE;
 
         // ORB vocabulary used for place recognition and feature matching.
         ORBVocabulary* mpVocabulary;

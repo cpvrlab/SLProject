@@ -30,7 +30,7 @@ void SLImGuiTrackedMapping::buildInfos()
 {
     if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
         _mappingTracker->Reset();
-        _mappingTracker->setState(SLCVTrackedMapping::INITIALIZE);
+        //_mappingTracker->setState(SLCVTrackedMapping::INITIALIZE);
     }
 
     //add tracking state
@@ -65,33 +65,33 @@ void SLImGuiTrackedMapping::buildInfos()
         _mappingTracker->mapNextFrame();
     }
 
-    ImGui::Separator();
-    if (ImGui::Button("Save map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        _mappingTracker->saveMap();
-    }
-    ImGui::Separator();
-    if (ImGui::Button("New map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        _mappingTracker->saveMap();
-    }
-    ImGui::Separator();
+    //ImGui::Separator();
+    //if (ImGui::Button("Save map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+    //    _mappingTracker->saveMap();
+    //}
+    //ImGui::Separator();
+    //if (ImGui::Button("New map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+    //    _mappingTracker->saveMap();
+    //}
+    //ImGui::Separator();
 
-    {
-        if (ImGui::BeginCombo("Current", _currItem)) // The second parameter is the label previewed before opening the combo.
-        {
-            for (int n = 0; n < SLCVMapStorage::existingMapNames.size(); n++)
-            {
-                bool isSelected = (_currItem == SLCVMapStorage::existingMapNames[n].c_str()); // You can store your selection however you want, outside or inside your objects
-                if (ImGui::Selectable(SLCVMapStorage::existingMapNames[n].c_str(), isSelected)) {
-                    _currItem = SLCVMapStorage::existingMapNames[n].c_str();
-                    _currN = n;
-                }
-                if (isSelected)
-                    ImGui::SetItemDefaultFocus();   // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
-            }
-            ImGui::EndCombo();
-        }
-    }
-    if (ImGui::Button("Load map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        _mappingTracker->saveMap();
-    }
+    //{
+    //    if (ImGui::BeginCombo("Current", _currItem)) // The second parameter is the label previewed before opening the combo.
+    //    {
+    //        for (int n = 0; n < SLCVMapStorage::existingMapNames.size(); n++)
+    //        {
+    //            bool isSelected = (_currItem == SLCVMapStorage::existingMapNames[n].c_str()); // You can store your selection however you want, outside or inside your objects
+    //            if (ImGui::Selectable(SLCVMapStorage::existingMapNames[n].c_str(), isSelected)) {
+    //                _currItem = SLCVMapStorage::existingMapNames[n].c_str();
+    //                _currN = n;
+    //            }
+    //            if (isSelected)
+    //                ImGui::SetItemDefaultFocus();   // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+    //        }
+    //        ImGui::EndCombo();
+    //    }
+    //}
+    //if (ImGui::Button("Load map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+    //    _mappingTracker->saveMap();
+    //}
 }

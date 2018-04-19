@@ -44,6 +44,8 @@ public:
     eTrackingState mState = NOT_INITIALIZED;;
     eTrackingState mLastProcessedState = NOT_INITIALIZED;;
 
+    virtual void Reset() {}
+
     int getNMapMatches() override;
     int getNumKeyFrames() override;
 

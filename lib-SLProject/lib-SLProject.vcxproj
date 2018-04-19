@@ -307,6 +307,7 @@
     <ClInclude Include="..\include\SLCVMapPoint.h" />
     <ClInclude Include="..\include\SLCVMapStorage.h" />
     <ClInclude Include="..\include\SLCVMapTracking.h" />
+    <ClInclude Include="..\include\SLCVOrbVocabulary.h" />
     <ClInclude Include="..\include\SLCVRaulMurExtractorNode.h" />
     <ClInclude Include="..\include\SLCVRaulMurOrb.h" />
     <ClInclude Include="..\include\SLCVSlamStateLoader.h" />
@@ -330,6 +331,7 @@
     <ClInclude Include="..\include\SLImGuiInfosDialog.h" />
     <ClInclude Include="..\include\SLImGuiInfosMapTransform.h" />
     <ClInclude Include="..\include\SLImGuiInfosTracking.h" />
+    <ClInclude Include="..\include\SLImGuiMapStorage.h" />
     <ClInclude Include="..\include\SLImGuiTrackedMapping.h" />
     <ClInclude Include="..\include\SLInputDevice.h" />
     <ClInclude Include="..\include\SLInputEvent.h" />
@@ -427,6 +429,7 @@
     <ClCompile Include="source\CV\SLCVMapPoint.cpp" />
     <ClCompile Include="source\CV\SLCVMapStorage.cpp" />
     <ClCompile Include="source\CV\SLCVMapTracking.cpp" />
+    <ClCompile Include="source\CV\SLCVOrbVocabulary.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurExtractorNode.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurOrb.cpp" />
     <ClCompile Include="source\CV\SLCVSlamStateLoader.cpp" />
@@ -452,6 +455,7 @@
     <ClCompile Include="source\GUI\SLImGuiInfosDialog.cpp" />
     <ClCompile Include="source\GUI\SLImGuiInfosMapTransform.cpp" />
     <ClCompile Include="source\GUI\SLImGuiInfosTracking.cpp" />
+    <ClCompile Include="source\GUI\SLImGuiMapStorage.cpp" />
     <ClCompile Include="source\GUI\SLImGuiTrackedMapping.cpp" />
     <ClCompile Include="source\math\SLCurveBezier.cpp" />
     <ClCompile Include="source\math\SLPlane.cpp" />

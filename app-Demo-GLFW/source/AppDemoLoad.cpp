@@ -50,6 +50,7 @@
 #include <SLImGuiInfosTracking.h>
 #include <SLImGuiInfosChristoffelTower.h>
 #include <SLImGuiInfosMapTransform.h>
+#include <SLImGuiMapStorage.h>
 
 #include <AppDemoGui.h>
 #include <SLImGuiTrackedMapping.h>
@@ -2673,12 +2674,15 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->trackers().push_back(tm);
 
         //setup scene specific gui dialoges
-        auto trackedMappingUI = std::make_shared<SLImGuiTrackedMapping>("TrackedMappingUI", tm);
+        auto trackedMappingUI = std::make_shared<SLImGuiTrackedMapping>("Tracked mapping", tm);
         AppDemoGui::addInfoDialog(trackedMappingUI);
         auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm);
         AppDemoGui::addInfoDialog(trackingInfos);
         auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm->getMap());
         AppDemoGui::addInfoDialog(mapTransform);
+        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm->getMap(), mapNode, tm->getKfDB(), tm);
+        AppDemoGui::addInfoDialog(mapStorage);
+
 
         //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
