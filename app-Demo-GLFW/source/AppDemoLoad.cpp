@@ -2420,19 +2420,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemoGui::addInfoDialog(ui);
         //---------------------------------------------------------------------------------
 
-        ////add yellow augmented box
-        //SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-        ////SLfloat he = 25.;
-        ////SLBox* box1 = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
-        //SLfloat l = 1.75, b = 0.75, h = 0.74;
-        //SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
-
-        //SLNode* boxNode = new SLNode(box1, "boxNode");
-        ////boxNode->rotate(40, 1, 0, 0);
-        ////boxNode->translate(0, -0.5, -1.5);
-        ////boxNode->translate(1, 1, 1);
-        //scene->addChild(boxNode);
-
         SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
         axisNode->scale(10.0f);
         scene->addChild(axisNode);
@@ -2463,18 +2450,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLCVMap* map = new SLCVMap("Map");
 
-
-        ORBVocabulary* vocabulary = new ORBVocabulary();
-        //string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-        //bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-        ////bool bVocLoad = true;
-        //if (!bVocLoad)
-        //{
-        //    cerr << "Wrong path to vocabulary. " << endl;
-        //    cerr << "Failed to open at: " << strVocFile << endl;
-        //    exit(-1);
-        //}
-        //cout << "Vocabulary loaded!" << endl << endl;
+        ORBVocabulary* vocabulary = SLCVOrbVocabulary::get();
 
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
 
@@ -2504,15 +2480,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-        //SLfloat he = 25.;
-        //SLBox* box1 = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
         SLfloat l = 1.75, b = 0.75, h = 0.74;
         SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
 
         SLNode* boxNode = new SLNode(box1, "boxNode");
-        //boxNode->rotate(40, 1, 0, 0);
-        //boxNode->translate(0, -0.5, -1.5);
-        //boxNode->translate(1, 1, 1);
         scene->addChild(boxNode);
 
         SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
@@ -2533,17 +2504,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
         SLCVCapture::videoFilename = "street3.mp4";
-
-        //SLCVCapture::videoFilename = "altstadt_biel1.mp4";
-        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-altstadtbiel1_manip.json";
-        //SLCVCapture::videoFilename = "Bern1.mp4";
-        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern1-manip1.json";
-        //SLCVCapture::videoFilename = "Bern3_cut.mp4";
-        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-bern3-ct.json";
-        //SLCVCapture::videoFilename = "buero2_huawei_16_9.mp4";
-        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-buero2.json";
-        SLCVCapture::videoFilename = "webcam_office1.wmv";
-        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-new-1.json";
+        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "street1_manip.json";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 1, 1);
@@ -2554,16 +2515,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
         cam1->background().texture(s->videoTexture());
 
-        ORBVocabulary* vocabulary = new ORBVocabulary();
-        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.bin";
-        bool bVocLoad = vocabulary->loadFromBinaryFile(strVocFile);
-        if (!bVocLoad)
-        {
-            cerr << "Wrong path to vocabulary. " << endl;
-            cerr << "Failed to open at: " << strVocFile << endl;
-            exit(-1);
-        }
-        cout << "Vocabulary loaded!" << endl << endl;
+        ORBVocabulary* vocabulary = SLCVOrbVocabulary::get();
 
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
 
@@ -2589,27 +2541,21 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         mapNode->rotate(180, 1, 0, 0);
         mapNode->addChild(cam1);
         scene->addChild(mapNode);
-        //load map into scene objects
-
 
         //add tracker
         SLCVTrackedRaulMur* raulMurTracker = new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map, mapNode);
         s->trackers().push_back(raulMurTracker);
 
-        auto infosTracking = make_shared<SLImGuiInfosTracking>("Tracking infos", raulMurTracker);
-        AppDemoGui::addInfoDialog(infosTracking);
+        //setup scene specific gui dialoges
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", raulMurTracker);
+        AppDemoGui::addInfoDialog(trackingInfos);
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-        //SLfloat he = 25.;
-        //SLBox* box1 = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
         SLfloat l = 1.75, b = 0.75, h = 0.74;
         SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
 
         SLNode* boxNode = new SLNode(box1, "boxNode");
-        //boxNode->rotate(40, 1, 0, 0);
-        //boxNode->translate(0, -0.5, -1.5);
-        //boxNode->translate(1, 1, 1);
         scene->addChild(boxNode);
 
         SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
