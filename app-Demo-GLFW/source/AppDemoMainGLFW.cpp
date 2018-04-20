@@ -36,6 +36,8 @@ GLFWwindow* window;                 //!< The global glfw window handle
 SLint       svIndex;                //!< SceneView index
 SLint       scrWidth;               //!< Window width at start up
 SLint       scrHeight;              //!< Window height at start up
+SLbool      fixAspectRatio;         //!< Flag if aspect ratio should be fixed
+SLfloat     scrWdivH;               //!< aspect ratio screen width divided by height
 SLfloat     scr2fbX;                //!< Factor from screen to framebuffer coords
 SLfloat     scr2fbY;                //!< Factor from screen to framebuffer coords
 SLint       startX;                 //!< start position x in pixels
@@ -142,6 +144,21 @@ should called once before the onPaint event.
 */
 static void onResize(GLFWwindow* window, int width, int height)
 {  
+    if (fixAspectRatio)
+    {
+        //correct target width and height
+        if (height * scrWdivH <= width)
+        {
+            width = height * scrWdivH;
+            height = width / scrWdivH;
+        }
+        else
+        {
+            height = width / scrWdivH;
+            width = height * scrWdivH;
+        }
+    }
+
     lastWidth = width;
     lastHeight = height;
 
@@ -416,6 +433,9 @@ int main(int argc, char *argv[])
 
     scrWidth = 640;
     scrHeight = 480;
+    //we have to fix aspect ratio, because the video image is initialized with this ratio
+    fixAspectRatio = true;
+    scrWdivH = (float)scrWidth / (float)scrHeight;
 
     touch2.set(-1,-1);
     touchDelta.set(-1,-1);
