@@ -47,6 +47,7 @@
 #include <SLCVMap.h>
 #include <SLCVKeyFrameDB.h>
 #include <SLCVSlamStateLoader.h>
+#include <SLCVOrbVocabulary.h>
 #include <SLImGuiInfosTracking.h>
 #include <SLImGuiInfosChristoffelTower.h>
 #include <SLImGuiInfosMapTransform.h>
@@ -2377,17 +2378,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().texture(s->videoTexture());
         //s->videoType(VT_MAIN);
 
-        ORBVocabulary* vocabulary = new ORBVocabulary();
-        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
-        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-        //bool bVocLoad = true;
-        if (!bVocLoad)
-        {
-            cerr << "Wrong path to vocabulary. " << endl;
-            cerr << "Failed to open at: " << strVocFile << endl;
-            exit(-1);
-        }
-        cout << "Vocabulary loaded!" << endl << endl;
+        ORBVocabulary* vocabulary = SLCVOrbVocabulary::get();
 
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
 
