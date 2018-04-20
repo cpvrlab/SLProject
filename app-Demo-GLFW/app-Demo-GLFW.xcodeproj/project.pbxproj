@@ -121,20 +121,17 @@
 		41030D091FED5923005CFF1A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				41EAAE032067A0FB00F7E9B9 /* libopencv_face.3.4.0.dylib */,
-				4178D6842020B09C00F4F699 /* liblib-SLExternal-macxcode.a */,
-				411838A4201CDD9D0026A4C6 /* libwebp.a */,
-				411838A5201CDD9E0026A4C6 /* libwebpdemux.a */,
-				411838A6201CDD9E0026A4C6 /* libwebpmux.a */,
 				412F129B1FF2815A0003687F /* Cocoa.framework */,
 				412F12951FF280D40003687F /* CoreFoundation.framework */,
 				412F12991FF281390003687F /* CoreGraphics.framework */,
 				412F12931FF280B30003687F /* IOKit.framework */,
+				4178D6842020B09C00F4F699 /* liblib-SLExternal-macxcode.a */,
 				41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */,
 				41CAE14E2011D08900B2830F /* libopencv_aruco.3.4.0.dylib */,
 				41CAE1362011CEF600B2830F /* libopencv_calib3d.3.4.0.dylib */,
 				41CAE1382011CF3A00B2830F /* libopencv_ccalib.3.4.0.dylib */,
 				41CAE13A2011CF6700B2830F /* libopencv_core.3.4.0.dylib */,
+				41EAAE032067A0FB00F7E9B9 /* libopencv_face.3.4.0.dylib */,
 				41CAE1402011CFB700B2830F /* libopencv_features2d.3.4.0.dylib */,
 				41CAE1462011D02200B2830F /* libopencv_flann.3.4.0.dylib */,
 				41CAE1472011D02200B2830F /* libopencv_highgui.3.4.0.dylib */,
@@ -144,6 +141,9 @@
 				41CAE13D2011CFB700B2830F /* libopencv_video.3.4.0.dylib */,
 				41CAE13E2011CFB700B2830F /* libopencv_videoio.3.4.0.dylib */,
 				41CAE1492011D02200B2830F /* libopencv_xfeatures2d.3.4.0.dylib */,
+				411838A4201CDD9D0026A4C6 /* libwebp.a */,
+				411838A5201CDD9E0026A4C6 /* libwebpdemux.a */,
+				411838A6201CDD9E0026A4C6 /* libwebpmux.a */,
 				41030D101FED595B005CFF1A /* OpenGL.framework */,
 				412F12971FF281240003687F /* QuartzCore.framework */,
 			);
@@ -235,7 +235,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp ../_lib/prebuilt/OpenCV/macx/libopencv_* ../_bin-Debug-macxcode/";
+			shellScript = "cp ../_lib/prebuilt/OpenCV/macx/libopencv_* ../_bin-Debug-macxcode/\ncp ../_lib/prebuilt/OpenCV/macx/libopencv_* ../_bin-Release-macxcode/";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -377,6 +377,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				CONFIGURATION_TEMP_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
+				DEVELOPMENT_TEAM = 858Y9EWZ4B;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				GCC_PREPROCESSOR_DEFINITIONS = "SL_STARTSCENE=SID_Minimal";
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = NO;
@@ -403,6 +404,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				CONFIGURATION_TEMP_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
+				DEVELOPMENT_TEAM = 858Y9EWZ4B;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				GCC_PREPROCESSOR_DEFINITIONS = "SL_STARTSCENE=SID_Minimal";
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = NO;
