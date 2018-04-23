@@ -38,6 +38,7 @@ struct SLAverageTimingBlock {
     SLint posV=0;
     SLint posH=0;
     SLint nCalls=0;
+    bool isStarted = false;
 };
 
 //-----------------------------------------------------------------------------
@@ -55,7 +56,7 @@ public:
     ~SLAverageTiming();
 
     //!start timer for a new or existing block
-    static void start(const std::string& name, SLint posV, SLint posH);
+    static void start(const std::string& name);
     //!stop timer for a running block with name
     static void stop(const std::string& name);
     //!get time for block with name

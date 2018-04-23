@@ -117,7 +117,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
 
 
 
-    SLAverageTiming::start("track", 0, 0);
+    SLAverageTiming::start("track");
 
     //SLCVMat imageGrayResized;
     //cv::resize(imageGray, imageGrayResized,
@@ -133,7 +133,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     //imageGray.copyTo(imageGrayScaled);
     //cv::resize(imageGrayScaled, imageGrayScaled, 640.0, 480.0);
 
-    SLAverageTiming::start("newFrame", 1, 1);
+    SLAverageTiming::start("newFrame");
     /************************************************************/
     //Frame constructor call in ORB-SLAM:
     // Current Frame
@@ -153,7 +153,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     // Localization Mode: Local Mapping is deactivated
     if (mState == LOST)
     {
-        SLAverageTiming::start("Relocalization",8, 1);
+        SLAverageTiming::start("Relocalization");
         bOK = Relocalization();
         SLAverageTiming::stop("Relocalization");
     }
@@ -163,7 +163,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
         if (!mbVO) // In last frame we tracked enough MapPoints from the Map
         {
             if (!mVelocity.empty()) { //we have a valid motion model
-                SLAverageTiming::start("TrackWithMotionModel", 13, 1);
+                SLAverageTiming::start("TrackWithMotionModel");
                 bOK = TrackWithMotionModel();
                 SLAverageTiming::stop("TrackWithMotionModel");
             }
@@ -172,7 +172,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
                 // Every current frame gets a reference keyframe assigned which is the keyframe 
                 // from the local map that shares most matches with the current frames local map points matches.
                 // It is updated in UpdateLocalKeyFrames().
-                SLAverageTiming::start("TrackReferenceKeyFrame", 18, 1);
+                SLAverageTiming::start("TrackReferenceKeyFrame");
                 bOK = TrackReferenceKeyFrame();
                 SLAverageTiming::stop("TrackReferenceKeyFrame");
             }
@@ -182,7 +182,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
             // We compute two camera poses, one from motion model and one doing relocalization.
             // If relocalization is sucessfull we choose that solution, otherwise we retain
             // the "visual odometry" solution.
-            SLAverageTiming::start("visualOdometry", 19, 1);
+            SLAverageTiming::start("visualOdometry");
 
             bool bOKMM = false;
             bool bOKReloc = false;
@@ -232,10 +232,12 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
     // the camera we will use the local map again.
 
-    SLAverageTiming::start("TrackLocalMap", 20, 1);
     if (bOK && !mbVO)
+    {
+        SLAverageTiming::start("TrackLocalMap");
         bOK = TrackLocalMap();
-    SLAverageTiming::stop("TrackLocalMap");
+        SLAverageTiming::stop("TrackLocalMap");
+    }
 
     if (bOK)
         mState = OK;
@@ -547,13 +549,13 @@ bool SLCVTrackedRaulMur::Relocalization()
     //10. if more than 50 good matches remain after optimization, relocalization was successful
 
     // Compute Bag of Words Vector
-    SLAverageTiming::start("ComputeBoW", 9, 2);
+    SLAverageTiming::start("ComputeBoW");
     mCurrentFrame.ComputeBoW();
     SLAverageTiming::stop("ComputeBoW");
 
     // Relocalization is performed when tracking is lost
     // Track Lost: Query SLCVKeyFrame Database for keyframe candidates for relocalisation
-    SLAverageTiming::start("DetectRelocalizationCandidates", 10, 2);
+    SLAverageTiming::start("DetectRelocalizationCandidates");
     vector<SLCVKeyFrame*> vpCandidateKFs = mpKeyFrameDatabase->DetectRelocalizationCandidates(&mCurrentFrame);
     SLAverageTiming::stop("DetectRelocalizationCandidates");
 
@@ -565,7 +567,7 @@ bool SLCVTrackedRaulMur::Relocalization()
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
 
-    SLAverageTiming::start("MatchCandsAndSolvePose", 11, 2);
+    SLAverageTiming::start("MatchCandsAndSolvePose");
     ORBmatcher matcher(0.75, true);
 
     vector<PnPsolver*> vpPnPsolvers;
@@ -603,7 +605,7 @@ bool SLCVTrackedRaulMur::Relocalization()
     }
     SLAverageTiming::stop("MatchCandsAndSolvePose");
 
-    SLAverageTiming::start("SearchCandsUntil50Matches", 12, 2);
+    SLAverageTiming::start("SearchCandsUntil50Matches");
     // Alternatively perform some iterations of P4P RANSAC
     // Until we found a camera pose supported by enough inliers
     bool bMatch = false;
@@ -742,13 +744,13 @@ bool SLCVTrackedRaulMur::TrackWithMotionModel()
     fill(mCurrentFrame.mvpMapPoints.begin(), mCurrentFrame.mvpMapPoints.end(), static_cast<SLCVMapPoint*>(NULL));
 
     // Project points seen in previous frame
-    SLAverageTiming::start("SearchByProjection7", 14, 2);
+    SLAverageTiming::start("SearchByProjection7");
     int th = 7;
     int nmatches = matcher.SearchByProjection(mCurrentFrame, mLastFrame, th, true);
     SLAverageTiming::stop("SearchByProjection7");
 
     // If few matches, uses a wider window search
-    SLAverageTiming::start("SearchByProjection14", 15, 2);
+    SLAverageTiming::start("SearchByProjection14");
     if (nmatches<20)
     {
         fill(mCurrentFrame.mvpMapPoints.begin(), mCurrentFrame.mvpMapPoints.end(), static_cast<SLCVMapPoint*>(NULL));
@@ -759,12 +761,12 @@ bool SLCVTrackedRaulMur::TrackWithMotionModel()
     if (nmatches<20)
         return false;
 
-    SLAverageTiming::start("PoseOptimizationTWMM", 16, 2);
+    SLAverageTiming::start("PoseOptimizationTWMM");
     // Optimize frame pose with all matches
     Optimizer::PoseOptimization(&mCurrentFrame);
     SLAverageTiming::stop("PoseOptimizationTWMM");
 
-    SLAverageTiming::start("DiscardOutliers", 17, 2);
+    SLAverageTiming::start("DiscardOutliers");
     // Discard outliers
     int nmatchesMap = 0;
     for (int i = 0; i<mCurrentFrame.N; i++)
@@ -814,21 +816,21 @@ bool SLCVTrackedRaulMur::TrackLocalMap()
     //5.
     //(this function)
     //6. The Pose is optimized using the found additional matches and the already found pose as initial guess
-    SLAverageTiming::start("UpdateLocalMap", 21, 2);
+    SLAverageTiming::start("UpdateLocalMap");
     UpdateLocalMap();
     SLAverageTiming::stop("UpdateLocalMap");
 
-    SLAverageTiming::start("SearchLocalPoints", 22, 2);
+    SLAverageTiming::start("SearchLocalPoints");
     SearchLocalPoints();
     SLAverageTiming::stop("SearchLocalPoints");
 
     // Optimize Pose
-    SLAverageTiming::start("PoseOptimizationTLM", 23, 2);
+    SLAverageTiming::start("PoseOptimizationTLM");
     Optimizer::PoseOptimization(&mCurrentFrame);
     SLAverageTiming::stop("PoseOptimizationTLM");
     mnMatchesInliers = 0;
 
-    //SLAverageTiming::start("UpdateMapPointsStat", 24, 2);
+    //SLAverageTiming::start("UpdateMapPointsStat");
     // Update MapPoints Statistics
     for (int i = 0; i<mCurrentFrame.N; i++)
     {

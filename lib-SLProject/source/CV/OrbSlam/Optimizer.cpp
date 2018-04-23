@@ -374,7 +374,7 @@ int Optimizer::PoseOptimization(SLCVFrame *pFrame)
     const int its[4]={10,10,10,10};
 
     int nBad=0;
-    SLAverageTiming::start("optimizing", 24, 2);
+    SLAverageTiming::start("optimizing");
     for(size_t it=0; it<4; it++)
     {
 

@@ -27,8 +27,7 @@ SLAverageTiming::~SLAverageTiming()
 }
 //-----------------------------------------------------------------------------
 //!start timer for a new or existing block
-// TODO(jan): remove the now unused posV and posH
-void SLAverageTiming::start(const std::string& name, SLint posV, SLint posH)
+void SLAverageTiming::start(const std::string& name)
 {
     SLAverageTiming::instance().doStart(name);
 }
@@ -62,11 +61,17 @@ void SLAverageTiming::doStart(const std::string& name)
 {
     if ( find(name) == end()) {
         SLAverageTimingBlock* block = new SLAverageTimingBlock(
-            _averageNumValues, name, this->_currentPosV++, this->_currentPosH++);
+            _averageNumValues, name, this->_currentPosV++, this->_currentPosH);
         (*this)[name] = block;
     }
 
+    if ((*this)[name]->isStarted)
+        SL_LOG("SLAverageTiming: Block with name %s started twice!\n", name.c_str());
+
     (*this)[name]->timer.start();
+    (*this)[name]->isStarted = true;
+
+    this->_currentPosH++;
 }
 
 //-----------------------------------------------------------------------------
@@ -74,9 +79,12 @@ void SLAverageTiming::doStart(const std::string& name)
 void SLAverageTiming::doStop(const std::string& name)
 {
     if ( find(name) != end()) {
+        if (!(*this)[name]->isStarted)
+            SL_LOG("SLAverageTiming: Block with name %s stopped without being started!\n", name.c_str());
         (*this)[name]->timer.stop();
         (*this)[name]->val.set((*this)[name]->timer.elapsedTimeInMilliSec());
         (*this)[name]->nCalls++;
+        (*this)[name]->isStarted = false;
         this->_currentPosH--;
     }
     else
