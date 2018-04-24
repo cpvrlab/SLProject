@@ -131,7 +131,11 @@ void SLCVMapNode::updateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
 
         cam->om(kf->getObjectMatrix());
 
-        cam->fov(SLApplication::activeCalib->cameraFovDeg());
+        //calculate vertical field of view
+        SLfloat fy = (SLfloat)kf->fy;
+        SLfloat cy = (SLfloat)kf->cy;
+        SLfloat fovDeg = 2 * (SLfloat)atan2(cy, fy) * SL_RAD2DEG;
+        cam->fov(fovDeg);
         cam->focalDist(0.11);
         cam->clipNear(0.1);
         cam->clipFar(1000.0);

@@ -1972,7 +1972,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                 //SLCVCapture::videoFilename = "calib_honor9_marcus.mp4";
                 //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
                 //SLCVCapture::videoFilename = "webcam_calib.wmv";
-                SLCVCapture::videoFilename = "calib_huawei_4_3.mp4";
+                SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
                 SLCVCapture::videoLoops = true;
                 s->videoType(VT_FILE);
                 //s->videoType(VT_MAIN);
@@ -1988,7 +1988,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             //SLCVCapture::videoFilename = "calib_honor9_marcus.mp4";
             //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
             //SLCVCapture::videoFilename = "webcam_calib.wmv";
-            SLCVCapture::videoFilename = "calib_huawei_4_3.mp4";
+            //SLCVCapture::videoFilename = "calib_huawei_4_3.mp4";
+            SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
             SLCVCapture::videoLoops = true;
             s->videoType(VT_FILE);
             //s->videoType(VT_MAIN);
@@ -2573,10 +2574,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Mapping example");
         s->info("Example for mapping using functionality from ORB-SLAM.");
 
-        s->videoType(VT_MAIN);
-        //s->videoType(VT_FILE);
-        //SLCVCapture::videoLoops = true;
-        //SLCVCapture::videoFilename = "webcam_office1.wmv";
+        //s->videoType(VT_MAIN);
+        s->videoType(VT_FILE);
+        SLCVCapture::videoLoops = true;
+        SLCVCapture::videoFilename = "VID_20180424_2.mp4";
 
         //make some light
         SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
@@ -2621,7 +2622,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-        SLfloat l = 1.75, b = 0.75, h = 0.74;
+        SLfloat l = 0.593f, b = 0.466f, h = 0.257f;
         SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
         SLNode* boxNode = new SLNode(box1, "boxNode");
         SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");

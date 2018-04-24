@@ -328,13 +328,12 @@ file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/t
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/i*_0000b.png)
 
 file(GLOB_RECURSE VIDEOS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/street3.mp4
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/calib_huawei_4_3.mp4
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/altstadt_biel1.mp4
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/buero1_huawei_16_9.mp4
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/buero2_huawei_16_9.mp4
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/calib_huawei_16_9.mp4
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/webcam_office1.wmv
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/Bern1.mp4)
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_1.mp4
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_2.mp4
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_3.mp4
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_4.mp4
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_5.mp4)
 
 file(GLOB_RECURSE FONTS         ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.ttf)
@@ -352,7 +351,6 @@ file(GLOB_RECURSE CALIBRATIONS  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrat
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-bern1-manip1.json
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-buero1.json
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/test.yml
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/ORBvoc.txt
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/ORBvoc.bin)
 
 file(GLOB_RECURSE CONFIG        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/config/dummyFile.txt)

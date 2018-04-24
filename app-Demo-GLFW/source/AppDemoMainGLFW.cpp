@@ -143,7 +143,7 @@ onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event.
 */
 static void onResize(GLFWwindow* window, int width, int height)
-{  
+{
     if (fixAspectRatio)
     {
         //correct target width and height
@@ -165,6 +165,9 @@ static void onResize(GLFWwindow* window, int width, int height)
     // width & height are in screen coords.
     // We need to scale them to framebuffer coords.
     slResize(svIndex, (int)(width*scr2fbX), (int)(height*scr2fbY));
+
+    //update glfw window with new size
+    glfwSetWindowSize(window, width, height);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -432,7 +435,7 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     scrWidth = 640;
-    scrHeight = 480;
+    scrHeight = 360;
     //we have to fix aspect ratio, because the video image is initialized with this ratio
     fixAspectRatio = true;
     scrWdivH = (float)scrWidth / (float)scrHeight;

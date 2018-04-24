@@ -27,6 +27,7 @@ import android.location.LocationManager;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -235,26 +236,49 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         }
     }
 
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Get available external directories and inform slproject about them
      */
     public void setupExternalDirectories() {
 
-        File[] Dirs = ActivityCompat.getExternalFilesDirs(GLES3Activity.this, null);
-
-        Log.i(TAG, "available external file dirs:");
-        for(File f : Dirs) {
-            Log.i(TAG, "next path:");
-            Log.i(TAG, f.getAbsolutePath());
-            Log.i(TAG, f.getName());
-            Log.i(TAG, f.getPath());
+        String state = Environment.getExternalStorageState();
+        //check if public external directory is available
+        if (isExternalStorageWritable()) {
+            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+            if(path.length() != 0) {
+                String absPath = path.getAbsolutePath();
+                myView.queueEvent(new Runnable() {public void run() {
+                    GLES3Lib.onSetupExternalDirectories(absPath);
+                }});
+            }
         }
+        else {
+            //if puplic external directory is not available, we use the private external directory
+            File[] Dirs = ActivityCompat.getExternalFilesDirs(GLES3Activity.this, null);
 
-        if(Dirs.length != 0) {
-            String absPath = Dirs[0].getAbsolutePath();
-            myView.queueEvent(new Runnable() {public void run() {
-                GLES3Lib.onSetupExternalDirectories(absPath);
-            }});
+            Log.i(TAG, "available external file dirs:");
+            for(File f : Dirs) {
+                Log.i(TAG, "next path:");
+                Log.i(TAG, f.getAbsolutePath());
+                Log.i(TAG, f.getName());
+                Log.i(TAG, f.getPath());
+            }
+
+            if(Dirs.length != 0) {
+                String absPath = Dirs[0].getAbsolutePath();
+                myView.queueEvent(new Runnable() {public void run() {
+                    GLES3Lib.onSetupExternalDirectories(absPath);
+                }});
+            }
         }
     }
 
