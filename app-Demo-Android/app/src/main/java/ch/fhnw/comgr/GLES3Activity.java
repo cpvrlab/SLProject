@@ -251,35 +251,44 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     public void setupExternalDirectories() {
 
         String state = Environment.getExternalStorageState();
+        boolean externalPublicDirCreated = false;
+        String slProjectDataPath = "";
+        String slProjectDirName = "SLProject";
+
         //check if public external directory is available
         if (isExternalStorageWritable()) {
-            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-            if(path.length() != 0) {
-                String absPath = path.getAbsolutePath();
-                myView.queueEvent(new Runnable() {public void run() {
-                    GLES3Lib.onSetupExternalDirectories(absPath);
-                }});
+            File path = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOCUMENTS), slProjectDirName);
+            if(!path.exists()) {
+                if (!path.mkdirs()) {
+                    Log.e(TAG, "External public directory not created!");
+                }
+            }
+
+            if(path.exists()) {
+                 externalPublicDirCreated = true;
+                 slProjectDataPath = path.getAbsolutePath();
             }
         }
-        else {
-            //if puplic external directory is not available, we use the private external directory
+
+        if(!externalPublicDirCreated) {
+            //if public external directory is not available, we use the private external directory
             File[] Dirs = ActivityCompat.getExternalFilesDirs(GLES3Activity.this, null);
-
-            Log.i(TAG, "available external file dirs:");
-            for(File f : Dirs) {
-                Log.i(TAG, "next path:");
-                Log.i(TAG, f.getAbsolutePath());
-                Log.i(TAG, f.getName());
-                Log.i(TAG, f.getPath());
-            }
-
             if(Dirs.length != 0) {
-                String absPath = Dirs[0].getAbsolutePath();
-                myView.queueEvent(new Runnable() {public void run() {
-                    GLES3Lib.onSetupExternalDirectories(absPath);
-                }});
+                File path = new File(Dirs[0], slProjectDirName);
+                if (!path.mkdirs()) {
+                    Log.e(TAG, "External private directory not created!");
+                }
+                else {
+                    slProjectDataPath = Dirs[0].getAbsolutePath();
+                }
             }
         }
+
+        String absPath = slProjectDataPath;
+        myView.queueEvent( new Runnable() { public void run() {
+                GLES3Lib.onSetupExternalDirectories(absPath);
+        }});
     }
 
     /**
