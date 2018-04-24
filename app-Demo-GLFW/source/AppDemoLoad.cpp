@@ -2546,7 +2546,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //add tracker
         //SLCVTrackedRaulMur* raulMurTracker = new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map, mapNode);
-	SLCVTrackedRaulMurAsync* raulMurTracker = new SLCVTrackedRaulMurAsync(cam1, vocabulary, kfDB, map, mapNode);
+        SLCVTrackedRaulMurAsync* raulMurTracker = new SLCVTrackedRaulMurAsync(cam1, vocabulary, kfDB, map, mapNode);
         s->trackers().push_back(raulMurTracker);
 
         //setup scene specific gui dialoges

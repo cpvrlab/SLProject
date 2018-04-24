@@ -8,6 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <stdafx.h>
 #include <SLCVOrbTracking.h>
 #include <SLCVCapture.h>
 

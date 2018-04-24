@@ -447,6 +447,15 @@
     <ClInclude Include="..\include\SLCVOrbVocabulary.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLCVTrackedRaulMurAsync.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVStateEstimator.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVOrbTracking.h">
+      <Filter>CV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -763,6 +772,15 @@
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\SLCVOrbVocabulary.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVTrackedRaulMurAsync.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVStateEstimator.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVOrbTracking.cpp">
       <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>
