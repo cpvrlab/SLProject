@@ -134,6 +134,10 @@ long unsigned int SLCVMap::GetMaxKFid()
 //-----------------------------------------------------------------------------
 void SLCVMap::clear()
 {
+    //remove visual representation
+    if (_mapNode)
+        _mapNode->clearAll();
+
     for (auto* pt : mspMapPoints) {
         if (pt)
             delete pt;
@@ -147,10 +151,6 @@ void SLCVMap::clear()
     mnMaxKFid = 0;
     mvpReferenceMapPoints.clear();
     mvpKeyFrameOrigins.clear();
-
-    //remove visual representation
-    if (_mapNode)
-        _mapNode->updateAll(*this);
 }
 //-----------------------------------------------------------------------------
 void SLCVMap::rotate(float value, int type)
