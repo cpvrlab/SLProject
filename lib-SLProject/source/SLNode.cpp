@@ -1126,5 +1126,12 @@ const SLSkeleton* SLNode::skeleton()
             return mesh->skeleton();
     return nullptr;
 }
+//-----------------------------------------------------------------------------
+void SLNode::update()
+{
+    doUpdate();
 
+    for (auto child : _children)
+        child->update();
+}
 //-----------------------------------------------------------------------------

@@ -30,6 +30,8 @@ public:
     //!set SLCVMapNode in SLCVMap and update SLCVMapNode
     void setMap(SLCVMap& map);
 
+    void doUpdate() override;
+
     //!update map with SLPoints of map points for current frame
     //!If an empty vector is provided, the mesh is only removed
     void updateMapPoints(const std::vector<SLCVMapPoint*>& pts);
@@ -43,6 +45,9 @@ public:
     void removeMapPointsLocal();
     void removeMapPointsMatched();
     void removeKeyFrames();
+
+    //!used to remove all when map changes
+    void clearAll();
 
     //!set hidden flags
     void setHideMapPoints(bool state);
@@ -59,9 +64,11 @@ private:
     //! add map nodes and instantiate materials
     void init();
 
-    //!convenience function: may be used to update all point clouds
+    //!execute map points update. convenience function: may be used to update all point clouds
     void doUpdateMapPoints(std::string name, const std::vector<SLCVMapPoint*>& pts,
         SLNode*& node, SLPoints*& mesh, SLMaterial*& material);
+    //!execute keyframe update
+    void doUpdateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs);
 
     //Nodes:
     SLNode* _keyFrames = NULL;
@@ -77,11 +84,27 @@ private:
     SLMaterial* _pcMatchedMat = NULL;
     SLMaterial* _pcLocalMat = NULL;
 
+    //!mutex saved flags and vectors: only manipulate locking mutex
+    bool _mapPtsChanged = false;
+    bool _mapPtsLocalChanged = false;
+    bool _mapPtsMatchedChanged = false;
+    bool _keyFramesChanged = false;
+    std::vector<SLCVMapPoint*> _mapPts;
+    std::vector<SLCVMapPoint*> _mapPtsLocal;
+    std::vector<SLCVMapPoint*> _mapPtsMatched;
+    std::vector<SLCVKeyFrame*> _kfs;
+    bool _removeMapPoints = false;
+    bool _removeMapPointsLocal = false;
+    bool _removeMapPointsMatched = false;
+    bool _removeKeyFrames = false;
+
     //if backgound rendering is active kf images will be rendered on 
     //near clipping plane if kf is not the active camera
     bool _renderKfBackground = false;
     //allow SLCVCameras as active camera so that we can look through it
     bool _allowAsActiveCam = false;
+
+    std::mutex _mutex;
 };
 
 #endif //SLCV_MAP_NODE_H

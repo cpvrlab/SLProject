@@ -336,6 +336,11 @@ bool SLScene::onUpdate()
     // Process queued up system events and poll custom input devices
     SLbool sceneHasChanged = SLApplication::inputManager.pollAndProcessEvents();
 
+    //////////////////////////////
+    // Update nodes             //
+    //////////////////////////////
+    if (_root3D)
+        _root3D->update();
 
     //////////////////////////////
 #include <SLDeviceLocation.h>
