@@ -26,7 +26,7 @@
 #include <SLCVKeyFrame.h>
 #include <SLCVFrame.h>
 
-#include <OrbSlam\LoopClosing.h>
+#include <OrbSlam/LoopClosing.h>
 
 #include <g2o/types/sim3/types_seven_dof_expmap.h>
 #include <g2o/types/sba/types_six_dof_expmap.h>

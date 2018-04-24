@@ -38,12 +38,13 @@ struct SLAverageTimingBlock {
     SLint posV=0;
     SLint posH=0;
     SLint nCalls=0;
+    bool isStarted = false;
 };
 
 //-----------------------------------------------------------------------------
 //! Singleton timing class for average measurement of different timing blocks in loops
 /*!
-Call start("name", posV, posH) to define a new timing block and start timing or start timing
+Call start("name") to define a new timing block and start timing or start timing
 of an existing block. Call stop("name") to finish measurement for this block.
 Define a hierarchy by posV and posH which is used in ui to arrange the measurements.
 The first found content with posV==0 is used as reference measurement for the percental value.
@@ -55,7 +56,7 @@ public:
     ~SLAverageTiming();
 
     //!start timer for a new or existing block
-    static void start(const std::string& name, SLint posV, SLint posH);
+    static void start(const std::string& name);
     //!stop timer for a running block with name
     static void stop(const std::string& name);
     //!get time for block with name

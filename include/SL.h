@@ -207,6 +207,9 @@ typedef std::vector<vector<SLchar>>     SLVVchar;
 typedef std::vector<vector<SLshort>>    SLVVshort;
 typedef std::vector<vector<SLint>>      SLVVint;
 
+typedef std::chrono::high_resolution_clock              SLClock;
+typedef std::chrono::high_resolution_clock::time_point  SLTimePoint;
+
 //-----------------------------------------------------------------------------
 // Shortcut for size of a vector
 template<class T> inline SLint SL_sizeOfVector(const T &vector)

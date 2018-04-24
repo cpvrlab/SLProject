@@ -28,21 +28,36 @@ SLCVMapTracking::SLCVMapTracking(SLCVMapNode* mapNode)
 }
 //-----------------------------------------------------------------------------
 int SLCVMapTracking::getNMapMatches()
-{ 
-    return mnMatchesInliers;
+{
+  std::lock_guard<std::mutex> guard(_nMapMatchesLock);
+  return mnMatchesInliers;
 }
 //-----------------------------------------------------------------------------
 int SLCVMapTracking::getNumKeyFrames()
-{ 
-    return _map->KeyFramesInMap();
+{
+  std::lock_guard<std::mutex> guard(_mapLock); 
+  return _map->KeyFramesInMap();
+}
+//-----------------------------------------------------------------------------
+float SLCVMapTracking::poseDifference()
+{
+  std::lock_guard<std::mutex> guard(_poseDiffLock);
+  return _poseDifference;
+}
+//-----------------------------------------------------------------------------
+float SLCVMapTracking::meanReprojectionError()
+{
+  std::lock_guard<std::mutex> guard(_meanProjErrorLock);
+  return _meanReprojectionError;
 }
 //-----------------------------------------------------------------------------
 int SLCVMapTracking::mapPointsCount()
 {
-    if (_map)
-        return _map->MapPointsInMap();
-    else
-        return 0;
+  std::lock_guard<std::mutex> guard(_mapLock);
+  if (_map)
+    return _map->MapPointsInMap();
+  else
+    return 0;
 }
 //-----------------------------------------------------------------------------
 void SLCVMapTracking::calculateMeanReprojectionError()
@@ -62,8 +77,8 @@ void SLCVMapTracking::calculateMeanReprojectionError()
 
     for (size_t i = 0; i < mCurrentFrame.N; i++)
     {
-        if (mCurrentFrame.mvpMapPoints[i])
-        {
+        if (mCurrentFrame.mvpMapPoints[i]) 
+       {
             if (!mCurrentFrame.mvbOutlier[i])
             {
                 if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
@@ -101,19 +116,27 @@ void SLCVMapTracking::calculateMeanReprojectionError()
         }
     }
 
-    if (n > 0)
-        _meanReprojectionError = reprojectionError / n;
-    else
-        _meanReprojectionError = -1;
+    {
+      std::lock_guard<std::mutex> guard(_meanProjErrorLock);
+      if (n > 0)
+      {
+	_meanReprojectionError = reprojectionError / n;
+      }
+      else
+      {
+	_meanReprojectionError = -1;
+      }
+    }
 }
 //-----------------------------------------------------------------------------
 void SLCVMapTracking::calculatePoseDifference()
 {
-    //calculation of L2 norm of the difference between the last and the current camera pose
-    if (!mLastFrame.mTcw.empty() && !mCurrentFrame.mTcw.empty())
-        _poseDifference = norm(mLastFrame.mTcw - mCurrentFrame.mTcw);
-    else
-        _poseDifference = -1.0;
+  std::lock_guard<std::mutex> guard(_poseDiffLock);
+  //calculation of L2 norm of the difference between the last and the current camera pose
+  if (!mLastFrame.mTcw.empty() && !mCurrentFrame.mTcw.empty())
+    _poseDifference = norm(mLastFrame.mTcw - mCurrentFrame.mTcw);
+  else
+    _poseDifference = -1.0;
 }
 //-----------------------------------------------------------------------------
 void SLCVMapTracking::decorateVideoWithKeyPoints(cv::Mat& image)
@@ -159,32 +182,33 @@ void SLCVMapTracking::decorateVideoWithKeyPointMatches(cv::Mat& image)
 //-----------------------------------------------------------------------------
 void SLCVMapTracking::decorateScene()
 {
-    //update scene with all mappoints and keyframes (these only change after mapping of bundle adjustment)
-    if (_mapHasChanged)
-    {
-        _mapHasChanged = false;
-        //update scene
-        auto mapPts = _map->GetAllMapPoints();
-        _mapNode->updateMapPoints(mapPts);
-        auto mapKfs = _map->GetAllKeyFrames();
-        _mapNode->updateKeyFrames(mapKfs);
-    }
+  //update scene with all mappoints and keyframes (these only change after mapping of bundle adjustment)
+  if (_mapHasChanged)
+  {
+    std::lock_guard<std::mutex> guard(_mapLock);
+    _mapHasChanged = false;
+    //update scene
+    auto mapPts = _map->GetAllMapPoints();
+    _mapNode->updateMapPoints(mapPts);
+    auto mapKfs = _map->GetAllKeyFrames();
+    _mapNode->updateKeyFrames(mapKfs);
+  }
 
-    //update hide flags of map points and keyframes
-    _mapNode->setHideMapPoints(!_showMapPC);
-    _mapNode->setHideKeyFrames(!_showKeyFrames);
-    //set flag, that images should be rendered as keyframe backgrounds
-    _mapNode->renderKfBackground(_renderKfBackground);
-    //allow keyframes as active cameras to watch through them
-    _mapNode->allowAsActiveCam(_allowKfsAsActiveCam);
+  //update hide flags of map points and keyframes
+  _mapNode->setHideMapPoints(!_showMapPC);
+  _mapNode->setHideKeyFrames(!_showKeyFrames);
+  //set flag, that images should be rendered as keyframe backgrounds
+  _mapNode->renderKfBackground(_renderKfBackground);
+  //allow keyframes as active cameras to watch through them
+  _mapNode->allowAsActiveCam(_allowKfsAsActiveCam);
 
-    //-------------------------------------------------------------------------
-    //decorate scene with mappoints that were matched to keypoints in current frame
-    if (mState == OK && _showMatchesPC)
-    {
-        //find map point matches
-        std::vector<SLCVMapPoint*> mapPointMatches;
-        for (int i = 0; i < mCurrentFrame.N; i++)
+  //-------------------------------------------------------------------------
+  //decorate scene with mappoints that were matched to keypoints in current frame
+  if (mState == OK && _showMatchesPC)
+  {
+    //find map point matches
+    std::vector<SLCVMapPoint*> mapPointMatches;
+    for (int i = 0; i < mCurrentFrame.N; i++)
         {
             if (mCurrentFrame.mvpMapPoints[i])
             {

@@ -29,7 +29,7 @@
 #include<mutex>
 #include<thread>
 
-#ifdef SL_OS_ANDROID
+#ifndef _WINDOWS
 #include <unistd.h>
 #endif
 

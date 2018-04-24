@@ -38,6 +38,7 @@
 #include <SLCVTrackedChessboard.h>
 #include <SLCVTrackedFeatures.h>
 #include <SLCVTrackedRaulMur.h>
+#include <SLCVTrackedRaulMurAsync.h>
 #include <SLCVTrackedMapping.h>
 #include <SLCVMapNode.h>
 #include <SLTransferFunction.h>
@@ -2522,7 +2523,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //load map points and keyframes from json file
         SLCVMap* map = new SLCVMap("Map");
-        SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, true);
+        SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
         loader.load(*map, *kfDB);
 
         SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
@@ -2544,11 +2545,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(mapNode);
 
         //add tracker
-        SLCVTrackedRaulMur* raulMurTracker = new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map, mapNode);
+        //SLCVTrackedRaulMur* raulMurTracker = new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map, mapNode);
+	SLCVTrackedRaulMurAsync* raulMurTracker = new SLCVTrackedRaulMurAsync(cam1, vocabulary, kfDB, map, mapNode);
         s->trackers().push_back(raulMurTracker);
 
         //setup scene specific gui dialoges
-        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", raulMurTracker);
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", raulMurTracker->orbTracking());
         AppDemoGui::addInfoDialog(trackingInfos);
 
         //add yellow augmented box

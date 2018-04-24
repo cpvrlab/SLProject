@@ -49,8 +49,8 @@ public:
     int getNMapMatches() override;
     int getNumKeyFrames() override;
 
-    float poseDifference() override { return _poseDifference; }
-    float meanReprojectionError() override { return _meanReprojectionError; }
+    float poseDifference() override;
+    float meanReprojectionError() override;
     int mapPointsCount() override;
 
     //getters
@@ -98,6 +98,11 @@ protected:
 
     //Current matches in frame
     int mnMatchesInliers = 0;
+
+    std::mutex _meanProjErrorLock;
+    std::mutex _poseDiffLock;
+    std::mutex _mapLock;
+    std::mutex _nMapMatchesLock;
 };
 
 #endif //SLCVMAPTRACKING_H

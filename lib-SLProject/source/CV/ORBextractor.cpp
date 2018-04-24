@@ -1042,49 +1042,6 @@ void ORBextractor::ComputeKeyPointsOld(std::vector<std::vector<KeyPoint> > &allK
         computeOrientation(mvImagePyramid[level], allKeypoints[level], umax);
 }
 
-static void computeDescriptorsAndScaleKeypointsInRange(int startIndex, int endIndex,
-                                                       const Mat& image, vector<KeyPoint>& keypoints,
-                                                       Mat& descriptors, const vector<Point>& pattern,
-                                                       float scale)
-{
-    for (int i = startIndex; i < endIndex; i++)
-    {
-        KeyPoint *kp = &keypoints[i];
-        computeOrbDescriptor(*kp, image, &pattern[0], descriptors.ptr(i));
-        kp->pt *= scale;
-    }
-}
-
-static void computeDescriptorsAndScaleKeypoints(const Mat& image, vector<KeyPoint>& keypoints, Mat& descriptors,
-                               const vector<Point>& pattern, float scale)
-{
-    int keypointCount = (int)keypoints.size();
-    descriptors = Mat::zeros(keypointCount, 32, CV_8UC1);
-
-    const int threadCount = 7;
-    int startIndex = 0;
-    int delta = keypointCount / (threadCount + 1);
-
-    std::thread t[threadCount];
-
-    for (int i = 0; i < threadCount; i++)
-    {
-        int endIndex;
-        endIndex = startIndex + delta;
-
-        t[i] = std::thread(computeDescriptorsAndScaleKeypointsInRange, startIndex, endIndex, std::ref(image), std::ref(keypoints), std::ref(descriptors), std::ref(pattern), scale);
-        //computeDescriptorsInRange(startIndex, endIndex, image, keypoints, descriptors, pattern);
-
-        startIndex = endIndex;
-    }
-
-    computeDescriptorsAndScaleKeypointsInRange(startIndex, keypointCount, image, keypoints, descriptors, pattern, scale);
-
-    for (int i = 0; i < threadCount; i++)
-    {
-        t[i].join();
-    }
-}
 static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Mat& descriptors,
                                const vector<Point>& pattern)
 {
@@ -1101,18 +1058,18 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
     Mat image = _image.getMat();
     assert(image.type() == CV_8UC1 );
 
-    SLAverageTiming::start("ComputePyramid", 3, 3);
+    SLAverageTiming::start("ComputePyramid");
     // Pre-compute the scale pyramid
     ComputePyramid(image);
     SLAverageTiming::stop("ComputePyramid");
 
     vector < vector<KeyPoint> > allKeypoints;
-    SLAverageTiming::start("ComputeKeyPointsOctTree", 4, 3);
+    SLAverageTiming::start("ComputeKeyPointsOctTree");
     ComputeKeyPointsOctTree(allKeypoints);
     SLAverageTiming::stop("ComputeKeyPointsOctTree");
     //ComputeKeyPointsOld(allKeypoints);
 
-    SLAverageTiming::start("computeDescriptors", 5, 3);
+    SLAverageTiming::start("computeDescriptors");
     Mat descriptors;
 
     int nkeypoints = 0;
@@ -1133,37 +1090,20 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
     for (int level = 0; level < nlevels; ++level)
     {
         int tOffset = level * 3;
-        SLAverageTiming::start("Level" + to_string(level), 6 + tOffset, 4);
+        SLAverageTiming::start("Level" + to_string(level));
         vector<KeyPoint>& keypoints = allKeypoints[level];
         int nkeypointsLevel = (int)keypoints.size();
 
         if(nkeypointsLevel==0)
             continue;
 
-        SLAverageTiming::start("GaussianBlur" + to_string(level), 7 + tOffset, 5);
         // preprocess the resized image
         Mat workingMat = mvImagePyramid[level].clone();
         GaussianBlur(workingMat, workingMat, Size(7, 7), 2, 2, BORDER_REFLECT_101);
-        SLAverageTiming::stop("GaussianBlur" + to_string(level));
 
         // Compute the descriptors
         Mat desc = descriptors.rowRange(offset, offset + nkeypointsLevel);
 
-#if 0
-        float scale;
-        if (level != 0)
-        {
-            scale = mvScaleFactor[level];
-        }
-        else
-        {
-            scale = 1.0f;
-        }
-        computeDescriptorsAndScaleKeypoints(workingMat, keypoints, desc, pattern, scale);
-
-        offset += nkeypointsLevel;
-#else
-        SLAverageTiming::start("actuallyComputeDescriptors" + to_string(level), 8 + tOffset, 5);
         computeDescriptors(workingMat, keypoints, desc, pattern);
         offset += nkeypointsLevel;
 
@@ -1175,8 +1115,7 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
                  keypointEnd = keypoints.end(); keypoint != keypointEnd; ++keypoint)
                 keypoint->pt *= scale;
         }
-        SLAverageTiming::stop("actuallyComputeDescriptors" + to_string(level));
-#endif
+
         // And add the keypoints to the output
         _keypoints.insert(_keypoints.end(), keypoints.begin(), keypoints.end());
         SLAverageTiming::stop("Level" + to_string(level));

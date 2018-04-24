@@ -28,17 +28,19 @@ for a good top down information.
 
 //-----------------------------------------------------------------------------
 // Global static variables
-SLCVMat             SLCVCapture::lastFrame;
-SLCVMat             SLCVCapture::lastFrameGray;
-SLPixelFormat       SLCVCapture::format;
-cv::VideoCapture    SLCVCapture::_captureDevice;
-SLCVSize            SLCVCapture::captureSize;
-SLfloat             SLCVCapture::startCaptureTimeMS;
-SLbool              SLCVCapture::hasSecondaryCamera = true;
-SLint               SLCVCapture::requestedSizeIndex = 0;
-SLstring            SLCVCapture::videoDefaultPath = "../_data/videos/";
-SLstring            SLCVCapture::videoFilename = "";
-SLbool              SLCVCapture::videoLoops = true;
+SLCVMat                     SLCVCapture::lastFrame;
+SLCVMat                     SLCVCapture::lastFrameGray;
+std::mutex                  SLCVCapture::_frameLock;
+SLPixelFormat               SLCVCapture::format;
+cv::VideoCapture            SLCVCapture::_captureDevice;
+SLCVSize                    SLCVCapture::captureSize;
+SLfloat                     SLCVCapture::startCaptureTimeMS;
+SLbool                      SLCVCapture::hasSecondaryCamera = true;
+SLint                       SLCVCapture::requestedSizeIndex = 0;
+SLstring                    SLCVCapture::videoDefaultPath = "../_data/videos/";
+SLstring                    SLCVCapture::videoFilename = "";
+SLbool                      SLCVCapture::videoLoops = true;
+SLCVCapture::FrameAndTime   SLCVCapture::_lastFrameAndTime;
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
 /* This so far called in SLScene::onAfterLoad if a scene uses a live video by
@@ -144,6 +146,7 @@ void SLCVCapture::grabAndAdjustForSL()
             }
 
             adjustForSL();
+            lastFrameAsync(lastFrame, lastFrameGray, std::chrono::system_clock::now());
         }
         else
         {   static bool logOnce = true;
@@ -158,6 +161,24 @@ void SLCVCapture::grabAndAdjustForSL()
         SL_LOG("Exception during OpenCV video capture creation\n");
     }
 }
+
+void SLCVCapture::lastFrameAsync(FrameAndTime* frameAndTime)
+{
+    std::lock_guard<std::mutex> lock(_frameLock);
+
+    frameAndTime->frame = _lastFrameAndTime.frame.clone();
+    frameAndTime->frameGray = _lastFrameAndTime.frameGray.clone();
+    frameAndTime->time = _lastFrameAndTime.time;
+}
+
+void SLCVCapture::lastFrameAsync(const SLCVMat& lastFrame, const SLCVMat& lastFrameGray, const SLTimePoint& lastFrameTime)
+{
+    std::lock_guard<std::mutex> lock(_frameLock);
+    _lastFrameAndTime.frame = lastFrame.clone();
+    _lastFrameAndTime.frameGray = lastFrameGray.clone();
+    _lastFrameAndTime.time = lastFrameTime;
+}
+
 //-----------------------------------------------------------------------------
 //! Does all adjustments needed for the SLScene::_videoTexture
 /*! SLCVCapture::adjustForSL processes the following adjustments for all input
@@ -178,10 +199,10 @@ We therefore create a copy that is grayscale converted.
 void SLCVCapture::adjustForSL()
 {
     SLScene* s = SLApplication::scene;
-    format = SLCVImage::cv2glPixelFormat(lastFrame.type());
+    format = SLCVImage::cv2glPixelFormat(SLCVCapture::lastFrame.type());
 
     // Set capture size before cropping
-    captureSize = lastFrame.size();
+    captureSize = SLCVCapture::lastFrame.size();
 
     /////////////////
     // 1) Cropping //
@@ -190,7 +211,7 @@ void SLCVCapture::adjustForSL()
     // Cropping is done almost always.
     // So this is Android image copy loop #2
 
-    SLfloat inWdivH = (SLfloat)lastFrame.cols / (SLfloat)lastFrame.rows;
+    SLfloat inWdivH = (SLfloat)SLCVCapture::lastFrame.cols / (SLfloat)SLCVCapture::lastFrame.rows;
     SLfloat outWdivH = s->sceneViews()[0]->scrWdivH();
 
     if (SL_abs(inWdivH - outWdivH) > 0.01f)
@@ -200,15 +221,15 @@ void SLCVCapture::adjustForSL()
         SLint cropW = 0;    // crop width in pixels of the source image
 
         if (inWdivH > outWdivH) // crop input image left & right
-        {   width = (SLint)((SLfloat)lastFrame.rows * outWdivH);
-            height = lastFrame.rows;
-            cropW = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);
+        {   width = (SLint)((SLfloat)SLCVCapture::lastFrame.rows * outWdivH);
+            height = SLCVCapture::lastFrame.rows;
+            cropW = (SLint)((SLfloat)(SLCVCapture::lastFrame.cols - width) * 0.5f);
         } else // crop input image at top & bottom
-        {   width = lastFrame.cols;
-            height = (SLint)((SLfloat)lastFrame.cols / outWdivH);
-            cropH = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
+        {   width = SLCVCapture::lastFrame.cols;
+            height = (SLint)((SLfloat)SLCVCapture::lastFrame.cols / outWdivH);
+            cropH = (SLint)((SLfloat)(SLCVCapture::lastFrame.rows - height) * 0.5f);
         }
-        lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(lastFrame);
+        SLCVCapture::lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(SLCVCapture::lastFrame);
         //imwrite("AfterCropping.bmp", lastFrame);
     }
 
@@ -242,7 +263,7 @@ void SLCVCapture::adjustForSL()
     // We just could take the Y channel.
     // Android image copy loop #4
 
-    cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_BGR2GRAY);
+    cv::cvtColor(SLCVCapture::lastFrame, SLCVCapture::lastFrameGray, cv::COLOR_BGR2GRAY);
 
     // Do not copy into the video texture here. It is done in SLScene:onUpdate
 
@@ -292,7 +313,7 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
             destStride = (size_t)(bpl - width * bpp);
         }
 
-        SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, destStride);
+        SLCVCapture::lastFrame(SLCVMat(height, width, cvType, (void*)data, destStride));
     }
 
     adjustForSL();
@@ -507,7 +528,7 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
     bool mirrorV = SLApplication::activeCalib->isMirroredV();
 
     // Create output color (BGR) and grayscale images
-    lastFrame     = SLCVMat(dstH, dstW, CV_8UC(3));
+    lastFrame = SLCVMat(dstH, dstW, CV_8UC(3));
     lastFrameGray = SLCVMat(dstH, dstW, CV_8UC(1));
     format        = SLCVImage::cv2glPixelFormat(lastFrame.type());
 
@@ -598,7 +619,6 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
         uRow    += uRowOffset    * halfRowsPerThread;
         vRow    += vRowOffset    * halfRowsPerThread;
     }
-
     // Launch the last block on the main thread
     YUV2RGB_BlockInfo infoMain;
     infoMain.imageInfo = &imageInfo;

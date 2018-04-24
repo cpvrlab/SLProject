@@ -118,6 +118,10 @@ SLScene::~SLScene()
         if (sv != nullptr)
             delete sv;
 
+    // delete AR tracker programs
+    for (auto t : _trackers) delete t;
+    _trackers.clear();
+
     unInit();
    
     // delete global SLGLState instance
@@ -141,10 +145,6 @@ SLScene::~SLScene()
     // delete shader programs
     for (auto p : _programs) delete p;
     _programs.clear();
-        
-    // delete AR tracker programs
-    for (auto t : _trackers) delete t;
-    _trackers.clear();
    
     // delete fonts   
     SLTexFont::deleteFonts();
@@ -369,7 +369,6 @@ bool SLScene::onUpdate()
     ////////////////////
     // 4) AR Tracking //
     ////////////////////
-    
     if (_videoType!=VT_NONE && !SLCVCapture::lastFrame.empty())
     {   
         SLfloat trackingTimeStartMS = timeMilliSec();
@@ -500,6 +499,7 @@ bool SLScene::onUpdate()
 void SLScene::onAfterLoad()
 {
     #ifdef SL_USES_CVCAPTURE
+
     if (_videoType != VT_NONE)
     {   if (!SLCVCapture::isOpened())
         {
