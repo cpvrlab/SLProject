@@ -14,11 +14,12 @@
 #include <SLCamera.h>
 
 class SLCVKeyFrame;
+class SLCVMapNode;
 
 class SLCVCamera : public SLCamera
 {
 public:
-    SLCVCamera(SLCVKeyFrame* kf, SLstring name = "Camera");
+    SLCVCamera(SLCVMapNode* mapNode, SLstring name = "Camera");
     virtual void drawMeshes(SLSceneView* sv);
 
     bool renderBackground();
@@ -27,7 +28,8 @@ public:
 private:
     //bool _renderBackground=false;
     //pointer to corresponding keyframe
-    SLCVKeyFrame* _kf = NULL;
+    //SLCVKeyFrame* _kf = NULL;
+    SLCVMapNode* _mapNode = NULL;
 };
 
 #endif //SLCVCAMERA_H

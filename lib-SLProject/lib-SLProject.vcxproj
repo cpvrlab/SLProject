@@ -155,6 +155,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <BrowseInformation>false</BrowseInformation>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;lib-SLExternal.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -245,6 +246,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;lib-SLExternal.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -272,9 +274,13 @@
   <ItemGroup>
     <ClInclude Include="..\include\ORBextractor.h" />
     <ClInclude Include="..\include\OrbSlam\Converter.h" />
+    <ClInclude Include="..\include\OrbSlam\Initializer.h" />
+    <ClInclude Include="..\include\OrbSlam\LocalMapping.h" />
+    <ClInclude Include="..\include\OrbSlam\LoopClosing.h" />
     <ClInclude Include="..\include\OrbSlam\Optimizer.h" />
     <ClInclude Include="..\include\OrbSlam\ORBmatcher.h" />
     <ClInclude Include="..\include\OrbSlam\PnPsolver.h" />
+    <ClInclude Include="..\include\OrbSlam\Sim3Solver.h" />
     <ClInclude Include="..\include\SL.h" />
     <ClInclude Include="..\include\SLAccelStruct.h" />
     <ClInclude Include="..\include\SLAnimation.h" />
@@ -297,7 +303,11 @@
     <ClInclude Include="..\include\SLCVKeyFrame.h" />
     <ClInclude Include="..\include\SLCVKeyFrameDB.h" />
     <ClInclude Include="..\include\SLCVMap.h" />
+    <ClInclude Include="..\include\SLCVMapNode.h" />
     <ClInclude Include="..\include\SLCVMapPoint.h" />
+    <ClInclude Include="..\include\SLCVMapStorage.h" />
+    <ClInclude Include="..\include\SLCVMapTracking.h" />
+    <ClInclude Include="..\include\SLCVOrbVocabulary.h" />
     <ClInclude Include="..\include\SLCVRaulMurExtractorNode.h" />
     <ClInclude Include="..\include\SLCVRaulMurOrb.h" />
     <ClInclude Include="..\include\SLCVSlamStateLoader.h" />
@@ -317,6 +327,12 @@
     <ClInclude Include="..\include\SLGLVertexArray.h" />
     <ClInclude Include="..\include\SLGLVertexArrayExt.h" />
     <ClInclude Include="..\include\SLGLVertexBuffer.h" />
+    <ClInclude Include="..\include\SLImGuiInfosChristoffelTower.h" />
+    <ClInclude Include="..\include\SLImGuiInfosDialog.h" />
+    <ClInclude Include="..\include\SLImGuiInfosMapTransform.h" />
+    <ClInclude Include="..\include\SLImGuiInfosTracking.h" />
+    <ClInclude Include="..\include\SLImGuiMapStorage.h" />
+    <ClInclude Include="..\include\SLImGuiTrackedMapping.h" />
     <ClInclude Include="..\include\SLInputDevice.h" />
     <ClInclude Include="..\include\SLInputEvent.h" />
     <ClInclude Include="..\include\SLInputManager.h" />
@@ -341,6 +357,7 @@
     <ClInclude Include="..\include\SLInterface.h" />
     <ClInclude Include="..\include\SLLens.h" />
     <ClInclude Include="..\include\SLLightDirect.h" />
+    <ClInclude Include="..\include\SLTrackingInfosInterface.h" />
     <ClInclude Include="..\include\SLMat3.h" />
     <ClInclude Include="..\include\SLMat4.h" />
     <ClInclude Include="..\include\SLMath.h" />
@@ -394,9 +411,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="source\CV\OrbSlam\Converter.cpp" />
+    <ClCompile Include="source\CV\OrbSlam\Initializer.cpp" />
+    <ClCompile Include="source\CV\OrbSlam\LocalMapping.cpp" />
+    <ClCompile Include="source\CV\OrbSlam\LoopClosing.cpp" />
     <ClCompile Include="source\CV\OrbSlam\Optimizer.cpp" />
     <ClCompile Include="source\CV\OrbSlam\ORBmatcher.cpp" />
     <ClCompile Include="source\CV\OrbSlam\PnPsolver.cpp" />
+    <ClCompile Include="source\CV\OrbSlam\Sim3Solver.cpp" />
     <ClCompile Include="source\CV\SLCVCamera.cpp" />
     <ClCompile Include="source\CV\SLCVFeatureManager.cpp" />
     <ClCompile Include="source\CV\SLCVFrame.cpp" />
@@ -404,7 +425,11 @@
     <ClCompile Include="source\CV\SLCVKeyFrame.cpp" />
     <ClCompile Include="source\CV\SLCVKeyFrameDB.cpp" />
     <ClCompile Include="source\CV\SLCVMap.cpp" />
+    <ClCompile Include="source\CV\SLCVMapNode.cpp" />
     <ClCompile Include="source\CV\SLCVMapPoint.cpp" />
+    <ClCompile Include="source\CV\SLCVMapStorage.cpp" />
+    <ClCompile Include="source\CV\SLCVMapTracking.cpp" />
+    <ClCompile Include="source\CV\SLCVOrbVocabulary.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurExtractorNode.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurOrb.cpp" />
     <ClCompile Include="source\CV\SLCVSlamStateLoader.cpp" />
@@ -426,6 +451,12 @@
     <ClCompile Include="source\GL\SLGLVertexArray.cpp" />
     <ClCompile Include="source\GL\SLGLVertexArrayExt.cpp" />
     <ClCompile Include="source\GL\SLGLVertexBuffer.cpp" />
+    <ClCompile Include="source\GUI\SLImGuiInfosChristoffelTower.cpp" />
+    <ClCompile Include="source\GUI\SLImGuiInfosDialog.cpp" />
+    <ClCompile Include="source\GUI\SLImGuiInfosMapTransform.cpp" />
+    <ClCompile Include="source\GUI\SLImGuiInfosTracking.cpp" />
+    <ClCompile Include="source\GUI\SLImGuiMapStorage.cpp" />
+    <ClCompile Include="source\GUI\SLImGuiTrackedMapping.cpp" />
     <ClCompile Include="source\math\SLCurveBezier.cpp" />
     <ClCompile Include="source\math\SLPlane.cpp" />
     <ClCompile Include="source\SLAnimation.cpp" />

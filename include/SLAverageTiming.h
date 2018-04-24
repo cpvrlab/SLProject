@@ -44,7 +44,7 @@ struct SLAverageTimingBlock {
 //-----------------------------------------------------------------------------
 //! Singleton timing class for average measurement of different timing blocks in loops
 /*!
-Call start("name", posV, posH) to define a new timing block and start timing or start timing
+Call start("name") to define a new timing block and start timing or start timing
 of an existing block. Call stop("name") to finish measurement for this block.
 Define a hierarchy by posV and posH which is used in ui to arrange the measurements.
 The first found content with posV==0 is used as reference measurement for the percental value.

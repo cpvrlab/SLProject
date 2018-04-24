@@ -26,6 +26,8 @@
 #include <SLCVKeyFrame.h>
 #include <SLCVFrame.h>
 
+#include <OrbSlam/LoopClosing.h>
+
 #include <g2o/types/sim3/types_seven_dof_expmap.h>
 #include <g2o/types/sba/types_six_dof_expmap.h>
 
@@ -35,17 +37,24 @@ namespace ORB_SLAM2
 class Optimizer
 {
 public:
-    //void static BundleAdjustment(const std::vector<SLCVKeyFrame*> &vpKF, const std::vector<SLCVMapPoint*> &vpMP,
-    //                             int nIterations = 5, bool *pbStopFlag=NULL, const unsigned long nLoopKF=0,
-    //                             const bool bRobust = true);
-    //void static GlobalBundleAdjustemnt(SLCVMap* pMap, int nIterations=5, bool *pbStopFlag=NULL,
-    //                                   const unsigned long nLoopKF=0, const bool bRobust = true);
-    //void static LocalBundleAdjustment(SLCVKeyFrame* pKF, bool *pbStopFlag, SLCVMap *pMap);
+    void static BundleAdjustment(const std::vector<SLCVKeyFrame*> &vpKF, const std::vector<SLCVMapPoint*> &vpMP,
+                                 int nIterations = 5, bool *pbStopFlag=NULL, const unsigned long nLoopKF=0,
+                                 const bool bRobust = true);
+    void static GlobalBundleAdjustemnt(SLCVMap* pMap, int nIterations=5, bool *pbStopFlag=NULL,
+                                       const unsigned long nLoopKF=0, const bool bRobust = true);
+    void static LocalBundleAdjustment(SLCVKeyFrame* pKF, bool *pbStopFlag, SLCVMap *pMap);
     int static PoseOptimization(SLCVFrame* pFrame);
 
-    //// if bFixScale is true, optimize SE3 (stereo,rgbd), Sim3 otherwise (mono)
-    //static int OptimizeSim3(SLCVKeyFrame* pKF1, SLCVKeyFrame* pKF2, std::vector<SLCVMapPoint *> &vpMatches1,
-    //                        g2o::Sim3 &g2oS12, const float th2, const bool bFixScale);
+    // if bFixScale is true, 6DoF optimization (stereo,rgbd), 7DoF otherwise (mono)
+    void static OptimizeEssentialGraph(SLCVMap* pMap, SLCVKeyFrame* pLoopKF, SLCVKeyFrame* pCurKF,
+        const LoopClosing::KeyFrameAndPose &NonCorrectedSim3,
+        const LoopClosing::KeyFrameAndPose &CorrectedSim3,
+        const map<SLCVKeyFrame *, set<SLCVKeyFrame *> > &LoopConnections,
+        const bool &bFixScale);
+
+    // if bFixScale is true, optimize SE3 (stereo,rgbd), Sim3 otherwise (mono)
+    static int OptimizeSim3(SLCVKeyFrame* pKF1, SLCVKeyFrame* pKF2, std::vector<SLCVMapPoint *> &vpMatches1,
+                            g2o::Sim3 &g2oS12, const float th2, const bool bFixScale);
 };
 
 } //namespace ORB_SLAM

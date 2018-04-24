@@ -53,11 +53,22 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes(JNIEnv *en
                                                                       jbyteArray yBuf, jint ySize, jint yPixStride, jint yLineStride,
                                                                       jbyteArray uBuf, jint uSize, jint uPixStride, jint uLineStride,
                                                                       jbyteArray vBuf, jint vSize, jint vPixStride, jint vLineStride);
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onSetupExternalDirectories(JNIEnv *env, jobject obj, jstring  externalDirPath);
 };
 
 //-----------------------------------------------------------------------------
 extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
 
+//-----------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onSetupExternalDirectories(JNIEnv *env, jobject obj, jstring  externalDirPath)
+{
+    environment = env;
+    const char *nativeString = env->GetStringUTFChars(externalDirPath, 0);
+    string externalDirPathNative(nativeString);
+    env->ReleaseStringUTFChars(externalDirPath, nativeString);
+
+    slSetupExternalDirectories(externalDirPathNative);
+}
 //-----------------------------------------------------------------------------
 //! Native ray tracing callback function that calls the Java class method GLES3Lib.RaytracingCallback
 bool Java_renderRaytracingCallback()

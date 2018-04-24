@@ -7,6 +7,25 @@
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
+/**
+* This file is part of ORB-SLAM2.
+*
+* Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
+* For more information see <https://github.com/raulmur/ORB_SLAM2>
+*
+* ORB-SLAM2 is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* ORB-SLAM2 is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <stdafx.h>         // precompiled headers
 #include <SLCVFrame.h>
@@ -41,8 +60,8 @@ SLCVFrame::SLCVFrame(const SLCVFrame &frame)
     :mpORBvocabulary(frame.mpORBvocabulary), mpORBextractorLeft(frame.mpORBextractorLeft),
     mTimeStamp(frame.mTimeStamp), mK(frame.mK.clone()), mDistCoef(frame.mDistCoef.clone()),
     N(frame.N), mvKeys(frame.mvKeys),
-    mvKeysUn(frame.mvKeysUn), mvuRight(frame.mvuRight),
-    mvDepth(frame.mvDepth), mBowVec(frame.mBowVec), mFeatVec(frame.mFeatVec),
+    mvKeysUn(frame.mvKeysUn), /*mvuRight(frame.mvuRight),
+    mvDepth(frame.mvDepth),*/ mBowVec(frame.mBowVec), mFeatVec(frame.mFeatVec),
     mDescriptors(frame.mDescriptors.clone()),
     mvpMapPoints(frame.mvpMapPoints), mvbOutlier(frame.mvbOutlier), mnId(frame.mnId),
     mpReferenceKF(frame.mpReferenceKF), mnScaleLevels(frame.mnScaleLevels),
@@ -56,13 +75,20 @@ SLCVFrame::SLCVFrame(const SLCVFrame &frame)
 
     if (!frame.mTcw.empty())
         SetPose(frame.mTcw);
+
+    if (!frame.imgGray.empty())
+        imgGray = frame.imgGray;
 }
 //-----------------------------------------------------------------------------
-SLCVFrame::SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor, 
-    cv::Mat &K, cv::Mat &distCoef, ORBVocabulary* orbVocabulary)
-    : mpORBextractorLeft(extractor), mTimeStamp(timeStamp), mK(K.clone()), mDistCoef(distCoef.clone()),
+SLCVFrame::SLCVFrame( const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor, 
+    cv::Mat &K, cv::Mat &distCoef, ORBVocabulary* orbVocabulary, bool retainImg )
+    : mpORBextractorLeft(extractor), mTimeStamp(timeStamp), /*mK(K.clone()),*/ /*mDistCoef(distCoef.clone()),*/
     mpORBvocabulary(orbVocabulary)
 {
+    //ghm1: ORB_SLAM uses float precision
+    K.convertTo(mK, CV_32F);
+    distCoef.convertTo(mDistCoef, CV_32F);
+
     // Frame ID
     mnId = nNextId++;
 
@@ -89,11 +115,8 @@ SLCVFrame::SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextracto
     UndistortKeyPoints();
     //SLAverageTiming::stop("UndistortKeyPoints");
 
-    //// Set no stereo information
-    //mvuRight = vector<float>(N, -1);
-    //mvDepth = vector<float>(N, -1);
-
     //SLAverageTiming::start("AssignFeaturesToGrid");
+
     mvpMapPoints = vector<SLCVMapPoint*>(N, static_cast<SLCVMapPoint*>(NULL));
     mvbOutlier = vector<bool>(N, false);
 
@@ -105,86 +128,22 @@ SLCVFrame::SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextracto
         mfGridElementWidthInv = static_cast<float>(FRAME_GRID_COLS) / static_cast<float>(mnMaxX - mnMinX);
         mfGridElementHeightInv = static_cast<float>(FRAME_GRID_ROWS) / static_cast<float>(mnMaxY - mnMinY);
 
-        fx = (float)K.at<double>(0, 0);
-        fy = (float)K.at<double>(1, 1);
-        cx = (float)K.at<double>(0, 2);
-        cy = (float)K.at<double>(1, 2);
+        fx = mK.at<float>(0, 0);
+        fy = mK.at<float>(1, 1);
+        cx = mK.at<float>(0, 2);
+        cy = mK.at<float>(1, 2);
         invfx = 1.0f / fx;
         invfy = 1.0f / fy;
 
         mbInitialComputations = false;
     }
 
-    //mb = mbf / fx;
     AssignFeaturesToGrid();
     //SLAverageTiming::stop("AssignFeaturesToGrid");
-}
-//-----------------------------------------------------------------------------
-void SLCVFrame::ExtractORB(const cv::Mat &im)
-{
-    (*mpORBextractorLeft)(im, cv::Mat(), mvKeys, mDescriptors);
-}
-//-----------------------------------------------------------------------------
-void SLCVFrame::UndistortKeyPoints()
-{
-    if (mDistCoef.at<double>(0) == 0.0f)
-    {
-        mvKeysUn = mvKeys;
-        return;
-    }
 
-    // Fill matrix with points
-    cv::Mat mat(N, 2, CV_64F);
-    for (int i = 0; i<N; i++)
-    {
-        mat.at<double>(i, 0) = mvKeys[i].pt.x;
-        mat.at<double>(i, 1) = mvKeys[i].pt.y;
-    }
-
-    // Undistort points
-    mat = mat.reshape(2);
-    cv::undistortPoints(mat, mat, mK, mDistCoef, cv::Mat(), mK);
-    mat = mat.reshape(1);
-
-    // Fill undistorted keypoint vector
-    mvKeysUn.resize(N);
-    for (int i = 0; i<N; i++)
-    {
-        cv::KeyPoint kp = mvKeys[i];
-        kp.pt.x = (float)mat.at<double>(i, 0);
-        kp.pt.y = (float)mat.at<double>(i, 1);
-        mvKeysUn[i] = kp;
-    }
-}
-//-----------------------------------------------------------------------------
-void SLCVFrame::ComputeImageBounds(const cv::Mat &imLeft)
-{
-    if (mDistCoef.at<double>(0) != 0.0)
-    {
-        cv::Mat mat(4, 2, CV_64F);
-        mat.at<double>(0, 0) = 0.0; mat.at<double>(0, 1) = 0.0;
-        mat.at<double>(1, 0) = imLeft.cols; mat.at<double>(1, 1) = 0.0;
-        mat.at<double>(2, 0) = 0.0; mat.at<double>(2, 1) = imLeft.rows;
-        mat.at<double>(3, 0) = imLeft.cols; mat.at<double>(3, 1) = imLeft.rows;
-
-        // Undistort corners
-        mat = mat.reshape(2);
-        cv::undistortPoints(mat, mat, mK, mDistCoef, cv::Mat(), mK);
-        mat = mat.reshape(1);
-
-        mnMinX = (float)min(mat.at<double>(0, 0), mat.at<double>(2, 0));
-        mnMaxX = (float)max(mat.at<double>(1, 0), mat.at<double>(3, 0));
-        mnMinY = (float)min(mat.at<double>(0, 1), mat.at<double>(1, 1));
-        mnMaxY = (float)max(mat.at<double>(2, 1), mat.at<double>(3, 1));
-
-    }
-    else
-    {
-        mnMinX = 0.0f;
-        mnMaxX = (float)imLeft.cols;
-        mnMinY = 0.0f;
-        mnMaxY = (float)imLeft.rows;
-    }
+    //store image reference if required
+    if (retainImg)
+        imgGray = imGray.clone();
 }
 //-----------------------------------------------------------------------------
 void SLCVFrame::AssignFeaturesToGrid()
@@ -204,25 +163,9 @@ void SLCVFrame::AssignFeaturesToGrid()
     }
 }
 //-----------------------------------------------------------------------------
-bool SLCVFrame::PosInGrid(const cv::KeyPoint &kp, int &posX, int &posY)
+void SLCVFrame::ExtractORB(const cv::Mat &im)
 {
-    posX = (int)round((kp.pt.x - mnMinX)*mfGridElementWidthInv);
-    posY = (int)round((kp.pt.y - mnMinY)*mfGridElementHeightInv);
-
-    //Keypoint's coordinates are undistorted, which could cause to go out of the image
-    if (posX<0 || posX >= FRAME_GRID_COLS || posY<0 || posY >= FRAME_GRID_ROWS)
-        return false;
-
-    return true;
-}
-//-----------------------------------------------------------------------------
-void SLCVFrame::ComputeBoW()
-{
-    if (mBowVec.empty())
-    {
-        vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(mDescriptors);
-        mpORBvocabulary->transform(vCurrentDesc, mBowVec, mFeatVec, 4);
-    }
+    (*mpORBextractorLeft)(im, cv::Mat(), mvKeys, mDescriptors);
 }
 //-----------------------------------------------------------------------------
 void SLCVFrame::SetPose(cv::Mat Tcw)
@@ -239,7 +182,65 @@ void SLCVFrame::UpdatePoseMatrices()
     mOw = -mRcw.t()*mtcw;
 }
 //-----------------------------------------------------------------------------
-vector<size_t> SLCVFrame::GetFeaturesInArea(const float &x, const float  &y, 
+bool SLCVFrame::isInFrustum(SLCVMapPoint *pMP, float viewingCosLimit)
+{
+    pMP->mbTrackInView = false;
+
+    // 3D in absolute coordinates
+    cv::Mat P = pMP->GetWorldPos();
+
+    // 3D in camera coordinates
+    const cv::Mat Pc = mRcw*P + mtcw;
+    const float &PcX = Pc.at<float>(0);
+    const float &PcY = Pc.at<float>(1);
+    const float &PcZ = Pc.at<float>(2);
+
+    // Check positive depth
+    if (PcZ<0.0f)
+        return false;
+
+    // Project in image and check it is not outside
+    const float invz = 1.0f / PcZ;
+    const float u = fx*PcX*invz + cx;
+    const float v = fy*PcY*invz + cy;
+
+    if (u<mnMinX || u>mnMaxX)
+        return false;
+    if (v<mnMinY || v>mnMaxY)
+        return false;
+
+    // Check distance is in the scale invariance region of the SLCVMapPoint
+    const float maxDistance = pMP->GetMaxDistanceInvariance();
+    const float minDistance = pMP->GetMinDistanceInvariance();
+    const cv::Mat PO = P - mOw;
+    const float dist = cv::norm(PO);
+
+    if (dist<minDistance || dist>maxDistance)
+        return false;
+
+    // Check viewing angle
+    cv::Mat Pn = pMP->GetNormal();
+
+    const float viewCos = PO.dot(Pn) / dist;
+
+    if (viewCos<viewingCosLimit)
+        return false;
+
+    // Predict scale in the image
+    const int nPredictedLevel = pMP->PredictScale(dist, this);
+
+    // Data used by the tracking
+    pMP->mbTrackInView = true;
+    pMP->mTrackProjX = u;
+    //pMP->mTrackProjXR = u - mbf*invz;
+    pMP->mTrackProjY = v;
+    pMP->mnTrackScaleLevel = nPredictedLevel;
+    pMP->mTrackViewCos = viewCos;
+
+    return true;
+}
+//-----------------------------------------------------------------------------
+vector<size_t> SLCVFrame::GetFeaturesInArea(const float &x, const float  &y,
     const float  &r, const int minLevel, const int maxLevel) const
 {
     vector<size_t> vIndices;
@@ -295,60 +296,87 @@ vector<size_t> SLCVFrame::GetFeaturesInArea(const float &x, const float  &y,
     return vIndices;
 }
 //-----------------------------------------------------------------------------
-bool SLCVFrame::isInFrustum(SLCVMapPoint *pMP, float viewingCosLimit)
+bool SLCVFrame::PosInGrid(const cv::KeyPoint &kp, int &posX, int &posY)
 {
-    pMP->mbTrackInView = false;
+    posX = (int)round((kp.pt.x - mnMinX)*mfGridElementWidthInv);
+    posY = (int)round((kp.pt.y - mnMinY)*mfGridElementHeightInv);
 
-    // 3D in absolute coordinates
-    cv::Mat P = pMP->worldPos();
-
-    // 3D in camera coordinates
-    const cv::Mat Pc = mRcw*P + mtcw;
-    const float &PcX = Pc.at<float>(0);
-    const float &PcY = Pc.at<float>(1);
-    const float &PcZ = Pc.at<float>(2);
-
-    // Check positive depth
-    if (PcZ<0.0f)
+    //Keypoint's coordinates are undistorted, which could cause to go out of the image
+    if (posX<0 || posX >= FRAME_GRID_COLS || posY<0 || posY >= FRAME_GRID_ROWS)
         return false;
-
-    // Project in image and check it is not outside
-    const float invz = 1.0f / PcZ;
-    const float u = fx*PcX*invz + cx;
-    const float v = fy*PcY*invz + cy;
-
-    if (u<mnMinX || u>mnMaxX)
-        return false;
-    if (v<mnMinY || v>mnMaxY)
-        return false;
-
-    // Check distance is in the scale invariance region of the SLCVMapPoint
-    const float maxDistance = pMP->GetMaxDistanceInvariance();
-    const float minDistance = pMP->GetMinDistanceInvariance();
-    const cv::Mat PO = P - mOw;
-    const float dist = cv::norm(PO);
-
-    if (dist<minDistance || dist>maxDistance)
-        return false;
-
-    // Check viewing angle
-    cv::Mat Pn = pMP->GetNormal();
-
-    const float viewCos = PO.dot(Pn) / dist;
-
-    if (viewCos<viewingCosLimit)
-        return false;
-
-    // Predict scale in the image
-    const int nPredictedLevel = pMP->PredictScale(dist, this);
-
-    // Data used by the tracking
-    pMP->mbTrackInView = true;
-    pMP->mTrackProjX = u;
-    //pMP->mTrackProjXR = u - mbf*invz;
-    pMP->mTrackProjY = v;
-    pMP->mnTrackScaleLevel = nPredictedLevel;
-    pMP->mTrackViewCos = viewCos;
 
     return true;
 }
+//-----------------------------------------------------------------------------
+void SLCVFrame::ComputeBoW()
+{
+    if (mBowVec.empty())
+    {
+        vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(mDescriptors);
+        mpORBvocabulary->transform(vCurrentDesc, mBowVec, mFeatVec, 4);
+    }
+}
+//-----------------------------------------------------------------------------
+void SLCVFrame::UndistortKeyPoints()
+{
+    if (mDistCoef.at<float>(0) == 0.0f)
+    {
+        mvKeysUn = mvKeys;
+        return;
+    }
+
+    // Fill matrix with points
+    cv::Mat mat(N, 2, CV_32F);
+    for (int i = 0; i<N; i++)
+    {
+        mat.at<float>(i, 0) = mvKeys[i].pt.x;
+        mat.at<float>(i, 1) = mvKeys[i].pt.y;
+    }
+
+    // Undistort points
+    mat = mat.reshape(2);
+    cv::undistortPoints(mat, mat, mK, mDistCoef, cv::Mat(), mK);
+    mat = mat.reshape(1);
+
+    // Fill undistorted keypoint vector
+    mvKeysUn.resize(N);
+    for (int i = 0; i<N; i++)
+    {
+        cv::KeyPoint kp = mvKeys[i];
+        kp.pt.x = mat.at<float>(i, 0);
+        kp.pt.y = mat.at<float>(i, 1);
+        mvKeysUn[i] = kp;
+    }
+}
+//-----------------------------------------------------------------------------
+void SLCVFrame::ComputeImageBounds(const cv::Mat &imLeft)
+{
+    if (mDistCoef.at<float>(0) != 0.0)
+    {
+        cv::Mat mat(4, 2, CV_32F);
+        mat.at<float>(0, 0) = 0.0; mat.at<float>(0, 1) = 0.0;
+        mat.at<float>(1, 0) = imLeft.cols; mat.at<float>(1, 1) = 0.0;
+        mat.at<float>(2, 0) = 0.0; mat.at<float>(2, 1) = imLeft.rows;
+        mat.at<float>(3, 0) = imLeft.cols; mat.at<float>(3, 1) = imLeft.rows;
+
+        // Undistort corners
+        mat = mat.reshape(2);
+        cv::undistortPoints(mat, mat, mK, mDistCoef, cv::Mat(), mK);
+        mat = mat.reshape(1);
+
+        mnMinX = (float)min(mat.at<float>(0, 0), mat.at<float>(2, 0));
+        mnMaxX = (float)max(mat.at<float>(1, 0), mat.at<float>(3, 0));
+        mnMinY = (float)min(mat.at<float>(0, 1), mat.at<float>(1, 1));
+        mnMaxY = (float)max(mat.at<float>(2, 1), mat.at<float>(3, 1));
+
+    }
+    else
+    {
+        mnMinX = 0.0f;
+        mnMaxX = imLeft.cols;
+        mnMinY = 0.0f;
+        mnMaxY = imLeft.rows;
+    }
+}
+
+

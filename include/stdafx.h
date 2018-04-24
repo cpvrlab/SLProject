@@ -37,6 +37,7 @@
 #include <random>
 #include <cstdarg>
 #include <ctime>
+#include <memory>
 //-----------------------------------------------------------------------------
 // Include standard C libraries
 #include <stdio.h>               // for the old ANSI C IO functions
@@ -73,5 +74,11 @@
 #include <OrbSlam/ORBmatcher.h>
 #include <OrbSlam/PnPsolver.h>
 //-----------------------------------------------------------------------------
+#include <opencv2/core/core.hpp>
+#include <opencv2/core/utility.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/calib3d.hpp>
+#include <opencv2/video/tracking.hpp>
 
 #endif

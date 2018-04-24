@@ -225,10 +225,10 @@ void SLBackground::renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB)
     // draw a textured or colored quad
     if(_texture)
     {   // if video texture is not ready show error texture
-        if (_texture->texName())
+        //if (_texture->texName())
             _texture->bindActive(0);
-        else
-            _textureError->bindActive(0);
+        //else
+        //    _textureError->bindActive(0);
         sp->uniform1i("u_texture0", 0);
     }
 

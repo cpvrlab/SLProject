@@ -118,6 +118,10 @@ SLScene::~SLScene()
         if (sv != nullptr)
             delete sv;
 
+    // delete AR tracker programs
+    for (auto t : _trackers) delete t;
+    _trackers.clear();
+
     unInit();
    
     // delete global SLGLState instance
@@ -141,10 +145,6 @@ SLScene::~SLScene()
     // delete shader programs
     for (auto p : _programs) delete p;
     _programs.clear();
-        
-    // delete AR tracker programs
-    for (auto t : _trackers) delete t;
-    _trackers.clear();
    
     // delete fonts   
     SLTexFont::deleteFonts();
@@ -364,7 +364,6 @@ bool SLScene::onUpdate()
     ////////////////////
     // 4) AR Tracking //
     ////////////////////
-    
     if (_videoType!=VT_NONE && !SLCVCapture::lastFrame.empty())
     {   
         SLfloat trackingTimeStartMS = timeMilliSec();
@@ -385,14 +384,15 @@ bool SLScene::onUpdate()
             if (SLApplication::sceneID == SID_VideoCalibrateMain ||
                 SLApplication::sceneID == SID_VideoCalibrateScnd)
             {   ac->state(CS_calibrateStream);
-            } else
+            }
+            else
             {   // Changes the state to CS_guessed
                 ac->createFromGuessedFOV(SLCVCapture::lastFrame.cols,
                                          SLCVCapture::lastFrame.rows);
                 _sceneViews[0]->camera()->fov(ac->cameraFovDeg());
             }
-        } else //..............................................................
-        if (ac->state() == CS_calibrateStream || ac->state() == CS_calibrateGrab)
+        } //..............................................................
+        else if (ac->state() == CS_calibrateStream || ac->state() == CS_calibrateGrab)
         {
             ac->findChessboard(SLCVCapture::lastFrame, SLCVCapture::lastFrameGray, true);
             int imgsToCap = ac->numImgsToCapture();
@@ -407,17 +407,18 @@ bool SLScene::onUpdate()
                 ac->state(CS_startCalculating);
             }
             _info = ss.str();
-        } else //..............................................................
-        if (ac->state() == CS_startCalculating)
+        } //..............................................................
+        else if (ac->state() == CS_startCalculating)
         {
             if (ac->calculate())
             {   _sceneViews[0]->camera()->fov(ac->cameraFovDeg());
                 if (SLApplication::sceneID == SID_VideoCalibrateMain)
                      onLoad(this, _sceneViews[0], SID_VideoTrackChessMain);
-                else onLoad(this, _sceneViews[0], SID_VideoTrackChessScnd);
+                else 
+                    onLoad(this, _sceneViews[0], SID_VideoTrackChessScnd);
             }
-        } else
-        if (ac->state() == CS_calibrated || ac->state() == CS_guessed) //......
+        }
+        else if (ac->state() == CS_calibrated || ac->state() == CS_guessed) //......
         {
             SLCVTrackedAruco::trackAllOnce = true;
         
@@ -457,7 +458,8 @@ bool SLScene::onUpdate()
                                          undistorted.data,
                                          undistorted.isContinuous(),
                                          true);
-        } else
+        }
+        else
         {   _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
                                          SLCVCapture::lastFrame.rows,
                                          SLCVCapture::format,
@@ -492,6 +494,7 @@ bool SLScene::onUpdate()
 void SLScene::onAfterLoad()
 {
     #ifdef SL_USES_CVCAPTURE
+
     if (_videoType != VT_NONE)
     {   if (!SLCVCapture::isOpened())
         {

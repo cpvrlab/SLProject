@@ -105,18 +105,48 @@
 //#include <SLGLVertexArrayExt.h>
 //#include <SLGLVertexBuffer.h>
 
+//GUI:
+//#include <SLImGuiInfosDialog.h>
+//#include <SLImGuiInfosChristoffelTower.h>
+//#include <SLImGuiInfosMapTransform.h>
+//#include <SLImGuiInfosTracking.h>
+//#include <SLImGuiTrackedMapping.h>
+
 //CV:
+//#include <ORBextractor.h>
 //#include <SLCV.h>
 //#include <SLCVCalibration.h>
+//#include <SLCVCamera.h>
 //#include <SLCVCapture.h>
 //#include <SLCVFeatureManager.h>
+//#include <SLCVFrame.h>
 //#include <SLCVImage.h>
+//#include <SLCVKeyFrame.h>
+//#include <SLCVKeyFrameDB.h>
+//#include <SLCVMap.h>
+//#include <SLCVMapNode.h>
+//#include <SLCVMapPoint.h>
 //#include <SLCVRaulMurExtractorNode.h>
 //#include <SLCVRaulMurOrb.h>
+//#include <SLCVSlamStateLoader.h>
 //#include <SLCVTracked.h>
 //#include <SLCVTrackedAruco.h>
 //#include <SLCVTrackedChessboard.h>
 //#include <SLCVTrackedFeatures.h>
+//#include <SLCVTrackedMapping.h>
+//#include <SLCVTrackedRaulMur.h>
+//#include <SLCVMapTracking.h>
+
+//CV/OrbSlam:
+//#include <OrbSlam/Converter.h>
+//#include <OrbSlam/Initializer.h>
+//#include <OrbSlam/LocalMapping.h>
+#include <OrbSlam/LoopClosing.h>
+//#include <OrbSlam/Optimizer.h>
+//#include <OrbSlam/ORBmatcher.h>
+//#include <OrbSlam/ORBVocabulary.h>
+//#include <OrbSlam/PnPsolver.h>
+//#include <OrbSlam/Sim3Solver.h>
 
 //Animation:
 //#include <SLAnimation.h>
@@ -126,3 +156,4 @@
 //#include <SLJoint.h>
 //#include <SLKeyframe.h>
 //#include <SLSkeleton.h>
+

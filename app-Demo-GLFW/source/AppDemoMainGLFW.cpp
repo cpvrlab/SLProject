@@ -320,9 +320,9 @@ Key event handler sets the modifier key state & forwards the event to
 the slKeyPress function.
 */
 static void onKeyPress(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
-{     
+{
     SLKey key = mapKeyToSLKey(GLFWKey);
-    
+
     if (action==GLFW_PRESS)
     {   switch (key)
         {   case K_ctrl:  modifiers = (SLKey)(modifiers|K_ctrl);  return;
@@ -416,8 +416,7 @@ int main(int argc, char *argv[])
 
     scrWidth = 640;
     scrHeight = 480;
-    //scrWidth = 1280;
-    //scrHeight = 720;
+
     touch2.set(-1,-1);
     touchDelta.set(-1,-1);
 
@@ -478,6 +477,7 @@ int main(int argc, char *argv[])
     //SLstring exeDir = SLUtils::getPath(cmdLineArgs[0]);
     SLstring exeDir = SLFileSystem::getCurrentWorkingDir();
     SLstring configDir = SLFileSystem::getAppsWritableDir();
+    slSetupExternalDirectories("../_data");
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,

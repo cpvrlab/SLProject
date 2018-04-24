@@ -2,10 +2,10 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
-        release {
-            keyAlias 'key0'
+        releaseKey1 {
+            keyAlias 'key1'
             keyPassword 'uwenadat'
-            storeFile file('/home/jdellsperger/Android/SLProject-key.jks')
+            storeFile file('C:/Users/ghm1/Documents/Android/SLProject-key1.jks')
             storePassword 'uwenadat'
         }
     }
@@ -44,7 +44,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.releaseKey1
         }
         debug {
         }
@@ -74,10 +74,10 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:24.+'
     /*
-                                                    androidTestCompile('com.android.support.test.espresso:espresso-core:2.0', {
-                                                        exclude group: 'com.android.support', module: 'support-annotations'
-                                                    })
-                                                    testCompile 'junit:junit:4.12'
-                                                    compile project(':openCVLibrary310')
-                                                    */
+                                    androidTestCompile('com.android.support.test.espresso:espresso-core:2.0', {
+                                        exclude group: 'com.android.support', module: 'support-annotations'
+                                    })
+                                    testCompile 'junit:junit:4.12'
+                                    compile project(':openCVLibrary310')
+                                    */
 }

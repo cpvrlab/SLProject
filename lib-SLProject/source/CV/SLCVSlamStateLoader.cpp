@@ -32,10 +32,8 @@ SLCVSlamStateLoader::~SLCVSlamStateLoader()
 }
 //-----------------------------------------------------------------------------
 //! add map point
-void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB )
+void SLCVSlamStateLoader::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
 {
-    SLCVVKeyFrame& kfs = kfDB.keyFrames();
-
     ////set up translation
     //_t = cv::Mat(3, 1, CV_32F);
     //_t.at<float>(0, 0) = 10.f;
@@ -53,38 +51,72 @@ void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB )
     //cout << "_rot: " << _rot << endl;
 
     //load keyframes
-    loadKeyFrames(kfs);
+    loadKeyFrames(map, kfDB);
     //load map points
-    loadMapPoints(mapPts);
+    loadMapPoints(map);
 
-    //compute resulting values for map keyframes
-    for (SLCVKeyFrame* kf : kfs) {
-        //compute bow
-        kf->ComputeBoW(_orbVoc);
-        //add keyframe to keyframe database
-        kfDB.add(kf);
+    //update the covisibility graph, when all keyframes and mappoints are loaded
+    auto kfs = map.GetAllKeyFrames();
+    for (auto kf : kfs)
+    {
         // Update links in the Covisibility Graph
         kf->UpdateConnections();
     }
 
     //compute resulting values for map points
+    auto mapPts = map.GetAllMapPoints();
     for (auto& mp : mapPts) {
         //mean viewing direction and depth
-        mp.UpdateNormalAndDepth();
-        mp.ComputeDistinctiveDescriptors();
+        mp->UpdateNormalAndDepth();
+        mp->ComputeDistinctiveDescriptors();
     }
 
     cout << "Read Done." << endl;
 }
 //-----------------------------------------------------------------------------
-void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
+//calculation of scaleFactors , levelsigma2, invScaleFactors and invLevelSigma2
+void SLCVSlamStateLoader::calculateScaleFactors(float scaleFactor, int nlevels)
 {
-    //load intrinsics (calibration parameters): only store once
+    //(copied from ORBextractor ctor)
+    _vScaleFactor.resize(nlevels);
+    _vLevelSigma2.resize(nlevels);
+    _vScaleFactor[0] = 1.0f;
+    _vLevelSigma2[0] = 1.0f;
+    for (int i = 1; i<nlevels; i++)
+    {
+        _vScaleFactor[i] = _vScaleFactor[i - 1] * scaleFactor;
+        _vLevelSigma2[i] = _vScaleFactor[i] * _vScaleFactor[i];
+    }
+
+    _vInvScaleFactor.resize(nlevels);
+    _vInvLevelSigma2.resize(nlevels);
+    for (int i = 0; i<nlevels; i++)
+    {
+        _vInvScaleFactor[i] = 1.0f / _vScaleFactor[i];
+        _vInvLevelSigma2[i] = 1.0f / _vLevelSigma2[i];
+    }
+}
+//-----------------------------------------------------------------------------
+void SLCVSlamStateLoader::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
+{
+    //calibration information
+    //load camera matrix
+    cv::Mat K;
+    _fs["K"] >> K;
     float fx, fy, cx, cy;
-    _fs["fx"] >> fx;
-    _fs["fy"] >> fy;
-    _fs["cx"] >> cx;
-    _fs["cy"] >> cy;
+    fx = K.at<float>(0, 0);
+    fy = K.at<float>(1, 1);
+    cx = K.at<float>(0, 2);
+    cy = K.at<float>(1, 2);
+
+    //ORB extractor information
+    float scaleFactor;
+    _fs["scaleFactor"] >> scaleFactor;
+    //number of pyriamid scale levels
+    int nScaleLevels = -1;
+    _fs["nScaleLevels"] >> nScaleLevels;
+    //calculation of scaleFactors , levelsigma2, invScaleFactors and invLevelSigma2
+    calculateScaleFactors(scaleFactor, nScaleLevels);
 
     cv::FileNode n = _fs["KeyFrames"];
     if (n.type() != cv::FileNode::SEQ)
@@ -96,7 +128,7 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
     _kfsMap.clear();
 
     //reserve space in kfs
-    kfs.reserve(n.size());
+    //kfs.reserve(n.size());
     bool first = true;
     for (auto it = n.begin(); it != n.end(); ++it)
     {
@@ -125,27 +157,18 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
         std::vector<cv::KeyPoint> keyPtsUndist;
         (*it)["keyPtsUndist"] >> keyPtsUndist;
 
-        //scale factor
-        float scaleFactor;
-        (*it)["scaleFactor"] >> scaleFactor;
+        //image bounds
+        float nMinX, nMinY, nMaxX, nMaxY;
+        (*it)["nMinX"] >> nMinX;
+        (*it)["nMinY"] >> nMinY;
+        (*it)["nMaxX"] >> nMaxX;
+        (*it)["nMaxY"] >> nMaxY;
 
-        //number of pyriamid scale levels
-        int nScaleLevels = -1;
-        (*it)["nScaleLevels"] >> nScaleLevels;
+        //SLCVKeyFrame* newKf = new SLCVKeyFrame(keyPtsUndist.size());
+        SLCVKeyFrame* newKf = new SLCVKeyFrame(Tcw, id, fx, fy, cx, cy, keyPtsUndist.size(), 
+            keyPtsUndist, featureDescriptors, _orbVoc, nScaleLevels, scaleFactor, _vScaleFactor,
+            _vLevelSigma2, _vInvLevelSigma2, nMinX, nMinY, nMaxX, nMaxY, K, &kfDB, &map);
 
-        //vector of pyramid scale factors
-        std::vector<float> scaleFactors;
-        (*it)["scaleFactors"] >> scaleFactors;
-
-        SLCVKeyFrame* newKf = new SLCVKeyFrame(keyPtsUndist.size());
-        newKf->id(id);
-        newKf->Tcw(Tcw);
-        newKf->descriptors(featureDescriptors);
-        newKf->mvKeysUn = keyPtsUndist;
-        newKf->mfScaleFactor = scaleFactor;
-        newKf->mfLogScaleFactor = log(newKf->mfScaleFactor);
-        newKf->mnScaleLevels = nScaleLevels;
-        newKf->mvScaleFactors = scaleFactors;
         //if (!kfImg.empty()) {
         if(_loadKfImgs)
         {
@@ -154,14 +177,23 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
             //newKf->imgGray = kfImg;
             newKf->setTexturePath(ss.str());
         }
-        kfs.push_back(newKf);
+        //kfs.push_back(newKf);
+        map.AddKeyFrame(newKf);
 
+        //Update keyframe database:
+        //add to keyframe database
+        kfDB.add(newKf);
+
+        // Update links in the Covisibility Graph
+        //newKf->UpdateConnections();
+
+        //pointer goes out of scope und wird invalid!!!!!!
         //map pointer by id for look-up
-        _kfsMap[newKf->id()] = kfs.back();
+        _kfsMap[newKf->mnId] = newKf;
     }
 }
 //-----------------------------------------------------------------------------
-void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
+void SLCVSlamStateLoader::loadMapPoints(SLCVMap& map)
 {
     cv::FileNode n = _fs["MapPoints"];
     if (n.type() != cv::FileNode::SEQ)
@@ -170,24 +202,27 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
     }
 
     //reserve space in mapPts
-    mapPts.reserve(n.size());
+    //mapPts.reserve(n.size());
     //read and add map points
     for (auto it = n.begin(); it != n.end(); ++it)
     {
-        SLCVMapPoint newPt;
-        newPt.id( (int)(*it)["id"]);
+        //newPt->id( (int)(*it)["id"]);
+        int id = (int)(*it)["id"];
+
         cv::Mat mWorldPos; //has to be here!
         (*it)["mWorldPos"] >> mWorldPos;
         //scale pos
         //mWorldPos += _t;
         //mWorldPos = _rot.rowRange(0, 3).colRange(0,3) * mWorldPos;
         //mWorldPos *= _s;
-        newPt.worldPos(mWorldPos);
+        //newPt->worldPos(mWorldPos);
+
+        SLCVMapPoint* newPt = new SLCVMapPoint(id, mWorldPos, &map);
 
         //level
-        int level;
-        (*it)["level"] >> level;
-        newPt.level(level);
+        //int level;
+        //(*it)["level"] >> level;
+        //newPt->level(level);
 
         //get observing keyframes
         vector<int> observingKfIds;
@@ -196,14 +231,17 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
         vector<int> corrKpIndices;
         (*it)["corrKpIndices"] >> corrKpIndices;
 
-        mapPts.push_back(newPt);
+        //mapPts.push_back(newPt);
+        //mapPts.insert(newPt);
+        map.AddMapPoint(newPt);
 
         //get reference keyframe id
         int refKfId = (int)(*it)["refKfId"];
 
         //find and add pointers of observing keyframes to map point
         {
-            SLCVMapPoint* mapPt = &mapPts.back();
+            //SLCVMapPoint* mapPt = mapPts.back();
+            SLCVMapPoint* mapPt = newPt;
             for (int i=0; i<observingKfIds.size(); ++i)
             {
                 const int kfId = observingKfIds[i];
@@ -217,6 +255,7 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
                 }
             }
 
+            //todo: is the reference keyframe only a currently valid variable or has every keyframe a reference keyframe?? Is it necessary for tracking?
             //map reference key frame pointer
             if (_kfsMap.find(refKfId) != _kfsMap.end())
                 mapPt->refKf(_kfsMap[refKfId]);
@@ -228,6 +267,8 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
                     if (_kfsMap.find(kfId) != _kfsMap.end())
                         mapPt->refKf(_kfsMap[kfId]);
                 }
+                else
+                    int stop = 0;
             }
         }
     }

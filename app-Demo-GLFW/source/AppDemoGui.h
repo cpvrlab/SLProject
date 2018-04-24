@@ -12,11 +12,16 @@
 #define SLGUIDEMO_H
 
 #include <SL.h>
+#include <string>
+#include <map>
+#include <memory>
+#include <SLImGuiInfosDialog.h>
 
 class SLScene;
 class SLSceneView;
 class SLNode;
 class SLGLTexture;
+class SLImGuiInfosDialog;
 
 //-----------------------------------------------------------------------------
 //! ImGui UI class for the UI of the demo applications
@@ -29,17 +34,21 @@ integrated in the SLProject.<br>
 */
 class AppDemoGui
 {
-    public:
-    static void             build               (SLScene* s, SLSceneView* sv);
+public:
+    static void             build(SLScene* s, SLSceneView* sv);
 
-    static void             buildMenuBar        (SLScene* s, SLSceneView* sv);
-    static void             buildSceneGraph     (SLScene* s);
-    static void             addSceneGraphNode   (SLScene* s, SLNode* node);
-    static void             buildProperties     (SLScene* s);
-    static void             buildInfosTracking  (SLScene* s, SLSceneView* sv);
+    //!< Checks, if a dialog with this name already exists, and adds it if not
+    static void             addInfoDialog(const std::shared_ptr<SLImGuiInfosDialog>& dialog);
+    static void             clearInfoDialogs();
+    static void             buildMenuBar(SLScene* s, SLSceneView* sv);
+    static void             buildSceneGraph(SLScene* s);
+    static void             addSceneGraphNode(SLScene* s, SLNode* node);
+    static void             buildProperties(SLScene* s);
     static void             buildStatsDebugTiming(SLScene* s, SLSceneView* sv);
-    static void             loadConfig          (SLint dotsPerInch);
-    static void             saveConfig          ();
+    static void             buildInfosDialogs();
+
+    static void             loadConfig(SLint dotsPerInch);
+    static void             saveConfig();
 
     static SLGLTexture*     cpvrLogo;           //!< cpvr logo texture image
     static SLstring         configTime;         //!< Time of stored configuration
@@ -59,9 +68,11 @@ class AppDemoGui
     static SLbool           showInfosScene;     //!< Flag if scene info should be shown
     static SLbool           showSceneGraph;     //!< Flag if scene graph should be shown
     static SLbool           showProperties;     //!< Flag if properties should be shown
-    static SLbool           showInfosTracking;  //!< Flag if tracking info should be shown
     static SLbool           showStatsDebugTiming;//!< Flag if tracking info should be shown   
-    static SLbool           showChristoffel;    //!< Flag if Christoffel infos should be shown
+
+private:
+    //! Vector containing all info dialogs, that belong to special scenes
+    static std::map<std::string, std::shared_ptr<SLImGuiInfosDialog>> _infoDialogs;
 };
 //-----------------------------------------------------------------------------
 #endif

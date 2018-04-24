@@ -13,30 +13,28 @@
 #include <SLSceneView.h>
 #include <SLCVKeyFrame.h>
 #include <SLCVKeyFrameDB.h>
+#include <SLCVMapNode.h>
+#include <SLGLTexture.h>
 
-SLCVCamera::SLCVCamera(SLCVKeyFrame* kf, SLstring name)
-    : SLCamera(name), _kf(kf)
+SLCVCamera::SLCVCamera(SLCVMapNode* mapNode, SLstring name)
+    : SLCamera(name), _mapNode(mapNode)
 {
 }
 //-----------------------------------------------------------------------------
 bool SLCVCamera::renderBackground()
 {
-    if (_kf) {
-        if (SLCVKeyFrameDB* kfDb = _kf->getKeyFrameDB()) {
-            return kfDb->renderKfBackground();
-        }
-    }
-    return false;
+    if (_mapNode)
+        return _mapNode->renderKfBackground();
+    else
+        return false;
 }
 //-----------------------------------------------------------------------------
 bool SLCVCamera::allowAsActiveCam()
 {
-    if (_kf) {
-        if (SLCVKeyFrameDB* kfDb = _kf->getKeyFrameDB()) {
-            return kfDb->allowAsActiveCam();
-        }
-    }
-    return false;
+    if (_mapNode)
+        return _mapNode->allowAsActiveCam();
+    else
+        return false;
 }
 //-----------------------------------------------------------------------------
 //! SLCamera::drawMeshes draws the cameras frustum lines
@@ -136,5 +134,12 @@ void SLCVCamera::drawMeshes(SLSceneView* sv)
 
         if(renderBackground())
             _background.renderInScene(nearLT, nearLB, nearRT, nearRB);
+
+        //if (_background.texture()->images().size()) {
+        //    auto& imgs = _background.texture()->images();
+        //    SLCVImage* img = imgs[0];
+        //    auto mat = img->cvMat();
+        //    cv::imwrite("D:/Development/SLProject/_data/calibrations/imgs/kf0-test.jpg", mat);
+        //}
     }
 }

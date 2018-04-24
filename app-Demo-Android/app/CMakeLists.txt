@@ -76,17 +76,31 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVCalibration.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVFeatureManager.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVImage.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVMapNode.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVRaulMurExtractorNode.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVRaulMurOrb.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTracked.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedAruco.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedChessboard.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedFeatures.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedMapping.cpp
 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/Converter.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/Optimizer.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/ORBmatcher.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/PnPsolver.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/LocalMapping.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/LoopClosing.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/Initializer.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/Sim3Solver.cpp
+
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiTrackedMapping.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosChristoffelTower.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosDialog.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosMapTransform.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosTracking.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiTrackedMapping.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiMapStorage.cpp
 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/ORBextractor.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVCamera.cpp
@@ -97,6 +111,9 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVMapPoint.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVSlamStateLoader.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedRaulMur.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVMapTracking.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVMapStorage.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVOrbVocabulary.cpp
 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAABBox.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimation.cpp 
@@ -316,6 +333,7 @@ file(GLOB_RECURSE VIDEOS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/s
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/buero1_huawei_16_9.mp4
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/buero2_huawei_16_9.mp4
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/calib_huawei_16_9.mp4
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/webcam_office1.wmv
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/Bern1.mp4)
 
 file(GLOB_RECURSE FONTS         ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.png

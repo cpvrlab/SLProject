@@ -49,6 +49,9 @@
     <Filter Include="Nodes\Meshes\Revolver">
       <UniqueIdentifier>{613281b3-f68d-4d4a-90c3-95998dc6ad69}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{8b45dff9-e65f-4790-b75a-70588af5596f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\SLAABBox.h">
@@ -399,6 +402,51 @@
     <ClInclude Include="..\include\SLCVTrackedMapping.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\OrbSlam\Initializer.h">
+      <Filter>CV\OrbSlam</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\OrbSlam\LocalMapping.h">
+      <Filter>CV\OrbSlam</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVMapNode.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLImGuiInfosDialog.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLTrackingInfosInterface.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLImGuiTrackedMapping.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLImGuiInfosTracking.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLImGuiInfosMapTransform.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLImGuiInfosChristoffelTower.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVMapTracking.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\OrbSlam\LoopClosing.h">
+      <Filter>CV\OrbSlam</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\OrbSlam\Sim3Solver.h">
+      <Filter>CV\OrbSlam</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVMapStorage.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLImGuiMapStorage.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVOrbVocabulary.h">
+      <Filter>CV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -674,7 +722,49 @@
     <ClCompile Include="source\CV\SLCVTrackedMapping.cpp">
       <Filter>CV</Filter>
     </ClCompile>
+    <ClCompile Include="source\CV\OrbSlam\Initializer.cpp">
+      <Filter>CV\OrbSlam</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\OrbSlam\LocalMapping.cpp">
+      <Filter>CV\OrbSlam</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVMapNode.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
     <ClCompile Include="test.cpp" />
+    <ClCompile Include="source\GUI\SLImGuiInfosDialog.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GUI\SLImGuiTrackedMapping.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GUI\SLImGuiInfosTracking.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GUI\SLImGuiInfosMapTransform.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GUI\SLImGuiInfosChristoffelTower.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVMapTracking.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\OrbSlam\LoopClosing.cpp">
+      <Filter>CV\OrbSlam</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\OrbSlam\Sim3Solver.cpp">
+      <Filter>CV\OrbSlam</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVMapStorage.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GUI\SLImGuiMapStorage.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVOrbVocabulary.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_data\shaders\ADS.frag">
