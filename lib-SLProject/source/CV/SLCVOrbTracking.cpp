@@ -13,284 +13,284 @@
 #include <SLCVCapture.h>
 
 SLCVOrbTracking::SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
-				 SLCVKeyFrameDB* keyFrameDB,
-				 SLCVMap* map,
-				 SLCVMapNode* mapNode,
-				 ORBVocabulary* vocabulary,
-				 bool serial)
-  : SLCVMapTracking(keyFrameDB, map, mapNode),
-    _stateEstimator{stateEstimator},
+    SLCVKeyFrameDB* keyFrameDB,
+    SLCVMap* map,
+    SLCVMapNode* mapNode,
+    ORBVocabulary* vocabulary,
+    bool serial)
+    : SLCVMapTracking(keyFrameDB, map, mapNode),
+    _stateEstimator{ stateEstimator },
     _serial(serial),
     mpVocabulary(vocabulary)
 {
-  //instantiate Orb extractor
-  _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
+    //instantiate Orb extractor
+    _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
 
-  //system is initialized, because we loaded an existing map, but we have to relocalize
-  mState = LOST;
+    //system is initialized, because we loaded an existing map, but we have to relocalize
+    mState = LOST;
 
-  if (!_serial)
-    _trackingThread = std::thread(&SLCVOrbTracking::trackOrbsContinuously, this);
+    if (!_serial)
+        _trackingThread = std::thread(&SLCVOrbTracking::trackOrbsContinuously, this);
 }
 
 SLCVOrbTracking::SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
-				 SLCVMapNode* mapNode,
-				 ORBVocabulary* vocabulary,
-				 bool serial)
-  : SLCVMapTracking(mapNode),
-    _stateEstimator{stateEstimator},
+    SLCVMapNode* mapNode,
+    ORBVocabulary* vocabulary,
+    bool serial)
+    : SLCVMapTracking(mapNode),
+    _stateEstimator{ stateEstimator },
     _serial(serial),
     mpVocabulary(vocabulary)
 {
-  //instantiate Orb extractor
-  _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
+    //instantiate Orb extractor
+    _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
 
-  //system is initialized, because we loaded an existing map, but we have to relocalize
-  mState = LOST;
+    //system is initialized, because we loaded an existing map, but we have to relocalize
+    mState = LOST;
 
-  if (!_serial)
-    _trackingThread = std::thread(&SLCVOrbTracking::trackOrbs, this);
+    if (!_serial)
+        _trackingThread = std::thread(&SLCVOrbTracking::trackOrbs, this);
 }
 
 SLCVOrbTracking::~SLCVOrbTracking()
 {
-  printf("SLCVOrbTracking destructor\n");
-  running(false);
- 
-  printf("waiting for tracking thread to join\n"); 
-  if (!_serial)
-    _trackingThread.join();
-  printf("tracking thread joined\n");
-  
-  if (_extractor)
-    delete _extractor;
+    printf("SLCVOrbTracking destructor\n");
+    running(false);
+
+    printf("waiting for tracking thread to join\n");
+    if (!_serial)
+        _trackingThread.join();
+    printf("tracking thread joined\n");
+
+    if (_extractor)
+        delete _extractor;
 }
 
 void SLCVOrbTracking::running(bool running)
 {
-  std::lock_guard<std::mutex> guard(_runLock);
-  _running = running;
+    std::lock_guard<std::mutex> guard(_runLock);
+    _running = running;
 }
 
 bool SLCVOrbTracking::running()
 {
-  std::lock_guard<std::mutex> guard(_runLock);
-  bool result = _running;
-  return result;
+    std::lock_guard<std::mutex> guard(_runLock);
+    bool result = _running;
+    return result;
 }
 
 void SLCVOrbTracking::calib(SLCVCalibration* calib)
 {
-  std::lock_guard<std::mutex> guard(_calibLock);
-  _calib = calib;
-  _calibReady.notify_all();
+    std::lock_guard<std::mutex> guard(_calibLock);
+    _calib = calib;
+    _calibReady.notify_all();
 }
 
 bool SLCVOrbTracking::serial()
 {
-  bool result = _serial;
-  return result;
+    bool result = _serial;
+    return result;
 }
 
 void SLCVOrbTracking::trackOrbsContinuously()
 {
-  printf("Tracking orbs continuously...\n");
+    printf("Tracking orbs continuously...\n");
 
-  std::unique_lock<std::mutex> lk(_calibLock);
-  _calibReady.wait(lk, [this]{return _calib;});
-  
-  while (running()) {
-    trackOrbs();
-  }
+    std::unique_lock<std::mutex> lk(_calibLock);
+    _calibReady.wait(lk, [this] {return _calib; });
+
+    while (running()) {
+        trackOrbs();
+    }
 }
 
 void SLCVOrbTracking::trackOrbs()
 {
-  printf("Start trackOrbs()\n");
-  //Frame constructor call in ORB-SLAM:
-  // Current Frame
-  double timestamp = 0.0; //todo
-  SLCVCapture::FrameAndTime frameAndTime;
-  SLCVCapture::lastFrameAsync(&frameAndTime);
-  mCurrentFrame = SLCVFrame(frameAndTime.frameGray, timestamp, _extractor,
-			    _calib->cameraMat(), _calib->distortion(), mpVocabulary );
-  /************************************************************/
+    printf("Start trackOrbs()\n");
+    //Frame constructor call in ORB-SLAM:
+    // Current Frame
+    double timestamp = 0.0; //todo
+    SLCVCapture::FrameAndTime frameAndTime;
+    SLCVCapture::lastFrameAsync(&frameAndTime);
+    mCurrentFrame = SLCVFrame(frameAndTime.frameGray, timestamp, _extractor,
+        _calib->cameraMat(), _calib->distortion(), mpVocabulary);
+    /************************************************************/
 
-  // System is initialized. Track Frame.
-  mLastProcessedState = mState;
-  bool bOK=false;
+    // System is initialized. Track Frame.
+    mLastProcessedState = mState;
+    bool bOK = false;
 
-  // Localization Mode: Local Mapping is deactivated
-  if (mState == LOST)
+    // Localization Mode: Local Mapping is deactivated
+    if (mState == LOST)
     {
-      bOK = Relocalization();
+        bOK = Relocalization();
     }
-  else
+    else
     {
-      //if NOT visual odometry tracking
-      if (!mbVO) // In last frame we tracked enough MapPoints from the Map
-	{
-	  if (!mVelocity.empty()) { //we have a valid motion model
-	    bOK = TrackWithMotionModel();
-	  }
-	  else { //we have NO valid motion model
-	    // All keyframes that observe a map point are included in the local map.
-	    // Every current frame gets a reference keyframe assigned which is the keyframe
-	    // from the local map that shares most matches with the current frames local map points matches.
-	    // It is updated in UpdateLocalKeyFrames().
-	    bOK = TrackReferenceKeyFrame();
-	  }
-	}
-      else // In last frame we tracked mainly "visual odometry" points.
-	{
-	  // We compute two camera poses, one from motion model and one doing relocalization.
-	  // If relocalization is sucessfull we choose that solution, otherwise we retain
-	  // the "visual odometry" solution.
+        //if NOT visual odometry tracking
+        if (!mbVO) // In last frame we tracked enough MapPoints from the Map
+        {
+            if (!mVelocity.empty()) { //we have a valid motion model
+                bOK = TrackWithMotionModel();
+            }
+            else { //we have NO valid motion model
+              // All keyframes that observe a map point are included in the local map.
+              // Every current frame gets a reference keyframe assigned which is the keyframe
+              // from the local map that shares most matches with the current frames local map points matches.
+              // It is updated in UpdateLocalKeyFrames().
+                bOK = TrackReferenceKeyFrame();
+            }
+        }
+        else // In last frame we tracked mainly "visual odometry" points.
+        {
+            // We compute two camera poses, one from motion model and one doing relocalization.
+            // If relocalization is sucessfull we choose that solution, otherwise we retain
+            // the "visual odometry" solution.
 
-	  bool bOKMM = false;
-	  bool bOKReloc = false;
-	  vector<SLCVMapPoint*> vpMPsMM;
-	  vector<bool> vbOutMM;
-	  cv::Mat TcwMM;
-	  if (!mVelocity.empty())
-	    {
-	      bOKMM = TrackWithMotionModel();
-	      vpMPsMM = mCurrentFrame.mvpMapPoints;
-	      vbOutMM = mCurrentFrame.mvbOutlier;
-	      TcwMM = mCurrentFrame.mTcw.clone();
-	    }
-	  bOKReloc = Relocalization();
+            bool bOKMM = false;
+            bool bOKReloc = false;
+            vector<SLCVMapPoint*> vpMPsMM;
+            vector<bool> vbOutMM;
+            cv::Mat TcwMM;
+            if (!mVelocity.empty())
+            {
+                bOKMM = TrackWithMotionModel();
+                vpMPsMM = mCurrentFrame.mvpMapPoints;
+                vbOutMM = mCurrentFrame.mvbOutlier;
+                TcwMM = mCurrentFrame.mTcw.clone();
+            }
+            bOKReloc = Relocalization();
 
-	  //relocalization method is not valid but the velocity model method
-	  if (bOKMM && !bOKReloc)
-	    {
-	      mCurrentFrame.SetPose(TcwMM);
-	      mCurrentFrame.mvpMapPoints = vpMPsMM;
-	      mCurrentFrame.mvbOutlier = vbOutMM;
+            //relocalization method is not valid but the velocity model method
+            if (bOKMM && !bOKReloc)
+            {
+                mCurrentFrame.SetPose(TcwMM);
+                mCurrentFrame.mvpMapPoints = vpMPsMM;
+                mCurrentFrame.mvbOutlier = vbOutMM;
 
-	      if (mbVO)
-		{
-		  for (int i = 0; i<mCurrentFrame.N; i++)
-		    {
-		      if (mCurrentFrame.mvpMapPoints[i] && !mCurrentFrame.mvbOutlier[i])
-			{
-			  mCurrentFrame.mvpMapPoints[i]->IncreaseFound();
-			}
-		    }
-		}
-	    }
-	  else if (bOKReloc)
-	    {
-	      mbVO = false;
-	    }
+                if (mbVO)
+                {
+                    for (int i = 0; i < mCurrentFrame.N; i++)
+                    {
+                        if (mCurrentFrame.mvpMapPoints[i] && !mCurrentFrame.mvbOutlier[i])
+                        {
+                            mCurrentFrame.mvpMapPoints[i]->IncreaseFound();
+                        }
+                    }
+                }
+            }
+            else if (bOKReloc)
+            {
+                mbVO = false;
+            }
 
-	  bOK = bOKReloc || bOKMM;
+            bOK = bOKReloc || bOKMM;
 
-	}
-    }
-
-
-  // mbVO true means that there are few matches to MapPoints in the map. We cannot retrieve
-  // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
-  // the camera we will use the local map again.
-
-  if (bOK && !mbVO)
-    {
-      bOK = TrackLocalMap();
-    }
-
-  if (bOK)
-    mState = OK;
-  else
-    mState = LOST;
-
-  //add map points to scene and keypoints to video image
-  decorateSceneAndVideo(frameAndTime.frame);
-
-  // If tracking were good
-  if (bOK)
-    {
-      // Update motion model
-      if (!mLastFrame.mTcw.empty())
-	{
-	  cv::Mat LastTwc = cv::Mat::eye(4, 4, CV_32F);
-	  mLastFrame.GetRotationInverse().copyTo(LastTwc.rowRange(0, 3).colRange(0, 3)); //mRwc
-	  const auto& cc = mLastFrame.GetCameraCenter(); //this is the translation w.r.t the world of the frame (warum dann Twc??)
-	  cc.copyTo(LastTwc.rowRange(0, 3).col(3));
-	  mVelocity = mCurrentFrame.mTcw*LastTwc;
-	}
-      else
-	mVelocity = cv::Mat();
-
-      //set current pose
-      {
-	cv::Mat Rwc(3, 3, CV_32F);
-	cv::Mat twc(3, 1, CV_32F);
-
-	//inversion
-	auto Tcw = mCurrentFrame.mTcw.clone();
-	Rwc = Tcw.rowRange(0, 3).colRange(0, 3).t();
-	twc = -Rwc*Tcw.rowRange(0, 3).col(3);
-
-	//conversion to SLMat4f
-	SLMat4f slMat((SLfloat)Rwc.at<float>(0, 0), (SLfloat)Rwc.at<float>(0, 1), (SLfloat)Rwc.at<float>(0, 2), (SLfloat)twc.at<float>(0, 0),
-		      (SLfloat)Rwc.at<float>(1, 0), (SLfloat)Rwc.at<float>(1, 1), (SLfloat)Rwc.at<float>(1, 2), (SLfloat)twc.at<float>(1, 0),
-		      (SLfloat)Rwc.at<float>(2, 0), (SLfloat)Rwc.at<float>(2, 1), (SLfloat)Rwc.at<float>(2, 2), (SLfloat)twc.at<float>(2, 0),
-		      0.0f, 0.0f, 0.0f, 1.0f);
-	slMat.rotate(180, 1, 0, 0);
-
-	_stateEstimator->updatePose(slMat);
-      }
-
-      // Clean VO matches
-      for (int i = 0; i<mCurrentFrame.N; i++)
-	{
-	  SLCVMapPoint* pMP = mCurrentFrame.mvpMapPoints[i];
-	  if (pMP)
-	    if (pMP->Observations()<1)
-	      {
-		mCurrentFrame.mvbOutlier[i] = false;
-		mCurrentFrame.mvpMapPoints[i] = static_cast<SLCVMapPoint*>(NULL);
-	      }
-	}
-
-      // We allow points with high innovation (considererd outliers by the Huber Function)
-      // pass to the new keyframe, so that bundle adjustment will finally decide
-      // if they are outliers or not. We don't want next frame to estimate its position
-      // with those points so we discard them in the frame.
-      for (int i = 0; i<mCurrentFrame.N; i++)
-	{
-	  if (mCurrentFrame.mvpMapPoints[i] && mCurrentFrame.mvbOutlier[i])
-	    mCurrentFrame.mvpMapPoints[i] = static_cast<SLCVMapPoint*>(NULL);
-	}
+        }
     }
 
 
-  if (!mCurrentFrame.mpReferenceKF)
-    mCurrentFrame.mpReferenceKF = mpReferenceKF;
+    // mbVO true means that there are few matches to MapPoints in the map. We cannot retrieve
+    // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
+    // the camera we will use the local map again.
 
-  mLastFrame = SLCVFrame(mCurrentFrame);
-
-  // Store frame pose information to retrieve the complete camera trajectory afterwards.
-  if (mCurrentFrame.mpReferenceKF && !mCurrentFrame.mTcw.empty())
+    if (bOK && !mbVO)
     {
-      cv::Mat Tcr = mCurrentFrame.mTcw*mCurrentFrame.mpReferenceKF->GetPoseInverse(); //Tcr = Tcw * Twr (current wrt reference = world wrt current * reference wrt world
-      //relative frame poses are used to refer a frame to reference frame
-      mlRelativeFramePoses.push_back(Tcr);
-      mlpReferences.push_back(mpReferenceKF);
-      mlFrameTimes.push_back(mCurrentFrame.mTimeStamp);
-      mlbLost.push_back(mState == LOST);
-    }
-  else if(mlRelativeFramePoses.size() && mlpReferences.size() && mlFrameTimes.size())
-    {
-      // This can happen if tracking is lost
-      mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
-      mlpReferences.push_back(mlpReferences.back());
-      mlFrameTimes.push_back(mlFrameTimes.back());
-      mlbLost.push_back(mState == LOST);
+        bOK = TrackLocalMap();
     }
 
-  printf("end trackOrbs()\n");
+    if (bOK)
+        mState = OK;
+    else
+        mState = LOST;
+
+    //add map points to scene and keypoints to video image
+    decorateSceneAndVideo(frameAndTime.frame);
+
+    // If tracking were good
+    if (bOK)
+    {
+        // Update motion model
+        if (!mLastFrame.mTcw.empty())
+        {
+            cv::Mat LastTwc = cv::Mat::eye(4, 4, CV_32F);
+            mLastFrame.GetRotationInverse().copyTo(LastTwc.rowRange(0, 3).colRange(0, 3)); //mRwc
+            const auto& cc = mLastFrame.GetCameraCenter(); //this is the translation w.r.t the world of the frame (warum dann Twc??)
+            cc.copyTo(LastTwc.rowRange(0, 3).col(3));
+            mVelocity = mCurrentFrame.mTcw*LastTwc;
+        }
+        else
+            mVelocity = cv::Mat();
+
+        //set current pose
+        {
+            cv::Mat Rwc(3, 3, CV_32F);
+            cv::Mat twc(3, 1, CV_32F);
+
+            //inversion
+            auto Tcw = mCurrentFrame.mTcw.clone();
+            Rwc = Tcw.rowRange(0, 3).colRange(0, 3).t();
+            twc = -Rwc*Tcw.rowRange(0, 3).col(3);
+
+            //conversion to SLMat4f
+            SLMat4f slMat((SLfloat)Rwc.at<float>(0, 0), (SLfloat)Rwc.at<float>(0, 1), (SLfloat)Rwc.at<float>(0, 2), (SLfloat)twc.at<float>(0, 0),
+                (SLfloat)Rwc.at<float>(1, 0), (SLfloat)Rwc.at<float>(1, 1), (SLfloat)Rwc.at<float>(1, 2), (SLfloat)twc.at<float>(1, 0),
+                (SLfloat)Rwc.at<float>(2, 0), (SLfloat)Rwc.at<float>(2, 1), (SLfloat)Rwc.at<float>(2, 2), (SLfloat)twc.at<float>(2, 0),
+                0.0f, 0.0f, 0.0f, 1.0f);
+            slMat.rotate(180, 1, 0, 0);
+
+            _stateEstimator->updatePose(slMat);
+        }
+
+        // Clean VO matches
+        for (int i = 0; i < mCurrentFrame.N; i++)
+        {
+            SLCVMapPoint* pMP = mCurrentFrame.mvpMapPoints[i];
+            if (pMP)
+                if (pMP->Observations() < 1)
+                {
+                    mCurrentFrame.mvbOutlier[i] = false;
+                    mCurrentFrame.mvpMapPoints[i] = static_cast<SLCVMapPoint*>(NULL);
+                }
+        }
+
+        // We allow points with high innovation (considererd outliers by the Huber Function)
+        // pass to the new keyframe, so that bundle adjustment will finally decide
+        // if they are outliers or not. We don't want next frame to estimate its position
+        // with those points so we discard them in the frame.
+        for (int i = 0; i < mCurrentFrame.N; i++)
+        {
+            if (mCurrentFrame.mvpMapPoints[i] && mCurrentFrame.mvbOutlier[i])
+                mCurrentFrame.mvpMapPoints[i] = static_cast<SLCVMapPoint*>(NULL);
+        }
+    }
+
+
+    if (!mCurrentFrame.mpReferenceKF)
+        mCurrentFrame.mpReferenceKF = mpReferenceKF;
+
+    mLastFrame = SLCVFrame(mCurrentFrame);
+
+    // Store frame pose information to retrieve the complete camera trajectory afterwards.
+    if (mCurrentFrame.mpReferenceKF && !mCurrentFrame.mTcw.empty())
+    {
+        cv::Mat Tcr = mCurrentFrame.mTcw*mCurrentFrame.mpReferenceKF->GetPoseInverse(); //Tcr = Tcw * Twr (current wrt reference = world wrt current * reference wrt world
+        //relative frame poses are used to refer a frame to reference frame
+        mlRelativeFramePoses.push_back(Tcr);
+        mlpReferences.push_back(mpReferenceKF);
+        mlFrameTimes.push_back(mCurrentFrame.mTimeStamp);
+        mlbLost.push_back(mState == LOST);
+    }
+    else if (mlRelativeFramePoses.size() && mlpReferences.size() && mlFrameTimes.size())
+    {
+        // This can happen if tracking is lost
+        mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
+        mlpReferences.push_back(mlpReferences.back());
+        mlFrameTimes.push_back(mlFrameTimes.back());
+        mlbLost.push_back(mState == LOST);
+    }
+
+    printf("end trackOrbs()\n");
 }
 
 bool SLCVOrbTracking::Relocalization()
@@ -341,7 +341,7 @@ bool SLCVOrbTracking::Relocalization()
 
     int nCandidates = 0;
 
-    for (int i = 0; i<nKFs; i++)
+    for (int i = 0; i < nKFs; i++)
     {
         SLCVKeyFrame* pKF = vpCandidateKFs[i];
         if (pKF->isBad())
@@ -349,7 +349,7 @@ bool SLCVOrbTracking::Relocalization()
         else
         {
             int nmatches = matcher.SearchByBoW(pKF, mCurrentFrame, vvpMapPointMatches[i]);
-            if (nmatches<15)
+            if (nmatches < 15)
             {
                 vbDiscarded[i] = true;
                 continue;
@@ -371,9 +371,9 @@ bool SLCVOrbTracking::Relocalization()
     bool bMatch = false;
     ORBmatcher matcher2(0.9, true);
 
-    while (nCandidates>0 && !bMatch)
+    while (nCandidates > 0 && !bMatch)
     {
-        for (int i = 0; i<nKFs; i++)
+        for (int i = 0; i < nKFs; i++)
         {
             if (vbDiscarded[i])
                 continue;
@@ -402,7 +402,7 @@ bool SLCVOrbTracking::Relocalization()
 
                 const int np = vbInliers.size();
 
-                for (int j = 0; j<np; j++)
+                for (int j = 0; j < np; j++)
                 {
                     if (vbInliers[j])
                     {
@@ -415,17 +415,17 @@ bool SLCVOrbTracking::Relocalization()
 
                 int nGood = Optimizer::PoseOptimization(&mCurrentFrame);
 
-                if (nGood<10)
+                if (nGood < 10)
                     continue;
 
-                for (int io = 0; io<mCurrentFrame.N; io++)
+                for (int io = 0; io < mCurrentFrame.N; io++)
                     if (mCurrentFrame.mvbOutlier[io])
                         mCurrentFrame.mvpMapPoints[io] = static_cast<SLCVMapPoint*>(NULL);
 
                 // If few inliers, search by projection in a coarse window and optimize again:
                 //ghm1: mappoints seen in the keyframe which was found as candidate via BoW-search are projected into
                 //the current frame using the position that was calculated using the matches from BoW matcher
-                if (nGood<50)
+                if (nGood < 50)
                 {
                     int nadditional = matcher2.SearchByProjection(mCurrentFrame, vpCandidateKFs[i], sFound, 10, 100);
 
@@ -435,10 +435,10 @@ bool SLCVOrbTracking::Relocalization()
 
                         // If many inliers but still not enough, search by projection again in a narrower window
                         // the camera has been already optimized with many points
-                        if (nGood>30 && nGood<50)
+                        if (nGood > 30 && nGood < 50)
                         {
                             sFound.clear();
-                            for (int ip = 0; ip<mCurrentFrame.N; ip++)
+                            for (int ip = 0; ip < mCurrentFrame.N; ip++)
                                 if (mCurrentFrame.mvpMapPoints[ip])
                                     sFound.insert(mCurrentFrame.mvpMapPoints[ip]);
                             nadditional = matcher2.SearchByProjection(mCurrentFrame, vpCandidateKFs[i], sFound, 3, 64);
@@ -448,7 +448,7 @@ bool SLCVOrbTracking::Relocalization()
                             {
                                 nGood = Optimizer::PoseOptimization(&mCurrentFrame);
 
-                                for (int io = 0; io<mCurrentFrame.N; io++)
+                                for (int io = 0; io < mCurrentFrame.N; io++)
                                     if (mCurrentFrame.mvbOutlier[io])
                                         mCurrentFrame.mvpMapPoints[io] = NULL;
                             }
@@ -511,14 +511,14 @@ bool SLCVOrbTracking::TrackWithMotionModel()
 
     // If few matches, uses a wider window search
     SLAverageTiming::start("SearchByProjection14");
-    if (nmatches<20)
+    if (nmatches < 20)
     {
         fill(mCurrentFrame.mvpMapPoints.begin(), mCurrentFrame.mvpMapPoints.end(), static_cast<SLCVMapPoint*>(NULL));
         nmatches = matcher.SearchByProjection(mCurrentFrame, mLastFrame, 2 * th, true);
     }
     SLAverageTiming::stop("SearchByProjection14");
 
-    if (nmatches<20)
+    if (nmatches < 20)
         return false;
 
     SLAverageTiming::start("PoseOptimizationTWMM");
@@ -529,7 +529,7 @@ bool SLCVOrbTracking::TrackWithMotionModel()
     SLAverageTiming::start("DiscardOutliers");
     // Discard outliers
     int nmatchesMap = 0;
-    for (int i = 0; i<mCurrentFrame.N; i++)
+    for (int i = 0; i < mCurrentFrame.N; i++)
     {
         if (mCurrentFrame.mvpMapPoints[i])
         {
@@ -543,7 +543,7 @@ bool SLCVOrbTracking::TrackWithMotionModel()
                 pMP->mnLastFrameSeen = mCurrentFrame.mnId;
                 nmatches--;
             }
-            else if (mCurrentFrame.mvpMapPoints[i]->Observations()>0)
+            else if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
                 nmatchesMap++;
         }
     }
@@ -551,8 +551,8 @@ bool SLCVOrbTracking::TrackWithMotionModel()
 
     //if (mbOnlyTracking)
     //{
-    mbVO = nmatchesMap<10;
-    return nmatches>20;
+    mbVO = nmatchesMap < 10;
+    return nmatches > 20;
     //}
 
 
@@ -588,24 +588,24 @@ bool SLCVOrbTracking::TrackLocalMap()
     Optimizer::PoseOptimization(&mCurrentFrame);
     SLAverageTiming::stop("PoseOptimizationTLM");
     {
-      std::lock_guard<std::mutex> guard(_nMapMatchesLock);
-      mnMatchesInliers = 0;
+        std::lock_guard<std::mutex> guard(_nMapMatchesLock);
+        mnMatchesInliers = 0;
     }
 
     //SLAverageTiming::start("UpdateMapPointsStat");
     // Update MapPoints Statistics
-    for (int i = 0; i<mCurrentFrame.N; i++)
+    for (int i = 0; i < mCurrentFrame.N; i++)
     {
         if (mCurrentFrame.mvpMapPoints[i])
         {
             if (!mCurrentFrame.mvbOutlier[i])
             {
                 mCurrentFrame.mvpMapPoints[i]->IncreaseFound();
-                if (mCurrentFrame.mvpMapPoints[i]->Observations()>0)
-		{
-		  std::lock_guard<std::mutex> guard(_nMapMatchesLock);
-		  mnMatchesInliers++;
-		}
+                if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
+                {
+                    std::lock_guard<std::mutex> guard(_nMapMatchesLock);
+                    mnMatchesInliers++;
+                }
             }
             //else if (mSensor == System::STEREO)
             //    mCurrentFrame.mvpMapPoints[i] = static_cast<SLCVMapPoint*>(NULL);
@@ -617,13 +617,13 @@ bool SLCVOrbTracking::TrackLocalMap()
     // More restrictive if there was a relocalization recently
     int mnMatchesInliersLocal;
     {
-      std::lock_guard<std::mutex> guard(_nMapMatchesLock);
-      mnMatchesInliersLocal = mnMatchesInliers;
+        std::lock_guard<std::mutex> guard(_nMapMatchesLock);
+        mnMatchesInliersLocal = mnMatchesInliers;
     }
-    if (mCurrentFrame.mnId<mnLastRelocFrameId + mMaxFrames && mnMatchesInliersLocal<50)
+    if (mCurrentFrame.mnId < mnLastRelocFrameId + mMaxFrames && mnMatchesInliersLocal < 50)
         return false;
 
-    if (mnMatchesInliersLocal<30)
+    if (mnMatchesInliersLocal < 30)
         return false;
     else
         return true;
@@ -676,12 +676,12 @@ void SLCVOrbTracking::SearchLocalPoints()
         }
     }
 
-    if (nToMatch>0)
+    if (nToMatch > 0)
     {
         ORBmatcher matcher(0.8);
         int th = 1;
         // If the camera has been relocalised recently, perform a coarser search
-        if (mCurrentFrame.mnId<mnLastRelocFrameId + 2)
+        if (mCurrentFrame.mnId < mnLastRelocFrameId + 2)
             th = 5;
         matcher.SearchByProjection(mCurrentFrame, mvpLocalMapPoints, th);
     }
@@ -708,7 +708,7 @@ bool SLCVOrbTracking::TrackReferenceKeyFrame()
 
     int nmatches = matcher.SearchByBoW(mpReferenceKF, mCurrentFrame, vpMapPointMatches);
 
-    if (nmatches<15)
+    if (nmatches < 15)
         return false;
 
     mCurrentFrame.mvpMapPoints = vpMapPointMatches;
@@ -718,7 +718,7 @@ bool SLCVOrbTracking::TrackReferenceKeyFrame()
 
     // Discard outliers
     int nmatchesMap = 0;
-    for (int i = 0; i<mCurrentFrame.N; i++)
+    for (int i = 0; i < mCurrentFrame.N; i++)
     {
         if (mCurrentFrame.mvpMapPoints[i])
         {
@@ -732,7 +732,7 @@ bool SLCVOrbTracking::TrackReferenceKeyFrame()
                 pMP->mnLastFrameSeen = mCurrentFrame.mnId;
                 nmatches--;
             }
-            else if (mCurrentFrame.mvpMapPoints[i]->Observations()>0)
+            else if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
                 nmatchesMap++;
         }
     }
@@ -794,7 +794,7 @@ void SLCVOrbTracking::UpdateLocalKeyFrames()
 {
     // Each map point vote for the keyframes in which it has been observed
     map<SLCVKeyFrame*, int> keyframeCounter;
-    for (int i = 0; i<mCurrentFrame.N; i++)
+    for (int i = 0; i < mCurrentFrame.N; i++)
     {
         if (mCurrentFrame.mvpMapPoints[i])
         {
@@ -829,7 +829,7 @@ void SLCVOrbTracking::UpdateLocalKeyFrames()
         if (pKF->isBad())
             continue;
 
-        if (it->second>max)
+        if (it->second > max)
         {
             max = it->second;
             pKFmax = pKF;
@@ -844,7 +844,7 @@ void SLCVOrbTracking::UpdateLocalKeyFrames()
     for (vector<SLCVKeyFrame*>::const_iterator itKF = mvpLocalKeyFrames.begin(), itEndKF = mvpLocalKeyFrames.end(); itKF != itEndKF; itKF++)
     {
         // Limit the number of keyframes
-        if (mvpLocalKeyFrames.size()>80)
+        if (mvpLocalKeyFrames.size() > 80)
             break;
 
         SLCVKeyFrame* pKF = *itKF;
@@ -898,4 +898,48 @@ void SLCVOrbTracking::UpdateLocalKeyFrames()
         mpReferenceKF = pKFmax;
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
     }
+}
+
+void SLCVOrbTracking::Reset()
+{
+    cout << "System Reseting" << endl;
+
+    // Clear BoW Database
+    cout << "Reseting Database...";
+    //mpKeyFrameDB->clear();
+    mpKeyFrameDatabase->clear();
+    cout << " done" << endl;
+
+    // Clear Map (this erase MapPoints and KeyFrames)
+    //mpMap->clear();
+    _map->clear();
+
+    SLCVKeyFrame::nNextId = 0;
+    SLCVFrame::nNextId = 0;
+    mState = NO_IMAGES_YET;
+
+    //if (mpInitializer)
+    //{
+    //    delete mpInitializer;
+    //    mpInitializer = static_cast<Initializer*>(NULL);
+    //}
+
+    mlRelativeFramePoses.clear();
+    mlpReferences.clear();
+    mlFrameTimes.clear();
+    mlbLost.clear();
+
+    //mpLastKeyFrame = NULL;
+    mpReferenceKF = NULL;
+    mvpLocalMapPoints.clear();
+    mvpLocalKeyFrames.clear();
+    mnMatchesInliers = 0;
+    //_addKeyframe = false;
+
+    mState = eTrackingState::NOT_INITIALIZED;
+
+    setMapInitialized(false);
+    //_currentState = INITIALIZE;
+    //if (mpViewer)
+    //    mpViewer->Release();
 }

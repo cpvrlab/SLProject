@@ -63,6 +63,8 @@ public:
 
   void trackOrbs();
   
+  void Reset() override;
+
 protected:
   //Motion Model
   cv::Mat mVelocity;

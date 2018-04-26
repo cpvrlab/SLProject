@@ -13,13 +13,14 @@
 #include <imgui_internal.h>
 
 #include <SLImGuiInfosMapTransform.h>
-#include <SLCVMap.h>
+#include <SLCVMapTracking.h>
 #include <SLCVMapStorage.h>
 
 //-----------------------------------------------------------------------------
-SLImGuiInfosMapTransform::SLImGuiInfosMapTransform(std::string name, SLCVMap* map)
+SLImGuiInfosMapTransform::SLImGuiInfosMapTransform(std::string name, SLCVMapTracking* tracking)
     : SLImGuiInfosDialog(name),
-    _map(map)
+    _tracking(tracking),
+    _map(_tracking->getMap())
 {
 }
 //-----------------------------------------------------------------------------
@@ -32,7 +33,9 @@ void SLImGuiInfosMapTransform::buildInfos()
     static SLfloat sp = 3; //spacing
     SLfloat bW = (ImGui::GetContentRegionAvailWidth() - 2 * sp) / 3;
     if (ImGui::Button("RotX", ImVec2(bW, 0.0f))) {
+        //todo: set tracking in idle
         _map->applyTransformation(_transformationRotValue, SLCVMap::ROT_X);
+        //todo: resume tracking
     } ImGui::SameLine(0.0, sp);
     if (ImGui::Button("RotY", ImVec2(bW, 0.0f))) {
         _map->applyTransformation(_transformationRotValue, SLCVMap::ROT_Y);
@@ -66,6 +69,6 @@ void SLImGuiInfosMapTransform::buildInfos()
     ImGui::Separator();
 
     if (ImGui::Button("Save State", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        SLCVMapStorage::saveMap(SLCVMapStorage::getCurrentId(), *_map, true);
+        SLCVMapStorage::saveMap(SLCVMapStorage::getCurrentId(), _tracking, true);
     }
 }

@@ -311,7 +311,7 @@
     <ClInclude Include="..\include\SLCVOrbVocabulary.h" />
     <ClInclude Include="..\include\SLCVRaulMurExtractorNode.h" />
     <ClInclude Include="..\include\SLCVRaulMurOrb.h" />
-    <ClInclude Include="..\include\SLCVSlamStateLoader.h" />
+    <ClInclude Include="..\include\SLCVMapIO.h" />
     <ClInclude Include="..\include\SLCVStateEstimator.h" />
     <ClInclude Include="..\include\SLCVTrackedAruco.h" />
     <ClInclude Include="..\include\SLCVCalibration.h" />
@@ -436,7 +436,7 @@
     <ClCompile Include="source\CV\SLCVOrbVocabulary.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurExtractorNode.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurOrb.cpp" />
-    <ClCompile Include="source\CV\SLCVSlamStateLoader.cpp" />
+    <ClCompile Include="source\CV\SLCVMapIO.cpp" />
     <ClCompile Include="source\CV\SLCVStateEstimator.cpp" />
     <ClCompile Include="source\CV\SLCVTracked.cpp" />
     <ClCompile Include="source\CV\SLCVTrackedAruco.cpp" />

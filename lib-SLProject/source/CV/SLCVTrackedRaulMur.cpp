@@ -719,7 +719,7 @@ void SLCVTrackedRaulMur::SearchLocalPoints()
 bool SLCVTrackedRaulMur::TrackReferenceKeyFrame()
 {
     //This routine is called if current tracking state is OK but we have NO valid motion model
-    //1. Berechnung des BoW-Vectors f�r den current frame
+    //1. Berechnung des BoW-Vectors fuer den current frame
     //2. using BoW we search mappoint matches (from reference keyframe) with orb in current frame (ORB that belong to the same vocabulary node (at a certain level))
     //3. if there are less than 15 matches return.
     //4. we use the pose found for the last frame as initial pose for the current frame
@@ -929,4 +929,33 @@ void SLCVTrackedRaulMur::UpdateLocalKeyFrames()
     }
 }
 //-----------------------------------------------------------------------------
+void SLCVTrackedRaulMur::Reset()
+{
+    cout << "System Reseting" << endl;
 
+    // Clear BoW Database
+    mpKeyFrameDatabase->clear();
+
+    // Clear Map (this erase MapPoints and KeyFrames)
+    _map->clear();
+
+    SLCVKeyFrame::nNextId = 0;
+    SLCVFrame::nNextId = 0;
+    mState = NO_IMAGES_YET;
+
+    mlRelativeFramePoses.clear();
+    mlpReferences.clear();
+    mlFrameTimes.clear();
+    mlbLost.clear();
+
+    //mpLastKeyFrame = NULL;
+    mpReferenceKF = NULL;
+    mvpLocalMapPoints.clear();
+    mvpLocalKeyFrames.clear();
+    mnMatchesInliers = 0;
+    //_addKeyframe = false;
+
+    mState = eTrackingState::NOT_INITIALIZED;
+
+    setMapInitialized(false);
+}

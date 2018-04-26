@@ -20,17 +20,14 @@
 #include <SLCVMapTracking.h>
 
 //-----------------------------------------------------------------------------
-//const char* SLImGuiMapStorage::_currItem = NULL;
-//int SLImGuiMapStorage::_currN = -1;
-//-----------------------------------------------------------------------------
-SLImGuiMapStorage::SLImGuiMapStorage(const string& name, SLCVMap* map, 
-    SLCVMapNode* mapNode, SLCVKeyFrameDB* kfDB, SLCVMapTracking* tracking )
+SLImGuiMapStorage::SLImGuiMapStorage(const string& name, SLCVMapTracking* tracking)
     : SLImGuiInfosDialog(name),
-    _map(map),
-    _mapNode(mapNode),
-    _kfDB(kfDB),
     _tracking(tracking)
 {
+    assert(tracking);
+    _map = tracking->getMap();
+    _kfDB = tracking->getKfDB();
+    _mapNode = tracking->getMapNode();
 }
 //-----------------------------------------------------------------------------
 void SLImGuiMapStorage::buildInfos()
@@ -39,7 +36,7 @@ void SLImGuiMapStorage::buildInfos()
         return;
 
     if (ImGui::Button("Save map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        SLCVMapStorage::saveMap(SLCVMapStorage::getCurrentId(), *_map, true);
+        SLCVMapStorage::saveMap(SLCVMapStorage::getCurrentId(), _tracking, true);
         //update key frames, because there may be new textures in file system
         _mapNode->updateKeyFrames(_map->GetAllKeyFrames());
     }
@@ -79,7 +76,7 @@ void SLImGuiMapStorage::buildInfos()
             //load selected map
             string selectedMapName = SLCVMapStorage::existingMapNames[SLCVMapStorage::currN];
             SLCVMapStorage storage(SLCVOrbVocabulary::get());
-            storage.loadMap(selectedMapName, *_map, *_kfDB);
+            storage.loadMap(selectedMapName, _tracking);
 
             //set state to initialized and lost
             _tracking->mState = SLCVMapTracking::eTrackingState::LOST;

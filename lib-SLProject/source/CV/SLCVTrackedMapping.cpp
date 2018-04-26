@@ -33,7 +33,7 @@ for a good top down information.
 #include <opencv2/imgproc.hpp>
 #include <opencv2/calib3d.hpp>
 #include <opencv2/video/tracking.hpp>
-#include <SLCVSlamStateLoader.h>
+#include <SLCVMapIO.h>
 #include <SLCVMapStorage.h>
 #include <SLCVOrbVocabulary.h>
 
@@ -68,12 +68,10 @@ SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
 
     if (_map->KeyFramesInMap())
     {
-        //_currentState = TRACK_3DPTS;
         mState = LOST;
     }
     else
     {
-        //_currentState = INITIALIZE;
         mState = NOT_INITIALIZED;
     }
 
@@ -115,9 +113,8 @@ SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
 
     // Current Frame
     double timestamp = 0.0; //todo
-    //if (_currentState != IDLE) {
 
-        //we use different extractors for initialization and tracking
+    //we use different extractors for initialization and tracking
     if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET) {
         mCurrentFrame = SLCVFrame(imageGray, timestamp, mpIniORBextractor,
             calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
@@ -128,30 +125,11 @@ SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
     }
 
     decorateVideoWithKeyPoints(_img);
-    //}
 
     if (mState == NOT_INITIALIZED)
         initialize();
     else
         track3DPts();
-
-    //switch (_currentState)
-    //{
-    //case IDLE:
-    //    break;
-    //case INITIALIZE:
-    //    initialize();
-    //    break;
-    //case TRACK_VO:
-    //    trackVO();
-    //    break;
-    //case TRACK_3DPTS:
-    //    track3DPts();
-    //    break;
-    //case TRACK_OPTICAL_FLOW:
-    //    trackOpticalFlow();
-    //    break;
-    //}
 
     return false;
 }
@@ -250,6 +228,8 @@ void SLCVTrackedMapping::initialize()
             mCurrentFrame.SetPose(Tcw);
 
             CreateInitialMapMonocular();
+            //mark tracking as initialized
+            setMapInitialized(true);
 
             //ghm1: in the original implementation the initialization is defined in the track() function and this part is always called at the end!
             // Store frame pose information to retrieve the complete camera trajectory afterwards.
@@ -748,6 +728,8 @@ void SLCVTrackedMapping::Reset()
     _addKeyframe = false;
 
     mState = eTrackingState::NOT_INITIALIZED;
+
+    setMapInitialized(false);
     //_currentState = INITIALIZE;
     //if (mpViewer)
     //    mpViewer->Release();
@@ -1328,13 +1310,13 @@ void SLCVTrackedMapping::UpdateLastFrame()
     //So it seems, that the frames pose does not always refer to world frame...?
     mLastFrame.SetPose(Tlr*pRef->GetPose());
 }
-//-----------------------------------------------------------------------------
-void SLCVTrackedMapping::saveMap()
-{
-    SLCVMapStorage::saveMap(SLCVMapStorage ::getCurrentId(),*_map, true);
-    //update key frames, because there may be new textures in file system
-    _mapNode->updateKeyFrames(_map->GetAllKeyFrames());
-}
+////-----------------------------------------------------------------------------
+//void SLCVTrackedMapping::saveMap()
+//{
+//    SLCVMapStorage::saveMap(SLCVMapStorage ::getCurrentId(),*_map, true);
+//    //update key frames, because there may be new textures in file system
+//    _mapNode->updateKeyFrames(_map->GetAllKeyFrames());
+//}
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::globalBundleAdjustment()
 {
