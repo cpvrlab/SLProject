@@ -35,7 +35,7 @@ using namespace ORB_SLAM2;
 //-----------------------------------------------------------------------------
 SLCVTrackedRaulMurAsync::SLCVTrackedRaulMurAsync(SLNode *node, ORBVocabulary* vocabulary,
     SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode)
-  : SLCVTracked(node), _orbTracking(&_stateEstimator, keyFrameDB, map, mapNode, vocabulary, true)
+  : SLCVTracked(node), _orbTracking(&_stateEstimator, keyFrameDB, map, mapNode, vocabulary)
 {
 }
 

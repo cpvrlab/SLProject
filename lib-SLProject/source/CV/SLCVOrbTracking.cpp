@@ -53,13 +53,10 @@ SLCVOrbTracking::SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
 
 SLCVOrbTracking::~SLCVOrbTracking()
 {
-  printf("SLCVOrbTracking destructor\n");
   running(false);
  
-  printf("waiting for tracking thread to join\n"); 
   if (!_serial)
     _trackingThread.join();
-  printf("tracking thread joined\n");
   
   if (_extractor)
     delete _extractor;
@@ -93,8 +90,6 @@ bool SLCVOrbTracking::serial()
 
 void SLCVOrbTracking::trackOrbsContinuously()
 {
-  printf("Tracking orbs continuously...\n");
-
   std::unique_lock<std::mutex> lk(_calibLock);
   _calibReady.wait(lk, [this]{return _calib;});
   
@@ -105,7 +100,6 @@ void SLCVOrbTracking::trackOrbsContinuously()
 
 void SLCVOrbTracking::trackOrbs()
 {
-  printf("Start trackOrbs()\n");
   //Frame constructor call in ORB-SLAM:
   // Current Frame
   double timestamp = 0.0; //todo
@@ -238,7 +232,7 @@ void SLCVOrbTracking::trackOrbs()
 		      0.0f, 0.0f, 0.0f, 1.0f);
 	slMat.rotate(180, 1, 0, 0);
 
-	_stateEstimator->updatePose(slMat);
+	_stateEstimator->updatePose(slMat, frameAndTime.time);
       }
 
       // Clean VO matches
@@ -288,8 +282,6 @@ void SLCVOrbTracking::trackOrbs()
       mlFrameTimes.push_back(mlFrameTimes.back());
       mlbLost.push_back(mState == LOST);
     }
-
-  printf("end trackOrbs()\n");
 }
 
 bool SLCVOrbTracking::Relocalization()

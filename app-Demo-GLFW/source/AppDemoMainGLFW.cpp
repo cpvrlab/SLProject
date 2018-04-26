@@ -459,7 +459,7 @@ int main(int argc, char *argv[])
     glfwSetWindowPos(window, 10, 30);
    
     // Set number of monitor refreshes between 2 buffer swaps
-    glfwSwapInterval(1);
+    glfwSwapInterval(2);
 
     // Get GL errors that occurred before our framework is involved
     GET_GL_ERROR;
