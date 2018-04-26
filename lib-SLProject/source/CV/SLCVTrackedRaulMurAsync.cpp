@@ -34,8 +34,9 @@ using namespace ORB_SLAM2;
 
 //-----------------------------------------------------------------------------
 SLCVTrackedRaulMurAsync::SLCVTrackedRaulMurAsync(SLNode *node, ORBVocabulary* vocabulary,
-    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode)
-  : SLCVTracked(node), _orbTracking(&_stateEstimator, keyFrameDB, map, mapNode, vocabulary)
+                                                 SLCVKeyFrameDB* keyFrameDB, SLCVMap* map,
+                                                 SLCVMapNode* mapNode)
+    : SLCVTracked(node), _orbTracking(&_stateEstimator, keyFrameDB, map, mapNode, vocabulary)
 {
 }
 
@@ -45,21 +46,21 @@ SLbool SLCVTrackedRaulMurAsync::track(SLCVMat imageGray,
                                       SLbool drawDetection,
                                       SLSceneView* sv)
 {
-  if (_frameCount == 0) {
-    _orbTracking.calib(calib);
-  }
-  _frameCount++;
+    if (_frameCount == 0) {
+        _orbTracking.calib(calib);
+    }
+    _frameCount++;
 
-  if (_orbTracking.serial())
-    _orbTracking.trackOrbs();
+    if (_orbTracking.serial())
+        _orbTracking.trackOrbs();
       
-  SLMat4f slMat = _stateEstimator.getPose();
-  _node->om(slMat);
+    SLMat4f slMat = _stateEstimator.getPose();
+    _node->om(slMat);
     
-  return false;
+    return false;
 }
 
 SLCVOrbTracking* SLCVTrackedRaulMurAsync::orbTracking()
 {
-  return &_orbTracking;
+    return &_orbTracking;
 }

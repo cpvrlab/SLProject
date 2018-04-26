@@ -13,80 +13,80 @@
 
 SLMat4f SLCVStateEstimator::getPose()
 {
-  SLMat4f result;
+    SLMat4f result;
   
-  StateAndTime state, previousState;
-  bool stateUpdated;
+    StateAndTime state, previousState;
+    bool stateUpdated;
   
-  {
-    std::lock_guard<std::mutex> guard(_poseLock);
-    state = _state;
-    previousState = _previousState;
-    stateUpdated = _stateUpdated;
-  }
-
-  if (stateUpdated)
-  {
-    _deltaIndex = (_deltaIndex + 1) % STATE_ESTIMATOR_MAX_STATE_COUNT;
-    DeltaToPrevious* delta = &_deltas[_deltaIndex];
-    SLVec3f r;
-    if (_deltaCount >= STATE_ESTIMATOR_MAX_STATE_COUNT)
     {
-      _summedTranslationDelta -= delta->translation;
-      _summedRotationDelta -= delta->rotation;
-      _summedTimeDelta -= delta->time;
-    }
-    else
-    {
-      _deltaCount++;
+        std::lock_guard<std::mutex> guard(_poseLock);
+        state = _state;
+        previousState = _previousState;
+        stateUpdated = _stateUpdated;
     }
 
-    SLVec3f r1, r2;
-    previousState.state.toEulerAnglesZYX(r1.z, r1.y, r1.x);
-    state.state.toEulerAnglesZYX(r2.z, r2.y, r2.x);
-  
-    delta->translation = state.state.translation() - previousState.state.translation();
-    delta->rotation = r2 - r1;
-    delta->time = duration_cast<microseconds>(state.time-previousState.time).count();
-  
-    _summedTranslationDelta += delta->translation;
-    _summedRotationDelta += delta->rotation;
-    _summedTimeDelta += delta->time;
-    _lastStateTime = state.time;
-
+    if (stateUpdated)
     {
-      std::lock_guard<std::mutex> guard(_poseLock);
-      _stateUpdated = false;
-    }
-  }
+        SLint64 dT = duration_cast<microseconds>(state.time-previousState.time).count();
+        if (dT > 0)
+        {
+            _deltaIndex = (_deltaIndex + 1) % STATE_ESTIMATOR_MAX_STATE_COUNT;
+            DeltaToPrevious* delta = &_deltas[_deltaIndex];
+            SLVec3f r;
+            if (_deltaCount >= STATE_ESTIMATOR_MAX_STATE_COUNT)
+            {
+                _summedTranslationDelta -= delta->translation;
+                _summedRotationDelta -= delta->rotation;
+            }
+            else
+            {
+                _deltaCount++;
+            }
 
-  if (_deltaCount > 0)
-  {
-    SLVec3f dP = _summedTranslationDelta;
-    SLVec3f dR = _summedRotationDelta;
-    SLint64 dT = _summedTimeDelta;
-    SLMat4f lastState = state.state;
+            SLVec3f r1, r2;
+            previousState.state.toEulerAnglesZYX(r1.z, r1.y, r1.x);
+            state.state.toEulerAnglesZYX(r2.z, r2.y, r2.x);
   
-    if (dT <= 0) dT = 1;
-    SLint64 dTc = duration_cast<microseconds>(SLClock::now()-_lastStateTime).count();
+            delta->translation = (state.state.translation() - previousState.state.translation()) / dT;
+            delta->rotation = (r2 - r1) / dT;
   
-    SLVec3f p = lastState.translation() + (dP / dT)*dTc;
-    SLVec3f rLast;
-    lastState.toEulerAnglesZYX(rLast.z, rLast.y, rLast.x);
-    SLVec3f r = rLast + (dR / dT)*dTc;
+            _summedTranslationDelta += delta->translation;
+            _summedRotationDelta += delta->rotation;
+            _lastStateTime = state.time;
+
+            {
+                std::lock_guard<std::mutex> guard(_poseLock);
+                _stateUpdated = false;
+            }
+        }
+    }
+
+    if (_deltaCount > 0)
+    {
+        SLVec3f dP = _summedTranslationDelta;
+        SLVec3f dR = _summedRotationDelta;
+        SLMat4f lastState = state.state;
   
-    result.translation(p, false);
-    result.fromEulerAnglesXYZ(r.x, r.y, r.z); 
-  }
+        SLint64 dTc = duration_cast<microseconds>(SLClock::now()-_lastStateTime).count();
   
-  return result;
+        SLVec3f rLast;
+        lastState.toEulerAnglesZYX(rLast.z, rLast.y, rLast.x);
+
+        SLVec3f p = lastState.translation() + dP*dTc;
+        SLVec3f r = rLast + dR*dTc;
+  
+        result.translation(p, false);
+        result.fromEulerAnglesXYZ(r.x, r.y, r.z); 
+    }
+  
+    return result;
 }
 
 void SLCVStateEstimator::updatePose(const SLMat4f& slMat, const SLTimePoint& time)
 {
-  std::lock_guard<std::mutex> guard(_poseLock);
-  _previousState = _state;
-  _state.state = slMat;
-  _state.time = time;
-  _stateUpdated = true;
+    std::lock_guard<std::mutex> guard(_poseLock);
+    _previousState = _state;
+    _state.state = slMat;
+    _state.time = time;
+    _stateUpdated = true;
 }

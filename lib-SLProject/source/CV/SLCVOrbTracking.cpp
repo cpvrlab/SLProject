@@ -42,14 +42,14 @@ SLCVOrbTracking::SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
     _serial(serial),
     mpVocabulary(vocabulary)
 {
-  //instantiate Orb extractor
-  _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
+    //instantiate Orb extractor
+    _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
 
-  //system is initialized, because we loaded an existing map, but we have to relocalize
-  mState = LOST;
+    //system is initialized, because we loaded an existing map, but we have to relocalize
+    mState = LOST;
 
-  if (!_serial)
-    _trackingThread = std::thread(&SLCVOrbTracking::trackOrbs, this);
+    if (!_serial)
+        _trackingThread = std::thread(&SLCVOrbTracking::trackOrbs, this);
 }
 
 SLCVOrbTracking::~SLCVOrbTracking()
