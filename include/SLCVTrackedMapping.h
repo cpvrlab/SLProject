@@ -87,6 +87,8 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         void mapNextFrame() { _mapNextFrame = true; }
 
         void saveMap();
+        void globalBundleAdjustment();
+
     private:
         // Map initialization for monocular
         void CreateInitialMapMonocular();

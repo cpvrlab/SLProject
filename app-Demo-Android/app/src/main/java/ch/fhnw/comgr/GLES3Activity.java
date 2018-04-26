@@ -27,6 +27,7 @@ import android.location.LocationManager;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -235,27 +236,59 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         }
     }
 
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Get available external directories and inform slproject about them
      */
     public void setupExternalDirectories() {
 
-        File[] Dirs = ActivityCompat.getExternalFilesDirs(GLES3Activity.this, null);
+        String state = Environment.getExternalStorageState();
+        boolean externalPublicDirCreated = false;
+        String slProjectDataPath = "";
+        String slProjectDirName = "SLProject";
 
-        Log.i(TAG, "available external file dirs:");
-        for(File f : Dirs) {
-            Log.i(TAG, "next path:");
-            Log.i(TAG, f.getAbsolutePath());
-            Log.i(TAG, f.getName());
-            Log.i(TAG, f.getPath());
+        //check if public external directory is available
+        if (isExternalStorageWritable()) {
+            File path = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOCUMENTS), slProjectDirName);
+            if(!path.exists()) {
+                if (!path.mkdirs()) {
+                    Log.e(TAG, "External public directory not created!");
+                }
+            }
+
+            if(path.exists()) {
+                 externalPublicDirCreated = true;
+                 slProjectDataPath = path.getAbsolutePath();
+            }
         }
 
-        if(Dirs.length != 0) {
-            String absPath = Dirs[0].getAbsolutePath();
-            myView.queueEvent(new Runnable() {public void run() {
+        if(!externalPublicDirCreated) {
+            //if public external directory is not available, we use the private external directory
+            File[] Dirs = ActivityCompat.getExternalFilesDirs(GLES3Activity.this, null);
+            if(Dirs.length != 0) {
+                File path = new File(Dirs[0], slProjectDirName);
+                if (!path.mkdirs()) {
+                    Log.e(TAG, "External private directory not created!");
+                }
+                else {
+                    slProjectDataPath = Dirs[0].getAbsolutePath();
+                }
+            }
+        }
+
+        String absPath = slProjectDataPath;
+        myView.queueEvent( new Runnable() { public void run() {
                 GLES3Lib.onSetupExternalDirectories(absPath);
-            }});
-        }
+        }});
     }
 
     /**

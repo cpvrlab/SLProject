@@ -307,10 +307,12 @@
     <ClInclude Include="..\include\SLCVMapPoint.h" />
     <ClInclude Include="..\include\SLCVMapStorage.h" />
     <ClInclude Include="..\include\SLCVMapTracking.h" />
+    <ClInclude Include="..\include\SLCVOrbTracking.h" />
     <ClInclude Include="..\include\SLCVOrbVocabulary.h" />
     <ClInclude Include="..\include\SLCVRaulMurExtractorNode.h" />
     <ClInclude Include="..\include\SLCVRaulMurOrb.h" />
     <ClInclude Include="..\include\SLCVSlamStateLoader.h" />
+    <ClInclude Include="..\include\SLCVStateEstimator.h" />
     <ClInclude Include="..\include\SLCVTrackedAruco.h" />
     <ClInclude Include="..\include\SLCVCalibration.h" />
     <ClInclude Include="..\include\SLCVCapture.h" />
@@ -319,6 +321,7 @@
     <ClInclude Include="..\include\SLCVTrackedFeatures.h" />
     <ClInclude Include="..\include\SLCVTrackedMapping.h" />
     <ClInclude Include="..\include\SLCVTrackedRaulMur.h" />
+    <ClInclude Include="..\include\SLCVTrackedRaulMurAsync.h" />
     <ClInclude Include="..\include\SLDeviceLocation.h" />
     <ClInclude Include="..\include\SLDeviceRotation.h" />
     <ClInclude Include="..\include\SLDisk.h" />
@@ -429,10 +432,12 @@
     <ClCompile Include="source\CV\SLCVMapPoint.cpp" />
     <ClCompile Include="source\CV\SLCVMapStorage.cpp" />
     <ClCompile Include="source\CV\SLCVMapTracking.cpp" />
+    <ClCompile Include="source\CV\SLCVOrbTracking.cpp" />
     <ClCompile Include="source\CV\SLCVOrbVocabulary.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurExtractorNode.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurOrb.cpp" />
     <ClCompile Include="source\CV\SLCVSlamStateLoader.cpp" />
+    <ClCompile Include="source\CV\SLCVStateEstimator.cpp" />
     <ClCompile Include="source\CV\SLCVTracked.cpp" />
     <ClCompile Include="source\CV\SLCVTrackedAruco.cpp" />
     <ClCompile Include="source\CV\SLCVCalibration.cpp" />
@@ -441,6 +446,7 @@
     <ClCompile Include="source\CV\SLCVTrackedFeatures.cpp" />
     <ClCompile Include="source\CV\SLCVTrackedMapping.cpp" />
     <ClCompile Include="source\CV\SLCVTrackedRaulMur.cpp" />
+    <ClCompile Include="source\CV\SLCVTrackedRaulMurAsync.cpp" />
     <ClCompile Include="source\GL\SLGLImGui.cpp" />
     <ClCompile Include="source\GL\SLGLOculus.cpp" />
     <ClCompile Include="source\GL\SLGLOculusFB.cpp" />

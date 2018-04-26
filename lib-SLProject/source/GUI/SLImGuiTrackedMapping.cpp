@@ -32,6 +32,9 @@ void SLImGuiTrackedMapping::buildInfos()
         _mappingTracker->Reset();
         //_mappingTracker->setState(SLCVTrackedMapping::INITIALIZE);
     }
+    if (ImGui::Button("Bundle adjustment", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+        _mappingTracker->globalBundleAdjustment();
+    }
 
     //add tracking state
     ImGui::Text("Tracking State : %s ", _mappingTracker->getPrintableState().c_str());

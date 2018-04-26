@@ -146,7 +146,7 @@ void SLCVCapture::grabAndAdjustForSL()
             }
 
             adjustForSL();
-            lastFrameAsync(lastFrame, lastFrameGray, std::chrono::system_clock::now());
+            lastFrameAsync(lastFrame, lastFrameGray, SLClock::now());
         }
         else
         {   static bool logOnce = true;

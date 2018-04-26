@@ -1336,3 +1336,8 @@ void SLCVTrackedMapping::saveMap()
     _mapNode->updateKeyFrames(_map->GetAllKeyFrames());
 }
 //-----------------------------------------------------------------------------
+void SLCVTrackedMapping::globalBundleAdjustment()
+{
+    Optimizer::GlobalBundleAdjustemnt(_map, 20);
+    _mapNode->updateAll(*_map);
+}

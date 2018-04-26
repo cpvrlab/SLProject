@@ -36,6 +36,8 @@ GLFWwindow* window;                 //!< The global glfw window handle
 SLint       svIndex;                //!< SceneView index
 SLint       scrWidth;               //!< Window width at start up
 SLint       scrHeight;              //!< Window height at start up
+SLbool      fixAspectRatio;         //!< Flag if aspect ratio should be fixed
+SLfloat     scrWdivH;               //!< aspect ratio screen width divided by height
 SLfloat     scr2fbX;                //!< Factor from screen to framebuffer coords
 SLfloat     scr2fbY;                //!< Factor from screen to framebuffer coords
 SLint       startX;                 //!< start position x in pixels
@@ -141,13 +143,31 @@ onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event.
 */
 static void onResize(GLFWwindow* window, int width, int height)
-{  
+{
+    if (fixAspectRatio)
+    {
+        //correct target width and height
+        if (height * scrWdivH <= width)
+        {
+            width = height * scrWdivH;
+            height = width / scrWdivH;
+        }
+        else
+        {
+            height = width / scrWdivH;
+            width = height * scrWdivH;
+        }
+    }
+
     lastWidth = width;
     lastHeight = height;
 
     // width & height are in screen coords.
     // We need to scale them to framebuffer coords.
     slResize(svIndex, (int)(width*scr2fbX), (int)(height*scr2fbY));
+
+    //update glfw window with new size
+    glfwSetWindowSize(window, width, height);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -415,7 +435,10 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     scrWidth = 640;
-    scrHeight = 480;
+    scrHeight = 360;
+    //we have to fix aspect ratio, because the video image is initialized with this ratio
+    fixAspectRatio = true;
+    scrWdivH = (float)scrWidth / (float)scrHeight;
 
     touch2.set(-1,-1);
     touchDelta.set(-1,-1);

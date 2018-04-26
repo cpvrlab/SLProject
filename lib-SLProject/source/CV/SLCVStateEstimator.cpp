@@ -8,6 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <stdafx.h>
 #include <SLCVStateEstimator.h>
 
 SLMat4f SLCVStateEstimator::getPose()

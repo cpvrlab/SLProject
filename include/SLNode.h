@@ -265,6 +265,8 @@ class SLNode: public SLObject, public SLEventHandler
             SLVNode&        children            () {return _children;}
       const SLSkeleton*     skeleton            ();
             //SLCVTracked*    tracker             () {return _tracker;}
+            void            update              ();
+    virtual void            doUpdate            () {};
 
     static  SLuint          numWMUpdates;       //!< NO. of calls to updateWM per frame
     
