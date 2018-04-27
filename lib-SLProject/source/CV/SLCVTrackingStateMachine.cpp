@@ -13,19 +13,17 @@
 #include <SLCVMapTracking.h>
 
 //-----------------------------------------------------------------------------
-SLCVTrackingStateMachine::SLCVTrackingStateMachine(SLCVMapTracking* tracking)
-    : _tracking(tracking)
+SLCVTrackingStateMachine::SLCVTrackingStateMachine(SLCVMapTracking* tracking, bool serial)
+    : _tracking(tracking),
+    _serial(serial)
 {
     assert(_tracking);
-    _serial = tracking->serial();
 }
 //-----------------------------------------------------------------------------
 string SLCVTrackingStateMachine::getPrintableState()
 {
     switch (mState)
     {
-    //case RESETTING:
-    //    return "RESETTING";
     case INITIALIZING:
         return "INITIALIZING";
     case IDLE:
@@ -64,13 +62,6 @@ void SLCVTrackingStateMachine::requestResume()
         stateTransition();
     }
 }
-////-----------------------------------------------------------------------------
-////!request reset. state switches to idle afterwards.
-//void SLCVTrackingStateMachine::requestReset()
-//{
-//    std::lock_guard<std::mutex> guard(_mutexStates);
-//    _resetRequested = true;
-//}
 //-----------------------------------------------------------------------------
 //!check current state
 bool SLCVTrackingStateMachine::hasStateIdle()
@@ -91,19 +82,10 @@ void SLCVTrackingStateMachine::stateTransition()
     //store last state
     mLastProcessedState = mState;
 
-    //if (_resetRequested)
-    //{
-    //    mState = RESETTING;
-    //}
     if (_idleRequested)
     {
         mState = IDLE;
     }
-    //else if (mState == RESETTING)
-    //{
-    //    //we switch directly to idle not initialized state
-    //    mState = IDLE;
-    //}
     else if (mState == IDLE)
     {
         if (_resumeRequested)
@@ -150,7 +132,6 @@ void SLCVTrackingStateMachine::stateTransition()
 void SLCVTrackingStateMachine::resetRequests()
 {
     _idleRequested = false;
-    //_resetRequested = false;
     _resumeRequested = false;
     _trackingOKRequested = false;
     _trackingLostRequested = false;

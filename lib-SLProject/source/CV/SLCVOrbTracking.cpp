@@ -11,6 +11,7 @@
 #include <stdafx.h>
 #include <SLCVOrbTracking.h>
 #include <SLCVCapture.h>
+#include <SLCVMapNode.h>
 
 SLCVOrbTracking::SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
     SLCVKeyFrameDB* keyFrameDB,
@@ -18,11 +19,10 @@ SLCVOrbTracking::SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
     SLCVMapNode* mapNode,
     ORBVocabulary* vocabulary,
     bool serial)
-    : SLCVMapTracking(keyFrameDB, map, mapNode),
+    : SLCVMapTracking(keyFrameDB, map, mapNode, serial),
     _stateEstimator{ stateEstimator },
     mpVocabulary(vocabulary)
 {
-    _serial = serial;
     //instantiate Orb extractor
     _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
 
@@ -38,7 +38,7 @@ SLCVOrbTracking::SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
     SLCVMapNode* mapNode,
     ORBVocabulary* vocabulary,
     bool serial)
-    : SLCVMapTracking(mapNode),
+    : SLCVMapTracking(mapNode, serial),
     _stateEstimator{ stateEstimator },
     mpVocabulary(vocabulary)
 {
@@ -102,11 +102,11 @@ void SLCVOrbTracking::trackOrbsContinuously()
     _calibReady.wait(lk, [this] {return _calib; });
 
     while (running()) {
-        trackOrbs();
+        track();
     }
 }
 
-void SLCVOrbTracking::trackOrbs()
+void SLCVOrbTracking::track3DPts()
 {
     printf("Start trackOrbs()\n");
     //Frame constructor call in ORB-SLAM:
@@ -930,11 +930,8 @@ void SLCVOrbTracking::Reset()
     mvpLocalMapPoints.clear();
     mvpLocalKeyFrames.clear();
     mnMatchesInliers = 0;
-    //_addKeyframe = false;
 
-    //mState = eTrackingState::NOT_INITIALIZED;
-
-    //_currentState = INITIALIZE;
-    //if (mpViewer)
-    //    mpViewer->Release();
+    //we also have to clear the mapNode because it may access
+    //mappoints and keyframes while we are loading
+    _mapNode->clearAll();
 }

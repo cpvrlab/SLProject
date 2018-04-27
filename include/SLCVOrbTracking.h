@@ -61,7 +61,7 @@ public:
   void calib(SLCVCalibration* calib);
   //bool serial();
 
-  void trackOrbs();
+  void track3DPts() override;
   
   void Reset() override;
 

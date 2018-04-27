@@ -35,7 +35,7 @@ using namespace ORB_SLAM2;
 //-----------------------------------------------------------------------------
 SLCVTrackedRaulMurAsync::SLCVTrackedRaulMurAsync(SLNode *node, ORBVocabulary* vocabulary,
     SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode)
-  : SLCVTracked(node), _orbTracking(&_stateEstimator, keyFrameDB, map, mapNode, vocabulary, true)
+  : SLCVTracked(node), _orbTracking(&_stateEstimator, keyFrameDB, map, mapNode, vocabulary, false)
 {
 }
 
@@ -51,7 +51,7 @@ SLbool SLCVTrackedRaulMurAsync::track(SLCVMat imageGray,
   _frameCount++;
 
   if (_orbTracking.serial())
-    _orbTracking.trackOrbs();
+    _orbTracking.track();
       
   SLMat4f slMat = _stateEstimator.getPose();
   _node->om(slMat);

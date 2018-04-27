@@ -18,6 +18,7 @@
 class SLCVKeyFrameDB;
 class SLCVMap;
 class SLCVMapNode;
+class SLCVCalibration;
 
 //-----------------------------------------------------------------------------
 //! Map Tracking
@@ -30,10 +31,13 @@ Also, this class contains functions to update the scene (SLCVMapNode).
 class SLCVMapTracking : public SLTrackingInfosInterface
 {
 public:
-    SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode);
-    SLCVMapTracking(SLCVMapNode* mapNode);
+    SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode, bool serial);
+    SLCVMapTracking(SLCVMapNode* mapNode, bool serial);
 
     void track();
+    void idle();
+    virtual void initialize() {}
+    virtual void track3DPts() {}
 
     SLCVTrackingStateMachine sm;
 
@@ -111,6 +115,9 @@ protected:
     std::mutex _poseDiffLock;
     std::mutex _mapLock;
     std::mutex _nMapMatchesLock;
+
+    SLCVCalibration* _calib = nullptr;
+    SLCVMat _imageGray;
 };
 
 #endif //SLCVMAPTRACKING_H

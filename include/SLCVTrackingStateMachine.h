@@ -27,7 +27,7 @@ public:
     };
 
     //!ctor
-    SLCVTrackingStateMachine(SLCVMapTracking* tracking);
+    SLCVTrackingStateMachine(SLCVMapTracking* tracking, bool serial);
 
     std::string getPrintableState();
 

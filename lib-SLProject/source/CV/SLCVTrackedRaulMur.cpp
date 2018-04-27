@@ -34,7 +34,7 @@ using namespace ORB_SLAM2;
 SLCVTrackedRaulMur::SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary, 
     SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode)
     : SLCVTracked(node),
-    SLCVMapTracking(keyFrameDB, map, mapNode),
+    SLCVMapTracking(keyFrameDB, map, mapNode, true),
     mpVocabulary(vocabulary)
     //mpKeyFrameDatabase(keyFrameDB),
     //_map(map),
@@ -905,4 +905,6 @@ void SLCVTrackedRaulMur::Reset()
     mvpLocalKeyFrames.clear();
     mnMatchesInliers = 0;
     //_addKeyframe = false;
+
+    _mapNode->clearAll();
 }

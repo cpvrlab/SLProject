@@ -42,7 +42,7 @@ using namespace cv;
 //-----------------------------------------------------------------------------
 SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
     : SLCVTracked(node),
-    SLCVMapTracking(mapNode)
+    SLCVMapTracking(mapNode, true)
 {
     //load visual vocabulary for relocalization
     mpVocabulary = SLCVOrbVocabulary::get();
@@ -114,27 +114,31 @@ SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
     // Current Frame
     double timestamp = 0.0; //todo
 
-    //apply state transitions
-    sm.stateTransition();
+    _calib = calib;
+    _imageGray = imageGray;
+    SLCVMapTracking::track();
+    ////apply state transitions
+    //sm.stateTransition();
 
-    switch (sm.state())
-    {
-    case SLCVTrackingStateMachine::INITIALIZING:
-        mCurrentFrame = SLCVFrame(imageGray, timestamp, mpIniORBextractor,
-            calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
-        initialize();
-        break;
-    case SLCVTrackingStateMachine::IDLE:
-        break;
-    case SLCVTrackingStateMachine::TRACKING_OK:
-    //todo: divide relocalization and tracking
-    case SLCVTrackingStateMachine::TRACKING_LOST:
-        mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor,
-            calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
-        //relocalize or track 3d points
-        track3DPts();
-        break;
-    }
+    //track();
+    //switch (sm.state())
+    //{
+    //case SLCVTrackingStateMachine::INITIALIZING:
+    //    //mCurrentFrame = SLCVFrame(imageGray, timestamp, mpIniORBextractor,
+    //    //    calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
+    //    initialize();
+    //    break;
+    //case SLCVTrackingStateMachine::IDLE:
+    //    break;
+    //case SLCVTrackingStateMachine::TRACKING_OK:
+    ////todo: divide relocalization and tracking
+    //case SLCVTrackingStateMachine::TRACKING_LOST:
+    //    //mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor,
+    //    //    calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
+    //    //relocalize or track 3d points
+    //    track3DPts();
+    //    break;
+    //}
 
     return false;
 }
@@ -152,6 +156,9 @@ void SLCVTrackedMapping::initialize()
     //  - a global bundle adjustment is applied
     //  - the two new keyframes are added to the local mapper and the local mapper is started twice
     //  - the tracking state is changed to TRACKING/INITIALIZED
+
+    mCurrentFrame = SLCVFrame(_imageGray, 0.0, mpIniORBextractor,
+        _calib->cameraMat(), _calib->distortion(), mpVocabulary, _retainImg);
 
     if (!mpInitializer)
     {
@@ -268,6 +275,9 @@ void SLCVTrackedMapping::trackVO()
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::track3DPts()
 {
+    mCurrentFrame = SLCVFrame(_imageGray, 0.0, _extractor,
+        _calib->cameraMat(), _calib->distortion(), mpVocabulary, _retainImg);
+
     //mLastProcessedState = mState;
     //bool bOK;
     _bOK = false;
@@ -735,6 +745,10 @@ void SLCVTrackedMapping::Reset()
     mvpLocalKeyFrames.clear();
     mnMatchesInliers = 0;
     _addKeyframe = false;
+
+    //we also have to clear the mapNode because it may access
+    //mappoints and keyframes while we are loading
+    _mapNode->clearAll();
 }
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::decorate()

@@ -15,23 +15,52 @@
 #include <SLCVMapNode.h>
 
 //-----------------------------------------------------------------------------
-SLCVMapTracking::SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode)
+SLCVMapTracking::SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, 
+    SLCVMapNode* mapNode, bool serial)
     : mpKeyFrameDatabase(keyFrameDB),
     _map(map),
     _mapNode(mapNode),
-    sm(this)
+    _serial(serial),
+    sm(this, serial)
 {
 }
 //-----------------------------------------------------------------------------
-SLCVMapTracking::SLCVMapTracking(SLCVMapNode* mapNode)
+SLCVMapTracking::SLCVMapTracking(SLCVMapNode* mapNode, bool serial)
     : _mapNode(mapNode),
-    sm(this)
+    _serial(serial),
+    sm(this, serial)
 {
 }
 //-----------------------------------------------------------------------------
 void SLCVMapTracking::track()
 {
+    //apply state transitions
+    sm.stateTransition();
 
+    switch (sm.state())
+    {
+    case SLCVTrackingStateMachine::INITIALIZING:
+        initialize();
+        break;
+    case SLCVTrackingStateMachine::IDLE:
+        idle();
+        break;
+    case SLCVTrackingStateMachine::TRACKING_OK:
+        //todo: divide relocalization and tracking
+    case SLCVTrackingStateMachine::TRACKING_LOST:
+        //relocalize or track 3d points
+        track3DPts();
+        break;
+    }
+}
+//-----------------------------------------------------------------------------
+void SLCVMapTracking::idle()
+{
+#ifdef _WINDOWS
+    Sleep(1);
+#else
+    usleep(1000);
+#endif
 }
 //-----------------------------------------------------------------------------
 int SLCVMapTracking::getNMapMatches()
