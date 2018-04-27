@@ -33,6 +33,8 @@ public:
     SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode);
     SLCVMapTracking(SLCVMapNode* mapNode);
 
+    void track();
+
     SLCVTrackingStateMachine sm;
 
     virtual void Reset() = 0;
@@ -55,7 +57,7 @@ public:
     bool isOK() { return _bOK; }
     //!setters
     void setInitialized(bool flag) { _initialized = flag; }
-
+    bool serial() { return _serial; }
 protected:
     //!calculation of mean reprojection error of all matches
     void calculateMeanReprojectionError();
@@ -102,6 +104,8 @@ protected:
     bool _bOK = false;
     //!flags, if map is initialized
     bool _initialized = false;
+
+    bool _serial = false;
 
     std::mutex _meanProjErrorLock;
     std::mutex _poseDiffLock;

@@ -16,14 +16,16 @@
 SLCVTrackingStateMachine::SLCVTrackingStateMachine(SLCVMapTracking* tracking)
     : _tracking(tracking)
 {
+    assert(_tracking);
+    _serial = tracking->serial();
 }
 //-----------------------------------------------------------------------------
 string SLCVTrackingStateMachine::getPrintableState()
 {
     switch (mState)
     {
-    case RESETTING:
-        return "RESETTING";
+    //case RESETTING:
+    //    return "RESETTING";
     case INITIALIZING:
         return "INITIALIZING";
     case IDLE:
@@ -40,29 +42,46 @@ string SLCVTrackingStateMachine::getPrintableState()
 //!request state idle
 void SLCVTrackingStateMachine::requestStateIdle()
 {
-    std::lock_guard<std::mutex> guard(_mutexStates);
+    std::unique_lock<std::mutex> guard(_mutexStates);
+    resetRequests();
     _idleRequested = true;
+
+    if (_serial) {
+        guard.unlock();
+        stateTransition();
+    }
 }
 //-----------------------------------------------------------------------------
 //!If system is in idle, it resumes with INITIAIZED or NOT_INITIALIZED state depending on if system is initialized.
 void SLCVTrackingStateMachine::requestResume()
 {
-    std::lock_guard<std::mutex> guard(_mutexStates);
+    std::unique_lock<std::mutex> guard(_mutexStates);
+    resetRequests();
     _resumeRequested = true;
+
+    if (_serial) {
+        guard.unlock();
+        stateTransition();
+    }
 }
-//-----------------------------------------------------------------------------
-//!request reset. state switches to idle afterwards.
-void SLCVTrackingStateMachine::requestReset()
-{
-    std::lock_guard<std::mutex> guard(_mutexStates);
-    _resetRequested = true;
-}
+////-----------------------------------------------------------------------------
+////!request reset. state switches to idle afterwards.
+//void SLCVTrackingStateMachine::requestReset()
+//{
+//    std::lock_guard<std::mutex> guard(_mutexStates);
+//    _resetRequested = true;
+//}
 //-----------------------------------------------------------------------------
 //!check current state
 bool SLCVTrackingStateMachine::hasStateIdle()
 {
-    std::lock_guard<std::mutex> guard(_mutexStates);
+    std::unique_lock<std::mutex> guard(_mutexStates);
     return mState == IDLE;
+
+    if (_serial) {
+        guard.unlock();
+        stateTransition();
+    }
 }
 //-----------------------------------------------------------------------------
 void SLCVTrackingStateMachine::stateTransition()
@@ -72,21 +91,19 @@ void SLCVTrackingStateMachine::stateTransition()
     //store last state
     mLastProcessedState = mState;
 
-    //requests for reset and idle beat all other state transitions
-    if (_resetRequested)
-    {
-        mState = RESETTING;
-    }
-    else if (_idleRequested)
+    //if (_resetRequested)
+    //{
+    //    mState = RESETTING;
+    //}
+    if (_idleRequested)
     {
         mState = IDLE;
     }
-
-    if (mState == RESETTING)
-    {
-        //we switch directly to idle not initialized state
-        mState = IDLE;
-    }
+    //else if (mState == RESETTING)
+    //{
+    //    //we switch directly to idle not initialized state
+    //    mState = IDLE;
+    //}
     else if (mState == IDLE)
     {
         if (_resumeRequested)
@@ -133,7 +150,7 @@ void SLCVTrackingStateMachine::stateTransition()
 void SLCVTrackingStateMachine::resetRequests()
 {
     _idleRequested = false;
-    _resetRequested = false;
+    //_resetRequested = false;
     _resumeRequested = false;
     _trackingOKRequested = false;
     _trackingLostRequested = false;

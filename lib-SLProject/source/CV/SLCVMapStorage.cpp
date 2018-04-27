@@ -192,18 +192,19 @@ void SLCVMapStorage::saveMap(int id, SLCVMapTracking* mapTracking, bool saveImgs
     mapTracking->sm.requestResume();
 }
 //-----------------------------------------------------------------------------
-void SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
+bool SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
 {
+    bool loadingSuccessful = false;
     if (!_isInitialized) {
         SL_LOG("External map storage is not initialized, you have to call init() first!\n");
-        return;
+        return loadingSuccessful;
     }
     if (!mapTracking) {
         SL_LOG("Map tracking not initialized!\n");
+        return loadingSuccessful;
     }
     //reset tracking (and all dependent threads/objects like Map, KeyFrameDatabase, LocalMapping, loopClosing)
-    mapTracking->sm.requestReset();
-    //Tracking switches to state idle afterwards, so we wait for idle.
+    mapTracking->sm.requestStateIdle();
     while (!mapTracking->sm.hasStateIdle())
     {
 #ifdef _WINDOWS
@@ -213,6 +214,7 @@ void SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
 #endif
     }
 
+    mapTracking->Reset();
     //clear map and keyframe database
     SLCVMap& map = *mapTracking->getMap();
     SLCVKeyFrameDB& kfDB = *mapTracking->getKfDB();
@@ -227,7 +229,7 @@ void SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
     }
     else {
         SL_LOG("Could not load map. Map id not found in name: %s\n", name.c_str());
-        return;
+        return loadingSuccessful;
     }
 
     //check if map exists
@@ -240,12 +242,12 @@ void SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
     if (!SLFileSystem::dirExists(path)) {
         string msg = "Failed to load map. Path does not exist: " + path + "\n";
         SL_WARN_MSG(msg.c_str());
-        return;
+        return loadingSuccessful;
     }
     if (!SLFileSystem::fileExists(filename)) {
         string msg = "Failed to load map: " + filename + "\n";
         SL_WARN_MSG(msg.c_str());
-        return;
+        return loadingSuccessful;
     }
 
     try {
@@ -255,6 +257,7 @@ void SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
 
         //if map loading was successful, switch to initialized
         mapTracking->setInitialized(true);
+        loadingSuccessful = true;
     }
     catch (std::exception& e)
     {
@@ -269,10 +272,16 @@ void SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
     }
 
     mapTracking->sm.requestResume();
+    return loadingSuccessful;
 }
 //-----------------------------------------------------------------------------
 void SLCVMapStorage::newMap()
 {
+    if (!_isInitialized) {
+        SL_LOG("External map storage is not initialized, you have to call init() first!\n");
+        return;
+    }
+
     //assign next id to current id. The nextId will be increased after file save.
     _currentId = _nextId;
 }

@@ -20,8 +20,7 @@ class SLCVTrackingStateMachine
 public:
     enum TrackingState
     {
-        RESETTING = 0,
-        INITIALIZING,
+        INITIALIZING = 0,
         IDLE,
         TRACKING_LOST,
         TRACKING_OK
@@ -41,8 +40,6 @@ public:
     void requestStateIdle();
     //!If system is in idle, it resumes depending on if system is initialized
     void requestResume();
-    //!request reset. state switches to idle afterwards.
-    void requestReset();
     //!check current state
     bool hasStateIdle();
 
@@ -60,9 +57,6 @@ private:
     bool _resumeRequested = false;
     //!System switches to IDLE state as soon as possible.
     bool _idleRequested = false;
-    //!From every possible state, the system changes to state RESETTING as soon as possible.
-    //!The system switches to IDLE, as soon as it is resetted.
-    bool _resetRequested = false;
     //!Tracking is working and requests state tracking ok
     bool _trackingOKRequested = false;
     //!Tracking is not working and equests state tracking lost
@@ -72,6 +66,8 @@ private:
     SLCVMapTracking* _tracking = NULL;
 
     std::mutex _mutexStates;
+    //serial usage
+    bool _serial = true;
 };
 
 #endif //SLCV_TRACKINGSTATEMACHINE_H

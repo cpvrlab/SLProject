@@ -26,7 +26,7 @@ public:
     //check if directory for map storage exists and read existing map names
     static void init();
     static void saveMap(int id, SLCVMapTracking* mapTracking, bool saveImgs);
-    void loadMap(const string& name, SLCVMapTracking* mapTracking);
+    bool loadMap(const string& name, SLCVMapTracking* mapTracking);
     //increase current id and maximum id in MapStorage
     static void newMap();
 

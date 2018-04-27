@@ -29,6 +29,11 @@ SLCVMapTracking::SLCVMapTracking(SLCVMapNode* mapNode)
 {
 }
 //-----------------------------------------------------------------------------
+void SLCVMapTracking::track()
+{
+
+}
+//-----------------------------------------------------------------------------
 int SLCVMapTracking::getNMapMatches()
 {
   std::lock_guard<std::mutex> guard(_nMapMatchesLock);

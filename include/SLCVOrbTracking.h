@@ -59,7 +59,7 @@ public:
   ~SLCVOrbTracking();
 
   void calib(SLCVCalibration* calib);
-  bool serial();
+  //bool serial();
 
   void trackOrbs();
   
@@ -89,7 +89,6 @@ protected:
 private:
   SLCVStateEstimator* _stateEstimator;
   bool _running = true;
-  bool _serial = false;
   SLCVCalibration* _calib = nullptr;
   //Last Frame, KeyFrame and Relocalisation Info
   unsigned int mnLastRelocFrameId = 0;

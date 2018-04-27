@@ -29,8 +29,17 @@ SLImGuiTrackedMapping::SLImGuiTrackedMapping(string name, SLCVTrackedMapping* ma
 void SLImGuiTrackedMapping::buildInfos()
 {
     if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+        _mappingTracker->sm.requestStateIdle();
+        while (!_mappingTracker->sm.hasStateIdle())
+        {
+#ifdef _WINDOWS
+            Sleep(1);
+#else
+            usleep(1000);
+#endif
+        }
         _mappingTracker->Reset();
-        //_mappingTracker->setState(SLCVTrackedMapping::INITIALIZE);
+        _mappingTracker->sm.requestResume();
     }
     if (ImGui::Button("Bundle adjustment", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
         _mappingTracker->globalBundleAdjustment();

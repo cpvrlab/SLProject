@@ -20,9 +20,9 @@ SLCVOrbTracking::SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
     bool serial)
     : SLCVMapTracking(keyFrameDB, map, mapNode),
     _stateEstimator{ stateEstimator },
-    _serial(serial),
     mpVocabulary(vocabulary)
 {
+    _serial = serial;
     //instantiate Orb extractor
     _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
 
@@ -40,9 +40,9 @@ SLCVOrbTracking::SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
     bool serial)
     : SLCVMapTracking(mapNode),
     _stateEstimator{ stateEstimator },
-    _serial(serial),
     mpVocabulary(vocabulary)
 {
+    _serial = serial;
     //instantiate Orb extractor
     _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
 
@@ -88,11 +88,11 @@ void SLCVOrbTracking::calib(SLCVCalibration* calib)
     _calibReady.notify_all();
 }
 
-bool SLCVOrbTracking::serial()
-{
-    bool result = _serial;
-    return result;
-}
+//bool SLCVOrbTracking::serial()
+//{
+//    bool result = _serial;
+//    return result;
+//}
 
 void SLCVOrbTracking::trackOrbsContinuously()
 {

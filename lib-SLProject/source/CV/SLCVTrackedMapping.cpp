@@ -114,15 +114,15 @@ SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
     // Current Frame
     double timestamp = 0.0; //todo
 
+    //apply state transitions
+    sm.stateTransition();
+
     switch (sm.state())
     {
     case SLCVTrackingStateMachine::INITIALIZING:
         mCurrentFrame = SLCVFrame(imageGray, timestamp, mpIniORBextractor,
             calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
         initialize();
-        break;
-    case SLCVTrackingStateMachine::RESETTING:
-        Reset();
         break;
     case SLCVTrackingStateMachine::IDLE:
         break;
