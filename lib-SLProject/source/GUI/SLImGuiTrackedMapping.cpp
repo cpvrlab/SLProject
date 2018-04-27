@@ -16,6 +16,11 @@
 #include <SLCVTrackedMapping.h>
 #include <SLCVMapStorage.h>
 
+#ifndef _WINDOWS
+#include <unistd.h>
+#endif
+
+
 //-----------------------------------------------------------------------------
 const char* SLImGuiTrackedMapping::_currItem = NULL;
 int SLImGuiTrackedMapping::_currN = -1;

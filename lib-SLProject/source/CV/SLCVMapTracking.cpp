@@ -14,6 +14,10 @@
 #include <SLCVMap.h>
 #include <SLCVMapNode.h>
 
+#ifndef _WINDOWS
+#include <unistd.h>
+#endif
+
 //-----------------------------------------------------------------------------
 SLCVMapTracking::SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, 
     SLCVMapNode* mapNode, bool serial)

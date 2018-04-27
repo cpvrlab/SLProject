@@ -14,6 +14,10 @@
 #include <SLCVMapIO.h>
 #include <SLCVMapTracking.h>
 
+#ifndef _WINDOWS
+#include <unistd.h>
+#endif
+
 //-----------------------------------------------------------------------------
 unsigned int SLCVMapStorage::_nextId = 0;
 unsigned int SLCVMapStorage::_currentId = 0;
