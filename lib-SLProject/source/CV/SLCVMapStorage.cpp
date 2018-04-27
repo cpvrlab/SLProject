@@ -92,7 +92,7 @@ void SLCVMapStorage::saveMap(int id, SLCVMapTracking* mapTracking, bool saveImgs
         return;
     }
 
-    if (!mapTracking->isMapInitialized()) {
+    if (!mapTracking->isInitialized()) {
         SL_LOG("Map storage: System is not initialized. Map saving is not possible!\n");
         return;
     }
@@ -129,8 +129,8 @@ void SLCVMapStorage::saveMap(int id, SLCVMapTracking* mapTracking, bool saveImgs
         }
 
         //switch to idle, so that map does not change, while we are accessing keyframes
-        mapTracking->requestStateIdle();
-        while (!mapTracking->hasStateIdle())
+        mapTracking->sm.requestStateIdle();
+        while (!mapTracking->sm.hasStateIdle())
         {
 #ifdef _WINDOWS
             Sleep(1);
@@ -189,7 +189,7 @@ void SLCVMapStorage::saveMap(int id, SLCVMapTracking* mapTracking, bool saveImgs
     }
 
     //switch back to initialized state and resume tracking
-    mapTracking->requestResume();
+    mapTracking->sm.requestResume();
 }
 //-----------------------------------------------------------------------------
 void SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
@@ -202,9 +202,9 @@ void SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
         SL_LOG("Map tracking not initialized!\n");
     }
     //reset tracking (and all dependent threads/objects like Map, KeyFrameDatabase, LocalMapping, loopClosing)
-    mapTracking->requestReset();
+    mapTracking->sm.requestReset();
     //Tracking switches to state idle afterwards, so we wait for idle.
-    while (!mapTracking->hasStateIdle())
+    while (!mapTracking->sm.hasStateIdle())
     {
 #ifdef _WINDOWS
         Sleep(1);
@@ -254,7 +254,7 @@ void SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
         mapIO.load(map, kfDB);
 
         //if map loading was successful, switch to initialized
-        mapTracking->requestResume();
+        mapTracking->setInitialized(true);
     }
     catch (std::exception& e)
     {
@@ -267,6 +267,8 @@ void SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
         string msg = "Exception during slam map loading: " + filename + "\n";
         SL_WARN_MSG(msg.c_str());
     }
+
+    mapTracking->sm.requestResume();
 }
 //-----------------------------------------------------------------------------
 void SLCVMapStorage::newMap()

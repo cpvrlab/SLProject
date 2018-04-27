@@ -71,15 +71,11 @@ void SLImGuiMapStorage::buildInfos()
     if (ImGui::Button("Load map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
         if (SLCVMapStorage::currItem)
         {
-            //reset first, otherwise loaded map will be cleared again.
-            _tracking->Reset();
             //load selected map
             string selectedMapName = SLCVMapStorage::existingMapNames[SLCVMapStorage::currN];
             SLCVMapStorage storage(SLCVOrbVocabulary::get());
             storage.loadMap(selectedMapName, _tracking);
 
-            //set state to initialized and lost
-            _tracking->mState = SLCVMapTracking::eTrackingState::LOST;
             //update scene
             _mapNode->updateAll(*_map);
         }

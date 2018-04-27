@@ -18,12 +18,14 @@
 SLCVMapTracking::SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode)
     : mpKeyFrameDatabase(keyFrameDB),
     _map(map),
-    _mapNode(mapNode)
+    _mapNode(mapNode),
+    sm(this)
 {
 }
 //-----------------------------------------------------------------------------
 SLCVMapTracking::SLCVMapTracking(SLCVMapNode* mapNode)
-    : _mapNode(mapNode)
+    : _mapNode(mapNode),
+    sm(this)
 {
 }
 //-----------------------------------------------------------------------------
@@ -58,6 +60,11 @@ int SLCVMapTracking::mapPointsCount()
     return _map->MapPointsInMap();
   else
     return 0;
+}
+//-----------------------------------------------------------------------------
+string SLCVMapTracking::getPrintableState()
+{
+    return sm.getPrintableState();
 }
 //-----------------------------------------------------------------------------
 void SLCVMapTracking::calculateMeanReprojectionError()
@@ -204,7 +211,7 @@ void SLCVMapTracking::decorateScene()
 
   //-------------------------------------------------------------------------
   //decorate scene with mappoints that were matched to keypoints in current frame
-  if (mState == OK && _showMatchesPC)
+  if (sm.state() == SLCVTrackingStateMachine::TRACKING_OK && _showMatchesPC)
   {
     //find map point matches
     std::vector<SLCVMapPoint*> mapPointMatches;
@@ -231,7 +238,7 @@ void SLCVMapTracking::decorateScene()
 
     //-------------------------------------------------------------------------
     //decorate scene with mappoints of local map
-    if (mState == OK && _showLocalMapPC)
+    if (sm.state() == SLCVTrackingStateMachine::TRACKING_OK && _showLocalMapPC)
         _mapNode->updateMapPointsLocal(mvpLocalMapPoints);
     else
         _mapNode->removeMapPointsLocal();

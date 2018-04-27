@@ -35,36 +35,9 @@ namespace ORB_SLAM2 {
 class SLCVKeyFrameDB;
 
 //-----------------------------------------------------------------------------
-
 class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 {
     public:
-        string getPrintableState() {
-            switch (mState)
-            {
-            case SYSTEM_NOT_READY:
-                return "SYSTEM_NOT_READY";
-            case NO_IMAGES_YET:
-                return "NO_IMAGES_YET";
-            case NOT_INITIALIZED:
-                return "NOT_INITIALIZED";
-            case OK:
-                if (!mbVO) {
-                    if (!mVelocity.empty())
-                        return "OK_MM"; //motion model tracking
-                    else
-                        return "OK_RF"; //reference frame tracking
-                }
-                else {
-                    return "OK_VO";
-                }
-                return "OK";
-            case LOST:
-                return "LOST";
-
-                return "";
-            }
-        }
 
         int getNumLoopClosings() { return _numOfLoopClosings; }
 
@@ -86,7 +59,6 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         //ghm1: the next tracked frame gets mapped (local mapping, keyframe generation and adding to map)
         void mapNextFrame() { _mapNextFrame = true; }
 
-        //void saveMap();
         void globalBundleAdjustment();
 
     private:
@@ -119,8 +91,6 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 
         //! states, that we try to make a new key frame out of the next frame
         bool _addKeyframe;
-        //! current tracking state
-        //TrackingStates _currentState = INITIALIZE;
 
         // ORB vocabulary used for place recognition and feature matching.
         ORBVocabulary* mpVocabulary;

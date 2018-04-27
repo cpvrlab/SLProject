@@ -456,6 +456,9 @@
     <ClInclude Include="..\include\SLCVMapIO.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLCVTrackingStateMachine.h">
+      <Filter>CV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -781,6 +784,9 @@
       <Filter>CV</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\SLCVMapIO.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVTrackingStateMachine.cpp">
       <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>

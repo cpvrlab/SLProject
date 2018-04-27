@@ -27,7 +27,8 @@ SLCVOrbTracking::SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
     _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
 
     //system is initialized, because we loaded an existing map, but we have to relocalize
-    mState = LOST;
+    //mState = LOST;
+    _bOK = false;
 
     if (!_serial)
         _trackingThread = std::thread(&SLCVOrbTracking::trackOrbsContinuously, this);
@@ -46,10 +47,11 @@ SLCVOrbTracking::SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
     _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
 
     //system is initialized, because we loaded an existing map, but we have to relocalize
-    mState = LOST;
+    //mState = LOST;
+    _bOK = false;
 
     if (!_serial)
-        _trackingThread = std::thread(&SLCVOrbTracking::trackOrbs, this);
+        _trackingThread = std::thread(&SLCVOrbTracking::trackOrbsContinuously, this);
 }
 
 SLCVOrbTracking::~SLCVOrbTracking()
@@ -117,13 +119,15 @@ void SLCVOrbTracking::trackOrbs()
     /************************************************************/
 
     // System is initialized. Track Frame.
-    mLastProcessedState = mState;
-    bool bOK = false;
+    //mLastProcessedState = mState;
+    //bool bOK = false;
+    _bOK = false;
+
 
     // Localization Mode: Local Mapping is deactivated
-    if (mState == LOST)
+    if (sm.state() == SLCVTrackingStateMachine::TRACKING_LOST)
     {
-        bOK = Relocalization();
+        _bOK = Relocalization();
     }
     else
     {
@@ -131,14 +135,14 @@ void SLCVOrbTracking::trackOrbs()
         if (!mbVO) // In last frame we tracked enough MapPoints from the Map
         {
             if (!mVelocity.empty()) { //we have a valid motion model
-                bOK = TrackWithMotionModel();
+                _bOK = TrackWithMotionModel();
             }
             else { //we have NO valid motion model
               // All keyframes that observe a map point are included in the local map.
               // Every current frame gets a reference keyframe assigned which is the keyframe
               // from the local map that shares most matches with the current frames local map points matches.
               // It is updated in UpdateLocalKeyFrames().
-                bOK = TrackReferenceKeyFrame();
+                _bOK = TrackReferenceKeyFrame();
             }
         }
         else // In last frame we tracked mainly "visual odometry" points.
@@ -184,7 +188,7 @@ void SLCVOrbTracking::trackOrbs()
                 mbVO = false;
             }
 
-            bOK = bOKReloc || bOKMM;
+            _bOK = bOKReloc || bOKMM;
 
         }
     }
@@ -194,21 +198,21 @@ void SLCVOrbTracking::trackOrbs()
     // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
     // the camera we will use the local map again.
 
-    if (bOK && !mbVO)
+    if (_bOK && !mbVO)
     {
-        bOK = TrackLocalMap();
+        _bOK = TrackLocalMap();
     }
 
-    if (bOK)
-        mState = OK;
-    else
-        mState = LOST;
+    //if (_bOK)
+    //    mState = OK;
+    //else
+    //    mState = LOST;
 
     //add map points to scene and keypoints to video image
     decorateSceneAndVideo(frameAndTime.frame);
 
     // If tracking were good
-    if (bOK)
+    if (_bOK)
     {
         // Update motion model
         if (!mLastFrame.mTcw.empty())
@@ -279,7 +283,7 @@ void SLCVOrbTracking::trackOrbs()
         mlRelativeFramePoses.push_back(Tcr);
         mlpReferences.push_back(mpReferenceKF);
         mlFrameTimes.push_back(mCurrentFrame.mTimeStamp);
-        mlbLost.push_back(mState == LOST);
+        mlbLost.push_back(sm.state() == SLCVTrackingStateMachine::TRACKING_LOST);
     }
     else if (mlRelativeFramePoses.size() && mlpReferences.size() && mlFrameTimes.size())
     {
@@ -287,7 +291,7 @@ void SLCVOrbTracking::trackOrbs()
         mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
         mlpReferences.push_back(mlpReferences.back());
         mlFrameTimes.push_back(mlFrameTimes.back());
-        mlbLost.push_back(mState == LOST);
+        mlbLost.push_back(sm.state() == SLCVTrackingStateMachine::TRACKING_LOST);
     }
 
     printf("end trackOrbs()\n");
@@ -905,24 +909,16 @@ void SLCVOrbTracking::Reset()
     cout << "System Reseting" << endl;
 
     // Clear BoW Database
-    cout << "Reseting Database...";
-    //mpKeyFrameDB->clear();
     mpKeyFrameDatabase->clear();
-    cout << " done" << endl;
 
     // Clear Map (this erase MapPoints and KeyFrames)
-    //mpMap->clear();
     _map->clear();
 
     SLCVKeyFrame::nNextId = 0;
     SLCVFrame::nNextId = 0;
-    mState = NO_IMAGES_YET;
-
-    //if (mpInitializer)
-    //{
-    //    delete mpInitializer;
-    //    mpInitializer = static_cast<Initializer*>(NULL);
-    //}
+    //mState = NO_IMAGES_YET;
+    _bOK = false;
+    _initialized = false;
 
     mlRelativeFramePoses.clear();
     mlpReferences.clear();
@@ -936,9 +932,8 @@ void SLCVOrbTracking::Reset()
     mnMatchesInliers = 0;
     //_addKeyframe = false;
 
-    mState = eTrackingState::NOT_INITIALIZED;
+    //mState = eTrackingState::NOT_INITIALIZED;
 
-    setMapInitialized(false);
     //_currentState = INITIALIZE;
     //if (mpViewer)
     //    mpViewer->Release();

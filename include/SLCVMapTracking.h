@@ -13,6 +13,7 @@
 
 #include <SLTrackingInfosInterface.h>
 #include <SLCVFrame.h>
+#include <SLCVTrackingStateMachine.h>
 
 class SLCVKeyFrameDB;
 class SLCVMap;
@@ -32,68 +33,9 @@ public:
     SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode);
     SLCVMapTracking(SLCVMapNode* mapNode);
 
-    /****** State machine parameter *********************************/
-    // Tracking states
-    enum eTrackingState {
-        SYSTEM_NOT_READY = -1,
-        NO_IMAGES_YET = 0,
-        NOT_INITIALIZED = 1,
-        OK = 2,
-        LOST = 3,
-        IDLE = 4
-    };
-
-    eTrackingState mState = NOT_INITIALIZED;;
-    eTrackingState mLastProcessedState = NOT_INITIALIZED;
+    SLCVTrackingStateMachine sm;
 
     virtual void Reset() = 0;
-
-    //!request state idle
-    void requestStateIdle()
-    {
-        std::lock_guard<std::mutex> guard(_mutexStates);
-        _idleRequested = true;
-    }
-    //!If system is in idle, it resumes with INITIAIZED or NOT_INITIALIZED state depending on if system is initialized.
-    void requestResume()
-    {
-        std::lock_guard<std::mutex> guard(_mutexStates);
-        _resumeRequested = true;
-    }
-    //!request reset. state switches to idle afterwards.
-    void requestReset()
-    {
-        std::lock_guard<std::mutex> guard(_mutexStates);
-        _resetRequested = true;
-    }
-    //!check current state
-    bool hasStateIdle()
-    {
-        std::lock_guard<std::mutex> guard(_mutexStates);
-        return mState == IDLE;
-    }
-    bool isMapInitialized()
-    {
-        std::lock_guard<std::mutex> guard(_mutexStates);
-        return _mapInitialized;
-    }
-    void setMapInitialized(bool state)
-    {
-        std::lock_guard<std::mutex> guard(_mutexStates);
-        _mapInitialized = state;
-    }
-
-    bool _mapInitialized = false;
-    //!System switches to IDLE state as soon as possible.
-    bool _resumeRequested = false;
-    //!System switches to IDLE state as soon as possible.
-    bool _idleRequested = false;
-    //!From every possible state, the system changes to state RESETTING as soon as possible.
-    //! The system switches to IDLE, as soon as it is resetted.
-    bool _resetRequested = false;
-
-    std::mutex _mutexStates;
-    /****** State machine parameter - end *****************************/
 
     int getNMapMatches() override;
     int getNumKeyFrames() override;
@@ -101,11 +43,19 @@ public:
     float poseDifference() override;
     float meanReprojectionError() override;
     int mapPointsCount() override;
+    std::string getPrintableState() override;
 
     //getters
     SLCVMap* getMap() { return _map; }
     SLCVKeyFrameDB* getKfDB() { return mpKeyFrameDatabase; }
     SLCVMapNode* getMapNode() { return _mapNode; }
+
+    //!getters for internal states
+    bool isInitialized() { return _initialized; }
+    bool isOK() { return _bOK; }
+    //!setters
+    void setInitialized(bool flag) { _initialized = flag; }
+
 protected:
     //!calculation of mean reprojection error of all matches
     void calculateMeanReprojectionError();
@@ -147,6 +97,11 @@ protected:
 
     //Current matches in frame
     int mnMatchesInliers = 0;
+
+    //!flags, if map tracking is OK
+    bool _bOK = false;
+    //!flags, if map is initialized
+    bool _initialized = false;
 
     std::mutex _meanProjErrorLock;
     std::mutex _poseDiffLock;

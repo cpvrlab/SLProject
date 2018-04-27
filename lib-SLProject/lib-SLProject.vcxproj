@@ -322,6 +322,7 @@
     <ClInclude Include="..\include\SLCVTrackedMapping.h" />
     <ClInclude Include="..\include\SLCVTrackedRaulMur.h" />
     <ClInclude Include="..\include\SLCVTrackedRaulMurAsync.h" />
+    <ClInclude Include="..\include\SLCVTrackingStateMachine.h" />
     <ClInclude Include="..\include\SLDeviceLocation.h" />
     <ClInclude Include="..\include\SLDeviceRotation.h" />
     <ClInclude Include="..\include\SLDisk.h" />
@@ -447,6 +448,7 @@
     <ClCompile Include="source\CV\SLCVTrackedMapping.cpp" />
     <ClCompile Include="source\CV\SLCVTrackedRaulMur.cpp" />
     <ClCompile Include="source\CV\SLCVTrackedRaulMurAsync.cpp" />
+    <ClCompile Include="source\CV\SLCVTrackingStateMachine.cpp" />
     <ClCompile Include="source\GL\SLGLImGui.cpp" />
     <ClCompile Include="source\GL\SLGLOculus.cpp" />
     <ClCompile Include="source\GL\SLGLOculusFB.cpp" />
