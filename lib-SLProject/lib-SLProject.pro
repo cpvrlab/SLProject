@@ -159,7 +159,8 @@ source/CV/SLCVOrbTracking.cpp \
 source/CV/SLCVOrbVocabulary.cpp \
 source/CV/SLCVRaulMurExtractorNode.cpp \
 source/CV/SLCVRaulMurOrb.cpp \
-source/CV/SLCVSlamStateLoader.cpp \
+source/CV/SLCVMapIO.cpp \
+source/CV/SLCVTrackingStateMachine.cpp \
 source/CV/SLCVStateEstimator.cpp \
 source/CV/SLCVTracked.cpp \
 source/CV/SLCVTrackedAruco.cpp \

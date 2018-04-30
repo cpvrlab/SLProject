@@ -47,12 +47,13 @@
 #include <SLCVMapPoint.h>
 #include <SLCVMap.h>
 #include <SLCVKeyFrameDB.h>
-#include <SLCVSlamStateLoader.h>
+#include <SLCVMapIO.h>
 #include <SLCVOrbVocabulary.h>
 #include <SLImGuiInfosTracking.h>
 #include <SLImGuiInfosChristoffelTower.h>
 #include <SLImGuiInfosMapTransform.h>
 #include <SLImGuiMapStorage.h>
+#include <SLCVMapStorage.h>
 
 #include <AppDemoGui.h>
 #include <SLImGuiTrackedMapping.h>
@@ -2387,7 +2388,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //load map points and keyframes from json file
         SLCVMap* map = new SLCVMap("Map");
-        SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
+        SLCVMapIO loader(slamStateFilePath, vocabulary, false);
         loader.load(*map, *kfDB);
 
         SLLightSpot* light1 = new SLLightSpot(100, 100, 100, 0.3f);
@@ -2461,6 +2462,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
         //loader.load(*map, *kfDB);
 
+        //setup file system and check for existing files
+        SLCVMapStorage::init();
+        //make new map
+        SLCVMapStorage::newMap();
+
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
         light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
@@ -2477,19 +2483,18 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(mapNode);
         mapNode->addChild(cam1);
 
-        SLCVMapStorage::init();
-
         //add tracker
-        SLCVTrackedRaulMurAsync* tm = new SLCVTrackedRaulMurAsync(cam1, vocabulary, kfDB, map, mapNode);
-        SLCVOrbTracking* orbTracking = tm->orbTracking();
-        s->trackers().push_back(tm);
+        //s->trackers().push_back(new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map, mapNode));
+        SLCVTrackedRaulMurAsync* raulMurTracker = new SLCVTrackedRaulMurAsync(cam1, vocabulary, kfDB, map, mapNode);
+        s->trackers().push_back(raulMurTracker);
 
+        SLCVOrbTracking* orbT = raulMurTracker->orbTracking();
         //setup scene specific gui dialoges
-        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", orbTracking);
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", orbT );
         AppDemoGui::addInfoDialog(trackingInfos);
-        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", orbTracking->getMap());
+        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", orbT );
         AppDemoGui::addInfoDialog(mapTransform);
-        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", orbTracking->getMap(), mapNode, orbTracking->getKfDB(), orbTracking);
+        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", orbT);
         AppDemoGui::addInfoDialog(mapStorage);
 
         //add yellow augmented box
@@ -2535,7 +2540,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //load map points and keyframes from json file
         SLCVMap* map = new SLCVMap("Map");
-        SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
+        SLCVMapIO loader(slamStateFilePath, vocabulary, false);
         loader.load(*map, *kfDB);
 
         SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
@@ -2628,9 +2633,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemoGui::addInfoDialog(trackedMappingUI);
         auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm);
         AppDemoGui::addInfoDialog(trackingInfos);
-        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm->getMap());
+        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm);
         AppDemoGui::addInfoDialog(mapTransform);
-        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm->getMap(), mapNode, tm->getKfDB(), tm);
+        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm );
         AppDemoGui::addInfoDialog(mapStorage);
 
 

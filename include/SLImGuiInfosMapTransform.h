@@ -16,17 +16,19 @@
 
 //interface
 class SLTrackingInfosInterface;
+class SLCVMapTracking;
 class SLCVMap;
 
 //-----------------------------------------------------------------------------
 class SLImGuiInfosMapTransform : public SLImGuiInfosDialog
 {
 public:
-    SLImGuiInfosMapTransform(std::string name, SLCVMap* map);
+    SLImGuiInfosMapTransform(std::string name, SLCVMapTracking* tracking);
 
     void buildInfos() override;
 
 private:
+    SLCVMapTracking* _tracking = nullptr;
     SLCVMap* _map = nullptr;
 
     float _transformationRotValue = 10.0f;;

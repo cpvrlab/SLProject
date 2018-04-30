@@ -22,8 +22,7 @@ class SLCVMapTracking;
 class SLImGuiMapStorage : public SLImGuiInfosDialog
 {
 public:
-    SLImGuiMapStorage(const string& name, SLCVMap* map, SLCVMapNode* mapNode, 
-        SLCVKeyFrameDB* kfDB, SLCVMapTracking* tracking);
+    SLImGuiMapStorage(const string& name, SLCVMapTracking* tracking);
 
     void buildInfos() override;
 
@@ -32,11 +31,6 @@ private:
     SLCVMapNode* _mapNode;
     SLCVKeyFrameDB* _kfDB;
     SLCVMapTracking* _tracking;
-
-    ////!currently selected combobox item
-    //static const char* _currItem;
-    ////!currently selected combobox index
-    //static int _currN;
 };
 
 #endif //SL_IMGUI_MAPSTORAGE_H

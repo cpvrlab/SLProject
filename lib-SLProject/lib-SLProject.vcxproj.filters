@@ -336,9 +336,6 @@
     <ClInclude Include="..\include\SLCVMap.h">
       <Filter>CV</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLCVSlamStateLoader.h">
-      <Filter>CV</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLDeviceLocation.h">
       <Filter>SL</Filter>
     </ClInclude>
@@ -454,6 +451,12 @@
       <Filter>CV</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLCVOrbTracking.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVMapIO.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVTrackingStateMachine.h">
       <Filter>CV</Filter>
     </ClInclude>
   </ItemGroup>
@@ -668,9 +671,6 @@
     <ClCompile Include="source\CV\SLCVMapPoint.cpp">
       <Filter>CV</Filter>
     </ClCompile>
-    <ClCompile Include="source\CV\SLCVSlamStateLoader.cpp">
-      <Filter>CV</Filter>
-    </ClCompile>
     <ClCompile Include="source\SLDeviceLocation.cpp">
       <Filter>SL</Filter>
     </ClCompile>
@@ -781,6 +781,12 @@
       <Filter>CV</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\SLCVOrbTracking.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVMapIO.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVTrackingStateMachine.cpp">
       <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>

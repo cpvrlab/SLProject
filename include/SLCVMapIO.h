@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVSlamStateLoader.h
+//  File:      SLCVMapIO.h
 //  Author:    Michael Goettlicher
 //  Date:      October 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLCV_SLAMSTATELOADER_H
-#define SLCV_SLAMSTATELOADER_H
+#ifndef SLCV_MAPIO_H
+#define SLCV_MAPIO_H
 
 #include <vector>
 #include <opencv2/core/core.hpp>
@@ -25,14 +25,15 @@ using namespace ORB_SLAM2;
 //! 
 /*!
 */
-class SLCVSlamStateLoader
+class SLCVMapIO
 {
 public:
     //! Opens and parses file with opencvs FileStorage
-    SLCVSlamStateLoader(const string& filename, ORBVocabulary* orbVoc, bool loadKfImgs=true);
-    ~SLCVSlamStateLoader();
+    SLCVMapIO(const string& filename, ORBVocabulary* orbVoc, bool kfImgsIO=true, std::string currImgPath = "");
+    ~SLCVMapIO();
     //! execute loading procedure
     void load(SLCVMap& map, SLCVKeyFrameDB& kfDB);
+    static void save(const string& filename, SLCVMap& map, bool kfImgsIO, const string& pathImgs);
 
 protected:
     
@@ -46,7 +47,8 @@ private:
     ORBVocabulary* _orbVoc;
 
     //load keyframe images
-    bool _loadKfImgs = false;
+    bool _kfImgsIO = false;
+    std::string _currImgPath;
 
     //mapping of keyframe pointer by their id (used during map points loading)
     map<int, SLCVKeyFrame*> _kfsMap;
@@ -62,4 +64,4 @@ private:
     std::vector<float> _vInvLevelSigma2;
 };
 
-#endif // !SLCV_SLAMSTATELOADER_H
+#endif // !SLCV_MAPIO_H

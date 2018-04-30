@@ -311,7 +311,7 @@
     <ClInclude Include="..\include\SLCVOrbVocabulary.h" />
     <ClInclude Include="..\include\SLCVRaulMurExtractorNode.h" />
     <ClInclude Include="..\include\SLCVRaulMurOrb.h" />
-    <ClInclude Include="..\include\SLCVSlamStateLoader.h" />
+    <ClInclude Include="..\include\SLCVMapIO.h" />
     <ClInclude Include="..\include\SLCVStateEstimator.h" />
     <ClInclude Include="..\include\SLCVTrackedAruco.h" />
     <ClInclude Include="..\include\SLCVCalibration.h" />
@@ -322,6 +322,7 @@
     <ClInclude Include="..\include\SLCVTrackedMapping.h" />
     <ClInclude Include="..\include\SLCVTrackedRaulMur.h" />
     <ClInclude Include="..\include\SLCVTrackedRaulMurAsync.h" />
+    <ClInclude Include="..\include\SLCVTrackingStateMachine.h" />
     <ClInclude Include="..\include\SLDeviceLocation.h" />
     <ClInclude Include="..\include\SLDeviceRotation.h" />
     <ClInclude Include="..\include\SLDisk.h" />
@@ -436,7 +437,7 @@
     <ClCompile Include="source\CV\SLCVOrbVocabulary.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurExtractorNode.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurOrb.cpp" />
-    <ClCompile Include="source\CV\SLCVSlamStateLoader.cpp" />
+    <ClCompile Include="source\CV\SLCVMapIO.cpp" />
     <ClCompile Include="source\CV\SLCVStateEstimator.cpp" />
     <ClCompile Include="source\CV\SLCVTracked.cpp" />
     <ClCompile Include="source\CV\SLCVTrackedAruco.cpp" />
@@ -447,6 +448,7 @@
     <ClCompile Include="source\CV\SLCVTrackedMapping.cpp" />
     <ClCompile Include="source\CV\SLCVTrackedRaulMur.cpp" />
     <ClCompile Include="source\CV\SLCVTrackedRaulMurAsync.cpp" />
+    <ClCompile Include="source\CV\SLCVTrackingStateMachine.cpp" />
     <ClCompile Include="source\GL\SLGLImGui.cpp" />
     <ClCompile Include="source\GL\SLGLOculus.cpp" />
     <ClCompile Include="source\GL\SLGLOculusFB.cpp" />

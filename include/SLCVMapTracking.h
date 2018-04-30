@@ -13,10 +13,12 @@
 
 #include <SLTrackingInfosInterface.h>
 #include <SLCVFrame.h>
+#include <SLCVTrackingStateMachine.h>
 
 class SLCVKeyFrameDB;
 class SLCVMap;
 class SLCVMapNode;
+class SLCVCalibration;
 
 //-----------------------------------------------------------------------------
 //! Map Tracking
@@ -29,22 +31,17 @@ Also, this class contains functions to update the scene (SLCVMapNode).
 class SLCVMapTracking : public SLTrackingInfosInterface
 {
 public:
-    SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode);
-    SLCVMapTracking(SLCVMapNode* mapNode);
+    SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode, bool serial);
+    SLCVMapTracking(SLCVMapNode* mapNode, bool serial);
 
-    // Tracking states
-    enum eTrackingState {
-        SYSTEM_NOT_READY = -1,
-        NO_IMAGES_YET = 0,
-        NOT_INITIALIZED = 1,
-        OK = 2,
-        LOST = 3
-    };
+    void track();
+    void idle();
+    virtual void initialize() {}
+    virtual void track3DPts() {}
 
-    eTrackingState mState = NOT_INITIALIZED;;
-    eTrackingState mLastProcessedState = NOT_INITIALIZED;;
+    SLCVTrackingStateMachine sm;
 
-    virtual void Reset() {}
+    virtual void Reset() = 0;
 
     int getNMapMatches() override;
     int getNumKeyFrames() override;
@@ -52,11 +49,19 @@ public:
     float poseDifference() override;
     float meanReprojectionError() override;
     int mapPointsCount() override;
+    std::string getPrintableState() override;
 
     //getters
     SLCVMap* getMap() { return _map; }
     SLCVKeyFrameDB* getKfDB() { return mpKeyFrameDatabase; }
+    SLCVMapNode* getMapNode() { return _mapNode; }
 
+    //!getters for internal states
+    bool isInitialized() { return _initialized; }
+    bool isOK() { return _bOK; }
+    //!setters
+    void setInitialized(bool flag) { _initialized = flag; }
+    bool serial() { return _serial; }
 protected:
     //!calculation of mean reprojection error of all matches
     void calculateMeanReprojectionError();
@@ -99,10 +104,20 @@ protected:
     //Current matches in frame
     int mnMatchesInliers = 0;
 
+    //!flags, if map tracking is OK
+    bool _bOK = false;
+    //!flags, if map is initialized
+    bool _initialized = false;
+
+    bool _serial = false;
+
     std::mutex _meanProjErrorLock;
     std::mutex _poseDiffLock;
     std::mutex _mapLock;
     std::mutex _nMapMatchesLock;
+
+    SLCVCalibration* _calib = nullptr;
+    SLCVMat _imageGray;
 };
 
 #endif //SLCVMAPTRACKING_H

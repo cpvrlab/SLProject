@@ -34,7 +34,7 @@ using namespace ORB_SLAM2;
 SLCVTrackedRaulMur::SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary, 
     SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode)
     : SLCVTracked(node),
-    SLCVMapTracking(keyFrameDB, map, mapNode),
+    SLCVMapTracking(keyFrameDB, map, mapNode, true),
     mpVocabulary(vocabulary)
     //mpKeyFrameDatabase(keyFrameDB),
     //_map(map),
@@ -44,7 +44,9 @@ SLCVTrackedRaulMur::SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary,
     _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
 
     //system is initialized, because we loaded an existing map, but we have to relocalize
-    mState = LOST;
+    //mState = LOST;
+    _initialized = true;
+    _bOK = false;
 }
 //-----------------------------------------------------------------------------
 SLCVTrackedRaulMur::~SLCVTrackedRaulMur()
@@ -59,59 +61,6 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     SLbool drawDetection,
     SLSceneView* sv)
 {
-    ////find map point matches
-    //std::vector<SLCVMapPoint*> mapPointMatches;
-
-    //for (int i = 0; i < mCurrentFrame.N; i++)
-    //{
-    //    if (mCurrentFrame.mvpMapPoints[i])
-    //    {
-    //        if (!mCurrentFrame.mvbOutlier[i])
-    //        {
-    //            if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
-    //                mapPointMatches.push_back(mCurrentFrame.mvpMapPoints[i]);
-    //        }
-    //    }
-    //}
-
-    ////update scene:
-    ////make a new SLPoints object
-    //if (!_pcMat1) {
-    //    _pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
-    //    _pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-    //    _pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
-    //}
-
-    ////get points as Vec3f
-    //SLVVec3f points, normals;
-    //for (auto mapPt : mapPointMatches) {
-    //    points.push_back(mapPt->worldPosVec());
-    //    normals.push_back(mapPt->normalVec());
-    //}
-
-    //SLRnd3fUniform rndU(SLVec3f(0, 0, 0), SLVec3f(2, 3, 5));
-    ////SLNode* pc2 = new SLNode(new SLPoints(1000, rndU, "PC2", pcMat2));
-    ////SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", _pcMat1);
-    //SLPoints* mapMatchesMesh = new SLPoints(1000, rndU, "MapPointsMatches", _pcMat1);
-    ////add to map node
-    //if (SLMesh* mesh = _mapMatchesPC->findMesh("MapPointsMatches")) {
-    //    _mapMatchesPC->deleteMesh(mesh);
-    //}
-    ////_mapMatchesPC->removeMesh("MapPointsMatches");
-    //_mapMatchesPC->addMesh(mapMatchesMesh);
-    //_mapMatchesPC->updateAABBRec();
-
-
-    //return false;
-
-
-
-
-
-
-
-
-
 
 
 
@@ -145,14 +94,14 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     //calib->remap(image, image);
 
     // System is initialized. Track Frame.
-    mLastProcessedState = mState;
-    bool bOK=false;
+    //mLastProcessedState = mState;
+    //bool bOK=false;
 
     // Localization Mode: Local Mapping is deactivated
-    if (mState == LOST)
+    if (sm.state() == SLCVTrackingStateMachine::TRACKING_LOST)
     {
         SLAverageTiming::start("Relocalization");
-        bOK = Relocalization();
+        _bOK = Relocalization();
         SLAverageTiming::stop("Relocalization");
     }
     else
@@ -162,7 +111,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
         {
             if (!mVelocity.empty()) { //we have a valid motion model
                 SLAverageTiming::start("TrackWithMotionModel");
-                bOK = TrackWithMotionModel();
+                _bOK = TrackWithMotionModel();
                 SLAverageTiming::stop("TrackWithMotionModel");
             }
             else { //we have NO valid motion model
@@ -171,7 +120,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
                 // from the local map that shares most matches with the current frames local map points matches.
                 // It is updated in UpdateLocalKeyFrames().
                 SLAverageTiming::start("TrackReferenceKeyFrame");
-                bOK = TrackReferenceKeyFrame();
+                _bOK = TrackReferenceKeyFrame();
                 SLAverageTiming::stop("TrackReferenceKeyFrame");
             }
         }
@@ -219,7 +168,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
                 mbVO = false;
             }
 
-            bOK = bOKReloc || bOKMM;
+            _bOK = bOKReloc || bOKMM;
 
             SLAverageTiming::stop("visualOdometry");
         }
@@ -230,23 +179,23 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
     // the camera we will use the local map again.
 
-    if (bOK && !mbVO)
+    if (_bOK && !mbVO)
     {
         SLAverageTiming::start("TrackLocalMap");
-        bOK = TrackLocalMap();
+        _bOK = TrackLocalMap();
         SLAverageTiming::stop("TrackLocalMap");
     }
 
-    if (bOK)
-        mState = OK;
-    else
-        mState = LOST;
+    //if (bOK)
+    //    mState = OK;
+    //else
+    //    mState = LOST;
 
     //add map points to scene and keypoints to video image
     decorateSceneAndVideo(imageRgb);
 
     // If tracking were good
-    if (bOK)
+    if (_bOK)
     {
         // Update motion model
         if (!mLastFrame.mTcw.empty())
@@ -318,7 +267,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
         mlRelativeFramePoses.push_back(Tcr);
         mlpReferences.push_back(mpReferenceKF);
         mlFrameTimes.push_back(mCurrentFrame.mTimeStamp);
-        mlbLost.push_back(mState == LOST);
+        mlbLost.push_back(sm.state() == SLCVTrackingStateMachine::TRACKING_LOST);
     }
     else if(mlRelativeFramePoses.size() && mlpReferences.size() && mlFrameTimes.size())
     {
@@ -326,7 +275,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
         mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
         mlpReferences.push_back(mlpReferences.back());
         mlFrameTimes.push_back(mlFrameTimes.back());
-        mlbLost.push_back(mState == LOST);
+        mlbLost.push_back(sm.state() == SLCVTrackingStateMachine::TRACKING_LOST);
     }
     
     SLAverageTiming::stop("track");
@@ -719,7 +668,7 @@ void SLCVTrackedRaulMur::SearchLocalPoints()
 bool SLCVTrackedRaulMur::TrackReferenceKeyFrame()
 {
     //This routine is called if current tracking state is OK but we have NO valid motion model
-    //1. Berechnung des BoW-Vectors f�r den current frame
+    //1. Berechnung des BoW-Vectors fuer den current frame
     //2. using BoW we search mappoint matches (from reference keyframe) with orb in current frame (ORB that belong to the same vocabulary node (at a certain level))
     //3. if there are less than 15 matches return.
     //4. we use the pose found for the last frame as initial pose for the current frame
@@ -929,4 +878,33 @@ void SLCVTrackedRaulMur::UpdateLocalKeyFrames()
     }
 }
 //-----------------------------------------------------------------------------
+void SLCVTrackedRaulMur::Reset()
+{
+    cout << "System Reseting" << endl;
 
+    // Clear BoW Database
+    mpKeyFrameDatabase->clear();
+
+    // Clear Map (this erase MapPoints and KeyFrames)
+    _map->clear();
+
+    SLCVKeyFrame::nNextId = 0;
+    SLCVFrame::nNextId = 0;
+    //mState = NO_IMAGES_YET;
+    _initialized = false;
+    _bOK = false;
+
+    mlRelativeFramePoses.clear();
+    mlpReferences.clear();
+    mlFrameTimes.clear();
+    mlbLost.clear();
+
+    //mpLastKeyFrame = NULL;
+    mpReferenceKF = NULL;
+    mvpLocalMapPoints.clear();
+    mvpLocalKeyFrames.clear();
+    mnMatchesInliers = 0;
+    //_addKeyframe = false;
+
+    _mapNode->clearAll();
+}

@@ -11,8 +11,12 @@
 #ifndef SLCV_MAPSTORAGE
 #define SLCV_MAPSTORAGE
 
+class SLCVMapTracking;
+
 //-----------------------------------------------------------------------------
 /* This class keeps track of the existing slam maps (SLCVMap) in the storage.
+It can read slam maps from this storage and fill the SLCVMap with it. It also
+can write SLCVMaps into this storage. You have to call init()
 */
 class SLCVMapStorage
 {
@@ -21,8 +25,8 @@ public:
 
     //check if directory for map storage exists and read existing map names
     static void init();
-    static void saveMap(int id, SLCVMap& map, bool saveImgs);
-    void loadMap(const string& name, SLCVMap& map, SLCVKeyFrameDB& kfDB);
+    static void saveMap(int id, SLCVMapTracking* mapTracking, bool saveImgs);
+    bool loadMap(const string& name, SLCVMapTracking* mapTracking);
     //increase current id and maximum id in MapStorage
     static void newMap();
 
@@ -37,26 +41,11 @@ public:
     static int currN;
 
 private:
-    void loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB);
-    void loadMapPoints(SLCVMap& map);
-
-    //calculation of scaleFactors , levelsigma2, invScaleFactors and invLevelSigma2
-    void calculateScaleFactors(float scaleFactor, int nlevels);
-    void clear();
-
     cv::FileStorage _fs;
     ORBVocabulary* _orbVoc;
 
     //load keyframe images
     bool _loadKfImgs = false;
-
-    //mapping of keyframe pointer by their id (used during map points loading)
-    map<int, SLCVKeyFrame*> _kfsMap;
-    //vectors for precalculation of scalefactors
-    std::vector<float> _vScaleFactor;
-    std::vector<float> _vInvScaleFactor;
-    std::vector<float> _vLevelSigma2;
-    std::vector<float> _vInvLevelSigma2;
     SLstring _currPathImgs;
 
     static unsigned int _nextId;
@@ -64,6 +53,7 @@ private:
     static SLstring _mapPrefix;
     static SLstring _mapsDirName;
     static SLstring _mapsDir;
+    static SLbool _isInitialized;
 };
 //-----------------------------------------------------------------------------
 

@@ -33,7 +33,7 @@ for a good top down information.
 #include <opencv2/imgproc.hpp>
 #include <opencv2/calib3d.hpp>
 #include <opencv2/video/tracking.hpp>
-#include <SLCVSlamStateLoader.h>
+#include <SLCVMapIO.h>
 #include <SLCVMapStorage.h>
 #include <SLCVOrbVocabulary.h>
 
@@ -42,7 +42,7 @@ using namespace cv;
 //-----------------------------------------------------------------------------
 SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
     : SLCVTracked(node),
-    SLCVMapTracking(mapNode)
+    SLCVMapTracking(mapNode, true)
 {
     //load visual vocabulary for relocalization
     mpVocabulary = SLCVOrbVocabulary::get();
@@ -68,13 +68,11 @@ SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
 
     if (_map->KeyFramesInMap())
     {
-        //_currentState = TRACK_3DPTS;
-        mState = LOST;
+        _initialized = true;
     }
     else
     {
-        //_currentState = INITIALIZE;
-        mState = NOT_INITIALIZED;
+        _initialized = false;
     }
 
     int nFeatures = 1000;
@@ -115,41 +113,30 @@ SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
 
     // Current Frame
     double timestamp = 0.0; //todo
-    //if (_currentState != IDLE) {
 
-        //we use different extractors for initialization and tracking
-    if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET) {
-        mCurrentFrame = SLCVFrame(imageGray, timestamp, mpIniORBextractor,
-            calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
-    }
-    else {
-        mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor,
-            calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
-    }
+    _calib = calib;
+    _imageGray = imageGray;
+    SLCVMapTracking::track();
+    ////apply state transitions
+    //sm.stateTransition();
 
-    decorateVideoWithKeyPoints(_img);
-    //}
-
-    if (mState == NOT_INITIALIZED)
-        initialize();
-    else
-        track3DPts();
-
-    //switch (_currentState)
+    //track();
+    //switch (sm.state())
     //{
-    //case IDLE:
-    //    break;
-    //case INITIALIZE:
+    //case SLCVTrackingStateMachine::INITIALIZING:
+    //    //mCurrentFrame = SLCVFrame(imageGray, timestamp, mpIniORBextractor,
+    //    //    calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
     //    initialize();
     //    break;
-    //case TRACK_VO:
-    //    trackVO();
+    //case SLCVTrackingStateMachine::IDLE:
     //    break;
-    //case TRACK_3DPTS:
+    //case SLCVTrackingStateMachine::TRACKING_OK:
+    ////todo: divide relocalization and tracking
+    //case SLCVTrackingStateMachine::TRACKING_LOST:
+    //    //mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor,
+    //    //    calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
+    //    //relocalize or track 3d points
     //    track3DPts();
-    //    break;
-    //case TRACK_OPTICAL_FLOW:
-    //    trackOpticalFlow();
     //    break;
     //}
 
@@ -169,6 +156,9 @@ void SLCVTrackedMapping::initialize()
     //  - a global bundle adjustment is applied
     //  - the two new keyframes are added to the local mapper and the local mapper is started twice
     //  - the tracking state is changed to TRACKING/INITIALIZED
+
+    mCurrentFrame = SLCVFrame(_imageGray, 0.0, mpIniORBextractor,
+        _calib->cameraMat(), _calib->distortion(), mpVocabulary, _retainImg);
 
     if (!mpInitializer)
     {
@@ -250,6 +240,9 @@ void SLCVTrackedMapping::initialize()
             mCurrentFrame.SetPose(Tcw);
 
             CreateInitialMapMonocular();
+            //mark tracking as initialized
+            _initialized = true;
+            _bOK = true;
 
             //ghm1: in the original implementation the initialization is defined in the track() function and this part is always called at the end!
             // Store frame pose information to retrieve the complete camera trajectory afterwards.
@@ -259,7 +252,7 @@ void SLCVTrackedMapping::initialize()
                 mlRelativeFramePoses.push_back(Tcr);
                 mlpReferences.push_back(mpReferenceKF);
                 mlFrameTimes.push_back(mCurrentFrame.mTimeStamp);
-                mlbLost.push_back(mState == LOST);
+                mlbLost.push_back(sm.state() == SLCVTrackingStateMachine::TRACKING_LOST);
             }
             else if(mlRelativeFramePoses.size())
             {
@@ -267,7 +260,7 @@ void SLCVTrackedMapping::initialize()
                 mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
                 mlpReferences.push_back(mlpReferences.back());
                 mlFrameTimes.push_back(mlFrameTimes.back());
-                mlbLost.push_back(mState == LOST);
+                mlbLost.push_back(sm.state() == SLCVTrackingStateMachine::TRACKING_LOST);
             }
         }
     }
@@ -282,12 +275,16 @@ void SLCVTrackedMapping::trackVO()
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::track3DPts()
 {
-    mLastProcessedState = mState;
-    bool bOK;
+    mCurrentFrame = SLCVFrame(_imageGray, 0.0, _extractor,
+        _calib->cameraMat(), _calib->distortion(), mpVocabulary, _retainImg);
 
-    if (mState == LOST)
+    //mLastProcessedState = mState;
+    //bool bOK;
+    _bOK = false;
+
+    if (sm.state() == SLCVTrackingStateMachine::TRACKING_LOST)
     {
-        bOK = Relocalization();
+        _bOK = Relocalization();
         //cout << "Relocalization: " << bOK << endl;
     }
     else
@@ -296,7 +293,7 @@ void SLCVTrackedMapping::track3DPts()
         if (!mbVO) // In last frame we tracked enough MapPoints from the Map
         {
             if (!mVelocity.empty()) { //we have a valid motion model
-                bOK = TrackWithMotionModel();
+                _bOK = TrackWithMotionModel();
                 //cout << "TrackWithMotionModel: " << bOK << endl;
             }
             else {
@@ -305,7 +302,7 @@ void SLCVTrackedMapping::track3DPts()
                    // Every current frame gets a reference keyframe assigned which is the keyframe 
                    // from the local map that shares most matches with the current frames local map points matches.
                    // It is updated in UpdateLocalKeyFrames().
-                bOK = TrackReferenceKeyFrame();
+                _bOK = TrackReferenceKeyFrame();
                 //cout << "TrackReferenceKeyFrame" << endl;
             }
         }
@@ -351,7 +348,7 @@ void SLCVTrackedMapping::track3DPts()
                 mbVO = false;
             }
 
-            bOK = bOKReloc || bOKMM;
+            _bOK = bOKReloc || bOKMM;
         }
     }
 
@@ -360,18 +357,18 @@ void SLCVTrackedMapping::track3DPts()
     // the camera we will use the local map again.
 
 
-    if (bOK && !mbVO) {
-        bOK = TrackLocalMap();
+    if (_bOK && !mbVO) {
+        _bOK = TrackLocalMap();
         //cout << "TrackLocalMap: " << bOK << endl;
     }
 
-    if (bOK)
-        mState = OK;
-    else
-        mState = LOST;
+    //if (bOK)
+    //    mState = OK;
+    //else
+    //    mState = LOST;
 
     // If tracking were good
-    if (bOK)
+    if (_bOK)
     {
         // Update motion model
         if (!mLastFrame.mTcw.empty())
@@ -425,7 +422,7 @@ void SLCVTrackedMapping::track3DPts()
         }
 
         //ghm1: manual local mapping of current frame
-        if (bOK && _mapNextFrame)
+        if (_bOK && _mapNextFrame)
         {
             CreateNewKeyFrame();
             //call local mapper
@@ -470,7 +467,7 @@ void SLCVTrackedMapping::track3DPts()
         mlRelativeFramePoses.push_back(Tcr);
         mlpReferences.push_back(mpReferenceKF);
         mlFrameTimes.push_back(mCurrentFrame.mTimeStamp);
-        mlbLost.push_back(mState == LOST);
+        mlbLost.push_back(sm.state() == SLCVTrackingStateMachine::TRACKING_LOST);
     }
     else if (mlRelativeFramePoses.size() && mlpReferences.size() && mlFrameTimes.size())
     {
@@ -478,7 +475,7 @@ void SLCVTrackedMapping::track3DPts()
         mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
         mlpReferences.push_back(mlpReferences.back());
         mlFrameTimes.push_back(mlFrameTimes.back());
-        mlbLost.push_back(mState == LOST);
+        mlbLost.push_back(sm.state() == SLCVTrackingStateMachine::TRACKING_LOST);
     }
 }
 //-----------------------------------------------------------------------------
@@ -592,8 +589,8 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
 
     _map->mvpKeyFrameOrigins.push_back(pKFini);
 
-    mState = OK;
-
+    //mState = OK;
+    /*_bOK = true;*/
     //_currentState = TRACK_3DPTS;
 
     //ghm1: run local mapping once
@@ -727,7 +724,9 @@ void SLCVTrackedMapping::Reset()
 
     SLCVKeyFrame::nNextId = 0;
     SLCVFrame::nNextId = 0;
-    mState = NO_IMAGES_YET;
+    //mState = NO_IMAGES_YET;
+    _bOK = false;
+    _initialized = false;
 
     if (mpInitializer)
     {
@@ -747,10 +746,9 @@ void SLCVTrackedMapping::Reset()
     mnMatchesInliers = 0;
     _addKeyframe = false;
 
-    mState = eTrackingState::NOT_INITIALIZED;
-    //_currentState = INITIALIZE;
-    //if (mpViewer)
-    //    mpViewer->Release();
+    //we also have to clear the mapNode because it may access
+    //mappoints and keyframes while we are loading
+    _mapNode->clearAll();
 }
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::decorate()
@@ -1328,13 +1326,13 @@ void SLCVTrackedMapping::UpdateLastFrame()
     //So it seems, that the frames pose does not always refer to world frame...?
     mLastFrame.SetPose(Tlr*pRef->GetPose());
 }
-//-----------------------------------------------------------------------------
-void SLCVTrackedMapping::saveMap()
-{
-    SLCVMapStorage::saveMap(SLCVMapStorage ::getCurrentId(),*_map, true);
-    //update key frames, because there may be new textures in file system
-    _mapNode->updateKeyFrames(_map->GetAllKeyFrames());
-}
+////-----------------------------------------------------------------------------
+//void SLCVTrackedMapping::saveMap()
+//{
+//    SLCVMapStorage::saveMap(SLCVMapStorage ::getCurrentId(),*_map, true);
+//    //update key frames, because there may be new textures in file system
+//    _mapNode->updateKeyFrames(_map->GetAllKeyFrames());
+//}
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::globalBundleAdjustment()
 {

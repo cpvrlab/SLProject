@@ -14,17 +14,57 @@
 #include <SLCVMap.h>
 #include <SLCVMapNode.h>
 
+#ifndef _WINDOWS
+#include <unistd.h>
+#endif
+
 //-----------------------------------------------------------------------------
-SLCVMapTracking::SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode)
+SLCVMapTracking::SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, 
+    SLCVMapNode* mapNode, bool serial)
     : mpKeyFrameDatabase(keyFrameDB),
     _map(map),
-    _mapNode(mapNode)
+    _mapNode(mapNode),
+    _serial(serial),
+    sm(this, serial)
 {
 }
 //-----------------------------------------------------------------------------
-SLCVMapTracking::SLCVMapTracking(SLCVMapNode* mapNode)
-    : _mapNode(mapNode)
+SLCVMapTracking::SLCVMapTracking(SLCVMapNode* mapNode, bool serial)
+    : _mapNode(mapNode),
+    _serial(serial),
+    sm(this, serial)
 {
+}
+//-----------------------------------------------------------------------------
+void SLCVMapTracking::track()
+{
+    //apply state transitions
+    sm.stateTransition();
+
+    switch (sm.state())
+    {
+    case SLCVTrackingStateMachine::INITIALIZING:
+        initialize();
+        break;
+    case SLCVTrackingStateMachine::IDLE:
+        idle();
+        break;
+    case SLCVTrackingStateMachine::TRACKING_OK:
+        //todo: divide relocalization and tracking
+    case SLCVTrackingStateMachine::TRACKING_LOST:
+        //relocalize or track 3d points
+        track3DPts();
+        break;
+    }
+}
+//-----------------------------------------------------------------------------
+void SLCVMapTracking::idle()
+{
+#ifdef _WINDOWS
+    Sleep(1);
+#else
+    usleep(1000);
+#endif
 }
 //-----------------------------------------------------------------------------
 int SLCVMapTracking::getNMapMatches()
@@ -58,6 +98,11 @@ int SLCVMapTracking::mapPointsCount()
     return _map->MapPointsInMap();
   else
     return 0;
+}
+//-----------------------------------------------------------------------------
+string SLCVMapTracking::getPrintableState()
+{
+    return sm.getPrintableState();
 }
 //-----------------------------------------------------------------------------
 void SLCVMapTracking::calculateMeanReprojectionError()
@@ -204,7 +249,7 @@ void SLCVMapTracking::decorateScene()
 
   //-------------------------------------------------------------------------
   //decorate scene with mappoints that were matched to keypoints in current frame
-  if (mState == OK && _showMatchesPC)
+  if (sm.state() == SLCVTrackingStateMachine::TRACKING_OK && _showMatchesPC)
   {
     //find map point matches
     std::vector<SLCVMapPoint*> mapPointMatches;
@@ -231,7 +276,7 @@ void SLCVMapTracking::decorateScene()
 
     //-------------------------------------------------------------------------
     //decorate scene with mappoints of local map
-    if (mState == OK && _showLocalMapPC)
+    if (sm.state() == SLCVTrackingStateMachine::TRACKING_OK && _showLocalMapPC)
         _mapNode->updateMapPointsLocal(mvpLocalMapPoints);
     else
         _mapNode->removeMapPointsLocal();

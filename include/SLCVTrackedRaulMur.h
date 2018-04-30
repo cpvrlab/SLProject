@@ -36,61 +36,37 @@ using namespace cv;
 //! SLCVTrackedRaulMur is the main part of the AR Christoffelturm scene
 /*! 
 */
-class SLCVTrackedRaulMur : public SLCVTracked, public SLCVMapTracking//SLTrackingInfosInterface
+class SLCVTrackedRaulMur : public SLCVTracked, public SLCVMapTracking
 {
 public:
-    //// Tracking states
-    //enum eTrackingState {
-    //    SYSTEM_NOT_READY = -1,
-    //    NO_IMAGES_YET = 0,
-    //    NOT_INITIALIZED = 1,
-    //    OK = 2,
-    //    LOST = 3
-    //};
+    //string getPrintableState() {
+    //    switch (mState)
+    //    {
+    //    case SYSTEM_NOT_READY:
+    //        return "SYSTEM_NOT_READY";
+    //    case NO_IMAGES_YET:
+    //        return "NO_IMAGES_YET";
+    //    case NOT_INITIALIZED:
+    //        return "NOT_INITIALIZED";
+    //    case OK:
+    //        if (!mbVO) {
+    //            if (!mVelocity.empty())
+    //                return "OK_MM"; //motion model tracking
+    //            else
+    //                return "OK_RF"; //reference frame tracking
+    //        }
+    //        else {
+    //            return "OK_VO";
+    //        }
+    //        return "OK";
+    //    case LOST:
+    //        return "LOST";
+    //    case IDLE:
+    //        return "IDLE";
 
-    //eTrackingState mState;
-    //eTrackingState mLastProcessedState;
-
-    ///*******************************************************************/
-    ////interface functions
-    //int getNMapMatches() override { return mnMatchesInliers; }
-    //int getNumKeyFrames() override { return _map->KeyFramesInMap(); }
-
-    //float poseDifference() override { return _poseDifference; }
-    //float meanReprojectionError() override { return _meanReprojectionError; }
-
-    //int mapPointsCount() override {
-    //    if (_map)
-    //        return _map->MapPointsInMap();
-    //    else
-    //        return 0;
+    //        return "";
+    //    }
     //}
-    string getPrintableState() {
-        switch (mState)
-        {
-        case SYSTEM_NOT_READY:
-            return "SYSTEM_NOT_READY";
-        case NO_IMAGES_YET:
-            return "NO_IMAGES_YET";
-        case NOT_INITIALIZED:
-            return "NOT_INITIALIZED";
-        case OK:
-            if (!mbVO) {
-                if (!mVelocity.empty())
-                    return "OK_MM"; //motion model tracking
-                else
-                    return "OK_RF"; //reference frame tracking
-            }
-            else {
-                return "OK_VO";
-            }
-            return "OK";
-        case LOST:
-            return "LOST";
-
-            return "";
-        }
-    }
     ///*******************************************************************/
 
     SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary,
@@ -102,29 +78,8 @@ public:
         SLbool drawDetection,
         SLSceneView* sv);
 
-    ////add map points to scene and keypoints to video image
-    //void decorateSceneAndVideo(cv::Mat& image);
-
-    //setters
-
-    ////getters
-    //SLCVMap* getMap() { return _map; }
-    //SLCVKeyFrameDB* getKfDB() { return mpKeyFrameDatabase; }
-
-    //enum TransformType {
-    //    ROT_X=0, ROT_Y, ROT_Z, TRANS_X, TRANS_Y, TRANS_Z, SCALE
-    //};
-
-    //// Build rotation matrix
-    //Mat buildRotMat(float &valDeg, int type);
-    //Mat buildTransMat(float &val, int type);
-    //void rotate(float value, int type);
-    //void translate(float value, int type);
-    //void scale(float value);
-    //void applyTransformation(double value, TransformType type);
-    //void saveState();
-
 protected:
+    void Reset() override;
     bool Relocalization();
     bool TrackWithMotionModel();
     bool TrackLocalMap();

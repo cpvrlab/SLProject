@@ -18,34 +18,7 @@
 
 class SLCVOrbTracking : public SLCVMapTracking
 {
-public:
-  string getPrintableState() {
-    switch (mState)
-      {
-      case SYSTEM_NOT_READY:
-	return "SYSTEM_NOT_READY";
-      case NO_IMAGES_YET:
-	return "NO_IMAGES_YET";
-      case NOT_INITIALIZED:
-	return "NOT_INITIALIZED";
-      case OK:
-	if (!mbVO) {
-	  if (!mVelocity.empty())
-	    return "OK_MM"; //motion model tracking
-	  else
-	    return "OK_RF"; //reference frame tracking
-	}
-	else {
-	  return "OK_VO";
-	}
-	return "OK";
-      case LOST:
-	return "LOST";
-
-	return "";
-      }
-    }
-  
+public: 
   SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
 		  SLCVKeyFrameDB* keyFrameDB,
 		  SLCVMap* map,
@@ -59,10 +32,12 @@ public:
   ~SLCVOrbTracking();
 
   void calib(SLCVCalibration* calib);
-  bool serial();
+  //bool serial();
 
-  void trackOrbs();
+  void track3DPts() override;
   
+  void Reset() override;
+
 protected:
   //Motion Model
   cv::Mat mVelocity;
@@ -87,7 +62,6 @@ protected:
 private:
   SLCVStateEstimator* _stateEstimator;
   bool _running = true;
-  bool _serial = false;
   SLCVCalibration* _calib = nullptr;
   //Last Frame, KeyFrame and Relocalisation Info
   unsigned int mnLastRelocFrameId = 0;
