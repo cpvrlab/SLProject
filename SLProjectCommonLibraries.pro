@@ -82,6 +82,8 @@ unix:!macx:!android {
     LIBS += -lpng
     LIBS += -lz
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/linux
+    LIBS += -llibjpeg
+    LIBS += -llibtiff
     LIBS += -lopencv_aruco
     LIBS += -lopencv_core
     LIBS += -lopencv_calib3d
