@@ -17,6 +17,8 @@ before_install:
  # additional headerfiles
  - sudo apt-get install libxxf86vm-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libpng-dev libudev-dev -y
  - sudo apt-get install -f qtbase5-dev qt5-default qttools5-dev-tools libqt5opengl5-dev -y
+ - sudo apt-get install -f -q libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev -y
+ - sudo apt-get install -f -q python-dev python-numpy libtbb2 libtbb-dev -y
  #- sudo apt-get install libopencv-core-dev libopencv-imgproc-dev libopencv-video-dev libopencv-videoio-dev
 
 script:
