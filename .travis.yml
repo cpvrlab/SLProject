@@ -19,8 +19,8 @@ install:
  
 script:
  - docker exec -t ubuntu bash -c "cd /travis;
-   qmake -recursive;
-   make"
+   ls -la;
+   qmake -recursive && make"
 
 branches:
   only:
