@@ -38,8 +38,7 @@ using namespace cv;
 class SLCVTrackedRaulMurAsync : public SLCVTracked
 {
 public:
-  SLCVTrackedRaulMurAsync(SLNode *node, ORBVocabulary* vocabulary,
-			  SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode = NULL );
+  SLCVTrackedRaulMurAsync(SLNode *node, SLCVMapNode* mapNode = NULL );
   SLbool track(SLCVMat imageGray,
 	       SLCVMat image,
 	       SLCVCalibration* calib,

@@ -19,16 +19,9 @@
 class SLCVOrbTracking : public SLCVMapTracking
 {
 public: 
-  SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
-		  SLCVKeyFrameDB* keyFrameDB,
-		  SLCVMap* map,
-		  SLCVMapNode* mapNode,
-		  ORBVocabulary* vocabulary,
-		  bool serial = false);
-  SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
-		  SLCVMapNode* mapNode,
-		  ORBVocabulary* vocabulary,
-		  bool serial = false);
+  SLCVOrbTracking( SLCVStateEstimator* stateEstimator,
+      SLCVMapNode* mapNode,
+      bool serial = false);
   ~SLCVOrbTracking();
 
   void calib(SLCVCalibration* calib);

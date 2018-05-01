@@ -12,42 +12,45 @@
 #include <SLCVOrbTracking.h>
 #include <SLCVCapture.h>
 #include <SLCVMapNode.h>
-
-SLCVOrbTracking::SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
-    SLCVKeyFrameDB* keyFrameDB,
-    SLCVMap* map,
-    SLCVMapNode* mapNode,
-    ORBVocabulary* vocabulary,
-    bool serial)
-    : SLCVMapTracking(keyFrameDB, map, mapNode, serial),
-    _stateEstimator{ stateEstimator },
-    mpVocabulary(vocabulary)
-{
-    //instantiate Orb extractor
-    _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
-
-    //system is initialized, because we loaded an existing map, but we have to relocalize
-    //mState = LOST;
-    _bOK = false;
-
-    if (!_serial)
-        _trackingThread = std::thread(&SLCVOrbTracking::trackOrbsContinuously, this);
-}
+#include <SLCVMapStorage.h>
+#include <SLCVOrbVocabulary.h>
 
 SLCVOrbTracking::SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
     SLCVMapNode* mapNode,
-    ORBVocabulary* vocabulary,
     bool serial)
     : SLCVMapTracking(mapNode, serial),
-    _stateEstimator{ stateEstimator },
-    mpVocabulary(vocabulary)
+    _stateEstimator{ stateEstimator }
 {
-    _serial = serial;
+    //load visual vocabulary for relocalization
+    mpVocabulary = SLCVOrbVocabulary::get();
+
+    //instantiate and load slam map
+    mpKeyFrameDatabase = new SLCVKeyFrameDB(*mpVocabulary);
+
+    _map = new SLCVMap("Map");
+    //set SLCVMap in SLCVMapNode and update SLCVMapNode with scene objects
+    mapNode->setMap(*_map);
+
+    //setup file system and check for existing files
+    SLCVMapStorage::init();
+    //make new map
+    SLCVMapStorage::newMap();
+
+    if (_map->KeyFramesInMap())
+        _initialized = true;
+    else
+        _initialized = false;
+
+    int nFeatures = 1000;
+    float fScaleFactor = 1.2;
+    int nLevels = 8;
+    int fIniThFAST = 20;
+    int fMinThFAST = 7;
+
     //instantiate Orb extractor
-    _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
+    _extractor = new ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
 
     //system is initialized, because we loaded an existing map, but we have to relocalize
-    //mState = LOST;
     _bOK = false;
 
     if (!_serial)
