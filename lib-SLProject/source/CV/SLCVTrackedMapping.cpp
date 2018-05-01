@@ -67,13 +67,9 @@ SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
     mapNode->addChild(node);
 
     if (_map->KeyFramesInMap())
-    {
         _initialized = true;
-    }
     else
-    {
         _initialized = false;
-    }
 
     int nFeatures = 1000;
     float fScaleFactor = 1.2;

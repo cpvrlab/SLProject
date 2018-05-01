@@ -226,6 +226,8 @@ void SLCVMap::scale(float value)
 //-----------------------------------------------------------------------------
 void SLCVMap::applyTransformation(double value, TransformType type)
 {
+    std::lock_guard<std::mutex> guard(mMutexMap);
+
     //apply rotation, translation and scale to Keyframe and MapPoint poses
     cout << "apply transform with value: " << value << endl;
     switch (type)
@@ -265,9 +267,9 @@ void SLCVMap::applyTransformation(double value, TransformType type)
     //update scene objects
     //exchange all Keyframes (also change name)
     if (_mapNode)
-    {
         _mapNode->updateAll(*this);
-    }
+    else
+        SL_WARN_MSG("SLCVMap: applyTransformation: SLCVMapNode is NULL! Cannot update visualization!\n");
 }
 //-----------------------------------------------------------------------------
 // Build rotation matrix

@@ -14,10 +14,6 @@
 #include <SLCVMap.h>
 #include <SLCVMapNode.h>
 
-#ifndef _WINDOWS
-#include <unistd.h>
-#endif
-
 //-----------------------------------------------------------------------------
 SLCVMapTracking::SLCVMapTracking(SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, 
     SLCVMapNode* mapNode, bool serial)
@@ -60,11 +56,12 @@ void SLCVMapTracking::track()
 //-----------------------------------------------------------------------------
 void SLCVMapTracking::idle()
 {
-#ifdef _WINDOWS
-    Sleep(1);
-#else
-    usleep(1000);
-#endif
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+//#ifdef _WINDOWS
+//    Sleep(1);
+//#else
+//    usleep(1000);
+//#endif
 }
 //-----------------------------------------------------------------------------
 int SLCVMapTracking::getNMapMatches()

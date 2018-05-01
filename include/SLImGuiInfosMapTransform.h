@@ -28,6 +28,10 @@ public:
     void buildInfos() override;
 
 private:
+    void stopTracking();
+    void applyTransformation( float transformationValue,
+        SLCVMap::TransformType type);
+
     SLCVMapTracking* _tracking = nullptr;
     SLCVMap* _map = nullptr;
 

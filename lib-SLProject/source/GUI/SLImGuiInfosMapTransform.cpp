@@ -24,6 +24,27 @@ SLImGuiInfosMapTransform::SLImGuiInfosMapTransform(std::string name, SLCVMapTrac
 {
 }
 //-----------------------------------------------------------------------------
+void SLImGuiInfosMapTransform::stopTracking()
+{
+    //set tracking in idle
+    _tracking->sm.requestStateIdle();
+    while (!_tracking->sm.hasStateIdle())
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+//-----------------------------------------------------------------------------
+void SLImGuiInfosMapTransform::applyTransformation(float transformationRotValue,
+    SLCVMap::TransformType type)
+{
+    //set tracking in idle
+    stopTracking();
+    //apply transformation in map
+    _map->applyTransformation(transformationRotValue, type);
+    //resume tracking
+    _tracking->sm.requestResume();
+}
+//-----------------------------------------------------------------------------
 void SLImGuiInfosMapTransform::buildInfos()
 {
     //rotation
@@ -33,15 +54,13 @@ void SLImGuiInfosMapTransform::buildInfos()
     static SLfloat sp = 3; //spacing
     SLfloat bW = (ImGui::GetContentRegionAvailWidth() - 2 * sp) / 3;
     if (ImGui::Button("RotX", ImVec2(bW, 0.0f))) {
-        //todo: set tracking in idle
-        _map->applyTransformation(_transformationRotValue, SLCVMap::ROT_X);
-        //todo: resume tracking
+        applyTransformation(_transformationRotValue, SLCVMap::ROT_X);
     } ImGui::SameLine(0.0, sp);
     if (ImGui::Button("RotY", ImVec2(bW, 0.0f))) {
-        _map->applyTransformation(_transformationRotValue, SLCVMap::ROT_Y);
+        applyTransformation(_transformationRotValue, SLCVMap::ROT_Y);
     } ImGui::SameLine(0.0, sp);
     if (ImGui::Button("RotZ", ImVec2(bW, 0.0f))) {
-        _map->applyTransformation(_transformationRotValue, SLCVMap::ROT_Z);
+        applyTransformation(_transformationRotValue, SLCVMap::ROT_Z);
     }
     ImGui::Separator();
 
@@ -49,13 +68,13 @@ void SLImGuiInfosMapTransform::buildInfos()
     ImGui::InputFloat("Transl. Value", &_transformationTransValue, 0.1f);
 
     if (ImGui::Button("TransX", ImVec2(bW, 0.0f))) {
-        _map->applyTransformation(_transformationTransValue, SLCVMap::TRANS_X);
+        applyTransformation(_transformationTransValue, SLCVMap::TRANS_X);
     } ImGui::SameLine(0.0, sp);
     if (ImGui::Button("TransY", ImVec2(bW, 0.0f))) {
-        _map->applyTransformation(_transformationTransValue, SLCVMap::TRANS_Y);
+        applyTransformation(_transformationTransValue, SLCVMap::TRANS_Y);
     } ImGui::SameLine(0.0, sp);
     if (ImGui::Button("TransZ", ImVec2(bW, 0.0f))) {
-        _map->applyTransformation(_transformationTransValue, SLCVMap::TRANS_Z);
+        applyTransformation(_transformationTransValue, SLCVMap::TRANS_Z);
     }
     ImGui::Separator();
 
@@ -64,7 +83,7 @@ void SLImGuiInfosMapTransform::buildInfos()
     _transformationScaleValue = ImClamp(_transformationScaleValue, 0.0f, 1000.0f);
 
     if (ImGui::Button("Scale", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        _map->applyTransformation(_transformationScaleValue, SLCVMap::SCALE);
+        applyTransformation(_transformationScaleValue, SLCVMap::SCALE);
     }
     ImGui::Separator();
 
