@@ -10,12 +10,12 @@ before_install:
 
 install:
  - docker exec -t ubuntu bash -c "apt-get update;
-   apt-get install git;
-   apt-get install qtcreator qtbase5-dev qt5-default;
-   apt-get install libxxf86vm-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libudev-dev;
-   apt-get install libavcodec-dev libavformat-dev libswscale-dev;
-   apt-get install g++;
-   apt-get install libdc1394-22"
+   apt-get install -y git;
+   apt-get install -y qtcreator qtbase5-dev qt5-default;
+   apt-get install -y libxxf86vm-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libudev-dev;
+   apt-get install -y libavcodec-dev libavformat-dev libswscale-dev;
+   apt-get install -y g++;
+   apt-get install -y libdc1394-22"
  
 script:
  - docker exec -t ubuntu bash -c "cd /travis;
