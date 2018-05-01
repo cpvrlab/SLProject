@@ -29,10 +29,6 @@
 #include<mutex>
 #include<thread>
 
-#ifndef _WINDOWS
-#include <unistd.h>
-#endif
-
 namespace ORB_SLAM2
 {
 
@@ -81,11 +77,7 @@ void LoopClosing::Run()
         if(CheckFinish())
             break;
 
-#ifdef _WINDOWS
-                Sleep(5);
-#else
-                usleep(5000);
-#endif
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     SetFinish();
@@ -610,11 +602,7 @@ void LoopClosing::CorrectLoop()
     // Wait until Local Mapping has effectively stopped
     while(!mpLocalMapper->isStopped())
     {
-#ifdef _WINDOWS
-                Sleep(1);
-#else
-                usleep(1000);
-#endif
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     doCorrectLoop();
@@ -670,11 +658,7 @@ void LoopClosing::RequestReset()
         if(!mbResetRequested)
             break;
         }
-#ifdef _WINDOWS
-                Sleep(5);
-#else
-                usleep(5000);
-#endif
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }
 
@@ -714,11 +698,7 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
 
             while(!mpLocalMapper->isStopped() && !mpLocalMapper->isFinished())
             {
-#ifdef _WINDOWS
-                Sleep(1);
-#else
-                usleep(1000);
-#endif
+                std::this_thread::sleep_for(std::chrono::seconds(1));
             }
 
             // Get Map Mutex

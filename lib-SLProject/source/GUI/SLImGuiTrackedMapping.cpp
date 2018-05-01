@@ -16,11 +16,6 @@
 #include <SLCVTrackedMapping.h>
 #include <SLCVMapStorage.h>
 
-#ifndef _WINDOWS
-#include <unistd.h>
-#endif
-
-
 //-----------------------------------------------------------------------------
 const char* SLImGuiTrackedMapping::_currItem = NULL;
 int SLImGuiTrackedMapping::_currN = -1;
@@ -37,11 +32,12 @@ void SLImGuiTrackedMapping::buildInfos()
         _mappingTracker->sm.requestStateIdle();
         while (!_mappingTracker->sm.hasStateIdle())
         {
-#ifdef _WINDOWS
-            Sleep(1);
-#else
-            usleep(1000);
-#endif
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+//#ifdef _WINDOWS
+//            Sleep(1);
+//#else
+//            usleep(1000);
+//#endif
         }
         _mappingTracker->Reset();
         _mappingTracker->sm.requestResume();
