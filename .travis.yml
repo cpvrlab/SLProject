@@ -18,7 +18,8 @@ install:
    apt-get install -y libdc1394-22"
  
 script:
- - docker exec -t ubuntu-test bash -c "cd /travis;
+ - docker exec -t ubuntu-test bash -c "cd /travis &&
+   ls -la &&
    qmake -recursive && make"
 
 branches:
