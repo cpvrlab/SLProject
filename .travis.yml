@@ -1,30 +1,27 @@
 language: cpp
-
-os:
-  - linux
-
 sudo: required
-dist: trusty
 
+services:
+    - docker
+    
 before_install:
- - if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install opencv && brew install qt5 && brew link --force qt5; fi
- - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
- # qt5
- - sudo add-apt-repository ppa:ubuntu-sdk-team/ppa -y
- - sudo apt-get update -qq -y
- # g++ 4.8 for std=c++11
- - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
- # additional headerfiles
- - sudo apt-get install libxxf86vm-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libpng-dev libudev-dev -y
- - sudo apt-get install -f qtbase5-dev qt5-default qttools5-dev-tools libqt5opengl5-dev -y
- - sudo apt-get install -f -q libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev -y
- - sudo apt-get install -f -q python-dev python-numpy libtbb2 libtbb-dev -y
- #- sudo apt-get install libopencv-core-dev libopencv-imgproc-dev libopencv-video-dev libopencv-videoio-dev
+ - docker run -d --name ubuntu -v $(pwd):/travis ubuntu:latest tail -f /dev/null
+ - docker ps
 
-script:
- - qmake -recursive QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
- - make
+install:
+ - docker exec -t ubuntu bash -c "apt-get update;
+   apt-get install git;
+   apt-get install qtcreator qtbase5-dev qt5-default;
+   apt-get install libxxf86vm-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libudev-dev;
+   apt-get install libavcodec-dev libavformat-dev libswscale-dev;
+   apt-get install g++;
+   apt-get install libdc1394-22"
  
+script:
+ - docker exec -t ubuntu bash -c "cd /travis;
+   qmake -recursive;
+   make"
+
 branches:
   only:
     - master

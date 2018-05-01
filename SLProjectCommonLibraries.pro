@@ -79,9 +79,8 @@ unix:!macx:!android {
     LIBS += -lXcursor
     LIBS += -ludev      #libudev-dev
     LIBS += -lpthread   #libpthread
-    LIBS += -lpng
-    LIBS += -lz
     LIBS += -L$$PWD/_lib/prebuilt/OpenCV/linux
+    LIBS += -llibjasper
     LIBS += -lzlib
     LIBS += -llibpng
     LIBS += -llibjpeg
@@ -91,6 +90,7 @@ unix:!macx:!android {
     LIBS += -littnotify
     LIBS += -llibprotobuf
     LIBS += -llibwebp
+    LIBS += -lopencv_shape
     LIBS += -lopencv_photo
     LIBS += -lopencv_tracking
     LIBS += -lopencv_plot
