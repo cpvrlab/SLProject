@@ -146,7 +146,6 @@ void SLCVCapture::grabAndAdjustForSL()
             }
 
             adjustForSL();
-            lastFrameAsync(lastFrame, lastFrameGray, SLClock::now());
         }
         else
         {   static bool logOnce = true;
@@ -265,9 +264,11 @@ void SLCVCapture::adjustForSL()
 
     cv::cvtColor(SLCVCapture::lastFrame, SLCVCapture::lastFrameGray, cv::COLOR_BGR2GRAY);
 
-    // Do not copy into the video texture here. It is done in SLScene:onUpdate
+    lastFrameAsync(lastFrame, lastFrameGray, SLClock::now());
 
     s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
+
+    // Do not copy into the video texture here. It is done in SLScene:onUpdate
 }
 //-----------------------------------------------------------------------------
 /*! This method is called by iOS and Android projects that capture their video
