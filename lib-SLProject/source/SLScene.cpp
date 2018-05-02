@@ -343,7 +343,6 @@ bool SLScene::onUpdate()
         _root3D->update();
 
     //////////////////////////////
-#include <SLDeviceLocation.h>
     // 3) Update all animations //
     //////////////////////////////
 
