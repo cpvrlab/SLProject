@@ -53,6 +53,7 @@
 #include <SLImGuiInfosChristoffelTower.h>
 #include <SLImGuiInfosMapTransform.h>
 #include <SLImGuiMapStorage.h>
+#include <SLImGuiInfosCameraMovement.h>
 #include <SLCVMapStorage.h>
 
 #include <AppDemoGui.h>
@@ -2439,53 +2440,40 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Set scene name and info string
         s->name("Track Keyframe based Features");
         s->info("Example for loading an existing pose graph with map points.");
-
-        //SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "orb-slam-state-buero2.json";
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 2, 60);
-        cam1->lookAt(15, 15, 0);
-        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
-        cam1->clipNear(0.001f);
-        cam1->clipFar(1000000.0f); // Increase to infinity?
-        cam1->setInitialState();
-        cam1->background().texture(s->videoTexture());
+        
         s->videoType(VT_MAIN);
+        //s->videoType(VT_FILE);
+        //SLCVCapture::videoLoops = true;
+        //SLCVCapture::videoFilename = "VID_20180424_2.mp4";
 
-        SLCVMap* map = new SLCVMap("Map");
-
-        ORBVocabulary* vocabulary = SLCVOrbVocabulary::get();
-
-        SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
-
-        //load map points and keyframes from json file
-        //SLCVSlamStateLoader loader(slamStateFilePath, vocabulary, false);
-        //loader.load(*map, *kfDB);
-
-        //setup file system and check for existing files
-        SLCVMapStorage::init();
-        //make new map
-        SLCVMapStorage::newMap();
-
-        SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
+        //make some light
+        SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
         light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1, 0, 0);
 
-        SLNode* scene = new SLNode("scene");
-        scene->addChild(light1);
+        //always equal for tracking
+        //setup tracking camera
+        SLCamera* trackingCam = new SLCamera("Camera 1");
+        trackingCam->translation(0, 0, 0.1);
+        trackingCam->lookAt(0, 0, 0);
+        //for tracking we have to use the field of view from calibration
+        trackingCam->fov(SLApplication::activeCalib->cameraFovDeg());
+        trackingCam->clipNear(0.001f);
+        trackingCam->clipFar(1000000.0f); // Increase to infinity?
+        trackingCam->setInitialState();
+        trackingCam->background().texture(s->videoTexture());
 
+        //the map node contains the visual representation of the slam map
         SLCVMapNode* mapNode = new SLCVMapNode("map");
-        //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
-        //y-axis down and z-forward
-        mapNode->rotate(180, 1, 0, 0);
-        scene->addChild(mapNode);
-        mapNode->addChild(cam1);
+
+        // Save no energy
+        sv->doWaitOnIdle(false); //for constant video feed
+        sv->camera(trackingCam);
 
         //add tracker
-        //s->trackers().push_back(new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map, mapNode));
-        SLCVTrackedRaulMurAsync* raulMurTracker = new SLCVTrackedRaulMurAsync(cam1, vocabulary, kfDB, map, mapNode);
+        SLCVTrackedRaulMurAsync* raulMurTracker = new SLCVTrackedRaulMurAsync(trackingCam, mapNode);
         s->trackers().push_back(raulMurTracker);
 
         SLCVOrbTracking* orbT = raulMurTracker->orbTracking();
@@ -2496,21 +2484,26 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemoGui::addInfoDialog(mapTransform);
         auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", orbT);
         AppDemoGui::addInfoDialog(mapStorage);
+        auto cameraMovement =
+            std::make_shared<SLImGuiInfosCameraMovement>("Camera movement",
+                                                         raulMurTracker->stateEstimator());
+        AppDemoGui::addInfoDialog(cameraMovement);
 
-        //add yellow augmented box
+        //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-        SLfloat l = 1.75, b = 0.75, h = 0.74;
+        SLfloat l = 0.593f, b = 0.466f, h = 0.257f;
         SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
-
         SLNode* boxNode = new SLNode(box1, "boxNode");
-        scene->addChild(boxNode);
-
         SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
-        scene->addChild(axisNode);
+        boxNode->addChild(axisNode);
+        boxNode->translate(0, 0, -1.5);
+        boxNode->scale(0.5);
 
-        // Save no energy
-        sv->doWaitOnIdle(false); //for constant video feed
-        sv->camera(cam1);
+        //setup scene
+        SLNode* scene = new SLNode("scene");
+        scene->addChild(light1);
+        scene->addChild(boxNode);
+        scene->addChild(mapNode);
 
         s->root3D(scene);
     }
@@ -2525,65 +2518,72 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCVCapture::videoFilename = "street3.mp4";
         SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "street1_manip.json";
 
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 1, 1);
-        cam1->lookAt(0, 0, 0);
-        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
-        cam1->clipNear(0.001f);
-        cam1->clipFar(1000000.0f); // Increase to infinity?
-        cam1->setInitialState();
-        cam1->background().texture(s->videoTexture());
-
-        ORBVocabulary* vocabulary = SLCVOrbVocabulary::get();
-
-        SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
-
-        //load map points and keyframes from json file
-        SLCVMap* map = new SLCVMap("Map");
-        SLCVMapIO loader(slamStateFilePath, vocabulary, false);
-        loader.load(*map, *kfDB);
-
+        //make some light
         SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
         light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1, 0, 0);
 
-        SLNode* scene = new SLNode("scene");
-        scene->addChild(light1);
+        //always equal for tracking
+        //setup tracking camera
+        SLCamera* trackingCam = new SLCamera("Camera 1");
+        trackingCam->translation(0, 0, 0.1);
+        trackingCam->lookAt(0, 0, 0);
+        //for tracking we have to use the field of view from calibration
+        trackingCam->fov(SLApplication::activeCalib->cameraFovDeg());
+        trackingCam->clipNear(0.001f);
+        trackingCam->clipFar(1000000.0f); // Increase to infinity?
+        trackingCam->setInitialState();
+        trackingCam->background().texture(s->videoTexture());
 
-        //Mapnode instantiation and load map into scene objects
-        SLCVMapNode* mapNode = new SLCVMapNode("map", *map);
-
-        //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
-        //y-axis down and z-forward
-        mapNode->rotate(180, 1, 0, 0);
-        mapNode->addChild(cam1);
-        scene->addChild(mapNode);
-
-        //add tracker
-        //SLCVTrackedRaulMur* raulMurTracker = new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map, mapNode);
-        SLCVTrackedRaulMurAsync* raulMurTracker = new SLCVTrackedRaulMurAsync(cam1, vocabulary, kfDB, map, mapNode);
-        s->trackers().push_back(raulMurTracker);
-
-        //setup scene specific gui dialoges
-        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", raulMurTracker->orbTracking());
-        AppDemoGui::addInfoDialog(trackingInfos);
-
-        //add yellow augmented box
-        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-        SLfloat l = 1.75, b = 0.75, h = 0.74;
-        SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
-
-        SLNode* boxNode = new SLNode(box1, "boxNode");
-        scene->addChild(boxNode);
-
-        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
-        scene->addChild(axisNode);
+        //the map node contains the visual representation of the slam map
+        SLCVMapNode* mapNode = new SLCVMapNode("map");
 
         // Save no energy
         sv->doWaitOnIdle(false); //for constant video feed
-        sv->camera(cam1);
+        sv->camera(trackingCam);    
+
+        //add tracker
+        SLCVTrackedRaulMurAsync* raulMurTracker = new SLCVTrackedRaulMurAsync(trackingCam, mapNode);
+        s->trackers().push_back(raulMurTracker);
+
+        SLCVOrbTracking* orbT = raulMurTracker->orbTracking();
+        //setup scene specific gui dialoges
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", orbT);
+        AppDemoGui::addInfoDialog(trackingInfos);
+        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", orbT);
+        AppDemoGui::addInfoDialog(mapTransform);
+        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", orbT);
+        AppDemoGui::addInfoDialog(mapStorage);
+
+        orbT->sm.requestStateIdle();
+        while (!orbT->sm.hasStateIdle()) {
+            if (!orbT->serial())
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+
+        SLCVMapIO loader(slamStateFilePath, SLCVOrbVocabulary::get(), false);
+        loader.load(*orbT->getMap(), *orbT->getKfDB());
+        mapNode->updateAll(*orbT->getMap());
+        orbT->setInitialized(true);
+        orbT->sm.requestResume();
+
+        //add yellow box and axis for augmentation
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        SLfloat l = 0.593f, b = 0.466f, h = 0.257f;
+        SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
+        SLNode* boxNode = new SLNode(box1, "boxNode");
+        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
+        boxNode->addChild(axisNode);
+        boxNode->translate(0, 0, -1.5);
+        boxNode->scale(0.5);
+
+        //setup scene
+        SLNode* scene = new SLNode("scene");
+        scene->addChild(light1);
+        scene->addChild(boxNode);
+        scene->addChild(mapNode);
 
         s->root3D(scene);
     }
@@ -2637,7 +2637,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemoGui::addInfoDialog(mapTransform);
         auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm );
         AppDemoGui::addInfoDialog(mapStorage);
-
 
         //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));

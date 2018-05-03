@@ -33,10 +33,15 @@ using namespace cv;
 using namespace ORB_SLAM2;
 
 //-----------------------------------------------------------------------------
-SLCVTrackedRaulMurAsync::SLCVTrackedRaulMurAsync(SLNode *node, ORBVocabulary* vocabulary,
-    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode)
-  : SLCVTracked(node), _orbTracking(&_stateEstimator, keyFrameDB, map, mapNode, vocabulary, true)
+SLCVTrackedRaulMurAsync::SLCVTrackedRaulMurAsync(SLNode *node, SLCVMapNode* mapNode)
+  : SLCVTracked(node), _orbTracking(&_stateEstimator, mapNode, true)
 {
+    //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
+    //y-axis down and z-forward
+    mapNode->rotate(180, 1, 0, 0);
+    //the tracking camera has to be a child of the slam map, 
+    //because we manipulate its position (object matrix) in the maps coordinate system
+    mapNode->addChild(node);
 }
 
 SLbool SLCVTrackedRaulMurAsync::track(SLCVMat imageGray,
@@ -62,4 +67,9 @@ SLbool SLCVTrackedRaulMurAsync::track(SLCVMat imageGray,
 SLCVOrbTracking* SLCVTrackedRaulMurAsync::orbTracking()
 {
     return &_orbTracking;
+}
+
+SLCVStateEstimator* SLCVTrackedRaulMurAsync::stateEstimator()
+{
+    return &_stateEstimator;
 }

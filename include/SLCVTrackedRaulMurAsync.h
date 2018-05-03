@@ -38,14 +38,14 @@ using namespace cv;
 class SLCVTrackedRaulMurAsync : public SLCVTracked
 {
 public:
-  SLCVTrackedRaulMurAsync(SLNode *node, ORBVocabulary* vocabulary,
-			  SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLCVMapNode* mapNode = NULL );
-  SLbool track(SLCVMat imageGray,
-	       SLCVMat image,
-	       SLCVCalibration* calib,
-	       SLbool drawDetection,
-	       SLSceneView* sv);
-  SLCVOrbTracking* orbTracking();
+    SLCVTrackedRaulMurAsync(SLNode *node, SLCVMapNode* mapNode = NULL );
+    SLbool track(SLCVMat imageGray,
+                 SLCVMat image,
+                 SLCVCalibration* calib,
+                 SLbool drawDetection,
+                 SLSceneView* sv);
+    SLCVOrbTracking* orbTracking();
+    SLCVStateEstimator* stateEstimator();
   
 private:
     SLint                   _frameCount=0;    //!< NO. of frames since process start

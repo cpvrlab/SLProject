@@ -179,6 +179,7 @@ source/GL/SLGLTexture.cpp \
 source/GL/SLGLVertexArray.cpp \
 source/GL/SLGLVertexArrayExt.cpp \
 source/GL/SLGLVertexBuffer.cpp \
+source/GUI/SLImGuiInfosCameraMovement.cpp \
 source/GUI/SLImGuiInfosChristoffelTower.cpp \
 source/GUI/SLImGuiInfosDialog.cpp \
 source/GUI/SLImGuiInfosMapTransform.cpp \

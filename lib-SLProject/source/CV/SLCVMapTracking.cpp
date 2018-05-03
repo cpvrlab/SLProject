@@ -56,12 +56,8 @@ void SLCVMapTracking::track()
 //-----------------------------------------------------------------------------
 void SLCVMapTracking::idle()
 {
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-//#ifdef _WINDOWS
-//    Sleep(1);
-//#else
-//    usleep(1000);
-//#endif
+    if(!serial())
+        std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 //-----------------------------------------------------------------------------
 int SLCVMapTracking::getNMapMatches()

@@ -27,17 +27,21 @@ public:
     struct DeltaToPrevious
     {
         SLVec3f translation;
+        //SLQuat4f rotation;
         SLVec3f rotation;
     };
   
     SLMat4f getPose();
     void updatePose(const SLMat4f& slMat, const SLTimePoint& time);
+    SLVec3f dT();
+    SLVec3f dR();
 
 private:
     StateAndTime _state;
     StateAndTime _previousState;
     DeltaToPrevious _deltas[STATE_ESTIMATOR_MAX_STATE_COUNT];
     SLVec3f _summedTranslationDelta;
+    //SLQuat4f _summedRotationDelta;
     SLVec3f _summedRotationDelta;
     bool _stateUpdated = false;
     int _deltaIndex = -1;
