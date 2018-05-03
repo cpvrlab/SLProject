@@ -27,7 +27,6 @@ public:
     struct DeltaToPrevious
     {
         SLVec3f translation;
-        //SLQuat4f rotation;
         SLVec3f rotation;
     };
   
@@ -41,12 +40,10 @@ private:
     StateAndTime _previousState;
     DeltaToPrevious _deltas[STATE_ESTIMATOR_MAX_STATE_COUNT];
     SLVec3f _summedTranslationDelta;
-    //SLQuat4f _summedRotationDelta;
     SLVec3f _summedRotationDelta;
     bool _stateUpdated = false;
     int _deltaIndex = -1;
     int _deltaCount = 0;
-    SLTimePoint _lastStateTime;
     std::mutex _poseLock;
 };
 
