@@ -14,6 +14,7 @@
 #include <SLInputManager.h>
 #include <SLDeviceRotation.h>
 #include <SLDeviceLocation.h>
+#include <SLMemoryStats.h>
 
 class SLScene;
 class SLCVCalibration;
@@ -44,6 +45,7 @@ class SLApplication
     static SLCVCalibration  calibScndCam;   //!< OpenCV calibration for secondary video camera
     static SLDeviceRotation devRot;         //!< Mobile device rotation from IMU
     static SLDeviceLocation devLoc;         //!< Mobile device location from GPS
+    static SLMemoryStats    memStats;       //!< Statistics about memory usage
     
     static SLstring         name;           //!< Applcation name
     static SLstring         version;        //!< SLProject version string

@@ -12,6 +12,7 @@
 // Please do not change the name space. The SLProject app is identified in the app-store with it.
 package ch.fhnw.comgr;
 
+import android.app.ActivityManager;
 import android.app.Application;
 import android.util.Log;
 
@@ -23,6 +24,8 @@ import java.io.OutputStream;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
+
+import static android.content.Context.ACTIVITY_SERVICE;
 
 public class GLES3Lib {
 
@@ -68,7 +71,8 @@ public class GLES3Lib {
                                                      byte[] y, int ySize, int yPixStride, int yLineStride,
                                                      byte[] u, int uSize, int uPixStride, int uLineStride,
                                                      byte[] v, int vSize, int vPixStride, int vLineStride);
-    public static native void    onSetupExternalDirectories(String externalDirPath);
+    public static native void   onSetupExternalDirectories(String externalDirPath);
+    public static native void   setMemoryStatsValues(double val);
 
     /**
      * The RaytracingCallback function is used to repaint the ray tracing image during the
@@ -166,6 +170,29 @@ public class GLES3Lib {
         os.flush();
         os.close();
         is.close();
+    }
+
+    /**
+     *
+     *
+     * @param
+     */
+    public static void retrieveMemoryStats() {
+        final Runtime runtime = Runtime.getRuntime();
+        final long usedMemInMB=(runtime.totalMemory() - runtime.freeMemory()) / 1048576L;
+        final long maxHeapSizeInMB=runtime.maxMemory() / 1048576L;
+        final long availHeapSizeInMB = maxHeapSizeInMB - usedMemInMB;
+
+        ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
+        ActivityManager activityManager = (ActivityManager) GLES3Lib.activity.getSystemService(ACTIVITY_SERVICE);
+        activityManager.getMemoryInfo(mi);
+        double availableMegs = mi.availMem / 0x100000L;
+
+        //Percentage can be calculated for API 16+
+        double percentAvail = mi.availMem / (double)mi.totalMem * 100.0;
+
+        //call interface method to set values in c++ class SLMemoryStats
+        setMemoryStatsValues(percentAvail);
     }
 
 }

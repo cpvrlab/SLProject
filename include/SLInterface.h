@@ -82,5 +82,7 @@ void    slCopyVideoYUVPlanes    (int srcW, int srcH,
                                  SLuchar* u, int uSize, int uPixStride, int uLineStride,
                                  SLuchar* v, int vSize, int vPixStride, int vLineStride);
 void slSetupExternalDirectories (SLstring externalDirPath);
+void slInstallMemoryStatsCallback(void* onSceneLoadCallback = 0);
+void slSetMemoryStatsValues(double val);
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H

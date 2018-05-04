@@ -101,6 +101,7 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosTracking.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiTrackedMapping.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiMapStorage.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosMemoryStats.cpp
 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/ORBextractor.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVCamera.cpp

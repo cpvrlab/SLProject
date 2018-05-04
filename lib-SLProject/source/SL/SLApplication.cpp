@@ -28,6 +28,7 @@ SLCVCalibration     SLApplication::calibMainCam;
 SLCVCalibration     SLApplication::calibScndCam;
 SLDeviceRotation    SLApplication::devRot;
 SLDeviceLocation    SLApplication::devLoc;
+SLMemoryStats       SLApplication::memStats;
 SLstring            SLApplication::name             = "SLProjectApp";
 SLstring            SLApplication::version          = "2.2.000";
 SLint               SLApplication::dpi              = 0;
