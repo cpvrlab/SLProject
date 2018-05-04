@@ -204,11 +204,6 @@ bool SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
     while (!mapTracking->sm.hasStateIdle())
     {
         std::this_thread::sleep_for(std::chrono::seconds(1));
-//#ifdef _WINDOWS
-//        Sleep(1);
-//#else
-//        usleep(1000);
-//#endif
     }
 
     mapTracking->Reset();

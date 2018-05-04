@@ -233,14 +233,6 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         cv::Mat Tcw; //has to be here!
         (*it)["Tcw"] >> Tcw;
 
-        ////get inverse
-        //cv::Mat Twc = Tcw.inv();
-        //Twc.rowRange(0, 3).col(3) += _t;
-        //Twc = _rot * Twc;
-        //Tcw = Twc.inv();
-        ////apply scale
-        //Tcw.rowRange(0, 3).col(3) *= _s; //scheint gut aber bei s=200 irgendwie komisch
-
         cv::Mat featureDescriptors; //has to be here!
         (*it)["featureDescriptors"] >> featureDescriptors;
 
@@ -284,99 +276,6 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         //map pointer by id for look-up
         _kfsMap[newKf->mnId] = newKf;
     }
-
-//    //calibration information
-//    //load camera matrix
-//    cv::Mat K;
-//    _fs["K"] >> K;
-//    float fx, fy, cx, cy;
-//    fx = K.at<float>(0, 0);
-//    fy = K.at<float>(1, 1);
-//    cx = K.at<float>(0, 2);
-//    cy = K.at<float>(1, 2);
-//
-//    //ORB extractor information
-//    float scaleFactor;
-//    _fs["scaleFactor"] >> scaleFactor;
-//    //number of pyriamid scale levels
-//    int nScaleLevels = -1;
-//    _fs["nScaleLevels"] >> nScaleLevels;
-//    //calculation of scaleFactors , levelsigma2, invScaleFactors and invLevelSigma2
-//    calculateScaleFactors(scaleFactor, nScaleLevels);
-//
-//    cv::FileNode n = _fs["KeyFrames"];
-//    if (n.type() != cv::FileNode::SEQ)
-//    {
-//        cerr << "strings is not a sequence! FAIL" << endl;
-//    }
-//
-//    //mapping of keyframe pointer by their id (used during map points loading)
-//    _kfsMap.clear();
-//
-//    //reserve space in kfs
-//    //kfs.reserve(n.size());
-//    bool first = true;
-//    for (auto it = n.begin(); it != n.end(); ++it)
-//    {
-//        first = false;
-//
-//        int id = (*it)["id"];
-//
-//        // Infos about the pose: https://github.com/raulmur/ORB_SLAM2/issues/249
-//        // world w.r.t. camera pose -> wTc
-//        cv::Mat Tcw; //has to be here!
-//        (*it)["Tcw"] >> Tcw;
-//
-//        ////get inverse
-//        //cv::Mat Twc = Tcw.inv();
-//        //Twc.rowRange(0, 3).col(3) += _t;
-//        //Twc = _rot * Twc;
-//        //Tcw = Twc.inv();
-//        ////apply scale
-//        //Tcw.rowRange(0, 3).col(3) *= _s; //scheint gut aber bei s=200 irgendwie komisch
-//
-//        cv::Mat featureDescriptors; //has to be here!
-//        (*it)["featureDescriptors"] >> featureDescriptors;
-//
-//        //load undistorted keypoints in frame
-////todo: braucht man diese wirklich oder kann man das umgehen, indem zusätzliche daten im MapPoint abgelegt werden (z.B. octave/level siehe UpdateNormalAndDepth)
-//        std::vector<cv::KeyPoint> keyPtsUndist;
-//        (*it)["keyPtsUndist"] >> keyPtsUndist;
-//
-//        //image bounds
-//        float nMinX, nMinY, nMaxX, nMaxY;
-//        (*it)["nMinX"] >> nMinX;
-//        (*it)["nMinY"] >> nMinY;
-//        (*it)["nMaxX"] >> nMaxX;
-//        (*it)["nMaxY"] >> nMaxY;
-//
-//        //SLCVKeyFrame* newKf = new SLCVKeyFrame(keyPtsUndist.size());
-//        SLCVKeyFrame* newKf = new SLCVKeyFrame(Tcw, id, fx, fy, cx, cy, keyPtsUndist.size(), 
-//            keyPtsUndist, featureDescriptors, _orbVoc, nScaleLevels, scaleFactor, _vScaleFactor,
-//            _vLevelSigma2, _vInvLevelSigma2, nMinX, nMinY, nMaxX, nMaxY, K, &kfDB, &map);
-//
-//        //if (!kfImg.empty()) {
-//        if(_kfImgsIO)
-//        {
-//            stringstream ss;
-//            ss << "imgs/" << "kf" << id << ".jpg";
-//            //newKf->imgGray = kfImg;
-//            newKf->setTexturePath(ss.str());
-//        }
-//        //kfs.push_back(newKf);
-//        map.AddKeyFrame(newKf);
-//
-//        //Update keyframe database:
-//        //add to keyframe database
-//        kfDB.add(newKf);
-//
-//        // Update links in the Covisibility Graph
-//        //newKf->UpdateConnections();
-//
-//        //pointer goes out of scope und wird invalid!!!!!!
-//        //map pointer by id for look-up
-//        _kfsMap[newKf->mnId] = newKf;
-//    }
 }
 //-----------------------------------------------------------------------------
 void SLCVMapIO::loadMapPoints(SLCVMap& map)
