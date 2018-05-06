@@ -38,10 +38,10 @@ static void drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
 }
 //-----------------------------------------------------------------------------
 static void createDelaunay(Mat& img,
-                            Subdiv2D& subdiv,
-                            vector<Point2f>& points,
-                            bool drawAnimated,
-                            vector<vector<int>>& triangleIndexes)
+                           Subdiv2D& subdiv,
+                           vector<Point2f>& points,
+                           bool drawAnimated,
+                           vector<vector<int>>& triangleIndexes)
 {
     // Insert points into subdiv
     for (Point2f p : points)

@@ -55,7 +55,7 @@ class SLCVTrackedFaces : public SLCVTracked
         SLCVRect                _boundingRect;      //!< Bounding rectangle around landmarks
         SLCVVPoint2f            _cvPosePoints2D;    //!< vector of OpenCV point2D
         SLCVVPoint3f            _cvPosePoints3D;    //!< vector of OpenCV point2D
-        SLint                   _smoothLenght;      //<! Smoothing filter lenght
+        SLint                   _smoothLenght;      //!< Smoothing filter lenght
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedFaces_H

@@ -17,31 +17,29 @@ int main()
 {
     // Load Face Detector
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
-    // with: Right Click on Project > Properties > Debugging 
+    // with: Right Click on Project > Properties > Debugging
     CascadeClassifier faceDetector("../_data/opencv/haarcascades/haarcascade_frontalface_alt2.xml");
- 
+
     // Create an instance of Facemark
     Ptr<Facemark> facemark = FacemarkLBF::create();
- 
+
     // Load landmark detector
     facemark->loadModel("../_data/calibrations/lbfmodel.yaml");
- 
+
     // Set up webcam for video capture
     VideoCapture cam(0);
-     
-    // Variable to store a video frame and its grayscale 
+
+    // Variable to store a video frame and its grayscale
     Mat frame, gray;
-     
+
     // Read a frame
     while(cam.read(frame))
     {
-        // Find face
-        vector<Rect> faces;
-        // Convert frame to grayscale because
-        // faceDetector requires grayscale image.
+        // Convert frame to grayscale because faceDetector requires grayscale image
         cvtColor(frame, gray, COLOR_BGR2GRAY);
 
         // Detect faces
+        vector<Rect> faces;
         int min = (int)(frame.rows*0.4f); // the bigger min the faster
         int max = (int)(frame.rows*0.8f); // the smaller max the faster
         cv::Size minSize(min, min);
@@ -55,14 +53,11 @@ int main()
         vector<vector<Point2f>> landmarks;
 
         // Run landmark detector
-        bool success = facemark->fit(frame,faces,landmarks);
+        bool success = facemark->fit(gray, faces, landmarks);
 
         if(success)
-        {
-            for(int i=0; i < landmarks.size(); i++)
-            {
-                rectangle(frame, faces[i], cv::Scalar(255, 0, 0), 2);
-
+        {   for(int i=0; i < landmarks.size(); i++)
+            {   rectangle(frame, faces[i], cv::Scalar(255, 0, 0), 2);
                 for(int j=0; j < landmarks[i].size(); j++)
                     circle(frame, landmarks[i][j], 3, cv::Scalar(0, 0, 255), -1);
             }
@@ -70,7 +65,7 @@ int main()
 
         // Display results
         imshow("Facial Landmark Detection", frame);
-        
+
         // Wait for key to exit loop
         if (waitKey(10) != -1)
             return 0;

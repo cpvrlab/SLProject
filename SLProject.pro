@@ -16,6 +16,7 @@ SUBDIRS += exercises/cv08_MeshMorphing
 SUBDIRS += exercises/cv13_FacialLandmarkDetection
 SUBDIRS += exercises/cv13_HeadPoseEstimation
 SUBDIRS += exercises/cv13_FaceTracking
+SUBDIRS += exercises/cv13_Snapchat2D
 
 lib-SLProject.depends = lib-SLExternal
 lib-SLProject.depends = lib-SLExternal/assimp
