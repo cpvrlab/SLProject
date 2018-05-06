@@ -1,31 +1,31 @@
 language: cpp
-
-os:
-  - linux
-
 sudo: required
-dist: trusty
 
+services:
+    - docker
+    
 before_install:
- - if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install opencv && brew install qt5 && brew link --force qt5; fi
- - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
- # qt5
- - sudo add-apt-repository ppa:ubuntu-sdk-team/ppa -y
- - sudo apt-get update -qq -y
- # g++ 4.8 for std=c++11
- - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
- # additional headerfiles
- - sudo apt-get install libXxf86vm-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libpng-dev libudev-dev -y
- - sudo apt-get install -f qtbase5-dev qt5-default qttools5-dev-tools libqt5opengl5-dev -y
- #- sudo apt-get install libopencv-core-dev libopencv-imgproc-dev libopencv-video-dev libopencv-videoio-dev
+ - docker run -d --name ubuntu-test -v $(pwd):/travis ubuntu:latest tail -f /dev/null
+ - docker ps
 
-script:
- - qmake -recursive QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
- - make
+install:
+ - docker exec -t ubuntu-test bash -c "apt-get update;
+   apt-get install -y git;
+   apt-get install -y qtcreator qtbase5-dev qt5-default;
+   apt-get install -y libxxf86vm-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libudev-dev;
+   apt-get install -y libavcodec-dev libavformat-dev libswscale-dev;
+   apt-get install -y g++;
+   apt-get install -y libdc1394-22"
  
+script:
+ - docker exec -t ubuntu-test bash -c "cd /travis;
+   ls -la;
+   qmake -recursive && make"
+
 branches:
   only:
     - master
+    - develop
     
 notifications:
     email:
