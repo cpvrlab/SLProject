@@ -26,9 +26,10 @@ SLMat4f SLCVStateEstimator::getPose()
         stateUpdated = _stateUpdated;
     }
 
+#if 1
     if (stateUpdated)
     {
-        SLint64 dT = duration_cast<microseconds>(state.time-previousState.time).count();
+        _dT = duration_cast<microseconds>(state.time-previousState.time).count();
         
         _deltaIndex = (_deltaIndex + 1) % STATE_ESTIMATOR_MAX_STATE_COUNT;
         DeltaToPrevious* delta = &_deltas[_deltaIndex];
@@ -42,7 +43,7 @@ SLMat4f SLCVStateEstimator::getPose()
             _deltaCount++;
         }
 
-        if (dT > 0)
+        if (_dT > 0)
         {
             SLVec3f t1 = previousState.state.translation();
             SLVec3f t2 = state.state.translation();
@@ -50,8 +51,8 @@ SLMat4f SLCVStateEstimator::getPose()
             previousState.state.toEulerAnglesZYX(r1.z, r1.y, r1.x);
             state.state.toEulerAnglesZYX(r2.z, r2.y, r2.x);
 
-            delta->translation = (t2 - t1) / dT;
-            delta->rotation = (r2 - r1) / dT;
+            delta->translation = (t2 - t1) / _dT;
+            delta->rotation = (r2 - r1) / _dT;
   
             _summedTranslationDelta += delta->translation;
             _summedRotationDelta += delta->rotation;
@@ -74,16 +75,17 @@ SLMat4f SLCVStateEstimator::getPose()
         SLVec3f dR = _summedRotationDelta;
         SLMat4f lastState = state.state;
 
-        SLCVCapture::FrameAndTime lastFrameAndTime;
-        SLCVCapture::lastFrameAsync(&lastFrameAndTime);
-        SLint64 dTc = duration_cast<microseconds>(lastFrameAndTime.time-state.time).count();
+        //SLCVCapture::FrameAndTime lastFrameAndTime;
+        //SLCVCapture::lastFrameAsync(&lastFrameAndTime);
+        //_dTc = duration_cast<microseconds>(lastFrameAndTime.time-state.time).count();
+        _dTc = duration_cast<microseconds>(SLClock::now()-state.time).count();
 
-        if (dTc > 0)
+        if (_dTc > 0)
         {
-            SLVec3f p = lastState.translation() + dP*dTc;
+            SLVec3f p = lastState.translation() + dP*_dTc;
             SLVec3f rLast;
             lastState.toEulerAnglesZYX(rLast.z, rLast.y, rLast.x);
-            SLVec3f r = rLast + dR*dTc;
+            SLVec3f r = rLast + dR*_dTc;
   
             result.translation(p, false);
             result.fromEulerAnglesXYZ(r.x, r.y, r.z);
@@ -93,7 +95,9 @@ SLMat4f SLCVStateEstimator::getPose()
             result = state.state;
         }
     }
-  
+#else
+    result = state.state;
+#endif
     return result;
 }
 
@@ -106,15 +110,28 @@ void SLCVStateEstimator::updatePose(const SLMat4f& slMat, const SLTimePoint& tim
     _stateUpdated = true;
 }
 
-SLVec3f SLCVStateEstimator::dT()
+SLVec3f SLCVStateEstimator::dP()
 {
-    SLVec3f result = _summedTranslationDelta;
+    DeltaToPrevious* delta = &_deltas[_deltaIndex];
+    SLVec3f result = delta->translation;
     return result;
 }
 
 SLVec3f SLCVStateEstimator::dR()
 {
-    SLVec3f result;
-    result = _summedRotationDelta;
+    DeltaToPrevious* delta = &_deltas[_deltaIndex];
+    SLVec3f result = delta->rotation;
+    return result;
+}
+
+SLint64 SLCVStateEstimator::dT()
+{
+    SLint64 result = _dT;
+    return result;
+}
+
+SLint64 SLCVStateEstimator::dTc()
+{
+    SLint64 result = _dTc;
     return result;
 }

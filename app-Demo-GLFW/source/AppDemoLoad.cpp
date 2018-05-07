@@ -2496,8 +2496,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* boxNode = new SLNode(box1, "boxNode");
         SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
         boxNode->addChild(axisNode);
-        boxNode->translate(0, 0, -1.5);
-        boxNode->scale(0.5);
+        //boxNode->translate(0, 0, -1.5);
+        //boxNode->scale(0.5);
 
         //setup scene
         SLNode* scene = new SLNode("scene");

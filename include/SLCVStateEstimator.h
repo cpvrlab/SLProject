@@ -32,8 +32,10 @@ public:
   
     SLMat4f getPose();
     void updatePose(const SLMat4f& slMat, const SLTimePoint& time);
-    SLVec3f dT();
+    SLVec3f dP();
     SLVec3f dR();
+    SLint64 dT();
+    SLint64 dTc();
 
 private:
     StateAndTime _state;
@@ -44,6 +46,8 @@ private:
     bool _stateUpdated = false;
     int _deltaIndex = -1;
     int _deltaCount = 0;
+    SLint64 _dT;
+    SLint64 _dTc;
     std::mutex _poseLock;
 };
 
