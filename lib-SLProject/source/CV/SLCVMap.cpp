@@ -343,3 +343,59 @@ void SLCVMap::setMapNode(SLCVMapNode* mapNode)
 {
     _mapNode = mapNode;
 }
+//-----------------------------------------------------------------------------
+void SLCVMap::getMapSize()
+{
+    std::size_t sizeMap = sizeof(*this);
+    std::size_t sizeMapTest = sizeof(SLCVMap);
+
+    std::size_t sizeOfMapPoints = 0;
+    for (auto mp : mspMapPoints)
+    {
+        sizeOfMapPoints += sizeof(*mp);
+    }
+
+    std::size_t sizeOfKeyFrames = 0;
+    for (auto kf : mspKeyFrames)
+    {
+        sizeOfKeyFrames += sizeof(*kf);
+        if (kf->imgGray.isContinuous())
+            sizeOfKeyFrames += kf->imgGray.total() * kf->imgGray.elemSize();
+    }
+
+
+
+    //double nPts = 0;
+    //double bytesPerPt = 0;
+    //size_t sizePt = sizeof(SLCVMapPoint);
+    //if (mspMapPoints.size())
+    //{
+    //    nPts = (double)sizeOfMapPoints / sizeof(SLCVMapPoint);
+    //    bytesPerPt = (double)sizeOfMapPoints / mspMapPoints.size();
+    //}
+
+    //double nKfs = 0;
+    //double bytesPerKf = 0;
+    //size_t sizeKf = sizeof(SLCVKeyFrame);
+    //if (mspKeyFrames.size())
+    //{
+    //    nKfs = (double)sizeOfKeyFrames / sizeof(SLCVKeyFrame);
+    //    bytesPerKf = (double)sizeOfKeyFrames / mspKeyFrames.size();
+    //}
+
+    cout << "map size in KB: " << (double)sizeMap / 1024L << endl;
+    cout << "mspKeyFrames in KB: " << (double)(sizeof(mspKeyFrames)) / 1024L << endl;
+    cout << "mspMapPoints in KB: " << (double)(sizeof(mspMapPoints)) / 1024L << endl;
+
+    cout << "all map points in MB: " << (double)sizeOfMapPoints / 1048576L << endl;
+    cout << "all keyframes in MB: " << (double)sizeOfKeyFrames / 1048576L << endl;
+
+    //cout << "nPts: " << nPts << endl;
+    //cout << "bytesPerPt: " << bytesPerPt << endl;
+    //cout << "sizePt: " << sizePt << endl;
+
+    //cout << "nKfs: " << nKfs << endl;
+    //cout << "bytesPerKf: " << bytesPerKf << endl;
+    //cout << "sizeKf: " << sizeKf << endl;
+
+}

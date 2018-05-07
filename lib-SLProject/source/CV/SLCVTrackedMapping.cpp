@@ -113,28 +113,6 @@ SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
     _calib = calib;
     _imageGray = imageGray;
     SLCVMapTracking::track();
-    ////apply state transitions
-    //sm.stateTransition();
-
-    //track();
-    //switch (sm.state())
-    //{
-    //case SLCVTrackingStateMachine::INITIALIZING:
-    //    //mCurrentFrame = SLCVFrame(imageGray, timestamp, mpIniORBextractor,
-    //    //    calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
-    //    initialize();
-    //    break;
-    //case SLCVTrackingStateMachine::IDLE:
-    //    break;
-    //case SLCVTrackingStateMachine::TRACKING_OK:
-    ////todo: divide relocalization and tracking
-    //case SLCVTrackingStateMachine::TRACKING_LOST:
-    //    //mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor,
-    //    //    calib->cameraMat(), calib->distortion(), mpVocabulary, _retainImg);
-    //    //relocalize or track 3d points
-    //    track3DPts();
-    //    break;
-    //}
 
     return false;
 }
@@ -347,6 +325,8 @@ void SLCVTrackedMapping::track3DPts()
             _bOK = bOKReloc || bOKMM;
         }
     }
+
+    _map->getMapSize();
 
     // mbVO true means that there are few matches to MapPoints in the map. We cannot retrieve
     // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes

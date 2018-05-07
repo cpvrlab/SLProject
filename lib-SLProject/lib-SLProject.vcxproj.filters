@@ -798,6 +798,9 @@
     <ClCompile Include="source\GUI\SLImGuiInfosMemoryStats.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="source\SLMemoryStats.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_data\shaders\ADS.frag">

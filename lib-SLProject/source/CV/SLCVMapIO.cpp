@@ -275,6 +275,8 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         //pointer goes out of scope und wird invalid!!!!!!
         //map pointer by id for look-up
         _kfsMap[newKf->mnId] = newKf;
+
+        map.getMapSize();
     }
 }
 //-----------------------------------------------------------------------------

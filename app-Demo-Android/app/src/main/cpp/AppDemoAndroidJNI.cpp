@@ -54,7 +54,9 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes(JNIEnv *en
                                                                       jbyteArray uBuf, jint uSize, jint uPixStride, jint uLineStride,
                                                                       jbyteArray vBuf, jint vSize, jint vPixStride, jint vLineStride);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onSetupExternalDirectories(JNIEnv *env, jobject obj, jstring  externalDirPath);
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setMemoryStatsValues(JNIEnv *env, jobject obj, double val);
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setMemoryStatsValues(JNIEnv *env, jobject obj,
+    long freeMemoryRT, long totalMemoryRT, long maxMemoryRT,
+    long availMemoryAM, long totalMemoryAM, long thresholdAM, bool lowMemoryAM);
 };
 
 //-----------------------------------------------------------------------------
@@ -283,7 +285,10 @@ JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesLocation(JNIEnv *env, job
     return slUsesLocation();
 }
 //-----------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setMemoryStatsValues(JNIEnv *env, jobject obj, double val)
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setMemoryStatsValues(JNIEnv *env, jobject obj,
+    long freeMemoryRT, long totalMemoryRT, long maxMemoryRT,
+    long availMemoryAM, long totalMemoryAM, long thresholdAM, bool lowMemoryAM)
 {
-    slSetMemoryStatsValues(val);
+    slSetMemoryStatsValues(freeMemoryRT, totalMemoryRT, maxMemoryRT,
+                           availMemoryAM, totalMemoryAM, thresholdAM, lowMemoryAM);
 }

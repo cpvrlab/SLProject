@@ -263,6 +263,7 @@ bool SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
         SL_WARN_MSG(msg.c_str());
     }
 
+    map.getMapSize();
     mapTracking->sm.requestResume();
     return loadingSuccessful;
 }

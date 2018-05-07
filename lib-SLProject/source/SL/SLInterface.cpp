@@ -494,7 +494,9 @@ void slInstallMemoryStatsCallback(void* cb)
     SLApplication::memStats.setCallback((cbMemoryStats*)cb);
 }
 //-----------------------------------------------------------------------------
-void slSetMemoryStatsValues(double val)
+void slSetMemoryStatsValues(long freeMemoryRT, long totalMemoryRT, long maxMemoryRT,
+    long availMemoryAM, long totalMemoryAM, long thresholdAM, bool lowMemoryAM)
 {
-    SLApplication::memStats.setValue(val);
+    SLApplication::memStats.setValues(freeMemoryRT, totalMemoryRT, maxMemoryRT,
+            availMemoryAM, totalMemoryAM, thresholdAM, lowMemoryAM);
 }

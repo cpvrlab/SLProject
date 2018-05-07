@@ -72,7 +72,8 @@ public class GLES3Lib {
                                                      byte[] u, int uSize, int uPixStride, int uLineStride,
                                                      byte[] v, int vSize, int vPixStride, int vLineStride);
     public static native void   onSetupExternalDirectories(String externalDirPath);
-    public static native void   setMemoryStatsValues(double val);
+    public static native void   setMemoryStatsValues(long freeMemoryRT, long totalMemoryRT, long maxMemoryRT,
+                                                     long availMemoryAM, long totalMemoryAM, long thresholdAM, boolean lowMemoryAM);
 
     /**
      * The RaytracingCallback function is used to repaint the ray tracing image during the
@@ -192,7 +193,9 @@ public class GLES3Lib {
         double percentAvail = mi.availMem / (double)mi.totalMem * 100.0;
 
         //call interface method to set values in c++ class SLMemoryStats
-        setMemoryStatsValues(percentAvail);
+        setMemoryStatsValues(
+                runtime.freeMemory(), runtime.totalMemory(), runtime.maxMemory(),
+                mi.availMem, mi.totalMem, mi.threshold, mi.lowMemory);
     }
 
 }
