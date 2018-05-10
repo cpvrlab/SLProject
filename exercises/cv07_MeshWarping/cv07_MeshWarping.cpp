@@ -168,10 +168,10 @@ void warpTriangle(Mat &img1,
 }
 //-----------------------------------------------------------------------------
 static void warpImage(Mat& img1,
-                       Mat& img2,
-                       vector<Point2f>& points1,
-                       vector<Point2f>& points2,
-                       vector<vector<int>>& triangles)
+                      Mat& img2,
+                      vector<Point2f>& points1,
+                      vector<Point2f>& points2,
+                      vector<vector<int>>& triangles)
 {
     for(size_t i = 0; i < triangles.size(); i++)
     {
@@ -262,7 +262,7 @@ int main()
     imshow("Delaunay Triangulation", img1);
     imshow("Voronoi Diagram", img_voronoi);
     
-    // Do head warping with Obama
+    // Do head warping with Donald Trumps face
     // Copy the mesh points for warping
     vector<Point2f> wPoints = points;
     float scale = 1.0f;
