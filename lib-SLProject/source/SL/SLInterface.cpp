@@ -199,7 +199,7 @@ called to initiate the rendering of the frame. If either the onUpdate or onPaint
 returned true a new frame should be drawn.
 */
 bool slUpdateAndPaint(int sceneViewIndex)
-{  
+{
     SLSceneView* sv = SLApplication::scene->sv(sceneViewIndex);
 
     bool sceneGotUpdated = SLApplication::scene->onUpdate();
@@ -486,4 +486,17 @@ void slSetupExternalDirectories (SLstring externalDirPath)
     else {
         SL_LOG("ERROR: external directory does not exists: %s\n", externalDirPath.c_str());
     }
+}
+//-----------------------------------------------------------------------------
+void slInstallMemoryStatsCallback(void* cb)
+{
+    //save callback in SLMemoryStats class
+    SLApplication::memStats.setCallback((cbMemoryStats*)cb);
+}
+//-----------------------------------------------------------------------------
+void slSetMemoryStatsValues(long freeMemoryRT, long totalMemoryRT, long maxMemoryRT,
+    long availMemoryAM, long totalMemoryAM, long thresholdAM, bool lowMemoryAM)
+{
+    SLApplication::memStats.setValues(freeMemoryRT, totalMemoryRT, maxMemoryRT,
+            availMemoryAM, totalMemoryAM, thresholdAM, lowMemoryAM);
 }

@@ -33,11 +33,6 @@ void SLImGuiTrackedMapping::buildInfos()
         while (!_mappingTracker->sm.hasStateIdle())
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
-//#ifdef _WINDOWS
-//            Sleep(1);
-//#else
-//            usleep(1000);
-//#endif
         }
         _mappingTracker->Reset();
         _mappingTracker->sm.requestResume();

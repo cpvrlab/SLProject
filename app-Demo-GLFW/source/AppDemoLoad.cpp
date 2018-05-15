@@ -54,6 +54,7 @@
 #include <SLImGuiInfosMapTransform.h>
 #include <SLImGuiMapStorage.h>
 #include <SLImGuiInfosCameraMovement.h>
+#include <SLImGuiInfosMemoryStats.h>
 #include <SLCVMapStorage.h>
 
 #include <AppDemoGui.h>
@@ -2576,8 +2577,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* boxNode = new SLNode(box1, "boxNode");
         SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
         boxNode->addChild(axisNode);
-        boxNode->translate(0, 0, -1.5);
-        boxNode->scale(0.5);
 
         //setup scene
         SLNode* scene = new SLNode("scene");
@@ -2637,6 +2636,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemoGui::addInfoDialog(mapTransform);
         auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm );
         AppDemoGui::addInfoDialog(mapStorage);
+        auto memStats = std::make_shared<SLImGuiInfosMemoryStats>("Memory stats");
+        AppDemoGui::addInfoDialog(memStats);
+
 
         //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
@@ -2645,8 +2647,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* boxNode = new SLNode(box1, "boxNode");
         SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
         boxNode->addChild(axisNode);
-        boxNode->translate(0, 0, -1.5);
-        boxNode->scale(0.5);
 
         //setup scene
         SLNode* scene = new SLNode("scene");

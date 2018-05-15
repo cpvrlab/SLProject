@@ -459,6 +459,12 @@
     <ClInclude Include="..\include\SLCVTrackingStateMachine.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLMemoryStats.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLImGuiInfosMemoryStats.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -788,6 +794,12 @@
     </ClCompile>
     <ClCompile Include="source\CV\SLCVTrackingStateMachine.cpp">
       <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GUI\SLImGuiInfosMemoryStats.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLMemoryStats.cpp">
+      <Filter>SL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

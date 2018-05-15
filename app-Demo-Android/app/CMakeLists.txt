@@ -102,6 +102,7 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosTracking.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiTrackedMapping.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiMapStorage.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosMemoryStats.cpp
 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/ORBextractor.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVCamera.cpp
@@ -150,7 +151,8 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLLightSpot.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLLightDirect.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLMaterial.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLMesh.cpp 
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLMesh.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLMemoryStats.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLNode.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLPathtracer.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLPolygon.cpp
