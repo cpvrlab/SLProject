@@ -29,7 +29,7 @@ SLMat4f SLCVStateEstimator::getPose()
 #if 1
     if (stateUpdated)
     {
-        _dT = duration_cast<microseconds>(state.time-previousState.time).count();
+        _dT = duration_cast<milliseconds>(state.time-previousState.time).count();
         
         _deltaIndex = (_deltaIndex + 1) % STATE_ESTIMATOR_MAX_STATE_COUNT;
         DeltaToPrevious* delta = &_deltas[_deltaIndex];
@@ -75,10 +75,10 @@ SLMat4f SLCVStateEstimator::getPose()
         SLVec3f dR = _summedRotationDelta;
         SLMat4f lastState = state.state;
 
-        //SLCVCapture::FrameAndTime lastFrameAndTime;
-        //SLCVCapture::lastFrameAsync(&lastFrameAndTime);
-        //_dTc = duration_cast<microseconds>(lastFrameAndTime.time-state.time).count();
-        _dTc = duration_cast<microseconds>(SLClock::now()-state.time).count();
+        SLCVCapture::FrameAndTime lastFrameAndTime;
+        SLCVCapture::lastFrameAsync(&lastFrameAndTime);
+        _dTc = duration_cast<milliseconds>(lastFrameAndTime.time-state.time).count();
+        //_dTc = duration_cast<milliseconds>(SLClock::now()-state.time).count();
 
         if (_dTc > 0)
         {
