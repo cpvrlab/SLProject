@@ -19,39 +19,49 @@ int main()
     // Read input image
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
     // with: Right Click on Project > Properties > Debugging
-    Mat image = imread("../_data/images/textures/Lena.tiff");
-    if (image.empty())
-    {   cout << "Could not load image. Is the working dir correct?" << endl;
+    Mat img = imread("../_data/images/textures/Lena.tiff");
+    if (img.empty())
+    {   cout << "Could not load img. Is the working dir correct?" << endl;
         exit(1);
     }
 
-    Mat new_image = Mat::zeros(image.size(), image.type() );
+    double contrast = 2.0;
+    int brightness = 50;
 
-    double alpha = 2.0;
-    int beta = 50;
-
-    // Do the operation new_image(i,j) = alpha * image(i,j) + beta
-    // The following loop does the same as: 
-    // image.convertTo(new_image, -1, alpha, beta);
-    for( int y = 0; y < image.rows; y++ ) 
-    {
-        for( int x = 0; x < image.cols; x++ ) 
-        {
-            for( int c = 0; c < 3; c++ ) 
-            {
-                new_image.at<Vec3b>(y,x)[c] =
-                saturate_cast<uchar>( alpha*( image.at<Vec3b>(y,x)[c] ) + beta );
+    ////////////////////////////////
+    // Method 1: Do it pixel wise //
+    ////////////////////////////////
+    
+    // Do the operation new_img(i,j) = contrast * img(i,j) + brightness pixel wise
+    Mat img1 = Mat::zeros(img.size(), img.type());
+    for( int y = 0; y < img.rows; y++ )
+    {   for( int x = 0; x < img.cols; x++ )
+        {   for( int c = 0; c < 3; c++ )
+            {   img1.at<Vec3b>(y,x)[c] =
+                saturate_cast<uchar>(contrast*(img.at<Vec3b>(y,x)[c]) + brightness);
             }
         }
     }
+    
+    ////////////////////////////////////
+    // Method 2: Do it with convertTo //
+    ////////////////////////////////////
+    
+    Mat img2 = Mat::zeros(img.size(), img.type());
+    img.convertTo(img2, -1, contrast, brightness);
+    
+    //////////////////////////////////////////
+    // Method 3: Using overloaded operators //
+    //////////////////////////////////////////
+    
+    Mat img3 = contrast * img + brightness;
 
-    // Create Windows
-    namedWindow("Original Image", 1);
-    namedWindow("New Image", 1);
-
-    // Show stuff
-    imshow("Original Image", image);
-    imshow("New Image", new_image);
+    
+    // Show images
+    imshow("Original image", img);
+    imshow("img1.at<Vec3b>(y,x)[c] = contrast*(img.at<Vec3b>(y,x)[c]) + brightness", img1);
+    imshow("img.convertTo(img2, -1, contrast, brightness);", img2);
+    imshow("img3 = contrast * img + brightness", img3);
 
     // Wait until user presses some key
     waitKey(0);

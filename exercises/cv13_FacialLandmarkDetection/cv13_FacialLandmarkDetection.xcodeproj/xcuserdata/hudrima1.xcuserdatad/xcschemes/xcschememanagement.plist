@@ -17,7 +17,7 @@
 		<key>cv13_FacialLandmarkDetection.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>11</integer>
+			<integer>12</integer>
 		</dict>
 		<key>cv13_HeadPoseEstimation.xcscheme</key>
 		<dict>
