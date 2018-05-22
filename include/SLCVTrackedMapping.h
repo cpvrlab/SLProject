@@ -61,6 +61,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 
         void globalBundleAdjustment();
 
+        size_t getSizeOf();
     private:
         // Map initialization for monocular
         void CreateInitialMapMonocular();

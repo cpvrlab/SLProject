@@ -276,7 +276,7 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         //map pointer by id for look-up
         _kfsMap[newKf->mnId] = newKf;
 
-        map.getMapSize();
+        map.getSizeOf();
     }
 }
 //-----------------------------------------------------------------------------

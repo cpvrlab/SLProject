@@ -93,7 +93,7 @@ public:
     cv::Mat buildTransMat(float &val, int type);
     cv::Mat buildRotMat(float &valDeg, int type);
 
-    void getMapSize();
+    size_t getSizeOf();
 protected:
     std::set<SLCVMapPoint*> mspMapPoints;
     std::set<SLCVKeyFrame*> mspKeyFrames;

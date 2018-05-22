@@ -14,15 +14,18 @@
 #include <string>
 #include <SLImGuiInfosDialog.h>
 
+class SLCVMap;
+
 //-----------------------------------------------------------------------------
 class SLImGuiInfosMemoryStats : public SLImGuiInfosDialog
 {
 public:
-    SLImGuiInfosMemoryStats(std::string name);
+    SLImGuiInfosMemoryStats(std::string name, SLCVMap* map);
 
     void buildInfos() override;
 
 private:
+    SLCVMap* _map = NULL;
 };
 
 #endif //SL_IMGUI_MEMSTATS_H
