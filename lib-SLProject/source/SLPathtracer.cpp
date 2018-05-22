@@ -37,7 +37,7 @@ SLPathtracer::SLPathtracer()
 //-----------------------------------------------------------------------------
 /*!
 Main render function. The Path Tracing algorithm starts from here
-*/
+*/  
 SLbool SLPathtracer::render(SLSceneView* sv)
 {
     _sv = sv;
@@ -49,6 +49,10 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     prepareImage();
 
     // Set second image for render update to the same size
+    while (_images.size() > 1)
+    {   delete _images[_images.size()-1];
+        _images.pop_back();
+    }
     _images.push_back(new SLCVImage(_sv->scrW(), _sv->scrH(), PF_rgb, "Pathtracer"));
 
     // Measure time 
@@ -304,6 +308,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
             //scatter toward perfect specular direction
             SLRay scattered;
             ray->reflect(&scattered);
+
             // shininess contribution * recursive indirect illumination and matrial basecolor
             finalColor += ((mat->shininess() + 2.0f) / (mat->shininess() + 1.0f) * (trace(&scattered, 1) & objectColor) * reflectionProbability) *scaleBy;
         }
