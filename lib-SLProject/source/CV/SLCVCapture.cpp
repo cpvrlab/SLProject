@@ -222,14 +222,14 @@ void SLCVCapture::adjustForSL()
     if (SLApplication::activeCalib->isMirroredH())
     {   SLCVMat mirrored;
         if (SLApplication::activeCalib->isMirroredV())
-            cv::flip(SLCVCapture::lastFrame, mirrored,-1);
+             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
         else cv::flip(SLCVCapture::lastFrame, mirrored, 1);
         SLCVCapture::lastFrame = mirrored;
     } else
     if (SLApplication::activeCalib->isMirroredV())
     {   SLCVMat mirrored;
         if (SLApplication::activeCalib->isMirroredH())
-            cv::flip(SLCVCapture::lastFrame, mirrored,-1);
+             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
         else cv::flip(SLCVCapture::lastFrame, mirrored, 0);
         SLCVCapture::lastFrame = mirrored;
     }

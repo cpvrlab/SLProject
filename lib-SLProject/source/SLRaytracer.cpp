@@ -792,7 +792,7 @@ void SLRaytracer::saveImage()
     static SLint no = 0;
     SLchar filename[255];  
     sprintf(filename,"Raytraced_%d_%d.png", _maxDepth, no++);
-    _images[0]->savePNG(filename);
+    _images[0]->savePNG(filename, 9, true, true);
 }
 //-----------------------------------------------------------------------------
 //! Must be called before an inbetween frame update

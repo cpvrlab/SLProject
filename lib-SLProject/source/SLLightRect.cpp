@@ -246,32 +246,31 @@ SLfloat SLLightRect::shadowTest(SLRay* ray, // ray of hit point
 
 //-----------------------------------------------------------------------------
 /*!
-SLLightRect::shadowTest returns 0.0 if the hit point is completely shaded and
-1.0 if it is 100% lighted. A return value in between is calculate by the ratio
-of the shadow rays not blocked to the total number of casted shadow rays.
+SLLightRect::shadowTestMC returns 0.0 if the hit point is shaded and 1.0 if it
+lighted. Only one shadow sample is tested for path tracing.
 */
 
 SLfloat SLLightRect::shadowTestMC(SLRay* ray, // ray of hit point
                                   const SLVec3f& L, // vector from hit point to light
                                   const SLfloat lightDist) // distance to light
-{
-    SLVec3f SP; // vector hit point to sample point in world coords
+{   SLfloat rndX = rnd01();
+    SLfloat rndY = rnd01();
+ 
+    // Sample point in object space
+    SLVec3f spOS(SLVec3f(rndX*_width  - _width *0.5f,
+                         rndY*_height - _height*0.5f,
+                         0.0f));
 
-    SLfloat randX = rnd01();
-    SLfloat randY = rnd01();
-
-    // choose random point on rect as sample
-    SP.set(updateAndGetWM().multVec(SLVec3f((randX*_width)-(_width*0.5f), (randY*_height)-(_height*0.5f), 0)) - ray->hitPoint);
-    SLfloat SPDist = SP.length();
-    SP.normalize();
-    SLRay shadowRay(SPDist, SP, ray);
+    // Sample point in world space
+    SLVec3f spWS(updateAndGetWM().multVec(spOS) - ray->hitPoint);
+    
+    SLfloat spDistWS = spWS.length();
+    spWS.normalize();
+    SLRay shadowRay(spDistWS, spWS, ray);
 
     SLApplication::scene->root3D()->hitRec(&shadowRay);
 
-    if (shadowRay.length >= SPDist - FLT_EPSILON)
-        return 1.0f;
-    else
-        return 0.0f;
+    return (shadowRay.length < spDistWS) ? 0.0f : 1.0f;
 }
 
 //-----------------------------------------------------------------------------

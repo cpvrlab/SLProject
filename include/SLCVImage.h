@@ -61,9 +61,13 @@ class SLCVImage : public SLObject
                                              SLbool isContinuous,
                                              SLbool isTopLeft);
             void            savePNG         (const SLstring filename,
-                                             const SLint compressionLevel=5);
+                                             const SLint compressionLevel=6,
+                                             const SLbool flipY=true,
+                                             const SLbool convertBGR2RGB=true);
             void            saveJPG         (const SLstring filename,
-                                             const SLint compressionLevel=95);
+                                             const SLint compressionLevel=95,
+                                             const SLbool flipY=true,
+                                             const SLbool convertBGR2RGB=true);
             SLCol4f         getPixeli       (SLint x, SLint y);
             SLCol4f         getPixelf       (SLfloat x, SLfloat y);
             void            setPixeli       (SLint x, SLint y, SLCol4f color);

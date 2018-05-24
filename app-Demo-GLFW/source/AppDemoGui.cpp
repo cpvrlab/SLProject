@@ -1071,6 +1071,21 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
+                if (ImGui::MenuItem("Direct illumination", 0, pt->calcDirect()))
+                {   pt->calcDirect(!pt->calcDirect());
+                    sv->startPathtracing(5, 10);
+                }
+
+                if (ImGui::MenuItem("Indirect illumination", 0, pt->calcIndirect()))
+                {   pt->calcIndirect(!pt->calcIndirect());
+                    sv->startPathtracing(5, 10);
+                }
+
+                if (ImGui::MenuItem("Apply Gamma Corr.", 0, pt->applyGamma()))
+                {   pt->applyGamma(!pt->applyGamma());
+                    sv->startPathtracing(5, 10);
+                }
+
                 if (ImGui::MenuItem("Save Rendered Image"))
                     sv->pathtracer()->saveImage();
 

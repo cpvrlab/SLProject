@@ -9,7 +9,7 @@
 ##############################################################################
 
 TEMPLATE = app
-TARGET = ch02_CalderonFilter
+TARGET = cv02_CalderonFilter
 
 CONFIG += warn_off
 CONFIG -= qml_debug
