@@ -183,6 +183,7 @@ source/GUI/SLImGuiInfosCameraMovement.cpp \
 source/GUI/SLImGuiInfosChristoffelTower.cpp \
 source/GUI/SLImGuiInfosDialog.cpp \
 source/GUI/SLImGuiInfosMapTransform.cpp \
+source/GUI/SLImGuiInfosMemoryStats.cpp \
 source/GUI/SLImGuiInfosTracking.cpp \
 source/GUI/SLImGuiMapStorage.cpp \
 source/GUI/SLImGuiTrackedMapping.cpp \
@@ -212,6 +213,7 @@ source/SLLightRect.cpp \
 source/SLLightSpot.cpp \
 source/SLLightDirect.cpp \
 source/SLMaterial.cpp \
+source/SLMemoryStats.cpp \
 source/SLMesh.cpp \
 source/SLNode.cpp \
 source/SLPathtracer.cpp \

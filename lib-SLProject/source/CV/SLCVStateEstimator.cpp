@@ -12,6 +12,59 @@
 #include <SLCVStateEstimator.h>
 #include <SLCVCapture.h>
 
+SLCVStateEstimator::SLCVStateEstimator()
+{
+    _x = cv::Mat::zeros(6, 1, CV_32F);
+    _uncertainty = cv::Mat::zeros(6, 6, CV_32F);
+    _nextState = cv::Mat::zeros(6, 6, CV_32F);
+    _measurement = cv::Mat::zeros(6, 6, CV_32F);
+    _measurementUncertainty = cv::Mat::zeros(6, 6, CV_32F);
+    _identity = cv::Mat::eye(6, 6, CV_32F);
+
+    // initial uncertainty
+    for (int i = 0; i < 6; i++)
+    {
+        _uncertainty.at<SLfloat>(i, i) = 1000.0f;
+        _measurementUncertainty.at<SLfloat>(i, i) = 1.0f;
+    }
+
+    // next state function
+    _nextState.at<SLfloat>(0, 0) = 1.0f;
+    _nextState.at<SLfloat>(0, 3) = 1.0f; // dT
+    _nextState.at<SLfloat>(1, 1) = 1.0f;
+    _nextState.at<SLfloat>(1, 4) = 1.0f; // dT
+    _nextState.at<SLfloat>(2, 2) = 1.0f;
+    _nextState.at<SLfloat>(2, 5) = 1.0f; // dT
+    _nextState.at<SLfloat>(3, 3) = 1.0f;
+    _nextState.at<SLfloat>(4, 4) = 1.0f;
+    _nextState.at<SLfloat>(5, 5) = 1.0f;
+
+    // measurement function. positions are observed, velocities derived
+    _measurement.at<SLfloat>(0, 0) = 1.0f;
+    _measurement.at<SLfloat>(1, 1) = 1.0f;
+    _measurement.at<SLfloat>(2, 2) = 1.0f;
+}
+
+void SLCVStateEstimator::predict()
+{
+    _x = _nextState * _x;
+    _uncertainty = _nextState * _uncertainty * _nextState.t();
+}
+
+void SLCVStateEstimator::update()
+{
+    SLVec3f zVec = _state.state.translation();
+    cv::Mat z = cv::Mat::zeros(3, 1, CV_32F);
+    z.at<SLfloat>(0, 0) = zVec.x;
+    z.at<SLfloat>(1, 0) = zVec.y;
+    z.at<SLfloat>(2, 0) = zVec.z;
+    cv::Mat y = z - (_measurement * _x);
+    cv::Mat s = _measurement * _uncertainty * _measurement.t() + _measurementUncertainty;
+    cv::Mat k = _uncertainty * _measurement.t() * s.inv();
+    _x = _x + (k * y);
+    _uncertainty = (_identity - (k * _measurement)) * _uncertainty;
+}
+
 SLMat4f SLCVStateEstimator::getPose()
 {
     SLMat4f result;
@@ -29,6 +82,7 @@ SLMat4f SLCVStateEstimator::getPose()
 #if 1
     if (stateUpdated)
     {
+        update();
         _dT = duration_cast<milliseconds>(state.time-previousState.time).count();
         
         _deltaIndex = (_deltaIndex + 1) % STATE_ESTIMATOR_MAX_STATE_COUNT;
@@ -87,7 +141,11 @@ SLMat4f SLCVStateEstimator::getPose()
             lastState.toEulerAnglesZYX(rLast.z, rLast.y, rLast.x);
             SLVec3f r = rLast + dR*_dTc;
   
-            result.translation(p, false);
+            //result.translation(p, false);
+
+            predict();
+            result.translation(_x.at<SLfloat>(0, 0), _x.at<SLfloat>(1, 1), _x.at<SLfloat>(2, 2));
+
             result.fromEulerAnglesXYZ(r.x, r.y, r.z);
         }
         else

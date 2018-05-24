@@ -29,6 +29,8 @@ public:
         SLVec3f translation;
         SLVec3f rotation;
     };
+
+    SLCVStateEstimator();
   
     SLMat4f getPose();
     void updatePose(const SLMat4f& slMat, const SLTimePoint& time);
@@ -49,6 +51,17 @@ private:
     SLint64 _dT;
     SLint64 _dTc;
     std::mutex _poseLock;
+
+    // Kalman filter
+    cv::Mat _x; // x
+    cv::Mat _uncertainty; // P
+    cv::Mat _nextState; // F
+    cv::Mat _measurement; // H
+    cv::Mat _measurementUncertainty; // R
+    cv::Mat _identity; // I
+
+    void predict();
+    void update();
 };
 
 #endif
