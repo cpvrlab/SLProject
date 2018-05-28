@@ -16,10 +16,12 @@
 
 #include <SLNode.h>
 #include <SLApplication.h>
+#include <SLCVMap.h>
 
 //-----------------------------------------------------------------------------
-SLImGuiInfosMemoryStats::SLImGuiInfosMemoryStats(std::string name)
-    : SLImGuiInfosDialog(name)
+SLImGuiInfosMemoryStats::SLImGuiInfosMemoryStats(std::string name, SLCVMap* map)
+    : SLImGuiInfosDialog(name),
+    _map(map)
 {
 }
 //-----------------------------------------------------------------------------
@@ -41,11 +43,18 @@ void SLImGuiInfosMemoryStats::buildInfos()
         ImGui::Text("thresholdAM:       %d ", SLApplication::memStats._thresholdAM);
         ImGui::Text("availableMegs:     %f ", SLApplication::memStats._availableMegs);
         ImGui::Text("percentAvail:      %f ", SLApplication::memStats._percentAvail);
-        ImGui::Text("lowMemoryAM:       %b ", SLApplication::memStats._lowMemoryAM);
+        ImGui::Text("lowMemoryAM:       %d ", SLApplication::memStats._lowMemoryAM);
+        ImGui::Separator();
     }
     else
     {
         ImGui::Text("Memory statistics are invalid!");
+    }
+
+
+    if (_map) {
+        double size = (double)_map->getSizeOf() / 1048576L;
+        ImGui::Text("map size in MB     %f", size);
     }
 }
 //-----------------------------------------------------------------------------

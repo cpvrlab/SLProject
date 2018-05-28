@@ -135,6 +135,9 @@ public:
         return pKF1->mnId<pKF2->mnId;
     }
 
+    //get estimated size of this object
+    size_t getSizeOfCvMat(const cv::Mat& mat);
+    size_t getSizeOf();
 
     // The following variables are accesed from only 1 thread or never change (no mutex needed).
 public:

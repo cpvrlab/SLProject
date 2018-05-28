@@ -2592,10 +2592,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Mapping example");
         s->info("Example for mapping using functionality from ORB-SLAM.");
 
-        s->videoType(VT_MAIN);
-        //s->videoType(VT_FILE);
-        //SLCVCapture::videoLoops = true;
-        //SLCVCapture::videoFilename = "VID_20180424_2.mp4";
+        //s->videoType(VT_MAIN);
+        s->videoType(VT_FILE);
+        SLCVCapture::videoLoops = true;
+        SLCVCapture::videoFilename = "VID_20180424_2.mp4";
 
         //make some light
         SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
@@ -2636,7 +2636,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemoGui::addInfoDialog(mapTransform);
         auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm );
         AppDemoGui::addInfoDialog(mapStorage);
-        auto memStats = std::make_shared<SLImGuiInfosMemoryStats>("Memory stats");
+        auto memStats = std::make_shared<SLImGuiInfosMemoryStats>("Memory stats", tm->getMap());
         AppDemoGui::addInfoDialog(memStats);
 
 

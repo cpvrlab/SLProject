@@ -73,6 +73,8 @@ public:
     SLCVKeyFrame* refKf() const { return mpRefKF; }
     void refKf(SLCVKeyFrame* refKf) { mpRefKF = refKf; }
 
+    size_t getSizeOfCvMat(const cv::Mat& mat);
+    size_t getSizeOf();
 public:
     long unsigned int mnId = -1;
     //ghm1: this keeps track of the highest used id, to never use the same id again

@@ -326,7 +326,7 @@ void SLCVTrackedMapping::track3DPts()
         }
     }
 
-    _map->getMapSize();
+    _map->getSizeOf();
 
     // mbVO true means that there are few matches to MapPoints in the map. We cannot retrieve
     // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
@@ -1131,7 +1131,7 @@ void SLCVTrackedMapping::UpdateLocalKeyFrames()
 
 
     // Include also some not-already-included keyframes that are neighbors to already-included keyframes
-    for (vector<SLCVKeyFrame*>::const_iterator itKF = mvpLocalKeyFrames.begin(), itEndKF = mvpLocalKeyFrames.end(); itKF != itEndKF; itKF++)
+    for (vector<SLCVKeyFrame*>::const_iterator itKF = mvpLocalKeyFrames.begin()/*, itEndKF = mvpLocalKeyFrames.end()*/; itKF != mvpLocalKeyFrames.end(); itKF++)
     {
         // Limit the number of keyframes
         if (mvpLocalKeyFrames.size()>80)
@@ -1314,4 +1314,16 @@ void SLCVTrackedMapping::globalBundleAdjustment()
 {
     Optimizer::GlobalBundleAdjustemnt(_map, 20);
     _mapNode->updateAll(*_map);
+}
+//-----------------------------------------------------------------------------
+size_t SLCVTrackedMapping::getSizeOf()
+{
+    size_t size = 0;
+
+    size += sizeof(*this);
+    //add size of local mapping
+    //add size of loop closing
+    //add size of 
+
+    return size;
 }

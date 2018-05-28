@@ -736,3 +736,38 @@ bool SLCVKeyFrame::PosInGrid(const cv::KeyPoint &kp, int &posX, int &posY)
 
     return true;
 }
+//-----------------------------------------------------------------------------
+size_t SLCVKeyFrame::getSizeOfCvMat(const cv::Mat& mat)
+{
+    size_t size = 0;
+    if (mat.isContinuous())
+        size = mat.total() * mat.elemSize();
+    else {
+        size = mat.step[0] * mat.rows;
+    }
+    return size;
+}
+//-----------------------------------------------------------------------------
+//get estimated size of this object
+size_t SLCVKeyFrame::getSizeOf()
+{
+    size_t size = 0;
+
+    size += sizeof(*this);
+
+    //size_t testImg = sizeof(imgGray);
+    //size_t testImg2 = getSizeOfCvMat(imgGray);
+
+    //size_t test1 = sizeof(mDescriptors);
+    //size_t test2 = getSizeOfCvMat(mDescriptors);
+    //add space for cv mats:
+    size += getSizeOfCvMat(mTcwGBA);
+    size += getSizeOfCvMat(mTcwBefGBA);
+    size += getSizeOfCvMat(mDescriptors);
+    size += getSizeOfCvMat(mTcp);
+    size += getSizeOfCvMat(imgGray);
+    size += getSizeOfCvMat(_Twc);
+    size += getSizeOfCvMat(Ow);
+
+    return size;
+}

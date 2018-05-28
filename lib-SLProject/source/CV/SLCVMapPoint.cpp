@@ -432,3 +432,27 @@ int SLCVMapPoint::PredictScale(const float &currentDist, SLCVFrame* pF)
 
     return nScale;
 }
+//-----------------------------------------------------------------------------
+size_t SLCVMapPoint::getSizeOfCvMat(const cv::Mat& mat)
+{
+    size_t size = 0;
+    if (mat.isContinuous())
+        size = mat.total() * mat.elemSize();
+    else {
+        size = mat.step[0] * mat.rows;
+    }
+    return size;
+}
+//-----------------------------------------------------------------------------
+size_t SLCVMapPoint::getSizeOf()
+{
+    size_t size = 0;
+
+    size += sizeof(*this);
+    size += getSizeOfCvMat(mWorldPos);
+    size += getSizeOfCvMat(mNormalVector);
+    size += getSizeOfCvMat(mDescriptor);
+    size += getSizeOfCvMat(mPosGBA);
+
+    return size;
+}

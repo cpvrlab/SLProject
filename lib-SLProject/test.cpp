@@ -141,7 +141,7 @@
 //#include <OrbSlam/Converter.h>
 //#include <OrbSlam/Initializer.h>
 //#include <OrbSlam/LocalMapping.h>
-#include <OrbSlam/LoopClosing.h>
+//#include <OrbSlam/LoopClosing.h>
 //#include <OrbSlam/Optimizer.h>
 //#include <OrbSlam/ORBmatcher.h>
 //#include <OrbSlam/ORBVocabulary.h>
