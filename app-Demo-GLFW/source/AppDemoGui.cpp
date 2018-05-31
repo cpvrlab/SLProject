@@ -303,6 +303,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             sprintf(m+strlen(m), "Frames per s. : %0.2f\n", 1.0f/rt->renderSec());
             sprintf(m+strlen(m), "Frame Time    : %0.2f sec.\n", rt->renderSec());
             sprintf(m+strlen(m), "Rays per ms   : %0.0f\n", rpms);
+            sprintf(m+strlen(m), "AA Pixels     : %d (%d%%)\n", SLRay::subsampledPixels,(int)((float)SLRay::subsampledPixels/(float)rayPrimaries*100.0f));
             sprintf(m+strlen(m), "Threads       : %d\n", rt->numThreads());
             sprintf(m+strlen(m), "-------------------------------\n");
             sprintf(m+strlen(m), "Primary rays  : %8d (%3d%%)\n", rayPrimaries,          (int)((float)rayPrimaries/(float)rayTotal*100.0f));
