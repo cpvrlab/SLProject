@@ -37,6 +37,9 @@
       <FileRef
          location = "group:exercises/cv13_HeadPoseEstimation/cv13_HeadPoseEstimation.xcodeproj">
       </FileRef>
+      <FileRef
+         location = "group:exercises/cv13_Snapchat2D/cv13_Snapchat2D.xcodeproj">
+      </FileRef>
    </Group>
    <FileRef
       location = "group:app-Demo-GLFW/app-Demo-GLFW.xcodeproj">
