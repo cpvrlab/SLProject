@@ -33,7 +33,6 @@ _lib/
 _doc/
 intermediate/
 Makefile
-cv13_Snapchat2D/
 .qmake*
 GenerateHTMLDoc.log
 *.autosave

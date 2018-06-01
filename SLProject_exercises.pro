@@ -13,7 +13,7 @@ SUBDIRS += exercises/cv08_MeshMorphing
 SUBDIRS += exercises/cv13_FaceTracking
 SUBDIRS += exercises/cv13_FacialLandmarkDetection
 SUBDIRS += exercises/cv13_HeadPoseEstimation
-#SUBDIRS += exercises/cv13_Snapchat2D
+SUBDIRS += exercises/cv13_Snapchat2D
 
 ch06_ColorCube.depends = lib-SLExternal
 ch07_DiffuseCube.depends = lib-SLExternal
