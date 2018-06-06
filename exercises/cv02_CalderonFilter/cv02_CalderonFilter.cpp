@@ -30,7 +30,7 @@ void interpolation(uchar* lut, float* fullRange, float* curve, float* originalVa
 
         float slope = (curve[j]-curve[j-1]) / (originalVal[j]-originalVal[j-1]);
         float constant = curve[j] - slope * originalVal[j];
-        lut[i] = slope * fullRange[i] + constant;
+        lut[i] = (uchar)(slope * fullRange[i] + constant);
     }
 }
 //----------------------------------------------------------------------------

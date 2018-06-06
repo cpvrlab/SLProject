@@ -226,8 +226,8 @@ int main()
     // Keep bounding rectangle around face points
     Size size = img_orig.size();
     Rect rectFace = boundingRect(points);
-    Point2f center(rectFace.x + rectFace.width/2,
-                   rectFace.y + rectFace.height/2);
+    Point2f center(rectFace.x + rectFace.width*0.5f,
+                   rectFace.y + rectFace.height*0.5f);
 
     // Add image border points
     points.push_back(Point2d(0,0));
