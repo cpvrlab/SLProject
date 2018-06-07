@@ -197,14 +197,15 @@ list(REMOVE_ITEM SLEXTERNAL_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         )
 
 file(GLOB_RECURSE APP_DEMO_SOURCES      ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoAndroidJNI.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoAndroidSensorQueue.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoLoad.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGui.h
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGui.cpp
                                         )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include/OrbSlam)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/opencv/include)
@@ -276,6 +277,7 @@ add_library(native-lib
             ${SLEXTERNAL_SOURCES}
 )
 
+set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -landroid")
 find_library( log-lib log )
 
 #

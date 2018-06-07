@@ -2592,8 +2592,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Mapping example");
         s->info("Example for mapping using functionality from ORB-SLAM.");
 
-        //s->videoType(VT_MAIN);
-        s->videoType(VT_FILE);
+        s->videoType(VT_MAIN);
+        //s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
         SLCVCapture::videoFilename = "VID_20180424_2.mp4";
 

@@ -34,7 +34,9 @@ using namespace ORB_SLAM2;
 
 //-----------------------------------------------------------------------------
 SLCVTrackedRaulMurAsync::SLCVTrackedRaulMurAsync(SLNode *node, SLCVMapNode* mapNode)
-  : SLCVTracked(node), _orbTracking(&_stateEstimator, mapNode, true)
+  : SLCVTracked(node),
+    _stateEstimator(SLCVStateEstimator::PredictionModel_Kalman),
+    _orbTracking(&_stateEstimator, mapNode, true)
 {
     //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
     //y-axis down and z-forward
