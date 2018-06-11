@@ -233,17 +233,6 @@ template<class T> inline SLint SL_sizeOfVector(const T &vector)
 #define SL_EXIT_MSG(M)  SL::exitMsg((M), __LINE__, __FILE__)
 #define SL_WARN_MSG(M)  SL::warnMsg((M), __LINE__, __FILE__)
 //-----------------------------------------------------------------------------
-/*! Since Android does not support full C++11 support, we have to override the
-to_string method manually.
-*/
-template<typename T>
-std::string to_string(T value)
-{
-    std::ostringstream os;
-    os << value;
-    return os.str();
-}
-//-----------------------------------------------------------------------------
 //! Class SL with some global static functions and members.
 class SL
 {

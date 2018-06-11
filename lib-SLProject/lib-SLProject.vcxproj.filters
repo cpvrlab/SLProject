@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Scene">
@@ -393,6 +393,7 @@
     <ClInclude Include="..\include\SLApplication.h">
       <Filter>SL</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\include\SLAverageTiming.h">
       <Filter>SL</Filter>
     </ClInclude>
@@ -465,6 +466,11 @@
     <ClInclude Include="..\include\SLImGuiInfosMemoryStats.h">
       <Filter>GUI</Filter>
     </ClInclude>
+=======
+    <ClInclude Include="..\include\SLCVTrackedFaces.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+>>>>>>> origin/develop
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -731,6 +737,7 @@
     <ClCompile Include="source\SL\SLApplication.cpp">
       <Filter>SL</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="source\SL\SLAverageTiming.cpp">
       <Filter>SL</Filter>
     </ClCompile>
@@ -744,6 +751,9 @@
       <Filter>CV\OrbSlam</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\SLCVMapNode.cpp">
+=======
+    <ClCompile Include="source\CV\SLCVTrackedFaces.cpp">
+>>>>>>> origin/develop
       <Filter>CV</Filter>
     </ClCompile>
     <ClCompile Include="test.cpp" />

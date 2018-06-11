@@ -7,8 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4112C0F720B85E560018619B /* libopencv_imgcodecs.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4112C0F320B85E560018619B /* libopencv_imgcodecs.3.4.0.dylib */; };
+		4112C0F820B85E560018619B /* liblib-SLExternal-macxcode.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4112C0F420B85E560018619B /* liblib-SLExternal-macxcode.a */; };
+		4112C0F920B85E560018619B /* libopencv_core.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4112C0F520B85E560018619B /* libopencv_core.3.4.0.dylib */; };
+		4112C0FA20B85E560018619B /* libopencv_imgproc.3.4.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4112C0F620B85E560018619B /* libopencv_imgproc.3.4.0.dylib */; };
 		41C4312D1FF3D73F00D595D9 /* TextureMapping.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C4312C1FF3D73F00D595D9 /* TextureMapping.cpp */; };
-		41EE03BB1FF3D0A800E5DC9C /* liblib-SLExternal-macx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03BC1FF3D0A800E5DC9C /* liblib-SLExternal-macx.a */; };
 		41EE03BE1FF3D0B600E5DC9C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03BD1FF3D0B600E5DC9C /* Cocoa.framework */; };
 		41EE03C01FF3D0BF00E5DC9C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03BF1FF3D0BF00E5DC9C /* CoreFoundation.framework */; };
 		41EE03C21FF3D0CB00E5DC9C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03C11FF3D0CB00E5DC9C /* CoreGraphics.framework */; };
@@ -18,9 +21,6 @@
 		41EE03CD1FF3D1C600E5DC9C /* SL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EE03C91FF3D1C600E5DC9C /* SL.cpp */; };
 		41EE03CE1FF3D1C600E5DC9C /* SLFileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EE03CA1FF3D1C600E5DC9C /* SLFileSystem.cpp */; };
 		41EE03D01FF3D1EF00E5DC9C /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03CF1FF3D1EF00E5DC9C /* OpenGL.framework */; };
-		41EE03D41FF3D22200E5DC9C /* libopencv_imgproc.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03D11FF3D22100E5DC9C /* libopencv_imgproc.3.2.0.dylib */; };
-		41EE03D51FF3D22200E5DC9C /* libopencv_core.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03D21FF3D22200E5DC9C /* libopencv_core.3.2.0.dylib */; };
-		41EE03D61FF3D22200E5DC9C /* libopencv_imgcodecs.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03D31FF3D22200E5DC9C /* libopencv_imgcodecs.3.2.0.dylib */; };
 		41EE03D81FF3D28000E5DC9C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EE03D71FF3D28000E5DC9C /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
@@ -37,6 +37,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4112C0F320B85E560018619B /* libopencv_imgcodecs.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgcodecs.3.4.0.dylib; path = "../../_bin-Release-macxcode/libopencv_imgcodecs.3.4.0.dylib"; sourceTree = "<group>"; };
+		4112C0F420B85E560018619B /* liblib-SLExternal-macxcode.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLExternal-macxcode.a"; path = "../../_bin-Release-macxcode/liblib-SLExternal-macxcode.a"; sourceTree = "<group>"; };
+		4112C0F520B85E560018619B /* libopencv_core.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_core.3.4.0.dylib; path = "../../_bin-Release-macxcode/libopencv_core.3.4.0.dylib"; sourceTree = "<group>"; };
+		4112C0F620B85E560018619B /* libopencv_imgproc.3.4.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgproc.3.4.0.dylib; path = "../../_bin-Release-macxcode/libopencv_imgproc.3.4.0.dylib"; sourceTree = "<group>"; };
 		4160DA4D1FF3C88400343C0D /* ch09_TextureMapping */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ch09_TextureMapping; sourceTree = BUILT_PRODUCTS_DIR; };
 		41C4312C1FF3D73F00D595D9 /* TextureMapping.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureMapping.cpp; sourceTree = "<group>"; };
 		41EE03BC1FF3D0A800E5DC9C /* liblib-SLExternal-macx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "liblib-SLExternal-macx.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -60,16 +64,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4112C0F720B85E560018619B /* libopencv_imgcodecs.3.4.0.dylib in Frameworks */,
+				4112C0F820B85E560018619B /* liblib-SLExternal-macxcode.a in Frameworks */,
+				4112C0F920B85E560018619B /* libopencv_core.3.4.0.dylib in Frameworks */,
+				4112C0FA20B85E560018619B /* libopencv_imgproc.3.4.0.dylib in Frameworks */,
 				41EE03D81FF3D28000E5DC9C /* QuartzCore.framework in Frameworks */,
-				41EE03D41FF3D22200E5DC9C /* libopencv_imgproc.3.2.0.dylib in Frameworks */,
-				41EE03D51FF3D22200E5DC9C /* libopencv_core.3.2.0.dylib in Frameworks */,
-				41EE03D61FF3D22200E5DC9C /* libopencv_imgcodecs.3.2.0.dylib in Frameworks */,
 				41EE03D01FF3D1EF00E5DC9C /* OpenGL.framework in Frameworks */,
 				41EE03C41FF3D0D600E5DC9C /* IOKit.framework in Frameworks */,
 				41EE03C21FF3D0CB00E5DC9C /* CoreGraphics.framework in Frameworks */,
 				41EE03C01FF3D0BF00E5DC9C /* CoreFoundation.framework in Frameworks */,
 				41EE03BE1FF3D0B600E5DC9C /* Cocoa.framework in Frameworks */,
-				41EE03BB1FF3D0A800E5DC9C /* liblib-SLExternal-macx.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,6 +101,10 @@
 		41EE03BA1FF3D0A800E5DC9C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4112C0F420B85E560018619B /* liblib-SLExternal-macxcode.a */,
+				4112C0F520B85E560018619B /* libopencv_core.3.4.0.dylib */,
+				4112C0F320B85E560018619B /* libopencv_imgcodecs.3.4.0.dylib */,
+				4112C0F620B85E560018619B /* libopencv_imgproc.3.4.0.dylib */,
 				41EE03D71FF3D28000E5DC9C /* QuartzCore.framework */,
 				41EE03D21FF3D22200E5DC9C /* libopencv_core.3.2.0.dylib */,
 				41EE03D31FF3D22200E5DC9C /* libopencv_imgcodecs.3.2.0.dylib */,
@@ -149,7 +157,7 @@
 		4160DA451FF3C88400343C0D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0920;
+				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = "Marcus Hudritsch";
 				TargetAttributes = {
 					4160DA4C1FF3C88400343C0D = {
@@ -221,6 +229,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -228,6 +237,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -276,6 +286,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -283,6 +294,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;

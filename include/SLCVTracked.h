@@ -12,7 +12,7 @@
 #define SLCVTRACKER_H
 
 /*
-The OpenCV library version 3.1 with extra module must be present.
+The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
@@ -53,6 +53,9 @@ class SLCVTracked
 
         SLMat4f     createGLMatrix      (const SLCVMat& tVec,
                                          const SLCVMat& rVec);
+        void        createRvecTvec      (const SLMat4f glMat,
+                                         SLCVMat& tVec,
+                                         SLCVMat& rVec);
         SLMat4f     calcObjectMatrix    (const SLMat4f& cameraObjectMat,
                                          const SLMat4f& objectViewMat);
 

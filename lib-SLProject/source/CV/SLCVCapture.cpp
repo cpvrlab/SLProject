@@ -12,7 +12,7 @@
 #include <stdafx.h>         // precompiled headers
 
 /*
-The OpenCV library version 3.1 with extra module must be present.
+The OpenCV library version 3.4 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
@@ -242,14 +242,14 @@ void SLCVCapture::adjustForSL()
     if (SLApplication::activeCalib->isMirroredH())
     {   SLCVMat mirrored;
         if (SLApplication::activeCalib->isMirroredV())
-            cv::flip(SLCVCapture::lastFrame, mirrored,-1);
+             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
         else cv::flip(SLCVCapture::lastFrame, mirrored, 1);
         SLCVCapture::lastFrame = mirrored;
     } else
     if (SLApplication::activeCalib->isMirroredV())
     {   SLCVMat mirrored;
         if (SLApplication::activeCalib->isMirroredH())
-            cv::flip(SLCVCapture::lastFrame, mirrored,-1);
+             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
         else cv::flip(SLCVCapture::lastFrame, mirrored, 0);
         SLCVCapture::lastFrame = mirrored;
     }

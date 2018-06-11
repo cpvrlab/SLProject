@@ -2,10 +2,10 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
-        releaseKey1 {
-            keyAlias 'key0'
+        release {
+            keyAlias 'cpvrlab'
             keyPassword 'uwenadat'
-            storeFile file('/home/jdellsperger/Android/SLProject-key.jks')
+            storeFile file('../../app-Demo-Android/cpvrlab-release-key')
             storePassword 'uwenadat'
         }
     }
@@ -24,7 +24,6 @@ android {
             cmake {
                 cppFlags "-frtti -fexceptions -std=c++11 -w -Wno-error=format-security -DANDROID_STL=gnustl"
                 abiFilters 'arm64-v8a'
-                cFlags "-v"
             }
         }
     }
@@ -44,9 +43,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.releaseKey1
+            signingConfig signingConfigs.release
         }
         debug {
+            jniDebuggable true
         }
     }
     externalNativeBuild {
@@ -74,10 +74,10 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:24.+'
     /*
-                                        androidTestCompile('com.android.support.test.espresso:espresso-core:2.0', {
-                                            exclude group: 'com.android.support', module: 'support-annotations'
-                                        })
-                                        testCompile 'junit:junit:4.12'
-                                        compile project(':openCVLibrary310')
-                                        */
+                        androidTestCompile('com.android.support.test.espresso:espresso-core:2.0', {
+                            exclude group: 'com.android.support', module: 'support-annotations'
+                        })
+                        testCompile 'junit:junit:4.12'
+                        compile project(':openCVLibrary310')
+                        */
 }

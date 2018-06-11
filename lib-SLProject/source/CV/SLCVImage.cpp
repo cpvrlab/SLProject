@@ -478,9 +478,14 @@ SLstring SLCVImage::formatString()
 //! Save as PNG at a certain compression level (0-9)
 /*!Save as PNG at a certain compression level (0-9)
 \param filename filename with path and extension
-\param compressionLevel compression level 0-9 (default 5)
+\param compressionLevel compression level 0-9 (default 6)
+\param flipY Flag for vertical mirroring
+\param convertBGR2RGB Flag for BGR to RGB conversion
 */
-void SLCVImage::savePNG(const SLstring filename, const SLint compressionLevel)
+void SLCVImage::savePNG(const SLstring filename,
+                        const SLint compressionLevel,
+                        const SLbool flipY,
+                        const SLbool convertBGR2RGB)
 {  
     SLVint compression_params;
     compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
@@ -488,7 +493,14 @@ void SLCVImage::savePNG(const SLstring filename, const SLint compressionLevel)
 
     try
     {
-        imwrite(filename, _cvMat, compression_params);
+        SLCVMat outImg = _cvMat.clone();
+
+        if (flipY)
+            cv::flip(outImg, outImg, 0);
+        if (convertBGR2RGB)
+            cv::cvtColor(outImg, outImg, cv::COLOR_BGR2RGB);
+
+        imwrite(filename, outImg, compression_params);
     }
     catch (runtime_error& ex)
     {   SLstring msg = "SLCVImage.savePNG: Exception: ";
@@ -499,11 +511,16 @@ void SLCVImage::savePNG(const SLstring filename, const SLint compressionLevel)
 
 //-----------------------------------------------------------------------------
 //! Save as JPG at a certain compression level (0-100)
-/*!Save as JPG at a certain compression level (0-9)
+/*!Save as JPG at a certain compression level (0-100)
 \param filename filename with path and extension
 \param compressionLevel compression level 0-100 (default 95)
+\param flipY Flag for vertical mirroring
+\param convertBGR2RGB Flag for BGR to RGB conversion
 */
-void SLCVImage::saveJPG(const SLstring filename, const SLint compressionLevel)
+void SLCVImage::saveJPG(const SLstring filename,
+                        const SLint compressionLevel,
+                        const SLbool flipY,
+                        const SLbool convertBGR2RGB)
 {
     SLVint compression_params;
     compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
@@ -512,7 +529,12 @@ void SLCVImage::saveJPG(const SLstring filename, const SLint compressionLevel)
 
     try
     {
-        imwrite(filename, _cvMat, compression_params);
+        SLCVMat outImg = _cvMat.clone();
+
+        if (flipY)
+            cv::flip(outImg, outImg, 0);
+        if (convertBGR2RGB)
+            cv::cvtColor(outImg, outImg, cv::COLOR_BGR2RGB);
     }
     catch (runtime_error& ex)
     {   SLstring msg = "SLCVImage.saveJPG: Exception: ";

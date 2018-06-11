@@ -108,7 +108,7 @@ SLfloat SLAverageTiming::doGetTime(const std::string& name)
 //!get time for multiple blocks with given names
 SLfloat SLAverageTiming::doGetTime(const std::vector<std::string>& names)
 {
-    SLAvgFloat val;
+    SLAvgFloat val(_averageNumValues, 0.0f);
     for (const std::string& n : names)
     {
         val.set(getTime(n));

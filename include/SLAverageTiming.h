@@ -27,7 +27,7 @@ The first found content with posV==0 is used as reference measurement for the pe
 */
 struct SLAverageTimingBlock {
     SLAverageTimingBlock(SLint averageNumValues, SLstring name, SLint posV, SLint posH)
-        : val(averageNumValues),
+        : val(averageNumValues, 0.0f),
         name(name),
         posV(posV),
         posH(posH)

@@ -935,9 +935,16 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
     SLScene* s = SLApplication::scene;
     _touchDowns = 0;
    
+    // Continue with ray tracing
     if (_raytracer.state()==rtMoveGL)
     {   _renderType = RT_rt;
         _raytracer.state(rtReady);
+    }
+    
+    // Continue with path tracing
+    if (_pathtracer.state()==rtMoveGL)
+    {   _renderType = RT_pt;
+        _pathtracer.state(rtReady);
     }
 
     // Pass the event to imgui
@@ -982,13 +989,20 @@ SLbool SLSceneView::onMouseMove(SLint x, SLint y)
     {   SLMouseButton btn = _mouseDownL ? MB_left : 
                             _mouseDownR ? MB_right : MB_middle;
       
-        // Handle move in RT mode
+        // Handle move in ray tracing
         if (_renderType == RT_rt && !_raytracer.doContinuous())
         {   if (_raytracer.state()==rtFinished)
                 _raytracer.state(rtMoveGL);
             else
             {   _raytracer.doContinuous(false);
             }
+            _renderType = RT_gl;
+        }
+        
+        // Handle move in path tracing
+        if (_renderType == RT_pt)
+        {   if (_pathtracer.state()==rtFinished)
+                _pathtracer.state(rtMoveGL);
             _renderType = RT_gl;
         }
       

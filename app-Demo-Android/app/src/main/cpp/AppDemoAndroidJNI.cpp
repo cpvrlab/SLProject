@@ -205,6 +205,10 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQUAT(JNIEnv *env, j
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv *env, jobject obj)
 {
     SL_LOG("onClose\n ");
+
+    // This saves the GUI configs
+    AppDemoGui::saveConfig();
+
     slTerminate();
     exit(0);
 }

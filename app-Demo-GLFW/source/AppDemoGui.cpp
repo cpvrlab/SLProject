@@ -235,44 +235,74 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         if (rType == RT_gl)
         {
             // Get averages from average variables (see SLAverage)
-            SLfloat captureTime = s->captureTimesMS().average();
-            SLfloat updateTime = s->updateTimesMS().average();
-            SLfloat trackingTime = s->trackingTimesMS().average();
-            SLfloat detectTime = s->detectTimesMS().average();
-            SLfloat matchTime = s->matchTimesMS().average();
-            SLfloat optFlowTime = s->optFlowTimesMS().average();
-            SLfloat poseTime = s->poseTimesMS().average();
-            SLfloat draw3DTime = s->draw3DTimesMS().average();
-            SLfloat draw2DTime = s->draw2DTimesMS().average();
-            SLfloat cullTime = s->cullTimesMS().average();
+            SLfloat captureTime     = s->captureTimesMS().average();
+            SLfloat updateTime      = s->updateTimesMS().average();
+            SLfloat trackingTime    = s->trackingTimesMS().average();
+            SLfloat detectTime      = s->detectTimesMS().average();
+            SLfloat detect1Time     = s->detect1TimesMS().average();
+            SLfloat detect2Time     = s->detect2TimesMS().average();
+            SLfloat matchTime       = s->matchTimesMS().average();
+            SLfloat optFlowTime     = s->optFlowTimesMS().average();
+            SLfloat poseTime        = s->poseTimesMS().average();
+            SLfloat draw3DTime      = s->draw3DTimesMS().average();
+            SLfloat draw2DTime      = s->draw2DTimesMS().average();
+            SLfloat cullTime        = s->cullTimesMS().average();
 
             // Calculate percentage from frame time
-            SLfloat captureTimePC = SL_clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
-            SLfloat updateTimePC = SL_clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
-            SLfloat trackingTimePC = SL_clamp(trackingTime / ft * 100.0f, 0.0f, 100.0f);
-            SLfloat detectTimePC = SL_clamp(detectTime / ft * 100.0f, 0.0f, 100.0f);
-            SLfloat matchTimePC = SL_clamp(matchTime / ft * 100.0f, 0.0f, 100.0f);
-            SLfloat optFlowTimePC = SL_clamp(optFlowTime / ft * 100.0f, 0.0f, 100.0f);
-            SLfloat poseTimePC = SL_clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
-            SLfloat draw3DTimePC = SL_clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
-            SLfloat draw2DTimePC = SL_clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
-            SLfloat cullTimePC = SL_clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
+            SLfloat captureTimePC   = SL_clamp(captureTime  / ft * 100.0f, 0.0f,100.0f);
+            SLfloat updateTimePC    = SL_clamp(updateTime   / ft * 100.0f, 0.0f,100.0f);
+            SLfloat trackingTimePC  = SL_clamp(trackingTime / ft * 100.0f, 0.0f,100.0f);
+            SLfloat detectTimePC    = SL_clamp(detectTime   / ft * 100.0f, 0.0f,100.0f);
+            SLfloat matchTimePC     = SL_clamp(matchTime    / ft * 100.0f, 0.0f,100.0f);
+            SLfloat optFlowTimePC   = SL_clamp(optFlowTime  / ft * 100.0f, 0.0f,100.0f);
+            SLfloat poseTimePC      = SL_clamp(poseTime     / ft * 100.0f, 0.0f,100.0f);
+            SLfloat draw3DTimePC    = SL_clamp(draw3DTime   / ft * 100.0f, 0.0f,100.0f);
+            SLfloat draw2DTimePC    = SL_clamp(draw2DTime   / ft * 100.0f, 0.0f,100.0f);
+            SLfloat cullTimePC      = SL_clamp(cullTime     / ft * 100.0f, 0.0f,100.0f);
 
-            sprintf(m + strlen(m), "Renderer      : OpenGL\n");
-            sprintf(m + strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
-            sprintf(m + strlen(m), "NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
-            sprintf(m + strlen(m), "Frames per s. : %4.1f\n", s->fps());
-            sprintf(m + strlen(m), "Frame time    : %4.1f ms (100%%)\n", ft);
-            sprintf(m + strlen(m), "  Capture     : %4.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
-            sprintf(m + strlen(m), "  Update      : %4.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
-            sprintf(m + strlen(m), "    Tracking  : %4.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
-            sprintf(m + strlen(m), "      Detect  : %4.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
-            sprintf(m + strlen(m), "      Match   : %4.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
-            sprintf(m + strlen(m), "      Opt.Flow: %4.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
-            sprintf(m + strlen(m), "      Pose    : %4.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
-            sprintf(m + strlen(m), "  Culling     : %4.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
-            sprintf(m + strlen(m), "  Drawing 3D  : %4.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
-            sprintf(m + strlen(m), "  Drawing 2D  : %4.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
+            sprintf(m+strlen(m), "Renderer      : OpenGL\n");
+            sprintf(m+strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
+            sprintf(m+strlen(m), "NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
+            sprintf(m+strlen(m), "Frames per s. : %4.1f\n", s->fps());
+            sprintf(m+strlen(m), "Frame time    : %4.1f ms (100%%)\n", ft);
+            sprintf(m+strlen(m), "  Capture     : %4.1f ms (%3d%%)\n", captureTime,  (SLint)captureTimePC);
+            sprintf(m+strlen(m), "  Update      : %4.1f ms (%3d%%)\n", updateTime,   (SLint)updateTimePC);
+            sprintf(m+strlen(m), "    Tracking  : %4.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
+            sprintf(m+strlen(m), "      Detect  : %4.1f ms (%3d%%)\n", detectTime,   (SLint)detectTimePC);
+            sprintf(m+strlen(m), "        Det1  : %4.1f ms\n", detect1Time);
+            sprintf(m+strlen(m), "        Det2  : %4.1f ms\n", detect2Time);
+            sprintf(m+strlen(m), "      Match   : %4.1f ms (%3d%%)\n", matchTime,    (SLint)matchTimePC);
+            sprintf(m+strlen(m), "      Opt.Flow: %4.1f ms (%3d%%)\n", optFlowTime,  (SLint)optFlowTimePC);
+            sprintf(m+strlen(m), "      Pose    : %4.1f ms (%3d%%)\n", poseTime,     (SLint)poseTimePC);
+            sprintf(m+strlen(m), "  Culling     : %4.1f ms (%3d%%)\n", cullTime,     (SLint)cullTimePC);
+            sprintf(m+strlen(m), "  Drawing 3D  : %4.1f ms (%3d%%)\n", draw3DTime,   (SLint)draw3DTimePC);
+            sprintf(m+strlen(m), "  Drawing 2D  : %4.1f ms (%3d%%)\n", draw2DTime,   (SLint)draw2DTimePC);
+        } else
+        if (rType == RT_rt)
+        {
+            SLRaytracer* rt = sv->raytracer();
+            SLuint rayPrimaries = sv->scrW() * sv->scrH();
+            SLuint rayTotal = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
+            SLfloat rpms = rt->renderSec() ? rayTotal/rt->renderSec()/1000.0f : 0.0f;
+
+            sprintf(m+strlen(m), "Renderer      : Ray Tracer\n");
+            sprintf(m+strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
+            sprintf(m+strlen(m), "Frames per s. : %0.2f\n", 1.0f/rt->renderSec());
+            sprintf(m+strlen(m), "Frame Time    : %0.2f sec.\n", rt->renderSec());
+            sprintf(m+strlen(m), "Rays per ms   : %0.0f\n", rpms);
+            sprintf(m+strlen(m), "AA Pixels     : %d (%d%%)\n", SLRay::subsampledPixels,(int)((float)SLRay::subsampledPixels/(float)rayPrimaries*100.0f));
+            sprintf(m+strlen(m), "Threads       : %d\n", rt->numThreads());
+            sprintf(m+strlen(m), "-------------------------------\n");
+            sprintf(m+strlen(m), "Primary rays  : %8d (%3d%%)\n", rayPrimaries,          (int)((float)rayPrimaries/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "Reflected rays: %8d (%3d%%)\n", SLRay::reflectedRays,  (int)((float)SLRay::reflectedRays/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "Refracted rays: %8d (%3d%%)\n", SLRay::refractedRays,  (int)((float)SLRay::refractedRays/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "TIR rays      : %8d\n",         SLRay::tirRays);
+            sprintf(m+strlen(m), "Shadow rays   : %8d (%3d%%)\n", SLRay::shadowRays,     (int)((float)SLRay::shadowRays/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "AA rays       : %8d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "Total rays    : %8d (%3d%%)\n", rayTotal, 100);
+            sprintf(m+strlen(m), "-------------------------------\n");
+            sprintf(m+strlen(m), "Maximum depth : %u\n", SLRay::maxDepthReached);
+            sprintf(m+strlen(m), "Average depth : %0.3f\n", SLRay::avgDepth/rayPrimaries);
         }
         else
             if (rType == RT_rt)
@@ -620,6 +650,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoTrackChessScnd);
                     if (ImGui::MenuItem("Track Features (Main)", 0, sid == SID_VideoTrackFeature2DMain))
                         s->onLoad(s, sv, SID_VideoTrackFeature2DMain);
+                    if (ImGui::MenuItem("Track Face (Main)", 0, sid == SID_VideoTrackFaceMain))
+                        s->onLoad(s, sv, SID_VideoTrackFaceMain);
+                    if (ImGui::MenuItem("Track Face (Scnd)", 0, sid == SID_VideoTrackFaceScnd, SLCVCapture::hasSecondaryCamera))
+                        s->onLoad(s, sv, SID_VideoTrackFaceScnd);
                     if (ImGui::MenuItem("Sensor AR (Main)", 0, sid == SID_VideoSensorAR))
                         s->onLoad(s, sv, SID_VideoSensorAR);
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", 0, sid == SID_VideoChristoffel))
@@ -893,10 +927,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     sv->drawBits()->toggle(SL_DB_BBOX);
 
                 if (ImGui::MenuItem("Voxels", "V", sv->drawBits()->get(SL_DB_VOXELS)))
-                    sv->drawBits()->toggle(SL_DB_NORMALS);
+                    sv->drawBits()->toggle(SL_DB_VOXELS);
 
                 if (ImGui::MenuItem("Axis", "X", sv->drawBits()->get(SL_DB_AXIS)))
-                    sv->drawBits()->toggle(SL_DB_VOXELS);
+                    sv->drawBits()->toggle(SL_DB_AXIS);
 
                 if (ImGui::MenuItem("Back Faces", "C", sv->drawBits()->get(SL_DB_CULLOFF)))
                     sv->drawBits()->toggle(SL_DB_CULLOFF);
@@ -1001,6 +1035,21 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->startPathtracing(5, 10000);
 
                     ImGui::EndMenu();
+                }
+
+                if (ImGui::MenuItem("Direct illumination", 0, pt->calcDirect()))
+                {   pt->calcDirect(!pt->calcDirect());
+                    sv->startPathtracing(5, 10);
+                }
+
+                if (ImGui::MenuItem("Indirect illumination", 0, pt->calcIndirect()))
+                {   pt->calcIndirect(!pt->calcIndirect());
+                    sv->startPathtracing(5, 10);
+                }
+
+                if (ImGui::MenuItem("Apply Gamma Corr.", 0, pt->applyGamma()))
+                {   pt->applyGamma(!pt->applyGamma());
+                    sv->startPathtracing(5, 10);
                 }
 
                 if (ImGui::MenuItem("Save Rendered Image"))

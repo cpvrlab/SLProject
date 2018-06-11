@@ -133,7 +133,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     // Bind render functions to be called multithreaded
     auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1);
     auto renderSlicesFunction   = _cam->lensSamples()->samples() == 1 ? 
-                                  bind(&SLRaytracer::renderSlices, this, _1) : 
+                                  bind(&SLRaytracer::renderSlices  , this, _1):
                                   bind(&SLRaytracer::renderSlicesMS, this, _1);
 
     // Do multithreading only in release config
@@ -142,7 +142,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     _next = 0;              // init _next=0. _next should be atomic
 
     // Start additional threads on the renderSlices function
-    for (SLuint t=0; t< SL::maxThreads()-1; t++)
+    for (SLuint t=0; t<SL::maxThreads()-1; t++)
         threads.push_back(thread(renderSlicesFunction, false));
 
     // Do the same work in the main thread
@@ -151,9 +151,8 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     // Wait for the other threads to finish
     for(auto& thread : threads) thread.join();
     
-
     // Do anti-aliasing w. contrast compare in a 2nd. pass
-    if (!_doContinuous && _aaSamples > 1 && _cam->lensSamples()->samples() == 1)
+    if (!_doContinuous && _aaSamples > 1)
     {
         getAAPixels();          // Fills in the AA pixels by contrast
         vector<thread> threads; // vector for additional threads
@@ -792,7 +791,7 @@ void SLRaytracer::saveImage()
     static SLint no = 0;
     SLchar filename[255];  
     sprintf(filename,"Raytraced_%d_%d.png", _maxDepth, no++);
-    _images[0]->savePNG(filename);
+    _images[0]->savePNG(filename, 9, true, true);
 }
 //-----------------------------------------------------------------------------
 //! Must be called before an inbetween frame update
