@@ -1976,6 +1976,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                 //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
                 //SLCVCapture::videoFilename = "webcam_calib.wmv";
                 //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
+                //SLCVCapture::videoFilename = "huawei_p10_full_hd.mp4";
                 //SLCVCapture::videoLoops = true;
                 //s->videoType(VT_FILE);
                 s->videoType(VT_MAIN);
@@ -1993,6 +1994,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             //SLCVCapture::videoFilename = "webcam_calib.wmv";
             //SLCVCapture::videoFilename = "calib_huawei_4_3.mp4";
             //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
+            //SLCVCapture::videoFilename = "huawei_p10_full_hd.mp4";
             //SLCVCapture::videoLoops = true;
             //s->videoType(VT_FILE);
             s->videoType(VT_MAIN);
@@ -2157,6 +2159,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Track 2D Features");
         s->info("Augmented Reality 2D Feature Tracking: You need to print out the stones image target from the file _data/calibrations/vuforia_markers.pdf");
 
+        SLCVCapture::videoLoops = true;
+
+        SLCVCapture::videoFilename = "VID_20180605_124023.mp4";
+
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 60);
         cam1->lookAt(15, 15, 0);
@@ -2165,6 +2171,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
         cam1->background().texture(s->videoTexture());
         s->videoType(VT_MAIN);
+        //s->videoType(VT_FILE);
 
         SLLightSpot* light1 = new SLLightSpot(420, 420, 420, 1);
         light1->ambient(SLCol4f(1, 1, 1));
@@ -2190,7 +2197,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //we we could not find the tower, load a Box
         if (!tower) {
             SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-            SLfloat s = 10.f;
+            SLfloat s = 100.f;
             tower = new SLNode(new SLBox(0, 0, 0, s, s, s, "Box", yellow), "Box Node");
 
             SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
@@ -2211,7 +2218,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (tower) scene->addChild(tower);
         scene->addChild(cam1);
 
-        s->trackers().push_back(new SLCVTrackedFeatures(cam1, "features_stones.png"));
+        //s->trackers().push_back(new SLCVTrackedFeatures(cam1, "features_stones.png"));
+        s->trackers().push_back(new SLCVTrackedFeatures(cam1, "ID_Swiss_Hudritsch_Marcus_front_resized.png"));
+        //s->trackers().push_back(new SLCVTrackedFeatures(cam1, "ID_Swiss_Hudritsch_Marcus_front.png"));
+        //s->trackers().push_back(new SLCVTrackedFeatures(cam1, "ID_Swiss_Fankhauser_Benjamin_front.png"));
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);

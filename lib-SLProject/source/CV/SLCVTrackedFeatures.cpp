@@ -67,7 +67,7 @@ SLCVTrackedFeatures::SLCVTrackedFeatures(SLNode *node,
         #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
             mkdir(SL_DEBUG_OUTPUT_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
         #elif defined(SL_OS_WINDOWS)
-            _mkdir(SL_SAVE_SNAPSHOTS_OUTPUT);
+            _mkdir(SL_DEBUG_OUTPUT_PATH);
         #else
             #undef SL_SAVE_SNAPSHOTS_OUTPUT
         #endif
@@ -718,6 +718,8 @@ void SLCVTrackedFeatures::optimizeMatches()
 
         // Check if this point has a match inside matches, continue if so
         SLint alreadyMatched = 0;
+        //todo: this is bad, because for every marker keypoint we have to iterate all inlierMatches!
+        //better: iterate inlierMatches once at the beginning and mark all marker keypoints as inliers or not!
         for (size_t j = 0; j < _currentFrame.inlierMatches.size(); j++)
         {   if (_currentFrame.inlierMatches[j].trainIdx == i)
                 alreadyMatched++;
@@ -884,6 +886,7 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
     // Find closest possible feature points based on optical flow
     SLCVVPoint2f pred2DPoints(_prevFrame.inlierPoints2D.size());
 
+    //todo: do not relate optical flow to previous frame! better to original marker image, otherwise we will drift
     cv::calcOpticalFlowPyrLK(
         _prevFrame.imageGray,   // Previous frame
         _currentFrame.imageGray,// Current frame
