@@ -81,6 +81,7 @@ public:
 protected:
     void Reset() override;
     bool Relocalization();
+    bool TrackWithOptFlow();
     bool TrackWithMotionModel();
     bool TrackLocalMap();
     void SearchLocalPoints();
@@ -169,6 +170,28 @@ private:
     //cv::Mat _image;
     SLCVCalibration*        _calib = NULL;         //!< Current calibration in use
     SLint                   _frameCount=0;    //!< NO. of frames since process start
+
+    int                     _optFlowFrames = 0;
+
+    //! Feature date for a video frame
+    struct SLFrameData
+    {   SLCVMat         image;              //!< Reference to color video frame
+        SLCVMat         imageGray;          //!< Reference to grayscale video frame
+        SLCVVPoint2f    inlierPoints2D;     //!< Inlier 2D points after RANSAC
+        SLCVVPoint3f    inlierPoints3D;     //!< Inlier 3D points after RANSAC on the marker
+        SLCVVKeyPoint   keypoints;          //!< 2D keypoints detected in video frame
+        SLCVMat         descriptors;        //!< Descriptors of keypoints
+        SLCVVDMatch     matches;            //!< matches between video decriptors and marker descriptors
+        SLCVVDMatch     inlierMatches;      //!< matches that lead to correct transform
+        SLCVMat         rvec;               //!< Rotation of the camera pose
+        SLCVMat         tvec;               //!< Translation of the camera pose
+        SLbool          foundPose;          //!< True if pose was found
+        SLfloat         reprojectionError;  //!< Reprojection error of the pose
+        SLbool          useExtrinsicGuess;  //!< flag if extrinsic gues should be used
+    };
+
+    SLFrameData         _currentFrame;      //!< The current video frame data
+    SLFrameData         _prevFrame;         //!< The previous video frame data
 };
 //-----------------------------------------------------------------------------
 #endif //SLCVTRACKERRAULMUR_H

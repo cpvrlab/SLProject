@@ -42,6 +42,7 @@ protected:
   bool mbVO = false;
   
   bool Relocalization();
+  bool TrackWithOptFlow();
   bool TrackWithMotionModel();
   bool TrackLocalMap();
   void SearchLocalPoints();
@@ -84,6 +85,8 @@ private:
   void trackOrbsContinuously();
   bool running();
   void running(bool running);
+
+  int                     _optFlowFrames = 0;
 };
 
 #endif

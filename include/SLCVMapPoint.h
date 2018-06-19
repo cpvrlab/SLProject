@@ -35,6 +35,8 @@ public:
     SLVec3f worldPosVec();
     SLVec3f normalVec();
 
+    void worldPosVec(SLVec3f);
+
     void SetWorldPos(const cv::Mat &Pos);
     cv::Mat GetWorldPos();
 

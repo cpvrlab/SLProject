@@ -251,7 +251,10 @@ add_library(lib_opencv_highgui SHARED IMPORTED)
 set_target_properties(lib_opencv_highgui PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_highgui.so)
 add_library(lib_opencv_xfeatures2d SHARED IMPORTED)
 set_target_properties(lib_opencv_xfeatures2d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_xfeatures2d.so)
-<<<<<<< HEAD
+add_library(lib_opencv_objdetect SHARED IMPORTED)
+set_target_properties(lib_opencv_objdetect PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_objdetect.so)
+add_library(lib_opencv_face SHARED IMPORTED)
+set_target_properties(lib_opencv_face PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_face.so)
 
 #
 # g2o (graph optimization for bundle adjustment)
@@ -271,12 +274,6 @@ set_target_properties(lib_g2o_types_sba PROPERTIES IMPORTED_LOCATION ${CMAKE_CUR
 add_library(lib_g2o_types_sim3 SHARED IMPORTED)
 set_target_properties(lib_g2o_types_sim3 PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_types_sim3.so)
 #message(${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_types_slam3d.so)
-=======
-add_library(lib_opencv_objdetect SHARED IMPORTED)
-set_target_properties(lib_opencv_objdetect PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_objdetect.so)
-add_library(lib_opencv_face SHARED IMPORTED)
-set_target_properties(lib_opencv_face PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_face.so)
->>>>>>> origin/develop
 
 add_library(native-lib
             SHARED
@@ -309,7 +306,8 @@ target_link_libraries(  native-lib
                         lib_opencv_imgcodecs
                         lib_opencv_highgui
                         lib_opencv_xfeatures2d
-<<<<<<< HEAD
+                        lib_opencv_objdetect
+                        lib_opencv_face
                         lib_g2o_types_slam3d
                         lib_g2o_core
                         lib_g2o_stuff
@@ -317,10 +315,6 @@ target_link_libraries(  native-lib
                         lib_g2o_solver_eigen
                         lib_g2o_types_sba
                         lib_g2o_types_sim3
-=======
-                        lib_opencv_objdetect
-                        lib_opencv_face
->>>>>>> origin/develop
                         ${OPENGL_LIB_v3}
                         ${log-lib}
                      )
@@ -371,18 +365,15 @@ file(GLOB_RECURSE SHADERS       ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/
 
 file(GLOB_RECURSE CALIBRATIONS  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/calib_in_params.yml
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/aruco_detector_params.yml
-<<<<<<< HEAD
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/street1_manip.json
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-altstadtbiel1_manip.json
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-bern1-manip1.json
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-buero1.json
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/test.yml
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/ORBvoc.bin)
-=======
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/ORBvoc.bin
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/lbfmodel.yaml
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/haarcascade_frontalface_alt.xml
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/haarcascade_frontalface_alt2.xml)
->>>>>>> origin/develop
 
 file(GLOB_RECURSE CONFIG        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/config/dummyFile.txt)
 

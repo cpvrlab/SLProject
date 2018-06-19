@@ -557,7 +557,7 @@ SLCVVDMatch SLCVTrackedFeatures::getFeatureMatches()
 
 RANSAC: We execute first RANSAC to eliminate wrong feature correspondences
 (outliers) and only use the correct ones (inliers) for PnP solving
-(https://en.wikipedia.org/wiki/Perspective-n-SLCVPoint).\n
+(https://en.wikipedia.org/wiki/Perspective-n-Point).\n
 \n
 Methods of solvePnP:
 - P3P: If we have 3 Points given, we have the minimal form of the PnP problem.

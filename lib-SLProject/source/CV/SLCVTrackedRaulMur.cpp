@@ -109,12 +109,25 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
         //if NOT visual odometry tracking
         if (!mbVO) // In last frame we tracked enough MapPoints from the Map
         {
-            if (!mVelocity.empty()) { //we have a valid motion model
-                SLAverageTiming::start("TrackWithMotionModel");
-                _bOK = TrackWithMotionModel();
-                SLAverageTiming::stop("TrackWithMotionModel");
+            if (!mVelocity.empty()) // we have a valid motion model
+            {   
+                if (_optFlowFrames % 10) // use optical flow tracking for 10 frames
+                {   
+                    SLAverageTiming::start("TrackWithOptFlow");
+                    _bOK = TrackWithOptFlow();
+                    SLAverageTiming::stop("TrackWithOptFlow");
+                }
+                else
+                {
+                    SLAverageTiming::start("TrackWithMotionModel");
+                    _bOK = TrackWithMotionModel();
+                    SLAverageTiming::stop("TrackWithMotionModel");
+                }
+                
+                _optFlowFrames++;
             }
-            else { //we have NO valid motion model
+            else //we have NO valid motion model 
+            {   
                 // All keyframes that observe a map point are included in the local map.
                 // Every current frame gets a reference keyframe assigned which is the keyframe 
                 // from the local map that shares most matches with the current frames local map points matches.
@@ -466,6 +479,103 @@ bool SLCVTrackedRaulMur::Relocalization()
         mnLastRelocFrameId = mCurrentFrame.mnId;
         return true;
     }
+}
+//-----------------------------------------------------------------------------
+bool SLCVTrackedRaulMur::TrackWithOptFlow()
+{
+    if (_prevFrame.inlierPoints2D.size() < 4) return false;
+
+    SLMat4f om = _node->om();
+    
+    SLVec3f r;
+    om.toEulerAnglesZYX(r.z, r.y, r.x);
+    SLCVMat rvec = SLCVMat::zeros(3, 1, CV_64FC1);
+    rvec.at<double>(0, 0) = r.x;
+    rvec.at<double>(1, 0) = r.y;
+    rvec.at<double>(2, 0) = r.z;
+
+    SLCVMat tvec = SLCVMat::zeros(3, 1, CV_64FC1);
+    SLVec3f t;
+    om.translation(t);
+    tvec.at<double>(0, 0) = t.x;
+    tvec.at<double>(1, 0) = t.y;
+    tvec.at<double>(2, 0) = t.z;
+
+    SLVuchar status;
+    SLVfloat err;
+    SLCVSize winSize(15, 15);
+
+    cv::TermCriteria criteria(cv::TermCriteria::COUNT | cv::TermCriteria::EPS,
+                              10,    // terminate after this many iterations, or
+                              0.03); // when the search window moves by less than this
+
+    // Find closest possible feature points based on optical flow
+    SLCVVPoint2f pred2DPoints(_prevFrame.inlierPoints2D.size());
+
+    cv::calcOpticalFlowPyrLK(
+        _prevFrame.imageGray,   // Previous frame
+        _currentFrame.imageGray,// Current frame
+        _prevFrame.inlierPoints2D,// Previous and current keypoints coordinates.The latter will be
+        pred2DPoints,           // expanded if more good coordinates are detected during OptFlow
+        status,                 // Output vector for keypoint correspondences (1 = match found)
+        err,                    // Error size for each flow
+        winSize,                // Search window for each pyramid level
+        3,                      // Max levels of pyramid creation
+        criteria,               // Configuration from above
+        0,                      // Additional flags
+        0.001);                 // Minimal Eigen threshold
+
+    // Only use points which are not wrong in any way during the optical flow calculation
+    SLCVVPoint2f frame2DPoints;
+    SLCVVPoint3f model3DPoints;
+    for (size_t i = 0; i < status.size(); i++)
+    {   if (status[i])
+        {   frame2DPoints.push_back(pred2DPoints[i]);
+            //Original code from Zingg/Tschanz got zero size vector
+            //model3DPoints.push_back(_currentFrameFrame.inlierPoints3D[i]);
+            model3DPoints.push_back(_prevFrame.inlierPoints3D[i]);
+        }
+    }
+
+    _currentFrame.inlierPoints2D = frame2DPoints;
+    _currentFrame.inlierPoints3D = model3DPoints;
+
+    if (_currentFrame.inlierPoints2D.size() < _prevFrame.inlierPoints2D.size() * 0.75)
+        return false;
+
+    /////////////////////
+    // Pose Estimation //
+    /////////////////////
+
+    bool foundPose = cv::solvePnP(model3DPoints,
+                                  frame2DPoints,
+                                  _calib->cameraMat(),
+                                  _calib->distortion(),
+                                  rvec, tvec,
+                                  true);
+    bool poseValid = true;
+
+    if (foundPose)
+    {   for (int i = 0; i < tvec.cols; i++)
+        {   if (abs(tvec.at<double>(i, 0) - tvec.at<double>(i, 0)) > abs(tvec.at<double>(i, 0)) * 0.2)
+            {   cout << "translation too large" << endl;
+                poseValid = false;
+            }
+        }
+        for (int i = 0; i < rvec.cols; i++)
+        {   if (abs(rvec.at<double>(i, 0) - rvec.at<double>(i, 0)) > 0.174533)
+            {   cout << "rotation too large" << endl;
+                poseValid = false;
+            }
+        }
+    }
+
+    if (foundPose && poseValid)
+    {   rvec.copyTo(_currentFrame.rvec);
+        tvec.copyTo(_currentFrame.tvec);
+    }
+
+    return foundPose && poseValid;
 }
 //-----------------------------------------------------------------------------
 bool SLCVTrackedRaulMur::TrackWithMotionModel()

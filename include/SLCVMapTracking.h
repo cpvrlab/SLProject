@@ -50,6 +50,7 @@ public:
     float meanReprojectionError() override;
     int mapPointsCount() override;
     std::string getPrintableState() override;
+    std::string getPrintableType() override;
 
     //getters
     SLCVMap* getMap() { return _map; }
@@ -118,6 +119,16 @@ protected:
 
     SLCVCalibration* _calib = nullptr;
     SLCVMat _imageGray;
+
+    enum TrackingType
+    {
+        TrackingType_None,
+        TrackingType_ORBSLAM,
+        TrackingType_MotionModel,
+        TrackingType_OptFlow
+    };
+
+    TrackingType trackingType = TrackingType_None;
 };
 
 #endif //SLCVMAPTRACKING_H

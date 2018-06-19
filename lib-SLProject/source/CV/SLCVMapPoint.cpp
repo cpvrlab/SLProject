@@ -58,6 +58,13 @@ SLVec3f SLCVMapPoint::worldPosVec()
     return vec;
 }
 //-----------------------------------------------------------------------------
+void SLCVMapPoint::worldPosVec(SLVec3f vec)
+{
+    mWorldPos.at<float>(0, 0) = vec.x;
+    mWorldPos.at<float>(1, 0) = vec.y;
+    mWorldPos.at<float>(2, 0) = vec.z;
+}
+//-----------------------------------------------------------------------------
 SLVec3f SLCVMapPoint::normalVec()
 {
     SLVec3f vec(0.f, 0.f, 0.f);

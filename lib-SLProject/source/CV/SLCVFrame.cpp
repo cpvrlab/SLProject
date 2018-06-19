@@ -77,7 +77,7 @@ SLCVFrame::SLCVFrame(const SLCVFrame &frame)
         SetPose(frame.mTcw);
 
     if (!frame.imgGray.empty())
-        imgGray = frame.imgGray;
+        imgGray = frame.imgGray.clone();
 }
 //-----------------------------------------------------------------------------
 SLCVFrame::SLCVFrame( const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor, 

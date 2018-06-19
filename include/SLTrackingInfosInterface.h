@@ -19,6 +19,8 @@ public:
     virtual ~SLTrackingInfosInterface() {}
     //!get current tracking state
     virtual std::string getPrintableState() = 0;
+    //!get current tracking type
+    virtual std::string getPrintableType() = 0;
     //!get mean reprojection error
     virtual float meanReprojectionError() = 0;
     //!get number of matches in current frame to the slam map

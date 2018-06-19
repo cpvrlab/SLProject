@@ -28,6 +28,8 @@ void SLImGuiInfosTracking::buildInfos()
     //numbers
     //add tracking state
     ImGui::Text("Tracking State : %s ", _interface->getPrintableState().c_str());
+    //tracking type
+    ImGui::Text("Tracking Type : %s ", _interface->getPrintableType().c_str());
     //mean reprojection error
     ImGui::Text("Mean Reproj. Error : %f ", _interface->meanReprojectionError());
     //add number of matches map points in current frame
