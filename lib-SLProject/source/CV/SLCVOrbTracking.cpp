@@ -498,7 +498,7 @@ bool SLCVOrbTracking::TrackWithOptFlow()
 {
     SLAverageTiming::start("TrackWithOptFlow");
 
-    if (mLastFrame.mvKeys.size() < 4)
+    if (mLastFrame.mvKeys.size() < 100)
     {
         SLAverageTiming::stop("TrackWithOptFlow");
         return false;
@@ -555,7 +555,7 @@ bool SLCVOrbTracking::TrackWithOptFlow()
         3,                              // Max levels of pyramid creation
         criteria,                       // Configuration from above
         0,                              // Additional flags
-        0.001);                         // Minimal Eigen threshold
+        0.01);                         // Minimal Eigen threshold
 
     // Only use points which are not wrong in any way during the optical flow calculation
     SLCVVPoint2f frame2DPoints;
@@ -563,6 +563,9 @@ bool SLCVOrbTracking::TrackWithOptFlow()
 
     vector<SLCVMapPoint*> trackedMapPoints;
     vector<cv::KeyPoint> trackedKeyPoints;
+    vector<SLfloat> trackedErrors;
+
+    mnMatchesInliers = 0;
 
     for (size_t i = 0; i < status.size(); i++)
     {   
@@ -580,7 +583,12 @@ bool SLCVOrbTracking::TrackWithOptFlow()
 
             trackedMapPoints.push_back(matchedMapPoints[i]);
             trackedKeyPoints.push_back(matchedKeyPoints[i]);
+            trackedErrors.push_back(err[i]);
+
+            std::lock_guard<std::mutex> guard(_nMapMatchesLock);
+            mnMatchesInliers++;
         }
+    }
 
     if (trackedKeyPoints.size() < matchedKeyPoints.size() * 0.75)
     {
@@ -601,26 +609,28 @@ bool SLCVOrbTracking::TrackWithOptFlow()
     bool poseValid = true;
 
     // TODO(jan): does this make any sense? we subtract the same values from each other...
+#if 0
     if (foundPose)
-    {   
+    {
         for (int i = 0; i < tvec.cols; i++)
-        {   
+        {
             if (abs(tvec.at<double>(i, 0) - tvec.at<double>(i, 0)) > abs(tvec.at<double>(i, 0)) * 0.2)
-            {   
+            {
                 cout << "translation too large" << endl;
                 poseValid = false;
             }
         }
 
         for (int i = 0; i < rvec.cols; i++)
-        {   
+        {
             if (abs(rvec.at<double>(i, 0) - rvec.at<double>(i, 0)) > 0.174533)
-            {   
+            {
                 cout << "rotation too large" << endl;
                 poseValid = false;
             }
         }
     }
+#endif
 
     if (foundPose && poseValid)
     {
