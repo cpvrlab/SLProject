@@ -504,20 +504,11 @@ bool SLCVOrbTracking::TrackWithOptFlow()
         return false;
     }
 
-    SLMat4f om = _stateEstimator->getPose();
     SLCVMat rvec = SLCVMat::zeros(3, 1, CV_64FC1);
     SLCVMat tvec = SLCVMat::zeros(3, 1, CV_64FC1);
-    cv::Matx33d rMat( om.m(0),-om.m(1),-om.m(2),
-                      om.m(4),-om.m(5),-om.m(6),
-                      om.m(8),-om.m(9),-om.m(10));
-
-    // 2) Convert rotation matrix to Rodrigues rotation vector
-    Rodrigues(rMat, rvec);
-
-    // 3) Create tvec vector from translation components
-    tvec.at<double>(0, 0) =  om.m(12);
-    tvec.at<double>(1, 0) = -om.m(13);
-    tvec.at<double>(2, 0) = -om.m(14);
+    cv::Mat om = mLastFrame.mTcw;
+    Rodrigues(om.rowRange(0, 3).colRange(0, 3), rvec);
+    tvec = om.colRange(3, 4).rowRange(0, 3);
 
     SLVuchar status;
     SLVfloat err;
@@ -563,7 +554,6 @@ bool SLCVOrbTracking::TrackWithOptFlow()
 
     vector<SLCVMapPoint*> trackedMapPoints;
     vector<cv::KeyPoint> trackedKeyPoints;
-    vector<SLfloat> trackedErrors;
 
     mnMatchesInliers = 0;
 
@@ -583,7 +573,6 @@ bool SLCVOrbTracking::TrackWithOptFlow()
 
             trackedMapPoints.push_back(matchedMapPoints[i]);
             trackedKeyPoints.push_back(matchedKeyPoints[i]);
-            trackedErrors.push_back(err[i]);
 
             std::lock_guard<std::mutex> guard(_nMapMatchesLock);
             mnMatchesInliers++;
@@ -635,22 +624,22 @@ bool SLCVOrbTracking::TrackWithOptFlow()
     if (foundPose && poseValid)
     {
         SLCVMat Tcw = cv::Mat::eye(4, 4, CV_32F);
-        Tcw.at<float>(0, 3) = tvec.at<double>(0, 0);
-        Tcw.at<float>(1, 3) = tvec.at<double>(1, 0);
-        Tcw.at<float>(2, 3) = tvec.at<double>(2, 0);
+        Tcw.at<float>(0, 3) = tvec.at<float>(0, 0);
+        Tcw.at<float>(1, 3) = tvec.at<float>(1, 0);
+        Tcw.at<float>(2, 3) = tvec.at<float>(2, 0);
 
         SLCVMat Rcw = cv::Mat::zeros(3, 3, CV_32F);
         cv::Rodrigues(rvec, Rcw);
 
-        Tcw.at<float>(0, 0) = Rcw.at<double>(0, 0);
-        Tcw.at<float>(1, 0) = Rcw.at<double>(1, 0);
-        Tcw.at<float>(2, 0) = Rcw.at<double>(2, 0);
-        Tcw.at<float>(0, 1) = Rcw.at<double>(0, 1);
-        Tcw.at<float>(1, 1) = Rcw.at<double>(1, 1);
-        Tcw.at<float>(2, 1) = Rcw.at<double>(2, 1);
-        Tcw.at<float>(0, 2) = Rcw.at<double>(0, 2);
-        Tcw.at<float>(1, 2) = Rcw.at<double>(1, 2);
-        Tcw.at<float>(2, 2) = Rcw.at<double>(2, 2);
+        Tcw.at<float>(0, 0) = Rcw.at<float>(0, 0);
+        Tcw.at<float>(1, 0) = Rcw.at<float>(1, 0);
+        Tcw.at<float>(2, 0) = Rcw.at<float>(2, 0);
+        Tcw.at<float>(0, 1) = Rcw.at<float>(0, 1);
+        Tcw.at<float>(1, 1) = Rcw.at<float>(1, 1);
+        Tcw.at<float>(2, 1) = Rcw.at<float>(2, 1);
+        Tcw.at<float>(0, 2) = Rcw.at<float>(0, 2);
+        Tcw.at<float>(1, 2) = Rcw.at<float>(1, 2);
+        Tcw.at<float>(2, 2) = Rcw.at<float>(2, 2);
 
         mCurrentFrame.SetPose(Tcw);
         mCurrentFrame.mvKeys = trackedKeyPoints;
