@@ -441,7 +441,12 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     scrWidth = 640;
-    scrHeight = 480;//360;
+    scrHeight = 480;
+    //scrWidth = 1920;
+    //scrHeight = 1080;
+    //scrWidth = 1280;
+    //scrHeight = 720;
+
     //we have to fix aspect ratio, because the video image is initialized with this ratio
     fixAspectRatio = true;
     scrWdivH = (float)scrWidth / (float)scrHeight;

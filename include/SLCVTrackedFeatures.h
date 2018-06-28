@@ -31,11 +31,11 @@ using namespace cv;
 #define SL_DO_FEATURE_BENCHMARKING 0
 
 // Settings for drawing things into current camera frame
-#define SL_DRAW_REPROJECTION_POINTS 0
-#define SL_DRAW_REPROJECTION_ERROR 0
-#define SL_DRAW_PATCHES 0
+#define SL_DRAW_REPROJECTION_POINTS 1
+#define SL_DRAW_REPROJECTION_ERROR 1
+#define SL_DRAW_PATCHES 1
 
-//#define SL_SAVE_DEBUG_OUTPUT
+#define SL_SAVE_DEBUG_OUTPUT
 #ifdef SL_SAVE_DEBUG_OUTPUT
     #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
     #define SL_DEBUG_OUTPUT_PATH "/tmp/cv_tracking/"
@@ -45,7 +45,7 @@ using namespace cv;
 #endif
 
 // Feature detection and extraction
-const int nFeatures = 2000;
+const int nFeatures = 4000;
 const float minRatio = 0.7f;
 
 // RANSAC parameters
@@ -54,7 +54,7 @@ const float reprojection_error = 2.0f;
 const double confidence = 0.95;
 
 // Repose patch size
-const int reposeFrequency = 10;
+const int reposeFrequency = 1;
 const int initialPatchSize = 2;
 const int maxPatchSize = 60;
 

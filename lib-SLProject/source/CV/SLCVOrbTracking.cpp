@@ -54,7 +54,9 @@ SLCVOrbTracking::SLCVOrbTracking(SLCVStateEstimator* stateEstimator,
     _bOK = false;
 
     if (!_serial)
+    {
         _trackingThread = std::thread(&SLCVOrbTracking::trackOrbsContinuously, this);
+    }
 }
 
 SLCVOrbTracking::~SLCVOrbTracking()
@@ -62,7 +64,9 @@ SLCVOrbTracking::~SLCVOrbTracking()
     running(false);
 
     if (!_serial)
+    {
         _trackingThread.join();
+    }
 
     if (_extractor)
         delete _extractor;

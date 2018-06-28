@@ -110,7 +110,7 @@ protected:
     //!flags, if map is initialized
     bool _initialized = false;
 
-    bool _serial = false;
+    bool _serial = true;
 
     std::mutex _meanProjErrorLock;
     std::mutex _poseDiffLock;

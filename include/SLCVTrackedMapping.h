@@ -64,7 +64,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         size_t getSizeOf();
     private:
         // Map initialization for monocular
-        void CreateInitialMapMonocular();
+        bool CreateInitialMapMonocular();
         void CreateNewKeyFrame();
 
         //! initialization routine

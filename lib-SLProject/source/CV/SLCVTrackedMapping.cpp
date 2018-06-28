@@ -147,6 +147,7 @@ void SLCVTrackedMapping::initialize()
             for (size_t i = 0; i<mCurrentFrame.mvKeysUn.size(); i++)
                 mvbPrevMatched[i] = mCurrentFrame.mvKeysUn[i].pt;
 
+            // TODO(jan): is this necessary?
             if (mpInitializer)
                 delete mpInitializer;
 
@@ -213,10 +214,13 @@ void SLCVTrackedMapping::initialize()
             tcw.copyTo(Tcw.rowRange(0, 3).col(3));
             mCurrentFrame.SetPose(Tcw);
 
-            CreateInitialMapMonocular();
-            //mark tracking as initialized
-            _initialized = true;
-            _bOK = true;
+            bool mapInitializedSuccessfully = CreateInitialMapMonocular();
+            if (mapInitializedSuccessfully)
+            {
+                //mark tracking as initialized
+                _initialized = true;
+                _bOK = true;
+            }
 
             //ghm1: in the original implementation the initialization is defined in the track() function and this part is always called at the end!
             // Store frame pose information to retrieve the complete camera trajectory afterwards.
@@ -460,7 +464,7 @@ void SLCVTrackedMapping::trackOpticalFlow()
 
 }
 //-----------------------------------------------------------------------------
-void SLCVTrackedMapping::CreateInitialMapMonocular()
+bool SLCVTrackedMapping::CreateInitialMapMonocular()
 {
     // Create KeyFrames
     SLCVKeyFrame* pKFini = new SLCVKeyFrame(mInitialFrame, _map, mpKeyFrameDatabase);
@@ -523,7 +527,7 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
     {
         cout << "Wrong initialization, reseting..." << endl;
         Reset();
-        return;
+        return false;
     }
 
     // Scale initial baseline
@@ -578,6 +582,7 @@ void SLCVTrackedMapping::CreateInitialMapMonocular()
     //ghm1: add keyframe to scene graph. this position is wrong after bundle adjustment!
     //set map dirty, the map will be updated in next decoration
     _mapHasChanged = true;
+    return true;
 }
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::CreateNewKeyFrame()
@@ -706,8 +711,10 @@ void SLCVTrackedMapping::Reset()
 
     if (mpInitializer)
     {
+        cout << "Resetting Initializer...";
         delete mpInitializer;
         mpInitializer = static_cast<Initializer*>(NULL);
+        cout << " done" << endl;
     }
 
     mlRelativeFramePoses.clear();
@@ -909,7 +916,7 @@ bool SLCVTrackedMapping::Relocalization()
 bool SLCVTrackedMapping::TrackReferenceKeyFrame()
 {
     //This routine is called if current tracking state is OK but we have NO valid motion model
-    //1. Berechnung des BoW-Vectors für den current frame
+    //1. Berechnung des BoW-Vectors fÃ¼r den current frame
     //2. using BoW we search mappoint matches (from reference keyframe) with orb in current frame (ORB that belong to the same vocabulary node (at a certain level))
     //3. if there are less than 15 matches return.
     //4. we use the pose found for the last frame as initial pose for the current frame

@@ -11,7 +11,7 @@
 /**
 * This file is part of ORB-SLAM2.
 *
-* Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
+* Copyright (C) 2014-2016 Raï¿½l Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
 * For more information see <https://github.com/raulmur/ORB_SLAM2>
 *
 * ORB-SLAM2 is free software: you can redistribute it and/or modify
@@ -44,7 +44,7 @@ SLCVKeyFrame::SLCVKeyFrame(const cv::Mat& Tcw, unsigned long id,
     const std::vector<float>& vLevelSigma2, const std::vector<float>& vInvLevelSigma2, int nMinX, int nMinY, int nMaxX, int nMaxY,
     const cv::Mat& K, SLCVKeyFrameDB* pKFDB, SLCVMap* pMap)
     : mnId(id), mnFrameId(0), mTimeStamp(0), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
-    mfGridElementWidthInv(static_cast<float>(FRAME_GRID_COLS) / (mnMaxX - mnMinX)), 
+    mfGridElementWidthInv(static_cast<float>(FRAME_GRID_COLS) / (mnMaxX - mnMinX)),
     mfGridElementHeightInv(static_cast<float>(FRAME_GRID_ROWS) / (mnMaxY - mnMinY)),
     mnTrackReferenceForFrame(0), mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0),
     mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0), mnBAGlobalForKF(0),
