@@ -125,7 +125,7 @@ enum SLSceneID
     SID_VideoTrackKeyFrames,
     SID_VideoFilesTrackKeyFrames,
     SID_VideoMapping,
-
+    SID_VideoFilesMapping,
     SID_RTMuttenzerBox,
     SID_RTSpheres,
     SID_RTSoftShadows,

@@ -65,7 +65,8 @@ void SLCVCalibration::clear()
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
-bool SLCVCalibration::load(SLstring calibFileName,
+bool SLCVCalibration::load(SLstring calibDir,
+                           SLstring calibFileName,
                            SLbool mirrorHorizontally,
                            SLbool mirrorVertically)
 {
@@ -74,7 +75,8 @@ bool SLCVCalibration::load(SLstring calibFileName,
     _isMirroredV = mirrorVertically;
 
     //load camera parameter
-    SLstring fullPathAndFilename = SLApplication::configPath + _calibFileName;
+    //SLstring fullPathAndFilename = SLApplication::configPath + _calibFileName;
+    SLstring fullPathAndFilename = calibDir + _calibFileName;
     FileStorage fs(fullPathAndFilename, FileStorage::READ);
 
     if (!fs.isOpened())
@@ -195,7 +197,8 @@ bool SLCVCalibration::loadCalibParams()
     FileStorage fs;
     fs.open(calibIniPath + _calibParamsFileName, FileStorage::READ);
     if (!fs.isOpened())
-    {   cout << "Could not open the calibration parameter file: "
+    {
+        cout << "Could not open the calibration parameter file: "
              << (calibIniPath + _calibParamsFileName) << endl;
         _state = CS_uncalibrated;
         return false;

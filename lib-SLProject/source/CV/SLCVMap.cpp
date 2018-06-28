@@ -367,9 +367,9 @@ size_t SLCVMap::getSizeOf()
     size += sizeOfMapPoints;
     size += sizeOfKeyFrames;
 
-    cout << "all map points in MB: " << (double)sizeOfMapPoints / 1048576L << endl;
-    cout << "all keyframes in MB: " << (double)sizeOfKeyFrames / 1048576L << endl;
-    cout << "total map size in MB: " << (double)size / 1048576L << endl;
+    //cout << "all map points in MB: " << (double)sizeOfMapPoints / 1048576L << endl;
+    //cout << "all keyframes in MB: " << (double)sizeOfKeyFrames / 1048576L << endl;
+    //cout << "total map size in MB: " << (double)size / 1048576L << endl;
 
     return size;
 }

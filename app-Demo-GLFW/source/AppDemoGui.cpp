@@ -660,6 +660,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoChristoffel);
                     if (ImGui::MenuItem("Christoffel Tower AR ORB-SLAM", 0, sid == SID_VideoChristoffelOrbSlam))
                         s->onLoad(s, sv, SID_VideoChristoffelOrbSlam);
+                    if (ImGui::MenuItem("Orb SLAM video file mapping example", 0, sid == sid == SID_VideoFilesMapping))
+                        s->onLoad(s, sv, SID_VideoFilesMapping);
                     if (ImGui::MenuItem("Orb SLAM mapping example", 0, sid == sid == SID_VideoMapping))
                         s->onLoad(s, sv, SID_VideoMapping);
                     if (ImGui::MenuItem("Track Features from Keyframes", 0, sid == sid == SID_VideoTrackKeyFrames))

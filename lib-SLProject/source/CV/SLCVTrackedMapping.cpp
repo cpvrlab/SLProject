@@ -330,8 +330,6 @@ void SLCVTrackedMapping::track3DPts()
         }
     }
 
-    _map->getSizeOf();
-
     // mbVO true means that there are few matches to MapPoints in the map. We cannot retrieve
     // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
     // the camera we will use the local map again.

@@ -26,9 +26,7 @@ const char* SLCVMapStorage::currItem = NULL;
 int SLCVMapStorage::currN = -1;
 SLbool SLCVMapStorage::_isInitialized = false;
 //-----------------------------------------------------------------------------
-SLCVMapStorage::SLCVMapStorage( ORBVocabulary* orbVoc, bool loadKfImgs)
-    : _orbVoc(orbVoc),
-    _loadKfImgs(loadKfImgs)
+SLCVMapStorage::SLCVMapStorage()
 {
 }
 //-----------------------------------------------------------------------------
@@ -188,7 +186,8 @@ void SLCVMapStorage::saveMap(int id, SLCVMapTracking* mapTracking, bool saveImgs
     mapTracking->sm.requestResume();
 }
 //-----------------------------------------------------------------------------
-bool SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
+bool SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking, 
+    ORBVocabulary* orbVoc, bool loadKfImgs )
 {
     bool loadingSuccessful = false;
     if (!_isInitialized) {
@@ -227,7 +226,7 @@ bool SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
     //check if map exists
     string mapName = _mapPrefix + to_string(id);
     string path = SLUtils::unifySlashes(_mapsDir + mapName);
-    _currPathImgs = path + "imgs/";
+    string currPathImgs = path + "imgs/";
     string filename = path + mapName + ".json";
 
     //check if dir and file exist
@@ -244,11 +243,12 @@ bool SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
 
     try {
 
-        SLCVMapIO mapIO(filename, _orbVoc, _loadKfImgs, _currPathImgs);
+        SLCVMapIO mapIO(filename, orbVoc, loadKfImgs, currPathImgs);
         mapIO.load(map, kfDB);
 
         //if map loading was successful, switch to initialized
         mapTracking->setInitialized(true);
+        mapTracking->updateMapVisualization();
         loadingSuccessful = true;
     }
     catch (std::exception& e)
@@ -263,7 +263,6 @@ bool SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking)
         SL_WARN_MSG(msg.c_str());
     }
 
-    map.getSizeOf();
     mapTracking->sm.requestResume();
     return loadingSuccessful;
 }

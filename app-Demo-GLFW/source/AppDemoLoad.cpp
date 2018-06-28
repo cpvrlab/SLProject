@@ -2657,16 +2657,96 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         s->root3D(scene);
     }
+    else if (SLApplication::sceneID == SID_VideoFilesMapping)
+    {
+        // Set scene name and info string
+        s->name("Video File Mapping example");
+        s->info("Example for mapping using functionality from ORB-SLAM.");
+
+        //ATTENTION: 
+        //1. make sure slam-map-3 exists in _data/slam-maps on desktop or in the external device on your smartphone
+        //2. cam_calibration_main_huawei_p10_640_360.xml has to be placed in _data/calibrations. 
+        //Make sure it is added to androids CMakeLists.txt so it is presnet on your smartphone
+        //3. When running on desktop, make sure the screen resolution is adjusted to 640x360 in file AppDemoMainGLFW.cpp in line 437
+        //4. Load a Video with 640 screen width (640x360 or 640x480), e.g. VID_20180424_2.mp4. Make sure it is placed in _data/videos.
+        //Make sure it is added to androids CMakeLists.txt so it is presnet on your smartphone
+        SLstring mapName = "slam-map-3";
+        SLCVCapture::videoFilename = "VID_20180424_2.mp4";
+        SLstring calibFileName = "cam_calibration_main_huawei_p10_640_360.xml";
+        SLApplication::calibVideoFile.load(SLCVCalibration::calibIniPath, calibFileName, false, false);
+        SLApplication::calibVideoFile.loadCalibParams();
+
+        //call this function after calibration is loaded
+        s->videoType(VT_FILE);
+        SLCVCapture::videoLoops = true;
+
+        //make some light
+        SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
+        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
+        light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
+        light1->specular(SLCol4f(1, 1, 1));
+        light1->attenuation(1, 0, 0);
+
+        //always equal for tracking
+        //setup tracking camera
+        SLCamera* trackingCam = new SLCamera("Camera 1");
+        trackingCam->translation(0, 0, 0.1);
+        trackingCam->lookAt(0, 0, 0);
+        //for tracking we have to use the field of view from calibration
+        trackingCam->fov(SLApplication::activeCalib->cameraFovDeg());
+        trackingCam->clipNear(0.001f);
+        trackingCam->clipFar(1000000.0f); // Increase to infinity?
+        trackingCam->setInitialState();
+        trackingCam->background().texture(s->videoTexture());
+
+        //the map node contains the visual representation of the slam map
+        SLCVMapNode* mapNode = new SLCVMapNode("map");
+
+        // Save no energy
+        sv->doWaitOnIdle(false); //for constant video feed
+        sv->camera(trackingCam);
+
+        //add tracker
+        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, mapNode);
+        SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
+        s->trackers().push_back(tm);
+
+        //setup scene specific gui dialoges
+        auto trackedMappingUI = std::make_shared<SLImGuiTrackedMapping>("Tracked mapping", tm);
+        AppDemoGui::addInfoDialog(trackedMappingUI);
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm);
+        AppDemoGui::addInfoDialog(trackingInfos);
+        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm);
+        AppDemoGui::addInfoDialog(mapTransform);
+        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm);
+        AppDemoGui::addInfoDialog(mapStorage);
+        auto memStats = std::make_shared<SLImGuiInfosMemoryStats>("Memory stats", tm->getMap());
+        AppDemoGui::addInfoDialog(memStats);
+
+
+        //add yellow box and axis for augmentation
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        SLfloat l = 0.593f, b = 0.466f, h = 0.257f;
+        SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
+        SLNode* boxNode = new SLNode(box1, "boxNode");
+        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
+        boxNode->addChild(axisNode);
+
+        //setup scene
+        SLNode* scene = new SLNode("scene");
+        scene->addChild(light1);
+        scene->addChild(boxNode);
+        scene->addChild(mapNode);
+
+        s->root3D(scene);
+    }
     else if (SLApplication::sceneID == SID_VideoMapping)
     {
         // Set scene name and info string
-        s->name("Mapping example");
+        s->name("Video Mapping example");
         s->info("Example for mapping using functionality from ORB-SLAM.");
 
         s->videoType(VT_MAIN);
-        //s->videoType(VT_FILE);
-        SLCVCapture::videoLoops = true;
-        SLCVCapture::videoFilename = "VID_20180424_2.mp4";
 
         //make some light
         SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);

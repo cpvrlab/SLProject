@@ -26,6 +26,7 @@ SLScene*            SLApplication::scene            = nullptr;
 SLCVCalibration*    SLApplication::activeCalib      = nullptr;
 SLCVCalibration     SLApplication::calibMainCam;
 SLCVCalibration     SLApplication::calibScndCam;
+SLCVCalibration     SLApplication::calibVideoFile;
 SLDeviceRotation    SLApplication::devRot;
 SLDeviceLocation    SLApplication::devLoc;
 SLMemoryStats       SLApplication::memStats;
@@ -60,14 +61,14 @@ void SLApplication::createAppAndScene(SLstring appName,
     
     // load opencv camera calibration for main and secondary camera
     #if defined(SL_USES_CVCAPTURE)
-    calibMainCam.load("cam_calibration_main.xml", true, false);
+    calibMainCam.load(SLApplication::configPath, "cam_calibration_main.xml", true, false);
     calibMainCam.loadCalibParams();
     activeCalib = &calibMainCam;
     SLCVCapture::hasSecondaryCamera = false;
     #else
-    calibMainCam.load("cam_calibration_main.xml", false, false);
+    calibMainCam.load(SLApplication::configPath, "cam_calibration_main.xml", false, false);
     calibMainCam.loadCalibParams();
-    calibScndCam.load("cam_calibration_scnd.xml", true, false);
+    calibScndCam.load(SLApplication::configPath, "cam_calibration_scnd.xml", true, false);
     calibScndCam.loadCalibParams();
     activeCalib = &calibMainCam;
     SLCVCapture::hasSecondaryCamera = true;

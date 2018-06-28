@@ -305,3 +305,10 @@ void SLCVMapTracking::decorateSceneAndVideo(cv::Mat& image)
     //decorate scene with matched map points, local map points and matched map points
     decorateScene();
 }
+//-----------------------------------------------------------------------------
+void SLCVMapTracking::updateMapVisualization()
+{
+    assert(_mapNode);
+    assert(_map);
+    _mapNode->updateAll(*_map);
+}

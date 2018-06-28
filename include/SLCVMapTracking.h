@@ -63,6 +63,10 @@ public:
     //!setters
     void setInitialized(bool flag) { _initialized = flag; }
     bool serial() { return _serial; }
+
+    //!update all scene elements using current map content
+    void updateMapVisualization();
+
 protected:
     //!calculation of mean reprojection error of all matches
     void calculateMeanReprojectionError();
