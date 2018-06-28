@@ -52,8 +52,6 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
                                      SLbool drawDetection,
                                      SLSceneView* sv);
 
-        //void setState(TrackingStates state) { _currentState = state; }
-
         void Reset() override;
 
         //ghm1: the next tracked frame gets mapped (local mapping, keyframe generation and adding to map)
@@ -83,6 +81,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         void UpdateLocalPoints();
         bool TrackWithMotionModel();
         void UpdateLastFrame();
+
 
         //Motion Model
         cv::Mat mVelocity;

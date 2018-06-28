@@ -335,11 +335,12 @@ file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/t
 
 file(GLOB_RECURSE VIDEOS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/street3.mp4
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/webcam_office1.wmv
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_1.mp4
+                                #${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_1.mp4
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_2.mp4
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_3.mp4
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_4.mp4
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_5.mp4)
+                                #${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_3.mp4
+                                #${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_4.mp4
+                                #${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_5.mp4
+                                )
 
 file(GLOB_RECURSE FONTS         ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.ttf)
@@ -357,13 +358,15 @@ file(GLOB_RECURSE CALIBRATIONS  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrat
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-bern1-manip1.json
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-buero1.json
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/test.yml
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/cam_calibration_main_huawei_p10_640_480.xml
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/ORBvoc.bin)
 
 file(GLOB_RECURSE CONFIG        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/config/dummyFile.txt)
 
 set(APK_ASSETS                  ${CMAKE_CURRENT_SOURCE_DIR}/src/main/assets)
 
-file(MAKE_DIRECTORY             ${APK_ASSETS}/fonts
+#define variable containing asset directories
+set(ASSET_DIRS                  ${APK_ASSETS}/fonts
                                 ${APK_ASSETS}/textures
                                 ${APK_ASSETS}/videos
                                 ${APK_ASSETS}/models
@@ -371,8 +374,14 @@ file(MAKE_DIRECTORY             ${APK_ASSETS}/fonts
                                 ${APK_ASSETS}/calibrations
                                 ${APK_ASSETS}/config)
 
+#delete all asset directories recurively to delete existing files that may be not in the assets anymore
+file(REMOVE_RECURSE ASSET_DIRS)
+#create asset directories again
+file(MAKE_DIRECTORY ASSET_DIRS)
+
 message("${MODELS}: ********************************************************************************" ${MODELS})
 
+#copy assets to asset directories
 file(COPY ${FONTS}          DESTINATION ${APK_ASSETS}/fonts)
 file(COPY ${TEXTURES}       DESTINATION ${APK_ASSETS}/textures)
 file(COPY ${VIDEOS}         DESTINATION ${APK_ASSETS}/videos)

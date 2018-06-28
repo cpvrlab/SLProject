@@ -43,6 +43,7 @@ class SLApplication
     static SLCVCalibration* activeCalib;    //!< Pointer to the active calibration
     static SLCVCalibration  calibMainCam;   //!< OpenCV calibration for main video camera
     static SLCVCalibration  calibScndCam;   //!< OpenCV calibration for secondary video camera
+    static SLCVCalibration  calibVideoFile; //!< OpenCV calibration for simulation using a video file
     static SLDeviceRotation devRot;         //!< Mobile device rotation from IMU
     static SLDeviceLocation devLoc;         //!< Mobile device location from GPS
     static SLMemoryStats    memStats;       //!< Statistics about memory usage

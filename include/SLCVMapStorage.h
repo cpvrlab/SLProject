@@ -21,12 +21,13 @@ can write SLCVMaps into this storage. You have to call init()
 class SLCVMapStorage
 {
 public:
-    SLCVMapStorage(ORBVocabulary* orbVoc, bool loadKfImgs=true);
+    SLCVMapStorage();
 
     //check if directory for map storage exists and read existing map names
     static void init();
     static void saveMap(int id, SLCVMapTracking* mapTracking, bool saveImgs);
-    bool loadMap(const string& name, SLCVMapTracking* mapTracking);
+    static bool loadMap(const string& name, SLCVMapTracking* mapTracking,
+        ORBVocabulary* orbVoc, bool loadKfImgs);
     //increase current id and maximum id in MapStorage
     static void newMap();
 
@@ -42,11 +43,6 @@ public:
 
 private:
     cv::FileStorage _fs;
-    ORBVocabulary* _orbVoc;
-
-    //load keyframe images
-    bool _loadKfImgs = false;
-    SLstring _currPathImgs;
 
     static unsigned int _nextId;
     static unsigned int _currentId;

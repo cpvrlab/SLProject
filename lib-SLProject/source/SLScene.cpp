@@ -654,25 +654,30 @@ void SLScene::onLoadAsset(SLstring assetFile,
 }
 //-----------------------------------------------------------------------------
 //! Setter for video type also sets the active calibration
-/*! The SLScene instance has two video camera calibrations, one for a main camera
-(SLScene::_calibMainCam) and one for the selfie camera on mobile devices
-(SLScene::_calibScndCam). The member SLScene::_activeCalib references the active
-one and is set by the SLScene::videoType (VT_NONE, VT_MAIN, VT_SCND) during the
-scene assembly in SLScene::onLoad.
+/*! The SLApplication instance has up to three video camera calibrations, one 
+for a main camera (SLApplication::calibMainCam), one for the selfie camera on mobile 
+devices (SLApplication::calibScndCam) and one for video file simulation 
+(SLApplication::calibVideoFile). The member SLApplication::activeCalib references the 
+active one.
 */
 void SLScene::videoType(SLVideoType vt)
 {
-    if (SLCVCapture::hasSecondaryCamera && vt==VT_SCND)
-    {   _videoType = VT_SCND;
-        SLApplication::activeCalib = &SLApplication::calibScndCam;
-        return;
+    _videoType = vt;
+
+    if (vt == VT_SCND)
+    {
+        if (SLCVCapture::hasSecondaryCamera)
+            SLApplication::activeCalib = &SLApplication::calibScndCam;
+        else //fallback if there is no secondary camera we use main setup
+        {
+            _videoType = VT_MAIN;
+            SLApplication::activeCalib = &SLApplication::calibMainCam;
+        }
     }
-
-    if (vt==VT_SCND)
-         _videoType = VT_MAIN;
-    else _videoType = vt;
-
-    SLApplication::activeCalib = &SLApplication::calibMainCam;
+    else if (vt == VT_FILE)
+        SLApplication::activeCalib = &SLApplication::calibVideoFile;
+    else //VT_MAIN and VT_NONE
+        SLApplication::activeCalib = &SLApplication::calibMainCam;
 }
 //-----------------------------------------------------------------------------
 //! Returns the number of camera nodes in the scene

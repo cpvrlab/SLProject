@@ -2590,16 +2590,32 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         s->root3D(scene);
     }
+    else if (SLApplication::sceneID == SID_VideoFilesMapping)
+    {
+
+    }
     else if (SLApplication::sceneID == SID_VideoMapping)
     {
         // Set scene name and info string
-        s->name("Mapping example");
+        s->name("Video File Mapping example");
         s->info("Example for mapping using functionality from ORB-SLAM.");
 
-        //s->videoType(VT_MAIN);
+        //ATTENTION: 
+        //1. make sure slam-map-3 exists in _data/slam-maps on desktop or in the external device on your smartphone
+        //2. cam_calibration_main_huawei_p10_640_360.xml has to be placed in _data/calibrations. 
+        //Make sure it is added to androids CMakeLists.txt so it is presnet on your smartphone
+        //3. When running on desktop, make sure the screen resolution is adjusted to 640x360 in file AppDemoMainGLFW.cpp in line 437
+        //4. Load a Video with 640 screen width (640x360 or 640x480), e.g. VID_20180424_2.mp4. Make sure it is placed in _data/videos.
+        //Make sure it is added to androids CMakeLists.txt so it is presnet on your smartphone
+        SLstring mapName = "slam-map-3";
+        SLCVCapture::videoFilename = "VID_20180424_2.mp4";
+        SLstring calibFileName = "cam_calibration_main_huawei_p10_640_360.xml";
+        SLApplication::calibVideoFile.load(SLCVCalibration::calibIniPath, calibFileName, false, false);
+        SLApplication::calibVideoFile.loadCalibParams();
+
+        //call this function after calibration is loaded
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
-        SLCVCapture::videoFilename = "VID_20180424_2.mp4";
 
         //make some light
         SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
@@ -2629,6 +2645,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //add tracker
         SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam,  mapNode);
+        SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
         s->trackers().push_back(tm);
 
         //setup scene specific gui dialoges

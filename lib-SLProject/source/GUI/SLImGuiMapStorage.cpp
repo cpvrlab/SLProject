@@ -73,16 +73,10 @@ void SLImGuiMapStorage::buildInfos()
         {
             //load selected map
             string selectedMapName = SLCVMapStorage::existingMapNames[SLCVMapStorage::currN];
-            SLCVMapStorage storage(SLCVOrbVocabulary::get());
-            if (storage.loadMap(selectedMapName, _tracking)) {
+            if (SLCVMapStorage::loadMap(selectedMapName, _tracking, SLCVOrbVocabulary::get(), true))
                 ImGui::Text("Info: map loading successful!");
-            }
-            else {
+            else
                 ImGui::Text("Info: map loading failed!");
-            }
-
-            //update scene
-            _mapNode->updateAll(*_map);
         }
     }
 }
