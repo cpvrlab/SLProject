@@ -34,6 +34,7 @@ _bin/
 _bin-*/
 _lib/
 _doc/
+xcuserdata/
 intermediate/
 Makefile
 .qmake*
