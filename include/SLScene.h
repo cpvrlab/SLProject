@@ -124,6 +124,7 @@ class SLScene: public SLObject
             // Video stuff
             SLVideoType     videoType           () {return _videoType;}
             SLGLTexture*    videoTexture        () {return &_videoTexture;}
+            SLGLTexture*    videoTextureErr     () {return &_videoTextureErr;}
             SLVCVTracker&   trackers            () {return _trackers;}
             SLbool          showDetection       () {return _showDetection;}
     

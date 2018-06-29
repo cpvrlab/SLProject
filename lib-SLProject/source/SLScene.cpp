@@ -113,6 +113,7 @@ SLScene::SLScene(SLstring name,
 
     // load default video image that is displayed when no live video is available
     _videoTexture.setVideoImage("LiveVideoError.png");
+    _videoTextureErr.setVideoImage("LiveVideoError.png"); // Fix for black video error
 
     // Set video type to none (this also sets the active calibration to the main calibration)
     videoType(VT_NONE);
