@@ -5,15 +5,15 @@
 	<key>BuildLocationStyle</key>
 	<string>CustomLocation</string>
 	<key>CustomBuildIntermediatesPath</key>
-	<string>intermediate/$(PROJECT_NAME)/$(CONFIGURATION)</string>
+	<string>$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)</string>
 	<key>CustomBuildLocationType</key>
 	<string>RelativeToWorkspace</string>
 	<key>CustomBuildProductsPath</key>
-	<string>_bin-$(CONFIGURATION)-macxcode</string>
+	<string>$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode</string>
 	<key>CustomIndexStorePath</key>
-	<string>intermediate/XCode/Index/DataStore</string>
+	<string>$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)</string>
 	<key>DerivedDataCustomLocation</key>
-	<string>/Users/hudrima1/Library/Developer/Xcode/DerivedData</string>
+	<string>$(PROJECT_DIR)</string>
 	<key>DerivedDataLocationStyle</key>
 	<string>AbsolutePath</string>
 	<key>EnabledFullIndexStoreVisibility</key>

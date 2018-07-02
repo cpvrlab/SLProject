@@ -193,7 +193,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp ../../_lib/prebuilt/OpenCV/macx/libopencv_* ../../_bin-Debug-macxcode/";
+			shellScript = "cp ../../_lib/prebuilt/OpenCV/macx/libopencv_* ../../_bin-Debug-macxcode/\ncp ../../_lib/prebuilt/OpenCV/macx/libopencv_* ../../_bin-Release-macxcode/\ncp ../../_lib/prebuilt/OpenCV/macx/libwebp* ../../_bin-Debug-macxcode/\ncp ../../_lib/prebuilt/OpenCV/macx/libwebp* ../../_bin-Release-macxcode/";
 		};
 /* End PBXShellScriptBuildPhase section */
 

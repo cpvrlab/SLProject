@@ -235,7 +235,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp ../_lib/prebuilt/OpenCV/macx/libopencv_* ../_bin-Debug-macxcode/\ncp ../_lib/prebuilt/OpenCV/macx/libopencv_* ../_bin-Release-macxcode/";
+			shellScript = "cp ../_lib/prebuilt/OpenCV/macx/libopencv_* ../_bin-Debug-macxcode/\ncp ../_lib/prebuilt/OpenCV/macx/libwebp* ../_bin-Debug-macxcode/\ncp ../_lib/prebuilt/OpenCV/macx/libopencv_* ../_bin-Release-macxcode/\ncp ../_lib/prebuilt/OpenCV/macx/libwebp* ../_bin-Release-macxcode/";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -374,10 +374,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				CONFIGURATION_TEMP_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
-				DEVELOPMENT_TEAM = 858Y9EWZ4B;
+				DEVELOPMENT_TEAM = KS44968S3M;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				GCC_PREPROCESSOR_DEFINITIONS = "SL_STARTSCENE=SID_Minimal";
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = NO;
@@ -393,6 +394,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 			};
 			name = Debug;
@@ -401,10 +403,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				CONFIGURATION_TEMP_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
-				DEVELOPMENT_TEAM = 858Y9EWZ4B;
+				DEVELOPMENT_TEAM = KS44968S3M;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				GCC_PREPROCESSOR_DEFINITIONS = "SL_STARTSCENE=SID_Minimal";
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = NO;
@@ -420,6 +423,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 			};
 			name = Release;
