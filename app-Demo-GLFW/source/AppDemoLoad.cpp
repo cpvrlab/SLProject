@@ -2670,8 +2670,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //3. When running on desktop, make sure the screen resolution is adjusted to 640x360 in file AppDemoMainGLFW.cpp in line 437
         //4. Load a Video with 640 screen width (640x360 or 640x480), e.g. VID_20180424_2.mp4. Make sure it is placed in _data/videos.
         //Make sure it is added to androids CMakeLists.txt so it is presnet on your smartphone
-        SLstring mapName = "slam-map-3";
-        SLCVCapture::videoFilename = "VID_20180424_2.mp4";
+        SLstring mapName = "slam-map-1";
+        SLCVCapture::videoFilename = "biel2.mp4";
         SLstring calibFileName = "cam_calibration_main_huawei_p10_640_360.xml";
         SLApplication::calibVideoFile.load(SLCVCalibration::calibIniPath, calibFileName, false, false);
         SLApplication::calibVideoFile.loadCalibParams();
@@ -2708,7 +2708,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //add tracker
         SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, mapNode);
-        SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
+        //SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
         s->trackers().push_back(tm);
 
         //setup scene specific gui dialoges
