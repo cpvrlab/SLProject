@@ -59,10 +59,10 @@ for ray tracing.
 */
 class SLGLTexture : public SLObject
 {
-    public:        
-                            //! Default constructor for fonts
+    public:
+                            //! Default ctor for all stack instances (not created with new)
                             SLGLTexture         ();
-
+    
                             //! ctor for 1D texture with internal image allocation
                             SLGLTexture         (SLVCol4f       colors,
                                                  SLint          min_filter = GL_LINEAR,
@@ -72,16 +72,16 @@ class SLGLTexture : public SLObject
 
                             //! ctor for 2D textures with internal image allocation
                             SLGLTexture         (SLstring       imageFilename,
-                                                 SLint          min_filte = GL_LINEAR_MIPMAP_LINEAR,
-                                                 SLint          mag_filte = GL_LINEAR,
+                                                 SLint          min_filter = GL_LINEAR_MIPMAP_LINEAR,
+                                                 SLint          mag_filter = GL_LINEAR,
                                                  SLTextureType  type = TT_unknown,
                                                  SLint          wrapS = GL_REPEAT,
                                                  SLint          wrapT = GL_REPEAT);
 
                             //! ctor for 3D texture with internal image allocation
                             SLGLTexture         (SLVstring      imageFilenames,
-                                                 SLint          min_filte = GL_LINEAR,
-                                                 SLint          mag_filte = GL_LINEAR,
+                                                 SLint          min_filter = GL_LINEAR,
+                                                 SLint          mag_filter = GL_LINEAR,
                                                  SLint          wrapS = GL_REPEAT,
                                                  SLint          wrapT = GL_REPEAT,
                                                  SLstring       name = "3D-Texture",

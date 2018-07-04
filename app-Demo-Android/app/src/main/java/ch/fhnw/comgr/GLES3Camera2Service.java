@@ -241,6 +241,7 @@ public class GLES3Camera2Service extends Service {
                     ///////////////////////////////////////////////////////////////
 
                     /*
+                    This version of the separate copying of the planes is astonishingly not faster!
                     byte[] bufY = new byte[ySize];
                     byte[] bufU = new byte[uSize];
                     byte[] bufV = new byte[vSize];

@@ -23,6 +23,7 @@
 #include <SLLightDirect.h>
 #include <SLCVTracked.h>
 #include <SLCVTrackedAruco.h>
+#include <SLDeviceLocation.h>
 
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene does all one time initialization such as 
@@ -113,7 +114,7 @@ SLScene::SLScene(SLstring name,
 
     // load default video image that is displayed when no live video is available
     _videoTexture.setVideoImage("LiveVideoError.png");
-    _videoTextureErr.setVideoImage("LiveVideoError.png"); // Fix for black video error
+    _videoTextureErr.setVideoImage("LiveVideoError.png");
 
     // Set video type to none (this also sets the active calibration to the main calibration)
     videoType(VT_NONE);
@@ -165,9 +166,6 @@ SLScene::~SLScene()
 
     // release the capture device
     SLCVCapture::release();
-
-    // reset video texture
-    _videoTexture.setVideoImage("LiveVideoError.png");
 
     SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
@@ -235,7 +233,8 @@ void SLScene::unInit()
     // clear light pointers
     _lights.clear();
 
-    // delete textures
+    // delete textures that where allocated during scene construction.
+    // The video & raytracing textures are not in this vector and are not dealocated
     for (auto t : _textures) delete t;
     _textures.clear();
    
@@ -269,6 +268,9 @@ void SLScene::unInit()
     {   SLCVCapture::release();
         _videoType = VT_NONE;
     }
+    
+    // Reset the video texture
+    _videoTexture.setVideoImage("LiveVideoError.png");
 
     _eventHandlers.clear();
 
@@ -353,7 +355,6 @@ bool SLScene::onUpdate()
 
 
     //////////////////////////////
-#include <SLDeviceLocation.h>
     // 3) Update all animations //
     //////////////////////////////
 
