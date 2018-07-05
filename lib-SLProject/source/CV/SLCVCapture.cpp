@@ -247,6 +247,7 @@ void SLCVCapture::adjustForSL()
     // Do not copy into the video texture here. It is done in SLScene:onUpdate
 
     s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
+    //SL_LOG("SLCVCapture::adjustForSL\n");
 }
 //-----------------------------------------------------------------------------
 /*! This method is called by iOS and Android projects that capture their video

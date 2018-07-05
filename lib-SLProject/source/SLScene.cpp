@@ -498,9 +498,9 @@ bool SLScene::onUpdate()
     if (_root2D)
         _root2D->updateAABBRec();
 
-
     _updateTimesMS.set(timeMilliSec()-startUpdateMS);
-    
+
+    //SL_LOG("SLScene::onUpdate\n");
     return sceneHasChanged;
 }
 //-----------------------------------------------------------------------------
@@ -593,22 +593,6 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
     {   _selectedNode = 0;
         _selectedMesh = 0;
     }
-}
-//-----------------------------------------------------------------------------
-//! Copies the image data from a video camera into image[0] of the video texture
-void SLScene::copyVideoImage(SLint width,
-                             SLint height,
-                             SLPixelFormat srcPixelFormat,
-                             SLuchar* data,
-                             SLbool isContinuous,
-                             SLbool isTopLeft)
-{
-    _videoTexture.copyVideoImage(width, 
-                                 height, 
-                                 srcPixelFormat, 
-                                 data, 
-                                 isContinuous,
-                                 isTopLeft);
 }
 //-----------------------------------------------------------------------------
 void SLScene::onLoadAsset(SLstring assetFile, 

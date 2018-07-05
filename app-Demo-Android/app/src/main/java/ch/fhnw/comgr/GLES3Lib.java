@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
 
+// Java class that encapsulates the native C-functions into SLProject
 public class GLES3Lib {
 
     static {
@@ -37,7 +38,10 @@ public class GLES3Lib {
     public static int dpi;
     public static boolean RTIsRunning = false;
 
-    public static final int VIDEO_TYPE_NONE = 0;
+    // flag to indicate if the last video images was displayed at all
+    public static boolean lastVideoImageIsConsumed = true;
+
+    public static final int VIDEO_TYPE_NONE = 0;    // No video at all is used
     public static final int VIDEO_TYPE_MAIN = 1;    // Maps to Androids back facing camera
     public static final int VIDEO_TYPE_SCND = 2;    // Maps to Androids front facing camera
     public static final int VIDEO_TYPE_FILE = 3;    // Maps to Androids front facing camera
@@ -45,14 +49,13 @@ public class GLES3Lib {
     public static native void    onInit             (int width, int height, int dotsPerInch, String FilePath);
     public static native boolean onUpdateAndPaint   ();
     public static native void    onResize           (int width, int height);
-    public static native void    onMenuButton       ();
-    public static native boolean onMouseDown        (int button, int x, int y);
-    public static native boolean onMouseUp          (int button, int x, int y);
-    public static native boolean onMouseMove        (int x, int y);
-    public static native boolean onTouch2Down       (int x1, int y1, int x2, int y2);
-    public static native boolean onTouch2Up         (int x1, int y1, int x2, int y2);
-    public static native boolean onTouch2Move       (int x1, int y1, int x2, int y2);
-    public static native boolean onDoubleClick      (int button, int x, int y);
+    public static native void    onMouseDown        (int button, int x, int y);
+    public static native void    onMouseUp          (int button, int x, int y);
+    public static native void    onMouseMove        (int x, int y);
+    public static native void    onTouch2Down       (int x1, int y1, int x2, int y2);
+    public static native void    onTouch2Up         (int x1, int y1, int x2, int y2);
+    public static native void    onTouch2Move       (int x1, int y1, int x2, int y2);
+    public static native void    onDoubleClick      (int button, int x, int y);
     public static native void    onRotationQUAT     (float quatX, float quatY, float quatZ, float quatW);
     public static native void    onClose            ();
     public static native boolean shouldClose        ();

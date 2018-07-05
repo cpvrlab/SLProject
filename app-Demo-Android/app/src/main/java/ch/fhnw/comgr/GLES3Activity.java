@@ -107,6 +107,14 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         }
     }
 
+    // After on onCreate
+    @Override
+    protected void onStart() {
+        Log.i(TAG, "GLES3Activity.onStart");
+        super.onStart();
+    }
+
+    // Another activity comes into foreground but this is still visible
     @Override
     protected void onPause() {
         Log.i(TAG, "GLES3Activity.onPause");
@@ -114,12 +122,34 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     }
 
     @Override
+    // My activity is no longer visible
     protected void onStop() {
         Log.i(TAG, "GLES3Activity.onStop");
+
+        // Stop sensors to save energy
+        cameraStop();
+        locationSensorStop();
+        rotationSensorStop();
+
         super.onStop();
     }
 
+    // The user resumed this activity
     @Override
+    protected void onResume() {
+        Log.i(TAG, "GLES3Activity.onResume");
+        super.onResume();
+    }
+
+    // A stopped but not destroyed activity is reactivated
+    @Override
+    protected void onRestart() {
+        Log.i(TAG, "GLES3Activity.onRestart");
+        super.onRestart();
+    }
+
+    @Override
+    // The process of this activity got killed
     protected void onDestroy() {
         Log.i(TAG, "GLES3Activity.onDestroy");
         super.onDestroy();
@@ -283,18 +313,11 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             final int x1 = (int) event.getX(1);
             final int y1 = (int) event.getY(1);
 
-            if (touchDeltaMS < 250)
-                myView.queueEvent(new Runnable() {
-                    public void run() {
-                        GLES3Lib.onMenuButton();
-                    }
-                });
-            else
-                myView.queueEvent(new Runnable() {
-                    public void run() {
-                        GLES3Lib.onTouch2Down(x0, y0, x1, y1);
-                    }
-                });
+            myView.queueEvent(new Runnable() {
+                public void run() {
+                    GLES3Lib.onTouch2Down(x0, y0, x1, y1);
+                }
+            });
         }
         pointersDown = touchCount;
         myView.requestRender();

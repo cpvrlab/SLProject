@@ -2786,7 +2786,7 @@
 				LastUpgradeCheck = 0930;
 				TargetAttributes = {
 					419BCD3614865C0800D576F1 = {
-						DevelopmentTeam = 858Y9EWZ4B;
+						DevelopmentTeam = KS44968S3M;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -3672,8 +3672,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = 858Y9EWZ4B;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = KS44968S3M;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					../_lib/prebuilt/OpenCV/ios/Debug,
@@ -3727,8 +3729,9 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
 				LIBRARY_SEARCH_PATHS = ../_lib/prebuilt/OpenCV/ios/Debug;
-				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject.2.2;
+				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject.2.21;
 				PRODUCT_NAME = SLProject;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = arm64;
 				WRAPPER_EXTENSION = app;
@@ -3743,8 +3746,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = 858Y9EWZ4B;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = KS44968S3M;
 				ENABLE_OPENMP_SUPPORT = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3795,8 +3800,9 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
 				LIBRARY_SEARCH_PATHS = ../_lib/prebuilt/OpenCV/ios/Release;
-				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject.2.2;
+				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject.2.21;
 				PRODUCT_NAME = SLProject;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = arm64;
 				WRAPPER_EXTENSION = app;

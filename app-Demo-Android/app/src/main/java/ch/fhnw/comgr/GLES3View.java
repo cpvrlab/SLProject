@@ -95,7 +95,7 @@ public class GLES3View extends GLSurfaceView
                  mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.rotationSensorStart();}});
             else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.rotationSensorStop();}});
 
-            if(usesLocation)
+            if (usesLocation)
                  mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.locationSensorStart();}});
             else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.locationSensorStop();}});
 
@@ -104,6 +104,10 @@ public class GLES3View extends GLSurfaceView
 
             if (GLES3Lib.onUpdateAndPaint())
                 GLES3Lib.view.requestRender();
+
+            if (videoType!=VT_NONE)
+                GLES3Lib.lastVideoImageIsConsumed = true;
+
 
             if (GLES3Lib.shouldClose())
                 GLES3Lib.onClose();

@@ -196,6 +196,9 @@ public class GLES3Camera2Service extends Service {
         @Override
         public void onImageAvailable(ImageReader reader) {
 
+            // Don't copy the available image if the last wasn't consumed
+            if (!GLES3Lib.lastVideoImageIsConsumed) return;
+
             // The opengl renderer runs in its own thread. We have to copy the image in the renderers thread!
             GLES3Lib.view.queueEvent(new Runnable() {
                 @Override
@@ -256,12 +259,15 @@ public class GLES3Camera2Service extends Service {
                                                 bufU, uSize, uPixStride, uRowStride,
                                                 bufV, vSize, vPixStride, vRowStride);
                     */
+
                     img.close();
+
+                    // This avoids the next call into this before the image got displayed
+                    GLES3Lib.lastVideoImageIsConsumed = false;
                 }
             });
         }
     };
-
 
     public void actOnReadyCameraDevice() {
         try {

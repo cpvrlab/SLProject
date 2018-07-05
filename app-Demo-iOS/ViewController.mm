@@ -335,6 +335,7 @@ float GetSeconds()
         didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         fromConnection:(AVCaptureConnection *)connection
 {
+    // Don't copy the available image if the last wasn't consumed
     if (!m_lastVideoImageIsConsumed) return;
         
     CVReturn err;
