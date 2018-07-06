@@ -107,10 +107,6 @@ public class GLES3View extends GLSurfaceView
 
             if (videoType!=VT_NONE)
                 GLES3Lib.lastVideoImageIsConsumed = true;
-
-
-            if (GLES3Lib.shouldClose())
-                GLES3Lib.onClose();
         }
     }
 }

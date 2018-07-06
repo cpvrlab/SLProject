@@ -185,7 +185,6 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv *env, jobject 
     AppDemoGui::saveConfig();
 
     slTerminate();
-    exit(0);
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_shouldClose(JNIEnv *env, jobject obj, jboolean doClose)

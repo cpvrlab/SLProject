@@ -114,7 +114,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         super.onStart();
     }
 
-    // Another activity comes into foreground but this is still visible
+    // Another activity comes into foreground but this is still visible (e.g. with the home button)
     @Override
     protected void onPause() {
         Log.i(TAG, "GLES3Activity.onPause");
@@ -149,10 +149,12 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     }
 
     @Override
-    // The process of this activity got killed
+    // The process of this activity is getting killed (e.g. with the back button)
     protected void onDestroy() {
         Log.i(TAG, "GLES3Activity.onDestroy");
+        myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onClose();}});
         super.onDestroy();
+        finish();
     }
 
     @Override

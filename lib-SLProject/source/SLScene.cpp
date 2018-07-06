@@ -176,6 +176,9 @@ SLScene::~SLScene()
 void SLScene::init()
 {     
     unInit();
+
+    // reset all states
+    SLGLState::getInstance()->initAll();
    
     _globalAmbiLight.set(0.2f,0.2f,0.2f,0.0f);
     _selectedNode = 0;
@@ -204,6 +207,9 @@ void SLScene::init()
     // Deactivate in general the device sensors
     SLApplication::devRot.isUsed(false);
     SLApplication::devLoc.isUsed(false);
+
+    // Reset the video texture
+    _videoTexture.setVideoImage("LiveVideoError.png");
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -268,16 +274,10 @@ void SLScene::unInit()
     {   SLCVCapture::release();
         _videoType = VT_NONE;
     }
-    
-    // Reset the video texture
-    _videoTexture.setVideoImage("LiveVideoError.png");
 
     _eventHandlers.clear();
 
     _animManager.clear();
-
-    // reset all states
-    SLGLState::getInstance()->initAll();
 }
 //-----------------------------------------------------------------------------
 //! Processes all queued events and updates animations, AR trackers and AABBs

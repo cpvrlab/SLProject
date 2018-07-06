@@ -535,7 +535,7 @@ int main(int argc, char *argv[])
     slTerminate();
     glfwDestroyWindow(window);
     glfwTerminate();
-    exit(0);
+    return 0;
 }
 //-----------------------------------------------------------------------------
 
