@@ -102,7 +102,13 @@ public class GLES3View extends GLSurfaceView
             if (videoType==VT_FILE)
                 GLES3Lib.grabVideoFileFrame();
 
-            if (GLES3Lib.onUpdateAndPaint())
+            ////////////////////////////////////////////////
+            Boolean doRepaint = GLES3Lib.onUpdateAndPaint();
+            ////////////////////////////////////////////////
+
+            // Only request new rendering for non-live video
+            // For live video the camera service will call requestRenderer
+            if (doRepaint && (videoType==VT_NONE || videoType==VT_FILE))
                 GLES3Lib.view.requestRender();
 
             if (videoType!=VT_NONE)

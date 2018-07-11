@@ -233,7 +233,6 @@ public class GLES3Camera2Service extends Service {
                     int uRowStride = Y.getRowStride();
                     int vRowStride = Y.getRowStride();
 
-
                     byte[] data = new byte[ySize + uSize + vSize];
                     Y.getBuffer().get(data, 0, ySize);
                     U.getBuffer().get(data, ySize, uSize);
@@ -264,6 +263,9 @@ public class GLES3Camera2Service extends Service {
 
                     // This avoids the next call into this before the image got displayed
                     GLES3Lib.lastVideoImageIsConsumed = false;
+
+                    // Request a new rendering
+                    GLES3Lib.view.requestRender();
                 }
             });
         }
