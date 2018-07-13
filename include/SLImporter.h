@@ -8,14 +8,19 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
-#include <SLNode.h>
-#include <SLGLTexture.h>
-#include <SLSkeleton.h>
-
-
 #ifndef SLIMPORTER_H
 #define SLIMPORTER_H
+
+#include <map>
+#include <fstream>
+
+#include <SL.h>
+#include <SLEnums.h>
+#include <SLMesh.h>
+#include <SLAnimation.h>
+
+class SLNode;
+class SLMaterial;
 
 //-----------------------------------------------------------------------------
 //! Copy of the aiPostProcessStep enum for usage in the wrapper load function
@@ -54,38 +59,23 @@ typedef std::map<int, SLMesh*> SLMeshMap;
 //-----------------------------------------------------------------------------
 //! Interface for 3D file format importer implementations
 class SLImporter
-{  
-public:
-
-protected:
-    ofstream        _log;                   //!< log stream
-    SLstring        _logFile;               //!< name of the log file
-    SLLogVerbosity  _logConsoleVerbosity;   //!< verbosity level of log output to the console
-    SLLogVerbosity  _logFileVerbosity;      //!< verbosity level of log output to the file
-
-    // the imported data for easy access after importing it
-    SLNode*         _sceneRoot;         //!< the root node of the scene
-    SLVMesh         _meshes;            //!< all imported meshes
-    SLSkeleton*     _skeleton;          //!< the imported skeleton for this file
-    SLVAnimation    _nodeAnimations;    //!< all imported node animations
-
-
-    // misc helper
-    void logMessage(SLLogVerbosity verbosity, const char* msg, ...);
-
-public:
-    SLImporter();
-    SLImporter(SLLogVerbosity consoleVerb);
-    SLImporter(const SLstring& logFile, SLLogVerbosity logConsoleVerb = LV_normal, SLLogVerbosity logFileVerb = LV_diagnostic);
-    ~SLImporter();
+{
+    public:
+                SLImporter          ();
+                SLImporter          (SLLogVerbosity consoleVerb);
+                SLImporter          (const SLstring& logFile,
+                                     SLLogVerbosity logConsoleVerb = LV_normal,
+                                     SLLogVerbosity logFileVerb = LV_diagnostic);
+               ~SLImporter          ();
     
-    void logConsoleVerbosity(SLLogVerbosity verb) { _logConsoleVerbosity = verb; }
-    void logFileVerbosity(SLLogVerbosity verb) { _logFileVerbosity = verb; }
+    void        logConsoleVerbosity (SLLogVerbosity verb) { _logConsoleVerbosity = verb; }
+    void        logFileVerbosity    (SLLogVerbosity verb) { _logFileVerbosity = verb; }
 
-    virtual SLNode* load    (SLstring pathFilename,
-                            SLbool loadMeshesOnly = true,
-                            SLuint flags = 
-                                SLProcess_Triangulate
+    virtual SLNode* load    (SLstring pathFilename
+                            ,SLbool loadMeshesOnly = true
+                            , SLMaterial* overrideMat = nullptr
+                            ,SLuint flags =
+                             SLProcess_Triangulate
                             |SLProcess_JoinIdenticalVertices
                             |SLProcess_SplitLargeMeshes
                             |SLProcess_RemoveRedundantMaterials
@@ -119,6 +109,22 @@ public:
     SLVAnimation&   nodeAnimations  () { return _nodeAnimations; }
 
     static SLstring defaultPath;
+
+protected:
+    ofstream        _log;                   //!< log stream
+    SLstring        _logFile;               //!< name of the log file
+    SLLogVerbosity  _logConsoleVerbosity;   //!< verbosity level of log output to the console
+    SLLogVerbosity  _logFileVerbosity;      //!< verbosity level of log output to the file
+
+    // the imported data for easy access after importing it
+    SLNode*         _sceneRoot;         //!< the root node of the scene
+    SLVMesh         _meshes;            //!< all imported meshes
+    SLSkeleton*     _skeleton;          //!< the imported skeleton for this file
+    SLVAnimation    _nodeAnimations;    //!< all imported node animations
+
+
+    // misc helper
+    void logMessage(SLLogVerbosity verbosity, const char* msg, ...);
 };
 //-----------------------------------------------------------------------------
 #endif // SLIMPORTER_H

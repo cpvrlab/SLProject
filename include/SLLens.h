@@ -10,7 +10,6 @@
 #ifndef SLLENS_H
 #define SLLENS_H
 
-#include <stdafx.h>
 #include "SLRevolver.h"
 
 //-----------------------------------------------------------------------------

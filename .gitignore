@@ -3,6 +3,7 @@
 *.suo
 *.vsp
 *.user
+*.user.*
 *.sdf
 *.opensdf
 *.idb
@@ -16,6 +17,10 @@
 *.psess
 *.db
 *.so
+*.bak
+*.log
+*.tlog
+*.lnk
 *.xcuserstate
 *~
 
@@ -42,3 +47,6 @@ GenerateHTMLDoc.log
 *.classpath
 *.project
 .settings
+.vs
+
+app-Demo-Android/build.gradle

@@ -10,8 +10,6 @@
 #ifndef SL_COMPACTGRID
 #define SL_COMPACTGRID
 
-#include <stdafx.h>
-
 #include <array>
 #include <vector>
 #include <numeric>

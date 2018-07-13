@@ -13,8 +13,9 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
-#include <SLMaterial.h>
+#include <SLApplication.h>
 #include <SLSceneView.h>
+#include <SLMaterial.h>
 
 //-----------------------------------------------------------------------------
 SLfloat SLMaterial::PERFECT = 1000.0f;
@@ -50,7 +51,7 @@ SLMaterial::SLMaterial(const SLchar* name,
     if (_diffuse.w!=1) _kt = 1.0f - _diffuse.w;
    
     // Add pointer to the global resource vectors for deallocation
-    SLScene::current->materials().push_back(this);
+    SLApplication::scene->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
 // Ctor for textures
@@ -82,7 +83,7 @@ SLMaterial::SLMaterial(const SLchar* name,
     _diffuse.w = 1.0f - _kt;
    
     // Add pointer to the global resource vectors for deallocation
-    SLScene::current->materials().push_back(this);
+    SLApplication::scene->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
 // Ctor for Cook-Torrance shading
@@ -101,10 +102,10 @@ SLMaterial::SLMaterial(const SLchar* name,
     _kr = 0.0f;
     _kt = 0.0f;
     _kn = 1.0f;
-    _program = SLScene::current->programs(SP_perPixCookTorrance);
+    _program = SLApplication::scene->programs(SP_perPixCookTorrance);
 
     // Add pointer to the global resource vectors for deallocation
-    SLScene::current->materials().push_back(this);
+    SLApplication::scene->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
 // Ctor for uniform color material without lighting
@@ -118,14 +119,14 @@ SLMaterial::SLMaterial(SLCol4f uniformColor, const SLchar* name)
     _roughness = 0.5f;
     _metalness = 0.0f;
    
-    _program = SLScene::current->programs(SP_colorUniform);
+    _program = SLApplication::scene->programs(SP_colorUniform);
    
     _kr = 0.0f;
     _kt = 0.0f;
     _kn = 1.0f;
    
     // Add pointer to the global resource vectors for deallocation
-    SLScene::current->materials().push_back(this);
+    SLApplication::scene->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -142,7 +143,7 @@ and activates the attached shader
 */
 void SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
 {      
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
 
     // Deactivate shader program of the current active material
     if (current && current->program())
@@ -208,7 +209,7 @@ void SLMaterial::defaultGray(SLMaterial* mat)
         return;
 
     if (_defaultGray)
-    {   SLVMaterial& list = SLScene::current->materials();
+    {   SLVMaterial& list = SLApplication::scene->materials();
         list.erase(remove(list.begin(), list.end(), _defaultGray), list.end());
         delete _defaultGray;
     }
@@ -224,7 +225,7 @@ SLMaterial* SLMaterial::diffuseAttrib()
     if (!_diffuseAttrib)
     {   _diffuseAttrib = new SLMaterial("diffuseAttrib");
         _diffuseAttrib->specular(SLCol4f::BLACK);
-        _diffuseAttrib->program(SLScene::current->programs(SP_perVrtBlinnColorAttrib));
+        _diffuseAttrib->program(SLApplication::scene->programs(SP_perVrtBlinnColorAttrib));
     }
     return _diffuseAttrib;
 }
@@ -239,7 +240,7 @@ void SLMaterial::diffuseAttrib(SLMaterial* mat)
         return;
 
     if (_diffuseAttrib)
-    {   SLVMaterial& list = SLScene::current->materials();
+    {   SLVMaterial& list = SLApplication::scene->materials();
         list.erase(remove(list.begin(), list.end(), _diffuseAttrib), list.end());
         delete _diffuseAttrib;
     }

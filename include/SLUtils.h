@@ -8,11 +8,18 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
-#include <dirent.h>
-
 #ifndef SLUTILS_H
 #define SLUTILS_H
+
+#include <cstdarg>
+#include <cstring>
+#include <iomanip>
+#include <sstream>
+#include <algorithm>
+
+#include <dirent.h>
+#include <SL.h>
+#include <SLMath.h>
 
 //-----------------------------------------------------------------------------
 //! SLUtils provides static utility functions string handling
@@ -22,15 +29,10 @@ class SLUtils
 
         //! SLUtils::toString returns a string from a float with max. one trailing zero
         static SLstring toString(float f, int roundedDecimals = 1)
-        {   
-            SLint magnitude = SL_pow(10, roundedDecimals);
-            SLfloat rf = (SLfloat)(round(f * magnitude) / magnitude);
-
-            char cstr[32];
-            sprintf(cstr, "%f", rf);
-            for (SLint i = (SLint)strlen(cstr); i > 0; i--)
-                if (cstr[i]=='0' && cstr[i-1]>='0' && cstr[i-1]<='9') cstr[i] = 0;
-            SLstring num = cstr;
+        {
+            stringstream ss;
+            ss << fixed << setprecision(roundedDecimals) << f;
+            SLstring num = ss.str();
             if (num == "-0.0") num = "0.0";
             return num;
         }
@@ -38,14 +40,9 @@ class SLUtils
         //! SLUtils::toString returns a string from a double with max. one trailing zero
         static SLstring toString(double d, int roundedDecimals = 1)
         {   
-            SLint magnitude = SL_pow(10, roundedDecimals);
-            SLfloat rd = (SLfloat)(round(d * magnitude) / magnitude);
-
-            char cstr[32];
-            sprintf(cstr, "%f", rd);
-            for (SLint i = (SLint)strlen(cstr); i > 0; i--)
-                if (cstr[i]=='0' && cstr[i-1]>='0' && cstr[i-1]<='9') cstr[i] = 0;
-            SLstring num = cstr;
+            stringstream ss;
+            ss << fixed << setprecision(roundedDecimals) << d;
+            SLstring num = ss.str();
             if (num == "-0.0") num = "0.0";
             return num;
         }
@@ -221,6 +218,12 @@ class SLUtils
                     break;
             }
             return SLstring(formatted.get());
+        }
+
+        //! contains returns true if container contains the search string
+        static SLbool contains(const SLstring container, const SLstring search)
+        {
+            return (container.find(search) != string::npos);
         }
 };
 //-----------------------------------------------------------------------------

@@ -11,48 +11,64 @@
 #ifndef SLSCENE_H
 #define SLSCENE_H
 
-#include <stdafx.h>
-#include <SLMaterial.h>
-#include <SLEventHandler.h>
+//#include <stdafx.h>
+//#include <SLMaterial.h>
+//#include <SLEventHandler.h>
+//#include <SLLight.h>
+//#include <SLNode.h>
+//#include <SLSkeleton.h>
+//#include <SLGLOculus.h>
+//#include <SLAnimManager.h>
+//#include <SLAverage.h>
+//#include <SLCVCalibration.h>
+//#include <SLDeviceRotation.h>
+//#include <SLDeviceLocation.h>
+
+#include <vector>
+#include <SL.h>
+#include <SLVec3.h>
+#include <SLVec4.h>
 #include <SLLight.h>
-#include <SLNode.h>
-#include <SLSkeleton.h>
+#include <SLAverage.h>
+#include <SLMaterial.h>
+#include <SLMesh.h>
+#include <SLEventHandler.h>
 #include <SLGLOculus.h>
 #include <SLAnimManager.h>
-#include <SLAverage.h>
-#include <SLCVCalibration.h>
+#include <SLTimer.h>
 
 class SLSceneView;
 class SLCVTracked;
+class SLCamera;
 
 //-----------------------------------------------------------------------------
-typedef vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
-typedef vector<SLCVTracked*> SLVCVTracker; //!< Vector of CV tracker pointers
+typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
+typedef std::vector<SLCVTracked*> SLVCVTracker; //!< Vector of CV tracker pointers
+//-----------------------------------------------------------------------------
+//! C-Callback function typedef for scene load function
+typedef void(SL_STDCALL *cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint sceneID);
 //-----------------------------------------------------------------------------
 //! The SLScene class represents the top level instance holding the scene structure
 /*!      
-The SLScene class holds everything that is common for all scene views such as 
-the root pointer (_root3D) to the scene, an array of lights as well as the
-global resources (_meshes (SLMesh), _materials (SLMaterial), _textures
-(SLGLTexture) and _shaderProgs (SLGLProgram)).
-All these resources and the scene with all nodes to which _root3D pointer points
-get deleted in the method unInit. \n
-A scene could have multiple scene views. A pointer of each is stored in the
-vector _sceneViews. \n
-The onLoad method can build a of several built in test and demo scenes.
-You can access the current scene from everywhere with the static pointer _current.
-\n
-The SLScene instance has two video camera calibrations, one for a main camera
-(SLScene::_calibMainCam) and one for the selfie camera on mobile devices
-(SLScene::_calibScndCam). The member SLScene::_activeCalib references the active
-one and is set by the SLScene::videoType (VT_NONE, VT_MAIN, VT_SCND) during the
-scene assembly in SLScene::onLoad.
+ The SLScene class holds everything that is common for all scene views such as
+ the root pointer (_root3D) to the scene, an array of lights as well as the
+ global resources (_meshes (SLMesh), _materials (SLMaterial), _textures
+ (SLGLTexture) and _shaderProgs (SLGLProgram)).
+ All these resources and the scene with all nodes to which _root3D pointer points
+ get deleted in the method unInit.\n
+ A scene could have multiple scene views. A pointer of each is stored in the
+ vector _sceneViews.\n
+ A single instance of this SLScene class is holded by the SLApplication.
+ The scene assembly takes place outside of the library in function of the application.
+ A pointer for this function must be passed to the SLScene constructor. For the
+ demo project this function is in AppDemoSceneLoad.cpp.
 */
 class SLScene: public SLObject    
 {  
     friend class SLNode;
    
-    public:                 SLScene             (SLstring name="");
+    public:                 SLScene             (SLstring name,
+                                                 cbOnSceneLoad onSceneLoadCallback);
                            ~SLScene             ();
             // Setters
             void            root3D              (SLNode* root3D){_root3D = root3D;}
@@ -61,8 +77,7 @@ class SLScene: public SLObject
             void            stopAnimations      (SLbool stop) {_stopAnimations = stop;}
             void            videoType           (SLVideoType vt);
             void            showDetection       (SLbool st) {_showDetection = st;}
-            void            usesRotation        (SLbool use) {_usesRotation = use;}
-            void            zeroYawAfterSec     (SLfloat sec) {_zeroYawAfterSec = sec;}
+            void            info                (SLstring i) {_info = i;}
                            
             // Getters
             SLAnimManager&  animManager         () {return _animManager;}
@@ -72,8 +87,8 @@ class SLScene: public SLObject
             SLNode*         root2D              () {return _root2D;}
             SLstring&       info                () {return _info;}
             void            timerStart          () {_timer.start();}
-            SLfloat         timeSec             () {return (SLfloat)_timer.getElapsedTimeInSec();}
-            SLfloat         timeMilliSec        () {return (SLfloat)_timer.getElapsedTimeInMilliSec();}
+            SLfloat         timeSec             () {return (SLfloat)_timer.elapsedTimeInSec();}
+            SLfloat         timeMilliSec        () {return (SLfloat)_timer.elapsedTimeInMilliSec();}
             SLfloat         elapsedTimeMS       () {return _elapsedTimeMS;}
             SLfloat         elapsedTimeSec      () {return _elapsedTimeMS * 0.001f;}
             SLVEventHandler& eventHandlers      () {return _eventHandlers;}
@@ -85,8 +100,10 @@ class SLScene: public SLObject
             SLAvgFloat&     updateTimesMS       () {return _updateTimesMS;}
             SLAvgFloat&     trackingTimesMS     () {return _trackingTimesMS;}
             SLAvgFloat&     detectTimesMS       () {return _detectTimesMS;}
+            SLAvgFloat&     detect1TimesMS      () {return _detect1TimesMS;}
+            SLAvgFloat&     detect2TimesMS      () {return _detect2TimesMS;}
             SLAvgFloat&     matchTimesMS        () {return _matchTimesMS;}
-            SLAvgFloat&     optFlowTimesMS         () {return _optFlowTimesMS;}
+            SLAvgFloat&     optFlowTimesMS      () {return _optFlowTimesMS;}
             SLAvgFloat&     poseTimesMS         () {return _poseTimesMS;}
             SLAvgFloat&     cullTimesMS         () {return _cullTimesMS;}
             SLAvgFloat&     draw2DTimesMS       () {return _draw2DTimesMS;}
@@ -103,51 +120,27 @@ class SLScene: public SLObject
             SLGLOculus*     oculus              () {return &_oculus;}
             SLint           numSceneCameras     ();
             SLCamera*       nextCameraInScene   (SLSceneView* activeSV);
-            SLbool          usesRotation        () const {return _usesRotation;}
 
-            // Video and OpenCV stuff
-            SLVideoType         videoType       () {return _videoType;}
-            SLGLTexture*        videoTexture    () {return &_videoTexture;}
-            SLCVCalibration*    activeCalib     () {return _activeCalib;}
-            SLCVCalibration*    calibMainCam    () {return &_calibMainCam;}
-            SLCVCalibration*    calibScndCam    () {return &_calibScndCam;}
-            SLVCVTracker&       trackers        () {return _trackers;}
-            SLbool              showDetection   () {return _showDetection;}
+            // Video stuff
+            SLVideoType     videoType           () {return _videoType;}
+            SLGLTexture*    videoTexture        () {return &_videoTexture;}
+            SLGLTexture*    videoTextureErr     () {return &_videoTextureErr;}
+            SLVCVTracker&   trackers            () {return _trackers;}
+            SLbool          showDetection       () {return _showDetection;}
+    
+            cbOnSceneLoad   onLoad;             //!< C-Callback for scene load
 
-            SLQuat4f            deviceRotation  () const {return _deviceRotation;}
-            SLfloat             devicePitchRAD  () const {return _devicePitchRAD;}
-            SLfloat             deviceYawRAD    () const {return _deviceYawRAD;}
-            SLfloat             deviceRollRAD   () const {return _deviceRollRAD;}
-            SLfloat             zeroYawAfterSec () const {return _zeroYawAfterSec;}
-            
             // Misc.
-   virtual  void            onLoad              (SLSceneView* sv, 
-                                                 SLCommand _currentID);
+   //virtual  void            onLoad              (SLSceneView* sv, SLCommand _currentID);
    virtual  void            onLoadAsset         (SLstring assetFile, 
                                                  SLuint processFlags);
    virtual  void            onAfterLoad         ();
             bool            onUpdate            ();
-            void            onRotationPYR       (SLfloat pitchRAD,
-                                                 SLfloat yawRAD,
-                                                 SLfloat rollRAD);
-            void            onRotationQUAT      (SLfloat quatX,
-                                                 SLfloat quatY,
-                                                 SLfloat quatZ,
-                                                 SLfloat quatW);
             void            init                ();
             void            unInit              ();
-            SLbool          onCommandAllSV      (const SLCommand cmd);
             void            selectNode          (SLNode* nodeToSelect);
             void            selectNodeMesh      (SLNode* nodeToSelect, SLMesh* meshToSelect);
-            void            copyVideoImage      (SLint camWidth, 
-                                                 SLint camHeight,
-                                                 SLPixelFormat srcPixelFormat,
-                                                 SLuchar* data,
-                                                 SLbool isContinuous,
-                                                 SLbool isTopLeft);
-
-     static SLScene*        current;            //!< global static scene pointer
-
+    
    protected:
             SLVSceneView    _sceneViews;        //!< Vector of all sceneview pointers
             SLVMesh         _meshes;            //!< Vector of all meshes
@@ -175,6 +168,8 @@ class SLScene: public SLObject
             SLAvgFloat      _updateTimesMS;     //!< Averaged time for update in ms
             SLAvgFloat      _trackingTimesMS;   //!< Averaged time for video tracking in ms
             SLAvgFloat      _detectTimesMS;     //!< Averaged time for video feature detection & description in ms
+            SLAvgFloat      _detect1TimesMS;    //!< Averaged time for video feature detection subpart 1 in ms
+            SLAvgFloat      _detect2TimesMS;    //!< Averaged time for video feature detection subpart 2 in ms
             SLAvgFloat      _matchTimesMS;      //!< Averaged time for video feature matching in ms
             SLAvgFloat      _optFlowTimesMS;    //!< Averaged time for video feature optical flow tracking in ms
             SLAvgFloat      _poseTimesMS;       //!< Averaged time for video feature pose estimation in ms
@@ -189,21 +184,11 @@ class SLScene: public SLObject
             SLGLOculus      _oculus;            //!< Oculus Rift interface
             
             // Video stuff
-            SLVideoType         _videoType;         //!< Flag for using the live video image
-            SLGLTexture         _videoTexture;      //!< Texture for live video image
-            SLCVCalibration*    _activeCalib;       //!< Pointer to the active calibration
-            SLCVCalibration     _calibMainCam;      //!< OpenCV calibration for main video camera
-            SLCVCalibration     _calibScndCam;      //!< OpenCV calibration for secondary video camera
-            SLVCVTracker        _trackers;          //!< Vector of all AR trackers
-            SLbool              _showDetection;     //!< Flag if detection should be visualized
-
-            // Sensor stuff
-            SLbool              _usesRotation;      //!< Flag if device rotation is used
-            SLfloat             _devicePitchRAD;    //!< Device pitch angle in radians
-            SLfloat             _deviceYawRAD;      //!< Device yaw angle in radians
-            SLfloat             _deviceRollRAD;     //!< Device roll angle in radians
-            SLQuat4f            _deviceRotation;    //!< Mobile device rotation as quaternion
-            SLfloat             _zeroYawAfterSec;   //!< Zero yaw angle after a certain seconds
+            SLVideoType     _videoType;         //!< Flag for using the live video image
+            SLGLTexture     _videoTexture;      //!< Texture for live video image
+            SLGLTexture     _videoTextureErr;   //!< Texture for live video error
+            SLVCVTracker    _trackers;          //!< Vector of all AR trackers
+            SLbool          _showDetection;     //!< Flag if detection should be visualized
 };
 //-----------------------------------------------------------------------------
 #endif

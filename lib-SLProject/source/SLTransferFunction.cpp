@@ -9,6 +9,7 @@
 //#############################################################################
 
 #include <stdafx.h>
+#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLTransferFunction.h>
 
@@ -34,7 +35,7 @@ SLTransferFunction::SLTransferFunction(SLVTransferAlpha alphaValues,
     generateTexture();
 
     // Add pointer to the global resource vectors for deallocation
-    SLScene::current->textures().push_back(this);
+    SLApplication::scene->textures().push_back(this);
 }//-----------------------------------------------------------------------------
 //! ctor with vector of alpha and color values
 SLTransferFunction::SLTransferFunction(SLVTransferAlpha alphaValues,
@@ -58,7 +59,7 @@ SLTransferFunction::SLTransferFunction(SLVTransferAlpha alphaValues,
     generateTexture();
     
     // Add pointer to the global resource vectors for deallocation
-    SLScene::current->textures().push_back(this);
+    SLApplication::scene->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 SLTransferFunction::~SLTransferFunction()

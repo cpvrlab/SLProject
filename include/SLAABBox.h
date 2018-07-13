@@ -11,8 +11,8 @@
 #ifndef SLAABBox_H
 #define SLAABBox_H
 
-#include <stdafx.h>
 #include <SLGLVertexArrayExt.h>
+#include <SLMat4.h>
 
 class SLRay;
 class SLScene;
@@ -44,7 +44,7 @@ class SLAABBox
         void        maxOS       (SLVec3f maxC)  {_maxOS = maxC;}
                
         void        isVisible   (SLbool visible){_isVisible = visible;}
-        void        hasAlpha   (SLbool transp) {_hasTransp = transp;}   
+        void        hasAlpha    (SLbool transp) {_hasAlpha = transp;}   
         void        sqrViewDist (SLfloat sqrVD) {_sqrViewDist = sqrVD;}    
 
         // Getters 
@@ -57,7 +57,7 @@ class SLAABBox
         SLVec3f     centerOS    () {return _centerOS;}
         SLfloat     radiusOS    () {return _radiusOS;}
         SLbool      isVisible   () {return _isVisible;}
-        SLbool      hasAlpha    () {return _hasTransp;}
+        SLbool      hasAlpha    () {return _hasAlpha;}
         SLfloat     sqrViewDist () {return _sqrViewDist;}
                
         // Misc.
@@ -98,7 +98,7 @@ class SLAABBox
         SLbool      _boneIsOffset;  //!< Flag if the connection parent to us is a bone or an offset
         SLVec3f     _parent0WS;     //!< World space vector to the parent position
         SLbool      _isVisible;     //!< Flag if AABB is in the view frustum
-        SLbool      _hasTransp;     //!< Flag if AABB has transparent shapes
+        SLbool      _hasAlpha;      //!< Flag if AABB has transparent shapes
         SLGLVertexArrayExt  _vao;   //!< Vertex array object for rendering
 };
 //-----------------------------------------------------------------------------

@@ -13,7 +13,6 @@
 
 #include <SL.h>
 #include <SLVec2.h>
-#include <SLUtils.h>
 
 //-----------------------------------------------------------------------------
 //! 3D vector template class for standard 3D vector algebra.
@@ -29,8 +28,9 @@ class SLVec3
 {
     public:     
             union
-            {   struct {T x, y, z;};
-                struct {T r, g, b;};
+            {   struct {T x, y, z;};        // 3D cartesian coordinates
+                struct {T r, g, b;};        // Red, green & blue color components
+                struct {T lat, lon, alt;};  // WGS84 latitude (deg), longitude (deg) & altitude (m)
                 struct {T comp[3];};
             };
             
@@ -53,24 +53,30 @@ class SLVec3
             void    set         (const SLVec3<T>& v)    {x=v.x;  y=v.y;  z=v.z;}
 
     // Component wise compare
-    inline  SLint   operator == (const SLVec3& v) const {return (x==v.x && y==v.y && z==v.z);}
-    inline  SLint   operator != (const SLVec3& v) const {return (x!=v.x || y!=v.y || z!=v.z);}
-    inline  SLint   operator <= (const SLVec3& v) const {return (x<=v.x && y<=v.y && z<=v.z);}
-    inline  SLint   operator >= (const SLVec3& v) const {return (x>=v.x && y>=v.y && z>=v.z);}
+    inline  SLbool  operator == (const SLVec3& v) const {return (x==v.x && y==v.y && z==v.z);}
+    inline  SLbool  operator != (const SLVec3& v) const {return (x!=v.x || y!=v.y || z!=v.z);}
+    inline  SLbool  operator <= (const SLVec3& v) const {return (x<=v.x && y<=v.y && z<=v.z);}
+    inline  SLbool  operator >= (const SLVec3& v) const {return (x>=v.x && y>=v.y && z>=v.z);}
+    inline  SLbool  operator <  (const SLVec3& v) const {return (x< v.x && y< v.y && z< v.z);}
+    inline  SLbool  operator >  (const SLVec3& v) const {return (x> v.x && y> v.y && z> v.z);}
+    inline  SLbool  operator <= (const T v)       const {return (x<=v && y<=v && z<=v);}
+    inline  SLbool  operator >= (const T v)       const {return (x>=v && y>=v && z>=v);}
+    inline  SLbool  operator <  (const T v)       const {return (x< v && y< v && z< v);}
+    inline  SLbool  operator >  (const T v)       const {return (x> v && y> v && z> v);}
    
     // Operators with temp. allocation
     inline  SLVec3  operator -  (void) const            {return SLVec3(-x, -y, -z);}
     inline  SLVec3  operator +  (const SLVec3& v) const {return SLVec3(x+v.x, y+v.y, z+v.z);}
     inline  SLVec3  operator -  (const SLVec3& v) const {return SLVec3(x-v.x, y-v.y, z-v.z);}
-    inline  T       operator *  (const SLVec3& v) const {return x*v.x+y*v.y+z*v.z;};  // dot
-    inline  SLVec3  operator ^  (const SLVec3& v) const {return SLVec3(y*v.z-z*v.y,   // cross
+    inline  T       operator *  (const SLVec3& v) const {return x*v.x+y*v.y+z*v.z;} // dot
+    inline  SLVec3  operator ^  (const SLVec3& v) const {return SLVec3(y*v.z-z*v.y, // cross
                                                                            z*v.x-x*v.z,
                                                                            x*v.y-y*v.x);}
     inline  SLVec3  operator *  (const T s) const       {return SLVec3(x*s, y*s, z*s);}
     inline  SLVec3  operator /  (const T s) const       {return SLVec3(x/s, y/s, z/s);}
     inline  SLVec3  operator &  (const SLVec3& v) const {return SLVec3(x*v.x, y*v.y, z*v.z);}
-    friend inline
-            SLVec3  operator *  (T s, const SLVec3& v)  {return SLVec3(v.x*s, v.y*s, v.z*s);}
+    friend
+    inline  SLVec3  operator *  (T s, const SLVec3& v)  {return SLVec3(v.x*s, v.y*s, v.z*s);}
 
     // Assign operators
     inline  SLVec3& operator =  (const SLVec2<T>& v)    {x=v.x; y=v.y; z=0;      return *this;}
@@ -180,9 +186,9 @@ class SLVec3
 
             //! Conversion to string
             SLstring toString   (SLstring delimiter = ", ")
-            {   return SLUtils::toString(x) + delimiter +
-                       SLUtils::toString(y) + delimiter +
-                       SLUtils::toString(z);
+            {   return SLUtils::toString(x,2) + delimiter +
+                       SLUtils::toString(y,2) + delimiter +
+                       SLUtils::toString(z,2);
             }
 
             //! Conversion from string

@@ -1,20 +1,32 @@
-//
-//  ViewController.m
-//  comgr
-//
-//  Created by Marcus Hudritsch on 30.11.11.
-//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
-//
+//#############################################################################
+//  File:      ViewController.m
+//  Purpose:   Top level iOS view controller code that interfaces SLProject
+//             The demo application demonstrates most features of the SLProject
+//             framework. Implementation of the GUI with the GLFW3 framework
+//             that can create a window and receive system event on desktop OS
+//             such as Windows, MacOS and Linux.
+//  Author:    Marcus Hudritsch
+//  Date:      November 2017
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
+// Objective C imports
 #import "ViewController.h"
 #import <CoreMotion/CoreMotion.h>
 
-// The only C-interface to include for the SceneLibrary
-
+// C++ includes for the SceneLibrary
+#include <SLMath.h>
+#include <SLFileSystem.h>
 #include <SLInterface.h>
 #include <SLCVCapture.h>
-#include <SLDemoGui.h>
+#include <AppDemoGui.h>
 #include <mach/mach_time.h>
+
+// Declaration of scene load function
+extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
 
 //-----------------------------------------------------------------------------
 // C-Prototypes
@@ -33,8 +45,7 @@ float screenScale = 1.0f;
 //-----------------------------------------------------------------------------
 // C-Function used as C-function callback for raytracing update
 SLbool onPaintRTGL()
-{
-   [myView display];
+{  [myView display];
    return true;
 }
 //-----------------------------------------------------------------------------
@@ -53,7 +64,7 @@ float GetSeconds()
     return (float)sec;
 }
 //-----------------------------------------------------------------------------
-@interface ViewController ()
+@interface ViewController () <CLLocationManagerDelegate>
 {
     SLfloat  m_lastFrameTimeSec;  //!< Timestamp for passing highres time
     SLfloat  m_lastTouchTimeSec;  //!< Frame time of the last touch event
@@ -65,13 +76,15 @@ float GetSeconds()
     NSString*           m_avSessionPreset;      //!< Session name
     bool                m_lastVideoImageIsConsumed;
     int                 m_lastVideoType;        //! VT_NONE=0,VT_MAIN=1,VT_SCND=2
+    bool                m_locationIsRunning;    //! GPS is running
 }
-@property (strong, nonatomic) EAGLContext *context;
-@property (strong, nonatomic) CMMotionManager *motionManager;
+@property (strong, nonatomic) EAGLContext       *context;
+@property (strong, nonatomic) CMMotionManager   *motionManager;
+@property (strong, nonatomic) NSTimer           *motionTimer;
+@property (strong, nonatomic) CLLocationManager *locationManager;
 @end
 //-----------------------------------------------------------------------------
 @implementation ViewController
-
 @synthesize context = _context;
 
 - (void)dealloc
@@ -105,14 +118,11 @@ float GetSeconds()
     //[self setupGL];
     [EAGLContext setCurrentContext:self.context];
     
-    // Init motion manager
-    self.motionManager = [[CMMotionManager alloc] init];
-    
     // determine device pixel ratio and dots per inch
     screenScale = [UIScreen mainScreen].scale;
     float dpi;
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-        dpi = 132 * screenScale;
+         dpi = 132 * screenScale;
     else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
          dpi = 163 * screenScale;
     else dpi = 160 * screenScale;
@@ -121,29 +131,35 @@ float GetSeconds()
     SLstring exeDir = SLFileSystem::getCurrentWorkingDir();
     SLstring configDir = SLFileSystem::getAppsWritableDir();
     
-    //////////////////////////
-    slCreateScene(cmdLineArgs,
-                  exeDir,
-                  exeDir,
-                  exeDir,
-                  exeDir,
-                  exeDir,
-                  configDir);
-    //////////////////////////
+    /////////////////////////////////////////////
+    slCreateAppAndScene(cmdLineArgs,
+                        exeDir,
+                        exeDir,
+                        exeDir,
+                        exeDir,
+                        exeDir,
+                        exeDir,
+                        configDir,
+                        "AppDemo_iOS",
+                        (void*)appDemoLoadScene);
+    /////////////////////////////////////////////
+    
+    // This load the GUI configs that are locally stored
+    AppDemoGui::loadConfig(dpi);
    
     ///////////////////////////////////////////////////////////////////////
     svIndex = slCreateSceneView(self.view.bounds.size.height * screenScale,
                                 self.view.bounds.size.width * screenScale,
                                 dpi,
-                                C_sceneRevolver,
+                                SID_Revolver,
                                 (void*)&onPaintRTGL,
                                 0,
                                 0,
-                                0,
-                                (void*)SLDemoGui::buildDemoGui);
+                                (void*)AppDemoGui::build);
     ///////////////////////////////////////////////////////////////////////
     
-    [self setMotionInterval:1.0/60.0];
+    [self setupMotionManager: 1.0/20.0];
+    [self setupLocationManager];
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload
@@ -166,15 +182,6 @@ float GetSeconds()
     // Release any cached data, images, etc. that aren't in use.
 }
 //-----------------------------------------------------------------------------
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    // Return YES for supported orientations
-    //if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
-    //     return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
-    //else return YES;
-    return NO;
-}
-//-----------------------------------------------------------------------------
 - (void)update
 {
     slResize(svIndex, self.view.bounds.size.width  * screenScale,
@@ -185,11 +192,17 @@ float GetSeconds()
 {
     [self setVideoType:slGetVideoType()];
     
+    if (slUsesLocation())
+         [self startLocationManager];
+    else [self stopLocationManager];
+    
     slUpdateAndPaint(svIndex);
     m_lastVideoImageIsConsumed = true;
     
     if (slShouldClose())
-    {   slTerminate();
+    {
+        AppDemoGui::saveConfig();
+        slTerminate();
         exit(0);
     }
 }
@@ -322,6 +335,7 @@ float GetSeconds()
         didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         fromConnection:(AVCaptureConnection *)connection
 {
+    // Don't copy the available image if the last wasn't consumed
     if (!m_lastVideoImageIsConsumed) return;
         
     CVReturn err;
@@ -361,10 +375,28 @@ float GetSeconds()
 {
     if (slUsesRotation())
     {
-        float pitch = attitude.roll * -1.0f - SL_HALFPI;
-        float yaw   = attitude.yaw;
-        float roll  = attitude.pitch * -1.0f;
-        slRotationPYR(pitch, yaw, roll);
+        if ([[UIDevice currentDevice] orientation] == UIDeviceOrientationLandscapeLeft)
+        {
+            NSLog(@"UIDeviceOrientationLandscapeLeft");
+        }
+        else if ([[UIDevice currentDevice] orientation ]== UIDeviceOrientationLandscapeRight)
+        {
+            float pitch = attitude.roll            - SL_HALFPI;
+            float yaw   = attitude.yaw             - SL_HALFPI;
+            float roll  = attitude.pitch;
+            SL_LOG("Pitch: %3.0f, Yaw: %3.0f, Roll: %3.0f\n",
+                   pitch*SL_RAD2DEG,
+                   yaw*SL_RAD2DEG,
+                   roll*SL_RAD2DEG);
+        }
+        else if([[UIDevice currentDevice] orientation] == UIDeviceOrientationPortrait)
+        {
+            NSLog(@"UIDeviceOrientationPortrait");
+        }
+        else if([[UIDevice currentDevice] orientation] == UIDeviceOrientationPortraitUpsideDown )
+        {
+            NSLog(@"UIDeviceOrientationPortraitUpsideDown");
+        }
     }
 }
 //-----------------------------------------------------------------------------
@@ -437,19 +469,25 @@ float GetSeconds()
 */
 - (void) setVideoType:(int)videoType
 {
-    if (videoType == 0) // VT_NONE (No video needed. Turn off any video)
+    if (videoType == VT_NONE) // No video needed. Turn off any video
     {
         if (m_avSession != nil && ![m_avSession isRunning])
-        {
-            printf("Stopping AV Session\n");
+        {   printf("Stopping AV Session\n");
             [m_avSession stopRunning];
         }
     }
-    else if (videoType == 1) // VT_MAIN (Main video needed)
+    if (videoType == VT_FILE) // Turn off any live video
+    {
+        if (m_avSession != nil && ![m_avSession isRunning])
+        {   printf("Stopping AV Session\n");
+            [m_avSession stopRunning];
+        }
+        SLCVCapture::grabAndAdjustForSL();
+    }
+    else if (videoType == VT_MAIN) // back facing video needed
     {
         if (m_avSession == nil)
-        {
-            printf("Creating AV Session for Front Camera\n");
+        {   printf("Creating AV Session for Front Camera\n");
             [self setupVideo:false];
             printf("Starting AV Session\n");
             [m_avSession startRunning];
@@ -457,16 +495,13 @@ float GetSeconds()
         else if (m_lastVideoType == videoType)
         {
             if (![m_avSession isRunning])
-            {
-                printf("Starting AV Session\n");
+            {   printf("Starting AV Session\n");
                 [m_avSession startRunning];
             }
         }
         else
-        {
-            if ([m_avSession isRunning])
-            {
-                printf("Deleting AV Session\n");
+        {   if ([m_avSession isRunning])
+            {   printf("Deleting AV Session\n");
                 [m_avSession stopRunning];
                 m_avSession = nil;
             }
@@ -476,28 +511,23 @@ float GetSeconds()
             [m_avSession startRunning];
         }
     }
-    else if (videoType == 2) // VT_SCND (Secondary video from selfie camera)
+    else if (videoType == VT_SCND) // Video from selfie camera needed
     {
         if (m_avSession == nil)
-        {
-            printf("Creating AV Session for Back Camera\n");
+        {   printf("Creating AV Session for Back Camera\n");
             [self setupVideo:true];
             printf("Starting AV Session\n");
             [m_avSession startRunning];
         }
         else if (m_lastVideoType == videoType)
-        {
-            if (![m_avSession isRunning])
-            {
-                printf("Starting AV Session\n");
+        {   if (![m_avSession isRunning])
+            {   printf("Starting AV Session\n");
                 [m_avSession startRunning];
             }
         }
         else
-        {
-            if ([m_avSession isRunning])
-            {
-                printf("Deleting AV Session\n");
+        {   if ([m_avSession isRunning])
+            {   printf("Deleting AV Session\n");
                 [m_avSession stopRunning];
                 m_avSession = nil;
             }
@@ -511,54 +541,125 @@ float GetSeconds()
     m_lastVideoType = videoType;
 }
 //-----------------------------------------------------------------------------
-//! Starts the acceleronometer update if the interval time > 0 else it stops
-- (void) setAccelerometerInterval:(double)intervalTimeSEC
-{
-    if ([self.motionManager isAccelerometerAvailable] == YES)
-    {
-        if ([self.motionManager isAccelerometerActive] == NO && intervalTimeSEC > 0)
-        {    self.motionManager.accelerometerUpdateInterval = intervalTimeSEC;
-            [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue]
-                                    withHandler:^(CMAccelerometerData *accelerometerData, NSError *error)
-                                    {   [self onAccelerationData:accelerometerData.acceleration];
-                                        if(error){NSLog(@"%@", error);}
-                                    }
-            ];
-        } else [self.motionManager stopAccelerometerUpdates];
-    }
-}
-//-----------------------------------------------------------------------------
-//! Starts the gyroscope update if the interval time > 0 else it stops
-- (void) setGyroInterval:(double)intervalTimeSEC
-{
-    if ([self.motionManager isGyroAvailable] == YES)
-    {   
-        if ([self.motionManager isGyroActive] == NO && intervalTimeSEC > 0)
-        {    self.motionManager.gyroUpdateInterval = intervalTimeSEC;
-            [self.motionManager startGyroUpdatesToQueue:[NSOperationQueue currentQueue]
-                                    withHandler:^(CMGyroData *gyroData, NSError *error)
-                                    {   [self onGyroData:gyroData.rotationRate];
-                                        if(error){NSLog(@"%@", error);}
-                                    }
-            ];
-        } else [self.motionManager stopGyroUpdates];
-    }
-}
-//-----------------------------------------------------------------------------
 //! Starts the motion data update if the interval time > 0 else it stops
-- (void) setMotionInterval:(double)intervalTimeSEC
+- (void) setupMotionManager:(double)intervalTimeSEC
 {
+    // Init motion manager
+    self.motionManager = [[CMMotionManager alloc] init];
+    
     if ([self.motionManager isDeviceMotionAvailable] == YES)
     {
-        if ([self.motionManager isAccelerometerActive] == NO && intervalTimeSEC > 0)
-        {    self.motionManager.deviceMotionUpdateInterval = intervalTimeSEC;
-            [self.motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue currentQueue]
-                                    withHandler:^(CMDeviceMotion *deviceMotion, NSError *error)
-                                    {   [self onMotionData:deviceMotion.attitude];
-                                        if(error){NSLog(@"%@", error);}
-                                    }
-            ];
-        } else [self.motionManager stopDeviceMotionUpdates];
+        self.motionManager.deviceMotionUpdateInterval = intervalTimeSEC;
+        
+        // See also: https://developer.apple.com/documentation/coremotion/getting_processed_device_motion_data/understanding_reference_frames_and_device_attitude?language=objc
+        [self.motionManager startDeviceMotionUpdatesUsingReferenceFrame:CMAttitudeReferenceFrameXMagneticNorthZVertical
+                                                                toQueue:[NSOperationQueue currentQueue]
+                                                            withHandler: ^(CMDeviceMotion *motion, NSError *error){
+                                                                [self performSelectorOnMainThread:@selector(onDeviceMotionUpdate:)
+                                                                                       withObject:motion waitUntilDone:YES];
+                                                            }];
+    } else [self.motionManager stopDeviceMotionUpdates];
+}
+//-----------------------------------------------------------------------------
+- (void)onDeviceMotionUpdate:(CMDeviceMotion*)motion
+{
+    if (slUsesRotation())
+    {
+        CMDeviceMotion *motionData = self.motionManager.deviceMotion;
+        CMAttitude *attitude = motionData.attitude;
+        
+        //Get sensor rotation as quaternion. This quaternion describes a rotation
+        //relative to NWU-frame
+        //(see: https://developer.apple.com/documentation/coremotion/getting_processed_device_motion_data/understanding_reference_frames_and_device_attitude)
+        CMQuaternion q = attitude.quaternion;
+        
+        //Add rotation of 90 deg. around z-axis to relate the sensor rotation to an ENU-frame (as in Android)
+        GLKQuaternion qNWU    = GLKQuaternionMake(q.x, q.y, q.z, q.w);
+        GLKQuaternion qRot90Z = GLKQuaternionMakeWithAngleAndAxis(GLKMathDegreesToRadians(90), 0, 0, 1);
+        GLKQuaternion qENU    = GLKQuaternionMultiply(qRot90Z, qNWU);
+        
+        // Send quaternion to SLProject
+        slRotationQUAT(qENU.q[0], qENU.q[1], qENU.q[2], qENU.q[3]);
+        
+        // See the following routines how the rotation is used:
+        // SLScene::onRotationQUAT calculates the offset if _zeroYawAtStart is true
+        // SLCamera::setView how the device rotation is processed for the camera's view
+    }
+}
+//-----------------------------------------------------------------------------
+//! Starts the location data update if the interval time > 0 else it stops
+- (void) setupLocationManager
+{
+    if ([CLLocationManager locationServicesEnabled])
+    {
+        // Init location manager
+        self.locationManager = [[CLLocationManager alloc] init];
+        self.locationManager.delegate = self;
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+        //self.locationManager.distanceFilter = 1;
+        
+        // for iOS 8, specific user level permission is required,
+        // "when-in-use" authorization grants access to the user's location.
+        // important: be sure to include NSLocationWhenInUseUsageDescription along with its
+        // explanation string in your Info.plist or startUpdatingLocation will not work
+        if ([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
+            [self.locationManager requestWhenInUseAuthorization];
+        }
+    } else {
+        /* Location services are not enabled.
+         Take appropriate action: for instance, prompt the
+         user to enable the location services */
+        NSLog(@"Location services are not enabled");
+    }
+    
+    m_locationIsRunning = false;
+        
+}
+//-----------------------------------------------------------------------------
+//! Starts the location data update
+- (void) startLocationManager
+{
+    if (!m_locationIsRunning)
+    {
+        [self.locationManager startUpdatingLocation];
+        m_locationIsRunning = true;
+        printf("Starting Location Manager\n");
+    }
+}
+//-----------------------------------------------------------------------------
+//! Stops the location data update
+- (void) stopLocationManager
+{
+    if (m_locationIsRunning)
+    {
+        [self.locationManager stopUpdatingLocation];
+        m_locationIsRunning = false;
+        printf("Stopping Location Manager\n");
+    }
+}
+//-----------------------------------------------------------------------------
+-(void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
+{
+    printf("horizontalAccuracy: %f\n", newLocation.horizontalAccuracy);
+    
+    // negative horizontal accuracy means no location fix
+    if (newLocation.horizontalAccuracy > 0.0)
+    {
+        slLocationLLA(newLocation.coordinate.latitude,
+                      newLocation.coordinate.longitude,
+                      newLocation.altitude,
+                      newLocation.horizontalAccuracy);
+    }
+}
+//-----------------------------------------------------------------------------
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
+    // The location "unknown" error simply means the manager is currently unable to get the location.
+    // We can ignore this error for the scenario of getting a single location fix, because we already have a
+    // timeout that will stop the location manager to save power.
+    //
+    if ([error code] != kCLErrorLocationUnknown) {
+        printf("**** locationManager didFailWithError ****\n");
+        [self stopLocationManager];
     }
 }
 //-----------------------------------------------------------------------------

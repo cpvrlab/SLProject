@@ -11,10 +11,13 @@
 #ifndef SLMAT4_H
 #define SLMAT4_H
 
+#include <assert.h>
 #include <SL.h>
+#include <SLVec3.h>
+#include <SLVec4.h>
 #include <SLMath.h>
 #include <SLMat3.h>
-#include <SLVec4.h>
+//#include <SLVec4.h>
 #include <Shoemake/EulerAngles.h>
 #include <Shoemake/Decompose.h>
 
@@ -53,6 +56,7 @@ class SLMat4
         // Constructors
                     SLMat4      ();                     //!< Sets identity matrix
                     SLMat4      (const SLMat4& A);      //!< Sets mat by other SLMat4
+                    SLMat4      (const SLMat3f& A);     //!< Sets mat by other SLMat3
                     SLMat4      (const T* M);           //!< Sets mat by array
                     SLMat4      (const T M0, const T M4, const T M8,  const T M12,
                                  const T M1, const T M5, const T M9,  const T M13,
@@ -66,6 +70,7 @@ class SLMat4
                                  const T axis_y,
                                  const T axis_z);       //!< Sets rotation matrix
                     SLMat4      (const T scale_xyz);    //!< Sets scaling matrix
+                    SLMat4      (const SLVec3<T>& translationVec); //!< Sets translate matrix
                     SLMat4      (const SLVec3<T>& fromUnitVec,
                                  const SLVec3<T>& toUnitVec); //!< Sets rotation matrix
                     SLMat4      (const SLVec3<T>& translation,
@@ -73,7 +78,8 @@ class SLMat4
                                  const SLVec3<T>& scale); //!< Set matrix by translation, rotation & scale
          
         // Setters
-        void        setMatrix   (const SLMat4& A);      //!< Set matrix by other matrix
+        void        setMatrix   (const SLMat4& A);      //!< Set matrix by other 4x4 matrix
+        void        setMatrix   (const SLMat3f& A);     //!< Set matrix by other 3x3 matrix
         void        setMatrix   (const SLMat4* A);      //!< Set matrix by other matrix pointer
         void        setMatrix   (const T* M);           //!< Set matrix by float[16] array
         void        setMatrix   (T M0, T M4, T M8 , T M12, 
@@ -83,7 +89,8 @@ class SLMat4
         void        setMatrix   (const SLVec3<T>& translation,
                                  const SLMat3<T>& rotation,
                                  const SLVec3<T>& scale);   //!< Set matrix by translation, rotation & scale
-
+        void        setRotation (const SLMat3<T>& rotation); //!< Set 3x3 submatrix describing the rotational part
+        void        setTranslation (const SLVec3<T>& translation); //!< Set vector as submatrix describing the translational part
         // Getters
   const T*          m           () const        {return _m;}
         T           m           (int i) const   {assert(i>=0 && i<16); return _m[i];}
@@ -105,7 +112,6 @@ class SLMat4
         SLMat4<T>&  operator/=  (const T a);               //!< scalar division
         T&          operator    ()(int row, int col)      {return _m[4*col+row];}
   const T&          operator    ()(int row, int col)const {return _m[4*col+row];}
-            
         // Transformation corresponding to the equivalent gl* OpenGL function
         // They all set a transformation that is multiplied onto the matrix
         void        multiply    (const SLMat4& A);
@@ -207,8 +213,9 @@ class SLMat4
          // Misc. methods
          void        identity    ();
          void        transpose   ();
+         SLMat4<T>   transposed  ();
          void        invert      ();
-         SLMat4<T>   inverse     () const;
+         SLMat4<T>   inverted    () const;
          SLMat3<T>   inverseTransposed();
          T           trace       () const;
 
@@ -249,6 +256,11 @@ SLMat4<T>::SLMat4(const SLMat4& A)
 }
 //-----------------------------------------------------------------------------
 template<class T>
+SLMat4<T>::SLMat4(const SLMat3f& A)
+{  setMatrix(A);
+}
+//-----------------------------------------------------------------------------
+template<class T>
 SLMat4<T>::SLMat4(T M0, T M4, T M8,  T M12,
                   T M1, T M5, T M9,  T M13,
                   T M2, T M6, T M10, T M14,
@@ -270,6 +282,12 @@ template<class T>
 SLMat4<T>::SLMat4(const T tx, const T ty, const T tz) 
 {
     translation(tx, ty, tz, false);
+}
+//-----------------------------------------------------------------------------
+template<class T>
+SLMat4<T>::SLMat4(const SLVec3<T>& translationVec)
+{
+    translation(translationVec.x, translationVec.y, translationVec.z, false);
 }
 //-----------------------------------------------------------------------------
 template<class T>
@@ -307,6 +325,15 @@ void SLMat4<T>::setMatrix(const SLMat4& A)
 }
 //-----------------------------------------------------------------------------
 template<class T>
+void SLMat4<T>::setMatrix(const SLMat3f& A)
+{
+    _m[0]=A._m[0]; _m[4]=A._m[3]; _m[ 8]=A._m[6];  _m[12]=0;
+    _m[1]=A._m[1]; _m[5]=A._m[4]; _m[ 9]=A._m[7];  _m[13]=0;
+    _m[2]=A._m[2]; _m[6]=A._m[5]; _m[10]=A._m[8];  _m[14]=0;
+    _m[3]=0;       _m[7]=0;       _m[11]=0;        _m[15]=1;
+}
+//-----------------------------------------------------------------------------
+template<class T>
 void SLMat4<T>::setMatrix(const SLMat4* A)
 {
     for (int i=0; i<16; ++i) _m[i] = A->_m[i];
@@ -339,6 +366,22 @@ void SLMat4<T>::setMatrix(const SLVec3<T>& translation,
               scale.x * rotation[1], scale.y * rotation[4], scale.z * rotation[7], translation.y,
               scale.x * rotation[2], scale.y * rotation[5], scale.z * rotation[8], translation.z,
               0                    , 0                    , 0                    , 1);
+}
+//-----------------------------------------------------------------------------
+template<class T>
+void SLMat4<T>::setRotation (const SLMat3<T>& rotation) //!< Set 3x3 submatrix describing the rotational part
+{
+    _m[0]=rotation[0]; _m[4]=rotation[3]; _m[8]=rotation[6];
+    _m[1]=rotation[1]; _m[5]=rotation[4]; _m[9]=rotation[7];
+    _m[2]=rotation[2]; _m[6]=rotation[5]; _m[10]=rotation[8];
+}
+//-----------------------------------------------------------------------------
+template<class T>
+void SLMat4<T>::setTranslation (const SLVec3<T>& translation) //!< Set vector as submatrix describing the translational part
+{
+    _m[12]=translation.x;
+    _m[13]=translation.y;
+    _m[14]=translation.z;
 }
 //-----------------------------------------------------------------------------
 // Operators
@@ -797,10 +840,10 @@ void SLMat4<T>::frustum(const T l, const T r, const T b, const T t,
 /*!
 This method is equivalent to the OpenGL function gluPerspective except that
 instead of the window aspect the window width and height have to be passed.
-\param fov: Vertical field of view angle (zoom angle)
-\param aspect: aspect ratio of of the viewport = width / height
-\param n: Distance from the eye to near clipping plane of the view frustum.
-\param f: Distance from the eye to far clipping plane of the view frustum.  
+\param fov Vertical field of view angle (zoom angle)
+\param aspect aspect ratio of of the viewport = width / height
+\param n Distance from the eye to near clipping plane of the view frustum.
+\param f Distance from the eye to far clipping plane of the view frustum.
 */
 template<class T>
 void SLMat4<T>::perspective(const T fov, const T aspect, 
@@ -835,12 +878,12 @@ void SLMat4<T>::ortho(const T l, const T r, const T b, const T t,
 //---------------------------------------------------------------------------
 //! Defines a viewport matrix as it is defined by glViewport
 /*!
-\param x: left window coord. in px.
-\param y: top window coord. in px.
-\param ww: window width in px.
-\param wh: window height in px.
-\param n: near depth range (default 0)
-\param f: far depth range (default 1)
+\param x left window coord. in px.
+\param y top window coord. in px.
+\param ww window width in px.
+\param wh window height in px.
+\param n near depth range (default 0)
+\param f far depth range (default 1)
 */
 template<class T>
 void SLMat4<T>::viewport(const T x, const T y, const T ww, const T wh, 
@@ -877,6 +920,7 @@ void SLMat4<T>::translation(const T tx, const T ty, const T tz,
     _m[12]=tx;
     _m[13]=ty;
     _m[14]=tz;
+
     if (!keepLinear)
     {   _m[0]=1; _m[4]=0;  _m[8]=0;
         _m[1]=0; _m[5]=1;  _m[9]=0;  
@@ -1208,16 +1252,27 @@ void SLMat4<T>::transpose()
     swap(_m[11],_m[14]);
 }
 //-----------------------------------------------------------------------------
+//! Returns the transposed of the matrix and leaves the itself unchanged
+template<class T>
+SLMat4<T> SLMat4<T>::transposed()
+{
+    SLMat4<T> t( _m[0], _m[1], _m[2], _m[3],
+                 _m[4], _m[5], _m[6], _m[7],
+                 _m[8], _m[9],_m[10],_m[11],
+                _m[12],_m[13],_m[14],_m[15]);
+    return t;
+}
+//-----------------------------------------------------------------------------
 //! Inverts the matrix
 template<class T>
 void SLMat4<T>::invert()
 {
-    setMatrix(inverse());
+    setMatrix(inverted());
 }
 //-----------------------------------------------------------------------------
 //! Computes the inverse of a 4x4 non-singular matrix.
 template<class T>
-SLMat4<T> SLMat4<T>::inverse() const
+SLMat4<T> SLMat4<T>::inverted() const
 {
     SLMat4<T> i;
    
@@ -1402,10 +1457,10 @@ template<class T>
 void SLMat4<T>::print(const SLchar* str) const
 {
     if (str) SL_LOG("%s\n",str);
-    SL_LOG("% 3.3f % 3.3f % 3.3f % 3.3f\n",  _m[0],_m[4],_m[ 8],_m[12]);
-    SL_LOG("% 3.3f % 3.3f % 3.3f % 3.3f\n",  _m[1],_m[5],_m[ 9],_m[13]);
-    SL_LOG("% 3.3f % 3.3f % 3.3f % 3.3f\n",  _m[2],_m[6],_m[10],_m[14]);
-    SL_LOG("% 3.3f % 3.3f % 3.3f % 3.3f\n",  _m[3],_m[7],_m[11],_m[15]);
+    SL_LOG("% 3.2f % 3.2f % 3.2f % 3.2f\n",  _m[0],_m[4],_m[ 8],_m[12]);
+    SL_LOG("% 3.2f % 3.2f % 3.2f % 3.2f\n",  _m[1],_m[5],_m[ 9],_m[13]);
+    SL_LOG("% 3.2f % 3.2f % 3.2f % 3.2f\n",  _m[2],_m[6],_m[10],_m[14]);
+    SL_LOG("% 3.2f % 3.2f % 3.2f % 3.2f\n",  _m[3],_m[7],_m[11],_m[15]);
 }
 //-----------------------------------------------------------------------------
 /*!

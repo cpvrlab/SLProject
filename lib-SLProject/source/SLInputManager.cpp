@@ -12,20 +12,10 @@
 #ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
 #include <debug_new.h>        // memory leak detector
 #endif
+#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLInputManager.h>
-
-//-----------------------------------------------------------------------------
-//! static instance variable declaration
-SLInputManager SLInputManager::_instance;
-
-//-----------------------------------------------------------------------------
-/*! static accessor to the singleton instance of this class */
-SLInputManager& SLInputManager::instance()
-{
-    return _instance;
-}
 
 //-----------------------------------------------------------------------------
 /*! Sends any queued up system event's to their correct receiver and
@@ -80,13 +70,11 @@ SLbool SLInputManager::processQueuedEvents()
         const SLInputEvent* e = q.front();
         q.pop();
 
-        SLSceneView* sv = SLScene::current->sv(e->svIndex);
+        SLSceneView* sv = SLApplication::scene->sv(e->svIndex);
         
         if (sv)
         {   switch (e->type)
             {
-                case SLInputEvent::Command:             {const SLCommandEvent*   ce = (const SLCommandEvent*)e;     eventConsumed |= sv->onCommand(ce->cmd); } break;
-
                 case SLInputEvent::MouseMove:           {const SLMouseEvent*     me = (const SLMouseEvent*)e;       eventConsumed |= sv->onMouseMove(me->x, me->y); } break;
                 case SLInputEvent::MouseDown:           {const SLMouseEvent*     me = (const SLMouseEvent*)e;       eventConsumed |= sv->onMouseDown(me->button, me->x, me->y, me->modifier); } break;
                 case SLInputEvent::MouseUp:             {const SLMouseEvent*     me = (const SLMouseEvent*)e;       eventConsumed |= sv->onMouseUp(me->button, me->x, me->y, me->modifier); } break;

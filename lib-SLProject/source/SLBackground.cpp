@@ -13,11 +13,16 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLApplication.h>
+#include <SLScene.h>
 #include <SLBackground.h>
 #include <SLGLTexture.h>
 #include <SLGLProgram.h>
-#include <SLScene.h>
 
+//-----------------------------------------------------------------------------
+SLBackground::~SLBackground()
+{
+}
 //-----------------------------------------------------------------------------
 //! The constructor initializes to a uniform black background color
 SLBackground::SLBackground() : SLObject("Background")
@@ -28,12 +33,9 @@ SLBackground::SLBackground() : SLObject("Background")
     _colors.push_back(SLCol4f::BLACK); // top left
     _isUniform  = true;
     _texture = nullptr;
+    _textureError = SLApplication::scene->videoTextureErr();  // Fix for black video error
     _resX = -1;
     _resY = -1;
-}
-//-----------------------------------------------------------------------------
-SLBackground::~SLBackground()
-{
 }
 //-----------------------------------------------------------------------------
 //! Sets a uniform background color
@@ -108,7 +110,7 @@ We render the quad as a triangle strip: <br>
 void SLBackground::render(SLint widthPX, SLint heightPX)
 {
     SLGLState* stateGL = SLGLState::getInstance();
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
 
     // Set orthographic projection
     stateGL->projectionMatrix.ortho(0.0f, (SLfloat)widthPX, 0.0f, (SLfloat)heightPX, 0.0f, 1.0f);
@@ -159,7 +161,11 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
 
     // draw a textured or colored quad
     if(_texture)
-    {   _texture->bindActive(0);
+    {   // if video texture is not ready show error texture
+        if (_texture->texName())
+            _texture->bindActive(0);
+        else
+            _textureError->bindActive(0);
         sp->uniform1i("u_texture0", 0);
     }
 
@@ -183,7 +189,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
 void SLBackground::renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB)
 {
     SLGLState* stateGL = SLGLState::getInstance();
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
 
     // Get shader program
     SLGLProgram* sp = _texture ? s->programs(SP_TextureOnly) : s->programs(SP_colorAttribute);
@@ -218,7 +224,11 @@ void SLBackground::renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB)
 
     // draw a textured or colored quad
     if(_texture)
-    {   _texture->bindActive(0);
+    {   // if video texture is not ready show error texture
+        if (_texture->texName())
+            _texture->bindActive(0);
+        else
+            _textureError->bindActive(0);
         sp->uniform1i("u_texture0", 0);
     }
 

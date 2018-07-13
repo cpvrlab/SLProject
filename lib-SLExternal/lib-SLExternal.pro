@@ -47,7 +47,7 @@ win32 {
 }
 macx {
     # mac only
-    QMAKE_MAC_SDK = macosx10.12
+    QMAKE_MAC_SDK = macosx10.13
     DEFINES += GLEW_STATIC
     DEFINES += _GLFW_COCOA
     DEFINES += _GLFW_NSGL
@@ -89,9 +89,9 @@ INCLUDEPATH += \
     half/include \
     glfw3/src \
     nvwa \
-    randomc \
     zlib \
     imgui \
+    spa \
 
 HEADERS += \
     glew/include/GL/glew.h \
@@ -99,8 +99,6 @@ HEADERS += \
     glfw3/include/GLFW/glfw3native.h \
     glfw3/src/glfw_config.h \
     glfw3/src/internal.h \
-    randomc/randomc.h \
-    randomc/random.h \
     Shoemake/Decompose.h \
     Shoemake/EulerAngles.h \
     Shoemake/TypeDefs.h \
@@ -109,7 +107,8 @@ HEADERS += \
     imgui/imgui.h \
     imgui/stb_rect_pack.h \
     imgui/stb_textedit.h \
-    imgui/stb_truetype.h
+    imgui/stb_truetype.h \
+    spa/spa.h
 
 SOURCES += \
     glew/src/glew.c \
@@ -118,16 +117,11 @@ SOURCES += \
     glfw3/src/input.c \
     glfw3/src/monitor.c \
     glfw3/src/window.c \
-    randomc/sobol.cpp \
-    randomc/ranrotw.cpp \
-    randomc/ranrotb.cpp \
-    randomc/random.cpp \
-    randomc/mother.cpp \
-    randomc/mersenne.cpp \
     Shoemake/EulerAngles.cpp \
     Shoemake/Decompose.cpp \
     imgui/imgui_draw.cpp \
-    imgui/imgui.cpp
+    imgui/imgui.cpp \
+    spa/spa.cpp
 
 macx {
 #Mac OSX only --------------------------------------

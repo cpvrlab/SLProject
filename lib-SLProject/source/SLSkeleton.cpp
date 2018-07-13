@@ -12,17 +12,21 @@
 #ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
 #include <debug_new.h>        // memory leak detector
 #endif
-#include <SLSkeleton.h>
+
+#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
+#include <SLSkeleton.h>
 
 //-----------------------------------------------------------------------------
 /*! Constructor
 */
-SLSkeleton::SLSkeleton()
-: _minOS(-1, -1, -1), _maxOS(1, 1, 1), _minMaxOutOfDate(true)
+SLSkeleton::SLSkeleton() : _minOS(-1, -1, -1),
+                           _maxOS(1, 1, 1),
+                           _minMaxOutOfDate(true),
+                           _rootJoint(nullptr)
 {
-    SLScene::current->animManager().addSkeleton(this);
+    SLApplication::scene->animManager().addSkeleton(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -30,7 +34,7 @@ SLSkeleton::SLSkeleton()
 */
 SLSkeleton::~SLSkeleton()
 {
-    delete _root;
+    delete _rootJoint;
     for (auto it : _animations) delete it.second;
     for (auto it : _animPlaybacks) delete it.second;
 }
@@ -89,8 +93,8 @@ SLJoint* SLSkeleton::getJoint(SLuint id)
 */
 SLJoint* SLSkeleton::getJoint(const SLstring& name)
 {
-    if (!_root) return nullptr;
-    SLJoint* result = _root->find<SLJoint>(name);
+    if (!_rootJoint) return nullptr;
+    SLJoint* result = _rootJoint->find<SLJoint>(name);
     return result;
 }
 
@@ -103,15 +107,6 @@ void SLSkeleton::getJointMatrices(SLVMat4f& jointWM)
     {
         jointWM[i] = _joints[i]->updateAndGetWM() * _joints[i]->offsetMat();
     }
-}
-
-//-----------------------------------------------------------------------------
-/*! Setter for the root joint of this skeleton.
-*/
-void SLSkeleton::root(SLJoint* joint)
-{
-    if (_root)
-        _root = joint;
 }
 
 //-----------------------------------------------------------------------------
@@ -129,7 +124,7 @@ SLAnimation* SLSkeleton::createAnimation(const SLstring& name, SLfloat duration)
     _animPlaybacks[name] = play;
 
     // Add node animation to the combined vector
-    SLAnimManager& aniMan = SLScene::current->animManager();
+    SLAnimManager& aniMan = SLApplication::scene->animManager();
     aniMan.allAnimNames().push_back(name);
     aniMan.allAnimPlaybacks().push_back(play);
 

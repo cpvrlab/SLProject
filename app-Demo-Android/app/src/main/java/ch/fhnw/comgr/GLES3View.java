@@ -18,10 +18,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.egl.EGLContext;
-import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
 
 public class GLES3View extends GLSurfaceView
@@ -30,7 +27,8 @@ public class GLES3View extends GLSurfaceView
     private static final boolean DEBUG = false;
     private static final int VT_NONE = 0;
     private static final int VT_MAIN = 1;
-    private static final int VT_SECOND = 2;
+    private static final int VT_SCND = 2;
+    private static final int VT_FILE = 3;
 
     public GLES3View(Context context)
     {
@@ -48,11 +46,10 @@ public class GLES3View extends GLSurfaceView
         setRenderer(new Renderer());
 
         // From Android r15
-        //setPreserveEGLContextOnPause(true);
+        setPreserveEGLContextOnPause(true);
 
         // Render only when needed. Without this it would render continuously with lots of power consumption
         setRenderMode(RENDERMODE_WHEN_DIRTY);
-
     }
 
     /**
@@ -88,8 +85,9 @@ public class GLES3View extends GLSurfaceView
             int videoType = GLES3Lib.getVideoType();
             int sizeIndex = GLES3Lib.getVideoSizeIndex();
             boolean usesRotation = GLES3Lib.usesRotation();
+            boolean usesLocation = GLES3Lib.usesLocation();
 
-            if (videoType!=VT_NONE)
+            if (videoType==VT_MAIN || videoType==VT_SCND)
                  mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStart(videoType, sizeIndex);}});
             else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStop();}});
 
@@ -97,11 +95,24 @@ public class GLES3View extends GLSurfaceView
                  mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.rotationSensorStart();}});
             else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.rotationSensorStop();}});
 
-            if (GLES3Lib.onUpdateAndPaint())
+            if (usesLocation)
+                 mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.locationSensorStart();}});
+            else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.locationSensorStop();}});
+
+            if (videoType==VT_FILE)
+                GLES3Lib.grabVideoFileFrame();
+
+            ////////////////////////////////////////////////
+            Boolean doRepaint = GLES3Lib.onUpdateAndPaint();
+            ////////////////////////////////////////////////
+
+            // Only request new rendering for non-live video
+            // For live video the camera service will call requestRenderer
+            if (doRepaint && (videoType==VT_NONE || videoType==VT_FILE))
                 GLES3Lib.view.requestRender();
 
-            if (GLES3Lib.shouldClose())
-                GLES3Lib.onClose();
+            if (videoType!=VT_NONE)
+                GLES3Lib.lastVideoImageIsConsumed = true;
         }
     }
 }

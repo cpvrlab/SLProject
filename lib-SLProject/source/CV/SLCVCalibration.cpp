@@ -11,13 +11,15 @@
 #include <stdafx.h>         // precompiled headers
 
 /*
-The OpenCV library version 3.1 or above with extra module must be present.
+The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
 See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
+
+#include <SLApplication.h>
 #include <SLCVCalibration.h>
 #include <SLCVCapture.h>
 
@@ -72,7 +74,7 @@ bool SLCVCalibration::load(SLstring calibFileName,
     _isMirroredV = mirrorVertically;
 
     //load camera parameter
-    SLstring fullPathAndFilename = SL::configPath + _calibFileName;
+    SLstring fullPathAndFilename = SLApplication::configPath + _calibFileName;
     FileStorage fs(fullPathAndFilename, FileStorage::READ);
 
     if (!fs.isOpened())
@@ -142,7 +144,7 @@ bool SLCVCalibration::load(SLstring calibFileName,
 //! Saves the camera calibration parameters to the config file
 void SLCVCalibration::save()
 {
-    SLstring fullPathAndFilename = SL::configPath + _calibFileName;
+    SLstring fullPathAndFilename = SLApplication::configPath + _calibFileName;
 
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 
@@ -278,6 +280,11 @@ bool SLCVCalibration::findChessboard(SLCVMat imageColor,
     assert(_boardSize.width && _boardSize.height && 
            "SLCVCalibration::findChessboard: _boardSize is not set!");
 
+    //debug save image
+    //stringstream ss;
+    //ss << "imageIn_" << _numCaptured << ".png";
+    //cv::imwrite(ss.str(), imageColor);
+
     _imageSize = imageColor.size();
 
     SLCVVPoint2f corners2D;
@@ -305,11 +312,6 @@ bool SLCVCalibration::findChessboard(SLCVMat imageColor,
                          TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 
                          30, 
                          0.1));
-
-        //debug save image
-        //stringstream ss;
-        //ss << "imageIn_" << _numCaptured << ".png";
-        //cv::imwrite(ss.str(), image);
 
         //add detected points
         _imagePoints.push_back(corners2D);

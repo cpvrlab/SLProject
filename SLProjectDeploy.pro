@@ -19,7 +19,6 @@ textures.files = \
   ../_data/images/textures/Checkerboard0512_C.png \
   ../_data/images/textures/Chess0256_C.bmp \
   ../_data/images/textures/CompileError.png \
-  ../_data/images/textures/cursor.png \
   ../_data/images/textures/earth1024_C.jpg \
   ../_data/images/textures/earth1024_G.jpg \
   ../_data/images/textures/earth1024_H.jpg \
@@ -53,6 +52,12 @@ textures.files = \
   ../_data/images/textures/rusty-metal_2048N.png \
   ../_data/images/textures/rusty-metal_2048M.png \
   ../_data/images/textures/rusty-metal_2048R.png \
+  ../_data/images/textures/Desert+X1024_C.jpg \
+  ../_data/images/textures/Desert-X1024_C.jpg \
+  ../_data/images/textures/Desert+Y1024_C.jpg \
+  ../_data/images/textures/Desert-Y1024_C.jpg \
+  ../_data/images/textures/Desert+Z1024_C.jpg \
+  ../_data/images/textures/Desert-Z1024_C.jpg \
   ../_data/images/textures/Testmap_0512_C.png \
   ../_data/images/textures/tile1_0256_C.jpg \
   ../_data/images/textures/tree1_1024_C.png \
@@ -274,6 +279,9 @@ textures.files = \
   ../_data/images/textures/i0205_0000b.png \
   ../_data/images/textures/i0206_0000b.png \
 
+videos.files =  \
+  ../_data/videos/street3.mp4 \
+
 fonts.files =  \
   ../_data/images/fonts/Font07.png \
   ../_data/images/fonts/Font08.png \
@@ -297,6 +305,7 @@ shaders.files = \
   ../_data/shaders/Color.frag \
   ../_data/shaders/ColorAttribute.vert \
   ../_data/shaders/ColorUniform.vert \
+  ../_data/shaders/ColorUniformPoint.vert \
   ../_data/shaders/Diffuse.frag \
   ../_data/shaders/Diffuse.vert \
   ../_data/shaders/Earth.frag \
@@ -331,6 +340,8 @@ shaders.files = \
   ../_data/shaders/SceneOculus.vert \
   ../_data/shaders/ShadowMapping.frag \
   ../_data/shaders/ShadowMapping.vert \
+  ../_data/shaders/SkyBox.frag \
+  ../_data/shaders/SkyBox.vert \
   ../_data/shaders/StereoOculus.frag \
   ../_data/shaders/StereoOculus.vert \
   ../_data/shaders/StereoOculusDistortionMesh.frag \
@@ -391,17 +402,31 @@ models_FBX_Duck.files = \
 models_FBX_Axes.files = \
   ../_data/models/FBX/Axes/axes_blender.fbx \
 
-models_OBJ_Christoffelturm.files = \
-  ../_data/models/Wavefront-OBJ/Christoffelturm/christoffelturm.obj \
-  ../_data/models/Wavefront-OBJ/Christoffelturm/christoffelturm.mtl \
-  ../_data/models/Wavefront-OBJ/Christoffelturm/texture1.jpg \
-  ../_data/models/Wavefront-OBJ/Christoffelturm/texture2.jpg \
-  ../_data/models/Wavefront-OBJ/Christoffelturm/shadow.png \
+models_FBX_Suzanne.files = \
+  ../_data/models/FBX/Suzanne/Suzanne.fbx \
+
+models_FBX_Teapot.files = \
+  ../_data/models/FBX/Teapot/Teapot.fbx \
+
+models_FBX_Christoffel.files = \
+  ../_data/models/FBX/Christoffel/Bern-Bahnhofsplatz.fbx \
+  ../_data/models/FBX/Christoffel/Christoffel.jpg \
+  ../_data/models/FBX/Christoffel/Holz1.jpg \
+  ../_data/models/FBX/Christoffel/texture1.jpg \
+  ../_data/models/FBX/Christoffel/texture2.jpg \
+  ../_data/models/FBX/Christoffel/Sandstein1.png \
+  ../_data/models/FBX/Christoffel/Ziegel1.png \
+
+models_FBX.files = \
+  ../_data/models/FBX/Sunglasses.fbx \
 
 calibrations.files = \
   ../_data/calibrations/calib_in_params.yml \
   ../_data/calibrations/aruco_detector_params.yml \
-
+  ../_data/calibrations/lbfmodel.yaml \
+  ../_data/calibrations/haarcascade_frontalface_alt.xml \
+  ../_data/calibrations/haarcascade_frontalface_alt2.xml \
+  ../_data/calibrations/haarcascade_frontalface_default.xml \
 
 # Copies the given files to the destination directory
 defineTest(copyToDestdir) {
@@ -417,50 +442,59 @@ defineTest(copyToDestdir) {
 
 # OpenCV
 win32 {
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_core320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgproc320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgcodecs320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_video320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_videoio320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_aruco320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_features2d320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_xfeatures2d320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_calib3d320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_highgui320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_flann320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_aruco340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_calib3d340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_core340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_features2d340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_highgui340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_face340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_ffmpeg340_64.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgproc340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgcodecs340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_objdetect340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_video340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_videoio340.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_xfeatures2d340.dll)
 }
 macx {
     cvlibs.files += \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.2.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_core.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.2.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.2.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_video.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.2.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.2.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.2.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_face.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_face.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_face.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.4.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.2.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.2.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.2.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.dylib
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.4.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.4.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.dylib
 }
 unix:!macx:!android {
     # linux only
@@ -469,6 +503,7 @@ unix:!macx:!android {
 # Deployment
 macx: {
     textures.path = Contents/_data/images/textures
+    videos.path = Contents/_data/videos
     fonts.path = Contents/_data/images/fonts
     shaders.path = Contents/_data/shaders
     models_3DS_Halloween.path = Contents/_data/models/3DS/Halloween
@@ -479,11 +514,15 @@ macx: {
     models_DAE_Crate.path = Contents/_data/models/DAE/Crate
     models_FBX_Duck.path = Contents/_data/models/FBX/Duck
     models_FBX_Axes.path = Contents/_data/models/FBX/Axes
-    models_OBJ_Christoffelturm.path = Contents/_data/models/Wavefront-OBJ/Christoffelturm
+    models_FBX_Suzanne.path = Contents/_data/models/FBX/Suzanne
+    models_FBX_Teapot.path = Contents/_data/models/FBX/Teapot
+    models_FBX_Christoffel.path = Contents/_data/models/FBX/Christoffel
+    models_FBX.path = Contents/_data/models/FBX
     calibrations.path = Contents/_data/calibrations
     cvlibs.path = Contents/Frameworks
 
     QMAKE_BUNDLE_DATA += textures
+    QMAKE_BUNDLE_DATA += videos
     QMAKE_BUNDLE_DATA += fonts
     QMAKE_BUNDLE_DATA += shaders
     QMAKE_BUNDLE_DATA += models_3DS_Halloween
@@ -494,8 +533,12 @@ macx: {
     QMAKE_BUNDLE_DATA += models_DAE_Crate
     QMAKE_BUNDLE_DATA += models_FBX_Duck
     QMAKE_BUNDLE_DATA += models_FBX_Axes
-    QMAKE_BUNDLE_DATA += models_OBJ_Christoffelturm
+    QMAKE_BUNDLE_DATA += models_FBX_Suzanne
+    QMAKE_BUNDLE_DATA += models_FBX_Teapot
+    QMAKE_BUNDLE_DATA += models_FBX_Christoffel
+    QMAKE_BUNDLE_DATA += models_FBX
     QMAKE_BUNDLE_DATA += calibrations
+    QMAKE_BUNDLE_DATA += haarcascades
     QMAKE_BUNDLE_DATA += cvlibs
 
     macx {ICON = ../lib-SLProject/SLProject-Icon.icns}

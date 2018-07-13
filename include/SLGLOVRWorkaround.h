@@ -12,9 +12,9 @@
 #ifndef SLOVRWORKAROUND_H
 #define SLOVRWORKAROUND_H
 
-#include <stdafx.h>
-#include <SLGLOculus.h>
+#include <SLApplication.h>
 #include <SLScene.h>
+#include <SLGLOculus.h>
 #include <SLGLVertexArray.h>
 
 //-------------------------------------------------------------------------------------
@@ -1153,10 +1153,14 @@ void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
         distortion.LensCenter.x *= -1;
     }
 
-    createSLDistortionMesh((DistortionMeshVertexData**)&vertexData, (uint16_t**)&indexData, 
-                           &vertexCount, &triangleCount,
+    createSLDistortionMesh((DistortionMeshVertexData**)&vertexData,
+                           (uint16_t**)&indexData,
+                           &vertexCount,
+                           &triangleCount,
                            rightEye,
-                           hmdri, distortion, eyeToSourceNDC);
+                           hmdri,
+                           distortion,
+                           eyeToSourceNDC);
 
     SLuint indexCount = triangleCount * 3;
 
@@ -1187,7 +1191,7 @@ void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
     for (SLuint i = 0; i < indexCount; i++)
         tempIndex.push_back(indexData[i]);
 
-    SLGLProgram* sp = SLScene::current->programs(SP_stereoOculusDistortion);
+    SLGLProgram* sp = SLApplication::scene->programs(SP_stereoOculusDistortion);
     sp->useProgram();
 
     // set attributes with all the same data pointer to the interleaved array

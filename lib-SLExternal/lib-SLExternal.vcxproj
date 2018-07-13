@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -23,29 +23,30 @@
     <RootNamespace>lib-SLExternal</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>lib-SLExternal</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -101,7 +102,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;ktx/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;ktx/include;spa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>KTX_OPENGL;_GLFW_USE_OPENGL;_GLFW_WIN32;_GLFW_WGL;GLEW_STATIC;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -143,7 +144,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;ktx/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;ktx/include;spa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>KTX_OPENGL;_GLFW_USE_OPENGL;_GLFW_WIN32;_GLFW_WGL;GLEW_STATIC;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -159,6 +160,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX64</TargetMachine>
       <AdditionalDependencies>Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -188,15 +190,9 @@
     <ClCompile Include="ktx\lib\loader.c" />
     <ClCompile Include="ktx\lib\swap.c" />
     <ClCompile Include="ktx\lib\writer.c" />
-    <ClCompile Include="randomc\mersenne.cpp" />
-    <ClCompile Include="randomc\mother.cpp" />
-    <ClCompile Include="randomc\rancombi.cpp" />
-    <ClCompile Include="randomc\random.cpp" />
-    <ClCompile Include="randomc\ranrotb.cpp" />
-    <ClCompile Include="randomc\ranrotw.cpp" />
-    <ClCompile Include="randomc\sobol.cpp" />
     <ClCompile Include="Shoemake\Decompose.cpp" />
     <ClCompile Include="Shoemake\EulerAngles.cpp" />
+    <ClCompile Include="spa\spa.cpp" />
     <ClCompile Include="zlib\adler32.c" />
     <ClCompile Include="zlib\compress.c" />
     <ClCompile Include="zlib\crc32.c" />
@@ -243,11 +239,10 @@
     <ClInclude Include="ktx\lib\ktxmemstream.h" />
     <ClInclude Include="ktx\lib\ktxstream.h" />
     <ClInclude Include="ktx\lib\uthash.h" />
-    <ClInclude Include="randomc\random.h" />
-    <ClInclude Include="randomc\randomc.h" />
     <ClInclude Include="Shoemake\Decompose.h" />
     <ClInclude Include="Shoemake\EulerAngles.h" />
     <ClInclude Include="Shoemake\TypeDefs.h" />
+    <ClInclude Include="spa\spa.h" />
     <ClInclude Include="zlib\crc32.h" />
     <ClInclude Include="zlib\crypt.h" />
     <ClInclude Include="zlib\deflate.h" />
@@ -263,11 +258,6 @@
     <ClInclude Include="zlib\zconf.in.h" />
     <ClInclude Include="zlib\zlib.h" />
     <ClInclude Include="zlib\zutil.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="randomc\RANDOMC.HTM">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="glew\build\glew.rc" />

@@ -39,7 +39,7 @@ void SLCoordAxis::buildMesh()
     
     //Set one default material index
     //In SLMesh::init this will be set automatically to SLMaterial::diffuseAttrib
-    mat = nullptr;
+    mat(nullptr);
     
     SLint i=0, v1=0, v2=0, v3=0, v4=0;
     SLfloat t = _arrowThickness * 0.5f;

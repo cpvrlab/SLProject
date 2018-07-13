@@ -12,8 +12,8 @@
 #define SLVEC4_H
 
 #include <SL.h>
+#include <SLVec2.h>
 #include <SLVec3.h>
-#include <SLUtils.h>
 
 //-----------------------------------------------------------------------------
 //! 4D vector template class for standard 4D vector algebra.
@@ -54,10 +54,16 @@ class SLVec4
             void    set         (const SLVec3<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=1;}
             void    set         (const SLVec4<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=v.w;}
 
-    inline SLint    operator == (const SLVec4& v) const {return (x==v.x && y==v.y && z==v.z && w==v.w);}
-    inline SLint    operator != (const SLVec4& v) const {return (x!=v.x || y!=v.y || z!=v.z || w!=v.w);}
-    inline SLint    operator <= (const SLVec4& v) const {return (x<=v.x && y<=v.y && z<=v.z && w<=v.w);}
-    inline SLint    operator >= (const SLVec4& v) const {return (x>=v.x && y>=v.y && z>=v.z && w>=v.w);}
+    inline SLbool   operator == (const SLVec4& v) const {return (x==v.x && y==v.y && z==v.z && w==v.w);}
+    inline SLbool   operator != (const SLVec4& v) const {return (x!=v.x || y!=v.y || z!=v.z || w!=v.w);}
+    inline SLbool   operator <= (const SLVec4& v) const {return (x<=v.x && y<=v.y && z<=v.z && w<=v.w);}
+    inline SLbool   operator >= (const SLVec4& v) const {return (x>=v.x && y>=v.y && z>=v.z && w>=v.w);}
+    inline SLbool   operator <  (const SLVec4& v) const {return (x<v.x && y<v.y && z<v.z && w<v.w);}
+    inline SLbool   operator >  (const SLVec4& v) const {return (x>v.x && y>v.y && z>v.z && w>v.w);}
+    inline SLbool   operator <= (const T v)       const {return (x<=v && y<=v && z<=v && w<=v);}
+    inline SLbool   operator >= (const T v)       const {return (x>=v && y>=v && z>=v && w>=v);}
+    inline SLbool   operator <  (const T v)       const {return (x<v  && y<v  && z<v  && w<v);}
+    inline SLbool   operator >  (const T v)       const {return (x>v  && y>v  && z>v  && w>v);}
    
    
     // Operators with temp. allocation

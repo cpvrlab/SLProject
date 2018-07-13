@@ -1,30 +1,31 @@
 //#############################################################################
 //  File:      SLCVTrackedChessboard.cpp
-//  Author:    Michael G�ttlicher, Marcus Hudritsch
+//  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch, Michael G�ttlicher
+//  Copyright: Marcus Hudritsch, Michael Goettlicher
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 #include <stdafx.h>         // precompiled headers
 
-/* 
-The OpenCV library version 3.1 with extra module must be present.
+/*
+The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
 See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
+#include <SLApplication.h>
 #include <SLCVTrackedChessboard.h>
 
 using namespace cv;
 //-----------------------------------------------------------------------------
 SLCVTrackedChessboard::SLCVTrackedChessboard(SLNode* node) : SLCVTracked(node)
 {
-    SLCVCalibration* calib = SLScene::current->activeCalib();
+    SLCVCalibration* calib = SLApplication::activeCalib;
     SLCVCalibration::calcBoardCorners3D(calib->boardSize(),
                                         calib->boardSquareM(),
                                         _boardPoints3D);
@@ -49,7 +50,7 @@ bool SLCVTrackedChessboard::track(SLCVMat imageGray,
     // Detect //
     ////////////
 
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     SLfloat startMS = s->timeMilliSec();
 
     //detect chessboard corners
@@ -99,7 +100,7 @@ bool SLCVTrackedChessboard::track(SLCVMat imageGray,
             // set the object matrix depending if the
             // tracked node is attached to a camera or not
             if (typeid(*_node)==typeid(SLCamera))
-                _node->om(_objectViewMat.inverse());
+                _node->om(_objectViewMat.inverted());
             else
             {   
 				_node->om(calcObjectMatrix(sv->camera()->om(), _objectViewMat));

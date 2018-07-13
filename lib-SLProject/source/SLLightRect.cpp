@@ -13,11 +13,12 @@
 #include <nvwa/debug_new.h>   // memory leak detector
 #endif
 
+#include <SLApplication.h>
+#include <SLScene.h>
+#include <SLSceneView.h>
 #include <SLLightRect.h>
 #include <SLPolygon.h>
 #include <SLRay.h>
-#include <SLScene.h>
-#include <SLSceneView.h>
 
 extern SLfloat rnd01();
 
@@ -54,23 +55,23 @@ emissive mat.
 void SLLightRect::init()
 {  
     // Check if OpenGL lights are available
-    if (SLScene::current->lights().size() >= SL_MAX_LIGHTS) 
+    if (SLApplication::scene->lights().size() >= SL_MAX_LIGHTS)
         SL_EXIT_MSG("Max. NO. of lights is exceeded!");
 
     // Add the light to the lights vector of the scene
     if (_id==-1)
-    {   _id = (SLint)SLScene::current->lights().size();
-        SLScene::current->lights().push_back(this);
+    {   _id = (SLint)SLApplication::scene->lights().size();
+        SLApplication::scene->lights().push_back(this);
     }
    
     // Set the OpenGL light states
     setState();
-    _stateGL->numLightsUsed = (SLint)SLScene::current->lights().size();
+    _stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
    
     // Set emissive light material to the lights diffuse color
     if (_meshes.size() > 0)
-        if (_meshes[0]->mat)
-            _meshes[0]->mat->emissive(_isOn ? diffuse() : SLCol4f::BLACK);   
+        if (_meshes[0]->mat())
+            _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -83,12 +84,12 @@ void SLLightRect::drawRec(SLSceneView* sv)
     {  
         // Set the OpenGL light states
         setState();
-        _stateGL->numLightsUsed = (SLint)SLScene::current->lights().size();
+        _stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
    
         // Set emissive light material to the lights diffuse color
         if (_meshes.size() > 0)
-            if (_meshes[0]->mat)
-                _meshes[0]->mat->emissive(_isOn ? diffuse() : SLCol4f::BLACK);   
+            if (_meshes[0]->mat())
+                _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
    
         // now draw the inherited object
         SLNode::drawRec(sv);
@@ -127,12 +128,12 @@ void SLLightRect::drawMeshes(SLSceneView* sv)
     {  
         // Set the OpenGL light states
         setState();
-        _stateGL->numLightsUsed = (SLint)SLScene::current->lights().size();
+        _stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
    
         // Set emissive light material to the lights diffuse color
         if (_meshes.size() > 0)
-        {   if (_meshes[0]->mat)
-            _meshes[0]->mat->emissive(_isOn ? diffuse() : SLCol4f::BLACK);   
+        {   if (_meshes[0]->mat())
+                _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);   
         }
    
         // now draw the meshes of the node
@@ -154,7 +155,7 @@ SLfloat SLLightRect::shadowTest(SLRay* ray, // ray of hit point
         // define shadow ray
         SLRay shadowRay(lightDist, L, ray);
             
-        SLScene::current->root3D()->hitRec(&shadowRay);
+        SLApplication::scene->root3D()->hitRec(&shadowRay);
 
         return (shadowRay.length < lightDist) ? 0.0f : 1.0f;
     } 
@@ -208,7 +209,7 @@ SLfloat SLLightRect::shadowTest(SLRay* ray, // ray of hit point
                 SP.normalize();
                 SLRay shadowRay(SPDist, SP, ray);
 
-                SLScene::current->root3D()->hitRec(&shadowRay);
+                SLApplication::scene->root3D()->hitRec(&shadowRay);
             
                 if (shadowRay.length >= SPDist-FLT_EPSILON) 
                     lighted += invSamples; // sum up the light
@@ -230,7 +231,7 @@ SLfloat SLLightRect::shadowTest(SLRay* ray, // ray of hit point
                         SP.normalize();
                         SLRay shadowRay(SPDist, SP, ray);
 
-                        SLScene::current->root3D()->hitRec(&shadowRay);
+                        SLApplication::scene->root3D()->hitRec(&shadowRay);
                   
                         // sum up the light
                         if (shadowRay.length >= SPDist-FLT_EPSILON) 
@@ -245,32 +246,31 @@ SLfloat SLLightRect::shadowTest(SLRay* ray, // ray of hit point
 
 //-----------------------------------------------------------------------------
 /*!
-SLLightRect::shadowTest returns 0.0 if the hit point is completely shaded and
-1.0 if it is 100% lighted. A return value in between is calculate by the ratio
-of the shadow rays not blocked to the total number of casted shadow rays.
+SLLightRect::shadowTestMC returns 0.0 if the hit point is shaded and 1.0 if it
+lighted. Only one shadow sample is tested for path tracing.
 */
 
 SLfloat SLLightRect::shadowTestMC(SLRay* ray, // ray of hit point
                                   const SLVec3f& L, // vector from hit point to light
                                   const SLfloat lightDist) // distance to light
-{
-    SLVec3f SP; // vector hit point to sample point in world coords
+{   SLfloat rndX = rnd01();
+    SLfloat rndY = rnd01();
+ 
+    // Sample point in object space
+    SLVec3f spOS(SLVec3f(rndX*_width  - _width *0.5f,
+                         rndY*_height - _height*0.5f,
+                         0.0f));
 
-    SLfloat randX = rnd01();
-    SLfloat randY = rnd01();
+    // Sample point in world space
+    SLVec3f spWS(updateAndGetWM().multVec(spOS) - ray->hitPoint);
+    
+    SLfloat spDistWS = spWS.length();
+    spWS.normalize();
+    SLRay shadowRay(spDistWS, spWS, ray);
 
-    // choose random point on rect as sample
-    SP.set(updateAndGetWM().multVec(SLVec3f((randX*_width)-(_width*0.5f), (randY*_height)-(_height*0.5f), 0)) - ray->hitPoint);
-    SLfloat SPDist = SP.length();
-    SP.normalize();
-    SLRay shadowRay(SPDist, SP, ray);
+    SLApplication::scene->root3D()->hitRec(&shadowRay);
 
-    SLScene::current->root3D()->hitRec(&shadowRay);
-
-    if (shadowRay.length >= SPDist - FLT_EPSILON)
-        return 1.0f;
-    else
-        return 0.0f;
+    return (shadowRay.length < spDistWS) ? 0.0f : 1.0f;
 }
 
 //-----------------------------------------------------------------------------

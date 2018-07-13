@@ -12,6 +12,7 @@
 #ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
 #include <debug_new.h>        // memory leak detector
 #endif
+#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLCurveBezier.h>
 
@@ -185,8 +186,8 @@ SLAnimation* SLAnimation::create(const SLstring& name,
                                  SLEasingCurve easing,
                                  SLAnimLooping looping)
 {
-    SLAnimation* anim = SLScene::current->animManager().createNodeAnimation(name, duration);
-    SLAnimPlayback* playback = SLScene::current->animManager().nodeAnimPlayback(anim->name());
+    SLAnimation* anim = SLApplication::scene->animManager().createNodeAnimation(name, duration);
+    SLAnimPlayback* playback = SLApplication::scene->animManager().nodeAnimPlayback(anim->name());
     playback->enabled(enabled);
     playback->easing(easing);
     playback->loop(looping);

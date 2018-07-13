@@ -12,12 +12,14 @@
 #ifndef SLGLPROGRAM_H
 #define SLGLPROGRAM_H
 
-#include <stdafx.h>
-#include "SLGLUniform.h"
+#include <map>
+#include <SLObject.h>
+#include <SLGLUniform.h>
 
 class SLGLShader;
 class SLScene;
 class SLMaterial;
+class SLGLState;
 
 //-----------------------------------------------------------------------------
 //! STL vector type for SLGLShader pointers

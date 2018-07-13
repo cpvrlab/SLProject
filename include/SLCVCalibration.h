@@ -12,7 +12,7 @@
 #define SLCVCALIBRATION_H
 
 /*
-The OpenCV library version 3.1 or above with extra module must be present.
+The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
@@ -20,9 +20,11 @@ See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 
-#include <stdafx.h>
+#include <SL.h>
+#include <SLEnums.h>
 #include <SLCV.h>
 #include <SLCVCalibration.h>
+
 using namespace std;
 
 //-----------------------------------------------------------------------------
@@ -91,8 +93,8 @@ public:
                                              SLCVVPoint3f& objectPoints3D);
     // Setters
     void            state                   (SLCVCalibState s) {_state = s;}
-    void            toggleMirrorH           () {clear(); _isMirroredH = !_isMirroredH;}
-    void            toggleMirrorV           () {clear(); _isMirroredV = !_isMirroredV;}
+    void            toggleMirrorH           () {clear(); _isMirroredH = !_isMirroredH; save();}
+    void            toggleMirrorV           () {clear(); _isMirroredV = !_isMirroredV; save();}
     void            toggleFixPrincipalPoint () {clear(); _calibFixPrincipalPoint = !_calibFixPrincipalPoint;}
     void            toggleFixAspectRatio    () {clear(); _calibFixAspectRatio = !_calibFixAspectRatio;}
     void            toggleZeroTangentDist   () {clear(); _calibZeroTangentDist = !_calibZeroTangentDist;}

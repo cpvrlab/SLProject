@@ -51,7 +51,8 @@ class SLQuat4
         SLMat4<T>   toMat4          () const;
         SLVec4<T>   toVec4          () const;
         void        toAngleAxis     (T& angleDEG, SLVec3<T>& axis) const;
-        void        toEulerAngles   (T& pitchRAD, T& yawRAD, T& rollRAD) const;
+        void        toEulerAnglesXYZ(T& rollRAD, T& pitchRAD, T& yawRAD) const;
+        void        toEulerAnglesZYX(T& rollRAD, T& pitchRAD, T& yawRAD) const;
       
         T           dot             (const SLQuat4<T>& q) const;
         T           length          () const;
@@ -381,7 +382,7 @@ void SLQuat4<T>::toAngleAxis (T& angleDEG, SLVec3<T>& axis) const
 }
 //-----------------------------------------------------------------------------
 template <typename T>
-void SLQuat4<T>::toEulerAngles (T& pitchRAD, T& yawRAD, T& rollRAD) const
+void SLQuat4<T>::toEulerAnglesZYX(T& rollRAD, T& pitchRAD, T& yawRAD) const
 {
     // roll (x-axis rotation)
     double sinr = +2.0 * (_w * _x + _y * _z);
@@ -400,7 +401,27 @@ void SLQuat4<T>::toEulerAngles (T& pitchRAD, T& yawRAD, T& rollRAD) const
     double cosy = +1.0 - 2.0 * (_y*_y + _z*_z);
     yawRAD = atan2(siny, cosy);
 }
+//-----------------------------------------------------------------------------
+template <typename T>
+void SLQuat4<T>::toEulerAnglesXYZ(T& rollRAD, T& pitchRAD, T& yawRAD) const
+{
+    // yaw (z-axis rotation)
+    double siny = (T)2 * ( _x * _y - _w * _z );
+    double cosy = 1 - (T)2 * (_x * _x  + _z * _z );
+    yawRAD = (T)-atan2(siny, cosy );
 
+    // pitch (y-axis rotation)
+    double sinp = -(T)2 * (_x * _z - _w * _y);
+    double cosp = 1 - (T)2 * (_x * _x + _y * _y);
+    pitchRAD = (T)atan2(sinp, cosp);
+
+    // roll (x-axis rotation)
+    double sinr = (T)2 * (_y * _z + _w * _x);
+    if (fabs(sinr) >= 1)
+        rollRAD = (T)copysign(M_PI / 2, sinr); // use 90 degrees if out of range
+    else
+        rollRAD = (T)asin(sinr);
+}
 //-----------------------------------------------------------------------------
 template<class T>
 SLQuat4<T>& SLQuat4<T>::operator= (const SLQuat4<T> q)

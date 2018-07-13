@@ -13,6 +13,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLApplication.h>
 #include <SLSceneView.h>
 #include <SLInterface.h>
 #include <SLLight.h>
@@ -24,6 +25,7 @@
 #include <SLTexFont.h>
 #include <SLImporter.h>
 #include <SLCVCapture.h>
+#include <SLCVCalibration.h>
 
 //-----------------------------------------------------------------------------
 // Milliseconds duration of a long touch event
@@ -37,8 +39,8 @@ It never changes throughout the life of a sceneview.
 */
 SLSceneView::SLSceneView() : SLObject()
 { 
-    SLScene* s = SLScene::current;
-    assert(s && "No SLScene::current instance.");
+    SLScene* s = SLApplication::scene;
+    assert(s && "No SLApplication::scene instance.");
    
     // Find first a zero pointer gap in
     for (SLint i=0; i<s->sceneViews().size(); ++i)
@@ -58,7 +60,7 @@ SLSceneView::~SLSceneView()
 {  
     // Set pointer in SLScene::sceneViews vector to zero but leave it.
     // The remaining sceneviews must keep their index in the vector
-    SLScene::current->sceneViews()[_index] = 0;
+    SLApplication::scene->sceneViews()[_index] = 0;
 
     _gui.deleteOpenGLObjects();
 
@@ -71,21 +73,18 @@ SLSceneView::~SLSceneView()
 \param screenHeight Height of the OpenGL frame buffer.
 \param onWndUpdateCallback Callback for ray tracing update
 \param onSelectNodeMeshCallback Callback on node and mesh selection
-\param onShowSystemCursorCallback Callback to show or hide the system cursor
-\param onBuildImGui Callback for the external ImGui build function
+\param onImGuiBuild Callback for the external ImGui build function
 */
 void SLSceneView::init(SLstring name, 
                        SLint screenWidth, 
                        SLint screenHeight,
                        void* onWndUpdateCallback,
                        void* onSelectNodeMeshCallback,
-                       void* onShowSystemCursorCallback,
-                       void* onBuildImGui)
+                       void* onImGuiBuild)
 {  
     _name = name;
     _scrW = screenWidth;
     _scrH = screenHeight;
-	_vrMode = false;
     _gotPainted = true;
 
     // The window update callback function is used to refresh the ray tracing
@@ -97,13 +96,8 @@ void SLSceneView::init(SLstring name,
     // click, so that the UI can react on it.
     onSelectedNodeMesh = (cbOnSelectNodeMesh)onSelectNodeMeshCallback;
 
-    // We need access to the system specific cursor and be able to hide it
-    // if we need to draw our own.
-    // @todo could be simplified if we implemented our own SLApp class
-    onShowSysCursor = (cbOnShowSysCursor)onShowSystemCursorCallback;
-
     // Set the ImGui build function. Every sceneview could have it's own GUI.
-    _gui.build = (cbOnBuildImGui)onBuildImGui;
+    _gui.build = (cbOnImGuiBuild)onImGuiBuild;
 
     _stateGL = 0;
    
@@ -118,7 +112,7 @@ void SLSceneView::init(SLstring name,
     _doDepthTest = true;
     _doMultiSampling = true;    // true=OpenGL multisampling is turned on
     _doFrustumCulling = true;   // true=enables view frustum culling
-    _waitEvents = true;
+    _doWaitOnIdle = true;
     _drawBits.allOff();
        
     _stats3D.clear();
@@ -128,6 +122,8 @@ void SLSceneView::init(SLstring name,
     _scrWdivH = (SLfloat)_scrW / (SLfloat)_scrH;
       
     _renderType = RT_gl;
+    
+    _skybox = nullptr;
 
     _gui.init();
 
@@ -148,13 +144,10 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
     _sceneViewCamera.maxSpeed(40);
     _sceneViewCamera.eyeSeparation(_sceneViewCamera.focalDist()/30.0f);
     _sceneViewCamera.setProjection(this, ET_center);
-  
-	// ignore projection if in vr mode
-	if(!_vrMode)
-		_sceneViewCamera.projection(proj);
+    _sceneViewCamera.projection(proj);
 
     // fit scenes bounding box in view frustum
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     if (s->root3D())
     {
         // we want to fit the scenes combined aabb in the view frustum
@@ -240,8 +233,8 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
     _sceneViewCamera.updateAABBRec();
     _sceneViewCamera.setInitialState();
 
-	// if no camera exists or in VR mode use the sceneViewCamera
-	if(_camera == nullptr || _vrMode)
+    // if no camera exists or in VR mode use the sceneViewCamera
+    if(_camera == nullptr)
         _camera = &_sceneViewCamera;
 	
     _camera->needUpdate();
@@ -267,6 +260,23 @@ void SLSceneView::switchToSceneViewCamera()
     _camera = &_sceneViewCamera;
 }
 //-----------------------------------------------------------------------------
+//! Sets the acitve camera to the next in the scene
+void SLSceneView::switchToNextCameraInScene()
+{
+    SLCamera* nextCam = SLApplication::scene->nextCameraInScene(this);
+    
+    if (nextCam == nullptr)
+        return;
+    
+    if (nextCam != _camera)
+        _camera = nextCam;
+    else
+        _camera = &_sceneViewCamera;
+    
+    _camera->background().rebuild();
+    return;
+}
+//-----------------------------------------------------------------------------
 /*!
 SLSceneView::onInitialize is called by the window system before the first 
 rendering. It applies all scene rendering attributes with the according 
@@ -276,7 +286,7 @@ void SLSceneView::onInitialize()
 {
     postSceneLoad();
     
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     _stateGL = SLGLState::getInstance();
 
     if (_camera)
@@ -285,6 +295,7 @@ void SLSceneView::onInitialize()
     
     _blendNodes.clear();
     _visibleNodes.clear();
+    _visibleNodes2D.clear();
 
     _raytracer.clearData();
     _renderType = RT_gl;
@@ -303,9 +314,8 @@ void SLSceneView::onInitialize()
         for (auto mesh : s->meshes())
             mesh->updateAccelStruct();
         
-        if (SL::noTestIsRunning())
-            SL_LOG("Time for AABBs  : %5.3f sec.\n", 
-                   (SLfloat)(clock()-t)/(SLfloat)CLOCKS_PER_SEC);
+        SL_LOG("Time for AABBs  : %5.3f sec.\n",
+                (SLfloat)(clock()-t)/(SLfloat)CLOCKS_PER_SEC);
         
         // Collect node statistics
         _stats3D.clear();
@@ -321,7 +331,6 @@ void SLSceneView::onInitialize()
     if (s->root2D() && s->root2D()->aabb()->radiusOS()==0)
     {
         // build axis aligned bounding box hierarchy after init
-        clock_t t = clock();
         s->root2D()->updateAABBRec();
 
         // Collect node statistics
@@ -340,7 +349,7 @@ rendering and whenever the window changes its size.
 */
 void SLSceneView::onResize(SLint width, SLint height)
 {  
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
 
     // On OSX and Qt this can be called with invalid values > so exit
     if (width==0 || height==0) return;
@@ -366,13 +375,13 @@ void SLSceneView::onResize(SLint width, SLint height)
         // Stop raytracing & pathtracing on resize
         if (_renderType != RT_gl)
         {   _renderType = RT_gl;
-            _raytracer.continuous(false);
+            _raytracer.doContinuous(false);
         }
     }
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::onPaint is called by window system whenever the window therefore 
+SLSceneView::onPaint is called by window system whenever the window and therefore 
 the scene needs to be painted. Depending on the renderer it calls first
 SLSceneView::draw3DGL, SLSceneView::draw3DRT or SLSceneView::draw3DPT and
 then SLSceneView::draw2DGL for all UI in 2D. The method returns true if either
@@ -380,22 +389,18 @@ the 2D or 3D graph was updated or waitEvents is false.
 */
 SLbool SLSceneView::onPaint()
 {  
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     SLbool camUpdated = false;
-
-    // Check time for test scenes
-    if (SL::testDurationSec > 0)
-        if (testRunIsFinished())
-            return false;
     
-    // Init and build GUI
-    _gui.onInitNewFrame(s, this);
+    // Init and build GUI for all projections except distorted stereo
+    if (_camera && _camera->projection() != P_stereoSideBySideD)
+        _gui.onInitNewFrame(s, this);
 
     // Clear NO. of draw calls afer UI creation
     SLGLVertexArray::totalDrawCalls = 0;
 
     if (_camera)
-    {   // Render the 3D scenegraph by by raytracing, pathtracing or OpenGL
+    {   // Render the 3D scenegraph by raytracing, pathtracing or OpenGL
         switch (_renderType)
         {   case RT_gl: camUpdated = draw3DGL(s->elapsedTimeMS()); break;
             case RT_rt: camUpdated = draw3DRT(); break;
@@ -410,7 +415,8 @@ SLbool SLSceneView::onPaint()
 
     // Finish Oculus framebuffer
     if (_camera && _camera->projection() == P_stereoSideBySideD)
-        s->oculus()->endFrame(_scrW, _scrH, _oculusFB.texID());
+        s->oculus()->renderDistortion(_scrW, _scrH, _oculusFB.texID(),
+                                      _camera->background().colors()[0]);
 
     // Set gotPainted only to true if RT is not busy
     _gotPainted = _renderType==RT_gl || raytracer()->state()!=rtBusy;
@@ -421,11 +427,11 @@ SLbool SLSceneView::onPaint()
         return true;
     }
 
-    return !_waitEvents || camUpdated;
+    return !_doWaitOnIdle || camUpdated;
 }
 //-----------------------------------------------------------------------------
 //! Draws the 3D scene with OpenGL
-/*! This is main routine for updating and drawing the 3D scene for one frame. 
+/*! This is the main routine for updating and drawing the 3D scene for one frame. 
 The following steps are processed:
 <ol>
 <li>
@@ -450,6 +456,11 @@ and SLSceneView::_blendNodes with the visible transparent nodes.
 Nodes that are not visible with the current camera are not drawn. 
 </li>
 <li>
+<b>Draw Skybox</b>:
+The skybox is draw as first object with frozen depth buffer.
+The skybox is allways around the active camera.
+</li>
+<li>
 <b>Draw Opaque and Blended Nodes</b>:
 By calling the SLSceneView::draw3D all nodes in the vectors 
 SLSceneView::_visibleNodes and SLSceneView::_blendNodes will be drawn.
@@ -468,7 +479,7 @@ is drawn.
 */
 SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
 
     preDraw();
     
@@ -496,10 +507,10 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // Clear buffers
     _stateGL->clearColor(_camera->background().colors()[0]);
     _stateGL->clearColorDepthBuffer();
-
-    // render gradient or textured background
-    if (!_camera->background().isUniform())
-         _camera->background().render(_scrW, _scrH);
+    
+    // Render gradient or textured background from active camera
+    if (!_skybox && !_camera->background().isUniform())
+        _camera->background().render(_scrW, _scrH);
 
     // Change state (only when changed)
     _stateGL->multiSample(_doMultiSampling);
@@ -518,6 +529,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     if (_camera->projection() > P_monoOrthographic)
          _camera->setView(this, ET_left);
     else _camera->setView(this, ET_center);
+    
 
     ////////////////////////
     // 4. Frustum Culling //
@@ -530,12 +542,21 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
         s->root3D()->cull3DRec(this);
    
     _cullTimeMS = s->timeMilliSec() - startMS;
+    
+    
+    ////////////////////
+    // 5. Draw skybox //
+    ////////////////////
+    
+    if (_skybox)
+        _skybox->drawAroundCamera(this);
 
     ////////////////////////////////////
     // 5. Draw Opaque & Blended Nodes //
     ////////////////////////////////////
 
     startMS = s->timeMilliSec();
+    
     draw3DGLAll();
    
     // For stereo draw for right eye
@@ -581,7 +602,7 @@ void SLSceneView::draw3DGLAll()
     draw3DGLLinesOverlay(_blendNodes);
 
     // 4) Draw visualization lines of animation curves
-    SLScene::current->animManager().drawVisuals(this);
+    SLApplication::scene->animManager().drawVisuals(this);
 
     // 5) Turn blending off again for correct anaglyph stereo modes
     _stateGL->blend(false);
@@ -736,7 +757,7 @@ update is done to the 2D scenegraph.
 */
 void SLSceneView::draw2DGL()
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     SLfloat startMS = s->timeMilliSec();
     
     SLfloat w2 = (SLfloat)_scrWdiv2;
@@ -750,7 +771,7 @@ void SLSceneView::draw2DGL()
         _stateGL->viewport(0, 0, _scrW, _scrH);   
 
         // 2. Pseudo 2D Frustum Culling
-        _visibleNodes.clear();     
+        _visibleNodes2D.clear();
         if (s->root2D())
             s->root2D()->cull2DRec(this);
 
@@ -759,7 +780,8 @@ void SLSceneView::draw2DGL()
 
         // 4. Draw ImGui UI
         if (_gui.build)
-        {   ImGui::Render();
+        {
+            ImGui::Render();
             _gui.onPaint(ImGui::GetDrawData());
         }
     }
@@ -773,10 +795,10 @@ SLSceneView::draw2DGLAll draws 2D stuff in ortho projection.
 */
 void SLSceneView::draw2DGLAll()
 {
-    SLScene* s = SLScene::current;
-    SLfloat w2 = (SLfloat)_scrWdiv2;
-    SLfloat h2 = (SLfloat)_scrHdiv2;
-    SLfloat depth = 1.0f;               // Render depth between -1 & 1
+    SLfloat w2 = (SLfloat)_scrWdiv2;            // half widht
+    SLfloat h2 = (SLfloat)_scrHdiv2;            // half height
+    SLfloat depth = 1.0f;                       // Render depth between -1 & 1
+    SLfloat cs = SL_min(_scrW, _scrH) * 0.01f;  // center size
 
     _stateGL->pushModelViewMatrix();
     _stateGL->modelViewMatrix.identity();
@@ -787,7 +809,7 @@ void SLSceneView::draw2DGLAll()
 
     // Draw all 2D nodes blended (mostly text font textures)
     // draw the shapes directly with their wm transform
-    for(auto node : _visibleNodes)
+    for(auto node : _visibleNodes2D)
     {
         // Apply world transform
         _stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
@@ -796,44 +818,51 @@ void SLSceneView::draw2DGLAll()
         node->drawMeshes(this);
     }
    
-    // 2D finger touch points on desktop OS
-    #ifndef SL_GLES
-    if (_touchDowns)
-    {   _stateGL->multiSample(true);
-        _stateGL->pushModelViewMatrix();  
-      
-        // Go to lower-left screen corner
-        _stateGL->modelViewMatrix.translate(-w2, -h2, depth);
-      
-        SLVVec3f touch;
-        touch.resize(_touchDowns);
-        for (SLint i=0; i<_touchDowns; ++i)
-        {   touch[i].x = (SLfloat)_touch[i].x;
-            touch[i].y = (SLfloat)(_scrH - _touch[i].y);
-            touch[i].z = 0.0f;
-        }
-      
-        _vaoTouch.generateVertexPos(&touch);
-      
-        SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
-        _vaoTouch.drawArrayAsColored(PT_points, yelloAlpha, 21);
-        _stateGL->popModelViewMatrix();
-    }
-
-    // Draw turntable rotation point
+    // Draw rotation helpers during camera animations
     if ((_mouseDownL || _mouseDownM) && _touchDowns==0)
-    {   if (_camera->camAnim()==CA_turntableYUp || _camera->camAnim()==CA_turntableZUp)
-        {   _stateGL->multiSample(true);
+    {
+        if (_camera->camAnim() == CA_turntableYUp ||
+            _camera->camAnim() == CA_turntableZUp)
+        {
             _stateGL->pushModelViewMatrix();
             _stateGL->modelViewMatrix.translate(0, 0, depth);
-            SLVVec3f cross = {{0,0,0}};
-            _vaoTouch.generateVertexPos(&cross);
+            
+            SLVVec3f centerRombusPoints = {{-cs,0,0},{0,-cs,0},{cs,0,0},{0,cs,0}};
+            _vaoTouch.clearAttribs();
+            _vaoTouch.generateVertexPos(&centerRombusPoints);
             SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
-            _vaoTouch.drawArrayAsColored(PT_points, yelloAlpha, (SLfloat)SL::dpi/12.0f);
+            
+            _vaoTouch.drawArrayAsColored(PT_lineLoop, yelloAlpha);
+            
+            _stateGL->popModelViewMatrix();
+        } else
+        if (_camera->camAnim() == CA_trackball)
+        {
+            _stateGL->pushModelViewMatrix();
+            _stateGL->modelViewMatrix.translate(0, 0, depth);
+            
+            // radius = half width or height
+            SLfloat r = (SLfloat)(_scrW < _scrH ? _scrW/2 : _scrH/2) * _camera->trackballSize();
+            
+            SLVVec3f rombusAndCirclePoints; // = {{-cs,0,0},{0,-cs,0},{cs,0,0},{0,cs,0}};
+            
+            // Add points for circle over window
+            SLint circlePoints = 60;
+            SLfloat deltaPhi = SL_2PI / (SLfloat)circlePoints;
+            for (SLint i=0; i<circlePoints; ++i)
+            {   SLVec2f c;
+                c.fromPolar(r, i*deltaPhi);
+                rombusAndCirclePoints.push_back(SLVec3f(c.x, c.y, 0));
+            }
+            _vaoTouch.clearAttribs();
+            _vaoTouch.generateVertexPos(&rombusAndCirclePoints);
+            SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
+            
+            _vaoTouch.drawArrayAsColored(PT_lineLoop, yelloAlpha);
+            
             _stateGL->popModelViewMatrix();
         }
     }
-    #endif
 
     _stateGL->popModelViewMatrix();        
 
@@ -860,7 +889,7 @@ dispatches the event to the currently attached event handler object.
 SLbool SLSceneView::onMouseDown(SLMouseButton button, 
                                 SLint x, SLint y, SLKey mod)
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     
     #ifdef SL_GLES
     // Touch devices on iOS or Android have no mouse move event when the
@@ -870,6 +899,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     _gui.renderExtraFrame(s, this, x, y);
     #endif
     
+    // Pass the event to imgui
     if (ImGui::GetIO().WantCaptureMouse)
     {   _gui.onMouseDown(button, x, y);
         return true;
@@ -890,8 +920,8 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     } 
     
     // Grab image during calibration if calibration stream is running
-    if (s->activeCalib()->state() == CS_calibrateStream)
-        s->activeCalib()->state(CS_calibrateGrab);
+    if (SLApplication::activeCalib->state() == CS_calibrateStream)
+        SLApplication::activeCalib->state(CS_calibrateGrab);
 
     return result;
 }  
@@ -902,14 +932,22 @@ SLSceneView::onMouseUp gets called whenever a mouse button gets released.
 SLbool SLSceneView::onMouseUp(SLMouseButton button, 
                               SLint x, SLint y, SLKey mod)
 {  
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     _touchDowns = 0;
    
+    // Continue with ray tracing
     if (_raytracer.state()==rtMoveGL)
     {   _renderType = RT_rt;
         _raytracer.state(rtReady);
     }
+    
+    // Continue with path tracing
+    if (_pathtracer.state()==rtMoveGL)
+    {   _renderType = RT_pt;
+        _pathtracer.state(rtReady);
+    }
 
+    // Pass the event to imgui
     ImGui::GetIO().MousePos = ImVec2((SLfloat)x, (SLfloat)y);
     _gui.onMouseUp(button, x, y);
 
@@ -935,16 +973,14 @@ SLSceneView::onMouseMove gets called whenever the mouse is moved.
 */
 SLbool SLSceneView::onMouseMove(SLint x, SLint y)
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
 
+    // Pass the event to imgui
     _gui.onMouseMove(x, y);
     if (ImGui::GetIO().WantCaptureMouse)
         return true;
 
     if (!s->root3D()) return false;
-
-    // save cursor position
-    _posCursor.set(x, y);
 
     _touchDowns = 0;
     SLbool result = false;
@@ -953,13 +989,20 @@ SLbool SLSceneView::onMouseMove(SLint x, SLint y)
     {   SLMouseButton btn = _mouseDownL ? MB_left : 
                             _mouseDownR ? MB_right : MB_middle;
       
-        // Handle move in RT mode
-        if (_renderType == RT_rt && !_raytracer.continuous())
+        // Handle move in ray tracing
+        if (_renderType == RT_rt && !_raytracer.doContinuous())
         {   if (_raytracer.state()==rtFinished)
                 _raytracer.state(rtMoveGL);
             else
-            {   _raytracer.continuous(false);
+            {   _raytracer.doContinuous(false);
             }
+            _renderType = RT_gl;
+        }
+        
+        // Handle move in path tracing
+        if (_renderType == RT_pt)
+        {   if (_pathtracer.state()==rtFinished)
+                _pathtracer.state(rtMoveGL);
             _renderType = RT_gl;
         }
       
@@ -979,7 +1022,7 @@ The parameter wheelPos is an increasing or decreeing counter number.
 */
 SLbool SLSceneView::onMouseWheelPos(SLint wheelPos, SLKey mod)
 {  
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
 
     static SLint lastMouseWheelPos = 0;
@@ -994,16 +1037,17 @@ The parameter delta is positive/negative depending on the wheel direction
 */
 SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
 
+    // Pass the event to imgui
     if (ImGui::GetIO().WantCaptureMouse)
     {   _gui.onMouseWheel((SLfloat)delta);
         return true;
     }
 
     // Handle mouse wheel in RT mode
-    if (_renderType == RT_rt && !_raytracer.continuous() && 
+    if (_renderType == RT_rt && !_raytracer.doContinuous() && 
         _raytracer.state()==rtFinished)
         _raytracer.state(rtReady);
     SLbool result = false;
@@ -1025,7 +1069,7 @@ double tab occurs.
 SLbool SLSceneView::onDoubleClick(SLMouseButton button, 
                                   SLint x, SLint y, SLKey mod)
 {  
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
 
     SLbool result = false;
@@ -1034,7 +1078,7 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
     if (button == MB_left)
     {   _mouseDownR = false;
       
-        SLRay pickRay;
+        SLRay pickRay(this);
         if (_camera) 
         {   _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
             s->root3D()->hitRec(&pickRay);
@@ -1074,7 +1118,7 @@ screen.
 */
 SLbool SLSceneView::onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2)
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
 
     _touch[0].set(x1, y1);
@@ -1096,7 +1140,7 @@ screen.
 */
 SLbool SLSceneView::onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2)
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
 
     _touch[0].set(x1, y1);
@@ -1119,7 +1163,7 @@ screen.
 */
 SLbool SLSceneView::onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2)
 {
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
 
     _touch[0].set(x1, y1);
@@ -1142,30 +1186,45 @@ forwarding them to onCommand.
 */
 SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 {  
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
 
+    // Pass the event to imgui
     if (ImGui::GetIO().WantCaptureKeyboard)
     {   _gui.onKeyPress(key, mod);
         return true;
     }
-    
-    if (key == '5') { _camera->unitScaling(_camera->unitScaling()+0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
-    if (key == '6') { _camera->unitScaling(_camera->unitScaling()-0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
-    if (key == '7') return onCommand(C_dpiInc);
-    if (key == '8') return onCommand(C_dpiDec);
 
-    if (key=='N') return onCommand(C_normalsToggle);
-    if (key=='P') return onCommand(C_wireMeshToggle);
-    if (key=='C') return onCommand(C_faceCullToggle);
-    if (key=='T') return onCommand(C_textureToggle);
-    if (key=='M') return onCommand(C_multiSampleToggle);
-    if (key=='F') return onCommand(C_frustCullToggle);
-    if (key=='B') return onCommand(C_bBoxToggle);
+    // We have to coordinate these shortcuts in SLDemoGui::buildMenuBar
+    if (key=='M') {doMultiSampling(!doMultiSampling()); return true;}
+    if (key=='I') {doWaitOnIdle(!doWaitOnIdle()); return true;}
+    if (key=='F') {doFrustumCulling(!doFrustumCulling()); return true;}
+    if (key=='T') {doDepthTest(!doDepthTest()); return true;}
+    if (key=='O') {s->stopAnimations(!s->stopAnimations()); return true;}
 
-    if (key==K_tab) return onCommand(C_camSetNextInScene);
+    if (key=='G') {renderType(RT_gl); return true;}
+    if (key=='R') {startRaytracing(5);}
 
-    if (key==K_esc)
+    if (key=='P') {drawBits()->toggle(SL_DB_WIREMESH); return true;}
+    if (key=='N') {drawBits()->toggle(SL_DB_NORMALS); return true;}
+    if (key=='B') {drawBits()->toggle(SL_DB_BBOX); return true;}
+    if (key=='V') {drawBits()->toggle(SL_DB_VOXELS); return true;}
+    if (key=='X') {drawBits()->toggle(SL_DB_AXIS); return true;}
+    if (key=='C') {drawBits()->toggle(SL_DB_CULLOFF); return true;}
+    if (key=='K') {drawBits()->toggle(SL_DB_SKELETON); return true;}
+
+    if (key=='5')
+    {   if (_camera->projection() == P_monoPerspective)
+             _camera->projection(P_monoOrthographic);
+        else _camera->projection(P_monoPerspective);
+        if (_renderType == RT_rt && !_raytracer.doContinuous() &&
+            _raytracer.state() == rtFinished)
+            _raytracer.state(rtReady);
+    }
+
+    if (key==K_tab) {switchToNextCameraInScene(); return true;};
+
+    if (key==K_esc && mod==K_ctrl)
     {   if(_renderType == RT_rt)
         {  _stopRT = true;
             return false;
@@ -1193,8 +1252,9 @@ SLSceneView::onKeyRelease get called whenever a key is released.
 */
 SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
 {  
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
 
+    // Pass the event to imgui
     if (ImGui::GetIO().WantCaptureKeyboard)
     {   _gui.onKeyRelease(key, mod);
         return true;
@@ -1226,182 +1286,6 @@ SLbool SLSceneView::onCharInput(SLuint c)
     return false;
 }
 //-----------------------------------------------------------------------------
-/*!
-SLSceneView::onCommand: Event handler for commands. Most key press or menu
-commands are collected and dispatched here.
-*/
-SLbool SLSceneView::onCommand(SLCommand cmd)
-{
-    SLScene* s = SLScene::current;
-
-    // Handle scene changes (inkl. calibration start)
-    if (cmd >= C_sceneMinimal && cmd < C_sceneMaximal)
-    {   s->onLoad(this, cmd);
-        return true;
-    }
-
-    // Handle all camera commands
-    if (_camera)
-    {
-        SLProjection prevProjection = _camera->projection();
-        SLbool perspectiveChanged = prevProjection != (SLProjection)(cmd - C_projPersp);
-
-        switch (cmd)
-        {
-            case C_projPersp:
-                _camera->projection(P_monoPerspective);
-                if (_renderType == RT_rt && !_raytracer.continuous() &&
-                    _raytracer.state() == rtFinished)
-                    _raytracer.state(rtReady);
-                break;
-            case C_projOrtho:
-                _camera->projection(P_monoOrthographic);
-                if (_renderType == RT_rt && !_raytracer.continuous() &&
-                    _raytracer.state() == rtFinished)
-                    _raytracer.state(rtReady);
-                break;
-            case C_projSideBySide:    _camera->projection(P_stereoSideBySide); break;
-            case C_projSideBySideP:   _camera->projection(P_stereoSideBySideP); break;
-            case C_projSideBySideD:   _camera->projection(P_stereoSideBySideD); break;
-            case C_projLineByLine:    _camera->projection(P_stereoLineByLine); break;
-            case C_projColumnByColumn:_camera->projection(P_stereoColumnByColumn); break;
-            case C_projPixelByPixel:  _camera->projection(P_stereoPixelByPixel); break;
-            case C_projColorRC:       _camera->projection(P_stereoColorRC); break;
-            case C_projColorRG:       _camera->projection(P_stereoColorRG); break;
-            case C_projColorRB:       _camera->projection(P_stereoColorRB); break;
-            case C_projColorYB:       _camera->projection(P_stereoColorYB); break;
-
-            case C_camSpeedLimitInc:  _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
-            case C_camSpeedLimitDec:  _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
-            case C_camEyeSepInc:      _camera->onMouseWheel(1, K_ctrl); return true;
-            case C_camEyeSepDec:      _camera->onMouseWheel(-1, K_ctrl); return true;
-            case C_camFocalDistInc:   _camera->onMouseWheel(1, K_shift); return true;
-            case C_camFocalDistDec:   _camera->onMouseWheel(-1, K_shift); return true;
-            case C_camFOVInc:         _camera->onMouseWheel(1, K_alt); return true;
-            case C_camFOVDec:         _camera->onMouseWheel(-1, K_alt); return true;
-            case C_camAnimTurnYUp:    _camera->camAnim(CA_turntableYUp); return true;
-            case C_camAnimTurnZUp:    _camera->camAnim(CA_turntableZUp); return true;
-            case C_camAnimWalkYUp:    _camera->camAnim(CA_walkingYUp); return true;
-            case C_camAnimWalkZUp:    _camera->camAnim(CA_walkingZUp); return true;
-            case C_camDeviceRotOn:    _camera->useDeviceRot(true); return true;
-            case C_camDeviceRotOff:   _camera->useDeviceRot(false); return true;
-            case C_camDeviceRotToggle:_camera->useDeviceRot(!_camera->useDeviceRot()); return true;
-            
-            case C_camReset:          _camera->resetToInitialState(); return true;
-            case C_camSetNextInScene:
-            {   SLCamera* nextCam = s->nextCameraInScene(this);
-                if (nextCam == nullptr) return false;
-                if (nextCam != _camera)
-                     _camera = nextCam;
-                else _camera = &_sceneViewCamera;
-                _camera->background().rebuild();
-                return true;
-            }
-            case C_camSetSceneViewCamera: switchToSceneViewCamera(); return true;
-            default: break;
-        }
-
-        // special treatment for the menu position in side-by-side projection
-        if (perspectiveChanged)
-        {   if (cmd == C_projSideBySideD)
-            {   _vrMode = true;
-                if (onShowSysCursor)
-                    onShowSysCursor(false);
-            }
-            else if (prevProjection == P_stereoSideBySideD)
-            {   _vrMode = false;
-                if (onShowSysCursor)
-                    onShowSysCursor(true);
-            }
-        }
-    }
-
-    // Handle all other commands
-    switch (cmd)
-    {
-        case C_quit:
-            slShouldClose(true);
-        case C_dpiInc:
-            if (SL::dpi < 500)
-            {   SL::dpi = (SLint)((SLfloat)SL::dpi * 1.1f);
-                return true;
-            } else return false;
-        case C_dpiDec:
-            if (SL::dpi > 140)
-            {   SL::dpi = (SLint)((SLfloat)SL::dpi * 0.9f);
-                return true;
-            } else return false;
-
-        case C_mirrorHMainVideoToggle:      s->calibMainCam()->toggleMirrorH(); return true;
-        case C_mirrorVMainVideoToggle:      s->calibMainCam()->toggleMirrorV(); return true;
-        case C_mirrorHScndVideoToggle:      s->calibScndCam()->toggleMirrorH(); return true;
-        case C_mirrorVScndVideoToggle:      s->calibScndCam()->toggleMirrorV(); return true;
-        case C_calibFixAspectRatioToggle:   s->activeCalib()->toggleFixAspectRatio(); return true;
-        case C_calibFixPrincipPointalToggle:s->activeCalib()->toggleFixPrincipalPoint(); return true;
-        case C_calibZeroTangentDistToggle:  s->activeCalib()->toggleZeroTangentDist(); return true;
-        case C_undistortVideoToggle:        s->activeCalib()->showUndistorted(!s->activeCalib()->showUndistorted()); return true;
-        case C_videoSizeIndexInc:           SLCVCapture::requestedSizeIndex += 1; return true;
-        case C_videoSizeIndexDec:           SLCVCapture::requestedSizeIndex -= 1; return true;
-        case C_videoSizeIndexDefault:       SLCVCapture::requestedSizeIndex  = 0; return true;
-
-        case C_camSetSceneViewCamera: switchToSceneViewCamera(); return true;
-
-        case C_waitEventsToggle:   _waitEvents = !_waitEvents; return true;
-        case C_multiSampleToggle:
-            _doMultiSampling = !_doMultiSampling;
-            _raytracer.aaSamples(_doMultiSampling ? 3 : 1);
-            return true;
-        case C_frustCullToggle:    _doFrustumCulling = !_doFrustumCulling; return true;
-        case C_depthTestToggle:    _doDepthTest = !_doDepthTest; return true;
-
-        case C_normalsToggle:      _drawBits.toggle(SL_DB_NORMALS);  return true;
-        case C_wireMeshToggle:     _drawBits.toggle(SL_DB_WIREMESH); return true;
-        case C_bBoxToggle:         _drawBits.toggle(SL_DB_BBOX);     return true;
-        case C_axisToggle:         _drawBits.toggle(SL_DB_AXIS);     return true;
-        case C_skeletonToggle:     _drawBits.toggle(SL_DB_SKELETON); return true;
-        case C_voxelsToggle:       _drawBits.toggle(SL_DB_VOXELS);   return true;
-        case C_faceCullToggle:     _drawBits.toggle(SL_DB_CULLOFF);  return true;
-        case C_textureToggle:      _drawBits.toggle(SL_DB_TEXOFF);   return true;
-
-        case C_animationToggle:     s->stopAnimations(!s->stopAnimations()); return true;
-        case C_renderOpenGL:
-            _renderType = RT_gl;
-            return true;
-        case C_rtContinuously:
-            _raytracer.continuous(!_raytracer.continuous());
-            return true;
-        case C_rtDistributed:
-            _raytracer.distributed(!_raytracer.distributed());
-            startRaytracing(5);
-            return true;
-        case C_rt1: startRaytracing(1); return true;
-        case C_rt2: startRaytracing(2); return true;
-        case C_rt3: startRaytracing(3); return true;
-        case C_rt4: startRaytracing(4); return true;
-        case C_rt5: startRaytracing(5); return true;
-        case C_rt6: startRaytracing(6); return true;
-        case C_rt7: startRaytracing(7); return true;
-        case C_rt8: startRaytracing(8); return true;
-        case C_rt9: startRaytracing(9); return true;
-        case C_rt0: startRaytracing(0); return true;
-        case C_rtSaveImage: _raytracer.saveImage(); return true;
-
-        case C_pt1: startPathtracing(5, 1); return true;
-        case C_pt10: startPathtracing(5, 10); return true;
-        case C_pt50: startPathtracing(5, 50); return true;
-        case C_pt100: startPathtracing(5, 100); return true;
-        case C_pt500: startPathtracing(5, 500); return true;
-        case C_pt1000: startPathtracing(5, 1000); return true;
-        case C_pt5000: startPathtracing(5, 5000); return true;
-        case C_pt10000: startPathtracing(5, 100000); return true;
-        case C_ptSaveImage: _pathtracer.saveImage(); return true;
-
-        default: break;
-    }
-
-    return false;
-}
-//-----------------------------------------------------------------------------
 
 
 
@@ -1419,11 +1303,11 @@ Returns the window title with name & FPS
 */
 SLstring SLSceneView::windowTitle()
 {  
-    SLScene* s = SLScene::current;
+    SLScene* s = SLApplication::scene;
     SLchar title[255];
 
     if (_renderType == RT_rt)
-    {   if (_raytracer.continuous())
+    {   if (_raytracer.doContinuous())
         {   sprintf(title, "%s (fps: %4.1f, Threads: %d)", 
                     s->name().c_str(), 
                     s->fps(),
@@ -1442,7 +1326,7 @@ SLstring SLSceneView::windowTitle()
                 _pathtracer.numThreads());
     } else
     {   
-        SLuint nr = (uint)_visibleNodes.size() + (uint)_blendNodes.size();
+        SLuint nr = (uint)_visibleNodes.size();
         if (s->fps() > 5)
             sprintf(title, "%s (fps: %4.0f, %u nodes of %u rendered)",
                     s->name().c_str(), s->fps(), nr, _stats3D.numNodes);
@@ -1457,12 +1341,11 @@ SLstring SLSceneView::windowTitle()
 Starts the ray tracing & sets the RT menu
 */
 void SLSceneView::startRaytracing(SLint maxDepth)
-{  
-    SLScene* s = SLScene::current;
+{
     _renderType = RT_rt;
     _stopRT = false;
     _raytracer.maxDepth(maxDepth);
-    _raytracer.aaSamples(_doMultiSampling && SL::dpi<200 ? 3 : 1);
+    _raytracer.aaSamples(_doMultiSampling && SLApplication::dpi<200 ? 3 : 1);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1477,7 +1360,7 @@ SLbool SLSceneView::draw3DRT()
     // if the raytracer not yet got started
     if (_raytracer.state()==rtReady)
     {
-        SLScene* s = SLScene::current;
+        SLScene* s = SLApplication::scene;
 
         // Update transforms and aabbs
         // @Todo: causes multithreading bug in RT
@@ -1488,7 +1371,7 @@ SLbool SLSceneView::draw3DRT()
             mesh->updateAccelStruct();
 
         // Start raytracing
-        if (_raytracer.distributed())
+        if (_raytracer.doDistributed())
              _raytracer.renderDistrib(this);
         else _raytracer.renderClassic(this);
     }
@@ -1499,7 +1382,6 @@ SLbool SLSceneView::draw3DRT()
     // React on the stop flag (e.g. ESC)
     if(_stopRT)
     {   _renderType = RT_gl;
-        SLScene* s = SLScene::current;
         updated = true;
     }
 
@@ -1510,8 +1392,7 @@ SLbool SLSceneView::draw3DRT()
 Starts the pathtracing
 */
 void SLSceneView::startPathtracing(SLint maxDepth, SLint samples)
-{  
-    SLScene* s = SLScene::current;
+{
     _renderType = RT_pt;
     _stopPT = false;
     _pathtracer.maxDepth(maxDepth);
@@ -1530,7 +1411,7 @@ SLbool SLSceneView::draw3DPT()
     // if the pathtracer not yet got started
     if (_pathtracer.state()==rtReady)
     {
-        SLScene* s = SLScene::current;
+        SLScene* s = SLApplication::scene;
 
         // Update transforms and AABBs
         // @Todo: causes multithreading bug in RT
@@ -1550,58 +1431,9 @@ SLbool SLSceneView::draw3DPT()
     // React on the stop flag (e.g. ESC)
     if(_stopPT)
     {   _renderType = RT_gl;
-        SLScene* s = SLScene::current;
         updated = true;
     }
 
     return updated;
-}
-//------------------------------------------------------------------------------
-//! Handles the test setting and returns true if the current test scene is over.
-/*! See SL::parseCmdLineArgs for the purpose of all scene test variables.
-*/
-SLbool SLSceneView::testRunIsFinished()
-{
-    if (SL::testFrameCounter == 0)
-        SLScene::current->timerStart();
-
-    if (SLScene::current->timeSec() > SL::testDurationSec)
-    {   
-        if (SL::testScene==C_sceneAll)
-        {   if (SL::testSceneAll < C_sceneMaximal)
-            {   
-                SLfloat fps = (SLfloat)SL::testFrameCounter / (SLfloat)SL::testDurationSec;
-                SL_LOG("%s: Frames: %5u, FPS=%6.1f\n", 
-                       SL::testSceneNames[SL::testSceneAll].c_str(), 
-                       SL::testFrameCounter, 
-                       fps);
-                
-                // Start next scene
-                SL::testFrameCounter = 0;
-                SL::testSceneAll = (SLCommand)(SL::testSceneAll + 1);
-                if (SL::testSceneAll == C_sceneLargeModel)
-                    SL::testSceneAll = (SLCommand)(SL::testSceneAll + 1);
-                onCommand(SL::testSceneAll);
-                SLScene::current->timerStart();
-            } else
-            {   SL_LOG("------------------------------------------------------------------\n");
-                onCommand(C_quit);
-                return true;
-            }
-        } else
-        {   SLfloat fps = (SLfloat)SL::testFrameCounter / (SLfloat)SL::testDurationSec;
-            SL_LOG("------------------------------------------------------------------\n");
-            SL_LOG("%s: Frames: %5u, FPS=%6.1f\n",
-                   SL::testSceneNames[SL::testSceneAll].c_str(),
-                   SL::testFrameCounter,
-                   fps);
-            SL_LOG("------------------------------------------------------------------\n");
-            onCommand(C_quit);
-            return true;
-        }
-    }
-    SL::testFrameCounter++;
-
-    return false;
 }
 //------------------------------------------------------------------------------

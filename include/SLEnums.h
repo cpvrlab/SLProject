@@ -8,10 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLENUMS_H
-#define SLENUMS_H
-
-//#include <stdafx.h> // gets included before SL.h
+#ifndef SLENUMSID_H
+#define SLENUMSID_H
 
 //-----------------------------------------------------------------------------
 //! Keyboard key codes enumeration
@@ -72,158 +70,65 @@ enum SLPixelFormat
 };
 //-----------------------------------------------------------------------------
 //! SLCommand enumerates all possible menu and keyboard commands
-enum SLCommand
+enum SLSceneID
 {   
-    C_sceneFromFile = -2,   // Custom assted loaded over menu
-    C_sceneEmpty = -1,      // No data in scene
-    C_sceneAll = 0,         // Loads all scenes one after the other
-    C_sceneMinimal,
-    C_sceneFigure,
-    C_sceneMeshLoad,
-    C_sceneVRSizeTest,
-    C_sceneLargeModel,
-    C_sceneRevolver,
+    SID_FromFile = -2,   // Custom assted loaded over menu
+    SID_Empty = -1,      // No data in scene
 
-    C_sceneTextureFilter,
-    C_sceneTextureBlend,
-    C_sceneFrustumCull,
-    C_sceneMassiveData,
-    C_scene2Dand3DText,
+    SID_All = 0,         // Loads all scenes one after the other
+    SID_Minimal,
+    SID_Figure,
+    SID_MeshLoad,
+    SID_VRSizeTest,
+    SID_LargeModel,
+    SID_Revolver,
+    SID_TextureFilter,
+    SID_TextureBlend,
+    SID_FrustumCull,
+    SID_MassiveData,
+    SID_2Dand3DText,
+    SID_PointClouds,
 
-    C_sceneShaderPerVertexBlinn,
-    C_sceneShaderPerPixelBlinn,
-    C_sceneShaderPerVertexWave,
-    C_sceneShaderPerPixelCookTorrance,
-    C_sceneShaderWater,
-    C_sceneShaderBumpNormal,
-    C_sceneShaderBumpParallax,
-    C_sceneShaderEarth,
-    C_sceneVolumeRayCastHeadMRI,
-    C_sceneVolumeRayCastLightedMRIHead,
-    C_sceneTerrain,
+    SID_ShaderPerVertexBlinn,
+    SID_ShaderPerPixelBlinn,
+    SID_ShaderPerVertexWave,
+    SID_ShaderCookTorrance,
+    SID_ShaderWater,
+    SID_ShaderBumpNormal,
+    SID_ShaderBumpParallax,
+    SID_ShaderSkyBox,
+    SID_ShaderEarth,
 
-    C_sceneAnimationMass,
-    C_sceneAnimationSkeletal,
-    C_sceneAnimationNode,
-    C_sceneAnimationArmy,
+    SID_VolumeRayCast,
+    SID_VolumeRayCastLighted,
 
-    C_sceneVideoTexture,
-    C_sceneVideoChristoffel,
-    C_sceneVideoCalibrateMain,
-    C_sceneVideoCalibrateScnd,
-    C_sceneVideoTrackChessMain,
-    C_sceneVideoTrackChessScnd,
-    C_sceneVideoTrackArucoMain,
-    C_sceneVideoTrackArucoScnd,
-    C_sceneVideoTrackFeature2DMain,
-    C_sceneVideoTrackFeature2DScnd,
+    SID_AnimationMass,
+    SID_AnimationSkeletal,
+    SID_AnimationNode,
+    SID_AnimationArmy,
 
-    C_sceneRTMuttenzerBox,
-    C_sceneRTSpheres,
-    C_sceneRTSoftShadows,
-    C_sceneRTDoF,
-    C_sceneRTLens,
-    C_sceneRTTest,
-    C_sceneMaximal,
+    SID_VideoTextureLive,
+    SID_VideoTextureFile,
+    SID_VideoChristoffel,
+    SID_VideoCalibrateMain,
+    SID_VideoCalibrateScnd,
+    SID_VideoTrackChessMain,
+    SID_VideoTrackChessScnd,
+    SID_VideoTrackArucoMain,
+    SID_VideoTrackArucoScnd,
+    SID_VideoTrackFeature2DMain,
+    SID_VideoTrackFeature2DScnd,
+    SID_VideoTrackFaceMain,
+    SID_VideoTrackFaceScnd,
+    SID_VideoSensorAR,
 
-    C_menu,
-    C_sceneInfoToggle,
-    C_quit,
-
-    C_multiSampleToggle,// Toggles multisampling
-    C_depthTestToggle,  // Toggles the depth test flag
-    C_frustCullToggle,  // Toggles frustum culling
-    C_waitEventsToggle, // Toggles the wait event flag
-
-    C_skeletonToggle,   // Toggles skeleton drawing bit
-    C_bBoxToggle,       // Toggles bounding box drawing bit
-    C_axisToggle,       // Toggles axis drawing bit
-    C_faceCullToggle,   // Toggles face culling
-    C_wireMeshToggle,   // Toggles wireframe drawing bit
-    C_normalsToggle,    // Toggles normal drawing bit
-    C_animationToggle,  // Animation bit toggle
-    C_textureToggle,    // Texture drawing bit toggle
-    C_voxelsToggle,     // Voxel drawing bit toggle
-   
-    C_projPersp,            // Perspective projection
-    C_projOrtho,            // Orthographic projection
-    C_projSideBySide,       // side-by-side
-    C_projSideBySideP,      // side-by-side proportional
-    C_projSideBySideD,      // Oculus Rift stereo mode
-    C_projLineByLine,       // line-by-line
-    C_projColumnByColumn,   // column-by-column
-    C_projPixelByPixel,     // checkerboard pattern (DLP3D)
-    C_projColorRC,          // color masking for red-cyan anaglyphs
-    C_projColorRG,          // color masking for red-green anaglyphs
-    C_projColorRB,          // color masking for red-blue anaglyphs
-    C_projColorYB,          // color masking for yellow-blue anaglyphs (ColorCode 3D)
-   
-    C_camReset,             // Resets to the initial camera view
-    C_camSetNextInScene,    // Switches to the next camera
-    C_camSetSceneViewCamera,// make the editor camera active
-    C_camDeviceRotOn,       // Use devices rotation (mobile or Oculus Rift) for camera view
-    C_camDeviceRotOff,      // Don't use devices rotation (mobile or Oculus Rift) for camera view
-    C_camDeviceRotToggle,   // Toggle devices rotation (mobile or Oculus Rift) for camera view
-    C_camEyeSepInc,         // Cameras eye separation distance increase
-    C_camEyeSepDec,         // Cameras eye separation distance decrease
-    C_camFocalDistInc,      // Cameras focal distance increase
-    C_camFocalDistDec,      // Cameras focal distance decrease
-    C_camFOVInc,            // Cameras field of view increase
-    C_camFOVDec,            // Cameras field of view decrease
-    C_camAnimTurnYUp,       // Sets turntable camera animation w. Y axis up
-    C_camAnimTurnZUp,       // Sets turntable camera animation w. Z axis up
-    C_camAnimWalkYUp,       // Sets 1st person walking camera animation w. Y axis up
-    C_camAnimWalkZUp,       // Sets 1st person walking camera animation w. Z axis up
-    C_camAnimFly1stP,       // Sets 1st person flying camera animation
-    C_camSpeedLimitInc,     // Increments the speed limit by 10%
-    C_camSpeedLimitDec,     // Decrements the speed limit by 10%
-
-    C_statsTimingToggle,
-    C_statsRendererToggle,
-    C_statsMemoryToggle,
-    C_statsVideoToggle,
-    C_statsCameraToggle,
-
-    C_dpiInc,               // Increase DPI 10%
-    C_dpiDec,               // Decrease DPI 10%
-
-    C_videoSizeIndexInc,    // tries to increase the video resolution
-    C_videoSizeIndexDec,    // tries to decrease the video resolution
-    C_videoSizeIndexDefault,// sets the default video resolution
-
-    C_undistortVideoToggle,
-    C_calibFixPrincipPointalToggle,
-    C_calibFixAspectRatioToggle,
-    C_calibZeroTangentDistToggle,
-    C_mirrorHMainVideoToggle,       // Mirror video image from main camera horizontally
-    C_mirrorVMainVideoToggle,       // Mirror video image from main camera vertically
-    C_mirrorHScndVideoToggle,       // Mirror video image from secondary camera horizontally
-    C_mirrorVScndVideoToggle,       // Mirror video image from secondary camera vertically
-
-    C_renderOpenGL,     // Render with GL
-    C_rtContinuously,   // Do ray tracing continuously
-    C_rtDistributed,    // Do ray tracing distributed
-    C_rtStop,           // Stop ray tracing
-    C_rt1,              //1: Do ray tracing with max. depth 1
-    C_rt2,              //2: Do ray tracing with max. depth 2
-    C_rt3,              //3: Do ray tracing with max. depth 3
-    C_rt4,              //4: Do ray tracing with max. depth 4
-    C_rt5,              //5: Do ray tracing with max. depth 5
-    C_rt6,              //6: Do ray tracing with max. depth 6
-    C_rt7,              //7: Do ray tracing with max. depth 7
-    C_rt8,              //8: Do ray tracing with max. depth 8
-    C_rt9,              //9: Do ray tracing with max. depth 9
-    C_rt0,              //0: Do ray tracing with max. depth
-    C_rtSaveImage,      // Save the ray tracing image
-    C_pt1,              // Do pathtracing 1 Rays
-    C_pt10,             // Do pathtracing 10 Rays
-    C_pt50,             // Do pathtracing 50 Rays
-    C_pt100,            // Do pathtracing 100 Rays
-    C_pt500,            // Do pathtracing 500 Rays
-    C_pt1000,           // Do pathtracing 1000 Rays
-    C_pt5000,           // Do pathtracing 5000 Rays
-    C_pt10000,          // Do pathtracing 10000 Rays
-    C_ptSaveImage       // Save the ray tracing image
+    SID_RTMuttenzerBox,
+    SID_RTSpheres,
+    SID_RTSoftShadows,
+    SID_RTDoF,
+    SID_RTLens,
+    SID_RTTest,
+    SID_Maximal
 };
 //-----------------------------------------------------------------------------
 //! Mouse button codes
@@ -241,28 +146,31 @@ enum SLTextAlign
     TA_bottomLeft, TA_bottomCenter, TA_bottomRight
 };
 //-----------------------------------------------------------------------------
-//! Enumeration for possible camera animation types
+//! Enumeration for available camera animation types
 enum SLCamAnim
-{   CA_turntableYUp,
-    CA_turntableZUp,
-    CA_walkingYUp,
-    CA_walkingZUp
+{   CA_turntableYUp,        //!< Orbiting around central object w. turnrable rotation around y & right axis.
+    CA_turntableZUp,        //!< Orbiting around central object w. turnrable rotation around z & right axis.
+    CA_trackball,           //!< Orbiting around central object w. one rotation around one axis
+    CA_walkingYUp,          //!< Walk translation with AWSD and look around rotation around y & right axis.
+    CA_walkingZUp,          //!< Walk translation with AWSD and look around rotation around z & right axis.
+    CA_deviceRotYUp,        //!< The device rotation controls the camera rotation.
+    CA_deviceRotLocYUp      //!< The device rotation controls the camera rotation and the GPS controls the Camera Translati
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for different camera projections
 enum SLProjection
-{   P_monoPerspective,     //!< standard mono pinhole perspective projection
-    P_monoOrthographic,    //!< standard mono orthographic projection
-    P_stereoSideBySide,    //!< side-by-side
-    P_stereoSideBySideP,   //!< side-by-side proportional for mirror stereoscopes
-    P_stereoSideBySideD,   //!< side-by-side distorted for Oculus Rift like glasses
-    P_stereoLineByLine,    //!< line-by-line
-    P_stereoColumnByColumn,//!< column-by-column
-    P_stereoPixelByPixel,  //!< checkerboard pattern (DLP3D)
-    P_stereoColorRC,       //!< color masking for red-cyan anaglyphs
-    P_stereoColorRG,       //!< color masking for red-green anaglyphs
-    P_stereoColorRB,       //!< color masking for red-blue anaglyphs
-    P_stereoColorYB        //!< color masking for yellow-blue anaglyphs (ColorCode 3D)
+{   P_monoPerspective,      //!< standard mono pinhole perspective projection
+    P_monoOrthographic,     //!< standard mono orthographic projection
+    P_stereoSideBySide,     //!< side-by-side
+    P_stereoSideBySideP,    //!< side-by-side proportional for mirror stereoscopes
+    P_stereoSideBySideD,    //!< side-by-side distorted for Oculus Rift like glasses
+    P_stereoLineByLine,     //!< line-by-line
+    P_stereoColumnByColumn, //!< column-by-column
+    P_stereoPixelByPixel,   //!< checkerboard pattern (DLP3D)
+    P_stereoColorRC,        //!< color masking for red-cyan anaglyphs
+    P_stereoColorRG,        //!< color masking for red-green anaglyphs
+    P_stereoColorRB,        //!< color masking for red-blue anaglyphs
+    P_stereoColorYB         //!< color masking for yellow-blue anaglyphs (ColorCode 3D)
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for stereo eye type used for camera projection
@@ -317,8 +225,8 @@ enum SLEasingCurve
 //-----------------------------------------------------------------------------
 //! Describes the relative space a transformation is applied in.
 enum SLTransformSpace
-{   TS_world, 
-    TS_parent,  
+{   TS_world,
+    TS_parent,
     TS_object,
 };
 //-----------------------------------------------------------------------------
@@ -381,7 +289,7 @@ enum SLCVCalibState
     CS_calibrateStream, //!< The calibration is running with live video stream
     CS_calibrateGrab,   //!< The calibration is running and an image should be grabbed
     CS_startCalculating,//!< The calibration starts during the next frame
-    CS_calibrated,      //!< The camera is calibrated 
+    CS_calibrated,      //!< The camera is calibrated
     CS_guessed        //!< The camera intrinsics where estimated from FOV
 };
 //-----------------------------------------------------------------------------
@@ -397,6 +305,7 @@ enum SLVideoType
 {   VT_NONE =  0,  //!< No camera needed
     VT_MAIN =  1,  //!< Main camera on all on all all devices
     VT_SCND =  2,  //!< Selfie camera on mobile devices
+    VT_FILE =  3,  //!< Loads a video from file with OpenCV
 };
 //-----------------------------------------------------------------------------
 //! Feature detector-decriptor types

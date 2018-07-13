@@ -11,22 +11,16 @@
 #include <stdafx.h>         // precompiled headers
 
 /*
-The OpenCV library version 3.1 with extra module must be present.
+The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
 See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
+#include <SLApplication.h>
 #include <SLSceneView.h>
 #include <SLCVTrackedAruco.h>
-
-#include <opencv2/core/core.hpp>
-#include <opencv2/core/utility.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/calib3d.hpp>
-#include <opencv2/video/tracking.hpp>
 
 using namespace cv;
 //-----------------------------------------------------------------------------
@@ -78,7 +72,7 @@ SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
         // Detect //
         ////////////
 
-        SLScene* s = SLScene::current;
+        SLScene* s = SLApplication::scene;
         SLfloat startMS = s->timeMilliSec();
 
         arucoIDs.clear();
@@ -140,7 +134,7 @@ SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
                 // set the object matrix depending if the
                 // tracked node is attached to a camera or not
                 if (typeid(*_node)==typeid(SLCamera))
-                    _node->om(objectViewMats[i].inverse());
+                    _node->om(objectViewMats[i].inverted());
                 else
                 {   _node->om(calcObjectMatrix(sv->camera()->om(),
                                                objectViewMats[i]));

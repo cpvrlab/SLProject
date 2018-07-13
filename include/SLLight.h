@@ -11,7 +11,8 @@
 #ifndef SLLIGHTGL_H
 #define SLLIGHTGL_H
 
-#include <stdafx.h>
+#include <SL.h>
+#include <SLVec4.h>
 
 class SLSceneView;
 class SLRay;

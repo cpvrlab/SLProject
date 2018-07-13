@@ -11,7 +11,8 @@
 #ifndef SLINPUTDEVICE_H
 #define SLINPUTDEVICE_H
 
-#include <stdafx.h>
+#include <vector>
+#include <SL.h>
 
 //-----------------------------------------------------------------------------
 //! Interface for input devices that have to be pollsed
@@ -28,7 +29,7 @@ public:
     event's being sent out that were accepted by some receiver. */
     virtual SLbool  poll    () = 0;
 };
-
+//-----------------------------------------------------------------------------
 typedef vector<SLInputDevice*> SLVInputDevice;
-
+//-----------------------------------------------------------------------------
 #endif

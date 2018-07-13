@@ -58,9 +58,13 @@ public class GLES3Camera2Service extends Service {
             String pickedCamera = getCamera(manager, videoType);
             manager.openCamera(pickedCamera, cameraStateCallback, null);
             Size videoSize = getRequestedSize(manager, videoType, requestedVideoSizeIndex);
-            imageReader = ImageReader.newInstance(videoSize.getWidth(), videoSize.getHeight(), ImageFormat.YUV_420_888, 2);
-            imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
-            Log.i(TAG, "imageReader created");
+            if (videoSize.getWidth() > 0 && videoSize.getHeight() > 0) {
+                imageReader = ImageReader.newInstance(videoSize.getWidth(), videoSize.getHeight(), ImageFormat.YUV_420_888, 2);
+                imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
+                Log.i(TAG, "imageReader created");
+            } else {
+                Log.i(TAG, "No imageReader created: videoSize is zero!");
+            }
         } catch (CameraAccessException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -103,6 +107,10 @@ public class GLES3Camera2Service extends Service {
 
         Size[] availableSizes = getOutputSizes(manager, lensFacing);
 
+        // On certain old Androids getOutputSizes can return empty arrays
+        if (availableSizes.length == 0)
+            return new Size(0,0);
+
         // set default size index to a size in the middle of the array
         int defaultSizeIndex = availableSizes.length / 2;
 
@@ -136,7 +144,7 @@ public class GLES3Camera2Service extends Service {
                 int cOrientation = characteristics.get(CameraCharacteristics.LENS_FACING);
                 if (cOrientation == lensFacing) {
                     StreamConfigurationMap streamConfigurationMap = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-                    Size[] sizes = streamConfigurationMap.getOutputSizes(ImageReader.class);
+                    Size[] sizes = streamConfigurationMap.getOutputSizes(ImageFormat.YUV_420_888);
                     return sizes;
                 }
             }
@@ -188,6 +196,9 @@ public class GLES3Camera2Service extends Service {
         @Override
         public void onImageAvailable(ImageReader reader) {
 
+            // Don't copy the available image if the last wasn't consumed
+            if (!GLES3Lib.lastVideoImageIsConsumed) return;
+
             // The opengl renderer runs in its own thread. We have to copy the image in the renderers thread!
             GLES3Lib.view.queueEvent(new Runnable() {
                 @Override
@@ -222,7 +233,6 @@ public class GLES3Camera2Service extends Service {
                     int uRowStride = Y.getRowStride();
                     int vRowStride = Y.getRowStride();
 
-
                     byte[] data = new byte[ySize + uSize + vSize];
                     Y.getBuffer().get(data, 0, ySize);
                     U.getBuffer().get(data, ySize, uSize);
@@ -233,6 +243,7 @@ public class GLES3Camera2Service extends Service {
                     ///////////////////////////////////////////////////////////////
 
                     /*
+                    This version of the separate copying of the planes is astonishingly not faster!
                     byte[] bufY = new byte[ySize];
                     byte[] bufU = new byte[uSize];
                     byte[] bufV = new byte[vSize];
@@ -247,12 +258,18 @@ public class GLES3Camera2Service extends Service {
                                                 bufU, uSize, uPixStride, uRowStride,
                                                 bufV, vSize, vPixStride, vRowStride);
                     */
+
                     img.close();
+
+                    // This avoids the next call into this before the image got displayed
+                    GLES3Lib.lastVideoImageIsConsumed = false;
+
+                    // Request a new rendering
+                    GLES3Lib.view.requestRender();
                 }
             });
         }
     };
-
 
     public void actOnReadyCameraDevice() {
         try {

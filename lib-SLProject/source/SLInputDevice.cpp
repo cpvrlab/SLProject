@@ -12,11 +12,13 @@
 #ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
 #include <debug_new.h>        // memory leak detector
 #endif
+#include <SLApplication.h>
 #include <SLInputManager.h>
 
 //-----------------------------------------------------------------------------
 /*! Constructor for SLInputDevices. This will automatically enable the device,
-adding them to the SLInputManager. */
+adding them to the SLInputManager.
+ */
 SLInputDevice::SLInputDevice()
 {
     // enable any input device on creation
@@ -24,7 +26,8 @@ SLInputDevice::SLInputDevice()
 }
 
 //-----------------------------------------------------------------------------
-/*! The destructor removes the device from SLInputManager again if necessary. */
+/*! The destructor removes the device from SLInputManager again if necessary.
+*/
 SLInputDevice::~SLInputDevice()
 {
     disable();
@@ -32,17 +35,19 @@ SLInputDevice::~SLInputDevice()
 
 //-----------------------------------------------------------------------------
 /*! Enabling an SLInputDevice will add it to the device list kept by
-SLInputManager */
+SLInputManager
+*/
 void SLInputDevice::enable()
 {
-    SLInputManager::instance()._devices.push_back(this);
+    SLApplication::inputManager.devices().push_back(this);
 }
 //-----------------------------------------------------------------------------
 /*! Enabling an SLInputDevice will remove it from the device list kept by
-SLInputManager */
+SLInputManager
+*/
 void SLInputDevice::disable()
 {
-    SLVInputDevice& dl = SLInputManager::instance()._devices;
+    SLVInputDevice& dl = SLApplication::inputManager.devices();
     dl.erase(remove(dl.begin(), dl.end(), this), dl.end());
 }
 //-----------------------------------------------------------------------------

@@ -42,21 +42,18 @@ add_definitions(-DASSIMP_BUILD_NO_IFC_IMPORTER)
 add_definitions(-DASSIMP_BUILD_NO_XGL_IMPORTER)
 
 #
-# OpenCV
-#
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/main/jniInclude/include)
-
-#
 # SLProject
 #
 file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/math/SLCurveBezier.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/math/SLPlane.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SL.cpp 
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SL.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLApplication.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLAssimpImporter.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLFileSystem.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLImporter.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLInterface.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLTexFont.cpp 
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLTexFont.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLSkybox.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLTimer.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLImGui.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLOculus.cpp 
@@ -78,6 +75,7 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedAruco.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedChessboard.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedFeatures.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedFaces.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAABBox.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimation.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimManager.cpp 
@@ -89,9 +87,11 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCone.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCompactGrid.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCoordAxis.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCylinder.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDisk.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCylinder.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDemoGui.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDeviceRotation.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDeviceLocation.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDisk.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLGrid.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLInputDevice.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLInputManager.cpp 
@@ -106,7 +106,8 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLMesh.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLNode.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLPathtracer.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLPolygon.cpp 
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLPolygon.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLPoints.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLRay.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLRaytracer.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLRectangle.cpp 
@@ -126,14 +127,10 @@ file(GLOB_RECURSE SLEXTERNAL_SOURCES    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/*.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/*.c
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/*.cc
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/sobol.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/ranrotw.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/ranrotb.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/random.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/mother.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/mersenne.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui/imgui.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui/imgui_draw.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa/spa.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa/spa.h
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/Decompose.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/Decompose.h
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/EulerAngles.cpp
@@ -145,11 +142,19 @@ list(REMOVE_ITEM SLEXTERNAL_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/OgreSkeleton.cpp
                                         )
 
+file(GLOB_RECURSE APP_DEMO_SOURCES      ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoAndroidJNI.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoLoad.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGui.h
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGui.cpp
+                                        )
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/opencv/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/nvwa)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/zlib)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code)
@@ -162,13 +167,34 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code
 #
 # OpenCV
 #
-add_library(lib_opencv SHARED IMPORTED)
-set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${ANDROID_ABI}/libopencv_java3.so)
-
+add_library(lib_opencv_aruco SHARED IMPORTED)
+set_target_properties(lib_opencv_aruco PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_aruco.so)
+add_library(lib_opencv_video SHARED IMPORTED)
+set_target_properties(lib_opencv_video PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_video.so)
+add_library(lib_opencv_videoio SHARED IMPORTED)
+set_target_properties(lib_opencv_videoio PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_videoio.so)
+add_library(lib_opencv_core SHARED IMPORTED)
+set_target_properties(lib_opencv_core PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_core.so)
+add_library(lib_opencv_imgproc SHARED IMPORTED)
+set_target_properties(lib_opencv_imgproc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_imgproc.so)
+add_library(lib_opencv_features2d SHARED IMPORTED)
+set_target_properties(lib_opencv_features2d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_features2d.so)
+add_library(lib_opencv_calib3d SHARED IMPORTED)
+set_target_properties(lib_opencv_calib3d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_calib3d.so)
+add_library(lib_opencv_imgcodecs SHARED IMPORTED)
+set_target_properties(lib_opencv_imgcodecs PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_imgcodecs.so)
+add_library(lib_opencv_highgui SHARED IMPORTED)
+set_target_properties(lib_opencv_highgui PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_highgui.so)
+add_library(lib_opencv_xfeatures2d SHARED IMPORTED)
+set_target_properties(lib_opencv_xfeatures2d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_xfeatures2d.so)
+add_library(lib_opencv_objdetect SHARED IMPORTED)
+set_target_properties(lib_opencv_objdetect PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_objdetect.so)
+add_library(lib_opencv_face SHARED IMPORTED)
+set_target_properties(lib_opencv_face PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_face.so)
 
 add_library(native-lib
             SHARED
-            src/main/cpp/native-lib.cpp
+            ${APP_DEMO_SOURCES}
             ${SLPROJECT_SOURCES}
             ${SLEXTERNAL_SOURCES}
 )
@@ -178,7 +204,7 @@ find_library( log-lib log )
 #
 # GLES
 #
-#set(OPENGL_LIB_v2 GLESv2)
+
 set(OPENGL_LIB_v3 GLESv3)
 
 # Specifies libraries CMake should link to your target library. You
@@ -186,8 +212,18 @@ set(OPENGL_LIB_v3 GLESv3)
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries(  native-lib
-                        lib_opencv
-                        #${OPENGL_LIB_v2}
+                        lib_opencv_aruco
+                        lib_opencv_video
+                        lib_opencv_videoio
+                        lib_opencv_core
+                        lib_opencv_imgproc
+                        lib_opencv_features2d
+                        lib_opencv_calib3d
+                        lib_opencv_imgcodecs
+                        lib_opencv_highgui
+                        lib_opencv_xfeatures2d
+                        lib_opencv_objdetect
+                        lib_opencv_face
                         ${OPENGL_LIB_v3}
                         ${log-lib}
                      )
@@ -216,18 +252,25 @@ file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/t
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LiveVideoError.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LogoCPVR_256L.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/features_stones.png
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Desert*_C.jpg
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/i*_0000b.png)
+
+file(GLOB_RECURSE VIDEOS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/street3.mp4)
 
 file(GLOB_RECURSE FONTS         ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.ttf)
 
+# If you add new models you must delete ${CMAKE_CURRENT_SOURCE_DIR}/src/main/assets
 file(GLOB_RECURSE MODELS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/models/*)
 
 file(GLOB_RECURSE SHADERS       ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/*.vert
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/*.frag)
 
 file(GLOB_RECURSE CALIBRATIONS  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/calib_in_params.yml
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/aruco_detector_params.yml)
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/aruco_detector_params.yml
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/lbfmodel.yaml
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/haarcascade_frontalface_alt.xml
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/haarcascade_frontalface_alt2.xml)
 
 file(GLOB_RECURSE CONFIG        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/config/dummyFile.txt)
 
@@ -235,13 +278,17 @@ set(APK_ASSETS                  ${CMAKE_CURRENT_SOURCE_DIR}/src/main/assets)
 
 file(MAKE_DIRECTORY             ${APK_ASSETS}/fonts
                                 ${APK_ASSETS}/textures
+                                ${APK_ASSETS}/videos
                                 ${APK_ASSETS}/models
                                 ${APK_ASSETS}/shaders
                                 ${APK_ASSETS}/calibrations
                                 ${APK_ASSETS}/config)
 
+message("${MODELS}: ********************************************************************************" ${MODELS})
+
 file(COPY ${FONTS}          DESTINATION ${APK_ASSETS}/fonts)
 file(COPY ${TEXTURES}       DESTINATION ${APK_ASSETS}/textures)
+file(COPY ${VIDEOS}         DESTINATION ${APK_ASSETS}/videos)
 file(COPY ${MODELS}         DESTINATION ${APK_ASSETS}/models)
 file(COPY ${SHADERS}        DESTINATION ${APK_ASSETS}/shaders)
 file(COPY ${CALIBRATIONS}   DESTINATION ${APK_ASSETS}/calibrations)

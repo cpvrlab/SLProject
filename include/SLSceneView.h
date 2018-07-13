@@ -11,10 +11,9 @@
 #ifndef SLSCENEVIEW_H
 #define SLSCENEVIEW_H
 
-#include <stdafx.h>
-
 #include <SLScene.h>
 #include <SLNode.h>
+#include <SLSkybox.h>
 #include <SLEventHandler.h>
 #include <SLRaytracer.h>
 #include <SLPathtracer.h>
@@ -42,11 +41,8 @@ typedef SLbool (SL_STDCALL *cbOnWndUpdate)(void);
 //! Callback function typedef for select node 
 typedef void (SL_STDCALL *cbOnSelectNodeMesh)(SLNode*, SLMesh*);
 
-//! Callback function typedef for showing and hiding the system cursor
-typedef void(SL_STDCALL *cbOnShowSysCursor)(bool);
-
 //! Callback function typedef for ImGui build function
-typedef void(SL_STDCALL *cbOnBuildImGui)(SLScene* s, SLSceneView* sv);
+typedef void(SL_STDCALL *cbOnImGuiBuild)(SLScene* s, SLSceneView* sv);
 
 //-----------------------------------------------------------------------------
 //! SceneView class represents a dynamic real time 3D view onto the scene.
@@ -75,8 +71,7 @@ class SLSceneView: public SLObject
                                              SLint screenHeight,
                                              void* onWndUpdateCallback,
                                              void* onSelectNodeMeshCallback,
-                                             void* onToggleSystemCursorCallback,
-                                             void* onBuildImGui);
+                                             void* onImGuiBBuild);
 
 		      // virtual hooks for subclasses of SLSceneView
    virtual  void            onStartup       () { }
@@ -105,7 +100,6 @@ class SLSceneView: public SLObject
     virtual SLbool          onKeyPress      (SLKey key, SLKey mod);
     virtual SLbool          onKeyRelease    (SLKey key, SLKey mod);
     virtual SLbool          onCharInput     (SLuint c);
-            SLbool          onCommand       (SLCommand cmd);
             
             // Drawing subroutines
             SLbool          draw3DGL            (SLfloat elapsedTimeSec);
@@ -124,6 +118,7 @@ class SLSceneView: public SLObject
             void            initSceneViewCamera (const SLVec3f& dir = -SLVec3f::AXISZ, 
                                                 SLProjection proj = P_monoPerspective);
             void            switchToSceneViewCamera();
+            void            switchToNextCameraInScene();
             SLbool          isSceneViewCameraActive() {return _camera == &_sceneViewCamera;}
 
             // Misc.
@@ -134,46 +129,52 @@ class SLSceneView: public SLObject
             SLbool          testRunIsFinished   ();
 
             // Callback routines
-            cbOnWndUpdate       onWndUpdate;        //!< Callback for intermediate window repaint
-            cbOnSelectNodeMesh  onSelectedNodeMesh; //!< Callback on node selection
-            cbOnShowSysCursor   onShowSysCursor;    //!< Callback for hiding and showing system cursor
+            cbOnWndUpdate       onWndUpdate;        //!< C-Callback for intermediate window repaint
+            cbOnSelectNodeMesh  onSelectedNodeMesh; //!< C-Callback on node selection
    
             // Setters
             void            camera              (SLCamera* camera) {_camera = camera;}
+            void            skybox              (SLSkybox* skybox) {_skybox = skybox;}
             void            scrW                (SLint  scrW){_scrW = scrW;}
             void            scrH                (SLint  scrH){_scrH = scrH;}
-            void            waitEvents          (SLbool wait){_waitEvents = wait;}
+            void            doWaitOnIdle        (SLbool doWI){_doWaitOnIdle = doWI;}
+            void            doMultiSampling     (SLbool doMS){_doMultiSampling = doMS;}
+            void            doDepthTest         (SLbool doDT){_doDepthTest = doDT;}
+            void            doFrustumCulling    (SLbool doFC){_doFrustumCulling = doFC;}
             void            gotPainted          (SLbool val) {_gotPainted = val;}
+            void            renderType          (SLRenderType rt){_renderType = rt;}
 
             // Getters
-    inline  SLuint          index               () const {return _index;}
-    inline  SLCamera*       camera              () {return _camera;}
-    inline  SLCamera*       sceneViewCamera     () {return &_sceneViewCamera;}
-    inline  SLint           scrW                () const {return _scrW;}
-    inline  SLint           scrH                () const {return _scrH;}
-    inline  SLint           scrWdiv2            () const {return _scrWdiv2;}
-    inline  SLint           scrHdiv2            () const {return _scrHdiv2;}
-    inline  SLfloat         scrWdivH            () const {return _scrWdivH;}
-    inline  SLGLImGui&      gui                 () {return _gui;}
-    inline  SLbool          gotPainted          () const {return _gotPainted;}
-    inline  SLbool          doFrustumCulling    () const {return _doFrustumCulling;}
-    inline  SLbool          hasMultiSampling    () const {return _stateGL->hasMultiSampling();}
-    inline  SLbool          doMultiSampling     () const {return _doMultiSampling;}
-    inline  SLbool          doDepthTest         () const {return _doDepthTest;}
-    inline  SLbool          waitEvents          () const {return _waitEvents;}
-    inline  SLVNode*        visibleNodes        () {return &_visibleNodes;}
-    inline  SLVNode*        blendNodes          () {return &_blendNodes;}
-    inline  SLRaytracer*    raytracer           () {return &_raytracer;}
-    inline  SLPathtracer*   pathtracer          () {return &_pathtracer;}
-    inline  SLRenderType    renderType          () const {return _renderType;}
-    inline  SLGLOculusFB*   oculusFB            () {return &_oculusFB;}
-    inline  SLDrawBits*     drawBits            () {return &_drawBits;}
-    inline  SLbool          drawBit             (SLuint bit) {return _drawBits.get(bit);}
-    inline  SLfloat         cullTimeMS          () const {return _cullTimeMS;}
-    inline  SLfloat         draw3DTimeMS        () const {return _draw3DTimeMS;}
-    inline  SLfloat         draw2DTimeMS        () const {return _draw2DTimeMS;}
-    inline  SLNodeStats&    stats2D             () {return _stats2D;}
-    inline  SLNodeStats&    stats3D             () {return _stats3D;}
+            SLuint          index               () const {return _index;}
+            SLCamera*       camera              () {return _camera;}
+            SLCamera*       sceneViewCamera     () {return &_sceneViewCamera;}
+            SLSkybox*       skybox              () {return _skybox;}
+            SLint           scrW                () const {return _scrW;}
+            SLint           scrH                () const {return _scrH;}
+            SLint           scrWdiv2            () const {return _scrWdiv2;}
+            SLint           scrHdiv2            () const {return _scrHdiv2;}
+            SLfloat         scrWdivH            () const {return _scrWdivH;}
+            SLGLImGui&      gui                 () {return _gui;}
+            SLbool          gotPainted          () const {return _gotPainted;}
+            SLbool          hasMultiSampling    () const {return _stateGL->hasMultiSampling();}
+            SLbool          doFrustumCulling    () const {return _doFrustumCulling;}
+            SLbool          doMultiSampling     () const {return _doMultiSampling;}
+            SLbool          doDepthTest         () const {return _doDepthTest;}
+            SLbool          doWaitOnIdle        () const {return _doWaitOnIdle;}
+            SLVNode*        visibleNodes        () {return &_visibleNodes;}
+            SLVNode*        visibleNodes2D      () {return &_visibleNodes2D;}
+            SLVNode*        blendNodes          () {return &_blendNodes;}
+            SLRaytracer*    raytracer           () {return &_raytracer;}
+            SLPathtracer*   pathtracer          () {return &_pathtracer;}
+            SLRenderType    renderType          () const {return _renderType;}
+            SLGLOculusFB*   oculusFB            () {return &_oculusFB;}
+            SLDrawBits*     drawBits            () {return &_drawBits;}
+            SLbool          drawBit             (SLuint bit) {return _drawBits.get(bit);}
+            SLfloat         cullTimeMS          () const {return _cullTimeMS;}
+            SLfloat         draw3DTimeMS        () const {return _draw3DTimeMS;}
+            SLfloat         draw2DTimeMS        () const {return _draw2DTimeMS;}
+            SLNodeStats&    stats2D             () {return _stats2D;}
+            SLNodeStats&    stats3D             () {return _stats3D;}
 
     static const SLint      LONGTOUCH_MS;       //!< Milliseconds duration of a long touch event
 
@@ -183,6 +184,7 @@ class SLSceneView: public SLObject
             SLCamera*       _camera;            //!< Pointer to the _active camera
             SLCamera        _sceneViewCamera;   //!< Default camera for this SceneView (default cam not in scenegraph)         
             SLGLImGui       _gui;               //!< ImGui instance
+            SLSkybox*       _skybox;            //!< pointer to skybox 
 
             SLNodeStats     _stats2D;           //!< Statistic numbers for 2D nodes
             SLNodeStats     _stats3D;           //!< Statistic numbers for 3D nodes
@@ -193,7 +195,7 @@ class SLSceneView: public SLObject
             SLbool          _doDepthTest;       //!< Flag if depth test is turned on
             SLbool          _doMultiSampling;   //!< Flag if multisampling is on
             SLbool          _doFrustumCulling;  //!< Flag if view frustum culling is on
-            SLbool          _waitEvents;        //!< Flag for Event waiting
+            SLbool          _doWaitOnIdle;        //!< Flag for Event waiting
             SLbool          _isFirstFrame;      //!< Flag if it is the first frame rendering
             SLDrawBits      _drawBits;          //!< Sceneview level drawing flags
 
@@ -209,8 +211,7 @@ class SLSceneView: public SLObject
             SLVec2i         _touch[3];          //!< up to 3 finger touch coordinates
             SLGLVertexArrayExt _vaoTouch;       //!< Buffer for touch pos. rendering
             SLGLVertexArrayExt _vaoCursor;      //!< Virtual cursor for stereo rendering
-            
-            SLVec2i         _posCursor;         //!< Cursor position as reported by the os
+
             SLint           _scrW;              //!< Screen width in pixels
             SLint           _scrH;              //!< Screen height in pixels
             SLint           _scrWdiv2;          //!< Screen half width in pixels
@@ -218,10 +219,10 @@ class SLSceneView: public SLObject
             SLfloat         _scrWdivH;          //!< Screen side aspect ratio
 
             SLGLOculusFB    _oculusFB;          //!< Oculus framebuffer
-			SLbool			_vrMode;			//!< Flag if we're in VR mode (forces camera to stereoD)
 
             SLVNode         _blendNodes;        //!< Vector of visible and blended nodes
             SLVNode         _visibleNodes;      //!< Vector of all visible nodes
+            SLVNode         _visibleNodes2D;    //!< Vector of all visible 2D nodes drawn in ortho projection
             
             SLRaytracer     _raytracer;         //!< Whitted style raytracer
             SLbool          _stopRT;            //!< Flag to stop the RT

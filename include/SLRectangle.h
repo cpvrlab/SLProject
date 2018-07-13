@@ -11,8 +11,7 @@
 #ifndef SLRECTANGLE_H
 #define SLRECTANGLE_H
 
-#include <stdafx.h>
-#include "SLMesh.h"
+#include <SLMesh.h>
 
 //-----------------------------------------------------------------------------
 //! SLRectangle creates a rectangular mesh with a certain resolution

@@ -28,11 +28,11 @@ SLTriangle::SLTriangle(SLMaterial *material, SLstring name,
     t[1] = t1;
     t[2] = t2;
 
-    mat = material;
+    mat(material);
 
     _isVolume = false;
 
-    buildMesh(mat);
+    buildMesh(material);
 }
 //-----------------------------------------------------------------------------
 //! Builds the mesh by copying the vertex info into the arrays of SLMescj

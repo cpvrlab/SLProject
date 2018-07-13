@@ -11,7 +11,6 @@
 #ifndef SLCOORDAXIS_H
 #define SLCOORDAXIS_H
 
-#include <stdafx.h>
 #include <SLMesh.h>
 #include <SLEnums.h>
 

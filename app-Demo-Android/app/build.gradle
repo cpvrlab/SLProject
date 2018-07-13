@@ -1,12 +1,16 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "25.0.0"
-    defaultConfig {
-        jackOptions {
-            enabled true
+    signingConfigs {
+        release {
+            keyAlias 'cpvrlab'
+            keyPassword 'uwenadat'
+            storeFile file('../../app-Demo-Android/cpvrlab-release-key')
+            storePassword 'uwenadat'
         }
+    }
+    compileSdkVersion 24
+    defaultConfig {
         applicationId "ch.fhnw.comgr"
         minSdkVersion 21
         targetSdkVersion 23
@@ -14,25 +18,34 @@ android {
         versionName "2.0.019"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a'
+            abiFilters 'arm64-v8a'
         }
         externalNativeBuild {
             cmake {
                 cppFlags "-frtti -fexceptions -std=c++11 -w -Wno-error=format-security"
-                abiFilters 'armeabi-v7a', 'arm64-v8a'
+                abiFilters 'arm64-v8a'
             }
         }
     }
     sourceSets {
         main {
-            jniLibs.srcDirs = ['../../_lib/prebuilt/OpenCV/android']
             assets.srcDirs = ['src/main/assets']
+        }
+        debug {
+            jniLibs.srcDirs = ['../../_lib/prebuilt/OpenCV/android/Debug']
+        }
+        release {
+            jniLibs.srcDirs = ['../../_lib/prebuilt/OpenCV/android/Release']
         }
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            jniDebuggable true
         }
     }
     externalNativeBuild {
@@ -41,9 +54,10 @@ android {
         }
     }
     compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
+        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
     }
+    buildToolsVersion '27.0.3'
 }
 
 /*
@@ -59,10 +73,10 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:24.+'
     /*
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.0', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    testCompile 'junit:junit:4.12'
-    compile project(':openCVLibrary310')
-    */
+                        androidTestCompile('com.android.support.test.espresso:espresso-core:2.0', {
+                            exclude group: 'com.android.support', module: 'support-annotations'
+                        })
+                        testCompile 'junit:junit:4.12'
+                        compile project(':openCVLibrary310')
+                        */
 }

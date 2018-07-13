@@ -11,39 +11,6 @@
 #ifndef SL_H
 #define SL_H
 
-#include <SLEnums.h>
-//-----------------------------------------------------------------------------
-// Include standard C++ libraries
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <list>
-#include <queue>
-#include <typeinfo>
-#include <string>
-#include <algorithm>
-#include <map>
-#include <chrono>
-#include <thread>
-#include <atomic>
-#include <functional>
-#include <random>
-#include <cstdarg>
-
-//-----------------------------------------------------------------------------
-// Include standard C libraries
-#include <stdio.h>               // for the old ANSI C IO functions
-#include <stdlib.h>              // srand, rand
-#include <float.h>               // for defines like FLT_MAX & DBL_MAX
-#include <limits.h>              // for defines like UINT_MAX
-#include <assert.h>              // for debug asserts
-#include <time.h>                // for clock()
-#include <sys/stat.h>            // for file info used in SLUtils
-#include <math.h>                // for math functions
-#include <string.h>              // for string functions
-//-----------------------------------------------------------------------------
-
 //////////////////////////////////////////////////////////
 // Preprocessor constant definitions used in the SLProject
 //////////////////////////////////////////////////////////
@@ -58,7 +25,6 @@ SL_OS_LINUX    :Linux desktop OS
 
 With the OS definition the following constants are defined:
 SL_GLES : Any version of OpenGL ES
-SL_GLES2: Supports only OpenGL ES2
 SL_GLES3: Supports only OpenGL ES3
 SL_MEMLEAKDETECT: The memory leak detector NVWA is used
 SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
@@ -130,10 +96,6 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
     #include <GL/glew.h>
 #elif defined(SL_OS_ANDROID)
     #include <sys/time.h>
-    #ifdef SL_GLES2
-        #include <GLES2/gl2.h>
-        #include <GLES2/gl2ext.h>
-    #endif
     #ifdef SL_GLES3
         #include <GLES3/gl3.h>
         #include <GLES3/gl3ext.h>
@@ -151,6 +113,7 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
     #include <windows.h>
     #include <GL/glew.h>
 #elif defined(SL_OS_LINUX)
+    #include <sstream>
     #include <sys/time.h>
     #include <functional>
     #include <thread>
@@ -213,12 +176,7 @@ typedef int64_t         SLint64;
 typedef uint64_t        SLuint64;
 typedef GLsizei         SLsizei;
 typedef GLfloat         SLfloat;
-#ifdef SL_HAS_DOUBLE
-typedef GLdouble        SLdouble;
-typedef GLfloat         SLreal;
-#else
-typedef GLfloat         SLreal;
-#endif
+typedef double          SLdouble;
 typedef bool            SLbool; 
 typedef GLenum          SLenum;
 typedef GLbitfield      SLbitfield;
@@ -272,19 +230,7 @@ template<class T> inline SLint SL_sizeOfVector(const T &vector)
 #define SL_EXIT_MSG(M)  SL::exitMsg((M), __LINE__, __FILE__)
 #define SL_WARN_MSG(M)  SL::warnMsg((M), __LINE__, __FILE__)
 //-----------------------------------------------------------------------------
-/*! Since Android does not support full C++11 support, we have to override the
-to_string method manually.
-*/
-template<typename T>
-std::string to_string(T value)
-{
-    std::ostringstream os;
-    os << value;
-    return os.str();
-}
-//-----------------------------------------------------------------------------
 //! Class SL with some global static functions and members.
-class SLSceneView;
 class SL
 {
     public:
@@ -296,27 +242,6 @@ class SL
                                                  const SLint line, 
                                                  const SLchar* file);
     static SLuint           maxThreads          ();
-    static SLstring         getCWD              ();
-    static void             parseCmdLineArgs    (SLVstring& cmdLineArgs);
-    static SLbool           noTestIsRunning     (){return (SLint)testScene == -1;}
-    static SLbool           singleTestIsRunning (){return testScene > C_sceneAll && 
-                                                          testScene <= C_sceneRTTest;}
-    static SLbool           allTestIsRunning    (){return testScene > C_sceneAll && 
-                                                          testScene <= C_sceneRTTest;}
-    static SLfloat          dpmm                () {return (float)dpi/25.4f;}
-
-    static SLCommand        testScene;          //!< Test scene command id (-1 for no test)
-    static SLCommand        testSceneAll;       //!< Test scene command id for all tests
-    static SLint            testDurationSec;    //!< Test time in seconds
-    static SLint            testFactor;         //!< Test factor for scene construction
-    static SLLogVerbosity   testLogVerbosity;   //!< Test logging verbosity
-    static SLuint           testFrameCounter;   //!< Test frame counters
-    static const SLVstring  testSceneNames;     //!< Vector with scene names
-
-    static SLstring         version;            //!< SLProject version string
-    static SLint            dpi;                //!< Current UI dot per inch resolution
-    static SLstring         configPath;         //!< Default path for calibration files
-    static SLCommand        currentSceneID;     //!< ID of last loaded scene
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -11,7 +11,6 @@
 #ifndef SLCONE_H
 #define SLCONE_H
 
-#include <stdafx.h>
 #include <SLRevolver.h>
 
 //-----------------------------------------------------------------------------

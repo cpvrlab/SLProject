@@ -11,9 +11,12 @@
 #ifndef SLGLTEXTURE_H
 #define SLGLTEXTURE_H
 
-#include <stdafx.h>
+#include <atomic>
 #include <SLCVImage.h>
 #include <SLGLVertexArray.h>
+#include <SLMat4.h>
+
+class SLGLState;
 
 //-----------------------------------------------------------------------------
 // Special constants for anisotropic filtering
@@ -46,7 +49,7 @@ enum SLTextureType
 //-----------------------------------------------------------------------------
 //! Texture object for OpenGL texturing
 /*!      
-The SLGLTexture class implements an OpenGL texture object that can is used by the 
+The SLGLTexture class implements an OpenGL texture object that can be used by the 
 SLMaterial class. A texture can have 1-n SLCVImages in the vector _images.
 A simple 2D texture has just a single texture image (_images[0]). For cube maps
 you will need 6 images (_images[0-5]). For 3D textures you can have as much
@@ -56,10 +59,10 @@ for ray tracing.
 */
 class SLGLTexture : public SLObject
 {
-    public:        
-                            //! Default constructor for fonts
+    public:
+                            //! Default ctor for all stack instances (not created with new)
                             SLGLTexture         ();
-
+    
                             //! ctor for 1D texture with internal image allocation
                             SLGLTexture         (SLVCol4f       colors,
                                                  SLint          min_filter = GL_LINEAR,
@@ -69,16 +72,16 @@ class SLGLTexture : public SLObject
 
                             //! ctor for 2D textures with internal image allocation
                             SLGLTexture         (SLstring       imageFilename,
-                                                 SLint          min_filte = GL_LINEAR_MIPMAP_LINEAR,
-                                                 SLint          mag_filte = GL_LINEAR,
+                                                 SLint          min_filter = GL_LINEAR_MIPMAP_LINEAR,
+                                                 SLint          mag_filter = GL_LINEAR,
                                                  SLTextureType  type = TT_unknown,
                                                  SLint          wrapS = GL_REPEAT,
                                                  SLint          wrapT = GL_REPEAT);
 
                             //! ctor for 3D texture with internal image allocation
                             SLGLTexture         (SLVstring      imageFilenames,
-                                                 SLint          min_filte = GL_LINEAR,
-                                                 SLint          mag_filte = GL_LINEAR,
+                                                 SLint          min_filter = GL_LINEAR,
+                                                 SLint          mag_filter = GL_LINEAR,
                                                  SLint          wrapS = GL_REPEAT,
                                                  SLint          wrapT = GL_REPEAT,
                                                  SLstring       name = "3D-Texture",
@@ -102,6 +105,10 @@ class SLGLTexture : public SLObject
             void            bindActive          (SLint texID=0);
             void            fullUpdate          ();
             void            drawSprite          (SLbool doUpdate = false);
+            void            cubeUV2XYZ          (SLint index, SLfloat u, SLfloat v,
+                                                 SLfloat& x, SLfloat& y, SLfloat& z);
+            void            cubeXYZ2UV          (SLfloat x, SLfloat y, SLfloat z,
+                                                 SLint& index, SLfloat& u, SLfloat& v);
 
             // Setters
             void            texType             (SLTextureType bt)  {_texType = bt;}
@@ -115,7 +122,8 @@ class SLGLTexture : public SLObject
             SLuint          texName             (){return _texName;}
             SLTextureType   texType             (){return _texType;}
             SLfloat         bumpScale           (){return _bumpScale;}
-            SLCol4f         getTexelf           (SLfloat s, SLfloat t);
+            SLCol4f         getTexelf           (SLfloat s, SLfloat t, SLuint imgIndex = 0);
+            SLCol4f         getTexelf           (SLVec3f cubemapDir);
             SLbool          hasAlpha            (){return (_images.size() &&
                                                           ((_images[0]->format()==PF_rgba  ||
                                                             _images[0]->format()==PF_bgra) ||

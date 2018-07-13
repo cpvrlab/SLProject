@@ -14,7 +14,7 @@
 #define SLCVCAPTURE_H
 
 /*
-The OpenCV library version 3.1 or above with extra module must be present.
+The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
@@ -22,8 +22,9 @@ See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 
-#include <stdafx.h>
+#include <SLEnums.h>
 #include <SLCV.h>
+#include <SLVec2.h>
 #include <opencv2/opencv.hpp>
 
 //-----------------------------------------------------------------------------
@@ -35,16 +36,20 @@ The live video image grabbing is not mandatory and can be replaced by the the
 top level application with its own video grabbing functionality. This is e.g.
 used in the iOS or Android examples. 
 The SLCVCapture::lastFrame and SLCVCapture::lastFrameGray are on the other
-hand used in all applications as the buffer for the last captured image.
+hand used in all applications as the buffer for the last captured image.\n
+Alternatively SLCVCapture can open a video file by a given videoFilename.
+This feature can be used across all platforms.
+For more information on video and capture see:\n
+https://docs.opencv.org/3.0-beta/modules/videoio/doc/reading_and_writing_video.html
 */
 class SLCVCapture
 {   public:
     static  SLVec2i         open                (SLint deviceNum);
-    static  SLVec2i         open                (SLstring filePath);
+    static  SLVec2i         openFile            ();
     static  void            grabAndAdjustForSL  ();
     static  void            adjustForSL         ();
     static  SLbool          isOpened            () {return _captureDevice.isOpened();}
-    static  void            release             () {_captureDevice.release();}
+    static  void            release             ();
     static  void            loadIntoLastFrame   (const SLint camWidth,
                                                  const SLint camHeight,
                                                  const SLPixelFormat srcPixelFormat,
@@ -64,6 +69,9 @@ class SLCVCapture
     static  SLCVSize        captureSize;        //!< size of captured frame
     static  SLfloat         startCaptureTimeMS; //!< start time of capturing in ms
     static  SLbool          hasSecondaryCamera; //!< flag if device has secondary camera
+    static  SLstring        videoDefaultPath;   //!< default path for video files
+    static  SLstring        videoFilename;      //!< video filename to load
+    static  SLbool          videoLoops;         //!< flag if video should loop
 
     /*! A requestedSizeIndex of 0 returns on Android the default size of 640x480.
     If this size is not available the median element of the available sizes array is returned.

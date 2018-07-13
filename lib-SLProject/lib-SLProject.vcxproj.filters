@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Scene">
@@ -43,6 +43,9 @@
     <Filter Include="Nodes\Lights">
       <UniqueIdentifier>{2d08b2c5-129c-472b-853a-539acb067534}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Nodes\Meshes\Revolver">
+      <UniqueIdentifier>{613281b3-f68d-4d4a-90c3-95998dc6ad69}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\SLAABBox.h">
@@ -54,13 +57,7 @@
     <ClInclude Include="..\include\SLBox.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLCone.h">
-      <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLMesh.h">
-      <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLCylinder.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLPolygon.h">
@@ -89,9 +86,6 @@
     </ClInclude>
     <ClInclude Include="..\include\SLSceneView.h">
       <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLRevolver.h">
-      <Filter>Nodes\Meshes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLRectangle.h">
       <Filter>Nodes\Meshes</Filter>
@@ -228,9 +222,6 @@
     <ClInclude Include="..\include\SLAnimTrack.h">
       <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLLens.h">
-      <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLInputDevice.h">
       <Filter>Input</Filter>
     </ClInclude>
@@ -244,9 +235,6 @@
       <Filter>Raytracer</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLTriangle.h">
-      <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLDisk.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLCompactGrid.h">
@@ -285,12 +273,6 @@
     <ClInclude Include="..\include\SLPolyline.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLSpheric.h">
-      <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLSphere.h">
-      <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLLightSpot.h">
       <Filter>Nodes\Lights</Filter>
     </ClInclude>
@@ -305,9 +287,6 @@
     </ClInclude>
     <ClInclude Include="..\include\SLGLImGui.h">
       <Filter>GL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLDemoGui.h">
-      <Filter>SL</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLTransferFunction.h">
       <Filter>SL</Filter>
@@ -331,6 +310,48 @@
       <Filter>CV</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLCVTrackedFeatures.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLPoints.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLRnd3f.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLDeviceLocation.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLDeviceRotation.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLSkybox.h">
+      <Filter>Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCone.h">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCylinder.h">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLDisk.h">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLLens.h">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLRevolver.h">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLSphere.h">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLSpheric.h">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLApplication.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVTrackedFaces.h">
       <Filter>CV</Filter>
     </ClInclude>
   </ItemGroup>
@@ -359,9 +380,6 @@
     <ClCompile Include="source\SLMaterial.cpp">
       <Filter>Light &amp; Material</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLScene_onLoad.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
     <ClCompile Include="source\SLNode.cpp">
       <Filter>Nodes</Filter>
     </ClCompile>
@@ -374,19 +392,10 @@
     <ClCompile Include="source\SLBox.cpp">
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLCone.cpp">
-      <Filter>Nodes\Meshes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLCylinder.cpp">
-      <Filter>Nodes\Meshes</Filter>
-    </ClCompile>
     <ClCompile Include="source\SLPolygon.cpp">
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLRectangle.cpp">
-      <Filter>Nodes\Meshes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLRevolver.cpp">
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLMesh.cpp">
@@ -446,9 +455,6 @@
     <ClCompile Include="source\SLAnimTrack.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLLens.cpp">
-      <Filter>Nodes\Meshes</Filter>
-    </ClCompile>
     <ClCompile Include="source\SLInputDevice.cpp">
       <Filter>Input</Filter>
     </ClCompile>
@@ -462,9 +468,6 @@
       <Filter>SL</Filter>
     </ClCompile>
     <ClCompile Include="source\SLTriangle.cpp">
-      <Filter>Nodes\Meshes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLDisk.cpp">
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLCompactGrid.cpp">
@@ -515,9 +518,6 @@
     <ClCompile Include="source\SLLightRect.cpp">
       <Filter>Nodes\Lights</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLSpheric.cpp">
-      <Filter>Nodes\Meshes</Filter>
-    </ClCompile>
     <ClCompile Include="source\SLLightSpot.cpp">
       <Filter>Nodes\Lights</Filter>
     </ClCompile>
@@ -526,9 +526,6 @@
     </ClCompile>
     <ClCompile Include="source\GL\SLGLImGui.cpp">
       <Filter>GL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLDemoGui.cpp">
-      <Filter>SL</Filter>
     </ClCompile>
     <ClCompile Include="source\SLTransferFunction.cpp">
       <Filter>SL</Filter>
@@ -554,6 +551,43 @@
     <ClCompile Include="source\CV\SLCVTracked.cpp">
       <Filter>CV</Filter>
     </ClCompile>
+    <ClCompile Include="source\SLPoints.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLDeviceLocation.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLDeviceRotation.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLSkybox.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLCone.cpp">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLCylinder.cpp">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLDisk.cpp">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLLens.cpp">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLRevolver.cpp">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLSpheric.cpp">
+      <Filter>Nodes\Meshes\Revolver</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLApplication.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVTrackedFaces.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_data\shaders\ADS.frag">

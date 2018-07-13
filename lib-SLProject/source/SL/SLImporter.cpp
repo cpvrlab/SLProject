@@ -41,7 +41,9 @@ SLImporter::SLImporter(SLLogVerbosity consoleVerb)
 //-----------------------------------------------------------------------------
 /*! Constructor that allows logging to a file with different verbosity
 */
-SLImporter::SLImporter(const SLstring& logFile, SLLogVerbosity logConsoleVerb, SLLogVerbosity logFileVerb)
+SLImporter::SLImporter(const SLstring& logFile,
+                       SLLogVerbosity logConsoleVerb,
+                       SLLogVerbosity logFileVerb)
            : _logConsoleVerbosity(logConsoleVerb),
              _logFileVerbosity(logFileVerb),
              _sceneRoot(nullptr),

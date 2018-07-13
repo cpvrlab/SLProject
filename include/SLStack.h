@@ -11,6 +11,7 @@
 #ifndef SLSTACK_H
 #define SLSTACK_H
 
+#include <iostream>
 #include <SLMat4.h>
 
 //-----------------------------------------------------------------------------

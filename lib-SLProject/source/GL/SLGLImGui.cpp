@@ -16,11 +16,12 @@
 #endif
 
 #include <SLGLImGui.h>
+#include <SLApplication.h>
 #include <SLScene.h>
 
 //-----------------------------------------------------------------------------
-SLfloat     SLGLImGui::fontPropDots        = 0.0f;
-SLfloat     SLGLImGui::fontFixedDots       = 0.0f;
+SLfloat SLGLImGui::fontPropDots     = 16.0f;
+SLfloat SLGLImGui::fontFixedDots    = 13.0f;
 //-----------------------------------------------------------------------------
 SLGLImGui::SLGLImGui()
 {
@@ -52,7 +53,7 @@ void SLGLImGui::init()
     _mousePressed[2] = false;
 
     ImGuiIO& io = ImGui::GetIO();
-    static const SLstring inifile = SL::configPath + "imgui.ini";
+    static const SLstring inifile = SLApplication::configPath + "imgui.ini";
     io.IniFilename = inifile.c_str();
 
     io.KeyMap[ImGuiKey_Tab]         = K_tab;
@@ -78,12 +79,15 @@ void SLGLImGui::init()
     // The screen size is set again in onResize
     io.DisplaySize = ImVec2(0, 0);
     io.DisplayFramebufferScale = ImVec2(1,1);
+
+    // Change default style to show the widget border
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.FrameBorderSize = 1;
 }
 //-----------------------------------------------------------------------------
 //! Loads the proportional and fixed size font depending on the passed DPI
 void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
 {
-
     _fontPropDots = fontPropDots;
     _fontFixedDots = fontFixedDots;
 
@@ -299,7 +303,7 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
     ImGuiIO& io = ImGui::GetIO();
     
     // Setup time step
-    SLfloat nowSec =  SLScene::current->timeSec();
+    SLfloat nowSec =  SLApplication::scene->timeSec();
     io.DeltaTime = _timeSec > 0.0 ? nowSec-_timeSec : 1.0f/60.0f;
     if (io.DeltaTime < 0) io.DeltaTime = 1.0f/60.0f;
     _timeSec = nowSec;

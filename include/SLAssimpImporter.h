@@ -8,14 +8,11 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
-#include <SLImporter.h>
-#include <SLNode.h>
-#include <SLGLTexture.h>
-#include <SLSkeleton.h>
-
 #ifndef SLASSIMPIMPORTER_H
 #define SLASSIMPIMPORTER_H
+
+#include <SLImporter.h>
+#include <SLGLTexture.h>
 
 // forward declarations of assimp types
 struct aiScene;
@@ -37,14 +34,15 @@ class SLAssimpImporter : public SLImporter
                 SLAssimpImporter() {}
                 SLAssimpImporter(SLLogVerbosity consoleVerb)
                     : SLImporter(consoleVerb) { }
-                SLAssimpImporter(const SLstring& logFile,
+                SLAssimpImporter(SLstring& logFile,
                                  SLLogVerbosity logConsoleVerb = LV_normal,
                                  SLLogVerbosity logFileVerb = LV_diagnostic)
                     : SLImporter(logFile, logConsoleVerb, logFileVerb) { }
 
-            SLNode*     load    (SLstring pathFilename,
-                                SLbool loadMeshesOnly = true,
-                                SLuint flags =
+            SLNode*     load    (SLstring pathFilename
+                                ,SLbool loadMeshesOnly = true
+                                ,SLMaterial* overrideMat = nullptr
+                                ,SLuint flags =
                                  SLProcess_Triangulate
                                 |SLProcess_JoinIdenticalVertices
                                 |SLProcess_RemoveRedundantMaterials

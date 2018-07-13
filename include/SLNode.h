@@ -11,12 +11,12 @@
 #ifndef SLNODE_H
 #define SLNODE_H
 
-#include <stdafx.h>
 #include <SLEnums.h>
 #include <SLMesh.h>
 #include <SLNode.h>
 #include <SLDrawBits.h>
 #include <SLEventHandler.h>
+#include <SLQuat4.h>
 
 class SLSceneView;
 class SLRay;
@@ -71,9 +71,9 @@ struct SLNodeStats
     void print()
     {
         SLfloat voxelsEmpty  = numVoxels ? (SLfloat)numVoxEmpty / 
-                                            (SLfloat)numVoxels*100.0f : 0;
+                                           (SLfloat)numVoxels*100.0f : 0;
         SLfloat avgTriPerVox = numVoxels ? (SLfloat)numTriangles / 
-                                            (SLfloat)(numVoxels-numVoxEmpty) : 0;
+                                           (SLfloat)(numVoxels-numVoxEmpty) : 0;
         SL_LOG("Voxels         : %d\n", numVoxels);
         SL_LOG("Voxels empty   : %4.1f%%\n", voxelsEmpty); 
         SL_LOG("Avg. Tria/Voxel: %4.1f\n", avgTriPerVox);
@@ -158,7 +158,10 @@ class SLNode: public SLObject, public SLEventHandler
             bool            removeMesh          ();
             bool            removeMesh          (SLMesh* mesh);
             bool            removeMesh          (SLstring name);
-            SLMesh*         findMesh            (SLstring name);
+            SLMesh*         findMesh            (SLstring name,
+                                                 SLbool recursive = false);
+            void            setAllMeshMaterials (SLMaterial* mat,
+                                                 SLbool recursive = true);
             SLbool          containsMesh        (const SLMesh* mesh);
     virtual void            drawMeshes          (SLSceneView* sv);
                
@@ -178,7 +181,8 @@ class SLNode: public SLObject, public SLEventHandler
                                                  SLbool findRecursive = true);
             template<typename T>
             vector<T*>      findChildren        (const SLstring& name = "",
-                                                 SLbool findRecursive = true);
+                                                 SLbool findRecursive = true,
+                                                 SLbool canContain = false);
             vector<SLNode*> findChildren        (const SLMesh* mesh,
                                                  SLbool findRecursive = true);
             
@@ -261,12 +265,15 @@ class SLNode: public SLObject, public SLEventHandler
       const SLSkeleton*     skeleton            ();
             SLCVTracked*    tracker             () {return _tracker;}
 
+    static  SLuint          numWMUpdates;       //!< NO. of calls to updateWM per frame
+    
     private:
             void            updateWM            () const;   
             template<typename T>            
             void            findChildrenHelper  (const SLstring& name, 
                                                  vector<T*>& list, 
-                                                 SLbool findRecursive);
+                                                 SLbool findRecursive,
+                                                 SLbool canContain = false);
             void            findChildrenHelper  (const SLMesh* mesh, 
                                                  vector<SLNode*>& list, 
                                                  SLbool findRecursive);
@@ -338,7 +345,9 @@ SLNode::findChildren<T> finds a list of all children that are of type T or
 subclasses of T. If a name is specified only nodes with that name are included.
 */
 template<typename T>
-vector<T*> SLNode::findChildren(const SLstring& name, SLbool findRecursive)
+vector<T*> SLNode::findChildren(const SLstring& name,
+                                SLbool findRecursive,
+                                SLbool canContain)
 {
     vector<T*> list;
     findChildrenHelper<T>(name, list, findRecursive);
@@ -347,19 +356,27 @@ vector<T*> SLNode::findChildren(const SLstring& name, SLbool findRecursive)
 //-----------------------------------------------------------------------------
 
 /*!
-SLNode::findChildrenHelper<T> is the helper function for findChildren<T>. It appends
-all newly found children to 'list'.
+SLNode::findChildrenHelper<T> is the helper function for findChildren<T>.
+It appends all newly found children to 'list'.
 */
 template<typename T>
-void SLNode::findChildrenHelper(const SLstring& name, vector<T*>& list, 
-                                SLbool findRecursive)
+void SLNode::findChildrenHelper(const SLstring& name,
+                                vector<T*>& list,
+                                SLbool findRecursive,
+                                SLbool canContain)
 {
     for (SLint i = 0; i < _children.size(); ++i)
     {
         SLNode* node = _children[i];
         T* found = dynamic_cast<T*>(node);
-        if (found && (name.size() == 0 || name == node->name()))
-            list.push_back(found);
+
+        if (canContain)
+        {   if (found && (name.size() == 0 || SLUtils::contains(node->name(), name)))
+                list.push_back(found);
+        } else
+        {   if (found && (name.size() == 0 || name == node->name()))
+                list.push_back(found);
+        }
                     
         if (findRecursive)
             _children[i]->findChildrenHelper<T>(name, list, findRecursive);

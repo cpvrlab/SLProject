@@ -11,7 +11,9 @@
 #ifndef SLKEYFRAME_H
 #define SLKEYFRAME_H
 
-#include <stdafx.h>
+#include <SL.h>
+#include <SLVec3.h>
+#include <SLQuat4.h>
 
 class SLAnimTrack;
 
