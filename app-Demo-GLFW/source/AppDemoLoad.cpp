@@ -2516,7 +2516,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //s->videoType(VT_MAIN);
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
-        SLCVCapture::videoFilename = "biel2.mp4";
+        SLCVCapture::videoFilename = "biel1.mp4";
 
         //make some light
         SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
@@ -2672,8 +2672,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //Make sure it is added to androids CMakeLists.txt so it is presnet on your smartphone
         SLstring mapName = "slam-map-1";
         SLCVCapture::videoFilename = "biel2.mp4";
-        SLstring calibFileName = "cam_calibration_main_huawei_p10_640_360.xml";
-        SLApplication::calibVideoFile.load(SLCVCalibration::calibIniPath, calibFileName, false, false);
+        SLstring calibFileName = "cam_calibration_main_nokia_6_640_360.xml";
+        SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), calibFileName, false, false);
         SLApplication::calibVideoFile.loadCalibParams();
 
         //call this function after calibration is loaded
