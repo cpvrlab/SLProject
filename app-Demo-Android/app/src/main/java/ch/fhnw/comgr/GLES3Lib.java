@@ -21,12 +21,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
+// Java class that encapsulates the native C-functions into SLProject
 public class GLES3Lib {
 
     static {
@@ -40,7 +42,10 @@ public class GLES3Lib {
     public static int dpi;
     public static boolean RTIsRunning = false;
 
-    public static final int VIDEO_TYPE_NONE = 0;
+    // flag to indicate if the last video images was displayed at all
+    public static AtomicBoolean lastVideoImageIsConsumed = new AtomicBoolean(true);
+
+    public static final int VIDEO_TYPE_NONE = 0;    // No video at all is used
     public static final int VIDEO_TYPE_MAIN = 1;    // Maps to Androids back facing camera
     public static final int VIDEO_TYPE_SCND = 2;    // Maps to Androids front facing camera
     public static final int VIDEO_TYPE_FILE = 3;    // Maps to Androids front facing camera
@@ -48,14 +53,13 @@ public class GLES3Lib {
     public static native void    onInit             (int width, int height, int dotsPerInch, String FilePath);
     public static native boolean onUpdateAndPaint   ();
     public static native void    onResize           (int width, int height);
-    public static native void    onMenuButton       ();
-    public static native boolean onMouseDown        (int button, int x, int y);
-    public static native boolean onMouseUp          (int button, int x, int y);
-    public static native boolean onMouseMove        (int x, int y);
-    public static native boolean onTouch2Down       (int x1, int y1, int x2, int y2);
-    public static native boolean onTouch2Up         (int x1, int y1, int x2, int y2);
-    public static native boolean onTouch2Move       (int x1, int y1, int x2, int y2);
-    public static native boolean onDoubleClick      (int button, int x, int y);
+    public static native void    onMouseDown        (int button, int x, int y);
+    public static native void    onMouseUp          (int button, int x, int y);
+    public static native void    onMouseMove        (int x, int y);
+    public static native void    onTouch2Down       (int x1, int y1, int x2, int y2);
+    public static native void    onTouch2Up         (int x1, int y1, int x2, int y2);
+    public static native void    onTouch2Move       (int x1, int y1, int x2, int y2);
+    public static native void    onDoubleClick      (int button, int x, int y);
     public static native void    onRotationQUAT     (float quatX, float quatY, float quatZ, float quatW);
     public static native void    onClose            ();
     public static native boolean shouldClose        ();
@@ -71,9 +75,8 @@ public class GLES3Lib {
                                                      byte[] y, int ySize, int yPixStride, int yLineStride,
                                                      byte[] u, int uSize, int uPixStride, int uLineStride,
                                                      byte[] v, int vSize, int vPixStride, int vLineStride);
-    public static native void   onSetupExternalDirectories(String externalDirPath);
-    public static native void   setMemoryStatsValues(long freeMemoryRT, long totalMemoryRT, long maxMemoryRT,
-                                                     long availMemoryAM, long totalMemoryAM, long thresholdAM, boolean lowMemoryAM);
+    public static native void    onSetupExternalDirectories(String externalDirPath);
+
 
     /**
      * The RaytracingCallback function is used to repaint the ray tracing image during the
@@ -171,31 +174,6 @@ public class GLES3Lib {
         os.flush();
         os.close();
         is.close();
-    }
-
-    /**
-     *
-     *
-     * @param
-     */
-    public static void retrieveMemoryStats() {
-        final Runtime runtime = Runtime.getRuntime();
-        final long usedMemInMB=(runtime.totalMemory() - runtime.freeMemory()) / 1048576L;
-        final long maxHeapSizeInMB=runtime.maxMemory() / 1048576L;
-        final long availHeapSizeInMB = maxHeapSizeInMB - usedMemInMB;
-
-        ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
-        ActivityManager activityManager = (ActivityManager) GLES3Lib.activity.getSystemService(ACTIVITY_SERVICE);
-        activityManager.getMemoryInfo(mi);
-        double availableMegs = mi.availMem / 0x100000L;
-
-        //Percentage can be calculated for API 16+
-        double percentAvail = mi.availMem / (double)mi.totalMem * 100.0;
-
-        //call interface method to set values in c++ class SLMemoryStats
-        setMemoryStatsValues(
-                runtime.freeMemory(), runtime.totalMemory(), runtime.maxMemory(),
-                mi.availMem, mi.totalMem, mi.threshold, mi.lowMemory);
     }
 
 }

@@ -147,7 +147,7 @@ bool SLCVCalibration::load(SLstring calibDir,
 //! Saves the camera calibration parameters to the config file
 void SLCVCalibration::save()
 {
-    SLstring fullPathAndFilename = SLApplication::configPath + _calibFileName;
+    SLstring fullPathAndFilename = SLFileSystem::getExternalDir() + _calibFileName;// SLApplication::configPath + _calibFileName;
 
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 

@@ -120,8 +120,8 @@ For more information please visit: https://github.com/cpvrlab/SLProject\n\
 ";
 
 SLstring AppDemoGui::infoCredits =
-"Contributors since 2005 in alphabetic order: Martin Christen, Manuel Frischknecht, Michael \
-Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
+"Contributors since 2005 in alphabetic order: Martin Christen, Jan Dellsperger, \
+Manuel Frischknecht, Michael Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
 Credits for external libraries:\n\
 - assimp: assimp.sourceforge.net\n\
 - imgui: github.com/ocornut/imgui\n\
@@ -466,14 +466,23 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
     {
         SLGLState* stateGL = SLGLState::getInstance();
         SLchar m[2550];   // message character array
-        m[0] = 0;           // set zero length
-        sprintf(m + strlen(m), "OpenGL Verion  : %s\n", stateGL->glVersionNO().c_str());
-        sprintf(m + strlen(m), "OpenGL Vendor  : %s\n", stateGL->glVendor().c_str());
-        sprintf(m + strlen(m), "OpenGL Renderer: %s\n", stateGL->glRenderer().c_str());
-        sprintf(m + strlen(m), "OpenGL GLSL    : %s\n", stateGL->glSLVersionNO().c_str());
-        sprintf(m + strlen(m), "OpenCV Version : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
-        //sprintf(m+strlen(m), "CV has OpenCL  : %s\n", cv::ocl::haveOpenCL() ? "yes":"no");
-        sprintf(m + strlen(m), "ImGui Version  : %s\n", ImGui::GetVersion());
+        m[0]=0;           // set zero length
+
+        sprintf(m+strlen(m), "SLProject Version: %s\n", SLApplication::version.c_str());
+        #ifdef _DEBUG
+        sprintf(m+strlen(m), "Build Config.    : Debug\n");
+        #else
+        sprintf(m+strlen(m), "Build Config.    : Release\n");
+        #endif
+        sprintf(m+strlen(m), "OpenGL Version   : %s\n", stateGL->glVersionNO().c_str());
+        sprintf(m+strlen(m), "OpenGL Vendor    : %s\n", stateGL->glVendor().c_str());
+        sprintf(m+strlen(m), "OpenGL Renderer  : %s\n", stateGL->glRenderer().c_str());
+        sprintf(m+strlen(m), "GLSL Version     : %s\n", stateGL->glSLVersionNO().c_str());
+        sprintf(m+strlen(m), "OpenCV Version   : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
+        sprintf(m+strlen(m), "OpenCV has OpenCL: %s\n", cv::ocl::haveOpenCL() ? "yes":"no");
+        sprintf(m+strlen(m), "OpenCV has AVX   : %s\n", cv::checkHardwareSupport(CV_AVX) ? "yes":"no");
+        sprintf(m+strlen(m), "OpenCV has NEON  : %s\n", cv::checkHardwareSupport(CV_NEON) ? "yes":"no");
+        sprintf(m+strlen(m), "ImGui Version    : %s\n", ImGui::GetVersion());
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -714,10 +723,12 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
 
+            #ifndef SL_OS_ANDROID
             ImGui::Separator();
 
             if (ImGui::MenuItem("Quit & Save", "ESC"))
                 slShouldClose(true);
+            #endif
 
             ImGui::EndMenu();
         }
@@ -888,7 +899,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 ImGui::Separator();
 
-                if (ImGui::MenuItem("Reset User Interface"))
+                SLchar reset[255];
+                sprintf(reset, "Reset User Interface (DPI: %d)", SLApplication::dpi);
+
+                if (ImGui::MenuItem(reset))
                 {
                     SLstring fullPathFilename = SLApplication::configPath + "DemoGui.yml";
                     SLFileSystem::deleteFile(fullPathFilename);

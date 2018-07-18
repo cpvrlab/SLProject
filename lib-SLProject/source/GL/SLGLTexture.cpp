@@ -28,7 +28,11 @@ SLfloat SLGLTexture::maxAnisotropy = -1.0f;
 //! NO. of texture byte allocated on GPU
 SLuint SLGLTexture::numBytesInTextures = 0;
 //-----------------------------------------------------------------------------
-//! default ctor for fonts
+//! Default ctor for all stack instances (not created with new)
+/*! Default ctor for all stack instances such as the video textures in SLScene
+or the textures inherited by SLRaytracer. All other contructors add the this
+pointer to the SLScene::_texture vector for global deallocation.
+*/
 SLGLTexture::SLGLTexture()
 {  
     _stateGL      = SLGLState::getInstance();
@@ -231,6 +235,7 @@ void SLGLTexture::load(const SLVCol4f& colors)
 void SLGLTexture::setVideoImage(SLstring videoImageFile)
 {
     load(videoImageFile);
+    name(videoImageFile);
     _min_filter = GL_LINEAR;
     _mag_filter = GL_LINEAR;
     _needsUpdate = false;

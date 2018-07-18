@@ -60,6 +60,8 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         void globalBundleAdjustment();
 
         size_t getSizeOf();
+
+        SLCVKeyFrame* currentKeyFrame();
     private:
         // Map initialization for monocular
         bool CreateInitialMapMonocular();

@@ -52,6 +52,10 @@ void SLImGuiTrackedMapping::buildInfos()
     //add loop closings counter
     ImGui::Text("Number of LoopClosings : %d ", _mappingTracker->getNumLoopClosings());
 
+    SLCVKeyFrame* kf = _mappingTracker->currentKeyFrame();
+    if (kf)
+        ImGui::Text("Last keyframe : %d ", kf->mnId);
+
 #ifdef ANDROID
     float bHeigth = 200.0f;
 #else

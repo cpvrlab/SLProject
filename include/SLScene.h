@@ -128,12 +128,7 @@ class SLScene: public SLObject
             void            selectNode          (SLNode* nodeToSelect);
             void            selectNodeMesh      (SLNode* nodeToSelect, SLMesh* meshToSelect);
             bool            removeMesh          (SLMesh* mesh);
-            void            copyVideoImage      (SLint camWidth, 
-                                                 SLint camHeight,
-                                                 SLPixelFormat srcPixelFormat,
-                                                 SLuchar* data,
-                                                 SLbool isContinuous,
-                                                 SLbool isTopLeft);
+
    protected:
             SLVSceneView    _sceneViews;        //!< Vector of all sceneview pointers
             SLVMesh         _meshes;            //!< Vector of all meshes

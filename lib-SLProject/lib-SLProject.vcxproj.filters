@@ -393,84 +393,9 @@
     <ClInclude Include="..\include\SLApplication.h">
       <Filter>SL</Filter>
     </ClInclude>
-<<<<<<< HEAD
-    <ClInclude Include="..\include\SLAverageTiming.h">
-      <Filter>SL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLCVTrackedMapping.h">
-      <Filter>CV</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\OrbSlam\Initializer.h">
-      <Filter>CV\OrbSlam</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\OrbSlam\LocalMapping.h">
-      <Filter>CV\OrbSlam</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLCVMapNode.h">
-      <Filter>CV</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLImGuiInfosDialog.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLTrackingInfosInterface.h">
-      <Filter>SL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLImGuiTrackedMapping.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLImGuiInfosTracking.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLImGuiInfosMapTransform.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLImGuiInfosChristoffelTower.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLCVMapTracking.h">
-      <Filter>CV</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\OrbSlam\LoopClosing.h">
-      <Filter>CV\OrbSlam</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\OrbSlam\Sim3Solver.h">
-      <Filter>CV\OrbSlam</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLCVMapStorage.h">
-      <Filter>CV</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLImGuiMapStorage.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLCVOrbVocabulary.h">
-      <Filter>CV</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLCVTrackedRaulMurAsync.h">
-      <Filter>CV</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLCVStateEstimator.h">
-      <Filter>CV</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLCVOrbTracking.h">
-      <Filter>CV</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLCVMapIO.h">
-      <Filter>CV</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLCVTrackingStateMachine.h">
-      <Filter>CV</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLMemoryStats.h">
-      <Filter>SL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLImGuiInfosMemoryStats.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-=======
     <ClInclude Include="..\include\SLCVTrackedFaces.h">
       <Filter>CV</Filter>
     </ClInclude>
->>>>>>> origin/develop
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -737,23 +662,7 @@
     <ClCompile Include="source\SL\SLApplication.cpp">
       <Filter>SL</Filter>
     </ClCompile>
-<<<<<<< HEAD
-    <ClCompile Include="source\SL\SLAverageTiming.cpp">
-      <Filter>SL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\CV\SLCVTrackedMapping.cpp">
-      <Filter>CV</Filter>
-    </ClCompile>
-    <ClCompile Include="source\CV\OrbSlam\Initializer.cpp">
-      <Filter>CV\OrbSlam</Filter>
-    </ClCompile>
-    <ClCompile Include="source\CV\OrbSlam\LocalMapping.cpp">
-      <Filter>CV\OrbSlam</Filter>
-    </ClCompile>
-    <ClCompile Include="source\CV\SLCVMapNode.cpp">
-=======
     <ClCompile Include="source\CV\SLCVTrackedFaces.cpp">
->>>>>>> origin/develop
       <Filter>CV</Filter>
     </ClCompile>
     <ClCompile Include="test.cpp" />

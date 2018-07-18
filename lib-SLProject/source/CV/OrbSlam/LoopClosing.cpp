@@ -243,6 +243,7 @@ bool LoopClosing::DetectLoop()
         return true;
     }
 
+    // TODO(jan): we can never get here...
     mpCurrentKF->SetErase();
     return false;
 }

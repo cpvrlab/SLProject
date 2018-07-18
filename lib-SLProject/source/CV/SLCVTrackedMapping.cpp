@@ -1332,3 +1332,10 @@ size_t SLCVTrackedMapping::getSizeOf()
 
     return size;
 }
+
+SLCVKeyFrame* SLCVTrackedMapping::currentKeyFrame()
+{
+    SLCVKeyFrame* result = mCurrentFrame.mpReferenceKF;
+
+    return result;
+}

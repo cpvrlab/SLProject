@@ -95,18 +95,24 @@ public class GLES3View extends GLSurfaceView
                  mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.rotationSensorStart();}});
             else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.rotationSensorStop();}});
 
-            if(usesLocation)
+            if (usesLocation)
                  mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.locationSensorStart();}});
             else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.locationSensorStop();}});
 
             if (videoType==VT_FILE)
                 GLES3Lib.grabVideoFileFrame();
 
-            if (GLES3Lib.onUpdateAndPaint())
+            ////////////////////////////////////////////////
+            Boolean doRepaint = GLES3Lib.onUpdateAndPaint();
+            ////////////////////////////////////////////////
+
+            // Only request new rendering for non-live video
+            // For live video the camera service will call requestRenderer
+            if (doRepaint && (videoType==VT_NONE || videoType==VT_FILE))
                 GLES3Lib.view.requestRender();
 
-            if (GLES3Lib.shouldClose())
-                GLES3Lib.onClose();
+            if (videoType!=VT_NONE)
+                GLES3Lib.lastVideoImageIsConsumed.set(true);
         }
     }
 }

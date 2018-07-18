@@ -196,6 +196,21 @@ public class GLES3Camera2Service extends Service {
         @Override
         public void onImageAvailable(ImageReader reader) {
 
+            // Don't copy the available image if the last wasn't consumed
+            // NOTE(jan): we still have to close the available images, as otherwise new images
+            // cannot be saved and the callback does not get called anymore
+            if (!GLES3Lib.lastVideoImageIsConsumed.get())
+            {
+                Image img = reader.acquireLatestImage();
+
+                if (img != null)
+                {
+                    img.close();
+                }
+
+                return;
+            }
+
             // The opengl renderer runs in its own thread. We have to copy the image in the renderers thread!
             GLES3Lib.view.queueEvent(new Runnable() {
                 @Override
@@ -230,7 +245,6 @@ public class GLES3Camera2Service extends Service {
                     int uRowStride = Y.getRowStride();
                     int vRowStride = Y.getRowStride();
 
-
                     byte[] data = new byte[ySize + uSize + vSize];
                     Y.getBuffer().get(data, 0, ySize);
                     U.getBuffer().get(data, ySize, uSize);
@@ -241,6 +255,7 @@ public class GLES3Camera2Service extends Service {
                     ///////////////////////////////////////////////////////////////
 
                     /*
+                    This version of the separate copying of the planes is astonishingly not faster!
                     byte[] bufY = new byte[ySize];
                     byte[] bufU = new byte[uSize];
                     byte[] bufV = new byte[vSize];
@@ -255,12 +270,18 @@ public class GLES3Camera2Service extends Service {
                                                 bufU, uSize, uPixStride, uRowStride,
                                                 bufV, vSize, vPixStride, vRowStride);
                     */
+
                     img.close();
+
+                    // This avoids the next call into this before the image got displayed
+                    GLES3Lib.lastVideoImageIsConsumed.set(false);
+
+                    // Request a new rendering
+                    GLES3Lib.view.requestRender();
                 }
             });
         }
     };
-
 
     public void actOnReadyCameraDevice() {
         try {

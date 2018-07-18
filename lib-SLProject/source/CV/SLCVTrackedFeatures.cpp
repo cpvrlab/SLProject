@@ -597,8 +597,8 @@ respect to world coordinates.
  */
 bool SLCVTrackedFeatures::calculatePose()
 {
-    // RANSAC crashes if 0 points are given
-    if (_currentFrame.matches.size() == 0) return 0;
+    // solvePnP crashes if less than 5 points are given
+    if (_currentFrame.matches.size() < 10) return false;
 
     SLScene* s = SLApplication::scene;
     SLfloat startMS = s->timeMilliSec();

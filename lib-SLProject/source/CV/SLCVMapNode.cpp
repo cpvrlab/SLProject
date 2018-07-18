@@ -231,8 +231,10 @@ void SLCVMapNode::doUpdateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
         //set background
         if (kf->getTexturePath().size())
         {
-            SLGLTexture* texture = new SLGLTexture(kf->getTexturePath());
-            cam->background().texture(texture);
+            // TODO(jan): textures are saved in a global textures vector (scene->textures)
+            // and should be deleted from there. Otherwise we have a yuuuuge memory leak.
+            //SLGLTexture* texture = new SLGLTexture(kf->getTexturePath());
+            //cam->background().texture(texture);
         }
 
         cam->om(kf->getObjectMatrix());
