@@ -80,6 +80,19 @@ public:
 
     bool isFinished();
 
+    enum LoopCloseStatus
+    {
+        LOOP_CLOSE_STATUS_NONE,
+        LOOP_CLOSE_STATUS_NOT_ENOUGH_KEYFRAMES,
+        LOOP_CLOSE_STATUS_NO_LOOP_CANDIDATES,
+        LOOP_CLOSE_STATUS_NO_CONSISTENT_CANDIDATES,
+        LOOP_CLOSE_STATUS_NO_OPTIMIZED_CANDIDATES,
+        LOOP_CLOSE_STATUS_NOT_ENOUGH_CONSISTENT_MATCHES,
+        LOOP_CLOSE_STATUS_LOOP_CLOSED,
+        LOOP_CLOSE_STATUS_NO_NEW_KEYFRAME
+    };
+    LoopCloseStatus getStatus() { return status; }
+
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
@@ -145,6 +158,8 @@ protected:
 
 
     bool mnFullBAIdx;
+
+    LoopCloseStatus status = LOOP_CLOSE_STATUS_NONE;
 };
 
 } //namespace ORB_SLAM

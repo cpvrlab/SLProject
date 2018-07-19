@@ -97,9 +97,14 @@ bool LoopClosing::RunOnce()
             {
                 // Perform loop fusion and pose graph optimization
                 doCorrectLoop();
+                status = LOOP_CLOSE_STATUS_LOOP_CLOSED;
                 return true;
             }
         }
+    }
+    else
+    {
+        status = LOOP_CLOSE_STATUS_NO_NEW_KEYFRAME;
     }
     return false;
 }
@@ -130,6 +135,7 @@ bool LoopClosing::DetectLoop()
     //If the map contains less than 10 KF or less than 10 KF have passed from last loop detection
     if(mpCurrentKF->mnId<mLastLoopKFid+10)
     {
+        status = LOOP_CLOSE_STATUS_NOT_ENOUGH_KEYFRAMES;
         cout << "loopdetect add 1" << endl;
         mpKeyFrameDB->add(mpCurrentKF);
         mpCurrentKF->SetErase();
@@ -161,6 +167,7 @@ bool LoopClosing::DetectLoop()
     // If there are no loop candidates, just add new keyframe and return false
     if(vpCandidateKFs.empty())
     {
+        status = LOOP_CLOSE_STATUS_NO_LOOP_CANDIDATES;
         cout << "loopdetect add 2" << endl;
         mpKeyFrameDB->add(mpCurrentKF);
         mvConsistentGroups.clear();
@@ -235,6 +242,7 @@ bool LoopClosing::DetectLoop()
 
     if(mvpEnoughConsistentCandidates.empty())
     {
+        status = LOOP_CLOSE_STATUS_NO_CONSISTENT_CANDIDATES;
         mpCurrentKF->SetErase();
         return false;
     }
@@ -363,6 +371,7 @@ bool LoopClosing::ComputeSim3()
 
     if(!bMatch)
     {
+        status = LOOP_CLOSE_STATUS_NO_OPTIMIZED_CANDIDATES;
         for(int i=0; i<nInitialCandidates; i++)
              mvpEnoughConsistentCandidates[i]->SetErase();
         mpCurrentKF->SetErase();
@@ -411,6 +420,7 @@ bool LoopClosing::ComputeSim3()
     }
     else
     {
+        status = LOOP_CLOSE_STATUS_NOT_ENOUGH_CONSISTENT_MATCHES;
         for(int i=0; i<nInitialCandidates; i++)
             mvpEnoughConsistentCandidates[i]->SetErase();
         mpCurrentKF->SetErase();

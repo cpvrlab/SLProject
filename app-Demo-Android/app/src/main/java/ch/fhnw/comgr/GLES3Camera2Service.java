@@ -199,7 +199,7 @@ public class GLES3Camera2Service extends Service {
             // Don't copy the available image if the last wasn't consumed
             // NOTE(jan): we still have to close the available images, as otherwise new images
             // cannot be saved and the callback does not get called anymore
-            if (!GLES3Lib.lastVideoImageIsConsumed.get())
+            /*if (!GLES3Lib.lastVideoImageIsConsumed.get())
             {
                 Image img = reader.acquireLatestImage();
 
@@ -209,7 +209,7 @@ public class GLES3Camera2Service extends Service {
                 }
 
                 return;
-            }
+            }*/
 
             // The opengl renderer runs in its own thread. We have to copy the image in the renderers thread!
             GLES3Lib.view.queueEvent(new Runnable() {
@@ -277,7 +277,7 @@ public class GLES3Camera2Service extends Service {
                     GLES3Lib.lastVideoImageIsConsumed.set(false);
 
                     // Request a new rendering
-                    GLES3Lib.view.requestRender();
+                    //GLES3Lib.view.requestRender();
                 }
             });
         }

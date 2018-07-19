@@ -40,6 +40,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
     public:
 
         int getNumLoopClosings() { return _numOfLoopClosings; }
+        const char* getLoopClosingStatusString();
 
         //enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
 

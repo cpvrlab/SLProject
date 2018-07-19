@@ -51,6 +51,7 @@ void SLImGuiTrackedMapping::buildInfos()
     ImGui::Text("Number of Keyframes : %d ", _mappingTracker->getNumKeyFrames());
     //add loop closings counter
     ImGui::Text("Number of LoopClosings : %d ", _mappingTracker->getNumLoopClosings());
+    ImGui::Text("Loop closing status : %s ", _mappingTracker->getLoopClosingStatusString());
 
     SLCVKeyFrame* kf = _mappingTracker->currentKeyFrame();
     if (kf)

@@ -1339,3 +1339,27 @@ SLCVKeyFrame* SLCVTrackedMapping::currentKeyFrame()
 
     return result;
 }
+
+const char* SLCVTrackedMapping::getLoopClosingStatusString()
+{
+    switch (mpLoopClosing->getStatus())
+    {
+        case LoopClosing::LOOP_CLOSE_STATUS_LOOP_CLOSED:
+            return "loop closed";
+        case LoopClosing::LOOP_CLOSE_STATUS_NOT_ENOUGH_CONSISTENT_MATCHES:
+            return "not enough consistent matches";
+        case LoopClosing::LOOP_CLOSE_STATUS_NOT_ENOUGH_KEYFRAMES:
+            return "not enough keyframes";
+        case LoopClosing::LOOP_CLOSE_STATUS_NO_CONSISTENT_CANDIDATES:
+            return "no consistent candidates";
+        case LoopClosing::LOOP_CLOSE_STATUS_NO_LOOP_CANDIDATES:
+            return "no loop candidates";
+        case LoopClosing::LOOP_CLOSE_STATUS_NO_OPTIMIZED_CANDIDATES:
+            return "no optimized candidates";
+        case LoopClosing::LOOP_CLOSE_STATUS_NO_NEW_KEYFRAME:
+            return "no new keyframe";
+        case LoopClosing::LOOP_CLOSE_STATUS_NONE:
+        default:
+            return "none";
+    }
+}
