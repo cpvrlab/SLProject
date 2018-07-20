@@ -601,30 +601,6 @@ bool SLCVOrbTracking::TrackWithOptFlow()
                                   true);
     bool poseValid = true;
 
-    // TODO(jan): does this make any sense? we subtract the same values from each other...
-#if 0
-    if (foundPose)
-    {
-        for (int i = 0; i < tvec.cols; i++)
-        {
-            if (abs(tvec.at<double>(i, 0) - tvec.at<double>(i, 0)) > abs(tvec.at<double>(i, 0)) * 0.2)
-            {
-                cout << "translation too large" << endl;
-                poseValid = false;
-            }
-        }
-
-        for (int i = 0; i < rvec.cols; i++)
-        {
-            if (abs(rvec.at<double>(i, 0) - rvec.at<double>(i, 0)) > 0.174533)
-            {
-                cout << "rotation too large" << endl;
-                poseValid = false;
-            }
-        }
-    }
-#endif
-
     if (foundPose && poseValid)
     {
         SLCVMat Tcw = cv::Mat::eye(4, 4, CV_32F);

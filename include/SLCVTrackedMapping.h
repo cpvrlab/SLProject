@@ -44,7 +44,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 
         //enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
 
-                SLCVTrackedMapping    (SLNode* node, SLCVMapNode* mapNode=NULL );
+                SLCVTrackedMapping    (SLNode* node, bool onlyTracking, SLCVMapNode* mapNode=NULL );
                 ~SLCVTrackedMapping();
 
         SLbool  track               (SLCVMat imageGray,
@@ -67,6 +67,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         // Map initialization for monocular
         bool CreateInitialMapMonocular();
         void CreateNewKeyFrame();
+        bool NeedNewKeyFrame();
 
         //! initialization routine
         void initialize();
@@ -121,7 +122,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         bool mbVO = false;
 
         LocalMapping* mpLocalMapper = NULL;
-        LoopClosing* mpLoopClosing = NULL;
+        LoopClosing* mpLoopCloser = NULL;
 
         //New KeyFrame rules (according to fps)
         // Max/Min Frames to insert keyframes and to check relocalisation
@@ -134,6 +135,9 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         list<SLCVKeyFrame*> mlpReferences;
         list<double> mlFrameTimes;
         list<bool> mlbLost;
+
+        // True if local mapping is deactivated and we are performing only localization
+        bool mbOnlyTracking;
 
         //Last Frame, KeyFrame and Relocalisation Info
         SLCVKeyFrame* mpLastKeyFrame=NULL;
@@ -151,6 +155,9 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         int _numOfLoopClosings = 0;
 
         bool _retainImg = true;
+
+        std::thread* mptLocalMapping;
+        std::thread* mptLoopClosing;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedMapping_H

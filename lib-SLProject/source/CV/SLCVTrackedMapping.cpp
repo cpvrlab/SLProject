@@ -36,13 +36,18 @@ for a good top down information.
 #include <SLCVMapIO.h>
 #include <SLCVMapStorage.h>
 #include <SLCVOrbVocabulary.h>
+ 
+#ifndef _WINDOWS
+#include <unistd.h>
+#endif
 
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
+SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, bool onlyTracking, SLCVMapNode* mapNode )
     : SLCVTracked(node),
-    SLCVMapTracking(mapNode, true)
+      mbOnlyTracking(onlyTracking),
+      SLCVMapTracking(mapNode, true)
 {
     //load visual vocabulary for relocalization
     mpVocabulary = SLCVOrbVocabulary::get();
@@ -82,20 +87,32 @@ SLCVTrackedMapping::SLCVTrackedMapping( SLNode* node, SLCVMapNode* mapNode )
     mpIniORBextractor = new ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
     //instantiate local mapping
     mpLocalMapper = new LocalMapping(_map, 1, mpVocabulary);
-    mpLoopClosing = new LoopClosing(_map, mpKeyFrameDatabase, mpVocabulary, false);
-    mpLoopClosing->SetLocalMapper(mpLocalMapper);
+    mptLocalMapping = new thread(&LocalMapping::Run, mpLocalMapper);
+
+    mpLoopCloser = new LoopClosing(_map, mpKeyFrameDatabase, mpVocabulary, false);
+    mpLoopCloser->SetLocalMapper(mpLocalMapper);
+    mptLoopClosing = new thread(&LoopClosing::Run, mpLoopCloser);
 }
 //-----------------------------------------------------------------------------
 SLCVTrackedMapping::~SLCVTrackedMapping()
 {
+    mpLocalMapper->RequestFinish();
+    mpLoopCloser->RequestFinish();
+
+    // Wait until all thread have effectively stopped
+    while(!mpLocalMapper->isFinished() || !mpLoopCloser->isFinished() || mpLoopCloser->isRunningGBA())
+    {
+        usleep(5000);
+    }
+
     if (_extractor)
         delete _extractor;
     if (mpIniORBextractor)
         delete mpIniORBextractor;
     if (mpLocalMapper)
         delete mpLocalMapper;
-    if (mpLoopClosing)
-        delete mpLoopClosing;
+    if (mpLoopCloser)
+        delete mpLoopCloser;
 }
 //-----------------------------------------------------------------------------
 SLbool SLCVTrackedMapping::track(SLCVMat imageGray,
@@ -260,6 +277,8 @@ void SLCVTrackedMapping::track3DPts()
     //bool bOK;
     _bOK = false;
 
+    // TODO(jan): we probably also have to do the not-only-tracking stuff here
+
     if (sm.state() == SLCVTrackingStateMachine::TRACKING_LOST)
     {
         _bOK = Relocalization();
@@ -330,14 +349,19 @@ void SLCVTrackedMapping::track3DPts()
         }
     }
 
-    // mbVO true means that there are few matches to MapPoints in the map. We cannot retrieve
-    // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
-    // the camera we will use the local map again.
-
-
-    if (_bOK && !mbVO) {
-        _bOK = TrackLocalMap();
-        //cout << "TrackLocalMap: " << bOK << endl;
+    // If we have an initial estimation of the camera pose and matching. Track the local map.
+    if(!mbOnlyTracking)
+    {
+        if(_bOK)
+            _bOK = TrackLocalMap();
+    }
+    else
+    {
+        // mbVO true means that there are few matches to MapPoints in the map. We cannot retrieve
+        // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
+        // the camera we will use the local map again.
+        if (_bOK && !mbVO)
+            _bOK = TrackLocalMap();
     }
 
     //if (bOK)
@@ -399,19 +423,21 @@ void SLCVTrackedMapping::track3DPts()
                 }
         }
 
+        // TODO(jan): do we need temporalMapPoints?
+
         //ghm1: manual local mapping of current frame
-        if (_bOK && _mapNextFrame)
+        if ((_bOK && _mapNextFrame) || NeedNewKeyFrame())
         {
             CreateNewKeyFrame();
             //call local mapper
-            mpLocalMapper->RunOnce();
+            //mpLocalMapper->RunOnce();
             //normally the loop closing would feed the keyframe database, but we do it here
             //mpKeyFrameDatabase->add(mpLastKeyFrame);
 
             //loop closing
-            mpLoopClosing->InsertKeyFrame(mpLastKeyFrame);
-            if (mpLoopClosing->RunOnce())
-                _numOfLoopClosings++;
+            //mpLoopCloser->InsertKeyFrame(mpLastKeyFrame);
+            //if (mpLoopCloser->RunOnce())
+                //_numOfLoopClosings++;
 
             _mapNextFrame = false;
             //update visualization of map, it may have changed because of global bundle adjustment.
@@ -583,6 +609,57 @@ bool SLCVTrackedMapping::CreateInitialMapMonocular()
     return true;
 }
 //-----------------------------------------------------------------------------
+bool SLCVTrackedMapping::NeedNewKeyFrame()
+{
+    // If Local Mapping is freezed by a Loop Closure do not insert keyframes
+    if(mpLocalMapper->isStopped() || mpLocalMapper->stopRequested())
+        return false;
+
+    const int nKFs = _map->KeyFramesInMap();
+
+    // Do not insert keyframes if not enough frames have passed from last relocalisation
+    if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && nKFs>mMaxFrames)
+        return false;
+
+    // Tracked MapPoints in the reference keyframe
+    int nMinObs = 3;
+    if(nKFs<=2)
+        nMinObs=2;
+    int nRefMatches = mpReferenceKF->TrackedMapPoints(nMinObs);
+
+    // Local Mapping accept keyframes?
+    bool bLocalMappingIdle = mpLocalMapper->AcceptKeyFrames();
+
+    // Thresholds
+    float thRefRatio = 0.9f;
+    if(nKFs<2)
+        thRefRatio = 0.4f;
+
+    // Condition 1a: More than "MaxFrames" have passed from last keyframe insertion
+    const bool c1a = mCurrentFrame.mnId>=mnLastKeyFrameId+mMaxFrames;
+    // Condition 1b: More than "MinFrames" have passed and Local Mapping is idle
+    const bool c1b = (mCurrentFrame.mnId>=mnLastKeyFrameId+mMinFrames && bLocalMappingIdle);
+    // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
+    const bool c2 = ((mnMatchesInliers<nRefMatches*thRefRatio) && mnMatchesInliers>15);
+
+    if((c1a||c1b)&&c2)
+    {
+        // If the mapping accepts keyframes, insert keyframe.
+        // Otherwise send a signal to interrupt BA
+        if(bLocalMappingIdle)
+        {
+            return true;
+        }
+        else
+        {
+            mpLocalMapper->InterruptBA();
+            return false;
+        }
+    }
+    else
+        return false;
+}
+//-----------------------------------------------------------------------------
 void SLCVTrackedMapping::CreateNewKeyFrame()
 {
     if (!mpLocalMapper->SetNotStop(true))
@@ -687,8 +764,8 @@ void SLCVTrackedMapping::Reset()
 
     //// Reset Loop Closing
     //cout << "Reseting Loop Closing...";
-    //mpLoopClosing->RequestReset();
-    mpLoopClosing->reset();
+    //mpLoopCloser->RequestReset();
+    mpLoopCloser->reset();
     //cout << " done" << endl;
 
     // Clear BoW Database
@@ -1342,7 +1419,7 @@ SLCVKeyFrame* SLCVTrackedMapping::currentKeyFrame()
 
 const char* SLCVTrackedMapping::getLoopClosingStatusString()
 {
-    switch (mpLoopClosing->getStatus())
+    switch (mpLoopCloser->getStatus())
     {
         case LoopClosing::LOOP_CLOSE_STATUS_LOOP_CLOSED:
             return "loop closed";
