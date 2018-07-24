@@ -35,7 +35,7 @@ namespace ORB_SLAM2
 LoopClosing::LoopClosing(SLCVMap *pMap, SLCVKeyFrameDB *pDB, ORBVocabulary *pVoc, const bool bFixScale):
     mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mpMap(pMap),
     mpKeyFrameDB(pDB), mpORBVocabulary(pVoc), mpMatchedKF(NULL), mLastLoopKFid(0), mbRunningGBA(false), mbFinishedGBA(true),
-    mbStopGBA(false), mpThreadGBA(NULL), mbFixScale(bFixScale), mnFullBAIdx(0)
+    mbStopGBA(false), mpThreadGBA(NULL), mbFixScale(bFixScale), mnFullBAIdx(0), _numLoopClosings(0)
 {
     mnCovisibilityConsistencyTh = 3;
 }
@@ -68,6 +68,12 @@ void LoopClosing::Run()
                {
                    // Perform loop fusion and pose graph optimization
                    CorrectLoop();
+                   status = LOOP_CLOSE_STATUS_LOOP_CLOSED;
+
+                   {
+                       std::lock_guard<std::mutex> lock(mMutexNumLoopClosings);
+                       _numLoopClosings++;
+                   }
                }
             }
         }       
@@ -79,6 +85,9 @@ void LoopClosing::Run()
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
+
+    if (mpThreadGBA && mpThreadGBA->joinable())
+        mpThreadGBA->join();
 
     SetFinish();
 }
@@ -812,6 +821,12 @@ bool LoopClosing::isFinished()
 {
     unique_lock<mutex> lock(mMutexFinish);
     return mbFinished;
+}
+
+int LoopClosing::numOfLoopClosings()
+{
+    std::lock_guard<std::mutex> lock(mMutexNumLoopClosings);
+    return _numLoopClosings;
 }
 
 

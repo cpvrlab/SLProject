@@ -90,8 +90,7 @@ void LocalMapping::Run()
                 KeyFrameCulling();
             }
 
-            //ghm1:
-            //mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
+            mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
         }
         else if(Stop())
         {
@@ -158,6 +157,8 @@ void LocalMapping::RunOnce()
             // Check redundant local Keyframes
             KeyFrameCulling();
         }
+
+        mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
     }
 }
 

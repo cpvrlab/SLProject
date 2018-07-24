@@ -599,9 +599,8 @@ bool SLCVOrbTracking::TrackWithOptFlow()
                                   _calib->distortion(),
                                   rvec, tvec,
                                   true);
-    bool poseValid = true;
 
-    if (foundPose && poseValid)
+    if (foundPose)
     {
         SLCVMat Tcw = cv::Mat::eye(4, 4, CV_32F);
         Tcw.at<float>(0, 3) = tvec.at<float>(0, 0);
@@ -631,7 +630,7 @@ bool SLCVOrbTracking::TrackWithOptFlow()
 
     SLAverageTiming::stop("TrackWithOptFlow");
 
-    return foundPose && poseValid;
+    return foundPose;
 }
 
 bool SLCVOrbTracking::TrackWithMotionModel()

@@ -26,11 +26,10 @@ for a good top down information.
 #include <SLCVFrame.h>
 #include <SLCVMap.h>
 #include <SLCVMapTracking.h>
-
-namespace ORB_SLAM2 {
-    class Initializer;
-    class LocalMapping;
-}
+#include <OrbSlam/Initializer.h>
+#include <OrbSlam/LocalMapping.h>
+#include <OrbSlam/LoopClosing.h>
+#include <OrbSlam/ORBVocabulary.h>
 
 class SLCVKeyFrameDB;
 
@@ -39,13 +38,16 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 {
     public:
 
-        int getNumLoopClosings() { return _numOfLoopClosings; }
+        int getNumLoopClosings() { return mpLoopCloser->numOfLoopClosings(); }
         const char* getLoopClosingStatusString();
 
         //enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
 
-                SLCVTrackedMapping    (SLNode* node, bool onlyTracking, SLCVMapNode* mapNode=NULL );
-                ~SLCVTrackedMapping();
+        SLCVTrackedMapping(SLNode* node,
+                           bool onlyTracking,
+                           SLCVMapNode* mapNode = NULL,
+                           bool serial = true);
+        ~SLCVTrackedMapping();
 
         SLbool  track               (SLCVMat imageGray,
                                      SLCVMat imageRgb,
@@ -71,9 +73,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 
         //! initialization routine
         void initialize();
-        void trackVO();
         void track3DPts();
-        void trackOpticalFlow();
 
         void decorate();
         bool Relocalization();
@@ -84,6 +84,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         void UpdateLocalKeyFrames();
         void UpdateLocalPoints();
         bool TrackWithMotionModel();
+        bool TrackWithOptFlow();
         void UpdateLastFrame();
 
 
@@ -158,6 +159,8 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 
         std::thread* mptLocalMapping;
         std::thread* mptLoopClosing;
+
+        bool _serial;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedMapping_H

@@ -93,6 +93,8 @@ public:
     };
     LoopCloseStatus getStatus() { return status; }
 
+    int numOfLoopClosings();
+
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
@@ -156,10 +158,12 @@ protected:
     // Fix scale in the stereo/RGB-D case
     bool mbFixScale;
 
-
     bool mnFullBAIdx;
 
     LoopCloseStatus status = LOOP_CLOSE_STATUS_NONE;
+
+    std::mutex mMutexNumLoopClosings;
+    int _numLoopClosings;
 };
 
 } //namespace ORB_SLAM

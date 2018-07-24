@@ -2506,10 +2506,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Track Keyframe based Features");
         s->info("Example for loading an existing pose graph with map points.");
         
-        //s->videoType(VT_MAIN);
-        s->videoType(VT_FILE);
-        SLCVCapture::videoLoops = true;
-        SLCVCapture::videoFilename = "biel1.mp4";
+        s->videoType(VT_MAIN);
+        //s->videoType(VT_FILE);
+        //SLCVCapture::videoLoops = true;
+        //SLCVCapture::videoFilename = "biel1.mp4";
 
         //make some light
         SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
@@ -2538,21 +2538,21 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(trackingCam);
 
         //add tracker
-        SLCVTrackedRaulMurAsync* raulMurTracker = new SLCVTrackedRaulMurAsync(trackingCam, mapNode);
-        s->trackers().push_back(raulMurTracker);
+        SLCVTrackedMapping* tracker = new SLCVTrackedMapping(trackingCam, true, mapNode, false);
+        s->trackers().push_back(tracker);
 
-        SLCVOrbTracking* orbT = raulMurTracker->orbTracking();
+        //SLCVOrbTracking* orbT = raulMurTracker->orbTracking();
         //setup scene specific gui dialoges
-        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", orbT );
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tracker );
         AppDemoGui::addInfoDialog(trackingInfos);
-        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", orbT );
+        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tracker );
         AppDemoGui::addInfoDialog(mapTransform);
-        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", orbT);
+        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tracker);
         AppDemoGui::addInfoDialog(mapStorage);
-        auto cameraMovement =
+        /*auto cameraMovement =
             std::make_shared<SLImGuiInfosCameraMovement>("Camera movement",
                                                          raulMurTracker->stateEstimator());
-        AppDemoGui::addInfoDialog(cameraMovement);
+        AppDemoGui::addInfoDialog(cameraMovement);*/
 
         //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
@@ -2768,7 +2768,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(trackingCam);
 
         //add tracker
-        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, false, mapNode);
+        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, false, mapNode, false);
         s->trackers().push_back(tm);
 
         //setup scene specific gui dialoges
