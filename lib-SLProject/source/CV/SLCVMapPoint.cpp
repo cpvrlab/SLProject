@@ -172,6 +172,13 @@ void SLCVMapPoint::SetBadFlag()
     mpMap->EraseMapPoint(this);
 }
 //-----------------------------------------------------------------------------
+SLCVMapPoint* SLCVMapPoint::GetReplaced()
+{
+    unique_lock<mutex> lock1(mMutexFeatures);
+    unique_lock<mutex> lock2(mMutexPos);
+    return mpReplaced;
+}
+//-----------------------------------------------------------------------------
 void SLCVMapPoint::Replace(SLCVMapPoint* pMP)
 {
     if (pMP->mnId == this->mnId)

@@ -152,7 +152,9 @@ void LocalMapping::RunOnce()
             // Local BA
             //if(mpMap->KeyFramesInMap()>2)
             if (mpMap->KeyFramesInMap() > 2)
+            {
                 Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame, &mbAbortBA, mpMap);
+            }
 
             // Check redundant local Keyframes
             KeyFrameCulling();
@@ -184,7 +186,6 @@ void LocalMapping::ProcessNewKeyFrame()
         mlNewKeyFrames.pop_front();
     }
 
-    cout << "LocalMapping::ProcessNewKeyFrame()" << endl;
     // Compute Bags of Words structures
     mpCurrentKeyFrame->ComputeBoW(mpORBvocabulary);
 
@@ -732,7 +733,9 @@ void LocalMapping::KeyFrameCulling()
                             {
                                 nObs++;
                                 if(nObs>=thObs)
+                                {
                                     break;
+                                }
                             }
                         }
                         if(nObs>=thObs)
@@ -742,10 +745,12 @@ void LocalMapping::KeyFrameCulling()
                     }
                 }
             }
-        }  
+        }
 
         if(nRedundantObservations>0.9*nMPs)
+        {
             pKF->SetBadFlag();
+        }
     }
 }
 

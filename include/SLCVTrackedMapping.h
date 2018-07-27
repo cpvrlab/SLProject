@@ -86,7 +86,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         bool TrackWithMotionModel();
         bool TrackWithOptFlow();
         void UpdateLastFrame();
-
+        void CheckReplacedInLastFrame();
 
         //Motion Model
         cv::Mat mVelocity;
@@ -152,8 +152,6 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         bool _drawKeyFrames = true;
 
         bool _mapNextFrame = false;
-
-        int _numOfLoopClosings = 0;
 
         bool _retainImg = true;
 

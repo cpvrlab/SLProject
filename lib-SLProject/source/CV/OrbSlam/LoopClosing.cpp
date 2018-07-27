@@ -68,7 +68,7 @@ void LoopClosing::Run()
                {
                    // Perform loop fusion and pose graph optimization
                    CorrectLoop();
-                   status = LOOP_CLOSE_STATUS_LOOP_CLOSED;
+                   status(LOOP_CLOSE_STATUS_LOOP_CLOSED);
 
                    {
                        std::lock_guard<std::mutex> lock(mMutexNumLoopClosings);
@@ -76,7 +76,11 @@ void LoopClosing::Run()
                    }
                }
             }
-        }       
+        }
+        else
+        {
+            status(LOOP_CLOSE_STATUS_NO_NEW_KEYFRAME);
+        }
 
         ResetIfRequested();
 
@@ -106,14 +110,20 @@ bool LoopClosing::RunOnce()
             {
                 // Perform loop fusion and pose graph optimization
                 doCorrectLoop();
-                status = LOOP_CLOSE_STATUS_LOOP_CLOSED;
+                status(LOOP_CLOSE_STATUS_LOOP_CLOSED);
+
+                {
+                    std::lock_guard<std::mutex> lock(mMutexNumLoopClosings);
+                    _numLoopClosings++;
+                }
+
                 return true;
             }
         }
     }
     else
     {
-        status = LOOP_CLOSE_STATUS_NO_NEW_KEYFRAME;
+        status(LOOP_CLOSE_STATUS_NO_NEW_KEYFRAME);
     }
     return false;
 }
@@ -144,8 +154,7 @@ bool LoopClosing::DetectLoop()
     //If the map contains less than 10 KF or less than 10 KF have passed from last loop detection
     if(mpCurrentKF->mnId<mLastLoopKFid+10)
     {
-        status = LOOP_CLOSE_STATUS_NOT_ENOUGH_KEYFRAMES;
-        cout << "loopdetect add 1" << endl;
+        status(LOOP_CLOSE_STATUS_NOT_ENOUGH_KEYFRAMES);
         mpKeyFrameDB->add(mpCurrentKF);
         mpCurrentKF->SetErase();
         return false;
@@ -161,13 +170,18 @@ bool LoopClosing::DetectLoop()
     {
         SLCVKeyFrame* pKF = vpConnectedKeyFrames[i];
         if(pKF->isBad())
+        {
             continue;
+        }
+
         const DBoW2::BowVector &BowVec = pKF->mBowVec;
 
         float score = mpORBVocabulary->score(CurrentBowVec, BowVec);
 
         if(score<minScore)
+        {
             minScore = score;
+        }
     }
 
     // Query the database imposing the minimum score
@@ -176,8 +190,7 @@ bool LoopClosing::DetectLoop()
     // If there are no loop candidates, just add new keyframe and return false
     if(vpCandidateKFs.empty())
     {
-        status = LOOP_CLOSE_STATUS_NO_LOOP_CANDIDATES;
-        cout << "loopdetect add 2" << endl;
+        status(LOOP_CLOSE_STATUS_NO_LOOP_CANDIDATES);
         mpKeyFrameDB->add(mpCurrentKF);
         mvConsistentGroups.clear();
         mpCurrentKF->SetErase();
@@ -251,7 +264,7 @@ bool LoopClosing::DetectLoop()
 
     if(mvpEnoughConsistentCandidates.empty())
     {
-        status = LOOP_CLOSE_STATUS_NO_CONSISTENT_CANDIDATES;
+        status(LOOP_CLOSE_STATUS_NO_CONSISTENT_CANDIDATES);
         mpCurrentKF->SetErase();
         return false;
     }
@@ -380,7 +393,7 @@ bool LoopClosing::ComputeSim3()
 
     if(!bMatch)
     {
-        status = LOOP_CLOSE_STATUS_NO_OPTIMIZED_CANDIDATES;
+        status(LOOP_CLOSE_STATUS_NO_OPTIMIZED_CANDIDATES);
         for(int i=0; i<nInitialCandidates; i++)
              mvpEnoughConsistentCandidates[i]->SetErase();
         mpCurrentKF->SetErase();
@@ -429,7 +442,7 @@ bool LoopClosing::ComputeSim3()
     }
     else
     {
-        status = LOOP_CLOSE_STATUS_NOT_ENOUGH_CONSISTENT_MATCHES;
+        status(LOOP_CLOSE_STATUS_NOT_ENOUGH_CONSISTENT_MATCHES);
         for(int i=0; i<nInitialCandidates; i++)
             mvpEnoughConsistentCandidates[i]->SetErase();
         mpCurrentKF->SetErase();
@@ -829,5 +842,16 @@ int LoopClosing::numOfLoopClosings()
     return _numLoopClosings;
 }
 
+void LoopClosing::status(LoopCloseStatus status)
+{
+    std::lock_guard<std::mutex> lock(mMutexStatus);
+    _status = status;
+}
+
+LoopClosing::LoopCloseStatus LoopClosing::status()
+{
+    std::lock_guard<std::mutex> lock(mMutexStatus);
+    return _status;
+}
 
 } //namespace ORB_SLAM

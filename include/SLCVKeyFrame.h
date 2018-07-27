@@ -80,7 +80,7 @@ public:
     // Covisibility graph functions
     void AddConnection(SLCVKeyFrame* pKF, int weight);
     void EraseConnection(SLCVKeyFrame* pKF);
-    void UpdateConnections();
+    void UpdateConnections(bool buildSpanningTree = true);
     void UpdateBestCovisibles();
     std::set<SLCVKeyFrame*> GetConnectedKeyFrames();
     std::vector<SLCVKeyFrame* > GetVectorCovisibleKeyFrames();

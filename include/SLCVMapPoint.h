@@ -56,6 +56,7 @@ public:
     bool isBad();
 
     void Replace(SLCVMapPoint* pMP);
+    SLCVMapPoint* GetReplaced();
 
     void IncreaseVisible(int n = 1);
     void IncreaseFound(int n = 1);

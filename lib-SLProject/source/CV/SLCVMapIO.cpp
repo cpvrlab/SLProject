@@ -43,11 +43,45 @@ void SLCVMapIO::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
     loadMapPoints(map);
 
     //update the covisibility graph, when all keyframes and mappoints are loaded
-    auto kfs = map.GetAllKeyFrames();
-    for (auto kf : kfs)
+    std::vector<SLCVKeyFrame*> kfs = map.GetAllKeyFrames();
+    SLCVKeyFrame* firstKF = nullptr;
+    for (int i = 0; i < kfs.size(); i++)
     {
-        // Update links in the Covisibility Graph
-        kf->UpdateConnections();
+        // Update links in the Covisibility Graph, do not build the spanning tree yet
+        SLCVKeyFrame* kf = kfs[i];
+        kf->UpdateConnections(false);
+        if (kf->mnId == 0)
+        {
+            firstKF = kf;
+        }
+    }
+
+    assert(firstKF && "Could not find keyframe with id 0\n");
+
+    // Build spanning tree
+    std::vector<SLCVKeyFrame*> spanningTreeFringe;
+    spanningTreeFringe.reserve(kfs.size());
+    spanningTreeFringe[0] = firstKF;
+    uint32_t fringeCount = 1;
+    uint32_t fringeTakeIndex = 0;
+    uint32_t fringePutIndex = 1;
+    while (fringeCount)
+    {
+        fringeCount--;
+        SLCVKeyFrame* kf = spanningTreeFringe[fringeTakeIndex];
+        std::set<SLCVKeyFrame*> connectedKeyFrames = kf->GetConnectedKeyFrames();
+        for (std::set<SLCVKeyFrame*>::iterator connectedKeyFramesIt = connectedKeyFrames.begin(); connectedKeyFramesIt != connectedKeyFrames.end(); connectedKeyFramesIt++)
+        {
+            SLCVKeyFrame* connectedKF = *connectedKeyFramesIt;
+            if (connectedKF->mnId != 0 && !connectedKF->GetParent())
+            {
+                connectedKF->ChangeParent(kf);
+                spanningTreeFringe[fringePutIndex] = connectedKF;
+                fringePutIndex++;
+                fringeCount++;
+            }
+        }
+        fringeTakeIndex++;
     }
 
     //compute resulting values for map points

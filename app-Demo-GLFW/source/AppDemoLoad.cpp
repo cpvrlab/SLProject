@@ -2578,9 +2578,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Track Keyframe based Features (from video files)");
         s->info("Example for loading an existing pose graph with map points.");
 
+        SLstring mapName = "slam-map-28";
+
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
-        SLCVCapture::videoFilename = "street3.mp4";
+        SLCVCapture::videoFilename = "biel_zenfone_4.mp4";
         SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "street1_manip.json";
 
         //make some light
@@ -2610,29 +2612,32 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(trackingCam);    
 
         //add tracker
-        SLCVTrackedRaulMurAsync* raulMurTracker = new SLCVTrackedRaulMurAsync(trackingCam, mapNode);
-        s->trackers().push_back(raulMurTracker);
+        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, true, mapNode, false);
+        SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
+        s->trackers().push_back(tm);
 
-        SLCVOrbTracking* orbT = raulMurTracker->orbTracking();
+        //SLCVOrbTracking* orbT = raulMurTracker->orbTracking();
         //setup scene specific gui dialoges
-        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", orbT);
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm);
         AppDemoGui::addInfoDialog(trackingInfos);
-        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", orbT);
+        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm);
         AppDemoGui::addInfoDialog(mapTransform);
-        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", orbT);
+        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm);
         AppDemoGui::addInfoDialog(mapStorage);
 
+        /*
         orbT->sm.requestStateIdle();
         while (!orbT->sm.hasStateIdle()) {
             if (!orbT->serial())
                 std::this_thread::sleep_for(std::chrono::seconds(1));
         }
 
-        SLCVMapIO loader(slamStateFilePath, SLCVOrbVocabulary::get(), false);
-        loader.load(*orbT->getMap(), *orbT->getKfDB());
+        //SLCVMapIO loader(slamStateFilePath, SLCVOrbVocabulary::get(), false);
+        //loader.load(*orbT->getMap(), *orbT->getKfDB());
         mapNode->updateAll(*orbT->getMap());
         orbT->setInitialized(true);
         orbT->sm.requestResume();
+*/
 
         //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
@@ -2663,8 +2668,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //3. When running on desktop, make sure the screen resolution is adjusted to 640x360 in file AppDemoMainGLFW.cpp in line 437
         //4. Load a Video with 640 screen width (640x360 or 640x480), e.g. VID_20180424_2.mp4. Make sure it is placed in _data/videos.
         //Make sure it is added to androids CMakeLists.txt so it is presnet on your smartphone
-        SLstring mapName = "slam-map-19";
-        SLCVCapture::videoFilename = "biel1.mp4";
+        SLstring mapName = "slam-map-28";
+        SLCVCapture::videoFilename = "biel_zenfone_4.mp4";
         SLstring calibFileName = "cam_calibration_main_asus_zenfoneAR_21268_640_480.xml";
         SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), calibFileName, false, false);
         SLApplication::calibVideoFile.loadCalibParams();
@@ -2700,7 +2705,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(trackingCam);
 
         //add tracker
-        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, false, mapNode);
+        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, false, mapNode, false);
         SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
         s->trackers().push_back(tm);
 

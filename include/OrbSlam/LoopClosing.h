@@ -91,7 +91,7 @@ public:
         LOOP_CLOSE_STATUS_LOOP_CLOSED,
         LOOP_CLOSE_STATUS_NO_NEW_KEYFRAME
     };
-    LoopCloseStatus getStatus() { return status; }
+    LoopCloseStatus status();
 
     int numOfLoopClosings();
 
@@ -160,7 +160,9 @@ protected:
 
     bool mnFullBAIdx;
 
-    LoopCloseStatus status = LOOP_CLOSE_STATUS_NONE;
+    LoopCloseStatus _status = LOOP_CLOSE_STATUS_NONE;
+    std::mutex mMutexStatus;
+    void status(LoopCloseStatus status);
 
     std::mutex mMutexNumLoopClosings;
     int _numLoopClosings;

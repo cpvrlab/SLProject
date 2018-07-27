@@ -330,7 +330,7 @@ SLCVMapPoint* SLCVKeyFrame::GetMapPoint(const size_t &idx)
     return mvpMapPoints[idx];
 }
 //-----------------------------------------------------------------------------
-void SLCVKeyFrame::UpdateConnections()
+void SLCVKeyFrame::UpdateConnections(bool buildSpanningTree)
 {
     //ghm1: a covisibility graph between keyframes (nodes) is maintained:
     //if two keyframes share more than 15 observations of the same map points an edge is added. The number of the common observations is the edge weight.
@@ -416,11 +416,13 @@ void SLCVKeyFrame::UpdateConnections()
 
         if (mbFirstConnection && mnId != 0)
         {
-            mpParent = mvpOrderedConnectedKeyFrames.front();
-            mpParent->AddChild(this);
+            if (buildSpanningTree)
+            {
+                mpParent = mvpOrderedConnectedKeyFrames.front();
+                mpParent->AddChild(this);
+            }
             mbFirstConnection = false;
         }
-
     }
 }
 //-----------------------------------------------------------------------------
@@ -501,7 +503,9 @@ void SLCVKeyFrame::SetBadFlag()
     {
         unique_lock<mutex> lock(mMutexConnections);
         if (mnId == 0)
+        {
             return;
+        }
         else if (mbNotErase)
         {
             mbToBeErased = true;
@@ -510,11 +514,18 @@ void SLCVKeyFrame::SetBadFlag()
     }
 
     for (map<SLCVKeyFrame*, int>::iterator mit = mConnectedKeyFrameWeights.begin(), mend = mConnectedKeyFrameWeights.end(); mit != mend; mit++)
+    {
         mit->first->EraseConnection(this);
+    }
 
     for (size_t i = 0; i<mvpMapPoints.size(); i++)
+    {
         if (mvpMapPoints[i])
+        {
             mvpMapPoints[i]->EraseObservation(this);
+        }
+    }
+
     {
         unique_lock<mutex> lock(mMutexConnections);
         unique_lock<mutex> lock1(mMutexFeatures);
@@ -540,7 +551,9 @@ void SLCVKeyFrame::SetBadFlag()
             {
                 SLCVKeyFrame* pKF = *sit;
                 if (pKF->isBad())
+                {
                     continue;
+                }
 
                 // Check if a parent candidate is connected to the keyframe
                 vector<SLCVKeyFrame*> vpConnected = pKF->GetVectorCovisibleKeyFrames();
@@ -570,15 +583,19 @@ void SLCVKeyFrame::SetBadFlag()
                 mspChildrens.erase(pC);
             }
             else
+            {
                 break;
+            }
         }
 
         // If a children has no covisibility links with any parent candidate, assign to the original parent of this KF
         if (!mspChildrens.empty())
+        {
             for (set<SLCVKeyFrame*>::iterator sit = mspChildrens.begin(); sit != mspChildrens.end(); sit++)
             {
                 (*sit)->ChangeParent(mpParent);
             }
+        }
 
         mpParent->EraseChild(this);
         mTcp = _Tcw*mpParent->GetPoseInverse();
