@@ -255,11 +255,8 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
 
     //reserve space in kfs
     //kfs.reserve(n.size());
-    bool first = true;
     for (auto it = n.begin(); it != n.end(); ++it)
     {
-        first = false;
-
         int id = (*it)["id"];
 
         // Infos about the pose: https://github.com/raulmur/ORB_SLAM2/issues/249

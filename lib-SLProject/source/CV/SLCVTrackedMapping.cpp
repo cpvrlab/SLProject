@@ -179,6 +179,8 @@ void SLCVTrackedMapping::initialize()
             //ghm1: clear mvIniMatches. it contains the index of the matched keypoint in the current frame
             fill(mvIniMatches.begin(), mvIniMatches.end(), -1);
 
+            initializationStatus = INITIALIZATION_STATUS_REFERENCE_KEYFRAME_SET;
+
             return;
         }
     }
@@ -191,6 +193,7 @@ void SLCVTrackedMapping::initialize()
             delete mpInitializer;
             mpInitializer = static_cast<Initializer*>(NULL);
             fill(mvIniMatches.begin(), mvIniMatches.end(), -1);
+            initializationStatus = INITIALIZATION_STATUS_REFERENCE_KEYFRAME_DELETED_KEYPOINTS;
             return;
         }
 
@@ -203,6 +206,7 @@ void SLCVTrackedMapping::initialize()
         {
             delete mpInitializer;
             mpInitializer = static_cast<Initializer*>(NULL);
+            initializationStatus = INITIALIZATION_STATUS_REFERENCE_KEYFRAME_DELETED_MATCHES;
             return;
         }
 
@@ -222,6 +226,8 @@ void SLCVTrackedMapping::initialize()
 
         if (mpInitializer->Initialize(mCurrentFrame, mvIniMatches, Rcw, tcw, mvIniP3D, vbTriangulated))
         {
+            initializationStatus = INITIALIZATION_STATUS_INITIALIZER_INITIALIZED;
+
             for (size_t i = 0, iend = mvIniMatches.size(); i<iend; i++)
             {
                 if (mvIniMatches[i] >= 0 && !vbTriangulated[i])
@@ -244,6 +250,7 @@ void SLCVTrackedMapping::initialize()
                 //mark tracking as initialized
                 _initialized = true;
                 _bOK = true;
+                initializationStatus = INITIALIZATION_STATUS_INITIALIZED;
             }
 
             //ghm1: in the original implementation the initialization is defined in the track() function and this part is always called at the end!
@@ -693,11 +700,11 @@ bool SLCVTrackedMapping::CreateInitialMapMonocular()
     pKFini->ComputeBoW( mpVocabulary );
     pKFcur->ComputeBoW( mpVocabulary );
 
-    //// Insert KFs in the map
-    //_map->AddKeyFrame(pKFini);
-    //_map->AddKeyFrame(pKFcur);
-    mpKeyFrameDatabase->add(pKFini);
-    mpKeyFrameDatabase->add(pKFcur);
+    // Insert KFs in the map
+    _map->AddKeyFrame(pKFini);
+    _map->AddKeyFrame(pKFcur);
+    //mpKeyFrameDatabase->add(pKFini);
+    //mpKeyFrameDatabase->add(pKFcur);
 
     // Create MapPoints and asscoiate to keyframes
     for (size_t i = 0; i<mvIniMatches.size(); i++)
@@ -789,8 +796,12 @@ bool SLCVTrackedMapping::CreateInitialMapMonocular()
     //_currentState = TRACK_3DPTS;
 
     //ghm1: run local mapping once
-    mpLocalMapper->RunOnce();
-    mpLocalMapper->RunOnce();
+    if (_serial)
+    {
+        mpLocalMapper->RunOnce();
+        mpLocalMapper->RunOnce();
+    }
+
     // Bundle Adjustment
     cout << "Number of Map points after local mapping: " << _map->MapPointsInMap() << endl;
 
@@ -1655,6 +1666,26 @@ const char* SLCVTrackedMapping::getLoopClosingStatusString()
         case LoopClosing::LOOP_CLOSE_STATUS_NO_NEW_KEYFRAME:
             return "no new keyframe";
         case LoopClosing::LOOP_CLOSE_STATUS_NONE:
+        default:
+            return "none";
+    }
+}
+
+const char* SLCVTrackedMapping::getInitializationStatusString()
+{
+    switch (initializationStatus)
+    {
+        case INITIALIZATION_STATUS_INITIALIZED:
+            return "initialized";
+        case INITIALIZATION_STATUS_REFERENCE_KEYFRAME_SET:
+            return "reference keyframe set";
+        case INITIALIZATION_STATUS_REFERENCE_KEYFRAME_DELETED_KEYPOINTS:
+            return "reference keyframe deleted - not enough keypoints";
+        case INITIALIZATION_STATUS_REFERENCE_KEYFRAME_DELETED_MATCHES:
+            return "reference keyframe deleted - not enough matches";
+        case INITIALIZATION_STATUS_INITIALIZER_INITIALIZED:
+            return "initializer initialized";
+        case INITIALIZATION_STATUS_NONE:
         default:
             return "none";
     }

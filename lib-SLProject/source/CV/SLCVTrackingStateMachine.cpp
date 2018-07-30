@@ -50,7 +50,7 @@ void SLCVTrackingStateMachine::requestStateIdle()
     }
 }
 //-----------------------------------------------------------------------------
-//!If system is in idle, it resumes with INITIAIZED or NOT_INITIALIZED state depending on if system is initialized.
+//!If system is in idle, it resumes with INITIALIZED or NOT_INITIALIZED state depending on if system is initialized.
 void SLCVTrackingStateMachine::requestResume()
 {
     std::unique_lock<std::mutex> guard(_mutexStates);

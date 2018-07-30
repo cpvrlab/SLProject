@@ -41,6 +41,17 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         int getNumLoopClosings() { return mpLoopCloser->numOfLoopClosings(); }
         const char* getLoopClosingStatusString();
 
+        enum InitializationStatus
+        {
+            INITIALIZATION_STATUS_NONE,
+            INITIALIZATION_STATUS_INITIALIZED,
+            INITIALIZATION_STATUS_REFERENCE_KEYFRAME_SET,
+            INITIALIZATION_STATUS_REFERENCE_KEYFRAME_DELETED_KEYPOINTS,
+            INITIALIZATION_STATUS_REFERENCE_KEYFRAME_DELETED_MATCHES,
+            INITIALIZATION_STATUS_INITIALIZER_INITIALIZED
+        };
+        const char* getInitializationStatusString();
+
         //enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
 
         SLCVTrackedMapping(SLNode* node,
@@ -65,6 +76,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         size_t getSizeOf();
 
         SLCVKeyFrame* currentKeyFrame();
+
     private:
         // Map initialization for monocular
         bool CreateInitialMapMonocular();
@@ -159,6 +171,8 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         std::thread* mptLoopClosing;
 
         bool _serial;
+
+        InitializationStatus initializationStatus = InitializationStatus::INITIALIZATION_STATUS_NONE;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedMapping_H

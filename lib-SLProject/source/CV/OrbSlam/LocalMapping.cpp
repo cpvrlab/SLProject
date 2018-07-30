@@ -798,6 +798,7 @@ void LocalMapping::ResetIfRequested()
 //ghm1
 void LocalMapping::reset()
 {
+    unique_lock<mutex> lock(mMutexReset);
     mlNewKeyFrames.clear();
     mlpRecentAddedMapPoints.clear();
     mbResetRequested = false;

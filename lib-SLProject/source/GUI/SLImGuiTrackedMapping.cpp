@@ -43,6 +43,10 @@ void SLImGuiTrackedMapping::buildInfos()
 
     //add tracking state
     ImGui::Text("Tracking State : %s ", _mappingTracker->getPrintableState().c_str());
+    if (_mappingTracker->sm.state() == SLCVTrackingStateMachine::TrackingState::INITIALIZING)
+    {
+        ImGui::Text("Initialization status: %s ", _mappingTracker->getInitializationStatusString());
+    }
     //add number of matches map points in current frame
     ImGui::Text("Num Map Matches: %d ", _mappingTracker->getNMapMatches());
     //number of map points
@@ -55,7 +59,13 @@ void SLImGuiTrackedMapping::buildInfos()
 
     SLCVKeyFrame* kf = _mappingTracker->currentKeyFrame();
     if (kf)
+    {
         ImGui::Text("Last keyframe : %d ", kf->mnId);
+    }
+    else
+    {
+        ImGui::Text("No keyframe yet");
+    }
 
 #ifdef ANDROID
     float bHeigth = 200.0f;
