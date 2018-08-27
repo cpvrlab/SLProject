@@ -26,7 +26,7 @@ class SLSpheric: public SLRevolver
                                      SLint stacks = 32,
                                      SLint slices = 32,
                                      SLstring name = "spheric mesh",
-                                     SLMaterial* mat = 0);
+                                     SLMaterial* mat = nullptr);
                                                 
                        ~SLSpheric   (){;}
                               
@@ -36,8 +36,8 @@ class SLSpheric: public SLRevolver
                
    protected:    
             SLfloat     _radius;        //!< radius of the sphere
-            SLfloat     _thetaStartDEG; //!< Polar start angle 0-180°
-            SLfloat     _thetaEndDEG;   //!< Polar end angle 1-180°
+            SLfloat     _thetaStartDEG; //!< Polar start angle 0-180deg
+            SLfloat     _thetaEndDEG;   //!< Polar end angle 1-180deg
             SLint       _stacks;        //!< No. of stacks of the sphere
 };
 //-----------------------------------------------------------------------------

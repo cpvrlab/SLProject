@@ -23,7 +23,7 @@ class SLCone: public SLRevolver
                                     SLint    slices = 36,
                                     SLbool   hasBottom = true,
                                     SLstring name = "cone mesh",
-                                    SLMaterial* mat = 0);
+                                    SLMaterial* mat = nullptr);
                             ~SLCone (){;}
 
             // Getters

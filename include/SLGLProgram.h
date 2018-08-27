@@ -61,7 +61,7 @@ class SLGLProgram : public SLObject
     virtual void        beginShader     (SLMaterial* mat) = 0;  //!< starter for derived classes
     virtual void        endShader       () = 0;
       
-            void        beginUse        (SLMaterial* mat = 0);  //!< begin using shader
+            void        beginUse        (SLMaterial* mat = nullptr);  //!< begin using shader
             void        endUse          ();
             void        useProgram      ();
       

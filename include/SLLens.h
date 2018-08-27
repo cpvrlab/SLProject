@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLLens.h
-//  Author:    Philipp Jüni
+//  Author:    Philipp Jueni
 //  Date:      October 2014
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
@@ -40,7 +40,7 @@ class SLLens: public SLRevolver
                                  SLint stacks = 32,
                                  SLint slices = 32,
                                  SLstring name = "lens mesh",
-                                 SLMaterial* mat = 0);
+                                 SLMaterial* mat = nullptr);
 
                 //! Create a lense with given radius, diameter and thickness
                 SLLens          (SLfloat radiusBot,
@@ -50,7 +50,7 @@ class SLLens: public SLRevolver
                                  SLint stacks = 32,
                                  SLint slices = 32,
                                  SLstring name = "lens mesh",
-                                 SLMaterial* mat = 0);
+                                 SLMaterial* mat = nullptr);
 
                ~SLLens          () {;}
 

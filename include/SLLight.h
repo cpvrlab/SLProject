@@ -29,7 +29,7 @@ class SLLight
                                    SLfloat diffPower = 1.0f,
                                    SLfloat specPower = 1.0f,
                                    SLint id=-1);
-                       ~SLLight   (){}
+    virtual            ~SLLight   (){}
                        
     virtual void        setState    () = 0;
             
@@ -86,7 +86,6 @@ class SLLight
             SLfloat     _kl;            //!< Linear light attenuation
             SLfloat     _kq;            //!< Quadratic light attenuation
             SLbool      _isAttenuated;  //!< fast attenuation flag for ray tracing
-            SLint       _samples;       //!< number of samples for area lights
 };
 //-----------------------------------------------------------------------------
 //! STL vector of light pointers

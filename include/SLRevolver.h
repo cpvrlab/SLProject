@@ -32,13 +32,13 @@ class SLRevolver: public SLMesh
                                     SLbool   smoothFirst = false,
                                     SLbool   smoothLast = false,
                                     SLstring name = "revolver mesh",
-                                    SLMaterial* mat = 0);
+                                    SLMaterial* mat = nullptr);
 
                         //! ctor for derived revolver shapes
                         SLRevolver  (SLstring name) : SLMesh(name) {;}
                         SLRevolver  (){;}
                          
-            void        buildMesh   (SLMaterial* mat=0);
+            void        buildMesh   (SLMaterial* mat = nullptr);
               
    protected:    
             SLVVec3f    _revPoints;    //!< Array revolving points

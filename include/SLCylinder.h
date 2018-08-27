@@ -24,7 +24,7 @@ class SLCylinder: public SLRevolver
                                         SLbool   hasTop = true,
                                         SLbool   hasBottom = true,
                                         SLstring name = "cylinder mesh",
-                                        SLMaterial* mat = 0);
+                                        SLMaterial* mat = nullptr);
                             ~SLCylinder   (){;}
                               
             // Getters

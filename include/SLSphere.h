@@ -24,7 +24,7 @@ class SLSphere: public SLSpheric
                                  SLint stacks = 32,
                                  SLint slices = 32,
                                  SLstring name = "sphere mesh",
-                                 SLMaterial* mat = 0) : 
+                                 SLMaterial* mat = nullptr) :
                                  SLSpheric(radius, 
                                            0.0f, 180.0f, 
                                            stacks, slices, 

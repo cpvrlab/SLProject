@@ -22,7 +22,7 @@ class SLDisk: public SLRevolver
                                     SLint       slices = 36,
                                     SLbool      doubleSided = false,
                                     SLstring    name = "disk mesh",
-                                    SLMaterial* mat = 0);
+                                    SLMaterial* mat = nullptr);
                            ~SLDisk (){;}
 
             // Getters
