@@ -38,7 +38,7 @@ SLGLState* SLGLState::getInstance()
 void SLGLState::deleteInstance()     
 {
     delete instance;
-    instance = 0;
+    instance = nullptr;
 }
 //-----------------------------------------------------------------------------
 /*! Private constructor should be called only once for a singleton class.
@@ -90,12 +90,12 @@ void SLGLState::initAll()
    
     globalAmbientLight.set(0.2f,0.2f,0.2f,0.0f);
    
-    _glVersion      = SLstring((char*)glGetString(GL_VERSION));
+    _glVersion      = SLstring((const char*)glGetString(GL_VERSION));
     _glVersionNO    = getGLVersionNO();
     _glVersionNOf   = (SLfloat)atof(_glVersionNO.c_str());
-    _glVendor       = SLstring((char*)glGetString(GL_VENDOR));
-    _glRenderer     = SLstring((char*)glGetString(GL_RENDERER));
-    _glSLVersion    = SLstring((char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+    _glVendor       = SLstring((const char*)glGetString(GL_VENDOR));
+    _glRenderer     = SLstring((const char*)glGetString(GL_RENDERER));
+    _glSLVersion    = SLstring((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
     _glSLVersionNO  = getSLVersionNO();
     _glIsES2        = (_glVersion.find("OpenGL ES 2")!=string::npos);
     _glIsES3        = (_glVersion.find("OpenGL ES 3")!=string::npos);
@@ -106,11 +106,11 @@ void SLGLState::initAll()
     {   GLint n;
         glGetIntegerv(GL_NUM_EXTENSIONS, &n);
         for (int i = 0; i < n; i++)
-            _glExtensions += SLstring((char*)glGetStringi(GL_EXTENSIONS, i)) + ", ";
+            _glExtensions += SLstring((const char*)glGetStringi(GL_EXTENSIONS, (SLuint)i)) + ", ";
     } else
     #endif
     {   const GLubyte* ext = glGetString(GL_EXTENSIONS);
-        if (ext) _glExtensions = SLstring((char*)ext);
+        if (ext) _glExtensions = SLstring((const char*)ext);
     }
    
     //initialize states a unset
@@ -128,8 +128,8 @@ void SLGLState::initAll()
 
     // Reset all cached states to an invalid state
     _programID = 0;
-    _textureUnit = -1;
-    _textureTarget = -1;
+    _textureUnit = 0;
+    _textureTarget = 0;
     _textureID = 0;
     _colorMaskR = -1;
     _colorMaskG = -1;
@@ -397,7 +397,8 @@ void SLGLState::polygonOffset(SLbool stateNew, SLfloat factor, SLfloat units)
     {
         if (stateNew) 
         {   glEnable(GL_POLYGON_OFFSET_FILL);   
-            if (_polygonOffsetFactor != factor || _polygonOffsetUnits != units)
+            if (SL_abs(_polygonOffsetFactor-factor) > 0.0001f ||
+                SL_abs(_polygonOffsetUnits-units) > 0.0001f)
             {   glPolygonOffset(factor, units);
                 _polygonOffsetFactor = factor;
                 _polygonOffsetUnits = units;
@@ -432,7 +433,7 @@ void SLGLState::viewport(SLint x, SLint y, SLsizei width, SLsizei height)
 void SLGLState::colorMask(SLint r, SLint g, SLint b, SLint a)
 {
     if (r != _colorMaskR || g != _colorMaskG || b != _colorMaskB || a != _colorMaskA)
-    {   glColorMask(r, g, b, a);
+    {   glColorMask((SLuchar)r, (SLuchar)g, (SLuchar)b, (SLuchar)a);
         _colorMaskR = r;
         _colorMaskG = g;
         _colorMaskB = b;
@@ -514,7 +515,7 @@ void SLGLState::unbindAnythingAndFlush()
     #endif
 }
 //-----------------------------------------------------------------------------
-void SLGLState::getGLError(char* file, 
+void SLGLState::getGLError(const char* file,
                            int line, 
                            bool quit)
 {  
@@ -587,7 +588,7 @@ For the OpenGL version string "4.5.0 NVIDIA 347.68" the function returns "4.5"
 */
 SLstring SLGLState::getGLVersionNO()
 {
-    SLstring versionStr = SLstring((char*)glGetString(GL_VERSION));
+    SLstring versionStr = SLstring((const char*)glGetString(GL_VERSION));
     size_t dotPos = versionStr.find(".");
     SLchar NO[4];
     NO[0] = versionStr[dotPos - 1];
@@ -595,7 +596,7 @@ SLstring SLGLState::getGLVersionNO()
     NO[2] = versionStr[dotPos + 1];
     NO[3] = 0;
     
-    if (versionStr.find("OpenGL ES") > -1)
+    if (versionStr.find("OpenGL ES") != string::npos)
     {   SLstring strNO = "ES";
         return strNO + NO;    
     } else return SLstring(NO);
@@ -608,7 +609,7 @@ For the shading language string "Nvidia GLSL 4.5" the function returns "450"
 */
 SLstring SLGLState::getSLVersionNO()
 {
-    SLstring versionStr = SLstring((char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+    SLstring versionStr = SLstring((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
     size_t dotPos = versionStr.find(".");
     SLchar NO[4];
     NO[0] = versionStr[dotPos - 1];

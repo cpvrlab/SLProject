@@ -180,6 +180,7 @@
 		41030CFA1FED49E2005CFF1A /* SLTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030CB91FED49E1005CFF1A /* SLTimer.h */; };
 		41030CFB1FED49E2005CFF1A /* SLDrawBits.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030CBA1FED49E1005CFF1A /* SLDrawBits.h */; };
 		41030CFC1FED49E2005CFF1A /* SLSpheric.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030CBB1FED49E1005CFF1A /* SLSpheric.h */; };
+		4146F0C62135961300E4DE0C /* SLRect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4146F0C52135961300E4DE0C /* SLRect.h */; };
 		4178D66220205C8E00F4F699 /* SLApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 4178D66120205C8E00F4F699 /* SLApplication.h */; };
 		4178D66420205E1700F4F699 /* SLApplication.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4178D66320205E1700F4F699 /* SLApplication.cpp */; };
 		41B5768A1FF53D1A00542824 /* SLSkybox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41B576881FF53D1A00542824 /* SLSkybox.cpp */; };
@@ -362,6 +363,7 @@
 		41030CB91FED49E1005CFF1A /* SLTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLTimer.h; path = ../include/SLTimer.h; sourceTree = "<group>"; };
 		41030CBA1FED49E1005CFF1A /* SLDrawBits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDrawBits.h; path = ../include/SLDrawBits.h; sourceTree = "<group>"; };
 		41030CBB1FED49E1005CFF1A /* SLSpheric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLSpheric.h; path = ../include/SLSpheric.h; sourceTree = "<group>"; };
+		4146F0C52135961300E4DE0C /* SLRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLRect.h; path = ../include/SLRect.h; sourceTree = "<group>"; };
 		4168FDE01FED45EA007C56B3 /* liblib-SLProject.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "liblib-SLProject.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4178D66120205C8E00F4F699 /* SLApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLApplication.h; path = ../include/SLApplication.h; sourceTree = "<group>"; };
 		4178D66320205E1700F4F699 /* SLApplication.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLApplication.cpp; path = source/SL/SLApplication.cpp; sourceTree = "<group>"; };
@@ -653,6 +655,7 @@
 		41030C341FED48E9005CFF1A /* Math */ = {
 			isa = PBXGroup;
 			children = (
+				4146F0C52135961300E4DE0C /* SLRect.h */,
 				41030CA81FED49DE005CFF1A /* SLCurve.h */,
 				41030C361FED4905005CFF1A /* SLCurveBezier.cpp */,
 				41030C8D1FED49DA005CFF1A /* SLCurveBezier.h */,
@@ -819,6 +822,7 @@
 				41030CDD1FED49E2005CFF1A /* SLAABBox.h in Headers */,
 				41030CD91FED49E2005CFF1A /* SLTexFont.h in Headers */,
 				41030CC21FED49E2005CFF1A /* SLMesh.h in Headers */,
+				4146F0C62135961300E4DE0C /* SLRect.h in Headers */,
 				41EAAE082067B82200F7E9B9 /* SLCVTrackedFaces.h in Headers */,
 				41030CCA1FED49E2005CFF1A /* SLMaterial.h in Headers */,
 				41030CF81FED49E2005CFF1A /* SLDeviceRotation.h in Headers */,

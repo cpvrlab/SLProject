@@ -18,7 +18,7 @@
 static const SLint SL_MAX_LIGHTS = 8;   //!< max. number of used lights
 //-----------------------------------------------------------------------------
 
-#define GET_GL_ERROR SLGLState::getGLError((SLchar*)__FILE__, __LINE__, false)
+#define GET_GL_ERROR SLGLState::getGLError((const char*)__FILE__, __LINE__, false)
 //-----------------------------------------------------------------------------
 //! Singleton class holding all OpenGL states
 /*!
@@ -142,7 +142,7 @@ class SLGLState
         inline void popModelViewMatrix  () {modelViewMatrix = _modelViewMatrixStack.pop_back();}
 
         //! Checks if an OpenGL error occurred
-        static void getGLError          (char* file, int line, bool quit);
+        static void getGLError          (const char* file, int line, bool quit);
 
         SLstring getGLVersionNO         ();
         SLstring getSLVersionNO         ();

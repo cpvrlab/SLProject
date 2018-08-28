@@ -6,17 +6,17 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "app-Demo-GLFW/source/AppDemoMainGLFW.cpp"
-            timestampString = "552557869.36378"
+            filePath = "lib-SLProject/source/SLMesh.cpp"
+            timestampString = "557162251.351802"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "535"
-            endingLineNumber = "535"
-            landmarkName = "main(int argc, char *argv[])"
-            landmarkType = "9">
+            startingLineNumber = "378"
+            endingLineNumber = "378"
+            landmarkName = "SLMesh::draw(SLSceneView* sv, SLNode* node)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

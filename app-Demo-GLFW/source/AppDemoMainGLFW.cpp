@@ -83,7 +83,7 @@ SLbool onPaint()
 
 //-----------------------------------------------------------------------------
 //! Maps the GLFW key codes to the SLKey codes
-const SLKey mapKeyToSLKey(SLint key)
+SLKey mapKeyToSLKey(SLint key)
 {  
     switch (key)
     {   case GLFW_KEY_SPACE:        return K_space;
@@ -332,6 +332,7 @@ static void onKeyPress(GLFWwindow* window, int GLFWKey, int scancode, int action
         {   case K_ctrl:  modifiers = (SLKey)(modifiers|K_ctrl);  return;
             case K_alt:   modifiers = (SLKey)(modifiers|K_alt);   return;
             case K_shift: modifiers = (SLKey)(modifiers|K_shift); return;
+            default: break;
         }
     } else
     if (action==GLFW_RELEASE)
@@ -339,6 +340,7 @@ static void onKeyPress(GLFWwindow* window, int GLFWKey, int scancode, int action
         {   case K_ctrl:  modifiers = (SLKey)(modifiers^K_ctrl);  return;
             case K_alt:   modifiers = (SLKey)(modifiers^K_alt);   return;
             case K_shift: modifiers = (SLKey)(modifiers^K_shift); return;
+            default: break;
         }
     }
    
@@ -423,7 +425,7 @@ int main(int argc, char *argv[])
     touch2.set(-1,-1);
     touchDelta.set(-1,-1);
 
-    window = glfwCreateWindow(scrWidth, scrHeight, "My Title", NULL, NULL);
+    window = glfwCreateWindow(scrWidth, scrHeight, "My Title", nullptr, nullptr);
 
     //get real window size
     glfwGetWindowSize(window, &scrWidth, &scrHeight);
@@ -503,8 +505,8 @@ int main(int argc, char *argv[])
                                 dpi, 
                                 (SLSceneID)SL_STARTSCENE,
                                 (void*)&onPaint, 
-                                0,
-                                0,
+                                nullptr,
+                                nullptr,
                                 (void*)AppDemoGui::build);
     /////////////////////////////////////////////////////////
 

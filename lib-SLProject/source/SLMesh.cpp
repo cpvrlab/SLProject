@@ -71,6 +71,7 @@ void SLMesh::deleteData()
     for (auto i : Jw) i.clear(); Jw.clear();
     I16.clear();
     I32.clear();
+    IS32.clear();
 
     _jointMatrices.clear();
     skinnedP.clear();
@@ -346,18 +347,49 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     ////////////////////////////////////
     // 7: Draw selected mesh with points
     ////////////////////////////////////
+    SLScene* s = SLApplication::scene;
 
-    if (SLApplication::scene->selectedMesh())
-    {   _stateGL->polygonOffset(true, 1.0f, 1.0f);
-        if (SLApplication::scene->selectedMesh()==this)
-        {   _vaoS.generateVertexPos(_finalP);
-            _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
-        }
+    if (s->selectedNode()==node &&
+        s->selectedMesh()==this)
+    {
+        _stateGL->polygonOffset(true, 1.0f, 1.0f);
+        _vaoS.generateVertexPos(_finalP);
+        _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
         _stateGL->polygonLine(false);
         _stateGL->polygonOffset(false);
-    } else
+    }
+    else if (!s->selectedRect().isEmpty())
+    {
+        SLMat4f mvp = *_stateGL->mvpMatrix();
+        SLMat4f v; v.viewport(0,0,sv->scrW(), sv->scrH());
+        SLMat4f v_mvp = v * mvp;
+        IS32.clear();
+
+        for(SLuint i=0; i<P.size(); ++i)
+        {   // Do the full viewport-modelview-projection transform
+            SLVec3f p = v_mvp * P[i];
+            if (s->selectedRect().contains(SLVec2f(p.x,p.y)))
+                IS32.push_back(i);
+        }
+        
+        if (IS32.size() > 0)
+        {   node->drawBits()->on(SL_DB_SELECTED);
+            cout << "IS32.size: " << IS32.size() << endl;
+            if (_vaoS.id())
+                _vaoS.clearAttribs();
+            _stateGL->polygonOffset(true, 1.0f, 1.0f);
+            _vao.setIndices(&IS32);
+            _vao.drawElementAsColored(PT_points, SLCol4f::YELLOW, 2);
+            _stateGL->polygonLine(false);
+            _stateGL->polygonOffset(false);
+        } else
+            node->drawBits()->off(SL_DB_SELECTED);
+    }
+    else
     {   if (_vaoS.id())
-            _vaoS.clearAttribs();
+        {   _vaoS.clearAttribs();
+            IS32.clear();
+        }
     }
 
     if (blended) _stateGL->blend(true);
@@ -767,7 +799,7 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
         return false;
 
     // prevent self-intersection of triangle
-    if(ray->srcMesh == this && ray->srcTriangle == iT) 
+    if(ray->srcMesh == this && ray->srcTriangle == (SLint)iT)
         return false;
       
     SLVec3f A, B, C;     // corners
@@ -843,7 +875,7 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
       
         // Calculate barycentric coordinates: u>0 && v>0 && u+v<=1
         u = AO.dot(K) * inv_det;
-        if (u < 0.0f || u > 1.0) return false;
+        if (u < 0.0f || u > 1.0f) return false;
       
         // prepare to test v parameter
         Q.cross(AO, e1);
@@ -863,7 +895,7 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
         ray->hitV = v;
     }
 
-    ray->hitTriangle = iT;
+    ray->hitTriangle = (SLint)iT;
     ray->hitNode = node;
     ray->hitMesh = this;
 
@@ -885,13 +917,13 @@ void SLMesh::preShade(SLRay* ray)
     // Get the triangle indices
     SLuint iA, iB, iC;
     if (I16.size())
-    {   iA = I16[ray->hitTriangle  ];
-        iB = I16[ray->hitTriangle+1];
-        iC = I16[ray->hitTriangle+2];
+    {   iA = I16[(SLushort)ray->hitTriangle  ];
+        iB = I16[(SLushort)ray->hitTriangle+1];
+        iC = I16[(SLushort)ray->hitTriangle+2];
     } else
-    {   iA = I32[ray->hitTriangle  ];
-        iB = I32[ray->hitTriangle+1];
-        iC = I32[ray->hitTriangle+2];
+    {   iA = I32[(SLuint)ray->hitTriangle  ];
+        iB = I32[(SLuint)ray->hitTriangle+1];
+        iC = I32[(SLuint)ray->hitTriangle+2];
     }
    
     // calculate the hit point in world space
@@ -975,7 +1007,7 @@ void SLMesh::transformSkin()
     // Create array for joint matrices once
     if (!_jointMatrices.size())
     {   _jointMatrices.clear();
-        _jointMatrices.resize(_skeleton->numJoints());
+        _jointMatrices.resize((SLuint)_skeleton->numJoints());
     }
         
 
@@ -998,7 +1030,7 @@ void SLMesh::transformSkin()
         if (N.size()) skinnedN[i] = SLVec3f::ZERO;
                     
         // accumulate final normal and positions
-        for (SLint j = 0; j < Ji[i].size(); ++j)
+        for (SLuint j = 0; j < Ji[i].size(); ++j)
         {   
             const SLMat4f& jm = _jointMatrices[Ji[i][j]];
             SLVec4f tempPos = jm * P[i];

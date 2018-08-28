@@ -59,11 +59,7 @@ As examples you can see it in:
 */
 SLScene::SLScene(SLstring name,
                  cbOnSceneLoad onSceneLoadCallback) : SLObject(name),
-                _frameTimesMS(60, 0.0f),
                 _updateTimesMS(60, 0.0f),
-                _cullTimesMS(60, 0.0f),
-                _draw3DTimesMS(60, 0.0f),
-                _draw2DTimesMS(60, 0.0f),
                 _trackingTimesMS(60, 0.0f),
                 _detectTimesMS(60, 0.0f),
                 _detect1TimesMS(60, 0.0f),
@@ -71,6 +67,10 @@ SLScene::SLScene(SLstring name,
                 _matchTimesMS(60, 0.0f),
                 _optFlowTimesMS(60, 0.0f),
                 _poseTimesMS(60, 0.0f),
+                _frameTimesMS(60, 0.0f),
+                _cullTimesMS(60, 0.0f),
+                _draw3DTimesMS(60, 0.0f),
+                _draw2DTimesMS(60, 0.0f),
                 _captureTimesMS(200, 0.0f)
 
 {
@@ -181,7 +181,7 @@ void SLScene::init()
     SLGLState::getInstance()->initAll();
    
     _globalAmbiLight.set(0.2f,0.2f,0.2f,0.0f);
-    _selectedNode = 0;
+    _selectedNode = nullptr;
 
     // Reset timing variables
     _timer.start();
@@ -210,6 +210,8 @@ void SLScene::init()
 
     // Reset the video texture
     _videoTexture.setVideoImage("LiveVideoError.png");
+
+    _selectedRect.setZero();
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -259,7 +261,7 @@ void SLScene::unInit()
     SLMaterial::current = nullptr;
    
     // delete custom shader programs but not default shaders
-    while (_programs.size() > _numProgsPreload)
+    while (_programs.size() > (SLuint)_numProgsPreload)
     {   SLGLProgram* sp = _programs.back();
         delete sp;
         _programs.pop_back();
@@ -565,13 +567,13 @@ void SLScene::selectNode(SLNode* nodeToSelect)
 
     if (nodeToSelect)
     {  if (_selectedNode == nodeToSelect)
-        {   _selectedNode = 0;
+        {   _selectedNode = nullptr;
         } else
         {   _selectedNode = nodeToSelect;
             _selectedNode->drawBits()->on(SL_DB_SELECTED);
         }
-    } else _selectedNode = 0;
-    _selectedMesh = 0;
+    } else _selectedNode = nullptr;
+    _selectedMesh = nullptr;
 }
 //-----------------------------------------------------------------------------
 //! Sets the _selectedNode and _selectedMesh and flags it as selected
@@ -582,16 +584,18 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
 
     if (nodeToSelect)
     {  if (_selectedNode == nodeToSelect && _selectedMesh == meshToSelect)
-        {   _selectedNode = 0;
-            _selectedMesh = 0;
+        {   _selectedNode = nullptr;
+            _selectedMesh = nullptr;
+            _selectedRect.setZero();
         } else
         {   _selectedNode = nodeToSelect;
             _selectedMesh = meshToSelect;
             _selectedNode->drawBits()->on(SL_DB_SELECTED);
         }
     } else 
-    {   _selectedNode = 0;
-        _selectedMesh = 0;
+    {   _selectedNode = nullptr;
+        _selectedMesh = nullptr;
+        _selectedRect.setZero();
     }
 }
 //-----------------------------------------------------------------------------

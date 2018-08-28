@@ -14,9 +14,10 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLScene.h>
+#include <SLApplication.h>
 #include <SLGLVertexArray.h>
 #include <SLGLProgram.h>
-#include <SLScene.h>
 
 //-----------------------------------------------------------------------------
 SLuint SLGLVertexArray::totalDrawCalls   = 0;
@@ -53,7 +54,7 @@ void SLGLVertexArray::deleteGL()
     {   glDeleteBuffers(1, &_idVBOIndices);
         _idVBOIndices = 0;
         SLGLVertexBuffer::totalBufferCount--;
-        SLGLVertexBuffer::totalBufferSize -= _numIndices * SLGLVertexBuffer::sizeOfType(_indexDataType);
+        SLGLVertexBuffer::totalBufferSize -= _numIndices * (SLuint)SLGLVertexBuffer::sizeOfType(_indexDataType);
     }
 }
 //-----------------------------------------------------------------------------
@@ -61,7 +62,7 @@ void SLGLVertexArray::deleteGL()
 SLint SLGLVertexArray::id()
 {
     #ifndef SL_GLES2
-    return _hasGL3orGreater ? _idVAO : _VBOf.id();
+    return _hasGL3orGreater ? (SLint)_idVAO : (SLint)_VBOf.id();
     #else
     return _VBOf.id();
     #endif
@@ -224,11 +225,11 @@ void SLGLVertexArray::generate(SLuint numVertices,
         glGenBuffers(1, &_idVBOIndices);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _idVBOIndices);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
-                     _numIndices * typeSize, 
+                     _numIndices * (SLuint)typeSize,
                      _indexData, 
                      GL_STATIC_DRAW);
         SLGLVertexBuffer::totalBufferCount++;
-        SLGLVertexBuffer::totalBufferSize += _numIndices * typeSize;
+        SLGLVertexBuffer::totalBufferSize += _numIndices * (SLuint)typeSize;
     }
 
     #ifndef SL_GLES2
@@ -274,12 +275,12 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
     
     SLint indexTypeSize = SLGLVertexBuffer::sizeOfType(_indexDataType);
 
-    ////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
     glDrawElements(primitiveType, 
-                   numIndexes, 
+                   (SLsizei)numIndexes,
                    _indexDataType, 
-                   (void*)(size_t)(indexOffset*indexTypeSize));
-    ////////////////////////////////////////////////////////////
+                   (void*)(size_t)(indexOffset*(SLuint)indexTypeSize));
+    ///////////////////////////////////////////////////////////////////
     
     GET_GL_ERROR;
     totalDrawCalls++;
@@ -314,7 +315,7 @@ void SLGLVertexArray::drawArrayAs(SLGLPrimitiveType primitiveType,
     #endif
 
     if (countVertices == 0)
-        countVertices = _numVertices;
+        countVertices = (SLsizei)_numVertices;
 
     ////////////////////////////////////////////////////////
     glDrawArrays(primitiveType, firstVertex, countVertices);
@@ -327,6 +328,51 @@ void SLGLVertexArray::drawArrayAs(SLGLPrimitiveType primitiveType,
         glBindVertexArray(0);
     #else
     _VBOf.disableAttrib();
+    #endif
+
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
+    #endif
+}
+//-----------------------------------------------------------------------------
+/*! Draws the vertex positions as array with a specified primitive & color
+*/
+void SLGLVertexArray::drawElementAsColored(SLGLPrimitiveType primitiveType,
+                                           SLCol4f color,
+                                           SLfloat pointSize,
+                                           SLuint  indexFirstVertex,
+                                           SLuint  countVertices)
+{   assert(countVertices <= _numVertices);
+
+    if (!_VBOf.id())
+        SL_EXIT_MSG("No VBO generated for VAO in drawArrayAsColored.");
+
+    // Prepare shader
+    SLMaterial::current = nullptr;
+    SLGLProgram* sp = SLApplication::scene->programs(SP_colorUniform);
+    SLGLState* state = SLGLState::getInstance();
+    sp->useProgram();
+    sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());
+
+    // Set uniform color
+    glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);
+
+    #ifndef SL_GLES
+    if (pointSize!=1.0f)
+        if (primitiveType == PT_points)
+            glPointSize(pointSize);
+    #endif
+
+    ////////////////////////////////
+    drawElementsAs(primitiveType,
+                   indexFirstVertex,
+                   countVertices);
+    ////////////////////////////////
+
+    #ifndef SL_GLES
+    if (pointSize!=1.0f)
+        if (primitiveType == PT_points)
+            glPointSize(1.0f);
     #endif
 
     #ifdef _GLDEBUG
