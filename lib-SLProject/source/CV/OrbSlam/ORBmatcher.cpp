@@ -972,8 +972,8 @@ int ORBmatcher::Fuse(SLCVKeyFrame *pKF, const vector<SLCVMapPoint *> &vpMapPoint
             }
             else
             {
-                pMP->AddObservation(pKF,bestIdx);
                 pKF->AddMapPoint(pMP,bestIdx);
+                pMP->AddObservation(pKF,bestIdx);
             }
             nFused++;
         }
@@ -1097,8 +1097,8 @@ int ORBmatcher::Fuse(SLCVKeyFrame *pKF, cv::Mat Scw, const vector<SLCVMapPoint *
             }
             else
             {
-                pMP->AddObservation(pKF,bestIdx);
                 pKF->AddMapPoint(pMP,bestIdx);
+                pMP->AddObservation(pKF,bestIdx);
             }
             nFused++;
         }

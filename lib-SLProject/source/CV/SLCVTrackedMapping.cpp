@@ -621,11 +621,13 @@ void SLCVTrackedMapping::track3DPts()
         {
             SLCVMapPoint* pMP = mCurrentFrame.mvpMapPoints[i];
             if (pMP)
+            {
                 if (pMP->Observations()<1)
                 {
                     mCurrentFrame.mvbOutlier[i] = false;
                     mCurrentFrame.mvpMapPoints[i] = static_cast<SLCVMapPoint*>(NULL);
                 }
+            }
         }
 
         //ghm1: manual local mapping of current frame
@@ -657,12 +659,16 @@ void SLCVTrackedMapping::track3DPts()
         for (int i = 0; i<mCurrentFrame.N; i++)
         {
             if (mCurrentFrame.mvpMapPoints[i] && mCurrentFrame.mvbOutlier[i])
+            {
                 mCurrentFrame.mvpMapPoints[i] = static_cast<SLCVMapPoint*>(NULL);
+            }
         }
     }
 
     if (!mCurrentFrame.mpReferenceKF)
+    {
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
+    }
 
     decorate();
 

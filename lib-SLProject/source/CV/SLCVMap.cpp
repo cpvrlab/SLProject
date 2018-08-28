@@ -11,7 +11,7 @@
 /**
 * This file is part of ORB-SLAM2.
 *
-* Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
+* Copyright (C) 2014-2016 RaÃºl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
 * For more information see <https://github.com/raulmur/ORB_SLAM2>
 *
 * ORB-SLAM2 is free software: you can redistribute it and/or modify
@@ -80,6 +80,13 @@ void SLCVMap::EraseKeyFrame(SLCVKeyFrame *pKF)
     unique_lock<mutex> lock(mMutexMap);
     mspKeyFrames.erase(pKF);
 
+    for (SLCVMapPoint* mapPoint: mspMapPoints)
+    {
+        if (mapPoint->refKf() == pKF)
+        {
+            printf("Deleted kf %i with still associated mappoints -> kf source %i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", pKF->mnId, mapPoint->refKfSource);
+        }
+    }
     // TODO: This only erase the pointer.
     // Delete the MapPoint
 }
@@ -372,4 +379,10 @@ size_t SLCVMap::getSizeOf()
     //cout << "total map size in MB: " << (double)size / 1048576L << endl;
 
     return size;
+}
+//-----------------------------------------------------------------------------
+bool SLCVMap::isKeyFrameInMap(SLCVKeyFrame *pKF)
+{
+    bool result = (mspKeyFrames.find(pKF) != mspKeyFrames.end());
+    return result;
 }

@@ -189,6 +189,14 @@ void SLCVMapIO::save(const string& filename, SLCVMap& map, bool kfImgsIO, const 
 
         //reference key frame (I think this is the keyframe from which this
         //map point was generated -> first reference?)
+        if (!map.isKeyFrameInMap(mpt->refKf()))
+        {
+            cout << "Reference keyframe not in map!" << endl;
+        }
+        else if (mpt->refKf()->isBad())
+        {
+            cout << "Reference keyframe is bad!" << endl;
+        }
         fs << "refKfId" << (int)mpt->refKf()->mnId;
 
         fs << "}"; //close map
@@ -350,8 +358,8 @@ void SLCVMapIO::loadMapPoints(SLCVMap& map)
                 const int kfId = observingKfIds[i];
                 if (_kfsMap.find(kfId) != _kfsMap.end()) {
                     SLCVKeyFrame* kf = _kfsMap[kfId];
-                    mapPt->AddObservation(kf, corrKpIndices[i]);
                     kf->AddMapPoint(mapPt, corrKpIndices[i]);
+                    mapPt->AddObservation(kf, corrKpIndices[i]);
                 }
                 else {
                     cout << "keyframe with id " << i << " not found!";

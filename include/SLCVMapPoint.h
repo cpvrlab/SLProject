@@ -76,6 +76,15 @@ public:
     SLCVKeyFrame* refKf() const { return mpRefKF; }
     void refKf(SLCVKeyFrame* refKf) { mpRefKF = refKf; }
 
+    enum RefKfSource
+    {
+        RefKfSource_None = 0,
+        RefKfSource_Constructor = 1,
+        RefKfSource_EraseObservation = 2
+    };
+
+    RefKfSource refKfSource = RefKfSource_None;
+
     size_t getSizeOfCvMat(const cv::Mat& mat);
     size_t getSizeOf();
 public:

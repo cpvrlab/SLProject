@@ -2706,7 +2706,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //add tracker
         SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, false, mapNode, false);
-        SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
+        //SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
         s->trackers().push_back(tm);
 
         //setup scene specific gui dialoges
@@ -2773,7 +2773,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(trackingCam);
 
         //add tracker
-        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, false, mapNode, false);
+        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, false, mapNode, true);
         s->trackers().push_back(tm);
 
         //setup scene specific gui dialoges

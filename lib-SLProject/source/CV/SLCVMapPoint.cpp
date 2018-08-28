@@ -47,6 +47,8 @@ SLCVMapPoint::SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF, SLCVMap* pM
     // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
     unique_lock<mutex> lock(mpMap->mMutexPointCreation);
     mnId = nNextId++;
+
+    refKfSource = RefKfSource_Constructor;
 }
 //-----------------------------------------------------------------------------
 SLVec3f SLCVMapPoint::worldPosVec()
@@ -123,13 +125,20 @@ void SLCVMapPoint::EraseObservation(SLCVKeyFrame* pKF)
             //    nObs -= 2;
             //else
             //    nObs--;
-            int idx = mObservations[pKF];
             nObs--;
 
             mObservations.erase(pKF);
 
             if (mpRefKF == pKF)
+            {
                 mpRefKF = mObservations.begin()->first;
+                refKfSource = RefKfSource_EraseObservation;
+
+                if (!mpRefKF->hasMapPoint(this))
+                {
+                    printf("New reference keyframe does not contain mapPoint!!!!!\n");
+                }
+            }
 
             // If only 2 observations or less, discard point
             if (nObs <= 2)
