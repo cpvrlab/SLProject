@@ -714,7 +714,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         // Set selection rectangle
         if (mod==K_ctrl)
         {   SLScene* s = SLApplication::scene;
-            s->selectedRect().br(SLVec2f(x,y));
+            s->selectedRect().setScnd(SLVec2f(x,y));
         }
         else // normal camera animations
         {   // new vars needed

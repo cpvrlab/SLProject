@@ -75,7 +75,7 @@ void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
     SLint index = attribIndex(type);
     if (index == -1)
         SL_EXIT_MSG("Attribute type does not exist in VBO.");
-    if (_attribs[index].elementSize != elementSize)
+    if (_attribs[(SLuint)index].elementSize != elementSize)
         SL_EXIT_MSG("Attribute element size differs.");
     if (_outputInterleaved)
         SL_EXIT_MSG("Interleaved buffers can't be updated.");
@@ -85,7 +85,7 @@ void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
         glGenBuffers(1, &_id);
 
     
-    _attribs[index].dataPointer = dataPointer;    
+    _attribs[(SLuint)index].dataPointer = dataPointer;
 
     ////////////////////////////////////////////
     // copy sub-data into existing buffer object
@@ -93,9 +93,9 @@ void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
 
     glBindBuffer(GL_ARRAY_BUFFER, _id);
     glBufferSubData(GL_ARRAY_BUFFER,
-                    _attribs[index].offsetBytes,
-                    _attribs[index].bufferSizeBytes,
-                    _attribs[index].dataPointer);
+                    _attribs[(SLuint)index].offsetBytes,
+                    _attribs[(SLuint)index].bufferSizeBytes,
+                    _attribs[(SLuint)index].dataPointer);
 
     #ifdef _GLDEBUG
     GET_GL_ERROR;
@@ -305,15 +305,15 @@ void SLGLVertexBuffer::bindAndEnableAttrib()
         {   if (a.location > -1)
             {
                 // Sets the vertex attribute data pointer to its corresponding GLSL variable
-                glVertexAttribPointer(a.location, 
-                                        a.elementSize,
-                                        _dataType, 
-                                        GL_FALSE, 
-                                        _strideBytes, 
-                                        (void*)(size_t)a.offsetBytes);
+                glVertexAttribPointer((SLuint)a.location,
+                                      a.elementSize,
+                                      _dataType,
+                                      GL_FALSE,
+                                      _strideBytes,
+                                      (void*)(size_t)a.offsetBytes);
 
                 // Tell the attribute to be an array attribute instead of a state variable
-                glEnableVertexAttribArray(a.location);
+                glEnableVertexAttribArray((SLuint)a.location);
             }
         }
     }
@@ -328,7 +328,7 @@ void SLGLVertexBuffer::disableAttrib()
     if (_attribs.size())
     {   for (auto a : _attribs)
             if (a.location > -1)
-                glDisableVertexAttribArray(a.location);
+                glDisableVertexAttribArray((SLuint)a.location);
     }
 }
 //-----------------------------------------------------------------------------

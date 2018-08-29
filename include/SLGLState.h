@@ -90,7 +90,7 @@ class SLGLState
                 
         // getters
         inline const SLMat4f* invModelViewMatrix() {return &_invModelViewMatrix;}
-        inline const SLMat3f* normalMatrix()       { return &_normalMatrix; }
+        inline const SLMat3f* normalMatrix()       {return &_normalMatrix; }
                const SLMat4f* mvpMatrix();         //!< builds and returns proj.mat. x mv mat.
                const SLCol4f* globalAmbient();     //!< returns global ambient color
         inline       bool     hasMultiSampling()   {return _multiSampleSamples > 0;}

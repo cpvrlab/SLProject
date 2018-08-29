@@ -50,10 +50,10 @@ class SLMaterial : public SLObject
                             //! Ctor for textures
                             SLMaterial(const SLchar* name,
                                        SLGLTexture* texture1,
-                                       SLGLTexture* texture2=0,
-                                       SLGLTexture* texture3=0,
-                                       SLGLTexture* texture4=0,
-                                       SLGLProgram* program=0);
+                                       SLGLTexture* texture2=nullptr,
+                                       SLGLTexture* texture3=nullptr,
+                                       SLGLTexture* texture4=nullptr,
+                                       SLGLProgram* program=nullptr);
 
                             //! Ctor for Cook-Torrance shading
                             SLMaterial(const SLchar* name,
@@ -63,7 +63,7 @@ class SLMaterial : public SLObject
 
                             //! Ctor for uniform color material without lighting
                             SLMaterial(SLCol4f uniformColor, 
-                                       const SLchar* name=(SLchar*)"Uniform color");
+                                       const SLchar* name=(const char*)"Uniform color");
                            
                             //! Copy ctor
                             SLMaterial(SLMaterial* m) {if (m) set(m);}

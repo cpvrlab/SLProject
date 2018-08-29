@@ -129,13 +129,6 @@ class SLGLVertexArray
         void        drawArrayAs         (SLGLPrimitiveType primitiveType,
                                          SLint firstVertex = 0,
                                          SLsizei countVertices = 0);
-
-        //! Draws the VAO by element indices with the specified primitive with the color
-        void        drawElementAsColored(SLGLPrimitiveType primitiveType,
-                                         SLCol4f color,
-                                         SLfloat pointSize,
-                                         SLuint  indexFirstVertex = 0,
-                                         SLuint  countVertices = 0);
         // Some getters
         SLuint      numVertices         () {return _numVertices;}
         SLuint      numIndices          () {return _numIndices;}

@@ -19,7 +19,7 @@ class SLDisk: public SLRevolver
 {  public:                     
                             SLDisk (SLfloat     radius = 1.0f,
                                     SLVec3f     revolveAxis = SLVec3f::AXISY,
-                                    SLint       slices = 36,
+                                    SLuint      slices = 36,
                                     SLbool      doubleSided = false,
                                     SLstring    name = "disk mesh",
                                     SLMaterial* mat = nullptr);

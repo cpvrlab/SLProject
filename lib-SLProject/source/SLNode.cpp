@@ -380,7 +380,33 @@ void SLNode::findChildrenHelper(const SLMesh* mesh,
     }
 }
 //-----------------------------------------------------------------------------
+/*!
+Searches for all nodes that contain the provided mesh
+*/
+vector<SLNode*> SLNode::findChildren(const SLuint drawbit,
+                                     SLbool findRecursive)
+{
+    vector<SLNode*> list;
+    findChildrenHelper(drawbit, list, findRecursive);
 
+    return list;
+}
+//-----------------------------------------------------------------------------
+/*!
+Helper function of findChildren for meshes
+*/
+void SLNode::findChildrenHelper(const SLuint drawbit,
+                                vector<SLNode*>& list,
+                                SLbool findRecursive)
+{
+    for (auto child : _children)
+    {   if (child->drawBits()->get(SL_DB_SELECTED))
+            list.push_back(child);
+        if (findRecursive)
+            child->findChildrenHelper(drawbit, list, findRecursive);
+    }
+}
+//-----------------------------------------------------------------------------
 
 
 //-----------------------------------------------------------------------------

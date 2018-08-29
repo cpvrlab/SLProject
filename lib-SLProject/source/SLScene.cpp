@@ -559,7 +559,10 @@ void SLScene::onAfterLoad()
     #endif
 }
 //-----------------------------------------------------------------------------
-//! Sets the _selectedNode to the passed Node and flags it as selected
+//! Sets the _selectedNode to the passed node and flags it as selected
+/*! If one node is selected a rectangle selection is reset to zero.
+The drawing of the selection is done in SLMesh::draw and SLAABBox::drawWS.
+*/
 void SLScene::selectNode(SLNode* nodeToSelect)
 {
     if (_selectedNode)
@@ -572,11 +575,15 @@ void SLScene::selectNode(SLNode* nodeToSelect)
         {   _selectedNode = nodeToSelect;
             _selectedNode->drawBits()->on(SL_DB_SELECTED);
         }
+        _selectedRect.setZero();
     } else _selectedNode = nullptr;
     _selectedMesh = nullptr;
 }
 //-----------------------------------------------------------------------------
 //! Sets the _selectedNode and _selectedMesh and flags it as selected
+/*! If one node is selected a rectangle selection is reset to zero.
+The drawing of the selection is done in SLMesh::draw and SLAABBox::drawWS.
+*/
 void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
 {
     if (_selectedNode)

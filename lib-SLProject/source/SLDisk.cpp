@@ -21,7 +21,7 @@ SLDisk::SLDisk ctor for disk revolution object around the z-axis
 */
 SLDisk::SLDisk(SLfloat      radius,
                SLVec3f      revolveAxis,
-               SLint        slices,
+               SLuint       slices,
                SLbool       doubleSided,
                SLstring     name,
                SLMaterial*  mat) : SLRevolver(name)

@@ -130,6 +130,8 @@ class SLMesh : public SLObject
     virtual void                preShade        (SLRay* ray);
                
             void                deleteData      ();
+            void                deleteSelected  ();
+            void                deleteUnused    ();
     virtual void                calcNormals     ();
             void                calcTangents    ();
             void                calcTex3DMatrix (SLNode* node);

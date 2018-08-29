@@ -60,11 +60,11 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
         SL_EXIT_MSG("No VBO generated for VAO in drawArrayAsColored.");
         
     // Prepare shader
-    SLMaterial::current = 0;
+    SLMaterial::current = nullptr;
     SLGLProgram* sp = SLApplication::scene->programs(SP_colorUniform);
     SLGLState* state = SLGLState::getInstance();
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());
+    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
    
     // Set uniform color
     glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);
@@ -87,6 +87,51 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
             glPointSize(1.0f);
     #endif
     
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
+    #endif
+}
+//-----------------------------------------------------------------------------
+/*! Draws the vertex positions as array with a specified primitive & color
+*/
+void SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
+                                              SLCol4f color,
+                                              SLfloat pointSize,
+                                              SLuint  indexFirstVertex,
+                                              SLuint  countVertices)
+{   assert(countVertices <= _numVertices);
+
+    if (!_VBOf.id())
+        SL_EXIT_MSG("No VBO generated for VAO in drawArrayAsColored.");
+
+    // Prepare shader
+    SLMaterial::current = nullptr;
+    SLGLProgram* sp = SLApplication::scene->programs(SP_colorUniform);
+    SLGLState* state = SLGLState::getInstance();
+    sp->useProgram();
+    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
+
+    // Set uniform color
+    glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);
+
+    #ifndef SL_GLES
+    if (pointSize!=1.0f)
+        if (primitiveType == PT_points)
+            glPointSize(pointSize);
+    #endif
+
+    ////////////////////////////////
+    drawElementsAs(primitiveType,
+                   indexFirstVertex,
+                   countVertices);
+    ////////////////////////////////
+
+    #ifndef SL_GLES
+    if (pointSize!=1.0f)
+        if (primitiveType == PT_points)
+            glPointSize(1.0f);
+    #endif
+
     #ifdef _GLDEBUG
     GET_GL_ERROR;
     #endif

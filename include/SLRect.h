@@ -61,6 +61,9 @@ class SLRect
     void    br          (V v)                   {if (v.x < x) x = v.x;
                                                  if (v.y < y) y = v.y;
                                                  width = v.x-x; height = v.y-y;}
+    void    setScnd     (V v)                   {if (v.x>x) {width =v.x-x;} else {width+=x-v.x; x=v.x;}
+                                                 if (v.y>y) {height=v.y-y;} else {height+=y-v.y; y=v.y;}}
+
     // Misc. getters
     V       tl          ()                      {return V(x,y);}
     V       br          ()                      {return V(x+width,y+height);}

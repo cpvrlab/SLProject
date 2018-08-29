@@ -21,7 +21,7 @@ SLRevolver::SLRevolver ctor for generic revolution object.
 */
 SLRevolver::SLRevolver(SLVVec3f revolvePoints, 
                        SLVec3f  revolveAxis,
-                       SLint    slices,
+                       SLuint   slices,
                        SLbool   smoothFirst, SLbool   smoothLast, 
                        SLstring name,
                        SLMaterial* mat) : SLMesh(name)

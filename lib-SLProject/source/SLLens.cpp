@@ -1,8 +1,8 @@
 //#############################################################################
 //  File:      SLLens.cpp
-//  Author:    Philipp Jüni
+//  Author:    Philipp Jueni
 //  Date:      October 2014
-//  Copyright: Marcus Hudritsch, Philipp Jüni
+//  Copyright: Marcus Hudritsch, Philipp Jueni
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -49,8 +49,8 @@ SLLens::SLLens(double sphere,
                double cylinder, 
                SLfloat diameter,
                SLfloat thickness,
-               SLint stacks, 
-               SLint slices, 
+               SLuint stacks,
+               SLuint slices,
                SLstring name, 
                SLMaterial* mat) : SLRevolver(name)
 {
@@ -60,7 +60,7 @@ SLLens::SLLens(double sphere,
     SLfloat diopterBot = (SLfloat)sphere; // D1 = sphere
     SLfloat diopterTop = (SLfloat)(sphere + cylinder); // D2 = sphere + cylinder
 
-    init(diopterBot, diopterTop, diameter, thickness, stacks, slices, mat);
+    initLens(diopterBot, diopterTop, diameter, thickness, stacks, slices, mat);
 }
 
 /*!
@@ -88,8 +88,8 @@ SLLens::SLLens(SLfloat radiusBot,
                SLfloat radiusTop,
                SLfloat diameter,
                SLfloat thickness,
-               SLint stacks,
-               SLint slices,
+               SLuint stacks,
+               SLuint slices,
                SLstring name,
                SLMaterial* mat) : SLRevolver(name)
 {
@@ -98,7 +98,7 @@ SLLens::SLLens(SLfloat radiusBot,
     SLfloat diopterBot = (SLfloat)((nLens - nOut) * diameter / radiusBot);
     SLfloat diopterTop = (SLfloat)((nOut - nLens) * diameter / radiusTop);
 
-    init(diopterBot, diopterTop, diameter, thickness, stacks, slices, mat);
+    initLens(diopterBot, diopterTop, diameter, thickness, stacks, slices, mat);
 }
 
 /*! 
@@ -111,13 +111,13 @@ SLLens::SLLens(SLfloat radiusBot,
 \param slices SLint
 \param mat SLMaterial* The Material of the lens
 */
-void SLLens::init(SLfloat diopterBot, 
-                  SLfloat diopterTop, 
-                  SLfloat diameter, 
-                  SLfloat thickness, 
-                  SLint stacks, 
-                  SLint slices, 
-                  SLMaterial* mat)
+void SLLens::initLens(SLfloat diopterBot,
+                      SLfloat diopterTop,
+                      SLfloat diameter,
+                      SLfloat thickness,
+                      SLuint stacks,
+                      SLuint slices,
+                      SLMaterial* mat)
 {
     assert(slices >= 3 && "Error: Not enough slices.");
     assert(slices >  0 && "Error: Not enough stacks.");
@@ -161,7 +161,7 @@ void SLLens::generateLens(SLfloat radiusBot, SLfloat radiusTop, SLMaterial* mat)
 
     if (_diameter > 0)
     {   SLfloat x = generateLensTop(radiusTop);
-        if (x == 0)
+        if (x < 0.0001f)
             buildMesh(mat);
         else
             cout << "error in lens calculation: (x = " << x << ")" << endl;

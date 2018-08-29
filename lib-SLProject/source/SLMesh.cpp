@@ -87,6 +87,119 @@ void SLMesh::deleteData()
     _vaoT.deleteGL();
 }
 //-----------------------------------------------------------------------------
+//! Deletes the rectangle selected vertices and the dependend triangles
+void SLMesh::deleteSelected()
+{
+    // Loop over all rectangle selected indexes in IS32
+    for (SLuint i=0; i<IS32.size(); ++i)
+    {
+        SLuint ixDel = IS32[i]-i;
+        
+        if (ixDel < P.size()) P.erase(P.begin()+ixDel);
+        if (ixDel < N.size()) N.erase(N.begin()+ixDel);
+        if (ixDel < C.size()) C.erase(C.begin()+ixDel);
+        if (ixDel < T.size()) T.erase(T.begin()+ixDel);
+        if (ixDel < Tc.size()) Tc.erase(Tc.begin()+ixDel);
+        if (ixDel < Ji.size()) Ji.erase(Ji.begin()+ixDel);
+        if (ixDel < Jw.size()) Jw.erase(Jw.begin()+ixDel);
+
+        // Loop over all 16 bit triangles indexes
+        if (I16.size())
+        {
+            SLVushort i16;
+            // copy the triangle that do not contain the index to delete
+            for (SLuint t = 0; t < I16.size(); t+=3)
+            {   if (I16[t  ]!=ixDel &&
+                    I16[t+1]!=ixDel &&
+                    I16[t+2]!=ixDel)
+                {   if (I16[t  ]<ixDel) i16.push_back(I16[t  ]); else i16.push_back(I16[t  ]-1);
+                    if (I16[t+1]<ixDel) i16.push_back(I16[t+1]); else i16.push_back(I16[t+1]-1);
+                    if (I16[t+2]<ixDel) i16.push_back(I16[t+2]); else i16.push_back(I16[t+2]-1);
+                }
+            }
+            I16 = i16;
+        }
+
+        // Loop over all 32 bit triangles indexes
+        if (I32.size())
+        {
+            SLVuint   i32;
+            // copy the triangle that do not contain the index to delete
+            for (SLuint t = 0; t < I32.size(); t+=3)
+            {   if (I32[t  ]!=ixDel &&
+                    I32[t+1]!=ixDel &&
+                    I32[t+2]!=ixDel)
+                {   if (I32[t  ]<ixDel) i32.push_back(I32[t  ]); else i32.push_back(I32[t  ]-1);
+                    if (I32[t+1]<ixDel) i32.push_back(I32[t+1]); else i32.push_back(I32[t+1]-1);
+                    if (I32[t+2]<ixDel) i32.push_back(I32[t+2]); else i32.push_back(I32[t+2]-1);
+                }
+            }
+            I32 = i32;
+        }
+    }
+    
+    deleteUnused();
+
+    calcNormals();
+
+    // build tangents for bump mapping
+    if (mat()->needsTangents() && Tc.size() && !T.size())
+        calcTangents();
+
+    // delete vertex array object so it gets regenerated
+    _vao.deleteGL();
+
+    // delete the selection indexes
+    IS32.clear();
+}
+//-----------------------------------------------------------------------------
+//! Deletes unused vertices
+void SLMesh::deleteUnused()
+{
+    // SLPoints have no indexes, so nothing to remove
+    if (I16.size()==0 && I32.size()==0)
+        return;
+    
+    // A boolean for each vertex to flag it as used or not
+    SLVbool used(P.size());
+    for (SLuint u = 0; u < used.size(); ++u) used[u] = false;
+    
+    // Loop over all indexes and mark them as used
+    for (SLuint i = 0; i < I16.size(); ++i)
+        used[I16[i]] = true;
+    
+    for (SLuint i = 0; i < I32.size(); ++i)
+        used[I32[i]] = true;
+        
+    SLuint unused = 0;
+    for (SLuint u = 0; u < used.size(); ++u)
+    {
+        if (!used[u])
+        {
+            unused++;
+            SLuint ixDel = u-(unused-1);
+            
+            if (ixDel < P.size()) P.erase(P.begin()+ixDel);
+            if (ixDel < N.size()) N.erase(N.begin()+ixDel);
+            if (ixDel < C.size()) C.erase(C.begin()+ixDel);
+            if (ixDel < T.size()) T.erase(T.begin()+ixDel);
+            if (ixDel < Tc.size()) Tc.erase(Tc.begin()+ixDel);
+            if (ixDel < Ji.size()) Ji.erase(Ji.begin()+ixDel);
+            if (ixDel < Jw.size()) Jw.erase(Jw.begin()+ixDel);
+            
+            for (SLuint i = 0; i < I16.size(); ++i)
+            {   if (I16[i] > ixDel)
+                    I16[i]--;
+            }
+            
+            for (SLuint i = 0; i < I32.size(); ++i)
+            {   if (I32[i] > ixDel)
+                I32[i]--;
+            }
+        }
+    }
+}
+//-----------------------------------------------------------------------------
 //! SLMesh::shapeInit sets the transparency flag of the AABB
 void SLMesh::init(SLNode* node)
 {   
@@ -198,7 +311,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 2.b) Pass the matrices to the shader program
     SLGLProgram* sp = SLMaterial::current->program();
     sp->uniformMatrix4fv("u_mvMatrix",    1, (SLfloat*)&_stateGL->modelViewMatrix);
-    sp->uniformMatrix4fv("u_mvpMatrix",   1, (SLfloat*)_stateGL->mvpMatrix());
+    sp->uniformMatrix4fv("u_mvpMatrix",   1, (const SLfloat*)_stateGL->mvpMatrix());
 
     // 2.c) Build & pass inverse, normal & texture matrix only if needed
     SLint locIM = sp->getUniformLocation("u_invMvMatrix");
@@ -207,16 +320,16 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
     if (locIM>=0 && locNM>=0)
     {   _stateGL->buildInverseAndNormalMatrix();
-        sp->uniformMatrix4fv(locIM, 1, (SLfloat*)_stateGL->invModelViewMatrix());
-        sp->uniformMatrix3fv(locNM, 1, (SLfloat*)_stateGL->normalMatrix());
+        sp->uniformMatrix4fv(locIM, 1, (const SLfloat*)_stateGL->invModelViewMatrix());
+        sp->uniformMatrix3fv(locNM, 1, (const SLfloat*)_stateGL->normalMatrix());
     } else
     if (locIM>=0)
     {   _stateGL->buildInverseMatrix();
-        sp->uniformMatrix4fv(locIM, 1, (SLfloat*)_stateGL->invModelViewMatrix());
+        sp->uniformMatrix4fv(locIM, 1, (const SLfloat*)_stateGL->invModelViewMatrix());
     } else
     if (locNM>=0)
     {   _stateGL->buildNormalMatrix();
-        sp->uniformMatrix3fv(locNM, 1, (SLfloat*)_stateGL->normalMatrix());
+        sp->uniformMatrix3fv(locNM, 1, (const SLfloat*)_stateGL->normalMatrix());
     }
     if (locTM>=0)
     {   if (_mat->has3DTexture() && _mat->textures()[0]->autoCalcTM3D())
@@ -224,39 +337,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         else _stateGL->textureMatrix = _mat->textures()[0]->tm();
         sp->uniformMatrix4fv(locTM, 1, (SLfloat*)&_stateGL->textureMatrix);
     }
-
-    /* Depricated step for HW skinning on GPU
-    // 2.d) Do GPU skinning for animated meshes
-    if (_skeleton && Ji.size() && Jw.size() && _skinMethod == SM_hardware)
-    {
-        if (!_jointMatrices.size())
-        {   _jointMatrices.clear();
-            _jointMatrices.resize(_skeleton->numJoints());
-        }
-
-        if (_skeleton->changed())
-        {
-            // update the joint matrix array
-            _skeleton->getJointMatrices(_jointMatrices);
-            // remove the changed flag from the skeleton since our joint matrices are up to date again
-            // @note    the skeleton referenced here would be the skeleton instance proposed in the documentation
-            //          of SLSkeleton. So the _jointMatrices array is the only thing that is concerned with the changed flag
-            //          however currently we don't have that and multiple meshes need to know if a skeleton changed this frame.
-            //          This is why we can't reset the skeleton changed flag at this point in time. If only one entity or mesh required
-            //          the information we wouldn't have a problem.
-            // notify all nodes that contain this mesh about the change
-            notifyParentNodesAABBUpdate();
-        }
-
-        // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
-        //          from instantiating a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
-        //          In short, the solution would be an entity class which is an instance of a mesh (same mesh data) which can be animated. the original buffers
-        //          would be in the original mesh and the CPU skinned buffers in the entity. or if GPU skinned it would just be the joint matrices array that's in the entity.
-        SLint locBM = sp->getUniformLocation("u_jointMatrices");
-        sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)&_jointMatrices[0], false);
-    }
-    */
-
 
     ///////////////////////////////////////
     // 3) Generate Vertex Array Object once
@@ -270,10 +350,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (T.size())   _vao.setAttrib(AT_tangent,     sp->getAttribLocation("a_tangent"), &T);
         if (I16.size()) _vao.setIndices(&I16);
         if (I32.size()) _vao.setIndices(&I32);
-
-        // Depricated HW skinning on GPU
-        //if (Ji.size())  _vao.setAttrib(AT_jointIndex,  sp->getAttribLocation("a_jointIds"), &Ji, _useHalf);
-        //if (Jw.size())  _vao.setAttrib(AT_jointWeight, sp->getAttribLocation("a_jointWeights"), &Jw, _useHalf);
 
         _vao.generate((SLuint)P.size(), Ji.size() ? BU_stream : BU_static, !Ji.size());
     }
@@ -353,35 +429,44 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         s->selectedMesh()==this)
     {
         _stateGL->polygonOffset(true, 1.0f, 1.0f);
+        _stateGL->depthMask(false);
+        _stateGL->depthTest(false);
         _vaoS.generateVertexPos(_finalP);
         _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
         _stateGL->polygonLine(false);
         _stateGL->polygonOffset(false);
+        _stateGL->depthMask(true);
+        _stateGL->depthTest(true);
     }
     else if (!s->selectedRect().isEmpty())
     {
+        // Build full viewport-modelview-projection transform
         SLMat4f mvp = *_stateGL->mvpMatrix();
         SLMat4f v; v.viewport(0,0,sv->scrW(), sv->scrH());
         SLMat4f v_mvp = v * mvp;
         IS32.clear();
 
+        // Transform all verices and add the ones in the ROI to IS32
         for(SLuint i=0; i<P.size(); ++i)
-        {   // Do the full viewport-modelview-projection transform
-            SLVec3f p = v_mvp * P[i];
+        {   SLVec3f p = v_mvp * P[i];
             if (s->selectedRect().contains(SLVec2f(p.x,p.y)))
                 IS32.push_back(i);
         }
         
         if (IS32.size() > 0)
-        {   node->drawBits()->on(SL_DB_SELECTED);
-            cout << "IS32.size: " << IS32.size() << endl;
-            if (_vaoS.id())
-                _vaoS.clearAttribs();
+        {   //cout << "IS32.size: " << IS32.size() << endl;
             _stateGL->polygonOffset(true, 1.0f, 1.0f);
-            _vao.setIndices(&IS32);
-            _vao.drawElementAsColored(PT_points, SLCol4f::YELLOW, 2);
+            _stateGL->depthMask(false);
+            _stateGL->depthTest(false);
+            _vaoS.clearAttribs();
+            _vaoS.setIndices(&IS32);
+            _vaoS.generateVertexPos(_finalP);
+            _vaoS.drawElementAsColored(PT_points, SLCol4f::YELLOW, 2);
             _stateGL->polygonLine(false);
             _stateGL->polygonOffset(false);
+            _stateGL->depthMask(true);
+            _stateGL->depthTest(true);
+            node->drawBits()->on(SL_DB_SELECTED);
         } else
             node->drawBits()->off(SL_DB_SELECTED);
     }
@@ -390,6 +475,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         {   _vaoS.clearAttribs();
             IS32.clear();
         }
+
+        if (s->selectedNode()==nullptr && s->selectedRect().isEmpty())
+            node->drawBits()->off(SL_DB_SELECTED);
     }
 
     if (blended) _stateGL->blend(true);
@@ -1051,8 +1139,7 @@ void SLMesh::transformSkin()
 
     // update or create buffers
     if (_vao.id())
-    {
-        _vao.updateAttrib(AT_position, _finalP);
+    {   _vao.updateAttrib(AT_position, _finalP);
         if (N.size()) _vao.updateAttrib(AT_normal, _finalN);
     }
     

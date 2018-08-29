@@ -686,7 +686,18 @@ void SLSceneView::draw3DGLLines(SLVNode &nodes)
 
             // Draw AABB for selected shapes
             if (node->drawBit(SL_DB_SELECTED))
-                node->aabb()->drawWS(SLCol3f(1,1,0));
+            {
+                SLScene* s = SLApplication::scene;
+                if (node==s->selectedNode() || !s->selectedRect().isEmpty())
+                    node->aabb()->drawWS(SLCol3f(1,1,0));
+                else
+                {
+                    // delete selection bits from previous rectangle selection
+                    if (node!=s->selectedNode() && s->selectedRect().isEmpty())
+                        node->drawBits()->off(SL_DB_SELECTED);
+                }
+            }
+
         }
     }
    

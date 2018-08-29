@@ -185,6 +185,8 @@ class SLNode: public SLObject, public SLEventHandler
                                                  SLbool canContain = false);
             vector<SLNode*> findChildren        (const SLMesh* mesh,
                                                  SLbool findRecursive = true);
+            vector<SLNode*> findChildren        (const SLuint drawbit,
+                                                 SLbool findRecursive = true);
             
             // local direction getter functions
             SLVec3f         translationOS       () const;
@@ -276,6 +278,9 @@ class SLNode: public SLObject, public SLEventHandler
                                                  SLbool canContain = false);
             void            findChildrenHelper  (const SLMesh* mesh, 
                                                  vector<SLNode*>& list, 
+                                                 SLbool findRecursive);
+            void            findChildrenHelper  (const SLuint drawbit,
+                                                 vector<SLNode*>& list,
                                                  SLbool findRecursive);
     protected:
             SLGLState*   _stateGL;          //!< pointer to the global SLGLState instance
