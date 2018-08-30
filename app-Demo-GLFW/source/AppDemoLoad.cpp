@@ -121,11 +121,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial* m1 = new SLMaterial("m1", SLCol4f::BLACK, SLCol4f::WHITE,128, 0.2f, 0.8f, 1.5f);
         SLMaterial* m2 = new SLMaterial("m2", SLCol4f::WHITE*0.3f, SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
 
-        SLuint res = 2;
-        SLMesh* floorMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), res, res, "floor mesh", m2);
-        SLNode* floorRect = new SLNode(floorMesh);
+        SLuint res = 20;
+        SLMesh* rectangle = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), res, res, "rectangle", m2);
+        SLNode* floorRect = new SLNode(rectangle);
+        SLNode* ceilingRect = new SLNode(rectangle);
         floorRect->rotate(90, -1,0,0);
         floorRect->translate(0,0,-5.5f);
+        ceilingRect->rotate(90, 1,0,0);
+        ceilingRect->translate(0,0,-5.5f);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 22);
@@ -134,7 +137,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
         cam1->setInitialState();
 
-        SLLightSpot* light1 = new SLLightSpot(5, 5, 5, 0.5f);
+        SLLightSpot* light1 = new SLLightSpot(5, 0, 5, 0.5f);
         light1->ambient (SLCol4f(0.2f,0.2f,0.2f));
         light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
         light1->specular(SLCol4f(0.9f,0.9f,0.9f));
@@ -146,6 +149,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light1);
         scene->addChild(cam1);
         scene->addChild(floorRect);
+        scene->addChild(ceilingRect);
         scene->addChild(figure);
      
         // Set background color, active camera & the root pointer

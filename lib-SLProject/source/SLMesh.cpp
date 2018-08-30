@@ -87,8 +87,14 @@ void SLMesh::deleteData()
     _vaoT.deleteGL();
 }
 //-----------------------------------------------------------------------------
-//! Deletes the rectangle selected vertices and the dependend triangles
-void SLMesh::deleteSelected()
+//! Deletes the rectangle selected vertices and the dependend triangles.
+/*! The selection rectangle is defined in SLScene::selectRect and gets set and
+ drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
+ not empty the SLScene::selectedNode is null. All vertices that are within the
+ selectRect are listed in SLMesh::IS32. The selection evaluation is done during
+ drawing in SLMesh::draw and is only valid for the current frame.
+ All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
+void SLMesh::deleteSelected(SLNode* node)
 {
     // Loop over all rectangle selected indexes in IS32
     for (SLuint i=0; i<IS32.size(); ++i)
@@ -151,9 +157,13 @@ void SLMesh::deleteSelected()
 
     // delete the selection indexes
     IS32.clear();
+    
+	// flag aabb and aceleration structure to be updated
+    node->needAABBUpdate();
+    _accelStructOutOfDate = true;
 }
 //-----------------------------------------------------------------------------
-//! Deletes unused vertices
+//! Deletes unused vertices (= vertices that are not indexed in I16 or I32)
 void SLMesh::deleteUnused()
 {
     // SLPoints have no indexes, so nothing to remove
@@ -187,6 +197,7 @@ void SLMesh::deleteUnused()
             if (ixDel < Ji.size()) Ji.erase(Ji.begin()+ixDel);
             if (ixDel < Jw.size()) Jw.erase(Jw.begin()+ixDel);
             
+            // decrease the indexes smaller than the deleted on
             for (SLuint i = 0; i < I16.size(); ++i)
             {   if (I16[i] > ixDel)
                     I16[i]--;
@@ -194,7 +205,7 @@ void SLMesh::deleteUnused()
             
             for (SLuint i = 0; i < I32.size(); ++i)
             {   if (I32[i] > ixDel)
-                I32[i]--;
+                    I32[i]--;
             }
         }
     }
@@ -264,8 +275,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     if (_primitive!=PT_points && !I16.size() && !I32.size())
         msg += "No vertex indices (I16 or I32)\n";
     if (msg.length() > 0)
-        SL_EXIT_MSG((msg + "in SLMesh::draw: " + _name).c_str());
-
+    {   SL_WARN_MSG((msg + "in SLMesh::draw: " + _name).c_str());
+        return;
+    }
 
     ////////////////////////
     // 1) Apply Drawing Bits
@@ -440,6 +452,13 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     }
     else if (!s->selectedRect().isEmpty())
     {
+        /* The selection rectangle is defined in SLScene::selectRect and gets set and
+         drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
+         not empty the SLScene::selectedNode is null. All vertices that are within the
+         selectRect are listed in SLMesh::IS32. The selection evaluation is done during
+         drawing in SLMesh::draw and is only valid for the current frame.
+         All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
+        
         // Build full viewport-modelview-projection transform
         SLMat4f mvp = *_stateGL->mvpMatrix();
         SLMat4f v; v.viewport(0,0,sv->scrW(), sv->scrH());
@@ -725,7 +744,7 @@ void SLMesh::calcNormals()
     if (I16.size())
     {   
         // Loop over all triangles
-        for (SLuint i = 0; i < I16.size()-3; i+=3)
+        for (SLuint i = 0; i < I16.size(); i+=3)
         {  
             // Calculate the face's normal
             SLVec3f e1, e2, n;
@@ -743,7 +762,7 @@ void SLMesh::calcNormals()
             N[I16[i+2]] += n;
         }
     } else
-    {   for (SLuint i = 0; i < I32.size()-3; i+=3)
+    {   for (SLuint i = 0; i < I32.size(); i+=3)
         {  
             // Calculate the face's normal
             SLVec3f e1, e2, n;

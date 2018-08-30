@@ -149,11 +149,12 @@ Credits for external libraries:\n\
 
 SLstring AppDemoGui::infoHelp =
 "Help for mouse or finger control:\n\
-- Use mouse or your finger to rotate the scene\n\
+- Use left mouse or your finger to rotate the scene\n\
 - Use mouse-wheel or pinch 2 fingers to go forward/backward\n\
-- Use CTRL-mouse or 2 fingers to move sidewards/up-down\n\
+- Use middle-mouse or 2 fingers to move sidewards/up-down\n\
 - Double click or double tap to select object\n\
-- On Desktop see shortcuts behind menu commands\n\
+- CTRL-mouse to select vertices of objects\n\
+- On desktop see shortcuts behind menu commands\n\
 - Check out the different test scenes under File > Load Test Scene\n\
 ";
 
@@ -882,7 +883,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Fix Aspect Ratio", nullptr, ac->calibFixAspectRatio()))
                         ac->toggleFixAspectRatio();
 
-                    if (ImGui::MenuItem("Fix Prinicpal Point", nullptr, ac->calibFixPrincipalPoint()))
+                    if (ImGui::MenuItem("Fix Principal Point", nullptr, ac->calibFixPrincipalPoint()))
                         ac->toggleFixPrincipalPoint();
 
                     ImGui::EndMenu();
@@ -1783,22 +1784,31 @@ void AppDemoGui::buildProperties(SLScene* s)
     }
     else if (!node && !s->selectedRect().isEmpty())
     {
+        /* The selection rectangle is defined in SLScene::selectRect and gets set and
+        drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
+        not empty the SLScene::selectedNode is null. All vertices that are within the
+        selectRect are listed in SLMesh::IS32. The selection evaluation is done during
+        drawing in SLMesh::draw and is only valid for the current frame.
+        All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
+        
         vector<SLNode*> selectedNodes = s->root3D()->findChildren(SL_DB_SELECTED);
 
         ImGui::Begin("Properties of Selection", &showProperties);
 
         for (auto selectedNode : selectedNodes)
-        {
-            ImGui::Text("Node: %s", selectedNode->name().c_str());
-            for (auto selectedMesh : selectedNode->meshes())
-            {
-                if (selectedMesh->IS32.size() > 0)
-                    ImGui::Text("   Mesh: %s (%u)",
-                                selectedMesh->name().c_str(),
-                                (SLuint)selectedMesh->IS32.size());
-                ImGui::SameLine();
-                if (ImGui::Button("Del"))
-                {   selectedMesh->deleteSelected();
+        {   if (selectedNode->meshes().size() > 0)
+            {   ImGui::Text("Node: %s", selectedNode->name().c_str());
+                for (auto selectedMesh : selectedNode->meshes())
+                {   if ((SLuint)selectedMesh->IS32.size() > 0)
+                    {   ImGui::Text("   Mesh: %s (%u)",
+                                    selectedMesh->name().c_str(),
+                                    (SLuint)selectedMesh->IS32.size());
+                        ImGui::SameLine();
+                        SLstring delBtn = "DEL##" + selectedMesh->name();
+                        if (ImGui::Button(delBtn.c_str()))
+                        {   selectedMesh->deleteSelected(selectedNode);
+                        }
+                    }
                 }
             }
         }
@@ -1826,7 +1836,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
 
     if (!SLFileSystem::fileExists(fullPathAndFilename))
     {
-        // Scale for proportioanl and fixed size fonts
+        // Scale for proportional and fixed size fonts
         SLfloat dpiScaleProp = dotsPerInch / 120.0f;
         SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
 
@@ -1893,6 +1903,24 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
 
     fs.release();
     SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
+    SL_LOG("Config. date    : %s\n", AppDemoGui::configTime.c_str());
+    SL_LOG("fontPropDots    : %f\n", SLGLImGui::fontPropDots);
+    SL_LOG("fontFixedDots   : %f\n", SLGLImGui::fontFixedDots);
+
+    // check font sizes for HDPI displays
+    if (dotsPerInch > 300)
+    {   if (SLGLImGui::fontPropDots < 16.1f &&
+            SLGLImGui::fontFixedDots < 13.1)
+        {
+            // Scale for proportional and fixed size fonts
+            SLfloat dpiScaleProp = dotsPerInch / 120.0f;
+            SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
+
+            // Default settings for the first time
+            SLGLImGui::fontPropDots  = SL_max(16.0f * dpiScaleProp, 16.0f);
+            SLGLImGui::fontFixedDots = SL_max(13.0f * dpiScaleFixed, 13.0f);
+        }
+    }
 }
 //-----------------------------------------------------------------------------
 void AppDemoGui::saveConfig()

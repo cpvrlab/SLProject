@@ -126,7 +126,7 @@ int slCreateSceneView(int screenWidth,
     else newSVCallback = (cbOnNewSceneView)onNewSceneViewCallback;
 
     // Create the sceneview & get the pointer with the sceneview index
-    SLuint index = newSVCallback();
+    SLuint index = (SLuint)newSVCallback();
     SLSceneView* sv = SLApplication::scene->sv(index);
 
     sv->init("SceneView",

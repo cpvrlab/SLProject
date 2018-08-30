@@ -29,7 +29,7 @@ SLCVCalibration     SLApplication::calibScndCam;
 SLDeviceRotation    SLApplication::devRot;
 SLDeviceLocation    SLApplication::devLoc;
 SLstring            SLApplication::name             = "SLProjectApp";
-SLstring            SLApplication::version          = "2.2.000";
+SLstring            SLApplication::version          = "2.2.100";
 SLint               SLApplication::dpi              = 0;
 SLstring            SLApplication::configPath       = "../_data/config/";
 SLSceneID           SLApplication::sceneID          = SID_Empty;

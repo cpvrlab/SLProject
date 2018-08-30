@@ -782,7 +782,7 @@ SLAABBox& SLNode::updateAABBRec()
             
         if (!childIsCamera || cameraHasChildren)
         */
-            _aabb.mergeWS(child->updateAABBRec());
+        _aabb.mergeWS(child->updateAABBRec());
     }
 
     // We need min & max also in OS for the uniform grid intersection in OS
