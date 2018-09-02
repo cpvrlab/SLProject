@@ -1800,7 +1800,7 @@ void AppDemoGui::buildProperties(SLScene* s)
             {   ImGui::Text("Node: %s", selectedNode->name().c_str());
                 for (auto selectedMesh : selectedNode->meshes())
                 {   if ((SLuint)selectedMesh->IS32.size() > 0)
-                    {   ImGui::Text("   Mesh: %s (%u)",
+                    {   ImGui::Text("   Mesh: %s {%u v.}",
                                     selectedMesh->name().c_str(),
                                     (SLuint)selectedMesh->IS32.size());
                         ImGui::SameLine();

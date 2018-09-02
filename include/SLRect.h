@@ -19,7 +19,8 @@
 //-----------------------------------------------------------------------------
 //! A rectangle template class
 /*! Defines a rectangle with a top-left corner at x,y measured from top-left
-of the window and with its width and height.
+of the window and with its width and height. It is used e.g. to draw a
+selection rectangle in SLSceneView::draw2DGL.
 */
 template<class T, class V>
 class SLRect

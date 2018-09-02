@@ -111,6 +111,7 @@ class SLGLState
         void     depthMask              (SLbool state);
         void     cullFace               (SLbool state);
         void     blend                  (SLbool state);
+        void     blendFunc              (SLenum srcFunc, SLenum dstFunc);
         void     multiSample            (SLbool state);
         void     polygonLine            (SLbool state);
         void     polygonOffset          (SLbool state, SLfloat factor=1.0f, SLfloat units=1.0f);
@@ -196,6 +197,8 @@ class SLGLState
         SLint       _colorMaskG;            //!< current color mask for G
         SLint       _colorMaskB;            //!< current color mask for B
         SLint       _colorMaskA;            //!< current color mask for A
+        SLenum      _blendFuncSrc;          //!< source blend function enum
+        SLenum      _blendFuncDst;          //!< destination blend function enum
 };
 //-----------------------------------------------------------------------------
 #endif

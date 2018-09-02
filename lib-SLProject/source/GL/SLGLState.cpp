@@ -175,8 +175,10 @@ void SLGLState::onInitialize(SLCol4f clearColor)
     glDepthFunc(GL_LESS);
     glEnable(GL_DEPTH_TEST);
 
-    // set blend function for classic transparency
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+    // set blend function for standard transparency
+    _blendFuncSrc = GL_SRC_ALPHA;
+    _blendFuncDst = GL_ONE_MINUS_SRC_ALPHA;
+    glBlendFunc(_blendFuncSrc, _blendFuncDst);
      
     // set background color
     glClearColor(clearColor.r,
@@ -331,6 +333,22 @@ void SLGLState::blend(SLbool stateNew)
     {   if (stateNew) glEnable(GL_BLEND);
         else glDisable(GL_BLEND);
         _blend = stateNew;
+    
+        #ifdef _GLDEBUG
+        GET_GL_ERROR;
+        #endif
+    }
+}
+//-----------------------------------------------------------------------------
+/*! SLGLState::blendFunc sets the source & destination blending function if it
+really changes.
+*/
+void SLGLState::blendFunc(SLenum srcFunc, SLenum dstFunc)
+{
+    if (_blendFuncSrc != srcFunc || _blendFuncDst != dstFunc)
+    {   _blendFuncSrc = srcFunc;
+        _blendFuncDst = dstFunc;
+        glBlendFunc(_blendFuncSrc, _blendFuncDst);
     
         #ifdef _GLDEBUG
         GET_GL_ERROR;

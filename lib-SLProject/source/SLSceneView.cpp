@@ -787,9 +787,16 @@ void SLSceneView::draw2DGL()
             s->root2D()->cull2DRec(this);
 
         // 3. Draw all 2D nodes opaque
-        draw2DGLAll();
+        draw2DGLNodes();
 
         // Draw selection rectangle
+        /* The selection rectangle is defined in SLScene::selectRect and gets set and
+        drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
+        not empty the SLScene::selectedNode is null. All vertices that are within the
+        selectRect are listed in SLMesh::IS32. The selection evaluation is done during
+        drawing in SLMesh::draw and is only valid for the current frame.
+        All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
+        
         if (!s->selectedRect().isEmpty())
         {
             _stateGL->pushModelViewMatrix();
@@ -797,15 +804,17 @@ void SLSceneView::draw2DGL()
             _stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
             _stateGL->depthMask(false);         // Freeze depth buffer for blending
             _stateGL->depthTest(false);         // Disable depth testing
+            //_stateGL->blendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR); // inverts background
             _stateGL->blend(true);              // Enable blending
-            _stateGL->polygonLine(false);       // Only filled polygons
+            //_stateGL->polygonLine(false);       // Only filled polygons
 
             s->selectedRect().drawGL(SLCol4f::WHITE);
 
-            _stateGL->popModelViewMatrix();
             _stateGL->blend(false);       // turn off blending
+            //_stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // std. transparency
             _stateGL->depthMask(true);    // enable depth buffer writing
             _stateGL->depthTest(true);    // enable depth testing
+            _stateGL->popModelViewMatrix();
         }
 
         // 4. Draw ImGui UI
@@ -821,9 +830,9 @@ void SLSceneView::draw2DGL()
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::draw2DGLAll draws 2D stuff in ortho projection.
+SLSceneView::draw2DGLNodes draws 2D nodes from root2D in ortho projection.
 */
-void SLSceneView::draw2DGLAll()
+void SLSceneView::draw2DGLNodes()
 {
     SLfloat depth = 1.0f;                       // Render depth between -1 & 1
     SLfloat cs = SL_min(_scrW, _scrH) * 0.01f;  // center size
