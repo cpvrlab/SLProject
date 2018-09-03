@@ -28,7 +28,8 @@ using namespace std;
 
 //-----------------------------------------------------------------------------
 //! Default path for calibration files
-SLstring    SLCVCalibration::calibIniPath       = "../_data/calibrations/";
+SLstring    SLCVCalibration::calibFolderName = "calibrations";
+SLstring    SLCVCalibration::calibIniPath    = "../_data/" + SLCVCalibration::calibFolderName + "/";
 
 //! Increase the _CALIBFILEVERSION each time you change the file format
 const SLint SLCVCalibration::_CALIBFILEVERSION = 3;    // Date: 26.Fev.2017
@@ -76,7 +77,7 @@ bool SLCVCalibration::load(SLstring calibDir,
 
     //load camera parameter
     //SLstring fullPathAndFilename = SLApplication::configPath + _calibFileName;
-    SLstring fullPathAndFilename = calibDir + _calibFileName;
+    SLstring fullPathAndFilename = calibDir + SLCVCalibration::calibFolderName + "/" + _calibFileName;
     FileStorage fs(fullPathAndFilename, FileStorage::READ);
 
     if (!fs.isOpened())
@@ -147,7 +148,8 @@ bool SLCVCalibration::load(SLstring calibDir,
 //! Saves the camera calibration parameters to the config file
 void SLCVCalibration::save()
 {
-    SLstring fullPathAndFilename = SLFileSystem::getExternalDir() + _calibFileName;// SLApplication::configPath + _calibFileName;
+    SLstring fullPathAndFilename = SLFileSystem::getExternalDir() + 
+        SLCVCalibration::calibFolderName + "/" + _calibFileName;// SLApplication::configPath + _calibFileName;
 
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 

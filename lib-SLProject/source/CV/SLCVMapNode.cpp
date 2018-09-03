@@ -132,15 +132,15 @@ void SLCVMapNode::init()
     //instantiate materials
     _pcMat = new SLMaterial("Red", SLCol4f::RED);
     _pcMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-    _pcMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
+    _pcMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 2.0f));
 
     _pcMatchedMat = new SLMaterial("Green", SLCol4f::GREEN);
     _pcMatchedMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-    _pcMatchedMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 6.0f));
+    _pcMatchedMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
 
     _pcLocalMat = new SLMaterial("Magenta", SLCol4f::MAGENTA);
     _pcLocalMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-    _pcLocalMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 7.0f));
+    _pcLocalMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
 }
 //-----------------------------------------------------------------------------
 void SLCVMapNode::clearAll()

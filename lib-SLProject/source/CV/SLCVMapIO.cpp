@@ -60,7 +60,7 @@ void SLCVMapIO::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
 
     // Build spanning tree
     std::vector<SLCVKeyFrame*> spanningTreeFringe;
-    spanningTreeFringe.reserve(kfs.size());
+    spanningTreeFringe.resize(kfs.size());
     spanningTreeFringe[0] = firstKF;
     uint32_t fringeCount = 1;
     uint32_t fringeTakeIndex = 0;
