@@ -42,6 +42,8 @@ public:
     SLCVTrackingStateMachine sm;
 
     virtual void Reset() = 0;
+    virtual void Pause() = 0;
+    virtual void Resume() = 0;
 
     int getNMapMatches() override;
     int getNumKeyFrames() override;

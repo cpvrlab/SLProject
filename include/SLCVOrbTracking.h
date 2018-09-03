@@ -30,6 +30,8 @@ public:
     void track3DPts() override;
 
     void Reset() override;
+    void Pause() override;
+    void Resume() override;
 
 protected:
     //Motion Model

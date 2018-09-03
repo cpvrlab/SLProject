@@ -1085,3 +1085,17 @@ void SLCVOrbTracking::Reset()
     //mappoints and keyframes while we are loading
     _mapNode->clearAll();
 }
+
+void SLCVOrbTracking::Pause()
+{
+    sm.requestStateIdle();
+    while (!sm.hasStateIdle())
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+
+void SLCVOrbTracking::Resume()
+{
+    sm.requestResume();
+}

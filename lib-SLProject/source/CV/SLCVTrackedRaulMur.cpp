@@ -1018,3 +1018,17 @@ void SLCVTrackedRaulMur::Reset()
 
     _mapNode->clearAll();
 }
+//-----------------------------------------------------------------------------
+void SLCVTrackedRaulMur::Pause()
+{
+    sm.requestStateIdle();
+    while (!sm.hasStateIdle())
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+//-----------------------------------------------------------------------------
+void SLCVTrackedRaulMur::Resume()
+{
+    sm.requestResume();
+}

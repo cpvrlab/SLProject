@@ -80,6 +80,8 @@ public:
 
 protected:
     void Reset() override;
+    void Pause() override;
+    void Resume() override;
     bool Relocalization();
     bool TrackWithOptFlow();
     bool TrackWithMotionModel();

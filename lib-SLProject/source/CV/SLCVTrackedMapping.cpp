@@ -1037,6 +1037,35 @@ void SLCVTrackedMapping::Reset()
     _mapNode->clearAll();
 }
 //-----------------------------------------------------------------------------
+void SLCVTrackedMapping::Pause()
+{
+    if (!_serial)
+    {
+        mpLocalMapper->RequestFinish();
+        mptLocalMapping->join();
+
+        mpLoopCloser->RequestFinish();
+        mptLoopClosing->join();
+    }
+
+    sm.requestStateIdle();
+    while (!sm.hasStateIdle())
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+//-----------------------------------------------------------------------------
+void SLCVTrackedMapping::Resume()
+{
+    if (!_serial)
+    {
+        mptLocalMapping = new thread(&LocalMapping::Run, mpLocalMapper);
+        mptLoopClosing = new thread(&LoopClosing::Run, mpLoopCloser);
+    }
+
+    sm.requestResume();
+}
+//-----------------------------------------------------------------------------
 void SLCVTrackedMapping::decorate()
 {
     //calculation of mean reprojection error of all matches

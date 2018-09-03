@@ -127,11 +127,14 @@ void SLCVMapStorage::saveMap(int id, SLCVMapTracking* mapTracking, bool saveImgs
         }
 
         //switch to idle, so that map does not change, while we are accessing keyframes
+        mapTracking->Pause();
+#if 0
         mapTracking->sm.requestStateIdle();
         while (!mapTracking->sm.hasStateIdle())
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
+#endif
 
         //save the map
         SLCVMapIO::save(filename, *mapTracking->getMap(), saveImgs, pathImgs);
@@ -183,7 +186,7 @@ void SLCVMapStorage::saveMap(int id, SLCVMapTracking* mapTracking, bool saveImgs
     }
 
     //switch back to initialized state and resume tracking
-    mapTracking->sm.requestResume();
+    mapTracking->Resume();
 }
 //-----------------------------------------------------------------------------
 bool SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking, 

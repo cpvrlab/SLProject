@@ -67,6 +67,8 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
                                      SLSceneView* sv);
 
         void Reset() override;
+        void Pause() override;
+        void Resume() override;
 
         //ghm1: the next tracked frame gets mapped (local mapping, keyframe generation and adding to map)
         void mapNextFrame() { _mapNextFrame = true; }
