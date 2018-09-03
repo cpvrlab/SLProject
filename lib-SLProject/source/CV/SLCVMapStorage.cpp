@@ -202,7 +202,12 @@ bool SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking,
         return loadingSuccessful;
     }
     //reset tracking (and all dependent threads/objects like Map, KeyFrameDatabase, LocalMapping, loopClosing)
-    mapTracking->Pause();
+    //mapTracking->Pause();
+    mapTracking->sm.requestStateIdle();
+    while (!mapTracking->sm.hasStateIdle())
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
     mapTracking->Reset();
     //clear map and keyframe database
     SLCVMap& map = *mapTracking->getMap();
@@ -261,7 +266,7 @@ bool SLCVMapStorage::loadMap(const string& name, SLCVMapTracking* mapTracking,
         SL_WARN_MSG(msg.c_str());
     }
 
-    mapTracking->Resume();
+    mapTracking->sm.requestResume();
     return loadingSuccessful;
 }
 //-----------------------------------------------------------------------------

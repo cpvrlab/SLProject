@@ -2578,11 +2578,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Track Keyframe based Features (from video files)");
         s->info("Example for loading an existing pose graph with map points.");
 
-        SLstring mapName = "slam-map-28";
-
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
-        SLCVCapture::videoFilename = "biel_zenfone_4.mp4";
+        SLstring mapName = "slam-map-28";
+        SLCVCapture::videoFilename = "20180903_ring.mp4";
+        SLstring calibFileName = "cam_calibration_main_huawei_p10_640_480.xml";
         SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "street1_manip.json";
 
         //make some light
@@ -2668,9 +2668,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //3. When running on desktop, make sure the screen resolution is adjusted to 640x360 in file AppDemoMainGLFW.cpp in line 437
         //4. Load a Video with 640 screen width (640x360 or 640x480), e.g. VID_20180424_2.mp4. Make sure it is placed in _data/videos.
         //Make sure it is added to androids CMakeLists.txt so it is presnet on your smartphone
-        SLstring mapName = "slam-map-32";
-        SLCVCapture::videoFilename = "bern_bahnhofplatz.mp4";
-        SLstring calibFileName = "cam_calibration_main_asus_zenfoneAR_21268_640_480.xml";
+        SLstring mapName = "slam-map-28";
+        SLCVCapture::videoFilename = "20180903_ring.mp4";
+        SLstring calibFileName = "cam_calibration_main_huawei_p10_640_480.xml";
         SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), calibFileName, false, false);
         SLApplication::calibVideoFile.loadCalibParams();
 
