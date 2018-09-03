@@ -52,7 +52,7 @@ void LocalMapping::SetLoopCloser(LoopClosing* pLoopCloser)
 void LocalMapping::Run()
 {
     mbFinished = false;
-    mbStopped = false;
+    //mbStopped = false;
 
     while(1)
     {

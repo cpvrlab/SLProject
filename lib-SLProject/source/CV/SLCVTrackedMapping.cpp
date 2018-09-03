@@ -986,14 +986,26 @@ void SLCVTrackedMapping::Reset()
 
     // Reset Local Mapping
     cout << "Reseting Local Mapper...";
-    //mpLocalMapper->RequestReset();
-    mpLocalMapper->reset();
+    if (!_serial)
+    {
+        mpLocalMapper->RequestReset();
+    }
+    else
+    {
+        mpLocalMapper->reset();
+    }
     cout << " done" << endl;
 
     //// Reset Loop Closing
     //cout << "Reseting Loop Closing...";
-    //mpLoopCloser->RequestReset();
-    mpLoopCloser->reset();
+    if (!_serial)
+    {
+        mpLoopCloser->RequestReset();
+    }
+    else
+    {
+        mpLoopCloser->reset();
+    }
     //cout << " done" << endl;
 
     // Clear BoW Database
@@ -1041,11 +1053,11 @@ void SLCVTrackedMapping::Pause()
 {
     if (!_serial)
     {
-        mpLocalMapper->RequestFinish();
-        mptLocalMapping->join();
-
-        mpLoopCloser->RequestFinish();
-        mptLoopClosing->join();
+        mpLocalMapper->RequestStop();
+        while (!mpLocalMapper->isStopped())
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
     }
 
     sm.requestStateIdle();
@@ -1059,8 +1071,9 @@ void SLCVTrackedMapping::Resume()
 {
     if (!_serial)
     {
-        mptLocalMapping = new thread(&LocalMapping::Run, mpLocalMapper);
-        mptLoopClosing = new thread(&LoopClosing::Run, mpLoopCloser);
+        mpLocalMapper->Release();
+        //mptLocalMapping = new thread(&LocalMapping::Run, mpLocalMapper);
+        //mptLoopClosing = new thread(&LoopClosing::Run, mpLoopCloser);
     }
 
     sm.requestResume();
