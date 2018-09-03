@@ -21,10 +21,10 @@ class SLMaterial;
 class SLSphere: public SLSpheric 
 {  public:                     
                         SLSphere(SLfloat radius,
-                                 SLint stacks = 32,
-                                 SLint slices = 32,
+                                 SLuint stacks = 32,
+                                 SLuint slices = 32,
                                  SLstring name = "sphere mesh",
-                                 SLMaterial* mat = 0) : 
+                                 SLMaterial* mat = nullptr) :
                                  SLSpheric(radius, 
                                            0.0f, 180.0f, 
                                            stacks, slices, 

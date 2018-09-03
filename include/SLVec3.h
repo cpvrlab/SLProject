@@ -181,7 +181,7 @@ class SLVec3
 
 
             //! Prints the vector to std out
-            void    print       (const SLchar* str=0)   {if (str) SL_LOG("%s",str);
+            void    print       (const SLchar* str=nullptr){if (str) SL_LOG("%s",str);
                                                          SL_LOG("% 3.2f, % 3.2f, % 3.2f\n",x, y, z);}
 
             //! Conversion to string
@@ -196,7 +196,7 @@ class SLVec3
             {   SLVstring components;
                 SLUtils::split(threeFloatsWithDelimiter, delimiter, components);
                 float f[3] = {0.0, 0.0f, 0.0f};
-                for (int i=0; i<components.size(); ++i)
+                for (SLuint i=0; i<components.size(); ++i)
                     f[i] = (SLfloat)atof(components[i].c_str());
                 x = f[0]; y = f[1]; z = f[2];
             }

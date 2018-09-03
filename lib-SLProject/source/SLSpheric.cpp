@@ -22,8 +22,8 @@ SLSpheric::SLSpheric ctor for spheric revolution object around the z-axis.
 SLSpheric::SLSpheric(SLfloat sphereRadius,
                      SLfloat thetaStartDEG,
                      SLfloat thetaEndDEG,
-                     SLint stacks, 
-                     SLint slices,
+                     SLuint stacks,
+                     SLuint slices,
                      SLstring name,
                      SLMaterial* mat) : SLRevolver(name)
 {
@@ -52,7 +52,7 @@ SLSpheric::SLSpheric(SLfloat sphereRadius,
     SLfloat phi    = 0;
     SLfloat dTheta = (thetaEndDEG-thetaStartDEG) * SL_DEG2RAD / stacks;
    
-    for (SLint i=0; i<=stacks; ++i)
+    for (SLuint i=0; i<=stacks; ++i)
     {   SLVec3f p;
         p.fromSpherical(sphereRadius, theta, phi);
         _revPoints.push_back(p);

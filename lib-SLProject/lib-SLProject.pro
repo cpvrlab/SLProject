@@ -99,6 +99,7 @@ HEADERS += \
 ../include/SLQuat4.h \
 ../include/SLRay.h \
 ../include/SLRaytracer.h \
+../include/SLRect.h \
 ../include/SLRectangle.h \
 ../include/SLRevolver.h \
 ../include/SLSamples2D.h \

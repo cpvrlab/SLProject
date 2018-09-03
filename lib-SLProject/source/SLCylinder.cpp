@@ -21,8 +21,8 @@ SLCylinder::SLCylinder ctor for cylindric revolution object around the z-axis.
 */
 SLCylinder::SLCylinder(SLfloat  cylinderRadius, 
                        SLfloat  cylinderHeight,
-                       SLint    stacks, 
-                       SLint    slices,
+                       SLuint   stacks,
+                       SLuint   slices,
                        SLbool   hasTop, 
                        SLbool   hasBottom,
                        SLstring name,
@@ -41,7 +41,7 @@ SLCylinder::SLCylinder(SLfloat  cylinderRadius,
     _smoothFirst = hasBottom;
     _smoothLast  = hasTop;
     _revAxis.set(0,0,1);
-    SLint nPoints = stacks + 1;
+    SLuint nPoints = stacks + 1;
     if (hasTop)    nPoints += 2;
     if (hasBottom) nPoints += 2;
     _revPoints.reserve(nPoints);
@@ -55,7 +55,7 @@ SLCylinder::SLCylinder(SLfloat  cylinderRadius,
         _revPoints.push_back(SLVec3f(cylinderRadius, 0, 0));
     }
 
-    for (SLint i=0; i<=stacks; ++i)
+    for (SLuint i=0; i<=stacks; ++i)
     {   _revPoints.push_back(SLVec3f(cylinderRadius, 0, h));
         h += dHeight;
     }

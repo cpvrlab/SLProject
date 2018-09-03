@@ -17,26 +17,26 @@
 //! SLCone creates a cone mesh based on SLRevolver     
 class SLCone: public SLRevolver 
 {  public:                     
-                            SLCone (SLfloat  coneRadius,
-                                    SLfloat  coneHeight,
-                                    SLint    stacks = 36,
-                                    SLint    slices = 36,
-                                    SLbool   hasBottom = true,
-                                    SLstring name = "cone mesh",
-                                    SLMaterial* mat = 0);
-                            ~SLCone (){;}
+                       SLCone (SLfloat  coneRadius,
+                               SLfloat  coneHeight,
+                               SLuint   stacks = 36,
+                               SLuint   slices = 36,
+                               SLbool   hasBottom = true,
+                               SLstring name = "cone mesh",
+                               SLMaterial* mat = nullptr);
+                      ~SLCone (){;}
 
             // Getters
-            SLfloat        radius()    {return _radius;}
-            SLfloat        height()    {return _height;}
-            SLint          stacks()    {return _stacks;}
-            SLbool         hasBottom() {return _hasBottom;}
+            SLfloat    radius()    {return _radius;}
+            SLfloat    height()    {return _height;}
+            SLuint     stacks()    {return _stacks;}
+            SLbool     hasBottom() {return _hasBottom;}
                
    protected:    
-            SLfloat        _radius;    //!< radius of cone
-            SLfloat        _height;    //!< height of cone
-            SLint          _stacks;    //!< No. of stacks of cone
-            SLbool         _hasBottom; //!< Flag if cone has a bottom
+            SLfloat    _radius;    //!< radius of cone
+            SLfloat    _height;    //!< height of cone
+            SLuint     _stacks;    //!< No. of stacks of cone
+            SLbool     _hasBottom; //!< Flag if cone has a bottom
 };
 //-----------------------------------------------------------------------------
 #endif //SLCONE_H

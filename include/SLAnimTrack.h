@@ -33,7 +33,7 @@ class SLAnimTrack
 {
 public:
                         SLAnimTrack             (SLAnimation* parent);
-                       ~SLAnimTrack             ();
+    virtual            ~SLAnimTrack             ();
 
             SLKeyframe* createKeyframe          (SLfloat time);   // create and add a new keyframe
             SLfloat     getKeyframesAtTime      (SLfloat time,
@@ -59,14 +59,14 @@ protected:
 //! Specialized animation track for node animations
 /*! 
     Allows for translation, scale and rotation parameters to be animated.
-    Also allows for either linear or Bézier interpolation of the position
+    Also allows for either linear or Bezier interpolation of the position
     parameter in the track.
 */
 class SLNodeAnimTrack : public SLAnimTrack
 {
 public:
                         SLNodeAnimTrack         (SLAnimation* parent);
-                       ~SLNodeAnimTrack         ();
+    virtual            ~SLNodeAnimTrack         ();
 
    SLTransformKeyframe* createNodeKeyframe      (SLfloat time);
     
@@ -87,8 +87,8 @@ protected:
 
     SLNode*             _animatedNode;              //!< the target node for this track_nodeID
     mutable SLCurve*    _interpolationCurve;        //!< the translation interpolation curve
-    SLAnimInterpolation _translationInterpolation;  //!< interpolation mode for translations (Bézier or linear)
-    SLbool              _rebuildInterpolationCurve; //!< dirty flag of the Bézier curve
+    SLAnimInterpolation _translationInterpolation;  //!< interpolation mode for translations (Bezier or linear)
+    SLbool              _rebuildInterpolationCurve; //!< dirty flag of the Bezier curve
 };
 //-----------------------------------------------------------------------------
 typedef std::map<SLuint, SLNodeAnimTrack*> SLMNodeAnimTrack;

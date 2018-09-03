@@ -947,6 +947,18 @@
     <None Include="..\_data\shaders\ColorUniformPoint.vert">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="..\_data\shaders\PerPixCookTorrance.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerPixCookTorrance.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerPixCookTorranceTex.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerPixCookTorranceTex.vert">
+      <Filter>GLSL</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

@@ -170,12 +170,12 @@ SLfloat SLLightRect::shadowTest(SLRay* ray, // ray of hit point
         SLfloat invSamples = 1.0f/(SLfloat)(samples);
         SLVec3f SP; // vector hit point to sample point in world coords
 
-        isSampled.resize(samples);
+        isSampled.resize((SLuint)samples);
 
         for (y=0; y<_samples.y; ++y)
         {   for (x=0; x<_samples.x; ++x)
             {   SLint iSP = y*_samples.x + x;
-                isSampled[iSP]=false;
+                isSampled[(SLuint)iSP]=false;
             }
         }
 
@@ -202,7 +202,7 @@ SLfloat SLLightRect::shadowTest(SLRay* ray, // ray of hit point
         for (y=-hy; y<=hy; y+=hy)
         {   for (x=-hx; x<=hx; x+=hx)
             {   SLint iSP = (y+hy)*_samples.x + x+hx;
-                isSampled[iSP]=true;
+                isSampled[(SLuint)iSP]=true;
             
                 SP.set(updateAndGetWM().multVec(SLVec3f(x*dw, y*dl, 0)) - ray->hitPoint);
                 SLfloat SPDist = SP.length();
@@ -225,7 +225,7 @@ SLfloat SLLightRect::shadowTest(SLRay* ray, // ray of hit point
             for (y=-hy; y<=hy; ++y)
             {   for (x=-hx; x<=hx; ++x)
                 {  SLint iSP = (y+hy)*_samples.x + x+hx;
-                    if (!isSampled[iSP])
+                    if (!isSampled[(SLuint)iSP])
                     {   SP.set(updateAndGetWM().multVec(SLVec3f(x*dw, y*dl, 0)) - ray->hitPoint);
                         SLfloat SPDist = SP.length();
                         SP.normalize();

@@ -56,11 +56,11 @@ void SLText::drawRec(SLSceneView* sv)
     SLGLState* state = SLGLState::getInstance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1,
-                        (SLfloat*)state->mvpMatrix());
+                        (const SLfloat*)state->mvpMatrix());
     sp->uniform4fv("u_textColor", 1, (float*)&_color);
     sp->uniform1i("u_texture0", 0);
    
-    _vao.drawElementsAs(PT_triangles, (SLint)_text.length()*2*3);
+    _vao.drawElementsAs(PT_triangles, (SLuint)_text.length()*2*3);
 }
 void SLText::drawMeshes(SLSceneView* sv)
 {

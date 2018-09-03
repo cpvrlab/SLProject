@@ -43,9 +43,9 @@ class SLCompactGrid : public SLAccelStruct
         void        deleteAll           ();
         void        disposeBuffers      (){if (_vao.id()) _vao.clearAttribs();}
 
-        SLuint      indexAtPos          (const SLVec3i &p) const 
-                                        {return p.x + p.y * _size.x + 
-                                                p.z*_size.x * _size.y;}
+        SLuint      indexAtPos          (const SLVec3i &p) const
+                                        {return (SLuint)p.x + (SLuint)p.y * _size.x +
+                                                (SLuint)p.z*_size.x * _size.y;}
         SLVec3f     voxelCenter         (const SLVec3i &pos) const;
         SLVec3i     containingVoxel     (const SLVec3f &p) const;
         void        getMinMaxVoxel      (const Triangle &triangle, 
@@ -53,7 +53,7 @@ class SLCompactGrid : public SLAccelStruct
                                             SLVec3i &maxCell);
         void        ifTriangleInVoxelDo (triVoxCallback cb);
     private:
-        SLVec3i     _size;              //!< num. of voxel in grid dir.
+        SLVec3ui    _size;              //!< num. of voxel in grid dir.
         SLuint      _numTriangles;      //!< NO. of triangles in the mesh
         SLVec3f     _voxelSize;         //!< size of a voxel
         SLVec3f     _voxelSizeHalf;     //!< half size of a voxel

@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLLens.h
-//  Author:    Philipp Jüni
+//  Author:    Philipp Jueni
 //  Date:      October 2014
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
@@ -37,30 +37,30 @@ class SLLens: public SLRevolver
                                  double cylinder,
                                  SLfloat diameter,
                                  SLfloat thickness,
-                                 SLint stacks = 32,
-                                 SLint slices = 32,
+                                 SLuint stacks = 32,
+                                 SLuint slices = 32,
                                  SLstring name = "lens mesh",
-                                 SLMaterial* mat = 0);
+                                 SLMaterial* mat = nullptr);
 
                 //! Create a lense with given radius, diameter and thickness
                 SLLens          (SLfloat radiusBot,
                                  SLfloat radiusTop,
                                  SLfloat diameter,
                                  SLfloat thickness,
-                                 SLint stacks = 32,
-                                 SLint slices = 32,
+                                 SLuint stacks = 32,
+                                 SLuint slices = 32,
                                  SLstring name = "lens mesh",
-                                 SLMaterial* mat = 0);
+                                 SLMaterial* mat = nullptr);
 
                ~SLLens          () {;}
 
     private:
-        void    init            (SLfloat diopterBot,
+        void    initLens        (SLfloat diopterBot,
                                  SLfloat diopterTop,
                                  SLfloat diameter,
                                  SLfloat thickness,
-                                 SLint stacks,
-                                 SLint slices,
+                                 SLuint stacks,
+                                 SLuint slices,
                                  SLMaterial *mat);
         void    generateLens    (SLfloat radiusBot, 
                                  SLfloat radiusTop, 
@@ -69,7 +69,7 @@ class SLLens: public SLRevolver
         SLfloat generateLensTop (SLfloat radius);
         SLfloat calcSagitta     (SLfloat radius);
         
-        SLint   _stacks;        //!< NO. of stacks 
+        SLuint  _stacks;        //!< NO. of stacks
         SLfloat _diameter;      //!< The diameter of the lens
         SLfloat _thickness;     //!< The space between the primary planes of lens sides
         SLfloat _radiusBot;     //!< The radius of the bot (front) side of the lens

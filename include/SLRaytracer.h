@@ -81,7 +81,7 @@ class SLRaytracer: public SLGLTexture, public SLEventHandler
             SLbool      doContinuous    () const {return _doContinuous;}
             SLbool      doFresnel       () const {return _doFresnel;}
             SLint       aaSamples       () const {return _aaSamples;}
-            SLint       numThreads      () const {return SL::maxThreads();}
+            SLuint      numThreads      () const {return SL::maxThreads();}
             SLint       pcRendered      () const {return _pcRendered;}
             SLfloat     aaThreshold     () const {return _aaThreshold;}
             SLfloat     renderSec       () const {return _renderSec;}
@@ -93,7 +93,6 @@ class SLRaytracer: public SLGLTexture, public SLEventHandler
                         
    protected:
             SLSceneView* _sv;           //!< Parent sceneview
-            SLGLState*  _stateGL;       //!< Pointer to the global state
             SLRTState   _state;         //!< RT state;
             SLCamera*   _cam;           //!< shortcut to the camera
             SLint       _maxDepth;      //!< Max. allowed recursion depth

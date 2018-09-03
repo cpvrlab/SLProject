@@ -19,25 +19,25 @@ class SLCylinder: public SLRevolver
 {  public:                     
                             SLCylinder (SLfloat  cylinderRadius,
                                         SLfloat  cylinderHeight,
-                                        SLint    stacks = 1,
-                                        SLint    slices = 16,
+                                        SLuint   stacks = 1,
+                                        SLuint   slices = 16,
                                         SLbool   hasTop = true,
                                         SLbool   hasBottom = true,
                                         SLstring name = "cylinder mesh",
-                                        SLMaterial* mat = 0);
+                                        SLMaterial* mat = nullptr);
                             ~SLCylinder   (){;}
                               
             // Getters
             SLfloat        radius()    {return _radius;}
             SLfloat        height()    {return _height;}
-            SLint          stacks()    {return _stacks;}
+            SLuint         stacks()    {return _stacks;}
             SLbool         hasTop()    {return _hasTop;}
             SLbool         hasBottom() {return _hasBottom;}
                
    private:    
             SLfloat       _radius;     //!< radius of cylinder
             SLfloat       _height;     //!< height of cylinder
-            SLint         _stacks;     //!< No. of stacks of cylinder
+            SLuint        _stacks;     //!< No. of stacks of cylinder
             SLbool        _hasTop;     //!< Flag if cylinder has a top
             SLbool        _hasBottom;  //!< Flag if cylinder has a bottom
 };

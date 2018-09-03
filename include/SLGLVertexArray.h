@@ -129,10 +129,9 @@ class SLGLVertexArray
         void        drawArrayAs         (SLGLPrimitiveType primitiveType,
                                          SLint firstVertex = 0,
                                          SLsizei countVertices = 0);
-
         // Some getters
-        SLint       numVertices         () {return _numVertices;}
-        SLint       numIndices          () {return _numIndices;}
+        SLuint      numVertices         () {return _numVertices;}
+        SLuint      numIndices          () {return _numIndices;}
 
         // Some statistics
         static SLuint totalDrawCalls;       //! static total no. of draw calls

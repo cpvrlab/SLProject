@@ -41,6 +41,13 @@ class SLGLVertexArrayExt : public SLGLVertexArray
                                          SLfloat lineOrPointSize = 1.0f,
                                          SLuint  indexFirstVertex = 0,
                                          SLuint  countVertices = 0);
+
+        //! Draws the VAO by element indices with the specified primitive with the color
+        void        drawElementAsColored(SLGLPrimitiveType primitiveType,
+                                         SLCol4f color,
+                                         SLfloat pointSize,
+                                         SLuint  indexFirstVertex = 0,
+                                         SLuint  countVertices = 0);
     private:
         //! Adds or updates & generates a position vertex attribute for colored line or point drawing
         void        generateVertexPos   (SLuint numVertices,

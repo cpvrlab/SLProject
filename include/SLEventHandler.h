@@ -32,7 +32,7 @@ class SLEventHandler
                             _dPos = 0.1f;
                             _dRot = 15.0f;
                         }
-                       ~SLEventHandler(){;}
+    virtual            ~SLEventHandler(){;}
 
             // Event handlers
     virtual  SLbool     onMouseDown     (const SLMouseButton button,

@@ -28,22 +28,22 @@ class SLRevolver: public SLMesh
                         //! ctor for generic revolver mesh
                         SLRevolver (SLVVec3f revolvePoints,
                                     SLVec3f  revolveAxis,
-                                    SLint    slices = 36, 
+                                    SLuint   slices = 36,
                                     SLbool   smoothFirst = false,
                                     SLbool   smoothLast = false,
                                     SLstring name = "revolver mesh",
-                                    SLMaterial* mat = 0);
+                                    SLMaterial* mat = nullptr);
 
                         //! ctor for derived revolver shapes
                         SLRevolver  (SLstring name) : SLMesh(name) {;}
                         SLRevolver  (){;}
                          
-            void        buildMesh   (SLMaterial* mat=0);
+            void        buildMesh   (SLMaterial* mat = nullptr);
               
    protected:    
             SLVVec3f    _revPoints;    //!< Array revolving points
             SLVec3f     _revAxis;      //!< axis of revolution
-            SLint       _slices;       //!< NO. of slices 
+            SLuint      _slices;       //!< NO. of slices
                
             //! flag if the normal of the first point is eqaual to -revAxis
             SLbool      _smoothFirst;

@@ -15,6 +15,7 @@
 #include <SL.h>
 #include <SLVec3.h>
 #include <SLVec4.h>
+#include <SLRect.h>
 #include <SLLight.h>
 #include <SLAverage.h>
 #include <SLMaterial.h>
@@ -103,6 +104,7 @@ class SLScene: public SLObject
             SLGLProgram*    programs            (SLShaderProg i) {return _programs[i];}
             SLNode*         selectedNode        () {return _selectedNode;}
             SLMesh*         selectedMesh        () {return _selectedMesh;}
+            SLRectf&        selectedRect        () {return _selectedRect;}
             SLbool          stopAnimations      () const {return _stopAnimations;}
             SLGLOculus*     oculus              () {return &_oculus;}
             SLint           numSceneCameras     ();
@@ -144,6 +146,7 @@ class SLScene: public SLObject
             SLstring        _info;              //!< scene info string
             SLNode*         _selectedNode;      //!< Pointer to the selected node
             SLMesh*         _selectedMesh;      //!< Pointer to the selected mesh
+            SLRectf         _selectedRect;      //!< Mouse selection rectangle
 
             SLTimer         _timer;             //!< high precision timer
             SLCol4f         _globalAmbiLight;   //!< global ambient light intensity

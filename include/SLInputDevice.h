@@ -19,8 +19,8 @@
 class SLInputDevice
 {
 public:
-    SLInputDevice();
-    ~SLInputDevice();
+                    SLInputDevice();
+    virtual        ~SLInputDevice();
     
     void            enable  ();
     void            disable ();

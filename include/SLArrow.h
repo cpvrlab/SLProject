@@ -21,9 +21,9 @@ class SLArrow: public SLRevolver
             SLfloat  length,
             SLfloat  headLength,
             SLfloat  headWidth,
-            SLint    slices,
+            SLuint   slices,
             SLstring name = "arrow mesh",
-            SLMaterial* mat = 0)
+            SLMaterial* mat = nullptr)
     {  
         assert(slices >= 3 && "Error: Not enough slices.");
         assert(headLength < length);

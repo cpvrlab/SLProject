@@ -194,7 +194,7 @@ void SLBackground::renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB)
     // Get shader program
     SLGLProgram* sp = _texture ? s->programs(SP_TextureOnly) : s->programs(SP_colorAttribute);
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)stateGL->mvpMatrix());
+    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
 
     // Create or update buffer for vertex position and indices
     _vao.clearAttribs();

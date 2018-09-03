@@ -130,6 +130,8 @@ class SLMesh : public SLObject
     virtual void                preShade        (SLRay* ray);
                
             void                deleteData      ();
+            void                deleteSelected  (SLNode* node);
+            void                deleteUnused    ();
     virtual void                calcNormals     ();
             void                calcTangents    ();
             void                calcTex3DMatrix (SLNode* node);
@@ -170,6 +172,7 @@ class SLMesh : public SLObject
             SLVVfloat           Jw;             //!< 2D Vector of per vertex joint weights (opt.)
             SLVushort           I16;            //!< Vector of vertex indices 16 bit
             SLVuint             I32;            //!< Vector of vertex indices 32 bit
+            SLVuint             IS32;           //!< Vector of rectangle selected vertex indices 32 bit
     
             SLVec3f             minP;           //!< min. vertex in OS
             SLVec3f             maxP;           //!< max. vertex in OS

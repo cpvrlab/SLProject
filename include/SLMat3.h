@@ -74,9 +74,9 @@ class SLMat3
         SLMat3<T>   operator/   (T a) const;           //!< scalar division
         SLMat3<T>&  operator/=  (T a);                 //!< scalar division
                     operator const T*() const {return _m;}
-                    operator T* (){return _m;};
+                    operator T* (){return _m;}
         T&          operator    ()(SLint row, SLint col)      {return _m[3*col+row];}
-        const T&    operator    ()(SLint row, SLint col)const {return _m[3*col+row];};
+        const T&    operator    ()(SLint row, SLint col)const {return _m[3*col+row];}
 
         //! Sets the rotation components      
         void        rotation    (const T angleDEG, 

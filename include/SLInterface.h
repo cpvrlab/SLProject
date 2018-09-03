@@ -39,16 +39,16 @@ void    slCreateAppAndScene     (SLVstring& cmdLineArgs,
                                  SLstring calibrationPath,
                                  SLstring configPath,
                                  SLstring applicationName,
-                                 void*    onSceneLoadCallback = 0);
+                                 void*    onSceneLoadCallback = nullptr);
 
 int     slCreateSceneView       (int screenWidth,
                                  int screenHeight,
                                  int dotsPerInch,
                                  SLSceneID initScene,
                                  void* onWndUpdateCallback,
-                                 void* onSelectNodeMeshCallback = 0,
-                                 void* onNewSceneViewCallback = 0,
-                                 void* onImGuiBuild = 0);
+                                 void* onSelectNodeMeshCallback = nullptr,
+                                 void* onNewSceneViewCallback = nullptr,
+                                 void* onImGuiBuild = nullptr);
 
 int     slNewSceneView          ();
 bool    slShouldClose           ();

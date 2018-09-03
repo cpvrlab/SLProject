@@ -18,7 +18,7 @@
 static const SLint SL_MAX_LIGHTS = 8;   //!< max. number of used lights
 //-----------------------------------------------------------------------------
 
-#define GET_GL_ERROR SLGLState::getGLError((SLchar*)__FILE__, __LINE__, false)
+#define GET_GL_ERROR SLGLState::getGLError((const char*)__FILE__, __LINE__, false)
 //-----------------------------------------------------------------------------
 //! Singleton class holding all OpenGL states
 /*!
@@ -90,7 +90,7 @@ class SLGLState
                 
         // getters
         inline const SLMat4f* invModelViewMatrix() {return &_invModelViewMatrix;}
-        inline const SLMat3f* normalMatrix()       { return &_normalMatrix; }
+        inline const SLMat3f* normalMatrix()       {return &_normalMatrix; }
                const SLMat4f* mvpMatrix();         //!< builds and returns proj.mat. x mv mat.
                const SLCol4f* globalAmbient();     //!< returns global ambient color
         inline       bool     hasMultiSampling()   {return _multiSampleSamples > 0;}
@@ -111,6 +111,7 @@ class SLGLState
         void     depthMask              (SLbool state);
         void     cullFace               (SLbool state);
         void     blend                  (SLbool state);
+        void     blendFunc              (SLenum srcFunc, SLenum dstFunc);
         void     multiSample            (SLbool state);
         void     polygonLine            (SLbool state);
         void     polygonOffset          (SLbool state, SLfloat factor=1.0f, SLfloat units=1.0f);
@@ -142,7 +143,7 @@ class SLGLState
         inline void popModelViewMatrix  () {modelViewMatrix = _modelViewMatrixStack.pop_back();}
 
         //! Checks if an OpenGL error occurred
-        static void getGLError          (char* file, int line, bool quit);
+        static void getGLError          (const char* file, int line, bool quit);
 
         SLstring getGLVersionNO         ();
         SLstring getSLVersionNO         ();
@@ -196,6 +197,8 @@ class SLGLState
         SLint       _colorMaskG;            //!< current color mask for G
         SLint       _colorMaskB;            //!< current color mask for B
         SLint       _colorMaskA;            //!< current color mask for A
+        SLenum      _blendFuncSrc;          //!< source blend function enum
+        SLenum      _blendFuncDst;          //!< destination blend function enum
 };
 //-----------------------------------------------------------------------------
 #endif

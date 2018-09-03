@@ -70,7 +70,7 @@ class SLVec4
     inline SLVec4   operator +  (const SLVec4& v) const {return SLVec4(x+v.x, y+v.y, z+v.z, w+v.w);}
     inline SLVec4   operator -  (const SLVec4& v) const {return SLVec4(x-v.x, y-v.y, z-v.z, w-v.w);}
     inline SLVec4   operator -  (void) const            {return SLVec4(-x, -y, -z, -w);}
-    inline T        operator *  (const SLVec4& v) const {return x*v.x+y*v.y+z*v.z+w*v.w;};
+    inline T        operator *  (const SLVec4& v) const {return x*v.x+y*v.y+z*v.z+w*v.w;}
     inline SLVec4   operator *  (const T s) const       {return SLVec4(x*s, y*s, z*s);}
     inline SLVec4   operator /  (const T s) const       {return SLVec4(x/s, y/s, z/s, w/s);}
     inline SLVec4   operator &  (const SLVec4& v) const {return SLVec4(x*v.x, y*v.y, z*v.z, w*v.w);}
@@ -100,7 +100,7 @@ class SLVec4
     inline void     sub         (const SLVec4& a,
                                  const SLVec4& b)       {x=a.x-b.x; y=a.y-b.y, z=a.z-b.z; w=a.w-b.w;}
     inline void     scale       (const T s)             {x*=s; y*=s; z*=s; w*=s;}
-    inline T        dot         (const SLVec4& v)       {return x*v.x+y*v.y+z*v.z+w*v.w;};
+    inline T        dot         (const SLVec4& v)       {return x*v.x+y*v.y+z*v.z+w*v.w;}
     inline void     cross       (const SLVec4& a,
                                  const SLVec4& b)       {x = a.y*b.z - a.z*b.y;
                                                          y = a.z*b.x - a.x*b.z;
@@ -162,7 +162,7 @@ class SLVec4
                                                          y= pow(y,1.0/gammaVal);
                                                          z= pow(z,1.0/gammaVal);}
 
-            void    print       (const SLchar* str=0)
+            void    print       (const SLchar* str=nullptr)
             {   if (str) SL_LOG("%s\n",str);
                 SL_LOG("% 3.3f, % 3.3f, % 3.3f, % 3.3f\n",x, y, z, w);
             }
@@ -180,7 +180,7 @@ class SLVec4
             {   SLVstring components;
                 SLUtils::split(fourFloatsWithDelimiter, delimiter, components);
                 float f[4] = {0.0, 0.0f, 0.0f, 1.0f};
-                for (SLint i=0; i<components.size(); ++i)
+                for (SLuint i=0; i<components.size(); ++i)
                     f[i] = (SLfloat)atof(components[i].c_str());
                 x = f[0]; y = f[1]; z = f[2]; w = f[3];
             }

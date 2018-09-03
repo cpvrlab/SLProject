@@ -21,8 +21,8 @@ SLCone::SLCone ctor for conic revolution object around the z-axis
 */
 SLCone::SLCone(SLfloat  coneRadius,
                SLfloat  coneHeight,
-               SLint    stacks, 
-               SLint    slices,
+               SLuint   stacks,
+               SLuint   slices,
                SLbool   hasBottom,
                SLstring name,
                SLMaterial* mat) : SLRevolver(name)
@@ -39,7 +39,7 @@ SLCone::SLCone(SLfloat  coneRadius,
     _smoothFirst = hasBottom;
     _smoothLast  = false;
     _revAxis.set(0,0,1);
-    SLint nPoints = stacks + 1;
+    SLuint nPoints = stacks + 1;
     if (hasBottom) nPoints += 2;
     _revPoints.reserve(nPoints);
    
@@ -53,7 +53,7 @@ SLCone::SLCone(SLfloat  coneRadius,
         _revPoints.push_back(SLVec3f(0,0,0));
         _revPoints.push_back(SLVec3f(coneRadius, 0, 0));
     }
-    for (SLint i=0; i<=stacks; ++i)
+    for (SLuint i=0; i<=stacks; ++i)
     {   _revPoints.push_back(SLVec3f(r, 0, h));
         h += dHeight;
         r -= dRadius;

@@ -51,7 +51,7 @@ static auto vectorGetter = [](void* vec, int idx, const char** out_text)
     if (idx < 0 || idx >= (int)vector.size())
         return false;
 
-    *out_text = vector.at(idx).c_str();
+    *out_text = vector.at((SLuint)idx).c_str();
     return true;
 };
 //-----------------------------------------------------------------------------
@@ -135,11 +135,12 @@ Credits for external libraries:\n\
 
 SLstring AppDemoGui::infoHelp =
 "Help for mouse or finger control:\n\
-- Use mouse or your finger to rotate the scene\n\
+- Use left mouse or your finger to rotate the scene\n\
 - Use mouse-wheel or pinch 2 fingers to go forward/backward\n\
-- Use CTRL-mouse or 2 fingers to move sidewards/up-down\n\
+- Use middle-mouse or 2 fingers to move sidewards/up-down\n\
 - Double click or double tap to select object\n\
-- On Desktop see shortcuts behind menu commands\n\
+- CTRL-mouse to select vertices of objects\n\
+- On desktop see shortcuts behind menu commands\n\
 - Check out the different test scenes under File > Load Test Scene\n\
 ";
 
@@ -281,9 +282,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         if (rType == RT_rt)
         {
             SLRaytracer* rt = sv->raytracer();
-            SLuint rayPrimaries = sv->scrW() * sv->scrH();
+            SLuint rayPrimaries = (SLuint)(sv->scrW() * sv->scrH());
             SLuint rayTotal = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
-            SLfloat rpms = rt->renderSec() ? rayTotal/rt->renderSec()/1000.0f : 0.0f;
+            SLfloat rpms = rt->renderSec()>0.0f ? rayTotal/rt->renderSec()/1000.0f : 0.0f;
 
             sprintf(m+strlen(m), "Renderer      : Ray Tracer\n");
             sprintf(m+strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
@@ -346,9 +347,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         SLNodeStats& stats3D = sv->stats3D();
         SLfloat vox = (SLfloat)stats3D.numVoxels;
         SLfloat voxEmpty = (SLfloat)stats3D.numVoxEmpty;
-        SLfloat voxelsEmpty = vox ? voxEmpty / vox*100.0f : 0.0f;
+        SLfloat voxelsEmpty   = vox>0.0f ? voxEmpty / vox*100.0f : 0.0f;
         SLfloat numRTTria = (SLfloat)stats3D.numTriangles;
-        SLfloat avgTriPerVox = vox ? numRTTria / (vox - voxEmpty) : 0.0f;
+        SLfloat avgTriPerVox  = vox>0.0f ? numRTTria / (vox-voxEmpty) : 0.0f;
         SLint numOpaqueNodes = (int)sv->visibleNodes()->size();
         SLint numBlendedNodes = (int)sv->blendNodes()->size();
         SLint numVisibleNodes = numOpaqueNodes + numBlendedNodes;
@@ -451,7 +452,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         window_flags |= ImGuiWindowFlags_NoTitleBar;
         window_flags |= ImGuiWindowFlags_NoResize;
         SLfloat w = (SLfloat)sv->scrW();
-        ImVec2 size = ImGui::CalcTextSize(s->info().c_str(), 0, true, w);
+        ImVec2 size = ImGui::CalcTextSize(s->info().c_str(), nullptr, true, w);
         SLfloat h = size.y + SLGLImGui::fontPropDots * 1.2f;
         SLstring info = "Scene Info: " + s->info();
 
@@ -579,27 +580,27 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         SLFileSystem::fileExists(large2) ||
                         SLFileSystem::fileExists(large3);
 
-                    if (ImGui::MenuItem("Minimal Scene", 0, sid == SID_Minimal))
+                    if (ImGui::MenuItem("Minimal Scene", nullptr, sid==SID_Minimal))
                         s->onLoad(s, sv, SID_Minimal);
-                    if (ImGui::MenuItem("Figure Scene", 0, sid == SID_Figure))
+                    if (ImGui::MenuItem("Figure Scene", nullptr, sid==SID_Figure))
                         s->onLoad(s, sv, SID_Figure);
-                    if (ImGui::MenuItem("Large Model", 0, sid == SID_LargeModel, largeFileExists))
+                    if (ImGui::MenuItem("Large Model", nullptr, sid==SID_LargeModel, largeFileExists))
                         s->onLoad(s, sv, SID_LargeModel);
-                    if (ImGui::MenuItem("Mesh Loader", 0, sid == SID_MeshLoad))
+                    if (ImGui::MenuItem("Mesh Loader", nullptr, sid==SID_MeshLoad))
                         s->onLoad(s, sv, SID_MeshLoad);
-                    if (ImGui::MenuItem("Revolver Meshes", 0, sid == SID_Revolver))
+                    if (ImGui::MenuItem("Revolver Meshes", nullptr, sid==SID_Revolver))
                         s->onLoad(s, sv, SID_Revolver);
-                    if (ImGui::MenuItem("Texture Blending", 0, sid == SID_TextureBlend))
+                    if (ImGui::MenuItem("Texture Blending", nullptr, sid==SID_TextureBlend))
                         s->onLoad(s, sv, SID_TextureBlend);
-                    if (ImGui::MenuItem("Texture Filters", 0, sid == SID_TextureFilter))
+                    if (ImGui::MenuItem("Texture Filters", nullptr, sid==SID_TextureFilter))
                         s->onLoad(s, sv, SID_TextureFilter);
-                    if (ImGui::MenuItem("Frustum Culling", 0, sid == SID_FrustumCull))
+                    if (ImGui::MenuItem("Frustum Culling", nullptr, sid==SID_FrustumCull))
                         s->onLoad(s, sv, SID_FrustumCull);
-                    if (ImGui::MenuItem("Massive Data Scene", 0, sid == SID_MassiveData))
+                    if (ImGui::MenuItem("Massive Data Scene", nullptr, sid==SID_MassiveData))
                         s->onLoad(s, sv, SID_MassiveData);
-                    if (ImGui::MenuItem("2D and 3D Text", 0, sid == SID_2Dand3DText))
+                    if (ImGui::MenuItem("2D and 3D Text", nullptr, sid==SID_2Dand3DText))
                         s->onLoad(s, sv, SID_2Dand3DText);
-                    if (ImGui::MenuItem("Point Clouds", 0, sid == SID_PointClouds))
+                    if (ImGui::MenuItem("Point Clouds", nullptr, sid==SID_PointClouds))
                         s->onLoad(s, sv, SID_PointClouds);
 
                     ImGui::EndMenu();
@@ -607,23 +608,23 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Shader"))
                 {
-                    if (ImGui::MenuItem("Per Vertex Blinn-Phong", 0, sid == SID_ShaderPerVertexBlinn))
+                    if (ImGui::MenuItem("Per Vertex Blinn-Phong", nullptr, sid==SID_ShaderPerVertexBlinn))
                         s->onLoad(s, sv, SID_ShaderPerVertexBlinn);
-                    if (ImGui::MenuItem("Per Pixel Blinn-Phing", 0, sid == SID_ShaderPerPixelBlinn))
+                    if (ImGui::MenuItem("Per Pixel Blinn-Phing", nullptr, sid==SID_ShaderPerPixelBlinn))
                         s->onLoad(s, sv, SID_ShaderPerPixelBlinn);
-                    if (ImGui::MenuItem("Per Pixel Cook-Torrance", 0, sid == SID_ShaderCookTorrance))
+                    if (ImGui::MenuItem("Per Pixel Cook-Torrance", nullptr, sid==SID_ShaderCookTorrance))
                         s->onLoad(s, sv, SID_ShaderCookTorrance);
-                    if (ImGui::MenuItem("Per Vertex Wave", 0, sid == SID_ShaderPerVertexWave))
+                    if (ImGui::MenuItem("Per Vertex Wave", nullptr, sid==SID_ShaderPerVertexWave))
                         s->onLoad(s, sv, SID_ShaderPerVertexWave);
-                    if (ImGui::MenuItem("Water", 0, sid == SID_ShaderWater))
+                    if (ImGui::MenuItem("Water", nullptr, sid==SID_ShaderWater))
                         s->onLoad(s, sv, SID_ShaderWater);
-                    if (ImGui::MenuItem("Bump Mapping", 0, sid == SID_ShaderBumpNormal))
+                    if (ImGui::MenuItem("Bump Mapping", nullptr, sid==SID_ShaderBumpNormal))
                         s->onLoad(s, sv, SID_ShaderBumpNormal);
-                    if (ImGui::MenuItem("Parallax Mapping", 0, sid == SID_ShaderBumpParallax))
+                    if (ImGui::MenuItem("Parallax Mapping", nullptr, sid==SID_ShaderBumpParallax))
                         s->onLoad(s, sv, SID_ShaderBumpParallax);
-                    if (ImGui::MenuItem("Skybox Shader", 0, sid == SID_ShaderSkyBox))
+                    if (ImGui::MenuItem("Skybox Shader", nullptr, sid==SID_ShaderSkyBox))
                         s->onLoad(s, sv, SID_ShaderSkyBox);
-                    if (ImGui::MenuItem("Earth Shader", 0, sid == SID_ShaderEarth))
+                    if (ImGui::MenuItem("Earth Shader", nullptr, sid==SID_ShaderEarth))
                         s->onLoad(s, sv, SID_ShaderEarth);
 
                     ImGui::EndMenu();
@@ -631,13 +632,13 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Animation"))
                 {
-                    if (ImGui::MenuItem("Node Animation", 0, sid == SID_AnimationNode))
+                    if (ImGui::MenuItem("Node Animation", nullptr, sid==SID_AnimationNode))
                         s->onLoad(s, sv, SID_AnimationNode);
-                    if (ImGui::MenuItem("Mass Animation", 0, sid == SID_AnimationMass))
+                    if (ImGui::MenuItem("Mass Animation", nullptr, sid==SID_AnimationMass))
                         s->onLoad(s, sv, SID_AnimationMass);
-                    if (ImGui::MenuItem("Astroboy Army", 0, sid == SID_AnimationArmy))
+                    if (ImGui::MenuItem("Astroboy Army", nullptr, sid==SID_AnimationArmy))
                         s->onLoad(s, sv, SID_AnimationArmy);
-                    if (ImGui::MenuItem("Skeletal Animation", 0, sid == SID_AnimationSkeletal))
+                    if (ImGui::MenuItem("Skeletal Animation", nullptr, sid==SID_AnimationSkeletal))
                         s->onLoad(s, sv, SID_AnimationSkeletal);
 
                     ImGui::EndMenu();
@@ -645,27 +646,27 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Using Video"))
                 {
-                    if (ImGui::MenuItem("Texture from Video Live", 0, sid == SID_VideoTextureLive))
+                    if (ImGui::MenuItem("Texture from Video Live", nullptr, sid==SID_VideoTextureLive))
                         s->onLoad(s, sv, SID_VideoTextureLive);
-                    if (ImGui::MenuItem("Texture from Video File", 0, sid == SID_VideoTextureFile))
+                    if (ImGui::MenuItem("Texture from Video File", nullptr, sid==SID_VideoTextureFile))
                         s->onLoad(s, sv, SID_VideoTextureFile);
-                    if (ImGui::MenuItem("Track ArUco Marker (Main)", 0, sid == SID_VideoTrackArucoMain))
+                    if (ImGui::MenuItem("Track ArUco Marker (Main)", nullptr, sid==SID_VideoTrackArucoMain))
                         s->onLoad(s, sv, SID_VideoTrackArucoMain);
-                    if (ImGui::MenuItem("Track ArUco Marker (Scnd)", 0, sid == SID_VideoTrackArucoScnd, SLCVCapture::hasSecondaryCamera))
+                    if (ImGui::MenuItem("Track ArUco Marker (Scnd)", nullptr, sid==SID_VideoTrackArucoScnd, SLCVCapture::hasSecondaryCamera))
                         s->onLoad(s, sv, SID_VideoTrackArucoScnd);
-                    if (ImGui::MenuItem("Track Chessboard (Main)", 0, sid == SID_VideoTrackChessMain))
+                    if (ImGui::MenuItem("Track Chessboard (Main)", nullptr, sid==SID_VideoTrackChessMain))
                         s->onLoad(s, sv, SID_VideoTrackChessMain);
-                    if (ImGui::MenuItem("Track Chessboard (Scnd)", 0, sid == SID_VideoTrackChessScnd, SLCVCapture::hasSecondaryCamera))
+                    if (ImGui::MenuItem("Track Chessboard (Scnd)", nullptr, sid==SID_VideoTrackChessScnd, SLCVCapture::hasSecondaryCamera))
                         s->onLoad(s, sv, SID_VideoTrackChessScnd);
-                    if (ImGui::MenuItem("Track Features (Main)", 0, sid == SID_VideoTrackFeature2DMain))
+                    if (ImGui::MenuItem("Track Features (Main)", nullptr, sid==SID_VideoTrackFeature2DMain))
                         s->onLoad(s, sv, SID_VideoTrackFeature2DMain);
-                    if (ImGui::MenuItem("Track Face (Main)", 0, sid == SID_VideoTrackFaceMain))
+                    if (ImGui::MenuItem("Track Face (Main)", nullptr, sid==SID_VideoTrackFaceMain))
                         s->onLoad(s, sv, SID_VideoTrackFaceMain);
-                    if (ImGui::MenuItem("Track Face (Scnd)", 0, sid == SID_VideoTrackFaceScnd, SLCVCapture::hasSecondaryCamera))
+                    if (ImGui::MenuItem("Track Face (Scnd)", nullptr, sid==SID_VideoTrackFaceScnd, SLCVCapture::hasSecondaryCamera))
                         s->onLoad(s, sv, SID_VideoTrackFaceScnd);
-                    if (ImGui::MenuItem("Sensor AR (Main)", 0, sid == SID_VideoSensorAR))
+                    if (ImGui::MenuItem("Sensor AR (Main)", nullptr, sid==SID_VideoSensorAR))
                         s->onLoad(s, sv, SID_VideoSensorAR);
-                    if (ImGui::MenuItem("Christoffel Tower AR (Main)", 0, sid == SID_VideoChristoffel))
+                    if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid==SID_VideoChristoffel))
                         s->onLoad(s, sv, SID_VideoChristoffel);
                     if (ImGui::MenuItem("Christoffel Tower AR ORB-SLAM", 0, sid == SID_VideoChristoffelOrbSlam))
                         s->onLoad(s, sv, SID_VideoChristoffelOrbSlam);
@@ -683,11 +684,11 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Volume Rendering"))
                 {
-                    if (ImGui::MenuItem("Head MRI Ray Cast", 0, sid == SID_VolumeRayCast))
+                    if (ImGui::MenuItem("Head MRI Ray Cast", nullptr, sid==SID_VolumeRayCast))
                         s->onLoad(s, sv, SID_VolumeRayCast);
 
 #ifndef SL_GLES
-                    if (ImGui::MenuItem("Head MRI Ray Cast Lighted", 0, sid == SID_VolumeRayCastLighted))
+                    if (ImGui::MenuItem("Head MRI Ray Cast Lighted", nullptr, sid==SID_VolumeRayCastLighted))
                         s->onLoad(s, sv, SID_VolumeRayCastLighted);
 #endif
 
@@ -696,17 +697,17 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Ray tracing"))
                 {
-                    if (ImGui::MenuItem("Spheres", 0, sid == SID_RTSpheres))
+                    if (ImGui::MenuItem("Spheres", nullptr, sid==SID_RTSpheres))
                         s->onLoad(s, sv, SID_RTSpheres);
-                    if (ImGui::MenuItem("Muttenzer Box", 0, sid == SID_RTMuttenzerBox))
+                    if (ImGui::MenuItem("Muttenzer Box", nullptr, sid==SID_RTMuttenzerBox))
                         s->onLoad(s, sv, SID_RTMuttenzerBox);
-                    if (ImGui::MenuItem("Soft Shadows", 0, sid == SID_RTSoftShadows))
+                    if (ImGui::MenuItem("Soft Shadows", nullptr, sid==SID_RTSoftShadows))
                         s->onLoad(s, sv, SID_RTSoftShadows);
-                    if (ImGui::MenuItem("Depth of Field", 0, sid == SID_RTDoF))
+                    if (ImGui::MenuItem("Depth of Field", nullptr, sid==SID_RTDoF))
                         s->onLoad(s, sv, SID_RTDoF);
-                    if (ImGui::MenuItem("Lens Test", 0, sid == SID_RTLens))
+                    if (ImGui::MenuItem("Lens Test", nullptr, sid==SID_RTLens))
                         s->onLoad(s, sv, SID_RTLens);
-                    if (ImGui::MenuItem("RT Test", 0, sid == SID_RTTest))
+                    if (ImGui::MenuItem("RT Test", nullptr, sid==SID_RTTest))
                         s->onLoad(s, sv, SID_RTTest);
 
                     ImGui::EndMenu();
@@ -714,7 +715,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Path tracing"))
                 {
-                    if (ImGui::MenuItem("Muttenzer Box", 0, sid == SID_RTMuttenzerBox))
+                    if (ImGui::MenuItem("Muttenzer Box", nullptr, sid==SID_RTMuttenzerBox))
                         s->onLoad(s, sv, SID_RTMuttenzerBox);
 
                     ImGui::EndMenu();
@@ -754,10 +755,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("Rotation Sensor"))
             {
-                if (ImGui::MenuItem("Use Device Rotation (IMU)", 0, SLApplication::devRot.isUsed()))
+                if (ImGui::MenuItem("Use Device Rotation (IMU)", nullptr, SLApplication::devRot.isUsed()))
                     SLApplication::devRot.isUsed(!SLApplication::devRot.isUsed());
 
-                if (ImGui::MenuItem("Zero Yaw at Start", 0, SLApplication::devRot.zeroYawAtStart()))
+                if (ImGui::MenuItem("Zero Yaw at Start", nullptr, SLApplication::devRot.zeroYawAtStart()))
                     SLApplication::devRot.zeroYawAtStart(!SLApplication::devRot.zeroYawAtStart());
 
                 if (ImGui::MenuItem("Reset Zero Yaw"))
@@ -768,10 +769,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("Location Sensor"))
             {
-                if (ImGui::MenuItem("Use Device Location (GPS)", 0, SLApplication::devLoc.isUsed()))
+                if (ImGui::MenuItem("Use Device Location (GPS)", nullptr, SLApplication::devLoc.isUsed()))
                     SLApplication::devLoc.isUsed(!SLApplication::devLoc.isUsed());
 
-                if (ImGui::MenuItem("Use Origin Altitude", 0, SLApplication::devLoc.useOriginAltitude()))
+                if (ImGui::MenuItem("Use Origin Altitude", nullptr, SLApplication::devLoc.useOriginAltitude()))
                     SLApplication::devLoc.useOriginAltitude(!SLApplication::devLoc.useOriginAltitude());
 
                 if (ImGui::MenuItem("Reset Origin to here"))
@@ -800,10 +801,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Mirror Main Camera"))
                 {
-                    if (ImGui::MenuItem("Horizontally", 0, mc->isMirroredH()))
+                    if (ImGui::MenuItem("Horizontally", nullptr, mc->isMirroredH()))
                         mc->toggleMirrorH();
 
-                    if (ImGui::MenuItem("Vertically", 0, mc->isMirroredV()))
+                    if (ImGui::MenuItem("Vertically", nullptr, mc->isMirroredV()))
                         mc->toggleMirrorV();
 
                     ImGui::EndMenu();
@@ -811,10 +812,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Mirror Scnd. Camera", SLCVCapture::hasSecondaryCamera))
                 {
-                    if (ImGui::MenuItem("Horizontally", 0, sc->isMirroredH()))
+                    if (ImGui::MenuItem("Horizontally", nullptr, sc->isMirroredH()))
                         sc->toggleMirrorH();
 
-                    if (ImGui::MenuItem("Vertically", 0, sc->isMirroredV()))
+                    if (ImGui::MenuItem("Vertically", nullptr, sc->isMirroredV()))
                         sc->toggleMirrorV();
 
                     ImGui::EndMenu();
@@ -829,49 +830,49 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         showInfosScene = true;
                     }
 
-                    if (ImGui::MenuItem("Start Calibration on Scnd. Camera", 0, false, SLCVCapture::hasSecondaryCamera))
+                    if (ImGui::MenuItem("Start Calibration on Scnd. Camera", nullptr, false, SLCVCapture::hasSecondaryCamera))
                     {
                         s->onLoad(s, sv, SID_VideoCalibrateScnd);
                         showHelpCalibration = true;
                         showInfosScene = true;
                     }
 
-                    if (ImGui::MenuItem("Undistort Image", 0, ac->showUndistorted(), ac->state() == CS_calibrated))
+                    if (ImGui::MenuItem("Undistort Image", nullptr, ac->showUndistorted(), ac->state()==CS_calibrated))
                         ac->showUndistorted(!ac->showUndistorted());
 
-                    if (ImGui::MenuItem("Zero Tangent Distortion", 0, ac->calibZeroTangentDist()))
+                    if (ImGui::MenuItem("Zero Tangent Distortion", nullptr, ac->calibZeroTangentDist()))
                         ac->toggleZeroTangentDist();
 
-                    if (ImGui::MenuItem("Fix Aspect Ratio", 0, ac->calibFixAspectRatio()))
+                    if (ImGui::MenuItem("Fix Aspect Ratio", nullptr, ac->calibFixAspectRatio()))
                         ac->toggleFixAspectRatio();
 
-                    if (ImGui::MenuItem("Fix Prinicpal Point", 0, ac->calibFixPrincipalPoint()))
+                    if (ImGui::MenuItem("Fix Principal Point", nullptr, ac->calibFixPrincipalPoint()))
                         ac->toggleFixPrincipalPoint();
 
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::MenuItem("Show Tracking Detection", 0, s->showDetection()))
+                if (ImGui::MenuItem("Show Tracking Detection", nullptr, s->showDetection()))
                     s->showDetection(!s->showDetection());
 
                 if (ImGui::BeginMenu("Feature Tracking", featureTracker != nullptr))
                 {
-                    if (ImGui::MenuItem("Force Relocation", 0, featureTracker->forceRelocation()))
+                    if (ImGui::MenuItem("Force Relocation", nullptr, featureTracker->forceRelocation()))
                         featureTracker->forceRelocation(!featureTracker->forceRelocation());
 
                     if (ImGui::BeginMenu("Detector/Descriptor", featureTracker != nullptr))
                     {
                         SLCVDetectDescribeType type = featureTracker->type();
 
-                        if (ImGui::MenuItem("RAUL/RAUL", 0, type == DDT_RAUL_RAUL))
+                        if (ImGui::MenuItem("RAUL/RAUL", nullptr, type == DDT_RAUL_RAUL))
                             featureTracker->type(DDT_RAUL_RAUL);
-                        if (ImGui::MenuItem("ORB/ORB", 0, type == DDT_ORB_ORB))
+                        if (ImGui::MenuItem("ORB/ORB", nullptr, type == DDT_ORB_ORB))
                             featureTracker->type(DDT_ORB_ORB);
-                        if (ImGui::MenuItem("FAST/BRIEF", 0, type == DDT_FAST_BRIEF))
+                        if (ImGui::MenuItem("FAST/BRIEF", nullptr, type == DDT_FAST_BRIEF))
                             featureTracker->type(DDT_FAST_BRIEF);
-                        if (ImGui::MenuItem("SURF/SURF", 0, type == DDT_SURF_SURF))
+                        if (ImGui::MenuItem("SURF/SURF", nullptr, type == DDT_SURF_SURF))
                             featureTracker->type(DDT_SURF_SURF);
-                        if (ImGui::MenuItem("SIFT/SIFT", 0, type == DDT_SIFT_SIFT))
+                        if (ImGui::MenuItem("SIFT/SIFT", nullptr, type == DDT_SIFT_SIFT))
                             featureTracker->type(DDT_SIFT_SIFT);
 
                         ImGui::EndMenu();
@@ -923,7 +924,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Ray Tracing (RT)", "R", rType == RT_rt))
                 sv->startRaytracing(5);
 
-            if (ImGui::MenuItem("Path Tracing (PT)", 0, rType == RT_pt))
+            if (ImGui::MenuItem("Path Tracing (PT)", nullptr, rType==RT_pt))
                 sv->startPathtracing(5, 10);
 
             ImGui::EndMenu();
@@ -978,16 +979,16 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             {
                 SLRaytracer* rt = sv->raytracer();
 
-                if (ImGui::MenuItem("Parallel distributed", 0, rt->doDistributed()))
+                if (ImGui::MenuItem("Parallel distributed", nullptr, rt->doDistributed()))
                 {
                     rt->doDistributed(!rt->doDistributed());
                     sv->startRaytracing(rt->maxDepth());
                 }
 
-                if (ImGui::MenuItem("Continuously", 0, rt->doContinuous()))
+                if (ImGui::MenuItem("Continuously", nullptr, rt->doContinuous()))
                     rt->doContinuous(!rt->doContinuous());
 
-                if (ImGui::MenuItem("Fresnel Reflection", 0, rt->doFresnel()))
+                if (ImGui::MenuItem("Fresnel Reflection", nullptr, rt->doFresnel()))
                 {
                     rt->doFresnel(!rt->doFresnel());
                     sv->startRaytracing(rt->maxDepth());
@@ -995,15 +996,15 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Max. Depth"))
                 {
-                    if (ImGui::MenuItem("1", 0, rt->maxDepth() == 1))
+                    if (ImGui::MenuItem("1", nullptr, rt->maxDepth()==1))
                         sv->startRaytracing(1);
-                    if (ImGui::MenuItem("2", 0, rt->maxDepth() == 2))
+                    if (ImGui::MenuItem("2", nullptr, rt->maxDepth()==2))
                         sv->startRaytracing(2);
-                    if (ImGui::MenuItem("3", 0, rt->maxDepth() == 3))
+                    if (ImGui::MenuItem("3", nullptr, rt->maxDepth()==3))
                         sv->startRaytracing(3);
-                    if (ImGui::MenuItem("5", 0, rt->maxDepth() == 5))
+                    if (ImGui::MenuItem("5", nullptr, rt->maxDepth()==5))
                         sv->startRaytracing(5);
-                    if (ImGui::MenuItem("Max. Contribution", 0, rt->maxDepth() == 0))
+                    if (ImGui::MenuItem("Max. Contribution", nullptr, rt->maxDepth()==0))
                         sv->startRaytracing(0);
 
                     ImGui::EndMenu();
@@ -1011,15 +1012,15 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Anti-Aliasing Samples"))
                 {
-                    if (ImGui::MenuItem("Off", 0, rt->aaSamples() == 1))
+                    if (ImGui::MenuItem("Off", nullptr, rt->aaSamples()==1))
                         rt->aaSamples(1);
-                    if (ImGui::MenuItem("3x3", 0, rt->aaSamples() == 3))
+                    if (ImGui::MenuItem("3x3", nullptr, rt->aaSamples()==3))
                         rt->aaSamples(3);
-                    if (ImGui::MenuItem("5x5", 0, rt->aaSamples() == 5))
+                    if (ImGui::MenuItem("5x5", nullptr, rt->aaSamples()==5))
                         rt->aaSamples(5);
-                    if (ImGui::MenuItem("7x7", 0, rt->aaSamples() == 7))
+                    if (ImGui::MenuItem("7x7", nullptr, rt->aaSamples()==7))
                         rt->aaSamples(7);
-                    if (ImGui::MenuItem("9x9", 0, rt->aaSamples() == 9))
+                    if (ImGui::MenuItem("9x9", nullptr, rt->aaSamples()==9))
                         rt->aaSamples(9);
 
                     ImGui::EndMenu();
@@ -1039,31 +1040,31 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("NO. of Samples"))
                 {
-                    if (ImGui::MenuItem("1", 0, pt->aaSamples() == 1))
+                    if (ImGui::MenuItem("1", nullptr, pt->aaSamples()==1))
                         sv->startPathtracing(5, 1);
-                    if (ImGui::MenuItem("10", 0, pt->aaSamples() == 10))
+                    if (ImGui::MenuItem("10", nullptr, pt->aaSamples()==10))
                         sv->startPathtracing(5, 10);
-                    if (ImGui::MenuItem("100", 0, pt->aaSamples() == 100))
+                    if (ImGui::MenuItem("100", nullptr, pt->aaSamples()==100))
                         sv->startPathtracing(5, 100);
-                    if (ImGui::MenuItem("1000", 0, pt->aaSamples() == 1000))
+                    if (ImGui::MenuItem("1000", nullptr, pt->aaSamples()==1000))
                         sv->startPathtracing(5, 1000);
-                    if (ImGui::MenuItem("10000", 0, pt->aaSamples() == 10000))
+                    if (ImGui::MenuItem("10000", nullptr, pt->aaSamples()==10000))
                         sv->startPathtracing(5, 10000);
 
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::MenuItem("Direct illumination", 0, pt->calcDirect()))
+                if (ImGui::MenuItem("Direct illumination", nullptr, pt->calcDirect()))
                 {   pt->calcDirect(!pt->calcDirect());
                     sv->startPathtracing(5, 10);
                 }
 
-                if (ImGui::MenuItem("Indirect illumination", 0, pt->calcIndirect()))
+                if (ImGui::MenuItem("Indirect illumination", nullptr, pt->calcIndirect()))
                 {   pt->calcIndirect(!pt->calcIndirect());
                     sv->startPathtracing(5, 10);
                 }
 
-                if (ImGui::MenuItem("Apply Gamma Corr.", 0, pt->applyGamma()))
+                if (ImGui::MenuItem("Apply Gamma Corr.", nullptr, pt->applyGamma()))
                 {   pt->applyGamma(!pt->applyGamma());
                     sv->startPathtracing(5, 10);
                 }
@@ -1134,7 +1135,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     for (SLint p = P_stereoSideBySide; p <= P_stereoColorYB; ++p)
                     {
                         SLstring pStr = SLCamera::projectionToStr((SLProjection)p);
-                        if (ImGui::MenuItem(pStr.c_str(), 0, proj == (SLProjection)p))
+                        if (ImGui::MenuItem(pStr.c_str(), nullptr, proj==(SLProjection)p))
                             cam->projection((SLProjection)p);
                     }
 
@@ -1173,25 +1174,25 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
 
-                if (ImGui::MenuItem("Turntable Y up", 0, ca == CA_turntableYUp))
+                if (ImGui::MenuItem("Turntable Y up", nullptr, ca==CA_turntableYUp))
                     sv->camera()->camAnim(CA_turntableYUp);
 
-                if (ImGui::MenuItem("Turntable Z up", 0, ca == CA_turntableZUp))
+                if (ImGui::MenuItem("Turntable Z up", nullptr, ca==CA_turntableZUp))
                     sv->camera()->camAnim(CA_turntableZUp);
 
-                if (ImGui::MenuItem("Trackball", 0, ca == CA_trackball))
+                if (ImGui::MenuItem("Trackball", nullptr, ca==CA_trackball))
                     sv->camera()->camAnim(CA_trackball);
 
-                if (ImGui::MenuItem("Walk Y up", 0, ca == CA_walkingYUp))
+                if (ImGui::MenuItem("Walk Y up", nullptr, ca==CA_walkingYUp))
                     sv->camera()->camAnim(CA_walkingYUp);
 
-                if (ImGui::MenuItem("Walk Z up", 0, ca == CA_walkingZUp))
+                if (ImGui::MenuItem("Walk Z up", nullptr, ca==CA_walkingZUp))
                     sv->camera()->camAnim(CA_walkingZUp);
 
-                if (ImGui::MenuItem("IMU rotated", 0, ca == CA_deviceRotYUp))
+                if (ImGui::MenuItem("IMU rotated", nullptr, ca==CA_deviceRotYUp))
                     sv->camera()->camAnim(CA_deviceRotYUp);
 
-                if (ImGui::MenuItem("IMU rotated & GPS located", 0, ca == CA_deviceRotLocYUp))
+                if (ImGui::MenuItem("IMU rotated & GPS located", nullptr, ca == CA_deviceRotLocYUp))
                     sv->camera()->camAnim(CA_deviceRotLocYUp);
 
                 if (ca == CA_walkingZUp || ca == CA_walkingYUp)
@@ -1212,35 +1213,35 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         {
             SLVstring animations = s->animManager().allAnimNames();
             if (curAnimIx == -1) curAnimIx = 0;
-            SLAnimPlayback* anim = s->animManager().allAnimPlayback(curAnimIx);
+            SLAnimPlayback* anim = s->animManager().allAnimPlayback((SLuint)curAnimIx);
 
             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.8f);
             if (myComboBox("", &curAnimIx, animations))
-                anim = s->animManager().allAnimPlayback(curAnimIx);
+                anim = s->animManager().allAnimPlayback((SLuint)curAnimIx);
             ImGui::PopItemWidth();
 
-            if (ImGui::MenuItem("Play forward", 0, anim->isPlayingForward()))
+            if (ImGui::MenuItem("Play forward", nullptr, anim->isPlayingForward()))
                 anim->playForward();
 
-            if (ImGui::MenuItem("Play backward", 0, anim->isPlayingBackward()))
+            if (ImGui::MenuItem("Play backward", nullptr, anim->isPlayingBackward()))
                 anim->playBackward();
 
-            if (ImGui::MenuItem("Pause", 0, anim->isPaused()))
+            if (ImGui::MenuItem("Pause", nullptr, anim->isPaused()))
                 anim->pause();
 
-            if (ImGui::MenuItem("Stop", 0, anim->isStopped()))
+            if (ImGui::MenuItem("Stop", nullptr, anim->isStopped()))
                 anim->enabled(false);
 
-            if (ImGui::MenuItem("Skip to next keyfr.", 0, false))
+            if (ImGui::MenuItem("Skip to next keyfr.", nullptr, false))
                 anim->skipToNextKeyframe();
 
-            if (ImGui::MenuItem("Skip to prev. keyfr.", 0, false))
+            if (ImGui::MenuItem("Skip to prev. keyfr.", nullptr, false))
                 anim->skipToPrevKeyframe();
 
-            if (ImGui::MenuItem("Skip to start", 0, false))
+            if (ImGui::MenuItem("Skip to start", nullptr, false))
                 anim->skipToStart();
 
-            if (ImGui::MenuItem("Skip to end", 0, false))
+            if (ImGui::MenuItem("Skip to end", nullptr, false))
                 anim->skipToEnd();
 
             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.6f);
@@ -1270,25 +1271,35 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Infos"))
         {
-            ImGui::MenuItem("Infos on Scene", 0, &showInfosScene);
-            ImGui::MenuItem("Stats on Timing", 0, &showStatsTiming);
+            ImGui::MenuItem("Infos on Scene", nullptr, &showInfosScene);
+            ImGui::MenuItem("Stats on Timing", nullptr, &showStatsTiming);
+
             if (SLAverageTiming::instance().size()) {
-                ImGui::MenuItem("Stats on Debug Time", 0, &showStatsDebugTiming);
+                ImGui::MenuItem("Stats on Debug Time", nullptr, &showStatsDebugTiming);
             }
-            ImGui::MenuItem("Stats on Scene", 0, &showStatsScene);
-            ImGui::MenuItem("Stats on Video", 0, &showStatsVideo);
+            ImGui::MenuItem("Stats on Scene", nullptr, &showStatsScene);
+            ImGui::MenuItem("Stats on Video", nullptr, &showStatsVideo);
             ImGui::Separator();
-            ImGui::MenuItem("Show Scenegraph", 0, &showSceneGraph);
-            ImGui::MenuItem("Show Properties", 0, &showProperties);
+            ImGui::MenuItem("Show Scenegraph", nullptr, &showSceneGraph);
+            ImGui::MenuItem("Show Properties", nullptr, &showProperties);
             ImGui::Separator();
-            ImGui::MenuItem("Infos on Sensors", 0, &showInfosSensors);
-            ImGui::MenuItem("Infos on Frameworks", 0, &showInfosFrameworks);
+            ImGui::MenuItem("Infos on Sensors", nullptr, &showInfosSensors);
+            ImGui::MenuItem("Infos on Frameworks", nullptr, &showInfosFrameworks);
 
             for (auto dialog : _infoDialogs) {
                 //if (dialog.second->getActiveForSceneID(SLApplication::sceneID))
                 //{
+                ImGui::Separator();
+                ImGui::MenuItem(dialog.second->getName(), nullptr, &dialog.second->show);
+                //}
+                //else
+                //{
+                //    //deactivate dialog, it may be active after scene switch
+                //    dialog.second->show = false;
+                //}
+                //{
                     ImGui::Separator();
-                    ImGui::MenuItem(dialog.second->getName(), 0, &dialog.second->show);
+                    ImGui::MenuItem(dialog.second->getName(), nullptr, &dialog.second->show);
                 //}
                 //else
                 //{
@@ -1298,11 +1309,11 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             }
 
             ImGui::Separator();
-            ImGui::MenuItem("Help on Interaction", 0, &showHelp);
-            ImGui::MenuItem("Help on Calibration", 0, &showHelpCalibration);
+            ImGui::MenuItem("Help on Interaction", nullptr, &showHelp);
+            ImGui::MenuItem("Help on Calibration", nullptr, &showHelpCalibration);
             ImGui::Separator();
-            ImGui::MenuItem("Credits", 0, &showCredits);
-            ImGui::MenuItem("About SLProject", 0, &showAbout);
+            ImGui::MenuItem("Credits"            , nullptr, &showCredits);
+            ImGui::MenuItem("About SLProject"    , nullptr, &showAbout);
 
             ImGui::EndMenu();
         }
@@ -1337,7 +1348,7 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     bool nodeIsOpen = ImGui::TreeNodeEx(node->name().c_str(), nodeFlags);
 
     if (ImGui::IsItemClicked())
-        s->selectNodeMesh(node, 0);
+        s->selectNodeMesh(node, nullptr);
 
     if (nodeIsOpen)
     {
@@ -1371,410 +1382,449 @@ void AppDemoGui::buildProperties(SLScene* s)
     SLMesh* mesh = s->selectedMesh();
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-    ImGui::Begin("Properties", &showProperties);
 
-    if (ImGui::TreeNode("Node Properties"))
+    if (node && s->selectedRect().isEmpty())
     {
-        if (node)
+
+        ImGui::Begin("Properties of Selection", &showProperties);
+
+        if (ImGui::TreeNode("Single Node Properties"))
         {
-            SLuint c = (SLuint)node->children().size();
-            SLuint m = (SLuint)node->meshes().size();
+            if (node)
+            {   SLuint c = (SLuint)node->children().size();
+                SLuint m = (SLuint)node->meshes().size();
 
-            ImGui::Text("Node Name       : %s", node->name().c_str());
-            ImGui::Text("No. of children : %u", c);
-            ImGui::Text("No. of meshes   : %u", m);
-            if (ImGui::TreeNode("Drawing Flags"))
-            {
-                SLbool db;
-                db = node->drawBit(SL_DB_HIDDEN);
-                if (ImGui::Checkbox("Hide", &db))
-                    node->drawBits()->set(SL_DB_HIDDEN, db);
-
-                db = node->drawBit(SL_DB_WIREMESH);
-                if (ImGui::Checkbox("Show wireframe", &db))
-                    node->drawBits()->set(SL_DB_WIREMESH, db);
-
-                db = node->drawBit(SL_DB_NORMALS);
-                if (ImGui::Checkbox("Show normals", &db))
-                    node->drawBits()->set(SL_DB_NORMALS, db);
-
-                db = node->drawBit(SL_DB_VOXELS);
-                if (ImGui::Checkbox("Show voxels", &db))
-                    node->drawBits()->set(SL_DB_VOXELS, db);
-
-                db = node->drawBit(SL_DB_BBOX);
-                if (ImGui::Checkbox("Show bounding boxes", &db))
-                    node->drawBits()->set(SL_DB_BBOX, db);
-
-                db = node->drawBit(SL_DB_AXIS);
-                if (ImGui::Checkbox("Show axis", &db))
-                    node->drawBits()->set(SL_DB_AXIS, db);
-
-                db = node->drawBit(SL_DB_CULLOFF);
-                if (ImGui::Checkbox("Show back faces", &db))
-                    node->drawBits()->set(SL_DB_CULLOFF, db);
-
-                db = node->drawBit(SL_DB_TEXOFF);
-                if (ImGui::Checkbox("No textures", &db))
-                    node->drawBits()->set(SL_DB_TEXOFF, db);
-
-                ImGui::TreePop();
-            }
-
-            if (ImGui::TreeNode("Local Transform"))
-            {
-                SLMat4f om(node->om());
-                SLVec3f t, r, s;
-                om.decompose(t, r, s);
-                r *= SL_RAD2DEG;
-
-                ImGui::Text("Translation  : %s", t.toString().c_str());
-                ImGui::Text("Rotation     : %s", r.toString().c_str());
-                ImGui::Text("Scaling      : %s", s.toString().c_str());
-                ImGui::TreePop();
-            }
-
-            // Show special camera properties
-            if (typeid(*node) == typeid(SLCamera))
-            {
-                SLCamera* cam = (SLCamera*)node;
-
-                if (ImGui::TreeNode("Camera"))
+                ImGui::Text("Node Name       : %s", node->name().c_str());
+                ImGui::Text("No. of children : %u", c);
+                ImGui::Text("No. of meshes   : %u", m);
+                if (ImGui::TreeNode("Drawing Flags"))
                 {
-                    SLfloat clipN = cam->clipNear();
-                    SLfloat clipF = cam->clipFar();
-                    SLfloat focalDist = cam->focalDist();
-                    SLfloat fov = cam->fov();
+                    SLbool db;
+                    db = node->drawBit(SL_DB_HIDDEN);
+                    if (ImGui::Checkbox("Hide", &db))
+                        node->drawBits()->set(SL_DB_HIDDEN, db);
 
-                    const char* projections[] = { "Mono Perspective",
-                        "Mono Orthographic",
-                        "Stereo Side By Side",
-                        "Stereo Side By Side Prop.",
-                        "Stereo Side By Side Dist.",
-                        "Stereo Line By Line",
-                        "Stereo Column By Column",
-                        "Stereo Pixel By Pixel",
-                        "Stereo Color Red Cyan",
-                        "Stereo Color Red Green",
-                        "Stereo Color Red Blue",
-                        "Stereo Color Yelle Blue" };
+                    db = node->drawBit(SL_DB_WIREMESH);
+                    if (ImGui::Checkbox("Show wireframe", &db))
+                        node->drawBits()->set(SL_DB_WIREMESH, db);
 
-                    int proj = cam->projection();
-                    if (ImGui::Combo("Projection", &proj, projections, IM_ARRAYSIZE(projections)))
-                        cam->projection((SLProjection)proj);
+                    db = node->drawBit(SL_DB_NORMALS);
+                    if (ImGui::Checkbox("Show normals", &db))
+                        node->drawBits()->set(SL_DB_NORMALS, db);
 
-                    if (cam->projection() > P_monoOrthographic)
+                    db = node->drawBit(SL_DB_VOXELS);
+                    if (ImGui::Checkbox("Show voxels", &db))
+                        node->drawBits()->set(SL_DB_VOXELS, db);
+
+                    db = node->drawBit(SL_DB_BBOX);
+                    if (ImGui::Checkbox("Show bounding boxes", &db))
+                        node->drawBits()->set(SL_DB_BBOX, db);
+
+                    db = node->drawBit(SL_DB_AXIS);
+                    if (ImGui::Checkbox("Show axis", &db))
+                        node->drawBits()->set(SL_DB_AXIS, db);
+
+                    db = node->drawBit(SL_DB_CULLOFF);
+                    if (ImGui::Checkbox("Show back faces", &db))
+                        node->drawBits()->set(SL_DB_CULLOFF, db);
+
+                    db = node->drawBit(SL_DB_TEXOFF);
+                    if (ImGui::Checkbox("No textures", &db))
+                        node->drawBits()->set(SL_DB_TEXOFF, db);
+
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("Local Transform"))
+                {
+                    SLMat4f om(node->om());
+                    SLVec3f t, r, s;
+                    om.decompose(t, r, s);
+                    r *= SL_RAD2DEG;
+
+                    ImGui::Text("Translation  : %s", t.toString().c_str());
+                    ImGui::Text("Rotation     : %s", r.toString().c_str());
+                    ImGui::Text("Scaling      : %s", s.toString().c_str());
+                    ImGui::TreePop();
+                }
+
+                // Show special camera properties
+                if (typeid(*node)==typeid(SLCamera))
+                {
+                    SLCamera* cam = (SLCamera*)node;
+
+                    if (ImGui::TreeNode("Camera"))
                     {
-                        SLfloat eyeSepar = cam->eyeSeparation();
-                        if (ImGui::SliderFloat("Eye Sep.", &eyeSepar, 0.0f, focalDist / 10.f))
-                            cam->eyeSeparation(eyeSepar);
+                        SLfloat clipN = cam->clipNear();
+                        SLfloat clipF = cam->clipFar();
+                        SLfloat focalDist = cam->focalDist();
+                        SLfloat fov = cam->fov();
+
+                        const char* projections[] = {"Mono Perspective",
+                                                     "Mono Orthographic",
+                                                     "Stereo Side By Side",
+                                                     "Stereo Side By Side Prop.",
+                                                     "Stereo Side By Side Dist.",
+                                                     "Stereo Line By Line",
+                                                     "Stereo Column By Column",
+                                                     "Stereo Pixel By Pixel",
+                                                     "Stereo Color Red Cyan",
+                                                     "Stereo Color Red Green",
+                                                     "Stereo Color Red Blue",
+                                                     "Stereo Color Yelle Blue" };
+
+                        int proj = cam->projection();
+                        if (ImGui::Combo("Projection", &proj, projections, IM_ARRAYSIZE(projections)))
+                            cam->projection((SLProjection)proj);
+
+                        if (cam->projection() > P_monoOrthographic)
+                        {
+                            SLfloat eyeSepar = cam->eyeSeparation();
+                            if (ImGui::SliderFloat("Eye Sep.", &eyeSepar, 0.0f, focalDist/10.f))
+                                cam->eyeSeparation(eyeSepar);
+                        }
+
+                        if (ImGui::SliderFloat("FOV", &fov, 1.f, 179.f))
+                            cam->fov(fov);
+
+                        if (ImGui::SliderFloat("Near Clip", &clipN, 0.001f, 10.f))
+                            cam->clipNear(clipN);
+
+                        if (ImGui::SliderFloat("Far Clip",  &clipF, clipN, SL_min(clipF*1.1f,1000000.f)))
+                            cam->clipFar(clipF);
+
+                        if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
+                            cam->focalDist(focalDist);
+
+                        ImGui::TreePop();
+                    }
+                }
+
+                // Show special light properties
+                if (typeid(*node)==typeid(SLLightSpot) ||
+                    typeid(*node)==typeid(SLLightRect) ||
+                    typeid(*node)==typeid(SLLightDirect))
+                {
+                    SLLight* light = nullptr;
+                    SLstring typeName;
+                    if (typeid(*node)==typeid(SLLightSpot))
+                    {   light = (SLLight*)(SLLightSpot*)node;
+                    light = (SLLight*)(SLLightSpot*)node;
+                        typeName = "Light (spot):";
+                    }
+                    if (typeid(*node)==typeid(SLLightRect))
+                    {   light = (SLLight*)(SLLightRect*)node;
+                    light = (SLLight*)(SLLightRect*)node;
+                        typeName = "Light (rectangular):";
+                    }
+                    if (typeid(*node)==typeid(SLLightDirect))
+                    {   light = (SLLight*)(SLLightDirect*)node;
+                    light = (SLLight*)(SLLightDirect*)node;
+                        typeName = "Light (directional):";
                     }
 
-                    if (ImGui::SliderFloat("FOV", &fov, 1.f, 179.f))
-                        cam->fov(fov);
-
-                    if (ImGui::SliderFloat("Near Clip", &clipN, 0.001f, 10.f))
-                        cam->clipNear(clipN);
-
-                    if (ImGui::SliderFloat("Far Clip", &clipF, clipN, SL_min(clipF*1.1f, 1000000.f)))
-                        cam->clipFar(clipF);
-
-                    if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
-                        cam->focalDist(focalDist);
-
-                    ImGui::TreePop();
-                }
-            }
-
-            // Show special light properties
-            if (typeid(*node) == typeid(SLLightSpot) ||
-                typeid(*node) == typeid(SLLightRect) ||
-                typeid(*node) == typeid(SLLightDirect))
-            {
-                SLLight* light = nullptr;
-                SLstring typeName;
-                if (typeid(*node) == typeid(SLLightSpot))
-                {
-                    light = (SLLight*)(SLLightSpot*)node;
-                    typeName = "Light (spot):";
-                }
-                if (typeid(*node) == typeid(SLLightRect))
-                {
-                    light = (SLLight*)(SLLightRect*)node;
-                    typeName = "Light (rectangular):";
-                }
-                if (typeid(*node) == typeid(SLLightDirect))
-                {
-                    light = (SLLight*)(SLLightDirect*)node;
-                    typeName = "Light (directional):";
-                }
-
-                if (light && ImGui::TreeNode(typeName.c_str()))
-                {
-                    SLbool on = light->isOn();
-                    if (ImGui::Checkbox("Is on", &on))
-                        light->isOn(on);
-
-                    ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue;
-                    SLCol4f a = light->ambient();
-                    if (ImGui::InputFloat3("Ambient", (float*)&a, 1, flags))
-                        light->ambient(a);
-
-                    SLCol4f d = light->diffuse();
-                    if (ImGui::InputFloat3("Diffuse", (float*)&d, 1, flags))
-                        light->diffuse(d);
-
-                    SLCol4f s = light->specular();
-                    if (ImGui::InputFloat3("Specular", (float*)&s, 1, flags))
-                        light->specular(s);
-
-                    float cutoff = light->spotCutOffDEG();
-                    if (ImGui::SliderFloat("Spot cut off angle", &cutoff, 0.0f, 180.0f))
-                        light->spotCutOffDEG(cutoff);
-
-                    float kc = light->kc();
-                    if (ImGui::SliderFloat("Constant attenutation", &kc, 0.0f, 1.0f))
-                        light->kc(kc);
-
-                    float kl = light->kl();
-                    if (ImGui::SliderFloat("Linear attenutation", &kl, 0.0f, 1.0f))
-                        light->kl(kl);
-
-                    float kq = light->kq();
-                    if (ImGui::SliderFloat("Quadradic attenutation", &kq, 0.0f, 1.0f))
-                        light->kq(kq);
-
-                    ImGui::TreePop();
-                }
-            }
-        }
-        else
-        {
-            ImGui::Text("No node selected.");
-        }
-        ImGui::TreePop();
-    }
-
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
-    ImGui::Separator();
-    if (ImGui::TreeNode("Mesh Properties"))
-    {
-        if (mesh)
-        {
-            SLuint v = (SLuint)mesh->P.size();
-            SLuint t = (SLuint)(mesh->I16.size() ? mesh->I16.size() : mesh->I32.size());
-            SLMaterial* m = mesh->mat();
-            ImGui::Text("Mesh Name       : %s", mesh->name().c_str());
-            ImGui::Text("No. of Vertices : %u", v);
-            ImGui::Text("No. of Triangles: %u", t);
-
-            if (m && ImGui::TreeNode("Material"))
-            {
-                ImGui::Text("Material Name: %s", m->name().c_str());
-
-                if (ImGui::TreeNode("Reflection colors"))
-                {
-                    SLCol4f ac = m->ambient();
-                    if (ImGui::ColorEdit3("Ambient color", (float*)&ac))
-                        m->ambient(ac);
-
-                    SLCol4f dc = m->diffuse();
-                    if (ImGui::ColorEdit3("Diffuse color", (float*)&dc))
-                        m->diffuse(dc);
-
-                    SLCol4f sc = m->specular();
-                    if (ImGui::ColorEdit3("Specular color", (float*)&sc))
-                        m->specular(sc);
-
-                    SLCol4f ec = m->emissive();
-                    if (ImGui::ColorEdit3("Emissive color", (float*)&ec))
-                        m->emissive(ec);
-
-                    ImGui::TreePop();
-                }
-
-                if (ImGui::TreeNode("Other variables"))
-                {
-                    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
-
-                    SLfloat shine = m->shininess();
-                    if (ImGui::SliderFloat("Shininess", &shine, 0.0f, 1000.0f))
-                        m->shininess(shine);
-
-                    SLfloat rough = m->roughness();
-                    if (ImGui::SliderFloat("Roughness", &rough, 0.0f, 1.0f))
-                        m->roughness(rough);
-
-                    SLfloat metal = m->metalness();
-                    if (ImGui::SliderFloat("Metalness", &metal, 0.0f, 1.0f))
-                        m->metalness(metal);
-
-                    SLfloat kr = m->kr();
-                    if (ImGui::SliderFloat("kr", &kr, 0.0f, 1.0f))
-                        m->kr(kr);
-
-                    SLfloat kt = m->kt();
-                    if (ImGui::SliderFloat("kt", &kt, 0.0f, 1.0f))
-                        m->kt(kt);
-
-                    SLfloat kn = m->kn();
-                    if (ImGui::SliderFloat("kn", &kn, 1.0f, 2.5f))
-                        m->kn(kn);
-
-                    ImGui::PopItemWidth();
-                    ImGui::TreePop();
-                }
-
-                if (m->textures().size() && ImGui::TreeNode("Textures"))
-                {
-                    ImGui::Text("No. of textures: %lu", m->textures().size());
-
-                    //SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
-                    SLfloat texW = ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;
-
-
-                    for (SLint i = 0; i<m->textures().size(); ++i)
+                    if (light && ImGui::TreeNode(typeName.c_str()))
                     {
-                        SLGLTexture* t = m->textures()[i];
-                        void* tid = (ImTextureID)(intptr_t)t->texName();
-                        SLfloat w = (SLfloat)t->width();
-                        SLfloat h = (SLfloat)t->height();
-                        SLfloat h_to_w = h / w;
+                        SLbool on = light->isOn();
+                        if (ImGui::Checkbox("Is on", &on))
+                            light->isOn(on);
 
-                        if (ImGui::TreeNode(t->name().c_str()))
+                        ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue;
+                        SLCol4f a = light->ambient();
+                        if (ImGui::InputFloat3("Ambient", (float*)&a, 1, flags))
+                            light->ambient(a);
+
+                        SLCol4f d = light->diffuse();
+                        if (ImGui::InputFloat3("Diffuse", (float*)&d, 1, flags))
+                            light->diffuse(d);
+
+                        SLCol4f s = light->specular();
+                        if (ImGui::InputFloat3("Specular", (float*)&s, 1, flags))
+                            light->specular(s);
+
+                        float cutoff = light->spotCutOffDEG();
+                        if (ImGui::SliderFloat("Spot cut off angle", &cutoff, 0.0f, 180.0f))
+                            light->spotCutOffDEG(cutoff);
+
+                        float kc = light->kc();
+                        if (ImGui::SliderFloat("Constant attenutation", &kc, 0.0f, 1.0f))
+                            light->kc(kc);
+
+                        float kl = light->kl();
+                        if (ImGui::SliderFloat("Linear attenutation", &kl, 0.0f, 1.0f))
+                            light->kl(kl);
+
+                        float kq = light->kq();
+                        if (ImGui::SliderFloat("Quadradic attenutation", &kq, 0.0f, 1.0f))
+                            light->kq(kq);
+
+                        ImGui::TreePop();
+                    }
+                }
+            } else
+            {
+                ImGui::Text("No single node selected.");
+            }
+            ImGui::TreePop();
+        }
+
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f,1.0f,0.0f,1.0f));
+        ImGui::Separator();
+        if (ImGui::TreeNode("Single Mesh Properties"))
+        {
+            if (mesh)
+            {   SLuint v = (SLuint)mesh->P.size();
+                SLuint t = (SLuint)(mesh->I16.size() ? mesh->I16.size() : mesh->I32.size());
+                SLMaterial* m = mesh->mat();
+                ImGui::Text("Mesh Name       : %s", mesh->name().c_str());
+                ImGui::Text("No. of Vertices : %u", v);
+                ImGui::Text("No. of Triangles: %u", t);
+
+                if (m && ImGui::TreeNode("Material"))
+                {
+                    ImGui::Text("Material Name: %s", m->name().c_str());
+
+                    if (ImGui::TreeNode("Reflection colors"))
+                    {
+                        SLCol4f ac = m->ambient();
+                        if (ImGui::ColorEdit3("Ambient color",  (float*)&ac))
+                            m->ambient(ac);
+
+                        SLCol4f dc = m->diffuse();
+                        if (ImGui::ColorEdit3("Diffuse color",  (float*)&dc))
+                            m->diffuse(dc);
+
+                        SLCol4f sc = m->specular();
+                        if (ImGui::ColorEdit3("Specular color",  (float*)&sc))
+                            m->specular(sc);
+
+                        SLCol4f ec = m->emissive();
+                        if (ImGui::ColorEdit3("Emissive color",  (float*)&ec))
+                            m->emissive(ec);
+
+                        ImGui::TreePop();
+                    }
+
+                    if (ImGui::TreeNode("Other variables"))
+                    {
+                        ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+
+                        SLfloat shine = m->shininess();
+                        if (ImGui::SliderFloat("Shininess", &shine, 0.0f, 1000.0f))
+                            m->shininess(shine);
+
+                        SLfloat rough = m->roughness();
+                        if (ImGui::SliderFloat("Roughness", &rough, 0.0f, 1.0f))
+                            m->roughness(rough);
+
+                        SLfloat metal = m->metalness();
+                        if (ImGui::SliderFloat("Metalness", &metal, 0.0f, 1.0f))
+                            m->metalness(metal);
+
+                        SLfloat kr = m->kr();
+                        if (ImGui::SliderFloat("kr", &kr, 0.0f, 1.0f))
+                            m->kr(kr);
+
+                        SLfloat kt = m->kt();
+                        if (ImGui::SliderFloat("kt", &kt, 0.0f, 1.0f))
+                            m->kt(kt);
+
+                        SLfloat kn = m->kn();
+                        if (ImGui::SliderFloat("kn", &kn, 1.0f, 2.5f))
+                            m->kn(kn);
+
+                        ImGui::PopItemWidth();
+                        ImGui::TreePop();
+                    }
+
+                    if (m->textures().size() && ImGui::TreeNode("Textures"))
+                    {
+                        ImGui::Text("No. of textures: %lu", m->textures().size());
+
+                        //SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
+                        SLfloat texW  = ImGui::GetWindowWidth() - 4*ImGui::GetTreeNodeToLabelSpacing() - 10;
+
+
+                        for (SLuint i=0; i<m->textures().size(); ++i)
                         {
-                            ImGui::Text("Size    : %d x %d x %d", t->width(), t->height(), t->depth());
-                            ImGui::Text("Type    : %s", t->typeName().c_str());
+                            SLGLTexture* t = m->textures()[i];
+                            void* tid = (ImTextureID)(intptr_t)t->texName();
+                            SLfloat w = (SLfloat)t->width();
+                            SLfloat h = (SLfloat)t->height();
+                            SLfloat h_to_w = h / w;
 
-                            if (t->depth() > 1)
+                            if (ImGui::TreeNode(t->name().c_str()))
                             {
-                                if (t->target() == GL_TEXTURE_CUBE_MAP)
-                                    ImGui::Text("Cube maps can not be displayed.");
-                                else if (t->target() == GL_TEXTURE_3D)
-                                    ImGui::Text("3D textures can not be displayed.");
-                            }
-                            else
-                            {
-                                if (typeid(*t) == typeid(SLTransferFunction))
+                                ImGui::Text("Size    : %d x %d x %d", t->width(), t->height(), t->depth());
+                                ImGui::Text("Type    : %s", t->typeName().c_str());
+
+                                if (t->depth() > 1)
                                 {
-                                    SLTransferFunction* tf = (SLTransferFunction*)m->textures()[i];
-                                    if (ImGui::TreeNode("Color Points in Transfer Function"))
-                                    {
-                                        for (SLint c = 0; c < tf->colors().size(); ++c)
-                                        {
-                                            SLCol3f color = tf->colors()[c].color;
-                                            SLchar label[20]; sprintf(label, "Color %u", c);
-                                            if (ImGui::ColorEdit3(label, (float*)&color))
-                                            {
-                                                tf->colors()[c].color = color;
-                                                tf->generateTexture();
-                                            }
-                                            ImGui::SameLine();
-                                            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
-                                            sprintf(label, "Pos. %u", c);
-                                            SLfloat pos = tf->colors()[c].pos;
-                                            if (c > 0 && c < tf->colors().size() - 1)
-                                            {
-                                                SLfloat min = tf->colors()[c - 1].pos + 2.0f / (SLfloat)tf->length();
-                                                SLfloat max = tf->colors()[c + 1].pos - 2.0f / (SLfloat)tf->length();
-                                                if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
-                                                {
-                                                    tf->colors()[c].pos = pos;
-                                                    tf->generateTexture();
-                                                }
-                                            }
-                                            else ImGui::Text("%3.2f Pos. %u", pos, c);
-                                            ImGui::PopItemWidth();
-                                        }
-
-                                        ImGui::TreePop();
-                                    }
-
-                                    if (ImGui::TreeNode("Alpha Points in Transfer Function"))
-                                    {
-                                        for (SLint a = 0; a < tf->alphas().size(); ++a)
-                                        {
-                                            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.25f);
-                                            SLfloat alpha = tf->alphas()[a].alpha;
-                                            SLchar label[20]; sprintf(label, "Alpha %u", a);
-                                            if (ImGui::SliderFloat(label, &alpha, 0.0f, 1.0f, "%3.2f"))
-                                            {
-                                                tf->alphas()[a].alpha = alpha;
-                                                tf->generateTexture();
-                                            }
-                                            ImGui::SameLine();
-                                            sprintf(label, "Pos. %u", a);
-                                            SLfloat pos = tf->alphas()[a].pos;
-                                            if (a > 0 && a < tf->alphas().size() - 1)
-                                            {
-                                                SLfloat min = tf->alphas()[a - 1].pos + 2.0f / (SLfloat)tf->length();
-                                                SLfloat max = tf->alphas()[a + 1].pos - 2.0f / (SLfloat)tf->length();
-                                                if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
-                                                {
-                                                    tf->alphas()[a].pos = pos;
-                                                    tf->generateTexture();
-                                                }
-                                            }
-                                            else ImGui::Text("%3.2f Pos. %u", pos, a);
-
-                                            ImGui::PopItemWidth();
-                                        }
-
-                                        ImGui::TreePop();
-                                    }
-
-                                    ImGui::Image(tid, ImVec2(texW, texW * 0.25f), ImVec2(0, 1), ImVec2(1, 0), ImVec4(1, 1, 1, 1), ImVec4(1, 1, 1, 1));
-
-                                    SLVfloat allAlpha = tf->allAlphas();
-                                    ImGui::PlotLines("", allAlpha.data(), (SLint)allAlpha.size(), 0, 0, 0.0f, 1.0f, ImVec2(texW, texW * 0.25f));
-
+                                    if (t->target() == GL_TEXTURE_CUBE_MAP)
+                                        ImGui::Text("Cube maps can not be displayed.");
+                                    else if (t->target() == GL_TEXTURE_3D)
+                                        ImGui::Text("3D textures can not be displayed.");
                                 }
                                 else
-                                {
-                                    ImGui::Image(tid, ImVec2(texW, texW * h_to_w), ImVec2(0, 1), ImVec2(1, 0), ImVec4(1, 1, 1, 1), ImVec4(1, 1, 1, 1));
+                                {   if (typeid(*t)==typeid(SLTransferFunction))
+                                if (typeid(*t) == typeid(SLTransferFunction))
+                                    {
+                                        SLTransferFunction* tf = (SLTransferFunction*)m->textures()[i];
+                                        if (ImGui::TreeNode("Color Points in Transfer Function"))
+                                        {
+                                            for (SLuint c = 0; c < tf->colors().size(); ++c)
+                                            {
+                                                SLCol3f color = tf->colors()[c].color;
+                                                SLchar label[20]; sprintf(label, "Color %u", c);
+                                                if (ImGui::ColorEdit3(label, (float*)&color))
+                                                {   tf->colors()[c].color = color;
+                                                tf->colors()[c].color = color;
+                                                    tf->generateTexture();
+                                                }
+                                                ImGui::SameLine();
+                                                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+                                                sprintf(label, "Pos. %u", c);
+                                                SLfloat pos = tf->colors()[c].pos;
+                                                if (c > 0 && c < tf->colors().size()-1)
+                                                {   SLfloat min = tf->colors()[c-1].pos + 2.0f/(SLfloat)tf->length();
+                                                    SLfloat max = tf->colors()[c+1].pos - 2.0f/(SLfloat)tf->length();
+                                                    if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
+                                                    {   tf->colors()[c].pos = pos;
+                                                    tf->colors()[c].pos = pos;
+                                                        tf->generateTexture();
+                                                    }
+                                                } else ImGui::Text("%3.2f Pos. %u", pos, c);
+                                                ImGui::PopItemWidth();
+                                            }
+
+                                            ImGui::TreePop();
+                                        }
+
+                                        if (ImGui::TreeNode("Alpha Points in Transfer Function"))
+                                        {
+                                            for (SLuint a = 0; a < tf->alphas().size(); ++a)
+                                            {
+                                                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.25f);
+                                                SLfloat alpha = tf->alphas()[a].alpha;
+                                                SLchar label[20]; sprintf(label, "Alpha %u", a);
+                                                if (ImGui::SliderFloat(label, &alpha, 0.0f, 1.0f, "%3.2f"))
+                                                {   tf->alphas()[a].alpha = alpha;
+                                                tf->alphas()[a].alpha = alpha;
+                                                    tf->generateTexture();
+                                                }
+                                                ImGui::SameLine();
+                                                sprintf(label, "Pos. %u", a);
+                                                SLfloat pos = tf->alphas()[a].pos;
+                                                if (a > 0 && a < tf->alphas().size()-1)
+                                                {   SLfloat min = tf->alphas()[a-1].pos + 2.0f/(SLfloat)tf->length();
+                                                    SLfloat max = tf->alphas()[a+1].pos - 2.0f/(SLfloat)tf->length();
+                                                    if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
+                                                    {   tf->alphas()[a].pos = pos;
+                                                    tf->alphas()[a].pos = pos;
+                                                        tf->generateTexture();
+                                                    }
+                                                } else ImGui::Text("%3.2f Pos. %u", pos, a);
+
+                                                ImGui::PopItemWidth();
+                                            }
+
+                                            ImGui::TreePop();
+                                        }
+
+                                        ImGui::Image(tid, ImVec2(texW, texW * 0.25f), ImVec2(0,1), ImVec2(1,0), ImVec4(1,1,1,1), ImVec4(1,1,1,1));
+
+                                        SLVfloat allAlpha = tf->allAlphas();
+                                        ImGui::PlotLines("", allAlpha.data(), (SLint)allAlpha.size(), 0, nullptr, 0.0f, 1.0f, ImVec2(texW, texW * 0.25f));
+
+                                    } else
+                                    {
+                                        ImGui::Image(tid, ImVec2(texW, texW * h_to_w), ImVec2(0,1), ImVec2(1,0), ImVec4(1,1,1,1), ImVec4(1,1,1,1));
+                                    }
                                 }
+
+                                ImGui::TreePop();
                             }
-
-                            ImGui::TreePop();
                         }
+
+                        ImGui::TreePop();
                     }
 
-                    ImGui::TreePop();
-                }
-
-                if (ImGui::TreeNode("GLSL Program"))
-                {
-                    for (SLint i = 0; i<m->program()->shaders().size(); ++i)
+                    if (ImGui::TreeNode("GLSL Program"))
                     {
-                        SLGLShader* s = m->program()->shaders()[i];
-                        SLfloat lineH = ImGui::GetTextLineHeight();
-
-                        if (ImGui::TreeNode(s->name().c_str()))
+                        for (SLuint i=0; i<m->program()->shaders().size(); ++i)
                         {
-                            SLchar text[1024 * 16];
-                            strcpy(text, s->code().c_str());
-                            ImGui::InputTextMultiline(s->name().c_str(), text, IM_ARRAYSIZE(text), ImVec2(-1.0f, lineH * 16));
-                            ImGui::TreePop();
+                            SLGLShader* s = m->program()->shaders()[i];
+                            SLfloat lineH = ImGui::GetTextLineHeight();
+
+                            if (ImGui::TreeNode(s->name().c_str()))
+                            {
+                                SLchar text[1024*16];
+                                strcpy(text, s->code().c_str());
+                                ImGui::InputTextMultiline(s->name().c_str(), text, IM_ARRAYSIZE(text), ImVec2(-1.0f, lineH * 16));
+                                ImGui::TreePop();
+                            }
                         }
+
+                        ImGui::TreePop();
                     }
 
                     ImGui::TreePop();
                 }
 
-                ImGui::TreePop();
+            } else
+            {
+                ImGui::Text("No single mesh selected.");
             }
 
-        }
-        else
-        {
-            ImGui::Text("No mesh selected.");
+            ImGui::TreePop();
         }
 
-        ImGui::TreePop();
+        ImGui::PopStyleColor();
+        ImGui::End();
     }
+    else if (!node && !s->selectedRect().isEmpty())
+    {
+        /* The selection rectangle is defined in SLScene::selectRect and gets set and
+        drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
+        not empty the SLScene::selectedNode is null. All vertices that are within the
+        selectRect are listed in SLMesh::IS32. The selection evaluation is done during
+        drawing in SLMesh::draw and is only valid for the current frame.
+        All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
+        
+        vector<SLNode*> selectedNodes = s->root3D()->findChildren(SL_DB_SELECTED);
 
-    ImGui::PopStyleColor();
-    ImGui::End();
+        ImGui::Begin("Properties of Selection", &showProperties);
+
+        for (auto selectedNode : selectedNodes)
+        {   if (selectedNode->meshes().size() > 0)
+            {   ImGui::Text("Node: %s", selectedNode->name().c_str());
+                for (auto selectedMesh : selectedNode->meshes())
+                {   if ((SLuint)selectedMesh->IS32.size() > 0)
+                    {   ImGui::Text("   Mesh: %s {%u v.}",
+                                    selectedMesh->name().c_str(),
+                                    (SLuint)selectedMesh->IS32.size());
+                        ImGui::SameLine();
+                        SLstring delBtn = "DEL##" + selectedMesh->name();
+                        if (ImGui::Button(delBtn.c_str()))
+                        {   selectedMesh->deleteSelected(selectedNode);
+                        }
+                    }
+                }
+            }
+        }
+
+        ImGui::End();
+    }
+    else
+    {   // Nothing is selected
+        ImGui::Begin("Properties of Selection", &showProperties);
+        ImGui::Text("There is nothing selected.");
+        ImGui::Text("Please select a single node");
+        ImGui::Text("by double-clicking or");
+        ImGui::Text("select multiple nodes by");
+        ImGui::Text("CTRL-LMB rectangle selection.");
+        ImGui::End();
+    }
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
@@ -2044,7 +2094,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
 
     if (!SLFileSystem::fileExists(fullPathAndFilename))
     {
-        // Scale for proportioanl and fixed size fonts
+        // Scale for proportional and fixed size fonts
         SLfloat dpiScaleProp = dotsPerInch / 120.0f;
         SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
 
@@ -2113,6 +2163,24 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
 
     fs.release();
     SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
+    SL_LOG("Config. date    : %s\n", AppDemoGui::configTime.c_str());
+    SL_LOG("fontPropDots    : %f\n", SLGLImGui::fontPropDots);
+    SL_LOG("fontFixedDots   : %f\n", SLGLImGui::fontFixedDots);
+
+    // check font sizes for HDPI displays
+    if (dotsPerInch > 300)
+    {   if (SLGLImGui::fontPropDots < 16.1f &&
+            SLGLImGui::fontFixedDots < 13.1)
+        {
+            // Scale for proportional and fixed size fonts
+            SLfloat dpiScaleProp = dotsPerInch / 120.0f;
+            SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
+
+            // Default settings for the first time
+            SLGLImGui::fontPropDots  = SL_max(16.0f * dpiScaleProp, 16.0f);
+            SLGLImGui::fontFixedDots = SL_max(13.0f * dpiScaleFixed, 13.0f);
+        }
+    }
 }
 //-----------------------------------------------------------------------------
 void AppDemoGui::saveConfig()

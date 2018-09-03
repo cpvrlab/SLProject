@@ -16,7 +16,7 @@
 
 //-----------------------------------------------------------------------------
 //! Resets the samplepoint array by the sqrt of the no. of samples
-void SLSamples2D::samples(SLint x, SLint y, SLbool evenlyDistributed)
+void SLSamples2D::samples(SLuint x, SLuint y, SLbool evenlyDistributed)
 {
     assert(x>0 && y>0);
     _samplesX = x;
@@ -38,16 +38,16 @@ void SLSamples2D::distribConcentric(SLbool evenlyDistributed)
         SLfloat phi, r, last_r = 1.0f;
       
         // Loop over radius r and angle phi
-        for (SLint iR=_samplesX-1; iR>=0; --iR)
+        for (SLint iR=(SLint)_samplesX-1; iR>=0; --iR)
         {   r = ((SLfloat)iR)/_samplesX;
             if (evenlyDistributed) r = sqrt(r);
             r += (last_r-r)*0.5f;
       
             // every 2nd circle is rotated by have delta phi for better distribution
             SLfloat iModPhi = (iR%2)*halfDeltaPhi;
-            for (SLint iPhi=_samplesY-1; iPhi>=0; --iPhi)
+            for (SLint iPhi=(SLint)_samplesY-1; iPhi>=0; --iPhi)
             {   phi = SL_2PI*((SLfloat)iPhi)/_samplesY + iModPhi;
-                point(iR, iPhi, SLVec2f(r*cos(phi), r*sin(phi)));
+                point((SLuint)iR, (SLuint)iPhi, SLVec2f(r*cos(phi), r*sin(phi)));
             }
             last_r = r;
         }

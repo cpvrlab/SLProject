@@ -212,7 +212,7 @@ typedef std::chrono::high_resolution_clock::time_point  SLTimePoint;
 
 //-----------------------------------------------------------------------------
 // Shortcut for size of a vector
-template<class T> inline SLint SL_sizeOfVector(const T &vector)
+template<class T> inline SLuint SL_sizeOfVector(const T &vector)
 {
     return (SLint)(vector.capacity()*sizeof(typename T::value_type));
 }

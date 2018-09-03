@@ -24,6 +24,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -49,6 +50,13 @@ public class GLES3Camera2Service extends Service {
     protected CameraCaptureSession captureSession;
     protected ImageReader imageReader;
 
+    // Thread that handles the onImageAvailable
+    private Handler GLES_ThreadHandler;
+
+    public GLES3Camera2Service() {
+        GLES_ThreadHandler = GLES3Lib.view.getHandler();
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "GLES3Camera2Service.onStartCommand flags " + flags + " startId " + startId);
@@ -60,7 +68,7 @@ public class GLES3Camera2Service extends Service {
             Size videoSize = getRequestedSize(manager, videoType, requestedVideoSizeIndex);
             if (videoSize.getWidth() > 0 && videoSize.getHeight() > 0) {
                 imageReader = ImageReader.newInstance(videoSize.getWidth(), videoSize.getHeight(), ImageFormat.YUV_420_888, 2);
-                imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
+                imageReader.setOnImageAvailableListener(onImageAvailableListener, GLES_ThreadHandler);
                 Log.i(TAG, "imageReader created");
             } else {
                 Log.i(TAG, "No imageReader created: videoSize is zero!");
@@ -108,7 +116,7 @@ public class GLES3Camera2Service extends Service {
         Size[] availableSizes = getOutputSizes(manager, lensFacing);
 
         // On certain old Androids getOutputSizes can return empty arrays
-        if (availableSizes.length == 0)
+        if (availableSizes == null || availableSizes.length == 0)
             return new Size(0,0);
 
         // set default size index to a size in the middle of the array
@@ -144,8 +152,7 @@ public class GLES3Camera2Service extends Service {
                 int cOrientation = characteristics.get(CameraCharacteristics.LENS_FACING);
                 if (cOrientation == lensFacing) {
                     StreamConfigurationMap streamConfigurationMap = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-                    Size[] sizes = streamConfigurationMap.getOutputSizes(ImageFormat.YUV_420_888);
-                    return sizes;
+                    return streamConfigurationMap.getOutputSizes(ImageFormat.YUV_420_888);
                 }
             }
         } catch (CameraAccessException e) {
@@ -179,7 +186,7 @@ public class GLES3Camera2Service extends Service {
             Log.i(TAG, "CameraCaptureSession.StateCallback onConfigured");
             GLES3Camera2Service.this.captureSession = session;
             try {
-                session.setRepeatingRequest(createCaptureRequest(), null, null);
+                session.setRepeatingRequest(createCaptureRequest(), null, GLES_ThreadHandler);
                 isTransitioning = false;
                 isRunning = true;
             } catch (CameraAccessException e) {
@@ -193,12 +200,14 @@ public class GLES3Camera2Service extends Service {
     };
 
     protected ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
+
+        // This handler is called in the rendering thread of GLES3View
         @Override
         public void onImageAvailable(ImageReader reader) {
 
             // Don't copy the available image if the last wasn't consumed
-            // NOTE(jan): we still have to close the available images, as otherwise new images
-            // cannot be saved and the callback does not get called anymore
+            if (!GLES3Lib.lastVideoImageIsConsumed.get())
+                return;
             /*if (!GLES3Lib.lastVideoImageIsConsumed.get())
             {
                 Image img = reader.acquireLatestImage();
@@ -210,82 +219,76 @@ public class GLES3Camera2Service extends Service {
 
                 return;
             }*/
+            
+            //Log.i(TAG, "<" + Thread.currentThread().getId());
+            Image img = reader.acquireLatestImage();
 
-            // The opengl renderer runs in its own thread. We have to copy the image in the renderers thread!
-            GLES3Lib.view.queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    //Log.i(TAG, "<" + Thread.currentThread().getId());
-                    Image img = reader.acquireLatestImage();
+            if (img == null)
+                return;
 
-                    if (img == null)
-                        return;
+            // Check image format
+            int format = reader.getImageFormat();
+            if (format != ImageFormat.YUV_420_888) {
+                throw new IllegalArgumentException("Camera image must have format YUV_420_888.");
+            }
 
-                    // Check image format
-                    int format = reader.getImageFormat();
-                    if (format != ImageFormat.YUV_420_888) {
-                        throw new IllegalArgumentException("Camera image must have format YUV_420_888.");
-                    }
+            Image.Plane[] planes = img.getPlanes();
 
-                    Image.Plane[] planes = img.getPlanes();
+            Image.Plane Y = planes[0];
+            Image.Plane U = planes[1];
+            Image.Plane V = planes[2];
 
-                    Image.Plane Y = planes[0];
-                    Image.Plane U = planes[1];
-                    Image.Plane V = planes[2];
+            int ySize = Y.getBuffer().remaining();
+            int uSize = U.getBuffer().remaining();
+            int vSize = V.getBuffer().remaining();
 
-                    int ySize = Y.getBuffer().remaining();
-                    int uSize = U.getBuffer().remaining();
-                    int vSize = V.getBuffer().remaining();
+            byte[] data = new byte[ySize + uSize + vSize];
+            Y.getBuffer().get(data, 0, ySize);
+            U.getBuffer().get(data, ySize, uSize);
+            V.getBuffer().get(data, ySize + uSize, vSize);
 
-                    int yPixStride = Y.getPixelStride();
-                    int uPixStride = Y.getPixelStride();
-                    int vPixStride = Y.getPixelStride();
+            ///////////////////////////////////////////////////////////////
+            GLES3Lib.copyVideoImage(img.getWidth(), img.getHeight(), data);
+            ///////////////////////////////////////////////////////////////
 
-                    int yRowStride = Y.getRowStride();
-                    int uRowStride = Y.getRowStride();
-                    int vRowStride = Y.getRowStride();
+            /*
+            This version of the separate copying of the planes is astonishingly not faster!
+            byte[] bufY = new byte[ySize];
+            byte[] bufU = new byte[uSize];
+            byte[] bufV = new byte[vSize];
 
-                    byte[] data = new byte[ySize + uSize + vSize];
-                    Y.getBuffer().get(data, 0, ySize);
-                    U.getBuffer().get(data, ySize, uSize);
-                    V.getBuffer().get(data, ySize + uSize, vSize);
+            Y.getBuffer().get(bufY, 0, ySize);
+            U.getBuffer().get(bufU, 0, uSize);
+            V.getBuffer().get(bufV, 0, vSize);
 
-                    ///////////////////////////////////////////////////////////////
-                    GLES3Lib.copyVideoImage(img.getWidth(), img.getHeight(), data);
-                    ///////////////////////////////////////////////////////////////
+            int yPixStride = Y.getPixelStride();
+            int uPixStride = Y.getPixelStride();
+            int vPixStride = Y.getPixelStride();
 
-                    /*
-                    This version of the separate copying of the planes is astonishingly not faster!
-                    byte[] bufY = new byte[ySize];
-                    byte[] bufU = new byte[uSize];
-                    byte[] bufV = new byte[vSize];
+            int yRowStride = Y.getRowStride();
+            int uRowStride = Y.getRowStride();
+            int vRowStride = Y.getRowStride();
 
-                    Y.getBuffer().get(bufY, 0, ySize);
-                    U.getBuffer().get(bufU, 0, uSize);
-                    V.getBuffer().get(bufV, 0, vSize);
+            // For future call of GLES3Lib.copyVideoYUVPlanes
+            GLES3Lib.copyVideoYUVPlanes(img.getWidth(), img.getHeight(),
+                                        bufY, ySize, yPixStride, yRowStride,
+                                        bufU, uSize, uPixStride, uRowStride,
+                                        bufV, vSize, vPixStride, vRowStride);
+            */
 
-                    // For future call of GLES3Lib.copyVideoYUVPlanes
-                    GLES3Lib.copyVideoYUVPlanes(img.getWidth(), img.getHeight(),
-                                                bufY, ySize, yPixStride, yRowStride,
-                                                bufU, uSize, uPixStride, uRowStride,
-                                                bufV, vSize, vPixStride, vRowStride);
-                    */
+            img.close();
 
-                    img.close();
+            // This avoids the next call into this before the image got displayed
+            GLES3Lib.lastVideoImageIsConsumed.set(false);
 
-                    // This avoids the next call into this before the image got displayed
-                    GLES3Lib.lastVideoImageIsConsumed.set(false);
-
-                    // Request a new rendering
-                    //GLES3Lib.view.requestRender();
-                }
-            });
+            // Request a new rendering
+            GLES3Lib.view.requestRender(); 
         }
     };
 
     public void actOnReadyCameraDevice() {
         try {
-            cameraDevice.createCaptureSession(Arrays.asList(imageReader.getSurface()), sessionStateCallback, null);
+            cameraDevice.createCaptureSession(Arrays.asList(imageReader.getSurface()), sessionStateCallback, GLES_ThreadHandler);
         } catch (CameraAccessException e) {
             Log.e(TAG, e.getMessage());
         }

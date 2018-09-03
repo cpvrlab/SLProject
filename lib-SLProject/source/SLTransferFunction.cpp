@@ -17,7 +17,7 @@
 //! ctor with vector of alpha values and a predefined color LUT scheme
 SLTransferFunction::SLTransferFunction(SLVTransferAlpha alphaValues,
                                        SLColorLUT lut,
-                                       SLint length)
+                                       SLuint length)
 {
     _min_filter = GL_LINEAR;
     _mag_filter = GL_LINEAR;
@@ -40,7 +40,7 @@ SLTransferFunction::SLTransferFunction(SLVTransferAlpha alphaValues,
 //! ctor with vector of alpha and color values
 SLTransferFunction::SLTransferFunction(SLVTransferAlpha alphaValues,
                                        SLVTransferColor colorValues,
-                                       SLint length)
+                                       SLuint length)
 {
     _min_filter = GL_LINEAR;
     _mag_filter = GL_LINEAR;
@@ -185,10 +185,10 @@ void SLTransferFunction::generateTexture()
         _colors.push_back(SLTransferColor(_colors.back().color, 1.0f));
 
     // Check that the delta between positions is larger than delta
-    for (SLint c=0; c<_colors.size()-1; ++c)
+    for (SLuint c=0; c<_colors.size()-1; ++c)
         if ((_colors[c+1].pos - _colors[c].pos) < delta)
             SL_EXIT_MSG("SLTransferFunction::generateTexture: Color position deltas to small.");
-    for (SLint a=0; a<_alphas.size()-1; ++a)
+    for (SLuint a=0; a<_alphas.size()-1; ++a)
         if ((_alphas[a+1].pos - _alphas[a].pos) < delta)
             SL_EXIT_MSG("SLTransferFunction::generateTexture: Alpha position deltas to small.");
 
@@ -198,17 +198,17 @@ void SLTransferFunction::generateTexture()
     for (auto a : _alphas) a.alpha = SL_clamp(a.alpha, 0.0f, 1.0f);
 
     // Finally create transfer function vector by lerping color and alpha values
-    SLint   c = 0;          // current color segment index
+    SLuint   c = 0;         // current color segment index
     SLfloat pos  = 0.0f;    // overall position between 0-1
     SLfloat posC = 0.0f;    // position in color segment
     SLfloat deltaC = 1.0f / ((_colors[c+1].pos - _colors[c].pos)/delta);
 
 
     SLVCol4f tf;
-    tf.resize(_length);
+    tf.resize((SLuint)_length);
 
     // Interpolate color values
-    for (SLint i=0; i < _length; ++i)
+    for (SLuint i=0; i < _length; ++i)
     {
         tf[i].r = SL_lerp(posC, _colors[c].color.r, _colors[c+1].color.r);
         tf[i].g = SL_lerp(posC, _colors[c].color.g, _colors[c+1].color.g);
@@ -225,11 +225,11 @@ void SLTransferFunction::generateTexture()
     }
 
     // Interpolate alpha value
-    SLint   a = 0;          // current alpha segment index
+    SLuint   a = 0;         // current alpha segment index
     SLfloat posA = 0.0f;    // position in alpha segment
     SLfloat deltaA = 1.0f / ((_alphas[a+1].pos - _alphas[a].pos)/delta);
     pos = 0.0f;
-    for (SLint i=0; i < _length; ++i)
+    for (SLuint i=0; i < _length; ++i)
     {
         tf[i].a = SL_lerp(posA, _alphas[a].alpha, _alphas[a+1].alpha);
 
@@ -254,8 +254,8 @@ SLVfloat SLTransferFunction::allAlphas()
     SLVfloat allA;
     allA.resize(_length);
 
-    for (SLint i=0; i<_length; ++i)
-        allA[i] = _images[0]->getPixeli(i, 0).a;
+    for (SLuint i=0; i<_length; ++i)
+        allA[i] = _images[0]->getPixeli((SLint)i, 0).a;
     
     return allA;
 }

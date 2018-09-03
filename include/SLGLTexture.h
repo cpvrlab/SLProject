@@ -128,8 +128,8 @@ class SLGLTexture : public SLObject
                                                           ((_images[0]->format()==PF_rgba  ||
                                                             _images[0]->format()==PF_bgra) ||
                                                            _texType==TT_font));}
-            SLint           width               (){return _images[0]->width();}
-            SLint           height              (){return _images[0]->height();}
+            SLuint          width               (){return _images[0]->width();}
+            SLuint          height              (){return _images[0]->height();}
             SLint           depth               (){return (SLint)_images.size();}
             SLMat4f         tm                  (){return _tm;}
             SLbool          autoCalcTM3D        (){return _autoCalcTM3D;}

@@ -121,7 +121,7 @@ class SLVec2
     void    setMax      (const SLVec2& v)       {if (v.x > x) x=v.x;
                                                   if (v.y > y) y=v.y;}
     SLbool  isZero      ()                      {return (x==0 && y==0);}
-    void    print       (const char* str=0)     {if (str) SL_LOG("%s",str); 
+    void    print       (const char* str=nullptr) {if (str) SL_LOG("%s",str);
                                                   SL_LOG("% 3.3f, % 3.3f\n",x, y);}
    
     static 

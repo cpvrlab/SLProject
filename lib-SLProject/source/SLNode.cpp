@@ -33,14 +33,14 @@ Default constructor just setting the name.
 SLNode::SLNode(SLstring name) : SLObject(name)
 {
     _stateGL = SLGLState::getInstance();
-    _parent = 0;
+    _parent = nullptr;
     _depth = 1;
     _om.identity();
     _wm.identity();
     _wmI.identity();
     _wmN.identity();
     _drawBits.allOff();
-    _animation = 0;
+    _animation = nullptr;
     _isWMUpToDate = false;
     _isAABBUpToDate = false;
     //_tracker = nullptr;
@@ -52,14 +52,14 @@ Constructor with a mesh pointer and name.
 SLNode::SLNode(SLMesh* mesh, SLstring name) : SLObject(name)
 {
     _stateGL = SLGLState::getInstance();
-    _parent = 0;
+    _parent = nullptr;
     _depth = 1;
     _om.identity();
     _wm.identity();
     _wmI.identity();
     _wmN.identity();
     _drawBits.allOff();
-    _animation = 0;
+    _animation = nullptr;
     _isWMUpToDate = false;
     _isAABBUpToDate = false;
     //_tracker = nullptr;
@@ -148,7 +148,7 @@ Removes the specified mesh from the vector.
 bool SLNode::removeMesh(SLMesh* mesh)
 {
     assert(mesh);
-    for (SLint i=0; i<_meshes.size(); ++i)
+    for (SLuint i=0; i<_meshes.size(); ++i)
     {   if (_meshes[i]==mesh)
         {   _meshes.erase(_meshes.begin()+i);
             return true;
@@ -332,7 +332,7 @@ Deletes all child nodes.
 */
 void SLNode::deleteChildren()
 {
-    for (int i=0; i<_children.size(); ++i)
+    for (SLuint i=0; i<_children.size(); ++i)
         delete _children[i];
     _children.clear();
 }
@@ -357,7 +357,7 @@ Deletes a child from the child vector.
 bool SLNode::deleteChild(SLNode* child)
 {
     assert(child);
-    for (SLint i=0; i<_children.size(); ++i)
+    for (SLuint i=0; i<_children.size(); ++i)
     {   if (_children[i]==child)
         {   _children.erase(_children.begin()+i);
             delete child;
@@ -406,7 +406,33 @@ void SLNode::findChildrenHelper(const SLMesh* mesh,
     }
 }
 //-----------------------------------------------------------------------------
+/*!
+Searches for all nodes that contain the provided mesh
+*/
+vector<SLNode*> SLNode::findChildren(const SLuint drawbit,
+                                     SLbool findRecursive)
+{
+    vector<SLNode*> list;
+    findChildrenHelper(drawbit, list, findRecursive);
 
+    return list;
+}
+//-----------------------------------------------------------------------------
+/*!
+Helper function of findChildren for meshes
+*/
+void SLNode::findChildrenHelper(const SLuint drawbit,
+                                vector<SLNode*>& list,
+                                SLbool findRecursive)
+{
+    for (auto child : _children)
+    {   if (child->drawBits()->get(SL_DB_SELECTED))
+            list.push_back(child);
+        if (findRecursive)
+            child->findChildrenHelper(drawbit, list, findRecursive);
+    }
+}
+//-----------------------------------------------------------------------------
 
 
 //-----------------------------------------------------------------------------
@@ -544,7 +570,7 @@ transformed into the object space.
 */
 bool SLNode::hitRec(SLRay* ray)
 {
-    assert(ray != 0);
+    assert(ray != nullptr);
 
     // Do not test hidden nodes
     if (_drawBits.get(SL_DB_HIDDEN))
@@ -604,7 +630,7 @@ SLNode* SLNode::copyRec()
 
     if (_animation)
         copy->_animation = new SLAnimation(*_animation);
-    else copy->_animation = 0;
+    else copy->_animation = nullptr;
 
     for (auto mesh : _meshes) copy->addMesh(mesh);
     for (auto child : _children) copy->addChild(child->copyRec());

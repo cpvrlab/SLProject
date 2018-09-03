@@ -32,9 +32,9 @@ SLVec3i SLCompactGrid::containingVoxel(const SLVec3f &p) const
     pos.z = (SLint)(delta.z / _voxelSize.z);
 
     // Check bounds of voxel indices
-    if (pos.x >= _size.x) pos.x = _size.x - 1; if (pos.x < 0) pos.x = 0;
-    if (pos.y >= _size.y) pos.y = _size.y - 1; if (pos.y < 0) pos.y = 0;
-    if (pos.z >= _size.z) pos.z = _size.z - 1; if (pos.z < 0) pos.z = 0;
+    if (pos.x >= (SLint)_size.x) pos.x = (SLint)_size.x - 1; if (pos.x < 0) pos.x = 0;
+    if (pos.y >= (SLint)_size.y) pos.y = (SLint)_size.y - 1; if (pos.y < 0) pos.y = 0;
+    if (pos.z >= (SLint)_size.z) pos.z = (SLint)_size.z - 1; if (pos.z < 0) pos.z = 0;
 
     return pos;
 }
@@ -53,7 +53,7 @@ void SLCompactGrid::getMinMaxVoxel(const Triangle &triangle,
                                   SLVec3i &maxCell)
 {
     minCell = maxCell = containingVoxel(triangle[0]);
-    for (int i = 1; i < 3; ++i)
+    for (SLuint i = 1; i < 3; ++i)
     {   auto &vertex = triangle[i];
         minCell.setMin(containingVoxel(vertex));
         maxCell.setMax(containingVoxel(vertex));
@@ -83,7 +83,7 @@ void SLCompactGrid::ifTriangleInVoxelDo(triVoxCallback callback)
 
     for (SLuint i = 0; i < _numTriangles; ++i)
     {
-        auto index  = [&](int j) { return _m->I16.size() ? _m->I16[i*3+j] : _m->I32[i*3+j]; };
+        auto index  = [&](SLuint j) { return _m->I16.size() ? _m->I16[i*3+j] : _m->I32[i*3+j]; };
         Triangle triangle = {_m->finalP(index(0)), 
                              _m->finalP(index(1)), 
                              _m->finalP(index(2))};
@@ -109,7 +109,7 @@ void SLCompactGrid::ifTriangleInVoxelDo(triVoxCallback callback)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLCompactGrid::build implements the data structure proposed by Lagae & Dutré in 
+SLCompactGrid::build implements the data structure proposed by Lagae & Dutre in
 their paper "Compact, Fast and Robust Grids for Ray Tracing".
 */
 void SLCompactGrid::build (SLVec3f minV, SLVec3f maxV)
@@ -136,9 +136,9 @@ void SLCompactGrid::build (SLVec3f minV, SLVec3f maxV)
     _voxelSize.y = size.y / ceil(size.y*f);
     _voxelSize.z = size.z / ceil(size.z*f);
     _voxelSizeHalf = _voxelSize * 0.5f;
-    _size.x = (SLint)ceil(size.x / _voxelSize.x);
-    _size.y = (SLint)ceil(size.y / _voxelSize.y);
-    _size.z = (SLint)ceil(size.z / _voxelSize.z);
+    _size.x = (SLuint)ceil(size.x / _voxelSize.x);
+    _size.y = (SLuint)ceil(size.y / _voxelSize.y);
+    _size.z = (SLuint)ceil(size.z / _voxelSize.z);
     _voxelCnt = _size.x * _size.y * _size.z;
     _voxelOffsets.assign(_voxelCnt + 1, 0);
 
@@ -149,7 +149,7 @@ void SLCompactGrid::build (SLVec3f minV, SLVec3f maxV)
     //The last counter doesn't count and is always empty.
     _voxelMaxTria = _voxelOffsets[0];
     _voxelCntEmpty = (_voxelOffsets[0] == 0) - 1;
-    for (int i = 1; i < _voxelOffsets.size(); ++i)
+    for (SLuint i = 1; i < _voxelOffsets.size(); ++i)
     {   _voxelMaxTria = SL_max(_voxelMaxTria, (SLuint)_voxelOffsets[i]);
         _voxelCntEmpty += _voxelOffsets[i] == 0;
         _voxelOffsets[i] += _voxelOffsets[i - 1];
@@ -157,15 +157,15 @@ void SLCompactGrid::build (SLVec3f minV, SLVec3f maxV)
 
     if (_m->I16.size())
     {   _triangleIndexes16.resize(_voxelOffsets.back());
-        ifTriangleInVoxelDo([&](const SLuint &i, const SLuint &voxIndex)
-                            {   SLint location = --_voxelOffsets[voxIndex];
+        ifTriangleInVoxelDo([&](const SLushort &i, const SLuint &voxIndex)
+                            {   SLuint location = --_voxelOffsets[voxIndex];
                                 _triangleIndexes16[location] = i;
                             });
         _triangleIndexes16.shrink_to_fit();
     } else
     {   _triangleIndexes32.resize(_voxelOffsets.back());
         ifTriangleInVoxelDo([&](const SLuint &i, const SLuint &voxIndex)
-                            {   SLint location = --_voxelOffsets[voxIndex];
+                            {   SLuint location = --_voxelOffsets[voxIndex];
                                 _triangleIndexes32[location] = i;
                             });
         _triangleIndexes32.shrink_to_fit();
@@ -195,7 +195,7 @@ void SLCompactGrid::draw (SLSceneView* sv)
     {
         if (!_vao.id())
         {
-            SLint    x, y, z;
+            SLuint   x, y, z;
             SLuint   curVoxel = 0;
             SLVec3f  v;
             SLVVec3f P;
@@ -210,7 +210,7 @@ void SLCompactGrid::draw (SLSceneView* sv)
                     v.x = _minV.x;
                     for (x = 0; x<_size.x; ++x, v.x += _voxelSize.x)
                     {
-                        SLuint voxelID = indexAtPos(SLVec3i(x,y,z));
+                        SLuint voxelID = indexAtPos(SLVec3i((SLint)x,(SLint)y,(SLint)z));
                         
                         if (_voxelOffsets[voxelID] < _voxelOffsets[voxelID + 1])
                         {
@@ -304,8 +304,8 @@ SLbool SLCompactGrid::intersect (SLRay* ray, SLNode* node)
 
 			// Precalculate the voxel id increment
 			SLint incIDX = stepX;
-			SLint incIDY = stepY*_size.x;
-			SLint incIDZ = stepZ*_size.x*_size.y;
+            SLint incIDY = stepY*(SLint)_size.x;
+            SLint incIDZ = stepZ*(SLint)_size.x*(SLint)_size.y;
 
 			// Calculate tDeltaX,Y & Z (=dist. along the ray in a voxel)
             SLfloat tDeltaX = (_voxelSize.x * invD.x) * stepX;
@@ -337,17 +337,17 @@ SLbool SLCompactGrid::intersect (SLRay* ray, SLNode* node)
 					if (tMaxX < tMaxZ)
 					{
 						startVox.x += stepX;
-						if (startVox.x >= _size.x || startVox.x < 0) return wasHit; // dropped outside grid
+                        if (startVox.x >= (SLint)_size.x || startVox.x < 0) return wasHit; // dropped outside grid
 						tMaxX += tDeltaX;
-						voxID += incIDX;
+                        voxID += (SLuint)incIDX;
 						tMax = tMaxX;
 					}
 					else
 					{
 						startVox.z += stepZ;
-						if (startVox.z >= _size.z || startVox.z < 0) return wasHit; // dropped outside grid
+                        if (startVox.z >= (SLint)_size.z || startVox.z < 0) return wasHit; // dropped outside grid
 						tMaxZ += tDeltaZ;
-						voxID += incIDZ;
+                        voxID += (SLuint)incIDZ;
 						tMax = tMaxZ;
 					}
 				}
@@ -356,17 +356,17 @@ SLbool SLCompactGrid::intersect (SLRay* ray, SLNode* node)
 					if (tMaxY < tMaxZ)
 					{
 						startVox.y += stepY;
-						if (startVox.y >= _size.y || startVox.y < 0) return wasHit; // dropped outside grid
+                        if (startVox.y >= (SLint)_size.y || startVox.y < 0) return wasHit; // dropped outside grid
 						tMaxY += tDeltaY;
-						voxID += incIDY;
+                        voxID += (SLuint)incIDY;
 						tMax = tMaxY;
 					}
 					else
 					{
 						startVox.z += stepZ;
-						if (startVox.z >= _size.z || startVox.z < 0) return wasHit; // dropped outside grid
+                        if (startVox.z >= (SLint)_size.z || startVox.z < 0) return wasHit; // dropped outside grid
 						tMaxZ += tDeltaZ;
-						voxID += incIDZ;
+                        voxID += (SLuint)incIDZ;
 						tMax = tMaxZ;
 					}
 				}

@@ -91,7 +91,7 @@ class SLGLVertexBuffer
         void        disableAttrib ();
 
         // Getters
-        SLint       id                  () {return _id;}
+        SLuint      id                  () {return _id;}
         SLVVertexAttrib& attribs        () {return _attribs;} 
         SLbool      outputInterleaved   () {return _outputInterleaved;}
 

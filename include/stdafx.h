@@ -63,6 +63,7 @@
 #include <SLMat3.h>
 #include <SLMat4.h>
 #include <SLQuat4.h>
+#include <SLRect.h>
 #include <SLPlane.h>
 #include <SLGLState.h>
 #include <SLFileSystem.h>

@@ -26,7 +26,6 @@ SLGrid::SLGrid(SLVec3f minXZ, SLVec3f maxXZ,
     assert(resX>0);
     assert(resZ>0);
     assert(name!="");
-    assert(minXZ.y==0 && maxXZ.y==0);
 
     _primitive = PT_lines;
     _min = minXZ;
@@ -80,7 +79,7 @@ void SLGrid::buildMesh(SLMaterial* material)
 
     // Indexes
     if (I16.size())
-         for (SLuint i=0; i < P.size(); ++i) I16[i] = i;
+         for (SLushort i=0; i < P.size(); ++i) I16[i] = i;
     else for (SLuint i=0; i < P.size(); ++i) I32[i] = i;
 }
 //-----------------------------------------------------------------------------

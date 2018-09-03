@@ -24,7 +24,7 @@ public:
     //! Ctor for a given vector of points
     SLPoints(const SLVVec3f& points,
                 SLstring name = "point cloud",
-                SLMaterial* material=0);
+                                 SLMaterial* mat=nullptr);
     SLPoints(const SLVVec3f& points,
         const SLVVec3f& normals,
         SLstring name = "point cloud",
@@ -33,7 +33,7 @@ public:
     //! Ctor for a random point cloud.
     SLPoints(SLfloat nPoints, SLRnd3f& rnd,
                 SLstring name = "normal point cloud",
-                SLMaterial* material=0);
+                                 SLMaterial* mat=nullptr);
 };
 //-----------------------------------------------------------------------------
 #endif

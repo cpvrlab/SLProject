@@ -16,7 +16,7 @@
 #include <SLPoints.h>
 
 //-----------------------------------------------------------------------------
-//! SLPoints ctor with a givven vector of points
+//! SLPoints ctor with a given vector of points
 SLPoints::SLPoints(const SLVVec3f& points,
                    SLstring name,
                    SLMaterial* material) : SLMesh(name)

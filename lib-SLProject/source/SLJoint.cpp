@@ -19,14 +19,14 @@
 /*! Constructor
 */
 SLJoint::SLJoint(SLuint id, SLSkeleton* creator)
-: _id(id), _skeleton(creator), SLNode("Unnamed Joint"), _radius(0)
+: SLNode("Unnamed Joint"), _id(id), _skeleton(creator),  _radius(0)
 { }
 
 //-----------------------------------------------------------------------------
 /*! Constructor
 */
 SLJoint::SLJoint(const SLstring& name, SLuint id, SLSkeleton* creator)
-: _id(id), _skeleton(creator), SLNode(name), _radius(0)
+: SLNode(name), _id(id), _skeleton(creator), _radius(0)
 { }
 
 

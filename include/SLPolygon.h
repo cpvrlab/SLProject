@@ -24,19 +24,19 @@ class SLPolygon: public SLMesh
                         //! ctor for generic convex polygon
                         SLPolygon(SLVVec3f corner,
                                   SLstring name = "polygon mesh",
-                                  SLMaterial* mat=0);
+                                  SLMaterial* mat=nullptr);
                            
                         //! ctor for generic convex polygon with texCoords          
                         SLPolygon(SLVVec3f corners,
                                   SLVVec2f texcoords,
                                   SLstring name = "polygon mesh",
-                                  SLMaterial* mat=0);
+                                  SLMaterial* mat=nullptr);
                                      
                         //! ctor for centered rectangle in x-y-plane (N=-z)
                         SLPolygon(SLfloat  width, 
                                   SLfloat  height,
                                   SLstring name,
-                                  SLMaterial* mat=0);
+                                  SLMaterial* mat=nullptr);
                
             void        buildMesh(SLMaterial* mat);
    protected:

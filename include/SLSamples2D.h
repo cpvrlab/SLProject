@@ -20,24 +20,24 @@ class SLSamples2D
                         SLSamples2D(){samples(1,1);} 
                        ~SLSamples2D(){}   
             // Setters
-            void        samples(SLint x, SLint y,
+            void        samples(SLuint x, SLuint y,
                                 SLbool evenlyDistributed=true);
-            void        point(SLint x, SLint y, SLVec2f point)
+            void        point(SLuint x, SLuint y, SLVec2f point)
                         {  _points[x*_samplesY + y].set(point);
                         }  
             // Getters
-            SLint       samplesX(){return _samplesX;}
-            SLint       samplesY(){return _samplesY;}
-            SLint       samples (){return _samples;}
-            SLVec2f     point(SLint x,SLint y){return _points[x*_samplesY + y];}
+            SLuint      samplesX(){return _samplesX;}
+            SLuint      samplesY(){return _samplesY;}
+            SLuint      samples (){return _samples;}
+            SLVec2f     point(SLuint x,SLuint y){return _points[x*_samplesY + y];}
             SLuint      sizeInBytes() {return (SLuint)(_points.size() * sizeof(SLVec2f));}
    private:
             void        distribConcentric (SLbool evenlyDistributed); 
             SLVec2f     mapSquareToDisc   (SLfloat x, SLfloat y);
 
-            SLint       _samplesX;    //!< No. of samples in x direction
-            SLint       _samplesY;    //!< No. of samples in y direction
-            SLint       _samples;     //!< No. of samples = samplesX x samplesY
+            SLuint      _samplesX;    //!< No. of samples in x direction
+            SLuint      _samplesY;    //!< No. of samples in y direction
+            SLuint      _samples;     //!< No. of samples = samplesX x samplesY
             SLVVec2f    _points;      //!< samplepoints for distributed tracing 
 };
 //-----------------------------------------------------------------------------

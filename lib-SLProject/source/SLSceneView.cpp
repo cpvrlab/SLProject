@@ -43,7 +43,7 @@ SLSceneView::SLSceneView() : SLObject()
     assert(s && "No SLApplication::scene instance.");
    
     // Find first a zero pointer gap in
-    for (SLint i=0; i<s->sceneViews().size(); ++i)
+    for (SLuint i=0; i<s->sceneViews().size(); ++i)
     {  if (s->sceneViews()[i]==nullptr)
         {   s->sceneViews()[i] = this;
             _index = i;
@@ -60,7 +60,7 @@ SLSceneView::~SLSceneView()
 {  
     // Set pointer in SLScene::sceneViews vector to zero but leave it.
     // The remaining sceneviews must keep their index in the vector
-    SLApplication::scene->sceneViews()[_index] = 0;
+    SLApplication::scene->sceneViews()[(SLuint)_index] = nullptr;
 
     _gui.deleteOpenGLObjects();
 
@@ -99,9 +99,9 @@ void SLSceneView::init(SLstring name,
     // Set the ImGui build function. Every sceneview could have it's own GUI.
     _gui.build = (cbOnImGuiBuild)onImGuiBuild;
 
-    _stateGL = 0;
+    _stateGL = nullptr;
    
-    _camera = 0;
+    _camera = nullptr;
    
     // enables and modes
     _mouseDownL = false;
@@ -302,7 +302,7 @@ void SLSceneView::onInitialize()
     _isFirstFrame = true;
 
     // init 3D scene with initial depth 1
-    if (s->root3D() && s->root3D()->aabb()->radiusOS()==0)
+    if (s->root3D() && s->root3D()->aabb()->radiusOS()<0.0001f)
     {
         // Init camera so that its frustum is set
         _camera->setProjection(this, ET_center);
@@ -328,7 +328,7 @@ void SLSceneView::onInitialize()
     }
 
     // init 2D scene with initial depth 1
-    if (s->root2D() && s->root2D()->aabb()->radiusOS()==0)
+    if (s->root2D() && s->root2D()->aabb()->radiusOS()<0.0001f)
     {
         // build axis aligned bounding box hierarchy after init
         s->root2D()->updateAABBRec();
@@ -686,7 +686,18 @@ void SLSceneView::draw3DGLLines(SLVNode &nodes)
 
             // Draw AABB for selected shapes
             if (node->drawBit(SL_DB_SELECTED))
-                node->aabb()->drawWS(SLCol3f(1,1,0));
+            {
+                SLScene* s = SLApplication::scene;
+                if (node==s->selectedNode() || !s->selectedRect().isEmpty())
+                    node->aabb()->drawWS(SLCol3f(1,1,0));
+                else
+                {
+                    // delete selection bits from previous rectangle selection
+                    if (node!=s->selectedNode() && s->selectedRect().isEmpty())
+                        node->drawBits()->off(SL_DB_SELECTED);
+                }
+            }
+
         }
     }
    
@@ -776,7 +787,35 @@ void SLSceneView::draw2DGL()
             s->root2D()->cull2DRec(this);
 
         // 3. Draw all 2D nodes opaque
-        draw2DGLAll();
+        draw2DGLNodes();
+
+        // Draw selection rectangle
+        /* The selection rectangle is defined in SLScene::selectRect and gets set and
+        drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
+        not empty the SLScene::selectedNode is null. All vertices that are within the
+        selectRect are listed in SLMesh::IS32. The selection evaluation is done during
+        drawing in SLMesh::draw and is only valid for the current frame.
+        All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
+        
+        if (!s->selectedRect().isEmpty())
+        {
+            _stateGL->pushModelViewMatrix();
+            _stateGL->modelViewMatrix.identity();
+            _stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+            _stateGL->depthMask(false);         // Freeze depth buffer for blending
+            _stateGL->depthTest(false);         // Disable depth testing
+            //_stateGL->blendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR); // inverts background
+            _stateGL->blend(true);              // Enable blending
+            //_stateGL->polygonLine(false);       // Only filled polygons
+
+            s->selectedRect().drawGL(SLCol4f::WHITE);
+
+            _stateGL->blend(false);       // turn off blending
+            //_stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // std. transparency
+            _stateGL->depthMask(true);    // enable depth buffer writing
+            _stateGL->depthTest(true);    // enable depth testing
+            _stateGL->popModelViewMatrix();
+        }
 
         // 4. Draw ImGui UI
         if (_gui.build)
@@ -791,12 +830,10 @@ void SLSceneView::draw2DGL()
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::draw2DGLAll draws 2D stuff in ortho projection.
+SLSceneView::draw2DGLNodes draws 2D nodes from root2D in ortho projection.
 */
-void SLSceneView::draw2DGLAll()
+void SLSceneView::draw2DGLNodes()
 {
-    SLfloat w2 = (SLfloat)_scrWdiv2;            // half widht
-    SLfloat h2 = (SLfloat)_scrHdiv2;            // half height
     SLfloat depth = 1.0f;                       // Render depth between -1 & 1
     SLfloat cs = SL_min(_scrW, _scrH) * 0.01f;  // center size
 
@@ -872,11 +909,6 @@ void SLSceneView::draw2DGLAll()
     GET_GL_ERROR;                 // check if any OGL errors occurred
 }
 //-----------------------------------------------------------------------------
-
-
-
-
-
 
 
 
@@ -1087,9 +1119,10 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
         }
       
         if (pickRay.length < FLT_MAX)
-        {   s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
+        {   s->selectedRect().setZero();
+            s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
             if (onSelectedNodeMesh)
-            onSelectedNodeMesh(s->selectedNode(), s->selectedMesh());
+                onSelectedNodeMesh(s->selectedNode(), s->selectedMesh());
             result = true;
         }
       
@@ -1436,4 +1469,4 @@ SLbool SLSceneView::draw3DPT()
 
     return updated;
 }
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------

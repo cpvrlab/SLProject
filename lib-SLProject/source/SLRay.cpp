@@ -330,8 +330,8 @@ bool SLRay::reflectMC(SLRay* reflected,SLMat3f rotMat)
     //ray needs to be reset if already hit a scene node
     if(reflected->hitNode)
     {   reflected->length = FLT_MAX;
-        reflected->hitNode = 0;
-        reflected->hitMesh = 0;
+        reflected->hitNode = nullptr;
+        reflected->hitMesh = nullptr;
         reflected->hitPoint = SLVec3f::ZERO;
         reflected->hitNormal = SLVec3f::ZERO;
     }
@@ -380,8 +380,8 @@ void SLRay::refractMC(SLRay* refracted,SLMat3f rotMat)
     //ray needs to be reset if already hit a scene node
     if(refracted->hitNode)
     {   refracted->length = FLT_MAX;
-        refracted->hitNode = 0;
-        refracted->hitMesh = 0;
+        refracted->hitNode = nullptr;
+        refracted->hitMesh = nullptr;
         refracted->hitPoint = SLVec3f::ZERO;
         refracted->hitNormal = SLVec3f::ZERO;
     }

@@ -24,24 +24,24 @@ SLfloat      SLCamera::currentFOV          = 45.0f;
 SLint        SLCamera::currentDevRotation  = 0;
 //-----------------------------------------------------------------------------
 SLCamera::SLCamera(SLstring name) : SLNode(name),
+      _movedLastFrame(false),
+      _trackballSize(0.8f),
+      _moveDir(0, 0, 0),
+      _drag(0.05f),
       _maxSpeed(2.0f),
       _velocity(0.0f, 0.0f, 0.0f),
-      _drag(0.05f),
+      _acceleration(0, 0, 0),
       _brakeAccel(16.0f),
       _moveAccel(16.0f),
-      _moveDir(0, 0, 0),
-      _acceleration(0, 0, 0),
-      _unitScaling(1.0f),
-      _movedLastFrame(false),
-      _trackballSize(0.8f)
+      _unitScaling(1.0f)
 {
     _fovInit    = 0;
     _aspect     = 640.0f/480.0f;        // will be overwritten in setProjection
     _clipNear   = 0.1f;
     _clipFar    = 300.0f;
-    _fov        = 45.0;                 //currentFOV;
-    _projection = P_monoPerspective;    //currentProjection;
-    _camAnim    = CA_turntableYUp;      //currentAnimation
+    _fov        = 45.0;
+    _projection = P_monoPerspective;
+    _camAnim    = CA_turntableYUp;
 
     // depth of field parameters
     _lensDiameter = 0.3f;
@@ -52,7 +52,6 @@ SLCamera::SLCamera(SLstring name) : SLNode(name),
     _background.colors(SLCol4f(0.6f,0.6f,0.6f), SLCol4f(0.3f,0.3f,0.3f));
 }
 //-----------------------------------------------------------------------------
-//! Destructor: Be sure to delete the OpenGL display list.
 SLCamera::~SLCamera()
 {
 }
@@ -688,11 +687,16 @@ implement the camera animation.
 SLbool SLCamera::onMouseDown(const SLMouseButton button,
                              const SLint x, const SLint y, const SLKey mod)
 {
-    SLScene* s = SLApplication::scene;
-
     // Init both position in case that the second finger came with delay
     _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
     _oldTouchPos2.set((SLfloat)x, (SLfloat)y);
+
+    // Start selection rectangle
+    if (mod==K_ctrl)
+    {   SLScene* s = SLApplication::scene;
+        s->selectNodeMesh(nullptr, nullptr);
+        s->selectedRect().tl(_oldTouchPos1);
+    }
     
     if (_camAnim==CA_trackball)
         _trackballStartVec = trackballVec(x,y);
@@ -706,114 +710,127 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 {
     if (button == MB_left) //==================================================
     {
-        // new vars needed
-        SLVec3f positionVS = this->translationOS();
-        SLVec3f forwardVS  = this->forwardOS();
-        SLVec3f rightVS    = this->rightOS();
-
-        // The lookAt point
-        SLVec3f lookAtPoint = positionVS + _focalDist * forwardVS;
-
-        // Determine rot angles around x- & y-axis
-        SLfloat dY = (y-_oldTouchPos1.y) * _rotFactor;
-        SLfloat dX = (x-_oldTouchPos1.x) * _rotFactor;
-
-        if (_camAnim==CA_turntableYUp) //......................................
-        {
-            SLMat4f rot;
-            rot.translate(lookAtPoint);
-            rot.rotate(-dX, SLVec3f(0,1,0));
-            rot.rotate(-dY, rightVS);
-            rot.translate(-lookAtPoint);
-
-            _om.setMatrix(rot * _om);
-            needUpdate();
+        // Set selection rectangle
+        /* The selection rectangle is defined in SLScene::selectRect and gets set and
+         drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
+         not empty the SLScene::selectedNode is null. All vertices that are withing the
+         selectRect are listed in SLMesh::IS32. All nodes that have selected vertices
+         have their drawbit SL_DB_SELECTED set.
+         */
+        if (mod==K_ctrl)
+        {   SLScene* s = SLApplication::scene;
+            s->selectedRect().setScnd(SLVec2f((SLfloat)x, (SLfloat)y));
         }
-        else if (_camAnim==CA_turntableZUp) //.................................
-        {
-            SLMat4f rot;
-            rot.translate(lookAtPoint);
-            rot.rotate(dX, SLVec3f(0,0,1));
-            rot.rotate(dY, rightVS);
-            rot.translate(-lookAtPoint);
+        else // normal camera animations
+        {   // new vars needed
+            SLVec3f positionVS = this->translationOS();
+            SLVec3f forwardVS  = this->forwardOS();
+            SLVec3f rightVS    = this->rightOS();
 
-            _om.setMatrix(rot * _om);
-            needUpdate();
+            // The lookAt point
+            SLVec3f lookAtPoint = positionVS + _focalDist * forwardVS;
+
+            // Determine rot angles around x- & y-axis
+            SLfloat dY = (y-_oldTouchPos1.y) * _rotFactor;
+            SLfloat dX = (x-_oldTouchPos1.x) * _rotFactor;
+
+            if (_camAnim==CA_turntableYUp) //......................................
+            {
+                SLMat4f rot;
+                rot.translate(lookAtPoint);
+                rot.rotate(-dX, SLVec3f(0,1,0));
+                rot.rotate(-dY, rightVS);
+                rot.translate(-lookAtPoint);
+
+                _om.setMatrix(rot * _om);
+                needUpdate();
+            }
+            else if (_camAnim==CA_turntableZUp) //.................................
+            {
+                SLMat4f rot;
+                rot.translate(lookAtPoint);
+                rot.rotate(dX, SLVec3f(0,0,1));
+                rot.rotate(dY, rightVS);
+                rot.translate(-lookAtPoint);
+
+                _om.setMatrix(rot * _om);
+                needUpdate();
+            }
+            else if (_camAnim==CA_trackball) //....................................
+            {
+                // Reference: https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
+                // calculate current mouse vector at currenct mouse position
+                SLVec3f curMouseVec = trackballVec(x, y);
+
+                // calculate angle between the old and the current mouse vector
+                // Take care that the dot product isn't greater than 1.0 otherwise
+                // the acos will return indefined.
+                SLfloat dot = _trackballStartVec.dot(curMouseVec);
+                SLfloat angle = acos(dot>1?1:dot) * SL_RAD2DEG;
+
+                // calculate rotation axis with the cross product
+                SLVec3f axisVS;
+                axisVS.cross(_trackballStartVec, curMouseVec);
+
+                // To stabilise the axis we average it with the last axis
+                static SLVec3f lastAxisVS = SLVec3f::ZERO;
+                if (lastAxisVS != SLVec3f::ZERO) axisVS = (axisVS + lastAxisVS) / 2.0f;
+
+                // Because we calculate the mouse vectors from integer mouse positions
+                // we can get some numerical instability from the dot product when the
+                // mouse is on the silhouette of the virtual sphere.
+                // We calculate therefore an alternative for the angle from the mouse
+                // motion length.
+                SLVec2f dMouse(_oldTouchPos1.x-x, _oldTouchPos1.y-y);
+                SLfloat dMouseLenght = dMouse.length();
+                if (angle > dMouseLenght) angle = dMouseLenght*0.2f;
+
+                // Transform rotation axis into world space
+                // Remember: The cameras om is the view matrix inversed
+                SLVec3f axisWS = _om.mat3() * axisVS;
+
+                // Create rotation from one rotation around one axis
+                SLMat4f rot;
+                rot.translate(lookAtPoint);             // undo camera translation
+                rot.rotate((SLfloat)-angle, axisWS);    // create incremental rotation
+                rot.translate(-lookAtPoint);            // redo camera translation
+                _om.setMatrix(rot * _om);               // accumulate rotation to the existing camera matrix
+
+                // set current to last
+                _trackballStartVec = curMouseVec;
+                lastAxisVS = axisVS;
+
+                needUpdate();
+            }
+            else if (_camAnim==CA_walkingYUp) //...................................
+            {
+                dY *= 0.5f;
+                dX *= 0.5f;
+
+                SLMat4f rot;
+                rot.rotate(-dX, SLVec3f(0, 1, 0));
+                rot.rotate(-dY, rightVS);
+
+                forwardVS.set(rot.multVec(forwardVS));
+                lookAt(positionVS + forwardVS);
+                needUpdate();
+            }
+            else if (_camAnim==CA_walkingZUp) //...................................
+            {
+                dY *= 0.5f;
+                dX *= 0.5f;
+
+                SLMat4f rot;
+                rot.rotate(-dX, SLVec3f(0, 0, 1));
+                rot.rotate(-dY, rightVS);
+
+                forwardVS.set(rot.multVec(forwardVS));
+                lookAt(positionVS + forwardVS, SLVec3f(0, 0, 1));
+                needWMUpdate();
+            }
+
+            _oldTouchPos1.set((SLfloat)x,(SLfloat)y);
         }
-        else if (_camAnim==CA_trackball) //....................................
-        {
-            // Reference: https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
-            // calculate current mouse vector at currenct mouse position
-            SLVec3f curMouseVec = trackballVec(x, y);
-
-            // calculate angle between the old and the current mouse vector
-            // Take care that the dot product isn't greater than 1.0 otherwise
-            // the acos will return indefined.
-            SLfloat dot = _trackballStartVec.dot(curMouseVec);
-            SLfloat angle = acos(dot>1?1:dot) * SL_RAD2DEG;
-
-            // calculate rotation axis with the cross product
-            SLVec3f axisVS;
-            axisVS.cross(_trackballStartVec, curMouseVec);
-            
-            // To stabilise the axis we average it with the last axis
-            static SLVec3f lastAxisVS = SLVec3f::ZERO;
-            if (lastAxisVS != SLVec3f::ZERO) axisVS = (axisVS + lastAxisVS) / 2.0f;
-            
-            // Because we calculate the mouse vectors from integer mouse positions
-            // we can get some numerical instability from the dot product when the
-            // mouse is on the silhouette of the virtual sphere.
-            // We calculate therefore an alternative for the angle from the mouse
-            // motion length.
-            SLVec2f dMouse(_oldTouchPos1.x-x, _oldTouchPos1.y-y);
-            SLfloat dMouseLenght = dMouse.length();
-            if (angle > dMouseLenght) angle = dMouseLenght*0.2f;
-            
-            // Transform rotation axis into world space
-            // Remember: The cameras om is the view matrix inversed
-            SLVec3f axisWS = _om.mat3() * axisVS;
-            
-            // Create rotation from one rotation around one axis
-            SLMat4f rot;
-            rot.translate(lookAtPoint);             // undo camera translation
-            rot.rotate((SLfloat)-angle, axisWS);    // create incremental rotation
-            rot.translate(-lookAtPoint);            // redo camera translation
-            _om.setMatrix(rot * _om);               // accumulate rotation to the existing camera matrix
-            
-            // set current to last
-            _trackballStartVec = curMouseVec;
-            lastAxisVS = axisVS;
-            
-            needUpdate();
-        }
-        else if (_camAnim==CA_walkingYUp) //...................................
-        {
-            dY *= 0.5f;
-            dX *= 0.5f;
-
-            SLMat4f rot;
-            rot.rotate(-dX, SLVec3f(0, 1, 0));
-            rot.rotate(-dY, rightVS);
-
-            forwardVS.set(rot.multVec(forwardVS));
-            lookAt(positionVS + forwardVS);
-            needUpdate();
-        }
-        else if (_camAnim==CA_walkingZUp) //...................................
-        {
-            dY *= 0.5f;
-            dX *= 0.5f;
-
-            SLMat4f rot;
-            rot.rotate(-dX, SLVec3f(0, 0, 1));
-            rot.rotate(-dY, rightVS);
-
-            forwardVS.set(rot.multVec(forwardVS));
-            lookAt(positionVS + forwardVS, SLVec3f(0, 0, 1));
-            needWMUpdate();
-        }
-
-        _oldTouchPos1.set((SLfloat)x,(SLfloat)y);
     }
     else
     if (button == MB_middle) //================================================
@@ -867,7 +884,6 @@ SLCamera::onMouseWheel event handler moves camera forwards or backwards
 */
 SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
 {
-    SLScene* s = SLApplication::scene;
     SLfloat sign = (SLfloat)SL_sign(delta);
 
     if (_camAnim==CA_turntableYUp ||
@@ -902,8 +918,6 @@ screen.
 SLbool SLCamera::onTouch2Down(const SLint x1, const SLint y1,
                               const SLint x2, const SLint y2)
 {
-    SLScene* s = SLApplication::scene;
-
     _oldTouchPos1.set((SLfloat)x1, (SLfloat)y1);
     _oldTouchPos2.set((SLfloat)x2, (SLfloat)y2);
     return true;

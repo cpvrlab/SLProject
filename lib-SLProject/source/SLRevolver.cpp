@@ -21,7 +21,7 @@ SLRevolver::SLRevolver ctor for generic revolution object.
 */
 SLRevolver::SLRevolver(SLVVec3f revolvePoints, 
                        SLVec3f  revolveAxis,
-                       SLint    slices,
+                       SLuint   slices,
                        SLbool   smoothFirst, SLbool   smoothLast, 
                        SLstring name,
                        SLMaterial* mat) : SLMesh(name)
@@ -89,7 +89,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
     {   m.identity();
         texCoord.x = 0;
         texCoord.y += segments[r];
-        for (SLint s=0; s<=_slices; ++s)
+        for (SLuint s=0; s<=_slices; ++s)
         {  
             if (s==0 || s==_slices)
                  P[iV] = _revPoints[r];
@@ -117,7 +117,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
         // only define faces if neighboring points are different
         if (_revPoints[r] != _revPoints[r+1])
         {  
-            for (SLint s=0; s<_slices; ++s)
+            for (SLuint s=0; s<_slices; ++s)
             {  
                 // Add two triangles if real quad is visible
                 // Add upper triangle only iB (or iC) are not on rev. axis
@@ -147,9 +147,9 @@ void SLRevolver::buildMesh(SLMaterial* material)
     {   I16.clear();
         I16.resize(faces.size() * 3);
         for(auto face : faces) 
-        {   I16[i++] = face.x;
-            I16[i++] = face.y;
-            I16[i++] = face.z;
+        {   I16[i++] = (SLushort)face.x;
+            I16[i++] = (SLushort)face.y;
+            I16[i++] = (SLushort)face.z;
         }
     } else
     {   I32.clear();
@@ -173,7 +173,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
    
     // correct normals at the first point
     if (_smoothFirst)
-    {   for (SLint s=0; s<_slices; ++s)
+    {   for (SLuint s=0; s<_slices; ++s)
         {   N[s  ] = -_revAxis;
             N[s+1] = -_revAxis;
         }
@@ -181,14 +181,14 @@ void SLRevolver::buildMesh(SLMaterial* material)
    
     // correct normals at the first point
     if (_smoothLast)
-    {   for (SLint s=0; s<_slices; ++s)
+    {   for (SLuint s=0; s<_slices; ++s)
         {   N[P.size()-s-1] = _revAxis;
             N[P.size()-s-2] = _revAxis;
         }
     }
    
     // correct (smooth) the start normal and the end normal of a stack
-    for (SLint r=0; r<_revPoints.size(); ++r)
+    for (SLuint r=0; r<_revPoints.size(); ++r)
     {   iV1 =  r * (_slices+1);
         iV2 = iV1 + _slices;
         N[iV1] += N[iV2];
