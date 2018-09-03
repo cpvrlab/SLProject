@@ -233,7 +233,7 @@ class SLMat4
                                   SLVec3f &rotEulerRAD, 
                                   SLVec3f &scale);
 
-         void        print       (const SLchar* str=0) const;
+         void        print       (const SLchar* str=nullptr) const;
          SLstring    toString    () const;
 
   static void        swap        (T& a, T& b) {T t; t=a;a=b;b=t;}
@@ -405,7 +405,7 @@ Matrix - matrix multiplication
 template<class T>
 SLMat4<T> SLMat4<T>::operator *(const SLMat4& A) const
 {
-    SLMat4<T> newM((T*)this);
+    SLMat4<T> newM((const T*)this);
     newM.multiply(A);
     return newM;
 }
@@ -426,7 +426,7 @@ SLMat4<T>& SLMat4<T>::operator *=(const SLMat4& A)
 template<class T>
 SLMat4<T> SLMat4<T>::operator+(const SLMat4& A) const
 {
-    SLMat4<T> newM((T*)this);
+    SLMat4<T> newM((const T*)this);
     newM.add(A);
     return newM;
 }

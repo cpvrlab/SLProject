@@ -50,8 +50,8 @@ Android applications they are copied to the appropriate file system locations.
 class SLGLProgram : public SLObject
 {
     public:
-                        SLGLProgram     (SLstring vertShaderFile=0,
-                                         SLstring fragShaderFile=0);          
+                        SLGLProgram     (SLstring vertShaderFile=nullptr,
+                                         SLstring fragShaderFile=nullptr);
     virtual            ~SLGLProgram     ();
 
             void        addShader       (SLGLShader* shader);         

@@ -53,7 +53,7 @@ void SLBox::buildMesh(SLMaterial* material)
     //Set one default material index
     mat(material);
     
-    SLint p=0, i=0;
+    SLuint p=0, i=0;
    
     // predefined normals
     SLVec3f NX = SLVec3f( 1, 0, 0);

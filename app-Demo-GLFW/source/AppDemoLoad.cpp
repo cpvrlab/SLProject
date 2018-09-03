@@ -2588,9 +2588,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLLightSpot* light1 = new SLLightSpot(3, 3, 3, 0.3f);
         #ifndef SL_GLES2
-        SLint numSamples = 10;
+        SLuint numSamples = 10;
         #else
-        SLint numSamples = 8;
+        SLuint numSamples = 8;
         #endif
         light1->samples(numSamples, numSamples);
         light1->attenuation(0,0,1);

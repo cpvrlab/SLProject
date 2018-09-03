@@ -89,8 +89,8 @@ class SLCVImage : public SLObject
             // Getters                      
             SLCVMat         cvMat           () {return _cvMat;}
             SLubyte*        data            () {return _cvMat.data;}
-            SLuint          width           () {return _cvMat.cols;}
-            SLuint          height          () {return _cvMat.rows;}
+            SLuint          width           () {return (SLuint)_cvMat.cols;}
+            SLuint          height          () {return (SLuint)_cvMat.rows;}
             SLuint          bytesPerPixel   () {return _bytesPerPixel;}
             SLuint          bytesPerLine    () {return _bytesPerLine;}
             SLuint          bytesPerImage   () {return _bytesPerImage;}
@@ -99,16 +99,16 @@ class SLCVImage : public SLObject
             SLstring        path            () {return _path;}
                                             
     private:
-            SLint           bytesPerPixel   (SLPixelFormat pixelFormat);
-            SLint           bytesPerLine    (SLint width, 
+            SLuint          bytesPerPixel   (SLPixelFormat pixelFormat);
+            SLuint          bytesPerLine    (SLuint width,
                                              SLPixelFormat pixelFormat,
                                              SLbool isContinuous = false);
                                             
             SLCVMat         _cvMat;         //!< OpenCV mat matrix image type
             SLPixelFormat   _format;        //!< OpenGL pixel format
-            SLint           _bytesPerPixel; //!< Number of bytes per pixel
-            SLint           _bytesPerLine;  //!< Number of bytes per line (stride)
-            SLint           _bytesPerImage; //!< Number of bytes per image
+            SLuint          _bytesPerPixel; //!< Number of bytes per pixel
+            SLuint          _bytesPerLine;  //!< Number of bytes per line (stride)
+            SLuint          _bytesPerImage; //!< Number of bytes per image
             SLstring        _path;          //!< path on the filesystem
 };
 //-----------------------------------------------------------------------------

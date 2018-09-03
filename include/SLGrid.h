@@ -24,7 +24,7 @@ class SLGrid: public SLMesh
                         SLGrid(SLVec3f minXZ, SLVec3f maxXZ,
                                SLuint resX, SLuint resZ,
                                SLstring name = "grid mesh",
-                               SLMaterial* mat=0);
+                               SLMaterial* mat=nullptr);
                
             void        buildMesh(SLMaterial* mat);
                

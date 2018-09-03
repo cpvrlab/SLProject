@@ -23,12 +23,12 @@ class SLPoints: public SLMesh
                         //! Ctor for a given vector of points
                         SLPoints(SLVVec3f& points,
                                  SLstring name = "point cloud",
-                                 SLMaterial* mat=0);
+                                 SLMaterial* mat=nullptr);
 
                         //! Ctor for a random point cloud.
                         SLPoints(SLfloat nPoints, SLRnd3f& rnd,
                                  SLstring name = "normal point cloud",
-                                 SLMaterial* mat=0);
+                                 SLMaterial* mat=nullptr);
 };
 //-----------------------------------------------------------------------------
 #endif

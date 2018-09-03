@@ -53,7 +53,7 @@ SLKeyframe* SLAnimTrack::keyframe(SLint index)
     if (index < 0 || index >= numKeyframes())
         return nullptr;
 
-    return _keyframes[index];
+    return _keyframes[(SLuint)index];
 }
 
 //-----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat time,
                                         SLKeyframe** k2) const
 {
     SLfloat t1, t2;
-    SLint numKf = (SLint)_keyframes.size();
+    SLuint numKf = (SLuint)_keyframes.size();
     float animationLength = _animation->lengthSec();
 
     assert(animationLength > 0.0f && "Animation length is invalid.");
@@ -103,8 +103,8 @@ SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat time,
     //          set t2 to the time of the keyframe
     //      4. now find the keyframe before keyframe 2 (if we use iterators here this is trivial!)
     //         set keyframe 1 to the keyframe found before keyframe 2
-    SLint kfIndex = 0;
-    for (SLint i = 0; i < numKf; ++i)
+    SLuint kfIndex = 0;
+    for (SLuint i = 0; i < numKf; ++i)
     {
         SLKeyframe* cur = _keyframes[i];
 
@@ -131,7 +131,7 @@ SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat time,
     }
 
     
-    if (t1 == t2)
+    if (SL_abs(t1-t2) < 0.0001f)
         return 0.0f;
 
     /// @todo   do we want to consider the edge case below or do we want imported animations to have
@@ -248,7 +248,7 @@ void SLNodeAnimTrack::applyToNode(SLNode* node,
     if (node == nullptr)
         return;
 
-    SLTransformKeyframe kf(0, time);
+    SLTransformKeyframe kf(nullptr, time);
     calcInterpolatedKeyframe(time, &kf);
 
     SLVec3f translation = kf.translation() * weight * scale;
@@ -279,7 +279,7 @@ void SLNodeAnimTrack::drawVisuals(SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
-/*! Rebuilds the translation interpolation B�zier curve.
+/*! Rebuilds the translation interpolation Bezier curve.
 */
 void SLNodeAnimTrack::buildInterpolationCurve() const
 {
@@ -288,9 +288,9 @@ void SLNodeAnimTrack::buildInterpolationCurve() const
         if (_interpolationCurve) delete _interpolationCurve;
 
         // Build curve data w. cumulated times
-        SLVVec4f points; points.resize(numKeyframes());
+        SLVVec4f points; points.resize((SLuint)numKeyframes());
         //SLfloat  curTime = 0;
-        for (SLint i=0; i<numKeyframes(); ++i)
+        for (SLuint i=0; i<(SLuint)numKeyframes(); ++i)
         {   SLVec3f t = ((SLTransformKeyframe*)_keyframes[i])->translation();
             points[i].set(t.x, t.y, t.z, _keyframes[i]->time());
         }

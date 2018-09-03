@@ -66,10 +66,10 @@ class SLTransferFunction: public SLGLTexture, public SLEventHandler
     public:
                             SLTransferFunction  (SLVTransferAlpha alphaVec,
                                                  SLColorLUT lut=CLUT_RYGCB,
-                                                 SLint length = 256);
+                                                 SLuint length = 256);
                             SLTransferFunction  (SLVTransferAlpha alphaValues,
                                                  SLVTransferColor colorValues,
-                                                 SLint length = 256);
+                                                 SLuint length = 256);
 
                    // Don't forget destructor to be virtual for texture deallocation
                    virtual ~SLTransferFunction  ();
@@ -80,13 +80,13 @@ class SLTransferFunction: public SLGLTexture, public SLEventHandler
         void                colors              (SLColorLUT lut);
 
         // Getters
-        SLint               length              () {return _length;}
+        SLuint              length              () {return _length;}
         SLVTransferColor&   colors              () {return _colors;}
         SLVTransferAlpha&   alphas              () {return _alphas;}
         SLVfloat            allAlphas           ();
 
     private:
-        SLint               _length;    //! Length of transfer function (default 256)
+        SLuint              _length;    //! Length of transfer function (default 256)
         SLColorLUT          _colorLUT;  //! Color LUT identifier
         SLVTransferColor    _colors;    //! vector of colors in TF
         SLVTransferAlpha    _alphas;    //! vector of alphas in TF

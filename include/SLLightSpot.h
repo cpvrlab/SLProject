@@ -64,12 +64,12 @@ class SLLightSpot: public SLNode, public SLLight
                                      const SLfloat lightDist);
             
             // Setters
-            void        samples     (SLint x, SLint y)
+            void        samples     (SLuint x, SLuint y)
                                     {_samples.samples(x, y, false);}
             
             // Getters
             SLfloat     radius      () {return _radius;}
-            SLint       samples     () {return _samples.samples();}
+            SLuint      samples     () {return _samples.samples();}
             SLVec4f     positionWS  () {return translationWS();}
             SLVec3f     spotDirWS   () {return forwardWS();}
 

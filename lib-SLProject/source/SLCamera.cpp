@@ -39,9 +39,9 @@ SLCamera::SLCamera(SLstring name) : SLNode(name),
     _aspect     = 640.0f/480.0f;        // will be overwritten in setProjection
     _clipNear   = 0.1f;
     _clipFar    = 300.0f;
-    _fov        = 45.0;                 //currentFOV;
-    _projection = P_monoPerspective;    //currentProjection;
-    _camAnim    = CA_turntableYUp;      //currentAnimation
+    _fov        = 45.0;
+    _projection = P_monoPerspective;
+    _camAnim    = CA_turntableYUp;
 
     // depth of field parameters
     _lensDiameter = 0.3f;
@@ -52,7 +52,6 @@ SLCamera::SLCamera(SLstring name) : SLNode(name),
     _background.colors(SLCol4f(0.6f,0.6f,0.6f), SLCol4f(0.3f,0.3f,0.3f));
 }
 //-----------------------------------------------------------------------------
-//! Destructor: Be sure to delete the OpenGL display list.
 SLCamera::~SLCamera()
 {
 }

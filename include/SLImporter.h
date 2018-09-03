@@ -66,7 +66,7 @@ class SLImporter
                 SLImporter          (const SLstring& logFile,
                                      SLLogVerbosity logConsoleVerb = LV_normal,
                                      SLLogVerbosity logFileVerb = LV_diagnostic);
-               ~SLImporter          ();
+    virtual    ~SLImporter          ();
     
     void        logConsoleVerbosity (SLLogVerbosity verb) { _logConsoleVerbosity = verb; }
     void        logFileVerbosity    (SLLogVerbosity verb) { _logFileVerbosity = verb; }

@@ -128,7 +128,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
                 SLCol4f oldColor;
                 if (currentSample > 1)
                 {
-                    oldColor = _images[1]->getPixeli(x, y);
+                    oldColor = _images[1]->getPixeli(x, (SLint)y);
 
                     // weight old color ( examp. 3/4, 4/5, 5/6 )
                     oldColor /= (SLfloat)currentSample;
@@ -144,7 +144,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
                 color.clampMinMax(0.0f, 1.0f);
 
                 // save image without gamma
-                _images[1]->setPixeliRGB(x, y, color);
+                _images[1]->setPixeliRGB(x, (SLint)y, color);
 
                 // gamma correction
                 if (_applyGamma)
@@ -154,7 +154,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
                 }
 
                 // image to render
-                _images[0]->setPixeliRGB(x, y, color);
+                _images[0]->setPixeliRGB(x, (SLint)y, color);
             }
 
             // update image after 500 ms
@@ -330,7 +330,7 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor)
     SLfloat  lightDist, LdN, df, spotEffect, lighted = 0.0f;
 
     // loop over light sources in scene
-    for (SLint i = 0; i < s->lights().size(); ++i)
+    for (SLuint i = 0; i < s->lights().size(); ++i)
     {
         SLLight* light = s->lights()[i];
 

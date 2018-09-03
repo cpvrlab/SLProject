@@ -41,7 +41,7 @@ void SLCoordAxis::buildMesh()
     //In SLMesh::init this will be set automatically to SLMaterial::diffuseAttrib
     mat(nullptr);
     
-    SLint i=0, v1=0, v2=0, v3=0, v4=0;
+    SLushort i=0, v1=0, v2=0, v3=0, v4=0;
     SLfloat t = _arrowThickness * 0.5f;
     SLfloat h = _arrowHeadLength;
     SLfloat w = _arrowHeadWidth * 0.5f;

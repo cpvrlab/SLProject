@@ -120,19 +120,19 @@ void SLRectangle::buildMesh(SLMaterial* material)
     // Build face vertex indices
     if (I16.size())
     {
-        SLuint v = 0, i = 0; //index for vertices and indices
+        SLushort v = 0, i = 0; //index for vertices and indices
         for (SLuint y=0; y<_resY; ++y)
         {  
             for (SLuint x=0; x<_resX; ++x, ++v)
             {  // triangle 1
                 I16[i++] = v;
-                I16[i++] = v+_resX+2;
-                I16[i++] = v+_resX+1;
+                I16[i++] = v+(SLushort)_resX+2;
+                I16[i++] = v+(SLushort)_resX+1;
 
                 // triangle 2
                 I16[i++] = v;
                 I16[i++] = v+1;
-                I16[i++] = v+_resX+2;
+                I16[i++] = v+(SLushort)_resX+2;
             }      
             v++;
         }

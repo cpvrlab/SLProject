@@ -21,12 +21,12 @@
 SLAnimPlayback::SLAnimPlayback(SLAnimation* parent, SLfloat weight)
                 : _animation(parent),
                 _localTime(0.0f),
-                _linearLocalTime(0.0f),
+                _weight(weight),
                 _playbackRate(1.0f),
                 _playbackDir(1),
-                _weight(weight),
                 _enabled(false),
                 _easing(EC_linear),
+                _linearLocalTime(0.0f),
                 _loopingBehaviour(AL_loop)
 {
 }
@@ -72,7 +72,7 @@ void SLAnimPlayback::advanceTime(SLfloat delta)
     }     
 
     // don't go any further, nothing's changed
-    if (_linearLocalTime == prevTime)
+    if (SL_abs(_linearLocalTime-prevTime) < 0.0001f)
         return;
 
     // mark the playback as changed

@@ -131,7 +131,7 @@ class SLUtils
                 struct dirent *dirContent;
                 int i=0;
 
-                while ((dirContent = readdir(dir)) != NULL)
+                while ((dirContent = readdir(dir)) != nullptr)
                 {   i++;
                     SLstring name(dirContent->d_name);
                     if(name != "." && name != "..")
@@ -210,7 +210,7 @@ class SLUtils
                 formatted.reset(new char[n]); /* Wrap the plain char array into the unique_ptr */
                 strcpy(&formatted[0], fmt_str.c_str());
                 va_start(ap, fmt_str);
-                final_n = vsnprintf(&formatted[0], n, fmt_str.c_str(), ap);
+                final_n = vsnprintf(&formatted[0], (SLulong)n, fmt_str.c_str(), ap);
                 va_end(ap);
                 if (final_n < 0 || final_n >= n)
                     n += abs(final_n - n + 1);

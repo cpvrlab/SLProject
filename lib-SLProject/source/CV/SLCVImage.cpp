@@ -53,7 +53,7 @@ SLCVImage::SLCVImage(const SLVCol3f &colors)
 {
     allocate((SLint)colors.size(), 1, PF_rgb);
 
-    SLuint x=0;
+    SLint x=0;
     for (auto color : colors)
     {
         _cvMat.at<cv::Vec3b>(0, x++) = cv::Vec3b((SLuchar)(color.r * 255.0f),
@@ -67,7 +67,7 @@ SLCVImage::SLCVImage(const SLVCol4f &colors)
 {
     allocate((SLint)colors.size(), 1, PF_rgba);
 
-    SLuint x=0;
+    SLint x=0;
     for (auto color : colors)
     {
         _cvMat.at<cv::Vec4b>(0, x++) = cv::Vec4b((SLuchar)(color.r * 255.0f),
@@ -115,7 +115,8 @@ SLbool SLCVImage::allocate(SLint width,
         return false;
 
     // Set the according OpenCV format
-    SLint cvType = 0, bpp = 0;
+    SLint cvType = 0;
+    SLuint bpp = 0;
     switch (pixelFormatGL)
     {   case PF_luminance:  {cvType = CV_8UC1; bpp = 1; break;}
         case PF_red:        {cvType = CV_8UC1; bpp = 1; break;}
@@ -130,8 +131,8 @@ SLbool SLCVImage::allocate(SLint width,
 
     _format = pixelFormatGL;
     _bytesPerPixel = bpp;
-    _bytesPerLine  = bytesPerLine(width, pixelFormatGL, isContinuous);
-    _bytesPerImage = _bytesPerLine * height;
+    _bytesPerLine  = bytesPerLine((SLuint)width, pixelFormatGL, isContinuous);
+    _bytesPerImage = _bytesPerLine * (SLuint)height;
 
     if (!_cvMat.data)
         SL_EXIT_MSG("SLCVImage::Allocate: Allocation failed");
@@ -139,7 +140,7 @@ SLbool SLCVImage::allocate(SLint width,
 }
 //-----------------------------------------------------------------------------
 //! Returns the NO. of bytes per pixel for the passed pixel format
-SLint SLCVImage::bytesPerPixel(SLPixelFormat format)
+SLuint SLCVImage::bytesPerPixel(SLPixelFormat format)
 {
     switch (format)
     {
@@ -173,13 +174,13 @@ SLint SLCVImage::bytesPerPixel(SLPixelFormat format)
 /param pixelFormatGL OpenGL pixel format enum
 /param isContinuous True if the memory is continuous and has no stride bytes at the end of the line
 */
-SLint SLCVImage::bytesPerLine(SLint width,
-                            SLPixelFormat format, 
-                            SLbool isContinuous)
+SLuint SLCVImage::bytesPerLine(SLuint width,
+                               SLPixelFormat format,
+                               SLbool isContinuous)
 {
-    SLint bpp = bytesPerPixel(format);
-    SLint bitsPerPixel = bpp * 8;
-    SLint bpl = isContinuous ? width * bpp : 
+    SLuint bpp = bytesPerPixel(format);
+    SLuint bitsPerPixel = bpp * 8;
+    SLuint bpl = isContinuous ? width * bpp :
                 ((width * bitsPerPixel + 31) / 32) * 4;
     return bpl;
 }
@@ -211,10 +212,10 @@ SLbool SLCVImage::load(SLint width,
                                           dstPixelFormatGL,
                                           false);
     
-    SLint    dstBPL   = _bytesPerLine;
-    SLint    dstBPP   = _bytesPerPixel;
-    SLint    srcBPP   = bytesPerPixel(srcPixelFormatGL);
-    SLint    srcBPL   = bytesPerLine(width, srcPixelFormatGL, isContinuous);
+    SLuint dstBPL   = _bytesPerLine;
+    SLuint dstBPP   = _bytesPerPixel;
+    SLuint srcBPP   = bytesPerPixel(srcPixelFormatGL);
+    SLuint srcBPL   = bytesPerLine((SLuint)width, srcPixelFormatGL, isContinuous);
     
     if (isTopLeft)
     {
@@ -225,7 +226,7 @@ SLbool SLCVImage::load(SLint width,
         if (srcPixelFormatGL==dstPixelFormatGL)
         {
             for (SLint h=0; h<_cvMat.rows; ++h, srcStart += srcBPL, dstStart -= dstBPL)
-            {   memcpy(dstStart, srcStart, dstBPL);
+            {   memcpy(dstStart, srcStart, (SLulong)dstBPL);
             }
         }
         else
@@ -284,7 +285,7 @@ SLbool SLCVImage::load(SLint width,
     {
         if (srcPixelFormatGL==dstPixelFormatGL)
         {
-            memcpy(_cvMat.data, data, _bytesPerImage);
+            memcpy(_cvMat.data, data, (SLulong)_bytesPerImage);
         }
         else
         {
@@ -406,8 +407,8 @@ void SLCVImage::load(const SLstring filename,
         //savePNG(_path + filename + "_InAlpha.png");
     }
     
-    _bytesPerLine  = bytesPerLine(_cvMat.cols, _format, _cvMat.isContinuous());
-    _bytesPerImage = _bytesPerLine * _cvMat.rows;
+    _bytesPerLine  = bytesPerLine((SLuint)_cvMat.cols, _format, _cvMat.isContinuous());
+    _bytesPerImage = _bytesPerLine * (SLuint)_cvMat.rows;
 
     // OpenCV loads top-left but OpenGL is bottom left
     if (flipVertical)

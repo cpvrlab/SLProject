@@ -87,7 +87,7 @@ void SLPolygon::buildMesh(SLMaterial* material)
     }
    
     // Build face vertex indices
-    for (SLuint f=0; f<_corners.size()-2; ++f) 
+    for (SLushort f=0; f<_corners.size()-2; ++f)
     {   SLuint i = f * 3;
         I16[i  ] = 0;
         I16[i+1] = f+1;

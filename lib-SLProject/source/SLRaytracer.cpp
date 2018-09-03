@@ -84,7 +84,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
             SLCol4f color = trace(&primaryRay);
             ///////////////////////////////////
 
-            _images[0]->setPixeliRGB(x, y, color);
+            _images[0]->setPixeliRGB((SLint)x, (SLint)y, color);
 
             SLRay::avgDepth += SLRay::depthReached;
             SLRay::maxDepthReached = SL_max(SLRay::depthReached,
@@ -212,7 +212,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
                 SLCol4f color = trace(&primaryRay);
                 ///////////////////////////////////
 
-                _images[0]->setPixeliRGB(x, y, color);
+                _images[0]->setPixeliRGB((SLint)x, (SLint)y, color);
 
                 SLRay::avgDepth += SLRay::depthReached;
                 SLRay::maxDepthReached = SL_max(SLRay::depthReached,
@@ -268,10 +268,10 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                 SLCol4f color(SLCol4f::BLACK);
             
                 // Loop over radius r and angle phi of lens
-                for (SLint iR=_cam->lensSamples()->samplesX()-1; iR>=0; --iR)
-                {   for (SLint iPhi=_cam->lensSamples()->samplesY()-1; iPhi>=0; --iPhi)
+                for (SLint iR=(SLint)_cam->lensSamples()->samplesX()-1; iR>=0; --iR)
+                {   for (SLint iPhi=(SLint)_cam->lensSamples()->samplesY()-1; iPhi>=0; --iPhi)
                     {   
-                        SLVec2f discPos(_cam->lensSamples()->point(iR,iPhi));
+                        SLVec2f discPos(_cam->lensSamples()->point((SLuint)iR,(SLuint)iPhi));
                   
                         // calculate lens position out of disc position
                         SLVec3f lensPos(_EYE + discPos.x*lensRadiusX + discPos.y*lensRadiusY);
@@ -295,7 +295,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                     }
                 }
                 color /= (SLfloat)_cam->lensSamples()->samples();
-                _images[0]->setPixeliRGB(x, y, color);
+                _images[0]->setPixeliRGB((SLint)x, y, color);
          
                 SLRay::avgDepth += SLRay::depthReached;
                 SLRay::maxDepthReached = SL_max(SLRay::depthReached, SLRay::maxDepthReached);
@@ -337,19 +337,19 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
         {
             if (!_doFresnel)
             {   // Do classic refraction and/or reflection
-                if (kt)
+                if (kt>0.0f)
                 {   SLRay refracted(_sv);
                     ray->refract(&refracted);
                     color += kt * trace(&refracted);
                 }
-                if (kr)
+                if (kr>0.0f)
                 {   SLRay reflected(_sv);
                     ray->reflect(&reflected);
                     color += kr * trace(&reflected);
                 }
             } else
             {   // Mix refr. & refl. color w. Fresnel aproximation
-                if (kt)
+                if (kt>0.0f)
                 {   SLRay refracted(_sv), reflected(_sv);
                     ray->refract(&refracted);
                     ray->reflect(&reflected);
@@ -359,10 +359,10 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
                     // Apply Schlick's Fresnel aproximation
                     SLfloat F0 = kr;
                     SLfloat theta = -(ray->dir * ray->hitNormal);
-                    SLfloat F_theta = F0 + (1-F0) * pow(1-theta, 5);
+                    SLfloat F_theta = F0 + (1-F0) * (SLfloat)pow(1-theta, 5);
                     color += refrCol*(1-F_theta) + reflCol*F_theta;
                 } else
-                {   if (kr)
+                {   if (kr>0.0f)
                     {   SLRay reflected(_sv);
                         ray->reflect(&reflected);
                         color += kr * trace(&reflected);
@@ -427,8 +427,9 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
     
     ray->hitMesh->preShade(ray);
       
-    for (SLint i=0; i<s->lights().size(); ++i) 
-    {  SLLight* light = s->lights()[i];
+    for (SLuint i=0; i<s->lights().size(); ++i)
+    {
+        SLLight* light = s->lights()[i];
    
         if (light && light->isOn())
         {              
@@ -518,25 +519,25 @@ void SLRaytracer::getAAPixels()
     for (SLuint y=0; y<_images[0]->height(); ++y)
     {  for (SLuint x=0; x<_images[0]->width(); ++x)
         {
-            color = _images[0]->getPixeli(x, y);
+            color = _images[0]->getPixeli((SLint)x, (SLint)y);
             isSubsampled = false;
             if (x>0)
-            {  colorLeft = _images[0]->getPixeli(x-1, y);
+            {  colorLeft = _images[0]->getPixeli((SLint)x-1, (SLint)y);
                 if (color.diffRGB(colorLeft) > _aaThreshold)
                 {   if (!gotSampled[x-1])
-                    {   _aaPixels.push_back(SLRTAAPixel(x-1,y));
+                    {   _aaPixels.push_back(SLRTAAPixel((SLushort)x-1,(SLushort)y));
                         gotSampled[x-1] = true;
                     }
-                    _aaPixels.push_back(SLRTAAPixel(x,y));
+                    _aaPixels.push_back(SLRTAAPixel((SLushort)x,(SLushort)y));
                     isSubsampled = true;
                 }
             }
             if (y>0)
-            {   colorUp = _images[0]->getPixeli(x, y-1);
+            {   colorUp = _images[0]->getPixeli((SLint)x, (SLint)y-1);
                 if(color.diffRGB(colorUp) > _aaThreshold)
-                {   if (!gotSampled[x]) _aaPixels.push_back(SLRTAAPixel(x,y-1));
+                {   if (!gotSampled[x]) _aaPixels.push_back(SLRTAAPixel((SLushort)x,(SLushort)y-1));
                     if (!isSubsampled)
-                    {   _aaPixels.push_back(SLRTAAPixel(x,y));
+                    {   _aaPixels.push_back(SLRTAAPixel((SLushort)x,(SLushort)y));
                         isSubsampled = true;
                     }
                 }
@@ -544,7 +545,7 @@ void SLRaytracer::getAAPixels()
             gotSampled[x] = isSubsampled;
         }
     }
-    SLRay::subsampledPixels = (SLint)_aaPixels.size();
+    SLRay::subsampledPixels = (SLuint)_aaPixels.size();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -561,15 +562,15 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
     assert(_aaSamples%2==1 && "subSample: maskSize must be uneven");
     double t1 = 0, t2 = 0;
 
-    while (_next < _aaPixels.size())
+    while (_next < (SLint)_aaPixels.size())
     {
-        SLuint mini = _next;
+        SLuint mini = (SLuint)_next;
         _next += 4;
       
         for (SLuint i = mini; i< mini+4 && i<_aaPixels.size(); ++i)
         {   SLuint x = _aaPixels[i].x;
             SLuint y = _aaPixels[i].y;
-            SLCol4f centerColor = _images[0]->getPixeli(x, y);
+            SLCol4f centerColor = _images[0]->getPixeli((SLint)x, (SLint)y);
             SLint   centerIndex = _aaSamples>>1;
             SLfloat f = 1.0f/(SLfloat)_aaSamples;
             SLCol4f color(0,0,0);
@@ -592,7 +593,7 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
             }
             SLRay::subsampledRays += (SLuint)samples;
             color /= samples;
-            _images[0]->setPixeliRGB(x, y, color);
+            _images[0]->setPixeliRGB((SLint)x, (SLint)y, color);
         }
 
         if (isMainThread && !_doContinuous)
@@ -654,7 +655,7 @@ void SLRaytracer::printStats(SLfloat sec)
     SL_LOG("\nNum. Threads : %10d", SL::maxThreads());
     SL_LOG("\nAllowed depth: %10d", SLRay::maxDepth);
 
-    SLint  primarys = _sv->scrW()*_sv->scrH();
+    SLuint primarys = (SLuint)(_sv->scrW()*_sv->scrH());
     SLuint total = primarys +
                    SLRay::reflectedRays +
                    SLRay::subsampledRays +
@@ -745,7 +746,8 @@ void SLRaytracer::prepareImage()
         _images.push_back(new SLCVImage(_sv->scrW(), _sv->scrH(), PF_rgb, "Raytracer"));
 
     // Allocate image of the inherited texture class 
-    if (_sv->scrW() != _images[0]->width() || _sv->scrH() != _images[0]->height())
+    if (_sv->scrW() != (SLint)_images[0]->width() ||
+        _sv->scrH() != (SLint)_images[0]->height())
     {  
         // Delete the OpenGL Texture if it already exists
         if (_texName) 
@@ -768,8 +770,8 @@ void SLRaytracer::renderImage()
 {
     SLfloat w = (SLfloat)_sv->scrW();
     SLfloat h = (SLfloat)_sv->scrH();
-    if (w != _images[0]->width()) return;
-    if (h != _images[0]->height()) return;
+    if (SL_abs(_images[0]->width()-w) > 0.0001f) return;
+    if (SL_abs(_images[0]->height()-h) > 0.0001f) return;
       
     // Set orthographic projection with the size of the window
     _stateGL->projectionMatrix.ortho(0.0f, w, 0.0f, h, -1.0f, 0.0f);

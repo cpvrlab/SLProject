@@ -108,7 +108,7 @@ class SLCamera: public SLNode
             void            drag                (const SLfloat drag) {_drag = drag;}
             void            focalDist           (const SLfloat f)    {_focalDist = f;}
             void            lensDiameter        (const SLfloat d)    {_lensDiameter = d;}
-            void            lensSamples         (SLint x, SLint y)   {_lensSamples.samples(x, y);}
+            void            lensSamples         (SLuint x, SLuint y) {_lensSamples.samples(x, y);}
             void            eyeSeparation       (const SLfloat es)   {_eyeSeparation = es;}
                
             // Getters

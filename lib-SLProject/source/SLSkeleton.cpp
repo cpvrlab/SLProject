@@ -21,10 +21,10 @@
 //-----------------------------------------------------------------------------
 /*! Constructor
 */
-SLSkeleton::SLSkeleton() : _minOS(-1, -1, -1),
+SLSkeleton::SLSkeleton() : _rootJoint(nullptr),
+                           _minOS(-1, -1, -1),
                            _maxOS(1, 1, 1),
-                           _minMaxOutOfDate(true),
-                           _rootJoint(nullptr)
+                           _minMaxOutOfDate(true)
 {
     SLApplication::scene->animManager().addSkeleton(this);
 }
@@ -103,7 +103,7 @@ SLJoint* SLSkeleton::getJoint(const SLstring& name)
 */
 void SLSkeleton::getJointMatrices(SLVMat4f& jointWM)
 {
-    for (SLint i = 0; i < _joints.size(); i++)
+    for (SLuint i = 0; i < _joints.size(); i++)
     {
         jointWM[i] = _joints[i]->updateAndGetWM() * _joints[i]->offsetMat();
     }
