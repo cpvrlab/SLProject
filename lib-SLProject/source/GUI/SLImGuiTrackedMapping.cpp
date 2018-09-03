@@ -29,13 +29,9 @@ SLImGuiTrackedMapping::SLImGuiTrackedMapping(string name, SLCVTrackedMapping* ma
 void SLImGuiTrackedMapping::buildInfos()
 {
     if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
-        _mappingTracker->sm.requestStateIdle();
-        while (!_mappingTracker->sm.hasStateIdle())
-        {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
+        _mappingTracker->Pause();
         _mappingTracker->Reset();
-        _mappingTracker->sm.requestResume();
+        _mappingTracker->Resume();
     }
     if (ImGui::Button("Bundle adjustment", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
         _mappingTracker->globalBundleAdjustment();
