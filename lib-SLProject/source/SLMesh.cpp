@@ -461,7 +461,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         
         // Build full viewport-modelview-projection transform
         SLMat4f mvp = *_stateGL->mvpMatrix();
-        SLMat4f v; v.viewport(0,0,sv->scrW(), sv->scrH());
+        SLMat4f v; v.viewport(0,0,(SLfloat)sv->scrW(), (SLfloat)sv->scrH());
         SLMat4f v_mvp = v * mvp;
         IS32.clear();
 
