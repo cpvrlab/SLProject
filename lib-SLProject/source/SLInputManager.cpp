@@ -70,7 +70,7 @@ SLbool SLInputManager::processQueuedEvents()
         const SLInputEvent* e = q.front();
         q.pop();
 
-        SLSceneView* sv = SLApplication::scene->sv(e->svIndex);
+        SLSceneView* sv = SLApplication::scene->sv((SLuint)e->svIndex);
         
         if (sv)
         {   switch (e->type)
@@ -91,6 +91,7 @@ SLbool SLInputManager::processQueuedEvents()
                 case SLInputEvent::CharInput:           {const SLCharInputEvent* ce = (const SLCharInputEvent*)e;   eventConsumed |= sv->onCharInput(ce->character); } break;
 
                 case SLInputEvent::Resize:              {const SLResizeEvent*    re = (const SLResizeEvent*)e;      sv->onResize(re->width, re->height); } break;
+                default: break;
             }
         }
 

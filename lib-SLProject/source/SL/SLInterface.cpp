@@ -150,7 +150,7 @@ int slCreateSceneView(int screenWidth,
     } else sv->onInitialize();
    
     // return the identifier index
-    return sv->index();
+    return (SLint)sv->index();
 }
 //-----------------------------------------------------------------------------
 /*! Global sceneview construction function returning the index of the created
@@ -161,7 +161,7 @@ slCreateSceneView.
 int slNewSceneView()
 {
     SLSceneView* sv = new SLSceneView();
-    return sv->index();
+    return (SLint)sv->index();
 }
 //-----------------------------------------------------------------------------
 /*! Global closing function that deallocates the sceneview and scene instances.
@@ -199,7 +199,7 @@ returned true a new frame should be drawn.
 */
 bool slUpdateAndPaint(int sceneViewIndex)
 {  
-    SLSceneView* sv = SLApplication::scene->sv(sceneViewIndex);
+    SLSceneView* sv = SLApplication::scene->sv((SLuint)sceneViewIndex);
 
     bool sceneGotUpdated = SLApplication::scene->onUpdate();
     
@@ -410,7 +410,7 @@ library.
 */
 string slGetWindowTitle(int sceneViewIndex) 
 {  
-    SLSceneView* sv = SLApplication::scene->sv(sceneViewIndex);
+    SLSceneView* sv = SLApplication::scene->sv((SLuint)sceneViewIndex);
     return sv->windowTitle();
 }
 //-----------------------------------------------------------------------------
