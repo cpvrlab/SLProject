@@ -396,6 +396,30 @@
     <ClInclude Include="..\include\SLCVTrackedFaces.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\OrbSlam\Initializer.h" />
+    <ClInclude Include="..\include\OrbSlam\LocalMapping.h" />
+    <ClInclude Include="..\include\OrbSlam\LoopClosing.h" />
+    <ClInclude Include="..\include\OrbSlam\Sim3Solver.h" />
+    <ClInclude Include="..\include\SLAverageTiming.h" />
+    <ClInclude Include="..\include\SLCVMapNode.h" />
+    <ClInclude Include="..\include\SLCVMapStorage.h" />
+    <ClInclude Include="..\include\SLCVMapTracking.h" />
+    <ClInclude Include="..\include\SLCVOrbTracking.h" />
+    <ClInclude Include="..\include\SLCVOrbVocabulary.h" />
+    <ClInclude Include="..\include\SLCVMapIO.h" />
+    <ClInclude Include="..\include\SLCVStateEstimator.h" />
+    <ClInclude Include="..\include\SLCVTrackedMapping.h" />
+    <ClInclude Include="..\include\SLCVTrackedRaulMurAsync.h" />
+    <ClInclude Include="..\include\SLCVTrackingStateMachine.h" />
+    <ClInclude Include="..\include\SLImGuiInfosChristoffelTower.h" />
+    <ClInclude Include="..\include\SLImGuiInfosDialog.h" />
+    <ClInclude Include="..\include\SLImGuiInfosMapTransform.h" />
+    <ClInclude Include="..\include\SLImGuiInfosMemoryStats.h" />
+    <ClInclude Include="..\include\SLImGuiInfosTracking.h" />
+    <ClInclude Include="..\include\SLImGuiMapStorage.h" />
+    <ClInclude Include="..\include\SLImGuiTrackedMapping.h" />
+    <ClInclude Include="..\include\SLMemoryStats.h" />
+    <ClInclude Include="..\include\SLTrackingInfosInterface.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -720,6 +744,11 @@
     <ClCompile Include="source\SLMemoryStats.cpp">
       <Filter>SL</Filter>
     </ClCompile>
+    <ClCompile Include="source\CV\OrbSlam\Initializer.cpp" />
+    <ClCompile Include="source\CV\OrbSlam\LocalMapping.cpp" />
+    <ClCompile Include="source\CV\SLCVMapNode.cpp" />
+    <ClCompile Include="source\CV\SLCVTrackedMapping.cpp" />
+    <ClCompile Include="source\SL\SLAverageTiming.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_data\shaders\ADS.frag">
@@ -913,6 +942,9 @@
       <Filter>GLSL</Filter>
     </None>
     <None Include="..\_data\shaders\VolumeRenderingRayCastLighted.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\ColorUniformPoint.vert">
       <Filter>GLSL</Filter>
     </None>
   </ItemGroup>

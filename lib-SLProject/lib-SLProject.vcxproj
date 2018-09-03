@@ -555,6 +555,7 @@
     <None Include="..\_data\shaders\Color.frag" />
     <None Include="..\_data\shaders\ColorAttribute.vert" />
     <None Include="..\_data\shaders\ColorUniform.vert" />
+    <None Include="..\_data\shaders\ColorUniformPoint.vert" />
     <None Include="..\_data\shaders\Diffuse.frag" />
     <None Include="..\_data\shaders\Diffuse.vert" />
     <None Include="..\_data\shaders\Earth.frag" />
