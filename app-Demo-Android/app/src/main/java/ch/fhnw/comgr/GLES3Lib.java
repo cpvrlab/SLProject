@@ -43,7 +43,7 @@ public class GLES3Lib {
     public static boolean RTIsRunning = false;
 
     // flag to indicate if the last video images was displayed at all
-    public static boolean lastVideoImageIsConsumed = true;
+    public static AtomicBoolean lastVideoImageIsConsumed = new AtomicBoolean(false);
 
     public static final int VIDEO_TYPE_NONE = 0;    // No video at all is used
     public static final int VIDEO_TYPE_MAIN = 1;    // Maps to Androids back facing camera

@@ -68,8 +68,8 @@ public class GLES3View extends GLSurfaceView
             int w = GLES3Lib.view.getWidth();
             int h = GLES3Lib.view.getHeight();
             GLES3Lib.onInit(w, h,
-                            GLES3Lib.dpi,
-                            GLES3Lib.App.getApplicationContext().getFilesDir().getAbsolutePath());
+                    GLES3Lib.dpi,
+                    GLES3Lib.App.getApplicationContext().getFilesDir().getAbsolutePath());
 
             // Get main event handler of UI thread
             mainLoop = new Handler(Looper.getMainLooper());
@@ -82,8 +82,8 @@ public class GLES3View extends GLSurfaceView
         }
 
         public void onDrawFrame(GL10 gl) {
-            int videoType        = GLES3Lib.getVideoType();
-            int sizeIndex        = GLES3Lib.getVideoSizeIndex();
+            int videoType = GLES3Lib.getVideoType();
+            int sizeIndex = GLES3Lib.getVideoSizeIndex();
             boolean usesRotation = GLES3Lib.usesRotation();
             boolean usesLocation = GLES3Lib.usesLocation();
 
@@ -112,7 +112,7 @@ public class GLES3View extends GLSurfaceView
                 GLES3Lib.view.requestRender();
 
             if (videoType!=VT_NONE)
-                GLES3Lib.lastVideoImageIsConsumed = true;
+                GLES3Lib.lastVideoImageIsConsumed.set(true);
         }
     }
 }

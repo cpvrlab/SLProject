@@ -1287,25 +1287,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Infos on Frameworks", nullptr, &showInfosFrameworks);
 
             for (auto dialog : _infoDialogs) {
-                //if (dialog.second->getActiveForSceneID(SLApplication::sceneID))
-                //{
                 ImGui::Separator();
                 ImGui::MenuItem(dialog.second->getName(), nullptr, &dialog.second->show);
-                //}
-                //else
-                //{
-                //    //deactivate dialog, it may be active after scene switch
-                //    dialog.second->show = false;
-                //}
-                //{
-                    ImGui::Separator();
-                    ImGui::MenuItem(dialog.second->getName(), nullptr, &dialog.second->show);
-                //}
-                //else
-                //{
-                //    //deactivate dialog, it may be active after scene switch
-                //    dialog.second->show = false;
-                //}
             }
 
             ImGui::Separator();
