@@ -206,7 +206,7 @@ public class GLES3Camera2Service extends Service {
         public void onImageAvailable(ImageReader reader) {
 
             // Don't copy the available image if the last wasn't consumed
-            if (!GLES3Lib.lastVideoImageIsConsumed.get())
+            if (!GLES3Lib.lastVideoImageIsConsumed)
                 return;
             /*if (!GLES3Lib.lastVideoImageIsConsumed.get())
             {
@@ -279,7 +279,7 @@ public class GLES3Camera2Service extends Service {
             img.close();
 
             // This avoids the next call into this before the image got displayed
-            GLES3Lib.lastVideoImageIsConsumed.set(false);
+            GLES3Lib.lastVideoImageIsConsumed = false;
 
             // Request a new rendering
             GLES3Lib.view.requestRender(); 

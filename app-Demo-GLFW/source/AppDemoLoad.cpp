@@ -2218,8 +2218,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(box);
         scene->addChild(cam1);
 
-        //s->trackers().push_back(new SLCVTrackedFeatures(cam1, "features_stones.png"));
-        s->trackers().push_back(new SLCVTrackedFeatures(cam1, "ID_Swiss_Hudritsch_Marcus_front_resized.png"));
+        s->trackers().push_back(new SLCVTrackedFeatures(cam1, "features_stones.png"));
+        //s->trackers().push_back(new SLCVTrackedFeatures(cam1, "ID_Swiss_Hudritsch_Marcus_front_resized.png"));
         //s->trackers().push_back(new SLCVTrackedFeatures(cam1, "ID_Swiss_Hudritsch_Marcus_front.png"));
         //s->trackers().push_back(new SLCVTrackedFeatures(cam1, "ID_Swiss_Fankhauser_Benjamin_front.png"));
 
