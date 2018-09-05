@@ -84,6 +84,9 @@ private:
     SLMaterial* _pcMatchedMat = NULL;
     SLMaterial* _pcLocalMat = NULL;
 
+    //vector of keyframe textures: we store a pointer to correctly delete them during a keyframe update
+    std::vector<SLGLTexture*> _kfTextures;
+
     //!mutex saved flags and vectors: only manipulate locking mutex
     bool _mapPtsChanged = false;
     bool _mapPtsLocalChanged = false;

@@ -17,6 +17,7 @@
 #include <SLCVCalibration.h>
 #include <SLCVCamera.h>
 #include <SLCVKeyFrame.h>
+#include <SLScene.h>
 
 //-----------------------------------------------------------------------------
 SLCVMapNode::SLCVMapNode(std::string name)
@@ -225,6 +226,13 @@ void SLCVMapNode::updateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
 void SLCVMapNode::doUpdateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
 {
     _keyFrames->deleteChildren();
+    //Delete keyframe textures
+    for(const auto& texture : _kfTextures)
+    {
+        SLApplication::scene->deleteTexture(texture);
+    }
+    _kfTextures.clear();
+
     for (auto* kf : kfs) {
 
         SLCVCamera* cam = new SLCVCamera(this, "KeyFrame" + kf->mnId);
@@ -233,8 +241,9 @@ void SLCVMapNode::doUpdateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
         {
             // TODO(jan): textures are saved in a global textures vector (scene->textures)
             // and should be deleted from there. Otherwise we have a yuuuuge memory leak.
-            //SLGLTexture* texture = new SLGLTexture(kf->getTexturePath());
-            //cam->background().texture(texture);
+            SLGLTexture* texture = new SLGLTexture(kf->getTexturePath());
+            _kfTextures.push_back(texture);
+            cam->background().texture(texture);
         }
 
         cam->om(kf->getObjectMatrix());
