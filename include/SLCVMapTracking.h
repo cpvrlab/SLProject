@@ -135,6 +135,12 @@ protected:
     };
 
     TrackingType trackingType = TrackingType_None;
+
+    //optical flow parameter
+    bool _optFlowOK = false;
+    SLCVMat _optFlowTcw;
+    vector<SLCVMapPoint*> _optFlowMapPtsLastFrame;
+    vector<cv::KeyPoint> _optFlowKeyPtsLastFrame;
 };
 
 #endif //SLCVMAPTRACKING_H

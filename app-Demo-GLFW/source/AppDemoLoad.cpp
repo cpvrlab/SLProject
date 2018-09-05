@@ -2674,12 +2674,13 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //4. Load a Video with 640 screen width (640x360 or 640x480), e.g. VID_20180424_2.mp4. Make sure it is placed in _data/videos.
         //Make sure it is added to androids CMakeLists.txt so it is presnet on your smartphone
 
-        //SLstring mapName = "slam-map-31";
-        //SLCVCapture::videoFilename = "20180903_ring.mp4";
+        SLstring mapName = "slam-map-31";
+        SLCVCapture::videoFilename = "20180903_ring.mp4";
         //SLstring mapName = "slam-map-32";
         //SLCVCapture::videoFilename = "20180903_nidaugasse.mp4";
-        SLstring mapName = "slam-map-33";
-        SLCVCapture::videoFilename = "20180903_ladenzeile1.mp4";
+        //SLstring mapName = "slam-map-33";
+        //SLCVCapture::videoFilename = "20180903_ladenzeile1.mp4";
+        
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
         SLstring calibFileName = "cam_calibration_huawei_p10_640_360_reloc.xml";

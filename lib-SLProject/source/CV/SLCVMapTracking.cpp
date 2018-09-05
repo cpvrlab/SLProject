@@ -215,19 +215,33 @@ void SLCVMapTracking::decorateVideoWithKeyPointMatches(cv::Mat& image)
     //show rectangle for key points in video that where matched to map points
     if (_showKeyPointsMatched)
     {
-        for (size_t i = 0; i < mCurrentFrame.N; i++)
+        if(_optFlowOK)
         {
-            if (mCurrentFrame.mvpMapPoints[i])
+            for (size_t i = 0; i < _optFlowKeyPtsLastFrame.size(); i++)
             {
-                if (!mCurrentFrame.mvbOutlier[i])
+            //Use distorted points because we have to undistort the image later
+            const auto& pt = _optFlowKeyPtsLastFrame[i].pt;
+            cv::rectangle(image,
+                cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
+                cv::Scalar(0, 255, 0));
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < mCurrentFrame.N; i++)
+            {
+                if (mCurrentFrame.mvpMapPoints[i])
                 {
-                    if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
+                    if (!mCurrentFrame.mvbOutlier[i])
                     {
-                        //Use distorted points because we have to undistort the image later
-                        const auto& pt = mCurrentFrame.mvKeys[i].pt;
-                        cv::rectangle(image,
-                            cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
-                            cv::Scalar(0, 255, 0));
+                        if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
+                        {
+                            //Use distorted points because we have to undistort the image later
+                            const auto& pt = mCurrentFrame.mvKeys[i].pt;
+                            cv::rectangle(image,
+                                cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
+                                cv::Scalar(0, 255, 0));
+                        }
                     }
                 }
             }
@@ -261,22 +275,29 @@ void SLCVMapTracking::decorateScene()
     //decorate scene with mappoints that were matched to keypoints in current frame
     if (sm.state() == SLCVTrackingStateMachine::TRACKING_OK && _showMatchesPC)
     {
-        //find map point matches
-        std::vector<SLCVMapPoint*> mapPointMatches;
-        for (int i = 0; i < mCurrentFrame.N; i++)
+        if (_optFlowOK)
         {
-            if (mCurrentFrame.mvpMapPoints[i])
+            //update scene
+            _mapNode->updateMapPointsMatched(_optFlowMapPtsLastFrame);
+        }
+        else
+        {
+            //find map point matches
+            std::vector<SLCVMapPoint*> mapPointMatches;
+            for (int i = 0; i < mCurrentFrame.N; i++)
             {
-                if (!mCurrentFrame.mvbOutlier[i])
+                if (mCurrentFrame.mvpMapPoints[i])
                 {
-                    if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
-                        mapPointMatches.push_back(mCurrentFrame.mvpMapPoints[i]);
+                    if (!mCurrentFrame.mvbOutlier[i])
+                    {
+                        if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
+                            mapPointMatches.push_back(mCurrentFrame.mvpMapPoints[i]);
+                    }
                 }
             }
+            //update scene
+            _mapNode->updateMapPointsMatched(mapPointMatches);
         }
-
-        //update scene
-        _mapNode->updateMapPointsMatched(mapPointMatches);
     }
     else
     {

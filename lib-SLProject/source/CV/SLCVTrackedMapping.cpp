@@ -304,14 +304,29 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
     SLCVVPoint2f keyPointCoordinatesLastFrame;
     vector<SLCVMapPoint*> matchedMapPoints;
     vector<cv::KeyPoint> matchedKeyPoints;
-    for (int i = 0; i < mLastFrame.mvpMapPoints.size(); i++)
-    {
-        if (mLastFrame.mvpMapPoints[i] && !mLastFrame.mvbOutlier[i])
-        {
-            keyPointCoordinatesLastFrame.push_back(mLastFrame.mvKeys[i].pt);
 
-            matchedMapPoints.push_back(mLastFrame.mvpMapPoints[i]);
-            matchedKeyPoints.push_back(mLastFrame.mvKeys[i]);
+    if(_optFlowOK)
+    {
+        //last time we successfully tracked with optical flow
+        matchedMapPoints = _optFlowMapPtsLastFrame;
+        matchedKeyPoints = _optFlowKeyPtsLastFrame;
+        for (int i = 0; i < _optFlowKeyPtsLastFrame.size(); i++)
+        {
+            keyPointCoordinatesLastFrame.push_back(_optFlowKeyPtsLastFrame[i].pt);
+        }
+    }
+    else
+    {
+        //this is the first run of optical flow after lost state
+        for (int i = 0; i < mLastFrame.mvpMapPoints.size(); i++)
+        {
+            if (mLastFrame.mvpMapPoints[i] && !mLastFrame.mvbOutlier[i])
+            {
+                keyPointCoordinatesLastFrame.push_back(mLastFrame.mvKeys[i].pt);
+
+                matchedMapPoints.push_back(mLastFrame.mvpMapPoints[i]);
+                matchedKeyPoints.push_back(mLastFrame.mvKeys[i]);
+            }
         }
     }
 
@@ -398,12 +413,11 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
         Tcw.at<float>(0, 2) = Rcw.at<float>(0, 2);
         Tcw.at<float>(1, 2) = Rcw.at<float>(1, 2);
         Tcw.at<float>(2, 2) = Rcw.at<float>(2, 2);
+        _optFlowTcw = Tcw;
 
-        mCurrentFrame.SetPose(Tcw);
-        mCurrentFrame.mvKeys = trackedKeyPoints;
-        mCurrentFrame.mvpMapPoints = trackedMapPoints;
+        _optFlowMapPtsLastFrame = trackedMapPoints;
+        _optFlowKeyPtsLastFrame = trackedKeyPoints;
 
-        mbVO = true;
         trackingType = TrackingType_OptFlow;
     }
 
@@ -469,86 +483,85 @@ void SLCVTrackedMapping::track3DPts()
         if (sm.state() == SLCVTrackingStateMachine::TRACKING_LOST)
         {
             _bOK = Relocalization();
+            _optFlowOK = false;
             //cout << "Relocalization: " << bOK << endl;
         }
         else
         {
             if (sm.state() == SLCVTrackingStateMachine::TRACKING_OK)
             {
-                //visual odometry tracking (=optical flow tracking)
-                //_bOK = TrackWithOptFlow();
-                _bOK = TrackReferenceKeyFrame();
-                mbVO = true;
+                //We always run the optical flow additionally, because it gives
+                //a more stable pose. We use this pose if successful.
+                _optFlowOK = TrackWithOptFlow();
             }
 
-            if (!_bOK)
+            //if NOT visual odometry tracking
+            if (!mbVO) // In last frame we tracked enough MapPoints from the Map
             {
-                //if NOT visual odometry tracking
-                if (!mbVO) // In last frame we tracked enough MapPoints from the Map
-                {
-                    if (!mVelocity.empty())
-                    { //we have a valid motion model
-                        _bOK = TrackWithMotionModel();
+                if (!mVelocity.empty())
+                { //we have a valid motion model
+                    _bOK = TrackWithMotionModel();
+                    if(!_optFlowOK)
                         trackingType = TrackingType_MotionModel;
-                        //cout << "TrackWithMotionModel: " << bOK << endl;
-                    }
-                    else
-                    {
-                        //we have NO valid motion model
-                           // All keyframes that observe a map point are included in the local map.
-                           // Every current frame gets a reference keyframe assigned which is the keyframe
-                           // from the local map that shares most matches with the current frames local map points matches.
-                           // It is updated in UpdateLocalKeyFrames().
-                        _bOK = TrackReferenceKeyFrame();
-                        trackingType = TrackingType_ORBSLAM;
-                        //cout << "TrackReferenceKeyFrame" << endl;
-                    }
+                    //cout << "TrackWithMotionModel: " << bOK << endl;
                 }
-                else // In last frame we tracked mainly "visual odometry" points.
+                else
                 {
-                    // We compute two camera poses, one from motion model and one doing relocalization.
-                    // If relocalization is sucessfull we choose that solution, otherwise we retain
-                    // the "visual odometry" solution.
-                    bool bOKMM = false;
-                    bool bOKReloc = false;
-                    vector<SLCVMapPoint*> vpMPsMM;
-                    vector<bool> vbOutMM;
-                    cv::Mat TcwMM;
-                    if (!mVelocity.empty())
-                    {
-                        bOKMM = TrackWithMotionModel();
-                        vpMPsMM = mCurrentFrame.mvpMapPoints;
-                        vbOutMM = mCurrentFrame.mvbOutlier;
-                        TcwMM = mCurrentFrame.mTcw.clone();
-                    }
-                    bOKReloc = Relocalization();
+                    //we have NO valid motion model
+                        // All keyframes that observe a map point are included in the local map.
+                        // Every current frame gets a reference keyframe assigned which is the keyframe
+                        // from the local map that shares most matches with the current frames local map points matches.
+                        // It is updated in UpdateLocalKeyFrames().
+                    _bOK = TrackReferenceKeyFrame();
+                    if (!_optFlowOK)
+                        trackingType = TrackingType_ORBSLAM;
+                    //cout << "TrackReferenceKeyFrame" << endl;
+                }
+            }
+            else // In last frame we tracked mainly "visual odometry" points.
+            {
+                // We compute two camera poses, one from motion model and one doing relocalization.
+                // If relocalization is sucessfull we choose that solution, otherwise we retain
+                // the "visual odometry" solution.
+                bool bOKMM = false;
+                bool bOKReloc = false;
+                vector<SLCVMapPoint*> vpMPsMM;
+                vector<bool> vbOutMM;
+                cv::Mat TcwMM;
+                if (!mVelocity.empty())
+                {
+                    bOKMM = TrackWithMotionModel();
+                    vpMPsMM = mCurrentFrame.mvpMapPoints;
+                    vbOutMM = mCurrentFrame.mvbOutlier;
+                    TcwMM = mCurrentFrame.mTcw.clone();
+                }
+                bOKReloc = Relocalization();
 
-                    //relocalization method is not valid but the velocity model method
-                    if (bOKMM && !bOKReloc)
-                    {
-                        mCurrentFrame.SetPose(TcwMM);
-                        mCurrentFrame.mvpMapPoints = vpMPsMM;
-                        mCurrentFrame.mvbOutlier = vbOutMM;
+                //relocalization method is not valid but the velocity model method
+                if (bOKMM && !bOKReloc)
+                {
+                    mCurrentFrame.SetPose(TcwMM);
+                    mCurrentFrame.mvpMapPoints = vpMPsMM;
+                    mCurrentFrame.mvbOutlier = vbOutMM;
 
-                        if (mbVO)
+                    if (mbVO)
+                    {
+                        for (int i = 0; i < mCurrentFrame.N; i++)
                         {
-                            for (int i = 0; i < mCurrentFrame.N; i++)
+                            if (mCurrentFrame.mvpMapPoints[i] && !mCurrentFrame.mvbOutlier[i])
                             {
-                                if (mCurrentFrame.mvpMapPoints[i] && !mCurrentFrame.mvbOutlier[i])
-                                {
-                                    mCurrentFrame.mvpMapPoints[i]->IncreaseFound();
-                                }
+                                mCurrentFrame.mvpMapPoints[i]->IncreaseFound();
                             }
                         }
                     }
-                    else if (bOKReloc)
-                    {
-                        mbVO = false;
-                    }
-
-                    _bOK = bOKReloc || bOKMM;
-                    trackingType = TrackingType_None;
                 }
+                else if (bOKReloc)
+                {
+                    mbVO = false;
+                }
+
+                _bOK = bOKReloc || bOKMM;
+                trackingType = TrackingType_None;
             }
         }
     }
@@ -600,11 +613,21 @@ void SLCVTrackedMapping::track3DPts()
 
         //set current pose
         {
+            cv::Mat Tcw;
+            if(_optFlowOK)
+            {
+                Tcw = _optFlowTcw.clone();
+            }
+            else
+            {
+                Tcw = mCurrentFrame.mTcw.clone();
+            }
+
             cv::Mat Rwc(3, 3, CV_32F);
             cv::Mat twc(3, 1, CV_32F);
 
             //inversion
-            auto Tcw = mCurrentFrame.mTcw.clone();
+            //auto Tcw = mCurrentFrame.mTcw.clone();
             Rwc = Tcw.rowRange(0, 3).colRange(0, 3).t();
             twc = -Rwc*Tcw.rowRange(0, 3).col(3);
 
@@ -614,7 +637,6 @@ void SLCVTrackedMapping::track3DPts()
                 (SLfloat)Rwc.at<float>(2, 0), (SLfloat)Rwc.at<float>(2, 1), (SLfloat)Rwc.at<float>(2, 2), (SLfloat)twc.at<float>(2, 0),
                 0.0f, 0.0f, 0.0f, 1.0f);
             slMat.rotate(180, 1, 0, 0);
-
             // set the object matrix of this object (its a SLCamera)
             _node->om(slMat);
         }
