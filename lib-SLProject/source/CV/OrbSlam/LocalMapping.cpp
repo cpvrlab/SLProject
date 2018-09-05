@@ -33,9 +33,9 @@
 namespace ORB_SLAM2
 {
 
-LocalMapping::LocalMapping(SLCVMap *pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary)
+LocalMapping::LocalMapping(SLCVMap *pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary, bool localizeMode)
     : mpMap(pMap), mbMonocular(bMonocular), mpORBvocabulary(mpORBvocabulary), mbResetRequested(false), mbFinishRequested(false), mbFinished(true),
-    mbAbortBA(false), mbStopped(false), mbStopRequested(false), mbNotStop(false), mbAcceptKeyFrames(true)
+    mbAbortBA(false), mbStopped(false), mbStopRequested(false), mbNotStop(false), mbAcceptKeyFrames(true), _localizeMode(localizeMode)
 {
 }
 
@@ -90,7 +90,9 @@ void LocalMapping::Run()
                 KeyFrameCulling();
             }
 
-            mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
+            //do not insert loop closing candidates in localization mode
+            if(!_localizeMode)
+                mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
         }
         else if(Stop())
         {

@@ -87,7 +87,7 @@ SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node,
     _extractor = new ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
     mpIniORBextractor = new ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
     //instantiate local mapping
-    mpLocalMapper = new LocalMapping(_map, 1, mpVocabulary);
+    mpLocalMapper = new LocalMapping(_map, 1, mpVocabulary, mbOnlyTracking);
     mpLoopCloser = new LoopClosing(_map, mpKeyFrameDatabase, mpVocabulary, false);
 
     mpLocalMapper->SetLoopCloser(mpLoopCloser);
