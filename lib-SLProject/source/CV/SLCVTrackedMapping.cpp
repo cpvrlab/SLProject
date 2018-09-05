@@ -390,6 +390,7 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
     //- how can we make sure that we do not track the same point multiple times?
     //  -> we know the pointer to the mappoints and only add a new tracking points whose mappoint is not in a gridcell yet
     //- we dont want to track too many points, so we prefer points with the most observations
+    int addThres = 2;
     _optFlowGridElementWidthInv = static_cast<float>(OPTFLOW_GRID_COLS) / static_cast<float>(SLCVFrame::mnMaxX - SLCVFrame::mnMinX);
     _optFlowGridElementHeightInv = static_cast<float>(OPTFLOW_GRID_ROWS) / static_cast<float>(SLCVFrame::mnMaxY - SLCVFrame::mnMinY);
     std::vector<std::size_t> gridOptFlow[OPTFLOW_GRID_COLS][OPTFLOW_GRID_ROWS];
@@ -413,7 +414,27 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
     }
 
     //try to add tracking points from gridCurrFrame to trackedMapPoints and trackedKeyPoints where missing in gridOptFlow
-
+    for (int i = 0; i < OPTFLOW_GRID_COLS; i++)
+    {
+        for (int j = 0; j < OPTFLOW_GRID_ROWS; j++)
+        {
+            if( gridOptFlow[i][j].size() < addThres)
+            {
+                const std::vector<size_t>& indices = gridCurrFrame[i][j];
+                for(auto index : indices)
+                {
+                    const SLCVKeyPoint& keyPt = mCurrentFrame.mvKeys[index];
+                    SLCVMapPoint* mapPt = mCurrentFrame.mvpMapPoints[index];
+                    if(mapPt)
+                    {
+                        //todo: check that this map point is not already referenced in this cell
+                        trackedKeyPoints.push_back(keyPt);
+                        trackedMapPoints.push_back(mapPt);
+                    }
+                }
+            }
+        }
+    }
 
     if (trackedKeyPoints.size() < matchedKeyPoints.size() * 0.75)
     {
@@ -620,7 +641,7 @@ void SLCVTrackedMapping::track3DPts()
             _bOK = TrackLocalMap();
     }
 
-    if (sm.state() == SLCVTrackingStateMachine::TRACKING_OK)
+    if (sm.state() == SLCVTrackingStateMachine::TRACKING_OK && mbOnlyTracking)
     {
         //We always run the optical flow additionally, because it gives
         //a more stable pose. We use this pose if successful.
