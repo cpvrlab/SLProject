@@ -475,7 +475,10 @@ void SLCVTrackedMapping::track3DPts()
         {
             if (sm.state() == SLCVTrackingStateMachine::TRACKING_OK)
             {
-                _bOK = TrackWithOptFlow();
+                //visual odometry tracking (=optical flow tracking)
+                //_bOK = TrackWithOptFlow();
+                _bOK = TrackReferenceKeyFrame();
+                mbVO = true;
             }
 
             if (!_bOK)
