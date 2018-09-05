@@ -20,6 +20,9 @@ class SLCVMap;
 class SLCVMapNode;
 class SLCVCalibration;
 
+#define OPTFLOW_GRID_COLS 5
+#define OPTFLOW_GRID_ROWS 3
+
 //-----------------------------------------------------------------------------
 //! Map Tracking
 /*All map trackings have in common, that their tracking tracks the Elemtents of 
@@ -141,6 +144,8 @@ protected:
     SLCVMat _optFlowTcw;
     vector<SLCVMapPoint*> _optFlowMapPtsLastFrame;
     vector<cv::KeyPoint> _optFlowKeyPtsLastFrame;
+    float _optFlowGridElementWidthInv;
+    float _optFlowGridElementHeightInv;
 };
 
 #endif //SLCVMAPTRACKING_H

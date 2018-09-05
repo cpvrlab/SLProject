@@ -277,6 +277,19 @@ void SLCVTrackedMapping::initialize()
 
 }
 //-----------------------------------------------------------------------------
+bool SLCVTrackedMapping::posInGrid(const cv::KeyPoint &kp, int &posX, int &posY,
+    int minX, int minY )
+{
+    posX = (int)round((kp.pt.x - minX) * _optFlowGridElementWidthInv );
+    posY = (int)round((kp.pt.y - minY) * _optFlowGridElementHeightInv);
+
+    //Keypoint's coordinates are undistorted, which could cause to go out of the image
+    if (posX<0 || posX >= OPTFLOW_GRID_COLS || posY<0 || posY >= OPTFLOW_GRID_ROWS)
+        return false;
+
+    return true;
+}
+//-----------------------------------------------------------------------------
 bool SLCVTrackedMapping::TrackWithOptFlow()
 {
     SLAverageTiming::start("TrackWithOptFlow");
@@ -286,12 +299,6 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
         SLAverageTiming::stop("TrackWithOptFlow");
         return false;
     }
-
-    SLCVMat rvec = SLCVMat::zeros(3, 1, CV_64FC1);
-    SLCVMat tvec = SLCVMat::zeros(3, 1, CV_64FC1);
-    cv::Mat om = mLastFrame.mTcw;
-    Rodrigues(om.rowRange(0, 3).colRange(0, 3), rvec);
-    tvec = om.colRange(3, 4).rowRange(0, 3);
 
     SLVuchar status;
     SLVfloat err;
@@ -377,6 +384,37 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
         }
     }
 
+    //todo ghm1: 
+    //- insert tracked points into grid
+    //- update grid with matches from current frames tracked map points
+    //- how can we make sure that we do not track the same point multiple times?
+    //  -> we know the pointer to the mappoints and only add a new tracking points whose mappoint is not in a gridcell yet
+    //- we dont want to track too many points, so we prefer points with the most observations
+    _optFlowGridElementWidthInv = static_cast<float>(OPTFLOW_GRID_COLS) / static_cast<float>(SLCVFrame::mnMaxX - SLCVFrame::mnMinX);
+    _optFlowGridElementHeightInv = static_cast<float>(OPTFLOW_GRID_ROWS) / static_cast<float>(SLCVFrame::mnMaxY - SLCVFrame::mnMinY);
+    std::vector<std::size_t> gridOptFlow[OPTFLOW_GRID_COLS][OPTFLOW_GRID_ROWS];
+    std::vector<std::size_t> gridCurrFrame[OPTFLOW_GRID_COLS][OPTFLOW_GRID_ROWS];
+    //insert optical flow points into grid
+    for(int i = 0; i < trackedKeyPoints.size(); ++i)
+    {
+        int nGridPosX, nGridPosY;
+        if (posInGrid(trackedKeyPoints[i], nGridPosX, nGridPosY, SLCVFrame::mnMinX, SLCVFrame::mnMinY))
+            gridOptFlow[nGridPosX][nGridPosY].push_back(i);
+    }
+    //insert current frame points into grid
+    for (int i = 0; i < mCurrentFrame.mvpMapPoints.size(); ++i)
+    {
+        if(mCurrentFrame.mvpMapPoints[i] != NULL)
+        {
+            int nGridPosX, nGridPosY;
+            if (posInGrid(mCurrentFrame.mvKeys[i], nGridPosX, nGridPosY, SLCVFrame::mnMinX, SLCVFrame::mnMinY))
+                gridCurrFrame[nGridPosX][nGridPosY].push_back(i);
+        }
+    }
+
+    //try to add tracking points from gridCurrFrame to trackedMapPoints and trackedKeyPoints where missing in gridOptFlow
+
+
     if (trackedKeyPoints.size() < matchedKeyPoints.size() * 0.75)
     {
         SLAverageTiming::stop("TrackWithOptFlow");
@@ -386,6 +424,12 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
     /////////////////////
     // Pose Estimation //
     /////////////////////
+
+    SLCVMat rvec = SLCVMat::zeros(3, 1, CV_64FC1);
+    SLCVMat tvec = SLCVMat::zeros(3, 1, CV_64FC1);
+    cv::Mat om = mCurrentFrame.mTcw;
+    Rodrigues(om.rowRange(0, 3).colRange(0, 3), rvec);
+    tvec = om.colRange(3, 4).rowRange(0, 3);
 
     bool foundPose = cv::solvePnP(model3DPoints,
                                   frame2DPoints,
@@ -420,6 +464,8 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
 
         trackingType = TrackingType_OptFlow;
     }
+
+    //todo ghm1: remove points with bad reprojection error
 
     SLAverageTiming::stop("TrackWithOptFlow");
 
@@ -488,21 +534,13 @@ void SLCVTrackedMapping::track3DPts()
         }
         else
         {
-            if (sm.state() == SLCVTrackingStateMachine::TRACKING_OK)
-            {
-                //We always run the optical flow additionally, because it gives
-                //a more stable pose. We use this pose if successful.
-                _optFlowOK = TrackWithOptFlow();
-            }
-
             //if NOT visual odometry tracking
             if (!mbVO) // In last frame we tracked enough MapPoints from the Map
             {
                 if (!mVelocity.empty())
                 { //we have a valid motion model
                     _bOK = TrackWithMotionModel();
-                    if(!_optFlowOK)
-                        trackingType = TrackingType_MotionModel;
+                    trackingType = TrackingType_MotionModel;
                     //cout << "TrackWithMotionModel: " << bOK << endl;
                 }
                 else
@@ -513,8 +551,7 @@ void SLCVTrackedMapping::track3DPts()
                         // from the local map that shares most matches with the current frames local map points matches.
                         // It is updated in UpdateLocalKeyFrames().
                     _bOK = TrackReferenceKeyFrame();
-                    if (!_optFlowOK)
-                        trackingType = TrackingType_ORBSLAM;
+                    trackingType = TrackingType_ORBSLAM;
                     //cout << "TrackReferenceKeyFrame" << endl;
                 }
             }
@@ -581,6 +618,13 @@ void SLCVTrackedMapping::track3DPts()
         // the camera we will use the local map again.
         if (_bOK && !mbVO)
             _bOK = TrackLocalMap();
+    }
+
+    if (sm.state() == SLCVTrackingStateMachine::TRACKING_OK)
+    {
+        //We always run the optical flow additionally, because it gives
+        //a more stable pose. We use this pose if successful.
+        _optFlowOK = TrackWithOptFlow();
     }
 
     //if (bOK)
