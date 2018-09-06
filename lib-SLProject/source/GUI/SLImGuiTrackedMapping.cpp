@@ -44,7 +44,7 @@ void SLImGuiTrackedMapping::buildInfos()
     }
 
     //add tracking state
-    ImGui::Text("Tracking State : %s ", _mappingTracke->getPrintableState().c_str());
+    ImGui::Text("Tracking State : %s ", _mappingTracker->getPrintableState().c_str());
     //add number of matches map points in current frame
     ImGui::Text("Num Map Matches: %d ", _mappingTracker->getNMapMatches());
     //number of map points
