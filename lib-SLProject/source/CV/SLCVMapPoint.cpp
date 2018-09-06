@@ -133,11 +133,6 @@ void SLCVMapPoint::EraseObservation(SLCVKeyFrame* pKF)
             {
                 mpRefKF = mObservations.begin()->first;
                 refKfSource = RefKfSource_EraseObservation;
-
-                if (!mpRefKF->hasMapPoint(this))
-                {
-                    printf("New reference keyframe does not contain mapPoint!!!!!\n");
-                }
             }
 
             // If only 2 observations or less, discard point

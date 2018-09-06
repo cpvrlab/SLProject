@@ -254,10 +254,6 @@ int SLCVKeyFrame::GetWeight(SLCVKeyFrame *pKF)
 void SLCVKeyFrame::AddMapPoint(SLCVMapPoint *pMP, size_t idx)
 {
     unique_lock<mutex> lock(mMutexFeatures);
-    if (mvpMapPoints[idx] && this->hasMapPoint(mvpMapPoints[idx]))
-    {
-        printf("Overwrite mappoint that still has an observation!!!\n");
-    }
 
     mvpMapPoints[idx] = pMP;
 }

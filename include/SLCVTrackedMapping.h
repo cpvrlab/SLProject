@@ -41,19 +41,6 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         int getNumLoopClosings() { return mpLoopCloser->numOfLoopClosings(); }
         const char* getLoopClosingStatusString();
 
-        enum InitializationStatus
-        {
-            INITIALIZATION_STATUS_NONE,
-            INITIALIZATION_STATUS_INITIALIZED,
-            INITIALIZATION_STATUS_REFERENCE_KEYFRAME_SET,
-            INITIALIZATION_STATUS_REFERENCE_KEYFRAME_DELETED_KEYPOINTS,
-            INITIALIZATION_STATUS_REFERENCE_KEYFRAME_DELETED_MATCHES,
-            INITIALIZATION_STATUS_INITIALIZER_INITIALIZED
-        };
-        const char* getInitializationStatusString();
-
-        //enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
-
         SLCVTrackedMapping(SLNode* node,
                            bool onlyTracking,
                            SLCVMapNode* mapNode = NULL,
@@ -78,6 +65,15 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         size_t getSizeOf();
 
         SLCVKeyFrame* currentKeyFrame();
+
+        // TODO(jan): maybe make private again
+        LocalMapping* mpLocalMapper = NULL;
+        LoopClosing* mpLoopCloser = NULL;
+
+        //New KeyFrame rules (according to fps)
+        // Max/Min Frames to insert keyframes and to check relocalisation
+        int mMinFrames = 20;
+        int mMaxFrames = 30; //= fps
 
     private:
         // Map initialization for monocular
@@ -136,14 +132,6 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         // "zero-drift" localization to the map.
         bool mbVO = false;
 
-        LocalMapping* mpLocalMapper = NULL;
-        LoopClosing* mpLoopCloser = NULL;
-
-        //New KeyFrame rules (according to fps)
-        // Max/Min Frames to insert keyframes and to check relocalisation
-        int mMinFrames = 0;
-        int mMaxFrames = 30; //= fps
-
         // Lists used to recover the full camera trajectory at the end of the execution.
         // Basically we store the reference keyframe for each frame and its relative transformation
         list<cv::Mat> mlRelativeFramePoses;
@@ -173,8 +161,6 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         std::thread* mptLoopClosing;
 
         bool _serial;
-
-        InitializationStatus initializationStatus = InitializationStatus::INITIALIZATION_STATUS_NONE;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedMapping_H

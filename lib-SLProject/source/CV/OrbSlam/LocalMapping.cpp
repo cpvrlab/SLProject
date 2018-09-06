@@ -84,7 +84,7 @@ void LocalMapping::Run()
                 // Local BA
                 //if(mpMap->KeyFramesInMap()>2)
                 if (mpMap->KeyFramesInMap()>2)
-                    Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame,&mbAbortBA, mpMap);
+                    Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame, &mbAbortBA, mpMap);
 
                 // Check redundant local Keyframes
                 KeyFrameCulling();
@@ -778,11 +778,7 @@ void LocalMapping::RequestReset()
             if(!mbResetRequested)
                 break;
         }
-#ifdef _WINDOWS
-                Sleep(3);
-#else
-                usleep(3000);
-#endif
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }
 

@@ -50,6 +50,8 @@ add_definitions(-DASSIMP_BUILD_NO_XGL_IMPORTER)
 #
 # SLProject
 #
+file(GLOB SLPROJECT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/../../include/*.h
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../include/OrbSlam/*.h)
 file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/math/SLCurveBezier.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/math/SLPlane.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SL.cpp
@@ -169,7 +171,6 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSpheric.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLText.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLTransferFunction.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../include/*.h
                                         )
 
 file(GLOB_RECURSE SLEXTERNAL_SOURCES    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/*.cpp
@@ -279,6 +280,7 @@ add_library(native-lib
             SHARED
             ${APP_DEMO_SOURCES}
             ${SLPROJECT_SOURCES}
+            ${SLPROJECT_HEADERS}
             ${SLEXTERNAL_SOURCES}
 )
 

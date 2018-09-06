@@ -32,10 +32,11 @@
 namespace ORB_SLAM2
 {
 
-LoopClosing::LoopClosing(SLCVMap *pMap, SLCVKeyFrameDB *pDB, ORBVocabulary *pVoc, const bool bFixScale):
+LoopClosing::LoopClosing(SLCVMap *pMap, SLCVKeyFrameDB *pDB, ORBVocabulary *pVoc, const bool bFixScale, const bool manualLoopClose):
     mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mpMap(pMap),
     mpKeyFrameDB(pDB), mpORBVocabulary(pVoc), mpMatchedKF(NULL), mLastLoopKFid(0), mbRunningGBA(false), mbFinishedGBA(true),
-    mbStopGBA(false), mpThreadGBA(NULL), mbFixScale(bFixScale), mnFullBAIdx(0), _numLoopClosings(0)
+    mbStopGBA(false), mpThreadGBA(NULL), mbFixScale(bFixScale), mnFullBAIdx(0), _numLoopClosings(0), _attemptLoopClose(!manualLoopClose),
+    _manualLoopClose(manualLoopClose)
 {
     mnCovisibilityConsistencyTh = 3;
 }
@@ -74,12 +75,13 @@ void LoopClosing::Run()
                        std::lock_guard<std::mutex> lock(mMutexNumLoopClosings);
                        _numLoopClosings++;
                    }
+
+                   if (_manualLoopClose)
+                   {
+                       _attemptLoopClose = false;
+                   }
                }
             }
-        }
-        else
-        {
-            status(LOOP_CLOSE_STATUS_NO_NEW_KEYFRAME);
         }
 
         ResetIfRequested();
@@ -132,7 +134,9 @@ void LoopClosing::InsertKeyFrame(SLCVKeyFrame *pKF)
 {
     unique_lock<mutex> lock(mMutexLoopQueue);
     if(pKF->mnId!=0)
+    {
         mlpLoopKeyFrameQueue.push_back(pKF);
+    }
 }
 
 bool LoopClosing::CheckNewKeyFrames()
@@ -149,6 +153,13 @@ bool LoopClosing::DetectLoop()
         mlpLoopKeyFrameQueue.pop_front();
         // Avoid that a keyframe can be erased while it is being process by this thread
         mpCurrentKF->SetNotErase();
+    }
+
+    if(!shouldLoopCloseBeAttempted())
+    {
+        mpKeyFrameDB->add(mpCurrentKF);
+        mpCurrentKF->SetErase();
+        return false;
     }
 
     //If the map contains less than 10 KF or less than 10 KF have passed from last loop detection
@@ -185,14 +196,31 @@ bool LoopClosing::DetectLoop()
     }
 
     // Query the database imposing the minimum score
-    vector<SLCVKeyFrame*> vpCandidateKFs = mpKeyFrameDB->DetectLoopCandidates(mpCurrentKF, minScore);
+    int loopCandidateDetectionError = SLCVKeyFrameDB::LOOP_DETECTION_ERROR_NONE;
+    vector<SLCVKeyFrame*> vpCandidateKFs = mpKeyFrameDB->DetectLoopCandidates(mpCurrentKF, minScore, &loopCandidateDetectionError);
+    {
+        std::lock_guard<std::mutex> lock(mMutexNumCandidates);
+        _numOfCandidates = vpCandidateKFs.size();
+    }
 
     // If there are no loop candidates, just add new keyframe and return false
     if(vpCandidateKFs.empty())
     {
-        status(LOOP_CLOSE_STATUS_NO_LOOP_CANDIDATES);
+        switch (loopCandidateDetectionError)
+        {
+            case SLCVKeyFrameDB::LOOP_DETECTION_ERROR_NO_CANDIDATES_WITH_COMMON_WORDS:
+                status(LOOP_CLOSE_STATUS_NO_CANDIDATES_WITH_COMMON_WORDS);
+                break;
+            case SLCVKeyFrameDB::LOOP_DETECTION_ERROR_NO_SIMILAR_CANDIDATES:
+                status(LOOP_CLOSE_STATUS_NO_SIMILAR_CANDIDATES);
+                break;
+        }
+
         mpKeyFrameDB->add(mpCurrentKF);
-        mvConsistentGroups.clear();
+        {
+            std::lock_guard<std::mutex> lock(mMutexNumConsistentGroups);
+            mvConsistentGroups.clear();
+        }
         mpCurrentKF->SetErase();
         return false;
     }
@@ -256,7 +284,15 @@ bool LoopClosing::DetectLoop()
     }
 
     // Update Covisibility Consistent Groups
-    mvConsistentGroups = vCurrentConsistentGroups;
+    {
+        std::lock_guard<std::mutex> lock(mMutexNumConsistentGroups);
+        mvConsistentGroups = vCurrentConsistentGroups;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(mMutexNumConsistentCandidates);
+        _numOfConsistentCandidates = mvpEnoughConsistentCandidates.size();
+    }
 
 
     // Add Current Keyframe to database
@@ -687,9 +723,9 @@ void LoopClosing::RequestReset()
     while(1)
     {
         {
-        unique_lock<mutex> lock2(mMutexReset);
-        if(!mbResetRequested)
-            break;
+            unique_lock<mutex> lock2(mMutexReset);
+            if(!mbResetRequested)
+                break;
         }
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
@@ -842,16 +878,75 @@ int LoopClosing::numOfLoopClosings()
     return _numLoopClosings;
 }
 
+int LoopClosing::numOfCandidates()
+{
+    std::lock_guard<std::mutex> lock(mMutexNumCandidates);
+    return _numOfCandidates;
+}
+
+int LoopClosing::numOfConsistentCandidates()
+{
+    std::lock_guard<std::mutex> lock(mMutexNumConsistentCandidates);
+    return _numOfConsistentCandidates;
+}
+
+int LoopClosing::numOfConsistentGroups()
+{
+    std::lock_guard<std::mutex> lock(mMutexNumConsistentGroups);
+    return mvConsistentGroups.size();
+}
+
+int LoopClosing::numOfKfsInQueue()
+{
+    std::lock_guard<std::mutex> lock(mMutexLoopQueue);
+    return mlpLoopKeyFrameQueue.size();
+}
+
 void LoopClosing::status(LoopCloseStatus status)
 {
     std::lock_guard<std::mutex> lock(mMutexStatus);
     _status = status;
 }
 
-LoopClosing::LoopCloseStatus LoopClosing::status()
+const char* LoopClosing::getStatusString()
 {
-    std::lock_guard<std::mutex> lock(mMutexStatus);
-    return _status;
+    switch (_status)
+    {
+        case LoopClosing::LOOP_CLOSE_STATUS_LOOP_CLOSED:
+            return "loop closed";
+        case LoopClosing::LOOP_CLOSE_STATUS_NOT_ENOUGH_CONSISTENT_MATCHES:
+            return "not enough consistent matches";
+        case LoopClosing::LOOP_CLOSE_STATUS_NOT_ENOUGH_KEYFRAMES:
+            return "not enough keyframes";
+        case LoopClosing::LOOP_CLOSE_STATUS_NO_CONSISTENT_CANDIDATES:
+            return "no consistent candidates";
+        case LoopClosing::LOOP_CLOSE_STATUS_NO_LOOP_CANDIDATES:
+            return "no loop candidates";
+        case LoopClosing::LOOP_CLOSE_STATUS_NO_CANDIDATES_WITH_COMMON_WORDS:
+            return "no candidates with common words";
+        case LoopClosing::LOOP_CLOSE_STATUS_NO_SIMILAR_CANDIDATES:
+            return "no similar candidates";
+        case LoopClosing::LOOP_CLOSE_STATUS_NO_OPTIMIZED_CANDIDATES:
+            return "no optimized candidates";
+        case LoopClosing::LOOP_CLOSE_STATUS_NO_NEW_KEYFRAME:
+            return "no new keyframe";
+        case LoopClosing::LOOP_CLOSE_STATUS_NONE:
+        default:
+            return "";
+    }
+}
+
+bool LoopClosing::shouldLoopCloseBeAttempted()
+{
+    std::lock_guard<std::mutex> lock(mMutexLoopCloseAttempt);
+    bool result = _attemptLoopClose;
+    return result;
+}
+
+void LoopClosing::startLoopCloseAttempt()
+{
+    std::lock_guard<std::mutex> lock(mMutexLoopCloseAttempt);
+    _attemptLoopClose = true;
 }
 
 } //namespace ORB_SLAM
