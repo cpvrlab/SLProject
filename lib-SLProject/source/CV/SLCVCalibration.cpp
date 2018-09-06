@@ -34,8 +34,8 @@ SLstring    SLCVCalibration::calibIniPath       = "../_data/calibrations/";
 const SLint SLCVCalibration::_CALIBFILEVERSION = 3;    // Date: 26.Fev.2017
 //-----------------------------------------------------------------------------
 SLCVCalibration::SLCVCalibration() :
-    _cameraFovDeg(1.0f),
     _state(CS_uncalibrated),
+    _cameraFovDeg(1.0f),
     _calibFileName(""), // is set in load
     _calibParamsFileName("calib_in_params.yml"),
     _calibFixPrincipalPoint(true),

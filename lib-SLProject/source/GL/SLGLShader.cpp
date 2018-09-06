@@ -18,11 +18,11 @@
 
 //-----------------------------------------------------------------------------
 // Error Strings
-SLchar* aGLSLErrorString[] = {(SLchar*)"(e0000) GLSL not enabled",
-                              (SLchar*)"(e0001) not a valid program object",
-                              (SLchar*)"(e0002) not a valid object",
-                              (SLchar*)"(e0003) out of memory",
-                              (SLchar*)"(e0004) unknown compiler error"};
+const SLchar* aGLSLErrorString[] = {(const SLchar*)"(e0000) GLSL not enabled",
+                                    (const SLchar*)"(e0001) not a valid program object",
+                                    (const SLchar*)"(e0002) not a valid object",
+                                    (const SLchar*)"(e0003) out of memory",
+                                    (const SLchar*)"(e0004) unknown compiler error"};
 
 //-----------------------------------------------------------------------------
 //! Default constructor
@@ -153,7 +153,7 @@ SLbool SLGLShader::createAndCompile()
         //#endif
 
         const char* src = _code.c_str();
-        glShaderSource(_objectGL, 1, &src, 0);
+        glShaderSource(_objectGL, 1, &src, nullptr);
         glCompileShader(_objectGL);
 
         // Check compiler log
@@ -161,7 +161,7 @@ SLbool SLGLShader::createAndCompile()
         glGetShaderiv(_objectGL, GL_COMPILE_STATUS, &compileSuccess);
         if (compileSuccess == GL_FALSE) 
         {   GLchar log[256];
-            glGetShaderInfoLog(_objectGL, sizeof(log), 0, &log[0]);
+            glGetShaderInfoLog(_objectGL, sizeof(log), nullptr, &log[0]);
             SL_LOG("*** COMPILER ERROR ***\n");
             SL_LOG("Source file: %s\n", _file.c_str());
             SL_LOG("%s\n---\n", log);
@@ -177,8 +177,8 @@ SLbool SLGLShader::createAndCompile()
 SLstring SLGLShader::removeComments(SLstring src)
 {  
     SLstring dst;
-    SLint len = (SLint)src.length();
-    SLint i = 0;
+    SLuint len = (SLuint)src.length();
+    SLuint i = 0;
     SLint line = 0;
     SLint column = 0;
 
@@ -214,10 +214,10 @@ SLstring SLGLShader::typeName()
 {
     switch(_type)
     {
-        case ST_vertex:      return "Vertex"; break;
-        case ST_fragment:    return "Fragment"; break;
-        case ST_geometry:    return "Geometry"; break;
-        case ST_tesselation: return "Tesselation"; break;
+        case ST_vertex:      return "Vertex";
+        case ST_fragment:    return "Fragment";
+        case ST_geometry:    return "Geometry";
+        case ST_tesselation: return "Tesselation";
         default: return "Unknown";
     }
 }

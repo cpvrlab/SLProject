@@ -194,9 +194,9 @@ void SLGLTexture::clearData()
 
     numBytesInTextures -= _bytesOnGPU;
 
-    for (SLint i=0; i<_images.size(); ++i)
+    for (SLuint i=0; i<_images.size(); ++i)
     {   delete _images[i];
-        _images[i] = 0;
+        _images[i] = nullptr;
     }
     _images.clear();
 
@@ -326,7 +326,7 @@ void SLGLTexture::build(SLint texID)
         if (w2==0) SL_EXIT_MSG("Image can not be rescaled: width=0");
         if (h2==0) SL_EXIT_MSG("Image can not be rescaled: height=0");
         if (w2!=_images[0]->width() || h2!=_images[0]->height())
-            _images[0]->resize(w2, h2);
+            _images[0]->resize((SLint)w2, (SLint)h2);
     }
 
     // check 2D size
@@ -365,7 +365,7 @@ void SLGLTexture::build(SLint texID)
     // Generate texture names
     glGenTextures(1, &_texName);
       
-    _stateGL->activeTexture(GL_TEXTURE0+texID);
+    _stateGL->activeTexture(GL_TEXTURE0+(SLuint)texID);
 
     // create binding and apply texture properties
     _stateGL->bindTexture(_target, _texName);
@@ -410,8 +410,8 @@ void SLGLTexture::build(SLint texID)
         glTexImage2D(GL_TEXTURE_2D,
                      0, 
                      internalFormat,
-                     _images[0]->width(),
-                     _images[0]->height(),
+                     (SLsizei)_images[0]->width(),
+                     (SLsizei)_images[0]->height(),
                      0,
                      _images[0]->format(),
                      GL_UNSIGNED_BYTE, 
@@ -453,8 +453,8 @@ void SLGLTexture::build(SLint texID)
         glTexImage3D(GL_TEXTURE_3D,
                      0,                     //Mipmap level,
                      internalFormat,        //Internal format
-                     _images[0]->width(),
-                     _images[0]->height(),
+                     (SLsizei)_images[0]->width(),
+                     (SLsizei)_images[0]->height(),
                      (SLsizei)_images.size(),
                      0,                     //Border
                      _images[0]->format(),  //Format
@@ -466,14 +466,14 @@ void SLGLTexture::build(SLint texID)
     } else
     if (_target == GL_TEXTURE_CUBE_MAP)
     {
-        for (SLint i=0; i<6; i++)
+        for (SLuint i=0; i<6; i++)
         {
             //////////////////////////////////////////////
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i,
                          0,
                          internalFormat,
-                         _images[i]->width(),
-                         _images[i]->height(),
+                         (SLsizei)_images[i]->width(),
+                         (SLsizei)_images[i]->height(),
                          0,
                          _images[i]->format(),
                          GL_UNSIGNED_BYTE,
@@ -516,7 +516,7 @@ void SLGLTexture::bindActive(SLint texID)
         build(texID);
    
     if (_texName)
-    {   _stateGL->activeTexture(GL_TEXTURE0 + texID);
+    {   _stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
         _stateGL->bindTexture(_target, _texName);
 
         // Check if texture name is valid only for debug purpose
@@ -554,8 +554,8 @@ void SLGLTexture::fullUpdate()
 
             /////////////////////////////////////////////
             glTexSubImage2D(_target, 0, 0, 0,
-                            _images[0]->width(),
-                            _images[0]->height(),
+                            (SLsizei)_images[0]->width(),
+                            (SLsizei)_images[0]->height(),
                             _images[0]->format(),
                             GL_UNSIGNED_BYTE, 
                             (GLvoid*)_images[0]->data());
@@ -658,7 +658,7 @@ SLCol4f SLGLTexture::getTexelf(SLVec3f cubemapDir)
     
     cubeXYZ2UV(cubemapDir.x, cubemapDir.y, cubemapDir.z, index, u, v);
     
-    return getTexelf(u, v, index);
+    return getTexelf(u, v, (SLuint)index);
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -705,7 +705,7 @@ SLuint SLGLTexture::closestPowerOf2(SLuint num)
     if (num <= 0) return 1;
    
     while (nextPow2 <= num) nextPow2 <<= 1;   
-    SLint prevPow2 = nextPow2 >> 1;
+    SLuint prevPow2 = nextPow2 >> 1;
    
     if (num-prevPow2 < nextPow2-num)
         return prevPow2; else return nextPow2;
@@ -725,11 +725,11 @@ void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
 {  
     // Create the base level mipmap
     SLint level = 0;   
-    glTexImage2D(target, 
+    glTexImage2D((SLuint)target,
                  level, 
-                 _images[index]->bytesPerPixel(),
-                 _images[index]->width(),
-                 _images[index]->height(), 0,
+                 (SLint)_images[index]->bytesPerPixel(),
+                 (SLsizei)_images[index]->width(),
+                 (SLsizei)_images[index]->height(), 0,
                  _images[index]->format(),
                  GL_UNSIGNED_BYTE, 
                  (GLvoid*)_images[index]->data());
@@ -741,8 +741,8 @@ void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
     // create half sized sub level mipmaps
     while(img2.width() > 1 || img2.height() > 1 )
     {   level++;
-        img2.resize(max(img2.width() >>1,(SLuint)1),
-                    max(img2.height()>>1,(SLuint)1));
+        img2.resize((SLint)max(img2.width() >>1,(SLuint)1),
+                    (SLint)max(img2.height()>>1,(SLuint)1));
       
         //SLfloat gauss[9] = {1.0f, 2.0f, 1.0f,
         //                    2.0f, 4.0f, 2.0f,
@@ -755,11 +755,11 @@ void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
         //sprintf(filename,"%s_L%d_%dx%d.png", _name.c_str(), level, img2.width(), img2.height());
         //img2.savePNG(filename);
       
-        glTexImage2D(target, 
+        glTexImage2D((SLuint)target,
                      level, 
-                     img2.bytesPerPixel(),
-                     img2.width(), 
-                     img2.height(), 0,
+                     (SLint)img2.bytesPerPixel(),
+                     (SLsizei)img2.width(),
+                     (SLsizei)img2.height(), 0,
                      img2.format(),
                      GL_UNSIGNED_BYTE, 
                      (GLvoid*)img2.data());
@@ -772,14 +772,14 @@ SLstring SLGLTexture::typeName()
 {
     switch(_texType)
     {
-        case TT_unknown: return "Unknown type"; break;
-        case TT_color:   return "color map"; break;
-        case TT_normal:  return "normal map"; break;
-        case TT_height:  return "hight map"; break;
-        case TT_gloss:   return "gloss map"; break;
+        case TT_unknown: return "Unknown type";
+        case TT_color:   return "color map";
+        case TT_normal:  return "normal map";
+        case TT_height:  return "hight map";
+        case TT_gloss:   return "gloss map";
         case TT_roughness:   //*_R.{ext} Cook-Torrance roughness 0-1
         case TT_metallic:    //*_M.{ext} Cook-Torrance metallic 0-1
-        case TT_font:    return "font map"; break;
+        case TT_font:    return "font map"; ;
         default: return "Unknown type";
     }
 }
@@ -791,14 +791,15 @@ gradient of all images and stores them in the RGB components.
 void SLGLTexture::calc3DGradients(SLint sampleRadius)
 {
     SLint r    = sampleRadius;
-    SLint volX = _images[0]->width();
-    SLint volY = _images[0]->height();
+    SLint volX = (SLint)_images[0]->width();
+    SLint volY = (SLint)_images[0]->height();
     SLint volZ = (SLint)_images.size();
     SLfloat oneOver255 = 1.0f / 255.0f;
 
     // check that all images in depth have the same size
     for (auto img : _images)
-        if (img->width() != volX || img->height() != volY || img->format()!= PF_rgba)
+        if ((SLint)img->width() != volX ||
+            (SLint)img->height() != volY || img->format()!= PF_rgba)
             SL_EXIT_MSG("SLGLTexture::calc3DGradients: Not all images have the same size!");
 
 
@@ -810,12 +811,12 @@ void SLGLTexture::calc3DGradients(SLint sampleRadius)
             {
                 // Calculate the min & max vectors
                 SLVec3f min, max;
-                min.x = (SLfloat)_images[z  ]->cvMat().at<cv::Vec4b>(y  , x-r)[3] * oneOver255;
-                max.x = (SLfloat)_images[z  ]->cvMat().at<cv::Vec4b>(y  , x+r)[3] * oneOver255;
-                min.y = (SLfloat)_images[z  ]->cvMat().at<cv::Vec4b>(y-r, x  )[3] * oneOver255;
-                max.y = (SLfloat)_images[z  ]->cvMat().at<cv::Vec4b>(y+r, x  )[3] * oneOver255;
-                min.z = (SLfloat)_images[z-r]->cvMat().at<cv::Vec4b>(y  , x  )[3] * oneOver255;
-                max.z = (SLfloat)_images[z+r]->cvMat().at<cv::Vec4b>(y  , x  )[3] * oneOver255;
+                min.x = (SLfloat)_images[(SLuint)z  ]->cvMat().at<cv::Vec4b>(y  , x-r)[3] * oneOver255;
+                max.x = (SLfloat)_images[(SLuint)z  ]->cvMat().at<cv::Vec4b>(y  , x+r)[3] * oneOver255;
+                min.y = (SLfloat)_images[(SLuint)z  ]->cvMat().at<cv::Vec4b>(y-r, x  )[3] * oneOver255;
+                max.y = (SLfloat)_images[(SLuint)z  ]->cvMat().at<cv::Vec4b>(y+r, x  )[3] * oneOver255;
+                min.z = (SLfloat)_images[(SLuint)z-(SLuint)r]->cvMat().at<cv::Vec4b>(y  , x  )[3] * oneOver255;
+                max.z = (SLfloat)_images[(SLuint)z+(SLuint)r]->cvMat().at<cv::Vec4b>(y  , x  )[3] * oneOver255;
 
                 // Calculate normal as the difference between max & min
                 SLVec3f normal = max - min;
@@ -826,9 +827,9 @@ void SLGLTexture::calc3DGradients(SLint sampleRadius)
 
                 // Store normal in the rgb channels. Scale range from -1 - 1 to 0 - 1 to 0 - 255
                 normal += 1.0f;
-                _images[z]->cvMat().at<cv::Vec4b>(y,x)[0] = (SLuchar)(normal.x * 0.5f * 255.0f);
-                _images[z]->cvMat().at<cv::Vec4b>(y,x)[1] = (SLuchar)(normal.y * 0.5f * 255.0f);
-                _images[z]->cvMat().at<cv::Vec4b>(y,x)[2] = (SLuchar)(normal.z * 0.5f * 255.0f);
+                _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y,x)[0] = (SLuchar)(normal.x * 0.5f * 255.0f);
+                _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y,x)[1] = (SLuchar)(normal.y * 0.5f * 255.0f);
+                _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y,x)[2] = (SLuchar)(normal.z * 0.5f * 255.0f);
             }
         }
     }
@@ -847,14 +848,15 @@ of all images.
 void SLGLTexture::smooth3DGradients(SLint smoothRadius)
 {
     SLint r    = smoothRadius;
-    SLint volX = _images[0]->width();
-    SLint volY = _images[0]->height();
+    SLint volX = (SLint)_images[0]->width();
+    SLint volY = (SLint)_images[0]->height();
     SLint volZ = (SLint)_images.size();
     SLfloat oneOver255 = 1.0f / 255.0f;
 
     // check that all images in depth have the same size
     for (auto img : _images)
-        if (img->width() != volX || img->height() != volY || img->format()!= PF_rgba)
+        if ((SLint)img->width() != volX ||
+            (SLint)img->height() != volY || img->format()!= PF_rgba)
             SL_EXIT_MSG("SLGLTexture::calc3DGradients: Not all images have the same size3@!");
 
     //@todo This is very slow and should be implemented as separable filter
@@ -871,9 +873,9 @@ void SLGLTexture::smooth3DGradients(SLint smoothRadius)
                 for (int fz = z - r; fz <= z + r; ++fz)
                 {   for (int fy = y - r; fy <= y + r; ++fy)
                     {   for (int fx = x - r; fx <= x + r; ++fx)
-                        {   filtered += SLVec3f((SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[0] * oneOver255 * 2.0f - 1.0f,
-                                                (SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[1] * oneOver255 * 2.0f - 1.0f,
-                                                (SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[2] * oneOver255 * 2.0f - 1.0f);
+                        {   filtered += SLVec3f((SLfloat)_images[(SLuint)fz]->cvMat().at<cv::Vec4b>(fy,fx)[0] * oneOver255 * 2.0f - 1.0f,
+                                                (SLfloat)_images[(SLuint)fz]->cvMat().at<cv::Vec4b>(fy,fx)[1] * oneOver255 * 2.0f - 1.0f,
+                                                (SLfloat)_images[(SLuint)fz]->cvMat().at<cv::Vec4b>(fy,fx)[2] * oneOver255 * 2.0f - 1.0f);
                             num++;
                         }
                     }
@@ -882,9 +884,9 @@ void SLGLTexture::smooth3DGradients(SLint smoothRadius)
 
                 // Store normal in the rgb channels. Scale range from -1 - 1 to 0 - 1 to 0 - 255
                 filtered += 1.0f;
-                _images[z]->cvMat().at<cv::Vec4b>(y,x)[0] = (SLuchar)(filtered.x * 0.5f * 255.0f);
-                _images[z]->cvMat().at<cv::Vec4b>(y,x)[1] = (SLuchar)(filtered.y * 0.5f * 255.0f);
-                _images[z]->cvMat().at<cv::Vec4b>(y,x)[2] = (SLuchar)(filtered.z * 0.5f * 255.0f);
+                _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y,x)[0] = (SLuchar)(filtered.x * 0.5f * 255.0f);
+                _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y,x)[1] = (SLuchar)(filtered.y * 0.5f * 255.0f);
+                _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y,x)[2] = (SLuchar)(filtered.z * 0.5f * 255.0f);
             }
         }
     }
@@ -939,7 +941,7 @@ void SLGLTexture::cubeXYZ2UV(SLfloat x, SLfloat y, SLfloat z,
     SLint isYPositive = y > 0 ? 1 : 0;
     SLint isZPositive = z > 0 ? 1 : 0;
     
-    SLfloat maxAxis, uc, vc;
+    SLfloat maxAxis=0.0f, uc=0.0f, vc=0.0f;
     
     // POSITIVE X
     if (isXPositive && absX >= absY && absX >= absZ)

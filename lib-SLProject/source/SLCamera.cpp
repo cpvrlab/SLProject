@@ -446,18 +446,18 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     if (_projection >= P_stereoColorRC)
     {   if (eye==ET_left)
         {  switch (_projection)
-            {   case P_stereoColorRC: _stateGL->colorMask(1, 0, 0, 1); break;
-                case P_stereoColorRB: _stateGL->colorMask(1, 0, 0, 1); break;
-                case P_stereoColorRG: _stateGL->colorMask(1, 0, 0, 1); break;
-                case P_stereoColorYB: _stateGL->colorMask(1, 1, 0, 1); break;
+            {   case P_stereoColorRC: _stateGL->colorMask(true, false, false, true); break;
+                case P_stereoColorRB: _stateGL->colorMask(true, false, false, true); break;
+                case P_stereoColorRG: _stateGL->colorMask(true, false, false, true); break;
+                case P_stereoColorYB: _stateGL->colorMask(true, true, false, true); break;
                 default: break;
             }
         } else
         {   switch (_projection)
-            {   case P_stereoColorRC: _stateGL->colorMask(0, 1, 1, 1); break;
-                case P_stereoColorRB: _stateGL->colorMask(0, 0, 1, 1); break;
-                case P_stereoColorRG: _stateGL->colorMask(0, 1, 0, 1); break;
-                case P_stereoColorYB: _stateGL->colorMask(0, 0, 1, 1); break;
+            {   case P_stereoColorRC: _stateGL->colorMask(false, true, true, true); break;
+                case P_stereoColorRB: _stateGL->colorMask(false, false, true, true); break;
+                case P_stereoColorRG: _stateGL->colorMask(false, true, false, true); break;
+                case P_stereoColorYB: _stateGL->colorMask(false, false, true, true); break;
                 default: break;
             }
         }

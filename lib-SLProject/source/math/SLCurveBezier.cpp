@@ -41,7 +41,7 @@ SLCurveBezier::~SLCurveBezier()
 /*! 
 Init curve with curve points and times. If no control
 points are passed they will be calculated automatically
-@param points Array of points on the Bézier curve (w = time)
+@param points Array of points on the Bezier curve (w = time)
 @param controlPoints Array of control points with size = 2*(numPointsAndTimes-1)
 */
 void SLCurveBezier::init(const SLVVec4f& points,
@@ -125,14 +125,14 @@ void SLCurveBezier::draw(const SLMat4f &wm)
             renderPoints.push_back(wm.multVec(_points[i].vec3()));
       
         // add control points
-        for (SLint i = 0; i < numControlPoints; ++i)
+        for (SLuint i = 0; i < (SLuint)numControlPoints; ++i)
             renderPoints.push_back(wm.multVec(_controls[i]));
 
         // add tangent points
-        for (SLint i = 0; i < numControlPoints; ++i)
+        for (SLuint i = 0; i < (SLuint)numControlPoints; ++i)
         {   renderPoints.push_back(wm.multVec(_controls[i]));
             int iPoint = (SLint)((SLfloat)i/2.0f + 0.5f);
-            renderPoints.push_back(wm.multVec(_points[iPoint].vec3()));
+            renderPoints.push_back(wm.multVec(_points[(SLuint)iPoint].vec3()));
         }
       
         // Generate finally the OpenGL rendering buffer
@@ -146,30 +146,30 @@ void SLCurveBezier::draw(const SLMat4f &wm)
     stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
     SLint numTangentPoints = numControlPoints * 2;
-    SLint numCurvePoints = _vao.numVertices() -
+    SLint numCurvePoints = (SLint)_vao.numVertices() -
                            (SLint)_points.size() - numControlPoints - numTangentPoints;
    
     // Draw curve as a line strip through interpolated points
-    _vao.drawArrayAsColored(PT_lineStrip, SLCol3f::RED, 1, 0, numCurvePoints);
+    _vao.drawArrayAsColored(PT_lineStrip, SLCol3f::RED, 1, 0, (SLuint)numCurvePoints);
    
     // ES2 has often problems with rendering points
     #ifndef SL_GLES2
     // Draw curve as a line strip through interpolated points
-    _vao.drawArrayAsColored(PT_points, SLCol4f::RED, 3, 0, numCurvePoints);
+    _vao.drawArrayAsColored(PT_points, SLCol4f::RED, 3, 0, (SLuint)numCurvePoints);
 
     // Draw input points
     _vao.drawArrayAsColored(PT_points, SLCol4f::BLUE, 6, 
-                            numCurvePoints, (SLuint)_points.size());
+                            (SLuint)numCurvePoints, (SLuint)_points.size());
 
     // Draw control points
     _vao.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 6,
-                            numCurvePoints + (SLuint)_points.size(), 
-                            numControlPoints);
+                            (SLuint)numCurvePoints + (SLuint)_points.size(),
+                            (SLuint)numControlPoints);
 
     // Draw tangent points as lines
     _vao.drawArrayAsColored(PT_lines, SLCol4f::YELLOW, 1,
-                            numCurvePoints + (SLint)_points.size() + numControlPoints, 
-                            numTangentPoints);
+                            (SLuint)numCurvePoints + (SLuint)_points.size() + (SLuint)numControlPoints,
+                            (SLuint)numTangentPoints);
     #endif
 }
 //-------------------------------------------------------------------------------

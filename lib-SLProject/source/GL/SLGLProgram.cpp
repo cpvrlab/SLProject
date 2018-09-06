@@ -150,7 +150,7 @@ void SLGLProgram::init()
         //SL_LOG("Linked: %s", _name.c_str());
     } else
     {   SLchar log[256];
-        glGetProgramInfoLog(_objectGL, sizeof(log), 0, &log[0]);
+        glGetProgramInfoLog(_objectGL, sizeof(log), nullptr, &log[0]);
         SL_LOG("*** LINKER ERROR ***\n");
         SL_LOG("Source files: \n");
         for (auto shader : _shaders) 
@@ -188,7 +188,7 @@ void SLGLProgram::beginUse(SLMaterial* mat)
             
         // 2: Pass light & material parameters
         _stateGL->globalAmbientLight = SLApplication::scene->globalAmbiLight();
-        SLint loc = uniform4fv("u_globalAmbient",  1,  (SLfloat*) _stateGL->globalAmbient());
+        SLint loc = uniform4fv("u_globalAmbient",  1,  (const SLfloat*) _stateGL->globalAmbient());
         loc = uniform1i("u_numLightsUsed", _stateGL->numLightsUsed);
         
         if (_stateGL->numLightsUsed > 0)

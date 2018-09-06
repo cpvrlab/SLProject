@@ -273,7 +273,7 @@ SLNodeAnimTrack* SLAnimation::createEllipticNodeTrack(SLNode* target,
     SLfloat k = 0.5522847498f;
 
     SLVVec3f controls; controls.resize(8);
-    for (SLint i=0; i<controls.size(); ++i) controls[i].set(0,0,0);
+    for (SLuint i=0; i<controls.size(); ++i) controls[i].set(0,0,0);
     controls[0].comp[axisA] = radiusA; controls[0].comp[axisB] = k *  radiusB;
     controls[1].comp[axisB] = radiusB; controls[1].comp[axisA] = k *  radiusA;
     controls[2].comp[axisB] = radiusB; controls[2].comp[axisA] = k * -radiusA;
@@ -292,9 +292,9 @@ SLNodeAnimTrack* SLAnimation::createEllipticNodeTrack(SLNode* target,
     track->createNodeKeyframe(4.0f * t4)->translation(A);
 
     // Build curve data w. cumulated times
-    SLVVec4f points; points.resize(track->numKeyframes());
-    for (SLint i=0; i<track->numKeyframes(); ++i)
-    {   SLTransformKeyframe* kf = (SLTransformKeyframe*)track->keyframe(i);
+    SLVVec4f points; points.resize((SLulong)track->numKeyframes());
+    for (SLuint i=0; i<(SLuint)track->numKeyframes(); ++i)
+    {   SLTransformKeyframe* kf = (SLTransformKeyframe*)track->keyframe((SLint)i);
         points[i].set(kf->translation().x, 
                       kf->translation().y, 
                       kf->translation().z, 

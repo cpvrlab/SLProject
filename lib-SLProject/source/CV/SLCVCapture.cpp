@@ -411,7 +411,7 @@ void* convertYUV2RGB(YUV2RGB_BlockInfo* block)
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 //------------------------------------------------------------------------------

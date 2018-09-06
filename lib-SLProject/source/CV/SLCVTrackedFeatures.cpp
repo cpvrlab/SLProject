@@ -613,8 +613,8 @@ bool SLCVTrackedFeatures::calculatePose()
     SLCVVPoint2f framePoints(_currentFrame.matches.size());
 
     for (size_t i = 0; i < _currentFrame.matches.size(); i++)
-    {   modelPoints[i] = _marker.keypoints3D[_currentFrame.matches[i].trainIdx];
-        framePoints[i] = _currentFrame.keypoints[_currentFrame.matches[i].queryIdx].pt;
+    {   modelPoints[i] = _marker.keypoints3D[(SLuint)_currentFrame.matches[i].trainIdx];
+        framePoints[i] = _currentFrame.keypoints[(SLuint)_currentFrame.matches[i].queryIdx].pt;
     }
 
     SLVuchar inliersMask(modelPoints.size());
@@ -716,7 +716,7 @@ void SLCVTrackedFeatures::optimizeMatches()
         // Check if this point has a match inside matches, continue if so
         SLint alreadyMatched = 0;
         for (size_t j = 0; j < _currentFrame.inlierMatches.size(); j++)
-        {   if (_currentFrame.inlierMatches[j].trainIdx == i)
+        {   if (_currentFrame.inlierMatches[(SLuint)j].trainIdx == (SLint)i)
                 alreadyMatched++;
         }
 
@@ -792,7 +792,7 @@ void SLCVTrackedFeatures::optimizeMatches()
         }
 
         // Get the keypoint which was used for pose estimation
-        SLCVPoint2f keypointForPose = _currentFrame.keypoints[_currentFrame.inlierMatches.back().queryIdx].pt;
+        SLCVPoint2f keypointForPose = _currentFrame.keypoints[(SLuint)_currentFrame.inlierMatches.back().queryIdx].pt;
         reprojectionError += (float)norm(SLCVMat(projectedModelPoint),
                                          SLCVMat(keypointForPose));
 
@@ -844,8 +844,8 @@ void SLCVTrackedFeatures::optimizeMatches()
     vector<Point3f> modelPoints = vector<Point3f>(_currentFrame.inlierMatches.size());
     vector<Point2f> framePoints = vector<Point2f>(_currentFrame.inlierMatches.size());
     for (size_t i = 0; i < _currentFrame.inlierMatches.size(); i++)
-    {   modelPoints[i] = _marker.keypoints3D[_currentFrame.inlierMatches[i].trainIdx];
-        framePoints[i] = _currentFrame.keypoints[_currentFrame.inlierMatches[i].queryIdx].pt;
+    {   modelPoints[i] = _marker.keypoints3D[(SLuint)_currentFrame.inlierMatches[i].trainIdx];
+        framePoints[i] = _currentFrame.keypoints[(SLuint)_currentFrame.inlierMatches[i].queryIdx].pt;
     }
 
     if (modelPoints.size() == 0) return;
