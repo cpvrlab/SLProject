@@ -21,18 +21,18 @@
 //!Datastructure used to subdivide the Image with keypoints into segments.
 class SLCVRaulMurExtractorNode
 {
-public:
-                    SLCVRaulMurExtractorNode():bNoMore(false){}
+    public:
+    SLCVRaulMurExtractorNode() : bNoMore(false) {}
 
-    void            DivideNode(SLCVRaulMurExtractorNode &n1,
-                               SLCVRaulMurExtractorNode &n2,
-                               SLCVRaulMurExtractorNode &n3,
-                               SLCVRaulMurExtractorNode &n4);
+    void DivideNode(SLCVRaulMurExtractorNode& n1,
+                    SLCVRaulMurExtractorNode& n2,
+                    SLCVRaulMurExtractorNode& n3,
+                    SLCVRaulMurExtractorNode& n4);
 
-    SLCVVKeyPoint   vKeys;
-    SLCVPoint2i     UL, UR, BL, BR;
+    SLCVVKeyPoint                                 vKeys;
+    SLCVPoint2i                                   UL, UR, BL, BR;
     std::list<SLCVRaulMurExtractorNode>::iterator lit;
-    bool bNoMore;
+    bool                                          bNoMore;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVRAULMUREXTRACTORNODE_H

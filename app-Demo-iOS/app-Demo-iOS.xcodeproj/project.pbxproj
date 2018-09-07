@@ -2786,7 +2786,7 @@
 				LastUpgradeCheck = 0930;
 				TargetAttributes = {
 					419BCD3614865C0800D576F1 = {
-						DevelopmentTeam = KS44968S3M;
+						DevelopmentTeam = 858Y9EWZ4B;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -3675,7 +3675,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = KS44968S3M;
+				DEVELOPMENT_TEAM = 858Y9EWZ4B;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					../_lib/prebuilt/OpenCV/ios/Debug,
@@ -3749,7 +3749,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = KS44968S3M;
+				DEVELOPMENT_TEAM = 858Y9EWZ4B;
 				ENABLE_OPENMP_SUPPORT = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

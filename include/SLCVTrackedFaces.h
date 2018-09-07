@@ -34,28 +34,29 @@ see the comments in SLCVTrackedFaces::track method.
 class SLCVTrackedFaces : public SLCVTracked
 {
     public:
-                SLCVTrackedFaces    (SLNode* nodeSL,
-                                     SLint smoothLength = 5,
-                                     SLstring faceClassifierFilename = "haarcascade_frontalface_alt2.xml",
-                                     SLstring faceMarkModelFilename = "lbfmodel.yaml");
-               ~SLCVTrackedFaces    ();
+    SLCVTrackedFaces(SLNode*  nodeSL,
+                     SLint    smoothLength           = 5,
+                     SLstring faceClassifierFilename = "haarcascade_frontalface_alt2.xml",
+                     SLstring faceMarkModelFilename  = "lbfmodel.yaml");
+    ~SLCVTrackedFaces();
 
-        SLbool  track               (SLCVMat imageGray,
-                                     SLCVMat imageRgb,
-                                     SLCVCalibration* calib,
-                                     SLbool drawDetection,
-                                     SLSceneView* sv);
-        void    delaunayTriangulate (SLCVMat imageRgb,
-                                     SLCVVPoint2f points,
-                                     SLbool drawDetection);
+    SLbool track(SLCVMat          imageGray,
+                 SLCVMat          imageRgb,
+                 SLCVCalibration* calib,
+                 SLbool           drawDetection,
+                 SLSceneView*     sv);
+    void   delaunayTriangulate(SLCVMat      imageRgb,
+                               SLCVVPoint2f points,
+                               SLbool       drawDetection);
+
     private:
-        SLCVCascadeClassifier*  _faceDetector;      //!< Viola-Jones face detector
-        cv::Ptr<SLCVFacemark>   _facemark;          //!< Facial landmarks detector smart pointer
-        SLVAvgVec2f             _avgPosePoints2D;   //!< vector of averaged facial landmark 2D points
-        SLCVRect                _boundingRect;      //!< Bounding rectangle around landmarks
-        SLCVVPoint2f            _cvPosePoints2D;    //!< vector of OpenCV point2D
-        SLCVVPoint3f            _cvPosePoints3D;    //!< vector of OpenCV point2D
-        SLint                   _smoothLenght;      //!< Smoothing filter lenght
+    SLCVCascadeClassifier* _faceDetector;    //!< Viola-Jones face detector
+    cv::Ptr<SLCVFacemark>  _facemark;        //!< Facial landmarks detector smart pointer
+    SLVAvgVec2f            _avgPosePoints2D; //!< vector of averaged facial landmark 2D points
+    SLCVRect               _boundingRect;    //!< Bounding rectangle around landmarks
+    SLCVVPoint2f           _cvPosePoints2D;  //!< vector of OpenCV point2D
+    SLCVVPoint3f           _cvPosePoints3D;  //!< vector of OpenCV point2D
+    SLint                  _smoothLenght;    //!< Smoothing filter lenght
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedFaces_H

@@ -12,10 +12,10 @@
 #ifndef SLMAT3_H
 #define SLMAT3_H
 
-#include <iostream>
 #include <SL.h>
 #include <SLUtils.h>
 #include <SLVec3.h>
+#include <iostream>
 
 //-----------------------------------------------------------------------------
 //! 3x3 matrix template class
@@ -31,6 +31,7 @@ Implements a 3 by 3 matrix template. 9 floats were used instead of the normal
 \n Use SLMat3f for a specific float type 3x3 matrix
 \n Use SLMat3d for a specific double type 3x3 matrix
 */
+// clang-format off
 template<class T>
 class SLMat3
 {

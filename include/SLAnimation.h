@@ -12,8 +12,8 @@
 #define SLANIMATION_H
 
 #include <SLAnimTrack.h>
-#include <SLJoint.h>
 #include <SLEnums.h>
+#include <SLJoint.h>
 
 class SLSkeleton;
 
@@ -32,62 +32,63 @@ SLSkeletons with the same SLAnimation.
 */
 class SLAnimation
 {
-public:
-                        SLAnimation     (const SLstring& name, SLfloat duration);
-                       ~SLAnimation     ();
-    
-            SLfloat     nextKeyframeTime(SLfloat time);
-            SLfloat     prevKeyframeTime(SLfloat time);
-            SLbool      affectsNode     (SLNode* node);
-            void        apply           (SLfloat time,
-                                         SLfloat weight = 1.0f,
-                                         SLfloat scale = 1.0f);
-            void        applyToNode     (SLNode* node,
-                                         SLfloat time,
-                                         SLfloat weight = 1.0f,
-                                         SLfloat scale = 1.0f);
-            void        apply           (SLSkeleton* skel,
-                                         SLfloat time,
-                                         SLfloat weight = 1.0f,
-                                         SLfloat scale = 1.0f);
-            void        resetNodes      ();
-            void        drawNodeVisuals (SLSceneView* sv);
+    public:
+    SLAnimation(const SLstring& name, SLfloat duration);
+    ~SLAnimation();
 
-    // static creator 
-    static SLAnimation* create          (const SLstring& name,
-                                         SLfloat duration,
-                                         SLbool enabled = true,
-                                         SLEasingCurve easing = EC_linear,
-                                         SLAnimLooping looping = AL_loop);
+    SLfloat nextKeyframeTime(SLfloat time);
+    SLfloat prevKeyframeTime(SLfloat time);
+    SLbool  affectsNode(SLNode* node);
+    void    apply(SLfloat time,
+                  SLfloat weight = 1.0f,
+                  SLfloat scale  = 1.0f);
+    void    applyToNode(SLNode* node,
+                        SLfloat time,
+                        SLfloat weight = 1.0f,
+                        SLfloat scale  = 1.0f);
+    void    apply(SLSkeleton* skel,
+                  SLfloat     time,
+                  SLfloat     weight = 1.0f,
+                  SLfloat     scale  = 1.0f);
+    void    resetNodes();
+    void    drawNodeVisuals(SLSceneView* sv);
+
+    // static creator
+    static SLAnimation* create(const SLstring& name,
+                               SLfloat         duration,
+                               SLbool          enabled = true,
+                               SLEasingCurve   easing  = EC_linear,
+                               SLAnimLooping   looping = AL_loop);
     // track creators
-    SLNodeAnimTrack*    createNodeAnimationTrack        ();
-    SLNodeAnimTrack*    createNodeAnimationTrack        (SLuint handle);
-    SLNodeAnimTrack*    createSimpleTranslationNodeTrack(SLNode* target, 
-                                                         const SLVec3f& endPos);
-    SLNodeAnimTrack*    createSimpleRotationNodeTrack   (SLNode* target, SLfloat angleDeg, 
-                                                         const SLVec3f& axis);
-    SLNodeAnimTrack*    createSimpleScalingNodeTrack    (SLNode* target, 
-                                                         const SLVec3f& endScale);
-    SLNodeAnimTrack*    createEllipticNodeTrack         (SLNode* target,
-                                                         SLfloat radiusA, SLAxis axisA,
-                                                         SLfloat radiusB, SLAxis axisB);
+    SLNodeAnimTrack* createNodeAnimationTrack();
+    SLNodeAnimTrack* createNodeAnimationTrack(SLuint handle);
+    SLNodeAnimTrack* createSimpleTranslationNodeTrack(SLNode*        target,
+                                                      const SLVec3f& endPos);
+    SLNodeAnimTrack* createSimpleRotationNodeTrack(SLNode*        target,
+                                                   SLfloat        angleDeg,
+                                                   const SLVec3f& axis);
+    SLNodeAnimTrack* createSimpleScalingNodeTrack(SLNode*        target,
+                                                  const SLVec3f& endScale);
+    SLNodeAnimTrack* createEllipticNodeTrack(SLNode* target,
+                                             SLfloat radiusA,
+                                             SLAxis  axisA,
+                                             SLfloat radiusB,
+                                             SLAxis  axisB);
     // Getters
-    const   SLstring&   name            () { return _name; }
-            SLfloat     lengthSec       () const { return _lengthSec; }
+    const SLstring& name() { return _name; }
+    SLfloat         lengthSec() const { return _lengthSec; }
 
     // Setters
-            void        name            (const SLstring& name) { _name = name; }
-            void        lengthSec       (SLfloat lengthSec);
+    void name(const SLstring& name) { _name = name; }
+    void lengthSec(SLfloat lengthSec);
 
-protected:
-    SLstring            _name;              //!< name of the animation
-    SLfloat             _lengthSec;         //!< duration of the animation in seconds
-    SLMNodeAnimTrack    _nodeAnimTracks;    //!< map of all the node tracks in this animation
+    protected:
+    SLstring         _name;           //!< name of the animation
+    SLfloat          _lengthSec;      //!< duration of the animation in seconds
+    SLMNodeAnimTrack _nodeAnimTracks; //!< map of all the node tracks in this animation
 };
 //-----------------------------------------------------------------------------
 typedef vector<SLAnimation*>        SLVAnimation;
 typedef map<SLstring, SLAnimation*> SLMAnimation;
 //-----------------------------------------------------------------------------
 #endif
-
-

@@ -11,8 +11,8 @@
 #ifndef SLANIMPLAYBACK_h
 #define SLANIMPLAYBACK_h
 
-#include <vector>
 #include <map>
+#include <vector>
 
 #include <SL.h>
 #include <SLEnums.h>
@@ -37,61 +37,61 @@ states and the actual SLAnimation has to only exist once in memory.
 */
 class SLAnimPlayback
 {
-public:
-                    SLAnimPlayback      (SLAnimation* parent,
-                                         SLfloat weight = 1.0f);
+    public:
+    SLAnimPlayback(SLAnimation* parent,
+                   SLfloat      weight = 1.0f);
 
     // control functions
-    void            playForward         ();
-    void            playBackward        ();
-    void            pause               ();
-    void            skipToNextKeyframe  ();
-    void            skipToPrevKeyframe  ();
-    void            skipToStart         ();
-    void            skipToEnd           ();
+    void playForward();
+    void playBackward();
+    void pause();
+    void skipToNextKeyframe();
+    void skipToPrevKeyframe();
+    void skipToStart();
+    void skipToEnd();
 
     // getters
-    SLfloat         localTime           () const {return _localTime;}
-    SLAnimation*    parentAnimation     () {return _animation;}
-    SLfloat         playbackRate        () const {return _playbackRate;}
-    SLfloat         weight              () const {return _weight;}
-    SLAnimLooping   loop                () const {return _loopingBehaviour;}
-    SLbool          enabled             () const {return _enabled;}
-    SLEasingCurve   easing              () const {return _easing;}
-    SLbool          changed             () const {return _gotChanged;}
-    SLbool          isPlayingForward    () const {return _enabled && _playbackDir ==  1;}
-    SLbool          isPlayingBackward   () const {return _enabled && _playbackDir == -1;}
-    SLbool          isPaused            () const {return _enabled && _playbackDir ==  0;}
-    SLbool          isStopped           () const {return !_enabled;}
+    SLfloat       localTime() const { return _localTime; }
+    SLAnimation*  parentAnimation() { return _animation; }
+    SLfloat       playbackRate() const { return _playbackRate; }
+    SLfloat       weight() const { return _weight; }
+    SLAnimLooping loop() const { return _loopingBehaviour; }
+    SLbool        enabled() const { return _enabled; }
+    SLEasingCurve easing() const { return _easing; }
+    SLbool        changed() const { return _gotChanged; }
+    SLbool        isPlayingForward() const { return _enabled && _playbackDir == 1; }
+    SLbool        isPlayingBackward() const { return _enabled && _playbackDir == -1; }
+    SLbool        isPaused() const { return _enabled && _playbackDir == 0; }
+    SLbool        isStopped() const { return !_enabled; }
 
     // setters
-    void            localTime           (SLfloat time);
-    void            playbackRate        (SLfloat pr) { _playbackRate = pr; }
-    void            weight              (SLfloat weight) { _weight = weight; }
-    void            loop                (SLAnimLooping lb) { _loopingBehaviour = lb; }
-    void            enabled             (SLbool val) { _enabled = val; }
-    void            easing              (SLEasingCurve ec) { _easing = ec; }
-    void            changed             (SLbool changed) { _gotChanged = changed; }
+    void localTime(SLfloat time);
+    void playbackRate(SLfloat pr) { _playbackRate = pr; }
+    void weight(SLfloat weight) { _weight = weight; }
+    void loop(SLAnimLooping lb) { _loopingBehaviour = lb; }
+    void enabled(SLbool val) { _enabled = val; }
+    void easing(SLEasingCurve ec) { _easing = ec; }
+    void changed(SLbool changed) { _gotChanged = changed; }
 
     // advance time by the input real time delta
-    void            advanceTime         (SLfloat delta);
-    SLfloat         calcEasingTime      (SLfloat time) const;
-    SLfloat         calcEasingTimeInv   (SLfloat time) const;
+    void    advanceTime(SLfloat delta);
+    SLfloat calcEasingTime(SLfloat time) const;
+    SLfloat calcEasingTimeInv(SLfloat time) const;
 
-protected:
-    SLAnimation*    _animation;         //!< the animation this plays is referencing
-    SLfloat         _localTime;         //!< the current local timestamp (eased time)
-    SLfloat         _weight;            //!< the current weight
-    SLfloat         _playbackRate;      //!< the current playback speed
-    SLshort         _playbackDir;       //!< the current playback direction
-    SLbool          _enabled;           //!< is this animation running
-    SLEasingCurve   _easing;            //!< easing modifier curve (to customize start and end point easing)
-    SLfloat         _linearLocalTime;   //!< linear local time used for _easing propert
-    SLAnimLooping   _loopingBehaviour;  //!< We support different looping behaviours
-    SLbool          _gotChanged;        //!< Did this playback change in the last frame
+    protected:
+    SLAnimation*  _animation;        //!< the animation this plays is referencing
+    SLfloat       _localTime;        //!< the current local timestamp (eased time)
+    SLfloat       _weight;           //!< the current weight
+    SLfloat       _playbackRate;     //!< the current playback speed
+    SLshort       _playbackDir;      //!< the current playback direction
+    SLbool        _enabled;          //!< is this animation running
+    SLEasingCurve _easing;           //!< easing modifier curve (to customize start and end point easing)
+    SLfloat       _linearLocalTime;  //!< linear local time used for _easing propert
+    SLAnimLooping _loopingBehaviour; //!< We support different looping behaviours
+    SLbool        _gotChanged;       //!< Did this playback change in the last frame
 };
 //-----------------------------------------------------------------------------
-typedef std::vector<SLAnimPlayback*>         SLVAnimPlayback;
-typedef std::map<SLstring, SLAnimPlayback*>  SLMAnimPlayback;
+typedef std::vector<SLAnimPlayback*>        SLVAnimPlayback;
+typedef std::map<SLstring, SLAnimPlayback*> SLMAnimPlayback;
 //-----------------------------------------------------------------------------
 #endif

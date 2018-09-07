@@ -14,33 +14,33 @@
 #include <SLRevolver.h>
 
 //-----------------------------------------------------------------------------
-//! SLCylinder is creates sphere mesh based on its SLRevolver methods     
-class SLCylinder: public SLRevolver 
-{  public:                     
-                            SLCylinder (SLfloat  cylinderRadius,
-                                        SLfloat  cylinderHeight,
-                                        SLuint   stacks = 1,
-                                        SLuint   slices = 16,
-                                        SLbool   hasTop = true,
-                                        SLbool   hasBottom = true,
-                                        SLstring name = "cylinder mesh",
-                                        SLMaterial* mat = nullptr);
-                            ~SLCylinder   (){;}
-                              
-            // Getters
-            SLfloat        radius()    {return _radius;}
-            SLfloat        height()    {return _height;}
-            SLuint         stacks()    {return _stacks;}
-            SLbool         hasTop()    {return _hasTop;}
-            SLbool         hasBottom() {return _hasBottom;}
-               
-   private:    
-            SLfloat       _radius;     //!< radius of cylinder
-            SLfloat       _height;     //!< height of cylinder
-            SLuint        _stacks;     //!< No. of stacks of cylinder
-            SLbool        _hasTop;     //!< Flag if cylinder has a top
-            SLbool        _hasBottom;  //!< Flag if cylinder has a bottom
+//! SLCylinder is creates sphere mesh based on its SLRevolver methods
+class SLCylinder : public SLRevolver
+{
+    public:
+    SLCylinder(SLfloat     cylinderRadius,
+               SLfloat     cylinderHeight,
+               SLuint      stacks    = 1,
+               SLuint      slices    = 16,
+               SLbool      hasTop    = true,
+               SLbool      hasBottom = true,
+               SLstring    name      = "cylinder mesh",
+               SLMaterial* mat       = nullptr);
+    ~SLCylinder() { ; }
+
+    // Getters
+    SLfloat radius() { return _radius; }
+    SLfloat height() { return _height; }
+    SLuint  stacks() { return _stacks; }
+    SLbool  hasTop() { return _hasTop; }
+    SLbool  hasBottom() { return _hasBottom; }
+
+    private:
+    SLfloat _radius;    //!< radius of cylinder
+    SLfloat _height;    //!< height of cylinder
+    SLuint  _stacks;    //!< No. of stacks of cylinder
+    SLbool  _hasTop;    //!< Flag if cylinder has a top
+    SLbool  _hasBottom; //!< Flag if cylinder has a bottom
 };
 //-----------------------------------------------------------------------------
 #endif //SLCYLINDER_H
-

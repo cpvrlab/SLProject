@@ -12,17 +12,18 @@
 #define SLQUAT_H
 
 #include <SL.h>
-#include <SLMath.h>
 #include <SLMat4.h>
+#include <SLMath.h>
 #include <SLVec4.h>
 
 //-----------------------------------------------------------------------------
-//!Quaternion class for angle-axis rotation representation. 
+//!Quaternion class for angle-axis rotation representation.
 /*!Quaternion class for angle-axis rotation representation. For rotations
 quaternions must have unit length. See http://en.wikipedia.org/wiki/Quaternion
 Quaternions can be interpolated at low cost with the method lerp or slerp.
 @todo Add more doxygen documentation.
 */
+// clang-format off
 template <class T>
 class SLQuat4 
 {  

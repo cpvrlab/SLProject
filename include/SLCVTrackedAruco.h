@@ -29,20 +29,19 @@ for a good top down information.
 //! ArUco Paramters loaded from configuration file.
 class SLCVArucoParams
 {
-public:
-    SLCVArucoParams() :
-        edgeLength(0.06f),
-        arucoDictionaryId(0),
-        filename("aruco_detector_params.yml")
-        {
-            arucoParams = cv::aruco::DetectorParameters::create();
-        }
+    public:
+    SLCVArucoParams() : edgeLength(0.06f),
+                        arucoDictionaryId(0),
+                        filename("aruco_detector_params.yml")
+    {
+        arucoParams = cv::aruco::DetectorParameters::create();
+    }
 
     bool loadFromFile()
     {
-        string path = SLCVCalibration::calibIniPath + filename;
+        string          path = SLCVCalibration::calibIniPath + filename;
         cv::FileStorage fs(path, cv::FileStorage::READ);
-        if(!fs.isOpened())
+        if (!fs.isOpened())
         {
             cout << "Could not find parameter file for ArUco tracking!" << endl;
             cout << "Tried " << SLCVCalibration::calibIniPath + filename << endl;
@@ -74,13 +73,13 @@ public:
         return true;
     }
 
-    cv::Ptr<cv::aruco::DetectorParameters>  arucoParams;    //!< detector parameter structure for aruco detection function
-    cv::Ptr<cv::aruco::Dictionary>          dictionary;     //!< predefined dictionary
+    cv::Ptr<cv::aruco::DetectorParameters> arucoParams; //!< detector parameter structure for aruco detection function
+    cv::Ptr<cv::aruco::Dictionary>         dictionary;  //!< predefined dictionary
 
-    SLfloat     edgeLength;             //!< marker edge length
-    SLint       arucoDictionaryId;      //!< id of aruco dictionary
-    SLstring    arucoDetectorParams;    //!< todo: put in one file
-    SLstring    filename;               //!< parameter filename
+    SLfloat  edgeLength;          //!< marker edge length
+    SLint    arucoDictionaryId;   //!< id of aruco dictionary
+    SLstring arucoDetectorParams; //!< todo: put in one file
+    SLstring filename;            //!< parameter filename
 };
 
 //-----------------------------------------------------------------------------
@@ -95,40 +94,40 @@ SLCVTrackedAruco::drawArucoMarker.
 class SLCVTrackedAruco : public SLCVTracked
 {
     public:
-                SLCVTrackedAruco    (SLNode* node, SLint arucoID);
-               ~SLCVTrackedAruco    () {;}
+    SLCVTrackedAruco(SLNode* node, SLint arucoID);
+    ~SLCVTrackedAruco() { ; }
 
-        SLbool  track               (SLCVMat imageGray,
-                                     SLCVMat imageRgb,
-                                     SLCVCalibration* calib,
-                                     SLbool drawDetection,
-                                     SLSceneView* sv);
+    SLbool track(SLCVMat          imageGray,
+                 SLCVMat          imageRgb,
+                 SLCVCalibration* calib,
+                 SLbool           drawDetection,
+                 SLSceneView*     sv);
 
-        //! Helper function to draw and save an aruco marker board image
-        static void drawArucoMarkerBoard(SLint dictionaryId,
-                                         SLint numMarkersX,
-                                         SLint numMarkersY,
-                                         SLfloat markerEdgeLengthM,
-                                         SLfloat markerSepaM,
-                                         SLstring imgName,
-                                         SLfloat dpi = 254.0f,
-                                         SLbool showImage = false);
- 
-        //! Helper function to draw and save an aruco marker set
-        static void drawArucoMarker(SLint dictionaryId,
-                                    SLint minMarkerId,
-                                    SLint maxMarkerId,
-                                    SLint markerSizePX=200);
-                                    
-        static SLbool           trackAllOnce;   //!< Flag for tracking all markers once per frame
-        static SLCVArucoParams  params;         //!< Parameter class instance
+    //! Helper function to draw and save an aruco marker board image
+    static void drawArucoMarkerBoard(SLint    dictionaryId,
+                                     SLint    numMarkersX,
+                                     SLint    numMarkersY,
+                                     SLfloat  markerEdgeLengthM,
+                                     SLfloat  markerSepaM,
+                                     SLstring imgName,
+                                     SLfloat  dpi       = 254.0f,
+                                     SLbool   showImage = false);
+
+    //! Helper function to draw and save an aruco marker set
+    static void drawArucoMarker(SLint dictionaryId,
+                                SLint minMarkerId,
+                                SLint maxMarkerId,
+                                SLint markerSizePX = 200);
+
+    static SLbool          trackAllOnce; //!< Flag for tracking all markers once per frame
+    static SLCVArucoParams params;       //!< Parameter class instance
 
     private:
-        static SLbool           paramsLoaded;   //!< Flag for loaded parameters
-        static SLVint           arucoIDs;       //!< detected Aruco marker IDs
-        static SLVMat4f         objectViewMats; //!< object view matrices
+    static SLbool   paramsLoaded;   //!< Flag for loaded parameters
+    static SLVint   arucoIDs;       //!< detected Aruco marker IDs
+    static SLVMat4f objectViewMats; //!< object view matrices
 
-               SLint            _arucoID;       //!< Aruco Marker ID for this node
+    SLint _arucoID; //!< Aruco Marker ID for this node
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedAruco_H

@@ -11,8 +11,8 @@
 #ifndef SLCOORDAXIS_H
 #define SLCOORDAXIS_H
 
-#include <SLMesh.h>
 #include <SLEnums.h>
+#include <SLMesh.h>
 
 //-----------------------------------------------------------------------------
 //! Axis aligned coordinate axis mesh
@@ -24,16 +24,16 @@ red, green & blue.
 class SLCoordAxis : public SLMesh
 {
     public:
-                        SLCoordAxis (SLfloat arrowThickness=0.05f,
-                                     SLfloat arrowHeadLenght=0.2f,
-                                     SLfloat arrowHeadWidth=0.1f);
-               
-            void        buildMesh   ();
-   
-    private:    
-            SLfloat     _arrowThickness;    //!< Thickness of the arrow 
-            SLfloat     _arrowHeadLength;   //!< Lenght of the arrow head
-            SLfloat     _arrowHeadWidth;    //!< Width of the arrow head
+    SLCoordAxis(SLfloat arrowThickness  = 0.05f,
+                SLfloat arrowHeadLenght = 0.2f,
+                SLfloat arrowHeadWidth  = 0.1f);
+
+    void buildMesh();
+
+    private:
+    SLfloat _arrowThickness;  //!< Thickness of the arrow
+    SLfloat _arrowHeadLength; //!< Lenght of the arrow head
+    SLfloat _arrowHeadWidth;  //!< Width of the arrow head
 };
 //-----------------------------------------------------------------------------
 #endif

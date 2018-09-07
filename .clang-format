@@ -1,19 +1,27 @@
 ---
 BasedOnStyle: Mozilla
+BinPackParameters: false
 AccessModifierOffset: 0
+
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
 AlignTrailingComments: true
 AlignEscapedNewlines: DontAlign
+
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: true
 AllowShortLoopsOnASingleLine: false
+
 AlwaysBreakAfterReturnType: None
+
 AlwaysBreakBeforeMultilineStrings: false
 
+BreakConstructorInitializers: BeforeColon
+BreakBeforeTernaryOperators: true
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterControlStatement: true
@@ -27,15 +35,22 @@ BraceWrapping:
   BeforeElse: true
   IndentBraces: false 
 
+ColumnLimit: 0
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 Cpp11BracedListStyle: true
+IncludeBlocks: Preserve
 IndentPPDirectives: AfterHash
 IndentWidth: 4
 Language: Cpp
 PointerAlignment: Left
+
 #UseTab: ForIndentation
+#PenaltyBreakComment: 100
+ReflowComments: true
+
 SortIncludes: true
 SortUsingDeclarations: true
+
 SpaceAfterTemplateKeyword: false
 SpaceAfterCStyleCast: false
 SpaceBeforeAssignmentOperators: true
@@ -45,5 +60,6 @@ SpacesInContainerLiterals: false
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
+
 Standard: Cpp11
 ...

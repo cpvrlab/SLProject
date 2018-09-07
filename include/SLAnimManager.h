@@ -8,13 +8,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-
 #ifndef SLANIMMANAGER_H
 #define SLANIMMANAGER_H
 
-#include <SLAnimation.h>
 #include <SLAnimManager.h>
 #include <SLAnimPlayback.h>
+#include <SLAnimation.h>
 #include <SLSkeleton.h>
 
 //-----------------------------------------------------------------------------
@@ -29,34 +28,34 @@ SLScene::updateIfAllViewsGotPainted by calling the SLAnimManager::update.
 */
 class SLAnimManager
 {
-public:
+    public:
     ~SLAnimManager();
-    
-    void                addSkeleton         (SLSkeleton* skel);
-    void                addNodeAnimation    (SLAnimation* anim);
-    SLbool              hasNodeAnimations   () { return (_nodeAnimations.size() > 0);}
-    SLAnimPlayback*     nodeAnimPlayback    (const SLstring& name);
-    SLAnimPlayback*     allAnimPlayback     (SLuint ix) {return _allAnimPlaybacks[ix];}
-    SLAnimPlayback*     lastAnimPlayback    (){return _allAnimPlaybacks.back();}
 
-    SLAnimation*        createNodeAnimation (SLfloat duration);
-    SLAnimation*        createNodeAnimation (const SLstring& name, SLfloat duration);
+    void            addSkeleton(SLSkeleton* skel);
+    void            addNodeAnimation(SLAnimation* anim);
+    SLbool          hasNodeAnimations() { return (_nodeAnimations.size() > 0); }
+    SLAnimPlayback* nodeAnimPlayback(const SLstring& name);
+    SLAnimPlayback* allAnimPlayback(SLuint ix) { return _allAnimPlaybacks[ix]; }
+    SLAnimPlayback* lastAnimPlayback() { return _allAnimPlaybacks.back(); }
 
-    SLMAnimation&       animations          () {return _nodeAnimations;}
-    SLVSkeleton&        skeletons           () {return _skeletons;}
-    SLVstring&          allAnimNames        () {return _allAnimNames;}
-    SLVAnimPlayback&    allAnimPlaybacks    () {return _allAnimPlaybacks;}
+    SLAnimation* createNodeAnimation(SLfloat duration);
+    SLAnimation* createNodeAnimation(const SLstring& name, SLfloat duration);
 
-    SLbool              update              (SLfloat elapsedTimeSec);
-    void                drawVisuals         (SLSceneView* sv);
-    void                clear               ();
+    SLMAnimation&    animations() { return _nodeAnimations; }
+    SLVSkeleton&     skeletons() { return _skeletons; }
+    SLVstring&       allAnimNames() { return _allAnimNames; }
+    SLVAnimPlayback& allAnimPlaybacks() { return _allAnimPlaybacks; }
 
-private:
-    SLVSkeleton         _skeletons;         //!< all skeleton instances
-    SLMAnimation        _nodeAnimations;    //!< node animations
-    SLMAnimPlayback     _nodeAnimPlaybacks; //!< node animation playbacks
-    SLVstring           _allAnimNames;      //!< vector with all animation names
-    SLVAnimPlayback     _allAnimPlaybacks;  //!< vector with all animation playbacks
+    SLbool update(SLfloat elapsedTimeSec);
+    void   drawVisuals(SLSceneView* sv);
+    void   clear();
+
+    private:
+    SLVSkeleton     _skeletons;         //!< all skeleton instances
+    SLMAnimation    _nodeAnimations;    //!< node animations
+    SLMAnimPlayback _nodeAnimPlaybacks; //!< node animation playbacks
+    SLVstring       _allAnimNames;      //!< vector with all animation names
+    SLVAnimPlayback _allAnimPlaybacks;  //!< vector with all animation playbacks
 };
 //-----------------------------------------------------------------------------
 #endif
