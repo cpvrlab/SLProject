@@ -17,29 +17,29 @@ class SLRay;
 class SLMaterial;
 
 //-----------------------------------------------------------------------------
-//! SLSphere creates a sphere mesh based on SLRevolver     
-class SLSpheric: public SLRevolver 
-{  public:                     
-                        SLSpheric   (SLfloat radius,
-                                     SLfloat thetaStartDEG,
-                                     SLfloat thetaEndDEG,
-                                     SLuint stacks = 32,
-                                     SLuint slices = 32,
-                                     SLstring name = "spheric mesh",
-                                     SLMaterial* mat = nullptr);
-                                                
-                       ~SLSpheric   (){;}
-                              
-            // Getters
-            SLfloat     radius      () {return _radius;}
-            SLuint      stacks     () {return _stacks;}
-               
-   protected:    
-            SLfloat     _radius;        //!< radius of the sphere
-            SLfloat     _thetaStartDEG; //!< Polar start angle 0-180deg
-            SLfloat     _thetaEndDEG;   //!< Polar end angle 1-180deg
-            SLuint      _stacks;        //!< No. of stacks of the sphere
+//! SLSphere creates a sphere mesh based on SLRevolver
+class SLSpheric : public SLRevolver
+{
+    public:
+    SLSpheric(SLfloat     radius,
+              SLfloat     thetaStartDEG,
+              SLfloat     thetaEndDEG,
+              SLuint      stacks = 32,
+              SLuint      slices = 32,
+              SLstring    name   = "spheric mesh",
+              SLMaterial* mat    = nullptr);
+
+    ~SLSpheric() { ; }
+
+    // Getters
+    SLfloat radius() { return _radius; }
+    SLuint  stacks() { return _stacks; }
+
+    protected:
+    SLfloat _radius;        //!< radius of the sphere
+    SLfloat _thetaStartDEG; //!< Polar start angle 0-180deg
+    SLfloat _thetaEndDEG;   //!< Polar end angle 1-180deg
+    SLuint  _stacks;        //!< No. of stacks of the sphere
 };
 //-----------------------------------------------------------------------------
 #endif //SLSPHERE_H
-

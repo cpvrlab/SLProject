@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLGLShader.h
-//  Author:    Marcus Hudritsch 
+//  Author:    Marcus Hudritsch
 //             Mainly based on Martin Christens GLSL Tutorial
 //             See http://www.clockworkcoders.com
 //  Date:      July 2014
@@ -45,30 +45,31 @@ In the OpenGL debug mode (define _GLDEBUG in SL.h) the adapted shader files
 get written out as *.debug files beside the original shader files.
 */
 class SLGLShader : public SLObject
-{  
+{
     friend class SLGLProgram;
+
     public:
-                            SLGLShader      ();
-                            SLGLShader      (SLstring filename, 
-                                             SLShaderType type);
-                           ~SLGLShader      ();
-                       
-            void            load            (SLstring filename);
-            void            loadFromMemory  (SLstring program);
-            SLbool          createAndCompile();
-            SLstring        removeComments  (SLstring src);
-            SLstring        typeName        ();
+    SLGLShader();
+    SLGLShader(SLstring     filename,
+               SLShaderType type);
+    ~SLGLShader();
 
-            // Getters
-            SLShaderType    type            () {return _type;}
-            SLuint          objectGL        () {return _objectGL;}
-            SLstring        code            () {return _code;}
+    void     load(SLstring filename);
+    void     loadFromMemory(SLstring program);
+    SLbool   createAndCompile();
+    SLstring removeComments(SLstring src);
+    SLstring typeName();
 
-    protected:         
-            SLShaderType    _type;      //!< Shader type enumeration
-            SLuint          _objectGL;  //!< Program Object
-            SLstring        _code;      //!< ASCII Source-Code
-            SLstring        _file;      //!< Path & filename of shader                            
+    // Getters
+    SLShaderType type() { return _type; }
+    SLuint       objectGL() { return _objectGL; }
+    SLstring     code() { return _code; }
+
+    protected:
+    SLShaderType _type;     //!< Shader type enumeration
+    SLuint       _objectGL; //!< Program Object
+    SLstring     _code;     //!< ASCII Source-Code
+    SLstring     _file;     //!< Path & filename of shader
 };
 //-----------------------------------------------------------------------------
 #endif // SLSHADEROBJECT_H

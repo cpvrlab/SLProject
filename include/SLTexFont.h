@@ -37,39 +37,41 @@ for design only. Their data is directly included a binary array in the source
 file SLTexFont.cpp.
 */
 class SLTexFont : public SLGLTexture
-{  
-    public:         SLTexFont       (SLstring fontFilename);
-                   ~SLTexFont       (){;}
+{
+    public:
+    SLTexFont(SLstring fontFilename);
+    ~SLTexFont() { ; }
 
-    void            create          (SLstring fontFilename);
-    SLVec2f         calcTextSize    (SLstring text, 
-                                     SLfloat maxWidth = 0.0f, 
-                                     SLfloat lineHeightFactor = 1.5f);
-    SLVstring       wrapTextToLines (SLstring text,
-                                     SLfloat  maxW);
-    void            buildTextBuffers(SLGLVertexArray& vao,
-                                     SLstring text, 
-                                     SLfloat maxWidth = 0.0f,
-                                     SLfloat lineHeight = 1.5f);
-                                          
+    void      create(SLstring fontFilename);
+    SLVec2f   calcTextSize(SLstring text,
+                           SLfloat  maxWidth         = 0.0f,
+                           SLfloat  lineHeightFactor = 1.5f);
+    SLVstring wrapTextToLines(SLstring text,
+                              SLfloat  maxW);
+    void      buildTextBuffers(SLGLVertexArray& vao,
+                               SLstring         text,
+                               SLfloat          maxWidth   = 0.0f,
+                               SLfloat          lineHeight = 1.5f);
+
     //! Single Character info struct w. min. and max. texcoords.
     typedef struct
-    {   SLfloat width; //!< Width of char. in tex-coord.
-        SLfloat tx1;   //!< Min. Texture x-coord.         
+    {
+        SLfloat width; //!< Width of char. in tex-coord.
+        SLfloat tx1;   //!< Min. Texture x-coord.
         SLfloat ty1;   //!< Max. Texture y-coord.
-        SLfloat tx2;   //!< Max. Texture x-coord. 
+        SLfloat tx2;   //!< Max. Texture x-coord.
         SLfloat ty2;   //!< Min. Texture y-coord.
     } SLTexFontChar;
 
-    SLTexFontChar  chars[256];       //<! array of character info structs
-    SLint          charsHeight;      //<! height of characters   
-                         
+    SLTexFontChar chars[256];  //<! array of character info structs
+    SLint         charsHeight; //<! height of characters
+
     // Static method & font pointers
     static void       generateFonts();
     static void       deleteFonts();
     static SLTexFont* getFont(SLfloat heightMM, SLint dpi);
 
-    static SLTexFont* font07;                              
+    static SLTexFont* font07;
     static SLTexFont* font08;
     static SLTexFont* font09;
     static SLTexFont* font10;

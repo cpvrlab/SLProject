@@ -11,24 +11,26 @@
 #ifndef SLPOINTS_H
 #define SLPOINTS_H
 
-#include <SLRnd3f.h>
 #include <SLMesh.h>
+#include <SLRnd3f.h>
 
 //-----------------------------------------------------------------------------
 //! SLPoints creates
 /*! The SLPoints mesh object of witch the vertices are drawn as points.
 */
-class SLPoints: public SLMesh
-{   public:
-                        //! Ctor for a given vector of points
-                        SLPoints(SLVVec3f& points,
-                                 SLstring name = "point cloud",
-                                 SLMaterial* mat=nullptr);
+class SLPoints : public SLMesh
+{
+    public:
+    //! Ctor for a given vector of points
+    SLPoints(SLVVec3f&   points,
+             SLstring    name = "point cloud",
+             SLMaterial* mat  = nullptr);
 
-                        //! Ctor for a random point cloud.
-                        SLPoints(SLfloat nPoints, SLRnd3f& rnd,
-                                 SLstring name = "normal point cloud",
-                                 SLMaterial* mat=nullptr);
+    //! Ctor for a random point cloud.
+    SLPoints(SLfloat     nPoints,
+             SLRnd3f&    rnd,
+             SLstring    name = "normal point cloud",
+             SLMaterial* mat  = nullptr);
 };
 //-----------------------------------------------------------------------------
 #endif

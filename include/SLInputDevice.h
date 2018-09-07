@@ -11,23 +11,23 @@
 #ifndef SLINPUTDEVICE_H
 #define SLINPUTDEVICE_H
 
-#include <vector>
 #include <SL.h>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 //! Interface for input devices that have to be pollsed
 class SLInputDevice
 {
-public:
-                    SLInputDevice();
-    virtual        ~SLInputDevice();
-    
-    void            enable  ();
-    void            disable ();
+    public:
+    SLInputDevice();
+    virtual ~SLInputDevice();
+
+    void enable();
+    void disable();
 
     /** Polls a custom input device. returns true if the poll resulted in
     event's being sent out that were accepted by some receiver. */
-    virtual SLbool  poll    () = 0;
+    virtual SLbool poll() = 0;
 };
 //-----------------------------------------------------------------------------
 typedef vector<SLInputDevice*> SLVInputDevice;

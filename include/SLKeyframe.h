@@ -12,8 +12,8 @@
 #define SLKEYFRAME_H
 
 #include <SL.h>
-#include <SLVec3.h>
 #include <SLQuat4.h>
+#include <SLVec3.h>
 
 class SLAnimTrack;
 
@@ -21,20 +21,20 @@ class SLAnimTrack;
 //! Base class for all keyframes
 class SLKeyframe
 {
-public:
-                            SLKeyframe  (const SLAnimTrack* parent,
-                                         SLfloat time);
+    public:
+    SLKeyframe(const SLAnimTrack* parent,
+               SLfloat            time);
 
-            bool            operator<   (const SLKeyframe& other) const;
+    bool operator<(const SLKeyframe& other) const;
 
-            void            time        (SLfloat t) { _time = t; }
-            SLfloat         time        () const { return _time; }
-            SLbool          isValid     () const { return _isValid; }
+    void    time(SLfloat t) { _time = t; }
+    SLfloat time() const { return _time; }
+    SLbool  isValid() const { return _isValid; }
 
-protected:
-    const   SLAnimTrack*    _parentTrack;	//!< owning animation track for this keyframe
-            SLfloat         _time;		    //!< temporal position in local time relative to the keyframes parent clip in seconds
-            SLbool          _isValid;       //!< is this keyframe in use inside its parent track
+    protected:
+    const SLAnimTrack* _parentTrack; //!< owning animation track for this keyframe
+    SLfloat            _time;        //!< temporal position in local time relative to the keyframes parent clip in seconds
+    SLbool             _isValid;     //!< is this keyframe in use inside its parent track
 };
 
 //-----------------------------------------------------------------------------
@@ -44,28 +44,27 @@ Keeps track of translation, rotation and scale.
 */
 class SLTransformKeyframe : public SLKeyframe
 {
-public:    
-                        SLTransformKeyframe(const SLAnimTrack* parent,
-                                            SLfloat time);
+    public:
+    SLTransformKeyframe(const SLAnimTrack* parent,
+                        SLfloat            time);
 
     // Setters
-            void        translation (const SLVec3f& t) { _translation = t; }
-            void        rotation    (const SLQuat4f& r) { _rotation = r; }
-            void        scale       (const SLVec3f& s) { _scale = s; }
+    void translation(const SLVec3f& t) { _translation = t; }
+    void rotation(const SLQuat4f& r) { _rotation = r; }
+    void scale(const SLVec3f& s) { _scale = s; }
 
     // Getters
-    const   SLVec3f&    translation () const { return _translation; }
-    const   SLQuat4f&   rotation    () const { return _rotation; }
-    const   SLVec3f&    scale       () const { return _scale; }
+    const SLVec3f&  translation() const { return _translation; }
+    const SLQuat4f& rotation() const { return _rotation; }
+    const SLVec3f&  scale() const { return _scale; }
 
-protected:
-            SLVec3f     _translation;
-            SLQuat4f    _rotation;
-            SLVec3f     _scale;
+    protected:
+    SLVec3f  _translation;
+    SLQuat4f _rotation;
+    SLVec3f  _scale;
 };
 //-----------------------------------------------------------------------------
-typedef std::vector<SLKeyframe*>  SLVKeyframe;
+typedef std::vector<SLKeyframe*> SLVKeyframe;
 //-----------------------------------------------------------------------------
 
 #endif
-

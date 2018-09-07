@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLGLEnums.h
-//  Purpose:   Enumerations containing OpenGL constants 
+//  Purpose:   Enumerations containing OpenGL constants
 //  Author:    Marcus Hudritsch
 //  Date:      January 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -18,15 +18,16 @@
 //! Enumeration for buffer data types
 enum SLGLBufferType
 {
-    BT_float  = GL_FLOAT,               //!< float vertex attributes
-    BT_ubyte  = GL_UNSIGNED_BYTE,       //!< vertex index type (0-2^8)
-    BT_ushort = GL_UNSIGNED_SHORT,      //!< vertex index type (0-2^16)
-    BT_uint   = GL_UNSIGNED_INT         //!< vertex index type (0-2^32)
+    BT_float  = GL_FLOAT,          //!< float vertex attributes
+    BT_ubyte  = GL_UNSIGNED_BYTE,  //!< vertex index type (0-2^8)
+    BT_ushort = GL_UNSIGNED_SHORT, //!< vertex index type (0-2^16)
+    BT_uint   = GL_UNSIGNED_INT    //!< vertex index type (0-2^32)
 };
 //-----------------------------------------------------------------------------
 // Enumeration for OpenGL primitive types
 enum SLGLPrimitiveType
-{   PT_points        = GL_POINTS,
+{
+    PT_points        = GL_POINTS,
     PT_lines         = GL_LINES,
     PT_lineLoop      = GL_LINE_LOOP,
     PT_lineStrip     = GL_LINE_STRIP,
@@ -37,10 +38,11 @@ enum SLGLPrimitiveType
 //-----------------------------------------------------------------------------
 //! Enumeration for float vertex attribute types
 enum SLGLAttributeType
-{   AT_position,    //!< Vertex position as a 2, 3 or 4 component vectors
+{
+    AT_position,    //!< Vertex position as a 2, 3 or 4 component vectors
     AT_normal,      //!< Vertex normal as a 3 component vector
     AT_texCoord,    //!< Vertex texture coordinate as 2 component vector
-    AT_tangent,     //!< Vertex tangent as a 4 component vector (see SLMesh) 
+    AT_tangent,     //!< Vertex tangent as a 4 component vector (see SLMesh)
     AT_jointWeight, //!< Vertex joint weight for vertex skinning
     AT_jointIndex,  //!< Vertex joint id for vertex skinning
     AT_color,       //!< Vertex color as 3 or 4 component vector
@@ -58,9 +60,10 @@ enum SLGLAttributeType
 //-----------------------------------------------------------------------------
 //! Enumeration for buffer usage types also supported by OpenGL ES
 enum SLGLBufferUsage
-{   BU_static  = GL_STATIC_DRAW,        //!< Buffer will be modified once and used many times.
-    BU_stream  = GL_STREAM_DRAW,        //!< Buffer will be modified once and used at most a few times.
-    BU_dynamic = GL_DYNAMIC_DRAW,       //!< Buffer will be modified repeatedly and used many times.
+{
+    BU_static  = GL_STATIC_DRAW,  //!< Buffer will be modified once and used many times.
+    BU_stream  = GL_STREAM_DRAW,  //!< Buffer will be modified once and used at most a few times.
+    BU_dynamic = GL_DYNAMIC_DRAW, //!< Buffer will be modified repeatedly and used many times.
 };
 //-----------------------------------------------------------------------------
 

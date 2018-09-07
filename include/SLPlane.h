@@ -25,31 +25,33 @@ is used to define the 6 planes of the view frustum.
 class SLPlane
 {
     public:
-                        SLPlane(const SLVec3f &v1, 
-                                const SLVec3f &v2, 
-                                const SLVec3f &v3);
-                        SLPlane(){N.set(0,0,1); d=0.0f;}
-                       ~SLPlane(){;}
-                 
-            SLVec3f     N; //!< plane normal
-            SLfloat     d; //!< d = -(ax+by+cy) = -normal.dot(point)
+    SLPlane(const SLVec3f& v1,
+            const SLVec3f& v2,
+            const SLVec3f& v3);
+    SLPlane()
+    {
+        N.set(0, 0, 1);
+        d = 0.0f;
+    }
+    ~SLPlane() { ; }
 
-            void        setPoints         (const SLVec3f &v1, 
-                                           const SLVec3f &v2, 
-                                           const SLVec3f &v3);
-            void        setNormalAndPoint (const SLVec3f &N, 
-                                           const SLVec3f &P);
-            void        setCoefficients   (const SLfloat A, 
-                                           const SLfloat B, 
-                                           const SLfloat C, 
-                                           const SLfloat D);
-                                     
-            //! Returns distance between a point P and the plane
-    inline   SLfloat     distToPoint (const SLVec3f &p) {return (d+N.dot(p));}
-      
-            void        print       (const char* name);
+    SLVec3f N; //!< plane normal
+    SLfloat d; //!< d = -(ax+by+cy) = -normal.dot(point)
+
+    void setPoints(const SLVec3f& v1,
+                   const SLVec3f& v2,
+                   const SLVec3f& v3);
+    void setNormalAndPoint(const SLVec3f& N,
+                           const SLVec3f& P);
+    void setCoefficients(const SLfloat A,
+                         const SLfloat B,
+                         const SLfloat C,
+                         const SLfloat D);
+
+    //! Returns distance between a point P and the plane
+    inline SLfloat distToPoint(const SLVec3f& p) { return (d + N.dot(p)); }
+
+    void print(const char* name);
 };
 //-----------------------------------------------------------------------------
 #endif
-
-

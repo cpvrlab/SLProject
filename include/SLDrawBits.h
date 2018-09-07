@@ -18,16 +18,16 @@
 Drawing Bits control some visual states of the scene and are applied per scene 
 view or per single node object. Not all are used from the beginning
 */
-#define SL_DB_HIDDEN      1   //!< Flags an object as hidden  
-#define SL_DB_SELECTED    2   //!< Flags an object as selected
-#define SL_DB_WIREMESH    4   //!< Draw polygons as wired mesh 
-#define SL_DB_NORMALS     8   //!< Draw the vertex normals
-#define SL_DB_BBOX       16   //!< Draw the bounding boxes of a node  
-#define SL_DB_AXIS       32   //!< Draw the coordinate axis of a node
-#define SL_DB_VOXELS     64   //!< Draw the voxels of the uniform grid 
-#define SL_DB_SKELETON  128   //!< Draw the skeletons joints
-#define SL_DB_CULLOFF   256   //!< Turn off face culling
-#define SL_DB_TEXOFF    512   //!< Turn off texture mapping
+#define SL_DB_HIDDEN 1     //!< Flags an object as hidden
+#define SL_DB_SELECTED 2   //!< Flags an object as selected
+#define SL_DB_WIREMESH 4   //!< Draw polygons as wired mesh
+#define SL_DB_NORMALS 8    //!< Draw the vertex normals
+#define SL_DB_BBOX 16      //!< Draw the bounding boxes of a node
+#define SL_DB_AXIS 32      //!< Draw the coordinate axis of a node
+#define SL_DB_VOXELS 64    //!< Draw the voxels of the uniform grid
+#define SL_DB_SKELETON 128 //!< Draw the skeletons joints
+#define SL_DB_CULLOFF 256  //!< Turn off face culling
+#define SL_DB_TEXOFF 512   //!< Turn off texture mapping
 
 //-----------------------------------------------------------------------------
 //! Drawing states stored in the bits of an unsigned int
@@ -36,37 +36,42 @@ default value is 0 signifying the default state. See the defines above for the
 different drawing bit flags. 
 */
 class SLDrawBits
-{     
-   public:           
-                        SLDrawBits (){_bits=0;}
-                       ~SLDrawBits (){;}
-            
-            //! Turns all bits off
-            void        allOff  () {_bits=0;}
+{
+    public:
+    SLDrawBits() { _bits = 0; }
+    ~SLDrawBits() { ; }
 
-            //! Turns the specified bit on
-            void        on(SLuint bit){ SL_SETBIT(_bits, bit); }
+    //! Turns all bits off
+    void allOff() { _bits = 0; }
 
-            //! Turns the specified bit off
-            void        off(SLuint bit){ SL_DELBIT(_bits, bit); }
-            
-            //! Sets the specified bit to the passed state
-            void        set     (SLuint bit, SLbool state){if(state) SL_SETBIT(_bits, bit);
-                                                           else SL_DELBIT(_bits, bit);}
-            //! Toggles the specified bit
-            void        toggle  (SLuint bit){SL_TOGBIT(_bits, bit);}
-            
-            //! Returns the specified bit
-            SLbool      get     (SLuint bit){return (_bits & bit)?true:false;}
-            
-            //! Returns the all bits
-            SLuint      bits    () {return _bits;}
+    //! Turns the specified bit on
+    void on(SLuint bit) { SL_SETBIT(_bits, bit); }
 
-            //! Set all bits
-            void        bits    (SLuint b) {_bits = b;}
+    //! Turns the specified bit off
+    void off(SLuint bit) { SL_DELBIT(_bits, bit); }
 
-   private:            
-            SLuint      _bits; //!< Drawing flags as a unsigned 32-bit register
+    //! Sets the specified bit to the passed state
+    void set(SLuint bit, SLbool state)
+    {
+        if (state)
+            SL_SETBIT(_bits, bit);
+        else
+            SL_DELBIT(_bits, bit);
+    }
+    //! Toggles the specified bit
+    void toggle(SLuint bit) { SL_TOGBIT(_bits, bit); }
+
+    //! Returns the specified bit
+    SLbool get(SLuint bit) { return (_bits & bit) ? true : false; }
+
+    //! Returns the all bits
+    SLuint bits() { return _bits; }
+
+    //! Set all bits
+    void bits(SLuint b) { _bits = b; }
+
+    private:
+    SLuint _bits; //!< Drawing flags as a unsigned 32-bit register
 };
 //-----------------------------------------------------------------------------
 #endif

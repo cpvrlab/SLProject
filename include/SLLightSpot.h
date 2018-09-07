@@ -11,8 +11,8 @@
 #ifndef SLLIGHTSPHERE_H
 #define SLLIGHTSPHERE_H
 
-#include <SLNode.h>
 #include <SLLight.h>
+#include <SLNode.h>
 #include <SLSamples2D.h>
 
 class SLSceneView;
@@ -34,48 +34,52 @@ following shaders: \n
   - PerPixBlinn.vert, PerPixBlinn.frag \n
   - PerPixBlinnTex.vert, PerPixBlinnTex.frag \n
 */
-class SLLightSpot: public SLNode, public SLLight
-{   public:
-                        SLLightSpot (SLfloat radius = 0.3f,
-                                     SLfloat spotAngleDEG = 180.0f, 
-                                     SLbool  hasMesh = true);
-                        SLLightSpot (SLfloat posx, 
-                                     SLfloat posy, 
-                                     SLfloat posz,
-                                     SLfloat radius = 0.3f,
-                                     SLfloat spotAngleDEG = 180.0f, 
-                                     SLfloat ambiPower = 1.0f,
-                                     SLfloat diffPower = 10.0f,
-                                     SLfloat specPower = 10.0f, 
-                                     SLbool  hasMesh = true);
-                       ~SLLightSpot (){;}
+class SLLightSpot : public SLNode
+  , public SLLight
+{
+    public:
+    SLLightSpot(SLfloat radius       = 0.3f,
+                SLfloat spotAngleDEG = 180.0f,
+                SLbool  hasMesh      = true);
+    SLLightSpot(SLfloat posx,
+                SLfloat posy,
+                SLfloat posz,
+                SLfloat radius       = 0.3f,
+                SLfloat spotAngleDEG = 180.0f,
+                SLfloat ambiPower    = 1.0f,
+                SLfloat diffPower    = 10.0f,
+                SLfloat specPower    = 10.0f,
+                SLbool  hasMesh      = true);
+    ~SLLightSpot() { ; }
 
-            void        init        ();
-            bool        hitRec      (SLRay* ray);
-            void        statsRec    (SLNodeStats &stats);
-            void        drawMeshes  (SLSceneView* sv);
-            
-            void        setState    ();
-            SLfloat     shadowTest  (SLRay* ray,   
-                                     const SLVec3f& L, 
-                                     const SLfloat lightDist);
-            SLfloat     shadowTestMC(SLRay* ray,
-                                     const SLVec3f& L,
-                                     const SLfloat lightDist);
-            
-            // Setters
-            void        samples     (SLuint x, SLuint y)
-                                    {_samples.samples(x, y, false);}
-            
-            // Getters
-            SLfloat     radius      () {return _radius;}
-            SLuint      samples     () {return _samples.samples();}
-            SLVec4f     positionWS  () {return translationWS();}
-            SLVec3f     spotDirWS   () {return forwardWS();}
+    void init();
+    bool hitRec(SLRay* ray);
+    void statsRec(SLNodeStats& stats);
+    void drawMeshes(SLSceneView* sv);
+
+    void    setState();
+    SLfloat shadowTest(SLRay*         ray,
+                       const SLVec3f& L,
+                       const SLfloat  lightDist);
+    SLfloat shadowTestMC(SLRay*         ray,
+                         const SLVec3f& L,
+                         const SLfloat  lightDist);
+
+    // Setters
+    void samples(SLuint x, SLuint y)
+    {
+        _samples.samples(x, y, false);
+    }
+
+    // Getters
+    SLfloat radius() { return _radius; }
+    SLuint  samples() { return _samples.samples(); }
+    SLVec4f positionWS() { return translationWS(); }
+    SLVec3f spotDirWS() { return forwardWS(); }
 
     private:
-            SLfloat     _radius;    //!< The sphere lights radius
-            SLSamples2D _samples;   //!< 2D samplepoints for soft shadows
+    SLfloat     _radius;  //!< The sphere lights radius
+    SLSamples2D _samples; //!< 2D samplepoints for soft shadows
 };
 //-----------------------------------------------------------------------------
 #endif

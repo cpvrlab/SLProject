@@ -12,8 +12,8 @@
 #ifndef SLGLGENERICPROGRAM_H
 #define SLGLGENERICPROGRAM_H
 
-#include "SLObject.h"
 #include "SLGLProgram.h"
+#include "SLObject.h"
 
 class SLMaterial;
 
@@ -26,12 +26,12 @@ simple GLSL shader programs with standard types of uniform variables.
 class SLGLGenericProgram : public SLGLProgram
 {
     public:
-                         SLGLGenericProgram(const char* vertShaderFile,
-                                            const char* fragShaderFile)
-                         : SLGLProgram(vertShaderFile, fragShaderFile) {;}
-   
-            void        beginShader (SLMaterial* mat) {beginUse(mat);}
-            void        endShader   () {endUse();}
+    SLGLGenericProgram(const char* vertShaderFile,
+                       const char* fragShaderFile)
+      : SLGLProgram(vertShaderFile, fragShaderFile) { ; }
+
+    void beginShader(SLMaterial* mat) { beginUse(mat); }
+    void endShader() { endUse(); }
 };
 //-----------------------------------------------------------------------------
 #endif

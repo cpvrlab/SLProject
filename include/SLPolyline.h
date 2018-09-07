@@ -18,21 +18,25 @@
 /*! 
 The SLPolyline node draws a polyline object
 */
-class SLPolyline: public SLMesh
-{   public:                 
-        //! ctor for polyline with a vector of points
-        SLPolyline(SLVVec3f points,
-                    SLbool closed = false,
-                    SLstring name = "Polyline",
-                    SLMaterial* mat=nullptr) : SLMesh(name)
-        {
-            assert(points.size()>1);
-            P = points;
-            _primitive = closed ? PT_lineLoop : PT_lines;
-            if (P.size() < 65535)
-                 for (SLuint i=0; i<P.size(); ++i) I16.push_back((SLushort)i);
-            else for (SLuint i=0; i<P.size(); ++i) I32.push_back(i);
-        }
+class SLPolyline : public SLMesh
+{
+    public:
+    //! ctor for polyline with a vector of points
+    SLPolyline(SLVVec3f    points,
+               SLbool      closed = false,
+               SLstring    name   = "Polyline",
+               SLMaterial* mat    = nullptr) : SLMesh(name)
+    {
+        assert(points.size() > 1);
+        P          = points;
+        _primitive = closed ? PT_lineLoop : PT_lines;
+        if (P.size() < 65535)
+            for (SLuint i = 0; i < P.size(); ++i)
+                I16.push_back((SLushort)i);
+        else
+            for (SLuint i = 0; i < P.size(); ++i)
+                I32.push_back(i);
+    }
 };
 //-----------------------------------------------------------------------------
 #endif

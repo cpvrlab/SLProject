@@ -45,72 +45,73 @@ class SLNode;
 */
 class SLDeviceLocation
 {
-    public:             SLDeviceLocation    (){init();}
-            void        init                ();
-            void        onLocationLLA       (SLdouble latDEG,
-                                             SLdouble lonDEG,
-                                             SLdouble altM,
-                                             SLfloat AccuracyM);
+    public:
+    SLDeviceLocation() { init(); }
+    void init();
+    void onLocationLLA(SLdouble latDEG,
+                       SLdouble lonDEG,
+                       SLdouble altM,
+                       SLfloat  AccuracyM);
 
-            SLbool      calculateSolarAngles(SLdouble latDEG,
-                                             SLdouble lonDEG,
-                                             SLdouble altM);
+    SLbool calculateSolarAngles(SLdouble latDEG,
+                                SLdouble lonDEG,
+                                SLdouble altM);
 
-            // Setters
-            void        isUsed              (SLbool isUsed);
-            void        useOriginAltitude   (SLbool useGLA) {_useOriginAltitude = useGLA;}
-            void        improveOrigin       (SLbool impO) {_improveOrigin = impO;}
-            void        hasOrigin           (SLbool hasOL);
-            void        originLLA           (SLdouble latDEG,
-                                             SLdouble lonDEG,
-                                             SLdouble altM);
-            void        defaultLLA          (SLdouble latDEG,
-                                             SLdouble lonDEG,
-                                             SLdouble altM);
-            void        locMaxDistanceM     (SLfloat maxDist) {_locMaxDistanceM = maxDist;}
-            void        sunLightNode        (SLLightDirect* sln) {_sunLightNode = sln;}
+    // Setters
+    void isUsed(SLbool isUsed);
+    void useOriginAltitude(SLbool useGLA) { _useOriginAltitude = useGLA; }
+    void improveOrigin(SLbool impO) { _improveOrigin = impO; }
+    void hasOrigin(SLbool hasOL);
+    void originLLA(SLdouble latDEG,
+                   SLdouble lonDEG,
+                   SLdouble altM);
+    void defaultLLA(SLdouble latDEG,
+                    SLdouble lonDEG,
+                    SLdouble altM);
+    void locMaxDistanceM(SLfloat maxDist) { _locMaxDistanceM = maxDist; }
+    void sunLightNode(SLLightDirect* sln) { _sunLightNode = sln; }
 
-            // Getters
-            SLbool      isUsed              () const {return _isUsed;}
-            SLVec3d     locLLA              () const {return _locLLA;}
-            SLVec3d     locECEF             () const {return _locECEF;}
-            SLVec3d     locENU              () const {return _locENU;}
-            SLfloat     locAccuracyM        () const {return _locAccuracyM;}
-            SLfloat     locMaxDistanceM     () const {return _locMaxDistanceM;}
-            SLVec3d     defaultENU          () const {return _defaultENU;}
-            SLVec3d     originLLA           () const {return _originLLA;}
-            SLVec3d     originENU           () const {return _originENU;}
-            SLVec3d     originECEF          () const {return _originECEF;}
-            SLbool      hasOrigin           () const {return _hasOrigin;}
-            SLbool      useOriginAltitude   () const {return _useOriginAltitude;}
-            SLMat3d     wRecef              () const {return _wRecef;}
-            SLfloat     improveTime         () {return SL_max(_improveTimeSEC - _improveTimer.elapsedTimeInSec(), 0.0f);}
-            SLfloat     originSolarZenit    () const {return _originSolarZenit;}
-            SLfloat     originSolarAzimut   () const {return _originSolarAzimut;}
+    // Getters
+    SLbool  isUsed() const { return _isUsed; }
+    SLVec3d locLLA() const { return _locLLA; }
+    SLVec3d locECEF() const { return _locECEF; }
+    SLVec3d locENU() const { return _locENU; }
+    SLfloat locAccuracyM() const { return _locAccuracyM; }
+    SLfloat locMaxDistanceM() const { return _locMaxDistanceM; }
+    SLVec3d defaultENU() const { return _defaultENU; }
+    SLVec3d originLLA() const { return _originLLA; }
+    SLVec3d originENU() const { return _originENU; }
+    SLVec3d originECEF() const { return _originECEF; }
+    SLbool  hasOrigin() const { return _hasOrigin; }
+    SLbool  useOriginAltitude() const { return _useOriginAltitude; }
+    SLMat3d wRecef() const { return _wRecef; }
+    SLfloat improveTime() { return SL_max(_improveTimeSEC - _improveTimer.elapsedTimeInSec(), 0.0f); }
+    SLfloat originSolarZenit() const { return _originSolarZenit; }
+    SLfloat originSolarAzimut() const { return _originSolarAzimut; }
 
-   private:
-            SLbool      _isUsed;            //!< Flag if the devices GPS Sensor is used
-            SLbool      _isFirstSensorValue;//!< Flag for the first sensor values
-            SLVec3d     _locLLA;            //!< Earth location in latitudeDEG, longitudeDEG & AltitudeM on WGS84 geoid
-            SLVec3d     _locECEF;           //!< Cartesian location in ECEF
-            SLVec3d     _locENU;            //!< Cartesian location in ENU frame
-            SLfloat     _locAccuracyM;      //!< Horizontal accuracy radius in m with 68% probability
-            SLfloat     _locMaxDistanceM;   //!< Max. allowed distance from origin. If higher it is ignored.
-            SLVec3d     _defaultLLA;        //!< Default location of scene in LLA.
-            SLVec3d     _defaultENU;        //!< Default location in ENU frame used if real location is too far away from origin
-            SLVec3d     _originLLA;         //!< Global origin location of scene in LLA
-            SLVec3d     _originECEF;        //!< Global origin location of scene in ECEF (cartesian)
-            SLVec3d     _originENU;         //!< Origin location in ENU frame
-            SLfloat     _originAccuracyM;   //!< Accuracy radius of origin point
-            SLfloat     _originSolarZenit;  //!< Zenit angle of the sun in deg. (from up dir.) at origin at local time
-            SLfloat     _originSolarAzimut; //!< Azimut angle of the sun in deg. (eastward from north) at origin at local time
-            SLbool      _hasOrigin;         //!< Flag if this scene has a global reference location
-            SLbool      _useOriginAltitude; //!< Flag if global reference altitude should be used
-            SLbool      _improveOrigin;     //!< Flag if origin should be improved over time & accuracy
-            SLfloat     _improveTimeSEC;    //!< Max. time in seconds for the origin improvement.
-            SLTimer     _improveTimer;      //!< Timer to measure the improve time.
-            SLMat3d     _wRecef;            //!< ECEF frame to world frame rotation: rotates a point defined in ecef
-            SLNode*     _sunLightNode;      //!< Pointer to directional light node to be changed if solar angles are calculated
+    private:
+    SLbool  _isUsed;             //!< Flag if the devices GPS Sensor is used
+    SLbool  _isFirstSensorValue; //!< Flag for the first sensor values
+    SLVec3d _locLLA;             //!< Earth location in latitudeDEG, longitudeDEG & AltitudeM on WGS84 geoid
+    SLVec3d _locECEF;            //!< Cartesian location in ECEF
+    SLVec3d _locENU;             //!< Cartesian location in ENU frame
+    SLfloat _locAccuracyM;       //!< Horizontal accuracy radius in m with 68% probability
+    SLfloat _locMaxDistanceM;    //!< Max. allowed distance from origin. If higher it is ignored.
+    SLVec3d _defaultLLA;         //!< Default location of scene in LLA.
+    SLVec3d _defaultENU;         //!< Default location in ENU frame used if real location is too far away from origin
+    SLVec3d _originLLA;          //!< Global origin location of scene in LLA
+    SLVec3d _originECEF;         //!< Global origin location of scene in ECEF (cartesian)
+    SLVec3d _originENU;          //!< Origin location in ENU frame
+    SLfloat _originAccuracyM;    //!< Accuracy radius of origin point
+    SLfloat _originSolarZenit;   //!< Zenit angle of the sun in deg. (from up dir.) at origin at local time
+    SLfloat _originSolarAzimut;  //!< Azimut angle of the sun in deg. (eastward from north) at origin at local time
+    SLbool  _hasOrigin;          //!< Flag if this scene has a global reference location
+    SLbool  _useOriginAltitude;  //!< Flag if global reference altitude should be used
+    SLbool  _improveOrigin;      //!< Flag if origin should be improved over time & accuracy
+    SLfloat _improveTimeSEC;     //!< Max. time in seconds for the origin improvement.
+    SLTimer _improveTimer;       //!< Timer to measure the improve time.
+    SLMat3d _wRecef;             //!< ECEF frame to world frame rotation: rotates a point defined in ecef
+    SLNode* _sunLightNode;       //!< Pointer to directional light node to be changed if solar angles are calculated
 };
 //-----------------------------------------------------------------------------
 #endif

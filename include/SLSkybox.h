@@ -24,22 +24,22 @@ special cubemap shader. The box is allways with the active camera in its
 center. It has to be created in SLScene::onLoad and assigned to the skybox
 pointer of SLSceneView. See the Skybox shader example.
 */
-class SLSkybox: public SLNode
+class SLSkybox : public SLNode
 {
     public:
-                    SLSkybox        (SLstring name = "Default Skybox");
-                    SLSkybox        (SLstring cubeMapXPos,
-                                     SLstring cubeMapXNeg,
-                                     SLstring cubeMapYPos,
-                                     SLstring cubeMapYNeg,
-                                     SLstring cubeMapZPos,
-                                     SLstring cubeMapZNeg,
-                                     SLstring name = "Default Skybox");
-                   ~SLSkybox        (){;}
-    
-        SLCol4f     colorAtDir      (SLVec3f dir);
-    
-        void        drawAroundCamera (SLSceneView* sv);
+    SLSkybox(SLstring name = "Default Skybox");
+    SLSkybox(SLstring cubeMapXPos,
+             SLstring cubeMapXNeg,
+             SLstring cubeMapYPos,
+             SLstring cubeMapYNeg,
+             SLstring cubeMapZPos,
+             SLstring cubeMapZNeg,
+             SLstring name = "Default Skybox");
+    ~SLSkybox() { ; }
+
+    SLCol4f colorAtDir(SLVec3f dir);
+
+    void drawAroundCamera(SLSceneView* sv);
 };
 //-----------------------------------------------------------------------------
 #endif // #define SLSKYBOX_H

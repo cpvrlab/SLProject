@@ -12,9 +12,9 @@
 #define SLRECT_H
 
 #include <SL.h>
+#include <SLGLVertexArrayExt.h>
 #include <SLVec2.h>
 #include <SLVec3.h>
-#include <SLGLVertexArrayExt.h>
 
 //-----------------------------------------------------------------------------
 //! A rectangle template class
@@ -22,6 +22,7 @@
 of the window and with its width and height. It is used e.g. to draw a
 selection rectangle in SLSceneView::draw2DGL.
 */
+// clang-format off
 template<class T, class V>
 class SLRect
 {

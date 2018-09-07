@@ -17,21 +17,23 @@ class SLRay;
 class SLMaterial;
 
 //-----------------------------------------------------------------------------
-//! SLSphere creates a sphere mesh based on SLSpheric w. 180 deg polar angle.     
-class SLSphere: public SLSpheric 
-{  public:                     
-                        SLSphere(SLfloat radius,
-                                 SLuint stacks = 32,
-                                 SLuint slices = 32,
-                                 SLstring name = "sphere mesh",
-                                 SLMaterial* mat = nullptr) :
-                                 SLSpheric(radius, 
-                                           0.0f, 180.0f, 
-                                           stacks, slices, 
-                                           name, mat){;}
-                                                
-                       ~SLSphere(){;}
+//! SLSphere creates a sphere mesh based on SLSpheric w. 180 deg polar angle.
+class SLSphere : public SLSpheric
+{
+    public:
+    SLSphere(SLfloat     radius,
+             SLuint      stacks = 32,
+             SLuint      slices = 32,
+             SLstring    name   = "sphere mesh",
+             SLMaterial* mat    = nullptr) : SLSpheric(radius,
+                                                    0.0f,
+                                                    180.0f,
+                                                    stacks,
+                                                    slices,
+                                                    name,
+                                                    mat) { ; }
+
+    ~SLSphere() { ; }
 };
 //-----------------------------------------------------------------------------
 #endif //SLSPHERE_H
-

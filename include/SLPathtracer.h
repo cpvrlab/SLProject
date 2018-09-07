@@ -15,32 +15,33 @@
 //-----------------------------------------------------------------------------
 //! Classic Monte Carlo Pathtracing algorithm for real global illumination
 class SLPathtracer : public SLRaytracer
-{  public:           
-                        SLPathtracer    ();
-                       ~SLPathtracer    (){SL_LOG("Destructor      : ~SLPathtracer\n");}
-            
-            // classic ray tracer functions
-            SLbool      render          (SLSceneView* sv);
-            void        renderSlices    (const bool isMainThread, SLint currentSample);
-            SLCol4f     trace           (SLRay* ray, SLbool em);
-            SLCol4f     shade           (SLRay* ray, SLCol4f* mat);
-            void        saveImage       ();
+{
+    public:
+    SLPathtracer();
+    ~SLPathtracer() { SL_LOG("Destructor      : ~SLPathtracer\n"); }
 
-            // Setters
-            void        applyGamma      (SLbool ag) {_applyGamma = ag;}
-            void        calcDirect      (SLbool di) {_calcDirect = di;}
-            void        calcIndirect    (SLbool ii) {_calcIndirect = ii;}
+    // classic ray tracer functions
+    SLbool  render(SLSceneView* sv);
+    void    renderSlices(const bool isMainThread, SLint currentSample);
+    SLCol4f trace(SLRay* ray, SLbool em);
+    SLCol4f shade(SLRay* ray, SLCol4f* mat);
+    void    saveImage();
 
-            // Getters
-            SLbool      applyGamma      () {return _applyGamma;}
-            SLbool      calcDirect      () {return _calcDirect;}
-            SLbool      calcIndirect    () {return _calcIndirect;}
+    // Setters
+    void applyGamma(SLbool ag) { _applyGamma = ag; }
+    void calcDirect(SLbool di) { _calcDirect = di; }
+    void calcIndirect(SLbool ii) { _calcIndirect = ii; }
 
-   private:
-            SLfloat     _gamma;         //!< gamma correction
-            SLbool      _applyGamma;    //!< flag to applying gamma correction
-            SLbool      _calcDirect;    //!< flag to calculate direct illum.
-            SLbool      _calcIndirect;  //!< flag to calculate indirect illum.
+    // Getters
+    SLbool applyGamma() { return _applyGamma; }
+    SLbool calcDirect() { return _calcDirect; }
+    SLbool calcIndirect() { return _calcIndirect; }
+
+    private:
+    SLfloat _gamma;        //!< gamma correction
+    SLbool  _applyGamma;   //!< flag to applying gamma correction
+    SLbool  _calcDirect;   //!< flag to calculate direct illum.
+    SLbool  _calcIndirect; //!< flag to calculate indirect illum.
 };
 //-----------------------------------------------------------------------------
 #endif
