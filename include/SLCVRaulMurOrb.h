@@ -45,12 +45,12 @@ class SLCVRaulMurOrb : public cv::Feature2D
                           SLCVOutputArray descriptors,
                           bool            useProvidedKeypoints);
 
-    int inline GetLevels() { return nlevels; }
-    float inline GetScaleFactor() { return (float)scaleFactor; }
-    SLVfloat inline GetScaleFactors() { return mvScaleFactor; }
-    SLVfloat inline GetInverseScaleFactors() { return mvInvScaleFactor; }
-    SLVfloat inline GetScaleSigmaSquares() { return mvLevelSigma2; }
-    SLVfloat inline GetInverseScaleSigmaSquares() { return mvInvLevelSigma2; }
+    SLuint   GetLevels() { return nlevels; }
+    float    GetScaleFactor() { return (float)scaleFactor; }
+    SLVfloat GetScaleFactors() { return mvScaleFactor; }
+    SLVfloat GetInverseScaleFactors() { return mvInvScaleFactor; }
+    SLVfloat GetScaleSigmaSquares() { return mvLevelSigma2; }
+    SLVfloat GetInverseScaleSigmaSquares() { return mvInvLevelSigma2; }
 
     SLCVVMat mvImagePyramid;
 
@@ -67,7 +67,7 @@ class SLCVRaulMurOrb : public cv::Feature2D
     SLCVVPoint    pattern;
     int           nfeatures;
     double        scaleFactor;
-    int           nlevels;
+    SLuint        nlevels;
     int           iniThFAST;
     int           minThFAST;
     SLVint        mnFeaturesPerLevel;

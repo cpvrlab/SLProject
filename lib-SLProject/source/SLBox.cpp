@@ -8,7 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>        // precompiled headers
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
 #ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
 #    include <debug_new.h> // memory leak detector
 #endif
@@ -118,3 +119,4 @@ SLBox::buildMesh(SLMaterial* material)
     I16[i++] = 20; I16[i++] = 22; I16[i++] = 23;
 }
 //-----------------------------------------------------------------------------
+

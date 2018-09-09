@@ -1,4 +1,17 @@
 ---
+########################################################################################
+# clang-format definition file for the SLProject code style
+########################################################################################
+# For general coding style rules in SLProject see:
+# https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+# Please do not change this file without contacting m.hudritsch@vtxmail.ch
+# For options see: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+# For clang-format integration see:
+# Qt Creator:     https://doc.qt.io/qtcreator/creator-beautifier.html
+# Visual Studio:  https://marketplace.visualstudio.com/items?itemName=xaver.clang-format
+# Android Studio: https://plugins.jetbrains.com/plugin/8396-clangformatij
+########################################################################################
+
 BasedOnStyle: Mozilla
 BinPackParameters: false
 AccessModifierOffset: 0
@@ -14,7 +27,7 @@ AllowShortBlocksOnASingleLine: true
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: true
-AllowShortLoopsOnASingleLine: false
+AllowShortLoopsOnASingleLine: true
 
 AlwaysBreakAfterReturnType: None
 

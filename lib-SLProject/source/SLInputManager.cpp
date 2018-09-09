@@ -8,14 +8,16 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
+
 #include <SLApplication.h>
+#include <SLInputManager.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLInputManager.h>
 
 //-----------------------------------------------------------------------------
 /*! Sends any queued up system event's to their correct receiver and
@@ -33,13 +35,14 @@ polls all activated SLInputDevices.
         like MouseEnter, MouseLeave, Drag etc. For a sophisticated GUI 
         implementation the whole input management in SL would have to be reviewed.
 */
-SLbool SLInputManager::pollAndProcessEvents()
+SLbool
+SLInputManager::pollAndProcessEvents()
 {
     // process system events first
     SLbool consumedEvents = processQueuedEvents();
 
     // process custom input devices
-    for(auto device : _devices)
+    for (auto device : _devices)
         consumedEvents |= device->poll();
 
     return consumedEvents;
@@ -50,7 +53,8 @@ SLbool SLInputManager::pollAndProcessEvents()
 a call to SLInputManager::pollEvents is made. The passed in SLInputEvents have 
 to be dynamically allocated by the user, the deallocation is handled by the
 SLInputManager */
-void SLInputManager::queueEvent(const SLInputEvent* e)
+void
+SLInputManager::queueEvent(const SLInputEvent* e)
 {
     _systemEvents.push(e);
 }
@@ -58,7 +62,8 @@ void SLInputManager::queueEvent(const SLInputEvent* e)
 //-----------------------------------------------------------------------------
 /*! Work off any queued up input event's and notify the correct receiver.
 @note   this is similar to the Qt QObject::event function.*/
-SLbool SLInputManager::processQueuedEvents()
+SLbool
+SLInputManager::processQueuedEvents()
 {
     SLQInputEvent& q = _systemEvents;
 
@@ -71,26 +76,92 @@ SLbool SLInputManager::processQueuedEvents()
         q.pop();
 
         SLSceneView* sv = SLApplication::scene->sv((SLuint)e->svIndex);
-        
+
         if (sv)
-        {   switch (e->type)
+        {
+            switch (e->type)
             {
-                case SLInputEvent::MouseMove:           {const SLMouseEvent*     me = (const SLMouseEvent*)e;       eventConsumed |= sv->onMouseMove(me->x, me->y); } break;
-                case SLInputEvent::MouseDown:           {const SLMouseEvent*     me = (const SLMouseEvent*)e;       eventConsumed |= sv->onMouseDown(me->button, me->x, me->y, me->modifier); } break;
-                case SLInputEvent::MouseUp:             {const SLMouseEvent*     me = (const SLMouseEvent*)e;       eventConsumed |= sv->onMouseUp(me->button, me->x, me->y, me->modifier); } break;
-                case SLInputEvent::MouseDoubleClick:    {const SLMouseEvent*     me = (const SLMouseEvent*)e;       eventConsumed |= sv->onDoubleClick(me->button, me->x, me->y, me->modifier); } break;
-                case SLInputEvent::MouseWheel:          {const SLMouseEvent*     me = (const SLMouseEvent*)e;       eventConsumed |= sv->onMouseWheel(me->y, me->modifier); } break;
-                case SLInputEvent::LongTouch:           {const SLMouseEvent*     me = (const SLMouseEvent*)e;       eventConsumed |= sv->onLongTouch(me->x, me->y); } break;
+                case SLInputEvent::MouseMove:
+                {
+                    const SLMouseEvent* me = (const SLMouseEvent*)e;
+                    eventConsumed |= sv->onMouseMove(me->x, me->y);
+                }
+                break;
+                case SLInputEvent::MouseDown:
+                {
+                    const SLMouseEvent* me = (const SLMouseEvent*)e;
+                    eventConsumed |= sv->onMouseDown(me->button, me->x, me->y, me->modifier);
+                }
+                break;
+                case SLInputEvent::MouseUp:
+                {
+                    const SLMouseEvent* me = (const SLMouseEvent*)e;
+                    eventConsumed |= sv->onMouseUp(me->button, me->x, me->y, me->modifier);
+                }
+                break;
+                case SLInputEvent::MouseDoubleClick:
+                {
+                    const SLMouseEvent* me = (const SLMouseEvent*)e;
+                    eventConsumed |= sv->onDoubleClick(me->button, me->x, me->y, me->modifier);
+                }
+                break;
+                case SLInputEvent::MouseWheel:
+                {
+                    const SLMouseEvent* me = (const SLMouseEvent*)e;
+                    eventConsumed |= sv->onMouseWheel(me->y, me->modifier);
+                }
+                break;
+                case SLInputEvent::LongTouch:
+                {
+                    const SLMouseEvent* me = (const SLMouseEvent*)e;
+                    eventConsumed |= sv->onLongTouch(me->x, me->y);
+                }
+                break;
 
-                case SLInputEvent::Touch2Move:          {const SLTouchEvent*     te = (const SLTouchEvent*)e;       eventConsumed |= sv->onTouch2Move(te->x1, te->y1, te->x2, te->y2); } break;
-                case SLInputEvent::Touch2Down:          {const SLTouchEvent*     te = (const SLTouchEvent*)e;       eventConsumed |= sv->onTouch2Down(te->x1, te->y1, te->x2, te->y2); } break;
-                case SLInputEvent::Touch2Up:            {const SLTouchEvent*     te = (const SLTouchEvent*)e;       eventConsumed |= sv->onTouch2Up(te->x1, te->y1, te->x2, te->y2); } break;
+                case SLInputEvent::Touch2Move:
+                {
+                    const SLTouchEvent* te = (const SLTouchEvent*)e;
+                    eventConsumed |= sv->onTouch2Move(te->x1, te->y1, te->x2, te->y2);
+                }
+                break;
+                case SLInputEvent::Touch2Down:
+                {
+                    const SLTouchEvent* te = (const SLTouchEvent*)e;
+                    eventConsumed |= sv->onTouch2Down(te->x1, te->y1, te->x2, te->y2);
+                }
+                break;
+                case SLInputEvent::Touch2Up:
+                {
+                    const SLTouchEvent* te = (const SLTouchEvent*)e;
+                    eventConsumed |= sv->onTouch2Up(te->x1, te->y1, te->x2, te->y2);
+                }
+                break;
 
-                case SLInputEvent::KeyDown:             {const SLKeyEvent*       ke = (const SLKeyEvent*)e;         eventConsumed |= sv->onKeyPress(ke->key, ke->modifier); } break;
-                case SLInputEvent::KeyUp:               {const SLKeyEvent*       ke = (const SLKeyEvent*)e;         eventConsumed |= sv->onKeyRelease(ke->key, ke->modifier); } break;
-                case SLInputEvent::CharInput:           {const SLCharInputEvent* ce = (const SLCharInputEvent*)e;   eventConsumed |= sv->onCharInput(ce->character); } break;
+                case SLInputEvent::KeyDown:
+                {
+                    const SLKeyEvent* ke = (const SLKeyEvent*)e;
+                    eventConsumed |= sv->onKeyPress(ke->key, ke->modifier);
+                }
+                break;
+                case SLInputEvent::KeyUp:
+                {
+                    const SLKeyEvent* ke = (const SLKeyEvent*)e;
+                    eventConsumed |= sv->onKeyRelease(ke->key, ke->modifier);
+                }
+                break;
+                case SLInputEvent::CharInput:
+                {
+                    const SLCharInputEvent* ce = (const SLCharInputEvent*)e;
+                    eventConsumed |= sv->onCharInput(ce->character);
+                }
+                break;
 
-                case SLInputEvent::Resize:              {const SLResizeEvent*    re = (const SLResizeEvent*)e;      sv->onResize(re->width, re->height); } break;
+                case SLInputEvent::Resize:
+                {
+                    const SLResizeEvent* re = (const SLResizeEvent*)e;
+                    sv->onResize(re->width, re->height);
+                }
+                break;
                 default: break;
             }
         }

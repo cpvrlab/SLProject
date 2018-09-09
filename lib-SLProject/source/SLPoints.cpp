@@ -8,20 +8,21 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>           // precompiled headers
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
 
 #include <SLPoints.h>
 
 //-----------------------------------------------------------------------------
 //! SLPoints ctor with a given vector of points
-SLPoints::SLPoints(SLVVec3f& points,
-                   SLstring name,
+SLPoints::SLPoints(SLVVec3f&   points,
+                   SLstring    name,
                    SLMaterial* material) : SLMesh(name)
 {
-    assert(name!="");
+    assert(name != "");
 
     _primitive = PT_points;
 
@@ -34,15 +35,17 @@ SLPoints::SLPoints(SLVVec3f& points,
 }
 //-----------------------------------------------------------------------------
 //! SLPoints ctor for a random point cloud with the rnd generator.
-SLPoints::SLPoints(SLfloat nPoints, SLRnd3f& rnd, SLstring name,
+SLPoints::SLPoints(SLfloat     nPoints,
+                   SLRnd3f&    rnd,
+                   SLstring    name,
                    SLMaterial* material) : SLMesh(name)
 {
-    assert(name!="" && "No name provided in SLPoints!");
+    assert(name != "" && "No name provided in SLPoints!");
     assert(nPoints <= UINT_MAX && "SLPoints supports max. 2^32 vertices!");
 
     _primitive = PT_points;
 
-    for (int i=0; i<nPoints; ++i)
+    for (int i = 0; i < nPoints; ++i)
         P.push_back(rnd.generate());
 
     mat(material);

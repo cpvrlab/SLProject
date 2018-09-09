@@ -8,22 +8,23 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>         // precompiled headers
-#ifdef SL_MEMLEAKDETECT     // set in SL.h for debug config only
-#include <debug_new.h>      // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
 
 #include <SLApplication.h>
-#include <SLScene.h>
-#include <SLSceneView.h>
-#include <SLText.h>
-#include <SLInputManager.h>
-#include <SLCVCapture.h>
 #include <SLAssimpImporter.h>
-#include <SLLightDirect.h>
+#include <SLCVCapture.h>
 #include <SLCVTracked.h>
 #include <SLCVTrackedAruco.h>
 #include <SLDeviceLocation.h>
+#include <SLInputManager.h>
+#include <SLLightDirect.h>
+#include <SLScene.h>
+#include <SLSceneView.h>
+#include <SLText.h>
 
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene does all one time initialization such as 
@@ -57,58 +58,60 @@ As examples you can see it in:
   - _old/app-Demo-Qt: qtGLWidget::initializeGL()
   - _old/app-Viewer-Qt: qtGLWidget::initializeGL()
 */
-SLScene::SLScene(SLstring name,
-                 cbOnSceneLoad onSceneLoadCallback) : SLObject(name),
-                _updateTimesMS(60, 0.0f),
-                _trackingTimesMS(60, 0.0f),
-                _detectTimesMS(60, 0.0f),
-                _detect1TimesMS(60, 0.0f),
-                _detect2TimesMS(60, 0.0f),
-                _matchTimesMS(60, 0.0f),
-                _optFlowTimesMS(60, 0.0f),
-                _poseTimesMS(60, 0.0f),
-                _frameTimesMS(60, 0.0f),
-                _cullTimesMS(60, 0.0f),
-                _draw3DTimesMS(60, 0.0f),
-                _draw2DTimesMS(60, 0.0f),
-                _captureTimesMS(200, 0.0f)
+SLScene::SLScene(SLstring      name,
+                 cbOnSceneLoad onSceneLoadCallback)
+  : SLObject(name),
+    _updateTimesMS(60, 0.0f),
+    _trackingTimesMS(60, 0.0f),
+    _detectTimesMS(60, 0.0f),
+    _detect1TimesMS(60, 0.0f),
+    _detect2TimesMS(60, 0.0f),
+    _matchTimesMS(60, 0.0f),
+    _optFlowTimesMS(60, 0.0f),
+    _poseTimesMS(60, 0.0f),
+    _frameTimesMS(60, 0.0f),
+    _cullTimesMS(60, 0.0f),
+    _draw3DTimesMS(60, 0.0f),
+    _draw2DTimesMS(60, 0.0f),
+    _captureTimesMS(200, 0.0f)
 
 {
     SLApplication::scene = this;
-    
-    onLoad          = onSceneLoadCallback;
-    
-    _root3D         = nullptr;
-    _root2D         = nullptr;
-    _info           = "";
-    _selectedMesh   = nullptr;
-    _selectedNode   = nullptr;
-    _stopAnimations = false;
-    _fps            = 0;
-    _elapsedTimeMS  = 0;
+
+    onLoad = onSceneLoadCallback;
+
+    _root3D           = nullptr;
+    _root2D           = nullptr;
+    _info             = "";
+    _selectedMesh     = nullptr;
+    _selectedNode     = nullptr;
+    _stopAnimations   = false;
+    _fps              = 0;
+    _elapsedTimeMS    = 0;
     _lastUpdateTimeMS = 0;
 
     // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
     // In the constructor they are added the _shaderProgs vector
     // If you add a new shader here you have to update the SLShaderProgs enum accordingly.
     SLGLProgram* p;
-    p = new SLGLGenericProgram("ColorAttribute.vert","Color.frag");
-    p = new SLGLGenericProgram("ColorUniform.vert","Color.frag");
-    p = new SLGLGenericProgram("PerVrtBlinn.vert","PerVrtBlinn.frag");
-    p = new SLGLGenericProgram("PerVrtBlinnColorAttrib.vert","PerVrtBlinn.frag");
-    p = new SLGLGenericProgram("PerVrtBlinnTex.vert","PerVrtBlinnTex.frag");
-    p = new SLGLGenericProgram("TextureOnly.vert","TextureOnly.frag");
-    p = new SLGLGenericProgram("PerPixBlinn.vert","PerPixBlinn.frag");
-    p = new SLGLGenericProgram("PerPixBlinnTex.vert","PerPixBlinnTex.frag");
-    p = new SLGLGenericProgram("PerPixCookTorrance.vert","PerPixCookTorrance.frag");
-    p = new SLGLGenericProgram("PerPixCookTorranceTex.vert","PerPixCookTorranceTex.frag");
-    p = new SLGLGenericProgram("BumpNormal.vert","BumpNormal.frag");
-    p = new SLGLGenericProgram("BumpNormal.vert","BumpNormalParallax.frag");
-    p = new SLGLGenericProgram("FontTex.vert","FontTex.frag");
-    p = new SLGLGenericProgram("StereoOculus.vert","StereoOculus.frag");
-    p = new SLGLGenericProgram("StereoOculusDistortionMesh.vert","StereoOculusDistortionMesh.frag");
+    p = new SLGLGenericProgram("ColorAttribute.vert", "Color.frag");
+    p = new SLGLGenericProgram("ColorUniform.vert", "Color.frag");
+    p = new SLGLGenericProgram("PerVrtBlinn.vert", "PerVrtBlinn.frag");
+    p = new SLGLGenericProgram("PerVrtBlinnColorAttrib.vert", "PerVrtBlinn.frag");
+    p = new SLGLGenericProgram("PerVrtBlinnTex.vert", "PerVrtBlinnTex.frag");
+    p = new SLGLGenericProgram("TextureOnly.vert", "TextureOnly.frag");
+    p = new SLGLGenericProgram("PerPixBlinn.vert", "PerPixBlinn.frag");
+    p = new SLGLGenericProgram("PerPixBlinnTex.vert", "PerPixBlinnTex.frag");
+    p = new SLGLGenericProgram("PerPixCookTorrance.vert", "PerPixCookTorrance.frag");
+    p = new SLGLGenericProgram("PerPixCookTorranceTex.vert", "PerPixCookTorranceTex.frag");
+    p = new SLGLGenericProgram("BumpNormal.vert", "BumpNormal.frag");
+    p = new SLGLGenericProgram("BumpNormal.vert", "BumpNormalParallax.frag");
+    p = new SLGLGenericProgram("FontTex.vert", "FontTex.frag");
+    p = new SLGLGenericProgram("StereoOculus.vert", "StereoOculus.frag");
+    p = new SLGLGenericProgram("StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag");
+
     _numProgsPreload = (SLint)_programs.size();
-   
+
     // font and video texture are not added to the _textures vector
     SLTexFont::generateFonts();
 
@@ -134,34 +137,34 @@ SLScene::~SLScene()
             delete sv;
 
     unInit();
-   
+
     // delete global SLGLState instance
     SLGLState::deleteInstance();
 
     // clear light pointers
     _lights.clear();
-   
-    // delete materials 
+
+    // delete materials
     for (auto m : _materials) delete m;
     _materials.clear();
-   
-    // delete materials 
+
+    // delete materials
     for (auto m : _meshes) delete m;
     _meshes.clear();
-   
+
     // delete textures
     for (auto t : _textures) delete t;
     _textures.clear();
-   
+
     // delete shader programs
     for (auto p : _programs) delete p;
     _programs.clear();
-        
+
     // delete AR tracker programs
     for (auto t : _trackers) delete t;
     _trackers.clear();
-   
-    // delete fonts   
+
+    // delete fonts
     SLTexFont::deleteFonts();
 
     // release the capture device
@@ -173,14 +176,15 @@ SLScene::~SLScene()
 //-----------------------------------------------------------------------------
 /*! The scene init is called before a new scene is assembled.
 */
-void SLScene::init()
-{     
+void
+SLScene::init()
+{
     unInit();
 
     // reset all states
     SLGLState::getInstance()->initAll();
-   
-    _globalAmbiLight.set(0.2f,0.2f,0.2f,0.0f);
+
+    _globalAmbiLight.set(0.2f, 0.2f, 0.2f, 0.0f);
     _selectedNode = nullptr;
 
     // Reset timing variables
@@ -203,7 +207,7 @@ void SLScene::init()
     if (SLApplication::activeCalib->state() != CS_calibrated &&
         SLApplication::activeCalib->state() != CS_uncalibrated)
         SLApplication::activeCalib->state(CS_uncalibrated);
-    
+
     // Deactivate in general the device sensors
     SLApplication::devRot.isUsed(false);
     SLApplication::devLoc.isUsed(false);
@@ -219,19 +223,22 @@ global resources such as materials, textures & custom shaders loaded with the
 scene. The standard shaders, the fonts and the 2D-GUI elements remain. They are
 destructed at process end.
 */
-void SLScene::unInit()
-{  
+void
+SLScene::unInit()
+{
     _selectedMesh = nullptr;
     _selectedNode = nullptr;
 
     // reset existing sceneviews
     for (auto sv : _sceneViews)
-    {   if (sv != nullptr)
-        {   sv->camera(sv->sceneViewCamera());
+    {
+        if (sv != nullptr)
+        {
+            sv->camera(sv->sceneViewCamera());
             sv->skybox(nullptr);
         }
     }
-    
+
     // delete entire scene graph
     delete _root3D;
     _root3D = nullptr;
@@ -243,37 +250,43 @@ void SLScene::unInit()
 
     // delete textures that where allocated during scene construction.
     // The video & raytracing textures are not in this vector and are not dealocated
-    for (auto t : _textures) delete t;
+    for (auto t : _textures)
+        delete t;
     _textures.clear();
-   
+
     // manually clear the default materials (it will get deleted below)
     SLMaterial::defaultGray(nullptr);
     SLMaterial::diffuseAttrib(nullptr);
-    
-    // delete materials 
-    for (auto m : _materials) delete m;
+
+    // delete materials
+    for (auto m : _materials)
+        delete m;
     _materials.clear();
 
-    // delete meshes 
-    for (auto m : _meshes) delete m;
+    // delete meshes
+    for (auto m : _meshes)
+        delete m;
     _meshes.clear();
-   
+
     SLMaterial::current = nullptr;
-   
+
     // delete custom shader programs but not default shaders
     while (_programs.size() > (SLuint)_numProgsPreload)
-    {   SLGLProgram* sp = _programs.back();
+    {
+        SLGLProgram* sp = _programs.back();
         delete sp;
         _programs.pop_back();
     }
 
     // delete trackers
-    for (auto t : _trackers) delete t;
-        _trackers.clear();
+    for (auto t : _trackers)
+        delete t;
+    _trackers.clear();
 
     // close video if running
     if (_videoType != VT_NONE)
-    {   SLCVCapture::release();
+    {
+        SLCVCapture::release();
         _videoType = VT_NONE;
     }
 
@@ -295,10 +308,11 @@ A scene can be displayed in multiple views as demonstrated in the app-Viewer-Qt
 example. AR tracking is only handled on the first scene view.
 \return true if really something got updated
 */
-bool SLScene::onUpdate()
+bool
+SLScene::onUpdate()
 {
     // Return if not all sceneview got repainted: This check if necessary if
-    // this function is called for multiple SceneViews. In this way we only 
+    // this function is called for multiple SceneViews. In this way we only
     // update the geometric representations if all SceneViews got painted once.
     for (auto sv : _sceneViews)
         if (sv != nullptr && !sv->gotPainted())
@@ -308,7 +322,6 @@ bool SLScene::onUpdate()
     for (auto sv : _sceneViews)
         if (sv != nullptr)
             sv->gotPainted(false);
-    
 
     /////////////////////////////
     // 1) Calculate frame time //
@@ -316,21 +329,23 @@ bool SLScene::onUpdate()
 
     // Calculate the elapsed time for the animation
     // todo: If slowdown on idle is enabled the delta time will be wrong!
-    _elapsedTimeMS = timeMilliSec() - _lastUpdateTimeMS;
+    _elapsedTimeMS    = timeMilliSec() - _lastUpdateTimeMS;
     _lastUpdateTimeMS = timeMilliSec();
-     
+
     // Sum up all timings of all sceneviews
     SLfloat sumCullTimeMS   = 0.0f;
     SLfloat sumDraw3DTimeMS = 0.0f;
     SLfloat sumDraw2DTimeMS = 0.0f;
-    SLbool renderTypeIsRT = false;
-    SLbool voxelsAreShown = false;
+    SLbool  renderTypeIsRT  = false;
+    SLbool  voxelsAreShown  = false;
     for (auto sv : _sceneViews)
-    {   if (sv != nullptr)
-        {   sumCullTimeMS   += sv->cullTimeMS();
+    {
+        if (sv != nullptr)
+        {
+            sumCullTimeMS += sv->cullTimeMS();
             sumDraw3DTimeMS += sv->draw3DTimeMS();
             sumDraw2DTimeMS += sv->draw2DTimeMS();
-            if (!renderTypeIsRT && sv->renderType()==RT_rt)
+            if (!renderTypeIsRT && sv->renderType() == RT_rt)
                 renderTypeIsRT = true;
             if (!voxelsAreShown && sv->drawBit(SL_DB_VOXELS))
                 voxelsAreShown = true;
@@ -347,7 +362,6 @@ bool SLScene::onUpdate()
 
     SLfloat startUpdateMS = timeMilliSec();
 
-
     //////////////////////////////
     // 2) Process queued events //
     //////////////////////////////
@@ -355,21 +369,22 @@ bool SLScene::onUpdate()
     // Process queued up system events and poll custom input devices
     SLbool sceneHasChanged = SLApplication::inputManager.pollAndProcessEvents();
 
-
     //////////////////////////////
     // 3) Update all animations //
     //////////////////////////////
 
     // reset the dirty flag on all skeletons
-    for(auto skeleton : _animManager.skeletons())
+    for (auto skeleton : _animManager.skeletons())
         skeleton->changed(false);
 
     sceneHasChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
-    
+
     // Do software skinning on all changed skeletons
-    for (auto mesh : _meshes) 
-    {   if (mesh->skeleton() && mesh->skeleton()->changed())
-        {   mesh->transformSkin();
+    for (auto mesh : _meshes)
+    {
+        if (mesh->skeleton() && mesh->skeleton()->changed())
+        {
+            mesh->transformSkin();
             sceneHasChanged = true;
         }
 
@@ -377,22 +392,22 @@ bool SLScene::onUpdate()
         if (renderTypeIsRT || voxelsAreShown)
             mesh->updateAccelStruct();
     }
-    
 
     ////////////////////
     // 4) AR Tracking //
     ////////////////////
-    
-    if (_videoType!=VT_NONE && !SLCVCapture::lastFrame.empty())
-    {   
-        SLfloat trackingTimeStartMS = timeMilliSec();
-        SLCVCalibration* ac = SLApplication::activeCalib;
+
+    if (_videoType != VT_NONE && !SLCVCapture::lastFrame.empty())
+    {
+        SLfloat          trackingTimeStartMS = timeMilliSec();
+        SLCVCalibration* ac                  = SLApplication::activeCalib;
 
         // Invalidate calibration if camera input aspect doesn't match output
-        SLfloat calibWdivH = ac->imageAspectRatio();
-        SLbool aspectRatioDoesNotMatch = SL_abs(_sceneViews[0]->scrWdivH() - calibWdivH) > 0.01f;
+        SLfloat calibWdivH              = ac->imageAspectRatio();
+        SLbool  aspectRatioDoesNotMatch = SL_abs(_sceneViews[0]->scrWdivH() - calibWdivH) > 0.01f;
         if (aspectRatioDoesNotMatch && ac->state() == CS_calibrated)
-        {   ac->clear();
+        {
+            ac->clear();
         }
 
         stringstream ss; // info line text
@@ -402,43 +417,50 @@ bool SLScene::onUpdate()
         {
             if (SLApplication::sceneID == SID_VideoCalibrateMain ||
                 SLApplication::sceneID == SID_VideoCalibrateScnd)
-            {   ac->state(CS_calibrateStream);
-            } else
-            {   // Changes the state to CS_guessed
+            {
+                ac->state(CS_calibrateStream);
+            }
+            else
+            { // Changes the state to CS_guessed
                 ac->createFromGuessedFOV(SLCVCapture::lastFrame.cols,
                                          SLCVCapture::lastFrame.rows);
                 _sceneViews[0]->camera()->fov(ac->cameraFovDeg());
             }
-        } else //..............................................................
-        if (ac->state() == CS_calibrateStream || ac->state() == CS_calibrateGrab)
+        }
+        else //..............................................................
+          if (ac->state() == CS_calibrateStream || ac->state() == CS_calibrateGrab)
         {
             ac->findChessboard(SLCVCapture::lastFrame, SLCVCapture::lastFrameGray, true);
             int imgsToCap = ac->numImgsToCapture();
             int imgsCaped = ac->numCapturedImgs();
 
             //update info line
-            if(imgsCaped < imgsToCap)
+            if (imgsCaped < imgsToCap)
                 ss << "Click on the screen to create a calibration photo. Created "
                    << imgsCaped << " of " << imgsToCap;
             else
-            {   ss << "Calculating, please wait ...";
+            {
+                ss << "Calculating, please wait ...";
                 ac->state(CS_startCalculating);
             }
             _info = ss.str();
-        } else //..............................................................
-        if (ac->state() == CS_startCalculating)
+        }
+        else //..............................................................
+          if (ac->state() == CS_startCalculating)
         {
             if (ac->calculate())
-            {   _sceneViews[0]->camera()->fov(ac->cameraFovDeg());
+            {
+                _sceneViews[0]->camera()->fov(ac->cameraFovDeg());
                 if (SLApplication::sceneID == SID_VideoCalibrateMain)
-                     onLoad(this, _sceneViews[0], SID_VideoTrackChessMain);
-                else onLoad(this, _sceneViews[0], SID_VideoTrackChessScnd);
+                    onLoad(this, _sceneViews[0], SID_VideoTrackChessMain);
+                else
+                    onLoad(this, _sceneViews[0], SID_VideoTrackChessScnd);
             }
-        } else
-        if (ac->state() == CS_calibrated || ac->state() == CS_guessed) //......
+        }
+        else if (ac->state() == CS_calibrated || ac->state() == CS_guessed) //......
         {
             SLCVTrackedAruco::trackAllOnce = true;
-        
+
             // track all trackers in the first sceneview
             for (auto tracker : _trackers)
                 tracker->track(SLCVCapture::lastFrameGray,
@@ -455,16 +477,17 @@ bool SLScene::onUpdate()
             {
                 SLfloat fov = ac->cameraFovDeg();
                 SLfloat err = ac->reprojectionError();
-                ss << "Tracking " << (_videoType==VT_MAIN ? "main " : "scnd. ") << "camera. ";
+                ss << "Tracking " << (_videoType == VT_MAIN ? "main " : "scnd. ") << "camera. ";
                 if (ac->state() == CS_calibrated)
-                     ss << "FOV: " << fov << ", error: " << err;
-                else ss << "Camera is not calibrated. A FOV is guessed of: " << fov << " degrees.";
+                    ss << "FOV: " << fov << ", error: " << err;
+                else
+                    ss << "Camera is not calibrated. A FOV is guessed of: " << fov << " degrees.";
                 _info = ss.str();
             }
         } //...................................................................
 
         //copy image to video texture
-        if(ac->state() == CS_calibrated && ac->showUndistorted())
+        if (ac->state() == CS_calibrated && ac->showUndistorted())
         {
             SLCVMat undistorted;
             ac->remap(SLCVCapture::lastFrame, undistorted);
@@ -475,8 +498,10 @@ bool SLScene::onUpdate()
                                          undistorted.data,
                                          undistorted.isContinuous(),
                                          true);
-        } else
-        {   _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+        }
+        else
+        {
+            _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
                                          SLCVCapture::lastFrame.rows,
                                          SLCVCapture::format,
                                          SLCVCapture::lastFrame.data,
@@ -484,9 +509,8 @@ bool SLScene::onUpdate()
                                          true);
         }
 
-        _trackingTimesMS.set(timeMilliSec()-trackingTimeStartMS);
+        _trackingTimesMS.set(timeMilliSec() - trackingTimeStartMS);
     }
-
 
     /////////////////////
     // 5) Update AABBs //
@@ -500,28 +524,31 @@ bool SLScene::onUpdate()
     if (_root2D)
         _root2D->updateAABBRec();
 
-    _updateTimesMS.set(timeMilliSec()-startUpdateMS);
+    _updateTimesMS.set(timeMilliSec() - startUpdateMS);
 
     //SL_LOG("SLScene::onUpdate\n");
     return sceneHasChanged;
 }
 //-----------------------------------------------------------------------------
 //! SLScene::onAfterLoad gets called after onLoad
-void SLScene::onAfterLoad()
+void
+SLScene::onAfterLoad()
 {
-    #ifdef SL_USES_CVCAPTURE
+#ifdef SL_USES_CVCAPTURE
     if (_videoType != VT_NONE)
-    {   if (!SLCVCapture::isOpened())
+    {
+        if (!SLCVCapture::isOpened())
         {
             SLVec2i videoSize;
             if (_videoType == VT_FILE && SLCVCapture::videoFilename != "")
-                 videoSize = SLCVCapture::openFile();
-            else videoSize = SLCVCapture::open(0);
+                videoSize = SLCVCapture::openFile();
+            else
+                videoSize = SLCVCapture::open(0);
 
             if (videoSize != SLVec2i::ZERO)
             {
                 SLCVCapture::grabAndAdjustForSL();
-                
+
                 if (SLCVCapture::lastFrame.cols > 0 &&
                     SLCVCapture::lastFrame.rows > 0)
                 {
@@ -535,9 +562,10 @@ void SLScene::onAfterLoad()
             }
         }
     }
-    #else
+#else
     if (_videoType == VT_FILE && SLCVCapture::videoFilename != "")
-    {   if (!SLCVCapture::isOpened())
+    {
+        if (!SLCVCapture::isOpened())
         {
             SLVec2i videoSize = SLCVCapture::openFile();
 
@@ -556,27 +584,34 @@ void SLScene::onAfterLoad()
             }
         }
     }
-    #endif
+#endif
 }
 //-----------------------------------------------------------------------------
 //! Sets the _selectedNode to the passed node and flags it as selected
 /*! If one node is selected a rectangle selection is reset to zero.
 The drawing of the selection is done in SLMesh::draw and SLAABBox::drawWS.
 */
-void SLScene::selectNode(SLNode* nodeToSelect)
+void
+SLScene::selectNode(SLNode* nodeToSelect)
 {
     if (_selectedNode)
         _selectedNode->drawBits()->off(SL_DB_SELECTED);
 
     if (nodeToSelect)
-    {  if (_selectedNode == nodeToSelect)
-        {   _selectedNode = nullptr;
-        } else
-        {   _selectedNode = nodeToSelect;
+    {
+        if (_selectedNode == nodeToSelect)
+        {
+            _selectedNode = nullptr;
+        }
+        else
+        {
+            _selectedNode = nodeToSelect;
             _selectedNode->drawBits()->on(SL_DB_SELECTED);
         }
         _selectedRect.setZero();
-    } else _selectedNode = nullptr;
+    }
+    else
+        _selectedNode = nullptr;
     _selectedMesh = nullptr;
 }
 //-----------------------------------------------------------------------------
@@ -584,30 +619,38 @@ void SLScene::selectNode(SLNode* nodeToSelect)
 /*! If one node is selected a rectangle selection is reset to zero.
 The drawing of the selection is done in SLMesh::draw and SLAABBox::drawWS.
 */
-void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
+void
+SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
 {
     if (_selectedNode)
         _selectedNode->drawBits()->off(SL_DB_SELECTED);
 
     if (nodeToSelect)
-    {  if (_selectedNode == nodeToSelect && _selectedMesh == meshToSelect)
-        {   _selectedNode = nullptr;
+    {
+        if (_selectedNode == nodeToSelect && _selectedMesh == meshToSelect)
+        {
+            _selectedNode = nullptr;
             _selectedMesh = nullptr;
             _selectedRect.setZero();
-        } else
-        {   _selectedNode = nodeToSelect;
+        }
+        else
+        {
+            _selectedNode = nodeToSelect;
             _selectedMesh = meshToSelect;
             _selectedNode->drawBits()->on(SL_DB_SELECTED);
         }
-    } else 
-    {   _selectedNode = nullptr;
+    }
+    else
+    {
+        _selectedNode = nullptr;
         _selectedMesh = nullptr;
         _selectedRect.setZero();
     }
 }
 //-----------------------------------------------------------------------------
-void SLScene::onLoadAsset(SLstring assetFile, 
-                          SLuint processFlags)
+void
+SLScene::onLoadAsset(SLstring assetFile,
+                     SLuint   processFlags)
 {
     SLApplication::sceneID = SID_FromFile;
 
@@ -624,35 +667,39 @@ void SLScene::onLoadAsset(SLstring assetFile,
 
     // Add root node on empty scene
     if (!_root3D)
-    {   SLNode* scene = new SLNode("Scene");
-        _root3D = scene;
+    {
+        SLNode* scene = new SLNode("Scene");
+        _root3D       = scene;
     }
 
     // Add loaded scene
-    if (loaded) 
+    if (loaded)
         _root3D->addChild(loaded);
 
     // Add directional light if no light was in loaded asset
     if (!_lights.size())
-    {   SLAABBox boundingBox = _root3D->updateAABBRec();
-        SLfloat arrowLength = boundingBox.radiusWS() > FLT_EPSILON ? 
-                              boundingBox.radiusWS() * 0.1f : 0.5f;
-        SLLightDirect* light = new SLLightDirect(0,0,0, 
-                                                 arrowLength,
-                                                 1.0f, 1.0f, 1.0f);
-        SLVec3f pos = boundingBox.maxWS().isZero() ? 
-                      SLVec3f(1,1,1) : boundingBox.maxWS() * 1.1f;
+    {
+        SLAABBox boundingBox = _root3D->updateAABBRec();
+        SLfloat  arrowLength = boundingBox.radiusWS() > FLT_EPSILON
+                                ? boundingBox.radiusWS() * 0.1f
+                                : 0.5f;
+        SLLightDirect* light = new SLLightDirect(0, 0, 0, arrowLength, 1.0f, 1.0f, 1.0f);
+        SLVec3f        pos   = boundingBox.maxWS().isZero()
+                        ? SLVec3f(1, 1, 1)
+                        : boundingBox.maxWS() * 1.1f;
         light->translation(pos);
-        light->lookAt(pos-SLVec3f(1,1,1));
-        light->attenuation(1,0,0);
+        light->lookAt(pos - SLVec3f(1, 1, 1));
+        light->attenuation(1, 0, 0);
         _root3D->addChild(light);
         _root3D->aabb()->reset(); // rest aabb so that it is recalculated
     }
 
     // call onInitialize on all scene views
     for (auto sv : _sceneViews)
-    {   if (sv != nullptr)
-        {   sv->onInitialize();
+    {
+        if (sv != nullptr)
+        {
+            sv->onInitialize();
         }
     }
 }
@@ -664,23 +711,27 @@ void SLScene::onLoadAsset(SLstring assetFile,
 one and is set by the SLScene::videoType (VT_NONE, VT_MAIN, VT_SCND) during the
 scene assembly in SLScene::onLoad.
 */
-void SLScene::videoType(SLVideoType vt)
+void
+SLScene::videoType(SLVideoType vt)
 {
-    if (SLCVCapture::hasSecondaryCamera && vt==VT_SCND)
-    {   _videoType = VT_SCND;
+    if (SLCVCapture::hasSecondaryCamera && vt == VT_SCND)
+    {
+        _videoType                 = VT_SCND;
         SLApplication::activeCalib = &SLApplication::calibScndCam;
         return;
     }
 
-    if (vt==VT_SCND)
-         _videoType = VT_MAIN;
-    else _videoType = vt;
+    if (vt == VT_SCND)
+        _videoType = VT_MAIN;
+    else
+        _videoType = vt;
 
     SLApplication::activeCalib = &SLApplication::calibMainCam;
 }
 //-----------------------------------------------------------------------------
 //! Returns the number of camera nodes in the scene
-SLint SLScene::numSceneCameras()
+SLint
+SLScene::numSceneCameras()
 {
     if (!_root3D) return 0;
     vector<SLCamera*> cams = _root3D->findChildren<SLCamera>();
@@ -688,28 +739,30 @@ SLint SLScene::numSceneCameras()
 }
 //-----------------------------------------------------------------------------
 //! Returns the next camera in the scene if there is one
-SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
+SLCamera*
+SLScene::nextCameraInScene(SLSceneView* activeSV)
 {
     if (!_root3D) return nullptr;
 
     vector<SLCamera*> cams = _root3D->findChildren<SLCamera>();
 
-    if (cams.size()==0) return nullptr;
-    if (cams.size()==1) return cams[0];
+    if (cams.size() == 0) return nullptr;
+    if (cams.size() == 1) return cams[0];
 
     SLuint activeIndex = 0;
-    for (SLuint i=0; i<cams.size(); ++i)
-    {   if (cams[i] == activeSV->camera())
-        {   activeIndex = i;
+    for (SLuint i = 0; i < cams.size(); ++i)
+    {
+        if (cams[i] == activeSV->camera())
+        {
+            activeIndex = i;
             break;
         }
     }
 
     // return next if not last else return first
-    if (activeIndex < cams.size()-1)
-        return cams[activeIndex+1];
-    else 
+    if (activeIndex < cams.size() - 1)
+        return cams[activeIndex + 1];
+    else
         return cams[0];
-
 }
 //------------------------------------------------------------------------------

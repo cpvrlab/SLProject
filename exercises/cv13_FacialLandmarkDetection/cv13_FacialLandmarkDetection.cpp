@@ -5,15 +5,16 @@
 //  Date:      Authumn 2017
 //#############################################################################
 
-#include <opencv2/opencv.hpp>
 #include <opencv2/face.hpp>
- 
+#include <opencv2/opencv.hpp>
+
 using namespace std;
 using namespace cv;
 using namespace cv::face;
 
 //-----------------------------------------------------------------------------
-int main()
+int
+main()
 {
     // Load Face Detector
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
@@ -33,17 +34,17 @@ int main()
     Mat frame, gray;
 
     // Read a frame
-    while(cam.read(frame))
+    while (cam.read(frame))
     {
         // Convert frame to grayscale because faceDetector requires grayscale image
         cvtColor(frame, gray, COLOR_BGR2GRAY);
 
         // Detect faces
         vector<Rect> faces;
-        int min = (int)(frame.rows*0.4f); // the bigger min the faster
-        int max = (int)(frame.rows*0.8f); // the smaller max the faster
-        cv::Size minSize(min, min);
-        cv::Size maxSize(max, max);
+        int          min = (int)(frame.rows * 0.4f); // the bigger min the faster
+        int          max = (int)(frame.rows * 0.8f); // the smaller max the faster
+        cv::Size     minSize(min, min);
+        cv::Size     maxSize(max, max);
         faceDetector.detectMultiScale(gray, faces, 1.1, 3, 0, minSize, maxSize);
 
         // Variable for landmarks.
@@ -55,10 +56,12 @@ int main()
         // Run landmark detector
         bool success = facemark->fit(gray, faces, landmarks);
 
-        if(success)
-        {   for(int i=0; i < landmarks.size(); i++)
-            {   rectangle(frame, faces[i], cv::Scalar(255, 0, 0), 2);
-                for(int j=0; j < landmarks[i].size(); j++)
+        if (success)
+        {
+            for (int i = 0; i < landmarks.size(); i++)
+            {
+                rectangle(frame, faces[i], cv::Scalar(255, 0, 0), 2);
+                for (int j = 0; j < landmarks[i].size(); j++)
                     circle(frame, landmarks[i][j], 3, cv::Scalar(0, 0, 255), -1);
             }
         }

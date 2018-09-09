@@ -8,7 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>         // precompiled headers
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 /*
 The OpenCV library version 3.4 or above with extra module must be present.
@@ -19,8 +19,8 @@ See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 #include <SLApplication.h>
-#include <SLSceneView.h>
 #include <SLCVTrackedAruco.h>
+#include <SLSceneView.h>
 
 using namespace cv;
 //-----------------------------------------------------------------------------
@@ -31,8 +31,7 @@ SLVint          SLCVTrackedAruco::arucoIDs;
 SLVMat4f        SLCVTrackedAruco::objectViewMats;
 SLCVArucoParams SLCVTrackedAruco::params;
 //-----------------------------------------------------------------------------
-SLCVTrackedAruco::SLCVTrackedAruco(SLNode* node, SLint arucoID) : 
-                  SLCVTracked(node) 
+SLCVTrackedAruco::SLCVTrackedAruco(SLNode* node, SLint arucoID) : SLCVTracked(node)
 {
     _arucoID = arucoID;
 }
@@ -41,11 +40,12 @@ SLCVTrackedAruco::SLCVTrackedAruco(SLNode* node, SLint arucoID) :
 /* The tracking of all aruco markers is done only once even if multiple aruco 
 markers are used for different SLNode.
 */
-SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
-                               SLCVMat imageRgb,
-                               SLCVCalibration* calib,
-                               SLbool drawDetection,
-                               SLSceneView* sv)
+SLbool
+SLCVTrackedAruco::track(SLCVMat          imageGray,
+                        SLCVMat          imageRgb,
+                        SLCVCalibration* calib,
+                        SLbool           drawDetection,
+                        SLSceneView*     sv)
 {
     assert(!imageGray.empty() && "ImageGray is empty");
     assert(!imageRgb.empty() && "ImageRGB is empty");
@@ -53,15 +53,17 @@ SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
     assert(_node && "Node pointer is null");
     assert(sv && "No sceneview pointer passed");
     assert(sv->camera() && "No active camera in sceneview");
-   
+
     // Load aruco parameter once
     if (!paramsLoaded)
-    {   paramsLoaded = params.loadFromFile();
+    {
+        paramsLoaded = params.loadFromFile();
         if (!paramsLoaded)
             SL_EXIT_MSG("SLCVTrackedAruco::track: Failed to load Aruco parameters.");
     }
-    if(params.arucoParams.empty() || params.dictionary.empty())
-    {   SL_WARN_MSG("SLCVTrackedAruco::track: Aruco paramters are empty.");
+    if (params.arucoParams.empty() || params.dictionary.empty())
+    {
+        SL_WARN_MSG("SLCVTrackedAruco::track: Aruco paramters are empty.");
         return false;
     }
 
@@ -72,27 +74,27 @@ SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
         // Detect //
         ////////////
 
-        SLScene* s = SLApplication::scene;
-        SLfloat startMS = s->timeMilliSec();
+        SLScene* s       = SLApplication::scene;
+        SLfloat  startMS = s->timeMilliSec();
 
         arucoIDs.clear();
         objectViewMats.clear();
         SLCVVVPoint2f corners, rejected;
 
         aruco::detectMarkers(imageGray,
-                             params.dictionary, 
-                             corners, 
-                             arucoIDs, 
-                             params.arucoParams, 
+                             params.dictionary,
+                             corners,
+                             arucoIDs,
+                             params.arucoParams,
                              rejected);
 
-        s->detectTimesMS().set(s->timeMilliSec()-startMS);
+        s->detectTimesMS().set(s->timeMilliSec() - startMS);
 
-        if(arucoIDs.size() > 0)
+        if (arucoIDs.size() > 0)
         {
             if (drawDetection)
             {
-                aruco::drawDetectedMarkers(imageRgb, corners, arucoIDs, Scalar(0,0,255));
+                aruco::drawDetectedMarkers(imageRgb, corners, arucoIDs, Scalar(0, 0, 255));
             }
 
             /////////////////////
@@ -105,8 +107,8 @@ SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
 
             //find the camera extrinsic parameters (rVec & tVec)
             SLCVVPoint3d rVecs, tVecs;
-            aruco::estimatePoseSingleMarkers(corners, 
-                                             params.edgeLength, 
+            aruco::estimatePoseSingleMarkers(corners,
+                                             params.edgeLength,
                                              calib->cameraMat(),
                                              calib->distortion(),
                                              rVecs,
@@ -115,8 +117,8 @@ SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
             s->poseTimesMS().set(s->timeMilliSec() - startMS);
 
             // Get the object view matrix for all aruco markers
-            for(size_t i=0; i < arucoIDs.size(); ++i)
-            {   //cout << arucoIDs[i] << ",";
+            for (size_t i = 0; i < arucoIDs.size(); ++i)
+            { //cout << arucoIDs[i] << ",";
                 SLMat4f ovm = createGLMatrix(cv::Mat(tVecs[i]), cv::Mat(rVecs[i]));
                 objectViewMats.push_back(ovm);
             }
@@ -125,29 +127,32 @@ SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
         trackAllOnce = false;
     }
 
-    if(arucoIDs.size() > 0)
-    {   
+    if (arucoIDs.size() > 0)
+    {
         // Find the marker with the matching id
-        for(size_t i=0; i < arucoIDs.size(); ++i)
-        {   if (arucoIDs[i] == _arucoID)
+        for (size_t i = 0; i < arucoIDs.size(); ++i)
+        {
+            if (arucoIDs[i] == _arucoID)
             {
                 // set the object matrix depending if the
                 // tracked node is attached to a camera or not
-                if (typeid(*_node)==typeid(SLCamera))
+                if (typeid(*_node) == typeid(SLCamera))
                     _node->om(objectViewMats[i].inverted());
                 else
-                {   _node->om(calcObjectMatrix(sv->camera()->om(),
+                {
+                    _node->om(calcObjectMatrix(sv->camera()->om(),
                                                objectViewMats[i]));
                     _node->setDrawBitsRec(SL_DB_HIDDEN, false);
                 }
             }
         }
         return true;
-    } else
+    }
+    else
     {
         // Hide tracked node if not visible
         //if (_node != sv->camera())
-            //_node->setDrawBitsRec(SL_DB_HIDDEN, true);
+        //_node->setDrawBitsRec(SL_DB_HIDDEN, true);
     }
 
     return false;
@@ -164,46 +169,49 @@ into an image.
 \param dpi Dots per inch (default 256)
 \param showImage Shows image in window (default false)
 */
-void SLCVTrackedAruco::drawArucoMarkerBoard(SLint dictionaryId,
-                                            SLint numMarkersX,
-                                            SLint numMarkersY, 
-                                            SLfloat markerEdgeM,
-                                            SLfloat markerSepaM,
-                                            SLstring imgName,
-                                            SLfloat dpi,
-                                            SLbool showImage)
+void
+SLCVTrackedAruco::drawArucoMarkerBoard(SLint    dictionaryId,
+                                       SLint    numMarkersX,
+                                       SLint    numMarkersY,
+                                       SLfloat  markerEdgeM,
+                                       SLfloat  markerSepaM,
+                                       SLstring imgName,
+                                       SLfloat  dpi,
+                                       SLbool   showImage)
 {
     Ptr<aruco::Dictionary> dictionary =
-        aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
+      aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
 
-    Ptr<aruco::GridBoard> board = aruco::GridBoard::create(numMarkersX, 
-                                                           numMarkersY, 
+    Ptr<aruco::GridBoard> board = aruco::GridBoard::create(numMarkersX,
+                                                           numMarkersY,
                                                            markerEdgeM,
                                                            markerSepaM,
                                                            dictionary);
-    SLCVSize imageSize;
+    SLCVSize              imageSize;
     imageSize.width  = (SLint)((markerEdgeM + markerSepaM) * 100.0f / 2.54f * dpi * numMarkersX);
     imageSize.height = (SLint)((markerEdgeM + markerSepaM) * 100.0f / 2.54f * dpi * numMarkersY);
 
-    imageSize.width  -= (imageSize.width%4);  
-    imageSize.height -= (imageSize.height%4);  
+    imageSize.width -= (imageSize.width % 4);
+    imageSize.height -= (imageSize.height % 4);
 
     // show created board
     SLCVMat boardImage;
     board->draw(imageSize, boardImage, 0, 1);
 
-    if(showImage) 
-    {   imshow("board", boardImage);
+    if (showImage)
+    {
+        imshow("board", boardImage);
         waitKey(0);
     }
 
     imwrite(imgName, boardImage);
 }
 //-----------------------------------------------------------------------------
-void SLCVTrackedAruco::drawArucoMarker(SLint dictionaryId,
-                                       SLint minMarkerId,
-                                       SLint maxMarkerId,
-                                       SLint markerSizePX)
+void
+SLCVTrackedAruco::drawArucoMarker(SLint dictionaryId,
+                                  SLint minMarkerId,
+                                  SLint maxMarkerId,
+                                  SLint markerSizePX)
 {
     assert(dictionaryId > 0);
     assert(minMarkerId > 0);
@@ -217,10 +225,14 @@ void SLCVTrackedAruco::drawArucoMarker(SLint dictionaryId,
 
     SLCVMat markerImg;
 
-    for (SLint i=minMarkerId; i<maxMarkerId; ++i)
-    {   drawMarker(dict, i, markerSizePX, markerImg, 1);
-        imwrite(SLUtils::formatString("ArucoMarker_Dict%d_%dpx_Id%d.png", 
-                                      dictionaryId, markerSizePX, i), markerImg);
+    for (SLint i = minMarkerId; i < maxMarkerId; ++i)
+    {
+        drawMarker(dict, i, markerSizePX, markerImg, 1);
+        imwrite(SLUtils::formatString("ArucoMarker_Dict%d_%dpx_Id%d.png",
+                                      dictionaryId,
+                                      markerSizePX,
+                                      i),
+                markerImg);
     }
 }
 //-----------------------------------------------------------------------------

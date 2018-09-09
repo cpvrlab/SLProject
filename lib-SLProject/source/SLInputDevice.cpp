@@ -8,9 +8,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
 #include <SLApplication.h>
 #include <SLInputManager.h>
@@ -37,7 +38,8 @@ SLInputDevice::~SLInputDevice()
 /*! Enabling an SLInputDevice will add it to the device list kept by
 SLInputManager
 */
-void SLInputDevice::enable()
+void
+SLInputDevice::enable()
 {
     SLApplication::inputManager.devices().push_back(this);
 }
@@ -45,7 +47,8 @@ void SLInputDevice::enable()
 /*! Enabling an SLInputDevice will remove it from the device list kept by
 SLInputManager
 */
-void SLInputDevice::disable()
+void
+SLInputDevice::disable()
 {
     SLVInputDevice& dl = SLApplication::inputManager.devices();
     dl.erase(remove(dl.begin(), dl.end(), this), dl.end());

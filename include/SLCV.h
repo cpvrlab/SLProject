@@ -19,12 +19,14 @@ All classes that use OpenCV begin with SLCV.
 See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
+using namespace std;
+
+#include <vector>
 
 #include <opencv2/core/ocl.hpp>
 #include <opencv2/face.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/xfeatures2d.hpp>
-#include <vector>
 
 //-----------------------------------------------------------------------------
 typedef cv::Mat               SLCVMat;

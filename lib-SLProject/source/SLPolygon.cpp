@@ -8,90 +8,97 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>           // precompiled headers
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
 
 #include <SLPolygon.h>
 
 //-----------------------------------------------------------------------------
-//! SLPolygon ctor with corner points vector 
+//! SLPolygon ctor with corner points vector
 SLPolygon::SLPolygon(SLVVec3f corners, SLstring name, SLMaterial* mat)
-          :SLMesh(name) 
+  : SLMesh(name)
 {
-    assert(corners.size()>2);
+    assert(corners.size() > 2);
     _corners = corners;
     buildMesh(mat);
 }
 //-----------------------------------------------------------------------------
-//! SLPolygon ctor with corner points and its texture coords vector 
-SLPolygon::SLPolygon(SLVVec3f corners,
-                     SLVVec2f texCoords,
-                     SLstring name, 
-                     SLMaterial*   mat) :SLMesh(name)   
+//! SLPolygon ctor with corner points and its texture coords vector
+SLPolygon::SLPolygon(SLVVec3f    corners,
+                     SLVVec2f    texCoords,
+                     SLstring    name,
+                     SLMaterial* mat) : SLMesh(name)
 {
-    assert(corners.size()>2 && texCoords.size()==corners.size());
-    _corners = corners;
+    assert(corners.size() > 2 && texCoords.size() == corners.size());
+    _corners  = corners;
     _texCoord = texCoords;
     buildMesh(mat);
 }
 //-----------------------------------------------------------------------------
-//! SLPolygon ctor for centered light rectangle in x/y-plane w. N=-z 
-SLPolygon::SLPolygon(SLfloat  width, 
-                     SLfloat  height,
-                     SLstring name, 
-                     SLMaterial* mat) :SLMesh(name)
+//! SLPolygon ctor for centered light rectangle in x/y-plane w. N=-z
+SLPolygon::SLPolygon(SLfloat     width,
+                     SLfloat     height,
+                     SLstring    name,
+                     SLMaterial* mat) : SLMesh(name)
 {
-    assert(width>0 && height>0);
-    SLfloat hw = width  * 0.5f;
+    assert(width > 0 && height > 0);
+    SLfloat hw = width * 0.5f;
     SLfloat hh = height * 0.5f;
-    _corners.push_back(SLVec3f( hw, hh));
-    _corners.push_back(SLVec3f( hw,-hh));
-    _corners.push_back(SLVec3f(-hw,-hh));
+    _corners.push_back(SLVec3f(hw, hh));
+    _corners.push_back(SLVec3f(hw, -hh));
+    _corners.push_back(SLVec3f(-hw, -hh));
     _corners.push_back(SLVec3f(-hw, hh));
     buildMesh(mat);
 }
 //-----------------------------------------------------------------------------
 //! SLPolygon::buildMesh fills in the underlying arrays from the SLMesh object
-void SLPolygon::buildMesh(SLMaterial* material)
-{  
+void
+SLPolygon::buildMesh(SLMaterial* material)
+{
     _isVolume = false;
-   
+
     deleteData();
-   
+
     // Check max. allowed no. of verts
-    if (_corners.size() >= 65535) 
+    if (_corners.size() >= 65535)
         SL_EXIT_MSG("SLPolygon::buildMesh: NO. of vertices exceeds the maximum (65535) allowed.");
 
     // allocate vectors of SLMesh
-    P.clear(); P.resize(_corners.size());
-    N.clear(); N.resize(P.size());
+    P.clear();
+    P.resize(_corners.size());
+    N.clear();
+    N.resize(P.size());
     if (_texCoord.size()) Tc.resize(P.size());
-    I16.clear(); I16.resize((P.size() - 2) * 3);
-   
+    I16.clear();
+    I16.resize((P.size() - 2) * 3);
+
     // Calculate normal from the first 3 corners
-    SLVec3f v1(_corners[0]-_corners[1]);
-    SLVec3f v2(_corners[0]-_corners[2]);
-    SLVec3f n(v1^v2);
+    SLVec3f v1(_corners[0] - _corners[1]);
+    SLVec3f v2(_corners[0] - _corners[2]);
+    SLVec3f n(v1 ^ v2);
     n.normalize();
-   
+
     //Set one default material index
     mat(material);
-   
+
     //Copy vertices and normals
-    for (SLushort i=0; i<P.size(); ++i)
-    {   P[i] = _corners[i];
+    for (SLushort i = 0; i < P.size(); ++i)
+    {
+        P[i] = _corners[i];
         N[i] = n;
         if (Tc.size()) Tc[i] = _texCoord[i];
     }
-   
+
     // Build face vertex indices
-    for (SLushort f=0; f<_corners.size()-2; ++f)
-    {   SLuint i = f * 3;
-        I16[i  ] = 0;
-        I16[i+1] = f+1;
-        I16[i+2] = f+2;
+    for (SLushort f = 0; f < _corners.size() - 2; ++f)
+    {
+        SLuint i   = f * 3;
+        I16[i]     = 0;
+        I16[i + 1] = f + 1;
+        I16[i + 2] = f + 2;
     }
 }
 //-----------------------------------------------------------------------------

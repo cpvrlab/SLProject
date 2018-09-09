@@ -8,9 +8,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>           // precompiled headers
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
 
 #include "SLLight.h"
@@ -20,17 +21,17 @@ SLLight::SLLight(SLfloat ambiPower,
                  SLfloat diffPower,
                  SLfloat specPower,
                  SLint   id)
-{  
+{
     // Set parameter of SLLight
-    _id = id;
-    _isOn = true;
-    _spotCutOffDEG = 180.0f;
-    _spotCosCutOffRAD = cos(SL_DEG2RAD*_spotCutOffDEG);
-    _spotExponent = 1.0f;
+    _id               = id;
+    _isOn             = true;
+    _spotCutOffDEG    = 180.0f;
+    _spotCosCutOffRAD = cos(SL_DEG2RAD * _spotCutOffDEG);
+    _spotExponent     = 1.0f;
 
-    // Set parameters of inherited SLMaterial 
-    _ambient.set (ambiPower, ambiPower, ambiPower);
-    _diffuse.set (diffPower, diffPower, diffPower);
+    // Set parameters of inherited SLMaterial
+    _ambient.set(ambiPower, ambiPower, ambiPower);
+    _diffuse.set(diffPower, diffPower, diffPower);
     _specular.set(specPower, specPower, specPower);
 
     // By default there is no attenuation set. This is physically not correct
@@ -45,27 +46,31 @@ SLLight::SLLight(SLfloat ambiPower,
     kq(0.0f);
 }
 //-----------------------------------------------------------------------------
-void SLLight::kc(SLfloat kc)
+void
+SLLight::kc(SLfloat kc)
 {
-    _kc = kc;
-    _isAttenuated = (_kc==1.0f && _kl==0.0f && _kq==0.0f) ? false : true;
+    _kc           = kc;
+    _isAttenuated = (_kc == 1.0f && _kl == 0.0f && _kq == 0.0f) ? false : true;
 }
 //-----------------------------------------------------------------------------
-void SLLight::kl(SLfloat kl)
+void
+SLLight::kl(SLfloat kl)
 {
-    _kl = kl;
-    _isAttenuated = (_kc==1.0f && _kl==0.0f && _kq==0.0f) ? false : true;
+    _kl           = kl;
+    _isAttenuated = (_kc == 1.0f && _kl == 0.0f && _kq == 0.0f) ? false : true;
 }
 //-----------------------------------------------------------------------------
-void SLLight::kq(SLfloat kq)
+void
+SLLight::kq(SLfloat kq)
 {
-    _kq = kq;
-    _isAttenuated = (_kc==1.0f && _kl==0.0f && _kq==0.0f) ? false : true;
+    _kq           = kq;
+    _isAttenuated = (_kc == 1.0f && _kl == 0.0f && _kq == 0.0f) ? false : true;
 }
 //-----------------------------------------------------------------------------
-void SLLight::spotCutOffDEG(const SLfloat cutOffAngleDEG)  
-{   
-    _spotCutOffDEG = cutOffAngleDEG;
-    _spotCosCutOffRAD = cos(SL_DEG2RAD*_spotCutOffDEG);
+void
+SLLight::spotCutOffDEG(const SLfloat cutOffAngleDEG)
+{
+    _spotCutOffDEG    = cutOffAngleDEG;
+    _spotCosCutOffRAD = cos(SL_DEG2RAD * _spotCutOffDEG);
 }
 //-----------------------------------------------------------------------------

@@ -101,7 +101,7 @@ class SLGLVertexBuffer
     static SLuint totalBufferSize;  //! static total size of all buffers in bytes
 
     //! Returns the size of a buffer data type
-    static SLint sizeOfType(SLGLBufferType type);
+    static SLuint sizeOfType(SLGLBufferType type);
 
     protected:
     SLuint          _id;                //! OpenGL id of vertex buffer object
@@ -109,7 +109,7 @@ class SLGLVertexBuffer
     SLGLBufferType  _dataType;          //! Data Type (BT_float or BT_half)
     SLVVertexAttrib _attribs;           //! Vector of vertex attributes
     SLbool          _outputInterleaved; //! Flag if VBO should be generated interleaved
-    SLint           _strideBytes;       //! Distance for interleaved attributes in bytes
+    SLuint          _strideBytes;       //! Distance for interleaved attributes in bytes
     SLuint          _sizeBytes;         //! Total size of float VBO in bytes
     SLGLBufferUsage _usage;             //! buffer usage (static, dynamic or stream)
 };

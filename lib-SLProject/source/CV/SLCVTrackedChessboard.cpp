@@ -8,7 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>         // precompiled headers
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 /*
 The OpenCV library version 3.4 or above with extra module must be present.
@@ -33,11 +33,12 @@ SLCVTrackedChessboard::SLCVTrackedChessboard(SLNode* node) : SLCVTracked(node)
 }
 //-----------------------------------------------------------------------------
 //! Tracks the chessboard image in the given image for the first sceneview
-bool SLCVTrackedChessboard::track(SLCVMat imageGray,
-                                  SLCVMat imageRgb,
-                                  SLCVCalibration* calib,
-                                  SLbool drawDetection,
-                                  SLSceneView* sv)
+bool
+SLCVTrackedChessboard::track(SLCVMat          imageGray,
+                             SLCVMat          imageRgb,
+                             SLCVCalibration* calib,
+                             SLbool           drawDetection,
+                             SLSceneView*     sv)
 {
     assert(!imageGray.empty() && "ImageGray is empty");
     assert(!imageRgb.empty() && "ImageRGB is empty");
@@ -50,13 +51,13 @@ bool SLCVTrackedChessboard::track(SLCVMat imageGray,
     // Detect //
     ////////////
 
-    SLScene* s = SLApplication::scene;
-    SLfloat startMS = s->timeMilliSec();
+    SLScene* s       = SLApplication::scene;
+    SLfloat  startMS = s->timeMilliSec();
 
     //detect chessboard corners
     SLint flags = //CALIB_CB_ADAPTIVE_THRESH |
-                  CALIB_CB_NORMALIZE_IMAGE |
-                  CALIB_CB_FAST_CHECK;
+      CALIB_CB_NORMALIZE_IMAGE |
+      CALIB_CB_FAST_CHECK;
 
     SLCVVPoint2f corners2D;
 
@@ -65,9 +66,9 @@ bool SLCVTrackedChessboard::track(SLCVMat imageGray,
                                            corners2D,
                                            flags);
 
-    s->detectTimesMS().set(s->timeMilliSec()-startMS);
+    s->detectTimesMS().set(s->timeMilliSec() - startMS);
 
-    if(_isVisible)
+    if (_isVisible)
     {
 
         if (drawDetection)
@@ -99,17 +100,17 @@ bool SLCVTrackedChessboard::track(SLCVMat imageGray,
 
             // set the object matrix depending if the
             // tracked node is attached to a camera or not
-            if (typeid(*_node)==typeid(SLCamera))
+            if (typeid(*_node) == typeid(SLCamera))
                 _node->om(_objectViewMat.inverted());
             else
-            {   
-				_node->om(calcObjectMatrix(sv->camera()->om(), _objectViewMat));
+            {
+                _node->om(calcObjectMatrix(sv->camera()->om(), _objectViewMat));
                 _node->setDrawBitsRec(SL_DB_HIDDEN, false);
             }
             return true;
         }
     }
-    
+
     // Hide tracked node if not visible
     if (_node != sv->camera())
         _node->setDrawBitsRec(SL_DB_HIDDEN, true);

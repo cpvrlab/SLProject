@@ -8,23 +8,23 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>           // precompiled headers
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLSkybox.h>
-#include <SLGLTexture.h>
-#include <SLMaterial.h>
 #include <SLBox.h>
 #include <SLCamera.h>
+#include <SLGLTexture.h>
+#include <SLMaterial.h>
 #include <SLSceneView.h>
+#include <SLSkybox.h>
 
 //-----------------------------------------------------------------------------
 //! Default constructor
 SLSkybox::SLSkybox(SLstring name) : SLNode(name)
 {
-
 }
 //-----------------------------------------------------------------------------
 //! Cubemap Constructor with cubemap images
@@ -40,24 +40,28 @@ SLSkybox::SLSkybox(SLstring cubeMapXPos,
                    SLstring name) : SLNode(name)
 {
     // Create texture, material and program
-    SLGLTexture* cubeMap = new SLGLTexture(cubeMapXPos,cubeMapXNeg
-                                          ,cubeMapYPos,cubeMapYNeg
-                                          ,cubeMapZPos,cubeMapZNeg);
-    SLMaterial* matCubeMap = new SLMaterial("matCubeMap");
+    SLGLTexture* cubeMap    = new SLGLTexture(cubeMapXPos,
+                                           cubeMapXNeg,
+                                           cubeMapYPos,
+                                           cubeMapYNeg,
+                                           cubeMapZPos,
+                                           cubeMapZNeg);
+    SLMaterial*  matCubeMap = new SLMaterial("matCubeMap");
     matCubeMap->textures().push_back(cubeMap);
     SLGLProgram* sp = new SLGLGenericProgram("SkyBox.vert", "SkyBox.frag");
     matCubeMap->program(sp);
 
     // Create a box with max. point at min. parameter and vice versa.
     // Like this the boxes normals will point to the inside.
-    this->addMesh(new SLBox(10,10,10, -10,-10,-10, "box", matCubeMap));
+    this->addMesh(new SLBox(10, 10, 10, -10, -10, -10, "box", matCubeMap));
 }
 //-----------------------------------------------------------------------------
 //! Draw the skybox with a cube map with the camera in its center.
-void SLSkybox::drawAroundCamera(SLSceneView* sv)
+void
+SLSkybox::drawAroundCamera(SLSceneView* sv)
 {
     assert(sv && "No SceneView passed to SLSkybox::drawAroundCamera");
-    
+
     // Set the view transform
     _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
 
@@ -78,13 +82,14 @@ void SLSkybox::drawAroundCamera(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 //! Returns the color in the skybox at the the specified direction dir
-SLCol4f SLSkybox::colorAtDir(SLVec3f dir)
+SLCol4f
+SLSkybox::colorAtDir(SLVec3f dir)
 {
     assert(_meshes.size() > 0);
     assert(_meshes[0]->mat()->textures().size() > 0);
-    
+
     SLGLTexture* tex = _meshes[0]->mat()->textures()[0];
-    
+
     return tex->getTexelf(dir);
 }
 //-----------------------------------------------------------------------------
