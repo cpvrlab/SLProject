@@ -33,6 +33,14 @@
 		413B3631156CF93100B8284A /* SLCurveBezier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B362D156CF93100B8284A /* SLCurveBezier.cpp */; };
 		413B3635156CF97900B8284A /* SLAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B3634156CF97900B8284A /* SLAnimation.cpp */; };
 		413F1C4B2067DCD900AEF871 /* lbfmodel.yaml in Resources */ = {isa = PBXBuildFile; fileRef = 413F1C492067DCD900AEF871 /* lbfmodel.yaml */; };
+		41421AEA2146A53400554495 /* earth2048_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41421AE22146A53300554495 /* earth2048_C.jpg */; };
+		41421AEB2146A53400554495 /* earth1024_G.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41421AE32146A53300554495 /* earth1024_G.jpg */; };
+		41421AEC2146A53400554495 /* earth1024_N.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41421AE42146A53300554495 /* earth1024_N.jpg */; };
+		41421AED2146A53400554495 /* earth1024_H.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41421AE52146A53300554495 /* earth1024_H.jpg */; };
+		41421AEE2146A53400554495 /* earth1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41421AE62146A53400554495 /* earth1024_C.jpg */; };
+		41421AEF2146A53400554495 /* earth2048_H.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41421AE72146A53400554495 /* earth2048_H.jpg */; };
+		41421AF02146A53400554495 /* earth2048_G.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41421AE82146A53400554495 /* earth2048_G.jpg */; };
+		41421AF12146A53400554495 /* earth2048_N.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41421AE92146A53400554495 /* earth2048_N.jpg */; };
 		414333791DE03D590027E1C3 /* SLCVCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333751DE03D590027E1C3 /* SLCVCalibration.cpp */; };
 		4143337A1DE03D590027E1C3 /* SLCVCapture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333761DE03D590027E1C3 /* SLCVCapture.cpp */; };
 		4143337B1DE03D590027E1C3 /* SLCVTrackedAruco.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333771DE03D590027E1C3 /* SLCVTrackedAruco.cpp */; };
@@ -322,10 +330,6 @@
 		417E0EBF148A70DE0015B5B0 /* brickwall0512_N.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 417E0EA0148A70DE0015B5B0 /* brickwall0512_N.jpg */; };
 		417E0EC0148A70DE0015B5B0 /* Checkerboard0512_C.png in Resources */ = {isa = PBXBuildFile; fileRef = 417E0EA1148A70DE0015B5B0 /* Checkerboard0512_C.png */; };
 		417E0EC1148A70DE0015B5B0 /* Chess0256_C.bmp in Resources */ = {isa = PBXBuildFile; fileRef = 417E0EA2148A70DE0015B5B0 /* Chess0256_C.bmp */; };
-		417E0EC2148A70DE0015B5B0 /* earth1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 417E0EA3148A70DE0015B5B0 /* earth1024_C.jpg */; };
-		417E0EC3148A70DE0015B5B0 /* earth1024_G.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 417E0EA4148A70DE0015B5B0 /* earth1024_G.jpg */; };
-		417E0EC4148A70DE0015B5B0 /* earth1024_H.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 417E0EA5148A70DE0015B5B0 /* earth1024_H.jpg */; };
-		417E0EC5148A70DE0015B5B0 /* earth1024_N.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 417E0EA6148A70DE0015B5B0 /* earth1024_N.jpg */; };
 		417E0EC6148A70DE0015B5B0 /* earthCloud1024_A.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 417E0EA7148A70DE0015B5B0 /* earthCloud1024_A.jpg */; };
 		417E0EC7148A70DE0015B5B0 /* earthCloud1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 417E0EA8148A70DE0015B5B0 /* earthCloud1024_C.jpg */; };
 		417E0EC8148A70DE0015B5B0 /* earthNight1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 417E0EA9148A70DE0015B5B0 /* earthNight1024_C.jpg */; };
@@ -695,6 +699,14 @@
 		413B3633156CF96F00B8284A /* SLAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAnimation.h; path = ../include/SLAnimation.h; sourceTree = SOURCE_ROOT; };
 		413B3634156CF97900B8284A /* SLAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLAnimation.cpp; path = "../lib-SLProject/source/SLAnimation.cpp"; sourceTree = SOURCE_ROOT; };
 		413F1C492067DCD900AEF871 /* lbfmodel.yaml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = lbfmodel.yaml; path = ../_data/calibrations/lbfmodel.yaml; sourceTree = "<group>"; };
+		41421AE22146A53300554495 /* earth2048_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth2048_C.jpg; path = ../_data/images/textures/earth2048_C.jpg; sourceTree = "<group>"; };
+		41421AE32146A53300554495 /* earth1024_G.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth1024_G.jpg; path = ../_data/images/textures/earth1024_G.jpg; sourceTree = "<group>"; };
+		41421AE42146A53300554495 /* earth1024_N.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth1024_N.jpg; path = ../_data/images/textures/earth1024_N.jpg; sourceTree = "<group>"; };
+		41421AE52146A53300554495 /* earth1024_H.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth1024_H.jpg; path = ../_data/images/textures/earth1024_H.jpg; sourceTree = "<group>"; };
+		41421AE62146A53400554495 /* earth1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth1024_C.jpg; path = ../_data/images/textures/earth1024_C.jpg; sourceTree = "<group>"; };
+		41421AE72146A53400554495 /* earth2048_H.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth2048_H.jpg; path = ../_data/images/textures/earth2048_H.jpg; sourceTree = "<group>"; };
+		41421AE82146A53400554495 /* earth2048_G.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth2048_G.jpg; path = ../_data/images/textures/earth2048_G.jpg; sourceTree = "<group>"; };
+		41421AE92146A53400554495 /* earth2048_N.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth2048_N.jpg; path = ../_data/images/textures/earth2048_N.jpg; sourceTree = "<group>"; };
 		414333751DE03D590027E1C3 /* SLCVCalibration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVCalibration.cpp; path = "../lib-SLProject/source/CV/SLCVCalibration.cpp"; sourceTree = SOURCE_ROOT; };
 		414333761DE03D590027E1C3 /* SLCVCapture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVCapture.cpp; path = "../lib-SLProject/source/CV/SLCVCapture.cpp"; sourceTree = SOURCE_ROOT; };
 		414333771DE03D590027E1C3 /* SLCVTrackedAruco.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVTrackedAruco.cpp; path = "../lib-SLProject/source/CV/SLCVTrackedAruco.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1023,10 +1035,6 @@
 		417E0EA0148A70DE0015B5B0 /* brickwall0512_N.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = brickwall0512_N.jpg; path = ../_data/images/textures/brickwall0512_N.jpg; sourceTree = "<group>"; };
 		417E0EA1148A70DE0015B5B0 /* Checkerboard0512_C.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Checkerboard0512_C.png; path = ../_data/images/textures/Checkerboard0512_C.png; sourceTree = "<group>"; };
 		417E0EA2148A70DE0015B5B0 /* Chess0256_C.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = Chess0256_C.bmp; path = ../_data/images/textures/Chess0256_C.bmp; sourceTree = "<group>"; };
-		417E0EA3148A70DE0015B5B0 /* earth1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth1024_C.jpg; path = ../_data/images/textures/earth1024_C.jpg; sourceTree = "<group>"; };
-		417E0EA4148A70DE0015B5B0 /* earth1024_G.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth1024_G.jpg; path = ../_data/images/textures/earth1024_G.jpg; sourceTree = "<group>"; };
-		417E0EA5148A70DE0015B5B0 /* earth1024_H.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth1024_H.jpg; path = ../_data/images/textures/earth1024_H.jpg; sourceTree = "<group>"; };
-		417E0EA6148A70DE0015B5B0 /* earth1024_N.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth1024_N.jpg; path = ../_data/images/textures/earth1024_N.jpg; sourceTree = "<group>"; };
 		417E0EA7148A70DE0015B5B0 /* earthCloud1024_A.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earthCloud1024_A.jpg; path = ../_data/images/textures/earthCloud1024_A.jpg; sourceTree = "<group>"; };
 		417E0EA8148A70DE0015B5B0 /* earthCloud1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earthCloud1024_C.jpg; path = ../_data/images/textures/earthCloud1024_C.jpg; sourceTree = "<group>"; };
 		417E0EA9148A70DE0015B5B0 /* earthNight1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earthNight1024_C.jpg; path = ../_data/images/textures/earthNight1024_C.jpg; sourceTree = "<group>"; };
@@ -1844,13 +1852,50 @@
 		417E0E99148A6F910015B5B0 /* Textures */ = {
 			isa = PBXGroup;
 			children = (
+				417E0E9A148A70DE0015B5B0 /* brick0512_C.png */,
+				417E0E9B148A70DE0015B5B0 /* bricks1_0256_C.jpg */,
+				417E0E9C148A70DE0015B5B0 /* bricks1_0512_C.jpg */,
+				417E0E9D148A70DE0015B5B0 /* brickwall0512_C.jpg */,
+				417E0E9E148A70DE0015B5B0 /* brickwall0512_G.jpg */,
+				417E0E9F148A70DE0015B5B0 /* brickwall0512_H.jpg */,
+				417E0EA0148A70DE0015B5B0 /* brickwall0512_N.jpg */,
+				417E0EA1148A70DE0015B5B0 /* Checkerboard0512_C.png */,
+				417E0EA2148A70DE0015B5B0 /* Chess0256_C.bmp */,
+				41486AB715165E2A00102F27 /* CompileError.png */,
+				41C48E941F01254A0059B48C /* Cousine-Regular.ttf */,
+				41B7BDDC1E49B4BC007B8B39 /* cursor.png */,
 				4166ED04200260D600B42D17 /* Desert-X1024_C.jpg */,
 				4166ED05200260D600B42D17 /* Desert-Y1024_C.jpg */,
 				4166ED08200260D700B42D17 /* Desert-Z1024_C.jpg */,
 				4166ED06200260D600B42D17 /* Desert+X1024_C.jpg */,
 				4166ED07200260D600B42D17 /* Desert+Y1024_C.jpg */,
 				4166ED09200260D700B42D17 /* Desert+Z1024_C.jpg */,
+				41C48E951F01254A0059B48C /* DroidSans.ttf */,
+				41421AE62146A53400554495 /* earth1024_C.jpg */,
+				41421AE32146A53300554495 /* earth1024_G.jpg */,
+				41421AE52146A53300554495 /* earth1024_H.jpg */,
+				41421AE42146A53300554495 /* earth1024_N.jpg */,
+				41421AE22146A53300554495 /* earth2048_C.jpg */,
+				41421AE82146A53400554495 /* earth2048_G.jpg */,
+				41421AE72146A53400554495 /* earth2048_H.jpg */,
+				41421AE92146A53400554495 /* earth2048_N.jpg */,
+				417E0EA7148A70DE0015B5B0 /* earthCloud1024_A.jpg */,
+				417E0EA8148A70DE0015B5B0 /* earthCloud1024_C.jpg */,
+				417E0EA9148A70DE0015B5B0 /* earthNight1024_C.jpg */,
 				41EA2F4C1F558DDF00C34BC7 /* features_stones.png */,
+				41FD9D061E523AD70063A1B7 /* Font07.png */,
+				41FD9D071E523AD70063A1B7 /* Font08.png */,
+				41FD9D081E523AD70063A1B7 /* Font09.png */,
+				41FD9D091E523AD70063A1B7 /* Font10.png */,
+				41FD9D0A1E523AD70063A1B7 /* Font12.png */,
+				41FD9D0B1E523AD70063A1B7 /* Font14.png */,
+				41FD9D0C1E523AD70063A1B7 /* Font16.png */,
+				41FD9D0D1E523AD70063A1B7 /* Font18.png */,
+				41FD9D0E1E523AD70063A1B7 /* Font20.png */,
+				41FD9D0F1E523AD70063A1B7 /* Font22.png */,
+				41FD9D101E523AD70063A1B7 /* Font24.png */,
+				417E0EAA148A70DE0015B5B0 /* grass0512_C.jpg */,
+				417E0EAB148A70DE0015B5B0 /* gray_0256_C.jpg */,
 				417980451F13832F00EB5315 /* i0000_0000b.png */,
 				417980461F13832F00EB5315 /* i0001_0000b.png */,
 				417980471F13832F00EB5315 /* i0002_0000b.png */,
@@ -2058,45 +2103,9 @@
 				417981111F13833000EB5315 /* i0204_0000b.png */,
 				417981121F13833000EB5315 /* i0205_0000b.png */,
 				417981131F13833000EB5315 /* i0206_0000b.png */,
-				411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */,
-				41C48E941F01254A0059B48C /* Cousine-Regular.ttf */,
-				41C48E951F01254A0059B48C /* DroidSans.ttf */,
 				41C48E961F01254A0059B48C /* Karla-Regular.ttf */,
-				41C48E971F01254A0059B48C /* ProggyClean.ttf */,
-				41C48E981F01254A0059B48C /* ProggyTiny.ttf */,
-				41C48E991F01254A0059B48C /* Roboto-Medium.ttf */,
-				417E0E9A148A70DE0015B5B0 /* brick0512_C.png */,
-				417E0E9B148A70DE0015B5B0 /* bricks1_0256_C.jpg */,
-				417E0E9C148A70DE0015B5B0 /* bricks1_0512_C.jpg */,
-				417E0E9D148A70DE0015B5B0 /* brickwall0512_C.jpg */,
-				417E0E9E148A70DE0015B5B0 /* brickwall0512_G.jpg */,
-				417E0E9F148A70DE0015B5B0 /* brickwall0512_H.jpg */,
-				417E0EA0148A70DE0015B5B0 /* brickwall0512_N.jpg */,
-				417E0EA1148A70DE0015B5B0 /* Checkerboard0512_C.png */,
-				417E0EA2148A70DE0015B5B0 /* Chess0256_C.bmp */,
-				41486AB715165E2A00102F27 /* CompileError.png */,
-				41B7BDDC1E49B4BC007B8B39 /* cursor.png */,
-				417E0EA3148A70DE0015B5B0 /* earth1024_C.jpg */,
-				417E0EA4148A70DE0015B5B0 /* earth1024_G.jpg */,
-				417E0EA5148A70DE0015B5B0 /* earth1024_H.jpg */,
-				417E0EA6148A70DE0015B5B0 /* earth1024_N.jpg */,
-				417E0EA7148A70DE0015B5B0 /* earthCloud1024_A.jpg */,
-				417E0EA8148A70DE0015B5B0 /* earthCloud1024_C.jpg */,
-				417E0EA9148A70DE0015B5B0 /* earthNight1024_C.jpg */,
-				41FD9D061E523AD70063A1B7 /* Font07.png */,
-				41FD9D071E523AD70063A1B7 /* Font08.png */,
-				41FD9D081E523AD70063A1B7 /* Font09.png */,
-				41FD9D091E523AD70063A1B7 /* Font10.png */,
-				41FD9D0A1E523AD70063A1B7 /* Font12.png */,
-				41FD9D0B1E523AD70063A1B7 /* Font14.png */,
-				41FD9D0C1E523AD70063A1B7 /* Font16.png */,
-				41FD9D0D1E523AD70063A1B7 /* Font18.png */,
-				41FD9D0E1E523AD70063A1B7 /* Font20.png */,
-				41FD9D0F1E523AD70063A1B7 /* Font22.png */,
-				41FD9D101E523AD70063A1B7 /* Font24.png */,
-				417E0EAA148A70DE0015B5B0 /* grass0512_C.jpg */,
-				417E0EAB148A70DE0015B5B0 /* gray_0256_C.jpg */,
 				419E11A91B74B02000203E70 /* LiveVideoError.png */,
+				411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */,
 				417E0EAC148A70DE0015B5B0 /* MuttenzerBox-X0512_C.png */,
 				417E0EAD148A70DE0015B5B0 /* MuttenzerBox-Y0512_C.png */,
 				417E0EAE148A70DE0015B5B0 /* MuttenzerBox-Z0512_C.png */,
@@ -2109,6 +2118,9 @@
 				417E0EDB148A71220015B5B0 /* Pool+X0512_C.png */,
 				417E0EDC148A71220015B5B0 /* Pool+Y0512_C.png */,
 				417E0EDD148A71220015B5B0 /* Pool+Z0512_C.png */,
+				41C48E971F01254A0059B48C /* ProggyClean.ttf */,
+				41C48E981F01254A0059B48C /* ProggyTiny.ttf */,
+				41C48E991F01254A0059B48C /* Roboto-Medium.ttf */,
 				414D37F11EE6A7DC009DB259 /* rusty-metal_2048C.png */,
 				414D37F21EE6A7DC009DB259 /* rusty-metal_2048M.png */,
 				414D37F31EE6A7DC009DB259 /* rusty-metal_2048N.png */,
@@ -2831,6 +2843,7 @@
 			files = (
 				412F89781FF58D94004D5982 /* ColorUniformPoint.vert in Resources */,
 				417981C91F13833000EB5315 /* i0181_0000b.png in Resources */,
+				41421AEA2146A53400554495 /* earth2048_C.jpg in Resources */,
 				414D37F51EE6A7DC009DB259 /* rusty-metal_2048C.png in Resources */,
 				4179814E1F13833000EB5315 /* i0058_0000b.png in Resources */,
 				417981971F13833000EB5315 /* i0131_0000b.png in Resources */,
@@ -2917,6 +2930,7 @@
 				417981AE1F13833000EB5315 /* i0154_0000b.png in Resources */,
 				418BF4501B8B0D500049E387 /* PerPixBlinn.vert in Resources */,
 				4166ED0D200260D700B42D17 /* Desert+Y1024_C.jpg in Resources */,
+				41421AF02146A53400554495 /* earth2048_G.jpg in Resources */,
 				417981441F13833000EB5315 /* i0048_0000b.png in Resources */,
 				417981981F13833000EB5315 /* i0132_0000b.png in Resources */,
 				417981B41F13833000EB5315 /* i0160_0000b.png in Resources */,
@@ -2948,13 +2962,11 @@
 				417981B31F13833000EB5315 /* i0159_0000b.png in Resources */,
 				417981751F13833000EB5315 /* i0097_0000b.png in Resources */,
 				41FD9D181E523AD70063A1B7 /* Font18.png in Resources */,
-				417E0EC2148A70DE0015B5B0 /* earth1024_C.jpg in Resources */,
 				418BF44F1B8B0D500049E387 /* PerPixBlinn.frag in Resources */,
 				4166ED0E200260D700B42D17 /* Desert-Z1024_C.jpg in Resources */,
 				412F89771FF58D94004D5982 /* SkyBox.vert in Resources */,
 				417981DF1F13833000EB5315 /* i0203_0000b.png in Resources */,
 				417981711F13833000EB5315 /* i0093_0000b.png in Resources */,
-				417E0EC3148A70DE0015B5B0 /* earth1024_G.jpg in Resources */,
 				411BA73118C0773B00F10475 /* Default-Portrait@2~ipad.png in Resources */,
 				412F89791FF58D94004D5982 /* ADS.frag in Resources */,
 				41FD9D121E523AD70063A1B7 /* Font08.png in Resources */,
@@ -2968,7 +2980,6 @@
 				417981841F13833000EB5315 /* i0112_0000b.png in Resources */,
 				41FD9D151E523AD70063A1B7 /* Font12.png in Resources */,
 				4179816B1F13833000EB5315 /* i0087_0000b.png in Resources */,
-				417E0EC4148A70DE0015B5B0 /* earth1024_H.jpg in Resources */,
 				417981361F13833000EB5315 /* i0034_0000b.png in Resources */,
 				417981471F13833000EB5315 /* i0051_0000b.png in Resources */,
 				417981391F13833000EB5315 /* i0037_0000b.png in Resources */,
@@ -2976,12 +2987,14 @@
 				4179816D1F13833000EB5315 /* i0089_0000b.png in Resources */,
 				4179819B1F13833000EB5315 /* i0135_0000b.png in Resources */,
 				4179811D1F13833000EB5315 /* i0009_0000b.png in Resources */,
-				417E0EC5148A70DE0015B5B0 /* earth1024_N.jpg in Resources */,
 				417981911F13833000EB5315 /* i0125_0000b.png in Resources */,
+				41421AEE2146A53400554495 /* earth1024_C.jpg in Resources */,
 				4179813B1F13833000EB5315 /* i0039_0000b.png in Resources */,
 				417E0EC6148A70DE0015B5B0 /* earthCloud1024_A.jpg in Resources */,
 				417981A51F13833000EB5315 /* i0145_0000b.png in Resources */,
+				41421AEB2146A53400554495 /* earth1024_G.jpg in Resources */,
 				417981DC1F13833000EB5315 /* i0200_0000b.png in Resources */,
+				41421AF12146A53400554495 /* earth2048_N.jpg in Resources */,
 				417E0EC7148A70DE0015B5B0 /* earthCloud1024_C.jpg in Resources */,
 				417981201F13833000EB5315 /* i0012_0000b.png in Resources */,
 				4179811F1F13833000EB5315 /* i0011_0000b.png in Resources */,
@@ -3067,10 +3080,12 @@
 				417E0ED7148A70DE0015B5B0 /* wood2_0512_C.jpg in Resources */,
 				417981BA1F13833000EB5315 /* i0166_0000b.png in Resources */,
 				4179817F1F13833000EB5315 /* i0107_0000b.png in Resources */,
+				41421AEF2146A53400554495 /* earth2048_H.jpg in Resources */,
 				417981C51F13833000EB5315 /* i0177_0000b.png in Resources */,
 				414D37EF1EE6A72C009DB259 /* PerPixCookTorranceTex.vert in Resources */,
 				4179812C1F13833000EB5315 /* i0024_0000b.png in Resources */,
 				417981C01F13833000EB5315 /* i0172_0000b.png in Resources */,
+				41421AED2146A53400554495 /* earth1024_H.jpg in Resources */,
 				418BF45F1B8B0D500049E387 /* RefractReflectDisp.frag in Resources */,
 				418BF46D1B8B0D500049E387 /* WaveRefractReflect.vert in Resources */,
 				418BF4551B8B0D500049E387 /* PerVrtBlinn.frag in Resources */,
@@ -3102,6 +3117,7 @@
 				4179816E1F13833000EB5315 /* i0090_0000b.png in Resources */,
 				417981C21F13833000EB5315 /* i0174_0000b.png in Resources */,
 				417981881F13833000EB5315 /* i0116_0000b.png in Resources */,
+				41421AEC2146A53400554495 /* earth1024_N.jpg in Resources */,
 				418BF4581B8B0D500049E387 /* PerVrtBlinnTex.frag in Resources */,
 				412F89761FF58D94004D5982 /* SkyBox.frag in Resources */,
 				417981E61F13836300EB5315 /* VolumeRenderingRayCast.frag in Resources */,

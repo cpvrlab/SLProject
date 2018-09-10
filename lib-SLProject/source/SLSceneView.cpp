@@ -956,6 +956,10 @@ SLSceneView::onMouseDown(SLMouseButton button,
 {
     SLScene* s = SLApplication::scene;
 
+
+    // Pass the event to imgui
+    _gui.onMouseDown(button, x, y);
+    
 #ifdef SL_GLES
     // Touch devices on iOS or Android have no mouse move event when the
     // finger isn't touching the screen. Therefore imgui can not detect hovering
@@ -963,13 +967,9 @@ SLSceneView::onMouseDown(SLMouseButton button,
     // the display twice to open e.g. a menu.
     _gui.renderExtraFrame(s, this, x, y);
 #endif
-
-    // Pass the event to imgui
+    
     if (ImGui::GetIO().WantCaptureMouse)
-    {
-        _gui.onMouseDown(button, x, y);
         return true;
-    }
 
     _mouseDownL = (button == MB_left);
     _mouseDownR = (button == MB_right);

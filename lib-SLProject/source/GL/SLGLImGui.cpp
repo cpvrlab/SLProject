@@ -210,10 +210,25 @@ SLGLImGui::createOpenGLObjects()
 
     GET_GL_ERROR;
 
-#define OFFSETOF(TYPE, ELEMENT) ((size_t) & (((TYPE*)0)->ELEMENT))
-    glVertexAttribPointer((SLuint)_attribLocPosition, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, pos));
-    glVertexAttribPointer((SLuint)_attribLocUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, uv));
-    glVertexAttribPointer((SLuint)_attribLocColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
+#define OFFSETOF(TYPE, ELEMENT) ((size_t) & (((TYPE*)nullptr)->ELEMENT))
+    glVertexAttribPointer((SLuint)_attribLocPosition,
+                          2,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          sizeof(ImDrawVert),
+                          (GLvoid*)OFFSETOF(ImDrawVert, pos));
+    glVertexAttribPointer((SLuint)_attribLocUV,
+                          2,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          sizeof(ImDrawVert),
+                          (GLvoid*)OFFSETOF(ImDrawVert, uv));
+    glVertexAttribPointer((SLuint)_attribLocColor,
+                          4,
+                          GL_UNSIGNED_BYTE,
+                          GL_TRUE,
+                          sizeof(ImDrawVert),
+                          (GLvoid*)OFFSETOF(ImDrawVert, col));
 #undef OFFSETOF
 
     GET_GL_ERROR;
@@ -338,6 +353,8 @@ SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
     // class SLDemoGui.
     if (build)
         build(s, sv);
+
+    //SL_LOG(".");
 }
 //-----------------------------------------------------------------------------
 //! Callback if window got resized
@@ -429,13 +446,13 @@ SLGLImGui::onPaint(ImDrawData* draw_data)
 
         glBindBuffer(GL_ARRAY_BUFFER, _vboHandle);
         glBufferData(GL_ARRAY_BUFFER,
-                     (GLsizeiptr)cmd_list->VtxBuffer.Size * sizeof(ImDrawVert),
+                     (GLsizeiptr)cmd_list->VtxBuffer.Size * (GLsizeiptr)sizeof(ImDrawVert),
                      (const GLvoid*)cmd_list->VtxBuffer.Data,
                      GL_STREAM_DRAW);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementsHandle);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     (GLsizeiptr)cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx),
+                     (GLsizeiptr)cmd_list->IdxBuffer.Size * (GLsizeiptr)sizeof(ImDrawIdx),
                      (const GLvoid*)cmd_list->IdxBuffer.Data,
                      GL_STREAM_DRAW);
 
@@ -501,22 +518,6 @@ SLGLImGui::onPaint(ImDrawData* draw_data)
               (GLsizei)last_scissor_box[3]);
 }
 //-----------------------------------------------------------------------------
-//! Updates the mouse cursor position
-void
-SLGLImGui::onMouseMove(SLint xPos, SLint yPos)
-{
-    ImGui::GetIO().MousePos = ImVec2((SLfloat)xPos, (SLfloat)yPos);
-    //SL_LOG("M");
-}
-//-----------------------------------------------------------------------------
-//! Callback for the mouse scroll movement
-void
-SLGLImGui::onMouseWheel(SLfloat yoffset)
-{
-    // Use fractional mouse wheel, 1.0 unit 5 lines.
-    _mouseWheel += yoffset;
-}
-//-----------------------------------------------------------------------------
 //! Callback on mouse button down event
 void
 SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
@@ -526,7 +527,7 @@ SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
     if (button == MB_left) io.MouseDown[0] = true;
     if (button == MB_middle) io.MouseDown[1] = true;
     if (button == MB_right) io.MouseDown[2] = true;
-    //SL_LOG("D");
+    //SL_LOG("D\n");
 }
 //-----------------------------------------------------------------------------
 //! Callback on mouse button up event
@@ -538,7 +539,23 @@ SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
     if (button == MB_left) io.MouseDown[0] = false;
     if (button == MB_middle) io.MouseDown[1] = false;
     if (button == MB_right) io.MouseDown[2] = false;
-    //SL_LOG("U");
+    //SL_LOG("U\n");
+}
+//-----------------------------------------------------------------------------
+//! Updates the mouse cursor position
+void
+SLGLImGui::onMouseMove(SLint xPos, SLint yPos)
+{
+    ImGui::GetIO().MousePos = ImVec2((SLfloat)xPos, (SLfloat)yPos);
+    //SL_LOG("M\n");
+}
+//-----------------------------------------------------------------------------
+//! Callback for the mouse scroll movement
+void
+SLGLImGui::onMouseWheel(SLfloat yoffset)
+{
+    // Use fractional mouse wheel, 1.0 unit 5 lines.
+    _mouseWheel += yoffset;
 }
 //-----------------------------------------------------------------------------
 //! Callback on key press event

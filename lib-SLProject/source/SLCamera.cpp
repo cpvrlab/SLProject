@@ -379,6 +379,7 @@ SLCamera::projectionToStr(SLProjection p)
         case P_stereoColorRG: return "Red-Green";
         case P_stereoColorRB: return "Red-Blue";
         case P_stereoColorYB: return "Yellow-Blue";
+        default: return "Unknown";
     }
 }
 //-----------------------------------------------------------------------------

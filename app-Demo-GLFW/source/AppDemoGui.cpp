@@ -38,7 +38,7 @@
 
 #include <imgui.h>
 
-#define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
+//#define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
 
 //-----------------------------------------------------------------------------
 //! Vector getter callback for combo and listbox with std::vector<std::string>
@@ -1951,45 +1951,30 @@ AppDemoGui::loadConfig(SLint dotsPerInch)
         return;
     }
 
+    // clang-format off
     SLint  i;
     SLbool b;
     fs["configTime"] >> AppDemoGui::configTime;
-    fs["fontPropDots"] >> i;
-    SLGLImGui::fontPropDots = (SLfloat)i;
-    fs["fontFixedDots"] >> i;
-    SLGLImGui::fontFixedDots = (SLfloat)i;
-    fs["FramePaddingX"] >> i;
-    style.FramePadding.x  = (SLfloat)i;
-    style.WindowPadding.x = style.FramePadding.x;
-    fs["FramePaddingY"] >> i;
-    style.FramePadding.y = (SLfloat)i;
-    fs["ItemSpacingX"] >> i;
-    style.ItemSpacing.x = (SLfloat)i;
-    fs["ItemSpacingY"] >> i;
-    style.ItemSpacing.y      = (SLfloat)i;
-    style.ItemInnerSpacing.x = style.ItemSpacing.y;
-    fs["sceneID"] >> i;
-    SLApplication::sceneID = (SLSceneID)i;
-    fs["showInfosScene"] >> b;
-    AppDemoGui::showInfosScene = b;
-    fs["showStatsTiming"] >> b;
-    AppDemoGui::showStatsTiming = b;
-    fs["showStatsMemory"] >> b;
-    AppDemoGui::showStatsScene = b;
-    fs["showStatsVideo"] >> b;
-    AppDemoGui::showStatsVideo = b;
-    fs["showInfosFrameworks"] >> b;
-    AppDemoGui::showInfosFrameworks = b;
-    fs["showInfosSensors"] >> b;
-    AppDemoGui::showInfosSensors = b;
-    fs["showSceneGraph"] >> b;
-    AppDemoGui::showSceneGraph = b;
-    fs["showProperties"] >> b;
-    AppDemoGui::showProperties = b;
-    fs["showChristoffel"] >> b;
-    AppDemoGui::showChristoffel = b;
-    fs["showDetection"] >> b;
-    SLApplication::scene->showDetection(b);
+    fs["fontPropDots"] >> i;        SLGLImGui::fontPropDots = (SLfloat)i;
+    fs["fontFixedDots"] >> i;       SLGLImGui::fontFixedDots = (SLfloat)i;
+    fs["FramePaddingX"] >> i;       style.FramePadding.x  = (SLfloat)i;
+                                    style.WindowPadding.x = style.FramePadding.x;
+    fs["FramePaddingY"] >> i;       style.FramePadding.y = (SLfloat)i;
+    fs["ItemSpacingX"] >> i;        style.ItemSpacing.x = (SLfloat)i;
+    fs["ItemSpacingY"] >> i;        style.ItemSpacing.y = (SLfloat)i;
+                                    style.ItemInnerSpacing.x = style.ItemSpacing.y;
+    fs["sceneID"] >> i;             SLApplication::sceneID = (SLSceneID)i;
+    fs["showInfosScene"] >> b;      AppDemoGui::showInfosScene = b;
+    fs["showStatsTiming"] >> b;     AppDemoGui::showStatsTiming = b;
+    fs["showStatsMemory"] >> b;     AppDemoGui::showStatsScene = b;
+    fs["showStatsVideo"] >> b;      AppDemoGui::showStatsVideo = b;
+    fs["showInfosFrameworks"] >> b; AppDemoGui::showInfosFrameworks = b;
+    fs["showInfosSensors"] >> b;    AppDemoGui::showInfosSensors = b;
+    fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
+    fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
+    fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
+    fs["showDetection"] >> b;       SLApplication::scene->showDetection(b);
+    // clang-format on
 
     fs.release();
     SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());

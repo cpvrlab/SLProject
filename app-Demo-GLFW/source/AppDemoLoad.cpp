@@ -1392,7 +1392,7 @@ appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(offset);
 
 // Create textures
-#ifndef SL_GLES2
+#ifndef SL_GLES
         SLGLTexture* texC  = new SLGLTexture("earth2048_C.jpg");      // color map
         SLGLTexture* texN  = new SLGLTexture("earth2048_N.jpg");      // normal map
         SLGLTexture* texH  = new SLGLTexture("earth2048_H.jpg");      // height map

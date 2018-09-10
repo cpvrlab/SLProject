@@ -233,7 +233,7 @@ float GetSeconds()
     }
    
     m_touchDowns += [touches count];
-    //printf("Begin tD: %d, touches count: %d\n", m_touchDowns, [touches count]);
+    //printf("Begin tD: %d, touches count: %u\n", m_touchDowns, (SLuint)[touches count]);
    
     if (m_touchDowns == 1 && [touches count] == 1)
     {   if (touchDownNowSec - m_lastTouchDownSec < 0.3f)
@@ -299,8 +299,8 @@ float GetSeconds()
         pos2.y *= screenScale;
         slTouch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
     }
-    m_touchDowns -= (int)[touches count];
-    if (m_touchDowns < 0) m_touchDowns = 0;
+
+    m_touchDowns = 0;
    
     //printf("End   tD: %d, touches count: %d\n", m_touchDowns, [touches count]);
    

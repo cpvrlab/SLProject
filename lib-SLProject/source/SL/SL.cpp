@@ -28,7 +28,7 @@ SL::log(const char* format, ...)
 #if defined(SL_OS_ANDROID)
     __android_log_print(ANDROID_LOG_INFO, "SLProject", log);
 #else
-    cout << log;
+    cout << log << std::flush;
 #endif
 }
 //-----------------------------------------------------------------------------

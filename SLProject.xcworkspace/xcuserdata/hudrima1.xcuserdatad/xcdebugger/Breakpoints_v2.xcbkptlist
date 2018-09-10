@@ -10,7 +10,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "app-Demo-GLFW/source/AppDemoGui.cpp"
-            timestampString = "557912990.065909"
+            timestampString = "558277695.006127"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "798"
@@ -26,12 +26,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "lib-SLProject/source/SLSceneView.cpp"
-            timestampString = "557667859.861101"
+            timestampString = "558277695.006193"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1228"
             endingLineNumber = "1228"
-            landmarkName = "SLSceneView::onKeyPress(SLKey key, SLKey mod)"
+            landmarkName = "SLSceneView::onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -42,13 +42,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "lib-SLProject/source/SLSceneView.cpp"
-            timestampString = "557667859.861398"
+            timestampString = "558277695.006247"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "948"
             endingLineNumber = "948"
-            landmarkName = "SLSceneView::onMouseDown(SLMouseButton button, SLint x, SLint y, SLKey mod)"
-            landmarkType = "7">
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
