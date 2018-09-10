@@ -2049,8 +2049,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
 
         // Default settings for the first time
-        SLGLImGui::fontPropDots = SL_max(16.0f * dpiScaleProp, 16.0f);
-        SLGLImGui::fontFixedDots = SL_max(13.0f * dpiScaleFixed, 13.0f);
+        SLGLImGui::fontPropDots = SL_max(77.0f * dpiScaleProp, 77.0f);
+        SLGLImGui::fontFixedDots = SL_max(63.0f * dpiScaleFixed, 63.0f);
 
         // Store dialog show states
         AppDemoGui::showAbout = true;
