@@ -114,6 +114,19 @@ string SLCVMapTracking::getPrintableType()
     }
 }
 //-----------------------------------------------------------------------------
+bool SLCVMapTracking::getTrackOptFlow()
+{
+    std::lock_guard<std::mutex> guard(_optFlowLock);
+    return _trackOptFlow;
+}
+//-----------------------------------------------------------------------------
+void SLCVMapTracking::setTrackOptFlow(bool flag)
+{
+    std::lock_guard<std::mutex> guard(_optFlowLock);
+    _trackOptFlow = flag;
+    _optFlowOK = false;
+}
+//-----------------------------------------------------------------------------
 void SLCVMapTracking::calculateMeanReprojectionError()
 {
     //calculation of mean reprojection error

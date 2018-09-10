@@ -87,7 +87,7 @@ SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node,
     _extractor = new ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
     mpIniORBextractor = new ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
     //instantiate local mapping
-    mpLocalMapper = new LocalMapping(_map, 1, mpVocabulary, mbOnlyTracking);
+    mpLocalMapper = new LocalMapping(_map, 1, mpVocabulary);
     mpLoopCloser = new LoopClosing(_map, mpKeyFrameDatabase, mpVocabulary, false);
 
     mpLocalMapper->SetLoopCloser(mpLoopCloser);
@@ -294,6 +294,10 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
 {
     SLAverageTiming::start("TrackWithOptFlow");
 
+    //parameter of this function:
+    int addThres = 2;
+    float maxReprojError = 10.0;
+
     if (mLastFrame.mvKeys.size() < 100)
     {
         SLAverageTiming::stop("TrackWithOptFlow");
@@ -337,6 +341,12 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
         }
     }
 
+    if (!keyPointCoordinatesLastFrame.size())
+    {
+        SLAverageTiming::stop("TrackWithOptFlow");
+        return false;
+    }
+
     // Find closest possible feature points based on optical flow
     SLCVVPoint2f pred2DPoints(keyPointCoordinatesLastFrame.size());
 
@@ -356,7 +366,6 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
     // Only use points which are not wrong in any way during the optical flow calculation
     SLCVVPoint2f frame2DPoints;
     SLCVVPoint3f model3DPoints;
-
     vector<SLCVMapPoint*> trackedMapPoints;
     vector<cv::KeyPoint> trackedKeyPoints;
 
@@ -369,8 +378,7 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
             // TODO(jan): if pred2DPoints is really expanded during optflow, then the association
             // to 3D points is maybe broken?
             frame2DPoints.push_back(pred2DPoints[i]);
-            SLVec3f v = matchedMapPoints[i]->worldPosVec();
-            cv::Point3f p3(v.x, v.y, v.z);
+            cv::Point3f p3( matchedMapPoints[i]->GetWorldPos());
             model3DPoints.push_back(p3);
 
             matchedKeyPoints[i].pt.x = pred2DPoints[i].x;
@@ -390,7 +398,6 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
     //- how can we make sure that we do not track the same point multiple times?
     //  -> we know the pointer to the mappoints and only add a new tracking points whose mappoint is not in a gridcell yet
     //- we dont want to track too many points, so we prefer points with the most observations
-    int addThres = 2;
     _optFlowGridElementWidthInv = static_cast<float>(OPTFLOW_GRID_COLS) / static_cast<float>(SLCVFrame::mnMaxX - SLCVFrame::mnMinX);
     _optFlowGridElementHeightInv = static_cast<float>(OPTFLOW_GRID_ROWS) / static_cast<float>(SLCVFrame::mnMaxY - SLCVFrame::mnMinY);
     std::vector<std::size_t> gridOptFlow[OPTFLOW_GRID_COLS][OPTFLOW_GRID_ROWS];
@@ -418,18 +425,35 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
     {
         for (int j = 0; j < OPTFLOW_GRID_ROWS; j++)
         {
-            if( gridOptFlow[i][j].size() < addThres)
+            const auto& optFlowCell = gridOptFlow[i][j];
+            if( optFlowCell.size() < addThres)
             {
                 const std::vector<size_t>& indices = gridCurrFrame[i][j];
-                for(auto index : indices)
+                for(auto indexCF : indices)
                 {
-                    const SLCVKeyPoint& keyPt = mCurrentFrame.mvKeys[index];
-                    SLCVMapPoint* mapPt = mCurrentFrame.mvpMapPoints[index];
+                    const SLCVKeyPoint& keyPt = mCurrentFrame.mvKeys[indexCF];
+                    SLCVMapPoint* mapPt = mCurrentFrame.mvpMapPoints[indexCF];
                     if(mapPt)
                     {
-                        //todo: check that this map point is not already referenced in this cell
-                        trackedKeyPoints.push_back(keyPt);
-                        trackedMapPoints.push_back(mapPt);
+                        //check that this map point is not already referenced in this cell of gridOptFlow
+                        bool alreadyContained = false;
+                        for (auto indexOF : optFlowCell)
+                        {
+                            if(trackedMapPoints[indexOF] == mapPt)
+                            {
+                                alreadyContained = true;
+                                break;
+                            }
+                        }
+
+                        if(!alreadyContained)
+                        {
+                            //add to tracking set of mappoints and keypoints
+                            trackedKeyPoints.push_back(keyPt);
+                            trackedMapPoints.push_back(mapPt);
+                            frame2DPoints.push_back(keyPt.pt);
+                            model3DPoints.push_back( cv::Point3f(mapPt->GetWorldPos()));
+                        }
                     }
                 }
             }
@@ -480,13 +504,27 @@ bool SLCVTrackedMapping::TrackWithOptFlow()
         Tcw.at<float>(2, 2) = Rcw.at<float>(2, 2);
         _optFlowTcw = Tcw;
 
-        _optFlowMapPtsLastFrame = trackedMapPoints;
-        _optFlowKeyPtsLastFrame = trackedKeyPoints;
+        //remove points with bad reprojection error:
+        //project mappoints onto image plane
+        std::vector<cv::Point2f> projectedPts;
+        cv::projectPoints(model3DPoints, rvec, tvec, _calib->cameraMat(),
+            _calib->distortion(), projectedPts );
 
+        _optFlowMapPtsLastFrame.clear();
+        _optFlowKeyPtsLastFrame.clear();
+        for(int i=0; i < trackedMapPoints.size(); ++i )
+        {
+            //calculate reprojection error
+            float error = cv::norm( SLCVMat(projectedPts[i]), SLCVMat(frame2DPoints[i]));
+            if(error < maxReprojError)
+            {
+                _optFlowMapPtsLastFrame.push_back( trackedMapPoints[i]);
+                _optFlowKeyPtsLastFrame.push_back( trackedKeyPoints[i]);
+            }
+        }
         trackingType = TrackingType_OptFlow;
     }
 
-    //todo ghm1: remove points with bad reprojection error
 
     SLAverageTiming::stop("TrackWithOptFlow");
 
@@ -510,7 +548,6 @@ void SLCVTrackedMapping::track3DPts()
     _bOK = false;
     trackingType = TrackingType_None;
 
-    // Initial camera pose estimation using motion model or relocalization (if tracking is lost)
     if(!mbOnlyTracking)
     {
         // Local Mapping is activated. This is the normal behaviour, unless
@@ -641,7 +678,7 @@ void SLCVTrackedMapping::track3DPts()
             _bOK = TrackLocalMap();
     }
 
-    if (sm.state() == SLCVTrackingStateMachine::TRACKING_OK && mbOnlyTracking)
+    if (getTrackOptFlow() && _bOK && sm.state() == SLCVTrackingStateMachine::TRACKING_OK)
     {
         //We always run the optical flow additionally, because it gives
         //a more stable pose. We use this pose if successful.
@@ -926,8 +963,8 @@ void SLCVTrackedMapping::CheckReplacedInLastFrame()
 //-----------------------------------------------------------------------------
 bool SLCVTrackedMapping::NeedNewKeyFrame()
 {
-    if (mbOnlyTracking)
-        return false;
+    //if (mbOnlyTracking)
+    //    return false;
 
     // If Local Mapping is freezed by a Loop Closure do not insert keyframes
     if(mpLocalMapper->isStopped() || mpLocalMapper->stopRequested())

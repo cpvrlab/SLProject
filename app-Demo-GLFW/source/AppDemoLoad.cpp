@@ -2578,12 +2578,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Track Keyframe based Features (from video files)");
         s->info("Example for loading an existing pose graph with map points.");
 
-        //SLstring mapName = "slam-map-31";
-        //SLCVCapture::videoFilename = "20180903_ring.mp4";
+        SLstring mapName = "slam-map-31";
+        SLCVCapture::videoFilename = "20180903_ring.mp4";
         //SLstring mapName = "slam-map-32";
         //SLCVCapture::videoFilename = "20180903_nidaugasse.mp4";
-        SLstring mapName = "slam-map-33";
-        SLCVCapture::videoFilename = "20180903_ladenzeile1.mp4";
+        //SLstring mapName = "slam-map-33";
+        //SLCVCapture::videoFilename = "20180903_ladenzeile1.mp4";
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
         SLstring calibFileName = "cam_calibration_huawei_p10_640_360_reloc.xml";
@@ -2617,12 +2617,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(trackingCam);    
 
         //add tracker
-        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, true, mapNode, true);
+        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, true, mapNode, false);
         SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
         s->trackers().push_back(tm);
 
         //SLCVOrbTracking* orbT = raulMurTracker->orbTracking();
         //setup scene specific gui dialoges
+        auto trackedMappingUI = std::make_shared<SLImGuiTrackedMapping>("Tracked mapping", tm);
+        AppDemoGui::addInfoDialog(trackedMappingUI);
         auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm);
         AppDemoGui::addInfoDialog(trackingInfos);
         auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm);
