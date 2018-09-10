@@ -75,7 +75,8 @@ bool SLCVCalibration::load(SLstring calibDir,
     _isMirroredV = mirrorVertically;
 
     //load camera parameter
-    SLstring fullPathAndFilename = SLApplication::configPath + _calibFileName;
+    //SLstring fullPathAndFilename = SLApplication::configPath + _calibFileName;
+    SLstring fullPathAndFilename = calibDir + _calibFileName;
     FileStorage fs(fullPathAndFilename, FileStorage::READ);
 
     if (!fs.isOpened())
