@@ -79,14 +79,6 @@ void SLCVMap::EraseKeyFrame(SLCVKeyFrame *pKF)
 {
     unique_lock<mutex> lock(mMutexMap);
     mspKeyFrames.erase(pKF);
-
-    for (SLCVMapPoint* mapPoint: mspMapPoints)
-    {
-        if (mapPoint->refKf() == pKF)
-        {
-            printf("Deleted kf %i with still associated mappoints -> kf source %i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", pKF->mnId, mapPoint->refKfSource);
-        }
-    }
     // TODO: This only erase the pointer.
     // Delete the MapPoint
 }

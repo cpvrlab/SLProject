@@ -49,7 +49,7 @@ public:
 
 public:
 
-    LoopClosing(SLCVMap* pMap, SLCVKeyFrameDB* pDB, ORBVocabulary* pVoc,const bool bFixScale);
+    LoopClosing(SLCVMap* pMap, SLCVKeyFrameDB* pDB, ORBVocabulary* pVoc, const bool bFixScale, const bool manualLoopClose = false);
 
     void SetTracker(Tracking* pTracker);
 
@@ -74,7 +74,7 @@ public:
     bool isFinishedGBA(){
         unique_lock<std::mutex> lock(mMutexGBA);
         return mbFinishedGBA;
-    }   
+    }
 
     void RequestFinish();
 
@@ -84,6 +84,8 @@ public:
     {
         LOOP_CLOSE_STATUS_NONE,
         LOOP_CLOSE_STATUS_NOT_ENOUGH_KEYFRAMES,
+        LOOP_CLOSE_STATUS_NO_CANDIDATES_WITH_COMMON_WORDS,
+        LOOP_CLOSE_STATUS_NO_SIMILAR_CANDIDATES,
         LOOP_CLOSE_STATUS_NO_LOOP_CANDIDATES,
         LOOP_CLOSE_STATUS_NO_CONSISTENT_CANDIDATES,
         LOOP_CLOSE_STATUS_NO_OPTIMIZED_CANDIDATES,
@@ -91,9 +93,15 @@ public:
         LOOP_CLOSE_STATUS_LOOP_CLOSED,
         LOOP_CLOSE_STATUS_NO_NEW_KEYFRAME
     };
-    LoopCloseStatus status();
+    const char* getStatusString();
 
     int numOfLoopClosings();
+    int numOfCandidates();
+    int numOfConsistentCandidates();
+    int numOfConsistentGroups();
+    int numOfKfsInQueue();
+
+    void startLoopCloseAttempt();
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -164,8 +172,19 @@ protected:
     std::mutex mMutexStatus;
     void status(LoopCloseStatus status);
 
+    std::mutex mMutexLoopCloseAttempt;
+    bool shouldLoopCloseBeAttempted();
+    bool _attemptLoopClose;
+    const bool _manualLoopClose;
+
+    // Gui information
     std::mutex mMutexNumLoopClosings;
     int _numLoopClosings;
+    std::mutex mMutexNumConsistentGroups;
+    std::mutex mMutexNumCandidates;
+    int _numOfCandidates = 0;
+    std::mutex mMutexNumConsistentCandidates;
+    int _numOfConsistentCandidates = 0;
 };
 
 } //namespace ORB_SLAM

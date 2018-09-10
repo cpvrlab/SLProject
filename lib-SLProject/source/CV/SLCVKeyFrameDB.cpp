@@ -73,7 +73,11 @@ void SLCVKeyFrameDB::clear()
     mvInvertedFile.resize(mpVoc->size());
 }
 //-----------------------------------------------------------------------------
-vector<SLCVKeyFrame*> SLCVKeyFrameDB::DetectLoopCandidates(SLCVKeyFrame* pKF, float minScore)
+// NOTE(jan): errorcode is set to:
+// 0 - if candidates were found
+// 1 - if no candidates with common words are found
+// 2 - if no candidates with a high enough similarity score are found
+vector<SLCVKeyFrame*> SLCVKeyFrameDB::DetectLoopCandidates(SLCVKeyFrame* pKF, float minScore, int* errorCode)
 {
     set<SLCVKeyFrame*> spConnectedKeyFrames = pKF->GetConnectedKeyFrames();
     list<SLCVKeyFrame*> lKFsSharingWords;
@@ -105,7 +109,10 @@ vector<SLCVKeyFrame*> SLCVKeyFrameDB::DetectLoopCandidates(SLCVKeyFrame* pKF, fl
     }
 
     if (lKFsSharingWords.empty())
-        return vector<SLCVKeyFrame*>();
+    {
+        *errorCode = LOOP_DETECTION_ERROR_NO_CANDIDATES_WITH_COMMON_WORDS;
+        return vector<SLCVKeyFrame *>();
+    }
 
     list<pair<float, SLCVKeyFrame*> > lScoreAndMatch;
 
@@ -119,9 +126,6 @@ vector<SLCVKeyFrame*> SLCVKeyFrameDB::DetectLoopCandidates(SLCVKeyFrame* pKF, fl
 
     int minCommonWords = maxCommonWords*0.8f;
 
-    // TODO(jan): nscores unused. remove?
-    int nscores = 0;
-
     // Compute similarity score. Retain the matches whose score is higher than minScore
     for (list<SLCVKeyFrame*>::iterator lit = lKFsSharingWords.begin(), lend = lKFsSharingWords.end(); lit != lend; lit++)
     {
@@ -129,8 +133,6 @@ vector<SLCVKeyFrame*> SLCVKeyFrameDB::DetectLoopCandidates(SLCVKeyFrame* pKF, fl
 
         if (pKFi->mnLoopWords>minCommonWords)
         {
-            nscores++;
-
             float si = mpVoc->score(pKF->mBowVec, pKFi->mBowVec);
 
             pKFi->mLoopScore = si;
@@ -140,7 +142,10 @@ vector<SLCVKeyFrame*> SLCVKeyFrameDB::DetectLoopCandidates(SLCVKeyFrame* pKF, fl
     }
 
     if (lScoreAndMatch.empty())
-        return vector<SLCVKeyFrame*>();
+    {
+        *errorCode = LOOP_DETECTION_ERROR_NO_SIMILAR_CANDIDATES;
+        return vector<SLCVKeyFrame *>();
+    }
 
     list<pair<float, SLCVKeyFrame*> > lAccScoreAndMatch;
     float bestAccScore = minScore;
@@ -193,7 +198,7 @@ vector<SLCVKeyFrame*> SLCVKeyFrameDB::DetectLoopCandidates(SLCVKeyFrame* pKF, fl
         }
     }
 
-
+    *errorCode = LOOP_DETECTION_ERROR_NONE;
     return vpLoopCandidates;
 }
 //-----------------------------------------------------------------------------

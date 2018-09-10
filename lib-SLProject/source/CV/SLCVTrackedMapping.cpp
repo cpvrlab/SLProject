@@ -88,7 +88,7 @@ SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node,
     mpIniORBextractor = new ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
     //instantiate local mapping
     mpLocalMapper = new LocalMapping(_map, 1, mpVocabulary);
-    mpLoopCloser = new LoopClosing(_map, mpKeyFrameDatabase, mpVocabulary, false);
+    mpLoopCloser = new LoopClosing(_map, mpKeyFrameDatabase, mpVocabulary, false, true);
 
     mpLocalMapper->SetLoopCloser(mpLoopCloser);
     mpLoopCloser->SetLocalMapper(mpLocalMapper);
@@ -179,8 +179,6 @@ void SLCVTrackedMapping::initialize()
             //ghm1: clear mvIniMatches. it contains the index of the matched keypoint in the current frame
             fill(mvIniMatches.begin(), mvIniMatches.end(), -1);
 
-            initializationStatus = INITIALIZATION_STATUS_REFERENCE_KEYFRAME_SET;
-
             return;
         }
     }
@@ -193,7 +191,6 @@ void SLCVTrackedMapping::initialize()
             delete mpInitializer;
             mpInitializer = static_cast<Initializer*>(NULL);
             fill(mvIniMatches.begin(), mvIniMatches.end(), -1);
-            initializationStatus = INITIALIZATION_STATUS_REFERENCE_KEYFRAME_DELETED_KEYPOINTS;
             return;
         }
 
@@ -206,7 +203,6 @@ void SLCVTrackedMapping::initialize()
         {
             delete mpInitializer;
             mpInitializer = static_cast<Initializer*>(NULL);
-            initializationStatus = INITIALIZATION_STATUS_REFERENCE_KEYFRAME_DELETED_MATCHES;
             return;
         }
 
@@ -226,8 +222,6 @@ void SLCVTrackedMapping::initialize()
 
         if (mpInitializer->Initialize(mCurrentFrame, mvIniMatches, Rcw, tcw, mvIniP3D, vbTriangulated))
         {
-            initializationStatus = INITIALIZATION_STATUS_INITIALIZER_INITIALIZED;
-
             for (size_t i = 0, iend = mvIniMatches.size(); i<iend; i++)
             {
                 if (mvIniMatches[i] >= 0 && !vbTriangulated[i])
@@ -250,7 +244,6 @@ void SLCVTrackedMapping::initialize()
                 //mark tracking as initialized
                 _initialized = true;
                 _bOK = true;
-                initializationStatus = INITIALIZATION_STATUS_INITIALIZED;
             }
 
             //ghm1: in the original implementation the initialization is defined in the track() function and this part is always called at the end!
@@ -1820,48 +1813,4 @@ SLCVKeyFrame* SLCVTrackedMapping::currentKeyFrame()
     SLCVKeyFrame* result = mCurrentFrame.mpReferenceKF;
 
     return result;
-}
-
-const char* SLCVTrackedMapping::getLoopClosingStatusString()
-{
-    switch (mpLoopCloser->status())
-    {
-        case LoopClosing::LOOP_CLOSE_STATUS_LOOP_CLOSED:
-            return "loop closed";
-        case LoopClosing::LOOP_CLOSE_STATUS_NOT_ENOUGH_CONSISTENT_MATCHES:
-            return "not enough consistent matches";
-        case LoopClosing::LOOP_CLOSE_STATUS_NOT_ENOUGH_KEYFRAMES:
-            return "not enough keyframes";
-        case LoopClosing::LOOP_CLOSE_STATUS_NO_CONSISTENT_CANDIDATES:
-            return "no consistent candidates";
-        case LoopClosing::LOOP_CLOSE_STATUS_NO_LOOP_CANDIDATES:
-            return "no loop candidates";
-        case LoopClosing::LOOP_CLOSE_STATUS_NO_OPTIMIZED_CANDIDATES:
-            return "no optimized candidates";
-        case LoopClosing::LOOP_CLOSE_STATUS_NO_NEW_KEYFRAME:
-            return "no new keyframe";
-        case LoopClosing::LOOP_CLOSE_STATUS_NONE:
-        default:
-            return "none";
-    }
-}
-
-const char* SLCVTrackedMapping::getInitializationStatusString()
-{
-    switch (initializationStatus)
-    {
-        case INITIALIZATION_STATUS_INITIALIZED:
-            return "initialized";
-        case INITIALIZATION_STATUS_REFERENCE_KEYFRAME_SET:
-            return "reference keyframe set";
-        case INITIALIZATION_STATUS_REFERENCE_KEYFRAME_DELETED_KEYPOINTS:
-            return "reference keyframe deleted - not enough keypoints";
-        case INITIALIZATION_STATUS_REFERENCE_KEYFRAME_DELETED_MATCHES:
-            return "reference keyframe deleted - not enough matches";
-        case INITIALIZATION_STATUS_INITIALIZER_INITIALIZED:
-            return "initializer initialized";
-        case INITIALIZATION_STATUS_NONE:
-        default:
-            return "none";
-    }
 }
