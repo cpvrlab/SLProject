@@ -2668,18 +2668,18 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //3. When running on desktop, make sure the screen resolution is adjusted to 640x360 in file AppDemoMainGLFW.cpp in line 437
         //4. Load a Video with 640 screen width (640x360 or 640x480), e.g. VID_20180424_2.mp4. Make sure it is placed in _data/videos.
         //Make sure it is added to androids CMakeLists.txt so it is presnet on your smartphone
-        SLstring mapName = "slam-map-28";
-        SLCVCapture::videoFilename = "20180903_ring.mp4";
-        SLstring calibFileName = "cam_calibration_main_huawei_p10_640_480.xml";
-        SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), calibFileName, false, false);
-        SLApplication::calibVideoFile.loadCalibParams();
+        SLstring mapName = "slam-map-43";
+        SLCVCapture::videoFilename = "ring_20180906_1.mp4";
+        //SLstring calibFileName = "cam_calibration_main_huawei_p10_640_480.xml";
+        //SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), calibFileName, false, false);
+        //SLApplication::calibVideoFile.loadCalibParams();
 
         //call this function after calibration is loaded
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
 
         //make some light
-        SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
+        SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
         light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
         light1->specular(SLCol4f(1, 1, 1));
@@ -2725,16 +2725,24 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
         SLfloat l = 0.593f, b = 0.466f, h = 0.257f;
-        SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
-        SLNode* boxNode = new SLNode(box1, "boxNode");
-        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
-        boxNode->addChild(axisNode);
+        //SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
+        //SLNode* boxNode = new SLNode(box1, "boxNode");
+        //SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
+        //boxNode->addChild(axisNode);
+
+        SLAssimpImporter importer;
+        SLNode* brunnen = importer.load("FBX/Brunnen.fbx");
+        brunnen->scale(0.01f);
+
+        for (auto mesh : brunnen->findChild<SLNode>("Brunnen")->meshes()) mesh->mat(yellow);
+        for (auto mesh : brunnen->findChild<SLNode>("Brunnen")->meshes()) mesh->mat()->kt(0);
 
         //setup scene
         SLNode* scene = new SLNode("scene");
         scene->addChild(light1);
-        scene->addChild(boxNode);
+        //scene->addChild(boxNode);
         scene->addChild(mapNode);
+        scene->addChild(brunnen);
 
         s->root3D(scene);
     }
