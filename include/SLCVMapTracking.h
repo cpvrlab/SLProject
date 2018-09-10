@@ -20,6 +20,9 @@ class SLCVMap;
 class SLCVMapNode;
 class SLCVCalibration;
 
+#define OPTFLOW_GRID_COLS 7
+#define OPTFLOW_GRID_ROWS 4
+
 //-----------------------------------------------------------------------------
 //! Map Tracking
 /*All map trackings have in common, that their tracking tracks the Elemtents of 
@@ -68,6 +71,9 @@ public:
 
     //!update all scene elements using current map content
     void updateMapVisualization();
+
+    bool getTrackOptFlow();
+    void setTrackOptFlow(bool flag );
 
 protected:
     //!calculation of mean reprojection error of all matches
@@ -122,6 +128,7 @@ protected:
     std::mutex _poseDiffLock;
     std::mutex _mapLock;
     std::mutex _nMapMatchesLock;
+    std::mutex _optFlowLock;
 
     SLCVCalibration* _calib = nullptr;
     SLCVMat _imageGray;
@@ -135,6 +142,17 @@ protected:
     };
 
     TrackingType trackingType = TrackingType_None;
+
+    //optical flow parameter
+    bool _optFlowOK = false;
+    SLCVMat _optFlowTcw;
+    vector<SLCVMapPoint*> _optFlowMapPtsLastFrame;
+    vector<cv::KeyPoint> _optFlowKeyPtsLastFrame;
+    float _optFlowGridElementWidthInv;
+    float _optFlowGridElementHeightInv;
+
+private:
+    bool _trackOptFlow = true;
 };
 
 #endif //SLCVMAPTRACKING_H

@@ -2578,12 +2578,17 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Track Keyframe based Features (from video files)");
         s->info("Example for loading an existing pose graph with map points.");
 
+        SLstring mapName = "slam-map-31";
+        SLCVCapture::videoFilename = "20180903_ring.mp4";
+        //SLstring mapName = "slam-map-32";
+        //SLCVCapture::videoFilename = "20180903_nidaugasse.mp4";
+        //SLstring mapName = "slam-map-33";
+        //SLCVCapture::videoFilename = "20180903_ladenzeile1.mp4";
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
-        SLstring mapName = "slam-map-28";
-        SLCVCapture::videoFilename = "20180903_ring.mp4";
-        SLstring calibFileName = "cam_calibration_main_huawei_p10_640_480.xml";
-        SLstring slamStateFilePath = SLCVCalibration::calibIniPath + "street1_manip.json";
+        SLstring calibFileName = "cam_calibration_huawei_p10_640_360_reloc.xml";
+        SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), calibFileName, false, false);
+        SLApplication::calibVideoFile.loadCalibParams();
 
         //make some light
         SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
@@ -2618,6 +2623,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //SLCVOrbTracking* orbT = raulMurTracker->orbTracking();
         //setup scene specific gui dialoges
+        auto trackedMappingUI = std::make_shared<SLImGuiTrackedMapping>("Tracked mapping", tm);
+        AppDemoGui::addInfoDialog(trackedMappingUI);
         auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm);
         AppDemoGui::addInfoDialog(trackingInfos);
         auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm);
@@ -2668,11 +2675,19 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //3. When running on desktop, make sure the screen resolution is adjusted to 640x360 in file AppDemoMainGLFW.cpp in line 437
         //4. Load a Video with 640 screen width (640x360 or 640x480), e.g. VID_20180424_2.mp4. Make sure it is placed in _data/videos.
         //Make sure it is added to androids CMakeLists.txt so it is presnet on your smartphone
-        SLstring mapName = "slam-map-43";
-        SLCVCapture::videoFilename = "ring_20180906_1.mp4";
-        //SLstring calibFileName = "cam_calibration_main_huawei_p10_640_480.xml";
-        //SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), calibFileName, false, false);
-        //SLApplication::calibVideoFile.loadCalibParams();
+
+        SLstring mapName = "slam-map-31";
+        SLCVCapture::videoFilename = "20180903_ring.mp4";
+        //SLstring mapName = "slam-map-32";
+        //SLCVCapture::videoFilename = "20180903_nidaugasse.mp4";
+        //SLstring mapName = "slam-map-33";
+        //SLCVCapture::videoFilename = "20180903_ladenzeile1.mp4";
+        
+        s->videoType(VT_FILE);
+        SLCVCapture::videoLoops = true;
+        SLstring calibFileName = "cam_calibration_huawei_p10_640_360_reloc.xml";
+        SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), calibFileName, false, false);
+        SLApplication::calibVideoFile.loadCalibParams();
 
         //call this function after calibration is loaded
         s->videoType(VT_FILE);
@@ -2706,7 +2721,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //add tracker
         SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, false, mapNode, false);
-        //SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
+        SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
         s->trackers().push_back(tm);
 
         //setup scene specific gui dialoges
@@ -2720,7 +2735,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemoGui::addInfoDialog(mapStorage);
         auto memStats = std::make_shared<SLImGuiInfosMemoryStats>("Memory stats", tm->getMap());
         AppDemoGui::addInfoDialog(memStats);
-
 
         //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));

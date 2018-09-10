@@ -77,6 +77,13 @@ void SLImGuiTrackedMapping::buildInfos()
         ImGui::Text("No keyframe yet");
     }
 
+    //show 2D key points in video image
+    SLbool b = _mappingTracker->getTrackOptFlow();
+    if (ImGui::Checkbox("Track optical flow", &b))
+    {
+        _mappingTracker->setTrackOptFlow(b);
+    }
+
 #ifdef ANDROID
     float bHeigth = 200.0f;
 #else

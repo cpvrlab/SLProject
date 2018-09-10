@@ -53,6 +53,7 @@ SLCVMapPoint::SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF, SLCVMap* pM
 //-----------------------------------------------------------------------------
 SLVec3f SLCVMapPoint::worldPosVec()
 {
+    unique_lock<mutex> lock(mMutexPos);
     SLVec3f vec;
     vec.x = mWorldPos.at<float>(0, 0);
     vec.y = mWorldPos.at<float>(1, 0);
@@ -62,6 +63,7 @@ SLVec3f SLCVMapPoint::worldPosVec()
 //-----------------------------------------------------------------------------
 void SLCVMapPoint::worldPosVec(SLVec3f vec)
 {
+    unique_lock<mutex> lock(mMutexPos);
     mWorldPos.at<float>(0, 0) = vec.x;
     mWorldPos.at<float>(1, 0) = vec.y;
     mWorldPos.at<float>(2, 0) = vec.z;

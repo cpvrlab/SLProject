@@ -742,3 +742,17 @@ bool SLScene::removeMesh(SLMesh* mesh)
     return false;
 }
 //-----------------------------------------------------------------------------
+bool SLScene::deleteTexture(SLGLTexture* texture)
+{
+    assert(texture);
+    for (SLint i = 0; i<_textures.size(); ++i)
+    {
+        if (_textures[i] == texture)
+        {
+            delete _textures[i];
+            _textures.erase(_textures.begin() + i);
+            return true;
+        }
+    }
+    return false;
+}

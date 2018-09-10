@@ -98,6 +98,9 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         void UpdateLastFrame();
         void CheckReplacedInLastFrame();
 
+        //optical flow tracking functions
+        bool posInGrid(const cv::KeyPoint &kp, int &posX, int &posY, int minX, int minY);
+
         //Motion Model
         cv::Mat mVelocity;
 

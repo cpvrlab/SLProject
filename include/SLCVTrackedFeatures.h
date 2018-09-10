@@ -35,7 +35,7 @@ using namespace cv;
 #define SL_DRAW_REPROJECTION_ERROR 1
 #define SL_DRAW_PATCHES 1
 
-#define SL_SAVE_DEBUG_OUTPUT
+//#define SL_SAVE_DEBUG_OUTPUT
 #ifdef SL_SAVE_DEBUG_OUTPUT
     #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
     #define SL_DEBUG_OUTPUT_PATH "/tmp/cv_tracking/"

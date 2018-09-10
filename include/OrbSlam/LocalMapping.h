@@ -40,7 +40,7 @@ class LoopClosing;
 class LocalMapping
 {
 public:
-    LocalMapping(SLCVMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary);
+    LocalMapping(SLCVMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary );
 
     void SetLoopCloser(LoopClosing* pLoopCloser);
 
