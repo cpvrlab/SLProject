@@ -292,6 +292,12 @@ SLCVCapture::loadIntoLastFrame(const SLint         width,
         // Android image copy loop #1
         cvtColor(yuv, SLCVCapture::lastFrame, CV_YUV2RGB_NV21, 3);
     }
+    // convert 4 channel images to 3 channel
+    else if (format == PF_bgra || format == PF_rgba)
+    {
+        SLCVMat rgba(height, width, CV_8UC4, (void*)data);
+        cvtColor(rgba, SLCVCapture::lastFrame, CV_RGBA2RGB, 3);
+    }
     else
     {
         // Set the according OpenCV format

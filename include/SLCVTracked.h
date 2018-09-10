@@ -58,8 +58,10 @@ class SLCVTracked
     SLMat4f calcObjectMatrix(const SLMat4f& cameraObjectMat,
                              const SLMat4f& objectViewMat);
 
+    SLNode* node() { return _node; }
+
     protected:
-    SLNode* _node;          //!< Connected node
+    SLNode* _node;          //!< Tracked node
     SLbool  _isVisible;     //!< Flag if marker is visible
     SLMat4f _objectViewMat; //!< view transformation matrix
 };

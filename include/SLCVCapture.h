@@ -70,7 +70,7 @@ class SLCVCapture
                                  int      vPixStride,
                                  int      vLineStride);
 
-    static SLCVMat       lastFrame;          //!< last frame grabbed
+    static SLCVMat       lastFrame;          //!< last frame grabbed in RGB
     static SLCVMat       lastFrameGray;      //!< last frame in grayscale
     static SLPixelFormat format;             //!< SL pixel format
     static SLCVSize      captureSize;        //!< size of captured frame

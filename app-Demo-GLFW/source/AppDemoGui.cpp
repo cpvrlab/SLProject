@@ -432,6 +432,30 @@ AppDemoGui::build(SLScene* s, SLSceneView* sv)
         sprintf(m + strlen(m), "Calib. file   : %s\n", c->calibFileName().c_str());
         sprintf(m + strlen(m), "Calib. state  : %s\n", c->stateStr().c_str());
 
+        if (vt != VT_NONE && s->trackers().size() > 0)
+        {
+            sprintf(m + strlen(m), "--------------:\n");
+            for (auto tracker : s->trackers())
+            {
+                SLNode* node = tracker->node();
+                if (node)
+                {
+                    if (typeid(*node) == typeid(SLCamera))
+                    {
+                        SLVec3f cameraPos = tracker->node()->updateAndGetWM().translation();
+                        sprintf(m + strlen(m), "Dist. to zero : %4.2f (%s)\n", cameraPos.length(), node->name().c_str());
+                    }
+                    else
+                    {
+                        SLVec3f cameraPos = ((SLNode*)sv->camera())->updateAndGetWM().translation();
+                        SLVec3f objectPos = tracker->node()->updateAndGetWM().translation();
+                        SLVec3f camToObj  = objectPos - cameraPos;
+                        sprintf(m + strlen(m), "Dist. to obj. : %4.2f (%s)\n", camToObj.length(), node->name().c_str());
+                    }
+                }
+            }
+        }
+
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
         ImGui::Begin("Video", &showStatsVideo, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
