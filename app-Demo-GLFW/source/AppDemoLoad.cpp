@@ -2654,11 +2654,19 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
         boxNode->addChild(axisNode);
 
+        SLAssimpImporter importer;
+        SLNode* brunnen = importer.load("FBX/Brunnen.fbx");
+        //brunnen->scale(0.1);
+
+        for (auto mesh : brunnen->findChild<SLNode>("Brunnen")->meshes()) mesh->mat(yellow);
+        for (auto mesh : brunnen->findChild<SLNode>("Brunnen")->meshes()) mesh->mat()->kt(0);
+
         //setup scene
         SLNode* scene = new SLNode("scene");
         scene->addChild(light1);
-        scene->addChild(boxNode);
+        //scene->addChild(boxNode);
         scene->addChild(mapNode);
+        scene->addChild(brunnen);
 
         s->root3D(scene);
     }
@@ -2676,8 +2684,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //4. Load a Video with 640 screen width (640x360 or 640x480), e.g. VID_20180424_2.mp4. Make sure it is placed in _data/videos.
         //Make sure it is added to androids CMakeLists.txt so it is presnet on your smartphone
 
-        SLstring mapName = "slam-map-31";
-        SLCVCapture::videoFilename = "20180903_ring.mp4";
+        SLstring mapName = "slam-map-1";
+        SLCVCapture::videoFilename = "gerechtigkeitsbrunnen_20180910.mp4";
         //SLstring mapName = "slam-map-32";
         //SLCVCapture::videoFilename = "20180903_nidaugasse.mp4";
         //SLstring mapName = "slam-map-33";
@@ -2685,7 +2693,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
-        SLstring calibFileName = "cam_calibration_huawei_p10_640_360_reloc.xml";
+        SLstring calibFileName = "cam_calibration_samsung_s3_640_480.xml";
         SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), calibFileName, false, false);
         SLApplication::calibVideoFile.loadCalibParams();
 
@@ -2739,24 +2747,26 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
         SLfloat l = 0.593f, b = 0.466f, h = 0.257f;
-        //SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
-        //SLNode* boxNode = new SLNode(box1, "boxNode");
-        //SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
-        //boxNode->addChild(axisNode);
+        SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
+        SLNode* boxNode = new SLNode(box1, "boxNode");
+        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
+        boxNode->addChild(axisNode);
 
+#if 0
         SLAssimpImporter importer;
         SLNode* brunnen = importer.load("FBX/Brunnen.fbx");
-        brunnen->scale(0.01f);
+        //brunnen->scale(0.1);
 
         for (auto mesh : brunnen->findChild<SLNode>("Brunnen")->meshes()) mesh->mat(yellow);
         for (auto mesh : brunnen->findChild<SLNode>("Brunnen")->meshes()) mesh->mat()->kt(0);
+#endif
 
         //setup scene
         SLNode* scene = new SLNode("scene");
         scene->addChild(light1);
-        //scene->addChild(boxNode);
+        scene->addChild(boxNode);
         scene->addChild(mapNode);
-        scene->addChild(brunnen);
+        //scene->addChild(brunnen);
 
         s->root3D(scene);
     }

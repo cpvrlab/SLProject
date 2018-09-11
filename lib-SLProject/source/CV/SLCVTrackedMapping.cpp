@@ -88,7 +88,7 @@ SLCVTrackedMapping::SLCVTrackedMapping(SLNode* node,
     mpIniORBextractor = new ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
     //instantiate local mapping
     mpLocalMapper = new LocalMapping(_map, 1, mpVocabulary);
-    mpLoopCloser = new LoopClosing(_map, mpKeyFrameDatabase, mpVocabulary, false, true);
+    mpLoopCloser = new LoopClosing(_map, mpKeyFrameDatabase, mpVocabulary, false, false);
 
     mpLocalMapper->SetLoopCloser(mpLoopCloser);
     mpLoopCloser->SetLocalMapper(mpLocalMapper);
@@ -956,8 +956,8 @@ void SLCVTrackedMapping::CheckReplacedInLastFrame()
 //-----------------------------------------------------------------------------
 bool SLCVTrackedMapping::NeedNewKeyFrame()
 {
-    //if (mbOnlyTracking)
-    //    return false;
+    if (mbOnlyTracking)
+        return false;
 
     // If Local Mapping is freezed by a Loop Closure do not insert keyframes
     if(mpLocalMapper->isStopped() || mpLocalMapper->stopRequested())
@@ -1005,7 +1005,9 @@ bool SLCVTrackedMapping::NeedNewKeyFrame()
         }
     }
     else
+    {
         return false;
+    }
 }
 //-----------------------------------------------------------------------------
 void SLCVTrackedMapping::CreateNewKeyFrame()
@@ -1162,6 +1164,8 @@ void SLCVTrackedMapping::Reset()
     mvpLocalMapPoints.clear();
     mvpLocalKeyFrames.clear();
     mnMatchesInliers = 0;
+    mnLastKeyFrameId = 0;
+    mnLastRelocFrameId = 0;
     _addKeyframe = false;
 
     //we also have to clear the mapNode because it may access

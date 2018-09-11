@@ -241,9 +241,11 @@ void SLCVMapNode::doUpdateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
         {
             // TODO(jan): textures are saved in a global textures vector (scene->textures)
             // and should be deleted from there. Otherwise we have a yuuuuge memory leak.
+#if 0
             SLGLTexture* texture = new SLGLTexture(kf->getTexturePath());
             _kfTextures.push_back(texture);
             cam->background().texture(texture);
+#endif
         }
 
         cam->om(kf->getObjectMatrix());
