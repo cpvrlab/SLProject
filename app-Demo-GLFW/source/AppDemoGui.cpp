@@ -52,8 +52,7 @@ static auto vectorGetter = [](void* vec, int idx, const char** out_text) {
 };
 //-----------------------------------------------------------------------------
 //! Combobox that allows to pass the items as a string vector
-bool
-myComboBox(const char* label, int* currIndex, SLVstring& values)
+bool myComboBox(const char* label, int* currIndex, SLVstring& values)
 {
     if (values.empty())
         return false;
@@ -66,8 +65,7 @@ myComboBox(const char* label, int* currIndex, SLVstring& values)
 }
 //-----------------------------------------------------------------------------
 //! Listbox that allows to pass the items as a string vector
-bool
-myListBox(const char* label, int* currIndex, SLVstring& values)
+bool myListBox(const char* label, int* currIndex, SLVstring& values)
 {
     if (values.empty())
         return false;
@@ -80,8 +78,9 @@ myListBox(const char* label, int* currIndex, SLVstring& values)
 }
 //-----------------------------------------------------------------------------
 //! Centers the next ImGui window in the parent
-void
-centerNextWindow(SLSceneView* sv, SLfloat widthPC = 0.9f, SLfloat heightPC = 0.9f)
+void centerNextWindow(SLSceneView* sv,
+                      SLfloat      widthPC  = 0.9f,
+                      SLfloat      heightPC = 0.9f)
 {
     SLfloat width  = (SLfloat)sv->scrW() * widthPC;
     SLfloat height = (SLfloat)sv->scrH() * heightPC;
@@ -105,6 +104,7 @@ SLbool       AppDemoGui::showInfosSensors    = false;
 SLbool       AppDemoGui::showSceneGraph      = false;
 SLbool       AppDemoGui::showProperties      = false;
 SLbool       AppDemoGui::showChristoffel     = false;
+SLbool       AppDemoGui::showUIPrefs         = false;
 
 // Scene node for Christoffel objects
 SLNode* bern         = nullptr;
@@ -163,11 +163,14 @@ SLstring AppDemoGui::infoHelp =
 SLstring AppDemoGui::infoCalibrate =
   "The calibration process requires a chessboard image to be printed \
 and glued on a flat board. You can find the PDF with the chessboard image on: \n\
-https://github.com/cpvrlab/SLProject/tree/master/_data/calibrations/ \n\n\
+https://github.com/cpvrlab/SLProject/tree/master/_data/calibrations/ \n\
 For a calibration you have to take 20 images with detected inner \
 chessboard corners. To take an image you have to click with the mouse \
-or tap with finger into the screen. You can mirror the video image under \
-Preferences > Video. \n\
+or tap with finger into the screen. View the chessboard from the side so that \
+the inner corners cover the full image. Hold the camera or board really still \
+before taking the picture.\n \
+You can mirror the video image under Preferences > Video. You can check the \
+distance to the chessboard in the dialog Stats. on Video.\n \
 After calibration the yellow wireframe cube should stick on the chessboard.\n\n\
 Please close first this info dialog on the top-left.\n\
 ";
@@ -179,8 +182,7 @@ Please close first this info dialog on the top-left.\n\
  SLSceneView::onPaint in SLSceneView::draw2DGL by calling ImGui::Render.\n
  See also the comments on SLGLImGui.
  */
-void
-AppDemoGui::build(SLScene* s, SLSceneView* sv)
+void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 {
     ///////////////////////////////////
     // Show modeless fullscreen dialogs
@@ -553,6 +555,37 @@ AppDemoGui::build(SLScene* s, SLSceneView* sv)
         buildProperties(s);
     }
 
+    if (showUIPrefs)
+    {
+        ImGuiWindowFlags window_flags = 0;
+        window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
+        ImGui::Begin("User Interface Preferences", &showUIPrefs, window_flags);
+
+        ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 70.f, "%0.0f");
+        ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 50.f, "%0.0f");
+        ImGuiStyle& style = ImGui::GetStyle();
+        if (ImGui::SliderFloat("Item Spacing X", &style.ItemSpacing.x, 0.0f, 20.0f, "%.0f"))
+            style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
+        if (ImGui::SliderFloat("Item Spacing Y", &style.ItemSpacing.y, 0.0f, 10.0f, "%.0f"))
+            style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
+
+        ImGui::Separator();
+
+        SLchar reset[255];
+
+        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+        sprintf(reset, "Reset User Interface (DPI: %d)", SLApplication::dpi);
+        if (ImGui::MenuItem(reset))
+        {
+            SLstring fullPathFilename = SLApplication::configPath + "DemoGui.yml";
+            SLFileSystem::deleteFile(fullPathFilename);
+            loadConfig(SLApplication::dpi);
+        }
+        ImGui::PopFont();
+
+        ImGui::End();
+    }
+
     if (showChristoffel && SLApplication::sceneID == SID_VideoChristoffel)
     {
         ImGui::Begin("Christoffel",
@@ -643,8 +676,7 @@ AppDemoGui::build(SLScene* s, SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
-void
-AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
+void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 {
     SLSceneID    sid           = SLApplication::sceneID;
     SLRenderType rType         = sv->renderType();
@@ -956,35 +988,6 @@ AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }
 
                     ImGui::EndMenu();
-                }
-
-                ImGui::EndMenu();
-            }
-
-            ImGui::Separator();
-
-            if (ImGui::BeginMenu("User Interface"))
-            {
-                ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 60.f, "%0.0f");
-
-                ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 60.f, "%0.0f");
-
-                ImGuiStyle& style = ImGui::GetStyle();
-                if (ImGui::SliderFloat2("Frame Padding", (float*)&style.FramePadding, 0.0f, 20.0f, "%.0f"))
-                    style.WindowPadding.x = style.FramePadding.x;
-                if (ImGui::SliderFloat2("Item Spacing", (float*)&style.ItemSpacing, 0.0f, 20.0f, "%.0f"))
-                    style.ItemInnerSpacing.x = style.ItemSpacing.y;
-
-                ImGui::Separator();
-
-                SLchar reset[255];
-                sprintf(reset, "Reset User Interface (DPI: %d)", SLApplication::dpi);
-
-                if (ImGui::MenuItem(reset))
-                {
-                    SLstring fullPathFilename = SLApplication::configPath + "DemoGui.yml";
-                    SLFileSystem::deleteFile(fullPathFilename);
-                    loadConfig(SLApplication::dpi);
                 }
 
                 ImGui::EndMenu();
@@ -1385,6 +1388,7 @@ AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Help on Interaction", nullptr, &showHelp);
             ImGui::MenuItem("Help on Calibration", nullptr, &showHelpCalibration);
             ImGui::Separator();
+            ImGui::MenuItem("UI Pfreferences", nullptr, &showUIPrefs);
             ImGui::MenuItem("Credits", nullptr, &showCredits);
             ImGui::MenuItem("About SLProject", nullptr, &showAbout);
 
@@ -1395,8 +1399,7 @@ AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
-void
-AppDemoGui::buildSceneGraph(SLScene* s)
+void AppDemoGui::buildSceneGraph(SLScene* s)
 {
     ImGui::Begin("Scenegraph", &showSceneGraph);
 
@@ -1406,8 +1409,7 @@ AppDemoGui::buildSceneGraph(SLScene* s)
     ImGui::End();
 }
 //-----------------------------------------------------------------------------
-void
-AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
+void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 {
     SLbool isSelectedNode = s->selectedNode() == node;
     SLbool isLeafNode     = node->children().size() == 0 && node->meshes().size() == 0;
@@ -1452,8 +1454,7 @@ AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     }
 }
 //-----------------------------------------------------------------------------
-void
-AppDemoGui::buildProperties(SLScene* s)
+void AppDemoGui::buildProperties(SLScene* s)
 {
     SLNode* node = s->selectedNode();
     SLMesh* mesh = s->selectedMesh();
@@ -1920,8 +1921,7 @@ AppDemoGui::buildProperties(SLScene* s)
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
-void
-AppDemoGui::loadConfig(SLint dotsPerInch)
+void AppDemoGui::loadConfig(SLint dotsPerInch)
 {
     ImGuiStyle& style               = ImGui::GetStyle();
     SLstring    fullPathAndFilename = SLApplication::configPath +
@@ -1963,48 +1963,47 @@ AppDemoGui::loadConfig(SLint dotsPerInch)
     try
     {
         fs.open(fullPathAndFilename, SLCVFileStorage::READ);
-        if (!fs.isOpened())
+        if (fs.isOpened())
         {
-            SL_LOG("Failed to open file for reading: %s", fullPathAndFilename.c_str());
-            return;
+            // clang-format off
+            SLint  i;
+            SLbool b;
+            fs["configTime"] >> AppDemoGui::configTime;
+            fs["fontPropDots"] >> i;        SLGLImGui::fontPropDots = (SLfloat)i;
+            fs["fontFixedDots"] >> i;       SLGLImGui::fontFixedDots = (SLfloat)i;
+            fs["ItemSpacingX"] >> i;        style.ItemSpacing.x = (SLfloat)i;
+            fs["ItemSpacingY"] >> i;        style.ItemSpacing.y = (SLfloat)i;
+            style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
+            style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
+            fs["sceneID"] >> i;             SLApplication::sceneID = (SLSceneID)i;
+            fs["showInfosScene"] >> b;      AppDemoGui::showInfosScene = b;
+            fs["showStatsTiming"] >> b;     AppDemoGui::showStatsTiming = b;
+            fs["showStatsMemory"] >> b;     AppDemoGui::showStatsScene = b;
+            fs["showStatsVideo"] >> b;      AppDemoGui::showStatsVideo = b;
+            fs["showInfosFrameworks"] >> b; AppDemoGui::showInfosFrameworks = b;
+            fs["showInfosSensors"] >> b;    AppDemoGui::showInfosSensors = b;
+            fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
+            fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
+            fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
+            fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
+            fs["showDetection"] >> b;       SLApplication::scene->showDetection(b);
+            // clang-format on
+
+            fs.release();
+            SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
+            SL_LOG("Config. date    : %s\n", AppDemoGui::configTime.c_str());
+            SL_LOG("fontPropDots    : %f\n", SLGLImGui::fontPropDots);
+            SL_LOG("fontFixedDots   : %f\n", SLGLImGui::fontFixedDots);
+        }
+        else
+        {
+            SL_LOG("****** Failed to open file for reading: %s", fullPathAndFilename.c_str());
         }
     }
     catch (...)
     {
-        SL_LOG("Parsing of file failed: %s", fullPathAndFilename.c_str());
-        return;
+        SL_LOG("****** Parsing of file failed: %s", fullPathAndFilename.c_str());
     }
-
-    // clang-format off
-    SLint  i;
-    SLbool b;
-    fs["configTime"] >> AppDemoGui::configTime;
-    fs["fontPropDots"] >> i;        SLGLImGui::fontPropDots = (SLfloat)i;
-    fs["fontFixedDots"] >> i;       SLGLImGui::fontFixedDots = (SLfloat)i;
-    fs["FramePaddingX"] >> i;       style.FramePadding.x  = (SLfloat)i;
-                                    style.WindowPadding.x = style.FramePadding.x;
-    fs["FramePaddingY"] >> i;       style.FramePadding.y = (SLfloat)i;
-    fs["ItemSpacingX"] >> i;        style.ItemSpacing.x = (SLfloat)i;
-    fs["ItemSpacingY"] >> i;        style.ItemSpacing.y = (SLfloat)i;
-                                    style.ItemInnerSpacing.x = style.ItemSpacing.y;
-    fs["sceneID"] >> i;             SLApplication::sceneID = (SLSceneID)i;
-    fs["showInfosScene"] >> b;      AppDemoGui::showInfosScene = b;
-    fs["showStatsTiming"] >> b;     AppDemoGui::showStatsTiming = b;
-    fs["showStatsMemory"] >> b;     AppDemoGui::showStatsScene = b;
-    fs["showStatsVideo"] >> b;      AppDemoGui::showStatsVideo = b;
-    fs["showInfosFrameworks"] >> b; AppDemoGui::showInfosFrameworks = b;
-    fs["showInfosSensors"] >> b;    AppDemoGui::showInfosSensors = b;
-    fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
-    fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
-    fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
-    fs["showDetection"] >> b;       SLApplication::scene->showDetection(b);
-    // clang-format on
-
-    fs.release();
-    SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
-    SL_LOG("Config. date    : %s\n", AppDemoGui::configTime.c_str());
-    SL_LOG("fontPropDots    : %f\n", SLGLImGui::fontPropDots);
-    SL_LOG("fontFixedDots   : %f\n", SLGLImGui::fontFixedDots);
 
     // check font sizes for HDPI displays
     if (dotsPerInch > 300)
@@ -2023,8 +2022,7 @@ AppDemoGui::loadConfig(SLint dotsPerInch)
     }
 }
 //-----------------------------------------------------------------------------
-void
-AppDemoGui::saveConfig()
+void AppDemoGui::saveConfig()
 {
     ImGuiStyle& style               = ImGui::GetStyle();
     SLstring    fullPathAndFilename = SLApplication::configPath +
@@ -2042,8 +2040,6 @@ AppDemoGui::saveConfig()
     fs << "fontPropDots" << (SLint)SLGLImGui::fontPropDots;
     fs << "fontFixedDots" << (SLint)SLGLImGui::fontFixedDots;
     fs << "sceneID" << (SLint)SLApplication::sceneID;
-    fs << "FramePaddingX" << (SLint)style.FramePadding.x;
-    fs << "FramePaddingY" << (SLint)style.FramePadding.y;
     fs << "ItemSpacingX" << (SLint)style.ItemSpacing.x;
     fs << "ItemSpacingY" << (SLint)style.ItemSpacing.y;
     fs << "showStatsTiming" << AppDemoGui::showStatsTiming;
@@ -2055,6 +2051,7 @@ AppDemoGui::saveConfig()
     fs << "showSceneGraph" << AppDemoGui::showSceneGraph;
     fs << "showProperties" << AppDemoGui::showProperties;
     fs << "showChristoffel" << AppDemoGui::showChristoffel;
+    fs << "showUIPrefs" << AppDemoGui::showUIPrefs;
     fs << "showDetection" << SLApplication::scene->showDetection();
 
     fs.release();

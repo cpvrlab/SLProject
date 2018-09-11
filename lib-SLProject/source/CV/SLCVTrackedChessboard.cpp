@@ -33,12 +33,11 @@ SLCVTrackedChessboard::SLCVTrackedChessboard(SLNode* node) : SLCVTracked(node)
 }
 //-----------------------------------------------------------------------------
 //! Tracks the chessboard image in the given image for the first sceneview
-bool
-SLCVTrackedChessboard::track(SLCVMat          imageGray,
-                             SLCVMat          imageRgb,
-                             SLCVCalibration* calib,
-                             SLbool           drawDetection,
-                             SLSceneView*     sv)
+bool SLCVTrackedChessboard::track(SLCVMat          imageGray,
+                                  SLCVMat          imageRgb,
+                                  SLCVCalibration* calib,
+                                  SLbool           drawDetection,
+                                  SLSceneView*     sv)
 {
     assert(!imageGray.empty() && "ImageGray is empty");
     assert(!imageRgb.empty() && "ImageRGB is empty");

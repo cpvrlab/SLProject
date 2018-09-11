@@ -59,8 +59,7 @@ SLTexFont::create creates the inherited texture map with the passed image file.
 The bitmap image is parsed for all 224 character positions to create the
 according texture coordinate.
 */
-void
-SLTexFont::create(SLstring fontFilename)
+void SLTexFont::create(SLstring fontFilename)
 {
     // Check the font filename with path
     if (!SLFileSystem::fileExists(fontFilename))
@@ -422,8 +421,7 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
 }
 //-----------------------------------------------------------------------------
 //! Generates all static fonts
-void
-SLTexFont::generateFonts()
+void SLTexFont::generateFonts()
 {
     font07 = new SLTexFont("Font07.png");
     assert(font07);
@@ -450,8 +448,7 @@ SLTexFont::generateFonts()
 }
 //-----------------------------------------------------------------------------
 //! Deletes all static fonts
-void
-SLTexFont::deleteFonts()
+void SLTexFont::deleteFonts()
 {
     if (font07) delete font07;
     font07 = nullptr;
@@ -478,8 +475,7 @@ SLTexFont::deleteFonts()
 }
 //-----------------------------------------------------------------------------
 //! returns nearest font for a given height in mm
-SLTexFont*
-SLTexFont::getFont(SLfloat heightMM, SLint dpi)
+SLTexFont* SLTexFont::getFont(SLfloat heightMM, SLint dpi)
 {
     SLfloat dpmm       = (SLfloat)dpi / 25.4f;
     SLfloat targetH_PX = dpmm * heightMM;

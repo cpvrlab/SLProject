@@ -46,8 +46,7 @@ SLRevolver::SLRevolver(SLVVec3f    revolvePoints,
 /*!
 SLRevolver::buildMesh builds the underlying mesh data structure
 */
-void
-SLRevolver::buildMesh(SLMaterial* material)
+void SLRevolver::buildMesh(SLMaterial* material)
 {
     deleteData();
 

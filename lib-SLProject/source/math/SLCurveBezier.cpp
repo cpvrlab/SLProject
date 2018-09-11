@@ -45,9 +45,8 @@ points are passed they will be calculated automatically
 @param points Array of points on the Bezier curve (w = time)
 @param controlPoints Array of control points with size = 2*(numPointsAndTimes-1)
 */
-void
-SLCurveBezier::init(const SLVVec4f& points,
-                    const SLVVec3f& controlPoints)
+void SLCurveBezier::init(const SLVVec4f& points,
+                         const SLVVec3f& controlPoints)
 {
     assert(points.size() > 1);
 
@@ -111,8 +110,7 @@ SLCurveBezier::init(const SLVVec4f& points,
 SLCurveBezier::draw does the OpenGL rendering of the Bezier curve in world 
 space.
 */
-void
-SLCurveBezier::draw(const SLMat4f& wm)
+void SLCurveBezier::draw(const SLMat4f& wm)
 {
     SLint numControlPoints = 2 * ((SLint)_points.size() - 1);
 
@@ -209,8 +207,7 @@ SLCurveBezier::draw(const SLMat4f& wm)
 }
 //-------------------------------------------------------------------------------
 //! Deletes all curve arrays
-void
-SLCurveBezier::dispose()
+void SLCurveBezier::dispose()
 {
     _points.clear();
     _lengths.clear();
@@ -220,8 +217,7 @@ SLCurveBezier::dispose()
 /*!
 SLCurveBezier::curveEvaluate determines the position on the curve at time t.
 */
-SLVec3f
-SLCurveBezier::evaluate(const SLfloat t)
+SLVec3f SLCurveBezier::evaluate(const SLfloat t)
 {
     assert(_points.size() > 1);
 
@@ -260,8 +256,7 @@ SLCurveBezier::curveVelocity determines the velocity vector on the curve at
 point t. The velocity vector direction is the tangent vector at t an is the first 
 derivative at point t. The velocity vector magnitude is the speed at point t. 
 */
-SLVec3f
-SLCurveBezier::velocity(SLfloat t)
+SLVec3f SLCurveBezier::velocity(SLfloat t)
 {
     assert(_points.size() > 1);
 
@@ -299,8 +294,7 @@ SLCurveBezier::velocity(SLfloat t)
 SLCurveBezier::curveAcceleration determines the acceleration vector on the curve
 at time t. It is the second derivative at point t.
 */
-SLVec3f
-SLCurveBezier::acceleration(SLfloat t)
+SLVec3f SLCurveBezier::acceleration(SLfloat t)
 {
     assert(_points.size() > 1);
 
@@ -335,8 +329,7 @@ SLCurveBezier::acceleration(SLfloat t)
 SLCurveBezier::findParamByDist gets parameter s distance in arc length from Q(t1).
 Returns max SLfloat if can't find it.
 */
-SLfloat
-SLCurveBezier::findParamByDist(SLfloat t1, SLfloat s)
+SLfloat SLCurveBezier::findParamByDist(SLfloat t1, SLfloat s)
 {
     // ensure that we remain within valid parameter space
     if (s > arcLength(t1, _points.back().w))
@@ -363,8 +356,7 @@ SLCurveBezier::findParamByDist(SLfloat t1, SLfloat s)
 /*! 
 Calculate length of curve between parameters t1 and t2
 */
-SLfloat
-SLCurveBezier::arcLength(SLfloat t1, SLfloat t2)
+SLfloat SLCurveBezier::arcLength(SLfloat t1, SLfloat t2)
 {
     if (t2 <= t1) return 0.0f;
     if (t1 < _points[0].w) t1 = _points[0].w;
@@ -407,8 +399,7 @@ SLCurveBezier::arcLength(SLfloat t1, SLfloat t2)
 SLCurveBezier::segmentArcLength calculate length of curve segment between 
 parameters u1 and u2 by recursively subdividing the segment.
 */
-SLfloat
-SLCurveBezier::segmentArcLength(SLuint i, SLfloat u1, SLfloat u2)
+SLfloat SLCurveBezier::segmentArcLength(SLuint i, SLfloat u1, SLfloat u2)
 {
     assert(i >= 0 && i < _points.size() - 1);
 
@@ -445,11 +436,10 @@ SLCurveBezier::segmentArcLength(SLuint i, SLfloat u1, SLfloat u2)
 SLCurveBezier::subdivideLength calculates length of Bezier curve by recursive
 midpoint subdivision.
 */
-SLfloat
-SLCurveBezier::subdivideLength(const SLVec3f& P0,
-                               const SLVec3f& P1,
-                               const SLVec3f& P2,
-                               const SLVec3f& P3)
+SLfloat SLCurveBezier::subdivideLength(const SLVec3f& P0,
+                                       const SLVec3f& P1,
+                                       const SLVec3f& P2,
+                                       const SLVec3f& P3)
 {
     // check to see if basically straight
     SLfloat Lmin = P0.distance(P3);
@@ -475,14 +465,13 @@ SLCurveBezier::subdivideLength(const SLVec3f& P0,
 SLCurveBezier::subdivideRender adds points along the curve to the point vector
 renderPoints by recursively subdividing the curve with the Casteljau scheme.
 */
-void
-SLCurveBezier::subdivideRender(SLVVec3f&      renderPoints,
-                               const SLMat4f& wm,
-                               SLfloat        epsilon,
-                               const SLVec3f& P0,
-                               const SLVec3f& P1,
-                               const SLVec3f& P2,
-                               const SLVec3f& P3)
+void SLCurveBezier::subdivideRender(SLVVec3f&      renderPoints,
+                                    const SLMat4f& wm,
+                                    SLfloat        epsilon,
+                                    const SLVec3f& P0,
+                                    const SLVec3f& P1,
+                                    const SLVec3f& P2,
+                                    const SLVec3f& P3)
 {
     // add first point transformed by wm if not already in the list
     if (renderPoints.size() == 0)

@@ -40,8 +40,7 @@ SLGLVertexArray::SLGLVertexArray()
 /*! Deletes the OpenGL objects for the vertex array and the vertex buffer.
 The vector _attribs with the attribute information is not cleared.
 */
-void
-SLGLVertexArray::deleteGL()
+void SLGLVertexArray::deleteGL()
 {
 #ifndef SL_GLES2
     if (_hasGL3orGreater && _idVAO)
@@ -63,8 +62,7 @@ SLGLVertexArray::deleteGL()
 }
 //-----------------------------------------------------------------------------
 // Returns the vertex array object id
-SLint
-SLGLVertexArray::id()
+SLint SLGLVertexArray::id()
 {
 #ifndef SL_GLES2
     return _hasGL3orGreater ? (SLint)_idVAO : (SLint)_VBOf.id();
@@ -82,11 +80,10 @@ Be aware that the VBO for the attribute will not be generated until generate
 is called. The data pointer must still be valid when SLGLVertexArray::generate 
 is called.
 */
-void
-SLGLVertexArray::setAttrib(SLGLAttributeType type,
-                           SLint             elementSize,
-                           SLint             location,
-                           void*             dataPointer)
+void SLGLVertexArray::setAttrib(SLGLAttributeType type,
+                                SLint             elementSize,
+                                SLint             location,
+                                void*             dataPointer)
 {
     assert(dataPointer);
     assert(elementSize);
@@ -112,10 +109,9 @@ array can only be drawn with SLGLVertexArray::drawArrayAs.
 Be aware that the VBO for the indices will not be generated until generate 
 is called. The data pointer must still be valid when generate is called. 
 */
-void
-SLGLVertexArray::setIndices(SLuint         numIndices,
-                            SLGLBufferType indexDataType,
-                            void*          dataPointer)
+void SLGLVertexArray::setIndices(SLuint         numIndices,
+                                 SLGLBufferType indexDataType,
+                                 void*          dataPointer)
 {
     assert(numIndices);
     assert(dataPointer);
@@ -134,10 +130,9 @@ SLGLVertexArray::setIndices(SLuint         numIndices,
 attributes and not for interleaved attributes. This is used e.g. for meshes
 with vertex skinning. See SLMesh::draw where we have joint attributes.
 */
-void
-SLGLVertexArray::updateAttrib(SLGLAttributeType type,
-                              SLint             elementSize,
-                              void*             dataPointer)
+void SLGLVertexArray::updateAttrib(SLGLAttributeType type,
+                                   SLint             elementSize,
+                                   void*             dataPointer)
 {
     assert(dataPointer && "No data pointer passed");
     assert(elementSize > 0 && elementSize < 5 && "Element size invalid");
@@ -198,10 +193,9 @@ or a sequential vertex buffer.\n\n
 \n           |<---------- strideBytes=32 ----------->|
 </PRE>
 */
-void
-SLGLVertexArray::generate(SLuint          numVertices,
-                          SLGLBufferUsage usage,
-                          SLbool          outputinterleaved)
+void SLGLVertexArray::generate(SLuint          numVertices,
+                               SLGLBufferUsage usage,
+                               SLbool          outputinterleaved)
 {
     assert(numVertices);
 
@@ -233,7 +227,7 @@ SLGLVertexArray::generate(SLuint          numVertices,
 
     if (_numIndices)
     {
-        SLint typeSize = SLGLVertexBuffer::sizeOfType(_indexDataType);
+        SLuint typeSize = SLGLVertexBuffer::sizeOfType(_indexDataType);
         glGenBuffers(1, &_idVBOIndices);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _idVBOIndices);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER,
@@ -257,10 +251,9 @@ SLGLVertexArray::generate(SLuint          numVertices,
 /*! Draws the vertex attributes as a specified primitive type by elements with 
 the indices from the index buffer defined in setIndices.
 */
-void
-SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
-                                SLuint            numIndexes,
-                                SLuint            indexOffset)
+void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
+                                     SLuint            numIndexes,
+                                     SLuint            indexOffset)
 {
     assert(_numIndices && _idVBOIndices && "No index VBO generated for VAO");
 
@@ -287,7 +280,7 @@ SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
     if (numIndexes == 0)
         numIndexes = _numIndices;
 
-    SLint indexTypeSize = SLGLVertexBuffer::sizeOfType(_indexDataType);
+    SLuint indexTypeSize = SLGLVertexBuffer::sizeOfType(_indexDataType);
 
     ///////////////////////////////////////////////////////////////////
     glDrawElements(primitiveType,
@@ -314,10 +307,9 @@ SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
 /*! Draws the vertex attributes as a specified primitive type as the vertices
 are defined in the attribute arrays.
 */
-void
-SLGLVertexArray::drawArrayAs(SLGLPrimitiveType primitiveType,
-                             SLint             firstVertex,
-                             SLsizei           countVertices)
+void SLGLVertexArray::drawArrayAs(SLGLPrimitiveType primitiveType,
+                                  SLint             firstVertex,
+                                  SLsizei           countVertices)
 {
     assert((_VBOf.id()) && "No VBO generated for VAO.");
 

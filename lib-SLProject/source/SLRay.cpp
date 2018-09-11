@@ -40,8 +40,7 @@ CPP11 multithreading.
 auto    random01 = bind(uniform_real_distribution<SLfloat>(0.0, 1.0),
                      mt19937((SLuint)time(nullptr)));
 SLfloat rnd01();
-SLfloat
-rnd01()
+SLfloat rnd01()
 {
     return random01();
 }
@@ -141,8 +140,7 @@ SLRay::SLRay(SLfloat distToLight,
 SLRay::prints prints the rays origin (O), direction (D) and the length to the 
 intersection (L) 
 */
-void
-SLRay::print() const
+void SLRay::print() const
 {
     SL_LOG("Ray: O(%.2f, %.2f, %.2f), D(%.2f, %.2f, %.2f), L: %.2f\n",
            origin.x,
@@ -153,15 +151,13 @@ SLRay::print() const
            dir.z,
            length);
 }
-
 //-----------------------------------------------------------------------------
 /*!
 SLRay::reflect calculates a secondary ray reflected at the normal, starting at 
 the intersection point. All vectors must be normalized vectors.
 R = 2(-I*N) N + I
 */
-void
-SLRay::reflect(SLRay* reflected)
+void SLRay::reflect(SLRay* reflected)
 {
 #ifdef DEBUG_RAY
     for (SLint i = 0; i < depth; ++i)
@@ -202,8 +198,7 @@ Index of refraction eta = Kn_Source/Kn_Destination (Kn_Air = 1.0)
 We are using a formula by Xavier Bec that is a little faster:
 http://www.realtimerendering.com/resources/RTNews/html/rtnv10n1.html#art3
 */
-void
-SLRay::refract(SLRay* refracted)
+void SLRay::refract(SLRay* refracted)
 {
     assert(hitMesh && "hitMesh is null");
 
@@ -348,8 +343,7 @@ along z-axis and then transformed to lie along specular direction with
 rotationMatrix rotMat. The rotation matrix must be precalculated (stays the 
 same for each ray sample, needs to be be calculated only once)
 */
-bool
-SLRay::reflectMC(SLRay* reflected, SLMat3f rotMat)
+bool SLRay::reflectMC(SLRay* reflected, SLMat3f rotMat)
 {
     SLfloat eta1, eta2;
     SLVec3f randVec;
@@ -401,8 +395,7 @@ lie along transmissive direction with rotationMatrix rotMat. The rotation
 matrix must be precalculated (stays the same for each ray sample, needs to be 
 be calculated only once)
 */
-void
-SLRay::refractMC(SLRay* refracted, SLMat3f rotMat)
+void SLRay::refractMC(SLRay* refracted, SLMat3f rotMat)
 {
     SLfloat eta1, eta2;
     SLVec3f randVec;
@@ -447,8 +440,7 @@ This is only used for photonmapping(russian roulette).
 The random direction lies around z-Axis and is then transformed by a rotation 
 matrix to lie along the normal. The direction is calculated according to MCCABE
 */
-void
-SLRay::diffuseMC(SLRay* scattered)
+void SLRay::diffuseMC(SLRay* scattered)
 {
     SLVec3f randVec;
     SLfloat eta1, eta2, eta1sqrt;

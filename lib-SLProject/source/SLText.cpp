@@ -42,8 +42,7 @@ SLText::SLText(SLstring   text,
 /*! 
 SLText::shapeDraw draws the text buffer objects
 */
-void
-SLText::drawRec(SLSceneView* sv)
+void SLText::drawRec(SLSceneView* sv)
 {
     if (_drawBits.get(SL_DB_HIDDEN) || !_stateGL->blend()) return;
 
@@ -67,8 +66,7 @@ SLText::drawRec(SLSceneView* sv)
 
     _vao.drawElementsAs(PT_triangles, (SLuint)_text.length() * 2 * 3);
 }
-void
-SLText::drawMeshes(SLSceneView* sv)
+void SLText::drawMeshes(SLSceneView* sv)
 {
     drawRec(sv);
 }
@@ -76,8 +74,7 @@ SLText::drawMeshes(SLSceneView* sv)
 /*! 
 SLText::statsRec updates the statistics.
 */
-void
-SLText::statsRec(SLNodeStats& stats)
+void SLText::statsRec(SLNodeStats& stats)
 {
     stats.numBytes += (SLuint)sizeof(SLText);
     stats.numBytes += (SLuint)_text.length();
@@ -88,8 +85,7 @@ SLText::statsRec(SLNodeStats& stats)
 /*! 
 SLText::buildAABB builds and returns the axis-aligned bounding box.
 */
-SLAABBox&
-SLText::updateAABBRec()
+SLAABBox& SLText::updateAABBRec()
 {
     SLVec2f size = _font->calcTextSize(_text);
 

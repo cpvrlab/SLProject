@@ -23,8 +23,7 @@ SLCompactGrid::SLCompactGrid(SLMesh* m) : SLAccelStruct(m)
 }
 //-----------------------------------------------------------------------------
 //! Returns the indices of the voxel around a given point
-SLVec3i
-SLCompactGrid::containingVoxel(const SLVec3f& p) const
+SLVec3i SLCompactGrid::containingVoxel(const SLVec3f& p) const
 {
     SLVec3i pos;
     SLVec3f delta = p - _minV;
@@ -44,8 +43,7 @@ SLCompactGrid::containingVoxel(const SLVec3f& p) const
 }
 //-----------------------------------------------------------------------------
 //! Returns the voxel center point for a given voxel by index
-SLVec3f
-SLCompactGrid::voxelCenter(const SLVec3i& pos) const
+SLVec3f SLCompactGrid::voxelCenter(const SLVec3i& pos) const
 {
     return _minV + SLVec3f((pos.x + .5f) * _voxelSize.x,
                            (pos.y + .5f) * _voxelSize.y,
@@ -53,10 +51,9 @@ SLCompactGrid::voxelCenter(const SLVec3i& pos) const
 }
 //-----------------------------------------------------------------------------
 //! Returns the min. and max. voxel of a triangle
-void
-SLCompactGrid::getMinMaxVoxel(const Triangle& triangle,
-                              SLVec3i&        minCell,
-                              SLVec3i&        maxCell)
+void SLCompactGrid::getMinMaxVoxel(const Triangle& triangle,
+                                   SLVec3i&        minCell,
+                                   SLVec3i&        maxCell)
 {
     minCell = maxCell = containingVoxel(triangle[0]);
     for (SLuint i = 1; i < 3; ++i)
@@ -66,11 +63,9 @@ SLCompactGrid::getMinMaxVoxel(const Triangle& triangle,
         maxCell.setMax(containingVoxel(vertex));
     }
 }
-
 //-----------------------------------------------------------------------------
 //! Deletes the entire uniform grid data
-void
-SLCompactGrid::deleteAll()
+void SLCompactGrid::deleteAll()
 {
     _voxelCnt      = 0;
     _voxelCntEmpty = 0;
@@ -85,8 +80,7 @@ SLCompactGrid::deleteAll()
 }
 //-----------------------------------------------------------------------------
 //!Loops over triangles gets their voxels and calls the callback function
-void
-SLCompactGrid::ifTriangleInVoxelDo(triVoxCallback callback)
+void SLCompactGrid::ifTriangleInVoxelDo(triVoxCallback callback)
 {
     assert(callback && "No callback function passed");
 
@@ -125,8 +119,7 @@ SLCompactGrid::ifTriangleInVoxelDo(triVoxCallback callback)
 SLCompactGrid::build implements the data structure proposed by Lagae & Dutre in
 their paper "Compact, Fast and Robust Grids for Ray Tracing".
 */
-void
-SLCompactGrid::build(SLVec3f minV, SLVec3f maxV)
+void SLCompactGrid::build(SLVec3f minV, SLVec3f maxV)
 {
     assert(_m->I16.size() || _m->I32.size());
 
@@ -194,8 +187,7 @@ SLCompactGrid::build(SLVec3f minV, SLVec3f maxV)
 }
 //-----------------------------------------------------------------------------
 //! Updates the statistics in the parent node
-void
-SLCompactGrid::updateStats(SLNodeStats& stats)
+void SLCompactGrid::updateStats(SLNodeStats& stats)
 {
     stats.numVoxels += _voxelCnt;
     stats.numVoxEmpty += _voxelCntEmpty;
@@ -210,8 +202,7 @@ SLCompactGrid::updateStats(SLNodeStats& stats)
 }
 //-----------------------------------------------------------------------------
 //! SLCompactGrid::draw draws the non-empty voxels of the uniform grid
-void
-SLCompactGrid::draw(SLSceneView* sv)
+void SLCompactGrid::draw(SLSceneView* sv)
 {
     if (_voxelCnt > 0)
     {
@@ -280,8 +271,7 @@ Ray Mesh intersection method using the regular grid space subdivision structure
 and a voxel traversal algorithm described in "A Fast Voxel Traversal Algorithm
 for Ray Tracing" by John Amanatides and Andrew Woo.
 */
-SLbool
-SLCompactGrid::intersect(SLRay* ray, SLNode* node)
+SLbool SLCompactGrid::intersect(SLRay* ray, SLNode* node)
 {
     // Check first if the AABB is hit at all
     if (node->aabb()->isHitInOS(ray))

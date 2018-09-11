@@ -20,7 +20,6 @@
 //-----------------------------------------------------------------------------
 //! Default path for 3DS models used when only filename is passed in load.
 SLstring SLImporter::defaultPath = "../_data/models/";
-
 //-----------------------------------------------------------------------------
 /*! Default constructor, doesn't log anything
 */
@@ -31,7 +30,6 @@ SLImporter::SLImporter()
     _skeleton(nullptr)
 {
 }
-
 //-----------------------------------------------------------------------------
 /*! Constructor that only outputs console logs
 */
@@ -41,7 +39,6 @@ SLImporter::SLImporter(SLLogVerbosity consoleVerb)
     _skeleton(nullptr)
 {
 }
-
 //-----------------------------------------------------------------------------
 /*! Constructor that allows logging to a file with different verbosity
 */
@@ -56,7 +53,6 @@ SLImporter::SLImporter(const SLstring& logFile,
     if (_logFileVerbosity > LV_quiet)
         _log.open(logFile.c_str());
 }
-
 //-----------------------------------------------------------------------------
 /*! Destructor, closes the file stream if it was used
 */
@@ -65,7 +61,6 @@ SLImporter::~SLImporter()
     if (_log.is_open())
         _log.close();
 }
-
 //-----------------------------------------------------------------------------
 /*! Logs messages to the importer logfile and the console
     @param  msg          the message to add to the log
@@ -76,8 +71,7 @@ SLImporter::~SLImporter()
             I only used printf here because it allows me to combine a string with different variables
             in only one line and I don't have an easy way to do this in c++0x. Again c++11 would be easy.
 */
-void
-SLImporter::logMessage(SLLogVerbosity verbosity, const char* msg, ...)
+void SLImporter::logMessage(SLLogVerbosity verbosity, const char* msg, ...)
 {
 #if defined(SL_OS_ANDROID)
 #    define SL_LOG(msg) ;

@@ -72,7 +72,6 @@ SLCVTrackedFeatures::SLCVTrackedFeatures(SLNode*  node,
 #    endif
 #endif
 }
-
 //-----------------------------------------------------------------------------
 //! Show statistics if program terminates
 SLCVTrackedFeatures::~SLCVTrackedFeatures()
@@ -109,11 +108,9 @@ SLCVTrackedFeatures::~SLCVTrackedFeatures()
 //SL_LOG("Avg Translation error                            : %f px\n", translationError / frames_with_pose);
 #endif //SL_DO_FEATURE_BENCHMARKING
 }
-
 //-----------------------------------------------------------------------------
 //! Loads the marker image form the filesystem
-void
-SLCVTrackedFeatures::loadMarker(string markerFilename)
+void SLCVTrackedFeatures::loadMarker(string markerFilename)
 {
     // Read reference marker
     // (The images source is deallocated by SLScene::unInit)
@@ -131,8 +128,7 @@ SLCVTrackedFeatures::loadMarker(string markerFilename)
 2. Set up 3D points with predefined scaling
 3. Perform optional drawing operations on image
 */
-void
-SLCVTrackedFeatures::initFeaturesOnMarker()
+void SLCVTrackedFeatures::initFeaturesOnMarker()
 {
     assert(!_marker.imageGray.empty() && "Grayscale image is empty!");
 
@@ -196,11 +192,9 @@ SLCVTrackedFeatures::initFeaturesOnMarker()
     }
 #endif
 }
-
 //-----------------------------------------------------------------------------
 //! Setter of the feature detector & descriptor type
-void
-SLCVTrackedFeatures::type(SLCVDetectDescribeType ddType)
+void SLCVTrackedFeatures::type(SLCVDetectDescribeType ddType)
 {
     _featureManager.createDetectorDescriptor(ddType);
 
@@ -220,12 +214,11 @@ SLCVTrackedFeatures::type(SLCVDetectDescribeType ddType)
 @param sv The current scene view
 @return So far allways false
 */
-SLbool
-SLCVTrackedFeatures::track(SLCVMat          imageGray,
-                           SLCVMat          image,
-                           SLCVCalibration* calib,
-                           SLbool           drawDetection,
-                           SLSceneView*     sv)
+SLbool SLCVTrackedFeatures::track(SLCVMat          imageGray,
+                                  SLCVMat          image,
+                                  SLCVCalibration* calib,
+                                  SLbool           drawDetection,
+                                  SLSceneView*     sv)
 {
     assert(!image.empty() && "Image is empty");
     assert(!calib->cameraMat().empty() && "Calibration is empty");
@@ -268,7 +261,6 @@ SLCVTrackedFeatures::track(SLCVMat          imageGray,
 
     return false;
 }
-
 //-----------------------------------------------------------------------------
 /*! If relocation should be done, the following steps are necessary:
 1. Detect keypoints
@@ -276,8 +268,7 @@ SLCVTrackedFeatures::track(SLCVMat          imageGray,
 3. Match keypoints in current frame and the reference tracker
 4. Try to calculate new Pose with Perspective-n-SLCVPoint algorithm
 */
-void
-SLCVTrackedFeatures::relocate()
+void SLCVTrackedFeatures::relocate()
 {
     _isTracking = false;
     detectKeypointsAndDescriptors();
@@ -293,8 +284,7 @@ SLCVTrackedFeatures::relocate()
 /*! To track the already detected keypoints after a sucessful pose estimation,
 we track the features with optical flow
 */
-void
-SLCVTrackedFeatures::tracking()
+void SLCVTrackedFeatures::tracking()
 {
     _isTracking             = true;
     _currentFrame.foundPose = trackWithOptFlow(_prevFrame.rvec, _prevFrame.tvec);
@@ -312,8 +302,7 @@ SLCVTrackedFeatures::tracking()
 - Optical Flow (Small arrows that show how keypoints moved between frames)
 - Reprojection with the calculated Pose
 */
-void
-SLCVTrackedFeatures::drawDebugInformation(SLbool drawDetection)
+void SLCVTrackedFeatures::drawDebugInformation(SLbool drawDetection)
 {
     if (drawDetection)
     {
@@ -447,11 +436,9 @@ SLCVTrackedFeatures::drawDebugInformation(SLbool drawDetection)
     }
 #endif
 }
-
 //-----------------------------------------------------------------------------
 //! Updates the scenegraph camera with the new pose
-void
-SLCVTrackedFeatures::updateSceneCamera(SLSceneView* sv)
+void SLCVTrackedFeatures::updateSceneCamera(SLSceneView* sv)
 {
     if (_currentFrame.foundPose)
     {
@@ -477,14 +464,12 @@ SLCVTrackedFeatures::updateSceneCamera(SLSceneView* sv)
         frames_since_posefound++;
     }
 }
-
 //-----------------------------------------------------------------------------
 /*! Copies the current frame data to the previous frame data struct for the
 next frame handling.
 TODO: more elegant way to do this whole copy action
 */
-void
-SLCVTrackedFeatures::transferFrameData()
+void SLCVTrackedFeatures::transferFrameData()
 {
     _currentFrame.imageGray.copyTo(_prevFrame.imageGray);
     _currentFrame.image.copyTo(_prevFrame.image);
@@ -519,15 +504,13 @@ SLCVTrackedFeatures::transferFrameData()
         _currentFrame.tvec = SLCVMat::zeros(3, 1, CV_64FC1);
     }
 }
-
 //-----------------------------------------------------------------------------
 /*! Get keypoints and descriptors in one step. This is a more efficient way
 since we have to build the scaling pyramide only once. If we detect and
 describe seperatly, it will lead in two scaling pyramids and is therefore less
 meaningful.
 */
-void
-SLCVTrackedFeatures::detectKeypointsAndDescriptors()
+void SLCVTrackedFeatures::detectKeypointsAndDescriptors()
 {
     SLScene* s       = SLApplication::scene;
     SLfloat  startMS = s->timeMilliSec();
@@ -538,15 +521,13 @@ SLCVTrackedFeatures::detectKeypointsAndDescriptors()
 
     s->detectTimesMS().set(s->timeMilliSec() - startMS);
 }
-
 //-----------------------------------------------------------------------------
 /*! Get matching features with the defined feature matcher. Since we are using
 the k-next-neighbour matcher, we check if the best and second best match are
 not too identical with the so called ratio test.
 @return Vector of found matches
 */
-SLCVVDMatch
-SLCVTrackedFeatures::getFeatureMatches()
+SLCVVDMatch SLCVTrackedFeatures::getFeatureMatches()
 {
     SLScene* s       = SLApplication::scene;
     SLfloat  startMS = s->timeMilliSec();
@@ -571,7 +552,6 @@ SLCVTrackedFeatures::getFeatureMatches()
     s->matchTimesMS().set(s->timeMilliSec() - startMS);
     return goodMatches;
 }
-
 //-----------------------------------------------------------------------------
 /*! This method does the most important work of the whole pipeline:
 
@@ -615,8 +595,7 @@ respect to world coordinates.
 
 @return True if the pose was found.
  */
-bool
-SLCVTrackedFeatures::calculatePose()
+bool SLCVTrackedFeatures::calculatePose()
 {
     // solvePnP crashes if less than 5 points are given
     if (_currentFrame.matches.size() < 10) return false;
@@ -705,15 +684,13 @@ SLCVTrackedFeatures::calculatePose()
 
     return foundPose;
 }
-
 //-----------------------------------------------------------------------------
 /*! To get more matches with the calculated pose, we reproject the reference
 points to our current frame. Within a predefined patch, we try to rematch not
 matched features with the reprojected point. If not possible, we increase the
 patch size until we found a match for the point or we reach a threshold.
 */
-void
-SLCVTrackedFeatures::optimizeMatches()
+void SLCVTrackedFeatures::optimizeMatches()
 {
     SLfloat reprojectionError = 0;
 
@@ -878,7 +855,6 @@ SLCVTrackedFeatures::optimizeMatches()
     _currentFrame.inlierPoints3D = modelPoints;
     _currentFrame.inlierPoints2D = framePoints;
 }
-
 //-----------------------------------------------------------------------------
 /*! Tracks the features with Optical Flow (Lucas Kanade). This will only try to
 predict the new location of keypoints. If they were found, we perform a
@@ -889,8 +865,7 @@ Pose).
 @param tvec  Translation vector (will be used for extrinsic guess)
 @return      True if Pose found, false otherwise
 */
-bool
-SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
+bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
 {
     if (_prevFrame.inlierPoints2D.size() < 4) return false;
 

@@ -31,8 +31,7 @@ SLGLImGui::SLGLImGui()
 }
 //-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
-void
-SLGLImGui::init()
+void SLGLImGui::init()
 {
     _fontTexture       = 0;
     _progHandle        = 0;
@@ -88,8 +87,7 @@ SLGLImGui::init()
 }
 //-----------------------------------------------------------------------------
 //! Loads the proportional and fixed size font depending on the passed DPI
-void
-SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
+void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
 {
     _fontPropDots  = fontPropDots;
     _fontFixedDots = fontFixedDots;
@@ -122,8 +120,7 @@ SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
 }
 //-----------------------------------------------------------------------------
 //! Creates all OpenGL objects for drawing the imGui
-void
-SLGLImGui::createOpenGLObjects()
+void SLGLImGui::createOpenGLObjects()
 {
     // Backup GL state
     GLint last_texture, last_array_buffer, last_vertex_array;
@@ -270,8 +267,7 @@ SLGLImGui::createOpenGLObjects()
 }
 //-----------------------------------------------------------------------------
 //! Deletes all OpenGL objects for drawing the imGui
-void
-SLGLImGui::deleteOpenGLObjects()
+void SLGLImGui::deleteOpenGLObjects()
 {
     if (_vaoHandle) glDeleteVertexArrays(1, &_vaoHandle);
     if (_vboHandle) glDeleteBuffers(1, &_vboHandle);
@@ -300,8 +296,7 @@ SLGLImGui::deleteOpenGLObjects()
 }
 //-----------------------------------------------------------------------------
 //! Prints the compile errors in case of a GLSL compile failure
-void
-SLGLImGui::printCompileErrors(SLint shaderHandle, const SLchar* src)
+void SLGLImGui::printCompileErrors(SLint shaderHandle, const SLchar* src)
 {
     // Check compiler log
     SLint compileSuccess = 0;
@@ -320,8 +315,7 @@ SLGLImGui::printCompileErrors(SLint shaderHandle, const SLchar* src)
 }
 //-----------------------------------------------------------------------------
 //! Inits a new frame for the ImGui system
-void
-SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
+void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
 {
     // If no build function is provided there is no ImGui
     if (!build) return;
@@ -358,16 +352,14 @@ SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 //! Callback if window got resized
-void
-SLGLImGui::onResize(SLint scrW, SLint scrH)
+void SLGLImGui::onResize(SLint scrW, SLint scrH)
 {
     ImGuiIO& io    = ImGui::GetIO();
     io.DisplaySize = ImVec2((SLfloat)scrW, (SLfloat)scrH);
 }
 //-----------------------------------------------------------------------------
 //! Callback for main rendering for the ImGui GUI system
-void
-SLGLImGui::onPaint(ImDrawData* draw_data)
+void SLGLImGui::onPaint(ImDrawData* draw_data)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -519,8 +511,7 @@ SLGLImGui::onPaint(ImDrawData* draw_data)
 }
 //-----------------------------------------------------------------------------
 //! Callback on mouse button down event
-void
-SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
+void SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
 {
     ImGuiIO& io = ImGui::GetIO();
     io.MousePos = ImVec2((SLfloat)x, (SLfloat)y);
@@ -531,8 +522,7 @@ SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
 }
 //-----------------------------------------------------------------------------
 //! Callback on mouse button up event
-void
-SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
+void SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
 {
     ImGuiIO& io = ImGui::GetIO();
     io.MousePos = ImVec2((SLfloat)x, (SLfloat)y);
@@ -543,24 +533,21 @@ SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
 }
 //-----------------------------------------------------------------------------
 //! Updates the mouse cursor position
-void
-SLGLImGui::onMouseMove(SLint xPos, SLint yPos)
+void SLGLImGui::onMouseMove(SLint xPos, SLint yPos)
 {
     ImGui::GetIO().MousePos = ImVec2((SLfloat)xPos, (SLfloat)yPos);
     //SL_LOG("M\n");
 }
 //-----------------------------------------------------------------------------
 //! Callback for the mouse scroll movement
-void
-SLGLImGui::onMouseWheel(SLfloat yoffset)
+void SLGLImGui::onMouseWheel(SLfloat yoffset)
 {
     // Use fractional mouse wheel, 1.0 unit 5 lines.
     _mouseWheel += yoffset;
 }
 //-----------------------------------------------------------------------------
 //! Callback on key press event
-void
-SLGLImGui::onKeyPress(SLKey key, SLKey mod)
+void SLGLImGui::onKeyPress(SLKey key, SLKey mod)
 {
     ImGuiIO& io      = ImGui::GetIO();
     io.KeysDown[key] = true;
@@ -570,8 +557,7 @@ SLGLImGui::onKeyPress(SLKey key, SLKey mod)
 }
 //-----------------------------------------------------------------------------
 //! Callback on key release event
-void
-SLGLImGui::onKeyRelease(SLKey key, SLKey mod)
+void SLGLImGui::onKeyRelease(SLKey key, SLKey mod)
 {
     ImGuiIO& io      = ImGui::GetIO();
     io.KeysDown[key] = false;
@@ -581,8 +567,7 @@ SLGLImGui::onKeyRelease(SLKey key, SLKey mod)
 }
 //-----------------------------------------------------------------------------
 //! Callback on character input
-void
-SLGLImGui::onCharInput(SLuint c)
+void SLGLImGui::onCharInput(SLuint c)
 {
     ImGuiIO& io = ImGui::GetIO();
     if (c > 0 && c < 0x10000)
@@ -590,16 +575,14 @@ SLGLImGui::onCharInput(SLuint c)
 }
 //-----------------------------------------------------------------------------
 //! Callback on closing the application
-void
-SLGLImGui::onClose()
+void SLGLImGui::onClose()
 {
     deleteOpenGLObjects();
     ImGui::Shutdown();
 }
 //-----------------------------------------------------------------------------
 //! Renders an extra frame with the current mouse position
-void
-SLGLImGui::renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY)
+void SLGLImGui::renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY)
 {
     // If ImGui build function exists render the ImGui
     if (build)

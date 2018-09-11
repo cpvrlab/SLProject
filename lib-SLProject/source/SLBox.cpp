@@ -49,8 +49,7 @@ SLBox::SLBox(SLVec3f     min,
 }
 //-----------------------------------------------------------------------------
 //! SLBox::buildMesh fills in the underlying arrays from the SLMesh object
-void
-SLBox::buildMesh(SLMaterial* material)
+void SLBox::buildMesh(SLMaterial* material)
 {
     deleteData();
 

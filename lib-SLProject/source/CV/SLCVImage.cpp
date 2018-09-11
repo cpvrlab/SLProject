@@ -84,8 +84,7 @@ SLCVImage::~SLCVImage()
 }
 //-----------------------------------------------------------------------------
 //! Deletes all data and resets the image parameters
-void
-SLCVImage::clearData()
+void SLCVImage::clearData()
 {
     _cvMat.release();
     _bytesPerPixel = 0;
@@ -101,11 +100,10 @@ SLCVImage::clearData()
 /param pixelFormatGL OpenGL pixel format enum
 /param isContinuous True if the memory is continuous and has no stride bytes at the end of the line
 */
-SLbool
-SLCVImage::allocate(SLint         width,
-                    SLint         height,
-                    SLPixelFormat pixelFormatGL,
-                    SLbool        isContinuous)
+SLbool SLCVImage::allocate(SLint         width,
+                           SLint         height,
+                           SLPixelFormat pixelFormatGL,
+                           SLbool        isContinuous)
 {
     assert(width > 0 && height > 0);
 
@@ -173,8 +171,7 @@ SLCVImage::allocate(SLint         width,
 }
 //-----------------------------------------------------------------------------
 //! Returns the NO. of bytes per pixel for the passed pixel format
-SLuint
-SLCVImage::bytesPerPixel(SLPixelFormat format)
+SLuint SLCVImage::bytesPerPixel(SLPixelFormat format)
 {
     switch (format)
     {
@@ -208,10 +205,9 @@ SLCVImage::bytesPerPixel(SLPixelFormat format)
 /param pixelFormatGL OpenGL pixel format enum
 /param isContinuous True if the memory is continuous and has no stride bytes at the end of the line
 */
-SLuint
-SLCVImage::bytesPerLine(SLuint        width,
-                        SLPixelFormat format,
-                        SLbool        isContinuous)
+SLuint SLCVImage::bytesPerLine(SLuint        width,
+                               SLPixelFormat format,
+                               SLbool        isContinuous)
 {
     SLuint bpp          = bytesPerPixel(format);
     SLuint bitsPerPixel = bpp * 8;
@@ -395,10 +391,9 @@ SLCVImage::load(SLint         width,
 }
 //-----------------------------------------------------------------------------
 //! Loads the image with the appropriate image loader
-void
-SLCVImage::load(const SLstring filename,
-                SLbool         flipVertical,
-                SLbool         loadGrayscaleIntoAlpha)
+void SLCVImage::load(const SLstring filename,
+                     SLbool         flipVertical,
+                     SLbool         loadGrayscaleIntoAlpha)
 {
     SLstring ext = SLUtils::getFileExt(filename);
     _name        = SLUtils::getFileName(filename);
@@ -470,8 +465,7 @@ SLCVImage::load(const SLstring filename,
 }
 //-----------------------------------------------------------------------------
 //! Converts OpenCV mat type to OpenGL pixel format
-SLPixelFormat
-SLCVImage::cv2glPixelFormat(SLint cvType)
+SLPixelFormat SLCVImage::cv2glPixelFormat(SLint cvType)
 {
     switch (cvType)
     {
@@ -505,8 +499,7 @@ SLCVImage::cv2glPixelFormat(SLint cvType)
 }
 //-----------------------------------------------------------------------------
 //! Returns the pixel format as string
-SLstring
-SLCVImage::formatString()
+SLstring SLCVImage::formatString()
 {
     switch (_format)
     {
@@ -540,11 +533,10 @@ SLCVImage::formatString()
 \param flipY Flag for vertical mirroring
 \param convertBGR2RGB Flag for BGR to RGB conversion
 */
-void
-SLCVImage::savePNG(const SLstring filename,
-                   const SLint    compressionLevel,
-                   const SLbool   flipY,
-                   const SLbool   convertBGR2RGB)
+void SLCVImage::savePNG(const SLstring filename,
+                        const SLint    compressionLevel,
+                        const SLbool   flipY,
+                        const SLbool   convertBGR2RGB)
 {
     SLVint compression_params;
     compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
@@ -577,11 +569,10 @@ SLCVImage::savePNG(const SLstring filename,
 \param flipY Flag for vertical mirroring
 \param convertBGR2RGB Flag for BGR to RGB conversion
 */
-void
-SLCVImage::saveJPG(const SLstring filename,
-                   const SLint    compressionLevel,
-                   const SLbool   flipY,
-                   const SLbool   convertBGR2RGB)
+void SLCVImage::saveJPG(const SLstring filename,
+                        const SLint    compressionLevel,
+                        const SLbool   flipY,
+                        const SLbool   convertBGR2RGB)
 {
     SLVint compression_params;
     compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
@@ -610,8 +601,7 @@ SLCVImage::saveJPG(const SLstring filename,
 /*! Returns the pixel color at the integer pixel coordinate x, y. The color
 components range from 0-1 float.
 */
-SLCol4f
-SLCVImage::getPixeli(SLint x, SLint y)
+SLCol4f SLCVImage::getPixeli(SLint x, SLint y)
 {
     SLCol4f color;
 
@@ -669,8 +659,7 @@ getPixelf returns a pixel color with its x & y texture coordinates.
 If the OpenGL filtering is set to GL_LINEAR a bilinear interpolated color out
 of four neighbouring pixels is return. Otherwise the nearest pixel is returned.
 */
-SLCol4f
-SLCVImage::getPixelf(SLfloat x, SLfloat y)
+SLCol4f SLCVImage::getPixelf(SLfloat x, SLfloat y)
 {
     // Bilinear interpolation
     SLfloat xf = SL_fract(x) * _cvMat.cols;
@@ -716,8 +705,7 @@ SLCVImage::getPixelf(SLfloat x, SLfloat y)
 }
 //-----------------------------------------------------------------------------
 //! setPixeli sets the pixel color at the integer pixel coordinate x, y
-void
-SLCVImage::setPixeli(SLint x, SLint y, SLCol4f color)
+void SLCVImage::setPixeli(SLint x, SLint y, SLCol4f color)
 {
     if (x < 0) x = 0;
     if (x >= (SLint)_cvMat.cols) x = _cvMat.cols - 1; // 0 <= x < _width
@@ -776,8 +764,7 @@ SLCVImage::setPixeli(SLint x, SLint y, SLCol4f color)
 }
 //-----------------------------------------------------------------------------
 //! setPixeli sets the RGB pixel color at the integer pixel coordinate x, y
-void
-SLCVImage::setPixeliRGB(SLint x, SLint y, SLCol3f color)
+void SLCVImage::setPixeliRGB(SLint x, SLint y, SLCol3f color)
 {
     assert(_bytesPerPixel == 3);
     if (x < 0) x = 0;
@@ -791,8 +778,7 @@ SLCVImage::setPixeliRGB(SLint x, SLint y, SLCol3f color)
 }
 //-----------------------------------------------------------------------------
 //! setPixeli sets the RGB pixel color at the integer pixel coordinate x, y
-void
-SLCVImage::setPixeliRGB(SLint x, SLint y, SLCol4f color)
+void SLCVImage::setPixeliRGB(SLint x, SLint y, SLCol4f color)
 {
     assert(_bytesPerPixel == 3);
     if (x < 0) x = 0;
@@ -806,8 +792,7 @@ SLCVImage::setPixeliRGB(SLint x, SLint y, SLCol4f color)
 }
 //-----------------------------------------------------------------------------
 //! setPixeli sets the RGBA pixel color at the integer pixel coordinate x, y
-void
-SLCVImage::setPixeliRGBA(SLint x, SLint y, SLCol4f color)
+void SLCVImage::setPixeliRGBA(SLint x, SLint y, SLCol4f color)
 {
     assert(_bytesPerPixel == 4);
     if (x < 0) x = 0;
@@ -824,8 +809,7 @@ SLCVImage::setPixeliRGBA(SLint x, SLint y, SLCol4f color)
 /*!
 SLCVImage::Resize does a scaling with bilinear interpolation.
 */
-void
-SLCVImage::resize(SLint width, SLint height)
+void SLCVImage::resize(SLint width, SLint height)
 {
     assert(_cvMat.cols > 0 && _cvMat.rows > 0 && width > 0 && height > 0);
     if (_cvMat.cols == width && _cvMat.rows == height) return;
@@ -838,8 +822,7 @@ SLCVImage::resize(SLint width, SLint height)
 }
 //-----------------------------------------------------------------------------
 //! Flip Y coordiantes used to make JPEGs from top-left to bottom-left images.
-void
-SLCVImage::flipY()
+void SLCVImage::flipY()
 {
     if (_cvMat.cols > 0 && _cvMat.rows > 0)
     {
@@ -850,8 +833,7 @@ SLCVImage::flipY()
 }
 //-----------------------------------------------------------------------------
 //! Fills the image with a certain rgb color
-void
-SLCVImage::fill(SLubyte r, SLubyte g, SLubyte b)
+void SLCVImage::fill(SLubyte r, SLubyte g, SLubyte b)
 {
     switch (_format)
     {
@@ -866,8 +848,7 @@ SLCVImage::fill(SLubyte r, SLubyte g, SLubyte b)
 }
 //-----------------------------------------------------------------------------
 //! Fills the image with a certain rgba color
-void
-SLCVImage::fill(SLubyte r, SLubyte g, SLubyte b, SLubyte a)
+void SLCVImage::fill(SLubyte r, SLubyte g, SLubyte b, SLubyte a)
 {
     switch (_format)
     {

@@ -48,9 +48,8 @@ See examples usages in:
 /param applicationName The apps name
 /param onSceneLoadCallback C Callback function as void* pointer for the scene creation.
 */
-void
-SLApplication::createAppAndScene(SLstring appName,
-                                 void*    onSceneLoadCallback)
+void SLApplication::createAppAndScene(SLstring appName,
+                                      void*    onSceneLoadCallback)
 {
     assert(SLApplication::scene == nullptr &&
            "You can create only one SLApplication");
@@ -81,8 +80,7 @@ All other date gets destroyed from there. This function gets called by the
 SLProject C-Interface function slTerminate that should be called at the end of
 any SLProject application.
 */
-void
-SLApplication::deleteAppAndScene()
+void SLApplication::deleteAppAndScene()
 {
     assert(SLApplication::scene != nullptr &&
            "You can delete an  only once");

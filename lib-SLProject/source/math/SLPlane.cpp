@@ -25,10 +25,9 @@ SLPlane::SLPlane(const SLVec3f& v0,
 /*!
 SLPlane::setFromPoints set the plane from 3 points
 */
-void
-SLPlane::setPoints(const SLVec3f& v0,
-                   const SLVec3f& v1,
-                   const SLVec3f& v2)
+void SLPlane::setPoints(const SLVec3f& v0,
+                        const SLVec3f& v1,
+                        const SLVec3f& v2)
 {
     SLVec3f edge1(v1 - v0);
     SLVec3f edge2(v2 - v0);
@@ -40,8 +39,7 @@ SLPlane::setPoints(const SLVec3f& v0,
 /*!
 SLPlane::setByNormalAndPoint defines the plane by a normal N and a point P
 */
-void
-SLPlane::setNormalAndPoint(const SLVec3f& normal, const SLVec3f& P)
+void SLPlane::setNormalAndPoint(const SLVec3f& normal, const SLVec3f& P)
 {
     N.set(normal);
     N.normalize();
@@ -51,11 +49,10 @@ SLPlane::setNormalAndPoint(const SLVec3f& normal, const SLVec3f& P)
 /*! 
 SLPlane::setByCoefficients defines the plane by the coefficient A,B,C & D
 */
-void
-SLPlane::setCoefficients(const SLfloat A,
-                         const SLfloat B,
-                         const SLfloat C,
-                         SLfloat       D)
+void SLPlane::setCoefficients(const SLfloat A,
+                              const SLfloat B,
+                              const SLfloat C,
+                              SLfloat       D)
 {
     // set the normal vector
     N.set(A, B, C);
@@ -73,8 +70,7 @@ SLPlane::setCoefficients(const SLfloat A,
 /*!
 SLPlane::print prints the normal and the coefficent d
 */
-void
-SLPlane::print(const char* name)
+void SLPlane::print(const char* name)
 {
     SL_LOG("Plane(%s: a=%4.3f, b=%4.3f, c=%4.3f)\n",
            name,

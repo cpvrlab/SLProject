@@ -26,8 +26,7 @@ SLAABBox::SLAABBox()
 }
 //-----------------------------------------------------------------------------
 //! Resets initial state without contents
-void
-SLAABBox::reset()
+void SLAABBox::reset()
 {
     _minWS    = SLVec3f::ZERO;
     _maxWS    = SLVec3f::ZERO;
@@ -50,10 +49,9 @@ SLAABBox::reset()
 }
 //-----------------------------------------------------------------------------
 //! Recalculate min and max after transformation in world coords
-void
-SLAABBox::fromOStoWS(const SLVec3f& minOS,
-                     const SLVec3f& maxOS,
-                     const SLMat4f& wm)
+void SLAABBox::fromOStoWS(const SLVec3f& minOS,
+                          const SLVec3f& maxOS,
+                          const SLMat4f& wm)
 {
     // Do not transform empty AABB (such as from the camera)
     if (minOS == SLVec3f::ZERO && maxOS == SLVec3f::ZERO)
@@ -103,10 +101,9 @@ SLAABBox::fromOStoWS(const SLVec3f& minOS,
 }
 //-----------------------------------------------------------------------------
 //! Recalculate min and max before transformation in object coords
-void
-SLAABBox::fromWStoOS(const SLVec3f& minWS,
-                     const SLVec3f& maxWS,
-                     const SLMat4f& wmI)
+void SLAABBox::fromWStoOS(const SLVec3f& minWS,
+                          const SLVec3f& maxWS,
+                          const SLMat4f& wmI)
 {
     _minOS.set(minWS);
     _maxOS.set(maxWS);
@@ -146,8 +143,7 @@ SLAABBox::fromWStoOS(const SLVec3f& minWS,
 }
 //-----------------------------------------------------------------------------
 //! Updates the axis of the owning node
-void
-SLAABBox::updateAxisWS(const SLMat4f& wm)
+void SLAABBox::updateAxisWS(const SLMat4f& wm)
 {
     //set coordinate axis in world space
     _axis0WS = wm.multVec(SLVec3f::ZERO);
@@ -168,10 +164,9 @@ connection not as a bone but as an offset displacement. Bones will be drawn in
 SLAABBox::drawBoneWS in yellow and displacements in magenta.
 If the joint has no parent (the root) no line is drawn.
 */
-void
-SLAABBox::updateBoneWS(const SLMat4f& parentWM,
-                       const SLbool   isRoot,
-                       const SLMat4f& nodeWM)
+void SLAABBox::updateBoneWS(const SLMat4f& parentWM,
+                            const SLbool   isRoot,
+                            const SLMat4f& nodeWM)
 {
     // set coordinate axis centre point
     _axis0WS = nodeWM.multVec(SLVec3f::ZERO);
@@ -211,8 +206,7 @@ SLAABBox::updateBoneWS(const SLMat4f& parentWM,
 }
 //-----------------------------------------------------------------------------
 //! Calculates center & radius of the bounding sphere around the AABB
-void
-SLAABBox::setCenterAndRadius()
+void SLAABBox::setCenterAndRadius()
 {
     _centerWS = _minWS;
     _centerWS += _maxWS;
@@ -228,8 +222,7 @@ SLAABBox::setCenterAndRadius()
 }
 //-----------------------------------------------------------------------------
 //! Generates the vertex buffer for the line visualization
-void
-SLAABBox::generateVAO()
+void SLAABBox::generateVAO()
 {
     SLVVec3f P; // vertex positions
 
@@ -275,16 +268,14 @@ SLAABBox::generateVAO()
 }
 //-----------------------------------------------------------------------------
 //! Draws the AABB in world space with lines in a color
-void
-SLAABBox::drawWS(const SLCol4f color)
+void SLAABBox::drawWS(const SLCol4f color)
 {
     if (!_vao.id()) generateVAO();
     _vao.drawArrayAsColored(PT_lines, color, 1.0f, 0, 24);
 }
 //-----------------------------------------------------------------------------
 //! Draws the axis in world space with lines in a color
-void
-SLAABBox::drawAxisWS()
+void SLAABBox::drawAxisWS()
 {
     if (!_vao.id()) generateVAO();
     _vao.drawArrayAsColored(PT_lines, SLCol3f::RED, 2.0f, 24, 2);
@@ -297,8 +288,7 @@ SLAABBox::drawAxisWS()
 blue. If the parent displacement is a bone it is drawn in yellow, if it is a
 an offset displacement in magenta. See also SLAABBox::updateBoneWS.
 */
-void
-SLAABBox::drawBoneWS()
+void SLAABBox::drawBoneWS()
 {
     if (!_vao.id()) generateVAO();
     _vao.drawArrayAsColored(PT_lines, SLCol3f::RED, 2.0f, 24, 2);
@@ -314,8 +304,7 @@ SLAABBox::drawBoneWS()
 //-----------------------------------------------------------------------------
 //! SLAABBox::isHitInWS: Ray - AABB Intersection Test in object space
 #define SL_RAY_AABB_FYFFE
-SLbool
-SLAABBox::isHitInOS(SLRay* ray)
+SLbool SLAABBox::isHitInOS(SLRay* ray)
 {
     //See: "An Efficient and Robust Ray Box Intersection Algorithm"
     //by Amy L. Williams, Steve Barrus, R. Keith Morley, Peter Shirley
@@ -343,11 +332,9 @@ SLAABBox::isHitInOS(SLRay* ray)
 
     return ((ray->tmin < ray->length) && (ray->tmax > 0));
 }
-
 //-----------------------------------------------------------------------------
 //! SLAABBox::isHitInWS: Ray - AABB Intersection Test in world space
-SLbool
-SLAABBox::isHitInWS(SLRay* ray)
+SLbool SLAABBox::isHitInWS(SLRay* ray)
 {
     //See: "An Efficient and Robust Ray Box Intersection Algorithm"
     //by Amy L. Williams, Steve Barrus, R. Keith Morley, Peter Shirley
@@ -374,11 +361,9 @@ SLAABBox::isHitInWS(SLRay* ray)
 
     return ((ray->tmin < ray->length) && (ray->tmax > 0));
 }
-
 //-----------------------------------------------------------------------------
 //! Merges the bounding box bb to this one by extending this one axis aligned
-void
-SLAABBox::mergeWS(SLAABBox& bb)
+void SLAABBox::mergeWS(SLAABBox& bb)
 {
     if (bb.minWS() != SLVec3f::ZERO && bb.maxWS() != SLVec3f::ZERO)
     {

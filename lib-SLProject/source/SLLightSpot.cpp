@@ -111,8 +111,7 @@ SLLightSpot::init sets the light id, the light states & creates an
 emissive mat.
 @todo properly remove this function and find a clean way to init lights in a scene
 */
-void
-SLLightSpot::init()
+void SLLightSpot::init()
 {
     // Check if OpenGL lights are available
     if (SLApplication::scene->lights().size() >= SL_MAX_LIGHTS)
@@ -138,8 +137,7 @@ SLLightSpot::init()
 /*!
 SLLightSpot::hitRec calls the recursive node intersection.
 */
-SLbool
-SLLightSpot::hitRec(SLRay* ray)
+SLbool SLLightSpot::hitRec(SLRay* ray)
 {
     // do not intersect shadow rays
     if (ray->type == SHADOW) return false;
@@ -152,8 +150,7 @@ SLLightSpot::hitRec(SLRay* ray)
 }
 //-----------------------------------------------------------------------------
 //! SLLightSpot::statsRec updates the statistic parameters
-void
-SLLightSpot::statsRec(SLNodeStats& stats)
+void SLLightSpot::statsRec(SLNodeStats& stats)
 {
     stats.numBytes += sizeof(SLLightSpot);
     stats.numBytes += _samples.sizeInBytes();
@@ -164,8 +161,7 @@ SLLightSpot::statsRec(SLNodeStats& stats)
 SLLightSpot::drawMeshes sets the light states and calls then the drawMeshes 
 method of its node.
 */
-void
-SLLightSpot::drawMeshes(SLSceneView* sv)
+void SLLightSpot::drawMeshes(SLSceneView* sv)
 {
     if (_id != -1)
     {
@@ -274,7 +270,6 @@ SLfloat SLLightSpot::shadowTest(SLRay*         ray, // ray of hit point
         return lighted;
     }
 }
-
 //-----------------------------------------------------------------------------
 /*!
 SLLightSpot::shadowTest returns 0.0 if the hit point is completely shaded and
@@ -367,12 +362,10 @@ SLfloat SLLightSpot::shadowTestMC(SLRay*         ray, // ray of hit point
         return 0.0f;
     }
 }
-
 //-----------------------------------------------------------------------------
 /*! SLLightSpot::setState sets the global rendering state
 */
-void
-SLLightSpot::setState()
+void SLLightSpot::setState()
 {
     if (_id != -1)
     {

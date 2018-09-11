@@ -17,8 +17,7 @@
 #include <SLDeviceRotation.h>
 
 //-----------------------------------------------------------------------------
-void
-SLDeviceRotation::init()
+void SLDeviceRotation::init()
 {
     _rotation.identity();
     _pitchRAD           = 0.0f;
@@ -43,11 +42,10 @@ Roll  from -halfpi (ccw)   to zero (horizontal) to +halfpi (clockwise)\n
 Pitch from -halfpi (down)  to zero (horizontal) to +halfpi (up)\n
 Yaw   from -pi     (south) to zero (north)      to +pi     (south)\n
 */
-void
-SLDeviceRotation::onRotationQUAT(SLfloat quatX,
-                                 SLfloat quatY,
-                                 SLfloat quatZ,
-                                 SLfloat quatW)
+void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
+                                      SLfloat quatY,
+                                      SLfloat quatZ,
+                                      SLfloat quatW)
 {
     SLQuat4f quat(quatX, quatY, quatZ, quatW);
     _rotation = quat.toMat3();
@@ -116,8 +114,7 @@ SLDeviceRotation::onRotationQUAT(SLfloat quatX,
 }
 //-----------------------------------------------------------------------------
 //! Setter that turns on the device rotation sensor
-void
-SLDeviceRotation::isUsed(SLbool use)
+void SLDeviceRotation::isUsed(SLbool use)
 {
     if (!_isUsed && use == true)
         _isFirstSensorValue = true;

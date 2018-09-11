@@ -35,8 +35,7 @@ polls all activated SLInputDevices.
         like MouseEnter, MouseLeave, Drag etc. For a sophisticated GUI 
         implementation the whole input management in SL would have to be reviewed.
 */
-SLbool
-SLInputManager::pollAndProcessEvents()
+SLbool SLInputManager::pollAndProcessEvents()
 {
     // process system events first
     SLbool consumedEvents = processQueuedEvents();
@@ -47,23 +46,19 @@ SLInputManager::pollAndProcessEvents()
 
     return consumedEvents;
 }
-
 //-----------------------------------------------------------------------------
 /*! Add a new SLInputEvent to the event queue. The queue will be emtied when
 a call to SLInputManager::pollEvents is made. The passed in SLInputEvents have 
 to be dynamically allocated by the user, the deallocation is handled by the
 SLInputManager */
-void
-SLInputManager::queueEvent(const SLInputEvent* e)
+void SLInputManager::queueEvent(const SLInputEvent* e)
 {
     _systemEvents.push(e);
 }
-
 //-----------------------------------------------------------------------------
 /*! Work off any queued up input event's and notify the correct receiver.
 @note   this is similar to the Qt QObject::event function.*/
-SLbool
-SLInputManager::processQueuedEvents()
+SLbool SLInputManager::processQueuedEvents()
 {
     SLQInputEvent& q = _systemEvents;
 

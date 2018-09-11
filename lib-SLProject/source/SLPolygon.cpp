@@ -55,8 +55,7 @@ SLPolygon::SLPolygon(SLfloat     width,
 }
 //-----------------------------------------------------------------------------
 //! SLPolygon::buildMesh fills in the underlying arrays from the SLMesh object
-void
-SLPolygon::buildMesh(SLMaterial* material)
+void SLPolygon::buildMesh(SLMaterial* material)
 {
     _isVolume = false;
 

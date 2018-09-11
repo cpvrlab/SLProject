@@ -57,8 +57,7 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation = false);
  (SLNode) and meshes (SLMesh). See the scene with SID_Minimal for a minimal
  example of the different steps.
 */
-void
-appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
+void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 {
     SLApplication::sceneID = sceneID;
 
@@ -2677,9 +2676,9 @@ appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial* mM = new SLMaterial("mM", SLCol4f::MAGENTA);
 
 #ifndef SL_GLES
-        SLint numSamples = 10;
+        SLuint numSamples = 10;
 #else
-        SLint  numSamples = 4;
+        SLuint numSamples = 4;
 #endif
 
         stringstream ss;
@@ -2755,9 +2754,9 @@ appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //matLens->shaderProg(sp1);
 
 #ifndef SL_GLES2
-        SLint numSamples = 10;
+        SLuint numSamples = 10;
 #else
-        SLint  numSamples = 6;
+        SLuint numSamples = 6;
 #endif
 
         // Scene
@@ -2904,8 +2903,7 @@ SLNode* SphereGroup(SLint       depth, // depth of recursion
 }
 //-----------------------------------------------------------------------------
 //! Build a hierarchical figurine with arms and legs
-SLNode*
-BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
+SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
 {
     SLNode* cyl;
     SLuint  res = 16;

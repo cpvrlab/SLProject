@@ -40,8 +40,7 @@ SLBackground::SLBackground() : SLObject("Background")
 }
 //-----------------------------------------------------------------------------
 //! Sets a uniform background color
-void
-SLBackground::colors(SLCol4f uniformColor)
+void SLBackground::colors(SLCol4f uniformColor)
 {
     _colors[0].set(uniformColor);
     _colors[1].set(uniformColor);
@@ -53,8 +52,7 @@ SLBackground::colors(SLCol4f uniformColor)
 }
 //-----------------------------------------------------------------------------
 //! Sets a gradient top-down background color
-void
-SLBackground::colors(SLCol4f topColor, SLCol4f bottomColor)
+void SLBackground::colors(SLCol4f topColor, SLCol4f bottomColor)
 {
     _colors[0].set(topColor);
     _colors[1].set(bottomColor);
@@ -66,11 +64,10 @@ SLBackground::colors(SLCol4f topColor, SLCol4f bottomColor)
 }
 //-----------------------------------------------------------------------------
 //! Sets a gradient background color with a color per corner
-void
-SLBackground::colors(SLCol4f topLeftColor,
-                     SLCol4f bottomLeftColor,
-                     SLCol4f topRightColor,
-                     SLCol4f bottomRightColor)
+void SLBackground::colors(SLCol4f topLeftColor,
+                          SLCol4f bottomLeftColor,
+                          SLCol4f topRightColor,
+                          SLCol4f bottomRightColor)
 {
     _colors[0].set(topLeftColor);
     _colors[1].set(bottomLeftColor);
@@ -82,8 +79,7 @@ SLBackground::colors(SLCol4f topLeftColor,
 }
 //-----------------------------------------------------------------------------
 //! Sets the background texture
-void
-SLBackground::texture(SLGLTexture* backgroundTexture)
+void SLBackground::texture(SLGLTexture* backgroundTexture)
 {
     _texture   = backgroundTexture;
     _isUniform = false;
@@ -114,8 +110,7 @@ We render the quad as a triangle strip: <br>
        +-----+
      1         3
 */
-void
-SLBackground::render(SLint widthPX, SLint heightPX)
+void SLBackground::render(SLint widthPX, SLint heightPX)
 {
     SLGLState* stateGL = SLGLState::getInstance();
     SLScene*   s       = SLApplication::scene;
@@ -198,8 +193,7 @@ SLBackground::render(SLint widthPX, SLint heightPX)
        +-----+
      LB       RB
 */
-void
-SLBackground::renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB)
+void SLBackground::renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB)
 {
     SLGLState* stateGL = SLGLState::getInstance();
     SLScene*   s       = SLApplication::scene;
@@ -268,8 +262,7 @@ SLBackground::renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB)
      0 +-----+
      A 0
 */
-SLCol4f
-SLBackground::colorAtPos(SLfloat x, SLfloat y)
+SLCol4f SLBackground::colorAtPos(SLfloat x, SLfloat y)
 {
     if (_isUniform)
         return _colors[0];

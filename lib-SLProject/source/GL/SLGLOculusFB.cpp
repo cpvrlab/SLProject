@@ -43,8 +43,7 @@ SLGLOculusFB::~SLGLOculusFB()
 //-----------------------------------------------------------------------------
 /*! Deletes the buffer object
 */
-void
-SLGLOculusFB::dispose()
+void SLGLOculusFB::dispose()
 {
     if (_fbID) glDeleteFramebuffers(1, &_fbID);
     if (_texID) glDeleteTextures(1, &_texID);
@@ -54,9 +53,8 @@ SLGLOculusFB::dispose()
 /*! Activates the frame buffer. On the first time it calls the updateSize to
 determine the size and then creates the FBO.
 */
-void
-SLGLOculusFB::bindFramebuffer(SLint scrWidth,
-                              SLint scrHeight)
+void SLGLOculusFB::bindFramebuffer(SLint scrWidth,
+                                   SLint scrHeight)
 {
     if (!_fbID)
         updateSize(scrWidth, scrHeight);
@@ -67,8 +65,7 @@ SLGLOculusFB::bindFramebuffer(SLint scrWidth,
 /*! Frame Buffer generation. This is called from within updateSize because the
 frame buffer size has to be calculated first
 */
-void
-SLGLOculusFB::generateFBO()
+void SLGLOculusFB::generateFBO()
 {
     // generate the intermediate screen texture
     glGenTextures(1, &_texID);
@@ -109,9 +106,8 @@ SLGLOculusFB::generateFBO()
 - Creates or updates the FBO
 - Updates the shader uniforms 
 */
-void
-SLGLOculusFB::updateSize(SLint scrWidth,
-                         SLint scrHeight)
+void SLGLOculusFB::updateSize(SLint scrWidth,
+                              SLint scrHeight)
 {
     _width      = scrWidth;
     _height     = scrHeight;
@@ -145,8 +141,7 @@ SLGLOculusFB::updateSize(SLint scrWidth,
 /*! Draws the intermediate render target (the texture) into the real
  * framebuffer.
  */
-void
-SLGLOculusFB::drawFramebuffer()
+void SLGLOculusFB::drawFramebuffer()
 {
     glViewport(0, 0, _width, _height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -40,12 +40,11 @@ SLCVTrackedAruco::SLCVTrackedAruco(SLNode* node, SLint arucoID) : SLCVTracked(no
 /* The tracking of all aruco markers is done only once even if multiple aruco 
 markers are used for different SLNode.
 */
-SLbool
-SLCVTrackedAruco::track(SLCVMat          imageGray,
-                        SLCVMat          imageRgb,
-                        SLCVCalibration* calib,
-                        SLbool           drawDetection,
-                        SLSceneView*     sv)
+SLbool SLCVTrackedAruco::track(SLCVMat          imageGray,
+                               SLCVMat          imageRgb,
+                               SLCVCalibration* calib,
+                               SLbool           drawDetection,
+                               SLSceneView*     sv)
 {
     assert(!imageGray.empty() && "ImageGray is empty");
     assert(!imageRgb.empty() && "ImageRGB is empty");
@@ -169,15 +168,14 @@ into an image.
 \param dpi Dots per inch (default 256)
 \param showImage Shows image in window (default false)
 */
-void
-SLCVTrackedAruco::drawArucoMarkerBoard(SLint    dictionaryId,
-                                       SLint    numMarkersX,
-                                       SLint    numMarkersY,
-                                       SLfloat  markerEdgeM,
-                                       SLfloat  markerSepaM,
-                                       SLstring imgName,
-                                       SLfloat  dpi,
-                                       SLbool   showImage)
+void SLCVTrackedAruco::drawArucoMarkerBoard(SLint    dictionaryId,
+                                            SLint    numMarkersX,
+                                            SLint    numMarkersY,
+                                            SLfloat  markerEdgeM,
+                                            SLfloat  markerSepaM,
+                                            SLstring imgName,
+                                            SLfloat  dpi,
+                                            SLbool   showImage)
 {
     Ptr<aruco::Dictionary> dictionary =
       aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
@@ -207,11 +205,10 @@ SLCVTrackedAruco::drawArucoMarkerBoard(SLint    dictionaryId,
     imwrite(imgName, boardImage);
 }
 //-----------------------------------------------------------------------------
-void
-SLCVTrackedAruco::drawArucoMarker(SLint dictionaryId,
-                                  SLint minMarkerId,
-                                  SLint maxMarkerId,
-                                  SLint markerSizePX)
+void SLCVTrackedAruco::drawArucoMarker(SLint dictionaryId,
+                                       SLint minMarkerId,
+                                       SLint maxMarkerId,
+                                       SLint markerSizePX)
 {
     assert(dictionaryId > 0);
     assert(minMarkerId > 0);

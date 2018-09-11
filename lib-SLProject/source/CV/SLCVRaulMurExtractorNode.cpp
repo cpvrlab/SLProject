@@ -19,11 +19,10 @@
 //-----------------------------------------------------------------------------
 //! Divides the current ExtractorNode into four ExtractorNodes.
 //! The Keypoints are also divided between the four ExtractorNodes by space.
-void
-SLCVRaulMurExtractorNode::DivideNode(SLCVRaulMurExtractorNode& n1,
-                                     SLCVRaulMurExtractorNode& n2,
-                                     SLCVRaulMurExtractorNode& n3,
-                                     SLCVRaulMurExtractorNode& n4)
+void SLCVRaulMurExtractorNode::DivideNode(SLCVRaulMurExtractorNode& n1,
+                                          SLCVRaulMurExtractorNode& n2,
+                                          SLCVRaulMurExtractorNode& n3,
+                                          SLCVRaulMurExtractorNode& n4)
 {
     const int halfX = (int)(ceil(static_cast<float>(UR.x - UL.x) / 2));
     const int halfY = (int)(ceil(static_cast<float>(BR.y - UL.y) / 2));

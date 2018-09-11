@@ -56,8 +56,7 @@ This is the main rendering method for the classic ray tracing. It loops over all
 lines and pixels and determines for each pixel a color with a partly global 
 illumination calculation.
 */
-SLbool
-SLRaytracer::renderClassic(SLSceneView* sv)
+SLbool SLRaytracer::renderClassic(SLSceneView* sv)
 {
     _sv         = sv;
     _state      = rtBusy;                   // From here we state the RT as busy
@@ -121,8 +120,7 @@ SLRaytracer::renderClassic(SLSceneView* sv)
 /*!
 This is the main rendering method for parallel and distributed ray tracing.
 */
-SLbool
-SLRaytracer::renderDistrib(SLSceneView* sv)
+SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
 {
     _sv         = sv;
     _state      = rtBusy;                   // From here we state the RT as busy
@@ -198,8 +196,7 @@ or an atomic index. I prefer not protecting it because it's faster. If the
 increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
-void
-SLRaytracer::renderSlices(const bool isMainThread)
+void SLRaytracer::renderSlices(const bool isMainThread)
 {
     // Time points
     double t1 = 0;
@@ -255,8 +252,7 @@ or an atomic index. I prefer not protecting it because it's faster. If the
 increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
-void
-SLRaytracer::renderSlicesMS(const bool isMainThread)
+void SLRaytracer::renderSlicesMS(const bool isMainThread)
 {
     // Time points
     double t1 = 0;
@@ -337,8 +333,7 @@ if the material is reflective and/or transparent new rays are created and
 passed to this trace method again. If no object got intersected the
 background color is return.
 */
-SLCol4f
-SLRaytracer::trace(SLRay* ray)
+SLCol4f SLRaytracer::trace(SLRay* ray)
 {
     SLScene* s = SLApplication::scene;
     SLCol4f  color(ray->backgroundColor);
@@ -406,8 +401,7 @@ SLRaytracer::trace(SLRay* ray)
 }
 //-----------------------------------------------------------------------------
 //! Set the parameters of a primary ray for a pixel position at x, y.
-void
-SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay)
+void SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay)
 {
     primaryRay->x  = x;
     primaryRay->y  = y;
@@ -442,8 +436,7 @@ color = material emission +
         ambient, diffuse, and specular contributions from all lights, 
         properly attenuated
 */
-SLCol4f
-SLRaytracer::shade(SLRay* ray)
+SLCol4f SLRaytracer::shade(SLRay* ray)
 {
     SLScene*      s          = SLApplication::scene;
     SLCol4f       localColor = SLCol4f::BLACK;
@@ -546,8 +539,7 @@ SLRaytracer::shade(SLRay* ray)
 This method fills the pixels into the vector pix that need to be subsampled
 because the contrast to its left and/or above neighbor is above a threshold.
 */
-void
-SLRaytracer::getAAPixels()
+void SLRaytracer::getAAPixels()
 {
     SLCol4f color, colorLeft, colorUp; // pixel colors to be compared
     SLVbool gotSampled;
@@ -608,8 +600,7 @@ or an atomic index. I prefer not protecting it because it's faster. If the
 increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
-void
-SLRaytracer::sampleAAPixels(const bool isMainThread)
+void SLRaytracer::sampleAAPixels(const bool isMainThread)
 {
     assert(_aaSamples % 2 == 1 && "subSample: maskSize must be uneven");
     double t1 = 0, t2 = 0;
@@ -670,8 +661,7 @@ SLRaytracer::sampleAAPixels(const bool isMainThread)
 fogBlend: Blends the a fog color to the passed color according to to OpenGL fog 
 calculation. See OpenGL docs for more information on fog properties.
 */
-SLCol4f
-SLRaytracer::fogBlend(SLfloat z, SLCol4f color)
+SLCol4f SLRaytracer::fogBlend(SLfloat z, SLCol4f color)
 {
     SLfloat f = 0.0f;
     if (z > _sv->_camera->clipFar()) z = _sv->_camera->clipFar();
@@ -692,8 +682,7 @@ SLRaytracer::fogBlend(SLfloat z, SLCol4f color)
 /*!
 Initialises the statistic variables in SLRay to zero
 */
-void
-SLRaytracer::initStats(SLint depth)
+void SLRaytracer::initStats(SLint depth)
 {
     SLRay::maxDepth         = (depth) ? depth : SL_MAXTRACE;
     SLRay::reflectedRays    = 0;
@@ -711,8 +700,7 @@ SLRaytracer::initStats(SLint depth)
 /*! 
 Prints some statistics after the rendering
 */
-void
-SLRaytracer::printStats(SLfloat sec)
+void SLRaytracer::printStats(SLfloat sec)
 {
     SL_LOG("\nRender time  : %10.2f sec.", sec);
     SL_LOG("\nImage size   : %10d x %d", _images[0]->width(), _images[0]->height());
@@ -751,8 +739,7 @@ Creates the inherited image in the texture class. The RT is drawn into
 a texture map that is displayed with OpenGL in 2D-orthographic projection.
 Also precalculate as much as possible.
 */
-void
-SLRaytracer::prepareImage()
+void SLRaytracer::prepareImage()
 {
     ///////////////////////
     //  PRECALCULATIONS  //
@@ -823,8 +810,7 @@ SLRaytracer::prepareImage()
 /*! 
 Draw the RT-Image as a textured quad in 2D-Orthographic projection
 */
-void
-SLRaytracer::renderImage()
+void SLRaytracer::renderImage()
 {
     SLfloat w = (SLfloat)_sv->scrW();
     SLfloat h = (SLfloat)_sv->scrH();
@@ -846,8 +832,7 @@ SLRaytracer::renderImage()
 }
 //-----------------------------------------------------------------------------
 //! Saves the current RT image as PNG image
-void
-SLRaytracer::saveImage()
+void SLRaytracer::saveImage()
 {
     static SLint no = 0;
     SLchar       filename[255];
@@ -861,8 +846,7 @@ We therefore call every half second _sv->onWndUpdate() that initiates another
 paint message from the top-level UI system of the OS. We therefore have to
 finish our UI and end OpenGL rendering properly.
 */
-void
-SLRaytracer::finishBeforeUpdate()
+void SLRaytracer::finishBeforeUpdate()
 {
     ImGui::Render();
     _stateGL->unbindAnythingAndFlush();

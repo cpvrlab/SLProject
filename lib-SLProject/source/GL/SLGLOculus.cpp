@@ -43,16 +43,13 @@ SLGLOculus::~SLGLOculus()
 //-----------------------------------------------------------------------------
 /*! Deletes the buffer object
 */
-void
-SLGLOculus::dispose()
+void SLGLOculus::dispose()
 {
 }
-
 //-----------------------------------------------------------------------------
 /*! Initialization of the Oculus Rift SDK and the device recognition.
 */
-void
-SLGLOculus::init()
+void SLGLOculus::init()
 {
     _resolutionScale = 1.25f;
     _resolution.set(1920, 1080);
@@ -72,12 +69,10 @@ SLGLOculus::init()
     createSLDistortionMesh(ET_left, _distortionMeshVAO[0]);
     createSLDistortionMesh(ET_right, _distortionMeshVAO[1]);
 }
-
 //-----------------------------------------------------------------------------
 /*! Renders the distortion mesh with time warp and chromatic abberation
 */
-void
-SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex, SLCol4f background)
+void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex, SLCol4f background)
 {
     SLGLProgram* sp = SLApplication::scene->programs(SP_stereoOculusDistortion);
 
@@ -111,12 +106,10 @@ SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex, SLCol4f back
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 }
-
 //-----------------------------------------------------------------------------
 /*! Returns the view adjust vector as reported by the HMD for the specified eye
 */
-const SLVec3f&
-SLGLOculus::viewAdjust(SLEyeType eye)
+const SLVec3f& SLGLOculus::viewAdjust(SLEyeType eye)
 {
     //@todo find a nicer way to store this (SLEye has a -1 for left and +1 for right eye)
     if (eye == ET_left)
@@ -146,13 +139,11 @@ SLGLOculus::orthoProjection(SLEyeType eye)
     else
         return _orthoProjection[1];
 }
-
 //-----------------------------------------------------------------------------
 /*! Recalculates values such as projection or render target size
 This function gets called whenever some settings changed.
 */
-void
-SLGLOculus::calculateHmdValues()
+void SLGLOculus::calculateHmdValues()
 {
     for (SLint i = 0; i < 2; ++i)
     {
@@ -180,12 +171,10 @@ SLGLOculus::calculateHmdValues()
     // done
     _hmdSettingsChanged = false;
 }
-
 //-----------------------------------------------------------------------------
 /*! Specify the final output resolution for this rift 
 */
-void
-SLGLOculus::renderResolution(SLint width, SLint height)
+void SLGLOculus::renderResolution(SLint width, SLint height)
 {
     if (width == _outputRes.x && height == _outputRes.y)
         return;
@@ -195,24 +184,20 @@ SLGLOculus::renderResolution(SLint width, SLint height)
 
     _hmdSettingsChanged = true;
 }
-
 //-----------------------------------------------------------------------------
 /*! Updates rift status and collects data for timewarp
 */
-void
-SLGLOculus::beginFrame()
+void SLGLOculus::beginFrame()
 {
     // update changed settings
     if (_hmdSettingsChanged)
         calculateHmdValues();
 }
-
 //-----------------------------------------------------------------------------
 /*! Returns the Oculus orientation as quaternion. If no Oculus Rift is 
 recognized it returns a unit quaternion.
 */
-const SLQuat4f&
-SLGLOculus::orientation(SLEyeType eye)
+const SLQuat4f& SLGLOculus::orientation(SLEyeType eye)
 {
     if (eye == ET_left)
         return _orientation[0];
@@ -220,11 +205,9 @@ SLGLOculus::orientation(SLEyeType eye)
         return _orientation[1];
 }
 //-----------------------------------------------------------------------------
-
 /*! Returns the Oculus position.
 */
-const SLVec3f&
-SLGLOculus::position(SLEyeType eye)
+const SLVec3f& SLGLOculus::position(SLEyeType eye)
 {
     if (eye == ET_left)
         return _position[0];
@@ -232,11 +215,9 @@ SLGLOculus::position(SLEyeType eye)
         return _position[1];
 }
 //-----------------------------------------------------------------------------
-
 /*! enable or disable low persistance
 */
-void
-SLGLOculus::lowPersistance(SLbool val)
+void SLGLOculus::lowPersistance(SLbool val)
 {
     if (val == _lowPersistanceEnabled)
         return;
@@ -245,11 +226,9 @@ SLGLOculus::lowPersistance(SLbool val)
     _hmdSettingsChanged    = true;
 }
 //-----------------------------------------------------------------------------
-
 /*! enable or disable timewarp
 */
-void
-SLGLOculus::timeWarp(SLbool val)
+void SLGLOculus::timeWarp(SLbool val)
 {
     if (val == _timeWarpEnabled)
         return;
@@ -258,11 +237,9 @@ SLGLOculus::timeWarp(SLbool val)
     _hmdSettingsChanged = true;
 }
 //-----------------------------------------------------------------------------
-
 /*! enable or disable position tracking
 */
-void
-SLGLOculus::positionTracking(SLbool val)
+void SLGLOculus::positionTracking(SLbool val)
 {
     if (val == _positionTrackingEnabled)
         return;
@@ -271,11 +248,9 @@ SLGLOculus::positionTracking(SLbool val)
     _hmdSettingsChanged      = true;
 }
 //-----------------------------------------------------------------------------
-
 /*! enable or disable position tracking
 */
-void
-SLGLOculus::displaySleep(SLbool val)
+void SLGLOculus::displaySleep(SLbool val)
 {
     if (val == _displaySleep)
         return;

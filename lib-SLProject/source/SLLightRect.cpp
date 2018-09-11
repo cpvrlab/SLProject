@@ -55,8 +55,7 @@ SLLightRect::init sets the light id, the light states & creates an
 emissive mat.
 @todo properly remove this function and find a clean way to init lights in a scene
 */
-void
-SLLightRect::init()
+void SLLightRect::init()
 {
     // Check if OpenGL lights are available
     if (SLApplication::scene->lights().size() >= SL_MAX_LIGHTS)
@@ -83,8 +82,7 @@ SLLightRect::init()
 SLLightRect::drawRec sets the light states and calls then the SLNode::drawRec 
 method of its node.
 */
-void
-SLLightRect::drawRec(SLSceneView* sv)
+void SLLightRect::drawRec(SLSceneView* sv)
 {
     if (_id != -1)
     {
@@ -119,8 +117,7 @@ SLLightRect::hitRec(SLRay* ray)
 }
 //-----------------------------------------------------------------------------
 //! SLLightSpot::statsRec updates the statistic parameters
-void
-SLLightRect::statsRec(SLNodeStats& stats)
+void SLLightRect::statsRec(SLNodeStats& stats)
 {
     stats.numBytes += sizeof(SLLightRect);
     SLNode::statsRec(stats);
@@ -130,8 +127,7 @@ SLLightRect::statsRec(SLNodeStats& stats)
 SLLightRect::drawMeshes sets the light states and calls then the drawMeshes 
 method of its node.
 */
-void
-SLLightRect::drawMeshes(SLSceneView* sv)
+void SLLightRect::drawMeshes(SLSceneView* sv)
 {
     if (_id != -1)
     {
@@ -261,13 +257,11 @@ SLfloat SLLightRect::shadowTest(SLRay*         ray,      // ray of hit point
         return lighted;
     }
 }
-
 //-----------------------------------------------------------------------------
 /*!
 SLLightRect::shadowTestMC returns 0.0 if the hit point is shaded and 1.0 if it
 lighted. Only one shadow sample is tested for path tracing.
 */
-
 SLfloat SLLightRect::shadowTestMC(SLRay*         ray,      // ray of hit point
                                   const SLVec3f& L,        // vector from hit point to light
                                   const SLfloat  lightDist) // distance to light
@@ -291,12 +285,10 @@ SLfloat SLLightRect::shadowTestMC(SLRay*         ray,      // ray of hit point
 
     return (shadowRay.length < spDistWS) ? 0.0f : 1.0f;
 }
-
 //-----------------------------------------------------------------------------
 /*! SLLightRect::setState sets the global rendering state
 */
-void
-SLLightRect::setState()
+void SLLightRect::setState()
 {
     if (_id != -1)
     {
@@ -316,15 +308,13 @@ SLLightRect::setState()
     }
 }
 //-----------------------------------------------------------------------------
-void
-SLLightRect::samples(const SLVec2i samples)
+void SLLightRect::samples(const SLVec2i samples)
 {
     assert(samples.x % 2 == 1 && samples.y % 2 == 1);
     _samples = samples;
 }
 //-----------------------------------------------------------------------------
-void
-SLLightRect::samplesXY(const SLint x, const SLint y)
+void SLLightRect::samplesXY(const SLint x, const SLint y)
 {
     assert(x % 2 == 1 && y % 2 == 1);
     _samples.set(x, y);

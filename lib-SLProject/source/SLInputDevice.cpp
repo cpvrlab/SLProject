@@ -25,7 +25,6 @@ SLInputDevice::SLInputDevice()
     // enable any input device on creation
     enable();
 }
-
 //-----------------------------------------------------------------------------
 /*! The destructor removes the device from SLInputManager again if necessary.
 */
@@ -33,13 +32,11 @@ SLInputDevice::~SLInputDevice()
 {
     disable();
 }
-
 //-----------------------------------------------------------------------------
 /*! Enabling an SLInputDevice will add it to the device list kept by
 SLInputManager
 */
-void
-SLInputDevice::enable()
+void SLInputDevice::enable()
 {
     SLApplication::inputManager.devices().push_back(this);
 }
@@ -47,8 +44,7 @@ SLInputDevice::enable()
 /*! Enabling an SLInputDevice will remove it from the device list kept by
 SLInputManager
 */
-void
-SLInputDevice::disable()
+void SLInputDevice::disable()
 {
     SLVInputDevice& dl = SLApplication::inputManager.devices();
     dl.erase(remove(dl.begin(), dl.end(), this), dl.end());

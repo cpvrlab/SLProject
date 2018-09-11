@@ -97,13 +97,11 @@ SLPathtracer::render(SLSceneView* sv)
     _state = rtFinished;
     return true;
 }
-
 //-----------------------------------------------------------------------------
 /*!
 Renders a slice of 4px width.
 */
-void
-SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
+void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
 {
     // Time points
     double        t1           = 0;
@@ -179,13 +177,11 @@ SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
         }
     }
 }
-
 //-----------------------------------------------------------------------------
 /*!
 Recursively traces Ray in Scene.
 */
-SLCol4f
-SLPathtracer::trace(SLRay* ray, SLbool em)
+SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
 {
     SLScene* s = SLApplication::scene;
     SLCol4f  finalColor(ray->backgroundColor);
@@ -347,13 +343,11 @@ SLPathtracer::trace(SLRay* ray, SLbool em)
 
     return finalColor;
 }
-
 //-----------------------------------------------------------------------------
 /*!
 Calculates direct illumination for intersection point of ray
 */
-SLCol4f
-SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor)
+SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor)
 {
     SLScene* s            = SLApplication::scene;
     SLCol4f  color        = SLCol4f::BLACK;
@@ -412,8 +406,7 @@ SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor)
 }
 //-----------------------------------------------------------------------------
 //! Saves the current PT image as PNG image
-void
-SLPathtracer::saveImage()
+void SLPathtracer::saveImage()
 {
     static SLint no = 0;
     SLchar       filename[255];

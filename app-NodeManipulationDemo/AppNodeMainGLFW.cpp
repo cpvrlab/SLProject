@@ -52,8 +52,7 @@ NewNodeSceneView* nodeTestSV;                 //!< pointer to the sceneview
 onClose event handler for deallocation of the scene & sceneview. onClose is
 called glfwPollEvents, glfwWaitEvents or glfwSwapBuffers.
 */
-void
-onClose(GLFWwindow* window)
+void onClose(GLFWwindow* window)
 {
     slShouldClose(true);
 }
@@ -64,17 +63,14 @@ onPaint: Paint event handler that passes the event to the slPaint function.
 For accurate frame rate measurement we have to take the time after the OpenGL 
 frame buffer swapping. The FPS calculation is done in slGetWindowTitle.
 */
-SLbool
-onPaint()
+SLbool onPaint()
 {
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
     return viewNeedsRepaint;
 }
-
 //-----------------------------------------------------------------------------
 //! Maps the GLFW key codes to the SLKey codes
-const SLKey
-mapKeyToSLKey(SLint key)
+SLKey mapKeyToSLKey(SLint key)
 {
     switch (key)
     {
@@ -131,14 +127,14 @@ mapKeyToSLKey(SLint key)
     }
     return (SLKey)key;
 }
-
 //-----------------------------------------------------------------------------
 /*!
 onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event.
 */
-static void
-onResize(GLFWwindow* window, int width, int height)
+static void onResize(GLFWwindow* window,
+                     int         width,
+                     int         height)
 {
     lastWidth  = width;
     lastHeight = height;
@@ -152,8 +148,10 @@ onResize(GLFWwindow* window, int width, int height)
 Mouse button event handler forwards the events to the slMouseDown or slMouseUp.
 Two finger touches of touch devices are simulated with ALT & CTRL modifiers.
 */
-static void
-onMouseButton(GLFWwindow* window, int button, int action, int mods)
+static void onMouseButton(GLFWwindow* window,
+                          int         button,
+                          int         action,
+                          int         mods)
 {
     SLint x = mouseX;
     SLint y = mouseY;
@@ -249,8 +247,9 @@ onMouseButton(GLFWwindow* window, int button, int action, int mods)
 /*!
 Mouse move event handler forwards the events to slMouseMove or slTouch2Move.
 */
-static void
-onMouseMove(GLFWwindow* window, double x, double y)
+static void onMouseMove(GLFWwindow* window,
+                        double      x,
+                        double      y)
 {
     // x & y are in screen coords.
     // We need to scale them to framebuffer coords
@@ -291,8 +290,9 @@ onMouseMove(GLFWwindow* window, double x, double y)
 /*!
 Mouse wheel event handler forwards the events to slMouseWheel
 */
-static void
-onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
+static void onMouseWheel(GLFWwindow* window,
+                         double      xscroll,
+                         double      yscroll)
 {
     // make sure the delta is at least one integer
     int dY = (int)yscroll;
@@ -305,8 +305,11 @@ onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 Key action event handler sets the modifier key state & forwards the event to
 the slKeyPress function.
 */
-static void
-onKeyAction(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
+static void onKeyAction(GLFWwindow* window,
+                        int         GLFWKey,
+                        int         scancode,
+                        int         action,
+                        int         mods)
 {
     SLKey key = mapKeyToSLKey(GLFWKey);
 
@@ -375,15 +378,13 @@ onKeyAction(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
 }
 //-----------------------------------------------------------------------------
 //! Error callback handler for GLFW.
-void
-onGLFWError(int error, const char* description)
+void onGLFWError(int error, const char* description)
 {
     fputs(description, stderr);
 }
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation function passed by slCreateSceneView
-SLuint
-createNewNodeSceneView()
+SLuint createNewNodeSceneView()
 {
     nodeTestSV = new NewNodeSceneView;
     return nodeTestSV->index();
@@ -392,8 +393,7 @@ createNewNodeSceneView()
 /*!
 The C main procedure running the GLFW GUI application.
 */
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     // set command line arguments
     SLVstring cmdLineArgs;

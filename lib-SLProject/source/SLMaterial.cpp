@@ -142,8 +142,7 @@ SLMaterial::~SLMaterial()
 SLMaterial::activate applies the material parameter to the global render state
 and activates the attached shader
 */
-void
-SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
+void SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
 {
     SLScene* s = SLApplication::scene;
 
@@ -196,8 +195,7 @@ SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
 /*! 
 Getter for the global default gray material
 */
-SLMaterial*
-SLMaterial::defaultGray()
+SLMaterial* SLMaterial::defaultGray()
 {
     if (!_defaultGray)
     {
@@ -211,8 +209,7 @@ SLMaterial::defaultGray()
 The destructor doesn't delete attached the textures or shader program because
 Such shared resources get deleted in the arrays of SLScene.
 */
-void
-SLMaterial::defaultGray(SLMaterial* mat)
+void SLMaterial::defaultGray(SLMaterial* mat)
 {
     if (mat == _defaultGray)
         return;
@@ -230,8 +227,7 @@ SLMaterial::defaultGray(SLMaterial* mat)
 /*! 
 Getter for the global diffuse per vertex color attribute material
 */
-SLMaterial*
-SLMaterial::diffuseAttrib()
+SLMaterial* SLMaterial::diffuseAttrib()
 {
     if (!_diffuseAttrib)
     {
@@ -246,8 +242,7 @@ SLMaterial::diffuseAttrib()
 The destructor doesn't delete attached the textures or shader program because
 Such shared resources get deleted in the arrays of SLScene.
 */
-void
-SLMaterial::diffuseAttrib(SLMaterial* mat)
+void SLMaterial::diffuseAttrib(SLMaterial* mat)
 {
     if (mat == _diffuseAttrib)
         return;

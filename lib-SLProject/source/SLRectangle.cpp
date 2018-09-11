@@ -65,8 +65,7 @@ SLRectangle::SLRectangle(SLVec2f     min,
 }
 //-----------------------------------------------------------------------------
 //! SLRectangle::buildMesh fills in the underlying arrays from the SLMesh object
-void
-SLRectangle::buildMesh(SLMaterial* material)
+void SLRectangle::buildMesh(SLMaterial* material)
 {
     deleteData();
 

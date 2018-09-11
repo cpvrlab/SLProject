@@ -52,8 +52,7 @@ SLCVCalibration::SLCVCalibration()
 }
 //-----------------------------------------------------------------------------
 //! Resets the calibration to the uncalibrated state
-void
-SLCVCalibration::clear()
+void SLCVCalibration::clear()
 {
     _numCaptured       = 0;
     _reprojectionError = -1.0f;
@@ -66,10 +65,9 @@ SLCVCalibration::clear()
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
-bool
-SLCVCalibration::load(SLstring calibFileName,
-                      SLbool   mirrorHorizontally,
-                      SLbool   mirrorVertically)
+bool SLCVCalibration::load(SLstring calibFileName,
+                           SLbool   mirrorHorizontally,
+                           SLbool   mirrorVertically)
 {
     _calibFileName = calibFileName;
     _isMirroredH   = mirrorHorizontally;
@@ -146,8 +144,7 @@ SLCVCalibration::load(SLstring calibFileName,
 }
 //-----------------------------------------------------------------------------
 //! Saves the camera calibration parameters to the config file
-void
-SLCVCalibration::save()
+void SLCVCalibration::save()
 {
     SLstring fullPathAndFilename = SLApplication::configPath + _calibFileName;
 
@@ -197,8 +194,7 @@ SLCVCalibration::save()
 }
 //-----------------------------------------------------------------------------
 //! Loads the chessboard calibration pattern parameters
-bool
-SLCVCalibration::loadCalibParams()
+bool SLCVCalibration::loadCalibParams()
 {
     FileStorage fs;
     fs.open(calibIniPath + _calibParamsFileName, FileStorage::READ);
@@ -220,8 +216,7 @@ SLCVCalibration::loadCalibParams()
 }
 //-----------------------------------------------------------------------------
 //! Calculates the vertical field of view angle in degrees
-SLfloat
-SLCVCalibration::calcCameraFOV()
+SLfloat SLCVCalibration::calcCameraFOV()
 {
     if (_cameraMat.rows != 3 || _cameraMat.cols != 3)
         SL_EXIT_MSG("SLCVCalibration::calcCameraFOV: No intrinsic parameter available");
@@ -234,10 +229,9 @@ SLCVCalibration::calcCameraFOV()
 }
 //-----------------------------------------------------------------------------
 //! Calculates the 3D positions of the chessboard corners
-void
-SLCVCalibration::calcBoardCorners3D(SLCVSize      boardSize,
-                                    SLfloat       squareSize,
-                                    SLCVVPoint3f& objectPoints3D)
+void SLCVCalibration::calcBoardCorners3D(SLCVSize      boardSize,
+                                         SLfloat       squareSize,
+                                         SLCVVPoint3f& objectPoints3D)
 {
     // Because OpenCV image coords are top-left we define the according
     // 3D coords also top-left.
@@ -250,11 +244,10 @@ SLCVCalibration::calcBoardCorners3D(SLCVSize      boardSize,
 }
 //-----------------------------------------------------------------------------
 //! Calculates the reprojection error of the calibration
-SLfloat
-SLCVCalibration::calcReprojectionErr(const SLCVVVPoint3f& objectPoints,
-                                     const SLCVVMat&      rvecs,
-                                     const SLCVVMat&      tvecs,
-                                     SLVfloat&            perViewErrors)
+SLfloat SLCVCalibration::calcReprojectionErr(const SLCVVVPoint3f& objectPoints,
+                                             const SLCVVMat&      rvecs,
+                                             const SLCVVMat&      tvecs,
+                                             SLVfloat&            perViewErrors)
 {
     SLCVVPoint2f imagePoints2;
     size_t       totalPoints = 0;
@@ -282,10 +275,9 @@ SLCVCalibration::calcReprojectionErr(const SLCVVVPoint3f& objectPoints,
 }
 //-----------------------------------------------------------------------------
 //!< Finds the inner chessboard corners in the given image
-bool
-SLCVCalibration::findChessboard(SLCVMat imageColor,
-                                SLCVMat imageGray,
-                                bool    drawCorners)
+bool SLCVCalibration::findChessboard(SLCVMat imageColor,
+                                     SLCVMat imageGray,
+                                     bool    drawCorners)
 {
     assert(!imageGray.empty() &&
            "SLCVCalibration::findChessboard: imageGray is empty!");
@@ -340,14 +332,13 @@ SLCVCalibration::findChessboard(SLCVMat imageColor,
 }
 //-----------------------------------------------------------------------------
 //! Calculates the reprojection error of the calibration
-static double
-calcReprojectionErrors(const SLCVVVPoint3f& objectPoints,
-                       const SLCVVVPoint2f& imagePoints,
-                       const SLCVVMat&      rvecs,
-                       const SLCVVMat&      tvecs,
-                       const SLCVMat&       cameraMatrix,
-                       const SLCVMat&       distCoeffs,
-                       SLVfloat&            perViewErrors)
+static double calcReprojectionErrors(const SLCVVVPoint3f& objectPoints,
+                                     const SLCVVVPoint2f& imagePoints,
+                                     const SLCVVMat&      rvecs,
+                                     const SLCVVMat&      tvecs,
+                                     const SLCVMat&       cameraMatrix,
+                                     const SLCVMat&       distCoeffs,
+                                     SLVfloat&            perViewErrors)
 {
     SLCVVPoint2f imagePoints2;
     size_t       totalPoints = 0;
@@ -375,18 +366,17 @@ calcReprojectionErrors(const SLCVVVPoint3f& objectPoints,
 }
 //-----------------------------------------------------------------------------
 //! Calculates the calibration with the given set of image points
-static bool
-calcCalibration(SLCVSize&     imageSize,
-                SLCVMat&      cameraMatrix,
-                SLCVMat&      distCoeffs,
-                SLCVVVPoint2f imagePoints,
-                SLCVVMat&     rvecs,
-                SLCVVMat&     tvecs,
-                SLVfloat&     reprojErrs,
-                SLfloat&      totalAvgErr,
-                SLCVSize&     boardSize,
-                SLfloat       squareSize,
-                SLint         flag)
+static bool calcCalibration(SLCVSize&     imageSize,
+                            SLCVMat&      cameraMatrix,
+                            SLCVMat&      distCoeffs,
+                            SLCVVVPoint2f imagePoints,
+                            SLCVVMat&     rvecs,
+                            SLCVVMat&     tvecs,
+                            SLVfloat&     reprojErrs,
+                            SLfloat&      totalAvgErr,
+                            SLCVSize&     boardSize,
+                            SLfloat       squareSize,
+                            SLint         flag)
 {
     // Init camera matrix with the eye setter
     cameraMatrix = SLCVMat::eye(3, 3, CV_64F);
@@ -433,8 +423,7 @@ calcCalibration(SLCVSize&     imageSize,
 }
 //-----------------------------------------------------------------------------
 //! Initiates the final calculation
-bool
-SLCVCalibration::calculate()
+bool SLCVCalibration::calculate()
 {
     _state = CS_startCalculating;
 
@@ -489,8 +478,7 @@ SLCVCalibration::calculate()
 }
 //-----------------------------------------------------------------------------
 //! Builds undistortion maps after calibration or loading
-void
-SLCVCalibration::buildUndistortionMaps()
+void SLCVCalibration::buildUndistortionMaps()
 {
     // An alpha of 0 leads to no black borders
     // An alpha of 1 leads to black borders
@@ -522,9 +510,8 @@ SLCVCalibration::buildUndistortionMaps()
 }
 //-----------------------------------------------------------------------------
 //! Undistorts the inDistorted image into the outUndistorted
-void
-SLCVCalibration::remap(SLCVMat& inDistorted,
-                       SLCVMat& outUndistorted)
+void SLCVCalibration::remap(SLCVMat& inDistorted,
+                            SLCVMat& outUndistorted)
 {
     assert(!inDistorted.empty() &&
            "Input image is empty!");
@@ -547,9 +534,8 @@ can calculate the most important intrinsic parameter the focal length. All
 other parameters are set as if the lens would be perfect: No lens distortion
 and the view axis goes through the center of the image.
 */
-void
-SLCVCalibration::createFromGuessedFOV(SLint imageWidthPX,
-                                      SLint imageHeightPX)
+void SLCVCalibration::createFromGuessedFOV(SLint imageWidthPX,
+                                           SLint imageHeightPX)
 {
     // vertical view angle in degrees
     SLfloat fov = 42.0f;

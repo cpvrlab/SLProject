@@ -17,8 +17,7 @@
 
 //-----------------------------------------------------------------------------
 //! Resets the samplepoint array by the sqrt of the no. of samples
-void
-SLSamples2D::samples(SLuint x, SLuint y, SLbool evenlyDistributed)
+void SLSamples2D::samples(SLuint x, SLuint y, SLbool evenlyDistributed)
 {
     assert(x > 0 && y > 0);
     _samplesX = x;
@@ -33,8 +32,7 @@ Makes concentric 2D-samplespoints within a circle of certain radius.
 With the parameter evenlyDistributed=false will the samplepoints be
 denser towards the center.
 */
-void
-SLSamples2D::distribConcentric(SLbool evenlyDistributed)
+void SLSamples2D::distribConcentric(SLbool evenlyDistributed)
 {
     if (_points.size())
     {

@@ -110,12 +110,11 @@ smoothing out the jittering we average the last few detections.
 \param drawDetection Flag for drawing the detected obbjects
 \param sv Pointer to the sceneview
 */
-SLbool
-SLCVTrackedFaces::track(SLCVMat          imageGray,
-                        SLCVMat          imageRgb,
-                        SLCVCalibration* calib,
-                        SLbool           drawDetection,
-                        SLSceneView*     sv)
+SLbool SLCVTrackedFaces::track(SLCVMat          imageGray,
+                               SLCVMat          imageRgb,
+                               SLCVCalibration* calib,
+                               SLbool           drawDetection,
+                               SLSceneView*     sv)
 {
     assert(!imageGray.empty() && "ImageGray is empty");
     assert(!imageRgb.empty() && "ImageRGB is empty");
@@ -243,10 +242,9 @@ SLCVTrackedFaces::track(SLCVMat          imageGray,
 }
 //-----------------------------------------------------------------------------
 // Returns the Delaunay triangulation on the points within the image
-void
-SLCVTrackedFaces::delaunayTriangulate(SLCVMat      imageRgb,
-                                      SLCVVPoint2f points,
-                                      SLbool       drawDetection)
+void SLCVTrackedFaces::delaunayTriangulate(SLCVMat      imageRgb,
+                                           SLCVVPoint2f points,
+                                           SLbool       drawDetection)
 {
     // Get rect of image
     SLCVSize size = imageRgb.size();

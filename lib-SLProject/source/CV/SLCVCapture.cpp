@@ -44,8 +44,7 @@ SLbool           SLCVCapture::videoLoops         = true;
 /* This so far called in SLScene::onAfterLoad if a scene uses a live video by
 setting the the SLScene::_videoType to VT_MAIN or VT_SCND.
 */
-SLVec2i
-SLCVCapture::open(SLint deviceNum)
+SLVec2i SLCVCapture::open(SLint deviceNum)
 {
     try
     {
@@ -76,8 +75,7 @@ SLCVCapture::open(SLint deviceNum)
 /* This so far called in SLScene::onAfterLoad if a scene uses a video by
 setting the the SLScene::_videoType to VT_FILE.
 */
-SLVec2i
-SLCVCapture::openFile()
+SLVec2i SLCVCapture::openFile()
 {
     try
     { // Load the file directly
@@ -117,8 +115,7 @@ SLCVCapture::openFile()
     return SLVec2i::ZERO;
 }
 //-----------------------------------------------------------------------------
-void
-SLCVCapture::release()
+void SLCVCapture::release()
 {
     if (_captureDevice.isOpened())
         _captureDevice.release();
@@ -131,8 +128,7 @@ SLCVCapture::adjustForSL. This function can also be called by Android or iOS
 app for grabbing a frame of a video file. Android and iOS use their own
 capture functionality.
 */
-void
-SLCVCapture::grabAndAdjustForSL()
+void SLCVCapture::grabAndAdjustForSL()
 {
     SLCVCapture::startCaptureTimeMS = SLApplication::scene->timeMilliSec();
 
@@ -187,8 +183,7 @@ image should be mirrored or not is stored in SLCVCalibration::_isMirroredH
 3) Many of the further processing steps are faster done on grayscale images.
 We therefore create a copy that is grayscale converted.
 */
-void
-SLCVCapture::adjustForSL()
+void SLCVCapture::adjustForSL()
 {
     SLScene* s = SLApplication::scene;
     format     = SLCVImage::cv2glPixelFormat(lastFrame.type());
@@ -275,12 +270,11 @@ SLCVCapture::adjustForSL()
 cameras on their own. We only adjust the color space. See the app-Demo-iOS and
 app-Demo-Android projects for the usage.
 */
-void
-SLCVCapture::loadIntoLastFrame(const SLint         width,
-                               const SLint         height,
-                               const SLPixelFormat format,
-                               const SLuchar*      data,
-                               const SLbool        isContinuous)
+void SLCVCapture::loadIntoLastFrame(const SLint         width,
+                                    const SLint         height,
+                                    const SLPixelFormat format,
+                                    const SLuchar*      data,
+                                    const SLbool        isContinuous)
 {
     SLCVCapture::startCaptureTimeMS = SLApplication::scene->timeMilliSec();
 
@@ -421,8 +415,7 @@ struct YUV2RGB_BlockInfo
 /*!
 /param info image block information struct with thread specific information
 */
-void*
-convertYUV2RGB(YUV2RGB_BlockInfo* block)
+void* convertYUV2RGB(YUV2RGB_BlockInfo* block)
 {
     YUV2RGB_ImageInfo* image = block->imageInfo;
 
@@ -469,7 +462,6 @@ convertYUV2RGB(YUV2RGB_BlockInfo* block)
 
     return nullptr;
 }
-
 //------------------------------------------------------------------------------
 //! Copies and converts the video image in YUV_420 format to RGB and Grayscale
 /*! SLCVCapture::copyYUVPlanes copies and converts the video image in YUV_420
@@ -523,21 +515,20 @@ We therefore create a copy of the y-channel into SLCVCapture::lastFrameGray.
 \param vColOffset  Offset in bytes to the next pixel in the v-plane
 \param vRowOffset  Offset in bytes to the next line in the v-plane
 */
-void
-SLCVCapture::copyYUVPlanes(int      srcW,
-                           int      srcH,
-                           SLuchar* y,
-                           int      yBytes,
-                           int      yColOffset,
-                           int      yRowOffset,
-                           SLuchar* u,
-                           int      uBytes,
-                           int      uColOffset,
-                           int      uRowOffset,
-                           SLuchar* v,
-                           int      vBytes,
-                           int      vColOffset,
-                           int      vRowOffset)
+void SLCVCapture::copyYUVPlanes(int      srcW,
+                                int      srcH,
+                                SLuchar* y,
+                                int      yBytes,
+                                int      yColOffset,
+                                int      yRowOffset,
+                                SLuchar* u,
+                                int      uBytes,
+                                int      uColOffset,
+                                int      uRowOffset,
+                                SLuchar* v,
+                                int      vBytes,
+                                int      vColOffset,
+                                int      vRowOffset)
 {
     // pointer to the active scene
     SLScene* s = SLApplication::scene;

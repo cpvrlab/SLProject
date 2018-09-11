@@ -29,8 +29,7 @@ SLCoordAxis::SLCoordAxis(SLfloat arrowThickness,
 }
 //-----------------------------------------------------------------------------
 //! SLCoordAxis::buildMesh fills in the underlying arrays from the SLMesh object
-void
-SLCoordAxis::buildMesh()
+void SLCoordAxis::buildMesh()
 {
     // allocate new vectors of SLMesh
     P.clear();

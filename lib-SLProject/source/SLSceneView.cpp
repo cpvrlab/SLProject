@@ -78,13 +78,12 @@ SLSceneView::~SLSceneView()
 \param onSelectNodeMeshCallback Callback on node and mesh selection
 \param onImGuiBuild Callback for the external ImGui build function
 */
-void
-SLSceneView::init(SLstring name,
-                  SLint    screenWidth,
-                  SLint    screenHeight,
-                  void*    onWndUpdateCallback,
-                  void*    onSelectNodeMeshCallback,
-                  void*    onImGuiBuild)
+void SLSceneView::init(SLstring name,
+                       SLint    screenWidth,
+                       SLint    screenHeight,
+                       void*    onWndUpdateCallback,
+                       void*    onSelectNodeMeshCallback,
+                       void*    onImGuiBuild)
 {
     _name       = name;
     _scrW       = screenWidth;
@@ -139,8 +138,7 @@ SLSceneView::onInitialize is called by the window system before the first
 rendering. It applies all scene rendering attributes with the according 
 OpenGL function.
 */
-void
-SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
+void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 {
     _sceneViewCamera.camAnim(CA_turntableYUp);
     _sceneViewCamera.name("SceneView Camera");
@@ -250,8 +248,7 @@ to switch to the editor camera from a scene camera. It could provide
 functionality to stay at the position of the previous camera, or to be reset
 to the init position etc..
 */
-void
-SLSceneView::switchToSceneViewCamera()
+void SLSceneView::switchToSceneViewCamera()
 {
     // if we have an active camera, use its position and orientation
     if (_camera)
@@ -267,8 +264,7 @@ SLSceneView::switchToSceneViewCamera()
 }
 //-----------------------------------------------------------------------------
 //! Sets the acitve camera to the next in the scene
-void
-SLSceneView::switchToNextCameraInScene()
+void SLSceneView::switchToNextCameraInScene()
 {
     SLCamera* nextCam = SLApplication::scene->nextCameraInScene(this);
 
@@ -289,8 +285,7 @@ SLSceneView::onInitialize is called by the window system before the first
 rendering. It applies all scene rendering attributes with the according 
 OpenGL function.
 */
-void
-SLSceneView::onInitialize()
+void SLSceneView::onInitialize()
 {
     postSceneLoad();
 
@@ -356,8 +351,7 @@ SLSceneView::onInitialize()
 SLSceneView::onResize is called by the window system before the first 
 rendering and whenever the window changes its size.
 */
-void
-SLSceneView::onResize(SLint width, SLint height)
+void SLSceneView::onResize(SLint width, SLint height)
 {
     SLScene* s = SLApplication::scene;
 
@@ -398,8 +392,7 @@ SLSceneView::draw3DGL, SLSceneView::draw3DRT or SLSceneView::draw3DPT and
 then SLSceneView::draw2DGL for all UI in 2D. The method returns true if either
 the 2D or 3D graph was updated or waitEvents is false.
 */
-SLbool
-SLSceneView::onPaint()
+SLbool SLSceneView::onPaint()
 {
     SLScene* s          = SLApplication::scene;
     SLbool   camUpdated = false;
@@ -493,8 +486,7 @@ is drawn.
 </li>
 </ol>
 */
-SLbool
-SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
+SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 {
     SLScene* s = SLApplication::scene;
 
@@ -595,7 +587,6 @@ SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     return camUpdated;
 }
 //-----------------------------------------------------------------------------
-
 /*!
 SLSceneView::draw3DGLAll renders the opaque nodes before blended nodes and
 the blended nodes have to be drawn from back to front.
@@ -605,8 +596,7 @@ nodes because a node with alpha meshes still can have nodes with opaque
 material. To avoid double drawing the SLNode::drawMeshes draws in the blended
 pass only the alpha meshes and in the opaque pass only the opaque meshes.
 */
-void
-SLSceneView::draw3DGLAll()
+void SLSceneView::draw3DGLAll()
 {
     // 1) Draw first the opaque shapes and all helper lines (normals and AABBs)
     draw3DGLNodes(_visibleNodes, false, false);
@@ -633,10 +623,9 @@ SLSceneView::draw3DGLAll()
 SLSceneView::draw3DGLNodes draws the nodes meshes from the passed node vector
 directly with their world transform after the view transform.
 */
-void
-SLSceneView::draw3DGLNodes(SLVNode& nodes,
-                           SLbool   alphaBlended,
-                           SLbool   depthSorted)
+void SLSceneView::draw3DGLNodes(SLVNode& nodes,
+                                SLbool   alphaBlended,
+                                SLbool   depthSorted)
 {
     if (nodes.size() == 0) return;
 
@@ -680,8 +669,7 @@ Red   : AABB of nodes with meshes
 Pink  : AABB of nodes without meshes (only child nodes)
 Yellow: AABB of selected node 
 */
-void
-SLSceneView::draw3DGLLines(SLVNode& nodes)
+void SLSceneView::draw3DGLLines(SLVNode& nodes)
 {
     if (nodes.size() == 0) return;
 
@@ -729,8 +717,7 @@ SLSceneView::draw3DGLLines(SLVNode& nodes)
 SLSceneView::draw3DGLLinesOverlay draws the nodes axis and skeleton joints
 as overlayed
 */
-void
-SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
+void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
 {
 
     // draw the opaque shapes directly w. their wm transform
@@ -790,8 +777,7 @@ SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
 SLSceneView::draw2DGL draws all 2D stuff in ortho projection. So far no
 update is done to the 2D scenegraph.
 */
-void
-SLSceneView::draw2DGL()
+void SLSceneView::draw2DGL()
 {
     SLScene* s       = SLApplication::scene;
     SLfloat  startMS = s->timeMilliSec();
@@ -857,8 +843,7 @@ SLSceneView::draw2DGL()
 /*!
 SLSceneView::draw2DGLNodes draws 2D nodes from root2D in ortho projection.
 */
-void
-SLSceneView::draw2DGLNodes()
+void SLSceneView::draw2DGLNodes()
 {
     SLfloat depth = 1.0f;                         // Render depth between -1 & 1
     SLfloat cs    = SL_min(_scrW, _scrH) * 0.01f; // center size
@@ -948,18 +933,16 @@ SLSceneView::draw2DGLNodes()
 SLSceneView::onMouseDown gets called whenever a mouse button gets pressed and
 dispatches the event to the currently attached event handler object.
 */
-SLbool
-SLSceneView::onMouseDown(SLMouseButton button,
-                         SLint         x,
-                         SLint         y,
-                         SLKey         mod)
+SLbool SLSceneView::onMouseDown(SLMouseButton button,
+                                SLint         x,
+                                SLint         y,
+                                SLKey         mod)
 {
     SLScene* s = SLApplication::scene;
 
-
     // Pass the event to imgui
     _gui.onMouseDown(button, x, y);
-    
+
 #ifdef SL_GLES
     // Touch devices on iOS or Android have no mouse move event when the
     // finger isn't touching the screen. Therefore imgui can not detect hovering
@@ -967,7 +950,7 @@ SLSceneView::onMouseDown(SLMouseButton button,
     // the display twice to open e.g. a menu.
     _gui.renderExtraFrame(s, this, x, y);
 #endif
-    
+
     if (ImGui::GetIO().WantCaptureMouse)
         return true;
 
@@ -997,11 +980,10 @@ SLSceneView::onMouseDown(SLMouseButton button,
 /*! 
 SLSceneView::onMouseUp gets called whenever a mouse button gets released.
 */
-SLbool
-SLSceneView::onMouseUp(SLMouseButton button,
-                       SLint         x,
-                       SLint         y,
-                       SLKey         mod)
+SLbool SLSceneView::onMouseUp(SLMouseButton button,
+                              SLint         x,
+                              SLint         y,
+                              SLKey         mod)
 {
     SLScene* s  = SLApplication::scene;
     _touchDowns = 0;
@@ -1046,8 +1028,7 @@ SLSceneView::onMouseUp(SLMouseButton button,
 /*! 
 SLSceneView::onMouseMove gets called whenever the mouse is moved.
 */
-SLbool
-SLSceneView::onMouseMove(SLint x, SLint y)
+SLbool SLSceneView::onMouseMove(SLint x, SLint y)
 {
     SLScene* s = SLApplication::scene;
 
@@ -1102,8 +1083,7 @@ SLSceneView::onMouseMove(SLint x, SLint y)
 SLSceneView::onMouseWheel gets called whenever the mouse wheel is turned.
 The parameter wheelPos is an increasing or decreeing counter number.
 */
-SLbool
-SLSceneView::onMouseWheelPos(SLint wheelPos, SLKey mod)
+SLbool SLSceneView::onMouseWheelPos(SLint wheelPos, SLKey mod)
 {
     SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
@@ -1118,8 +1098,7 @@ SLSceneView::onMouseWheelPos(SLint wheelPos, SLKey mod)
 SLSceneView::onMouseWheel gets called whenever the mouse wheel is turned.
 The parameter delta is positive/negative depending on the wheel direction
 */
-SLbool
-SLSceneView::onMouseWheel(SLint delta, SLKey mod)
+SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
 {
     SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
@@ -1152,11 +1131,10 @@ SLSceneView::onMouseWheel(SLint delta, SLKey mod)
 SLSceneView::onDoubleClick gets called when a mouse double click or finger 
 double tab occurs.
 */
-SLbool
-SLSceneView::onDoubleClick(SLMouseButton button,
-                           SLint         x,
-                           SLint         y,
-                           SLKey         mod)
+SLbool SLSceneView::onDoubleClick(SLMouseButton button,
+                                  SLint         x,
+                                  SLint         y,
+                                  SLKey         mod)
 {
     SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
@@ -1201,8 +1179,7 @@ SLSceneView::onDoubleClick(SLMouseButton button,
 /*! SLSceneView::onLongTouch gets called when the mouse or touch is down for
 more than 500ms and has not moved.
 */
-SLbool
-SLSceneView::onLongTouch(SLint x, SLint y)
+SLbool SLSceneView::onLongTouch(SLint x, SLint y)
 {
     //SL_LOG("onLongTouch(%d, %d)\n", x, y);
     return true;
@@ -1212,8 +1189,7 @@ SLSceneView::onLongTouch(SLint x, SLint y)
 SLSceneView::onTouch2Down gets called whenever two fingers touch a handheld
 screen.
 */
-SLbool
-SLSceneView::onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2)
+SLbool SLSceneView::onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2)
 {
     SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
@@ -1236,8 +1212,7 @@ SLSceneView::onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2)
 SLSceneView::onTouch2Move gets called whenever two fingers touch a handheld
 screen.
 */
-SLbool
-SLSceneView::onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2)
+SLbool SLSceneView::onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2)
 {
     SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
@@ -1262,8 +1237,7 @@ SLSceneView::onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2)
 SLSceneView::onTouch2Up gets called whenever two fingers touch a handheld
 screen.
 */
-SLbool
-SLSceneView::onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2)
+SLbool SLSceneView::onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2)
 {
     SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
@@ -1287,8 +1261,7 @@ SLSceneView::onKeyPress gets get called whenever a key is pressed. Before
 passing the command to the eventhandlers the main key commands are handled by
 forwarding them to onCommand. 
 */
-SLbool
-SLSceneView::onKeyPress(SLKey key, SLKey mod)
+SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 {
     SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
@@ -1359,8 +1332,7 @@ SLSceneView::onKeyPress(SLKey key, SLKey mod)
 /*! 
 SLSceneView::onKeyRelease get called whenever a key is released.
 */
-SLbool
-SLSceneView::onKeyRelease(SLKey key, SLKey mod)
+SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
 {
     SLScene* s = SLApplication::scene;
 
@@ -1390,8 +1362,7 @@ SLSceneView::onKeyRelease(SLKey key, SLKey mod)
 /*!
 SLSceneView::onCharInput get called whenever a new charcter comes in
 */
-SLbool
-SLSceneView::onCharInput(SLuint c)
+SLbool SLSceneView::onCharInput(SLuint c)
 {
     if (ImGui::GetIO().WantCaptureKeyboard)
     {
@@ -1406,8 +1377,7 @@ SLSceneView::onCharInput(SLuint c)
 /*!
 Returns the window title with name & FPS
 */
-SLstring
-SLSceneView::windowTitle()
+SLstring SLSceneView::windowTitle()
 {
     SLScene* s = SLApplication::scene;
     SLchar   title[255];
@@ -1463,8 +1433,7 @@ SLSceneView::windowTitle()
 /*!
 Starts the ray tracing & sets the RT menu
 */
-void
-SLSceneView::startRaytracing(SLint maxDepth)
+void SLSceneView::startRaytracing(SLint maxDepth)
 {
     _renderType = RT_rt;
     _stopRT     = false;
@@ -1477,8 +1446,7 @@ SLSceneView::updateAndRT3D starts the raytracing or refreshes the current RT
 image during rendering. The function returns true if an animation was done 
 prior to the rendering start.
 */
-SLbool
-SLSceneView::draw3DRT()
+SLbool SLSceneView::draw3DRT()
 {
     SLbool updated = false;
 
@@ -1518,8 +1486,7 @@ SLSceneView::draw3DRT()
 /*!
 Starts the pathtracing
 */
-void
-SLSceneView::startPathtracing(SLint maxDepth, SLint samples)
+void SLSceneView::startPathtracing(SLint maxDepth, SLint samples)
 {
     _renderType = RT_pt;
     _stopPT     = false;
@@ -1532,8 +1499,7 @@ SLSceneView::updateAndRT3D starts the raytracing or refreshes the current RT
 image during rendering. The function returns true if an animation was done 
 prior to the rendering start.
 */
-SLbool
-SLSceneView::draw3DPT()
+SLbool SLSceneView::draw3DPT()
 {
     SLbool updated = false;
 

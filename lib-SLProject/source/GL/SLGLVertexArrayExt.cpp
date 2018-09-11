@@ -25,10 +25,9 @@
 updates the vertex buffer from it. It is used together with the 
 drawArrayAsColored function.
 */
-void
-SLGLVertexArrayExt::generateVertexPos(SLuint numVertices,
-                                      SLint  elementSize,
-                                      void*  dataPointer)
+void SLGLVertexArrayExt::generateVertexPos(SLuint numVertices,
+                                           SLint  elementSize,
+                                           void*  dataPointer)
 {
     assert(dataPointer);
     assert(elementSize);
@@ -53,12 +52,11 @@ SLGLVertexArrayExt::generateVertexPos(SLuint numVertices,
 //-----------------------------------------------------------------------------
 /*! Draws the vertex positions as array with a specified primitive & color
 */
-void
-SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
-                                       SLCol4f           color,
-                                       SLfloat           pointSize,
-                                       SLuint            indexFirstVertex,
-                                       SLuint            countVertices)
+void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
+                                            SLCol4f           color,
+                                            SLfloat           pointSize,
+                                            SLuint            indexFirstVertex,
+                                            SLuint            countVertices)
 {
     assert(countVertices <= _numVertices);
 
@@ -100,12 +98,11 @@ SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
 //-----------------------------------------------------------------------------
 /*! Draws the vertex positions as array with a specified primitive & color
 */
-void
-SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
-                                         SLCol4f           color,
-                                         SLfloat           pointSize,
-                                         SLuint            indexFirstVertex,
-                                         SLuint            countVertices)
+void SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
+                                              SLCol4f           color,
+                                              SLfloat           pointSize,
+                                              SLuint            indexFirstVertex,
+                                              SLuint            countVertices)
 {
     assert(countVertices <= _numVertices);
 

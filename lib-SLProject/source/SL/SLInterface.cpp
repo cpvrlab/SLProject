@@ -52,17 +52,16 @@ See examples usages in:
   - app-Demo-Android: native-lib.cpp      in Java_ch_fhnw_comgr_GLES3Lib_onInit()
   - app-Demo-iOS:     ViewController.m    in viewDidLoad()
 */
-void
-slCreateAppAndScene(SLVstring& cmdLineArgs,
-                    SLstring   shaderPath,
-                    SLstring   modelPath,
-                    SLstring   texturePath,
-                    SLstring   videoPath,
-                    SLstring   fontPath,
-                    SLstring   calibrationPath,
-                    SLstring   configPath,
-                    SLstring   applicationName,
-                    void*      onSceneLoadCallback)
+void slCreateAppAndScene(SLVstring& cmdLineArgs,
+                         SLstring   shaderPath,
+                         SLstring   modelPath,
+                         SLstring   texturePath,
+                         SLstring   videoPath,
+                         SLstring   fontPath,
+                         SLstring   calibrationPath,
+                         SLstring   configPath,
+                         SLstring   applicationName,
+                         void*      onSceneLoadCallback)
 {
     assert(SLApplication::scene == nullptr && "SLScene is already created!");
 
@@ -106,15 +105,14 @@ See examples usages in:
   - app-Demo-Android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
   - app-Demo-iOS:     ViewController.m      in viewDidLoad()
 */
-int
-slCreateSceneView(int       screenWidth,
-                  int       screenHeight,
-                  int       dotsPerInch,
-                  SLSceneID initScene,
-                  void*     onWndUpdateCallback,
-                  void*     onSelectNodeMeshCallback,
-                  void*     onNewSceneViewCallback,
-                  void*     onImGuiBuild)
+int slCreateSceneView(int       screenWidth,
+                      int       screenHeight,
+                      int       dotsPerInch,
+                      SLSceneID initScene,
+                      void*     onWndUpdateCallback,
+                      void*     onSelectNodeMeshCallback,
+                      void*     onNewSceneViewCallback,
+                      void*     onImGuiBuild)
 {
     assert(SLApplication::scene && "No SLApplication::scene!");
 
@@ -162,8 +160,7 @@ sceneview instance. If you have a custom SLSceneView inherited class you
 have to provide a similar function and pass it function pointer to 
 slCreateSceneView.
 */
-int
-slNewSceneView()
+int slNewSceneView()
 {
     SLSceneView* sv = new SLSceneView();
     return (SLint)sv->index();
@@ -173,8 +170,7 @@ slNewSceneView()
 All the scenegraph deallocation is started from here and has to be done before
 the GUI app terminates.
 */
-bool
-slShouldClose()
+bool slShouldClose()
 {
     return gShouldClose;
 }
@@ -182,8 +178,7 @@ slShouldClose()
 /*! Global closing function that sets our global running flag. This lets
 the windowing system know that we want to terminate.
 */
-void
-slShouldClose(bool val)
+void slShouldClose(bool val)
 {
     gShouldClose = val;
 }
@@ -192,8 +187,7 @@ slShouldClose(bool val)
 All the scenegraph deallocation is started from here and has to be done before
 the GUI app terminates.
 */
-void
-slTerminate()
+void slTerminate()
 {
     // Deletes all remaining sceneviews the current scene instance
     SLApplication::deleteAppAndScene();
@@ -205,8 +199,7 @@ where finished with rendering. After the update sceneviews onPaint routine is
 called to initiate the rendering of the frame. If either the onUpdate or onPaint
 returned true a new frame should be drawn.
 */
-bool
-slUpdateAndPaint(int sceneViewIndex)
+bool slUpdateAndPaint(int sceneViewIndex)
 {
     SLSceneView* sv = SLApplication::scene->sv((SLuint)sceneViewIndex);
 
@@ -220,8 +213,7 @@ slUpdateAndPaint(int sceneViewIndex)
 /*! Global resize function that must be called whenever the OpenGL frame
 changes it's size.
 */
-void
-slResize(int sceneViewIndex, int width, int height)
+void slResize(int sceneViewIndex, int width, int height)
 {
     SLResizeEvent* e = new SLResizeEvent;
     e->svIndex       = sceneViewIndex;
@@ -232,12 +224,11 @@ slResize(int sceneViewIndex, int width, int height)
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse button down events. 
 */
-void
-slMouseDown(int           sceneViewIndex,
-            SLMouseButton button,
-            int           xpos,
-            int           ypos,
-            SLKey         modifier)
+void slMouseDown(int           sceneViewIndex,
+                 SLMouseButton button,
+                 int           xpos,
+                 int           ypos,
+                 SLKey         modifier)
 {
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseDown);
     e->svIndex      = sceneViewIndex;
@@ -250,10 +241,9 @@ slMouseDown(int           sceneViewIndex,
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse move events.
 */
-void
-slMouseMove(int sceneViewIndex,
-            int x,
-            int y)
+void slMouseMove(int sceneViewIndex,
+                 int x,
+                 int y)
 {
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseMove);
     e->svIndex      = sceneViewIndex;
@@ -264,12 +254,11 @@ slMouseMove(int sceneViewIndex,
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse button up events.
 */
-void
-slMouseUp(int           sceneViewIndex,
-          SLMouseButton button,
-          int           xpos,
-          int           ypos,
-          SLKey         modifier)
+void slMouseUp(int           sceneViewIndex,
+               SLMouseButton button,
+               int           xpos,
+               int           ypos,
+               SLKey         modifier)
 {
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseUp);
     e->svIndex      = sceneViewIndex;
@@ -282,12 +271,11 @@ slMouseUp(int           sceneViewIndex,
 //-----------------------------------------------------------------------------
 /*! Global event handler for double click events.
 */
-void
-slDoubleClick(int           sceneViewIndex,
-              SLMouseButton button,
-              int           xpos,
-              int           ypos,
-              SLKey         modifier)
+void slDoubleClick(int           sceneViewIndex,
+                   SLMouseButton button,
+                   int           xpos,
+                   int           ypos,
+                   SLKey         modifier)
 {
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseDoubleClick);
     e->svIndex      = sceneViewIndex;
@@ -300,8 +288,7 @@ slDoubleClick(int           sceneViewIndex,
 //-----------------------------------------------------------------------------
 /*! Global event handler for long touches
 */
-void
-slLongTouch(int sceneViewIndex, int xpos, int ypos)
+void slLongTouch(int sceneViewIndex, int xpos, int ypos)
 {
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::LongTouch);
     e->svIndex      = sceneViewIndex;
@@ -313,12 +300,11 @@ slLongTouch(int sceneViewIndex, int xpos, int ypos)
 /*! Global event handler for the two finger touch down events of touchscreen 
 devices.
 */
-void
-slTouch2Down(int sceneViewIndex,
-             int xpos1,
-             int ypos1,
-             int xpos2,
-             int ypos2)
+void slTouch2Down(int sceneViewIndex,
+                  int xpos1,
+                  int ypos1,
+                  int xpos2,
+                  int ypos2)
 {
     SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch2Down);
     e->svIndex      = sceneViewIndex;
@@ -332,12 +318,11 @@ slTouch2Down(int sceneViewIndex,
 //-----------------------------------------------------------------------------
 /*! Global event handler for the two finger move events of touchscreen devices. 
 */
-void
-slTouch2Move(int sceneViewIndex,
-             int xpos1,
-             int ypos1,
-             int xpos2,
-             int ypos2)
+void slTouch2Move(int sceneViewIndex,
+                  int xpos1,
+                  int ypos1,
+                  int xpos2,
+                  int ypos2)
 {
     SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch2Move);
     e->svIndex      = sceneViewIndex;
@@ -351,12 +336,11 @@ slTouch2Move(int sceneViewIndex,
 /*! Global event handler for the two finger touch up events of touchscreen 
 devices. 
 */
-void
-slTouch2Up(int sceneViewIndex,
-           int xpos1,
-           int ypos1,
-           int xpos2,
-           int ypos2)
+void slTouch2Up(int sceneViewIndex,
+                int xpos1,
+                int ypos1,
+                int xpos2,
+                int ypos2)
 {
     SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch2Up);
     e->svIndex      = sceneViewIndex;
@@ -369,10 +353,9 @@ slTouch2Up(int sceneViewIndex,
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse wheel events. 
 */
-void
-slMouseWheel(int   sceneViewIndex,
-             int   pos,
-             SLKey modifier)
+void slMouseWheel(int   sceneViewIndex,
+                  int   pos,
+                  SLKey modifier)
 {
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseWheel);
     e->svIndex      = sceneViewIndex;
@@ -383,10 +366,9 @@ slMouseWheel(int   sceneViewIndex,
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key press events. 
 */
-void
-slKeyPress(int   sceneViewIndex,
-           SLKey key,
-           SLKey modifier)
+void slKeyPress(int   sceneViewIndex,
+                SLKey key,
+                SLKey modifier)
 {
     SLKeyEvent* e = new SLKeyEvent(SLInputEvent::KeyDown);
     e->svIndex    = sceneViewIndex;
@@ -397,10 +379,9 @@ slKeyPress(int   sceneViewIndex,
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key release events. 
 */
-void
-slKeyRelease(int   sceneViewIndex,
-             SLKey key,
-             SLKey modifier)
+void slKeyRelease(int   sceneViewIndex,
+                  SLKey key,
+                  SLKey modifier)
 {
     SLKeyEvent* e = new SLKeyEvent(SLInputEvent::KeyUp);
     e->svIndex    = sceneViewIndex;
@@ -412,9 +393,8 @@ slKeyRelease(int   sceneViewIndex,
 //-----------------------------------------------------------------------------
 /*! Global event handler for unicode character input.
 */
-void
-slCharInput(int          sceneViewIndex,
-            unsigned int character)
+void slCharInput(int          sceneViewIndex,
+                 unsigned int character)
 {
     SLCharInputEvent* e = new SLCharInputEvent();
     e->svIndex          = sceneViewIndex;
@@ -422,8 +402,7 @@ slCharInput(int          sceneViewIndex,
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-bool
-slUsesRotation()
+bool slUsesRotation()
 {
     if (SLApplication::scene)
         return SLApplication::devRot.isUsed();
@@ -432,17 +411,15 @@ slUsesRotation()
 //-----------------------------------------------------------------------------
 /*! Global event handler for device rotation change with angle & and axis.
 */
-void
-slRotationQUAT(float quatX,
-               float quatY,
-               float quatZ,
-               float quatW)
+void slRotationQUAT(float quatX,
+                    float quatY,
+                    float quatZ,
+                    float quatW)
 {
     SLApplication::devRot.onRotationQUAT(quatX, quatY, quatZ, quatW);
 }
 //-----------------------------------------------------------------------------
-bool
-slUsesLocation()
+bool slUsesLocation()
 {
     return SLApplication::devLoc.isUsed();
 }
@@ -452,11 +429,10 @@ degrees and altitude in meters. This location uses the World Geodetic System
 1984 (WGS 84). The accuracy in meters is a radius in which the location is with
 a probability of 68% (2 sigma).
 */
-void
-slLocationLLA(double latitudeDEG,
-              double longitudeDEG,
-              double altitudeM,
-              float  accuracyM)
+void slLocationLLA(double latitudeDEG,
+                   double longitudeDEG,
+                   double altitudeM,
+                   float  accuracyM)
 {
     SLApplication::devLoc.onLocationLLA(latitudeDEG,
                                         longitudeDEG,
@@ -467,8 +443,7 @@ slLocationLLA(double latitudeDEG,
 /*! Global function to retrieve a window title text generated by the scene
 library. 
 */
-string
-slGetWindowTitle(int sceneViewIndex)
+string slGetWindowTitle(int sceneViewIndex)
 {
     SLSceneView* sv = SLApplication::scene->sv((SLuint)sceneViewIndex);
     return sv->windowTitle();
@@ -476,8 +451,7 @@ slGetWindowTitle(int sceneViewIndex)
 //-----------------------------------------------------------------------------
 /*! Global function that returns the type of video camera wanted
 */
-int
-slGetVideoType()
+int slGetVideoType()
 {
     return (int)SLApplication::scene->videoType();
 }
@@ -488,8 +462,7 @@ available the median element of the available sizes array is returned.
 An index of -n return the n-th smaller one. \n
 An index of +n return the n-th bigger one. \n
 */
-int
-slGetVideoSizeIndex()
+int slGetVideoSizeIndex()
 {
     return SLCVCapture::requestedSizeIndex;
 }
@@ -498,8 +471,7 @@ slGetVideoSizeIndex()
 should be used by Android and iOS apps for grabbing the next video frame from
 a video file.
 */
-void
-slGrabVideoFileFrame()
+void slGrabVideoFileFrame()
 {
     SLCVCapture::grabAndAdjustForSL();
 }
@@ -508,12 +480,11 @@ slGrabVideoFileFrame()
 An application can grab the live video image with OpenCV via slGrabCopyVideoImage
 or with another OS dependent framework.
 */
-void
-slCopyVideoImage(SLint         width,
-                 SLint         height,
-                 SLPixelFormat format,
-                 SLuchar*      data,
-                 SLbool        isContinuous)
+void slCopyVideoImage(SLint         width,
+                      SLint         height,
+                      SLPixelFormat format,
+                      SLuchar*      data,
+                      SLbool        isContinuous)
 {
     SLCVCapture::loadIntoLastFrame(width,
                                    height,
@@ -526,21 +497,20 @@ slCopyVideoImage(SLint         width,
 plane to the SLCVCapture::lastFrame. This should mainly used by mobile platforms
 to efficiently copy the video frame to the SLCVCapture::lastFrame.
 */
-void
-slCopyVideoYUVPlanes(int      srcW,
-                     int      srcH,
-                     SLuchar* y,
-                     int      ySize,
-                     int      yPixStride,
-                     int      yLineStride,
-                     SLuchar* u,
-                     int      uSize,
-                     int      uPixStride,
-                     int      uLineStride,
-                     SLuchar* v,
-                     int      vSize,
-                     int      vPixStride,
-                     int      vLineStride)
+void slCopyVideoYUVPlanes(int      srcW,
+                          int      srcH,
+                          SLuchar* y,
+                          int      ySize,
+                          int      yPixStride,
+                          int      yLineStride,
+                          SLuchar* u,
+                          int      uSize,
+                          int      uPixStride,
+                          int      uLineStride,
+                          SLuchar* v,
+                          int      vSize,
+                          int      vPixStride,
+                          int      vLineStride)
 {
     SLCVCapture::copyYUVPlanes(srcW,
                                srcH,

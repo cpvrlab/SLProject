@@ -26,8 +26,7 @@ std::vector<string> errors; // global vector for errors used in getGLError
 /*! Public static creator and getter function. Guarantees the the static
  instance is created only once. The constructor is therefore private.
  */
-SLGLState*
-SLGLState::getInstance()
+SLGLState* SLGLState::getInstance()
 {
     if (!instance)
     {
@@ -40,8 +39,7 @@ SLGLState::getInstance()
 //-----------------------------------------------------------------------------
 /*! Public static destruction.
  */
-void
-SLGLState::deleteInstance()
+void SLGLState::deleteInstance()
 {
     delete instance;
     instance = nullptr;
@@ -56,8 +54,7 @@ SLGLState::SLGLState()
 //-----------------------------------------------------------------------------
 /*! Initializes all states.
  */
-void
-SLGLState::initAll()
+void SLGLState::initAll()
 {
     viewMatrix.identity();
     modelViewMatrix.identity();
@@ -177,8 +174,7 @@ SLGLState::~SLGLState()
 //-----------------------------------------------------------------------------
 /*! One time initialization
  */
-void
-SLGLState::onInitialize(SLCol4f clearColor)
+void SLGLState::onInitialize(SLCol4f clearColor)
 {
     // Reset all internal states
     if (!_isInitialized) initAll();
@@ -203,8 +199,7 @@ SLGLState::onInitialize(SLCol4f clearColor)
 //-----------------------------------------------------------------------------
 /*! Builds the 4x4 inverse matrix from the modelview matrix.
  */
-void
-SLGLState::buildInverseMatrix()
+void SLGLState::buildInverseMatrix()
 {
     _invModelViewMatrix.setMatrix(modelViewMatrix);
     _invModelViewMatrix.invert();
@@ -215,8 +210,7 @@ SLGLState::buildInverseMatrix()
  The inverse transposed could be ignored as long as we would only have rotation
  and uniform scaling in the 3x3 submatrix.
  */
-void
-SLGLState::buildNormalMatrix()
+void SLGLState::buildNormalMatrix()
 {
     _normalMatrix.setMatrix(modelViewMatrix.mat3());
     _normalMatrix.invert();
@@ -227,8 +221,7 @@ SLGLState::buildNormalMatrix()
  matrix. If only the normal matrix is needed use the method buildNormalMatrix
  because inverses only the 3x3 submatrix of the modelview matrix.
  */
-void
-SLGLState::buildInverseAndNormalMatrix()
+void SLGLState::buildInverseAndNormalMatrix()
 {
     _invModelViewMatrix.setMatrix(modelViewMatrix);
     _invModelViewMatrix.invert();
@@ -238,8 +231,7 @@ SLGLState::buildInverseAndNormalMatrix()
 //-----------------------------------------------------------------------------
 /*! Returns the combined modelview projection matrix
  */
-const SLMat4f*
-SLGLState::mvpMatrix()
+const SLMat4f* SLGLState::mvpMatrix()
 {
     _mvpMatrix.setMatrix(projectionMatrix);
     _mvpMatrix.multiply(modelViewMatrix);
@@ -248,8 +240,7 @@ SLGLState::mvpMatrix()
 //-----------------------------------------------------------------------------
 /*! Transforms the light position into the view space
  */
-void
-SLGLState::calcLightPosVS(SLint nLights)
+void SLGLState::calcLightPosVS(SLint nLights)
 {
     assert(nLights >= 0 && nLights <= SL_MAX_LIGHTS);
     for (SLint i = 0; i < nLights; ++i)
@@ -258,8 +249,7 @@ SLGLState::calcLightPosVS(SLint nLights)
 //-----------------------------------------------------------------------------
 /*! Transforms the lights spot direction into the view space
  */
-void
-SLGLState::calcLightDirVS(SLint nLights)
+void SLGLState::calcLightDirVS(SLint nLights)
 {
     assert(nLights >= 0 && nLights <= SL_MAX_LIGHTS);
     SLMat4f vRot(viewMatrix);
@@ -273,15 +263,13 @@ SLGLState::calcLightDirVS(SLint nLights)
  ambient light intensity and the materials ambient reflection. This is used to
  give the scene a minimal ambient lighting.
  */
-const SLCol4f*
-SLGLState::globalAmbient()
+const SLCol4f* SLGLState::globalAmbient()
 {
     _globalAmbient.set(globalAmbientLight & matAmbient);
     return &_globalAmbient;
 }
 //-----------------------------------------------------------------------------
-void
-SLGLState::clearColor(SLCol4f newColor)
+void SLGLState::clearColor(SLCol4f newColor)
 {
     if (_clearColor != newColor)
     {
@@ -298,8 +286,7 @@ SLGLState::clearColor(SLCol4f newColor)
  state really changes. The depth test decides for each pixel in the depth buffer
  which polygon is the closest to the eye.
  */
-void
-SLGLState::depthTest(SLbool stateNew)
+void SLGLState::depthTest(SLbool stateNew)
 {
     if (_depthTest != stateNew)
     {
@@ -319,8 +306,7 @@ SLGLState::depthTest(SLbool stateNew)
  the state really changes. Turning on depth masking freezes the depth test but
  keeps all values in the depth buffer.
  */
-void
-SLGLState::depthMask(SLbool stateNew)
+void SLGLState::depthMask(SLbool stateNew)
 {
     if (_depthMask != stateNew)
     {
@@ -336,8 +322,7 @@ SLGLState::depthMask(SLbool stateNew)
 /*! SLGLState::cullFace sets the GL_CULL_FACE state but only if the state
  really changes. If face culling is turned on no back faces are processed.
  */
-void
-SLGLState::cullFace(SLbool stateNew)
+void SLGLState::cullFace(SLbool stateNew)
 {
     if (_cullFace != stateNew)
     {
@@ -356,8 +341,7 @@ SLGLState::cullFace(SLbool stateNew)
 /*! SLGLState::blend enables or disables alpha blending but only if the state
  really changes.
  */
-void
-SLGLState::blend(SLbool stateNew)
+void SLGLState::blend(SLbool stateNew)
 {
     if (_blend != stateNew)
     {
@@ -377,8 +361,7 @@ SLGLState::blend(SLbool stateNew)
  state really changes. Multisampling turns on fullscreen anti aliasing on the GPU
  witch produces smooth polygon edges, lines and points.
  */
-void
-SLGLState::multiSample(SLbool stateNew)
+void SLGLState::multiSample(SLbool stateNew)
 {
 #ifndef SL_GLES2
     if (_multisample != stateNew)
@@ -405,8 +388,7 @@ SLGLState::multiSample(SLbool stateNew)
  state really changes. OpenGL ES doesn't support glPolygonMode. It has to be
  mimicked with GL_LINE_LOOP drawing.
  */
-void
-SLGLState::polygonLine(SLbool stateNew)
+void SLGLState::polygonLine(SLbool stateNew)
 {
 #ifndef SL_GLES2
     if (_polygonLine != stateNew)
@@ -431,8 +413,7 @@ SLGLState::polygonLine(SLbool stateNew)
  changes. Polygon offset is used to reduce z-fighting due to parallel planes or
  lines.
  */
-void
-SLGLState::polygonOffset(SLbool stateNew, SLfloat factor, SLfloat units)
+void SLGLState::polygonOffset(SLbool stateNew, SLfloat factor, SLfloat units)
 {
     if (_polygonOffsetEnabled != stateNew)
     {
@@ -459,8 +440,7 @@ SLGLState::polygonOffset(SLbool stateNew, SLfloat factor, SLfloat units)
 //-----------------------------------------------------------------------------
 /*! SLGLState::viewport sets the OpenGL viewport position and size
  */
-void
-SLGLState::viewport(SLint x, SLint y, SLsizei width, SLsizei height)
+void SLGLState::viewport(SLint x, SLint y, SLsizei width, SLsizei height)
 {
 
     if (_viewport.x != x || _viewport.y != y || _viewport.z != width || _viewport.w != height)
@@ -476,8 +456,7 @@ SLGLState::viewport(SLint x, SLint y, SLsizei width, SLsizei height)
 //-----------------------------------------------------------------------------
 /*! SLGLState::colorMask sets the OpenGL colorMask for framebuffer masking
  */
-void
-SLGLState::colorMask(SLbool r, SLbool g, SLbool b, SLbool a)
+void SLGLState::colorMask(SLbool r, SLbool g, SLbool b, SLbool a)
 {
     if (r != _colorMaskR || g != _colorMaskG || b != _colorMaskB || a != _colorMaskA)
     {
@@ -495,8 +474,7 @@ SLGLState::colorMask(SLbool r, SLbool g, SLbool b, SLbool a)
 //-----------------------------------------------------------------------------
 /*! SLGLState::useProgram sets the _rent active shader program
  */
-void
-SLGLState::useProgram(SLuint progID)
+void SLGLState::useProgram(SLuint progID)
 {
     if (_programID != progID)
     {
@@ -511,8 +489,7 @@ SLGLState::useProgram(SLuint progID)
 //-----------------------------------------------------------------------------
 /*! SLGLState::bindTexture sets the current active texture.
  */
-void
-SLGLState::bindTexture(GLenum target, SLuint textureID)
+void SLGLState::bindTexture(GLenum target, SLuint textureID)
 {
     if (target != _textureTarget || textureID != _textureID)
     {
@@ -529,8 +506,7 @@ SLGLState::bindTexture(GLenum target, SLuint textureID)
 //-----------------------------------------------------------------------------
 /*! SLGLState::activeTexture sets the current active texture unit
  */
-void
-SLGLState::activeTexture(SLenum textureUnit)
+void SLGLState::activeTexture(SLenum textureUnit)
 {
     if (textureUnit != _textureUnit)
     {
@@ -547,8 +523,7 @@ SLGLState::activeTexture(SLenum textureUnit)
  use and calls glFinish. This should be the last call to GL before buffer
  swapping.
  */
-void
-SLGLState::unbindAnythingAndFlush()
+void SLGLState::unbindAnythingAndFlush()
 {
     useProgram(0);
 
@@ -569,10 +544,9 @@ SLGLState::unbindAnythingAndFlush()
 #endif
 }
 //-----------------------------------------------------------------------------
-void
-SLGLState::getGLError(const char* file,
-                      int         line,
-                      bool        quit)
+void SLGLState::getGLError(const char* file,
+                           int         line,
+                           bool        quit)
 {
 #if defined(DEBUG) || defined(_DEBUG)
     GLenum err;
@@ -647,8 +621,7 @@ SLGLState::getGLError(const char* file,
  information such as the build number and the brand name.
  For the OpenGL version string "4.5.0 NVIDIA 347.68" the function returns "4.5"
  */
-SLstring
-SLGLState::getGLVersionNO()
+SLstring SLGLState::getGLVersionNO()
 {
     SLstring versionStr = SLstring((const char*)glGetString(GL_VERSION));
     size_t   dotPos     = versionStr.find(".");
@@ -671,8 +644,7 @@ SLGLState::getGLVersionNO()
  information such as the build number and the brand name.
  For the shading language string "Nvidia GLSL 4.5" the function returns "450"
  */
-SLstring
-SLGLState::getSLVersionNO()
+SLstring SLGLState::getSLVersionNO()
 {
     SLstring versionStr = SLstring((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
     size_t   dotPos     = versionStr.find(".");
@@ -685,8 +657,7 @@ SLGLState::getSLVersionNO()
 }
 //-----------------------------------------------------------------------------
 //! Returns true if the according GL pixelformat is valid in the GL context
-SLbool
-SLGLState::pixelFormatIsSupported(SLint pixelFormat)
+SLbool SLGLState::pixelFormatIsSupported(SLint pixelFormat)
 { /*
      #define SL_ALPHA 0x1906             // ES2 ES3 GL2
      #define SL_LUMINANCE 0x1909         // ES2 ES3 GL2

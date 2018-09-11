@@ -32,8 +32,7 @@
 /*! Returns true if the directory exists. Be aware that on some OS file and
 paths are treated case sensitive.
 */
-SLbool
-SLFileSystem::dirExists(SLstring& path)
+SLbool SLFileSystem::dirExists(SLstring& path)
 {
     struct stat info;
     if (stat(path.c_str(), &info) != 0)
@@ -47,8 +46,7 @@ SLFileSystem::dirExists(SLstring& path)
 /*! Returns true if the file exists.Be aware that on some OS file and
 paths are treated case sensitive.
 */
-SLbool
-SLFileSystem::fileExists(SLstring& pathfilename)
+SLbool SLFileSystem::fileExists(SLstring& pathfilename)
 {
     struct stat info;
     if (stat(pathfilename.c_str(), &info) == 0)
@@ -58,8 +56,7 @@ SLFileSystem::fileExists(SLstring& pathfilename)
     return false;
 }
 //-----------------------------------------------------------------------------
-SLstring
-SLFileSystem::getAppsWritableDir()
+SLstring SLFileSystem::getAppsWritableDir()
 {
 #ifdef SL_OS_WINDOWS
     SLstring appData   = getenv("APPDATA");
@@ -89,8 +86,7 @@ SLFileSystem::getAppsWritableDir()
 #endif
 }
 //-----------------------------------------------------------------------------
-SLstring
-SLFileSystem::getCurrentWorkingDir()
+SLstring SLFileSystem::getCurrentWorkingDir()
 {
 #ifdef SL_OS_WINDOWS
     SLint size   = 256;
@@ -115,8 +111,7 @@ SLFileSystem::getCurrentWorkingDir()
 #endif
 }
 //-----------------------------------------------------------------------------
-SLbool
-SLFileSystem::deleteFile(SLstring& pathfilename)
+SLbool SLFileSystem::deleteFile(SLstring& pathfilename)
 {
     if (SLFileSystem::fileExists(pathfilename))
         return remove(pathfilename.c_str()) != 0;

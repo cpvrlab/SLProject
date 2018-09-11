@@ -70,8 +70,7 @@ SLTransferFunction::~SLTransferFunction()
 }
 //-----------------------------------------------------------------------------
 //! Colors setter function by predefined color LUT
-void
-SLTransferFunction::colors(SLColorLUT lut)
+void SLTransferFunction::colors(SLColorLUT lut)
 {
     assert(lut != CLUT_custom && "SLTransferFunction::colors: Custom LUT now allowed");
 
@@ -149,8 +148,7 @@ SLTransferFunction::colors(SLColorLUT lut)
 }
 //-----------------------------------------------------------------------------
 //! Generates the full 256 value LUT as 1x256 RGBA texture
-void
-SLTransferFunction::generateTexture()
+void SLTransferFunction::generateTexture()
 {
     assert(_length > 1);
     assert(_alphas.size() > 0 &&
@@ -256,8 +254,7 @@ SLTransferFunction::generateTexture()
 }
 //-----------------------------------------------------------------------------
 //! Returns all alpha values of the transfer function as a float vector
-SLVfloat
-SLTransferFunction::allAlphas()
+SLVfloat SLTransferFunction::allAlphas()
 {
     SLVfloat allA;
     allA.resize(_length);

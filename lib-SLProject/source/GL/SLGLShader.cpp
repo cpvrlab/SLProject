@@ -49,8 +49,7 @@ SLGLShader::SLGLShader(SLstring filename, SLShaderType shaderType)
 }
 //-----------------------------------------------------------------------------
 //! SLGLShader::load loads a shader file into string _shaderSource
-void
-SLGLShader::load(SLstring filename)
+void SLGLShader::load(SLstring filename)
 {
     fstream shaderFile(filename.c_str(), ios::in);
 
@@ -68,8 +67,7 @@ SLGLShader::load(SLstring filename)
 }
 //-----------------------------------------------------------------------------
 //! SLGLShader::load loads a shader file from memory into memory
-void
-SLGLShader::loadFromMemory(const SLstring shaderSource)
+void SLGLShader::loadFromMemory(const SLstring shaderSource)
 {
     _code = shaderSource;
 }
@@ -90,8 +88,7 @@ OpenGL ES 2 that runs on most mobile devices. To be upwards compatible some
 modification have to be done.
 \return true if compilation was successfull
 */
-SLbool
-SLGLShader::createAndCompile()
+SLbool SLGLShader::createAndCompile()
 {
     // delete if object already exits
     if (_objectGL) glDeleteShader(_objectGL);
@@ -190,8 +187,7 @@ SLGLShader::createAndCompile()
 }
 //-----------------------------------------------------------------------------
 //! SLUtils::removeComments for C/C++ comments removal from shader code
-SLstring
-SLGLShader::removeComments(SLstring src)
+SLstring SLGLShader::removeComments(SLstring src)
 {
     SLstring dst;
     SLuint   len    = (SLuint)src.length();
@@ -236,8 +232,7 @@ SLGLShader::removeComments(SLstring src)
 }
 //-----------------------------------------------------------------------------
 //! Returns the shader type as string
-SLstring
-SLGLShader::typeName()
+SLstring SLGLShader::typeName()
 {
     switch (_type)
     {

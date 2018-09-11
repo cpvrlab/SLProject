@@ -41,8 +41,7 @@ SLGrid::SLGrid(SLVec3f     minXZ,
 }
 //-----------------------------------------------------------------------------
 //! SLGrid::buildMesh fills in the underlying arrays from the SLMesh object
-void
-SLGrid::buildMesh(SLMaterial* material)
+void SLGrid::buildMesh(SLMaterial* material)
 {
     deleteData();
 

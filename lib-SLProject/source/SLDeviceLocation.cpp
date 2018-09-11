@@ -18,8 +18,7 @@
 #include <spa.h>
 
 //-----------------------------------------------------------------------------
-void
-SLDeviceLocation::init()
+void SLDeviceLocation::init()
 {
     _isUsed             = false;
     _isFirstSensorValue = false;
@@ -45,8 +44,7 @@ SLDeviceLocation::init()
 }
 //-----------------------------------------------------------------------------
 // Setter for hasOrigin flag.
-void
-SLDeviceLocation::hasOrigin(SLbool hasOrigin)
+void SLDeviceLocation::hasOrigin(SLbool hasOrigin)
 {
     if (hasOrigin == false)
     {
@@ -64,11 +62,10 @@ a probability of 68% (2 sigma). The altitude in m is the most inaccurate
 information. The option _useOriginAltitude allows to overwrite the current
 altitude with the origins altitude.
 */
-void
-SLDeviceLocation::onLocationLLA(SLdouble latDEG,
-                                SLdouble lonDEG,
-                                SLdouble altM,
-                                SLfloat  accuracyM)
+void SLDeviceLocation::onLocationLLA(SLdouble latDEG,
+                                     SLdouble lonDEG,
+                                     SLdouble altM,
+                                     SLfloat  accuracyM)
 {
     // Init origin if it is not set yet or if the origin should be improved
     if (!_hasOrigin || _improveOrigin)
@@ -104,8 +101,7 @@ SLDeviceLocation::onLocationLLA(SLdouble latDEG,
 /*! The calculated values can be used for global camera positioning via GPS
 sensor.
 */
-void
-SLDeviceLocation::originLLA(SLdouble latDEG, SLdouble lonDEG, SLdouble altM)
+void SLDeviceLocation::originLLA(SLdouble latDEG, SLdouble lonDEG, SLdouble altM)
 {
     _originLLA = SLVec3d(latDEG, lonDEG, altM);
     _originECEF.lla2ecef(_originLLA);
@@ -150,10 +146,9 @@ will be automatically set in onLocationLLA. The default location is used by
 the camera in SLCamera::setView if the current distance between _locENU and
 _originENU is greater than _locMaxDistanceM.
 */
-void
-SLDeviceLocation::defaultLLA(SLdouble latDEG,
-                             SLdouble lonDEG,
-                             SLdouble altM)
+void SLDeviceLocation::defaultLLA(SLdouble latDEG,
+                                  SLdouble lonDEG,
+                                  SLdouble altM)
 {
     _defaultLLA.set(latDEG, lonDEG, _useOriginAltitude ? _originLLA.alt : altM);
 
@@ -166,8 +161,7 @@ SLDeviceLocation::defaultLLA(SLdouble latDEG,
 }
 //-----------------------------------------------------------------------------
 //! Setter that turns on the device rotation sensor
-void
-SLDeviceLocation::isUsed(SLbool use)
+void SLDeviceLocation::isUsed(SLbool use)
 {
     if (!_isUsed && use == true)
         _isFirstSensorValue = true;
@@ -181,10 +175,9 @@ the local time using the Solar Position Algorithm from:
 http://rredc.nrel.gov/solar/codesandalgorithms/spa that is part of the
 lib-SLExternal.
 */
-SLbool
-SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
-                                       SLdouble lonDEG,
-                                       SLdouble altM)
+SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
+                                              SLdouble lonDEG,
+                                              SLdouble altM)
 {
     // leave default angles if origin has not been set
     if (!_hasOrigin) return false;

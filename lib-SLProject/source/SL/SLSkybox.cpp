@@ -57,8 +57,7 @@ SLSkybox::SLSkybox(SLstring cubeMapXPos,
 }
 //-----------------------------------------------------------------------------
 //! Draw the skybox with a cube map with the camera in its center.
-void
-SLSkybox::drawAroundCamera(SLSceneView* sv)
+void SLSkybox::drawAroundCamera(SLSceneView* sv)
 {
     assert(sv && "No SceneView passed to SLSkybox::drawAroundCamera");
 
@@ -82,8 +81,7 @@ SLSkybox::drawAroundCamera(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 //! Returns the color in the skybox at the the specified direction dir
-SLCol4f
-SLSkybox::colorAtDir(SLVec3f dir)
+SLCol4f SLSkybox::colorAtDir(SLVec3f dir)
 {
     assert(_meshes.size() > 0);
     assert(_meshes[0]->mat()->textures().size() > 0);

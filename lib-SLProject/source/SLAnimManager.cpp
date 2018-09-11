@@ -25,8 +25,7 @@ SLAnimManager::~SLAnimManager()
 
 //-----------------------------------------------------------------------------
 //! Clears and deletes all node animations and skeletons
-void
-SLAnimManager::clear()
+void SLAnimManager::clear()
 {
     for (auto it : _nodeAnimations)
         delete it.second;
@@ -45,8 +44,7 @@ SLAnimManager::clear()
 }
 //-----------------------------------------------------------------------------
 //! Add a skeleton to the skeleton vector
-void
-SLAnimManager::addSkeleton(SLSkeleton* skel)
+void SLAnimManager::addSkeleton(SLSkeleton* skel)
 {
     _skeletons.push_back(skel);
 }
@@ -54,8 +52,7 @@ SLAnimManager::addSkeleton(SLSkeleton* skel)
 /*! Creates a new node animation
     @param  duration    length of the animation
 */
-SLAnimation*
-SLAnimManager::createNodeAnimation(SLfloat duration)
+SLAnimation* SLAnimManager::createNodeAnimation(SLfloat duration)
 {
     SLuint        index = (SLuint)_nodeAnimations.size();
     ostringstream oss;
@@ -69,15 +66,13 @@ SLAnimManager::createNodeAnimation(SLfloat duration)
 
     return createNodeAnimation(oss.str(), duration);
 }
-
 //-----------------------------------------------------------------------------
 /*! Creates a new node animation
     @param  name        the animation name
     @param  duration    length of the animation
 */
-SLAnimation*
-SLAnimManager::createNodeAnimation(const SLstring& name,
-                                   SLfloat         duration)
+SLAnimation* SLAnimManager::createNodeAnimation(const SLstring& name,
+                                                SLfloat         duration)
 {
     assert(_nodeAnimations.find(name) == _nodeAnimations.end() &&
            "node animation with same name already exists!");
@@ -94,11 +89,9 @@ SLAnimManager::createNodeAnimation(const SLstring& name,
 
     return anim;
 }
-
 //-----------------------------------------------------------------------------
 //! Returns the playback of a node animation by name if it exists.
-SLAnimPlayback*
-SLAnimManager::nodeAnimPlayback(const SLstring& name)
+SLAnimPlayback* SLAnimManager::nodeAnimPlayback(const SLstring& name)
 {
     if (_nodeAnimPlaybacks.find(name) != _nodeAnimPlaybacks.end())
         return _nodeAnimPlaybacks[name];
@@ -106,11 +99,9 @@ SLAnimManager::nodeAnimPlayback(const SLstring& name)
     SL_WARN_MSG("*** Playback found in SLAnimManager::getNodeAnimPlayack ***");
     return nullptr;
 }
-
 //-----------------------------------------------------------------------------
 //! Advances the time of all enabled animation plays.
-SLbool
-SLAnimManager::update(SLfloat elapsedTimeSec)
+SLbool SLAnimManager::update(SLfloat elapsedTimeSec)
 {
     SLbool updated = false;
 
@@ -139,11 +130,9 @@ SLAnimManager::update(SLfloat elapsedTimeSec)
 
     return updated;
 }
-
 //-----------------------------------------------------------------------------
 //! Draws the animation visualizations.
-void
-SLAnimManager::drawVisuals(SLSceneView* sv)
+void SLAnimManager::drawVisuals(SLSceneView* sv)
 {
     for (auto it : _nodeAnimPlaybacks)
     {
@@ -153,5 +142,4 @@ SLAnimManager::drawVisuals(SLSceneView* sv)
 
     // skeletons are drawn from within SLSceneView per node
 }
-
 //-----------------------------------------------------------------------------

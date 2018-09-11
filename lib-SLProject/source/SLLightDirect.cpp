@@ -25,7 +25,8 @@
 
 //-----------------------------------------------------------------------------
 SLLightDirect::SLLightDirect(SLfloat arrowLength,
-                             SLbool  hasMesh) : SLNode("LightDirect Node")
+                             SLbool  hasMesh)
+  : SLNode("LightDirect Node")
 {
     _arrowRadius = arrowLength * 0.1f;
     _arrowLength = arrowLength;
@@ -54,8 +55,9 @@ SLLightDirect::SLLightDirect(SLfloat posx,
                              SLfloat ambiPower,
                              SLfloat diffPower,
                              SLfloat specPower,
-                             SLbool  hasMesh) : SLNode("Directional Light"),
-                                               SLLight(ambiPower, diffPower, specPower)
+                             SLbool  hasMesh)
+  : SLNode("Directional Light"),
+    SLLight(ambiPower, diffPower, specPower)
 {
     _arrowRadius = arrowLength * 0.1f;
     _arrowLength = arrowLength;
@@ -82,8 +84,7 @@ SLLightDirect::init sets the light id, the light states & creates an
 emissive mat.
 @todo properly remove this function and find a clean way to init lights in a scene
 */
-void
-SLLightDirect::init()
+void SLLightDirect::init()
 {
     // Check if OpenGL lights are available
     if (SLApplication::scene->lights().size() >= SL_MAX_LIGHTS)
@@ -109,8 +110,7 @@ SLLightDirect::init()
 /*!
 SLLightDirect::hitRec calls the recursive node intersection.
 */
-SLbool
-SLLightDirect::hitRec(SLRay* ray)
+SLbool SLLightDirect::hitRec(SLRay* ray)
 {
     // do not intersect shadow rays
     if (ray->type == SHADOW) return false;
@@ -123,8 +123,7 @@ SLLightDirect::hitRec(SLRay* ray)
 }
 //-----------------------------------------------------------------------------
 //! SLLightDirect::statsRec updates the statistic parameters
-void
-SLLightDirect::statsRec(SLNodeStats& stats)
+void SLLightDirect::statsRec(SLNodeStats& stats)
 {
     stats.numBytes += sizeof(SLLightDirect);
     SLNode::statsRec(stats);
@@ -134,8 +133,7 @@ SLLightDirect::statsRec(SLNodeStats& stats)
 SLLightDirect::drawMeshes sets the light states and calls then the drawMeshes 
 method of its node.
 */
-void
-SLLightDirect::drawMeshes(SLSceneView* sv)
+void SLLightDirect::drawMeshes(SLSceneView* sv)
 {
     if (_id != -1)
     {
@@ -180,7 +178,6 @@ SLfloat SLLightDirect::shadowTest(SLRay*         ray, // ray of hit point
     else
         return 1.0f;
 }
-
 //-----------------------------------------------------------------------------
 /*!
 SLLightDirect::shadowTestMC returns 0.0 if the hit point is completely shaded 
@@ -209,12 +206,10 @@ SLfloat SLLightDirect::shadowTestMC(SLRay*         ray, // ray of hit point
     else
         return 1.0f;
 }
-
 //-----------------------------------------------------------------------------
 /*! SLLightRect::setState sets the global rendering state
 */
-void
-SLLightDirect::setState()
+void SLLightDirect::setState()
 {
     if (_id != -1)
     {

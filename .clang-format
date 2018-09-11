@@ -29,7 +29,9 @@ AllowShortFunctionsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: true
 AllowShortLoopsOnASingleLine: true
 
+AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
+#PenaltyReturnTypeOnItsOwnLine: 0
 
 AlwaysBreakBeforeMultilineStrings: false
 

@@ -22,20 +22,18 @@ SLKeyframe::SLKeyframe(const SLAnimTrack* parent, SLfloat time)
   : _parentTrack(parent), _time(time)
 {
 }
-
 //-----------------------------------------------------------------------------
 /*! Comperator operator.
 */
-bool
-SLKeyframe::operator<(const SLKeyframe& other) const
+bool SLKeyframe::operator<(const SLKeyframe& other) const
 {
     return _time < other._time;
 }
-
 //-----------------------------------------------------------------------------
 /*! Constructor for specialized transform keyframes.
 */
-SLTransformKeyframe::SLTransformKeyframe(const SLAnimTrack* parent, SLfloat time)
+SLTransformKeyframe::SLTransformKeyframe(const SLAnimTrack* parent,
+                                         SLfloat            time)
   : SLKeyframe(parent, time),
     _translation(0, 0, 0),
     _rotation(0, 0, 0, 1),

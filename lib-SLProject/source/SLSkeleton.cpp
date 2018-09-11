@@ -8,7 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
+#include <stdafx.h>        // Must be the 1st include followed by  an empty line
 #ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
 #    include <debug_new.h> // memory leak detector
 #endif
@@ -38,23 +38,19 @@ SLSkeleton::~SLSkeleton()
     for (auto it : _animations) delete it.second;
     for (auto it : _animPlaybacks) delete it.second;
 }
-
 //-----------------------------------------------------------------------------
 /*! Creates a new joint owned by this skeleton with a default name.
 */
-SLJoint*
-SLSkeleton::createJoint(SLuint id)
+SLJoint* SLSkeleton::createJoint(SLuint id)
 {
     ostringstream oss;
     oss << "Joint " << id;
     return createJoint(oss.str(), id);
 }
-
 //-----------------------------------------------------------------------------
 /*! Creates a new joint owned by this skeleton.
 */
-SLJoint*
-SLSkeleton::createJoint(const SLstring& name, SLuint id)
+SLJoint* SLSkeleton::createJoint(const SLstring& name, SLuint id)
 {
     SLJoint* result = new SLJoint(name, id, this);
 
@@ -68,57 +64,47 @@ SLSkeleton::createJoint(const SLstring& name, SLuint id)
     _joints[id] = result;
     return result;
 }
-
 //-----------------------------------------------------------------------------
 /*! Returns an animation state by name.
 */
-SLAnimPlayback*
-SLSkeleton::animPlayback(const SLstring& name)
+SLAnimPlayback* SLSkeleton::animPlayback(const SLstring& name)
 {
     if (_animPlaybacks.find(name) != _animPlaybacks.end())
         return _animPlaybacks[name];
     SL_WARN_MSG("*** Playback found in SLSkeleton::getNodeAnimPlayack ***");
     return nullptr;
 }
-
 //-----------------------------------------------------------------------------
 /*! Returns an SLJoint by it's internal id.
 */
-SLJoint*
-SLSkeleton::getJoint(SLuint id)
+SLJoint* SLSkeleton::getJoint(SLuint id)
 {
     assert(id < _joints.size() && "Index out of bounds");
     return _joints[id];
 }
-
 //-----------------------------------------------------------------------------
 /*! returns an SLJoint by name.
 */
-SLJoint*
-SLSkeleton::getJoint(const SLstring& name)
+SLJoint* SLSkeleton::getJoint(const SLstring& name)
 {
     if (!_rootJoint) return nullptr;
     SLJoint* result = _rootJoint->find<SLJoint>(name);
     return result;
 }
-
 //-----------------------------------------------------------------------------
 /*! Fills a SLMat4f array with the final joint matrices for this skeleton.
 */
-void
-SLSkeleton::getJointMatrices(SLVMat4f& jointWM)
+void SLSkeleton::getJointMatrices(SLVMat4f& jointWM)
 {
     for (SLuint i = 0; i < _joints.size(); i++)
     {
         jointWM[i] = _joints[i]->updateAndGetWM() * _joints[i]->offsetMat();
     }
 }
-
 //-----------------------------------------------------------------------------
 /*! Create a nw animation owned by this skeleton.
 */
-SLAnimation*
-SLSkeleton::createAnimation(const SLstring& name, SLfloat duration)
+SLAnimation* SLSkeleton::createAnimation(const SLstring& name, SLfloat duration)
 {
     assert(_animations.find(name) == _animations.end() &&
            "animation with same name already exists!");
@@ -136,23 +122,19 @@ SLSkeleton::createAnimation(const SLstring& name, SLfloat duration)
 
     return anim;
 }
-
 //-----------------------------------------------------------------------------
 /*! Resets all joints.
 */
-void
-SLSkeleton::reset()
+void SLSkeleton::reset()
 {
     // update all joints
     for (auto j : _joints)
         j->resetToInitialState();
 }
-
 //-----------------------------------------------------------------------------
 /*! Updates the skeleton based on its active animation states
 */
-SLbool
-SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
+SLbool SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
 {
     SLbool animated = false;
 
@@ -187,33 +169,28 @@ SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
 //-----------------------------------------------------------------------------
 /*! getter for current the current min object space vertex.
 */
-const SLVec3f&
-SLSkeleton::minOS()
+const SLVec3f& SLSkeleton::minOS()
 {
     if (_minMaxOutOfDate)
         updateMinMax();
 
     return _minOS;
 }
-
 //-----------------------------------------------------------------------------
 /*! getter for current the current max object space vertex.
 */
-const SLVec3f&
-SLSkeleton::maxOS()
+const SLVec3f& SLSkeleton::maxOS()
 {
     if (_minMaxOutOfDate)
         updateMinMax();
 
     return _maxOS;
 }
-
 //-----------------------------------------------------------------------------
 /*! Calculate the current min and max values in local space based on joint
 radii.
 */
-void
-SLSkeleton::updateMinMax()
+void SLSkeleton::updateMinMax()
 {
     // recalculate the new min and max os based on bone radius
     SLbool firstSet = false;

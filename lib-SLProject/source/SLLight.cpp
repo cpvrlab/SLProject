@@ -46,29 +46,25 @@ SLLight::SLLight(SLfloat ambiPower,
     kq(0.0f);
 }
 //-----------------------------------------------------------------------------
-void
-SLLight::kc(SLfloat kc)
+void SLLight::kc(SLfloat kc)
 {
     _kc           = kc;
     _isAttenuated = (_kc == 1.0f && _kl == 0.0f && _kq == 0.0f) ? false : true;
 }
 //-----------------------------------------------------------------------------
-void
-SLLight::kl(SLfloat kl)
+void SLLight::kl(SLfloat kl)
 {
     _kl           = kl;
     _isAttenuated = (_kc == 1.0f && _kl == 0.0f && _kq == 0.0f) ? false : true;
 }
 //-----------------------------------------------------------------------------
-void
-SLLight::kq(SLfloat kq)
+void SLLight::kq(SLfloat kq)
 {
     _kq           = kq;
     _isAttenuated = (_kc == 1.0f && _kl == 0.0f && _kq == 0.0f) ? false : true;
 }
 //-----------------------------------------------------------------------------
-void
-SLLight::spotCutOffDEG(const SLfloat cutOffAngleDEG)
+void SLLight::spotCutOffDEG(const SLfloat cutOffAngleDEG)
 {
     _spotCutOffDEG    = cutOffAngleDEG;
     _spotCosCutOffRAD = cos(SL_DEG2RAD * _spotCutOffDEG);

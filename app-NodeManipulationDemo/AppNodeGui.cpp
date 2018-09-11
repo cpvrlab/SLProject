@@ -22,8 +22,7 @@ SLstring AppNodeGui::infoText = "";
 /*! This function must be passed as void* pointer to the slCreateSceneView
 function. It is called in SLSceneView::onPaint for each frame.
 */
-void
-AppNodeGui::build(SLScene* s, SLSceneView* sv)
+void AppNodeGui::build(SLScene* s, SLSceneView* sv)
 {
     ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
     ImGui::Begin("Scene Information",

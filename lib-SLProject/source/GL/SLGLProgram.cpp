@@ -74,8 +74,7 @@ SLGLProgram::~SLGLProgram()
 }
 //-----------------------------------------------------------------------------
 //! SLGLProgram::addShader adds a shader to the shader list
-void
-SLGLProgram::addShader(SLGLShader* shader)
+void SLGLProgram::addShader(SLGLShader* shader)
 {
     assert(shader);
     _shaders.push_back(shader);
@@ -86,8 +85,7 @@ shader objects and attaches them to the shaderprogram. At the end all shaders
 are linked. If a shader fails to compile a simple texture only shader is
 compiled that shows an error message in the texture.
 */
-void
-SLGLProgram::init()
+void SLGLProgram::init()
 {
     // create program object if it doesn't exist
     if (!_objectGL) _objectGL = glCreateProgram();
@@ -188,8 +186,7 @@ SLGLProgram::init()
 /*! SLGLProgram::useProgram inits the first time the program and then uses it.
 Call this initialization if you pass your own custom uniform variables.
 */
-void
-SLGLProgram::useProgram()
+void SLGLProgram::useProgram()
 {
     if (_objectGL == 0 && _shaders.size() > 0) init();
 
@@ -204,8 +201,7 @@ SLGLProgram::useProgram()
 the standard light and material parameter as uniform variables. It also passes 
 the custom uniform variables of the _uniform1fList as well as the texture names.
 */
-void
-SLGLProgram::beginUse(SLMaterial* mat)
+void SLGLProgram::beginUse(SLMaterial* mat)
 {
     if (_objectGL == 0 && _shaders.size() > 0) init();
 
@@ -273,8 +269,7 @@ SLGLProgram::beginUse(SLMaterial* mat)
 }
 //-----------------------------------------------------------------------------
 //! SLGLProgram::endUse stops the shaderprogram
-void
-SLGLProgram::endUse()
+void SLGLProgram::endUse()
 {
     // In core profile you must have an active program
     if (_stateGL->glVersionNOf() > 3.0f) return;
@@ -283,21 +278,18 @@ SLGLProgram::endUse()
 }
 //-----------------------------------------------------------------------------
 //! SLGLProgram::addUniform1f add a uniform variable to the list
-void
-SLGLProgram::addUniform1f(SLGLUniform1f* u)
+void SLGLProgram::addUniform1f(SLGLUniform1f* u)
 {
     _uniforms1f.push_back(u);
 }
 //-----------------------------------------------------------------------------
 //! SLGLProgram::addUniform1f add a uniform variable to the list
-void
-SLGLProgram::addUniform1i(SLGLUniform1i* u)
+void SLGLProgram::addUniform1i(SLGLUniform1i* u)
 {
     _uniforms1i.push_back(u);
 }
 //-----------------------------------------------------------------------------
-SLint
-SLGLProgram::getUniformLocation(const SLchar* name)
+SLint SLGLProgram::getUniformLocation(const SLchar* name)
 {
     SLint loc = glGetUniformLocation(_objectGL, name);
 #ifdef _GLDEBUG
@@ -305,10 +297,8 @@ SLGLProgram::getUniformLocation(const SLchar* name)
 #endif
     return loc;
 }
-
 //-----------------------------------------------------------------------------
-SLint
-SLGLProgram::getAttribLocation(const SLchar* name)
+SLint SLGLProgram::getAttribLocation(const SLchar* name)
 {
     SLint loc = glGetAttribLocation(_objectGL, name);
 #ifdef _GLDEBUG
@@ -316,11 +306,9 @@ SLGLProgram::getAttribLocation(const SLchar* name)
 #endif
     return loc;
 }
-
 //-----------------------------------------------------------------------------
 //! Passes the float value v0 to the uniform variable "name"
-SLint
-SLGLProgram::uniform1f(const SLchar* name, SLfloat v0)
+SLint SLGLProgram::uniform1f(const SLchar* name, SLfloat v0)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform1f(loc, v0);
@@ -328,8 +316,7 @@ SLGLProgram::uniform1f(const SLchar* name, SLfloat v0)
 }
 //-----------------------------------------------------------------------------
 //! Passes the float values v0 & v1 to the uniform variable "name"
-SLint
-SLGLProgram::uniform2f(const SLchar* name, SLfloat v0, SLfloat v1)
+SLint SLGLProgram::uniform2f(const SLchar* name, SLfloat v0, SLfloat v1)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform2f(loc, v0, v1);
@@ -337,11 +324,10 @@ SLGLProgram::uniform2f(const SLchar* name, SLfloat v0, SLfloat v1)
 }
 //-----------------------------------------------------------------------------
 //! Passes the float values v0, v1 & v2 to the uniform variable "name"
-SLint
-SLGLProgram::uniform3f(const SLchar* name,
-                       SLfloat       v0,
-                       SLfloat       v1,
-                       SLfloat       v2)
+SLint SLGLProgram::uniform3f(const SLchar* name,
+                             SLfloat       v0,
+                             SLfloat       v1,
+                             SLfloat       v2)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform3f(loc, v0, v1, v2);
@@ -349,12 +335,11 @@ SLGLProgram::uniform3f(const SLchar* name,
 }
 //-----------------------------------------------------------------------------
 //! Passes the float values v0,v1,v2 & v3 to the uniform variable "name"
-SLint
-SLGLProgram::uniform4f(const SLchar* name,
-                       SLfloat       v0,
-                       SLfloat       v1,
-                       SLfloat       v2,
-                       SLfloat       v3)
+SLint SLGLProgram::uniform4f(const SLchar* name,
+                             SLfloat       v0,
+                             SLfloat       v1,
+                             SLfloat       v2,
+                             SLfloat       v3)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform4f(loc, v0, v1, v2, v3);
@@ -362,8 +347,7 @@ SLGLProgram::uniform4f(const SLchar* name,
 }
 //-----------------------------------------------------------------------------
 //! Passes the int values v0 to the uniform variable "name"
-SLint
-SLGLProgram::uniform1i(const SLchar* name, SLint v0)
+SLint SLGLProgram::uniform1i(const SLchar* name, SLint v0)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform1i(loc, v0);
@@ -371,8 +355,9 @@ SLGLProgram::uniform1i(const SLchar* name, SLint v0)
 }
 //-----------------------------------------------------------------------------
 //! Passes the int values v0 & v1 to the uniform variable "name"
-SLint
-SLGLProgram::uniform2i(const SLchar* name, SLint v0, SLint v1)
+SLint SLGLProgram::uniform2i(const SLchar* name,
+                             SLint         v0,
+                             SLint         v1)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform2i(loc, v0, v1);
@@ -380,8 +365,10 @@ SLGLProgram::uniform2i(const SLchar* name, SLint v0, SLint v1)
 }
 //-----------------------------------------------------------------------------
 //! Passes the int values v0, v1 & v2 to the uniform variable "name"
-SLint
-SLGLProgram::uniform3i(const SLchar* name, SLint v0, SLint v1, SLint v2)
+SLint SLGLProgram::uniform3i(const SLchar* name,
+                             SLint         v0,
+                             SLint         v1,
+                             SLint         v2)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform3i(loc, v0, v1, v2);
@@ -389,12 +376,11 @@ SLGLProgram::uniform3i(const SLchar* name, SLint v0, SLint v1, SLint v2)
 }
 //-----------------------------------------------------------------------------
 //! Passes the int values v0, v1, v2 & v3 to the uniform variable "name"
-SLint
-SLGLProgram::uniform4i(const SLchar* name,
-                       SLint         v0,
-                       SLint         v1,
-                       SLint         v2,
-                       SLint         v3)
+SLint SLGLProgram::uniform4i(const SLchar* name,
+                             SLint         v0,
+                             SLint         v1,
+                             SLint         v2,
+                             SLint         v3)
 {
     SLint loc = getUniformLocation(name);
     if (loc == -1) return false;
@@ -403,10 +389,9 @@ SLGLProgram::uniform4i(const SLchar* name,
 }
 //-----------------------------------------------------------------------------
 //! Passes 1 float value py pointer to the uniform variable "name"
-SLint
-SLGLProgram::uniform1fv(const SLchar*  name,
-                        SLsizei        count,
-                        const SLfloat* value)
+SLint SLGLProgram::uniform1fv(const SLchar*  name,
+                              SLsizei        count,
+                              const SLfloat* value)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform1fv(loc, count, value);
@@ -414,10 +399,9 @@ SLGLProgram::uniform1fv(const SLchar*  name,
 }
 //-----------------------------------------------------------------------------
 //! Passes 2 float values py pointer to the uniform variable "name"
-SLint
-SLGLProgram::uniform2fv(const SLchar*  name,
-                        SLsizei        count,
-                        const SLfloat* value)
+SLint SLGLProgram::uniform2fv(const SLchar*  name,
+                              SLsizei        count,
+                              const SLfloat* value)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform2fv(loc, count, value);
@@ -425,10 +409,9 @@ SLGLProgram::uniform2fv(const SLchar*  name,
 }
 //-----------------------------------------------------------------------------
 //! Passes 3 float values py pointer to the uniform variable "name"
-SLint
-SLGLProgram::uniform3fv(const SLchar*  name,
-                        SLsizei        count,
-                        const SLfloat* value)
+SLint SLGLProgram::uniform3fv(const SLchar*  name,
+                              SLsizei        count,
+                              const SLfloat* value)
 {
     SLint loc = getUniformLocation(name);
     if (loc == -1) return false;
@@ -437,10 +420,9 @@ SLGLProgram::uniform3fv(const SLchar*  name,
 }
 //-----------------------------------------------------------------------------
 //! Passes 4 float values py pointer to the uniform variable "name"
-SLint
-SLGLProgram::uniform4fv(const SLchar*  name,
-                        SLsizei        count,
-                        const SLfloat* value)
+SLint SLGLProgram::uniform4fv(const SLchar*  name,
+                              SLsizei        count,
+                              const SLfloat* value)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform4fv(loc, count, value);
@@ -448,10 +430,9 @@ SLGLProgram::uniform4fv(const SLchar*  name,
 }
 //-----------------------------------------------------------------------------
 //! Passes 1 int value py pointer to the uniform variable "name"
-SLint
-SLGLProgram::uniform1iv(const SLchar* name,
-                        SLsizei       count,
-                        const SLint*  value)
+SLint SLGLProgram::uniform1iv(const SLchar* name,
+                              SLsizei       count,
+                              const SLint*  value)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform1iv(loc, count, value);
@@ -459,10 +440,9 @@ SLGLProgram::uniform1iv(const SLchar* name,
 }
 //-----------------------------------------------------------------------------
 //! Passes 2 int values py pointer to the uniform variable "name"
-SLint
-SLGLProgram::uniform2iv(const SLchar* name,
-                        SLsizei       count,
-                        const SLint*  value)
+SLint SLGLProgram::uniform2iv(const SLchar* name,
+                              SLsizei       count,
+                              const SLint*  value)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform2iv(loc, count, value);
@@ -470,10 +450,9 @@ SLGLProgram::uniform2iv(const SLchar* name,
 }
 //-----------------------------------------------------------------------------
 //! Passes 3 int values py pointer to the uniform variable "name"
-SLint
-SLGLProgram::uniform3iv(const SLchar* name,
-                        SLsizei       count,
-                        const SLint*  value)
+SLint SLGLProgram::uniform3iv(const SLchar* name,
+                              SLsizei       count,
+                              const SLint*  value)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform3iv(loc, count, value);
@@ -481,10 +460,9 @@ SLGLProgram::uniform3iv(const SLchar* name,
 }
 //-----------------------------------------------------------------------------
 //! Passes 4 int values py pointer to the uniform variable "name"
-SLint
-SLGLProgram::uniform4iv(const SLchar* name,
-                        SLsizei       count,
-                        const SLint*  value)
+SLint SLGLProgram::uniform4iv(const SLchar* name,
+                              SLsizei       count,
+                              const SLint*  value)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform4iv(loc, count, value);
@@ -492,11 +470,10 @@ SLGLProgram::uniform4iv(const SLchar* name,
 }
 //-----------------------------------------------------------------------------
 //! Passes a 2x2 float matrix values py pointer to the uniform variable "name"
-SLint
-SLGLProgram::uniformMatrix2fv(const SLchar*  name,
-                              SLsizei        count,
-                              const SLfloat* value,
-                              GLboolean      transpose)
+SLint SLGLProgram::uniformMatrix2fv(const SLchar*  name,
+                                    SLsizei        count,
+                                    const SLfloat* value,
+                                    GLboolean      transpose)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniformMatrix2fv(loc, count, transpose, value);
@@ -504,21 +481,19 @@ SLGLProgram::uniformMatrix2fv(const SLchar*  name,
 }
 //-----------------------------------------------------------------------------
 //! Passes a 2x2 float matrix values py pointer to the uniform at location loc
-void
-SLGLProgram::uniformMatrix2fv(const SLint    loc,
-                              SLsizei        count,
-                              const SLfloat* value,
-                              GLboolean      transpose)
+void SLGLProgram::uniformMatrix2fv(const SLint    loc,
+                                   SLsizei        count,
+                                   const SLfloat* value,
+                                   GLboolean      transpose)
 {
     glUniformMatrix2fv(loc, count, transpose, value);
 }
 //-----------------------------------------------------------------------------
 //! Passes a 3x3 float matrix values py pointer to the uniform variable "name"
-SLint
-SLGLProgram::uniformMatrix3fv(const SLchar*  name,
-                              SLsizei        count,
-                              const SLfloat* value,
-                              GLboolean      transpose)
+SLint SLGLProgram::uniformMatrix3fv(const SLchar*  name,
+                                    SLsizei        count,
+                                    const SLfloat* value,
+                                    GLboolean      transpose)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniformMatrix3fv(loc, count, transpose, value);
@@ -526,21 +501,19 @@ SLGLProgram::uniformMatrix3fv(const SLchar*  name,
 }
 //-----------------------------------------------------------------------------
 //! Passes a 3x3 float matrix values py pointer to the uniform at location loc
-void
-SLGLProgram::uniformMatrix3fv(const SLint    loc,
-                              SLsizei        count,
-                              const SLfloat* value,
-                              GLboolean      transpose)
+void SLGLProgram::uniformMatrix3fv(const SLint    loc,
+                                   SLsizei        count,
+                                   const SLfloat* value,
+                                   GLboolean      transpose)
 {
     glUniformMatrix3fv(loc, count, transpose, value);
 }
 //-----------------------------------------------------------------------------
 //! Passes a 4x4 float matrix values py pointer to the uniform variable "name"
-SLint
-SLGLProgram::uniformMatrix4fv(const SLchar*  name,
-                              SLsizei        count,
-                              const SLfloat* value,
-                              GLboolean      transpose)
+SLint SLGLProgram::uniformMatrix4fv(const SLchar*  name,
+                                    SLsizei        count,
+                                    const SLfloat* value,
+                                    GLboolean      transpose)
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniformMatrix4fv(loc, count, transpose, value);
@@ -548,11 +521,10 @@ SLGLProgram::uniformMatrix4fv(const SLchar*  name,
 }
 //-----------------------------------------------------------------------------
 //! Passes a 4x4 float matrix values py pointer to the uniform at location loc
-void
-SLGLProgram::uniformMatrix4fv(const SLint    loc,
-                              SLsizei        count,
-                              const SLfloat* value,
-                              GLboolean      transpose)
+void SLGLProgram::uniformMatrix4fv(const SLint    loc,
+                                   SLsizei        count,
+                                   const SLfloat* value,
+                                   GLboolean      transpose)
 {
     glUniformMatrix4fv(loc, count, transpose, value);
 }

@@ -37,8 +37,7 @@ SLCVFeatureManager::~SLCVFeatureManager()
 }
 //-----------------------------------------------------------------------------
 //! Creates a detector and decriptor to the passed type
-void
-SLCVFeatureManager::createDetectorDescriptor(SLCVDetectDescribeType type)
+void SLCVFeatureManager::createDetectorDescriptor(SLCVDetectDescribeType type)
 {
     switch (type)
     {
@@ -71,21 +70,19 @@ SLCVFeatureManager::createDetectorDescriptor(SLCVDetectDescribeType type)
 }
 //-----------------------------------------------------------------------------
 //! Sets the detector and decriptor to the passed ones
-void
-SLCVFeatureManager::setDetectorDescriptor(SLCVDetectDescribeType type,
-                                          cv::Ptr<SLCVFeature2D> detector,
-                                          cv::Ptr<SLCVFeature2D> descriptor)
+void SLCVFeatureManager::setDetectorDescriptor(SLCVDetectDescribeType type,
+                                               cv::Ptr<SLCVFeature2D> detector,
+                                               cv::Ptr<SLCVFeature2D> descriptor)
 {
     _type       = type;
     _detector   = detector;
     _descriptor = descriptor;
 }
 //-----------------------------------------------------------------------------
-void
-SLCVFeatureManager::detectAndDescribe(SLCVInputArray  image,
-                                      SLCVVKeyPoint&  keypoints,
-                                      SLCVOutputArray descriptors,
-                                      SLCVInputArray  mask)
+void SLCVFeatureManager::detectAndDescribe(SLCVInputArray  image,
+                                           SLCVVKeyPoint&  keypoints,
+                                           SLCVOutputArray descriptors,
+                                           SLCVInputArray  mask)
 {
     assert(_detector && "SLCVFeatureManager::detectAndDescribe: No detector!");
     assert(_descriptor && "SLCVFeatureManager::detectAndDescribe: No descriptor!");

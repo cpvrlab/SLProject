@@ -61,8 +61,7 @@ SLMesh::~SLMesh()
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::deleteData deletes all mesh data and vbo's
-void
-SLMesh::deleteData()
+void SLMesh::deleteData()
 {
     P.clear();
     N.clear();
@@ -101,8 +100,7 @@ SLMesh::deleteData()
  selectRect are listed in SLMesh::IS32. The selection evaluation is done during
  drawing in SLMesh::draw and is only valid for the current frame.
  All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
-void
-SLMesh::deleteSelected(SLNode* node)
+void SLMesh::deleteSelected(SLNode* node)
 {
     // Loop over all rectangle selected indexes in IS32
     for (SLuint i = 0; i < IS32.size(); ++i)
@@ -194,8 +192,7 @@ SLMesh::deleteSelected(SLNode* node)
 }
 //-----------------------------------------------------------------------------
 //! Deletes unused vertices (= vertices that are not indexed in I16 or I32)
-void
-SLMesh::deleteUnused()
+void SLMesh::deleteUnused()
 {
     // SLPoints have no indexes, so nothing to remove
     if (I16.size() == 0 && I32.size() == 0)
@@ -246,8 +243,7 @@ SLMesh::deleteUnused()
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::shapeInit sets the transparency flag of the AABB
-void
-SLMesh::init(SLNode* node)
+void SLMesh::init(SLNode* node)
 {
     // Check data
     SLstring msg;
@@ -303,8 +299,7 @@ Optionally you can draw the normals and/or the uniform grid voxels.
 </p>
 Please view also the full process of rendering <a href="md_on_paint.html"><b>one frame</b></a>
 */
-void
-SLMesh::draw(SLSceneView* sv, SLNode* node)
+void SLMesh::draw(SLSceneView* sv, SLNode* node)
 {
     // Check data
     SLstring msg;
@@ -564,8 +559,7 @@ SLMesh::draw(SLSceneView* sv, SLNode* node)
 SLMesh::hit does the ray-mesh intersection test. If no acceleration 
 structure is defined all triangles are tested in a brute force manner.
 */
-SLbool
-SLMesh::hit(SLRay* ray, SLNode* node)
+SLbool SLMesh::hit(SLRay* ray, SLNode* node)
 {
     // return true for point & line objects
     if (_primitive != PT_triangles)
@@ -594,8 +588,7 @@ SLMesh::hit(SLRay* ray, SLNode* node)
 /*! 
 SLMesh::updateStats updates the parent node statistics.
 */
-void
-SLMesh::addStats(SLNodeStats& stats)
+void SLMesh::addStats(SLNodeStats& stats)
 {
     stats.numBytes += sizeof(SLMesh);
     if (P.size()) stats.numBytes += SL_sizeOfVector(P);
@@ -622,8 +615,7 @@ SLMesh::addStats(SLNodeStats& stats)
 /*! 
 SLMesh::calcMinMax calculates the axis alligned minimum and maximum point
 */
-void
-SLMesh::calcMinMax()
+void SLMesh::calcMinMax()
 {
     // init min & max points
     minP.set(FLT_MAX, FLT_MAX, FLT_MAX);
@@ -645,8 +637,7 @@ SLMesh::calcMinMax()
 SLMesh::calcCenterRad calculates the center and the radius of an almost minimal
 bounding sphere. Code by Jack Ritter from Graphic Gems.
 */
-void
-SLMesh::calcCenterRad(SLVec3f& center, SLfloat& radius)
+void SLMesh::calcCenterRad(SLVec3f& center, SLfloat& radius)
 {
     SLuint  i;
     SLfloat dx, dy, dz;
@@ -757,8 +748,7 @@ SLMesh::calcCenterRad(SLVec3f& center, SLfloat& radius)
 SLMesh::buildAABB builds the passed axis-aligned bounding box in OS and updates
 the min & max points in WS with the passed WM of the node.
 */
-void
-SLMesh::buildAABB(SLAABBox& aabb, SLMat4f wmNode)
+void SLMesh::buildAABB(SLAABBox& aabb, SLMat4f wmNode)
 {
     // update acceleration struct and calculate min max
     if (_skeleton)
@@ -778,8 +768,7 @@ SLMesh::buildAABB(SLAABBox& aabb, SLMat4f wmNode)
 /*! SLMesh::updateAccelStruct rebuilds the acceleration structure if the dirty
 flag is set. This can happen for mesh animations.
 */
-void
-SLMesh::updateAccelStruct()
+void SLMesh::updateAccelStruct()
 {
     if (!_accelStructOutOfDate)
         return;
@@ -814,8 +803,7 @@ vertices. Note that the face normals are not normalized. The cross product of
 big triangles are more weighted than small triangles and we get a better normal
 quality. At the end all vertex normals are normalized.
 */
-void
-SLMesh::calcNormals()
+void SLMesh::calcNormals()
 {
     // Set vector for the normals & Zero out the normals vector
     N.clear();
@@ -879,8 +867,7 @@ SLMesh::calcNormals()
 for GLSL normal map bump mapping. The code and mathematical derivation is in 
 detail explained in: http://www.terathon.com/code/tangent.html
 */
-void
-SLMesh::calcTangents()
+void SLMesh::calcTangents()
 {
     if (P.size() && N.size() && Tc.size() && (I16.size() || I32.size()))
     {
@@ -968,8 +955,7 @@ SLMesh::calcTangents()
 /* Calculate the texture matrix for 3D texture mapping from the AABB so that
 the texture volume surrounds the AABB centrically.
 */
-void
-SLMesh::calcTex3DMatrix(SLNode* node)
+void SLMesh::calcTex3DMatrix(SLNode* node)
 {
     SLVec3f max = node->aabb()->maxOS();
     SLVec3f ctr = node->aabb()->centerOS();
@@ -995,8 +981,7 @@ SLMesh::hitTriangleOS is the fast and minimum storage ray-triangle
 intersection test by Tomas Moeller and Ben Trumbore (Journal of graphics
 tools 2, 1997).
 */
-SLbool
-SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
+SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
 {
     assert(ray && "ray pointer is null");
     assert(node && "node pointer is null");
@@ -1121,8 +1106,7 @@ SLMesh::preShade calculates the rest of the intersection information
 after the final hit point is determined. Should be called just before the 
 shading when the final intersection point of the closest triangle was found.
 */
-void
-SLMesh::preShade(SLRay* ray)
+void SLMesh::preShade(SLRay* ray)
 {
     if (_primitive != PT_triangles)
         return;
@@ -1200,7 +1184,6 @@ SLMesh::preShade(SLRay* ray)
                           CC * ray->hitV);
     }
 }
-
 //-----------------------------------------------------------------------------
 //! Transforms the vertex positions and normals with by joint weights
 /*! If the mesh is used for skinned skeleton animation this method transforms
@@ -1209,8 +1192,7 @@ a weight and an index. After the transform the VBO have to be updated.
 This skinning process can also be done (a lot faster) on the GPU.
 This software skinning is also needed for ray or path tracing.  
 */
-void
-SLMesh::transformSkin()
+void SLMesh::transformSkin()
 {
     // create the secondary buffers for P and N once
     if (!skinnedP.size())
@@ -1279,10 +1261,8 @@ SLMesh::transformSkin()
         if (N.size()) _vao.updateAttrib(AT_normal, _finalN);
     }
 }
-
 //-----------------------------------------------------------------------------
-void
-SLMesh::notifyParentNodesAABBUpdate() const
+void SLMesh::notifyParentNodesAABBUpdate() const
 {
     SLVNode nodes = SLApplication::scene->root3D()->findChildren(this);
     for (auto node : nodes)

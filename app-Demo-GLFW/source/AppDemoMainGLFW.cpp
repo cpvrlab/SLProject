@@ -55,8 +55,7 @@ SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mod
 onClose event handler for deallocation of the scene & sceneview. onClose is
 called glfwPollEvents, glfwWaitEvents or glfwSwapBuffers.
 */
-void
-onClose(GLFWwindow* window)
+void onClose(GLFWwindow* window)
 {
     slShouldClose(true);
 }
@@ -64,8 +63,7 @@ onClose(GLFWwindow* window)
 /*!
 onPaint: Paint event handler that passes the event to the slPaint function. 
 */
-SLbool
-onPaint()
+SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
     if (slGetVideoType() != VT_NONE)
@@ -83,11 +81,9 @@ onPaint()
 
     return viewNeedsRepaint;
 }
-
 //-----------------------------------------------------------------------------
 //! Maps the GLFW key codes to the SLKey codes
-SLKey
-mapKeyToSLKey(SLint key)
+SLKey mapKeyToSLKey(SLint key)
 {
     switch (key)
     {
@@ -149,8 +145,7 @@ mapKeyToSLKey(SLint key)
 onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event.
 */
-static void
-onResize(GLFWwindow* window, int width, int height)
+static void onResize(GLFWwindow* window, int width, int height)
 {
     lastWidth  = width;
     lastHeight = height;
@@ -163,8 +158,7 @@ onResize(GLFWwindow* window, int width, int height)
 /*!
 onLongTouch gets called from a 500ms timer after a mouse down event.
 */
-void
-onLongTouch()
+void onLongTouch()
 {
     // forward the long touch only if the mouse or touch hasn't moved.
     if (SL_abs(mouseX - startX) < 2 && SL_abs(mouseY - startY) < 2)
@@ -175,8 +169,10 @@ onLongTouch()
 Mouse button event handler forwards the events to the slMouseDown or slMouseUp.
 Two finger touches of touch devices are simulated with ALT & CTRL modifiers.
 */
-static void
-onMouseButton(GLFWwindow* window, int button, int action, int mods)
+static void onMouseButton(GLFWwindow* window,
+                          int         button,
+                          int         action,
+                          int         mods)
 {
     SLint x = mouseX;
     SLint y = mouseY;
@@ -293,8 +289,9 @@ onMouseButton(GLFWwindow* window, int button, int action, int mods)
 /*!
 Mouse move event handler forwards the events to slMouseMove or slTouch2Move.
 */
-static void
-onMouseMove(GLFWwindow* window, double x, double y)
+static void onMouseMove(GLFWwindow* window,
+                        double      x,
+                        double      y)
 {
     // x & y are in screen coords.
     // We need to scale them to framebuffer coords
@@ -333,8 +330,9 @@ onMouseMove(GLFWwindow* window, double x, double y)
 /*!
 Mouse wheel event handler forwards the events to slMouseWheel
 */
-static void
-onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
+static void onMouseWheel(GLFWwindow* window,
+                         double      xscroll,
+                         double      yscroll)
 {
     // make sure the delta is at least one integer
     int dY = (int)yscroll;
@@ -342,14 +340,16 @@ onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 
     slMouseWheel(svIndex, dY, modifiers);
 }
-
 //-----------------------------------------------------------------------------
 /*!
 Key event handler sets the modifier key state & forwards the event to
 the slKeyPress function.
 */
-static void
-onKeyPress(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
+static void onKeyPress(GLFWwindow* window,
+                       int         GLFWKey,
+                       int         scancode,
+                       int         action,
+                       int         mods)
 {
     SLKey key = mapKeyToSLKey(GLFWKey);
 
@@ -419,8 +419,7 @@ onKeyPress(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
 }
 //-----------------------------------------------------------------------------
 //! Event handler for GLFW character input
-void
-onCharInput(GLFWwindow*, SLuint c)
+void onCharInput(GLFWwindow*, SLuint c)
 {
     slCharInput(svIndex, c);
 }
@@ -428,8 +427,7 @@ onCharInput(GLFWwindow*, SLuint c)
 /*!
 Error callback handler for GLFW.
 */
-void
-onGLFWError(int error, const char* description)
+void onGLFWError(int error, const char* description)
 {
     fputs(description, stderr);
 }
@@ -437,8 +435,7 @@ onGLFWError(int error, const char* description)
 /*!
 The C main procedure running the GLFW GUI application.
 */
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     // set command line arguments
     SLVstring cmdLineArgs;

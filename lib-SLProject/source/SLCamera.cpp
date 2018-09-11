@@ -61,8 +61,7 @@ SLCamera::~SLCamera()
 is called in every frame. It moves the camera after the key was released and
 smoothly stops the motion by decreasing the speed every frame.
 */
-SLbool
-SLCamera::camUpdate(SLfloat elapsedTimeMS)
+SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
 {
     if (_velocity == SLVec3f::ZERO && _moveDir == SLVec3f::ZERO)
     {
@@ -140,8 +139,7 @@ SLCamera::camUpdate(SLfloat elapsedTimeMS)
 Only draws the frustum lines without lighting when the camera is not the
 active one. This means that it can be seen from the active view point.
 */
-void
-SLCamera::drawMeshes(SLSceneView* sv)
+void SLCamera::drawMeshes(SLSceneView* sv)
 {
     if (sv->camera() != this)
     {
@@ -300,8 +298,7 @@ SLCamera::drawMeshes(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 //! SLCamera::statsRec updates the statistic parameters
-void
-SLCamera::statsRec(SLNodeStats& stats)
+void SLCamera::statsRec(SLNodeStats& stats)
 {
     stats.numTriangles += 12;
     stats.numBytes += sizeof(SLCamera);
@@ -312,8 +309,7 @@ SLCamera::statsRec(SLNodeStats& stats)
 SLCamera::calcMinMax calculates the axis alligned minimum and maximum point of
 the camera position and the 4 near clipping plane points in object space (OS).
 */
-void
-SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV)
+void SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV)
 {
     SLVec3f P[5];
     SLfloat tanFov = tan(_fov * SL_DEG2RAD * 0.5f);
@@ -351,8 +347,7 @@ SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV)
  node has no mesh accociated, so we have to calculate the min and max point
  from the camera frustum.
  */
-void
-SLCamera::buildAABB(SLAABBox& aabb, SLMat4f wmNode)
+void SLCamera::buildAABB(SLAABBox& aabb, SLMat4f wmNode)
 {
     SLVec3f minP, maxP;
     calcMinMax(minP, maxP);
@@ -362,8 +357,7 @@ SLCamera::buildAABB(SLAABBox& aabb, SLMat4f wmNode)
 }
 //-----------------------------------------------------------------------------
 //! Returns the projection type as string
-SLstring
-SLCamera::projectionToStr(SLProjection p)
+SLstring SLCamera::projectionToStr(SLProjection p)
 {
     switch (p)
     {
@@ -387,8 +381,7 @@ SLCamera::projectionToStr(SLProjection p)
 Returns the height of the screen at focal distance. In stereo rendering this
 should correspond to the height of the projection plane.
 */
-SLfloat
-SLCamera::focalDistScrH() const
+SLfloat SLCamera::focalDistScrH() const
 {
     return tan(_fov * SL_DEG2RAD / 2.0f) * _focalDist * 2.0f;
 }
@@ -397,8 +390,7 @@ SLCamera::focalDistScrH() const
 Returns the width of the screen at focal distance. In stereo rendering this
 should correspond to the width of the projection plane.
 */
-SLfloat
-SLCamera::focalDistScrW() const
+SLfloat SLCamera::focalDistScrW() const
 {
     return focalDistScrH() * _aspect;
 }
@@ -409,8 +401,7 @@ drawing buffer. In case of a stereographic projection it additionally sets the
 stereo splitting parameters such as the color masks and the color filter matrix
 for stereo color anaglyph.
 */
-void
-SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
+void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
 {
     ////////////////////
     // Set Projection //
@@ -569,8 +560,7 @@ The view matrix that projects all points from the world coordinate system to
 the camera coordinate system (that means relative to the camera) is the camera
 nodes inverse world matrix.
 */
-void
-SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
+void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 {
     SLScene* s = SLApplication::scene;
 
@@ -753,8 +743,7 @@ SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 }
 //-----------------------------------------------------------------------------
 //! Sets the view to look from a direction towards the current focal point
-void
-SLCamera::lookFrom(const SLVec3f fromDir, const SLVec3f upDir)
+void SLCamera::lookFrom(const SLVec3f fromDir, const SLVec3f upDir)
 {
     SLVec3f lookAt = focalPointWS();
     this->translation(lookAt + _focalDist * fromDir);
@@ -762,8 +751,7 @@ SLCamera::lookFrom(const SLVec3f fromDir, const SLVec3f upDir)
 }
 //-----------------------------------------------------------------------------
 //! SLCamera::animationStr() returns the animation enum as string
-SLstring
-SLCamera::animationStr() const
+SLstring SLCamera::animationStr() const
 {
     switch (_camAnim)
     {
@@ -784,11 +772,10 @@ implement the camera animation.
 */
 //-----------------------------------------------------------------------------
 //! Gets called whenever a mouse button gets pressed.
-SLbool
-SLCamera::onMouseDown(const SLMouseButton button,
-                      const SLint         x,
-                      const SLint         y,
-                      const SLKey         mod)
+SLbool SLCamera::onMouseDown(const SLMouseButton button,
+                             const SLint         x,
+                             const SLint         y,
+                             const SLKey         mod)
 {
     // Init both position in case that the second finger came with delay
     _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
@@ -809,11 +796,10 @@ SLCamera::onMouseDown(const SLMouseButton button,
 }
 //-----------------------------------------------------------------------------
 //! Gets called whenever the mouse is moved.
-SLbool
-SLCamera::onMouseMove(const SLMouseButton button,
-                      const SLint         x,
-                      const SLint         y,
-                      const SLKey         mod)
+SLbool SLCamera::onMouseMove(const SLMouseButton button,
+                             const SLint         x,
+                             const SLint         y,
+                             const SLKey         mod)
 {
     if (button == MB_left) //==================================================
     {
@@ -970,11 +956,10 @@ SLCamera::onMouseMove(const SLMouseButton button,
 }
 //-----------------------------------------------------------------------------
 //! Gets called whenever the mouse button is released
-SLbool
-SLCamera::onMouseUp(const SLMouseButton button,
-                    const SLint         x,
-                    const SLint         y,
-                    const SLKey         mod)
+SLbool SLCamera::onMouseUp(const SLMouseButton button,
+                           const SLint         x,
+                           const SLint         y,
+                           const SLKey         mod)
 {
     // Stop any motion
     //_acceleration.set(0.0f, 0.0f, 0.0f);
@@ -997,8 +982,8 @@ SLCamera::onMouseUp(const SLMouseButton button,
 /*!
 SLCamera::onMouseWheel event handler moves camera forwards or backwards
 */
-SLbool
-SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
+SLbool SLCamera::onMouseWheel(const SLint delta,
+                              const SLKey mod)
 {
     SLfloat sign = (SLfloat)SL_sign(delta);
 
@@ -1034,8 +1019,10 @@ SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
 SLCamera::onDoubleTouch gets called whenever two fingers touch a handheld
 screen.
 */
-SLbool
-SLCamera::onTouch2Down(const SLint x1, const SLint y1, const SLint x2, const SLint y2)
+SLbool SLCamera::onTouch2Down(const SLint x1,
+                              const SLint y1,
+                              const SLint x2,
+                              const SLint y2)
 {
     _oldTouchPos1.set((SLfloat)x1, (SLfloat)y1);
     _oldTouchPos2.set((SLfloat)x2, (SLfloat)y2);
@@ -1046,8 +1033,10 @@ SLCamera::onTouch2Down(const SLint x1, const SLint y1, const SLint x2, const SLi
 SLCamera::onTouch2Move gets called whenever two fingers move on a handheld
 screen.
 */
-SLbool
-SLCamera::onTouch2Move(const SLint x1, const SLint y1, const SLint x2, const SLint y2)
+SLbool SLCamera::onTouch2Move(const SLint x1,
+                              const SLint y1,
+                              const SLint x2,
+                              const SLint y2)
 {
     SLVec2f now1((SLfloat)x1, (SLfloat)y1);
     SLVec2f now2((SLfloat)x2, (SLfloat)y2);
@@ -1160,8 +1149,7 @@ SLCamera::onTouch2Up(const SLint x1,
 SLCamera::onKeyPress applies the keyboard view navigation to the view matrix.
 The key code constants are defined in SL.h
 */
-SLbool
-SLCamera::onKeyPress(const SLKey key, const SLKey mod)
+SLbool SLCamera::onKeyPress(const SLKey key, const SLKey mod)
 {
     // Keep in sync with SLDemoGui::buildMenuBar
     switch ((SLchar)key)
@@ -1204,8 +1192,7 @@ SLCamera::onKeyPress(const SLKey key, const SLKey mod)
 /*!
 SLCamera::onKeyRelease gets called when a key is released
 */
-SLbool
-SLCamera::onKeyRelease(const SLKey key, const SLKey mod)
+SLbool SLCamera::onKeyRelease(const SLKey key, const SLKey mod)
 {
     switch ((SLchar)key)
     {
@@ -1230,8 +1217,7 @@ coefficients from the combined view and projection matrix.
 See the paper from Gribb and Hartmann:
 http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
 */
-void
-SLCamera::setFrustumPlanes()
+void SLCamera::setFrustumPlanes()
 {
     // build combined view projection matrix
     // SLCamera::setView should've been called before so viewMatrix contains the right value
@@ -1268,8 +1254,7 @@ SLCamera::setFrustumPlanes()
 /*! This method is used for object picking. The calculation is the same as for
 primary rays in Ray Tracing.
 */
-void
-SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
+void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
 {
     SLVec3f EYE, LA, LU, LR;
 
@@ -1340,8 +1325,7 @@ AABBs center minus its radius. This is faster than the AABB in frustum test but
 not as precise. Please refer to the nice tutorial on frustum culling on:
 http://www.lighthouse3d.com/opengl/viewfrustum/
 */
-SLbool
-SLCamera::isInFrustum(SLAABBox* aabb)
+SLbool SLCamera::isInFrustum(SLAABBox* aabb)
 {
     // check the 6 planes of the frustum
     for (SLint i = 0; i < 6; ++i)
@@ -1362,8 +1346,7 @@ SLCamera::isInFrustum(SLAABBox* aabb)
 }
 //-----------------------------------------------------------------------------
 //! SLCamera::to_string returns important camera parameter as a string
-SLstring
-SLCamera::toString() const
+SLstring SLCamera::toString() const
 {
     SLMat4f            vm = updateAndGetVM();
     std::ostringstream ss;
@@ -1382,8 +1365,7 @@ over the window at the specified cursor position. With two trackball vectors
 you can calculate a single rotation axis with the cross product. This routine
 is used for the trackball camera animation.
 */
-SLVec3f
-SLCamera::trackballVec(const SLint x, const SLint y)
+SLVec3f SLCamera::trackballVec(const SLint x, const SLint y)
 {
     SLVec3f vec;
 

@@ -112,14 +112,13 @@ SLLens::SLLens(SLfloat     radiusBot,
 \param slices SLint
 \param mat SLMaterial* The Material of the lens
 */
-void
-SLLens::initLens(SLfloat     diopterBot,
-                 SLfloat     diopterTop,
-                 SLfloat     diameter,
-                 SLfloat     thickness,
-                 SLuint      stacks,
-                 SLuint      slices,
-                 SLMaterial* mat)
+void SLLens::initLens(SLfloat     diopterBot,
+                      SLfloat     diopterTop,
+                      SLfloat     diameter,
+                      SLfloat     thickness,
+                      SLuint      stacks,
+                      SLuint      slices,
+                      SLMaterial* mat)
 {
     assert(slices >= 3 && "Error: Not enough slices.");
     assert(slices > 0 && "Error: Not enough stacks.");
@@ -154,8 +153,9 @@ SLLens::initLens(SLfloat     diopterBot,
 \param radiusTop radius of the lens back side
 \param mat the material pointer that is passed to SLRevolver
 */
-void
-SLLens::generateLens(SLfloat radiusBot, SLfloat radiusTop, SLMaterial* mat)
+void SLLens::generateLens(SLfloat     radiusBot,
+                          SLfloat     radiusTop,
+                          SLMaterial* mat)
 {
     _smoothFirst = true;
     _smoothLast  = true;
@@ -178,8 +178,7 @@ SLLens::generateLens(SLfloat radiusBot, SLfloat radiusTop, SLMaterial* mat)
 \param radius of the lens
 \return x the x coordinate of the last point of the bulge
 */
-SLfloat
-SLLens::generateLensBot(SLfloat radius)
+SLfloat SLLens::generateLensBot(SLfloat radius)
 {
     // Point
     SLVec3f p;
@@ -271,8 +270,7 @@ SLLens::generateLensBot(SLfloat radius)
 \param radius of the lens
 \return x the x coordinate of the last point of the bulge
 */
-SLfloat
-SLLens::generateLensTop(SLfloat radius)
+SLfloat SLLens::generateLensTop(SLfloat radius)
 {
     // Point
     SLVec3f p;
@@ -374,8 +372,7 @@ l: half of the lens diameter
 \image html Sagitta.png
 http://en.wikipedia.org/wiki/Sagitta_%28geometry%29
 */
-SLfloat
-SLLens::calcSagitta(SLfloat radius)
+SLfloat SLLens::calcSagitta(SLfloat radius)
 {
     // take the amount of the radius
     SLfloat radiusAmount = (radius < 0) ? -radius : radius;

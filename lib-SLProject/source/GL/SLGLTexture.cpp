@@ -195,8 +195,7 @@ SLGLTexture::~SLGLTexture()
     clearData();
 }
 //-----------------------------------------------------------------------------
-void
-SLGLTexture::clearData()
+void SLGLTexture::clearData()
 {
     glDeleteTextures(1, &_texName);
 
@@ -215,10 +214,9 @@ SLGLTexture::clearData()
 }
 //-----------------------------------------------------------------------------
 //! Loads the texture, converts color depth & applies vertical mirroring
-void
-SLGLTexture::load(SLstring filename,
-                  SLbool   flipVertical,
-                  SLbool   loadGrayscaleIntoAlpha)
+void SLGLTexture::load(SLstring filename,
+                       SLbool   flipVertical,
+                       SLbool   loadGrayscaleIntoAlpha)
 {
     // Load the file directly
     if (!SLFileSystem::fileExists(filename))
@@ -237,16 +235,14 @@ SLGLTexture::load(SLstring filename,
 }
 //-----------------------------------------------------------------------------
 //! Loads the 1D color data into an image of height 1
-void
-SLGLTexture::load(const SLVCol4f& colors)
+void SLGLTexture::load(const SLVCol4f& colors)
 {
     assert(colors.size() > 1);
 
     _images.push_back(new SLCVImage(colors));
 }
 //-----------------------------------------------------------------------------
-void
-SLGLTexture::setVideoImage(SLstring videoImageFile)
+void SLGLTexture::setVideoImage(SLstring videoImageFile)
 {
     load(videoImageFile);
     name(videoImageFile);
@@ -268,8 +264,7 @@ SLGLTexture::setVideoImage(SLstring videoImageFile)
 It is important that passed pixel format is either PF_LUMINANCE, RGB or RGBA.
 otherwise an expensive conversion must be done.
 */
-SLbool
-SLGLTexture::copyVideoImage(SLint         camWidth,
+SLbool SLGLTexture::copyVideoImage(SLint         camWidth,
                             SLint         camHeight,
                             SLPixelFormat srcFormat,
                             SLuchar*      data,
@@ -314,8 +309,7 @@ This texture creation must be done only once when a valid OpenGL rendering
 context is present. This function is called the first time within the enable
 method which is called by object that uses the texture.
 */
-void
-SLGLTexture::build(SLint texID)
+void SLGLTexture::build(SLint texID)
 {
     assert(texID >= 0 && texID < 32);
 
@@ -540,8 +534,7 @@ by the object that uses the texture every time BEFORE the its rendering.
 The texID is only used for multi texturing. Before the first time the texture
 is passed to OpenGL.
 */
-void
-SLGLTexture::bindActive(SLint texID)
+void SLGLTexture::bindActive(SLint texID)
 {
     assert(texID >= 0 && texID < 32);
 
@@ -577,8 +570,7 @@ SLGLTexture::bindActive(SLint texID)
 /*!
 Fully updates the OpenGL internal texture data by the image data 
 */
-void
-SLGLTexture::fullUpdate()
+void SLGLTexture::fullUpdate()
 {
     if (_texName &&
         _images.size() &&
@@ -621,8 +613,7 @@ triangles with zero in the bottom left corner: <br>
      0 +-----+
        0
 */
-void
-SLGLTexture::drawSprite(SLbool doUpdate)
+void SLGLTexture::drawSprite(SLbool doUpdate)
 {
     SLfloat w = (SLfloat)_images[0]->width();
     SLfloat h = (SLfloat)_images[0]->height();
@@ -672,8 +663,7 @@ SLGLTexture::drawSprite(SLbool doUpdate)
 /*! If the OpenGL filtering is set to GL_LINEAR a bilinear interpolated color out
 of four neighboring pixels is return. Otherwise the nearest pixel is returned.
 */
-SLCol4f
-SLGLTexture::getTexelf(SLfloat s, SLfloat t, SLuint imgIndex)
+SLCol4f SLGLTexture::getTexelf(SLfloat s, SLfloat t, SLuint imgIndex)
 {
     assert(imgIndex < _images.size() && "Image index to big!");
 
@@ -690,8 +680,7 @@ SLGLTexture::getTexelf(SLfloat s, SLfloat t, SLuint imgIndex)
 }
 //-----------------------------------------------------------------------------
 //! SLGLTexture::getTexelf returns a pixel color at the specified cubemap direction
-SLCol4f
-SLGLTexture::getTexelf(SLVec3f cubemapDir)
+SLCol4f SLGLTexture::getTexelf(SLVec3f cubemapDir)
 {
     assert(_images.size() == 6 &&
            _target == GL_TEXTURE_CUBE_MAP &&
@@ -709,8 +698,7 @@ SLGLTexture::getTexelf(SLVec3f cubemapDir)
 dsdt calculates the partial derivation (gray value slope) at s,t for bump
 mapping either from a height map or a normal map
 */
-SLVec2f
-SLGLTexture::dsdt(SLfloat s, SLfloat t)
+SLVec2f SLGLTexture::dsdt(SLfloat s, SLfloat t)
 {
     SLVec2f dsdt(0, 0);
     SLfloat ds = 1.0f / _images[0]->width();
@@ -731,8 +719,7 @@ SLGLTexture::dsdt(SLfloat s, SLfloat t)
 }
 //-----------------------------------------------------------------------------
 //! Detects the texture type from the filename appendix (See SLTexType def.)
-SLTextureType
-SLGLTexture::detectType(SLstring filename)
+SLTextureType SLGLTexture::detectType(SLstring filename)
 {
     SLstring name     = SLUtils::getFileNameWOExt(filename);
     SLstring appendix = name.substr(name.length() - 2, 2);
@@ -747,8 +734,7 @@ SLGLTexture::detectType(SLstring filename)
 }
 //-----------------------------------------------------------------------------
 //! Returns the closest power of 2 to a passed number.
-SLuint
-SLGLTexture::closestPowerOf2(SLuint num)
+SLuint SLGLTexture::closestPowerOf2(SLuint num)
 {
     SLuint nextPow2 = 1;
     if (num <= 0) return 1;
@@ -764,8 +750,7 @@ SLGLTexture::closestPowerOf2(SLuint num)
 }
 //-----------------------------------------------------------------------------
 //! Returns the next power of 2 to a passed number.
-SLuint
-SLGLTexture::nextPowerOf2(SLuint num)
+SLuint SLGLTexture::nextPowerOf2(SLuint num)
 {
     SLuint nextPow2 = 1;
     if (num <= 0) return 1;
@@ -775,8 +760,7 @@ SLGLTexture::nextPowerOf2(SLuint num)
     return nextPow2;
 }
 //-----------------------------------------------------------------------------
-void
-SLGLTexture::build2DMipmaps(SLint target, SLuint index)
+void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
 {
     // Create the base level mipmap
     SLint level = 0;
@@ -826,8 +810,7 @@ SLGLTexture::build2DMipmaps(SLint target, SLuint index)
 }
 //-----------------------------------------------------------------------------
 //! Returns the texture type as string
-SLstring
-SLGLTexture::typeName()
+SLstring SLGLTexture::typeName()
 {
     switch (_texType)
     {
@@ -847,8 +830,7 @@ SLGLTexture::typeName()
 gradient of all images and stores them in the RGB components.
 \param sampleRadius Distance from center to calculate the gradient
 */
-void
-SLGLTexture::calc3DGradients(SLint sampleRadius)
+void SLGLTexture::calc3DGradients(SLint sampleRadius)
 {
     SLint   r          = sampleRadius;
     SLint   volX       = (SLint)_images[0]->width();
@@ -905,8 +887,7 @@ SLGLTexture::calc3DGradients(SLint sampleRadius)
 of all images.
 \param smoothRadius Soothing radius
 */
-void
-SLGLTexture::smooth3DGradients(SLint smoothRadius)
+void SLGLTexture::smooth3DGradients(SLint smoothRadius)
 {
     SLint   r          = smoothRadius;
     SLint   volX       = (SLint)_images[0]->width();
@@ -965,13 +946,12 @@ coordinate. If given the face, and texture coordinates (u,v), the unnormalized
 vector (x,y,z) are computed. Source:\n
 https://en.wikipedia.org/wiki/Cube_mapping
 */
-void
-SLGLTexture::cubeUV2XYZ(SLint    index,
-                        SLfloat  u,
-                        SLfloat  v,
-                        SLfloat& x,
-                        SLfloat& y,
-                        SLfloat& z)
+void SLGLTexture::cubeUV2XYZ(SLint    index,
+                             SLfloat  u,
+                             SLfloat  v,
+                             SLfloat& x,
+                             SLfloat& y,
+                             SLfloat& z)
 {
     assert(_images.size() == 6 &&
            _target == GL_TEXTURE_CUBE_MAP &&
@@ -1019,13 +999,12 @@ SLGLTexture::cubeUV2XYZ(SLint    index,
 /*! See also SLGLTexture::cubeUV2XYZ. Source:\n
 https://en.wikipedia.org/wiki/Cube_mapping
 */
-void
-SLGLTexture::cubeXYZ2UV(SLfloat  x,
-                        SLfloat  y,
-                        SLfloat  z,
-                        SLint&   index,
-                        SLfloat& u,
-                        SLfloat& v)
+void SLGLTexture::cubeXYZ2UV(SLfloat  x,
+                             SLfloat  y,
+                             SLfloat  z,
+                             SLint&   index,
+                             SLfloat& u,
+                             SLfloat& v)
 {
     assert(_images.size() == 6 &&
            _target == GL_TEXTURE_CUBE_MAP &&

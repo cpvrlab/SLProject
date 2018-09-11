@@ -15,9 +15,8 @@
 #endif
 
 //-----------------------------------------------------------------------------
-//! SL::log
-void
-SL::log(const char* format, ...)
+//! SL::log logs a formatted string platform independently
+void SL::log(const char* format, ...)
 {
     char    log[4096];
     va_list argptr;
@@ -33,8 +32,7 @@ SL::log(const char* format, ...)
 }
 //-----------------------------------------------------------------------------
 //! SL::Exit terminates the application with a message. No leak cheching.
-void
-SL::exitMsg(const SLchar* msg, const SLint line, const SLchar* file)
+void SL::exitMsg(const SLchar* msg, const SLint line, const SLchar* file)
 {
 #if defined(SL_OS_ANDROID)
     __android_log_print(ANDROID_LOG_INFO,
@@ -56,8 +54,7 @@ SL::exitMsg(const SLchar* msg, const SLint line, const SLchar* file)
 }
 //-----------------------------------------------------------------------------
 //! SL::Warn message output
-void
-SL::warnMsg(const SLchar* msg, const SLint line, const SLchar* file)
+void SL::warnMsg(const SLchar* msg, const SLint line, const SLchar* file)
 {
 #if defined(SL_OS_ANDROID)
     __android_log_print(ANDROID_LOG_INFO,
@@ -74,8 +71,7 @@ SL::warnMsg(const SLchar* msg, const SLint line, const SLchar* file)
 /*! SL::maxThreads returns in release config the max. NO. of threads and in 
 debug config 1. Try to avoid multithreading in the debug configuration. 
 */
-SLuint
-SL::maxThreads()
+SLuint SL::maxThreads()
 {
 #ifdef _DEBUG
     return 1;

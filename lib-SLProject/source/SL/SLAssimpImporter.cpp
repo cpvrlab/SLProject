@@ -57,8 +57,7 @@ this function interpolates linearly if no value is present in the map.
          translation key to the right of the passed in time then this function will take
          the last known value on the left!
 */
-SLVec3f
-getTranslation(SLfloat time, const KeyframeMap& keyframes)
+SLVec3f getTranslation(SLfloat time, const KeyframeMap& keyframes)
 {
     KeyframeMap::const_iterator it = keyframes.find(time);
     aiVector3D                  result(0, 0, 0); // return 0 position of nothing was found
@@ -120,7 +119,6 @@ getTranslation(SLfloat time, const KeyframeMap& keyframes)
 
     return SLVec3f(result.x, result.y, result.z);
 }
-
 //-----------------------------------------------------------------------------
 /*! Get the correct scaling out of the keyframes map for a given time
     this function interpolates linearly if no value is present in the map.
@@ -129,8 +127,7 @@ getTranslation(SLfloat time, const KeyframeMap& keyframes)
              scaling key to the right of the passed in time then this function will take
              the last known value on the left!
 */
-SLVec3f
-getScaling(SLfloat time, const KeyframeMap& keyframes)
+SLVec3f getScaling(SLfloat time, const KeyframeMap& keyframes)
 {
     KeyframeMap::const_iterator it = keyframes.find(time);
     aiVector3D                  result(1, 1, 1); // return unit scale if no kf was found
@@ -192,7 +189,6 @@ getScaling(SLfloat time, const KeyframeMap& keyframes)
 
     return SLVec3f(result.x, result.y, result.z);
 }
-
 //-----------------------------------------------------------------------------
 /*! Get the correct rotation out of the keyframes map for a given time
     this function interpolates linearly if no value is present in the 
@@ -201,8 +197,7 @@ getScaling(SLfloat time, const KeyframeMap& keyframes)
              rotation key to the right of the passed in time then this function will take
              the last known value on the left!
 */
-SLQuat4f
-getRotation(SLfloat time, const KeyframeMap& keyframes)
+SLQuat4f getRotation(SLfloat time, const KeyframeMap& keyframes)
 {
     KeyframeMap::const_iterator it = keyframes.find(time);
     aiQuaternion                result(1, 0, 0, 0); // identity rotation
@@ -275,7 +270,7 @@ materials within the file are ignored.
 SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path or on default path
                                SLbool      loadMeshesOnly, //!< Only load nodes with meshes
                                SLMaterial* overrideMat,    //!< Override material
-                               SLuint      flags)               //!< Import flags (see assimp/postprocess.h)
+                               SLuint      flags)               //!< Import flags (see postprocess.h)
 {
     // clear the intermediate data
     clear();
@@ -357,11 +352,9 @@ SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path o
 
     return _sceneRoot;
 }
-
 //-----------------------------------------------------------------------------
 //! Clears all helper containers
-void
-SLAssimpImporter::clear()
+void SLAssimpImporter::clear()
 {
     _nodeMap.clear();
     _jointOffsets.clear();
@@ -371,30 +364,25 @@ SLAssimpImporter::clear()
 }
 //-----------------------------------------------------------------------------
 //! Return an aiNode ptr if name exists, or null if it doesn't
-aiNode*
-SLAssimpImporter::getNodeByName(const SLstring& name)
+aiNode* SLAssimpImporter::getNodeByName(const SLstring& name)
 {
     if (_nodeMap.find(name) != _nodeMap.end())
         return _nodeMap[name];
 
     return nullptr;
 }
-
 //-----------------------------------------------------------------------------
 //! Returns an aiBone ptr if name exists, or null if it doesn't
-const SLMat4f
-SLAssimpImporter::getOffsetMat(const SLstring& name)
+const SLMat4f SLAssimpImporter::getOffsetMat(const SLstring& name)
 {
     if (_jointOffsets.find(name) != _jointOffsets.end())
         return _jointOffsets[name];
 
     return SLMat4f();
 }
-
 //-----------------------------------------------------------------------------
 //! Populates nameToNode, nameToBone, jointGroups, skinnedMeshes
-void
-SLAssimpImporter::performInitialScan(const aiScene* scene)
+void SLAssimpImporter::performInitialScan(const aiScene* scene)
 {
     // populate the _nameToNode map and print the assimp structure on detailed log verbosity.
     logMessage(LV_detailed, "[Assimp scene]\n");
@@ -415,11 +403,9 @@ SLAssimpImporter::performInitialScan(const aiScene* scene)
     findJoints(scene);
     findSkeletonRoot();
 }
-
 //-----------------------------------------------------------------------------
 //! Scans the assimp scene graph structure and populates nameToNode
-void
-SLAssimpImporter::findNodes(aiNode* node, SLstring padding, SLbool lastChild)
+void SLAssimpImporter::findNodes(aiNode* node, SLstring padding, SLbool lastChild)
 {
     SLstring name = node->mName.C_Str();
     /*
@@ -473,8 +459,7 @@ SLAssimpImporter::findNodes(aiNode* node, SLstring padding, SLbool lastChild)
 /*! Scans all meshes in the assimp scene and populates nameToBone and
 jointGroups
 */
-void
-SLAssimpImporter::findJoints(const aiScene* scene)
+void SLAssimpImporter::findJoints(const aiScene* scene)
 {
     for (SLuint i = 0; i < scene->mNumMeshes; i++)
     {
@@ -504,13 +489,11 @@ SLAssimpImporter::findJoints(const aiScene* scene)
         }
     }
 }
-
 //-----------------------------------------------------------------------------
 /*! Finds the common ancestor for each remaining group in jointGroups,
 these are our final skeleton roots
 */
-void
-SLAssimpImporter::findSkeletonRoot()
+void SLAssimpImporter::findSkeletonRoot()
 {
     _skeletonRoot = nullptr;
     // early out if we don't have any joint bindings
@@ -603,8 +586,7 @@ SLAssimpImporter::findSkeletonRoot()
 }
 //-----------------------------------------------------------------------------
 //! Loads the skeleton
-void
-SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
+void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
 {
     if (!node)
         return;
@@ -657,17 +639,15 @@ SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
     for (SLuint i = 0; i < node->mNumChildren; i++)
         loadSkeleton(joint, node->mChildren[i]);
 }
-
 //-----------------------------------------------------------------------------
 /*!
 SLAssimpImporter::loadMaterial loads the AssImp material an returns the SLMaterial.
 The materials and textures are added to the SLScene material and texture 
 vectors.
 */
-SLMaterial*
-SLAssimpImporter::loadMaterial(SLint       index,
-                               aiMaterial* material,
-                               SLstring    modelPath)
+SLMaterial* SLAssimpImporter::loadMaterial(SLint       index,
+                                           aiMaterial* material,
+                                           SLstring    modelPath)
 {
     // Get the materials name
     aiString matName;
@@ -753,9 +733,8 @@ SLAssimpImporter::loadMaterial(SLint       index,
 /*!
 SLAssimpImporter::loadTexture loads the AssImp texture an returns the SLGLTexture
 */
-SLGLTexture*
-SLAssimpImporter::loadTexture(SLstring&     textureFile,
-                              SLTextureType texType)
+SLGLTexture* SLAssimpImporter::loadTexture(SLstring&     textureFile,
+                                           SLTextureType texType)
 {
     SLVGLTexture& sceneTex = SLApplication::scene->textures();
 
@@ -771,15 +750,13 @@ SLAssimpImporter::loadTexture(SLstring&     textureFile,
                                            texType);
     return texture;
 }
-
 //-----------------------------------------------------------------------------
 /*!
 SLAssimpImporter::loadMesh creates a new SLMesh an copies the meshs vertex data and
 triangle face indices. Normals & tangents are not loaded. They are calculated
 in SLMesh.
 */
-SLMesh*
-SLAssimpImporter::loadMesh(aiMesh* mesh)
+SLMesh* SLAssimpImporter::loadMesh(aiMesh* mesh)
 {
     // Count first the NO. of triangles in the mesh
     SLuint numPoints    = 0;
@@ -1069,8 +1046,7 @@ SLNode* SLAssimpImporter::loadNodesRec(
 /*!
 SLAssimpImporter::loadAnimation loads the scene graph node tree recursively.
 */
-SLAnimation*
-SLAssimpImporter::loadAnimation(aiAnimation* anim)
+SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 {
     ostringstream oss;
     oss << "unnamed_anim_" << SLApplication::scene->animManager().allAnimNames().size();
@@ -1267,8 +1243,7 @@ any visuals.
         redundantly traverse the same exact nodes multiple times. This isn't a pressing
         issue at the moment but should be tackled when this importer is being optimized
 */
-SLbool
-SLAssimpImporter::aiNodeHasMesh(aiNode* node)
+SLbool SLAssimpImporter::aiNodeHasMesh(aiNode* node)
 {
     if (node->mNumMeshes > 0) return true;
 
@@ -1287,8 +1262,7 @@ Some file formats have absolute path stored, some have relative paths.
 If a model contains absolute path it is best to put all texture files beside the
 model file in the same folder.
 */
-SLstring
-SLAssimpImporter::checkFilePath(SLstring modelPath, SLstring aiTexFile)
+SLstring SLAssimpImporter::checkFilePath(SLstring modelPath, SLstring aiTexFile)
 {
     // Check path & file combination
     SLstring pathFile = modelPath + aiTexFile;

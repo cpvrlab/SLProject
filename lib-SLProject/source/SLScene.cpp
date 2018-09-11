@@ -176,8 +176,7 @@ SLScene::~SLScene()
 //-----------------------------------------------------------------------------
 /*! The scene init is called before a new scene is assembled.
 */
-void
-SLScene::init()
+void SLScene::init()
 {
     unInit();
 
@@ -223,8 +222,7 @@ global resources such as materials, textures & custom shaders loaded with the
 scene. The standard shaders, the fonts and the 2D-GUI elements remain. They are
 destructed at process end.
 */
-void
-SLScene::unInit()
+void SLScene::unInit()
 {
     _selectedMesh = nullptr;
     _selectedNode = nullptr;
@@ -308,8 +306,7 @@ A scene can be displayed in multiple views as demonstrated in the app-Viewer-Qt
 example. AR tracking is only handled on the first scene view.
 \return true if really something got updated
 */
-bool
-SLScene::onUpdate()
+bool SLScene::onUpdate()
 {
     // Return if not all sceneview got repainted: This check if necessary if
     // this function is called for multiple SceneViews. In this way we only
@@ -531,8 +528,7 @@ SLScene::onUpdate()
 }
 //-----------------------------------------------------------------------------
 //! SLScene::onAfterLoad gets called after onLoad
-void
-SLScene::onAfterLoad()
+void SLScene::onAfterLoad()
 {
 #ifdef SL_USES_CVCAPTURE
     if (_videoType != VT_NONE)
@@ -591,8 +587,7 @@ SLScene::onAfterLoad()
 /*! If one node is selected a rectangle selection is reset to zero.
 The drawing of the selection is done in SLMesh::draw and SLAABBox::drawWS.
 */
-void
-SLScene::selectNode(SLNode* nodeToSelect)
+void SLScene::selectNode(SLNode* nodeToSelect)
 {
     if (_selectedNode)
         _selectedNode->drawBits()->off(SL_DB_SELECTED);
@@ -619,8 +614,8 @@ SLScene::selectNode(SLNode* nodeToSelect)
 /*! If one node is selected a rectangle selection is reset to zero.
 The drawing of the selection is done in SLMesh::draw and SLAABBox::drawWS.
 */
-void
-SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
+void SLScene::selectNodeMesh(SLNode* nodeToSelect,
+                             SLMesh* meshToSelect)
 {
     if (_selectedNode)
         _selectedNode->drawBits()->off(SL_DB_SELECTED);
@@ -648,9 +643,8 @@ SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
     }
 }
 //-----------------------------------------------------------------------------
-void
-SLScene::onLoadAsset(SLstring assetFile,
-                     SLuint   processFlags)
+void SLScene::onLoadAsset(SLstring assetFile,
+                          SLuint   processFlags)
 {
     SLApplication::sceneID = SID_FromFile;
 
@@ -711,8 +705,7 @@ SLScene::onLoadAsset(SLstring assetFile,
 one and is set by the SLScene::videoType (VT_NONE, VT_MAIN, VT_SCND) during the
 scene assembly in SLScene::onLoad.
 */
-void
-SLScene::videoType(SLVideoType vt)
+void SLScene::videoType(SLVideoType vt)
 {
     if (SLCVCapture::hasSecondaryCamera && vt == VT_SCND)
     {
@@ -730,8 +723,7 @@ SLScene::videoType(SLVideoType vt)
 }
 //-----------------------------------------------------------------------------
 //! Returns the number of camera nodes in the scene
-SLint
-SLScene::numSceneCameras()
+SLint SLScene::numSceneCameras()
 {
     if (!_root3D) return 0;
     vector<SLCamera*> cams = _root3D->findChildren<SLCamera>();
@@ -739,8 +731,7 @@ SLScene::numSceneCameras()
 }
 //-----------------------------------------------------------------------------
 //! Returns the next camera in the scene if there is one
-SLCamera*
-SLScene::nextCameraInScene(SLSceneView* activeSV)
+SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
 {
     if (!_root3D) return nullptr;
 

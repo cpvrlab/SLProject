@@ -37,8 +37,7 @@ SLGLVertexBuffer::SLGLVertexBuffer()
 /*! Deletes the OpenGL objects for the vertex array and the vertex buffer.
 The vector _attribs with the attribute information is not cleared.
 */
-void
-SLGLVertexBuffer::deleteGL()
+void SLGLVertexBuffer::deleteGL()
 {
     if (_id)
     {
@@ -49,15 +48,13 @@ SLGLVertexBuffer::deleteGL()
     }
 }
 //-----------------------------------------------------------------------------
-void
-SLGLVertexBuffer::clear()
+void SLGLVertexBuffer::clear()
 {
     deleteGL();
     _attribs.clear();
 }
 //-----------------------------------------------------------------------------
-SLint
-SLGLVertexBuffer::attribIndex(SLGLAttributeType type)
+SLint SLGLVertexBuffer::attribIndex(SLGLAttributeType type)
 {
     for (SLuint i = 0; i < _attribs.size(); ++i)
         if (_attribs[i].type == type)
@@ -69,10 +66,9 @@ SLGLVertexBuffer::attribIndex(SLGLAttributeType type)
 attributes and not for interleaved attributes. This is used e.g. for meshes
 with vertex skinning. See SLMesh::draw where we have joint attributes.
 */
-void
-SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
-                               SLint             elementSize,
-                               void*             dataPointer)
+void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
+                                    SLint             elementSize,
+                                    void*             dataPointer)
 {
     assert(dataPointer && "No data pointer passed");
     assert(elementSize > 0 && elementSize < 5 && "Element size invalid");
@@ -135,10 +131,9 @@ sequential vertex buffer.\n\n
 \n           |<---------- strideBytes=32 ----------->|
 </PRE>
 */
-void
-SLGLVertexBuffer::generate(SLuint          numVertices,
-                           SLGLBufferUsage usage,
-                           SLbool          outputInterleaved)
+void SLGLVertexBuffer::generate(SLuint          numVertices,
+                                SLGLBufferUsage usage,
+                                SLbool          outputInterleaved)
 {
     assert(numVertices);
 
@@ -309,8 +304,7 @@ SLGLVertexBuffer::generate(SLuint          numVertices,
 contexts prior to 3.0 where vertex array objects did not exist. This is the 
 additional overhead that had to be done per draw call.
 */
-void
-SLGLVertexBuffer::bindAndEnableAttrib()
+void SLGLVertexBuffer::bindAndEnableAttrib()
 {
     if (_attribs.size())
     {
@@ -339,8 +333,7 @@ SLGLVertexBuffer::bindAndEnableAttrib()
 contexts prior to 3.0 where vertex array objects did not exist. This is the 
 additional overhead that had to be done per draw call.
 */
-void
-SLGLVertexBuffer::disableAttrib()
+void SLGLVertexBuffer::disableAttrib()
 {
     if (_attribs.size())
     {
@@ -350,8 +343,8 @@ SLGLVertexBuffer::disableAttrib()
     }
 }
 //-----------------------------------------------------------------------------
-SLuint
-SLGLVertexBuffer::sizeOfType(SLGLBufferType type)
+//! Returns the size in byte depending off the buffer type
+SLuint SLGLVertexBuffer::sizeOfType(SLGLBufferType type)
 {
     switch (type)
     {

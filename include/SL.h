@@ -39,7 +39,6 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 #    else
 #        define SL_OS_MACOS
 #        if defined(_DEBUG)
-#            define _GLDEBUG
 //#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
 #        endif
 #    endif
