@@ -123,6 +123,8 @@ SLNode* grab_grass   = nullptr;
 SLNode* grab_t_dach  = nullptr;
 SLNode* grab_t_fahn  = nullptr;
 SLNode* grab_t_stein = nullptr;
+SLNode* christ_turm  = nullptr;
+SLNode* christ_base  = nullptr;
 
 SLstring AppDemoGui::infoAbout =
   "Welcome to the SLProject demo app. It is developed at the \
@@ -564,9 +566,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 70.f, "%0.0f");
         ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 50.f, "%0.0f");
         ImGuiStyle& style = ImGui::GetStyle();
-        if (ImGui::SliderFloat("Item Spacing X", &style.ItemSpacing.x, 0.0f, 20.0f, "%.0f"))
+        if (ImGui::SliderFloat("Item Spacing X", &style.ItemSpacing.x, 0.0f, 20.0f, "%0.0f"))
             style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
-        if (ImGui::SliderFloat("Item Spacing Y", &style.ItemSpacing.y, 0.0f, 10.0f, "%.0f"))
+        if (ImGui::SliderFloat("Item Spacing Y", &style.ItemSpacing.y, 0.0f, 10.0f, "%0.0f"))
             style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
 
         ImGui::Separator();
@@ -588,6 +590,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
     if (showChristoffel && SLApplication::sceneID == SID_VideoChristoffel)
     {
+
         ImGui::Begin("Christoffel",
                      &showChristoffel,
                      ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
@@ -611,7 +614,11 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             grab_t_dach  = bern->findChild<SLNode>("Graben-Turm-Dach", false);
             grab_t_fahn  = bern->findChild<SLNode>("Graben-Turm-Fahne", false);
             grab_t_stein = bern->findChild<SLNode>("Graben-Turm-Stein", false);
+            christ_turm  = bern->findChild<SLNode>("Christoffel-Turm", false);
+            christ_base  = bern->findChild<SLNode>("Christoffel-Basis", false);
         }
+
+        ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
 
         SLbool umgebung = !umgeb_fass->drawBits()->get(SL_DB_HIDDEN);
         if (ImGui::Checkbox("Umgebung", &umgebung))
@@ -653,6 +660,21 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             grab_t_stein->drawBits()->set(SL_DB_HIDDEN, !graben);
         }
 
+        static SLfloat christTransp = 0.0f;
+        if (ImGui::SliderFloat("Transparency", &christTransp, 0.0f, 1.0f, "%0.2f"))
+        {
+            for (auto mesh : christ_turm->meshes())
+            {
+                mesh->mat()->kt(christTransp);
+                mesh->init(christ_turm);
+            }
+            for (auto mesh : christ_base->meshes())
+            {
+                mesh->mat()->kt(christTransp);
+                mesh->init(christ_base);
+            }
+        }
+        ImGui::PopItemWidth();
         ImGui::End();
     }
     else

@@ -15,7 +15,6 @@
 #define SLCVRAULMUREXTRACTORNODE_H
 
 #include <SLCV.h>
-#include <SLCVRaulMurExtractorNode.h>
 
 //-----------------------------------------------------------------------------
 //!Datastructure used to subdivide the Image with keypoints into segments.

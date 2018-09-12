@@ -726,7 +726,8 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
         if (node != _camera)
         {
             if (drawBit(SL_DB_AXIS) || node->drawBit(SL_DB_AXIS) ||
-                drawBit(SL_DB_SKELETON) || node->drawBit(SL_DB_SKELETON))
+                drawBit(SL_DB_SKELETON) || node->drawBit(SL_DB_SKELETON) ||
+                node->drawBit(SL_DB_SELECTED))
             {
                 // Set the view transform
                 _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
@@ -735,11 +736,14 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                 _stateGL->depthTest(false); // Turn of depth test for overlay
 
                 // Draw axis
-                if (drawBit(SL_DB_AXIS) || node->drawBit(SL_DB_AXIS))
+                if (drawBit(SL_DB_AXIS) ||
+                    node->drawBit(SL_DB_AXIS) ||
+                    node->drawBit(SL_DB_SELECTED))
                     node->aabb()->drawAxisWS();
 
                 // Draw skeleton
-                if (drawBit(SL_DB_SKELETON) || node->drawBit(SL_DB_SKELETON))
+                if (drawBit(SL_DB_SKELETON) ||
+                    node->drawBit(SL_DB_SKELETON))
                 {
                     // Draw axis of the skeleton joints and its parent bones
                     const SLSkeleton* skeleton = node->skeleton();
@@ -1319,7 +1323,10 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     SLbool result = false;
     if (key || mod)
     {
+        // 1) pass it to the camera
         result = _camera->onKeyPress(key, mod);
+
+        // 2) pass it to any other eventhandler
         for (auto eh : s->eventHandlers())
         {
             if (eh->onKeyPress(key, mod))
@@ -1349,7 +1356,10 @@ SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
 
     if (key || mod)
     {
+        // 1) pass it to the camera
         result = _camera->onKeyRelease(key, mod);
+
+        // 2) pass it to any other eventhandler
         for (auto eh : s->eventHandlers())
         {
             if (eh->onKeyRelease(key, mod))

@@ -15,7 +15,6 @@
 #include <SLEnums.h>
 #include <SLEventHandler.h>
 #include <SLMesh.h>
-#include <SLNode.h>
 #include <SLQuat4.h>
 
 class SLSceneView;
@@ -316,8 +315,7 @@ class SLNode
 SLNode::findChild<T> searches a node tree including the node by a given name.
 */
 template<typename T>
-T*
-SLNode::find(const SLstring& name, SLbool findRecursive)
+T* SLNode::find(const SLstring& name, SLbool findRecursive)
 {
     T* found = dynamic_cast<T*>(this);
     if (found && (name.size() == 0 || name == _name))
@@ -329,10 +327,9 @@ SLNode::find(const SLstring& name, SLbool findRecursive)
 SLNode::findChild<T> finds the first child that is of type T or a subclass of T.
 */
 template<typename T>
-T*
-SLNode::findChild(const SLstring& name, SLbool findRecursive)
+T* SLNode::findChild(const SLstring& name, SLbool findRecursive)
 {
-    for (SLint i = 0; i < _children.size(); ++i)
+    for (SLuint i = 0; i < _children.size(); ++i)
     {
         SLNode* node  = _children[i];
         T*      found = dynamic_cast<T*>(node);
@@ -341,7 +338,7 @@ SLNode::findChild(const SLstring& name, SLbool findRecursive)
     }
     if (findRecursive)
     {
-        for (SLint i = 0; i < _children.size(); ++i)
+        for (SLuint i = 0; i < _children.size(); ++i)
         {
             T* found = _children[i]->findChild<T>(name, findRecursive);
             if (found)
@@ -374,20 +371,20 @@ SLNode::findChildrenHelper<T> is the helper function for findChildren<T>.
 It appends all newly found children to 'list'.
 */
 template<typename T>
-void
-SLNode::findChildrenHelper(const SLstring& name,
-                           vector<T*>&     list,
-                           SLbool          findRecursive,
-                           SLbool          canContain)
+void SLNode::findChildrenHelper(const SLstring& name,
+                                vector<T*>&     list,
+                                SLbool          findRecursive,
+                                SLbool          canContain)
 {
-    for (SLint i = 0; i < _children.size(); ++i)
+    for (SLuint i = 0; i < _children.size(); ++i)
     {
         SLNode* node  = _children[i];
         T*      found = dynamic_cast<T*>(node);
 
         if (canContain)
         {
-            if (found && (name.size() == 0 || SLUtils::contains(node->name(), name)))
+            if (found && (name.size() == 0 ||
+                          SLUtils::contains(node->name(), name)))
                 list.push_back(found);
         }
         else
@@ -554,4 +551,4 @@ SLNode::lookAt(SLfloat          targetX,
 }
 //-----------------------------------------------------------------------------
 
-#endif // SLNODE_H
+#endif
