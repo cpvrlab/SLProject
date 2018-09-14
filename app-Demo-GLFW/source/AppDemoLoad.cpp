@@ -2685,7 +2685,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //Make sure it is added to androids CMakeLists.txt so it is presnet on your smartphone
 
         SLstring mapName = "slam-map-1";
-        SLCVCapture::videoFilename = "gerechtigkeitsbrunnen_20180910.mp4";
+        SLCVCapture::videoFilename = "office_20180912.mp4";
         //SLstring mapName = "slam-map-32";
         //SLCVCapture::videoFilename = "20180903_nidaugasse.mp4";
         //SLstring mapName = "slam-map-33";
@@ -2693,7 +2693,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         
         s->videoType(VT_FILE);
         SLCVCapture::videoLoops = true;
-        SLstring calibFileName = "cam_calibration_samsung_s3_640_480.xml";
+        SLstring calibFileName = "cam_calibration_main_asus_zenfoneAR_21268_640_480.xml";
         SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), calibFileName, false, false);
         SLApplication::calibVideoFile.loadCalibParams();
 
@@ -2820,7 +2820,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         auto memStats = std::make_shared<SLImGuiInfosMemoryStats>("Memory stats", tm->getMap());
         AppDemoGui::addInfoDialog(memStats);
 
-
+#if 0
         //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
         SLfloat l = 0.593f, b = 0.466f, h = 0.257f;
@@ -2828,11 +2828,38 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* boxNode = new SLNode(box1, "boxNode");
         SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
         boxNode->addChild(axisNode);
+#endif
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(5.0f);
+        light->ambient(SLCol4f(1, 1, 1));
+        light->diffuse(SLCol4f(1, 1, 1));
+        light->specular(SLCol4f(1, 1, 1));
+        light->attenuation(1, 0, 0);
+
+        // Let the sun be rotated by time and location
+        SLApplication::devLoc.sunLightNode(light);
+
+        SLNode* bern = LoadBernModel();
+        //install gui
+        auto ui = std::make_shared<SLImGuiInfosChristoffelTower>("Christoffel", bern);
+        AppDemoGui::addInfoDialog(ui);
+
+        // Add axis object a world origin (Loeb Ecke)
+        SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(10);
+        axis->rotate(-90, 1, 0, 0);
 
         //setup scene
         SLNode* scene = new SLNode("scene");
+#if 0
         scene->addChild(light1);
         scene->addChild(boxNode);
+#endif
+        scene->addChild(light);
+        scene->addChild(axis);
+        scene->addChild(bern);
         scene->addChild(mapNode);
 
         s->root3D(scene);

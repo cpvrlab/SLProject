@@ -108,14 +108,16 @@ void SLCVMapStorage::saveMap(int id, SLCVMapTracking* mapTracking, bool saveImgs
         {
             //remove json file
             if (SLFileSystem::fileExists(filename))
-                SLFileSystem::deleteFile(filename);
-            //check if imgs dir exists and delete all containing files
-            if (SLFileSystem::fileExists(pathImgs))
             {
-                SLVstring content = SLUtils::getFileNamesInDir(pathImgs);
-                for (auto path : content)
+                SLFileSystem::deleteFile(filename);
+                //check if imgs dir exists and delete all containing files
+                if (SLFileSystem::fileExists(pathImgs))
                 {
-                    SLFileSystem::deleteFile(path);
+                    SLVstring content = SLUtils::getFileNamesInDir(pathImgs);
+                    for (auto path : content)
+                    {
+                        SLFileSystem::deleteFile(path);
+                    }
                 }
             }
         }
@@ -123,6 +125,10 @@ void SLCVMapStorage::saveMap(int id, SLCVMapTracking* mapTracking, bool saveImgs
         {
             //create map directory and imgs directory
             SLFileSystem::makeDir(path);
+        }
+
+        if (!SLFileSystem::fileExists(pathImgs))
+        {
             SLFileSystem::makeDir(pathImgs);
         }
 
@@ -279,4 +285,9 @@ void SLCVMapStorage::newMap()
 
     //assign next id to current id. The nextId will be increased after file save.
     _currentId = _nextId;
+}
+//-----------------------------------------------------------------------------
+string SLCVMapStorage::mapsDir()
+{
+    return _mapsDir;
 }

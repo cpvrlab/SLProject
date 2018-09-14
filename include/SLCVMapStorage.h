@@ -32,6 +32,7 @@ public:
     static void newMap();
 
     static unsigned int getCurrentId() { return _currentId; }
+    static string mapsDir();
 
     //values used by imgui:
     //!currently existing names in storage
