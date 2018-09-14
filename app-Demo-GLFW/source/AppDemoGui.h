@@ -59,6 +59,7 @@ class AppDemoGui
     static SLbool       showProperties;      //!< Flag if properties should be shown
     static SLbool       showChristoffel;     //!< Flag if Christoffel infos should be shown
     static SLbool       showUIPrefs;         //!< Flag if UI preferences
+    static SLbool       showTransform;       //!< Flag if tranform dialog should be shown
 };
 //-----------------------------------------------------------------------------
 #endif
