@@ -676,6 +676,7 @@ bool SLCVKeyFrame::IsInImage(const float &x, const float &y) const
     return (x >= mnMinX && x<mnMaxX && y >= mnMinY && y<mnMaxY);
 }
 //-----------------------------------------------------------------------------
+//compute median z distance of all map points in the keyframe coordinate system
 float SLCVKeyFrame::ComputeSceneMedianDepth(const int q)
 {
     vector<SLCVMapPoint*> vpMapPoints;
