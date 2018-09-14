@@ -41,6 +41,7 @@ SLstring                    SLCVCapture::videoDefaultPath = "../_data/videos/";
 SLstring                    SLCVCapture::videoFilename = "";
 SLbool                      SLCVCapture::videoLoops = true;
 SLCVCapture::FrameAndTime   SLCVCapture::_lastFrameAndTime;
+SLdouble                    SLCVCapture::fps;
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
 /* This so far called in SLScene::onAfterLoad if a scene uses a live video by
@@ -62,6 +63,7 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
         SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
+        fps = _captureDevice.get(CV_CAP_PROP_FPS);
 
         return SLVec2i(w, h);
     }
@@ -104,6 +106,7 @@ SLVec2i SLCVCapture::openFile()
         SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
+        fps = _captureDevice.get(CV_CAP_PROP_FPS);
 
         return SLVec2i(w, h);
     }

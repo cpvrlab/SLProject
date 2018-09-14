@@ -33,6 +33,7 @@ for a good top down information.
 #include <SLCVMapIO.h>
 #include <SLCVMapStorage.h>
 #include <SLCVOrbVocabulary.h>
+#include <SLCVCapture.h>
 
 #ifndef _WINDOWS
 #include <unistd.h>
@@ -157,6 +158,29 @@ void SLCVTrackedMapping::initialize()
 
     mCurrentFrame = SLCVFrame(_imageGray, 0.0, mpIniORBextractor,
         _calib->cameraMat(), _calib->distortion(), mpVocabulary, _retainImg);
+
+    if (!_videoCaptureStarted)
+    {
+        SL_LOG("Starting video capture\n");
+        string videoName = "slam-map-video.avi";
+        string videoPath = SLUtils::unifySlashes(SLCVMapStorage::mapsDir() + "slam-map-" + to_string(SLCVMapStorage::getCurrentId()));
+
+        if (!SLFileSystem::dirExists(videoPath))
+        {
+            SL_LOG("Making dir: %s\n", videoPath.c_str());
+            SLFileSystem::makeDir(videoPath);
+        }
+
+        SL_LOG("Initializing video writer for path %s\n", videoPath.c_str());
+        _videoWriter.open(videoPath + videoName, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, cv::Size(640, 360), true);
+        if (!_videoWriter.isOpened())
+        {
+            SL_LOG("Could not write video file to %s\n", videoPath.c_str());
+        }
+        _videoCaptureStarted = true;
+    }
+
+    _videoWriter.write(_img);
 
     if (!mpInitializer)
     {
@@ -528,6 +552,8 @@ void SLCVTrackedMapping::track3DPts()
 {
     mCurrentFrame = SLCVFrame(_imageGray, 0.0, _extractor,
         _calib->cameraMat(), _calib->distortion(), mpVocabulary, _retainImg);
+
+    _videoWriter.write(_img);
 
     // Get Map Mutex -> Map cannot be changed
     std::unique_lock<std::mutex> lock(_map->mMutexMapUpdate, std::defer_lock);

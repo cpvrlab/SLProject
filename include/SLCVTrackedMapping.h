@@ -164,6 +164,9 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         std::thread* mptLoopClosing;
 
         bool _serial;
+
+        cv::VideoWriter _videoWriter;
+        bool _videoCaptureStarted = false;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedMapping_H
