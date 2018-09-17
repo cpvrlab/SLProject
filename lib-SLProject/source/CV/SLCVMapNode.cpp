@@ -167,7 +167,7 @@ void SLCVMapNode::init()
     _pcLocalMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
     _pcLocalMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
 
-    _covisibilityGraphMat = new SLMaterial("WhiteLines", SLCol4f::WHITE);
+    _covisibilityGraphMat = new SLMaterial("YellowLines", SLCol4f::YELLOW);
     _spanningTreeMat = new SLMaterial("GreenLines", SLCol4f::GREEN);
     _loopEdgesMat = new SLMaterial("RedLines", SLCol4f::RED);
 }

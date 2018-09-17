@@ -2072,6 +2072,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         style.ItemSpacing.x = SL_max(8.0f * dpiScaleFixed, 8.0f);
         style.ItemSpacing.y = SL_max(3.0f * dpiScaleFixed, 3.0f);
         style.ItemInnerSpacing.x = style.ItemSpacing.y;
+        style.ScrollbarSize = SL_max(16.0f * dpiScaleFixed, 16.0f);
+        style.ScrollbarRounding = std::floor(style.ScrollbarSize / 2);
 
         return;
     }
@@ -2102,6 +2104,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
     fs["ItemSpacingX"] >> i; style.ItemSpacing.x = (SLfloat)i;
     fs["ItemSpacingY"] >> i; style.ItemSpacing.y = (SLfloat)i;
     style.ItemInnerSpacing.x = style.ItemSpacing.y;
+    fs["ScrollbarSize"] >> i; style.ScrollbarSize = (SLfloat)i;
+    style.ScrollbarRounding = std::floor(style.ScrollbarSize / 2);
     fs["sceneID"] >> i; SLApplication::sceneID = (SLSceneID)i;
     fs["showInfosScene"] >> b; AppDemoGui::showInfosScene = b;
     fs["showStatsTiming"] >> b; AppDemoGui::showStatsTiming = b;
@@ -2139,6 +2143,7 @@ void AppDemoGui::saveConfig()
     fs << "FramePaddingY" << (SLint)style.FramePadding.y;
     fs << "ItemSpacingX" << (SLint)style.ItemSpacing.x;
     fs << "ItemSpacingY" << (SLint)style.ItemSpacing.y;
+    fs << "ScrollbarSize" << (SLint)style.ScrollbarSize;
     fs << "showStatsTiming" << AppDemoGui::showStatsTiming;
     fs << "showStatsMemory" << AppDemoGui::showStatsScene;
     fs << "showStatsVideo" << AppDemoGui::showStatsVideo;
