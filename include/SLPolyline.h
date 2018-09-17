@@ -24,11 +24,12 @@ class SLPolyline: public SLMesh
         SLPolyline(SLVVec3f points,
                     SLbool closed = false,
                     SLstring name = "Polyline",
-                    SLMaterial* mat=0) : SLMesh(name) 
+                    SLMaterial* material=0) : SLMesh(name) 
         {
             assert(points.size()>1);
             P = points;
             _primitive = closed ? PT_lineLoop : PT_lines;
+            mat(material);
             if (P.size() < 65535)
                  for (SLuint i=0; i<P.size(); ++i) I16.push_back(i);
             else for (SLuint i=0; i<P.size(); ++i) I32.push_back(i);

@@ -113,4 +113,22 @@ void SLImGuiInfosTracking::buildInfos()
         ImGui::Checkbox("Allow as Active Cam", &b);
         _interface->allowKfsAsActiveCam(b);
     }
+
+    //-------------------------------------------------------------------------
+    //keyframe infos
+    if (ImGui::CollapsingHeader("Graph"))
+    {
+        //covisibility graph
+        b = _interface->showCovisibilityGraph();
+        ImGui::Checkbox("Show Covisibility (100 common KPts)", &b);
+        _interface->showCovisibilityGraph(b);
+        //spanning tree
+        b = _interface->showSpanningTree();
+        ImGui::Checkbox("Show spanning tree", &b);
+        _interface->showSpanningTree(b);
+        //loop edges
+        b = _interface->showLoopEdges();
+        ImGui::Checkbox("Show loop edges", &b);
+        _interface->showLoopEdges(b);
+    }
 }

@@ -2772,7 +2772,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (SLApplication::sceneID == SID_VideoMappingBurgplatz)
     {
-#define BURGPLATZ_VIDEOFILE
+//#define BURGPLATZ_VIDEOFILE
         // Set scene name and info string
         s->name("Video Mapping Burgplatz Biel");
         s->info("Example for mapping using functionality from ORB-SLAM on Burgplatz in Biel.");
@@ -2811,7 +2811,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(trackingCam);
 
         //add tracker
-        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, true, mapNode, false);
+        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, false, mapNode, false);
 #ifdef BURGPLATZ_VIDEOFILE
         SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
 #endif // BURGPLATZ_VIDEOFILE
@@ -2839,7 +2839,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         boxNode->addChild(axisNode);
 #endif
 
-        SLLightSpot* lightSpot = new SLLightSpot(10, 10, 10, 0.3f);
+        SLLightSpot* lightSpot = new SLLightSpot(1, 1, 1, 0.3f);
         lightSpot->ambient(SLCol4f(1, 1, 1));
         lightSpot->diffuse(SLCol4f(1, 1, 1));
         lightSpot->specular(SLCol4f(1, 1, 1));
@@ -2878,8 +2878,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 #endif
         //scene->addChild(lightSun);
         scene->addChild(lightSpot);
-        scene->addChild(axis);
-        scene->addChild(brunnen);
+        //scene->addChild(axis);
+        //scene->addChild(brunnen);
         scene->addChild(mapNode);
 
         s->root3D(scene);

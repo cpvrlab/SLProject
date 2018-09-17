@@ -65,8 +65,8 @@ void SLAverageTiming::doStart(const std::string& name)
         (*this)[name] = block;
     }
 
-    if ((*this)[name]->isStarted)
-        SL_LOG("SLAverageTiming: Block with name %s started twice!\n", name.c_str());
+    //if ((*this)[name]->isStarted)
+    //    SL_LOG("SLAverageTiming: Block with name %s started twice!\n", name.c_str());
 
     (*this)[name]->timer.start();
     (*this)[name]->isStarted = true;

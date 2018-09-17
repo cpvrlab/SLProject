@@ -276,9 +276,13 @@ void SLCVMapTracking::decorateScene()
         _mapNode->updateKeyFrames(mapKfs);
     }
 
-    //update hide flags of map points and keyframes
+    //update hide flags of map points, keyframes and graphs
     _mapNode->setHideMapPoints(!_showMapPC);
     _mapNode->setHideKeyFrames(!_showKeyFrames);
+    _mapNode->setHideCovisibilityGraph(!_showCovisibilityGraph);
+    _mapNode->setHideSpanningTree(!_showSpanningTree);
+    _mapNode->setHideLoopEdges(!_showLoopEdges);
+
     //set flag, that images should be rendered as keyframe backgrounds
     _mapNode->renderKfBackground(_renderKfBackground);
     //allow keyframes as active cameras to watch through them

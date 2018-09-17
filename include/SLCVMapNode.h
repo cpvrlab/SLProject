@@ -19,6 +19,7 @@ class SLMaterial;
 class SLPoints;
 class SLCVKeyFrame;
 class SLCVMapPoint;
+class SLPolyline;
 
 //-----------------------------------------------------------------------------
 class SLCVMapNode : public SLNode
@@ -45,6 +46,7 @@ public:
     void removeMapPointsLocal();
     void removeMapPointsMatched();
     void removeKeyFrames();
+    void removeGraphs();
 
     //!used to remove all when map changes
     void clearAll();
@@ -52,7 +54,10 @@ public:
     //!set hidden flags
     void setHideMapPoints(bool state);
     void setHideKeyFrames(bool state);
-
+    void setHideCovisibilityGraph(bool state);
+    void setHideSpanningTree(bool state);
+    void setHideLoopEdges(bool state);
+    
     //getters
     bool renderKfBackground() { return _renderKfBackground; }
     bool allowAsActiveCam() { return _allowAsActiveCam; }
@@ -69,9 +74,14 @@ private:
         SLNode*& node, SLPoints*& mesh, SLMaterial*& material);
     //!execute keyframe update
     void doUpdateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs);
+    //!execute update of spanning tree, covisibility graph and loop edges
+    void doUpdateGraphs(const std::vector<SLCVKeyFrame*>& kfs);
 
     //Nodes:
     SLNode* _keyFrames = NULL;
+    SLNode* _covisibilityGraph = NULL;
+    SLNode* _spanningTree = NULL;
+    SLNode* _loopEdges = NULL;
     SLNode* _mapPC = NULL;
     SLNode* _mapMatchedPC = NULL;
     SLNode* _mapLocalPC = NULL;
@@ -79,10 +89,16 @@ private:
     SLPoints* _mapMesh = NULL;
     SLPoints* _mapLocalMesh = NULL;
     SLPoints* _mapMatchesMesh = NULL;
+    SLPolyline* _covisibilityGraphMesh = NULL;
+    SLPolyline* _spanningTreeMesh = NULL;
+    SLPolyline* _loopEdgesMesh = NULL;
     //Materials:
     SLMaterial* _pcMat = NULL;
     SLMaterial* _pcMatchedMat = NULL;
     SLMaterial* _pcLocalMat = NULL;
+    SLMaterial* _covisibilityGraphMat = NULL;
+    SLMaterial* _spanningTreeMat = NULL;
+    SLMaterial* _loopEdgesMat = NULL;
 
     //vector of keyframe textures: we store a pointer to correctly delete them during a keyframe update
     std::vector<SLGLTexture*> _kfTextures;
@@ -100,6 +116,7 @@ private:
     bool _removeMapPointsLocal = false;
     bool _removeMapPointsMatched = false;
     bool _removeKeyFrames = false;
+    bool _removeGraphs = false;
 
     //if backgound rendering is active kf images will be rendered on 
     //near clipping plane if kf is not the active camera

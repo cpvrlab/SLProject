@@ -747,8 +747,10 @@
     <ClCompile Include="source\CV\OrbSlam\Initializer.cpp" />
     <ClCompile Include="source\CV\OrbSlam\LocalMapping.cpp" />
     <ClCompile Include="source\CV\SLCVMapNode.cpp" />
-    <ClCompile Include="source\CV\SLCVTrackedMapping.cpp" />
     <ClCompile Include="source\SL\SLAverageTiming.cpp" />
+    <ClCompile Include="source\CV\SLCVTrackedMapping.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_data\shaders\ADS.frag">
