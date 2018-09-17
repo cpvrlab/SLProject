@@ -2684,15 +2684,15 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //4. Load a Video with 640 screen width (640x360 or 640x480), e.g. VID_20180424_2.mp4. Make sure it is placed in _data/videos.
         //Make sure it is added to androids CMakeLists.txt so it is presnet on your smartphone
 
-        SLstring mapName = "slam-map-1";
-        SLCVCapture::videoFilename = "office_20180912.mp4";
+        //SLstring mapName = "slam-map-1";
+        //SLCVCapture::videoFilename = "office_20180912.mp4";
         //SLstring mapName = "slam-map-32";
         //SLCVCapture::videoFilename = "20180903_nidaugasse.mp4";
         //SLstring mapName = "slam-map-33";
         //SLCVCapture::videoFilename = "20180903_ladenzeile1.mp4";
+
+        SLCVCapture::videoFilename = "slam-map-video.avi";
         
-        s->videoType(VT_FILE);
-        SLCVCapture::videoLoops = true;
         SLstring calibFileName = "cam_calibration_main_asus_zenfoneAR_21268_640_480.xml";
         SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), calibFileName, false, false);
         SLApplication::calibVideoFile.loadCalibParams();
@@ -2729,7 +2729,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //add tracker
         SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, false, mapNode, false);
-        SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
+        //SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
         s->trackers().push_back(tm);
 
         //setup scene specific gui dialoges
@@ -2767,6 +2767,120 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(boxNode);
         scene->addChild(mapNode);
         //scene->addChild(brunnen);
+
+        s->root3D(scene);
+    }
+    else if (SLApplication::sceneID == SID_VideoMappingBurgplatz)
+    {
+#define BURGPLATZ_VIDEOFILE
+        // Set scene name and info string
+        s->name("Video Mapping Burgplatz Biel");
+        s->info("Example for mapping using functionality from ORB-SLAM on Burgplatz in Biel.");
+
+#ifdef BURGPLATZ_VIDEOFILE
+        SLstring mapName = "slam-map-9";
+        SLCVCapture::videoFilename = "VID_20180914_141255.mp4";
+
+        SLstring calibFileName = "cam_calibration_main.xml";
+        SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), calibFileName, false, false);
+        SLApplication::calibVideoFile.loadCalibParams();
+
+        //call this function after calibration is loaded
+        s->videoType(VT_FILE);
+        SLCVCapture::videoLoops = true;
+#else
+        s->videoType(VT_MAIN);
+#endif
+        //always equal for tracking
+        //setup tracking camera
+        SLCamera* trackingCam = new SLCamera("Camera 1");
+        trackingCam->translation(0, 0, 0.1);
+        trackingCam->lookAt(0, 0, 0);
+        //for tracking we have to use the field of view from calibration
+        trackingCam->fov(SLApplication::activeCalib->cameraFovDeg());
+        trackingCam->clipNear(0.001f);
+        trackingCam->clipFar(1000000.0f); // Increase to infinity?
+        trackingCam->setInitialState();
+        trackingCam->background().texture(s->videoTexture());
+
+        //the map node contains the visual representation of the slam map
+        SLCVMapNode* mapNode = new SLCVMapNode("map");
+
+        // Save no energy
+        sv->doWaitOnIdle(false); //for constant video feed
+        sv->camera(trackingCam);
+
+        //add tracker
+        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, true, mapNode, false);
+#ifdef BURGPLATZ_VIDEOFILE
+        SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
+#endif // BURGPLATZ_VIDEOFILE
+        s->trackers().push_back(tm);
+
+        //setup scene specific gui dialoges
+        auto trackedMappingUI = std::make_shared<SLImGuiTrackedMapping>("Tracked mapping", tm);
+        AppDemoGui::addInfoDialog(trackedMappingUI);
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm);
+        AppDemoGui::addInfoDialog(trackingInfos);
+        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm);
+        AppDemoGui::addInfoDialog(mapTransform);
+        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm);
+        AppDemoGui::addInfoDialog(mapStorage);
+        auto memStats = std::make_shared<SLImGuiInfosMemoryStats>("Memory stats", tm->getMap());
+        AppDemoGui::addInfoDialog(memStats);
+
+#if 0
+        //add yellow box and axis for augmentation
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        SLfloat l = 0.593f, b = 0.466f, h = 0.257f;
+        SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
+        SLNode* boxNode = new SLNode(box1, "boxNode");
+        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
+        boxNode->addChild(axisNode);
+#endif
+
+        SLLightSpot* lightSpot = new SLLightSpot(10, 10, 10, 0.3f);
+        lightSpot->ambient(SLCol4f(1, 1, 1));
+        lightSpot->diffuse(SLCol4f(1, 1, 1));
+        lightSpot->specular(SLCol4f(1, 1, 1));
+        lightSpot->attenuation(1, 0, 0);
+
+        // Create directional light for the sun light
+        //SLLightDirect* lightSun = new SLLightDirect(5.0f);
+        //lightSun->ambient(SLCol4f(1, 1, 1));
+        //lightSun->diffuse(SLCol4f(1, 1, 1));
+        //lightSun->specular(SLCol4f(1, 1, 1));
+        //lightSun->attenuation(1, 0, 0);
+        //lightSun->scale(0.1);
+
+        // Let the sun be rotated by time and location
+        //SLApplication::devLoc.sunLightNode(lightSun);
+        //SLApplication::devLoc.originLLA(47.14125735, 7.24562631, 440.0);          // Brunnen on Burgplatz
+
+        //load brunnen
+        SLAssimpImporter importer;
+        SLNode* brunnen = importer.load("FBX/Brunnen.fbx");
+        //brunnen->scale(0.1);
+
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        brunnen->setAllMeshMaterials(yellow);
+
+        // Add axis object a world origin
+        SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(5);
+
+        //setup scene
+        SLNode* scene = new SLNode("scene");
+#if 0
+        scene->addChild(light1);
+        scene->addChild(boxNode);
+#endif
+        //scene->addChild(lightSun);
+        scene->addChild(lightSpot);
+        scene->addChild(axis);
+        scene->addChild(brunnen);
+        scene->addChild(mapNode);
 
         s->root3D(scene);
     }
