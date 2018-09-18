@@ -411,7 +411,9 @@ models_FBX_Teapot.files = \
 models_FBX_Christoffel.files = \
   ../_data/models/FBX/Christoffel/Bern-Bahnhofsplatz.fbx \
   ../_data/models/FBX/Christoffel/Christoffel.jpg \
+  ../_data/models/FBX/Christoffel/grass.jpg \
   ../_data/models/FBX/Christoffel/Holz1.jpg \
+  ../_data/models/FBX/Christoffel/mergel1.jpeg \
   ../_data/models/FBX/Christoffel/texture1.jpg \
   ../_data/models/FBX/Christoffel/texture2.jpg \
   ../_data/models/FBX/Christoffel/Sandstein1.png \

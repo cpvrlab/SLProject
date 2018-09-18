@@ -2383,13 +2383,34 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode*          bern = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
 
         // Make city transparent
-        for (auto mesh : bern->findChild<SLNode>("Umgebung-Daecher")->meshes()) mesh->mat()->kt(0.5f);
-        for (auto mesh : bern->findChild<SLNode>("Umgebung-Fassaden")->meshes()) mesh->mat()->kt(0.5f);
+        SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
+        if (!UmgD) SL_EXIT_MSG("Node: Umgebung-Daecher not found!");
+        for (auto mesh : UmgD->meshes())
+        {
+            mesh->mat()->kt(0.5f);
+            mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+            mesh->init(UmgD); // reset the correct hasAlpha flag
+        }
+
+        SLNode* UmgF = bern->findChild<SLNode>("Umgebung-Fassaden");
+        if (!UmgF) SL_EXIT_MSG("Node: Umgebung-Fassaden not found!");
+        for (auto mesh : UmgF->meshes())
+        {
+            mesh->mat()->kt(0.5f);
+            mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+            mesh->init(UmgF); // reset the correct hasAlpha flag
+        }
+
+        SLNode* ChrA = bern->findChild<SLNode>("Christoffel-Aussen");
+        if (!ChrA) SL_EXIT_MSG("Node: Christoffel-Aussen not found!");
+        for (auto mesh : ChrA->meshes())
+        {
+            mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+        }
 
         // Hide some objects
         bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Christoffel-Tor")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Mauer-Wand")->drawBits()->set(SL_DB_HIDDEN, true);
@@ -2404,13 +2425,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
 
-        // Set ambient on all child nodes and reinit meshes to reset the correct hasAlpha flag
+        // Set ambient on all child nodes
         for (auto node : bern->children())
         {
             for (auto mesh : node->meshes())
             {
                 mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-                mesh->init(node);
             }
         }
 
@@ -2443,7 +2463,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.isUsed(false);
         SLApplication::devRot.isUsed(false);
         SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
-        ;
         SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
         cam1->lookAt(SLVec3f::ZERO);

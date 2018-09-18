@@ -10,7 +10,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "app-Demo-GLFW/source/AppDemoGui.cpp"
-            timestampString = "558363610.143554"
+            timestampString = "558960497.1787519"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "801"
@@ -96,6 +96,22 @@
             startingLineNumber = "299"
             endingLineNumber = "299"
             landmarkName = "SLCVCapture::loadIntoLastFrame(const SLint width, const SLint height, const SLPixelFormat format, const SLuchar* data, const SLbool isContinuous)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "app-Demo-GLFW/source/AppDemoGui.cpp"
+            timestampString = "558960497.179203"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "695"
+            endingLineNumber = "695"
+            landmarkName = "AppDemoGui::build(SLScene* s, SLSceneView* sv)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
