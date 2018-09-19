@@ -251,6 +251,12 @@ int SLCVKeyFrame::GetWeight(SLCVKeyFrame *pKF)
         return 0;
 }
 //-----------------------------------------------------------------------------
+const std::map<SLCVKeyFrame*, int>& SLCVKeyFrame::GetConnectedKfWeights()
+{
+    unique_lock<mutex> lock(mMutexConnections);
+    return mConnectedKeyFrameWeights;
+}
+//-----------------------------------------------------------------------------
 void SLCVKeyFrame::AddMapPoint(SLCVMapPoint *pMP, size_t idx)
 {
     unique_lock<mutex> lock(mMutexFeatures);

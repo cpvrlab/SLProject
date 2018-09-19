@@ -2772,7 +2772,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (SLApplication::sceneID == SID_VideoMappingBurgplatz)
     {
-//#define BURGPLATZ_VIDEOFILE
+#define BURGPLATZ_VIDEOFILE
         // Set scene name and info string
         s->name("Video Mapping Burgplatz Biel");
         s->info("Example for mapping using functionality from ORB-SLAM on Burgplatz in Biel.");

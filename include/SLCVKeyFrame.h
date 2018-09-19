@@ -87,6 +87,7 @@ public:
     vector<SLCVKeyFrame*> GetBestCovisibilityKeyFrames(const int &N);
     std::vector<SLCVKeyFrame*> GetCovisiblesByWeight(const int &w);
     int GetWeight(SLCVKeyFrame* pKF);
+    const std::map<SLCVKeyFrame*, int>& GetConnectedKfWeights();
 
     // Spanning tree functions
     void AddChild(SLCVKeyFrame* pKF);

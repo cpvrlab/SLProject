@@ -58,7 +58,51 @@ void SLCVMapIO::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
 
     assert(firstKF && "Could not find keyframe with id 0\n");
 
+
     // Build spanning tree
+    //QueueElem: <unconnected_kf, graph_kf, weight>
+    using QueueElem = std::tuple< SLCVKeyFrame*, SLCVKeyFrame*, int>;
+    auto cmpQueue = [](const QueueElem& left, const QueueElem& right) {  return (std::get<2>(left) < std::get<2>(right)); };
+    auto cmpMap = [](const pair<SLCVKeyFrame*, int>& left, const pair<SLCVKeyFrame*, int>& right) { return left.second < right.second; };
+    std::set<SLCVKeyFrame*> graph;
+    std::set<SLCVKeyFrame*> unconKfs;
+    for(auto& kf : kfs)
+        unconKfs.insert(kf);
+
+    //pick first kf
+    graph.insert(firstKF);
+    unconKfs.erase(firstKF);
+
+    while(unconKfs.size())
+    {
+        std::priority_queue<QueueElem, std::vector<QueueElem>, decltype(cmpQueue)> q(cmpQueue);
+        //update queue with keyframes with neighbous in the graph
+        for( auto& unconKf : unconKfs )
+        {
+            const std::map<SLCVKeyFrame*, int>& weights = unconKf->GetConnectedKfWeights();
+            for(auto& graphKf : graph)
+            {
+                auto it = weights.find(graphKf);
+                if( it != weights.end() )
+                {
+                    QueueElem newElem = std::make_tuple(unconKf, it->first, it->second);
+                    q.push(newElem);
+                }
+            }
+        }
+        //extract keyframe with shortest connection
+        QueueElem topElem = q.top();
+        //remove it from unconKfs and add it to graph
+        SLCVKeyFrame* newGraphKf = std::get<0>(topElem);
+        unconKfs.erase(newGraphKf);
+        newGraphKf->ChangeParent(std::get<1>(topElem));
+        std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
+        //update parent
+        graph.insert(newGraphKf);
+    }
+
+    // Build spanning tree
+    /*
     std::vector<SLCVKeyFrame*> spanningTreeFringe;
     spanningTreeFringe.resize(kfs.size());
     spanningTreeFringe[0] = firstKF;
@@ -83,6 +127,7 @@ void SLCVMapIO::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         }
         fringeTakeIndex++;
     }
+    */
 
     //compute resulting values for map points
     auto mapPts = map.GetAllMapPoints();
