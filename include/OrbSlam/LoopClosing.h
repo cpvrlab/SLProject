@@ -51,8 +51,6 @@ public:
 
     LoopClosing(SLCVMap* pMap, SLCVKeyFrameDB* pDB, ORBVocabulary* pVoc, const bool bFixScale, const bool manualLoopClose = false);
 
-    void SetTracker(Tracking* pTracker);
-
     void SetLocalMapper(LocalMapping* pLocalMapper);
 
     // Main function
@@ -95,7 +93,6 @@ public:
     };
     const char* getStatusString();
 
-    int numOfLoopClosings();
     int numOfCandidates();
     int numOfConsistentCandidates();
     int numOfConsistentGroups();
@@ -178,8 +175,6 @@ protected:
     const bool _manualLoopClose;
 
     // Gui information
-    std::mutex mMutexNumLoopClosings;
-    int _numLoopClosings;
     std::mutex mMutexNumConsistentGroups;
     std::mutex mMutexNumCandidates;
     int _numOfCandidates = 0;

@@ -150,6 +150,7 @@ void SLCVMap::clear()
     mnMaxKFid = 0;
     mvpReferenceMapPoints.clear();
     mvpKeyFrameOrigins.clear();
+    setNumLoopClosings(0);
 }
 //-----------------------------------------------------------------------------
 void SLCVMap::rotate(float value, int type)
@@ -377,4 +378,22 @@ bool SLCVMap::isKeyFrameInMap(SLCVKeyFrame *pKF)
 {
     bool result = (mspKeyFrames.find(pKF) != mspKeyFrames.end());
     return result;
+}
+//-----------------------------------------------------------------------------
+void SLCVMap::incNumLoopClosings()
+{
+    unique_lock<mutex> lock(_mutexLoopClosings);
+    _numberOfLoopClosings++;
+}
+//-----------------------------------------------------------------------------
+void SLCVMap::setNumLoopClosings(int n)
+{
+    unique_lock<mutex> lock(_mutexLoopClosings);
+    _numberOfLoopClosings = n;
+}
+//-----------------------------------------------------------------------------
+int SLCVMap::getNumLoopClosings()
+{
+    unique_lock<mutex> lock(_mutexLoopClosings);
+    return _numberOfLoopClosings;
 }

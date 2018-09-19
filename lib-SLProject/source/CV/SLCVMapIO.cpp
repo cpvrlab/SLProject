@@ -183,6 +183,18 @@ void SLCVMapIO::save(const string& filename, SLCVMap& map, bool kfImgsIO, const 
             fs << "parentId" << (int)kf->GetParent()->mnId;
         else
             fs << "parentId" << -1;
+        //loop edges: we store the id of the connected kf
+        auto loopEdges = kf->GetLoopEdges();
+        if(loopEdges.size())
+        {
+            std::vector<int> loopEdgeIds;
+            for(auto loopEdgeKf : loopEdges)
+            {
+                loopEdgeIds.push_back( loopEdgeKf->mnId);
+            }
+            fs << "loopEdges" << loopEdgeIds;
+        }
+
         // world w.r.t camera
         fs << "Tcw" << kf->GetPose();
         fs << "featureDescriptors" << kf->mDescriptors;
@@ -319,16 +331,30 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
 
     //the id of the parent is mapped to the kf id because we can assign it not before all keyframes are loaded
     std::map<int, int> parentIdMap;
-
+    //vector of keyframe ids of connected loop edge candidates mapped to kf id that they are connected to
+    std::map<int, std::vector<int>> loopEdgesMap;
     //reserve space in kfs
     //kfs.reserve(n.size());
     for (auto it = n.begin(); it != n.end(); ++it)
     {
         int id = (*it)["id"];
-
-        int parentId = (*it)["parentId"];
+        //load parent id
         if(!(*it)["parentId"].empty())
+        { 
+            int parentId = (*it)["parentId"];
             parentIdMap[id] = parentId;
+        }
+        //load ids of connected loop edge candidates
+        if(!(*it)["loopEdges"].empty() && (*it)["loopEdges"].isSeq())
+        {
+            cv::FileNode les = (*it)["loopEdges"];
+            std::vector<int> loopEdges;
+            for (auto itLes = les.begin(); itLes != les.end(); ++itLes)
+            {
+                loopEdges.push_back((int)*itLes);
+            }
+            loopEdgesMap[id] = loopEdges;
+        }
         // Infos about the pose: https://github.com/raulmur/ORB_SLAM2/issues/249
         // world w.r.t. camera pose -> wTc
         cv::Mat Tcw; //has to be here!
@@ -378,6 +404,7 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         _kfsMap[newKf->mnId] = newKf;
     }
 
+    //set parent keyframe pointers into keyframes
     auto kfs = map.GetAllKeyFrames();
     for(SLCVKeyFrame* kf : kfs)
     {
@@ -397,6 +424,30 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
                 cerr << "[SLCVMapIO] loadKeyFrames: Parent does not exist! FAIL" << endl;
         }
     }
+
+    int numberOfLoopClosings = 0;
+    //set loop edge pointer into keyframes
+    for (SLCVKeyFrame* kf : kfs)
+    {
+        auto it = loopEdgesMap.find(kf->mnId);
+        if(it != loopEdgesMap.end())
+        {
+            const auto& loopEdgeIds = it->second;
+            for(int loopKfId : loopEdgeIds)
+            {
+                auto loopKfIt = _kfsMap.find(loopKfId);
+                if(loopKfIt != _kfsMap.end())
+                {
+                    kf->AddLoopEdge(loopKfIt->second);
+                    numberOfLoopClosings++;
+                }
+                else
+                    cerr << "[SLCVMapIO] loadKeyFrames: Loop keyframe id does not exist! FAIL" << endl;
+            }
+        }
+    }
+    //there is a loop edge in the keyframe and the matched keyframe -> division by 2
+    map.setNumLoopClosings(numberOfLoopClosings / 2);
 }
 //-----------------------------------------------------------------------------
 void SLCVMapIO::loadMapPoints(SLCVMap& map)

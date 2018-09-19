@@ -35,16 +35,11 @@ namespace ORB_SLAM2
 LoopClosing::LoopClosing(SLCVMap *pMap, SLCVKeyFrameDB *pDB, ORBVocabulary *pVoc, const bool bFixScale, const bool manualLoopClose):
     mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mpMap(pMap),
     mpKeyFrameDB(pDB), mpORBVocabulary(pVoc), mpMatchedKF(NULL), mLastLoopKFid(0), mbRunningGBA(false), mbFinishedGBA(true),
-    mbStopGBA(false), mpThreadGBA(NULL), mbFixScale(bFixScale), mnFullBAIdx(0), _numLoopClosings(0), _attemptLoopClose(!manualLoopClose),
+    mbStopGBA(false), mpThreadGBA(NULL), mbFixScale(bFixScale), mnFullBAIdx(0), _attemptLoopClose(!manualLoopClose),
     _manualLoopClose(manualLoopClose)
 {
     mnCovisibilityConsistencyTh = 3;
 }
-
-//void LoopClosing::SetTracker(Tracking *pTracker)
-//{
-//    mpTracker=pTracker;
-//}
 
 void LoopClosing::SetLocalMapper(LocalMapping *pLocalMapper)
 {
@@ -71,10 +66,7 @@ void LoopClosing::Run()
                    CorrectLoop();
                    status(LOOP_CLOSE_STATUS_LOOP_CLOSED);
 
-                   {
-                       std::lock_guard<std::mutex> lock(mMutexNumLoopClosings);
-                       _numLoopClosings++;
-                   }
+                   mpMap->incNumLoopClosings();
 
                    if (_manualLoopClose)
                    {
@@ -114,10 +106,7 @@ bool LoopClosing::RunOnce()
                 doCorrectLoop();
                 status(LOOP_CLOSE_STATUS_LOOP_CLOSED);
 
-                {
-                    std::lock_guard<std::mutex> lock(mMutexNumLoopClosings);
-                    _numLoopClosings++;
-                }
+                mpMap->incNumLoopClosings();
 
                 return true;
             }
@@ -705,7 +694,6 @@ void LoopClosing::SearchAndFuse(const KeyFrameAndPose &CorrectedPosesMap)
     }
 }
 
-//ghm1
 void LoopClosing::reset()
 {
     mlpLoopKeyFrameQueue.clear();
@@ -736,9 +724,7 @@ void LoopClosing::ResetIfRequested()
     unique_lock<mutex> lock(mMutexReset);
     if(mbResetRequested)
     {
-        mlpLoopKeyFrameQueue.clear();
-        mLastLoopKFid=0;
-        mbResetRequested=false;
+        reset();
     }
 }
 
@@ -870,12 +856,6 @@ bool LoopClosing::isFinished()
 {
     unique_lock<mutex> lock(mMutexFinish);
     return mbFinished;
-}
-
-int LoopClosing::numOfLoopClosings()
-{
-    std::lock_guard<std::mutex> lock(mMutexNumLoopClosings);
-    return _numLoopClosings;
 }
 
 int LoopClosing::numOfCandidates()

@@ -56,7 +56,8 @@ void SLImGuiTrackedMapping::buildInfos()
     if (_mappingTracker->mpLoopCloser)
     {
         //add loop closings counter
-        ImGui::Text("Number of LoopClosings : %d ", _mappingTracker->mpLoopCloser->numOfLoopClosings());
+        ImGui::Text("Number of LoopClosings : %d ", _mappingTracker->getMap()->getNumLoopClosings());
+        //ImGui::Text("Number of LoopClosings : %d ", _mappingTracker->mpLoopCloser->numOfLoopClosings());
         ImGui::Text("Loop closing status : %s ", _mappingTracker->mpLoopCloser->getStatusString());
         ImGui::Text("Keyframes in Loop closing queue : %d", _mappingTracker->mpLoopCloser->numOfKfsInQueue());
 

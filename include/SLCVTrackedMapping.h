@@ -38,9 +38,6 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 {
     public:
 
-        int getNumLoopClosings() { return mpLoopCloser->numOfLoopClosings(); }
-        const char* getLoopClosingStatusString();
-
         SLCVTrackedMapping(SLNode* node,
                            bool onlyTracking,
                            SLCVMapNode* mapNode = NULL,
