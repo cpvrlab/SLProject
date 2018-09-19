@@ -45,6 +45,7 @@ void SLCVMapIO::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
     //update the covisibility graph, when all keyframes and mappoints are loaded
     std::vector<SLCVKeyFrame*> kfs = map.GetAllKeyFrames();
     SLCVKeyFrame* firstKF = nullptr;
+    bool buildSpanningTree = false;
     for (int i = 0; i < kfs.size(); i++)
     {
         // Update links in the Covisibility Graph, do not build the spanning tree yet
@@ -54,51 +55,58 @@ void SLCVMapIO::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         {
             firstKF = kf;
         }
+        else if(kf->GetParent() == NULL)
+        {
+            buildSpanningTree = true;
+        }
     }
 
     assert(firstKF && "Could not find keyframe with id 0\n");
 
 
-    // Build spanning tree
-    //QueueElem: <unconnected_kf, graph_kf, weight>
-    using QueueElem = std::tuple< SLCVKeyFrame*, SLCVKeyFrame*, int>;
-    auto cmpQueue = [](const QueueElem& left, const QueueElem& right) {  return (std::get<2>(left) < std::get<2>(right)); };
-    auto cmpMap = [](const pair<SLCVKeyFrame*, int>& left, const pair<SLCVKeyFrame*, int>& right) { return left.second < right.second; };
-    std::set<SLCVKeyFrame*> graph;
-    std::set<SLCVKeyFrame*> unconKfs;
-    for(auto& kf : kfs)
-        unconKfs.insert(kf);
-
-    //pick first kf
-    graph.insert(firstKF);
-    unconKfs.erase(firstKF);
-
-    while(unconKfs.size())
+    // Build spanning tree if keyframes have no parents (legacy support)
+    if(buildSpanningTree)
     {
-        std::priority_queue<QueueElem, std::vector<QueueElem>, decltype(cmpQueue)> q(cmpQueue);
-        //update queue with keyframes with neighbous in the graph
-        for( auto& unconKf : unconKfs )
+        //QueueElem: <unconnected_kf, graph_kf, weight>
+        using QueueElem = std::tuple< SLCVKeyFrame*, SLCVKeyFrame*, int>;
+        auto cmpQueue = [](const QueueElem& left, const QueueElem& right) {  return (std::get<2>(left) < std::get<2>(right)); };
+        auto cmpMap = [](const pair<SLCVKeyFrame*, int>& left, const pair<SLCVKeyFrame*, int>& right) { return left.second < right.second; };
+        std::set<SLCVKeyFrame*> graph;
+        std::set<SLCVKeyFrame*> unconKfs;
+        for(auto& kf : kfs)
+            unconKfs.insert(kf);
+
+        //pick first kf
+        graph.insert(firstKF);
+        unconKfs.erase(firstKF);
+
+        while(unconKfs.size())
         {
-            const std::map<SLCVKeyFrame*, int>& weights = unconKf->GetConnectedKfWeights();
-            for(auto& graphKf : graph)
+            std::priority_queue<QueueElem, std::vector<QueueElem>, decltype(cmpQueue)> q(cmpQueue);
+            //update queue with keyframes with neighbous in the graph
+            for( auto& unconKf : unconKfs )
             {
-                auto it = weights.find(graphKf);
-                if( it != weights.end() )
+                const std::map<SLCVKeyFrame*, int>& weights = unconKf->GetConnectedKfWeights();
+                for(auto& graphKf : graph)
                 {
-                    QueueElem newElem = std::make_tuple(unconKf, it->first, it->second);
-                    q.push(newElem);
+                    auto it = weights.find(graphKf);
+                    if( it != weights.end() )
+                    {
+                        QueueElem newElem = std::make_tuple(unconKf, it->first, it->second);
+                        q.push(newElem);
+                    }
                 }
             }
+            //extract keyframe with shortest connection
+            QueueElem topElem = q.top();
+            //remove it from unconKfs and add it to graph
+            SLCVKeyFrame* newGraphKf = std::get<0>(topElem);
+            unconKfs.erase(newGraphKf);
+            newGraphKf->ChangeParent(std::get<1>(topElem));
+            std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
+            //update parent
+            graph.insert(newGraphKf);
         }
-        //extract keyframe with shortest connection
-        QueueElem topElem = q.top();
-        //remove it from unconKfs and add it to graph
-        SLCVKeyFrame* newGraphKf = std::get<0>(topElem);
-        unconKfs.erase(newGraphKf);
-        newGraphKf->ChangeParent(std::get<1>(topElem));
-        std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
-        //update parent
-        graph.insert(newGraphKf);
     }
 
     // Build spanning tree
@@ -171,7 +179,10 @@ void SLCVMapIO::save(const string& filename, SLCVMap& map, bool kfImgsIO, const 
         fs << "{"; //new map keyFrame
                    //add id
         fs << "id" << (int)kf->mnId;
-
+        if(kf->mnId != 0) //kf with id 0 has no parent
+            fs << "parentId" << (int)kf->GetParent()->mnId;
+        else
+            fs << "parentId" << -1;
         // world w.r.t camera
         fs << "Tcw" << kf->GetPose();
         fs << "featureDescriptors" << kf->mDescriptors;
@@ -306,12 +317,18 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
     //mapping of keyframe pointer by their id (used during map points loading)
     _kfsMap.clear();
 
+    //the id of the parent is mapped to the kf id because we can assign it not before all keyframes are loaded
+    std::map<int, int> parentIdMap;
+
     //reserve space in kfs
     //kfs.reserve(n.size());
     for (auto it = n.begin(); it != n.end(); ++it)
     {
         int id = (*it)["id"];
 
+        int parentId = (*it)["parentId"];
+        if(!(*it)["parentId"].empty())
+            parentIdMap[id] = parentId;
         // Infos about the pose: https://github.com/raulmur/ORB_SLAM2/issues/249
         // world w.r.t. camera pose -> wTc
         cv::Mat Tcw; //has to be here!
@@ -359,6 +376,26 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         //pointer goes out of scope und wird invalid!!!!!!
         //map pointer by id for look-up
         _kfsMap[newKf->mnId] = newKf;
+    }
+
+    auto kfs = map.GetAllKeyFrames();
+    for(SLCVKeyFrame* kf : kfs)
+    {
+        if (kf->mnId != 0)
+        {
+            auto itParentId = parentIdMap.find(kf->mnId);
+            if(itParentId != parentIdMap.end())
+            {
+                int parentId = itParentId->second;
+                auto itParentKf = _kfsMap.find(parentId);
+                if(itParentKf != _kfsMap.end())
+                    kf->ChangeParent(itParentKf->second);
+                else
+                    cerr << "[SLCVMapIO] loadKeyFrames: Parent does not exist! FAIL" << endl;
+            }
+            else
+                cerr << "[SLCVMapIO] loadKeyFrames: Parent does not exist! FAIL" << endl;
+        }
     }
 }
 //-----------------------------------------------------------------------------
