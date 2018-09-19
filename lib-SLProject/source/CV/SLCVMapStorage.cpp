@@ -33,6 +33,7 @@ SLCVMapStorage::SLCVMapStorage()
 void SLCVMapStorage::init()
 {
     existingMapNames.clear();
+    vector<pair<int, string>> existingMapNamesSorted;
 
     //setup file system and check for existing files
     if (SLFileSystem::externalDirExists())
@@ -56,7 +57,6 @@ void SLCVMapStorage::init()
                 //find json files that contain mapPrefix and estimate highest used id
                 if (SLUtils::contains(name, _mapPrefix))
                 {
-                    existingMapNames.push_back(name);
                     SL_LOG("VO-Map found: %s\n", name.c_str());
                     //estimate highest used id
                     SLVstring splitted;
@@ -64,6 +64,7 @@ void SLCVMapStorage::init()
                     if (splitted.size())
                     {
                         int id = atoi(splitted.back().c_str());
+                        existingMapNamesSorted.push_back(make_pair(id, name));
                         if (id >= _nextId)
                         {
                             _nextId = id + 1;
@@ -73,6 +74,12 @@ void SLCVMapStorage::init()
                 }
             }
         }
+        //sort existingMapNames
+        std::sort(existingMapNamesSorted.begin(), existingMapNamesSorted.end(),
+            [](const pair<int, string>& left, const pair<int, string>& right) { return left.first < right.first; });
+        for(auto it = existingMapNamesSorted.begin(); it != existingMapNamesSorted.end(); ++it )
+            existingMapNames.push_back(it->second);
+
         //mark storage as initialized
         _isInitialized = true;
     }
