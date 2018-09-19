@@ -51,20 +51,24 @@ public:
     //!used to remove all when map changes
     void clearAll();
 
+    //! Set minimum number of covisible map points: directly updates the graph.
+    //! It must be called from gui thread
+    void updateMinNumOfCovisibles(int n);
+
     //!set hidden flags
     void setHideMapPoints(bool state);
     void setHideKeyFrames(bool state);
     void setHideCovisibilityGraph(bool state);
     void setHideSpanningTree(bool state);
     void setHideLoopEdges(bool state);
-    
+
     //getters
     bool renderKfBackground() { return _renderKfBackground; }
     bool allowAsActiveCam() { return _allowAsActiveCam; }
     //setters
     void renderKfBackground(bool s) { _renderKfBackground = s; }
     void allowAsActiveCam(bool s) { _allowAsActiveCam = s; }
-
+    int getMinNumOfCovisibles() { return _minNumOfCovisibles; }
 private:
     //! add map nodes and instantiate materials
     void init();
@@ -123,6 +127,8 @@ private:
     bool _renderKfBackground = false;
     //allow SLCVCameras as active camera so that we can look through it
     bool _allowAsActiveCam = false;
+    //! minimum number of covisibles for covisibility graph visualization
+    int _minNumOfCovisibles = 50;
 
     std::mutex _mutex;
 };

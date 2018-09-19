@@ -14,12 +14,16 @@
 #include <SLImGuiInfosTracking.h>
 #include <SLImGuiInfosDialog.h>
 #include <SLTrackingInfosInterface.h>
+#include <SLCVMapNode.h>
 
 //-----------------------------------------------------------------------------
-SLImGuiInfosTracking::SLImGuiInfosTracking(std::string name, SLTrackingInfosInterface* tracker)
+SLImGuiInfosTracking::SLImGuiInfosTracking(std::string name, SLTrackingInfosInterface* tracker, 
+    SLCVMapNode* mapNode)
     : SLImGuiInfosDialog(name),
-    _interface(tracker)
+    _interface(tracker),
+    _mapNode(mapNode)
 {
+    _minNumCovisibleMapPts = _mapNode->getMinNumOfCovisibles();
 }
 //-----------------------------------------------------------------------------
 void SLImGuiInfosTracking::buildInfos()
@@ -122,6 +126,14 @@ void SLImGuiInfosTracking::buildInfos()
         b = _interface->showCovisibilityGraph();
         ImGui::Checkbox("Show Covisibility (100 common KPts)", &b);
         _interface->showCovisibilityGraph(b);
+        if(b)
+        {
+            //Definition of minimum number of covisible map points
+            if (ImGui::InputInt("Min. covis. map pts", &_minNumCovisibleMapPts, 10, 0))
+            {
+                _mapNode->updateMinNumOfCovisibles(_minNumCovisibleMapPts);
+            }
+        }
         //spanning tree
         b = _interface->showSpanningTree();
         ImGui::Checkbox("Show spanning tree", &b);

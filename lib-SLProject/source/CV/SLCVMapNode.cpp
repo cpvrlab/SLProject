@@ -132,7 +132,8 @@ void SLCVMapNode::doUpdate()
         doUpdateMapPoints("MapPointsMatches", mapPtsMatched, _mapMatchedPC, _mapMatchesMesh, _pcMatchedMat);
     }
 
-    if (_keyFramesChanged) {
+    if (_keyFramesChanged)
+    {
         _mutex.lock();
         std::vector<SLCVKeyFrame*> kfs = _kfs;
         _keyFramesChanged = false;
@@ -254,6 +255,15 @@ void SLCVMapNode::updateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
     _kfs = kfs;
 }
 //-----------------------------------------------------------------------------
+void SLCVMapNode::updateMinNumOfCovisibles(int n)
+{
+    _minNumOfCovisibles = n;
+    _mutex.lock();
+    auto kfs = _kfs;
+    _mutex.unlock();
+    doUpdateGraphs(kfs);
+}
+//-----------------------------------------------------------------------------
 void SLCVMapNode::doUpdateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
 {
     _keyFrames->deleteChildren();
@@ -303,7 +313,7 @@ void SLCVMapNode::doUpdateGraphs(const std::vector<SLCVKeyFrame*>& kfs)
         cv::Mat Ow = kf->GetCameraCenter();
 
         //covisibility graph
-        const vector<SLCVKeyFrame*> vCovKFs = kf->GetCovisiblesByWeight(100);
+        const vector<SLCVKeyFrame*> vCovKFs = kf->GetCovisiblesByWeight(_minNumOfCovisibles);
         if (!vCovKFs.empty())
         {
             for (vector<SLCVKeyFrame*>::const_iterator vit = vCovKFs.begin(), vend = vCovKFs.end(); vit != vend; vit++)

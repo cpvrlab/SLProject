@@ -2543,7 +2543,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //SLCVOrbTracking* orbT = raulMurTracker->orbTracking();
         //setup scene specific gui dialoges
-        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tracker );
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tracker, mapNode);
         AppDemoGui::addInfoDialog(trackingInfos);
         auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tracker );
         AppDemoGui::addInfoDialog(mapTransform);
@@ -2625,7 +2625,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //setup scene specific gui dialoges
         auto trackedMappingUI = std::make_shared<SLImGuiTrackedMapping>("Tracked mapping", tm);
         AppDemoGui::addInfoDialog(trackedMappingUI);
-        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm);
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm, mapNode);
         AppDemoGui::addInfoDialog(trackingInfos);
         auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm);
         AppDemoGui::addInfoDialog(mapTransform);
@@ -2735,7 +2735,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //setup scene specific gui dialoges
         auto trackedMappingUI = std::make_shared<SLImGuiTrackedMapping>("Tracked mapping", tm);
         AppDemoGui::addInfoDialog(trackedMappingUI);
-        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm);
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm, mapNode);
         AppDemoGui::addInfoDialog(trackingInfos);
         auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm);
         AppDemoGui::addInfoDialog(mapTransform);
@@ -2820,7 +2820,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //setup scene specific gui dialoges
         auto trackedMappingUI = std::make_shared<SLImGuiTrackedMapping>("Tracked mapping", tm);
         AppDemoGui::addInfoDialog(trackedMappingUI);
-        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm);
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm, mapNode);
         AppDemoGui::addInfoDialog(trackingInfos);
         auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm);
         AppDemoGui::addInfoDialog(mapTransform);
@@ -2925,7 +2925,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //setup scene specific gui dialoges
         auto trackedMappingUI = std::make_shared<SLImGuiTrackedMapping>("Tracked mapping", tm);
         AppDemoGui::addInfoDialog(trackedMappingUI);
-        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm);
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm, mapNode);
         AppDemoGui::addInfoDialog(trackingInfos);
         auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm);
         AppDemoGui::addInfoDialog(mapTransform);
