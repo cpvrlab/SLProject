@@ -69,7 +69,7 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 
         //New KeyFrame rules (according to fps)
         // Max/Min Frames to insert keyframes and to check relocalisation
-        int mMinFrames = 20;
+        int mMinFrames = 0;
         int mMaxFrames = 30; //= fps
 
     private:

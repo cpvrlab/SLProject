@@ -152,7 +152,7 @@ protected:
     float _optFlowGridElementHeightInv;
 
 private:
-    bool _trackOptFlow = true;
+    bool _trackOptFlow = false;
 };
 
 #endif //SLCVMAPTRACKING_H

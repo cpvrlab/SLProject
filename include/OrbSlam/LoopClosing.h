@@ -27,6 +27,7 @@
 #include <OrbSlam/ORBVocabulary.h>
 //#include "Tracking.h"
 
+#include <condition_variable>
 #include <thread>
 #include <mutex>
 #include <g2o/types/sim3/types_seven_dof_expmap.h>
@@ -136,6 +137,7 @@ protected:
     std::list<SLCVKeyFrame*> mlpLoopKeyFrameQueue;
 
     std::mutex mMutexLoopQueue;
+    std::condition_variable _condVarLoopQueue;
 
     // Loop detector parameters
     float mnCovisibilityConsistencyTh;

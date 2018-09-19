@@ -50,9 +50,14 @@ void LoopClosing::Run()
 {
     //mbFinished =false;
 
-    while(1)
+    while(!CheckFinish())
     {
         // Check if there are keyframes in the queue
+        {
+            std::unique_lock<std::mutex> lock(mMutexLoopQueue);
+            _condVarLoopQueue.wait(lock, [&] { return !mlpLoopKeyFrameQueue.empty() || mbFinishRequested || mbResetRequested; });
+        }
+
         if(CheckNewKeyFrames())
         {
             // Detect loop candidates and check covisibility consistency
@@ -77,11 +82,6 @@ void LoopClosing::Run()
         }
 
         ResetIfRequested();
-
-        if(CheckFinish())
-            break;
-
-        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     if (mpThreadGBA && mpThreadGBA->joinable())
@@ -121,17 +121,28 @@ bool LoopClosing::RunOnce()
 
 void LoopClosing::InsertKeyFrame(SLCVKeyFrame *pKF)
 {
-    unique_lock<mutex> lock(mMutexLoopQueue);
-    if(pKF->mnId!=0)
     {
-        mlpLoopKeyFrameQueue.push_back(pKF);
+        std::lock_guard<std::mutex> lock(mMutexLoopQueue);
+        if(pKF->mnId!=0)
+        {
+            mlpLoopKeyFrameQueue.push_back(pKF);
+        }
     }
+    _condVarLoopQueue.notify_all();
 }
 
 bool LoopClosing::CheckNewKeyFrames()
 {
     unique_lock<mutex> lock(mMutexLoopQueue);
     return(!mlpLoopKeyFrameQueue.empty());
+
+    //{
+    //    std::unique_lock<std::mutex> lock(mMutexLoopQueue);
+    //    _condVarLoopQueue.wait(lock, [&] { return (_preProcDTO != NULL || _preProcStopThread); });
+    //    if (_preProcStopThread)
+    //        continue;
+    //    frameDTO = std::move(_preProcDTO); //todo: do we have to check if empty?
+    //}
 }
 
 bool LoopClosing::DetectLoop()
@@ -704,14 +715,15 @@ void LoopClosing::reset()
 void LoopClosing::RequestReset()
 {
     {
-        unique_lock<mutex> lock(mMutexReset);
+        unique_lock<mutex> lock(mMutexLoopQueue);
         mbResetRequested = true;
     }
+    _condVarLoopQueue.notify_all();
 
     while(1)
     {
         {
-            unique_lock<mutex> lock2(mMutexReset);
+            unique_lock<mutex> lock2(mMutexLoopQueue);
             if(!mbResetRequested)
                 break;
         }
@@ -721,7 +733,7 @@ void LoopClosing::RequestReset()
 
 void LoopClosing::ResetIfRequested()
 {
-    unique_lock<mutex> lock(mMutexReset);
+    unique_lock<mutex> lock(mMutexLoopQueue);
     if(mbResetRequested)
     {
         reset();
@@ -836,25 +848,31 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
 
 void LoopClosing::RequestFinish()
 {
-    unique_lock<mutex> lock(mMutexFinish);
-    mbFinishRequested = true;
+    {
+        unique_lock<mutex> lock(mMutexLoopQueue);
+        mbFinishRequested = true;
+    }
+    _condVarLoopQueue.notify_all();
 }
 
 bool LoopClosing::CheckFinish()
 {
-    unique_lock<mutex> lock(mMutexFinish);
+    unique_lock<mutex> lock(mMutexLoopQueue);
     return mbFinishRequested;
 }
 
 void LoopClosing::SetFinish()
 {
-    unique_lock<mutex> lock(mMutexFinish);
-    mbFinished = true;
+    {
+        unique_lock<mutex> lock(mMutexLoopQueue);
+        mbFinished = true;
+    }
+    _condVarLoopQueue.notify_all();
 }
 
 bool LoopClosing::isFinished()
 {
-    unique_lock<mutex> lock(mMutexFinish);
+    unique_lock<mutex> lock(mMutexLoopQueue);
     return mbFinished;
 }
 
