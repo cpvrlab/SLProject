@@ -56,6 +56,10 @@ void LocalMapping::Run()
 
     while(1)
     {
+        //{
+        //    std::unique_lock<std::mutex> lock(mMutexLoopQueue);
+        //    _condVarLoopQueue.wait(lock, [&] { return !mlpLoopKeyFrameQueue.empty() || mbFinishRequested || mbResetRequested; });
+        //}
         // Tracking will see that Local Mapping is busy
         SetAcceptKeyFrames(false);
 
@@ -112,7 +116,7 @@ void LocalMapping::Run()
         // Tracking will see that Local Mapping is busy
         SetAcceptKeyFrames(true);
 
-        if(CheckFinish())
+        if (CheckFinish())
             break;
 
 #ifdef _WINDOWS
