@@ -50,13 +50,18 @@ void LoopClosing::Run()
 {
     //mbFinished =false;
 
-    while(!CheckFinish())
+    while(1)
     {
-        // Check if there are keyframes in the queue
+        //Condition variable hints: we have three tasks in this loop:
+        //process new keyframes, reset loopclosing, break while loop
+        //All of these depend on own conditions. After one of these condition was changed, "loopWakeUp()" has to be called.
         {
-            std::unique_lock<std::mutex> lock(mMutexLoopQueue);
-            _condVarLoopQueue.wait(lock, [&] { return !mlpLoopKeyFrameQueue.empty() || mbFinishRequested || mbResetRequested; });
+            std::unique_lock<std::mutex> lock(_mutexLoop);
+            _condVarLoop.wait(lock, [&] { return !_loopSleep; });
         }
+        //sleep again: if one participant is calling wake up in between the previous and the next call
+        //the loop will be executed anyway!
+        loopSleep();
 
         if(CheckNewKeyFrames())
         {
@@ -82,6 +87,9 @@ void LoopClosing::Run()
         }
 
         ResetIfRequested();
+
+        if (CheckFinish())
+            break;
     }
 
     if (mpThreadGBA && mpThreadGBA->joinable())
@@ -128,21 +136,13 @@ void LoopClosing::InsertKeyFrame(SLCVKeyFrame *pKF)
             mlpLoopKeyFrameQueue.push_back(pKF);
         }
     }
-    _condVarLoopQueue.notify_all();
+    loopWakeUp();
 }
 
 bool LoopClosing::CheckNewKeyFrames()
 {
     unique_lock<mutex> lock(mMutexLoopQueue);
     return(!mlpLoopKeyFrameQueue.empty());
-
-    //{
-    //    std::unique_lock<std::mutex> lock(mMutexLoopQueue);
-    //    _condVarLoopQueue.wait(lock, [&] { return (_preProcDTO != NULL || _preProcStopThread); });
-    //    if (_preProcStopThread)
-    //        continue;
-    //    frameDTO = std::move(_preProcDTO); //todo: do we have to check if empty?
-    //}
 }
 
 bool LoopClosing::DetectLoop()
@@ -715,15 +715,15 @@ void LoopClosing::reset()
 void LoopClosing::RequestReset()
 {
     {
-        unique_lock<mutex> lock(mMutexLoopQueue);
+        unique_lock<mutex> lock(mMutexReset);
         mbResetRequested = true;
     }
-    _condVarLoopQueue.notify_all();
+    loopWakeUp();
 
     while(1)
     {
         {
-            unique_lock<mutex> lock2(mMutexLoopQueue);
+            unique_lock<mutex> lock2(mMutexReset);
             if(!mbResetRequested)
                 break;
         }
@@ -733,7 +733,7 @@ void LoopClosing::RequestReset()
 
 void LoopClosing::ResetIfRequested()
 {
-    unique_lock<mutex> lock(mMutexLoopQueue);
+    unique_lock<mutex> lock(mMutexReset);
     if(mbResetRequested)
     {
         reset();
@@ -849,30 +849,27 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
 void LoopClosing::RequestFinish()
 {
     {
-        unique_lock<mutex> lock(mMutexLoopQueue);
+        unique_lock<mutex> lock(mMutexFinish);
         mbFinishRequested = true;
     }
-    _condVarLoopQueue.notify_all();
+    loopWakeUp();
 }
 
 bool LoopClosing::CheckFinish()
 {
-    unique_lock<mutex> lock(mMutexLoopQueue);
+    unique_lock<mutex> lock(mMutexFinish);
     return mbFinishRequested;
 }
 
 void LoopClosing::SetFinish()
 {
-    {
-        unique_lock<mutex> lock(mMutexLoopQueue);
-        mbFinished = true;
-    }
-    _condVarLoopQueue.notify_all();
+    unique_lock<mutex> lock(mMutexFinish);
+    mbFinished = true;
 }
 
 bool LoopClosing::isFinished()
 {
-    unique_lock<mutex> lock(mMutexLoopQueue);
+    unique_lock<mutex> lock(mMutexFinish);
     return mbFinished;
 }
 
@@ -945,6 +942,20 @@ void LoopClosing::startLoopCloseAttempt()
 {
     std::lock_guard<std::mutex> lock(mMutexLoopCloseAttempt);
     _attemptLoopClose = true;
+}
+
+void LoopClosing::loopWakeUp()
+{
+    {
+        std::lock_guard<std::mutex> guard(_mutexLoop);
+        _loopSleep = false;
+    }
+    _condVarLoop.notify_one();
+}
+void LoopClosing::loopSleep()
+{
+    std::lock_guard<std::mutex> guard(_mutexLoop);
+    _loopSleep = true;
 }
 
 } //namespace ORB_SLAM

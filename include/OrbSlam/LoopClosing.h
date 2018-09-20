@@ -135,9 +135,14 @@ protected:
     LocalMapping *mpLocalMapper;
 
     std::list<SLCVKeyFrame*> mlpLoopKeyFrameQueue;
-
     std::mutex mMutexLoopQueue;
-    std::condition_variable _condVarLoopQueue;
+
+    //replacement for thread sleep:
+    std::mutex _mutexLoop;
+    std::condition_variable _condVarLoop;
+    bool _loopSleep = true;
+    void loopWakeUp();
+    void loopSleep();
 
     // Loop detector parameters
     float mnCovisibilityConsistencyTh;
