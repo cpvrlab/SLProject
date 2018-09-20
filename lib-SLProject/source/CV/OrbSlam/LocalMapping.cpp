@@ -56,6 +56,14 @@ void LocalMapping::Run()
 
     while(1)
     {
+        //{
+        //    std::unique_lock<std::mutex> lock(_mutexLoop);
+        //    _condVarLoop.wait(lock, [&] { return !_loopWait; });
+        //}
+        ////sleep again: if one participant is calling wake up in between the previous and the next call
+        ////the loop will be executed anyway!
+        //loopWait();
+
         // Tracking will see that Local Mapping is busy
         SetAcceptKeyFrames(false);
 
@@ -115,11 +123,7 @@ void LocalMapping::Run()
         if (CheckFinish())
             break;
 
-#ifdef _WINDOWS
-                Sleep(3);
-#else
-                usleep(3000);
-#endif
+        std::this_thread::sleep_for(std::chrono::seconds(3));
     }
 
     mbFinishRequested = false;
@@ -168,9 +172,12 @@ void LocalMapping::RunOnce()
 
 void LocalMapping::InsertKeyFrame(SLCVKeyFrame *pKF)
 {
-    unique_lock<mutex> lock(mMutexNewKFs);
-    mlNewKeyFrames.push_back(pKF);
-    mbAbortBA=true;
+    {
+        unique_lock<mutex> lock(mMutexNewKFs);
+        mlNewKeyFrames.push_back(pKF);
+        mbAbortBA=true;
+    }
+    loopContinue();
 }
 
 
@@ -611,10 +618,13 @@ cv::Mat LocalMapping::ComputeF12(SLCVKeyFrame *&pKF1, SLCVKeyFrame *&pKF2)
 
 void LocalMapping::RequestStop()
 {
-    unique_lock<mutex> lock(mMutexStop);
-    mbStopRequested = true;
-    unique_lock<mutex> lock2(mMutexNewKFs);
-    mbAbortBA = true;
+    {
+        unique_lock<mutex> lock(mMutexStop);
+        mbStopRequested = true;
+        unique_lock<mutex> lock2(mMutexNewKFs);
+        mbAbortBA = true;
+    }
+    loopContinue();
 }
 
 bool LocalMapping::Stop()
@@ -770,6 +780,7 @@ void LocalMapping::RequestReset()
         unique_lock<mutex> lock(mMutexReset);
         mbResetRequested = true;
     }
+    loopContinue();
 
     while(1)
     {
@@ -804,8 +815,11 @@ void LocalMapping::reset()
 
 void LocalMapping::RequestFinish()
 {
-    unique_lock<mutex> lock(mMutexFinish);
-    mbFinishRequested = true;
+    {
+        unique_lock<mutex> lock(mMutexFinish);
+        mbFinishRequested = true;
+    }
+    loopContinue();
 }
 
 bool LocalMapping::CheckFinish()
@@ -826,6 +840,20 @@ bool LocalMapping::isFinished()
 {
     unique_lock<mutex> lock(mMutexFinish);
     return mbFinished;
+}
+
+void LocalMapping::loopContinue()
+{
+    //{
+    //    std::lock_guard<std::mutex> guard(_mutexLoop);
+    //    _loopWait = false;
+    //}
+    //_condVarLoop.notify_one();
+}
+void LocalMapping::loopWait()
+{
+    std::lock_guard<std::mutex> guard(_mutexLoop);
+    _loopWait = true;
 }
 
 } //namespace ORB_SLAM

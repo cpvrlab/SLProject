@@ -27,6 +27,7 @@
 //#include "Tracking.h"
 #include "SLCVKeyFrameDB.h"
 
+#include <condition_variable>
 #include <mutex>
 
 class SLCVMap;
@@ -102,6 +103,13 @@ protected:
     bool mbFinishRequested;
     bool mbFinished;
     std::mutex mMutexFinish;
+
+    //replacement for thread sleep:
+    std::mutex _mutexLoop;
+    std::condition_variable _condVarLoop;
+    bool _loopWait = true;
+    void loopContinue();
+    void loopWait();
 
     SLCVMap* mpMap;
 

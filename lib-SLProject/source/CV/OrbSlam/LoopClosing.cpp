@@ -54,14 +54,14 @@ void LoopClosing::Run()
     {
         //Condition variable hints: we have three tasks in this loop:
         //process new keyframes, reset loopclosing, break while loop
-        //All of these depend on own conditions. After one of these condition was changed, "loopWakeUp()" has to be called.
+        //All of these depend on own conditions. After one of these condition was changed, "loopContinue()" has to be called.
         {
             std::unique_lock<std::mutex> lock(_mutexLoop);
-            _condVarLoop.wait(lock, [&] { return !_loopSleep; });
+            _condVarLoop.wait(lock, [&] { return !_loopWait; });
         }
         //sleep again: if one participant is calling wake up in between the previous and the next call
         //the loop will be executed anyway!
-        loopSleep();
+        loopWait();
 
         if(CheckNewKeyFrames())
         {
@@ -136,7 +136,7 @@ void LoopClosing::InsertKeyFrame(SLCVKeyFrame *pKF)
             mlpLoopKeyFrameQueue.push_back(pKF);
         }
     }
-    loopWakeUp();
+    loopContinue();
 }
 
 bool LoopClosing::CheckNewKeyFrames()
@@ -718,7 +718,7 @@ void LoopClosing::RequestReset()
         unique_lock<mutex> lock(mMutexReset);
         mbResetRequested = true;
     }
-    loopWakeUp();
+    loopContinue();
 
     while(1)
     {
@@ -852,7 +852,7 @@ void LoopClosing::RequestFinish()
         unique_lock<mutex> lock(mMutexFinish);
         mbFinishRequested = true;
     }
-    loopWakeUp();
+    loopContinue();
 }
 
 bool LoopClosing::CheckFinish()
@@ -944,18 +944,18 @@ void LoopClosing::startLoopCloseAttempt()
     _attemptLoopClose = true;
 }
 
-void LoopClosing::loopWakeUp()
+void LoopClosing::loopContinue()
 {
     {
         std::lock_guard<std::mutex> guard(_mutexLoop);
-        _loopSleep = false;
+        _loopWait = false;
     }
     _condVarLoop.notify_one();
 }
-void LoopClosing::loopSleep()
+void LoopClosing::loopWait()
 {
     std::lock_guard<std::mutex> guard(_mutexLoop);
-    _loopSleep = true;
+    _loopWait = true;
 }
 
 } //namespace ORB_SLAM

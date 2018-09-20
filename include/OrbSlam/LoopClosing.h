@@ -140,9 +140,9 @@ protected:
     //replacement for thread sleep:
     std::mutex _mutexLoop;
     std::condition_variable _condVarLoop;
-    bool _loopSleep = true;
-    void loopWakeUp();
-    void loopSleep();
+    bool _loopWait = true;
+    void loopContinue();
+    void loopWait();
 
     // Loop detector parameters
     float mnCovisibilityConsistencyTh;
