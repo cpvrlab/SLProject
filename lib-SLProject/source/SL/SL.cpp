@@ -8,66 +8,75 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>           // precompiled headers
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
 
 //-----------------------------------------------------------------------------
-//! SL::log
+//! SL::log logs a formatted string platform independently
 void SL::log(const char* format, ...)
 {
-    char log[4096];
+    char    log[4096];
     va_list argptr;
     va_start(argptr, format);
     vsprintf(log, format, argptr);
     va_end(argptr);
 
-    #if defined(SL_OS_ANDROID)
+#if defined(SL_OS_ANDROID)
     __android_log_print(ANDROID_LOG_INFO, "SLProject", log);
-    #else
-    cout << log;
-    #endif
+#else
+    cout << log << std::flush;
+#endif
 }
 //-----------------------------------------------------------------------------
 //! SL::Exit terminates the application with a message. No leak cheching.
 void SL::exitMsg(const SLchar* msg, const SLint line, const SLchar* file)
-{  
-    #if defined(SL_OS_ANDROID)
-    __android_log_print(ANDROID_LOG_INFO, "SLProject", 
-                        "Exit %s at line %d in %s\n", msg, line, file);
-    #else
+{
+#if defined(SL_OS_ANDROID)
+    __android_log_print(ANDROID_LOG_INFO,
+                        "SLProject",
+                        "Exit %s at line %d in %s\n",
+                        msg,
+                        line,
+                        file);
+#else
     SL::log("Exit %s at line %d in %s\n", msg, line, file);
-    #endif
-   
-    #ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
+#endif
+
+#ifdef SL_MEMLEAKDETECT // set in SL.h for debug config only
     // turn off leak checks on forced exit
     nvwa::new_autocheck_flag = false;
-    #endif
-   
+#endif
+
     exit(-1);
 }
 //-----------------------------------------------------------------------------
 //! SL::Warn message output
 void SL::warnMsg(const SLchar* msg, const SLint line, const SLchar* file)
-{  
-    #if defined(SL_OS_ANDROID)
-    __android_log_print(ANDROID_LOG_INFO, "SLProject", 
-                        "Warning: %s at line %d in %s\n", msg, line, file);
-    #else
+{
+#if defined(SL_OS_ANDROID)
+    __android_log_print(ANDROID_LOG_INFO,
+                        "SLProject",
+                        "Warning: %s at line %d in %s\n",
+                        msg,
+                        line,
+                        file);
+#else
     SL::log("Warning %s at line %d in %s\n", msg, line, file);
-    #endif
+#endif
 }
 //-----------------------------------------------------------------------------
 /*! SL::maxThreads returns in release config the max. NO. of threads and in 
 debug config 1. Try to avoid multithreading in the debug configuration. 
 */
 SLuint SL::maxThreads()
-{  
-    #ifdef _DEBUG
+{
+#ifdef _DEBUG
     return 1;
-    #else
+#else
     return SL_max(thread::hardware_concurrency(), 1U);
-    #endif
+#endif
 }
 //-----------------------------------------------------------------------------

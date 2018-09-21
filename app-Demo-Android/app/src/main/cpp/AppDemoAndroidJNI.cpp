@@ -160,7 +160,6 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onResize(JNIEnv *env, jobject
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onMouseDown(JNIEnv *env, jobject obj, jint button, jint x, jint y)
 {
-    SL_LOG("mouse_down");
     slMouseDown(svIndex, MB_left, x, y, K_none);
 }
 //-----------------------------------------------------------------------------

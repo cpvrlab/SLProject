@@ -23,6 +23,7 @@
 \n Use SLVec4d for a specific double type vector
 \n Use SLVec4r for a precision independent real type.
 */
+// clang-format off
 template <class T>
 class SLVec4
 {

@@ -11,8 +11,8 @@
 #ifndef SLINPUTMANAGER_H
 #define SLINPUTMANAGER_H
 
-#include <SLInputEvent.h>
 #include <SLInputDevice.h>
+#include <SLInputEvent.h>
 
 //-----------------------------------------------------------------------------
 //! SLInputManager. manages system input and custom input devices.
@@ -30,17 +30,17 @@ class SLInputManager
     friend class SLInputDevice;
 
     public:
-                            SLInputManager      (){;}
+    SLInputManager() { ; }
 
-            SLbool          pollAndProcessEvents();
-            void            queueEvent          (const SLInputEvent* e);
-            SLVInputDevice& devices             () {return _devices;}
+    SLbool          pollAndProcessEvents();
+    void            queueEvent(const SLInputEvent* e);
+    SLVInputDevice& devices() { return _devices; }
 
     private:
-            SLQInputEvent   _systemEvents;  //!< queue for known system events
-            SLVInputDevice  _devices;       //!< list of activated SLInputDevices
+    SLQInputEvent  _systemEvents; //!< queue for known system events
+    SLVInputDevice _devices;      //!< list of activated SLInputDevices
 
-            SLbool          processQueuedEvents();
+    SLbool processQueuedEvents();
 };
 //-----------------------------------------------------------------------------
 #endif

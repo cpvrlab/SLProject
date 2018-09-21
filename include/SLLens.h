@@ -30,52 +30,52 @@ The eye is too short for its optical power.<br>
 To correct presbyopic (far-sightedness) a converging lens is needed.
 \image html Hypermetropia.png
 */
-class SLLens: public SLRevolver
-{  public:
-                //! Create a lense with given sphere, cylinder, diameter and thickness
-                SLLens          (double sphere,
-                                 double cylinder,
-                                 SLfloat diameter,
-                                 SLfloat thickness,
-                                 SLuint stacks = 32,
-                                 SLuint slices = 32,
-                                 SLstring name = "lens mesh",
-                                 SLMaterial* mat = nullptr);
+class SLLens : public SLRevolver
+{
+    public:
+    //! Create a lense with given sphere, cylinder, diameter and thickness
+    SLLens(double      sphere,
+           double      cylinder,
+           SLfloat     diameter,
+           SLfloat     thickness,
+           SLuint      stacks = 32,
+           SLuint      slices = 32,
+           SLstring    name   = "lens mesh",
+           SLMaterial* mat    = nullptr);
 
-                //! Create a lense with given radius, diameter and thickness
-                SLLens          (SLfloat radiusBot,
-                                 SLfloat radiusTop,
-                                 SLfloat diameter,
-                                 SLfloat thickness,
-                                 SLuint stacks = 32,
-                                 SLuint slices = 32,
-                                 SLstring name = "lens mesh",
-                                 SLMaterial* mat = nullptr);
+    //! Create a lense with given radius, diameter and thickness
+    SLLens(SLfloat     radiusBot,
+           SLfloat     radiusTop,
+           SLfloat     diameter,
+           SLfloat     thickness,
+           SLuint      stacks = 32,
+           SLuint      slices = 32,
+           SLstring    name   = "lens mesh",
+           SLMaterial* mat    = nullptr);
 
-               ~SLLens          () {;}
+    ~SLLens() { ; }
 
     private:
-        void    initLens        (SLfloat diopterBot,
-                                 SLfloat diopterTop,
-                                 SLfloat diameter,
-                                 SLfloat thickness,
-                                 SLuint stacks,
-                                 SLuint slices,
-                                 SLMaterial *mat);
-        void    generateLens    (SLfloat radiusBot, 
-                                 SLfloat radiusTop, 
-                                 SLMaterial* mat);
-        SLfloat generateLensBot (SLfloat radius);
-        SLfloat generateLensTop (SLfloat radius);
-        SLfloat calcSagitta     (SLfloat radius);
-        
-        SLuint  _stacks;        //!< NO. of stacks
-        SLfloat _diameter;      //!< The diameter of the lens
-        SLfloat _thickness;     //!< The space between the primary planes of lens sides
-        SLfloat _radiusBot;     //!< The radius of the bot (front) side of the lens
-        SLfloat _radiusTop;     //!< The radius of the top (back) side of the lens
-        SLbool  _pointOutput;   //!< debug helper
+    void    initLens(SLfloat     diopterBot,
+                     SLfloat     diopterTop,
+                     SLfloat     diameter,
+                     SLfloat     thickness,
+                     SLuint      stacks,
+                     SLuint      slices,
+                     SLMaterial* mat);
+    void    generateLens(SLfloat     radiusBot,
+                         SLfloat     radiusTop,
+                         SLMaterial* mat);
+    SLfloat generateLensBot(SLfloat radius);
+    SLfloat generateLensTop(SLfloat radius);
+    SLfloat calcSagitta(SLfloat radius);
 
+    SLuint  _stacks;      //!< NO. of stacks
+    SLfloat _diameter;    //!< The diameter of the lens
+    SLfloat _thickness;   //!< The space between the primary planes of lens sides
+    SLfloat _radiusBot;   //!< The radius of the bot (front) side of the lens
+    SLfloat _radiusTop;   //!< The radius of the top (back) side of the lens
+    SLbool  _pointOutput; //!< debug helper
 };
 //-----------------------------------------------------------------------------
 #endif //SLLENS_H

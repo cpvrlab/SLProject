@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-Demo-GLFW", "app-Demo-GLFW\app-Demo-GLFW.vcxproj", "{54BE2CB2-A4BB-481D-9C74-AF8E4CD0764D}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -12,6 +12,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib-SLExternal", "lib-SLExternal\lib-SLExternal.vcxproj", "{CCC645D3-B20F-431C-824A-7895D6E404DF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib-SLProject", "lib-SLProject\lib-SLProject.vcxproj", "{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{04550C7E-5276-491F-8BEF-12216F80E73F} = {04550C7E-5276-491F-8BEF-12216F80E73F}
+		{CCC645D3-B20F-431C-824A-7895D6E404DF} = {CCC645D3-B20F-431C-824A-7895D6E404DF}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-NodeManipulationDemo", "app-NodeManipulationDemo\app-NodeManipulationDemo.vcxproj", "{DD67BAF6-BF3D-4A45-A411-C1464F63E9C5}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -243,5 +247,8 @@ Global
 		{37ED35A4-DE24-4ED6-A93D-AFE9792F182B} = {EF8C8461-B558-41D2-BAB7-CA33178E6E87}
 		{0D63243A-A87C-48F6-8822-6FE3C67F2F3A} = {EF8C8461-B558-41D2-BAB7-CA33178E6E87}
 		{0D63243A-A87C-48F6-8822-6DE3B67F2F3A} = {EF8C8461-B558-41D2-BAB7-CA33178E6E87}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5290A6C8-B2E8-4F98-9C56-D472F905C5FD}
 	EndGlobalSection
 EndGlobal

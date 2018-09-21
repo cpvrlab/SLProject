@@ -32,22 +32,22 @@ core tracking implementation.
 class SLCVTrackedChessboard : public SLCVTracked
 {
     public:
-                SLCVTrackedChessboard   (SLNode* node);
-               ~SLCVTrackedChessboard   () {;}
+    SLCVTrackedChessboard(SLNode* node);
+    ~SLCVTrackedChessboard() { ; }
 
-        bool    track                   (SLCVMat imageGray,
-                                         SLCVMat imageRgb,
-                                         SLCVCalibration* calib,
-                                         SLbool drawDetection,
-                                         SLSceneView* sv);
+    bool track(SLCVMat          imageGray,
+               SLCVMat          imageRgb,
+               SLCVCalibration* calib,
+               SLbool           drawDetection,
+               SLSceneView*     sv);
+
     private:
-        SLfloat         _edgeLengthM;   //<! Length of chessboard square in meters
-        SLCVVPoint3f    _boardPoints3D; //<! chessboard corners in world coordinate system
-        SLCVSize        _boardSize;     //<! NO. of inner chessboard corners
-        SLbool          _solved;        //<! Flag if last solvePnP was solved
-        SLCVMat         _rVec;          //<! rotation angle vector from solvePnP
-        SLCVMat         _tVec;          //<! translation vector from solvePnP
-        
+    SLfloat      _edgeLengthM;   //<! Length of chessboard square in meters
+    SLCVVPoint3f _boardPoints3D; //<! chessboard corners in world coordinate system
+    SLCVSize     _boardSize;     //<! NO. of inner chessboard corners
+    SLbool       _solved;        //<! Flag if last solvePnP was solved
+    SLCVMat      _rVec;          //<! rotation angle vector from solvePnP
+    SLCVMat      _tVec;          //<! translation vector from solvePnP
 };
 //-----------------------------------------------------------------------------
 

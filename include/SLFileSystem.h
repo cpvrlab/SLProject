@@ -18,7 +18,6 @@
 class SLFileSystem
 {
 public:
-   
     //! Returns true if a directory exists.
     static SLbool dirExists(SLstring& path);
 
@@ -33,7 +32,7 @@ public:
 
     //! Returns the writable configuration directory
     static SLstring getAppsWritableDir();
-    
+
     //! Returns the working directory
     static SLstring getCurrentWorkingDir();
 
@@ -54,6 +53,3 @@ private:
 };
 //-----------------------------------------------------------------------------
 #endif
-
-
-

@@ -11,9 +11,9 @@
 #ifndef SLSKELETON_H
 #define SLSKELETON_H
 
-#include <SLJoint.h>
-#include <SLAnimation.h>
 #include <SLAnimPlayback.h>
+#include <SLAnimation.h>
+#include <SLJoint.h>
 
 class SLAnimManager;
 class SLSceneView;
@@ -55,50 +55,53 @@ have tracks corresponding to the individual SLJoints in the skeleton.
 */
 class SLSkeleton
 {
-public:
-                        SLSkeleton();
-                       ~SLSkeleton();
+    public:
+    SLSkeleton();
+    ~SLSkeleton();
 
-            SLJoint*    createJoint     (SLuint id);
-            SLJoint*    createJoint     (const SLstring& name, SLuint id);
-        SLAnimation*    createAnimation (const SLstring& name, SLfloat duration);
+    SLJoint*     createJoint(SLuint id);
+    SLJoint*     createJoint(const SLstring& name, SLuint id);
+    SLAnimation* createAnimation(const SLstring& name, SLfloat duration);
 
-            void        loadAnimation   (const SLstring& file);
-            void        addAnimation    (SLAnimation* anim);
-            void        getJointMatrices(SLVMat4f& jointWM);
-            void        reset           ();
+    void loadAnimation(const SLstring& file);
+    void addAnimation(SLAnimation* anim);
+    void getJointMatrices(SLVMat4f& jointWM);
+    void reset();
 
-            // Getters
-    SLAnimPlayback*     animPlayback    (const SLstring& name);
-    SLMAnimation        animations      () {return _animations;}
-            SLint       numAnimations   () const { return (SLint)_animations.size();}
-            SLJoint*    getJoint        (SLuint id);
-            SLJoint*    getJoint        (const SLstring& name);
-            SLint       numJoints       () const {return (SLint)_joints.size();}
-    const   SLVJoint&   joints          () const {return _joints;}
-            SLJoint*    rootJoint       () {return _rootJoint;}
-            SLbool      changed         () const {return _changed;}
-    const   SLVec3f&    minOS           ();
-    const   SLVec3f&    maxOS           ();
+    // Getters
+    SLAnimPlayback* animPlayback(const SLstring& name);
+    SLMAnimation    animations() { return _animations; }
+    SLint           numAnimations() const { return (SLint)_animations.size(); }
+    SLJoint*        getJoint(SLuint id);
+    SLJoint*        getJoint(const SLstring& name);
+    SLint           numJoints() const { return (SLint)_joints.size(); }
+    const SLVJoint& joints() const { return _joints; }
+    SLJoint*        rootJoint() { return _rootJoint; }
+    SLbool          changed() const { return _changed; }
+    const SLVec3f&  minOS();
+    const SLVec3f&  maxOS();
 
-            // Setters
-            void        rootJoint       (SLJoint* joint) {_rootJoint = joint;}
-            void        changed         (SLbool changed) {_changed = changed; _minMaxOutOfDate = true;}
+    // Setters
+    void rootJoint(SLJoint* joint) { _rootJoint = joint; }
+    void changed(SLbool changed)
+    {
+        _changed         = changed;
+        _minMaxOutOfDate = true;
+    }
 
-            SLbool      updateAnimations(SLfloat elapsedTimeSec);
-    
-protected:
-    void                updateMinMax();
+    SLbool updateAnimations(SLfloat elapsedTimeSec);
 
-    SLJoint*            _rootJoint;         //!< pointer to the root joint of skeleton
-    SLVJoint            _joints;            //!< joint vector for fast access and index to joint mapping
-    SLMAnimation        _animations;        //!< map of animations for this skeleton
-    SLMAnimPlayback     _animPlaybacks;     //!< map of animation playbacks for this skeleton
-    SLbool              _changed;           //!< did this skeleton change this frame (attribute for skeleton instance)
-    SLVec3f             _minOS;             //!< min point in os for this skeleton (attribute for skeleton instance)
-    SLVec3f             _maxOS;             //!< max point in os for this skeleton (attribute for skeleton instance)
-    SLbool              _minMaxOutOfDate;   //!< dirty flag aabb rebuild
+    protected:
+    void updateMinMax();
 
+    SLJoint*        _rootJoint;       //!< pointer to the root joint of skeleton
+    SLVJoint        _joints;          //!< joint vector for fast access and index to joint mapping
+    SLMAnimation    _animations;      //!< map of animations for this skeleton
+    SLMAnimPlayback _animPlaybacks;   //!< map of animation playbacks for this skeleton
+    SLbool          _changed;         //!< did this skeleton change this frame (attribute for skeleton instance)
+    SLVec3f         _minOS;           //!< min point in os for this skeleton (attribute for skeleton instance)
+    SLVec3f         _maxOS;           //!< max point in os for this skeleton (attribute for skeleton instance)
+    SLbool          _minMaxOutOfDate; //!< dirty flag aabb rebuild
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLSkeleton*> SLVSkeleton;

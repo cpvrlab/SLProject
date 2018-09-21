@@ -19,29 +19,31 @@
 The SLPolygon node draws a convex polygon with. The normale vector is 
 calculated from the first 3 vertices.
 */
-class SLPolygon: public SLMesh
-{  public:                 
-                        //! ctor for generic convex polygon
-                        SLPolygon(SLVVec3f corner,
-                                  SLstring name = "polygon mesh",
-                                  SLMaterial* mat=nullptr);
-                           
-                        //! ctor for generic convex polygon with texCoords          
-                        SLPolygon(SLVVec3f corners,
-                                  SLVVec2f texcoords,
-                                  SLstring name = "polygon mesh",
-                                  SLMaterial* mat=nullptr);
-                                     
-                        //! ctor for centered rectangle in x-y-plane (N=-z)
-                        SLPolygon(SLfloat  width, 
-                                  SLfloat  height,
-                                  SLstring name,
-                                  SLMaterial* mat=nullptr);
-               
-            void        buildMesh(SLMaterial* mat);
-   protected:
-            SLVVec3f    _corners;   //!< corners in ccw order
-            SLVVec2f    _texCoord;  //!< texture coords for corners
+class SLPolygon : public SLMesh
+{
+    public:
+    //! ctor for generic convex polygon
+    SLPolygon(SLVVec3f    corner,
+              SLstring    name = "polygon mesh",
+              SLMaterial* mat  = nullptr);
+
+    //! ctor for generic convex polygon with texCoords
+    SLPolygon(SLVVec3f    corners,
+              SLVVec2f    texcoords,
+              SLstring    name = "polygon mesh",
+              SLMaterial* mat  = nullptr);
+
+    //! ctor for centered rectangle in x-y-plane (N=-z)
+    SLPolygon(SLfloat     width,
+              SLfloat     height,
+              SLstring    name,
+              SLMaterial* mat = nullptr);
+
+    void buildMesh(SLMaterial* mat);
+
+    protected:
+    SLVVec3f _corners;  //!< corners in ccw order
+    SLVVec2f _texCoord; //!< texture coords for corners
 };
 //-----------------------------------------------------------------------------
 #endif

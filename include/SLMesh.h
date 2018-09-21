@@ -11,10 +11,10 @@
 #ifndef SLMESH_H
 #define SLMESH_H
 
-#include <SLEnums.h>
-#include <SLObject.h>
 #include <SLAABBox.h>
+#include <SLEnums.h>
 #include <SLGLVertexArray.h>
+#include <SLObject.h>
 
 class SLSceneView;
 class SLNode;
@@ -114,94 +114,92 @@ weights for 1-n joints by which it can be influenced. This transform is
 called skinning and is done in CPU in the method transformSkin. The final
 transformed vertices and normals are stored in _finalP and _finalN.
 */
- 
+
 class SLMesh : public SLObject
-{   
-    public:                    
-                                SLMesh          (SLstring name = "Mesh");
-                               ~SLMesh          ();
-               
-    virtual void                init            (SLNode* node);
-    virtual void                draw            (SLSceneView* sv, SLNode* node);
-            void                addStats        (SLNodeStats &stats);
-    virtual void                buildAABB       (SLAABBox &aabb, SLMat4f wmNode);
-            void                updateAccelStruct();
-            SLbool              hit             (SLRay* ray, SLNode* node);
-    virtual void                preShade        (SLRay* ray);
-               
-            void                deleteData      ();
-            void                deleteSelected  (SLNode* node);
-            void                deleteUnused    ();
-    virtual void                calcNormals     ();
-            void                calcTangents    ();
-            void                calcTex3DMatrix (SLNode* node);
-    virtual void                calcMinMax      ();
-            void                calcCenterRad   (SLVec3f& center, SLfloat& radius);
-            SLbool              hitTriangleOS   (SLRay* ray, SLNode* node, SLuint iT);
+{
+    public:
+    SLMesh(SLstring name = "Mesh");
+    ~SLMesh();
 
-            void                transformSkin   ();
+    virtual void init(SLNode* node);
+    virtual void draw(SLSceneView* sv, SLNode* node);
+    void         addStats(SLNodeStats& stats);
+    virtual void buildAABB(SLAABBox& aabb, SLMat4f wmNode);
+    void         updateAccelStruct();
+    SLbool       hit(SLRay* ray, SLNode* node);
+    virtual void preShade(SLRay* ray);
 
-            // Getters
-            SLMaterial*         mat             () const {return _mat;}
-            SLMaterial*         matOut          () const {return _matOut;}
-            SLGLPrimitiveType   primitive       () const {return _primitive;}
-      const SLSkeleton*         skeleton        () const {return _skeleton;}
-            SLuint              numI            () {return (SLuint)(I16.size() ? I16.size() : I32.size());}
-    
+    void         deleteData();
+    void         deleteSelected(SLNode* node);
+    void         deleteUnused();
+    virtual void calcNormals();
+    void         calcTangents();
+    void         calcTex3DMatrix(SLNode* node);
+    virtual void calcMinMax();
+    void         calcCenterRad(SLVec3f& center, SLfloat& radius);
+    SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
 
-            // Setters
-            void                mat             (SLMaterial* m) {_mat = m;}
-            void                matOut          (SLMaterial* m) {_matOut = m;}
-            void                primitive       (SLGLPrimitiveType pt) {_primitive = pt;}
-            void                skeleton        (SLSkeleton* skel) {_skeleton = skel;}
-        
-            // getter for position and normal data for rendering
-            SLVec3f             finalP          (SLuint i) {return _finalP->operator[](i);}
-            SLVec3f             finalN          (SLuint i) {return _finalN->operator[](i);}
+    void transformSkin();
 
-            // temporary software skinning buffers
-            SLVVec3f            skinnedP;       //!< Vector for CPU skinned vertex positions
-            SLVVec3f            skinnedN;       //!< Vector for CPU skinned vertex normals
+    // Getters
+    SLMaterial*       mat() const { return _mat; }
+    SLMaterial*       matOut() const { return _matOut; }
+    SLGLPrimitiveType primitive() const { return _primitive; }
+    const SLSkeleton* skeleton() const { return _skeleton; }
+    SLuint            numI() { return (SLuint)(I16.size() ? I16.size() : I32.size()); }
 
-            SLVVec3f            P;              //!< Vector for vertex positions
-            SLVVec3f            N;              //!< Vector for vertex normals (opt.)
-            SLVVec2f            Tc;             //!< Vector of vertex tex. coords. (opt.)
-            SLVCol4f            C;              //!< Vector of vertex colors (opt.)
-            SLVVec4f            T;              //!< Vector of vertex tangents (opt.)
-            SLVVuchar           Ji;             //!< 2D Vector of per vertex joint ids (opt.)
-            SLVVfloat           Jw;             //!< 2D Vector of per vertex joint weights (opt.)
-            SLVushort           I16;            //!< Vector of vertex indices 16 bit
-            SLVuint             I32;            //!< Vector of vertex indices 32 bit
-            SLVuint             IS32;           //!< Vector of rectangle selected vertex indices 32 bit
-    
-            SLVec3f             minP;           //!< min. vertex in OS
-            SLVec3f             maxP;           //!< max. vertex in OS
-   
+    // Setters
+    void mat(SLMaterial* m) { _mat = m; }
+    void matOut(SLMaterial* m) { _matOut = m; }
+    void primitive(SLGLPrimitiveType pt) { _primitive = pt; }
+    void skeleton(SLSkeleton* skel) { _skeleton = skel; }
+
+    // getter for position and normal data for rendering
+    SLVec3f finalP(SLuint i) { return _finalP->operator[](i); }
+    SLVec3f finalN(SLuint i) { return _finalN->operator[](i); }
+
+    // temporary software skinning buffers
+    SLVVec3f skinnedP; //!< Vector for CPU skinned vertex positions
+    SLVVec3f skinnedN; //!< Vector for CPU skinned vertex normals
+
+    SLVVec3f  P;    //!< Vector for vertex positions
+    SLVVec3f  N;    //!< Vector for vertex normals (opt.)
+    SLVVec2f  Tc;   //!< Vector of vertex tex. coords. (opt.)
+    SLVCol4f  C;    //!< Vector of vertex colors (opt.)
+    SLVVec4f  T;    //!< Vector of vertex tangents (opt.)
+    SLVVuchar Ji;   //!< 2D Vector of per vertex joint ids (opt.)
+    SLVVfloat Jw;   //!< 2D Vector of per vertex joint weights (opt.)
+    SLVushort I16;  //!< Vector of vertex indices 16 bit
+    SLVuint   I32;  //!< Vector of vertex indices 32 bit
+    SLVuint   IS32; //!< Vector of rectangle selected vertex indices 32 bit
+
+    SLVec3f minP; //!< min. vertex in OS
+    SLVec3f maxP; //!< max. vertex in OS
+
     protected:
-            SLGLState*          _stateGL;       //!< Pointer to the global SLGLState instance
-            SLGLPrimitiveType   _primitive;     //!< Primitive type (default triangles)
+    SLGLState*        _stateGL;   //!< Pointer to the global SLGLState instance
+    SLGLPrimitiveType _primitive; //!< Primitive type (default triangles)
 
-            SLMaterial*         _mat;           //!< Pointer to the inside material
-            SLMaterial*         _matOut;        //!< Pointer to the outside material
+    SLMaterial* _mat;    //!< Pointer to the inside material
+    SLMaterial* _matOut; //!< Pointer to the outside material
 
-            SLGLVertexArray     _vao;           //!< OpenGL Vertex Array Object for drawing
-            SLGLVertexArrayExt  _vaoN;          //!< OpenGL VAO for optional normal drawing
-            SLGLVertexArrayExt  _vaoT;          //!< OpenGL VAO for optional tangent drawing
-            SLGLVertexArrayExt  _vaoS;          //!< OpenGL VAO for optional selection drawing
-               
-            SLbool              _isVolume;      //!< Flag for RT if mesh is a closed volume
-            SLAccelStruct*      _accelStruct;           //!< KD-tree or uniform grid
-            SLbool              _accelStructOutOfDate;  //!< flag id accel.struct needs update
+    SLGLVertexArray    _vao;  //!< OpenGL Vertex Array Object for drawing
+    SLGLVertexArrayExt _vaoN; //!< OpenGL VAO for optional normal drawing
+    SLGLVertexArrayExt _vaoT; //!< OpenGL VAO for optional tangent drawing
+    SLGLVertexArrayExt _vaoS; //!< OpenGL VAO for optional selection drawing
 
-            SLSkeleton*         _skeleton;      //!< the skeleton this mesh is bound to
-            SLVMat4f            _jointMatrices; //!< joint matrix vector for this mesh
-            SLVVec3f*           _finalP;        //!< Pointer to final vertex position vector
-            SLVVec3f*           _finalN;        //!< pointer to final vertex normal vector
+    SLbool         _isVolume;             //!< Flag for RT if mesh is a closed volume
+    SLAccelStruct* _accelStruct;          //!< KD-tree or uniform grid
+    SLbool         _accelStructOutOfDate; //!< flag id accel.struct needs update
 
-            void                notifyParentNodesAABBUpdate() const;
+    SLSkeleton* _skeleton;      //!< the skeleton this mesh is bound to
+    SLVMat4f    _jointMatrices; //!< joint matrix vector for this mesh
+    SLVVec3f*   _finalP;        //!< Pointer to final vertex position vector
+    SLVVec3f*   _finalN;        //!< pointer to final vertex normal vector
+
+    void notifyParentNodesAABBUpdate() const;
 };
 //-----------------------------------------------------------------------------
-typedef std::vector<SLMesh*>  SLVMesh;
+typedef std::vector<SLMesh*> SLVMesh;
 //-----------------------------------------------------------------------------
 #endif //SLMESH_H
-

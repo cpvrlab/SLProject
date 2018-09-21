@@ -8,7 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>         // precompiled headers
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 /*
 The OpenCV library version 3.4 or above with extra module must be present.
@@ -23,6 +23,7 @@ for a good top down information.
 using namespace cv;
 using namespace std;
 
+// clang-format off
 //-----------------------------------------------------------------------------
 //! Create an OpenGL 4x4 matrix from an OpenCV translation & rotation vector
 SLMat4f SLCVTracked::createGLMatrix(const SLCVMat& tVec, const SLCVMat& rVec)
@@ -116,4 +117,5 @@ SLMat4f SLCVTracked::calcObjectMatrix(const SLMat4f& cameraObjectMat,
     return cameraObjectMat * objectViewMat;
 }
 //-----------------------------------------------------------------------------
+
 

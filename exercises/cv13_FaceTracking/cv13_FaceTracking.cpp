@@ -5,9 +5,9 @@
 //  Date:      Authumn 2017
 //#############################################################################
 
-#include "opencv2/objdetect.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
+#include "opencv2/objdetect.hpp"
 
 #include <iostream>
 #include <stdio.h>
@@ -15,23 +15,23 @@
 using namespace std;
 using namespace cv;
 
-
 //----------------------------------------------------------------------------
-// Globals    
+// Globals
 // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
-// with: Right Click on Project > Properties > Debugging 
+// with: Right Click on Project > Properties > Debugging
 String face_cascade_name = "../_data/opencv/haarcascades/haarcascade_frontalface_alt.xml";
 String eyes_cascade_name = "../_data/opencv/haarcascades/haarcascade_eye_tree_eyeglasses.xml";
 
 CascadeClassifier face_cascade;
 CascadeClassifier eyes_cascade;
-String window_name = "Capture - Face detection";
+String            window_name = "Capture - Face detection";
 
 //-----------------------------------------------------------------------------
-void detectFaceAndDisplay(Mat frame)
+void
+detectFaceAndDisplay(Mat frame)
 {
     std::vector<Rect> faces;
-    Mat frame_gray;
+    Mat               frame_gray;
 
     cvtColor(frame, frame_gray, COLOR_BGR2GRAY);
     equalizeHist(frame_gray, frame_gray);
@@ -41,14 +41,14 @@ void detectFaceAndDisplay(Mat frame)
                                   faces,
                                   1.1,
                                   2,
-                                  0|CASCADE_SCALE_IMAGE,
+                                  0 | CASCADE_SCALE_IMAGE,
                                   Size(30, 30));
 
-    for(size_t i = 0; i < faces.size(); i++)
+    for (size_t i = 0; i < faces.size(); i++)
     {
         rectangle(frame, faces[i], Scalar(255, 0, 255), 2);
 
-        Mat faceROI = frame_gray(faces[i]);
+        Mat               faceROI = frame_gray(faces[i]);
         std::vector<Rect> eyes;
 
         // In each face, detect eyes
@@ -56,10 +56,10 @@ void detectFaceAndDisplay(Mat frame)
                                       eyes,
                                       1.1,
                                       2,
-                                      0|CASCADE_SCALE_IMAGE,
+                                      0 | CASCADE_SCALE_IMAGE,
                                       Size(30, 30));
 
-        for( size_t j = 0; j < eyes.size(); j++ )
+        for (size_t j = 0; j < eyes.size(); j++)
         {
             eyes[j].x += faces[i].x;
             eyes[j].y += faces[i].y;
@@ -71,32 +71,37 @@ void detectFaceAndDisplay(Mat frame)
 }
 
 //-----------------------------------------------------------------------------
-int main()
+int
+main()
 {
     VideoCapture capture;
-    Mat frame;
+    Mat          frame;
 
     //1. Load the cascades
-    if(!face_cascade.load(face_cascade_name))
-    {   printf("Error loading face cascade\n");
+    if (!face_cascade.load(face_cascade_name))
+    {
+        printf("Error loading face cascade\n");
         return -1;
     };
-    if(!eyes_cascade.load(eyes_cascade_name))
-    {   printf("Error loading eyes cascade\n");
+    if (!eyes_cascade.load(eyes_cascade_name))
+    {
+        printf("Error loading eyes cascade\n");
         return -1;
     };
 
     //2. Read the video stream
     capture.open(0);
     if (!capture.isOpened())
-    {   printf("Error opening video capture\n");
+    {
+        printf("Error opening video capture\n");
         return -1;
     }
 
     while (capture.read(frame))
     {
-        if(frame.empty())
-        {   printf("No captured frame -- Break!");
+        if (frame.empty())
+        {
+            printf("No captured frame -- Break!");
             break;
         }
 

@@ -11,8 +11,8 @@
 #ifndef SLLIGHTDIRECT_H
 #define SLLIGHTDIRECT_H
 
-#include <SLNode.h>
 #include <SLLight.h>
+#include <SLNode.h>
 #include <SLSamples2D.h>
 
 class SLSceneView;
@@ -38,48 +38,54 @@ following shaders: \n
   - PerPixBlinnTex.vert, PerPixBlinnTex.frag \n
 
 */
-class SLLightDirect: public SLNode, public SLLight
-{  public:
-                        SLLightDirect  (SLfloat arrowLength = 0.5f, 
-                                        SLbool  hasMesh = true);
-                        SLLightDirect  (SLfloat posx, 
-                                        SLfloat posy, 
-                                        SLfloat posz,
-                                        SLfloat arrowLength = 0.5f, 
-                                        SLfloat ambiPower = 1.0f,
-                                        SLfloat diffPower = 10.0f,
-                                        SLfloat specPower = 10.0f, 
-                                        SLbool  hasMesh = true);
-                       ~SLLightDirect  (){;}
+class SLLightDirect
+  : public SLNode
+  , public SLLight
+{
+    public:
+    SLLightDirect(SLfloat arrowLength = 0.5f,
+                  SLbool  hasMesh     = true);
+    SLLightDirect(SLfloat posx,
+                  SLfloat posy,
+                  SLfloat posz,
+                  SLfloat arrowLength = 0.5f,
+                  SLfloat ambiPower   = 1.0f,
+                  SLfloat diffPower   = 10.0f,
+                  SLfloat specPower   = 10.0f,
+                  SLbool  hasMesh     = true);
+    ~SLLightDirect() { ; }
 
-            void        init           ();
-            bool        hitRec         (SLRay* ray);
-            void        statsRec       (SLNodeStats &stats);
-            void        drawMeshes     (SLSceneView* sv);
-            
-            void        setState       ();
-            SLfloat     shadowTest     (SLRay* ray,   
-                                        const SLVec3f& L, 
-                                        const SLfloat lightDist);
-            SLfloat     shadowTestMC   (SLRay* ray,
-                                        const SLVec3f& L,
-                                        const SLfloat lightDist);
-            
-            // Getters
-            SLfloat     radius         () {return _arrowRadius;}
-            SLfloat     dirLength      () {return _arrowLength;}
-            
-            // For directional lights the position vector is interpreted as a
-            // direction with the homogeneous component equls zero:
-            SLVec4f     positionWS     () {SLVec4f pos(updateAndGetWM().translation());
-                                           pos.w = 0.0f;
-                                           return pos;}
+    void init();
+    bool hitRec(SLRay* ray);
+    void statsRec(SLNodeStats& stats);
+    void drawMeshes(SLSceneView* sv);
 
-            SLVec3f     spotDirWS      () {return forwardOS();}
+    void    setState();
+    SLfloat shadowTest(SLRay*         ray,
+                       const SLVec3f& L,
+                       const SLfloat  lightDist);
+    SLfloat shadowTestMC(SLRay*         ray,
+                         const SLVec3f& L,
+                         const SLfloat  lightDist);
 
-   private:
-            SLfloat     _arrowRadius;   //!< The sphere lights radius
-            SLfloat     _arrowLength;   //!< Length of direction line
+    // Getters
+    SLfloat radius() { return _arrowRadius; }
+    SLfloat dirLength() { return _arrowLength; }
+
+    // For directional lights the position vector is interpreted as a
+    // direction with the homogeneous component equls zero:
+    SLVec4f positionWS()
+    {
+        SLVec4f pos(updateAndGetWM().translation());
+        pos.w = 0.0f;
+        return pos;
+    }
+
+    SLVec3f spotDirWS() { return forwardOS(); }
+
+    private:
+    SLfloat _arrowRadius; //!< The sphere lights radius
+    SLfloat _arrowLength; //!< Length of direction line
 };
 //-----------------------------------------------------------------------------
 #endif

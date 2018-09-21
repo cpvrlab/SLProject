@@ -8,10 +8,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
+
 #include <SLJoint.h>
 #include <SLSkeleton.h>
 
@@ -19,17 +21,19 @@
 /*! Constructor
 */
 SLJoint::SLJoint(SLuint id, SLSkeleton* creator)
-: SLNode("Unnamed Joint"), _id(id), _skeleton(creator),  _radius(0)
-{ }
-
+  : SLNode("Unnamed Joint"),
+    _id(id),
+    _skeleton(creator),
+    _radius(0)
+{
+}
 //-----------------------------------------------------------------------------
 /*! Constructor
 */
 SLJoint::SLJoint(const SLstring& name, SLuint id, SLSkeleton* creator)
-: SLNode(name), _id(id), _skeleton(creator), _radius(0)
-{ }
-
-
+  : SLNode(name), _id(id), _skeleton(creator), _radius(0)
+{
+}
 //-----------------------------------------------------------------------------
 /*! Creation function to create a new child joint for this joint.
 */
@@ -39,7 +43,6 @@ SLJoint* SLJoint::createChild(SLuint id)
     addChild(joint);
     return joint;
 }
-
 //-----------------------------------------------------------------------------
 /*! Creation function to create a new child joint for this joint.
 */
@@ -49,16 +52,14 @@ SLJoint* SLJoint::createChild(const SLstring& name, SLuint id)
     addChild(joint);
     return joint;
 }
-
 //-----------------------------------------------------------------------------
 /*! Updates the current max radius with the input vertex position in joint space.
 */
 void SLJoint::calcMaxRadius(const SLVec3f& vec)
 {
     SLVec3f boneSpaceVec = _offsetMat * vec;
-    _radius = max(_radius, boneSpaceVec.length());
+    _radius              = max(_radius, boneSpaceVec.length());
 }
-
 //-----------------------------------------------------------------------------
 /*! Getter that calculates the final joint transform matrix.
 */
@@ -66,9 +67,6 @@ SLMat4f SLJoint::calcFinalMat()
 {
     return updateAndGetWM() * _offsetMat;
 }
-//-----------------------------------------------------------------------------
-
-
 //-----------------------------------------------------------------------------
 /*! Getter that calculates the final joint transform matrix.
 */

@@ -8,9 +8,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
 #include <SLAnimTrack.h>
 #include <SLAnimation.h>
@@ -21,15 +22,17 @@
 /*! Constructor
 */
 SLAnimTrack::SLAnimTrack(SLAnimation* animation)
-            :_animation(animation)
-{ }
+  : _animation(animation)
+{
+}
 
 //-----------------------------------------------------------------------------
 /*! Destructor
 */
 SLAnimTrack::~SLAnimTrack()
 {
-    for (auto kf : _keyframes) delete kf;
+    for (auto kf : _keyframes)
+        delete kf;
 }
 
 //-----------------------------------------------------------------------------
@@ -62,24 +65,25 @@ SLKeyframe* SLAnimTrack::keyframe(SLint index)
     then the k2 result will be the first keyframe in the list.
     If only one keyframe exists the two values will be equivalent.
 */
-SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat time,
+SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat      time,
                                         SLKeyframe** k1,
                                         SLKeyframe** k2) const
 {
     SLfloat t1, t2;
-    SLuint numKf = (SLuint)_keyframes.size();
-    float animationLength = _animation->lengthSec();
+    SLuint  numKf           = (SLuint)_keyframes.size();
+    float   animationLength = _animation->lengthSec();
 
     assert(animationLength > 0.0f && "Animation length is invalid.");
 
     *k1 = *k2 = nullptr;
-        
+
     // no keyframes or only one keyframe in animation, early out
     if (numKf == 0)
         return 0.0f;
 
     if (numKf < 2)
-    {   *k1 = *k2 = _keyframes[0];
+    {
+        *k1 = *k2 = _keyframes[0];
         return 0.0f;
     }
 
@@ -90,7 +94,7 @@ SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat time,
     // @todo is it really required of us to check if time is < 0.0f here? Or should this be done higher up?
     while (time < 0.0f)
         time += animationLength;
-        
+
     // search lower bound kf for given time
     // kf list must be sorted by time at this point
     // @todo we could use std::lower_bounds here
@@ -109,66 +113,73 @@ SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat time,
         SLKeyframe* cur = _keyframes[i];
 
         if (cur->time() <= time)
-        {   *k1 = cur;
+        {
+            *k1     = cur;
             kfIndex = i;
         }
     }
 
     // time is than first kf
-    if (*k1 == nullptr) 
-    {   *k1 = _keyframes.back();
+    if (*k1 == nullptr)
+    {
+        *k1 = _keyframes.back();
         // as long as k1 is in the back
     }
 
     t1 = (*k1)->time();
 
     if (*k1 == _keyframes.back())
-    {   *k2 = _keyframes.front();
-        t2 = animationLength + (*k2)->time();
-    } else
-    {   *k2 = _keyframes[kfIndex+1];
-        t2 = (*k2)->time();
+    {
+        *k2 = _keyframes.front();
+        t2  = animationLength + (*k2)->time();
+    }
+    else
+    {
+        *k2 = _keyframes[kfIndex + 1];
+        t2  = (*k2)->time();
     }
 
-    
-    if (SL_abs(t1-t2) < 0.0001f)
+    if (SL_abs(t1 - t2) < 0.0001f)
         return 0.0f;
 
-    /// @todo   do we want to consider the edge case below or do we want imported animations to have
-    ///         to have a keyframe at 0.0 time?
+    /// @todo   do we want to consider the edge case below or do we want
+    ///         imported animations to have to have a keyframe at 0.0 time?
     ///         Is there a better solution for this problem?
-    ///         e.x: the astroboy animation looks wrong when doing this (but thats because it is **** and kf0 and kfn dont match up...
+    ///         e.x: the astroboy animation looks wrong when doing this
+    ///         (but thats because it is **** and kf0 and kfn dont match up...
     //
-    // if an animation doesn't have a keyframe at 0.0 and 
+    // if an animation doesn't have a keyframe at 0.0 and
     // k1 is the last keyframe and k2 is the first keyframe
     // and the current timestamp is just above zero in the timeline
-    // 
+    //
     // like this:
     //   0.0                                animationLenth
     //    |-.--*----------*----*------*------|~~~~*
     //      ^  ^                      ^           ^
-    //      |  t2                     t1          t2' // t2' is where we put the t2 value if its a wrap around!
-    //     time 
+    //      |  t2                     t1          t2'
+    //
+    //     t2' is where we put the t2 value if its a wrap around!
+    //     time
     // then the calculation below wont work because time < t1.
     //
     //
     if (time < t1)
         time += animationLength;
-        
+
     return (time - t1) / (t2 - t1);
 }
-
 
 //-----------------------------------------------------------------------------
 /*! Constructor for specialized NodeAnimationTrack
 */
 SLNodeAnimTrack::SLNodeAnimTrack(SLAnimation* animation)
-                     :SLAnimTrack(animation),
-                      _animatedNode(nullptr),
-                      _interpolationCurve(nullptr),
-                      _translationInterpolation(AI_linear),
-                      _rebuildInterpolationCurve(true)
-{ }
+  : SLAnimTrack(animation),
+    _animatedNode(nullptr),
+    _interpolationCurve(nullptr),
+    _translationInterpolation(AI_linear),
+    _rebuildInterpolationCurve(true)
+{
+}
 
 //-----------------------------------------------------------------------------
 /*! Destructor
@@ -190,34 +201,34 @@ SLTransformKeyframe* SLNodeAnimTrack::createNodeKeyframe(SLfloat time)
 //-----------------------------------------------------------------------------
 /*! Calculates a new keyframe based on the input time and interpolation functions.
 */
-void SLNodeAnimTrack::calcInterpolatedKeyframe(SLfloat time,
+void SLNodeAnimTrack::calcInterpolatedKeyframe(SLfloat     time,
                                                SLKeyframe* keyframe) const
 {
     SLKeyframe* k1;
     SLKeyframe* k2;
 
     SLfloat t = getKeyframesAtTime(time, &k1, &k2);
-    
+
     if (k1 == nullptr)
         return;
 
     SLTransformKeyframe* kfOut = static_cast<SLTransformKeyframe*>(keyframe);
     SLTransformKeyframe* kf1   = static_cast<SLTransformKeyframe*>(k1);
     SLTransformKeyframe* kf2   = static_cast<SLTransformKeyframe*>(k2);
-    
 
     SLVec3f base = kf1->translation();
     SLVec3f translation;
     if (_translationInterpolation == AI_linear)
-        translation = base + (kf2->translation() - base) * t; 
+        translation = base + (kf2->translation() - base) * t;
     else
-    {   if (_rebuildInterpolationCurve)
+    {
+        if (_rebuildInterpolationCurve)
             buildInterpolationCurve();
         translation = _interpolationCurve->evaluate(time);
     }
 
     kfOut->translation(translation);
-    
+
     SLQuat4f rotation;
     rotation = kf1->rotation().slerp(kf2->rotation(), t); // @todo provide a 2 parameter implementation for lerp, slerp etc.
     kfOut->rotation(rotation);
@@ -260,7 +271,7 @@ void SLNodeAnimTrack::applyToNode(SLNode* node,
     SLQuat4f rotation = SLQuat4f().slerp(kf.rotation(), weight);
     node->rotate(rotation, TS_parent);
 
-    // @todo find a good way to combine scale animations, 
+    // @todo find a good way to combine scale animations,
     // we can't just scale them by a weight factor...
     SLVec3f scl = kf.scale();
     node->scale(scl);
@@ -271,9 +282,9 @@ void SLNodeAnimTrack::drawVisuals(SLSceneView* sv)
 {
     if (_animatedNode && _interpolationCurve &&
         (sv->drawBit(SL_DB_AXIS) || _animatedNode->drawBit(SL_DB_AXIS)))
-    {   
+    {
         // Move the animation curve to the initial WM position of the node
-        SLMat4f parentWM = _animatedNode->parent()->updateAndGetWM();
+        SLMat4f parentWM  = _animatedNode->parent()->updateAndGetWM();
         SLMat4f initialOM = _animatedNode->initialOM();
         _interpolationCurve->draw(parentWM * initialOM);
     }
@@ -288,10 +299,12 @@ void SLNodeAnimTrack::buildInterpolationCurve() const
         if (_interpolationCurve) delete _interpolationCurve;
 
         // Build curve data w. cumulated times
-        SLVVec4f points; points.resize((SLuint)numKeyframes());
+        SLVVec4f points;
+        points.resize((SLuint)numKeyframes());
         //SLfloat  curTime = 0;
-        for (SLuint i=0; i<(SLuint)numKeyframes(); ++i)
-        {   SLVec3f t = ((SLTransformKeyframe*)_keyframes[i])->translation();
+        for (SLuint i = 0; i < (SLuint)numKeyframes(); ++i)
+        {
+            SLVec3f t = ((SLTransformKeyframe*)_keyframes[i])->translation();
             points[i].set(t.x, t.y, t.z, _keyframes[i]->time());
         }
 
@@ -307,7 +320,7 @@ SLKeyframe* SLNodeAnimTrack::createKeyframeImpl(SLfloat time)
 {
     return new SLTransformKeyframe(this, time);
 }
-    
+
 //-----------------------------------------------------------------------------
 /*! setter for the interpolation curve
 */
@@ -316,7 +329,7 @@ void SLNodeAnimTrack::interpolationCurve(SLCurve* curve)
     if (_interpolationCurve)
         delete _interpolationCurve;
 
-    _interpolationCurve = curve;
+    _interpolationCurve        = curve;
     _rebuildInterpolationCurve = false;
 }
 //-----------------------------------------------------------------------------

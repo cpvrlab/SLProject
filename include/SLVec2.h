@@ -21,6 +21,7 @@
 \n Use SLVec2d for a specific double type vector
 \n Use SLVec2r for a precision independent real type.
 */
+// clang-format off
 template<class T> 
 class SLVec2
 {

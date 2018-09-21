@@ -19,30 +19,36 @@
 The SLRectangle node draws a rectangle with a minimal and a maximal corner in 
 the x-y-plane. The normale is [0,0,1].
 */
-class SLRectangle: public SLMesh
-{  public:                 
-                        //! ctor for rectangle w. min & max corner
-                        SLRectangle(SLVec2f min, SLVec2f max,
-                                    SLuint resX, SLuint resY,
-                                    SLstring name = "rectangle mesh",
-                                    SLMaterial* mat=nullptr);
+class SLRectangle : public SLMesh
+{
+    public:
+    //! ctor for rectangle w. min & max corner
+    SLRectangle(SLVec2f     min,
+                SLVec2f     max,
+                SLuint      resX,
+                SLuint      resY,
+                SLstring    name = "rectangle mesh",
+                SLMaterial* mat  = nullptr);
 
-                        //! ctor for rectangle w. min & max corner & texCoord
-                        SLRectangle(SLVec2f min, SLVec2f max,
-                                    SLVec2f tmin, SLVec2f tmax,
-                                    SLuint resX, SLuint resY,
-                                    SLstring name = "rectangle mesh",
-                                    SLMaterial* mat=nullptr);
-               
-            void        buildMesh(SLMaterial* mat);
-               
-   protected:
-            SLVec3f    _min;     //!< min corner
-            SLVec3f    _max;     //!< max corner
-            SLVec2f    _tmin;    //!< min corner texCoord
-            SLVec2f    _tmax;    //!< max corner texCoord
-            SLuint     _resX;    //!< resolution in x direction
-            SLuint     _resY;    //!< resolution in y direction
+    //! ctor for rectangle w. min & max corner & texCoord
+    SLRectangle(SLVec2f     min,
+                SLVec2f     max,
+                SLVec2f     tmin,
+                SLVec2f     tmax,
+                SLuint      resX,
+                SLuint      resY,
+                SLstring    name = "rectangle mesh",
+                SLMaterial* mat  = nullptr);
+
+    void buildMesh(SLMaterial* mat);
+
+    protected:
+    SLVec3f _min;  //!< min corner
+    SLVec3f _max;  //!< max corner
+    SLVec2f _tmin; //!< min corner texCoord
+    SLVec2f _tmax; //!< max corner texCoord
+    SLuint  _resX; //!< resolution in x direction
+    SLuint  _resY; //!< resolution in y direction
 };
 //-----------------------------------------------------------------------------
 #endif

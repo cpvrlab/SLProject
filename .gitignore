@@ -59,5 +59,7 @@ GenerateHTMLDoc.log
 *.project
 .settings
 .vs
+.idea
+gitcommit.h
 
 app-Demo-Android/build.gradle

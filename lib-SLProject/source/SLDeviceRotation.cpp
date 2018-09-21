@@ -8,9 +8,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>         // precompiled headers
-#ifdef SL_MEMLEAKDETECT     // set in SL.h for debug config only
-#include <debug_new.h>      // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
 
 #include <SLDeviceRotation.h>
@@ -19,13 +20,13 @@
 void SLDeviceRotation::init()
 {
     _rotation.identity();
-    _pitchRAD = 0.0f;
-    _yawRAD = 0.0f;
-    _rollRAD = 0.0f;
-    _zeroYawAtStart = true;
-    _startYawRAD = 0.0f;
+    _pitchRAD           = 0.0f;
+    _yawRAD             = 0.0f;
+    _rollRAD            = 0.0f;
+    _zeroYawAtStart     = true;
+    _startYawRAD        = 0.0f;
     _isFirstSensorValue = false;
-    _isUsed = false;
+    _isUsed             = false;
 }
 //-----------------------------------------------------------------------------
 /*! onRotationQUAT: Event handler for rotation change of a mobile device from a
@@ -49,7 +50,6 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
     SLQuat4f quat(quatX, quatY, quatZ, quatW);
     _rotation = quat.toMat3();
     quat.toEulerAnglesXYZ(_rollRAD, _pitchRAD, _yawRAD);
-
 
     //_rotation.print("Rotation:\n");
 
@@ -107,16 +107,16 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
         if (_isFirstSensorValue)
         {
             //store initial rotation in yaw for referencing of initial alignment
-            _startYawRAD = _yawRAD;
+            _startYawRAD        = _yawRAD;
             _isFirstSensorValue = false;
         }
     }
 }
 //-----------------------------------------------------------------------------
 //! Setter that turns on the device rotation sensor
-void SLDeviceRotation::isUsed (SLbool use)
+void SLDeviceRotation::isUsed(SLbool use)
 {
-    if (!_isUsed && use==true)
+    if (!_isUsed && use == true)
         _isFirstSensorValue = true;
 
     _isUsed = use;

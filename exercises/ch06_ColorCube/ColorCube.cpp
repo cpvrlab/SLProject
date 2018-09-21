@@ -9,7 +9,8 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
-#include <stdafx.h>     // Precompiled Headers
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
 #include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
 #include <SL.h>         // Basic SL type definitions
 #include <SLVec3.h>     // 3D vector class

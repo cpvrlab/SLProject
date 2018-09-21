@@ -9,60 +9,12 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "lib-SLProject/source/SLMesh.cpp"
-            timestampString = "557325460.906237"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "423"
-            endingLineNumber = "423"
-            landmarkName = "SLMesh::draw(SLSceneView* sv, SLNode* node)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "lib-SLProject/source/SLMesh.cpp"
-            timestampString = "557325460.906304"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "185"
-            endingLineNumber = "185"
-            landmarkName = "SLMesh::deleteUnused()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "lib-SLProject/source/SLMesh.cpp"
-            timestampString = "557325460.906353"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "206"
-            endingLineNumber = "206"
-            landmarkName = "SLMesh::deleteUnused()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "app-Demo-GLFW/source/AppDemoGui.cpp"
-            timestampString = "557665020.68856"
+            timestampString = "558960497.1787519"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "798"
-            endingLineNumber = "798"
+            startingLineNumber = "801"
+            endingLineNumber = "801"
             landmarkName = "AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)"
             landmarkType = "7">
          </BreakpointContent>
@@ -74,12 +26,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "lib-SLProject/source/SLSceneView.cpp"
-            timestampString = "557667859.861101"
+            timestampString = "558277695.006193"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1228"
             endingLineNumber = "1228"
-            landmarkName = "SLSceneView::onKeyPress(SLKey key, SLKey mod)"
+            landmarkName = "SLSceneView::onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -90,12 +42,76 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "lib-SLProject/source/SLSceneView.cpp"
-            timestampString = "557667859.861398"
+            timestampString = "558277695.006247"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "948"
             endingLineNumber = "948"
-            landmarkName = "SLSceneView::onMouseDown(SLMouseButton button, SLint x, SLint y, SLKey mod)"
+            landmarkName = "unknown"
+            landmarkType = "0">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../opencv_contrib/modules/aruco/src/aruco.cpp"
+            timestampString = "558284508.253195"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1538"
+            endingLineNumber = "1538"
+            landmarkName = "refineDetectedMarkers(InputArray _image, const Ptr&lt;Board&gt; &amp;_board, InputOutputArrayOfArrays _detectedCorners, InputOutputArray _detectedIds, InputOutputArrayOfArrays _rejectedCorners, InputArray _cameraMatrix, InputArray _distCoeffs, float minRepDistance, float errorCorrectionRate, bool checkAllOrders, OutputArray _recoveredIdxs, const Ptr&lt;DetectorParameters&gt; &amp;_params)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "lib-SLProject/source/CV/SLCVCapture.cpp"
+            timestampString = "558286674.930865"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "285"
+            endingLineNumber = "285"
+            landmarkName = "SLCVCapture::loadIntoLastFrame(const SLint width, const SLint height, const SLPixelFormat format, const SLuchar* data, const SLbool isContinuous)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "lib-SLProject/source/CV/SLCVCapture.cpp"
+            timestampString = "558286674.9309191"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "299"
+            endingLineNumber = "299"
+            landmarkName = "SLCVCapture::loadIntoLastFrame(const SLint width, const SLint height, const SLPixelFormat format, const SLuchar* data, const SLbool isContinuous)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "app-Demo-GLFW/source/AppDemoGui.cpp"
+            timestampString = "558960497.179203"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "695"
+            endingLineNumber = "695"
+            landmarkName = "AppDemoGui::build(SLScene* s, SLSceneView* sv)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

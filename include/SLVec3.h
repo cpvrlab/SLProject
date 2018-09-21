@@ -12,6 +12,7 @@
 #define SLVEC3_H
 
 #include <SL.h>
+#include <SLUtils.h>
 #include <SLVec2.h>
 
 //-----------------------------------------------------------------------------
@@ -22,7 +23,7 @@
 \n Use SLVec3d for a specific double type vector
 \n Use SLVec3r for a precision independent real type.
 */
-
+// clang-format off
 template<class T> 
 class SLVec3
 {

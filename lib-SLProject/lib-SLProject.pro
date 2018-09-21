@@ -236,7 +236,6 @@ source/SLTransferFunction.cpp \
 OTHER_FILES += \
 ../_data/shaders/*.vert \
 ../_data/shaders/*.frag \
-ToDo.txt \
 
 DISTFILES += \
 Doxyfile \

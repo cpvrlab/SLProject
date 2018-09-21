@@ -31,28 +31,29 @@ given time between two neighboring SLKeyframe.
 */
 class SLAnimTrack
 {
-public:
-                        SLAnimTrack             (SLAnimation* parent);
-    virtual            ~SLAnimTrack             ();
+    public:
+    SLAnimTrack(SLAnimation* parent);
+    virtual ~SLAnimTrack();
 
-            SLKeyframe* createKeyframe          (SLfloat time);   // create and add a new keyframe
-            SLfloat     getKeyframesAtTime      (SLfloat time,
-                                                 SLKeyframe** k1,
-                                                 SLKeyframe** k2) const;
-    virtual void        calcInterpolatedKeyframe(SLfloat time,
-                                                 SLKeyframe* keyframe) const = 0; // we need a way to get an output value for a time we put in
-    virtual void        apply                   (SLfloat time,
-                                                 SLfloat weight = 1.0f,
-                                                 SLfloat scale = 1.0f) = 0;
-    virtual void        drawVisuals             (SLSceneView* sv) = 0;
-            SLint       numKeyframes            () const { return (SLint)_keyframes.size(); }
-            SLKeyframe* keyframe                (SLint index);
-protected:
+    SLKeyframe*  createKeyframe(SLfloat time); // create and add a new keyframe
+    SLfloat      getKeyframesAtTime(SLfloat      time,
+                                    SLKeyframe** k1,
+                                    SLKeyframe** k2) const;
+    virtual void calcInterpolatedKeyframe(SLfloat     time,
+                                          SLKeyframe* keyframe) const = 0; // we need a way to get an output value for a time we put in
+    virtual void apply(SLfloat time,
+                       SLfloat weight = 1.0f,
+                       SLfloat scale  = 1.0f)                          = 0;
+    virtual void drawVisuals(SLSceneView* sv)                         = 0;
+    SLint        numKeyframes() const { return (SLint)_keyframes.size(); }
+    SLKeyframe*  keyframe(SLint index);
+
+    protected:
     /// Keyframe creator function for derived implementations
-    virtual SLKeyframe* createKeyframeImpl      (SLfloat time) = 0;
-    
-    SLAnimation*        _animation;     //!< parent animation that created this track
-    SLVKeyframe         _keyframes;     //!< keyframe list for this track
+    virtual SLKeyframe* createKeyframeImpl(SLfloat time) = 0;
+
+    SLAnimation* _animation; //!< parent animation that created this track
+    SLVKeyframe  _keyframes; //!< keyframe list for this track
 };
 
 //-----------------------------------------------------------------------------
@@ -64,26 +65,26 @@ protected:
 */
 class SLNodeAnimTrack : public SLAnimTrack
 {
-public:
-                        SLNodeAnimTrack         (SLAnimation* parent);
-    virtual            ~SLNodeAnimTrack         ();
+    public:
+    SLNodeAnimTrack(SLAnimation* parent);
+    virtual ~SLNodeAnimTrack();
 
-   SLTransformKeyframe* createNodeKeyframe      (SLfloat time);
-    
-            void        animatedNode            (SLNode* target) { _animatedNode = target; }
-            SLNode*     animatedNode            () { return _animatedNode; }
+    SLTransformKeyframe* createNodeKeyframe(SLfloat time);
 
-    virtual void        calcInterpolatedKeyframe(SLfloat time, SLKeyframe* keyframe) const;
-    virtual void        apply                   (SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
-    virtual void        applyToNode             (SLNode* node, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
-    virtual void        drawVisuals             (SLSceneView* sv);
-    
-            void        interpolationCurve      (SLCurve* curve);
-            void        translationInterpolation(SLAnimInterpolation interp) { _translationInterpolation = interp; }
+    void    animatedNode(SLNode* target) { _animatedNode = target; }
+    SLNode* animatedNode() { return _animatedNode; }
 
-protected:       
-    void                buildInterpolationCurve () const;
-    virtual SLKeyframe* createKeyframeImpl      (SLfloat time);
+    virtual void calcInterpolatedKeyframe(SLfloat time, SLKeyframe* keyframe) const;
+    virtual void apply(SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
+    virtual void applyToNode(SLNode* node, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
+    virtual void drawVisuals(SLSceneView* sv);
+
+    void interpolationCurve(SLCurve* curve);
+    void translationInterpolation(SLAnimInterpolation interp) { _translationInterpolation = interp; }
+
+    protected:
+    void                buildInterpolationCurve() const;
+    virtual SLKeyframe* createKeyframeImpl(SLfloat time);
 
     SLNode*             _animatedNode;              //!< the target node for this track_nodeID
     mutable SLCurve*    _interpolationCurve;        //!< the translation interpolation curve
@@ -94,11 +95,3 @@ protected:
 typedef std::map<SLuint, SLNodeAnimTrack*> SLMNodeAnimTrack;
 //-----------------------------------------------------------------------------
 #endif
-
-
-
-
-
-
-
-

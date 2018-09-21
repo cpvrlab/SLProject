@@ -9765,6 +9765,8 @@ bool ImGui::BeginMenu(const char* label, bool enabled)
             want_open = true;
         }
     }
+    
+    //printf("pressed:%d, hovered:%d, menu_is_open:%d\n", pressed?1:0, hovered?1:0, menu_is_open?1:0);
 
     if (!enabled) // explicitly close if an open menu becomes disabled, facilitate users code a lot in pattern such as 'if (BeginMenu("options", has_object)) { ..use object.. }'
         want_close = true;

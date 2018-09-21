@@ -8,13 +8,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-
 #ifndef SLINPUTEVENT_H
 #define SLINPUTEVENT_H
 
-#include <queue>
 #include <SL.h>
 #include <SLEnums.h>
+#include <queue>
 
 //-----------------------------------------------------------------------------
 //! Baseclass for all system input events.
@@ -25,9 +24,10 @@ system relevant input events.
 */
 class SLInputEvent
 {
-public:
+    public:
     enum Type
-    {   MouseMove,
+    {
+        MouseMove,
         MouseDown,
         MouseUp,
         MouseDoubleClick,
@@ -43,68 +43,68 @@ public:
         DeviceRotationQUAT,
         CharInput,
         NumEvents
-    } type;         //!< concrete type of the event
-    SLint svIndex;  //!< index of the receiving scene view for this event
+    } type;        //!< concrete type of the event
+    SLint svIndex; //!< index of the receiving scene view for this event
 
-	SLInputEvent(Type t) : type(t) { }
+    SLInputEvent(Type t) : type(t) {}
 };
 
 //-----------------------------------------------------------------------------
 //! Specialized SLInput class for all mouse related input events.
 class SLMouseEvent : public SLInputEvent
 {
-public:
-    SLint x;
-    SLint y;
+    public:
+    SLint         x;
+    SLint         y;
     SLMouseButton button;
-    SLKey modifier;
+    SLKey         modifier;
 
-    SLMouseEvent(Type t) : SLInputEvent(t) { }
+    SLMouseEvent(Type t) : SLInputEvent(t) {}
 };
 
 //-----------------------------------------------------------------------------
 //! Specialized SLInput class for all keypress related input events.
 class SLKeyEvent : public SLInputEvent
 {
-public:
+    public:
     SLKey key;
     SLKey modifier;
 
-    SLKeyEvent(Type t) : SLInputEvent(t) { }
+    SLKeyEvent(Type t) : SLInputEvent(t) {}
 };
 
 //-----------------------------------------------------------------------------
 //! Specialized SLInput class for touch related input events.
 class SLTouchEvent : public SLInputEvent
 {
-public:
+    public:
     SLint x1;
     SLint y1;
     SLint x2;
     SLint y2;
 
-    SLTouchEvent(Type t) : SLInputEvent(t) { }
+    SLTouchEvent(Type t) : SLInputEvent(t) {}
 };
 
 //-----------------------------------------------------------------------------
 //! Specialized SLInput class for all device rotation related input events.
 class SLRotationEvent : public SLInputEvent
 {
-public:
+    public:
     float x, y, z, w;
 
-    SLRotationEvent(Type t) : SLInputEvent(t) { }
+    SLRotationEvent(Type t) : SLInputEvent(t) {}
 };
 
 //-----------------------------------------------------------------------------
 //! Specialized SLInput class for window resize events.
 class SLResizeEvent : public SLInputEvent
 {
-public:
+    public:
     int width;
     int height;
-    
-    SLResizeEvent() : SLInputEvent(Resize) { }
+
+    SLResizeEvent() : SLInputEvent(Resize) {}
 };
 
 //-----------------------------------------------------------------------------
@@ -115,10 +115,10 @@ event, others might fire multiple at once.
 */
 class SLCharInputEvent : public SLInputEvent
 {
-public:
+    public:
     SLuint character;
 
-    SLCharInputEvent() : SLInputEvent(CharInput) { }
+    SLCharInputEvent() : SLInputEvent(CharInput) {}
 };
 
 //-----------------------------------------------------------------------------

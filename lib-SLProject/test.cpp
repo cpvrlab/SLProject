@@ -15,7 +15,7 @@
 //#include <SLTimer.h>
 //#include <SLTransferFunction.h>
 //#include <SLUtils.h>
-//#include <stdafx.h>
+//#include <stdafx.h> // Must be the 1st include followed by  an empty line
 //#include <SLApplication.h>
 
 //Scene:

@@ -8,7 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>         // precompiled headers
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 /*
 The OpenCV library version 3.4 or above with extra module must be present.
@@ -20,32 +20,31 @@ for a good top down information.
 */
 
 #include <SLApplication.h>
-#include <SLSceneView.h>
 #include <SLCVFeatureManager.h>
 #include <SLCVTrackedFeatures.h>
+#include <SLSceneView.h>
 
 #if defined(SL_OS_WINDOWS)
-#include <direct.h>
+#    include <direct.h>
 #endif
 
 using namespace cv;
 
 //-----------------------------------------------------------------------------
 // Globals for benchmarking
-int     frames_with_pose = 0;
-float   sum_matches = 0;
-float   sum_inlier_matches = 0;
-float   sum_allmatches_to_inliers = 0.0f;
-double  sum_reprojection_error = 0.0;
-float   sum_poseopt_difference = 0.0f;
-double  translationError = 0;
-double  rotationError = 0;
-int     frames_since_posefound = 0;
+int    frames_with_pose          = 0;
+float  sum_matches               = 0;
+float  sum_inlier_matches        = 0;
+float  sum_allmatches_to_inliers = 0.0f;
+double sum_reprojection_error    = 0.0;
+float  sum_poseopt_difference    = 0.0f;
+double translationError          = 0;
+double rotationError             = 0;
+int    frames_since_posefound    = 0;
 
 //-----------------------------------------------------------------------------
-SLCVTrackedFeatures::SLCVTrackedFeatures(SLNode *node,
-                                         SLstring markerFilename) :
-                     SLCVTracked(node)
+SLCVTrackedFeatures::SLCVTrackedFeatures(SLNode*  node,
+                                         SLstring markerFilename) : SLCVTracked(node)
 {
     // To match the binary features, we are matching each descriptor in reference with each
     // descriptor in the current frame. The smaller the hamming distance the better the match
@@ -53,32 +52,31 @@ SLCVTrackedFeatures::SLCVTrackedFeatures(SLNode *node,
     _matcher = BFMatcher::create(BFMatcher::BRUTEFORCE_HAMMING, false);
 
     // Initialize some member variables on startup to prevent uncontrolled behaviour
-    _currentFrame.foundPose = false;
-    _prevFrame.foundPose = false;
+    _currentFrame.foundPose         = false;
+    _prevFrame.foundPose            = false;
     _currentFrame.reprojectionError = 0.0f;
-    _prevFrame.inlierPoints2D = SLCVVPoint2f(nFeatures);
-    _forceRelocation = false;
-    _frameCount = 0;
+    _prevFrame.inlierPoints2D       = SLCVVPoint2f(nFeatures);
+    _forceRelocation                = false;
+    _frameCount                     = 0;
 
     loadMarker(markerFilename);
 
-    // Create directory for debug output if flag is set
-    #ifdef SL_DEBUG_OUTPUT_PATH
-        #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
-            mkdir(SL_DEBUG_OUTPUT_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-        #elif defined(SL_OS_WINDOWS)
+// Create directory for debug output if flag is set
+#ifdef SL_DEBUG_OUTPUT_PATH
+#    if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
+    mkdir(SL_DEBUG_OUTPUT_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#    elif defined(SL_OS_WINDOWS)
             _mkdir(SL_DEBUG_OUTPUT_PATH);
-        #else
-            #undef SL_SAVE_SNAPSHOTS_OUTPUT
-        #endif
-    #endif
+#    else
+#        undef SL_SAVE_SNAPSHOTS_OUTPUT
+#    endif
+#endif
 }
-
 //-----------------------------------------------------------------------------
 //! Show statistics if program terminates
 SLCVTrackedFeatures::~SLCVTrackedFeatures()
 {
-    #if SL_DO_FEATURE_BENCHMARKING
+#if SL_DO_FEATURE_BENCHMARKING
     SL_LOG(" \n");
     SL_LOG(" \n");
     SL_LOG("------------------------------------------------------------------\n");
@@ -105,12 +103,11 @@ SLCVTrackedFeatures::~SLCVTrackedFeatures()
     SL_LOG("Avg inlier matches                               : %f\n", sum_inlier_matches / frames_with_pose);
     SL_LOG("Avg more matches with Pose optimization          : %f\n", sum_poseopt_difference / frames_with_pose);
 
-    // Only used for testing with slight movements
-    //SL_LOG("Avg Rotation error                               : %f deg\n", rotationError / frames_with_pose);
-    //SL_LOG("Avg Translation error                            : %f px\n", translationError / frames_with_pose);
-    #endif //SL_DO_FEATURE_BENCHMARKING
+// Only used for testing with slight movements
+//SL_LOG("Avg Rotation error                               : %f deg\n", rotationError / frames_with_pose);
+//SL_LOG("Avg Translation error                            : %f px\n", translationError / frames_with_pose);
+#endif //SL_DO_FEATURE_BENCHMARKING
 }
-
 //-----------------------------------------------------------------------------
 //! Loads the marker image form the filesystem
 void SLCVTrackedFeatures::loadMarker(string markerFilename)
@@ -118,7 +115,7 @@ void SLCVTrackedFeatures::loadMarker(string markerFilename)
     // Read reference marker
     // (The images source is deallocated by SLScene::unInit)
     SLGLTexture* markerTexture = new SLGLTexture(markerFilename);
-    SLCVImage* img = markerTexture->images()[0];
+    SLCVImage*   img           = markerTexture->images()[0];
 
     cvtColor(img->cvMat(), _marker.imageGray, CV_RGB2GRAY);
 
@@ -163,15 +160,16 @@ void SLCVTrackedFeatures::initFeaturesOnMarker()
                                               0.0f));
     }
 
-    // Draw points and indices which should be reprojected later.
-    // Only a few (defined with reposeFrequency)
-    // points are used for the reprojection.
-    #if defined(SL_DEBUG_OUTPUT_PATH) || SL_DRAW_REPROJECTION_ERROR
+// Draw points and indices which should be reprojected later.
+// Only a few (defined with reposeFrequency)
+// points are used for the reprojection.
+#if defined(SL_DEBUG_OUTPUT_PATH) || SL_DRAW_REPROJECTION_ERROR
     _marker.imageGray.copyTo(_marker.imageDrawing);
     cvtColor(_marker.imageDrawing, _marker.imageDrawing, CV_GRAY2BGR);
 
     for (size_t i = 0; i < _marker.keypoints3D.size(); i++)
-    {   if (i % reposeFrequency)
+    {
+        if (i % reposeFrequency)
             continue;
 
         SLCVPoint2f originalModelPoint = _marker.keypoints2D[i].pt;
@@ -192,17 +190,16 @@ void SLCVTrackedFeatures::initFeaturesOnMarker()
                 CV_RGB(255, 0, 0),
                 1);
     }
-    #endif
+#endif
 }
-
 //-----------------------------------------------------------------------------
 //! Setter of the feature detector & descriptor type
 void SLCVTrackedFeatures::type(SLCVDetectDescribeType ddType)
 {
     _featureManager.createDetectorDescriptor(ddType);
 
-    _currentFrame.foundPose = false;
-    _prevFrame.foundPose = false;
+    _currentFrame.foundPose         = false;
+    _prevFrame.foundPose            = false;
     _currentFrame.reprojectionError = 0.0f;
 
     // Set the frame counter to 0 to reinitialize in track
@@ -217,11 +214,11 @@ void SLCVTrackedFeatures::type(SLCVDetectDescribeType ddType)
 @param sv The current scene view
 @return So far allways false
 */
-SLbool SLCVTrackedFeatures::track(SLCVMat imageGray,
-                                  SLCVMat image,
-                                  SLCVCalibration *calib,
-                                  SLbool drawDetection,
-                                  SLSceneView *sv)
+SLbool SLCVTrackedFeatures::track(SLCVMat          imageGray,
+                                  SLCVMat          image,
+                                  SLCVCalibration* calib,
+                                  SLbool           drawDetection,
+                                  SLSceneView*     sv)
 {
     assert(!image.empty() && "Image is empty");
     assert(!calib->cameraMat().empty() && "Calibration is empty");
@@ -232,25 +229,23 @@ SLbool SLCVTrackedFeatures::track(SLCVMat imageGray,
 
     // Initialize reference points if program just started
     if (_frameCount == 0)
-    {   _calib = calib;
+    {
+        _calib = calib;
         initFeaturesOnMarker();
     }
 
     // Copy image matrix into current frame data
-    _currentFrame.image = image;
+    _currentFrame.image     = image;
     _currentFrame.imageGray = imageGray;
 
     // Determine if relocation or feature tracking should be performed
-    bool relocationNeeded = _forceRelocation
-                            || !_prevFrame.foundPose
-                            || _prevFrame.inlierMatches.size() < 100
-                            || frames_since_posefound < 3;
+    bool relocationNeeded = _forceRelocation || !_prevFrame.foundPose || _prevFrame.inlierMatches.size() < 100 || frames_since_posefound < 3;
 
     // If relocation condition meets, calculate the Pose with feature detection, otherwise
     // track the previous determined features
     if (relocationNeeded)
         relocate();
-    else 
+    else
         tracking();
 
     // Update the camera according to the new Pose
@@ -266,7 +261,6 @@ SLbool SLCVTrackedFeatures::track(SLCVMat imageGray,
 
     return false;
 }
-
 //-----------------------------------------------------------------------------
 /*! If relocation should be done, the following steps are necessary:
 1. Detect keypoints
@@ -278,7 +272,7 @@ void SLCVTrackedFeatures::relocate()
 {
     _isTracking = false;
     detectKeypointsAndDescriptors();
-    _currentFrame.matches = getFeatureMatches();
+    _currentFrame.matches   = getFeatureMatches();
     _currentFrame.foundPose = calculatePose();
 
     // Zero time keeping on the tracking branch
@@ -292,7 +286,7 @@ we track the features with optical flow
 */
 void SLCVTrackedFeatures::tracking()
 {
-    _isTracking = true;
+    _isTracking             = true;
     _currentFrame.foundPose = trackWithOptFlow(_prevFrame.rvec, _prevFrame.tvec);
 
     // Zero time keeping on the relocation branch
@@ -312,21 +306,21 @@ void SLCVTrackedFeatures::drawDebugInformation(SLbool drawDetection)
 {
     if (drawDetection)
     {
-        for (size_t i=0; i < _currentFrame.inlierPoints2D.size(); i++)
+        for (size_t i = 0; i < _currentFrame.inlierPoints2D.size(); i++)
             circle(_currentFrame.image,
                    _currentFrame.inlierPoints2D[i],
                    3,
                    Scalar(0, 0, 255));
     }
 
-    #if SL_DRAW_REPROJECTION_POINTS
+#if SL_DRAW_REPROJECTION_POINTS
     SLCVMat imgReprojection = _currentFrame.image;
-    #elif defined(SL_SAVE_SNAPSHOTS_OUTPUT)
+#elif defined(SL_SAVE_SNAPSHOTS_OUTPUT)
     SLCVMat imgReprojection;
     _currentFrame.image.copyTo(imgReprojection);
-    #endif
+#endif
 
-    #if SL_DRAW_REPROJECTION_POINTS || defined(SL_DEBUG_OUTPUT_PATH)
+#if SL_DRAW_REPROJECTION_POINTS || defined(SL_DEBUG_OUTPUT_PATH)
     if (_currentFrame.inlierMatches.size() > 0)
     {
         SLCVVPoint2f projectedPoints(_marker.keypoints3D.size());
@@ -343,7 +337,7 @@ void SLCVTrackedFeatures::drawDebugInformation(SLbool drawDetection)
             if (i % reposeFrequency) continue;
 
             SLCVPoint2f projectedModelPoint = projectedPoints[i];
-            SLCVPoint2f keypointForPose = _currentFrame.keypoints[_currentFrame.inlierMatches.back().queryIdx].pt;
+            SLCVPoint2f keypointForPose     = _currentFrame.keypoints[_currentFrame.inlierMatches.back().queryIdx].pt;
 
             // draw all projected map features and the original keypoint on video stream
             circle(imgReprojection,
@@ -370,9 +364,9 @@ void SLCVTrackedFeatures::drawDebugInformation(SLbool drawDetection)
                     1.0);
         }
     }
-    #endif
+#endif
 
-    #if defined(SL_DEBUG_OUTPUT_PATH)
+#if defined(SL_DEBUG_OUTPUT_PATH)
     // Draw reprojection
     SLCVMat imgOut;
     drawMatches(imgReprojection,
@@ -381,15 +375,16 @@ void SLCVTrackedFeatures::drawDebugInformation(SLbool drawDetection)
                 SLCVVKeyPoint(),
                 SLCVVDMatch(),
                 imgOut,
-                CV_RGB(255,0,0),
-                CV_RGB(255,0,0));
+                CV_RGB(255, 0, 0),
+                CV_RGB(255, 0, 0));
 
     imwrite(SL_DEBUG_OUTPUT_PATH + to_string(_frameCount) + "_reprojection.png",
             imgOut);
 
     // Draw keypoints
     if (!_currentFrame.keypoints.empty())
-    {   SLCVMat imgKeypoints;
+    {
+        SLCVMat imgKeypoints;
         drawKeypoints(_currentFrame.imageGray,
                       _currentFrame.keypoints,
                       imgKeypoints);
@@ -398,7 +393,7 @@ void SLCVTrackedFeatures::drawDebugInformation(SLbool drawDetection)
                 imgKeypoints);
     }
 
-    for (size_t i=0; i < _currentFrame.inlierPoints2D.size(); i++)
+    for (size_t i = 0; i < _currentFrame.inlierPoints2D.size(); i++)
         circle(_currentFrame.image,
                _currentFrame.inlierPoints2D[i],
                2,
@@ -406,15 +401,16 @@ void SLCVTrackedFeatures::drawDebugInformation(SLbool drawDetection)
 
     // Draw matches
     if (!_currentFrame.inlierMatches.empty())
-    {   SLCVMat imgMatches;
+    {
+        SLCVMat imgMatches;
         drawMatches(_currentFrame.imageGray,
                     _currentFrame.keypoints,
                     _marker.imageGray,
                     _marker.keypoints2D,
                     _currentFrame.inlierMatches,
                     imgMatches,
-                    CV_RGB(255,0,0),
-                    CV_RGB(255,0,0));
+                    CV_RGB(255, 0, 0),
+                    CV_RGB(255, 0, 0));
 
         imwrite(SL_DEBUG_OUTPUT_PATH + to_string(_frameCount) + "_matching.png",
                 imgMatches);
@@ -432,16 +428,17 @@ void SLCVTrackedFeatures::drawDebugInformation(SLbool drawDetection)
                             _currentFrame.inlierPoints2D[i],
                             Scalar(0, 255, 0),
                             1,
-                            LINE_8, 0, 0.2);
+                            LINE_8,
+                            0,
+                            0.2);
 
         imwrite(SL_DEBUG_OUTPUT_PATH + to_string(_frameCount) + "-optflow.png", rgb);
     }
-    #endif
+#endif
 }
-
 //-----------------------------------------------------------------------------
 //! Updates the scenegraph camera with the new pose
-void SLCVTrackedFeatures::updateSceneCamera(SLSceneView *sv)
+void SLCVTrackedFeatures::updateSceneCamera(SLSceneView* sv)
 {
     if (_currentFrame.foundPose)
     {
@@ -456,15 +453,17 @@ void SLCVTrackedFeatures::updateSceneCamera(SLSceneView *sv)
 
     // Only draw tower if last 2 pose calculations were correct
     if (_prevFrame.foundPose && !_currentFrame.foundPose)
-    {   sv->drawBits()->on(SL_DB_HIDDEN);
+    {
+        sv->drawBits()->on(SL_DB_HIDDEN);
         frames_since_posefound = 0;
-    } else if (_currentFrame.foundPose)
-    {   if (frames_since_posefound == 5)
+    }
+    else if (_currentFrame.foundPose)
+    {
+        if (frames_since_posefound == 5)
             sv->drawBits()->off(SL_DB_HIDDEN);
         frames_since_posefound++;
     }
 }
-
 //-----------------------------------------------------------------------------
 /*! Copies the current frame data to the previous frame data struct for the
 next frame handling.
@@ -495,14 +494,16 @@ void SLCVTrackedFeatures::transferFrameData()
     _currentFrame.useExtrinsicGuess = _prevFrame.foundPose;
 
     if (_prevFrame.foundPose)
-    {   _currentFrame.rvec = _prevFrame.rvec;
+    {
+        _currentFrame.rvec = _prevFrame.rvec;
         _currentFrame.tvec = _prevFrame.tvec;
-    } else {
+    }
+    else
+    {
         _currentFrame.rvec = SLCVMat::zeros(3, 1, CV_64FC1);
         _currentFrame.tvec = SLCVMat::zeros(3, 1, CV_64FC1);
     }
 }
-
 //-----------------------------------------------------------------------------
 /*! Get keypoints and descriptors in one step. This is a more efficient way
 since we have to build the scaling pyramide only once. If we detect and
@@ -511,16 +512,15 @@ meaningful.
 */
 void SLCVTrackedFeatures::detectKeypointsAndDescriptors()
 {
-    SLScene* s = SLApplication::scene;
-    SLfloat startMS = s->timeMilliSec();
+    SLScene* s       = SLApplication::scene;
+    SLfloat  startMS = s->timeMilliSec();
 
     _featureManager.detectAndDescribe(_currentFrame.imageGray,
                                       _currentFrame.keypoints,
                                       _currentFrame.descriptors);
 
-    s->detectTimesMS().set(s->timeMilliSec()-startMS);
+    s->detectTimesMS().set(s->timeMilliSec() - startMS);
 }
-
 //-----------------------------------------------------------------------------
 /*! Get matching features with the defined feature matcher. Since we are using
 the k-next-neighbour matcher, we check if the best and second best match are
@@ -529,10 +529,10 @@ not too identical with the so called ratio test.
 */
 SLCVVDMatch SLCVTrackedFeatures::getFeatureMatches()
 {
-    SLScene* s = SLApplication::scene;
-    SLfloat startMS = s->timeMilliSec();
+    SLScene* s       = SLApplication::scene;
+    SLfloat  startMS = s->timeMilliSec();
 
-    int k = 2;
+    int          k = 2;
     SLCVVVDMatch matches;
     _matcher->knnMatch(_currentFrame.descriptors, _marker.descriptors, matches, k);
 
@@ -541,7 +541,8 @@ SLCVVDMatch SLCVTrackedFeatures::getFeatureMatches()
     // matches is toward 1, the matches are near identically.
     SLCVVDMatch goodMatches;
     for (size_t i = 0; i < matches.size(); i++)
-    {   const DMatch& match1 = matches[i][0];
+    {
+        const DMatch& match1 = matches[i][0];
         const DMatch& match2 = matches[i][1];
         if (match2.distance == 0.0f ||
             (match1.distance / match2.distance) < minRatio)
@@ -551,7 +552,6 @@ SLCVVDMatch SLCVTrackedFeatures::getFeatureMatches()
     s->matchTimesMS().set(s->timeMilliSec() - startMS);
     return goodMatches;
 }
-
 //-----------------------------------------------------------------------------
 /*! This method does the most important work of the whole pipeline:
 
@@ -600,8 +600,8 @@ bool SLCVTrackedFeatures::calculatePose()
     // solvePnP crashes if less than 5 points are given
     if (_currentFrame.matches.size() < 10) return false;
 
-    SLScene* s = SLApplication::scene;
-    SLfloat startMS = s->timeMilliSec();
+    SLScene* s       = SLApplication::scene;
+    SLfloat  startMS = s->timeMilliSec();
 
     // Find 2D/3D correspondences
     // At the moment we are using only the two correspondences like this:
@@ -616,8 +616,9 @@ bool SLCVTrackedFeatures::calculatePose()
     SLCVVPoint2f framePoints(_currentFrame.matches.size());
  
     for (size_t i = 0; i < _currentFrame.matches.size(); i++)
-    {   modelPoints[i] = _marker.keypoints3D[_currentFrame.matches[i].trainIdx];
-        framePoints[i] = _currentFrame.keypoints[_currentFrame.matches[i].queryIdx].pt;
+    {
+        modelPoints[i] = _marker.keypoints3D[(SLuint)_currentFrame.matches[i].trainIdx];
+        framePoints[i] = _currentFrame.keypoints[(SLuint)_currentFrame.matches[i].queryIdx].pt;
     }
 
     SLVuchar inliersMask(modelPoints.size());
@@ -630,7 +631,8 @@ bool SLCVTrackedFeatures::calculatePose()
                                         framePoints,
                                         _calib->cameraMat(),
                                         _calib->distortion(),
-                                        _currentFrame.rvec, _currentFrame.tvec,
+                                        _currentFrame.rvec,
+                                        _currentFrame.tvec,
                                         _currentFrame.useExtrinsicGuess,
                                         iterations,
                                         reprojection_error,
@@ -652,13 +654,11 @@ bool SLCVTrackedFeatures::calculatePose()
     {
         //SLfloat matchesBefore = (SLfloat)_currentFrame.inlierMatches.size();
 
-
         /////////////////////
         // 2. Optimze Matches
         /////////////////////
 
         optimizeMatches();
-
 
         ///////////////////////
         // 3. solvePnP Iterativ
@@ -673,21 +673,20 @@ bool SLCVTrackedFeatures::calculatePose()
                                  true,
                                  SOLVEPNP_ITERATIVE);
 
-        #if SL_DO_FEATURE_BENCHMARKING
-        sum_matches                 += _currentFrame.matches.size();
-        sum_inlier_matches          += _currentFrame.inlierMatches.size();
-        sum_allmatches_to_inliers   += _currentFrame.inlierMatches.size() /
-                                       _currentFrame.matches.size();
-        sum_poseopt_difference      += _currentFrame.inlierMatches.size() /
-                                    matchesBefore;
-        #endif
+#if SL_DO_FEATURE_BENCHMARKING
+        sum_matches += _currentFrame.matches.size();
+        sum_inlier_matches += _currentFrame.inlierMatches.size();
+        sum_allmatches_to_inliers += _currentFrame.inlierMatches.size() /
+                                     _currentFrame.matches.size();
+        sum_poseopt_difference += _currentFrame.inlierMatches.size() /
+                                  matchesBefore;
+#endif
     }
 
     s->poseTimesMS().set(s->timeMilliSec() - startMS);
 
     return foundPose;
 }
-
 //-----------------------------------------------------------------------------
 /*! To get more matches with the calculated pose, we reproject the reference
 points to our current frame. Within a predefined patch, we try to rematch not
@@ -708,7 +707,7 @@ void SLCVTrackedFeatures::optimizeMatches()
                       projectedPoints);
 
     SLCVVKeyPoint bboxFrameKeypoints;
-    SLVsize_t frameIndicesInsideRect;
+    SLVsize_t     frameIndicesInsideRect;
 
     for (size_t i = 0; i < _marker.keypoints3D.size(); i++)
     {
@@ -721,7 +720,8 @@ void SLCVTrackedFeatures::optimizeMatches()
         //todo: this is bad, because for every marker keypoint we have to iterate all inlierMatches!
         //better: iterate inlierMatches once at the beginning and mark all marker keypoints as inliers or not!
         for (size_t j = 0; j < _currentFrame.inlierMatches.size(); j++)
-        {   if (_currentFrame.inlierMatches[j].trainIdx == i)
+        {
+            if (_currentFrame.inlierMatches[(SLuint)j].trainIdx == (SLint)i)
                 alreadyMatched++;
         }
 
@@ -745,18 +745,19 @@ void SLCVTrackedFeatures::optimizeMatches()
             // 2. Select only before calculated Keypoints within patch
             // with projected "positioning" keypoint as center
             // OpenCV: Top-left origin
-            SLint xTopLeft = (SLint)(projectedModelPoint.x - patchSize / 2);
-            SLint yTopLeft = (SLint)(projectedModelPoint.y - patchSize / 2);
+            SLint xTopLeft   = (SLint)(projectedModelPoint.x - patchSize / 2);
+            SLint yTopLeft   = (SLint)(projectedModelPoint.y - patchSize / 2);
             SLint xDownRight = xTopLeft + patchSize;
             SLint yDownRight = yTopLeft + patchSize;
 
             for (size_t j = 0; j < _currentFrame.keypoints.size(); j++)
-            {   // bbox check
+            { // bbox check
                 if (_currentFrame.keypoints[j].pt.x > xTopLeft &&
                     _currentFrame.keypoints[j].pt.x < xDownRight &&
                     _currentFrame.keypoints[j].pt.y > yTopLeft &&
                     _currentFrame.keypoints[j].pt.y < yDownRight)
-                {   bboxFrameKeypoints.push_back(_currentFrame.keypoints[j]);
+                {
+                    bboxFrameKeypoints.push_back(_currentFrame.keypoints[j]);
                     frameIndicesInsideRect.push_back(j);
                 }
             }
@@ -779,8 +780,10 @@ void SLCVTrackedFeatures::optimizeMatches()
         }
 
         if (newMatches.size() > 0)
-        {   for (size_t j = 0; j < frameIndicesInsideRect.size(); j++)
-            {   newMatches[j].trainIdx = (int)i;
+        {
+            for (size_t j = 0; j < frameIndicesInsideRect.size(); j++)
+            {
+                newMatches[j].trainIdx = (int)i;
                 newMatches[j].queryIdx = (int)frameIndicesInsideRect[j];
             }
 
@@ -797,12 +800,11 @@ void SLCVTrackedFeatures::optimizeMatches()
         }
 
         // Get the keypoint which was used for pose estimation
-        SLCVPoint2f keypointForPose = _currentFrame.keypoints[_currentFrame.inlierMatches.back().queryIdx].pt;
+        SLCVPoint2f keypointForPose = _currentFrame.keypoints[(SLuint)_currentFrame.inlierMatches.back().queryIdx].pt;
         reprojectionError += (float)norm(SLCVMat(projectedModelPoint),
                                          SLCVMat(keypointForPose));
 
-
-        #if SL_DRAW_PATCHES
+#if SL_DRAW_PATCHES
         //draw green rectangle around every map point
         rectangle(_currentFrame.image,
                   Point2f(projectedModelPoint.x - patchSize / 2, projectedModelPoint.y - patchSize / 2),
@@ -817,10 +819,10 @@ void SLCVTrackedFeatures::optimizeMatches()
                    CV_RGB(0, 0, 255),
                    1,
                    FILLED);
-        #endif
+#endif
     }
 
-    #if SL_DO_FEATURE_BENCHMARKING
+#if SL_DO_FEATURE_BENCHMARKING
     sum_reprojection_error += reprojectionError / _marker.keypoints3D.size();
 
     SLCVMat prevRmat, currRmat;
@@ -832,9 +834,9 @@ void SLCVTrackedFeatures::optimizeMatches()
         rotationError += rotationError_rad * 180 / 3.14;
         translationError += cv::norm(_prevFrame.tvec, _currentFrame.tvec);
     }
-    #endif
+#endif
 
-    #if SL_DRAW_REPROJECTION_ERROR
+#if SL_DRAW_REPROJECTION_ERROR
     // Draw the projection error for the current frame
     putText(_currentFrame.image,
             "Reprojection error: " + to_string(reprojectionError / _marker.keypoints3D.size()),
@@ -843,21 +845,21 @@ void SLCVTrackedFeatures::optimizeMatches()
             0.5,
             CV_RGB(255, 0, 0),
             2.0);
-    #endif
+#endif
 
     // Optimize POSE
     vector<Point3f> modelPoints = vector<Point3f>(_currentFrame.inlierMatches.size());
     vector<Point2f> framePoints = vector<Point2f>(_currentFrame.inlierMatches.size());
     for (size_t i = 0; i < _currentFrame.inlierMatches.size(); i++)
-    {   modelPoints[i] = _marker.keypoints3D[_currentFrame.inlierMatches[i].trainIdx];
-        framePoints[i] = _currentFrame.keypoints[_currentFrame.inlierMatches[i].queryIdx].pt;
+    {
+        modelPoints[i] = _marker.keypoints3D[(SLuint)_currentFrame.inlierMatches[i].trainIdx];
+        framePoints[i] = _currentFrame.keypoints[(SLuint)_currentFrame.inlierMatches[i].queryIdx].pt;
     }
 
     if (modelPoints.size() == 0) return;
     _currentFrame.inlierPoints3D = modelPoints;
     _currentFrame.inlierPoints2D = framePoints;
 }
-
 //-----------------------------------------------------------------------------
 /*! Tracks the features with Optical Flow (Lucas Kanade). This will only try to
 predict the new location of keypoints. If they were found, we perform a
@@ -872,8 +874,8 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
 {
     if (_prevFrame.inlierPoints2D.size() < 4) return false;
 
-    SLScene* s = SLApplication::scene;
-    SLfloat startMS = s->timeMilliSec();
+    SLScene* s       = SLApplication::scene;
+    SLfloat  startMS = s->timeMilliSec();
 
     SLVuchar status;
     SLVfloat err;
@@ -888,24 +890,26 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
 
     //todo: do not relate optical flow to previous frame! better to original marker image, otherwise we will drift
     cv::calcOpticalFlowPyrLK(
-        _prevFrame.imageGray,   // Previous frame
-        _currentFrame.imageGray,// Current frame
-        _prevFrame.inlierPoints2D,// Previous and current keypoints coordinates.The latter will be
-        pred2DPoints,           // expanded if more good coordinates are detected during OptFlow
-        status,                 // Output vector for keypoint correspondences (1 = match found)
-        err,                    // Error size for each flow
-        winSize,                // Search window for each pyramid level
-        3,                      // Max levels of pyramid creation
-        criteria,               // Configuration from above
-        0,                      // Additional flags
-        0.001);                 // Minimal Eigen threshold
+      _prevFrame.imageGray,      // Previous frame
+      _currentFrame.imageGray,   // Current frame
+      _prevFrame.inlierPoints2D, // Previous and current keypoints coordinates.The latter will be
+      pred2DPoints,              // expanded if more good coordinates are detected during OptFlow
+      status,                    // Output vector for keypoint correspondences (1 = match found)
+      err,                       // Error size for each flow
+      winSize,                   // Search window for each pyramid level
+      3,                         // Max levels of pyramid creation
+      criteria,                  // Configuration from above
+      0,                         // Additional flags
+      0.001);                    // Minimal Eigen threshold
 
     // Only use points which are not wrong in any way during the optical flow calculation
     SLCVVPoint2f frame2DPoints;
     SLCVVPoint3f model3DPoints;
     for (size_t i = 0; i < status.size(); i++)
-    {   if (status[i])
-        {   frame2DPoints.push_back(pred2DPoints[i]);
+    {
+        if (status[i])
+        {
+            frame2DPoints.push_back(pred2DPoints[i]);
             //Original code from Zingg/Tschanz got zero size vector
             //model3DPoints.push_back(_currentFrameFrame.inlierPoints3D[i]);
             model3DPoints.push_back(_prevFrame.inlierPoints3D[i]);
@@ -930,27 +934,34 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
                                   frame2DPoints,
                                   _calib->cameraMat(),
                                   _calib->distortion(),
-                                  rvec, tvec,
+                                  rvec,
+                                  tvec,
                                   true);
     bool poseValid = true;
 
     if (foundPose)
-    {   for (int i = 0; i < tvec.cols; i++)
-        {   if (abs(tvec.at<double>(i, 0) - tvec.at<double>(i, 0)) > abs(tvec.at<double>(i, 0)) * 0.2)
-            {   cout << "translation too large" << endl;
+    {
+        for (int i = 0; i < tvec.cols; i++)
+        {
+            if (abs(tvec.at<double>(i, 0) - tvec.at<double>(i, 0)) > abs(tvec.at<double>(i, 0)) * 0.2)
+            {
+                cout << "translation too large" << endl;
                 poseValid = false;
             }
         }
         for (int i = 0; i < rvec.cols; i++)
-        {   if (abs(rvec.at<double>(i, 0) - rvec.at<double>(i, 0)) > 0.174533)
-            {   cout << "rotation too large" << endl;
+        {
+            if (abs(rvec.at<double>(i, 0) - rvec.at<double>(i, 0)) > 0.174533)
+            {
+                cout << "rotation too large" << endl;
                 poseValid = false;
             }
         }
     }
 
     if (foundPose && poseValid)
-    {   rvec.copyTo(_currentFrame.rvec);
+    {
+        rvec.copyTo(_currentFrame.rvec);
         tvec.copyTo(_currentFrame.tvec);
     }
 

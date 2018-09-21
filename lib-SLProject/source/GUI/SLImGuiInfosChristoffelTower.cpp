@@ -18,28 +18,32 @@
 
 //-----------------------------------------------------------------------------
 SLImGuiInfosChristoffelTower::SLImGuiInfosChristoffelTower(std::string name, SLNode* bern)
-    : SLImGuiInfosDialog(name),
+  : SLImGuiInfosDialog(name),
     _bern(bern)
 {
-    boden = _bern->findChild<SLNode>("Boden", false);
-    balda_stahl = _bern->findChild<SLNode>("Baldachin-Stahl", false);
-    balda_glas = _bern->findChild<SLNode>("Baldachin-Glas", false);
-    umgeb_dach = _bern->findChild<SLNode>("Umgebung-Daecher", false);
-    umgeb_fass = _bern->findChild<SLNode>("Umgebung-Fassaden", false);
-    mauer_wand = _bern->findChild<SLNode>("Mauer-Wand", false);
-    mauer_dach = _bern->findChild<SLNode>("Mauer-Dach", false);
-    mauer_turm = _bern->findChild<SLNode>("Mauer-Turm", false);
-    mauer_weg = _bern->findChild<SLNode>("Mauer-Weg", false);
-    grab_mauern = _bern->findChild<SLNode>("Graben-Mauern", false);
-    grab_brueck = _bern->findChild<SLNode>("Graben-Bruecken", false);
-    grab_grass = _bern->findChild<SLNode>("Graben-Grass", false);
-    grab_t_dach = _bern->findChild<SLNode>("Graben-Turm-Dach", false);
-    grab_t_fahn = _bern->findChild<SLNode>("Graben-Turm-Fahne", false);
-    grab_t_stein = _bern->findChild<SLNode>("Graben-Turm-Stein", false);
+    boden         = _bern->findChild<SLNode>("Boden", false);
+    balda_stahl   = _bern->findChild<SLNode>("Baldachin-Stahl", false);
+    balda_glas    = _bern->findChild<SLNode>("Baldachin-Glas", false);
+    umgeb_dach    = _bern->findChild<SLNode>("Umgebung-Daecher", false);
+    umgeb_fass    = _bern->findChild<SLNode>("Umgebung-Fassaden", false);
+    mauer_wand    = _bern->findChild<SLNode>("Mauer-Wand", false);
+    mauer_dach    = _bern->findChild<SLNode>("Mauer-Dach", false);
+    mauer_turm    = _bern->findChild<SLNode>("Mauer-Turm", false);
+    mauer_weg     = _bern->findChild<SLNode>("Mauer-Weg", false);
+    grab_mauern   = _bern->findChild<SLNode>("Graben-Mauern", false);
+    grab_brueck   = _bern->findChild<SLNode>("Graben-Bruecken", false);
+    grab_grass    = _bern->findChild<SLNode>("Graben-Grass", false);
+    grab_t_dach   = _bern->findChild<SLNode>("Graben-Turm-Dach", false);
+    grab_t_fahn   = _bern->findChild<SLNode>("Graben-Turm-Fahne", false);
+    grab_t_stein  = _bern->findChild<SLNode>("Graben-Turm-Stein", false);
+    christ_aussen = bern->findChild<SLNode>("Christoffel-Aussen", true);
+    christ_innen  = bern->findChild<SLNode>("Christoffel-Innen", true);
 }
 //-----------------------------------------------------------------------------
 void SLImGuiInfosChristoffelTower::buildInfos()
 {
+    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
+
     SLbool umgebung = !umgeb_fass->drawBits()->get(SL_DB_HIDDEN);
     if (ImGui::Checkbox("Umgebung", &umgebung))
     {
@@ -79,5 +83,21 @@ void SLImGuiInfosChristoffelTower::buildInfos()
         grab_t_fahn->drawBits()->set(SL_DB_HIDDEN, !graben);
         grab_t_stein->drawBits()->set(SL_DB_HIDDEN, !graben);
     }
+
+    static SLfloat christTransp = 0.0f;
+    if (ImGui::SliderFloat("Transparency", &christTransp, 0.0f, 1.0f, "%0.2f"))
+    {
+        for (auto mesh : christ_aussen->meshes())
+        {
+            mesh->mat()->kt(christTransp);
+            mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+            mesh->init(christ_aussen);
+        }
+
+        // Hide inner parts if transparency is on
+        christ_innen->drawBits()->set(SL_DB_HIDDEN, christTransp > 0.01f);
+    }
+
+    ImGui::PopItemWidth();
 }
 //-----------------------------------------------------------------------------

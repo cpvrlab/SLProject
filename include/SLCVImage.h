@@ -32,84 +32,84 @@ of OpenCV we kept the interface and migrated the methods to work with OpenCV.
 class SLCVImage : public SLObject
 {
     public:
-                            SLCVImage       () {}
-                            SLCVImage       (SLint width,
-                                             SLint height,
-                                             SLPixelFormat format,
-                                             SLstring name);
-                            SLCVImage       (const SLstring imageFilename, 
-                                             SLbool flipVertical = true,
-                                             SLbool loadGrayscaleIntoAlpha = false);
-                            SLCVImage       (SLCVImage &srcImage);
-                            SLCVImage       (const SLVCol3f& colors);
-                            SLCVImage       (const SLVCol4f& colors);
-                           ~SLCVImage       ();
-            // Misc                         
-            void            clearData       ();
-            SLbool          allocate        (SLint width,
-                                             SLint height,
-                                             SLPixelFormat format,
-                                             SLbool isContinuous = true);
-            void            load            (const SLstring filename, 
-                                             SLbool flipVertical = true,
-                                             SLbool loadGrayscaleIntoAlpha = false);
-            SLbool          load            (SLint inWidth,
-                                             SLint inHeight,
-                                             SLPixelFormat srcFormat,
-                                             SLPixelFormat dstFormat,
-                                             SLuchar* data,
-                                             SLbool isContinuous,
-                                             SLbool isTopLeft);
-            void            savePNG         (const SLstring filename,
-                                             const SLint compressionLevel=6,
-                                             const SLbool flipY=true,
-                                             const SLbool convertBGR2RGB=true);
-            void            saveJPG         (const SLstring filename,
-                                             const SLint compressionLevel=95,
-                                             const SLbool flipY=true,
-                                             const SLbool convertBGR2RGB=true);
-            SLCol4f         getPixeli       (SLint x, SLint y);
-            SLCol4f         getPixelf       (SLfloat x, SLfloat y);
-            void            setPixeli       (SLint x, SLint y, SLCol4f color);
-            void            setPixeliRGB    (SLint x, SLint y, SLCol3f color);
-            void            setPixeliRGB    (SLint x, SLint y, SLCol4f color);
-            void            setPixeliRGBA   (SLint x, SLint y, SLCol4f color);
-            void            resize          (SLint width,
-                                             SLint height);
-            void            flipY           ();
-            void            fill            (SLubyte r, 
-                                             SLubyte g,
-                                             SLubyte b);
-            void            fill            (SLubyte r,
-                                             SLubyte g,
-                                             SLubyte b,
-                                             SLubyte a);
-    static  SLPixelFormat   cv2glPixelFormat(SLint cvType);
+    SLCVImage() {}
+    SLCVImage(SLint         width,
+              SLint         height,
+              SLPixelFormat format,
+              SLstring      name);
+    SLCVImage(const SLstring imageFilename,
+              SLbool         flipVertical           = true,
+              SLbool         loadGrayscaleIntoAlpha = false);
+    SLCVImage(SLCVImage& srcImage);
+    SLCVImage(const SLVCol3f& colors);
+    SLCVImage(const SLVCol4f& colors);
+    ~SLCVImage();
+    // Misc
+    void                 clearData();
+    SLbool               allocate(SLint         width,
+                                  SLint         height,
+                                  SLPixelFormat format,
+                                  SLbool        isContinuous = true);
+    void                 load(const SLstring filename,
+                              SLbool         flipVertical           = true,
+                              SLbool         loadGrayscaleIntoAlpha = false);
+    SLbool               load(SLint         inWidth,
+                              SLint         inHeight,
+                              SLPixelFormat srcFormat,
+                              SLPixelFormat dstFormat,
+                              SLuchar*      data,
+                              SLbool        isContinuous,
+                              SLbool        isTopLeft);
+    void                 savePNG(const SLstring filename,
+                                 const SLint    compressionLevel = 6,
+                                 const SLbool   flipY            = true,
+                                 const SLbool   convertBGR2RGB   = true);
+    void                 saveJPG(const SLstring filename,
+                                 const SLint    compressionLevel = 95,
+                                 const SLbool   flipY            = true,
+                                 const SLbool   convertBGR2RGB   = true);
+    SLCol4f              getPixeli(SLint x, SLint y);
+    SLCol4f              getPixelf(SLfloat x, SLfloat y);
+    void                 setPixeli(SLint x, SLint y, SLCol4f color);
+    void                 setPixeliRGB(SLint x, SLint y, SLCol3f color);
+    void                 setPixeliRGB(SLint x, SLint y, SLCol4f color);
+    void                 setPixeliRGBA(SLint x, SLint y, SLCol4f color);
+    void                 resize(SLint width,
+                                SLint height);
+    void                 flipY();
+    void                 fill(SLubyte r,
+                              SLubyte g,
+                              SLubyte b);
+    void                 fill(SLubyte r,
+                              SLubyte g,
+                              SLubyte b,
+                              SLubyte a);
+    static SLPixelFormat cv2glPixelFormat(SLint cvType);
 
-            // Getters                      
-            SLCVMat         cvMat           () {return _cvMat;}
-            SLubyte*        data            () {return _cvMat.data;}
-            SLuint          width           () {return (SLuint)_cvMat.cols;}
-            SLuint          height          () {return (SLuint)_cvMat.rows;}
-            SLuint          bytesPerPixel   () {return _bytesPerPixel;}
-            SLuint          bytesPerLine    () {return _bytesPerLine;}
-            SLuint          bytesPerImage   () {return _bytesPerImage;}
-            SLPixelFormat   format          () {return _format;}
-            SLstring        formatString    ();
-            SLstring        path            () {return _path;}
-                                            
+    // Getters
+    SLCVMat       cvMat() { return _cvMat; }
+    SLubyte*      data() { return _cvMat.data; }
+    SLuint        width() { return (SLuint)_cvMat.cols; }
+    SLuint        height() { return (SLuint)_cvMat.rows; }
+    SLuint        bytesPerPixel() { return _bytesPerPixel; }
+    SLuint        bytesPerLine() { return _bytesPerLine; }
+    SLuint        bytesPerImage() { return _bytesPerImage; }
+    SLPixelFormat format() { return _format; }
+    SLstring      formatString();
+    SLstring      path() { return _path; }
+
     private:
-            SLuint          bytesPerPixel   (SLPixelFormat pixelFormat);
-            SLuint          bytesPerLine    (SLuint width,
-                                             SLPixelFormat pixelFormat,
-                                             SLbool isContinuous = false);
-                                            
-            SLCVMat         _cvMat;         //!< OpenCV mat matrix image type
-            SLPixelFormat   _format;        //!< OpenGL pixel format
-            SLuint          _bytesPerPixel; //!< Number of bytes per pixel
-            SLuint          _bytesPerLine;  //!< Number of bytes per line (stride)
-            SLuint          _bytesPerImage; //!< Number of bytes per image
-            SLstring        _path;          //!< path on the filesystem
+    SLuint bytesPerPixel(SLPixelFormat pixelFormat);
+    SLuint bytesPerLine(SLuint        width,
+                        SLPixelFormat pixelFormat,
+                        SLbool        isContinuous = false);
+
+    SLCVMat       _cvMat;         //!< OpenCV mat matrix image type
+    SLPixelFormat _format;        //!< OpenGL pixel format
+    SLuint        _bytesPerPixel; //!< Number of bytes per pixel
+    SLuint        _bytesPerLine;  //!< Number of bytes per line (stride)
+    SLuint        _bytesPerImage; //!< Number of bytes per image
+    SLstring      _path;          //!< path on the filesystem
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLCVImage*> SLCVVImage;

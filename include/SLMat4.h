@@ -11,17 +11,17 @@
 #ifndef SLMAT4_H
 #define SLMAT4_H
 
-#include <assert.h>
 #include <SL.h>
+#include <SLMat3.h>
+#include <SLMath.h>
 #include <SLVec3.h>
 #include <SLVec4.h>
-#include <SLMath.h>
-#include <SLMat3.h>
+#include <assert.h>
 //#include <SLVec4.h>
-#include <Shoemake/EulerAngles.h>
 #include <Shoemake/Decompose.h>
+#include <Shoemake/EulerAngles.h>
 
-extern void decomp_affine(HMatrix A, AffineParts *parts);
+extern void decomp_affine(HMatrix A, AffineParts* parts);
 
 //-----------------------------------------------------------------------------
 //! 4x4 matrix template class
@@ -48,7 +48,7 @@ mathematical texts, and is the same as used in OpenGL. It is, however, the
 opposite of Direct3D, which has inexplicably chosen to differ from the 
 accepted standard and uses row vectors and left-to-right matrix multiplication.
 */
-
+// clang-format off
 template<class T>
 class SLMat4
 {

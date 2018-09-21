@@ -8,51 +8,51 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
-#include <cstdarg> // only needed because we wrap pintf in logMessage, read the todo and fix it!
+
 #include <SLImporter.h>
+#include <cstdarg> // only needed because we wrap pintf in logMessage, read the todo and fix it!
 
 //-----------------------------------------------------------------------------
 //! Default path for 3DS models used when only filename is passed in load.
 SLstring SLImporter::defaultPath = "../_data/models/";
-
 //-----------------------------------------------------------------------------
 /*! Default constructor, doesn't log anything
 */
 SLImporter::SLImporter()
-           : _logConsoleVerbosity(LV_quiet),
-             _logFileVerbosity(LV_quiet),
-             _sceneRoot(nullptr),
-             _skeleton(nullptr)
-{ }
-
+  : _logConsoleVerbosity(LV_quiet),
+    _logFileVerbosity(LV_quiet),
+    _sceneRoot(nullptr),
+    _skeleton(nullptr)
+{
+}
 //-----------------------------------------------------------------------------
 /*! Constructor that only outputs console logs
 */
 SLImporter::SLImporter(SLLogVerbosity consoleVerb)
-           : _logFileVerbosity(LV_quiet),
-            _sceneRoot(nullptr),
-            _skeleton(nullptr)
-{ }
-
+  : _logFileVerbosity(LV_quiet),
+    _sceneRoot(nullptr),
+    _skeleton(nullptr)
+{
+}
 //-----------------------------------------------------------------------------
 /*! Constructor that allows logging to a file with different verbosity
 */
 SLImporter::SLImporter(const SLstring& logFile,
-                       SLLogVerbosity logConsoleVerb,
-                       SLLogVerbosity logFileVerb)
-           : _logConsoleVerbosity(logConsoleVerb),
-             _logFileVerbosity(logFileVerb),
-             _sceneRoot(nullptr),
-             _skeleton(nullptr)
-{ 
+                       SLLogVerbosity  logConsoleVerb,
+                       SLLogVerbosity  logFileVerb)
+  : _logConsoleVerbosity(logConsoleVerb),
+    _logFileVerbosity(logFileVerb),
+    _sceneRoot(nullptr),
+    _skeleton(nullptr)
+{
     if (_logFileVerbosity > LV_quiet)
         _log.open(logFile.c_str());
 }
-
 //-----------------------------------------------------------------------------
 /*! Destructor, closes the file stream if it was used
 */
@@ -61,7 +61,6 @@ SLImporter::~SLImporter()
     if (_log.is_open())
         _log.close();
 }
-
 //-----------------------------------------------------------------------------
 /*! Logs messages to the importer logfile and the console
     @param  msg          the message to add to the log
@@ -74,11 +73,11 @@ SLImporter::~SLImporter()
 */
 void SLImporter::logMessage(SLLogVerbosity verbosity, const char* msg, ...)
 {
-    #if defined(SL_OS_ANDROID)
-    #define SL_LOG(msg);
-    #else
+#if defined(SL_OS_ANDROID)
+#    define SL_LOG(msg) ;
+#else
     // write message to a buffer
-    char buffer[4096];
+    char         buffer[4096];
     std::va_list arg;
     va_start(arg, msg);
     std::vsnprintf(buffer, 4096, msg, arg);
@@ -91,6 +90,6 @@ void SLImporter::logMessage(SLLogVerbosity verbosity, const char* msg, ...)
         _log << buffer;
         _log.flush();
     }
-    #endif
+#endif
 }
 //-----------------------------------------------------------------------------
