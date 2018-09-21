@@ -156,6 +156,13 @@ void SLCVTrackedMapping::initialize()
     //  - the two new keyframes are added to the local mapper and the local mapper is started twice
     //  - the tracking state is changed to TRACKING/INITIALIZED
 
+    // Get Map Mutex -> Map cannot be changed
+    std::unique_lock<std::mutex> lock(_map->mMutexMapUpdate, std::defer_lock);
+    if (!_serial)
+    {
+        lock.lock();
+    }
+
     mCurrentFrame = SLCVFrame(_imageGray, 0.0, mpIniORBextractor,
         _calib->cameraMat(), _calib->distortion(), mpVocabulary, _retainImg);
 
@@ -1023,15 +1030,18 @@ bool SLCVTrackedMapping::NeedNewKeyFrame()
         if(bLocalMappingIdle)
         {
             return true;
+            std::cout << "[SLCVTrackedMapping] NeedNewKeyFrame: YES bLocalMappingIdle!" << std::endl;
         }
         else
         {
             mpLocalMapper->InterruptBA();
             return false;
+            std::cout << "[SLCVTrackedMapping] NeedNewKeyFrame: NO InterruptBA!" << std::endl;
         }
     }
     else
     {
+        std::cout << "[SLCVTrackedMapping] NeedNewKeyFrame: YES needs new keyframe!" << std::endl;
         return false;
     }
 }

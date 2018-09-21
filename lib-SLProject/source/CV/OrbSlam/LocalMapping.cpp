@@ -56,15 +56,16 @@ void LocalMapping::Run()
 
     while(1)
     {
-        //{
-        //    std::unique_lock<std::mutex> lock(_mutexLoop);
-        //    _condVarLoop.wait(lock, [&] { return !_loopWait; });
-        //}
-        ////sleep again: if one participant is calling wake up in between the previous and the next call
-        ////the loop will be executed anyway!
-        //loopWait();
+        {
+            std::unique_lock<std::mutex> lock(_mutexLoop);
+            //_condVarLoop.wait(lock, [&] { return !_loopWait; });
+            _condVarLoop.wait_for(lock, 1000ms,[&] { return !_loopWait; });
+        }
+        //sleep again: if one participant is calling wake up in between the previous and the next call
+        //the loop will be executed anyway!
+        loopWait();
 
-        // Tracking will see that Local Mapping is busy
+        // Tracking will see that Local Mapping is busy (not used for keyframe insertion but as a condition
         SetAcceptKeyFrames(false);
 
         // Check if there are keyframes in the queue
@@ -123,7 +124,11 @@ void LocalMapping::Run()
         if (CheckFinish())
             break;
 
-        std::this_thread::sleep_for(std::chrono::seconds(3));
+//#ifdef _WINDOWS
+//        Sleep(3);
+//#else
+//        usleep(3000);
+//#endif
     }
 
     mbFinishRequested = false;
@@ -517,6 +522,7 @@ void LocalMapping::CreateNewMapPoints()
 
 void LocalMapping::SearchInNeighbors()
 {
+    std::cout << "[LocalMapping] SearchInNeighbors" << std::endl;
     // Retrieve neighbor keyframes
     int nn = 10;
     if(mbMonocular)
@@ -698,6 +704,7 @@ void LocalMapping::InterruptBA()
 
 void LocalMapping::KeyFrameCulling()
 {
+    std::cout << "[LocalMapping] KeyFrameCulling" << std::endl;
     // Check redundant keyframes (only local keyframes)
     // A keyframe is considered redundant if the 90% of the MapPoints it sees, are seen
     // in at least other 3 keyframes (in the same or finer scale)
@@ -844,11 +851,11 @@ bool LocalMapping::isFinished()
 
 void LocalMapping::loopContinue()
 {
-    //{
-    //    std::lock_guard<std::mutex> guard(_mutexLoop);
-    //    _loopWait = false;
-    //}
-    //_condVarLoop.notify_one();
+    {
+        std::lock_guard<std::mutex> guard(_mutexLoop);
+        _loopWait = false;
+    }
+    _condVarLoop.notify_one();
 }
 void LocalMapping::loopWait()
 {
