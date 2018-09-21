@@ -233,16 +233,17 @@ void SLCVCapture::adjustForSL()
 
         if (inWdivH > outWdivH) // crop input image left & right
         {
-            width = (SLint)((SLfloat)lastFrame.rows * outWdivH);
-            cropW = (SLint)((SLfloat)(SLCVCapture::lastFrame.cols - width) * 0.5f);
-            cropW = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);
+            width  = (SLint)((SLfloat)lastFrame.rows * outWdivH);
+            height = lastFrame.rows;
+            cropW  = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);
         }
         else // crop input image at top & bottom
         {
-            width = lastFrame.cols;
-            cropH = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
+            width  = lastFrame.cols;
+            height = (SLint)((SLfloat)lastFrame.cols / outWdivH);
+            cropH  = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
         }
-        SLCVCapture::lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(SLCVCapture::lastFrame);
+        lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(lastFrame);
         //imwrite("AfterCropping.bmp", lastFrame);
     }
 
@@ -363,7 +364,7 @@ void SLCVCapture::loadIntoLastFrame(const SLint         width,
             destStride         = (size_t)(bpl - width * bpp);
         }
 
-        SLCVCapture::lastFrame(SLCVMat(height, width, cvType, (void*)data, destStride));
+        SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, destStride);
     }
 
     adjustForSL();
