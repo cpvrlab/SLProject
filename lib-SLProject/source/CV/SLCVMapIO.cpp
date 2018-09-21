@@ -157,17 +157,6 @@ void SLCVMapIO::save(const string& filename, SLCVMap& map, bool kfImgsIO, const 
     if (!kfs.size())
         return;
 
-    //store levels and scaleFactor here and not for every keyframe
-    if (kfs.size())
-    {
-        //scale factor
-        fs << "scaleFactor" << kfs[0]->mfScaleFactor;
-        //number of pyriamid scale levels
-        fs << "nScaleLevels" << kfs[0]->mnScaleLevels;
-        //store camera matrix
-        fs << "K" << kfs[0]->mK;
-    }
-
     //start sequence keyframes
     fs << "KeyFrames" << "[";
     for (int i = 0; i < kfs.size(); ++i)
@@ -199,6 +188,23 @@ void SLCVMapIO::save(const string& filename, SLCVMap& map, bool kfImgsIO, const 
         fs << "Tcw" << kf->GetPose();
         fs << "featureDescriptors" << kf->mDescriptors;
         fs << "keyPtsUndist" << kf->mvKeysUn;
+
+        //scale factor
+        fs << "scaleFactor" << kf->mfScaleFactor;
+        //number of pyriamid scale levels
+        fs << "nScaleLevels" << kf->mnScaleLevels;
+        //fs << "fx" << kf->fx;
+        //fs << "fy" << kf->fy;
+        //fs << "cx" << kf->cx;
+        //fs << "cy" << kf->cy;
+        fs << "K" << kf->mK;
+
+        //debug print
+        //std::cout << "fx" << kf->fx << std::endl;
+        //std::cout << "fy" << kf->fy << std::endl;
+        //std::cout << "cx" << kf->cx << std::endl;
+        //std::cout << "cy" << kf->cy << std::endl;
+        //std::cout << "K" << kf->mK << std::endl;
 
         fs << "nMinX" << kf->mnMinX;
         fs << "nMinY" << kf->mnMinY;
@@ -280,6 +286,8 @@ void SLCVMapIO::save(const string& filename, SLCVMap& map, bool kfImgsIO, const 
 void SLCVMapIO::calculateScaleFactors(float scaleFactor, int nlevels)
 {
     //(copied from ORBextractor ctor)
+    _vScaleFactor.clear();
+    _vLevelSigma2.clear();
     _vScaleFactor.resize(nlevels);
     _vLevelSigma2.resize(nlevels);
     _vScaleFactor[0] = 1.0f;
@@ -301,25 +309,6 @@ void SLCVMapIO::calculateScaleFactors(float scaleFactor, int nlevels)
 //-----------------------------------------------------------------------------
 void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
 {
-    //calibration information
-    //load camera matrix
-    cv::Mat K;
-    _fs["K"] >> K;
-    float fx, fy, cx, cy;
-    fx = K.at<float>(0, 0);
-    fy = K.at<float>(1, 1);
-    cx = K.at<float>(0, 2);
-    cy = K.at<float>(1, 2);
-
-    //ORB extractor information
-    float scaleFactor;
-    _fs["scaleFactor"] >> scaleFactor;
-    //number of pyriamid scale levels
-    int nScaleLevels = -1;
-    _fs["nScaleLevels"] >> nScaleLevels;
-    //calculation of scaleFactors , levelsigma2, invScaleFactors and invLevelSigma2
-    calculateScaleFactors(scaleFactor, nScaleLevels);
-
     cv::FileNode n = _fs["KeyFrames"];
     if (n.type() != cv::FileNode::SEQ)
     {
@@ -334,7 +323,6 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
     //vector of keyframe ids of connected loop edge candidates mapped to kf id that they are connected to
     std::map<int, std::vector<int>> loopEdgesMap;
     //reserve space in kfs
-    //kfs.reserve(n.size());
     for (auto it = n.begin(); it != n.end(); ++it)
     {
         int id = (*it)["id"];
@@ -367,6 +355,25 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         //todo: braucht man diese wirklich oder kann man das umgehen, indem zus�tzliche daten im MapPoint abgelegt werden (z.B. octave/level siehe UpdateNormalAndDepth)
         std::vector<cv::KeyPoint> keyPtsUndist;
         (*it)["keyPtsUndist"] >> keyPtsUndist;
+
+        //ORB extractor information
+        float scaleFactor;
+        (*it)["scaleFactor"] >> scaleFactor;
+        //number of pyriamid scale levels
+        int nScaleLevels = -1;
+        (*it)["nScaleLevels"] >> nScaleLevels;
+        //calculation of scaleFactors , levelsigma2, invScaleFactors and invLevelSigma2
+        calculateScaleFactors(scaleFactor, nScaleLevels);
+
+        //calibration information
+        //load camera matrix
+        cv::Mat K;
+        (*it)["K"] >> K;
+        float fx, fy, cx, cy;
+        fx = K.at<float>(0, 0);
+        fy = K.at<float>(1, 1);
+        cx = K.at<float>(0, 2);
+        cy = K.at<float>(1, 2);
 
         //image bounds
         float nMinX, nMinY, nMaxX, nMaxY;
