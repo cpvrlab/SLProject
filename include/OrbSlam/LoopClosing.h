@@ -27,6 +27,7 @@
 #include <OrbSlam/ORBVocabulary.h>
 //#include "Tracking.h"
 
+#include <condition_variable>
 #include <thread>
 #include <mutex>
 #include <g2o/types/sim3/types_seven_dof_expmap.h>
@@ -49,9 +50,7 @@ public:
 
 public:
 
-    LoopClosing(SLCVMap* pMap, SLCVKeyFrameDB* pDB, ORBVocabulary* pVoc,const bool bFixScale);
-
-    void SetTracker(Tracking* pTracker);
+    LoopClosing(SLCVMap* pMap, SLCVKeyFrameDB* pDB, ORBVocabulary* pVoc, const bool bFixScale, const bool manualLoopClose = false);
 
     void SetLocalMapper(LocalMapping* pLocalMapper);
 
@@ -74,7 +73,7 @@ public:
     bool isFinishedGBA(){
         unique_lock<std::mutex> lock(mMutexGBA);
         return mbFinishedGBA;
-    }   
+    }
 
     void RequestFinish();
 
@@ -84,6 +83,8 @@ public:
     {
         LOOP_CLOSE_STATUS_NONE,
         LOOP_CLOSE_STATUS_NOT_ENOUGH_KEYFRAMES,
+        LOOP_CLOSE_STATUS_NO_CANDIDATES_WITH_COMMON_WORDS,
+        LOOP_CLOSE_STATUS_NO_SIMILAR_CANDIDATES,
         LOOP_CLOSE_STATUS_NO_LOOP_CANDIDATES,
         LOOP_CLOSE_STATUS_NO_CONSISTENT_CANDIDATES,
         LOOP_CLOSE_STATUS_NO_OPTIMIZED_CANDIDATES,
@@ -91,9 +92,14 @@ public:
         LOOP_CLOSE_STATUS_LOOP_CLOSED,
         LOOP_CLOSE_STATUS_NO_NEW_KEYFRAME
     };
-    LoopCloseStatus status();
+    const char* getStatusString();
 
-    int numOfLoopClosings();
+    int numOfCandidates();
+    int numOfConsistentCandidates();
+    int numOfConsistentGroups();
+    int numOfKfsInQueue();
+
+    void startLoopCloseAttempt();
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -129,8 +135,14 @@ protected:
     LocalMapping *mpLocalMapper;
 
     std::list<SLCVKeyFrame*> mlpLoopKeyFrameQueue;
-
     std::mutex mMutexLoopQueue;
+
+    //replacement for thread sleep:
+    std::mutex _mutexLoop;
+    std::condition_variable _condVarLoop;
+    bool _loopWait = true;
+    void loopContinue();
+    void loopWait();
 
     // Loop detector parameters
     float mnCovisibilityConsistencyTh;
@@ -164,8 +176,17 @@ protected:
     std::mutex mMutexStatus;
     void status(LoopCloseStatus status);
 
-    std::mutex mMutexNumLoopClosings;
-    int _numLoopClosings;
+    std::mutex mMutexLoopCloseAttempt;
+    bool shouldLoopCloseBeAttempted();
+    bool _attemptLoopClose;
+    const bool _manualLoopClose;
+
+    // Gui information
+    std::mutex mMutexNumConsistentGroups;
+    std::mutex mMutexNumCandidates;
+    int _numOfCandidates = 0;
+    std::mutex mMutexNumConsistentCandidates;
+    int _numOfConsistentCandidates = 0;
 };
 
 } //namespace ORB_SLAM

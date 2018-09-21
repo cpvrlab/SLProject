@@ -96,6 +96,10 @@ public:
     size_t getSizeOf();
 
     bool isKeyFrameInMap(SLCVKeyFrame* pKF);
+
+    void incNumLoopClosings();
+    void setNumLoopClosings(int n);
+    int getNumLoopClosings();
 protected:
     std::set<SLCVMapPoint*> mspMapPoints;
     std::set<SLCVKeyFrame*> mspKeyFrames;
@@ -110,6 +114,8 @@ protected:
     std::mutex mMutexMap;
 
     SLCVMapNode* _mapNode = NULL;
+    std::mutex _mutexLoopClosings;
+    int _numberOfLoopClosings = 0;
 };
 
 #endif // !SLCVMAP_H

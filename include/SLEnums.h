@@ -124,6 +124,7 @@ enum SLSceneID
     SID_VideoSensorAR,
     SID_VideoTrackKeyFrames,
     SID_VideoFilesTrackKeyFrames,
+    SID_VideoMappingBurgplatz,
     SID_VideoMapping,
     SID_VideoFilesMapping,
     SID_RTMuttenzerBox,

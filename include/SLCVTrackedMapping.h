@@ -38,22 +38,6 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 {
     public:
 
-        int getNumLoopClosings() { return mpLoopCloser->numOfLoopClosings(); }
-        const char* getLoopClosingStatusString();
-
-        enum InitializationStatus
-        {
-            INITIALIZATION_STATUS_NONE,
-            INITIALIZATION_STATUS_INITIALIZED,
-            INITIALIZATION_STATUS_REFERENCE_KEYFRAME_SET,
-            INITIALIZATION_STATUS_REFERENCE_KEYFRAME_DELETED_KEYPOINTS,
-            INITIALIZATION_STATUS_REFERENCE_KEYFRAME_DELETED_MATCHES,
-            INITIALIZATION_STATUS_INITIALIZER_INITIALIZED
-        };
-        const char* getInitializationStatusString();
-
-        //enum TrackingStates { IDLE, INITIALIZE, TRACK_VO, TRACK_3DPTS, TRACK_OPTICAL_FLOW };
-
         SLCVTrackedMapping(SLNode* node,
                            bool onlyTracking,
                            SLCVMapNode* mapNode = NULL,
@@ -79,6 +63,15 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 
         SLCVKeyFrame* currentKeyFrame();
 
+        // TODO(jan): maybe make private again
+        LocalMapping* mpLocalMapper = NULL;
+        LoopClosing* mpLoopCloser = NULL;
+
+        //New KeyFrame rules (according to fps)
+        // Max/Min Frames to insert keyframes and to check relocalisation
+        int mMinFrames = 0;
+        int mMaxFrames = 30; //= fps
+
     private:
         // Map initialization for monocular
         bool CreateInitialMapMonocular();
@@ -101,6 +94,9 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         bool TrackWithOptFlow();
         void UpdateLastFrame();
         void CheckReplacedInLastFrame();
+
+        //optical flow tracking functions
+        bool posInGrid(const cv::KeyPoint &kp, int &posX, int &posY, int minX, int minY);
 
         //Motion Model
         cv::Mat mVelocity;
@@ -136,14 +132,6 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
         // "zero-drift" localization to the map.
         bool mbVO = false;
 
-        LocalMapping* mpLocalMapper = NULL;
-        LoopClosing* mpLoopCloser = NULL;
-
-        //New KeyFrame rules (according to fps)
-        // Max/Min Frames to insert keyframes and to check relocalisation
-        int mMinFrames = 0;
-        int mMaxFrames = 30; //= fps
-
         // Lists used to recover the full camera trajectory at the end of the execution.
         // Basically we store the reference keyframe for each frame and its relative transformation
         list<cv::Mat> mlRelativeFramePoses;
@@ -174,7 +162,8 @@ class SLCVTrackedMapping : public SLCVTracked, public SLCVMapTracking
 
         bool _serial;
 
-        InitializationStatus initializationStatus = InitializationStatus::INITIALIZATION_STATUS_NONE;
+        cv::VideoWriter _videoWriter;
+        bool _videoCaptureStarted = false;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedMapping_H

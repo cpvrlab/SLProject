@@ -39,6 +39,9 @@ public:
     bool showMatchesPC() const { return _showMatchesPC; }
     bool showLocalMapPC() const { return _showLocalMapPC; }
     bool showKeyFrames() const { return _showKeyFrames; }
+    bool showCovisibilityGraph() const { return _showCovisibilityGraph; }
+    bool showSpanningTree() const { return _showSpanningTree; }
+    bool showLoopEdges() const { return _showLoopEdges; }
     bool renderKfBackground() const { return _renderKfBackground; }
     bool allowKfsAsActiveCam() const { return _allowKfsAsActiveCam; }
 
@@ -49,6 +52,9 @@ public:
     void showMatchesPC(bool state) { _showMatchesPC = state; }
     void showLocalMapPC(bool state) { _showLocalMapPC = state; }
     void showKeyFrames(bool state) { _showKeyFrames = state; }
+    void showCovisibilityGraph(bool state) { _showCovisibilityGraph = state; }
+    void showSpanningTree(bool state) { _showSpanningTree = state; }
+    void showLoopEdges(bool state) { _showLoopEdges = state; }
     void renderKfBackground(bool state) { _renderKfBackground = state; }
     void allowKfsAsActiveCam(bool state) { _allowKfsAsActiveCam = state; }
 
@@ -65,6 +71,10 @@ protected:
     bool _showLocalMapPC = false;
     //!flags, if keyframes should be shown
     bool _showKeyFrames = true;
+    //!flags, if graphs should be shown
+    bool _showCovisibilityGraph = false;
+    bool _showSpanningTree = true;
+    bool _showLoopEdges = true;
     //!flags, if keyframes backgound should be rendered
     bool _renderKfBackground = false;
     //!flags, if we allow to iterate through keyframes and set them as active scene cameras

@@ -87,6 +87,7 @@ public:
     vector<SLCVKeyFrame*> GetBestCovisibilityKeyFrames(const int &N);
     std::vector<SLCVKeyFrame*> GetCovisiblesByWeight(const int &w);
     int GetWeight(SLCVKeyFrame* pKF);
+    const std::map<SLCVKeyFrame*, int>& GetConnectedKfWeights();
 
     // Spanning tree functions
     void AddChild(SLCVKeyFrame* pKF);
@@ -231,7 +232,6 @@ protected:
     SLCVKeyFrameDB* _kfDb = NULL;
 
     // Grid over the image to speed up feature matching
-    //ghm1: different initialization... why again???
     std::vector<std::size_t> mGrid[FRAME_GRID_COLS][FRAME_GRID_ROWS];
 
     std::map<SLCVKeyFrame*, int> mConnectedKeyFrameWeights;

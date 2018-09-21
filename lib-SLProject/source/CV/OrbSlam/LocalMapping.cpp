@@ -56,7 +56,16 @@ void LocalMapping::Run()
 
     while(1)
     {
-        // Tracking will see that Local Mapping is busy
+        {
+            std::unique_lock<std::mutex> lock(_mutexLoop);
+            //_condVarLoop.wait(lock, [&] { return !_loopWait; });
+            _condVarLoop.wait_for(lock, 1000ms,[&] { return !_loopWait; });
+        }
+        //sleep again: if one participant is calling wake up in between the previous and the next call
+        //the loop will be executed anyway!
+        loopWait();
+
+        // Tracking will see that Local Mapping is busy (not used for keyframe insertion but as a condition
         SetAcceptKeyFrames(false);
 
         // Check if there are keyframes in the queue
@@ -84,7 +93,7 @@ void LocalMapping::Run()
                 // Local BA
                 //if(mpMap->KeyFramesInMap()>2)
                 if (mpMap->KeyFramesInMap()>2)
-                    Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame,&mbAbortBA, mpMap);
+                    Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame, &mbAbortBA, mpMap);
 
                 // Check redundant local Keyframes
                 KeyFrameCulling();
@@ -112,14 +121,14 @@ void LocalMapping::Run()
         // Tracking will see that Local Mapping is busy
         SetAcceptKeyFrames(true);
 
-        if(CheckFinish())
+        if (CheckFinish())
             break;
 
-#ifdef _WINDOWS
-                Sleep(3);
-#else
-                usleep(3000);
-#endif
+//#ifdef _WINDOWS
+//        Sleep(3);
+//#else
+//        usleep(3000);
+//#endif
     }
 
     mbFinishRequested = false;
@@ -168,9 +177,12 @@ void LocalMapping::RunOnce()
 
 void LocalMapping::InsertKeyFrame(SLCVKeyFrame *pKF)
 {
-    unique_lock<mutex> lock(mMutexNewKFs);
-    mlNewKeyFrames.push_back(pKF);
-    mbAbortBA=true;
+    {
+        unique_lock<mutex> lock(mMutexNewKFs);
+        mlNewKeyFrames.push_back(pKF);
+        mbAbortBA=true;
+    }
+    loopContinue();
 }
 
 
@@ -510,6 +522,7 @@ void LocalMapping::CreateNewMapPoints()
 
 void LocalMapping::SearchInNeighbors()
 {
+    std::cout << "[LocalMapping] SearchInNeighbors" << std::endl;
     // Retrieve neighbor keyframes
     int nn = 10;
     if(mbMonocular)
@@ -611,10 +624,13 @@ cv::Mat LocalMapping::ComputeF12(SLCVKeyFrame *&pKF1, SLCVKeyFrame *&pKF2)
 
 void LocalMapping::RequestStop()
 {
-    unique_lock<mutex> lock(mMutexStop);
-    mbStopRequested = true;
-    unique_lock<mutex> lock2(mMutexNewKFs);
-    mbAbortBA = true;
+    {
+        unique_lock<mutex> lock(mMutexStop);
+        mbStopRequested = true;
+        unique_lock<mutex> lock2(mMutexNewKFs);
+        mbAbortBA = true;
+    }
+    loopContinue();
 }
 
 bool LocalMapping::Stop()
@@ -688,6 +704,7 @@ void LocalMapping::InterruptBA()
 
 void LocalMapping::KeyFrameCulling()
 {
+    std::cout << "[LocalMapping] KeyFrameCulling" << std::endl;
     // Check redundant keyframes (only local keyframes)
     // A keyframe is considered redundant if the 90% of the MapPoints it sees, are seen
     // in at least other 3 keyframes (in the same or finer scale)
@@ -770,6 +787,7 @@ void LocalMapping::RequestReset()
         unique_lock<mutex> lock(mMutexReset);
         mbResetRequested = true;
     }
+    loopContinue();
 
     while(1)
     {
@@ -778,11 +796,7 @@ void LocalMapping::RequestReset()
             if(!mbResetRequested)
                 break;
         }
-#ifdef _WINDOWS
-                Sleep(3);
-#else
-                usleep(3000);
-#endif
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }
 
@@ -808,8 +822,11 @@ void LocalMapping::reset()
 
 void LocalMapping::RequestFinish()
 {
-    unique_lock<mutex> lock(mMutexFinish);
-    mbFinishRequested = true;
+    {
+        unique_lock<mutex> lock(mMutexFinish);
+        mbFinishRequested = true;
+    }
+    loopContinue();
 }
 
 bool LocalMapping::CheckFinish()
@@ -830,6 +847,20 @@ bool LocalMapping::isFinished()
 {
     unique_lock<mutex> lock(mMutexFinish);
     return mbFinished;
+}
+
+void LocalMapping::loopContinue()
+{
+    {
+        std::lock_guard<std::mutex> guard(_mutexLoop);
+        _loopWait = false;
+    }
+    _condVarLoop.notify_one();
+}
+void LocalMapping::loopWait()
+{
+    std::lock_guard<std::mutex> guard(_mutexLoop);
+    _loopWait = true;
 }
 
 } //namespace ORB_SLAM

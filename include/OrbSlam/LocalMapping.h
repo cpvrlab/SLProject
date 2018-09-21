@@ -27,6 +27,7 @@
 //#include "Tracking.h"
 #include "SLCVKeyFrameDB.h"
 
+#include <condition_variable>
 #include <mutex>
 
 class SLCVMap;
@@ -40,7 +41,7 @@ class LoopClosing;
 class LocalMapping
 {
 public:
-    LocalMapping(SLCVMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary);
+    LocalMapping(SLCVMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary );
 
     void SetLoopCloser(LoopClosing* pLoopCloser);
 
@@ -102,6 +103,13 @@ protected:
     bool mbFinishRequested;
     bool mbFinished;
     std::mutex mMutexFinish;
+
+    //replacement for thread sleep:
+    std::mutex _mutexLoop;
+    std::condition_variable _condVarLoop;
+    bool _loopWait = true;
+    void loopContinue();
+    void loopWait();
 
     SLCVMap* mpMap;
 

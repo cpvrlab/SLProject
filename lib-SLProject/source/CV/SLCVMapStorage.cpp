@@ -33,6 +33,7 @@ SLCVMapStorage::SLCVMapStorage()
 void SLCVMapStorage::init()
 {
     existingMapNames.clear();
+    vector<pair<int, string>> existingMapNamesSorted;
 
     //setup file system and check for existing files
     if (SLFileSystem::externalDirExists())
@@ -56,7 +57,6 @@ void SLCVMapStorage::init()
                 //find json files that contain mapPrefix and estimate highest used id
                 if (SLUtils::contains(name, _mapPrefix))
                 {
-                    existingMapNames.push_back(name);
                     SL_LOG("VO-Map found: %s\n", name.c_str());
                     //estimate highest used id
                     SLVstring splitted;
@@ -64,6 +64,7 @@ void SLCVMapStorage::init()
                     if (splitted.size())
                     {
                         int id = atoi(splitted.back().c_str());
+                        existingMapNamesSorted.push_back(make_pair(id, name));
                         if (id >= _nextId)
                         {
                             _nextId = id + 1;
@@ -73,6 +74,12 @@ void SLCVMapStorage::init()
                 }
             }
         }
+        //sort existingMapNames
+        std::sort(existingMapNamesSorted.begin(), existingMapNamesSorted.end(),
+            [](const pair<int, string>& left, const pair<int, string>& right) { return left.first < right.first; });
+        for(auto it = existingMapNamesSorted.begin(); it != existingMapNamesSorted.end(); ++it )
+            existingMapNames.push_back(it->second);
+
         //mark storage as initialized
         _isInitialized = true;
     }
@@ -108,14 +115,16 @@ void SLCVMapStorage::saveMap(int id, SLCVMapTracking* mapTracking, bool saveImgs
         {
             //remove json file
             if (SLFileSystem::fileExists(filename))
-                SLFileSystem::deleteFile(filename);
-            //check if imgs dir exists and delete all containing files
-            if (SLFileSystem::fileExists(pathImgs))
             {
-                SLVstring content = SLUtils::getFileNamesInDir(pathImgs);
-                for (auto path : content)
+                SLFileSystem::deleteFile(filename);
+                //check if imgs dir exists and delete all containing files
+                if (SLFileSystem::fileExists(pathImgs))
                 {
-                    SLFileSystem::deleteFile(path);
+                    SLVstring content = SLUtils::getFileNamesInDir(pathImgs);
+                    for (auto path : content)
+                    {
+                        SLFileSystem::deleteFile(path);
+                    }
                 }
             }
         }
@@ -123,6 +132,10 @@ void SLCVMapStorage::saveMap(int id, SLCVMapTracking* mapTracking, bool saveImgs
         {
             //create map directory and imgs directory
             SLFileSystem::makeDir(path);
+        }
+
+        if (!SLFileSystem::fileExists(pathImgs))
+        {
             SLFileSystem::makeDir(pathImgs);
         }
 
@@ -279,4 +292,9 @@ void SLCVMapStorage::newMap()
 
     //assign next id to current id. The nextId will be increased after file save.
     _currentId = _nextId;
+}
+//-----------------------------------------------------------------------------
+string SLCVMapStorage::mapsDir()
+{
+    return _mapsDir;
 }

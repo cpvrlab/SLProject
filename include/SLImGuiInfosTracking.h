@@ -14,19 +14,22 @@
 #include <string>
 #include <SLImGuiInfosDialog.h>
 
-//interface
 class SLTrackingInfosInterface;
+class SLCVMapNode;
 
 //-----------------------------------------------------------------------------
 class SLImGuiInfosTracking : public SLImGuiInfosDialog
 {
 public:
-    SLImGuiInfosTracking(std::string name, SLTrackingInfosInterface* tracker);
+    SLImGuiInfosTracking(std::string name, SLTrackingInfosInterface* tracker, SLCVMapNode* mapNode );
 
     void buildInfos() override;
 
 private:
     SLTrackingInfosInterface* _interface = nullptr;
+    SLCVMapNode* _mapNode = nullptr;
+
+    int _minNumCovisibleMapPts = 0;
 };
 
 #endif SL_IMGUI_INFOSTRACKING_H

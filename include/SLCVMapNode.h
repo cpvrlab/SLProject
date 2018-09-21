@@ -19,6 +19,7 @@ class SLMaterial;
 class SLPoints;
 class SLCVKeyFrame;
 class SLCVMapPoint;
+class SLPolyline;
 
 //-----------------------------------------------------------------------------
 class SLCVMapNode : public SLNode
@@ -45,13 +46,21 @@ public:
     void removeMapPointsLocal();
     void removeMapPointsMatched();
     void removeKeyFrames();
+    void removeGraphs();
 
     //!used to remove all when map changes
     void clearAll();
 
+    //! Set minimum number of covisible map points: directly updates the graph.
+    //! It must be called from gui thread
+    void updateMinNumOfCovisibles(int n);
+
     //!set hidden flags
     void setHideMapPoints(bool state);
     void setHideKeyFrames(bool state);
+    void setHideCovisibilityGraph(bool state);
+    void setHideSpanningTree(bool state);
+    void setHideLoopEdges(bool state);
 
     //getters
     bool renderKfBackground() { return _renderKfBackground; }
@@ -59,7 +68,7 @@ public:
     //setters
     void renderKfBackground(bool s) { _renderKfBackground = s; }
     void allowAsActiveCam(bool s) { _allowAsActiveCam = s; }
-
+    int getMinNumOfCovisibles() { return _minNumOfCovisibles; }
 private:
     //! add map nodes and instantiate materials
     void init();
@@ -69,9 +78,14 @@ private:
         SLNode*& node, SLPoints*& mesh, SLMaterial*& material);
     //!execute keyframe update
     void doUpdateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs);
+    //!execute update of spanning tree, covisibility graph and loop edges
+    void doUpdateGraphs(const std::vector<SLCVKeyFrame*>& kfs);
 
     //Nodes:
     SLNode* _keyFrames = NULL;
+    SLNode* _covisibilityGraph = NULL;
+    SLNode* _spanningTree = NULL;
+    SLNode* _loopEdges = NULL;
     SLNode* _mapPC = NULL;
     SLNode* _mapMatchedPC = NULL;
     SLNode* _mapLocalPC = NULL;
@@ -79,10 +93,19 @@ private:
     SLPoints* _mapMesh = NULL;
     SLPoints* _mapLocalMesh = NULL;
     SLPoints* _mapMatchesMesh = NULL;
+    SLPolyline* _covisibilityGraphMesh = NULL;
+    SLPolyline* _spanningTreeMesh = NULL;
+    SLPolyline* _loopEdgesMesh = NULL;
     //Materials:
     SLMaterial* _pcMat = NULL;
     SLMaterial* _pcMatchedMat = NULL;
     SLMaterial* _pcLocalMat = NULL;
+    SLMaterial* _covisibilityGraphMat = NULL;
+    SLMaterial* _spanningTreeMat = NULL;
+    SLMaterial* _loopEdgesMat = NULL;
+
+    //vector of keyframe textures: we store a pointer to correctly delete them during a keyframe update
+    std::vector<SLGLTexture*> _kfTextures;
 
     //!mutex saved flags and vectors: only manipulate locking mutex
     bool _mapPtsChanged = false;
@@ -97,12 +120,15 @@ private:
     bool _removeMapPointsLocal = false;
     bool _removeMapPointsMatched = false;
     bool _removeKeyFrames = false;
+    bool _removeGraphs = false;
 
     //if backgound rendering is active kf images will be rendered on 
     //near clipping plane if kf is not the active camera
     bool _renderKfBackground = false;
     //allow SLCVCameras as active camera so that we can look through it
     bool _allowAsActiveCam = false;
+    //! minimum number of covisibles for covisibility graph visualization
+    int _minNumOfCovisibles = 50;
 
     std::mutex _mutex;
 };

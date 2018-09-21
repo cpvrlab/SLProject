@@ -45,19 +45,28 @@ void SLImGuiTrackedMapping::buildInfos()
 
     //add tracking state
     ImGui::Text("Tracking State : %s ", _mappingTracker->getPrintableState().c_str());
-    if (_mappingTracker->sm.state() == SLCVTrackingStateMachine::TrackingState::INITIALIZING)
-    {
-        ImGui::Text("Initialization status: %s ", _mappingTracker->getInitializationStatusString());
-    }
     //add number of matches map points in current frame
     ImGui::Text("Num Map Matches: %d ", _mappingTracker->getNMapMatches());
     //number of map points
     ImGui::Text("Num Map Pts: %d ", _mappingTracker->mapPointsCount());
     //add number of keyframes
     ImGui::Text("Number of Keyframes : %d ", _mappingTracker->getNumKeyFrames());
-    //add loop closings counter
-    ImGui::Text("Number of LoopClosings : %d ", _mappingTracker->getNumLoopClosings());
-    ImGui::Text("Loop closing status : %s ", _mappingTracker->getLoopClosingStatusString());
+    ImGui::InputInt("Min. frames before next KF", &_mappingTracker->mMinFrames, 5, 0);
+
+    if (_mappingTracker->mpLoopCloser)
+    {
+        //add loop closings counter
+        ImGui::Text("Number of LoopClosings : %d ", _mappingTracker->getMap()->getNumLoopClosings());
+        //ImGui::Text("Number of LoopClosings : %d ", _mappingTracker->mpLoopCloser->numOfLoopClosings());
+        ImGui::Text("Loop closing status : %s ", _mappingTracker->mpLoopCloser->getStatusString());
+        ImGui::Text("Keyframes in Loop closing queue : %d", _mappingTracker->mpLoopCloser->numOfKfsInQueue());
+
+#if 0
+        ImGui::Text("Number of Loop Candidates : %d", _mappingTracker->mpLoopCloser->numOfCandidates());
+        ImGui::Text("Number of Consistent Candidates : %d", _mappingTracker->mpLoopCloser->numOfConsistentCandidates());
+        ImGui::Text("Number of Consistent Groups : %d", _mappingTracker->mpLoopCloser->numOfConsistentGroups());
+#endif
+    }
 
     SLCVKeyFrame* kf = _mappingTracker->currentKeyFrame();
     if (kf)
@@ -69,13 +78,20 @@ void SLImGuiTrackedMapping::buildInfos()
         ImGui::Text("No keyframe yet");
     }
 
+    //show 2D key points in video image
+    SLbool b = _mappingTracker->getTrackOptFlow();
+    if (ImGui::Checkbox("Track optical flow", &b))
+    {
+        _mappingTracker->setTrackOptFlow(b);
+    }
+
 #ifdef ANDROID
     float bHeigth = 200.0f;
 #else
     float bHeigth = 60.0f;
 #endif
 
-    if (ImGui::Button("Add key frame", ImVec2(ImGui::GetContentRegionAvailWidth(), bHeigth))) {
-        _mappingTracker->mapNextFrame();
+    if (ImGui::Button("Attempt loop close", ImVec2(ImGui::GetContentRegionAvailWidth(), bHeigth))) {
+        _mappingTracker->mpLoopCloser->startLoopCloseAttempt();
     }
 }

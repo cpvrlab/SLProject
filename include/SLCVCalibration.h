@@ -87,7 +87,6 @@ public:
     void            createFromGuessedFOV    (SLint imageWidthPX,
                                              SLint imageHeightPX);
 
-    static SLstring calibFolderName;        //!< calibration folder name
     static SLstring calibIniPath;           //!< calibration init parameters file path
     static void     calcBoardCorners3D      (SLCVSize boardSize,
                                              SLfloat squareSize,

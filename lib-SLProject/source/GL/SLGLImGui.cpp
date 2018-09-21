@@ -20,8 +20,8 @@
 #include <SLScene.h>
 
 //-----------------------------------------------------------------------------
-SLfloat SLGLImGui::fontPropDots     = 16.0f;
-SLfloat SLGLImGui::fontFixedDots    = 13.0f;
+SLfloat SLGLImGui::fontPropDots     = 77.0f;
+SLfloat SLGLImGui::fontFixedDots    = 63.0f;
 //-----------------------------------------------------------------------------
 SLGLImGui::SLGLImGui()
 {

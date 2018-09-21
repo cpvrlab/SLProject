@@ -251,13 +251,15 @@ int SLCVKeyFrame::GetWeight(SLCVKeyFrame *pKF)
         return 0;
 }
 //-----------------------------------------------------------------------------
+const std::map<SLCVKeyFrame*, int>& SLCVKeyFrame::GetConnectedKfWeights()
+{
+    unique_lock<mutex> lock(mMutexConnections);
+    return mConnectedKeyFrameWeights;
+}
+//-----------------------------------------------------------------------------
 void SLCVKeyFrame::AddMapPoint(SLCVMapPoint *pMP, size_t idx)
 {
     unique_lock<mutex> lock(mMutexFeatures);
-    if (mvpMapPoints[idx] && this->hasMapPoint(mvpMapPoints[idx]))
-    {
-        printf("Overwrite mappoint that still has an observation!!!\n");
-    }
 
     mvpMapPoints[idx] = pMP;
 }
@@ -680,6 +682,7 @@ bool SLCVKeyFrame::IsInImage(const float &x, const float &y) const
     return (x >= mnMinX && x<mnMaxX && y >= mnMinY && y<mnMaxY);
 }
 //-----------------------------------------------------------------------------
+//compute median z distance of all map points in the keyframe coordinate system
 float SLCVKeyFrame::ComputeSceneMedianDepth(const int q)
 {
     vector<SLCVMapPoint*> vpMapPoints;

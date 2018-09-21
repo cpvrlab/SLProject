@@ -22,7 +22,7 @@ android {
         }
         externalNativeBuild {
             cmake {
-                cppFlags "-frtti -fexceptions -std=c++11 -w -Wno-error=format-security"
+                cppFlags "-frtti -fexceptions -std=c++14 -w -Wno-error=format-security"
                 abiFilters 'arm64-v8a'
                 cFlags "-v"
                 arguments "-DANDROID_STL=gnustl_static"
