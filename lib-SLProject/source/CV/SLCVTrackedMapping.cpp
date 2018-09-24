@@ -1019,19 +1019,19 @@ bool SLCVTrackedMapping::NeedNewKeyFrame()
         // Otherwise send a signal to interrupt BA
         if (bLocalMappingIdle)
         {
-            return true;
             std::cout << "[SLCVTrackedMapping] NeedNewKeyFrame: YES bLocalMappingIdle!" << std::endl;
+            return true;
         }
         else
         {
             mpLocalMapper->InterruptBA();
-            return false;
             std::cout << "[SLCVTrackedMapping] NeedNewKeyFrame: NO InterruptBA!" << std::endl;
+            return false;
         }
     }
     else
     {
-        std::cout << "[SLCVTrackedMapping] NeedNewKeyFrame: YES needs new keyframe!" << std::endl;
+        std::cout << "[SLCVTrackedMapping] NeedNewKeyFrame: NO!" << std::endl;
         return false;
     }
 }
