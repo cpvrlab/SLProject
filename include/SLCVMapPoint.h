@@ -14,22 +14,23 @@
 #include <SLCV.h>
 #include <SLVec3.h>
 #include <map>
-#include <vector>
+#include <mutex>
 #include <opencv2/core/core.hpp>
+#include <vector>
 
 class SLCVKeyFrame;
 class SLCVFrame;
 class SLCVMap;
 //-----------------------------------------------------------------------------
-//! 
+//!
 /*! 
 */
 class SLCVMapPoint
 {
-public:
+    public:
     //!constructor used during map loading
-    SLCVMapPoint(int id, const cv::Mat &Pos, SLCVMap* pMap);
-    SLCVMapPoint(const cv::Mat &Pos, SLCVKeyFrame *pRefKF, SLCVMap* pMap);
+    SLCVMapPoint(int id, const cv::Mat& Pos, SLCVMap* pMap);
+    SLCVMapPoint(const cv::Mat& Pos, SLCVKeyFrame* pRefKF, SLCVMap* pMap);
 
     //ghm1: getters for scene object position initialization
     SLVec3f worldPosVec();
@@ -37,49 +38,49 @@ public:
 
     void worldPosVec(SLVec3f);
 
-    void SetWorldPos(const cv::Mat &Pos);
+    void    SetWorldPos(const cv::Mat& Pos);
     cv::Mat GetWorldPos();
 
-    cv::Mat GetNormal();
+    cv::Mat       GetNormal();
     SLCVKeyFrame* GetReferenceKeyFrame();
 
     std::map<SLCVKeyFrame*, size_t> GetObservations();
-    int Observations();
+    int                             Observations();
 
     void AddObservation(SLCVKeyFrame* pKF, size_t idx);
     void EraseObservation(SLCVKeyFrame* pKF);
 
-    int GetIndexInKeyFrame(SLCVKeyFrame* pKF);
-    bool IsInKeyFrame(SLCVKeyFrame *pKF);
+    int  GetIndexInKeyFrame(SLCVKeyFrame* pKF);
+    bool IsInKeyFrame(SLCVKeyFrame* pKF);
 
     void SetBadFlag();
     bool isBad();
 
-    void Replace(SLCVMapPoint* pMP);
+    void          Replace(SLCVMapPoint* pMP);
     SLCVMapPoint* GetReplaced();
 
-    void IncreaseVisible(int n = 1);
-    void IncreaseFound(int n = 1);
+    void  IncreaseVisible(int n = 1);
+    void  IncreaseFound(int n = 1);
     float GetFoundRatio();
 
-    void ComputeDistinctiveDescriptors();
+    void    ComputeDistinctiveDescriptors();
     cv::Mat GetDescriptor();
 
     void UpdateNormalAndDepth();
 
     float GetMinDistanceInvariance();
     float GetMaxDistanceInvariance();
-    int PredictScale(const float &currentDist, SLCVKeyFrame* pF);
-    int PredictScale(const float &currentDist, SLCVFrame* pF);
+    int   PredictScale(const float& currentDist, SLCVKeyFrame* pF);
+    int   PredictScale(const float& currentDist, SLCVFrame* pF);
 
     //ghm1: used for map IO
     SLCVKeyFrame* refKf() const { return mpRefKF; }
-    void refKf(SLCVKeyFrame* refKf) { mpRefKF = refKf; }
+    void          refKf(SLCVKeyFrame* refKf) { mpRefKF = refKf; }
 
     enum RefKfSource
     {
-        RefKfSource_None = 0,
-        RefKfSource_Constructor = 1,
+        RefKfSource_None             = 0,
+        RefKfSource_Constructor      = 1,
         RefKfSource_EraseObservation = 2
     };
 
@@ -87,12 +88,13 @@ public:
 
     size_t getSizeOfCvMat(const cv::Mat& mat);
     size_t getSizeOf();
-public:
+
+    public:
     long unsigned int mnId = -1;
     //ghm1: this keeps track of the highest used id, to never use the same id again
     static long unsigned int nNextId;
-    long int mnFirstKFid;
-    int nObs = 0;
+    long int                 mnFirstKFid;
+    int                      nObs = 0;
 
     // Variables used by the tracking
     //ghm1: projection point
@@ -100,11 +102,11 @@ public:
     float mTrackProjY = 0.0f;
 
     //ghm1: flags, if the map point is in frustum of the current frame
-    bool mbTrackInView = false;
-    int mnTrackScaleLevel = 0;
-    float mTrackViewCos = 0.0f;
+    bool              mbTrackInView            = false;
+    int               mnTrackScaleLevel        = 0;
+    float             mTrackViewCos            = 0.0f;
     long unsigned int mnTrackReferenceForFrame = 0;
-    long unsigned int mnLastFrameSeen = 0;
+    long unsigned int mnLastFrameSeen          = 0;
 
     // Variables used by local mapping
     long unsigned int mnBALocalForKF;
@@ -114,12 +116,12 @@ public:
     long unsigned int mnLoopPointForKF;
     long unsigned int mnCorrectedByKF;
     long unsigned int mnCorrectedReference;
-    cv::Mat mPosGBA;
+    cv::Mat           mPosGBA;
     long unsigned int mnBAGlobalForKF;
 
     static std::mutex mGlobalMutex;
 
-protected:
+    protected:
     //open cv coordinate representation: z-axis points to principlal point,
     // x-axis to the right and y-axis down
     cv::Mat mWorldPos;
@@ -134,14 +136,14 @@ protected:
     cv::Mat mDescriptor;
 
     // Reference KeyFrame
-    SLCVKeyFrame* mpRefKF=NULL;
+    SLCVKeyFrame* mpRefKF = NULL;
 
     // Tracking counters
     int mnVisible = 0;
-    int mnFound = 0;
+    int mnFound   = 0;
 
     // Bad flag (we do not currently erase MapPoint from memory)
-    bool mbBad = false;
+    bool          mbBad = false;
     SLCVMapPoint* mpReplaced;
 
     // Scale invariance distances

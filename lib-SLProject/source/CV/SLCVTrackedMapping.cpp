@@ -178,7 +178,7 @@ void SLCVTrackedMapping::initialize()
         }
 
         SL_LOG("Initializing video writer for path %s\n", videoPath.c_str());
-        _videoWriter.open(videoPath + videoName, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, cv::Size(640, 360), true);
+        _videoWriter.open(videoPath + videoName, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _img.size(), true);
         if (!_videoWriter.isOpened())
         {
             SL_LOG("Could not write video file to %s\n", videoPath.c_str());
@@ -1019,19 +1019,19 @@ bool SLCVTrackedMapping::NeedNewKeyFrame()
         // Otherwise send a signal to interrupt BA
         if (bLocalMappingIdle)
         {
-            return true;
             std::cout << "[SLCVTrackedMapping] NeedNewKeyFrame: YES bLocalMappingIdle!" << std::endl;
+            return true;
         }
         else
         {
             mpLocalMapper->InterruptBA();
-            return false;
             std::cout << "[SLCVTrackedMapping] NeedNewKeyFrame: NO InterruptBA!" << std::endl;
+            return false;
         }
     }
     else
     {
-        std::cout << "[SLCVTrackedMapping] NeedNewKeyFrame: YES needs new keyframe!" << std::endl;
+        std::cout << "[SLCVTrackedMapping] NeedNewKeyFrame: NO!" << std::endl;
         return false;
     }
 }
