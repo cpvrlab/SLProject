@@ -760,11 +760,12 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
         }
     }
 
-    //// return next if not last else return first
-    if (activeIndex < cams.size() - 1)
-        return cams[activeIndex + 1];
-    else
-        return cams[0];
+    ////// return next if not last else return first
+    //if (activeIndex < cams.size() - 1)
+    //    return cams[activeIndex + 1];
+    //else
+    //    return cams[0];
+
     //find next camera, that is not of type SLCVCamera if "allow SLCVCamera as
     //active camera" is deactivated
     do
