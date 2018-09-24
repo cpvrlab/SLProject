@@ -76,7 +76,7 @@ bool SLCVCalibration::load(SLstring calibDir,
 
     //load camera parameter
     //SLstring    fullPathAndFilename = SLApplication::configPath + _calibFileName;
-    SLstring fullPathAndFilename = calibDir + _calibFileName;
+    SLstring    fullPathAndFilename = calibDir + _calibFileName;
     FileStorage fs(fullPathAndFilename, FileStorage::READ);
 
     if (!fs.isOpened())
@@ -148,7 +148,7 @@ bool SLCVCalibration::load(SLstring calibDir,
 //! Saves the camera calibration parameters to the config file
 void SLCVCalibration::save()
 {
-    SLstring fullPathAndFilename = SLFileSystem::getExternalDir() + _calibFileName;// SLApplication::configPath + _calibFileName;
+    SLstring fullPathAndFilename = SLFileSystem::getExternalDir() + _calibFileName; // SLApplication::configPath + _calibFileName;
 
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 
@@ -296,39 +296,56 @@ bool SLCVCalibration::findChessboard(SLCVMat imageColor,
     _imageSize = imageColor.size();
 
     SLCVVPoint2f corners2D;
-    SLint        flags = CALIB_CB_ADAPTIVE_THRESH |
-                  CALIB_CB_NORMALIZE_IMAGE |
-                  CALIB_CB_FAST_CHECK;
 
     bool found = cv::findChessboardCorners(imageGray,
                                            _boardSize,
                                            corners2D,
-                                           flags);
+                                           cv::CALIB_CB_FAST_CHECK);
 
-    if (found && drawCorners)
-        cv::drawChessboardCorners(imageColor,
-                                  _boardSize,
-                                  SLCVMat(corners2D),
-                                  found);
-
-    if (found && _state == CS_calibrateGrab)
+    if (found)
     {
-        cv::cornerSubPix(imageGray,
-                         corners2D,
-                         SLCVSize(11, 11),
-                         SLCVSize(-1, -1),
-                         TermCriteria(TermCriteria::EPS + TermCriteria::COUNT,
-                                      30,
-                                      0.1));
+        if (_state == CS_calibrateGrab)
+        {
+            SLCVVPoint2f preciseCorners2D;
+            SLint        flags = CALIB_CB_ADAPTIVE_THRESH |
+                          CALIB_CB_NORMALIZE_IMAGE |
+                          CALIB_CB_FAST_CHECK;
+            bool foundPrecisely = cv::findChessboardCorners(imageGray,
+                                                            _boardSize,
+                                                            preciseCorners2D,
+                                                            flags);
 
-        //add detected points
-        _imagePoints.push_back(corners2D);
-        _numCaptured++;
+            if (foundPrecisely)
+            {
+                cv::cornerSubPix(imageGray,
+                                 corners2D,
+                                 SLCVSize(11, 11),
+                                 SLCVSize(-1, -1),
+                                 TermCriteria(TermCriteria::EPS + TermCriteria::COUNT,
+                                              30,
+                                              0.1));
 
-        //simulate a snapshot
-        cv::bitwise_not(imageColor, imageColor);
+                //add detected points
+                _imagePoints.push_back(corners2D);
+                _numCaptured++;
 
-        _state = CS_calibrateStream;
+                //simulate a snapshot
+                cv::bitwise_not(imageColor, imageColor);
+
+                _state = CS_calibrateStream;
+
+                //overwrite corners2D for visualization with precise corners
+                corners2D.swap(preciseCorners2D);
+            }
+        }
+
+        if (drawCorners)
+        {
+            cv::drawChessboardCorners(imageColor,
+                                      _boardSize,
+                                      SLCVMat(corners2D),
+                                      found);
+        }
     }
     return found;
 }
