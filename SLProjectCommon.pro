@@ -33,8 +33,8 @@ android {PLATFORM = android}
 #define configuration variable for folder name
 CONFIG(debug, debug|release) {CONFIGURATION = Debug} else {CONFIGURATION = Release}
 
-CONFIG += c++11
-unix:!macx:!android:QMAKE_CXXFLAGS += -std=c++11
+CONFIG += c++14
+unix:!macx:!android:QMAKE_CXXFLAGS += -std=c++14
 
 INCLUDEPATH += \
     include \

@@ -40,7 +40,7 @@ win32 {
 }
 macx {
     # mac only
-    CONFIG += c++11
+    CONFIG += c++14
     #QMAKE_MAC_SDK = macosx10.13
     #QMAKE_CXXFLAGS += -mmacosx-version-min=10.10
     #QMAKE_LFLAGS   += -mmacosx-version-min=10.10
@@ -117,7 +117,7 @@ unix:!macx:!android {
     LIBS += -lopencv_videoio
     LIBS += -lopencv_xfeatures2d
     INCLUDEPATH += /usr/local/include
-    QMAKE_CXXFLAGS += -std=c++11
+    QMAKE_CXXFLAGS += -std=c++14
     QMAKE_CXXFLAGS += -Wunused-parameter
     QMAKE_CXXFLAGS += -Wno-unused-parameter
 }
