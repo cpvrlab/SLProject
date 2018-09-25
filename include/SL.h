@@ -103,6 +103,7 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #    include <chrono>
 #    include <functional>
 #    include <random>
+#    include <sstream>
 #    include <thread>
 #elif defined(SL_OS_WINDOWS)
 #    include <GL/glew.h>
@@ -204,8 +205,8 @@ typedef std::vector<vector<SLchar>>   SLVVchar;
 typedef std::vector<vector<SLshort>>  SLVVshort;
 typedef std::vector<vector<SLint>>    SLVVint;
 
-typedef std::chrono::high_resolution_clock              SLClock;
-typedef std::chrono::high_resolution_clock::time_point  SLTimePoint;
+typedef std::chrono::high_resolution_clock             SLClock;
+typedef std::chrono::high_resolution_clock::time_point SLTimePoint;
 
 //-----------------------------------------------------------------------------
 // Shortcut for size of a vector

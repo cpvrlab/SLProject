@@ -335,6 +335,7 @@
     <ClInclude Include="..\include\SLGLVertexBuffer.h" />
     <ClInclude Include="..\include\SLImGuiInfosChristoffelTower.h" />
     <ClInclude Include="..\include\SLImGuiInfosDialog.h" />
+    <ClInclude Include="..\include\SLImGuiInfosMapNodeTransform.h" />
     <ClInclude Include="..\include\SLImGuiInfosMapTransform.h" />
     <ClInclude Include="..\include\SLImGuiInfosMemoryStats.h" />
     <ClInclude Include="..\include\SLImGuiInfosTracking.h" />
@@ -466,6 +467,7 @@
     <ClCompile Include="source\GL\SLGLVertexBuffer.cpp" />
     <ClCompile Include="source\GUI\SLImGuiInfosChristoffelTower.cpp" />
     <ClCompile Include="source\GUI\SLImGuiInfosDialog.cpp" />
+    <ClCompile Include="source\GUI\SLImGuiInfosMapNodeTransform.cpp" />
     <ClCompile Include="source\GUI\SLImGuiInfosMapTransform.cpp" />
     <ClCompile Include="source\GUI\SLImGuiInfosMemoryStats.cpp" />
     <ClCompile Include="source\GUI\SLImGuiInfosTracking.cpp" />

@@ -55,6 +55,7 @@
 #include <SLImGuiInfosCameraMovement.h>
 #include <SLImGuiInfosChristoffelTower.h>
 #include <SLImGuiInfosMapTransform.h>
+#include <SLImGuiInfosMapNodeTransform.h>
 #include <SLImGuiInfosMemoryStats.h>
 #include <SLImGuiInfosTracking.h>
 #include <SLImGuiMapStorage.h>
@@ -2818,12 +2819,13 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Video Mapping Burgplatz Biel");
         s->info("Example for mapping using functionality from ORB-SLAM on Burgplatz in Biel.");
 
+#define BURGPLATZ_VIDEOFILE
 #ifdef BURGPLATZ_VIDEOFILE
-        SLstring mapName           = "slam-map-9";
-        SLCVCapture::videoFilename = "VID_20180914_141255.mp4";
+        SLstring mapName           = "slam-map-57";
+        SLCVCapture::videoFilename = "VID_20180924_180925_burgplatz.mp4";
 
-        SLstring calibFileName = "cam_calibration_main.xml";
-        SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), calibFileName, false, false);
+        SLstring calibFileName = "cam_calibration_main_huawei_burgplatz.xml";
+        SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), "calibrations/" + calibFileName, false, false);
         SLApplication::calibVideoFile.loadCalibParams();
 
         //call this function after calibration is loaded
@@ -2863,8 +2865,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemoGui::addInfoDialog(trackedMappingUI);
         auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm, mapNode);
         AppDemoGui::addInfoDialog(trackingInfos);
-        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm);
-        AppDemoGui::addInfoDialog(mapTransform);
+        auto mapNodeTransform = std::make_shared<SLImGuiInfosMapNodeTransform>("Map node transform", mapNode, tm);
+        AppDemoGui::addInfoDialog(mapNodeTransform);
         auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm);
         AppDemoGui::addInfoDialog(mapStorage);
         auto memStats = std::make_shared<SLImGuiInfosMemoryStats>("Memory stats", tm->getMap());
@@ -2911,18 +2913,128 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->setDrawBitsRec(SL_DB_WIREMESH, false);
         axis->scale(5);
 
+        SLNode* augmentations = new SLNode("Augmentations");
+        //scene->addChild(lightSun);
+        augmentations->addChild(lightSpot);
+        augmentations->addChild(axis);
+        augmentations->addChild(brunnen);
+
         //setup scene
         SLNode* scene = new SLNode("scene");
-#if 0
-        scene->addChild(light1);
-        scene->addChild(boxNode);
-#endif
-        //scene->addChild(lightSun);
-        scene->addChild(lightSpot);
-        //scene->addChild(axis);
-        //scene->addChild(brunnen);
         scene->addChild(mapNode);
+        scene->addChild(augmentations);
+        s->root3D(scene);
+    }
+    else if (SLApplication::sceneID == SID_VideoTrackingBurgplatz)
+    {
+        //#define BURGPLATZ_VIDEOFILE
+        // Set scene name and info string
+        s->name("Video Mapping Burgplatz Biel");
+        s->info("Example for mapping using functionality from ORB-SLAM on Burgplatz in Biel.");
 
+#ifdef BURGPLATZ_VIDEOFILE
+        SLstring mapName           = "slam-map-57";
+        SLCVCapture::videoFilename = "VID_20180924_180925_burgplatz.mp4";
+
+        SLstring calibFileName = "cam_calibration_main_huawei_burgplatz.xml";
+        SLApplication::calibVideoFile.load(SLFileSystem::getExternalDir(), "calibrations/" + calibFileName, false, false);
+        SLApplication::calibVideoFile.loadCalibParams();
+
+        //call this function after calibration is loaded
+        s->videoType(VT_FILE);
+        SLCVCapture::videoLoops = true;
+#else
+        s->videoType(VT_MAIN);
+#endif
+        //always equal for tracking
+        //setup tracking camera
+        SLCamera* trackingCam = new SLCamera("Camera 1");
+        trackingCam->translation(0, 0, 0.1);
+        trackingCam->lookAt(0, 0, 0);
+        //for tracking we have to use the field of view from calibration
+        trackingCam->fov(SLApplication::activeCalib->cameraFovDeg());
+        trackingCam->clipNear(0.001f);
+        trackingCam->clipFar(1000000.0f); // Increase to infinity?
+        trackingCam->setInitialState();
+        trackingCam->background().texture(s->videoTexture());
+
+        //the map node contains the visual representation of the slam map
+        SLCVMapNode* mapNode = new SLCVMapNode("map");
+
+        // Save no energy
+        sv->doWaitOnIdle(false); //for constant video feed
+        sv->camera(trackingCam);
+
+        //add tracker
+        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, true, mapNode, false);
+#ifdef BURGPLATZ_VIDEOFILE
+        SLCVMapStorage::loadMap(mapName, tm, SLCVOrbVocabulary::get(), true);
+#endif // BURGPLATZ_VIDEOFILE
+        s->trackers().push_back(tm);
+
+        //setup scene specific gui dialoges
+        auto trackedMappingUI = std::make_shared<SLImGuiTrackedMapping>("Tracked mapping", tm);
+        AppDemoGui::addInfoDialog(trackedMappingUI);
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm, mapNode);
+        AppDemoGui::addInfoDialog(trackingInfos);
+        auto mapNodeTransform = std::make_shared<SLImGuiInfosMapNodeTransform>("Map node transform", mapNode, tm);
+        AppDemoGui::addInfoDialog(mapNodeTransform);
+        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm);
+        AppDemoGui::addInfoDialog(mapStorage);
+        auto memStats = std::make_shared<SLImGuiInfosMemoryStats>("Memory stats", tm->getMap());
+        AppDemoGui::addInfoDialog(memStats);
+
+#if 0
+        //add yellow box and axis for augmentation
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        SLfloat l = 0.593f, b = 0.466f, h = 0.257f;
+        SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
+        SLNode* boxNode = new SLNode(box1, "boxNode");
+        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
+        boxNode->addChild(axisNode);
+#endif
+
+        SLLightSpot* lightSpot = new SLLightSpot(1, 1, 1, 0.3f);
+        lightSpot->ambient(SLCol4f(1, 1, 1));
+        lightSpot->diffuse(SLCol4f(1, 1, 1));
+        lightSpot->specular(SLCol4f(1, 1, 1));
+        lightSpot->attenuation(1, 0, 0);
+
+        // Create directional light for the sun light
+        //SLLightDirect* lightSun = new SLLightDirect(5.0f);
+        //lightSun->ambient(SLCol4f(1, 1, 1));
+        //lightSun->diffuse(SLCol4f(1, 1, 1));
+        //lightSun->specular(SLCol4f(1, 1, 1));
+        //lightSun->attenuation(1, 0, 0);
+        //lightSun->scale(0.1);
+
+        // Let the sun be rotated by time and location
+        //SLApplication::devLoc.sunLightNode(lightSun);
+        //SLApplication::devLoc.originLLA(47.14125735, 7.24562631, 440.0);          // Brunnen on Burgplatz
+
+        //load brunnen
+        SLAssimpImporter importer;
+        SLNode*          brunnen = importer.load("FBX/Brunnen.fbx");
+        //brunnen->scale(0.1);
+
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        brunnen->setAllMeshMaterials(yellow);
+
+        // Add axis object a world origin
+        SLNode* axis = new SLNode(new SLCoordAxis(), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(5);
+
+        SLNode* augmentations = new SLNode("Augmentations");
+        //scene->addChild(lightSun);
+        augmentations->addChild(lightSpot);
+        augmentations->addChild(axis);
+        augmentations->addChild(brunnen);
+
+        //setup scene
+        SLNode* scene = new SLNode("scene");
+        scene->addChild(mapNode);
+        scene->addChild(augmentations);
         s->root3D(scene);
     }
     else if (SLApplication::sceneID == SID_VideoMapping)
@@ -3039,8 +3151,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // create materials
         SLMaterial* cream = new SLMaterial("cream", grayRGB, SLCol4f::BLACK, 0);
-        SLMaterial* red = new SLMaterial("red", redRGB, SLCol4f::BLACK, 0);
-        SLMaterial* blue = new SLMaterial("blue", blueRGB, SLCol4f::BLACK, 0);
+        SLMaterial* red   = new SLMaterial("red", redRGB, SLCol4f::BLACK, 0);
+        SLMaterial* blue  = new SLMaterial("blue", blueRGB, SLCol4f::BLACK, 0);
 
         // Material for mirror sphere
         SLMaterial* refl = new SLMaterial("refl", blackRGB, SLCol4f::WHITE, 1000, 1.0f);
@@ -3098,7 +3210,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLfloat pB = -1.25f, pT = 1.19f; // bottom/top
         SLfloat pN = 1.79f, pF = -1.55f; // near/far
 
-                                         // bottom plane
+        // bottom plane
         SLNode* b = new SLNode(new SLRectangle(SLVec2f(pL, -pN), SLVec2f(pR, -pF), 6, 6, "bottom", cream));
         b->rotate(90, -1, 0, 0);
         b->translate(0, 0, pB, TS_object);
@@ -3193,7 +3305,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
 
-        SLuint  res = 30;
+        SLuint  res  = 30;
         SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-3, -3), SLVec2f(5, 4), res, res, "Rect", matYel));
         rect->rotate(90, -1, 0, 0);
         rect->translate(0, -1, -0.5f, TS_object);
@@ -3231,7 +3343,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture("Checkerboard0512_C.png");
-        SLMaterial*  mT = new SLMaterial("mT", texC, nullptr, nullptr, nullptr);
+        SLMaterial*  mT   = new SLMaterial("mT", texC, nullptr, nullptr, nullptr);
         mT->kr(0.5f);
         SLMaterial* mW = new SLMaterial("mW", SLCol4f::WHITE);
         SLMaterial* mB = new SLMaterial("mB", SLCol4f::GRAY);
@@ -3259,7 +3371,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
 
-        SLuint  res = 30;
+        SLuint  res  = 30;
         SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-5, -5), SLVec2f(5, 5), res, res, "Rect", mT));
         rect->rotate(90, -1, 0, 0);
         rect->translate(0, 0, -0.5f, TS_object);
@@ -3346,7 +3458,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLLightSpot* light1 = new SLLightSpot(1, 6, 1, 0.1f);
         light1->attenuation(0, 0, 1);
 
-        SLuint  res = 20;
+        SLuint  res  = 20;
         SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-5, -5), SLVec2f(5, 5), res, res, "Rect", mT));
         rect->rotate(90, -1, 0, 0);
         rect->translate(0, 0, -0.0f, TS_object);
@@ -3396,11 +3508,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->name("light node");
 
         // Material for glass sphere
-        SLMaterial* matBox1 = new SLMaterial("matBox1", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.0f, 0.9f, 1.5f);
+        SLMaterial* matBox1  = new SLMaterial("matBox1", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.0f, 0.9f, 1.5f);
         SLMesh*     boxMesh1 = new SLBox(-0.8f, -1, 0.02f, 1.2f, 1, 1, "boxMesh1", matBox1);
         SLNode*     boxNode1 = new SLNode(boxMesh1, "BoxNode1");
 
-        SLMaterial* matBox2 = new SLMaterial("matBox2", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.0f, 0.9f, 1.3f);
+        SLMaterial* matBox2  = new SLMaterial("matBox2", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.0f, 0.9f, 1.3f);
         SLMesh*     boxMesh2 = new SLBox(-1.2f, -1, -1, 0.8f, 1, -0.02f, "BoxMesh2", matBox2);
         SLNode*     boxNode2 = new SLNode(boxMesh2, "BoxNode2");
 

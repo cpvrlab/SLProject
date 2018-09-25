@@ -84,6 +84,7 @@ public:
 
     //set map node for visu update
     void setMapNode(SLCVMapNode* mapNode);
+    SLCVMapNode* getMapNode() const { return _mapNode; }
 
     //transformation functions
     void rotate(float value, int type);

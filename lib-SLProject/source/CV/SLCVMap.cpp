@@ -212,7 +212,14 @@ void SLCVMap::scale(float value)
     {
         //get and translate
         cv::Mat Tcw = kf->GetPose();
+        std::cout << "Tcw before: " << Tcw << std::endl;
         Tcw.rowRange(0, 3).col(3) *= value;
+        std::cout << "Tcw after: " << Tcw << std::endl;
+
+        //make scale matrix
+        //cv::Mat scale = cv::Mat::eye(4, 4, Tcw.type());
+        //scale *= value
+
         //set back
         kf->SetPose(Tcw);
     }

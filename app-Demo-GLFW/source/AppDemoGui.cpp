@@ -510,7 +510,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             static SLTransformSpace tSpace = TS_object;
             SLfloat                 t1 = 0.1f, t2 = 1.0f, t3 = 10.0f; // Delta translations
             SLfloat                 r1 = 1.0f, r2 = 5.0f, r3 = 15.0f; // Delta rotations
-            SLfloat                 s1 = 1.01f, s2 = 1.1f, s3 = 1.5f; // Scale factors
+            SLfloat                 s1 = 1.1f, s2 = 2.f, s3 = 10.f; // Scale factors
 
             // clang-format off
             ImGui::Text("Transf. Space:"); ImGui::SameLine();
@@ -568,12 +568,18 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             if (ImGui::Button(">>>##Rz")) node->rotate(-r3, 0, 0, 1, tSpace);
 
             ImGui::Text("Scale        :"); ImGui::SameLine();
-            if (ImGui::Button("<<<##S")) node->scale( s3); ImGui::SameLine();
-            if (ImGui::Button("<<##S"))  node->scale( s2); ImGui::SameLine();
-            if (ImGui::Button("<##S"))   node->scale( s1); ImGui::SameLine();
-            if (ImGui::Button(">##S"))   node->scale(-s1); ImGui::SameLine();
-            if (ImGui::Button(">>##S"))  node->scale(-s2); ImGui::SameLine();
-            if (ImGui::Button(">>>##S")) node->scale(-s3);
+            if (ImGui::Button("<<<##S")) 
+                node->scale( s3); ImGui::SameLine();
+            if (ImGui::Button("<<##S"))  
+                node->scale( s2); ImGui::SameLine();
+            if (ImGui::Button("<##S"))   
+                node->scale( s1); ImGui::SameLine();
+            if (ImGui::Button(">##S"))   
+                node->scale(1/s1); ImGui::SameLine();
+            if (ImGui::Button(">>##S"))  
+                node->scale(1/s2); ImGui::SameLine();
+            if (ImGui::Button(">>>##S")) 
+                node->scale(1/s3);
             ImGui::Separator();
             if (ImGui::Button("Reset")) node->om(node->initialOM());
 
@@ -830,6 +836,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoFilesMapping);
                     if (ImGui::MenuItem("Orb SLAM mapping Burgplatz Biel", 0, sid == sid == SID_VideoMappingBurgplatz))
                         s->onLoad(s, sv, SID_VideoMappingBurgplatz);
+                    if (ImGui::MenuItem("Orb SLAM tracking Burgplatz Biel", 0, sid == sid == SID_VideoTrackingBurgplatz))
+                        s->onLoad(s, sv, SID_VideoTrackingBurgplatz);
                     if (ImGui::MenuItem("Orb SLAM mapping example", 0, sid == sid == SID_VideoMapping))
                         s->onLoad(s, sv, SID_VideoMapping);
                     if (ImGui::MenuItem("Track Features from Keyframes", 0, sid == sid == SID_VideoTrackKeyFrames))
@@ -2291,7 +2299,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["ItemSpacingY"] >> i;        style.ItemSpacing.y = (SLfloat)i;
             style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
             style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
-    style.ScrollbarRounding = std::floor(style.ScrollbarSize / 2);
+            fs["ScrollbarSize"] >> i; style.ScrollbarSize = (SLfloat)i;
+            style.ScrollbarRounding = std::floor(style.ScrollbarSize / 2);
             fs["sceneID"] >> i;             SLApplication::sceneID = (SLSceneID)i;
             fs["showInfosScene"] >> b;      AppDemoGui::showInfosScene = b;
             fs["showStatsTiming"] >> b;     AppDemoGui::showStatsTiming = b;

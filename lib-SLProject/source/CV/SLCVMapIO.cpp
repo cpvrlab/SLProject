@@ -9,20 +9,22 @@
 //#############################################################################
 
 #include "stdafx.h"
+
 #include "SLCVMapIO.h"
 #include <SLCVKeyFrameDB.h>
+#include <SLCVMapNode.h>
 
 using namespace std;
 
 //-----------------------------------------------------------------------------
-SLCVMapIO::SLCVMapIO(const string& filename, ORBVocabulary* orbVoc,
-    bool kfImgsIO, string currImgPath )
-    : _orbVoc(orbVoc),
+SLCVMapIO::SLCVMapIO(const string& filename, ORBVocabulary* orbVoc, bool kfImgsIO, string currImgPath)
+  : _orbVoc(orbVoc),
     _kfImgsIO(kfImgsIO),
     _currImgPath(currImgPath)
 {
     _fs.open(filename, cv::FileStorage::READ);
-    if (!_fs.isOpened()) {
+    if (!_fs.isOpened())
+    {
         string msg = "Failed to open filestorage: " + filename + "\n";
         SL_WARN_MSG(msg.c_str());
         throw(std::runtime_error(msg));
@@ -37,15 +39,31 @@ SLCVMapIO::~SLCVMapIO()
 //! add map point
 void SLCVMapIO::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
 {
+    //load map node object matrix
+    if(!_fs["mapNodeOm"].empty())
+    {
+        cv::Mat cvOM; //has to be here!
+        _fs["mapNodeOm"] >> cvOM;
+        SLMat4f om;
+        for (int i = 0; i < 4; ++i)
+        {
+            for (int j = 0; j <4; ++j)
+            {
+                om(i, j) = cvOM.at<float>(i, j);
+            }
+        }
+        map.getMapNode()->om(om);
+    }
+
     //load keyframes
     loadKeyFrames(map, kfDB);
     //load map points
     loadMapPoints(map);
 
     //update the covisibility graph, when all keyframes and mappoints are loaded
-    std::vector<SLCVKeyFrame*> kfs = map.GetAllKeyFrames();
-    SLCVKeyFrame* firstKF = nullptr;
-    bool buildSpanningTree = false;
+    std::vector<SLCVKeyFrame*> kfs               = map.GetAllKeyFrames();
+    SLCVKeyFrame*              firstKF           = nullptr;
+    bool                       buildSpanningTree = false;
     for (int i = 0; i < kfs.size(); i++)
     {
         // Update links in the Covisibility Graph, do not build the spanning tree yet
@@ -55,7 +73,7 @@ void SLCVMapIO::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         {
             firstKF = kf;
         }
-        else if(kf->GetParent() == NULL)
+        else if (kf->GetParent() == NULL)
         {
             buildSpanningTree = true;
         }
@@ -63,34 +81,33 @@ void SLCVMapIO::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
 
     assert(firstKF && "Could not find keyframe with id 0\n");
 
-
     // Build spanning tree if keyframes have no parents (legacy support)
-    if(buildSpanningTree)
+    if (buildSpanningTree)
     {
         //QueueElem: <unconnected_kf, graph_kf, weight>
-        using QueueElem = std::tuple< SLCVKeyFrame*, SLCVKeyFrame*, int>;
-        auto cmpQueue = [](const QueueElem& left, const QueueElem& right) {  return (std::get<2>(left) < std::get<2>(right)); };
-        auto cmpMap = [](const pair<SLCVKeyFrame*, int>& left, const pair<SLCVKeyFrame*, int>& right) { return left.second < right.second; };
+        using QueueElem                  = std::tuple<SLCVKeyFrame*, SLCVKeyFrame*, int>;
+        auto                    cmpQueue = [](const QueueElem& left, const QueueElem& right) { return (std::get<2>(left) < std::get<2>(right)); };
+        auto                    cmpMap   = [](const pair<SLCVKeyFrame*, int>& left, const pair<SLCVKeyFrame*, int>& right) { return left.second < right.second; };
         std::set<SLCVKeyFrame*> graph;
         std::set<SLCVKeyFrame*> unconKfs;
-        for(auto& kf : kfs)
+        for (auto& kf : kfs)
             unconKfs.insert(kf);
 
         //pick first kf
         graph.insert(firstKF);
         unconKfs.erase(firstKF);
 
-        while(unconKfs.size())
+        while (unconKfs.size())
         {
             std::priority_queue<QueueElem, std::vector<QueueElem>, decltype(cmpQueue)> q(cmpQueue);
             //update queue with keyframes with neighbous in the graph
-            for( auto& unconKf : unconKfs )
+            for (auto& unconKf : unconKfs)
             {
                 const std::map<SLCVKeyFrame*, int>& weights = unconKf->GetConnectedKfWeights();
-                for(auto& graphKf : graph)
+                for (auto& graphKf : graph)
                 {
                     auto it = weights.find(graphKf);
-                    if( it != weights.end() )
+                    if (it != weights.end())
                     {
                         QueueElem newElem = std::make_tuple(unconKf, it->first, it->second);
                         q.push(newElem);
@@ -139,7 +156,8 @@ void SLCVMapIO::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
 
     //compute resulting values for map points
     auto mapPts = map.GetAllMapPoints();
-    for (auto& mp : mapPts) {
+    for (auto& mp : mapPts)
+    {
         //mean viewing direction and depth
         mp->UpdateNormalAndDepth();
         mp->ComputeDistinctiveDescriptors();
@@ -157,8 +175,25 @@ void SLCVMapIO::save(const string& filename, SLCVMap& map, bool kfImgsIO, const 
     if (!kfs.size())
         return;
 
+    SLCVMapNode* mapNode = map.getMapNode();
+    if (mapNode)
+    {
+        auto    om = mapNode->om();
+        cv::Mat cvOM(4, 4, CV_32F);
+        for(int i=0; i < 4; ++i )
+        {
+            for(int j=0; j <4 ; ++j)
+            {
+                cvOM.at<float>(i, j) = om(i, j);
+            }
+        }
+
+        fs << "mapNodeOm" << cvOM;
+    }
+
     //start sequence keyframes
-    fs << "KeyFrames" << "[";
+    fs << "KeyFrames"
+       << "[";
     for (int i = 0; i < kfs.size(); ++i)
     {
         SLCVKeyFrame* kf = kfs[i];
@@ -168,18 +203,18 @@ void SLCVMapIO::save(const string& filename, SLCVMap& map, bool kfImgsIO, const 
         fs << "{"; //new map keyFrame
                    //add id
         fs << "id" << (int)kf->mnId;
-        if(kf->mnId != 0) //kf with id 0 has no parent
+        if (kf->mnId != 0) //kf with id 0 has no parent
             fs << "parentId" << (int)kf->GetParent()->mnId;
         else
             fs << "parentId" << -1;
         //loop edges: we store the id of the connected kf
         auto loopEdges = kf->GetLoopEdges();
-        if(loopEdges.size())
+        if (loopEdges.size())
         {
             std::vector<int> loopEdgeIds;
-            for(auto loopEdgeKf : loopEdges)
+            for (auto loopEdgeKf : loopEdges)
             {
-                loopEdgeIds.push_back( loopEdgeKf->mnId);
+                loopEdgeIds.push_back(loopEdgeKf->mnId);
             }
             fs << "loopEdges" << loopEdgeIds;
         }
@@ -234,7 +269,8 @@ void SLCVMapIO::save(const string& filename, SLCVMap& map, bool kfImgsIO, const 
 
     auto mpts = map.GetAllMapPoints();
     //start map points sequence
-    fs << "MapPoints" << "[";
+    fs << "MapPoints"
+       << "[";
     for (int i = 0; i < mpts.size(); ++i)
     {
         SLCVMapPoint* mpt = mpts[i];
@@ -247,12 +283,13 @@ void SLCVMapIO::save(const string& filename, SLCVMap& map, bool kfImgsIO, const 
         //add position
         fs << "mWorldPos" << mpt->GetWorldPos();
         //save keyframe observations
-        auto observations = mpt->GetObservations();
+        auto        observations = mpt->GetObservations();
         vector<int> observingKfIds;
         vector<int> corrKpIndices; //corresponding keypoint indices in observing keyframe
         for (auto it : observations)
         {
-            if (!it.first->isBad()) {
+            if (!it.first->isBad())
+            {
                 observingKfIds.push_back(it.first->mnId);
                 corrKpIndices.push_back(it.second);
             }
@@ -292,7 +329,7 @@ void SLCVMapIO::calculateScaleFactors(float scaleFactor, int nlevels)
     _vLevelSigma2.resize(nlevels);
     _vScaleFactor[0] = 1.0f;
     _vLevelSigma2[0] = 1.0f;
-    for (int i = 1; i<nlevels; i++)
+    for (int i = 1; i < nlevels; i++)
     {
         _vScaleFactor[i] = _vScaleFactor[i - 1] * scaleFactor;
         _vLevelSigma2[i] = _vScaleFactor[i] * _vScaleFactor[i];
@@ -300,7 +337,7 @@ void SLCVMapIO::calculateScaleFactors(float scaleFactor, int nlevels)
 
     _vInvScaleFactor.resize(nlevels);
     _vInvLevelSigma2.resize(nlevels);
-    for (int i = 0; i<nlevels; i++)
+    for (int i = 0; i < nlevels; i++)
     {
         _vInvScaleFactor[i] = 1.0f / _vScaleFactor[i];
         _vInvLevelSigma2[i] = 1.0f / _vLevelSigma2[i];
@@ -327,15 +364,15 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
     {
         int id = (*it)["id"];
         //load parent id
-        if(!(*it)["parentId"].empty())
-        { 
-            int parentId = (*it)["parentId"];
+        if (!(*it)["parentId"].empty())
+        {
+            int parentId    = (*it)["parentId"];
             parentIdMap[id] = parentId;
         }
         //load ids of connected loop edge candidates
-        if(!(*it)["loopEdges"].empty() && (*it)["loopEdges"].isSeq())
+        if (!(*it)["loopEdges"].empty() && (*it)["loopEdges"].isSeq())
         {
-            cv::FileNode les = (*it)["loopEdges"];
+            cv::FileNode     les = (*it)["loopEdges"];
             std::vector<int> loopEdges;
             for (auto itLes = les.begin(); itLes != les.end(); ++itLes)
             {
@@ -383,9 +420,7 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         (*it)["nMaxY"] >> nMaxY;
 
         //SLCVKeyFrame* newKf = new SLCVKeyFrame(keyPtsUndist.size());
-        SLCVKeyFrame* newKf = new SLCVKeyFrame(Tcw, id, fx, fy, cx, cy, keyPtsUndist.size(),
-            keyPtsUndist, featureDescriptors, _orbVoc, nScaleLevels, scaleFactor, _vScaleFactor,
-            _vLevelSigma2, _vInvLevelSigma2, nMinX, nMinY, nMaxX, nMaxY, K, &kfDB, &map);
+        SLCVKeyFrame* newKf = new SLCVKeyFrame(Tcw, id, fx, fy, cx, cy, keyPtsUndist.size(), keyPtsUndist, featureDescriptors, _orbVoc, nScaleLevels, scaleFactor, _vScaleFactor, _vLevelSigma2, _vInvLevelSigma2, nMinX, nMinY, nMaxX, nMaxY, K, &kfDB, &map);
 
         if (_kfImgsIO)
         {
@@ -395,7 +430,8 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
             if (SLFileSystem::fileExists(ss.str()))
             {
                 newKf->setTexturePath(ss.str());
-                cv::Mat imgColor = cv::imread(ss.str());;
+                cv::Mat imgColor = cv::imread(ss.str());
+                ;
                 cv::cvtColor(imgColor, newKf->imgGray, cv::COLOR_BGR2GRAY);
             }
         }
@@ -413,16 +449,16 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
 
     //set parent keyframe pointers into keyframes
     auto kfs = map.GetAllKeyFrames();
-    for(SLCVKeyFrame* kf : kfs)
+    for (SLCVKeyFrame* kf : kfs)
     {
         if (kf->mnId != 0)
         {
             auto itParentId = parentIdMap.find(kf->mnId);
-            if(itParentId != parentIdMap.end())
+            if (itParentId != parentIdMap.end())
             {
-                int parentId = itParentId->second;
+                int  parentId   = itParentId->second;
                 auto itParentKf = _kfsMap.find(parentId);
-                if(itParentKf != _kfsMap.end())
+                if (itParentKf != _kfsMap.end())
                     kf->ChangeParent(itParentKf->second);
                 else
                     cerr << "[SLCVMapIO] loadKeyFrames: Parent does not exist! FAIL" << endl;
@@ -437,13 +473,13 @@ void SLCVMapIO::loadKeyFrames(SLCVMap& map, SLCVKeyFrameDB& kfDB)
     for (SLCVKeyFrame* kf : kfs)
     {
         auto it = loopEdgesMap.find(kf->mnId);
-        if(it != loopEdgesMap.end())
+        if (it != loopEdgesMap.end())
         {
             const auto& loopEdgeIds = it->second;
-            for(int loopKfId : loopEdgeIds)
+            for (int loopKfId : loopEdgeIds)
             {
                 auto loopKfIt = _kfsMap.find(loopKfId);
-                if(loopKfIt != _kfsMap.end())
+                if (loopKfIt != _kfsMap.end())
                 {
                     kf->AddLoopEdge(loopKfIt->second);
                     numberOfLoopClosings++;
@@ -493,15 +529,17 @@ void SLCVMapIO::loadMapPoints(SLCVMap& map)
         {
             //SLCVMapPoint* mapPt = mapPts.back();
             SLCVMapPoint* mapPt = newPt;
-            for (int i = 0; i<observingKfIds.size(); ++i)
+            for (int i = 0; i < observingKfIds.size(); ++i)
             {
                 const int kfId = observingKfIds[i];
-                if (_kfsMap.find(kfId) != _kfsMap.end()) {
+                if (_kfsMap.find(kfId) != _kfsMap.end())
+                {
                     SLCVKeyFrame* kf = _kfsMap[kfId];
                     kf->AddMapPoint(mapPt, corrKpIndices[i]);
                     mapPt->AddObservation(kf, corrKpIndices[i]);
                 }
-                else {
+                else
+                {
                     cout << "keyframe with id " << i << " not found!";
                 }
             }
@@ -510,9 +548,11 @@ void SLCVMapIO::loadMapPoints(SLCVMap& map)
             //map reference key frame pointer
             if (_kfsMap.find(refKfId) != _kfsMap.end())
                 mapPt->refKf(_kfsMap[refKfId]);
-            else {
+            else
+            {
                 cout << "no reference keyframe found!" << endl;
-                if (observingKfIds.size()) {
+                if (observingKfIds.size())
+                {
                     //we use the first of the observing keyframes
                     int kfId = observingKfIds[0];
                     if (_kfsMap.find(kfId) != _kfsMap.end())

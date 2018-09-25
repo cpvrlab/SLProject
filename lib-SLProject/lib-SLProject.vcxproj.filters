@@ -462,6 +462,9 @@
     <ClInclude Include="..\include\SLImGuiTrackedMapping.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLImGuiInfosMapNodeTransform.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -798,6 +801,9 @@
     </ClCompile>
     <ClCompile Include="source\CV\SLCVMapNode.cpp">
       <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GUI\SLImGuiInfosMapNodeTransform.cpp">
+      <Filter>GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
