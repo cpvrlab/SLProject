@@ -40,14 +40,14 @@ SLCVMapIO::~SLCVMapIO()
 void SLCVMapIO::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
 {
     //load map node object matrix
-    if(!_fs["mapNodeOm"].empty())
+    if (!_fs["mapNodeOm"].empty())
     {
         cv::Mat cvOM; //has to be here!
         _fs["mapNodeOm"] >> cvOM;
         SLMat4f om;
         for (int i = 0; i < 4; ++i)
         {
-            for (int j = 0; j <4; ++j)
+            for (int j = 0; j < 4; ++j)
             {
                 om(i, j) = cvOM.at<float>(i, j);
             }
@@ -180,9 +180,9 @@ void SLCVMapIO::save(const string& filename, SLCVMap& map, bool kfImgsIO, const 
     {
         auto    om = mapNode->om();
         cv::Mat cvOM(4, 4, CV_32F);
-        for(int i=0; i < 4; ++i )
+        for (int i = 0; i < 4; ++i)
         {
-            for(int j=0; j <4 ; ++j)
+            for (int j = 0; j < 4; ++j)
             {
                 cvOM.at<float>(i, j) = om(i, j);
             }
