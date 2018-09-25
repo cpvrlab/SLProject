@@ -54,7 +54,6 @@
 #include <SLCVOrbVocabulary.h>
 #include <SLImGuiInfosCameraMovement.h>
 #include <SLImGuiInfosChristoffelTower.h>
-#include <SLImGuiInfosMapTransform.h>
 #include <SLImGuiInfosMapNodeTransform.h>
 #include <SLImGuiInfosMemoryStats.h>
 #include <SLImGuiInfosTracking.h>
@@ -2580,16 +2579,16 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(trackingCam);
 
         //add tracker
-        SLCVTrackedMapping* tracker = new SLCVTrackedMapping(trackingCam, true, mapNode, false);
-        s->trackers().push_back(tracker);
+        SLCVTrackedMapping* tm = new SLCVTrackedMapping(trackingCam, true, mapNode, false);
+        s->trackers().push_back(tm);
 
         //SLCVOrbTracking* orbT = raulMurTracker->orbTracking();
         //setup scene specific gui dialoges
-        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tracker, mapNode);
+        auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm, mapNode);
         AppDemoGui::addInfoDialog(trackingInfos);
-        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tracker);
-        AppDemoGui::addInfoDialog(mapTransform);
-        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tracker);
+        auto mapNodeTransform = std::make_shared<SLImGuiInfosMapNodeTransform>("Map node transform", mapNode, tm);
+        AppDemoGui::addInfoDialog(mapNodeTransform);
+        auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm);
         AppDemoGui::addInfoDialog(mapStorage);
         /*auto cameraMovement =
             std::make_shared<SLImGuiInfosCameraMovement>("Camera movement",
@@ -2669,8 +2668,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemoGui::addInfoDialog(trackedMappingUI);
         auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm, mapNode);
         AppDemoGui::addInfoDialog(trackingInfos);
-        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm);
-        AppDemoGui::addInfoDialog(mapTransform);
+        auto mapNodeTransform = std::make_shared<SLImGuiInfosMapNodeTransform>("Map node transform", mapNode, tm);
+        AppDemoGui::addInfoDialog(mapNodeTransform);
         auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm);
         AppDemoGui::addInfoDialog(mapStorage);
 
@@ -2779,8 +2778,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemoGui::addInfoDialog(trackedMappingUI);
         auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm, mapNode);
         AppDemoGui::addInfoDialog(trackingInfos);
-        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm);
-        AppDemoGui::addInfoDialog(mapTransform);
+        auto mapNodeTransform = std::make_shared<SLImGuiInfosMapNodeTransform>("Map node transform", mapNode, tm);
+        AppDemoGui::addInfoDialog(mapNodeTransform);
         auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm);
         AppDemoGui::addInfoDialog(mapStorage);
         auto memStats = std::make_shared<SLImGuiInfosMemoryStats>("Memory stats", tm->getMap());
@@ -2819,7 +2818,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Video Mapping Burgplatz Biel");
         s->info("Example for mapping using functionality from ORB-SLAM on Burgplatz in Biel.");
 
-#define BURGPLATZ_VIDEOFILE
+//#define BURGPLATZ_VIDEOFILE
 #ifdef BURGPLATZ_VIDEOFILE
         SLstring mapName           = "slam-map-57";
         SLCVCapture::videoFilename = "VID_20180924_180925_burgplatz.mp4";
@@ -3080,8 +3079,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemoGui::addInfoDialog(trackedMappingUI);
         auto trackingInfos = std::make_shared<SLImGuiInfosTracking>("Tracking infos", tm, mapNode);
         AppDemoGui::addInfoDialog(trackingInfos);
-        auto mapTransform = std::make_shared<SLImGuiInfosMapTransform>("Map transform", tm);
-        AppDemoGui::addInfoDialog(mapTransform);
+        auto mapNodeTransform = std::make_shared<SLImGuiInfosMapNodeTransform>("Map node transform", mapNode, tm);
+        AppDemoGui::addInfoDialog(mapNodeTransform);
         auto mapStorage = std::make_shared<SLImGuiMapStorage>("Map storage", tm);
         AppDemoGui::addInfoDialog(mapStorage);
         auto memStats = std::make_shared<SLImGuiInfosMemoryStats>("Memory stats", tm->getMap());
