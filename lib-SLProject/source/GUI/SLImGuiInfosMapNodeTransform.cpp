@@ -28,16 +28,33 @@ SLImGuiInfosMapNodeTransform::SLImGuiInfosMapNodeTransform(
     _tracking(tracking)
 {
 }
+
 //-----------------------------------------------------------------------------
 void SLImGuiInfosMapNodeTransform::buildInfos()
 {
-    static SLTransformSpace tSpace = TS_object;
-    //rotation
-    ImGui::InputFloat("Rot. Value", &_transformationRotValue, 1.0f);
-    _transformationRotValue = ImClamp(_transformationRotValue, -360.0f, 360.0f);
+    static SLTransformSpace tSpace = TS_world;
+    ImGui::Text("Transf. Space:");
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Object", (int*)&tSpace, 0)) tSpace = TS_object;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("World", (int*)&tSpace, 1)) tSpace = TS_world;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Parent", (int*)&tSpace, 2)) tSpace = TS_parent;
+    ImGui::Separator();
 
     static SLfloat sp = 3; //spacing
     SLfloat        bW = (ImGui::GetContentRegionAvailWidth() - 2 * sp) / 3;
+
+    //rotation
+    if (ImGui::ButtonEx("--", ImVec2(0, 0), ImGuiButtonFlags_Repeat | ImGuiButtonFlags_PressedOnClick))
+        _transformationRotValue -= 10.0f;
+    ImGui::SameLine();
+    if (ImGui::ButtonEx("++", ImVec2(0, 0), ImGuiButtonFlags_Repeat | ImGuiButtonFlags_PressedOnClick))
+        _transformationRotValue += 10.0f;
+    ImGui::SameLine();
+    ImGui::InputFloat("Rot. Value", &_transformationRotValue, 0.1f, 10.f, 3);
+    _transformationRotValue = ImClamp(_transformationRotValue, -360.0f, 360.0f);
+
     if (ImGui::Button("RotX", ImVec2(bW, 0.0f)))
     {
         _mapNode->rotate(_transformationRotValue, 1, 0, 0, tSpace);
@@ -55,7 +72,13 @@ void SLImGuiInfosMapNodeTransform::buildInfos()
     ImGui::Separator();
 
     //translation
-    ImGui::InputFloat("Transl. Value", &_transformationTransValue, 0.1f);
+    if (ImGui::ButtonEx("--", ImVec2(0, 0), ImGuiButtonFlags_Repeat | ImGuiButtonFlags_PressedOnClick))
+        _transformationTransValue -= 1.0f;
+    ImGui::SameLine();
+    if (ImGui::ButtonEx("++", ImVec2(0,0), ImGuiButtonFlags_Repeat | ImGuiButtonFlags_PressedOnClick))
+        _transformationTransValue += 1.0f;
+    ImGui::SameLine();
+    ImGui::InputFloat("Transl. Value", &_transformationTransValue, 0.01f, 0.1f, 3);
 
     if (ImGui::Button("TransX", ImVec2(bW, 0.0f)))
     {
@@ -74,9 +97,14 @@ void SLImGuiInfosMapNodeTransform::buildInfos()
     ImGui::Separator();
 
     //scale
-    ImGui::InputFloat("Scale Value", &_transformationScaleValue, 0.1f);
+    if (ImGui::ButtonEx("--", ImVec2(0, 0), ImGuiButtonFlags_Repeat | ImGuiButtonFlags_PressedOnClick))
+        _transformationScaleValue -= 0.1f;
+    ImGui::SameLine();
+    if (ImGui::ButtonEx("++", ImVec2(0, 0), ImGuiButtonFlags_Repeat | ImGuiButtonFlags_PressedOnClick))
+        _transformationScaleValue += 0.1f;
+    ImGui::SameLine();
+    ImGui::InputFloat("Scale Value", &_transformationScaleValue, 0.01f, 1.f, 3);
     _transformationScaleValue = ImClamp(_transformationScaleValue, 0.0f, 1000.0f);
-
     if (ImGui::Button("Scale", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
         _mapNode->scale(_transformationScaleValue);

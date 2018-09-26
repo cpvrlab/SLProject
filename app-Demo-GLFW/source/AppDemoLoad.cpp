@@ -2912,7 +2912,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->setDrawBitsRec(SL_DB_WIREMESH, false);
         axis->scale(5);
 
-        SLNode* augmentations = new SLNode("Augmentations");
+        SLNode* augmentations = new SLNode("Auragmentations");
         //scene->addChild(lightSun);
         augmentations->addChild(lightSpot);
         augmentations->addChild(axis);
@@ -2928,8 +2928,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         //#define BURGPLATZ_VIDEOFILE
         // Set scene name and info string
-        s->name("Video Mapping Burgplatz Biel");
-        s->info("Example for mapping using functionality from ORB-SLAM on Burgplatz in Biel.");
+        s->name("Video Tracking Burgplatz Biel");
+        s->info("Example for tracking using functionality from ORB-SLAM on Burgplatz in Biel.");
 
 #ifdef BURGPLATZ_VIDEOFILE
         SLstring mapName           = "slam-map-57";
