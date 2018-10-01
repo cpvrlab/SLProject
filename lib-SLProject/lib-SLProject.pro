@@ -183,6 +183,7 @@ source/GUI/SLImGuiInfosCameraMovement.cpp \
 source/GUI/SLImGuiInfosChristoffelTower.cpp \
 source/GUI/SLImGuiInfosDialog.cpp \
 source/GUI/SLImGuiInfosMapTransform.cpp \
+source/GUI/SLImGuiInfosMapNodeTransform.cpp \
 source/GUI/SLImGuiInfosMemoryStats.cpp \
 source/GUI/SLImGuiInfosTracking.cpp \
 source/GUI/SLImGuiMapStorage.cpp \

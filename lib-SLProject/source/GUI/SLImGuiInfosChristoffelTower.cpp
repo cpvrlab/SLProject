@@ -21,21 +21,21 @@ SLImGuiInfosChristoffelTower::SLImGuiInfosChristoffelTower(std::string name, SLN
   : SLImGuiInfosDialog(name),
     _bern(bern)
 {
-    boden         = _bern->findChild<SLNode>("Boden", false);
-    balda_stahl   = _bern->findChild<SLNode>("Baldachin-Stahl", false);
-    balda_glas    = _bern->findChild<SLNode>("Baldachin-Glas", false);
-    umgeb_dach    = _bern->findChild<SLNode>("Umgebung-Daecher", false);
-    umgeb_fass    = _bern->findChild<SLNode>("Umgebung-Fassaden", false);
-    mauer_wand    = _bern->findChild<SLNode>("Mauer-Wand", false);
-    mauer_dach    = _bern->findChild<SLNode>("Mauer-Dach", false);
-    mauer_turm    = _bern->findChild<SLNode>("Mauer-Turm", false);
-    mauer_weg     = _bern->findChild<SLNode>("Mauer-Weg", false);
-    grab_mauern   = _bern->findChild<SLNode>("Graben-Mauern", false);
-    grab_brueck   = _bern->findChild<SLNode>("Graben-Bruecken", false);
-    grab_grass    = _bern->findChild<SLNode>("Graben-Grass", false);
-    grab_t_dach   = _bern->findChild<SLNode>("Graben-Turm-Dach", false);
-    grab_t_fahn   = _bern->findChild<SLNode>("Graben-Turm-Fahne", false);
-    grab_t_stein  = _bern->findChild<SLNode>("Graben-Turm-Stein", false);
+    boden         = _bern->findChild<SLNode>("Boden");
+    balda_stahl   = _bern->findChild<SLNode>("Baldachin-Stahl");
+    balda_glas    = _bern->findChild<SLNode>("Baldachin-Glas");
+    umgeb_dach    = _bern->findChild<SLNode>("Umgebung-Daecher");
+    umgeb_fass    = _bern->findChild<SLNode>("Umgebung-Fassaden");
+    mauer_wand    = _bern->findChild<SLNode>("Mauer-Wand");
+    mauer_dach    = _bern->findChild<SLNode>("Mauer-Dach");
+    mauer_turm    = _bern->findChild<SLNode>("Mauer-Turm");
+    mauer_weg     = _bern->findChild<SLNode>("Mauer-Weg");
+    grab_mauern   = _bern->findChild<SLNode>("Graben-Mauern");
+    grab_brueck   = _bern->findChild<SLNode>("Graben-Bruecken");
+    grab_grass    = _bern->findChild<SLNode>("Graben-Grass");
+    grab_t_dach   = _bern->findChild<SLNode>("Graben-Turm-Dach");
+    grab_t_fahn   = _bern->findChild<SLNode>("Graben-Turm-Fahne");
+    grab_t_stein  = _bern->findChild<SLNode>("Graben-Turm-Stein");
     christ_aussen = bern->findChild<SLNode>("Christoffel-Aussen", true);
     christ_innen  = bern->findChild<SLNode>("Christoffel-Innen", true);
 }
