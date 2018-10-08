@@ -1,7 +1,8 @@
 # 
 # External dependencies
 # 
-find_package(OpenCV REQUIRED)
+#find_package(OpenCV REQUIRED)
+#add_subdirectory(contrib/zlib)
 
 # 
 # Library name and options
@@ -13,9 +14,40 @@ set(target lib-assimp)
 # 
 # Sources
 # 
-
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
+set(compile_definitions
+  ASSIMB_BUILD_BOOST_WORKAROUND
+  ASSIMP_BUILD_NO_OWN_ZLIB
+  ASSIMP_BUILD_NO_MD3_IMPORTER
+  ASSIMP_BUILD_NO_MDL_IMPORTER
+  ASSIMP_BUILD_NO_MD2_IMPORTER
+  ASSIMP_BUILD_NO_ASE_IMPORTER
+  ASSIMP_BUILD_NO_HMP_IMPORTER
+  ASSIMP_BUILD_NO_SMD_IMPORTER
+  ASSIMP_BUILD_NO_MDC_IMPORTER
+  ASSIMP_BUILD_NO_MD5_IMPORTER
+  ASSIMP_BUILD_NO_LWO_IMPORTER
+  ASSIMP_BUILD_NO_NFF_IMPORTER
+  ASSIMP_BUILD_NO_RAW_IMPORTER
+  ASSIMP_BUILD_NO_OFF_IMPORTER
+  ASSIMP_BUILD_NO_AC_IMPORTER
+  ASSIMP_BUILD_NO_BVH_IMPORTER
+  ASSIMP_BUILD_NO_IRRMESH_IMPORTER
+  ASSIMP_BUILD_NO_IRR_IMPORTER
+  ASSIMP_BUILD_NO_Q3D_IMPORTER
+  ASSIMP_BUILD_NO_B3D_IMPORTER
+  ASSIMP_BUILD_NO_TERRAGEN_IMPORTER
+  ASSIMP_BUILD_NO_CSM_IMPORTER
+  ASSIMP_BUILD_NO_3D_IMPORTER
+  ASSIMP_BUILD_NO_LWS_IMPORTER
+  ASSIMP_BUILD_NO_OGRE_IMPORTER
+  ASSIMP_BUILD_NO_MS3D_IMPORTER
+  ASSIMP_BUILD_NO_COB_IMPORTER
+  ASSIMP_BUILD_NO_Q3BSP_IMPORTER
+  ASSIMP_BUILD_NO_NDO_IMPORTER
+  ASSIMP_BUILD_NO_IFC_IMPORTER
+  ASSIMP_BUILD_NO_XGL_IMPORTER)
 
 #message(STATUS "include_path ${include_path}")
 #message(STATUS "source_path ${source_path}")
@@ -244,6 +276,16 @@ file(GLOB headers
    ${include_path}/include/assimp/vector2.h
    ${include_path}/include/assimp/vector3.h
    ${include_path}/include/assimp/version.h
+   ${include_path}/contrib/zlib/zlib.h
+   ${include_path}/contrib/zlib/crc32.h
+   ${include_path}/contrib/zlib/deflate.h
+   ${include_path}/contrib/zlib/gzguts.h
+   ${include_path}/contrib/zlib/inffast.h
+   ${include_path}/contrib/zlib/inffixed.h
+   ${include_path}/contrib/zlib/inflate.h
+   ${include_path}/contrib/zlib/inftrees.h
+   ${include_path}/contrib/zlib/trees.h
+   ${include_path}/contrib/zlib/zutil.h
 )
 #message(STATUS "headers ${headers}")
 
@@ -390,8 +432,30 @@ file(GLOB sources
    ${include_path}/contrib/poly2tri/poly2tri/sweep/cdt.cc
    ${include_path}/contrib/poly2tri/poly2tri/sweep/sweep.cc
    ${include_path}/contrib/poly2tri/poly2tri/sweep/sweep_context.cc
+   ${include_path}/contrib/zlib/adler32.c
+   ${include_path}/contrib/zlib/compress.c
+   ${include_path}/contrib/zlib/crc32.c
+   ${include_path}/contrib/zlib/deflate.c
+   ${include_path}/contrib/zlib/gzclose.c
+   ${include_path}/contrib/zlib/gzlib.c
+   ${include_path}/contrib/zlib/gzread.c
+   ${include_path}/contrib/zlib/gzwrite.c
+   ${include_path}/contrib/zlib/inflate.c
+   ${include_path}/contrib/zlib/infback.c
+   ${include_path}/contrib/zlib/inflate.c
+   ${include_path}/contrib/zlib/inftrees.c
+   ${include_path}/contrib/zlib/inffast.c
+   ${include_path}/contrib/zlib/trees.c
+   ${include_path}/contrib/zlib/uncompr.c
+   ${include_path}/contrib/zlib/zutil.c
 )
 #message(STATUS "sources ${sources}")
+
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
+    set(compile_definitions
+      ${compile_definitions}
+      ASSIMP_BUILD_NO_BLEND_IMPORTER)
+endif()
 
 # Group source files
 #...
@@ -424,15 +488,25 @@ set_target_properties(${target}
 # 
 
 target_include_directories(${target}
-    PRIVATE
-    ${include_path}/code/BoostWorkaround
-    PUBLIC
-    #${DEFAULT_INCLUDE_DIRECTORIES}
-    INTERFACE
-    #$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    #$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-    #$<INSTALL_INTERFACE:include>
-)
+  PRIVATE
+  ${include_path}/code
+  ${include_path}/code/BoostWorkaround
+  ${include_path}/contrib/clipper
+  ${include_path}/contrib/zlib
+  ${include_path}/contrib/irrXML
+  ${include_path}/contrib/poly2tri
+  ${include_path}/include
+  ${include_path}/../lib-SLExternal/zlib
+  ${include_path}/../../include
+
+  PUBLIC
+  #${DEFAULT_INCLUDE_DIRECTORIES}
+
+  INTERFACE
+  #$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  #$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  #$<INSTALL_INTERFACE:include>
+  )
 
 
 # 
@@ -453,14 +527,15 @@ target_link_libraries(${target}
 # 
 
 target_compile_definitions(${target}
-    PRIVATE
+  PRIVATE
+  ${compile_definitions}
 
-    PUBLIC
-    #$<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:${target_id}_STATIC_DEFINE>
-    ${DEFAULT_COMPILE_DEFINITIONS}
+  PUBLIC
+  #$<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:${target_id}_STATIC_DEFINE>
+  ${DEFAULT_COMPILE_DEFINITIONS}
 
-    INTERFACE
-)
+  INTERFACE
+  )
 
 
 # 
@@ -481,8 +556,23 @@ target_compile_options(${target}
 # Linker options
 # 
 
+set(platform_specific_link_libraries)
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
+    set(platform_specific_link_libraries
+        GL
+        X11
+        Xrandr
+        Xi
+        Xinerama
+        Xxf86vm
+        udev
+        #zlib
+        )
+endif()
+
 target_link_libraries(${target}
     PRIVATE
+    ${platform_specific_link_libraries}
 
     PUBLIC
     ${DEFAULT_LINKER_OPTIONS}

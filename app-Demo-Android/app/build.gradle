@@ -24,6 +24,10 @@ android {
             cmake {
                 cppFlags "-frtti -fexceptions -std=c++11 -w -Wno-error=format-security"
                 abiFilters 'arm64-v8a'
+                arguments "-DOpenCV_DIR=" + project.projectDir + "/../../_lib/prebuilt/OpenCV/android/3.4.1/sdk/native/jni"
+                          "-DANDROID_STL=c++_shared"
+                          "-DSL_GUI_JAVA"
+                          "-DSL_GLES2"
             }
         }
     }
@@ -32,10 +36,14 @@ android {
             assets.srcDirs = ['src/main/assets']
         }
         debug {
-            jniLibs.srcDirs = ['../../_lib/prebuilt/OpenCV/android/Debug']
+            jniLibs.srcDirs = [
+                    '../../_lib/prebuilt/OpenCV/android/3.4.1/sdk/native/libs'
+            ]
         }
         release {
-            jniLibs.srcDirs = ['../../_lib/prebuilt/OpenCV/android/Release']
+            jniLibs.srcDirs = [
+                    '../../_lib/prebuilt/OpenCV/android/3.4.1/sdk/native/libs'
+            ]
         }
     }
     buildTypes {
@@ -50,7 +58,7 @@ android {
     }
     externalNativeBuild {
         cmake {
-            path "CMakeLists.txt"
+            path "../../CMakeLists.txt"
         }
     }
     compileOptions {

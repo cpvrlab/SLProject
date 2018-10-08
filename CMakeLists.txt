@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 #
 
 # Register general cmake commands (set_policy, source_group_by_path, list_extract)
-include(cmake/Custom.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Custom.cmake)
 
 # Set policies
 set_policy(CMP0028 NEW) # ENABLE CMP0028: Double colon in target name means ALIAS or IMPORTED target.
@@ -60,4 +60,11 @@ include(cmake/CompileOptions.cmake)
 # Project modules
 #
 add_subdirectory(external)
+add_subdirectory(lib-SLProject)
 
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
+    set(IDE_FOLDER "Android")
+    add_subdirectory(app-Demo-Android/app)
+else()
+    add_subdirectory(app-Demo-GLFW)
+endif()
