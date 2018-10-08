@@ -3086,16 +3086,20 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         auto memStats = std::make_shared<SLImGuiInfosMemoryStats>("Memory stats", tm->getMap());
         AppDemoGui::addInfoDialog(memStats);
 
-#if 0
+        //setup scene
+        SLNode* scene = new SLNode("scene");
+#if 1
         //add yellow box and axis for augmentation
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-        SLfloat l = 0.593f, b = 0.466f, h = 0.257f;
-        SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
-        SLNode* boxNode = new SLNode(box1, "boxNode");
-        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
-        boxNode->addChild(axisNode);
-#endif
+        SLfloat     l = 0.593f, b = 0.466f, h = 0.257f;
+        SLBox*      box1     = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
+        SLNode*     boxNode  = new SLNode(box1, "boxNode");
+        SLNode*     axisNode = new SLNode(new SLCoordAxis(), "axis node");
 
+        boxNode->addChild(axisNode);
+        scene->addChild(light1);
+        scene->addChild(boxNode);
+#else
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(5.0f);
         light->ambient(SLCol4f(1, 1, 1));
@@ -3117,15 +3121,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
 
-        //setup scene
-        SLNode* scene = new SLNode("scene");
-#if 0
-        scene->addChild(light1);
-        scene->addChild(boxNode);
-#endif
         scene->addChild(light);
         scene->addChild(axis);
         scene->addChild(bern);
+#endif
+
         scene->addChild(mapNode);
 
         s->root3D(scene);
