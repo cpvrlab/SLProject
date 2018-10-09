@@ -1,7 +1,7 @@
 # 
 # External dependencies
 # 
-#... find package
+find_package(OpenCV REQUIRED)
 
 # 
 # Library name and options
@@ -68,6 +68,10 @@ target_include_directories(${target}
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/imgui
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/spa
+  ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/dirent
+  ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/glew/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/glfw3/include
+  ${OpenCV_INCLUDE_DIRS}
   
   PUBLIC
   #${DEFAULT_INCLUDE_DIRECTORIES}
@@ -86,6 +90,7 @@ target_include_directories(${target}
 target_link_libraries(${target}
     PRIVATE
     lib-SLProject
+
     PUBLIC
 
     INTERFACE

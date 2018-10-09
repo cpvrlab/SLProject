@@ -17,7 +17,8 @@ set(target lib-SLProject)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
-set(compile_definitions)
+set(compile_definitions
+	GLEW_NO_GLU)
 set(platform_specific_link_libraries)
 
 set(opencv_version 3.4.1)
@@ -190,72 +191,35 @@ file(GLOB sources
   )
 #message(STATUS "sources ${sources}")
 
-if (0)
-add_library(lib_avcodec SHARED IMPORTED)
-set_target_properties(lib_avcodec PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/sdk/native/libs/arm64-v8a/libavcodec.so)
-add_library(lib_avdevice SHARED IMPORTED)
-set_target_properties(lib_avdevice PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/sdk/native/libs/arm64-v8a/libavdevice.so)
-add_library(lib_avfilter SHARED IMPORTED)
-set_target_properties(lib_avfilter PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/sdk/native/libs/arm64-v8a/libavfilter.so)
-add_library(lib_avformat SHARED IMPORTED)
-set_target_properties(lib_avformat PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/sdk/native/libs/arm64-v8a/libavformat.so)
-add_library(lib_avutil SHARED IMPORTED)
-set_target_properties(lib_avutil PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/sdk/native/libs/arm64-v8a/libavutil.so)
-add_library(lib_swresample SHARED IMPORTED)
-set_target_properties(lib_swresample PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/sdk/native/libs/arm64-v8a/libswresample.so)
-add_library(lib_swscale SHARED IMPORTED)
-set_target_properties(lib_swscale PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/sdk/native/libs/arm64-v8a/libswscale.so)
-endif()
-
-if (0)
 # Group source files
-add_library(lib_avcodec SHARED IMPORTED)
-set_target_properties(lib_avcodec PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libavcodec.so)
-add_library(lib_avdevice SHARED IMPORTED)
-set_target_properties(lib_avdevice PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libavdevice.so)
-add_library(lib_avfilter SHARED IMPORTED)
-set_target_properties(lib_avfilter PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libavfilter.so)
-add_library(lib_avformat SHARED IMPORTED)
-set_target_properties(lib_avformat PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libavformat.so)
-add_library(lib_avutil SHARED IMPORTED)
-set_target_properties(lib_avutil PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libavutil.so)
-add_library(lib_swresample SHARED IMPORTED)
-set_target_properties(lib_swresample PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libswresample.so)
-add_library(lib_swscale SHARED IMPORTED)
-set_target_properties(lib_swscale PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libswscale.so)
-add_library(lib_opencv_aruco SHARED IMPORTED)
-set_target_properties(lib_opencv_aruco PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_aruco.so)
-add_library(lib_opencv_video SHARED IMPORTED)
-set_target_properties(lib_opencv_video PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_video.so)
-add_library(lib_opencv_videoio SHARED IMPORTED)
-set_target_properties(lib_opencv_videoio PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_videoio.so)
-add_library(lib_opencv_core SHARED IMPORTED)
-set_target_properties(lib_opencv_core PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_core.so)
-add_library(lib_opencv_imgproc SHARED IMPORTED)
-set_target_properties(lib_opencv_imgproc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_imgproc.so)
-add_library(lib_opencv_features2d SHARED IMPORTED)
-set_target_properties(lib_opencv_features2d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_features2d.so)
-add_library(lib_opencv_calib3d SHARED IMPORTED)
-set_target_properties(lib_opencv_calib3d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_calib3d.so)
-add_library(lib_opencv_imgcodecs SHARED IMPORTED)
-set_target_properties(lib_opencv_imgcodecs PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_imgcodecs.so)
-add_library(lib_opencv_highgui SHARED IMPORTED)
-set_target_properties(lib_opencv_highgui PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_highgui.so)
-add_library(lib_opencv_xfeatures2d SHARED IMPORTED)
-set_target_properties(lib_opencv_xfeatures2d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_xfeatures2d.so)
-add_library(lib_opencv_objdetect SHARED IMPORTED)
-set_target_properties(lib_opencv_objdetect PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_objdetect.so)
-add_library(lib_opencv_face SHARED IMPORTED)
-set_target_properties(lib_opencv_face PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_face.so)
-endif()
 
 # 
 # Create library
 #
-if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
+if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(compile_definitions
       ${compile_definitions}
-      SL_USES_CVCAPTURE)
+      SL_USES_CVCAPTURE
+	  SL_GUI_GLFW)
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
+	set(compile_definitions
+      ${compile_definitions}
+      SL_USES_CVCAPTURE
+	  SL_GUI_GLFW
+	  GLEW_STATIC
+	  _GLFW_NO_DLOAD_GDI32
+	  _GLFW_NO_DLOAD_WINMM
+	  )
+	  
+	set(platform_specific_link_libraries
+		OpenGL32
+		winmm
+		gdi32
+		user32
+		kernel32
+		shell32
+		setupapi
+		ws2_32)
 endif()
 
 # Build library
@@ -283,8 +247,8 @@ set_target_properties(${target}
 
 target_include_directories(${target}
   PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/sdk/native/jni/include
+  #${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/include
+  #${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/sdk/native/jni/include
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/../include
   ${CMAKE_CURRENT_SOURCE_DIR}/../app-Demo-GLFW/source
@@ -298,10 +262,12 @@ target_include_directories(${target}
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/imgui
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/spa
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/zlib
+  ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/dirent
+  ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/glew/include
+  ${OpenCV_INCLUDE_DIRS}
   
   PUBLIC
   ${DEFAULT_INCLUDE_DIRECTORIES}
-  ${OpenCV_INCLUDE_DIRS}
   
   INTERFACE
   #$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -356,64 +322,20 @@ target_compile_options(${target}
 # Linker options
 # 
 
-if (0)
 target_link_libraries(${target}
   PRIVATE
-  ${META_PROJECT_NAME}::lib-SLExternal
-  ${META_PROJECT_NAME}::lib-assimp
-  lib_avcodec
-  lib_avdevice
-  lib_avfilter
-  lib_avformat
-  lib_avutil
-  lib_swresample
-  lib_swscale
-  #${platform_specific_link_libraries}
-  #lib_opencv_shape
-  #lib_opencv_photo
-  #lib_opencv_tracking
-  #lib_opencv_plot
-  #lib_opencv_datasets
-  #lib_opencv_text
-  #lib_opencv_ml
-  #lib_opencv_dnn
-  lib_opencv_aruco
-  lib_opencv_core
-  lib_opencv_calib3d
-  lib_opencv_features2d
-  lib_opencv_face
-  #lib_opencv_flann
-  lib_opencv_highgui
-  lib_opencv_imgproc
-  lib_opencv_imgcodecs
-  lib_opencv_objdetect
-  lib_opencv_video
-  lib_opencv_videoio
-  lib_opencv_xfeatures2d
-
-  PUBLIC
-  ${DEFAULT_LINKER_OPTIONS}
-
-  INTERFACE
-  )
-endif()
-
-target_link_libraries(${target}
-  PRIVATE
-
-  PUBLIC
-  ${META_PROJECT_NAME}::lib-SLExternal
-  ${META_PROJECT_NAME}::lib-assimp
-  ${DEFAULT_LINKER_OPTIONS}
+  ${platform_specific_link_libraries}
   ${OpenCV_LIBS}
-  #lib_avcodec
-  #lib_avdevice
-  #lib_avfilter
-  #lib_avformat
-  #lib_avutil
-  #lib_swresample
-  #lib_swscale
-  #${OpenCV_LIBS}
+
+  PUBLIC
+  ${META_PROJECT_NAME}::lib-SLExternal
+  ${META_PROJECT_NAME}::lib-assimp
+  ${DEFAULT_LINKER_OPTIONS}
 
   INTERFACE
   )
+
+if("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
+	add_custom_command(TARGET ${target} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${OpenCV_DIR}/x64/vc15/bin $<TARGET_FILE_DIR:${target}>)
+endif()

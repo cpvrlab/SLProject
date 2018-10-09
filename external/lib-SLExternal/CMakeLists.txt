@@ -16,7 +16,8 @@ set(target lib-SLExternal)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
-set(compile_definitions)
+set(compile_definitions
+	GLEW_NO_GLU)
 set(platform_specific_link_libraries)
 
 #message(STATUS "include_path ${include_path}")
@@ -69,7 +70,7 @@ if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
     )
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
   set(compile_definitions
     ${compile_definitions}
     _GLFW_X11
@@ -102,12 +103,78 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     ${include_path}/glfw3/src/glx_context.c
     )
   #message(STATUS "sources ${sources}")
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
+	set(compile_definitions
+	${compile_definitions}
+	GLEW_STATIC
+	_GLFW_WIN32
+	_GLFW_USE_OPENGL
+	_GLFW_WGL
+	UNICODE
+	_UNICODE)
+	
+  file(GLOB headers
+    ${headers}
+    ${include_path}/glfw3/src/win32_platform.h
+    ${include_path}/glfw3/src/win32_tls.h
+    ${include_path}/glfw3/src/winmm_joystick.h
+    ${include_path}/glfw3/src/wgl_context.h
+	${include_path}/nvwa/debug_new.h
+	${include_path}/zlib/ioapi.h
+	${include_path}/zlib/unzip.h
+	${include_path}/zlib/zconf.in.h
+	${include_path}/zlib/zutil.h
+	${include_path}/zlib/zlib.h
+	${include_path}/zlib/zconf.h
+	${include_path}/zlib/trees.h
+	${include_path}/zlib/inftrees.h
+	${include_path}/zlib/inflate.h
+	${include_path}/zlib/inffixed.h
+	${include_path}/zlib/inffast.h
+	${include_path}/zlib/gzguts.h
+	${include_path}/zlib/deflate.h
+	${include_path}/zlib/crypt.h
+	${include_path}/zlib/crc32.h
+	${include_path}/zlib/dirent.h
+    )
+  #message(STATUS "headers ${headers}")
+  
+  file(GLOB sources
+    ${sources}
+    ${include_path}/glfw3/src/win32_init.c
+    ${include_path}/glfw3/src/win32_monitor.c
+    ${include_path}/glfw3/src/win32_time.c
+    ${include_path}/glfw3/src/win32_tls.c
+    ${include_path}/glfw3/src/win32_window.c
+    ${include_path}/glfw3/src/winmm_joystick.c
+    ${include_path}/glfw3/src/wgl_context.c
+	${include_path}/nvwa/debug_new.cpp
+	${include_path}/zlib/zutil.c
+	${include_path}/zlib/uncompr.c
+	${include_path}/zlib/trees.c
+	${include_path}/zlib/inftrees.c
+	${include_path}/zlib/inflate.c
+	${include_path}/zlib/inffast.c
+	${include_path}/zlib/infback.c
+	${include_path}/zlib/gzwrite.c
+	${include_path}/zlib/gzread.c
+	${include_path}/zlib/gzlib.c
+	${include_path}/zlib/gzclose.c
+	${include_path}/zlib/deflate.c
+	${include_path}/zlib/crc32.c
+	${include_path}/zlib/compress.c
+	${include_path}/zlib/adler32.c
+	${include_path}/zlib/ioapi.c
+	${include_path}/zlib/unzip.c
+	${include_path}/zlib/dirent.c
+    )
+  #message(STATUS "sources ${sources}")
 endif()
 
 # Group source files
 #...
 
-if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
+if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(platform_specific_link_libraries
         dl
         GL
@@ -117,64 +184,20 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
         Xinerama
         Xxf86vm
         Xcursor)
-elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
+	set(platform_specific_link_libraries
+		OpenGL32
+		winmm
+		gdi32
+		user32
+		kernel32)
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
     find_library( log-lib log )
     set(platform_specific_link_libraries
         GLESv3
         ${log-lib})
 endif()
 
-if (0)
-if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
-    set(platform_specific_link_libraries
-        dl
-        GL
-        X11
-        Xrandr
-        Xi
-        Xinerama
-        Xxf86vm
-        Xcursor
-        opencv_shape
-        opencv_photo
-        opencv_tracking
-        opencv_plot
-        opencv_datasets
-        opencv_text
-        opencv_ml
-        opencv_dnn
-        opencv_aruco
-        opencv_core
-        opencv_calib3d
-        opencv_features2d
-        opencv_face
-        opencv_flann
-        opencv_highgui
-        opencv_imgproc
-        opencv_imgcodecs
-        opencv_objdetect
-        opencv_video
-        opencv_videoio
-        opencv_xfeatures2d)
-elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
-    find_library( log-lib log )
-    set(platform_specific_link_libraries
-        opencv_aruco
-        lib_opencv_video
-        lib_opencv_videoio
-        lib_opencv_core
-        lib_opencv_imgproc
-        lib_opencv_features2d
-        lib_opencv_calib3d
-        lib_opencv_imgcodecs
-        lib_opencv_highgui
-        lib_opencv_xfeatures2d
-        lib_opencv_objdetect
-        lib_opencv_face
-        GLESv3
-        ${log-lib})
-endif()
-endif()
 # 
 # Create library
 # 
@@ -204,8 +227,9 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}/dirent
     ${CMAKE_CURRENT_SOURCE_DIR}/glew/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../include
     ${CMAKE_CURRENT_SOURCE_DIR}/glfw3/include
     ${CMAKE_CURRENT_SOURCE_DIR}/half/include
     ${CMAKE_CURRENT_SOURCE_DIR}/glfw3/src
@@ -213,8 +237,9 @@ target_include_directories(${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/zlib
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/spa
-    ${CMAKE_CURRENT_SOURCE_DIR}/opencv/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/3.4.2/include
+    #${CMAKE_CURRENT_SOURCE_DIR}/opencv/include
+    #${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/3.4.2/include
+	${CMAKE_CURRENT_SOURCE_DIR}
 
     PUBLIC
     #${DEFAULT_INCLUDE_DIRECTORIES}
