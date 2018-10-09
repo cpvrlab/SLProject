@@ -28,7 +28,7 @@ set(META_PROJECT_NAME        "SLProject")
 
 # 
 # Project configuration options
-# 
+#
 
 # Project options
 #option(BUILD_SHARED_LIBS     "Build shared instead of static libraries."              ON)
@@ -55,6 +55,60 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 # 
 
 include(cmake/CompileOptions.cmake)
+
+set(OpenCV_VERSION "3.4.1")
+set(OpenCV_DIR)
+set(OpenCV_INCLUDE_DIRS)
+set(OpenCV_LINK_LIBS
+    opencv_shape
+    opencv_photo
+    opencv_tracking
+    opencv_plot
+    opencv_datasets
+    opencv_text
+    opencv_ml
+    opencv_dnn
+    opencv_aruco
+    opencv_core
+    opencv_calib3d
+    opencv_features2d
+    opencv_face
+    opencv_flann
+    opencv_highgui
+    opencv_imgproc
+    opencv_imgcodecs
+    opencv_objdetect
+    opencv_video
+    opencv_videoio
+    opencv_xfeatures2d)
+set(OpenCV_LIBS)
+
+if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
+    set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/linux/${OpenCV_VERSION}")
+    set(OpenCV_LINK_DIRECTORY "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
+    set(OpenCV_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/linux/${OpenCV_VERSION}/include")
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
+    set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/x64/${OpenCV_VERSION}")
+    set(OpenCV_LINK_DIRECTORY "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
+    set(OpenCV_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/x64/${OpenCV_VERSION}/include")
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
+    set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/android/${OpenCV_VERSION}")
+    set(OpenCV_LINK_DIRECTORY "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}")
+    set(OpenCV_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/android/${OpenCV_VERSION}/include")
+endif()
+
+foreach(lib ${OpenCV_LINK_LIBS})
+    #add_3rdparty_library(lib_${lib} ${OpenCV_LINK_DIRECTORY}/lib${lib}.so)
+    message(STATUS "adding 3rdpary library with name lib_${lib} at location ${OpenCV_LINK_DIRECTORY}/lib${lib}.so")
+    add_library(lib_${lib} SHARED IMPORTED)
+    set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${OpenCV_LINK_DIRECTORY}/lib${lib}.so)
+    set(OpenCV_LIBS
+        ${OpenCV_LIBS}
+        lib_${lib})
+endforeach(lib)
+
+message(STATUS "OpenCV_LIBS ${OpenCV_LIBS}")
+link_directories(${OpenCV_LINK_DIRECTORY})
 
 # 
 # Project modules

@@ -19,6 +19,7 @@ set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
 set(compile_definitions
 	GLEW_NO_GLU)
 set(platform_specific_link_libraries)
+set(platform_specific_include_directories)
 
 #message(STATUS "include_path ${include_path}")
 #message(STATUS "source_path ${source_path}")
@@ -184,18 +185,24 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
         Xinerama
         Xxf86vm
         Xcursor)
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
-	set(platform_specific_link_libraries
-		OpenGL32
-		winmm
-		gdi32
-		user32
-		kernel32)
+    set(platform_specific_link_libraries
+        OpenGL32
+        winmm
+        gdi32
+        user32
+        kernel32)
+
+    set(platform_specific_include_directories
+        ${CMAKE_CURRENT_SOURCE_DIR}/dirent)
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
     find_library( log-lib log )
     set(platform_specific_link_libraries
         GLESv3
         ${log-lib})
+
 endif()
 
 # 
@@ -227,7 +234,6 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
-	${CMAKE_CURRENT_SOURCE_DIR}/dirent
     ${CMAKE_CURRENT_SOURCE_DIR}/glew/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../include
     ${CMAKE_CURRENT_SOURCE_DIR}/glfw3/include
@@ -237,9 +243,8 @@ target_include_directories(${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/zlib
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/spa
-    #${CMAKE_CURRENT_SOURCE_DIR}/opencv/include
-    #${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/3.4.2/include
-	${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${platform_specific_include_directories}
 
     PUBLIC
     #${DEFAULT_INCLUDE_DIRECTORIES}

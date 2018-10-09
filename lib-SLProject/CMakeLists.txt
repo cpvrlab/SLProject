@@ -2,7 +2,7 @@
 # External dependencies
 # 
 #... find package
-find_package(OpenCV REQUIRED)
+#find_package(OpenCV REQUIRED)
 
 # 
 # Library name and options
@@ -198,28 +198,28 @@ file(GLOB sources
 #
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(compile_definitions
-      ${compile_definitions}
-      SL_USES_CVCAPTURE
+          ${compile_definitions}
+          SL_USES_CVCAPTURE
 	  SL_GUI_GLFW)
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
-	set(compile_definitions
-      ${compile_definitions}
-      SL_USES_CVCAPTURE
-	  SL_GUI_GLFW
-	  GLEW_STATIC
+    set(compile_definitions
+          ${compile_definitions}
+          SL_USES_CVCAPTURE
+          SL_GUI_GLFW
+          GLEW_STATIC
 	  _GLFW_NO_DLOAD_GDI32
-	  _GLFW_NO_DLOAD_WINMM
-	  )
+	  _GLFW_NO_DLOAD_WINMM)
 	  
-	set(platform_specific_link_libraries
-		OpenGL32
-		winmm
-		gdi32
-		user32
-		kernel32
-		shell32
-		setupapi
-		ws2_32)
+    set(platform_specific_link_libraries
+          OpenGL32
+          winmm
+          gdi32
+          user32
+          kernel32
+          shell32
+          setupapi
+          ws2_32)
 endif()
 
 # Build library
@@ -238,7 +238,6 @@ add_library(${META_PROJECT_NAME}::${target} ALIAS ${target})
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
-    #FOLDER "${IDE_FOLDER}"
 )
 
 # 
@@ -247,8 +246,6 @@ set_target_properties(${target}
 
 target_include_directories(${target}
   PRIVATE
-  #${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/include
-  #${CMAKE_CURRENT_SOURCE_DIR}/../_lib/prebuilt/OpenCV/android/${opencv_version}/sdk/native/jni/include
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/../include
   ${CMAKE_CURRENT_SOURCE_DIR}/../app-Demo-GLFW/source
@@ -270,9 +267,6 @@ target_include_directories(${target}
   ${DEFAULT_INCLUDE_DIRECTORIES}
   
   INTERFACE
-  #$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  #$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-  #$<INSTALL_INTERFACE:include>
   )
 
 
@@ -298,7 +292,6 @@ target_compile_definitions(${target}
     ${compile_definitions}
 
     PUBLIC
-    #$<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:${target_id}_STATIC_DEFINE>
     ${DEFAULT_COMPILE_DEFINITIONS}
 
     INTERFACE

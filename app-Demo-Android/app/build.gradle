@@ -24,7 +24,7 @@ android {
             cmake {
                 cppFlags "-frtti -fexceptions -std=c++11 -w -Wno-error=format-security"
                 abiFilters 'arm64-v8a'
-                arguments "-DOpenCV_DIR=" + project.projectDir + "/../../_lib/prebuilt/OpenCV/android/3.4.1/sdk/native/jni"
+                arguments //"-DOpenCV_DIR=" + project.projectDir + "/../../_lib/prebuilt/OpenCV/android/3.4.1/sdk/native/jni"
                           "-DANDROID_STL=c++_shared"
                           "-DSL_GUI_JAVA"
                           "-DSL_GLES2"
@@ -36,13 +36,15 @@ android {
             assets.srcDirs = ['src/main/assets']
         }
         debug {
+            // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
             jniLibs.srcDirs = [
-                    '../../_lib/prebuilt/OpenCV/android/3.4.1/sdk/native/libs'
+                    '../../_lib/prebuilt/OpenCV/android/3.4.1/Debug'
             ]
         }
         release {
+            // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
             jniLibs.srcDirs = [
-                    '../../_lib/prebuilt/OpenCV/android/3.4.1/sdk/native/libs'
+                    '../../_lib/prebuilt/OpenCV/android/3.4.1/Release'
             ]
         }
     }

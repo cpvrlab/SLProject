@@ -30,21 +30,6 @@ add_library( # Sets the name of the library.
              ${headers}
 )
 
-# Searches for a specified prebuilt library and stores the path as a
-# variable. Because CMake includes system libraries in the search path by
-# default, you only need to specify the name of the public NDK library
-# you want to add. CMake verifies that the library exists before
-# completing its build.
-
-#add prebuilt shared libraries
-
-function(add_3rdparty_library name file)
-    #add_library(${name} SHARED IMPORTED)
-    add_library(${name} STATIC IMPORTED)
-    #set_target_properties(${name} PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/3rdpartylib/extern/${CMAKE_ANDROID_ARCH_ABI}/${file})
-    set_target_properties(${name} PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/3rdpartylib/opencv/3.4.0/sdk/native/3rdparty/libs/${CMAKE_ANDROID_ARCH_ABI}/${file})
-endfunction()
-
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
@@ -67,28 +52,21 @@ target_include_directories(${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal/spa
     ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal/zlib
+    ${OpenCV_INCLUDE_DIRS}
 
     PUBLIC
     ${DEFAULT_INCLUDE_DIRECTORIES}
-    #${OpenCV_INCLUDE_DIRS}
 )
 
 #
 # Libraries
 #
 
+message(STATUS "OpenCV_LIBS before linking ${OpenCV_LIBS}")
 target_link_libraries(${target}
-    PUBLIC
     ${DEFAULT_LIBRARIES}
+    ${OpenCV_LIBS}
     ${META_PROJECT_NAME}::lib-SLProject
-    #lib_avcodec
-    #lib_avdevice
-    #lib_avfilter
-    #lib_avformat
-    #lib_avutil
-    #lib_swresample
-    #lib_swscale
-    #${OpenCV_LIBS}
 )
 
 #
@@ -146,8 +124,6 @@ file(MAKE_DIRECTORY             ${APK_ASSETS}/fonts
                                 ${APK_ASSETS}/shaders
                                 ${APK_ASSETS}/calibrations
                                 ${APK_ASSETS}/config)
-
-message(STATUS "${MODELS}: ********************************************************************************" ${MODELS})
 
 file(COPY ${FONTS}          DESTINATION ${APK_ASSETS}/fonts)
 file(COPY ${TEXTURES}       DESTINATION ${APK_ASSETS}/textures)
