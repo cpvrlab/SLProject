@@ -330,5 +330,5 @@ target_link_libraries(${target}
 
 if("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
 	add_custom_command(TARGET ${target} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${OpenCV_DIR}/x64/vc15/bin $<TARGET_FILE_DIR:${target}>)
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${OpenCV_LINK_DIRECTORY} $<TARGET_FILE_DIR:${target}>)
 endif()
