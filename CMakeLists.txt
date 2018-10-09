@@ -95,29 +95,36 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
     set(OpenCV_LINK_DIRECTORY "${OpenCV_DIR}/lib")
     set(OpenCV_INCLUDE_DIRS "${OpenCV_DIR}/include")
 
-	string(REPLACE "." "" OpenCV_LIBS_POSTFIX ${OpenCV_VERSION})
-	
-	foreach(lib ${OpenCV_LINK_LIBS})
-		set(OpenCV_LIBS
-			${OpenCV_LIBS}
-			optimized ${lib}${OpenCV_LIBS_POSTFIX}
-			debug ${lib}${OpenCV_LIBS_POSTFIX}d)
-	endforeach(lib)
-	message(STATUS "opencv debug libs ${OpenCV_LIBS_DEBUG}")
+    string(REPLACE "." "" OpenCV_LIBS_POSTFIX ${OpenCV_VERSION})
+
+    foreach(lib ${OpenCV_LINK_LIBS})
+            set(OpenCV_LIBS
+                    ${OpenCV_LIBS}
+                    optimized ${lib}${OpenCV_LIBS_POSTFIX}
+                    debug ${lib}${OpenCV_LIBS_POSTFIX}d)
+    endforeach(lib)
+    message(STATUS "opencv debug libs ${OpenCV_LIBS_DEBUG}")
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
     set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/android/${OpenCV_VERSION}")
     set(OpenCV_LINK_DIRECTORY "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}")
     set(OpenCV_INCLUDE_DIRS "${OpenCV_DIR}/include")
-	
-	foreach(lib ${OpenCV_LINK_LIBS})
-		add_library(lib_${lib} SHARED IMPORTED)
-		set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${OpenCV_LINK_DIRECTORY}/lib${lib}.so)
-		set(OpenCV_LIBS
-			${OpenCV_LIBS}
-			lib_${lib})
-	endforeach(lib)
-	
-	set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
+
+    file(DOWNLOAD
+        "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt/andV8_opencv_3.4.1.zip"
+        "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/android/andV8_opencv_3.4.1.zip")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+        "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/android/andV8_opencv_3.4.1.zip"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/android")
+
+    foreach(lib ${OpenCV_LINK_LIBS})
+            add_library(lib_${lib} SHARED IMPORTED)
+            set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${OpenCV_LINK_DIRECTORY}/lib${lib}.so)
+            set(OpenCV_LIBS
+                    ${OpenCV_LIBS}
+                    lib_${lib})
+    endforeach(lib)
+
+    set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
 endif()
 
 link_directories(${OpenCV_LINK_DIRECTORY})
