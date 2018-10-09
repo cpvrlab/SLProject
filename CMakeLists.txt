@@ -83,6 +83,9 @@ set(OpenCV_LINK_LIBS
     opencv_xfeatures2d)
 set(OpenCV_LIBS)
 
+set(PREBUILT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt")
+set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
+
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/linux/${OpenCV_VERSION}")
     set(OpenCV_LINK_DIRECTORY "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
@@ -91,9 +94,16 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 	set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
 	set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
-    set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/x64/${OpenCV_VERSION}")
+	set(PREBUILT_OPENCV_DIR "win64_opencv_${OpenCV_VERSION}")
+    set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
     set(OpenCV_LINK_DIRECTORY "${OpenCV_DIR}/lib")
     set(OpenCV_INCLUDE_DIRS "${OpenCV_DIR}/include")
+	set(PREBUILT_ZIP "${PREBUILT_OPENCV_DIR}.zip")
+
+    file(DOWNLOAD "${PREBUILT_URL}/${PREBUILT_ZIP}" "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+        "${PREBUILT_PATH}/${PREBUILT_ZIP}"
+        WORKING_DIRECTORY "${PREBUILT_PATH}")
 
     string(REPLACE "." "" OpenCV_LIBS_POSTFIX ${OpenCV_VERSION})
 
@@ -103,18 +113,39 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
                     optimized ${lib}${OpenCV_LIBS_POSTFIX}
                     debug ${lib}${OpenCV_LIBS_POSTFIX}d)
     endforeach(lib)
-    message(STATUS "opencv debug libs ${OpenCV_LIBS_DEBUG}")
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
-    set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/android/${OpenCV_VERSION}")
-    set(OpenCV_LINK_DIRECTORY "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}")
+	
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN")
+	set(PREBUILT_OPENCV_DIR "mac64_opencv_${OpenCV_VERSION}")
+    set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
+    set(OpenCV_LINK_DIRECTORY "${OpenCV_DIR}/lib")
     set(OpenCV_INCLUDE_DIRS "${OpenCV_DIR}/include")
+	set(PREBUILT_ZIP "${PREBUILT_OPENCV_DIR}.zip")
 
-    file(DOWNLOAD
-        "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt/andV8_opencv_3.4.1.zip"
-        "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/android/andV8_opencv_3.4.1.zip")
+    file(DOWNLOAD "${PREBUILT_URL}/${PREBUILT_ZIP}" "${PREBUILT_PATH}/${PREBUILT_ZIP}")
     execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-        "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/android/andV8_opencv_3.4.1.zip"
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/android")
+        "${PREBUILT_PATH}/${PREBUILT_ZIP}"
+        WORKING_DIRECTORY "${PREBUILT_PATH}")
+
+    string(REPLACE "." "" OpenCV_LIBS_POSTFIX ${OpenCV_VERSION})
+
+    foreach(lib ${OpenCV_LINK_LIBS})
+            set(OpenCV_LIBS
+                    ${OpenCV_LIBS}
+                    optimized ${lib}${OpenCV_LIBS_POSTFIX}
+                    debug ${lib}${OpenCV_LIBS_POSTFIX}d)
+    endforeach(lib)
+
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
+	set(PREBUILT_OPENCV_DIR "andV8_opencv_${OpenCV_VERSION}")
+    set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
+    set(OpenCV_LINK_DIRECTORY "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
+    set(OpenCV_INCLUDE_DIRS "${OpenCV_DIR}/include")
+	set(PREBUILT_ZIP "${PREBUILT_OPENCV_DIR}.zip")
+
+    file(DOWNLOAD "${PREBUILT_URL}/${PREBUILT_ZIP}" "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+        "${PREBUILT_PATH}/${PREBUILT_ZIP}"
+        WORKING_DIRECTORY "${PREBUILT_PATH}")
 
     foreach(lib ${OpenCV_LINK_LIBS})
             add_library(lib_${lib} SHARED IMPORTED)
