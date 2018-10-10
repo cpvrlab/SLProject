@@ -15,9 +15,8 @@ set(target app-Demo-GLFW.o)
 # 
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
-set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
-set(compile_definitions
-  SL_STARTSCENE=SID_Minimal)
+set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
+set(compile_definitions SL_STARTSCENE=SID_Minimal)
 
 #message(STATUS "include_path ${include_path}")
 #message(STATUS "source_path ${source_path}")
