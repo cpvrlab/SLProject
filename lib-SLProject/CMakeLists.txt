@@ -225,6 +225,21 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
         SL_GUI_GLFW
         GLEW_STATIC)
 
+    FIND_LIBRARY(COCOA_LIB Cocoa)
+    FIND_LIBRARY(IOKIT_LIB IOKit)
+    FIND_LIBRARY(OPENGL_LIB OpenGL)
+    FIND_LIBRARY(QUARZ_LIB QuartzCore)
+    message(STATUS "COCOA_LIB ${COCOA_LIB}")
+    message(STATUS "IOKIT_LIB ${IOKIT_LIB}")
+    message(STATUS "OPENGL_LIB ${OPENGL_LIB}")
+    message(STATUS "QUARZ_LIB ${QUARZ_LIB}")
+
+    set(platform_specific_link_libraries
+        ${COCOA_LIB}
+        ${IOKIT_LIB}
+        ${OPENGL_LIB}
+        ${QUARZ_LIB})
+
 endif()
 #==============================================================================
 

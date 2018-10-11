@@ -94,24 +94,18 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(OpenCV_VERSION "3.4.1")
     set(PREBUILT_OPENCV_DIR "win64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
-
-
-
-
-
-
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
     set(PREBUILT_ZIP "${PREBUILT_OPENCV_DIR}.zip")
-    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY "../../_bin-win64-NoConfig" )
-    set( CMAKE_LIBRARY_OUTPUT_DIRECTORY "../../_bin-win64-NoConfig" )
-    set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY "../../_bin-win64-NoConfig" )
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../../_bin-win64-NoConfig")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "../../_bin-win64-NoConfig")
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "../../_bin-win64-NoConfig")
 
-    foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
-            string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIGUP )
-            set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIGUP} "../../_bin-win64-${OUTPUTCONFIG}" )
-            set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIGUP} "../../_bin-win64-${OUTPUTCONFIG}" )
-            set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIGUP} "../../_bin-win64-${OUTPUTCONFIG}" )
+    foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+        string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIGUP)
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIGUP} "../../_bin-win64-${OUTPUTCONFIG}")
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIGUP} "../../_bin-win64-${OUTPUTCONFIG}")
+        set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIGUP} "../../_bin-win64-${OUTPUTCONFIG}")
     endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 
     if (NOT EXISTS "${OpenCV_DIR}")
