@@ -39,6 +39,7 @@ moc_*.cpp
 
 !christoffelturm.obj
 
+build/
 obj/
 ipch/
 _bin/

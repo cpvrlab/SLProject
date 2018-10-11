@@ -1,385 +1,138 @@
-# Sets the minimum version of CMake required to build the native
-# library. You should either keep the default value or only pass a
-# value of 3.4.0 or lower.
+# For more information about using CMake with Android Studio, read the
+# documentation: https://d.android.com/studio/projects/add-native-code.html
+#find_package(OpenCV REQUIRED)
 
-cmake_minimum_required(VERSION 3.4.1)
+# Sets the minimum version of CMake required to build the native library.
+set(target native-lib)
 
 add_definitions(-D_ANDROID)
 add_definitions(-DSL_GUI_JAVA)
 add_definitions(-DSL_GLES2)
 
-add_definitions(-DASSIMP_BUILD_BOOST_WORKAROUND)
-add_definitions(-DASSIMP_BUILD_NO_OWN_ZLIB)
+# Creates and names a library, sets it as either STATIC
+# or SHARED, and provides the relative paths to its source code.
+# You can define multiple libraries, and CMake builds them for you.
+# Gradle automatically packages shared libraries with your APK.
 
-add_definitions(-DASSIMP_BUILD_NO_BLEND_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_MD3_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_MDL_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_MD2_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_ASE_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_HMP_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_SMD_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_MDC_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_MD5_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_LWO_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_NFF_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_RAW_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_OFF_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_AC_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_BVH_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_IRRMESH_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_IRR_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_Q3D_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_B3D_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_TERRAGEN_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_CSM_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_3D_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_LWS_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_OGRE_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_MS3D_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_COB_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_Q3BSP_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_NDO_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_IFC_IMPORTER)
-add_definitions(-DASSIMP_BUILD_NO_XGL_IMPORTER)
-
-#
-# g2o
-#
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/main/jniIncludeG2O/include)
-
-#
-# SLProject
-#
-file(GLOB SLPROJECT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/../../include/*.h
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../include/OrbSlam/*.h)
-file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/math/SLCurveBezier.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/math/SLPlane.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SL.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLApplication.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLAssimpImporter.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLAverageTiming.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLFileSystem.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLImporter.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLInterface.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLTexFont.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLSkybox.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLTimer.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLImGui.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLOculus.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLOculusFB.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLProgram.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLShader.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLState.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLTexture.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLVertexArray.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLVertexArrayExt.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLVertexBuffer.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVCapture.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVCalibration.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVFeatureManager.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVImage.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVMapNode.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVRaulMurExtractorNode.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVRaulMurOrb.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTracked.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedAruco.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedChessboard.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedFeatures.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedMapping.cpp
-
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/Converter.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/Optimizer.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/ORBmatcher.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/PnPsolver.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/LocalMapping.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/LoopClosing.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/Initializer.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/Sim3Solver.cpp
-
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosCameraMovement.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiTrackedMapping.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosChristoffelTower.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosDialog.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosMapTransform.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosMapNodeTransform.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosTracking.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiTrackedMapping.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiMapStorage.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GUI/SLImGuiInfosMemoryStats.cpp
-
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/ORBextractor.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVCamera.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVFrame.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVKeyFrame.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVKeyFrameDB.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVMap.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVMapPoint.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVMapIO.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedRaulMur.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedRaulMurAsync.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVOrbTracking.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVStateEstimator.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVMapTracking.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVMapStorage.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVOrbVocabulary.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackingStateMachine.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedRaulMurAsync.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVStateEstimator.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVOrbTracking.cpp
-
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedFaces.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAABBox.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimation.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimManager.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimPlayback.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimTrack.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLBackground.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLBox.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCamera.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCone.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCompactGrid.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCoordAxis.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCylinder.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDemoGui.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDeviceRotation.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDeviceLocation.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDisk.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLGrid.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLInputDevice.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLInputManager.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLJoint.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLKeyframe.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLLens.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLLight.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLLightRect.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLLightSpot.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLLightDirect.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLMaterial.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLMesh.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLMemoryStats.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLNode.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLPathtracer.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLPolygon.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLPoints.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLRay.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLRaytracer.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLRectangle.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLRevolver.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSamples2D.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLScene.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSceneView.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSkeleton.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSpheric.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLText.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLTransferFunction.cpp
-                                        )
-
-file(GLOB_RECURSE SLEXTERNAL_SOURCES    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/*.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/*.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/*.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/*.cc
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui/imgui.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui/imgui_draw.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa/spa.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa/spa.h
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/Decompose.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/Decompose.h
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/EulerAngles.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/EulerAngles.h
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/TypeDefs.h
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DUtils/Random.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DUtils/Timestamp.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DBoW2/BowVector.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DBoW2/FeatureVector.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DBoW2/FORB.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DBoW2/ScoringObject.cpp
-                                        )
-
-list(REMOVE_ITEM SLEXTERNAL_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/OgreMesh.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/OgreSkeleton.cpp
-                                        )
-
-file(GLOB_RECURSE APP_DEMO_SOURCES      ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoAndroidJNI.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoAndroidSensorQueue.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoLoad.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source/AppDemoGui.cpp
-                                        )
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include/OrbSlam)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/opencv/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/nvwa)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/zlib)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/clipper)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/zlib)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/irrXML)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/poly2tri)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/BoostWorkaround)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/eigen)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/opencv/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/g2o)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DBoW2)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DUtils)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2)
-
-#
-# OpenCV
-#
-add_library(lib_opencv_aruco SHARED IMPORTED)
-set_target_properties(lib_opencv_aruco PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_aruco.so)
-add_library(lib_opencv_video SHARED IMPORTED)
-set_target_properties(lib_opencv_video PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_video.so)
-add_library(lib_opencv_videoio SHARED IMPORTED)
-set_target_properties(lib_opencv_videoio PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_videoio.so)
-add_library(lib_opencv_core SHARED IMPORTED)
-set_target_properties(lib_opencv_core PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_core.so)
-add_library(lib_opencv_imgproc SHARED IMPORTED)
-set_target_properties(lib_opencv_imgproc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_imgproc.so)
-add_library(lib_opencv_features2d SHARED IMPORTED)
-set_target_properties(lib_opencv_features2d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_features2d.so)
-add_library(lib_opencv_calib3d SHARED IMPORTED)
-set_target_properties(lib_opencv_calib3d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_calib3d.so)
-add_library(lib_opencv_imgcodecs SHARED IMPORTED)
-set_target_properties(lib_opencv_imgcodecs PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_imgcodecs.so)
-add_library(lib_opencv_highgui SHARED IMPORTED)
-set_target_properties(lib_opencv_highgui PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_highgui.so)
-add_library(lib_opencv_xfeatures2d SHARED IMPORTED)
-set_target_properties(lib_opencv_xfeatures2d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_xfeatures2d.so)
-add_library(lib_opencv_objdetect SHARED IMPORTED)
-set_target_properties(lib_opencv_objdetect PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_objdetect.so)
-add_library(lib_opencv_face SHARED IMPORTED)
-set_target_properties(lib_opencv_face PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}/libopencv_face.so)
-
-#
-# g2o (graph optimization for bundle adjustment)
-#
-add_library(lib_g2o_types_slam3d SHARED IMPORTED)
-set_target_properties(lib_g2o_types_slam3d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_types_slam3d.so)
-add_library(lib_g2o_core SHARED IMPORTED)
-set_target_properties(lib_g2o_core PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_core.so)
-add_library(lib_g2o_stuff SHARED IMPORTED)
-set_target_properties(lib_g2o_stuff PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_stuff.so)
-add_library(lib_g2o_solver_dense SHARED IMPORTED)
-set_target_properties(lib_g2o_solver_dense PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_solver_dense.so)
-add_library(lib_g2o_solver_eigen SHARED IMPORTED)
-set_target_properties(lib_g2o_solver_eigen PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_solver_eigen.so)
-add_library(lib_g2o_types_sba SHARED IMPORTED)
-set_target_properties(lib_g2o_types_sba PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_types_sba.so)
-add_library(lib_g2o_types_sim3 SHARED IMPORTED)
-set_target_properties(lib_g2o_types_sim3 PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_types_sim3.so)
-#message(${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_types_slam3d.so)
-
-add_library(native-lib
-            SHARED
-            ${APP_DEMO_SOURCES}
-            ${SLPROJECT_SOURCES}
-            ${SLPROJECT_HEADERS}
-            ${SLEXTERNAL_SOURCES}
+set( sources
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoAndroidJNI.cpp
 )
 
-set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -landroid")
-find_library( log-lib log )
+set( headers
+)
+
+add_library( # Sets the name of the library.
+             ${target}
+
+             # Sets the library as a shared library.
+             SHARED
+
+             # Provides a relative path to your source file(s).
+             ${sources}
+             ${headers}
+)
 
 #
-# GLES
+# Include directories
 #
 
-set(OPENGL_LIB_v3 GLESv3)
+target_include_directories(${target}
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-assimp/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-assimp/contrib/clipper
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-assimp/contrib/zlib
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-assimp/contrib/irrXML
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-assimp/contrib/poly2tri
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-assimp/code/BoostWorkaround
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal/imgui
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal/spa
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal/zlib
+    ${OpenCV_INCLUDE_DIR}
 
-# Specifies libraries CMake should link to your target library. You
-# can link multiple libraries, such as libraries you define in the
-# build script, prebuilt third-party libraries, or system libraries.
+    PUBLIC
+    ${DEFAULT_INCLUDE_DIRECTORIES}
+)
 
-target_link_libraries(  native-lib
-                        lib_opencv_aruco
-                        lib_opencv_video
-                        lib_opencv_videoio
-                        lib_opencv_core
-                        lib_opencv_imgproc
-                        lib_opencv_features2d
-                        lib_opencv_calib3d
-                        lib_opencv_imgcodecs
-                        lib_opencv_highgui
-                        lib_opencv_xfeatures2d
-                        lib_opencv_objdetect
-                        lib_opencv_face
-                        lib_g2o_types_slam3d
-                        lib_g2o_core
-                        lib_g2o_stuff
-                        lib_g2o_solver_dense
-                        lib_g2o_solver_eigen
-                        lib_g2o_types_sba
-                        lib_g2o_types_sim3
-                        ${OPENGL_LIB_v3}
-                        ${log-lib}
-                     )
+#
+# Libraries
+#
+
+target_link_libraries(${target}
+    ${DEFAULT_LIBRARIES}
+    ${OpenCV_LIBS}
+    ${META_PROJECT_NAME}::lib-SLProject
+    #lib_g2o_types_slam3d
+    #lib_g2o_core
+    #lib_g2o_stuff
+    #lib_g2o_solver_dense
+    #lib_g2o_solver_eigen
+    #lib_g2o_types_sba
+    #lib_g2o_types_sim3
+)
 
 #
 # Copy APK contents
 #
 
-file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/CompileError.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/brick0512_C.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/brick*.jpg
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Checkerboard0512_C.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Chess0256_C.bmp
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/earth*.jpg
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/grass0512_C.jpg
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/gray_0256_C.jpg
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/MuttenzerBox*.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/rusty-metal_2048*.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Pool*.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Testmap_0512_C.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/tile1_0256_C.jpg
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/tree1_1024_C.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/wood*.jpg
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/cursor.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Vision*.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LiveVideoError.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LogoCPVR_256L.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/features_stones.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Desert*_C.jpg
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/i*_0000b.png)
+file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/CompileError.png
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/brick0512_C.png
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/brick*.jpg
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/Checkerboard0512_C.png
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/Chess0256_C.bmp
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/earth*.jpg
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/grass0512_C.jpg
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/gray_0256_C.jpg
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/MuttenzerBox*.png
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/rusty-metal_2048*.png
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/Pool*.png
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/Testmap_0512_C.png
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/tile1_0256_C.jpg
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/tree1_1024_C.png
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/wood*.jpg
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/cursor.png
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/Vision*.png
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/LiveVideoError.png
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/LogoCPVR_256L.png
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/features_stones.png
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/Desert*_C.jpg
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/i*_0000b.png)
 
-file(GLOB_RECURSE VIDEOS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/street3.mp4
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/webcam_office1.wmv
-                                #${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_1.mp4
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_2.mp4
-                                #${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_3.mp4
-                                #${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_4.mp4
-                                #${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_5.mp4
-                                )
+file(GLOB_RECURSE VIDEOS
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/street3.mp4
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/webcam_office1.wmv
+        #${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_1.mp4
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_2.mp4
+        #${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_3.mp4
+        #${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_4.mp4
+        #${CMAKE_CURRENT_SOURCE_DIR}/../../_data/videos/VID_20180424_5.mp4
+        )
 
-file(GLOB_RECURSE FONTS         ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.ttf)
+file(GLOB_RECURSE FONTS         ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/fonts/*.png
+        ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/fonts/*.ttf)
 
-# If you add new models you must delete ${CMAKE_CURRENT_SOURCE_DIR}/src/main/assets
-file(GLOB_RECURSE MODELS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/models/*)
+# If you add new models you must delete ${CMAKE_CURRENT_LIST_DIR}/src/main/assets
+file(GLOB_RECURSE MODELS        ${CMAKE_CURRENT_LIST_DIR}/../../_data/models/*)
 
 file(GLOB_RECURSE SHADERS       ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/*.vert
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/*.frag)
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/*.frag)
 
-file(GLOB_RECURSE CALIBRATIONS  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/calib_in_params.yml
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/aruco_detector_params.yml
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/street1_manip.json
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-altstadtbiel1_manip.json
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-bern1-manip1.json
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-buero1.json
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/test.yml
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/cam_calibration_main_huawei_p10_640_480.xml
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/ORBvoc.bin)
+file(GLOB_RECURSE CALIBRATIONS
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/calib_in_params.yml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/aruco_detector_params.yml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/street1_manip.json
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-altstadtbiel1_manip.json
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-bern1-manip1.json
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/orb-slam-state-buero1.json
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/test.yml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/cam_calibration_main_huawei_p10_640_480.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/ORBvoc.bin)
 
-file(GLOB_RECURSE CONFIG        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/config/dummyFile.txt)
+file(GLOB_RECURSE CONFIG        ${CMAKE_CURRENT_LIST_DIR}/../../_data/config/dummyFile.txt)
 
-set(APK_ASSETS                  ${CMAKE_CURRENT_SOURCE_DIR}/src/main/assets)
+set(APK_ASSETS                  ${CMAKE_CURRENT_LIST_DIR}/src/main/assets)
 
 #define variable containing asset directories
 set(ASSET_DIRS                  ${APK_ASSETS}/fonts
@@ -395,9 +148,6 @@ file(REMOVE_RECURSE ASSET_DIRS)
 #create asset directories again
 file(MAKE_DIRECTORY ASSET_DIRS)
 
-message("${MODELS}: ********************************************************************************" ${MODELS})
-
-#copy assets to asset directories
 file(COPY ${FONTS}          DESTINATION ${APK_ASSETS}/fonts)
 file(COPY ${TEXTURES}       DESTINATION ${APK_ASSETS}/textures)
 file(COPY ${VIDEOS}         DESTINATION ${APK_ASSETS}/videos)

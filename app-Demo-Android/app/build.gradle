@@ -26,6 +26,8 @@ android {
                 abiFilters 'arm64-v8a'
                 cFlags "-v"
                 arguments "-DANDROID_STL=gnustl_static"
+                          "-DSL_GUI_JAVA"
+                          "-DSL_GLES2"
             }
         }
     }
@@ -35,10 +37,16 @@ android {
             assets.srcDirs = ['src/main/assets']
         }
         debug {
-            jniLibs.srcDirs = ['../../_lib/prebuilt/OpenCV/android/Debug']
+            // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
+            jniLibs.srcDirs = [
+                    '../../_lib/prebuilt/OpenCV/android/3.4.1/Debug'
+            ]
         }
         release {
-            jniLibs.srcDirs = ['../../_lib/prebuilt/OpenCV/android/Release']
+            // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
+            jniLibs.srcDirs = [
+                    '../../_lib/prebuilt/OpenCV/android/3.4.1/Release'
+            ]
         }
     }
     buildTypes {
@@ -53,7 +61,7 @@ android {
     }
     externalNativeBuild {
         cmake {
-            path "CMakeLists.txt"
+            path "../../CMakeLists.txt"
         }
     }
     compileOptions {
