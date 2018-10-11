@@ -12,17 +12,13 @@ set(target lib-SLExternal)
 
 # 
 # Sources
-# 
-
+#
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
 set(compile_definitions
 	GLEW_NO_GLU)
 set(platform_specific_link_libraries)
 set(platform_specific_include_directories)
-
-#message(STATUS "include_path ${include_path}")
-#message(STATUS "source_path ${source_path}")
 
 file(GLOB headers
     ${include_path}/Shoemake/Decompose.h
@@ -36,7 +32,6 @@ file(GLOB headers
     ${include_path}/imgui/stb_truetype.h
     ${include_path}/spa/spa.h
 )
-#message(STATUS "headers ${headers}")
 
 file(GLOB sources
     ${include_path}/Shoemake/EulerAngles.cpp
@@ -45,9 +40,6 @@ file(GLOB sources
     ${include_path}/imgui/imgui.cpp
     ${include_path}/spa/spa.cpp
 )
-#message(STATUS "sources ${sources}")
-
-# TODO(jan): add windows, mac and android stuff
 
 #==============================================================================
 if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
@@ -308,7 +300,6 @@ add_library(${META_PROJECT_NAME}::${target} ALIAS ${target})
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
-    #FOLDER "${IDE_FOLDER}"
 )
 
 # 
@@ -326,6 +317,8 @@ target_include_directories(${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/zlib
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/spa
+    ${CMAKE_CURRENT_SOURCE_DIR}/eigen
+    ${CMAKE_CURRENT_SOURCE_DIR}/DBoW2
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${platform_specific_include_directories}
 

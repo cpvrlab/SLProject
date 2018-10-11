@@ -58,7 +58,7 @@ void LocalMapping::Run()
         {
             std::unique_lock<std::mutex> lock(_mutexLoop);
             //_condVarLoop.wait(lock, [&] { return !_loopWait; });
-            _condVarLoop.wait_for(lock, 1000ms, [&] { return !_loopWait; });
+            _condVarLoop.wait_for(lock, std::chrono::milliseconds(1000), [&] { return !_loopWait; });
         }
         //sleep again: if one participant is calling wake up in between the previous and the next call
         //the loop will be executed anyway!

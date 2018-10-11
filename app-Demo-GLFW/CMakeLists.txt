@@ -70,6 +70,8 @@ target_include_directories(${target}
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/dirent
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/glew/include
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/glfw3/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/eigen
+  ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/DBoW2
   ${OpenCV_INCLUDE_DIR}
   
   PUBLIC

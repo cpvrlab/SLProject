@@ -11,6 +11,12 @@
 # Target name
 set(target lib-SLProject)
 
+# TODO(jan): extract this to principal CMakeLists, do for other platforms
+set(g2o_DIR ${PREBUILT_PATH}/linux_g2o)
+set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
+set(g2o_INCLUDE_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})
+link_directories(${g2o_LINK_DIR})
+
 # 
 # Sources
 # 
@@ -36,6 +42,7 @@ file(GLOB headers
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLArrow.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAssimpImporter.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAverage.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAverageTiming.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLBackground.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLBox.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCamera.h
@@ -45,8 +52,44 @@ file(GLOB headers
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCurve.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCurveBezier.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCylinder.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/Converter.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/Initializer.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/LocalMapping.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/LoopClosing.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/Optimizer.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/ORBmatcher.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/ORBVocabulary.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/PnPsolver.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/Sim3Solver.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCV.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCV*.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVCalibration.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVCamera.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVCapture.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVFeatureManager.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVFrame.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVImage.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVKeyFrame.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVKeyFrameDB.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVMap.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVMapIO.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVMapNode.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVMapPoint.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVMapStorage.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVMapTracking.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVOrbTracking.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVOrbVocabulary.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVRaulMurExtractorNode.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVRaulMurOrb.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVStateEstimator.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTracked.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackedAruco.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackedChessboard.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackedFaces.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackedFeatures.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackedMapping.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackedRaulMur.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackedRaulMurAsync.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackingStateMachine.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLDeviceRotation.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLDeviceLocation.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLDisk.h
@@ -56,6 +99,16 @@ file(GLOB headers
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLFileSystem.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLGL*.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLGrid.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGui.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiInfosCameraMovement.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiInfosChristoffelTower.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiInfosDialog.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiInfosMapNodeTransform.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiInfosMapTransform.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiInfosMemoryStats.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiInfosTracking.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiMapStorage.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiTrackedMapping.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImporter.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLInputDevice.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLInputEvent.h
@@ -72,6 +125,7 @@ file(GLOB headers
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMat4.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMaterial.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMath.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMemoryStats.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMesh.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLNode.h
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLObject.h
@@ -114,21 +168,57 @@ file(GLOB sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SL.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLApplication.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAverageTiming.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLFileSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLImporter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInterface.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTexFont.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTimer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosCameraMovement.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosChristoffelTower.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosDialog.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosMapTransform.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosMapNodeTransform.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosMemoryStats.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosTracking.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiMapStorage.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiTrackedMapping.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/Converter.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/Initializer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/LocalMapping.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/LoopClosing.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/Optimizer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/ORBmatcher.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/PnPsolver.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/Sim3Solver.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVCalibration.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVCamera.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVCapture.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVFeatureManager.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVFrame.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVImage.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVKeyFrame.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVKeyFrameDB.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMap.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMapIO.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMapNode.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMapPoint.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMapStorage.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMapTracking.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVOrbTracking.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVOrbVocabulary.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVRaulMurExtractorNode.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVRaulMurOrb.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVStateEstimator.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTracked.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedAruco.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedChessboard.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedFaces.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedFeatures.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedMapping.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedRaulMur.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedRaulMurAsync.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackingStateMachine.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLImGui.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculus.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculusFB.cpp
@@ -165,6 +255,7 @@ file(GLOB sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightSpot.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightDirect.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMaterial.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMemoryStats.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMesh.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/SLNode.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPathtracer.cpp
@@ -282,7 +373,10 @@ target_include_directories(${target}
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/zlib
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/dirent
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/glew/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/eigen
+  ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/DBoW2
   ${OpenCV_INCLUDE_DIR}
+  ${g2o_INCLUDE_DIR}
   
   PUBLIC
   ${DEFAULT_INCLUDE_DIRECTORIES}
@@ -339,6 +433,7 @@ target_link_libraries(${target}
   PRIVATE
   ${platform_specific_link_libraries}
   ${OpenCV_LIBS}
+  ${g2o_LIBS}
 
   PUBLIC
   ${META_PROJECT_NAME}::lib-SLExternal
