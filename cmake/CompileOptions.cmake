@@ -95,7 +95,7 @@ endif ()
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
 
-        -Weverything
+        -Wall
         -Wno-c++98-compat
         -Wno-c++98-compat-pedantic
         -Wno-unused-macros
@@ -117,12 +117,12 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         $<$<CXX_COMPILER_ID:GNU>:
             -Wmaybe-uninitialized
             $<$<VERSION_GREATER:$<CXX_COMPILER_VERSION>,4.8>:
-                -Wpedantic
                 -Wreturn-local-addr
             >
         >
         
         $<$<CXX_COMPILER_ID:Clang>:
+            -Weverything
         >
         
         $<$<PLATFORM_ID:Darwin>:
@@ -159,12 +159,10 @@ endif ()
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     set(EXTERNAL_LIB_COMPILE_OPTIONS ${EXTERNAL_LIB_COMPILE_OPTIONS}
 
-        -W
-        -Wno-everything
+        -w
 
         $<$<CXX_COMPILER_ID:GNU>:
             $<$<VERSION_GREATER:$<CXX_COMPILER_VERSION>,4.8>:
-                -W
             >
         >
 
