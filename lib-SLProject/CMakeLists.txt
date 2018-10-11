@@ -17,11 +17,8 @@ set(target lib-SLProject)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
-set(compile_definitions
-	GLEW_NO_GLU)
+set(compile_definitions GLEW_NO_GLU)
 set(platform_specific_link_libraries)
-
-set(opencv_version 3.4.1)
 
 #message(STATUS "include_path ${include_path}")
 #message(STATUS "source_path ${source_path}")
@@ -196,31 +193,40 @@ file(GLOB sources
 # 
 # Create library
 #
+#==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(compile_definitions
-          ${compile_definitions}
-          SL_USES_CVCAPTURE
-	  SL_GUI_GLFW)
+        ${compile_definitions}
+        SL_USES_CVCAPTURE
+        SL_GUI_GLFW)
 
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(compile_definitions
-          ${compile_definitions}
-          SL_USES_CVCAPTURE
-          SL_GUI_GLFW
-          GLEW_STATIC
-	  _GLFW_NO_DLOAD_GDI32
-	  _GLFW_NO_DLOAD_WINMM)
-	  
+        ${compile_definitions}
+        SL_USES_CVCAPTURE
+        SL_GUI_GLFW
+        GLEW_STATIC
+        _GLFW_NO_DLOAD_GDI32
+        _GLFW_NO_DLOAD_WINMM)
     set(platform_specific_link_libraries
-          OpenGL32
-          winmm
-          gdi32
-          user32
-          kernel32
-          shell32
-          setupapi
-          ws2_32)
+        OpenGL32
+        winmm
+        gdi32
+        user32
+        kernel32
+        shell32
+        setupapi
+        ws2_32)
+
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
+    set(compile_definitions
+        ${compile_definitions}
+        SL_USES_CVCAPTURE
+        SL_GUI_GLFW
+        GLEW_STATIC)
+
 endif()
+#==============================================================================
 
 # Build library
 add_library(${target}
@@ -261,14 +267,13 @@ target_include_directories(${target}
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/zlib
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/dirent
   ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/glew/include
-  ${OpenCV_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIR}
   
   PUBLIC
   ${DEFAULT_INCLUDE_DIRECTORIES}
   
   INTERFACE
   )
-
 
 # 
 # Libraries
