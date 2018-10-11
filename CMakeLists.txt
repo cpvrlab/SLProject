@@ -94,14 +94,33 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(OpenCV_VERSION "3.4.1")
     set(PREBUILT_OPENCV_DIR "win64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
+
+
+
+
+
+
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
     set(PREBUILT_ZIP "${PREBUILT_OPENCV_DIR}.zip")
+    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY "../../_bin-win64-NoConfig" )
+    set( CMAKE_LIBRARY_OUTPUT_DIRECTORY "../../_bin-win64-NoConfig" )
+    set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY "../../_bin-win64-NoConfig" )
 
-    file(DOWNLOAD "${PREBUILT_URL}/${PREBUILT_ZIP}" "${PREBUILT_PATH}/${PREBUILT_ZIP}")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-        "${PREBUILT_PATH}/${PREBUILT_ZIP}"
-        WORKING_DIRECTORY "${PREBUILT_PATH}")
+    foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
+            string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIGUP )
+            set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIGUP} "../../_bin-win64-${OUTPUTCONFIG}" )
+            set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIGUP} "../../_bin-win64-${OUTPUTCONFIG}" )
+            set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIGUP} "../../_bin-win64-${OUTPUTCONFIG}" )
+    endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
+
+    if (NOT EXISTS "${OpenCV_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${PREBUILT_ZIP}" "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+            "${PREBUILT_PATH}/${PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+    endif ()
 
     string(REPLACE "." "" OpenCV_LIBS_POSTFIX ${OpenCV_VERSION})
 
@@ -118,13 +137,15 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
-    message(STATUS "OpenCV_LINK_DIR ${OpenCV_LINK_DIR}")
     set(PREBUILT_ZIP "${PREBUILT_OPENCV_DIR}.zip")
 
-    file(DOWNLOAD "${PREBUILT_URL}/${PREBUILT_ZIP}" "${PREBUILT_PATH}/${PREBUILT_ZIP}")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-        "${PREBUILT_PATH}/${PREBUILT_ZIP}"
-        WORKING_DIRECTORY "${PREBUILT_PATH}")
+    if (NOT EXISTS "${OpenCV_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${PREBUILT_ZIP}" "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+            "${PREBUILT_PATH}/${PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+    endif ()
 
     foreach(lib ${OpenCV_LINK_LIBS})
         set(OpenCV_LIBS
@@ -140,11 +161,14 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
     set(PREBUILT_ZIP "${PREBUILT_OPENCV_DIR}.zip")
-
-    file(DOWNLOAD "${PREBUILT_URL}/${PREBUILT_ZIP}" "${PREBUILT_PATH}/${PREBUILT_ZIP}")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-        "${PREBUILT_PATH}/${PREBUILT_ZIP}"
-        WORKING_DIRECTORY "${PREBUILT_PATH}")
+	
+    if (NOT EXISTS "${OpenCV_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${PREBUILT_ZIP}" "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+            "${PREBUILT_PATH}/${PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+    endif ()
 
     foreach(lib ${OpenCV_LINK_LIBS})
         add_library(lib_${lib} SHARED IMPORTED)
