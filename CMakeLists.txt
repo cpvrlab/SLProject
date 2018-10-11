@@ -84,7 +84,8 @@ set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
 #==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(OpenCV_VERSION "3.4.1")
-    set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/linux/${OpenCV_VERSION}")
+    set(PREBUILT_OPENCV_DIR "linux_opencv_${OpenCV_VERSION}")
+    set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
     set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
@@ -94,12 +95,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(OpenCV_VERSION "3.4.1")
     set(PREBUILT_OPENCV_DIR "win64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
-
-
-
-
-
-
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
     set(PREBUILT_ZIP "${PREBUILT_OPENCV_DIR}.zip")
@@ -158,7 +153,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
     set(OpenCV_VERSION "3.4.1")
     set(PREBUILT_OPENCV_DIR "andV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
-    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
+    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
     set(PREBUILT_ZIP "${PREBUILT_OPENCV_DIR}.zip")
 	

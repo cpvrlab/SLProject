@@ -52,7 +52,7 @@ target_include_directories(${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal/spa
     ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal/zlib
-    ${OpenCV_INCLUDE_DIRS}
+    ${OpenCV_INCLUDE_DIR}
 
     PUBLIC
     ${DEFAULT_INCLUDE_DIRECTORIES}
