@@ -51,8 +51,7 @@ file(GLOB sources
 
 #==============================================================================
 if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
-    message(STATUS "building with glfw")
-        file(GLOB headers
+    file(GLOB headers
         ${headers}
         ${include_path}/glew/include/GL/glew.h
         ${include_path}/glfw3/include/GLFW/glfw3.h
@@ -60,7 +59,7 @@ if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
         ${include_path}/glfw3/src/glfw_config.h
         ${include_path}/glfw3/src/internal.h
         )
-  
+
     file(GLOB sources
         ${sources}
         ${include_path}/glew/src/glew.c
@@ -70,7 +69,6 @@ if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
         ${include_path}/glfw3/src/monitor.c
         ${include_path}/glfw3/src/window.c
         )
-
 endif()
 
 #==============================================================================
