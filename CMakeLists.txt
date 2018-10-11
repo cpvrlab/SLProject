@@ -86,6 +86,7 @@ set(OpenCV_LIBS)
 set(PREBUILT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt")
 set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
 
+#------------------------------------------------------------------------------
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/linux/${OpenCV_VERSION}")
     set(OpenCV_LINK_DIRECTORY "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
@@ -93,6 +94,7 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 
 	set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
 	set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
 	set(PREBUILT_OPENCV_DIR "win64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
@@ -127,7 +129,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
                     optimized ${lib}${OpenCV_LIBS_POSTFIX}
                     debug ${lib}${OpenCV_LIBS_POSTFIX}d)
     endforeach(lib)
-	
+
+#------------------------------------------------------------------------------
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN")
 	set(PREBUILT_OPENCV_DIR "mac64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
@@ -152,6 +155,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN")
                     debug ${lib}${OpenCV_LIBS_POSTFIX}d)
     endforeach(lib)
 
+#------------------------------------------------------------------------------
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
 	set(PREBUILT_OPENCV_DIR "andV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
@@ -178,6 +182,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
     set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
 endif()
 
+#------------------------------------------------------------------------------
 link_directories(${OpenCV_LINK_DIRECTORY})
 
 # 

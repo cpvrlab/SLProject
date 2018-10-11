@@ -49,132 +49,197 @@ file(GLOB sources
 
 # TODO(jan): add windows, mac and android stuff
 
+#==============================================================================
 if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
-  message(STATUS "building with glfw")
-  file(GLOB headers
-    ${headers}
-    ${include_path}/glew/include/GL/glew.h
-    ${include_path}/glfw3/include/GLFW/glfw3.h
-    ${include_path}/glfw3/include/GLFW/glfw3native.h
-    ${include_path}/glfw3/src/glfw_config.h
-    ${include_path}/glfw3/src/internal.h
-    )
+    message(STATUS "building with glfw")
+        file(GLOB headers
+        ${headers}
+        ${include_path}/glew/include/GL/glew.h
+        ${include_path}/glfw3/include/GLFW/glfw3.h
+        ${include_path}/glfw3/include/GLFW/glfw3native.h
+        ${include_path}/glfw3/src/glfw_config.h
+        ${include_path}/glfw3/src/internal.h
+        )
   
-  file(GLOB sources
-    ${sources}
-    ${include_path}/glew/src/glew.c
-    ${include_path}/glfw3/src/context.c
-    ${include_path}/glfw3/src/init.c
-    ${include_path}/glfw3/src/input.c
-    ${include_path}/glfw3/src/monitor.c
-    ${include_path}/glfw3/src/window.c
-    )
+    file(GLOB sources
+        ${sources}
+        ${include_path}/glew/src/glew.c
+        ${include_path}/glfw3/src/context.c
+        ${include_path}/glfw3/src/init.c
+        ${include_path}/glfw3/src/input.c
+        ${include_path}/glfw3/src/monitor.c
+        ${include_path}/glfw3/src/window.c
+        )
+
 endif()
 
+#==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
-  set(compile_definitions
-    ${compile_definitions}
-    _GLFW_X11
-    _GLFW_GLX
-    _GLFW_USE_OPENGL
-    _GLFW_HAS_GLXGETPROCADDRESS)
-  message(STATUS "defs ${compile_definitions}")
-  
-  file(GLOB headers
-    ${headers}
-    ${include_path}/glfw3/src/glfw_config.h
-    ${include_path}/glfw3/src/x11_platform.h
-    ${include_path}/glfw3/src/xkb_unicode.h
-    ${include_path}/glfw3/src/linux_joystick.h
-    ${include_path}/glfw3/src/posix_time.h
-    ${include_path}/glfw3/src/posix_tls.h
-    ${include_path}/glfw3/src/glx_context.h
-    )
-  #message(STATUS "headers ${headers}")
-  
-  file(GLOB sources
-    ${sources}
-    ${include_path}/glfw3/src/x11_init.c
-    ${include_path}/glfw3/src/x11_monitor.c
-    ${include_path}/glfw3/src/x11_window.c
-    ${include_path}/glfw3/src/xkb_unicode.c
-    ${include_path}/glfw3/src/linux_joystick.c
-    ${include_path}/glfw3/src/posix_time.c
-    ${include_path}/glfw3/src/posix_tls.c
-    ${include_path}/glfw3/src/glx_context.c
-    )
-  #message(STATUS "sources ${sources}")
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
-	set(compile_definitions
-	${compile_definitions}
-	GLEW_STATIC
-	_GLFW_WIN32
-	_GLFW_USE_OPENGL
-	_GLFW_WGL
-	UNICODE
-	_UNICODE)
+    set(compile_definitions
+        ${compile_definitions}
+        _GLFW_X11
+        _GLFW_GLX
+        _GLFW_USE_OPENGL
+        _GLFW_HAS_GLXGETPROCADDRESS
+        )
+
+    file(GLOB headers
+        ${headers}
+        ${include_path}/glfw3/src/glfw_config.h
+        ${include_path}/glfw3/src/x11_platform.h
+        ${include_path}/glfw3/src/xkb_unicode.h
+        ${include_path}/glfw3/src/linux_joystick.h
+        ${include_path}/glfw3/src/posix_time.h
+        ${include_path}/glfw3/src/posix_tls.h
+        ${include_path}/glfw3/src/glx_context.h
+        )
+
+    file(GLOB sources
+        ${sources}
+        ${include_path}/glfw3/src/x11_init.c
+        ${include_path}/glfw3/src/x11_monitor.c
+        ${include_path}/glfw3/src/x11_window.c
+        ${include_path}/glfw3/src/xkb_unicode.c
+        ${include_path}/glfw3/src/linux_joystick.c
+        ${include_path}/glfw3/src/posix_time.c
+        ${include_path}/glfw3/src/posix_tls.c
+        ${include_path}/glfw3/src/glx_context.c
+        )
+
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
+    set(compile_definitions
+        ${compile_definitions}
+        GLEW_STATIC
+        _GLFW_COCOA
+        _GLFW_NSGL
+        _GLFW_USE_OPENGL
+        )
+
+    file(GLOB headers
+        ${headers}
+        ${include_path}/glfw3/src/cocoa_platform.h
+        ${include_path}/glfw3/src/iokit_joystick.h
+        ${include_path}/glfw3/src/posix_tls.h
+        ${include_path}/glfw3/src/nsgl_context.h
+        ${include_path}/zlib/ioapi.h
+        ${include_path}/zlib/unzip.h
+        ${include_path}/zlib/zconf.in.h
+        ${include_path}/zlib/zutil.h
+        ${include_path}/zlib/zlib.h
+        ${include_path}/zlib/zconf.h
+        ${include_path}/zlib/trees.h
+        ${include_path}/zlib/inftrees.h
+        ${include_path}/zlib/inflate.h
+        ${include_path}/zlib/inffixed.h
+        ${include_path}/zlib/inffast.h
+        ${include_path}/zlib/gzguts.h
+        ${include_path}/zlib/deflate.h
+        ${include_path}/zlib/crypt.h
+        ${include_path}/zlib/crc32.h
+        ${include_path}/zlib/dirent.h
+        )
+
+    file(GLOB sources
+        ${sources}
+        ${include_path}/glfw3/src/mach_time.c
+        ${include_path}/glfw3/src/posix_tls.c
+        ${include_path}/glfw3/src/cocoa_init.m
+        ${include_path}/glfw3/src/cocoa_monitor.m
+        ${include_path}/glfw3/src/cocoa_window.m
+        ${include_path}/glfw3/src/iokit_joystick.m
+        ${include_path}/glfw3/src/nsgl_context.m
+        ${include_path}/zlib/zutil.c
+        ${include_path}/zlib/uncompr.c
+        ${include_path}/zlib/trees.c
+        ${include_path}/zlib/inftrees.c
+        ${include_path}/zlib/inflate.c
+        ${include_path}/zlib/inffast.c
+        ${include_path}/zlib/infback.c
+        ${include_path}/zlib/gzwrite.c
+        ${include_path}/zlib/gzread.c
+        ${include_path}/zlib/gzlib.c
+        ${include_path}/zlib/gzclose.c
+        ${include_path}/zlib/deflate.c
+        ${include_path}/zlib/crc32.c
+        ${include_path}/zlib/compress.c
+        ${include_path}/zlib/adler32.c
+        ${include_path}/zlib/ioapi.c
+        ${include_path}/zlib/unzip.c
+        ${include_path}/zlib/dirent.c
+        )
+
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
+    set(compile_definitions
+        ${compile_definitions}
+        GLEW_STATIC
+        _GLFW_WIN32
+        _GLFW_USE_OPENGL
+        _GLFW_WGL
+        UNICODE
+        _UNICODE
+        )
 	
-  file(GLOB headers
-    ${headers}
-    ${include_path}/glfw3/src/win32_platform.h
-    ${include_path}/glfw3/src/win32_tls.h
-    ${include_path}/glfw3/src/winmm_joystick.h
-    ${include_path}/glfw3/src/wgl_context.h
-	${include_path}/nvwa/debug_new.h
-	${include_path}/zlib/ioapi.h
-	${include_path}/zlib/unzip.h
-	${include_path}/zlib/zconf.in.h
-	${include_path}/zlib/zutil.h
-	${include_path}/zlib/zlib.h
-	${include_path}/zlib/zconf.h
-	${include_path}/zlib/trees.h
-	${include_path}/zlib/inftrees.h
-	${include_path}/zlib/inflate.h
-	${include_path}/zlib/inffixed.h
-	${include_path}/zlib/inffast.h
-	${include_path}/zlib/gzguts.h
-	${include_path}/zlib/deflate.h
-	${include_path}/zlib/crypt.h
-	${include_path}/zlib/crc32.h
-	${include_path}/zlib/dirent.h
-    )
-  #message(STATUS "headers ${headers}")
+    file(GLOB headers
+        ${headers}
+        ${include_path}/glfw3/src/win32_platform.h
+        ${include_path}/glfw3/src/win32_tls.h
+        ${include_path}/glfw3/src/winmm_joystick.h
+        ${include_path}/glfw3/src/wgl_context.h
+        ${include_path}/nvwa/debug_new.h
+        ${include_path}/zlib/ioapi.h
+        ${include_path}/zlib/unzip.h
+        ${include_path}/zlib/zconf.in.h
+        ${include_path}/zlib/zutil.h
+        ${include_path}/zlib/zlib.h
+        ${include_path}/zlib/zconf.h
+        ${include_path}/zlib/trees.h
+        ${include_path}/zlib/inftrees.h
+        ${include_path}/zlib/inflate.h
+        ${include_path}/zlib/inffixed.h
+        ${include_path}/zlib/inffast.h
+        ${include_path}/zlib/gzguts.h
+        ${include_path}/zlib/deflate.h
+        ${include_path}/zlib/crypt.h
+        ${include_path}/zlib/crc32.h
+        ${include_path}/zlib/dirent.h
+        )
   
-  file(GLOB sources
-    ${sources}
-    ${include_path}/glfw3/src/win32_init.c
-    ${include_path}/glfw3/src/win32_monitor.c
-    ${include_path}/glfw3/src/win32_time.c
-    ${include_path}/glfw3/src/win32_tls.c
-    ${include_path}/glfw3/src/win32_window.c
-    ${include_path}/glfw3/src/winmm_joystick.c
-    ${include_path}/glfw3/src/wgl_context.c
-	${include_path}/nvwa/debug_new.cpp
-	${include_path}/zlib/zutil.c
-	${include_path}/zlib/uncompr.c
-	${include_path}/zlib/trees.c
-	${include_path}/zlib/inftrees.c
-	${include_path}/zlib/inflate.c
-	${include_path}/zlib/inffast.c
-	${include_path}/zlib/infback.c
-	${include_path}/zlib/gzwrite.c
-	${include_path}/zlib/gzread.c
-	${include_path}/zlib/gzlib.c
-	${include_path}/zlib/gzclose.c
-	${include_path}/zlib/deflate.c
-	${include_path}/zlib/crc32.c
-	${include_path}/zlib/compress.c
-	${include_path}/zlib/adler32.c
-	${include_path}/zlib/ioapi.c
-	${include_path}/zlib/unzip.c
-	${include_path}/zlib/dirent.c
-    )
-  #message(STATUS "sources ${sources}")
+    file(GLOB sources
+        ${sources}
+        ${include_path}/glfw3/src/win32_init.c
+        ${include_path}/glfw3/src/win32_monitor.c
+        ${include_path}/glfw3/src/win32_time.c
+        ${include_path}/glfw3/src/win32_tls.c
+        ${include_path}/glfw3/src/win32_window.c
+        ${include_path}/glfw3/src/winmm_joystick.c
+        ${include_path}/glfw3/src/wgl_context.c
+        ${include_path}/nvwa/debug_new.cpp
+        ${include_path}/zlib/zutil.c
+        ${include_path}/zlib/uncompr.c
+        ${include_path}/zlib/trees.c
+        ${include_path}/zlib/inftrees.c
+        ${include_path}/zlib/inflate.c
+        ${include_path}/zlib/inffast.c
+        ${include_path}/zlib/infback.c
+        ${include_path}/zlib/gzwrite.c
+        ${include_path}/zlib/gzread.c
+        ${include_path}/zlib/gzlib.c
+        ${include_path}/zlib/gzclose.c
+        ${include_path}/zlib/deflate.c
+        ${include_path}/zlib/crc32.c
+        ${include_path}/zlib/compress.c
+        ${include_path}/zlib/adler32.c
+        ${include_path}/zlib/ioapi.c
+        ${include_path}/zlib/unzip.c
+        ${include_path}/zlib/dirent.c
+        )
+
 endif()
+#==============================================================================
 
-# Group source files
-#...
 
+
+#==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(platform_specific_link_libraries
         dl
@@ -186,7 +251,7 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
         Xxf86vm
         Xcursor)
 
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(platform_specific_link_libraries
         OpenGL32
         winmm
@@ -197,13 +262,22 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
     set(platform_specific_include_directories
         ${CMAKE_CURRENT_SOURCE_DIR}/dirent)
 
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
+    set(platform_specific_link_libraries
+        OpenGL
+        Cocoa
+        IOKit
+        QuartzCore
+    )
+
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #----------------------------
     find_library( log-lib log )
     set(platform_specific_link_libraries
         GLESv3
         ${log-lib})
 
 endif()
+#==============================================================================
 
 # 
 # Create library
@@ -254,7 +328,6 @@ target_include_directories(${target}
     #$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     #$<INSTALL_INTERFACE:include>
     )
-
 
 # 
 # Libraries
