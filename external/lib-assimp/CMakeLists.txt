@@ -559,7 +559,7 @@ target_compile_options(${target}
     PRIVATE
 
     PUBLIC
-    ${DEFAULT_COMPILE_OPTIONS}
+    ${EXTERNAL_LIB_COMPILE_OPTIONS}
 
     INTERFACE
 )

@@ -94,33 +94,35 @@ endif ()
 # GCC and Clang compiler options
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
-        -Wall
-        -Wextra
-        -Wunused
 
-        -Wreorder
-        -Wignored-qualifiers
-        -Wmissing-braces
-        -Wreturn-type
-        -Wswitch
-        -Wswitch-default
-        -Wuninitialized
-        -Wmissing-field-initializers
+        -Weverything
+        -Wno-c++98-compat
+        -Wno-c++98-compat-pedantic
+        -Wno-unused-macros
+        -Wno-newline-eof
+        -Wno-exit-time-destructors
+        -Wno-global-constructors
+        -Wno-gnu-zero-variadic-macro-arguments
+        -Wno-documentation
+        -Wno-shadow
+        -Wno-switch-enum
+        -Wno-missing-prototypes
+        -Wno-used-but-marked-unused
+        -Wno-unused-parameter
+        -Wno-old-style-cast
+        -Wno-missing-variable-declarations
+        -Wno-covered-switch-default
+        -Wno-double-promotion
         
         $<$<CXX_COMPILER_ID:GNU>:
             -Wmaybe-uninitialized
-            
             $<$<VERSION_GREATER:$<CXX_COMPILER_VERSION>,4.8>:
                 -Wpedantic
-                
                 -Wreturn-local-addr
             >
         >
         
         $<$<CXX_COMPILER_ID:Clang>:
-            -Wpedantic
-            
-            # -Wreturn-stack-address # gives false positives
         >
         
         $<$<PLATFORM_ID:Darwin>:
@@ -134,7 +136,47 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
     )
 endif ()
 
+set(EXTERNAL_LIB_COMPILE_OPTIONS)
 
+# MSVC compiler options
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+    set(EXTERNAL_LIB_COMPILE_OPTIONS ${EXTERNAL_LIB_COMPILE_OPTIONS}
+        /MP           # -> build with multiple processes
+        /w            # -> no warnings at all
+
+        $<$<CONFIG:Release>:
+        /Gw           # -> whole program global optimization
+        /GS-          # -> buffer security check: no
+        /GL           # -> whole program optimization: enable link-time code generation (disables Zi)
+        /GF           # -> enable string pooling
+        >
+
+        # No manual c++11 enable for MSVC as all supported MSVC versions for cmake-init have C++11 implicitly enabled (MSVC >=2013)
+    )
+endif ()
+
+# GCC and Clang compiler options
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+    set(EXTERNAL_LIB_COMPILE_OPTIONS ${EXTERNAL_LIB_COMPILE_OPTIONS}
+
+        -W
+        -Wno-everything
+
+        $<$<CXX_COMPILER_ID:GNU>:
+            $<$<VERSION_GREATER:$<CXX_COMPILER_VERSION>,4.8>:
+                -W
+            >
+        >
+
+        $<$<CXX_COMPILER_ID:Clang>:
+            -Wno-everything
+        >
+
+        $<$<PLATFORM_ID:Darwin>:
+            -pthread
+        >
+    )
+endif ()
 # 
 # Linker options
 # 

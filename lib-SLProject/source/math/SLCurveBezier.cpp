@@ -24,6 +24,7 @@ SLCurveBezier::SLCurveBezier(const SLVVec4f& points)
     _totalLength = 0.0f;
     SLVVec3f ctrls;
     init(points, ctrls);
+
 }
 //-------------------------------------------------------------------------------
 SLCurveBezier::SLCurveBezier(const SLVVec4f& points,
