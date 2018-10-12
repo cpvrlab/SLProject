@@ -90,7 +90,6 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLVector.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/stdafx.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/TriangleBoxIntersect.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../app-Demo-GLFW/source/AppDemoGui.h
     )
 
 file(GLOB sources
@@ -168,8 +167,6 @@ file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLText.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransferFunction.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedFaces.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../app-Demo-GLFW/source/AppDemoGui.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../app-Demo-GLFW/source/AppDemoLoad.cpp
     )
 
 #==============================================================================
@@ -237,7 +234,6 @@ target_include_directories(${target}
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../app-Demo-GLFW/source
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/contrib/clipper
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/contrib/zlib

@@ -73,7 +73,7 @@ class SLGLImGui
     void renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY);
 
     // gui build function pattern
-    void (*build)(SLScene* s, SLSceneView* sv);
+    void(SL_STDCALL* build)(SLScene* s, SLSceneView* sv);
 
     // Default font dots
     static SLfloat fontPropDots;  //!< Default font size of proportional font
