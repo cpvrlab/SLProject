@@ -112,6 +112,7 @@ file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTracked.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedAruco.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedChessboard.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedFaces.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedFeatures.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLImGui.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculus.cpp
@@ -166,51 +167,34 @@ file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLSpheric.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLText.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransferFunction.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedFaces.cpp
     )
+
+file(GLOB shaders
+    ${CMAKE_CURRENT_SOURCE_DIR}/../_data/shaders/*.vert
+    ${CMAKE_CURRENT_SOURCE_DIR}/../_data/shaders/*.frag
+    )
+
+include(../cmake/PlatformLinkLibs.cmake)
+
+set(compile_definitions
+    ${compile_definitions}
+    SL_USES_CVCAPTURE
+    SL_GUI_GLFW)
 
 #==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
-    set(compile_definitions
-        ${compile_definitions}
-        SL_USES_CVCAPTURE
-        SL_GUI_GLFW)
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(compile_definitions
         ${compile_definitions}
-        SL_USES_CVCAPTURE
-        SL_GUI_GLFW
         GLEW_STATIC
         _GLFW_NO_DLOAD_GDI32
         _GLFW_NO_DLOAD_WINMM)
-    set(platform_specific_link_libraries
-        OpenGL32
-        winmm
-        gdi32
-        user32
-        kernel32
-        shell32
-        setupapi
-        ws2_32)
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     set(compile_definitions
         ${compile_definitions}
-        SL_USES_CVCAPTURE
-        SL_GUI_GLFW
         GLEW_STATIC)
-
-    FIND_LIBRARY(COCOA_LIB Cocoa)
-    FIND_LIBRARY(IOKIT_LIB IOKit)
-    FIND_LIBRARY(OPENGL_LIB OpenGL)
-    FIND_LIBRARY(QUARZ_LIB QuartzCore)
-
-    set(platform_specific_link_libraries
-        ${COCOA_LIB}
-        ${IOKIT_LIB}
-        ${OPENGL_LIB}
-        ${QUARZ_LIB})
 
 endif()
 #==============================================================================
@@ -218,6 +202,7 @@ endif()
 add_library(${target}
     ${headers}
     ${sources}
+    ${shaders}
     )
 
 add_library(${META_PROJECT_NAME}::${target}
@@ -269,7 +254,7 @@ target_compile_options(${target}
 
 target_link_libraries(${target}
     PRIVATE
-    ${platform_specific_link_libraries}
+    ${PlatformLinkLibs}
     ${OpenCV_LIBS}
     PUBLIC
     ${META_PROJECT_NAME}::lib-SLExternal

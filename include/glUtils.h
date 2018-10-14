@@ -17,7 +17,7 @@
 using namespace std;
 
 //-----------------------------------------------------------------------------
-#define GETGLERROR glUtils::getGLError((SLchar*)__FILE__, __LINE__, false)
+#define GETGLERROR glUtils::getGLError((const char*)__FILE__, __LINE__, false)
 //-----------------------------------------------------------------------------
 //! OpenGL utility class with functions for simple OpenGL demo apps
 class glUtils
@@ -68,19 +68,19 @@ class glUtils
                                GLint  wrapT      = GL_REPEAT);
 
     // ! Builds an OpenGL 3D texture and returns the texture id
-    static GLuint build3DTexture(const std::vector<std::string>& files,
-                                 int&                            x_extend,
-                                 int&                            y_extend,
-                                 int&                            z_extend,
-                                 GLint                           min_filter  = GL_LINEAR,
-                                 GLint                           mag_filter  = GL_LINEAR,
-                                 GLint                           wrapR       = GL_CLAMP_TO_BORDER,
-                                 GLint                           wrapS       = GL_CLAMP_TO_BORDER,
-                                 GLint                           wrapT       = GL_CLAMP_TO_BORDER,
-                                 const std::array<GLfloat, 4>&   borderColor = {0.0f, 0.0f, 0.0f, 0.0f});
+    static GLuint build3DTexture(const vector<string>&    files,
+                                 GLuint&                  x_extend,
+                                 GLuint&                  y_extend,
+                                 GLuint&                  z_extend,
+                                 GLint                    min_filter  = GL_LINEAR,
+                                 GLint                    mag_filter  = GL_LINEAR,
+                                 GLint                    wrapR       = GL_CLAMP_TO_BORDER,
+                                 GLint                    wrapS       = GL_CLAMP_TO_BORDER,
+                                 GLint                    wrapT       = GL_CLAMP_TO_BORDER,
+                                 const array<GLfloat, 4>& borderColor = {0.0f, 0.0f, 0.0f, 0.0f});
 
     //! Checks if an OpenGL error occurred
-    static void getGLError(char* file, int line, bool quit);
+    static void getGLError(const char* file, int line, bool quit);
 
     //! Returns a vector of sorted file names within a directory
     static SLVstring getFileNamesInDir(SLstring dirName);

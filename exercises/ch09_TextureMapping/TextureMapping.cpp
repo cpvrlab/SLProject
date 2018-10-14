@@ -28,75 +28,75 @@ struct VertexPNT
     SLVec2f t; // vertex texture coord. [s,t]
 };
 //-----------------------------------------------------------------------------
-GLFWwindow* window;     //!< The global glfw window handle
-SLstring    _exeDir;    //!< Directory of executable
-SLint       _scrWidth;  //!< Window width at start up
-SLint       _scrHeight; //!< Window height at start up
-SLfloat     _scr2fbX;   //!< Factor from screen to framebuffer coords
-SLfloat     _scr2fbY;   //!< Factor from screen to framebuffer coords
+static GLFWwindow* window;     //!< The global glfw window handle
+static SLstring    _exeDir;    //!< Directory of executable
+static SLint       _scrWidth;  //!< Window width at start up
+static SLint       _scrHeight; //!< Window height at start up
+static SLfloat     _scr2fbX;   //!< Factor from screen to framebuffer coords
+static SLfloat     _scr2fbY;   //!< Factor from screen to framebuffer coords
 
 // GLobal application variables
-SLMat4f _modelMatrix;      //!< 4x4 view matrix
-SLMat4f _viewMatrix;       //!< 4x4 model matrix
-SLMat4f _projectionMatrix; //!< 4x4 projection matrix
+static SLMat4f _modelMatrix;      //!< 4x4 view matrix
+static SLMat4f _viewMatrix;       //!< 4x4 model matrix
+static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
 
-GLuint _vao  = 0; //!< ID of the vertex array object
-GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
-GLuint _vboI = 0; //!< ID of the VBO for vertex index array
+static GLuint _vao  = 0; //!< ID of the vertex array object
+static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
+static GLuint _vboI = 0; //!< ID of the VBO for vertex index array
 
-GLuint _numV = 0; //!< NO. of vertices
-GLuint _numI = 0; //!< NO. of vertex indexes for triangles
+static GLuint _numV = 0; //!< NO. of vertices
+static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
 
-GLint _resolution; //!< resolution of sphere stack & slices
+static GLint _resolution; //!< resolution of sphere stack & slices
 
-float        _camZ;                   //!< z-distance of camera
-float        _rotX, _rotY;            //!< rotation angles around x & y axis
-int          _deltaX, _deltaY;        //!< delta mouse motion
-int          _startX, _startY;        //!< x,y mouse start positions
-int          _mouseX, _mouseY;        //!< current mouse position
-bool         _mouseLeftDown;          //!< Flag if mouse is down
-GLuint       _modifiers = 0;          //!< modifier bit flags
-const GLuint NONE       = 0;          //!< constant for no modifier
-const GLuint SHIFT      = 0x00200000; //!< constant for shift key modifier
-const GLuint CTRL       = 0x00400000; //!< constant for control key modifier
-const GLuint ALT        = 0x00800000; //!< constant for alt key modifier
+static float        _camZ;                   //!< z-distance of camera
+static float        _rotX, _rotY;            //!< rotation angles around x & y axis
+static int          _deltaX, _deltaY;        //!< delta mouse motion
+static int          _startX, _startY;        //!< x,y mouse start positions
+static int          _mouseX, _mouseY;        //!< current mouse position
+static bool         _mouseLeftDown;          //!< Flag if mouse is down
+static GLuint       _modifiers = 0;          //!< modifier bit flags
+static const GLuint NONE       = 0;          //!< constant for no modifier
+static const GLuint SHIFT      = 0x00200000; //!< constant for shift key modifier
+static const GLuint CTRL       = 0x00400000; //!< constant for control key modifier
+static const GLuint ALT        = 0x00800000; //!< constant for alt key modifier
 
-SLVec4f _globalAmbi;    //!< global ambient intensity
-SLVec3f _lightPos;      //!< Light position in world space
-SLVec3f _lightDir;      //!< Light direction in world space
-SLVec4f _lightAmbient;  //!< Light ambient intensity
-SLVec4f _lightDiffuse;  //!< Light diffuse intensity
-SLVec4f _lightSpecular; //!< Light specular intensity
-SLVec4f _matAmbient;    //!< Material ambient reflection coeff.
-SLVec4f _matDiffuse;    //!< Material diffuse reflection coeff.
-SLVec4f _matSpecular;   //!< Material specular reflection coeff.
-SLVec4f _matEmissive;   //!< Material emissive coeff.
-float   _matShininess;  //!< Material shininess exponent
+static SLVec4f _globalAmbi;    //!< global ambient intensity
+static SLVec3f _lightPos;      //!< Light position in world space
+static SLVec3f _lightDir;      //!< Light direction in world space
+static SLVec4f _lightAmbient;  //!< Light ambient intensity
+static SLVec4f _lightDiffuse;  //!< Light diffuse intensity
+static SLVec4f _lightSpecular; //!< Light specular intensity
+static SLVec4f _matAmbient;    //!< Material ambient reflection coeff.
+static SLVec4f _matDiffuse;    //!< Material diffuse reflection coeff.
+static SLVec4f _matSpecular;   //!< Material specular reflection coeff.
+static SLVec4f _matEmissive;   //!< Material emissive coeff.
+static float   _matShininess;  //!< Material shininess exponent
 
-GLuint _shaderVertID = 0; //!< vertex shader id
-GLuint _shaderFragID = 0; //!< fragment shader id
-GLuint _shaderProgID = 0; //!< shader program id
-GLuint _textureID    = 0; //!< texture id
+static GLuint _shaderVertID = 0; //!< vertex shader id
+static GLuint _shaderFragID = 0; //!< fragment shader id
+static GLuint _shaderProgID = 0; //!< shader program id
+static GLuint _textureID    = 0; //!< texture id
 
-GLint _pLoc;              //!< attribute location for vertex position
-GLint _nLoc;              //!< attribute location for vertex normal
-GLint _tLoc;              //!< attribute location for vertex texcoords
-GLint _mvpMatrixLoc;      //!< uniform location for modelview-projection matrix
-GLint _mvMatrixLoc;       //!< uniform location for modelview matrix
-GLint _nMatrixLoc;        //!< uniform location for normal matrix
-GLint _globalAmbiLoc;     //!< uniform location for global ambient intensity
-GLint _lightPosVSLoc;     //!< uniform location for light position in VS
-GLint _lightSpotDirVSLoc; //!< uniform location for light direction in VS
-GLint _lightAmbientLoc;   //!< uniform location for ambient light intensity
-GLint _lightDiffuseLoc;   //!< uniform location for diffuse light intensity
-GLint _lightSpecularLoc;  //!< uniform location for specular light intensity
-GLint _matAmbientLoc;     //!< uniform location for ambient light reflection
-GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflection
-GLint _matSpecularLoc;    //!< uniform location for specular light reflection
-GLint _matEmissiveLoc;    //!< uniform location for light emission
-GLint _matShininessLoc;   //!< uniform location for shininess
+static GLint _pLoc;              //!< attribute location for vertex position
+static GLint _nLoc;              //!< attribute location for vertex normal
+static GLint _tLoc;              //!< attribute location for vertex texcoords
+static GLint _mvpMatrixLoc;      //!< uniform location for modelview-projection matrix
+static GLint _mvMatrixLoc;       //!< uniform location for modelview matrix
+static GLint _nMatrixLoc;        //!< uniform location for normal matrix
+static GLint _globalAmbiLoc;     //!< uniform location for global ambient intensity
+static GLint _lightPosVSLoc;     //!< uniform location for light position in VS
+static GLint _lightSpotDirVSLoc; //!< uniform location for light direction in VS
+static GLint _lightAmbientLoc;   //!< uniform location for ambient light intensity
+static GLint _lightDiffuseLoc;   //!< uniform location for diffuse light intensity
+static GLint _lightSpecularLoc;  //!< uniform location for specular light intensity
+static GLint _matAmbientLoc;     //!< uniform location for ambient light reflection
+static GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflection
+static GLint _matSpecularLoc;    //!< uniform location for specular light reflection
+static GLint _matEmissiveLoc;    //!< uniform location for light emission
+static GLint _matShininessLoc;   //!< uniform location for shininess
 
-GLint _texture0Loc; //!< uniform location for texture 0
+static GLint _texture0Loc; //!< uniform location for texture 0
 
 static const SLfloat PI = 3.14159265358979f;
 
@@ -106,8 +106,7 @@ buildSphere creates the vertex attributes for a sphere and creates the VBO
 at the end. The sphere is built in stacks & slices. The slices are around the
 z-axis.
 */
-void
-buildSphere(float radius, int stacks, int slices)
+void buildSphere(float radius, GLuint stacks, GLuint slices)
 {
     assert(stacks > 3 && slices > 3);
 
@@ -117,7 +116,7 @@ buildSphere(float radius, int stacks, int slices)
 
     float  theta, dtheta; // angles around x-axis
     float  phi, dphi;     // angles around z-axis
-    int    i, j;          // loop counters
+    GLuint i, j;          // loop counters
     GLuint iv = 0;
 
     // init start values
@@ -158,7 +157,7 @@ buildSphere(float radius, int stacks, int slices)
     }
 
     // create Index array x
-    _numI           = slices * stacks * 2 * 3;
+    _numI           = (GLuint)(slices * stacks * 2 * 3);
     GLuint* indices = new GLuint[_numI];
     GLuint  ii      = 0, iV1, iV2;
 
@@ -181,7 +180,19 @@ buildSphere(float radius, int stacks, int slices)
     }
 
     // Generate the OpenGL vertex array object
-    glUtils::buildVAO(_vao, _vboV, _vboI, vertices, _numV, sizeof(VertexPNT), indices, _numI, sizeof(GL_UNSIGNED_INT), _shaderProgID, _pLoc, -1, _nLoc);
+    glUtils::buildVAO(_vao,
+                      _vboV,
+                      _vboI,
+                      vertices,
+                      (GLint)_numV,
+                      sizeof(VertexPNT),
+                      indices,
+                      (GLint)_numI,
+                      sizeof(GL_UNSIGNED_INT),
+                      (GLint)_shaderProgID,
+                      _pLoc,
+                      -1,
+                      _nLoc);
 
     // Delete arrays on heap
     delete[] vertices;
@@ -192,44 +203,36 @@ buildSphere(float radius, int stacks, int slices)
 buildSquare creates the vertex attributes for a textured square and VBO.
 The square lies in the x-z-plane and is facing towards -y (downwards).
 */
-void
-buildSquare()
+void buildSquare()
 {
     // create vertex array for interleaved position, normal and texCoord
-    //                  Position,   Normal  , texCrd,
-    _numV            = 4;
-    float vertices[] = {-1, 0, -1, 0, -1, 0, 0, 0, // Vertex 0
-                        1,
-                        0,
-                        -1,
-                        0,
-                        -1,
-                        0,
-                        1,
-                        0, // Vertex 1
-                        1,
-                        0,
-                        1,
-                        0,
-                        -1,
-                        0,
-                        1,
-                        1, // Vertex 2
-                        -1,
-                        0,
-                        1,
-                        0,
-                        -1,
-                        0,
-                        0,
-                        1}; // Vertex 3
+    //                  Position,  Normal, texCrd,
+    _numV = 4;
 
+    // clang-format off
+    float vertices[] = {-1, 0,-1, 0,-1, 0, 0, 0, // Vertex 0
+                         1, 0,-1, 0,-1, 0, 1, 0, // Vertex 1
+                         1, 0, 1, 0,-1, 0, 1, 1, // Vertex 2
+                        -1, 0, 1, 0,-1, 0, 0, 1}; // Vertex 3
+    // clang-format on
     // create index array for GL_TRIANGLES
     _numI            = 6;
     GLuint indices[] = {0, 1, 2, 0, 2, 3};
 
     // Generate the OpenGL vertex array object
-    glUtils::buildVAO(_vao, _vboV, _vboI, vertices, _numV, sizeof(VertexPNT), indices, _numI, sizeof(GL_UNSIGNED_INT), _shaderProgID, _pLoc, _nLoc, _tLoc);
+    glUtils::buildVAO(_vao,
+                      _vboV,
+                      _vboI,
+                      vertices,
+                      (GLint)_numV,
+                      sizeof(VertexPNT),
+                      indices,
+                      (GLint)_numI,
+                      sizeof(GL_UNSIGNED_INT),
+                      (GLint)_shaderProgID,
+                      _pLoc,
+                      _nLoc,
+                      _tLoc);
 
     // The vertices and indices are on the stack memory and get deleted at the
     // end of the block.
@@ -238,8 +241,7 @@ buildSquare()
 /*!
 calcFPS determines the frame per second measurement by averaging 60 frames.
 */
-float
-calcFPS(float deltaTime)
+float calcFPS(float deltaTime)
 {
     const SLint    FILTERSIZE = 60;
     static SLfloat frameTimes[FILTERSIZE];
@@ -247,7 +249,10 @@ calcFPS(float deltaTime)
 
     frameTimes[frameNo % FILTERSIZE] = deltaTime;
     float sumTime                    = 0.0f;
-    for (SLuint i = 0; i < FILTERSIZE; ++i) sumTime += frameTimes[i];
+
+    for (SLuint i = 0; i < FILTERSIZE; ++i)
+        sumTime += frameTimes[i];
+
     frameNo++;
     float frameTimeSec = sumTime / (SLfloat)FILTERSIZE;
     float fps          = 1 / frameTimeSec;
@@ -259,8 +264,7 @@ calcFPS(float deltaTime)
 onInit initializes the global variables and builds the shader program. It
 should be called after a window with a valid OpenGL context is present.
 */
-void
-onInit()
+void onInit()
 {
     // Set light parameters
     _globalAmbi.set(0.0f, 0.0f, 0.0f);
@@ -330,8 +334,7 @@ onInit()
 onClose is called when the user closes the window and can be used for proper
 deallocation of resources.
 */
-void
-onClose(GLFWwindow* window)
+void onClose(GLFWwindow* window)
 {
     // Delete shaders & programs on GPU
     glDeleteShader(_shaderVertID);
@@ -347,8 +350,7 @@ onClose(GLFWwindow* window)
 onPaint does all the rendering for one frame from scratch with OpenGL (in core
 profile).
 */
-bool
-onPaint()
+bool onPaint()
 {
     // Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -405,9 +407,9 @@ onPaint()
     //////////////////////
 
     // Enable all of the vertex attribute arrays
-    glEnableVertexAttribArray(_pLoc);
-    glEnableVertexAttribArray(_nLoc);
-    glEnableVertexAttribArray(_tLoc);
+    glEnableVertexAttribArray((GLuint)_pLoc);
+    glEnableVertexAttribArray((GLuint)_nLoc);
+    glEnableVertexAttribArray((GLuint)_tLoc);
 
     // Activate VBOs
     glBindBuffer(GL_ARRAY_BUFFER, _vboV);
@@ -420,13 +422,31 @@ onPaint()
     GLsizei stride  = sizeof(VertexPNT);
     GLsizei offsetN = sizeof(SLVec3f);
     GLsizei offsetT = sizeof(SLVec3f) + sizeof(SLVec3f);
-    glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, stride, 0);
-    glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, (void*)(size_t)offsetN);
-    glVertexAttribPointer(_tLoc, 2, GL_FLOAT, GL_FALSE, stride, (void*)(size_t)offsetT);
+    glVertexAttribPointer((GLuint)_pLoc,
+                          3,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          stride,
+                          nullptr);
+    glVertexAttribPointer((GLuint)_nLoc,
+                          3,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          stride,
+                          (void*)(size_t)offsetN);
+    glVertexAttribPointer((GLuint)_tLoc,
+                          2,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          stride,
+                          (void*)(size_t)offsetT);
 
     ////////////////////////////////////////////////////////
     // Draw cube model triangles by indexes
-    glDrawElements(GL_TRIANGLES, _numI, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES,
+                   (GLsizei)_numI,
+                   GL_UNSIGNED_INT,
+                   nullptr);
     ////////////////////////////////////////////////////////
 
     // Deactivate buffers
@@ -434,9 +454,9 @@ onPaint()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     // Disable the vertex arrays
-    glDisableVertexAttribArray(_pLoc);
-    glDisableVertexAttribArray(_nLoc);
-    glDisableVertexAttribArray(_tLoc);
+    glDisableVertexAttribArray((GLuint)_pLoc);
+    glDisableVertexAttribArray((GLuint)_nLoc);
+    glDisableVertexAttribArray((GLuint)_tLoc);
 
     // Check for errors from time to time
     GETGLERROR;
@@ -462,14 +482,16 @@ onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event. Do everything that is dependent on
 the size and ratio of the window.
 */
-void
-onResize(GLFWwindow* window, int width, int height)
+void onResize(GLFWwindow* window, int width, int height)
 {
-    double w = (double)width;
-    double h = (double)height;
+    float w = (float)width;
+    float h = (float)height;
 
     // define the projection matrix
-    _projectionMatrix.perspective(45, w / h, 0.01f, 10.0f);
+    _projectionMatrix.perspective(45,
+                                  w / h,
+                                  0.01f,
+                                  10.0f);
 
     // define the viewport
     glViewport(0, 0, width, height);
@@ -480,8 +502,7 @@ onResize(GLFWwindow* window, int width, int height)
 /*!
 Mouse button down & release eventhandler starts and end mouse rotation
 */
-void
-onMouseButton(GLFWwindow* window, int button, int action, int mods)
+void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 {
     SLint x = _mouseX;
     SLint y = _mouseY;
@@ -512,8 +533,7 @@ onMouseButton(GLFWwindow* window, int button, int action, int mods)
 /*!
 Mouse move eventhandler tracks the mouse delta since touch down (_deltaX/_deltaY)
 */
-void
-onMouseMove(GLFWwindow* window, double x, double y)
+void onMouseMove(GLFWwindow* window, double x, double y)
 {
     _mouseX = (int)x;
     _mouseY = (int)y;
@@ -529,8 +549,7 @@ onMouseMove(GLFWwindow* window, double x, double y)
 /*!
 Mouse wheel eventhandler that moves the camera foreward or backwards
 */
-void
-onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
+void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 {
     if (_modifiers == NONE)
     {
@@ -542,8 +561,7 @@ onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 /*!
 Key action eventhandler handles key down & release events
 */
-void
-onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
+void onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
 {
     if (action == GLFW_PRESS)
     {
@@ -555,11 +573,11 @@ onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
                 break;
             case GLFW_KEY_UP:
                 _resolution = _resolution << 1;
-                buildSphere(1.0f, _resolution, _resolution);
+                buildSphere(1.0f, (GLuint)_resolution, (GLuint)_resolution);
                 break;
             case GLFW_KEY_DOWN:
                 if (_resolution > 4) _resolution = _resolution >> 1;
-                buildSphere(1.0f, _resolution, _resolution);
+                buildSphere(1.0f, (GLuint)_resolution, (GLuint)_resolution);
                 break;
             case GLFW_KEY_LEFT_SHIFT: _modifiers = _modifiers | SHIFT; break;
             case GLFW_KEY_RIGHT_SHIFT: _modifiers = _modifiers | SHIFT; break;
@@ -586,8 +604,7 @@ onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
 /*!
 Error callback handler for GLFW.
 */
-void
-onGLFWError(int error, const char* description)
+void onGLFWError(int error, const char* description)
 {
     fputs(description, stderr);
 }
@@ -595,8 +612,7 @@ onGLFWError(int error, const char* description)
 /*!
 The C main procedure running the GLFW GUI application.
 */
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     // get executable path
     _exeDir = SLUtils::getPath(argv[0]);
@@ -628,7 +644,7 @@ main(int argc, char* argv[])
     _scrWidth  = 640;
     _scrHeight = 480;
 
-    window = glfwCreateWindow(_scrWidth, _scrHeight, "My Title", NULL, NULL);
+    window = glfwCreateWindow(_scrWidth, _scrHeight, "My Title", nullptr, nullptr);
     if (!window)
     {
         glfwTerminate();

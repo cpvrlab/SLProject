@@ -1,8 +1,8 @@
 #
-# CMake project definition for exercise ch06_ColorCube
+# CMake project definition for exercise ch09_TextureMapping
 #
 
-set(target ch06_ColorCube)
+set(target ch09_TextureMapping)
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -17,12 +17,12 @@ file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLFileSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVImage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/ColorCube.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/TextureMapping.cpp
     )
 
 file(GLOB shaders
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/ColorAttribute.vert
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/Color.frag
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/ADSTex.frag
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/ADSTex.vert
     )
 
 add_executable(${target}

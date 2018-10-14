@@ -33,53 +33,51 @@ struct VertexPN
 };
 //-----------------------------------------------------------------------------
 // GLobal application variables
-GLFWwindow* window;     //!< The global GLFW window handle
-SLstring    _exeDir;    //!< Directory of executable
-SLint       _scrWidth;  //!< Window width at start up
-SLint       _scrHeight; //!< Window height at start up
-SLfloat     _scr2fbX;   //!< Factor from screen to framebuffer coords
-SLfloat     _scr2fbY;   //!< Factor from screen to framebuffer coords
+static GLFWwindow* window;     //!< The global GLFW window handle
+static SLstring    _exeDir;    //!< Directory of executable
+static SLint       _scrWidth;  //!< Window width at start up
+static SLint       _scrHeight; //!< Window height at start up
+static SLfloat     _scr2fbX;   //!< Factor from screen to framebuffer coords
+static SLfloat     _scr2fbY;   //!< Factor from screen to framebuffer coords
 
-SLMat4f _viewMatrix;       //!< 4x4 view matrix
-SLMat4f _modelMatrix;      //!< 4x4 model matrix
-SLMat4f _projectionMatrix; //!< 4x4 projection matrix
+static SLMat4f _viewMatrix;       //!< 4x4 view matrix
+static SLMat4f _modelMatrix;      //!< 4x4 model matrix
+static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
 
-GLuint _vao  = 0; //!< ID of the vertex array object
-GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
-GLuint _vboI = 0; //!< ID of the VBO for vertex index array
+static GLuint _vao  = 0; //!< ID of the vertex array object
+static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
+static GLuint _vboI = 0; //!< ID of the VBO for vertex index array
 
-GLuint _numV = 0; //!< NO. of vertices
-GLuint _numI = 0; //!< NO. of vertex indexes for triangles
+static GLuint _numV = 0; //!< NO. of vertices
+static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
 
-float        _camZ;                   //!< z-distance of camera
-float        _rotX, _rotY;            //!< rotation angles around x & y axis
-int          _deltaX, _deltaY;        //!< delta mouse motion
-int          _startX, _startY;        //!< x,y mouse start positions
-int          _mouseX, _mouseY;        //!< current mouse position
-bool         _mouseLeftDown;          //!< Flag if mouse is down
-GLuint       _modifiers = 0;          //!< modifier bit flags
-const GLuint NONE       = 0;          //!< constant for no modifier
-const GLuint SHIFT      = 0x00200000; //!< constant for shift key modifier
-const GLuint CTRL       = 0x00400000; //!< constant for control key modifier
-const GLuint ALT        = 0x00800000; //!< constant for alt key modifier
+static float        _camZ;                   //!< z-distance of camera
+static float        _rotX, _rotY;            //!< rotation angles around x & y axis
+static int          _deltaX, _deltaY;        //!< delta mouse motion
+static int          _startX, _startY;        //!< x,y mouse start positions
+static int          _mouseX, _mouseY;        //!< current mouse position
+static bool         _mouseLeftDown;          //!< Flag if mouse is down
+static GLuint       _modifiers = 0;          //!< modifier bit flags
+static const GLuint NONE       = 0;          //!< constant for no modifier
+static const GLuint SHIFT      = 0x00200000; //!< constant for shift key modifier
+static const GLuint CTRL       = 0x00400000; //!< constant for control key modifier
+static const GLuint ALT        = 0x00800000; //!< constant for alt key modifier
 
-GLuint _shaderVertID = 0; //! vertex shader id
-GLuint _shaderFragID = 0; //! fragment shader id
-GLuint _shaderProgID = 0; //! shader program id
+static GLuint _shaderVertID = 0; //! vertex shader id
+static GLuint _shaderFragID = 0; //! fragment shader id
+static GLuint _shaderProgID = 0; //! shader program id
 
 // Attribute & uniform variable location indexes
-GLint _pLoc;              //!< attribute location for vertex position
-GLint _nLoc;              //!< attribute location for vertex normal
-GLint _mvpLoc;            //!< uniform location for modelview-projection matrix
-GLint _mvLoc;             //!< uniform location for modelview matrix
-GLint _nmLoc;             //!< uniform location for normal matrix
-GLint _lightSpotDirVSLoc; //!< uniform location for light direction in view space (VS)
-GLint _lightDiffuseLoc;   //!< uniform location for diffuse light intensity
-GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflection
+static GLint _pLoc;              //!< attribute location for vertex position
+static GLint _nLoc;              //!< attribute location for vertex normal
+static GLint _mvpLoc;            //!< uniform location for modelview-projection matrix
+static GLint _nmLoc;             //!< uniform location for normal matrix
+static GLint _lightSpotDirVSLoc; //!< uniform location for light direction in view space (VS)
+static GLint _lightDiffuseLoc;   //!< uniform location for diffuse light intensity
+static GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflection
 
 //-----------------------------------------------------------------------------
-void
-buildBox()
+void buildBox()
 {
     // create C arrays on heap
     // Define the vertex pos. and normals as an array of structure
@@ -152,7 +150,19 @@ buildBox()
     indices[n++]    = 23;
 
     // Generate the OpenGL vertex array object
-    glUtils::buildVAO(_vao, _vboV, _vboI, vertices, _numV, sizeof(VertexPN), indices, _numI, sizeof(GL_UNSIGNED_INT), _shaderProgID, _pLoc, -1, _nLoc);
+    glUtils::buildVAO(_vao,
+                      _vboV,
+                      _vboI,
+                      vertices,
+                      (GLint)_numV,
+                      sizeof(VertexPN),
+                      indices,
+                      (GLint)_numI,
+                      sizeof(GL_UNSIGNED_INT),
+                      (GLint)_shaderProgID,
+                      _pLoc,
+                      -1,
+                      _nLoc);
 
     // delete data on heap. The VBOs are now on the GPU
     delete[] vertices;
@@ -163,8 +173,7 @@ buildBox()
 onInit initializes the global variables and builds the shader program. It
 should be called after a window with a valid OpenGL context is present.
 */
-void
-onInit()
+void onInit()
 {
     // backwards movement of the camera
     _camZ = -3;
@@ -203,8 +212,7 @@ onInit()
 onClose is called when the user closes the window and can be used for proper
 deallocation of resources.
 */
-void
-onClose(GLFWwindow* window)
+void onClose(GLFWwindow* window)
 {
     // Delete shaders & programs on GPU
     glDeleteShader(_shaderVertID);
@@ -220,8 +228,7 @@ onClose(GLFWwindow* window)
 /*!
 onPaint does all the rendering for one frame from scratch with OpenGL.
 */
-bool
-onPaint()
+bool onPaint()
 {
     //1) Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -262,7 +269,7 @@ onPaint()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
 
     //7c) Draw cube with triangles by indexes
-    glDrawElements(GL_TRIANGLES, _numI, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, (GLsizei)_numI, GL_UNSIGNED_INT, nullptr);
 
     //8) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
@@ -277,11 +284,10 @@ onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event. Do everything that is dependent on
 the size and ratio of the window.
 */
-void
-onResize(GLFWwindow* window, int width, int height)
+void onResize(GLFWwindow* window, int width, int height)
 {
-    double w = (double)width;
-    double h = (double)height;
+    float w = (float)width;
+    float h = (float)height;
 
     // define the projection matrix
     _projectionMatrix.perspective(50, w / h, 0.01f, 10.0f);
@@ -297,8 +303,7 @@ onResize(GLFWwindow* window, int width, int height)
 /*!
 Mouse button down & release eventhandler starts and end mouse rotation
 */
-void
-onMouseButton(GLFWwindow* window, int button, int action, int mods)
+void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 {
     SLint x = _mouseX;
     SLint y = _mouseY;
@@ -329,8 +334,7 @@ onMouseButton(GLFWwindow* window, int button, int action, int mods)
 /*!
 Mouse move eventhandler tracks the mouse delta since touch down (_deltaX/_deltaY)
 */
-void
-onMouseMove(GLFWwindow* window, double x, double y)
+void onMouseMove(GLFWwindow* window, double x, double y)
 {
     _mouseX = (int)x;
     _mouseY = (int)y;
@@ -346,8 +350,7 @@ onMouseMove(GLFWwindow* window, double x, double y)
 /*!
 Mouse wheel eventhandler that moves the camera forward or backwards
 */
-void
-onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
+void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 {
     if (_modifiers == NONE)
     {
@@ -359,8 +362,7 @@ onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 /*!
 Key action eventhandler handles key down & release events
 */
-void
-onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
+void onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
 {
     if (action == GLFW_PRESS)
     {
@@ -395,8 +397,7 @@ onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
 /*!
 Error callback handler for GLFW.
 */
-void
-onGLFWError(int error, const char* description)
+void onGLFWError(int error, const char* description)
 {
     fputs(description, stderr);
 }
@@ -405,8 +406,7 @@ onGLFWError(int error, const char* description)
 /*!
 The C main procedure running the GLFW GUI application.
 */
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     // get executable path
     _exeDir = SLUtils::getPath(argv[0]);
@@ -440,7 +440,11 @@ main(int argc, char* argv[])
     _scrHeight = 480;
 
     // Create the GLFW window
-    window = glfwCreateWindow(_scrWidth, _scrHeight, "Diffuse Cube", NULL, NULL);
+    window = glfwCreateWindow(_scrWidth,
+                              _scrHeight,
+                              "Diffuse Cube",
+                              nullptr,
+                              nullptr);
 
     if (!window)
     {

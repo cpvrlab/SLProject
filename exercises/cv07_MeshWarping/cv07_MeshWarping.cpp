@@ -13,8 +13,7 @@ using namespace cv;
 using namespace std;
 
 //-----------------------------------------------------------------------------
-static void
-drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
+static void drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
 {
     vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
@@ -39,12 +38,11 @@ drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
     }
 }
 //-----------------------------------------------------------------------------
-static void
-createDelaunay(Mat&                 img,
-               Subdiv2D&            subdiv,
-               vector<Point2f>&     points,
-               bool                 drawAnimated,
-               vector<vector<int>>& triangleIndexes)
+static void createDelaunay(Mat&                 img,
+                           Subdiv2D&            subdiv,
+                           vector<Point2f>&     points,
+                           bool                 drawAnimated,
+                           vector<vector<int>>& triangleIndexes)
 {
     // Insert points into subdiv
     for (Point2f p : points)
@@ -81,7 +79,7 @@ createDelaunay(Mat&                 img,
             rect.contains(pt[1]) &&
             rect.contains(pt[2]))
         {
-            for (int j = 0; j < 3; j++)
+            for (uint j = 0; j < 3; j++)
                 for (size_t k = 0; k < points.size(); k++)
                     if (abs(pt[j].x - points[k].x) < 1.0 &&
                         abs(pt[j].y - points[k].y) < 1)
@@ -121,11 +119,10 @@ drawVoronoi(Mat& img, Subdiv2D& subdiv)
 }
 //-----------------------------------------------------------------------------
 // Warps a triangular regions from img1 to img2
-void
-warpTriangle(Mat&             img1,
-             Mat&             img2,
-             vector<Point2f>& tri1,
-             vector<Point2f>& tri2)
+void warpTriangle(Mat&             img1,
+                  Mat&             img2,
+                  vector<Point2f>& tri1,
+                  vector<Point2f>& tri2)
 {
     // Find bounding rectangle for each triangle
     Rect rect1 = boundingRect(tri1);
@@ -134,7 +131,7 @@ warpTriangle(Mat&             img1,
     // Offset points by left top corner of the respective rectangles
     vector<Point2f> tri1Cropped, tri2Cropped;
     vector<Point>   tri2CroppedInt;
-    for (int i = 0; i < 3; i++)
+    for (uint i = 0; i < 3; i++)
     {
         tri1Cropped.push_back(Point2f(tri1[i].x - rect1.x, tri1[i].y - rect1.y));
         tri2Cropped.push_back(Point2f(tri2[i].x - rect2.x, tri2[i].y - rect2.y));
@@ -173,14 +170,13 @@ warpTriangle(Mat&             img1,
     img2(rect2) = img2(rect2) + img2Cropped;
 }
 //-----------------------------------------------------------------------------
-static void
-warpImage(Mat&                 img1,
-          Mat&                 img2,
-          vector<Point2f>&     points1,
-          vector<Point2f>&     points2,
-          vector<vector<int>>& triangles)
+static void warpImage(Mat&                 img1,
+                      Mat&                 img2,
+                      vector<Point2f>&     points1,
+                      vector<Point2f>&     points2,
+                      vector<vector<int>>& triangles)
 {
-    for (size_t i = 0; i < triangles.size(); i++)
+    for (uint i = 0; i < triangles.size(); i++)
     {
         vector<Point2f> tri1;
         tri1.push_back(points1[triangles[i][0]]);
@@ -196,8 +192,7 @@ warpImage(Mat&                 img1,
     }
 }
 //-----------------------------------------------------------------------------
-int
-main()
+int main()
 {
     // Read input image
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
@@ -213,8 +208,21 @@ main()
     Mat img1 = img_orig.clone();
 
     // Create a vector of 68 facial landmark points.
+    // clang-format off
     vector<Point2f> points = {
-      {80, 311}, {80, 357}, {83, 405}, {88, 454}, {96, 502}, {114, 546}, {144, 580}, {180, 607}, {226, 616}, {278, 611}, {335, 591}, {391, 568}, {434, 531}, {464, 486}, {479, 433}, {487, 377}, {494, 321}, {109, 259}, {126, 238}, {154, 235}, {183, 239}, {212, 248}, {283, 255}, {321, 244}, {359, 240}, {397, 247}, {427, 271}, {241, 298}, {237, 327}, {232, 354}, {227, 383}, {201, 418}, {215, 423}, {230, 427}, {250, 425}, {270, 421}, {141, 301}, {159, 293}, {181, 294}, {199, 309}, {178, 313}, {156, 311}, {309, 312}, {331, 299}, {355, 298}, {376, 309}, {356, 317}, {331, 317}, {177, 503}, {194, 484}, {213, 473}, {228, 477}, {244, 474}, {271, 488}, {299, 507}, {271, 523}, {244, 528}, {226, 528}, {209, 525}, {192, 517}, {190, 500}, {213, 489}, {228, 491}, {244, 491}, {286, 504}, {244, 508}, {228, 507}, {211, 504}};
+      {80, 311}, {80, 357}, {83, 405}, {88, 454}, {96, 502}, {114, 546},
+      {144, 580}, {180, 607}, {226, 616}, {278, 611}, {335, 591}, {391, 568},
+      {434, 531}, {464, 486}, {479, 433}, {487, 377}, {494, 321}, {109, 259},
+      {126, 238}, {154, 235}, {183, 239}, {212, 248}, {283, 255}, {321, 244},
+      {359, 240}, {397, 247}, {427, 271}, {241, 298}, {237, 327}, {232, 354},
+      {227, 383}, {201, 418}, {215, 423}, {230, 427}, {250, 425}, {270, 421},
+      {141, 301}, {159, 293}, {181, 294}, {199, 309}, {178, 313}, {156, 311},
+      {309, 312}, {331, 299}, {355, 298}, {376, 309}, {356, 317}, {331, 317},
+      {177, 503}, {194, 484}, {213, 473}, {228, 477}, {244, 474}, {271, 488},
+      {299, 507}, {271, 523}, {244, 528}, {226, 528}, {209, 525}, {192, 517},
+      {190, 500}, {213, 489}, {228, 491}, {244, 491}, {286, 504}, {244, 508},
+      {228, 507}, {211, 504}};
+    // clang-format on
 
     // Keep bounding rectangle around face points
     Size    size     = img_orig.size();
@@ -270,7 +278,7 @@ main()
         if (scale >= 1.2f || scale <= 0.8f) sign *= -1.0f;
 
         // Scale the face points from relative to the face cennter
-        for (int i = 0; i < 68; ++i)
+        for (uint i = 0; i < 68; ++i)
             wPoints[i] = ((points[i] - center) * scale) + center;
 
         // Warp all triangles

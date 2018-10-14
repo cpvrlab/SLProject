@@ -1,8 +1,8 @@
 #
-# CMake project definition for exercise ch06_ColorCube
+# CMake project definition for exercise ch07_DiffuseCube
 #
 
-set(target ch06_ColorCube)
+set(target ch07_DiffuseCube)
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -17,12 +17,12 @@ file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLFileSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVImage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/ColorCube.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/DiffuseCube.cpp
     )
 
 file(GLOB shaders
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/ColorAttribute.vert
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/Color.frag
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/Diffuse.frag
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/Diffuse.vert
     )
 
 add_executable(${target}

@@ -14,11 +14,10 @@ using namespace std;
 
 //-----------------------------------------------------------------------------
 // Warps a triangular regions from img1 to img2
-void
-warpTriangle(Mat&             img1,
-             Mat&             img2,
-             vector<Point2f>& tri1,
-             vector<Point2f>& tri2)
+void warpTriangle(Mat&             img1,
+                  Mat&             img2,
+                  vector<Point2f>& tri1,
+                  vector<Point2f>& tri2)
 {
     // Find bounding rectangle for each triangle
     Rect rect1 = boundingRect(tri1);
@@ -27,7 +26,7 @@ warpTriangle(Mat&             img1,
     // Offset points by left top corner of the respective rectangles
     vector<Point2f> tri1Cropped, tri2Cropped;
     vector<Point>   tri2CroppedInt;
-    for (int i = 0; i < 3; i++)
+    for (uint i = 0; i < 3; i++)
     {
         tri1Cropped.push_back(Point2f(tri1[i].x - rect1.x, tri1[i].y - rect1.y));
         tri2Cropped.push_back(Point2f(tri2[i].x - rect2.x, tri2[i].y - rect2.y));
@@ -66,8 +65,7 @@ warpTriangle(Mat&             img1,
     img2(rect2) = img2(rect2) + img2Cropped;
 }
 //-----------------------------------------------------------------------------
-int
-main()
+int main()
 {
     // Read input image
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
@@ -113,7 +111,7 @@ main()
 
     // cv::polylines needs vector of type Point and not Point2f
     vector<Point> triInInt, triOutInt;
-    for (int i = 0; i < 3; i++)
+    for (uint i = 0; i < 3; i++)
     {
         triInInt.push_back(Point((int)triIn[i].x, (int)triIn[i].y));
         triOutInt.push_back(Point((int)triOut[i].x, (int)triOut[i].y));
