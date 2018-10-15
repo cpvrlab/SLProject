@@ -2,7 +2,7 @@
 # CMake configuration for app-Demo-GLFW application
 # 
 
-set(target app-Demo-GLFW-exe)
+set(target app-Demo-GLFW)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
