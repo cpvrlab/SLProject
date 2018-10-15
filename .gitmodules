@@ -1,3 +1,0 @@
-[submodule "_lib/prebuilt"]
-	path = _lib/prebuilt
-	url = https://github.com/cpvrlab/SLProject_prebuilt.git

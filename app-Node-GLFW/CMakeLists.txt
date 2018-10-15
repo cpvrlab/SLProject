@@ -1,21 +1,21 @@
 # 
-# CMake configuration for app-Demo-GLFW application
+# CMake configuration for app-Node-GLFW application
 # 
 
-set(target app-Demo-GLFW-exe)
+set(target app-Node-GLFW-exe)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
-set(compile_definitions SL_STARTSCENE=SID_Minimal)
 
 file(GLOB headers
-    ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoGui.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/AppNodeGui.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/AppNodeSceneView.h
     )
 
 file(GLOB sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoGui.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoLoad.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/AppNodeGui.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/AppNodeSceneView.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/AppNodeMainGLFW.cpp
     )
 
 add_executable(${target}
@@ -30,7 +30,7 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/source
     ${CMAKE_CURRENT_SOURCE_DIR}/../include
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/imgui
