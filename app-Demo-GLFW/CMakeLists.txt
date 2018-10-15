@@ -23,6 +23,14 @@ add_executable(${target}
     ${sources}
     )
 
+# MSVC project options
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+    set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
+        VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${target}>
+    )
+endif ()
+message(STATUS "DEFAULT_PROJECT_OPTIONS: ${DEFAULT_PROJECT_OPTIONS}")
+
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
@@ -71,3 +79,5 @@ target_link_libraries(${target}
     ${DEFAULT_LINKER_OPTIONS}
     INTERFACE
     )
+
+include(../cmake/CopyCVLibsToTargetFolder.cmake)

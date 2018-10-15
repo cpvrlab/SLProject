@@ -13,41 +13,23 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 endif()
 
 
-# 
-# Project options
-# 
-
 set(DEFAULT_PROJECT_OPTIONS
     DEBUG_POSTFIX             "d"
+    RELEASE_POSTFIX           "r"
     CXX_STANDARD              14
     LINKER_LANGUAGE           "CXX"
     POSITION_INDEPENDENT_CODE ON
     CXX_VISIBILITY_PRESET     "hidden"
     CXX_EXTENSIONS            Off
-)
-
-
-# 
-# Include directories
-# 
+    )
 
 set(DEFAULT_INCLUDE_DIRECTORIES)
 
-
-# 
-# Libraries
-# 
-
 set(DEFAULT_LIBRARIES)
-
-
-# 
-# Compile definitions
-# 
 
 set(DEFAULT_COMPILE_DEFINITIONS
     SYSTEM_${SYSTEM_NAME_UPPER}
-)
+    )
 
 # MSVC compiler options
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
