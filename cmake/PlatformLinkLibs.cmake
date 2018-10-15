@@ -6,7 +6,15 @@ set(PlatformLinkLibs)
 
 #==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
-    set(PlatformLinkLibs)
+    set(PlatformLinkLibs
+        dl
+        GL
+        X11
+        Xrandr
+        Xi
+        Xinerama
+        Xxf86vm
+        Xcursor)
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(PlatformLinkLibs
@@ -30,6 +38,13 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
         ${IOKIT_LIB}
         ${OPENGL_LIB}
         ${QUARZ_LIB})
+
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #----------------------------
+    FIND_LIBRARY( log-lib log )
+
+    set(PlatformLinkLibs
+        GLESv3
+        ${log-lib})
 
 endif()
 #==============================================================================

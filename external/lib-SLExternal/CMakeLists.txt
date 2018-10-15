@@ -1,28 +1,15 @@
 # 
-# External dependencies
-# 
-#... find package
+# CMake configuration for lib-SLExternal
+#
 
-# 
-# Library name and options
-# 
-
-# Target name
 set(target lib-SLExternal)
-
-# 
-# Sources
-# 
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
-set(compile_definitions
-	GLEW_NO_GLU)
+set(compile_definitions	GLEW_NO_GLU)
 set(platform_specific_link_libraries)
 set(platform_specific_include_directories)
 
-#message(STATUS "include_path ${include_path}")
-#message(STATUS "source_path ${source_path}")
 
 file(GLOB headers
     ${include_path}/Shoemake/Decompose.h
@@ -36,7 +23,6 @@ file(GLOB headers
     ${include_path}/imgui/stb_truetype.h
     ${include_path}/spa/spa.h
 )
-#message(STATUS "headers ${headers}")
 
 file(GLOB sources
     ${include_path}/Shoemake/EulerAngles.cpp
@@ -44,10 +30,8 @@ file(GLOB sources
     ${include_path}/imgui/imgui_draw.cpp
     ${include_path}/imgui/imgui.cpp
     ${include_path}/spa/spa.cpp
-)
-#message(STATUS "sources ${sources}")
+    )
 
-# TODO(jan): add windows, mac and android stuff
 
 #==============================================================================
 if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
@@ -238,80 +222,23 @@ endif()
 
 
 #==============================================================================
-if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
-    set(platform_specific_link_libraries
-        dl
-        GL
-        X11
-        Xrandr
-        Xi
-        Xinerama
-        Xxf86vm
-        Xcursor)
-
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
-    set(platform_specific_link_libraries
-        OpenGL32
-        winmm
-        gdi32
-        user32
-        kernel32)
-
+if("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #--------------------------------
     set(platform_specific_include_directories
         ${CMAKE_CURRENT_SOURCE_DIR}/dirent)
-
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
-
-#    FIND_LIBRARY(COCOA_LIB Cocoa)
-#    FIND_LIBRARY(IOKIT_LIB IOKit)
-#    FIND_LIBRARY(OPENGL_LIB OpenGL)
-#    FIND_LIBRARY(QUARZ_LIB QuartzCore)
-#    message(STATUS "COCOA_LIB ${COCOA_LIB}")
-#    message(STATUS "IOKIT_LIB ${IOKIT_LIB}")
-#    message(STATUS "OPENGL_LIB ${OPENGL_LIB}")
-#    message(STATUS "QUARZ_LIB ${QUARZ_LIB}")
-
-#    set(platform_specific_link_libraries
-#        ${COCOA_LIB}
-#        ${IOKIT_LIB}
-#        ${OPENGL_LIB}
-#        ${QUARZ_LIB})
-
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #----------------------------
-    find_library( log-lib log )
-    set(platform_specific_link_libraries
-        GLESv3
-        ${log-lib})
-
 endif()
 #==============================================================================
 
-# 
-# Create library
-# 
-
-# Build library
 add_library(${target}
     ${headers}
     ${sources}
-)
+    )
 
-# Create namespaced alias
 add_library(${META_PROJECT_NAME}::${target} ALIAS ${target})
-
-# 
-# Project options
-# 
 
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
-    #FOLDER "${IDE_FOLDER}"
-)
-
-# 
-# Include directories
-# 
+    )
 
 target_include_directories(${target}
     PRIVATE
@@ -328,66 +255,35 @@ target_include_directories(${target}
     ${platform_specific_include_directories}
 
     PUBLIC
-    #${DEFAULT_INCLUDE_DIRECTORIES}
 
     INTERFACE
-    #$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    #$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-    #$<INSTALL_INTERFACE:include>
     )
-
-# 
-# Libraries
-# 
-
-target_link_libraries(${target}
-    PRIVATE
-
-    PUBLIC
-
-    INTERFACE
-)
-
-
-# 
-# Compile definitions
-# 
 
 target_compile_definitions(${target}
     PRIVATE
     ${compile_definitions}
 
     PUBLIC
-    #$<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:${target_id}_STATIC_DEFINE>
     ${DEFAULT_COMPILE_DEFINITIONS}
 
     INTERFACE
-)
-
-
-# 
-# Compile options
-# 
+    )
 
 target_compile_options(${target}
-  PRIVATE
-  
-  PUBLIC
-  ${EXTERNAL_LIB_COMPILE_OPTIONS}
+    PRIVATE
 
-  INTERFACE
-)
+    PUBLIC
+    ${EXTERNAL_LIB_COMPILE_OPTIONS}
 
-# 
-# Linker options
-# 
+    INTERFACE
+    )
 
 target_link_libraries(${target}
-  PRIVATE
-  ${platform_specific_link_libraries}
+    PRIVATE
+    ${PlatformLinkLibs}
 
-  PUBLIC
-  ${DEFAULT_LINKER_OPTIONS}
+    PUBLIC
+    ${DEFAULT_LINKER_OPTIONS}
 
-  INTERFACE
-  )
+    INTERFACE
+    )

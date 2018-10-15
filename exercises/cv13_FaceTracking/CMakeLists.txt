@@ -19,6 +19,7 @@ set_target_properties(${target}
     ${DEFAULT_PROJECT_OPTIONS}
     )
 
+message(STATUS "OpenCV_INCLUDE_DIR ${OpenCV_INCLUDE_DIR}")
 target_include_directories(${target}
     PRIVATE
     ${OpenCV_INCLUDE_DIR}

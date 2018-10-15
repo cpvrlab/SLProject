@@ -34,7 +34,7 @@ set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
 #==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(OpenCV_VERSION "3.4.1")
-    set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/OpenCV/linux/${OpenCV_VERSION}")
+    set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_lib/prebuilt/linux_opencv_${OpenCV_VERSION}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
     set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
