@@ -13,8 +13,7 @@ using namespace cv;
 using namespace cv::face;
 
 //-----------------------------------------------------------------------------
-static void
-drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
+static void drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
 {
     vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
@@ -39,12 +38,11 @@ drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
     }
 }
 //-----------------------------------------------------------------------------
-static void
-createDelaunay(Mat&                 img,
-               Subdiv2D&            subdiv,
-               vector<Point2f>&     points,
-               bool                 drawAnimated,
-               vector<vector<int>>& triangleIndexes)
+static void createDelaunay(Mat&                 img,
+                           Subdiv2D&            subdiv,
+                           vector<Point2f>&     points,
+                           bool                 drawAnimated,
+                           vector<vector<int>>& triangleIndexes)
 {
     // Insert points into subdiv
     for (Point2f p : points)
@@ -81,7 +79,7 @@ createDelaunay(Mat&                 img,
             rect.contains(pt[1]) &&
             rect.contains(pt[2]))
         {
-            for (int j = 0; j < 3; j++)
+            for (uint j = 0; j < 3; j++)
                 for (size_t k = 0; k < points.size(); k++)
                     if (abs(pt[j].x - points[k].x) < 1.0 &&
                         abs(pt[j].y - points[k].y) < 1)
@@ -93,11 +91,10 @@ createDelaunay(Mat&                 img,
 }
 //-----------------------------------------------------------------------------
 // Warps a triangular regions from img1 to img2
-void
-warpTriangle(Mat&             img1,
-             Mat&             img2,
-             vector<Point2f>& tri1,
-             vector<Point2f>& tri2)
+void warpTriangle(Mat&             img1,
+                  Mat&             img2,
+                  vector<Point2f>& tri1,
+                  vector<Point2f>& tri2)
 {
     // Find bounding rectangle for each triangle
     Rect rect1 = boundingRect(tri1);
@@ -106,7 +103,7 @@ warpTriangle(Mat&             img1,
     // Offset points by left top corner of the respective rectangles
     vector<Point2f> tri1Cropped, tri2Cropped;
     vector<Point>   tri2CroppedInt;
-    for (int i = 0; i < 3; i++)
+    for (uint i = 0; i < 3; i++)
     {
         tri1Cropped.push_back(Point2f(tri1[i].x - rect1.x, tri1[i].y - rect1.y));
         tri2Cropped.push_back(Point2f(tri2[i].x - rect2.x, tri2[i].y - rect2.y));
@@ -145,12 +142,11 @@ warpTriangle(Mat&             img1,
     img2(rect2) = img2(rect2) + img2Cropped;
 }
 //-----------------------------------------------------------------------------
-static void
-warpImage(Mat&                 img1,
-          Mat&                 img2,
-          vector<Point2f>&     points1,
-          vector<Point2f>&     points2,
-          vector<vector<int>>& triangles)
+static void warpImage(Mat&                 img1,
+                      Mat&                 img2,
+                      vector<Point2f>&     points1,
+                      vector<Point2f>&     points2,
+                      vector<vector<int>>& triangles)
 {
     for (size_t i = 0; i < triangles.size(); i++)
     {
@@ -168,8 +164,7 @@ warpImage(Mat&                 img1,
     }
 }
 //-----------------------------------------------------------------------------
-int
-main()
+int main()
 {
     // Load Face Detector
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)

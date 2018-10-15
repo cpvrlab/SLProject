@@ -12,8 +12,7 @@ using namespace std;
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-int
-main()
+int main()
 {
     // Read input image
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
@@ -83,7 +82,7 @@ main()
                   nose_end_point2D);
 
     // Draw red dots on all image points
-    for (int i = 0; i < image_points.size(); i++)
+    for (uint i = 0; i < image_points.size(); i++)
         circle(image, image_points[i], 3, Scalar(0, 0, 255), -1);
 
     // Draw blue nose line

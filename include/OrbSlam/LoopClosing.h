@@ -42,14 +42,11 @@ class LocalMapping;
 
 class LoopClosing
 {
-public:
+    public:
+    typedef pair<set<SLCVKeyFrame*>, int>                                                                                                ConsistentGroup;
+    typedef map<SLCVKeyFrame*, g2o::Sim3, std::less<SLCVKeyFrame*>, Eigen::aligned_allocator<std::pair<SLCVKeyFrame* const, g2o::Sim3>>> KeyFrameAndPose;
 
-    typedef pair<set<SLCVKeyFrame*>,int> ConsistentGroup;    
-    typedef map<SLCVKeyFrame*,g2o::Sim3,std::less<SLCVKeyFrame*>,
-        Eigen::aligned_allocator<std::pair<const SLCVKeyFrame*, g2o::Sim3> > > KeyFrameAndPose;
-
-public:
-
+    public:
     LoopClosing(SLCVMap* pMap, SLCVKeyFrameDB* pDB, ORBVocabulary* pVoc, const bool bFixScale, const bool manualLoopClose = false);
 
     void SetLocalMapper(LocalMapping* pLocalMapper);
@@ -58,7 +55,7 @@ public:
     void Run();
     bool RunOnce();
 
-    void InsertKeyFrame(SLCVKeyFrame *pKF);
+    void InsertKeyFrame(SLCVKeyFrame* pKF);
 
     void RequestReset();
     void reset();
@@ -66,11 +63,13 @@ public:
     // This function will run in a separate thread
     void RunGlobalBundleAdjustment(unsigned long nLoopKF);
 
-    bool isRunningGBA(){
+    bool isRunningGBA()
+    {
         unique_lock<std::mutex> lock(mMutexGBA);
         return mbRunningGBA;
     }
-    bool isFinishedGBA(){
+    bool isFinishedGBA()
+    {
         unique_lock<std::mutex> lock(mMutexGBA);
         return mbFinishedGBA;
     }
@@ -103,68 +102,67 @@ public:
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-protected:
-
+    protected:
     bool CheckNewKeyFrames();
 
     bool DetectLoop();
 
     bool ComputeSim3();
 
-    void SearchAndFuse(const KeyFrameAndPose &CorrectedPosesMap);
+    void SearchAndFuse(const KeyFrameAndPose& CorrectedPosesMap);
 
     void CorrectLoop();
     void doCorrectLoop();
 
-    void ResetIfRequested();
-    bool mbResetRequested;
+    void       ResetIfRequested();
+    bool       mbResetRequested;
     std::mutex mMutexReset;
 
-    bool CheckFinish();
-    void SetFinish();
-    bool mbFinishRequested;
-    bool mbFinished;
+    bool       CheckFinish();
+    void       SetFinish();
+    bool       mbFinishRequested;
+    bool       mbFinished;
     std::mutex mMutexFinish;
 
-    SLCVMap* mpMap;
+    SLCVMap*  mpMap;
     Tracking* mpTracker;
 
     SLCVKeyFrameDB* mpKeyFrameDB;
-    ORBVocabulary* mpORBVocabulary;
+    ORBVocabulary*  mpORBVocabulary;
 
-    LocalMapping *mpLocalMapper;
+    LocalMapping* mpLocalMapper;
 
     std::list<SLCVKeyFrame*> mlpLoopKeyFrameQueue;
-    std::mutex mMutexLoopQueue;
+    std::mutex               mMutexLoopQueue;
 
     //replacement for thread sleep:
-    std::mutex _mutexLoop;
+    std::mutex              _mutexLoop;
     std::condition_variable _condVarLoop;
-    bool _loopWait = true;
-    void loopContinue();
-    void loopWait();
+    bool                    _loopWait = true;
+    void                    loopContinue();
+    void                    loopWait();
 
     // Loop detector parameters
     float mnCovisibilityConsistencyTh;
 
     // Loop detector variables
-    SLCVKeyFrame* mpCurrentKF;
-    SLCVKeyFrame* mpMatchedKF;
+    SLCVKeyFrame*                mpCurrentKF;
+    SLCVKeyFrame*                mpMatchedKF;
     std::vector<ConsistentGroup> mvConsistentGroups;
-    std::vector<SLCVKeyFrame*> mvpEnoughConsistentCandidates;
-    std::vector<SLCVKeyFrame*> mvpCurrentConnectedKFs;
-    std::vector<SLCVMapPoint*> mvpCurrentMatchedPoints;
-    std::vector<SLCVMapPoint*> mvpLoopMapPoints;
-    cv::Mat mScw;
-    g2o::Sim3 mg2oScw;
+    std::vector<SLCVKeyFrame*>   mvpEnoughConsistentCandidates;
+    std::vector<SLCVKeyFrame*>   mvpCurrentConnectedKFs;
+    std::vector<SLCVMapPoint*>   mvpCurrentMatchedPoints;
+    std::vector<SLCVMapPoint*>   mvpLoopMapPoints;
+    cv::Mat                      mScw;
+    g2o::Sim3                    mg2oScw;
 
     long unsigned int mLastLoopKFid;
 
     // Variables related to Global Bundle Adjustment
-    bool mbRunningGBA;
-    bool mbFinishedGBA;
-    bool mbStopGBA;
-    std::mutex mMutexGBA;
+    bool         mbRunningGBA;
+    bool         mbFinishedGBA;
+    bool         mbStopGBA;
+    std::mutex   mMutexGBA;
     std::thread* mpThreadGBA;
 
     // Fix scale in the stereo/RGB-D case
@@ -173,20 +171,20 @@ protected:
     bool mnFullBAIdx;
 
     LoopCloseStatus _status = LOOP_CLOSE_STATUS_NONE;
-    std::mutex mMutexStatus;
-    void status(LoopCloseStatus status);
+    std::mutex      mMutexStatus;
+    void            status(LoopCloseStatus status);
 
     std::mutex mMutexLoopCloseAttempt;
-    bool shouldLoopCloseBeAttempted();
-    bool _attemptLoopClose;
+    bool       shouldLoopCloseBeAttempted();
+    bool       _attemptLoopClose;
     const bool _manualLoopClose;
 
     // Gui information
     std::mutex mMutexNumConsistentGroups;
     std::mutex mMutexNumCandidates;
-    int _numOfCandidates = 0;
+    int        _numOfCandidates = 0;
     std::mutex mMutexNumConsistentCandidates;
-    int _numOfConsistentCandidates = 0;
+    int        _numOfConsistentCandidates = 0;
 };
 
 } //namespace ORB_SLAM

@@ -5,9 +5,9 @@
 //  Date:      Authumn 2017
 //#############################################################################
 
-#include "opencv2/highgui.hpp"
-#include "opencv2/imgproc.hpp"
-#include "opencv2/objdetect.hpp"
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/objdetect.hpp>
 
 #include <iostream>
 #include <stdio.h>
@@ -19,16 +19,15 @@ using namespace cv;
 // Globals
 // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
 // with: Right Click on Project > Properties > Debugging
-String face_cascade_name = "../_data/opencv/haarcascades/haarcascade_frontalface_alt.xml";
-String eyes_cascade_name = "../_data/opencv/haarcascades/haarcascade_eye_tree_eyeglasses.xml";
+static String face_cascade_name = "../_data/opencv/haarcascades/haarcascade_frontalface_alt.xml";
+static String eyes_cascade_name = "../_data/opencv/haarcascades/haarcascade_eye_tree_eyeglasses.xml";
 
-CascadeClassifier face_cascade;
-CascadeClassifier eyes_cascade;
-String            window_name = "Capture - Face detection";
+static CascadeClassifier face_cascade;
+static CascadeClassifier eyes_cascade;
+static String            window_name = "Capture - Face detection";
 
 //-----------------------------------------------------------------------------
-void
-detectFaceAndDisplay(Mat frame)
+void detectFaceAndDisplay(Mat frame)
 {
     std::vector<Rect> faces;
     Mat               frame_gray;
@@ -71,8 +70,7 @@ detectFaceAndDisplay(Mat frame)
 }
 
 //-----------------------------------------------------------------------------
-int
-main()
+int main()
 {
     VideoCapture capture;
     Mat          frame;

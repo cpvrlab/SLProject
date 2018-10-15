@@ -1,22 +1,12 @@
 # 
-# External dependencies
-# 
-#... find package
+# CMake configuration for lib-SLExternal
+#
 
-# 
-# Library name and options
-# 
-
-# Target name
 set(target lib-SLExternal)
 
-# 
-# Sources
-#
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
-set(compile_definitions
-	GLEW_NO_GLU)
+set(compile_definitions	GLEW_NO_GLU)
 set(platform_specific_link_libraries)
 set(platform_specific_include_directories)
 
@@ -39,12 +29,17 @@ file(GLOB sources
     ${include_path}/imgui/imgui_draw.cpp
     ${include_path}/imgui/imgui.cpp
     ${include_path}/spa/spa.cpp
-)
+    ${include_path}/DBoW2/DBoW2/BowVector.cpp
+    ${include_path}/DBoW2/DBoW2/FeatureVector.cpp
+    ${include_path}/DBoW2/DBoW2/FORB.cpp
+    ${include_path}/DBoW2/DBoW2/ScoringObject.cpp
+    ${include_path}/DBoW2/DUtils/Random.cpp
+    ${include_path}/DBoW2/DUtils/Timestamp.cpp
+    )
 
 #==============================================================================
 if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
-    message(STATUS "building with glfw")
-        file(GLOB headers
+    file(GLOB headers
         ${headers}
         ${include_path}/glew/include/GL/glew.h
         ${include_path}/glfw3/include/GLFW/glfw3.h
@@ -52,7 +47,7 @@ if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
         ${include_path}/glfw3/src/glfw_config.h
         ${include_path}/glfw3/src/internal.h
         )
-  
+
     file(GLOB sources
         ${sources}
         ${include_path}/glew/src/glew.c
@@ -62,7 +57,6 @@ if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
         ${include_path}/glfw3/src/monitor.c
         ${include_path}/glfw3/src/window.c
         )
-
 endif()
 
 #==============================================================================
@@ -232,79 +226,23 @@ endif()
 
 
 #==============================================================================
-if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
-    set(platform_specific_link_libraries
-        dl
-        GL
-        X11
-        Xrandr
-        Xi
-        Xinerama
-        Xxf86vm
-        Xcursor)
-
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
-    set(platform_specific_link_libraries
-        OpenGL32
-        winmm
-        gdi32
-        user32
-        kernel32)
-
+if("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #--------------------------------
     set(platform_specific_include_directories
         ${CMAKE_CURRENT_SOURCE_DIR}/dirent)
-
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
-
-#    FIND_LIBRARY(COCOA_LIB Cocoa)
-#    FIND_LIBRARY(IOKIT_LIB IOKit)
-#    FIND_LIBRARY(OPENGL_LIB OpenGL)
-#    FIND_LIBRARY(QUARZ_LIB QuartzCore)
-#    message(STATUS "COCOA_LIB ${COCOA_LIB}")
-#    message(STATUS "IOKIT_LIB ${IOKIT_LIB}")
-#    message(STATUS "OPENGL_LIB ${OPENGL_LIB}")
-#    message(STATUS "QUARZ_LIB ${QUARZ_LIB}")
-
-#    set(platform_specific_link_libraries
-#        ${COCOA_LIB}
-#        ${IOKIT_LIB}
-#        ${OPENGL_LIB}
-#        ${QUARZ_LIB})
-
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #----------------------------
-    find_library( log-lib log )
-    set(platform_specific_link_libraries
-        GLESv3
-        ${log-lib})
-
 endif()
 #==============================================================================
 
-# 
-# Create library
-# 
-
-# Build library
 add_library(${target}
     ${headers}
     ${sources}
-)
+    )
 
-# Create namespaced alias
 add_library(${META_PROJECT_NAME}::${target} ALIAS ${target})
-
-# 
-# Project options
-# 
 
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
-)
-
-# 
-# Include directories
-# 
+    )
 
 target_include_directories(${target}
     PRIVATE
@@ -321,68 +259,39 @@ target_include_directories(${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/DBoW2
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${platform_specific_include_directories}
+    ${OpenCV_INCLUDE_DIR}
+    ${g2o_INCLUDE_DIR}
 
     PUBLIC
-    #${DEFAULT_INCLUDE_DIRECTORIES}
 
     INTERFACE
-    #$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    #$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-    #$<INSTALL_INTERFACE:include>
     )
-
-# 
-# Libraries
-# 
-
-target_link_libraries(${target}
-    PRIVATE
-
-    PUBLIC
-
-    INTERFACE
-)
-
-
-# 
-# Compile definitions
-# 
 
 target_compile_definitions(${target}
     PRIVATE
     ${compile_definitions}
 
     PUBLIC
-    #$<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:${target_id}_STATIC_DEFINE>
     ${DEFAULT_COMPILE_DEFINITIONS}
 
     INTERFACE
-)
-
-
-# 
-# Compile options
-# 
+    )
 
 target_compile_options(${target}
-  PRIVATE
-  
-  PUBLIC
-  ${EXTERNAL_LIB_COMPILE_OPTIONS}
+    PRIVATE
 
-  INTERFACE
-)
+    PUBLIC
+    ${EXTERNAL_LIB_COMPILE_OPTIONS}
 
-# 
-# Linker options
-# 
+    INTERFACE
+    )
 
 target_link_libraries(${target}
-  PRIVATE
-  ${platform_specific_link_libraries}
+    PRIVATE
+    ${PlatformLinkLibs}
 
-  PUBLIC
-  ${DEFAULT_LINKER_OPTIONS}
+    PUBLIC
+    ${DEFAULT_LINKER_OPTIONS}
 
-  INTERFACE
-  )
+    INTERFACE
+    )

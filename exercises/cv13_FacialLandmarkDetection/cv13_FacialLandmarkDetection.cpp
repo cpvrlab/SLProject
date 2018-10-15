@@ -13,8 +13,7 @@ using namespace cv;
 using namespace cv::face;
 
 //-----------------------------------------------------------------------------
-int
-main()
+int main()
 {
     // Load Face Detector
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
@@ -58,10 +57,10 @@ main()
 
         if (success)
         {
-            for (int i = 0; i < landmarks.size(); i++)
+            for (uint i = 0; i < landmarks.size(); i++)
             {
                 rectangle(frame, faces[i], cv::Scalar(255, 0, 0), 2);
-                for (int j = 0; j < landmarks[i].size(); j++)
+                for (uint j = 0; j < landmarks[i].size(); j++)
                     circle(frame, landmarks[i][j], 3, cv::Scalar(0, 0, 255), -1);
             }
         }

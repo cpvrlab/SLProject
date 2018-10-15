@@ -288,9 +288,10 @@ enum SLEasingCurve
 //! Describes the relative space a transformation is applied in.
 enum SLTransformSpace
 {
-    TS_object,
+    // Do not change order!
     TS_world,
     TS_parent,
+    TS_object
 };
 //-----------------------------------------------------------------------------
 //! Skinning methods

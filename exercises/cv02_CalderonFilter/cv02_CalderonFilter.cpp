@@ -15,8 +15,10 @@ using namespace std;
 
 //----------------------------------------------------------------------------
 // Piecewise linear interpolation implemented on a particular Channel
-void
-interpolation(uchar* lut, float* fullRange, float* curve, float* originalVal)
+void interpolation(uchar* lut,
+                   float* fullRange,
+                   float* curve,
+                   float* originalVal)
 {
     for (int i = 0; i < 256; i++)
     {
@@ -37,8 +39,7 @@ interpolation(uchar* lut, float* fullRange, float* curve, float* originalVal)
     }
 }
 //----------------------------------------------------------------------------
-Mat
-clarendon(Mat original)
+Mat clarendon(Mat original)
 {
     //Enhance the channel for any image BGR or HSV etc
     Mat   img      = original.clone();
@@ -78,8 +79,7 @@ clarendon(Mat original)
     return output;
 }
 //----------------------------------------------------------------------------
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     // Read input image
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)

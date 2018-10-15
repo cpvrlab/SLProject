@@ -14,8 +14,7 @@
 using namespace cv;
 using namespace std;
 
-int
-main()
+int main()
 {
     // Read input image
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
