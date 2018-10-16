@@ -2,7 +2,7 @@
 # CMake configuration for app-Demo-GLFW application
 # 
 
-set(target app-Demo-GLFW-exe)
+set(target app-Demo-GLFW)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -22,6 +22,14 @@ add_executable(${target}
     ${headers}
     ${sources}
     )
+
+# MSVC project options
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+    set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
+        VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${target}>
+    )
+endif ()
+message(STATUS "DEFAULT_PROJECT_OPTIONS: ${DEFAULT_PROJECT_OPTIONS}")
 
 set_target_properties(${target}
     PROPERTIES
@@ -84,3 +92,5 @@ target_link_libraries(${target}
 
     INTERFACE
     )
+
+include(../cmake/CopyCVLibsToTargetFolder.cmake)

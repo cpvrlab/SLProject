@@ -13,41 +13,23 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 endif()
 
 
-# 
-# Project options
-# 
-
 set(DEFAULT_PROJECT_OPTIONS
-    DEBUG_POSTFIX             "d"
-    CXX_STANDARD              11
+    DEBUG_POSTFIX             "-debug"
+    RELEASE_POSTFIX           "-release"
+    CXX_STANDARD              14
     LINKER_LANGUAGE           "CXX"
     POSITION_INDEPENDENT_CODE ON
     CXX_VISIBILITY_PRESET     "hidden"
     CXX_EXTENSIONS            Off
-)
-
-
-# 
-# Include directories
-# 
+    )
 
 set(DEFAULT_INCLUDE_DIRECTORIES)
 
-
-# 
-# Libraries
-# 
-
 set(DEFAULT_LIBRARIES)
-
-
-# 
-# Compile definitions
-# 
 
 set(DEFAULT_COMPILE_DEFINITIONS
     SYSTEM_${SYSTEM_NAME_UPPER}
-)
+    )
 
 # MSVC compiler options
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
@@ -69,16 +51,9 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
         /MP           # -> build with multiple processes
         /W4           # -> warning level 4
-        # /WX         # -> treat warnings as errors
 
         /wd4251       # -> disable warning: 'identifier': class 'type' needs to have dll-interface to be used by clients of class 'type2'
         /wd4592       # -> disable warning: 'identifier': symbol will be dynamically initialized (implementation limitation)
-        # /wd4201     # -> disable warning: nonstandard extension used: nameless struct/union (caused by GLM)
-        # /wd4127     # -> disable warning: conditional expression is constant (caused by Qt)
-        
-        #$<$<CONFIG:Debug>:
-        #/RTCc         # -> value is assigned to a smaller data type and results in a data loss
-        #>
 
         $<$<CONFIG:Release>: 
         /Gw           # -> whole program global optimization

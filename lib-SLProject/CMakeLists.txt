@@ -7,7 +7,6 @@ set(target lib-SLProject)
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
 set(compile_definitions GLEW_NO_GLU)
-set(platform_specific_link_libraries)
 
 file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/EulerAngles.h
@@ -364,8 +363,3 @@ target_link_libraries(${target}
 
     INTERFACE
     )
-
-if("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
-    add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${OpenCV_LINK_DIRECTORY} $<TARGET_FILE_DIR:${target}>)
-endif()
