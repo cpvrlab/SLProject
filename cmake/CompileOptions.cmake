@@ -45,7 +45,7 @@ set(DEFAULT_COMPILE_OPTIONS)
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
         /MP           # -> build with multiple processes
-        /W4           # -> warning level 4
+        /W3           # -> warning level 3
         /wd4251       # -> disable warning: 'identifier': class 'type' needs to have dll-interface to be used by clients of class 'type2'
         /wd4592       # -> disable warning: 'identifier': symbol will be dynamically initialized (implementation limitation)
 
@@ -111,7 +111,8 @@ set(EXTERNAL_LIB_COMPILE_OPTIONS)
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     set(EXTERNAL_LIB_COMPILE_OPTIONS ${EXTERNAL_LIB_COMPILE_OPTIONS}
         /MP           # -> build with multiple processes
-        /w            # -> no warnings at all
+        /W0           # -> warning level 0 all off
+        /w
 
         $<$<CONFIG:Release>:
         /Gw           # -> whole program global optimization
