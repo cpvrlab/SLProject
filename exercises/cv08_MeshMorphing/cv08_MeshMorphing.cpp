@@ -193,9 +193,11 @@ void morphTriangle(Mat&             img1,
 //-----------------------------------------------------------------------------
 int main()
 {
+    std::string projectRoot = std::string(SL_PROJECT_ROOT);
+
     //Read input images
-    Mat img1 = imread("../_data/images/textures/hillary_clinton.jpg");
-    Mat img2 = imread("../_data/images/textures/donald_trump.jpg");
+    Mat img1 = imread(projectRoot + "/_data/images/textures/hillary_clinton.jpg");
+    Mat img2 = imread(projectRoot + "/_data/images/textures/donald_trump.jpg");
     if (img1.empty() || img2.empty())
     {
         cout << "Could not load image. Is the working dir correct?" << endl;

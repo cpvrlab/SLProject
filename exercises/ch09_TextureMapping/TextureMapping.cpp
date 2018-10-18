@@ -28,12 +28,12 @@ struct VertexPNT
     SLVec2f t; // vertex texture coord. [s,t]
 };
 //-----------------------------------------------------------------------------
-static GLFWwindow* window;     //!< The global glfw window handle
-static SLstring    _exeDir;    //!< Directory of executable
-static SLint       _scrWidth;  //!< Window width at start up
-static SLint       _scrHeight; //!< Window height at start up
-static SLfloat     _scr2fbX;   //!< Factor from screen to framebuffer coords
-static SLfloat     _scr2fbY;   //!< Factor from screen to framebuffer coords
+static GLFWwindow* window;       //!< The global glfw window handle
+static SLstring    _projectRoot; //!< Directory of executable
+static SLint       _scrWidth;    //!< Window width at start up
+static SLint       _scrHeight;   //!< Window height at start up
+static SLfloat     _scr2fbX;     //!< Factor from screen to framebuffer coords
+static SLfloat     _scr2fbY;     //!< Factor from screen to framebuffer coords
 
 // GLobal application variables
 static SLMat4f _modelMatrix;      //!< 4x4 view matrix
@@ -290,11 +290,11 @@ void onInit()
     _mouseLeftDown = false;
 
     // Load textures
-    _textureID = glUtils::buildTexture(_exeDir + "../_data/images/textures/earth1024_C.jpg");
+    _textureID = glUtils::buildTexture(_projectRoot + "/_data/images/textures/earth1024_C.jpg");
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader(_exeDir + "../_data/shaders/ADSTex.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader(_exeDir + "../_data/shaders/ADSTex.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader(_projectRoot + "/_data/shaders/ADSTex.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader(_projectRoot + "/_data/shaders/ADSTex.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program
@@ -614,8 +614,7 @@ The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char* argv[])
 {
-    // get executable path
-    _exeDir = SLUtils::getPath(argv[0]);
+    _projectRoot = SLstring(SL_PROJECT_ROOT);
 
     if (!glfwInit())
     {

@@ -194,10 +194,12 @@ static void warpImage(Mat&                 img1,
 //-----------------------------------------------------------------------------
 int main()
 {
+    std::string projectRoot = std::string(SL_PROJECT_ROOT);
+
     // Read input image
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
     // with: Right Click on Project > Properties > Debugging
-    Mat img_orig = imread("../_data/images/textures/donald_trump.jpg");
+    Mat img_orig = imread(projectRoot + "/_data/images/textures/donald_trump.jpg");
     if (img_orig.empty())
     {
         cout << "Could not load image. Is the working dir correct?" << endl;

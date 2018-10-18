@@ -24,12 +24,12 @@ set(DEFAULT_PROJECT_OPTIONS
     )
 
 set(DEFAULT_INCLUDE_DIRECTORIES)
-
 set(DEFAULT_LIBRARIES)
-
 set(DEFAULT_COMPILE_DEFINITIONS
     SYSTEM_${SYSTEM_NAME_UPPER}
+    SL_PROJECT_ROOT="${SL_PROJECT_ROOT}"
     )
+message(STATUS "DEFAULT_COMPILE_DEFINITIONS ${DEFAULT_COMPILE_DEFINITIONS}")
 
 # MSVC compiler options
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
@@ -38,11 +38,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
         _CRT_SECURE_NO_WARNINGS  # Calling any one of the potentially unsafe methods in the CRT Library
     )
 endif ()
-
-
-# 
-# Compile options
-# 
 
 set(DEFAULT_COMPILE_OPTIONS)
 

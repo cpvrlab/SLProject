@@ -16,6 +16,7 @@ set_policy(CMP0042 NEW) # ENABLE CMP0042: MACOSX_RPATH is enabled by default.
 set_policy(CMP0063 NEW) # ENABLE CMP0063: Honor visibility properties for all target types.
 
 set(META_PROJECT_NAME "SLProject")
+set(SL_PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Declare project
 project(${META_PROJECT_NAME} C CXX)
@@ -29,13 +30,13 @@ include(cmake/CompileOptions.cmake)
 include(cmake/DownloadPrebuilts.cmake)
 
 add_subdirectory(external)
-add_subdirectory(exercises)
 add_subdirectory(lib-SLProject)
 
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
     set(IDE_FOLDER "Android")
     add_subdirectory(app-Demo-Android/app)
 else()
+    add_subdirectory(exercises)
     add_subdirectory(app-Demo-GLFW)
     add_subdirectory(app-Node-GLFW)
 endif()

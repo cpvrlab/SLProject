@@ -467,17 +467,17 @@ int main(int argc, char* argv[])
     cout << "DPI             : " << dpi << endl;
 
     // get executable path
-    SLstring exeDir     = SLFileSystem::getCurrentWorkingDir();
-    SLstring configPath = SLFileSystem::getAppsWritableDir();
+    SLstring projectRoot = SLstring(SL_PROJECT_ROOT);
+    SLstring configPath  = SLFileSystem::getAppsWritableDir();
 
     //////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
-                        exeDir + "../_data/shaders/",
-                        exeDir + "../_data/models/",
-                        exeDir + "../_data/images/textures/",
-                        exeDir + "../_data/videos/",
-                        exeDir + "../_data/images/fonts/",
-                        exeDir + "../_data/calibrations/",
+                        projectRoot + "/_data/shaders/",
+                        projectRoot + "/_data/models/",
+                        projectRoot + "/_data/images/textures/",
+                        projectRoot + "/_data/videos/",
+                        projectRoot + "/_data/images/fonts/",
+                        projectRoot + "/_data/calibrations/",
                         configPath,
                         "AppNode_GLFW",
                         (void*)onLoad);

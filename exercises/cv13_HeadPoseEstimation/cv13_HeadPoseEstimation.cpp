@@ -14,10 +14,12 @@ using namespace cv;
 //-----------------------------------------------------------------------------
 int main()
 {
+    std::string projectRoot = std::string(SL_PROJECT_ROOT);
+
     // Read input image
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
     // with: Right Click on Project > Properties > Debugging
-    Mat image = imread("../_data/images/textures/headPose.jpg");
+    Mat image = imread(projectRoot + "/_data/images/textures/headPose.jpg");
     if (image.empty())
     {
         cout << "Could not load image. Is the working dir correct?" << endl;

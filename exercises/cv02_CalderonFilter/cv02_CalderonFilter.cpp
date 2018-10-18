@@ -81,10 +81,12 @@ Mat clarendon(Mat original)
 //----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
+    std::string projectRoot = std::string(SL_PROJECT_ROOT);
+
     // Read input image
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
     // with: Right Click on Project > Properties > Debugging
-    Mat image = imread("../_data/images/textures/girl.jpg");
+    Mat image = imread(projectRoot + "/_data/images/textures/girl.jpg");
     if (image.empty())
     {
         cout << "Could not load img. Is the working dir correct?" << endl;

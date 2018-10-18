@@ -183,7 +183,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         ${include_path}/zlib/deflate.h
         ${include_path}/zlib/crypt.h
         ${include_path}/zlib/crc32.h
-        ${include_path}/zlib/dirent.h
+        ${include_path}/dirent/dirent.h
         )
   
     file(GLOB sources
@@ -213,7 +213,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         ${include_path}/zlib/adler32.c
         ${include_path}/zlib/ioapi.c
         ${include_path}/zlib/unzip.c
-        ${include_path}/zlib/dirent.c
+        ${include_path}/dirent/dirent.c
         )
 
 endif()

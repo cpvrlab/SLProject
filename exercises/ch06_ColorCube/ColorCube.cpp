@@ -39,12 +39,12 @@ struct VertexPC
 };
 //-----------------------------------------------------------------------------
 // GLobal application variables
-static GLFWwindow* window;     //!< The global GLFW window handle
-static SLstring    _exeDir;    //!< Directory of executable
-static SLint       _scrWidth;  //!< Window width at start up
-static SLint       _scrHeight; //!< Window height at start up
-static SLfloat     _scr2fbX;   //!< Factor from screen to framebuffer coords
-static SLfloat     _scr2fbY;   //!< Factor from screen to framebuffer coords
+static GLFWwindow* window;       //!< The global GLFW window handle
+static SLstring    _projectRoot; //!< Directory of executable
+static SLint       _scrWidth;    //!< Window width at start up
+static SLint       _scrHeight;   //!< Window height at start up
+static SLfloat     _scr2fbX;     //!< Factor from screen to framebuffer coords
+static SLfloat     _scr2fbY;     //!< Factor from screen to framebuffer coords
 
 static SLMat4f _viewMatrix;       //!< 4x4 view matrix
 static SLMat4f _modelMatrix;      //!< 4x4 model matrix
@@ -170,8 +170,8 @@ void onInit()
     _mouseLeftDown    = false;
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader(_exeDir + "../_data/shaders/ColorAttribute.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader(_exeDir + "../_data/shaders/Color.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader(_projectRoot + "/_data/shaders/ColorAttribute.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader(_projectRoot + "/_data/shaders/Color.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program
@@ -386,8 +386,7 @@ The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char* argv[])
 {
-    // get executable path
-    _exeDir = SLUtils::getPath(argv[0]);
+    _projectRoot = SLstring(SL_PROJECT_ROOT);
 
     // Initialize the platform independent GUI-Library GLFW
     if (!glfwInit())

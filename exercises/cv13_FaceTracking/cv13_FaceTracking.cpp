@@ -19,8 +19,9 @@ using namespace cv;
 // Globals
 // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
 // with: Right Click on Project > Properties > Debugging
-static String face_cascade_name = "../_data/opencv/haarcascades/haarcascade_frontalface_alt.xml";
-static String eyes_cascade_name = "../_data/opencv/haarcascades/haarcascade_eye_tree_eyeglasses.xml";
+static String projectRoot       = String(SL_PROJECT_ROOT);
+static String face_cascade_name = projectRoot + "/_data/opencv/haarcascades/haarcascade_frontalface_alt.xml";
+static String eyes_cascade_name = projectRoot + "/_data/opencv/haarcascades/haarcascade_eye_tree_eyeglasses.xml";
 
 static CascadeClassifier face_cascade;
 static CascadeClassifier eyes_cascade;

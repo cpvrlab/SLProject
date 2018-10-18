@@ -15,16 +15,18 @@ using namespace cv::face;
 //-----------------------------------------------------------------------------
 int main()
 {
+    std::string projectRoot = std::string(SL_PROJECT_ROOT);
+
     // Load Face Detector
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
     // with: Right Click on Project > Properties > Debugging
-    CascadeClassifier faceDetector("../_data/opencv/haarcascades/haarcascade_frontalface_alt2.xml");
+    CascadeClassifier faceDetector(projectRoot + "/_data/opencv/haarcascades/haarcascade_frontalface_alt2.xml");
 
     // Create an instance of Facemark
     Ptr<Facemark> facemark = FacemarkLBF::create();
 
     // Load landmark detector
-    facemark->loadModel("../_data/calibrations/lbfmodel.yaml");
+    facemark->loadModel(projectRoot + "/_data/calibrations/lbfmodel.yaml");
 
     // Set up webcam for video capture
     VideoCapture cam(0);

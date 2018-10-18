@@ -36,7 +36,7 @@ SLCVSize         SLCVCapture::captureSize;
 SLfloat          SLCVCapture::startCaptureTimeMS;
 SLbool           SLCVCapture::hasSecondaryCamera = true;
 SLint            SLCVCapture::requestedSizeIndex = 0;
-SLstring         SLCVCapture::videoDefaultPath   = "../_data/videos/";
+SLstring         SLCVCapture::videoDefaultPath   = "/_data/videos/";
 SLstring         SLCVCapture::videoFilename      = "";
 SLbool           SLCVCapture::videoLoops         = true;
 //-----------------------------------------------------------------------------

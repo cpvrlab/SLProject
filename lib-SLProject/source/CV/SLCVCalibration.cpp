@@ -28,7 +28,8 @@ using namespace std;
 
 //-----------------------------------------------------------------------------
 //! Default path for calibration files
-SLstring SLCVCalibration::calibIniPath = "../_data/calibrations/";
+//! Is overwritten in slCreateAppAndScene.
+SLstring SLCVCalibration::calibIniPath = SLstring(SL_PROJECT_ROOT) + "/_data/calibrations/";
 
 //! Increase the _CALIBFILEVERSION each time you change the file format
 const SLint SLCVCalibration::_CALIBFILEVERSION = 3; // Date: 26.Fev.2017

@@ -63,6 +63,7 @@ target_link_libraries(${target}
 target_compile_definitions(${target}
     PRIVATE
     ${compile_definitions}
+    GLEW_STATIC
     PUBLIC
     ${DEFAULT_COMPILE_DEFINITIONS}
     INTERFACE

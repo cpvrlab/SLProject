@@ -16,10 +16,12 @@ using namespace std;
 
 int main()
 {
+    std::string projectRoot = std::string(SL_PROJECT_ROOT);
+
     // Read input image
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
     // with: Right Click on Project > Properties > Debugging
-    Mat img = imread("../_data/images/textures/Lena.tiff");
+    Mat img = imread(projectRoot + "/_data/images/textures/Lena.tiff");
     if (img.empty())
     {
         cout << "Could not load img. Is the working dir correct?" << endl;

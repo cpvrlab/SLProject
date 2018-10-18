@@ -6,7 +6,8 @@ set(target app-Demo-GLFW)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
-set(compile_definitions SL_STARTSCENE=SID_Minimal)
+set(compile_definitions
+    SL_STARTSCENE=SID_Minimal)
 
 file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoGui.h
@@ -26,7 +27,7 @@ add_executable(${target}
 # MSVC project options
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
-        VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${target}>
+        VS_DEBUGGER_WORKING_DIRECTORY .
     )
 endif ()
 message(STATUS "DEFAULT_PROJECT_OPTIONS: ${DEFAULT_PROJECT_OPTIONS}")

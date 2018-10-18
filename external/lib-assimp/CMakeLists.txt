@@ -1,19 +1,9 @@
-# 
-# External dependencies
-# 
-#find_package(OpenCV REQUIRED)
-#add_subdirectory(contrib/zlib)
+#
+# CMake configuration for lib-assimp
+#
 
-# 
-# Library name and options
-# 
-
-# Target name
 set(target lib-assimp)
 
-# 
-# Sources
-# 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
 set(compile_definitions
@@ -48,9 +38,6 @@ set(compile_definitions
   ASSIMP_BUILD_NO_NDO_IMPORTER
   ASSIMP_BUILD_NO_IFC_IMPORTER
   ASSIMP_BUILD_NO_XGL_IMPORTER)
-
-#message(STATUS "include_path ${include_path}")
-#message(STATUS "source_path ${source_path}")
 
 file(GLOB headers
    ${include_path}/code/3DSHelper.h
@@ -287,7 +274,6 @@ file(GLOB headers
    ${include_path}/contrib/zlib/trees.h
    ${include_path}/contrib/zlib/zutil.h
 )
-#message(STATUS "headers ${headers}")
 
 file(GLOB sources
    ${include_path}/code/3DSConverter.cpp
@@ -449,8 +435,8 @@ file(GLOB sources
    ${include_path}/contrib/zlib/uncompr.c
    ${include_path}/contrib/zlib/zutil.c
 )
-#message(STATUS "sources ${sources}")
 
+#==============================================================================
 
 # Disable all warnings in this library
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -463,42 +449,26 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
 endif()
 
-
+#==============================================================================
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
     set(compile_definitions
       ${compile_definitions}
       ASSIMP_BUILD_NO_BLEND_IMPORTER)
 endif()
+#==============================================================================
 
-# Group source files
-#...
-
-# 
-# Create library
-# 
-
-# Build library
+#==============================================================================
 add_library(${target}
     ${sources}
     ${headers}
 )
 
-# Create namespaced alias
 add_library(${META_PROJECT_NAME}::${target} ALIAS ${target})
-
-# 
-# Project options
-# 
 
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
-    #FOLDER "${IDE_FOLDER}"
 )
-
-# 
-# Include directories
-# 
 
 target_include_directories(${target}
   PRIVATE
@@ -513,47 +483,19 @@ target_include_directories(${target}
   ${include_path}/../../include
 
   PUBLIC
-  #${DEFAULT_INCLUDE_DIRECTORIES}
 
   INTERFACE
-  #$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  #$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-  #$<INSTALL_INTERFACE:include>
   )
-
-
-# 
-# Libraries
-# 
-
-target_link_libraries(${target}
-    PRIVATE
-
-    PUBLIC
-
-    INTERFACE
-)
-
-
-# 
-# Compile definitions
-# 
 
 target_compile_definitions(${target}
   PRIVATE
   ${compile_definitions}
 
   PUBLIC
-  #$<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:${target_id}_STATIC_DEFINE>
   ${DEFAULT_COMPILE_DEFINITIONS}
 
   INTERFACE
   )
-
-
-# 
-# Compile options
-# 
 
 target_compile_options(${target}
     PRIVATE
@@ -563,11 +505,6 @@ target_compile_options(${target}
 
     INTERFACE
 )
-
-
-# 
-# Linker options
-# 
 
 set(platform_specific_link_libraries)
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
@@ -579,7 +516,6 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
         Xinerama
         Xxf86vm
         udev
-        #zlib
         )
 endif()
 

@@ -2,46 +2,27 @@
 # documentation: https://d.android.com/studio/projects/add-native-code.html
 #find_package(OpenCV REQUIRED)
 
-# Sets the minimum version of CMake required to build the native library.
 set(target native-lib)
 
-#set(opencv_version 3.4.1)
-
-# Creates and names a library, sets it as either STATIC
-# or SHARED, and provides the relative paths to its source code.
-# You can define multiple libraries, and CMake builds them for you.
-# Gradle automatically packages shared libraries with your APK.
-
-set( sources
+set(sources
      ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoAndroidJNI.cpp
+     ${SL_PROJECT_ROOT}/app-Demo-GLFW/AppDemoGui.cpp
+     ${SL_PROJECT_ROOT}/app-Demo-GLFW/AppDemoLoad.cpp
 )
 
-set( headers
+set(headers
+    ${SL_PROJECT_ROOT}/app-Demo-GLFW/AppDemoGui.h
 )
 
-add_library( # Sets the name of the library.
-             ${target}
-
-             # Sets the library as a shared library.
-             SHARED
-
-             # Provides a relative path to your source file(s).
-             ${sources}
-             ${headers}
+add_library(${target} SHARED
+    ${sources}
+    ${headers}
 )
-
-# Specifies libraries CMake should link to your target library. You
-# can link multiple libraries, such as libraries you define in this
-# build script, prebuilt third-party libraries, or system libraries.
-
-#
-# Include directories
-#
 
 target_include_directories(${target}
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../../include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW/source
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../app-Demo-GLFW
     ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-assimp/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-assimp/contrib/clipper
     ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-assimp/contrib/zlib
@@ -58,10 +39,6 @@ target_include_directories(${target}
     ${DEFAULT_INCLUDE_DIRECTORIES}
 )
 
-#
-# Libraries
-#
-
 message(STATUS "OpenCV_LIBS before linking ${OpenCV_LIBS}")
 target_link_libraries(${target}
     ${DEFAULT_LIBRARIES}
@@ -72,7 +49,6 @@ target_link_libraries(${target}
 #
 # Copy APK contents
 #
-
 file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/CompileError.png
                                 ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/brick0512_C.png
                                 ${CMAKE_CURRENT_LIST_DIR}/../../_data/images/textures/brick*.jpg

@@ -67,10 +67,12 @@ void warpTriangle(Mat&             img1,
 //-----------------------------------------------------------------------------
 int main()
 {
+    std::string projectRoot = std::string(SL_PROJECT_ROOT);
+
     // Read input image
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
     // with: Right Click on Project > Properties > Debugging
-    Mat imgIn = imread("../_data/images/textures/Lena.tiff");
+    Mat imgIn = imread(projectRoot + "/_data/images/textures/Lena.tiff");
     if (imgIn.empty())
     {
         cout << "Could not load image. Is the working dir correct?" << endl;

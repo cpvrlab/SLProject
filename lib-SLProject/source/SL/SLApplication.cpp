@@ -29,11 +29,12 @@ SLCVCalibration  SLApplication::calibMainCam;
 SLCVCalibration  SLApplication::calibScndCam;
 SLDeviceRotation SLApplication::devRot;
 SLDeviceLocation SLApplication::devLoc;
-SLstring         SLApplication::name       = "SLProjectApp";
-SLstring         SLApplication::version    = "2.2.100";
-SLint            SLApplication::dpi        = 0;
-SLstring         SLApplication::configPath = "../_data/config/";
-SLSceneID        SLApplication::sceneID    = SID_Empty;
+SLstring         SLApplication::name    = "SLProjectApp";
+SLstring         SLApplication::version = "2.2.100";
+SLint            SLApplication::dpi     = 0;
+//! SLApplication::configPath is overwritten in slCreateAppAndScene.
+SLstring  SLApplication::configPath = SLstring(SL_PROJECT_ROOT) + "/_data/config/";
+SLSceneID SLApplication::sceneID    = SID_Empty;
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function
 /*! Writes and inits the static application information and create the single
