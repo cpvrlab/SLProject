@@ -9,86 +9,86 @@ set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
 set(compile_definitions GLEW_NO_GLU)
 
 file(GLOB headers
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/EulerAngles.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SL.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAABBox.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAccelStruct.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLApplication.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAnimation.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAnimManager.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAnimPlayback.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAnimTrack.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLArrow.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAssimpImporter.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAverage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLBackground.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLBox.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCamera.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCone.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCompactGrid.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCoordAxis.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCurve.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCurveBezier.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCylinder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCV.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCV*.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLDeviceRotation.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLDeviceLocation.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLDisk.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLDrawBits.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLEnums.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLEventHandler.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLFileSystem.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLGL*.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLGrid.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImporter.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLInputDevice.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLInputEvent.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLInputManager.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLInterface.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLJoint.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLKeyframe.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLLens.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLLight.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLLightRect.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLLightSpot.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLLightDirect.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMat3.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMat4.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMaterial.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMath.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMesh.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLNode.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLObject.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLPathtracer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLPlane.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLPoints.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLPolygon.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLPolyline.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLQuat4.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLRay.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLRaytracer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLRect.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLRectangle.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLRevolver.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLSamples2D.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLScene.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLSceneView.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLSkeleton.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLSkybox.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLSphere.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLSpheric.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLTexFont.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLText.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLTimer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLTransferFunction.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLUtils.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLVec2.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLVec3.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLVec4.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLVector.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/stdafx.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/TriangleBoxIntersect.h
+    ${SL_PROJECT_ROOT}/include/EulerAngles.h
+    ${SL_PROJECT_ROOT}/include/SL.h
+    ${SL_PROJECT_ROOT}/include/SLAABBox.h
+    ${SL_PROJECT_ROOT}/include/SLAccelStruct.h
+    ${SL_PROJECT_ROOT}/include/SLApplication.h
+    ${SL_PROJECT_ROOT}/include/SLAnimation.h
+    ${SL_PROJECT_ROOT}/include/SLAnimManager.h
+    ${SL_PROJECT_ROOT}/include/SLAnimPlayback.h
+    ${SL_PROJECT_ROOT}/include/SLAnimTrack.h
+    ${SL_PROJECT_ROOT}/include/SLArrow.h
+    ${SL_PROJECT_ROOT}/include/SLAssimpImporter.h
+    ${SL_PROJECT_ROOT}/include/SLAverage.h
+    ${SL_PROJECT_ROOT}/include/SLBackground.h
+    ${SL_PROJECT_ROOT}/include/SLBox.h
+    ${SL_PROJECT_ROOT}/include/SLCamera.h
+    ${SL_PROJECT_ROOT}/include/SLCone.h
+    ${SL_PROJECT_ROOT}/include/SLCompactGrid.h
+    ${SL_PROJECT_ROOT}/include/SLCoordAxis.h
+    ${SL_PROJECT_ROOT}/include/SLCurve.h
+    ${SL_PROJECT_ROOT}/include/SLCurveBezier.h
+    ${SL_PROJECT_ROOT}/include/SLCylinder.h
+    ${SL_PROJECT_ROOT}/include/SLCV.h
+    ${SL_PROJECT_ROOT}/include/SLCV*.h
+    ${SL_PROJECT_ROOT}/include/SLDeviceRotation.h
+    ${SL_PROJECT_ROOT}/include/SLDeviceLocation.h
+    ${SL_PROJECT_ROOT}/include/SLDisk.h
+    ${SL_PROJECT_ROOT}/include/SLDrawBits.h
+    ${SL_PROJECT_ROOT}/include/SLEnums.h
+    ${SL_PROJECT_ROOT}/include/SLEventHandler.h
+    ${SL_PROJECT_ROOT}/include/SLFileSystem.h
+    ${SL_PROJECT_ROOT}/include/SLGL*.h
+    ${SL_PROJECT_ROOT}/include/SLGrid.h
+    ${SL_PROJECT_ROOT}/include/SLImporter.h
+    ${SL_PROJECT_ROOT}/include/SLInputDevice.h
+    ${SL_PROJECT_ROOT}/include/SLInputEvent.h
+    ${SL_PROJECT_ROOT}/include/SLInputManager.h
+    ${SL_PROJECT_ROOT}/include/SLInterface.h
+    ${SL_PROJECT_ROOT}/include/SLJoint.h
+    ${SL_PROJECT_ROOT}/include/SLKeyframe.h
+    ${SL_PROJECT_ROOT}/include/SLLens.h
+    ${SL_PROJECT_ROOT}/include/SLLight.h
+    ${SL_PROJECT_ROOT}/include/SLLightRect.h
+    ${SL_PROJECT_ROOT}/include/SLLightSpot.h
+    ${SL_PROJECT_ROOT}/include/SLLightDirect.h
+    ${SL_PROJECT_ROOT}/include/SLMat3.h
+    ${SL_PROJECT_ROOT}/include/SLMat4.h
+    ${SL_PROJECT_ROOT}/include/SLMaterial.h
+    ${SL_PROJECT_ROOT}/include/SLMath.h
+    ${SL_PROJECT_ROOT}/include/SLMesh.h
+    ${SL_PROJECT_ROOT}/include/SLNode.h
+    ${SL_PROJECT_ROOT}/include/SLObject.h
+    ${SL_PROJECT_ROOT}/include/SLPathtracer.h
+    ${SL_PROJECT_ROOT}/include/SLPlane.h
+    ${SL_PROJECT_ROOT}/include/SLPoints.h
+    ${SL_PROJECT_ROOT}/include/SLPolygon.h
+    ${SL_PROJECT_ROOT}/include/SLPolyline.h
+    ${SL_PROJECT_ROOT}/include/SLQuat4.h
+    ${SL_PROJECT_ROOT}/include/SLRay.h
+    ${SL_PROJECT_ROOT}/include/SLRaytracer.h
+    ${SL_PROJECT_ROOT}/include/SLRect.h
+    ${SL_PROJECT_ROOT}/include/SLRectangle.h
+    ${SL_PROJECT_ROOT}/include/SLRevolver.h
+    ${SL_PROJECT_ROOT}/include/SLSamples2D.h
+    ${SL_PROJECT_ROOT}/include/SLScene.h
+    ${SL_PROJECT_ROOT}/include/SLSceneView.h
+    ${SL_PROJECT_ROOT}/include/SLSkeleton.h
+    ${SL_PROJECT_ROOT}/include/SLSkybox.h
+    ${SL_PROJECT_ROOT}/include/SLSphere.h
+    ${SL_PROJECT_ROOT}/include/SLSpheric.h
+    ${SL_PROJECT_ROOT}/include/SLTexFont.h
+    ${SL_PROJECT_ROOT}/include/SLText.h
+    ${SL_PROJECT_ROOT}/include/SLTimer.h
+    ${SL_PROJECT_ROOT}/include/SLTransferFunction.h
+    ${SL_PROJECT_ROOT}/include/SLUtils.h
+    ${SL_PROJECT_ROOT}/include/SLVec2.h
+    ${SL_PROJECT_ROOT}/include/SLVec3.h
+    ${SL_PROJECT_ROOT}/include/SLVec4.h
+    ${SL_PROJECT_ROOT}/include/SLVector.h
+    ${SL_PROJECT_ROOT}/include/stdafx.h
+    ${SL_PROJECT_ROOT}/include/TriangleBoxIntersect.h
     )
 
 file(GLOB sources
@@ -169,8 +169,8 @@ file(GLOB sources
     )
 
 file(GLOB shaders
-    ${CMAKE_CURRENT_SOURCE_DIR}/../_data/shaders/*.vert
-    ${CMAKE_CURRENT_SOURCE_DIR}/../_data/shaders/*.frag
+    ${SL_PROJECT_ROOT}/_data/shaders/*.vert
+    ${SL_PROJECT_ROOT}/_data/shaders/*.frag
     )
 
 include(../cmake/PlatformLinkLibs.cmake)
@@ -216,30 +216,30 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/contrib/clipper
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/contrib/zlib
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/contrib/irrXML
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/contrib/poly2tri
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/code/BoostWorkaround
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/imgui
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/spa
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/zlib
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/dirent
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/glew/include
-    ${OpenCV_INCLUDE_DIR}
     PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${SL_PROJECT_ROOT}/include
+    ${SL_PROJECT_ROOT}/external/lib-assimp/include
+    ${SL_PROJECT_ROOT}/external/lib-assimp/contrib/clipper
+    ${SL_PROJECT_ROOT}/external/lib-assimp/contrib/zlib
+    ${SL_PROJECT_ROOT}/external/lib-assimp/contrib/irrXML
+    ${SL_PROJECT_ROOT}/external/lib-assimp/contrib/poly2tri
+    ${SL_PROJECT_ROOT}/external/lib-assimp/code/BoostWorkaround
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal/imgui
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal/spa
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal/zlib
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal/dirent
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal/glew/include
+    ${OpenCV_INCLUDE_DIR}
     ${DEFAULT_INCLUDE_DIRECTORIES}
     INTERFACE
     )
 
 target_compile_definitions(${target}
     PRIVATE
-    ${compile_definitions}
     PUBLIC
+    ${compile_definitions}
     ${DEFAULT_COMPILE_DEFINITIONS}
     INTERFACE
     )
@@ -253,12 +253,11 @@ target_compile_options(${target}
 
 target_link_libraries(${target}
     PRIVATE
+    PUBLIC
     ${PlatformLinkLibs}
     ${OpenCV_LIBS}
-    PUBLIC
     ${META_PROJECT_NAME}::lib-SLExternal
     ${META_PROJECT_NAME}::lib-assimp
     ${DEFAULT_LINKER_OPTIONS}
-
     INTERFACE
     )

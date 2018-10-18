@@ -79,7 +79,7 @@ Mat clarendon(Mat original)
     return output;
 }
 //----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int main()
 {
     std::string projectRoot = std::string(SL_PROJECT_ROOT);
 

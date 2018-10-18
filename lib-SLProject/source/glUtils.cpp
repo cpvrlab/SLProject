@@ -159,9 +159,8 @@ buildProgram creates a program object, attaches the shaders, links them and
 returns the OpenGL handle of the program. If the linking fails the linker log 
 is sent to the stdout before the app exits with code 1.
 */
-GLuint
-glUtils::buildProgram(GLuint vertShaderID,
-                      GLuint fragShaderID)
+GLuint glUtils::buildProgram(GLuint vertShaderID,
+                             GLuint fragShaderID)
 {
     // Create program, attach shaders and link them
     GLuint programHandle = glCreateProgram();

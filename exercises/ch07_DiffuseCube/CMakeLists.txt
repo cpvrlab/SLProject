@@ -8,22 +8,22 @@ set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB headers
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../include/glUtils.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../include/SLCV.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../include/SLCVImage.h
+    ${SL_PROJECT_ROOT}/include/glUtils.h
+    ${SL_PROJECT_ROOT}/include/SLCV.h
+    ${SL_PROJECT_ROOT}/include/SLCVImage.h
     )
 
 file(GLOB sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/glUtils.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SL.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLFileSystem.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVImage.cpp
+    ${SL_PROJECT_ROOT}/lib-SLProject/source/glUtils.cpp
+    ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SL.cpp
+    ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SLFileSystem.cpp
+    ${SL_PROJECT_ROOT}/lib-SLProject/source/CV/SLCVImage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/DiffuseCube.cpp
     )
 
 file(GLOB shaders
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/Diffuse.frag
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/Diffuse.vert
+    ${SL_PROJECT_ROOT}/_data/shaders/Diffuse.frag
+    ${SL_PROJECT_ROOT}/_data/shaders/Diffuse.vert
     )
 
 add_executable(${target}
@@ -39,11 +39,11 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal/dirent
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal/glew/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal/glfw3/include
+    ${SL_PROJECT_ROOT}/include
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal/dirent
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal/glew/include
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal/glfw3/include
     ${OpenCV_INCLUDE_DIR}
     PUBLIC
     INTERFACE
@@ -54,7 +54,7 @@ include(../../cmake/PlatformLinkLibs.cmake)
 target_link_libraries(${target}
     PRIVATE
     ${PlatformLinkLibs}
-    ${META_PROJECT_NAME}::lib-SLExternal
+    lib-SLExternal
     ${OpenCV_LIBS}
     PUBLIC
     INTERFACE
@@ -62,8 +62,6 @@ target_link_libraries(${target}
 
 target_compile_definitions(${target}
     PRIVATE
-    ${compile_definitions}
-    GLEW_STATIC
     PUBLIC
     ${DEFAULT_COMPILE_DEFINITIONS}
     INTERFACE
@@ -75,3 +73,5 @@ target_compile_options(${target}
     ${DEFAULT_COMPILE_OPTIONS}
     INTERFACE
     )
+
+include(${SL_PROJECT_ROOT}/cmake/CopyCVLibsToTargetFolder.cmake)

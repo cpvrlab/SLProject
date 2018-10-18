@@ -5,6 +5,8 @@
 # CMake version
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
+set(SL_PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
+
 # Register general cmake commands (set_policy, source_group_by_path, list_extract)
 
 include(cmake/CustomCommands.cmake)

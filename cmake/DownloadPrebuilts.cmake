@@ -65,6 +65,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
             debug ${lib}${OpenCV_LIBS_POSTFIX}d)
     endforeach(lib)
 
+    # Set working dir for VS
+    set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
+        VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     set(OpenCV_VERSION "3.4.1")
     set(PREBUILT_OPENCV_DIR "mac64_opencv_${OpenCV_VERSION}")

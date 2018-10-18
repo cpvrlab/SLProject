@@ -31,7 +31,7 @@ target_include_directories(${target}
     INTERFACE
     )
 
-include(../../cmake/PlatformLinkLibs.cmake)
+include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 
 target_link_libraries(${target}
     PRIVATE
@@ -55,3 +55,5 @@ target_compile_options(${target}
     ${DEFAULT_COMPILE_OPTIONS}
     INTERFACE
     )
+
+include(${SL_PROJECT_ROOT}/cmake/CopyCVLibsToTargetFolder.cmake)

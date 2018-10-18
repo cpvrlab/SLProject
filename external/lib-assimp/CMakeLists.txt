@@ -457,45 +457,44 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
 endif()
 #==============================================================================
 
-#==============================================================================
 add_library(${target}
     ${sources}
     ${headers}
-)
+    )
 
 add_library(${META_PROJECT_NAME}::${target} ALIAS ${target})
 
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
-)
+    )
 
 target_include_directories(${target}
-  PRIVATE
-  ${include_path}/code
-  ${include_path}/code/BoostWorkaround
-  ${include_path}/contrib/clipper
-  ${include_path}/contrib/zlib
-  ${include_path}/contrib/irrXML
-  ${include_path}/contrib/poly2tri
-  ${include_path}/include
-  ${include_path}/../lib-SLExternal/zlib
-  ${include_path}/../../include
+    PRIVATE
+    ${include_path}/code
+    ${include_path}/code/BoostWorkaround
+    ${include_path}/contrib/clipper
+    ${include_path}/contrib/zlib
+    ${include_path}/contrib/irrXML
+    ${include_path}/contrib/poly2tri
+    ${include_path}/include
+    ${include_path}/../lib-SLExternal/zlib
+    ${include_path}/../../include
 
-  PUBLIC
+    PUBLIC
 
-  INTERFACE
-  )
+    INTERFACE
+    )
 
 target_compile_definitions(${target}
-  PRIVATE
-  ${compile_definitions}
+    PRIVATE
 
-  PUBLIC
-  ${DEFAULT_COMPILE_DEFINITIONS}
+    PUBLIC
+    ${compile_definitions}
+    ${DEFAULT_COMPILE_DEFINITIONS}
 
-  INTERFACE
-  )
+    INTERFACE
+    )
 
 target_compile_options(${target}
     PRIVATE
@@ -504,7 +503,7 @@ target_compile_options(${target}
     ${EXTERNAL_LIB_COMPILE_OPTIONS}
 
     INTERFACE
-)
+    )
 
 set(platform_specific_link_libraries)
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
@@ -521,9 +520,9 @@ endif()
 
 target_link_libraries(${target}
     PRIVATE
-    ${platform_specific_link_libraries}
 
     PUBLIC
+    ${platform_specific_link_libraries}
     ${DEFAULT_LINKER_OPTIONS}
 
     INTERFACE

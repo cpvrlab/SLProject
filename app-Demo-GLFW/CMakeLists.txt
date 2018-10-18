@@ -24,14 +24,6 @@ add_executable(${target}
     ${sources}
     )
 
-# MSVC project options
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
-    set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
-        VS_DEBUGGER_WORKING_DIRECTORY .
-    )
-endif ()
-message(STATUS "DEFAULT_PROJECT_OPTIONS: ${DEFAULT_PROJECT_OPTIONS}")
-
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
@@ -40,13 +32,13 @@ set_target_properties(${target}
 target_include_directories(${target}
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/imgui
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/spa
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/dirent
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/glew/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/glfw3/include
+    ${SL_PROJECT_ROOT}/include
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal/imgui
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal/spa
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal/dirent
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal/glew/include
+    ${SL_PROJECT_ROOT}/external/lib-SLExternal/glfw3/include
     ${OpenCV_INCLUDE_DIR}
     PUBLIC
     INTERFACE
