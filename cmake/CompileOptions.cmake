@@ -12,7 +12,6 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(X64 ON)
 endif()
 
-
 set(DEFAULT_PROJECT_OPTIONS
     DEBUG_POSTFIX             "-debug"
     RELEASE_POSTFIX           "-release"
@@ -67,21 +66,22 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         -Wall
         -Wno-c++98-compat
         -Wno-c++98-compat-pedantic
-        -Wno-unused-macros
-        -Wno-newline-eof
+        -Wno-covered-switch-default
+        -Wno-double-promotion
         -Wno-exit-time-destructors
         -Wno-global-constructors
         -Wno-gnu-zero-variadic-macro-arguments
         -Wno-documentation
+        -Wno-missing-prototypes
+        -Wno-missing-variable-declarations
+        -Wno-newline-eof
+        -Wno-old-style-cast
         -Wno-shadow
         -Wno-switch-enum
-        -Wno-missing-prototypes
-        -Wno-used-but-marked-unused
+        -Wno-unused-macros
+        -Wno-unused-function
         -Wno-unused-parameter
-        -Wno-old-style-cast
-        -Wno-missing-variable-declarations
-        -Wno-covered-switch-default
-        -Wno-double-promotion
+        -Wno-used-but-marked-unused
         
         $<$<CXX_COMPILER_ID:GNU>:
             -Wmaybe-uninitialized
