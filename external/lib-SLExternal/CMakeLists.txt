@@ -25,11 +25,11 @@ file(GLOB headers
 )
 
 file(GLOB sources
-    ${include_path}/Shoemake/EulerAngles.cpp
-    ${include_path}/Shoemake/Decompose.cpp
-    ${include_path}/imgui/imgui_draw.cpp
-    ${include_path}/imgui/imgui.cpp
-    ${include_path}/spa/spa.cpp
+    ${source_path}/Shoemake/EulerAngles.cpp
+    ${source_path}/Shoemake/Decompose.cpp
+    ${source_path}/imgui/imgui_draw.cpp
+    ${source_path}/imgui/imgui.cpp
+    ${source_path}/spa/spa.cpp
     )
 
 
@@ -46,12 +46,12 @@ if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
 
     file(GLOB sources
         ${sources}
-        ${include_path}/glew/src/glew.c
-        ${include_path}/glfw3/src/context.c
-        ${include_path}/glfw3/src/init.c
-        ${include_path}/glfw3/src/input.c
-        ${include_path}/glfw3/src/monitor.c
-        ${include_path}/glfw3/src/window.c
+        ${source_path}/glew/src/glew.c
+        ${source_path}/glfw3/src/context.c
+        ${source_path}/glfw3/src/init.c
+        ${source_path}/glfw3/src/input.c
+        ${source_path}/glfw3/src/monitor.c
+        ${source_path}/glfw3/src/window.c
         )
 endif()
 
@@ -78,14 +78,14 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 
     file(GLOB sources
         ${sources}
-        ${include_path}/glfw3/src/x11_init.c
-        ${include_path}/glfw3/src/x11_monitor.c
-        ${include_path}/glfw3/src/x11_window.c
-        ${include_path}/glfw3/src/xkb_unicode.c
-        ${include_path}/glfw3/src/linux_joystick.c
-        ${include_path}/glfw3/src/posix_time.c
-        ${include_path}/glfw3/src/posix_tls.c
-        ${include_path}/glfw3/src/glx_context.c
+        ${source_path}/glfw3/src/x11_init.c
+        ${source_path}/glfw3/src/x11_monitor.c
+        ${source_path}/glfw3/src/x11_window.c
+        ${source_path}/glfw3/src/xkb_unicode.c
+        ${source_path}/glfw3/src/linux_joystick.c
+        ${source_path}/glfw3/src/posix_time.c
+        ${source_path}/glfw3/src/posix_tls.c
+        ${source_path}/glfw3/src/glx_context.c
         )
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
@@ -118,36 +118,34 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
         ${include_path}/zlib/deflate.h
         ${include_path}/zlib/crypt.h
         ${include_path}/zlib/crc32.h
-        ${include_path}/zlib/dirent.h
         )
 
     file(GLOB sources
         ${sources}
-        ${include_path}/glfw3/src/mach_time.c
-        ${include_path}/glfw3/src/posix_tls.c
-        ${include_path}/glfw3/src/cocoa_init.m
-        ${include_path}/glfw3/src/cocoa_monitor.m
-        ${include_path}/glfw3/src/cocoa_window.m
-        ${include_path}/glfw3/src/iokit_joystick.m
-        ${include_path}/glfw3/src/nsgl_context.m
-        ${include_path}/zlib/zutil.c
-        ${include_path}/zlib/uncompr.c
-        ${include_path}/zlib/trees.c
-        ${include_path}/zlib/inftrees.c
-        ${include_path}/zlib/inflate.c
-        ${include_path}/zlib/inffast.c
-        ${include_path}/zlib/infback.c
-        ${include_path}/zlib/gzwrite.c
-        ${include_path}/zlib/gzread.c
-        ${include_path}/zlib/gzlib.c
-        ${include_path}/zlib/gzclose.c
-        ${include_path}/zlib/deflate.c
-        ${include_path}/zlib/crc32.c
-        ${include_path}/zlib/compress.c
-        ${include_path}/zlib/adler32.c
-        ${include_path}/zlib/ioapi.c
-        ${include_path}/zlib/unzip.c
-        ${include_path}/zlib/dirent.c
+        ${source_path}/glfw3/src/mach_time.c
+        ${source_path}/glfw3/src/posix_tls.c
+        ${source_path}/glfw3/src/cocoa_init.m
+        ${source_path}/glfw3/src/cocoa_monitor.m
+        ${source_path}/glfw3/src/cocoa_window.m
+        ${source_path}/glfw3/src/iokit_joystick.m
+        ${source_path}/glfw3/src/nsgl_context.m
+        ${source_path}/zlib/zutil.c
+        ${source_path}/zlib/uncompr.c
+        ${source_path}/zlib/trees.c
+        ${source_path}/zlib/inftrees.c
+        ${source_path}/zlib/inflate.c
+        ${source_path}/zlib/inffast.c
+        ${source_path}/zlib/infback.c
+        ${source_path}/zlib/gzwrite.c
+        ${source_path}/zlib/gzread.c
+        ${source_path}/zlib/gzlib.c
+        ${source_path}/zlib/gzclose.c
+        ${source_path}/zlib/deflate.c
+        ${source_path}/zlib/crc32.c
+        ${source_path}/zlib/compress.c
+        ${source_path}/zlib/adler32.c
+        ${source_path}/zlib/ioapi.c
+        ${source_path}/zlib/unzip.c
         )
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
@@ -157,12 +155,15 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         _GLFW_WIN32
         _GLFW_USE_OPENGL
         _GLFW_WGL
+        _CRT_SECURE_NO_WARNINGS
         UNICODE
         _UNICODE
         )
 	
     file(GLOB headers
         ${headers}
+        ${include_path}/dirent/dirent.h
+        ${include_path}/glew/include/GL/wglew.h
         ${include_path}/glfw3/src/win32_platform.h
         ${include_path}/glfw3/src/win32_tls.h
         ${include_path}/glfw3/src/winmm_joystick.h
@@ -183,37 +184,36 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         ${include_path}/zlib/deflate.h
         ${include_path}/zlib/crypt.h
         ${include_path}/zlib/crc32.h
-        ${include_path}/zlib/dirent.h
         )
   
     file(GLOB sources
         ${sources}
-        ${include_path}/glfw3/src/win32_init.c
-        ${include_path}/glfw3/src/win32_monitor.c
-        ${include_path}/glfw3/src/win32_time.c
-        ${include_path}/glfw3/src/win32_tls.c
-        ${include_path}/glfw3/src/win32_window.c
-        ${include_path}/glfw3/src/winmm_joystick.c
-        ${include_path}/glfw3/src/wgl_context.c
-        ${include_path}/nvwa/debug_new.cpp
-        ${include_path}/zlib/zutil.c
-        ${include_path}/zlib/uncompr.c
-        ${include_path}/zlib/trees.c
-        ${include_path}/zlib/inftrees.c
-        ${include_path}/zlib/inflate.c
-        ${include_path}/zlib/inffast.c
-        ${include_path}/zlib/infback.c
-        ${include_path}/zlib/gzwrite.c
-        ${include_path}/zlib/gzread.c
-        ${include_path}/zlib/gzlib.c
-        ${include_path}/zlib/gzclose.c
-        ${include_path}/zlib/deflate.c
-        ${include_path}/zlib/crc32.c
-        ${include_path}/zlib/compress.c
-        ${include_path}/zlib/adler32.c
-        ${include_path}/zlib/ioapi.c
-        ${include_path}/zlib/unzip.c
-        ${include_path}/zlib/dirent.c
+        ${source_path}/dirent/dirent.c
+        ${source_path}/glfw3/src/win32_init.c
+        ${source_path}/glfw3/src/win32_monitor.c
+        ${source_path}/glfw3/src/win32_time.c
+        ${source_path}/glfw3/src/win32_tls.c
+        ${source_path}/glfw3/src/win32_window.c
+        ${source_path}/glfw3/src/winmm_joystick.c
+        ${source_path}/glfw3/src/wgl_context.c
+        ${source_path}/nvwa/debug_new.cpp
+        ${source_path}/zlib/zutil.c
+        ${source_path}/zlib/uncompr.c
+        ${source_path}/zlib/trees.c
+        ${source_path}/zlib/inftrees.c
+        ${source_path}/zlib/inflate.c
+        ${source_path}/zlib/inffast.c
+        ${source_path}/zlib/infback.c
+        ${source_path}/zlib/gzwrite.c
+        ${source_path}/zlib/gzread.c
+        ${source_path}/zlib/gzlib.c
+        ${source_path}/zlib/gzclose.c
+        ${source_path}/zlib/deflate.c
+        ${source_path}/zlib/crc32.c
+        ${source_path}/zlib/compress.c
+        ${source_path}/zlib/adler32.c
+        ${source_path}/zlib/ioapi.c
+        ${source_path}/zlib/unzip.c
         )
 
 endif()
@@ -261,9 +261,9 @@ target_include_directories(${target}
 
 target_compile_definitions(${target}
     PRIVATE
-    ${compile_definitions}
 
     PUBLIC
+    ${compile_definitions}
     ${DEFAULT_COMPILE_DEFINITIONS}
 
     INTERFACE
@@ -280,10 +280,11 @@ target_compile_options(${target}
 
 target_link_libraries(${target}
     PRIVATE
-    ${PlatformLinkLibs}
 
     PUBLIC
+    ${PlatformLinkLibs}
     ${DEFAULT_LINKER_OPTIONS}
 
     INTERFACE
     )
+

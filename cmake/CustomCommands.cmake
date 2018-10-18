@@ -48,7 +48,7 @@ function(list_extract OUTPUT REGEX)
 endfunction(list_extract)
 #------------------------------------------------------------------------------
 function(add_3rdparty_library name file)
-    message(STATUS "adding 3rdpary library with name ${name} at location ${file}")
+    #message(STATUS "adding 3rdpary library with name ${name} at location ${file}")
     add_library(${name} SHARED IMPORTED)
     set_target_properties(${name} PROPERTIES IMPORTED_LOCATION ${file})
 endfunction()

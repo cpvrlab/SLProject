@@ -49,9 +49,6 @@ set(compile_definitions
   ASSIMP_BUILD_NO_IFC_IMPORTER
   ASSIMP_BUILD_NO_XGL_IMPORTER)
 
-#message(STATUS "include_path ${include_path}")
-#message(STATUS "source_path ${source_path}")
-
 file(GLOB headers
    ${include_path}/code/3DSHelper.h
    ${include_path}/code/3DSLoader.h
@@ -287,7 +284,6 @@ file(GLOB headers
    ${include_path}/contrib/zlib/trees.h
    ${include_path}/contrib/zlib/zutil.h
 )
-#message(STATUS "headers ${headers}")
 
 file(GLOB sources
    ${include_path}/code/3DSConverter.cpp
@@ -449,7 +445,6 @@ file(GLOB sources
    ${include_path}/contrib/zlib/uncompr.c
    ${include_path}/contrib/zlib/zutil.c
 )
-#message(STATUS "sources ${sources}")
 
 
 # Disable all warnings in this library
@@ -470,61 +465,36 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
       ASSIMP_BUILD_NO_BLEND_IMPORTER)
 endif()
 
-# Group source files
-#...
-
-# 
-# Create library
-# 
-
 # Build library
 add_library(${target}
     ${sources}
     ${headers}
-)
+    )
 
 # Create namespaced alias
 add_library(${META_PROJECT_NAME}::${target} ALIAS ${target})
 
-# 
-# Project options
-# 
-
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
-    #FOLDER "${IDE_FOLDER}"
-)
-
-# 
-# Include directories
-# 
+    )
 
 target_include_directories(${target}
-  PRIVATE
-  ${include_path}/code
-  ${include_path}/code/BoostWorkaround
-  ${include_path}/contrib/clipper
-  ${include_path}/contrib/zlib
-  ${include_path}/contrib/irrXML
-  ${include_path}/contrib/poly2tri
-  ${include_path}/include
-  ${include_path}/../lib-SLExternal/zlib
-  ${include_path}/../../include
+    PRIVATE
+    ${include_path}/code
+    ${include_path}/code/BoostWorkaround
+    ${include_path}/contrib/clipper
+    ${include_path}/contrib/zlib
+    ${include_path}/contrib/irrXML
+    ${include_path}/contrib/poly2tri
+    ${include_path}/include
+    ${include_path}/../lib-SLExternal/zlib
+    ${include_path}/../../include
 
-  PUBLIC
-  #${DEFAULT_INCLUDE_DIRECTORIES}
+    PUBLIC
 
-  INTERFACE
-  #$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  #$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-  #$<INSTALL_INTERFACE:include>
-  )
-
-
-# 
-# Libraries
-# 
+    INTERFACE
+    )
 
 target_link_libraries(${target}
     PRIVATE
@@ -534,26 +504,15 @@ target_link_libraries(${target}
     INTERFACE
 )
 
-
-# 
-# Compile definitions
-# 
-
 target_compile_definitions(${target}
-  PRIVATE
-  ${compile_definitions}
+    PRIVATE
+    ${compile_definitions}
 
-  PUBLIC
-  #$<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:${target_id}_STATIC_DEFINE>
-  ${DEFAULT_COMPILE_DEFINITIONS}
+    PUBLIC
+    ${DEFAULT_COMPILE_DEFINITIONS}
 
-  INTERFACE
-  )
-
-
-# 
-# Compile options
-# 
+    INTERFACE
+    )
 
 target_compile_options(${target}
     PRIVATE
@@ -562,12 +521,7 @@ target_compile_options(${target}
     ${EXTERNAL_LIB_COMPILE_OPTIONS}
 
     INTERFACE
-)
-
-
-# 
-# Linker options
-# 
+    )
 
 set(platform_specific_link_libraries)
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")

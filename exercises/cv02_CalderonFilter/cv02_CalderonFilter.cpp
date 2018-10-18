@@ -79,7 +79,7 @@ Mat clarendon(Mat original)
     return output;
 }
 //----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int main()
 {
     // Read input image
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)

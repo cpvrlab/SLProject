@@ -274,7 +274,7 @@ int main()
     // Loop scale between 0.8 and 1.2
     while (true)
     {
-        scale += sign * 0.01;
+        scale += sign * 0.01f;
         if (scale >= 1.2f || scale <= 0.8f) sign *= -1.0f;
 
         // Scale the face points from relative to the face cennter
