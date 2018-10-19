@@ -70,6 +70,23 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
+    # Download first for iOS
+    set(OpenCV_VERSION "3.4.0")
+    set(PREBUILT_OPENCV_DIR "iosV8_opencv_${OpenCV_VERSION}")
+    set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
+    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
+    set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
+    set(PREBUILT_ZIP "${PREBUILT_OPENCV_DIR}.zip")
+
+    if (NOT EXISTS "${OpenCV_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${PREBUILT_ZIP}" "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+            "${PREBUILT_PATH}/${PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+    endif ()
+
+    # Now download for MacOS
     set(OpenCV_VERSION "3.4.1")
     set(PREBUILT_OPENCV_DIR "mac64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
