@@ -1,0 +1,80 @@
+#
+# CMake project definition for exercise ch06_ColorCube
+#
+
+cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+
+set(target ch06_ColorCube)
+
+set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
+set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
+
+file(GLOB headers
+    ${SL_PROJECT_ROOT}/include/glUtils.h
+    ${SL_PROJECT_ROOT}/include/SLCV.h
+    ${SL_PROJECT_ROOT}/include/SLCVImage.h
+    )
+
+file(GLOB sources
+    ${SL_PROJECT_ROOT}/libs/lib-SLProject/source/glUtils.cpp
+    ${SL_PROJECT_ROOT}/libs/lib-SLProject/source/SL/SL.cpp
+    ${SL_PROJECT_ROOT}/libs/lib-SLProject/source/SL/SLFileSystem.cpp
+    ${SL_PROJECT_ROOT}/libs/lib-SLProject/source/CV/SLCVImage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ColorCube.cpp
+    )
+
+file(GLOB shaders
+    ${SL_PROJECT_ROOT}/_data/shaders/ColorAttribute.vert
+    ${SL_PROJECT_ROOT}/_data/shaders/Color.frag
+    )
+
+add_executable(${target}
+    ${headers}
+    ${sources}
+    ${shaders}
+    )
+
+set_target_properties(${target}
+    PROPERTIES
+    ${DEFAULT_PROJECT_OPTIONS}
+    FOLDER "apps/exercises"
+    )
+
+target_include_directories(${target}
+    PRIVATE
+    ${SL_PROJECT_ROOT}/include
+    ${SL_PROJECT_ROOT}/libs/external/lib-SLExternal
+    ${SL_PROJECT_ROOT}/libs/external/lib-SLExternal/dirent
+    ${SL_PROJECT_ROOT}/libs/external/lib-SLExternal/glew/include
+    ${SL_PROJECT_ROOT}/libs/external/lib-SLExternal/glfw3/include
+    ${OpenCV_INCLUDE_DIR}
+    PUBLIC
+    INTERFACE
+    )
+
+include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
+
+target_link_libraries(${target}
+    PRIVATE
+    ${PlatformLinkLibs}
+    lib-SLExternal
+    ${OpenCV_LIBS}
+    PUBLIC
+    INTERFACE
+    )
+
+target_compile_definitions(${target}
+    PRIVATE
+    PUBLIC
+    ${DEFAULT_COMPILE_DEFINITIONS}
+    INTERFACE
+    )
+
+target_compile_options(${target}
+    PRIVATE
+    PUBLIC
+    ${DEFAULT_COMPILE_OPTIONS}
+    INTERFACE
+    )
+
+include(${SL_PROJECT_ROOT}/cmake/CopyCVLibsToTargetFolder.cmake)

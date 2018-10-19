@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
+    set(IDE_FOLDER "Android")
+    add_subdirectory(app-Demo-Android/app)
+else()
+    add_subdirectory(exercises)
+    add_subdirectory(app-Demo-GLFW)
+    add_subdirectory(app-Node-GLFW)
+endif()
