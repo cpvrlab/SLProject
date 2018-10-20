@@ -37,6 +37,9 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 #        define SL_GLES
 #        define SL_GLES3
 #        define SL_PROJECT_ROOT "../.."
+#        define SL_GIT_BRANCH "unknown"
+#        define SL_GIT_COMMIT "unknown"
+#        define SL_GIT_DATE "unknown"
 #    else
 #        define SL_OS_MACOS
 #        if defined(_DEBUG)
