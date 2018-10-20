@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-
 add_subdirectory(ch06_ColorCube)
 add_subdirectory(ch07_DiffuseCube)
 add_subdirectory(ch09_TextureMapping)

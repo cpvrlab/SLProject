@@ -2,8 +2,6 @@
 # CMake project definition for exercise cv08_MeshMorphing
 #
 
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-
 set(target cv08_MeshMorphing)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")

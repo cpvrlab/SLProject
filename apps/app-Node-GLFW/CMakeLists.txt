@@ -2,8 +2,6 @@
 # CMake configuration for app-Node-GLFW application
 #
 
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-
 set(target app-Node-GLFW)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")

@@ -52,6 +52,6 @@ GenerateHTMLDoc.log
 .settings
 .vs
 .idea
-gitcommit.h
+.DS_Store
 
 apps/app-Demo-Android/build.gradle

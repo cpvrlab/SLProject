@@ -2,8 +2,6 @@
 # CMake project definition for exercise cv13_FaceTracking
 #
 
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-
 set(target cv13_FaceTracking)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")

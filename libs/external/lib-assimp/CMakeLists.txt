@@ -2,8 +2,6 @@
 # CMake configuration for lib-assimp
 #
 
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-
 set(target lib-assimp)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -468,8 +466,8 @@ target_include_directories(${target}
     ${include_path}/contrib/irrXML
     ${include_path}/contrib/poly2tri
     ${include_path}/include
-    ${include_path}/../lib-SLExternal/zlib
-    ${include_path}/../../include
+    ${SL_PROJECT_ROOT}/libs/external/lib-SLExternal/zlib
+    ${SL_PROJECT_ROOT}/include
 
     PUBLIC
 
@@ -495,24 +493,14 @@ target_compile_options(${target}
     INTERFACE
     )
 
-set(platform_specific_link_libraries)
-if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
-    set(platform_specific_link_libraries
-        GL
-        X11
-        Xrandr
-        Xi
-        Xinerama
-        Xxf86vm
-        udev
-        )
-endif()
+
+include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 
 target_link_libraries(${target}
     PRIVATE
 
     PUBLIC
-    ${platform_specific_link_libraries}
+    ${PlatformLinkLibs}
     ${DEFAULT_LINKER_OPTIONS}
 
     INTERFACE

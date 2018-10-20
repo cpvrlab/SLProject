@@ -2,8 +2,6 @@
 # CMake configuration for lib-SLExternal
 #
 
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-
 set(target lib-SLExternal)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -280,6 +278,8 @@ target_compile_options(${target}
 
     INTERFACE
     )
+
+include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 
 target_link_libraries(${target}
     PRIVATE

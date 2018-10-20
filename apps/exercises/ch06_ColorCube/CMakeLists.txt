@@ -2,8 +2,6 @@
 # CMake project definition for exercise ch06_ColorCube
 #
 
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-
 set(target ch06_ColorCube)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")

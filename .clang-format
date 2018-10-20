@@ -63,7 +63,7 @@ PointerAlignment: Left
 #PenaltyBreakComment: 100
 ReflowComments: true
 
-SortIncludes: true
+SortIncludes: false
 SortUsingDeclarations: true
 
 SpaceAfterTemplateKeyword: false

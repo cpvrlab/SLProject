@@ -2,8 +2,6 @@
 # CMake project definition for exercise cv06_WarpTriangle
 #
 
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-
 set(target cv06_WarpTriangle)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")

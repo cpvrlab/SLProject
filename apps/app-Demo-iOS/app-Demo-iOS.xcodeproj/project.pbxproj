@@ -3739,13 +3739,10 @@
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				HEADER_SEARCH_PATHS = (
 					"../../include/**",
+					"../../libs/external/lib-assimp/**",
 					"../../libs/external/lib-SLExternal/**",
-					../../libs/external/prebuilt/iosV8_opencv_3.4.0/include,
-				);
-				"HEADER_SEARCH_PATHS[arch=*]" = (
-					"../../include/**",
-					"../../libs/external/lib-SLExternal/**",
-					../../libs/external/prebuilt/iosV8_opencv_3.4.0/include,
+					"../../libs/external/prebuilt/iosV8_opencv_3.4.0/include/**",
+					"../../apps/app-Demo-GLFW",
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -3816,9 +3813,12 @@
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				HEADER_SEARCH_PATHS = (
 					"../../include/**",
+					"../../libs/external/lib-assimp/**",
 					"../../libs/external/lib-SLExternal/**",
-					../../libs/external/prebuilt/iosV8_opencv_3.4.0/include,
+					"../../libs/external/prebuilt/iosV8_opencv_3.4.0/include/**",
+					"../../apps/app-Demo-GLFW",
 				);
+				"HEADER_SEARCH_PATHS[arch=*]" = "";
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";

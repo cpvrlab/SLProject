@@ -29,9 +29,12 @@ SLCVCalibration  SLApplication::calibMainCam;
 SLCVCalibration  SLApplication::calibScndCam;
 SLDeviceRotation SLApplication::devRot;
 SLDeviceLocation SLApplication::devLoc;
-SLstring         SLApplication::name    = "SLProjectApp";
-SLstring         SLApplication::version = "2.2.100";
-SLint            SLApplication::dpi     = 0;
+SLstring         SLApplication::name      = "SLProjectApp";
+SLstring         SLApplication::version   = "2.3.000";
+SLstring         SLApplication::gitBranch = SL_GIT_BRANCH;
+SLstring         SLApplication::gitCommit = SL_GIT_COMMIT;
+SLstring         SLApplication::gitDate   = SL_GIT_DATE;
+SLint            SLApplication::dpi       = 0;
 //! SLApplication::configPath is overwritten in slCreateAppAndScene.
 SLstring  SLApplication::configPath = SLstring(SL_PROJECT_ROOT) + "/_data/config/";
 SLSceneID SLApplication::sceneID    = SID_Empty;

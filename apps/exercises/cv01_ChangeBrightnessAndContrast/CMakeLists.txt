@@ -2,8 +2,6 @@
 # CMake project definition for exercise cv01_ChangeBrightnessAndContrast
 #
 
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-
 set(target cv01_ChangeBrightnessAndContrast)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")

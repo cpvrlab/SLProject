@@ -1,8 +1,6 @@
 # 
 # CMake configuration for app-Demo-GLFW application
-# 
-
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+#
 
 set(target app-Demo-GLFW)
 

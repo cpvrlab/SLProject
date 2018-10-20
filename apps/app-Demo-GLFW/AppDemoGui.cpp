@@ -108,24 +108,24 @@ SLbool       AppDemoGui::showUIPrefs         = false;
 SLbool       AppDemoGui::showTransform       = false;
 
 // Scene node for Christoffel objects
-SLNode* bern          = nullptr;
-SLNode* umgeb_dach    = nullptr;
-SLNode* umgeb_fass    = nullptr;
-SLNode* boden         = nullptr;
-SLNode* balda_stahl   = nullptr;
-SLNode* balda_glas    = nullptr;
-SLNode* mauer_wand    = nullptr;
-SLNode* mauer_dach    = nullptr;
-SLNode* mauer_turm    = nullptr;
-SLNode* mauer_weg     = nullptr;
-SLNode* grab_mauern   = nullptr;
-SLNode* grab_brueck   = nullptr;
-SLNode* grab_grass    = nullptr;
-SLNode* grab_t_dach   = nullptr;
-SLNode* grab_t_fahn   = nullptr;
-SLNode* grab_t_stein  = nullptr;
-SLNode* christ_aussen = nullptr;
-SLNode* christ_innen  = nullptr;
+static SLNode* bern          = nullptr;
+static SLNode* umgeb_dach    = nullptr;
+static SLNode* umgeb_fass    = nullptr;
+static SLNode* boden         = nullptr;
+static SLNode* balda_stahl   = nullptr;
+static SLNode* balda_glas    = nullptr;
+static SLNode* mauer_wand    = nullptr;
+static SLNode* mauer_dach    = nullptr;
+static SLNode* mauer_turm    = nullptr;
+static SLNode* mauer_weg     = nullptr;
+static SLNode* grab_mauern   = nullptr;
+static SLNode* grab_brueck   = nullptr;
+static SLNode* grab_grass    = nullptr;
+static SLNode* grab_t_dach   = nullptr;
+static SLNode* grab_t_fahn   = nullptr;
+static SLNode* grab_t_stein  = nullptr;
+static SLNode* christ_aussen = nullptr;
+static SLNode* christ_innen  = nullptr;
 
 SLstring AppDemoGui::infoAbout =
   "Welcome to the SLProject demo app. It is developed at the \
@@ -209,7 +209,11 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::Begin("About SLProject", &showAbout, ImGuiWindowFlags_NoResize);
         ImGui::Image((ImTextureID)(intptr_t)cpvrLogo->texName(), ImVec2(iconSize, iconSize), ImVec2(0, 1), ImVec2(1, 0));
         ImGui::SameLine();
-        ImGui::Text("Version %s", SLApplication::version.c_str());
+        ImGui::Text("Version: %s", SLApplication::version.c_str());
+        ImGui::Separator();
+        ImGui::Text("Git Branch: %s", SLApplication::gitBranch.c_str());
+        ImGui::Text("Git Commit: %s", SLApplication::gitCommit.c_str());
+        ImGui::Text("Git Date: %s", SLApplication::gitDate.c_str());
         ImGui::Separator();
         ImGui::TextWrapped("%s", infoAbout.c_str());
         ImGui::End();

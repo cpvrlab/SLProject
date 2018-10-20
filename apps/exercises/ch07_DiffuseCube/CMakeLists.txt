@@ -2,8 +2,6 @@
 # CMake project definition for exercise ch07_DiffuseCube
 #
 
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-
 set(target ch07_DiffuseCube)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -38,6 +36,7 @@ set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
     FOLDER "apps/exercises"
+    ENABLE_EXPORTS ON
     )
 
 target_include_directories(${target}
