@@ -38,13 +38,13 @@ android {
         debug {
             // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
             jniLibs.srcDirs = [
-                    '../../_lib/prebuilt/OpenCV/android/3.4.1/Debug'
+                    '../../../libs/external/prebuilt/andV8_opencv_3.4.1/Debug'
             ]
         }
         release {
             // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
             jniLibs.srcDirs = [
-                    '../../_lib/prebuilt/OpenCV/android/3.4.1/Release'
+                    '../../../libs/external/prebuilt/andV8_opencv_3.4.1/Release'
             ]
         }
     }
@@ -60,7 +60,7 @@ android {
     }
     externalNativeBuild {
         cmake {
-            path "../../CMakeLists.txt"
+            path "../../../CMakeLists.txt"
         }
     }
     compileOptions {
