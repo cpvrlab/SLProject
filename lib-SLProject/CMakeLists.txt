@@ -235,7 +235,6 @@ add_library(${META_PROJECT_NAME}::${target}
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
-    FOLDER "libs"
     )
 
 target_include_directories(${target}

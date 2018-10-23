@@ -237,7 +237,7 @@ add_library(${META_PROJECT_NAME}::${target} ALIAS ${target})
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
-    FOLDER "libs"
+    FOLDER "external"
     )
 
 target_include_directories(${target}
