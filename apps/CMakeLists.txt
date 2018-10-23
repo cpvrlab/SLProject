@@ -1,8 +1,6 @@
-if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
-    set(IDE_FOLDER "Android")
-    add_subdirectory(app-Demo-Android/app)
-else()
-    add_subdirectory(exercises)
-    add_subdirectory(app-Demo-GLFW)
-    add_subdirectory(app-Node-GLFW)
+if(NOT "${CMAKE_SYSTEM_NAME}" MATCHES "Android")
+    add_subdirectory(exercices)
+    add_subdirectory(app-Demo-Node)
 endif()
+
+add_subdirectory(app-Demo-SLProject)

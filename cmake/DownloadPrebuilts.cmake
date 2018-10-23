@@ -28,7 +28,7 @@ set(OpenCV_LINK_LIBS
     )
 
 set(OpenCV_LIBS)
-set(PREBUILT_PATH "${SL_PROJECT_ROOT}/libs/external/prebuilt")
+set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
 
 #==============================================================================

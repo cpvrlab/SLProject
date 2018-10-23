@@ -34,7 +34,7 @@ obj/
 ipch/
 _bin*/
 _doc/
-libs/external/prebuilt/
+externals/prebuilt/*
 intermediate/
 cmake-build*/
 
@@ -53,5 +53,3 @@ GenerateHTMLDoc.log
 .vs
 .idea
 .DS_Store
-
-apps/app-Demo-Android/build.gradle

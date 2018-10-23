@@ -29,4 +29,5 @@ include(cmake/CompileOptions.cmake)
 include(cmake/DownloadPrebuilts.cmake)
 
 add_subdirectory(apps)
-add_subdirectory(libs)
+add_subdirectory(externals)
+add_subdirectory(lib-SLProject)
