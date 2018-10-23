@@ -24,8 +24,7 @@ android {
             cmake {
                 cppFlags "-frtti -fexceptions -std=c++11 -w -Wno-error=format-security"
                 abiFilters 'arm64-v8a'
-                arguments //"-DOpenCV_DIR=" + project.projectDir + "/../../_lib/prebuilt/OpenCV/android/3.4.1/sdk/native/jni"
-                          "-DANDROID_STL=c++_shared"
+                arguments "-DANDROID_STL=c++_shared"
                           "-DSL_GUI_JAVA"
                           "-DSL_GLES2"
             }
@@ -71,6 +70,6 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:24.+'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:24.+'
 }
