@@ -151,7 +151,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(compile_definitions
         ${compile_definitions}
-        GLEW_STATIC
         _GLFW_WIN32
         _GLFW_USE_OPENGL
         _GLFW_WGL
@@ -262,11 +261,11 @@ target_include_directories(${target}
 
 target_compile_definitions(${target}
     PRIVATE
-
-    PUBLIC
     ${compile_definitions}
+    PUBLIC
+    GLEW_STATIC
+    #SL_MEMLEAKDETECT
     ${DEFAULT_COMPILE_DEFINITIONS}
-
     INTERFACE
     )
 

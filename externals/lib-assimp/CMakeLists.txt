@@ -476,9 +476,8 @@ target_include_directories(${target}
 
 target_compile_definitions(${target}
     PRIVATE
-
-    PUBLIC
     ${compile_definitions}
+    PUBLIC
     ${DEFAULT_COMPILE_DEFINITIONS}
 
     INTERFACE
