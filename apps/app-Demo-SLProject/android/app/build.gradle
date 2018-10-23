@@ -5,7 +5,7 @@ android {
         release {
             keyAlias 'cpvrlab'
             keyPassword 'uwenadat'
-            storeFile file('../../app-Demo-SLProject/android/cpvrlab-release-key')
+            storeFile file('../cpvrlab-release-key')
             storePassword 'uwenadat'
         }
     }

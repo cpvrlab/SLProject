@@ -472,12 +472,12 @@ int main(int argc, char* argv[])
 
     //////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
-                        projectRoot + "/_data/shaders/",
-                        projectRoot + "/_data/models/",
-                        projectRoot + "/_data/images/textures/",
-                        projectRoot + "/_data/videos/",
-                        projectRoot + "/_data/images/fonts/",
-                        projectRoot + "/_data/calibrations/",
+                        projectRoot + "/data/shaders/",
+                        projectRoot + "/data/models/",
+                        projectRoot + "/data/images/textures/",
+                        projectRoot + "/data/videos/",
+                        projectRoot + "/data/images/fonts/",
+                        projectRoot + "/data/calibrations/",
                         configPath,
                         "AppNode_GLFW",
                         (void*)onLoad);

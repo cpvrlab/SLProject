@@ -22,8 +22,8 @@ file(GLOB sources
     )
 
 file(GLOB shaders
-    ${SL_PROJECT_ROOT}/_data/shaders/ColorAttribute.vert
-    ${SL_PROJECT_ROOT}/_data/shaders/Color.frag
+    ${SL_PROJECT_ROOT}/data/shaders/ColorAttribute.vert
+    ${SL_PROJECT_ROOT}/data/shaders/Color.frag
     )
 
 add_executable(${target}

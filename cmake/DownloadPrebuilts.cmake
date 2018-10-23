@@ -14,17 +14,17 @@ set(OpenCV_INCLUDE_DIR)
 set(OpenCV_LINK_LIBS
     opencv_aruco
     opencv_calib3d
-    opencv_core
     opencv_features2d
     opencv_face
     opencv_flann
     opencv_highgui
-    opencv_imgproc
     opencv_imgcodecs
     opencv_objdetect
     opencv_video
+    opencv_imgproc
     opencv_videoio
     opencv_xfeatures2d
+    opencv_core
     )
 
 set(OpenCV_LIBS)
@@ -125,9 +125,21 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
         file(REMOVE "${PREBUILT_PATH}/${PREBUILT_ZIP}")
     endif ()
 
+    set(OpenCV_LINK_LIBS
+        ${OpenCV_LINK_LIBS}
+        cpufeatures
+        IlmImf
+        libjasper
+        libjpeg
+        libpng
+        libprotobuf
+        libtiff
+        libwebp
+        tegra_hal)
+
     foreach(lib ${OpenCV_LINK_LIBS})
         add_library(lib_${lib} SHARED IMPORTED)
-        set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${OpenCV_LINK_DIR}/lib${lib}.so)
+        set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${OpenCV_LINK_DIR}/lib${lib}.a)
         set(OpenCV_LIBS
             ${OpenCV_LIBS}
             lib_${lib})

@@ -88,7 +88,7 @@ class SLCVArucoParams
 /*! Tracking class for ArUco markers tracking. See the official OpenCV docs on
 ArUco markers: http://docs.opencv.org/3.1.0/d5/dae/tutorial_aruco_detection.html
 The aruco marker used in the SLProject are printed in a PDF stored in the
-_data/Calibration folder. They use the dictionary 0 and where generated with the
+data/Calibration folder. They use the dictionary 0 and where generated with the
 functions SLCVTrackedAruco::drawArucoMarkerBoard and 
 SLCVTrackedAruco::drawArucoMarker.
 */

@@ -22,8 +22,8 @@ file(GLOB sources
     )
 
 file(GLOB shaders
-    ${SL_PROJECT_ROOT}/_data/shaders/Diffuse.frag
-    ${SL_PROJECT_ROOT}/_data/shaders/Diffuse.vert
+    ${SL_PROJECT_ROOT}/data/shaders/Diffuse.frag
+    ${SL_PROJECT_ROOT}/data/shaders/Diffuse.vert
     )
 
 add_executable(${target}

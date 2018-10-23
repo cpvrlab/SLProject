@@ -36,7 +36,7 @@ SLstring         SLApplication::gitCommit = SL_GIT_COMMIT;
 SLstring         SLApplication::gitDate   = SL_GIT_DATE;
 SLint            SLApplication::dpi       = 0;
 //! SLApplication::configPath is overwritten in slCreateAppAndScene.
-SLstring  SLApplication::configPath = SLstring(SL_PROJECT_ROOT) + "/_data/config/";
+SLstring  SLApplication::configPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
 SLSceneID SLApplication::sceneID    = SID_Empty;
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function

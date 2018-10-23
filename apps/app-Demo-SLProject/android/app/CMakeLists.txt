@@ -53,59 +53,59 @@ target_link_libraries(${target}
 # Copy APK contents
 #
 file(GLOB_RECURSE TEXTURES      
-    ${SL_PROJECT_ROOT}/_data/images/textures/CompileError.png
-    ${SL_PROJECT_ROOT}/_data/images/textures/brick0512_C.png
-    ${SL_PROJECT_ROOT}/_data/images/textures/brick*.jpg
-    ${SL_PROJECT_ROOT}/_data/images/textures/Checkerboard0512_C.png
-    ${SL_PROJECT_ROOT}/_data/images/textures/Chess0256_C.bmp
-    ${SL_PROJECT_ROOT}/_data/images/textures/earth*.jpg
-    ${SL_PROJECT_ROOT}/_data/images/textures/grass0512_C.jpg
-    ${SL_PROJECT_ROOT}/_data/images/textures/gray_0256_C.jpg
-    ${SL_PROJECT_ROOT}/_data/images/textures/MuttenzerBox*.png
-    ${SL_PROJECT_ROOT}/_data/images/textures/rusty-metal_2048*.png
-    ${SL_PROJECT_ROOT}/_data/images/textures/Pool*.png
-    ${SL_PROJECT_ROOT}/_data/images/textures/Testmap_0512_C.png
-    ${SL_PROJECT_ROOT}/_data/images/textures/tile1_0256_C.jpg
-    ${SL_PROJECT_ROOT}/_data/images/textures/tree1_1024_C.png
-    ${SL_PROJECT_ROOT}/_data/images/textures/wood*.jpg
-    ${SL_PROJECT_ROOT}/_data/images/textures/cursor.png
-    ${SL_PROJECT_ROOT}/_data/images/textures/Vision*.png
-    ${SL_PROJECT_ROOT}/_data/images/textures/LiveVideoError.png
-    ${SL_PROJECT_ROOT}/_data/images/textures/LogoCPVR_256L.png
-    ${SL_PROJECT_ROOT}/_data/images/textures/features_stones.png
-    ${SL_PROJECT_ROOT}/_data/images/textures/Desert*_C.jpg
-    ${SL_PROJECT_ROOT}/_data/images/textures/i*_0000b.png
+    ${SL_PROJECT_ROOT}/data/images/textures/CompileError.png
+    ${SL_PROJECT_ROOT}/data/images/textures/brick0512_C.png
+    ${SL_PROJECT_ROOT}/data/images/textures/brick*.jpg
+    ${SL_PROJECT_ROOT}/data/images/textures/Checkerboard0512_C.png
+    ${SL_PROJECT_ROOT}/data/images/textures/Chess0256_C.bmp
+    ${SL_PROJECT_ROOT}/data/images/textures/earth*.jpg
+    ${SL_PROJECT_ROOT}/data/images/textures/grass0512_C.jpg
+    ${SL_PROJECT_ROOT}/data/images/textures/gray_0256_C.jpg
+    ${SL_PROJECT_ROOT}/data/images/textures/MuttenzerBox*.png
+    ${SL_PROJECT_ROOT}/data/images/textures/rusty-metal_2048*.png
+    ${SL_PROJECT_ROOT}/data/images/textures/Pool*.png
+    ${SL_PROJECT_ROOT}/data/images/textures/Testmap_0512_C.png
+    ${SL_PROJECT_ROOT}/data/images/textures/tile1_0256_C.jpg
+    ${SL_PROJECT_ROOT}/data/images/textures/tree1_1024_C.png
+    ${SL_PROJECT_ROOT}/data/images/textures/wood*.jpg
+    ${SL_PROJECT_ROOT}/data/images/textures/cursor.png
+    ${SL_PROJECT_ROOT}/data/images/textures/Vision*.png
+    ${SL_PROJECT_ROOT}/data/images/textures/LiveVideoError.png
+    ${SL_PROJECT_ROOT}/data/images/textures/LogoCPVR_256L.png
+    ${SL_PROJECT_ROOT}/data/images/textures/features_stones.png
+    ${SL_PROJECT_ROOT}/data/images/textures/Desert*_C.jpg
+    ${SL_PROJECT_ROOT}/data/images/textures/i*_0000b.png
     )
 
 file(GLOB_RECURSE VIDEOS
-    ${SL_PROJECT_ROOT}/_data/videos/street3.mp4
+    ${SL_PROJECT_ROOT}/data/videos/street3.mp4
     )
 
 file(GLOB_RECURSE FONTS
-    ${SL_PROJECT_ROOT}/_data/images/fonts/*.png
-    ${SL_PROJECT_ROOT}/_data/images/fonts/*.ttf
+    ${SL_PROJECT_ROOT}/data/images/fonts/*.png
+    ${SL_PROJECT_ROOT}/data/images/fonts/*.ttf
     )
 
 # If you add new models you must delete ${CMAKE_CURRENT_LIST_DIR}/src/main/assets
 file(GLOB_RECURSE MODELS
-    ${SL_PROJECT_ROOT}/_data/models/*
+    ${SL_PROJECT_ROOT}/data/models/*
     )
 
 file(GLOB_RECURSE SHADERS
-    ${SL_PROJECT_ROOT}/_data/shaders/*.vert
-    ${SL_PROJECT_ROOT}/_data/shaders/*.frag
+    ${SL_PROJECT_ROOT}/data/shaders/*.vert
+    ${SL_PROJECT_ROOT}/data/shaders/*.frag
     )
 
 file(GLOB_RECURSE CALIBRATIONS
-    ${SL_PROJECT_ROOT}/_data/calibrations/calib_in_params.yml
-    ${SL_PROJECT_ROOT}/_data/calibrations/aruco_detector_params.yml
-    ${SL_PROJECT_ROOT}/_data/calibrations/lbfmodel.yaml
-    ${SL_PROJECT_ROOT}/_data/calibrations/haarcascade_frontalface_alt.xml
-    ${SL_PROJECT_ROOT}/_data/calibrations/haarcascade_frontalface_alt2.xml
+    ${SL_PROJECT_ROOT}/data/calibrations/calib_in_params.yml
+    ${SL_PROJECT_ROOT}/data/calibrations/aruco_detector_params.yml
+    ${SL_PROJECT_ROOT}/data/calibrations/lbfmodel.yaml
+    ${SL_PROJECT_ROOT}/data/calibrations/haarcascade_frontalface_alt.xml
+    ${SL_PROJECT_ROOT}/data/calibrations/haarcascade_frontalface_alt2.xml
     )
 
 file(GLOB_RECURSE CONFIG
-    ${SL_PROJECT_ROOT}/_data/config/dummyFile.txt
+    ${SL_PROJECT_ROOT}/data/config/dummyFile.txt
     )
 
 set(APK_ASSETS

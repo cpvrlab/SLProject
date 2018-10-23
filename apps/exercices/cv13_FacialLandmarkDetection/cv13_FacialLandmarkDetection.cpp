@@ -20,13 +20,13 @@ int main()
     // Load Face Detector
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
     // with: Right Click on Project > Properties > Debugging
-    CascadeClassifier faceDetector(projectRoot + "/_data/opencv/haarcascades/haarcascade_frontalface_alt2.xml");
+    CascadeClassifier faceDetector(projectRoot + "/data/opencv/haarcascades/haarcascade_frontalface_alt2.xml");
 
     // Create an instance of Facemark
     Ptr<Facemark> facemark = FacemarkLBF::create();
 
     // Load landmark detector
-    facemark->loadModel(projectRoot + "/_data/calibrations/lbfmodel.yaml");
+    facemark->loadModel(projectRoot + "/data/calibrations/lbfmodel.yaml");
 
     // Set up webcam for video capture
     VideoCapture cam(0);

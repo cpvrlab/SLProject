@@ -192,8 +192,8 @@ file(GLOB sources
     )
 
 file(GLOB shaders
-    ${SL_PROJECT_ROOT}/_data/shaders/*.vert
-    ${SL_PROJECT_ROOT}/_data/shaders/*.frag
+    ${SL_PROJECT_ROOT}/data/shaders/*.vert
+    ${SL_PROJECT_ROOT}/data/shaders/*.frag
     )
 
 include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)

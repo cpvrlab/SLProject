@@ -166,7 +166,7 @@ SLstring AppDemoGui::infoHelp =
 SLstring AppDemoGui::infoCalibrate =
   "The calibration process requires a chessboard image to be printed \
 and glued on a flat board. You can find the PDF with the chessboard image on: \n\
-https://github.com/cpvrlab/SLProject/tree/master/_data/calibrations/ \n\
+https://github.com/cpvrlab/SLProject/tree/master/data/calibrations/ \n\
 For a calibration you have to take 20 images with detected inner \
 chessboard corners. To take an image you have to click with the mouse \
 or tap with finger into the screen. View the chessboard from the side so that \

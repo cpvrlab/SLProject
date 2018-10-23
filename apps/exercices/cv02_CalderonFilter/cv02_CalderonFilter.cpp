@@ -86,7 +86,7 @@ int main()
     // Read input image
     // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
     // with: Right Click on Project > Properties > Debugging
-    Mat image = imread(projectRoot + "/_data/images/textures/girl.jpg");
+    Mat image = imread(projectRoot + "/data/images/textures/girl.jpg");
     if (image.empty())
     {
         cout << "Could not load img. Is the working dir correct?" << endl;

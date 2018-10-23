@@ -34,7 +34,7 @@ such as the camera pose towards a known geometry.
 \n
 For a good calibration we have to make 15-20 images from a chessboard pattern.
 The chessboard pattern can be printed from the CalibrationChessboard_8x5_A4.pdf
-in the folder _data/calibration. It is important that one side has an odd number
+in the folder data/calibration. It is important that one side has an odd number
 of inner corners. Like this it is unambiguous and can be rotated in any direction.
 \n
 The different calibration states are handled within SLScene::onUpdate:

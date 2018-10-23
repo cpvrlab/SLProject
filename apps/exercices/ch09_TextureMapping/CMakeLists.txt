@@ -22,8 +22,8 @@ file(GLOB sources
     )
 
 file(GLOB shaders
-    ${SL_PROJECT_ROOT}/_data/shaders/ADSTex.frag
-    ${SL_PROJECT_ROOT}/_data/shaders/ADSTex.vert
+    ${SL_PROJECT_ROOT}/data/shaders/ADSTex.frag
+    ${SL_PROJECT_ROOT}/data/shaders/ADSTex.vert
     )
 
 add_executable(${target}
