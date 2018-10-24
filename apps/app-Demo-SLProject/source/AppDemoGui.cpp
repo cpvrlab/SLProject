@@ -211,8 +211,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::SameLine();
         ImGui::Text("Version: %s", SLApplication::version.c_str());
         ImGui::Separator();
-        ImGui::Text("Git Branch: %s", SLApplication::gitBranch.c_str());
-        ImGui::Text("Git Commit: %s", SLApplication::gitCommit.c_str());
+        ImGui::Text("Git Branch: %s (Commit: %s)", SLApplication::gitBranch.c_str(), SLApplication::gitCommit.c_str());
         ImGui::Text("Git Date: %s", SLApplication::gitDate.c_str());
         ImGui::Separator();
         ImGui::TextWrapped("%s", infoAbout.c_str());
