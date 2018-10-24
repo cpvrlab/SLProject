@@ -73,4 +73,3 @@ target_link_libraries(${target}
     INTERFACE
     )
 
-include(${SL_PROJECT_ROOT}/cmake/CopyCVLibsToTargetFolder.cmake)

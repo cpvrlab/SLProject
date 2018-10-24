@@ -79,4 +79,3 @@ target_compile_options(${target}
     INTERFACE
     )
 
-include(${SL_PROJECT_ROOT}/cmake/CopyCVLibsToTargetFolder.cmake)

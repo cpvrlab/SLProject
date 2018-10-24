@@ -69,6 +69,49 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
         VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
+    file(GLOB usedCVLibs_Debug
+        ${OpenCV_DIR}/lib/opencv_aruco*d.dll
+        ${OpenCV_DIR}/lib/opencv_calib3d*d.dll
+        ${OpenCV_DIR}/lib/opencv_core*d.dll
+        ${OpenCV_DIR}/lib/opencv_features2d*d.dll
+        ${OpenCV_DIR}/lib/opencv_face*d.dll
+        ${OpenCV_DIR}/lib/opencv_flann*d.dll
+        ${OpenCV_DIR}/lib/opencv_highgui*d.dll
+        ${OpenCV_DIR}/lib/opencv_imgproc*d.dll
+        ${OpenCV_DIR}/lib/opencv_imgcodecs*d.dll
+        ${OpenCV_DIR}/lib/opencv_objdetect*d.dll
+        ${OpenCV_DIR}/lib/opencv_video*d.dll
+        ${OpenCV_DIR}/lib/opencv_videoio*d.dll
+        ${OpenCV_DIR}/lib/opencv_xfeatures2d*d.dll
+        )
+    file(GLOB usedCVLibs_Release
+        ${OpenCV_DIR}/lib/opencv_aruco*.dll
+        ${OpenCV_DIR}/lib/opencv_calib3d*.dll
+        ${OpenCV_DIR}/lib/opencv_core*.dll
+        ${OpenCV_DIR}/lib/opencv_features2d*.dll
+        ${OpenCV_DIR}/lib/opencv_face*.dll
+        ${OpenCV_DIR}/lib/opencv_flann*.dll
+        ${OpenCV_DIR}/lib/opencv_highgui*.dll
+        ${OpenCV_DIR}/lib/opencv_imgproc*.dll
+        ${OpenCV_DIR}/lib/opencv_imgcodecs*.dll
+        ${OpenCV_DIR}/lib/opencv_objdetect*.dll
+        ${OpenCV_DIR}/lib/opencv_video*.dll
+        ${OpenCV_DIR}/lib/opencv_videoio*.dll
+        ${OpenCV_DIR}/lib/opencv_xfeatures2d*.dll
+        )
+
+#    message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
+#    message(STATUS "CMAKE_RUNTIME_OUTPUT_DIRECTORY: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+#    message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
+#    message(STATUS "CMAKE_CONFIGURATION_TYPES: ${CMAKE_CONFIGURATION_TYPES}")
+#    message(STATUS "CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
+#    message(STATUS "usedCVLibs_Release: ${usedCVLibs_Release}")
+
+    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+        file(COPY ${usedCVLibs_Debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${usedCVLibs_Release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+    endif()
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     # Download first for iOS
     set(OpenCV_VERSION "3.4.0")
@@ -108,6 +151,47 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
             optimized ${lib}
             debug ${lib})
     endforeach(lib)
+
+    #message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
+    #message(STATUS "CMAKE_RUNTIME_OUTPUT_DIRECTORY: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+    #message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
+    #message(STATUS "CMAKE_CONFIGURATION_TYPES: ${CMAKE_CONFIGURATION_TYPES}")
+
+    file(GLOB usedCVLibs_Debug
+        ${OpenCV_DIR}/Debug/libopencv_aruco*.dylib
+        ${OpenCV_DIR}/Debug/libopencv_calib3d*.dylib
+        ${OpenCV_DIR}/Debug/libopencv_core*.dylib
+        ${OpenCV_DIR}/Debug/libopencv_features2d*.dylib
+        ${OpenCV_DIR}/Debug/libopencv_face*.dylib
+        ${OpenCV_DIR}/Debug/libopencv_flann*.dylib
+        ${OpenCV_DIR}/Debug/libopencv_highgui*.dylib
+        ${OpenCV_DIR}/Debug/libopencv_imgproc*.dylib
+        ${OpenCV_DIR}/Debug/libopencv_imgcodecs*.dylib
+        ${OpenCV_DIR}/Debug/libopencv_objdetect*.dylib
+        ${OpenCV_DIR}/Debug/libopencv_video*.dylib
+        ${OpenCV_DIR}/Debug/libopencv_videoio*.dylib
+        ${OpenCV_DIR}/Debug/libopencv_xfeatures2d*.dylib
+        )
+    file(GLOB usedCVLibs_Release
+        ${OpenCV_DIR}/Release/libopencv_aruco*.dylib
+        ${OpenCV_DIR}/Release/libopencv_calib3d*.dylib
+        ${OpenCV_DIR}/Release/libopencv_core*.dylib
+        ${OpenCV_DIR}/Release/libopencv_features2d*.dylib
+        ${OpenCV_DIR}/Release/libopencv_face*.dylib
+        ${OpenCV_DIR}/Release/libopencv_flann*.dylib
+        ${OpenCV_DIR}/Release/libopencv_highgui*.dylib
+        ${OpenCV_DIR}/Release/libopencv_imgproc*.dylib
+        ${OpenCV_DIR}/Release/libopencv_imgcodecs*.dylib
+        ${OpenCV_DIR}/Release/libopencv_objdetect*.dylib
+        ${OpenCV_DIR}/Release/libopencv_video*.dylib
+        ${OpenCV_DIR}/Release/libopencv_videoio*.dylib
+        ${OpenCV_DIR}/Release/libopencv_xfeatures2d*.dylib
+        )
+
+    if(${CMAKE_GENERATOR} STREQUAL Xcode)
+        file(COPY ${usedCVLibs_Debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${usedCVLibs_Release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+    endif()
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
     set(OpenCV_VERSION "3.4.1")
