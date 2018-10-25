@@ -25,26 +25,27 @@ android {
                 cppFlags "-frtti -fexceptions -std=c++14 -w -Wno-error=format-security"
                 abiFilters 'arm64-v8a'
                 arguments "-DANDROID_STL=c++_shared"
-                          "-DSL_GUI_JAVA"
-                          "-DSL_GLES2"
+                "-DSL_GUI_JAVA"
+                "-DSL_GLES2"
             }
         }
     }
     sourceSets {
         main {
-            jniLibs.srcDirs = ['../../_lib/prebuilt/g2o/android']
             assets.srcDirs = ['src/main/assets']
         }
         debug {
             // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
             jniLibs.srcDirs = [
-                    '../../../../externals/prebuilt/andV8_opencv_3.4.1/Debug'
+                    '../../../../externals/prebuilt/andV8_opencv_3.4.1/Debug',
+                    '../../../../externals/prebuilt/andV8_g2o/Debug'
             ]
         }
         release {
             // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
             jniLibs.srcDirs = [
-                    '../../../../externals/prebuilt/andV8_opencv_3.4.1/Release'
+                    '../../../../externals/prebuilt/andV8_opencv_3.4.1/Release',
+                    '../../../../externals/prebuilt/andV8_g2o/Release'
             ]
         }
     }
@@ -67,6 +68,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
     }
+    buildToolsVersion '28.0.3'
 }
 
 dependencies {

@@ -35,8 +35,8 @@ GLFWwindow* window;                     //!< The global glfw window handle
 SLint       svIndex;                    //!< SceneView index
 SLint       scrWidth;                   //!< Window width at start up
 SLint       scrHeight;                  //!< Window height at start up
-SLbool      fixAspectRatio;         //!< Flag if aspect ratio should be fixed
-SLfloat     scrWdivH;               //!< aspect ratio screen width divided by height
+SLbool      fixAspectRatio;             //!< Flag if aspect ratio should be fixed
+SLfloat     scrWdivH;                   //!< aspect ratio screen width divided by height
 SLfloat     scr2fbX;                    //!< Factor from screen to framebuffer coords
 SLfloat     scr2fbY;                    //!< Factor from screen to framebuffer coords
 SLint       startX;                     //!< start position x in pixels
@@ -154,13 +154,13 @@ static void onResize(GLFWwindow* window, int width, int height)
         //correct target width and height
         if (height * scrWdivH <= width)
         {
-            width = height * scrWdivH;
+            width  = height * scrWdivH;
             height = width / scrWdivH;
         }
         else
         {
             height = width / scrWdivH;
-            width = height * scrWdivH;
+            width  = height * scrWdivH;
         }
     }
 
@@ -490,7 +490,7 @@ int main(int argc, char* argv[])
 
     //we have to fix aspect ratio, because the video image is initialized with this ratio
     fixAspectRatio = true;
-    scrWdivH = (float)scrWidth / (float)scrHeight;
+    scrWdivH       = (float)scrWidth / (float)scrHeight;
 
     touch2.set(-1, -1);
     touchDelta.set(-1, -1);
@@ -550,6 +550,7 @@ int main(int argc, char* argv[])
     // get executable path
     SLstring projectRoot = SLstring(SL_PROJECT_ROOT);
     SLstring configDir   = SLFileSystem::getAppsWritableDir();
+    slSetupExternalDirectories("../data");
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,

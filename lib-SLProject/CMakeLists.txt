@@ -7,6 +7,7 @@ set(target lib-SLProject)
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
 set(compile_definitions GLEW_NO_GLU)
+set(platform_specific_include_dirs)
 
 file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/Converter.h
@@ -294,6 +295,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         _GLFW_NO_DLOAD_GDI32
         _GLFW_NO_DLOAD_WINMM)
 
+    set(platform_specific_include_dirs
+        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/dirent)
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     set(compile_definitions
         ${compile_definitions}
@@ -321,6 +325,7 @@ set_target_properties(${target}
 target_include_directories(${target}
     PRIVATE
     PUBLIC
+    ${platform_specific_include_dirs}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV
@@ -338,7 +343,6 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/zlib
-    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/dirent
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/eigen
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/DBoW2

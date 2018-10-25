@@ -24,7 +24,6 @@ file(GLOB headers
 )
 
 file(GLOB sources
-<<<<<<< HEAD:external/lib-SLExternal/CMakeLists.txt
     ${include_path}/Shoemake/EulerAngles.cpp
     ${include_path}/Shoemake/Decompose.cpp
     ${include_path}/imgui/imgui_draw.cpp
@@ -36,13 +35,6 @@ file(GLOB sources
     ${include_path}/DBoW2/DBoW2/ScoringObject.cpp
     ${include_path}/DBoW2/DUtils/Random.cpp
     ${include_path}/DBoW2/DUtils/Timestamp.cpp
-=======
-    ${source_path}/Shoemake/EulerAngles.cpp
-    ${source_path}/Shoemake/Decompose.cpp
-    ${source_path}/imgui/imgui_draw.cpp
-    ${source_path}/imgui/imgui.cpp
-    ${source_path}/spa/spa.cpp
->>>>>>> develop:externals/lib-SLExternal/CMakeLists.txt
     )
 
 #==============================================================================

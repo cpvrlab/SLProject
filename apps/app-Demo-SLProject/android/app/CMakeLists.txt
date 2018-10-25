@@ -43,9 +43,11 @@ target_include_directories(${target}
     )
 
 message(STATUS "OpenCV_LIBS before linking ${OpenCV_LIBS}")
+message(STATUS "g2o_LIBS before linking ${g2o_LIBS}")
 target_link_libraries(${target}
     ${DEFAULT_LIBRARIES}
     ${OpenCV_LIBS}
+    ${g2o_LIBS}
     ${META_PROJECT_NAME}::lib-SLProject
     )
 
@@ -99,9 +101,13 @@ file(GLOB_RECURSE SHADERS
 file(GLOB_RECURSE CALIBRATIONS
     ${SL_PROJECT_ROOT}/data/calibrations/calib_in_params.yml
     ${SL_PROJECT_ROOT}/data/calibrations/aruco_detector_params.yml
-    ${SL_PROJECT_ROOT}/data/calibrations/lbfmodel.yaml
-    ${SL_PROJECT_ROOT}/data/calibrations/haarcascade_frontalface_alt.xml
-    ${SL_PROJECT_ROOT}/data/calibrations/haarcascade_frontalface_alt2.xml
+    ${SL_PROJECT_ROOT}/data/calibrations/street1_manip.json
+    ${SL_PROJECT_ROOT}/data/calibrations/orb-slam-state-altstadtbiel1_manip.json
+    ${SL_PROJECT_ROOT}/data/calibrations/orb-slam-state-bern1-manip1.json
+    ${SL_PROJECT_ROOT}/data/calibrations/orb-slam-state-buero1.json
+    ${SL_PROJECT_ROOT}/data/calibrations/test.yml
+    ${SL_PROJECT_ROOT}/data/calibrations/cam_calibration_main_huawei_p10_640_480.xml
+    ${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
     )
 
 file(GLOB_RECURSE CONFIG

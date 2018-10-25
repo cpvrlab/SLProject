@@ -28,6 +28,31 @@ set(OpenCV_LINK_LIBS
     )
 
 set(OpenCV_LIBS)
+
+set(g2o_DIR)
+set(g2o_INCLUDE_DIR)
+set(g2o_LINK_DIR)
+set(g2o_LINK_LIBS
+    g2o_core
+    g2o_csparse_extension
+    g2o_ext_csparse
+    g2o_solver_csparse
+    g2o_solver_dense
+    g2o_solver_eigen
+    g2o_solver_pcg
+    g2o_solver_slam2d_linear
+    g2o_solver_structure_only
+    g2o_stuff
+    g2o_types_data
+    g2o_types_icp
+    g2o_types_sba
+    g2o_types_sclam2d
+    g2o_types_sim3
+    g2o_types_slam2d
+    g2o_types_slam2d_addons
+    g2o_types_slam3d
+    g2o_types_slam3d_addons)
+
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
 
@@ -39,6 +64,11 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
     set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
     set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
+
+    set(g2o_DIR ${PREBUILT_PATH}/linux_g2o)
+    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
+    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})
+    set(g2o_LIBS ${g2o_LINK_LIBS})
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(OpenCV_VERSION "3.4.1")
@@ -230,7 +260,20 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
     endforeach(lib)
 
     set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
+
+    set(g2o_DIR ${PREBUILT_PATH}/andV8_g2o)
+    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
+    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})
+
+    foreach(lib ${g2o_LINK_LIBS})
+        add_library(lib_${lib} SHARED IMPORTED)
+        set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${g2o_LINK_DIR}/lib${lib}.so)
+        set(g2o_LIBS
+            ${g2o_LIBS}
+            lib_${lib})
+    endforeach(lib)
 endif()
 #==============================================================================
 
 link_directories(${OpenCV_LINK_DIR})
+link_directories(${g2o_LINK_DIR})
