@@ -85,6 +85,7 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SL.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLApplication.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAssimpImporter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAverageTiming.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLFileSystem.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLImporter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInterface.h
@@ -101,7 +102,6 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimTrack.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLArrow.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAverage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAverageTiming.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBackground.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCamera.h
@@ -216,6 +216,7 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLApplication.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAverageTiming.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLFileSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLImporter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInterface.cpp
@@ -324,6 +325,7 @@ target_include_directories(${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI
     ${CMAKE_CURRENT_SOURCE_DIR}/include/math
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL
     ${SL_PROJECT_ROOT}/externals/lib-assimp/include

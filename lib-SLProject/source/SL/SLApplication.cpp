@@ -33,7 +33,6 @@ SLDeviceLocation SLApplication::devLoc;
 SLMemoryStats    SLApplication::memStats;
 SLstring         SLApplication::name      = "SLProjectApp";
 SLstring         SLApplication::version   = "2.3.000";
-SLint            SLApplication::dpi       = 0;
 SLstring         SLApplication::gitBranch = SL_GIT_BRANCH;
 SLstring         SLApplication::gitCommit = SL_GIT_COMMIT;
 SLstring         SLApplication::gitDate   = SL_GIT_DATE;
