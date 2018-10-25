@@ -53,3 +53,4 @@ GenerateHTMLDoc.log
 .vs
 .idea
 .DS_Store
+gitcommit.h
