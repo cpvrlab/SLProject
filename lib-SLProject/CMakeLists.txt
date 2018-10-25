@@ -9,158 +9,152 @@ set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
 set(compile_definitions GLEW_NO_GLU)
 
 file(GLOB headers
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/EulerAngles.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SL.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAABBox.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAccelStruct.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLApplication.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAnimation.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAnimManager.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAnimPlayback.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAnimTrack.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLArrow.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAssimpImporter.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAverage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLAverageTiming.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLBackground.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLBox.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCamera.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCone.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCompactGrid.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCoordAxis.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCurve.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCurveBezier.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCylinder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/Converter.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/Initializer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/LocalMapping.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/LoopClosing.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/Optimizer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/ORBmatcher.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/ORBVocabulary.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/PnPsolver.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/OrbSlam/Sim3Solver.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCV.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVCalibration.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVCamera.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVCapture.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVFeatureManager.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVFrame.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVImage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVKeyFrame.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVKeyFrameDB.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVMap.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVMapIO.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVMapNode.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVMapPoint.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVMapStorage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVMapTracking.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVOrbTracking.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVOrbVocabulary.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVRaulMurExtractorNode.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVRaulMurOrb.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVStateEstimator.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTracked.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackedAruco.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackedChessboard.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackedFaces.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackedFeatures.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackedMapping.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackedRaulMur.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackedRaulMurAsync.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLCVTrackingStateMachine.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLDeviceRotation.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLDeviceLocation.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLDisk.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLDrawBits.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLEnums.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLEventHandler.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLFileSystem.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLGL*.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLGrid.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGui.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiInfosCameraMovement.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiInfosChristoffelTower.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiInfosDialog.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiInfosMapNodeTransform.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiInfosMapTransform.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiInfosMemoryStats.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiInfosTracking.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiMapStorage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImGuiTrackedMapping.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLImporter.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLInputDevice.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLInputEvent.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLInputManager.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLInterface.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLJoint.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLKeyframe.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLLens.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLLight.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLLightRect.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLLightSpot.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLLightDirect.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMat3.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMat4.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMaterial.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMath.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMemoryStats.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLMesh.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLNode.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLObject.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLPathtracer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLPlane.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLPoints.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLPolygon.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLPolyline.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLQuat4.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLRay.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLRaytracer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLRect.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLRectangle.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLRevolver.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLSamples2D.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLScene.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLSceneView.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLSkeleton.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLSkybox.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLSphere.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLSpheric.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLTexFont.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLText.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLTimer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLTransferFunction.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLUtils.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLVec2.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLVec3.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLVec4.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/SLVector.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/stdafx.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/TriangleBoxIntersect.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../app-Demo-GLFW/source/AppDemoGui.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/Converter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/Initializer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/LocalMapping.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/LoopClosing.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/Optimizer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/ORBMatcher.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/ORBVocabulary.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/PnPsolver.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/Sim3Solver.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCV.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVCalibration.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVCamera.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVCapture.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVFeatureManager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVFrame.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVImage.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVKeyFrame.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVKeyFrameDB.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMap.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMapIO.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMapNode.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMapPoint.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMapStorage.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMapTracking.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVOrbTracking.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVOrbVocabulary.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVRaulMurExtractorNode.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVRaulMurOrb.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVStateEstimator.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTracked.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedAruco.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedChessboard.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedFaces.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLVCTrackedFeatures.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedMapping.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedRaulMur.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedRaulMurAsync.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackingStateMachine.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLEnums.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLGenericProgram.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLImGui.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLOculus.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLOculusFB.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLOVRWorkaround.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLProgram.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLShader.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLState.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLTexture.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLUniform.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexArray.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexArrayExt.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexBuffer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGui.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosCameraMovement.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosChristoffelTower.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosDialog.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosMapNodeTransform.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosTransform.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosMemoryStats.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosTracking.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiMapStorage.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiTrackedMapping.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLCurve.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLCurveBezier.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMat3.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMat4.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMath.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLPlane.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLQuat4.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVec2.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVec3.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVec4.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVector.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SL.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLApplication.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAssimpImporter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLFileSystem.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLImporter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInterface.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLSkybox.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLTexFont.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/stdafx.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ORBextractor.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/EulerAngles.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAABBox.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAccelStruct.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimation.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimManager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimPlayback.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimTrack.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLArrow.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAverage.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAverageTiming.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBackground.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBox.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCamera.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCone.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCompactGrid.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCoordAxis.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCylinder.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDeviceRotation.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDeviceLocation.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDisk.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDrawBits.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLEnums.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLEventHandler.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLGrid.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLInputDevice.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLInputEvent.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLInputManager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLJoint.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLKeyframe.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLens.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLight.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightRect.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightSpot.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightDirect.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMaterial.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMemoryStats.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMesh.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLNode.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLObject.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPathtracer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPoints.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPolygon.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPolyline.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLRay.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLRaytracer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLRect.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLRectangle.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLRevolver.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSamples2D.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLScene.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSceneView.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSkeleton.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSphere.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSpheric.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLText.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTimer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTrackingInfosInterface.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransferFunction.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLUtils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/TriangleBoxIntersect.h
     )
 
-file(GLOB sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLCurveBezier.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SL.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLApplication.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAverageTiming.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLFileSystem.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLImporter.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInterface.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTexFont.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTimer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosCameraMovement.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosChristoffelTower.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosDialog.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosMapTransform.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosMapNodeTransform.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosMemoryStats.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosTracking.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiMapStorage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiTrackedMapping.cpp
+  file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/ORBextractor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/Converter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/Initializer.cpp
@@ -208,6 +202,26 @@ file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexArray.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexArrayExt.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexBuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosCameraMovement.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosChristoffelTower.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosDialog.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosMapTransform.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosMapNodeTransform.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosMemoryStats.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosTracking.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiMapStorage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiTrackedMapping.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLCurveBezier.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SL.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLApplication.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLFileSystem.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLImporter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInterface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTexFont.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTimer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/ORBextractor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAABBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimation.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimManager.cpp
@@ -258,11 +272,11 @@ file(GLOB sources
     )
 
 file(GLOB shaders
-    ${CMAKE_CURRENT_SOURCE_DIR}/../_data/shaders/*.vert
-    ${CMAKE_CURRENT_SOURCE_DIR}/../_data/shaders/*.frag
+    ${SL_PROJECT_ROOT}/data/shaders/*.vert
+    ${SL_PROJECT_ROOT}/data/shaders/*.frag
     )
 
-include(../cmake/PlatformLinkLibs.cmake)
+include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 
 set(compile_definitions
     ${compile_definitions}
@@ -305,37 +319,39 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
+    PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../app-Demo-GLFW/source
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/contrib/clipper
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/contrib/zlib
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/contrib/irrXML
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/contrib/poly2tri
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-assimp/code/BoostWorkaround
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/imgui
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/spa
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/zlib
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/dirent
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/glew/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/eigen
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/lib-SLExternal/DBoW2
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GL
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/math
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SL
+    ${SL_PROJECT_ROOT}/externals/lib-assimp/include
+    ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/clipper
+    ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/zlib
+    ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/irrXML
+    ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/poly2tri
+    ${SL_PROJECT_ROOT}/externals/lib-assimp/code/BoostWorkaround
+    ${SL_PROJECT_ROOT}/externals/lib-SLExternal
+    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui
+    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
+    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/zlib
+    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/dirent
+    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
+    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/eigen
+    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/DBoW2
     ${OpenCV_INCLUDE_DIR}
     ${g2o_INCLUDE_DIR}
-
-    PUBLIC
     ${DEFAULT_INCLUDE_DIRECTORIES}
 
     INTERFACE
     )
 
 target_compile_definitions(${target}
-    PRIVATE
-    ${compile_definitions}
-
+  PRIVATE
+  
     PUBLIC
+    ${compile_definitions}
     ${DEFAULT_COMPILE_DEFINITIONS}
 
     INTERFACE
@@ -352,6 +368,7 @@ target_compile_options(${target}
 
 target_link_libraries(${target}
     PRIVATE
+    PUBLIC
     ${PlatformLinkLibs}
     ${OpenCV_LIBS}
     ${g2o_LIBS}
@@ -360,6 +377,5 @@ target_link_libraries(${target}
     ${META_PROJECT_NAME}::lib-SLExternal
     ${META_PROJECT_NAME}::lib-assimp
     ${DEFAULT_LINKER_OPTIONS}
-
     INTERFACE
     )

@@ -12,7 +12,6 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(X64 ON)
 endif()
 
-
 set(DEFAULT_PROJECT_OPTIONS
     DEBUG_POSTFIX             "-debug"
     RELEASE_POSTFIX           "-release"
@@ -21,15 +20,19 @@ set(DEFAULT_PROJECT_OPTIONS
     POSITION_INDEPENDENT_CODE ON
     CXX_VISIBILITY_PRESET     "hidden"
     CXX_EXTENSIONS            Off
+    ENABLE_EXPORTS            ON
     )
 
 set(DEFAULT_INCLUDE_DIRECTORIES)
-
 set(DEFAULT_LIBRARIES)
-
 set(DEFAULT_COMPILE_DEFINITIONS
     SYSTEM_${SYSTEM_NAME_UPPER}
+    SL_PROJECT_ROOT="${SL_PROJECT_ROOT}"
+    SL_GIT_BRANCH="${GitBranch}"
+    SL_GIT_COMMIT="${GitCommit}"
+    SL_GIT_DATE="${GitDate}"
     )
+#message(STATUS "DEFAULT_COMPILE_DEFINITIONS ${DEFAULT_COMPILE_DEFINITIONS}")
 
 # MSVC compiler options
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
@@ -39,19 +42,13 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     )
 endif ()
 
-
-# 
-# Compile options
-# 
-
 set(DEFAULT_COMPILE_OPTIONS)
 
 # MSVC compiler options
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
         /MP           # -> build with multiple processes
-        /W4           # -> warning level 4
-
+        /W3           # -> warning level 3
         /wd4251       # -> disable warning: 'identifier': class 'type' needs to have dll-interface to be used by clients of class 'type2'
         /wd4592       # -> disable warning: 'identifier': symbol will be dynamically initialized (implementation limitation)
 
@@ -73,21 +70,22 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         -Wall
         -Wno-c++98-compat
         -Wno-c++98-compat-pedantic
-        -Wno-unused-macros
-        -Wno-newline-eof
+        -Wno-covered-switch-default
+        -Wno-double-promotion
         -Wno-exit-time-destructors
         -Wno-global-constructors
         -Wno-gnu-zero-variadic-macro-arguments
         -Wno-documentation
+        -Wno-missing-prototypes
+        -Wno-missing-variable-declarations
+        -Wno-newline-eof
+        -Wno-old-style-cast
         -Wno-shadow
         -Wno-switch-enum
-        -Wno-missing-prototypes
-        -Wno-used-but-marked-unused
+        -Wno-unused-macros
+        -Wno-unused-function
         -Wno-unused-parameter
-        -Wno-old-style-cast
-        -Wno-missing-variable-declarations
-        -Wno-covered-switch-default
-        -Wno-double-promotion
+        -Wno-used-but-marked-unused
         
         $<$<CXX_COMPILER_ID:GNU>:
             -Wmaybe-uninitialized
@@ -117,7 +115,8 @@ set(EXTERNAL_LIB_COMPILE_OPTIONS)
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     set(EXTERNAL_LIB_COMPILE_OPTIONS ${EXTERNAL_LIB_COMPILE_OPTIONS}
         /MP           # -> build with multiple processes
-        /w            # -> no warnings at all
+        /W0           # -> warning level 0 all off
+        /w
 
         $<$<CONFIG:Release>:
         /Gw           # -> whole program global optimization

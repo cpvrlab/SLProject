@@ -27,15 +27,20 @@ SLScene*         SLApplication::scene       = nullptr;
 SLCVCalibration* SLApplication::activeCalib = nullptr;
 SLCVCalibration  SLApplication::calibMainCam;
 SLCVCalibration  SLApplication::calibScndCam;
-SLCVCalibration     SLApplication::calibVideoFile;
+SLCVCalibration  SLApplication::calibVideoFile;
 SLDeviceRotation SLApplication::devRot;
 SLDeviceLocation SLApplication::devLoc;
-SLMemoryStats       SLApplication::memStats;
-SLstring         SLApplication::name       = "SLProjectApp";
-SLstring         SLApplication::version    = "2.2.100";
-SLint            SLApplication::dpi        = 0;
-SLstring         SLApplication::configPath = "../_data/config/";
-SLSceneID        SLApplication::sceneID    = SID_Empty;
+SLMemoryStats    SLApplication::memStats;
+SLstring         SLApplication::name      = "SLProjectApp";
+SLstring         SLApplication::version   = "2.3.000";
+SLint            SLApplication::dpi       = 0;
+SLstring         SLApplication::gitBranch = SL_GIT_BRANCH;
+SLstring         SLApplication::gitCommit = SL_GIT_COMMIT;
+SLstring         SLApplication::gitDate   = SL_GIT_DATE;
+SLint            SLApplication::dpi       = 0;
+//! SLApplication::configPath is overwritten in slCreateAppAndScene.
+SLstring  SLApplication::configPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
+SLSceneID SLApplication::sceneID    = SID_Empty;
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function
 /*! Writes and inits the static application information and create the single
@@ -43,9 +48,9 @@ instance of the scene. Gets called by the C-interface function slCreateAppAndSce
 <br>
 <br>
 See examples usages in:
-  - app-Demo-GLFW:    AppDemoMainGLFW.cpp   in function main()
-  - app-Demo-Android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
-  - app-Demo-iOS:     ViewController.m      in viewDidLoad()
+  - app-Demo-SLProject/GLFW:    AppDemoMainGLFW.cpp   in function main()
+  - app-Demo-SLProject/android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
+  - app-Demo-SLProject/iOS:     ViewController.m      in viewDidLoad()
 <br>
 /param applicationName The apps name
 /param onSceneLoadCallback C Callback function as void* pointer for the scene creation.

@@ -37,7 +37,7 @@ SLCVSize                  SLCVCapture::captureSize;
 SLfloat                   SLCVCapture::startCaptureTimeMS;
 SLbool                    SLCVCapture::hasSecondaryCamera = true;
 SLint                     SLCVCapture::requestedSizeIndex = 0;
-SLstring                  SLCVCapture::videoDefaultPath   = "../_data/videos/";
+SLstring                  SLCVCapture::videoDefaultPath   = "../data/videos/";
 SLstring                  SLCVCapture::videoFilename      = "";
 SLbool                    SLCVCapture::videoLoops         = true;
 SLCVCapture::FrameAndTime SLCVCapture::_lastFrameAndTime;
@@ -290,8 +290,8 @@ void SLCVCapture::adjustForSL()
 }
 //-----------------------------------------------------------------------------
 /*! This method is called by iOS and Android projects that capture their video
-cameras on their own. We only adjust the color space. See the app-Demo-iOS and
-app-Demo-Android projects for the usage.
+cameras on their own. We only adjust the color space. See the app-Demo-SLProject/iOS and
+app-Demo-SLProject/android projects for the usage.
 */
 void SLCVCapture::loadIntoLastFrame(const SLint         width,
                                     const SLint         height,

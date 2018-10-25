@@ -19,7 +19,8 @@
 
 //-----------------------------------------------------------------------------
 //! Default path for 3DS models used when only filename is passed in load.
-SLstring SLImporter::defaultPath = "../_data/models/";
+//! //! Is overwritten in slCreateAppAndScene.
+SLstring SLImporter::defaultPath = SLstring(SL_PROJECT_ROOT) + "data/models/";
 //-----------------------------------------------------------------------------
 /*! Default constructor, doesn't log anything
 */

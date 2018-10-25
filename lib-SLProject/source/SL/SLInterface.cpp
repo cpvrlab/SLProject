@@ -48,9 +48,9 @@ present.<br>
 /param onSceneLoadCallback C Callback function as void* pointer for the scene creation.
 <br>
 See examples usages in:
-  - app-Demo-GLFW:    AppDemoMainGLFW.cpp in function main()
-  - app-Demo-Android: native-lib.cpp      in Java_ch_fhnw_comgr_GLES3Lib_onInit()
-  - app-Demo-iOS:     ViewController.m    in viewDidLoad()
+  - app-Demo-SLProject/GLFW:    AppDemoMainGLFW.cpp in function main()
+  - app-Demo-SLProject/android: native-lib.cpp      in Java_ch_fhnw_comgr_GLES3Lib_onInit()
+  - app-Demo-SLProject/iOS:     ViewController.m    in viewDidLoad()
 */
 void slCreateAppAndScene(SLVstring& cmdLineArgs,
                          SLstring   shaderPath,
@@ -101,9 +101,9 @@ have to provide a similar function and pass it function pointer to
 slCreateSceneView. You can create multiple sceneview per application.<br>
 <br>
 See examples usages in:
-  - app-Demo-GLFW:    AppDemoMainGLFW.cpp   in function main()
-  - app-Demo-Android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
-  - app-Demo-iOS:     ViewController.m      in viewDidLoad()
+  - app-Demo-SLProject/GLFW:    AppDemoMainGLFW.cpp   in function main()
+  - app-Demo-SLProject/android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
+  - app-Demo-SLProject/iOS:     ViewController.m      in viewDidLoad()
 */
 int slCreateSceneView(int       screenWidth,
                       int       screenHeight,

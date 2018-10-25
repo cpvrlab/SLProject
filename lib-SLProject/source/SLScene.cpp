@@ -52,9 +52,9 @@ There will be only one scene for an application and it gets constructed in
 the C-interface function slCreateScene in SLInterface.cpp that is called by the
 platform and UI-toolkit dependent window initialization.
 As examples you can see it in:
-  - app-Demo-GLFW: glfwMain.cpp in function main()
-  - app-Demo-Android: Java_ch_fhnw_comgRT_glES2Lib_onInit()
-  - app-Demo-iOS: ViewController.m in method viewDidLoad()
+  - app-Demo-SLProject/GLFW: glfwMain.cpp in function main()
+  - app-Demo-SLProject/android: Java_ch_fhnw_comgRT_glES2Lib_onInit()
+  - app-Demo-SLProject/iOS: ViewController.m in method viewDidLoad()
   - _old/app-Demo-Qt: qtGLWidget::initializeGL()
   - _old/app-Viewer-Qt: qtGLWidget::initializeGL()
 */

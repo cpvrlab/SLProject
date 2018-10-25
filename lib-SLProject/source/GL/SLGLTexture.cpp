@@ -20,8 +20,9 @@
 
 //-----------------------------------------------------------------------------
 //! Default path for texture files used when only filename is passed in load.
-SLstring SLGLTexture::defaultPath      = "../_data/images/textures/";
-SLstring SLGLTexture::defaultPathFonts = "../_data/images/fonts/";
+//! Is overwritten in slCreateAppAndScene.
+SLstring SLGLTexture::defaultPath      = SLstring(SL_PROJECT_ROOT) + "/data/images/textures/";
+SLstring SLGLTexture::defaultPathFonts = SLstring(SL_PROJECT_ROOT) + "/data/images/fonts/";
 
 //! maxAnisotropy=-1 show that GL_EXT_texture_filter_anisotropic is not checked
 SLfloat SLGLTexture::maxAnisotropy = -1.0f;
@@ -265,11 +266,11 @@ It is important that passed pixel format is either PF_LUMINANCE, RGB or RGBA.
 otherwise an expensive conversion must be done.
 */
 SLbool SLGLTexture::copyVideoImage(SLint         camWidth,
-                            SLint         camHeight,
-                            SLPixelFormat srcFormat,
-                            SLuchar*      data,
-                            SLbool        isContinuous,
-                            SLbool        isTopLeft)
+                                   SLint         camHeight,
+                                   SLPixelFormat srcFormat,
+                                   SLuchar*      data,
+                                   SLbool        isContinuous,
+                                   SLbool        isTopLeft)
 {
     // Add image for the first time
     if (_images.size() == 0)

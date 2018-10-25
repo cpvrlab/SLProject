@@ -39,14 +39,16 @@ moc_*.cpp
 
 !christoffelturm.obj
 
-build/
+_build*/
+build*/
 obj/
 ipch/
-_bin/
-_bin-*/
-_lib/
+_bin*/
 _doc/
+externals/prebuilt/*
 intermediate/
+cmake-build*/
+
 Makefile
 .qmake*
 GenerateHTMLDoc.log
@@ -61,6 +63,5 @@ GenerateHTMLDoc.log
 .settings
 .vs
 .idea
+.DS_Store
 gitcommit.h
-
-app-Demo-Android/build.gradle
