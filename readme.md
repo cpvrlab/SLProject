@@ -10,16 +10,13 @@ cd <Path to where you want the SLProject folder>
 git clone https://github.com/cpvrlab/SLProject.git
 ```
 
-For people with an aversion to the command line, a GIT GUI tool, such as the [GitHub Desktop Client](https://desktop.github.com), can be used.
-
-To get the latest additions to SLProject, please checkout the develop branch:
+For people with an aversion to the command line, a GIT GUI tool, such as the [GitHub Desktop Client](https://desktop.github.com), can be used. To get the latest additions to SLProject, please checkout the develop branch:
 
 ```
 git checkout develop
 ```
 
 For detailed build instructions see the [SLProject wiki](https://github.com/cpvrlab/SLProject/wiki).
-
 For detailed framework information see the [HTML documentation](http://cpvrlab.github.io/SLProject_doc/html/index.html).
 
 
