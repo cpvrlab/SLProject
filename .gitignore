@@ -30,9 +30,10 @@ moc_*.cpp
 
 _build*/
 build*/
+_bin*/
+bin*/
 obj/
 ipch/
-_bin*/
 _doc/
 externals/prebuilt/*
 intermediate/

@@ -18,9 +18,9 @@ To get the latest additions to SLProject, please checkout the develop branch:
 git checkout develop
 ```
 
-For detailed build instructions on various platforms go to the [SLProject wiki](https://github.com/cpvrlab/SLProject/wiki).
+For detailed build instructions see the [SLProject wiki](https://github.com/cpvrlab/SLProject/wiki).
+
+For detailed framework information see the [HTML documentation](http://cpvrlab.github.io/SLProject_doc/html/index.html).
+
 
 [![Build Status](https://ci.appveyor.com/api/projects/status/d101mkgdfy4lqe01?svg=true)](https://ci.appveyor.com/project/MarcusHudritsch/slproject)
-
-See the [SLProject Homepage](http://cpvrlab.github.io/SLProject_doc/) for more information.
-Or go directly to the html documentation here: [framework documentation](http://cpvrlab.github.io/SLProject_doc/html/index.html)
