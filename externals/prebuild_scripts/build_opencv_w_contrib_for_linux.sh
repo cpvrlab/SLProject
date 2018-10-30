@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # ####################################################
 # Build script for OpenCV with contributions for Linux
@@ -14,7 +14,7 @@ BUILD_R=build/"$ARCH"_release_"$CV_VERSION"
 clear
 echo "Building OpenCV Version: $CV_VERSION"
 
-if [ "$1" == "" ]; then
+if [ -z "$1" ]; then
     echo "No OpenCV tag passed as 1st parameter"
     exit
 fi
@@ -103,8 +103,19 @@ cd ../.. # back to opencv
 rm -rf $ZIPFOLDER
 mkdir $ZIPFOLDER
 cp -R $BUILD_R/install/include   $ZIPFOLDER/include
-cp -R $BUILD_R/install/lib64     $ZIPFOLDER/Release
-cp -R $BUILD_D/install/lib64     $ZIPFOLDER/Debug
+
+if [ -d $BUILD_R/install/lib64 ]; then
+    cp -R $BUILD_R/install/lib64     $ZIPFOLDER/Release
+else
+    cp -R $BUILD_R/install/lib     $ZIPFOLDER/Release
+fi
+
+if [ -d $BUILD_D/install/lib64 ]; then
+    cp -R $BUILD_D/install/lib64     $ZIPFOLDER/Debug
+else
+    cp -R $BUILD_D/install/lib     $ZIPFOLDER/Debug
+fi
+
 cp LICENSE $ZIPFOLDER
 cp README.md $ZIPFOLDER
 
