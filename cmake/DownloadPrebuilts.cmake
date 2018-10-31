@@ -51,7 +51,9 @@ set(g2o_LINK_LIBS
     g2o_types_slam2d
     g2o_types_slam2d_addons
     g2o_types_slam3d
-    g2o_types_slam3d_addons)
+    g2o_types_slam3d_addons
+    )
+message(STATUS "G2O_LINK_LIBS: ${g2o_LINK_LIBS}")
 
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
@@ -141,6 +143,32 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         file(COPY ${usedCVLibs_Debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${usedCVLibs_Release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
     endif()
+    
+    #--------------------------------------------------------------------------
+    #G2O
+    set(g2o_DIR ${PREBUILT_PATH}/win64_g2o)
+    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
+    set(g2o_LINK_DIR ${g2o_DIR}/lib)
+    
+    message(STATUS "g2o_INCLUDE_DIR: ${g2o_INCLUDE_DIR}")
+    message(STATUS "g2o_LINK_DIR: ${g2o_LINK_DIR}")
+
+    foreach(lib ${g2o_LINK_LIBS})
+        add_library(${lib} SHARED IMPORTED)
+        set_target_properties(${lib} PROPERTIES
+            IMPORTED_IMPLIB_DEBUG "${g2o_LINK_DIR}/${lib}_d.lib"
+            IMPORTED_IMPLIB "${g2o_LINK_DIR}/${lib}.lib"
+            IMPORTED_LOCATION_DEBUG "${g2o_LINK_DIR}/${lib}_d.dll"
+            IMPORTED_LOCATION "${g2o_LINK_DIR}/${lib}.dll"
+            INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
+        )
+        message(STATUS "${g2o_LINK_DIR}/${lib}.lib")
+        set(g2o_LIBS
+            ${g2o_LIBS}
+            ${lib}
+        )
+    endforeach(lib)
+    message(STATUS "g2o_LIBS: ${g2o_LIBS}")
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     # Download first for iOS
@@ -272,6 +300,32 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
             ${g2o_LIBS}
             lib_${lib})
     endforeach(lib)
+    
+    #--------------------------------------------------------------------------
+    #G2O
+    set(g2o_DIR ${PREBUILT_PATH}/win64_g2o)
+    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
+    set(g2o_LINK_DIR ${g2o_DIR}/lib)
+    
+    message(STATUS "g2o_INCLUDE_DIR: ${g2o_INCLUDE_DIR}")
+    message(STATUS "g2o_LINK_DIR: ${g2o_LINK_DIR}")
+
+    foreach(lib ${g2o_LINK_LIBS})
+        add_library(${lib} SHARED IMPORTED)
+        set_target_properties(${lib} PROPERTIES
+            IMPORTED_IMPLIB_DEBUG "${g2o_LINK_DIR}/${lib}_d.lib"
+            IMPORTED_IMPLIB "${g2o_LINK_DIR}/${lib}.lib"
+            IMPORTED_LOCATION_DEBUG "${g2o_LINK_DIR}/${lib}_d.dll"
+            IMPORTED_LOCATION "${g2o_LINK_DIR}/${lib}.dll"
+            INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
+        )
+        message(STATUS "${g2o_LINK_DIR}/${lib}.lib")
+        set(g2o_LIBS
+            ${g2o_LIBS}
+            ${lib}
+        )
+    endforeach(lib)
+    message(STATUS "g2o_LIBS: ${g2o_LIBS}")
 endif()
 #==============================================================================
 
