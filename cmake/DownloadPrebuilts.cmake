@@ -34,13 +34,13 @@ set(g2o_INCLUDE_DIR)
 set(g2o_LINK_DIR)
 set(g2o_LINK_LIBS
     g2o_core
-    g2o_csparse_extension
-    g2o_ext_csparse
-    g2o_solver_csparse
+    #g2o_csparse_extension
+    #g2o_ext_csparse
+    #g2o_solver_csparse
     g2o_solver_dense
     g2o_solver_eigen
     g2o_solver_pcg
-    g2o_solver_slam2d_linear
+    #g2o_solver_slam2d_linear
     g2o_solver_structure_only
     g2o_stuff
     g2o_types_data
@@ -289,43 +289,26 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
 
     set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
 
+    #--------------------------------------------------------------------------
+    #G2O
     set(g2o_DIR ${PREBUILT_PATH}/andV8_g2o)
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
     set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})
 
+    message(STATUS "g2o_INCLUDE_DIR: ${g2o_INCLUDE_DIR}")
+    message(STATUS "g2o_LINK_DIR: ${g2o_LINK_DIR}")
+
     foreach(lib ${g2o_LINK_LIBS})
         add_library(lib_${lib} SHARED IMPORTED)
-        set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${g2o_LINK_DIR}/lib${lib}.so)
+        set_target_properties(lib_${lib} PROPERTIES 
+        IMPORTED_LOCATION ${g2o_LINK_DIR}/lib${lib}.so
+        INTERFACE_INCLUDE_DIRECTORIES ${g2o_INCLUDE_DIR}
+        )
         set(g2o_LIBS
             ${g2o_LIBS}
             lib_${lib})
     endforeach(lib)
     
-    #--------------------------------------------------------------------------
-    #G2O
-    set(g2o_DIR ${PREBUILT_PATH}/win64_g2o)
-    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR}/lib)
-    
-    message(STATUS "g2o_INCLUDE_DIR: ${g2o_INCLUDE_DIR}")
-    message(STATUS "g2o_LINK_DIR: ${g2o_LINK_DIR}")
-
-    foreach(lib ${g2o_LINK_LIBS})
-        add_library(${lib} SHARED IMPORTED)
-        set_target_properties(${lib} PROPERTIES
-            IMPORTED_IMPLIB_DEBUG "${g2o_LINK_DIR}/${lib}_d.lib"
-            IMPORTED_IMPLIB "${g2o_LINK_DIR}/${lib}.lib"
-            IMPORTED_LOCATION_DEBUG "${g2o_LINK_DIR}/${lib}_d.dll"
-            IMPORTED_LOCATION "${g2o_LINK_DIR}/${lib}.dll"
-            INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
-        )
-        message(STATUS "${g2o_LINK_DIR}/${lib}.lib")
-        set(g2o_LIBS
-            ${g2o_LIBS}
-            ${lib}
-        )
-    endforeach(lib)
-    message(STATUS "g2o_LIBS: ${g2o_LIBS}")
 endif()
 #==============================================================================
 
