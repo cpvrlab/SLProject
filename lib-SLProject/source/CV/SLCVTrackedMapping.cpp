@@ -165,6 +165,7 @@ void SLCVTrackedMapping::initialize()
 
     mCurrentFrame = SLCVFrame(_imageGray, 0.0, mpIniORBextractor, _calib->cameraMat(), _calib->distortion(), mpVocabulary, _retainImg);
 
+#if 0
     if (!_videoCaptureStarted)
     {
         SL_LOG("Starting video capture\n");
@@ -187,6 +188,7 @@ void SLCVTrackedMapping::initialize()
     }
 
     _videoWriter.write(_img);
+#endif
 
     if (!mpInitializer)
     {
@@ -553,7 +555,7 @@ void SLCVTrackedMapping::track3DPts()
 {
     mCurrentFrame = SLCVFrame(_imageGray, 0.0, _extractor, _calib->cameraMat(), _calib->distortion(), mpVocabulary, _retainImg);
 
-    _videoWriter.write(_img);
+    //_videoWriter.write(_img);
 
     // Get Map Mutex -> Map cannot be changed
     std::unique_lock<std::mutex> lock(_map->mMutexMapUpdate, std::defer_lock);

@@ -162,8 +162,8 @@ class SLCVTrackedMapping : public SLCVTracked
 
     bool _serial;
 
-    cv::VideoWriter _videoWriter;
-    bool            _videoCaptureStarted = false;
+    //cv::VideoWriter _videoWriter;
+    bool _videoCaptureStarted = false;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedMapping_H

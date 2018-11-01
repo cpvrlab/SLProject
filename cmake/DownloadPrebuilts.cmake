@@ -34,24 +34,13 @@ set(g2o_INCLUDE_DIR)
 set(g2o_LINK_DIR)
 set(g2o_LINK_LIBS
     g2o_core
-    g2o_csparse_extension
-    g2o_ext_csparse
-    g2o_solver_csparse
     g2o_solver_dense
     g2o_solver_eigen
-    g2o_solver_pcg
-    g2o_solver_slam2d_linear
-    g2o_solver_structure_only
     g2o_stuff
-    g2o_types_data
-    g2o_types_icp
     g2o_types_sba
-    g2o_types_sclam2d
     g2o_types_sim3
-    g2o_types_slam2d
-    g2o_types_slam2d_addons
     g2o_types_slam3d
-    g2o_types_slam3d_addons)
+    )
 
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
@@ -252,7 +241,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
         tegra_hal)
 
     foreach(lib ${OpenCV_LINK_LIBS})
-        add_library(lib_${lib} SHARED IMPORTED)
+        add_library(lib_${lib} STATIC IMPORTED)
         set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${OpenCV_LINK_DIR}/lib${lib}.a)
         set(OpenCV_LIBS
             ${OpenCV_LIBS}
@@ -266,8 +255,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
     set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})
 
     foreach(lib ${g2o_LINK_LIBS})
-        add_library(lib_${lib} SHARED IMPORTED)
-        set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${g2o_LINK_DIR}/lib${lib}.so)
+        add_library(lib_${lib} STATIC IMPORTED)
+        set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${g2o_LINK_DIR}/lib${lib}.a)
         set(g2o_LIBS
             ${g2o_LIBS}
             lib_${lib})
