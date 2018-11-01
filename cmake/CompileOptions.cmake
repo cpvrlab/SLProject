@@ -51,7 +51,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
         /W3           # -> warning level 3
         /wd4251       # -> disable warning: 'identifier': class 'type' needs to have dll-interface to be used by clients of class 'type2'
         /wd4592       # -> disable warning: 'identifier': symbol will be dynamically initialized (implementation limitation)
-
+        /bigobj
+        
         $<$<CONFIG:Release>: 
         /Gw           # -> whole program global optimization
         /GS-          # -> buffer security check: no 

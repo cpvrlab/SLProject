@@ -275,8 +275,8 @@ void SLCVMapNode::doUpdateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
     _kfTextures.clear();
 
     for (auto* kf : kfs) {
-
-        SLCVCamera* cam = new SLCVCamera(this, "KeyFrame" + kf->mnId);
+        // TODO(jan): maybe adjust the name per camera
+        SLCVCamera* cam = new SLCVCamera(this, "KeyFrame");
         //set background
         if (kf->getTexturePath().size())
         {
