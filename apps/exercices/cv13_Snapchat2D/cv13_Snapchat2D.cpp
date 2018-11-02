@@ -38,11 +38,11 @@ static void drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
     }
 }
 //-----------------------------------------------------------------------------
-static void createDelaunay(Mat&                 img,
-                           Subdiv2D&            subdiv,
-                           vector<Point2f>&     points,
-                           bool                 drawAnimated,
-                           vector<vector<int>>& triangleIndexes)
+static void createDelaunay(Mat&                  img,
+                           Subdiv2D&             subdiv,
+                           vector<Point2f>&      points,
+                           bool                  drawAnimated,
+                           vector<vector<uint>>& triangleIndexes)
 {
     // Insert points into subdiv
     for (Point2f p : points)
@@ -66,7 +66,7 @@ static void createDelaunay(Mat&                 img,
     vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
     vector<Point2f> pt(3);
-    vector<int>     ind(3);
+    vector<uint>    ind(3);
 
     for (size_t i = 0; i < triangleList.size(); i++)
     {
@@ -83,7 +83,7 @@ static void createDelaunay(Mat&                 img,
                 for (size_t k = 0; k < points.size(); k++)
                     if (abs(pt[j].x - points[k].x) < 1.0 &&
                         abs(pt[j].y - points[k].y) < 1)
-                        ind[j] = (int)k;
+                        ind[j] = (uint)k;
 
             triangleIndexes.push_back(ind);
         }
@@ -142,11 +142,11 @@ void warpTriangle(Mat&             img1,
     img2(rect2) = img2(rect2) + img2Cropped;
 }
 //-----------------------------------------------------------------------------
-static void warpImage(Mat&                 img1,
-                      Mat&                 img2,
-                      vector<Point2f>&     points1,
-                      vector<Point2f>&     points2,
-                      vector<vector<int>>& triangles)
+static void warpImage(Mat&                  img1,
+                      Mat&                  img2,
+                      vector<Point2f>&      points1,
+                      vector<Point2f>&      points2,
+                      vector<vector<uint>>& triangles)
 {
     for (size_t i = 0; i < triangles.size(); i++)
     {
@@ -226,7 +226,7 @@ int main()
             Subdiv2D subdiv(rect);
 
             // Create and draw the Delaunay triangulation
-            vector<vector<int>> triIndexes1;
+            vector<vector<uint>> triIndexes1;
             createDelaunay(frame, subdiv, landmarks[0], false, triIndexes1);
             drawDelaunay(frame, subdiv, Scalar(255, 255, 255));
 
@@ -237,7 +237,7 @@ int main()
             // ???
 
             // Display results
-            imshow("Snapchat Warp Filter", frame);
+            imshow("Snapchat2D", frame);
         }
 
         // Wait for key to exit loop

@@ -38,6 +38,7 @@ _doc/
 externals/prebuilt/*
 intermediate/
 cmake-build*/
+*Snapchat3D/
 
 Makefile
 .qmake*

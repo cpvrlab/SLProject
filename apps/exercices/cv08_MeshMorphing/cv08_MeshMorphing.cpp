@@ -44,7 +44,7 @@ drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
 static void
 drawDelaunay(Mat&                 img,
              vector<Point2f>&     points,
-             vector<vector<int>>& triangleIndexes,
+             vector<vector<uint>>& triangleIndexes,
              Scalar               delaunay_color)
 {
     Size size = img.size();
@@ -72,7 +72,7 @@ createDelaunay(Mat&                 img,
                Subdiv2D&            subdiv,
                vector<Point2f>&     points,
                bool                 drawAnimated,
-               vector<vector<int>>& triangleIndexes)
+               vector<vector<uint>>& triangleIndexes)
 {
     // Insert points into subdiv
     for (Point2f p : points)
@@ -96,7 +96,7 @@ createDelaunay(Mat&                 img,
     vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
     vector<Point2f> pt(3);
-    vector<int>     ind(3);
+    vector<uint>     ind(3);
 
     for (size_t i = 0; i < triangleList.size(); i++)
     {
@@ -113,7 +113,7 @@ createDelaunay(Mat&                 img,
                 for (size_t k = 0; k < points.size(); k++)
                     if (abs(pt[j].x - points[k].x) < 1.0 &&
                         abs(pt[j].y - points[k].y) < 1)
-                        ind[j] = (int)k;
+                        ind[j] = (uint)k;
 
             triangleIndexes.push_back(ind);
         }
@@ -249,7 +249,7 @@ int main()
     Subdiv2D subdiv(rect);
 
     // Create and draw the Delaunay triangulation
-    vector<vector<int>> triangleIndexes;
+    vector<vector<uint>> triangleIndexes;
     createDelaunay(img1, subdiv, points1, false, triangleIndexes);
 
     // Draw the Delaunay triangulation of face 1
