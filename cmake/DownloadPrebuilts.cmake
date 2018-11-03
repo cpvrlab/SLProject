@@ -120,15 +120,16 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
             ${OpenCV_LIBS}
             optimized ${lib}
             debug ${lib})
-        file(GLOB OpenCV_LIBS_to_copy_debug
-            ${OpenCV_LIBS_to_copy_debug}
-            ${OpenCV_DIR}/Debug/lib${lib}*.dylib
-            )
-        file(GLOB OpenCV_LIBS_to_copy_release
-            ${OpenCV_LIBS_to_copy_release}
-            ${OpenCV_DIR}/Release/lib${lib}*.dylib
-            )
     endforeach(lib)
+
+    file(GLOB OpenCV_LIBS_to_copy_debug
+        ${OpenCV_LIBS_to_copy_debug}
+        ${OpenCV_DIR}/Debug/libopencv_*.dylib
+        )
+    file(GLOB OpenCV_LIBS_to_copy_release
+        ${OpenCV_LIBS_to_copy_release}
+        ${OpenCV_DIR}/Release/libopencv_*.dylib
+        )
 
     if(${CMAKE_GENERATOR} STREQUAL Xcode)
         file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
