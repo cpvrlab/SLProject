@@ -184,8 +184,6 @@ void LocalMapping::RunOnce()
 
         mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
     }
-
-    printf("Run once done\n");
 }
 
 void LocalMapping::InsertKeyFrame(SLCVKeyFrame* pKF)
