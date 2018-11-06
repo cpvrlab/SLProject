@@ -8,9 +8,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>           // precompiled headers
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
 
 #include <SLBox.h>
@@ -18,48 +19,56 @@
 
 //-----------------------------------------------------------------------------
 //! SLBox::SLBox ctor with min. & max. coords. of the axis aligned box
-SLBox::SLBox(SLfloat minx, SLfloat miny, SLfloat minz,
-             SLfloat maxx, SLfloat maxy, SLfloat maxz,
-             SLstring name, SLMaterial* mat) : SLMesh(name)
-{  
+SLBox::SLBox(SLfloat     minx,
+             SLfloat     miny,
+             SLfloat     minz,
+             SLfloat     maxx,
+             SLfloat     maxy,
+             SLfloat     maxz,
+             SLstring    name,
+             SLMaterial* mat) : SLMesh(name)
+{
     _min.set(minx, miny, minz);
     _max.set(maxx, maxy, maxz);
-    SLVec3f diag(_max-_min);
+    SLVec3f diag(_max - _min);
     assert(diag.length() > FLT_EPSILON && "Box has no size!");
     buildMesh(mat);
 }
 //-----------------------------------------------------------------------------
 //! SLBox::SLBox ctor with min. & max. vectors of the axis aligned box
-SLBox::SLBox(SLVec3f min, SLVec3f max, 
-             SLstring name, SLMaterial* mat) : SLMesh(name)
-{  
+SLBox::SLBox(SLVec3f     min,
+             SLVec3f     max,
+             SLstring    name,
+             SLMaterial* mat) : SLMesh(name)
+{
     _min.set(min);
     _max.set(max);
-    SLVec3f diag(_max-_min);
+    SLVec3f diag(_max - _min);
     assert(diag.length() > FLT_EPSILON && "Box has no size!");
     buildMesh(mat);
 }
 //-----------------------------------------------------------------------------
 //! SLBox::buildMesh fills in the underlying arrays from the SLMesh object
 void SLBox::buildMesh(SLMaterial* material)
-{  
+{
     deleteData();
-    
+
     // allocate new vectors of SLMesh
     P.resize(24);       // 6 sides with 4 vertices
-    I16.resize(12*3);   // 6 sides with 2 triangles * 3 indices
+    I16.resize(12 * 3); // 6 sides with 2 triangles * 3 indices
     N.resize(P.size());
-    
+
     //Set one default material index
-    mat = material;
-    
-    SLint p=0, i=0;
-   
+    mat(material);
+
+    SLuint p = 0, i = 0;
+
     // predefined normals
-    SLVec3f NX = SLVec3f( 1, 0, 0);
-    SLVec3f NY = SLVec3f( 0, 1, 0);
-    SLVec3f NZ = SLVec3f( 0, 0, 1);
-   
+    SLVec3f NX = SLVec3f(1, 0, 0);
+    SLVec3f NY = SLVec3f(0, 1, 0);
+    SLVec3f NZ = SLVec3f(0, 0, 1);
+
+    // clang-format off
     // towards +x
     P[p].x=_max.x; P[p].y=_max.y; P[p].z=_max.z; N[p]= NX; p++;  //  0
     P[p].x=_max.x; P[p].y=_min.y; P[p].z=_max.z; N[p]= NX; p++;  //  1
@@ -109,3 +118,4 @@ void SLBox::buildMesh(SLMaterial* material)
     I16[i++] = 20; I16[i++] = 22; I16[i++] = 23;
 }
 //-----------------------------------------------------------------------------
+

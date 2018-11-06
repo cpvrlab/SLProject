@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLOculus.cpp
 //  Purpose:   Wrapper around Oculus Rift
-//  Author:    Marc Wacker, Roman Kühne, Marcus Hudritsch
+//  Author:    Marc Wacker, Roman Kuehne, Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -9,16 +9,16 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>           // precompiled headers
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
 
+#include <SLGLOVRWorkaround.h>
 #include <SLGLOculus.h>
 #include <SLGLProgram.h>
 #include <SLScene.h>
-#include <SLGLOVRWorkaround.h>
-
 
 //-----------------------------------------------------------------------------
 /*! Constructor initializing with default values
@@ -36,48 +36,45 @@ SLGLOculus::SLGLOculus() : _usingDebugHmd(false),
 //-----------------------------------------------------------------------------
 /*! Destructor calling dispose
 */
-SLGLOculus::~SLGLOculus() 
-{  
+SLGLOculus::~SLGLOculus()
+{
     dispose();
 }
 //-----------------------------------------------------------------------------
 /*! Deletes the buffer object
 */
 void SLGLOculus::dispose()
-{  
+{
 }
-
 //-----------------------------------------------------------------------------
 /*! Initialization of the Oculus Rift SDK and the device recognition.
 */
 void SLGLOculus::init()
 {
-	_resolutionScale = 1.25f;
+    _resolutionScale = 1.25f;
     _resolution.set(1920, 1080);
     renderResolution(1920, 1080);
-
 
     for (SLint i = 0; i < 2; ++i)
     {
         _position[i].set(0, 0, 0);
         _orientation[i].set(0, 0, 0, 1);
-        _viewAdjust[i].set((i*2-1)*0.03f, 0, 0); //[-0.03, 0.03]m
-    
+        _viewAdjust[i].set((i * 2 - 1) * 0.03f, 0, 0); //[-0.03, 0.03]m
+
         // not 100% correct projections but it just has to look somewhat right
         _projection[i].perspective(125.0f, 0.88f, 0.1f, 1000.0f);
         _projection[i].translate(-_viewAdjust[i]);
     }
-    
-    createSLDistortionMesh(ET_left,  _distortionMeshVAO[0]);
+
+    createSLDistortionMesh(ET_left, _distortionMeshVAO[0]);
     createSLDistortionMesh(ET_right, _distortionMeshVAO[1]);
 }
-
 //-----------------------------------------------------------------------------
 /*! Renders the distortion mesh with time warp and chromatic abberation
 */
-void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
+void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex, SLCol4f background)
 {
-    SLGLProgram* sp = SLScene::current->programs(SP_stereoOculusDistortion);
+    SLGLProgram* sp = SLApplication::scene->programs(SP_stereoOculusDistortion);
 
     glViewport(0, 0, width, height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -88,13 +85,12 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
 
-
     sp->beginUse();
-    
-    for (int eye = 0; eye < 2; eye++) 
-    {       
+
+    for (int eye = 0; eye < 2; eye++)
+    {
         sp->uniform1i("u_texture", 0);
-        sp->uniform2f("u_eyeToSourceUVScale",  0.232f, -0.376f);
+        sp->uniform2f("u_eyeToSourceUVScale", 0.232f, -0.376f);
         sp->uniform2f("u_eyeToSourceUVOffset", 0.246f, 0.5f);
 
         SLMat4f identity;
@@ -106,13 +102,10 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
     }
 
     sp->endUse();
-    
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 }
-
-
-
 //-----------------------------------------------------------------------------
 /*! Returns the view adjust vector as reported by the HMD for the specified eye
 */
@@ -127,7 +120,8 @@ const SLVec3f& SLGLOculus::viewAdjust(SLEyeType eye)
 //-----------------------------------------------------------------------------
 /*! Returns an perspective projection matrix for the specified eye
 */
-const SLMat4f& SLGLOculus::projection(SLEyeType eye)
+const SLMat4f&
+SLGLOculus::projection(SLEyeType eye)
 {
     if (eye == ET_left)
         return _projection[0];
@@ -137,14 +131,14 @@ const SLMat4f& SLGLOculus::projection(SLEyeType eye)
 //-----------------------------------------------------------------------------
 /*! Returns an orthogonal projection matrix for the specified eye
 */
-const SLMat4f& SLGLOculus::orthoProjection(SLEyeType eye)
+const SLMat4f&
+SLGLOculus::orthoProjection(SLEyeType eye)
 {
     if (eye == ET_left)
         return _orthoProjection[0];
     else
         return _orthoProjection[1];
 }
-
 //-----------------------------------------------------------------------------
 /*! Recalculates values such as projection or render target size
 This function gets called whenever some settings changed.
@@ -155,31 +149,28 @@ void SLGLOculus::calculateHmdValues()
     {
         _position[i].set(0, 0, 0);
         _orientation[i].set(0, 0, 0, 1);
-        _viewAdjust[i].set((i*2-1)*0.03f, 0, 0); //[-0.03, 0.03]m
-    
-        ovrFovPort fov;
-        fov.DownTan = 1.329f;
-        fov.UpTan = 1.329f;
-        fov.LeftTan = 1.058f;
-        fov.RightTan = 1.092f;
-        _projection[i] =  CreateProjection( true, fov,0.01f, 10000.0f );
-    
-        _orthoProjection[i] = ovrMatrix4f_OrthoSubProjection(_projection[i],
-                                                             SLVec2f(1.0f/(549.618286f * ((SLfloat)_outputRes.x /_resolution.x)),
-                                                                     1.0f/(549.618286f * ((SLfloat)_outputRes.x /_resolution.x))),
-                                                             0.8f, _viewAdjust[i].x);
+        _viewAdjust[i].set((i * 2 - 1) * 0.03f, 0, 0); //[-0.03, 0.03]m
 
-        SLMat4f flipY(1.0f, 0.0f, 0.0f, 0.0f,
-                      0.0f,-1.0f, 0.0f, 0.0f,
-                      0.0f, 0.0f, 1.0f, 0.0f,
-                      0.0f, 0.0f, 0.0f, 1.0f);
+        ovrFovPort fov;
+        fov.DownTan    = 1.329f;
+        fov.UpTan      = 1.329f;
+        fov.LeftTan    = 1.058f;
+        fov.RightTan   = 1.092f;
+        _projection[i] = CreateProjection(true, fov, 0.01f, 10000.0f);
+
+        _orthoProjection[i] = ovrMatrix4f_OrthoSubProjection(_projection[i],
+                                                             SLVec2f(1.0f / (549.618286f * ((SLfloat)_outputRes.x / _resolution.x)),
+                                                                     1.0f / (549.618286f * ((SLfloat)_outputRes.x / _resolution.x))),
+                                                             0.8f,
+                                                             _viewAdjust[i].x);
+
+        SLMat4f flipY(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
         _orthoProjection[i] = flipY * _orthoProjection[i];
     }
 
     // done
     _hmdSettingsChanged = false;
 }
-
 //-----------------------------------------------------------------------------
 /*! Specify the final output resolution for this rift 
 */
@@ -187,13 +178,12 @@ void SLGLOculus::renderResolution(SLint width, SLint height)
 {
     if (width == _outputRes.x && height == _outputRes.y)
         return;
-    
+
     _outputRes.x = width;
     _outputRes.y = height;
 
     _hmdSettingsChanged = true;
 }
-
 //-----------------------------------------------------------------------------
 /*! Updates rift status and collects data for timewarp
 */
@@ -203,34 +193,28 @@ void SLGLOculus::beginFrame()
     if (_hmdSettingsChanged)
         calculateHmdValues();
 }
-
-//-----------------------------------------------------------------------------
-/*! endFrame handles correct frame timing
-*/
-void SLGLOculus::endFrame(SLint width, SLint height, SLuint tex)
-{
-	renderDistortion(width, height, tex);
-}
 //-----------------------------------------------------------------------------
 /*! Returns the Oculus orientation as quaternion. If no Oculus Rift is 
 recognized it returns a unit quaternion.
 */
 const SLQuat4f& SLGLOculus::orientation(SLEyeType eye)
 {
-    if (eye == ET_left) return _orientation[0];
-    else                return _orientation[1];
+    if (eye == ET_left)
+        return _orientation[0];
+    else
+        return _orientation[1];
 }
 //-----------------------------------------------------------------------------
-
 /*! Returns the Oculus position.
 */
 const SLVec3f& SLGLOculus::position(SLEyeType eye)
 {
-    if (eye == ET_left) return _position[0];
-    else                return _position[1];
+    if (eye == ET_left)
+        return _position[0];
+    else
+        return _position[1];
 }
 //-----------------------------------------------------------------------------
-
 /*! enable or disable low persistance
 */
 void SLGLOculus::lowPersistance(SLbool val)
@@ -239,10 +223,9 @@ void SLGLOculus::lowPersistance(SLbool val)
         return;
 
     _lowPersistanceEnabled = val;
-    _hmdSettingsChanged = true;
+    _hmdSettingsChanged    = true;
 }
 //-----------------------------------------------------------------------------
-
 /*! enable or disable timewarp
 */
 void SLGLOculus::timeWarp(SLbool val)
@@ -250,11 +233,10 @@ void SLGLOculus::timeWarp(SLbool val)
     if (val == _timeWarpEnabled)
         return;
 
-    _timeWarpEnabled = val;
+    _timeWarpEnabled    = val;
     _hmdSettingsChanged = true;
 }
 //-----------------------------------------------------------------------------
-
 /*! enable or disable position tracking
 */
 void SLGLOculus::positionTracking(SLbool val)
@@ -263,10 +245,9 @@ void SLGLOculus::positionTracking(SLbool val)
         return;
 
     _positionTrackingEnabled = val;
-    _hmdSettingsChanged = true;
+    _hmdSettingsChanged      = true;
 }
 //-----------------------------------------------------------------------------
-
 /*! enable or disable position tracking
 */
 void SLGLOculus::displaySleep(SLbool val)
@@ -274,8 +255,7 @@ void SLGLOculus::displaySleep(SLbool val)
     if (val == _displaySleep)
         return;
 
-    _displaySleep = val;
+    _displaySleep       = val;
     _hmdSettingsChanged = true;
 }
 //-----------------------------------------------------------------------------
-

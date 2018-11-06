@@ -1,0 +1,77 @@
+apply plugin: 'com.android.application'
+
+android {
+    signingConfigs {
+        release {
+            keyAlias 'cpvrlab'
+            keyPassword 'uwenadat'
+            storeFile file('../cpvrlab-release-key')
+            storePassword 'uwenadat'
+        }
+    }
+    compileSdkVersion 24
+    defaultConfig {
+        applicationId "ch.fhnw.comgr"
+        minSdkVersion 21
+        targetSdkVersion 23
+        versionCode 19
+        versionName "2.0.019"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
+        externalNativeBuild {
+            cmake {
+                cppFlags "-frtti -fexceptions -std=c++14 -w -Wno-error=format-security"
+                abiFilters 'arm64-v8a'
+                arguments "-DANDROID_STL=c++_shared"
+                "-DSL_GUI_JAVA"
+                "-DSL_GLES2"
+            }
+        }
+    }
+    sourceSets {
+        main {
+            assets.srcDirs = ['src/main/assets']
+        }
+        debug {
+            // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
+            jniLibs.srcDirs = [
+                    '../../../../externals/prebuilt/andV8_opencv_3.4.1/Debug',
+                    '../../../../externals/prebuilt/andV8_g2o/Debug'
+            ]
+        }
+        release {
+            // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
+            jniLibs.srcDirs = [
+                    '../../../../externals/prebuilt/andV8_opencv_3.4.1/Release',
+                    '../../../../externals/prebuilt/andV8_g2o/Release'
+            ]
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            jniDebuggable true
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "../../../../CMakeLists.txt"
+        }
+    }
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
+    }
+    buildToolsVersion '28.0.3'
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:24.+'
+}

@@ -8,9 +8,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
 #include <SLKeyframe.h>
 
@@ -18,9 +19,9 @@
 /*! Constructor for default keyframes.
 */
 SLKeyframe::SLKeyframe(const SLAnimTrack* parent, SLfloat time)
-: _parentTrack(parent), _time(time)
-{ }
-
+  : _parentTrack(parent), _time(time)
+{
+}
 //-----------------------------------------------------------------------------
 /*! Comperator operator.
 */
@@ -28,16 +29,15 @@ bool SLKeyframe::operator<(const SLKeyframe& other) const
 {
     return _time < other._time;
 }
-
-    
 //-----------------------------------------------------------------------------
 /*! Constructor for specialized transform keyframes.
 */
-SLTransformKeyframe::SLTransformKeyframe(const SLAnimTrack* parent, SLfloat time)
-                    : SLKeyframe(parent, time),
-                    _translation(0, 0, 0),
-                    _rotation(0, 0, 0, 1),
-                    _scale(1, 1, 1)
-{ }
+SLTransformKeyframe::SLTransformKeyframe(const SLAnimTrack* parent,
+                                         SLfloat            time)
+  : SLKeyframe(parent, time),
+    _translation(0, 0, 0),
+    _rotation(0, 0, 0, 1),
+    _scale(1, 1, 1)
+{
+}
 //-----------------------------------------------------------------------------
-

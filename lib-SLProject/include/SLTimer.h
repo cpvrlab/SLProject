@@ -1,0 +1,43 @@
+//#############################################################################
+//  File:      SL/SLTimer.h
+//  Author:    Marcus Hudritsch
+//  Purpose:   High Resolution Timer that is able to measure the elapsed time
+//             with 1 micro-second accuracy with C++11 high_resolution_clock
+//  Date:      July 2014
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: Song Ho Ahn (song.ahn@gmail.com)
+//#############################################################################
+
+#ifndef SLTIMER
+#define SLTIMER
+
+#include <SL.h>
+
+using namespace std::chrono;
+
+//! High Resolution Timer class using C++11
+/*!
+High Resolution Timer that is able to measure the elapsed time with 1 
+micro-second accuracy.
+*/
+class SLTimer
+{
+    public:
+    SLTimer();
+    ~SLTimer() { ; }
+
+    void    start();
+    void    stop();
+    SLfloat elapsedTimeInSec();
+    SLfloat elapsedTimeInMilliSec();
+    SLint64 elapsedTimeInMicroSec();
+
+    static void callAfterSleep(SLint                milliSec,
+                               function<void(void)> callbackFunc);
+
+    private:
+    SLTimePoint _timePoint1; //!< high precision start time point
+    SLTimePoint _timePoint2; //!< high precision end time point
+};
+//---------------------------------------------------------------------------
+#endif

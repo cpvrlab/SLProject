@@ -308,9 +308,6 @@ SLbool SLButton::onMouseUp(const SLMouseButton button,
                            const SLint x, const SLint y, const SLKey mod)
 {  
     SLScene* s = SLScene::current;
-    SLButton* mnu2D = s->menu2D();
-    SLButton* btn = 0; // button pointer for various loops
-    if (!mnu2D) return false;
 
     // GUI space is bottom left!
     SLint h = _sv->scrH()-y;

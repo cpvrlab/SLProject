@@ -3,6 +3,7 @@
 *.suo
 *.vsp
 *.user
+*.user.*
 *.sdf
 *.opensdf
 *.idb
@@ -16,22 +17,39 @@
 *.psess
 *.db
 *.so
+*.bak
+*.log
+*.tlog
+*.lnk
 *.xcuserstate
 *~
+_data/images/sequences/rgbd_dataset_freiburg1_desk
+_data/calibrations/orb-slam-state-*
+_data/calibrations/street*
+_data/calibrations/ORBvoc.txt
+_data/calibrations/imgs
+_data/videos
+_data/slam-maps
+_data
+lib-SLExternal/g2o/BUILD*
+lib-SLExternal/g2o/bin
+lib-SLExternal/g2o/lib*
 
 moc_*.h
 moc_*.cpp
-qrc_*.cpp
 
 !christoffelturm.obj
 
+_build*/
+build*/
 obj/
 ipch/
-_bin/
-_bin-*/
-_lib/
+_bin*/
 _doc/
+externals/prebuilt/*
 intermediate/
+cmake-build*/
+
 Makefile
 .qmake*
 GenerateHTMLDoc.log
@@ -44,3 +62,7 @@ GenerateHTMLDoc.log
 *.classpath
 *.project
 .settings
+.vs
+.idea
+.DS_Store
+gitcommit.h

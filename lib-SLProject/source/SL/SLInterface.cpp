@@ -9,13 +9,16 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#include <SLApplication.h>
+#include <SLAssimpImporter.h>
+#include <SLCVCalibration.h>
+#include <SLCVCapture.h>
+#include <SLInputManager.h>
 #include <SLInterface.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLAssimpImporter.h>
-#include <SLInputManager.h>
-#include <SLCVCapture.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -34,61 +37,61 @@ bool gShouldClose = false;
 called only once per application. The SLScene constructor call is delayed until
 the first SLSceneView is created to guarantee, that the OpenGL context is
 present.<br>
-/param cmdLineArgs Command line arguments
+/param cmdLineArgs Command line arguments (not used yet)
 /param shaderPath Path to the shader files (readonly)
 /param modelPath Path to the 3D model files (readonly)
 /param texturePath Path to the texture image files (readonly)
 /param fontPath Path to the font image files (readonly)
 /param calibrationPath Path to the calibration ini files (readonly)
 /param configPath Path where the config files are stored (read-write)
+/param applicationName The apps name
+/param onSceneLoadCallback C Callback function as void* pointer for the scene creation.
 <br>
 See examples usages in:
-  - app-Demo-GLFW: glfwMain.cpp in function main()
-  - app-Demo-Qt: qtGLWidget::initializeGL()
-  - app-Viewer-Qt: qtGLWidget::initializeGL()
-  - app-Demo-Android: Java_ch_fhnw_comgRT_glES2Lib_onInit()
-  - app-Demo-iOS: ViewController.m in method viewDidLoad()
+  - app-Demo-SLProject/GLFW:    AppDemoMainGLFW.cpp in function main()
+  - app-Demo-SLProject/android: native-lib.cpp      in Java_ch_fhnw_comgr_GLES3Lib_onInit()
+  - app-Demo-SLProject/iOS:     ViewController.m    in viewDidLoad()
 */
-void slCreateScene(SLVstring& cmdLineArgs,
-                   SLstring shaderPath,
-                   SLstring modelPath,
-                   SLstring texturePath,
-                   SLstring fontPath,
-                   SLstring calibrationPath,
-                   SLstring configPath)
+void slCreateAppAndScene(SLVstring& cmdLineArgs,
+                         SLstring   shaderPath,
+                         SLstring   modelPath,
+                         SLstring   texturePath,
+                         SLstring   videoPath,
+                         SLstring   fontPath,
+                         SLstring   calibrationPath,
+                         SLstring   configPath,
+                         SLstring   applicationName,
+                         void*      onSceneLoadCallback)
 {
-    assert(SLScene::current==nullptr && "SLScene is already created!");
-   
+    assert(SLApplication::scene == nullptr && "SLScene is already created!");
+
     // Default paths for all loaded resources
     SLGLProgram::defaultPath      = shaderPath;
     SLGLTexture::defaultPath      = texturePath;
     SLGLTexture::defaultPathFonts = fontPath;
     SLAssimpImporter::defaultPath = modelPath;
+    SLCVCapture::videoDefaultPath = videoPath;
     SLCVCalibration::calibIniPath = calibrationPath;
-    SL::configPath                = configPath;
+    SLApplication::configPath     = configPath;
 
-    SLGLState* stateGL            = SLGLState::getInstance();
+    SLGLState* stateGL = SLGLState::getInstance();
 
-    SL::parseCmdLineArgs(cmdLineArgs);
-    
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
     SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
     SL_LOG("Path to Textures: %s\n", texturePath.c_str());
+    SL_LOG("Path to Textures: %s\n", videoPath.c_str());
     SL_LOG("Path to Fonts   : %s\n", fontPath.c_str());
     SL_LOG("Path to Calibr. : %s\n", calibrationPath.c_str());
     SL_LOG("Path to Config. : %s\n", configPath.c_str());
-    SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION,
-                                           CV_MINOR_VERSION,
-                                           CV_VERSION_REVISION);
-    SL_LOG("CV has OpenCL   : %s\n", cv::ocl::haveOpenCL() ? "yes":"no");
+    SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
+    SL_LOG("CV has OpenCL   : %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");
     SL_LOG("OpenGL Version  : %s\n", stateGL->glVersion().c_str());
     SL_LOG("Vendor          : %s\n", stateGL->glVendor().c_str());
     SL_LOG("Renderer        : %s\n", stateGL->glRenderer().c_str());
-    SL_LOG("GLSL Version    : %s (%s) \n", stateGL->glSLVersion().c_str(),
-                                           stateGL->getSLVersionNO().c_str());
+    SL_LOG("GLSL Version    : %s (%s) \n", stateGL->glSLVersion().c_str(), stateGL->getSLVersionNO().c_str());
     SL_LOG("------------------------------------------------------------------\n");
 
-    SLScene::current = new SLScene("");
+    SLApplication::createAppAndScene(applicationName, onSceneLoadCallback);
 }
 //-----------------------------------------------------------------------------
 /*! Global creation function for a SLSceneview instance returning the index of 
@@ -98,57 +101,58 @@ have to provide a similar function and pass it function pointer to
 slCreateSceneView. You can create multiple sceneview per application.<br>
 <br>
 See examples usages in:
-  - app-Demo-GLFW: glfwMain.cpp in function main()
-  - app-Demo-Qt: qtGLWidget::initializeGL()
-  - app-Viewer-Qt: qtGLWidget::initializeGL()
-  - app-Demo-Android: Java_ch_fhnw_comgRT_glES2Lib_onInit()
-  - app-Demo-iOS: ViewController.m in method viewDidLoad()
+  - app-Demo-SLProject/GLFW:    AppDemoMainGLFW.cpp   in function main()
+  - app-Demo-SLProject/android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
+  - app-Demo-SLProject/iOS:     ViewController.m      in viewDidLoad()
 */
-int slCreateSceneView(int screenWidth,
-                      int screenHeight,
-                      int dotsPerInch,
-                      SLCommand initScene,
-                      void* onWndUpdateCallback,
-                      void* onSelectNodeMeshCallback,
-                      void* onNewSceneViewCallback,
-                      void* onShowSystemCursorCallback)
+int slCreateSceneView(int       screenWidth,
+                      int       screenHeight,
+                      int       dotsPerInch,
+                      SLSceneID initScene,
+                      void*     onWndUpdateCallback,
+                      void*     onSelectNodeMeshCallback,
+                      void*     onNewSceneViewCallback,
+                      void*     onImGuiBuild)
 {
-    assert(SLScene::current && "No SLScene::current!");
+    assert(SLApplication::scene && "No SLApplication::scene!");
 
     // Use our own sceneview creator callback or the the passed one.
     cbOnNewSceneView newSVCallback;
-    if (onNewSceneViewCallback==nullptr)
-         newSVCallback = &slNewSceneView;
-    else newSVCallback = (cbOnNewSceneView)onNewSceneViewCallback;
+    if (onNewSceneViewCallback == nullptr)
+        newSVCallback = &slNewSceneView;
+    else
+        newSVCallback = (cbOnNewSceneView)onNewSceneViewCallback;
 
     // Create the sceneview & get the pointer with the sceneview index
-    SLuint index = newSVCallback();
-    SLSceneView* sv = SLScene::current->sv(index);
+    SLuint       index = (SLuint)newSVCallback();
+    SLSceneView* sv    = SLApplication::scene->sv(index);
 
     sv->init("SceneView",
-             screenWidth, 
-             screenHeight, 
+             screenWidth,
+             screenHeight,
              onWndUpdateCallback,
              onSelectNodeMeshCallback,
-             onShowSystemCursorCallback);
+             onImGuiBuild);
 
-    // Load configuration after the first sceneview creation
-    if (index==0)
-        SL::loadConfig(sv);
+    // Set default font sizes depending on the dpi no matter if ImGui is used
+    if (!SLApplication::dpi) SLApplication::dpi = dotsPerInch;
 
-    if (!SL::dpi)
-        SL::dpi = dotsPerInch;
+    // Load GUI fonts depending on the resolution
+    sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
 
     // Set active sceneview and load scene. This is done for the first sceneview
-    if (!SLScene::current->root3D())
-    {   if (SL::currentSceneID == C_sceneEmpty)
-             SLScene::current->onLoad(sv, initScene);
-        else SLScene::current->onLoad(sv, SL::currentSceneID); 
-    } else
+    if (!SLApplication::scene->root3D())
+    {
+        if (SLApplication::sceneID == SID_Empty)
+            SLApplication::scene->onLoad(SLApplication::scene, sv, initScene);
+        else
+            SLApplication::scene->onLoad(SLApplication::scene, sv, SLApplication::sceneID);
+    }
+    else
         sv->onInitialize();
-   
+
     // return the identifier index
-    return sv->index();
+    return (SLint)sv->index();
 }
 //-----------------------------------------------------------------------------
 /*! Global sceneview construction function returning the index of the created
@@ -159,7 +163,7 @@ slCreateSceneView.
 int slNewSceneView()
 {
     SLSceneView* sv = new SLSceneView();
-    return sv->index();
+    return (SLint)sv->index();
 }
 //-----------------------------------------------------------------------------
 /*! Global closing function that deallocates the sceneview and scene instances.
@@ -184,10 +188,9 @@ All the scenegraph deallocation is started from here and has to be done before
 the GUI app terminates.
 */
 void slTerminate()
-{    
-    // Deletes all remaining sceneviews the current scene instance  
-    delete SLScene::current;
-    SLScene::current = 0;
+{
+    // Deletes all remaining sceneviews the current scene instance
+    SLApplication::deleteAppAndScene();
 }
 //-----------------------------------------------------------------------------
 /*! Global rendering function that first updates the scene due to user or
@@ -197,10 +200,13 @@ called to initiate the rendering of the frame. If either the onUpdate or onPaint
 returned true a new frame should be drawn.
 */
 bool slUpdateAndPaint(int sceneViewIndex)
-{  
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    bool sceneGotUpdated = SLScene::current->onUpdate();
-    bool viewNeedsUpdate =  sv->onPaint();
+{
+    SLSceneView* sv = SLApplication::scene->sv((SLuint)sceneViewIndex);
+
+    bool sceneGotUpdated = SLApplication::scene->onUpdate();
+
+    bool viewNeedsUpdate = sv->onPaint();
+
     return sceneGotUpdated || viewNeedsUpdate;
 }
 //-----------------------------------------------------------------------------
@@ -210,229 +216,236 @@ changes it's size.
 void slResize(int sceneViewIndex, int width, int height)
 {
     SLResizeEvent* e = new SLResizeEvent;
-    e->svIndex = sceneViewIndex;
-    e->width = width;
-    e->height = height;
-
-    SLInputManager::instance().queueEvent(e);
+    e->svIndex       = sceneViewIndex;
+    e->width         = width;
+    e->height        = height;
+    SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse button down events. 
 */
-void slMouseDown(int sceneViewIndex, SLMouseButton button, 
-                 int xpos, int ypos, SLKey modifier) 
-{  
+void slMouseDown(int           sceneViewIndex,
+                 SLMouseButton button,
+                 int           xpos,
+                 int           ypos,
+                 SLKey         modifier)
+{
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseDown);
-    e->svIndex = sceneViewIndex;
-    e->button = button;
-    e->x = xpos;
-    e->y = ypos;
-    e->modifier = modifier;
-
-    SLInputManager::instance().queueEvent(e);
+    e->svIndex      = sceneViewIndex;
+    e->button       = button;
+    e->x            = xpos;
+    e->y            = ypos;
+    e->modifier     = modifier;
+    SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse move events.
 */
-void slMouseMove(int sceneViewIndex, int x, int y)
-{  
+void slMouseMove(int sceneViewIndex,
+                 int x,
+                 int y)
+{
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseMove);
-    e->svIndex = sceneViewIndex;
-    e->x = x;
-    e->y = y;
-
-    SLInputManager::instance().queueEvent(e);
+    e->svIndex      = sceneViewIndex;
+    e->x            = x;
+    e->y            = y;
+    SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse button up events.
 */
-void slMouseUp(int sceneViewIndex, SLMouseButton button, 
-               int xpos, int ypos, SLKey modifier) 
-{  
+void slMouseUp(int           sceneViewIndex,
+               SLMouseButton button,
+               int           xpos,
+               int           ypos,
+               SLKey         modifier)
+{
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseUp);
-    e->svIndex = sceneViewIndex;
-    e->button = button;
-    e->x = xpos;
-    e->y = ypos;
-    e->modifier = modifier;
-
-    SLInputManager::instance().queueEvent(e);
+    e->svIndex      = sceneViewIndex;
+    e->button       = button;
+    e->x            = xpos;
+    e->y            = ypos;
+    e->modifier     = modifier;
+    SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for double click events.
 */
-void slDoubleClick(int sceneViewIndex, SLMouseButton button, 
-                   int xpos, int ypos, SLKey modifier) 
-{  
+void slDoubleClick(int           sceneViewIndex,
+                   SLMouseButton button,
+                   int           xpos,
+                   int           ypos,
+                   SLKey         modifier)
+{
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseDoubleClick);
-    e->svIndex = sceneViewIndex;
-    e->button = button;
-    e->x = xpos;
-    e->y = ypos;
-    e->modifier = modifier;
-
-    SLInputManager::instance().queueEvent(e);
+    e->svIndex      = sceneViewIndex;
+    e->button       = button;
+    e->x            = xpos;
+    e->y            = ypos;
+    e->modifier     = modifier;
+    SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for long touches
 */
-void slLongTouch(int sceneViewIndex, int xpos, int ypos) 
-{  
+void slLongTouch(int sceneViewIndex, int xpos, int ypos)
+{
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::LongTouch);
-    e->svIndex = sceneViewIndex;
-    e->x = xpos;
-    e->y = ypos;
-
-    SLInputManager::instance().queueEvent(e);
+    e->svIndex      = sceneViewIndex;
+    e->x            = xpos;
+    e->y            = ypos;
+    SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for the two finger touch down events of touchscreen 
 devices.
 */
-void slTouch2Down(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
-{  
+void slTouch2Down(int sceneViewIndex,
+                  int xpos1,
+                  int ypos1,
+                  int xpos2,
+                  int ypos2)
+{
     SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch2Down);
-    e->svIndex = sceneViewIndex;
-    e->x1 = xpos1;
-    e->y1 = ypos1;
-    e->x2 = xpos2;
-    e->y2 = ypos2;
+    e->svIndex      = sceneViewIndex;
+    e->x1           = xpos1;
+    e->y1           = ypos1;
+    e->x2           = xpos2;
+    e->y2           = ypos2;
 
-    SLInputManager::instance().queueEvent(e);
+    SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for the two finger move events of touchscreen devices. 
 */
-void slTouch2Move(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
-{  
+void slTouch2Move(int sceneViewIndex,
+                  int xpos1,
+                  int ypos1,
+                  int xpos2,
+                  int ypos2)
+{
     SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch2Move);
-    e->svIndex = sceneViewIndex;
-    e->x1 = xpos1;
-    e->y1 = ypos1;
-    e->x2 = xpos2;
-    e->y2 = ypos2;
-
-    SLInputManager::instance().queueEvent(e);
+    e->svIndex      = sceneViewIndex;
+    e->x1           = xpos1;
+    e->y1           = ypos1;
+    e->x2           = xpos2;
+    e->y2           = ypos2;
+    SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for the two finger touch up events of touchscreen 
 devices. 
 */
-void slTouch2Up(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
+void slTouch2Up(int sceneViewIndex,
+                int xpos1,
+                int ypos1,
+                int xpos2,
+                int ypos2)
 {
     SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch2Up);
-    e->svIndex = sceneViewIndex;
-    e->x1 = xpos1;
-    e->y1 = ypos1;
-    e->x2 = xpos2;
-    e->y2 = ypos2;
-
-    SLInputManager::instance().queueEvent(e);
+    e->svIndex      = sceneViewIndex;
+    e->x1           = xpos1;
+    e->y1           = ypos1;
+    e->x2           = xpos2;
+    e->y2           = ypos2;
+    SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse wheel events. 
 */
-void slMouseWheel(int sceneViewIndex, int pos, SLKey modifier)
-{  
+void slMouseWheel(int   sceneViewIndex,
+                  int   pos,
+                  SLKey modifier)
+{
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseWheel);
-    e->svIndex = sceneViewIndex;
-    e->y = pos;
-    e->modifier = modifier;
-
-    SLInputManager::instance().queueEvent(e);
+    e->svIndex      = sceneViewIndex;
+    e->y            = pos;
+    e->modifier     = modifier;
+    SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key press events. 
 */
-void slKeyPress(int sceneViewIndex, SLKey key, SLKey modifier) 
-{  
+void slKeyPress(int   sceneViewIndex,
+                SLKey key,
+                SLKey modifier)
+{
     SLKeyEvent* e = new SLKeyEvent(SLInputEvent::KeyDown);
-    e->svIndex = sceneViewIndex;
-    e->key = key;
-    e->modifier = modifier;
-
-    SLInputManager::instance().queueEvent(e);
+    e->svIndex    = sceneViewIndex;
+    e->key        = key;
+    e->modifier   = modifier;
+    SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key release events. 
 */
-void slKeyRelease(int sceneViewIndex, SLKey key, SLKey modifier) 
-{  
+void slKeyRelease(int   sceneViewIndex,
+                  SLKey key,
+                  SLKey modifier)
+{
     SLKeyEvent* e = new SLKeyEvent(SLInputEvent::KeyUp);
-    e->svIndex = sceneViewIndex;
-    e->key = key;
-    e->modifier = modifier;
-
-    SLInputManager::instance().queueEvent(e);
+    e->svIndex    = sceneViewIndex;
+    e->key        = key;
+    e->modifier   = modifier;
+    SLApplication::inputManager.queueEvent(e);
 }
 
 //-----------------------------------------------------------------------------
 /*! Global event handler for unicode character input.
 */
-void slCharInput(int sceneViewIndex, unsigned int character)
+void slCharInput(int          sceneViewIndex,
+                 unsigned int character)
 {
     SLCharInputEvent* e = new SLCharInputEvent();
-    e->svIndex = sceneViewIndex;
-    e->character = character;
-
-    SLInputManager::instance().queueEvent(e);
+    e->svIndex          = sceneViewIndex;
+    e->character        = character;
+    SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for keyboard key release events. 
-*/
-void slCommand(int sceneViewIndex, SLCommand command) 
-{  
-    SLCommandEvent* e = new SLCommandEvent;
-    e->svIndex = sceneViewIndex;
-    e->cmd = command;
-    
-    SLInputManager::instance().queueEvent(e);
-}
-//-----------------------------------------------------------------------------
-bool slUsesRotation(int sceneViewIndex)
+bool slUsesRotation()
 {
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->usesRotation();
+    if (SLApplication::scene)
+        return SLApplication::devRot.isUsed();
+    return false;
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for device rotation change with Euler angles pitch
-yaw and roll. With the parameter zeroYawAfterSec sets the time in seconds after
-which the yaw angle is set to zero by subtracting the average yaw in this time.
+/*! Global event handler for device rotation change with angle & and axis.
 */
-void slRotationPYR(int sceneViewIndex, 
-                   float pitchRAD, float yawRAD, float rollRAD)
+void slRotationQUAT(float quatX,
+                    float quatY,
+                    float quatZ,
+                    float quatW)
 {
-    SLRotationEvent* e = new SLRotationEvent(SLInputEvent::DeviceRotationPYR);
-    e->svIndex = sceneViewIndex;
-    e->x = pitchRAD;
-    e->y = yawRAD;
-    e->z = rollRAD;
-    e->w = 3.0f;
-
-    SLInputManager::instance().queueEvent(e);
+    SLApplication::devRot.onRotationQUAT(quatX, quatY, quatZ, quatW);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for device rotation change with angle & and axis. 
-*/
-void slRotationQUAT(int sceneViewIndex, 
-                    float quatX, float quatY, float quatZ, float quatW)
+bool slUsesLocation()
 {
-    SLRotationEvent* e = new SLRotationEvent(SLInputEvent::DeviceRotationPYR);
-    e->svIndex = sceneViewIndex;
-    e->x = quatX;
-    e->y = quatY;
-    e->z = quatZ;
-    e->w = quatW;
-
-    SLInputManager::instance().queueEvent(e);
+    return SLApplication::devLoc.isUsed();
+}
+//-----------------------------------------------------------------------------
+/*! Global event handler for device GPS location with longitude and latitude in
+degrees and altitude in meters. This location uses the World Geodetic System
+1984 (WGS 84). The accuracy in meters is a radius in which the location is with
+a probability of 68% (2 sigma).
+*/
+void slLocationLLA(double latitudeDEG,
+                   double longitudeDEG,
+                   double altitudeM,
+                   float  accuracyM)
+{
+    SLApplication::devLoc.onLocationLLA(latitudeDEG,
+                                        longitudeDEG,
+                                        altitudeM,
+                                        accuracyM);
 }
 //-----------------------------------------------------------------------------
 /*! Global function to retrieve a window title text generated by the scene
 library. 
 */
-string slGetWindowTitle(int sceneViewIndex) 
-{  
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
+string slGetWindowTitle(int sceneViewIndex)
+{
+    SLSceneView* sv = SLApplication::scene->sv((SLuint)sceneViewIndex);
     return sv->windowTitle();
 }
 //-----------------------------------------------------------------------------
@@ -440,7 +453,7 @@ string slGetWindowTitle(int sceneViewIndex)
 */
 int slGetVideoType()
 {
-    return (int)SLScene::current->videoType();
+    return (int)SLApplication::scene->videoType();
 }
 //-----------------------------------------------------------------------------
 /*! Global function that returns the size index offset of the requested video.
@@ -454,15 +467,24 @@ int slGetVideoSizeIndex()
     return SLCVCapture::requestedSizeIndex;
 }
 //-----------------------------------------------------------------------------
+/*! Global function to grab the next frame with the OpenCV capture device. This
+should be used by Android and iOS apps for grabbing the next video frame from
+a video file.
+*/
+void slGrabVideoFileFrame()
+{
+    SLCVCapture::grabAndAdjustForSL();
+}
+//-----------------------------------------------------------------------------
 /*! Global function to copy a new video image to the SLScene::_videoTexture.
 An application can grab the live video image with OpenCV via slGrabCopyVideoImage
 or with another OS dependent framework.
 */
-void slCopyVideoImage(SLint width,
-                      SLint height,
+void slCopyVideoImage(SLint         width,
+                      SLint         height,
                       SLPixelFormat format,
-                      SLuchar* data,
-                      SLbool isContinuous)
+                      SLuchar*      data,
+                      SLbool        isContinuous)
 {
     SLCVCapture::loadIntoLastFrame(width,
                                    height,
@@ -475,15 +497,59 @@ void slCopyVideoImage(SLint width,
 plane to the SLCVCapture::lastFrame. This should mainly used by mobile platforms
 to efficiently copy the video frame to the SLCVCapture::lastFrame.
 */
-void slCopyVideoYUVPlanes(int srcW, int srcH,
-                          SLuchar* y, int ySize, int yPixStride, int yLineStride,
-                          SLuchar* u, int uSize, int uPixStride, int uLineStride,
-                          SLuchar* v, int vSize, int vPixStride, int vLineStride)
+void slCopyVideoYUVPlanes(int      srcW,
+                          int      srcH,
+                          SLuchar* y,
+                          int      ySize,
+                          int      yPixStride,
+                          int      yLineStride,
+                          SLuchar* u,
+                          int      uSize,
+                          int      uPixStride,
+                          int      uLineStride,
+                          SLuchar* v,
+                          int      vSize,
+                          int      vPixStride,
+                          int      vLineStride)
 {
-    SLCVCapture::copyYUVPlanes(srcW, srcH,
-                               y, ySize, yPixStride, yLineStride,
-                               u, uSize, uPixStride, uLineStride,
-                               v, vSize, vPixStride, vLineStride);
+    SLCVCapture::copyYUVPlanes(srcW,
+                               srcH,
+                               y,
+                               ySize,
+                               yPixStride,
+                               yLineStride,
+                               u,
+                               uSize,
+                               uPixStride,
+                               uLineStride,
+                               v,
+                               vSize,
+                               vPixStride,
+                               vLineStride);
 }
 //-----------------------------------------------------------------------------
-
+/*! Get available external directories and inform slproject about them
+*/
+void slSetupExternalDirectories(SLstring externalDirPath)
+{
+    if (SLFileSystem::dirExists(externalDirPath))
+    {
+        SL_LOG("External directory: %s\n", externalDirPath.c_str());
+        SLFileSystem::setExternalDir(externalDirPath);
+    }
+    else
+    {
+        SL_LOG("ERROR: external directory does not exists: %s\n", externalDirPath.c_str());
+    }
+}
+//-----------------------------------------------------------------------------
+void slInstallMemoryStatsCallback(void* cb)
+{
+    //save callback in SLMemoryStats class
+    SLApplication::memStats.setCallback((cbMemoryStats*)cb);
+}
+//-----------------------------------------------------------------------------
+void slSetMemoryStatsValues(long freeMemoryRT, long totalMemoryRT, long maxMemoryRT, long availMemoryAM, long totalMemoryAM, long thresholdAM, bool lowMemoryAM)
+{
+    SLApplication::memStats.setValues(freeMemoryRT, totalMemoryRT, maxMemoryRT, availMemoryAM, totalMemoryAM, thresholdAM, lowMemoryAM);
+}

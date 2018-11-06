@@ -1,20 +1,21 @@
 //#############################################################################
 //  File:      SLLens.cpp
-//  Author:    Philipp Jüni
+//  Author:    Philipp Jueni
 //  Date:      October 2014
-//  Copyright: Marcus Hudritsch, Philipp Jüni
+//  Copyright: Marcus Hudritsch, Philipp Jueni
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>           // precompiled headers
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
 #endif
 
 using namespace std;
-#include <SLMaterial.h>
 #include <SLLens.h>
+#include <SLMaterial.h>
 
 //-----------------------------------------------------------------------------
 /*!
@@ -45,24 +46,24 @@ From the diopter, the radius (R1, R2) can be calculated: <br>
 radiusFront = (LensMaterial - OutsideMaterial) / FrontDiopter) * diameter;<br>
 radiusBack = (OutsideMaterial - LensMaterial) / BackDiopter) * diameter;<br>
 */
-SLLens::SLLens(double sphere, 
-               double cylinder, 
-               SLfloat diameter,
-               SLfloat thickness,
-               SLint stacks, 
-               SLint slices, 
-               SLstring name, 
+SLLens::SLLens(double      sphere,
+               double      cylinder,
+               SLfloat     diameter,
+               SLfloat     thickness,
+               SLuint      stacks,
+               SLuint      slices,
+               SLstring    name,
                SLMaterial* mat) : SLRevolver(name)
 {
     assert(slices >= 3 && "Error: Not enough slices.");
-    assert(slices >  0 && "Error: Not enough stacks.");
+    assert(slices > 0 && "Error: Not enough stacks.");
 
-    SLfloat diopterBot = (SLfloat)sphere; // D1 = sphere
+    SLfloat diopterBot = (SLfloat)sphere;              // D1 = sphere
     SLfloat diopterTop = (SLfloat)(sphere + cylinder); // D2 = sphere + cylinder
 
-    init(diopterBot, diopterTop, diameter, thickness, stacks, slices, mat);
+    initLens(diopterBot, diopterTop, diameter, thickness, stacks, slices, mat);
 }
-
+//-----------------------------------------------------------------------------
 /*!
 SLLens::SLLens ctor for lens revolution object around the y-axis. <br>
 Create the lens with radius.<br>
@@ -84,23 +85,23 @@ Negative radius creates a concave lens side. <br>
 Setting the radius to 0 creates a plane. <br>
 Combine the two radius to get the required lens.
 */
-SLLens::SLLens(SLfloat radiusBot,
-               SLfloat radiusTop,
-               SLfloat diameter,
-               SLfloat thickness,
-               SLint stacks,
-               SLint slices,
-               SLstring name,
+SLLens::SLLens(SLfloat     radiusBot,
+               SLfloat     radiusTop,
+               SLfloat     diameter,
+               SLfloat     thickness,
+               SLuint      stacks,
+               SLuint      slices,
+               SLstring    name,
                SLMaterial* mat) : SLRevolver(name)
 {
-    SLfloat nOut = 1.00;            // kn material outside lens
-    SLfloat nLens = mat->kn();      // kn material of the lens
+    SLfloat nOut       = 1.00;      // kn material outside lens
+    SLfloat nLens      = mat->kn(); // kn material of the lens
     SLfloat diopterBot = (SLfloat)((nLens - nOut) * diameter / radiusBot);
     SLfloat diopterTop = (SLfloat)((nOut - nLens) * diameter / radiusTop);
 
-    init(diopterBot, diopterTop, diameter, thickness, stacks, slices, mat);
+    initLens(diopterBot, diopterTop, diameter, thickness, stacks, slices, mat);
 }
-
+//-----------------------------------------------------------------------------
 /*! 
 \brief Initialize the lens
 \param diopterBot SLfloat The diopter of the bot (front) part of the lens
@@ -111,57 +112,59 @@ SLLens::SLLens(SLfloat radiusBot,
 \param slices SLint
 \param mat SLMaterial* The Material of the lens
 */
-void SLLens::init(SLfloat diopterBot, 
-                  SLfloat diopterTop, 
-                  SLfloat diameter, 
-                  SLfloat thickness, 
-                  SLint stacks, 
-                  SLint slices, 
-                  SLMaterial* mat)
+void SLLens::initLens(SLfloat     diopterBot,
+                      SLfloat     diopterTop,
+                      SLfloat     diameter,
+                      SLfloat     thickness,
+                      SLuint      stacks,
+                      SLuint      slices,
+                      SLMaterial* mat)
 {
     assert(slices >= 3 && "Error: Not enough slices.");
-    assert(slices >  0 && "Error: Not enough stacks.");
+    assert(slices > 0 && "Error: Not enough stacks.");
 
-    _diameter = diameter;
-    _thickness = thickness;
-    _stacks = stacks;
-    _slices = slices;
+    _diameter    = diameter;
+    _thickness   = thickness;
+    _stacks      = stacks;
+    _slices      = slices;
     _pointOutput = false; // cout the coordinates of each point of the lens
 
     // Gullstrand-Formel
     // D = D1 + D2 - delta * D1 * D2
 
     // calc radius
-    SLfloat nOut = 1.00;         // kn material outside lens
-    SLfloat nLens = mat->kn();   // kn material of the lens
+    SLfloat nOut  = 1.00;      // kn material outside lens
+    SLfloat nLens = mat->kn(); // kn material of the lens
 
     // calc radius
-    _radiusBot = (SLfloat) ((nLens - nOut) / diopterBot) * _diameter;
-    _radiusTop = (SLfloat) ((nOut - nLens) / diopterTop) * _diameter;
+    _radiusBot = (SLfloat)((nLens - nOut) / diopterBot) * _diameter;
+    _radiusTop = (SLfloat)((nOut - nLens) / diopterTop) * _diameter;
 
     if (_pointOutput)
-        cout << " radiusBot: " << _radiusBot <<
-                " radiusTop: " << _radiusTop << endl;
+        cout << " radiusBot: " << _radiusBot << " radiusTop: " << _radiusTop << endl;
 
     // generate lens
     generateLens(_radiusBot, _radiusTop, mat);
 }
-
+//-----------------------------------------------------------------------------
 /*! 
 \brief Generate the lens with given front and back radius
 \param radiusBot radius of the lens front side
 \param radiusTop radius of the lens back side
 \param mat the material pointer that is passed to SLRevolver
 */
-void SLLens::generateLens(SLfloat radiusBot, SLfloat radiusTop, SLMaterial* mat)
+void SLLens::generateLens(SLfloat     radiusBot,
+                          SLfloat     radiusTop,
+                          SLMaterial* mat)
 {
     _smoothFirst = true;
-    _smoothLast = true;
+    _smoothLast  = true;
     _revAxis.set(0, 1, 0);
 
     if (_diameter > 0)
-    {   SLfloat x = generateLensTop(radiusTop);
-        if (x == 0)
+    {
+        SLfloat x = generateLensTop(radiusTop);
+        if (x < 0.0001f)
             buildMesh(mat);
         else
             cout << "error in lens calculation: (x = " << x << ")" << endl;
@@ -169,7 +172,7 @@ void SLLens::generateLens(SLfloat radiusBot, SLfloat radiusTop, SLMaterial* mat)
     else
         cout << "invalid lens diameter: " << _diameter << endl;
 }
-
+//-----------------------------------------------------------------------------
 /*! 
 \brief Generate the bottom (front) part of the lens
 \param radius of the lens
@@ -182,47 +185,45 @@ SLfloat SLLens::generateLensBot(SLfloat radius)
     SLfloat y;
     SLfloat x = 0;
 
-    SLfloat sagitta = calcSagitta(radius);
-    SLint halfStacks = _stacks / 2;
+    SLfloat sagitta    = calcSagitta(radius);
+    SLint   halfStacks = _stacks / 2;
 
     // check if lens has a deep
     if ((sagitta >= 0))
     {
-        SLfloat alphaAsin = _diameter / (2.0f * radius);
-        alphaAsin = (alphaAsin > 1) ? 1 : alphaAsin;  // correct rounding errors
-        alphaAsin = (alphaAsin < -1) ? -1 : alphaAsin;// correct rounding errors
-        SLfloat alphaRAD = 2.0f * (SLfloat)asin(alphaAsin);
-        SLfloat dAlphaRAD = (alphaRAD * 0.5f) / halfStacks;
-
-        SLfloat yStart1 = -sagitta;
+        SLfloat alphaAsin       = _diameter / (2.0f * radius);
+        alphaAsin               = SL_clamp(alphaAsin, -1.0f, 1.0f);
+        SLfloat alphaRAD        = 2.0f * (SLfloat)asin(alphaAsin);
+        SLfloat dAlphaRAD       = (alphaRAD * 0.5f) / halfStacks;
+        SLfloat yStart1         = -sagitta;
         SLfloat currentAlphaRAD = -SL_HALFPI;
         SLfloat currentAlphaDEG = currentAlphaRAD * SL_RAD2DEG;
-        SLfloat radiusAmount1 = radius;
-        SLfloat yTranslate1 = radius - sagitta;
+        SLfloat radiusAmount1   = radius;
+        SLfloat yTranslate1     = radius - sagitta;
 
         // settings for negative radius
         if (radius < 0)
         {
-            yStart1 = 0;
+            yStart1         = 0;
             currentAlphaRAD = SL_HALFPI;
-            radiusAmount1 = -radius;
-            yTranslate1 = radius;
+            radiusAmount1   = -radius;
+            yTranslate1     = radius;
         }
 
         y = yStart1;
         // set start point
-        p.x = (SLfloat) x;
-        p.y = (SLfloat) y;
+        p.x = (SLfloat)x;
+        p.y = (SLfloat)y;
         p.z = 0;
         _revPoints.push_back(p);
         if (_pointOutput) cout << currentAlphaDEG << "  x: " << x << "  y: " << y << endl;
-        
+
         // draw bottom part of the lens
         for (int i = 0; i < halfStacks; i++)
         {
             // change angle
             currentAlphaRAD += dAlphaRAD;
-            currentAlphaDEG = currentAlphaRAD*SL_RAD2DEG;
+            currentAlphaDEG = currentAlphaRAD * SL_RAD2DEG;
 
             // calc x
             x = cos(currentAlphaRAD) * radiusAmount1;
@@ -247,7 +248,7 @@ SLfloat SLLens::generateLensBot(SLfloat radius)
         SLfloat cutX = (_diameter / 2) / halfStacks;
 
         // Draw plane
-        for (int i = 0; i <= halfStacks-1; i++)
+        for (int i = 0; i <= halfStacks - 1; i++)
         {
             x = cutX * i;
             y = 0;
@@ -257,12 +258,13 @@ SLfloat SLLens::generateLensBot(SLfloat radius)
             p.y = y;
             p.z = 0;
             _revPoints.push_back(p);
-            if (_pointOutput) cout << "0" << "  x: " << x << "  y: " << y << " _B" << endl;
+            if (_pointOutput) cout << "0"
+                                   << "  x: " << x << "  y: " << y << " _B" << endl;
         }
     }
     return x;
 }
-
+//-----------------------------------------------------------------------------
 /*! 
 \brief Generate the top (back) part of the lens
 \param radius of the lens
@@ -273,40 +275,40 @@ SLfloat SLLens::generateLensTop(SLfloat radius)
     // Point
     SLVec3f p;
     SLfloat x = _diameter / 2;
-    SLfloat y;// = yStart2;
+    SLfloat y; // = yStart2;
 
-    SLfloat sagitta = calcSagitta(radius);
-    SLint halfStacks = _stacks / 2;
+    SLfloat sagitta    = calcSagitta(radius);
+    SLint   halfStacks = _stacks / 2;
 
     // check if the lens has a deep
     if ((sagitta >= 0))
     {
-        SLfloat yStart2 = _thickness;
+        SLfloat yStart2       = _thickness;
         SLfloat radiusAmount2 = radius;
-        SLfloat yTranslate2 = -radius + sagitta;
+        SLfloat yTranslate2   = -radius + sagitta;
 
-        SLfloat betaAsin = _diameter / (2.0f * radius);
-        betaAsin = (betaAsin > 1) ? 1 : betaAsin;  // correct rounding errors
-        betaAsin = (betaAsin < -1) ? -1 : betaAsin;// correct rounding errors
-        SLfloat betaRAD = 2.0f * (SLfloat)asin( betaAsin );
+        SLfloat betaAsin       = _diameter / (2.0f * radius);
+        betaAsin               = (betaAsin > 1) ? 1 : betaAsin;   // correct rounding errors
+        betaAsin               = (betaAsin < -1) ? -1 : betaAsin; // correct rounding errors
+        SLfloat betaRAD        = 2.0f * (SLfloat)asin(betaAsin);
         SLfloat currentBetaRAD = SL_HALFPI - (betaRAD * 0.5f);
 
         // settings for negative radius
         if (radius < 0)
         {
             currentBetaRAD = -SL_HALFPI - (betaRAD * 0.5f);
-            yStart2 = sagitta + _thickness;
-            radiusAmount2 = -radius;
-            yTranslate2 = -radius;
+            yStart2        = sagitta + _thickness;
+            radiusAmount2  = -radius;
+            yTranslate2    = -radius;
         }
 
         SLfloat currentBetaDEG = currentBetaRAD * SL_RAD2DEG;
-        SLfloat dBetaRAD = (betaRAD  * 0.5f) / halfStacks;
+        SLfloat dBetaRAD       = (betaRAD * 0.5f) / halfStacks;
 
         // set start point
-        y = yStart2;
-        p.x = (SLfloat) x;
-        p.y = (SLfloat) y;
+        y   = yStart2;
+        p.x = (SLfloat)x;
+        p.y = (SLfloat)y;
         p.z = 0;
         _revPoints.push_back(p);
         if (_pointOutput) cout << currentBetaDEG << "  x: " << x << "  y: " << y << endl;
@@ -316,7 +318,7 @@ SLfloat SLLens::generateLensTop(SLfloat radius)
         {
             // change angle
             currentBetaRAD += dBetaRAD;
-            currentBetaDEG = currentBetaRAD*SL_RAD2DEG;
+            currentBetaDEG = currentBetaRAD * SL_RAD2DEG;
 
             // calc y
             y = (((sin(currentBetaRAD)) * (radiusAmount2)) + yTranslate2 + _thickness);
@@ -345,7 +347,7 @@ SLfloat SLLens::generateLensTop(SLfloat radius)
         SLfloat cutX = x / halfStacks;
 
         // Draw plane
-        for (int i = halfStacks-1; i >= 0; i--)
+        for (int i = halfStacks - 1; i >= 0; i--)
         {
             x = cutX * i;
             y = _thickness;
@@ -355,12 +357,13 @@ SLfloat SLLens::generateLensTop(SLfloat radius)
             p.y = y;
             p.z = 0;
             _revPoints.push_back(p);
-            if (_pointOutput) cout << "0" << "  x: " << x << "  y: " << y << " _T" << endl;
+            if (_pointOutput) cout << "0"
+                                   << "  x: " << x << "  y: " << y << " _T" << endl;
         }
     }
     return x;
 }
-
+//-----------------------------------------------------------------------------
 /*! 
 \brief Calculate the sagitta (s) for a given radius (r) and diameter (l+l) 
 l: half of the lens diameter
@@ -373,11 +376,11 @@ SLfloat SLLens::calcSagitta(SLfloat radius)
 {
     // take the amount of the radius
     SLfloat radiusAmount = (radius < 0) ? -radius : radius;
-    SLfloat l = _diameter * 0.5f;
+    SLfloat l            = _diameter * 0.5f;
 
     // sagitta = radius - sqrt( radius*radius - l*l )
     // calc this part to sort out negative numbers in square root
-    SLfloat part = radiusAmount*radiusAmount - l*l;
+    SLfloat part = radiusAmount * radiusAmount - l * l;
 
     // set sagitta negative if no bulge is given -> plane
     SLfloat sagitta = (part >= 0) ? (radiusAmount - sqrt(part)) : -1;
