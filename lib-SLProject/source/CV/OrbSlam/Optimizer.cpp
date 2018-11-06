@@ -55,11 +55,13 @@ void Optimizer::BundleAdjustment(const vector<SLCVKeyFrame *> &vpKFs, const vect
     vbNotIncludedMP.resize(vpMP.size());
 
     g2o::SparseOptimizer optimizer;
-    std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType> linearSolver =
-        std::make_unique<g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>>();
-    std::unique_ptr<g2o::BlockSolver_6_3> solver_ptr = g2o::make_unique<g2o::BlockSolver_6_3>(std::move(linearSolver));
+    g2o::BlockSolver_6_3::LinearSolverType* linearSolver;
 
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(std::move(solver_ptr));
+    linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>();
+
+    g2o::BlockSolver_6_3* solver_ptr = new g2o::BlockSolver_6_3(linearSolver);
+
+    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
     optimizer.setAlgorithm(solver);
 
     if(pbStopFlag)
@@ -241,11 +243,13 @@ int Optimizer::PoseOptimization(SLCVFrame *pFrame)
 {
     //ghm1: Attention, we add every map point assotiated to a keypoint to the optimizer
     g2o::SparseOptimizer optimizer;
-    std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType>  linearSolver =
-        g2o::make_unique< g2o::LinearSolverDense<g2o::BlockSolver_6_3::PoseMatrixType>>();
-    std::unique_ptr<g2o::BlockSolver_6_3> solver_ptr = g2o::make_unique<g2o::BlockSolver_6_3>(std::move(linearSolver));
+    g2o::BlockSolver_6_3::LinearSolverType * linearSolver;
 
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(std::move(solver_ptr));
+    linearSolver = new g2o::LinearSolverDense<g2o::BlockSolver_6_3::PoseMatrixType>();
+
+    g2o::BlockSolver_6_3 * solver_ptr = new g2o::BlockSolver_6_3(linearSolver);
+
+    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
     optimizer.setAlgorithm(solver);
 
     int nInitialCorrespondences=0;
@@ -461,10 +465,10 @@ void Optimizer::OptimizeEssentialGraph(SLCVMap* pMap, SLCVKeyFrame* pLoopKF, SLC
     // Setup optimizer
     g2o::SparseOptimizer optimizer;
     optimizer.setVerbose(false);
-    std::unique_ptr<g2o::BlockSolver_7_3::LinearSolverType> linearSolver =
-        g2o::make_unique<g2o::LinearSolverEigen<g2o::BlockSolver_7_3::PoseMatrixType>>();
-    std::unique_ptr<g2o::BlockSolver_7_3> solver_ptr = g2o::make_unique<g2o::BlockSolver_7_3>(std::move(linearSolver));
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(std::move(solver_ptr));
+    g2o::BlockSolver_7_3::LinearSolverType * linearSolver =
+        new g2o::LinearSolverEigen<g2o::BlockSolver_7_3::PoseMatrixType>();
+    g2o::BlockSolver_7_3 * solver_ptr = new g2o::BlockSolver_7_3(linearSolver);
+    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
 
     solver->setUserLambdaInit(1e-16);
     optimizer.setAlgorithm(solver);
@@ -773,11 +777,13 @@ void Optimizer::LocalBundleAdjustment(SLCVKeyFrame *pKF, bool* pbStopFlag, SLCVM
 
     // Setup optimizer
     g2o::SparseOptimizer optimizer;
-    std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType> linearSolver =
-        g2o::make_unique<g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>>();
-    std::unique_ptr<g2o::BlockSolver_6_3> solver_ptr = g2o::make_unique<g2o::BlockSolver_6_3>(std::move(linearSolver));
+    g2o::BlockSolver_6_3::LinearSolverType * linearSolver;
 
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(std::move(solver_ptr));
+    linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>();
+
+    g2o::BlockSolver_6_3 * solver_ptr = new g2o::BlockSolver_6_3(linearSolver);
+
+    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
     optimizer.setAlgorithm(solver);
 
     if(pbStopFlag)
@@ -1047,11 +1053,13 @@ void Optimizer::LocalBundleAdjustment(SLCVKeyFrame *pKF, bool* pbStopFlag, SLCVM
 int Optimizer::OptimizeSim3(SLCVKeyFrame *pKF1, SLCVKeyFrame *pKF2, vector<SLCVMapPoint *> &vpMatches1, g2o::Sim3 &g2oS12, const float th2, const bool bFixScale)
 {
     g2o::SparseOptimizer optimizer;
-    std::unique_ptr<g2o::BlockSolverX::LinearSolverType> linearSolver =
-        g2o::make_unique<g2o::LinearSolverDense<g2o::BlockSolverX::PoseMatrixType>>();
-    std::unique_ptr<g2o::BlockSolverX> solver_ptr = g2o::make_unique<g2o::BlockSolverX>(std::move(linearSolver));
+    g2o::BlockSolverX::LinearSolverType * linearSolver;
 
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(std::move(solver_ptr));
+    linearSolver = new g2o::LinearSolverDense<g2o::BlockSolverX::PoseMatrixType>();
+
+    g2o::BlockSolverX * solver_ptr = new g2o::BlockSolverX(linearSolver);
+
+    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
     optimizer.setAlgorithm(solver);
 
     // Calibration
@@ -1072,19 +1080,19 @@ int Optimizer::OptimizeSim3(SLCVKeyFrame *pKF1, SLCVKeyFrame *pKF2, vector<SLCVM
     vSim3->setFixed(false);
 
     //replacement because of new  g2o (maybe this leads to errors...)
-    //vSim3->_principle_point[0] = K1.at<float>(0,2);
-    //vSim3->_principle_point[1] = K1.at<float>(1,2);
-    //vSim3->_focal_length[0] = K1.at<float>(0,0);
-    //vSim3->_focal_length[1] = K1.at<float>(1,1);
+    vSim3->_principle_point[0] = K1.at<float>(0,2);
+    vSim3->_principle_point[1] = K1.at<float>(1,2);
+    vSim3->_focal_length[0] = K1.at<float>(0,0);
+    vSim3->_focal_length[1] = K1.at<float>(1,1);
 
-    vSim3->_principle_point1[0] = K1.at<float>(0,2);
-    vSim3->_principle_point1[1] = K1.at<float>(1,2);
-    vSim3->_focal_length1[0] = K1.at<float>(0,0);
-    vSim3->_focal_length1[1] = K1.at<float>(1,1);
-    vSim3->_principle_point2[0] = K2.at<float>(0,2);
-    vSim3->_principle_point2[1] = K2.at<float>(1,2);
-    vSim3->_focal_length2[0] = K2.at<float>(0,0);
-    vSim3->_focal_length2[1] = K2.at<float>(1,1);
+    //vSim3->_principle_point1[0] = K1.at<float>(0,2);
+    //vSim3->_principle_point1[1] = K1.at<float>(1,2);
+    //vSim3->_focal_length1[0] = K1.at<float>(0,0);
+    //vSim3->_focal_length1[1] = K1.at<float>(1,1);
+    //vSim3->_principle_point2[0] = K2.at<float>(0,2);
+    //vSim3->_principle_point2[1] = K2.at<float>(1,2);
+    //vSim3->_focal_length2[0] = K2.at<float>(0,0);
+    //vSim3->_focal_length2[1] = K2.at<float>(1,1);
     optimizer.addVertex(vSim3);
 
     // Set SLCVMapPoint vertices

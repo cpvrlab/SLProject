@@ -30,8 +30,14 @@ cmake \
     -DCMAKE_INSTALL_PREFIX=install \
     -DG2O_BUILD_APPS=off \
     -DG2O_BUILD_EXAMPLES=off \
-    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_DEBUG_POSTFIX="" \
     -DEIGEN3_INCLUDE_DIR=../../lib-SLExternal/eigen \
+    -DEIGEN3_VERSION_OK=ON \
+    -DBUILD_CSPARSE=off \
+    -DG2O_USE_OPENGL=off \
+    -DG2O_USE_CSPARSE=off \
+    -DG2O_USE_CHOLMOD=off \
     ../..
 
 # finally build it
@@ -51,9 +57,13 @@ cmake \
     -DCMAKE_INSTALL_PREFIX=install \
     -DG2O_BUILD_APPS=off \
     -DG2O_BUILD_EXAMPLES=off \
-    -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_DEBUG_POSTFIX="" \
+    -DCMAKE_BUILD_TYPE=Release \
     -DEIGEN3_INCLUDE_DIR=../../lib-SLExternal/eigen \
+    -DEIGEN3_VERSION_OK=ON \
+    -DBUILD_CSPARSE=off \
+    -DG2O_USE_OPENGL=off \
+    -DG2O_USE_CSPARSE=off \
+    -DG2O_USE_CHOLMOD=off \
     ../..
 
 # finally build it

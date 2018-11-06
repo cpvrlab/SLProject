@@ -72,7 +72,8 @@ SLbool onPaint()
         SLCVCapture::grabAndAdjustForSL();
 
     //////////////////////////////////////////////////
-    bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
+    bool viewNeedsRepaint;
+    viewNeedsRepaint = slUpdateAndPaint(svIndex);
     //////////////////////////////////////////////////
 
     // Fast copy the back buffer to the front buffer. This is OS dependent.

@@ -14,7 +14,7 @@
 
 //-----------------------------------------------------------------------------
 SLCVTrackingStateMachine::SLCVTrackingStateMachine(SLCVMapTracking* tracking, bool serial)
-    : _tracking(tracking),
+  : _tracking(tracking),
     _serial(serial)
 {
     assert(_tracking);
@@ -24,16 +24,16 @@ string SLCVTrackingStateMachine::getPrintableState()
 {
     switch (mState)
     {
-    case INITIALIZING:
-        return "INITIALIZING";
-    case IDLE:
-        return "IDLE";
-    case TRACKING_LOST:
-        return "TRACKING_LOST"; //motion model tracking
-    case TRACKING_OK:
-        return "TRACKING_OK";
+        case INITIALIZING:
+            return "INITIALIZING";
+        case IDLE:
+            return "IDLE";
+        case TRACKING_LOST:
+            return "TRACKING_LOST"; //motion model tracking
+        case TRACKING_OK:
+            return "TRACKING_OK";
 
-        return "";
+            return "";
     }
 }
 //-----------------------------------------------------------------------------
@@ -44,7 +44,8 @@ void SLCVTrackingStateMachine::requestStateIdle()
     resetRequests();
     _idleRequested = true;
 
-    if (_serial) {
+    if (_serial)
+    {
         guard.unlock();
         stateTransition();
     }
@@ -57,7 +58,8 @@ void SLCVTrackingStateMachine::requestResume()
     resetRequests();
     _resumeRequested = true;
 
-    if (_serial) {
+    if (_serial)
+    {
         guard.unlock();
         stateTransition();
     }
@@ -69,7 +71,8 @@ bool SLCVTrackingStateMachine::hasStateIdle()
     std::unique_lock<std::mutex> guard(_mutexStates);
     return mState == IDLE;
 
-    if (_serial) {
+    if (_serial)
+    {
         guard.unlock();
         stateTransition();
     }
@@ -106,10 +109,12 @@ void SLCVTrackingStateMachine::stateTransition()
         {
             if (_tracking->isOK())
             {
+                fprintf(stderr, "state ok\n");
                 mState = TRACKING_OK;
             }
             else
             {
+                fprintf(stderr, "state lost\n");
                 mState = TRACKING_LOST;
             }
         }
@@ -131,9 +136,9 @@ void SLCVTrackingStateMachine::stateTransition()
 //-----------------------------------------------------------------------------
 void SLCVTrackingStateMachine::resetRequests()
 {
-    _idleRequested = false;
-    _resumeRequested = false;
-    _trackingOKRequested = false;
+    _idleRequested         = false;
+    _resumeRequested       = false;
+    _trackingOKRequested   = false;
     _trackingLostRequested = false;
 }
 //-----------------------------------------------------------------------------

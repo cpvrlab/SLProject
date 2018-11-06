@@ -270,12 +270,14 @@ void SLCVTrackedMapping::initialize()
             mCurrentFrame.SetPose(Tcw);
 
             bool mapInitializedSuccessfully = CreateInitialMapMonocular();
+            fprintf(stderr, "initialize - 0\n");
             if (mapInitializedSuccessfully)
             {
                 //mark tracking as initialized
                 _initialized = true;
                 _bOK         = true;
             }
+            fprintf(stderr, "initialize - 1\n");
 
             //ghm1: in the original implementation the initialization is defined in the track() function and this part is always called at the end!
             // Store frame pose information to retrieve the complete camera trajectory afterwards.
@@ -285,6 +287,7 @@ void SLCVTrackedMapping::initialize()
                 mlRelativeFramePoses.push_back(Tcr);
                 mlpReferences.push_back(mpReferenceKF);
                 mlFrameTimes.push_back(mCurrentFrame.mTimeStamp);
+                fprintf(stderr, "initialize - 1.0\n");
                 mlbLost.push_back(sm.state() == SLCVTrackingStateMachine::TRACKING_LOST);
             }
             else if (mlRelativeFramePoses.size())
@@ -293,10 +296,12 @@ void SLCVTrackedMapping::initialize()
                 mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
                 mlpReferences.push_back(mlpReferences.back());
                 mlFrameTimes.push_back(mlFrameTimes.back());
+                fprintf(stderr, "initialize - 1.1\n");
                 mlbLost.push_back(sm.state() == SLCVTrackingStateMachine::TRACKING_LOST);
             }
         }
     }
+    fprintf(stderr, "initialize - 2\n");
 }
 //-----------------------------------------------------------------------------
 bool SLCVTrackedMapping::posInGrid(const cv::KeyPoint& kp, int& posX, int& posY, int minX, int minY)
@@ -569,6 +574,7 @@ void SLCVTrackedMapping::track3DPts()
     _bOK         = false;
     trackingType = TrackingType_None;
 
+#if 1
     if (!mbOnlyTracking)
     {
         // Local Mapping is activated. This is the normal behaviour, unless
@@ -681,6 +687,7 @@ void SLCVTrackedMapping::track3DPts()
             }
         }
     }
+#endif
 
     // If we have an initial estimation of the camera pose and matching. Track the local map.
     if (!mbOnlyTracking)
@@ -891,7 +898,6 @@ bool SLCVTrackedMapping::CreateInitialMapMonocular()
 
     // Bundle Adjustment
     cout << "New Map created with " << _map->MapPointsInMap() << " points" << endl;
-
     Optimizer::GlobalBundleAdjustemnt(_map, 20);
 
     // Set median depth to 1
@@ -959,6 +965,7 @@ bool SLCVTrackedMapping::CreateInitialMapMonocular()
     //ghm1: add keyframe to scene graph. this position is wrong after bundle adjustment!
     //set map dirty, the map will be updated in next decoration
     _mapHasChanged = true;
+    printf("hello\n");
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -1345,7 +1352,9 @@ bool SLCVTrackedMapping::Relocalization()
                         mCurrentFrame.mvpMapPoints[j] = NULL;
                 }
 
+                fprintf(stderr, "relocalization - 00\n");
                 int nGood = Optimizer::PoseOptimization(&mCurrentFrame);
+                fprintf(stderr, "relocalization - 01\n");
 
                 if (nGood < 10)
                     continue;
@@ -1363,7 +1372,9 @@ bool SLCVTrackedMapping::Relocalization()
 
                     if (nadditional + nGood >= 50)
                     {
+                        fprintf(stderr, "relocalization - 0\n");
                         nGood = Optimizer::PoseOptimization(&mCurrentFrame);
+                        fprintf(stderr, "relocalization - 1\n");
 
                         // If many inliers but still not enough, search by projection again in a narrower window
                         // the camera has been already optimized with many points
@@ -1378,11 +1389,13 @@ bool SLCVTrackedMapping::Relocalization()
                             // Final optimization
                             if (nGood + nadditional >= 50)
                             {
+                                fprintf(stderr, "relocalization - 2\n");
                                 nGood = Optimizer::PoseOptimization(&mCurrentFrame);
 
                                 for (int io = 0; io < mCurrentFrame.N; io++)
                                     if (mCurrentFrame.mvbOutlier[io])
                                         mCurrentFrame.mvpMapPoints[io] = NULL;
+                                fprintf(stderr, "relocalization - 3\n");
                             }
                         }
                     }
@@ -1397,6 +1410,7 @@ bool SLCVTrackedMapping::Relocalization()
             }
         }
     }
+    fprintf(stderr, "relocalization - 4\n");
 
     if (!bMatch)
     {
@@ -1411,6 +1425,8 @@ bool SLCVTrackedMapping::Relocalization()
 //-----------------------------------------------------------------------------
 bool SLCVTrackedMapping::TrackReferenceKeyFrame()
 {
+    fprintf(stderr, "track reference - 0\n");
+
     //This routine is called if current tracking state is OK but we have NO valid motion model
     //1. Berechnung des BoW-Vectors für den current frame
     //2. using BoW we search mappoint matches (from reference keyframe) with orb in current frame (ORB that belong to the same vocabulary node (at a certain level))
@@ -1464,6 +1480,8 @@ bool SLCVTrackedMapping::TrackReferenceKeyFrame()
 //-----------------------------------------------------------------------------
 bool SLCVTrackedMapping::TrackLocalMap()
 {
+    fprintf(stderr, "track local map - 0\n");
+
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
 
@@ -1728,6 +1746,7 @@ void SLCVTrackedMapping::UpdateLocalPoints()
 //-----------------------------------------------------------------------------
 bool SLCVTrackedMapping::TrackWithMotionModel()
 {
+    fprintf(stderr, "track motion model - 0\n");
     //This method is called if tracking is OK and we have a valid motion model
     //1. UpdateLastFrame(): ...
     //2. We set an initial pose into current frame, which is the pose of the last frame corrected by the motion model (expected motion since last frame)

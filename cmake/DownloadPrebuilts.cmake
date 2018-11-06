@@ -121,13 +121,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         ${OpenCV_DIR}/lib/opencv_xfeatures2d*.dll
         )
 
-#    message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
-#    message(STATUS "CMAKE_RUNTIME_OUTPUT_DIRECTORY: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-#    message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
-#    message(STATUS "CMAKE_CONFIGURATION_TYPES: ${CMAKE_CONFIGURATION_TYPES}")
-#    message(STATUS "CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
-#    message(STATUS "usedCVLibs_Release: ${usedCVLibs_Release}")
-
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
         file(COPY ${usedCVLibs_Debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${usedCVLibs_Release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
@@ -138,9 +131,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(g2o_DIR ${PREBUILT_PATH}/win64_g2o)
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
     set(g2o_LINK_DIR ${g2o_DIR}/lib)
-    
-    message(STATUS "g2o_INCLUDE_DIR: ${g2o_INCLUDE_DIR}")
-    message(STATUS "g2o_LINK_DIR: ${g2o_LINK_DIR}")
 
     foreach(lib ${g2o_LINK_LIBS})
         add_library(${lib} SHARED IMPORTED)
@@ -151,13 +141,11 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
             IMPORTED_LOCATION "${g2o_LINK_DIR}/${lib}.dll"
             INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
         )
-        message(STATUS "${g2o_LINK_DIR}/${lib}.lib")
         set(g2o_LIBS
             ${g2o_LIBS}
             ${lib}
         )
     endforeach(lib)
-    message(STATUS "g2o_LIBS: ${g2o_LIBS}")
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     # Download first for iOS
@@ -198,11 +186,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
             optimized ${lib}
             debug ${lib})
     endforeach(lib)
-
-    #message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
-    #message(STATUS "CMAKE_RUNTIME_OUTPUT_DIRECTORY: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-    #message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
-    #message(STATUS "CMAKE_CONFIGURATION_TYPES: ${CMAKE_CONFIGURATION_TYPES}")
 
     file(GLOB usedCVLibs_Debug
         ${OpenCV_DIR}/Debug/libopencv_aruco*.dylib
@@ -295,13 +278,13 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
     endif ()
 
     foreach(lib ${g2o_LINK_LIBS})
-        add_library(${lib} SHARED IMPORTED)
-        set_target_properties(${lib} PROPERTIES
+        add_library(lib_${lib} SHARED IMPORTED)
+        set_target_properties(lib_${lib} PROPERTIES
             IMPORTED_LOCATION "${g2o_LINK_DIR}/lib${lib}.so"
         )
         set(g2o_LIBS
             ${g2o_LIBS}
-            ${lib}
+            lib_${lib}
         )
     endforeach(lib)
 endif()
