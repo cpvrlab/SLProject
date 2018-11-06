@@ -39,13 +39,12 @@ class SLCVArucoParams
 
     bool loadFromFile()
     {
-        string          projectRoot = string(SL_PROJECT_ROOT);
-        string          path        = projectRoot + SLCVCalibration::calibIniPath + filename;
+        string          path = SLCVCalibration::calibIniPath + filename;
         cv::FileStorage fs(path, cv::FileStorage::READ);
         if (!fs.isOpened())
         {
             cout << "Could not find parameter file for ArUco tracking!" << endl;
-            cout << "Tried " << projectRoot + SLCVCalibration::calibIniPath + filename << endl;
+            cout << "Tried " << SLCVCalibration::calibIniPath + filename << endl;
             return false;
         }
 

@@ -25,21 +25,9 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLText.h>
-<<<<<<< HEAD
-#include <SLButton.h>
-#include <SLInputManager.h>
-#include <SLCVCapture.h>
-#include <SLAssimpImporter.h>
-#include <SLLightDirect.h>
-#include <SLCVTracker.h>
-#include <SLCVTrackerAruco.h>
-#include <SLCVDetector.h>
-#include <SLCVDescriptor.h>
-=======
->>>>>>> christoffel-develop-cmake-merge
 
 //-----------------------------------------------------------------------------
-/*! The constructor of the scene does all one time initialization such as 
+/*! The constructor of the scene does all one time initialization such as
 loading the standard shader programs from which the pointers are stored in
 the vector _shaderProgs. Custom shader programs that are loaded in a
 scene must be deleted when the scene changes.
@@ -70,32 +58,6 @@ As examples you can see it in:
   - _old/app-Demo-Qt: qtGLWidget::initializeGL()
   - _old/app-Viewer-Qt: qtGLWidget::initializeGL()
 */
-<<<<<<< HEAD
-SLScene::SLScene(SLstring name) : SLObject(name)
-{  
-    current = this;
-
-    _root3D         = nullptr;
-    _menu2D         = nullptr;
-    _menuGL         = nullptr;
-    _menuRT         = nullptr;
-    _menuPT         = nullptr;
-    _info           = nullptr;
-    _infoGL         = nullptr;
-    _infoRT         = nullptr;
-    _infoLoading    = nullptr;
-    _btnHelp        = nullptr;
-    _btnAbout       = nullptr;
-    _btnCredits     = nullptr;
-    _btnCalibration = nullptr;
-    _selectedMesh   = nullptr;
-    _selectedNode   = nullptr;
-    _activeCalib    = nullptr;
-    _stopAnimations = false;
-
-    _fps = 0;
-    _elapsedTimeMS = 0;
-=======
 SLScene::SLScene(SLstring      name,
                  cbOnSceneLoad onSceneLoadCallback)
   : SLObject(name),
@@ -126,7 +88,6 @@ SLScene::SLScene(SLstring      name,
     _stopAnimations   = false;
     _fps              = 0;
     _elapsedTimeMS    = 0;
->>>>>>> christoffel-develop-cmake-merge
     _lastUpdateTimeMS = 0;
 
     // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
@@ -163,51 +124,6 @@ SLScene::SLScene(SLstring      name,
     _showDetection = false;
 
     _oculus.init();
-<<<<<<< HEAD
-
-    _infoAbout =
-"Welcome to the SLProject demo app (v2.0.019). It is developed at the \
-Computer Science Department of the Bern University of Applied Sciences. \
-The app shows what you can learn in one semester about 3D computer graphics \
-in real time rendering and ray tracing. The framework is developed \
-in C++ with OpenGL ES so that it can run also on mobile devices. \
-Ray tracing provides in addition high quality transparencies, reflections and soft shadows. \
-Click to close and use the menu to choose different scenes and view settings. \
-For more information please visit: https://github.com/cpvrlab/SLProject";
-
-    _infoCredits =
-"Contributors since 2005 in alphabetic order: Martin Christen, Manuel Frischknecht, Michael \
-Goettlicher, Timon Tschanz, Marc Wacker, Pascal Zingg \\n\\n\
-Credits for external libraries: \\n\
-- assimp: assimp.sourceforge.net \\n\
-- glew: glew.sourceforge.net \\n\
-- glfw: www.glfw.org \\n\
-- OpenCV: opencv.org \\n\
-- OpenGL: opengl.org \\n\
-- Qt: www.qt-project.org";
-
-    _infoHelp =
-"Help for mouse or finger control: \\n\
-- Use mouse or your finger to rotate the scene \\n\
-- Use mouse-wheel or pinch 2 fingers to go forward/backward \\n\
-- Use CTRL-mouse or 2 fingers to move sidewards/up-down \\n\
-- Double click or double tap to select object";
-
-    _infoCalibrate =
-"The calibration process requires a chessboard image to be printed \
-and glued on a flat board. You can find the PDF with the chessboard image on: \\n\
-https://github.com/cpvrlab/SLProject/tree/master/_data/calibrations/ \\n\\n\
-For a calibration you have to take 20 images with detected inner \
-chessboard corners. To take an image you have to click with the mouse \
-or tap with finger into the screen. You can mirror the video image under \
-Preferences > Video. \\n\
-After calibration the yellow wireframe cube should stick on the chessboard.";
-
-   _detector = new SLCVDetector(DT_RAUL, true);
-   _descriptor = new SLCVDescriptor(DESC_ORB);
-
-=======
->>>>>>> christoffel-develop-cmake-merge
 }
 //-----------------------------------------------------------------------------
 /*! The destructor does the final total deallocation of all global resources.
@@ -253,12 +169,6 @@ SLScene::~SLScene()
 
     // release the capture device
     SLCVCapture::release();
-
-    // Delete feature matching stuff
-    if (_descriptor)
-        delete _descriptor;
-    if (_detector)
-        delete _detector;
 
     SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
@@ -308,7 +218,7 @@ void SLScene::init()
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
-global resources such as materials, textures & custom shaders loaded with the 
+global resources such as materials, textures & custom shaders loaded with the
 scene. The standard shaders, the fonts and the 2D-GUI elements remain. They are
 destructed at process end.
 */
@@ -392,7 +302,7 @@ void SLScene::unInit()
 \n 4) Augmented Reality (AR) Tracking with the live camera
 \n 5) Update AABBs
 \n
-A scene can be displayed in multiple views as demonstrated in the app-Viewer-Qt 
+A scene can be displayed in multiple views as demonstrated in the app-Viewer-Qt
 example. AR tracking is only handled on the first scene view.
 \return true if really something got updated
 */
@@ -558,12 +468,8 @@ bool SLScene::onUpdate()
             for (auto tracker : _trackers)
                 tracker->track(SLCVCapture::lastFrameGray,
                                SLCVCapture::lastFrame,
-<<<<<<< HEAD
-                               _activeCalib,
-=======
                                ac,
                                _showDetection,
->>>>>>> christoffel-develop-cmake-merge
                                _sceneViews[0]);
 
             // Update info text only for chessboard scene
@@ -630,16 +536,6 @@ bool SLScene::onUpdate()
 //! SLScene::onAfterLoad gets called after onLoad
 void SLScene::onAfterLoad()
 {
-<<<<<<< HEAD
-    #ifdef SL_USES_CVCAPTURE
-    if (_videoType!=VT_NONE)
-    {   if (!SLCVCapture::isOpened())
-        #ifdef SL_VIDEO_DEBUG
-            SLCVCapture::open("../_data/videos/testvid_" + string(SL_TRACKER_IMAGE_NAME) +".mp4");
-        #else
-            SLCVCapture::open(0);
-        #endif
-=======
 #ifdef SL_USES_CVCAPTURE
 
     if (_videoType != VT_NONE)
@@ -668,7 +564,6 @@ void SLScene::onAfterLoad()
                 }
             }
         }
->>>>>>> christoffel-develop-cmake-merge
     }
 #else
     if (_videoType == VT_FILE && SLCVCapture::videoFilename != "")
@@ -811,10 +706,10 @@ void SLScene::onLoadAsset(SLstring assetFile,
 }
 //-----------------------------------------------------------------------------
 //! Setter for video type also sets the active calibration
-/*! The SLApplication instance has up to three video camera calibrations, one 
-for a main camera (SLApplication::calibMainCam), one for the selfie camera on mobile 
-devices (SLApplication::calibScndCam) and one for video file simulation 
-(SLApplication::calibVideoFile). The member SLApplication::activeCalib references the 
+/*! The SLApplication instance has up to three video camera calibrations, one
+for a main camera (SLApplication::calibMainCam), one for the selfie camera on mobile
+devices (SLApplication::calibScndCam) and one for video file simulation
+(SLApplication::calibVideoFile). The member SLApplication::activeCalib references the
 active one.
 */
 void SLScene::videoType(SLVideoType vt)
