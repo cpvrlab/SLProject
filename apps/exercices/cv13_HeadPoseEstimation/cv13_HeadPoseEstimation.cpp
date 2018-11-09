@@ -49,7 +49,7 @@ int main()
     Point2d c             = Point2d(image.cols / 2, image.rows / 2); // Approximate optical center = image center
     Mat     camera_matrix = (Mat_<double>(3, 3) << f, 0, c.x, 0, f, c.y, 0, 0, 1);
 
-    // Create empty distortion coefficient with k1, k2, p1 & k3 all zero
+    // Create empty distortion coefficient with k1, k2, p1 & p2 all zero
     Mat dist_coeffs = Mat::zeros(4, 1, DataType<double>::type);
 
     cout << "Camera Matrix " << endl
