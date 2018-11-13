@@ -269,8 +269,6 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLText.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransferFunction.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedFaces.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../app-Demo-GLFW/source/AppDemoGui.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../app-Demo-GLFW/source/AppDemoLoad.cpp
     )
 
 file(GLOB shaders
@@ -324,6 +322,7 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
+
     PUBLIC
     ${platform_specific_include_dirs}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -347,7 +346,7 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/eigen
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/DBoW2
     ${OpenCV_INCLUDE_DIR}
-    #${g2o_INCLUDE_DIR}
+    ${g2o_INCLUDE_DIR}
     ${DEFAULT_INCLUDE_DIRECTORIES}
 
     INTERFACE

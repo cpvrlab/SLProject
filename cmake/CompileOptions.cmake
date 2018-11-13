@@ -77,7 +77,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         -Wno-global-constructors
         -Wno-gnu-zero-variadic-macro-arguments
         -Wno-documentation
-        -Wno-missing-prototypes
         -Wno-missing-variable-declarations
         -Wno-newline-eof
         -Wno-old-style-cast
