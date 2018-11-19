@@ -24,7 +24,7 @@ class SLPolyline;
 //-----------------------------------------------------------------------------
 class SLCVMapNode : public SLNode
 {
-public:
+    public:
     SLCVMapNode(std::string name);
     SLCVMapNode(std::string name, SLCVMap& map);
 
@@ -39,6 +39,7 @@ public:
     void updateMapPointsLocal(const std::vector<SLCVMapPoint*>& pts);
     void updateMapPointsMatched(const std::vector<SLCVMapPoint*>& mapPointMatches);
     void updateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs);
+    void updateAll(vector<SLCVMapPoint*> mapPoints, vector<SLCVKeyFrame*> keyFrames);
     void updateAll(SLCVMap& map); //todo: const SLCVMap
 
     //!Remove map points
@@ -68,61 +69,61 @@ public:
     //setters
     void renderKfBackground(bool s) { _renderKfBackground = s; }
     void allowAsActiveCam(bool s) { _allowAsActiveCam = s; }
-    int getMinNumOfCovisibles() { return _minNumOfCovisibles; }
-private:
+    int  getMinNumOfCovisibles() { return _minNumOfCovisibles; }
+
+    private:
     //! add map nodes and instantiate materials
     void init();
 
     //!execute map points update. convenience function: may be used to update all point clouds
-    void doUpdateMapPoints(std::string name, const std::vector<SLCVMapPoint*>& pts,
-        SLNode*& node, SLPoints*& mesh, SLMaterial*& material);
+    void doUpdateMapPoints(std::string name, const std::vector<SLCVMapPoint*>& pts, SLNode*& node, SLPoints*& mesh, SLMaterial*& material);
     //!execute keyframe update
     void doUpdateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs);
     //!execute update of spanning tree, covisibility graph and loop edges
     void doUpdateGraphs(const std::vector<SLCVKeyFrame*>& kfs);
 
     //Nodes:
-    SLNode* _keyFrames = NULL;
+    SLNode* _keyFrames         = NULL;
     SLNode* _covisibilityGraph = NULL;
-    SLNode* _spanningTree = NULL;
-    SLNode* _loopEdges = NULL;
-    SLNode* _mapPC = NULL;
-    SLNode* _mapMatchedPC = NULL;
-    SLNode* _mapLocalPC = NULL;
+    SLNode* _spanningTree      = NULL;
+    SLNode* _loopEdges         = NULL;
+    SLNode* _mapPC             = NULL;
+    SLNode* _mapMatchedPC      = NULL;
+    SLNode* _mapLocalPC        = NULL;
     //Meshes:
-    SLPoints* _mapMesh = NULL;
-    SLPoints* _mapLocalMesh = NULL;
-    SLPoints* _mapMatchesMesh = NULL;
+    SLPoints*   _mapMesh               = NULL;
+    SLPoints*   _mapLocalMesh          = NULL;
+    SLPoints*   _mapMatchesMesh        = NULL;
     SLPolyline* _covisibilityGraphMesh = NULL;
-    SLPolyline* _spanningTreeMesh = NULL;
-    SLPolyline* _loopEdgesMesh = NULL;
+    SLPolyline* _spanningTreeMesh      = NULL;
+    SLPolyline* _loopEdgesMesh         = NULL;
     //Materials:
-    SLMaterial* _pcMat = NULL;
-    SLMaterial* _pcMatchedMat = NULL;
-    SLMaterial* _pcLocalMat = NULL;
+    SLMaterial* _pcMat                = NULL;
+    SLMaterial* _pcMatchedMat         = NULL;
+    SLMaterial* _pcLocalMat           = NULL;
     SLMaterial* _covisibilityGraphMat = NULL;
-    SLMaterial* _spanningTreeMat = NULL;
-    SLMaterial* _loopEdgesMat = NULL;
+    SLMaterial* _spanningTreeMat      = NULL;
+    SLMaterial* _loopEdgesMat         = NULL;
 
     //vector of keyframe textures: we store a pointer to correctly delete them during a keyframe update
     std::vector<SLGLTexture*> _kfTextures;
 
     //!mutex saved flags and vectors: only manipulate locking mutex
-    bool _mapPtsChanged = false;
-    bool _mapPtsLocalChanged = false;
-    bool _mapPtsMatchedChanged = false;
-    bool _keyFramesChanged = false;
+    bool                       _mapPtsChanged        = false;
+    bool                       _mapPtsLocalChanged   = false;
+    bool                       _mapPtsMatchedChanged = false;
+    bool                       _keyFramesChanged     = false;
     std::vector<SLCVMapPoint*> _mapPts;
     std::vector<SLCVMapPoint*> _mapPtsLocal;
     std::vector<SLCVMapPoint*> _mapPtsMatched;
     std::vector<SLCVKeyFrame*> _kfs;
-    bool _removeMapPoints = false;
-    bool _removeMapPointsLocal = false;
-    bool _removeMapPointsMatched = false;
-    bool _removeKeyFrames = false;
-    bool _removeGraphs = false;
+    bool                       _removeMapPoints        = false;
+    bool                       _removeMapPointsLocal   = false;
+    bool                       _removeMapPointsMatched = false;
+    bool                       _removeKeyFrames        = false;
+    bool                       _removeGraphs           = false;
 
-    //if backgound rendering is active kf images will be rendered on 
+    //if backgound rendering is active kf images will be rendered on
     //near clipping plane if kf is not the active camera
     bool _renderKfBackground = false;
     //allow SLCVCameras as active camera so that we can look through it

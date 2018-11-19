@@ -10,28 +10,13 @@ set(compile_definitions GLEW_NO_GLU)
 set(platform_specific_include_dirs)
 
 file(GLOB headers
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/Converter.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/Initializer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/LocalMapping.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/LoopClosing.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/Optimizer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/ORBMatcher.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/ORBVocabulary.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/PnPsolver.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam/Sim3Solver.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCV.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVCalibration.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVCamera.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVCapture.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVFeatureManager.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVFrame.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVImage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVKeyFrame.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVKeyFrameDB.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMap.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMapIO.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMapNode.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMapPoint.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMapStorage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMapTracking.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVOrbTracking.h
@@ -156,27 +141,12 @@ file(GLOB headers
     )
 
   file(GLOB sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/ORBextractor.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/Converter.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/Initializer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/LocalMapping.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/LoopClosing.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/Optimizer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/ORBmatcher.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/PnPsolver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/OrbSlam/Sim3Solver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVCalibration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVCamera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVCapture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVFeatureManager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVFrame.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVImage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVKeyFrame.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVKeyFrameDB.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMapIO.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMapNode.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMapPoint.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMapStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMapTracking.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVOrbTracking.cpp

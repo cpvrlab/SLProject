@@ -22,7 +22,7 @@
 
 //-----------------------------------------------------------------------------
 SLCVMapNode::SLCVMapNode(std::string name)
-    : SLNode(name),
+  : SLNode(name),
     _keyFrames(new SLNode("KeyFrames")),
     _covisibilityGraph(new SLNode("CovisibilityGraph")),
     _spanningTree(new SLNode("SpanningTree")),
@@ -35,7 +35,7 @@ SLCVMapNode::SLCVMapNode(std::string name)
 }
 //-----------------------------------------------------------------------------
 SLCVMapNode::SLCVMapNode(std::string name, SLCVMap& map)
-    : SLNode(name),
+  : SLNode(name),
     _keyFrames(new SLNode("KeyFrames")),
     _covisibilityGraph(new SLNode("CovisibilityGraph")),
     _spanningTree(new SLNode("SpanningTree")),
@@ -56,7 +56,8 @@ void SLCVMapNode::setMap(SLCVMap& map)
 //-----------------------------------------------------------------------------
 void SLCVMapNode::doUpdate()
 {
-    if (_removeMapPoints) {
+    if (_removeMapPoints)
+    {
         _mutex.lock();
         _removeMapPoints = false;
         _mutex.unlock();
@@ -65,7 +66,8 @@ void SLCVMapNode::doUpdate()
             _mapPC->deleteMesh(_mapMesh);
     }
 
-    if (_removeMapPointsLocal) {
+    if (_removeMapPointsLocal)
+    {
         _mutex.lock();
         _removeMapPointsLocal = false;
         _mutex.unlock();
@@ -74,7 +76,8 @@ void SLCVMapNode::doUpdate()
             _mapLocalPC->deleteMesh(_mapLocalMesh);
     }
 
-    if (_removeMapPointsMatched) {
+    if (_removeMapPointsMatched)
+    {
         _mutex.lock();
         _removeMapPointsMatched = false;
         _mutex.unlock();
@@ -83,7 +86,8 @@ void SLCVMapNode::doUpdate()
             _mapMatchedPC->deleteMesh(_mapMatchesMesh);
     }
 
-    if (_removeKeyFrames) {
+    if (_removeKeyFrames)
+    {
         _mutex.lock();
         _removeKeyFrames = false;
         _mutex.unlock();
@@ -92,41 +96,45 @@ void SLCVMapNode::doUpdate()
             _keyFrames->deleteChildren();
     }
 
-    if(_removeGraphs) {
+    if (_removeGraphs)
+    {
         _mutex.lock();
         _removeGraphs = false;
         _mutex.unlock();
 
-        if(_covisibilityGraphMesh)
+        if (_covisibilityGraphMesh)
             _covisibilityGraph->deleteMesh(_covisibilityGraphMesh);
-        if(_spanningTreeMesh)
+        if (_spanningTreeMesh)
             _spanningTree->deleteMesh(_spanningTreeMesh);
-        if(_loopEdgesMesh)
+        if (_loopEdgesMesh)
             _loopEdges->deleteMesh(_loopEdgesMesh);
     }
 
-    if (_mapPtsChanged) {
+    if (_mapPtsChanged)
+    {
         _mutex.lock();
         std::vector<SLCVMapPoint*> mapPts = _mapPts;
-        _mapPtsChanged = false;
+        _mapPtsChanged                    = false;
         _mutex.unlock();
 
         doUpdateMapPoints("MapPoints", mapPts, _mapPC, _mapMesh, _pcMat);
     }
 
-    if (_mapPtsLocalChanged) {
+    if (_mapPtsLocalChanged)
+    {
         _mutex.lock();
         std::vector<SLCVMapPoint*> mapPtsLocal = _mapPtsLocal;
-        _mapPtsLocalChanged = false;
+        _mapPtsLocalChanged                    = false;
         _mutex.unlock();
 
         doUpdateMapPoints("MapPointsLocal", mapPtsLocal, _mapLocalPC, _mapLocalMesh, _pcLocalMat);
     }
 
-    if (_mapPtsMatchedChanged) {
+    if (_mapPtsMatchedChanged)
+    {
         _mutex.lock();
         std::vector<SLCVMapPoint*> mapPtsMatched = _mapPtsMatched;
-        _mapPtsMatchedChanged = false;
+        _mapPtsMatchedChanged                    = false;
         _mutex.unlock();
 
         doUpdateMapPoints("MapPointsMatches", mapPtsMatched, _mapMatchedPC, _mapMatchesMesh, _pcMatchedMat);
@@ -136,7 +144,7 @@ void SLCVMapNode::doUpdate()
     {
         _mutex.lock();
         std::vector<SLCVKeyFrame*> kfs = _kfs;
-        _keyFramesChanged = false;
+        _keyFramesChanged              = false;
         _mutex.unlock();
 
         doUpdateKeyFrames(kfs);
@@ -169,23 +177,23 @@ void SLCVMapNode::init()
     _pcLocalMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
 
     _covisibilityGraphMat = new SLMaterial("YellowLines", SLCol4f::YELLOW);
-    _spanningTreeMat = new SLMaterial("GreenLines", SLCol4f::GREEN);
-    _loopEdgesMat = new SLMaterial("RedLines", SLCol4f::RED);
+    _spanningTreeMat      = new SLMaterial("GreenLines", SLCol4f::GREEN);
+    _loopEdgesMat         = new SLMaterial("RedLines", SLCol4f::RED);
 }
 //-----------------------------------------------------------------------------
 void SLCVMapNode::clearAll()
 {
     lock_guard<mutex> guard(_mutex);
     //remove and delete all old meshes, if existant
-    _removeMapPoints = true;
-    _removeMapPointsLocal = true;
+    _removeMapPoints        = true;
+    _removeMapPointsLocal   = true;
     _removeMapPointsMatched = true;
-    _removeKeyFrames = true;
-    _removeGraphs = true;
-    _mapPtsChanged = false;
-    _mapPtsLocalChanged = false;
-    _mapPtsMatchedChanged = false;
-    _keyFramesChanged = false;
+    _removeKeyFrames        = true;
+    _removeGraphs           = true;
+    _mapPtsChanged          = false;
+    _mapPtsLocalChanged     = false;
+    _mapPtsMatchedChanged   = false;
+    _keyFramesChanged       = false;
     _mapPts.clear();
     _mapPtsLocal.clear();
     _mapPtsMatched.clear();
@@ -204,8 +212,19 @@ void SLCVMapNode::updateAll(SLCVMap& map) //todo: const SLCVMap
     doUpdateGraphs(kfs);
 }
 //-----------------------------------------------------------------------------
-void SLCVMapNode::doUpdateMapPoints(std::string name, const std::vector<SLCVMapPoint*>& pts,
-    SLNode*& node, SLPoints*& mesh, SLMaterial*& material)
+void SLCVMapNode::updateAll(vector<SLCVMapPoint*> mapPoints,
+                            vector<SLCVKeyFrame*> keyFrames)
+{
+    //remove and delete all old meshes, if existant
+    removeMapPointsLocal();
+    removeMapPointsMatched();
+    //remove and reinsert map points and keyframes
+    updateMapPoints(mapPoints);
+    updateKeyFrames(keyFrames);
+    doUpdateGraphs(keyFrames);
+}
+//-----------------------------------------------------------------------------
+void SLCVMapNode::doUpdateMapPoints(std::string name, const std::vector<SLCVMapPoint*>& pts, SLNode*& node, SLPoints*& mesh, SLMaterial*& material)
 {
     //remove old mesh, if it exists
     if (mesh)
@@ -216,7 +235,8 @@ void SLCVMapNode::doUpdateMapPoints(std::string name, const std::vector<SLCVMapP
     {
         //get points as Vec3f
         SLVVec3f points, normals;
-        for (auto mapPt : pts) {
+        for (auto mapPt : pts)
+        {
             points.push_back(mapPt->worldPosVec());
             normals.push_back(mapPt->normalVec());
         }
@@ -230,21 +250,21 @@ void SLCVMapNode::doUpdateMapPoints(std::string name, const std::vector<SLCVMapP
 void SLCVMapNode::updateMapPoints(const std::vector<SLCVMapPoint*>& pts)
 {
     lock_guard<mutex> guard(_mutex);
-    _mapPts = pts;
+    _mapPts        = pts;
     _mapPtsChanged = true;
 }
 //-----------------------------------------------------------------------------
 void SLCVMapNode::updateMapPointsLocal(const std::vector<SLCVMapPoint*>& pts)
 {
     lock_guard<mutex> guard(_mutex);
-    _mapPtsLocal = pts;
+    _mapPtsLocal        = pts;
     _mapPtsLocalChanged = true;
 }
 //-----------------------------------------------------------------------------
 void SLCVMapNode::updateMapPointsMatched(const std::vector<SLCVMapPoint*>& pts)
 {
     lock_guard<mutex> guard(_mutex);
-    _mapPtsMatched = pts;
+    _mapPtsMatched        = pts;
     _mapPtsMatchedChanged = true;
 }
 //-----------------------------------------------------------------------------
@@ -252,7 +272,7 @@ void SLCVMapNode::updateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
 {
     lock_guard<mutex> guard(_mutex);
     _keyFramesChanged = true;
-    _kfs = kfs;
+    _kfs              = kfs;
 }
 //-----------------------------------------------------------------------------
 void SLCVMapNode::updateMinNumOfCovisibles(int n)
@@ -268,13 +288,14 @@ void SLCVMapNode::doUpdateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
 {
     _keyFrames->deleteChildren();
     //Delete keyframe textures
-    for(const auto& texture : _kfTextures)
+    for (const auto& texture : _kfTextures)
     {
         SLApplication::scene->deleteTexture(texture);
     }
     _kfTextures.clear();
 
-    for (auto* kf : kfs) {
+    for (auto* kf : kfs)
+    {
         // TODO(jan): maybe adjust the name per camera
         SLCVCamera* cam = new SLCVCamera(this, "KeyFrame");
         //set background
@@ -292,8 +313,8 @@ void SLCVMapNode::doUpdateKeyFrames(const std::vector<SLCVKeyFrame*>& kfs)
         cam->om(kf->getObjectMatrix());
 
         //calculate vertical field of view
-        SLfloat fy = (SLfloat)kf->fy;
-        SLfloat cy = (SLfloat)kf->cy;
+        SLfloat fy     = (SLfloat)kf->fy;
+        SLfloat cy     = (SLfloat)kf->cy;
         SLfloat fovDeg = 2 * (SLfloat)atan2(cy, fy) * SL_RAD2DEG;
         cam->fov(fovDeg);
         cam->focalDist(0.11);
@@ -322,14 +343,14 @@ void SLCVMapNode::doUpdateGraphs(const std::vector<SLCVKeyFrame*>& kfs)
                     continue;
                 cv::Mat Ow2 = (*vit)->GetCameraCenter();
 
-                covisGraphPts.push_back( SLVec3f(Ow.at<float>(0), Ow.at<float>(1), Ow.at<float>(2)));
+                covisGraphPts.push_back(SLVec3f(Ow.at<float>(0), Ow.at<float>(1), Ow.at<float>(2)));
                 covisGraphPts.push_back(SLVec3f(Ow2.at<float>(0), Ow2.at<float>(1), Ow2.at<float>(2)));
             }
         }
 
         //spanning tree
         SLCVKeyFrame* parent = kf->GetParent();
-        if(parent)
+        if (parent)
         {
             cv::Mat Owp = parent->GetCameraCenter();
             spanningTreePts.push_back(SLVec3f(Ow.at<float>(0), Ow.at<float>(1), Ow.at<float>(2)));
@@ -351,17 +372,17 @@ void SLCVMapNode::doUpdateGraphs(const std::vector<SLCVKeyFrame*>& kfs)
     if (_covisibilityGraphMesh)
         _covisibilityGraph->deleteMesh(_covisibilityGraphMesh);
 
-    if(covisGraphPts.size())
+    if (covisGraphPts.size())
     {
         _covisibilityGraphMesh = new SLPolyline(covisGraphPts, false, "CovisibilityGraph", _covisibilityGraphMat);
         _covisibilityGraph->addMesh(_covisibilityGraphMesh);
         _covisibilityGraph->updateAABBRec();
     }
 
-    if(_spanningTreeMesh)
+    if (_spanningTreeMesh)
         _spanningTree->deleteMesh(_spanningTreeMesh);
 
-    if(spanningTreePts.size())
+    if (spanningTreePts.size())
     {
         _spanningTreeMesh = new SLPolyline(spanningTreePts, false, "SpanningTree", _spanningTreeMat);
         _spanningTree->addMesh(_spanningTreeMesh);
@@ -411,7 +432,7 @@ void SLCVMapNode::removeGraphs()
 //-----------------------------------------------------------------------------
 void SLCVMapNode::setHideMapPoints(bool state)
 {
-    if(_mapPC->drawBits()->get(SL_DB_HIDDEN) != state)
+    if (_mapPC->drawBits()->get(SL_DB_HIDDEN) != state)
         _mapPC->drawBits()->set(SL_DB_HIDDEN, state);
 }
 //-----------------------------------------------------------------------------
@@ -420,7 +441,8 @@ void SLCVMapNode::setHideKeyFrames(bool state)
     if (_keyFrames->drawBits()->get(SL_DB_HIDDEN) != state)
     {
         _keyFrames->drawBits()->set(SL_DB_HIDDEN, state);
-        for (SLNode* child : _keyFrames->children()) {
+        for (SLNode* child : _keyFrames->children())
+        {
             if (child)
                 child->drawBits()->set(SL_DB_HIDDEN, state);
         }

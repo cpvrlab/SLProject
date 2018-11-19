@@ -29,12 +29,6 @@ file(GLOB sources
     ${include_path}/imgui/imgui_draw.cpp
     ${include_path}/imgui/imgui.cpp
     ${include_path}/spa/spa.cpp
-    ${include_path}/DBoW2/DBoW2/BowVector.cpp
-    ${include_path}/DBoW2/DBoW2/FeatureVector.cpp
-    ${include_path}/DBoW2/DBoW2/FORB.cpp
-    ${include_path}/DBoW2/DBoW2/ScoringObject.cpp
-    ${include_path}/DBoW2/DUtils/Random.cpp
-    ${include_path}/DBoW2/DUtils/Timestamp.cpp
     )
 
 #==============================================================================
@@ -258,7 +252,6 @@ target_include_directories(${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/spa
     ${CMAKE_CURRENT_SOURCE_DIR}/eigen
-    ${CMAKE_CURRENT_SOURCE_DIR}/DBoW2
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${platform_specific_include_directories}
     ${OpenCV_INCLUDE_DIR}

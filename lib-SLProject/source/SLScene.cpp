@@ -466,11 +466,13 @@ bool SLScene::onUpdate()
 
             // track all trackers in the first sceneview
             for (auto tracker : _trackers)
+            {
                 tracker->track(SLCVCapture::lastFrameGray,
                                SLCVCapture::lastFrame,
                                ac,
                                _showDetection,
                                _sceneViews[0]);
+            }
 
             // Update info text only for chessboard scene
             if (SLApplication::sceneID == SID_VideoCalibrateMain ||

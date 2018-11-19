@@ -161,7 +161,7 @@ class SLNode
     bool         removeMesh();
     bool         removeMesh(SLMesh* mesh);
     bool         removeMesh(SLstring name);
-            bool            deleteMesh          (SLMesh* mesh);
+    bool         deleteMesh(SLMesh* mesh);
     SLMesh*      findMesh(SLstring name,
                           SLbool   recursive = false);
     void         setAllMeshMaterials(SLMaterial* mat,
@@ -289,8 +289,8 @@ class SLNode
     SLVNode&          children() { return _children; }
     const SLSkeleton* skeleton();
     //SLCVTracked*      tracker() { return _tracker; }
-            void            update              ();
-    virtual void            doUpdate            () {};
+    void         update();
+    virtual void doUpdate() {}
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 
