@@ -18,18 +18,18 @@ class SLCVMapNode;
 
 class SLCVCamera : public SLCamera
 {
-public:
-    SLCVCamera(SLCVMapNode* mapNode, SLstring name = "Camera");
+    public:
+    SLCVCamera(SLstring name = "Camera");
     virtual void drawMeshes(SLSceneView* sv);
 
     bool renderBackground();
     bool allowAsActiveCam();
 
-private:
-    //bool _renderBackground=false;
+    private:
+    bool _allowAsActiveCam = false;
+    bool _renderBackground = false;
     //pointer to corresponding keyframe
     //SLCVKeyFrame* _kf = NULL;
-    SLCVMapNode* _mapNode = NULL;
 };
 
 #endif //SLCVCAMERA_H

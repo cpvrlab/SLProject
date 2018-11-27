@@ -63,7 +63,7 @@ void slCreateAppAndScene(SLVstring& cmdLineArgs,
                          SLstring   applicationName,
                          void*      onSceneLoadCallback)
 {
-    assert(SLApplication::scene == nullptr && "SLScene is already created!");
+     assert(SLApplication::scene == nullptr && "SLScene is already created!");
 
     // Default paths for all loaded resources
     SLGLProgram::defaultPath      = shaderPath;
