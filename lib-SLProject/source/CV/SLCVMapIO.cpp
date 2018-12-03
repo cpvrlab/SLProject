@@ -126,34 +126,6 @@ void SLCVMapIO::load(SLCVMap& map, SLCVKeyFrameDB& kfDB)
         }
     }
 
-    // Build spanning tree
-    /*
-    std::vector<SLCVKeyFrame*> spanningTreeFringe;
-    spanningTreeFringe.resize(kfs.size());
-    spanningTreeFringe[0] = firstKF;
-    uint32_t fringeCount = 1;
-    uint32_t fringeTakeIndex = 0;
-    uint32_t fringePutIndex = 1;
-    while (fringeCount)
-    {
-        fringeCount--;
-        SLCVKeyFrame* kf = spanningTreeFringe[fringeTakeIndex];
-        std::set<SLCVKeyFrame*> connectedKeyFrames = kf->GetConnectedKeyFrames();
-        for (std::set<SLCVKeyFrame*>::iterator connectedKeyFramesIt = connectedKeyFrames.begin(); connectedKeyFramesIt != connectedKeyFrames.end(); connectedKeyFramesIt++)
-        {
-            SLCVKeyFrame* connectedKF = *connectedKeyFramesIt;
-            if (connectedKF->mnId != 0 && !connectedKF->GetParent())
-            {
-                connectedKF->ChangeParent(kf);
-                spanningTreeFringe[fringePutIndex] = connectedKF;
-                fringePutIndex++;
-                fringeCount++;
-            }
-        }
-        fringeTakeIndex++;
-    }
-    */
-
     //compute resulting values for map points
     auto mapPts = map.GetAllMapPoints();
     for (auto& mp : mapPts)
