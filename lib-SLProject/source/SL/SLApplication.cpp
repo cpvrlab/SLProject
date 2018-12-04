@@ -66,7 +66,8 @@ void SLApplication::createAppAndScene(SLstring appName,
 
 // load opencv camera calibration for main and secondary camera
 #if defined(SL_USES_CVCAPTURE)
-    calibMainCam.load(SLApplication::configPath, "cam_calibration_main.xml", true, false);
+    calibMainCam.load(SLFileSystem::getExternalDir(), "cam_calibration_main.xml", false, false);
+    //calibMainCam.load(SLApplication::configPath, "cam_calibration_main.xml", true, false);
     calibMainCam.loadCalibParams();
     activeCalib                     = &calibMainCam;
     SLCVCapture::hasSecondaryCamera = false;

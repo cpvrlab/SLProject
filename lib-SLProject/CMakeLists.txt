@@ -78,7 +78,6 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLSkybox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLTexFont.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/stdafx.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ORBextractor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EulerAngles.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAABBox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAccelStruct.h
@@ -193,7 +192,6 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInterface.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTexFont.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTimer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/ORBextractor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAABBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimation.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimManager.cpp
@@ -296,7 +294,6 @@ target_include_directories(${target}
     PUBLIC
     ${platform_specific_include_dirs}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/OrbSlam
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI
