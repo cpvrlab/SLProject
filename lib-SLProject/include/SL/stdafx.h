@@ -70,11 +70,6 @@
 #include <SLVector.h>
 #include <SLAverageTiming.h>
 //-----------------------------------------------------------------------------
-#include <OrbSlam/Optimizer.h>
-#include <OrbSlam/Converter.h>
-#include <OrbSlam/ORBmatcher.h>
-#include <OrbSlam/PnPsolver.h>
-//-----------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/utility.hpp>
 #include <opencv2/highgui.hpp>

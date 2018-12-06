@@ -16,23 +16,13 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVCapture.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVFeatureManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVImage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMapIO.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMapStorage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVMapTracking.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVOrbTracking.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVOrbVocabulary.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVRaulMurExtractorNode.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVRaulMurOrb.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVStateEstimator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTracked.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedAruco.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedChessboard.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedFaces.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLVCTrackedFeatures.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedMapping.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedRaulMur.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedRaulMurAsync.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackingStateMachine.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLEnums.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLGenericProgram.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLImGui.h
@@ -47,16 +37,8 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexArray.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexArrayExt.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexBuffer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGui.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosCameraMovement.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosChristoffelTower.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosDialog.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosMapNodeTransform.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosTransform.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosMemoryStats.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosTracking.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiMapStorage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiTrackedMapping.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLCurve.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLCurveBezier.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMat3.h
@@ -145,23 +127,13 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVCapture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVFeatureManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVImage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMapIO.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMapStorage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVMapTracking.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVOrbTracking.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVOrbVocabulary.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVRaulMurExtractorNode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVRaulMurOrb.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVStateEstimator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTracked.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedAruco.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedChessboard.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedFaces.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedFeatures.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedMapping.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedRaulMur.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedRaulMurAsync.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackingStateMachine.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLImGui.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculus.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculusFB.cpp
@@ -172,15 +144,8 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexArray.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexArrayExt.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexBuffer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosCameraMovement.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosChristoffelTower.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosDialog.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosMapTransform.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosMapNodeTransform.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosMemoryStats.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosTracking.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiMapStorage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiTrackedMapping.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLCurveBezier.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SL.cpp
@@ -236,7 +201,6 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLSpheric.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLText.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransferFunction.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVTrackedFaces.cpp
     )
 
 file(GLOB shaders

@@ -28,20 +28,18 @@ for a good top down information.
 
 //-----------------------------------------------------------------------------
 // Global static variables
-SLCVMat                   SLCVCapture::lastFrame;
-SLCVMat                   SLCVCapture::lastFrameGray;
-std::mutex                SLCVCapture::_frameLock;
-SLPixelFormat             SLCVCapture::format;
-cv::VideoCapture          SLCVCapture::_captureDevice;
-SLCVSize                  SLCVCapture::captureSize;
-SLfloat                   SLCVCapture::startCaptureTimeMS;
-SLbool                    SLCVCapture::hasSecondaryCamera = true;
-SLint                     SLCVCapture::requestedSizeIndex = 0;
-SLstring                  SLCVCapture::videoDefaultPath   = "../data/videos/";
-SLstring                  SLCVCapture::videoFilename      = "";
-SLbool                    SLCVCapture::videoLoops         = true;
-SLCVCapture::FrameAndTime SLCVCapture::_lastFrameAndTime;
-SLdouble                  SLCVCapture::fps;
+SLCVMat          SLCVCapture::lastFrame;
+SLCVMat          SLCVCapture::lastFrameGray;
+SLPixelFormat    SLCVCapture::format;
+cv::VideoCapture SLCVCapture::_captureDevice;
+SLCVSize         SLCVCapture::captureSize;
+SLfloat          SLCVCapture::startCaptureTimeMS;
+SLbool           SLCVCapture::hasSecondaryCamera = true;
+SLint            SLCVCapture::requestedSizeIndex = 0;
+SLstring         SLCVCapture::videoDefaultPath   = "../data/videos/";
+SLstring         SLCVCapture::videoFilename      = "";
+SLbool           SLCVCapture::videoLoops         = true;
+SLdouble         SLCVCapture::fps;
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
 /* This so far called in SLScene::onAfterLoad if a scene uses a live video by
@@ -172,23 +170,6 @@ void SLCVCapture::grabAndAdjustForSL()
     }
 }
 
-void SLCVCapture::lastFrameAsync(FrameAndTime* frameAndTime)
-{
-    std::lock_guard<std::mutex> lock(_frameLock);
-
-    frameAndTime->frame     = _lastFrameAndTime.frame.clone();
-    frameAndTime->frameGray = _lastFrameAndTime.frameGray.clone();
-    frameAndTime->time      = _lastFrameAndTime.time;
-}
-
-void SLCVCapture::lastFrameAsync(const SLCVMat& lastFrame, const SLCVMat& lastFrameGray, const SLTimePoint& lastFrameTime)
-{
-    std::lock_guard<std::mutex> lock(_frameLock);
-    _lastFrameAndTime.frame     = lastFrame.clone();
-    _lastFrameAndTime.frameGray = lastFrameGray.clone();
-    _lastFrameAndTime.time      = lastFrameTime;
-}
-
 //-----------------------------------------------------------------------------
 //! Does all adjustments needed for the SLScene::_videoTexture
 /*! SLCVCapture::adjustForSL processes the following adjustments for all input
@@ -282,8 +263,6 @@ void SLCVCapture::adjustForSL()
     // Android image copy loop #4
 
     cv::cvtColor(SLCVCapture::lastFrame, SLCVCapture::lastFrameGray, cv::COLOR_BGR2GRAY);
-
-    lastFrameAsync(lastFrame, lastFrameGray, SLClock::now());
 
     s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
     //SL_LOG("SLCVCapture::adjustForSL\n");

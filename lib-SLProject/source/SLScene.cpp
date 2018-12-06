@@ -25,6 +25,7 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLText.h>
+#include <SLCVCamera.h>
 
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene does all one time initialization such as

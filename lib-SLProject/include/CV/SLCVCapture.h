@@ -90,20 +90,8 @@ class SLCVCapture
     On iOS the resolution is hardcoded to 640 x 480.*/
     static SLint requestedSizeIndex;
 
-    struct FrameAndTime
-    {
-        SLCVMat     frame;
-        SLCVMat     frameGray;
-        SLTimePoint time;
-    };
-
-    static void lastFrameAsync(FrameAndTime* frameAndTime);
-    static void lastFrameAsync(const SLCVMat& lastFrame, const SLCVMat& lastFrameGray, const SLTimePoint& lastFrameTime);
-
     private:
-    static cv::VideoCapture _captureDevice;    //!< OpenCV capture device
-    static FrameAndTime     _lastFrameAndTime; //!< A thread-safe copy of last frame
-    static std::mutex       _frameLock;
+    static cv::VideoCapture _captureDevice; //!< OpenCV capture device
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVCAPTURE_H

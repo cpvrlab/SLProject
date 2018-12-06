@@ -15,6 +15,7 @@
 #include <imgui_internal.h>
 
 #include <SLNode.h>
+#include <SLMaterial.h>
 
 //-----------------------------------------------------------------------------
 SLImGuiInfosChristoffelTower::SLImGuiInfosChristoffelTower(std::string name, SLNode* bern)
