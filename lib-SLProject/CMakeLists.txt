@@ -210,20 +210,21 @@ file(GLOB shaders
 
 include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 
-set(compile_definitions
-    ${compile_definitions}
-    SL_USES_CVCAPTURE
-    SL_GUI_GLFW)
-
 #==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
+    set(compile_definitions
+        ${compile_definitions}
+        SL_USES_CVCAPTURE
+        SL_GUI_GLFW)
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(compile_definitions
         ${compile_definitions}
         GLEW_STATIC
         _GLFW_NO_DLOAD_GDI32
-        _GLFW_NO_DLOAD_WINMM)
+        _GLFW_NO_DLOAD_WINMM
+        SL_USES_CVCAPTURE
+        SL_GUI_GLFW)
 
     set(platform_specific_include_dirs
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/dirent)
@@ -231,7 +232,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     set(compile_definitions
         ${compile_definitions}
-        GLEW_STATIC)
+        GLEW_STATIC
+        SL_USES_CVCAPTURE
+        SL_GUI_GLFW)
 
 endif()
 #==============================================================================
