@@ -25,7 +25,6 @@
 #include <SLCVTrackedChessboard.h>
 #include <SLCVTrackedFaces.h>
 #include <SLCVTrackedFeatures.h>
-#include <SLCVTrackedMapping.h>
 #include <SLCVTrackedRaulMur.h>
 #include <SLCVTrackedRaulMurAsync.h>
 #include <SLCone.h>

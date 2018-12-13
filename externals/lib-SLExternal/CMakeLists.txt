@@ -255,7 +255,6 @@ target_include_directories(${target}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${platform_specific_include_directories}
     ${OpenCV_INCLUDE_DIR}
-    ${g2o_INCLUDE_DIR}
 
     INTERFACE
     )

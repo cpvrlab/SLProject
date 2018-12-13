@@ -11,8 +11,6 @@
 #include <stdafx.h>
 #include <SLCVCamera.h>
 #include <SLSceneView.h>
-#include <SLCVKeyFrame.h>
-#include <SLCVKeyFrameDB.h>
 #include <SLGLTexture.h>
 
 SLCVCamera::SLCVCamera(SLstring name)

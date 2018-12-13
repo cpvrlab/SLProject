@@ -277,10 +277,7 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/zlib
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
-    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/eigen
-    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/DBoW2
     ${OpenCV_INCLUDE_DIR}
-    ${g2o_INCLUDE_DIR}
     ${DEFAULT_INCLUDE_DIRECTORIES}
 
     INTERFACE
@@ -310,7 +307,6 @@ target_link_libraries(${target}
     PUBLIC
     ${PlatformLinkLibs}
     ${OpenCV_LIBS}
-    ${g2o_LIBS}
 
     PUBLIC
     ${META_PROJECT_NAME}::lib-SLExternal
