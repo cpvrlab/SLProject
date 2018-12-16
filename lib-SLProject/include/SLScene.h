@@ -130,8 +130,8 @@ class SLScene : public SLObject
     void         unInit();
     void         selectNode(SLNode* nodeToSelect);
     void         selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
-            bool            removeMesh          (SLMesh* mesh);
-            bool            deleteTexture       (SLGLTexture* texture);
+    bool         removeMesh(SLMesh* mesh);
+    bool         deleteTexture(SLGLTexture* texture);
 
     protected:
     SLVSceneView    _sceneViews;    //!< Vector of all sceneview pointers

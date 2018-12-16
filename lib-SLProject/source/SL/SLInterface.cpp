@@ -63,7 +63,7 @@ void slCreateAppAndScene(SLVstring& cmdLineArgs,
                          SLstring   applicationName,
                          void*      onSceneLoadCallback)
 {
-     assert(SLApplication::scene == nullptr && "SLScene is already created!");
+    assert(SLApplication::scene == nullptr && "SLScene is already created!");
 
     // Default paths for all loaded resources
     SLGLProgram::defaultPath      = shaderPath;
@@ -535,7 +535,7 @@ void slSetupExternalDirectories(SLstring externalDirPath)
     if (SLFileSystem::dirExists(externalDirPath))
     {
         SL_LOG("External directory: %s\n", externalDirPath.c_str());
-        SLFileSystem::setExternalDir(externalDirPath);
+        SLFileSystem::externalDir(externalDirPath);
     }
     else
     {
@@ -543,13 +543,3 @@ void slSetupExternalDirectories(SLstring externalDirPath)
     }
 }
 //-----------------------------------------------------------------------------
-void slInstallMemoryStatsCallback(void* cb)
-{
-    //save callback in SLMemoryStats class
-    SLApplication::memStats.setCallback((cbMemoryStats*)cb);
-}
-//-----------------------------------------------------------------------------
-void slSetMemoryStatsValues(long freeMemoryRT, long totalMemoryRT, long maxMemoryRT, long availMemoryAM, long totalMemoryAM, long thresholdAM, bool lowMemoryAM)
-{
-    SLApplication::memStats.setValues(freeMemoryRT, totalMemoryRT, maxMemoryRT, availMemoryAM, totalMemoryAM, thresholdAM, lowMemoryAM);
-}

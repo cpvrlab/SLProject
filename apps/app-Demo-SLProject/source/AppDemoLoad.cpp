@@ -25,8 +25,6 @@
 #include <SLCVTrackedChessboard.h>
 #include <SLCVTrackedFaces.h>
 #include <SLCVTrackedFeatures.h>
-#include <SLCVTrackedRaulMur.h>
-#include <SLCVTrackedRaulMurAsync.h>
 #include <SLCone.h>
 #include <SLCoordAxis.h>
 #include <SLCylinder.h>
@@ -44,35 +42,25 @@
 #include <SLText.h>
 #include <SLTransferFunction.h>
 
-#include <SLCVKeyFrameDB.h>
-#include <SLCVMap.h>
-#include <SLCVMapIO.h>
-#include <SLCVMapPoint.h>
-#include <SLImGuiInfosChristoffelTower.h>
-
-#include <AppDemoGui.h>
-
 //-----------------------------------------------------------------------------
 // Foreward declarations for helper functions used only in this file
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLuint, SLMaterial*, SLMaterial*);
 SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation = false);
-SLNode* LoadBernModel();
+
 //-----------------------------------------------------------------------------
 //! appDemoLoadScene builds a scene from source code.
 /*! appDemoLoadScene builds a scene from source code. Such a function must be
-passed as a void*-pointer to slCreateScene. It will be called from within
-slCreateSceneView as soon as the view is initialized. You could separate
-different scene by a different sceneID.<br>
-The purpose is to assemble a scene by creating scenegraph objects with nodes
-(SLNode) and meshes (SLMesh). See the scene with SID_Minimal for a minimal
-example of the different steps.
+ passed as a void*-pointer to slCreateScene. It will be called from within
+ slCreateSceneView as soon as the view is initialized. You could separate
+ different scene by a different sceneID.<br>
+ The purpose is to assemble a scene by creating scenegraph objects with nodes
+ (SLNode) and meshes (SLMesh). See the scene with SID_Minimal for a minimal
+ example of the different steps.
 */
 void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 {
     SLApplication::sceneID = sceneID;
 
-    // remove scene specific uis
-    AppDemoGui::clearInfoDialogs();
     // Initialize all preloaded stuff from SLScene
     s->init();
 
@@ -1402,7 +1390,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(scale);
         sp->addUniform1f(offset);
 
-        // Create textures
+// Create textures
 #ifndef SL_GLES
         SLGLTexture* texC  = new SLGLTexture("earth2048_C.jpg");      // color map
         SLGLTexture* texN  = new SLGLTexture("earth2048_N.jpg");      // normal map
@@ -1901,7 +1889,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(center);
         scene->addChild(cam1);
 
-        // create astroboys around the center astroboy
+// create astroboys around the center astroboy
 #ifdef SL_GLES2
         SLint size = 4;
 #else
@@ -2012,12 +2000,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             if (SLApplication::sceneID == SID_VideoTrackChessMain)
             {
                 s->videoType(VT_MAIN);
-                //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
-                //SLCVCapture::videoFilename = "webcam_calib.wmv";
-                //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
-                //SLCVCapture::videoFilename = "huawei_p10_full_hd.mp4";
-                //SLCVCapture::videoLoops = true;
-                //s->videoType(VT_FILE);
                 s->name("Track Chessboard (main cam.)");
             }
             else
@@ -2029,14 +2011,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         else if (SLApplication::sceneID == SID_VideoCalibrateMain)
         {
             s->videoType(VT_MAIN);
-            //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
-            //SLCVCapture::videoFilename = "webcam_calib.wmv";
-            //SLCVCapture::videoFilename = "calib_huawei_4_3.mp4";
-            //SLCVCapture::videoFilename = "calib_huawei_16_9.mp4";
-            //SLCVCapture::videoFilename = "huawei_p10_full_hd.mp4";
-            //SLCVCapture::videoLoops = true;
-            //s->videoType(VT_FILE);
-
             SLApplication::activeCalib->clear();
 
             s->name("Calibrate Main Cam.");
@@ -2052,7 +2026,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
 
         // set the edge length of a chessboard square
-        SLfloat e1 = SLApplication::activeCalib->boardSquareM();
+        SLfloat e1 = 0.028f;
         SLfloat e3 = e1 * 3.0f;
         SLfloat e9 = e3 * 3.0f;
 
@@ -2405,10 +2379,60 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Let the sun be rotated by time and location
         SLApplication::devLoc.sunLightNode(light);
 
-        SLNode* bern = LoadBernModel();
-        //install gui
-        auto ui = std::make_shared<SLImGuiInfosChristoffelTower>("Christoffel", bern);
-        AppDemoGui::addInfoDialog(ui);
+        SLAssimpImporter importer;
+        SLNode*          bern = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
+
+        // Make city transparent
+        SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
+        if (!UmgD) SL_EXIT_MSG("Node: Umgebung-Daecher not found!");
+        for (auto mesh : UmgD->meshes())
+        {
+            mesh->mat()->kt(0.5f);
+            mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+            mesh->init(UmgD); // reset the correct hasAlpha flag
+        }
+
+        SLNode* UmgF = bern->findChild<SLNode>("Umgebung-Fassaden");
+        if (!UmgF) SL_EXIT_MSG("Node: Umgebung-Fassaden not found!");
+        for (auto mesh : UmgF->meshes())
+        {
+            mesh->mat()->kt(0.5f);
+            mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+            mesh->init(UmgF); // reset the correct hasAlpha flag
+        }
+
+        SLNode* ChrA = bern->findChild<SLNode>("Christoffel-Aussen");
+        if (!ChrA) SL_EXIT_MSG("Node: Christoffel-Aussen not found!");
+        for (auto mesh : ChrA->meshes())
+        {
+            mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+        }
+
+        // Hide some objects
+        bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Wand")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Turm")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Weg")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Boden")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Mauern")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Bruecken")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Grass")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
+
+        // Set ambient on all child nodes
+        for (auto node : bern->children())
+        {
+            for (auto mesh : node->meshes())
+            {
+                mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+            }
+        }
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode* axis = new SLNode(new SLCoordAxis(), "Axis Node");
@@ -2998,65 +3022,5 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
     }
 
     return figure;
-}
-//-----------------------------------------------------------------------------
-SLNode* LoadBernModel()
-{
-    SLAssimpImporter importer;
-    SLNode*          bern = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
-
-    // Make city transparent
-    SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
-    if (!UmgD) SL_EXIT_MSG("Node: Umgebung-Daecher not found!");
-    for (auto mesh : UmgD->meshes())
-    {
-        mesh->mat()->kt(0.5f);
-        mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-        mesh->init(UmgD); // reset the correct hasAlpha flag
-    }
-
-    SLNode* UmgF = bern->findChild<SLNode>("Umgebung-Fassaden");
-    if (!UmgF) SL_EXIT_MSG("Node: Umgebung-Fassaden not found!");
-    for (auto mesh : UmgF->meshes())
-    {
-        mesh->mat()->kt(0.5f);
-        mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-        mesh->init(UmgF); // reset the correct hasAlpha flag
-    }
-
-    SLNode* ChrA = bern->findChild<SLNode>("Christoffel-Aussen");
-    if (!ChrA) SL_EXIT_MSG("Node: Christoffel-Aussen not found!");
-    for (auto mesh : ChrA->meshes())
-    {
-        mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-    }
-
-    // Hide some objects
-    bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Mauer-Wand")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Mauer-Turm")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Mauer-Weg")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Boden")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Graben-Mauern")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Graben-Bruecken")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Graben-Grass")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Graben-Turm-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
-
-    // Set ambient on all child nodes
-    for (auto node : bern->children())
-    {
-        for (auto mesh : node->meshes())
-        {
-            mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-        }
-    }
-
-    return bern;
 }
 //-----------------------------------------------------------------------------

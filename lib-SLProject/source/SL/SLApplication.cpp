@@ -30,7 +30,6 @@ SLCVCalibration  SLApplication::calibScndCam;
 SLCVCalibration  SLApplication::calibVideoFile;
 SLDeviceRotation SLApplication::devRot;
 SLDeviceLocation SLApplication::devLoc;
-SLMemoryStats    SLApplication::memStats;
 SLstring         SLApplication::name      = "SLProjectApp";
 SLstring         SLApplication::version   = "2.3.000";
 SLstring         SLApplication::gitBranch = SL_GIT_BRANCH;
@@ -66,7 +65,6 @@ void SLApplication::createAppAndScene(SLstring appName,
 
 // load opencv camera calibration for main and secondary camera
 #if defined(SL_USES_CVCAPTURE)
-    //calibMainCam.load(SLFileSystem::getExternalDir(), "cam_calibration_main.xml", false, false);
     calibMainCam.load(SLApplication::configPath, "cam_calibration_main.xml", true, false);
     calibMainCam.loadCalibParams();
     activeCalib                     = &calibMainCam;

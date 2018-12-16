@@ -243,7 +243,6 @@ SL_sizeOfVector(const T& vector)
 //-----------------------------------------------------------------------------
 /*! Since Android does not support full C++11 support, we have to override the
 to_string method manually.
-*/
 template<typename T>
 std::string to_string(T value)
 {
@@ -251,6 +250,7 @@ std::string to_string(T value)
     os << value;
     return os.str();
 }
+*/
 //-----------------------------------------------------------------------------
 //! Class SL with some global static functions and members.
 class SL

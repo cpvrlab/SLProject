@@ -17,7 +17,7 @@
 //! SLFileSystem provides basic filesystem functions
 class SLFileSystem
 {
-public:
+    public:
     //! Returns true if a directory exists.
     static SLbool dirExists(SLstring& path);
 
@@ -40,16 +40,14 @@ public:
     static SLbool deleteFile(SLstring& pathfilename);
 
     //!setters
-    static void setExternalDir(const SLstring& dir);
-    //!getters
-    static SLstring getExternalDir() { return _externalDir; }
-    static SLbool externalDirExists() { return _externalDirExists; }
+    static void externalDir(const SLstring& dir);
 
-private:
+    //!getters
+    static SLstring externalDir() { return _externalDir; }
+
+    private:
     //! Directory to save app data outside of the app
     static SLstring _externalDir;
-    //! flags, if _externalDir was tested on existence
-    static SLbool _externalDirExists;
 };
 //-----------------------------------------------------------------------------
 #endif

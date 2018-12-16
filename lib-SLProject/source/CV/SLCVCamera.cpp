@@ -18,16 +18,6 @@ SLCVCamera::SLCVCamera(SLstring name)
 {
 }
 //-----------------------------------------------------------------------------
-bool SLCVCamera::renderBackground()
-{
-    return _renderBackground;
-}
-//-----------------------------------------------------------------------------
-bool SLCVCamera::allowAsActiveCam()
-{
-    return _allowAsActiveCam;
-}
-//-----------------------------------------------------------------------------
 //! SLCamera::drawMeshes draws the cameras frustum lines
 /*!
 Only draws the frustum lines without lighting when the camera is not the
@@ -152,3 +142,4 @@ void SLCVCamera::drawMeshes(SLSceneView* sv)
         //}
     }
 }
+//-----------------------------------------------------------------------------

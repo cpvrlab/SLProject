@@ -24,14 +24,13 @@
 #    include <unistd.h> //getcwd
 #elif defined(SL_OS_ANDROID)
 #    include <unistd.h> //getcwd
-    #include <sys/stat.h>
+#    include <sys/stat.h>
 #elif defined(SL_OS_LINUX)
 #    include <unistd.h> //getcwd
 #endif
 
 //-----------------------------------------------------------------------------
 SLstring SLFileSystem::_externalDir = "";
-SLbool SLFileSystem::_externalDirExists = false;
 //-----------------------------------------------------------------------------
 /*! Returns true if the directory exists. Be aware that on some OS file and
 paths are treated case sensitive.
@@ -64,22 +63,21 @@ void SLFileSystem::removeDir(const string& path)
 {
 #ifdef SL_OS_WINDOWS
     int ret = _rmdir(path.c_str());
-    if (ret != 0) {
+    if (ret != 0)
+    {
         errno_t err;
         _get_errno(&err);
         SL_LOG("Could not remove directory: %s\nErrno: %s\n", path.c_str(), strerror(errno));
     }
 #else
-    int ret = rmdir(path.c_str());
+    rmdir(path.c_str());
 #endif
-
-
 }
 //-----------------------------------------------------------------------------
 /*! Returns true if the file exists.Be aware that on some OS file and
 paths are treated case sensitive.
 */
-SLbool SLFileSystem::fileExists(const SLstring& pathfilename) 
+SLbool SLFileSystem::fileExists(const SLstring& pathfilename)
 {
     struct stat info;
     if (stat(pathfilename.c_str(), &info) == 0)
@@ -151,9 +149,9 @@ SLbool SLFileSystem::deleteFile(SLstring& pathfilename)
     return false;
 }
 //-----------------------------------------------------------------------------
-//!setters
-void SLFileSystem::setExternalDir(const SLstring& dir)
+//! Set the path to the external directory
+void SLFileSystem::externalDir(const SLstring& dir)
 {
     _externalDir = SLUtils::unifySlashes(dir);
-    _externalDirExists = true;
 }
+//-----------------------------------------------------------------------------

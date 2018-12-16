@@ -710,10 +710,10 @@ void SLScene::onLoadAsset(SLstring assetFile,
 //-----------------------------------------------------------------------------
 //! Setter for video type also sets the active calibration
 /*! The SLApplication instance has up to three video camera calibrations, one
-for a main camera (SLApplication::calibMainCam), one for the selfie camera on mobile
-devices (SLApplication::calibScndCam) and one for video file simulation
-(SLApplication::calibVideoFile). The member SLApplication::activeCalib references the
-active one.
+for a main camera (SLApplication::calibMainCam), one for the selfie camera on
+mobile devices (SLApplication::calibScndCam) and one for video file simulation
+(SLApplication::calibVideoFile). The member SLApplication::activeCalib
+references the active one.
 */
 void SLScene::videoType(SLVideoType vt)
 {
@@ -753,8 +753,8 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
     if (cams.size() == 0) return nullptr;
     if (cams.size() == 1) return cams[0];
 
-    SLuint activeIndex = 0;
-    for (SLuint i = 0; i < cams.size(); ++i)
+    SLint activeIndex = 0;
+    for (SLint i = 0; i < cams.size(); ++i)
     {
         if (cams[i] == activeSV->camera())
         {
@@ -762,12 +762,6 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
             break;
         }
     }
-
-    ////// return next if not last else return first
-    //if (activeIndex < cams.size() - 1)
-    //    return cams[activeIndex + 1];
-    //else
-    //    return cams[0];
 
     //find next camera, that is not of type SLCVCamera if "allow SLCVCamera as
     //active camera" is deactivated
@@ -780,8 +774,7 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
     return cams[activeIndex];
 }
 //-----------------------------------------------------------------------------
-/*!
-Removes the specified mesh from the vector.
+/*! Removes the specified mesh from the meshes resource vector.
 */
 bool SLScene::removeMesh(SLMesh* mesh)
 {
@@ -797,6 +790,8 @@ bool SLScene::removeMesh(SLMesh* mesh)
     return false;
 }
 //-----------------------------------------------------------------------------
+/*! Removes the specified texture from the textures resource vector.
+*/
 bool SLScene::deleteTexture(SLGLTexture* texture)
 {
     assert(texture);
@@ -811,3 +806,4 @@ bool SLScene::deleteTexture(SLGLTexture* texture)
     }
     return false;
 }
+//----------------------------------------------------------------------------
