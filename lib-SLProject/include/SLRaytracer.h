@@ -99,6 +99,11 @@ class SLRaytracer : public SLGLTexture
         _aaSamples = samples;
         state(rtReady);
     }
+    void applyGamma(SLbool ag)
+    {
+        _applyGamma = ag;
+        state(rtReady);
+    }
 
     // Getters
     SLRTState state() const { return _state; }
@@ -111,6 +116,7 @@ class SLRaytracer : public SLGLTexture
     SLint     pcRendered() const { return _pcRendered; }
     SLfloat   aaThreshold() const { return _aaThreshold; }
     SLfloat   renderSec() const { return _renderSec; }
+    SLbool    applyGamma() { return _applyGamma; }
 
     // Render target image
     void prepareImage();
@@ -134,6 +140,8 @@ class SLRaytracer : public SLGLTexture
     SLVec3f     _BL;           //!< Bottom left vector
     atomic<int> _next;         //!< next index to render RT
     SLVPixel    _aaPixels;     //!< Vector for antialiasing pixels
+    SLfloat     _gamma;        //!< gamma correction
+    SLbool      _applyGamma;   //!< flag to applying gamma correction
 
     // variables for distributed ray tracing
     SLfloat _aaThreshold; //!< threshold for anti aliasing

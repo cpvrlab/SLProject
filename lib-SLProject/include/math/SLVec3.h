@@ -175,9 +175,9 @@ class SLVec3
                                                          y = r*sin_theta*sin(phi);
                                                          z = r*cos(theta);}
             //! Gamma correction
-            void    gamma(T gammaVal)                   {x= pow(x,1.0/gammaVal);
-                                                         y= pow(y,1.0/gammaVal);
-                                                         z= pow(z,1.0/gammaVal);}
+            void    gammaCorrect(T oneOverGamma)        {x= pow(x,oneOverGamma);
+                                                         y= pow(y,oneOverGamma);
+                                                         z= pow(z,oneOverGamma);}
 
 
 

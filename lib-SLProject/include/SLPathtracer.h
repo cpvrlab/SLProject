@@ -28,20 +28,16 @@ class SLPathtracer : public SLRaytracer
     void    saveImage();
 
     // Setters
-    void applyGamma(SLbool ag) { _applyGamma = ag; }
     void calcDirect(SLbool di) { _calcDirect = di; }
     void calcIndirect(SLbool ii) { _calcIndirect = ii; }
 
     // Getters
-    SLbool applyGamma() { return _applyGamma; }
     SLbool calcDirect() { return _calcDirect; }
     SLbool calcIndirect() { return _calcIndirect; }
 
     private:
-    SLfloat _gamma;        //!< gamma correction
-    SLbool  _applyGamma;   //!< flag to applying gamma correction
-    SLbool  _calcDirect;   //!< flag to calculate direct illum.
-    SLbool  _calcIndirect; //!< flag to calculate indirect illum.
+    SLbool _calcDirect;   //!< flag to calculate direct illum.
+    SLbool _calcIndirect; //!< flag to calculate indirect illum.
 };
 //-----------------------------------------------------------------------------
 #endif
