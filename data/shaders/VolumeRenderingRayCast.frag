@@ -16,15 +16,15 @@ precision highp sampler2D;
 precision highp sampler3D;
 #endif
 
-varying     vec3       v_raySource;     // The source coordinate of the view ray (model coordinates)
+varying vec3       v_raySource;     // The source coordinate of the view ray (model coordinates)
 
-uniform     mat4       u_invMvMatrix;   // inverse modelView matrix = view matrix
-uniform     float      u_volumeX;       // 3D texture width
-uniform     float      u_volumeY;       // 3D texture height
-uniform     float      u_volumeZ;       // 3D texture depth
-
-uniform     sampler3D  u_texture0;      // The 3D volume texture
-uniform     sampler2D  u_texture1;      // The 1D LUT for the transform function
+uniform mat4       u_invMvMatrix;   // inverse modelView matrix = view matrix
+uniform float      u_volumeX;       // 3D texture width
+uniform float      u_volumeY;       // 3D texture height
+uniform float      u_volumeZ;       // 3D texture depth
+uniform float      u_oneOverGamma;  // 1.0f / Gamma correction value
+uniform sampler3D  u_texture0;      // The 3D volume texture
+uniform sampler2D  u_texture1;      // The 1D LUT for the transform function
 
 vec3 findRayDestination(vec3 raySource, vec3 rayDirection)
 {
@@ -108,4 +108,7 @@ void main()
         position += direction;
     }
     gl_FragColor.a = 1.0;
+
+    // Apply gamma correction
+    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
 }

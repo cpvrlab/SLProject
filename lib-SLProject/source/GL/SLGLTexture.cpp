@@ -654,6 +654,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
     sp->uniform1i("u_texture0", 0);
+    sp->uniform1f("u_oneOverGamma", 1.0f);
 
     ////////////////////////////////////////////
     _vaoSprite.drawElementsAs(PT_triangleStrip);

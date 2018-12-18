@@ -129,6 +129,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
     SLGLProgram* sp = _texture ? s->programs(SP_TextureOnly) : s->programs(SP_colorAttribute);
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
+    sp->uniform1f("u_oneOverGamma", stateGL->oneOverGamma);
 
     // Create or update buffer for vertex position and indices
     if (!_vao.id() || _resX != widthPX || _resY != heightPX)
@@ -176,9 +177,9 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
         sp->uniform1i("u_texture0", 0);
     }
 
-    ///////////////////////////////////////
+    //////////////////////////////////////
     _vao.drawElementsAs(PT_triangleStrip);
-    ///////////////////////////////////////
+    //////////////////////////////////////
 }
 //-----------------------------------------------------------------------------
 //! Draws the background as a quad on the far clipping plane

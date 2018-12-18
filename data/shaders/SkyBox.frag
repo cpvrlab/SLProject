@@ -12,10 +12,14 @@
 precision mediump float;
 #endif
 
-uniform samplerCube u_texture0; // cube map texture
-varying vec3        v_texCoord; // Interpol. 3D texture coordinate
+uniform samplerCube u_texture0;     // cube map texture
+uniform float       u_oneOverGamma; // 1.0f / Gamma correction value
+varying vec3        v_texCoord;     // Interpol. 3D texture coordinate
 
 void main()
 {
     gl_FragColor = textureCube(u_texture0, v_texCoord);
+
+    // Apply gamma correction
+    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
 }

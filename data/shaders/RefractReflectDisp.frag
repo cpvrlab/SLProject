@@ -19,6 +19,7 @@ uniform samplerCube  u_texture0;    // Cubic environment texture map
 uniform mat4   u_mvMatrix;          // modelview matrix
 uniform mat4   u_invMvMatrix;       // inverse modelview 
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
+uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
 
 varying vec3   v_I_VS;              // Incident ray at point of illum. in viewspace 
 varying vec3   v_N_VS;              // normal ray at point of illum. in viewspace 
@@ -58,4 +59,7 @@ void main()
 
     // Add specular gloss
     gl_FragColor.rgb += v_specColor.rgb;
+
+    // Apply gamma correction
+    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
 }

@@ -36,6 +36,7 @@ uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
 uniform vec4   u_matEmissive;       // emissive color for selfshining materials
 uniform float  u_matShininess;      // shininess exponent
+uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
 
 varying vec4   v_color;             // The resulting color per vertex
 
@@ -153,6 +154,9 @@ void main()
 
     // For correct alpha blending overwrite alpha component
     v_color.a = a_color.a;
+
+    // Apply gamma correction
+    v_color.rgb = pow(v_color.rgb, vec3(u_oneOverGamma));
 
     // Set the transformes vertex position           
     gl_Position = u_mvpMatrix * a_position;

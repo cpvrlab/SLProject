@@ -18,6 +18,7 @@ uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
 uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
 uniform vec4   u_matEmissive;       // emissive color for selfshining materials
 uniform float  u_matShininess;      // shininess exponent
+uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
 
 uniform samplerCube  u_texture0;    // Cubic environment texture map
 
@@ -35,5 +36,8 @@ void main()
    
     // For correct alpha blending overwrite alpha component
     gl_FragColor.a = 1.0-u_matDiffuse.a;
+
+    // Apply gamma correction
+    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
 }
 //-----------------------------------------------------------------------------

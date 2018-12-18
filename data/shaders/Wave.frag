@@ -30,6 +30,7 @@ uniform float  u_lightSpotExp[8];   // spot exponent
 uniform vec3   u_lightAtt[8];       // attenuation (const,linear,quadr.)
 uniform bool   u_lightDoAtt[8];     // flag if att. must be calc.
 uniform vec4   u_globalAmbient;     // Global ambient scene color
+uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
 
 uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
@@ -61,5 +62,8 @@ void main()
    
     // Mix the final color fifty-fifty
     gl_FragColor = matCol;
+
+    // Apply gamma correction
+    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
 }
 //-----------------------------------------------------------------------------

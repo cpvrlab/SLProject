@@ -513,8 +513,11 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
                                   (SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrH));
     }
 
-    // Clear buffers
-    _stateGL->clearColor(_camera->background().colors()[0]);
+    // Clear color buffer
+    // Apply gamma correction only on uniform background. No shader runs on it!
+    SLCol4f backColor = _camera->background().colors()[0];
+    backColor.gammaCorrect(_stateGL->oneOverGamma);
+    _stateGL->clearColor(backColor);
     _stateGL->clearColorDepthBuffer();
 
     // Render gradient or textured background from active camera

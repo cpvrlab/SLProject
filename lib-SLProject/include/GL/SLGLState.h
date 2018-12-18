@@ -84,6 +84,10 @@ class SLGLState
     SLint   stereoEye;         //!< -1=left, 0=center, 1=right
     SLMat3f stereoColorFilter; //!< color filter matrix for anaglyph
 
+    // gamma correction for shaders and rederers
+    SLfloat gamma;        //!< final output gamma value
+    SLfloat oneOverGamma; //!< final output one over gamma value
+
     // setters
     void invModelViewMatrix(SLMat4f& im) { _invModelViewMatrix.setMatrix(im); }
     void normalMatrix(SLMat3f& nm) { _normalMatrix.setMatrix(nm); }

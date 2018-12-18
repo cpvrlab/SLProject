@@ -12,10 +12,14 @@
 precision mediump float;
 #endif
 
-uniform sampler3D u_texture0;   // 3D Color map
-varying vec4      v_texCoord3D; // Interpol. 3D texture coordinate
+uniform sampler3D u_texture0;     // 3D Color map
+uniform float     u_oneOverGamma; // 1.0f / Gamma correction value
+varying vec4      v_texCoord3D;   // Interpol. 3D texture coordinate
 
 void main()
 {     
     gl_FragColor = texture3D(u_texture0, v_texCoord3D.xyz);
+
+    // Apply gamma correction
+    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
 }

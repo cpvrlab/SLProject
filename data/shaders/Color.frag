@@ -11,9 +11,13 @@
 precision mediump float;
 #endif
 
-varying vec4 v_color;   // interpolated color calculated in the vertex shader 
+varying vec4    v_color;        // interpolated color calculated in the vertex shader
+uniform float   u_oneOverGamma; // 1.0f / Gamma correction value
 
 void main()
 {     
     gl_FragColor = v_color;
+
+    // Apply gamma correction
+    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
 }

@@ -37,6 +37,8 @@ uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks
 uniform vec4   u_matEmissive;       // emissive color for selfshining materials
 uniform float  u_matShininess;      // shininess exponent
 
+uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
+
 uniform int    u_projection;        // type of stereo
 uniform int    u_stereoEye;         // -1=left, 0=center, 1=right 
 uniform mat3   u_stereoColorFilter; // color filter matrix
@@ -158,6 +160,9 @@ void main()
     // add finally the specular RGB-part
     vec4 specColor = Is * u_matSpecular;
     gl_FragColor.rgb += specColor.rgb;
+
+    // Apply gamma correction
+    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
    
     // Apply stereo eye separation
     if (u_projection > 1)

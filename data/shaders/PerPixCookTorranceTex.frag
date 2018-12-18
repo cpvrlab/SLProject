@@ -23,6 +23,8 @@ uniform bool   u_lightIsOn[8];      //!< flag if light is on
 uniform vec4   u_lightPosVS[8];     //!< position of light in view space
 uniform vec4   u_lightDiffuse[8];   //!< diffuse light intensity (Id)
 
+uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
+
 uniform sampler2D u_texture0;       //! Diffuse Color map (albedo)
 uniform sampler2D u_texture1;       //! Normal map
 uniform sampler2D u_texture2;       //! Metallic map
@@ -156,8 +158,8 @@ void main()
     // HDR tonemapping
     color = color / (color + vec3(1.0));
 
-    // gamma correct
-    color = clamp(pow(color, vec3(1.0/2.2)), 0.0, 1.0);
+    // Apply gamma correction
+    color.rgb = pow(color.rgb, vec3(u_oneOverGamma));
 
     // set the fragment color with opaque alpha
     gl_FragColor = vec4(color, 1.0);

@@ -37,8 +37,6 @@ SLRaytracer::SLRaytracer()
     _maxDepth      = 5;
     _aaThreshold   = 0.3f; // = 10% color difference
     _aaSamples     = 3;
-    _gamma         = 2.2f;
-    _applyGamma    = true;
 
     // set texture properties
     _min_filter   = GL_NEAREST;
@@ -72,7 +70,6 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     // Measure time
     double  t1           = SLApplication::scene->timeSec();
     double  tStart       = t1;
-    SLfloat oneOverGamma = 1.0f / _gamma;
 
     for (SLuint y = 0; y < _images[0]->height(); ++y)
     {
@@ -89,8 +86,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
             SLCol4f color = trace(&primaryRay);
             ///////////////////////////////////
 
-            if (_applyGamma)
-                color.gammaCorrect(oneOverGamma);
+            color.gammaCorrect(_stateGL->oneOverGamma);
 
             _images[0]->setPixeliRGB((SLint)x, (SLint)y, color);
 
@@ -206,7 +202,6 @@ void SLRaytracer::renderSlices(const bool isMainThread)
 {
     // Time points
     double  t1           = 0;
-    SLfloat oneOverGamma = 1.0f / _gamma;
 
     while (_next < (SLint)_images[0]->height())
     {
@@ -226,8 +221,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
                 SLCol4f color = trace(&primaryRay);
                 ///////////////////////////////////
 
-                if (_applyGamma)
-                    color.gammaCorrect(oneOverGamma);
+                color.gammaCorrect(_stateGL->oneOverGamma);
 
                 _images[0]->setPixeliRGB((SLint)x, (SLint)y, color);
 
@@ -266,8 +260,6 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
 {
     // Time points
     double t1 = 0;
-
-    SLfloat oneOverGamma = 1.0f / _gamma;
 
     // lens sampling constants
     SLVec3f lensRadiusX = _LR * (_cam->lensDiameter() * 0.5f);
@@ -320,9 +312,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                 }
                 color /= (SLfloat)_cam->lensSamples()->samples();
 
-                // gamma correction
-                if (_applyGamma)
-                    color.gammaCorrect(oneOverGamma);
+                color.gammaCorrect(_stateGL->oneOverGamma);
 
                 _images[0]->setPixeliRGB((SLint)x, y, color);
 
@@ -621,7 +611,6 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
 {
     assert(_aaSamples % 2 == 1 && "subSample: maskSize must be uneven");
     double  t1 = 0, t2 = 0;
-    SLfloat oneOverGamma = 1.0f / _gamma;
 
     while (_next < (SLint)_aaPixels.size())
     {
@@ -659,8 +648,7 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
             SLRay::subsampledRays += (SLuint)samples;
             color /= samples;
 
-            if (_applyGamma)
-                color.gammaCorrect(oneOverGamma);
+            color.gammaCorrect(_stateGL->oneOverGamma);
 
             _images[0]->setPixeliRGB((SLint)x, (SLint)y, color);
         }

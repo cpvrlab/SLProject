@@ -31,6 +31,8 @@ uniform vec4   u_matSpecular;       //! specular color reflection coefficient (k
 uniform vec4   u_matEmissive;       //! emissive color for selfshining materials
 uniform float  u_matShininess;      //! shininess exponent
 
+uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
+
 uniform sampler2D u_texture0;       //! Color map
 uniform sampler2D u_texture1;       //! Normal map
 
@@ -90,4 +92,7 @@ void main()
    
     // Add finally the specular part
     gl_FragColor += att * u_lightSpecular[0] * u_matSpecular * specFactor;
+
+    // Apply gamma correction
+    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
 }

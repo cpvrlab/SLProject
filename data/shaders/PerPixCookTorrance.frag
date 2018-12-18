@@ -26,6 +26,8 @@ uniform vec4   u_matDiffuse;        //!< diffuse color reflection coefficient (k
 uniform float  u_matRoughness;      //!< Cook-Torrance material roughness 0-1
 uniform float  u_matMetallic;       //!< Cook-Torrance material metallic 0-1
 
+uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
+
 const float AO = 1.0;               //!< Constant ambient occlusion factor
 const float PI = 3.14159265359;
 //-----------------------------------------------------------------------------
@@ -131,8 +133,8 @@ void main()
     // HDR tonemapping
     color = color / (color + vec3(1.0));
 
-    // gamma correct
-    color = clamp(pow(color, vec3(1.0/2.2)), 0.0, 1.0);
+    // Apply gamma correction
+    color.rgb = pow(color.rgb, vec3(u_oneOverGamma));
 
     // set the fragment color with opaque alpha
     gl_FragColor = vec4(color, 1.0);

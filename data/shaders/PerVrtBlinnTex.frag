@@ -20,7 +20,8 @@ varying vec2      v_texCoord;          // Interpol. texture coordinate
 uniform sampler2D u_texture0;          // Color map
 uniform int       u_projection;        // type of stereo
 uniform int       u_stereoEye;         // -1=left, 0=center, 1=right 
-uniform mat3      u_stereoColorFilter; // color filter matrix 
+uniform mat3      u_stereoColorFilter; // color filter matrix
+uniform float     u_oneOverGamma;      // 1.0f / Gamma correction value
 
 //-----------------------------------------------------------------------------
 void main()
@@ -64,5 +65,8 @@ void main()
             }
         }
     }
+
+    // Apply gamma correction on diffuse part
+    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
 }
 //-----------------------------------------------------------------------------

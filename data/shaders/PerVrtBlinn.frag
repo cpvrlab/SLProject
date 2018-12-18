@@ -17,7 +17,7 @@ varying vec4      v_color;             // interpolated color from vertex shader
 
 uniform int       u_projection;        // type of stereo
 uniform int       u_stereoEye;         // -1=left, 0=center, 1=right 
-uniform mat3      u_stereoColorFilter; // color filter matrix 
+uniform mat3      u_stereoColorFilter; // color filter matrix
 
 //-----------------------------------------------------------------------------
 void main()

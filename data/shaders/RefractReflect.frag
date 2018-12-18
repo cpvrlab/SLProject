@@ -14,8 +14,8 @@ precision mediump float;
 
 //-----------------------------------------------------------------------------
 uniform vec4        u_matDiffuse;   // diffuse color reflection coefficient (kd)
-
 uniform samplerCube u_texture0;     // Cubic environment texture map
+uniform float       u_oneOverGamma; // 1.0f / Gamma correction value
 
 varying vec3        v_R_OS;         // Reflected ray in object space
 varying vec3        v_T_OS;         // Refracted ray in object space
@@ -40,5 +40,8 @@ void main()
    
     // For correct alpha blending overwrite alpha component
     gl_FragColor.a = 1.0 - u_matDiffuse.a;
+
+    // Apply gamma correction
+    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
 }
 //-----------------------------------------------------------------------------

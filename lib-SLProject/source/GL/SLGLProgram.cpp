@@ -249,6 +249,9 @@ void SLGLProgram::beginUse(SLMaterial* mat)
         // 2c: Pass diffuse color for uniform color shader
         loc = uniform4fv("u_color", 1, (SLfloat*)&_stateGL->matDiffuse);
 
+        // 2d: Pass gamma correction value
+        loc = uniform1f("u_oneOverGamma", _stateGL->oneOverGamma);
+
         // 3: Pass the custom uniform1f variables of the list
         for (auto uf : _uniforms1f)
             loc = uniform1f(uf->name(), uf->value());

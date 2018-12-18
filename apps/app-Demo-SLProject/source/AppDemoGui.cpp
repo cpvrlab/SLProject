@@ -795,6 +795,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 {
     SLSceneID    sid           = SLApplication::sceneID;
+    SLGLState*   stateGL       = SLGLState::getInstance();
     SLRenderType rType         = sv->renderType();
     SLbool       hasAnimations = (s->animManager().allAnimNames().size() > 0);
     static SLint curAnimIx     = -1;
@@ -1166,6 +1167,15 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     sv->drawBits()->on(SL_DB_TEXOFF);
                 }
 
+                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
+                static SLfloat gamma = stateGL->gamma;
+                if (ImGui::SliderFloat("Gamma", &gamma, 0.1f, 3.0f, "%.1f"))
+                {
+                    stateGL->gamma        = gamma;
+                    stateGL->oneOverGamma = 1.0f / gamma;
+                }
+                ImGui::PopItemWidth();
+
                 ImGui::EndMenu();
             }
         }
@@ -1259,12 +1269,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Indirect illumination", nullptr, pt->calcIndirect()))
                 {
                     pt->calcIndirect(!pt->calcIndirect());
-                    sv->startPathtracing(5, 10);
-                }
-
-                if (ImGui::MenuItem("Apply Gamma Corr.", nullptr, pt->applyGamma()))
-                {
-                    pt->applyGamma(!pt->applyGamma());
                     sv->startPathtracing(5, 10);
                 }
 
