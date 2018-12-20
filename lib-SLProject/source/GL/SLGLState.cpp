@@ -93,8 +93,7 @@ void SLGLState::initAll()
     fogDistEnd   = 6.0f;
     fogColor     = SLCol4f::BLACK;
 
-    gamma = 1.0f;
-    oneOverGamma = 1.0f / gamma;
+    gamma(1.0f);
 
     globalAmbientLight.set(0.2f, 0.2f, 0.2f, 0.0f);
 

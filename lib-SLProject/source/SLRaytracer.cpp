@@ -37,6 +37,7 @@ SLRaytracer::SLRaytracer()
     _maxDepth      = 5;
     _aaThreshold   = 0.3f; // = 10% color difference
     _aaSamples     = 3;
+    gamma(1.0f);
 
     // set texture properties
     _min_filter   = GL_NEAREST;
@@ -86,7 +87,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
             SLCol4f color = trace(&primaryRay);
             ///////////////////////////////////
 
-            color.gammaCorrect(_stateGL->oneOverGamma);
+            color.gammaCorrect(_oneOverGamma);
 
             _images[0]->setPixeliRGB((SLint)x, (SLint)y, color);
 
@@ -221,7 +222,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
                 SLCol4f color = trace(&primaryRay);
                 ///////////////////////////////////
 
-                color.gammaCorrect(_stateGL->oneOverGamma);
+                color.gammaCorrect(_oneOverGamma);
 
                 _images[0]->setPixeliRGB((SLint)x, (SLint)y, color);
 
@@ -312,7 +313,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                 }
                 color /= (SLfloat)_cam->lensSamples()->samples();
 
-                color.gammaCorrect(_stateGL->oneOverGamma);
+                color.gammaCorrect(_oneOverGamma);
 
                 _images[0]->setPixeliRGB((SLint)x, y, color);
 
@@ -648,7 +649,7 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
             SLRay::subsampledRays += (SLuint)samples;
             color /= samples;
 
-            color.gammaCorrect(_stateGL->oneOverGamma);
+            color.gammaCorrect(_oneOverGamma);
 
             _images[0]->setPixeliRGB((SLint)x, (SLint)y, color);
         }

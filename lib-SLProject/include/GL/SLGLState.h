@@ -84,13 +84,16 @@ class SLGLState
     SLint   stereoEye;         //!< -1=left, 0=center, 1=right
     SLMat3f stereoColorFilter; //!< color filter matrix for anaglyph
 
-    // gamma correction for shaders and rederers
-    SLfloat gamma;        //!< final output gamma value
     SLfloat oneOverGamma; //!< final output one over gamma value
 
     // setters
     void invModelViewMatrix(SLMat4f& im) { _invModelViewMatrix.setMatrix(im); }
     void normalMatrix(SLMat3f& nm) { _normalMatrix.setMatrix(nm); }
+    void gamma(SLfloat g)
+    {
+        _gamma       = g;
+        oneOverGamma = 1.0f / g;
+    }
 
     // getters
     inline const SLMat4f* invModelViewMatrix() { return &_invModelViewMatrix; }
@@ -98,6 +101,7 @@ class SLGLState
     const SLMat4f*        mvpMatrix();     //!< builds and returns proj.mat. x mv mat.
     const SLCol4f*        globalAmbient(); //!< returns global ambient color
     inline bool           hasMultiSampling() { return _multiSampleSamples > 0; }
+    inline SLfloat        gamma() { return _gamma; }
 
     // misc.
     void   buildInverseMatrix();          //!< build inverse matrix from MV
@@ -190,6 +194,7 @@ class SLGLState
     SLfloat _polygonOffsetUnits;   //!< GL_POLYGON_OFFSET_FILL units
     SLVec4i _viewport;             //!< viewport size (x,y,w,h)
     SLCol4f _clearColor;           //!< clear color
+    SLfloat _gamma;                //!< final output gamma value
 
     // states
     SLuint _programID;     //!< current shader program id

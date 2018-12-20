@@ -35,6 +35,7 @@ SLPathtracer::SLPathtracer()
     name("PathTracer");
     _calcDirect   = true;
     _calcIndirect = true;
+    gamma(2.2f);
 }
 
 //-----------------------------------------------------------------------------
@@ -149,7 +150,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
                 // save image without gamma
                 _images[1]->setPixeliRGB(x, (SLint)y, color);
 
-                color.gammaCorrect(_stateGL->oneOverGamma);
+                color.gammaCorrect(_oneOverGamma);
 
                 // image to render
                 _images[0]->setPixeliRGB(x, (SLint)y, color);

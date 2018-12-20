@@ -523,7 +523,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         }
 
         if (IS32.size() > 0)
-        { //cout << "IS32.size: " << IS32.size() << endl;
+        {
             _stateGL->polygonOffset(true, 1.0f, 1.0f);
             _stateGL->depthMask(false);
             _stateGL->depthTest(false);

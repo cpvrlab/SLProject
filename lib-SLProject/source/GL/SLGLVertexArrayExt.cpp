@@ -69,6 +69,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
     SLGLState*   state  = SLGLState::getInstance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
+    sp->uniform1f("u_oneOverGamma", 1.0f);
 
     // Set uniform color
     glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);
@@ -115,6 +116,7 @@ void SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
     SLGLState*   state  = SLGLState::getInstance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
+    sp->uniform1f("u_oneOverGamma", 1.0f);
 
     // Set uniform color
     glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);

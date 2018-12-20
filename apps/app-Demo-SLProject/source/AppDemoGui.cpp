@@ -1168,12 +1168,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 }
 
                 ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
-                static SLfloat gamma = stateGL->gamma;
+                SLfloat gamma = stateGL->gamma();
                 if (ImGui::SliderFloat("Gamma", &gamma, 0.1f, 3.0f, "%.1f"))
-                {
-                    stateGL->gamma        = gamma;
-                    stateGL->oneOverGamma = 1.0f / gamma;
-                }
+                    stateGL->gamma(gamma);
                 ImGui::PopItemWidth();
 
                 ImGui::EndMenu();
@@ -1233,7 +1230,16 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 }
 
                 if (ImGui::MenuItem("Save Rendered Image"))
-                    sv->raytracer()->saveImage();
+                    rt->saveImage();
+
+                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
+                SLfloat gamma = rt->gamma();
+                if (ImGui::SliderFloat("Gamma", &gamma, 0.1f, 3.0f, "%.1f"))
+                {
+                    rt->gamma(gamma);
+                    sv->startRaytracing(5);
+                }
+                ImGui::PopItemWidth();
 
                 ImGui::EndMenu();
             }
@@ -1273,7 +1279,16 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 }
 
                 if (ImGui::MenuItem("Save Rendered Image"))
-                    sv->pathtracer()->saveImage();
+                    pt->saveImage();
+
+                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
+                SLfloat gamma = pt->gamma();
+                if (ImGui::SliderFloat("Gamma", &gamma, 0.1f, 3.0f, "%.1f"))
+                {
+                    pt->gamma(gamma);
+                    sv->startPathtracing(5, 1);
+                }
+                ImGui::PopItemWidth();
 
                 ImGui::EndMenu();
             }
@@ -2089,6 +2104,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             // clang-format off
             SLint  i;
             SLbool b;
+            SLfloat f;
             fs["configTime"] >> AppDemoGui::configTime;
             fs["fontPropDots"] >> i;        SLGLImGui::fontPropDots = (SLfloat)i;
             fs["fontFixedDots"] >> i;       SLGLImGui::fontFixedDots = (SLfloat)i;
