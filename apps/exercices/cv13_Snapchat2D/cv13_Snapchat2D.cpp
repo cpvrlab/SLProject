@@ -31,9 +31,9 @@ static void drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
         // Draw rectangles completely inside the image.
         if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2]))
         {
-            line(img, pt[0], pt[1], delaunay_color, 1, CV_AA, 0);
-            line(img, pt[1], pt[2], delaunay_color, 1, CV_AA, 0);
-            line(img, pt[2], pt[0], delaunay_color, 1, CV_AA, 0);
+            line(img, pt[0], pt[1], delaunay_color, 1, LINE_AA, 0);
+            line(img, pt[1], pt[2], delaunay_color, 1, LINE_AA, 0);
+            line(img, pt[2], pt[0], delaunay_color, 1, LINE_AA, 0);
         }
     }
 }

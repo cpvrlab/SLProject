@@ -33,9 +33,9 @@ drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
         // Draw rectangles completely inside the image.
         if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2]))
         {
-            line(img, pt[0], pt[1], delaunay_color, 2, CV_AA, 0);
-            line(img, pt[1], pt[2], delaunay_color, 2, CV_AA, 0);
-            line(img, pt[2], pt[0], delaunay_color, 2, CV_AA, 0);
+            line(img, pt[0], pt[1], delaunay_color, 2, LINE_AA, 0);
+            line(img, pt[1], pt[2], delaunay_color, 2, LINE_AA, 0);
+            line(img, pt[2], pt[0], delaunay_color, 2, LINE_AA, 0);
         }
     }
 }
@@ -60,9 +60,9 @@ drawDelaunay(Mat&                 img,
         // Draw rectangles completely inside the image.
         if (rect.contains(tri[0]) && rect.contains(tri[1]) && rect.contains(tri[2]))
         {
-            line(img, tri[0], tri[1], delaunay_color, 2, CV_AA, 0);
-            line(img, tri[1], tri[2], delaunay_color, 2, CV_AA, 0);
-            line(img, tri[2], tri[0], delaunay_color, 2, CV_AA, 0);
+            line(img, tri[0], tri[1], delaunay_color, 2, LINE_AA, 0);
+            line(img, tri[1], tri[2], delaunay_color, 2, LINE_AA, 0);
+            line(img, tri[2], tri[0], delaunay_color, 2, LINE_AA, 0);
         }
     }
 }

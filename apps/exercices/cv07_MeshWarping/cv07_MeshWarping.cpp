@@ -31,9 +31,9 @@ static void drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
         // Draw rectangles completely inside the image.
         if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2]))
         {
-            line(img, pt[0], pt[1], delaunay_color, 1, CV_AA, 0);
-            line(img, pt[1], pt[2], delaunay_color, 1, CV_AA, 0);
-            line(img, pt[2], pt[0], delaunay_color, 1, CV_AA, 0);
+            line(img, pt[0], pt[1], delaunay_color, 1, LINE_AA, 0);
+            line(img, pt[1], pt[2], delaunay_color, 1, LINE_AA, 0);
+            line(img, pt[2], pt[0], delaunay_color, 1, LINE_AA, 0);
         }
     }
 }
@@ -113,8 +113,8 @@ drawVoronoi(Mat& img, Subdiv2D& subdiv)
         fillConvexPoly(img, ifacet, color, 8, 0);
 
         ifacets[0] = ifacet;
-        polylines(img, ifacets, true, Scalar(), 1, CV_AA, 0);
-        circle(img, centers[i], 2, Scalar(), CV_FILLED, CV_AA, 0);
+        polylines(img, ifacets, true, Scalar(), 1, LINE_AA, 0);
+        circle(img, centers[i], 2, Scalar(), FILLED, LINE_AA, 0);
     }
 }
 //-----------------------------------------------------------------------------
@@ -253,7 +253,7 @@ int main()
 
     // Draw all points red
     for (Point2f p : points)
-        circle(img1, p, 3, Scalar(0, 0, 255), CV_FILLED, CV_AA, 0);
+        circle(img1, p, 3, Scalar(0, 0, 255), FILLED, LINE_AA, 0);
 
     // Allocate space for voronoi Diagram
     Mat img_voronoi = Mat::zeros(img1.rows, img1.cols, CV_8UC3);

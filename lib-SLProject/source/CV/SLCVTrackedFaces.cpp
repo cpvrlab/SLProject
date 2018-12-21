@@ -287,9 +287,9 @@ void SLCVTrackedFaces::delaunayTriangulate(SLCVMat      imageRgb,
             // Draw rectangles completely inside the image.
             if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2]))
             {
-                line(imageRgb, pt[0], pt[1], cv::Scalar(255, 255, 255), 1, CV_AA, 0);
-                line(imageRgb, pt[1], pt[2], cv::Scalar(255, 255, 255), 1, CV_AA, 0);
-                line(imageRgb, pt[2], pt[0], cv::Scalar(255, 255, 255), 1, CV_AA, 0);
+                line(imageRgb, pt[0], pt[1], cv::Scalar(255, 255, 255), 1, cv::LINE_AA, 0);
+                line(imageRgb, pt[1], pt[2], cv::Scalar(255, 255, 255), 1, cv::LINE_AA, 0);
+                line(imageRgb, pt[2], pt[0], cv::Scalar(255, 255, 255), 1, cv::LINE_AA, 0);
             }
         }
     }

@@ -117,7 +117,7 @@ void SLCVTrackedFeatures::loadMarker(string markerFilename)
     SLGLTexture* markerTexture = new SLGLTexture(markerFilename);
     SLCVImage*   img           = markerTexture->images()[0];
 
-    cvtColor(img->cvMat(), _marker.imageGray, CV_RGB2GRAY);
+    cvtColor(img->cvMat(), _marker.imageGray, cv::COLOR_RGB2GRAY);
 
     cv::rotate(_marker.imageGray, _marker.imageGray, ROTATE_180);
     cv::flip(_marker.imageGray, _marker.imageGray, 1);

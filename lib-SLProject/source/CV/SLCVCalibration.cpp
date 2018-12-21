@@ -166,7 +166,7 @@ void SLCVCalibration::save()
                 _calibFlags & CALIB_FIX_ASPECT_RATIO ? " +fix_aspectRatio" : "",
                 _calibFlags & CALIB_FIX_PRINCIPAL_POINT ? " +fix_principal_point" : "",
                 _calibFlags & CALIB_ZERO_TANGENT_DIST ? " +zero_tangent_dist" : "");
-        cvWriteComment(*fs, buf, 0);
+        fs.writeComment(buf, 0);
     }
 
     fs << "CALIBFILEVERSION" << _CALIBFILEVERSION;
@@ -525,7 +525,7 @@ void SLCVCalibration::remap(SLCVMat& inDistorted,
               outUndistorted,
               _undistortMapX,
               _undistortMapY,
-              CV_INTER_LINEAR);
+              cv::INTER_LINEAR);
 }
 //-----------------------------------------------------------------------------
 //! Calculates camera intrinsics from a guessed FOV angle

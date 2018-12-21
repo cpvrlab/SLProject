@@ -55,8 +55,8 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
 
         SL_LOG("Capture devices created.\n");
 
-        SLint w = (int)_captureDevice.get(CV_CAP_PROP_FRAME_WIDTH);
-        SLint h = (int)_captureDevice.get(CV_CAP_PROP_FRAME_HEIGHT);
+        SLint w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
+        SLint h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
         SL_LOG("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
         SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
@@ -99,8 +99,8 @@ SLVec2i SLCVCapture::openFile()
 
         SL_LOG("Capture devices created with video.\n");
 
-        SLint w = (int)_captureDevice.get(CV_CAP_PROP_FRAME_WIDTH);
-        SLint h = (int)_captureDevice.get(CV_CAP_PROP_FRAME_HEIGHT);
+        SLint w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
+        SLint h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
         SL_LOG("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
         SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
@@ -141,7 +141,7 @@ void SLCVCapture::grabAndAdjustForSL()
                 // Try to loop the video
                 if (videoFilename != "" && videoLoops)
                 {
-                    _captureDevice.set(CV_CAP_PROP_POS_FRAMES, 0);
+                    _captureDevice.set(cv::CAP_PROP_POS_FRAMES, 0);
                     if (!_captureDevice.read(lastFrame))
                         return;
                 }
@@ -284,13 +284,13 @@ void SLCVCapture::loadIntoLastFrame(const SLint         width,
         SLCVMat yuv(height + height / 2, width, CV_8UC1, (void*)data);
 
         // Android image copy loop #1
-        cvtColor(yuv, SLCVCapture::lastFrame, CV_YUV2RGB_NV21, 3);
+        cvtColor(yuv, SLCVCapture::lastFrame, cv::COLOR_YUV2RGB_NV21, 3);
     }
     // convert 4 channel images to 3 channel
     else if (format == PF_bgra || format == PF_rgba)
     {
         SLCVMat rgba(height, width, CV_8UC4, (void*)data);
-        cvtColor(rgba, SLCVCapture::lastFrame, CV_RGBA2RGB, 3);
+        cvtColor(rgba, SLCVCapture::lastFrame, cv::COLOR_RGBA2RGB, 3);
     }
     else
     {

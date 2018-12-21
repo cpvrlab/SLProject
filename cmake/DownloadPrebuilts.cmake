@@ -100,7 +100,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     endif ()
 
     # Now download for MacOS
-    set(OpenCV_VERSION "3.4.1")
+    set(OpenCV_VERSION "4.0.0")
     set(PREBUILT_OPENCV_DIR "mac64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")

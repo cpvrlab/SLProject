@@ -418,12 +418,12 @@ void SLCVImage::load(const SLstring filename,
     // OpenCV always loads with BGR(A) but some OpenGL prefer RGB(A)
     if (_format == PF_bgr)
     {
-        cv::cvtColor(_cvMat, _cvMat, CV_BGR2RGB);
+        cv::cvtColor(_cvMat, _cvMat, cv::COLOR_BGR2RGB);
         _format = PF_rgb;
     }
     else if (_format == PF_bgra)
     {
-        cv::cvtColor(_cvMat, _cvMat, CV_BGRA2RGBA);
+        cv::cvtColor(_cvMat, _cvMat, cv::COLOR_BGRA2RGBA);
         _format = PF_rgba;
     }
     else if (_format == PF_red && loadGrayscaleIntoAlpha)
@@ -447,7 +447,7 @@ void SLCVImage::load(const SLstring filename,
         }
 
         _cvMat = rgbaImg;
-        cv::cvtColor(_cvMat, _cvMat, CV_BGRA2RGBA);
+        cv::cvtColor(_cvMat, _cvMat, cv::COLOR_BGRA2RGBA);
         _format = PF_rgba;
 
         // for debug check
@@ -539,7 +539,7 @@ void SLCVImage::savePNG(const SLstring filename,
                         const SLbool   convertBGR2RGB)
 {
     SLVint compression_params;
-    compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+    compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
     compression_params.push_back(compressionLevel);
 
     try
@@ -575,8 +575,8 @@ void SLCVImage::saveJPG(const SLstring filename,
                         const SLbool   convertBGR2RGB)
 {
     SLVint compression_params;
-    compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
-    compression_params.push_back(CV_IMWRITE_JPEG_PROGRESSIVE);
+    compression_params.push_back(cv::IMWRITE_JPEG_QUALITY);
+    compression_params.push_back(cv::IMWRITE_JPEG_PROGRESSIVE);
     compression_params.push_back(compressionLevel);
 
     try
@@ -816,7 +816,7 @@ void SLCVImage::resize(SLint width, SLint height)
 
     SLCVMat dst = SLCVMat(height, width, _cvMat.type());
 
-    cv::resize(_cvMat, dst, dst.size(), 0, 0, CV_INTER_LINEAR);
+    cv::resize(_cvMat, dst, dst.size(), 0, 0, cv::INTER_LINEAR);
 
     _cvMat = dst;
 }
