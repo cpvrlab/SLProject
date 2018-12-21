@@ -47,6 +47,7 @@ build*/
 obj/
 ipch/
 _bin*/
+bin*/
 _doc/
 externals/prebuilt/*
 intermediate/
