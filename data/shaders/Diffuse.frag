@@ -8,8 +8,12 @@
 //#############################################################################
 
 varying vec4 diffuseColor;   // interpolated color calculated in the vertex shader
+uniform float u_oneOverGamma = 1.0f; // 1.0f / Gamma correction value
 
 void main()
 {     
    gl_FragColor = diffuseColor;
+
+   // Apply gamma correction
+   gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
 }

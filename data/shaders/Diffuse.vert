@@ -37,5 +37,4 @@ void main()
    // Set the transformes vertex position           
    gl_Position = u_mvpMatrix * a_position;
 }
-
 //-----------------------------------------------------------------------------
