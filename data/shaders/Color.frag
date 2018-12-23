@@ -1,4 +1,4 @@
-    //#############################################################################
+//#############################################################################
 //  File:      Color.frag
 //  Purpose:   Simple GLSL fragment program for constant color
 //  Date:      July 2014
@@ -12,7 +12,7 @@ precision mediump float;
 #endif
 
 varying vec4    v_color;        // interpolated color calculated in the vertex shader
-uniform float   u_oneOverGamma = 1.0f; // 1.0f / Gamma correction value
+uniform float   u_oneOverGamma; // 1.0f / Gamma correction value
 
 void main()
 {     

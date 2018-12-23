@@ -7,8 +7,8 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
-varying vec4 diffuseColor;   // interpolated color calculated in the vertex shader
-uniform float u_oneOverGamma = 1.0f; // 1.0f / Gamma correction value
+varying vec4 diffuseColor;      // interpolated color calculated in the vertex shader
+uniform float u_oneOverGamma;   // 1.0f / Gamma correction value
 
 void main()
 {     

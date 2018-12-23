@@ -12,9 +12,9 @@
 precision mediump float;
 #endif
 
-uniform sampler2D u_texture0;     // Color map
-uniform float     u_oneOverGamma; // 1.0f / Gamma correction value
-varying vec2      v_texCoord;     // Interpol. texture coordinate
+uniform sampler2D u_texture0;            // Color map
+uniform float     u_oneOverGamma = 1.0f; // 1.0f / Gamma correction value
+varying vec2      v_texCoord;            // Interpol. texture coordinate
 
 void main()
 {     

@@ -76,6 +76,7 @@ static GLuint _shaderProgID = 0; //! shader program id
 // Attribute & uniform variable location indexes
 static GLint _pLoc;   //!< attribute location for vertex position
 static GLint _cLoc;   //!< attribute location for vertex color
+static GLint _gLoc;   //!< uniform location for gamma value
 static GLint _mvpLoc; //!< uniform location for modelview-projection matrix
 
 //-----------------------------------------------------------------------------
@@ -180,6 +181,7 @@ void onInit()
     // Get the variable locations (identifiers) within the program
     _pLoc   = glGetAttribLocation(_shaderProgID, "a_position");
     _cLoc   = glGetAttribLocation(_shaderProgID, "a_color");
+    _gLoc   = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
     _mvpLoc = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
 
     buildBox();
@@ -233,12 +235,10 @@ bool onPaint()
     mv.multiply(_modelMatrix);
     mvp.multiply(mv);
 
-    //5) Build normal matrix
-    SLMat3f nm(mv.inverseTransposed());
-
     //6) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
     glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
+    glUniform1f(_gLoc, 1.0f);
 
     //7a) Activate the vertex array
     glBindVertexArray(_vao);

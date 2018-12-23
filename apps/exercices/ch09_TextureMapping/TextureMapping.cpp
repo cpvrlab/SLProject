@@ -95,6 +95,7 @@ static GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflect
 static GLint _matSpecularLoc;    //!< uniform location for specular light reflection
 static GLint _matEmissiveLoc;    //!< uniform location for light emission
 static GLint _matShininessLoc;   //!< uniform location for shininess
+static GLint _gLoc;              //!< uniform location for gamma value
 
 static GLint _texture0Loc; //!< uniform location for texture 0
 
@@ -319,6 +320,7 @@ void onInit()
     _matEmissiveLoc    = glGetUniformLocation(_shaderProgID, "u_matEmissive");
     _matShininessLoc   = glGetUniformLocation(_shaderProgID, "u_matShininess");
     _texture0Loc       = glGetUniformLocation(_shaderProgID, "u_texture0");
+    _gLoc              = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
 
     // Build object
     buildSquare();
@@ -401,6 +403,7 @@ bool onPaint()
     glUniform4fv(_matEmissiveLoc, 1, (float*)&_matEmissive);
     glUniform1f(_matShininessLoc, _matShininess);
     glUniform1i(_texture0Loc, 0);
+    glUniform1f(_gLoc, 1.0f);
 
     //////////////////////
     // Draw with 2 VBOs //

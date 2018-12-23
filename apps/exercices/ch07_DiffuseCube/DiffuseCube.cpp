@@ -75,6 +75,7 @@ static GLint _nmLoc;             //!< uniform location for normal matrix
 static GLint _lightSpotDirVSLoc; //!< uniform location for light direction in view space (VS)
 static GLint _lightDiffuseLoc;   //!< uniform location for diffuse light intensity
 static GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflection
+static GLint _gLoc;              //!< uniform location for gamma value
 
 //-----------------------------------------------------------------------------
 void buildBox()
@@ -199,6 +200,7 @@ void onInit()
     _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDirVS");
     _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
     _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
+    _gLoc              = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
 
     buildBox();
 
@@ -261,6 +263,7 @@ bool onPaint()
     glUniform3f(_lightSpotDirVSLoc, 0.5f, 1.0f, 1.0f);     // light direction in view space
     glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f); // diffuse light intensity
     glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);   // diffuse material reflection
+    glUniform1f(_gLoc, 1.0f);                              // gamma value
 
     //7a) Activate the vertex array
     glBindVertexArray(_vao);

@@ -12,9 +12,9 @@
 precision mediump float;
 #endif
 
-uniform sampler3D u_texture0;     // 3D Color map
-uniform float     u_oneOverGamma; // 1.0f / Gamma correction value
-varying vec4      v_texCoord3D;   // Interpol. 3D texture coordinate
+uniform sampler3D u_texture0;            // 3D Color map
+uniform float     u_oneOverGamma = 1.0f; // 1.0f / Gamma correction value
+varying vec4      v_texCoord3D;          // Interpol. 3D texture coordinate
 
 void main()
 {     
