@@ -45,6 +45,7 @@ target_include_directories(${target}
 message(STATUS "OpenCV_LIBS before linking ${OpenCV_LIBS}")
 target_link_libraries(${target}
     ${DEFAULT_LIBRARIES}
+    libc++_shared.so
     ${OpenCV_LIBS}
     ${META_PROJECT_NAME}::lib-SLProject
     )

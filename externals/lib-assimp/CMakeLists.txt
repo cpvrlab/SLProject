@@ -454,6 +454,7 @@ add_library(${META_PROJECT_NAME}::${target} ALIAS ${target})
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
+    CXX_STANDARD              14
     FOLDER "external"
     )
 
