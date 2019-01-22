@@ -208,7 +208,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
         libprotobuf
         libtiff
         libwebp
-        tegra_hal)
+        tegra_hal
+        z)
 
     foreach(lib ${OpenCV_LINK_LIBS})
         add_library(lib_${lib} STATIC IMPORTED)

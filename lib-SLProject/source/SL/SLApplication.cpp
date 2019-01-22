@@ -70,7 +70,7 @@ void SLApplication::createAppAndScene(SLstring appName,
     activeCalib                     = &calibMainCam;
     SLCVCapture::hasSecondaryCamera = false;
 #else
-    calibMainCam.load(SLFileSystem::getExternalDir(), "cam_calibration_main.xml", false, false);
+    calibMainCam.load(SLFileSystem::externalDir(), "cam_calibration_main.xml", false, false);
     // TODO(jan): revert this!
     //calibMainCam.load(SLApplication::configPath, "cam_calibration_main.xml", false, false);
     calibMainCam.loadCalibParams();
