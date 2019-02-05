@@ -39,6 +39,16 @@ class SLFileSystem
     //! Deletes a file on the filesystem
     static SLbool deleteFile(SLstring& pathfilename);
 
+    static std::string getFileName(const std::string& pathFilename);
+
+    static std::vector<std::string> getFileNamesInDir(const std::string dirName);
+
+    static bool contains(const std::string container, const std::string search);
+
+    static void split(const std::string& s, char delimiter, std::vector<std::string>& splits);
+
+    static std::string unifySlashes(const std::string& inputDir);
+
     //!setters
     static void externalDir(const SLstring& dir);
 
