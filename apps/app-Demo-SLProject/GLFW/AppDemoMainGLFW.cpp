@@ -480,11 +480,11 @@ int main(int argc, char* argv[])
 
     // On some systems screen & framebuffer size are different
     // All commands in GLFW are in screen coords but rendering in GL is
-    // in framebuffer coords
+    // in framebuffer coords. On MacOS Mojave this doesn't work anymore.
     SLint fbWidth, fbHeight;
     glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-    scr2fbX = (float)fbWidth / (float)scrWidth;
-    scr2fbY = (float)fbHeight / (float)scrHeight;
+    scr2fbX = 1.0f; //(float)fbWidth / (float)scrWidth;
+    scr2fbY = 1.0f; //(float)fbHeight / (float)scrHeight;
 
     // Include OpenGL via GLEW (init must be after window creation)
     // The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++
