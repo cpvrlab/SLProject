@@ -53,6 +53,7 @@ GenerateHTMLDoc.log
 *.project
 .settings
 .vs
+.vscode/*
 .idea
 .DS_Store
 gitcommit.h
