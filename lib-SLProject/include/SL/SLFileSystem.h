@@ -32,6 +32,18 @@ class SLFileSystem
 
     //! Deletes a file on the filesystem
     static SLbool deleteFile(SLstring& pathfilename);
+<<<<<<< HEAD
+=======
+
+    //!setters
+    static void externalDir(const SLstring& dir);
+
+    //!getters
+    static SLstring externalDir() { return _externalDir; }
+
+    private:
+    static SLstring _externalDir; //!< Dir to save app data outside of the app
+>>>>>>> bb299a70... Removed string functions from SLFilesystem again
 };
 //-----------------------------------------------------------------------------
 #endif
