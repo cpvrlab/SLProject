@@ -62,7 +62,7 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
         SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
-        fps                = _captureDevice.get(CV_CAP_PROP_FPS);
+        fps                = _captureDevice.get(cv::CAP_PROP_FPS);
 
         return SLVec2i(w, h);
     }
@@ -107,7 +107,7 @@ SLVec2i SLCVCapture::openFile()
         SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
-        fps                = _captureDevice.get(CV_CAP_PROP_FPS);
+        fps                = _captureDevice.get(cv::CAP_PROP_FPS);
 
         return SLVec2i(w, h);
     }

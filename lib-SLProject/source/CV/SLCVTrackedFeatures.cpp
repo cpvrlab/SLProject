@@ -165,7 +165,7 @@ void SLCVTrackedFeatures::initFeaturesOnMarker()
 // points are used for the reprojection.
 #if defined(SL_DEBUG_OUTPUT_PATH) || SL_DRAW_REPROJECTION_ERROR
     _marker.imageGray.copyTo(_marker.imageDrawing);
-    cvtColor(_marker.imageDrawing, _marker.imageDrawing, CV_GRAY2BGR);
+    cvtColor(_marker.imageDrawing, _marker.imageDrawing, cv::COLOR_GRAY2BGR);
 
     for (size_t i = 0; i < _marker.keypoints3D.size(); i++)
     {
