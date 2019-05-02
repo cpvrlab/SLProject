@@ -420,7 +420,7 @@ int main(int argc, char* argv[])
     scrWidth  = 640;
     scrHeight = 480;
 
-    window = glfwCreateWindow(scrWidth, scrHeight, "My Title", NULL, NULL);
+    window = glfwCreateWindow(scrWidth, scrHeight, "My Title", nullptr, nullptr);
     if (!window)
     {
         glfwTerminate();
@@ -489,7 +489,7 @@ int main(int argc, char* argv[])
                                 dpi,
                                 (SLSceneID)0,
                                 (void*)&onPaint,
-                                0,
+                                nullptr,
                                 (void*)createNewNodeSceneView,
                                 (void*)AppNodeGui::build);
     //////////////////////////////////////////////////////////
