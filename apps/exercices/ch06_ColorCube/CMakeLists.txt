@@ -11,6 +11,7 @@ file(GLOB headers
     ${SL_PROJECT_ROOT}/lib-SLProject/include/glUtils.h
     ${SL_PROJECT_ROOT}/lib-SLProject/include/SLCV.h
     ${SL_PROJECT_ROOT}/lib-SLProject/include/SLCVImage.h
+    ${SL_PROJECT_ROOT}/lib-SLProject/include/SL/SLFileSystem.h
     )
 
 file(GLOB sources

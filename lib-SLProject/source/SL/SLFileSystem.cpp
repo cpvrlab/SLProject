@@ -29,6 +29,8 @@
 #endif
 
 //-----------------------------------------------------------------------------
+SLstring SLFileSystem::_externalDir = "";
+//-----------------------------------------------------------------------------
 /*! Returns true if the directory exists. Be aware that on some OS file and
 paths are treated case sensitive.
 */
@@ -118,12 +120,9 @@ SLbool SLFileSystem::deleteFile(SLstring& pathfilename)
     return false;
 }
 //-----------------------------------------------------------------------------
-<<<<<<< HEAD
-=======
 //! Set the path to the external directory
 void SLFileSystem::externalDir(const SLstring& dir)
 {
     _externalDir = SLUtils::unifySlashes(dir);
 }
 //-----------------------------------------------------------------------------
->>>>>>> bb299a70... Removed string functions from SLFilesystem again

@@ -233,6 +233,29 @@ class SLUtils
     {
         return (container.find(search) != string::npos);
     }
+
+    //! Check, that slashes in directory string are definded forward with an additional slath at the end, e.g.: "dirA/dirB/"
+    static SLstring unifySlashes(const SLstring& inputDir)
+    {
+        string copy = inputDir;
+        string curr;
+        string delimiter = "\\";
+        size_t pos       = 0;
+        string token;
+        while ((pos = copy.find(delimiter)) != string::npos)
+        {
+            token = copy.substr(0, pos);
+            copy.erase(0, pos + delimiter.length());
+            curr.append(token);
+            curr.append("/");
+        }
+
+        curr.append(copy);
+        if (curr.size() && curr.back() != '/')
+            curr.append("/");
+
+        return curr;
+    }
 };
 //-----------------------------------------------------------------------------
 #endif
