@@ -589,6 +589,7 @@ SLCVVKeyPoint SLCVRaulMurOrb::DistributeOctTree(const SLCVVKeyPoint& vToDistribu
 
         // Finish if there are more nodes than required features
         // or all nodes contain just one point
+
         if ((int)lNodes.size() >= N || (int)lNodes.size() == prevSize)
         {
             bFinish = true;
@@ -728,6 +729,7 @@ void SLCVRaulMurOrb::ComputeKeyPointsOctTree(SLCVVVKeyPoint& allKeypoints)
                 SLCVVKeyPoint vKeysCell;
 
                 // Try to get Keypoints with initial Threshold
+
                 FAST(mvImagePyramid[level]
                        .rowRange((int)iniY, (int)maxY)
                        .colRange((int)iniX, (int)maxX),
@@ -783,11 +785,13 @@ void SLCVRaulMurOrb::ComputeKeyPointsOctTree(SLCVVVKeyPoint& allKeypoints)
     }
 
     // compute orientations
+
     for (SLuint level = 0; level < nlevels; ++level)
         computeOrientation(mvImagePyramid[level], allKeypoints[level], umax);
 }
 
 //-----------------------------------------------------------------------------
+
 //! Computes the descriptors for all passed keypoints
 static void
 computeDescriptors(const SLCVMat& image,

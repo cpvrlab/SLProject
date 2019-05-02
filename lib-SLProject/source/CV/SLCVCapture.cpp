@@ -36,9 +36,10 @@ SLCVSize         SLCVCapture::captureSize;
 SLfloat          SLCVCapture::startCaptureTimeMS;
 SLbool           SLCVCapture::hasSecondaryCamera = true;
 SLint            SLCVCapture::requestedSizeIndex = 0;
-SLstring         SLCVCapture::videoDefaultPath   = "/data/videos/";
+SLstring         SLCVCapture::videoDefaultPath   = "../data/videos/";
 SLstring         SLCVCapture::videoFilename      = "";
 SLbool           SLCVCapture::videoLoops         = true;
+SLdouble         SLCVCapture::fps;
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
 /* This so far called in SLScene::onAfterLoad if a scene uses a live video by
@@ -61,6 +62,7 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
         SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
+        fps                = _captureDevice.get(CV_CAP_PROP_FPS);
 
         return SLVec2i(w, h);
     }
@@ -105,6 +107,7 @@ SLVec2i SLCVCapture::openFile()
         SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
+        fps                = _captureDevice.get(CV_CAP_PROP_FPS);
 
         return SLVec2i(w, h);
     }
@@ -166,6 +169,7 @@ void SLCVCapture::grabAndAdjustForSL()
         SL_LOG("Exception during OpenCV video capture creation\n");
     }
 }
+
 //-----------------------------------------------------------------------------
 //! Does all adjustments needed for the SLScene::_videoTexture
 /*! SLCVCapture::adjustForSL processes the following adjustments for all input
@@ -189,7 +193,7 @@ void SLCVCapture::adjustForSL()
     format     = SLCVImage::cv2glPixelFormat(lastFrame.type());
 
     // Set capture size before cropping
-    captureSize = lastFrame.size();
+    captureSize = SLCVCapture::lastFrame.size();
 
     /////////////////
     // 1) Cropping //
@@ -258,9 +262,7 @@ void SLCVCapture::adjustForSL()
     // We just could take the Y channel.
     // Android image copy loop #4
 
-    cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_BGR2GRAY);
-
-    // Do not copy into the video texture here. It is done in SLScene:onUpdate
+    cv::cvtColor(SLCVCapture::lastFrame, SLCVCapture::lastFrameGray, cv::COLOR_BGR2GRAY);
 
     s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
     //SL_LOG("SLCVCapture::adjustForSL\n");
@@ -663,7 +665,6 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
         uRow += uRowOffset * halfRowsPerThread;
         vRow += vRowOffset * halfRowsPerThread;
     }
-
     // Launch the last block on the main thread
     YUV2RGB_BlockInfo infoMain;
     infoMain.imageInfo = &imageInfo;

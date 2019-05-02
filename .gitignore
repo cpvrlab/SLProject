@@ -23,7 +23,21 @@
 *.lnk
 *.xcuserstate
 *~
+data/images/sequences/rgbd_dataset_freiburg1_desk
+data/calibrations/orb-slam-state-*
+data/calibrations/street*
+data/calibrations/ORBvoc.txt
+data/calibrations/imgs
+data/videos
+data/slam-maps
+data
+externals/g2o/BUILD*
+externals/g2o/bin
+externals/g2o/lib*
+externals/prebuild_scripts/opencv
+externals/prebuild_scripts/opencv_contrib
 
+moc_*.h
 moc_*.cpp
 
 !christoffelturm.obj

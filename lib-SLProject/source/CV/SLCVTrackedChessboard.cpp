@@ -55,7 +55,7 @@ bool SLCVTrackedChessboard::track(SLCVMat          imageGray,
 
     //detect chessboard corners
     SLint flags = //CALIB_CB_ADAPTIVE_THRESH |
-      CALIB_CB_NORMALIZE_IMAGE |
+      //CALIB_CB_NORMALIZE_IMAGE |
       CALIB_CB_FAST_CHECK;
 
     SLCVVPoint2f corners2D;

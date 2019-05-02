@@ -39,13 +39,12 @@ class SLCVArucoParams
 
     bool loadFromFile()
     {
-        string          projectRoot = string(SL_PROJECT_ROOT);
-        string          path        = projectRoot + SLCVCalibration::calibIniPath + filename;
+        string          path = SLCVCalibration::calibIniPath + filename;
         cv::FileStorage fs(path, cv::FileStorage::READ);
         if (!fs.isOpened())
         {
             cout << "Could not find parameter file for ArUco tracking!" << endl;
-            cout << "Tried " << projectRoot + SLCVCalibration::calibIniPath + filename << endl;
+            cout << "Tried " << SLCVCalibration::calibIniPath + filename << endl;
             return false;
         }
 
@@ -59,7 +58,8 @@ class SLCVArucoParams
         fs["minCornerDistanceRate"] >> arucoParams->minCornerDistanceRate;
         fs["minDistanceToBorder"] >> arucoParams->minDistanceToBorder;
         //fs["minMarkerDistanceRate"] >> arucoParams->minMarkerDistanceRate; //achtung minMarkerDistance -> minMarkerDistanceRate
-        //fs["doCornerRefinement"] >> arucoParams->doCornerRefinement;
+        //fs["doCornerRefinement"] >> arucoParams->doCornerRefinement; //does not exist anymore in opencv 3.4.0
+        fs["cornerRefinementMethod"] >> arucoParams->cornerRefinementMethod; //cv::aruco::CornerRefineMethod
         fs["cornerRefinementWinSize"] >> arucoParams->cornerRefinementWinSize;
         fs["cornerRefinementMaxIterations"] >> arucoParams->cornerRefinementMaxIterations;
         fs["cornerRefinementMinAccuracy"] >> arucoParams->cornerRefinementMinAccuracy;

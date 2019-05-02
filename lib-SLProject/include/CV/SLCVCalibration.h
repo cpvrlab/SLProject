@@ -66,7 +66,8 @@ class SLCVCalibration
     public:
     SLCVCalibration();
     ~SLCVCalibration() { ; }
-    bool    load(SLstring calibFileName,
+    bool    load(SLstring calibDir,
+                 SLstring calibFileName,
                  SLbool   mirrorHorizontally,
                  SLbool   mirrorVertically);
     void    save();

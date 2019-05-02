@@ -7,10 +7,12 @@ set(target lib-SLProject)
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
 set(compile_definitions GLEW_NO_GLU)
+set(platform_specific_include_dirs)
 
 file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCV.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVCalibration.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVCamera.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVCapture.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVFeatureManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVImage.h
@@ -35,6 +37,8 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexArray.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexArrayExt.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexBuffer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosChristoffelTower.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLCurve.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLCurveBezier.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMat3.h
@@ -49,6 +53,7 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SL.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLApplication.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAssimpImporter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAverageTiming.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLFileSystem.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLImporter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInterface.h
@@ -89,6 +94,7 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightSpot.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightDirect.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMaterial.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMemoryStats.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMesh.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLNode.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLObject.h
@@ -109,13 +115,15 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSpheric.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLText.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTimer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTrackingInfosInterface.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransferFunction.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/TriangleBoxIntersect.h
     )
 
-file(GLOB sources
+  file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVCalibration.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVCamera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVCapture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVFeatureManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVImage.cpp
@@ -136,11 +144,14 @@ file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexArray.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexArrayExt.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexBuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosChristoffelTower.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLCurveBezier.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLApplication.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAverageTiming.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLFileSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLImporter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInterface.cpp
@@ -172,6 +183,7 @@ file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightSpot.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightDirect.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMaterial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMemoryStats.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLNode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPathtracer.cpp
@@ -198,25 +210,31 @@ file(GLOB shaders
 
 include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 
-set(compile_definitions
-    ${compile_definitions}
-    SL_USES_CVCAPTURE
-    SL_GUI_GLFW)
-
 #==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
+    set(compile_definitions
+        ${compile_definitions}
+        SL_USES_CVCAPTURE
+        SL_GUI_GLFW)
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(compile_definitions
         ${compile_definitions}
         GLEW_STATIC
         _GLFW_NO_DLOAD_GDI32
-        _GLFW_NO_DLOAD_WINMM)
+        _GLFW_NO_DLOAD_WINMM
+        SL_USES_CVCAPTURE
+        SL_GUI_GLFW)
+
+    set(platform_specific_include_dirs
+        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/dirent)
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     set(compile_definitions
         ${compile_definitions}
-        GLEW_STATIC)
+        GLEW_STATIC
+        SL_USES_CVCAPTURE
+        SL_GUI_GLFW)
 
 endif()
 #==============================================================================
@@ -239,10 +257,13 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
+
     PUBLIC
+    ${platform_specific_include_dirs}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI
     ${CMAKE_CURRENT_SOURCE_DIR}/include/math
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL
     ${SL_PROJECT_ROOT}/externals/lib-assimp/include
@@ -255,25 +276,29 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/zlib
-    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/dirent
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
     ${OpenCV_INCLUDE_DIR}
     ${DEFAULT_INCLUDE_DIRECTORIES}
+
     INTERFACE
     )
 
 target_compile_definitions(${target}
-    PRIVATE
+  PRIVATE
+  
     PUBLIC
     ${compile_definitions}
     ${DEFAULT_COMPILE_DEFINITIONS}
+
     INTERFACE
     )
 
 target_compile_options(${target}
     PRIVATE
+
     PUBLIC
     ${DEFAULT_COMPILE_OPTIONS}
+
     INTERFACE
     )
 
@@ -282,6 +307,8 @@ target_link_libraries(${target}
     PUBLIC
     ${PlatformLinkLibs}
     ${OpenCV_LIBS}
+
+    PUBLIC
     ${META_PROJECT_NAME}::lib-SLExternal
     ${META_PROJECT_NAME}::lib-assimp
     ${DEFAULT_LINKER_OPTIONS}

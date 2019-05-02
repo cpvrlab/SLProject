@@ -55,6 +55,8 @@ class SLAverage
         _currentValueNo++;
     }
 
+    //! Gets the number  values
+    SLint numValues() { return _currentValueCount; }
     //! Gets the avaraged value
     T average() { return _average; }
 
@@ -65,6 +67,7 @@ class SLAverage
     SLfloat   _oneOverNumValues; //!< multiplier instead of devider
     vector<T> _values;           //!< value array
     SLint     _currentValueNo;   //!< current value index
+    SLint     _currentValueCount;//!< values filled
     T         _sum;              //!< sum of all values
     T         _average;          //!< average value
 };

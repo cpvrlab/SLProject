@@ -10,7 +10,6 @@ set(compile_definitions	GLEW_NO_GLU)
 set(platform_specific_link_libraries)
 set(platform_specific_include_directories)
 
-
 file(GLOB headers
     ${include_path}/Shoemake/Decompose.h
     ${include_path}/Shoemake/EulerAngles.h
@@ -25,13 +24,12 @@ file(GLOB headers
 )
 
 file(GLOB sources
-    ${source_path}/Shoemake/EulerAngles.cpp
-    ${source_path}/Shoemake/Decompose.cpp
-    ${source_path}/imgui/imgui_draw.cpp
-    ${source_path}/imgui/imgui.cpp
-    ${source_path}/spa/spa.cpp
+    ${include_path}/Shoemake/EulerAngles.cpp
+    ${include_path}/Shoemake/Decompose.cpp
+    ${include_path}/imgui/imgui_draw.cpp
+    ${include_path}/imgui/imgui.cpp
+    ${include_path}/spa/spa.cpp
     )
-
 
 #==============================================================================
 if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
@@ -253,8 +251,10 @@ target_include_directories(${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/zlib
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/spa
+    ${CMAKE_CURRENT_SOURCE_DIR}/eigen
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${platform_specific_include_directories}
+    ${OpenCV_INCLUDE_DIR}
 
     INTERFACE
     )

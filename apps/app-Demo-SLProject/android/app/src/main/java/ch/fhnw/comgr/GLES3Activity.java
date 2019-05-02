@@ -24,7 +24,10 @@ import android.hardware.SensorManager;
 import android.hardware.camera2.CameraCharacteristics;
 import android.location.Location;
 import android.location.LocationManager;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -32,8 +35,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.support.annotation.NonNull;
 
+import java.io.File;
 import java.io.IOException;
-
+import java.util.Arrays;
+import java.util.Date;
 
 public class GLES3Activity extends Activity implements View.OnTouchListener, SensorEventListener {
     GLES3View                   myView;             // OpenGL view
@@ -52,6 +57,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     private boolean                 _locationSensorIsRunning = false;
     private LocationManager         _locationManager;
     private GeneralLocationListener _locationListener;
+    private boolean                 _writeStoragePermissionGranted;
 
     @Override
     protected void onCreate(Bundle icicle) {
@@ -93,16 +99,21 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         Log.i(TAG, "Request Camera and GPS permission ...");
         if (    ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+        {
             _cameraPermissionGranted = true;
             _locationPermissionGranted = true;
+            _writeStoragePermissionGranted = true;
+            setupExternalDirectories();
         }
         else {
             _permissionRequestIsOpen = true;
             ActivityCompat.requestPermissions(GLES3Activity.this, new String[]{
                     Manifest.permission.CAMERA,
                     Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_MULTIPLE_REQUEST);
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSIONS_MULTIPLE_REQUEST);
         }
     }
 
@@ -243,10 +254,74 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                 Log.i(TAG, "onRequestPermissionsResult: GPS sensor permission refused.");
                 _locationPermissionGranted = false;
             }
+            if (grantResults.length > 3 &&
+                    grantResults[3] == PackageManager.PERMISSION_GRANTED ) {
+                Log.i(TAG, "onRequestPermissionsResult: Write external storage permission granted.");
+                _writeStoragePermissionGranted = true;
+                //read available external files and update slproject
+                setupExternalDirectories();
+            } else {
+                Log.i(TAG, "onRequestPermissionsResult: Write external storage permission refused.");
+                _writeStoragePermissionGranted = false;
+            }
             _permissionRequestIsOpen = false;
         }
     }
 
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get available external directories and inform slproject about them
+     */
+    public void setupExternalDirectories() {
+
+        String state = Environment.getExternalStorageState();
+        boolean externalPublicDirCreated = false;
+        String slProjectDataPath = "";
+        String slProjectDirName = "SLProject";
+
+        //check if public external directory is available
+        if (isExternalStorageWritable()) {
+            File path = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOCUMENTS), slProjectDirName);
+            if(!path.exists()) {
+                if (!path.mkdirs()) {
+                    Log.e(TAG, "External public directory not created!");
+                }
+            }
+
+            if(path.exists()) {
+                 externalPublicDirCreated = true;
+                 slProjectDataPath = path.getAbsolutePath();
+            }
+        }
+
+        if(!externalPublicDirCreated) {
+            //if public external directory is not available, we use the private external directory
+            File[] Dirs = ActivityCompat.getExternalFilesDirs(GLES3Activity.this, null);
+            if(Dirs.length != 0) {
+                File path = new File(Dirs[0], slProjectDirName);
+                if (!path.mkdirs()) {
+                    Log.e(TAG, "External private directory not created!");
+                }
+                else {
+                    slProjectDataPath = Dirs[0].getAbsolutePath();
+                }
+            }
+        }
+
+        String absPath = slProjectDataPath;
+        myView.queueEvent( new Runnable() { public void run() {
+                GLES3Lib.onSetupExternalDirectories(absPath);
+        }});
+    }
 
     /**
      * Events:

@@ -79,6 +79,7 @@ class SLCVCapture
     static SLstring      videoDefaultPath;   //!< default path for video files
     static SLstring      videoFilename;      //!< video filename to load
     static SLbool        videoLoops;         //!< flag if video should loop
+    static SLdouble      fps;
 
     /*! A requestedSizeIndex of 0 returns on Android the default size of 640x480.
     If this size is not available the median element of the available sizes array is returned.

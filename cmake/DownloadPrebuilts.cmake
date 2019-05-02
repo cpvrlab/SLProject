@@ -28,6 +28,7 @@ set(OpenCV_LINK_LIBS
     )
 
 set(OpenCV_LIBS)
+
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
 
@@ -42,18 +43,18 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(OpenCV_VERSION "3.4.1")
-    set(PREBUILT_OPENCV_DIR "win64_opencv_${OpenCV_VERSION}")
-    set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
+    set(OpenCV_PREBUILT_DIR "win64_opencv_${OpenCV_VERSION}")
+    set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
-    set(PREBUILT_ZIP "${PREBUILT_OPENCV_DIR}.zip")
+    set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${OpenCV_DIR}")
-        file(DOWNLOAD "${PREBUILT_URL}/${PREBUILT_ZIP}" "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+        file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${PREBUILT_ZIP}"
+            "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
             WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+        file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
     endif ()
 
     string(REPLACE "." "" OpenCV_LIBS_POSTFIX ${OpenCV_VERSION})
@@ -77,6 +78,37 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
         VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
+    file(GLOB usedCVLibs_Debug
+        ${OpenCV_DIR}/lib/opencv_aruco*d.dll
+        ${OpenCV_DIR}/lib/opencv_calib3d*d.dll
+        ${OpenCV_DIR}/lib/opencv_core*d.dll
+        ${OpenCV_DIR}/lib/opencv_features2d*d.dll
+        ${OpenCV_DIR}/lib/opencv_face*d.dll
+        ${OpenCV_DIR}/lib/opencv_flann*d.dll
+        ${OpenCV_DIR}/lib/opencv_highgui*d.dll
+        ${OpenCV_DIR}/lib/opencv_imgproc*d.dll
+        ${OpenCV_DIR}/lib/opencv_imgcodecs*d.dll
+        ${OpenCV_DIR}/lib/opencv_objdetect*d.dll
+        ${OpenCV_DIR}/lib/opencv_video*d.dll
+        ${OpenCV_DIR}/lib/opencv_videoio*d.dll
+        ${OpenCV_DIR}/lib/opencv_xfeatures2d*d.dll
+        )
+    file(GLOB usedCVLibs_Release
+        ${OpenCV_DIR}/lib/opencv_aruco*.dll
+        ${OpenCV_DIR}/lib/opencv_calib3d*.dll
+        ${OpenCV_DIR}/lib/opencv_core*.dll
+        ${OpenCV_DIR}/lib/opencv_features2d*.dll
+        ${OpenCV_DIR}/lib/opencv_face*.dll
+        ${OpenCV_DIR}/lib/opencv_flann*.dll
+        ${OpenCV_DIR}/lib/opencv_highgui*.dll
+        ${OpenCV_DIR}/lib/opencv_imgproc*.dll
+        ${OpenCV_DIR}/lib/opencv_imgcodecs*.dll
+        ${OpenCV_DIR}/lib/opencv_objdetect*.dll
+        ${OpenCV_DIR}/lib/opencv_video*.dll
+        ${OpenCV_DIR}/lib/opencv_videoio*.dll
+        ${OpenCV_DIR}/lib/opencv_xfeatures2d*.dll
+        )
+
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
         file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
@@ -85,18 +117,18 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     # Download first for iOS
     set(OpenCV_VERSION "3.4.0")
-    set(PREBUILT_OPENCV_DIR "iosV8_opencv_${OpenCV_VERSION}")
-    set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
+    set(OpenCV_PREBUILT_DIR "iosV8_opencv_${OpenCV_VERSION}")
+    set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
-    set(PREBUILT_ZIP "${PREBUILT_OPENCV_DIR}.zip")
+    set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${OpenCV_DIR}")
-        file(DOWNLOAD "${PREBUILT_URL}/${PREBUILT_ZIP}" "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+        file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${PREBUILT_ZIP}"
+            "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
             WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+        file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
     endif ()
 
     # Now download for MacOS
@@ -105,14 +137,14 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
-    set(PREBUILT_ZIP "${PREBUILT_OPENCV_DIR}.zip")
+    set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${OpenCV_DIR}")
-        file(DOWNLOAD "${PREBUILT_URL}/${PREBUILT_ZIP}" "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+        file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${PREBUILT_ZIP}"
+            "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
             WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+        file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
     endif ()
 
     foreach(lib ${OpenCV_LINK_LIBS})
@@ -138,18 +170,18 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
     set(OpenCV_VERSION "3.4.1")
-    set(PREBUILT_OPENCV_DIR "andV8_opencv_${OpenCV_VERSION}")
-    set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
+    set(OpenCV_PREBUILT_DIR "andV8_opencv_${OpenCV_VERSION}")
+    set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
-    set(PREBUILT_ZIP "${PREBUILT_OPENCV_DIR}.zip")
-	
+    set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
+
     if (NOT EXISTS "${OpenCV_DIR}")
-        file(DOWNLOAD "${PREBUILT_URL}/${PREBUILT_ZIP}" "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+        file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${PREBUILT_ZIP}"
+            "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
             WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${PREBUILT_ZIP}")
+        file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
     endif ()
 
     set(OpenCV_LINK_LIBS
@@ -162,10 +194,11 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
         libprotobuf
         libtiff
         libwebp
-        tegra_hal)
+        tegra_hal
+        z)
 
     foreach(lib ${OpenCV_LINK_LIBS})
-        add_library(lib_${lib} SHARED IMPORTED)
+        add_library(lib_${lib} STATIC IMPORTED)
         set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${OpenCV_LINK_DIR}/lib${lib}.a)
         set(OpenCV_LIBS
             ${OpenCV_LIBS}
@@ -173,6 +206,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
     endforeach(lib)
 
     set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
+
 endif()
 #==============================================================================
 

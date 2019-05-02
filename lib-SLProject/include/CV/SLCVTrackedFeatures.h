@@ -31,9 +31,9 @@ using namespace cv;
 #define SL_DO_FEATURE_BENCHMARKING 0
 
 // Settings for drawing things into current camera frame
-#define SL_DRAW_REPROJECTION_POINTS 0
-#define SL_DRAW_REPROJECTION_ERROR 0
-#define SL_DRAW_PATCHES 0
+#define SL_DRAW_REPROJECTION_POINTS 1
+#define SL_DRAW_REPROJECTION_ERROR 1
+#define SL_DRAW_PATCHES 1
 
 //#define SL_SAVE_DEBUG_OUTPUT
 #ifdef SL_SAVE_DEBUG_OUTPUT

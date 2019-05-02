@@ -46,6 +46,7 @@ SLbool SLCVTrackedAruco::track(SLCVMat          imageGray,
                                SLbool           drawDetection,
                                SLSceneView*     sv)
 {
+
     assert(!imageGray.empty() && "ImageGray is empty");
     assert(!imageRgb.empty() && "ImageRGB is empty");
     assert(!calib->cameraMat().empty() && "Calibration is empty");

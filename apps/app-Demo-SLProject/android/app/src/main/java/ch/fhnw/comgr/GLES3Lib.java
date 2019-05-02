@@ -12,6 +12,7 @@
 // Please do not change the name space. The SLProject app is identified in the app-store with it.
 package ch.fhnw.comgr;
 
+import android.app.ActivityManager;
 import android.app.Application;
 import android.util.Log;
 
@@ -24,6 +25,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
+
+import static android.content.Context.ACTIVITY_SERVICE;
 
 // Java class that encapsulates the native C-functions into SLProject
 public class GLES3Lib {
@@ -72,6 +75,8 @@ public class GLES3Lib {
                                                      byte[] y, int ySize, int yPixStride, int yLineStride,
                                                      byte[] u, int uSize, int uPixStride, int uLineStride,
                                                      byte[] v, int vSize, int vPixStride, int vLineStride);
+    public static native void    onSetupExternalDirectories(String externalDirPath);
+
 
     /**
      * The RaytracingCallback function is used to repaint the ray tracing image during the

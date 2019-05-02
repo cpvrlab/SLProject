@@ -25,9 +25,10 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLText.h>
+#include <SLCVCamera.h>
 
 //-----------------------------------------------------------------------------
-/*! The constructor of the scene does all one time initialization such as 
+/*! The constructor of the scene does all one time initialization such as
 loading the standard shader programs from which the pointers are stored in
 the vector _shaderProgs. Custom shader programs that are loaded in a
 scene must be deleted when the scene changes.
@@ -136,6 +137,10 @@ SLScene::~SLScene()
         if (sv != nullptr)
             delete sv;
 
+    // delete AR tracker programs
+    for (auto t : _trackers) delete t;
+    _trackers.clear();
+
     unInit();
 
     // delete global SLGLState instance
@@ -159,10 +164,6 @@ SLScene::~SLScene()
     // delete shader programs
     for (auto p : _programs) delete p;
     _programs.clear();
-
-    // delete AR tracker programs
-    for (auto t : _trackers) delete t;
-    _trackers.clear();
 
     // delete fonts
     SLTexFont::deleteFonts();
@@ -218,7 +219,7 @@ void SLScene::init()
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
-global resources such as materials, textures & custom shaders loaded with the 
+global resources such as materials, textures & custom shaders loaded with the
 scene. The standard shaders, the fonts and the 2D-GUI elements remain. They are
 destructed at process end.
 */
@@ -302,7 +303,7 @@ void SLScene::unInit()
 \n 4) Augmented Reality (AR) Tracking with the live camera
 \n 5) Update AABBs
 \n
-A scene can be displayed in multiple views as demonstrated in the app-Viewer-Qt 
+A scene can be displayed in multiple views as demonstrated in the app-Viewer-Qt
 example. AR tracking is only handled on the first scene view.
 \return true if really something got updated
 */
@@ -311,6 +312,7 @@ bool SLScene::onUpdate()
     // Return if not all sceneview got repainted: This check if necessary if
     // this function is called for multiple SceneViews. In this way we only
     // update the geometric representations if all SceneViews got painted once.
+
     for (auto sv : _sceneViews)
         if (sv != nullptr && !sv->gotPainted())
             return false;
@@ -366,6 +368,11 @@ bool SLScene::onUpdate()
     // Process queued up system events and poll custom input devices
     SLbool sceneHasChanged = SLApplication::inputManager.pollAndProcessEvents();
 
+    //////////////////////////////
+    // Update nodes             //
+    //////////////////////////////
+    if (_root3D)
+        _root3D->update();
     //////////////////////////////
     // 3) Update all animations //
     //////////////////////////////
@@ -460,11 +467,13 @@ bool SLScene::onUpdate()
 
             // track all trackers in the first sceneview
             for (auto tracker : _trackers)
+            {
                 tracker->track(SLCVCapture::lastFrameGray,
                                SLCVCapture::lastFrame,
                                ac,
                                _showDetection,
                                _sceneViews[0]);
+            }
 
             // Update info text only for chessboard scene
             if (SLApplication::sceneID == SID_VideoCalibrateMain ||
@@ -531,6 +540,7 @@ bool SLScene::onUpdate()
 void SLScene::onAfterLoad()
 {
 #ifdef SL_USES_CVCAPTURE
+
     if (_videoType != VT_NONE)
     {
         if (!SLCVCapture::isOpened())
@@ -699,27 +709,30 @@ void SLScene::onLoadAsset(SLstring assetFile,
 }
 //-----------------------------------------------------------------------------
 //! Setter for video type also sets the active calibration
-/*! The SLScene instance has two video camera calibrations, one for a main camera
-(SLScene::_calibMainCam) and one for the selfie camera on mobile devices
-(SLScene::_calibScndCam). The member SLScene::_activeCalib references the active
-one and is set by the SLScene::videoType (VT_NONE, VT_MAIN, VT_SCND) during the
-scene assembly in SLScene::onLoad.
+/*! The SLApplication instance has up to three video camera calibrations, one
+for a main camera (SLApplication::calibMainCam), one for the selfie camera on
+mobile devices (SLApplication::calibScndCam) and one for video file simulation
+(SLApplication::calibVideoFile). The member SLApplication::activeCalib
+references the active one.
 */
 void SLScene::videoType(SLVideoType vt)
 {
-    if (SLCVCapture::hasSecondaryCamera && vt == VT_SCND)
-    {
-        _videoType                 = VT_SCND;
-        SLApplication::activeCalib = &SLApplication::calibScndCam;
-        return;
-    }
+    _videoType = vt;
 
     if (vt == VT_SCND)
-        _videoType = VT_MAIN;
-    else
-        _videoType = vt;
-
-    SLApplication::activeCalib = &SLApplication::calibMainCam;
+    {
+        if (SLCVCapture::hasSecondaryCamera)
+            SLApplication::activeCalib = &SLApplication::calibScndCam;
+        else //fallback if there is no secondary camera we use main setup
+        {
+            _videoType                 = VT_MAIN;
+            SLApplication::activeCalib = &SLApplication::calibMainCam;
+        }
+    }
+    else if (vt == VT_FILE)
+        SLApplication::activeCalib = &SLApplication::calibVideoFile;
+    else //VT_MAIN and VT_NONE
+        SLApplication::activeCalib = &SLApplication::calibMainCam;
 }
 //-----------------------------------------------------------------------------
 //! Returns the number of camera nodes in the scene
@@ -740,8 +753,8 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
     if (cams.size() == 0) return nullptr;
     if (cams.size() == 1) return cams[0];
 
-    SLuint activeIndex = 0;
-    for (SLuint i = 0; i < cams.size(); ++i)
+    SLint activeIndex = 0;
+    for (SLint i = 0; i < cams.size(); ++i)
     {
         if (cams[i] == activeSV->camera())
         {
@@ -750,10 +763,47 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
         }
     }
 
-    // return next if not last else return first
-    if (activeIndex < cams.size() - 1)
-        return cams[activeIndex + 1];
-    else
-        return cams[0];
+    //find next camera, that is not of type SLCVCamera if "allow SLCVCamera as
+    //active camera" is deactivated
+    do
+    {
+        activeIndex = activeIndex > cams.size() - 2 ? 0 : ++activeIndex;
+    } while (dynamic_cast<SLCVCamera*>(cams[activeIndex]) &&
+             !dynamic_cast<SLCVCamera*>(cams[activeIndex])->allowAsActiveCam());
+
+    return cams[activeIndex];
 }
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+/*! Removes the specified mesh from the meshes resource vector.
+*/
+bool SLScene::removeMesh(SLMesh* mesh)
+{
+    assert(mesh);
+    for (SLint i = 0; i < _meshes.size(); ++i)
+    {
+        if (_meshes[i] == mesh)
+        {
+            _meshes.erase(_meshes.begin() + i);
+            return true;
+        }
+    }
+    return false;
+}
+//-----------------------------------------------------------------------------
+/*! Removes the specified texture from the textures resource vector.
+*/
+bool SLScene::deleteTexture(SLGLTexture* texture)
+{
+    assert(texture);
+    for (SLint i = 0; i < _textures.size(); ++i)
+    {
+        if (_textures[i] == texture)
+        {
+            delete _textures[i];
+            _textures.erase(_textures.begin() + i);
+            return true;
+        }
+    }
+    return false;
+}
+//----------------------------------------------------------------------------

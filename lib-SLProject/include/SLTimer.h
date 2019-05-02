@@ -14,10 +14,7 @@
 #include <SL.h>
 
 using namespace std::chrono;
-//-----------------------------------------------------------------------------
-typedef std::chrono::high_resolution_clock             SLClock;
-typedef std::chrono::high_resolution_clock::time_point SLTimePoint;
-//-----------------------------------------------------------------------------
+
 //! High Resolution Timer class using C++11
 /*!
 High Resolution Timer that is able to measure the elapsed time with 1 

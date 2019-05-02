@@ -40,6 +40,8 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/dirent
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glfw3/include
+    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/eigen
+    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/DBoW2
     ${OpenCV_INCLUDE_DIR}
     PUBLIC
     INTERFACE
@@ -73,4 +75,3 @@ target_link_libraries(${target}
     ${DEFAULT_LINKER_OPTIONS}
     INTERFACE
     )
-

@@ -49,6 +49,7 @@ JNIEXPORT jint      JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoType        (JNI
 JNIEXPORT jint      JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoSizeIndex   (JNIEnv *env, jobject obj);
 JNIEXPORT void      JNICALL Java_ch_fhnw_comgr_GLES3Lib_grabVideoFileFrame  (JNIEnv *env, jobject obj);
 JNIEXPORT void      JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage      (JNIEnv *env, jobject obj, jint imgWidth, jint imgHeight, jbyteArray srcBuffer);
+JNIEXPORT void      JNICALL Java_ch_fhnw_comgr_GLES3Lib_onSetupExternalDirectories (JNIEnv *env, jobject obj, jstring externalDirPath);
 JNIEXPORT void      JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes  (JNIEnv *env, jobject obj, jint  srcW, jint srcH,
                                                                              jbyteArray yBuf, jint ySize, jint yPixStride, jint yLineStride,
                                                                              jbyteArray uBuf, jint uSize, jint uPixStride, jint uLineStride,
@@ -59,6 +60,16 @@ JNIEXPORT void      JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes  (JNI
 extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
 
 //-----------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onSetupExternalDirectories(JNIEnv *env, jobject obj, jstring  externalDirPath)
+{
+    environment = env;
+    const char *nativeString = env->GetStringUTFChars(externalDirPath, 0);
+    string externalDirPathNative(nativeString);
+    env->ReleaseStringUTFChars(externalDirPath, nativeString);
+
+    slSetupExternalDirectories(externalDirPathNative);
+}
+//-----------------------------------------------------------------------------
 //! Native ray tracing callback function that calls the Java class method GLES3Lib.RaytracingCallback
 bool Java_renderRaytracingCallback()
 {
@@ -66,7 +77,14 @@ bool Java_renderRaytracingCallback()
     jmethodID method = environment->GetStaticMethodID(klass, "RaytracingCallback", "()Z");
     return environment->CallStaticBooleanMethod(klass,method);
 }
-
+//-----------------------------------------------------------------------------
+//! Native callback function that calls the Java class method GLES3Lib.RaytracingCallback
+void Java_updateMemoryStatsCallback(double& value)
+{
+    jclass klass = environment->FindClass("ch/fhnw/comgr/GLES3Lib");
+    jmethodID method = environment->GetStaticMethodID(klass, "retrieveMemoryStats", "()V");
+    environment->CallVoidMethod(klass,method);
+}
 //-----------------------------------------------------------------------------
 //! Native OpenGL info string print functions used in onInit
 static void printGLString(const char *name, GLenum s)
@@ -116,11 +134,15 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject o
                                 (void*)AppDemoGui::build);
     ////////////////////////////////////////////////////////////////////
 
+    //install memory callback to retrieve stats about memory usage from c++
+    slInstallMemoryStatsCallback((void*)Java_updateMemoryStatsCallback);
+
     delete cmdLineArgs;
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTerminate(JNIEnv *env, jobject obj)
 {
+
     AppDemoGui::saveConfig();
 
     slTerminate();
@@ -262,3 +284,10 @@ JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesLocation(JNIEnv *env,
     return slUsesLocation();
 }
 //-----------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setMemoryStatsValues(JNIEnv *env, jobject obj,
+    long freeMemoryRT, long totalMemoryRT, long maxMemoryRT,
+    long availMemoryAM, long totalMemoryAM, long thresholdAM, bool lowMemoryAM)
+{
+    slSetMemoryStatsValues(freeMemoryRT, totalMemoryRT, maxMemoryRT,
+                           availMemoryAM, totalMemoryAM, thresholdAM, lowMemoryAM);
+}

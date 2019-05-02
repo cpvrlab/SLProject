@@ -528,3 +528,18 @@ void slCopyVideoYUVPlanes(int      srcW,
                                vLineStride);
 }
 //-----------------------------------------------------------------------------
+/*! Get available external directories and inform slproject about them
+*/
+void slSetupExternalDirectories(SLstring externalDirPath)
+{
+    if (SLFileSystem::dirExists(externalDirPath))
+    {
+        SL_LOG("External directory: %s\n", externalDirPath.c_str());
+        SLFileSystem::externalDir(externalDirPath);
+    }
+    else
+    {
+        SL_LOG("ERROR: external directory does not exists: %s\n", externalDirPath.c_str());
+    }
+}
+//-----------------------------------------------------------------------------

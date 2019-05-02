@@ -21,8 +21,14 @@ class SLFileSystem
     //! Returns true if a directory exists.
     static SLbool dirExists(SLstring& path);
 
+    //! Make a directory with given path
+    static void makeDir(const string& path);
+
+    //! Remove a directory with given path
+    static void removeDir(const string& path);
+
     //! Returns true if a file exists.
-    static SLbool fileExists(SLstring& pathfilename);
+    static SLbool fileExists(const SLstring& pathfilename);
 
     //! Returns the writable configuration directory
     static SLstring getAppsWritableDir();

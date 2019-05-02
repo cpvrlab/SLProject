@@ -27,7 +27,10 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal/eigen
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lib-SLExternal/DBoW2
     ${OpenCV_INCLUDE_DIR}
+    ${g2o_INCLUDE_DIR}
     PUBLIC
     INTERFACE
     )
@@ -38,6 +41,7 @@ target_link_libraries(${target}
     PRIVATE
     ${PlatformLinkLibs}
     ${OpenCV_LIBS}
+    ${g2o_LIBS}
     PUBLIC
     INTERFACE
     )

@@ -15,6 +15,8 @@
 #endif
 
 #include <SLAnimation.h>
+#include <SLApplication.h>
+#include <SLCVCamera.h>
 #include <SLCVTracked.h>
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
@@ -26,8 +28,8 @@
 // Static update counter
 SLuint SLNode::numWMUpdates = 0;
 //-----------------------------------------------------------------------------
-/*! 
-Default constructor just setting the name. 
+/*!
+Default constructor just setting the name.
 */
 SLNode::SLNode(SLstring name) : SLObject(name)
 {
@@ -42,10 +44,10 @@ SLNode::SLNode(SLstring name) : SLObject(name)
     _animation      = nullptr;
     _isWMUpToDate   = false;
     _isAABBUpToDate = false;
-    _tracker        = nullptr;
+    //_tracker = nullptr;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Constructor with a mesh pointer and name.
 */
 SLNode::SLNode(SLMesh* mesh, SLstring name) : SLObject(name)
@@ -61,12 +63,12 @@ SLNode::SLNode(SLMesh* mesh, SLstring name) : SLObject(name)
     _animation      = nullptr;
     _isWMUpToDate   = false;
     _isAABBUpToDate = false;
-    _tracker        = nullptr;
+    //_tracker = nullptr;
 
     addMesh(mesh);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Destructor deletes all children recursively and the animation.
 The meshes are not deleted. They are deleted at the end by the SLScene mesh
 vector. The entire scenegraph is deleted by deleting the SLScene::_root3D node.
@@ -84,7 +86,7 @@ SLNode::~SLNode()
         delete _animation;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Simply adds a mesh to its mesh pointer vector of the node.
 */
 void SLNode::addMesh(SLMesh* mesh)
@@ -99,11 +101,12 @@ void SLNode::addMesh(SLMesh* mesh)
     if (_name == "Node" && mesh->name() != "Mesh")
         _name = mesh->name() + "-Node";
 
+    _isAABBUpToDate = false;
     _meshes.push_back(mesh);
     mesh->init(this);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Inserts a mesh pointer in the mesh pointer vector after the
 specified afterM pointer.
 */
@@ -127,7 +130,7 @@ bool SLNode::insertMesh(SLMesh* insertM, SLMesh* afterM)
     return false;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Removes the last mesh.
 */
 bool SLNode::removeMesh()
@@ -140,7 +143,7 @@ bool SLNode::removeMesh()
     return false;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Removes the specified mesh from the vector.
 */
 bool SLNode::removeMesh(SLMesh* mesh)
@@ -157,19 +160,43 @@ bool SLNode::removeMesh(SLMesh* mesh)
     return false;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Removes the specified mesh by name from the vector.
 */
 bool SLNode::removeMesh(SLstring name)
 {
     assert(name != "");
     SLMesh* found = findMesh(name);
-    if (found) return removeMesh(found);
+    if (found)
+        return removeMesh(found);
     return false;
 }
 //-----------------------------------------------------------------------------
-/*! SLNode::findMesh finds the specified mesh by name. With recursive search
-all child nodes are searched too.
+/*!
+Returns true if the node contains the provided mesh. Removes and deletes the
+mesh. The mesh is also removed from scene
+*/
+SLbool SLNode::deleteMesh(SLMesh* mesh)
+{
+    assert(mesh);
+    for (SLint i = 0; i < _meshes.size(); ++i)
+    {
+        if (_meshes[i] == mesh)
+        {
+            _meshes.erase(_meshes.begin() + i);
+
+            //also delete mesh from scene
+            SLApplication::scene->removeMesh(mesh);
+            delete mesh;
+            mesh = NULL;
+
+            return true;
+        }
+    }
+    return false;
+}
+//-----------------------------------------------------------------------------
+/*!
 */
 SLMesh* SLNode::findMesh(SLstring name, SLbool recursive)
 {
@@ -223,27 +250,26 @@ SLbool SLNode::containsMesh(const SLMesh* mesh)
     for (auto m : _meshes)
         if (m == mesh)
             return true;
-
     return false;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 DrawMeshes draws the meshes by just calling the SLMesh::draw method.
-See also the SLNode::drawRec method for more information. There are two 
+See also the SLNode::drawRec method for more information. There are two
 possibilities to guarantee that the meshes of a node are transformed correctly:
 <ul>
 <li>
 <b>Flat drawing</b>: Before the SLNode::drawMeshes is called we must multiply the
 nodes world matrix (SLNode::_wm) to the OpenGL modelview matrix
-(SLGLState::modelViewMatrix). The flat drawing method is slightly faster and 
-the order of drawing doesn't matter anymore. This method is used within 
+(SLGLState::modelViewMatrix). The flat drawing method is slightly faster and
+the order of drawing doesn't matter anymore. This method is used within
 SLSceneView::draw3D to draw first a list of all opaque meshes and the a list
 of all meshes with a transparent material.
 </li>
 <li>
 <b>Recursive drawing</b>: By calling SLNode::drawRec all meshes are drawn with
 SLNode::drawMeshes with only the object matrix applied before drawing. After
-the meshes the drawRec method is called on each children node. By pushing 
+the meshes the drawRec method is called on each children node. By pushing
 the OpenGL modelview matrix before on a stack this method is also referred as
 stack drawing.
 </li>
@@ -251,11 +277,11 @@ stack drawing.
 <b>Filter meshes for blended or opaque pass</b>:
 SLSceneView::draw3DGLAll renders the opaque nodes before blended nodes and
 the blended nodes have to be drawn from back to front.
-During the cull traversal all nodes with alpha materials are flagged and 
+During the cull traversal all nodes with alpha materials are flagged and
 added the to the vector _alphaNodes. The visibleNodes vector contains all
-visible opaque and transparent nodes because a node with alpha meshes still 
-can have nodes with opaque material. To avoid double drawing the 
-SLNode::drawMeshes draws in the blended pass only the alpha meshes and in 
+visible opaque and transparent nodes because a node with alpha meshes still
+can have nodes with opaque material. To avoid double drawing the
+SLNode::drawMeshes draws in the blended pass only the alpha meshes and in
 the opaque pass only the opaque meshes.
 </li>
 </ul>
@@ -285,7 +311,7 @@ void SLNode::addChild(SLNode* child)
 }
 //-----------------------------------------------------------------------------
 /*!
-Inserts a child node in the children vector after the 
+Inserts a child node in the children vector after the
 afterC node.
 */
 bool SLNode::insertChild(SLNode* insertC, SLNode* afterC)
@@ -423,7 +449,7 @@ void SLNode::findChildrenHelper(const SLuint     drawbit,
 Does the view frustum culling by checking whether the AABB is inside the 3D
 cameras view frustum. The check is done in world space. If a AABB is visible
 the nodes children are checked recursively.
-If a node containes meshes with alpha blended materials it is added to the 
+If a node containes meshes with alpha blended materials it is added to the
 _blendedNodes vector. See also SLSceneView::draw3DGLAll for more details.
 */
 void SLNode::cull3DRec(SLSceneView* sv)
@@ -431,6 +457,7 @@ void SLNode::cull3DRec(SLSceneView* sv)
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() &&
         typeid(*this) != typeid(SLCamera) &&
+        typeid(*this) != typeid(SLCVCamera) &&
         typeid(*this) != typeid(SLLightRect) &&
         typeid(*this) != typeid(SLLightSpot) &&
         typeid(*this) != typeid(SLLightDirect))
@@ -470,12 +497,12 @@ void SLNode::cull2DRec(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 /*!
-Draws the the nodes meshes with SLNode::drawMeshes and calls 
-recursively the drawRec method of the nodes children. 
-The nodes object matrix (SLNode::_om) is multiplied before the meshes are drawn. 
-This recursive drawing is more expensive than the flat drawing with the 
-opaqueNodes vector because of the additional matrix multiplications. 
-The order of drawing doesn't matter in flat drawing because the world 
+Draws the the nodes meshes with SLNode::drawMeshes and calls
+recursively the drawRec method of the nodes children.
+The nodes object matrix (SLNode::_om) is multiplied before the meshes are drawn.
+This recursive drawing is more expensive than the flat drawing with the
+opaqueNodes vector because of the additional matrix multiplications.
+The order of drawing doesn't matter in flat drawing because the world
 matrix (SLNode::_wm) is used for transform. See also SLNode::drawMeshes.
 The drawRec method is <b>still used</b> for the rendering of the 2D menu!
 */
@@ -553,7 +580,7 @@ void SLNode::statsRec(SLNodeStats& stats)
 /*!
 Intersects the nodes meshes with the given ray. The intersection
 test is only done if the AABB is intersected. The ray-mesh intersection is
-done in the nodes object space. The rays origin and direction is therefore 
+done in the nodes object space. The rays origin and direction is therefore
 transformed into the object space.
 */
 bool SLNode::hitRec(SLRay* ray)
@@ -605,7 +632,7 @@ bool SLNode::hitRec(SLRay* ray)
     return meshWasHit;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Copies the nodes meshes and children recursively.
 */
 SLNode* SLNode::copyRec()
@@ -645,10 +672,10 @@ void SLNode::parent(SLNode* p)
 }
 //-----------------------------------------------------------------------------
 /*!
-Flags this node for an update. This function is called 
+Flags this node for an update. This function is called
 automatically if the local transform of the node or of its parent changed.
 Nodes that are flagged for updating will recalculate their world transform
-the next time it is requested by updateAndGetWM(). 
+the next time it is requested by updateAndGetWM().
 */
 void SLNode::needUpdate()
 {
@@ -669,9 +696,8 @@ void SLNode::needUpdate()
 /*!
 Flags this node for a wm update. It is almost
 identical to the needUpdate function but it won't flag AABBs.
-
 This function is currently not in use but could give a slight performance
-boost if it was called instead of needUpdate for the children of a 
+boost if it was called instead of needUpdate for the children of a
 node that changed.
 */
 void SLNode::needWMUpdate()
@@ -688,7 +714,7 @@ void SLNode::needWMUpdate()
 }
 //-----------------------------------------------------------------------------
 /*!
-Flags this node's AABB for an update. If a node 
+Flags this node's AABB for an update. If a node
 changed we need to update it's world space AABB. This needs to also be propagated
 up the parent chain since the AABB of a node incorporates the AABB's of child
 nodes.
@@ -708,9 +734,8 @@ void SLNode::needAABBUpdate()
 }
 //-----------------------------------------------------------------------------
 /*!
-A helper function that updates the current _wm to reflect the local matrix. 
+A helper function that updates the current _wm to reflect the local matrix.
 recursively calls the updateAndGetWM of the node's parent.
-
 @note
 This function is const because it has to be called from inside the updateAndGetWM
 function which has to be const. Since we only update the private cache of this
@@ -771,7 +796,7 @@ SLNode::updateAndGetWMN() const
 }
 //-----------------------------------------------------------------------------
 /*!
-Updates the axis aligned bounding box in world space. 
+Updates the axis aligned bounding box in world space.
 */
 SLAABBox&
 SLNode::updateAABBRec()
@@ -806,7 +831,7 @@ SLNode::updateAABBRec()
         bool cameraHasChildren = false;
         if (childIsCamera)
             cameraHasChildren = child->children().size() > 0;
-            
+
         if (!childIsCamera || cameraHasChildren)
         */
         _aabb.mergeWS(child->updateAABBRec());
@@ -1075,9 +1100,9 @@ void SLNode::scale(const SLVec3f& scale)
 }
 //-----------------------------------------------------------------------------
 /*!
-Rotates the object so that it's forward vector is pointing towards the 'target' 
+Rotates the object so that it's forward vector is pointing towards the 'target'
 point. Default forward is -Z. The 'relativeTo' parameter defines in what space
-the 'target' parameter is to be interpreted in. 
+the 'target' parameter is to be interpreted in.
 */
 void SLNode::lookAt(const SLVec3f&   target,
                     const SLVec3f&   up,
@@ -1120,7 +1145,7 @@ void SLNode::lookAt(const SLVec3f&   target,
     needUpdate();
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Scales and translates the node so that its largest
 dimension is maxDim and the center is in [0,0,0].
 */
@@ -1137,7 +1162,7 @@ void SLNode::scaleToCenter(SLfloat maxDim)
     translate(-center);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Saves the current position as the initial state
 */
 void SLNode::setInitialState()
@@ -1145,7 +1170,7 @@ void SLNode::setInitialState()
     _initialOM = _om;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 sesets this object to its initial state
 */
 void SLNode::resetToInitialState()
@@ -1162,5 +1187,12 @@ SLNode::skeleton()
         if (mesh->skeleton())
             return mesh->skeleton();
     return nullptr;
+}
+//-----------------------------------------------------------------------------
+void SLNode::update()
+{
+    doUpdate();
+    for (auto child : _children)
+        child->update();
 }
 //-----------------------------------------------------------------------------

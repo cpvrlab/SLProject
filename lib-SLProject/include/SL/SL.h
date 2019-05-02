@@ -107,6 +107,7 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #    include <chrono>
 #    include <functional>
 #    include <random>
+#    include <sstream>
 #    include <thread>
 #elif defined(SL_OS_WINDOWS)
 #    include <GL/glew.h>
@@ -208,6 +209,9 @@ typedef std::vector<vector<SLchar>>   SLVVchar;
 typedef std::vector<vector<SLshort>>  SLVVshort;
 typedef std::vector<vector<SLint>>    SLVVint;
 
+typedef std::chrono::high_resolution_clock             SLClock;
+typedef std::chrono::high_resolution_clock::time_point SLTimePoint;
+
 //-----------------------------------------------------------------------------
 // Shortcut for size of a vector
 template<class T>
@@ -236,6 +240,17 @@ SL_sizeOfVector(const T& vector)
 #define SL_LOG(...) SL::log(__VA_ARGS__)
 #define SL_EXIT_MSG(M) SL::exitMsg((M), __LINE__, __FILE__)
 #define SL_WARN_MSG(M) SL::warnMsg((M), __LINE__, __FILE__)
+//-----------------------------------------------------------------------------
+/*! Since Android does not support full C++11 support, we have to override the
+to_string method manually.
+template<typename T>
+std::string to_string(T value)
+{
+    std::ostringstream os;
+    os << value;
+    return os.str();
+}
+*/
 //-----------------------------------------------------------------------------
 //! Class SL with some global static functions and members.
 class SL

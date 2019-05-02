@@ -37,6 +37,7 @@
 #include <thread>
 #include <typeinfo>
 #include <vector>
+#include <memory>
 //-----------------------------------------------------------------------------
 // Include standard C libraries
 #include <assert.h>   // for debug asserts
@@ -67,5 +68,13 @@
 #include <SLVec3.h>
 #include <SLVec4.h>
 #include <SLVector.h>
+#include <SLAverageTiming.h>
 //-----------------------------------------------------------------------------
+#include <opencv2/core/core.hpp>
+#include <opencv2/core/utility.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/calib3d.hpp>
+#include <opencv2/video/tracking.hpp>
+
 #endif

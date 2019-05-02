@@ -31,24 +31,25 @@ extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
-GLFWwindow* window;                     //!< The global glfw window handle
-SLint       svIndex;                    //!< SceneView index
-SLint       scrWidth;                   //!< Window width at start up
-SLint       scrHeight;                  //!< Window height at start up
-SLfloat     scr2fbX;                    //!< Factor from screen to framebuffer coords
-SLfloat     scr2fbY;                    //!< Factor from screen to framebuffer coords
-SLint       startX;                     //!< start position x in pixels
-SLint       startY;                     //!< start position y in pixels
-SLint       mouseX;                     //!< Last mouse position x in pixels
-SLint       mouseY;                     //!< Last mouse position y in pixels
-SLVec2i     touch2;                     //!< Last finger touch 2 position in pixels
-SLVec2i     touchDelta;                 //!< Delta between two fingers in x
-SLint       lastWidth;                  //!< Last window width in pixels
-SLint       lastHeight;                 //!< Last window height in pixels
-SLint       lastMouseWheelPos;          //!< Last mouse wheel position
-SLfloat     lastMouseDownTime = 0.0f;   //!< Last mouse press time
-SLKey       modifiers         = K_none; //!< last modifier keys
-SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mode
+static GLFWwindow* window;                     //!< The global glfw window handle
+static SLint       svIndex;                    //!< SceneView index
+static SLint       scrWidth;                   //!< Window width at start up
+static SLint       scrHeight;                  //!< Window height at start up
+static SLbool      fixAspectRatio;             //!< Flag if aspect ratio should be fixed
+static SLfloat     scrWdivH;                   //!< aspect ratio screen width divided by height
+static SLfloat     scr2fbX;                    //!< Factor from screen to framebuffer coords
+static SLfloat     scr2fbY;                    //!< Factor from screen to framebuffer coords
+static SLint       startX;                     //!< start position x in pixels
+static SLint       startY;                     //!< start position y in pixels
+static SLint       mouseX;                     //!< Last mouse position x in pixels
+static SLint       mouseY;                     //!< Last mouse position y in pixels
+static SLVec2i     touch2;                     //!< Last finger touch 2 position in pixels
+static SLVec2i     touchDelta;                 //!< Delta between two fingers in x
+static SLint       lastWidth;                  //!< Last window width in pixels
+static SLint       lastHeight;                 //!< Last window height in pixels
+static SLfloat     lastMouseDownTime = 0.0f;   //!< Last mouse press time
+static SLKey       modifiers         = K_none; //!< last modifier keys
+static SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mode
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -147,12 +148,30 @@ should called once before the onPaint event.
 */
 static void onResize(GLFWwindow* window, int width, int height)
 {
+    if (fixAspectRatio)
+    {
+        //correct target width and height
+        if (height * scrWdivH <= width)
+        {
+            width  = (int)((float)height * scrWdivH);
+            height = (int)((float)width / scrWdivH);
+        }
+        else
+        {
+            height = (int)((float)width / scrWdivH);
+            width  = (int)((float)height * scrWdivH);
+        }
+    }
+
     lastWidth  = width;
     lastHeight = height;
 
     // width & height are in screen coords.
     // We need to scale them to framebuffer coords.
     slResize(svIndex, (int)(width * scr2fbX), (int)(height * scr2fbY));
+
+    //update glfw window with new size
+    glfwSetWindowSize(window, width, height);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -459,8 +478,10 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    scrWidth  = 640;
-    scrHeight = 480;
+    scrWidth       = 640;
+    scrHeight      = 480;
+    scrWdivH       = (float)scrWidth / (float)scrHeight;
+    fixAspectRatio = true; //we want to fix aspect ratio for some video apps
     touch2.set(-1, -1);
     touchDelta.set(-1, -1);
 
@@ -505,7 +526,7 @@ int main(int argc, char* argv[])
     glfwSetWindowPos(window, 10, 30);
 
     // Set number of monitor refreshes between 2 buffer swaps
-    glfwSwapInterval(1);
+    glfwSwapInterval(2);
 
     // Get GL errors that occurred before our framework is involved
     GET_GL_ERROR;
@@ -519,6 +540,7 @@ int main(int argc, char* argv[])
     // get executable path
     SLstring projectRoot = SLstring(SL_PROJECT_ROOT);
     SLstring configDir   = SLFileSystem::getAppsWritableDir();
+    slSetupExternalDirectories("../data");
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
