@@ -64,7 +64,7 @@ class SLRaytracer : public SLGLTexture
     SLCol4f trace(SLRay* ray);
     SLCol4f shade(SLRay* ray);
     void    sampleAAPixels(const bool isMainThread);
-    void    finishBeforeUpdate();
+    void    renderUIBeforeUpdate();
 
     // additional ray tracer functions
     void    setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay);

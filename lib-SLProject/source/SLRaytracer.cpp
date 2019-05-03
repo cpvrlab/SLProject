@@ -69,8 +69,8 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     prepareImage();       // Setup image & precalculations
 
     // Measure time
-    double  t1           = SLApplication::scene->timeSec();
-    double  tStart       = t1;
+    double t1     = SLApplication::scene->timeSec();
+    double tStart = t1;
 
     for (SLuint y = 0; y < _images[0]->height(); ++y)
     {
@@ -101,7 +101,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
         if (t2 - t1 > 0.5)
         {
             _pcRendered = (SLint)((SLfloat)y / (SLfloat)_images[0]->height() * 100);
-            finishBeforeUpdate();
+            renderUIBeforeUpdate();
             _sv->onWndUpdate();
             t1 = SLApplication::scene->timeSec();
         }
@@ -202,7 +202,7 @@ main thread is allowed to call a repaint of the image.
 void SLRaytracer::renderSlices(const bool isMainThread)
 {
     // Time points
-    double  t1           = 0;
+    double t1 = 0;
 
     while (_next < (SLint)_images[0]->height())
     {
@@ -239,7 +239,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
                     _pcRendered = (SLint)((SLfloat)y /
                                           (SLfloat)_images[0]->height() * 100);
                     if (_aaSamples > 0) _pcRendered /= 2;
-                    finishBeforeUpdate();
+                    renderUIBeforeUpdate();
                     _sv->onWndUpdate();
                     t1 = SLApplication::scene->timeSec();
                 }
@@ -325,7 +325,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
             {
                 if (SLApplication::scene->timeSec() - t1 > 0.5)
                 {
-                    finishBeforeUpdate();
+                    renderUIBeforeUpdate();
                     _sv->onWndUpdate();
                     t1 = SLApplication::scene->timeSec();
                 }
@@ -611,7 +611,7 @@ main thread is allowed to call a repaint of the image.
 void SLRaytracer::sampleAAPixels(const bool isMainThread)
 {
     assert(_aaSamples % 2 == 1 && "subSample: maskSize must be uneven");
-    double  t1 = 0, t2 = 0;
+    double t1 = 0, t2 = 0;
 
     while (_next < (SLint)_aaPixels.size())
     {
@@ -660,7 +660,7 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
             if (t2 - t1 > 0.5)
             {
                 _pcRendered = 50 + (SLint)((SLfloat)_next / (SLfloat)_aaPixels.size() * 50);
-                finishBeforeUpdate();
+                renderUIBeforeUpdate();
                 _sv->onWndUpdate();
                 t1 = SLApplication::scene->timeSec();
             }
@@ -857,7 +857,7 @@ We therefore call every half second _sv->onWndUpdate() that initiates another
 paint message from the top-level UI system of the OS. We therefore have to
 finish our UI and end OpenGL rendering properly.
 */
-void SLRaytracer::finishBeforeUpdate()
+void SLRaytracer::renderUIBeforeUpdate()
 {
     ImGui::Render();
     _stateGL->unbindAnythingAndFlush();
