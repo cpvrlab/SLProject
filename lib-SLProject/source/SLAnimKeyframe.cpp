@@ -13,19 +13,19 @@
 #ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
 #    include <debug_new.h> // memory leak detector
 #endif
-#include <SLKeyframe.h>
+#include <SLAnimKeyframe.h>
 
 //-----------------------------------------------------------------------------
 /*! Constructor for default keyframes.
 */
-SLKeyframe::SLKeyframe(const SLAnimTrack* parent, SLfloat time)
+SLAnimKeyframe::SLAnimKeyframe(const SLAnimTrack* parent, SLfloat time)
   : _parentTrack(parent), _time(time)
 {
 }
 //-----------------------------------------------------------------------------
 /*! Comperator operator.
 */
-bool SLKeyframe::operator<(const SLKeyframe& other) const
+bool SLAnimKeyframe::operator<(const SLAnimKeyframe& other) const
 {
     return _time < other._time;
 }
@@ -34,7 +34,7 @@ bool SLKeyframe::operator<(const SLKeyframe& other) const
 */
 SLTransformKeyframe::SLTransformKeyframe(const SLAnimTrack* parent,
                                          SLfloat            time)
-  : SLKeyframe(parent, time),
+  : SLAnimKeyframe(parent, time),
     _translation(0, 0, 0),
     _rotation(0, 0, 0, 1),
     _scale(1, 1, 1)

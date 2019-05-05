@@ -31,7 +31,7 @@ SLCVCalibration  SLApplication::calibVideoFile;
 SLDeviceRotation SLApplication::devRot;
 SLDeviceLocation SLApplication::devLoc;
 SLstring         SLApplication::name      = "SLProjectApp";
-SLstring         SLApplication::version   = "2.3.001";
+SLstring         SLApplication::version   = "2.3.100";
 SLstring         SLApplication::gitBranch = SL_GIT_BRANCH;
 SLstring         SLApplication::gitCommit = SL_GIT_COMMIT;
 SLstring         SLApplication::gitDate   = SL_GIT_DATE;

@@ -12,7 +12,6 @@ set(platform_specific_include_dirs)
 file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCV.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVCalibration.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVCamera.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVCapture.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVFeatureManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVImage.h
@@ -37,8 +36,6 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexArray.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexArrayExt.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexBuffer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosChristoffelTower.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI/SLImGuiInfosDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLCurve.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLCurveBezier.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMat3.h
@@ -64,6 +61,7 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAABBox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAccelStruct.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimation.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimKeyframe.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimPlayback.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimTrack.h
@@ -87,7 +85,7 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLInputEvent.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLInputManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLJoint.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLKeyframe.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLKeyframeCamera.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLens.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLight.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightRect.h
@@ -115,7 +113,6 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSpheric.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLText.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTimer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTrackingInfosInterface.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransferFunction.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/TriangleBoxIntersect.h
@@ -123,7 +120,6 @@ file(GLOB headers
 
   file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVCalibration.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVCamera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVCapture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVFeatureManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/SLCVImage.cpp
@@ -144,8 +140,6 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexArray.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexArrayExt.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexBuffer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosChristoffelTower.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/GUI/SLImGuiInfosDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLCurveBezier.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SL.cpp
@@ -159,6 +153,7 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTimer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAABBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimation.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimKeyframe.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimPlayback.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimTrack.cpp
@@ -176,14 +171,13 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLInputDevice.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLInputManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLJoint.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/SLKeyframe.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/SLKeyframeCamera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLens.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLight.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightRect.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightSpot.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightDirect.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMaterial.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMemoryStats.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLNode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPathtracer.cpp

@@ -16,7 +16,7 @@
 
 #include <SLAnimation.h>
 #include <SLApplication.h>
-#include <SLCVCamera.h>
+#include <SLKeyframeCamera.h>
 #include <SLCVTracked.h>
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
@@ -179,7 +179,7 @@ mesh. The mesh is also removed from scene
 SLbool SLNode::deleteMesh(SLMesh* mesh)
 {
     assert(mesh);
-    for (SLint i = 0; i < _meshes.size(); ++i)
+    for (SLuint i = 0; i < _meshes.size(); ++i)
     {
         if (_meshes[i] == mesh)
         {
@@ -188,7 +188,7 @@ SLbool SLNode::deleteMesh(SLMesh* mesh)
             //also delete mesh from scene
             SLApplication::scene->removeMesh(mesh);
             delete mesh;
-            mesh = NULL;
+            mesh = nullptr;
 
             return true;
         }
@@ -457,7 +457,7 @@ void SLNode::cull3DRec(SLSceneView* sv)
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() &&
         typeid(*this) != typeid(SLCamera) &&
-        typeid(*this) != typeid(SLCVCamera) &&
+        typeid(*this) != typeid(SLKeyframeCamera) &&
         typeid(*this) != typeid(SLLightRect) &&
         typeid(*this) != typeid(SLLightSpot) &&
         typeid(*this) != typeid(SLLightDirect))

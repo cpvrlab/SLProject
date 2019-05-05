@@ -41,9 +41,9 @@ SLAnimTrack::~SLAnimTrack()
             since we currently don't sort the keyframe list they have to be sorted
             before being created.
 */
-SLKeyframe* SLAnimTrack::createKeyframe(SLfloat time)
+SLAnimKeyframe* SLAnimTrack::createKeyframe(SLfloat time)
 {
-    SLKeyframe* kf = createKeyframeImpl(time);
+    SLAnimKeyframe* kf = createKeyframeImpl(time);
     _keyframes.push_back(kf);
     return kf;
 }
@@ -51,7 +51,7 @@ SLKeyframe* SLAnimTrack::createKeyframe(SLfloat time)
 //-----------------------------------------------------------------------------
 /*! Getter for keyframes by index.
 */
-SLKeyframe* SLAnimTrack::keyframe(SLint index)
+SLAnimKeyframe* SLAnimTrack::keyframe(SLint index)
 {
     if (index < 0 || index >= numKeyframes())
         return nullptr;
@@ -66,8 +66,8 @@ SLKeyframe* SLAnimTrack::keyframe(SLint index)
     If only one keyframe exists the two values will be equivalent.
 */
 SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat      time,
-                                        SLKeyframe** k1,
-                                        SLKeyframe** k2) const
+                                        SLAnimKeyframe** k1,
+                                        SLAnimKeyframe** k2) const
 {
     SLfloat t1, t2;
     SLuint  numKf           = (SLuint)_keyframes.size();
@@ -110,7 +110,7 @@ SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat      time,
     SLuint kfIndex = 0;
     for (SLuint i = 0; i < numKf; ++i)
     {
-        SLKeyframe* cur = _keyframes[i];
+        SLAnimKeyframe* cur = _keyframes[i];
 
         if (cur->time() <= time)
         {
@@ -202,10 +202,10 @@ SLTransformKeyframe* SLNodeAnimTrack::createNodeKeyframe(SLfloat time)
 /*! Calculates a new keyframe based on the input time and interpolation functions.
 */
 void SLNodeAnimTrack::calcInterpolatedKeyframe(SLfloat     time,
-                                               SLKeyframe* keyframe) const
+                                               SLAnimKeyframe* keyframe) const
 {
-    SLKeyframe* k1;
-    SLKeyframe* k2;
+    SLAnimKeyframe* k1;
+    SLAnimKeyframe* k2;
 
     SLfloat t = getKeyframesAtTime(time, &k1, &k2);
 
@@ -316,7 +316,7 @@ void SLNodeAnimTrack::buildInterpolationCurve() const
 //-----------------------------------------------------------------------------
 /*! Implementation for the keyframe creation function.
 */
-SLKeyframe* SLNodeAnimTrack::createKeyframeImpl(SLfloat time)
+SLAnimKeyframe* SLNodeAnimTrack::createKeyframeImpl(SLfloat time)
 {
     return new SLTransformKeyframe(this, time);
 }

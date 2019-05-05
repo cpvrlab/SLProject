@@ -25,7 +25,7 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLText.h>
-#include <SLCVCamera.h>
+#include <SLKeyframeCamera.h>
 
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene does all one time initialization such as
@@ -754,11 +754,11 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
     if (cams.size() == 1) return cams[0];
 
     SLint activeIndex = 0;
-    for (SLint i = 0; i < cams.size(); ++i)
+    for (SLuint i = 0; i < cams.size(); ++i)
     {
         if (cams[i] == activeSV->camera())
         {
-            activeIndex = i;
+            activeIndex = (SLint)i;
             break;
         }
     }
@@ -768,10 +768,10 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
     do
     {
         activeIndex = activeIndex > cams.size() - 2 ? 0 : ++activeIndex;
-    } while (dynamic_cast<SLCVCamera*>(cams[activeIndex]) &&
-             !dynamic_cast<SLCVCamera*>(cams[activeIndex])->allowAsActiveCam());
+    } while (dynamic_cast<SLKeyframeCamera*>(cams[(uint)activeIndex]) &&
+             !dynamic_cast<SLKeyframeCamera*>(cams[(uint)activeIndex])->allowAsActiveCam());
 
-    return cams[activeIndex];
+    return cams[(uint)activeIndex];
 }
 //-----------------------------------------------------------------------------
 /*! Removes the specified mesh from the meshes resource vector.
@@ -779,7 +779,7 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
 bool SLScene::removeMesh(SLMesh* mesh)
 {
     assert(mesh);
-    for (SLint i = 0; i < _meshes.size(); ++i)
+    for (SLuint i = 0; i < _meshes.size(); ++i)
     {
         if (_meshes[i] == mesh)
         {
@@ -795,7 +795,7 @@ bool SLScene::removeMesh(SLMesh* mesh)
 bool SLScene::deleteTexture(SLGLTexture* texture)
 {
     assert(texture);
-    for (SLint i = 0; i < _textures.size(); ++i)
+    for (SLuint i = 0; i < _textures.size(); ++i)
     {
         if (_textures[i] == texture)
         {

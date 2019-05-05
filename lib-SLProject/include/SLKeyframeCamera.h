@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCamera.h
+//  File:      SLKeyframeCamera.h
 //  Author:    Michael Goettlicher
 //  Date:      Dezember 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -13,15 +13,15 @@
 
 #include <SLCamera.h>
 
-class SLCVKeyFrame;
-class SLCVMapNode;
-
 //-----------------------------------------------------------------------------
-class SLCVCamera : public SLCamera
+/*! Special camera for ORB-SLAM keyframes that allows the video image display
+on the near clippling plane.
+*/
+class SLKeyframeCamera : public SLCamera
 {
     public:
-    SLCVCamera(SLstring name = "Camera");
-    virtual ~SLCVCamera() { ; }
+    SLKeyframeCamera(SLstring name = "Camera");
+    virtual ~SLKeyframeCamera() { ; }
     virtual void drawMeshes(SLSceneView* sv);
 
     // Getters

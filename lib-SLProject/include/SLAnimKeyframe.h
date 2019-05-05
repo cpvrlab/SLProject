@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLKeyframe.h
+//  File:      SLAnimKeyframe.h
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -18,14 +18,14 @@
 class SLAnimTrack;
 
 //-----------------------------------------------------------------------------
-//! Base class for all keyframes
-class SLKeyframe
+//! Base class for all animation keyframes
+class SLAnimKeyframe
 {
     public:
-    SLKeyframe(const SLAnimTrack* parent,
+    SLAnimKeyframe(const SLAnimTrack* parent,
                SLfloat            time);
 
-    bool operator<(const SLKeyframe& other) const;
+    bool operator<(const SLAnimKeyframe& other) const;
 
     void    time(SLfloat t) { _time = t; }
     SLfloat time() const { return _time; }
@@ -42,7 +42,7 @@ class SLKeyframe
 /*!     
 Keeps track of translation, rotation and scale.
 */
-class SLTransformKeyframe : public SLKeyframe
+class SLTransformKeyframe : public SLAnimKeyframe
 {
     public:
     SLTransformKeyframe(const SLAnimTrack* parent,
@@ -64,7 +64,7 @@ class SLTransformKeyframe : public SLKeyframe
     SLVec3f  _scale;
 };
 //-----------------------------------------------------------------------------
-typedef std::vector<SLKeyframe*> SLVKeyframe;
+typedef std::vector<SLAnimKeyframe*> SLVKeyframe;
 //-----------------------------------------------------------------------------
 
 #endif
