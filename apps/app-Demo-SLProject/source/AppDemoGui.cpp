@@ -18,14 +18,12 @@
 #include <AppDemoGui.h>
 #include <SLAnimPlayback.h>
 #include <SLApplication.h>
-#include <SLAverageTiming.h>
 #include <SLCVCapture.h>
 #include <SLCVImage.h>
 #include <SLCVTrackedFeatures.h>
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
-#include <SLImGuiInfosDialog.h>
 #include <SLImporter.h>
 #include <SLInterface.h>
 #include <SLLightDirect.h>
@@ -39,7 +37,6 @@
 #include <SLTransferFunction.h>
 
 #include <imgui.h>
-#include <imgui_internal.h>
 
 //#define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
 
@@ -92,24 +89,23 @@ void centerNextWindow(SLSceneView* sv,
 }
 //-----------------------------------------------------------------------------
 // Init global static variables
-SLGLTexture* AppDemoGui::cpvrLogo             = nullptr;
-SLstring     AppDemoGui::configTime           = "-";
-SLbool       AppDemoGui::showAbout            = false;
-SLbool       AppDemoGui::showHelp             = false;
-SLbool       AppDemoGui::showHelpCalibration  = false;
-SLbool       AppDemoGui::showCredits          = false;
-SLbool       AppDemoGui::showStatsTiming      = false;
-SLbool       AppDemoGui::showStatsScene       = false;
-SLbool       AppDemoGui::showStatsVideo       = false;
-SLbool       AppDemoGui::showInfosFrameworks  = false;
-SLbool       AppDemoGui::showInfosScene       = false;
-SLbool       AppDemoGui::showInfosSensors     = false;
-SLbool       AppDemoGui::showSceneGraph       = false;
-SLbool       AppDemoGui::showProperties       = false;
-SLbool       AppDemoGui::showStatsDebugTiming = false;
-SLbool       AppDemoGui::showChristoffel      = false;
-SLbool       AppDemoGui::showUIPrefs          = false;
-SLbool       AppDemoGui::showTransform        = false;
+SLGLTexture* AppDemoGui::cpvrLogo            = nullptr;
+SLstring     AppDemoGui::configTime          = "-";
+SLbool       AppDemoGui::showAbout           = false;
+SLbool       AppDemoGui::showHelp            = false;
+SLbool       AppDemoGui::showHelpCalibration = false;
+SLbool       AppDemoGui::showCredits         = false;
+SLbool       AppDemoGui::showStatsTiming     = false;
+SLbool       AppDemoGui::showStatsScene      = false;
+SLbool       AppDemoGui::showStatsVideo      = false;
+SLbool       AppDemoGui::showInfosFrameworks = false;
+SLbool       AppDemoGui::showInfosScene      = false;
+SLbool       AppDemoGui::showInfosSensors    = false;
+SLbool       AppDemoGui::showSceneGraph      = false;
+SLbool       AppDemoGui::showProperties      = false;
+SLbool       AppDemoGui::showChristoffel     = false;
+SLbool       AppDemoGui::showUIPrefs         = false;
+SLbool       AppDemoGui::showTransform       = false;
 
 // Scene node for Christoffel objects
 static SLNode* bern          = nullptr;
@@ -130,8 +126,6 @@ static SLNode* grab_t_fahn   = nullptr;
 static SLNode* grab_t_stein  = nullptr;
 static SLNode* christ_aussen = nullptr;
 static SLNode* christ_innen  = nullptr;
-
-map<string, std::shared_ptr<SLImGuiInfosDialog>> AppDemoGui::_infoDialogs;
 
 SLstring AppDemoGui::infoAbout =
   "Welcome to the SLProject demo app. It is developed at the \
@@ -337,31 +331,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Maximum depth : %u\n", SLRay::maxDepthReached);
             sprintf(m + strlen(m), "Average depth : %0.3f\n", SLRay::avgDepth / rayPrimaries);
         }
-        else if (rType == RT_rt)
-        {
-            SLRaytracer* rt           = sv->raytracer();
-            SLuint       rayPrimaries = sv->scrW() * sv->scrH();
-            SLuint       rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
-            SLfloat      rpms         = rt->renderSec() ? rayTotal / rt->renderSec() / 1000.0f : 0.0f;
-
-            sprintf(m + strlen(m), "Renderer      : Ray Tracer\n");
-            sprintf(m + strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
-            sprintf(m + strlen(m), "Frames per s. : %0.2f\n", 1.0f / rt->renderSec());
-            sprintf(m + strlen(m), "Frame Time    : %0.2f sec.\n", rt->renderSec());
-            sprintf(m + strlen(m), "Rays per ms   : %0.0f\n", rpms);
-            sprintf(m + strlen(m), "Threads       : %d\n", rt->numThreads());
-            sprintf(m + strlen(m), "-------------------------------\n");
-            sprintf(m + strlen(m), "Primary rays  : %8d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
-            sprintf(m + strlen(m), "Reflected rays: %8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
-            sprintf(m + strlen(m), "Refracted rays: %8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
-            sprintf(m + strlen(m), "TIR rays      : %8d\n", SLRay::tirRays);
-            sprintf(m + strlen(m), "Shadow rays   : %8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
-            sprintf(m + strlen(m), "AA rays       : %8d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
-            sprintf(m + strlen(m), "Total rays    : %8d (%3d%%)\n", rayTotal, 100);
-            sprintf(m + strlen(m), "-------------------------------\n");
-            sprintf(m + strlen(m), "Maximum depth : %u\n", SLRay::maxDepthReached);
-            sprintf(m + strlen(m), "Average depth : %0.3f\n", SLRay::avgDepth / rayPrimaries);
-        }
 
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
         ImGui::Begin("Timing", &showStatsTiming, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
@@ -534,7 +503,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             static SLTransformSpace tSpace = TS_object;
             SLfloat                 t1 = 0.1f, t2 = 1.0f, t3 = 10.0f; // Delta translations
             SLfloat                 r1 = 1.0f, r2 = 5.0f, r3 = 15.0f; // Delta rotations
-            SLfloat                 s1 = 1.1f, s2 = 2.f, s3 = 10.f;   // Scale factors
+            SLfloat                 s1 = 1.01f, s2 = 1.1f, s3 = 1.5f; // Scale factors
 
             // clang-format off
             ImGui::Text("Transf. Space:"); ImGui::SameLine();
@@ -592,18 +561,12 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             if (ImGui::Button(">>>##Rz")) node->rotate(-r3, 0, 0, 1, tSpace);
 
             ImGui::Text("Scale        :"); ImGui::SameLine();
-            if (ImGui::Button("<<<##S")) 
-                node->scale( s3); ImGui::SameLine();
-            if (ImGui::Button("<<##S"))  
-                node->scale( s2); ImGui::SameLine();
-            if (ImGui::Button("<##S"))   
-                node->scale( s1); ImGui::SameLine();
-            if (ImGui::Button(">##S"))   
-                node->scale(1/s1); ImGui::SameLine();
-            if (ImGui::Button(">>##S"))  
-                node->scale(1/s2); ImGui::SameLine();
-            if (ImGui::Button(">>>##S")) 
-                node->scale(1/s3);
+            if (ImGui::Button("<<<##S")) node->scale( s3); ImGui::SameLine();
+            if (ImGui::Button("<<##S"))  node->scale( s2); ImGui::SameLine();
+            if (ImGui::Button("<##S"))   node->scale( s1); ImGui::SameLine();
+            if (ImGui::Button(">##S"))   node->scale(-s1); ImGui::SameLine();
+            if (ImGui::Button(">>##S"))  node->scale(-s2); ImGui::SameLine();
+            if (ImGui::Button(">>>##S")) node->scale(-s3);
             ImGui::Separator();
             if (ImGui::Button("Reset")) node->om(node->initialOM());
 
@@ -720,27 +683,113 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::End();
     }
 
-    if (showStatsDebugTiming)
+    if (showChristoffel && SLApplication::sceneID == SID_VideoChristoffel)
     {
-        buildStatsDebugTiming(s, sv);
-    }
 
-    //add scene specifc info dialogs
-    buildInfosDialogs();
-}
-//-----------------------------------------------------------------------------
-void AppDemoGui::addInfoDialog(const shared_ptr<SLImGuiInfosDialog>& dialog)
-{
-    string name = string(dialog->getName());
-    if (_infoDialogs.find(name) == _infoDialogs.end())
-    {
-        _infoDialogs[name] = dialog;
+        ImGui::Begin("Christoffel",
+                     &showChristoffel,
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+        // Get scene nodes once
+        if (!bern)
+        {
+            bern          = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz.fbx");
+            boden         = bern->findChild<SLNode>("Boden", true);
+            balda_stahl   = bern->findChild<SLNode>("Baldachin-Stahl", true);
+            balda_glas    = bern->findChild<SLNode>("Baldachin-Glas", true);
+            umgeb_dach    = bern->findChild<SLNode>("Umgebung-Daecher", true);
+            umgeb_fass    = bern->findChild<SLNode>("Umgebung-Fassaden", true);
+            mauer_wand    = bern->findChild<SLNode>("Mauer-Wand", true);
+            mauer_dach    = bern->findChild<SLNode>("Mauer-Dach", true);
+            mauer_turm    = bern->findChild<SLNode>("Mauer-Turm", true);
+            mauer_weg     = bern->findChild<SLNode>("Mauer-Weg", true);
+            grab_mauern   = bern->findChild<SLNode>("Graben-Mauern", true);
+            grab_brueck   = bern->findChild<SLNode>("Graben-Bruecken", true);
+            grab_grass    = bern->findChild<SLNode>("Graben-Grass", true);
+            grab_t_dach   = bern->findChild<SLNode>("Graben-Turm-Dach", true);
+            grab_t_fahn   = bern->findChild<SLNode>("Graben-Turm-Fahne", true);
+            grab_t_stein  = bern->findChild<SLNode>("Graben-Turm-Stein", true);
+            christ_aussen = bern->findChild<SLNode>("Christoffel-Aussen", true);
+            christ_innen  = bern->findChild<SLNode>("Christoffel-Innen", true);
+        }
+
+        ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
+
+        SLbool umgebung = !umgeb_fass->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Umgebung", &umgebung))
+        {
+            umgeb_fass->drawBits()->set(SL_DB_HIDDEN, !umgebung);
+            umgeb_dach->drawBits()->set(SL_DB_HIDDEN, !umgebung);
+        }
+
+        SLbool bodenBool = !boden->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Boden", &bodenBool))
+        {
+            boden->drawBits()->set(SL_DB_HIDDEN, !bodenBool);
+        }
+
+        SLbool baldachin = !balda_stahl->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Baldachin", &baldachin))
+        {
+            balda_stahl->drawBits()->set(SL_DB_HIDDEN, !baldachin);
+            balda_glas->drawBits()->set(SL_DB_HIDDEN, !baldachin);
+        }
+
+        SLbool mauer = !mauer_wand->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Mauer", &mauer))
+        {
+            mauer_wand->drawBits()->set(SL_DB_HIDDEN, !mauer);
+            mauer_dach->drawBits()->set(SL_DB_HIDDEN, !mauer);
+            mauer_turm->drawBits()->set(SL_DB_HIDDEN, !mauer);
+            mauer_weg->drawBits()->set(SL_DB_HIDDEN, !mauer);
+        }
+
+        SLbool graben = !grab_mauern->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Graben", &graben))
+        {
+            grab_mauern->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_brueck->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_grass->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_t_dach->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_t_fahn->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_t_stein->drawBits()->set(SL_DB_HIDDEN, !graben);
+        }
+
+        static SLfloat christTransp = 0.0f;
+        if (ImGui::SliderFloat("Transparency", &christTransp, 0.0f, 1.0f, "%0.2f"))
+        {
+            for (auto mesh : christ_aussen->meshes())
+            {
+                mesh->mat()->kt(christTransp);
+                mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+                mesh->init(christ_aussen);
+            }
+
+            // Hide inner parts if transparency is on
+            christ_innen->drawBits()->set(SL_DB_HIDDEN, christTransp > 0.01f);
+        }
+        ImGui::PopItemWidth();
+        ImGui::End();
     }
-}
-//-----------------------------------------------------------------------------
-void AppDemoGui::clearInfoDialogs()
-{
-    _infoDialogs.clear();
+    else
+    {
+        bern         = nullptr;
+        boden        = nullptr;
+        balda_stahl  = nullptr;
+        balda_glas   = nullptr;
+        umgeb_dach   = nullptr;
+        umgeb_fass   = nullptr;
+        mauer_wand   = nullptr;
+        mauer_dach   = nullptr;
+        mauer_turm   = nullptr;
+        mauer_weg    = nullptr;
+        grab_mauern  = nullptr;
+        grab_brueck  = nullptr;
+        grab_grass   = nullptr;
+        grab_t_dach  = nullptr;
+        grab_t_fahn  = nullptr;
+        grab_t_stein = nullptr;
+    }
 }
 //-----------------------------------------------------------------------------
 void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
@@ -1457,11 +1506,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         {
             ImGui::MenuItem("Infos on Scene", nullptr, &showInfosScene);
             ImGui::MenuItem("Stats on Timing", nullptr, &showStatsTiming);
-
-            if (SLAverageTiming::instance().size())
-            {
-                ImGui::MenuItem("Stats on Debug Time", nullptr, &showStatsDebugTiming);
-            }
             ImGui::MenuItem("Stats on Scene", nullptr, &showStatsScene);
             ImGui::MenuItem("Stats on Video", nullptr, &showStatsVideo);
             ImGui::Separator();
@@ -1471,13 +1515,11 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Infos on Sensors", nullptr, &showInfosSensors);
             ImGui::MenuItem("Infos on Frameworks", nullptr, &showInfosFrameworks);
-
-            for (auto dialog : _infoDialogs)
+            if (SLApplication::sceneID == SID_VideoChristoffel)
             {
                 ImGui::Separator();
-                ImGui::MenuItem(dialog.second->getName(), nullptr, &dialog.second->show);
+                ImGui::MenuItem("Infos on Christoffel", nullptr, &showChristoffel);
             }
-
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", nullptr, &showHelp);
             ImGui::MenuItem("Help on Calibration", nullptr, &showHelpCalibration);
@@ -2015,69 +2057,6 @@ void AppDemoGui::buildProperties(SLScene* s)
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
-void AppDemoGui::buildStatsDebugTiming(SLScene* s, SLSceneView* sv)
-{
-    if (!SLAverageTiming::instance().size())
-        return;
-
-    SLchar m[2550]; // message character array
-    m[0] = 0;       // set zero length
-
-    //sort vertically
-    std::vector<SLAverageTimingBlock*> blocks;
-    for (auto& block : SLAverageTiming::instance())
-    {
-        blocks.push_back(block.second);
-    }
-    std::sort(blocks.begin(), blocks.end(), [](SLAverageTimingBlock* lhs, SLAverageTimingBlock* rhs) -> bool {
-        return lhs->posV < rhs->posV;
-    });
-
-    //find reference time
-    SLfloat refTime = 1.0f;
-    if (blocks.size())
-    {
-        refTime = (*blocks.begin())->val.average();
-        //insert number of measurment calls
-        sprintf(m + strlen(m), "Num. calls: %i\n", (SLint)(*blocks.begin())->nCalls);
-    }
-
-    //insert time measurements
-    for (auto* block : blocks)
-    {
-        SLfloat      val   = block->val.average();
-        SLfloat      valPC = SL_clamp(val / refTime * 100.0f, 0.0f, 100.0f);
-        string       name  = block->name;
-        stringstream ss;
-        for (int i = 0; i < block->posH; ++i)
-            ss << " ";
-        ss << "%s: %4.1f ms (%3d%%)\n";
-        sprintf(m + strlen(m), ss.str().c_str(), name.c_str(), val, (SLint)valPC);
-    }
-
-    //define ui elements
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-    ImGui::Begin("Tracking Timing", &showStatsDebugTiming, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::TextUnformatted(m);
-    ImGui::End();
-    ImGui::PopFont();
-}
-//-----------------------------------------------------------------------------
-void AppDemoGui::buildInfosDialogs()
-{
-    for (auto dialog : _infoDialogs)
-    {
-        if (dialog.second->show)
-        {
-            ImGui::Begin(dialog.second->getName(), &dialog.second->show, ImVec2(300, 0), -1.f, ImGuiWindowFlags_NoCollapse);
-
-            dialog.second->buildInfos();
-
-            ImGui::End();
-        }
-    }
-}
-//-----------------------------------------------------------------------------
 void AppDemoGui::loadConfig(SLint dotsPerInch)
 {
     ImGuiStyle& style               = ImGui::GetStyle();
@@ -2112,8 +2091,6 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         style.ItemSpacing.x      = SL_max(8.0f * dpiScaleFixed, 8.0f);
         style.ItemSpacing.y      = SL_max(3.0f * dpiScaleFixed, 3.0f);
         style.ItemInnerSpacing.x = style.ItemSpacing.y;
-        style.ScrollbarSize      = SL_max(16.0f * dpiScaleFixed, 16.0f);
-        style.ScrollbarRounding  = std::floor(style.ScrollbarSize / 2);
 
         return;
     }
@@ -2135,8 +2112,6 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["ItemSpacingY"] >> i;        style.ItemSpacing.y = (SLfloat)i;
             style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
             style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
-            fs["ScrollbarSize"] >> i; style.ScrollbarSize = (SLfloat)i;
-            style.ScrollbarRounding = std::floor(style.ScrollbarSize / 2);
             fs["sceneID"] >> i;             SLApplication::sceneID = (SLSceneID)i;
             fs["showInfosScene"] >> b;      AppDemoGui::showInfosScene = b;
             fs["showStatsTiming"] >> b;     AppDemoGui::showStatsTiming = b;
@@ -2146,6 +2121,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showInfosSensors"] >> b;    AppDemoGui::showInfosSensors = b;
             fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
             fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
+            fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
             fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
             fs["showDetection"] >> b;       SLApplication::scene->showDetection(b);
             // clang-format on
@@ -2203,7 +2179,6 @@ void AppDemoGui::saveConfig()
     fs << "sceneID" << (SLint)SLApplication::sceneID;
     fs << "ItemSpacingX" << (SLint)style.ItemSpacing.x;
     fs << "ItemSpacingY" << (SLint)style.ItemSpacing.y;
-    fs << "ScrollbarSize" << (SLint)style.ScrollbarSize;
     fs << "showStatsTiming" << AppDemoGui::showStatsTiming;
     fs << "showStatsMemory" << AppDemoGui::showStatsScene;
     fs << "showStatsVideo" << AppDemoGui::showStatsVideo;
@@ -2212,6 +2187,7 @@ void AppDemoGui::saveConfig()
     fs << "showInfosSensors" << AppDemoGui::showInfosSensors;
     fs << "showSceneGraph" << AppDemoGui::showSceneGraph;
     fs << "showProperties" << AppDemoGui::showProperties;
+    fs << "showChristoffel" << AppDemoGui::showChristoffel;
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;
     fs << "showDetection" << SLApplication::scene->showDetection();
 
