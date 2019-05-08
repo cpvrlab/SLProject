@@ -89,7 +89,6 @@ void centerNextWindow(SLSceneView* sv,
 }
 //-----------------------------------------------------------------------------
 // Init global static variables
-SLGLTexture* AppDemoGui::cpvrLogo            = nullptr;
 SLstring     AppDemoGui::configTime          = "-";
 SLbool       AppDemoGui::showAbout           = false;
 SLbool       AppDemoGui::showHelp            = false;
@@ -193,22 +192,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
     if (showAbout)
     {
-        if (cpvrLogo == nullptr)
-        {
-            // The texture resources get deleted by the SLScene destructor
-            cpvrLogo = new SLGLTexture("LogoCPVR_256L.png");
-            if (cpvrLogo != nullptr)
-                cpvrLogo->bindActive();
-        }
-        else
-            cpvrLogo->bindActive();
-
-        SLfloat iconSize = sv->scrW() * 0.15f;
-
         centerNextWindow(sv);
         ImGui::Begin("About SLProject", &showAbout, ImGuiWindowFlags_NoResize);
-        ImGui::Image((ImTextureID)(intptr_t)cpvrLogo->texName(), ImVec2(iconSize, iconSize), ImVec2(0, 1), ImVec2(1, 0));
-        ImGui::SameLine();
         ImGui::Text("Version: %s", SLApplication::version.c_str());
         ImGui::Separator();
         ImGui::Text("Git Branch: %s (Commit: %s)", SLApplication::gitBranch.c_str(), SLApplication::gitCommit.c_str());
@@ -1110,6 +1095,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
 
+            ImGui::Separator();
+
+            ImGui::MenuItem("UI Preferences", nullptr, &showUIPrefs);
+
             ImGui::EndMenu();
         }
 
@@ -1129,7 +1118,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (rType == RT_gl)
         {
-            if (ImGui::BeginMenu("GL-Setting"))
+            if (ImGui::BeginMenu("GL"))
             {
                 if (ImGui::MenuItem("Wired Mesh", "P", sv->drawBits()->get(SL_DB_WIREMESH)))
                     sv->drawBits()->toggle(SL_DB_WIREMESH);
@@ -1178,7 +1167,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         }
         else if (rType == RT_rt)
         {
-            if (ImGui::BeginMenu("RT-Settings"))
+            if (ImGui::BeginMenu("RT"))
             {
                 SLRaytracer* rt = sv->raytracer();
 
@@ -1246,7 +1235,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         }
         else if (rType == RT_pt)
         {
-            if (ImGui::BeginMenu("PT-Settings"))
+            if (ImGui::BeginMenu("PT"))
             {
                 SLPathtracer* pt = sv->pathtracer();
 
@@ -1524,7 +1513,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Help on Interaction", nullptr, &showHelp);
             ImGui::MenuItem("Help on Calibration", nullptr, &showHelpCalibration);
             ImGui::Separator();
-            ImGui::MenuItem("UI Pfreferences", nullptr, &showUIPrefs);
             ImGui::MenuItem("Credits", nullptr, &showCredits);
             ImGui::MenuItem("About SLProject", nullptr, &showAbout);
 

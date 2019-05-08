@@ -39,7 +39,6 @@ class AppDemoGui
     static void loadConfig(SLint dotsPerInch);
     static void saveConfig();
 
-    static SLGLTexture* cpvrLogo;            //!< cpvr logo texture image
     static SLstring     configTime;          //!< Time of stored configuration
     static SLstring     infoAbout;           //!< About info string
     static SLstring     infoCredits;         //!< Credits info string

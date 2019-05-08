@@ -38,20 +38,15 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/zlib
-    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/eigen
-    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/DBoW2
     ${OpenCV_INCLUDE_DIR}
-    ${g2o_INCLUDE_DIR}
     ${DEFAULT_INCLUDE_DIRECTORIES}
     )
 
 message(STATUS "OpenCV_LIBS before linking ${OpenCV_LIBS}")
-message(STATUS "g2o_LIBS before linking ${g2o_LIBS}")
 target_link_libraries(${target}
     ${DEFAULT_LIBRARIES}
     libc++_shared.so
     ${OpenCV_LIBS}
-    ${g2o_LIBS}
     ${META_PROJECT_NAME}::lib-SLProject
     )
 
@@ -104,14 +99,6 @@ file(GLOB_RECURSE SHADERS
 
 file(GLOB_RECURSE CALIBRATIONS
     ${SL_PROJECT_ROOT}/data/calibrations/calib_in_params.yml
-    ${SL_PROJECT_ROOT}/data/calibrations/aruco_detector_params.yml
-    ${SL_PROJECT_ROOT}/data/calibrations/street1_manip.json
-    ${SL_PROJECT_ROOT}/data/calibrations/orb-slam-state-altstadtbiel1_manip.json
-    ${SL_PROJECT_ROOT}/data/calibrations/orb-slam-state-bern1-manip1.json
-    ${SL_PROJECT_ROOT}/data/calibrations/orb-slam-state-buero1.json
-    ${SL_PROJECT_ROOT}/data/calibrations/test.yml
-    ${SL_PROJECT_ROOT}/data/calibrations/cam_calibration_main_huawei_p10_640_480.xml
-    ${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
     )
 
 file(GLOB_RECURSE CONFIG

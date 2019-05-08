@@ -124,6 +124,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${OpenCV_DIR}")
+        message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
+        message(STATUS "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}")
+        message(STATUS "Download to: ${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
             "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
@@ -132,14 +135,17 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     endif ()
 
     # Now download for MacOS
-    set(OpenCV_VERSION "4.0.0")
-    set(PREBUILT_OPENCV_DIR "mac64_opencv_${OpenCV_VERSION}")
-    set(OpenCV_DIR "${PREBUILT_PATH}/${PREBUILT_OPENCV_DIR}")
+    set(OpenCV_VERSION "4.1.0")
+    set(OpenCV_PREBUILT_DIR "mac64_opencv_${OpenCV_VERSION}")
+    set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
     set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${OpenCV_DIR}")
+        message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
+        message(STATUS "Download from: ${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}")
+        message(STATUS "Download to: ${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
             "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
@@ -194,8 +200,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
         libprotobuf
         libtiff
         libwebp
-        tegra_hal
-        z)
+        tegra_hal)
 
     foreach(lib ${OpenCV_LINK_LIBS})
         add_library(lib_${lib} STATIC IMPORTED)
