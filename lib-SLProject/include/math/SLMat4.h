@@ -12,12 +12,12 @@
 #define SLMAT4_H
 
 #include <SL.h>
+#include <Utils.h>
 #include <SLMat3.h>
 #include <SLMath.h>
 #include <SLVec3.h>
 #include <SLVec4.h>
 #include <assert.h>
-//#include <SLVec4.h>
 #include <Shoemake/Decompose.h>
 #include <Shoemake/EulerAngles.h>
 

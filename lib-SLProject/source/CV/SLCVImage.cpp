@@ -14,6 +14,7 @@
 #endif
 
 #include <SLCVImage.h>
+#include <Utils.h>
 
 //-----------------------------------------------------------------------------
 //! Constructor for empty image of a certain format and size
@@ -29,7 +30,7 @@ SLCVImage::SLCVImage(SLint         width,
 SLCVImage::SLCVImage(const SLstring filename,
                      SLbool         flipVertical,
                      SLbool         loadGrayscaleIntoAlpha)
-  : SLObject(SLUtils::getFileName(filename), filename)
+  : SLObject(Utils::getFileName(filename), filename)
 {
     assert(filename != "");
     clearData();
@@ -395,9 +396,9 @@ void SLCVImage::load(const SLstring filename,
                      SLbool         flipVertical,
                      SLbool         loadGrayscaleIntoAlpha)
 {
-    SLstring ext = SLUtils::getFileExt(filename);
-    _name        = SLUtils::getFileName(filename);
-    _path        = SLUtils::getPath(filename);
+    SLstring ext = Utils::getFileExt(filename);
+    _name        = Utils::getFileName(filename);
+    _path        = Utils::getPath(filename);
 
     // load the image format as stored in the file
     _cvMat = cv::imread(filename, -1);
@@ -452,7 +453,7 @@ void SLCVImage::load(const SLstring filename,
 
         // for debug check
         //SLstring pathfilename = _path + name();
-        //SLstring filename = SLUtils::getFileNameWOExt(pathfilename);
+        //SLstring filename = Utils::getFileNameWOExt(pathfilename);
         //savePNG(_path + filename + "_InAlpha.png");
     }
 

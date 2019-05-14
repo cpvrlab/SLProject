@@ -89,22 +89,22 @@ void centerNextWindow(SLSceneView* sv,
 }
 //-----------------------------------------------------------------------------
 // Init global static variables
-SLstring     AppDemoGui::configTime          = "-";
-SLbool       AppDemoGui::showAbout           = false;
-SLbool       AppDemoGui::showHelp            = false;
-SLbool       AppDemoGui::showHelpCalibration = false;
-SLbool       AppDemoGui::showCredits         = false;
-SLbool       AppDemoGui::showStatsTiming     = false;
-SLbool       AppDemoGui::showStatsScene      = false;
-SLbool       AppDemoGui::showStatsVideo      = false;
-SLbool       AppDemoGui::showInfosFrameworks = false;
-SLbool       AppDemoGui::showInfosScene      = false;
-SLbool       AppDemoGui::showInfosSensors    = false;
-SLbool       AppDemoGui::showSceneGraph      = false;
-SLbool       AppDemoGui::showProperties      = false;
-SLbool       AppDemoGui::showChristoffel     = false;
-SLbool       AppDemoGui::showUIPrefs         = false;
-SLbool       AppDemoGui::showTransform       = false;
+SLstring AppDemoGui::configTime          = "-";
+SLbool   AppDemoGui::showAbout           = false;
+SLbool   AppDemoGui::showHelp            = false;
+SLbool   AppDemoGui::showHelpCalibration = false;
+SLbool   AppDemoGui::showCredits         = false;
+SLbool   AppDemoGui::showStatsTiming     = false;
+SLbool   AppDemoGui::showStatsScene      = false;
+SLbool   AppDemoGui::showStatsVideo      = false;
+SLbool   AppDemoGui::showInfosFrameworks = false;
+SLbool   AppDemoGui::showInfosScene      = false;
+SLbool   AppDemoGui::showInfosSensors    = false;
+SLbool   AppDemoGui::showSceneGraph      = false;
+SLbool   AppDemoGui::showProperties      = false;
+SLbool   AppDemoGui::showChristoffel     = false;
+SLbool   AppDemoGui::showUIPrefs         = false;
+SLbool   AppDemoGui::showTransform       = false;
 
 // Scene node for Christoffel objects
 static SLNode* bern          = nullptr;
@@ -660,7 +660,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         if (ImGui::MenuItem(reset))
         {
             SLstring fullPathFilename = SLApplication::configPath + "DemoGui.yml";
-            SLFileSystem::deleteFile(fullPathFilename);
+            Utils::deleteFile(fullPathFilename);
             loadConfig(SLApplication::dpi);
         }
         ImGui::PopFont();
@@ -797,9 +797,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     SLstring large1          = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
                     SLstring large2          = SLImporter::defaultPath + "PLY/mesh_zermatt.ply";
                     SLstring large3          = SLImporter::defaultPath + "PLY/switzerland.ply";
-                    SLbool   largeFileExists = SLFileSystem::fileExists(large1) ||
-                                             SLFileSystem::fileExists(large2) ||
-                                             SLFileSystem::fileExists(large3);
+                    SLbool   largeFileExists = Utils::fileExists(large1) ||
+                                             Utils::fileExists(large2) ||
+                                             Utils::fileExists(large3);
 
                     if (ImGui::MenuItem("Minimal Scene", nullptr, sid == SID_Minimal))
                         s->onLoad(s, sv, SID_Minimal);
@@ -2051,7 +2051,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
     SLstring    fullPathAndFilename = SLApplication::configPath +
                                    SLApplication::name + ".yml";
 
-    if (!SLFileSystem::fileExists(fullPathAndFilename))
+    if (!Utils::fileExists(fullPathAndFilename))
     {
         // Scale for proportional and fixed size fonts
         SLfloat dpiScaleProp  = dotsPerInch / 120.0f;
@@ -2161,7 +2161,7 @@ void AppDemoGui::saveConfig()
         return;
     }
 
-    fs << "configTime" << SLUtils::getLocalTimeString();
+    fs << "configTime" << Utils::getLocalTimeString();
     fs << "fontPropDots" << (SLint)SLGLImGui::fontPropDots;
     fs << "fontFixedDots" << (SLint)SLGLImGui::fontFixedDots;
     fs << "sceneID" << (SLint)SLApplication::sceneID;

@@ -159,7 +159,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 	
     file(GLOB headers
         ${headers}
-        ${include_path}/dirent/dirent.h
         ${include_path}/glew/include/GL/wglew.h
         ${include_path}/glfw3/src/win32_platform.h
         ${include_path}/glfw3/src/win32_tls.h
@@ -185,7 +184,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
   
     file(GLOB sources
         ${sources}
-        ${source_path}/dirent/dirent.c
         ${source_path}/glfw3/src/win32_init.c
         ${source_path}/glfw3/src/win32_monitor.c
         ${source_path}/glfw3/src/win32_time.c
@@ -217,13 +215,6 @@ endif()
 #==============================================================================
 
 
-
-#==============================================================================
-if("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #--------------------------------
-    set(platform_specific_include_directories
-        ${CMAKE_CURRENT_SOURCE_DIR}/dirent)
-endif()
-#==============================================================================
 
 add_library(${target}
     ${headers}
@@ -264,7 +255,6 @@ target_compile_definitions(${target}
     ${compile_definitions}
     PUBLIC
     GLEW_STATIC
-    #SL_MEMLEAKDETECT
     ${DEFAULT_COMPILE_DEFINITIONS}
     INTERFACE
     )
@@ -289,4 +279,3 @@ target_link_libraries(${target}
 
     INTERFACE
     )
-

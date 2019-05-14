@@ -1451,7 +1451,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Load volume data into 3D texture
         SLVstring mriImages;
         for (SLint i = 0; i < 207; ++i)
-            mriImages.push_back(SLUtils::formatString("i%04u_0000b.png", i));
+            mriImages.push_back(Utils::formatString("i%04u_0000b.png", i));
 
         SLint clamping3D = GL_CLAMP_TO_EDGE;
         if (SLGLState::getInstance()->getSLVersionNO() > "320")
@@ -1516,7 +1516,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Load volume data into 3D texture
         SLVstring mriImages;
         for (SLint i = 0; i < 207; ++i)
-            mriImages.push_back(SLUtils::formatString("i%04u_0000b.png", i));
+            mriImages.push_back(Utils::formatString("i%04u_0000b.png", i));
 
         SLint clamping3D = GL_CLAMP_TO_EDGE;
         if (SLGLState::getInstance()->getSLVersionNO() > "320")

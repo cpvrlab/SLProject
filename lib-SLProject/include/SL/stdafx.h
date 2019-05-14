@@ -47,13 +47,11 @@
 #include <stdio.h>    // for the old ANSI C IO functions
 #include <stdlib.h>   // srand, rand
 #include <string.h>   // for string functions
-#include <sys/stat.h> // for file info used in SLUtils
 #include <time.h>     // for clock()
 //-----------------------------------------------------------------------------
 // Core header files used by all files
 #include <SL.h>
 #include <SLEnums.h>
-#include <SLFileSystem.h>
 #include <SLGLState.h>
 #include <SLMat3.h>
 #include <SLMat4.h>
@@ -63,7 +61,6 @@
 #include <SLQuat4.h>
 #include <SLRect.h>
 #include <SLTimer.h>
-#include <SLUtils.h>
 #include <SLVec2.h>
 #include <SLVec3.h>
 #include <SLVec4.h>

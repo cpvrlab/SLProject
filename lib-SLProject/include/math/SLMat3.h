@@ -13,8 +13,9 @@
 #define SLMAT3_H
 
 #include <SL.h>
-#include <SLUtils.h>
+#include <Utils.h>
 #include <SLVec3.h>
+#include <SLMath.h>
 #include <iostream>
 
 //-----------------------------------------------------------------------------

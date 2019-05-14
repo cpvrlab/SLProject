@@ -12,6 +12,7 @@
 
 #include <SLCVImage.h> // for image loading
 #include <glUtils.h>
+#include <Utils.h>
 
 #include <algorithm>
 #include <dirent.h> // opendir
@@ -86,12 +87,12 @@ GLuint glUtils::buildShader(string shaderFile,
     {
         if (shaderType == GL_VERTEX_SHADER)
         {
-            SLUtils::replaceString(source, "attribute", "in       ");
-            SLUtils::replaceString(source, "varying", "out    ");
+            Utils::replaceString(source, "attribute", "in       ");
+            Utils::replaceString(source, "varying", "out    ");
         }
         if (shaderType == GL_FRAGMENT_SHADER)
         {
-            SLUtils::replaceString(source, "varying", "in     ");
+            Utils::replaceString(source, "varying", "in     ");
         }
     }
 
@@ -100,13 +101,13 @@ GLuint glUtils::buildShader(string shaderFile,
     {
         if (shaderType == GL_FRAGMENT_SHADER)
         {
-            SLUtils::replaceString(source,
-                                   "gl_FragColor",
-                                   "fragColor");
-            SLUtils::replaceString(source,
+            Utils::replaceString(source,
+                                 "gl_FragColor",
+                                 "fragColor");
+            Utils::replaceString(source,
 
-                                   "void main",
-                                   "out vec4 fragColor; \n\nvoid main");
+                                 "void main",
+                                 "out vec4 fragColor; \n\nvoid main");
         }
     }
 
@@ -115,10 +116,10 @@ GLuint glUtils::buildShader(string shaderFile,
     {
         if (shaderType == GL_FRAGMENT_SHADER)
         {
-            SLUtils::replaceString(source, "texture1D", "texture");
-            SLUtils::replaceString(source, "texture2D", "texture");
-            SLUtils::replaceString(source, "texture3D", "texture");
-            SLUtils::replaceString(source, "textureCube", "texture");
+            Utils::replaceString(source, "texture1D", "texture");
+            Utils::replaceString(source, "texture2D", "texture");
+            Utils::replaceString(source, "texture3D", "texture");
+            Utils::replaceString(source, "textureCube", "texture");
         }
     }
 

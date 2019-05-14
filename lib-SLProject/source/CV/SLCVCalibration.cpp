@@ -22,6 +22,7 @@ for a good top down information.
 #include <SLApplication.h>
 #include <SLCVCalibration.h>
 #include <SLCVCapture.h>
+#include <Utils.h>
 
 using namespace cv;
 using namespace std;
@@ -149,7 +150,7 @@ bool SLCVCalibration::load(SLstring calibDir,
 //! Saves the camera calibration parameters to the config file
 void SLCVCalibration::save()
 {
-    SLstring fullPathAndFilename = SLFileSystem::externalDir() + _calibFileName; // SLApplication::configPath + _calibFileName;
+    SLstring fullPathAndFilename = SLApplication::externalPath + _calibFileName;
 
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 
@@ -481,7 +482,7 @@ bool SLCVCalibration::calculate()
         buildUndistortionMaps();
 
         _cameraFovDeg    = calcCameraFOV();
-        _calibrationTime = SLUtils::getLocalTimeString();
+        _calibrationTime = Utils::getLocalTimeString();
         _state           = CS_calibrated;
         save();
 
@@ -583,7 +584,7 @@ void SLCVCalibration::createFromGuessedFOV(SLint imageWidthPX,
     _distortion = (Mat_<double>(5, 1) << 0, 0, 0, 0, 0);
 
     _cameraFovDeg    = fov;
-    _calibrationTime = SLUtils::getLocalTimeString();
+    _calibrationTime = Utils::getLocalTimeString();
     _state           = CS_guessed;
 }
 //-----------------------------------------------------------------------------

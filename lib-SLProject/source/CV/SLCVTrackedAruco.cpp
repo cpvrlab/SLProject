@@ -21,6 +21,7 @@ for a good top down information.
 #include <SLApplication.h>
 #include <SLCVTrackedAruco.h>
 #include <SLSceneView.h>
+#include <Utils.h>
 
 using namespace cv;
 //-----------------------------------------------------------------------------
@@ -226,7 +227,7 @@ void SLCVTrackedAruco::drawArucoMarker(SLint dictionaryId,
     for (SLint i = minMarkerId; i < maxMarkerId; ++i)
     {
         drawMarker(dict, i, markerSizePX, markerImg, 1);
-        imwrite(SLUtils::formatString("ArucoMarker_Dict%d_%dpx_Id%d.png",
+        imwrite(Utils::formatString("ArucoMarker_Dict%d_%dpx_Id%d.png",
                                       dictionaryId,
                                       markerSizePX,
                                       i),

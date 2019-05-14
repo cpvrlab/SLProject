@@ -81,10 +81,10 @@ SLVec2i SLCVCapture::openFile()
 {
     try
     { // Load the file directly
-        if (!SLFileSystem::fileExists(videoFilename))
+        if (!Utils::fileExists(videoFilename))
         {
             videoFilename = videoDefaultPath + videoFilename;
-            if (!SLFileSystem::fileExists(videoFilename))
+            if (!Utils::fileExists(videoFilename))
             {
                 SLstring msg = "SLCVCapture::openFile: File not found: " + videoFilename;
                 SL_EXIT_MSG(msg.c_str());

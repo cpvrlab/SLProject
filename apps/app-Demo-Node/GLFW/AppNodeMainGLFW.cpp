@@ -468,7 +468,7 @@ int main(int argc, char* argv[])
 
     // get executable path
     SLstring projectRoot = SLstring(SL_PROJECT_ROOT);
-    SLstring configPath  = SLFileSystem::getAppsWritableDir();
+    SLstring configPath  = Utils::getAppsWritableDir();
 
     //////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,

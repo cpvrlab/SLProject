@@ -17,6 +17,7 @@
 #include <SLApplication.h>
 #include <SLGLTexture.h>
 #include <SLScene.h>
+#include <Utils.h>
 
 //-----------------------------------------------------------------------------
 //! Default path for texture files used when only filename is passed in load.
@@ -58,7 +59,7 @@ SLGLTexture::SLGLTexture(SLstring      filename,
                          SLTextureType type,
                          SLint         wrapS,
                          SLint         wrapT)
-  : SLObject(SLUtils::getFileName(filename), filename)
+  : SLObject(Utils::getFileName(filename), filename)
 {
     assert(filename != "");
     _stateGL = SLGLState::getInstance();
@@ -220,10 +221,10 @@ void SLGLTexture::load(SLstring filename,
                        SLbool   loadGrayscaleIntoAlpha)
 {
     // Load the file directly
-    if (!SLFileSystem::fileExists(filename))
+    if (!Utils::fileExists(filename))
     {
         filename = defaultPath + filename;
-        if (!SLFileSystem::fileExists(filename))
+        if (!Utils::fileExists(filename))
         {
             SLstring msg = "SLGLTexture: File not found: " + filename;
             SL_EXIT_MSG(msg.c_str());
@@ -723,7 +724,7 @@ SLVec2f SLGLTexture::dsdt(SLfloat s, SLfloat t)
 //! Detects the texture type from the filename appendix (See SLTexType def.)
 SLTextureType SLGLTexture::detectType(SLstring filename)
 {
-    SLstring name     = SLUtils::getFileNameWOExt(filename);
+    SLstring name     = Utils::getFileNameWOExt(filename);
     SLstring appendix = name.substr(name.length() - 2, 2);
     if (appendix == "_C") return TT_color;
     if (appendix == "_N") return TT_normal;

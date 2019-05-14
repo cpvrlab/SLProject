@@ -17,6 +17,7 @@
 #include <SLApplication.h>
 #include <SLScene.h>
 #include <SLTexFont.h>
+#include <Utils.h>
 
 //-----------------------------------------------------------------------------
 // Initialize static font pointers
@@ -62,10 +63,10 @@ according texture coordinate.
 void SLTexFont::create(SLstring fontFilename)
 {
     // Check the font filename with path
-    if (!SLFileSystem::fileExists(fontFilename))
+    if (!Utils::fileExists(fontFilename))
     {
         fontFilename = defaultPathFonts + fontFilename;
-        if (!SLFileSystem::fileExists(fontFilename))
+        if (!Utils::fileExists(fontFilename))
         {
             SLstring msg = "SLTexFont::create: File not found: " + fontFilename;
             SL_EXIT_MSG(msg.c_str());

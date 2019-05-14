@@ -14,6 +14,7 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
+#include <Utils.h>
 #include <SLApplication.h>
 #include <SLAssimpImporter.h>
 #include <SLCVCapture.h>
@@ -660,7 +661,7 @@ void SLScene::onLoadAsset(SLstring assetFile,
 
     // Set scene name for new scenes
     if (!_root3D)
-        name(SLUtils::getFileName(assetFile));
+        name(Utils::getFileName(assetFile));
 
     // Try to load assed and add it to the scene root node
     SLAssimpImporter importer;

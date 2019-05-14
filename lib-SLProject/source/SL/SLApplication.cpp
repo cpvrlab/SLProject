@@ -37,8 +37,9 @@ SLstring         SLApplication::gitCommit = SL_GIT_COMMIT;
 SLstring         SLApplication::gitDate   = SL_GIT_DATE;
 SLint            SLApplication::dpi       = 0;
 //! SLApplication::configPath is overwritten in slCreateAppAndScene.
-SLstring  SLApplication::configPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
-SLSceneID SLApplication::sceneID    = SID_Empty;
+SLstring  SLApplication::configPath   = SLstring(SL_PROJECT_ROOT) + "/data/config/";
+SLstring  SLApplication::externalPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
+SLSceneID SLApplication::sceneID      = SID_Empty;
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function
 /*! Writes and inits the static application information and create the single
@@ -70,7 +71,7 @@ void SLApplication::createAppAndScene(SLstring appName,
     activeCalib                     = &calibMainCam;
     SLCVCapture::hasSecondaryCamera = false;
 #else
-    calibMainCam.load(SLFileSystem::externalDir(), "cam_calibration_main.xml", false, false);
+    calibMainCam.load(SLApplication::externalPath, "cam_calibration_main.xml", false, false);
     // TODO(jan): revert this!
     //calibMainCam.load(SLApplication::configPath, "cam_calibration_main.xml", false, false);
     calibMainCam.loadCalibParams();

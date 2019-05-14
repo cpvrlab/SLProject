@@ -329,7 +329,7 @@ void SLRay::refract(SLRay* refracted)
     else
         cout << ">in";
     cout << ", dir: " << refracted->dir.toString();
-    cout << ", contrib: " << SLUtils::toString(refracted->contrib, 2);
+    cout << ", contrib: " << Utils::toString(refracted->contrib, 2);
     cout << endl;
 #endif
 }

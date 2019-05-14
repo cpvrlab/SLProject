@@ -16,7 +16,6 @@ file(GLOB headers
 file(GLOB sources
     ${SL_PROJECT_ROOT}/lib-SLProject/source/glUtils.cpp
     ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SL.cpp
-    ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SLFileSystem.cpp
     ${SL_PROJECT_ROOT}/lib-SLProject/source/CV/SLCVImage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/TextureMapping.cpp
     )
@@ -46,9 +45,9 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/lib-SLProject/include/math
     ${SL_PROJECT_ROOT}/lib-SLProject/include/SL
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal
-    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/dirent
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glfw3/include
+    ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
     ${OpenCV_INCLUDE_DIR}
     PUBLIC
     INTERFACE
@@ -59,7 +58,8 @@ include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 target_link_libraries(${target}
     PRIVATE
     ${PlatformLinkLibs}
-    ${META_PROJECT_NAME}::lib-SLExternal
+    lib-SLExternal
+    lib-Utils
     ${OpenCV_LIBS}
     PUBLIC
     INTERFACE

@@ -12,8 +12,9 @@
 #define SLVEC3_H
 
 #include <SL.h>
-#include <SLUtils.h>
+#include <SLMath.h>
 #include <SLVec2.h>
+#include <Utils.h>
 
 //-----------------------------------------------------------------------------
 //! 3D vector template class for standard 3D vector algebra.
@@ -187,15 +188,15 @@ class SLVec3
 
             //! Conversion to string
             SLstring toString   (SLstring delimiter = ", ")
-            {   return SLUtils::toString(x,2) + delimiter +
-                       SLUtils::toString(y,2) + delimiter +
-                       SLUtils::toString(z,2);
+            {   return Utils::toString(x,2) + delimiter +
+                       Utils::toString(y,2) + delimiter +
+                       Utils::toString(z,2);
             }
 
             //! Conversion from string
             void fromString (SLstring threeFloatsWithDelimiter, SLchar delimiter = ',')
             {   SLVstring components;
-                SLUtils::split(threeFloatsWithDelimiter, delimiter, components);
+                Utils::split(threeFloatsWithDelimiter, delimiter, components);
                 float f[3] = {0.0, 0.0f, 0.0f};
                 for (SLuint i=0; i<components.size(); ++i)
                     f[i] = (SLfloat)atof(components[i].c_str());

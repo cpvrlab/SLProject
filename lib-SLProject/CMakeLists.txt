@@ -51,7 +51,6 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLApplication.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAssimpImporter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAverageTiming.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLFileSystem.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLImporter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInterface.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLSkybox.h
@@ -114,7 +113,6 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLText.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTimer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransferFunction.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/SLUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/TriangleBoxIntersect.h
     )
 
@@ -146,7 +144,6 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLApplication.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAverageTiming.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLFileSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLImporter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInterface.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTexFont.cpp
@@ -271,6 +268,7 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/zlib
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
+    ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
     ${OpenCV_INCLUDE_DIR}
     ${DEFAULT_INCLUDE_DIRECTORIES}
 
@@ -303,8 +301,9 @@ target_link_libraries(${target}
     ${OpenCV_LIBS}
 
     PUBLIC
-    ${META_PROJECT_NAME}::lib-SLExternal
-    ${META_PROJECT_NAME}::lib-assimp
+    lib-SLExternal
+    lib-assimp
+    lib-Utils
     ${DEFAULT_LINKER_OPTIONS}
     INTERFACE
     )

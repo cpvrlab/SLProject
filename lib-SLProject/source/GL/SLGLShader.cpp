@@ -14,6 +14,7 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
+#include <Utils.h>
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
 
@@ -37,7 +38,7 @@ SLGLShader::SLGLShader()
 //-----------------------------------------------------------------------------
 //! Ctor with shader filename & shader type
 SLGLShader::SLGLShader(SLstring filename, SLShaderType shaderType)
-  : SLObject(SLUtils::getFileName(filename), filename)
+  : SLObject(Utils::getFileName(filename), filename)
 {
     _type     = shaderType;
     _code     = "";
@@ -119,12 +120,12 @@ SLbool SLGLShader::createAndCompile()
         {
             if (_type == ST_vertex)
             {
-                SLUtils::replaceString(_code, "attribute", "in       ");
-                SLUtils::replaceString(_code, "varying", "out    ");
+                Utils::replaceString(_code, "attribute", "in       ");
+                Utils::replaceString(_code, "varying", "out    ");
             }
             if (_type == ST_fragment)
             {
-                SLUtils::replaceString(_code, "varying", "in     ");
+                Utils::replaceString(_code, "varying", "in     ");
             }
         }
 
@@ -133,8 +134,8 @@ SLbool SLGLShader::createAndCompile()
         {
             if (_type == ST_fragment)
             {
-                SLUtils::replaceString(_code, "gl_FragColor", "fragColor");
-                SLUtils::replaceString(_code, "void main", "out vec4 fragColor; \n\nvoid main");
+                Utils::replaceString(_code, "gl_FragColor", "fragColor");
+                Utils::replaceString(_code, "void main", "out vec4 fragColor; \n\nvoid main");
             }
         }
 
@@ -143,10 +144,10 @@ SLbool SLGLShader::createAndCompile()
         {
             if (_type == ST_fragment)
             {
-                SLUtils::replaceString(_code, "texture1D", "texture");
-                SLUtils::replaceString(_code, "texture2D", "texture");
-                SLUtils::replaceString(_code, "texture3D", "texture");
-                SLUtils::replaceString(_code, "textureCube", "texture");
+                Utils::replaceString(_code, "texture1D", "texture");
+                Utils::replaceString(_code, "texture2D", "texture");
+                Utils::replaceString(_code, "texture3D", "texture");
+                Utils::replaceString(_code, "textureCube", "texture");
             }
         }
 
@@ -186,7 +187,7 @@ SLbool SLGLShader::createAndCompile()
     return false;
 }
 //-----------------------------------------------------------------------------
-//! SLUtils::removeComments for C/C++ comments removal from shader code
+//! SLGLShader::removeComments for C/C++ comments removal from shader code
 SLstring SLGLShader::removeComments(SLstring src)
 {
     SLstring dst;

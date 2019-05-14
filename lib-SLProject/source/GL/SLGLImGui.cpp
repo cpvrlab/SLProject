@@ -97,7 +97,7 @@ void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
 
     // Load proportional font for menue and text displays
     SLstring DroidSans = SLGLTexture::defaultPathFonts + "DroidSans.ttf";
-    if (SLFileSystem::fileExists(DroidSans))
+    if (Utils::fileExists(DroidSans))
     {
         io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
         SL_LOG("SLGLImGui::loadFonts: %f\n", fontPropDots);
@@ -107,7 +107,7 @@ void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
 
     // Load fixed size font for statistics windows
     SLstring ProggyClean = SLGLTexture::defaultPathFonts + "ProggyClean.ttf";
-    if (SLFileSystem::fileExists(ProggyClean))
+    if (Utils::fileExists(ProggyClean))
     {
         io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
         SL_LOG("SLGLImGui::loadFonts: %f\n", fontFixedDots);

@@ -38,10 +38,10 @@ SLCVTrackedFaces::SLCVTrackedFaces(SLNode*  node,
                                    SLstring faceMarkModelFilename) : SLCVTracked(node)
 {
     // Load Haar cascade training file for the face detection
-    if (!SLFileSystem::fileExists(faceClassifierFilename))
+    if (!Utils::fileExists(faceClassifierFilename))
     {
         faceClassifierFilename = SLCVCalibration::calibIniPath + faceClassifierFilename;
-        if (!SLFileSystem::fileExists(faceClassifierFilename))
+        if (!Utils::fileExists(faceClassifierFilename))
         {
             SLstring msg = "SLCVTrackedFaces: File not found: " + faceClassifierFilename;
             SL_EXIT_MSG(msg.c_str());
@@ -50,10 +50,10 @@ SLCVTrackedFaces::SLCVTrackedFaces(SLNode*  node,
     _faceDetector = new SLCVCascadeClassifier(faceClassifierFilename);
 
     // Load facemark model file for the facial landmark detection
-    if (!SLFileSystem::fileExists(faceMarkModelFilename))
+    if (!Utils::fileExists(faceMarkModelFilename))
     {
         faceMarkModelFilename = SLCVCalibration::calibIniPath + faceMarkModelFilename;
-        if (!SLFileSystem::fileExists(faceMarkModelFilename))
+        if (!Utils::fileExists(faceMarkModelFilename))
         {
             SLstring msg = "SLCVTrackedFaces: File not found: " + faceMarkModelFilename;
             SL_EXIT_MSG(msg.c_str());

@@ -170,16 +170,16 @@ class SLVec4
 
             //! Conversion to string
             SLstring toString   (SLstring delimiter=", ")
-             {   return SLUtils::toString(x) + delimiter +
-                        SLUtils::toString(y) + delimiter +
-                        SLUtils::toString(z) + delimiter +
-                        SLUtils::toString(w);
+             {   return Utils::toString(x) + delimiter +
+                        Utils::toString(y) + delimiter +
+                        Utils::toString(z) + delimiter +
+                        Utils::toString(w);
              }
 
             //! Conversion from string
             void    fromString  (SLstring fourFloatsWithDelimiter, SLchar delimiter=',')
             {   SLVstring components;
-                SLUtils::split(fourFloatsWithDelimiter, delimiter, components);
+                Utils::split(fourFloatsWithDelimiter, delimiter, components);
                 float f[4] = {0.0, 0.0f, 0.0f, 1.0f};
                 for (SLuint i=0; i<components.size(); ++i)
                     f[i] = (SLfloat)atof(components[i].c_str());
