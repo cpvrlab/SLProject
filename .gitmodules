@@ -1,0 +1,3 @@
+[submodule "externals/utils"]
+	path = externals/utils
+	url = https://github.com/cpvrlab/utils.git
