@@ -103,7 +103,6 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #        include <GLES3/gl3.h>
 #        include <GLES3/gl3ext.h>
 #    endif
-#    include <android/log.h>
 #    include <chrono>
 #    include <functional>
 #    include <random>
@@ -127,6 +126,8 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #else
 #    error "SL has not been ported to this OS"
 #endif
+
+#include <Utils.h>
 
 //-----------------------------------------------------------------------------
 using namespace std;
@@ -222,24 +223,20 @@ SL_sizeOfVector(const T& vector)
 }
 //-----------------------------------------------------------------------------
 // Bit manipulation macros for ones that forget it always
-#define SL_GETBIT(VAR, BITVAL) VAR& BITVAL
-#define SL_SETBIT(VAR, BITVAL) VAR |= BITVAL
-#define SL_DELBIT(VAR, BITVAL) VAR &= ~BITVAL
-#define SL_TOGBIT(VAR, BITVAL) \
-    if (VAR & BITVAL) \
-        VAR &= ~BITVAL; \
-    else \
-        VAR |= BITVAL
+#define SL_GETBIT(VAR, VAL) VAR& VAL
+#define SL_SETBIT(VAR, VAL) VAR |= VAL
+#define SL_DELBIT(VAR, VAL) VAR &= ~VAL
+#define SL_TOGBIT(VAR, VAL) if (VAR & VAL) VAR &= ~VAL; else VAR |= VAL
 
 //-----------------------------------------------------------------------------
 // Prevention for warnings in XCode
 #define UNUSED_PARAMETER(r) ((void)(x))
 
 //-----------------------------------------------------------------------------
-// Some debugging and error handling functions and macros
-#define SL_LOG(...) SL::log(__VA_ARGS__)
-#define SL_EXIT_MSG(M) SL::exitMsg((M), __LINE__, __FILE__)
-#define SL_WARN_MSG(M) SL::warnMsg((M), __LINE__, __FILE__)
+// Some debugging and error handling macros
+#define SL_LOG(...) Utils::log("SLProject", __VA_ARGS__)
+#define SL_EXIT_MSG(M) Utils::exitMsg((M),"SLProject",  __LINE__, __FILE__)
+#define SL_WARN_MSG(M) Utils::warnMsg((M),"SLProject",  __LINE__, __FILE__)
 //-----------------------------------------------------------------------------
 /*! Since Android does not support full C++11 support, we have to override the
 to_string method manually.
@@ -251,19 +248,5 @@ std::string to_string(T value)
     return os.str();
 }
 */
-//-----------------------------------------------------------------------------
-//! Class SL with some global static functions and members.
-class SL
-{
-    public:
-    static void   log(const char* format, ...);
-    static void   exitMsg(const SLchar* msg,
-                          const SLint   line,
-                          const SLchar* file);
-    static void   warnMsg(const SLchar* msg,
-                          const SLint   line,
-                          const SLchar* file);
-    static SLuint maxThreads();
-};
 //-----------------------------------------------------------------------------
 #endif

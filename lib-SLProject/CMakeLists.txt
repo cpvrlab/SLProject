@@ -140,7 +140,6 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexBuffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLCurveBezier.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLApplication.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAverageTiming.cpp
@@ -216,9 +215,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         _GLFW_NO_DLOAD_WINMM
         SL_USES_CVCAPTURE
         SL_GUI_GLFW)
-
-    set(platform_specific_include_dirs
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/dirent)
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     set(compile_definitions
@@ -299,11 +295,9 @@ target_link_libraries(${target}
     PUBLIC
     ${PlatformLinkLibs}
     ${OpenCV_LIBS}
-
-    PUBLIC
-    lib-SLExternal
-    lib-assimp
-    lib-Utils
+    ${META_PROJECT_NAME}::lib-SLExternal
+    ${META_PROJECT_NAME}::lib-assimp
+    ${META_PROJECT_NAME}::lib-Utils
     ${DEFAULT_LINKER_OPTIONS}
     INTERFACE
     )

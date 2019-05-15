@@ -27,6 +27,7 @@ target_include_directories(${target}
 
     PUBLIC
     ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/include
+    ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
     ${SL_PROJECT_ROOT}/lib-SLProject/include
     ${SL_PROJECT_ROOT}/externals/lib-assimp/include
     ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/clipper
@@ -42,12 +43,14 @@ target_include_directories(${target}
     ${DEFAULT_INCLUDE_DIRECTORIES}
     )
 
+
+
 message(STATUS "OpenCV_LIBS before linking ${OpenCV_LIBS}")
 target_link_libraries(${target}
-    ${DEFAULT_LIBRARIES}
-    libc++_shared.so
-    ${OpenCV_LIBS}
-    ${META_PROJECT_NAME}::lib-SLProject
+        ${DEFAULT_LIBRARIES}
+        libc++_shared.so
+        ${OpenCV_LIBS}
+        ${META_PROJECT_NAME}::lib-SLProject
     )
 
 #

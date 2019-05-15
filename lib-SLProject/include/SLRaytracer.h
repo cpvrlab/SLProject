@@ -112,7 +112,7 @@ class SLRaytracer : public SLGLTexture
     SLbool    doContinuous() const { return _doContinuous; }
     SLbool    doFresnel() const { return _doFresnel; }
     SLint     aaSamples() const { return _aaSamples; }
-    SLuint    numThreads() const { return SL::maxThreads(); }
+    SLuint    numThreads() const { return Utils::maxThreads(); }
     SLint     pcRendered() const { return _pcRendered; }
     SLfloat   aaThreshold() const { return _aaThreshold; }
     SLfloat   renderSec() const { return _renderSec; }

@@ -77,7 +77,7 @@ SLPathtracer::render(SLSceneView* sv)
         _next = 0;              // init _next=0. _next should be atomic
 
         // Start additional threads on the renderSlices function
-        for (SLuint t = 0; t < SL::maxThreads() - 1; t++)
+        for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
             threads.push_back(thread(renderSlicesFunction, false, currentSample));
 
         // Do the same work in the main thread

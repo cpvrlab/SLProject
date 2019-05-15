@@ -149,7 +149,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     _next = 0;              // init _next=0. _next should be atomic
 
     // Start additional threads on the renderSlices function
-    for (SLuint t = 0; t < SL::maxThreads() - 1; t++)
+    for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
         threads.push_back(thread(renderSlicesFunction, false));
 
     // Do the same work in the main thread
@@ -167,7 +167,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
         _next = 0;              // init _next=0. _next should be atomic
 
         // Start additional threads on the sampleAAPixelFunction function
-        for (SLuint t = 0; t < SL::maxThreads() - 1; t++)
+        for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
             threads.push_back(thread(sampleAAPixelsFunction, false));
 
         // Do the same work in the main thread
@@ -715,7 +715,7 @@ void SLRaytracer::printStats(SLfloat sec)
 {
     SL_LOG("\nRender time  : %10.2f sec.", sec);
     SL_LOG("\nImage size   : %10d x %d", _images[0]->width(), _images[0]->height());
-    SL_LOG("\nNum. Threads : %10d", SL::maxThreads());
+    SL_LOG("\nNum. Threads : %10d", Utils::maxThreads());
     SL_LOG("\nAllowed depth: %10d", SLRay::maxDepth);
 
     SLuint primarys = (SLuint)(_sv->scrW() * _sv->scrH());
