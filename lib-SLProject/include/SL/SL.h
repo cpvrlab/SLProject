@@ -226,8 +226,11 @@ SL_sizeOfVector(const T& vector)
 #define SL_GETBIT(VAR, VAL) VAR& VAL
 #define SL_SETBIT(VAR, VAL) VAR |= VAL
 #define SL_DELBIT(VAR, VAL) VAR &= ~VAL
-#define SL_TOGBIT(VAR, VAL) if (VAR & VAL) VAR &= ~VAL; else VAR |= VAL
-
+#define SL_TOGBIT(VAR, VAL) \
+    if (VAR & VAL) \
+        VAR &= ~VAL; \
+    else \
+        VAR |= VAL
 //-----------------------------------------------------------------------------
 // Prevention for warnings in XCode
 #define UNUSED_PARAMETER(r) ((void)(x))
@@ -235,18 +238,7 @@ SL_sizeOfVector(const T& vector)
 //-----------------------------------------------------------------------------
 // Some debugging and error handling macros
 #define SL_LOG(...) Utils::log("SLProject", __VA_ARGS__)
-#define SL_EXIT_MSG(M) Utils::exitMsg((M),"SLProject",  __LINE__, __FILE__)
-#define SL_WARN_MSG(M) Utils::warnMsg((M),"SLProject",  __LINE__, __FILE__)
-//-----------------------------------------------------------------------------
-/*! Since Android does not support full C++11 support, we have to override the
-to_string method manually.
-template<typename T>
-std::string to_string(T value)
-{
-    std::ostringstream os;
-    os << value;
-    return os.str();
-}
-*/
+#define SL_EXIT_MSG(M) Utils::exitMsg("SLProject", (M), __LINE__, __FILE__)
+#define SL_WARN_MSG(M) Utils::warnMsg("SLProject", (M), __LINE__, __FILE__)
 //-----------------------------------------------------------------------------
 #endif
