@@ -530,32 +530,6 @@ void glUtils::getGLError(const char* file,
 #endif
 }
 //-----------------------------------------------------------------------------
-//! Returns a vector of sorted file names with path within a directory
-SLVstring
-glUtils::getFileNamesInDir(SLstring dirName)
-{
-    SLVstring      fileNames;
-    DIR*           dir;
-    struct dirent* dirContent;
-    int            i = 0;
-    dir              = opendir(dirName.c_str());
-
-    if (dir)
-    {
-        while ((dirContent = readdir(dir)) != nullptr)
-        {
-            i++;
-            //cout << sizeof(dirent) << endl;
-            //printf("%s",dirContent->d_name);
-            SLstring name(dirContent->d_name);
-            if (name != "." && name != "..")
-                fileNames.push_back(dirName + "/" + name);
-        }
-        closedir(dir);
-    }
-    return fileNames;
-}
-//-----------------------------------------------------------------------------
 //! Returns the OpenGL Shading Language version number as a string.
 /*! The string returned by glGetString can contain additional vendor
 information such as the build number and the brand name.

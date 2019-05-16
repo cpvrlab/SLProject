@@ -82,9 +82,6 @@ class glUtils
     //! Checks if an OpenGL error occurred
     static void getGLError(const char* file, int line, bool quit);
 
-    //! Returns a vector of sorted file names within a directory
-    static SLVstring getFileNamesInDir(SLstring dirName);
-
     //! Returns the GLSL version string
     static SLstring glSLVersionNO();
 };
