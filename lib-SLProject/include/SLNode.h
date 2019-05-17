@@ -405,7 +405,7 @@ void SLNode::findChildrenHelper(const SLstring& name,
         if (canContain)
         {
             if (found && (name.size() == 0 ||
-                          Utils::contains(node->name(), name)))
+                          Utils::containsString(node->name(), name)))
                 list.push_back(found);
         }
         else

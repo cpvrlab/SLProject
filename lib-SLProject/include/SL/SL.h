@@ -237,8 +237,8 @@ SL_sizeOfVector(const T& vector)
 
 //-----------------------------------------------------------------------------
 // Some debugging and error handling macros
-#define SL_LOG(...) Utils::log("SLProject", __VA_ARGS__)
-#define SL_EXIT_MSG(M) Utils::exitMsg("SLProject", (M), __LINE__, __FILE__)
-#define SL_WARN_MSG(M) Utils::warnMsg("SLProject", (M), __LINE__, __FILE__)
+#define SL_LOG(...) Utils::log(__VA_ARGS__)
+#define SL_EXIT_MSG(M) Utils::exitMsg((M), __LINE__, __FILE__)
+#define SL_WARN_MSG(M) Utils::warnMsg((M), __LINE__, __FILE__)
 //-----------------------------------------------------------------------------
 #endif

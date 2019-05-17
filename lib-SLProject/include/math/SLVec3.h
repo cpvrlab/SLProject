@@ -196,7 +196,7 @@ class SLVec3
             //! Conversion from string
             void fromString (SLstring threeFloatsWithDelimiter, SLchar delimiter = ',')
             {   SLVstring components;
-                Utils::split(threeFloatsWithDelimiter, delimiter, components);
+                Utils::splitString(threeFloatsWithDelimiter, delimiter, components);
                 float f[3] = {0.0, 0.0f, 0.0f};
                 for (SLuint i=0; i<components.size(); ++i)
                     f[i] = (SLfloat)atof(components[i].c_str());

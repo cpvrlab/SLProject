@@ -76,6 +76,7 @@ void slCreateAppAndScene(SLVstring& cmdLineArgs,
 
     SLGLState* stateGL = SLGLState::getInstance();
 
+    Utils::logAppName = "SLProject";
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
     SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
     SL_LOG("Path to Textures: %s\n", texturePath.c_str());
