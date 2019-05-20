@@ -35,7 +35,8 @@ static GLFWwindow* window;                     //!< The global glfw window handl
 static SLint       svIndex;                    //!< SceneView index
 static SLint       scrWidth;                   //!< Window width at start up
 static SLint       scrHeight;                  //!< Window height at start up
-static SLbool      fixAspectRatio;             //!< Flag if aspect ratio should be fixed
+static SLbool      fixAspectRatio;             //!< Flag if wnd aspect ratio should be fixed
+static SLbool      sizeDividableBy4;           //!< Flag if wnd size should be devidable by 4
 static SLfloat     scrWdivH;                   //!< aspect ratio screen width divided by height
 static SLfloat     scr2fbX;                    //!< Factor from screen to framebuffer coords
 static SLfloat     scr2fbY;                    //!< Factor from screen to framebuffer coords
@@ -170,8 +171,11 @@ static void onResize(GLFWwindow* window, int width, int height)
     // We need to scale them to framebuffer coords.
     slResize(svIndex, (int)(width * scr2fbX), (int)(height * scr2fbY));
 
-    //update glfw window with new size
+    //update glfw window with new size but keep position
+    int curW, curH;
+    glfwGetWindowPos(window, &curW, &curH);
     glfwSetWindowSize(window, width, height);
+    glfwSetWindowPos(window, curW, curH);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -478,10 +482,10 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    scrWidth       = 640;
-    scrHeight      = 480;
-    scrWdivH       = (float)scrWidth / (float)scrHeight;
-    fixAspectRatio = true; //we want to fix aspect ratio for some video apps
+    scrWidth         = 640;
+    scrHeight        = 480;
+    scrWdivH         = (float)scrWidth / (float)scrHeight;
+    fixAspectRatio   = false; //we want to fix aspect ratio for some video apps
     touch2.set(-1, -1);
     touchDelta.set(-1, -1);
 

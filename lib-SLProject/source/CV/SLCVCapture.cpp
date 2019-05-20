@@ -211,19 +211,42 @@ void SLCVCapture::adjustForSL()
         SLint height = 0; // height in pixels of the destination image
         SLint cropH  = 0; // crop height in pixels of the source image
         SLint cropW  = 0; // crop width in pixels of the source image
+        SLint wModulo4;
+        SLint hModulo4;
 
         if (inWdivH > outWdivH) // crop input image left & right
         {
-            width  = (SLint)((SLfloat)lastFrame.rows * outWdivH);
-            height = lastFrame.rows;
-            cropW  = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);
+            width    = (SLint)((SLfloat)lastFrame.rows * outWdivH);
+            height   = lastFrame.rows;
+            cropW    = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);
+
+            // Width must be devidable by 4
+            wModulo4 = width % 4;
+            if (wModulo4 == 1) width--;
+            if (wModulo4 == 2)
+            {
+                cropW++;
+                width -= 2;
+            }
+            if (wModulo4 == 3) width++;
         }
         else // crop input image at top & bottom
         {
-            width  = lastFrame.cols;
-            height = (SLint)((SLfloat)lastFrame.cols / outWdivH);
-            cropH  = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
+            width    = lastFrame.cols;
+            height   = (SLint)((SLfloat)lastFrame.cols / outWdivH);
+            cropH    = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
+
+            // Height must be devidable by 4
+            hModulo4 = height % 4;
+            if (hModulo4 == 1) height--;
+            if (hModulo4 == 2)
+            {
+                cropH++;
+                height -= 2;
+            }
+            if (hModulo4 == 3) height++;
         }
+
         lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(lastFrame);
         //imwrite("AfterCropping.bmp", lastFrame);
     }
