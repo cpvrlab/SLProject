@@ -118,6 +118,7 @@ void SLSceneView::init(SLstring name,
     _doWaitOnIdle     = true;
     _drawBits.allOff();
 
+    _stats2D.clear();
     _stats3D.clear();
 
     _scrWdiv2 = _scrW >> 1;
@@ -300,6 +301,8 @@ void SLSceneView::onInitialize()
     _blendNodes.clear();
     _visibleNodes.clear();
     _visibleNodes2D.clear();
+    _stats2D.clear();
+    _stats3D.clear();
 
     _raytracer.clearData();
     _renderType   = RT_gl;
@@ -322,8 +325,6 @@ void SLSceneView::onInitialize()
                (SLfloat)(clock() - t) / (SLfloat)CLOCKS_PER_SEC);
 
         // Collect node statistics
-        _stats3D.clear();
-        _stats2D.clear();
         s->root3D()->statsRec(_stats3D);
 
         // Warn if there are no light in scene

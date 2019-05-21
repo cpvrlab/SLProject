@@ -935,6 +935,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
 
+            if (ImGui::MenuItem("Empty Scene", nullptr, sid == SID_Empty))
+                s->onLoad(s, sv, SID_Empty);
+
 #ifndef SL_OS_ANDROID
             ImGui::Separator();
 
