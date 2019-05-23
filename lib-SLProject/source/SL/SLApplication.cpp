@@ -40,6 +40,9 @@ SLint            SLApplication::dpi       = 0;
 SLstring  SLApplication::configPath   = SLstring(SL_PROJECT_ROOT) + "/data/config/";
 SLstring  SLApplication::externalPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
 SLSceneID SLApplication::sceneID      = SID_Empty;
+deque<function<void(void)>> SLApplication::jobsToBeThreaded;
+atomic<int> SLApplication::numThreadedJobs(0);
+
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function
 /*! Writes and inits the static application information and create the single

@@ -64,7 +64,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     // Initialize all preloaded stuff from SLScene
     s->init();
 
-    if (SLApplication::sceneID == SID_Empty) //.....................................................
+    if (SLApplication::sceneID == SID_Empty) //..........................................................
     {
         s->name("No Scene loaded.");
         s->info("No Scene loaded.");

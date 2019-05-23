@@ -14,6 +14,7 @@
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
 #include <SLInputManager.h>
+#include <SLJob.h>
 
 class SLScene;
 class SLCVCalibration;
@@ -46,17 +47,20 @@ class SLApplication
     static SLDeviceRotation devRot;         //!< Mobile device rotation from IMU
     static SLDeviceLocation devLoc;         //!< Mobile device location from GPS
 
-    static SLstring  name;          //!< Applcation name
-    static SLstring  version;       //!< SLProject version string
-    static SLstring  gitBranch;     //!< Current GIT branch
-    static SLstring  gitCommit;     //!< Current GIT commit short hash id
-    static SLstring  gitDate;       //!< Current GIT commit date
-    static SLint     dpi;           //!< Current UI dot per inch resolution
-    static SLstring  configPath;    //!< Default path for calibration files
-    static SLstring  externalPath;  //!< Default path for external file storage
-    static SLSceneID sceneID;       //!< ID of last loaded scene
+    static SLstring  name;         //!< Applcation name
+    static SLstring  version;      //!< SLProject version string
+    static SLstring  gitBranch;    //!< Current GIT branch
+    static SLstring  gitCommit;    //!< Current GIT commit short hash id
+    static SLstring  gitDate;      //!< Current GIT commit date
+    static SLint     dpi;          //!< Current UI dot per inch resolution
+    static SLstring  configPath;   //!< Default path for calibration files
+    static SLstring  externalPath; //!< Default path for external file storage
+    static SLSceneID sceneID;      //!< ID of last loaded scene
 
     static SLfloat dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
+
+    static deque<function<void(void)>> jobsToBeThreaded;
+    static atomic<int>                 numThreadedJobs;
 };
 //-----------------------------------------------------------------------------
 #endif

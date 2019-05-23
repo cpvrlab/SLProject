@@ -36,7 +36,6 @@ static SLint       svIndex;                    //!< SceneView index
 static SLint       scrWidth;                   //!< Window width at start up
 static SLint       scrHeight;                  //!< Window height at start up
 static SLbool      fixAspectRatio;             //!< Flag if wnd aspect ratio should be fixed
-static SLbool      sizeDividableBy4;           //!< Flag if wnd size should be devidable by 4
 static SLfloat     scrWdivH;                   //!< aspect ratio screen width divided by height
 static SLfloat     scr2fbX;                    //!< Factor from screen to framebuffer coords
 static SLfloat     scr2fbY;                    //!< Factor from screen to framebuffer coords
