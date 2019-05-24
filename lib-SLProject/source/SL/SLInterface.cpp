@@ -204,33 +204,11 @@ bool slUpdateAndPaint(int sceneViewIndex)
 {
     SLSceneView* sv = SLApplication::scene->sv((SLuint)sceneViewIndex);
 
-//    if (SLApplication::jobsToBeThreaded.size() > 0)
-//    {
-//        function<void(void)> job = SLApplication::jobsToBeThreaded.front();
-//        thread               jobThread(job);
-//        jobThread.detach();
-//        SLApplication::jobsToBeThreaded.pop_front();
-//        SLApplication::numThreadedJobs++;
-//    }
+    SLApplication::handleParallelJob();
 
-//    if (SLApplication::numThreadedJobs > 0)
-//    {
-//        SLGLState* stateGL = SLGLState::getInstance();
-//        static float radians = 0.0f;
-//        SLfloat r = sin(radians)*0.5f+0.5f;
-//        SLfloat g = cos(radians)*0.5f+0.5f;
-//        SLfloat b = sin(radians)*0.5f+0.5f;
-//        stateGL->clearColor(SLCol3f(r,g,b));
-//        stateGL->clearColorDepthBuffer();
-//        radians+=0.1f;
-//        return true;
-//    }
-//    else
-    {
-        bool sceneGotUpdated = SLApplication::scene->onUpdate();
-        bool viewNeedsUpdate = sv->onPaint();
-        return sceneGotUpdated || viewNeedsUpdate;
-    }
+    bool sceneGotUpdated = SLApplication::scene->onUpdate();
+    bool viewNeedsUpdate = sv->onPaint();
+    return sceneGotUpdated || viewNeedsUpdate;
 }
 //-----------------------------------------------------------------------------
 /*! Global resize function that must be called whenever the OpenGL frame

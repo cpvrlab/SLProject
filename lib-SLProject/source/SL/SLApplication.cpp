@@ -41,7 +41,10 @@ SLstring  SLApplication::configPath   = SLstring(SL_PROJECT_ROOT) + "/data/confi
 SLstring  SLApplication::externalPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
 SLSceneID SLApplication::sceneID      = SID_Empty;
 deque<function<void(void)>> SLApplication::jobsToBeThreaded;
-atomic<int> SLApplication::numThreadedJobs(0);
+atomic<bool> SLApplication::threadedJobIsRunning(false);
+string SLApplication::_progressMsg = "";
+atomic<int> SLApplication::_progressNum(0);
+mutex SLApplication::_mutex;
 
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function
@@ -100,5 +103,49 @@ void SLApplication::deleteAppAndScene()
         delete scene;
 
     scene = nullptr;
+}
+//-----------------------------------------------------------------------------
+//! Starts parallel job if one is queued.
+/*!
+Parallel executed job can be queued in jobsToBeThreaded. Only functions are
+allowed that do not call any OpenGL functions. So no scenegraph changes are
+allowed because they involve mostly OpenGL state and context changes.
+Only one parallel job is executed at once parallel to the main rendering thread.
+*/
+void SLApplication::handleParallelJob()
+{
+    if (!SLApplication::threadedJobIsRunning &&
+        SLApplication::jobsToBeThreaded.size() > 0)
+    {
+        function<void(void)> job = SLApplication::jobsToBeThreaded.front();
+        thread               jobThread(job);
+        SLApplication::threadedJobIsRunning = true;
+        SLApplication::jobsToBeThreaded.pop_front();
+        jobThread.detach();
+    }
+}
+//-----------------------------------------------------------------------------
+//! Threadsafe setter of the progress message and number value
+void SLApplication::progressMsgNum(string msg, int num)
+{
+    SLApplication::_mutex.lock();
+    SLApplication::_progressMsg = msg;
+    SLApplication::_progressNum = num;
+    SLApplication::_mutex.unlock();
+}
+//-----------------------------------------------------------------------------
+//! Threadsafe setter of the progress message
+void SLApplication::progressMsg(string msg)
+{
+    SLApplication::_mutex.lock();
+    SLApplication::_progressMsg = msg;
+    SLApplication::_mutex.unlock();
+}
+//-----------------------------------------------------------------------------
+//! Threadsafe getter of the progress message
+string SLApplication::progressMsg()
+{
+    lock_guard<mutex> guard(_mutex);
+    return _progressMsg;
 }
 //-----------------------------------------------------------------------------

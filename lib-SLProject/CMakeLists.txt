@@ -53,7 +53,6 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAverageTiming.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLImporter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInterface.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLJob.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLSkybox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLTexFont.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/stdafx.h

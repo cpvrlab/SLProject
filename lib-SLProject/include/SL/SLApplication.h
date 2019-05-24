@@ -14,7 +14,6 @@
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
 #include <SLInputManager.h>
-#include <SLJob.h>
 
 class SLScene;
 class SLCVCalibration;
@@ -59,8 +58,22 @@ class SLApplication
 
     static SLfloat dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
 
+    // Parallel treaded job handling (please read remarks on handleParallelJob)
+    static void                        handleParallelJob();
     static deque<function<void(void)>> jobsToBeThreaded;
-    static atomic<int>                 numThreadedJobs;
+    static atomic<bool>                threadedJobIsRunning;
+
+    // Setters and getters threadsafe
+    static void   progressMsgNum(string msg, int num);
+    static void   progressMsg(string msg);
+    static void   progressNum(int num) {_progressNum = num;}
+    static string progressMsg();
+    static int    progressNum() { return _progressNum; }
+
+    private:
+    static string      _progressMsg;
+    static atomic<int> _progressNum;
+    static mutex       _mutex;
 };
 //-----------------------------------------------------------------------------
 #endif

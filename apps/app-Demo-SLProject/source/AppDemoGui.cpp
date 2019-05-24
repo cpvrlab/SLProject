@@ -35,7 +35,6 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLTransferFunction.h>
-#include <SLJob.h>
 
 #include <imgui.h>
 
@@ -191,7 +190,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
     // Show modeless fullscreen dialogs
     ///////////////////////////////////
 
-    if (SLJob::queue.size() > 0)
+    if (SLApplication::threadedJobIsRunning)
     {
         centerNextWindow(sv);
         ImGui::Begin("Job in Progress", &showAbout, ImGuiWindowFlags_NoResize);
@@ -960,25 +959,18 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Do long job multithreaded"))
             {
                 auto job = []() {
-                    for (uint i = 0; i < 100000; ++i)
-                        cout << i << endl;
-                    SLApplication::numThreadedJobs--;
-                };
-
-                auto job2 = [](SLJob* job) {
                     uint maxIter = 100000;
+                    SLApplication::progressMsg("Super long loop");
                     for (uint i = 0; i < maxIter; ++i)
                     {
                         cout << i << endl;
-                        if (job)
-                            job->update("TestJob is running", (int)((float)i / (float)maxIter * 100.0f));
+                        int progressPC = (int)((float)i / (float)maxIter * 100.0f);
+                        SLApplication::progressNum(progressPC);
                     }
-                    if (job)
-                        job->isRunning(false);
+                    SLApplication::threadedJobIsRunning = false;
                 };
 
-                SLJob::queue.push_back(new SLJob("TestJob", job2));
-                //SLApplication::jobsToBeThreaded.push_back(job);
+                SLApplication::jobsToBeThreaded.push_back(job);
             }
 
 #ifndef SL_OS_ANDROID
