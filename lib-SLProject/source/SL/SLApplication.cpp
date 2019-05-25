@@ -37,14 +37,16 @@ SLstring         SLApplication::gitCommit = SL_GIT_COMMIT;
 SLstring         SLApplication::gitDate   = SL_GIT_DATE;
 SLint            SLApplication::dpi       = 0;
 //! SLApplication::configPath is overwritten in slCreateAppAndScene.
-SLstring  SLApplication::configPath   = SLstring(SL_PROJECT_ROOT) + "/data/config/";
-SLstring  SLApplication::externalPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
-SLSceneID SLApplication::sceneID      = SID_Empty;
+SLstring                    SLApplication::configPath   = SLstring(SL_PROJECT_ROOT) + "/data/config/";
+SLstring                    SLApplication::externalPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
+SLSceneID                   SLApplication::sceneID      = SID_Empty;
 deque<function<void(void)>> SLApplication::jobsToBeThreaded;
-atomic<bool> SLApplication::threadedJobIsRunning(false);
-string SLApplication::_progressMsg = "";
-atomic<int> SLApplication::_progressNum(0);
-mutex SLApplication::_mutex;
+deque<function<void(void)>> SLApplication::jobsToFollowInMain;
+atomic<bool>
+  SLApplication::jobIsRunning(false);
+string      SLApplication::_jobProgressMsg = "";
+atomic<int> SLApplication::_jobProgressNum(0);
+mutex       SLApplication::_jobMutex;
 
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function
@@ -111,41 +113,56 @@ Parallel executed job can be queued in jobsToBeThreaded. Only functions are
 allowed that do not call any OpenGL functions. So no scenegraph changes are
 allowed because they involve mostly OpenGL state and context changes.
 Only one parallel job is executed at once parallel to the main rendering thread.
+The function in jobsToFollowInMain will be executed in the main tread after the
+parallel are finished.<br>
+The handleParallelJob function gets called in slUpdateAndPaint before a new
+frame gets started. See an example parallel job definition in AppDemoGui.
 */
 void SLApplication::handleParallelJob()
 {
-    if (!SLApplication::threadedJobIsRunning &&
+    // Execute queued jobs in a parallel thread
+    if (!SLApplication::jobIsRunning &&
         SLApplication::jobsToBeThreaded.size() > 0)
     {
         function<void(void)> job = SLApplication::jobsToBeThreaded.front();
         thread               jobThread(job);
-        SLApplication::threadedJobIsRunning = true;
+        SLApplication::jobIsRunning = true;
         SLApplication::jobsToBeThreaded.pop_front();
         jobThread.detach();
+    }
+
+    // Execute the jobs to follow in the this (the main) thread
+    if (!SLApplication::jobIsRunning &&
+        SLApplication::jobsToBeThreaded.size() == 0 &&
+        SLApplication::jobsToFollowInMain.size() > 0)
+    {
+        for (auto jobToFollow : SLApplication::jobsToFollowInMain)
+            jobToFollow();
+        SLApplication::jobsToFollowInMain.clear();
     }
 }
 //-----------------------------------------------------------------------------
 //! Threadsafe setter of the progress message and number value
-void SLApplication::progressMsgNum(string msg, int num)
+void SLApplication::jobProgressMsgNum(string msg, int num)
 {
-    SLApplication::_mutex.lock();
-    SLApplication::_progressMsg = msg;
-    SLApplication::_progressNum = num;
-    SLApplication::_mutex.unlock();
+    SLApplication::_jobMutex.lock();
+    SLApplication::_jobProgressMsg = msg;
+    SLApplication::_jobProgressNum = num;
+    SLApplication::_jobMutex.unlock();
 }
 //-----------------------------------------------------------------------------
 //! Threadsafe setter of the progress message
-void SLApplication::progressMsg(string msg)
+void SLApplication::jobProgressMsg(string msg)
 {
-    SLApplication::_mutex.lock();
-    SLApplication::_progressMsg = msg;
-    SLApplication::_mutex.unlock();
+    SLApplication::_jobMutex.lock();
+    SLApplication::_jobProgressMsg = msg;
+    SLApplication::_jobMutex.unlock();
 }
 //-----------------------------------------------------------------------------
 //! Threadsafe getter of the progress message
-string SLApplication::progressMsg()
+string SLApplication::jobProgressMsg()
 {
-    lock_guard<mutex> guard(_mutex);
-    return _progressMsg;
+    lock_guard<mutex> guard(_jobMutex);
+    return _jobProgressMsg;
 }
 //-----------------------------------------------------------------------------

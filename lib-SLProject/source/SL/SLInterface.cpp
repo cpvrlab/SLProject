@@ -208,7 +208,10 @@ bool slUpdateAndPaint(int sceneViewIndex)
 
     bool sceneGotUpdated = SLApplication::scene->onUpdate();
     bool viewNeedsUpdate = sv->onPaint();
-    return sceneGotUpdated || viewNeedsUpdate;
+
+    return sceneGotUpdated ||
+           viewNeedsUpdate ||
+           SLApplication::jobIsRunning;
 }
 //-----------------------------------------------------------------------------
 /*! Global resize function that must be called whenever the OpenGL frame

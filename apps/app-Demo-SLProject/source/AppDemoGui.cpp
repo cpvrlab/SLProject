@@ -90,6 +90,7 @@ void centerNextWindow(SLSceneView* sv,
 //-----------------------------------------------------------------------------
 // Init global static variables
 SLstring AppDemoGui::configTime          = "-";
+SLbool   AppDemoGui::showProgress        = false;
 SLbool   AppDemoGui::showAbout           = false;
 SLbool   AppDemoGui::showHelp            = false;
 SLbool   AppDemoGui::showHelpCalibration = false;
@@ -190,11 +191,16 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
     // Show modeless fullscreen dialogs
     ///////////////////////////////////
 
-    if (SLApplication::threadedJobIsRunning)
+    if (SLApplication::jobIsRunning)
     {
-        centerNextWindow(sv);
-        ImGui::Begin("Job in Progress", &showAbout, ImGuiWindowFlags_NoResize);
-        ImGui::Text("Version: %s", SLApplication::version.c_str());
+        centerNextWindow(sv, 0.9f, 0.5f);
+        ImGui::Begin("Parallel Job in Progress",
+                     &showProgress,
+                     ImGuiWindowFlags_NoTitleBar);
+        ImGui::Text("Parallel Job in Progress:");
+        ImGui::Separator();
+        ImGui::Text("%s", SLApplication::jobProgressMsg().c_str());
+        ImGui::Text("Progress: %d%%", SLApplication::jobProgressNum());
         ImGui::End();
         return;
     }
@@ -956,21 +962,39 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Empty Scene", nullptr, sid == SID_Empty))
                 s->onLoad(s, sv, SID_Empty);
 
-            if (ImGui::MenuItem("Do long job multithreaded"))
+            if (ImGui::MenuItem("Multithreaded Job demo"))
             {
-                auto job = []() {
+                auto job1 = []() {
                     uint maxIter = 100000;
-                    SLApplication::progressMsg("Super long loop");
+                    SLApplication::jobProgressMsg("Super long job 1");
                     for (uint i = 0; i < maxIter; ++i)
                     {
                         cout << i << endl;
                         int progressPC = (int)((float)i / (float)maxIter * 100.0f);
-                        SLApplication::progressNum(progressPC);
+                        SLApplication::jobProgressNum(progressPC);
                     }
-                    SLApplication::threadedJobIsRunning = false;
+                    SLApplication::jobIsRunning = false;
                 };
 
-                SLApplication::jobsToBeThreaded.push_back(job);
+                auto job2 = []() {
+                    uint maxIter = 100000;
+                    SLApplication::jobProgressMsg("Super long job 2");
+                    for (uint i = 0; i < maxIter; ++i)
+                    {
+                        cout << i << endl;
+                        int progressPC = (int)((float)i / (float)maxIter * 100.0f);
+                        SLApplication::jobProgressNum(progressPC);
+                    }
+                    SLApplication::jobIsRunning = false;
+                };
+
+                auto jobToFollow1 = []() { cout << "JobToFollow1" << endl; };
+                auto jobToFollow2 = []() { cout << "JobToFollow2" << endl; };
+
+                SLApplication::jobsToBeThreaded.push_back(job1);
+                SLApplication::jobsToBeThreaded.push_back(job2);
+                SLApplication::jobsToFollowInMain.push_back(jobToFollow1);
+                SLApplication::jobsToFollowInMain.push_back(jobToFollow2);
             }
 
 #ifndef SL_OS_ANDROID

@@ -17,6 +17,7 @@
 
 class SLScene;
 class SLCVCalibration;
+
 //-----------------------------------------------------------------------------
 //! Top level class for an SLProject application.
 /*!      
@@ -58,22 +59,22 @@ class SLApplication
 
     static SLfloat dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
 
-    // Parallel treaded job handling (please read remarks on handleParallelJob)
-    static void                        handleParallelJob();
-    static deque<function<void(void)>> jobsToBeThreaded;
-    static atomic<bool>                threadedJobIsRunning;
+    // Parallel job handling (please read remarks on handleParallelJob)
+    static void   handleParallelJob();
+    static void   jobProgressMsgNum(string msg, int num);
+    static void   jobProgressMsg(string msg);
+    static void   jobProgressNum(int num) { _jobProgressNum = num; }
+    static string jobProgressMsg();
+    static int    jobProgressNum() { return _jobProgressNum; }
 
-    // Setters and getters threadsafe
-    static void   progressMsgNum(string msg, int num);
-    static void   progressMsg(string msg);
-    static void   progressNum(int num) {_progressNum = num;}
-    static string progressMsg();
-    static int    progressNum() { return _progressNum; }
+    static deque<function<void(void)>> jobsToBeThreaded;
+    static deque<function<void(void)>> jobsToFollowInMain;
+    static atomic<bool>                jobIsRunning;
 
     private:
-    static string      _progressMsg;
-    static atomic<int> _progressNum;
-    static mutex       _mutex;
+    static string      _jobProgressMsg; //!< Text message to show during progress
+    static atomic<int> _jobProgressNum; //!< Integer value to show progess
+    static mutex       _jobMutex;       //!< Mutex to protect parallel access
 };
 //-----------------------------------------------------------------------------
 #endif
