@@ -417,44 +417,38 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (SLApplication::sceneID == SID_LargeModel) //................................................
     {
-        s->name("Large Model Test");
-        s->info("Large Model with 7.2 mio. triangles.");
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 600000);
-        cam1->lookAt(0, 0, 0);
-        cam1->clipNear(20);
-        cam1->clipFar(1000000);
-        cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
-        cam1->setInitialState();
-
-        SLLightSpot* light1 = new SLLightSpot(600000, 600000, 600000, 1);
-        light1->ambient(SLCol4f(1, 1, 1));
-        light1->diffuse(SLCol4f(1, 1, 1));
-        light1->specular(SLCol4f(1, 1, 1));
-        light1->attenuation(1, 0, 0);
-
-        SLAssimpImporter importer;
-        SLNode*          largeModel = importer.load("PLY/switzerland.ply", true, nullptr
-                                           //,SLProcess_JoinIdenticalVertices
-                                           //|SLProcess_RemoveRedundantMaterials
-                                           //|SLProcess_SortByPType
-                                           //|SLProcess_FindDegenerates
-                                           //|SLProcess_FindInvalidData
-                                           //|SLProcess_SplitLargeMeshes
-        );
-
-        SLNode* scene = new SLNode("Scene");
-        scene->addChild(light1);
-        if (largeModel)
+        SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+        if (Utils::fileExists(largeFile))
         {
-            largeModel->scaleToCenter(100000.0f);
-            scene->addChild(largeModel);
-        }
-        scene->addChild(cam1);
+            s->name("Large Model Test");
+            s->info("Large Model with 7.2 mio. triangles.");
 
-        sv->camera(cam1);
-        s->root3D(scene);
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(0, 0, 220);
+            cam1->lookAt(0, 0, 0);
+            cam1->clipNear(1);
+            cam1->clipFar(10000);
+            cam1->focalDist(220);
+            cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
+            cam1->setInitialState();
+
+            SLLightSpot* light1 = new SLLightSpot(200, 200, 200, 1);
+            light1->ambient(SLCol4f(1, 1, 1));
+            light1->diffuse(SLCol4f(1, 1, 1));
+            light1->specular(SLCol4f(1, 1, 1));
+            light1->attenuation(1, 0, 0);
+
+            SLAssimpImporter importer;
+            SLNode*          largeModel = importer.load("PLY/xyzrgb_dragon.ply", true, nullptr);
+
+            SLNode* scene = new SLNode("Scene");
+            scene->addChild(light1);
+            scene->addChild(largeModel);
+            scene->addChild(cam1);
+
+            sv->camera(cam1);
+            s->root3D(scene);
+        }
     }
     else if (SLApplication::sceneID == SID_TextureBlend) //..............................................
     {

@@ -37,6 +37,7 @@
 #include <SLTransferFunction.h>
 
 #include <imgui.h>
+#include <ftplib.h>
 
 //#define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
 
@@ -178,6 +179,23 @@ After calibration the yellow wireframe cube should stick on the chessboard.\n\n\
 Please close first this info dialog on the top-left.\n\
 ";
 
+//-----------------------------------------------------------------------------
+off64_t ftpXferSizeMax = 0;
+//-----------------------------------------------------------------------------
+int ftpCallbackXfer(off64_t xfered, void* arg)
+{
+    if (ftpXferSizeMax)
+    {
+        int xferedPC = (int)((float)xfered / (float)ftpXferSizeMax * 100.0f);
+        cout << "Bytes transfered: " << xfered << " (" << xferedPC << ")" << endl;
+        SLApplication::jobProgressNum(xferedPC);
+    }
+    else
+    {
+        cout << "Bytes transfered: " << xfered << endl;
+    }
+    return xfered ? 1 : 0;
+}
 //-----------------------------------------------------------------------------
 //! This is the main building function for the GUI of the Demo apps
 /*! Is is passed to the AppDemoGui::build function in main of the app-Demo-SLProject
@@ -811,21 +829,66 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             {
                 if (ImGui::BeginMenu("General Scenes"))
                 {
-                    SLstring large1          = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
-                    SLstring large2          = SLImporter::defaultPath + "PLY/mesh_zermatt.ply";
-                    SLstring large3          = SLImporter::defaultPath + "PLY/switzerland.ply";
-                    SLbool   largeFileExists = Utils::fileExists(large1) ||
-                                             Utils::fileExists(large2) ||
-                                             Utils::fileExists(large3);
-
                     if (ImGui::MenuItem("Minimal Scene", nullptr, sid == SID_Minimal))
                     {
                         s->onLoad(s, sv, SID_Minimal);
                     }
                     if (ImGui::MenuItem("Figure Scene", nullptr, sid == SID_Figure))
                         s->onLoad(s, sv, SID_Figure);
-                    if (ImGui::MenuItem("Large Model", nullptr, sid == SID_LargeModel, largeFileExists))
-                        s->onLoad(s, sv, SID_LargeModel);
+                    if (ImGui::MenuItem("Large Model", nullptr, sid == SID_LargeModel))
+                    {
+                        SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+                        if (Utils::fileExists(largeFile))
+                            s->onLoad(s, sv, SID_LargeModel);
+                        else
+                        {
+                            auto downloadJob = []() {
+                                SLApplication::jobProgressMsg("Downloading large Dragon file from pallas.bfh.ch");
+                                ftplib ftp;
+                                if (ftp.Connect("pallas.bfh.ch:21"))
+                                {
+                                    if (ftp.Login("upload", "FaAdbD3F2a"))
+                                    {
+                                        ftp.SetCallbackXferFunction(ftpCallbackXfer);
+                                        ftp.SetCallbackBytes(1024000);
+                                        if (ftp.Chdir("test"))
+                                        {
+                                            int remoteSize = 0;
+                                            ftp.Size("xyzrgb_dragon.ply",
+                                                     &remoteSize,
+                                                     ftplib::transfermode::image);
+                                            ftpXferSizeMax   = remoteSize;
+                                            SLstring outFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+                                            if (!ftp.Get(outFile.c_str(),
+                                                         "xyzrgb_dragon.ply",
+                                                         ftplib::transfermode::image))
+                                                SL_LOG("*** ERROR: ftp.get failed. ***\n");
+                                        }
+                                        else
+                                            SL_LOG("*** ERROR: ftp.Chdir failed. ***\n");
+                                    }
+                                    else
+                                        SL_LOG("*** ERROR: ftp.Login failed. ***\n");
+                                }
+                                else
+                                    SL_LOG("*** ERROR: ftp.Connect failed. ***\n");
+
+                                ftp.Quit();
+                                SLApplication::jobIsRunning = false;
+                            };
+
+                            auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
+                                SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+                                if (Utils::fileExists(largeFile))
+                                    s->onLoad(s, sv, SID_LargeModel);
+                            };
+
+                            function<void(void)> jobNoArgs = bind(jobToFollow1, s, sv);
+
+                            SLApplication::jobsToBeThreaded.push_back(downloadJob);
+                            SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
+                        }
+                    }
                     if (ImGui::MenuItem("Mesh Loader", nullptr, sid == SID_MeshLoad))
                         s->onLoad(s, sv, SID_MeshLoad);
                     if (ImGui::MenuItem("Revolver Meshes", nullptr, sid == SID_Revolver))
@@ -965,11 +1028,11 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Multithreaded Job demo"))
             {
                 auto job1 = []() {
-                    uint maxIter = 100000;
+                    uint maxIter = 1000000;
                     SLApplication::jobProgressMsg("Super long job 1");
                     for (uint i = 0; i < maxIter; ++i)
                     {
-                        cout << i << endl;
+                        SL_LOG("%u\n", i);
                         int progressPC = (int)((float)i / (float)maxIter * 100.0f);
                         SLApplication::jobProgressNum(progressPC);
                     }
@@ -981,15 +1044,15 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     SLApplication::jobProgressMsg("Super long job 2");
                     for (uint i = 0; i < maxIter; ++i)
                     {
-                        cout << i << endl;
+                        SL_LOG("%u\n", i);
                         int progressPC = (int)((float)i / (float)maxIter * 100.0f);
                         SLApplication::jobProgressNum(progressPC);
                     }
                     SLApplication::jobIsRunning = false;
                 };
 
-                auto jobToFollow1 = []() { cout << "JobToFollow1" << endl; };
-                auto jobToFollow2 = []() { cout << "JobToFollow2" << endl; };
+                auto jobToFollow1 = []() { SL_LOG("JobToFollow1\n"); };
+                auto jobToFollow2 = []() { SL_LOG("JobToFollow2\n"); };
 
                 SLApplication::jobsToBeThreaded.push_back(job1);
                 SLApplication::jobsToBeThreaded.push_back(job2);

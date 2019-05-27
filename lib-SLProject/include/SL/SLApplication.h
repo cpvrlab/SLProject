@@ -14,6 +14,9 @@
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
 #include <SLInputManager.h>
+#include <mutex>
+
+using namespace std;
 
 class SLScene;
 class SLCVCalibration;

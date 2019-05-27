@@ -24,8 +24,6 @@ import android.hardware.SensorManager;
 import android.hardware.camera2.CameraCharacteristics;
 import android.location.Location;
 import android.location.LocationManager;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
@@ -37,8 +35,6 @@ import android.support.annotation.NonNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
 
 public class GLES3Activity extends Activity implements View.OnTouchListener, SensorEventListener {
     GLES3View                   myView;             // OpenGL view
@@ -49,15 +45,15 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     private static final int PERMISSIONS_MULTIPLE_REQUEST = 123;
 
     private int                     _currentVideoType;
-    private boolean                 _cameraPermissionGranted;
+    private boolean                 _permissionCameraGranted;
+    private boolean                 _permissionLocationGranted;
+    private boolean                 _permissionWriteStorageGranted;
     private boolean                 _permissionRequestIsOpen;
     private boolean                 _rotationSensorIsRunning = false;
     private long                    _rotationSensorStartTime = 0; //Time when rotation sensor was started
-    private boolean                 _locationPermissionGranted;
     private boolean                 _locationSensorIsRunning = false;
     private LocationManager         _locationManager;
     private GeneralLocationListener _locationListener;
-    private boolean                 _writeStoragePermissionGranted;
 
     @Override
     protected void onCreate(Bundle icicle) {
@@ -100,11 +96,12 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         if (    ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED&&
+                ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED)
         {
-            _cameraPermissionGranted = true;
-            _locationPermissionGranted = true;
-            _writeStoragePermissionGranted = true;
+            _permissionCameraGranted = true;
+            _permissionLocationGranted = true;
+            _permissionWriteStorageGranted = true;
             setupExternalDirectories();
         }
         else {
@@ -113,7 +110,8 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                     Manifest.permission.CAMERA,
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSIONS_MULTIPLE_REQUEST);
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.INTERNET}, PERMISSIONS_MULTIPLE_REQUEST);
         }
     }
 
@@ -239,30 +237,30 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         if (requestCode == PERMISSIONS_MULTIPLE_REQUEST) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.i(TAG, "onRequestPermissionsResult: CAMERA permission granted.");
-                _cameraPermissionGranted = true;
+                Log.i(TAG, "onRequestPermissionsResult: Permission CAMERA granted.");
+                _permissionCameraGranted = true;
             } else {
-                Log.i(TAG, "onRequestPermissionsResult: CAMERA permission refused.");
-                _cameraPermissionGranted = false;
+                Log.i(TAG, "onRequestPermissionsResult: Permission CAMERA refused.");
+                _permissionCameraGranted = false;
             }
             if (grantResults.length > 2 &&
                     grantResults[1] == PackageManager.PERMISSION_GRANTED &&
                     grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-                Log.i(TAG, "onRequestPermissionsResult: GPS sensor permission granted.");
-                _locationPermissionGranted = true;
+                Log.i(TAG, "onRequestPermissionsResult: Permission GPS SENSOR granted.");
+                _permissionLocationGranted = true;
             } else {
-                Log.i(TAG, "onRequestPermissionsResult: GPS sensor permission refused.");
-                _locationPermissionGranted = false;
+                Log.i(TAG, "onRequestPermissionsResult: Permission GPS SENSOR refused.");
+                _permissionLocationGranted = false;
             }
             if (grantResults.length > 3 &&
                     grantResults[3] == PackageManager.PERMISSION_GRANTED ) {
-                Log.i(TAG, "onRequestPermissionsResult: Write external storage permission granted.");
-                _writeStoragePermissionGranted = true;
+                Log.i(TAG, "onRequestPermissionsResult: Permission WRITE EXTERNAL STORAGE granted.");
+                _permissionWriteStorageGranted = true;
                 //read available external files and update slproject
                 setupExternalDirectories();
             } else {
-                Log.i(TAG, "onRequestPermissionsResult: Write external storage permission refused.");
-                _writeStoragePermissionGranted = false;
+                Log.i(TAG, "onRequestPermissionsResult: Permission WRITE EXTERNAL STORAGE refused.");
+                _permissionWriteStorageGranted = false;
             }
             _permissionRequestIsOpen = false;
         }
@@ -460,7 +458,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
      * @param requestedVideoSizeIndex (0 = 640x480, -1 = the next smaller, +1 = the next bigger)
      */
     public void cameraStart(int requestedVideoType, int requestedVideoSizeIndex) {
-        if (!_cameraPermissionGranted) return;
+        if (!_permissionCameraGranted) return;
 
         if (!GLES3Camera2Service.isTransitioning) {
             if (!GLES3Camera2Service.isRunning) {
@@ -498,7 +496,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
      * While the service is stopping no other calls to stopService are allowed.
      */
     public void cameraStop() {
-        if (!_cameraPermissionGranted) return;
+        if (!_permissionCameraGranted) return;
 
         if (!GLES3Camera2Service.isTransitioning) {
             if (GLES3Camera2Service.isRunning) {
