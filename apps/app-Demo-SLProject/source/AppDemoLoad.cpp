@@ -417,7 +417,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (SLApplication::sceneID == SID_LargeModel) //................................................
     {
+#ifdef SL_OS_ANDROID
+        SLstring largeFile = SLImporter::defaultPath + "xyzrgb_dragon.ply";
+#else
         SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+#endif
         if (Utils::fileExists(largeFile))
         {
             s->name("Large Model Test");

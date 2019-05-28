@@ -68,8 +68,8 @@ public class GLES3View extends GLSurfaceView
             int w = GLES3Lib.view.getWidth();
             int h = GLES3Lib.view.getHeight();
             GLES3Lib.onInit(w, h,
-                    GLES3Lib.dpi,
-                    GLES3Lib.App.getApplicationContext().getFilesDir().getAbsolutePath());
+                            GLES3Lib.dpi,
+                            GLES3Lib.App.getApplicationContext().getFilesDir().getAbsolutePath());
 
             // Get main event handler of UI thread
             mainLoop = new Handler(Looper.getMainLooper());

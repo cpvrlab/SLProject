@@ -835,6 +835,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }
                     if (ImGui::MenuItem("Figure Scene", nullptr, sid == SID_Figure))
                         s->onLoad(s, sv, SID_Figure);
+#ifndef SL_OS_ANDROID
                     if (ImGui::MenuItem("Large Model", nullptr, sid == SID_LargeModel))
                     {
                         SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
@@ -889,6 +890,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                             SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
                         }
                     }
+#endif
                     if (ImGui::MenuItem("Mesh Loader", nullptr, sid == SID_MeshLoad))
                         s->onLoad(s, sv, SID_MeshLoad);
                     if (ImGui::MenuItem("Revolver Meshes", nullptr, sid == SID_Revolver))
@@ -2276,11 +2278,17 @@ void AppDemoGui::saveConfig()
     ImGuiStyle& style               = ImGui::GetStyle();
     SLstring    fullPathAndFilename = SLApplication::configPath +
                                    SLApplication::name + ".yml";
+
+    if (!Utils::fileExists(fullPathAndFilename))
+        SL_LOG("New config file will be written: %s\n",
+               fullPathAndFilename.c_str());
+
     SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::WRITE);
 
     if (!fs.isOpened())
     {
-        SL_LOG("Failed to open file for writing: %s", fullPathAndFilename.c_str());
+        SL_LOG("Failed to open file for writing: %s\n",
+               fullPathAndFilename.c_str());
         SL_EXIT_MSG("Exit in AppDemoGui::saveConfig");
     }
 
