@@ -46,6 +46,7 @@ atomic<bool>
   SLApplication::jobIsRunning(false);
 string      SLApplication::_jobProgressMsg = "";
 atomic<int> SLApplication::_jobProgressNum(0);
+atomic<int> SLApplication::_jobProgressMax(0);
 mutex       SLApplication::_jobMutex;
 
 //-----------------------------------------------------------------------------
@@ -117,6 +118,10 @@ The function in jobsToFollowInMain will be executed in the main tread after the
 parallel are finished.<br>
 The handleParallelJob function gets called in slUpdateAndPaint before a new
 frame gets started. See an example parallel job definition in AppDemoGui.
+If a parallel job is running the jobProgressMsg can be shown during execution.
+If jobProgressMax is 0 the jobProgressNum value can be shown an number.
+If jobProgressMax is not 0 the fraction of jobProgressNum/jobProgressMax can
+be shown within a progress bar. See the example in AppDemoGui::build.
 */
 void SLApplication::handleParallelJob()
 {
@@ -140,15 +145,6 @@ void SLApplication::handleParallelJob()
             jobToFollow();
         SLApplication::jobsToFollowInMain.clear();
     }
-}
-//-----------------------------------------------------------------------------
-//! Threadsafe setter of the progress message and number value
-void SLApplication::jobProgressMsgNum(string msg, int num)
-{
-    SLApplication::_jobMutex.lock();
-    SLApplication::_jobProgressMsg = msg;
-    SLApplication::_jobProgressNum = num;
-    SLApplication::_jobMutex.unlock();
 }
 //-----------------------------------------------------------------------------
 //! Threadsafe setter of the progress message

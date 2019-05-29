@@ -481,10 +481,10 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    scrWidth         = 640;
-    scrHeight        = 480;
-    scrWdivH         = (float)scrWidth / (float)scrHeight;
-    fixAspectRatio   = false; //we want to fix aspect ratio for some video apps
+    scrWidth       = 640;
+    scrHeight      = 480;
+    scrWdivH       = (float)scrWidth / (float)scrHeight;
+    fixAspectRatio = false; //we want to fix aspect ratio for some video apps
     touch2.set(-1, -1);
     touchDelta.set(-1, -1);
 

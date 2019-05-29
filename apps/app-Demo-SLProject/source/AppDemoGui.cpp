@@ -209,6 +209,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
     // Show modeless fullscreen dialogs
     ///////////////////////////////////
 
+    // if parallel jobs are running show only the progress informations
     if (SLApplication::jobIsRunning)
     {
         centerNextWindow(sv, 0.9f, 0.5f);
@@ -218,7 +219,20 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::Text("Parallel Job in Progress:");
         ImGui::Separator();
         ImGui::Text("%s", SLApplication::jobProgressMsg().c_str());
-        ImGui::Text("Progress: %d%%", SLApplication::jobProgressNum());
+        if (SLApplication::jobProgressMax() > 0)
+        {
+            float num = (float)SLApplication::jobProgressNum();
+            float max = (float)SLApplication::jobProgressMax();
+            ImGui::ProgressBar(num / max);
+        }
+        else
+            ImGui::Text("Progress: %d%%", SLApplication::jobProgressNum());
+
+        ImGui::Separator();
+        ImGui::Text("Parallel Jobs to follow: %lu",
+                    SLApplication::jobsToBeThreaded.size());
+        ImGui::Text("Sequential Jobs to follow: %lu",
+                    SLApplication::jobsToFollowInMain.size());
         ImGui::End();
         return;
     }
@@ -845,6 +859,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         {
                             auto downloadJob = []() {
                                 SLApplication::jobProgressMsg("Downloading large Dragon file from pallas.bfh.ch");
+                                SLApplication::jobProgressMax(100);
                                 ftplib ftp;
                                 if (ftp.Connect("pallas.bfh.ch:21"))
                                 {
@@ -1032,6 +1047,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 auto job1 = []() {
                     uint maxIter = 1000000;
                     SLApplication::jobProgressMsg("Super long job 1");
+                    SLApplication::jobProgressMax(100);
                     for (uint i = 0; i < maxIter; ++i)
                     {
                         SL_LOG("%u\n", i);
@@ -1044,6 +1060,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 auto job2 = []() {
                     uint maxIter = 100000;
                     SLApplication::jobProgressMsg("Super long job 2");
+                    SLApplication::jobProgressMax(100);
                     for (uint i = 0; i < maxIter; ++i)
                     {
                         SL_LOG("%u\n", i);
@@ -1089,8 +1106,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Animation off", "O", s->stopAnimations()))
                 s->stopAnimations(!s->stopAnimations());
 
+#if defined(SL_OS_ANDROID) || defined(SL_OS_IOS)
             ImGui::Separator();
-
             if (ImGui::BeginMenu("Rotation Sensor"))
             {
                 if (ImGui::MenuItem("Use Device Rotation (IMU)", nullptr, SLApplication::devRot.isUsed()))
@@ -1118,7 +1135,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 ImGui::EndMenu();
             }
-
+#endif
             ImGui::Separator();
 
             if (ImGui::BeginMenu("Video"))
@@ -1161,14 +1178,14 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Calibration"))
                 {
-                    if (ImGui::MenuItem("Start Calibration on Main Camera"))
+                    if (ImGui::MenuItem("Start Calibration (Main Camera)"))
                     {
                         s->onLoad(s, sv, SID_VideoCalibrateMain);
                         showHelpCalibration = true;
                         showInfosScene      = true;
                     }
 
-                    if (ImGui::MenuItem("Start Calibration on Scnd. Camera", nullptr, false, SLCVCapture::hasSecondaryCamera))
+                    if (ImGui::MenuItem("Start Calibration (Scnd. Camera)", nullptr, false, SLCVCapture::hasSecondaryCamera))
                     {
                         s->onLoad(s, sv, SID_VideoCalibrateScnd);
                         showHelpCalibration = true;
@@ -1178,7 +1195,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Undistort Image", nullptr, ac->showUndistorted(), ac->state() == CS_calibrated))
                         ac->showUndistorted(!ac->showUndistorted());
 
-                    if (ImGui::MenuItem("Zero Tangent Distortion", nullptr, ac->calibZeroTangentDist()))
+                    if (ImGui::MenuItem("No Tangent Distortion", nullptr, ac->calibZeroTangentDist()))
                         ac->toggleZeroTangentDist();
 
                     if (ImGui::MenuItem("Fix Aspect Ratio", nullptr, ac->calibFixAspectRatio()))
@@ -1190,7 +1207,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::MenuItem("Show Tracking Detection", nullptr, s->showDetection()))
+                if (ImGui::MenuItem("Show Detection", nullptr, s->showDetection()))
                     s->showDetection(!s->showDetection());
 
                 if (ImGui::BeginMenu("Feature Tracking", featureTracker != nullptr))
@@ -1906,7 +1923,7 @@ void AppDemoGui::buildProperties(SLScene* s)
             if (mesh)
             {
                 SLuint      v = (SLuint)mesh->P.size();
-                SLuint      t = (SLuint)(mesh->I16.size() ? mesh->I16.size() : mesh->I32.size());
+                SLuint      t = (SLuint)(mesh->I16.size() ? mesh->I16.size() / 3 : mesh->I32.size() / 3);
                 SLMaterial* m = mesh->mat();
                 ImGui::Text("Mesh Name       : %s", mesh->name().c_str());
                 ImGui::Text("No. of Vertices : %u", v);

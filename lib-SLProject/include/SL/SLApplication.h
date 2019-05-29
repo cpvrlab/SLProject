@@ -64,19 +64,22 @@ class SLApplication
 
     // Parallel job handling (please read remarks on handleParallelJob)
     static void   handleParallelJob();
-    static void   jobProgressMsgNum(string msg, int num);
+
     static void   jobProgressMsg(string msg);
     static void   jobProgressNum(int num) { _jobProgressNum = num; }
+    static void   jobProgressMax(int max) { _jobProgressMax = max; }
     static string jobProgressMsg();
     static int    jobProgressNum() { return _jobProgressNum; }
+    static int    jobProgressMax() { return _jobProgressMax; }
 
-    static deque<function<void(void)>> jobsToBeThreaded;
-    static deque<function<void(void)>> jobsToFollowInMain;
-    static atomic<bool>                jobIsRunning;
+    static deque<function<void(void)>> jobsToBeThreaded;   //!< queue of functions to be executed in a thread
+    static deque<function<void(void)>> jobsToFollowInMain; //!< queue of function to follow in the main thread
+    static atomic<bool>                jobIsRunning;       //!< True if a parallel job is running
 
     private:
     static string      _jobProgressMsg; //!< Text message to show during progress
     static atomic<int> _jobProgressNum; //!< Integer value to show progess
+    static atomic<int> _jobProgressMax; //!< Max. integer progress value
     static mutex       _jobMutex;       //!< Mutex to protect parallel access
 };
 //-----------------------------------------------------------------------------
