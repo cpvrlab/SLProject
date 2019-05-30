@@ -29,8 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
  
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef COMMON_UTILS_H
+#define COMMON_UTILS_H
 
 // Otherwise #defines like M_PI are undeclared under Visual Studio
 #define _USE_MATH_DEFINES

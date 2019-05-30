@@ -873,7 +873,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                             ftp.Size("xyzrgb_dragon.ply",
                                                      &remoteSize,
                                                      ftplib::transfermode::image);
-                                            ftpXferSizeMax   = remoteSize;
+                                            ftpXferSizeMax  = remoteSize;
+                                            SLstring plyDir = SLImporter::defaultPath + "PLY";
+                                            if (!Utils::dirExists(plyDir))
+                                                Utils::makeDir(plyDir);
                                             SLstring outFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
                                             if (!ftp.Get(outFile.c_str(),
                                                          "xyzrgb_dragon.ply",
