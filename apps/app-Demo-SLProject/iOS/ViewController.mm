@@ -20,6 +20,7 @@
 // C++ includes for the SceneLibrary
 #include <SLMath.h>
 #include <Utils.h>
+#include "Utils_iOS.h"
 #include <SLInterface.h>
 #include <SLCVCapture.h>
 #include <AppDemoGui.h>
@@ -128,8 +129,8 @@ float GetSeconds()
     else dpi = 160 * screenScale;
    
     SLVstring cmdLineArgs;
-    SLstring exeDir = SLFileSystem::getCurrentWorkingDir();
-    SLstring configDir = SLFileSystem::getAppsWritableDir();
+    SLstring exeDir = Utils_iOS::getCurrentWorkingDir();
+    SLstring configDir = Utils_iOS::getAppsWritableDir();
     
     /////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,

@@ -7,24 +7,10 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
-#include <stdafx.h>
-#ifdef SL_MEMLEAKDETECT
-#include <nvwa/debug_new.h>   // memory leak detector
-#endif
-
 #include "Utils_iOS.h"
+#include <Utils.h>
+#include <sys/stat.h> //dirent
 
-//-----------------------------------------------------------------------------
-SLbool Utils_iOS::dirExists(SLstring& path)
-{
-    struct stat info;
-    if(stat(path.c_str(), &info ) != 0)
-        return false;
-    else if(info.st_mode & S_IFDIR)
-        return true;
-    else
-        return false;
-}
 //-----------------------------------------------------------------------------
 /*! Utils_iOS::fileExists returns true if the file exists. This code works
 only Apple OSX and iOS. If no file matches, it checks all files of the same
@@ -33,7 +19,7 @@ passed filename is converted to the existing casesensitive filename.
 Because I was not able to do this task in C++, I have to do this with a
 C++/ObjectiveC mix.
 */
-SLbool Utils_iOS::fileExists(SLstring& pathfilename)
+bool Utils_iOS::fileExists(string& pathfilename)
 {  
    // This stat compare is done casesensitive only on ARM hardware
    struct stat stFileInfo;
@@ -41,8 +27,8 @@ SLbool Utils_iOS::fileExists(SLstring& pathfilename)
       return true;
    
    // Get path and file name seperately and as NSString
-   SLstring path = SLUtils::getPath(pathfilename);
-   SLstring file = SLUtils::getFileName(pathfilename);
+   std::string path = Utils::getPath(pathfilename);
+   std::string file = Utils::getFileName(pathfilename);
    NSString *nsPath = [NSString stringWithCString:path.c_str() 
                        encoding:[NSString defaultCStringEncoding]];
    NSString *nsFile = [NSString stringWithCString:file.c_str() 
@@ -76,7 +62,7 @@ SLbool Utils_iOS::fileExists(SLstring& pathfilename)
    return false;
 }
 //-----------------------------------------------------------------------------
-SLstring Utils_iOS::getAppsWritableDir()
+std::string Utils_iOS::getAppsWritableDir()
 {
     // Get library directory for config file
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
@@ -98,7 +84,7 @@ SLstring Utils_iOS::getAppsWritableDir()
     return configDir + "/";
 }
 //-----------------------------------------------------------------------------
-SLstring Utils_iOS::getCurrentWorkingDir()
+std::string Utils_iOS::getCurrentWorkingDir()
 {
     // Get the main bundle path and pass it the SLTexture and SLShaderProg
     // This will be the default storage location for textures and shaders
@@ -107,7 +93,7 @@ SLstring Utils_iOS::getCurrentWorkingDir()
     return cwd + "/";
 }
 //-----------------------------------------------------------------------------
-SLbool Utils_iOS::deleteFile(SLstring& pathfilename)
+bool Utils_iOS::deleteFile(std::string& pathfilename)
 {
     if (Utils_iOS::fileExists(pathfilename))
         return remove(pathfilename.c_str()) != 0;

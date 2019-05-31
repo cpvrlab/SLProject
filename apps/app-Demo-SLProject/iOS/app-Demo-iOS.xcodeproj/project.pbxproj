@@ -31,6 +31,8 @@
 		412F897A1FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag in Resources */ = {isa = PBXBuildFile; fileRef = 412F89701FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag */; };
 		412F897B1FF58D94004D5982 /* ADS.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89711FF58D94004D5982 /* ADS.vert */; };
 		41394E8B22A13E2B00C2448F /* Utils_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41394E8A22A13E2A00C2448F /* Utils_iOS.mm */; };
+		41394E9122A1428800C2448F /* SLAnimKeyframe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41394E9022A1428800C2448F /* SLAnimKeyframe.cpp */; };
+		41394E9322A1436000C2448F /* SLKeyframeCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41394E9222A1436000C2448F /* SLKeyframeCamera.cpp */; };
 		413B3631156CF93100B8284A /* SLCurveBezier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B362D156CF93100B8284A /* SLCurveBezier.cpp */; };
 		413B3635156CF97900B8284A /* SLAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B3634156CF97900B8284A /* SLAnimation.cpp */; };
 		413F1C4B2067DCD900AEF871 /* lbfmodel.yaml in Resources */ = {isa = PBXBuildFile; fileRef = 413F1C492067DCD900AEF871 /* lbfmodel.yaml */; };
@@ -98,7 +100,6 @@
 		4156501A148AA64F00A3CAA6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 41565015148AA64F00A3CAA6 /* main.m */; };
 		4156501B148AA64F00A3CAA6 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41565017148AA64F00A3CAA6 /* ViewController.mm */; };
 		41618D6816C1855500641165 /* Default-Landscape@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 41618D6316C1855500641165 /* Default-Landscape@2x~ipad.png */; };
-		41627EA215CA8CE70023B936 /* SL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E8F15CA8CE70023B936 /* SL.cpp */; };
 		41627EA515CA8CE70023B936 /* SLInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9715CA8CE70023B936 /* SLInterface.cpp */; };
 		41627EA615CA8CE70023B936 /* SLTexFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9A15CA8CE70023B936 /* SLTexFont.cpp */; };
 		41627EA815CA8CE70023B936 /* stdafx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627EA015CA8CE70023B936 /* stdafx.cpp */; };
@@ -592,7 +593,6 @@
 		41A355021A7E63E100791841 /* SLAnimPlayback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A354FB1A7E63E100791841 /* SLAnimPlayback.cpp */; };
 		41A355031A7E63E100791841 /* SLAnimTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A354FC1A7E63E100791841 /* SLAnimTrack.cpp */; };
 		41A355041A7E63E100791841 /* SLJoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A354FD1A7E63E100791841 /* SLJoint.cpp */; };
-		41A355051A7E63E100791841 /* SLKeyframe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A354FE1A7E63E100791841 /* SLKeyframe.cpp */; };
 		41A355061A7E63E100791841 /* SLLens.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A354FF1A7E63E100791841 /* SLLens.cpp */; };
 		41A355071A7E63E100791841 /* SLSkeleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A355001A7E63E100791841 /* SLSkeleton.cpp */; };
 		41A3550A1A7E676800791841 /* SLInputDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A355081A7E676800791841 /* SLInputDevice.cpp */; };
@@ -693,11 +693,14 @@
 		412F89701FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = VolumeRenderingRayCastLighted.frag; path = ../../../data/shaders/VolumeRenderingRayCastLighted.frag; sourceTree = "<group>"; };
 		412F89711FF58D94004D5982 /* ADS.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADS.vert; path = ../../../data/shaders/ADS.vert; sourceTree = "<group>"; };
 		41394E8A22A13E2A00C2448F /* Utils_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Utils_iOS.mm; sourceTree = "<group>"; };
+		41394E8E22A13F8600C2448F /* Utils_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils_iOS.h; sourceTree = "<group>"; };
+		41394E8F22A1427600C2448F /* SLAnimKeyframe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAnimKeyframe.h; path = "../../../lib-SLProject/include/SLAnimKeyframe.h"; sourceTree = SOURCE_ROOT; };
+		41394E9022A1428800C2448F /* SLAnimKeyframe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLAnimKeyframe.cpp; path = "../../../lib-SLProject/source/SLAnimKeyframe.cpp"; sourceTree = SOURCE_ROOT; };
+		41394E9222A1436000C2448F /* SLKeyframeCamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLKeyframeCamera.cpp; path = "../../../lib-SLProject/source/SLKeyframeCamera.cpp"; sourceTree = SOURCE_ROOT; };
 		413B362C156CF93100B8284A /* SLCurve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCurve.h; path = "../../../lib-SLProject/include/math/SLCurve.h"; sourceTree = SOURCE_ROOT; };
 		413B362D156CF93100B8284A /* SLCurveBezier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCurveBezier.cpp; path = "../../../lib-SLProject/source/math/SLCurveBezier.cpp"; sourceTree = SOURCE_ROOT; };
 		413B362E156CF93100B8284A /* SLCurveBezier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCurveBezier.h; path = "../../../lib-SLProject/include/math/SLCurveBezier.h"; sourceTree = SOURCE_ROOT; };
 		413B3630156CF93100B8284A /* SLQuat4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLQuat4.h; path = "../../../lib-SLProject/include/math/SLQuat4.h"; sourceTree = SOURCE_ROOT; };
-		413B3632156CF96700B8284A /* SLKeyframe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLKeyframe.h; path = "../../../lib-SLProject/include/SLKeyframe.h"; sourceTree = SOURCE_ROOT; };
 		413B3633156CF96F00B8284A /* SLAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAnimation.h; path = "../../../lib-SLProject/include/SLAnimation.h"; sourceTree = SOURCE_ROOT; };
 		413B3634156CF97900B8284A /* SLAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLAnimation.cpp; path = "../../../lib-SLProject/source/SLAnimation.cpp"; sourceTree = SOURCE_ROOT; };
 		413F1C492067DCD900AEF871 /* lbfmodel.yaml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = lbfmodel.yaml; path = ../../../data/calibrations/lbfmodel.yaml; sourceTree = "<group>"; };
@@ -779,7 +782,6 @@
 		41565016148AA64F00A3CAA6 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = SOURCE_ROOT; };
 		41565017148AA64F00A3CAA6 /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = SOURCE_ROOT; };
 		41618D6316C1855500641165 /* Default-Landscape@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Landscape@2x~ipad.png"; path = "images/Default-Landscape@2x~ipad.png"; sourceTree = SOURCE_ROOT; };
-		41627E8F15CA8CE70023B936 /* SL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SL.cpp; path = "../../../lib-SLProject/source/SL/SL.cpp"; sourceTree = SOURCE_ROOT; };
 		41627E9015CA8CE70023B936 /* SL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SL.h; path = "../../../lib-SLProject/include/SL/SL.h"; sourceTree = SOURCE_ROOT; };
 		41627E9115CA8CE70023B936 /* SLDrawBits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDrawBits.h; path = "../../../lib-SLProject/include/SLDrawBits.h"; sourceTree = SOURCE_ROOT; };
 		41627E9215CA8CE70023B936 /* SLEventHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLEventHandler.h; path = "../../../lib-SLProject/include/SLEventHandler.h"; sourceTree = SOURCE_ROOT; };
@@ -1505,7 +1507,6 @@
 		41A354FB1A7E63E100791841 /* SLAnimPlayback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLAnimPlayback.cpp; path = "../../../lib-SLProject/source/SLAnimPlayback.cpp"; sourceTree = SOURCE_ROOT; };
 		41A354FC1A7E63E100791841 /* SLAnimTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLAnimTrack.cpp; path = "../../../lib-SLProject/source/SLAnimTrack.cpp"; sourceTree = SOURCE_ROOT; };
 		41A354FD1A7E63E100791841 /* SLJoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLJoint.cpp; path = "../../../lib-SLProject/source/SLJoint.cpp"; sourceTree = SOURCE_ROOT; };
-		41A354FE1A7E63E100791841 /* SLKeyframe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLKeyframe.cpp; path = "../../../lib-SLProject/source/SLKeyframe.cpp"; sourceTree = SOURCE_ROOT; };
 		41A354FF1A7E63E100791841 /* SLLens.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLLens.cpp; path = "../../../lib-SLProject/source/SLLens.cpp"; sourceTree = SOURCE_ROOT; };
 		41A355001A7E63E100791841 /* SLSkeleton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLSkeleton.cpp; path = "../../../lib-SLProject/source/SLSkeleton.cpp"; sourceTree = SOURCE_ROOT; };
 		41A355081A7E676800791841 /* SLInputDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLInputDevice.cpp; path = "../../../lib-SLProject/source/SLInputDevice.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1705,38 +1706,37 @@
 		41627E8D15CA8CA90023B936 /* SL */ = {
 			isa = PBXGroup;
 			children = (
+				41627E9015CA8CE70023B936 /* SL.h */,
 				4178D6662020A9C000F4F699 /* SLApplication.cpp */,
 				4178D6652020A9AF00F4F699 /* SLApplication.h */,
-				418178261FC5D68F00200D02 /* SLDeviceLocation.cpp */,
-				418178251FC5D68F00200D02 /* SLDeviceRotation.cpp */,
-				418178241FC5D66B00200D02 /* SLDeviceLocation.h */,
-				418178221FC5D66B00200D02 /* SLDeviceRotation.h */,
-				414FE8F31F1506CF00F2FD4D /* SLTransferFunction.h */,
-				414FE8F01F1506BC00F2FD4D /* SLTransferFunction.cpp */,
-				41627E9015CA8CE70023B936 /* SL.h */,
-				41627E8F15CA8CE70023B936 /* SL.cpp */,
-				4198070E1959B91C0048085E /* SLEnums.h */,
-				419E11A51B74AED200203E70 /* SLBackground.h */,
-				419E11A71B74AF0000203E70 /* SLBackground.cpp */,
-				41A355081A7E676800791841 /* SLInputDevice.cpp */,
-				41A355091A7E676800791841 /* SLInputManager.cpp */,
-				41A354E91A7E634F00791841 /* SLImporter.cpp */,
 				41A354EA1A7E634F00791841 /* SLAssimpImporter.cpp */,
 				41B3821E18D593D1000F37CC /* SLAverage.h */,
-				41E45FFE176C8F6800AB4653 /* SLTimer.cpp */,
-				41E45FFF176C8F6800AB4653 /* SLTimer.h */,
+				419E11A71B74AF0000203E70 /* SLBackground.cpp */,
+				419E11A51B74AED200203E70 /* SLBackground.h */,
+				418178261FC5D68F00200D02 /* SLDeviceLocation.cpp */,
+				418178241FC5D66B00200D02 /* SLDeviceLocation.h */,
+				418178251FC5D68F00200D02 /* SLDeviceRotation.cpp */,
+				418178221FC5D66B00200D02 /* SLDeviceRotation.h */,
 				41627E9115CA8CE70023B936 /* SLDrawBits.h */,
+				4198070E1959B91C0048085E /* SLEnums.h */,
 				41627E9215CA8CE70023B936 /* SLEventHandler.h */,
+				41A354E91A7E634F00791841 /* SLImporter.cpp */,
+				41A355081A7E676800791841 /* SLInputDevice.cpp */,
+				41A355091A7E676800791841 /* SLInputManager.cpp */,
 				41627E9715CA8CE70023B936 /* SLInterface.cpp */,
 				41627E9815CA8CE70023B936 /* SLInterface.h */,
 				41627E9915CA8CE70023B936 /* SLObject.h */,
+				41C5EEE0175B1A340005A588 /* SLParallel.h */,
 				41627E9A15CA8CE70023B936 /* SLTexFont.cpp */,
 				41627E9B15CA8CE70023B936 /* SLTexFont.h */,
+				41E45FFE176C8F6800AB4653 /* SLTimer.cpp */,
+				41E45FFF176C8F6800AB4653 /* SLTimer.h */,
+				414FE8F01F1506BC00F2FD4D /* SLTransferFunction.cpp */,
+				414FE8F31F1506CF00F2FD4D /* SLTransferFunction.h */,
 				41627E9E15CA8CE70023B936 /* SLUtils.h */,
 				41627E9F15CA8CE70023B936 /* SLVector.h */,
 				41627EA015CA8CE70023B936 /* stdafx.cpp */,
 				41627EA115CA8CE70023B936 /* stdafx.h */,
-				41C5EEE0175B1A340005A588 /* SLParallel.h */,
 			);
 			name = SL;
 			sourceTree = SOURCE_ROOT;
@@ -2158,6 +2158,7 @@
 				418E0C5E14892AC000C6274F /* SLCamera.h */,
 				418015131959B51200D3226D /* SLNode.cpp */,
 				418E0C6714892AC000C6274F /* SLNode.h */,
+				41394E9222A1436000C2448F /* SLKeyframeCamera.cpp */,
 				418E0C39148929C800C6274F /* SLSamples2D.cpp */,
 				41A6A0811FF588A400C795A4 /* SLSkybox.h */,
 				41A6A07F1FF5887200C795A4 /* SLSkybox.cpp */,
@@ -2251,6 +2252,7 @@
 				41565014148AA64F00A3CAA6 /* comgr-Prefix.pch */,
 				41565015148AA64F00A3CAA6 /* main.m */,
 				41B9939A148AAD2B00D98AB7 /* SceneLib-Info.plist */,
+				41394E8E22A13F8600C2448F /* Utils_iOS.h */,
 				41394E8A22A13E2A00C2448F /* Utils_iOS.mm */,
 				41565008148AA62400A3CAA6 /* ViewController_iPad.xib */,
 				4156500A148AA62400A3CAA6 /* ViewController_iPhone.xib */,
@@ -2695,14 +2697,14 @@
 		41A354ED1A7E638200791841 /* Animation */ = {
 			isa = PBXGroup;
 			children = (
-				413B3632156CF96700B8284A /* SLKeyframe.h */,
+				41394E9022A1428800C2448F /* SLAnimKeyframe.cpp */,
+				41394E8F22A1427600C2448F /* SLAnimKeyframe.h */,
 				413B3634156CF97900B8284A /* SLAnimation.cpp */,
 				413B3633156CF96F00B8284A /* SLAnimation.h */,
 				41A354FA1A7E63E100791841 /* SLAnimManager.cpp */,
 				41A354FB1A7E63E100791841 /* SLAnimPlayback.cpp */,
 				41A354FC1A7E63E100791841 /* SLAnimTrack.cpp */,
 				41A354FD1A7E63E100791841 /* SLJoint.cpp */,
-				41A354FE1A7E63E100791841 /* SLKeyframe.cpp */,
 				41A355001A7E63E100791841 /* SLSkeleton.cpp */,
 			);
 			name = Animation;
@@ -3351,6 +3353,7 @@
 				419808831959BA670048085E /* IFCBoolean.cpp in Sources */,
 				419808EB1959BA670048085E /* SMDLoader.cpp in Sources */,
 				419808841959BA670048085E /* IFCMaterial.cpp in Sources */,
+				41394E9322A1436000C2448F /* SLKeyframeCamera.cpp in Sources */,
 				419808AE1959BA670048085E /* STEPFileReader.cpp in Sources */,
 				41EAAE0B2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp in Sources */,
 				414AC53B1F52A8070003867A /* SLCVFeatureManager.cpp in Sources */,
@@ -3415,7 +3418,6 @@
 				419808E51959BA670048085E /* PostStepRegistry.cpp in Sources */,
 				419F43441959C072009D9E2E /* unzip.c in Sources */,
 				CF3F571A1DE5906C00928DDD /* SLCVTracked.cpp in Sources */,
-				41A355051A7E63E100791841 /* SLKeyframe.cpp in Sources */,
 				419808B71959BA670048085E /* 3DSLoader.cpp in Sources */,
 				418152C322A00FEE0080ED72 /* Utils.cpp in Sources */,
 				419808E91959BA670048085E /* RemoveComments.cpp in Sources */,
@@ -3432,6 +3434,7 @@
 				419808EE1959BA670048085E /* STLExporter.cpp in Sources */,
 				4198086A1959BA670048085E /* BlenderModifier.cpp in Sources */,
 				419808A51959BA670048085E /* Q3DLoader.cpp in Sources */,
+				41394E9122A1428800C2448F /* SLAnimKeyframe.cpp in Sources */,
 				419808621959BA670048085E /* ASEParser.cpp in Sources */,
 				4143337A1DE03D590027E1C3 /* SLCVCapture.cpp in Sources */,
 				419808C71959BA670048085E /* ConvertToLHProcess.cpp in Sources */,
@@ -3452,7 +3455,6 @@
 				41A355071A7E63E100791841 /* SLSkeleton.cpp in Sources */,
 				419808781959BA670048085E /* FBXDocumentUtil.cpp in Sources */,
 				419808C41959BA670048085E /* BVHLoader.cpp in Sources */,
-				41627EA215CA8CE70023B936 /* SL.cpp in Sources */,
 				414333861DE03F0C0027E1C3 /* SLLightSpot.cpp in Sources */,
 				419808A61959BA670048085E /* RemoveRedundantMaterials.cpp in Sources */,
 				419808971959BA670048085E /* ObjFileParser.cpp in Sources */,
@@ -3768,6 +3770,7 @@
 					"../../../externals/prebuilt/iosV8_opencv_3.4.0/include/**",
 					../../../externals/utils/thirdparty/asio/include,
 					"../../../externals/utils/lib-Utils/source",
+					../../../externals/utils/thirdparty/ftplibpp,
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -3844,6 +3847,7 @@
 					"../../../externals/prebuilt/iosV8_opencv_3.4.0/include/**",
 					../../../externals/utils/thirdparty/asio/include,
 					"../../../externals/utils/lib-Utils/source",
+					../../../externals/utils/thirdparty/ftplibpp,
 				);
 				"HEADER_SEARCH_PATHS[arch=*]" = "";
 				INFOPLIST_FILE = "SceneLib-Info.plist";

@@ -877,11 +877,15 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                             SLstring plyDir = SLImporter::defaultPath + "PLY";
                                             if (!Utils::dirExists(plyDir))
                                                 Utils::makeDir(plyDir);
-                                            SLstring outFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
-                                            if (!ftp.Get(outFile.c_str(),
-                                                         "xyzrgb_dragon.ply",
-                                                         ftplib::transfermode::image))
-                                                SL_LOG("*** ERROR: ftp.get failed. ***\n");
+                                            if (Utils::dirExists(plyDir))
+                                            {   SLstring outFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+                                                if (!ftp.Get(outFile.c_str(),
+                                                             "xyzrgb_dragon.ply",
+                                                             ftplib::transfermode::image))
+                                                    SL_LOG("*** ERROR: ftp.get failed. ***\n");
+                                            }
+                                            else
+                                                SL_LOG("*** ERROR: Utils::makeDir %s failed. ***\n", plyDir.c_str());
                                         }
                                         else
                                             SL_LOG("*** ERROR: ftp.Chdir failed. ***\n");
