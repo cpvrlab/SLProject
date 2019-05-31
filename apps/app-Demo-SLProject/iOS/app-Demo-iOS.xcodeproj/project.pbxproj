@@ -30,6 +30,7 @@
 		412F89791FF58D94004D5982 /* ADS.frag in Resources */ = {isa = PBXBuildFile; fileRef = 412F896F1FF58D93004D5982 /* ADS.frag */; };
 		412F897A1FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag in Resources */ = {isa = PBXBuildFile; fileRef = 412F89701FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag */; };
 		412F897B1FF58D94004D5982 /* ADS.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89711FF58D94004D5982 /* ADS.vert */; };
+		41394E8B22A13E2B00C2448F /* Utils_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41394E8A22A13E2A00C2448F /* Utils_iOS.mm */; };
 		413B3631156CF93100B8284A /* SLCurveBezier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B362D156CF93100B8284A /* SLCurveBezier.cpp */; };
 		413B3635156CF97900B8284A /* SLAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B3634156CF97900B8284A /* SLAnimation.cpp */; };
 		413F1C4B2067DCD900AEF871 /* lbfmodel.yaml in Resources */ = {isa = PBXBuildFile; fileRef = 413F1C492067DCD900AEF871 /* lbfmodel.yaml */; };
@@ -98,7 +99,6 @@
 		4156501B148AA64F00A3CAA6 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41565017148AA64F00A3CAA6 /* ViewController.mm */; };
 		41618D6816C1855500641165 /* Default-Landscape@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 41618D6316C1855500641165 /* Default-Landscape@2x~ipad.png */; };
 		41627EA215CA8CE70023B936 /* SL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E8F15CA8CE70023B936 /* SL.cpp */; };
-		41627EA315CA8CE70023B936 /* SLFileSystem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9415CA8CE70023B936 /* SLFileSystem.mm */; };
 		41627EA515CA8CE70023B936 /* SLInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9715CA8CE70023B936 /* SLInterface.cpp */; };
 		41627EA615CA8CE70023B936 /* SLTexFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9A15CA8CE70023B936 /* SLTexFont.cpp */; };
 		41627EA815CA8CE70023B936 /* stdafx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627EA015CA8CE70023B936 /* stdafx.cpp */; };
@@ -692,6 +692,7 @@
 		412F896F1FF58D93004D5982 /* ADS.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADS.frag; path = ../../../data/shaders/ADS.frag; sourceTree = "<group>"; };
 		412F89701FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = VolumeRenderingRayCastLighted.frag; path = ../../../data/shaders/VolumeRenderingRayCastLighted.frag; sourceTree = "<group>"; };
 		412F89711FF58D94004D5982 /* ADS.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADS.vert; path = ../../../data/shaders/ADS.vert; sourceTree = "<group>"; };
+		41394E8A22A13E2A00C2448F /* Utils_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Utils_iOS.mm; sourceTree = "<group>"; };
 		413B362C156CF93100B8284A /* SLCurve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCurve.h; path = "../../../lib-SLProject/include/math/SLCurve.h"; sourceTree = SOURCE_ROOT; };
 		413B362D156CF93100B8284A /* SLCurveBezier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCurveBezier.cpp; path = "../../../lib-SLProject/source/math/SLCurveBezier.cpp"; sourceTree = SOURCE_ROOT; };
 		413B362E156CF93100B8284A /* SLCurveBezier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCurveBezier.h; path = "../../../lib-SLProject/include/math/SLCurveBezier.h"; sourceTree = SOURCE_ROOT; };
@@ -782,8 +783,6 @@
 		41627E9015CA8CE70023B936 /* SL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SL.h; path = "../../../lib-SLProject/include/SL/SL.h"; sourceTree = SOURCE_ROOT; };
 		41627E9115CA8CE70023B936 /* SLDrawBits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDrawBits.h; path = "../../../lib-SLProject/include/SLDrawBits.h"; sourceTree = SOURCE_ROOT; };
 		41627E9215CA8CE70023B936 /* SLEventHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLEventHandler.h; path = "../../../lib-SLProject/include/SLEventHandler.h"; sourceTree = SOURCE_ROOT; };
-		41627E9315CA8CE70023B936 /* SLFileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLFileSystem.h; path = "../../../lib-SLProject/include/SL/SLFileSystem.h"; sourceTree = SOURCE_ROOT; };
-		41627E9415CA8CE70023B936 /* SLFileSystem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SLFileSystem.mm; path = "../../../lib-SLProject/source/SL/SLFileSystem.mm"; sourceTree = SOURCE_ROOT; };
 		41627E9715CA8CE70023B936 /* SLInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLInterface.cpp; path = "../../../lib-SLProject/source/SL/SLInterface.cpp"; sourceTree = SOURCE_ROOT; };
 		41627E9815CA8CE70023B936 /* SLInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLInterface.h; path = "../../../lib-SLProject/include/SL/SLInterface.h"; sourceTree = SOURCE_ROOT; };
 		41627E9915CA8CE70023B936 /* SLObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLObject.h; path = "../../../lib-SLProject/include/SLObject.h"; sourceTree = SOURCE_ROOT; };
@@ -1728,8 +1727,6 @@
 				41E45FFF176C8F6800AB4653 /* SLTimer.h */,
 				41627E9115CA8CE70023B936 /* SLDrawBits.h */,
 				41627E9215CA8CE70023B936 /* SLEventHandler.h */,
-				41627E9315CA8CE70023B936 /* SLFileSystem.h */,
-				41627E9415CA8CE70023B936 /* SLFileSystem.mm */,
 				41627E9715CA8CE70023B936 /* SLInterface.cpp */,
 				41627E9815CA8CE70023B936 /* SLInterface.h */,
 				41627E9915CA8CE70023B936 /* SLObject.h */,
@@ -2252,13 +2249,14 @@
 				416DA7D02021B8FC00406B83 /* AppDemoLoad.cpp */,
 				CF3F57211DE5945F00928DDD /* calib_in_params.yml */,
 				41565014148AA64F00A3CAA6 /* comgr-Prefix.pch */,
-				41B849FF148B2C3700305DB5 /* Images */,
 				41565015148AA64F00A3CAA6 /* main.m */,
 				41B9939A148AAD2B00D98AB7 /* SceneLib-Info.plist */,
+				41394E8A22A13E2A00C2448F /* Utils_iOS.mm */,
 				41565008148AA62400A3CAA6 /* ViewController_iPad.xib */,
 				4156500A148AA62400A3CAA6 /* ViewController_iPhone.xib */,
 				41565016148AA64F00A3CAA6 /* ViewController.h */,
 				41565017148AA64F00A3CAA6 /* ViewController.mm */,
+				41B849FF148B2C3700305DB5 /* Images */,
 			);
 			name = AppDemo_iOS;
 			sourceTree = "<group>";
@@ -3367,6 +3365,7 @@
 				41EDCB591B67B47B00DDC945 /* SLCompactGrid.cpp in Sources */,
 				41C48E931F01250E0059B48C /* imgui.cpp in Sources */,
 				4198088A1959BA670048085E /* IRRLoader.cpp in Sources */,
+				41394E8B22A13E2B00C2448F /* Utils_iOS.mm in Sources */,
 				419808811959BA670048085E /* GenFaceNormalsProcess.cpp in Sources */,
 				41FC947D19F7D6410026919B /* SLGLShader.cpp in Sources */,
 				419808F11959BA670048085E /* ValidateDataStructure.cpp in Sources */,
@@ -3455,7 +3454,6 @@
 				419808C41959BA670048085E /* BVHLoader.cpp in Sources */,
 				41627EA215CA8CE70023B936 /* SL.cpp in Sources */,
 				414333861DE03F0C0027E1C3 /* SLLightSpot.cpp in Sources */,
-				41627EA315CA8CE70023B936 /* SLFileSystem.mm in Sources */,
 				419808A61959BA670048085E /* RemoveRedundantMaterials.cpp in Sources */,
 				419808971959BA670048085E /* ObjFileParser.cpp in Sources */,
 				419808771959BA670048085E /* FBXDocument.cpp in Sources */,
@@ -3763,11 +3761,13 @@
 				);
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				HEADER_SEARCH_PATHS = (
+					../include,
 					"../../../lib-SLProject/include/**",
 					"../../../externals/lib-assimp/**",
 					"../../../externals/lib-SLExternal/**",
 					"../../../externals/prebuilt/iosV8_opencv_3.4.0/include/**",
-					../include,
+					../../../externals/utils/thirdparty/asio/include,
+					"../../../externals/utils/lib-Utils/source",
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -3837,11 +3837,13 @@
 				);
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				HEADER_SEARCH_PATHS = (
+					../include,
 					"../../../lib-SLProject/include/**",
 					"../../../externals/lib-assimp/**",
 					"../../../externals/lib-SLExternal/**",
 					"../../../externals/prebuilt/iosV8_opencv_3.4.0/include/**",
-					../include,
+					../../../externals/utils/thirdparty/asio/include,
+					"../../../externals/utils/lib-Utils/source",
 				);
 				"HEADER_SEARCH_PATHS[arch=*]" = "";
 				INFOPLIST_FILE = "SceneLib-Info.plist";

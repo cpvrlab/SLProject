@@ -19,7 +19,7 @@
 
 // C++ includes for the SceneLibrary
 #include <SLMath.h>
-#include <SLFileSystem.h>
+#include <Utils.h>
 #include <SLInterface.h>
 #include <SLCVCapture.h>
 #include <AppDemoGui.h>
