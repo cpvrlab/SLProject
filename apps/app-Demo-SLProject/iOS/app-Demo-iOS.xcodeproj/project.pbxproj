@@ -104,6 +104,7 @@
 		41627EA615CA8CE70023B936 /* SLTexFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9A15CA8CE70023B936 /* SLTexFont.cpp */; };
 		41627EA815CA8CE70023B936 /* stdafx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627EA015CA8CE70023B936 /* stdafx.cpp */; };
 		41654BD914866F6B0003DF5E /* SLPlane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41654BD214866F6B0003DF5E /* SLPlane.cpp */; };
+		4166CE0E22A1B0D20040E992 /* Wave_radial10_256C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166CE0D22A1B0D20040E992 /* Wave_radial10_256C.jpg */; };
 		4166ED0A200260D700B42D17 /* Desert-X1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED04200260D600B42D17 /* Desert-X1024_C.jpg */; };
 		4166ED0B200260D700B42D17 /* Desert-Y1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED05200260D600B42D17 /* Desert-Y1024_C.jpg */; };
 		4166ED0C200260D700B42D17 /* Desert+X1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED06200260D600B42D17 /* Desert+X1024_C.jpg */; };
@@ -804,6 +805,7 @@
 		41654BD514866F6B0003DF5E /* SLVec3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLVec3.h; path = "../../../lib-SLProject/include/math/SLVec3.h"; sourceTree = SOURCE_ROOT; };
 		41654BD614866F6B0003DF5E /* SLVec4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLVec4.h; path = "../../../lib-SLProject/include/math/SLVec4.h"; sourceTree = SOURCE_ROOT; };
 		41654BD714866F6B0003DF5E /* TriangleBoxIntersect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TriangleBoxIntersect.h; path = "../../../lib-SLProject/include/TriangleBoxIntersect.h"; sourceTree = SOURCE_ROOT; };
+		4166CE0D22A1B0D20040E992 /* Wave_radial10_256C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = Wave_radial10_256C.jpg; path = ../../../data/images/textures/Wave_radial10_256C.jpg; sourceTree = "<group>"; };
 		4166ED04200260D600B42D17 /* Desert-X1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert-X1024_C.jpg"; path = "../../../data/images/textures/Desert-X1024_C.jpg"; sourceTree = "<group>"; };
 		4166ED05200260D600B42D17 /* Desert-Y1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert-Y1024_C.jpg"; path = "../../../data/images/textures/Desert-Y1024_C.jpg"; sourceTree = "<group>"; };
 		4166ED06200260D600B42D17 /* Desert+X1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert+X1024_C.jpg"; path = "../../../data/images/textures/Desert+X1024_C.jpg"; sourceTree = "<group>"; };
@@ -2130,6 +2132,7 @@
 				417E0EB2148A70DE0015B5B0 /* Testmap_0512_C.png */,
 				417E0EB3148A70DE0015B5B0 /* tile1_0256_C.jpg */,
 				417E0EB4148A70DE0015B5B0 /* tree1_1024_C.png */,
+				4166CE0D22A1B0D20040E992 /* Wave_radial10_256C.jpg */,
 				417E0EB5148A70DE0015B5B0 /* wood0_0256_C.jpg */,
 				417E0EB6148A70DE0015B5B0 /* wood0_0512_C.jpg */,
 				417E0EB7148A70DE0015B5B0 /* wood2_0256_C.jpg */,
@@ -3080,6 +3083,7 @@
 				4179815A1F13833000EB5315 /* i0070_0000b.png in Resources */,
 				417981461F13833000EB5315 /* i0050_0000b.png in Resources */,
 				4179818A1F13833000EB5315 /* i0118_0000b.png in Resources */,
+				4166CE0E22A1B0D20040E992 /* Wave_radial10_256C.jpg in Resources */,
 				4179819C1F13833000EB5315 /* i0136_0000b.png in Resources */,
 				417E0ED5148A70DE0015B5B0 /* wood0_0512_C.jpg in Resources */,
 				418BF4671B8B0D500049E387 /* TextureOnly.frag in Resources */,
@@ -3708,6 +3712,7 @@
 		419BCD6114865C0800D576F1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
@@ -3788,6 +3793,7 @@
 		419BCD6214865C0800D576F1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
