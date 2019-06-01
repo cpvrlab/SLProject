@@ -88,7 +88,11 @@ class SLCVCapture
     This requestedSizeIndex has only an influence right now on Android.
     On desktop systen OpenCV gets the max. available resolution.
     On iOS the resolution is hardcoded to 640 x 480.*/
-    static SLint requestedSizeIndex;
+    static SLint     requestedSizeIndex;
+    static SLVstring camSizesMain;
+    static SLVstring camSizesScnd;
+    static SLint     defaultCamSizeMain;
+    static SLint     defaultCamSizeScnd;
 
     private:
     static cv::VideoCapture _captureDevice; //!< OpenCV capture device

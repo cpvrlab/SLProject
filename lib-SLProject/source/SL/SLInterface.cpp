@@ -11,12 +11,12 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
+#include <SLInterface.h>
 #include <SLApplication.h>
 #include <SLAssimpImporter.h>
 #include <SLCVCalibration.h>
 #include <SLCVCapture.h>
 #include <SLInputManager.h>
-#include <SLInterface.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 
@@ -544,6 +544,25 @@ void slSetupExternalDirectories(SLstring externalPath)
     else
     {
         SL_LOG("ERROR: external directory does not exists: %s\n", externalPath.c_str());
+    }
+}
+//-----------------------------------------------------------------------------
+/*! Sets the possible camera sizes and the default camera size index.
+This is normally the size 640 x 480
+*/
+void slSetCameraSizes(SLVideoType videoType,
+                      SLVstring   cameraSizes,
+                      SLint       defaultCameraSizeIndex)
+{
+    if (videoType == VT_MAIN)
+    {
+        SLCVCapture::camSizesMain       = cameraSizes;
+        SLCVCapture::defaultCamSizeMain = defaultCameraSizeIndex;
+    }
+    if (videoType == VT_SCND)
+    {
+        SLCVCapture::camSizesScnd       = cameraSizes;
+        SLCVCapture::defaultCamSizeScnd = defaultCameraSizeIndex;
     }
 }
 //-----------------------------------------------------------------------------

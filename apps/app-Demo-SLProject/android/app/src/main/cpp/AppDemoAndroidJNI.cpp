@@ -51,9 +51,10 @@ JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_grabVideoFileFrame  (JNIE
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage      (JNIEnv *env, jobject obj, jint imgWidth, jint imgHeight, jbyteArray srcBuffer);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onSetupExternalDirectories (JNIEnv *env, jobject obj, jstring externalDirPath);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes  (JNIEnv *env, jobject obj, jint  srcW, jint srcH,
-                                                                             jbyteArray yBuf, jint ySize, jint yPixStride, jint yLineStride,
-                                                                             jbyteArray uBuf, jint uSize, jint uPixStride, jint uLineStride,
-                                                                             jbyteArray vBuf, jint vSize, jint vPixStride, jint vLineStride);
+                                                                            jbyteArray yBuf, jint ySize, jint yPixStride, jint yLineStride,
+                                                                            jbyteArray uBuf, jint uSize, jint uPixStride, jint uLineStride,
+                                                                            jbyteArray vBuf, jint vSize, jint vPixStride, jint vLineStride);
+JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_setCameraSizes      (JNIEnv *env, jobject obj, jobjectArray jstringArrCamSizes, jint defaultSize);
 };
 
 //-----------------------------------------------------------------------------
@@ -280,4 +281,31 @@ JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesLocation(JNIEnv *env,
     return slUsesLocation();
 }
 //-----------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setCameraSizes(JNIEnv *env, jobject obj, jobjectArray jstringArrCamSizes, jint defaultSize)
+{
+    vector<string> camSizes;
 
+    // Get length
+    int len = env->GetArrayLength(jstringArrCamSizes);
+
+    for (int i=0; i<len; i++)
+    {
+        // Cast array element to string
+        jstring jstr = (jstring) (env->GetObjectArrayElement(jstringArrCamSizes, i));
+
+        // Convert Java string to std::string
+        const jsize strLen = env->GetStringUTFLength(jstr);
+        const char *charBuffer = env->GetStringUTFChars(jstr, (jboolean *) 0);
+        string str(charBuffer, strLen);
+
+        // Push back string to vector
+        camSizes.push_back(str);
+
+        // Release memory
+        env->ReleaseStringUTFChars(jstr, charBuffer);
+        env->DeleteLocalRef(jstr);
+    }
+
+    slSetCameraSizes(VT_MAIN, camSizes, defaultSize);
+}
+//-----------------------------------------------------------------------------

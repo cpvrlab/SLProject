@@ -140,5 +140,8 @@ void   slCopyVideoYUVPlanes(int      srcW,
                             int      vPixStride,
                             int      vLineStride);
 void   slSetupExternalDirectories(SLstring externalDirPath);
+void   slSetCameraSizes(SLVideoType videoType,
+                        SLVstring   cameraSizes,
+                        SLint       defaultCameraSizeIndex);
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H

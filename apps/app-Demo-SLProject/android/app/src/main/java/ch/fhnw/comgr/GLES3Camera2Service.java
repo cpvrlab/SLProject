@@ -132,6 +132,13 @@ public class GLES3Camera2Service extends Service {
             }
         }
 
+        // create sizes string array
+        String[] sizesArr = new String[availableSizes.length];
+        for (int i=0; i< availableSizes.length; ++i) {
+            sizesArr[i] = Integer.toString(availableSizes[i].getWidth()) + "x" +
+                          Integer.toString(availableSizes[i].getHeight());
+        }
+
         if (defaultSizeIndex - requestedSizeIndex < 0)
             return availableSizes[0];
         else if (defaultSizeIndex - requestedSizeIndex >= availableSizes.length)

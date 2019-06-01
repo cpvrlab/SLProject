@@ -40,6 +40,11 @@ SLstring         SLCVCapture::videoDefaultPath   = "../data/videos/";
 SLstring         SLCVCapture::videoFilename      = "";
 SLbool           SLCVCapture::videoLoops         = true;
 SLdouble         SLCVCapture::fps;
+SLVstring        SLCVCapture::camSizesMain       = SLVstring();
+SLVstring        SLCVCapture::camSizesScnd       = SLVstring();
+SLint            SLCVCapture::defaultCamSizeMain = 0;
+SLint            SLCVCapture::defaultCamSizeScnd = 0;
+
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
 /* This so far called in SLScene::onAfterLoad if a scene uses a live video by
@@ -216,9 +221,9 @@ void SLCVCapture::adjustForSL()
 
         if (inWdivH > outWdivH) // crop input image left & right
         {
-            width    = (SLint)((SLfloat)lastFrame.rows * outWdivH);
-            height   = lastFrame.rows;
-            cropW    = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);
+            width  = (SLint)((SLfloat)lastFrame.rows * outWdivH);
+            height = lastFrame.rows;
+            cropW  = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);
 
             // Width must be devidable by 4
             wModulo4 = width % 4;
@@ -232,9 +237,9 @@ void SLCVCapture::adjustForSL()
         }
         else // crop input image at top & bottom
         {
-            width    = lastFrame.cols;
-            height   = (SLint)((SLfloat)lastFrame.cols / outWdivH);
-            cropH    = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
+            width  = lastFrame.cols;
+            height = (SLint)((SLfloat)lastFrame.cols / outWdivH);
+            cropH  = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
 
             // Height must be devidable by 4
             hModulo4 = height % 4;
