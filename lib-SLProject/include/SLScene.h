@@ -78,8 +78,8 @@ class SLScene : public SLObject
     void             timerStart() { _timer.start(); }
     SLfloat          timeSec() { return (SLfloat)_timer.elapsedTimeInSec(); }
     SLfloat          timeMilliSec() { return (SLfloat)_timer.elapsedTimeInMilliSec(); }
-    SLfloat          elapsedTimeMS() { return _elapsedTimeMS; }
-    SLfloat          elapsedTimeSec() { return _elapsedTimeMS * 0.001f; }
+    SLfloat          elapsedTimeMS() { return _frameTimeMS; }
+    SLfloat          elapsedTimeSec() { return _frameTimeMS * 0.001f; }
     SLVEventHandler& eventHandlers() { return _eventHandlers; }
 
     SLCol4f       globalAmbiLight() const { return _globalAmbiLight; }
@@ -94,10 +94,13 @@ class SLScene : public SLObject
     SLAvgFloat&   matchTimesMS() { return _matchTimesMS; }
     SLAvgFloat&   optFlowTimesMS() { return _optFlowTimesMS; }
     SLAvgFloat&   poseTimesMS() { return _poseTimesMS; }
+    SLAvgFloat&   updateAnimTimesMS() { return _updateAnimTimesMS; }
+    SLAvgFloat&   updateAABBTimesMS() { return _updateAABBTimesMS; }
     SLAvgFloat&   cullTimesMS() { return _cullTimesMS; }
     SLAvgFloat&   draw2DTimesMS() { return _draw2DTimesMS; }
     SLAvgFloat&   draw3DTimesMS() { return _draw3DTimesMS; }
     SLAvgFloat&   captureTimesMS() { return _captureTimesMS; }
+    SLAvgFloat&   vsyncTimesMS() { return _vsyncTimesMS; }
     SLVMaterial&  materials() { return _materials; }
     SLVMesh&      meshes() { return _meshes; }
     SLVGLTexture& textures() { return _textures; }
@@ -155,22 +158,29 @@ class SLScene : public SLObject
     SLbool  _rootInitialized; //!< Flag if scene is initialized
     SLint   _numProgsPreload; //!< No. of preloaded shaderProgs
 
-    SLfloat    _elapsedTimeMS;    //!< Last frame time in ms
+    SLfloat    _frameTimeMS;      //!< Last frame time in ms
     SLfloat    _lastUpdateTimeMS; //!< Last time after update in ms
     SLfloat    _fps;              //!< Averaged no. of frames per second
-    SLAvgFloat _updateTimesMS;    //!< Averaged time for update in ms
-    SLAvgFloat _trackingTimesMS;  //!< Averaged time for video tracking in ms
-    SLAvgFloat _detectTimesMS;    //!< Averaged time for video feature detection & description in ms
-    SLAvgFloat _detect1TimesMS;   //!< Averaged time for video feature detection subpart 1 in ms
-    SLAvgFloat _detect2TimesMS;   //!< Averaged time for video feature detection subpart 2 in ms
-    SLAvgFloat _matchTimesMS;     //!< Averaged time for video feature matching in ms
-    SLAvgFloat _optFlowTimesMS;   //!< Averaged time for video feature optical flow tracking in ms
-    SLAvgFloat _poseTimesMS;      //!< Averaged time for video feature pose estimation in ms
-    SLAvgFloat _frameTimesMS;     //!< Averaged time per frame in ms
-    SLAvgFloat _cullTimesMS;      //!< Averaged time for culling in ms
-    SLAvgFloat _draw3DTimesMS;    //!< Averaged time for 3D drawing in ms
-    SLAvgFloat _draw2DTimesMS;    //!< Averaged time for 2D drawing in ms
-    SLAvgFloat _captureTimesMS;   //!< Averaged time for video capturing in ms
+    SLAvgFloat _frameTimesMS;     //!< Averaged total time per frame in ms
+
+    // major part times
+    SLAvgFloat _vsyncTimesMS;   //!< Averaged time for vertical sync in ms
+    SLAvgFloat _captureTimesMS; //!< Averaged time for video capturing in ms
+    SLAvgFloat _updateTimesMS;  //!< Averaged time for update in ms
+    SLAvgFloat _cullTimesMS;    //!< Averaged time for culling in ms
+    SLAvgFloat _draw3DTimesMS;  //!< Averaged time for 3D drawing in ms
+    SLAvgFloat _draw2DTimesMS;  //!< Averaged time for 2D drawing in ms
+
+    // minor part times of update traversal
+    SLAvgFloat _trackingTimesMS;   //!< Averaged time for video tracking in ms
+    SLAvgFloat _detectTimesMS;     //!< Averaged time for video feature detection & description in ms
+    SLAvgFloat _detect1TimesMS;    //!< Averaged time for video feature detection subpart 1 in ms
+    SLAvgFloat _detect2TimesMS;    //!< Averaged time for video feature detection subpart 2 in ms
+    SLAvgFloat _matchTimesMS;      //!< Averaged time for video feature matching in ms
+    SLAvgFloat _optFlowTimesMS;    //!< Averaged time for video feature optical flow tracking in ms
+    SLAvgFloat _poseTimesMS;       //!< Averaged time for video feature pose estimation in ms
+    SLAvgFloat _updateAABBTimesMS; //!< Averaged time for update the nodes AABB in ms
+    SLAvgFloat _updateAnimTimesMS; //!< Averaged time for update the animations in ms
 
     SLbool _stopAnimations; //!< Global flag for stopping all animations
 

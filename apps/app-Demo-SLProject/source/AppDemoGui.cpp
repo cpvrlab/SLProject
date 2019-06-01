@@ -295,48 +295,57 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             if (rType == RT_gl)
             {
                 // Get averages from average variables (see SLAverage)
-                SLfloat captureTime  = s->captureTimesMS().average();
-                SLfloat updateTime   = s->updateTimesMS().average();
-                SLfloat trackingTime = s->trackingTimesMS().average();
-                SLfloat detectTime   = s->detectTimesMS().average();
-                SLfloat detect1Time  = s->detect1TimesMS().average();
-                SLfloat detect2Time  = s->detect2TimesMS().average();
-                SLfloat matchTime    = s->matchTimesMS().average();
-                SLfloat optFlowTime  = s->optFlowTimesMS().average();
-                SLfloat poseTime     = s->poseTimesMS().average();
-                SLfloat draw3DTime   = s->draw3DTimesMS().average();
-                SLfloat draw2DTime   = s->draw2DTimesMS().average();
-                SLfloat cullTime     = s->cullTimesMS().average();
+                SLfloat captureTime    = s->captureTimesMS().average();
+                SLfloat updateTime     = s->updateTimesMS().average();
+                SLfloat trackingTime   = s->trackingTimesMS().average();
+                SLfloat detectTime     = s->detectTimesMS().average();
+                SLfloat detect1Time    = s->detect1TimesMS().average();
+                SLfloat detect2Time    = s->detect2TimesMS().average();
+                SLfloat matchTime      = s->matchTimesMS().average();
+                SLfloat optFlowTime    = s->optFlowTimesMS().average();
+                SLfloat poseTime       = s->poseTimesMS().average();
+                SLfloat updateAnimTime = s->updateAnimTimesMS().average();
+                SLfloat updateAABBTime = s->updateAnimTimesMS().average();
+                SLfloat cullTime       = s->cullTimesMS().average();
+                SLfloat draw3DTime     = s->draw3DTimesMS().average();
+                SLfloat draw2DTime     = s->draw2DTimesMS().average();
+                SLfloat vsyncTime      = s->vsyncTimesMS().average();
 
                 // Calculate percentage from frame time
-                SLfloat captureTimePC  = SL_clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat updateTimePC   = SL_clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat trackingTimePC = SL_clamp(trackingTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat detectTimePC   = SL_clamp(detectTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat matchTimePC    = SL_clamp(matchTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat optFlowTimePC  = SL_clamp(optFlowTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat poseTimePC     = SL_clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat draw3DTimePC   = SL_clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat draw2DTimePC   = SL_clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat cullTimePC     = SL_clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat captureTimePC    = SL_clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat updateTimePC     = SL_clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat trackingTimePC   = SL_clamp(trackingTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat detectTimePC     = SL_clamp(detectTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat matchTimePC      = SL_clamp(matchTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat optFlowTimePC    = SL_clamp(optFlowTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat poseTimePC       = SL_clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat updateAnimTimePC = SL_clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat updateAABBTimePC = SL_clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat draw3DTimePC     = SL_clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat draw2DTimePC     = SL_clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat cullTimePC       = SL_clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat vsyncTimePC      = SL_clamp(vsyncTime / ft * 100.0f, 0.0f, 100.0f);
 
                 sprintf(m + strlen(m), "Renderer      : OpenGL\n");
                 sprintf(m + strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
                 sprintf(m + strlen(m), "NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
-                sprintf(m + strlen(m), "Frames per s. : %4.1f\n", s->fps());
-                sprintf(m + strlen(m), "Frame time    : %4.1f ms (100%%)\n", ft);
-                sprintf(m + strlen(m), "  Capture     : %4.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
-                sprintf(m + strlen(m), "  Update      : %4.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
-                sprintf(m + strlen(m), "    Tracking  : %4.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
-                sprintf(m + strlen(m), "      Detect  : %4.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
-                sprintf(m + strlen(m), "        Det1  : %4.1f ms\n", detect1Time);
-                sprintf(m + strlen(m), "        Det2  : %4.1f ms\n", detect2Time);
-                sprintf(m + strlen(m), "      Match   : %4.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
-                sprintf(m + strlen(m), "      Opt.Flow: %4.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
-                sprintf(m + strlen(m), "      Pose    : %4.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
-                sprintf(m + strlen(m), "  Culling     : %4.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
-                sprintf(m + strlen(m), "  Drawing 3D  : %4.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
-                sprintf(m + strlen(m), "  Drawing 2D  : %4.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
+                sprintf(m + strlen(m), "Frames per s. : %5.1f\n", s->fps());
+                sprintf(m + strlen(m), "Frame time    : %5.1f ms (100%%)\n", ft);
+                sprintf(m + strlen(m), "  Capture     : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
+                sprintf(m + strlen(m), "  Update      : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
+                sprintf(m + strlen(m), "    Animations: %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
+                sprintf(m + strlen(m), "    AABB      : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
+                sprintf(m + strlen(m), "    Tracking  : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
+                sprintf(m + strlen(m), "      Detect  : %5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
+                sprintf(m + strlen(m), "        Det1  : %5.1f ms\n", detect1Time);
+                sprintf(m + strlen(m), "        Det2  : %5.1f ms\n", detect2Time);
+                sprintf(m + strlen(m), "      Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
+                sprintf(m + strlen(m), "      Opt.Flow: %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
+                sprintf(m + strlen(m), "      Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
+                sprintf(m + strlen(m), "  Culling     : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
+                sprintf(m + strlen(m), "  Drawing 3D  : %5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
+                sprintf(m + strlen(m), "  Drawing 2D  : %5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
+                sprintf(m + strlen(m), "  GPU & VSync : %5.1f ms (%3d%%)\n", vsyncTime, (SLint)vsyncTimePC);
             }
             else if (rType == RT_rt)
             {
@@ -878,7 +887,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                             if (!Utils::dirExists(plyDir))
                                                 Utils::makeDir(plyDir);
                                             if (Utils::dirExists(plyDir))
-                                            {   SLstring outFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+                                            {
+                                                SLstring outFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
                                                 if (!ftp.Get(outFile.c_str(),
                                                              "xyzrgb_dragon.ply",
                                                              ftplib::transfermode::image))
@@ -1002,18 +1012,11 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("Volume Rendering"))
                 {
                     if (ImGui::MenuItem("Head MRI Ray Cast", nullptr, sid == SID_VolumeRayCast))
-                    {
                         s->onLoad(s, sv, SID_VolumeRayCast);
-                        SLApplication::jobsToBeThreaded.push_back(bind(s->onLoad, s, sv, SID_VolumeRayCastLighted));
-                    }
 #ifndef SL_GLES
                     if (ImGui::MenuItem("Head MRI Ray Cast Lighted", nullptr, sid == SID_VolumeRayCastLighted))
-                    {
                         s->onLoad(s, sv, SID_VolumeRayCastLighted);
-                        SLApplication::jobsToBeThreaded.push_back(bind(s->onLoad, s, sv, SID_VolumeRayCastLighted));
-                    }
 #endif
-
                     ImGui::EndMenu();
                 }
 

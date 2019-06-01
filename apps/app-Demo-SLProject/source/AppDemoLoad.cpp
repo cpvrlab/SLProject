@@ -1474,8 +1474,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLTransferFunction* tf       = new SLTransferFunction(tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
-        SLGLProgram*   sp   = new SLGLGenericProgram("VolumeRenderingRayCast.vert",
-                                                 "VolumeRenderingRayCast.frag");
+        SLGLProgram*   sp   = new SLGLGenericProgram("VolumeRenderingRayCast.vert", "VolumeRenderingRayCast.frag");
         SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)texMRI->images()[0]->width());
         SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)texMRI->images()[0]->height());
         SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)mriImages.size());

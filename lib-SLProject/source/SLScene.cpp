@@ -63,7 +63,13 @@ As examples you can see it in:
 SLScene::SLScene(SLstring      name,
                  cbOnSceneLoad onSceneLoadCallback)
   : SLObject(name),
+    _frameTimesMS(60, 0.0f),
+    _vsyncTimesMS(60, 0.0f),
+    _captureTimesMS(200, 0.0f),
     _updateTimesMS(60, 0.0f),
+    _cullTimesMS(60, 0.0f),
+    _draw3DTimesMS(60, 0.0f),
+    _draw2DTimesMS(60, 0.0f),
     _trackingTimesMS(60, 0.0f),
     _detectTimesMS(60, 0.0f),
     _detect1TimesMS(60, 0.0f),
@@ -71,12 +77,8 @@ SLScene::SLScene(SLstring      name,
     _matchTimesMS(60, 0.0f),
     _optFlowTimesMS(60, 0.0f),
     _poseTimesMS(60, 0.0f),
-    _frameTimesMS(60, 0.0f),
-    _cullTimesMS(60, 0.0f),
-    _draw3DTimesMS(60, 0.0f),
-    _draw2DTimesMS(60, 0.0f),
-    _captureTimesMS(200, 0.0f)
-
+    _updateAABBTimesMS(60, 0.0f),
+    _updateAnimTimesMS(60, 0.0f)
 {
     SLApplication::scene = this;
 
@@ -89,7 +91,7 @@ SLScene::SLScene(SLstring      name,
     _selectedNode     = nullptr;
     _stopAnimations   = false;
     _fps              = 0;
-    _elapsedTimeMS    = 0;
+    _frameTimeMS      = 0;
     _lastUpdateTimeMS = 0;
 
     // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
@@ -190,7 +192,9 @@ void SLScene::init()
 
     // Reset timing variables
     _timer.start();
+    _vsyncTimesMS.init(60, 0.0f);
     _frameTimesMS.init(60, 0.0f);
+    _captureTimesMS.init(200, 0.0f);
     _updateTimesMS.init(60, 0.0f);
     _cullTimesMS.init(60, 0.0f);
     _draw3DTimesMS.init(60, 0.0f);
@@ -202,7 +206,8 @@ void SLScene::init()
     _matchTimesMS.init(60, 0.0f);
     _optFlowTimesMS.init(60, 0.0f);
     _poseTimesMS.init(60, 0.0f);
-    _captureTimesMS.init(200, 0.0f);
+    _updateAnimTimesMS.init(60, 0.0f);
+    _updateAABBTimesMS.init(60, 0.0f);
 
     // Reset calibration process at scene change
     if (SLApplication::activeCalib->state() != CS_calibrated &&
@@ -329,7 +334,7 @@ bool SLScene::onUpdate()
 
     // Calculate the elapsed time for the animation
     // todo: If slowdown on idle is enabled the delta time will be wrong!
-    _elapsedTimeMS    = timeMilliSec() - _lastUpdateTimeMS;
+    _frameTimeMS      = timeMilliSec() - _lastUpdateTimeMS;
     _lastUpdateTimeMS = timeMilliSec();
 
     // Sum up all timings of all sceneviews
@@ -356,7 +361,7 @@ bool SLScene::onUpdate()
     _draw2DTimesMS.set(sumDraw2DTimeMS);
 
     // Calculate the frames per second metric
-    _frameTimesMS.set(_elapsedTimeMS);
+    _frameTimesMS.set(_frameTimeMS);
     _fps = 1 / _frameTimesMS.average() * 1000.0f;
     if (_fps < 0.0f) _fps = 0.0f;
 
@@ -370,13 +375,13 @@ bool SLScene::onUpdate()
     SLbool sceneHasChanged = SLApplication::inputManager.pollAndProcessEvents();
 
     //////////////////////////////
-    // Update nodes             //
-    //////////////////////////////
-    if (_root3D)
-        _root3D->update();
-    //////////////////////////////
     // 3) Update all animations //
     //////////////////////////////
+
+    SLfloat startAnimUpdateMS = timeMilliSec();
+
+    if (_root3D)
+        _root3D->update();
 
     // reset the dirty flag on all skeletons
     for (auto skeleton : _animManager.skeletons())
@@ -397,6 +402,8 @@ bool SLScene::onUpdate()
         if (renderTypeIsRT || voxelsAreShown)
             mesh->updateAccelStruct();
     }
+
+    _updateAnimTimesMS.set(timeMilliSec() - startAnimUpdateMS);
 
     ////////////////////
     // 4) AR Tracking //
@@ -524,14 +531,27 @@ bool SLScene::onUpdate()
     /////////////////////
 
     // The updateAABBRec call won't generate any overhead if nothing changed
-    SLNode::numWMUpdates = 0;
+    SLfloat startAAABBUpdateMS = timeMilliSec();
+    SLNode::numWMUpdates       = 0;
     SLGLState::getInstance()->modelViewMatrix.identity();
     if (_root3D)
         _root3D->updateAABBRec();
     if (_root2D)
         _root2D->updateAABBRec();
+    _updateAABBTimesMS.set(timeMilliSec() - startAAABBUpdateMS);
 
-    _updateTimesMS.set(timeMilliSec() - startUpdateMS);
+    // Finish total update time
+    SLfloat updateTimeMS = timeMilliSec() - startUpdateMS;
+    _updateTimesMS.set(updateTimeMS);
+
+    // calculate vsync time as diff. of major part times to the frame time
+    SLfloat totalMajorTime = captureTimesMS().average() +
+                             updateTimeMS +
+                             sumCullTimeMS +
+                             sumDraw3DTimeMS +
+                             sumDraw2DTimeMS;
+    SLfloat vsyncTime = _frameTimeMS > totalMajorTime ? _frameTimeMS - totalMajorTime : 0.0f;
+    _vsyncTimesMS.set(vsyncTime);
 
     //SL_LOG("SLScene::onUpdate\n");
     return sceneHasChanged;
