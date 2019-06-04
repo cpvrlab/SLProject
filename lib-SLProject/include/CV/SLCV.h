@@ -60,6 +60,7 @@ typedef vector<cv::Point2f>  SLCVVPoint2f;
 typedef vector<cv::Point2d>  SLCVVPoint2d;
 typedef vector<cv::Point3f>  SLCVVPoint3f;
 typedef vector<cv::Point3d>  SLCVVPoint3d;
+typedef vector<cv::Size>  SLCVVSize;
 typedef vector<cv::KeyPoint> SLCVVKeyPoint;
 typedef vector<cv::DMatch>   SLCVVDMatch;
 

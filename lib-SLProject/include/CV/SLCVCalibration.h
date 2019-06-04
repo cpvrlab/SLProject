@@ -93,6 +93,15 @@ class SLCVCalibration
                                        SLCVVPoint3f& objectPoints3D);
     // Setters
     void state(SLCVCalibState s) { _state = s; }
+    void imageSize(SLCVSize newSize)
+    {
+        if (newSize != _imageSize)
+        {
+            _imageSize = newSize;
+            clear();
+            save();
+        }
+    }
     void toggleMirrorH()
     {
         clear();
@@ -189,7 +198,7 @@ class SLCVCalibration
     SLint          _numCaptured;            //!< NO. of images captured
     SLfloat        _reprojectionError;      //!< Reprojection error after calibration
     SLCVVVPoint2f  _imagePoints;            //!< 2D vector of corner points in chessboard
-    SLCVSize       _imageSize;              //!< Input image size in pixels
+    SLCVSize       _imageSize;              //!< Input image size in pixels (after cropping)
     SLbool         _showUndistorted;        //!< Flag if image should be undistorted
     SLCVMat        _undistortMapX;          //!< Undistortion float map in x-direction
     SLCVMat        _undistortMapY;          //!< Undistortion float map in y-direction

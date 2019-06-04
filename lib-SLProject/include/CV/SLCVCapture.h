@@ -81,18 +81,12 @@ class SLCVCapture
     static SLbool        videoLoops;         //!< flag if video should loop
     static SLdouble      fps;
 
-    /*! A requestedSizeIndex of 0 returns on Android the default size of 640x480.
-    If this size is not available the median element of the available sizes array is returned.
-    An index of -n return the n-th smaller one. \n
-    An index of +n return the n-th bigger one.\n
-    This requestedSizeIndex has only an influence right now on Android.
-    On desktop systen OpenCV gets the max. available resolution.
-    On iOS the resolution is hardcoded to 640 x 480.*/
-    static SLint     requestedSizeIndex;
-    static SLVstring camSizesMain;
-    static SLVstring camSizesScnd;
-    static SLint     defaultCamSizeMain;
-    static SLint     defaultCamSizeScnd;
+    /*! A requestedSizeIndex of -1 returns on Android the default size of 640x480.
+    This is the default size index if the camera resolutions are unknown.
+    */
+    static SLCVVSize camSizes;           //!< All possible camera sizes
+    static SLint     requestedSizeIndex; //!< The requested camera size index
+    static SLint     activeCamSizeIndex; //!< Currently active camera size index
 
     private:
     static cv::VideoCapture _captureDevice; //!< OpenCV capture device

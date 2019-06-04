@@ -43,7 +43,7 @@ import java.util.Arrays;
 public class GLES3Camera2Service extends Service {
     protected static final String TAG = "SLProject";
     public static int videoType = CameraCharacteristics.LENS_FACING_BACK;
-    public static int requestedVideoSizeIndex = 0; // see getRequestedSize
+    public static int requestedVideoSizeIndex = -1; // see getRequestedSize
     public static boolean isTransitioning = false;
     public static boolean isRunning = false;
     protected CameraDevice cameraDevice;
@@ -104,10 +104,7 @@ public class GLES3Camera2Service extends Service {
      * Returns the requested video size in pixel
      * @param manager The manager got by getSystemService(CAMERA_SERVICE)
      * @param lensFacing LENS_FACING_BACK or LENS_FACING_FRONT
-     * @param requestedSizeIndex An index of 0 returns the default size of 640x480
-     *                           If this size is not available the median size is returned.
-     *                           An index of -1 return the next smaller one
-     *                           An index of +1 return the next bigger one
+     * @param requestedSizeIndex An index of -1 returns the default size of 640x480
      */
     private Size getRequestedSize(CameraManager manager,
                                   int lensFacing,
@@ -126,25 +123,19 @@ public class GLES3Camera2Service extends Service {
         for (int i=0; i< availableSizes.length; ++i) {
             int w = availableSizes[i].getWidth();
             int h = availableSizes[i].getHeight();
-            if (w == 640 && h == 480) {
+
+            GLES3Lib.setCameraSize(i, availableSizes.length, w, h);
+
+            if (w == 640 && h == 480)
                 defaultSizeIndex = i;
-                break;
-            }
         }
 
-        // create sizes string array
-        String[] sizesArr = new String[availableSizes.length];
-        for (int i=0; i< availableSizes.length; ++i) {
-            sizesArr[i] = Integer.toString(availableSizes[i].getWidth()) + "x" +
-                          Integer.toString(availableSizes[i].getHeight());
-        }
-
-        if (defaultSizeIndex - requestedSizeIndex < 0)
-            return availableSizes[0];
-        else if (defaultSizeIndex - requestedSizeIndex >= availableSizes.length)
+        if (requestedSizeIndex <= -1)
+            return availableSizes[defaultSizeIndex];
+        else if (requestedSizeIndex >= availableSizes.length)
             return availableSizes[availableSizes.length-1];
         else
-            return availableSizes[defaultSizeIndex - requestedSizeIndex];
+            return availableSizes[requestedSizeIndex];
     }
 
     /**

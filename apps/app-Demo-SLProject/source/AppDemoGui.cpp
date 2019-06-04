@@ -1164,7 +1164,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }
                 }
 
-                if (ImGui::BeginMenu("Mirror Main Camera"))
+                if (s->videoType() == VT_MAIN &&
+                    ImGui::BeginMenu("Mirror Main Camera"))
                 {
                     if (ImGui::MenuItem("Horizontally", nullptr, mc->isMirroredH()))
                         mc->toggleMirrorH();
@@ -1175,7 +1176,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Mirror Scnd. Camera", SLCVCapture::hasSecondaryCamera))
+                if (s->videoType() == VT_SCND &&
+                    ImGui::BeginMenu("Mirror Scnd. Camera", SLCVCapture::hasSecondaryCamera))
                 {
                     if (ImGui::MenuItem("Horizontally", nullptr, sc->isMirroredH()))
                         sc->toggleMirrorH();
@@ -1183,6 +1185,23 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Vertically", nullptr, sc->isMirroredV()))
                         sc->toggleMirrorV();
 
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("Camera Resolutions",
+                                     (s->videoType() == VT_MAIN || s->videoType() == VT_SCND)))
+                {
+                    for (int i = 0; i < (int)SLCVCapture::camSizes.size(); ++i)
+                    {
+                        SLchar menuStr[256];
+                        sprintf(menuStr,
+                                "%d x %d",
+                                SLCVCapture::camSizes[(uint)i].width,
+                                SLCVCapture::camSizes[(uint)i].height);
+                        if (ImGui::MenuItem(menuStr, nullptr, i == SLCVCapture::activeCamSizeIndex))
+                            if (i != SLCVCapture::activeCamSizeIndex)
+                                SLCVCapture::requestedSizeIndex = i;
+                    }
                     ImGui::EndMenu();
                 }
 

@@ -35,20 +35,19 @@ cv::VideoCapture SLCVCapture::_captureDevice;
 SLCVSize         SLCVCapture::captureSize;
 SLfloat          SLCVCapture::startCaptureTimeMS;
 SLbool           SLCVCapture::hasSecondaryCamera = true;
-SLint            SLCVCapture::requestedSizeIndex = 0;
 SLstring         SLCVCapture::videoDefaultPath   = "../data/videos/";
 SLstring         SLCVCapture::videoFilename      = "";
 SLbool           SLCVCapture::videoLoops         = true;
-SLdouble         SLCVCapture::fps;
-SLVstring        SLCVCapture::camSizesMain       = SLVstring();
-SLVstring        SLCVCapture::camSizesScnd       = SLVstring();
-SLint            SLCVCapture::defaultCamSizeMain = 0;
-SLint            SLCVCapture::defaultCamSizeScnd = 0;
+SLdouble         SLCVCapture::fps                = 1.0f;
+SLCVVSize        SLCVCapture::camSizes           = SLCVVSize();
+SLint            SLCVCapture::requestedSizeIndex = -1;
+SLint            SLCVCapture::activeCamSizeIndex = -1;
 
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
 /* This so far called in SLScene::onAfterLoad if a scene uses a live video by
-setting the the SLScene::_videoType to VT_MAIN or VT_SCND.
+setting the the SLScene::_videoType to VT_MAIN. On desktop systems the webcam
+is the only and main camera.
 */
 SLVec2i SLCVCapture::open(SLint deviceNum)
 {
@@ -68,6 +67,11 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
 
         hasSecondaryCamera = false;
         fps                = _captureDevice.get(cv::CAP_PROP_FPS);
+
+        // Set one camera size entry
+        SLCVCapture::camSizes.clear();
+        SLCVCapture::camSizes.push_back(SLCVSize(w, h));
+        SLCVCapture::activeCamSizeIndex = 0;
 
         return SLVec2i(w, h);
     }
@@ -197,12 +201,37 @@ void SLCVCapture::adjustForSL()
     SLScene* s = SLApplication::scene;
     format     = SLCVImage::cv2glPixelFormat(lastFrame.type());
 
-    // Set capture size before cropping
+    //////////////////////////////////////
+    // 1) Check if capture size changed //
+    //////////////////////////////////////
+
+    // Get capture size before cropping
     captureSize = SLCVCapture::lastFrame.size();
 
-    /////////////////
-    // 1) Cropping //
-    /////////////////
+    // Determine active size index if unset or changed
+    if (camSizes.size() > 0)
+    {
+        SLCVSize activeSize(0, 0);
+
+        if (activeCamSizeIndex >= 0 && activeCamSizeIndex < (int)camSizes.size())
+            activeSize = camSizes[(uint)activeCamSizeIndex];
+
+        if (activeCamSizeIndex == -1 || captureSize != activeSize)
+        {
+            for (uint i = 0; i < camSizes.size(); ++i)
+            {
+                if (camSizes[i] == captureSize)
+                {
+                    activeCamSizeIndex = (int)i;
+                    break;
+                }
+            }
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////
+    // 2) Crop Video image to the aspect ratio of OpenGL background //
+    //////////////////////////////////////////////////////////////////
 
     // Cropping is done almost always.
     // So this is Android image copy loop #2
@@ -257,7 +286,7 @@ void SLCVCapture::adjustForSL()
     }
 
     //////////////////
-    // 2) Mirroring //
+    // 3) Mirroring //
     //////////////////
 
     // Mirroring is done for most selfie cameras.
@@ -283,7 +312,7 @@ void SLCVCapture::adjustForSL()
     }
 
     /////////////////////////
-    // 3) Create grayscale //
+    // 4) Create grayscale //
     /////////////////////////
 
     // Creating a grayscale version from an YUV input source is stupid.
@@ -292,8 +321,11 @@ void SLCVCapture::adjustForSL()
 
     cv::cvtColor(SLCVCapture::lastFrame, SLCVCapture::lastFrameGray, cv::COLOR_BGR2GRAY);
 
+    // Reset calibrated image size
+    if (SLCVCapture::lastFrame.size() != SLApplication::activeCalib->imageSize())
+        SLApplication::activeCalib->imageSize(SLCVCapture::lastFrame.size());
+
     s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
-    //SL_LOG("SLCVCapture::adjustForSL\n");
 }
 //-----------------------------------------------------------------------------
 /*! This method is called by iOS and Android projects that capture their video

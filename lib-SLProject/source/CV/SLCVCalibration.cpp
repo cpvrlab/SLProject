@@ -77,7 +77,6 @@ bool SLCVCalibration::load(SLstring calibDir,
     _isMirroredV   = mirrorVertically;
 
     //load camera parameter
-    //SLstring    fullPathAndFilename = SLApplication::configPath + _calibFileName;
     SLstring    fullPathAndFilename = calibDir + _calibFileName;
     FileStorage fs(fullPathAndFilename, FileStorage::READ);
 
@@ -91,7 +90,7 @@ bool SLCVCalibration::load(SLstring calibDir,
         _reprojectionError              = 0;
         _calibrationTime                = "-";
         _state                          = CS_uncalibrated;
-        SLCVCapture::requestedSizeIndex = 0;
+        SLCVCapture::requestedSizeIndex = -1;
         return false;
     }
 
@@ -110,7 +109,7 @@ bool SLCVCalibration::load(SLstring calibDir,
         _reprojectionError              = -1;
         _calibrationTime                = "-";
         _state                          = CS_uncalibrated;
-        SLCVCapture::requestedSizeIndex = 0;
+        SLCVCapture::requestedSizeIndex = -1;
     }
     else
     {
@@ -151,7 +150,6 @@ bool SLCVCalibration::load(SLstring calibDir,
 void SLCVCalibration::save()
 {
     SLstring fullPathAndFilename = SLApplication::externalPath + _calibFileName;
-
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 
     if (!fs.isOpened())
@@ -580,11 +578,9 @@ void SLCVCalibration::createFromGuessedFOV(SLint imageWidthPX,
     _imageSize.width  = imageWidthPX;
     _imageSize.height = imageHeightPX;
     _cameraMat        = (Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
-    // No distortion
-    _distortion = (Mat_<double>(5, 1) << 0, 0, 0, 0, 0);
-
-    _cameraFovDeg    = fov;
-    _calibrationTime = Utils::getLocalTimeString();
-    _state           = CS_guessed;
+    _distortion       = (Mat_<double>(5, 1) << 0, 0, 0, 0, 0); // No distortion
+    _cameraFovDeg     = fov;
+    _calibrationTime  = Utils::getLocalTimeString();
+    _state            = CS_guessed;
 }
 //-----------------------------------------------------------------------------

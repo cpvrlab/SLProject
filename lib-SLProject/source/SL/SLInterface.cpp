@@ -547,22 +547,20 @@ void slSetupExternalDirectories(SLstring externalPath)
     }
 }
 //-----------------------------------------------------------------------------
-/*! Sets the possible camera sizes and the default camera size index.
-This is normally the size 640 x 480
+/*! Sets the with and height of a camera size at index sizeIndex.
+If sizeIndexMax changes the vector in SLCVCapture gets cleared and resized.
 */
-void slSetCameraSizes(SLVideoType videoType,
-                      SLVstring   cameraSizes,
-                      SLint       defaultCameraSizeIndex)
+void slSetCameraSize(int sizeIndex,
+                     int sizeIndexMax,
+                     int width,
+                     int height)
 {
-    if (videoType == VT_MAIN)
+    if ((uint)sizeIndexMax != SLCVCapture::camSizes.size())
     {
-        SLCVCapture::camSizesMain       = cameraSizes;
-        SLCVCapture::defaultCamSizeMain = defaultCameraSizeIndex;
+        SLCVCapture::camSizes.clear();
+        SLCVCapture::camSizes.resize((uint)sizeIndexMax);
     }
-    if (videoType == VT_SCND)
-    {
-        SLCVCapture::camSizesScnd       = cameraSizes;
-        SLCVCapture::defaultCamSizeScnd = defaultCameraSizeIndex;
-    }
+    SLCVCapture::camSizes[(uint)sizeIndex].width  = width;
+    SLCVCapture::camSizes[(uint)sizeIndex].height = height;
 }
 //-----------------------------------------------------------------------------
