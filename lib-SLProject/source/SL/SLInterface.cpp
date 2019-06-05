@@ -534,7 +534,7 @@ void slCopyVideoYUVPlanes(int      srcW,
 //-----------------------------------------------------------------------------
 /*! Get available external directories and inform slproject about them
 */
-void slSetupExternalDirectories(SLstring externalPath)
+void slSetupExternalDir(SLstring externalPath)
 {
     if (Utils::dirExists(externalPath))
     {
@@ -562,5 +562,11 @@ void slSetCameraSize(int sizeIndex,
     }
     SLCVCapture::camSizes[(uint)sizeIndex].width  = width;
     SLCVCapture::camSizes[(uint)sizeIndex].height = height;
+}
+//-----------------------------------------------------------------------------
+void slSetParameterValue(SLstring parameter,
+                         SLstring value)
+{
+    SL_LOG("Parameter %s: %s\n", parameter.c_str(), value.c_str());
 }
 //-----------------------------------------------------------------------------

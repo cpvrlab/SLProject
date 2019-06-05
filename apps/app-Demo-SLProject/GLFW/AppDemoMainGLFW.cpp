@@ -543,7 +543,7 @@ int main(int argc, char* argv[])
     // get executable path
     SLstring projectRoot = SLstring(SL_PROJECT_ROOT);
     SLstring configDir   = Utils::getAppsWritableDir();
-    slSetupExternalDirectories("../data");
+    slSetupExternalDir("../data");
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,

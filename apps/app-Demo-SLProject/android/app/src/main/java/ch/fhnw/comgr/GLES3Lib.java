@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.lang.String;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
@@ -75,8 +76,9 @@ public class GLES3Lib {
                                                      byte[] y, int ySize, int yPixStride, int yLineStride,
                                                      byte[] u, int uSize, int uPixStride, int uLineStride,
                                                      byte[] v, int vSize, int vPixStride, int vLineStride);
-    public static native void    onSetupExternalDirectories(String externalDirPath);
+    public static native void    onSetupExternalDir (String externalDirPath);
     public static native void    setCameraSize      (int sizeIndex, int sizeIndexMax, int width, int height);
+    public static native void    setParameterValue  (String parameter, String value);
 
     /**
      * The RaytracingCallback function is used to repaint the ray tracing image during the

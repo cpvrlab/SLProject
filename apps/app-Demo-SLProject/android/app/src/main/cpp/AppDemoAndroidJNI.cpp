@@ -49,27 +49,18 @@ JNIEXPORT jint     JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoType        (JNIE
 JNIEXPORT jint     JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoSizeIndex   (JNIEnv *env, jobject obj);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_grabVideoFileFrame  (JNIEnv *env, jobject obj);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage      (JNIEnv *env, jobject obj, jint imgWidth, jint imgHeight, jbyteArray srcBuffer);
-JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onSetupExternalDirectories (JNIEnv *env, jobject obj, jstring externalDirPath);
+JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onSetupExternalDir  (JNIEnv *env, jobject obj, jstring externalDirPath);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes  (JNIEnv *env, jobject obj, jint  srcW, jint srcH,
                                                                             jbyteArray yBuf, jint ySize, jint yPixStride, jint yLineStride,
                                                                             jbyteArray uBuf, jint uSize, jint uPixStride, jint uLineStride,
                                                                             jbyteArray vBuf, jint vSize, jint vPixStride, jint vLineStride);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_setCameraSize       (JNIEnv *env, jobject obj, jint sizeIndex, jint sizeIndexMax, jint width, jint height);
+JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_setParameterValue   (JNIEnv *env, jobject obj, jstring parameter, jstring value);
 };
+
 
 //-----------------------------------------------------------------------------
 extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
-
-//-----------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onSetupExternalDirectories(JNIEnv *env, jobject obj, jstring  externalDirPath)
-{
-    environment = env;
-    const char *nativeString = env->GetStringUTFChars(externalDirPath, 0);
-    string externalDirPathNative(nativeString);
-    env->ReleaseStringUTFChars(externalDirPath, nativeString);
-
-    slSetupExternalDirectories(externalDirPathNative);
-}
 //-----------------------------------------------------------------------------
 //! Native ray tracing callback function that calls the Java class method GLES3Lib.RaytracingCallback
 bool Java_renderRaytracingCallback()
@@ -92,6 +83,16 @@ static void printGLString(const char *name, GLenum s)
 {
     const char *v = (const char *) glGetString(s);
     SL_LOG("GL %s = %s\n", name, v);
+}
+//-----------------------------------------------------------------------------
+std::string jstring2stdstring(JNIEnv *env, jstring jStr)
+{
+    if (!jStr) return "";
+    jboolean isCopy;
+    const char* chars = env->GetStringUTFChars(jStr, &isCopy);
+    std::string stdString(chars);
+    env->ReleaseStringUTFChars(jStr, chars);
+    return stdString;
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject obj, jint width, jint height, jint dpi, jstring filePath)
@@ -140,9 +141,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject o
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTerminate(JNIEnv *env, jobject obj)
 {
-
     AppDemoGui::saveConfig();
-
     slTerminate();
 }
 //-----------------------------------------------------------------------------
@@ -281,6 +280,14 @@ JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesLocation(JNIEnv *env,
     return slUsesLocation();
 }
 //-----------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onSetupExternalDir(JNIEnv *env,
+                                                                      jobject obj,
+                                                                      jstring  externalDirPath)
+{
+    std::string externalDirPathNative = jstring2stdstring(env, externalDirPath);
+    slSetupExternalDir(externalDirPathNative);
+}
+//-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setCameraSize(JNIEnv *env,
                                                                  jobject obj,
                                                                  jint sizeIndex,
@@ -289,5 +296,15 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setCameraSize(JNIEnv *env,
                                                                  jint height)
 {
     slSetCameraSize(sizeIndex, sizeIndexMax, width, height);
+}
+//-----------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setParameterValue(JNIEnv *env,
+                                                                     jobject obj,
+                                                                     jstring parameter,
+                                                                     jstring value)
+{
+    std::string par = jstring2stdstring(env, parameter);
+    std::string val = jstring2stdstring(env, value);
+    slSetParameterValue(par.c_str(), val.c_str());
 }
 //-----------------------------------------------------------------------------
