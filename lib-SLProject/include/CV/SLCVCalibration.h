@@ -159,6 +159,7 @@ class SLCVCalibration
     SLfloat        boardSquareMM() { return _boardSquareMM; }
     SLfloat        boardSquareM() { return _boardSquareMM * 0.001f; }
     SLstring       calibrationTime() { return _calibrationTime; }
+    SLstring       calibDir() { return _calibDir; }
     SLstring       calibFileName() { return _calibFileName; }
     SLstring       stateStr()
     {
@@ -184,6 +185,7 @@ class SLCVCalibration
 
     SLCVCalibState _state;                  //!< calibration state enumeration
     SLfloat        _cameraFovDeg;           //!< Vertical field of view in degrees
+    SLstring       _calibDir;               //!< directory of calibration file
     SLstring       _calibFileName;          //!< name for calibration file
     SLstring       _calibParamsFileName;    //!< name of calibration paramters file
     SLint          _calibFlags;             //!< OpenCV calibration flags

@@ -474,6 +474,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Capture size  : %d x %d\n", capSize.width, capSize.height);
             sprintf(m + strlen(m), "Requested size: %d\n", SLCVCapture::requestedSizeIndex);
             sprintf(m + strlen(m), "Mirrored      : %s\n", mirrored.c_str());
+            sprintf(m + strlen(m), "Chessboard    : %d x %d (%3.1fmm)\n", c->boardSize().width, c->boardSize().height, c->boardSquareMM());
             sprintf(m + strlen(m), "Undistorted   : %s\n", c->showUndistorted() && c->state() == CS_calibrated ? "Yes" : "No");
             sprintf(m + strlen(m), "FOV (deg.)    : %4.1f\n", c->cameraFovDeg());
             sprintf(m + strlen(m), "fx,fy,cx,cy   : %4.1f,%4.1f,%4.1f,%4.1f\n", c->fx(), c->fy(), c->cx(), c->cy());

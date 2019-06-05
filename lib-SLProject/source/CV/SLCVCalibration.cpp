@@ -72,12 +72,13 @@ bool SLCVCalibration::load(SLstring calibDir,
                            SLbool   mirrorHorizontally,
                            SLbool   mirrorVertically)
 {
+    _calibDir      = Utils::unifySlashes(calibDir);
     _calibFileName = calibFileName;
     _isMirroredH   = mirrorHorizontally;
     _isMirroredV   = mirrorVertically;
 
     //load camera parameter
-    SLstring    fullPathAndFilename = calibDir + _calibFileName;
+    SLstring    fullPathAndFilename = _calibDir + _calibFileName;
     FileStorage fs(fullPathAndFilename, FileStorage::READ);
 
     if (!fs.isOpened())
@@ -149,7 +150,7 @@ bool SLCVCalibration::load(SLstring calibDir,
 //! Saves the camera calibration parameters to the config file
 void SLCVCalibration::save()
 {
-    SLstring fullPathAndFilename = SLApplication::externalPath + _calibFileName;
+    SLstring        fullPathAndFilename = _calibDir + _calibFileName;
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 
     if (!fs.isOpened())

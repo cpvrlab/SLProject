@@ -174,6 +174,19 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
         file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
     endif()
 
+    # Copy plist file with camera access description beside executable
+    # This is needed for security purpose since MacOS Mohave
+    set(MACOS_PLIST_FILE
+        ${SL_PROJECT_ROOT}/data/config/info.plist)
+    #message(STATUS "MACOS_PLIST_FILE: ${MACOS_PLIST_FILE}")
+    #message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
+    if(${CMAKE_GENERATOR} STREQUAL Xcode)
+        file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+    else()
+        file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR})
+    endif()
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
     set(OpenCV_VERSION "3.4.1")
     set(OpenCV_PREBUILT_DIR "andV8_opencv_${OpenCV_VERSION}")

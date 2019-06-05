@@ -24,6 +24,7 @@ import android.hardware.SensorManager;
 import android.hardware.camera2.CameraCharacteristics;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
@@ -78,6 +79,13 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         myView.setOnTouchListener(this);
         Log.i(TAG, "setContentView");
         setContentView(myView);
+
+        Log.i(TAG, "MODEL       : " + Build.MODEL);
+        Log.i(TAG, "MANUFACTURER: " + Build.MANUFACTURER);
+        Log.i(TAG, "BRAND       : " + Build.BRAND);
+        Log.i(TAG, "MODEL       : " + Build.MODEL);
+        Log.i(TAG, "ID          : " + Build.ID);
+        Log.i(TAG, "SERIAL      : " + Build.SERIAL);
 
         // Get display resolution. This is used to scale the menu buttons accordingly
         DisplayMetrics metrics = new DisplayMetrics();

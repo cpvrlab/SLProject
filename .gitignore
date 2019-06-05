@@ -30,7 +30,6 @@ data/calibrations/ORBvoc.txt
 data/calibrations/imgs
 data/videos
 data/slam-maps
-data
 externals/g2o/BUILD*
 externals/g2o/bin
 externals/g2o/lib*
