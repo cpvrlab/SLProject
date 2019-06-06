@@ -15,6 +15,7 @@
 #include <SLDeviceRotation.h>
 #include <SLInputManager.h>
 #include <mutex>
+#include <map>
 
 using namespace std;
 
@@ -40,6 +41,7 @@ class SLApplication
     static void createAppAndScene(SLstring appName,
                                   void*    onSceneLoadCallback);
     static void deleteAppAndScene();
+    static void getComputerInfos();
 
     static SLScene*         scene;          //!< scene pointer
     static SLInputManager   inputManager;   //!< Input events manager
@@ -50,20 +52,29 @@ class SLApplication
     static SLDeviceRotation devRot;         //!< Mobile device rotation from IMU
     static SLDeviceLocation devLoc;         //!< Mobile device location from GPS
 
-    static SLstring  name;         //!< Applcation name
-    static SLstring  version;      //!< SLProject version string
-    static SLstring  gitBranch;    //!< Current GIT branch
-    static SLstring  gitCommit;    //!< Current GIT commit short hash id
-    static SLstring  gitDate;      //!< Current GIT commit date
-    static SLint     dpi;          //!< Current UI dot per inch resolution
-    static SLstring  configPath;   //!< Default path for calibration files
-    static SLstring  externalPath; //!< Default path for external file storage
-    static SLSceneID sceneID;      //!< ID of last loaded scene
+    static SLstring  name;          //!< Applcation name
+    static SLstring  version;       //!< SLProject version string
+    static SLstring  computerUser;  //!< Computer Name (= env-var USER)
+    static SLstring  computerName;  //!< Computer Name (= env-var HOSTNAME)
+    static SLstring  computerBrand; //!< Computer brand name
+    static SLstring  computerModel; //!< Computer model name
+    static SLstring  computerOS;    //!< Computer OS name
+    static SLstring  computerOSVer; //!< Computer OS version
+    static SLstring  computerArch;  //!< Computer Architecture
+    static SLstring  gitBranch;     //!< Current GIT branch
+    static SLstring  gitCommit;     //!< Current GIT commit short hash id
+    static SLstring  gitDate;       //!< Current GIT commit date
+    static SLint     dpi;           //!< Current UI dot per inch resolution
+    static SLstring  configPath;    //!< Default path for calibration files
+    static SLstring  externalPath;  //!< Default path for external file storage
+    static SLSceneID sceneID;       //!< ID of last loaded scene
 
     static SLfloat dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
 
+    static map<string, string> deviceParameter; //! Generic device parameter
+
     // Parallel job handling (please read remarks on handleParallelJob)
-    static void   handleParallelJob();
+    static void handleParallelJob();
 
     static void   jobProgressMsg(string msg);
     static void   jobProgressNum(int num) { _jobProgressNum = num; }

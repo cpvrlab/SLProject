@@ -99,9 +99,9 @@ SLbool   AppDemoGui::showCredits         = false;
 SLbool   AppDemoGui::showStatsTiming     = false;
 SLbool   AppDemoGui::showStatsScene      = false;
 SLbool   AppDemoGui::showStatsVideo      = false;
-SLbool   AppDemoGui::showInfosFrameworks = false;
 SLbool   AppDemoGui::showInfosScene      = false;
 SLbool   AppDemoGui::showInfosSensors    = false;
+SLbool   AppDemoGui::showInfosDevice     = false;
 SLbool   AppDemoGui::showSceneGraph      = false;
 SLbool   AppDemoGui::showProperties      = false;
 SLbool   AppDemoGui::showChristoffel     = false;
@@ -469,19 +469,20 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             else if (c->isMirroredV())
                 mirrored = "vertically";
 
-            sprintf(m + strlen(m), "Video Type    : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera" : vt == VT_FILE ? "File" : "Secondary Camera");
-            sprintf(m + strlen(m), "Display size  : %d x %d\n", SLCVCapture::lastFrame.cols, SLCVCapture::lastFrame.rows);
-            sprintf(m + strlen(m), "Capture size  : %d x %d\n", capSize.width, capSize.height);
-            sprintf(m + strlen(m), "Requested size: %d\n", SLCVCapture::requestedSizeIndex);
-            sprintf(m + strlen(m), "Mirrored      : %s\n", mirrored.c_str());
-            sprintf(m + strlen(m), "Chessboard    : %d x %d (%3.1fmm)\n", c->boardSize().width, c->boardSize().height, c->boardSquareMM());
-            sprintf(m + strlen(m), "Undistorted   : %s\n", c->showUndistorted() && c->state() == CS_calibrated ? "Yes" : "No");
-            sprintf(m + strlen(m), "FOV (deg.)    : %4.1f\n", c->cameraFovDeg());
-            sprintf(m + strlen(m), "fx,fy,cx,cy   : %4.1f,%4.1f,%4.1f,%4.1f\n", c->fx(), c->fy(), c->cx(), c->cy());
-            sprintf(m + strlen(m), "k1,k2,p1,p2   : %4.2f,%4.2f,%4.2f,%4.2f\n", c->k1(), c->k2(), c->p1(), c->p2());
-            sprintf(m + strlen(m), "Calib. time   : %s\n", c->calibrationTime().c_str());
-            sprintf(m + strlen(m), "Calib. file   : %s\n", c->calibFileName().c_str());
-            sprintf(m + strlen(m), "Calib. state  : %s\n", c->stateStr().c_str());
+            sprintf(m + strlen(m), "Video Type  : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera" : vt == VT_FILE ? "File" : "Secondary Camera");
+            sprintf(m + strlen(m), "Display size: %d x %d\n", SLCVCapture::lastFrame.cols, SLCVCapture::lastFrame.rows);
+            sprintf(m + strlen(m), "Capture size: %d x %d\n", capSize.width, capSize.height);
+            sprintf(m + strlen(m), "Size Index  : %d\n", c->camSizeIndex());
+            sprintf(m + strlen(m), "Mirrored    : %s\n", mirrored.c_str());
+            sprintf(m + strlen(m), "Chessboard  : %dx%d (%3.1fmm)\n", c->boardSize().width, c->boardSize().height, c->boardSquareMM());
+            sprintf(m + strlen(m), "Undistorted : %s\n", c->showUndistorted() && c->state() == CS_calibrated ? "Yes" : "No");
+            sprintf(m + strlen(m), "FOV (deg.)  : %4.1f\n", c->cameraFovDeg());
+            sprintf(m + strlen(m), "fx,fy       : %4.1f,%4.1f\n", c->fx(), c->fy());
+            sprintf(m + strlen(m), "cx,cy       : %4.1f,%4.1f\n", c->cx(), c->cy());
+            sprintf(m + strlen(m), "k1,k2       : %4.2f,%4.2f\n", c->k1(), c->k2());
+            sprintf(m + strlen(m), "p1,p2       : %4.2f,%4.2f\n", c->p1(), c->p2());
+            sprintf(m + strlen(m), "Calib. time : %s\n", c->calibrationTime().c_str());
+            sprintf(m + strlen(m), "Calib. state: %s\n", c->stateStr().c_str());
 
             if (vt != VT_NONE && s->trackers().size() > 0)
             {
@@ -624,7 +625,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             ImGui::PopFont();
         }
 
-        if (showInfosFrameworks)
+        if (showInfosDevice)
         {
             SLGLState* stateGL = SLGLState::getInstance();
             SLchar     m[2550]; // message character array
@@ -636,6 +637,13 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 #else
             sprintf(m + strlen(m), "Build Config.    : Release\n");
 #endif
+            sprintf(m + strlen(m), "Computer User    : %s\n", SLApplication::computerUser.c_str());
+            sprintf(m + strlen(m), "Computer Name    : %s\n", SLApplication::computerName.c_str());
+            sprintf(m + strlen(m), "Computer Brand   : %s\n", SLApplication::computerBrand.c_str());
+            sprintf(m + strlen(m), "Computer Model   : %s\n", SLApplication::computerModel.c_str());
+            sprintf(m + strlen(m), "Computer Arch.   : %s\n", SLApplication::computerArch.c_str());
+            sprintf(m + strlen(m), "Computer OS      : %s\n", SLApplication::computerOS.c_str());
+            sprintf(m + strlen(m), "Computer OS Ver. : %s\n", SLApplication::computerOSVer.c_str());
             sprintf(m + strlen(m), "OpenGL Version   : %s\n", stateGL->glVersionNO().c_str());
             sprintf(m + strlen(m), "OpenGL Vendor    : %s\n", stateGL->glVendor().c_str());
             sprintf(m + strlen(m), "OpenGL Renderer  : %s\n", stateGL->glRenderer().c_str());
@@ -648,7 +656,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
             // Switch to fixed font
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("Framework Informations", &showInfosFrameworks, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+            ImGui::Begin("Framework Informations", &showInfosDevice, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::TextUnformatted(m);
             ImGui::End();
             ImGui::PopFont();
@@ -1149,7 +1157,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 #endif
             ImGui::Separator();
 
-            if (ImGui::BeginMenu("Video"))
+            if (ImGui::BeginMenu("Video Sensor"))
             {
                 SLCVCalibration* ac = SLApplication::activeCalib;
                 SLCVCalibration* mc = &SLApplication::calibMainCam;
@@ -1189,7 +1197,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Camera Resolutions",
+                if (ImGui::BeginMenu("Resolution",
                                      (s->videoType() == VT_MAIN || s->videoType() == VT_SCND)))
                 {
                     for (int i = 0; i < (int)SLCVCapture::camSizes.size(); ++i)
@@ -1201,7 +1209,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                 SLCVCapture::camSizes[(uint)i].height);
                         if (ImGui::MenuItem(menuStr, nullptr, i == SLCVCapture::activeCamSizeIndex))
                             if (i != SLCVCapture::activeCamSizeIndex)
-                                SLCVCapture::requestedSizeIndex = i;
+                                SLApplication::activeCalib->camSizeIndex(i);
                     }
                     ImGui::EndMenu();
                 }
@@ -1233,6 +1241,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                     if (ImGui::MenuItem("Fix Principal Point", nullptr, ac->calibFixPrincipalPoint()))
                         ac->toggleFixPrincipalPoint();
+
+                    if (ac->state() == CS_calibrated && ImGui::MenuItem("Upload calibration"))
+                    {
+                    }
 
                     ImGui::EndMenu();
                 }
@@ -1676,8 +1688,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Show Properties", nullptr, &showProperties);
             ImGui::MenuItem("Show Transform", nullptr, &showTransform);
             ImGui::Separator();
+            ImGui::MenuItem("Infos on Device", nullptr, &showInfosDevice);
             ImGui::MenuItem("Infos on Sensors", nullptr, &showInfosSensors);
-            ImGui::MenuItem("Infos on Frameworks", nullptr, &showInfosFrameworks);
             if (SLApplication::sceneID == SID_VideoChristoffel)
             {
                 ImGui::Separator();
@@ -2236,15 +2248,15 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         SLGLImGui::fontFixedDots = SL_max(13.0f * dpiScaleFixed, 13.0f);
 
         // Store dialog show states
-        AppDemoGui::showAbout           = true;
-        AppDemoGui::showInfosScene      = true;
-        AppDemoGui::showStatsTiming     = false;
-        AppDemoGui::showStatsScene      = false;
-        AppDemoGui::showStatsVideo      = false;
-        AppDemoGui::showInfosFrameworks = false;
-        AppDemoGui::showInfosSensors    = false;
-        AppDemoGui::showSceneGraph      = false;
-        AppDemoGui::showProperties      = false;
+        AppDemoGui::showAbout        = true;
+        AppDemoGui::showInfosScene   = true;
+        AppDemoGui::showStatsTiming  = false;
+        AppDemoGui::showStatsScene   = false;
+        AppDemoGui::showStatsVideo   = false;
+        AppDemoGui::showInfosDevice  = false;
+        AppDemoGui::showInfosSensors = false;
+        AppDemoGui::showSceneGraph   = false;
+        AppDemoGui::showProperties   = false;
 
         // Adjust UI paddings on DPI
         style.FramePadding.x     = SL_max(8.0f * dpiScaleFixed, 8.0f);
@@ -2278,7 +2290,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showStatsTiming"] >> b;     AppDemoGui::showStatsTiming = b;
             fs["showStatsMemory"] >> b;     AppDemoGui::showStatsScene = b;
             fs["showStatsVideo"] >> b;      AppDemoGui::showStatsVideo = b;
-            fs["showInfosFrameworks"] >> b; AppDemoGui::showInfosFrameworks = b;
+            fs["showInfosFrameworks"] >> b; AppDemoGui::showInfosDevice = b;
             fs["showInfosSensors"] >> b;    AppDemoGui::showInfosSensors = b;
             fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
             fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
@@ -2348,7 +2360,7 @@ void AppDemoGui::saveConfig()
     fs << "showStatsTiming" << AppDemoGui::showStatsTiming;
     fs << "showStatsMemory" << AppDemoGui::showStatsScene;
     fs << "showStatsVideo" << AppDemoGui::showStatsVideo;
-    fs << "showInfosFrameworks" << AppDemoGui::showInfosFrameworks;
+    fs << "showInfosFrameworks" << AppDemoGui::showInfosDevice;
     fs << "showInfosScene" << AppDemoGui::showInfosScene;
     fs << "showInfosSensors" << AppDemoGui::showInfosSensors;
     fs << "showSceneGraph" << AppDemoGui::showSceneGraph;

@@ -452,7 +452,7 @@ bool SLScene::onUpdate()
                    << imgsCaped << " of " << imgsToCap;
             else
             {
-                ss << "Calculating, please wait ...";
+                ss << "Calculating calibration, please wait ...";
                 ac->state(CS_startCalculating);
             }
             _info = ss.str();
@@ -491,11 +491,11 @@ bool SLScene::onUpdate()
             {
                 SLfloat fov = ac->cameraFovDeg();
                 SLfloat err = ac->reprojectionError();
-                ss << "Tracking " << (_videoType == VT_MAIN ? "main " : "scnd. ") << "camera. ";
+                ss << "Tracking Chessboard on " << (_videoType == VT_MAIN ? "main " : "scnd. ") << "camera. ";
                 if (ac->state() == CS_calibrated)
                     ss << "FOV: " << fov << ", error: " << err;
                 else
-                    ss << "Camera is not calibrated. A FOV is guessed of: " << fov << " degrees.";
+                    ss << "Not calibrated. FOV guessed: " << fov << " degrees.";
                 _info = ss.str();
             }
         } //...................................................................

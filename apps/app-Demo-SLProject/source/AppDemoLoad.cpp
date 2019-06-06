@@ -1949,7 +1949,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 0, 20);
         cam1->focalDist(20);
         cam1->lookAt(0, 0, 0);
-        cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
+        cam1->background().texture(s->videoTexture());
         cam1->setInitialState();
         scene->addChild(cam1);
 
@@ -2007,7 +2007,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             else
             {
                 s->videoType(VT_SCND);
-                s->name("Track Chessboard (scnd. cam.");
+                s->name("Track Chessboard (scnd cam.");
             }
         }
         else if (SLApplication::sceneID == SID_VideoCalibrateMain)
@@ -2021,7 +2021,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             s->videoType(VT_SCND);
             SLApplication::activeCalib->clear();
-            s->name("Calibrate Scnd. Cam.");
+            s->name("Calibrate Scnd Cam.");
         }
 
         // Material

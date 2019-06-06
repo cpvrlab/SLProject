@@ -53,7 +53,7 @@ class AppDemoGui
     static SLbool   showStatsScene;      //!< Flag if scene info should be shown
     static SLbool   showStatsVideo;      //!< Flag if video info should be shown
     static SLbool   showInfosSensors;    //!< Flag if device sensors info should be shown
-    static SLbool   showInfosFrameworks; //!< Flag if frameworks info should be shown
+    static SLbool   showInfosDevice;     //!< Flag if device info should be shown
     static SLbool   showInfosScene;      //!< Flag if scene info should be shown
     static SLbool   showSceneGraph;      //!< Flag if scene graph should be shown
     static SLbool   showProperties;      //!< Flag if properties should be shown

@@ -97,8 +97,11 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #    include <random>
 #    include <sys/time.h>
 #    include <thread>
+#    include <CoreServices/CoreServices.h> // for system info
+#    include <sys/sysctl.h> // for system info
 #elif defined(SL_OS_ANDROID)
 #    include <sys/time.h>
+#    include <sys/system_properties.h>
 #    ifdef SL_GLES3
 #        include <GLES3/gl3.h>
 #        include <GLES3/gl3ext.h>

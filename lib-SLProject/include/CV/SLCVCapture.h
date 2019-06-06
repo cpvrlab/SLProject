@@ -85,7 +85,6 @@ class SLCVCapture
     This is the default size index if the camera resolutions are unknown.
     */
     static SLCVVSize camSizes;           //!< All possible camera sizes
-    static SLint     requestedSizeIndex; //!< The requested camera size index
     static SLint     activeCamSizeIndex; //!< Currently active camera size index
 
     private:

@@ -40,7 +40,6 @@ SLstring         SLCVCapture::videoFilename      = "";
 SLbool           SLCVCapture::videoLoops         = true;
 SLdouble         SLCVCapture::fps                = 1.0f;
 SLCVVSize        SLCVCapture::camSizes           = SLCVVSize();
-SLint            SLCVCapture::requestedSizeIndex = -1;
 SLint            SLCVCapture::activeCamSizeIndex = -1;
 
 //-----------------------------------------------------------------------------

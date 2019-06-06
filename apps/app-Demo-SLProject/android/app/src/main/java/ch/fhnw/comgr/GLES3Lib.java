@@ -78,7 +78,7 @@ public class GLES3Lib {
                                                      byte[] v, int vSize, int vPixStride, int vLineStride);
     public static native void    onSetupExternalDir (String externalDirPath);
     public static native void    setCameraSize      (int sizeIndex, int sizeIndexMax, int width, int height);
-    public static native void    setParameterValue  (String parameter, String value);
+    public static native void    setDeviceParameter (String parameter, String value);
 
     /**
      * The RaytracingCallback function is used to repaint the ray tracing image during the

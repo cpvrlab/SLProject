@@ -460,15 +460,15 @@ int slGetVideoType()
     return (int)SLApplication::scene->videoType();
 }
 //-----------------------------------------------------------------------------
-/*! Global function that returns the size index offset of the requested video.
-An index offset of 0 returns the default size of 640x480. If this size is not
+/*! Global function that returns the size index of the requested video.
+An index of -1 returns the default size of 640x480. If this size is not
 available the median element of the available sizes array is returned.
-An index of -n return the n-th smaller one. \n
-An index of +n return the n-th bigger one. \n
+At the first startup of the camera all available resolutions are passed to
+SLProject with slSetCameraSize.
 */
 int slGetVideoSizeIndex()
 {
-    return SLCVCapture::requestedSizeIndex;
+    return SLApplication::activeCalib->camSizeIndex();
 }
 //-----------------------------------------------------------------------------
 /*! Global function to grab the next frame with the OpenCV capture device. This
@@ -564,9 +564,10 @@ void slSetCameraSize(int sizeIndex,
     SLCVCapture::camSizes[(uint)sizeIndex].height = height;
 }
 //-----------------------------------------------------------------------------
-void slSetParameterValue(SLstring parameter,
-                         SLstring value)
+//! Adds a value to the applications device parameter map
+void slSetDeviceParameter(SLstring parameter,
+                          SLstring value)
 {
-    SL_LOG("Parameter %s: %s\n", parameter.c_str(), value.c_str());
+    SLApplication::deviceParameter[parameter] = value;
 }
 //-----------------------------------------------------------------------------

@@ -14,6 +14,7 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
+#include <SL.h>
 #include <SLApplication.h>
 #include <SLCVCapture.h>
 #include <SLCVTracked.h>
@@ -22,20 +23,29 @@
 
 //-----------------------------------------------------------------------------
 //! Global static objects
-SLInputManager   SLApplication::inputManager;
-SLScene*         SLApplication::scene       = nullptr;
-SLCVCalibration* SLApplication::activeCalib = nullptr;
-SLCVCalibration  SLApplication::calibMainCam;
-SLCVCalibration  SLApplication::calibScndCam;
-SLCVCalibration  SLApplication::calibVideoFile;
-SLDeviceRotation SLApplication::devRot;
-SLDeviceLocation SLApplication::devLoc;
-SLstring         SLApplication::name      = "SLProjectApp";
-SLstring         SLApplication::version   = "2.3.100";
-SLstring         SLApplication::gitBranch = SL_GIT_BRANCH;
-SLstring         SLApplication::gitCommit = SL_GIT_COMMIT;
-SLstring         SLApplication::gitDate   = SL_GIT_DATE;
-SLint            SLApplication::dpi       = 0;
+SLInputManager      SLApplication::inputManager;
+SLScene*            SLApplication::scene       = nullptr;
+SLCVCalibration*    SLApplication::activeCalib = nullptr;
+SLCVCalibration     SLApplication::calibMainCam;
+SLCVCalibration     SLApplication::calibScndCam;
+SLCVCalibration     SLApplication::calibVideoFile;
+SLDeviceRotation    SLApplication::devRot;
+SLDeviceLocation    SLApplication::devLoc;
+SLstring            SLApplication::name          = "SLProjectApp";
+SLstring            SLApplication::version       = "2.3.100";
+SLstring            SLApplication::computerUser  = "USER?";
+SLstring            SLApplication::computerName  = "NAME?";
+SLstring            SLApplication::computerBrand = "BRAND?";
+SLstring            SLApplication::computerModel = "MODEL?";
+SLstring            SLApplication::computerOS    = "OS?";
+SLstring            SLApplication::computerOSVer = "OSVER?";
+SLstring            SLApplication::computerArch  = "ARCH?";
+SLstring            SLApplication::gitBranch     = SL_GIT_BRANCH;
+SLstring            SLApplication::gitCommit     = SL_GIT_COMMIT;
+SLstring            SLApplication::gitDate       = SL_GIT_DATE;
+SLint               SLApplication::dpi           = 0;
+map<string, string> SLApplication::deviceParameter;
+
 //! SLApplication::configPath is overwritten in slCreateAppAndScene.
 SLstring                    SLApplication::configPath   = SLstring(SL_PROJECT_ROOT) + "/data/config/";
 SLstring                    SLApplication::externalPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
@@ -72,6 +82,8 @@ void SLApplication::createAppAndScene(SLstring appName,
     name = appName;
 
     scene = new SLScene(name, (cbOnSceneLoad)onSceneLoadCallback);
+
+    getComputerInfos();
 
 // load opencv camera calibration for main and secondary camera
 #if defined(SL_USES_CVCAPTURE)
@@ -158,5 +170,171 @@ string SLApplication::jobProgressMsg()
 {
     lock_guard<mutex> guard(_jobMutex);
     return _jobProgressMsg;
+}
+//-----------------------------------------------------------------------------
+void SLApplication::getComputerInfos()
+{
+#if defined(SL_OS_WINDOWS) //..................................................
+
+    // Computer user name
+    const char* envvar = std::getenv("USER");
+    computerUser       = envvar ? string(envvar) : "USER?";
+    if (computerUser == "USER?")
+    {
+        const char* envvar = std::getenv("USERNAME");
+        computerUser       = envvar ? string(envvar) : "USER?";
+    }
+
+    computerName = Utils::getHostName();
+
+    // Get architecture
+    SYSTEM_INFO siSysInfo;
+    GetSystemInfo(&siSysInfo);
+    switch (siSysInfo.wProcessorArchitecture)
+    {
+        case PROCESSOR_ARCHITECTURE_AMD64: computerArch = "x64"; break;
+        case PROCESSOR_ARCHITECTURE_ARM: computerArch = "ARM"; break;
+        case PROCESSOR_ARCHITECTURE_ARM64: computerArch = "ARM64"; break;
+        case PROCESSOR_ARCHITECTURE_IA64: computerArch = "IA64"; break;
+        case PROCESSOR_ARCHITECTURE_INTEL: computerArch = "x86"; break;
+        default: computerArch = "???";
+    }
+
+    // Windows OS version
+    OSVERSIONINFO osInfo;
+    ZeroMemory(&osInfo, sizeof(OSVERSIONINFO));
+    osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osInfo);
+    char osVer[50];
+    sprintf(osVer, "%u.%u", osInfo.dwMajorVersion, osInfo.dwMinorVersion);
+    computerOSVer = string(osVer);
+
+    computerBrand = "BRAND?";
+    computerModel = "MODEL?";
+    computerOS    = "Windows";
+
+#elif defined(SL_OS_MACOS) //..................................................
+
+    // Computer user name
+    const char* envvar = std::getenv("USER");
+    computerUser       = envvar ? string(envvar) : "USER?";
+    if (computerUser == "USER?")
+    {
+        const char* envvar = std::getenv("USERNAME");
+        computerUser       = envvar ? string(envvar) : "USER?";
+    }
+
+    computerName  = Utils::getHostName();
+    computerBrand = "Apple";
+    computerOS    = "MacOS";
+
+    // Get MacOS version
+    SInt32 majorV, minorV, bugfixV;
+    Gestalt(gestaltSystemVersionMajor, &majorV);
+    Gestalt(gestaltSystemVersionMinor, &minorV);
+    Gestalt(gestaltSystemVersionBugFix, &bugfixV);
+    char osVer[50];
+    sprintf(osVer, "%d.%d.%d", majorV, minorV, bugfixV);
+    computerOSVer = string(osVer);
+
+    // Get model
+    size_t len = 0;
+    sysctlbyname("hw.model", nullptr, &len, nullptr, 0);
+    string model(len, '\0');
+    sysctlbyname("hw.model", const_cast<char*>(computerModel.data()), &len, nullptr, 0);
+
+    computerArch = "ARCH?";
+
+#elif defined(SL_OS_LINUX) //..................................................
+
+    computerUser  = "USER?";
+    computerName  = Utils::getHostName();
+    computerBrand = "BRAND?";
+    computerModel = "MODEL?";
+    computerOS    = "Linux";
+    computerOSVer = "OSVER?";
+    computerArch  = "ARCH?";
+
+#elif defined(SL_OS_IOS)
+
+    computerName  = Utils::getHostName();
+    computerBrand = "BRAND?";
+    computerModel = "MODEL?";
+    computerOS    = "iOS";
+    computerOSVer = "OSVER?";
+    computerArch  = "ARCH?";
+
+#elif defined(SL_OS_ANDROID) //................................................
+
+    computerOS = "Android";
+
+    /*
+    "ro.build.version.release"     // * The user-visible version string. E.g., "1.0" or "3.4b5".
+    "ro.build.version.incremental" // The internal value used by the underlying source control to represent this build.
+    "ro.build.version.codename"    // The current development codename, or the string "REL" if this is a release build.
+    "ro.build.version.sdk"         // The user-visible SDK version of the framework.
+
+    "ro.product.model"             // * The end-user-visible name for the end product..
+    "ro.product.manufacturer"      // The manufacturer of the product/hardware.
+    "ro.product.board"             // The name of the underlying board, like "goldfish".
+    "ro.product.brand"             // The brand (e.g., carrier) the software is customized for, if any.
+    "ro.product.device"            // The name of the industrial design.
+    "ro.product.name"              // The name of the overall product.
+    "ro.hardware"                  // The name of the hardware (from the kernel command line or /proc).
+    "ro.product.cpu.abi"           // The name of the instruction set (CPU type + ABI convention) of native code.
+    "ro.product.cpu.abi2"          // The name of the second instruction set (CPU type + ABI convention) of native code.
+
+    "ro.build.display.id"          // * A build ID string meant for displaying to the user.
+    "ro.build.host"
+    "ro.build.user"
+    "ro.build.id"                  // Either a changelist number, or a label like "M4-rc20".
+    "ro.build.type"                // The type of build, like "user" or "eng".
+    "ro.build.tags"                // Comma-separated tags describing the build, like "unsigned,debug".
+    */
+
+    int len;
+
+    char brand[PROP_VALUE_MAX];
+    len           = __system_property_get("ro.product.brand", brand);
+    computerBrand = string(brand);
+
+    char model[PROP_VALUE_MAX];
+    len           = __system_property_get("ro.product.model", model);
+    computerModel = string(model);
+
+    char osVer[PROP_VALUE_MAX];
+    len           = __system_property_get("ro.build.version.release", osVer);
+    computerOSVer = string(osVer);
+
+    char arch[PROP_VALUE_MAX];
+    len          = __system_property_get("ro.product.cpu.abi", arch);
+    computerArch = string(arch);
+
+    // Computer name
+    computerName = Utils::getHostName();
+    if (computerName == "localhost" || computerName == "")
+    {
+        const char* envvar = std::getenv("HOSTNAME");
+        computerName       = envvar ? string(envvar) : "NAME?";
+        if (computerName == "NAME?")
+        {
+            const char* envvar = std::getenv("COMPUTERNAME");
+            computerName       = envvar ? string(envvar) : "NAME?";
+
+            if (computerName == "NAME?")
+                computerName = computerModel;
+        }
+    }
+
+    // Computer user name
+    const char* envvar = std::getenv("USER");
+    computerUser       = envvar ? string(envvar) : "USER?";
+    if (computerUser == "USER?")
+    {
+        const char* envvar = std::getenv("USERNAME");
+        computerUser       = envvar ? string(envvar) : "USER?";
+    }
+
+#endif
 }
 //-----------------------------------------------------------------------------

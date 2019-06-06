@@ -66,6 +66,7 @@ class SLCVCalibration
     public:
     SLCVCalibration();
     ~SLCVCalibration() { ; }
+
     bool    load(SLstring calibDir,
                  SLstring calibFileName,
                  SLbool   mirrorHorizontally,
@@ -74,6 +75,7 @@ class SLCVCalibration
     bool    loadCalibParams();
     bool    calculate();
     void    clear();
+    void    uploadCalibration();
     SLfloat calcReprojectionErr(const SLCVVVPoint3f& objectPoints,
                                 const SLCVVMat&      rvecs,
                                 const SLCVVMat&      tvecs,
@@ -91,17 +93,19 @@ class SLCVCalibration
     static void     calcBoardCorners3D(SLCVSize      boardSize,
                                        SLfloat       squareSize,
                                        SLCVVPoint3f& objectPoints3D);
+
     // Setters
     void state(SLCVCalibState s) { _state = s; }
     void imageSize(SLCVSize newSize)
     {
         if (newSize != _imageSize)
         {
-            _imageSize = newSize;
             clear();
+            _imageSize = newSize;
             save();
         }
     }
+    void camSizeIndex(SLint index) { _camSizeIndex = index; }
     void toggleMirrorH()
     {
         clear();
@@ -133,6 +137,7 @@ class SLCVCalibration
 
     // Getters
     SLCVSize       imageSize() { return _imageSize; }
+    SLint          camSizeIndex() { return _camSizeIndex; }
     SLfloat        imageAspectRatio() { return (float)_imageSize.width / (float)_imageSize.height; }
     SLCVMat&       cameraMat() { return _cameraMat; }
     SLCVMat&       distortion() { return _distortion; }
@@ -201,6 +206,7 @@ class SLCVCalibration
     SLfloat        _reprojectionError;      //!< Reprojection error after calibration
     SLCVVVPoint2f  _imagePoints;            //!< 2D vector of corner points in chessboard
     SLCVSize       _imageSize;              //!< Input image size in pixels (after cropping)
+    SLint          _camSizeIndex;           //!< The requested camera size index
     SLbool         _showUndistorted;        //!< Flag if image should be undistorted
     SLCVMat        _undistortMapX;          //!< Undistortion float map in x-direction
     SLCVMat        _undistortMapY;          //!< Undistortion float map in y-direction

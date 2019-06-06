@@ -23,17 +23,35 @@ for a good top down information.
 #include <SLCVCalibration.h>
 #include <SLCVCapture.h>
 #include <Utils.h>
+#include <ftplib.h>
 
 using namespace cv;
 using namespace std;
-
+//-----------------------------------------------------------------------------
+off64_t ftpUploadSizeMax = 0;
+//-----------------------------------------------------------------------------
+//! Calibration Upload callback for progress feedback
+int ftpCallbackUpload(off64_t xfered, void* arg)
+{
+    if (ftpUploadSizeMax)
+    {
+        int xferedPC = (int)((float)xfered / (float)ftpUploadSizeMax * 100.0f);
+        cout << "Bytes transfered: " << xfered << " (" << xferedPC << ")" << endl;
+        SLApplication::jobProgressNum(xferedPC);
+    }
+    else
+    {
+        cout << "Bytes transfered: " << xfered << endl;
+    }
+    return xfered ? 1 : 0;
+}
 //-----------------------------------------------------------------------------
 //! Default path for calibration files
 //! Is overwritten in slCreateAppAndScene.
 SLstring SLCVCalibration::calibIniPath = SLstring(SL_PROJECT_ROOT) + "/data/calibrations/";
 
 //! Increase the _CALIBFILEVERSION each time you change the file format
-const SLint SLCVCalibration::_CALIBFILEVERSION = 3; // Date: 26.Fev.2017
+const SLint SLCVCalibration::_CALIBFILEVERSION = 4; // Date: 6.JUNE.2019
 //-----------------------------------------------------------------------------
 SLCVCalibration::SLCVCalibration()
   : _state(CS_uncalibrated),
@@ -48,6 +66,7 @@ SLCVCalibration::SLCVCalibration()
     _numOfImgsToCapture(0),
     _numCaptured(0),
     _reprojectionError(-1.0f),
+    _camSizeIndex(-1),
     _showUndistorted(false),
     _calibrationTime("-")
 {
@@ -85,13 +104,13 @@ bool SLCVCalibration::load(SLstring calibDir,
     {
         SL_LOG("Calibration     : %s\n", calibFileName.c_str());
         SL_LOG("Calib. created  : No. Calib. will be estimated\n");
-        _numCaptured                    = 0;
-        _isMirroredH                    = mirrorHorizontally;
-        _isMirroredV                    = mirrorVertically;
-        _reprojectionError              = 0;
-        _calibrationTime                = "-";
-        _state                          = CS_uncalibrated;
-        SLCVCapture::requestedSizeIndex = -1;
+        _numCaptured       = 0;
+        _isMirroredH       = mirrorHorizontally;
+        _isMirroredV       = mirrorVertically;
+        _reprojectionError = 0;
+        _calibrationTime   = "-";
+        _state             = CS_uncalibrated;
+        _camSizeIndex      = -1;
         return false;
     }
 
@@ -101,16 +120,16 @@ bool SLCVCalibration::load(SLstring calibDir,
     // Reset if new file format version is available
     if (calibFileVersion < _CALIBFILEVERSION)
     {
-        _numCaptured                    = 0;
-        _isMirroredH                    = mirrorHorizontally;
-        _isMirroredV                    = mirrorVertically;
-        _calibFixAspectRatio            = true;
-        _calibFixPrincipalPoint         = true;
-        _calibZeroTangentDist           = true;
-        _reprojectionError              = -1;
-        _calibrationTime                = "-";
-        _state                          = CS_uncalibrated;
-        SLCVCapture::requestedSizeIndex = -1;
+        _numCaptured            = 0;
+        _isMirroredH            = mirrorHorizontally;
+        _isMirroredV            = mirrorVertically;
+        _calibFixAspectRatio    = true;
+        _calibFixPrincipalPoint = true;
+        _calibZeroTangentDist   = true;
+        _reprojectionError      = -1;
+        _calibrationTime        = "-";
+        _state                  = CS_uncalibrated;
+        _camSizeIndex           = -1;
     }
     else
     {
@@ -126,7 +145,7 @@ bool SLCVCalibration::load(SLstring calibDir,
         fs["distortion"] >> _distortion;
         fs["reprojectionError"] >> _reprojectionError;
         fs["calibrationTime"] >> _calibrationTime;
-        fs["requestedVideoSizeIndex"] >> SLCVCapture::requestedSizeIndex;
+        fs["camSizeIndex"] >> _camSizeIndex;
         _state = _numCaptured ? CS_calibrated : CS_uncalibrated;
     }
 
@@ -172,6 +191,15 @@ void SLCVCalibration::save()
     }
 
     fs << "CALIBFILEVERSION" << _CALIBFILEVERSION;
+    fs << "calibrationTime" << _calibrationTime;
+    fs << "computerUser" << SLApplication::computerUser;
+    fs << "computerName" << SLApplication::computerName;
+    fs << "computerBrand" << SLApplication::computerBrand;
+    fs << "computerModel" << SLApplication::computerModel;
+    fs << "computerArch" << SLApplication::computerArch;
+    fs << "computerOS" << SLApplication::computerOS;
+    fs << "computerOSVer" << SLApplication::computerOSVer;
+    fs << "SLProjectVersion" << SLApplication::version;
     fs << "imageSizeWidth" << _imageSize.width;
     fs << "imageSizeHeight" << _imageSize.height;
     fs << "boardSizeWidth" << _boardSize.width;   // do not reload
@@ -188,8 +216,7 @@ void SLCVCalibration::save()
     fs << "distortion" << _distortion;
     fs << "reprojectionError" << _reprojectionError;
     fs << "cameraFovDeg" << _cameraFovDeg;
-    fs << "calibrationTime" << _calibrationTime;
-    fs << "requestedVideoSizeIndex" << SLCVCapture::requestedSizeIndex;
+    fs << "camSizeIndex" << _camSizeIndex;
 
     // close file
     fs.release();
@@ -481,7 +508,7 @@ bool SLCVCalibration::calculate()
         buildUndistortionMaps();
 
         _cameraFovDeg    = calcCameraFOV();
-        _calibrationTime = Utils::getLocalTimeString();
+        _calibrationTime = Utils::getDateTime2String();
         _state           = CS_calibrated;
         save();
 
@@ -581,7 +608,60 @@ void SLCVCalibration::createFromGuessedFOV(SLint imageWidthPX,
     _cameraMat        = (Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
     _distortion       = (Mat_<double>(5, 1) << 0, 0, 0, 0, 0); // No distortion
     _cameraFovDeg     = fov;
-    _calibrationTime  = Utils::getLocalTimeString();
+    _calibrationTime  = Utils::getDateTime2String();
     _state            = CS_guessed;
+}
+//-----------------------------------------------------------------------------
+void SLCVCalibration::uploadCalibration()
+{
+    auto uploadJob = []() {
+        SLApplication::jobProgressMsg("Uploading pallas.bfh.ch");
+        SLApplication::jobProgressMax(100);
+        ftplib ftp;
+        if (ftp.Connect("pallas.bfh.ch:21"))
+        {
+            if (ftp.Login("upload", "FaAdbD3F2a"))
+            {
+                ftp.SetCallbackXferFunction(ftpCallbackUpload);
+                ftp.SetCallbackBytes(1024);
+
+                if (ftp.Chdir("calibrations"))
+                {
+                    /*
+                    int remoteSize = 0;
+                    ftp.Size("xyzrgb_dragon.ply",
+                             &remoteSize,
+                             ftplib::transfermode::image);
+                    ftpUploadSizeMax  = remoteSize;
+                    SLstring plyDir = SLImporter::defaultPath + "PLY";
+                    if (!Utils::dirExists(plyDir))
+                        Utils::makeDir(plyDir);
+                    if (Utils::dirExists(plyDir))
+                    {
+                        SLstring outFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+
+                        if (!ftp.Get(outFile.c_str(),
+                                     "xyzrgb_dragon.ply",
+                                     ftplib::transfermode::image))
+                            SL_LOG("*** ERROR: ftp.get failed. ***\n");
+                    }
+                    else
+                        SL_LOG("*** ERROR: Utils::makeDir %s failed. ***\n", plyDir.c_str());
+                        */
+                }
+                else
+                    SL_LOG("*** ERROR: ftp.Chdir failed. ***\n");
+            }
+            else
+                SL_LOG("*** ERROR: ftp.Login failed. ***\n");
+        }
+        else
+            SL_LOG("*** ERROR: ftp.Connect failed. ***\n");
+
+        ftp.Quit();
+        SLApplication::jobIsRunning = false;
+    };
+
+    SLApplication::jobsToBeThreaded.push_back(uploadJob);
 }
 //-----------------------------------------------------------------------------

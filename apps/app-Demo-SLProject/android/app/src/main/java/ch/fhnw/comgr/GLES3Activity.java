@@ -80,14 +80,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         Log.i(TAG, "setContentView");
         setContentView(myView);
 
-        // Pass some parameter values
-        myView.queueEvent( new Runnable() {public void run() {GLES3Lib.setParameterValue("MODEL",Build.MODEL);}});
-        myView.queueEvent( new Runnable() {public void run() {GLES3Lib.setParameterValue("MANUFACTURER",Build.MANUFACTURER);}});
-        myView.queueEvent( new Runnable() {public void run() {GLES3Lib.setParameterValue("BRAND",Build.BRAND);}});
-        myView.queueEvent( new Runnable() {public void run() {GLES3Lib.setParameterValue("MODEL",Build.MODEL);}});
-        myView.queueEvent( new Runnable() {public void run() {GLES3Lib.setParameterValue("ID",Build.ID);}});
-        myView.queueEvent( new Runnable() {public void run() {GLES3Lib.setParameterValue("SERIAL",Build.SERIAL);}});
-
         // Get display resolution. This is used to scale the menu buttons accordingly
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);

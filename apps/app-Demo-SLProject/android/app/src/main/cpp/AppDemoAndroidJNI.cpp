@@ -55,7 +55,7 @@ JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes  (JNIE
                                                                             jbyteArray uBuf, jint uSize, jint uPixStride, jint uLineStride,
                                                                             jbyteArray vBuf, jint vSize, jint vPixStride, jint vLineStride);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_setCameraSize       (JNIEnv *env, jobject obj, jint sizeIndex, jint sizeIndexMax, jint width, jint height);
-JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_setParameterValue   (JNIEnv *env, jobject obj, jstring parameter, jstring value);
+JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_setDeviceParameter  (JNIEnv *env, jobject obj, jstring parameter, jstring value);
 };
 
 
@@ -298,13 +298,13 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setCameraSize(JNIEnv *env,
     slSetCameraSize(sizeIndex, sizeIndexMax, width, height);
 }
 //-----------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setParameterValue(JNIEnv *env,
-                                                                     jobject obj,
-                                                                     jstring parameter,
-                                                                     jstring value)
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setDeviceParameter(JNIEnv *env,
+                                                                      jobject obj,
+                                                                      jstring parameter,
+                                                                      jstring value)
 {
     std::string par = jstring2stdstring(env, parameter);
     std::string val = jstring2stdstring(env, value);
-    slSetParameterValue(par.c_str(), val.c_str());
+    slSetDeviceParameter(par.c_str(), val.c_str());
 }
 //-----------------------------------------------------------------------------

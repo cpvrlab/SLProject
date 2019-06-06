@@ -144,7 +144,7 @@ void   slSetCameraSize(int sizeIndex,
                        int sizeIndexMax,
                        int width,
                        int height);
-void   slSetParameterValue(SLstring parameter,
-                           SLstring value);
+void   slSetDeviceParameter(SLstring parameter,
+                            SLstring value);
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H

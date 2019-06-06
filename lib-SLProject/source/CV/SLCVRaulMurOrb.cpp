@@ -878,7 +878,7 @@ void SLCVRaulMurOrb::detectAndCompute(SLCVInputArray  _image,
         {
             // preprocess the resized image
             SLCVMat workingMat = mvImagePyramid[level].clone();
-            GaussianBlur(workingMat, workingMat, Size(7, 7), 2, 2, BORDER_REFLECT_101);
+            GaussianBlur(workingMat, workingMat, cv::Size(7, 7), 2, 2, BORDER_REFLECT_101);
 
             // Compute the descriptors
             SLCVMat desc = descriptors.rowRange(offset, offset + nkeypointsLevel);
@@ -909,14 +909,14 @@ void SLCVRaulMurOrb::ComputePyramid(SLCVMat image)
 {
     for (SLuint level = 0; level < (SLuint)nlevels; ++level)
     {
-        float   scale = mvInvScaleFactor[level];
-        Size    sz(cvRound((float)image.cols * scale),
-                cvRound((float)image.rows * scale));
-        Size    wholeSize(sz.width + EDGE_THRESHOLD * 2,
-                       sz.height + EDGE_THRESHOLD * 2);
-        SLCVMat temp(wholeSize, image.type()), masktemp;
+        float    scale = mvInvScaleFactor[level];
+        SLCVSize sz(cvRound((float)image.cols * scale),
+                    cvRound((float)image.rows * scale));
+        SLCVSize wholeSize(sz.width + EDGE_THRESHOLD * 2,
+                           sz.height + EDGE_THRESHOLD * 2);
+        SLCVMat  temp(wholeSize, image.type()), masktemp;
 
-        mvImagePyramid[level] = temp(Rect(EDGE_THRESHOLD,
+        mvImagePyramid[level] = temp(SLCVRect(EDGE_THRESHOLD,
                                           EDGE_THRESHOLD,
                                           sz.width,
                                           sz.height));
