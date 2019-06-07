@@ -326,26 +326,26 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat cullTimePC       = SL_clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
                 SLfloat vsyncTimePC      = SL_clamp(vsyncTime / ft * 100.0f, 0.0f, 100.0f);
 
-                sprintf(m + strlen(m), "Renderer      : OpenGL\n");
-                sprintf(m + strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
-                sprintf(m + strlen(m), "NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
-                sprintf(m + strlen(m), "Frames per s. : %5.1f\n", s->fps());
-                sprintf(m + strlen(m), "Frame time    : %5.1f ms (100%%)\n", ft);
-                sprintf(m + strlen(m), "  Capture     : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
-                sprintf(m + strlen(m), "  Update      : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
-                sprintf(m + strlen(m), "    Animations: %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
-                sprintf(m + strlen(m), "    AABB      : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
-                sprintf(m + strlen(m), "    Tracking  : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
-                sprintf(m + strlen(m), "      Detect  : %5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
-                sprintf(m + strlen(m), "        Det1  : %5.1f ms\n", detect1Time);
-                sprintf(m + strlen(m), "        Det2  : %5.1f ms\n", detect2Time);
-                sprintf(m + strlen(m), "      Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
-                sprintf(m + strlen(m), "      Opt.Flow: %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
-                sprintf(m + strlen(m), "      Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
-                sprintf(m + strlen(m), "  Culling     : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
-                sprintf(m + strlen(m), "  Drawing 3D  : %5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
-                sprintf(m + strlen(m), "  Drawing 2D  : %5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
-                sprintf(m + strlen(m), "  GPU & VSync : %5.1f ms (%3d%%)\n", vsyncTime, (SLint)vsyncTimePC);
+                sprintf(m + strlen(m), "Renderer   :OpenGL\n");
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                sprintf(m + strlen(m), "Drawcalls  :%d\n", SLGLVertexArray::totalDrawCalls);
+                sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
+                sprintf(m + strlen(m), "Frame time :%5.1f ms (100%%)\n", ft);
+                sprintf(m + strlen(m), " Capture   :%5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
+                sprintf(m + strlen(m), " Update    :%5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
+                sprintf(m + strlen(m), "  Anim.    :%5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
+                sprintf(m + strlen(m), "  AABB     :%5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
+                sprintf(m + strlen(m), "  Tracking :%5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
+                sprintf(m + strlen(m), "   Detect  :%5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
+                sprintf(m + strlen(m), "    Det1   :%5.1f ms\n", detect1Time);
+                sprintf(m + strlen(m), "    Det2   :%5.1f ms\n", detect2Time);
+                sprintf(m + strlen(m), "   Match   :%5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
+                sprintf(m + strlen(m), "   OptFlow :%5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
+                sprintf(m + strlen(m), "   Pose    :%5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
+                sprintf(m + strlen(m), " Culling   :%5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
+                sprintf(m + strlen(m), " Drawing 3D:%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
+                sprintf(m + strlen(m), " Drawing 2D:%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
+                sprintf(m + strlen(m), " GPU/VSync :%5.1f ms (%3d%%)\n", vsyncTime, (SLint)vsyncTimePC);
             }
             else if (rType == RT_rt)
             {
@@ -354,24 +354,24 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLuint       rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
                 SLfloat      rpms         = rt->renderSec() > 0.0f ? rayTotal / rt->renderSec() / 1000.0f : 0.0f;
 
-                sprintf(m + strlen(m), "Renderer      : Ray Tracer\n");
-                sprintf(m + strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
-                sprintf(m + strlen(m), "Frames per s. : %0.2f\n", 1.0f / rt->renderSec());
-                sprintf(m + strlen(m), "Frame Time    : %0.2f sec.\n", rt->renderSec());
-                sprintf(m + strlen(m), "Rays per ms   : %0.0f\n", rpms);
-                sprintf(m + strlen(m), "AA Pixels     : %d (%d%%)\n", SLRay::subsampledPixels, (int)((float)SLRay::subsampledPixels / (float)rayPrimaries * 100.0f));
-                sprintf(m + strlen(m), "Threads       : %d\n", rt->numThreads());
-                sprintf(m + strlen(m), "-------------------------------\n");
-                sprintf(m + strlen(m), "Primary rays  : %8d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "Reflected rays: %8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "Refracted rays: %8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "TIR rays      : %8d\n", SLRay::tirRays);
-                sprintf(m + strlen(m), "Shadow rays   : %8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "AA rays       : %8d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "Total rays    : %8d (%3d%%)\n", rayTotal, 100);
-                sprintf(m + strlen(m), "-------------------------------\n");
-                sprintf(m + strlen(m), "Maximum depth : %u\n", SLRay::maxDepthReached);
-                sprintf(m + strlen(m), "Average depth : %0.3f\n", SLRay::avgDepth / rayPrimaries);
+                sprintf(m + strlen(m), "Renderer   :Ray Tracer\n");
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / rt->renderSec());
+                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", rt->renderSec());
+                sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rpms);
+                sprintf(m + strlen(m), "AA Pixels  :%d (%d%%)\n", SLRay::subsampledPixels, (int)((float)SLRay::subsampledPixels / (float)rayPrimaries * 100.0f));
+                sprintf(m + strlen(m), "Threads    :%d\n", rt->numThreads());
+                sprintf(m + strlen(m), "---------------------------\n");
+                sprintf(m + strlen(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
+                sprintf(m + strlen(m), "  Primary  :%8d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
+                sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "  AA       :%8d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "---------------------------\n");
+                sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
+                sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
             }
 
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -422,28 +422,27 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             SLint   gpuMBVboPC     = (SLint)(gpuMBVbo / gpuMBTotal * 100.0f);
 
             sprintf(m + strlen(m), "Name: %s\n", s->name().c_str());
-            sprintf(m + strlen(m), "No. of Nodes    : %5d (100%%)\n", stats3D.numNodes);
-            sprintf(m + strlen(m), "- Group Nodes   : %5d (%3d%%)\n", stats3D.numGroupNodes, numGroupPC);
-            sprintf(m + strlen(m), "- Leaf  Nodes   : %5d (%3d%%)\n", stats3D.numLeafNodes, numLeafPC);
-            sprintf(m + strlen(m), "- Light Nodes   : %5d (%3d%%)\n", stats3D.numLights, numLightsPC);
-            sprintf(m + strlen(m), "- Opaque Nodes  : %5d (%3d%%)\n", numOpaqueNodes, numOpaquePC);
-            sprintf(m + strlen(m), "- Blended Nodes : %5d (%3d%%)\n", numBlendedNodes, numBlendedPC);
-            sprintf(m + strlen(m), "- Visible Nodes : %5d (%3d%%)\n", numVisibleNodes, numVisiblePC);
-            sprintf(m + strlen(m), "- WM Updates    : %5d\n", SLNode::numWMUpdates);
-            sprintf(m + strlen(m), "No. of Meshes   : %5u\n", stats3D.numMeshes);
-            sprintf(m + strlen(m), "No. of Triangles: %5u\n", stats3D.numTriangles);
-            sprintf(m + strlen(m), "CPU MB in Total : %6.2f (100%%)\n", cpuMBTotal);
-            sprintf(m + strlen(m), "-   MB in Tex.  : %6.2f (%3d%%)\n", cpuMBTexture, cpuMBTexturePC);
-            sprintf(m + strlen(m), "-   MB in Meshes: %6.2f (%3d%%)\n", cpuMBMeshes, cpuMBMeshesPC);
-            sprintf(m + strlen(m), "-   MB in Voxels: %6.2f (%3d%%)\n", cpuMBVoxels, cpuMBVoxelsPC);
-            sprintf(m + strlen(m), "GPU MB in Total : %6.2f (100%%)\n", gpuMBTotal);
-            sprintf(m + strlen(m), "-   MB in Tex.  : %6.2f (%3d%%)\n", gpuMBTexture, gpuMBTexturePC);
-            sprintf(m + strlen(m), "-   MB in VBO   : %6.2f (%3d%%)\n", gpuMBVbo, gpuMBVboPC);
-
-            sprintf(m + strlen(m), "No. of Voxels   : %d\n", stats3D.numVoxels);
-            sprintf(m + strlen(m), "- empty Voxels  : %4.1f%%\n", voxelsEmpty);
-            sprintf(m + strlen(m), "Avg. Tria/Voxel : %4.1f\n", avgTriPerVox);
-            sprintf(m + strlen(m), "Max. Tria/Voxel : %d\n", stats3D.numVoxMaxTria);
+            sprintf(m + strlen(m), "No. of Nodes  :%5d (100%%)\n", stats3D.numNodes);
+            sprintf(m + strlen(m), "- Group Nodes :%5d (%3d%%)\n", stats3D.numGroupNodes, numGroupPC);
+            sprintf(m + strlen(m), "- Leaf  Nodes :%5d (%3d%%)\n", stats3D.numLeafNodes, numLeafPC);
+            sprintf(m + strlen(m), "- Light Nodes :%5d (%3d%%)\n", stats3D.numLights, numLightsPC);
+            sprintf(m + strlen(m), "- Opaque Nodes:%5d (%3d%%)\n", numOpaqueNodes, numOpaquePC);
+            sprintf(m + strlen(m), "- Blend Nodes :%5d (%3d%%)\n", numBlendedNodes, numBlendedPC);
+            sprintf(m + strlen(m), "- Vis. Nodes  :%5d (%3d%%)\n", numVisibleNodes, numVisiblePC);
+            sprintf(m + strlen(m), "- WM Updates  :%5d\n", SLNode::numWMUpdates);
+            sprintf(m + strlen(m), "No. of Meshes :%5u\n", stats3D.numMeshes);
+            sprintf(m + strlen(m), "No. of Tri.   :%5u\n", stats3D.numTriangles);
+            sprintf(m + strlen(m), "CPU MB Total  :%6.2f (100%%)\n", cpuMBTotal);
+            sprintf(m + strlen(m), "-   MB Tex.   :%6.2f (%3d%%)\n", cpuMBTexture, cpuMBTexturePC);
+            sprintf(m + strlen(m), "-   MB Meshes :%6.2f (%3d%%)\n", cpuMBMeshes, cpuMBMeshesPC);
+            sprintf(m + strlen(m), "-   MB Voxels :%6.2f (%3d%%)\n", cpuMBVoxels, cpuMBVoxelsPC);
+            sprintf(m + strlen(m), "GPU MB Total  :%6.2f (100%%)\n", gpuMBTotal);
+            sprintf(m + strlen(m), "-   MB Tex.   :%6.2f (%3d%%)\n", gpuMBTexture, gpuMBTexturePC);
+            sprintf(m + strlen(m), "-   MB VBO    :%6.2f (%3d%%)\n", gpuMBVbo, gpuMBVboPC);
+            sprintf(m + strlen(m), "No. of Voxels :%d\n", stats3D.numVoxels);
+            sprintf(m + strlen(m), "-empty Voxels :%4.1f%%\n", voxelsEmpty);
+            sprintf(m + strlen(m), "Avg.Tri/Voxel :%4.1f\n", avgTriPerVox);
+            sprintf(m + strlen(m), "Max.Tri/Voxel :%d\n", stats3D.numVoxMaxTria);
 
             // Switch to fixed font
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -656,7 +655,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
             // Switch to fixed font
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("Framework Informations", &showInfosDevice, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+            ImGui::Begin("Device Informations", &showInfosDevice, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::TextUnformatted(m);
             ImGui::End();
             ImGui::PopFont();
