@@ -31,19 +31,19 @@ SLCVCalibration     SLApplication::calibScndCam;
 SLCVCalibration     SLApplication::calibVideoFile;
 SLDeviceRotation    SLApplication::devRot;
 SLDeviceLocation    SLApplication::devLoc;
-SLstring            SLApplication::name          = "SLProjectApp";
-SLstring            SLApplication::version       = "2.3.100";
-SLstring            SLApplication::computerUser  = "USER?";
-SLstring            SLApplication::computerName  = "NAME?";
-SLstring            SLApplication::computerBrand = "BRAND?";
-SLstring            SLApplication::computerModel = "MODEL?";
-SLstring            SLApplication::computerOS    = "OS?";
-SLstring            SLApplication::computerOSVer = "OSVER?";
-SLstring            SLApplication::computerArch  = "ARCH?";
-SLstring            SLApplication::gitBranch     = SL_GIT_BRANCH;
-SLstring            SLApplication::gitCommit     = SL_GIT_COMMIT;
-SLstring            SLApplication::gitDate       = SL_GIT_DATE;
-SLint               SLApplication::dpi           = 0;
+SLstring            SLApplication::name           = "SLProjectApp";
+SLstring            SLApplication::version        = "2.3.100";
+SLstring            SLApplication::computerUser   = "USER?";
+SLstring            SLApplication::computerName   = "NAME?";
+SLstring            SLApplication::computerBrand  = "BRAND?";
+SLstring            SLApplication::computerModel  = "MODEL?";
+SLstring            SLApplication::computerOS     = "OS?";
+SLstring            SLApplication::computerOSVer  = "OSVER?";
+SLstring            SLApplication::computerArch   = "ARCH?";
+SLstring            SLApplication::gitBranch      = SL_GIT_BRANCH;
+SLstring            SLApplication::gitCommit      = SL_GIT_COMMIT;
+SLstring            SLApplication::gitDate        = SL_GIT_DATE;
+SLint               SLApplication::dpi            = 0;
 map<string, string> SLApplication::deviceParameter;
 
 //! SLApplication::configPath is overwritten in slCreateAppAndScene.
@@ -257,6 +257,7 @@ void SLApplication::getComputerInfos()
 
 #elif defined(SL_OS_IOS)
 
+    computerUser  = "USER?";
     computerName  = Utils::getHostName();
     computerBrand = "BRAND?";
     computerModel = "MODEL?";
@@ -294,6 +295,14 @@ void SLApplication::getComputerInfos()
 
     int len;
 
+    char host[PROP_VALUE_MAX];
+    len          = __system_property_get("ro.build.host", host);
+    computerName = host ? string(host) : "NAME?";
+
+    char user[PROP_VALUE_MAX];
+    len          = __system_property_get("ro.build.user", user);
+    computerUser = user ? string(user) : "USER?";
+
     char brand[PROP_VALUE_MAX];
     len           = __system_property_get("ro.product.brand", brand);
     computerBrand = string(brand);
@@ -309,31 +318,6 @@ void SLApplication::getComputerInfos()
     char arch[PROP_VALUE_MAX];
     len          = __system_property_get("ro.product.cpu.abi", arch);
     computerArch = string(arch);
-
-    // Computer name
-    computerName = Utils::getHostName();
-    if (computerName == "localhost" || computerName == "")
-    {
-        const char* envvar = std::getenv("HOSTNAME");
-        computerName       = envvar ? string(envvar) : "NAME?";
-        if (computerName == "NAME?")
-        {
-            const char* envvar = std::getenv("COMPUTERNAME");
-            computerName       = envvar ? string(envvar) : "NAME?";
-
-            if (computerName == "NAME?")
-                computerName = computerModel;
-        }
-    }
-
-    // Computer user name
-    const char* envvar = std::getenv("USER");
-    computerUser       = envvar ? string(envvar) : "USER?";
-    if (computerUser == "USER?")
-    {
-        const char* envvar = std::getenv("USERNAME");
-        computerUser       = envvar ? string(envvar) : "USER?";
-    }
 
 #endif
 }
