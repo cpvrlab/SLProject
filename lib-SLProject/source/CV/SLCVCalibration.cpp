@@ -614,54 +614,45 @@ void SLCVCalibration::createFromGuessedFOV(SLint imageWidthPX,
 //-----------------------------------------------------------------------------
 void SLCVCalibration::uploadCalibration()
 {
-    auto uploadJob = []() {
-        SLApplication::jobProgressMsg("Uploading pallas.bfh.ch");
-        SLApplication::jobProgressMax(100);
-        ftplib ftp;
-        if (ftp.Connect("pallas.bfh.ch:21"))
+    SLstring fullPathAndFilename = _calibDir + _calibFileName;
+
+    if (!Utils::fileExists(fullPathAndFilename) || state() != CS_calibrated)
+    {
+        SL_WARN_MSG("No upload for uncalibrated camera!");
+        return;
+    }
+
+    //auto uploadJob = []() {
+    //    SLApplication::jobProgressMsg("Uploading calibration to pallas.bfh.ch");
+    //    SLApplication::jobProgressMax(100);
+    ftplib ftp;
+    if (ftp.Connect("pallas.bfh.ch:21"))
+    {
+        if (ftp.Login("upload", "FaAdbD3F2a"))
         {
-            if (ftp.Login("upload", "FaAdbD3F2a"))
+            ftp.SetCallbackXferFunction(ftpCallbackUpload);
+            ftp.SetCallbackBytes(1024);
+
+            if (ftp.Chdir("calibrations"))
             {
-                ftp.SetCallbackXferFunction(ftpCallbackUpload);
-                ftp.SetCallbackBytes(1024);
-
-                if (ftp.Chdir("calibrations"))
-                {
-                    /*
-                    int remoteSize = 0;
-                    ftp.Size("xyzrgb_dragon.ply",
-                             &remoteSize,
-                             ftplib::transfermode::image);
-                    ftpUploadSizeMax  = remoteSize;
-                    SLstring plyDir = SLImporter::defaultPath + "PLY";
-                    if (!Utils::dirExists(plyDir))
-                        Utils::makeDir(plyDir);
-                    if (Utils::dirExists(plyDir))
-                    {
-                        SLstring outFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
-
-                        if (!ftp.Get(outFile.c_str(),
-                                     "xyzrgb_dragon.ply",
-                                     ftplib::transfermode::image))
-                            SL_LOG("*** ERROR: ftp.get failed. ***\n");
-                    }
-                    else
-                        SL_LOG("*** ERROR: Utils::makeDir %s failed. ***\n", plyDir.c_str());
-                        */
-                }
-                else
-                    SL_LOG("*** ERROR: ftp.Chdir failed. ***\n");
+                if (!ftp.Put(fullPathAndFilename.c_str(),
+                             Utils::getFileName(fullPathAndFilename).c_str(),
+                             ftplib::transfermode::image))
+                    SL_LOG("*** ERROR: ftp.put failed. ***\n");
             }
             else
-                SL_LOG("*** ERROR: ftp.Login failed. ***\n");
+                SL_LOG("*** ERROR: ftp.Chdir failed. ***\n");
         }
         else
-            SL_LOG("*** ERROR: ftp.Connect failed. ***\n");
+            SL_LOG("*** ERROR: ftp.Login failed. ***\n");
+    }
+    else
+        SL_LOG("*** ERROR: ftp.Connect failed. ***\n");
 
-        ftp.Quit();
-        SLApplication::jobIsRunning = false;
-    };
+    ftp.Quit();
+    //   SLApplication::jobIsRunning = false;
+    //};
 
-    SLApplication::jobsToBeThreaded.push_back(uploadJob);
+    // SLApplication::jobsToBeThreaded.push_back(uploadJob);
 }
 //-----------------------------------------------------------------------------

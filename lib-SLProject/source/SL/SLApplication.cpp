@@ -31,19 +31,19 @@ SLCVCalibration     SLApplication::calibScndCam;
 SLCVCalibration     SLApplication::calibVideoFile;
 SLDeviceRotation    SLApplication::devRot;
 SLDeviceLocation    SLApplication::devLoc;
-SLstring            SLApplication::name           = "SLProjectApp";
-SLstring            SLApplication::version        = "2.3.100";
-SLstring            SLApplication::computerUser   = "USER?";
-SLstring            SLApplication::computerName   = "NAME?";
-SLstring            SLApplication::computerBrand  = "BRAND?";
-SLstring            SLApplication::computerModel  = "MODEL?";
-SLstring            SLApplication::computerOS     = "OS?";
-SLstring            SLApplication::computerOSVer  = "OSVER?";
-SLstring            SLApplication::computerArch   = "ARCH?";
-SLstring            SLApplication::gitBranch      = SL_GIT_BRANCH;
-SLstring            SLApplication::gitCommit      = SL_GIT_COMMIT;
-SLstring            SLApplication::gitDate        = SL_GIT_DATE;
-SLint               SLApplication::dpi            = 0;
+SLstring            SLApplication::name          = "SLProjectApp";
+SLstring            SLApplication::version       = "2.3.100";
+SLstring            SLApplication::computerUser  = "USER?";
+SLstring            SLApplication::computerName  = "NAME?";
+SLstring            SLApplication::computerBrand = "BRAND?";
+SLstring            SLApplication::computerModel = "MODEL?";
+SLstring            SLApplication::computerOS    = "OS?";
+SLstring            SLApplication::computerOSVer = "OSVER?";
+SLstring            SLApplication::computerArch  = "ARCH?";
+SLstring            SLApplication::gitBranch     = SL_GIT_BRANCH;
+SLstring            SLApplication::gitCommit     = SL_GIT_COMMIT;
+SLstring            SLApplication::gitDate       = SL_GIT_DATE;
+SLint               SLApplication::dpi           = 0;
 map<string, string> SLApplication::deviceParameter;
 
 //! SLApplication::configPath is overwritten in slCreateAppAndScene.
@@ -85,16 +85,20 @@ void SLApplication::createAppAndScene(SLstring appName,
 
     getComputerInfos();
 
-// load opencv camera calibration for main and secondary camera
+    SLstring deviceName        = computerUser + "-" + computerName + "-" + computerModel;
+    SLstring mainCalibFilename = "camCalib_" + deviceName + "_main.xml";
+    SLstring scndCalibFilename = "camCalib_" + deviceName + "_scnd.xml";
+
+    // load opencv camera calibration for main and secondary camera
 #if defined(SL_USES_CVCAPTURE)
-    calibMainCam.load(SLApplication::configPath, "cam_calibration_main.xml", true, false);
+    calibMainCam.load(SLApplication::configPath, mainCalibFilename, true, false);
     calibMainCam.loadCalibParams();
     activeCalib                     = &calibMainCam;
     SLCVCapture::hasSecondaryCamera = false;
 #else
-    calibMainCam.load(SLApplication::configPath, "cam_calibration_main.xml", false, false);
+    calibMainCam.load(SLApplication::configPath, mainCalibFilename, false, false);
     calibMainCam.loadCalibParams();
-    calibScndCam.load(SLApplication::configPath, "cam_calibration_scnd.xml", true, false);
+    calibScndCam.load(SLApplication::configPath, scndCalibFilename, true, false);
     calibScndCam.loadCalibParams();
     activeCalib                     = &calibMainCam;
     SLCVCapture::hasSecondaryCamera = true;
@@ -302,6 +306,7 @@ void SLApplication::getComputerInfos()
     char user[PROP_VALUE_MAX];
     len          = __system_property_get("ro.build.user", user);
     computerUser = user ? string(user) : "USER?";
+    if (SLUtils::towlower(user) == "android") computerUser = "USER?";
 
     char brand[PROP_VALUE_MAX];
     len           = __system_property_get("ro.product.brand", brand);
