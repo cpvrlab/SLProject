@@ -253,23 +253,28 @@ SLstring SLApplication::getComputerInfos()
 
 #elif defined(SL_OS_LINUX) //..................................................
 
-    computerUser  = "USER?";
-    computerName  = Utils::getHostName();
-    computerBrand = "BRAND?";
-    computerModel = "MODEL?";
     computerOS    = "Linux";
-    computerOSVer = "OSVER?";
-    computerArch  = "ARCH?";
-
-#elif defined(SL_OS_IOS)
-
     computerUser  = "USER?";
     computerName  = Utils::getHostName();
     computerBrand = "BRAND?";
     computerModel = "MODEL?";
-    computerOS    = "iOS";
     computerOSVer = "OSVER?";
     computerArch  = "ARCH?";
+
+#elif defined(SL_OS_MACIOS)
+
+    // Model and architecture are retrieved before in iOS under Objective C
+    computerBrand = "Apple";
+    computerOS    = "iOS";
+     const char* envvar = std::getenv("USER");
+    computerUser       = envvar ? string(envvar) : "USER?";
+    if (computerUser == "USER?")
+    {
+        const char* envvar = std::getenv("USERNAME");
+        computerUser       = envvar ? string(envvar) : "USER?";
+    }
+    computerName  = Utils::getHostName();
+    
 
 #elif defined(SL_OS_ANDROID) //................................................
 

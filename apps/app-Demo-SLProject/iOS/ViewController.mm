@@ -24,7 +24,10 @@
 #include <SLInterface.h>
 #include <SLCVCapture.h>
 #include <AppDemoGui.h>
+#include <SLApplication.h>
 #include <mach/mach_time.h>
+#import <sys/utsname.h>
+#import <mach-o/arch.h>
 
 // Declaration of scene load function
 extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
@@ -131,6 +134,17 @@ float GetSeconds()
     SLVstring cmdLineArgs;
     SLstring exeDir = Utils_iOS::getCurrentWorkingDir();
     SLstring configDir = Utils_iOS::getAppsWritableDir();
+    
+    // Some some computer informations
+    struct utsname systemInfo; uname(&systemInfo);
+    NSString* model = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
+    NSString* osver = [[UIDevice currentDevice] systemVersion];
+    const NXArchInfo* archInfo = NXGetLocalArchInfo();
+    NSString* arch = [NSString stringWithUTF8String:archInfo->description];
+    
+    SLApplication::computerModel = std::string([model UTF8String]);
+    SLApplication::computerOSVer = std::string([osver UTF8String]);
+    SLApplication::computerArch  = std::string([arch UTF8String]);
     
     /////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,

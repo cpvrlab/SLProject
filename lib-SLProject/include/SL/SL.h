@@ -89,6 +89,7 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #    include <random>
 #    include <sys/time.h>
 #    include <thread>
+#    include <CoreServices/CoreServices.h> // for system info
 #    include <zlib.h>
 #elif defined(SL_OS_MACOS)
 #    include <GL/glew.h>

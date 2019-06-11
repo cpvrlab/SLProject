@@ -118,11 +118,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ViewController.mm"
-            timestampString = "580995450.3518929"
+            timestampString = "581972872.739723"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "647"
-            endingLineNumber = "647"
+            startingLineNumber = "661"
+            endingLineNumber = "661"
             landmarkName = "-locationManager:didUpdateToLocation:fromLocation:"
             landmarkType = "7">
          </BreakpointContent>
@@ -134,11 +134,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ViewController.mm"
-            timestampString = "580995450.351957"
+            timestampString = "581972872.739803"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "625"
-            endingLineNumber = "625"
+            startingLineNumber = "639"
+            endingLineNumber = "639"
             landmarkName = "-startLocationManager"
             landmarkType = "7">
          </BreakpointContent>
@@ -150,11 +150,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ViewController.mm"
-            timestampString = "580995450.35201"
+            timestampString = "581972872.7398551"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "607"
-            endingLineNumber = "607"
+            startingLineNumber = "621"
+            endingLineNumber = "621"
             landmarkName = "-setupLocationManager"
             landmarkType = "7">
          </BreakpointContent>
@@ -166,11 +166,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ViewController.mm"
-            timestampString = "580995450.352061"
+            timestampString = "581972872.739903"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "638"
-            endingLineNumber = "638"
+            startingLineNumber = "652"
+            endingLineNumber = "652"
             landmarkName = "-stopLocationManager"
             landmarkType = "7">
          </BreakpointContent>
@@ -182,11 +182,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ViewController.mm"
-            timestampString = "580995450.352109"
+            timestampString = "581972872.739952"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "613"
-            endingLineNumber = "613"
+            startingLineNumber = "627"
+            endingLineNumber = "627"
             landmarkName = "-setupLocationManager"
             landmarkType = "7">
          </BreakpointContent>
