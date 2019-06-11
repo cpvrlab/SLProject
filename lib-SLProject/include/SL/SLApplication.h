@@ -41,7 +41,7 @@ class SLApplication
     static void createAppAndScene(SLstring appName,
                                   void*    onSceneLoadCallback);
     static void deleteAppAndScene();
-    static void getComputerInfos();
+    static SLstring getComputerInfos();
 
     static SLScene*         scene;          //!< scene pointer
     static SLInputManager   inputManager;   //!< Input events manager
@@ -61,6 +61,7 @@ class SLApplication
     static SLstring  computerOS;    //!< Computer OS name
     static SLstring  computerOSVer; //!< Computer OS version
     static SLstring  computerArch;  //!< Computer Architecture
+    static SLstring  computerID;    //!< Computer identification string
     static SLstring  gitBranch;     //!< Current GIT branch
     static SLstring  gitCommit;     //!< Current GIT commit short hash id
     static SLstring  gitDate;       //!< Current GIT commit date

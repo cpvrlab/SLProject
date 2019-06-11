@@ -51,7 +51,7 @@ int ftpCallbackUpload(off64_t xfered, void* arg)
 SLstring SLCVCalibration::calibIniPath = SLstring(SL_PROJECT_ROOT) + "/data/calibrations/";
 
 //! Increase the _CALIBFILEVERSION each time you change the file format
-const SLint SLCVCalibration::_CALIBFILEVERSION = 4; // Date: 6.JUNE.2019
+const SLint SLCVCalibration::_CALIBFILEVERSION = 5; // Date: 6.JUNE.2019
 //-----------------------------------------------------------------------------
 SLCVCalibration::SLCVCalibration()
   : _state(CS_uncalibrated),
@@ -169,6 +169,7 @@ bool SLCVCalibration::load(SLstring calibDir,
 //! Saves the camera calibration parameters to the config file
 void SLCVCalibration::save()
 {
+    SLGLState*      stateGL = SLGLState::getInstance();
     SLstring        fullPathAndFilename = _calibDir + _calibFileName;
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 
@@ -199,6 +200,10 @@ void SLCVCalibration::save()
     fs << "computerArch" << SLApplication::computerArch;
     fs << "computerOS" << SLApplication::computerOS;
     fs << "computerOSVer" << SLApplication::computerOSVer;
+    fs << "OpenGLVersion" << stateGL->glVersionNO();
+    fs << "OpenGLVendor" << stateGL->glVendor();
+    fs << "OpenGLRenderer" << stateGL->glRenderer();
+    fs << "GLSLVersion" << stateGL->glSLVersionNO();
     fs << "SLProjectVersion" << SLApplication::version;
     fs << "imageSizeWidth" << _imageSize.width;
     fs << "imageSizeHeight" << _imageSize.height;
@@ -221,6 +226,7 @@ void SLCVCalibration::save()
     // close file
     fs.release();
     SL_LOG("Calib. saved    : %s\n", fullPathAndFilename.c_str());
+    uploadCalibration();
 }
 //-----------------------------------------------------------------------------
 //! Loads the chessboard calibration pattern parameters
@@ -616,15 +622,18 @@ void SLCVCalibration::uploadCalibration()
 {
     SLstring fullPathAndFilename = _calibDir + _calibFileName;
 
-    if (!Utils::fileExists(fullPathAndFilename) || state() != CS_calibrated)
+    if (!Utils::fileExists(fullPathAndFilename))
     {
-        SL_WARN_MSG("No upload for uncalibrated camera!");
+        SL_LOG("Calib. file doesn't exist: %s\n", fullPathAndFilename.c_str());
         return;
     }
 
-    //auto uploadJob = []() {
-    //    SLApplication::jobProgressMsg("Uploading calibration to pallas.bfh.ch");
-    //    SLApplication::jobProgressMax(100);
+    if (state() != CS_calibrated)
+    {
+        SL_LOG("Camera is not calibrated.");
+        return;
+    }
+
     ftplib ftp;
     if (ftp.Connect("pallas.bfh.ch:21"))
     {
@@ -650,9 +659,5 @@ void SLCVCalibration::uploadCalibration()
         SL_LOG("*** ERROR: ftp.Connect failed. ***\n");
 
     ftp.Quit();
-    //   SLApplication::jobIsRunning = false;
-    //};
-
-    // SLApplication::jobsToBeThreaded.push_back(uploadJob);
 }
 //-----------------------------------------------------------------------------

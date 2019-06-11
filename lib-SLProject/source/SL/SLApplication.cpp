@@ -40,6 +40,7 @@ SLstring            SLApplication::computerModel = "MODEL?";
 SLstring            SLApplication::computerOS    = "OS?";
 SLstring            SLApplication::computerOSVer = "OSVER?";
 SLstring            SLApplication::computerArch  = "ARCH?";
+SLstring            SLApplication::computerID    = "ID?";
 SLstring            SLApplication::gitBranch     = SL_GIT_BRANCH;
 SLstring            SLApplication::gitCommit     = SL_GIT_COMMIT;
 SLstring            SLApplication::gitDate       = SL_GIT_DATE;
@@ -83,11 +84,11 @@ void SLApplication::createAppAndScene(SLstring appName,
 
     scene = new SLScene(name, (cbOnSceneLoad)onSceneLoadCallback);
 
-    getComputerInfos();
+    // This gets computerUser,-Name,-Brand,-Model,-OS,-OSVer,-Arch,-ID
+    SLstring deviceString = getComputerInfos();
 
-    SLstring deviceName        = computerUser + "-" + computerName + "-" + computerModel;
-    SLstring mainCalibFilename = "camCalib_" + deviceName + "_main.xml";
-    SLstring scndCalibFilename = "camCalib_" + deviceName + "_scnd.xml";
+    SLstring mainCalibFilename = "camCalib_" + deviceString + "_main.xml";
+    SLstring scndCalibFilename = "camCalib_" + deviceString + "_scnd.xml";
 
     // load opencv camera calibration for main and secondary camera
 #if defined(SL_USES_CVCAPTURE)
@@ -176,7 +177,7 @@ string SLApplication::jobProgressMsg()
     return _jobProgressMsg;
 }
 //-----------------------------------------------------------------------------
-void SLApplication::getComputerInfos()
+SLstring SLApplication::getComputerInfos()
 {
 #if defined(SL_OS_WINDOWS) //..................................................
 
@@ -244,8 +245,9 @@ void SLApplication::getComputerInfos()
     // Get model
     size_t len = 0;
     sysctlbyname("hw.model", nullptr, &len, nullptr, 0);
-    string model(len, '\0');
-    sysctlbyname("hw.model", const_cast<char*>(computerModel.data()), &len, nullptr, 0);
+    char model[255];
+    sysctlbyname("hw.model", model, &len, nullptr, 0);
+    computerModel = model;
 
     computerArch = "ARCH?";
 
@@ -306,7 +308,7 @@ void SLApplication::getComputerInfos()
     char user[PROP_VALUE_MAX];
     len          = __system_property_get("ro.build.user", user);
     computerUser = user ? string(user) : "USER?";
-    if (SLUtils::towlower(user) == "android") computerUser = "USER?";
+    if (Utils::toLowerString(user) == "android") computerUser = "USER?";
 
     char brand[PROP_VALUE_MAX];
     len           = __system_property_get("ro.product.brand", brand);
@@ -325,5 +327,10 @@ void SLApplication::getComputerInfos()
     computerArch = string(arch);
 
 #endif
+
+    // build a unique as possible ID string that can be used in a filename
+    computerID = computerUser + "-" + computerName + "-" + computerModel;
+    computerID = Utils::replaceNonFilenameChars(computerID);
+    return computerID;
 }
 //-----------------------------------------------------------------------------

@@ -1242,8 +1242,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         ac->toggleFixPrincipalPoint();
 
                     if (ac->state() == CS_calibrated && ImGui::MenuItem("Upload calibration"))
-                    {
-                    }
+                        ac->uploadCalibration();
 
                     ImGui::EndMenu();
                 }
