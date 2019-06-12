@@ -75,7 +75,8 @@ class SLCVCalibration
     bool    loadCalibParams();
     bool    calculate();
     void    clear();
-    void    uploadCalibration();
+    void    uploadCalibration(const SLstring& fullPathAndFilename);
+    void    downloadCalibration(const SLstring& fullPathAndFilename);
     SLfloat calcReprojectionErr(const SLCVVVPoint3f& objectPoints,
                                 const SLCVVMat&      rvecs,
                                 const SLCVVMat&      tvecs,
@@ -88,15 +89,17 @@ class SLCVCalibration
                   SLCVMat& outUndistorted);
     void    createFromGuessedFOV(SLint imageWidthPX,
                                  SLint imageHeightPX);
+    void    adaptForNewResolution(SLint newWidthPX,
+                                  SLint newHeightPX);
 
-    static SLstring calibIniPath; //!< calibration init parameters file path
-    static void     calcBoardCorners3D(SLCVSize      boardSize,
-                                       SLfloat       squareSize,
-                                       SLCVVPoint3f& objectPoints3D);
+      static SLstring calibIniPath; //!< calibration init parameters file path
+    static void calcBoardCorners3D(SLCVSize      boardSize,
+                                   SLfloat       squareSize,
+                                   SLCVVPoint3f& objectPoints3D);
 
     // Setters
     void state(SLCVCalibState s) { _state = s; }
-    void imageSize(SLCVSize newSize)
+    void imageSize(const SLCVSize& newSize)
     {
         if (newSize != _imageSize)
         {
@@ -105,7 +108,10 @@ class SLCVCalibration
             save();
         }
     }
-    void camSizeIndex(SLint index) { _camSizeIndex = index; }
+    void camSizeIndex(SLint index)
+    {
+        _camSizeIndex = index;
+    }
     void toggleMirrorH()
     {
         clear();

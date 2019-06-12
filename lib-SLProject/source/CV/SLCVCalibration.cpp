@@ -36,12 +36,12 @@ int ftpCallbackUpload(off64_t xfered, void* arg)
     if (ftpUploadSizeMax)
     {
         int xferedPC = (int)((float)xfered / (float)ftpUploadSizeMax * 100.0f);
-        cout << "Bytes transfered: " << xfered << " (" << xferedPC << ")" << endl;
+        cout << "Bytes saved: " << xfered << " (" << xferedPC << ")" << endl;
         SLApplication::jobProgressNum(xferedPC);
     }
     else
     {
-        cout << "Bytes transfered: " << xfered << endl;
+        cout << "Bytes saved: " << xfered << endl;
     }
     return xfered ? 1 : 0;
 }
@@ -97,9 +97,14 @@ bool SLCVCalibration::load(SLstring calibDir,
     _isMirroredV   = mirrorVertically;
 
     //load camera parameter
-    SLstring    fullPathAndFilename = _calibDir + _calibFileName;
-    FileStorage fs(fullPathAndFilename, FileStorage::READ);
+    SLstring fullPathAndFilename = _calibDir + _calibFileName;
 
+    // try to download from ftp if no calibration exists locally
+    if (!Utils::fileExists(fullPathAndFilename))
+        downloadCalibration(fullPathAndFilename);
+
+    // try to open the local calibration file
+    FileStorage fs(fullPathAndFilename, FileStorage::READ);
     if (!fs.isOpened())
     {
         SL_LOG("Calibration     : %s\n", calibFileName.c_str());
@@ -114,10 +119,9 @@ bool SLCVCalibration::load(SLstring calibDir,
         return false;
     }
 
+    // Reset if new file format version is available
     SLint calibFileVersion = 0;
     fs["CALIBFILEVERSION"] >> calibFileVersion;
-
-    // Reset if new file format version is available
     if (calibFileVersion < _CALIBFILEVERSION)
     {
         _numCaptured            = 0;
@@ -169,7 +173,7 @@ bool SLCVCalibration::load(SLstring calibDir,
 //! Saves the camera calibration parameters to the config file
 void SLCVCalibration::save()
 {
-    SLGLState*      stateGL = SLGLState::getInstance();
+    SLGLState*      stateGL             = SLGLState::getInstance();
     SLstring        fullPathAndFilename = _calibDir + _calibFileName;
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 
@@ -226,7 +230,7 @@ void SLCVCalibration::save()
     // close file
     fs.release();
     SL_LOG("Calib. saved    : %s\n", fullPathAndFilename.c_str());
-    uploadCalibration();
+    uploadCalibration(fullPathAndFilename);
 }
 //-----------------------------------------------------------------------------
 //! Loads the chessboard calibration pattern parameters
@@ -586,7 +590,7 @@ void SLCVCalibration::remap(SLCVMat& inDistorted,
 //-----------------------------------------------------------------------------
 //! Calculates camera intrinsics from a guessed FOV angle
 /* Most laptop-, webcam- or mobile camera have a vertical view angle or
-socalled field of view (FOV) of around 40-44 degrees. From this parameter we
+socalled field of view (FOV) of around 38-44 degrees. From this parameter we
 can calculate the most important intrinsic parameter the focal length. All
 other parameters are set as if the lens would be perfect: No lens distortion
 and the view axis goes through the center of the image.
@@ -618,10 +622,31 @@ void SLCVCalibration::createFromGuessedFOV(SLint imageWidthPX,
     _state            = CS_guessed;
 }
 //-----------------------------------------------------------------------------
-void SLCVCalibration::uploadCalibration()
+//! Adapts an allready calibrated camera to a new resolution
+void SLCVCalibration::adaptForNewResolution(SLint newWidthPX,
+                                            SLint newHeightPX)
 {
-    SLstring fullPathAndFilename = _calibDir + _calibFileName;
+    // allow adaptation only for calibrated cameras
+    if (_state != CS_calibrated) return;
 
+    // new center and focal length in pixels not mm
+    SLfloat cx = (float)newWidthPX * 0.5f;
+    SLfloat cy = (float)newHeightPX * 0.5f;
+    SLfloat fy = cy / tanf(_cameraFovDeg * 0.5f * SL_DEG2RAD);
+    SLfloat fx = fy;
+
+    _imageSize.width  = newWidthPX;
+    _imageSize.height = newHeightPX;
+    _cameraMat        = (Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
+    //_distortion remains unchanged
+    _calibrationTime  = Utils::getDateTime2String();
+
+    save();
+}
+//-----------------------------------------------------------------------------
+// Uploads the active calibration to the ftp server
+void SLCVCalibration::uploadCalibration(const SLstring& fullPathAndFilename)
+{
     if (!Utils::fileExists(fullPathAndFilename))
     {
         SL_LOG("Calib. file doesn't exist: %s\n", fullPathAndFilename.c_str());
@@ -635,19 +660,55 @@ void SLCVCalibration::uploadCalibration()
     }
 
     ftplib ftp;
+
     if (ftp.Connect("pallas.bfh.ch:21"))
     {
         if (ftp.Login("upload", "FaAdbD3F2a"))
         {
-            ftp.SetCallbackXferFunction(ftpCallbackUpload);
-            ftp.SetCallbackBytes(1024);
-
             if (ftp.Chdir("calibrations"))
             {
                 if (!ftp.Put(fullPathAndFilename.c_str(),
                              Utils::getFileName(fullPathAndFilename).c_str(),
                              ftplib::transfermode::image))
-                    SL_LOG("*** ERROR: ftp.put failed. ***\n");
+                    SL_LOG("*** ERROR: ftp.Put failed. ***\n");
+            }
+            else
+                SL_LOG("*** ERROR: ftp.Chdir failed. ***\n");
+        }
+        else
+            SL_LOG("*** ERROR: ftp.Login failed. ***\n");
+    }
+    else
+        SL_LOG("*** ERROR: ftp.Connect failed. ***\n");
+
+    ftp.Quit();
+}
+//-----------------------------------------------------------------------------
+// Uploads the active calibration to the ftp server
+void SLCVCalibration::downloadCalibration(const SLstring& fullPathAndFilename)
+{
+    ftplib ftp;
+
+    if (ftp.Connect("pallas.bfh.ch:21"))
+    {
+        if (ftp.Login("upload", "FaAdbD3F2a"))
+        {
+            if (ftp.Chdir("calibrations"))
+            {
+                string filename   = Utils::getFileName(fullPathAndFilename);
+                int    remoteSize = 0;
+                ftp.Size(filename.c_str(),
+                         &remoteSize,
+                         ftplib::transfermode::image);
+                if (remoteSize > 0)
+                {
+                    if (!ftp.Get(fullPathAndFilename.c_str(),
+                                 filename.c_str(),
+                                 ftplib::transfermode::image))
+                        SL_LOG("*** ERROR: ftp.Get failed. ***\n");
+                }
+                else
+                    SL_LOG("*** No calibration to download ***\n");
             }
             else
                 SL_LOG("*** ERROR: ftp.Chdir failed. ***\n");

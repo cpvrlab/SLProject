@@ -261,7 +261,7 @@ SLstring SLApplication::getComputerInfos()
     computerOSVer = "OSVER?";
     computerArch  = "ARCH?";
 
-#elif defined(SL_OS_MACIOS)
+#elif defined(SL_OS_MACIOS) //.................................................
 
     // Model and architecture are retrieved before in iOS under Objective C
     computerBrand = "Apple";
@@ -313,7 +313,6 @@ SLstring SLApplication::getComputerInfos()
     char user[PROP_VALUE_MAX];
     len          = __system_property_get("ro.build.user", user);
     computerUser = user ? string(user) : "USER?";
-    if (Utils::toLowerString(user) == "android") computerUser = "USER?";
 
     char brand[PROP_VALUE_MAX];
     len           = __system_property_get("ro.product.brand", brand);

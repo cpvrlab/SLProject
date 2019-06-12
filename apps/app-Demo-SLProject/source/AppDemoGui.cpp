@@ -483,7 +483,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Calib. time : %s\n", c->calibrationTime().c_str());
             sprintf(m + strlen(m), "Calib. state: %s\n", c->stateStr().c_str());
 
-            if (vt != VT_NONE && s->trackers().size() > 0)
+            if (vt != VT_NONE && !s->trackers().empty())
             {
                 sprintf(m + strlen(m), "--------------:\n");
                 for (auto tracker : s->trackers())
@@ -900,7 +900,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                                 if (!ftp.Get(outFile.c_str(),
                                                              "xyzrgb_dragon.ply",
                                                              ftplib::transfermode::image))
-                                                    SL_LOG("*** ERROR: ftp.get failed. ***\n");
+                                                    SL_LOG("*** ERROR: ftp.Get failed. ***\n");
                                             }
                                             else
                                                 SL_LOG("*** ERROR: Utils::makeDir %s failed. ***\n", plyDir.c_str());
@@ -1124,8 +1124,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Animation off", "O", s->stopAnimations()))
                 s->stopAnimations(!s->stopAnimations());
 
-#if defined(SL_OS_ANDROID) || defined(SL_OS_IOS)
             ImGui::Separator();
+#if defined(SL_OS_ANDROID) || defined(SL_OS_IOS)
             if (ImGui::BeginMenu("Rotation Sensor"))
             {
                 if (ImGui::MenuItem("Use Device Rotation (IMU)", nullptr, SLApplication::devRot.isUsed()))
@@ -1154,8 +1154,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
 #endif
-            ImGui::Separator();
-
             if (ImGui::BeginMenu("Video Sensor"))
             {
                 SLCVCalibration* ac = SLApplication::activeCalib;
@@ -1240,9 +1238,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                     if (ImGui::MenuItem("Fix Principal Point", nullptr, ac->calibFixPrincipalPoint()))
                         ac->toggleFixPrincipalPoint();
-
-                    if (ac->state() == CS_calibrated && ImGui::MenuItem("Upload calibration"))
-                        ac->uploadCalibration();
 
                     ImGui::EndMenu();
                 }
