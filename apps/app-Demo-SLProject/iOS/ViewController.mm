@@ -80,6 +80,7 @@ float GetSeconds()
     NSString*           m_avSessionPreset;      //!< Session name
     bool                m_lastVideoImageIsConsumed;
     int                 m_lastVideoType;        //! VT_NONE=0,VT_MAIN=1,VT_SCND=2
+    int                 m_lastVideoSizeIndex;   //! 0=1920x1080, 1=1280x720 else 640x480
     bool                m_locationIsRunning;    //! GPS is running
 }
 @property (strong, nonatomic) EAGLContext       *context;
@@ -175,6 +176,12 @@ float GetSeconds()
     
     [self setupMotionManager: 1.0/20.0];
     [self setupLocationManager];
+    
+    // Set the available capture resolutions
+    slSetCameraSize(0, 3, 1920, 1080);
+    slSetCameraSize(1, 3, 1280,  720);
+    slSetCameraSize(2, 3,  640,  480);
+    m_lastVideoSizeIndex = -1; // default size index
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload
@@ -205,7 +212,8 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    [self setVideoType:slGetVideoType()];
+    [self setVideoType:slGetVideoType()
+          videoSizeIndex:slGetVideoSizeIndex()];
     
     if (slUsesLocation())
          [self startLocationManager];
@@ -416,9 +424,13 @@ float GetSeconds()
 }
 //-----------------------------------------------------------------------------
 //! Prepares the video capture (taken from the GLCameraRipple example)
-- (void)setupVideo: (bool)useFaceCamera
+- (void)setupVideo: (bool)useFaceCamera videoSizeIndex:(int)sizeIndex
 {
-    m_avSessionPreset = AVCaptureSessionPreset640x480;
+    switch(sizeIndex)
+    {   case 0: m_avSessionPreset = AVCaptureSessionPreset1920x1080; break;
+        case 1: m_avSessionPreset = AVCaptureSessionPreset1280x720; break;
+        default : m_avSessionPreset = AVCaptureSessionPreset640x480;
+    }
     
     //-- Setup Capture Session.
     m_avSession = [[AVCaptureSession alloc] init];
@@ -483,6 +495,7 @@ float GetSeconds()
  camera that faces the face.
 */
 - (void) setVideoType:(int)videoType
+         videoSizeIndex:(int)sizeIndex
 {
     if (videoType == VT_NONE) // No video needed. Turn off any video
     {
@@ -503,13 +516,16 @@ float GetSeconds()
     {
         if (m_avSession == nil)
         {   printf("Creating AV Session for Front Camera\n");
-            [self setupVideo:false];
+            [self setupVideo:false videoSizeIndex: sizeIndex];
             printf("Starting AV Session\n");
             [m_avSession startRunning];
         }
         else if (m_lastVideoType == videoType)
-        {
-            if (![m_avSession isRunning])
+        {   if (m_lastVideoSizeIndex != sizeIndex)
+            {   printf("Stopping AV Session for resolution change\n");
+                [m_avSession stopRunning];
+                m_avSession = nil;
+            } else if (![m_avSession isRunning])
             {   printf("Starting AV Session\n");
                 [m_avSession startRunning];
             }
@@ -521,7 +537,7 @@ float GetSeconds()
                 m_avSession = nil;
             }
             printf("Creating AV Session for Front Camera\n");
-            [self setupVideo:false];
+            [self setupVideo:false videoSizeIndex: sizeIndex];
             printf("Starting AV Session\n");
             [m_avSession startRunning];
         }
@@ -530,12 +546,16 @@ float GetSeconds()
     {
         if (m_avSession == nil)
         {   printf("Creating AV Session for Back Camera\n");
-            [self setupVideo:true];
+            [self setupVideo:true videoSizeIndex: sizeIndex];
             printf("Starting AV Session\n");
             [m_avSession startRunning];
         }
         else if (m_lastVideoType == videoType)
-        {   if (![m_avSession isRunning])
+        {   if (m_lastVideoSizeIndex != sizeIndex)
+            {   printf("Stopping AV Session for resolution change\n");
+                [m_avSession stopRunning];
+                m_avSession = nil;
+            } else if (![m_avSession isRunning])
             {   printf("Starting AV Session\n");
                 [m_avSession startRunning];
             }
@@ -547,13 +567,14 @@ float GetSeconds()
                 m_avSession = nil;
             }
             printf("Creating AV Session for Back Camera\n");
-            [self setupVideo:true];
+            [self setupVideo:true videoSizeIndex: sizeIndex];
             printf("Starting AV Session\n");
             [m_avSession startRunning];
         }
     }
     
     m_lastVideoType = videoType;
+    m_lastVideoSizeIndex = sizeIndex;
 }
 //-----------------------------------------------------------------------------
 //! Starts the motion data update if the interval time > 0 else it stops
