@@ -29,6 +29,7 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.Size;
+import android.util.SizeF;
 
 import java.util.Arrays;
 
@@ -90,8 +91,12 @@ public class GLES3Camera2Service extends Service {
             for (String cameraId : manager.getCameraIdList()) {
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
                 int cOrientation = characteristics.get(CameraCharacteristics.LENS_FACING);
-                if (cOrientation == lensFacing)
+                if (cOrientation == lensFacing) {
+
+                    float[] focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
+                    SizeF physicalSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE);
                     return cameraId;
+                }
             }
         } catch (CameraAccessException e) {
             e.printStackTrace();
@@ -309,6 +314,11 @@ public class GLES3Camera2Service extends Service {
     protected CaptureRequest createCaptureRequest() {
         try {
             CaptureRequest.Builder builder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
+
+            // Turn off auto focus. We want to calibrate with the focus on infinty.
+            builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF);
+            builder.set(CaptureRequest.LENS_FOCUS_DISTANCE,0.0f);
+
             builder.addTarget(imageReader.getSurface());
             return builder.build();
         } catch (CameraAccessException e) {
