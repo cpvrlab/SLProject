@@ -436,7 +436,7 @@ bool SLScene::onUpdate()
             { // Changes the state to CS_guessed
                 ac->createFromGuessedFOV(SLCVCapture::lastFrame.cols,
                                          SLCVCapture::lastFrame.rows);
-                _sceneViews[0]->camera()->fov(ac->cameraFovDeg());
+                _sceneViews[0]->camera()->fov(ac->cameraFovVDeg());
             }
         }
         else //..............................................................
@@ -462,7 +462,7 @@ bool SLScene::onUpdate()
         {
             if (ac->calculate())
             {
-                _sceneViews[0]->camera()->fov(ac->cameraFovDeg());
+                _sceneViews[0]->camera()->fov(ac->cameraFovVDeg());
                 if (SLApplication::sceneID == SID_VideoCalibrateMain)
                     onLoad(this, _sceneViews[0], SID_VideoTrackChessMain);
                 else
@@ -489,13 +489,13 @@ bool SLScene::onUpdate()
                 SLApplication::sceneID == SID_VideoTrackChessMain ||
                 SLApplication::sceneID == SID_VideoTrackChessScnd)
             {
-                SLfloat fov = ac->cameraFovDeg();
+                SLfloat fovH = ac->cameraFovHDeg();
                 SLfloat err = ac->reprojectionError();
                 ss << "Tracking Chessboard on " << (_videoType == VT_MAIN ? "main " : "scnd. ") << "camera. ";
                 if (ac->state() == CS_calibrated)
-                    ss << "FOV: " << fov << ", error: " << err;
+                    ss << "FOVH: " << fovH << ", error: " << err;
                 else
-                    ss << "Not calibrated. FOV guessed: " << fov << " degrees.";
+                    ss << "Not calibrated. FOVH guessed: " << fovH << " degrees.";
                 _info = ss.str();
             }
         } //...................................................................

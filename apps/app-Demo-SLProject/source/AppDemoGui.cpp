@@ -468,24 +468,24 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             else if (c->isMirroredV())
                 mirrored = "vertically";
 
-            sprintf(m + strlen(m), "Video Type  : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera" : vt == VT_FILE ? "File" : "Secondary Camera");
-            sprintf(m + strlen(m), "Display size: %d x %d\n", SLCVCapture::lastFrame.cols, SLCVCapture::lastFrame.rows);
-            sprintf(m + strlen(m), "Capture size: %d x %d\n", capSize.width, capSize.height);
-            sprintf(m + strlen(m), "Size Index  : %d\n", c->camSizeIndex());
-            sprintf(m + strlen(m), "Mirrored    : %s\n", mirrored.c_str());
-            sprintf(m + strlen(m), "Chessboard  : %dx%d (%3.1fmm)\n", c->boardSize().width, c->boardSize().height, c->boardSquareMM());
-            sprintf(m + strlen(m), "Undistorted : %s\n", c->showUndistorted() && c->state() == CS_calibrated ? "Yes" : "No");
-            sprintf(m + strlen(m), "FOV (deg.)  : %4.1f\n", c->cameraFovDeg());
-            sprintf(m + strlen(m), "fx,fy       : %4.1f,%4.1f\n", c->fx(), c->fy());
-            sprintf(m + strlen(m), "cx,cy       : %4.1f,%4.1f\n", c->cx(), c->cy());
-            sprintf(m + strlen(m), "k1,k2       : %4.2f,%4.2f\n", c->k1(), c->k2());
-            sprintf(m + strlen(m), "p1,p2       : %4.2f,%4.2f\n", c->p1(), c->p2());
-            sprintf(m + strlen(m), "Calib. time : %s\n", c->calibrationTime().c_str());
-            sprintf(m + strlen(m), "Calib. state: %s\n", c->stateStr().c_str());
+            sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera" : vt == VT_FILE ? "File" : "Secondary Camera");
+            sprintf(m + strlen(m), "Display size : %d x %d\n", SLCVCapture::lastFrame.cols, SLCVCapture::lastFrame.rows);
+            sprintf(m + strlen(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
+            sprintf(m + strlen(m), "Size Index   : %d\n", c->camSizeIndex());
+            sprintf(m + strlen(m), "Mirrored     : %s\n", mirrored.c_str());
+            sprintf(m + strlen(m), "Chessboard   : %dx%d (%3.1fmm)\n", c->boardSize().width, c->boardSize().height, c->boardSquareMM());
+            sprintf(m + strlen(m), "Undistorted  : %s\n", c->showUndistorted() && c->state() == CS_calibrated ? "Yes" : "No");
+            sprintf(m + strlen(m), "FOV H/V(deg.): %4.1f/%4.1f\n", c->cameraFovHDeg(), c->cameraFovVDeg());
+            sprintf(m + strlen(m), "fx,fy        : %4.1f,%4.1f\n", c->fx(), c->fy());
+            sprintf(m + strlen(m), "cx,cy        : %4.1f,%4.1f\n", c->cx(), c->cy());
+            sprintf(m + strlen(m), "k1,k2        : %4.2f,%4.2f\n", c->k1(), c->k2());
+            sprintf(m + strlen(m), "p1,p2        : %4.2f,%4.2f\n", c->p1(), c->p2());
+            sprintf(m + strlen(m), "Calib. time  : %s\n", c->calibrationTime().c_str());
+            sprintf(m + strlen(m), "Calib. state : %s\n", c->stateStr().c_str());
 
             if (vt != VT_NONE && !s->trackers().empty())
             {
-                sprintf(m + strlen(m), "--------------:\n");
+                sprintf(m + strlen(m), "-------------:\n");
                 for (auto tracker : s->trackers())
                 {
                     SLNode* node = tracker->node();
@@ -494,14 +494,14 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                         if (typeid(*node) == typeid(SLCamera))
                         {
                             SLVec3f cameraPos = tracker->node()->updateAndGetWM().translation();
-                            sprintf(m + strlen(m), "Dist. to zero : %4.2f (%s)\n", cameraPos.length(), node->name().c_str());
+                            sprintf(m + strlen(m), "Dist. to zero: %4.2f\n", cameraPos.length());
                         }
                         else
                         {
                             SLVec3f cameraPos = ((SLNode*)sv->camera())->updateAndGetWM().translation();
                             SLVec3f objectPos = tracker->node()->updateAndGetWM().translation();
                             SLVec3f camToObj  = objectPos - cameraPos;
-                            sprintf(m + strlen(m), "Dist. to obj. : %4.2f (%s)\n", camToObj.length(), node->name().c_str());
+                            sprintf(m + strlen(m), "Dist. to obj.: %4.2f\n", camToObj.length());
                         }
                     }
                 }

@@ -2042,7 +2042,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(5);
         cam1->clipFar(10);
-        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
+        cam1->fov(SLApplication::activeCalib->cameraFovVDeg());
         cam1->background().texture(s->videoTexture());
         cam1->setInitialState();
         scene->addChild(cam1);
@@ -2112,7 +2112,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 5);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
+        cam1->fov(SLApplication::activeCalib->cameraFovVDeg());
         cam1->background().texture(s->videoTexture());
         cam1->setInitialState();
         scene->addChild(cam1);
@@ -2301,7 +2301,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 60);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
+        cam1->fov(SLApplication::activeCalib->cameraFovVDeg());
         cam1->clipNear(0.1f);
         cam1->clipFar(10000.0f);
         cam1->setInitialState();

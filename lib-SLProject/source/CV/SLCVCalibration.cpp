@@ -49,13 +49,15 @@ int ftpCallbackUpload(off64_t xfered, void* arg)
 //! Default path for calibration files
 //! Is overwritten in slCreateAppAndScene.
 SLstring SLCVCalibration::calibIniPath = SLstring(SL_PROJECT_ROOT) + "/data/calibrations/";
-
+//-----------------------------------------------------------------------------
 //! Increase the _CALIBFILEVERSION each time you change the file format
-const SLint SLCVCalibration::_CALIBFILEVERSION = 5; // Date: 6.JUNE.2019
+// Version 6, Date: 6.JUL.2019: Added device parameter from Android
+const SLint SLCVCalibration::_CALIBFILEVERSION = 6;
 //-----------------------------------------------------------------------------
 SLCVCalibration::SLCVCalibration()
   : _state(CS_uncalibrated),
-    _cameraFovDeg(1.0f),
+    _cameraFovHDeg(0.0f),
+    _cameraFovVDeg(0.0f),
     _calibFileName(""), // is set in load
     _calibParamsFileName("calib_in_params.yml"),
     _calibFixPrincipalPoint(true),
@@ -78,7 +80,8 @@ void SLCVCalibration::clear()
     _numCaptured       = 0;
     _reprojectionError = -1.0f;
     _imagePoints.clear();
-    _cameraFovDeg    = 1.0f;
+    _cameraFovHDeg   = 0.0f;
+    _cameraFovVDeg   = 0.0f;
     _calibrationTime = "-";
     _undistortMapX.release();
     _undistortMapY.release();
@@ -159,13 +162,13 @@ bool SLCVCalibration::load(SLstring calibDir,
     //calculate FOV and undistortion maps
     if (_state == CS_calibrated)
     {
-        _cameraFovDeg = calcCameraFOV();
+        calcCameraFov();
         buildUndistortionMaps();
     }
 
-    SL_LOG("Calib. loaded   : %s\n", fullPathAndFilename.c_str());
-    SL_LOG("Calib. created  : %s\n", _calibrationTime.c_str());
-    SL_LOG("Camera FOV      : %f\n", _cameraFovDeg);
+    SL_LOG("Calib. loaded  : %s\n", fullPathAndFilename.c_str());
+    SL_LOG("Calib. created : %s\n", _calibrationTime.c_str());
+    SL_LOG("Camera FOV H/V : %3.1f/%3.1f\n", _cameraFovVDeg, _cameraFovHDeg);
 
     return true;
 }
@@ -224,8 +227,17 @@ void SLCVCalibration::save()
     fs << "cameraMat" << _cameraMat;
     fs << "distortion" << _distortion;
     fs << "reprojectionError" << _reprojectionError;
-    fs << "cameraFovDeg" << _cameraFovDeg;
+    fs << "cameraFovVDeg" << _cameraFovVDeg;
+    fs << "cameraFovHDeg" << _cameraFovHDeg;
     fs << "camSizeIndex" << _camSizeIndex;
+    fs << "DeviceLensFocalLength" << SLApplication::deviceParameter["DeviceLensFocalLength"];
+    fs << "DeviceLensAperture" << SLApplication::deviceParameter["DeviceLensAperture"];
+    fs << "DeviceLensFocusDistanceCalibration" << SLApplication::deviceParameter["DeviceLensFocusDistanceCalibration"];
+    fs << "DeviceLensMinimumFocusDistance" << SLApplication::deviceParameter["DeviceLensMinimumFocusDistance"];
+    fs << "DeviceSensorPhysicalSizeW" << SLApplication::deviceParameter["DeviceSensorPhysicalSizeW"];
+    fs << "DeviceSensorPhysicalSizeH" << SLApplication::deviceParameter["DeviceSensorPhysicalSizeH"];
+    fs << "DeviceSensorActiveArraySizeW" << SLApplication::deviceParameter["DeviceSensorActiveArraySizeW"];
+    fs << "DeviceSensorActiveArraySizeH" << SLApplication::deviceParameter["DeviceSensorActiveArraySizeH"];
 
     // close file
     fs.release();
@@ -256,16 +268,18 @@ bool SLCVCalibration::loadCalibParams()
 }
 //-----------------------------------------------------------------------------
 //! Calculates the vertical field of view angle in degrees
-SLfloat SLCVCalibration::calcCameraFOV()
+void SLCVCalibration::calcCameraFov()
 {
     if (_cameraMat.rows != 3 || _cameraMat.cols != 3)
-        SL_EXIT_MSG("SLCVCalibration::calcCameraFOV: No intrinsic parameter available");
+        SL_EXIT_MSG("SLCVCalibration::calcCameraFovV: No intrinsic parameter available");
 
     //calculate vertical field of view
+    SLfloat fx     = (SLfloat)_cameraMat.at<double>(0, 0);
     SLfloat fy     = (SLfloat)_cameraMat.at<double>(1, 1);
+    SLfloat cx     = (SLfloat)_cameraMat.at<double>(0, 2);
     SLfloat cy     = (SLfloat)_cameraMat.at<double>(1, 2);
-    SLfloat fovRad = 2 * (SLfloat)atan2(cy, fy);
-    return fovRad * SL_RAD2DEG;
+    _cameraFovHDeg = 2 * (SLfloat)atan2(cx, fx) * SL_RAD2DEG;
+    _cameraFovVDeg = 2 * (SLfloat)atan2(cy, fy) * SL_RAD2DEG;
 }
 //-----------------------------------------------------------------------------
 //! Calculates the 3D positions of the chessboard corners
@@ -516,8 +530,7 @@ bool SLCVCalibration::calculate()
     if (ok)
     {
         buildUndistortionMaps();
-
-        _cameraFovDeg    = calcCameraFOV();
+        calcCameraFov();
         _calibrationTime = Utils::getDateTime2String();
         _state           = CS_calibrated;
         save();
@@ -528,7 +541,8 @@ bool SLCVCalibration::calculate()
     }
     else
     {
-        _cameraFovDeg    = 1.0f;
+        _cameraFovVDeg   = 0.0f;
+        _cameraFovHDeg   = 0.0f;
         _calibrationTime = "-";
         _undistortMapX.release();
         _undistortMapY.release();
@@ -589,17 +603,45 @@ void SLCVCalibration::remap(SLCVMat& inDistorted,
 }
 //-----------------------------------------------------------------------------
 //! Calculates camera intrinsics from a guessed FOV angle
-/* Most laptop-, webcam- or mobile camera have a vertical view angle or
-socalled field of view (FOV) of around 38-44 degrees. From this parameter we
+/* Most laptop-, webcam- or mobile camera have a horizontal view angle or
+so called field of view (FOV) of around 65 degrees. From this parameter we
 can calculate the most important intrinsic parameter the focal length. All
 other parameters are set as if the lens would be perfect: No lens distortion
 and the view axis goes through the center of the image.
+If the focal length and sensor size is provided by the device we deduce the
+the fov from it.
 */
 void SLCVCalibration::createFromGuessedFOV(SLint imageWidthPX,
                                            SLint imageHeightPX)
 {
-    // vertical view angle in degrees
-    SLfloat fov = 42.0f;
+    // aspect ratio
+    SLfloat withOverHeight = (float)imageWidthPX / (float)imageHeightPX;
+
+    // Try to read device lens and sensor information
+    SLstring strF = SLApplication::deviceParameter["DeviceLensFocalLength"];
+    SLstring strW = SLApplication::deviceParameter["DeviceSensorPhysicalSizeW"];
+    SLstring strH = SLApplication::deviceParameter["DeviceSensorPhysicalSizeH"];
+    float    devF = strF.empty() ? 0.0f : stof(strF);
+    float    devW = strW.empty() ? 0.0f : stof(strW);
+    float    devH = strH.empty() ? 0.0f : stof(strH);
+
+    // average horizontal view angle in degrees
+    SLfloat fovH = 65.0f;
+
+    // the vertical fov is derived from the width because it could be cropped
+    SLfloat fovV = fovH / withOverHeight;
+
+    // overwrite if device lens and sensor information exist and are reasonable
+    if (devF > 0.0f && devW > 0.0f && devH > 0.0f)
+    {
+        SLfloat devFovH = 2.0f * atan(devW / (2.0f * devF)) * SL_RAD2DEG;
+        SLfloat devFovV = devFovH / withOverHeight;
+        if (devFovH > 60.0f && devFovH < 70.0f)
+        {
+            fovH = devFovH;
+            fovV = devFovV;
+        }
+    }
 
     // Create standard camera matrix
     // fx, fx, cx, cy are all in pixel values not mm
@@ -610,36 +652,36 @@ void SLCVCalibration::createFromGuessedFOV(SLint imageWidthPX,
 
     SLfloat cx = (float)imageWidthPX * 0.5f;
     SLfloat cy = (float)imageHeightPX * 0.5f;
-    SLfloat fy = cy / tanf(fov * 0.5f * SL_DEG2RAD);
-    SLfloat fx = fy;
+    SLfloat fx = cx / tanf(fovH * 0.5f * SL_DEG2RAD);
+    SLfloat fy = fx;
 
     _imageSize.width  = imageWidthPX;
     _imageSize.height = imageHeightPX;
     _cameraMat        = (Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
     _distortion       = (Mat_<double>(5, 1) << 0, 0, 0, 0, 0); // No distortion
-    _cameraFovDeg     = fov;
+    _cameraFovHDeg    = fovH;
+    _cameraFovVDeg    = fovV;
     _calibrationTime  = Utils::getDateTime2String();
     _state            = CS_guessed;
 }
 //-----------------------------------------------------------------------------
 //! Adapts an allready calibrated camera to a new resolution
-void SLCVCalibration::adaptForNewResolution(SLint newWidthPX,
-                                            SLint newHeightPX)
+void SLCVCalibration::adaptForNewResolution(const SLCVSize& newSize)
 {
     // allow adaptation only for calibrated cameras
     if (_state != CS_calibrated) return;
 
     // new center and focal length in pixels not mm
-    SLfloat cx = (float)newWidthPX * 0.5f;
-    SLfloat cy = (float)newHeightPX * 0.5f;
-    SLfloat fy = cy / tanf(_cameraFovDeg * 0.5f * SL_DEG2RAD);
-    SLfloat fx = fy;
+    SLfloat cx = (float)newSize.width * 0.5f;
+    SLfloat cy = (float)newSize.height * 0.5f;
+    SLfloat fx = cx / tanf(_cameraFovHDeg * 0.5f * SL_DEG2RAD);
+    SLfloat fy = fx;
 
-    _imageSize.width  = newWidthPX;
-    _imageSize.height = newHeightPX;
+    _imageSize.width  = newSize.width;
+    _imageSize.height = newSize.height;
     _cameraMat        = (Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
     //_distortion remains unchanged
-    _calibrationTime  = Utils::getDateTime2String();
+    _calibrationTime = Utils::getDateTime2String();
 
     save();
 }

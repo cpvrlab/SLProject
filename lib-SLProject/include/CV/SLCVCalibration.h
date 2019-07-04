@@ -89,13 +89,12 @@ class SLCVCalibration
                   SLCVMat& outUndistorted);
     void    createFromGuessedFOV(SLint imageWidthPX,
                                  SLint imageHeightPX);
-    void    adaptForNewResolution(SLint newWidthPX,
-                                  SLint newHeightPX);
+    void    adaptForNewResolution(const SLCVSize& newSize);
 
-      static SLstring calibIniPath; //!< calibration init parameters file path
-    static void calcBoardCorners3D(SLCVSize      boardSize,
-                                   SLfloat       squareSize,
-                                   SLCVVPoint3f& objectPoints3D);
+    static SLstring calibIniPath; //!< calibration init parameters file path
+    static void     calcBoardCorners3D(SLCVSize      boardSize,
+                                       SLfloat       squareSize,
+                                       SLCVVPoint3f& objectPoints3D);
 
     // Setters
     void state(SLCVCalibState s) { _state = s; }
@@ -103,8 +102,14 @@ class SLCVCalibration
     {
         if (newSize != _imageSize)
         {
-            clear();
-            _imageSize = newSize;
+            //if (_state == CS_calibrated)
+            //    adaptForNewResolution(newSize);
+            //else
+            {
+                clear();
+                _imageSize = newSize;
+            }
+
             save();
         }
     }
@@ -147,7 +152,8 @@ class SLCVCalibration
     SLfloat        imageAspectRatio() { return (float)_imageSize.width / (float)_imageSize.height; }
     SLCVMat&       cameraMat() { return _cameraMat; }
     SLCVMat&       distortion() { return _distortion; }
-    SLfloat        cameraFovDeg() { return _cameraFovDeg; }
+    SLfloat        cameraFovVDeg() { return _cameraFovVDeg; }
+    SLfloat        cameraFovHDeg() { return _cameraFovHDeg; }
     SLbool         calibFixPrincipalPoint() { return _calibFixPrincipalPoint; }
     SLbool         calibFixAspectRatio() { return _calibFixAspectRatio; }
     SLbool         calibZeroTangentDist() { return _calibZeroTangentDist; }
@@ -187,7 +193,7 @@ class SLCVCalibration
     }
 
     private:
-    SLfloat calcCameraFOV();
+    void calcCameraFov();
 
     ///////////////////////////////////////////////////////////////////////////////////
     SLCVMat _cameraMat;  //!< 3x3 Matrix for intrinsic camera matrix
@@ -195,7 +201,8 @@ class SLCVCalibration
     ///////////////////////////////////////////////////////////////////////////////////
 
     SLCVCalibState _state;                  //!< calibration state enumeration
-    SLfloat        _cameraFovDeg;           //!< Vertical field of view in degrees
+    SLfloat        _cameraFovVDeg;          //!< Vertical field of view in degrees
+    SLfloat        _cameraFovHDeg;          //!< Horizontal field of view in degrees
     SLstring       _calibDir;               //!< directory of calibration file
     SLstring       _calibFileName;          //!< name for calibration file
     SLstring       _calibParamsFileName;    //!< name of calibration paramters file

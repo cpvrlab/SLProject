@@ -519,6 +519,9 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                     GLES3Camera2Service.isTransitioning = true;
                     Log.i(TAG, "Going to stop camera service to change type ...");
                     stopService(new Intent(getBaseContext(), GLES3Camera2Service.class));
+
+                    // Request a new rendering
+                    GLES3Lib.view.requestRender();
                 }
             }
         }
