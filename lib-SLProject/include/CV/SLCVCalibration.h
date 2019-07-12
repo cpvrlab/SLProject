@@ -23,6 +23,7 @@ for a good top down information.
 #include <SL.h>
 #include <SLCV.h>
 #include <SLEnums.h>
+#include <ftplib.h>
 
 using namespace std;
 
@@ -67,16 +68,19 @@ class SLCVCalibration
     SLCVCalibration();
     ~SLCVCalibration() { ; }
 
-    bool    load(SLstring calibDir,
-                 SLstring calibFileName,
-                 SLbool   mirrorHorizontally,
-                 SLbool   mirrorVertically);
-    void    save();
-    bool    loadCalibParams();
-    bool    calculate();
-    void    clear();
-    void    uploadCalibration(const SLstring& fullPathAndFilename);
-    void    downloadCalibration(const SLstring& fullPathAndFilename);
+    bool     load(SLstring calibDir,
+                  SLstring calibFileName,
+                  SLbool   mirrorHorizontally,
+                  SLbool   mirrorVertically);
+    void     save();
+    bool     loadCalibParams();
+    bool     calculate();
+    void     clear();
+    void     uploadCalibration(const SLstring& fullPathAndFilename);
+    void     downloadCalibration(const SLstring& fullPathAndFilename);
+    SLstring getLatestCalibFilename(ftplib& ftp, const SLstring& calibFileWOExt);
+    int      getVersionInCalibFilename(const string& calibFilename);
+
     SLfloat calcReprojectionErr(const SLCVVVPoint3f& objectPoints,
                                 const SLCVVMat&      rvecs,
                                 const SLCVVMat&      tvecs,
@@ -226,7 +230,11 @@ class SLCVCalibration
     SLCVMat        _cameraMatUndistorted;   //!< Camera matrix for undistorted image
     SLstring       _calibrationTime;        //!< Time stamp string of calibration
 
-    static const SLint _CALIBFILEVERSION; //!< Global const file format version
+    static const SLint    _CALIBFILEVERSION; //!< Global const file format version
+    static const SLstring FTP_HOST;          //!< ftp host for calibration up and download
+    static const SLstring FTP_USER;          //!< ftp login user for calibration up and download
+    static const SLstring FTP_PWD;           //!< ftp login pwd for calibration up and download
+    static const SLstring FTP_DIR;           //!< ftp directory for calibration up and download
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVCalibration_H

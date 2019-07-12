@@ -50,6 +50,12 @@ int ftpCallbackUpload(off64_t xfered, void* arg)
 //! Is overwritten in slCreateAppAndScene.
 SLstring SLCVCalibration::calibIniPath = SLstring(SL_PROJECT_ROOT) + "/data/calibrations/";
 //-----------------------------------------------------------------------------
+//! FTP credentials for calibration up- and download
+const SLstring SLCVCalibration::FTP_HOST = "pallas.bfh.ch:21";
+const SLstring SLCVCalibration::FTP_USER = "upload";
+const SLstring SLCVCalibration::FTP_PWD  = "FaAdbD3F2a";
+const SLstring SLCVCalibration::FTP_DIR  = "calibrations";
+//-----------------------------------------------------------------------------
 //! Increase the _CALIBFILEVERSION each time you change the file format
 // Version 6, Date: 6.JUL.2019: Added device parameter from Android
 const SLint SLCVCalibration::_CALIBFILEVERSION = 6;
@@ -603,7 +609,7 @@ void SLCVCalibration::remap(SLCVMat& inDistorted,
 }
 //-----------------------------------------------------------------------------
 //! Calculates camera intrinsics from a guessed FOV angle
-/* Most laptop-, webcam- or mobile camera have a horizontal view angle or
+/*! Most laptop-, webcam- or mobile camera have a horizontal view angle or
 so called field of view (FOV) of around 65 degrees. From this parameter we
 can calculate the most important intrinsic parameter the focal length. All
 other parameters are set as if the lens would be perfect: No lens distortion
@@ -686,7 +692,7 @@ void SLCVCalibration::adaptForNewResolution(const SLCVSize& newSize)
     save();
 }
 //-----------------------------------------------------------------------------
-// Uploads the active calibration to the ftp server
+//! Uploads the active calibration to the ftp server
 void SLCVCalibration::uploadCalibration(const SLstring& fullPathAndFilename)
 {
     if (!Utils::fileExists(fullPathAndFilename))
@@ -703,14 +709,35 @@ void SLCVCalibration::uploadCalibration(const SLstring& fullPathAndFilename)
 
     ftplib ftp;
 
-    if (ftp.Connect("pallas.bfh.ch:21"))
+    if (ftp.Connect(FTP_HOST.c_str()))
     {
-        if (ftp.Login("upload", "FaAdbD3F2a"))
+        if (ftp.Login(FTP_USER.c_str(), FTP_PWD.c_str()))
         {
-            if (ftp.Chdir("calibrations"))
+            if (ftp.Chdir(FTP_DIR.c_str()))
             {
+                // Get the latest calibration filename on the ftp
+                string latestCalibFile = getLatestCalibFilename(ftp, fullPathAndFilename);
+
+                // Set the calibfile version
+                int    versionNO       = 0;
+                if (!latestCalibFile.empty())
+                {
+                    versionNO = getVersionInCalibFilename(latestCalibFile);
+                }
+
+                // Increase the version
+                versionNO++;
+                stringstream versionSS;
+                versionSS << "(" << versionNO << ")";
+                versionSS.str();
+
+                // Build new filename on ftp with version number
+                string fileWOExt = Utils::getFileNameWOExt(fullPathAndFilename);
+                string newVersionFilename = fileWOExt + versionSS.str() + ".xml";
+
+                // Upload
                 if (!ftp.Put(fullPathAndFilename.c_str(),
-                             Utils::getFileName(fullPathAndFilename).c_str(),
+                             newVersionFilename.c_str(),
                              ftplib::transfermode::image))
                     SL_LOG("*** ERROR: ftp.Put failed. ***\n");
             }
@@ -726,26 +753,29 @@ void SLCVCalibration::uploadCalibration(const SLstring& fullPathAndFilename)
     ftp.Quit();
 }
 //-----------------------------------------------------------------------------
-// Uploads the active calibration to the ftp server
+//! Uploads the active calibration to the ftp server
 void SLCVCalibration::downloadCalibration(const SLstring& fullPathAndFilename)
 {
     ftplib ftp;
 
-    if (ftp.Connect("pallas.bfh.ch:21"))
+    if (ftp.Connect(FTP_HOST.c_str()))
     {
-        if (ftp.Login("upload", "FaAdbD3F2a"))
+        if (ftp.Login(FTP_USER.c_str(), FTP_PWD.c_str()))
         {
-            if (ftp.Chdir("calibrations"))
+            if (ftp.Chdir(FTP_DIR.c_str()))
             {
-                string filename   = Utils::getFileName(fullPathAndFilename);
-                int    remoteSize = 0;
-                ftp.Size(filename.c_str(),
+                // Get the latest calibration filename on the ftp
+                string latestCalibFile = getLatestCalibFilename(ftp, fullPathAndFilename);
+                int    remoteSize      = 0;
+                ftp.Size(latestCalibFile.c_str(),
                          &remoteSize,
                          ftplib::transfermode::image);
+
                 if (remoteSize > 0)
                 {
+                    string targetFilename = Utils::getFileName(fullPathAndFilename);
                     if (!ftp.Get(fullPathAndFilename.c_str(),
-                                 filename.c_str(),
+                                 latestCalibFile.c_str(),
                                  ftplib::transfermode::image))
                         SL_LOG("*** ERROR: ftp.Get failed. ***\n");
                 }
@@ -762,5 +792,68 @@ void SLCVCalibration::downloadCalibration(const SLstring& fullPathAndFilename)
         SL_LOG("*** ERROR: ftp.Connect failed. ***\n");
 
     ftp.Quit();
+}
+//-----------------------------------------------------------------------------
+//! Returns the latest calibration filename of the same fullPathAndFilename
+SLstring SLCVCalibration::getLatestCalibFilename(ftplib&         ftp,
+                                                 const SLstring& fullPathAndFilename)
+{
+    // Get a list of calibrations of the same device
+    string dirResult         = SLApplication::configPath + "dirResult.txt";
+    string filenameWOExt     = Utils::getFileNameWOExt(fullPathAndFilename);
+    string filenameWOExtStar = filenameWOExt + "*";
+
+    // Get result of ftp.Dir into the textfile dirResult
+    if (ftp.Dir(dirResult.c_str(), filenameWOExtStar.c_str()))
+    {
+        SLVstring vecFilesInDir;
+        SLVstring strippedFiles;
+
+        if (Utils::getFileContent(dirResult, vecFilesInDir))
+        {
+            for (SLstring& fileInfoLine : vecFilesInDir)
+            {
+                size_t foundAt = fileInfoLine.find(filenameWOExt);
+                if (foundAt != string::npos)
+                {
+                    string fileWExt  = fileInfoLine.substr(foundAt);
+                    string fileWOExt = Utils::getFileNameWOExt(fileWExt);
+                    strippedFiles.push_back(fileWOExt);
+                }
+            }
+        }
+
+        if (strippedFiles.size() > 0)
+        {
+            // sort filename naturally as many file systems do.
+            std::sort(strippedFiles.begin(), strippedFiles.end(), Utils::compareNatural);
+            string latest = strippedFiles.back() + ".xml";
+            return latest;
+        }
+        else
+            return "";
+    }
+
+    // Return empty for not found
+    return "";
+}
+//-----------------------------------------------------------------------------
+//! Returns the version number at the end of the calibration filename
+int SLCVCalibration::getVersionInCalibFilename(const string& calibFilename)
+{
+    string calibFilenameWOExt = Utils::getFileNameWOExt(calibFilename);
+
+    int versionNO = 0;
+    if (!calibFilenameWOExt.empty())
+    {
+        int len = calibFilenameWOExt.length();
+        if (calibFilenameWOExt.at(len - 1) == ')')
+        {
+            size_t leftPos = calibFilenameWOExt.rfind("(");
+            string verStr  = calibFilenameWOExt.substr(leftPos + 1, len - leftPos - 2);
+            versionNO      = stoi(verStr);
+        }
+    }
+    return versionNO;
 }
 //-----------------------------------------------------------------------------
