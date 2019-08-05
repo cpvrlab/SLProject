@@ -32,7 +32,7 @@ class SLInputManager
     public:
     SLInputManager() { ; }
 
-    SLbool          pollAndProcessEvents();
+    SLbool          pollAndProcessEvents(const std::vector<SLSceneView*>& svs);
     void            queueEvent(const SLInputEvent* e);
     SLVInputDevice& devices() { return _devices; }
 
@@ -40,7 +40,7 @@ class SLInputManager
     SLQInputEvent  _systemEvents; //!< queue for known system events
     SLVInputDevice _devices;      //!< list of activated SLInputDevices
 
-    SLbool processQueuedEvents();
+    SLbool processQueuedEvents(const std::vector<SLSceneView*>& svs);
 };
 //-----------------------------------------------------------------------------
 #endif

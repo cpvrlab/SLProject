@@ -139,7 +139,7 @@ SLCVCapture::adjustForSL. This function can also be called by Android or iOS
 app for grabbing a frame of a video file. Android and iOS use their own
 capture functionality.
 */
-void SLCVCapture::grabAndAdjustForSL()
+void SLCVCapture::grabAndAdjustForSL(SLfloat outWdivH)
 {
     SLCVCapture::startCaptureTimeMS = SLApplication::scene->timeMilliSec();
 
@@ -160,7 +160,7 @@ void SLCVCapture::grabAndAdjustForSL()
                     return;
             }
 
-            adjustForSL();
+            adjustForSL(outWdivH);
         }
         else
         {
@@ -195,7 +195,7 @@ image should be mirrored or not is stored in SLCVCalibration::_isMirroredH
 3) Many of the further processing steps are faster done on grayscale images.
 We therefore create a copy that is grayscale converted.
 */
-void SLCVCapture::adjustForSL()
+void SLCVCapture::adjustForSL(SLfloat outWdivH)
 {
     SLScene* s = SLApplication::scene;
     format     = SLCVImage::cv2glPixelFormat(lastFrame.type());
@@ -235,8 +235,8 @@ void SLCVCapture::adjustForSL()
     // Cropping is done almost always.
     // So this is Android image copy loop #2
 
-    SLfloat inWdivH  = (SLfloat)lastFrame.cols / (SLfloat)lastFrame.rows;
-    SLfloat outWdivH = s->sceneViews()[0]->scrWdivH();
+    SLfloat inWdivH = (SLfloat)lastFrame.cols / (SLfloat)lastFrame.rows;
+    //SLfloat outWdivH = s->sceneViews()[0]->scrWdivH();
 
     if (SL_abs(inWdivH - outWdivH) > 0.01f)
     {
@@ -360,32 +360,27 @@ void SLCVCapture::loadIntoLastFrame(const SLint         width,
 
         switch (format)
         {
-            case PF_luminance:
-            {
+            case PF_luminance: {
                 cvType = CV_8UC1;
                 bpp    = 1;
                 break;
             }
-            case PF_bgr:
-            {
+            case PF_bgr: {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_rgb:
-            {
+            case PF_rgb: {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_bgra:
-            {
+            case PF_bgra: {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
             }
-            case PF_rgba:
-            {
+            case PF_rgba: {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
@@ -405,7 +400,8 @@ void SLCVCapture::loadIntoLastFrame(const SLint         width,
         SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, destStride);
     }
 
-    adjustForSL();
+    //TODO
+    adjustForSL(width);
 }
 //-----------------------------------------------------------------------------
 //! YUV to RGB image infos. Offset value can be negative for mirrored copy.
@@ -567,7 +563,7 @@ We therefore create a copy of the y-channel into SLCVCapture::lastFrameGray.
 \param yBytes      Size in bytes of the y-plane (must be srcW x srcH)
 \param yColOffset  Offset in bytes to the next pixel in the y-plane
 \param yRowOffset  Offset in bytes to the next line in the y-plane
-\param u           Pointer to first byte of the top left pixel of the u-plane
+\param u           Pointer to first byte of the top left pixel of the u-planes
 \param uBytes      Size in bytes of the u-plane
 \param uColOffset  Offset in bytes to the next pixel in the u-plane
 \param uRowOffset  Offset in bytes to the next line in the u-plane
@@ -589,7 +585,9 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
                                 SLuchar* v,
                                 int      vBytes,
                                 int      vColOffset,
-                                int      vRowOffset)
+                                int      vRowOffset,
+                                // output image aspect ratio = aspect of the always landscape screen
+                                SLfloat dstWdivH)
 {
     // pointer to the active scene
     SLScene* s = SLApplication::scene;
@@ -601,7 +599,7 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
     SLfloat srcWdivH = (SLfloat)srcW / srcH;
 
     // output image aspect ratio = aspect of the always landscape screen
-    SLfloat dstWdivH = s->sceneViews()[0]->scrWdivH();
+    //SLfloat dstWdivH = s->sceneViews()[0]->scrWdivH();
 
     SLint dstW  = srcW; // width in pixels of the destination image
     SLint dstH  = srcH; // height in pixels of the destination image

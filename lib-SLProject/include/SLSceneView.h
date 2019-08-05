@@ -64,7 +64,7 @@ class SLSceneView : public SLObject
     friend class SLPathtracer;
 
     public:
-    SLSceneView();
+    SLSceneView(SLScene* scene);
     virtual ~SLSceneView();
 
     void init(SLstring name,
@@ -182,6 +182,7 @@ class SLSceneView : public SLObject
     static const SLint LONGTOUCH_MS; //!< Milliseconds duration of a long touch event
 
     protected:
+    SLScene*   _s;
     SLuint     _index;           //!< index of this pointer in SLScene::sceneView vector
     SLGLState* _stateGL;         //!< Pointer to the global SLGLState instance
     SLCamera*  _camera;          //!< Pointer to the _active camera

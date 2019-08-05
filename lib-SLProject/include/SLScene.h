@@ -68,10 +68,16 @@ class SLScene : public SLObject
     void showDetection(SLbool st) { _showDetection = st; }
     void info(SLstring i) { _info = i; }
 
+    void calculateFrameTime(SLSceneView* sv);
+    void updateAnimations(SLbool sceneHasChanged,
+                          SLbool renderTypeIsRT,
+                          SLbool voxelsAreShown);
+    void updateAABBs();
+
     // Getters
-    SLAnimManager&   animManager() { return _animManager; }
-    SLSceneView*     sv(SLuint index) { return _sceneViews[index]; }
-    SLVSceneView&    sceneViews() { return _sceneViews; }
+    SLAnimManager& animManager() { return _animManager; }
+    //SLSceneView*     sv(SLuint index) { return _sceneViews[index]; }
+    //SLVSceneView&    sceneViews() { return _sceneViews; }
     SLNode*          root3D() { return _root3D; }
     SLNode*          root2D() { return _root2D; }
     SLstring&        info() { return _info; }
@@ -127,7 +133,7 @@ class SLScene : public SLObject
     //virtual  void            onLoad              (SLSceneView* sv, SLCommand _currentID);
     virtual void onLoadAsset(SLstring assetFile,
                              SLuint   processFlags);
-    virtual void onAfterLoad();
+    virtual void onAfterLoad(SLSceneView* sv);
     bool         onUpdate();
     void         init();
     void         unInit();
@@ -137,7 +143,7 @@ class SLScene : public SLObject
     bool         deleteTexture(SLGLTexture* texture);
 
     protected:
-    SLVSceneView    _sceneViews;    //!< Vector of all sceneview pointers
+    //SLVSceneView    _sceneViews;    //!< Vector of all sceneview pointers
     SLVMesh         _meshes;        //!< Vector of all meshes
     SLVMaterial     _materials;     //!< Vector of all materials pointers
     SLVGLTexture    _textures;      //!< Vector of all texture pointers
@@ -162,6 +168,11 @@ class SLScene : public SLObject
     SLfloat    _lastUpdateTimeMS; //!< Last time after update in ms
     SLfloat    _fps;              //!< Averaged no. of frames per second
     SLAvgFloat _frameTimesMS;     //!< Averaged total time per frame in ms
+
+    SLfloat _startUpdateMS;
+    SLfloat _sumCullTimeMS   = 0.0f;
+    SLfloat _sumDraw3DTimeMS = 0.0f;
+    SLfloat _sumDraw2DTimeMS = 0.0f;
 
     // major part times
     SLAvgFloat _vsyncTimesMS;   //!< Averaged time for vertical sync in ms

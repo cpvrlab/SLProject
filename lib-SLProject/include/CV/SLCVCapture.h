@@ -46,8 +46,8 @@ class SLCVCapture
     public:
     static SLVec2i open(SLint deviceNum);
     static SLVec2i openFile();
-    static void    grabAndAdjustForSL();
-    static void    adjustForSL();
+    static void    grabAndAdjustForSL(SLfloat outWdivH);
+    static void    adjustForSL(SLfloat outWdivH);
     static SLbool  isOpened() { return _captureDevice.isOpened(); }
     static void    release();
     static void    loadIntoLastFrame(const SLint         camWidth,
@@ -68,7 +68,8 @@ class SLCVCapture
                                  SLuchar* v,
                                  int      vSize,
                                  int      vPixStride,
-                                 int      vLineStride);
+                                 int      vLineStride,
+                                 SLfloat  dstWdivH);
 
     static SLCVMat       lastFrame;          //!< last frame grabbed in RGB
     static SLCVMat       lastFrameGray;      //!< last frame in grayscale

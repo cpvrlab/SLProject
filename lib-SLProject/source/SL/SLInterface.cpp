@@ -106,14 +106,15 @@ See examples usages in:
   - app-Demo-SLProject/android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
   - app-Demo-SLProject/iOS:     ViewController.m      in viewDidLoad()
 */
-int slCreateSceneView(int       screenWidth,
-                      int       screenHeight,
-                      int       dotsPerInch,
-                      SLSceneID initScene,
-                      void*     onWndUpdateCallback,
-                      void*     onSelectNodeMeshCallback,
-                      void*     onNewSceneViewCallback,
-                      void*     onImGuiBuild)
+int slCreateSceneView(int          screenWidth,
+                      int          screenHeight,
+                      int          dotsPerInch,
+                      SLSceneID    initScene,
+                      SLSceneView* sv,
+                      void*        onWndUpdateCallback,
+                      void*        onSelectNodeMeshCallback,
+                      void*        onNewSceneViewCallback,
+                      void*        onImGuiBuild)
 {
     assert(SLApplication::scene && "No SLApplication::scene!");
 
@@ -125,8 +126,8 @@ int slCreateSceneView(int       screenWidth,
         newSVCallback = (cbOnNewSceneView)onNewSceneViewCallback;
 
     // Create the sceneview & get the pointer with the sceneview index
-    SLuint       index = (SLuint)newSVCallback();
-    SLSceneView* sv    = SLApplication::scene->sv(index);
+    SLuint index = (SLuint)newSVCallback();
+    //SLSceneView* sv    = SLApplication::scene->sv(index);
 
     sv->init("SceneView",
              screenWidth,
@@ -163,7 +164,7 @@ slCreateSceneView.
 */
 int slNewSceneView()
 {
-    SLSceneView* sv = new SLSceneView();
+    SLSceneView* sv = new SLSceneView(SLApplication::scene);
     return (SLint)sv->index();
 }
 //-----------------------------------------------------------------------------
@@ -202,16 +203,17 @@ returned true a new frame should be drawn.
 */
 bool slUpdateAndPaint(int sceneViewIndex)
 {
-    SLSceneView* sv = SLApplication::scene->sv((SLuint)sceneViewIndex);
+    //SLSceneView* sv = SLApplication::scene->sv((SLuint)sceneViewIndex);
 
-    SLApplication::handleParallelJob();
+    //SLApplication::handleParallelJob();
 
-    bool sceneGotUpdated = SLApplication::scene->onUpdate();
-    bool viewNeedsUpdate = sv->onPaint();
+    //bool sceneGotUpdated = SLApplication::scene->onUpdate();
+    //bool viewNeedsUpdate = sv->onPaint();
 
-    return sceneGotUpdated ||
-           viewNeedsUpdate ||
-           SLApplication::jobIsRunning;
+    //return sceneGotUpdated ||
+    //       viewNeedsUpdate ||
+    //       SLApplication::jobIsRunning;
+    return false;
 }
 //-----------------------------------------------------------------------------
 /*! Global resize function that must be called whenever the OpenGL frame
@@ -449,8 +451,9 @@ library.
 */
 string slGetWindowTitle(int sceneViewIndex)
 {
-    SLSceneView* sv = SLApplication::scene->sv((SLuint)sceneViewIndex);
-    return sv->windowTitle();
+    //SLSceneView* sv = SLApplication::scene->sv((SLuint)sceneViewIndex);
+    //return sv->windowTitle();
+    return "sfssdfsdffsf";
 }
 //-----------------------------------------------------------------------------
 /*! Global function that returns the type of video camera wanted
@@ -475,10 +478,10 @@ int slGetVideoSizeIndex()
 should be used by Android and iOS apps for grabbing the next video frame from
 a video file.
 */
-void slGrabVideoFileFrame()
-{
-    SLCVCapture::grabAndAdjustForSL();
-}
+//void slGrabVideoFileFrame()
+//{
+//    SLCVCapture::grabAndAdjustForSL();
+//}
 //-----------------------------------------------------------------------------
 /*! Global function to copy a new video image to the SLScene::_videoTexture.
 An application can grab the live video image with OpenCV via slGrabCopyVideoImage
@@ -514,7 +517,8 @@ void slCopyVideoYUVPlanes(int      srcW,
                           SLuchar* v,
                           int      vSize,
                           int      vPixStride,
-                          int      vLineStride)
+                          int      vLineStride,
+                          SLfloat  dstWdivH)
 {
     SLCVCapture::copyYUVPlanes(srcW,
                                srcH,
@@ -529,7 +533,8 @@ void slCopyVideoYUVPlanes(int      srcW,
                                v,
                                vSize,
                                vPixStride,
-                               vLineStride);
+                               vLineStride,
+                               dstWdivH);
 }
 //-----------------------------------------------------------------------------
 /*! Get available external directories and inform slproject about them

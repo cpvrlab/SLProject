@@ -135,10 +135,10 @@ The destructor is called in slTerminate.
 */
 SLScene::~SLScene()
 {
-    // Delete all remaining sceneviews
-    for (auto sv : _sceneViews)
-        if (sv != nullptr)
-            delete sv;
+    //// Delete all remaining sceneviews
+    //for (auto sv : _sceneViews)
+    //    if (sv != nullptr)
+    //        delete sv;
 
     // delete AR tracker programs
     for (auto t : _trackers) delete t;
@@ -234,15 +234,15 @@ void SLScene::unInit()
     _selectedMesh = nullptr;
     _selectedNode = nullptr;
 
-    // reset existing sceneviews
-    for (auto sv : _sceneViews)
-    {
-        if (sv != nullptr)
-        {
-            sv->camera(sv->sceneViewCamera());
-            sv->skybox(nullptr);
-        }
-    }
+    //// reset existing sceneviews
+    //for (auto sv : _sceneViews)
+    //{
+    //    if (sv != nullptr)
+    //    {
+    //        sv->camera(sv->sceneViewCamera());
+    //        sv->skybox(nullptr);
+    //    }
+    //}
 
     // delete entire scene graph
     delete _root3D;
@@ -300,35 +300,9 @@ void SLScene::unInit()
     _animManager.clear();
 }
 //-----------------------------------------------------------------------------
-//! Processes all queued events and updates animations, AR trackers and AABBs
-/*! Updates different updatables in the scene after all views got painted:
-\n
-\n 1) Calculate frame time
-\n 2) Process queued events
-\n 3) Update all animations
-\n 4) Augmented Reality (AR) Tracking with the live camera
-\n 5) Update AABBs
-\n
-A scene can be displayed in multiple views as demonstrated in the app-Viewer-Qt
-example. AR tracking is only handled on the first scene view.
-\return true if really something got updated
-*/
-bool SLScene::onUpdate()
+void SLScene::calculateFrameTime(SLSceneView* sv)
 {
-    // Return if not all sceneview got repainted: This check if necessary if
-    // this function is called for multiple SceneViews. In this way we only
-    // update the geometric representations if all SceneViews got painted once.
-
-    for (auto sv : _sceneViews)
-        if (sv != nullptr && !sv->gotPainted())
-            return false;
-
-    // Reset all _gotPainted flags
-    for (auto sv : _sceneViews)
-        if (sv != nullptr)
-            sv->gotPainted(false);
-
-    /////////////////////////////
+    ///////////////////////////////
     // 1) Calculate frame time //
     /////////////////////////////
 
@@ -338,46 +312,40 @@ bool SLScene::onUpdate()
     _lastUpdateTimeMS = timeMilliSec();
 
     // Sum up all timings of all sceneviews
-    SLfloat sumCullTimeMS   = 0.0f;
-    SLfloat sumDraw3DTimeMS = 0.0f;
-    SLfloat sumDraw2DTimeMS = 0.0f;
-    SLbool  renderTypeIsRT  = false;
-    SLbool  voxelsAreShown  = false;
-    for (auto sv : _sceneViews)
+    _sumCullTimeMS   = 0.0f;
+    _sumDraw3DTimeMS = 0.0f;
+    _sumDraw2DTimeMS = 0.0f;
+    //SLbool  renderTypeIsRT  = false;
+    //SLbool  voxelsAreShown  = false;
+    //for (auto sv : _sceneViews)
+    //{
+    if (sv != nullptr)
     {
-        if (sv != nullptr)
-        {
-            sumCullTimeMS += sv->cullTimeMS();
-            sumDraw3DTimeMS += sv->draw3DTimeMS();
-            sumDraw2DTimeMS += sv->draw2DTimeMS();
-            if (!renderTypeIsRT && sv->renderType() == RT_rt)
-                renderTypeIsRT = true;
-            if (!voxelsAreShown && sv->drawBit(SL_DB_VOXELS))
-                voxelsAreShown = true;
-        }
+        _sumCullTimeMS += sv->cullTimeMS();
+        _sumDraw3DTimeMS += sv->draw3DTimeMS();
+        _sumDraw2DTimeMS += sv->draw2DTimeMS();
+        //if (!renderTypeIsRT && sv->renderType() == RT_rt)
+        //    renderTypeIsRT = true;
+        //if (!voxelsAreShown && sv->drawBit(SL_DB_VOXELS))
+        //    voxelsAreShown = true;
     }
-    _cullTimesMS.set(sumCullTimeMS);
-    _draw3DTimesMS.set(sumDraw3DTimeMS);
-    _draw2DTimesMS.set(sumDraw2DTimeMS);
+    //}
+    _cullTimesMS.set(_sumCullTimeMS);
+    _draw3DTimesMS.set(_sumDraw3DTimeMS);
+    _draw2DTimesMS.set(_sumDraw2DTimeMS);
 
     // Calculate the frames per second metric
     _frameTimesMS.set(_frameTimeMS);
     _fps = 1 / _frameTimesMS.average() * 1000.0f;
     if (_fps < 0.0f) _fps = 0.0f;
 
-    SLfloat startUpdateMS = timeMilliSec();
-
-    //////////////////////////////
-    // 2) Process queued events //
-    //////////////////////////////
-
-    // Process queued up system events and poll custom input devices
-    SLbool sceneHasChanged = SLApplication::inputManager.pollAndProcessEvents();
-
-    //////////////////////////////
-    // 3) Update all animations //
-    //////////////////////////////
-
+    _startUpdateMS = timeMilliSec();
+}
+//-----------------------------------------------------------------------------
+void SLScene::updateAnimations(SLbool sceneHasChanged,
+                               SLbool renderTypeIsRT,
+                               SLbool voxelsAreShown)
+{
     SLfloat startAnimUpdateMS = timeMilliSec();
 
     if (_root3D)
@@ -404,132 +372,10 @@ bool SLScene::onUpdate()
     }
 
     _updateAnimTimesMS.set(timeMilliSec() - startAnimUpdateMS);
-
-    ////////////////////
-    // 4) AR Tracking //
-    ////////////////////
-
-    if (_videoType != VT_NONE && !SLCVCapture::lastFrame.empty())
-    {
-        SLfloat          trackingTimeStartMS = timeMilliSec();
-        SLCVCalibration* ac                  = SLApplication::activeCalib;
-
-        // Invalidate calibration if camera input aspect doesn't match output
-        SLfloat calibWdivH              = ac->imageAspectRatio();
-        SLbool  aspectRatioDoesNotMatch = SL_abs(_sceneViews[0]->scrWdivH() - calibWdivH) > 0.01f;
-        if (aspectRatioDoesNotMatch && ac->state() == CS_calibrated)
-        {
-            ac->clear();
-        }
-
-        stringstream ss; // info line text
-
-        //.....................................................................
-        if (ac->state() == CS_uncalibrated)
-        {
-            if (SLApplication::sceneID == SID_VideoCalibrateMain ||
-                SLApplication::sceneID == SID_VideoCalibrateScnd)
-            {
-                ac->state(CS_calibrateStream);
-            }
-            else
-            { // Changes the state to CS_guessed
-                ac->createFromGuessedFOV(SLCVCapture::lastFrame.cols,
-                                         SLCVCapture::lastFrame.rows);
-                _sceneViews[0]->camera()->fov(ac->cameraFovVDeg());
-            }
-        }
-        else //..............................................................
-          if (ac->state() == CS_calibrateStream || ac->state() == CS_calibrateGrab)
-        {
-            ac->findChessboard(SLCVCapture::lastFrame, SLCVCapture::lastFrameGray, true);
-            int imgsToCap = ac->numImgsToCapture();
-            int imgsCaped = ac->numCapturedImgs();
-
-            //update info line
-            if (imgsCaped < imgsToCap)
-                ss << "Click on the screen to create a calibration photo. Created "
-                   << imgsCaped << " of " << imgsToCap;
-            else
-            {
-                ss << "Calculating calibration, please wait ...";
-                ac->state(CS_startCalculating);
-            }
-            _info = ss.str();
-        }
-        else //..............................................................
-          if (ac->state() == CS_startCalculating)
-        {
-            if (ac->calculate())
-            {
-                _sceneViews[0]->camera()->fov(ac->cameraFovVDeg());
-                if (SLApplication::sceneID == SID_VideoCalibrateMain)
-                    onLoad(this, _sceneViews[0], SID_VideoTrackChessMain);
-                else
-                    onLoad(this, _sceneViews[0], SID_VideoTrackChessScnd);
-            }
-        }
-        else if (ac->state() == CS_calibrated || ac->state() == CS_guessed) //......
-        {
-            SLCVTrackedAruco::trackAllOnce = true;
-
-            // track all trackers in the first sceneview
-            for (auto tracker : _trackers)
-            {
-                tracker->track(SLCVCapture::lastFrameGray,
-                               SLCVCapture::lastFrame,
-                               ac,
-                               _showDetection,
-                               _sceneViews[0]);
-            }
-
-            // Update info text only for chessboard scene
-            if (SLApplication::sceneID == SID_VideoCalibrateMain ||
-                SLApplication::sceneID == SID_VideoCalibrateScnd ||
-                SLApplication::sceneID == SID_VideoTrackChessMain ||
-                SLApplication::sceneID == SID_VideoTrackChessScnd)
-            {
-                SLfloat fovH = ac->cameraFovHDeg();
-                SLfloat err = ac->reprojectionError();
-                ss << "Tracking Chessboard on " << (_videoType == VT_MAIN ? "main " : "scnd. ") << "camera. ";
-                if (ac->state() == CS_calibrated)
-                    ss << "FOVH: " << fovH << ", error: " << err;
-                else
-                    ss << "Not calibrated. FOVH guessed: " << fovH << " degrees.";
-                _info = ss.str();
-            }
-        } //...................................................................
-
-        //copy image to video texture
-        if (ac->state() == CS_calibrated && ac->showUndistorted())
-        {
-            SLCVMat undistorted;
-            ac->remap(SLCVCapture::lastFrame, undistorted);
-
-            _videoTexture.copyVideoImage(undistorted.cols,
-                                         undistorted.rows,
-                                         SLCVCapture::format,
-                                         undistorted.data,
-                                         undistorted.isContinuous(),
-                                         true);
-        }
-        else
-        {
-            _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
-                                         SLCVCapture::lastFrame.rows,
-                                         SLCVCapture::format,
-                                         SLCVCapture::lastFrame.data,
-                                         SLCVCapture::lastFrame.isContinuous(),
-                                         true);
-        }
-
-        _trackingTimesMS.set(timeMilliSec() - trackingTimeStartMS);
-    }
-
-    /////////////////////
-    // 5) Update AABBs //
-    /////////////////////
-
+}
+//-----------------------------------------------------------------------------
+void SLScene::updateAABBs()
+{
     // The updateAABBRec call won't generate any overhead if nothing changed
     SLfloat startAAABBUpdateMS = timeMilliSec();
     SLNode::numWMUpdates       = 0;
@@ -541,24 +387,282 @@ bool SLScene::onUpdate()
     _updateAABBTimesMS.set(timeMilliSec() - startAAABBUpdateMS);
 
     // Finish total update time
-    SLfloat updateTimeMS = timeMilliSec() - startUpdateMS;
+    SLfloat updateTimeMS = timeMilliSec() - _startUpdateMS;
     _updateTimesMS.set(updateTimeMS);
 
     // calculate vsync time as diff. of major part times to the frame time
     SLfloat totalMajorTime = captureTimesMS().average() +
                              updateTimeMS +
-                             sumCullTimeMS +
-                             sumDraw3DTimeMS +
-                             sumDraw2DTimeMS;
+                             _sumCullTimeMS +
+                             _sumDraw3DTimeMS +
+                             _sumDraw2DTimeMS;
     SLfloat vsyncTime = _frameTimeMS > totalMajorTime ? _frameTimeMS - totalMajorTime : 0.0f;
     _vsyncTimesMS.set(vsyncTime);
 
     //SL_LOG("SLScene::onUpdate\n");
-    return sceneHasChanged;
+}
+//-----------------------------------------------------------------------------
+//! Processes all queued events and updates animations, AR trackers and AABBs
+/*! Updates different updatables in the scene after all views got painted:
+\n
+\n 1) Calculate frame time
+\n 2) Process queued events
+\n 3) Update all animations
+\n 4) Augmented Reality (AR) Tracking with the live camera
+\n 5) Update AABBs
+\n
+A scene can be displayed in multiple views as demonstrated in the app-Viewer-Qt
+example. AR tracking is only handled on the first scene view.
+\return true if really something got updated
+*/
+bool SLScene::onUpdate()
+{
+    //// Return if not all sceneview got repainted: This check if necessary if
+    //// this function is called for multiple SceneViews. In this way we only
+    //// update the geometric representations if all SceneViews got painted once.
+
+    //for (auto sv : _sceneViews)
+    //    if (sv != nullptr && !sv->gotPainted())
+    //        return false;
+
+    //// Reset all _gotPainted flags
+    //for (auto sv : _sceneViews)
+    //    if (sv != nullptr)
+    //        sv->gotPainted(false);
+
+    ///////////////////////////////
+    //// 1) Calculate frame time //
+    ///////////////////////////////
+
+    //// Calculate the elapsed time for the animation
+    //// todo: If slowdown on idle is enabled the delta time will be wrong!
+    //_frameTimeMS      = timeMilliSec() - _lastUpdateTimeMS;
+    //_lastUpdateTimeMS = timeMilliSec();
+
+    //// Sum up all timings of all sceneviews
+    //SLfloat sumCullTimeMS   = 0.0f;
+    //SLfloat sumDraw3DTimeMS = 0.0f;
+    //SLfloat sumDraw2DTimeMS = 0.0f;
+    //SLbool  renderTypeIsRT  = false;
+    //SLbool  voxelsAreShown  = false;
+    //for (auto sv : _sceneViews)
+    //{
+    //    if (sv != nullptr)
+    //    {
+    //        sumCullTimeMS += sv->cullTimeMS();
+    //        sumDraw3DTimeMS += sv->draw3DTimeMS();
+    //        sumDraw2DTimeMS += sv->draw2DTimeMS();
+    //        if (!renderTypeIsRT && sv->renderType() == RT_rt)
+    //            renderTypeIsRT = true;
+    //        if (!voxelsAreShown && sv->drawBit(SL_DB_VOXELS))
+    //            voxelsAreShown = true;
+    //    }
+    //}
+    //_cullTimesMS.set(sumCullTimeMS);
+    //_draw3DTimesMS.set(sumDraw3DTimeMS);
+    //_draw2DTimesMS.set(sumDraw2DTimeMS);
+
+    //// Calculate the frames per second metric
+    //_frameTimesMS.set(_frameTimeMS);
+    //_fps = 1 / _frameTimesMS.average() * 1000.0f;
+    //if (_fps < 0.0f) _fps = 0.0f;
+
+    //SLfloat startUpdateMS = timeMilliSec();
+
+    ////////////////////////////////
+    //// 2) Process queued events //
+    ////////////////////////////////
+
+    //// Process queued up system events and poll custom input devices
+    //SLbool sceneHasChanged = SLApplication::inputManager.pollAndProcessEvents();
+
+    ////////////////////////////////
+    //// 3) Update all animations //
+    ////////////////////////////////
+
+    //SLfloat startAnimUpdateMS = timeMilliSec();
+
+    //if (_root3D)
+    //    _root3D->update();
+
+    //// reset the dirty flag on all skeletons
+    //for (auto skeleton : _animManager.skeletons())
+    //    skeleton->changed(false);
+
+    //sceneHasChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
+
+    //// Do software skinning on all changed skeletons
+    //for (auto mesh : _meshes)
+    //{
+    //    if (mesh->skeleton() && mesh->skeleton()->changed())
+    //    {
+    //        mesh->transformSkin();
+    //        sceneHasChanged = true;
+    //    }
+
+    //    // update any out of date acceleration structure for RT or if they're being rendered.
+    //    if (renderTypeIsRT || voxelsAreShown)
+    //        mesh->updateAccelStruct();
+    //}
+
+    //_updateAnimTimesMS.set(timeMilliSec() - startAnimUpdateMS);
+
+    //////////////////////
+    //// 4) AR Tracking //
+    //////////////////////
+
+    //if (_videoType != VT_NONE && !SLCVCapture::lastFrame.empty())
+    //{
+    //    SLfloat          trackingTimeStartMS = timeMilliSec();
+    //    SLCVCalibration* ac                  = SLApplication::activeCalib;
+
+    //    // Invalidate calibration if camera input aspect doesn't match output
+    //    SLfloat calibWdivH              = ac->imageAspectRatio();
+    //    SLbool  aspectRatioDoesNotMatch = SL_abs(_sceneViews[0]->scrWdivH() - calibWdivH) > 0.01f;
+    //    if (aspectRatioDoesNotMatch && ac->state() == CS_calibrated)
+    //    {
+    //        ac->clear();
+    //    }
+
+    //    stringstream ss; // info line text
+
+    //    //.....................................................................
+    //    if (ac->state() == CS_uncalibrated)
+    //    {
+    //        if (SLApplication::sceneID == SID_VideoCalibrateMain ||
+    //            SLApplication::sceneID == SID_VideoCalibrateScnd)
+    //        {
+    //            ac->state(CS_calibrateStream);
+    //        }
+    //        else
+    //        { // Changes the state to CS_guessed
+    //            ac->createFromGuessedFOV(SLCVCapture::lastFrame.cols,
+    //                                     SLCVCapture::lastFrame.rows);
+    //            _sceneViews[0]->camera()->fov(ac->cameraFovVDeg());
+    //        }
+    //    }
+    //    else //..............................................................
+    //      if (ac->state() == CS_calibrateStream || ac->state() == CS_calibrateGrab)
+    //    {
+    //        ac->findChessboard(SLCVCapture::lastFrame, SLCVCapture::lastFrameGray, true);
+    //        int imgsToCap = ac->numImgsToCapture();
+    //        int imgsCaped = ac->numCapturedImgs();
+
+    //        //update info line
+    //        if (imgsCaped < imgsToCap)
+    //            ss << "Click on the screen to create a calibration photo. Created "
+    //               << imgsCaped << " of " << imgsToCap;
+    //        else
+    //        {
+    //            ss << "Calculating calibration, please wait ...";
+    //            ac->state(CS_startCalculating);
+    //        }
+    //        _info = ss.str();
+    //    }
+    //    else //..............................................................
+    //      if (ac->state() == CS_startCalculating)
+    //    {
+    //        if (ac->calculate())
+    //        {
+    //            _sceneViews[0]->camera()->fov(ac->cameraFovVDeg());
+    //            if (SLApplication::sceneID == SID_VideoCalibrateMain)
+    //                onLoad(this, _sceneViews[0], SID_VideoTrackChessMain);
+    //            else
+    //                onLoad(this, _sceneViews[0], SID_VideoTrackChessScnd);
+    //        }
+    //    }
+    //    else if (ac->state() == CS_calibrated || ac->state() == CS_guessed) //......
+    //    {
+    //        SLCVTrackedAruco::trackAllOnce = true;
+
+    //        // track all trackers in the first sceneview
+    //        for (auto tracker : _trackers)
+    //        {
+    //            tracker->track(SLCVCapture::lastFrameGray,
+    //                           SLCVCapture::lastFrame,
+    //                           ac,
+    //                           _showDetection,
+    //                           _sceneViews[0]);
+    //        }
+
+    //        // Update info text only for chessboard scene
+    //        if (SLApplication::sceneID == SID_VideoCalibrateMain ||
+    //            SLApplication::sceneID == SID_VideoCalibrateScnd ||
+    //            SLApplication::sceneID == SID_VideoTrackChessMain ||
+    //            SLApplication::sceneID == SID_VideoTrackChessScnd)
+    //        {
+    //            SLfloat fovH = ac->cameraFovHDeg();
+    //            SLfloat err = ac->reprojectionError();
+    //            ss << "Tracking Chessboard on " << (_videoType == VT_MAIN ? "main " : "scnd. ") << "camera. ";
+    //            if (ac->state() == CS_calibrated)
+    //                ss << "FOVH: " << fovH << ", error: " << err;
+    //            else
+    //                ss << "Not calibrated. FOVH guessed: " << fovH << " degrees.";
+    //            _info = ss.str();
+    //        }
+    //    } //...................................................................
+
+    //    //copy image to video texture
+    //    if (ac->state() == CS_calibrated && ac->showUndistorted())
+    //    {
+    //        SLCVMat undistorted;
+    //        ac->remap(SLCVCapture::lastFrame, undistorted);
+
+    //        _videoTexture.copyVideoImage(undistorted.cols,
+    //                                     undistorted.rows,
+    //                                     SLCVCapture::format,
+    //                                     undistorted.data,
+    //                                     undistorted.isContinuous(),
+    //                                     true);
+    //    }
+    //    else
+    //    {
+    //        _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+    //                                     SLCVCapture::lastFrame.rows,
+    //                                     SLCVCapture::format,
+    //                                     SLCVCapture::lastFrame.data,
+    //                                     SLCVCapture::lastFrame.isContinuous(),
+    //                                     true);
+    //    }
+
+    //    _trackingTimesMS.set(timeMilliSec() - trackingTimeStartMS);
+    //}
+
+    ///////////////////////
+    //// 5) Update AABBs //
+    ///////////////////////
+
+    //// The updateAABBRec call won't generate any overhead if nothing changed
+    //SLfloat startAAABBUpdateMS = timeMilliSec();
+    //SLNode::numWMUpdates       = 0;
+    //SLGLState::getInstance()->modelViewMatrix.identity();
+    //if (_root3D)
+    //    _root3D->updateAABBRec();
+    //if (_root2D)
+    //    _root2D->updateAABBRec();
+    //_updateAABBTimesMS.set(timeMilliSec() - startAAABBUpdateMS);
+
+    //// Finish total update time
+    //SLfloat updateTimeMS = timeMilliSec() - startUpdateMS;
+    //_updateTimesMS.set(updateTimeMS);
+
+    //// calculate vsync time as diff. of major part times to the frame time
+    //SLfloat totalMajorTime = captureTimesMS().average() +
+    //                         updateTimeMS +
+    //                         sumCullTimeMS +
+    //                         sumDraw3DTimeMS +
+    //                         sumDraw2DTimeMS;
+    //SLfloat vsyncTime = _frameTimeMS > totalMajorTime ? _frameTimeMS - totalMajorTime : 0.0f;
+    //_vsyncTimesMS.set(vsyncTime);
+
+    ////SL_LOG("SLScene::onUpdate\n");
+    //return sceneHasChanged;
+
+    return false;
 }
 //-----------------------------------------------------------------------------
 //! SLScene::onAfterLoad gets called after onLoad
-void SLScene::onAfterLoad()
+void SLScene::onAfterLoad(SLSceneView* sv)
 {
 #ifdef SL_USES_CVCAPTURE
 
@@ -574,7 +678,7 @@ void SLScene::onAfterLoad()
 
             if (videoSize != SLVec2i::ZERO)
             {
-                SLCVCapture::grabAndAdjustForSL();
+                SLCVCapture::grabAndAdjustForSL(sv->scrWdivH());
 
                 if (SLCVCapture::lastFrame.cols > 0 &&
                     SLCVCapture::lastFrame.rows > 0)
@@ -720,13 +824,13 @@ void SLScene::onLoadAsset(SLstring assetFile,
     }
 
     // call onInitialize on all scene views
-    for (auto sv : _sceneViews)
-    {
-        if (sv != nullptr)
-        {
-            sv->onInitialize();
-        }
-    }
+    //for (auto sv : _sceneViews)
+    //{
+    //    if (sv != nullptr)
+    //    {
+    //        sv->onInitialize();
+    //    }
+    //}
 }
 //-----------------------------------------------------------------------------
 //! Setter for video type also sets the active calibration

@@ -15,6 +15,8 @@
 #include <SLEnums.h>
 #include <SLGLEnums.h>
 
+class SLSceneView;
+
 //! \file SLInterface.h SLProject C-functions interface declaration.
 /*! \file SLInterface.h
 The SLInterface.h has all declarations of the SLProject C-Interface.
@@ -41,14 +43,15 @@ void slCreateAppAndScene(SLVstring& cmdLineArgs,
                          SLstring   applicationName,
                          void*      onSceneLoadCallback = nullptr);
 
-int slCreateSceneView(int       screenWidth,
-                      int       screenHeight,
-                      int       dotsPerInch,
-                      SLSceneID initScene,
-                      void*     onWndUpdateCallback,
-                      void*     onSelectNodeMeshCallback = nullptr,
-                      void*     onNewSceneViewCallback   = nullptr,
-                      void*     onImGuiBuild             = nullptr);
+int slCreateSceneView(int          screenWidth,
+                      int          screenHeight,
+                      int          dotsPerInch,
+                      SLSceneID    initScene,
+                      SLSceneView* sv,
+                      void*        onWndUpdateCallback,
+                      void*        onSelectNodeMeshCallback = nullptr,
+                      void*        onNewSceneViewCallback   = nullptr,
+                      void*        onImGuiBuild             = nullptr);
 
 int    slNewSceneView();
 bool   slShouldClose();
@@ -119,32 +122,33 @@ void   slLocationLLA(double latitudeDEG,
 string slGetWindowTitle(int sceneViewIndex);
 int    slGetVideoType();
 int    slGetVideoSizeIndex();
-void   slGrabVideoFileFrame();
-void   slCopyVideoImage(int           srcW,
-                        int           srcH,
-                        SLPixelFormat glFormat,
-                        SLuchar*      data,
-                        bool          isContinuous);
-void   slCopyVideoYUVPlanes(int      srcW,
-                            int      srcH,
-                            SLuchar* y,
-                            int      ySize,
-                            int      yPixStride,
-                            int      yLineStride,
-                            SLuchar* u,
-                            int      uSize,
-                            int      uPixStride,
-                            int      uLineStride,
-                            SLuchar* v,
-                            int      vSize,
-                            int      vPixStride,
-                            int      vLineStride);
-void   slSetupExternalDir(SLstring externalDirPath);
-void   slSetCameraSize(int sizeIndex,
-                       int sizeIndexMax,
-                       int width,
-                       int height);
-void   slSetDeviceParameter(SLstring parameter,
-                            SLstring value);
+//void   slGrabVideoFileFrame();
+void slCopyVideoImage(int           srcW,
+                      int           srcH,
+                      SLPixelFormat glFormat,
+                      SLuchar*      data,
+                      bool          isContinuous);
+void slCopyVideoYUVPlanes(int      srcW,
+                          int      srcH,
+                          SLuchar* y,
+                          int      ySize,
+                          int      yPixStride,
+                          int      yLineStride,
+                          SLuchar* u,
+                          int      uSize,
+                          int      uPixStride,
+                          int      uLineStride,
+                          SLuchar* v,
+                          int      vSize,
+                          int      vPixStride,
+                          int      vLineStride,
+                          SLfloat  dstWdivH);
+void slSetupExternalDir(SLstring externalDirPath);
+void slSetCameraSize(int sizeIndex,
+                     int sizeIndexMax,
+                     int width,
+                     int height);
+void slSetDeviceParameter(SLstring parameter,
+                          SLstring value);
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H
