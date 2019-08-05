@@ -297,7 +297,7 @@ target_link_libraries(${target}
     ${OpenCV_LIBS}
     ${META_PROJECT_NAME}::lib-SLExternal
     ${META_PROJECT_NAME}::lib-assimp
-    ${META_PROJECT_NAME}::lib-Utils
+    lib-Utils
     ${DEFAULT_LINKER_OPTIONS}
     INTERFACE
     )
