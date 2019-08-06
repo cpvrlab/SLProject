@@ -73,6 +73,13 @@ class SLScene : public SLObject
                           SLbool renderTypeIsRT,
                           SLbool voxelsAreShown);
     void updateAABBs();
+    void setVideoTexture(
+      SLint         camWidth,
+      SLint         camHeight,
+      SLPixelFormat glFormat,
+      SLuchar*      data,
+      SLbool        isContinuous,
+      SLbool        isTopLeft);
 
     // Getters
     SLAnimManager& animManager() { return _animManager; }

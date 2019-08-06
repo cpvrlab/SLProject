@@ -610,7 +610,7 @@ void SLSceneView::draw3DGLAll()
     draw3DGLLinesOverlay(_blendNodes);
 
     // 4) Draw visualization lines of animation curves
-    SLApplication::scene->animManager().drawVisuals(this);
+    _s->animManager().drawVisuals(this);
 
     // 5) Turn blending off again for correct anaglyph stereo modes
     _stateGL->blend(false);

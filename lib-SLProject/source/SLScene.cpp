@@ -402,6 +402,22 @@ void SLScene::updateAABBs()
     //SL_LOG("SLScene::onUpdate\n");
 }
 //-----------------------------------------------------------------------------
+void SLScene::setVideoTexture(
+  SLint         camWidth,
+  SLint         camHeight,
+  SLPixelFormat glFormat,
+  SLuchar*      data,
+  SLbool        isContinuous,
+  SLbool        isTopLeft)
+{
+    _videoTexture.copyVideoImage(camWidth,
+                                 camHeight,
+                                 glFormat,
+                                 data,
+                                 isContinuous,
+                                 isTopLeft);
+}
+//-----------------------------------------------------------------------------
 //! Processes all queued events and updates animations, AR trackers and AABBs
 /*! Updates different updatables in the scene after all views got painted:
 \n
