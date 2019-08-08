@@ -24,6 +24,7 @@ for a good top down information.
 #include <SLCV.h>
 #include <SLEnums.h>
 #include <SLVec2.h>
+#include <SLGLTexture.h>
 #include <opencv2/opencv.hpp>
 
 //-----------------------------------------------------------------------------
@@ -44,32 +45,38 @@ https://docs.opencv.org/3.0-beta/modules/videoio/doc/reading_and_writing_video.h
 class SLCVCapture
 {
     public:
-    static SLVec2i open(SLint deviceNum);
-    static SLVec2i openFile();
-    static void    grabAndAdjustForSL(SLfloat outWdivH);
-    static void    adjustForSL(SLfloat outWdivH);
-    static SLbool  isOpened() { return _captureDevice.isOpened(); }
-    static void    release();
-    static void    loadIntoLastFrame(const SLint         camWidth,
-                                     const SLint         camHeight,
-                                     const SLPixelFormat srcPixelFormat,
-                                     const SLuchar*      data,
-                                     const SLbool        isContinuous);
-    static void    copyYUVPlanes(int      srcW,
-                                 int      srcH,
-                                 SLuchar* y,
-                                 int      ySize,
-                                 int      yPixStride,
-                                 int      yLineStride,
-                                 SLuchar* u,
-                                 int      uSize,
-                                 int      uPixStride,
-                                 int      uLineStride,
-                                 SLuchar* v,
-                                 int      vSize,
-                                 int      vPixStride,
-                                 int      vLineStride,
-                                 SLfloat  dstWdivH);
+    static SLVec2i      open(SLint deviceNum);
+    static SLVec2i      openFile();
+    static void         grabAndAdjustForSL(SLfloat outWdivH);
+    static void         adjustForSL(SLfloat outWdivH);
+    static SLbool       isOpened() { return _captureDevice.isOpened(); }
+    static void         release();
+    static void         loadIntoLastFrame(const SLint         camWidth,
+                                          const SLint         camHeight,
+                                          const SLPixelFormat srcPixelFormat,
+                                          const SLuchar*      data,
+                                          const SLbool        isContinuous);
+    static void         copyYUVPlanes(int      srcW,
+                                      int      srcH,
+                                      SLuchar* y,
+                                      int      ySize,
+                                      int      yPixStride,
+                                      int      yLineStride,
+                                      SLuchar* u,
+                                      int      uSize,
+                                      int      uPixStride,
+                                      int      uLineStride,
+                                      SLuchar* v,
+                                      int      vSize,
+                                      int      vPixStride,
+                                      int      vLineStride,
+                                      SLfloat  dstWdivH);
+    static void         videoType(SLVideoType vt);
+    static SLVideoType  videoType() { return _videoType; }
+    static void         init();
+    static SLGLTexture* videoTexture() { return _videoTexture; }
+    static SLGLTexture* videoTextureErr() { return _videoTextureErr; }
+    static void         setVideoTexture();
 
     static SLCVMat       lastFrame;          //!< last frame grabbed in RGB
     static SLCVMat       lastFrameGray;      //!< last frame in grayscale
@@ -90,6 +97,10 @@ class SLCVCapture
 
     private:
     static cv::VideoCapture _captureDevice; //!< OpenCV capture device
+
+    static SLVideoType  _videoType;       //!< Flag for using the live video image
+    static SLGLTexture* _videoTexture;    //!< Texture for live video image
+    static SLGLTexture* _videoTextureErr; //!< Texture for live video error
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVCAPTURE_H

@@ -106,6 +106,18 @@ void SLApplication::createAppAndScene(SLstring appName,
 #endif
 }
 //-----------------------------------------------------------------------------
+void SLApplication::init()
+{
+    // Reset calibration process at scene change
+    if (SLApplication::activeCalib->state() != CS_calibrated &&
+        SLApplication::activeCalib->state() != CS_uncalibrated)
+        SLApplication::activeCalib->state(CS_uncalibrated);
+
+    // Deactivate in general the device sensors
+    SLApplication::devRot.isUsed(false);
+    SLApplication::devLoc.isUsed(false);
+}
+//-----------------------------------------------------------------------------
 //! Calls the destructor of the single scene instance.
 /*! Destroys all data by calling the destructor of the single scene instance.
 All other date gets destroyed from there. This function gets called by the
@@ -264,17 +276,16 @@ SLstring SLApplication::getComputerInfos()
 #elif defined(SL_OS_MACIOS) //.................................................
 
     // Model and architecture are retrieved before in iOS under Objective C
-    computerBrand = "Apple";
-    computerOS    = "iOS";
-     const char* envvar = std::getenv("USER");
+    computerBrand      = "Apple";
+    computerOS         = "iOS";
+    const char* envvar = std::getenv("USER");
     computerUser       = envvar ? string(envvar) : "USER?";
     if (computerUser == "USER?")
     {
         const char* envvar = std::getenv("USERNAME");
         computerUser       = envvar ? string(envvar) : "USER?";
     }
-    computerName  = Utils::getHostName();
-    
+    computerName = Utils::getHostName();
 
 #elif defined(SL_OS_ANDROID) //................................................
 

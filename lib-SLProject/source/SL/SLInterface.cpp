@@ -460,7 +460,7 @@ string slGetWindowTitle(int sceneViewIndex)
 */
 int slGetVideoType()
 {
-    return (int)SLApplication::scene->videoType();
+    return (int)SLCVCapture::videoType();
 }
 //-----------------------------------------------------------------------------
 /*! Global function that returns the size index of the requested video.

@@ -41,6 +41,9 @@ SLbool           SLCVCapture::videoLoops         = true;
 SLdouble         SLCVCapture::fps                = 1.0f;
 SLCVVSize        SLCVCapture::camSizes           = SLCVVSize();
 SLint            SLCVCapture::activeCamSizeIndex = -1;
+SLVideoType      SLCVCapture::_videoType         = SLVideoType::VT_NONE;
+SLGLTexture*     SLCVCapture::_videoTexture      = nullptr;
+SLGLTexture*     SLCVCapture::_videoTextureErr   = nullptr;
 
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
@@ -48,7 +51,8 @@ SLint            SLCVCapture::activeCamSizeIndex = -1;
 setting the the SLScene::_videoType to VT_MAIN. On desktop systems the webcam
 is the only and main camera.
 */
-SLVec2i SLCVCapture::open(SLint deviceNum)
+SLVec2i
+SLCVCapture::open(SLint deviceNum)
 {
     try
     {
@@ -743,3 +747,108 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
     s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
 }
 //------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//! Setter for video type also sets the active calibration
+/*! The SLApplication instance has up to three video camera calibrations, one
+for a main camera (SLApplication::calibMainCam), one for the selfie camera on
+mobile devices (SLApplication::calibScndCam) and one for video file simulation
+(SLApplication::calibVideoFile). The member SLApplication::activeCalib
+references the active one.
+*/
+void SLCVCapture::videoType(SLVideoType vt)
+{
+    _videoType = vt;
+
+    if (vt == VT_SCND)
+    {
+        if (SLCVCapture::hasSecondaryCamera)
+            SLApplication::activeCalib = &SLApplication::calibScndCam;
+        else //fallback if there is no secondary camera we use main setup
+        {
+            _videoType                 = VT_MAIN;
+            SLApplication::activeCalib = &SLApplication::calibMainCam;
+        }
+    }
+    else if (vt == VT_FILE)
+        SLApplication::activeCalib = &SLApplication::calibVideoFile;
+    else //VT_MAIN and VT_NONE
+        SLApplication::activeCalib = &SLApplication::calibMainCam;
+}
+//-----------------------------------------------------------------------------
+//! SLCVCapture::onAfterLoad gets called after onLoad
+void SLCVCapture::init()
+{
+    // load default video image that is displayed when no live video is available
+    _videoTexture    = new SLGLTexture();
+    _videoTextureErr = new SLGLTexture();
+    _videoTexture->usesVideo(true);
+    //_videoTextureErr->usesVideo(true);
+    _videoTexture->setVideoImage("LiveVideoError.png");
+    _videoTextureErr->setVideoImage("LiveVideoError.png");
+
+#ifdef SL_USES_CVCAPTURE
+
+    if (_videoType != VT_NONE)
+    {
+        if (!SLCVCapture::isOpened())
+        {
+            SLVec2i videoSize;
+            if (_videoType == VT_FILE && SLCVCapture::videoFilename != "")
+                videoSize = SLCVCapture::openFile();
+            else
+                videoSize = SLCVCapture::open(0);
+
+            //if (videoSize != SLVec2i::ZERO)
+            //{
+            //    SLCVCapture::grabAndAdjustForSL(sv->scrWdivH());
+
+            //    if (SLCVCapture::lastFrame.cols > 0 &&
+            //        SLCVCapture::lastFrame.rows > 0)
+            //    {
+            //        _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+            //                                     SLCVCapture::lastFrame.rows,
+            //                                     SLCVCapture::format,
+            //                                     SLCVCapture::lastFrame.data,
+            //                                     SLCVCapture::lastFrame.isContinuous(),
+            //                                     true);
+            //    }
+            //}
+        }
+    }
+#else
+    if (_videoType == VT_FILE && SLCVCapture::videoFilename != "")
+    {
+        if (!SLCVCapture::isOpened())
+        {
+            SLVec2i videoSize = SLCVCapture::openFile();
+
+            //if (videoSize != SLVec2i::ZERO)
+            //{
+            //    if (SLCVCapture::lastFrame.cols > 0 &&
+            //        SLCVCapture::lastFrame.rows > 0)
+            //    {
+            //        _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+            //                                     SLCVCapture::lastFrame.rows,
+            //                                     SLCVCapture::format,
+            //                                     SLCVCapture::lastFrame.data,
+            //                                     SLCVCapture::lastFrame.isContinuous(),
+            //                                     true);
+            //    }
+            //}
+        }
+    }
+#endif
+}
+
+void SLCVCapture::setVideoTexture()
+{
+    if (!lastFrame.empty())
+    {
+        _videoTexture->copyVideoImage(SLCVCapture::lastFrame.cols,
+                                      SLCVCapture::lastFrame.rows,
+                                      SLCVCapture::format,
+                                      SLCVCapture::lastFrame.data,
+                                      SLCVCapture::lastFrame.isContinuous(),
+                                      true);
+    }
+}

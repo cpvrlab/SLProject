@@ -557,8 +557,9 @@ void SLGLTexture::bindActive(SLint texID)
 
         SLScene* s = SLApplication::scene;
 
-        if (this == s->videoTexture() &&
-            s->videoType() != VT_NONE &&
+        if (/*this == SLCVCapture::videoTexture() &&
+            SLCVCapture::videoType() != VT_NONE &&*/
+            _usesVideo &&
             _needsUpdate)
         {
             fullUpdate();

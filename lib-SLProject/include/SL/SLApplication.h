@@ -38,6 +38,7 @@ class SLCVCalibration;
 class SLApplication
 {
     public:
+    static void     init();
     static void     createAppAndScene(SLstring appName,
                                       void*    onSceneLoadCallback);
     static void     deleteAppAndScene();

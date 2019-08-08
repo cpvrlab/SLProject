@@ -114,6 +114,7 @@ class SLGLTexture : public SLObject
     void bumpScale(SLfloat bs) { _bumpScale = bs; }
     void minFiler(SLint minF) { _min_filter = minF; } // must be called befor build
     void magFiler(SLint magF) { _mag_filter = magF; } // must be called befor build
+    void usesVideo(SLbool state) { _usesVideo = state; }
 
     // Getters
     SLCVVImage&   images() { return _images; }
@@ -182,6 +183,7 @@ class SLGLTexture : public SLObject
     SLbool          _resizeToPow2; //!< Flag if image should be resized to n^2
     SLGLVertexArray _vaoSprite;    //!< Vertex array object for sprite rendering
     atomic<bool>    _needsUpdate;  //!< Flag if image needs an update
+    bool            _usesVideo = false;
 };
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLTexture pointers
