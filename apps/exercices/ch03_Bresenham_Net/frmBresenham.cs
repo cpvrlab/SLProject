@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 /// <summary>
 /// Form for Bresenham-, Pixel- and Voxel-Traversal Demo
@@ -33,7 +29,7 @@ public partial class frmBresenham : Form
    private int m_topY;
 
    /// <summary>Hires timer</summary>
-   private HiResTimer m_timer;
+   private Stopwatch m_timer;
 
    /// <summary>Counter for frames for benchmark</summary>
    private int m_cntFrame = 0;
@@ -65,7 +61,7 @@ public partial class frmBresenham : Form
       m_point = new Bitmap(1, 1);
       m_point.SetPixel(0, 0, Color.Black);
 
-      m_timer = new HiResTimer();
+      m_timer = new Stopwatch();
          
       this.DoubleBuffered = true;
    }
@@ -84,15 +80,15 @@ public partial class frmBresenham : Form
          int top = menu1.Height;
          for (int x=400; x<=800; x+=5) g.DrawLine(Pens.Black, 400, top, x  , top+400);
          for (int y=0;   y<=400; y+=5) g.DrawLine(Pens.Black, 400, top, 800, top+y  );
-         double ms_1 = m_timer.GetMiliSeconds();
+         double ms_1 = m_timer.Elapsed.Milliseconds;
 
          // Draw 400 lines with our Bresenham implementation
          m_timer.Start();
          for (int x=0;   x<=400; x+=5)     DrawLineBresenham(g, 0, top, x  ,top+400);
          for (int y=400+top; y>=top; y-=5) DrawLineBresenham(g, 0, top, 400,  y);
-         double ms_2 = m_timer.GetMiliSeconds();
+         double ms_2 = m_timer.Elapsed.Milliseconds;
 
-         double ratio = ms_2 / ms_1;
+            double ratio = ms_2 / ms_1;
          Console.WriteLine("DrawLine: " + ms_1.ToString("0.00ms") + 
                            ", DrawMyLine: " + ms_2.ToString("0.00ms") + 
                            ", Ratio: " + ratio.ToString("0.000"));

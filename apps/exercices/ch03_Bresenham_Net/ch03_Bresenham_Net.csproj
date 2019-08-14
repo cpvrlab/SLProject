@@ -26,6 +26,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -80,7 +81,6 @@
     <Compile Include="frmBresenham.Designer.cs">
       <DependentUpon>frmBresenham.cs</DependentUpon>
     </Compile>
-    <Compile Include="HiResTimer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmBresenham.resx">
       <DependentUpon>frmBresenham.cs</DependentUpon>
