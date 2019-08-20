@@ -95,14 +95,14 @@ void SLApplication::createAppAndScene(SLstring appName,
     calibMainCam.load(SLApplication::configPath, mainCalibFilename, true, false);
     calibMainCam.loadCalibParams();
     activeCalib                     = &calibMainCam;
-    SLCVCapture::hasSecondaryCamera = false;
+    SLCVCapture::instance()->hasSecondaryCamera = false;
 #else
     calibMainCam.load(SLApplication::configPath, mainCalibFilename, false, false);
     calibMainCam.loadCalibParams();
     calibScndCam.load(SLApplication::configPath, scndCalibFilename, true, false);
     calibScndCam.loadCalibParams();
     activeCalib                     = &calibMainCam;
-    SLCVCapture::hasSecondaryCamera = true;
+    SLCVCapture::instance()->hasSecondaryCamera = true;
 #endif
 }
 //-----------------------------------------------------------------------------

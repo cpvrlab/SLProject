@@ -170,7 +170,7 @@ SLScene::~SLScene()
     SLTexFont::deleteFonts();
 
     // release the capture device
-    SLCVCapture::release();
+    SLCVCapture::instance()->release();
 
     SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
@@ -289,7 +289,7 @@ void SLScene::unInit()
     // close video if running
     if (_videoType != VT_NONE)
     {
-        SLCVCapture::release();
+        SLCVCapture::instance()->release();
         _videoType = VT_NONE;
     }
 
@@ -407,7 +407,7 @@ bool SLScene::onUpdate()
     // 4) AR Tracking //
     ////////////////////
 
-    if (_videoType != VT_NONE && !SLCVCapture::lastFrame.empty())
+    if (_videoType != VT_NONE && !SLCVCapture::instance()->lastFrame.empty())
     {
         SLfloat          trackingTimeStartMS = timeMilliSec();
         SLCVCalibration* ac                  = SLApplication::activeCalib;
@@ -432,15 +432,15 @@ bool SLScene::onUpdate()
             }
             else
             { // Changes the state to CS_guessed
-                ac->createFromGuessedFOV(SLCVCapture::lastFrame.cols,
-                                         SLCVCapture::lastFrame.rows);
+                ac->createFromGuessedFOV(SLCVCapture::instance()->lastFrame.cols,
+                                         SLCVCapture::instance()->lastFrame.rows);
                 _sceneViews[0]->camera()->fov(ac->cameraFovVDeg());
             }
         }
         else //..............................................................
           if (ac->state() == CS_calibrateStream || ac->state() == CS_calibrateGrab)
         {
-            ac->findChessboard(SLCVCapture::lastFrame, SLCVCapture::lastFrameGray, true);
+            ac->findChessboard(SLCVCapture::instance()->lastFrame, SLCVCapture::instance()->lastFrameGray, true);
             int imgsToCap = ac->numImgsToCapture();
             int imgsCaped = ac->numCapturedImgs();
 
@@ -474,8 +474,8 @@ bool SLScene::onUpdate()
             // track all trackers in the first sceneview
             for (auto tracker : _trackers)
             {
-                tracker->track(SLCVCapture::lastFrameGray,
-                               SLCVCapture::lastFrame,
+                tracker->track(SLCVCapture::instance()->lastFrameGray,
+                               SLCVCapture::instance()->lastFrame,
                                ac,
                                _showDetection,
                                _sceneViews[0]);
@@ -502,22 +502,22 @@ bool SLScene::onUpdate()
         if (ac->state() == CS_calibrated && ac->showUndistorted())
         {
             SLCVMat undistorted;
-            ac->remap(SLCVCapture::lastFrame, undistorted);
+            ac->remap(SLCVCapture::instance()->lastFrame, undistorted);
 
             _videoTexture.copyVideoImage(undistorted.cols,
                                          undistorted.rows,
-                                         SLCVCapture::format,
+                                         SLCVCapture::instance()->format,
                                          undistorted.data,
                                          undistorted.isContinuous(),
                                          true);
         }
         else
         {
-            _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
-                                         SLCVCapture::lastFrame.rows,
-                                         SLCVCapture::format,
-                                         SLCVCapture::lastFrame.data,
-                                         SLCVCapture::lastFrame.isContinuous(),
+            _videoTexture.copyVideoImage(SLCVCapture::instance()->lastFrame.cols,
+                                         SLCVCapture::instance()->lastFrame.rows,
+                                         SLCVCapture::instance()->format,
+                                         SLCVCapture::instance()->lastFrame.data,
+                                         SLCVCapture::instance()->lastFrame.isContinuous(),
                                          true);
         }
 
@@ -562,48 +562,48 @@ void SLScene::onAfterLoad()
 
     if (_videoType != VT_NONE)
     {
-        if (!SLCVCapture::isOpened())
+        if (!SLCVCapture::instance()->isOpened())
         {
             SLVec2i videoSize;
-            if (_videoType == VT_FILE && SLCVCapture::videoFilename != "")
-                videoSize = SLCVCapture::openFile();
+            if (_videoType == VT_FILE && SLCVCapture::instance()->videoFilename != "")
+                videoSize = SLCVCapture::instance()->openFile();
             else
-                videoSize = SLCVCapture::open(0);
+                videoSize = SLCVCapture::instance()->open(0);
 
             if (videoSize != SLVec2i::ZERO)
             {
-                SLCVCapture::grabAndAdjustForSL();
+                SLCVCapture::instance()->grabAndAdjustForSL();
 
-                if (SLCVCapture::lastFrame.cols > 0 &&
-                    SLCVCapture::lastFrame.rows > 0)
+                if (SLCVCapture::instance()->lastFrame.cols > 0 &&
+                    SLCVCapture::instance()->lastFrame.rows > 0)
                 {
-                    _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
-                                                 SLCVCapture::lastFrame.rows,
-                                                 SLCVCapture::format,
-                                                 SLCVCapture::lastFrame.data,
-                                                 SLCVCapture::lastFrame.isContinuous(),
+                    _videoTexture.copyVideoImage(SLCVCapture::instance()->lastFrame.cols,
+                                                 SLCVCapture::instance()->lastFrame.rows,
+                                                 SLCVCapture::instance()->format,
+                                                 SLCVCapture::instance()->lastFrame.data,
+                                                 SLCVCapture::instance()->lastFrame.isContinuous(),
                                                  true);
                 }
             }
         }
     }
 #else
-    if (_videoType == VT_FILE && SLCVCapture::videoFilename != "")
+    if (_videoType == VT_FILE && SLCVCapture::instance()->videoFilename != "")
     {
-        if (!SLCVCapture::isOpened())
+        if (!SLCVCapture::instance()->isOpened())
         {
-            SLVec2i videoSize = SLCVCapture::openFile();
+            SLVec2i videoSize = SLCVCapture::instance()->openFile();
 
             if (videoSize != SLVec2i::ZERO)
             {
-                if (SLCVCapture::lastFrame.cols > 0 &&
-                    SLCVCapture::lastFrame.rows > 0)
+                if (SLCVCapture::instance()->lastFrame.cols > 0 &&
+                    SLCVCapture::instance()->lastFrame.rows > 0)
                 {
-                    _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
-                                                 SLCVCapture::lastFrame.rows,
-                                                 SLCVCapture::format,
-                                                 SLCVCapture::lastFrame.data,
-                                                 SLCVCapture::lastFrame.isContinuous(),
+                    _videoTexture.copyVideoImage(SLCVCapture::instance()->lastFrame.cols,
+                                                 SLCVCapture::instance()->lastFrame.rows,
+                                                 SLCVCapture::instance()->format,
+                                                 SLCVCapture::instance()->lastFrame.data,
+                                                 SLCVCapture::instance()->lastFrame.isContinuous(),
                                                  true);
                 }
             }
@@ -740,7 +740,7 @@ void SLScene::videoType(SLVideoType vt)
 
     if (vt == VT_SCND)
     {
-        if (SLCVCapture::hasSecondaryCamera)
+        if (SLCVCapture::instance()->hasSecondaryCamera)
             SLApplication::activeCalib = &SLApplication::calibScndCam;
         else //fallback if there is no secondary camera we use main setup
         {

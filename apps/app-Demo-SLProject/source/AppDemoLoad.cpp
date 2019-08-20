@@ -1934,8 +1934,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             s->name("File Video Texture");
             s->info("Minimal texture mapping example with video file source.");
             s->videoType(VT_FILE);
-            SLCVCapture::videoFilename = "street3.mp4";
-            SLCVCapture::videoLoops    = true;
+            SLCVCapture::instance()->videoFilename = "street3.mp4";
+            SLCVCapture::instance()->videoLoops    = true;
         }
 
         // Back wall material with live video texture

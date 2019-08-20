@@ -27,21 +27,25 @@ for a good top down information.
 #include <SLSceneView.h>
 
 //-----------------------------------------------------------------------------
-// Global static variables
-SLCVMat          SLCVCapture::lastFrame;
-SLCVMat          SLCVCapture::lastFrameGray;
-SLPixelFormat    SLCVCapture::format;
-cv::VideoCapture SLCVCapture::_captureDevice;
-SLCVSize         SLCVCapture::captureSize;
-SLfloat          SLCVCapture::startCaptureTimeMS;
-SLbool           SLCVCapture::hasSecondaryCamera = true;
-SLstring         SLCVCapture::videoDefaultPath   = "../data/videos/";
-SLstring         SLCVCapture::videoFilename      = "";
-SLbool           SLCVCapture::videoLoops         = true;
-SLdouble         SLCVCapture::fps                = 1.0f;
-SLCVVSize        SLCVCapture::camSizes           = SLCVVSize();
-SLint            SLCVCapture::activeCamSizeIndex = -1;
-
+SLCVCapture* SLCVCapture::_instance = nullptr;
+//-----------------------------------------------------------------------------
+//! Private constructor
+SLCVCapture::SLCVCapture()
+{
+    startCaptureTimeMS;
+    hasSecondaryCamera = true;
+    videoDefaultPath   = "../data/videos/";
+    videoFilename      = "";
+    videoLoops         = true;
+    fps                = 1.0f;
+    activeCamSizeIndex = -1;
+}
+//-----------------------------------------------------------------------------
+//! Private constructor
+SLCVCapture::~SLCVCapture()
+{
+    release();
+}
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
 /* This so far called in SLScene::onAfterLoad if a scene uses a live video by

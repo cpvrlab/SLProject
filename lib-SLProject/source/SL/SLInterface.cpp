@@ -66,13 +66,13 @@ void slCreateAppAndScene(SLVstring& cmdLineArgs,
     assert(SLApplication::scene == nullptr && "SLScene is already created!");
 
     // Default paths for all loaded resources
-    SLGLProgram::defaultPath      = shaderPath;
-    SLGLTexture::defaultPath      = texturePath;
-    SLGLTexture::defaultPathFonts = fontPath;
-    SLAssimpImporter::defaultPath = modelPath;
-    SLCVCapture::videoDefaultPath = videoPath;
-    SLCVCalibration::calibIniPath = calibrationPath;
-    SLApplication::configPath     = configPath;
+    SLGLProgram::defaultPath                  = shaderPath;
+    SLGLTexture::defaultPath                  = texturePath;
+    SLGLTexture::defaultPathFonts             = fontPath;
+    SLAssimpImporter::defaultPath             = modelPath;
+    SLCVCapture::instance()->videoDefaultPath = videoPath;
+    SLCVCalibration::calibIniPath             = calibrationPath;
+    SLApplication::configPath                 = configPath;
 
     SLGLState* stateGL = SLGLState::instance();
 
@@ -477,7 +477,7 @@ a video file.
 */
 void slGrabVideoFileFrame()
 {
-    SLCVCapture::grabAndAdjustForSL();
+    SLCVCapture::instance()->grabAndAdjustForSL();
 }
 //-----------------------------------------------------------------------------
 /*! Global function to copy a new video image to the SLScene::_videoTexture.
@@ -490,11 +490,11 @@ void slCopyVideoImage(SLint         width,
                       SLuchar*      data,
                       SLbool        isContinuous)
 {
-    SLCVCapture::loadIntoLastFrame(width,
-                                   height,
-                                   format,
-                                   data,
-                                   isContinuous);
+    SLCVCapture::instance()->loadIntoLastFrame(width,
+                                               height,
+                                               format,
+                                               data,
+                                               isContinuous);
 }
 //-----------------------------------------------------------------------------
 /*! Global function to copy a new video image in the YUV_420 format plane by
@@ -516,20 +516,20 @@ void slCopyVideoYUVPlanes(int      srcW,
                           int      vPixStride,
                           int      vLineStride)
 {
-    SLCVCapture::copyYUVPlanes(srcW,
-                               srcH,
-                               y,
-                               ySize,
-                               yPixStride,
-                               yLineStride,
-                               u,
-                               uSize,
-                               uPixStride,
-                               uLineStride,
-                               v,
-                               vSize,
-                               vPixStride,
-                               vLineStride);
+    SLCVCapture::instance()->copyYUVPlanes(srcW,
+                                           srcH,
+                                           y,
+                                           ySize,
+                                           yPixStride,
+                                           yLineStride,
+                                           u,
+                                           uSize,
+                                           uPixStride,
+                                           uLineStride,
+                                           v,
+                                           vSize,
+                                           vPixStride,
+                                           vLineStride);
 }
 //-----------------------------------------------------------------------------
 /*! Get available external directories and inform slproject about them
@@ -555,13 +555,13 @@ void slSetCameraSize(int sizeIndex,
                      int width,
                      int height)
 {
-    if ((uint)sizeIndexMax != SLCVCapture::camSizes.size())
+    if ((uint)sizeIndexMax != SLCVCapture::instance()->camSizes.size())
     {
-        SLCVCapture::camSizes.clear();
-        SLCVCapture::camSizes.resize((uint)sizeIndexMax);
+        SLCVCapture::instance()->camSizes.clear();
+        SLCVCapture::instance()->camSizes.resize((uint)sizeIndexMax);
     }
-    SLCVCapture::camSizes[(uint)sizeIndex].width  = width;
-    SLCVCapture::camSizes[(uint)sizeIndex].height = height;
+    SLCVCapture::instance()->camSizes[(uint)sizeIndex].width  = width;
+    SLCVCapture::instance()->camSizes[(uint)sizeIndex].height = height;
 }
 //-----------------------------------------------------------------------------
 //! Adds a value to the applications device parameter map

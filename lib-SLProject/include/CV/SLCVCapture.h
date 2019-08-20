@@ -43,52 +43,66 @@ https://docs.opencv.org/3.0-beta/modules/videoio/doc/reading_and_writing_video.h
 */
 class SLCVCapture
 {
-    public:
-    static SLVec2i open(SLint deviceNum);
-    static SLVec2i openFile();
-    static void    grabAndAdjustForSL();
-    static void    adjustForSL();
-    static SLbool  isOpened() { return _captureDevice.isOpened(); }
-    static void    release();
-    static void    loadIntoLastFrame(const SLint         camWidth,
-                                     const SLint         camHeight,
-                                     const SLPixelFormat srcPixelFormat,
-                                     const SLuchar*      data,
-                                     const SLbool        isContinuous);
-    static void    copyYUVPlanes(int      srcW,
-                                 int      srcH,
-                                 SLuchar* y,
-                                 int      ySize,
-                                 int      yPixStride,
-                                 int      yLineStride,
-                                 SLuchar* u,
-                                 int      uSize,
-                                 int      uPixStride,
-                                 int      uLineStride,
-                                 SLuchar* v,
-                                 int      vSize,
-                                 int      vPixStride,
-                                 int      vLineStride);
+    public: //! Public static instance getter for singleton pattern
+    static SLCVCapture* instance()
+    {
+        if (!_instance)
+        {
+            _instance = new SLCVCapture();
+            return _instance;
+        }
+        else
+            return _instance;
+    }
 
-    static SLCVMat       lastFrame;          //!< last frame grabbed in RGB
-    static SLCVMat       lastFrameGray;      //!< last frame in grayscale
-    static SLPixelFormat format;             //!< SL pixel format
-    static SLCVSize      captureSize;        //!< size of captured frame
-    static SLfloat       startCaptureTimeMS; //!< start time of capturing in ms
-    static SLbool        hasSecondaryCamera; //!< flag if device has secondary camera
-    static SLstring      videoDefaultPath;   //!< default path for video files
-    static SLstring      videoFilename;      //!< video filename to load
-    static SLbool        videoLoops;         //!< flag if video should loop
-    static SLdouble      fps;
+    SLVec2i open(SLint deviceNum);
+    SLVec2i openFile();
+    void    grabAndAdjustForSL();
+    void    adjustForSL();
+    SLbool  isOpened() { return _captureDevice.isOpened(); }
+    void    release();
+    void    loadIntoLastFrame(SLint          camWidth,
+                              SLint          camHeight,
+                              SLPixelFormat  srcPixelFormat,
+                              const SLuchar* data,
+                              SLbool         isContinuous);
+    void    copyYUVPlanes(int      srcW,
+                          int      srcH,
+                          SLuchar* y,
+                          int      ySize,
+                          int      yPixStride,
+                          int      yLineStride,
+                          SLuchar* u,
+                          int      uSize,
+                          int      uPixStride,
+                          int      uLineStride,
+                          SLuchar* v,
+                          int      vSize,
+                          int      vPixStride,
+                          int      vLineStride);
+
+    SLCVMat       lastFrame;          //!< last frame grabbed in RGB
+    SLCVMat       lastFrameGray;      //!< last frame in grayscale
+    SLPixelFormat format;             //!< SL pixel format
+    SLCVSize      captureSize;        //!< size of captured frame
+    SLfloat       startCaptureTimeMS; //!< start time of capturing in ms
+    SLbool        hasSecondaryCamera; //!< flag if device has secondary camera
+    SLstring      videoDefaultPath;   //!< default path for video files
+    SLstring      videoFilename;      //!< video filename to load
+    SLbool        videoLoops;         //!< flag if video should loop
+    SLdouble      fps;
 
     /*! A requestedSizeIndex of -1 returns on Android the default size of 640x480.
-    This is the default size index if the camera resolutions are unknown.
-    */
-    static SLCVVSize camSizes;           //!< All possible camera sizes
-    static SLint     activeCamSizeIndex; //!< Currently active camera size index
+    This is the default size index if the camera resolutions are unknown.*/
+    SLCVVSize camSizes;           //!< All possible camera sizes
+    SLint     activeCamSizeIndex; //!< Currently active camera size index
 
     private:
-    static cv::VideoCapture _captureDevice; //!< OpenCV capture device
+    SLCVCapture(); //!< private onetime constructor
+    ~SLCVCapture();
+
+    static SLCVCapture* _instance;      //!< global singleton object
+    cv::VideoCapture    _captureDevice; //!< OpenCV capture device
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVCAPTURE_H

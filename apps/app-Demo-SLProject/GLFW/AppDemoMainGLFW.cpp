@@ -68,7 +68,7 @@ SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
     if (slGetVideoType() != VT_NONE)
-        SLCVCapture::grabAndAdjustForSL();
+        SLCVCapture::instance()->grabAndAdjustForSL();
 
     //////////////////////////////////////////////////
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
