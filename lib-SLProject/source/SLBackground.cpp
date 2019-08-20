@@ -19,6 +19,7 @@
 #include <SLGLProgram.h>
 #include <SLGLTexture.h>
 #include <SLScene.h>
+#include <SLCVCapture.h>
 
 //-----------------------------------------------------------------------------
 SLBackground::~SLBackground()
@@ -34,7 +35,7 @@ SLBackground::SLBackground() : SLObject("Background")
     _colors.push_back(SLCol4f::BLACK); // top left
     _isUniform    = true;
     _texture      = nullptr;
-    _textureError = SLApplication::scene->videoTextureErr(); // Fix for black video error
+    _textureError = SLCVCapture::instance()->videoTextureErr(); // Fix for black video error
     _resX         = -1;
     _resY         = -1;
 }
@@ -235,7 +236,7 @@ void SLBackground::renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB)
 
     // draw a textured or colored quad
     if (_texture)
-    {   // if video texture is not ready show error texture
+    { // if video texture is not ready show error texture
         //if (_texture->texName())
         _texture->bindActive(0);
         //else

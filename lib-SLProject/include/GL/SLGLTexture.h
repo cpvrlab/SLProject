@@ -65,28 +65,28 @@ class SLGLTexture : public SLObject
     SLGLTexture();
 
     //! ctor for 1D texture with internal image allocation
-    SLGLTexture(SLVCol4f colors,
-                SLint    min_filter = GL_LINEAR,
-                SLint    mag_filter = GL_LINEAR,
-                SLint    wrapS      = GL_REPEAT,
-                SLstring name       = "1D-Texture");
+    SLGLTexture(const SLVCol4f& colors,
+                SLint           min_filter = GL_LINEAR,
+                SLint           mag_filter = GL_LINEAR,
+                SLint           wrapS      = GL_REPEAT,
+                SLstring        name       = "1D-Texture");
 
     //! ctor for 2D textures with internal image allocation
-    SLGLTexture(SLstring      imageFilename,
-                SLint         min_filter = GL_LINEAR_MIPMAP_LINEAR,
-                SLint         mag_filter = GL_LINEAR,
-                SLTextureType type       = TT_unknown,
-                SLint         wrapS      = GL_REPEAT,
-                SLint         wrapT      = GL_REPEAT);
+    SLGLTexture(const SLstring& imageFilename,
+                SLint           min_filter = GL_LINEAR_MIPMAP_LINEAR,
+                SLint           mag_filter = GL_LINEAR,
+                SLTextureType   type       = TT_unknown,
+                SLint           wrapS      = GL_REPEAT,
+                SLint           wrapT      = GL_REPEAT);
 
     //! ctor for 3D texture with internal image allocation
-    SLGLTexture(SLVstring imageFilenames,
-                SLint     min_filter             = GL_LINEAR,
-                SLint     mag_filter             = GL_LINEAR,
-                SLint     wrapS                  = GL_REPEAT,
-                SLint     wrapT                  = GL_REPEAT,
-                SLstring  name                   = "3D-Texture",
-                SLbool    loadGrayscaleIntoAlpha = false);
+    SLGLTexture(const SLVstring& imageFilenames,
+                SLint            min_filter             = GL_LINEAR,
+                SLint            mag_filter             = GL_LINEAR,
+                SLint            wrapS                  = GL_REPEAT,
+                SLint            wrapT                  = GL_REPEAT,
+                const SLstring&  name                   = "3D-Texture",
+                SLbool           loadGrayscaleIntoAlpha = false);
 
     //! ctor for cube mapping with internal image allocation
     SLGLTexture(SLstring      imageFilenameXPos,
@@ -114,6 +114,7 @@ class SLGLTexture : public SLObject
     void bumpScale(SLfloat bs) { _bumpScale = bs; }
     void minFiler(SLint minF) { _min_filter = minF; } // must be called befor build
     void magFiler(SLint magF) { _mag_filter = magF; } // must be called befor build
+    void alwaysUpdate(SLbool update) { _alwaysUpdate = update; }
 
     // Getters
     SLCVVImage&   images() { return _images; }
@@ -132,6 +133,7 @@ class SLGLTexture : public SLObject
     SLint         depth() { return (SLint)_images.size(); }
     SLMat4f       tm() { return _tm; }
     SLbool        autoCalcTM3D() { return _autoCalcTM3D; }
+    SLbool        alwaysUpdate() { return _alwaysUpdate; }
     SLbool        needsUpdate() { return _needsUpdate; }
     SLstring      typeName();
 
@@ -166,21 +168,22 @@ class SLGLTexture : public SLObject
               SLbool   loadGrayscaleIntoAlpha = false);
     void load(const SLVCol4f& colors);
 
-    SLCVVImage      _images;       //!< vector of SLCVImage pointers
-    SLuint          _texName;      //!< OpenGL texture "name" (= ID)
-    SLTextureType   _texType;      //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
-    SLint           _min_filter;   //!< Minification filter
-    SLint           _mag_filter;   //!< Magnification filter
-    SLint           _wrap_s;       //!< Wrapping in s direction
-    SLint           _wrap_t;       //!< Wrapping in t direction
-    SLenum          _target;       //!< texture target
-    SLMat4f         _tm;           //!< texture matrix
-    SLuint          _bytesOnGPU;   //!< NO. of bytes on GPU
-    SLbool          _autoCalcTM3D; //!< flag if texture matrix should be calculated from AABB for 3D mapping
-    SLfloat         _bumpScale;    //!< Bump mapping scale factor
-    SLbool          _resizeToPow2; //!< Flag if image should be resized to n^2
-    SLGLVertexArray _vaoSprite;    //!< Vertex array object for sprite rendering
-    atomic<bool>    _needsUpdate;  //!< Flag if image needs an update
+    SLCVVImage      _images;         //!< vector of SLCVImage pointers
+    SLuint          _texName;        //!< OpenGL texture "name" (= ID)
+    SLTextureType   _texType;        //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
+    SLint           _min_filter;     //!< Minification filter
+    SLint           _mag_filter;     //!< Magnification filter
+    SLint           _wrap_s;         //!< Wrapping in s direction
+    SLint           _wrap_t;         //!< Wrapping in t direction
+    SLenum          _target;         //!< texture target
+    SLMat4f         _tm;             //!< texture matrix
+    SLuint          _bytesOnGPU;     //!< NO. of bytes on GPU
+    SLbool          _autoCalcTM3D;   //!< flag if texture matrix should be calculated from AABB for 3D mapping
+    SLfloat         _bumpScale;      //!< Bump mapping scale factor
+    SLbool          _resizeToPow2;   //!< Flag if image should be resized to n^2
+    SLGLVertexArray _vaoSprite;      //!< Vertex array object for sprite rendering
+    atomic<bool>    _alwaysUpdate{}; //!< Flag if image is always update
+    atomic<bool>    _needsUpdate{};  //!< Flag if image needs an single update
 };
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLTexture pointers

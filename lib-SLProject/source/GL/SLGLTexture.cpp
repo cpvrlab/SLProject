@@ -49,15 +49,17 @@ SLGLTexture::SLGLTexture()
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
     _bytesOnGPU   = 0;
+    _needsUpdate  = false;
+    _alwaysUpdate = false;
 }
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
-SLGLTexture::SLGLTexture(SLstring      filename,
-                         SLint         min_filter,
-                         SLint         mag_filter,
-                         SLTextureType type,
-                         SLint         wrapS,
-                         SLint         wrapT)
+SLGLTexture::SLGLTexture(const SLstring& filename,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLTextureType   type,
+                         SLint           wrapS,
+                         SLint           wrapT)
   : SLObject(Utils::getFileName(filename), filename)
 {
     assert(filename != "");
@@ -76,6 +78,7 @@ SLGLTexture::SLGLTexture(SLstring      filename,
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
     _needsUpdate  = false;
+    _alwaysUpdate = false;
     _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
@@ -83,19 +86,19 @@ SLGLTexture::SLGLTexture(SLstring      filename,
 }
 //-----------------------------------------------------------------------------
 //! ctor for 3D texture
-SLGLTexture::SLGLTexture(SLVstring files,
-                         SLint     min_filter,
-                         SLint     mag_filter,
-                         SLint     wrapS,
-                         SLint     wrapT,
-                         SLstring  name,
-                         SLbool    loadGrayscaleIntoAlpha) : SLObject(name)
+SLGLTexture::SLGLTexture(const SLVstring& files,
+                         SLint            min_filter,
+                         SLint            mag_filter,
+                         SLint            wrapS,
+                         SLint            wrapT,
+                         const SLstring&  name,
+                         SLbool           loadGrayscaleIntoAlpha) : SLObject(name)
 {
     assert(files.size() > 1);
 
     _texType = TT_color;
 
-    for (auto filename : files)
+    for (const auto& filename : files)
         load(filename, true, loadGrayscaleIntoAlpha);
 
     _min_filter   = min_filter;
@@ -108,6 +111,7 @@ SLGLTexture::SLGLTexture(SLVstring files,
     _resizeToPow2 = false;
     _autoCalcTM3D = true;
     _needsUpdate  = false;
+    _alwaysUpdate = false;
     _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
@@ -115,11 +119,11 @@ SLGLTexture::SLGLTexture(SLVstring files,
 }
 //-----------------------------------------------------------------------------
 //! ctor for 1D texture
-SLGLTexture::SLGLTexture(SLVCol4f colors,
-                         SLint    min_filter,
-                         SLint    mag_filter,
-                         SLint    wrapS,
-                         SLstring name) : SLObject(name)
+SLGLTexture::SLGLTexture(const SLVCol4f& colors,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLint           wrapS,
+                         SLstring        name) : SLObject(name)
 {
     assert(colors.size() > 1);
 
@@ -140,6 +144,7 @@ SLGLTexture::SLGLTexture(SLVCol4f colors,
     _resizeToPow2 = false;
     _autoCalcTM3D = true;
     _needsUpdate  = false;
+    _alwaysUpdate = false;
     _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
@@ -182,6 +187,7 @@ SLGLTexture::SLGLTexture(SLstring      filenameXPos,
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
     _needsUpdate  = false;
+    _alwaysUpdate = false;
     _bytesOnGPU   = 0;
 
     SLApplication::scene->textures().push_back(this);
@@ -199,10 +205,10 @@ void SLGLTexture::clearData()
 
     numBytesInTextures -= _bytesOnGPU;
 
-    for (SLuint i = 0; i < _images.size(); ++i)
+    for (auto& _image : _images)
     {
-        delete _images[i];
-        _images[i] = nullptr;
+        delete _image;
+        _image = nullptr;
     }
     _images.clear();
 
@@ -246,7 +252,8 @@ void SLGLTexture::setVideoImage(SLstring videoImageFile)
     name(videoImageFile);
     _min_filter  = GL_LINEAR;
     _mag_filter  = GL_LINEAR;
-    _needsUpdate = false;
+    _needsUpdate = true;
+    _alwaysUpdate = true;
 }
 //-----------------------------------------------------------------------------
 //! Copies the image data from a video camera into the current video image
@@ -555,9 +562,7 @@ void SLGLTexture::bindActive(SLint texID)
 
         SLScene* s = SLApplication::scene;
 
-        if (this == s->videoTexture() &&
-            s->videoType() != VT_NONE &&
-            _needsUpdate)
+        if (_alwaysUpdate || _needsUpdate)
         {
             fullUpdate();
             _needsUpdate = false;

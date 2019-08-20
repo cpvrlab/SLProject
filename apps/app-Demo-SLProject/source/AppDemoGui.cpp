@@ -459,7 +459,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
             SLCVCalibration* c        = SLApplication::activeCalib;
             SLCVSize         capSize  = SLCVCapture::instance()->captureSize;
-            SLVideoType      vt       = s->videoType();
+            SLVideoType      vt       = SLCVCapture::instance()->videoType();
             SLstring         mirrored = "None";
             if (c->isMirroredH() && c->isMirroredV())
                 mirrored = "horizontally & vertically";
@@ -1170,7 +1170,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }
                 }
 
-                if (s->videoType() == VT_MAIN &&
+                if (SLCVCapture::instance()->videoType() == VT_MAIN &&
                     ImGui::BeginMenu("Mirror Main Camera"))
                 {
                     if (ImGui::MenuItem("Horizontally", nullptr, mc->isMirroredH()))
@@ -1182,7 +1182,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (s->videoType() == VT_SCND &&
+                if (SLCVCapture::instance()->videoType() == VT_SCND &&
                     ImGui::BeginMenu("Mirror Scnd. Camera", SLCVCapture::instance()->hasSecondaryCamera))
                 {
                     if (ImGui::MenuItem("Horizontally", nullptr, sc->isMirroredH()))
@@ -1195,7 +1195,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 }
 
                 if (ImGui::BeginMenu("Resolution",
-                                     (s->videoType() == VT_MAIN || s->videoType() == VT_SCND)))
+                                     (SLCVCapture::instance()->videoType() == VT_MAIN ||
+                                      SLCVCapture::instance()->videoType() == VT_SCND)))
                 {
                     for (int i = 0; i < (int)SLCVCapture::instance()->camSizes.size(); ++i)
                     {

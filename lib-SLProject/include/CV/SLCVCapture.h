@@ -25,6 +25,7 @@ for a good top down information.
 #include <SLEnums.h>
 #include <SLVec2.h>
 #include <opencv2/opencv.hpp>
+#include <SLGLTexture.h>
 
 //-----------------------------------------------------------------------------
 //! Encapsulation of the OpenCV Capture Device and holder of the last frame.
@@ -57,6 +58,7 @@ class SLCVCapture
 
     SLVec2i open(SLint deviceNum);
     SLVec2i openFile();
+    void    start();
     void    grabAndAdjustForSL();
     void    adjustForSL();
     SLbool  isOpened() { return _captureDevice.isOpened(); }
@@ -81,6 +83,11 @@ class SLCVCapture
                           int      vPixStride,
                           int      vLineStride);
 
+    void         videoType(SLVideoType vt);
+    SLVideoType  videoType() { return _videoType; }
+    SLGLTexture* videoTexture() { return &_videoTexture; }
+    SLGLTexture* videoTextureErr() { return &_videoTextureErr; }
+
     SLCVMat       lastFrame;          //!< last frame grabbed in RGB
     SLCVMat       lastFrameGray;      //!< last frame in grayscale
     SLPixelFormat format;             //!< SL pixel format
@@ -100,9 +107,12 @@ class SLCVCapture
     private:
     SLCVCapture(); //!< private onetime constructor
     ~SLCVCapture();
+    static SLCVCapture* _instance; //!< global singleton object
 
-    static SLCVCapture* _instance;      //!< global singleton object
-    cv::VideoCapture    _captureDevice; //!< OpenCV capture device
+    SLVideoType      _videoType;       //!< Flag for using the live video image
+    SLGLTexture      _videoTexture;    //!< Texture for live video image
+    SLGLTexture      _videoTextureErr; //!< Texture for live video error
+    cv::VideoCapture _captureDevice;   //!< OpenCV capture device
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVCAPTURE_H

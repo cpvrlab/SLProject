@@ -117,12 +117,7 @@ SLScene::SLScene(SLstring      name,
     // font and video texture are not added to the _textures vector
     SLTexFont::generateFonts();
 
-    // load default video image that is displayed when no live video is available
-    _videoTexture.setVideoImage("LiveVideoError.png");
-    _videoTextureErr.setVideoImage("LiveVideoError.png");
-
     // Set video type to none (this also sets the active calibration to the main calibration)
-    videoType(VT_NONE);
     _showDetection = false;
 
     _oculus.init();
@@ -216,9 +211,6 @@ void SLScene::init()
     SLApplication::devRot.isUsed(false);
     SLApplication::devLoc.isUsed(false);
 
-    // Reset the video texture
-    _videoTexture.setVideoImage("LiveVideoError.png");
-
     _selectedRect.setZero();
 }
 //-----------------------------------------------------------------------------
@@ -286,12 +278,7 @@ void SLScene::unInit()
         delete t;
     _trackers.clear();
 
-    // close video if running
-    if (_videoType != VT_NONE)
-    {
-        SLCVCapture::instance()->release();
-        _videoType = VT_NONE;
-    }
+    SLCVCapture::instance()->videoType(VT_NONE);
 
     _eventHandlers.clear();
 
@@ -407,7 +394,7 @@ bool SLScene::onUpdate()
     // 4) AR Tracking //
     ////////////////////
 
-    if (_videoType != VT_NONE && !SLCVCapture::instance()->lastFrame.empty())
+    if (SLCVCapture::instance()->videoType() != VT_NONE && !SLCVCapture::instance()->lastFrame.empty())
     {
         SLfloat          trackingTimeStartMS = timeMilliSec();
         SLCVCalibration* ac                  = SLApplication::activeCalib;
@@ -488,8 +475,8 @@ bool SLScene::onUpdate()
                 SLApplication::sceneID == SID_VideoTrackChessScnd)
             {
                 SLfloat fovH = ac->cameraFovHDeg();
-                SLfloat err = ac->reprojectionError();
-                ss << "Tracking Chessboard on " << (_videoType == VT_MAIN ? "main " : "scnd. ") << "camera. ";
+                SLfloat err  = ac->reprojectionError();
+                ss << "Tracking Chessboard on " << (SLCVCapture::instance()->videoType() == VT_MAIN ? "main " : "scnd. ") << "camera. ";
                 if (ac->state() == CS_calibrated)
                     ss << "FOVH: " << fovH << ", error: " << err;
                 else
@@ -504,21 +491,21 @@ bool SLScene::onUpdate()
             SLCVMat undistorted;
             ac->remap(SLCVCapture::instance()->lastFrame, undistorted);
 
-            _videoTexture.copyVideoImage(undistorted.cols,
-                                         undistorted.rows,
-                                         SLCVCapture::instance()->format,
-                                         undistorted.data,
-                                         undistorted.isContinuous(),
-                                         true);
+            SLCVCapture::instance()->videoTexture()->copyVideoImage(undistorted.cols,
+                                                                    undistorted.rows,
+                                                                    SLCVCapture::instance()->format,
+                                                                    undistorted.data,
+                                                                    undistorted.isContinuous(),
+                                                                    true);
         }
         else
         {
-            _videoTexture.copyVideoImage(SLCVCapture::instance()->lastFrame.cols,
-                                         SLCVCapture::instance()->lastFrame.rows,
-                                         SLCVCapture::instance()->format,
-                                         SLCVCapture::instance()->lastFrame.data,
-                                         SLCVCapture::instance()->lastFrame.isContinuous(),
-                                         true);
+            SLCVCapture::instance()->videoTexture()->copyVideoImage(SLCVCapture::instance()->lastFrame.cols,
+                                                                    SLCVCapture::instance()->lastFrame.rows,
+                                                                    SLCVCapture::instance()->format,
+                                                                    SLCVCapture::instance()->lastFrame.data,
+                                                                    SLCVCapture::instance()->lastFrame.isContinuous(),
+                                                                    true);
         }
 
         _trackingTimesMS.set(timeMilliSec() - trackingTimeStartMS);
@@ -553,63 +540,6 @@ bool SLScene::onUpdate()
 
     //SL_LOG("SLScene::onUpdate\n");
     return sceneHasChanged;
-}
-//-----------------------------------------------------------------------------
-//! SLScene::onAfterLoad gets called after onLoad
-void SLScene::onAfterLoad()
-{
-#ifdef SL_USES_CVCAPTURE
-
-    if (_videoType != VT_NONE)
-    {
-        if (!SLCVCapture::instance()->isOpened())
-        {
-            SLVec2i videoSize;
-            if (_videoType == VT_FILE && SLCVCapture::instance()->videoFilename != "")
-                videoSize = SLCVCapture::instance()->openFile();
-            else
-                videoSize = SLCVCapture::instance()->open(0);
-
-            if (videoSize != SLVec2i::ZERO)
-            {
-                SLCVCapture::instance()->grabAndAdjustForSL();
-
-                if (SLCVCapture::instance()->lastFrame.cols > 0 &&
-                    SLCVCapture::instance()->lastFrame.rows > 0)
-                {
-                    _videoTexture.copyVideoImage(SLCVCapture::instance()->lastFrame.cols,
-                                                 SLCVCapture::instance()->lastFrame.rows,
-                                                 SLCVCapture::instance()->format,
-                                                 SLCVCapture::instance()->lastFrame.data,
-                                                 SLCVCapture::instance()->lastFrame.isContinuous(),
-                                                 true);
-                }
-            }
-        }
-    }
-#else
-    if (_videoType == VT_FILE && SLCVCapture::instance()->videoFilename != "")
-    {
-        if (!SLCVCapture::instance()->isOpened())
-        {
-            SLVec2i videoSize = SLCVCapture::instance()->openFile();
-
-            if (videoSize != SLVec2i::ZERO)
-            {
-                if (SLCVCapture::instance()->lastFrame.cols > 0 &&
-                    SLCVCapture::instance()->lastFrame.rows > 0)
-                {
-                    _videoTexture.copyVideoImage(SLCVCapture::instance()->lastFrame.cols,
-                                                 SLCVCapture::instance()->lastFrame.rows,
-                                                 SLCVCapture::instance()->format,
-                                                 SLCVCapture::instance()->lastFrame.data,
-                                                 SLCVCapture::instance()->lastFrame.isContinuous(),
-                                                 true);
-                }
-            }
-        }
-    }
-#endif
 }
 //-----------------------------------------------------------------------------
 //! Sets the _selectedNode to the passed node and flags it as selected
@@ -725,33 +655,6 @@ void SLScene::onLoadAsset(SLstring assetFile,
             sv->onInitialize();
         }
     }
-}
-//-----------------------------------------------------------------------------
-//! Setter for video type also sets the active calibration
-/*! The SLApplication instance has up to three video camera calibrations, one
-for a main camera (SLApplication::calibMainCam), one for the selfie camera on
-mobile devices (SLApplication::calibScndCam) and one for video file simulation
-(SLApplication::calibVideoFile). The member SLApplication::activeCalib
-references the active one.
-*/
-void SLScene::videoType(SLVideoType vt)
-{
-    _videoType = vt;
-
-    if (vt == VT_SCND)
-    {
-        if (SLCVCapture::instance()->hasSecondaryCamera)
-            SLApplication::activeCalib = &SLApplication::calibScndCam;
-        else //fallback if there is no secondary camera we use main setup
-        {
-            _videoType                 = VT_MAIN;
-            SLApplication::activeCalib = &SLApplication::calibMainCam;
-        }
-    }
-    else if (vt == VT_FILE)
-        SLApplication::activeCalib = &SLApplication::calibVideoFile;
-    else //VT_MAIN and VT_NONE
-        SLApplication::activeCalib = &SLApplication::calibMainCam;
 }
 //-----------------------------------------------------------------------------
 //! Returns the number of camera nodes in the scene

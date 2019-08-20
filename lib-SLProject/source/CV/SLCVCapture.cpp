@@ -39,6 +39,8 @@ SLCVCapture::SLCVCapture()
     videoLoops         = true;
     fps                = 1.0f;
     activeCamSizeIndex = -1;
+    _videoTexture.setVideoImage("LiveVideoError.png");
+    _videoTextureErr.setVideoImage("LiveVideoError.png");
 }
 //-----------------------------------------------------------------------------
 //! Private constructor
@@ -78,7 +80,7 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
 
         return SLVec2i(w, h);
     }
-    catch (exception e)
+    catch (exception& e)
     {
         SL_LOG("Exception during OpenCV video capture creation\n");
     }
@@ -123,11 +125,66 @@ SLVec2i SLCVCapture::openFile()
 
         return SLVec2i(w, h);
     }
-    catch (exception e)
+    catch (exception& e)
     {
         SL_LOG("SLCVCapture::openFile: Exception during OpenCV video capture creation with video file\n");
     }
     return SLVec2i::ZERO;
+}
+//-----------------------------------------------------------------------------
+//! starts the video capturing
+void SLCVCapture::start()
+{
+#ifdef SL_USES_CVCAPTURE
+
+    if (_videoType != VT_NONE)
+    {
+        if (!isOpened())
+        {
+            SLVec2i videoSize;
+            if (_videoType == VT_FILE && !videoFilename.empty())
+                videoSize = openFile();
+            else
+                videoSize = open(0);
+
+            if (videoSize != SLVec2i::ZERO)
+            {
+                grabAndAdjustForSL();
+
+                if (lastFrame.cols > 0 && lastFrame.rows > 0)
+                {
+                    _videoTexture.copyVideoImage(lastFrame.cols,
+                                                 lastFrame.rows,
+                                                 format,
+                                                 lastFrame.data,
+                                                 lastFrame.isContinuous(),
+                                                 true);
+                }
+            }
+        }
+    }
+#else
+    if (_videoType == VT_FILE && !videoFilename.empty())
+    {
+        if (!isOpened())
+        {
+            SLVec2i videoSize = openFile();
+
+            if (videoSize != SLVec2i::ZERO)
+            {
+                if (lastFrame.cols > 0 && lastFrame.rows > 0)
+                {
+                    _videoTexture.copyVideoImage(lastFrame.cols,
+                                                 lastFrame.rows,
+                                                 format,
+                                                 lastFrame.data,
+                                                 lastFrame.isContinuous(),
+                                                 true);
+                }
+            }
+        }
+    }
+#endif
 }
 //-----------------------------------------------------------------------------
 void SLCVCapture::release()
@@ -154,7 +211,7 @@ void SLCVCapture::grabAndAdjustForSL()
             if (!_captureDevice.read(lastFrame))
             {
                 // Try to loop the video
-                if (videoFilename != "" && videoLoops)
+                if (!videoFilename.empty() && videoLoops)
                 {
                     _captureDevice.set(cv::CAP_PROP_POS_FRAMES, 0);
                     if (!_captureDevice.read(lastFrame))
@@ -176,7 +233,7 @@ void SLCVCapture::grabAndAdjustForSL()
             }
         }
     }
-    catch (exception e)
+    catch (exception& e)
     {
         SL_LOG("Exception during OpenCV video capture creation\n");
     }
@@ -221,7 +278,7 @@ void SLCVCapture::adjustForSL()
 
         if (activeCamSizeIndex == -1 || captureSize != activeSize)
         {
-            for (uint i = 0; i < camSizes.size(); ++i)
+            for (SLulong i = 0; i < camSizes.size(); ++i)
             {
                 if (camSizes[i] == captureSize)
                 {
@@ -748,4 +805,35 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
     // Stop the capture time displayed in the statistics info
     s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
 }
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//! Setter for video type also sets the active calibration
+/*! The SLApplication instance has up to three video camera calibrations, one
+for a main camera (SLApplication::calibMainCam), one for the selfie camera on
+mobile devices (SLApplication::calibScndCam) and one for video file simulation
+(SLApplication::calibVideoFile). The member SLApplication::activeCalib
+references the active one.
+*/
+void SLCVCapture::videoType(SLVideoType vt)
+{
+    _videoType = vt;
+
+    if (vt == VT_SCND)
+    {
+        if (hasSecondaryCamera)
+            SLApplication::activeCalib = &SLApplication::calibScndCam;
+        else //fallback if there is no secondary camera we use main setup
+        {
+            _videoType                 = VT_MAIN;
+            SLApplication::activeCalib = &SLApplication::calibMainCam;
+        }
+    }
+    else if (vt == VT_FILE)
+        SLApplication::activeCalib = &SLApplication::calibVideoFile;
+    else
+    {
+        SLApplication::activeCalib = &SLApplication::calibMainCam;
+        if (vt == VT_NONE)
+            release();
+    }
+}
+//-----------------------------------------------------------------------------

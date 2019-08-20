@@ -65,7 +65,6 @@ class SLScene : public SLObject
     void root2D(SLNode* root2D) { _root2D = root2D; }
     void globalAmbiLight(const SLCol4f& gloAmbi) { _globalAmbiLight = gloAmbi; }
     void stopAnimations(SLbool stop) { _stopAnimations = stop; }
-    void videoType(SLVideoType vt);
     void showDetection(SLbool st) { _showDetection = st; }
     void info(SLstring i) { _info = std::move(i); }
 
@@ -116,9 +115,6 @@ class SLScene : public SLObject
     SLCamera*     nextCameraInScene(SLSceneView* activeSV);
 
     // Video stuff
-    SLVideoType   videoType() { return _videoType; }
-    SLGLTexture*  videoTexture() { return &_videoTexture; }
-    SLGLTexture*  videoTextureErr() { return &_videoTextureErr; }
     SLVCVTracked& trackers() { return _trackers; }
     SLbool        showDetection() { return _showDetection; }
 
@@ -128,7 +124,6 @@ class SLScene : public SLObject
     //virtual  void            onLoad              (SLSceneView* sv, SLCommand _currentID);
     virtual void onLoadAsset(SLstring assetFile,
                              SLuint   processFlags);
-    virtual void onAfterLoad();
     bool         onUpdate();
     void         init();
     void         unInit();
@@ -188,9 +183,6 @@ class SLScene : public SLObject
     SLGLOculus _oculus; //!< Oculus Rift interface
 
     // Video stuff
-    SLVideoType  _videoType;       //!< Flag for using the live video image
-    SLGLTexture  _videoTexture;    //!< Texture for live video image
-    SLGLTexture  _videoTextureErr; //!< Texture for live video error
     SLVCVTracked _trackers;        //!< Vector of all AR trackers
     SLbool       _showDetection;   //!< Flag if detection should be visualized
 };

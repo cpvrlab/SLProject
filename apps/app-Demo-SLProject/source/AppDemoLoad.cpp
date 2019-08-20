@@ -1927,19 +1927,19 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             s->name("Live Video Texture");
             s->info("Minimal texture mapping example with live video source.");
-            s->videoType(VT_SCND); // on desktop it will be the main camera
+            SLCVCapture::instance()->videoType(VT_SCND); // on desktop it will be the main camera
         }
         else
         {
             s->name("File Video Texture");
             s->info("Minimal texture mapping example with video file source.");
-            s->videoType(VT_FILE);
+            SLCVCapture::instance()->videoType(VT_FILE);
             SLCVCapture::instance()->videoFilename = "street3.mp4";
             SLCVCapture::instance()->videoLoops    = true;
         }
 
         // Back wall material with live video texture
-        SLMaterial* m1 = new SLMaterial("VideoMat", s->videoTexture());
+        SLMaterial* m1 = new SLMaterial("VideoMat", SLCVCapture::instance()->videoTexture());
 
         // Create a root scene group for all nodes
         SLNode* scene = new SLNode("scene node");
@@ -1949,7 +1949,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 0, 20);
         cam1->focalDist(20);
         cam1->lookAt(0, 0, 0);
-        cam1->background().texture(s->videoTexture());
+        cam1->background().texture(SLCVCapture::instance()->videoTexture());
         cam1->setInitialState();
         scene->addChild(cam1);
 
@@ -2001,25 +2001,25 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             if (SLApplication::sceneID == SID_VideoTrackChessMain)
             {
-                s->videoType(VT_MAIN);
+                SLCVCapture::instance()->videoType(VT_MAIN);
                 s->name("Track Chessboard (main cam.)");
             }
             else
             {
-                s->videoType(VT_SCND);
+                SLCVCapture::instance()->videoType(VT_SCND);
                 s->name("Track Chessboard (scnd cam.");
             }
         }
         else if (SLApplication::sceneID == SID_VideoCalibrateMain)
         {
-            s->videoType(VT_MAIN);
+            SLCVCapture::instance()->videoType(VT_MAIN);
             SLApplication::activeCalib->clear();
 
             s->name("Calibrate Main Cam.");
         }
         else if (SLApplication::sceneID == SID_VideoCalibrateScnd)
         {
-            s->videoType(VT_SCND);
+            SLCVCapture::instance()->videoType(VT_SCND);
             SLApplication::activeCalib->clear();
             s->name("Calibrate Scnd Cam.");
         }
@@ -2043,7 +2043,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(5);
         cam1->clipFar(10);
         cam1->fov(SLApplication::activeCalib->cameraFovVDeg());
-        cam1->background().texture(s->videoTexture());
+        cam1->background().texture(SLCVCapture::instance()->videoTexture());
         cam1->setInitialState();
         scene->addChild(cam1);
 
@@ -2090,13 +2090,13 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         if (SLApplication::sceneID == SID_VideoTrackArucoMain)
         {
-            s->videoType(VT_MAIN);
+            SLCVCapture::instance()->videoType(VT_MAIN);
             s->name("Track Aruco (main cam.)");
             s->info("Hold Aruco Marker 0 and/or 1 into the field of view of the main camera. You can find the Aruco markers in the file data/Calibrations/ArucoMarkersDict0_Marker0-9.pdf");
         }
         else
         {
-            s->videoType(VT_SCND);
+            SLCVCapture::instance()->videoType(VT_SCND);
             s->name("Track Aruco (scnd. cam.)");
             s->info("Hold Aruco Marker 0 and/or 1 into the field of view of the secondary camera. You can find the Aruco markers in the file data/Calibrations/ArucoMarkersDict0_Marker0-9.pdf");
         }
@@ -2113,7 +2113,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 0, 5);
         cam1->lookAt(0, 0, 0);
         cam1->fov(SLApplication::activeCalib->cameraFovVDeg());
-        cam1->background().texture(s->videoTexture());
+        cam1->background().texture(SLCVCapture::instance()->videoTexture());
         cam1->setInitialState();
         scene->addChild(cam1);
 
@@ -2180,8 +2180,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
-        cam1->background().texture(s->videoTexture());
-        s->videoType(VT_MAIN);
+        cam1->background().texture(SLCVCapture::instance()->videoTexture());
+        SLCVCapture::instance()->videoType(VT_MAIN);
 
         SLLightSpot* light1 = new SLLightSpot(420, 420, 420, 1);
         light1->ambient(SLCol4f(1, 1, 1));
@@ -2242,12 +2242,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         if (SLApplication::sceneID == SID_VideoTrackFaceMain)
         {
-            s->videoType(VT_MAIN);
+            SLCVCapture::instance()->videoType(VT_MAIN);
             s->name("Track Face (main cam.)");
         }
         else
         {
-            s->videoType(VT_SCND);
+            SLCVCapture::instance()->videoType(VT_SCND);
             s->name("Track Face (scnd. cam.)");
         }
         s->info("Face and facial landmark detection.");
@@ -2257,7 +2257,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
-        cam1->background().texture(s->videoTexture());
+        cam1->background().texture(SLCVCapture::instance()->videoTexture());
 
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 1);
         light1->ambient(SLCol4f(1, 1, 1));
@@ -2307,8 +2307,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
 
         // Turn on main video
-        cam1->background().texture(s->videoTexture());
-        s->videoType(VT_MAIN);
+        cam1->background().texture(SLCVCapture::instance()->videoTexture());
+        SLCVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(1.0f);
@@ -2368,8 +2368,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
 
         // Turn on main video
-        cam1->background().texture(s->videoTexture());
-        s->videoType(VT_MAIN);
+        cam1->background().texture(SLCVCapture::instance()->videoTexture());
+        SLCVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(5.0f);
@@ -2883,7 +2883,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
     }
 
-    s->onAfterLoad();
+    if (SLCVCapture::instance()->videoType() != VT_NONE)
+        SLCVCapture::instance()->start();
 }
 //-----------------------------------------------------------------------------
 //! Creates a recursive sphere group used for the ray tracing scenes
