@@ -492,7 +492,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // 1. Do camera Update //
     /////////////////////////
 
-    SLfloat startMS = s->timeMilliSec();
+    SLfloat startMS = SLApplication::timeMS();
 
     // Update camera animation separately (smooth transition on key movement)
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
@@ -550,7 +550,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     if (s->root3D())
         s->root3D()->cull3DRec(this);
 
-    _cullTimeMS = s->timeMilliSec() - startMS;
+    _cullTimeMS = SLApplication::timeMS() - startMS;
 
     ////////////////////
     // 5. Draw skybox //
@@ -563,7 +563,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // 5. Draw Opaque & Blended Nodes //
     ////////////////////////////////////
 
-    startMS = s->timeMilliSec();
+    startMS = SLApplication::timeMS();
 
     draw3DGLAll();
 
@@ -578,7 +578,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // Enable all color channels again
     stateGL->colorMask(1, 1, 1, 1);
 
-    _draw3DTimeMS = s->timeMilliSec() - startMS;
+    _draw3DTimeMS = SLApplication::timeMS() - startMS;
 
     postDraw();
 
@@ -788,7 +788,7 @@ void SLSceneView::draw2DGL()
 {
     SLScene*   s       = SLApplication::scene;
     SLGLState* stateGL = SLGLState::instance();
-    SLfloat    startMS = s->timeMilliSec();
+    SLfloat    startMS = SLApplication::timeMS();
 
     SLfloat w2 = (SLfloat)_scrWdiv2;
     SLfloat h2 = (SLfloat)_scrHdiv2;
@@ -844,7 +844,7 @@ void SLSceneView::draw2DGL()
         }
     }
 
-    _draw2DTimeMS = s->timeMilliSec() - startMS;
+    _draw2DTimeMS = SLApplication::timeMS() - startMS;
 }
 //-----------------------------------------------------------------------------
 /*!

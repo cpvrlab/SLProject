@@ -23,14 +23,14 @@ micro-second accuracy.
 class SLTimer
 {
     public:
-    SLTimer();
+    SLTimer() { _timePoint1 = SLClock::now(); }
     ~SLTimer() { ; }
 
-    void    start();
-    void    stop();
-    SLfloat elapsedTimeInSec();
-    SLfloat elapsedTimeInMilliSec();
-    SLint64 elapsedTimeInMicroSec();
+    void    start() { _timePoint1 = SLClock::now(); }
+    void    stop() { _timePoint2 = SLClock::now(); }
+    SLfloat elapsedTimeInSec() { return duration_cast<seconds>(SLClock::now() - _timePoint1).count(); }
+    SLfloat elapsedTimeInMilliSec() { return duration_cast<milliseconds>(SLClock::now() - _timePoint1).count(); }
+    SLint64 elapsedTimeInMicroSec() { return duration_cast<microseconds>(SLClock::now() - _timePoint1).count(); }
 
     static void callAfterSleep(SLint                milliSec,
                                function<void(void)> callbackFunc);

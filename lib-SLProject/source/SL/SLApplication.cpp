@@ -59,6 +59,7 @@ string      SLApplication::_jobProgressMsg = "";
 atomic<int> SLApplication::_jobProgressNum(0);
 atomic<int> SLApplication::_jobProgressMax(0);
 mutex       SLApplication::_jobMutex;
+SLTimer     SLApplication::_timer;
 
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function
@@ -94,16 +95,18 @@ void SLApplication::createAppAndScene(SLstring appName,
 #if defined(SL_USES_CVCAPTURE)
     calibMainCam.load(SLApplication::configPath, mainCalibFilename, true, false);
     calibMainCam.loadCalibParams();
-    activeCalib                     = &calibMainCam;
+    activeCalib                                 = &calibMainCam;
     SLCVCapture::instance()->hasSecondaryCamera = false;
 #else
     calibMainCam.load(SLApplication::configPath, mainCalibFilename, false, false);
     calibMainCam.loadCalibParams();
     calibScndCam.load(SLApplication::configPath, scndCalibFilename, true, false);
     calibScndCam.loadCalibParams();
-    activeCalib                     = &calibMainCam;
+    activeCalib                                 = &calibMainCam;
     SLCVCapture::instance()->hasSecondaryCamera = true;
 #endif
+
+    _timer.start();
 }
 //-----------------------------------------------------------------------------
 //! Calls the destructor of the single scene instance.
@@ -264,17 +267,16 @@ SLstring SLApplication::getComputerInfos()
 #elif defined(SL_OS_MACIOS) //.................................................
 
     // Model and architecture are retrieved before in iOS under Objective C
-    computerBrand = "Apple";
-    computerOS    = "iOS";
-     const char* envvar = std::getenv("USER");
+    computerBrand      = "Apple";
+    computerOS         = "iOS";
+    const char* envvar = std::getenv("USER");
     computerUser       = envvar ? string(envvar) : "USER?";
     if (computerUser == "USER?")
     {
         const char* envvar = std::getenv("USERNAME");
         computerUser       = envvar ? string(envvar) : "USER?";
     }
-    computerName  = Utils::getHostName();
-    
+    computerName = Utils::getHostName();
 
 #elif defined(SL_OS_ANDROID) //................................................
 

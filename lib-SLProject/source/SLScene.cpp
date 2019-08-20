@@ -64,7 +64,6 @@ SLScene::SLScene(SLstring      name,
   : SLObject(name),
     _frameTimesMS(60, 0.0f),
     _vsyncTimesMS(60, 0.0f),
-    _captureTimesMS(200, 0.0f),
     _updateTimesMS(60, 0.0f),
     _cullTimesMS(60, 0.0f),
     _draw3DTimesMS(60, 0.0f),
@@ -184,10 +183,8 @@ void SLScene::init()
     _selectedNode = nullptr;
 
     // Reset timing variables
-    _timer.start();
     _vsyncTimesMS.init(60, 0.0f);
     _frameTimesMS.init(60, 0.0f);
-    _captureTimesMS.init(200, 0.0f);
     _updateTimesMS.init(60, 0.0f);
     _cullTimesMS.init(60, 0.0f);
     _draw3DTimesMS.init(60, 0.0f);
@@ -319,8 +316,8 @@ bool SLScene::onUpdate()
 
     // Calculate the elapsed time for the animation
     // todo: If slowdown on idle is enabled the delta time will be wrong!
-    _frameTimeMS      = timeMilliSec() - _lastUpdateTimeMS;
-    _lastUpdateTimeMS = timeMilliSec();
+    _frameTimeMS      = SLApplication::timeMS() - _lastUpdateTimeMS;
+    _lastUpdateTimeMS = SLApplication::timeMS();
 
     // Sum up all timings of all sceneviews
     SLfloat sumCullTimeMS   = 0.0f;
@@ -350,7 +347,7 @@ bool SLScene::onUpdate()
     _fps = 1 / _frameTimesMS.average() * 1000.0f;
     if (_fps < 0.0f) _fps = 0.0f;
 
-    SLfloat startUpdateMS = timeMilliSec();
+    SLfloat startUpdateMS = SLApplication::timeMS();
 
     //////////////////////////////
     // 2) Process queued events //
@@ -363,7 +360,7 @@ bool SLScene::onUpdate()
     // 3) Update all animations //
     //////////////////////////////
 
-    SLfloat startAnimUpdateMS = timeMilliSec();
+    SLfloat startAnimUpdateMS = SLApplication::timeMS();
 
     if (_root3D)
         _root3D->update();
@@ -388,7 +385,7 @@ bool SLScene::onUpdate()
             mesh->updateAccelStruct();
     }
 
-    _updateAnimTimesMS.set(timeMilliSec() - startAnimUpdateMS);
+    _updateAnimTimesMS.set(SLApplication::timeMS() - startAnimUpdateMS);
 
     ////////////////////
     // 4) AR Tracking //
@@ -396,7 +393,7 @@ bool SLScene::onUpdate()
 
     if (SLCVCapture::instance()->videoType() != VT_NONE && !SLCVCapture::instance()->lastFrame.empty())
     {
-        SLfloat          trackingTimeStartMS = timeMilliSec();
+        SLfloat          trackingTimeStartMS = SLApplication::timeMS();
         SLCVCalibration* ac                  = SLApplication::activeCalib;
 
         // Invalidate calibration if camera input aspect doesn't match output
@@ -508,7 +505,7 @@ bool SLScene::onUpdate()
                                                                     true);
         }
 
-        _trackingTimesMS.set(timeMilliSec() - trackingTimeStartMS);
+        _trackingTimesMS.set(SLApplication::timeMS() - trackingTimeStartMS);
     }
 
     /////////////////////
@@ -516,21 +513,21 @@ bool SLScene::onUpdate()
     /////////////////////
 
     // The updateAABBRec call won't generate any overhead if nothing changed
-    SLfloat startAAABBUpdateMS = timeMilliSec();
+    SLfloat startAAABBUpdateMS = SLApplication::timeMS();
     SLNode::numWMUpdates       = 0;
     SLGLState::instance()->modelViewMatrix.identity();
     if (_root3D)
         _root3D->updateAABBRec();
     if (_root2D)
         _root2D->updateAABBRec();
-    _updateAABBTimesMS.set(timeMilliSec() - startAAABBUpdateMS);
+    _updateAABBTimesMS.set(SLApplication::timeMS() - startAAABBUpdateMS);
 
     // Finish total update time
-    SLfloat updateTimeMS = timeMilliSec() - startUpdateMS;
+    SLfloat updateTimeMS = SLApplication::timeMS() - startUpdateMS;
     _updateTimesMS.set(updateTimeMS);
 
     // calculate vsync time as diff. of major part times to the frame time
-    SLfloat totalMajorTime = captureTimesMS().average() +
+    SLfloat totalMajorTime = SLCVCapture::instance()->captureTimesMS().average() +
                              updateTimeMS +
                              sumCullTimeMS +
                              sumDraw3DTimeMS +

@@ -75,9 +75,6 @@ class SLScene : public SLObject
     SLNode*          root3D() { return _root3D; }
     SLNode*          root2D() { return _root2D; }
     SLstring&        info() { return _info; }
-    void             timerStart() { _timer.start(); }
-    SLfloat          timeSec() { return (SLfloat)_timer.elapsedTimeInSec(); }
-    SLfloat          timeMilliSec() { return (SLfloat)_timer.elapsedTimeInMilliSec(); }
     SLfloat          elapsedTimeMS() { return _frameTimeMS; }
     SLfloat          elapsedTimeSec() { return _frameTimeMS * 0.001f; }
     SLVEventHandler& eventHandlers() { return _eventHandlers; }
@@ -99,7 +96,6 @@ class SLScene : public SLObject
     SLAvgFloat&   cullTimesMS() { return _cullTimesMS; }
     SLAvgFloat&   draw2DTimesMS() { return _draw2DTimesMS; }
     SLAvgFloat&   draw3DTimesMS() { return _draw3DTimesMS; }
-    SLAvgFloat&   captureTimesMS() { return _captureTimesMS; }
     SLAvgFloat&   vsyncTimesMS() { return _vsyncTimesMS; }
     SLVMaterial&  materials() { return _materials; }
     SLVMesh&      meshes() { return _meshes; }
@@ -149,7 +145,6 @@ class SLScene : public SLObject
     SLMesh*  _selectedMesh; //!< Pointer to the selected mesh
     SLRectf  _selectedRect; //!< Mouse selection rectangle
 
-    SLTimer _timer;           //!< high precision timer
     SLCol4f _globalAmbiLight; //!< global ambient light intensity
     SLbool  _rootInitialized; //!< Flag if scene is initialized
     SLint   _numProgsPreload; //!< No. of preloaded shaderProgs
@@ -161,7 +156,6 @@ class SLScene : public SLObject
 
     // major part times
     SLAvgFloat _vsyncTimesMS;   //!< Averaged time for vertical sync in ms
-    SLAvgFloat _captureTimesMS; //!< Averaged time for video capturing in ms
     SLAvgFloat _updateTimesMS;  //!< Averaged time for update in ms
     SLAvgFloat _cullTimesMS;    //!< Averaged time for culling in ms
     SLAvgFloat _draw3DTimesMS;  //!< Averaged time for 3D drawing in ms

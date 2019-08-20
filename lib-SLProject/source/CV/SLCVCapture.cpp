@@ -41,6 +41,7 @@ SLCVCapture::SLCVCapture()
     activeCamSizeIndex = -1;
     _videoTexture.setVideoImage("LiveVideoError.png");
     _videoTextureErr.setVideoImage("LiveVideoError.png");
+    _captureTimesMS.init(60, 0);
 }
 //-----------------------------------------------------------------------------
 //! Private constructor
@@ -202,7 +203,7 @@ capture functionality.
 */
 void SLCVCapture::grabAndAdjustForSL()
 {
-    SLCVCapture::startCaptureTimeMS = SLApplication::scene->timeMilliSec();
+    SLCVCapture::startCaptureTimeMS = SLApplication::timeMS();
 
     try
     {
@@ -385,7 +386,7 @@ void SLCVCapture::adjustForSL()
     if (SLCVCapture::lastFrame.size() != SLApplication::activeCalib->imageSize())
         SLApplication::activeCalib->imageSize(SLCVCapture::lastFrame.size());
 
-    s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
+    _captureTimesMS.set(SLApplication::timeMS() - startCaptureTimeMS);
 }
 //-----------------------------------------------------------------------------
 /*! This method is called by iOS and Android projects that capture their video
@@ -398,7 +399,7 @@ void SLCVCapture::loadIntoLastFrame(const SLint         width,
                                     const SLuchar*      data,
                                     const SLbool        isContinuous)
 {
-    SLCVCapture::startCaptureTimeMS = SLApplication::scene->timeMilliSec();
+    SLCVCapture::startCaptureTimeMS = SLApplication::timeMS();
 
     // treat Android YUV to RGB conversion special
     if (format == PF_yuv_420_888)
@@ -656,7 +657,7 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
     SLScene* s = SLApplication::scene;
 
     // Set the start time to measure the MS for the whole conversion
-    SLCVCapture::startCaptureTimeMS = s->timeMilliSec();
+    SLCVCapture::startCaptureTimeMS = SLApplication::timeMS();
 
     // input image aspect ratio
     SLfloat srcWdivH = (SLfloat)srcW / srcH;
@@ -803,7 +804,7 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
         thread.join();
 
     // Stop the capture time displayed in the statistics info
-    s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
+    _captureTimesMS.set(SLApplication::timeMS() - startCaptureTimeMS);
 }
 //-----------------------------------------------------------------------------
 //! Setter for video type also sets the active calibration

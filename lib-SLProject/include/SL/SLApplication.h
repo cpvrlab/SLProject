@@ -50,6 +50,9 @@ class SLApplication
     static int      jobProgressNum() { return _jobProgressNum; }
     static int      jobProgressMax() { return _jobProgressMax; }
     static SLfloat  dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
+    static void     timerStart() { _timer.start(); }
+    static SLfloat  timeS() { return (SLfloat)_timer.elapsedTimeInSec(); }
+    static SLfloat  timeMS() { return (SLfloat)_timer.elapsedTimeInMilliSec(); }
 
     static SLScene*         scene;          //!< scene pointer
     static SLInputManager   inputManager;   //!< Input events manager
@@ -84,6 +87,7 @@ class SLApplication
     static atomic<bool>                jobIsRunning;       //!< True if a parallel job is running
 
     private:
+    static SLTimer     _timer;          //!< high precision timer
     static string      _jobProgressMsg; //!< Text message to show during progress
     static atomic<int> _jobProgressNum; //!< Integer value to show progess
     static atomic<int> _jobProgressMax; //!< Max. integer progress value

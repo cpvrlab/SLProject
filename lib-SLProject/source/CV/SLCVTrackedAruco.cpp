@@ -76,7 +76,7 @@ SLbool SLCVTrackedAruco::track(SLCVMat          imageGray,
         ////////////
 
         SLScene* s       = SLApplication::scene;
-        SLfloat  startMS = s->timeMilliSec();
+        SLfloat  startMS = SLApplication::timeMS();
 
         arucoIDs.clear();
         objectViewMats.clear();
@@ -89,7 +89,7 @@ SLbool SLCVTrackedAruco::track(SLCVMat          imageGray,
                              params.arucoParams,
                              rejected);
 
-        s->detectTimesMS().set(s->timeMilliSec() - startMS);
+        s->detectTimesMS().set(SLApplication::timeMS() - startMS);
 
         if (!arucoIDs.empty())
         {
@@ -102,7 +102,7 @@ SLbool SLCVTrackedAruco::track(SLCVMat          imageGray,
             // Pose Estimation //
             /////////////////////
 
-            startMS = s->timeMilliSec();
+            startMS = SLApplication::timeMS();
 
             //cout << "Aruco IdS: " << arucoIDs.size() << " : ";
 
@@ -115,7 +115,7 @@ SLbool SLCVTrackedAruco::track(SLCVMat          imageGray,
                                              rVecs,
                                              tVecs);
 
-            s->poseTimesMS().set(s->timeMilliSec() - startMS);
+            s->poseTimesMS().set(SLApplication::timeMS() - startMS);
 
             // Get the object view matrix for all aruco markers
             for (size_t i = 0; i < arucoIDs.size(); ++i)

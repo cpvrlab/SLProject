@@ -18,45 +18,6 @@
 using namespace std::placeholders;
 
 //-----------------------------------------------------------------------------
-SLTimer::SLTimer()
-{
-    _timePoint1 = SLClock::now();
-}
-//-----------------------------------------------------------------------------
-// SLTimer::start starts timer. startCount will be set at this point.
-void SLTimer::start()
-{
-    _timePoint1 = SLClock::now();
-}
-//-----------------------------------------------------------------------------
-//! SLTimer::stop stops the timer. endCount will be set at this point.
-void SLTimer::stop()
-{
-    _timePoint2 = SLClock::now();
-}
-//-----------------------------------------------------------------------------
-/*! 
-SLTimer::getElapsedTimeInMicroSec computes elapsed time in micro-second 
-resolution. Other getElapsedTime will call this first, then convert to 
-correspond resolution.
-*/
-SLint64 SLTimer::elapsedTimeInMicroSec()
-{
-    return duration_cast<microseconds>(SLClock::now() - _timePoint1).count();
-}
-//-----------------------------------------------------------------------------
-//! SLTimer::getElapsedTimeInMilliSec divides elapsedTimeInMicroSec by 1000
-SLfloat SLTimer::elapsedTimeInMilliSec()
-{
-    return elapsedTimeInMicroSec() * 0.001f;
-}
-//-----------------------------------------------------------------------------
-//! SLTimer::getElapsedTimeInSec divide elapsedTimeInMicroSec by 1000000
-SLfloat SLTimer::elapsedTimeInSec()
-{
-    return elapsedTimeInMicroSec() * 0.000001f;
-}
-//-----------------------------------------------------------------------------
 //! Delayed call of the callback function after the passed milliseconds.
 void SLTimer::callAfterSleep(SLint milliSec, function<void(void)> callbackFunc)
 {

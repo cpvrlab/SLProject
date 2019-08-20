@@ -513,13 +513,13 @@ meaningful.
 void SLCVTrackedFeatures::detectKeypointsAndDescriptors()
 {
     SLScene* s       = SLApplication::scene;
-    SLfloat  startMS = s->timeMilliSec();
+    SLfloat  startMS = SLApplication::timeMS();
 
     _featureManager.detectAndDescribe(_currentFrame.imageGray,
                                       _currentFrame.keypoints,
                                       _currentFrame.descriptors);
 
-    s->detectTimesMS().set(s->timeMilliSec() - startMS);
+    s->detectTimesMS().set(SLApplication::timeMS() - startMS);
 }
 //-----------------------------------------------------------------------------
 /*! Get matching features with the defined feature matcher. Since we are using
@@ -530,7 +530,7 @@ not too identical with the so called ratio test.
 SLCVVDMatch SLCVTrackedFeatures::getFeatureMatches()
 {
     SLScene* s       = SLApplication::scene;
-    SLfloat  startMS = s->timeMilliSec();
+    SLfloat  startMS = SLApplication::timeMS();
 
     int          k = 2;
     SLCVVVDMatch matches;
@@ -549,7 +549,7 @@ SLCVVDMatch SLCVTrackedFeatures::getFeatureMatches()
             goodMatches.push_back(match1);
     }
 
-    s->matchTimesMS().set(s->timeMilliSec() - startMS);
+    s->matchTimesMS().set(SLApplication::timeMS() - startMS);
     return goodMatches;
 }
 //-----------------------------------------------------------------------------
@@ -601,7 +601,7 @@ bool SLCVTrackedFeatures::calculatePose()
     if (_currentFrame.matches.size() < 10) return false;
 
     SLScene* s       = SLApplication::scene;
-    SLfloat  startMS = s->timeMilliSec();
+    SLfloat  startMS = SLApplication::timeMS();
 
     // Find 2D/3D correspondences
     // At the moment we are using only the two correspondences like this:
@@ -683,7 +683,7 @@ bool SLCVTrackedFeatures::calculatePose()
 #endif
     }
 
-    s->poseTimesMS().set(s->timeMilliSec() - startMS);
+    s->poseTimesMS().set(SLApplication::timeMS() - startMS);
 
     return foundPose;
 }
@@ -875,7 +875,7 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
     if (_prevFrame.inlierPoints2D.size() < 4) return false;
 
     SLScene* s       = SLApplication::scene;
-    SLfloat  startMS = s->timeMilliSec();
+    SLfloat  startMS = SLApplication::timeMS();
 
     SLVuchar status;
     SLVfloat err;
@@ -916,7 +916,7 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
         }
     }
 
-    s->optFlowTimesMS().set(s->timeMilliSec() - startMS);
+    s->optFlowTimesMS().set(SLApplication::timeMS() - startMS);
 
     _currentFrame.inlierPoints2D = frame2DPoints;
     _currentFrame.inlierPoints3D = model3DPoints;
@@ -928,7 +928,7 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
     // Pose Estimation //
     /////////////////////
 
-    startMS = s->timeMilliSec();
+    startMS = SLApplication::timeMS();
 
     bool foundPose = cv::solvePnP(model3DPoints,
                                   frame2DPoints,
@@ -965,7 +965,7 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
         tvec.copyTo(_currentFrame.tvec);
     }
 
-    s->poseTimesMS().set(s->timeMilliSec() - startMS);
+    s->poseTimesMS().set(SLApplication::timeMS() - startMS);
 
     return foundPose && poseValid;
 }

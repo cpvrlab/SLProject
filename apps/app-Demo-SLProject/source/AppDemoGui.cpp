@@ -295,7 +295,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             if (rType == RT_gl)
             {
                 // Get averages from average variables (see SLAverage)
-                SLfloat captureTime    = s->captureTimesMS().average();
+                SLfloat captureTime    = SLCVCapture::instance()->captureTimesMS().average();
                 SLfloat updateTime     = s->updateTimesMS().average();
                 SLfloat trackingTime   = s->trackingTimesMS().average();
                 SLfloat detectTime     = s->detectTimesMS().average();

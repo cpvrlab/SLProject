@@ -22,6 +22,7 @@ for a good top down information.
 */
 
 #include <SLCV.h>
+#include <SLAverage.h>
 #include <SLEnums.h>
 #include <SLVec2.h>
 #include <opencv2/opencv.hpp>
@@ -87,6 +88,7 @@ class SLCVCapture
     SLVideoType  videoType() { return _videoType; }
     SLGLTexture* videoTexture() { return &_videoTexture; }
     SLGLTexture* videoTextureErr() { return &_videoTextureErr; }
+    SLAvgFloat&  captureTimesMS() { return _captureTimesMS; }
 
     SLCVMat       lastFrame;          //!< last frame grabbed in RGB
     SLCVMat       lastFrameGray;      //!< last frame in grayscale
@@ -113,6 +115,7 @@ class SLCVCapture
     SLGLTexture      _videoTexture;    //!< Texture for live video image
     SLGLTexture      _videoTextureErr; //!< Texture for live video error
     cv::VideoCapture _captureDevice;   //!< OpenCV capture device
+    SLAvgFloat       _captureTimesMS;  //!< Averaged time for video capturing in ms
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVCAPTURE_H

@@ -58,7 +58,7 @@ SLPathtracer::render(SLSceneView* sv)
     _images.push_back(new SLCVImage(_sv->scrW(), _sv->scrH(), PF_rgb, "Pathtracer"));
 
     // Measure time
-    double t1 = SLApplication::scene->timeSec();
+    double t1 = SLApplication::timeS();
 
     // Bind the renderSlices method to a function object
     auto renderSlicesFunction = bind(&SLPathtracer::renderSlices, this, _1, _2);
@@ -85,7 +85,7 @@ SLPathtracer::render(SLSceneView* sv)
         _pcRendered = (SLint)((SLfloat)currentSample / (SLfloat)_aaSamples * 100.0f);
     }
 
-    _renderSec = SLApplication::scene->timeSec() - (SLfloat)t1;
+    _renderSec = SLApplication::timeS() - (SLfloat)t1;
 
     SL_LOG("\nTime to render image: %6.3fsec", _renderSec);
 
@@ -155,11 +155,11 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
             // update image after 500 ms
             if (isMainThread)
             {
-                if (SLApplication::scene->timeSec() - t1 > 0.5f)
+                if (SLApplication::timeS() - t1 > 0.5f)
                 {
                     finishBeforeUpdate();
                     _sv->onWndUpdate(); // update window
-                    t1 = SLApplication::scene->timeSec();
+                    t1 = SLApplication::timeS();
                 }
             }
         }

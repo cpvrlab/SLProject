@@ -443,12 +443,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             light1->attenuation(1, 0, 0);
 
             SLAssimpImporter importer;
-            SLfloat          timeStart  = s->timeSec();
+            SLfloat          timeStart  = SLApplication::timeS();
             SLNode*          largeModel = importer.load("PLY/xyzrgb_dragon.ply",
                                                true,
                                                nullptr,
                                                SLProcess_Triangulate | SLProcess_JoinIdenticalVertices);
-            SLfloat          timeEnd    = s->timeSec();
+            SLfloat          timeEnd    = SLApplication::timeS();
             SL_LOG("Time to load  : %4.2f sec.\n", timeEnd - timeStart);
             SLNode* scene = new SLNode("Scene");
             scene->addChild(light1);

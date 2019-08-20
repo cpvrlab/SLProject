@@ -128,7 +128,7 @@ SLbool SLCVTrackedFaces::track(SLCVMat          imageGray,
     //////////////////
 
     SLScene* s       = SLApplication::scene;
-    SLfloat  startMS = s->timeMilliSec();
+    SLfloat  startMS = SLApplication::timeMS();
 
     // Detect faces
     SLCVVRect faces;
@@ -142,7 +142,7 @@ SLbool SLCVTrackedFaces::track(SLCVMat          imageGray,
     for (SLuint f = 0; f < faces.size(); ++f)
         faces[f].height = (SLint)(faces[f].height * 1.2f);
 
-    SLfloat time2MS = s->timeMilliSec();
+    SLfloat time2MS = SLApplication::timeMS();
     s->detect1TimesMS().set(time2MS - startMS);
 
     //////////////////////
@@ -152,7 +152,7 @@ SLbool SLCVTrackedFaces::track(SLCVMat          imageGray,
     SLCVVVPoint2f landmarks;
     SLbool        foundLandmarks = _facemark->fit(imageRgb, faces, landmarks);
 
-    SLfloat time3MS = s->timeMilliSec();
+    SLfloat time3MS = SLApplication::timeMS();
     s->detect2TimesMS().set(time3MS - time2MS);
     s->detectTimesMS().set(time3MS - startMS);
 
@@ -203,7 +203,7 @@ SLbool SLCVTrackedFaces::track(SLCVMat          imageGray,
                 // Pose Estimation //
                 /////////////////////
 
-                startMS = s->timeMilliSec();
+                startMS = SLApplication::timeMS();
 
                 //find the camera extrinsic parameters (rVec & tVec)
                 SLCVMat rVec; // rotation angle vector as axis (length as angle)
@@ -217,7 +217,7 @@ SLbool SLCVTrackedFaces::track(SLCVMat          imageGray,
                                          false,
                                          cv::SOLVEPNP_EPNP);
 
-                s->poseTimesMS().set(s->timeMilliSec() - startMS);
+                s->poseTimesMS().set(SLApplication::timeMS() - startMS);
 
                 if (solved)
                 {

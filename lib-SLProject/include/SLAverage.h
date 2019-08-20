@@ -25,7 +25,7 @@ class SLAverage
 {
     public:
     //! Ctor with a default value array size
-    SLAverage(SLint numValues, T zeroValue)
+    SLAverage(SLint numValues = 60, T zeroValue = 0)
     {
         init(numValues, zeroValue);
     }
@@ -64,12 +64,12 @@ class SLAverage
     T last() { return _currentValueNo > 0 ? _currentValueNo - 1 : _values.size() - 1; }
 
     private:
-    SLfloat   _oneOverNumValues; //!< multiplier instead of devider
-    vector<T> _values;           //!< value array
-    SLint     _currentValueNo;   //!< current value index
-    SLint     _currentValueCount;//!< values filled
-    T         _sum;              //!< sum of all values
-    T         _average;          //!< average value
+    SLfloat   _oneOverNumValues;  //!< multiplier instead of devider
+    vector<T> _values;            //!< value array
+    SLint     _currentValueNo;    //!< current value index
+    SLint     _currentValueCount; //!< values filled
+    T         _sum;               //!< sum of all values
+    T         _average;           //!< average value
 };
 //-----------------------------------------------------------------------------
 typedef SLAverage<SLfloat> SLAvgFloat;
