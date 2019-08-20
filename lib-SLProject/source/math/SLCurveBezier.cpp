@@ -65,7 +65,7 @@ void SLCurveBezier::init(const SLVVec4f& points,
         _points[i] = points[i];
     }
 
-    if (controlPoints.size() == 0)
+    if (controlPoints.empty())
     {
         if (points.size() > 2)
         { // create approximating control points
@@ -157,7 +157,7 @@ void SLCurveBezier::draw(const SLMat4f& wm)
     if (!_vao.id()) return;
 
     // Set the view transform
-    SLGLState* stateGL = SLGLState::getInstance();
+    SLGLState* stateGL = SLGLState::instance();
     stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
     SLint numTangentPoints = numControlPoints * 2;
@@ -475,7 +475,7 @@ void SLCurveBezier::subdivideRender(SLVVec3f&      renderPoints,
                                     const SLVec3f& P3)
 {
     // add first point transformed by wm if not already in the list
-    if (renderPoints.size() == 0)
+    if (renderPoints.empty())
         renderPoints.push_back(wm.multVec(P0));
     else if (P0 != renderPoints.back())
         renderPoints.push_back(wm.multVec(P0));

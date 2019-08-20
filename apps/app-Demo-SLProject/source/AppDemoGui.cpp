@@ -626,7 +626,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
         if (showInfosDevice)
         {
-            SLGLState* stateGL = SLGLState::getInstance();
+            SLGLState* stateGL = SLGLState::instance();
             SLchar     m[2550]; // message character array
             m[0] = 0;           // set zero length
 
@@ -846,9 +846,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 {
     SLSceneID    sid           = SLApplication::sceneID;
-    SLGLState*   stateGL       = SLGLState::getInstance();
+    SLGLState*   stateGL       = SLGLState::instance();
     SLRenderType rType         = sv->renderType();
-    SLbool       hasAnimations = (s->animManager().allAnimNames().size() > 0);
+    SLbool       hasAnimations = (!s->animManager().allAnimNames().empty());
     static SLint curAnimIx     = -1;
     if (!hasAnimations) curAnimIx = -1;
 
@@ -1715,7 +1715,7 @@ void AppDemoGui::buildSceneGraph(SLScene* s)
 void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 {
     SLbool isSelectedNode = s->selectedNode() == node;
-    SLbool isLeafNode     = node->children().size() == 0 && node->meshes().size() == 0;
+    SLbool isLeafNode     = node->children().empty() && node->meshes().empty();
 
     ImGuiTreeNodeFlags nodeFlags = 0;
     if (isLeafNode)
@@ -2188,12 +2188,12 @@ void AppDemoGui::buildProperties(SLScene* s)
 
         for (auto selectedNode : selectedNodes)
         {
-            if (selectedNode->meshes().size() > 0)
+            if (!selectedNode->meshes().empty())
             {
                 ImGui::Text("Node: %s", selectedNode->name().c_str());
                 for (auto selectedMesh : selectedNode->meshes())
                 {
-                    if ((SLuint)selectedMesh->IS32.size() > 0)
+                    if (!selectedMesh->IS32.empty())
                     {
                         ImGui::Text("   Mesh: %s {%u v.}",
                                     selectedMesh->name().c_str(),

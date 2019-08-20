@@ -166,7 +166,6 @@ class SLGLTexture : public SLObject
               SLbool   loadGrayscaleIntoAlpha = false);
     void load(const SLVCol4f& colors);
 
-    SLGLState*      _stateGL;      //!< Pointer to global SLGLState instance
     SLCVVImage      _images;       //!< vector of SLCVImage pointers
     SLuint          _texName;      //!< OpenGL texture "name" (= ID)
     SLTextureType   _texType;      //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]

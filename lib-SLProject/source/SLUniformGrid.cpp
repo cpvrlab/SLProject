@@ -153,7 +153,7 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
                 {  
                     voxelID = x + y*_size.x + z*_size.x*_size.y;
                
-                    //triangle-AABB overlap test by Thomas Möller
+                    //triangle-AABB overlap test by Thomas Mï¿½ller
                     if (triBoxOverlap(curVoxelCenter, boxHalfExt, vert))
                     //trianlgesAABB-AABB overlap test is faster but not as precise
                     //if (triBoxBoxOverlap(curVoxelCenter, boxHalfExt, vert)) 
@@ -237,7 +237,7 @@ void SLUniformGrid::draw(SLSceneView* sv)
                 {   v.x = _minV.x;
                     for (x=0; x<_size.x; ++x, v.x += _voxelSize.x) 
                     {  
-                        if (_voxel[curVoxel] && _voxel[curVoxel]->size() > 0)
+                        if (_voxel[curVoxel] && !_voxel[curVoxel]->empty())
                         {  
                             P[i++].set(v.x,          v.y,          v.z         ); 
                             P[i++].set(v.x+_voxelSize.x, v.y,          v.z         );

@@ -182,7 +182,7 @@ bool SLCVCalibration::load(SLstring calibDir,
 //! Saves the camera calibration parameters to the config file
 void SLCVCalibration::save()
 {
-    SLGLState*      stateGL             = SLGLState::getInstance();
+    SLGLState*      stateGL             = SLGLState::instance();
     SLstring        fullPathAndFilename = _calibDir + _calibFileName;
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 
@@ -823,7 +823,7 @@ SLstring SLCVCalibration::getLatestCalibFilename(ftplib&         ftp,
             }
         }
 
-        if (strippedFiles.size() > 0)
+        if (!strippedFiles.empty())
         {
             // sort filename naturally as many file systems do.
             std::sort(strippedFiles.begin(), strippedFiles.end(), Utils::compareNatural);

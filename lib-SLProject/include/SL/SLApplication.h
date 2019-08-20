@@ -38,10 +38,18 @@ class SLCVCalibration;
 class SLApplication
 {
     public:
-    static void createAppAndScene(SLstring appName,
-                                  void*    onSceneLoadCallback);
-    static void deleteAppAndScene();
+    static void     createAppAndScene(SLstring appName,
+                                      void*    onSceneLoadCallback);
+    static void     deleteAppAndScene();
     static SLstring getComputerInfos();
+    static void     handleParallelJob();
+    static void     jobProgressMsg(string msg);
+    static void     jobProgressNum(int num) { _jobProgressNum = num; }
+    static void     jobProgressMax(int max) { _jobProgressMax = max; }
+    static string   jobProgressMsg();
+    static int      jobProgressNum() { return _jobProgressNum; }
+    static int      jobProgressMax() { return _jobProgressMax; }
+    static SLfloat  dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
 
     static SLScene*         scene;          //!< scene pointer
     static SLInputManager   inputManager;   //!< Input events manager
@@ -70,20 +78,7 @@ class SLApplication
     static SLstring  externalPath;  //!< Default path for external file storage
     static SLSceneID sceneID;       //!< ID of last loaded scene
 
-    static SLfloat dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
-
-    static map<string, string> deviceParameter; //! Generic device parameter
-
-    // Parallel job handling (please read remarks on handleParallelJob)
-    static void handleParallelJob();
-
-    static void   jobProgressMsg(string msg);
-    static void   jobProgressNum(int num) { _jobProgressNum = num; }
-    static void   jobProgressMax(int max) { _jobProgressMax = max; }
-    static string jobProgressMsg();
-    static int    jobProgressNum() { return _jobProgressNum; }
-    static int    jobProgressMax() { return _jobProgressMax; }
-
+    static map<string, string>         deviceParameter;    //! Generic device parameter
     static deque<function<void(void)>> jobsToBeThreaded;   //!< queue of functions to be executed in a thread
     static deque<function<void(void)>> jobsToFollowInMain; //!< queue of function to follow in the main thread
     static atomic<bool>                jobIsRunning;       //!< True if a parallel job is running

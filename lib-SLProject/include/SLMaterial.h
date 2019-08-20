@@ -40,13 +40,13 @@ class SLMaterial : public SLObject
 {
     public:
     //! Default ctor
-    SLMaterial(const SLchar* name,
-               SLCol4f       amdi      = SLCol4f::WHITE,
-               SLCol4f       spec      = SLCol4f::WHITE,
-               SLfloat       shininess = 100.0f,
-               SLfloat       kr        = 0.0,
-               SLfloat       kt        = 0.0f,
-               SLfloat       kn        = 1.0f);
+    SLMaterial(const SLchar*  name,
+               const SLCol4f& amdi      = SLCol4f::WHITE,
+               const SLCol4f& spec      = SLCol4f::WHITE,
+               SLfloat        shininess = 100.0f,
+               SLfloat        kr        = 0.0,
+               SLfloat        kt        = 0.0f,
+               SLfloat        kn        = 1.0f);
 
     //! Ctor for textures
     SLMaterial(const SLchar* name,
@@ -57,14 +57,14 @@ class SLMaterial : public SLObject
                SLGLProgram*  program  = nullptr);
 
     //! Ctor for Cook-Torrance shading
-    SLMaterial(const SLchar* name,
-               SLCol4f       diffuse,
-               SLfloat       roughness,
-               SLfloat       metalness);
+    SLMaterial(const SLchar*  name,
+               const SLCol4f& diffuse,
+               SLfloat        roughness,
+               SLfloat        metalness);
 
     //! Ctor for uniform color material without lighting
-    SLMaterial(SLCol4f       uniformColor,
-               const SLchar* name = (const char*)"Uniform color");
+    SLMaterial(const SLCol4f& uniformColor,
+               const SLchar*  name = (const char*)"Uniform color");
 
     //! Copy ctor
     SLMaterial(SLMaterial* m)
@@ -72,11 +72,10 @@ class SLMaterial : public SLObject
         if (m) set(m);
     }
 
-    ~SLMaterial();
+    ~SLMaterial() final;
 
     //! Sets the material states and passes all variables to the shader program
-    void activate(SLGLState* state,
-                  SLDrawBits drawBits);
+    void activate(SLDrawBits drawBits);
 
     //! Returns true if there is any transparency in diffuse alpha or textures
     SLbool hasAlpha() { return (_diffuse.a < 1.0f ||
@@ -174,11 +173,11 @@ class SLMaterial : public SLObject
     SLfloat      _roughness;    //!< roughness property (0-1) in Cook-Torrance model
     SLfloat      _metalness;    //!< metallic property (0-1) in Cook-Torrance model
     SLfloat      _translucency; //!< PM: translucency exponent for light refraction
-    SLfloat      _kr;           //!< reflection coefficient 0.0 - 1.0
-    SLfloat      _kt;           //!< transmission coefficient 0.0 - 1.0
-    SLfloat      _kn;           //!< refraction index
+    SLfloat      _kr{};         //!< reflection coefficient 0.0 - 1.0
+    SLfloat      _kt{};         //!< transmission coefficient 0.0 - 1.0
+    SLfloat      _kn{};         //!< refraction index
     SLVGLTexture _textures;     //!< vector of texture pointers
-    SLGLProgram* _program;      //!< pointer to a GLSL shader program
+    SLGLProgram* _program{};    //!< pointer to a GLSL shader program
 
     private:
     static SLMaterial* _defaultGray;   //!< Global default gray color material for meshes that don't define their own.

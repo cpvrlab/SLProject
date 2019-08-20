@@ -32,7 +32,6 @@ extern char* aGLSLErrorString[];
 SLGLProgram::SLGLProgram(SLstring vertShaderFile,
                          SLstring fragShaderFile) : SLObject("")
 {
-    _stateGL  = SLGLState::getInstance();
     _isLinked = false;
     _objectGL = 0;
 
@@ -189,11 +188,11 @@ Call this initialization if you pass your own custom uniform variables.
 */
 void SLGLProgram::useProgram()
 {
-    if (_objectGL == 0 && _shaders.size() > 0) init();
+    if (_objectGL == 0 && !_shaders.empty()) init();
 
     if (_isLinked)
     {
-        _stateGL->useProgram(_objectGL);
+        SLGLState::instance()->useProgram(_objectGL);
         GET_GL_ERROR;
     }
 }
@@ -204,53 +203,55 @@ the custom uniform variables of the _uniform1fList as well as the texture names.
 */
 void SLGLProgram::beginUse(SLMaterial* mat)
 {
-    if (_objectGL == 0 && _shaders.size() > 0) init();
+    if (_objectGL == 0 && !_shaders.empty()) init();
 
     if (_isLinked)
     {
+        SLGLState* stateGL = SLGLState::instance();
+
         // 1: Activate the shader program object
-        _stateGL->useProgram(_objectGL);
+        stateGL->useProgram(_objectGL);
 
         // 2: Pass light & material parameters
-        _stateGL->globalAmbientLight = SLApplication::scene->globalAmbiLight();
-        SLint loc                    = uniform4fv("u_globalAmbient", 1, (const SLfloat*)_stateGL->globalAmbient());
-        loc                          = uniform1i("u_numLightsUsed", _stateGL->numLightsUsed);
+        stateGL->globalAmbientLight = SLApplication::scene->globalAmbiLight();
+        SLint loc                    = uniform4fv("u_globalAmbient", 1, (const SLfloat*)stateGL->globalAmbient());
+        loc                          = uniform1i("u_numLightsUsed", stateGL->numLightsUsed);
 
-        if (_stateGL->numLightsUsed > 0)
+        if (stateGL->numLightsUsed > 0)
         {
             SLint nL = SL_MAX_LIGHTS;
-            _stateGL->calcLightPosVS(_stateGL->numLightsUsed);
-            _stateGL->calcLightDirVS(_stateGL->numLightsUsed);
-            loc = uniform1iv("u_lightIsOn", nL, (SLint*)_stateGL->lightIsOn);
-            loc = uniform4fv("u_lightPosVS", nL, (SLfloat*)_stateGL->lightPosVS);
-            loc = uniform4fv("u_lightAmbient", nL, (SLfloat*)_stateGL->lightAmbient);
-            loc = uniform4fv("u_lightDiffuse", nL, (SLfloat*)_stateGL->lightDiffuse);
-            loc = uniform4fv("u_lightSpecular", nL, (SLfloat*)_stateGL->lightSpecular);
-            loc = uniform3fv("u_lightSpotDirVS", nL, (SLfloat*)_stateGL->lightSpotDirVS);
-            loc = uniform1fv("u_lightSpotCutoff", nL, (SLfloat*)_stateGL->lightSpotCutoff);
-            loc = uniform1fv("u_lightSpotCosCut", nL, (SLfloat*)_stateGL->lightSpotCosCut);
-            loc = uniform1fv("u_lightSpotExp", nL, (SLfloat*)_stateGL->lightSpotExp);
-            loc = uniform3fv("u_lightAtt", nL, (SLfloat*)_stateGL->lightAtt);
-            loc = uniform1iv("u_lightDoAtt", nL, (SLint*)_stateGL->lightDoAtt);
-            loc = uniform4fv("u_matAmbient", 1, (SLfloat*)&_stateGL->matAmbient);
-            loc = uniform4fv("u_matDiffuse", 1, (SLfloat*)&_stateGL->matDiffuse);
-            loc = uniform4fv("u_matSpecular", 1, (SLfloat*)&_stateGL->matSpecular);
-            loc = uniform4fv("u_matEmissive", 1, (SLfloat*)&_stateGL->matEmissive);
-            loc = uniform1f("u_matShininess", _stateGL->matShininess);
-            loc = uniform1f("u_matRoughness", _stateGL->matRoughness);
-            loc = uniform1f("u_matMetallic", _stateGL->matMetallic);
+            stateGL->calcLightPosVS(stateGL->numLightsUsed);
+            stateGL->calcLightDirVS(stateGL->numLightsUsed);
+            loc = uniform1iv("u_lightIsOn", nL, (SLint*)stateGL->lightIsOn);
+            loc = uniform4fv("u_lightPosVS", nL, (SLfloat*)stateGL->lightPosVS);
+            loc = uniform4fv("u_lightAmbient", nL, (SLfloat*)stateGL->lightAmbient);
+            loc = uniform4fv("u_lightDiffuse", nL, (SLfloat*)stateGL->lightDiffuse);
+            loc = uniform4fv("u_lightSpecular", nL, (SLfloat*)stateGL->lightSpecular);
+            loc = uniform3fv("u_lightSpotDirVS", nL, (SLfloat*)stateGL->lightSpotDirVS);
+            loc = uniform1fv("u_lightSpotCutoff", nL, (SLfloat*)stateGL->lightSpotCutoff);
+            loc = uniform1fv("u_lightSpotCosCut", nL, (SLfloat*)stateGL->lightSpotCosCut);
+            loc = uniform1fv("u_lightSpotExp", nL, (SLfloat*)stateGL->lightSpotExp);
+            loc = uniform3fv("u_lightAtt", nL, (SLfloat*)stateGL->lightAtt);
+            loc = uniform1iv("u_lightDoAtt", nL, (SLint*)stateGL->lightDoAtt);
+            loc = uniform4fv("u_matAmbient", 1, (SLfloat*)&stateGL->matAmbient);
+            loc = uniform4fv("u_matDiffuse", 1, (SLfloat*)&stateGL->matDiffuse);
+            loc = uniform4fv("u_matSpecular", 1, (SLfloat*)&stateGL->matSpecular);
+            loc = uniform4fv("u_matEmissive", 1, (SLfloat*)&stateGL->matEmissive);
+            loc = uniform1f("u_matShininess", stateGL->matShininess);
+            loc = uniform1f("u_matRoughness", stateGL->matRoughness);
+            loc = uniform1f("u_matMetallic", stateGL->matMetallic);
         }
 
         // 2b: Set stereo states
-        loc = uniform1i("u_projection", _stateGL->projection);
-        loc = uniform1i("u_stereoEye", _stateGL->stereoEye);
-        loc = uniformMatrix3fv("u_stereoColorFilter", 1, (SLfloat*)&_stateGL->stereoColorFilter);
+        loc = uniform1i("u_projection", stateGL->projection);
+        loc = uniform1i("u_stereoEye", stateGL->stereoEye);
+        loc = uniformMatrix3fv("u_stereoColorFilter", 1, (SLfloat*)&stateGL->stereoColorFilter);
 
         // 2c: Pass diffuse color for uniform color shader
-        loc = uniform4fv("u_color", 1, (SLfloat*)&_stateGL->matDiffuse);
+        loc = uniform4fv("u_color", 1, (SLfloat*)&stateGL->matDiffuse);
 
         // 2d: Pass gamma correction value
-        loc = uniform1f("u_oneOverGamma", _stateGL->oneOverGamma);
+        loc = uniform1f("u_oneOverGamma", stateGL->oneOverGamma);
 
         // 3: Pass the custom uniform1f variables of the list
         for (auto uf : _uniforms1f)
@@ -275,10 +276,12 @@ void SLGLProgram::beginUse(SLMaterial* mat)
 //! SLGLProgram::endUse stops the shaderprogram
 void SLGLProgram::endUse()
 {
-    // In core profile you must have an active program
-    if (_stateGL->glVersionNOf() > 3.0f) return;
+    SLGLState* stateGL = SLGLState::instance();
 
-    _stateGL->useProgram(0);
+    // In core profile you must have an active program
+    if (stateGL->glVersionNOf() > 3.0f) return;
+
+    stateGL->useProgram(0);
 }
 //-----------------------------------------------------------------------------
 //! SLGLProgram::addUniform1f add a uniform variable to the list

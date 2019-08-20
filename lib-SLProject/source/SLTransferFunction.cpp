@@ -151,8 +151,8 @@ void SLTransferFunction::colors(SLColorLUT lut)
 void SLTransferFunction::generateTexture()
 {
     assert(_length > 1);
-    assert(_alphas.size() > 0 &&
-           _colors.size() > 0 &&
+    assert(!_alphas.empty() &&
+           !_colors.empty() &&
            "SLTransferFunction::generateTexture: Not enough alpha and/or color values.");
 
     // Delete old data in case of regeneration

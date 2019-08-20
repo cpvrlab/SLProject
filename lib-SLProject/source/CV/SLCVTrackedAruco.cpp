@@ -91,7 +91,7 @@ SLbool SLCVTrackedAruco::track(SLCVMat          imageGray,
 
         s->detectTimesMS().set(s->timeMilliSec() - startMS);
 
-        if (arucoIDs.size() > 0)
+        if (!arucoIDs.empty())
         {
             if (drawDetection)
             {
@@ -128,7 +128,7 @@ SLbool SLCVTrackedAruco::track(SLCVMat          imageGray,
         trackAllOnce = false;
     }
 
-    if (arucoIDs.size() > 0)
+    if (!arucoIDs.empty())
     {
         // Find the marker with the matching id
         for (size_t i = 0; i < arucoIDs.size(); ++i)

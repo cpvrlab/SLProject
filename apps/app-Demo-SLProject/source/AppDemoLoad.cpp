@@ -1457,7 +1457,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             mriImages.push_back(Utils::formatString("i%04u_0000b.png", i));
 
         SLint clamping3D = GL_CLAMP_TO_EDGE;
-        if (SLGLState::getInstance()->getSLVersionNO() > "320")
+        if (SLGLState::instance()->getSLVersionNO() > "320")
             clamping3D = 0x812D; // GL_CLAMP_TO_BORDER
 
         SLGLTexture* texMRI = new SLGLTexture(mriImages,
@@ -1521,7 +1521,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             mriImages.push_back(Utils::formatString("i%04u_0000b.png", i));
 
         SLint clamping3D = GL_CLAMP_TO_EDGE;
-        if (SLGLState::getInstance()->getSLVersionNO() > "320")
+        if (SLGLState::instance()->getSLVersionNO() > "320")
             clamping3D = 0x812D; // GL_CLAMP_TO_BORDER
 
         SLGLTexture* texMRI = new SLGLTexture(mriImages,

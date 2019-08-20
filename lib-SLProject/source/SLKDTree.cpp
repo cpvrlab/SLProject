@@ -283,7 +283,7 @@ void SLKDTree::splitNode(SLKDNode* node, SLint depth, SLint maxDepth,
    
    if (depth >= maxDepth)
    {  if (node->tria.size()>_voxMaxTria) _voxMaxTria = node->tria.size();
-      if (node->tria.size()==0) _voxCntEmpty++;
+      if (node->tria.empty()) _voxCntEmpty++;
       _voxCnt++;
       return;
    }
@@ -295,7 +295,7 @@ void SLKDTree::splitNode(SLKDNode* node, SLint depth, SLint maxDepth,
    if(node->tria.size() < MINTRIAS) 
    {  if (_kdDump) printf("Leaf: %d\n", node->tria.size());
       if (node->tria.size()>_voxMaxTria) _voxMaxTria = node->tria.size();
-      if (node->tria.size()==0) _voxCntEmpty++;
+      if (node->tria.empty()) _voxCntEmpty++;
       _voxCnt++;
       return;
    }

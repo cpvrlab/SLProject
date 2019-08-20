@@ -19,30 +19,16 @@
 #include <SLGLState.h>
 
 //-----------------------------------------------------------------------------
-SLGLState* SLGLState::instance = nullptr;
+SLGLState* SLGLState::_instance = nullptr;
 //-----------------------------------------------------------------------------
 std::vector<string> errors; // global vector for errors used in getGLError
-//-----------------------------------------------------------------------------
-/*! Public static creator and getter function. Guarantees the the static
- instance is created only once. The constructor is therefore private.
- */
-SLGLState* SLGLState::getInstance()
-{
-    if (!instance)
-    {
-        instance = new SLGLState();
-        return instance;
-    }
-    else
-        return instance;
-}
 //-----------------------------------------------------------------------------
 /*! Public static destruction.
  */
 void SLGLState::deleteInstance()
 {
-    delete instance;
-    instance = nullptr;
+    delete _instance;
+    _instance = nullptr;
 }
 //-----------------------------------------------------------------------------
 /*! Private constructor should be called only once for a singleton class.

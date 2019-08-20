@@ -150,7 +150,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
         }
     }
 
-    assert(faces.size() > 0 && "SLRevolver::buildMesh: No faces defined!");
+    assert(!faces.empty() && "SLRevolver::buildMesh: No faces defined!");
 
     // calculate no. of faces (triangles) & allocate arrays
     SLuint i = 0;

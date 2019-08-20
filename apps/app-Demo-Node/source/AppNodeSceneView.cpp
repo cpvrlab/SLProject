@@ -86,7 +86,7 @@ void drawXZGrid(const SLMat4f& mat)
         initialized = true;
     }
 
-    SLGLState* state = SLGLState::getInstance();
+    SLGLState* state = SLGLState::instance();
     state->pushModelViewMatrix();
     state->modelViewMatrix = mat;
 

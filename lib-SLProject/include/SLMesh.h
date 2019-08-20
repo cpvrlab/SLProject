@@ -177,16 +177,13 @@ class SLMesh : public SLObject
     SLVec3f maxP; //!< max. vertex in OS
 
     protected:
-    SLGLState*        _stateGL;   //!< Pointer to the global SLGLState instance
-    SLGLPrimitiveType _primitive; //!< Primitive type (default triangles)
-
-    SLMaterial* _mat;    //!< Pointer to the inside material
-    SLMaterial* _matOut; //!< Pointer to the outside material
-
-    SLGLVertexArray    _vao;  //!< OpenGL Vertex Array Object for drawing
-    SLGLVertexArrayExt _vaoN; //!< OpenGL VAO for optional normal drawing
-    SLGLVertexArrayExt _vaoT; //!< OpenGL VAO for optional tangent drawing
-    SLGLVertexArrayExt _vaoS; //!< OpenGL VAO for optional selection drawing
+    SLGLPrimitiveType  _primitive; //!< Primitive type (default triangles)
+    SLMaterial*        _mat;       //!< Pointer to the inside material
+    SLMaterial*        _matOut;    //!< Pointer to the outside material
+    SLGLVertexArray    _vao;       //!< OpenGL Vertex Array Object for drawing
+    SLGLVertexArrayExt _vaoN;      //!< OpenGL VAO for optional normal drawing
+    SLGLVertexArrayExt _vaoT;      //!< OpenGL VAO for optional tangent drawing
+    SLGLVertexArrayExt _vaoS;      //!< OpenGL VAO for optional selection drawing
 
     SLbool         _isVolume;             //!< Flag for RT if mesh is a closed volume
     SLAccelStruct* _accelStruct;          //!< KD-tree or uniform grid

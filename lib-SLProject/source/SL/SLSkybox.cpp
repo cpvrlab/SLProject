@@ -61,30 +61,32 @@ void SLSkybox::drawAroundCamera(SLSceneView* sv)
 {
     assert(sv && "No SceneView passed to SLSkybox::drawAroundCamera");
 
+    SLGLState* stateGL = SLGLState::instance();
+
     // Set the view transform
-    _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
+    stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
     // Put skybox at the cameras position
     this->translation(sv->camera()->translationWS());
 
     // Apply world transform
-    _stateGL->modelViewMatrix.multiply(this->updateAndGetWM().m());
+    stateGL->modelViewMatrix.multiply(this->updateAndGetWM().m());
 
     // Freeze depth buffer
-    _stateGL->depthMask(false);
+    stateGL->depthMask(false);
 
     // Draw the box
     this->drawMeshes(sv);
 
     // Unlock depth buffer
-    _stateGL->depthMask(true);
+    stateGL->depthMask(true);
 }
 //-----------------------------------------------------------------------------
 //! Returns the color in the skybox at the the specified direction dir
-SLCol4f SLSkybox::colorAtDir(SLVec3f dir)
+SLCol4f SLSkybox::colorAtDir(const SLVec3f& dir)
 {
-    assert(_meshes.size() > 0);
-    assert(_meshes[0]->mat()->textures().size() > 0);
+    assert(!_meshes.empty());
+    assert(!_meshes[0]->mat()->textures().empty());
 
     SLGLTexture* tex = _meshes[0]->mat()->textures()[0];
 

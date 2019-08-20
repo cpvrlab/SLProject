@@ -407,10 +407,11 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     // Set Projection //
     ////////////////////
 
-    const SLMat4f& vm = updateAndGetWMI();
+    const SLMat4f& vm      = updateAndGetWMI();
+    SLGLState*     stateGL = SLGLState::instance();
 
-    _stateGL->stereoEye  = eye;
-    _stateGL->projection = _projection;
+    stateGL->stereoEye  = eye;
+    stateGL->projection = _projection;
 
     SLVec3f pos(vm.translation());
     SLfloat top, bottom, left, right, d; // frustum parameters
@@ -421,7 +422,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     switch (_projection)
     {
         case P_monoPerspective:
-            _stateGL->projectionMatrix.perspective(_fov, sv->scrWdivH(), _clipNear, _clipFar);
+            stateGL->projectionMatrix.perspective(_fov, sv->scrWdivH(), _clipNear, _clipFar);
             break;
 
         case P_monoOrthographic:
@@ -433,11 +434,11 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
             // The orthographic projection should have its near clip plane behind the camera
             // rather than slightly in front of it. Else we will see cross sections of scenes if
             // we zoom in close
-            _stateGL->projectionMatrix.ortho(left, right, bottom, top, -_clipNear, _clipFar);
+            stateGL->projectionMatrix.ortho(left, right, bottom, top, -_clipNear, _clipFar);
             break;
 
         case P_stereoSideBySideD:
-            _stateGL->projectionMatrix = SLApplication::scene->oculus()->projection(eye);
+            stateGL->projectionMatrix = SLApplication::scene->oculus()->projection(eye);
 
             break;
         // all other stereo projections
@@ -448,7 +449,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
             bottom = -top;
             left   = -sv->scrWdivH() * top - d;
             right  = sv->scrWdivH() * top - d;
-            _stateGL->projectionMatrix.frustum(left, right, bottom, top, _clipNear, _clipFar);
+            stateGL->projectionMatrix.frustum(left, right, bottom, top, _clipNear, _clipFar);
     }
 
     //////////////////
@@ -466,26 +467,26 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         SLint fbW2 = sv->oculusFB()->halfWidth();
         SLint fbH  = sv->oculusFB()->height();
         if (eye == ET_left)
-            _stateGL->viewport(0, 0, fbW2, fbH);
+            stateGL->viewport(0, 0, fbW2, fbH);
         else
-            _stateGL->viewport(fbW2, 0, fbW2, fbH);
+            stateGL->viewport(fbW2, 0, fbW2, fbH);
     }
     else if (_projection == P_stereoSideBySide)
     {
         if (eye == ET_left)
-            _stateGL->viewport(0, 0, w2, h);
+            stateGL->viewport(0, 0, w2, h);
         else
-            _stateGL->viewport(w2, 0, w2, h);
+            stateGL->viewport(w2, 0, w2, h);
     }
     else if (_projection == P_stereoSideBySideP)
     {
         if (eye == ET_left)
-            _stateGL->viewport(0, h4, w2, h2);
+            stateGL->viewport(0, h4, w2, h2);
         else
-            _stateGL->viewport(w2, h4, w2, h2);
+            stateGL->viewport(w2, h4, w2, h2);
     }
     else
-        _stateGL->viewport(0, 0, w, h);
+        stateGL->viewport(0, 0, w, h);
 
     ///////////////////
     // Clear Buffers //
@@ -494,7 +495,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     if (eye == ET_right) //&& _projection >= stereoColorRC)
         // Do not clear color on right eye because it contains the color of the
         // left eye. The right eye must be drawn after the left into the same buffer
-        _stateGL->clearDepthBuffer();
+        stateGL->clearDepthBuffer();
 
     //  Set Color Mask and Filter
     if (_projection >= P_stereoColorRC)
@@ -503,10 +504,10 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         {
             switch (_projection)
             {
-                case P_stereoColorRC: _stateGL->colorMask(true, false, false, true); break;
-                case P_stereoColorRB: _stateGL->colorMask(true, false, false, true); break;
-                case P_stereoColorRG: _stateGL->colorMask(true, false, false, true); break;
-                case P_stereoColorYB: _stateGL->colorMask(true, true, false, true); break;
+                case P_stereoColorRC: stateGL->colorMask(true, false, false, true); break;
+                case P_stereoColorRB: stateGL->colorMask(true, false, false, true); break;
+                case P_stereoColorRG: stateGL->colorMask(true, false, false, true); break;
+                case P_stereoColorYB: stateGL->colorMask(true, true, false, true); break;
                 default: break;
             }
         }
@@ -514,10 +515,10 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         {
             switch (_projection)
             {
-                case P_stereoColorRC: _stateGL->colorMask(false, true, true, true); break;
-                case P_stereoColorRB: _stateGL->colorMask(false, false, true, true); break;
-                case P_stereoColorRG: _stateGL->colorMask(false, true, false, true); break;
-                case P_stereoColorYB: _stateGL->colorMask(false, false, true, true); break;
+                case P_stereoColorRC: stateGL->colorMask(false, true, true, true); break;
+                case P_stereoColorRB: stateGL->colorMask(false, false, true, true); break;
+                case P_stereoColorRG: stateGL->colorMask(false, true, false, true); break;
+                case P_stereoColorYB: stateGL->colorMask(false, false, true, true); break;
                 default: break;
             }
         }
@@ -526,26 +527,26 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         switch (_projection)
         {
             case P_stereoColorRC:
-                _stateGL->stereoColorFilter.setMatrix(0.29f,
-                                                      0.59f,
-                                                      0.12f,
-                                                      0.00f,
-                                                      1.00f,
-                                                      0.00f,
-                                                      0.00f,
-                                                      0.00f,
-                                                      1.00f);
+                stateGL->stereoColorFilter.setMatrix(0.29f,
+                                                     0.59f,
+                                                     0.12f,
+                                                     0.00f,
+                                                     1.00f,
+                                                     0.00f,
+                                                     0.00f,
+                                                     0.00f,
+                                                     1.00f);
                 break;
             case P_stereoColorYB:
-                _stateGL->stereoColorFilter.setMatrix(1.00f,
-                                                      0.00f,
-                                                      0.00f,
-                                                      0.00f,
-                                                      1.00f,
-                                                      0.00f,
-                                                      0.15f,
-                                                      0.15f,
-                                                      0.70f);
+                stateGL->stereoColorFilter.setMatrix(1.00f,
+                                                     0.00f,
+                                                     0.00f,
+                                                     0.00f,
+                                                     1.00f,
+                                                     0.00f,
+                                                     0.15f,
+                                                     0.15f,
+                                                     0.70f);
                 break;
             default: break;
         }
@@ -562,7 +563,8 @@ nodes inverse world matrix.
 */
 void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 {
-    SLScene* s = SLApplication::scene;
+    SLScene*   s       = SLApplication::scene;
+    SLGLState* stateGL = SLGLState::instance();
 
     if (_camAnim == CA_deviceRotYUp)
     {
@@ -674,13 +676,13 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     SLMat4f vm = updateAndGetWMI();
 
     // Initialize the modelview to identity
-    _stateGL->modelViewMatrix.identity();
+    stateGL->modelViewMatrix.identity();
 
     // Single eye projection
     if (eye == ET_center)
     {
         // Standard case: Just overwrite the view matrix
-        _stateGL->viewMatrix.setMatrix(vm);
+        stateGL->viewMatrix.setMatrix(vm);
     }
     else // stereo viewing
     {
@@ -717,12 +719,12 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                                       viewAdjust.y,
                                       viewAdjust.z) *
                               rotation.inverted().toMat4() * trackingPos * vm);
-                _stateGL->viewMatrix = vmEye;
+                stateGL->viewMatrix = vmEye;
             }
             else
             {
                 SLMat4f vmEye(SLMat4f(halfIPD, 0.0f, 0.f) * vm);
-                _stateGL->viewMatrix = vmEye;
+                stateGL->viewMatrix = vmEye;
             }
         }
         else
@@ -737,7 +739,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             // Set the OpenGL view matrix for the left eye
             SLMat4f vmEye;
             vmEye.lookAt(EYE + LR, EYE + _focalDist * LA + LR, LU);
-            _stateGL->viewMatrix = vmEye;
+            stateGL->viewMatrix = vmEye;
         }
     }
 }
@@ -1221,7 +1223,8 @@ void SLCamera::setFrustumPlanes()
 {
     // build combined view projection matrix
     // SLCamera::setView should've been called before so viewMatrix contains the right value
-    SLMat4f A(_stateGL->projectionMatrix * _stateGL->viewMatrix);
+    SLGLState* stateGL = SLGLState::instance();
+    SLMat4f    A(stateGL->projectionMatrix * stateGL->viewMatrix);
 
     // set the A,B,C & D coeffitient for each plane
     _plane[T].setCoefficients(-A.m(1) + A.m(3),

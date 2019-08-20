@@ -27,7 +27,7 @@ SLuint SLGLVertexArray::totalDrawCalls = 0;
 */
 SLGLVertexArray::SLGLVertexArray()
 {
-    _hasGL3orGreater = SLGLState::getInstance()->glVersionNOf() >= 3.0f;
+    _hasGL3orGreater = SLGLState::instance()->glVersionNOf() >= 3.0f;
     _idVAO           = 0;
 
     _VBOf.dataType(BT_float);

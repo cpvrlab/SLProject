@@ -19,6 +19,8 @@ See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 #include <SLApplication.h>
+#include <SLScene.h>
+#include <SLSceneView.h>
 #include <SLCVTrackedChessboard.h>
 
 using namespace cv;

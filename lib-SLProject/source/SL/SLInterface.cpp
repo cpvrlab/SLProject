@@ -74,7 +74,7 @@ void slCreateAppAndScene(SLVstring& cmdLineArgs,
     SLCVCalibration::calibIniPath = calibrationPath;
     SLApplication::configPath     = configPath;
 
-    SLGLState* stateGL = SLGLState::getInstance();
+    SLGLState* stateGL = SLGLState::instance();
 
     Utils::logAppName = "SLProject";
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());

@@ -321,7 +321,7 @@ void SLCVTrackedFeatures::drawDebugInformation(SLbool drawDetection)
 #endif
 
 #if SL_DRAW_REPROJECTION_POINTS || defined(SL_DEBUG_OUTPUT_PATH)
-    if (_currentFrame.inlierMatches.size() > 0)
+    if (!_currentFrame.inlierMatches.empty())
     {
         SLCVVPoint2f projectedPoints(_marker.keypoints3D.size());
 
@@ -481,7 +481,7 @@ void SLCVTrackedFeatures::transferFrameData()
     _prevFrame.inlierPoints3D    = _currentFrame.inlierPoints3D;
     _prevFrame.inlierPoints2D    = _currentFrame.inlierPoints2D;
 
-    if (_currentFrame.inlierMatches.size() > 0)
+    if (!_currentFrame.inlierMatches.empty())
         _prevFrame.inlierMatches = _currentFrame.inlierMatches;
 
     _currentFrame.keypoints.clear();
@@ -734,7 +734,7 @@ void SLCVTrackedFeatures::optimizeMatches()
         SLint patchSize = initialPatchSize;
 
         // Adaptive patch size
-        while (newMatches.size() == 0 && patchSize <= maxPatchSize)
+        while (newMatches.empty() && patchSize <= maxPatchSize)
         {
             // Increase matches by even number
             patchSize += 2;
@@ -779,7 +779,7 @@ void SLCVTrackedFeatures::optimizeMatches()
             _matcher->match(bboxPointsDescriptors, modelPointDescriptor, newMatches);
         }
 
-        if (newMatches.size() > 0)
+        if (!newMatches.empty())
         {
             for (size_t j = 0; j < frameIndicesInsideRect.size(); j++)
             {
@@ -856,7 +856,7 @@ void SLCVTrackedFeatures::optimizeMatches()
         framePoints[i] = _currentFrame.keypoints[(SLuint)_currentFrame.inlierMatches[i].queryIdx].pt;
     }
 
-    if (modelPoints.size() == 0) return;
+    if (modelPoints.empty()) return;
     _currentFrame.inlierPoints3D = modelPoints;
     _currentFrame.inlierPoints2D = framePoints;
 }

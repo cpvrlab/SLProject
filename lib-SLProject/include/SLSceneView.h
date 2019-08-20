@@ -36,7 +36,7 @@ into the SLProject library.
 typedef int (*cbOnNewSceneView)();
 
 //! Callback function typedef for GUI window update
-typedef SLbool(SL_STDCALL* cbOnWndUpdate)(void);
+typedef SLbool(SL_STDCALL* cbOnWndUpdate)();
 
 //! Callback function typedef for select node
 typedef void(SL_STDCALL* cbOnSelectNodeMesh)(SLNode*, SLMesh*);
@@ -65,7 +65,7 @@ class SLSceneView : public SLObject
 
     public:
     SLSceneView();
-    virtual ~SLSceneView();
+    ~SLSceneView() override;
 
     void init(SLstring name,
               SLint    screenWidth,
@@ -129,7 +129,6 @@ class SLSceneView : public SLObject
     void     startRaytracing(SLint maxDepth);
     void     startPathtracing(SLint maxDepth, SLint samples);
     void     printStats() { _stats3D.print(); }
-    SLbool   testRunIsFinished();
 
     // Callback routines
     cbOnWndUpdate      onWndUpdate;        //!< C-Callback for intermediate window repaint
@@ -159,7 +158,6 @@ class SLSceneView : public SLObject
     SLfloat       scrWdivH() const { return _scrWdivH; }
     SLGLImGui&    gui() { return _gui; }
     SLbool        gotPainted() const { return _gotPainted; }
-    SLbool        hasMultiSampling() const { return _stateGL->hasMultiSampling(); }
     SLbool        doFrustumCulling() const { return _doFrustumCulling; }
     SLbool        doMultiSampling() const { return _doMultiSampling; }
     SLbool        doDepthTest() const { return _doDepthTest; }
@@ -182,12 +180,11 @@ class SLSceneView : public SLObject
     static const SLint LONGTOUCH_MS; //!< Milliseconds duration of a long touch event
 
     protected:
-    SLuint     _index;           //!< index of this pointer in SLScene::sceneView vector
-    SLGLState* _stateGL;         //!< Pointer to the global SLGLState instance
-    SLCamera*  _camera;          //!< Pointer to the _active camera
-    SLCamera   _sceneViewCamera; //!< Default camera for this SceneView (default cam not in scenegraph)
-    SLGLImGui  _gui;             //!< ImGui instance
-    SLSkybox*  _skybox;          //!< pointer to skybox
+    SLuint    _index;           //!< index of this pointer in SLScene::sceneView vector
+    SLCamera* _camera;          //!< Pointer to the _active camera
+    SLCamera  _sceneViewCamera; //!< Default camera for this SceneView (default cam not in scenegraph)
+    SLGLImGui _gui;             //!< ImGui instance
+    SLSkybox* _skybox;          //!< pointer to skybox
 
     SLNodeStats _stats2D;    //!< Statistic numbers for 2D nodes
     SLNodeStats _stats3D;    //!< Statistic numbers for 3D nodes

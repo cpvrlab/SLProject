@@ -192,7 +192,8 @@ void SLTexFont::create(SLstring fontFilename)
 
     //Allocate memory for image pixels using only the alpha channel
     _images.clear();
-    SLPixelFormat format = _stateGL->pixelFormatIsSupported(PF_luminance) ? PF_luminance : PF_red;
+    SLGLState*    stateGL = SLGLState::instance();
+    SLPixelFormat format  = stateGL->pixelFormatIsSupported(PF_luminance) ? PF_luminance : PF_red;
     _images.push_back(new SLCVImage((SLint)texWidth,
                                     (SLint)texHeight,
                                     format,

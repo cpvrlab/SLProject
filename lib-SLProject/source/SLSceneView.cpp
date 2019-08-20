@@ -15,18 +15,15 @@
 #endif
 
 #include <SLAnimManager.h>
-#include <SLAnimation.h>
 #include <SLApplication.h>
 #include <SLCVCalibration.h>
-#include <SLCVCapture.h>
 #include <SLCamera.h>
-#include <SLImporter.h>
 #include <SLInterface.h>
 #include <SLLight.h>
 #include <SLLightRect.h>
-#include <SLLightSpot.h>
 #include <SLSceneView.h>
-#include <SLTexFont.h>
+
+#include <utility>
 
 //-----------------------------------------------------------------------------
 // Milliseconds duration of a long touch event
@@ -44,7 +41,7 @@ SLSceneView::SLSceneView() : SLObject()
     assert(s && "No SLApplication::scene instance.");
 
     // Find first a zero pointer gap in
-    for (SLuint i = 0; i < s->sceneViews().size(); ++i)
+    for (SLulong i = 0; i < s->sceneViews().size(); ++i)
     {
         if (s->sceneViews()[i] == nullptr)
         {
@@ -85,7 +82,7 @@ void SLSceneView::init(SLstring name,
                        void*    onSelectNodeMeshCallback,
                        void*    onImGuiBuild)
 {
-    _name       = name;
+    _name       = std::move(name);
     _scrW       = screenWidth;
     _scrH       = screenHeight;
     _gotPainted = true;
@@ -101,8 +98,6 @@ void SLSceneView::init(SLstring name,
 
     // Set the ImGui build function. Every sceneview could have it's own GUI.
     _gui.build = (cbOnImGuiBuild)onImGuiBuild;
-
-    _stateGL = nullptr;
 
     _camera = nullptr;
 
@@ -184,17 +179,17 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 
         SLMat4f vm = _sceneViewCamera.updateAndGetWMI();
 
-        for (SLint i = 0; i < 8; ++i)
+        for (auto & vsCorner : vsCorners)
         {
-            vsCorners[i] = vm * vsCorners[i];
+            vsCorner = vm * vsCorner;
 
-            vsMin.x = min(vsMin.x, vsCorners[i].x);
-            vsMin.y = min(vsMin.y, vsCorners[i].y);
-            vsMin.z = min(vsMin.z, vsCorners[i].z);
+            vsMin.x = min(vsMin.x, vsCorner.x);
+            vsMin.y = min(vsMin.y, vsCorner.y);
+            vsMin.z = min(vsMin.z, vsCorner.z);
 
-            vsMax.x = max(vsMax.x, vsCorners[i].x);
-            vsMax.y = max(vsMax.y, vsCorners[i].y);
-            vsMax.z = max(vsMax.z, vsCorners[i].z);
+            vsMax.x = max(vsMax.x, vsCorner.x);
+            vsMax.y = max(vsMax.y, vsCorner.y);
+            vsMax.z = max(vsMax.z, vsCorner.z);
         }
 
         SLfloat dist    = 0.0f;
@@ -232,7 +227,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
         _sceneViewCamera.translate(SLVec3f(0, 0, dist), TS_object);
     }
 
-    _stateGL->modelViewMatrix.identity();
+    SLGLState::instance()->modelViewMatrix.identity();
     _sceneViewCamera.updateAABBRec();
     _sceneViewCamera.setInitialState();
 
@@ -278,7 +273,6 @@ void SLSceneView::switchToNextCameraInScene()
         _camera = &_sceneViewCamera;
 
     _camera->background().rebuild();
-    return;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -290,13 +284,13 @@ void SLSceneView::onInitialize()
 {
     postSceneLoad();
 
-    SLScene* s = SLApplication::scene;
-    _stateGL   = SLGLState::getInstance();
+    SLScene*   s       = SLApplication::scene;
+    SLGLState* stateGL = SLGLState::instance();
 
     if (_camera)
-        _stateGL->onInitialize(_camera->background().colors()[0]);
+        stateGL->onInitialize(_camera->background().colors()[0]);
     else
-        _stateGL->onInitialize(SLCol4f::GRAY);
+        stateGL->onInitialize(SLCol4f::GRAY);
 
     _blendNodes.clear();
     _visibleNodes.clear();
@@ -328,7 +322,7 @@ void SLSceneView::onInitialize()
         s->root3D()->statsRec(_stats3D);
 
         // Warn if there are no light in scene
-        if (s->lights().size() == 0)
+        if (s->lights().empty())
             SL_LOG("\n**** No Lights found in scene! ****\n");
     }
 
@@ -413,12 +407,12 @@ SLbool SLSceneView::onPaint()
             case RT_rt: camUpdated = draw3DRT(); break;
             case RT_pt: camUpdated = draw3DPT(); break;
         }
-    };
+    }
 
     // Render the 2D stuff inclusive the ImGui
     draw2DGL();
 
-    _stateGL->unbindAnythingAndFlush();
+    SLGLState::instance()->unbindAnythingAndFlush();
 
     // Finish Oculus framebuffer
     if (_camera && _camera->projection() == P_stereoSideBySideD)
@@ -489,7 +483,8 @@ is drawn.
 */
 SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 {
-    SLScene* s = SLApplication::scene;
+    SLScene*   s       = SLApplication::scene;
+    SLGLState* stateGL = SLGLState::instance();
 
     preDraw();
 
@@ -517,17 +512,17 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // Clear color buffer
     // Apply gamma correction only on uniform background. No shader runs on it!
     SLCol4f backColor = _camera->background().colors()[0];
-    backColor.gammaCorrect(_stateGL->oneOverGamma);
-    _stateGL->clearColor(backColor);
-    _stateGL->clearColorDepthBuffer();
+    backColor.gammaCorrect(stateGL->oneOverGamma);
+    stateGL->clearColor(backColor);
+    stateGL->clearColorDepthBuffer();
 
     // Render gradient or textured background from active camera
     if (!_skybox && !_camera->background().isUniform())
         _camera->background().render(_scrW, _scrH);
 
     // Change state (only when changed)
-    _stateGL->multiSample(_doMultiSampling);
-    _stateGL->depthTest(_doDepthTest);
+    stateGL->multiSample(_doMultiSampling);
+    stateGL->depthTest(_doDepthTest);
 
     //////////////////////////////
     // 3. Set Projection & View //
@@ -581,7 +576,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     }
 
     // Enable all color channels again
-    _stateGL->colorMask(1, 1, 1, 1);
+    stateGL->colorMask(1, 1, 1, 1);
 
     _draw3DTimeMS = s->timeMilliSec() - startMS;
 
@@ -618,9 +613,10 @@ void SLSceneView::draw3DGLAll()
     SLApplication::scene->animManager().drawVisuals(this);
 
     // 5) Turn blending off again for correct anaglyph stereo modes
-    _stateGL->blend(false);
-    _stateGL->depthMask(true);
-    _stateGL->depthTest(true);
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->blend(false);
+    stateGL->depthMask(true);
+    stateGL->depthTest(true);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -631,11 +627,12 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
                                 SLbool   alphaBlended,
                                 SLbool   depthSorted)
 {
-    if (nodes.size() == 0) return;
+    if (nodes.empty()) return;
 
     // For blended nodes we activate OpenGL blending and stop depth buffer updates
-    _stateGL->blend(alphaBlended);
-    _stateGL->depthMask(!alphaBlended);
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->blend(alphaBlended);
+    stateGL->depthMask(!alphaBlended);
 
     // Important and expensive step for blended nodes with alpha meshes
     // Depth sort with lambda function by their view distance
@@ -652,10 +649,10 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
     for (auto node : nodes)
     {
         // Set the view transform
-        _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
+        stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
         // Apply world transform
-        _stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+        stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
         // Finally the nodes meshes
         node->drawMeshes(this);
@@ -675,13 +672,14 @@ Yellow: AABB of selected node
 */
 void SLSceneView::draw3DGLLines(SLVNode& nodes)
 {
-    if (nodes.size() == 0) return;
+    if (nodes.empty()) return;
 
-    _stateGL->blend(false);
-    _stateGL->depthMask(true);
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->blend(false);
+    stateGL->depthMask(true);
 
     // Set the view transform
-    _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
+    stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
     // draw the opaque shapes directly w. their wm transform
     for (auto node : nodes)
@@ -734,10 +732,11 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                 node->drawBit(SL_DB_SELECTED))
             {
                 // Set the view transform
-                _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
-                _stateGL->blend(false);     // Turn off blending for overlay
-                _stateGL->depthMask(true);  // Freeze depth buffer for blending
-                _stateGL->depthTest(false); // Turn of depth test for overlay
+                SLGLState* stateGL = SLGLState::instance();
+                stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
+                stateGL->blend(false);     // Turn off blending for overlay
+                stateGL->depthMask(true);  // Freeze depth buffer for blending
+                stateGL->depthTest(false); // Turn of depth test for overlay
 
                 // Draw axis
                 if (drawBit(SL_DB_AXIS) ||
@@ -787,8 +786,9 @@ update is done to the 2D scenegraph.
 */
 void SLSceneView::draw2DGL()
 {
-    SLScene* s       = SLApplication::scene;
-    SLfloat  startMS = s->timeMilliSec();
+    SLScene*   s       = SLApplication::scene;
+    SLGLState* stateGL = SLGLState::instance();
+    SLfloat    startMS = s->timeMilliSec();
 
     SLfloat w2 = (SLfloat)_scrWdiv2;
     SLfloat h2 = (SLfloat)_scrHdiv2;
@@ -797,8 +797,8 @@ void SLSceneView::draw2DGL()
     if (_camera && _camera->projection() != P_stereoSideBySideD)
     {
         // 1. Set Projection & View
-        _stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
-        _stateGL->viewport(0, 0, _scrW, _scrH);
+        stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
+        stateGL->viewport(0, 0, _scrW, _scrH);
 
         // 2. Pseudo 2D Frustum Culling
         _visibleNodes2D.clear();
@@ -818,22 +818,22 @@ void SLSceneView::draw2DGL()
 
         if (!s->selectedRect().isEmpty())
         {
-            _stateGL->pushModelViewMatrix();
-            _stateGL->modelViewMatrix.identity();
-            _stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
-            _stateGL->depthMask(false); // Freeze depth buffer for blending
-            _stateGL->depthTest(false); // Disable depth testing
-            //_stateGL->blendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR); // inverts background
-            _stateGL->blend(true); // Enable blending
-            //_stateGL->polygonLine(false);       // Only filled polygons
+            stateGL->pushModelViewMatrix();
+            stateGL->modelViewMatrix.identity();
+            stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+            stateGL->depthMask(false); // Freeze depth buffer for blending
+            stateGL->depthTest(false); // Disable depth testing
+            //stateGL->blendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR); // inverts background
+            stateGL->blend(true); // Enable blending
+            //stateGL->polygonLine(false);       // Only filled polygons
 
             s->selectedRect().drawGL(SLCol4f::WHITE);
 
-            _stateGL->blend(false); // turn off blending
-            //_stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // std. transparency
-            _stateGL->depthMask(true); // enable depth buffer writing
-            _stateGL->depthTest(true); // enable depth testing
-            _stateGL->popModelViewMatrix();
+            stateGL->blend(false); // turn off blending
+            //stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // std. transparency
+            stateGL->depthMask(true); // enable depth buffer writing
+            stateGL->depthTest(true); // enable depth testing
+            stateGL->popModelViewMatrix();
         }
 
         // 4. Draw ImGui UI
@@ -845,7 +845,6 @@ void SLSceneView::draw2DGL()
     }
 
     _draw2DTimeMS = s->timeMilliSec() - startMS;
-    return;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -853,22 +852,23 @@ SLSceneView::draw2DGLNodes draws 2D nodes from root2D in ortho projection.
 */
 void SLSceneView::draw2DGLNodes()
 {
-    SLfloat depth = 1.0f;                         // Render depth between -1 & 1
-    SLfloat cs    = SL_min(_scrW, _scrH) * 0.01f; // center size
+    SLfloat    depth   = 1.0f;                         // Render depth between -1 & 1
+    SLfloat    cs      = SL_min(_scrW, _scrH) * 0.01f; // center size
+    SLGLState* stateGL = SLGLState::instance();
 
-    _stateGL->pushModelViewMatrix();
-    _stateGL->modelViewMatrix.identity();
-    _stateGL->depthMask(false);   // Freeze depth buffer for blending
-    _stateGL->depthTest(false);   // Disable depth testing
-    _stateGL->blend(true);        // Enable blending
-    _stateGL->polygonLine(false); // Only filled polygons
+    stateGL->pushModelViewMatrix();
+    stateGL->modelViewMatrix.identity();
+    stateGL->depthMask(false);   // Freeze depth buffer for blending
+    stateGL->depthTest(false);   // Disable depth testing
+    stateGL->blend(true);        // Enable blending
+    stateGL->polygonLine(false); // Only filled polygons
 
     // Draw all 2D nodes blended (mostly text font textures)
     // draw the shapes directly with their wm transform
     for (auto node : _visibleNodes2D)
     {
         // Apply world transform
-        _stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+        stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
         // Finally the nodes meshes
         node->drawMeshes(this);
@@ -880,8 +880,8 @@ void SLSceneView::draw2DGLNodes()
         if (_camera->camAnim() == CA_turntableYUp ||
             _camera->camAnim() == CA_turntableZUp)
         {
-            _stateGL->pushModelViewMatrix();
-            _stateGL->modelViewMatrix.translate(0, 0, depth);
+            stateGL->pushModelViewMatrix();
+            stateGL->modelViewMatrix.translate(0, 0, depth);
 
             SLVVec3f centerRombusPoints = {{-cs, 0, 0},
                                            {0, -cs, 0},
@@ -893,12 +893,12 @@ void SLSceneView::draw2DGLNodes()
 
             _vaoTouch.drawArrayAsColored(PT_lineLoop, yelloAlpha);
 
-            _stateGL->popModelViewMatrix();
+            stateGL->popModelViewMatrix();
         }
         else if (_camera->camAnim() == CA_trackball)
         {
-            _stateGL->pushModelViewMatrix();
-            _stateGL->modelViewMatrix.translate(0, 0, depth);
+            stateGL->pushModelViewMatrix();
+            stateGL->modelViewMatrix.translate(0, 0, depth);
 
             // radius = half width or height
             SLfloat r = (SLfloat)(_scrW < _scrH
@@ -923,16 +923,16 @@ void SLSceneView::draw2DGLNodes()
 
             _vaoTouch.drawArrayAsColored(PT_lineLoop, yelloAlpha);
 
-            _stateGL->popModelViewMatrix();
+            stateGL->popModelViewMatrix();
         }
     }
 
-    _stateGL->popModelViewMatrix();
+    stateGL->popModelViewMatrix();
 
-    _stateGL->blend(false);    // turn off blending
-    _stateGL->depthMask(true); // enable depth buffer writing
-    _stateGL->depthTest(true); // enable depth testing
-    GET_GL_ERROR;              // check if any OGL errors occurred
+    stateGL->blend(false);    // turn off blending
+    stateGL->depthMask(true); // enable depth buffer writing
+    stateGL->depthTest(true); // enable depth testing
+    GET_GL_ERROR;             // check if any OGL errors occurred
 }
 //-----------------------------------------------------------------------------
 
@@ -1020,8 +1020,7 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
 
     if (_camera && s->root3D())
     {
-        SLbool result = false;
-        result        = _camera->onMouseUp(button, x, y, mod);
+        SLbool result = _camera->onMouseUp(button, x, y, mod);
         for (auto eh : s->eventHandlers())
         {
             if (eh->onMouseUp(button, x, y, mod))
@@ -1122,10 +1121,8 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
     if (_renderType == RT_rt && !_raytracer.doContinuous() &&
         _raytracer.state() == rtFinished)
         _raytracer.state(rtReady);
-    SLbool result = false;
 
-    // update active camera
-    result = _camera->onMouseWheel(delta, mod);
+    SLbool result = _camera->onMouseWheel(delta, mod);
 
     for (auto eh : s->eventHandlers())
     {
@@ -1206,8 +1203,8 @@ SLbool SLSceneView::onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2)
     _touch[1].set(x2, y2);
     _touchDowns = 2;
 
-    SLbool result = false;
-    result        = _camera->onTouch2Down(x1, y1, x2, y2);
+    SLbool result = _camera->onTouch2Down(x1, y1, x2, y2);
+
     for (auto eh : s->eventHandlers())
     {
         if (eh->onTouch2Down(x1, y1, x2, y2))
@@ -1252,10 +1249,9 @@ SLbool SLSceneView::onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2)
 
     _touch[0].set(x1, y1);
     _touch[1].set(x2, y2);
-    _touchDowns   = 0;
-    SLbool result = false;
+    _touchDowns = 0;
 
-    result = _camera->onTouch2Up(x1, y1, x2, y2);
+    SLbool result = _camera->onTouch2Up(x1, y1, x2, y2);
     for (auto eh : s->eventHandlers())
     {
         if (eh->onTouch2Up(x1, y1, x2, y2))
@@ -1309,7 +1305,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
             _raytracer.state(rtReady);
     }
 
-    if (key==K_tab) {switchToNextCameraInScene(); return true;};
+    if (key==K_tab) {switchToNextCameraInScene(); return true;}
 
     if (key==K_esc && mod==K_ctrl)
     {   if(_renderType == RT_rt)

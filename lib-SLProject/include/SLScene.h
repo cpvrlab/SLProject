@@ -21,17 +21,17 @@
 #include <SLMesh.h>
 #include <SLRect.h>
 #include <SLTimer.h>
+#include <SLCVTracked.h>
 #include <SLVec3.h>
 #include <SLVec4.h>
+#include <utility>
 #include <vector>
 
 class SLSceneView;
-class SLCVTracked;
 class SLCamera;
 
 //-----------------------------------------------------------------------------
 typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
-typedef std::vector<SLCVTracked*> SLVCVTracker; //!< Vector of CV tracker pointers
 //-----------------------------------------------------------------------------
 //! C-Callback function typedef for scene load function
 typedef void(SL_STDCALL* cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint sceneID);
@@ -58,15 +58,16 @@ class SLScene : public SLObject
     public:
     SLScene(SLstring      name,
             cbOnSceneLoad onSceneLoadCallback);
-    ~SLScene();
+    ~SLScene() final;
+
     // Setters
     void root3D(SLNode* root3D) { _root3D = root3D; }
     void root2D(SLNode* root2D) { _root2D = root2D; }
-    void globalAmbiLight(SLCol4f gloAmbi) { _globalAmbiLight = gloAmbi; }
+    void globalAmbiLight(const SLCol4f& gloAmbi) { _globalAmbiLight = gloAmbi; }
     void stopAnimations(SLbool stop) { _stopAnimations = stop; }
     void videoType(SLVideoType vt);
     void showDetection(SLbool st) { _showDetection = st; }
-    void info(SLstring i) { _info = i; }
+    void info(SLstring i) { _info = std::move(i); }
 
     // Getters
     SLAnimManager&   animManager() { return _animManager; }
@@ -118,7 +119,7 @@ class SLScene : public SLObject
     SLVideoType   videoType() { return _videoType; }
     SLGLTexture*  videoTexture() { return &_videoTexture; }
     SLGLTexture*  videoTextureErr() { return &_videoTextureErr; }
-    SLVCVTracker& trackers() { return _trackers; }
+    SLVCVTracked& trackers() { return _trackers; }
     SLbool        showDetection() { return _showDetection; }
 
     cbOnSceneLoad onLoad; //!< C-Callback for scene load
@@ -190,7 +191,7 @@ class SLScene : public SLObject
     SLVideoType  _videoType;       //!< Flag for using the live video image
     SLGLTexture  _videoTexture;    //!< Texture for live video image
     SLGLTexture  _videoTextureErr; //!< Texture for live video error
-    SLVCVTracker _trackers;        //!< Vector of all AR trackers
+    SLVCVTracked _trackers;        //!< Vector of all AR trackers
     SLbool       _showDetection;   //!< Flag if detection should be visualized
 };
 //-----------------------------------------------------------------------------

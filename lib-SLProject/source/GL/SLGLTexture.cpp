@@ -38,7 +38,6 @@ pointer to the SLScene::_texture vector for global deallocation.
 */
 SLGLTexture::SLGLTexture()
 {
-    _stateGL      = SLGLState::getInstance();
     _texName      = 0;
     _texType      = TT_unknown;
     _min_filter   = GL_NEAREST;
@@ -62,7 +61,7 @@ SLGLTexture::SLGLTexture(SLstring      filename,
   : SLObject(Utils::getFileName(filename), filename)
 {
     assert(filename != "");
-    _stateGL = SLGLState::getInstance();
+
     _texType = type == TT_unknown ? detectType(filename) : type;
 
     load(filename);
@@ -94,7 +93,6 @@ SLGLTexture::SLGLTexture(SLVstring files,
 {
     assert(files.size() > 1);
 
-    _stateGL = SLGLState::getInstance();
     _texType = TT_color;
 
     for (auto filename : files)
@@ -125,7 +123,6 @@ SLGLTexture::SLGLTexture(SLVCol4f colors,
 {
     assert(colors.size() > 1);
 
-    _stateGL = SLGLState::getInstance();
     _texType = TT_color;
 
     load(colors);
@@ -160,7 +157,6 @@ SLGLTexture::SLGLTexture(SLstring      filenameXPos,
                          SLint         mag_filter,
                          SLTextureType type) : SLObject(filenameXPos)
 {
-    _stateGL = SLGLState::getInstance();
     _texType = type == TT_unknown ? detectType(filenameXPos) : type;
 
     assert(filenameXPos != "");
@@ -274,7 +270,7 @@ SLbool SLGLTexture::copyVideoImage(SLint         camWidth,
                                    SLbool        isTopLeft)
 {
     // Add image for the first time
-    if (_images.size() == 0)
+    if (_images.empty())
         _images.push_back(new SLCVImage(camWidth,
                                         camHeight,
                                         PF_rgb,
@@ -315,7 +311,7 @@ void SLGLTexture::build(SLint texID)
 {
     assert(texID >= 0 && texID < 32);
 
-    if (_images.size() == 0)
+    if (_images.empty())
         SL_EXIT_MSG("No images loaded in SLGLTexture::build");
 
     // delete texture name if it already exits
@@ -386,15 +382,16 @@ void SLGLTexture::build(SLint texID)
     // Generate texture names
     glGenTextures(1, &_texName);
 
-    _stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
 
     // create binding and apply texture properties
-    _stateGL->bindTexture(_target, _texName);
+    stateGL->bindTexture(_target, _texName);
 
     // check if anisotropic texture filter extension is available
     if (maxAnisotropy < 0.0f)
     {
-        if (_stateGL->hasExtension("GL_EXT_texture_filter_anisotropic"))
+        if (stateGL->hasExtension("GL_EXT_texture_filter_anisotropic"))
             glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
         else
         {
@@ -451,9 +448,9 @@ void SLGLTexture::build(SLint texID)
 
         if (_min_filter >= GL_NEAREST_MIPMAP_NEAREST)
         {
-            if (_stateGL->glIsES2() ||
-                _stateGL->glIsES3() ||
-                _stateGL->glVersionNOf() >= 3.0)
+            if (stateGL->glIsES2() ||
+                stateGL->glIsES3() ||
+                stateGL->glVersionNOf() >= 3.0)
                 glGenerateMipmap(GL_TEXTURE_2D);
             else
                 build2DMipmaps(GL_TEXTURE_2D, 0);
@@ -546,8 +543,9 @@ void SLGLTexture::bindActive(SLint texID)
 
     if (_texName)
     {
-        _stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
-        _stateGL->bindTexture(_target, _texName);
+        SLGLState* stateGL = SLGLState::instance();
+        stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
+        stateGL->bindTexture(_target, _texName);
 
         // Check if texture name is valid only for debug purpose
         //if (!glIsTexture(_texName))
@@ -650,7 +648,8 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
     if (doUpdate) fullUpdate(); // Update the OpenGL texture on each draw
 
     // Draw the character triangles
-    SLMat4f      mvp(_stateGL->projectionMatrix * _stateGL->modelViewMatrix);
+    SLGLState*   stateGL = SLGLState::instance();
+    SLMat4f      mvp(stateGL->projectionMatrix * stateGL->modelViewMatrix);
     SLGLProgram* sp = SLApplication::scene->programs(SP_TextureOnly);
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);

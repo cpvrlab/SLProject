@@ -16,8 +16,6 @@
 
 #include <SLApplication.h>
 #include <SLCompactGrid.h>
-#include <SLLightRect.h>
-#include <SLLightSpot.h>
 #include <SLNode.h>
 #include <SLRay.h>
 #include <SLRaytracer.h>
@@ -40,9 +38,7 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     minP.set(FLT_MAX, FLT_MAX, FLT_MAX);
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-    _skeleton = nullptr;
-
-    _stateGL              = SLGLState::getInstance();
+    _skeleton             = nullptr;
     _isVolume             = true;    // is used for RT to decide inside/outside
     _accelStruct          = nullptr; // no initial acceleration structure
     _accelStructOutOfDate = true;
@@ -195,7 +191,7 @@ void SLMesh::deleteSelected(SLNode* node)
 void SLMesh::deleteUnused()
 {
     // SLPoints have no indexes, so nothing to remove
-    if (I16.size() == 0 && I32.size() == 0)
+    if (I16.empty() && I32.empty())
         return;
 
     // A boolean for each vertex to flag it as used or not
@@ -301,6 +297,8 @@ Please view also the full process of rendering <a href="md_on_paint.html"><b>one
 */
 void SLMesh::draw(SLSceneView* sv, SLNode* node)
 {
+    SLGLState* stateGL = SLGLState::instance();
+
     // Check data
     SLstring msg;
     if (!P.size())
@@ -330,22 +328,22 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 #ifdef SL_GLES
         primitiveType = PT_lineLoop; // There is no polygon line or point mode on ES2!
 #else
-        _stateGL->polygonLine(true);
+        stateGL->polygonLine(true);
 #endif
     }
     else
-        _stateGL->polygonLine(false);
+        stateGL->polygonLine(false);
 
     // Set face culling
     bool noFaceCulling = sv->drawBit(SL_DB_CULLOFF) || node->drawBit(SL_DB_CULLOFF);
-    _stateGL->cullFace(!noFaceCulling);
+    stateGL->cullFace(!noFaceCulling);
 
     // check if texture exists
     //SLbool useTexture = Tc.size() && !sv->drawBit(SL_DB_TEXOFF) && !node->drawBit(SL_DB_TEXOFF);
 
     // enable polygon offset if voxels are drawn to avoid stitching
     if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
-        _stateGL->polygonOffset(true, 1.0f, 1.0f);
+        stateGL->polygonOffset(true, 1.0f, 1.0f);
 
     /////////////////////////////
     // 2) Apply Uniform Variables
@@ -353,12 +351,12 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
     // 2.a) Apply mesh material if exists & differs from current
     if (mat() != SLMaterial::current || SLMaterial::current->program() == nullptr)
-        mat()->activate(_stateGL, *node->drawBits());
+        mat()->activate(*node->drawBits());
 
     // 2.b) Pass the matrices to the shader program
     SLGLProgram* sp = SLMaterial::current->program();
-    sp->uniformMatrix4fv("u_mvMatrix", 1, (SLfloat*)&_stateGL->modelViewMatrix);
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)_stateGL->mvpMatrix());
+    sp->uniformMatrix4fv("u_mvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
+    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
 
     // 2.c) Build & pass inverse, normal & texture matrix only if needed
     SLint locIM = sp->getUniformLocation("u_invMvMatrix");
@@ -367,27 +365,27 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
     if (locIM >= 0 && locNM >= 0)
     {
-        _stateGL->buildInverseAndNormalMatrix();
-        sp->uniformMatrix4fv(locIM, 1, (const SLfloat*)_stateGL->invModelViewMatrix());
-        sp->uniformMatrix3fv(locNM, 1, (const SLfloat*)_stateGL->normalMatrix());
+        stateGL->buildInverseAndNormalMatrix();
+        sp->uniformMatrix4fv(locIM, 1, (const SLfloat*)stateGL->invModelViewMatrix());
+        sp->uniformMatrix3fv(locNM, 1, (const SLfloat*)stateGL->normalMatrix());
     }
     else if (locIM >= 0)
     {
-        _stateGL->buildInverseMatrix();
-        sp->uniformMatrix4fv(locIM, 1, (const SLfloat*)_stateGL->invModelViewMatrix());
+        stateGL->buildInverseMatrix();
+        sp->uniformMatrix4fv(locIM, 1, (const SLfloat*)stateGL->invModelViewMatrix());
     }
     else if (locNM >= 0)
     {
-        _stateGL->buildNormalMatrix();
-        sp->uniformMatrix3fv(locNM, 1, (const SLfloat*)_stateGL->normalMatrix());
+        stateGL->buildNormalMatrix();
+        sp->uniformMatrix3fv(locNM, 1, (const SLfloat*)stateGL->normalMatrix());
     }
     if (locTM >= 0)
     {
         if (_mat->has3DTexture() && _mat->textures()[0]->autoCalcTM3D())
             calcTex3DMatrix(node);
         else
-            _stateGL->textureMatrix = _mat->textures()[0]->tm();
-        sp->uniformMatrix4fv(locTM, 1, (SLfloat*)&_stateGL->textureMatrix);
+            stateGL->textureMatrix = _mat->textures()[0]->tm();
+        sp->uniformMatrix4fv(locTM, 1, (SLfloat*)&stateGL->textureMatrix);
     }
 
     ///////////////////////////////////////
@@ -421,8 +419,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     //////////////////////////////////////
 
     // All helper lines must be drawn without blending
-    SLbool blended = _stateGL->blend();
-    if (blended) _stateGL->blend(false);
+    SLbool blended = stateGL->blend();
+    if (blended) stateGL->blend(false);
 
     if (N.size() && (sv->drawBit(SL_DB_NORMALS) || node->drawBit(SL_DB_NORMALS)))
     {
@@ -455,7 +453,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
         _vaoN.drawArrayAsColored(PT_lines, SLCol4f::BLUE);
         if (T.size()) _vaoT.drawArrayAsColored(PT_lines, SLCol4f::RED);
-        if (blended) _stateGL->blend(false);
+        if (blended) stateGL->blend(false);
     }
     else
     { // release buffer objects for normal & tangent rendering
@@ -472,7 +470,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
         {
             _accelStruct->draw(sv);
-            _stateGL->polygonOffset(false);
+            stateGL->polygonOffset(false);
         }
         else
         { // Delete the visualization VBO if not rendered anymore
@@ -488,15 +486,15 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     if (s->selectedNode() == node &&
         s->selectedMesh() == this)
     {
-        _stateGL->polygonOffset(true, 1.0f, 1.0f);
-        _stateGL->depthMask(false);
-        _stateGL->depthTest(false);
+        stateGL->polygonOffset(true, 1.0f, 1.0f);
+        stateGL->depthMask(false);
+        stateGL->depthTest(false);
         _vaoS.generateVertexPos(_finalP);
         _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
-        _stateGL->polygonLine(false);
-        _stateGL->polygonOffset(false);
-        _stateGL->depthMask(true);
-        _stateGL->depthTest(true);
+        stateGL->polygonLine(false);
+        stateGL->polygonOffset(false);
+        stateGL->depthMask(true);
+        stateGL->depthTest(true);
     }
     else if (!s->selectedRect().isEmpty())
     {
@@ -508,7 +506,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
          All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
 
         // Build full viewport-modelview-projection transform
-        SLMat4f mvp = *_stateGL->mvpMatrix();
+        SLMat4f mvp = *stateGL->mvpMatrix();
         SLMat4f v;
         v.viewport(0, 0, (SLfloat)sv->scrW(), (SLfloat)sv->scrH());
         SLMat4f v_mvp = v * mvp;
@@ -522,19 +520,19 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
                 IS32.push_back(i);
         }
 
-        if (IS32.size() > 0)
+        if (!IS32.empty())
         {
-            _stateGL->polygonOffset(true, 1.0f, 1.0f);
-            _stateGL->depthMask(false);
-            _stateGL->depthTest(false);
+            stateGL->polygonOffset(true, 1.0f, 1.0f);
+            stateGL->depthMask(false);
+            stateGL->depthTest(false);
             _vaoS.clearAttribs();
             _vaoS.setIndices(&IS32);
             _vaoS.generateVertexPos(_finalP);
             _vaoS.drawElementAsColored(PT_points, SLCol4f::YELLOW, 2);
-            _stateGL->polygonLine(false);
-            _stateGL->polygonOffset(false);
-            _stateGL->depthMask(true);
-            _stateGL->depthTest(true);
+            stateGL->polygonLine(false);
+            stateGL->polygonOffset(false);
+            stateGL->depthMask(true);
+            stateGL->depthTest(true);
             node->drawBits()->on(SL_DB_SELECTED);
         }
         else
@@ -552,7 +550,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             node->drawBits()->off(SL_DB_SELECTED);
     }
 
-    if (blended) _stateGL->blend(true);
+    if (blended) stateGL->blend(true);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -967,7 +965,7 @@ void SLMesh::calcTex3DMatrix(SLNode* node)
     SLfloat s      = 1.0f / (2.0f * maxExt);
 
     // scale and translate the texture matrix
-    SLGLState* stateGL = SLGLState::getInstance();
+    SLGLState* stateGL = SLGLState::instance();
     stateGL->textureMatrix.identity();
     stateGL->textureMatrix.scale(s);
     stateGL->textureMatrix.translate(-ctr);
@@ -1142,7 +1140,7 @@ void SLMesh::preShade(SLRay* ray)
 
     // calculate interpolated texture coordinates
     SLVGLTexture& textures = ray->hitMesh->mat()->textures();
-    if (textures.size() > 0 && Tc.size() > 0)
+    if (!textures.empty() && !Tc.empty())
     {
         SLVec2f Tu(Tc[iB] - Tc[iA]);
         SLVec2f Tv(Tc[iC] - Tc[iA]);

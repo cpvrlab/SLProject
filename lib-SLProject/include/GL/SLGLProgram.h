@@ -125,7 +125,6 @@ class SLGLProgram : public SLObject
     static SLstring defaultPath; //!< default path for GLSL programs
 
     private:
-    SLGLState*   _stateGL;    //!< Pointer to global SLGLState instance
     SLuint       _objectGL;   //!< OpenGL shader program object
     SLbool       _isLinked;   //!< Flag if program is linked
     SLVGLShader  _shaders;    //!< Vector of all shader objects

@@ -208,7 +208,7 @@ void SLCVCapture::adjustForSL()
     captureSize = SLCVCapture::lastFrame.size();
 
     // Determine active size index if unset or changed
-    if (camSizes.size() > 0)
+    if (!camSizes.empty())
     {
         SLCVSize activeSize(0, 0);
 

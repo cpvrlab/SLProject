@@ -109,7 +109,7 @@ SLbool SLGLShader::createAndCompile()
         }
 
         // Build version string as the first statement
-        SLGLState* state      = SLGLState::getInstance();
+        SLGLState* state      = SLGLState::instance();
         SLstring   verGLSL    = state->glSLVersionNO();
         SLstring   srcVersion = "#version " + verGLSL;
         if (state->glIsES3()) srcVersion += " es";

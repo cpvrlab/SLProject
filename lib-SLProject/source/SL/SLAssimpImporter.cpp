@@ -498,7 +498,7 @@ void SLAssimpImporter::findSkeletonRoot()
 {
     _skeletonRoot = nullptr;
     // early out if we don't have any joint bindings
-    if (_jointOffsets.size() == 0) return;
+    if (_jointOffsets.empty()) return;
 
     vector<SLVaiNode> ancestorList(_jointOffsets.size());
     SLint             minDepth = INT_MAX;
@@ -1068,7 +1068,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
     logMessage(LV_normal, " Num channels: %d\n", anim->mNumChannels);
 
     // exit if we didn't load a skeleton but have animations for one
-    if (_skinnedMeshes.size() > 0)
+    if (!_skinnedMeshes.empty())
         assert(_skeleton != nullptr && "The skeleton wasn't impoted correctly.");
 
     // create the animation

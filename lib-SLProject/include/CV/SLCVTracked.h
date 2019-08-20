@@ -23,7 +23,6 @@ for a good top down information.
 #include <SLCV.h>
 #include <SLCVCalibration.h>
 #include <SLNode.h>
-#include <SLSceneView.h>
 #include <opencv2/aruco.hpp>
 #include <opencv2/xfeatures2d.hpp>
 
@@ -52,9 +51,9 @@ class SLCVTracked
 
     SLMat4f createGLMatrix(const SLCVMat& tVec,
                            const SLCVMat& rVec);
-    void    createRvecTvec(const SLMat4f glMat,
-                           SLCVMat&      tVec,
-                           SLCVMat&      rVec);
+    void    createRvecTvec(SLMat4f  glMat,
+                           SLCVMat& tVec,
+                           SLCVMat& rVec);
     SLMat4f calcObjectMatrix(const SLMat4f& cameraObjectMat,
                              const SLMat4f& objectViewMat);
 
@@ -65,5 +64,7 @@ class SLCVTracked
     SLbool  _isVisible;     //!< Flag if marker is visible
     SLMat4f _objectViewMat; //!< view transformation matrix
 };
+//-----------------------------------------------------------------------------
+typedef std::vector<SLCVTracked*> SLVCVTracked; //!< Vector of CV tracker pointer
 //-----------------------------------------------------------------------------
 #endif

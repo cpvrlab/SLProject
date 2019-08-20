@@ -129,7 +129,7 @@ void SLGLImGui::createOpenGLObjects()
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
 
     // Build version string as the first statement
-    SLGLState* state         = SLGLState::getInstance();
+    SLGLState* state         = SLGLState::instance();
     SLstring   verGLSL       = state->glSLVersionNO();
     SLstring   vertex_shader = "#version " + verGLSL;
     if (state->glIsES3()) vertex_shader += " es";

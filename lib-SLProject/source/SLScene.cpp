@@ -20,7 +20,6 @@
 #include <SLCVCapture.h>
 #include <SLCVTracked.h>
 #include <SLCVTrackedAruco.h>
-#include <SLDeviceLocation.h>
 #include <SLInputManager.h>
 #include <SLLightDirect.h>
 #include <SLScene.h>
@@ -97,22 +96,21 @@ SLScene::SLScene(SLstring      name,
     // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
     // In the constructor they are added the _shaderProgs vector
     // If you add a new shader here you have to update the SLShaderProgs enum accordingly.
-    SLGLProgram* p;
-    p = new SLGLGenericProgram("ColorAttribute.vert", "Color.frag");
-    p = new SLGLGenericProgram("ColorUniform.vert", "Color.frag");
-    p = new SLGLGenericProgram("PerVrtBlinn.vert", "PerVrtBlinn.frag");
-    p = new SLGLGenericProgram("PerVrtBlinnColorAttrib.vert", "PerVrtBlinn.frag");
-    p = new SLGLGenericProgram("PerVrtBlinnTex.vert", "PerVrtBlinnTex.frag");
-    p = new SLGLGenericProgram("TextureOnly.vert", "TextureOnly.frag");
-    p = new SLGLGenericProgram("PerPixBlinn.vert", "PerPixBlinn.frag");
-    p = new SLGLGenericProgram("PerPixBlinnTex.vert", "PerPixBlinnTex.frag");
-    p = new SLGLGenericProgram("PerPixCookTorrance.vert", "PerPixCookTorrance.frag");
-    p = new SLGLGenericProgram("PerPixCookTorranceTex.vert", "PerPixCookTorranceTex.frag");
-    p = new SLGLGenericProgram("BumpNormal.vert", "BumpNormal.frag");
-    p = new SLGLGenericProgram("BumpNormal.vert", "BumpNormalParallax.frag");
-    p = new SLGLGenericProgram("FontTex.vert", "FontTex.frag");
-    p = new SLGLGenericProgram("StereoOculus.vert", "StereoOculus.frag");
-    p = new SLGLGenericProgram("StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag");
+    new SLGLGenericProgram("ColorAttribute.vert", "Color.frag");
+    new SLGLGenericProgram("ColorUniform.vert", "Color.frag");
+    new SLGLGenericProgram("PerVrtBlinn.vert", "PerVrtBlinn.frag");
+    new SLGLGenericProgram("PerVrtBlinnColorAttrib.vert", "PerVrtBlinn.frag");
+    new SLGLGenericProgram("PerVrtBlinnTex.vert", "PerVrtBlinnTex.frag");
+    new SLGLGenericProgram("TextureOnly.vert", "TextureOnly.frag");
+    new SLGLGenericProgram("PerPixBlinn.vert", "PerPixBlinn.frag");
+    new SLGLGenericProgram("PerPixBlinnTex.vert", "PerPixBlinnTex.frag");
+    new SLGLGenericProgram("PerPixCookTorrance.vert", "PerPixCookTorrance.frag");
+    new SLGLGenericProgram("PerPixCookTorranceTex.vert", "PerPixCookTorranceTex.frag");
+    new SLGLGenericProgram("BumpNormal.vert", "BumpNormal.frag");
+    new SLGLGenericProgram("BumpNormal.vert", "BumpNormalParallax.frag");
+    new SLGLGenericProgram("FontTex.vert", "FontTex.frag");
+    new SLGLGenericProgram("StereoOculus.vert", "StereoOculus.frag");
+    new SLGLGenericProgram("StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag");
 
     _numProgsPreload = (SLint)_programs.size();
 
@@ -185,7 +183,7 @@ void SLScene::init()
     unInit();
 
     // reset all states
-    SLGLState::getInstance()->initAll();
+    SLGLState::instance()->initAll();
 
     _globalAmbiLight.set(0.2f, 0.2f, 0.2f, 0.0f);
     _selectedNode = nullptr;
@@ -533,7 +531,7 @@ bool SLScene::onUpdate()
     // The updateAABBRec call won't generate any overhead if nothing changed
     SLfloat startAAABBUpdateMS = timeMilliSec();
     SLNode::numWMUpdates       = 0;
-    SLGLState::getInstance()->modelViewMatrix.identity();
+    SLGLState::instance()->modelViewMatrix.identity();
     if (_root3D)
         _root3D->updateAABBRec();
     if (_root2D)
@@ -771,7 +769,7 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
 
     vector<SLCamera*> cams = _root3D->findChildren<SLCamera>();
 
-    if (cams.size() == 0) return nullptr;
+    if (cams.empty()) return nullptr;
     if (cams.size() == 1) return cams[0];
 
     SLint activeIndex = 0;

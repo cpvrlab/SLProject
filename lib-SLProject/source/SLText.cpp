@@ -44,7 +44,7 @@ SLText::shapeDraw draws the text buffer objects
 */
 void SLText::drawRec(SLSceneView* sv)
 {
-    if (_drawBits.get(SL_DB_HIDDEN) || !_stateGL->blend()) return;
+    if (_drawBits.get(SL_DB_HIDDEN) || !SLGLState::instance()->blend()) return;
 
     // create buffer object for text once
     if (!_vao.id())
@@ -58,7 +58,7 @@ void SLText::drawRec(SLSceneView* sv)
 
     // Setup shader
     SLGLProgram* sp    = SLApplication::scene->programs(SP_fontTex);
-    SLGLState*   state = SLGLState::getInstance();
+    SLGLState*   state = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
     sp->uniform4fv("u_textColor", 1, (float*)&_color);

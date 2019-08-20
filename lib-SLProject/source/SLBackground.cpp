@@ -112,7 +112,7 @@ We render the quad as a triangle strip: <br>
 */
 void SLBackground::render(SLint widthPX, SLint heightPX)
 {
-    SLGLState* stateGL = SLGLState::getInstance();
+    SLGLState* stateGL = SLGLState::instance();
     SLScene*   s       = SLApplication::scene;
 
     // Set orthographic projection
@@ -196,7 +196,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
 */
 void SLBackground::renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB)
 {
-    SLGLState* stateGL = SLGLState::getInstance();
+    SLGLState* stateGL = SLGLState::instance();
     SLScene*   s       = SLApplication::scene;
 
     // Get shader program

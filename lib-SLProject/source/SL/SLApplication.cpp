@@ -142,7 +142,7 @@ void SLApplication::handleParallelJob()
 {
     // Execute queued jobs in a parallel thread
     if (!SLApplication::jobIsRunning &&
-        SLApplication::jobsToBeThreaded.size() > 0)
+        !SLApplication::jobsToBeThreaded.empty())
     {
         function<void(void)> job = SLApplication::jobsToBeThreaded.front();
         thread               jobThread(job);
@@ -153,8 +153,8 @@ void SLApplication::handleParallelJob()
 
     // Execute the jobs to follow in the this (the main) thread
     if (!SLApplication::jobIsRunning &&
-        SLApplication::jobsToBeThreaded.size() == 0 &&
-        SLApplication::jobsToFollowInMain.size() > 0)
+        SLApplication::jobsToBeThreaded.empty() &&
+        !SLApplication::jobsToFollowInMain.empty())
     {
         for (auto jobToFollow : SLApplication::jobsToFollowInMain)
             jobToFollow();

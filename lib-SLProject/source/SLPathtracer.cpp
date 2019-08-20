@@ -21,11 +21,8 @@ using namespace std::chrono;
 #include <SLApplication.h>
 #include <SLCamera.h>
 #include <SLLightRect.h>
-#include <SLLightSpot.h>
 #include <SLPathtracer.h>
 #include <SLSceneView.h>
-#include <SLText.h>
-#include <SLVolume.h>
 
 extern SLfloat rnd01();
 
@@ -47,7 +44,6 @@ SLPathtracer::render(SLSceneView* sv)
 {
     _sv         = sv;
     _state      = rtBusy;                   // From here we state the PT as busy
-    _stateGL    = SLGLState::getInstance(); // OpenGL state shortcut
     _renderSec  = 0.0f;                     // reset time
     _pcRendered = 0;                        // % rendered
 

@@ -400,7 +400,7 @@ GLuint glUtils::build3DTexture(const vector<string>&    files,
     glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &maxSize);
 
     //The checks takes up valuable runtime; only do it in debug builds
-    assert(files.size() > 0);
+    assert(!files.empty());
 
     SLCVImage first(files.front());
     if ((GLint)min(min((SLuint)files.size(), first.height()), first.width()) > maxSize)

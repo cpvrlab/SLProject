@@ -54,16 +54,16 @@ class SLRaytracer : public SLGLTexture
 {
     public:
     SLRaytracer();
-    virtual ~SLRaytracer();
+    ~SLRaytracer() override;
 
     // ray tracer functions
     SLbool  renderClassic(SLSceneView* sv);
     SLbool  renderDistrib(SLSceneView* sv);
-    void    renderSlices(const bool isMainThread);
-    void    renderSlicesMS(const bool isMainThread);
+    void    renderSlices(bool isMainThread);
+    void    renderSlicesMS(bool isMainThread);
     SLCol4f trace(SLRay* ray);
     SLCol4f shade(SLRay* ray);
-    void    sampleAAPixels(const bool isMainThread);
+    void    sampleAAPixels(bool isMainThread);
     void    finishBeforeUpdate();
 
     // additional ray tracer functions

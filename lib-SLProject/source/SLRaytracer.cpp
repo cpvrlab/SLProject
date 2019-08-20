@@ -17,13 +17,10 @@ using namespace std::placeholders;
 using namespace std::chrono;
 
 #include <SLApplication.h>
-#include <SLCamera.h>
 #include <SLLightRect.h>
-#include <SLLightSpot.h>
 #include <SLRay.h>
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
-#include <SLText.h>
 
 //-----------------------------------------------------------------------------
 SLRaytracer::SLRaytracer()
@@ -60,17 +57,16 @@ illumination calculation.
 SLbool SLRaytracer::renderClassic(SLSceneView* sv)
 {
     _sv         = sv;
-    _state      = rtBusy;                   // From here we state the RT as busy
-    _stateGL    = SLGLState::getInstance(); // OpenGL state shortcut
-    _pcRendered = 0;                        // % rendered
-    _renderSec  = 0.0f;                     // reset time
+    _state      = rtBusy; // From here we state the RT as busy
+    _pcRendered = 0;      // % rendered
+    _renderSec  = 0.0f;   // reset time
 
     initStats(_maxDepth); // init statistics
     prepareImage();       // Setup image & precalculations
 
     // Measure time
-    double  t1           = SLApplication::scene->timeSec();
-    double  tStart       = t1;
+    double t1     = SLApplication::scene->timeSec();
+    double tStart = t1;
 
     for (SLuint y = 0; y < _images[0]->height(); ++y)
     {
@@ -126,10 +122,9 @@ This is the main rendering method for parallel and distributed ray tracing.
 SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
 {
     _sv         = sv;
-    _state      = rtBusy;                   // From here we state the RT as busy
-    _stateGL    = SLGLState::getInstance(); // OpenGL state shortcut
-    _pcRendered = 0;                        // % rendered
-    _renderSec  = 0.0f;                     // reset time
+    _state      = rtBusy; // From here we state the RT as busy
+    _pcRendered = 0;      // % rendered
+    _renderSec  = 0.0f;   // reset time
 
     initStats(_maxDepth); // init statistics
     prepareImage();       // Setup image & precalculations
@@ -202,7 +197,7 @@ main thread is allowed to call a repaint of the image.
 void SLRaytracer::renderSlices(const bool isMainThread)
 {
     // Time points
-    double  t1           = 0;
+    double t1 = 0;
 
     while (_next < (SLint)_images[0]->height())
     {
@@ -401,7 +396,7 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
         }
     }
 
-    if (_stateGL->fogIsOn)
+    if (SLGLState::instance()->fogIsOn)
         color = fogBlend(ray->length, color);
 
     color.clampMinMax(0, 1);
@@ -611,7 +606,7 @@ main thread is allowed to call a repaint of the image.
 void SLRaytracer::sampleAAPixels(const bool isMainThread)
 {
     assert(_aaSamples % 2 == 1 && "subSample: maskSize must be uneven");
-    double  t1 = 0, t2 = 0;
+    double t1 = 0, t2 = 0;
 
     while (_next < (SLint)_aaPixels.size())
     {
@@ -674,18 +669,22 @@ calculation. See OpenGL docs for more information on fog properties.
 */
 SLCol4f SLRaytracer::fogBlend(SLfloat z, SLCol4f color)
 {
-    SLfloat f = 0.0f;
-    if (z > _sv->_camera->clipFar()) z = _sv->_camera->clipFar();
-    switch (_stateGL->fogMode)
+    SLfloat    f;
+    SLGLState* stateGL = SLGLState::instance();
+
+    if (z > _sv->_camera->clipFar())
+        z = _sv->_camera->clipFar();
+
+    switch (stateGL->fogMode)
     {
         case 0:
-            f = (_stateGL->fogDistEnd - z) /
-                (_stateGL->fogDistEnd - _stateGL->fogDistStart);
+            f = (stateGL->fogDistEnd - z) /
+                (stateGL->fogDistEnd - stateGL->fogDistStart);
             break;
-        case 1: f = exp(-_stateGL->fogDensity * z); break;
-        default: f = exp(-_stateGL->fogDensity * z * _stateGL->fogDensity * z); break;
+        case 1: f = exp(-stateGL->fogDensity * z); break;
+        default: f = exp(-stateGL->fogDensity * z * stateGL->fogDensity * z); break;
     }
-    color = f * color + (1 - f) * _stateGL->fogColor;
+    color = f * color + (1 - f) * stateGL->fogColor;
     color.clampMinMax(0, 1);
     return color;
 }
@@ -796,7 +795,7 @@ void SLRaytracer::prepareImage()
     }
 
     // Create the image for the first time
-    if (_images.size() == 0)
+    if (_images.empty())
         _images.push_back(new SLCVImage(_sv->scrW(), _sv->scrH(), PF_rgb, "Raytracer"));
 
     // Allocate image of the inherited texture class
@@ -829,16 +828,17 @@ void SLRaytracer::renderImage()
     if (SL_abs(_images[0]->height() - h) > 0.0001f) return;
 
     // Set orthographic projection with the size of the window
-    _stateGL->projectionMatrix.ortho(0.0f, w, 0.0f, h, -1.0f, 0.0f);
-    _stateGL->modelViewMatrix.identity();
-    _stateGL->clearColorBuffer();
-    _stateGL->depthTest(false);
-    _stateGL->multiSample(false);
-    _stateGL->polygonLine(false);
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->projectionMatrix.ortho(0.0f, w, 0.0f, h, -1.0f, 0.0f);
+    stateGL->modelViewMatrix.identity();
+    stateGL->clearColorBuffer();
+    stateGL->depthTest(false);
+    stateGL->multiSample(false);
+    stateGL->polygonLine(false);
 
     drawSprite(true);
 
-    _stateGL->depthTest(true);
+    stateGL->depthTest(true);
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
@@ -860,6 +860,6 @@ finish our UI and end OpenGL rendering properly.
 void SLRaytracer::finishBeforeUpdate()
 {
     ImGui::Render();
-    _stateGL->unbindAnythingAndFlush();
+    SLGLState::instance()->unbindAnythingAndFlush();
 }
 //-----------------------------------------------------------------------------

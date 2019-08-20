@@ -34,7 +34,17 @@ static const SLint SL_MAX_LIGHTS = 8; //!< max. number of used lights
 class SLGLState
 {
     public:
-    static SLGLState* getInstance();                    //!< global creator & getter
+    //! Public static instance getter for singleton pattern
+    static SLGLState* instance()
+    {
+        if (!_instance)
+        {
+            _instance = new SLGLState();
+            return _instance;
+        }
+        else
+            return _instance;
+    }
     static void       deleteInstance();                 //!< global destruction
     void              onInitialize(SLCol4f clearColor); //!< On init GL
     void              initAll();                        //! Init all states
@@ -159,7 +169,7 @@ class SLGLState
     SLGLState();  //!< private onetime constructor
     ~SLGLState(); //!< destruction in ~SLScene
 
-    static SLGLState* instance; //!< global singleton object
+    static SLGLState* _instance; //!< global singleton object
 
     SLbool   _isInitialized;        //!< flag for first init
     SLMat4f  _invModelViewMatrix;   //!< inverse modelview transform

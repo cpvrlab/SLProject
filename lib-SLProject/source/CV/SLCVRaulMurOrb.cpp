@@ -541,17 +541,17 @@ SLCVVKeyPoint SLCVRaulMurOrb::DistributeOctTree(const SLCVVKeyPoint& vToDistribu
                 lit->DivideNode(n1, n2, n3, n4);
 
                 // Add childs if they contain points
-                if (n1.vKeys.size() > 0)
+                if (!n1.vKeys.empty())
                 {
                     lNodes.push_front(n1);
-                    if (n1.vKeys.size() > 1)
+                    if (!n1.vKeys.empty())
                     {
                         nToExpand++;
                         vSizeAndPointerToNode.push_back(make_pair(n1.vKeys.size(), &lNodes.front()));
                         lNodes.front().lit = lNodes.begin();
                     }
                 }
-                if (n2.vKeys.size() > 0)
+                if (!n2.vKeys.empty())
                 {
                     lNodes.push_front(n2);
                     if (n2.vKeys.size() > 1)
@@ -561,7 +561,7 @@ SLCVVKeyPoint SLCVRaulMurOrb::DistributeOctTree(const SLCVVKeyPoint& vToDistribu
                         lNodes.front().lit = lNodes.begin();
                     }
                 }
-                if (n3.vKeys.size() > 0)
+                if (!n3.vKeys.empty())
                 {
                     lNodes.push_front(n3);
                     if (n3.vKeys.size() > 1)
@@ -571,7 +571,7 @@ SLCVVKeyPoint SLCVRaulMurOrb::DistributeOctTree(const SLCVVKeyPoint& vToDistribu
                         lNodes.front().lit = lNodes.begin();
                     }
                 }
-                if (n4.vKeys.size() > 0)
+                if (!n4.vKeys.empty())
                 {
                     lNodes.push_front(n4);
                     if (n4.vKeys.size() > 1)
@@ -610,7 +610,7 @@ SLCVVKeyPoint SLCVRaulMurOrb::DistributeOctTree(const SLCVVKeyPoint& vToDistribu
                     vPrevSizeAndPointerToNode[(SLuint)j].second->DivideNode(n1, n2, n3, n4);
 
                     // Add childs if they contain points
-                    if (n1.vKeys.size() > 0)
+                    if (!n1.vKeys.empty())
                     {
                         lNodes.push_front(n1);
                         if (n1.vKeys.size() > 1)
@@ -619,7 +619,7 @@ SLCVVKeyPoint SLCVRaulMurOrb::DistributeOctTree(const SLCVVKeyPoint& vToDistribu
                             lNodes.front().lit = lNodes.begin();
                         }
                     }
-                    if (n2.vKeys.size() > 0)
+                    if (!n2.vKeys.empty())
                     {
                         lNodes.push_front(n2);
                         if (n2.vKeys.size() > 1)
@@ -628,7 +628,7 @@ SLCVVKeyPoint SLCVRaulMurOrb::DistributeOctTree(const SLCVVKeyPoint& vToDistribu
                             lNodes.front().lit = lNodes.begin();
                         }
                     }
-                    if (n3.vKeys.size() > 0)
+                    if (!n3.vKeys.empty())
                     {
                         lNodes.push_front(n3);
                         if (n3.vKeys.size() > 1)
@@ -637,7 +637,7 @@ SLCVVKeyPoint SLCVRaulMurOrb::DistributeOctTree(const SLCVVKeyPoint& vToDistribu
                             lNodes.front().lit = lNodes.begin();
                         }
                     }
-                    if (n4.vKeys.size() > 0)
+                    if (!n4.vKeys.empty())
                     {
                         lNodes.push_front(n4);
                         if (n4.vKeys.size() > 1)

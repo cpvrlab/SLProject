@@ -24,6 +24,8 @@
 #include <SLNode.h>
 #include <SLSceneView.h>
 
+#include <utility>
+
 //-----------------------------------------------------------------------------
 // Static update counter
 SLuint SLNode::numWMUpdates = 0;
@@ -31,9 +33,8 @@ SLuint SLNode::numWMUpdates = 0;
 /*!
 Default constructor just setting the name.
 */
-SLNode::SLNode(SLstring name) : SLObject(name)
+SLNode::SLNode(const SLstring& name) : SLObject(name)
 {
-    _stateGL = SLGLState::getInstance();
     _parent  = nullptr;
     _depth   = 1;
     _om.identity();
@@ -50,9 +51,8 @@ SLNode::SLNode(SLstring name) : SLObject(name)
 /*!
 Constructor with a mesh pointer and name.
 */
-SLNode::SLNode(SLMesh* mesh, SLstring name) : SLObject(name)
+SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
 {
-    _stateGL = SLGLState::getInstance();
     _parent  = nullptr;
     _depth   = 1;
     _om.identity();
@@ -82,8 +82,7 @@ SLNode::~SLNode()
         delete child;
     _children.clear();
 
-    if (_animation)
-        delete _animation;
+    delete _animation;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -135,7 +134,7 @@ Removes the last mesh.
 */
 bool SLNode::removeMesh()
 {
-    if (_meshes.size() > 0)
+    if (!_meshes.empty())
     {
         _meshes.pop_back();
         return true;
@@ -149,7 +148,7 @@ Removes the specified mesh from the vector.
 bool SLNode::removeMesh(SLMesh* mesh)
 {
     assert(mesh);
-    for (SLuint i = 0; i < _meshes.size(); ++i)
+    for (SLulong i = 0; i < _meshes.size(); ++i)
     {
         if (_meshes[i] == mesh)
         {
@@ -166,7 +165,7 @@ Removes the specified mesh by name from the vector.
 bool SLNode::removeMesh(SLstring name)
 {
     assert(name != "");
-    SLMesh* found = findMesh(name);
+    SLMesh* found = findMesh(std::move(name));
     if (found)
         return removeMesh(found);
     return false;
@@ -179,7 +178,7 @@ mesh. The mesh is also removed from scene
 SLbool SLNode::deleteMesh(SLMesh* mesh)
 {
     assert(mesh);
-    for (SLuint i = 0; i < _meshes.size(); ++i)
+    for (SLulong i = 0; i < _meshes.size(); ++i)
     {
         if (_meshes[i] == mesh)
         {
@@ -198,13 +197,13 @@ SLbool SLNode::deleteMesh(SLMesh* mesh)
 //-----------------------------------------------------------------------------
 /*!
 */
-SLMesh* SLNode::findMesh(SLstring name, SLbool recursive)
+SLMesh* SLNode::findMesh(const SLstring& name, SLbool recursive)
 {
     assert(name != "");
     for (auto mesh : _meshes)
         if (mesh->name() == name) return mesh;
 
-    if (recursive && children().size() > 0)
+    if (recursive && !children().empty())
     {
         for (auto child : _children)
         {
@@ -237,7 +236,7 @@ void SLNode::setAllMeshMaterials(SLMaterial* mat, SLbool recursive)
             _aabb.hasAlpha(true);
     }
 
-    if (recursive && children().size() > 0)
+    if (recursive && !children().empty())
         for (auto child : _children)
             child->setAllMeshMaterials(mat, recursive);
 }
@@ -288,9 +287,10 @@ the opaque pass only the opaque meshes.
 */
 void SLNode::drawMeshes(SLSceneView* sv)
 {
+    SLGLState* stateGL = SLGLState::instance();
     for (auto mesh : _meshes)
-        if ((_stateGL->blend() && mesh->mat()->hasAlpha()) ||
-            (!_stateGL->blend() && !mesh->mat()->hasAlpha()))
+        if ((stateGL->blend() && mesh->mat()->hasAlpha()) ||
+            (!stateGL->blend() && !mesh->mat()->hasAlpha()))
             mesh->draw(sv, this);
 }
 //-----------------------------------------------------------------------------
@@ -335,8 +335,8 @@ Deletes all child nodes.
 */
 void SLNode::deleteChildren()
 {
-    for (SLuint i = 0; i < _children.size(); ++i)
-        delete _children[i];
+    for (auto & i : _children)
+        delete i;
     _children.clear();
 }
 //-----------------------------------------------------------------------------
@@ -345,7 +345,7 @@ Deletes the last child in the child vector.
 */
 bool SLNode::deleteChild()
 {
-    if (_children.size() > 0)
+    if (!_children.empty())
     {
         delete _children.back();
         _children.pop_back();
@@ -361,7 +361,7 @@ Deletes a child from the child vector.
 bool SLNode::deleteChild(SLNode* child)
 {
     assert(child);
-    for (SLuint i = 0; i < _children.size(); ++i)
+    for (SLulong i = 0; i < _children.size(); ++i)
     {
         if (_children[i] == child)
         {
@@ -377,7 +377,7 @@ bool SLNode::deleteChild(SLNode* child)
 /*!
 Searches for a child with the name 'name' and deletes it.
 */
-bool SLNode::deleteChild(SLstring name)
+bool SLNode::deleteChild(const SLstring& name)
 {
     assert(name != "");
     SLNode* found = findChild<SLNode>(name);
@@ -511,9 +511,10 @@ void SLNode::drawRec(SLSceneView* sv)
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() && !_aabb.isVisible()) return;
 
-    _stateGL->pushModelViewMatrix();
-    _stateGL->modelViewMatrix.multiply(_om.m());
-    _stateGL->buildInverseAndNormalMatrix();
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->pushModelViewMatrix();
+    stateGL->modelViewMatrix.multiply(_om.m());
+    stateGL->buildInverseAndNormalMatrix();
 
     ///////////////
     drawMeshes(sv);
@@ -522,7 +523,7 @@ void SLNode::drawRec(SLSceneView* sv)
     for (auto child : _children)
         child->drawRec(sv);
 
-    _stateGL->popModelViewMatrix();
+    stateGL->popModelViewMatrix();
 
     // Draw axis aligned bounding box
     SLbool showBBOX   = sv->drawBit(SL_DB_BBOX) || drawBit(SL_DB_BBOX);
@@ -530,13 +531,13 @@ void SLNode::drawRec(SLSceneView* sv)
     SLbool showSELECT = drawBit(SL_DB_SELECTED);
     if (showBBOX || showAXIS || showSELECT)
     {
-        _stateGL->pushModelViewMatrix();
-        _stateGL->modelViewMatrix.setMatrix(sv->camera()->updateAndGetVM().m());
+        stateGL->pushModelViewMatrix();
+        stateGL->modelViewMatrix.setMatrix(sv->camera()->updateAndGetVM().m());
 
         // Draw AABB of all other shapes only
         if (showBBOX && !showSELECT)
         {
-            if (_meshes.size() > 0)
+            if (!_meshes.empty())
                 _aabb.drawWS(SLCol3f(1, 0, 0));
             else
                 _aabb.drawWS(SLCol3f(1, 0, 1));
@@ -549,7 +550,7 @@ void SLNode::drawRec(SLSceneView* sv)
         if (showSELECT)
             _aabb.drawWS(SLCol3f(1, 1, 0));
 
-        _stateGL->popModelViewMatrix();
+        stateGL->popModelViewMatrix();
     }
 }
 //-----------------------------------------------------------------------------
@@ -562,7 +563,7 @@ void SLNode::statsRec(SLNodeStats& stats)
     stats.numBytes += sizeof(SLNode);
     stats.numNodes++;
 
-    if (_children.size() == 0)
+    if (_children.empty())
         stats.numLeafNodes++;
     else
         stats.numGroupNodes++;
@@ -602,7 +603,7 @@ bool SLNode::hitRec(SLRay* ray)
     SLbool meshWasHit = false;
 
     // Transform ray to object space for non-groups
-    if (_meshes.size() > 0)
+    if (!_meshes.empty())
     {
         // transform origin position to object space
         ray->originOS.set(updateAndGetWMI().multVec(ray->origin));
@@ -805,7 +806,7 @@ SLNode::updateAABBRec()
         return _aabb;
 
     // empty the AABB (= max negative AABB)
-    if (_meshes.size() > 0 || _children.size() > 0)
+    if (!_meshes.empty() || !_children.empty())
     {
         _aabb.minWS(SLVec3f(FLT_MAX, FLT_MAX, FLT_MAX));
         _aabb.maxWS(SLVec3f(-FLT_MAX, -FLT_MAX, -FLT_MAX));
@@ -830,7 +831,7 @@ SLNode::updateAABBRec()
         bool childIsCamera = typeid(*child)==typeid(SLCamera);
         bool cameraHasChildren = false;
         if (childIsCamera)
-            cameraHasChildren = child->children().size() > 0;
+            cameraHasChildren = !child->children().empty();
 
         if (!childIsCamera || cameraHasChildren)
         */
@@ -858,7 +859,7 @@ void SLNode::dumpRec()
     cout << "Node: " << _name << endl;
 
     // dump meshes of node
-    if (_meshes.size() > 0)
+    if (!_meshes.empty())
     {
         for (auto mesh : _meshes)
         {
