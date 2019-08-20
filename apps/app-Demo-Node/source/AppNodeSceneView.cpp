@@ -176,8 +176,8 @@ void NewNodeSceneView::postSceneLoad()
 //-----------------------------------------------------------------------------
 void NewNodeSceneView::preDraw()
 {
-    static SLfloat lastTime    = SLApplication::scene->timeSec();
-    SLfloat        currentTime = SLApplication::scene->timeSec();
+    static SLfloat lastTime    = SLApplication::timeS();
+    SLfloat        currentTime = SLApplication::timeS();
     _deltaTime                 = currentTime - lastTime;
     lastTime                   = currentTime;
 

@@ -20,8 +20,6 @@
 #include <SLMaterial.h>
 #include <SLMesh.h>
 #include <SLRect.h>
-#include <SLTimer.h>
-#include <SLCVTracked.h>
 #include <SLVec3.h>
 #include <SLVec4.h>
 #include <utility>
@@ -65,7 +63,6 @@ class SLScene : public SLObject
     void root2D(SLNode* root2D) { _root2D = root2D; }
     void globalAmbiLight(const SLCol4f& gloAmbi) { _globalAmbiLight = gloAmbi; }
     void stopAnimations(SLbool stop) { _stopAnimations = stop; }
-    void showDetection(SLbool st) { _showDetection = st; }
     void info(SLstring i) { _info = std::move(i); }
 
     // Getters
@@ -84,19 +81,11 @@ class SLScene : public SLObject
     SLfloat       fps() { return _fps; }
     SLAvgFloat&   frameTimesMS() { return _frameTimesMS; }
     SLAvgFloat&   updateTimesMS() { return _updateTimesMS; }
-    SLAvgFloat&   trackingTimesMS() { return _trackingTimesMS; }
-    SLAvgFloat&   detectTimesMS() { return _detectTimesMS; }
-    SLAvgFloat&   detect1TimesMS() { return _detect1TimesMS; }
-    SLAvgFloat&   detect2TimesMS() { return _detect2TimesMS; }
-    SLAvgFloat&   matchTimesMS() { return _matchTimesMS; }
-    SLAvgFloat&   optFlowTimesMS() { return _optFlowTimesMS; }
-    SLAvgFloat&   poseTimesMS() { return _poseTimesMS; }
     SLAvgFloat&   updateAnimTimesMS() { return _updateAnimTimesMS; }
     SLAvgFloat&   updateAABBTimesMS() { return _updateAABBTimesMS; }
     SLAvgFloat&   cullTimesMS() { return _cullTimesMS; }
     SLAvgFloat&   draw2DTimesMS() { return _draw2DTimesMS; }
     SLAvgFloat&   draw3DTimesMS() { return _draw3DTimesMS; }
-    SLAvgFloat&   vsyncTimesMS() { return _vsyncTimesMS; }
     SLVMaterial&  materials() { return _materials; }
     SLVMesh&      meshes() { return _meshes; }
     SLVGLTexture& textures() { return _textures; }
@@ -109,10 +98,6 @@ class SLScene : public SLObject
     SLGLOculus*   oculus() { return &_oculus; }
     SLint         numSceneCameras();
     SLCamera*     nextCameraInScene(SLSceneView* activeSV);
-
-    // Video stuff
-    SLVCVTracked& trackers() { return _trackers; }
-    SLbool        showDetection() { return _showDetection; }
 
     cbOnSceneLoad onLoad; //!< C-Callback for scene load
 
@@ -155,30 +140,16 @@ class SLScene : public SLObject
     SLAvgFloat _frameTimesMS;     //!< Averaged total time per frame in ms
 
     // major part times
-    SLAvgFloat _vsyncTimesMS;   //!< Averaged time for vertical sync in ms
-    SLAvgFloat _updateTimesMS;  //!< Averaged time for update in ms
-    SLAvgFloat _cullTimesMS;    //!< Averaged time for culling in ms
-    SLAvgFloat _draw3DTimesMS;  //!< Averaged time for 3D drawing in ms
-    SLAvgFloat _draw2DTimesMS;  //!< Averaged time for 2D drawing in ms
-
-    // minor part times of update traversal
-    SLAvgFloat _trackingTimesMS;   //!< Averaged time for video tracking in ms
-    SLAvgFloat _detectTimesMS;     //!< Averaged time for video feature detection & description in ms
-    SLAvgFloat _detect1TimesMS;    //!< Averaged time for video feature detection subpart 1 in ms
-    SLAvgFloat _detect2TimesMS;    //!< Averaged time for video feature detection subpart 2 in ms
-    SLAvgFloat _matchTimesMS;      //!< Averaged time for video feature matching in ms
-    SLAvgFloat _optFlowTimesMS;    //!< Averaged time for video feature optical flow tracking in ms
-    SLAvgFloat _poseTimesMS;       //!< Averaged time for video feature pose estimation in ms
+    SLAvgFloat _updateTimesMS;     //!< Averaged time for update in ms
+    SLAvgFloat _cullTimesMS;       //!< Averaged time for culling in ms
+    SLAvgFloat _draw3DTimesMS;     //!< Averaged time for 3D drawing in ms
+    SLAvgFloat _draw2DTimesMS;     //!< Averaged time for 2D drawing in ms
     SLAvgFloat _updateAABBTimesMS; //!< Averaged time for update the nodes AABB in ms
     SLAvgFloat _updateAnimTimesMS; //!< Averaged time for update the animations in ms
 
     SLbool _stopAnimations; //!< Global flag for stopping all animations
 
     SLGLOculus _oculus; //!< Oculus Rift interface
-
-    // Video stuff
-    SLVCVTracked _trackers;        //!< Vector of all AR trackers
-    SLbool       _showDetection;   //!< Flag if detection should be visualized
 };
 //-----------------------------------------------------------------------------
 #endif

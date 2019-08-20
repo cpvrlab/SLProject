@@ -17,9 +17,6 @@
 #include <Utils.h>
 #include <SLApplication.h>
 #include <SLAssimpImporter.h>
-#include <SLCVCapture.h>
-#include <SLCVTracked.h>
-#include <SLCVTrackedAruco.h>
 #include <SLInputManager.h>
 #include <SLLightDirect.h>
 #include <SLScene.h>
@@ -63,18 +60,10 @@ SLScene::SLScene(SLstring      name,
                  cbOnSceneLoad onSceneLoadCallback)
   : SLObject(name),
     _frameTimesMS(60, 0.0f),
-    _vsyncTimesMS(60, 0.0f),
     _updateTimesMS(60, 0.0f),
     _cullTimesMS(60, 0.0f),
     _draw3DTimesMS(60, 0.0f),
     _draw2DTimesMS(60, 0.0f),
-    _trackingTimesMS(60, 0.0f),
-    _detectTimesMS(60, 0.0f),
-    _detect1TimesMS(60, 0.0f),
-    _detect2TimesMS(60, 0.0f),
-    _matchTimesMS(60, 0.0f),
-    _optFlowTimesMS(60, 0.0f),
-    _poseTimesMS(60, 0.0f),
     _updateAABBTimesMS(60, 0.0f),
     _updateAnimTimesMS(60, 0.0f)
 {
@@ -116,9 +105,6 @@ SLScene::SLScene(SLstring      name,
     // font and video texture are not added to the _textures vector
     SLTexFont::generateFonts();
 
-    // Set video type to none (this also sets the active calibration to the main calibration)
-    _showDetection = false;
-
     _oculus.init();
 }
 //-----------------------------------------------------------------------------
@@ -131,10 +117,6 @@ SLScene::~SLScene()
     for (auto sv : _sceneViews)
         if (sv != nullptr)
             delete sv;
-
-    // delete AR tracker programs
-    for (auto t : _trackers) delete t;
-    _trackers.clear();
 
     unInit();
 
@@ -163,9 +145,6 @@ SLScene::~SLScene()
     // delete fonts
     SLTexFont::deleteFonts();
 
-    // release the capture device
-    SLCVCapture::instance()->release();
-
     SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
 }
@@ -183,26 +162,13 @@ void SLScene::init()
     _selectedNode = nullptr;
 
     // Reset timing variables
-    _vsyncTimesMS.init(60, 0.0f);
     _frameTimesMS.init(60, 0.0f);
     _updateTimesMS.init(60, 0.0f);
     _cullTimesMS.init(60, 0.0f);
     _draw3DTimesMS.init(60, 0.0f);
     _draw2DTimesMS.init(60, 0.0f);
-    _trackingTimesMS.init(60, 0.0f);
-    _detectTimesMS.init(60, 0.0f);
-    _detect1TimesMS.init(60, 0.0f);
-    _detect2TimesMS.init(60, 0.0f);
-    _matchTimesMS.init(60, 0.0f);
-    _optFlowTimesMS.init(60, 0.0f);
-    _poseTimesMS.init(60, 0.0f);
     _updateAnimTimesMS.init(60, 0.0f);
     _updateAABBTimesMS.init(60, 0.0f);
-
-    // Reset calibration process at scene change
-    if (SLApplication::activeCalib->state() != CS_calibrated &&
-        SLApplication::activeCalib->state() != CS_uncalibrated)
-        SLApplication::activeCalib->state(CS_uncalibrated);
 
     // Deactivate in general the device sensors
     SLApplication::devRot.isUsed(false);
@@ -270,29 +236,19 @@ void SLScene::unInit()
         _programs.pop_back();
     }
 
-    // delete trackers
-    for (auto t : _trackers)
-        delete t;
-    _trackers.clear();
-
-    SLCVCapture::instance()->videoType(VT_NONE);
-
     _eventHandlers.clear();
 
     _animManager.clear();
 }
 //-----------------------------------------------------------------------------
-//! Processes all queued events and updates animations, AR trackers and AABBs
+//! Processes all queued events and updates animations and AABBs
 /*! Updates different updatables in the scene after all views got painted:
 \n
 \n 1) Calculate frame time
 \n 2) Process queued events
 \n 3) Update all animations
-\n 4) Augmented Reality (AR) Tracking with the live camera
-\n 5) Update AABBs
+\n 4) Update AABBs
 \n
-A scene can be displayed in multiple views as demonstrated in the app-Viewer-Qt
-example. AR tracking is only handled on the first scene view.
 \return true if really something got updated
 */
 bool SLScene::onUpdate()
@@ -387,129 +343,8 @@ bool SLScene::onUpdate()
 
     _updateAnimTimesMS.set(SLApplication::timeMS() - startAnimUpdateMS);
 
-    ////////////////////
-    // 4) AR Tracking //
-    ////////////////////
-
-    if (SLCVCapture::instance()->videoType() != VT_NONE && !SLCVCapture::instance()->lastFrame.empty())
-    {
-        SLfloat          trackingTimeStartMS = SLApplication::timeMS();
-        SLCVCalibration* ac                  = SLApplication::activeCalib;
-
-        // Invalidate calibration if camera input aspect doesn't match output
-        SLfloat calibWdivH              = ac->imageAspectRatio();
-        SLbool  aspectRatioDoesNotMatch = SL_abs(_sceneViews[0]->scrWdivH() - calibWdivH) > 0.01f;
-        if (aspectRatioDoesNotMatch && ac->state() == CS_calibrated)
-        {
-            ac->clear();
-        }
-
-        stringstream ss; // info line text
-
-        //.....................................................................
-        if (ac->state() == CS_uncalibrated)
-        {
-            if (SLApplication::sceneID == SID_VideoCalibrateMain ||
-                SLApplication::sceneID == SID_VideoCalibrateScnd)
-            {
-                ac->state(CS_calibrateStream);
-            }
-            else
-            { // Changes the state to CS_guessed
-                ac->createFromGuessedFOV(SLCVCapture::instance()->lastFrame.cols,
-                                         SLCVCapture::instance()->lastFrame.rows);
-                _sceneViews[0]->camera()->fov(ac->cameraFovVDeg());
-            }
-        }
-        else //..............................................................
-          if (ac->state() == CS_calibrateStream || ac->state() == CS_calibrateGrab)
-        {
-            ac->findChessboard(SLCVCapture::instance()->lastFrame, SLCVCapture::instance()->lastFrameGray, true);
-            int imgsToCap = ac->numImgsToCapture();
-            int imgsCaped = ac->numCapturedImgs();
-
-            //update info line
-            if (imgsCaped < imgsToCap)
-                ss << "Click on the screen to create a calibration photo. Created "
-                   << imgsCaped << " of " << imgsToCap;
-            else
-            {
-                ss << "Calculating calibration, please wait ...";
-                ac->state(CS_startCalculating);
-            }
-            _info = ss.str();
-        }
-        else //..............................................................
-          if (ac->state() == CS_startCalculating)
-        {
-            if (ac->calculate())
-            {
-                _sceneViews[0]->camera()->fov(ac->cameraFovVDeg());
-                if (SLApplication::sceneID == SID_VideoCalibrateMain)
-                    onLoad(this, _sceneViews[0], SID_VideoTrackChessMain);
-                else
-                    onLoad(this, _sceneViews[0], SID_VideoTrackChessScnd);
-            }
-        }
-        else if (ac->state() == CS_calibrated || ac->state() == CS_guessed) //......
-        {
-            SLCVTrackedAruco::trackAllOnce = true;
-
-            // track all trackers in the first sceneview
-            for (auto tracker : _trackers)
-            {
-                tracker->track(SLCVCapture::instance()->lastFrameGray,
-                               SLCVCapture::instance()->lastFrame,
-                               ac,
-                               _showDetection,
-                               _sceneViews[0]);
-            }
-
-            // Update info text only for chessboard scene
-            if (SLApplication::sceneID == SID_VideoCalibrateMain ||
-                SLApplication::sceneID == SID_VideoCalibrateScnd ||
-                SLApplication::sceneID == SID_VideoTrackChessMain ||
-                SLApplication::sceneID == SID_VideoTrackChessScnd)
-            {
-                SLfloat fovH = ac->cameraFovHDeg();
-                SLfloat err  = ac->reprojectionError();
-                ss << "Tracking Chessboard on " << (SLCVCapture::instance()->videoType() == VT_MAIN ? "main " : "scnd. ") << "camera. ";
-                if (ac->state() == CS_calibrated)
-                    ss << "FOVH: " << fovH << ", error: " << err;
-                else
-                    ss << "Not calibrated. FOVH guessed: " << fovH << " degrees.";
-                _info = ss.str();
-            }
-        } //...................................................................
-
-        //copy image to video texture
-        if (ac->state() == CS_calibrated && ac->showUndistorted())
-        {
-            SLCVMat undistorted;
-            ac->remap(SLCVCapture::instance()->lastFrame, undistorted);
-
-            SLCVCapture::instance()->videoTexture()->copyVideoImage(undistorted.cols,
-                                                                    undistorted.rows,
-                                                                    SLCVCapture::instance()->format,
-                                                                    undistorted.data,
-                                                                    undistorted.isContinuous(),
-                                                                    true);
-        }
-        else
-        {
-            SLCVCapture::instance()->videoTexture()->copyVideoImage(SLCVCapture::instance()->lastFrame.cols,
-                                                                    SLCVCapture::instance()->lastFrame.rows,
-                                                                    SLCVCapture::instance()->format,
-                                                                    SLCVCapture::instance()->lastFrame.data,
-                                                                    SLCVCapture::instance()->lastFrame.isContinuous(),
-                                                                    true);
-        }
-
-        _trackingTimesMS.set(SLApplication::timeMS() - trackingTimeStartMS);
-    }
-
     /////////////////////
-    // 5) Update AABBs //
+    // 4) Update AABBs //
     /////////////////////
 
     // The updateAABBRec call won't generate any overhead if nothing changed
@@ -525,15 +360,6 @@ bool SLScene::onUpdate()
     // Finish total update time
     SLfloat updateTimeMS = SLApplication::timeMS() - startUpdateMS;
     _updateTimesMS.set(updateTimeMS);
-
-    // calculate vsync time as diff. of major part times to the frame time
-    SLfloat totalMajorTime = SLCVCapture::instance()->captureTimesMS().average() +
-                             updateTimeMS +
-                             sumCullTimeMS +
-                             sumDraw3DTimeMS +
-                             sumDraw2DTimeMS;
-    SLfloat vsyncTime = _frameTimeMS > totalMajorTime ? _frameTimeMS - totalMajorTime : 0.0f;
-    _vsyncTimesMS.set(vsyncTime);
 
     //SL_LOG("SLScene::onUpdate\n");
     return sceneHasChanged;

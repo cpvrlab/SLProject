@@ -277,7 +277,7 @@ void SLCVTrackedFeatures::relocate()
 
     // Zero time keeping on the tracking branch
     SLScene* s = SLApplication::scene;
-    s->optFlowTimesMS().set(0);
+    SLCVTracked::optFlowTimesMS.set(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -291,8 +291,8 @@ void SLCVTrackedFeatures::tracking()
 
     // Zero time keeping on the relocation branch
     SLScene* s = SLApplication::scene;
-    s->detectTimesMS().set(0);
-    s->matchTimesMS().set(0);
+    SLCVTracked::detectTimesMS.set(0);
+    SLCVTracked::matchTimesMS.set(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -519,7 +519,7 @@ void SLCVTrackedFeatures::detectKeypointsAndDescriptors()
                                       _currentFrame.keypoints,
                                       _currentFrame.descriptors);
 
-    s->detectTimesMS().set(SLApplication::timeMS() - startMS);
+    SLCVTracked::detectTimesMS.set(SLApplication::timeMS() - startMS);
 }
 //-----------------------------------------------------------------------------
 /*! Get matching features with the defined feature matcher. Since we are using
@@ -549,7 +549,7 @@ SLCVVDMatch SLCVTrackedFeatures::getFeatureMatches()
             goodMatches.push_back(match1);
     }
 
-    s->matchTimesMS().set(SLApplication::timeMS() - startMS);
+    SLCVTracked::matchTimesMS.set(SLApplication::timeMS() - startMS);
     return goodMatches;
 }
 //-----------------------------------------------------------------------------
@@ -683,7 +683,7 @@ bool SLCVTrackedFeatures::calculatePose()
 #endif
     }
 
-    s->poseTimesMS().set(SLApplication::timeMS() - startMS);
+    SLCVTracked::poseTimesMS.set(SLApplication::timeMS() - startMS);
 
     return foundPose;
 }
@@ -916,7 +916,7 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
         }
     }
 
-    s->optFlowTimesMS().set(SLApplication::timeMS() - startMS);
+    SLCVTracked::optFlowTimesMS.set(SLApplication::timeMS() - startMS);
 
     _currentFrame.inlierPoints2D = frame2DPoints;
     _currentFrame.inlierPoints3D = model3DPoints;
@@ -965,7 +965,7 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
         tvec.copyTo(_currentFrame.tvec);
     }
 
-    s->poseTimesMS().set(SLApplication::timeMS() - startMS);
+    SLCVTracked::poseTimesMS.set(SLApplication::timeMS() - startMS);
 
     return foundPose && poseValid;
 }

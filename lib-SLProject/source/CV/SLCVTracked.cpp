@@ -22,6 +22,17 @@ for a good top down information.
 
 using namespace cv;
 using namespace std;
+//-----------------------------------------------------------------------------
+// Static declarations
+vector<SLCVTracked*> SLCVTracked::trackers;
+bool                 SLCVTracked::showDetection = false;
+SLAvgFloat           SLCVTracked::trackingTimesMS;
+SLAvgFloat           SLCVTracked::detectTimesMS;
+SLAvgFloat           SLCVTracked::detect1TimesMS;
+SLAvgFloat           SLCVTracked::detect2TimesMS;
+SLAvgFloat           SLCVTracked::matchTimesMS;
+SLAvgFloat           SLCVTracked::optFlowTimesMS;
+SLAvgFloat           SLCVTracked::poseTimesMS;
 
 // clang-format off
 //-----------------------------------------------------------------------------
@@ -54,7 +65,7 @@ SLMat4f SLCVTracked::createGLMatrix(const SLCVMat& tVec, const SLCVMat& rVec)
 }
 //-----------------------------------------------------------------------------
 //! Creates the OpenCV rvec & tvec vectors from an column major OpenGL 4x4 matrix
-void SLCVTracked::createRvecTvec(const SLMat4f glMat, SLCVMat& tVec, SLCVMat& rVec)
+void SLCVTracked::createRvecTvec(const SLMat4f& glMat, SLCVMat& tVec, SLCVMat& rVec)
 {
     // The y- and z- axis have to be inverted:
     /*

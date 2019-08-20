@@ -37,10 +37,11 @@ calculates the object matrix relative to the scene camera.
 See also the derived classes SLCVTrackedAruco and SLCVTrackedChessboard for
 example implementations.
 */
+//-----------------------------------------------------------------------------
 class SLCVTracked
 {
     public:
-    SLCVTracked(SLNode* node = nullptr) : _node(node), _isVisible(false) { ; }
+    explicit SLCVTracked(SLNode* node = nullptr) : _node(node), _isVisible(false) { ; }
     virtual ~SLCVTracked() { ; }
 
     virtual SLbool track(SLCVMat          imageGray,
@@ -51,13 +52,23 @@ class SLCVTracked
 
     SLMat4f createGLMatrix(const SLCVMat& tVec,
                            const SLCVMat& rVec);
-    void    createRvecTvec(SLMat4f  glMat,
+    void    createRvecTvec(const SLMat4f&  glMat,
                            SLCVMat& tVec,
                            SLCVMat& rVec);
     SLMat4f calcObjectMatrix(const SLMat4f& cameraObjectMat,
                              const SLMat4f& objectViewMat);
 
     SLNode* node() { return _node; }
+
+    static vector<SLCVTracked*> trackers;        //!< Vector of CV tracker pointer trackers
+    static SLbool               showDetection;   //!< Flag if detection should be visualized
+    static SLAvgFloat           trackingTimesMS; //!< Averaged time for video tracking in ms
+    static SLAvgFloat           detectTimesMS;   //!< Averaged time for video feature detection & description in ms
+    static SLAvgFloat           detect1TimesMS;  //!< Averaged time for video feature detection subpart 1 in ms
+    static SLAvgFloat           detect2TimesMS;  //!< Averaged time for video feature detection subpart 2 in ms
+    static SLAvgFloat           matchTimesMS;    //!< Averaged time for video feature matching in ms
+    static SLAvgFloat           optFlowTimesMS;  //!< Averaged time for video feature optical flow tracking in ms
+    static SLAvgFloat           poseTimesMS;     //!< Averaged time for video feature pose estimation in ms
 
     protected:
     SLNode* _node;          //!< Tracked node

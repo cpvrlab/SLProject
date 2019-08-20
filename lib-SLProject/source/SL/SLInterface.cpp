@@ -194,24 +194,23 @@ void slTerminate()
     SLApplication::deleteAppAndScene();
 }
 //-----------------------------------------------------------------------------
-/*! Global rendering function that first updates the scene due to user or
-device inputs and due to active animations. This happens only if all sceneviews
-where finished with rendering. After the update sceneviews onPaint routine is
-called to initiate the rendering of the frame. If either the onUpdate or onPaint
-returned true a new frame should be drawn.
-*/
-bool slUpdateAndPaint(int sceneViewIndex)
+bool slUpdateScene()
 {
-    SLSceneView* sv = SLApplication::scene->sv((SLuint)sceneViewIndex);
-
     SLApplication::handleParallelJob();
-
     bool sceneGotUpdated = SLApplication::scene->onUpdate();
-    bool viewNeedsUpdate = sv->onPaint();
 
-    return sceneGotUpdated ||
-           viewNeedsUpdate ||
-           SLApplication::jobIsRunning;
+    return SLApplication::jobIsRunning || sceneGotUpdated;
+}
+//-----------------------------------------------------------------------------
+bool slPaintAllViews()
+{
+    bool needUpdate = false;
+
+    for (auto sv : SLApplication::scene->sceneViews())
+        if (sv->onPaint() && !needUpdate)
+            needUpdate = true;
+
+    return needUpdate;
 }
 //-----------------------------------------------------------------------------
 /*! Global resize function that must be called whenever the OpenGL frame

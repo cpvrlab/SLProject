@@ -67,7 +67,7 @@ bool SLCVTrackedChessboard::track(SLCVMat          imageGray,
                                            corners2D,
                                            flags);
 
-    s->detectTimesMS().set(SLApplication::timeMS() - startMS);
+    SLCVTracked::detectTimesMS.set(SLApplication::timeMS() - startMS);
 
     if (_isVisible)
     {
@@ -93,7 +93,7 @@ bool SLCVTrackedChessboard::track(SLCVMat          imageGray,
                            _solved,
                            cv::SOLVEPNP_ITERATIVE);
 
-        s->poseTimesMS().set(SLApplication::timeMS() - startMS);
+        SLCVTracked::poseTimesMS.set(SLApplication::timeMS() - startMS);
 
         if (_solved)
         {

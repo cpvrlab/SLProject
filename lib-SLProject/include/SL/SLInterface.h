@@ -57,7 +57,8 @@ void   slTerminate();
 void   slResize(int sceneViewIndex,
                 int width,
                 int height);
-bool   slUpdateAndPaint(int sceneViewIndex);
+bool   slUpdateScene();
+bool   slPaintAllViews();
 void   slMouseDown(int           sceneViewIndex,
                    SLMouseButton button,
                    int           x,

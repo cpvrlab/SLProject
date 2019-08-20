@@ -143,7 +143,7 @@ SLbool SLCVTrackedFaces::track(SLCVMat          imageGray,
         faces[f].height = (SLint)(faces[f].height * 1.2f);
 
     SLfloat time2MS = SLApplication::timeMS();
-    s->detect1TimesMS().set(time2MS - startMS);
+    SLCVTracked::detect1TimesMS.set(time2MS - startMS);
 
     //////////////////////
     // Detect Landmarks //
@@ -153,8 +153,8 @@ SLbool SLCVTrackedFaces::track(SLCVMat          imageGray,
     SLbool        foundLandmarks = _facemark->fit(imageRgb, faces, landmarks);
 
     SLfloat time3MS = SLApplication::timeMS();
-    s->detect2TimesMS().set(time3MS - time2MS);
-    s->detectTimesMS().set(time3MS - startMS);
+    SLCVTracked::detect2TimesMS.set(time3MS - time2MS);
+    SLCVTracked::detectTimesMS.set(time3MS - startMS);
 
     if (foundLandmarks)
     {
@@ -217,7 +217,7 @@ SLbool SLCVTrackedFaces::track(SLCVMat          imageGray,
                                          false,
                                          cv::SOLVEPNP_EPNP);
 
-                s->poseTimesMS().set(SLApplication::timeMS() - startMS);
+                SLCVTracked::poseTimesMS.set(SLApplication::timeMS() - startMS);
 
                 if (solved)
                 {

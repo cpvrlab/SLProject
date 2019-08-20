@@ -30,7 +30,9 @@ extern "C"
 {
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit              (JNIEnv *env, jobject obj, jint width, jint height, jint dpi, jstring filePath);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTerminate         (JNIEnv *env, jobject obj);
-JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateAndPaint    (JNIEnv *env, jobject obj);
+JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateTracking    (JNIEnv *env, jobject obj);
+JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateScene       (JNIEnv *env, jobject obj);
+JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onPaintAllViews     (JNIEnv *env, jobject obj);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onResize            (JNIEnv *env, jobject obj, jint width, jint height);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onMouseDown         (JNIEnv *env, jobject obj, jint button, jint x, jint y);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onMouseUp           (JNIEnv *env, jobject obj, jint button, jint x, jint y);
@@ -60,7 +62,9 @@ JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_setDeviceParameter  (JNIE
 
 
 //-----------------------------------------------------------------------------
+// external functions application code not in SLProject
 extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
+extern bool onUpdateTracking();
 //-----------------------------------------------------------------------------
 //! Native ray tracing callback function that calls the Java class method GLES3Lib.RaytracingCallback
 bool Java_renderRaytracingCallback()
@@ -145,9 +149,19 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTerminate(JNIEnv *env, jobj
     slTerminate();
 }
 //-----------------------------------------------------------------------------
-JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateAndPaint(JNIEnv *env, jobject obj)
+JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateTracking(JNIEnv *env, jobject obj)
 {
-    return slUpdateAndPaint(svIndex);
+    return onUpdateTracking();
+}
+//-----------------------------------------------------------------------------
+JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateScene(JNIEnv *env, jobject obj)
+{
+    return slUpdateScene();
+}
+//-----------------------------------------------------------------------------
+JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onPaintAllViews(JNIEnv *env, jobject obj)
+{
+    return slPaintAllViews();
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onResize(JNIEnv *env, jobject obj, jint width, jint height)

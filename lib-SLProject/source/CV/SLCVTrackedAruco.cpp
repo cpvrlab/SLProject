@@ -89,7 +89,7 @@ SLbool SLCVTrackedAruco::track(SLCVMat          imageGray,
                              params.arucoParams,
                              rejected);
 
-        s->detectTimesMS().set(SLApplication::timeMS() - startMS);
+        SLCVTracked::detectTimesMS.set(SLApplication::timeMS() - startMS);
 
         if (!arucoIDs.empty())
         {
@@ -115,7 +115,7 @@ SLbool SLCVTrackedAruco::track(SLCVMat          imageGray,
                                              rVecs,
                                              tVecs);
 
-            s->poseTimesMS().set(SLApplication::timeMS() - startMS);
+            SLCVTracked::poseTimesMS.set(SLApplication::timeMS() - startMS);
 
             // Get the object view matrix for all aruco markers
             for (size_t i = 0; i < arucoIDs.size(); ++i)

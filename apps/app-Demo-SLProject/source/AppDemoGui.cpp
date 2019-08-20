@@ -297,19 +297,18 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 // Get averages from average variables (see SLAverage)
                 SLfloat captureTime    = SLCVCapture::instance()->captureTimesMS().average();
                 SLfloat updateTime     = s->updateTimesMS().average();
-                SLfloat trackingTime   = s->trackingTimesMS().average();
-                SLfloat detectTime     = s->detectTimesMS().average();
-                SLfloat detect1Time    = s->detect1TimesMS().average();
-                SLfloat detect2Time    = s->detect2TimesMS().average();
-                SLfloat matchTime      = s->matchTimesMS().average();
-                SLfloat optFlowTime    = s->optFlowTimesMS().average();
-                SLfloat poseTime       = s->poseTimesMS().average();
+                SLfloat trackingTime   = SLCVTracked::trackingTimesMS.average();
+                SLfloat detectTime     = SLCVTracked::detectTimesMS.average();
+                SLfloat detect1Time    = SLCVTracked::detect1TimesMS.average();
+                SLfloat detect2Time    = SLCVTracked::detect2TimesMS.average();
+                SLfloat matchTime      = SLCVTracked::matchTimesMS.average();
+                SLfloat optFlowTime    = SLCVTracked::optFlowTimesMS.average();
+                SLfloat poseTime       = SLCVTracked::poseTimesMS.average();
                 SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                 SLfloat updateAABBTime = s->updateAnimTimesMS().average();
                 SLfloat cullTime       = s->cullTimesMS().average();
                 SLfloat draw3DTime     = s->draw3DTimesMS().average();
                 SLfloat draw2DTime     = s->draw2DTimesMS().average();
-                SLfloat vsyncTime      = s->vsyncTimesMS().average();
 
                 // Calculate percentage from frame time
                 SLfloat captureTimePC    = SL_clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
@@ -324,7 +323,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat draw3DTimePC     = SL_clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
                 SLfloat draw2DTimePC     = SL_clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
                 SLfloat cullTimePC       = SL_clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat vsyncTimePC      = SL_clamp(vsyncTime / ft * 100.0f, 0.0f, 100.0f);
 
                 sprintf(m + strlen(m), "Renderer   :OpenGL\n");
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
@@ -345,7 +343,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), " Culling   :%5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
                 sprintf(m + strlen(m), " Drawing 3D:%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
                 sprintf(m + strlen(m), " Drawing 2D:%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
-                sprintf(m + strlen(m), " GPU/VSync :%5.1f ms (%3d%%)\n", vsyncTime, (SLint)vsyncTimePC);
             }
             else if (rType == RT_rt)
             {
@@ -483,10 +480,10 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Calib. time  : %s\n", c->calibrationTime().c_str());
             sprintf(m + strlen(m), "Calib. state : %s\n", c->stateStr().c_str());
 
-            if (vt != VT_NONE && !s->trackers().empty())
+            if (vt != VT_NONE && !SLCVTracked::trackers.empty())
             {
                 sprintf(m + strlen(m), "-------------:\n");
-                for (auto tracker : s->trackers())
+                for (auto tracker : SLCVTracked::trackers)
                 {
                     SLNode* node = tracker->node();
                     if (node)
@@ -926,7 +923,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                             function<void(void)> jobNoArgs = bind(jobToFollow1, s, sv);
 
-                            SLApplication::jobsToBeThreaded.push_back(downloadJob);
+                            SLApplication::jobsToBeThreaded.emplace_back(downloadJob);
                             SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
                         }
                     }
@@ -1091,10 +1088,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 auto jobToFollow1 = []() { SL_LOG("JobToFollow1\n"); };
                 auto jobToFollow2 = []() { SL_LOG("JobToFollow2\n"); };
 
-                SLApplication::jobsToBeThreaded.push_back(job1);
-                SLApplication::jobsToBeThreaded.push_back(job2);
-                SLApplication::jobsToFollowInMain.push_back(jobToFollow1);
-                SLApplication::jobsToFollowInMain.push_back(jobToFollow2);
+                SLApplication::jobsToBeThreaded.emplace_back(job1);
+                SLApplication::jobsToBeThreaded.emplace_back(job2);
+                SLApplication::jobsToFollowInMain.emplace_back(jobToFollow1);
+                SLApplication::jobsToFollowInMain.emplace_back(jobToFollow2);
             }
 
 #ifndef SL_OS_ANDROID
@@ -1161,7 +1158,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 SLCVCalibration* sc = &SLApplication::calibScndCam;
 
                 SLCVTrackedFeatures* featureTracker = nullptr;
-                for (auto tracker : s->trackers())
+                for (auto tracker : SLCVTracked::trackers)
                 {
                     if (typeid(*tracker) == typeid(SLCVTrackedFeatures))
                     {
@@ -1243,8 +1240,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::MenuItem("Show Detection", nullptr, s->showDetection()))
-                    s->showDetection(!s->showDetection());
+                if (ImGui::MenuItem("Show Detection", nullptr, SLCVTracked::showDetection))
+                    SLCVTracked::showDetection =! SLCVTracked::showDetection;
 
                 if (ImGui::BeginMenu("Feature Tracking", featureTracker != nullptr))
                 {
@@ -1959,7 +1956,7 @@ void AppDemoGui::buildProperties(SLScene* s)
             if (mesh)
             {
                 SLuint      v = (SLuint)mesh->P.size();
-                SLuint      t = (SLuint)(mesh->I16.size() ? mesh->I16.size() / 3 : mesh->I32.size() / 3);
+                SLuint      t = (SLuint)(!mesh->I16.empty() ? mesh->I16.size() / 3 : mesh->I32.size() / 3);
                 SLMaterial* m = mesh->mat();
                 ImGui::Text("Mesh Name       : %s", mesh->name().c_str());
                 ImGui::Text("No. of Vertices : %u", v);
@@ -2022,14 +2019,14 @@ void AppDemoGui::buildProperties(SLScene* s)
                         ImGui::TreePop();
                     }
 
-                    if (m->textures().size() && ImGui::TreeNode("Textures"))
+                    if (!m->textures().empty() && ImGui::TreeNode("Textures"))
                     {
                         ImGui::Text("No. of textures: %lu", m->textures().size());
 
                         //SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
                         SLfloat texW = ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;
 
-                        for (SLuint i = 0; i < m->textures().size(); ++i)
+                        for (SLulong i = 0; i < m->textures().size(); ++i)
                         {
                             SLGLTexture* t      = m->textures()[i];
                             void*        tid    = (ImTextureID)(intptr_t)t->texName();
@@ -2056,7 +2053,7 @@ void AppDemoGui::buildProperties(SLScene* s)
                                         SLTransferFunction* tf = (SLTransferFunction*)m->textures()[i];
                                         if (ImGui::TreeNode("Color Points in Transfer Function"))
                                         {
-                                            for (SLuint c = 0; c < tf->colors().size(); ++c)
+                                            for (SLulong c = 0; c < tf->colors().size(); ++c)
                                             {
                                                 SLCol3f color = tf->colors()[c].color;
                                                 SLchar  label[20];
@@ -2090,7 +2087,7 @@ void AppDemoGui::buildProperties(SLScene* s)
 
                                         if (ImGui::TreeNode("Alpha Points in Transfer Function"))
                                         {
-                                            for (SLuint a = 0; a < tf->alphas().size(); ++a)
+                                            for (SLulong a = 0; a < tf->alphas().size(); ++a)
                                             {
                                                 ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.25f);
                                                 SLfloat alpha = tf->alphas()[a].alpha;
@@ -2143,7 +2140,7 @@ void AppDemoGui::buildProperties(SLScene* s)
 
                     if (ImGui::TreeNode("GLSL Program"))
                     {
-                        for (SLuint i = 0; i < m->program()->shaders().size(); ++i)
+                        for (SLulong i = 0; i < m->program()->shaders().size(); ++i)
                         {
                             SLGLShader* s     = m->program()->shaders()[i];
                             SLfloat     lineH = ImGui::GetTextLineHeight();
@@ -2290,7 +2287,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
             fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
             fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
-            fs["showDetection"] >> b;       SLApplication::scene->showDetection(b);
+            fs["showDetection"] >> b;       SLCVTracked::showDetection = b;
             // clang-format on
 
             fs.release();
@@ -2361,7 +2358,7 @@ void AppDemoGui::saveConfig()
     fs << "showProperties" << AppDemoGui::showProperties;
     fs << "showChristoffel" << AppDemoGui::showChristoffel;
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;
-    fs << "showDetection" << SLApplication::scene->showDetection();
+    fs << "showDetection" << SLCVTracked::showDetection;
 
     fs.release();
     SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());
