@@ -2,7 +2,7 @@
 //  File:      SL/SLVector.h
 //  Author:    Jonas Lottner, Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Institut fr Informatik, FHBB Muttenz, Switzerland
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0

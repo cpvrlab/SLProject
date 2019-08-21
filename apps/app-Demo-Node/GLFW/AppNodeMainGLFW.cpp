@@ -3,16 +3,13 @@
 //  Purpose:   Implementation of the GUI with the GLFW3 (http://www.glfw.org/)
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
-
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
 
 #include <GLFW/glfw3.h>
 #include <SLEnums.h>
@@ -23,7 +20,7 @@
 #include "AppNodeGui.h"
 #include "AppNodeSceneView.h"
 
-extern void onLoad(SLScene* s, SLSceneView* sv, SLSceneID sid);
+extern void appNodeLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sid);
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -45,7 +42,6 @@ SLint             lastMouseWheelPos;          //!< Last mouse wheel position
 SLfloat           lastMouseDownTime = 0.0f;   //!< Last mouse press time
 SLKey             modifiers         = K_none; //!< last modifier keys
 SLbool            fullscreen        = false;  //!< flag if window is in fullscreen mode
-NewNodeSceneView* nodeTestSV;                 //!< pointer to the sceneview
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -66,8 +62,8 @@ frame buffer swapping. The FPS calculation is done in slGetWindowTitle.
 SLbool onPaint()
 {
     /////////////////////////////////////////////
-    bool sceneGotUpdated    = slUpdateScene();
-    bool viewsNeedsRepaint  = slPaintAllViews();
+    bool sceneGotUpdated   = slUpdateScene();
+    bool viewsNeedsRepaint = slPaintAllViews();
     /////////////////////////////////////////////
 
     return sceneGotUpdated || viewsNeedsRepaint;
@@ -128,6 +124,7 @@ SLKey mapKeyToSLKey(SLint key)
         case GLFW_KEY_KP_SUBTRACT: return K_NPSubtract;
         case GLFW_KEY_KP_ADD: return K_NPAdd;
         case GLFW_KEY_KP_DECIMAL: return K_NPDecimal;
+        default: break;
     }
     return (SLKey)key;
 }
@@ -145,7 +142,7 @@ static void onResize(GLFWwindow* window,
 
     // width & height are in screen coords.
     // We need to scale them to framebuffer coords.
-    slResize(svIndex, (int)(width * scr2fbX), (int)(height * scr2fbY));
+    slResize(svIndex, (int)((float)width * scr2fbX), (int)((float)height * scr2fbY));
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -196,6 +193,7 @@ static void onMouseButton(GLFWwindow* window,
                     case GLFW_MOUSE_BUTTON_MIDDLE:
                         slDoubleClick(svIndex, MB_middle, x, y, modifiers);
                         break;
+                    default: break;
                 }
             }
             else // normal mouse clicks
@@ -211,6 +209,7 @@ static void onMouseButton(GLFWwindow* window,
                     case GLFW_MOUSE_BUTTON_MIDDLE:
                         slMouseDown(svIndex, MB_middle, x, y, modifiers);
                         break;
+                    default: break;
                 }
             }
         }
@@ -243,6 +242,7 @@ static void onMouseButton(GLFWwindow* window,
                 case GLFW_MOUSE_BUTTON_MIDDLE:
                     slMouseUp(svIndex, MB_middle, x, y, modifiers);
                     break;
+                default: break;
             }
         }
     }
@@ -387,11 +387,11 @@ void onGLFWError(int error, const char* description)
     fputs(description, stderr);
 }
 //-----------------------------------------------------------------------------
-//! Alternative SceneView creation function passed by slCreateSceneView
-SLuint createNewNodeSceneView()
+//! Alternative SceneView creation C-function passed by slCreateSceneView
+SLuint createAppNodeSceneView()
 {
-    nodeTestSV = new NewNodeSceneView;
-    return nodeTestSV->index();
+    SLSceneView* appNodeSV = new AppNodeSceneView;
+    return appNodeSV->index();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -484,7 +484,7 @@ int main(int argc, char* argv[])
                         projectRoot + "/data/calibrations/",
                         configPath,
                         "AppNode_GLFW",
-                        (void*)onLoad);
+                        (void*)appNodeLoadScene);
     //////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////
@@ -494,7 +494,7 @@ int main(int argc, char* argv[])
                                 (SLSceneID)0,
                                 (void*)&onPaint,
                                 nullptr,
-                                (void*)createNewNodeSceneView,
+                                (void*)createAppNodeSceneView,
                                 (void*)AppNodeGui::build);
     //////////////////////////////////////////////////////////
 

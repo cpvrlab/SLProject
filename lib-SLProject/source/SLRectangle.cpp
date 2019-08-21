@@ -2,7 +2,7 @@
 //  File:      SLRectangle.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -16,14 +16,16 @@
 
 #include <SLRectangle.h>
 
+#include <utility>
+
 //-----------------------------------------------------------------------------
 //! SLRectangle ctor with min & max corners and its resolutions
-SLRectangle::SLRectangle(SLVec2f     min,
-                         SLVec2f     max,
-                         SLuint      resX,
-                         SLuint      resY,
-                         SLstring    name,
-                         SLMaterial* mat) : SLMesh(name)
+SLRectangle::SLRectangle(const SLVec2f& min,
+                         const SLVec2f& max,
+                         SLuint         resX,
+                         SLuint         resY,
+                         SLstring       name,
+                         SLMaterial*    mat) : SLMesh(name)
 {
     assert(min != max);
     assert(resX > 0);
@@ -40,14 +42,14 @@ SLRectangle::SLRectangle(SLVec2f     min,
 }
 //-----------------------------------------------------------------------------
 //! SLRectangle ctor with min & max corners and its resolutions
-SLRectangle::SLRectangle(SLVec2f     min,
-                         SLVec2f     max,
-                         SLVec2f     tmin,
-                         SLVec2f     tmax,
-                         SLuint      resX,
-                         SLuint      resY,
-                         SLstring    name,
-                         SLMaterial* mat) : SLMesh(name)
+SLRectangle::SLRectangle(const SLVec2f& min,
+                         const SLVec2f& max,
+                         const SLVec2f& tmin,
+                         const SLVec2f& tmax,
+                         SLuint         resX,
+                         SLuint         resY,
+                         SLstring       name,
+                         SLMaterial*    mat) : SLMesh(std::move(name))
 {
     assert(min != max);
     assert(tmin != tmax);
@@ -130,7 +132,7 @@ void SLRectangle::buildMesh(SLMaterial* material)
     }
 
     // Build face vertex indices
-    if (I16.size())
+    if (!I16.empty())
     {
         SLushort v = 0, i = 0; //index for vertices and indices
         for (SLuint y = 0; y < _resY; ++y)

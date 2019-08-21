@@ -3,7 +3,7 @@
 //  Author:    Marcus Hudritsch
 //  Date:      Spring 2017
 //  Purpose:   Android Java native interface into the SLProject C++ library
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch, Zingg Pascal
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -14,6 +14,7 @@
 #include <SLInterface.h>
 #include <SLScene.h>
 #include <AppDemoGui.h>
+#include <AppDemoSceneView.h>
 
 //-----------------------------------------------------------------------------
 // Some global variable for the JNI interface
@@ -42,7 +43,6 @@ JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTouch2Down        (JNIE
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTouch2Move        (JNIEnv *env, jobject obj, jint x1, jint y1, jint x2, jint y2);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onDoubleClick       (JNIEnv *env, jobject obj, jint button, jint x, jint y);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose             (JNIEnv *env, jobject obj);
-JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_shouldClose         (JNIEnv *env, jobject obj);
 JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesRotation        (JNIEnv *env, jobject obj);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQUAT      (JNIEnv *env, jobject obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW);
 JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesLocation        (JNIEnv *env, jobject obj);
@@ -99,6 +99,13 @@ std::string jstring2stdstring(JNIEnv *env, jstring jStr)
     return stdString;
 }
 //-----------------------------------------------------------------------------
+//! Alternative SceneView creation C-function passed by slCreateSceneView
+SLuint createAppDemoSceneView()
+{
+    SLSceneView* appDemoSV = new AppDemoSceneView();
+    return appDemoSV->index();
+}
+//-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject obj, jint width, jint height, jint dpi, jstring filePath)
 {
     environment = env;
@@ -136,7 +143,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject o
                                 SID_Revolver,
                                 (void *) &Java_renderRaytracingCallback,
                                 0,
-                                0,
+                                (void*)createAppDemoSceneView,
                                 (void*)AppDemoGui::build);
     ////////////////////////////////////////////////////////////////////
 
@@ -217,16 +224,6 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv *env, jobject 
     AppDemoGui::saveConfig();
 
     slTerminate();
-}
-//-----------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_shouldClose(JNIEnv *env, jobject obj, jboolean doClose)
-{
-    slShouldClose(doClose);
-}
-//-----------------------------------------------------------------------------
-JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_shouldClose(JNIEnv *env, jobject obj)
-{
-    return slShouldClose();
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesRotation(JNIEnv *env, jobject obj)

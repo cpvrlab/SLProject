@@ -1,4 +1,5 @@
 /build
 /release
+.cxx
 CMakeCache.txt
 CMakeFiles

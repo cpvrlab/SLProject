@@ -2,7 +2,7 @@
 //  File:      SL/SLTexFont.h
 //  Author:    Marcus Hudritsch, original author is Philippe Decaudin
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Philippe Decaudin - http://www.antisphere.com
 //             M. Hudritsch, Berner Fachhochschule
 //             This software is provide under the GNU General Public License
@@ -25,9 +25,9 @@ ascii char 255:
  !"#$%&'()*+,-./0123456789:;<=>?
 \@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_
 `abcdefghijklmnopqrstuvwxyz{|}~
-€‚ƒ„…†‡ˆ‰Š‹Œ‘’“”•–—˜™š›œŸ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿
-ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜİŞß
-àáâãäåæçèéêëìíîïğñòóôõö÷øùúûüışÿ
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 </PRE>
 First column of a source bitmap is a delimiter with color=zero at the end of 
 each line of characters. Last row of a line of characters is a delimiter with 

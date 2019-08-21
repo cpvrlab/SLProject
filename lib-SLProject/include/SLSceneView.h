@@ -2,7 +2,7 @@
 //  File:      SLSceneView.h
 //  Author:    Marc Wacker, Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -49,7 +49,7 @@ typedef void(SL_STDCALL* cbOnImGuiBuild)(SLScene* s, SLSceneView* sv);
 /*!      
 The SLSceneView class has a pointer to an active camera that is used to 
 generate the 3D view into a window of the clients GUI system. 
-OpenGL ES2.0 or newer is used the default renderer for framebuffer rendering.
+OpenGL ES3.0 or newer is used the default renderer for framebuffer rendering.
 Alternatively the sceneview can be rendered with a software ray tracing or
 path tracing renderer. 
 All mouse, touch, keyboard, resize and paint events of the GUI system are 
@@ -80,26 +80,22 @@ class SLSceneView : public SLObject
     virtual void postDraw() {}
     virtual void postSceneLoad() {}
 
-    // Main event handlers
+    // Not overridable event handlers
     void           onInitialize();
     SLbool         onPaint();
     void           onResize(SLint width, SLint height);
-    SLbool         onMouseDown(SLMouseButton button,
-                               SLint         x,
-                               SLint         y,
-                               SLKey         mod);
-    SLbool         onMouseUp(SLMouseButton button, SLint x, SLint y, SLKey mod);
-    SLbool         onMouseMove(SLint x, SLint y);
-    SLbool         onMouseWheelPos(SLint wheelPos, SLKey mod);
-    SLbool         onMouseWheel(SLint delta, SLKey mod);
-    SLbool         onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2);
-    SLbool         onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2);
-    SLbool         onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2);
-    SLbool         onDoubleClick(SLMouseButton button,
-                                 SLint         x,
-                                 SLint         y,
-                                 SLKey         mod);
-    SLbool         onLongTouch(SLint x, SLint y);
+
+    // overridable event-handlers
+    virtual SLbool onMouseDown(SLMouseButton button, SLint x, SLint y, SLKey mod);
+    virtual SLbool onMouseUp(SLMouseButton button, SLint x, SLint y, SLKey mod);
+    virtual SLbool onMouseMove(SLint x, SLint y);
+    virtual SLbool onMouseWheelPos(SLint wheelPos, SLKey mod);
+    virtual SLbool onMouseWheel(SLint delta, SLKey mod);
+    virtual SLbool onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2);
+    virtual SLbool onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2);
+    virtual SLbool onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2);
+    virtual SLbool onDoubleClick(SLMouseButton button, SLint x, SLint y, SLKey mod);
+    virtual SLbool onLongTouch(SLint x, SLint y);
     virtual SLbool onKeyPress(SLKey key, SLKey mod);
     virtual SLbool onKeyRelease(SLKey key, SLKey mod);
     virtual SLbool onCharInput(SLuint c);
@@ -107,9 +103,7 @@ class SLSceneView : public SLObject
     // Drawing subroutines
     SLbool draw3DGL(SLfloat elapsedTimeSec);
     void   draw3DGLAll();
-    void   draw3DGLNodes(SLVNode& nodes,
-                         SLbool   alphaBlended,
-                         SLbool   depthSorted);
+    void   draw3DGLNodes(SLVNode& nodes, SLbool alphaBlended, SLbool depthSorted);
     void   draw3DGLLines(SLVNode& nodes);
     void   draw3DGLLinesOverlay(SLVNode& nodes);
     void   draw2DGL();
@@ -180,17 +174,15 @@ class SLSceneView : public SLObject
     static const SLint LONGTOUCH_MS; //!< Milliseconds duration of a long touch event
 
     protected:
-    SLuint    _index;           //!< index of this pointer in SLScene::sceneView vector
-    SLCamera* _camera;          //!< Pointer to the _active camera
-    SLCamera  _sceneViewCamera; //!< Default camera for this SceneView (default cam not in scenegraph)
-    SLGLImGui _gui;             //!< ImGui instance
-    SLSkybox* _skybox;          //!< pointer to skybox
-
-    SLNodeStats _stats2D;    //!< Statistic numbers for 2D nodes
-    SLNodeStats _stats3D;    //!< Statistic numbers for 3D nodes
-    SLbool      _gotPainted; //!< flag if this sceneview got painted
-
-    SLRenderType _renderType; //!< rendering type (GL,RT,PT)
+    SLuint       _index;           //!< index of this pointer in SLScene::sceneView vector
+    SLCamera*    _camera;          //!< Pointer to the _active camera
+    SLCamera     _sceneViewCamera; //!< Default camera for this SceneView (default cam not in scenegraph)
+    SLGLImGui    _gui;             //!< ImGui instance
+    SLSkybox*    _skybox;          //!< pointer to skybox
+    SLNodeStats  _stats2D;         //!< Statistic numbers for 2D nodes
+    SLNodeStats  _stats3D;         //!< Statistic numbers for 3D nodes
+    SLbool       _gotPainted;      //!< flag if this sceneview got painted
+    SLRenderType _renderType;      //!< rendering type (GL,RT,PT)
 
     SLbool     _doDepthTest;      //!< Flag if depth test is turned on
     SLbool     _doMultiSampling;  //!< Flag if multisampling is on
@@ -203,14 +195,15 @@ class SLSceneView : public SLObject
     SLfloat _draw3DTimeMS; //!< time for 3D drawing in ms
     SLfloat _draw2DTimeMS; //!< time for 2D drawing in ms
 
-    SLbool             _mouseDownL; //!< Flag if left mouse button is pressed
-    SLbool             _mouseDownR; //!< Flag if right mouse button is pressed
-    SLbool             _mouseDownM; //!< Flag if middle mouse button is pressed
-    SLKey              _mouseMod;   //!< mouse modifier key on key down
-    SLint              _touchDowns; //!< finger touch down count
-    SLVec2i            _touch[3];   //!< up to 3 finger touch coordinates
-    SLGLVertexArrayExt _vaoTouch;   //!< Buffer for touch pos. rendering
-    SLGLVertexArrayExt _vaoCursor;  //!< Virtual cursor for stereo rendering
+    SLbool  _mouseDownL; //!< Flag if left mouse button is pressed
+    SLbool  _mouseDownR; //!< Flag if right mouse button is pressed
+    SLbool  _mouseDownM; //!< Flag if middle mouse button is pressed
+    SLKey   _mouseMod;   //!< mouse modifier key on key down
+    SLint   _touchDowns; //!< finger touch down count
+    SLVec2i _touch[3];   //!< up to 3 finger touch coordinates
+
+    SLGLVertexArrayExt _vaoTouch;  //!< Buffer for touch pos. rendering
+    SLGLVertexArrayExt _vaoCursor; //!< Virtual cursor for stereo rendering
 
     SLint   _scrW;     //!< Screen width in pixels
     SLint   _scrH;     //!< Screen height in pixels
@@ -224,9 +217,8 @@ class SLSceneView : public SLObject
     SLVNode _visibleNodes;   //!< Vector of all visible nodes
     SLVNode _visibleNodes2D; //!< Vector of all visible 2D nodes drawn in ortho projection
 
-    SLRaytracer _raytracer; //!< Whitted style raytracer
-    SLbool      _stopRT;    //!< Flag to stop the RT
-
+    SLRaytracer  _raytracer;  //!< Whitted style raytracer
+    SLbool       _stopRT;     //!< Flag to stop the RT
     SLPathtracer _pathtracer; //!< Pathtracer
     SLbool       _stopPT;     //!< Flag to stop the PT
 };

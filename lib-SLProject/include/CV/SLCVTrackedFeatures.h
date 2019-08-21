@@ -2,14 +2,14 @@
 //  File:      SLCVTrackedFeatures.h
 //  Author:    Pascal Zingg, Timon Tschanz, Marcus Hudritsch
 //  Date:      Spring 2017
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch, Michael Goettlicher
 //             This softwareis provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLCVTRACKERFEATURES_H
-#define SLCVTRACKERFEATURES_H
+#ifndef SLCVTRACKEDFEATURES_H
+#define SLCVTRACKEDFEATURES_H
 
 /*
 The OpenCV library version 3.4 or above with extra module must be present.
@@ -100,10 +100,10 @@ class SLCVTrackedFeatures : public SLCVTracked
     void        optimizeMatches();
     bool        trackWithOptFlow(SLCVMat rvec, SLCVMat tvec);
 
-    Ptr<DescriptorMatcher> _matcher;    //!< Descriptor matching algorithm
-    SLCVCalibration*       _calib;      //!< Current calibration in use
-    SLint                  _frameCount; //!< NO. of frames since process start
-    bool                   _isTracking; //!< True if tracking
+    cv::Ptr<DescriptorMatcher> _matcher;    //!< Descriptor matching algorithm
+    SLCVCalibration*           _calib;      //!< Current calibration in use
+    SLint                      _frameCount; //!< NO. of frames since process start
+    bool                       _isTracking; //!< True if tracking
 
     //! Data of a 2D marker image
     struct SLFeatureMarker2D

@@ -2,7 +2,7 @@
 //  File:      SLNode.cpp
 //  Author:    Marc Wacker, Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -17,7 +17,6 @@
 #include <SLAnimation.h>
 #include <SLApplication.h>
 #include <SLKeyframeCamera.h>
-#include <SLCVTracked.h>
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
 #include <SLLightSpot.h>

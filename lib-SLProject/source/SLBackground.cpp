@@ -2,7 +2,7 @@
 //  File:      SLBackground.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      August 2015
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -19,7 +19,6 @@
 #include <SLGLProgram.h>
 #include <SLGLTexture.h>
 #include <SLScene.h>
-#include <SLCVCapture.h>
 
 //-----------------------------------------------------------------------------
 SLBackground::~SLBackground()
@@ -35,7 +34,7 @@ SLBackground::SLBackground() : SLObject("Background")
     _colors.push_back(SLCol4f::BLACK); // top left
     _isUniform    = true;
     _texture      = nullptr;
-    _textureError = SLCVCapture::instance()->videoTextureErr(); // Fix for black video error
+    _textureError = nullptr;
     _resX         = -1;
     _resY         = -1;
 }

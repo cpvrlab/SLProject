@@ -3,7 +3,7 @@
 //  Purpose:   UI with the ImGUI framework fully rendered in OpenGL 3+
 //  Author:    Marcus Hudritsch
 //  Date:      Summer 2017
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -140,8 +140,9 @@ For more information please visit: https://github.com/cpvrlab/SLProject\n\
 ";
 
 SLstring AppDemoGui::infoCredits =
-  "Contributors since 2005 in alphabetic order: Martin Christen, Jan Dellsperger, \
-Manuel Frischknecht, Michael Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
+  "Contributors since 2005 in alphabetic order: \
+Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, \
+Michael Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
 Credits for external libraries:\n\
 - assimp: assimp.sourceforge.net\n\
 - imgui: github.com/ocornut/imgui\n\

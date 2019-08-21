@@ -3,7 +3,7 @@
 //  Purpose:   Implementation of the main Scene Library C-Interface.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -52,16 +52,16 @@ See examples usages in:
   - app-Demo-SLProject/android: native-lib.cpp      in Java_ch_fhnw_comgr_GLES3Lib_onInit()
   - app-Demo-SLProject/iOS:     ViewController.m    in viewDidLoad()
 */
-void slCreateAppAndScene(SLVstring& cmdLineArgs,
-                         SLstring   shaderPath,
-                         SLstring   modelPath,
-                         SLstring   texturePath,
-                         SLstring   videoPath,
-                         SLstring   fontPath,
-                         SLstring   calibrationPath,
-                         SLstring   configPath,
-                         SLstring   applicationName,
-                         void*      onSceneLoadCallback)
+void slCreateAppAndScene(SLVstring&      cmdLineArgs,
+                         const SLstring& shaderPath,
+                         const SLstring& modelPath,
+                         const SLstring& texturePath,
+                         const SLstring& videoPath,
+                         const SLstring& fontPath,
+                         const SLstring& calibrationPath,
+                         const SLstring& configPath,
+                         const SLstring& applicationName,
+                         void*           onSceneLoadCallback)
 {
     assert(SLApplication::scene == nullptr && "SLScene is already created!");
 

@@ -2,7 +2,7 @@
 //  File:      SL/SLTexFont.cpp
 //  Author:    Marcus Hudritsch, original author is Philippe Decaudin
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Philippe Decaudin - http://www.antisphere.com
 //             M. Hudritsch, Berner Fachhochschule
 //             This software is provide under the GNU General Public License

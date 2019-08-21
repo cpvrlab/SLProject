@@ -2,7 +2,7 @@
 //  File:      SLCVTracked.cpp
 //  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch, Michael Goettlicher
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -33,7 +33,24 @@ SLAvgFloat           SLCVTracked::detect2TimesMS;
 SLAvgFloat           SLCVTracked::matchTimesMS;
 SLAvgFloat           SLCVTracked::optFlowTimesMS;
 SLAvgFloat           SLCVTracked::poseTimesMS;
+//-----------------------------------------------------------------------------
+void SLCVTracked::reset()
+{
+    // delete all trackers from previous scenes
+    for (auto t : SLCVTracked::trackers)
+        delete t;
+    SLCVTracked::trackers.clear();
 
+    // Reset all timing variables
+    SLCVTracked::trackingTimesMS.set(0.0f);
+    SLCVTracked::detectTimesMS.set(0.0f);
+    SLCVTracked::detect1TimesMS;
+    SLCVTracked::detect2TimesMS.set(0.0f);
+    SLCVTracked::matchTimesMS.set(0.0f);
+    SLCVTracked::optFlowTimesMS.set(0.0f);
+    SLCVTracked::poseTimesMS.set(0.0f);
+}
+//-----------------------------------------------------------------------------
 // clang-format off
 //-----------------------------------------------------------------------------
 //! Create an OpenGL 4x4 matrix from an OpenCV translation & rotation vector

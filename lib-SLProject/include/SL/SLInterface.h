@@ -3,7 +3,7 @@
 //  Purpose:   Declaration of the main Scene Library C-Interface.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -30,16 +30,16 @@ See the implementation for more information.<br>
  <br>
 */
 //-----------------------------------------------------------------------------
-void slCreateAppAndScene(SLVstring& cmdLineArgs,
-                         SLstring   shaderPath,
-                         SLstring   modelPath,
-                         SLstring   texturePath,
-                         SLstring   videoPath,
-                         SLstring   fontPath,
-                         SLstring   calibrationPath,
-                         SLstring   configPath,
-                         SLstring   applicationName,
-                         void*      onSceneLoadCallback = nullptr);
+void slCreateAppAndScene(SLVstring&      cmdLineArgs,
+                         const SLstring& shaderPath,
+                         const SLstring& modelPath,
+                         const SLstring& texturePath,
+                         const SLstring& videoPath,
+                         const SLstring& fontPath,
+                         const SLstring& calibrationPath,
+                         const SLstring& configPath,
+                         const SLstring& applicationName,
+                         void*           onSceneLoadCallback = nullptr);
 
 int slCreateSceneView(int       screenWidth,
                       int       screenHeight,
@@ -50,82 +50,36 @@ int slCreateSceneView(int       screenWidth,
                       void*     onNewSceneViewCallback   = nullptr,
                       void*     onImGuiBuild             = nullptr);
 
-int    slNewSceneView();
-bool   slShouldClose();
-void   slShouldClose(bool val);
-void   slTerminate();
-void   slResize(int sceneViewIndex,
-                int width,
-                int height);
-bool   slUpdateScene();
-bool   slPaintAllViews();
-void   slMouseDown(int           sceneViewIndex,
-                   SLMouseButton button,
-                   int           x,
-                   int           y,
-                   SLKey         modifier);
-void   slMouseMove(int sceneViewIndex,
-                   int x,
-                   int y);
-void   slMouseUp(int           sceneViewIndex,
-                 SLMouseButton button,
-                 int           x,
-                 int           y,
-                 SLKey         modifier);
-void   slDoubleClick(int           sceneViewIndex,
-                     SLMouseButton button,
-                     int           x,
-                     int           y,
-                     SLKey         modifier);
-void   slLongTouch(int sceneViewIndex,
-                   int x,
-                   int y);
-void   slTouch2Down(int sceneViewIndex,
-                    int x1,
-                    int y1,
-                    int x2,
-                    int y2);
-void   slTouch2Move(int sceneViewIndex,
-                    int x1,
-                    int y1,
-                    int x2,
-                    int y2);
-void   slTouch2Up(int sceneViewIndex,
-                  int x1,
-                  int y1,
-                  int x2,
-                  int y2);
-void   slMouseWheel(int   sceneViewIndex,
-                    int   pos,
-                    SLKey modifier);
-void   slKeyPress(int   sceneViewIndex,
-                  SLKey key,
-                  SLKey modifier);
-void   slKeyRelease(int   sceneViewIndex,
-                    SLKey key,
-                    SLKey modifier);
-void   slCharInput(int          sceneViewIndex,
-                   unsigned int character);
+int  slNewSceneView();
+bool slShouldClose();
+void slShouldClose(bool val);
+void slTerminate();
+void slResize(int sceneViewIndex, int width, int height);
+bool slUpdateScene();
+bool slPaintAllViews();
+
+void slMouseDown(int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);
+void slMouseMove(int sceneViewIndex, int x, int y);
+void slMouseUp(int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);
+void slDoubleClick(int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);
+void slLongTouch(int sceneViewIndex, int x, int y);
+void slTouch2Down(int sceneViewIndex, int x1, int y1, int x2, int y2);
+void slTouch2Move(int sceneViewIndex, int x1, int y1, int x2, int y2);
+void slTouch2Up(int sceneViewIndex, int x1, int y1, int x2, int y2);
+void slMouseWheel(int sceneViewIndex, int pos, SLKey modifier);
+void slKeyPress(int sceneViewIndex, SLKey key, SLKey modifier);
+void slKeyRelease(int sceneViewIndex, SLKey key, SLKey modifier);
+void slCharInput(int sceneViewIndex, unsigned int character);
+
 bool   slUsesRotation();
-void   slRotationQUAT(float
-                        quatX,
-                      float quatY,
-                      float quatZ,
-                      float quatW);
+void   slRotationQUAT(float quatX, float quatY, float quatZ, float quatW);
 bool   slUsesLocation();
-void   slLocationLLA(double latitudeDEG,
-                     double longitudeDEG,
-                     double altitudeM,
-                     float  accuracyM);
+void   slLocationLLA(double latitudeDEG, double longitudeDEG, double altitudeM, float accuracyM);
 string slGetWindowTitle(int sceneViewIndex);
 int    slGetVideoType();
 int    slGetVideoSizeIndex();
 void   slGrabVideoFileFrame();
-void   slCopyVideoImage(int           srcW,
-                        int           srcH,
-                        SLPixelFormat glFormat,
-                        SLuchar*      data,
-                        bool          isContinuous);
+void   slCopyVideoImage(int srcW, int srcH, SLPixelFormat glFormat, SLuchar* data, bool isContinuous);
 void   slCopyVideoYUVPlanes(int      srcW,
                             int      srcH,
                             SLuchar* y,
@@ -141,11 +95,7 @@ void   slCopyVideoYUVPlanes(int      srcW,
                             int      vPixStride,
                             int      vLineStride);
 void   slSetupExternalDir(SLstring externalDirPath);
-void   slSetCameraSize(int sizeIndex,
-                       int sizeIndexMax,
-                       int width,
-                       int height);
-void   slSetDeviceParameter(SLstring parameter,
-                            SLstring value);
+void   slSetCameraSize(int sizeIndex, int sizeIndexMax, int width, int height);
+void   slSetDeviceParameter(SLstring parameter, SLstring value);
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H

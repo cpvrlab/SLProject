@@ -20,6 +20,7 @@
 #include <GLFW/glfw3.h>
 
 #include <AppDemoGui.h>
+#include <AppDemoSceneView.h>
 #include <SLCVCapture.h>
 #include <SLEnums.h>
 #include <SLInterface.h>
@@ -31,7 +32,7 @@ extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
 extern bool onUpdateTracking();
 
 //-----------------------------------------------------------------------------
-// GLobal application variables
+// Global application variables
 static GLFWwindow* window;                     //!< The global glfw window handle
 static SLint       svIndex;                    //!< SceneView index
 static SLint       scrWidth;                   //!< Window width at start up
@@ -458,6 +459,13 @@ void onGLFWError(int error, const char* description)
     fputs(description, stderr);
 }
 //-----------------------------------------------------------------------------
+//! Alternative SceneView creation C-function passed by slCreateSceneView
+SLuint createAppDemoSceneView()
+{
+    SLSceneView* appDemoSV = new AppDemoSceneView();
+    return appDemoSV->index();
+}
+//-----------------------------------------------------------------------------
 /*!
 The C main procedure running the GLFW GUI application.
 */
@@ -572,7 +580,7 @@ int main(int argc, char* argv[])
                                 (SLSceneID)SL_STARTSCENE,
                                 (void*)&onPaint,
                                 nullptr,
-                                nullptr,
+                                (void*)createAppDemoSceneView,
                                 (void*)AppDemoGui::build);
     /////////////////////////////////////////////////////////
 

@@ -2,7 +2,7 @@
 //  File:      SLSceneView.cpp
 //  Author:    Marc Wacker, Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -16,7 +16,6 @@
 
 #include <SLAnimManager.h>
 #include <SLApplication.h>
-#include <SLCVCalibration.h>
 #include <SLCamera.h>
 #include <SLInterface.h>
 #include <SLLight.h>
@@ -977,10 +976,6 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
                 result = true;
         }
     }
-
-    // Grab image during calibration if calibration stream is running
-    if (SLApplication::activeCalib->state() == CS_calibrateStream)
-        SLApplication::activeCalib->state(CS_calibrateGrab);
 
     return result;
 }

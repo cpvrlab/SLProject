@@ -5,7 +5,7 @@
 //  Purpose:   High Resolution SLTimer that is able to measure the elapsed time
 //             with 1 micro-second accuracy on Windows, Linux and Unix system
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Song Ho Ahn (song.ahn@gmail.com)
 //#############################################################################
 

@@ -65,8 +65,6 @@ public class GLES3Lib {
     public static native void    onDoubleClick      (int button, int x, int y);
     public static native void    onRotationQUAT     (float quatX, float quatY, float quatZ, float quatW);
     public static native void    onClose            ();
-    public static native boolean shouldClose        ();
-    public static native void    shouldClose        (boolean doClose);
     public static native boolean usesRotation       ();
     public static native boolean usesLocation       ();
     public static native void    onLocationLLA      (double latitudeDEG, double longitudeDEG, double altitudeM, float accuracyM);

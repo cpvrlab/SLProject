@@ -3,7 +3,7 @@
 //  Purpose:   OpenCV Capture Device
 //  Authors:   Michael Goettlicher, Marcus Hudritsch, Jan Dellsperger
 //  Date:      Winter 2016
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -817,6 +817,7 @@ references the active one.
 void SLCVCapture::videoType(SLVideoType vt)
 {
     _videoType = vt;
+    _captureTimesMS.set(0.0f);
 
     if (vt == VT_SCND)
     {

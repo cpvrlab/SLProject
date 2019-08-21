@@ -21,7 +21,7 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedAruco.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedChessboard.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedFaces.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLVCTrackedFeatures.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/SLCVTrackedFeatures.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLEnums.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLGenericProgram.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLImGui.h
