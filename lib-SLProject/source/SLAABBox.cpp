@@ -19,7 +19,7 @@
 #include <SLScene.h>
 
 //-----------------------------------------------------------------------------
-//! Default contructor with default zero vector initialization
+//! Default constructor with default zero vector initialization
 SLAABBox::SLAABBox()
 {
     reset();
@@ -303,7 +303,6 @@ void SLAABBox::drawBoneWS()
 }
 //-----------------------------------------------------------------------------
 //! SLAABBox::isHitInWS: Ray - AABB Intersection Test in object space
-#define SL_RAY_AABB_FYFFE
 SLbool SLAABBox::isHitInOS(SLRay* ray)
 {
     //See: "An Efficient and Robust Ray Box Intersection Algorithm"

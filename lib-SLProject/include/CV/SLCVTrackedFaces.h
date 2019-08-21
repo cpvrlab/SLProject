@@ -34,17 +34,17 @@ see the comments in SLCVTrackedFaces::track method.
 class SLCVTrackedFaces : public SLCVTracked
 {
     public:
-    SLCVTrackedFaces(SLNode*  nodeSL,
-                     SLint    smoothLength           = 5,
-                     SLstring faceClassifierFilename = "haarcascade_frontalface_alt2.xml",
-                     SLstring faceMarkModelFilename  = "lbfmodel.yaml");
-    ~SLCVTrackedFaces();
+    explicit SLCVTrackedFaces(SLNode*  nodeSL,
+                              SLint    smoothLength           = 5,
+                              SLstring faceClassifierFilename = "haarcascade_frontalface_alt2.xml",
+                              SLstring faceMarkModelFilename  = "lbfmodel.yaml");
+    ~SLCVTrackedFaces() final;
 
     SLbool track(SLCVMat          imageGray,
                  SLCVMat          imageRgb,
                  SLCVCalibration* calib,
                  SLbool           drawDetection,
-                 SLSceneView*     sv);
+                 SLSceneView*     sv) override;
     void   delaunayTriangulate(SLCVMat      imageRgb,
                                SLCVVPoint2f points,
                                SLbool       drawDetection);

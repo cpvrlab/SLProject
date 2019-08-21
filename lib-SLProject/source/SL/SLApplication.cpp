@@ -20,6 +20,8 @@
 #include <SLCVTracked.h>
 #include <SLScene.h>
 
+#include <utility>
+
 //-----------------------------------------------------------------------------
 //! Global static objects
 SLInputManager      SLApplication::inputManager;
@@ -80,7 +82,7 @@ void SLApplication::createAppAndScene(SLstring appName,
     assert(SLApplication::scene == nullptr &&
            "You can create only one SLApplication");
 
-    name = appName;
+    name = std::move(appName);
 
     scene = new SLScene(name, (cbOnSceneLoad)onSceneLoadCallback);
 
@@ -119,9 +121,7 @@ void SLApplication::deleteAppAndScene()
     assert(SLApplication::scene != nullptr &&
            "You can delete an  only once");
 
-    if (scene)
-        delete scene;
-
+    delete scene;
     scene = nullptr;
 }
 //-----------------------------------------------------------------------------
@@ -158,7 +158,7 @@ void SLApplication::handleParallelJob()
         SLApplication::jobsToBeThreaded.empty() &&
         !SLApplication::jobsToFollowInMain.empty())
     {
-        for (auto jobToFollow : SLApplication::jobsToFollowInMain)
+        for (const auto& jobToFollow : SLApplication::jobsToFollowInMain)
             jobToFollow();
         SLApplication::jobsToFollowInMain.clear();
     }
@@ -168,7 +168,7 @@ void SLApplication::handleParallelJob()
 void SLApplication::jobProgressMsg(string msg)
 {
     SLApplication::_jobMutex.lock();
-    SLApplication::_jobProgressMsg = msg;
+    SLApplication::_jobProgressMsg = std::move(msg);
     SLApplication::_jobMutex.unlock();
 }
 //-----------------------------------------------------------------------------

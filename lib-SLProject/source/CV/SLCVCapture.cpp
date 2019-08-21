@@ -660,7 +660,7 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
     SLCVCapture::startCaptureTimeMS = SLApplication::timeMS();
 
     // input image aspect ratio
-    SLfloat srcWdivH = (SLfloat)srcW / srcH;
+    SLfloat srcWdivH = (SLfloat)srcW / (SLfloat)srcH;
 
     // output image aspect ratio = aspect of the always landscape screen
     SLfloat dstWdivH = s->sceneViews()[0]->scrWdivH();
@@ -741,7 +741,7 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
     SLubyte* vRow      = v + halfCropH * vRowOffset + halfCropW * vColOffset;
 
     // Set the information common for all thread blocks
-    YUV2RGB_ImageInfo imageInfo;
+    YUV2RGB_ImageInfo imageInfo{};
     imageInfo.bgrColOffest  = bgrColOffset;
     imageInfo.grayColOffest = grayColOffset;
     imageInfo.yColOffest    = yColOffset;
@@ -758,7 +758,7 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
     vector<thread>    threads;
     YUV2RGB_BlockInfo threadInfos[threadNum];
     int               rowsPerThread     = dstH / (threadNum + 1);
-    int               halfRowsPerThread = (int)(rowsPerThread * 0.5f);
+    int               halfRowsPerThread = (int)((float)rowsPerThread * 0.5f);
     int               rowsHandled       = 0;
 
     // Launch threadNum-1 threads on different blocks of the image
@@ -775,7 +775,7 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
         info->colCount          = dstW;
 
         ////////////////////////////////////////////////
-        threads.push_back(thread(convertYUV2RGB, info));
+        threads.emplace_back(thread(convertYUV2RGB, info));
         ////////////////////////////////////////////////
 
         rowsHandled += rowsPerThread;
@@ -787,7 +787,7 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
         vRow += vRowOffset * halfRowsPerThread;
     }
     // Launch the last block on the main thread
-    YUV2RGB_BlockInfo infoMain;
+    YUV2RGB_BlockInfo infoMain{};
     infoMain.imageInfo = &imageInfo;
     infoMain.bgrRow    = bgrRow;
     infoMain.grayRow   = grayRow;

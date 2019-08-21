@@ -95,10 +95,10 @@ void SLCVCalibration::clear()
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
-bool SLCVCalibration::load(SLstring calibDir,
-                           SLstring calibFileName,
-                           SLbool   mirrorHorizontally,
-                           SLbool   mirrorVertically)
+bool SLCVCalibration::load(const SLstring& calibDir,
+                           const SLstring& calibFileName,
+                           SLbool          mirrorHorizontally,
+                           SLbool          mirrorVertically)
 {
     _calibDir      = Utils::unifySlashes(calibDir);
     _calibFileName = calibFileName;
@@ -289,9 +289,9 @@ void SLCVCalibration::calcCameraFov()
 }
 //-----------------------------------------------------------------------------
 //! Calculates the 3D positions of the chessboard corners
-void SLCVCalibration::calcBoardCorners3D(SLCVSize      boardSize,
-                                         SLfloat       squareSize,
-                                         SLCVVPoint3f& objectPoints3D)
+void SLCVCalibration::calcBoardCorners3D(const SLCVSize& boardSize,
+                                         SLfloat         squareSize,
+                                         SLCVVPoint3f&   objectPoints3D)
 {
     // Because OpenCV image coords are top-left we define the according
     // 3D coords also top-left.
@@ -719,7 +719,7 @@ void SLCVCalibration::uploadCalibration(const SLstring& fullPathAndFilename)
                 string latestCalibFile = getLatestCalibFilename(ftp, fullPathAndFilename);
 
                 // Set the calibfile version
-                int    versionNO       = 0;
+                int versionNO = 0;
                 if (!latestCalibFile.empty())
                 {
                     versionNO = getVersionInCalibFilename(latestCalibFile);
@@ -732,7 +732,7 @@ void SLCVCalibration::uploadCalibration(const SLstring& fullPathAndFilename)
                 versionSS.str();
 
                 // Build new filename on ftp with version number
-                string fileWOExt = Utils::getFileNameWOExt(fullPathAndFilename);
+                string fileWOExt          = Utils::getFileNameWOExt(fullPathAndFilename);
                 string newVersionFilename = fileWOExt + versionSS.str() + ".xml";
 
                 // Upload

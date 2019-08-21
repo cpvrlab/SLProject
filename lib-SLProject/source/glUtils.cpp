@@ -3,6 +3,7 @@
 //  Purpose:   General OpenGL utility functions for simple OpenGL demo apps
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -15,8 +16,7 @@
 #include <Utils.h>
 
 #include <algorithm>
-#include <dirent.h> // opendir
-#include <numeric>
+#include <utility>
 
 static vector<string> errors; // global vector for errors used in getGLError
 
@@ -48,7 +48,7 @@ loadShader loads the ASCII content of a shader file and returns it as a string.
 If the file can not be opened an error message is sent to stdout before the app
 exits with code 1.
 */
-string glUtils::loadShader(string filename)
+string glUtils::loadShader(const string& filename)
 {
     // Loader file and return it as a string
     fstream shaderFile(filename.c_str(), ios::in);
@@ -73,7 +73,7 @@ in the code and are therefore backwards compatible with the compatibility
 profile from OpenGL 2.1 and OpenGL ES 2 that runs on most mobile devices.
 To be upwards compatible some modification have to be done.
 */
-GLuint glUtils::buildShader(string shaderFile,
+GLuint glUtils::buildShader(const string& shaderFile,
                             GLenum shaderType)
 {
     // Load shader file, create shader and compile it
@@ -337,7 +337,7 @@ GLuint glUtils::buildTexture(string textureFile,
                              GLint  wrapT)
 {
     // load texture image
-    SLCVImage img(textureFile);
+    SLCVImage img(std::move(textureFile));
 
     // check max. size
     GLint maxSize = 0;
@@ -539,7 +539,7 @@ string
 glUtils::glSLVersionNO()
 {
     string versionStr = SLstring((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
-    size_t dotPos     = versionStr.find(".");
+    size_t dotPos     = versionStr.find('.');
     char   NO[4];
     NO[0] = versionStr[dotPos - 1];
     NO[1] = versionStr[dotPos + 1];

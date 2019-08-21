@@ -14,7 +14,6 @@
 #include <SLInterface.h>
 #include <SLApplication.h>
 #include <SLAssimpImporter.h>
-#include <SLCVCalibration.h>
 #include <SLCVCapture.h>
 #include <SLInputManager.h>
 #include <SLScene.h>
@@ -533,7 +532,7 @@ void slCopyVideoYUVPlanes(int      srcW,
 //-----------------------------------------------------------------------------
 /*! Get available external directories and inform slproject about them
 */
-void slSetupExternalDir(SLstring externalPath)
+void slSetupExternalDir(const SLstring& externalPath)
 {
     if (Utils::dirExists(externalPath))
     {
@@ -564,9 +563,9 @@ void slSetCameraSize(int sizeIndex,
 }
 //-----------------------------------------------------------------------------
 //! Adds a value to the applications device parameter map
-void slSetDeviceParameter(SLstring parameter,
+void slSetDeviceParameter(const SLstring& parameter,
                           SLstring value)
 {
-    SLApplication::deviceParameter[parameter] = value;
+    SLApplication::deviceParameter[parameter] = std::move(value);
 }
 //-----------------------------------------------------------------------------

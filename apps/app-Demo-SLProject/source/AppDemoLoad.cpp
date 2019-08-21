@@ -811,7 +811,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Assemble 2D scene
         SLNode* scene2D = new SLNode("root2D");
-        ;
         scene2D->addChild(t2D16);
 
         sv->camera(cam1);
@@ -1040,8 +1039,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         const SLint nrRows  = 7;
         const SLint nrCols  = 7;
         SLfloat     spacing = 2.5f;
-        SLfloat     maxX    = (nrCols / 2) * spacing;
-        SLfloat     maxY    = (nrRows / 2) * spacing;
+        SLfloat     maxX    = ((float)nrCols / 2.0f) * spacing;
+        SLfloat     maxY    = ((float)nrRows / 2.0f) * spacing;
         SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
         SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
 
@@ -1820,7 +1819,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         parents.push_back(s->root3D());
 
         SLint nodeIndex = 0;
-        for (SLint lvl = 0; lvl < levels; ++lvl)
+        for (float lvl : nodeSpacing)
         {
             curParentsVector = parents;
             parents.clear();
@@ -1838,14 +1837,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // position
                     SLfloat x = (SLfloat)(i % gridSize - gridHalf);
                     SLfloat z = (SLfloat)((i > 0) ? i / gridSize - gridHalf : -gridHalf);
-                    SLVec3f pos(x * nodeSpacing[lvl] * 1.1f, 1.5f, z * nodeSpacing[lvl] * 1.1f);
+                    SLVec3f pos(x * lvl * 1.1f, 1.5f, z * lvl * 1.1f);
 
                     node->translate(pos, TS_object);
                     //node->scale(1.1f);
 
                     SLfloat       duration = 1.0f + 5.0f * ((SLfloat)i / (SLfloat)nodesPerLvl);
                     ostringstream oss;
-                    ;
+
                     oss << "random anim " << nodeIndex++;
                     SLAnimation* anim = SLAnimation::create(oss.str(), duration, true, EC_inOutSine, AL_pingPongLoop);
                     anim->createSimpleTranslationNodeTrack(node, SLVec3f(0.0f, 1.0f, 0.0f));

@@ -66,12 +66,11 @@ class SLCVCalibration
 {
     public:
     SLCVCalibration();
-    ~SLCVCalibration() { ; }
 
-    bool     load(SLstring calibDir,
-                  SLstring calibFileName,
-                  SLbool   mirrorHorizontally,
-                  SLbool   mirrorVertically);
+    bool     load(const SLstring& calibDir,
+                  const SLstring& calibFileName,
+                  SLbool          mirrorHorizontally,
+                  SLbool          mirrorVertically);
     void     save();
     bool     loadCalibParams();
     bool     calculate();
@@ -80,25 +79,24 @@ class SLCVCalibration
     void     downloadCalibration(const SLstring& fullPathAndFilename);
     SLstring getLatestCalibFilename(ftplib& ftp, const SLstring& calibFileWOExt);
     int      getVersionInCalibFilename(const string& calibFilename);
-
-    SLfloat calcReprojectionErr(const SLCVVVPoint3f& objectPoints,
-                                const SLCVVMat&      rvecs,
-                                const SLCVVMat&      tvecs,
-                                SLVfloat&            perViewErrors);
-    bool    findChessboard(SLCVMat imageColor,
-                           SLCVMat imageGray,
-                           bool    drawCorners = true);
-    void    buildUndistortionMaps();
-    void    remap(SLCVMat& inDistorted,
-                  SLCVMat& outUndistorted);
-    void    createFromGuessedFOV(SLint imageWidthPX,
-                                 SLint imageHeightPX);
-    void    adaptForNewResolution(const SLCVSize& newSize);
+    SLfloat  calcReprojectionErr(const SLCVVVPoint3f& objectPoints,
+                                 const SLCVVMat&      rvecs,
+                                 const SLCVVMat&      tvecs,
+                                 SLVfloat&            perViewErrors);
+    bool     findChessboard(SLCVMat imageColor,
+                            SLCVMat imageGray,
+                            bool    drawCorners = true);
+    void     buildUndistortionMaps();
+    void     remap(SLCVMat& inDistorted,
+                   SLCVMat& outUndistorted);
+    void     createFromGuessedFOV(SLint imageWidthPX,
+                                  SLint imageHeightPX);
+    void     adaptForNewResolution(const SLCVSize& newSize);
 
     static SLstring calibIniPath; //!< calibration init parameters file path
-    static void     calcBoardCorners3D(SLCVSize      boardSize,
-                                       SLfloat       squareSize,
-                                       SLCVVPoint3f& objectPoints3D);
+    static void     calcBoardCorners3D(const SLCVSize& boardSize,
+                                       SLfloat         squareSize,
+                                       SLCVVPoint3f&   objectPoints3D);
 
     // Setters
     void state(SLCVCalibState s) { _state = s; }
