@@ -560,8 +560,6 @@ void SLGLTexture::bindActive(SLint texID)
         //           _texName, texID, _images[0]->name().c_str());
         //}
 
-        SLScene* s = SLApplication::scene;
-
         if (_alwaysUpdate || _needsUpdate)
         {
             fullUpdate();

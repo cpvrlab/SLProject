@@ -29,7 +29,6 @@ class SLBackground : public SLObject
 {
     public:
     SLBackground();
-    ~SLBackground();
 
     void    render(SLint widthPX, SLint heightPX);
     void    renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB);
@@ -37,12 +36,12 @@ class SLBackground : public SLObject
     void    rebuild() { _vao.clearAttribs(); }
 
     // Setters
-    void colors(SLCol4f uniformColor);
-    void colors(SLCol4f topColor, SLCol4f bottomColor);
-    void colors(SLCol4f topLeftColor,
-                SLCol4f bottomLeftColor,
-                SLCol4f topRightColor,
-                SLCol4f bottomRightColor);
+    void colors(const SLCol4f& uniformColor);
+    void colors(const SLCol4f& topColor, const SLCol4f& bottomColor);
+    void colors(const SLCol4f& topLeftColor,
+                const SLCol4f& bottomLeftColor,
+                const SLCol4f& topRightColor,
+                const SLCol4f& bottomRightColor);
     void texture(SLGLTexture* backgroundTexture);
 
     // Getters

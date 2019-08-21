@@ -846,7 +846,7 @@ int SLCVCalibration::getVersionInCalibFilename(const string& calibFilename)
     int versionNO = 0;
     if (!calibFilenameWOExt.empty())
     {
-        int len = calibFilenameWOExt.length();
+        SLulong len = calibFilenameWOExt.length();
         if (calibFilenameWOExt.at(len - 1) == ')')
         {
             size_t leftPos = calibFilenameWOExt.rfind("(");

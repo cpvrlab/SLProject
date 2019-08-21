@@ -118,11 +118,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ViewController.mm"
-            timestampString = "582388623.848"
+            timestampString = "588087079.034866"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "682"
-            endingLineNumber = "682"
+            startingLineNumber = "697"
+            endingLineNumber = "697"
             landmarkName = "-locationManager:didUpdateToLocation:fromLocation:"
             landmarkType = "7">
          </BreakpointContent>
@@ -134,11 +134,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ViewController.mm"
-            timestampString = "582388623.848428"
+            timestampString = "588087079.0349309"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "660"
-            endingLineNumber = "660"
+            startingLineNumber = "675"
+            endingLineNumber = "675"
             landmarkName = "-startLocationManager"
             landmarkType = "7">
          </BreakpointContent>
@@ -150,11 +150,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ViewController.mm"
-            timestampString = "582388623.848702"
+            timestampString = "588087079.034978"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "642"
-            endingLineNumber = "642"
+            startingLineNumber = "657"
+            endingLineNumber = "657"
             landmarkName = "-setupLocationManager"
             landmarkType = "7">
          </BreakpointContent>
@@ -166,11 +166,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ViewController.mm"
-            timestampString = "582388623.8489619"
+            timestampString = "588087079.035022"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "673"
-            endingLineNumber = "673"
+            startingLineNumber = "688"
+            endingLineNumber = "688"
             landmarkName = "-stopLocationManager"
             landmarkType = "7">
          </BreakpointContent>
@@ -182,12 +182,76 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ViewController.mm"
-            timestampString = "582388623.849221"
+            timestampString = "588087079.0350651"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "648"
-            endingLineNumber = "648"
+            startingLineNumber = "663"
+            endingLineNumber = "663"
             landmarkName = "-setupLocationManager"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../source/AppDemoLoad.cpp"
+            timestampString = "588088990.238721"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1950"
+            endingLineNumber = "1950"
+            landmarkName = "appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../lib-SLProject/source/SLSceneView.cpp"
+            timestampString = "588089157.809453"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "520"
+            endingLineNumber = "520"
+            landmarkName = "SLSceneView::draw3DGL(SLfloat elapsedTimeMS)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../lib-SLProject/source/SLBackground.cpp"
+            timestampString = "588091134.182373"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "171"
+            endingLineNumber = "171"
+            landmarkName = "SLBackground::render(SLint widthPX, SLint heightPX)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../lib-SLProject/source/SLBackground.cpp"
+            timestampString = "588091134.182695"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "174"
+            endingLineNumber = "174"
+            landmarkName = "SLBackground::render(SLint widthPX, SLint heightPX)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

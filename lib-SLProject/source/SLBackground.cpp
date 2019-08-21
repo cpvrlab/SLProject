@@ -21,10 +21,6 @@
 #include <SLScene.h>
 
 //-----------------------------------------------------------------------------
-SLBackground::~SLBackground()
-{
-}
-//-----------------------------------------------------------------------------
 //! The constructor initializes to a uniform black background color
 SLBackground::SLBackground() : SLObject("Background")
 {
@@ -40,7 +36,7 @@ SLBackground::SLBackground() : SLObject("Background")
 }
 //-----------------------------------------------------------------------------
 //! Sets a uniform background color
-void SLBackground::colors(SLCol4f uniformColor)
+void SLBackground::colors(const SLCol4f& uniformColor)
 {
     _colors[0].set(uniformColor);
     _colors[1].set(uniformColor);
@@ -52,7 +48,8 @@ void SLBackground::colors(SLCol4f uniformColor)
 }
 //-----------------------------------------------------------------------------
 //! Sets a gradient top-down background color
-void SLBackground::colors(SLCol4f topColor, SLCol4f bottomColor)
+void SLBackground::colors(const SLCol4f& topColor,
+                          const SLCol4f& bottomColor)
 {
     _colors[0].set(topColor);
     _colors[1].set(bottomColor);
@@ -64,10 +61,10 @@ void SLBackground::colors(SLCol4f topColor, SLCol4f bottomColor)
 }
 //-----------------------------------------------------------------------------
 //! Sets a gradient background color with a color per corner
-void SLBackground::colors(SLCol4f topLeftColor,
-                          SLCol4f bottomLeftColor,
-                          SLCol4f topRightColor,
-                          SLCol4f bottomRightColor)
+void SLBackground::colors(const SLCol4f& topLeftColor,
+                          const SLCol4f& bottomLeftColor,
+                          const SLCol4f& topRightColor,
+                          const SLCol4f& bottomRightColor)
 {
     _colors[0].set(topLeftColor);
     _colors[1].set(bottomLeftColor);
@@ -169,11 +166,8 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
 
     // draw a textured or colored quad
     if (_texture)
-    { // if video texture is not ready show error texture
-        if (_texture->texName())
-            _texture->bindActive(0);
-        else
-            _textureError->bindActive(0);
+    {
+        _texture->bindActive(0);
         sp->uniform1i("u_texture0", 0);
     }
 
@@ -194,7 +188,10 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
        +-----+
      LB       RB
 */
-void SLBackground::renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB)
+void SLBackground::renderInScene(SLVec3f LT,
+                                 SLVec3f LB,
+                                 SLVec3f RT,
+                                 SLVec3f RB)
 {
     SLGLState* stateGL = SLGLState::instance();
     SLScene*   s       = SLApplication::scene;
@@ -235,11 +232,8 @@ void SLBackground::renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB)
 
     // draw a textured or colored quad
     if (_texture)
-    { // if video texture is not ready show error texture
-        //if (_texture->texName())
+    {
         _texture->bindActive(0);
-        //else
-        //    _textureError->bindActive(0);
         sp->uniform1i("u_texture0", 0);
     }
 

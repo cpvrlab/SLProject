@@ -6,6 +6,7 @@
 //             such as Windows, MacOS and Linux.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -142,6 +143,7 @@ SLKey mapKeyToSLKey(SLint key)
         case GLFW_KEY_KP_SUBTRACT: return K_NPSubtract;
         case GLFW_KEY_KP_ADD: return K_NPAdd;
         case GLFW_KEY_KP_DECIMAL: return K_NPDecimal;
+        default: break;
     }
     return (SLKey)key;
 }
@@ -155,7 +157,7 @@ static void onResize(GLFWwindow* window, int width, int height)
     if (fixAspectRatio)
     {
         //correct target width and height
-        if (height * scrWdivH <= width)
+        if ((float)height * scrWdivH <= (float)width)
         {
             width  = (int)((float)height * scrWdivH);
             height = (int)((float)width / scrWdivH);
@@ -172,7 +174,9 @@ static void onResize(GLFWwindow* window, int width, int height)
 
     // width & height are in screen coords.
     // We need to scale them to framebuffer coords.
-    slResize(svIndex, (int)(width * scr2fbX), (int)(height * scr2fbY));
+    slResize(svIndex,
+             (int)((float)width * scr2fbX),
+             (int)((float)height * scr2fbY));
 
     //update glfw window with new size but keep position
     int curW, curH;
@@ -254,6 +258,7 @@ static void onMouseButton(GLFWwindow* window,
                     case GLFW_MOUSE_BUTTON_MIDDLE:
                         slDoubleClick(svIndex, MB_middle, x, y, modifiers);
                         break;
+                    default: break;
                 }
             }
             else // normal mouse clicks
@@ -272,6 +277,7 @@ static void onMouseButton(GLFWwindow* window,
                     case GLFW_MOUSE_BUTTON_MIDDLE:
                         slMouseDown(svIndex, MB_middle, x, y, modifiers);
                         break;
+                    default: break;
                 }
             }
         }

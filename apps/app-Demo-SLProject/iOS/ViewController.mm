@@ -7,7 +7,7 @@
 //             such as Windows, MacOS and Linux.
 //  Author:    Marcus Hudritsch
 //  Date:      November 2017
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -25,12 +25,14 @@
 #include <SLCVCapture.h>
 #include <AppDemoGui.h>
 #include <SLApplication.h>
+#include <AppDemoSceneView.h>
 #include <mach/mach_time.h>
 #import <sys/utsname.h>
 #import <mach-o/arch.h>
 
-// Declaration of scene load function
+// Forward declaration of C functions in other files
 extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
+extern bool onUpdateTracking();
 
 //-----------------------------------------------------------------------------
 // C-Prototypes
@@ -51,6 +53,14 @@ float screenScale = 1.0f;
 SLbool onPaintRTGL()
 {  [myView display];
    return true;
+}
+
+//-----------------------------------------------------------------------------
+//! Alternative SceneView creation C-function passed by slCreateSceneView
+SLuint createAppDemoSceneView()
+{
+    SLSceneView* appDemoSV = new AppDemoSceneView();
+    return appDemoSV->index();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -170,7 +180,7 @@ float GetSeconds()
                                 SID_Revolver,
                                 (void*)&onPaintRTGL,
                                 0,
-                                0,
+                                (void*)createAppDemoSceneView,
                                 (void*)AppDemoGui::build);
     ///////////////////////////////////////////////////////////////////////
     
@@ -219,7 +229,12 @@ float GetSeconds()
          [self startLocationManager];
     else [self stopLocationManager];
     
-    slUpdateAndPaint(svIndex);
+    /////////////////////////////////////////////
+    bool trackingGotUpdated = onUpdateTracking();
+    bool sceneGotUpdated    = slUpdateScene();
+    bool viewsNeedsRepaint  = slPaintAllViews();
+    /////////////////////////////////////////////
+    
     m_lastVideoImageIsConsumed = true;
     
     if (slShouldClose())
@@ -510,7 +525,7 @@ float GetSeconds()
         {   printf("Stopping AV Session\n");
             [m_avSession stopRunning];
         }
-        SLCVCapture::grabAndAdjustForSL();
+        SLCVCapture::instance()->grabAndAdjustForSL();
     }
     else if (videoType == VT_MAIN) // back facing video needed
     {

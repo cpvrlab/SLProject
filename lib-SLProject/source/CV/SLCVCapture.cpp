@@ -32,7 +32,7 @@ SLCVCapture* SLCVCapture::_instance = nullptr;
 //! Private constructor
 SLCVCapture::SLCVCapture()
 {
-    startCaptureTimeMS;
+    startCaptureTimeMS = 0.0f;
     hasSecondaryCamera = true;
     videoDefaultPath   = "../data/videos/";
     videoFilename      = "";

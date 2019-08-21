@@ -2058,7 +2058,7 @@ void AppDemoGui::buildProperties(SLScene* s)
                                             {
                                                 SLCol3f color = tf->colors()[c].color;
                                                 SLchar  label[20];
-                                                sprintf(label, "Color %u", c);
+                                                sprintf(label, "Color %lu", c);
                                                 if (ImGui::ColorEdit3(label, (float*)&color))
                                                 {
                                                     tf->colors()[c].color = color;
@@ -2066,7 +2066,7 @@ void AppDemoGui::buildProperties(SLScene* s)
                                                 }
                                                 ImGui::SameLine();
                                                 ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
-                                                sprintf(label, "Pos. %u", c);
+                                                sprintf(label, "Pos. %lu", c);
                                                 SLfloat pos = tf->colors()[c].pos;
                                                 if (c > 0 && c < tf->colors().size() - 1)
                                                 {
@@ -2079,7 +2079,7 @@ void AppDemoGui::buildProperties(SLScene* s)
                                                     }
                                                 }
                                                 else
-                                                    ImGui::Text("%3.2f Pos. %u", pos, c);
+                                                    ImGui::Text("%3.2f Pos. %lu", pos, c);
                                                 ImGui::PopItemWidth();
                                             }
 
@@ -2093,14 +2093,14 @@ void AppDemoGui::buildProperties(SLScene* s)
                                                 ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.25f);
                                                 SLfloat alpha = tf->alphas()[a].alpha;
                                                 SLchar  label[20];
-                                                sprintf(label, "Alpha %u", a);
+                                                sprintf(label, "Alpha %lu", a);
                                                 if (ImGui::SliderFloat(label, &alpha, 0.0f, 1.0f, "%3.2f"))
                                                 {
                                                     tf->alphas()[a].alpha = alpha;
                                                     tf->generateTexture();
                                                 }
                                                 ImGui::SameLine();
-                                                sprintf(label, "Pos. %u", a);
+                                                sprintf(label, "Pos. %lu", a);
                                                 SLfloat pos = tf->alphas()[a].pos;
                                                 if (a > 0 && a < tf->alphas().size() - 1)
                                                 {
@@ -2113,7 +2113,7 @@ void AppDemoGui::buildProperties(SLScene* s)
                                                     }
                                                 }
                                                 else
-                                                    ImGui::Text("%3.2f Pos. %u", pos, a);
+                                                    ImGui::Text("%3.2f Pos. %lu", pos, a);
 
                                                 ImGui::PopItemWidth();
                                             }

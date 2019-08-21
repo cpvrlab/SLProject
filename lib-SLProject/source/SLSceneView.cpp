@@ -45,7 +45,7 @@ SLSceneView::SLSceneView() : SLObject()
         if (s->sceneViews()[i] == nullptr)
         {
             s->sceneViews()[i] = this;
-            _index             = i;
+            _index             = (SLuint)i;
             return;
         }
     }
