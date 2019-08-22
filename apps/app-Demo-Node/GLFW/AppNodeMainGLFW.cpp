@@ -479,9 +479,7 @@ int main(int argc, char* argv[])
                         projectRoot + "/data/shaders/",
                         projectRoot + "/data/models/",
                         projectRoot + "/data/images/textures/",
-                        projectRoot + "/data/videos/",
                         projectRoot + "/data/images/fonts/",
-                        projectRoot + "/data/calibrations/",
                         configPath,
                         "AppNode_GLFW",
                         (void*)appNodeLoadScene);

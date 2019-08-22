@@ -845,7 +845,7 @@ int SLCVCalibration::getVersionInCalibFilename(const string& calibFilename)
         SLulong len = calibFilenameWOExt.length();
         if (calibFilenameWOExt.at(len - 1) == ')')
         {
-            size_t leftPos = calibFilenameWOExt.rfind("(");
+            size_t leftPos = calibFilenameWOExt.rfind('(');
             string verStr  = calibFilenameWOExt.substr(leftPos + 1, len - leftPos - 2);
             versionNO      = stoi(verStr);
         }

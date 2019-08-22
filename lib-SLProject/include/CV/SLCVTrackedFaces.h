@@ -38,7 +38,7 @@ class SLCVTrackedFaces : public SLCVTracked
                               SLint    smoothLength           = 5,
                               SLstring faceClassifierFilename = "haarcascade_frontalface_alt2.xml",
                               SLstring faceMarkModelFilename  = "lbfmodel.yaml");
-    ~SLCVTrackedFaces() final;
+    ~SLCVTrackedFaces();
 
     SLbool track(SLCVMat          imageGray,
                  SLCVMat          imageRgb,

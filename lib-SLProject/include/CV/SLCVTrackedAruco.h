@@ -96,13 +96,12 @@ class SLCVTrackedAruco : public SLCVTracked
 {
     public:
     SLCVTrackedAruco(SLNode* node, SLint arucoID);
-    ~SLCVTrackedAruco() { ; }
 
     SLbool track(SLCVMat          imageGray,
                  SLCVMat          imageRgb,
                  SLCVCalibration* calib,
                  SLbool           drawDetection,
-                 SLSceneView*     sv);
+                 SLSceneView*     sv) final;
 
     //! Helper function to draw and save an aruco marker board image
     static void drawArucoMarkerBoard(SLint    dictionaryId,
