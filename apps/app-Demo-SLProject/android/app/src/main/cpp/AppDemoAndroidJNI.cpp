@@ -13,9 +13,10 @@
 #include <stdafx.h>
 #include <SLInterface.h>
 #include <SLScene.h>
+#include <SLApplication.h>
+#include <SLCVCapture.h>
 #include <AppDemoGui.h>
 #include <AppDemoSceneView.h>
-#include <SLCVCapture.h>
 
 //-----------------------------------------------------------------------------
 // Some global variable for the JNI interface
@@ -121,9 +122,9 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject o
     string device_path_msg = "Device path:" + devicePath;
     SL_LOG(device_path_msg.c_str(),0);
 
-    SLCVCapture::instance()->loadCalibrations(devicePath + "/config/",
-                                              devicePath + "/data/videos/",
-                                              devicePath + "/textures/");
+    SLCVCapture::instance()->loadCalibrations(devicePath + "/config/",       // for calibrations made
+                                              devicePath + "/calibrations/", // for calibInitPath
+                                              devicePath + "/videos/");      // for videos
 
     ////////////////////////////////////////////////////
     slCreateAppAndScene(  *cmdLineArgs,
@@ -246,7 +247,8 @@ JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoSizeIndex(JNIEnv *env
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_grabVideoFileFrame(JNIEnv *env, jobject obj)
 {
-    return SLCVCapture::instance()->grabAndAdjustForSL();
+    float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
+    return SLCVCapture::instance()->grabAndAdjustForSL(scrWdivH);
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, jobject obj, jint imgWidth, jint imgHeight, jbyteArray imgBuffer)
@@ -256,7 +258,8 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, j
     if (srcLumaPtr == nullptr)
         SL_EXIT_MSG("copyVideoImage: No image data pointer passed!");
 
-    SLCVCapture::instance()->loadIntoLastFrame(imgWidth, imgHeight, PF_yuv_420_888, srcLumaPtr, true);
+    float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
+    SLCVCapture::instance()->loadIntoLastFrame(scrWdivH, imgWidth, imgHeight, PF_yuv_420_888, srcLumaPtr, true);
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes(JNIEnv *env, jobject obj, jint  srcW, jint srcH,
@@ -273,7 +276,8 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes(JNIEnv *en
     if (u == nullptr) SL_EXIT_MSG("copyVideoYUVPlanes: No pointer for u-buffer passed!");
     if (v == nullptr) SL_EXIT_MSG("copyVideoYUVPlanes: No pointer for v-buffer passed!");
 
-    SLCVCapture::instance()->copyYUVPlanes(srcW, srcH,
+    float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
+    SLCVCapture::instance()->copyYUVPlanes(scrWdivH, srcW, srcH,
                                            y, ySize, yPixStride, yLineStride,
                                            u, uSize, uPixStride, uLineStride,
                                            v, vSize, vPixStride, vLineStride);

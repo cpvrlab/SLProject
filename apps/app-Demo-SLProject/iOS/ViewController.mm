@@ -157,9 +157,9 @@ float GetSeconds()
     SLApplication::computerOSVer = std::string([osver UTF8String]);
     SLApplication::computerArch  = std::string([arch UTF8String]);
     
-    SLCVCapture::instance()->loadCalibrations(configDir,
-                                              exeDir,
-                                              exeDir);
+    SLCVCapture::instance()->loadCalibrations(configDir, // for stored calibrations
+                                              exeDir,    // for calibIniPath
+                                              exeDir);   // for videos
     
     /////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
@@ -392,8 +392,9 @@ float GetSeconds()
     {   NSLog(@"No pixel buffer data");
         return;
     }
-        
-    SLCVCapture::instance()->loadIntoLastFrame(width, height, PF_bgra, data, false);
+    
+    float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
+    SLCVCapture::instance()->loadIntoLastFrame(scrWdivH, width, height, PF_bgra, data, false);
     
     CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
         
@@ -528,7 +529,9 @@ float GetSeconds()
         {   printf("Stopping AV Session\n");
             [m_avSession stopRunning];
         }
-        SLCVCapture::instance()->grabAndAdjustForSL();
+        
+        float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
+        SLCVCapture::instance()->grabAndAdjustForSL(scrWdivH);
     }
     else if (videoType == VT_MAIN) // back facing video needed
     {

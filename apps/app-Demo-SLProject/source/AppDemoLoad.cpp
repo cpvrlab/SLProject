@@ -18,7 +18,6 @@
 #include <SLAssimpImporter.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-
 #include <SLBox.h>
 #include <SLCVCapture.h>
 #include <SLCVTrackedAruco.h>
@@ -41,6 +40,8 @@
 #include <SLSphere.h>
 #include <SLText.h>
 #include <SLTransferFunction.h>
+
+extern SLGLTexture* videoTexture;
 
 //-----------------------------------------------------------------------------
 // Forward declarations for helper functions used only in this file
@@ -65,8 +66,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         activeCalib->state() != CS_uncalibrated)
         activeCalib->state(CS_uncalibrated);
 
-    SLCVTracked::reset();
-    SLCVCapture::instance()->videoType(VT_NONE);
+    SLCVTracked::reset(); // delete all trackers from previous scenes
+    SLCVCapture::instance()->videoType(VT_NONE); // turn off any video
+    videoTexture = nullptr; // video texture will be deleted by scene uninit
 
     SLApplication::sceneID = sceneID;
 
@@ -1946,8 +1948,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLCVCapture::instance()->videoLoops    = true;
         }
 
-        // Back wall material with live video texture
-        SLMaterial* m1 = new SLMaterial("VideoMat", SLCVCapture::instance()->videoTexture());
+        // Create video texture on global pointer updated in AppDemoTracking
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        SLMaterial* m1 = new SLMaterial("VideoMat", videoTexture);
 
         // Create a root scene group for all nodes
         SLNode* scene = new SLNode("scene node");
@@ -1957,7 +1960,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 0, 20);
         cam1->focalDist(20);
         cam1->lookAt(0, 0, 0);
-        cam1->background().texture(SLCVCapture::instance()->videoTexture());
+        cam1->background().texture(videoTexture);
         cam1->setInitialState();
         scene->addChild(cam1);
 
@@ -2032,6 +2035,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             s->name("Calibrate Scnd Cam.");
         }
 
+        // Create video texture on global pointer updated in AppDemoTracking
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+
         // Material
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
 
@@ -2051,7 +2057,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(5);
         cam1->clipFar(10);
         cam1->fov(activeCalib->cameraFovVDeg());
-        cam1->background().texture(SLCVCapture::instance()->videoTexture());
+        cam1->background().texture(videoTexture);
         cam1->setInitialState();
         scene->addChild(cam1);
 
@@ -2109,6 +2115,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             s->info("Hold Aruco Marker 0 and/or 1 into the field of view of the secondary camera. You can find the Aruco markers in the file data/Calibrations/ArucoMarkersDict0_Marker0-9.pdf");
         }
 
+        // Create video texture on global pointer updated in AppDemoTracking
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+
         // Material
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
         SLMaterial* cyan   = new SLMaterial("mY", SLCol4f(0, 1, 1, 0.5f));
@@ -2121,7 +2130,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 0, 5);
         cam1->lookAt(0, 0, 0);
         cam1->fov(activeCalib->cameraFovVDeg());
-        cam1->background().texture(SLCVCapture::instance()->videoTexture());
+        cam1->background().texture(videoTexture);
         cam1->setInitialState();
         scene->addChild(cam1);
 
@@ -2182,13 +2191,16 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Track 2D Features");
         s->info("Augmented Reality 2D Feature Tracking: You need to print out the stones image target from the file data/calibrations/vuforia_markers.pdf");
 
+        // Create video texture on global pointer updated in AppDemoTracking
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 60);
         cam1->lookAt(15, 15, 0);
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
-        cam1->background().texture(SLCVCapture::instance()->videoTexture());
+        cam1->background().texture(videoTexture);
         SLCVCapture::instance()->videoType(VT_MAIN);
 
         SLLightSpot* light1 = new SLLightSpot(420, 420, 420, 1);
@@ -2260,12 +2272,15 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
         s->info("Face and facial landmark detection.");
 
+        // Create video texture on global pointer updated in AppDemoTracking
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 0.5f);
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
-        cam1->background().texture(SLCVCapture::instance()->videoTexture());
+        cam1->background().texture(videoTexture);
 
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 1);
         light1->ambient(SLCol4f(1, 1, 1));
@@ -2305,6 +2320,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Video Sensor AR");
         s->info("Minimal scene to test the devices IMU and GPS Sensors. See the sensor information. GPS needs a few sec. to improve the accuracy.");
 
+        // Create video texture on global pointer updated in AppDemoTracking
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 60);
         cam1->lookAt(0, 0, 0);
@@ -2312,9 +2330,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(0.1f);
         cam1->clipFar(10000.0f);
         cam1->setInitialState();
+        cam1->background().texture(videoTexture);
 
         // Turn on main video
-        cam1->background().texture(SLCVCapture::instance()->videoTexture());
         SLCVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
@@ -2367,15 +2385,18 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Christoffel Tower AR");
         s->info("Augmented Reality Christoffel Tower");
 
+        // Create video texture on global pointer updated in AppDemoTracking
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 0);
         cam1->lookAt(-10, 2, 0);
         cam1->clipNear(0.1f);
         cam1->clipFar(500.0f);
         cam1->setInitialState();
+        cam1->background().texture(videoTexture);
 
         // Turn on main video
-        cam1->background().texture(SLCVCapture::instance()->videoTexture());
         SLCVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
@@ -2887,7 +2908,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             sceneView->onInitialize();
 
     if (SLCVCapture::instance()->videoType() != VT_NONE)
-        SLCVCapture::instance()->start();
+        SLCVCapture::instance()->start(sv->scrWdivH());
 }
 //-----------------------------------------------------------------------------
 //! Creates a recursive sphere group used for the ray tracing scenes

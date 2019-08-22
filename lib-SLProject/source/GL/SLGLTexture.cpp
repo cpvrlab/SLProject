@@ -50,7 +50,6 @@ SLGLTexture::SLGLTexture()
     _autoCalcTM3D = false;
     _bytesOnGPU   = 0;
     _needsUpdate  = false;
-    _alwaysUpdate = false;
 }
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
@@ -78,7 +77,6 @@ SLGLTexture::SLGLTexture(const SLstring& filename,
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
     _needsUpdate  = false;
-    _alwaysUpdate = false;
     _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
@@ -111,7 +109,6 @@ SLGLTexture::SLGLTexture(const SLVstring& files,
     _resizeToPow2 = false;
     _autoCalcTM3D = true;
     _needsUpdate  = false;
-    _alwaysUpdate = false;
     _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
@@ -123,7 +120,7 @@ SLGLTexture::SLGLTexture(const SLVCol4f& colors,
                          SLint           min_filter,
                          SLint           mag_filter,
                          SLint           wrapS,
-                         SLstring        name) : SLObject(name)
+                         const SLstring& name) : SLObject(name)
 {
     assert(colors.size() > 1);
 
@@ -144,7 +141,6 @@ SLGLTexture::SLGLTexture(const SLVCol4f& colors,
     _resizeToPow2 = false;
     _autoCalcTM3D = true;
     _needsUpdate  = false;
-    _alwaysUpdate = false;
     _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
@@ -152,29 +148,30 @@ SLGLTexture::SLGLTexture(const SLVCol4f& colors,
 }
 //-----------------------------------------------------------------------------
 //! ctor for cube mapping with internal image allocation
-SLGLTexture::SLGLTexture(SLstring      filenameXPos,
-                         SLstring      filenameXNeg,
-                         SLstring      filenameYPos,
-                         SLstring      filenameYNeg,
-                         SLstring      filenameZPos,
-                         SLstring      filenameZNeg,
-                         SLint         min_filter,
-                         SLint         mag_filter,
-                         SLTextureType type) : SLObject(filenameXPos)
+SLGLTexture::SLGLTexture(const SLstring& filenameXPos,
+                         const SLstring& filenameXNeg,
+                         const SLstring& filenameYPos,
+                         const SLstring& filenameYNeg,
+                         const SLstring& filenameZPos,
+                         const SLstring& filenameZNeg,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLTextureType   type) : SLObject(filenameXPos)
 {
     _texType = type == TT_unknown ? detectType(filenameXPos) : type;
 
-    assert(filenameXPos != "");
+    assert(!filenameXPos.empty());
+    assert(!filenameXNeg.empty());
+    assert(!filenameYPos.empty());
+    assert(!filenameYNeg.empty());
+    assert(!filenameZPos.empty());
+    assert(!filenameZNeg.empty());
+
     load(filenameXPos, false);
-    assert(filenameXNeg != "");
     load(filenameXNeg, false);
-    assert(filenameYPos != "");
     load(filenameYPos, false);
-    assert(filenameYNeg != "");
     load(filenameYNeg, false);
-    assert(filenameZPos != "");
     load(filenameZPos, false);
-    assert(filenameZNeg != "");
     load(filenameZNeg, false);
 
     _min_filter   = min_filter;
@@ -187,7 +184,6 @@ SLGLTexture::SLGLTexture(SLstring      filenameXPos,
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
     _needsUpdate  = false;
-    _alwaysUpdate = false;
     _bytesOnGPU   = 0;
 
     SLApplication::scene->textures().push_back(this);
@@ -244,16 +240,6 @@ void SLGLTexture::load(const SLVCol4f& colors)
     assert(colors.size() > 1);
 
     _images.push_back(new SLCVImage(colors));
-}
-//-----------------------------------------------------------------------------
-void SLGLTexture::setVideoImage(SLstring videoImageFile)
-{
-    load(videoImageFile);
-    name(videoImageFile);
-    _min_filter  = GL_LINEAR;
-    _mag_filter  = GL_LINEAR;
-    _needsUpdate = true;
-    _alwaysUpdate = true;
 }
 //-----------------------------------------------------------------------------
 //! Copies the image data from a video camera into the current video image
@@ -560,7 +546,7 @@ void SLGLTexture::bindActive(SLint texID)
         //           _texName, texID, _images[0]->name().c_str());
         //}
 
-        if (_alwaysUpdate || _needsUpdate)
+        if (_needsUpdate)
         {
             fullUpdate();
             _needsUpdate = false;
@@ -580,6 +566,7 @@ void SLGLTexture::fullUpdate()
         _images[0]->data() &&
         _target == GL_TEXTURE_2D)
     {
+        // Do not allow MIP-Maps as they are to big
         if (_min_filter == GL_NEAREST || _min_filter == GL_LINEAR)
         {
             numBytesInTextures -= _bytesOnGPU;
@@ -599,6 +586,8 @@ void SLGLTexture::fullUpdate()
             _bytesOnGPU = _images[0]->bytesPerImage();
             numBytesInTextures += _bytesOnGPU;
         }
+        else
+            SL_WARN_MSG("Filtering to expensive to full update in SLGLTexture::fullupdate!");
     }
     GET_GL_ERROR;
 }

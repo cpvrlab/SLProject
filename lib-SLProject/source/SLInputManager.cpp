@@ -70,7 +70,7 @@ SLbool SLInputManager::processQueuedEvents()
         const SLInputEvent* e = q.front();
         q.pop();
 
-        SLSceneView* sv = SLApplication::scene->sv((SLuint)e->svIndex);
+        SLSceneView* sv = SLApplication::scene->sceneView((SLuint)e->svIndex);
 
         if (sv)
         {

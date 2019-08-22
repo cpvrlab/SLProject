@@ -67,7 +67,7 @@ class SLScene : public SLObject
 
     // Getters
     SLAnimManager&   animManager() { return _animManager; }
-    SLSceneView*     sv(SLuint index) { return _sceneViews[index]; }
+    SLSceneView*     sceneView(SLuint index) { return _sceneViews[index]; }
     SLVSceneView&    sceneViews() { return _sceneViews; }
     SLNode*          root3D() { return _root3D; }
     SLNode*          root2D() { return _root2D; }
@@ -102,9 +102,8 @@ class SLScene : public SLObject
     cbOnSceneLoad onLoad; //!< C-Callback for scene load
 
     // Misc.
-    //virtual  void            onLoad              (SLSceneView* sv, SLCommand _currentID);
-    virtual void onLoadAsset(SLstring assetFile,
-                             SLuint   processFlags);
+    virtual void onLoadAsset(const SLstring& assetFile,
+                             SLuint          processFlags);
     bool         onUpdate();
     void         init();
     void         unInit();

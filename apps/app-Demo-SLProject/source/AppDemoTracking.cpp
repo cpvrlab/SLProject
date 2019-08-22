@@ -13,6 +13,12 @@
 #include <SLSceneView.h>
 #include <SLCVCapture.h>
 #include <SLCVTrackedAruco.h>
+#include <SLGLTexture.h>
+
+//-----------------------------------------------------------------------------
+// Global pointer for the video texture defined in AppDemoLoad for video scenes
+// It gets updated in the following onUpdateTracking routine
+SLGLTexture* videoTexture = nullptr;
 
 //-----------------------------------------------------------------------------
 //! Implements the update per frame for feature tracking and video update
@@ -23,7 +29,7 @@
 bool onUpdateTracking()
 {
     SLScene*     s  = SLApplication::scene;
-    SLSceneView* sv = s->sv(0);
+    SLSceneView* sv = s->sceneView(0);
 
     if (SLCVCapture::instance()->videoType() != VT_NONE && !SLCVCapture::instance()->lastFrame.empty())
     {
@@ -117,27 +123,34 @@ bool onUpdateTracking()
         } //...................................................................
 
         //copy image to video texture
-        if (ac->state() == CS_calibrated && ac->showUndistorted())
+        if (videoTexture)
         {
-            SLCVMat undistorted;
-            ac->remap(SLCVCapture::instance()->lastFrame, undistorted);
+            if (ac->state() == CS_calibrated && ac->showUndistorted())
+            {
+                SLCVMat undistorted;
+                ac->remap(SLCVCapture::instance()->lastFrame, undistorted);
 
-            SLCVCapture::instance()->videoTexture()->copyVideoImage(undistorted.cols,
-                                                                    undistorted.rows,
-                                                                    SLCVCapture::instance()->format,
-                                                                    undistorted.data,
-                                                                    undistorted.isContinuous(),
-                                                                    true);
+                //SLCVCapture::instance()->videoTexture()->copyVideoImage(undistorted.cols,
+                videoTexture->copyVideoImage(undistorted.cols,
+                                             undistorted.rows,
+                                             SLCVCapture::instance()->format,
+                                             undistorted.data,
+                                             undistorted.isContinuous(),
+                                             true);
+            }
+            else
+            {
+                //SLCVCapture::instance()->videoTexture()->copyVideoImage(SLCVCapture::instance()->lastFrame.cols,
+                videoTexture->copyVideoImage(SLCVCapture::instance()->lastFrame.cols,
+                                             SLCVCapture::instance()->lastFrame.rows,
+                                             SLCVCapture::instance()->format,
+                                             SLCVCapture::instance()->lastFrame.data,
+                                             SLCVCapture::instance()->lastFrame.isContinuous(),
+                                             true);
+            }
         }
         else
-        {
-            SLCVCapture::instance()->videoTexture()->copyVideoImage(SLCVCapture::instance()->lastFrame.cols,
-                                                                    SLCVCapture::instance()->lastFrame.rows,
-                                                                    SLCVCapture::instance()->format,
-                                                                    SLCVCapture::instance()->lastFrame.data,
-                                                                    SLCVCapture::instance()->lastFrame.isContinuous(),
-                                                                    true);
-        }
+            SL_WARN_MSG("No video texture to copy to.");
 
         SLCVTracked::trackingTimesMS.set(SLApplication::timeMS() - trackingTimeStartMS);
         return true;

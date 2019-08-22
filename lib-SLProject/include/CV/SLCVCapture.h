@@ -27,7 +27,6 @@ for a good top down information.
 #include <SLVec2.h>
 #include <opencv2/opencv.hpp>
 #include <SLCVCalibration.h>
-#include <SLGLTexture.h>
 
 //-----------------------------------------------------------------------------
 //! Encapsulation of the OpenCV Capture Device and holder of the last frame.
@@ -60,17 +59,19 @@ class SLCVCapture
 
     SLVec2i open(SLint deviceNum);
     SLVec2i openFile();
-    void    start();
-    void    grabAndAdjustForSL();
-    void    adjustForSL();
+    void    start(float scrWdivH);
+    void    grabAndAdjustForSL(float scrWdivH);
+    void    adjustForSL(float scrWdivH);
     SLbool  isOpened() { return _captureDevice.isOpened(); }
     void    release();
-    void    loadIntoLastFrame(SLint          camWidth,
+    void    loadIntoLastFrame(float          scrWdivH,
+                              SLint          camWidth,
                               SLint          camHeight,
                               SLPixelFormat  srcPixelFormat,
                               const SLuchar* data,
                               SLbool         isContinuous);
-    void    copyYUVPlanes(int      srcW,
+    void    copyYUVPlanes(float    scrWdivH,
+                          int      srcW,
                           int      srcH,
                           SLuchar* y,
                           int      ySize,
@@ -85,20 +86,18 @@ class SLCVCapture
                           int      vPixStride,
                           int      vLineStride);
 
-    void         videoType(SLVideoType vt);
-    SLVideoType  videoType() { return _videoType; }
-    SLGLTexture* videoTexture() { return &_videoTexture; }
-    SLGLTexture* videoTextureErr() { return &_videoTextureErr; }
-    SLAvgFloat&  captureTimesMS() { return _captureTimesMS; }
-    void         loadCalibrations(const SLstring& calibrationPath,
-                                  const SLstring& videoPath,
-                                  const SLstring& texturePath);
-    void         setCameraSize(int sizeIndex,
-                               int sizeIndexMax,
-                               int width,
-                               int height);
+    void        videoType(SLVideoType vt);
+    SLVideoType videoType() { return _videoType; }
+    SLAvgFloat& captureTimesMS() { return _captureTimesMS; }
+    void        loadCalibrations(const SLstring& configPath,
+                                 const SLstring& calibInitPath,
+                                 const SLstring& videoPath);
+    void        setCameraSize(int sizeIndex,
+                              int sizeIndexMax,
+                              int width,
+                              int height);
 
-      SLCVMat lastFrame;              //!< last frame grabbed in RGB
+    SLCVMat       lastFrame;          //!< last frame grabbed in RGB
     SLCVMat       lastFrameGray;      //!< last frame in grayscale
     SLPixelFormat format;             //!< SL pixel format
     SLCVSize      captureSize;        //!< size of captured frame
@@ -124,11 +123,9 @@ class SLCVCapture
     ~SLCVCapture();
     static SLCVCapture* _instance; //!< global singleton object
 
-    SLVideoType      _videoType;       //!< Flag for using the live video image
-    SLGLTexture      _videoTexture;    //!< Texture for live video image
-    SLGLTexture      _videoTextureErr; //!< Texture for live video error
-    cv::VideoCapture _captureDevice;   //!< OpenCV capture device
-    SLAvgFloat       _captureTimesMS;  //!< Averaged time for video capturing in ms
+    SLVideoType      _videoType;      //!< Flag for using the live video image
+    cv::VideoCapture _captureDevice;  //!< OpenCV capture device
+    SLAvgFloat       _captureTimesMS; //!< Averaged time for video capturing in ms
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVCAPTURE_H

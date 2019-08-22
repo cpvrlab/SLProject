@@ -115,8 +115,7 @@ SLScene::~SLScene()
 {
     // Delete all remaining sceneviews
     for (auto sv : _sceneViews)
-        if (sv != nullptr)
-            delete sv;
+        delete sv;
 
     unInit();
 
@@ -425,8 +424,8 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect,
     }
 }
 //-----------------------------------------------------------------------------
-void SLScene::onLoadAsset(SLstring assetFile,
-                          SLuint   processFlags)
+void SLScene::onLoadAsset(const SLstring& assetFile,
+                          SLuint          processFlags)
 {
     SLApplication::sceneID = SID_FromFile;
 
@@ -453,7 +452,7 @@ void SLScene::onLoadAsset(SLstring assetFile,
         _root3D->addChild(loaded);
 
     // Add directional light if no light was in loaded asset
-    if (!_lights.size())
+    if (_lights.empty())
     {
         SLAABBox boundingBox = _root3D->updateAABBRec();
         SLfloat  arrowLength = boundingBox.radiusWS() > FLT_EPSILON
@@ -499,7 +498,7 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
     if (cams.size() == 1) return cams[0];
 
     SLint activeIndex = 0;
-    for (SLuint i = 0; i < cams.size(); ++i)
+    for (SLulong i = 0; i < cams.size(); ++i)
     {
         if (cams[i] == activeSV->camera())
         {
@@ -524,7 +523,7 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
 bool SLScene::removeMesh(SLMesh* mesh)
 {
     assert(mesh);
-    for (SLuint i = 0; i < _meshes.size(); ++i)
+    for (SLulong i = 0; i < _meshes.size(); ++i)
     {
         if (_meshes[i] == mesh)
         {
@@ -540,7 +539,7 @@ bool SLScene::removeMesh(SLMesh* mesh)
 bool SLScene::deleteTexture(SLGLTexture* texture)
 {
     assert(texture);
-    for (SLuint i = 0; i < _textures.size(); ++i)
+    for (SLulong i = 0; i < _textures.size(); ++i)
     {
         if (_textures[i] == texture)
         {

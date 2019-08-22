@@ -25,6 +25,7 @@
 #include <SLCVCapture.h>
 #include <SLEnums.h>
 #include <SLInterface.h>
+#include <SLApplication.h>
 #include <SLSceneView.h>
 
 //-----------------------------------------------------------------------------
@@ -71,7 +72,10 @@ SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
     if (SLCVCapture::instance()->videoType() != VT_NONE)
-        SLCVCapture::instance()->grabAndAdjustForSL();
+    {
+        float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
+        SLCVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+    }
 
     /////////////////////////////////////////////
     bool trackingGotUpdated = onUpdateTracking();
@@ -563,9 +567,9 @@ int main(int argc, char* argv[])
     SLstring configDir   = Utils::getAppsWritableDir();
     slSetupExternalDir("../data");
 
-    SLCVCapture::instance()->loadCalibrations(configDir,
-                                              projectRoot + "/data/videos/",
-                                              projectRoot + "/data/images/textures/");
+    SLCVCapture::instance()->loadCalibrations(configDir,                            // for calibrations made
+                                              projectRoot + "/data/calibrations/",  // for calibInitPath
+                                              projectRoot + "/data/videos/");       // for videos
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,

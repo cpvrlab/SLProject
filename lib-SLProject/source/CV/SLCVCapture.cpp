@@ -23,8 +23,7 @@ for a good top down information.
 #include <SLApplication.h>
 #include <SLCVCalibration.h>
 #include <SLCVCapture.h>
-#include <SLScene.h>
-#include <SLSceneView.h>
+#include <SLCVImage.h>
 
 //-----------------------------------------------------------------------------
 SLCVCapture* SLCVCapture::_instance = nullptr;
@@ -50,7 +49,7 @@ SLCVCapture::~SLCVCapture()
 }
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
-/* This so far called in SLScene::onAfterLoad if a scene uses a live video by
+/* This so far called in start if a scene uses a live video by
 setting the the SLScene::_videoType to VT_MAIN. On desktop systems the webcam
 is the only and main camera.
 */
@@ -133,10 +132,9 @@ SLVec2i SLCVCapture::openFile()
 }
 //-----------------------------------------------------------------------------
 //! starts the video capturing
-void SLCVCapture::start()
+void SLCVCapture::start(float scrWdivH)
 {
 #ifdef SL_USES_CVCAPTURE
-
     if (_videoType != VT_NONE)
     {
         if (!isOpened())
@@ -149,17 +147,7 @@ void SLCVCapture::start()
 
             if (videoSize != SLVec2i::ZERO)
             {
-                grabAndAdjustForSL();
-
-                if (lastFrame.cols > 0 && lastFrame.rows > 0)
-                {
-                    _videoTexture.copyVideoImage(lastFrame.cols,
-                                                 lastFrame.rows,
-                                                 format,
-                                                 lastFrame.data,
-                                                 lastFrame.isContinuous(),
-                                                 true);
-                }
+                grabAndAdjustForSL(scrWdivH);
             }
         }
     }
@@ -169,19 +157,6 @@ void SLCVCapture::start()
         if (!isOpened())
         {
             SLVec2i videoSize = openFile();
-
-            if (videoSize != SLVec2i::ZERO)
-            {
-                if (lastFrame.cols > 0 && lastFrame.rows > 0)
-                {
-                    _videoTexture.copyVideoImage(lastFrame.cols,
-                                                 lastFrame.rows,
-                                                 format,
-                                                 lastFrame.data,
-                                                 lastFrame.isContinuous(),
-                                                 true);
-                }
-            }
         }
     }
 #endif
@@ -200,7 +175,7 @@ SLCVCapture::adjustForSL. This function can also be called by Android or iOS
 app for grabbing a frame of a video file. Android and iOS use their own
 capture functionality.
 */
-void SLCVCapture::grabAndAdjustForSL()
+void SLCVCapture::grabAndAdjustForSL(float scrWdivH)
 {
     SLCVCapture::startCaptureTimeMS = SLApplication::timeMS();
 
@@ -221,7 +196,7 @@ void SLCVCapture::grabAndAdjustForSL()
                     return;
             }
 
-            adjustForSL();
+            adjustForSL(scrWdivH);
         }
         else
         {
@@ -256,7 +231,7 @@ image should be mirrored or not is stored in SLCVCalibration::_isMirroredH
 3) Many of the further processing steps are faster done on grayscale images.
 We therefore create a copy that is grayscale converted.
 */
-void SLCVCapture::adjustForSL()
+void SLCVCapture::adjustForSL(float scrWdivH)
 {
     SLScene* s = SLApplication::scene;
     format     = SLCVImage::cv2glPixelFormat(lastFrame.type());
@@ -297,7 +272,7 @@ void SLCVCapture::adjustForSL()
     // So this is Android image copy loop #2
 
     SLfloat inWdivH  = (SLfloat)lastFrame.cols / (SLfloat)lastFrame.rows;
-    SLfloat outWdivH = s->sceneViews()[0]->scrWdivH();
+    SLfloat outWdivH = scrWdivH;
 
     if (SL_abs(inWdivH - outWdivH) > 0.01f)
     {
@@ -392,7 +367,8 @@ void SLCVCapture::adjustForSL()
 cameras on their own. We only adjust the color space. See the app-Demo-SLProject/iOS and
 app-Demo-SLProject/android projects for the usage.
 */
-void SLCVCapture::loadIntoLastFrame(const SLint         width,
+void SLCVCapture::loadIntoLastFrame(const SLfloat       scrWdivH,
+                                    const SLint         width,
                                     const SLint         height,
                                     const SLPixelFormat format,
                                     const SLuchar*      data,
@@ -466,7 +442,7 @@ void SLCVCapture::loadIntoLastFrame(const SLint         width,
         SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, destStride);
     }
 
-    adjustForSL();
+    adjustForSL(scrWdivH);
 }
 //-----------------------------------------------------------------------------
 //! YUV to RGB image infos. Offset value can be negative for mirrored copy.
@@ -637,7 +613,8 @@ We therefore create a copy of the y-channel into SLCVCapture::lastFrameGray.
 \param vColOffset  Offset in bytes to the next pixel in the v-plane
 \param vRowOffset  Offset in bytes to the next line in the v-plane
 */
-void SLCVCapture::copyYUVPlanes(int      srcW,
+void SLCVCapture::copyYUVPlanes(float    scrWdivH,
+                                int      srcW,
                                 int      srcH,
                                 SLuchar* y,
                                 int      yBytes,
@@ -659,10 +636,7 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
     SLCVCapture::startCaptureTimeMS = SLApplication::timeMS();
 
     // input image aspect ratio
-    SLfloat srcWdivH = (SLfloat)srcW / (SLfloat)srcH;
-
-    // output image aspect ratio = aspect of the always landscape screen
-    SLfloat dstWdivH = s->sceneViews()[0]->scrWdivH();
+    SLfloat imgWdivH = (SLfloat)srcW / (SLfloat)srcH;
 
     SLint dstW  = srcW; // width in pixels of the destination image
     SLint dstH  = srcH; // height in pixels of the destination image
@@ -670,18 +644,18 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
     SLint cropW = 0;    // crop width in pixels of the source image
 
     // Crop image if source and destination aspect is not the same
-    if (SL_abs(srcWdivH - dstWdivH) > 0.01f)
+    if (SL_abs(imgWdivH - scrWdivH) > 0.01f)
     {
-        if (srcWdivH > dstWdivH) // crop input image left & right
+        if (imgWdivH > scrWdivH) // crop input image left & right
         {
-            dstW  = (SLint)((SLfloat)srcH * dstWdivH);
+            dstW  = (SLint)((SLfloat)srcH * scrWdivH);
             dstH  = srcH;
             cropW = (SLint)((SLfloat)(srcW - dstW) * 0.5f);
         }
         else // crop input image at top & bottom
         {
             dstW  = srcW;
-            dstH  = (SLint)((SLfloat)srcW / dstWdivH);
+            dstH  = (SLint)((SLfloat)srcW / scrWdivH);
             cropH = (SLint)((SLfloat)(srcH - dstH) * 0.5f);
         }
     }
@@ -838,17 +812,13 @@ void SLCVCapture::videoType(SLVideoType vt)
     }
 }
 //-----------------------------------------------------------------------------
-void SLCVCapture::loadCalibrations(const SLstring& calibrationPath,
-                                   const SLstring& videoPath,
-                                   const SLstring& texturePath)
+void SLCVCapture::loadCalibrations(const SLstring& configPath,
+                                   const SLstring& calibInitPath,
+                                   const SLstring& videoPath)
 {
 
     videoDefaultPath              = videoPath;
-    SLCVCalibration::calibIniPath = calibrationPath;
-    SLGLTexture::defaultPath      = texturePath;
-
-    _videoTexture.setVideoImage("LiveVideoError.png");
-    _videoTextureErr.setVideoImage("LiveVideoError.png");
+    SLCVCalibration::calibIniPath = calibInitPath;
 
     // This gets computerUser,-Name,-Brand,-Model,-OS,-OSVer,-Arch,-ID
     SLstring deviceString = SLApplication::getComputerInfos();
@@ -858,14 +828,14 @@ void SLCVCapture::loadCalibrations(const SLstring& calibrationPath,
 
     // load opencv camera calibration for main and secondary camera
 #if defined(SL_USES_CVCAPTURE)
-    calibMainCam.load(calibrationPath, mainCalibFilename, true, false);
+    calibMainCam.load(configPath, mainCalibFilename, true, false);
     calibMainCam.loadCalibParams();
     activeCalib        = &calibMainCam;
     hasSecondaryCamera = false;
 #else
-    calibMainCam.load(calibrationPath, mainCalibFilename, false, false);
+    calibMainCam.load(configPath, mainCalibFilename, false, false);
     calibMainCam.loadCalibParams();
-    calibScndCam.load(calibrationPath, scndCalibFilename, true, false);
+    calibScndCam.load(configPath, scndCalibFilename, true, false);
     calibScndCam.loadCalibParams();
     activeCalib        = &calibMainCam;
     hasSecondaryCamera = true;

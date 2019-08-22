@@ -255,11 +255,12 @@ void SLCVCalibration::save()
 bool SLCVCalibration::loadCalibParams()
 {
     FileStorage fs;
-    fs.open(calibIniPath + _calibParamsFileName, FileStorage::READ);
+    string fullCalibIniFile = calibIniPath + _calibParamsFileName;
+
+    fs.open(fullCalibIniFile, FileStorage::READ);
     if (!fs.isOpened())
     {
-        cout << "Could not open the calibration parameter file: "
-             << (calibIniPath + _calibParamsFileName) << endl;
+        SL_LOG("Could not open the calibration parameter file: %s\n", fullCalibIniFile.c_str());
         _state = CS_uncalibrated;
         return false;
     }
@@ -485,7 +486,7 @@ static bool calcCalibration(SLCVSize&     imageSize,
                                      flag);
     ////////////////////////////////////////////////
 
-    cout << "Re-projection error reported by calibrateCamera: " << rms << endl;
+    SL_LOG("Re-projection error reported by calibrateCamera: %f\n", rms);
 
     bool ok = cv::checkRange(cameraMatrix) && cv::checkRange(distCoeffs);
 
@@ -524,10 +525,6 @@ bool SLCVCalibration::calculate()
                               _boardSquareMM,
                               _calibFlags);
 
-    //cout << "ok: " << ok << endl;
-    //cout << "_cameraMat: " << _cameraMat << endl;
-    //cout << "_distortion: " << _distortion << endl;
-
     if (!rvecs.empty() || !reprojErrs.empty())
         _numCaptured = (int)std::max(rvecs.size(), reprojErrs.size());
     else
@@ -541,9 +538,8 @@ bool SLCVCalibration::calculate()
         _state           = CS_calibrated;
         save();
 
-        cout << "Calibration succeeded. Reprojection error = " << _reprojectionError << endl;
-        cout << "cameraMat:" << _cameraMat << endl;
-        cout << "distortion:" << _distortion << endl;
+        SL_LOG("Calibration succeeded.");
+        SL_LOG("Reproj. error: %f\n", _reprojectionError);
     }
     else
     {
@@ -553,7 +549,7 @@ bool SLCVCalibration::calculate()
         _undistortMapX.release();
         _undistortMapY.release();
         _state = CS_uncalibrated;
-        cout << "Calibration failed." << endl;
+        SL_LOG("Calibration failed.");
     }
     return ok;
 }
