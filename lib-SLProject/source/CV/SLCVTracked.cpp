@@ -18,7 +18,9 @@ All classes that use OpenCV begin with SLCV.
 See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
+#include <SLApplication.h>
 #include <SLCVTracked.h>
+#include <SLCVCapture.h>
 
 using namespace cv;
 using namespace std;

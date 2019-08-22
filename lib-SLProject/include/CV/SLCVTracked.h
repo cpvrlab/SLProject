@@ -63,16 +63,17 @@ class SLCVTracked
     SLNode* node() { return _node; }
 
     // Statics: These statics are used directly in application code (e.g. in )
-    static void                 reset();         //!< Resets all static variables
-    static vector<SLCVTracked*> trackers;        //!< Vector of CV tracker pointer trackers
-    static SLbool               showDetection;   //!< Flag if detection should be visualized
-    static SLAvgFloat           trackingTimesMS; //!< Averaged time for video tracking in ms
-    static SLAvgFloat           detectTimesMS;   //!< Averaged time for video feature detection & description in ms
-    static SLAvgFloat           detect1TimesMS;  //!< Averaged time for video feature detection subpart 1 in ms
-    static SLAvgFloat           detect2TimesMS;  //!< Averaged time for video feature detection subpart 2 in ms
-    static SLAvgFloat           matchTimesMS;    //!< Averaged time for video feature matching in ms
-    static SLAvgFloat           optFlowTimesMS;  //!< Averaged time for video feature optical flow tracking in ms
-    static SLAvgFloat           poseTimesMS;     //!< Averaged time for video feature pose estimation in ms
+    static void                 reset();       //!< Resets all static variables
+    static vector<SLCVTracked*> trackers;      //!< Vector of CV tracker pointer trackers
+    static SLbool               showDetection; //!< Flag if detection should be visualized
+
+    static SLAvgFloat trackingTimesMS; //!< Averaged time for video tracking in ms
+    static SLAvgFloat detectTimesMS;   //!< Averaged time for video feature detection & description in ms
+    static SLAvgFloat detect1TimesMS;  //!< Averaged time for video feature detection subpart 1 in ms
+    static SLAvgFloat detect2TimesMS;  //!< Averaged time for video feature detection subpart 2 in ms
+    static SLAvgFloat matchTimesMS;    //!< Averaged time for video feature matching in ms
+    static SLAvgFloat optFlowTimesMS;  //!< Averaged time for video feature optical flow tracking in ms
+    static SLAvgFloat poseTimesMS;     //!< Averaged time for video feature pose estimation in ms
 
     protected:
     SLNode* _node;          //!< Tracked node

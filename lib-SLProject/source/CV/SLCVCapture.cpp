@@ -39,8 +39,7 @@ SLCVCapture::SLCVCapture()
     videoLoops         = true;
     fps                = 1.0f;
     activeCamSizeIndex = -1;
-    _videoTexture.setVideoImage("LiveVideoError.png");
-    _videoTextureErr.setVideoImage("LiveVideoError.png");
+    activeCalib        = nullptr;
     _captureTimesMS.init(60, 0);
 }
 //-----------------------------------------------------------------------------
@@ -267,7 +266,7 @@ void SLCVCapture::adjustForSL()
     //////////////////////////////////////
 
     // Get capture size before cropping
-    captureSize = SLCVCapture::lastFrame.size();
+    captureSize = lastFrame.size();
 
     // Determine active size index if unset or changed
     if (!camSizes.empty())
@@ -353,23 +352,23 @@ void SLCVCapture::adjustForSL()
     // Mirroring is done for most selfie cameras.
     // So this is Android image copy loop #3
 
-    if (SLApplication::activeCalib->isMirroredH())
+    if (activeCalib->isMirroredH())
     {
         SLCVMat mirrored;
-        if (SLApplication::activeCalib->isMirroredV())
-            cv::flip(SLCVCapture::lastFrame, mirrored, -1);
+        if (activeCalib->isMirroredV())
+            cv::flip(lastFrame, mirrored, -1);
         else
-            cv::flip(SLCVCapture::lastFrame, mirrored, 1);
-        SLCVCapture::lastFrame = mirrored;
+            cv::flip(lastFrame, mirrored, 1);
+        lastFrame = mirrored;
     }
-    else if (SLApplication::activeCalib->isMirroredV())
+    else if (activeCalib->isMirroredV())
     {
         SLCVMat mirrored;
-        if (SLApplication::activeCalib->isMirroredH())
-            cv::flip(SLCVCapture::lastFrame, mirrored, -1);
+        if (activeCalib->isMirroredH())
+            cv::flip(lastFrame, mirrored, -1);
         else
-            cv::flip(SLCVCapture::lastFrame, mirrored, 0);
-        SLCVCapture::lastFrame = mirrored;
+            cv::flip(lastFrame, mirrored, 0);
+        lastFrame = mirrored;
     }
 
     /////////////////////////
@@ -380,11 +379,11 @@ void SLCVCapture::adjustForSL()
     // We just could take the Y channel.
     // Android image copy loop #4
 
-    cv::cvtColor(SLCVCapture::lastFrame, SLCVCapture::lastFrameGray, cv::COLOR_BGR2GRAY);
+    cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_BGR2GRAY);
 
     // Reset calibrated image size
-    if (SLCVCapture::lastFrame.size() != SLApplication::activeCalib->imageSize())
-        SLApplication::activeCalib->imageSize(SLCVCapture::lastFrame.size());
+    if (lastFrame.size() != activeCalib->imageSize())
+        activeCalib->imageSize(lastFrame.size());
 
     _captureTimesMS.set(SLApplication::timeMS() - startCaptureTimeMS);
 }
@@ -688,8 +687,8 @@ void SLCVCapture::copyYUVPlanes(int      srcW,
     }
 
     // Get the infos if the destination image must be mirrored
-    bool mirrorH = SLApplication::activeCalib->isMirroredH();
-    bool mirrorV = SLApplication::activeCalib->isMirroredV();
+    bool mirrorH = SLCVCapture::activeCalib->isMirroredH();
+    bool mirrorV = SLCVCapture::activeCalib->isMirroredV();
 
     // Create output color (BGR) and grayscale images
     lastFrame     = SLCVMat(dstH, dstW, CV_8UC(3));
@@ -822,20 +821,71 @@ void SLCVCapture::videoType(SLVideoType vt)
     if (vt == VT_SCND)
     {
         if (hasSecondaryCamera)
-            SLApplication::activeCalib = &SLApplication::calibScndCam;
+            activeCalib = &calibScndCam;
         else //fallback if there is no secondary camera we use main setup
         {
-            _videoType                 = VT_MAIN;
-            SLApplication::activeCalib = &SLApplication::calibMainCam;
+            _videoType  = VT_MAIN;
+            activeCalib = &calibMainCam;
         }
     }
     else if (vt == VT_FILE)
-        SLApplication::activeCalib = &SLApplication::calibVideoFile;
+        activeCalib = &calibVideoFile;
     else
     {
-        SLApplication::activeCalib = &SLApplication::calibMainCam;
+        activeCalib = &calibMainCam;
         if (vt == VT_NONE)
             release();
     }
+}
+//-----------------------------------------------------------------------------
+void SLCVCapture::loadCalibrations(const SLstring& calibrationPath,
+                                   const SLstring& videoPath,
+                                   const SLstring& texturePath)
+{
+
+    videoDefaultPath              = videoPath;
+    SLCVCalibration::calibIniPath = calibrationPath;
+    SLGLTexture::defaultPath      = texturePath;
+
+    _videoTexture.setVideoImage("LiveVideoError.png");
+    _videoTextureErr.setVideoImage("LiveVideoError.png");
+
+    // This gets computerUser,-Name,-Brand,-Model,-OS,-OSVer,-Arch,-ID
+    SLstring deviceString = SLApplication::getComputerInfos();
+
+    SLstring mainCalibFilename = "camCalib_" + deviceString + "_main.xml";
+    SLstring scndCalibFilename = "camCalib_" + deviceString + "_scnd.xml";
+
+    // load opencv camera calibration for main and secondary camera
+#if defined(SL_USES_CVCAPTURE)
+    calibMainCam.load(calibrationPath, mainCalibFilename, true, false);
+    calibMainCam.loadCalibParams();
+    activeCalib        = &calibMainCam;
+    hasSecondaryCamera = false;
+#else
+    calibMainCam.load(calibrationPath, mainCalibFilename, false, false);
+    calibMainCam.loadCalibParams();
+    calibScndCam.load(calibrationPath, scndCalibFilename, true, false);
+    calibScndCam.loadCalibParams();
+    activeCalib        = &calibMainCam;
+    hasSecondaryCamera = true;
+#endif
+}
+//-----------------------------------------------------------------------------
+/*! Sets the with and height of a camera size at index sizeIndex.
+If sizeIndexMax changes the vector in SLCVCapture gets cleared and resized.
+*/
+void SLCVCapture::setCameraSize(int sizeIndex,
+                                int sizeIndexMax,
+                                int width,
+                                int height)
+{
+    if ((uint)sizeIndexMax != camSizes.size())
+    {
+        camSizes.clear();
+        camSizes.resize((uint)sizeIndexMax);
+    }
+    camSizes[(uint)sizeIndex].width  = width;
+    camSizes[(uint)sizeIndex].height = height;
 }
 //-----------------------------------------------------------------------------

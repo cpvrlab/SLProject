@@ -26,6 +26,7 @@ for a good top down information.
 #include <SLEnums.h>
 #include <SLVec2.h>
 #include <opencv2/opencv.hpp>
+#include <SLCVCalibration.h>
 #include <SLGLTexture.h>
 
 //-----------------------------------------------------------------------------
@@ -89,8 +90,15 @@ class SLCVCapture
     SLGLTexture* videoTexture() { return &_videoTexture; }
     SLGLTexture* videoTextureErr() { return &_videoTextureErr; }
     SLAvgFloat&  captureTimesMS() { return _captureTimesMS; }
+    void         loadCalibrations(const SLstring& calibrationPath,
+                                  const SLstring& videoPath,
+                                  const SLstring& texturePath);
+    void         setCameraSize(int sizeIndex,
+                               int sizeIndexMax,
+                               int width,
+                               int height);
 
-    SLCVMat       lastFrame;          //!< last frame grabbed in RGB
+      SLCVMat lastFrame;              //!< last frame grabbed in RGB
     SLCVMat       lastFrameGray;      //!< last frame in grayscale
     SLPixelFormat format;             //!< SL pixel format
     SLCVSize      captureSize;        //!< size of captured frame
@@ -105,6 +113,11 @@ class SLCVCapture
     This is the default size index if the camera resolutions are unknown.*/
     SLCVVSize camSizes;           //!< All possible camera sizes
     SLint     activeCamSizeIndex; //!< Currently active camera size index
+
+    SLCVCalibration* activeCalib;    //!< Pointer to the active calibration
+    SLCVCalibration  calibMainCam;   //!< OpenCV calibration for main video camera
+    SLCVCalibration  calibScndCam;   //!< OpenCV calibration for secondary video camera
+    SLCVCalibration  calibVideoFile; //!< OpenCV calibration for simulation using a video file
 
     private:
     SLCVCapture(); //!< private onetime constructor

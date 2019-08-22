@@ -60,9 +60,10 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation = false);
 void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 {
     // Reset calibration process at scene change
-    if (SLApplication::activeCalib->state() != CS_calibrated &&
-        SLApplication::activeCalib->state() != CS_uncalibrated)
-        SLApplication::activeCalib->state(CS_uncalibrated);
+    SLCVCalibration* activeCalib = SLCVCapture::instance()->activeCalib;
+    if (activeCalib->state() != CS_calibrated &&
+        activeCalib->state() != CS_uncalibrated)
+        activeCalib->state(CS_uncalibrated);
 
     SLCVTracked::reset();
     SLCVCapture::instance()->videoType(VT_NONE);
@@ -2020,14 +2021,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         else if (SLApplication::sceneID == SID_VideoCalibrateMain)
         {
             SLCVCapture::instance()->videoType(VT_MAIN);
-            SLApplication::activeCalib->clear();
+            activeCalib->clear();
 
             s->name("Calibrate Main Cam.");
         }
         else if (SLApplication::sceneID == SID_VideoCalibrateScnd)
         {
             SLCVCapture::instance()->videoType(VT_SCND);
-            SLApplication::activeCalib->clear();
+            activeCalib->clear();
             s->name("Calibrate Scnd Cam.");
         }
 
@@ -2049,7 +2050,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(5);
         cam1->clipFar(10);
-        cam1->fov(SLApplication::activeCalib->cameraFovVDeg());
+        cam1->fov(activeCalib->cameraFovVDeg());
         cam1->background().texture(SLCVCapture::instance()->videoTexture());
         cam1->setInitialState();
         scene->addChild(cam1);
@@ -2119,7 +2120,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 5);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(SLApplication::activeCalib->cameraFovVDeg());
+        cam1->fov(activeCalib->cameraFovVDeg());
         cam1->background().texture(SLCVCapture::instance()->videoTexture());
         cam1->setInitialState();
         scene->addChild(cam1);
@@ -2307,7 +2308,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 60);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(SLApplication::activeCalib->cameraFovVDeg());
+        cam1->fov(activeCalib->cameraFovVDeg());
         cam1->clipNear(0.1f);
         cam1->clipFar(10000.0f);
         cam1->setInitialState();

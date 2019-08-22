@@ -9,6 +9,7 @@
 //#############################################################################
 
 #include <SLApplication.h>
+#include <SLCVCapture.h>
 #include <SLCVCalibration.h>
 #include "AppDemoSceneView.h"
 
@@ -31,9 +32,9 @@ SLbool AppDemoSceneView::onMouseDown(SLMouseButton button,
     bool baseClassResult = SLSceneView::onMouseDown(button, x, y, mod);
 
     // Grab image during calibration if calibration stream is running
-    if (SLApplication::activeCalib->state() == CS_calibrateStream)
+    if (SLCVCapture::instance()->activeCalib->state() == CS_calibrateStream)
     {
-        SLApplication::activeCalib->state(CS_calibrateGrab);
+        SLCVCapture::instance()->activeCalib->state(CS_calibrateGrab);
         return true;
     }
 

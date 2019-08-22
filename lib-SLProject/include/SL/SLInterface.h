@@ -34,9 +34,7 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
                          const SLstring& shaderPath,
                          const SLstring& modelPath,
                          const SLstring& texturePath,
-                         const SLstring& videoPath,
                          const SLstring& fontPath,
-                         const SLstring& calibrationPath,
                          const SLstring& configPath,
                          const SLstring& applicationName,
                          void*           onSceneLoadCallback = nullptr);
@@ -76,26 +74,7 @@ void   slRotationQUAT(float quatX, float quatY, float quatZ, float quatW);
 bool   slUsesLocation();
 void   slLocationLLA(double latitudeDEG, double longitudeDEG, double altitudeM, float accuracyM);
 string slGetWindowTitle(int sceneViewIndex);
-int    slGetVideoType();
-int    slGetVideoSizeIndex();
-void   slGrabVideoFileFrame();
-void   slCopyVideoImage(int srcW, int srcH, SLPixelFormat glFormat, SLuchar* data, bool isContinuous);
-void   slCopyVideoYUVPlanes(int      srcW,
-                            int      srcH,
-                            SLuchar* y,
-                            int      ySize,
-                            int      yPixStride,
-                            int      yLineStride,
-                            SLuchar* u,
-                            int      uSize,
-                            int      uPixStride,
-                            int      uLineStride,
-                            SLuchar* v,
-                            int      vSize,
-                            int      vPixStride,
-                            int      vLineStride);
 void   slSetupExternalDir(const SLstring& externalDirPath);
-void   slSetCameraSize(int sizeIndex, int sizeIndexMax, int width, int height);
 void   slSetDeviceParameter(const SLstring& parameter, SLstring value);
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H

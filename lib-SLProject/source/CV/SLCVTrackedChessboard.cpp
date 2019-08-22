@@ -21,13 +21,14 @@ for a good top down information.
 #include <SLApplication.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
+#include <SLCVCapture.h>
 #include <SLCVTrackedChessboard.h>
 
 using namespace cv;
 //-----------------------------------------------------------------------------
 SLCVTrackedChessboard::SLCVTrackedChessboard(SLNode* node) : SLCVTracked(node)
 {
-    SLCVCalibration* calib = SLApplication::activeCalib;
+    SLCVCalibration* calib = SLCVCapture::instance()->activeCalib;
     SLCVCalibration::calcBoardCorners3D(calib->boardSize(),
                                         calib->boardSquareM(),
                                         _boardPoints3D);

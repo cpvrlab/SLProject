@@ -70,7 +70,7 @@ onPaint: Paint event handler that passes the event to the slPaint function.
 SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
-    if (slGetVideoType() != VT_NONE)
+    if (SLCVCapture::instance()->videoType() != VT_NONE)
         SLCVCapture::instance()->grabAndAdjustForSL();
 
     /////////////////////////////////////////////
@@ -563,14 +563,16 @@ int main(int argc, char* argv[])
     SLstring configDir   = Utils::getAppsWritableDir();
     slSetupExternalDir("../data");
 
+    SLCVCapture::instance()->loadCalibrations(configDir,
+                                              projectRoot + "/data/videos/",
+                                              projectRoot + "/data/images/textures/");
+
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
                         projectRoot + "/data/shaders/",
                         projectRoot + "/data/models/",
                         projectRoot + "/data/images/textures/",
-                        projectRoot + "/data/videos/",
                         projectRoot + "/data/images/fonts/",
-                        projectRoot + "/data/calibrations/",
                         configDir,
                         "AppDemoGLFW",
                         (void*)appDemoLoadScene);

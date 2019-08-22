@@ -455,7 +455,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             SLchar m[2550]; // message character array
             m[0] = 0;       // set zero length
 
-            SLCVCalibration* c        = SLApplication::activeCalib;
+            SLCVCalibration* c        = SLCVCapture::instance()->activeCalib;
             SLCVSize         capSize  = SLCVCapture::instance()->captureSize;
             SLVideoType      vt       = SLCVCapture::instance()->videoType();
             SLstring         mirrored = "None";
@@ -845,6 +845,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 {
     SLSceneID    sid           = SLApplication::sceneID;
     SLGLState*   stateGL       = SLGLState::instance();
+    SLCVCapture* capture       = SLCVCapture::instance();
     SLRenderType rType         = sv->renderType();
     SLbool       hasAnimations = (!s->animManager().allAnimNames().empty());
     static SLint curAnimIx     = -1;
@@ -995,17 +996,17 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoTextureFile);
                     if (ImGui::MenuItem("Track ArUco Marker (Main)", nullptr, sid == SID_VideoTrackArucoMain))
                         s->onLoad(s, sv, SID_VideoTrackArucoMain);
-                    if (ImGui::MenuItem("Track ArUco Marker (Scnd)", nullptr, sid == SID_VideoTrackArucoScnd, SLCVCapture::instance()->hasSecondaryCamera))
+                    if (ImGui::MenuItem("Track ArUco Marker (Scnd)", nullptr, sid == SID_VideoTrackArucoScnd, capture->hasSecondaryCamera))
                         s->onLoad(s, sv, SID_VideoTrackArucoScnd);
                     if (ImGui::MenuItem("Track Chessboard (Main)", nullptr, sid == SID_VideoTrackChessMain))
                         s->onLoad(s, sv, SID_VideoTrackChessMain);
-                    if (ImGui::MenuItem("Track Chessboard (Scnd)", nullptr, sid == SID_VideoTrackChessScnd, SLCVCapture::instance()->hasSecondaryCamera))
+                    if (ImGui::MenuItem("Track Chessboard (Scnd)", nullptr, sid == SID_VideoTrackChessScnd, capture->hasSecondaryCamera))
                         s->onLoad(s, sv, SID_VideoTrackChessScnd);
                     if (ImGui::MenuItem("Track Features (Main)", nullptr, sid == SID_VideoTrackFeature2DMain))
                         s->onLoad(s, sv, SID_VideoTrackFeature2DMain);
                     if (ImGui::MenuItem("Track Face (Main)", nullptr, sid == SID_VideoTrackFaceMain))
                         s->onLoad(s, sv, SID_VideoTrackFaceMain);
-                    if (ImGui::MenuItem("Track Face (Scnd)", nullptr, sid == SID_VideoTrackFaceScnd, SLCVCapture::instance()->hasSecondaryCamera))
+                    if (ImGui::MenuItem("Track Face (Scnd)", nullptr, sid == SID_VideoTrackFaceScnd, capture->hasSecondaryCamera))
                         s->onLoad(s, sv, SID_VideoTrackFaceScnd);
                     if (ImGui::MenuItem("Sensor AR (Main)", nullptr, sid == SID_VideoSensorAR))
                         s->onLoad(s, sv, SID_VideoSensorAR);
@@ -1154,9 +1155,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 #endif
             if (ImGui::BeginMenu("Video Sensor"))
             {
-                SLCVCalibration* ac = SLApplication::activeCalib;
-                SLCVCalibration* mc = &SLApplication::calibMainCam;
-                SLCVCalibration* sc = &SLApplication::calibScndCam;
+                SLCVCalibration* ac = capture->activeCalib;
+                SLCVCalibration* mc = &capture->calibMainCam;
+                SLCVCalibration* sc = &capture->calibScndCam;
 
                 SLCVTrackedFeatures* featureTracker = nullptr;
                 for (auto tracker : SLCVTracked::trackers)
@@ -1168,7 +1169,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }
                 }
 
-                if (SLCVCapture::instance()->videoType() == VT_MAIN &&
+                if (capture->videoType() == VT_MAIN &&
                     ImGui::BeginMenu("Mirror Main Camera"))
                 {
                     if (ImGui::MenuItem("Horizontally", nullptr, mc->isMirroredH()))
@@ -1180,8 +1181,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (SLCVCapture::instance()->videoType() == VT_SCND &&
-                    ImGui::BeginMenu("Mirror Scnd. Camera", SLCVCapture::instance()->hasSecondaryCamera))
+                if (capture->videoType() == VT_SCND &&
+                    ImGui::BeginMenu("Mirror Scnd. Camera", capture->hasSecondaryCamera))
                 {
                     if (ImGui::MenuItem("Horizontally", nullptr, sc->isMirroredH()))
                         sc->toggleMirrorH();
@@ -1193,19 +1194,19 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 }
 
                 if (ImGui::BeginMenu("Resolution",
-                                     (SLCVCapture::instance()->videoType() == VT_MAIN ||
-                                      SLCVCapture::instance()->videoType() == VT_SCND)))
+                                     (capture->videoType() == VT_MAIN ||
+                                      capture->videoType() == VT_SCND)))
                 {
-                    for (int i = 0; i < (int)SLCVCapture::instance()->camSizes.size(); ++i)
+                    for (int i = 0; i < (int)capture->camSizes.size(); ++i)
                     {
                         SLchar menuStr[256];
                         sprintf(menuStr,
                                 "%d x %d",
-                                SLCVCapture::instance()->camSizes[(uint)i].width,
-                                SLCVCapture::instance()->camSizes[(uint)i].height);
-                        if (ImGui::MenuItem(menuStr, nullptr, i == SLCVCapture::instance()->activeCamSizeIndex))
-                            if (i != SLCVCapture::instance()->activeCamSizeIndex)
-                                SLApplication::activeCalib->camSizeIndex(i);
+                                capture->camSizes[(uint)i].width,
+                                capture->camSizes[(uint)i].height);
+                        if (ImGui::MenuItem(menuStr, nullptr, i == capture->activeCamSizeIndex))
+                            if (i != capture->activeCamSizeIndex)
+                                capture->activeCalib->camSizeIndex(i);
                     }
                     ImGui::EndMenu();
                 }
@@ -1219,7 +1220,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         showInfosScene      = true;
                     }
 
-                    if (ImGui::MenuItem("Start Calibration (Scnd. Camera)", nullptr, false, SLCVCapture::instance()->hasSecondaryCamera))
+                    if (ImGui::MenuItem("Start Calibration (Scnd. Camera)", nullptr, false, capture->hasSecondaryCamera))
                     {
                         s->onLoad(s, sv, SID_VideoCalibrateScnd);
                         showHelpCalibration = true;
@@ -1242,7 +1243,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 }
 
                 if (ImGui::MenuItem("Show Detection", nullptr, SLCVTracked::showDetection))
-                    SLCVTracked::showDetection =! SLCVTracked::showDetection;
+                    SLCVTracked::showDetection = !SLCVTracked::showDetection;
 
                 if (ImGui::BeginMenu("Feature Tracking", featureTracker != nullptr))
                 {

@@ -16,8 +16,6 @@
 
 #include <SL.h>
 #include <SLApplication.h>
-#include <SLCVCapture.h>
-#include <SLCVTracked.h>
 #include <SLScene.h>
 
 #include <utility>
@@ -26,10 +24,6 @@
 //! Global static objects
 SLInputManager      SLApplication::inputManager;
 SLScene*            SLApplication::scene       = nullptr;
-SLCVCalibration*    SLApplication::activeCalib = nullptr;
-SLCVCalibration     SLApplication::calibMainCam;
-SLCVCalibration     SLApplication::calibScndCam;
-SLCVCalibration     SLApplication::calibVideoFile;
 SLDeviceRotation    SLApplication::devRot;
 SLDeviceLocation    SLApplication::devLoc;
 SLstring            SLApplication::name          = "SLProjectApp";
@@ -83,30 +77,7 @@ void SLApplication::createAppAndScene(SLstring appName,
            "You can create only one SLApplication");
 
     name = std::move(appName);
-
     scene = new SLScene(name, (cbOnSceneLoad)onSceneLoadCallback);
-
-    // This gets computerUser,-Name,-Brand,-Model,-OS,-OSVer,-Arch,-ID
-    SLstring deviceString = getComputerInfos();
-
-    SLstring mainCalibFilename = "camCalib_" + deviceString + "_main.xml";
-    SLstring scndCalibFilename = "camCalib_" + deviceString + "_scnd.xml";
-
-    // load opencv camera calibration for main and secondary camera
-#if defined(SL_USES_CVCAPTURE)
-    calibMainCam.load(SLApplication::configPath, mainCalibFilename, true, false);
-    calibMainCam.loadCalibParams();
-    activeCalib                                 = &calibMainCam;
-    SLCVCapture::instance()->hasSecondaryCamera = false;
-#else
-    calibMainCam.load(SLApplication::configPath, mainCalibFilename, false, false);
-    calibMainCam.loadCalibParams();
-    calibScndCam.load(SLApplication::configPath, scndCalibFilename, true, false);
-    calibScndCam.loadCalibParams();
-    activeCalib                                 = &calibMainCam;
-    SLCVCapture::instance()->hasSecondaryCamera = true;
-#endif
-
     _timer.start();
 }
 //-----------------------------------------------------------------------------

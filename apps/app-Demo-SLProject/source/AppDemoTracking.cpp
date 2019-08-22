@@ -28,7 +28,7 @@ bool onUpdateTracking()
     if (SLCVCapture::instance()->videoType() != VT_NONE && !SLCVCapture::instance()->lastFrame.empty())
     {
         SLfloat          trackingTimeStartMS = SLApplication::timeMS();
-        SLCVCalibration* ac                  = SLApplication::activeCalib;
+        SLCVCalibration* ac                  = SLCVCapture::instance()->activeCalib;
 
         // Invalidate calibration if camera input aspect doesn't match output
         SLfloat calibWdivH              = ac->imageAspectRatio();

@@ -157,10 +157,12 @@ float GetSeconds()
     SLApplication::computerOSVer = std::string([osver UTF8String]);
     SLApplication::computerArch  = std::string([arch UTF8String]);
     
+    SLCVCapture::instance()->loadCalibrations(configDir,
+                                              exeDir,
+                                              exeDir);
+    
     /////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
-                        exeDir,
-                        exeDir,
                         exeDir,
                         exeDir,
                         exeDir,
@@ -188,9 +190,10 @@ float GetSeconds()
     [self setupLocationManager];
     
     // Set the available capture resolutions
-    slSetCameraSize(0, 3, 1920, 1080);
-    slSetCameraSize(1, 3, 1280,  720);
-    slSetCameraSize(2, 3,  640,  480);
+    
+    SLCVCapture::instance()->setCameraSize(0, 3, 1920, 1080);
+    SLCVCapture::instance()->setCameraSize(1, 3, 1280,  720);
+    SLCVCapture::instance()->setCameraSize(2, 3,  640,  480);
     m_lastVideoSizeIndex = -1; // default size index
 }
 //-----------------------------------------------------------------------------
@@ -222,8 +225,8 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    [self setVideoType:slGetVideoType()
-          videoSizeIndex:slGetVideoSizeIndex()];
+    [self setVideoType:SLCVCapture::instance()->videoType()
+          videoSizeIndex:SLCVCapture::instance()->activeCalib->camSizeIndex()];
     
     if (slUsesLocation())
          [self startLocationManager];
@@ -390,7 +393,7 @@ float GetSeconds()
         return;
     }
         
-    slCopyVideoImage(width, height, PF_bgra, data, false);
+    SLCVCapture::instance()->loadIntoLastFrame(width, height, PF_bgra, data, false);
     
     CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
         

@@ -14,7 +14,7 @@
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
 #include <SLInputManager.h>
-#include <SLCVCalibration.h>
+#include <atomic>
 #include <mutex>
 #include <map>
 
@@ -56,10 +56,6 @@ class SLApplication
 
     static SLScene*         scene;          //!< scene pointer
     static SLInputManager   inputManager;   //!< Input events manager
-    static SLCVCalibration* activeCalib;    //!< Pointer to the active calibration
-    static SLCVCalibration  calibMainCam;   //!< OpenCV calibration for main video camera
-    static SLCVCalibration  calibScndCam;   //!< OpenCV calibration for secondary video camera
-    static SLCVCalibration  calibVideoFile; //!< OpenCV calibration for simulation using a video file
     static SLDeviceRotation devRot;         //!< Mobile device rotation from IMU
     static SLDeviceLocation devLoc;         //!< Mobile device location from GPS
 
