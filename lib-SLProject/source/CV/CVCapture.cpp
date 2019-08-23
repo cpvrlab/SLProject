@@ -153,7 +153,7 @@ void CVCapture::start(float scrWdivH)
     {
         if (!isOpened())
         {
-            SLVec2i videoSize = openFile();
+            CVSize2i videoSize = openFile();
         }
     }
 #endif
