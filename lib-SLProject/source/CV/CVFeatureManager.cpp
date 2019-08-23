@@ -63,7 +63,7 @@ void CVFeatureManager::createDetectorDescriptor(CVDetectDescribeType type)
             _descriptor = _detector;
             break;
         default:
-            SL_EXIT_MSG("Unknown detector-descriptor type.");
+            Utils::exitMsg("Unknown detector-descriptor type.", __LINE__, __FILE__);
     }
 
     _type = type;

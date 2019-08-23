@@ -23,7 +23,6 @@ for a good top down information.
 #include <CVFeatureManager.h>
 #include <CVRaulMurOrb.h>
 #include <CVTracked.h>
-#include <SLNode.h>
 
 using namespace cv;
 
@@ -59,7 +58,7 @@ const int initialPatchSize = 2;
 const int maxPatchSize     = 60;
 
 //-----------------------------------------------------------------------------
-//! SLCVTrackedFeatures is the main part of the AR Christoffelturm scene
+//! CVTrackedFeatures is the main part of the AR Christoffelturm scene
 /*! The implementation tries to find a valid pose based on feature points in
 realtime. The feature matching algorithm checks the points of the current camera
 frame with against a reference. There are two important parts of this procedure:
@@ -136,4 +135,4 @@ class CVTrackedFeatures : public CVTracked
     CVFeatureManager  _featureManager;  //!< Feature detector-descriptor wrapper instance
 };
 //-----------------------------------------------------------------------------
-#endif // SLCVTrackedFeatures_H
+#endif // CVTrackedFeatures_H

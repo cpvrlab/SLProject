@@ -24,9 +24,9 @@ for a good top down information.
 #include <CVTracked.h>
 
 //-----------------------------------------------------------------------------
-//! OpenCV chessboard tracker class derived from SLCVTracked
+//! OpenCV chessboard tracker class derived from CVTracked
 /*! The chessboard tracker uses the same chessboard pattern as the calibration
-class defined in SLCVCalibration. See SLCVTrackedChessboard::track for the
+class defined in CVCalibration. See CVTrackedChessboard::track for the
 core tracking implementation.
 */
 class CVTrackedChessboard : public CVTracked
@@ -48,4 +48,4 @@ class CVTrackedChessboard : public CVTracked
 };
 //-----------------------------------------------------------------------------
 
-#endif // SLCVCHESSBOARDTRACKER_H
+#endif // CVCHESSBOARDTRACKER_H

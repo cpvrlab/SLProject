@@ -50,21 +50,21 @@ CVCapture::~CVCapture()
 setting the the CVCapture::videoType to VT_MAIN. On desktop systems the webcam
 is the only and main camera.
 */
-SLVec2i CVCapture::open(int deviceNum)
+CVSize2i CVCapture::open(int deviceNum)
 {
     try
     {
         _captureDevice.open(deviceNum);
 
         if (!_captureDevice.isOpened())
-            return SLVec2i::ZERO;
+            return CVSize2i(0, 0);
 
-        SL_LOG("Capture devices created.\n");
+        Utils::log("Capture devices created.\n");
 
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
-        SL_LOG("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
-        SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
+        Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
+        Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
         fps                = _captureDevice.get(cv::CAP_PROP_FPS);
@@ -74,20 +74,20 @@ SLVec2i CVCapture::open(int deviceNum)
         CVCapture::camSizes.push_back(CVSize(w, h));
         CVCapture::activeCamSizeIndex = 0;
 
-        return SLVec2i(w, h);
+        return CVSize2i(w, h);
     }
     catch (exception& e)
     {
-        SL_LOG("Exception during OpenCV video capture creation\n");
+        Utils::log("Exception during OpenCV video capture creation\n");
     }
-    return SLVec2i::ZERO;
+    return CVSize2i(0, 0);
 }
 //-----------------------------------------------------------------------------
 //! Opens the video file instead of a camera feed.
 /* This so far called in CVCapture::start if a scene uses a video by
 setting the the CVCapture::videoType to VT_FILE.
 */
-SLVec2i CVCapture::openFile()
+CVSize2i CVCapture::openFile()
 {
     try
     { // Load the file directly
@@ -97,7 +97,7 @@ SLVec2i CVCapture::openFile()
             if (!Utils::fileExists(videoFilename))
             {
                 string msg = "CVCapture::openFile: File not found: " + videoFilename;
-                SL_EXIT_MSG(msg.c_str());
+                Utils::exitMsg(msg.c_str(), __LINE__, __FILE__);
             }
         }
 
@@ -105,27 +105,27 @@ SLVec2i CVCapture::openFile()
 
         if (!_captureDevice.isOpened())
         {
-            SL_LOG("CVCapture::openFile: Failed to open video file.");
-            return SLVec2i::ZERO;
+            Utils::log("CVCapture::openFile: Failed to open video file.");
+            return CVSize2i(0, 0);
         }
 
-        SL_LOG("Capture devices created with video.\n");
+        Utils::log("Capture devices created with video.\n");
 
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
-        SL_LOG("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
-        SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
+        Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
+        Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
         fps                = _captureDevice.get(cv::CAP_PROP_FPS);
 
-        return SLVec2i(w, h);
+        return CVSize2i(w, h);
     }
     catch (exception& e)
     {
-        SL_LOG("CVCapture::openFile: Exception during OpenCV video capture creation with video file\n");
+        Utils::log("CVCapture::openFile: Exception during OpenCV video capture creation with video file\n");
     }
-    return SLVec2i::ZERO;
+    return CVSize2i(0, 0);
 }
 //-----------------------------------------------------------------------------
 //! starts the video capturing
@@ -136,13 +136,13 @@ void CVCapture::start(float scrWdivH)
     {
         if (!isOpened())
         {
-            SLVec2i videoSize;
+            CVSize2i videoSize;
             if (_videoType == VT_FILE && !videoFilename.empty())
                 videoSize = openFile();
             else
                 videoSize = open(0);
 
-            if (videoSize != SLVec2i::ZERO)
+            if (videoSize != CVSize2i(0, 0))
             {
                 grabAndAdjustForSL(scrWdivH);
             }
@@ -200,14 +200,14 @@ void CVCapture::grabAndAdjustForSL(float scrWdivH)
             static bool logOnce = true;
             if (logOnce)
             {
-                SL_LOG("OpenCV: Capture device or video file is not open!\n");
+                Utils::log("OpenCV: Capture device or video file is not open!\n");
                 logOnce = false;
             }
         }
     }
     catch (exception& e)
     {
-        SL_LOG("Exception during OpenCV video capture creation\n");
+        Utils::log("Exception during OpenCV video capture creation\n");
     }
 }
 
@@ -222,8 +222,8 @@ input image is too high we crop it on top and bottom, if it is too wide we
 crop it on the sides.
 \n
 2) Some cameras toward a face mirror the image and some do not. If a input
-image should be mirrored or not is stored in SLCVCalibration::_isMirroredH
-(H for horizontal) and SLCVCalibration::_isMirroredV (V for vertical).
+image should be mirrored or not is stored in CVCalibration::_isMirroredH
+(H for horizontal) and CVCalibration::_isMirroredV (V for vertical).
 \n
 3) Many of the further processing steps are faster done on grayscale images.
 We therefore create a copy that is grayscale converted.
@@ -423,7 +423,7 @@ void CVCapture::loadIntoLastFrame(const float       scrWdivH,
                 bpp    = 4;
                 break;
             }
-            default: SL_EXIT_MSG("Pixel format not supported");
+            default: Utils::exitMsg("Pixel format not supported", __LINE__, __FILE__);
         }
 
         // calculate padding NO. of bgrRowOffset bytes (= step in OpenCV terminology)
@@ -574,7 +574,7 @@ input image is too high we crop it on top and bottom, if it is too wide we
 crop it on the sides.
 \n
 2) Some cameras toward a face mirror the image and some do not. If a input
-image should be mirrored or not is stored in SLCVCalibration::_isMirroredH
+image should be mirrored or not is stored in CVCalibration::_isMirroredH
 (H for horizontal) and SLCVCalibration::_isMirroredV (V for vertical).
 \n
 3) The most expensive part of course is the color space conversion from the

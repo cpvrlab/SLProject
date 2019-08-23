@@ -22,7 +22,6 @@ for a good top down information.
 
 #include <CVTypedefs.h>
 #include <CVTracked.h>
-#include <SLNode.h>
 #include <opencv2/aruco.hpp>
 
 //-----------------------------------------------------------------------------
@@ -39,8 +38,8 @@ class CVArucoParams
 
     bool loadFromFile()
     {
-        string          path = CVCalibration::calibIniPath + filename;
-        cv::FileStorage fs(path, cv::FileStorage::READ);
+        string        path = CVCalibration::calibIniPath + filename;
+        CVFileStorage fs(path, cv::FileStorage::READ);
         if (!fs.isOpened())
         {
             cout << "Could not find parameter file for ArUco tracking!" << endl;
@@ -120,9 +119,9 @@ class CVTrackedAruco : public CVTracked
     static CVArucoParams params; //!< Parameter class instance
 
     private:
-    static bool     paramsLoaded;   //!< Flag for loaded parameters
-    static SLVint   arucoIDs;       //!< detected Aruco marker IDs
-    static SLVMat4f objectViewMats; //!< object view matrices for all found markers
+    static bool        paramsLoaded;   //!< Flag for loaded parameters
+    static vector<int> arucoIDs;       //!< detected Aruco marker IDs
+    static SLVMat4f    objectViewMats; //!< object view matrices for all found markers
 
     int _arucoID; //!< Aruco Marker ID for this node
 };

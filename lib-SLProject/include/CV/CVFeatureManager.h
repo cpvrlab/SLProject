@@ -66,4 +66,4 @@ class CVFeatureManager
     cv::Ptr<CVFeature2D> _descriptor; //!< CV smart pointer to the OpenCV descriptor extractor
 };
 //-----------------------------------------------------------------------------
-#endif // SLCVDETECTOR_H
+#endif // CVFEATUREMANAGER_H

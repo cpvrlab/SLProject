@@ -40,6 +40,7 @@ typedef cv::Point2d           CVPoint2d;
 typedef cv::Point3f           CVPoint3f;
 typedef cv::Point3d           CVPoint3d;
 typedef cv::Size              CVSize;
+typedef cv::Size2i            CVSize2i;
 typedef cv::Size2f            CVSize2f;
 typedef cv::KeyPoint          CVKeyPoint;
 typedef cv::FileStorage       CVFileStorage;

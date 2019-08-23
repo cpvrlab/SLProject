@@ -25,7 +25,7 @@ for a good top down information.
 
 typedef Averaged<SLVec2f> AvgVec2f;
 //-----------------------------------------------------------------------------
-//! OpenCV face & facial landmark tracker class derived from SLCVTracked
+//! OpenCV face & facial landmark tracker class derived from CVTracked
 /*! Tracking class for face and facial landmark tracking. The class uses the
 OpenCV face detection algorithm from Viola-Jones to find all faces in the image
 and the facial landmark detector provided in cv::facemark. For more details
@@ -57,4 +57,4 @@ class CVTrackedFaces : public CVTracked
     int                  _smoothLenght;    //!< Smoothing filter lenght
 };
 //-----------------------------------------------------------------------------
-#endif // SLCVTrackedFaces_H
+#endif // CVTrackedFaces_H

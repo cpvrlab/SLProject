@@ -24,7 +24,6 @@ for a good top down information.
 #include <CVTypedefs.h>
 #include <CVImage.h>
 #include <Averaged.h>
-#include <SLVec2.h>
 #include <opencv2/opencv.hpp>
 #include <CVCalibration.h>
 #include <HighResTimer.h>
@@ -68,34 +67,34 @@ class CVCapture
             return _instance;
     }
 
-    SLVec2i open(int deviceNum);
-    SLVec2i openFile();
-    void    start(float scrWdivH);
-    void    grabAndAdjustForSL(float scrWdivH);
-    void    adjustForSL(float scrWdivH);
-    bool    isOpened() { return _captureDevice.isOpened(); }
-    void    release();
-    void    loadIntoLastFrame(float        scrWdivH,
-                              int          camWidth,
-                              int          camHeight,
-                              CVPixFormat  srcPixelFormat,
-                              const uchar* data,
-                              bool         isContinuous);
-    void    copyYUVPlanes(float  scrWdivH,
-                          int    srcW,
-                          int    srcH,
-                          uchar* y,
-                          int    ySize,
-                          int    yPixStride,
-                          int    yLineStride,
-                          uchar* u,
-                          int    uSize,
-                          int    uPixStride,
-                          int    uLineStride,
-                          uchar* v,
-                          int    vSize,
-                          int    vPixStride,
-                          int    vLineStride);
+    CVSize2i open(int deviceNum);
+    CVSize2i openFile();
+    void     start(float scrWdivH);
+    void     grabAndAdjustForSL(float scrWdivH);
+    void     adjustForSL(float scrWdivH);
+    bool     isOpened() { return _captureDevice.isOpened(); }
+    void     release();
+    void     loadIntoLastFrame(float        scrWdivH,
+                               int          camWidth,
+                               int          camHeight,
+                               CVPixFormat  srcPixelFormat,
+                               const uchar* data,
+                               bool         isContinuous);
+    void     copyYUVPlanes(float  scrWdivH,
+                           int    srcW,
+                           int    srcH,
+                           uchar* y,
+                           int    ySize,
+                           int    yPixStride,
+                           int    yLineStride,
+                           uchar* u,
+                           int    uSize,
+                           int    uPixStride,
+                           int    uLineStride,
+                           uchar* v,
+                           int    vSize,
+                           int    vPixStride,
+                           int    vLineStride);
 
     void        videoType(CVVideoType vt);
     CVVideoType videoType() { return _videoType; }

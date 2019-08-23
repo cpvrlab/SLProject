@@ -26,15 +26,15 @@ for a good top down information.
 #include <opencv2/xfeatures2d.hpp>
 
 //-----------------------------------------------------------------------------
-//! SLCVTracked is the pure virtual base class for tracking features in video.
+//! CVTracked is the pure virtual base class for tracking features in video.
 /*! The static vector trackers can hold multiple of CVTracked that are
  tracked in scenes that require a live video image from the device camera.
  A tracker is bound to a scene node. If the node is the camera node the tracker
  calculates the relative position of the camera to the tracker. This is the
  standard augmented reality case. If the camera is a normal scene node, the
  tracker calculates the object matrix relative to the scene camera.
- See also the derived classes SLCVTrackedAruco, SLCVTrackedChessboard,
- SLCVTrackedFaces and SLCVTrackedFeature for example implementations.
+ See also the derived classes CVTrackedAruco, CVTrackedChessboard,
+ CVTrackedFaces and CVTrackedFeature for example implementations.
  The update of the tracking per frame is implemented in onUpdateTracking in
  AppDemoTracking.cpp and called once per frame within the main render loop.
 */
@@ -80,7 +80,5 @@ class CVTracked
     SLMat4f      _objectViewMat; //!< view transformation matrix
     HighResTimer _timer;         //!< High resolution timer
 };
-//-----------------------------------------------------------------------------
-typedef std::vector<CVTracked*> SLVCVTracked; //!< Vector of CV tracker pointer
 //-----------------------------------------------------------------------------
 #endif

@@ -49,11 +49,11 @@ bool CVTrackedAruco::track(CVMat          imageGray,
     {
         paramsLoaded = params.loadFromFile();
         if (!paramsLoaded)
-            SL_EXIT_MSG("CVTrackedAruco::track: Failed to load Aruco parameters.");
+            Utils::exitMsg("CVTrackedAruco::track: Failed to load Aruco parameters.", __LINE__, __FILE__);
     }
     if (params.arucoParams.empty() || params.dictionary.empty())
     {
-        SL_WARN_MSG("CVTrackedAruco::track: Aruco paramters are empty.");
+        Utils::warnMsg("CVTrackedAruco::track: Aruco paramters are empty.", __LINE__, __FILE__);
         return false;
     }
 
@@ -129,7 +129,7 @@ bool CVTrackedAruco::track(CVMat          imageGray,
     return false;
 }
 //-----------------------------------------------------------------------------
-/*! SLCVTrackedAruco::drawArucoMarkerBoard draws and saves an aruco board
+/*! CVTrackedAruco::drawArucoMarkerBoard draws and saves an aruco board
 into an image.
 \param dictionaryId integer id of the dictionary
 \param numMarkersX NO. of markers in x-direction

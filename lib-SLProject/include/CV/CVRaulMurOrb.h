@@ -11,10 +11,9 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLCVRAULMURORB_H
-#define SLCVRAULMURORB_H
+#ifndef CVRAULMURORB_H
+#define CVRAULMURORB_H
 
-#include <SL.h>
 #include <CVTypedefs.h>
 
 //-----------------------------------------------------------------------------
@@ -76,4 +75,4 @@ class CVRaulMurOrb : public CVFeature2D
     vector<float> mvInvLevelSigma2;
 };
 //----------------------------------------------------------------------------
-#endif // SLCVRAULMURORB_H
+#endif // CVRAULMURORB_H

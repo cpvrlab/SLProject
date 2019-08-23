@@ -34,4 +34,4 @@ class CVRaulMurExtNode
     bool                             bNoMore;
 };
 //-----------------------------------------------------------------------------
-#endif // SLCVRAULMUREXTRACTORNODE_H
+#endif // CVRAULMUREXTRACTORNODE_H
