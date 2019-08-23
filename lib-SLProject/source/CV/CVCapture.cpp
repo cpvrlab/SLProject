@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVCapture.cpp
+//  File:      CVCapture.cpp
 //  Purpose:   OpenCV Capture Device
 //  Authors:   Michael Goettlicher, Marcus Hudritsch, Jan Dellsperger
 //  Date:      Winter 2016
@@ -9,27 +9,24 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line // precompiled headers
-
 /*
 The OpenCV library version 3.4 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
-See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
+See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <SLApplication.h>
-#include <SLCVCalibration.h>
-#include <SLCVCapture.h>
-#include <SLCVImage.h>
+#include <CVCalibration.h>
+#include <CVCapture.h>
+#include <CVImage.h>
 
 //-----------------------------------------------------------------------------
-SLCVCapture* SLCVCapture::_instance = nullptr;
+CVCapture* CVCapture::_instance = nullptr;
 //-----------------------------------------------------------------------------
 //! Private constructor
-SLCVCapture::SLCVCapture()
+CVCapture::CVCapture()
 {
     startCaptureTimeMS = 0.0f;
     hasSecondaryCamera = true;
@@ -43,7 +40,7 @@ SLCVCapture::SLCVCapture()
 }
 //-----------------------------------------------------------------------------
 //! Private constructor
-SLCVCapture::~SLCVCapture()
+CVCapture::~CVCapture()
 {
     release();
 }
@@ -53,7 +50,7 @@ SLCVCapture::~SLCVCapture()
 setting the the SLScene::_videoType to VT_MAIN. On desktop systems the webcam
 is the only and main camera.
 */
-SLVec2i SLCVCapture::open(SLint deviceNum)
+SLVec2i CVCapture::open(int deviceNum)
 {
     try
     {
@@ -64,8 +61,8 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
 
         SL_LOG("Capture devices created.\n");
 
-        SLint w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
-        SLint h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
+        int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
+        int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
         SL_LOG("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
         SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
@@ -73,9 +70,9 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
         fps                = _captureDevice.get(cv::CAP_PROP_FPS);
 
         // Set one camera size entry
-        SLCVCapture::camSizes.clear();
-        SLCVCapture::camSizes.push_back(SLCVSize(w, h));
-        SLCVCapture::activeCamSizeIndex = 0;
+        CVCapture::camSizes.clear();
+        CVCapture::camSizes.push_back(CVSize(w, h));
+        CVCapture::activeCamSizeIndex = 0;
 
         return SLVec2i(w, h);
     }
@@ -90,7 +87,7 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
 /* This so far called in SLScene::onAfterLoad if a scene uses a video by
 setting the the SLScene::_videoType to VT_FILE.
 */
-SLVec2i SLCVCapture::openFile()
+SLVec2i CVCapture::openFile()
 {
     try
     { // Load the file directly
@@ -99,7 +96,7 @@ SLVec2i SLCVCapture::openFile()
             videoFilename = videoDefaultPath + videoFilename;
             if (!Utils::fileExists(videoFilename))
             {
-                SLstring msg = "SLCVCapture::openFile: File not found: " + videoFilename;
+                string msg = "CVCapture::openFile: File not found: " + videoFilename;
                 SL_EXIT_MSG(msg.c_str());
             }
         }
@@ -108,14 +105,14 @@ SLVec2i SLCVCapture::openFile()
 
         if (!_captureDevice.isOpened())
         {
-            SL_LOG("SLCVCapture::openFile: Failed to open video file.");
+            SL_LOG("CVCapture::openFile: Failed to open video file.");
             return SLVec2i::ZERO;
         }
 
         SL_LOG("Capture devices created with video.\n");
 
-        SLint w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
-        SLint h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
+        int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
+        int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
         SL_LOG("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
         SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
@@ -126,13 +123,13 @@ SLVec2i SLCVCapture::openFile()
     }
     catch (exception& e)
     {
-        SL_LOG("SLCVCapture::openFile: Exception during OpenCV video capture creation with video file\n");
+        SL_LOG("CVCapture::openFile: Exception during OpenCV video capture creation with video file\n");
     }
     return SLVec2i::ZERO;
 }
 //-----------------------------------------------------------------------------
 //! starts the video capturing
-void SLCVCapture::start(float scrWdivH)
+void CVCapture::start(float scrWdivH)
 {
 #ifdef SL_USES_CVCAPTURE
     if (_videoType != VT_NONE)
@@ -162,7 +159,7 @@ void SLCVCapture::start(float scrWdivH)
 #endif
 }
 //-----------------------------------------------------------------------------
-void SLCVCapture::release()
+void CVCapture::release()
 {
     if (_captureDevice.isOpened())
         _captureDevice.release();
@@ -171,13 +168,13 @@ void SLCVCapture::release()
 }
 //-----------------------------------------------------------------------------
 /*! Grabs a new frame from the OpenCV capture device or video file and calls
-SLCVCapture::adjustForSL. This function can also be called by Android or iOS
+CVCapture::adjustForSL. This function can also be called by Android or iOS
 app for grabbing a frame of a video file. Android and iOS use their own
 capture functionality.
 */
-void SLCVCapture::grabAndAdjustForSL(float scrWdivH)
+void CVCapture::grabAndAdjustForSL(float scrWdivH)
 {
-    SLCVCapture::startCaptureTimeMS = SLApplication::timeMS();
+    CVCapture::startCaptureTimeMS = _timer.elapsedTimeInMilliSec();
 
     try
     {
@@ -216,7 +213,7 @@ void SLCVCapture::grabAndAdjustForSL(float scrWdivH)
 
 //-----------------------------------------------------------------------------
 //! Does all adjustments needed for the SLScene::_videoTexture
-/*! SLCVCapture::adjustForSL processes the following adjustments for all input
+/*! CVCapture::adjustForSL processes the following adjustments for all input
 images no matter with what they where captured:
 \n
 1) Crops the input image if it doesn't match the screens aspect ratio. The
@@ -231,10 +228,9 @@ image should be mirrored or not is stored in SLCVCalibration::_isMirroredH
 3) Many of the further processing steps are faster done on grayscale images.
 We therefore create a copy that is grayscale converted.
 */
-void SLCVCapture::adjustForSL(float scrWdivH)
+void CVCapture::adjustForSL(float scrWdivH)
 {
-    SLScene* s = SLApplication::scene;
-    format     = SLCVImage::cv2glPixelFormat(lastFrame.type());
+    format = CVImage::cv2glPixelFormat(lastFrame.type());
 
     //////////////////////////////////////
     // 1) Check if capture size changed //
@@ -246,7 +242,7 @@ void SLCVCapture::adjustForSL(float scrWdivH)
     // Determine active size index if unset or changed
     if (!camSizes.empty())
     {
-        SLCVSize activeSize(0, 0);
+        CVSize activeSize(0, 0);
 
         if (activeCamSizeIndex >= 0 && activeCamSizeIndex < (int)camSizes.size())
             activeSize = camSizes[(uint)activeCamSizeIndex];
@@ -271,23 +267,23 @@ void SLCVCapture::adjustForSL(float scrWdivH)
     // Cropping is done almost always.
     // So this is Android image copy loop #2
 
-    SLfloat inWdivH  = (SLfloat)lastFrame.cols / (SLfloat)lastFrame.rows;
-    SLfloat outWdivH = scrWdivH;
+    float inWdivH  = (float)lastFrame.cols / (float)lastFrame.rows;
+    float outWdivH = scrWdivH;
 
     if (SL_abs(inWdivH - outWdivH) > 0.01f)
     {
-        SLint width  = 0; // width in pixels of the destination image
-        SLint height = 0; // height in pixels of the destination image
-        SLint cropH  = 0; // crop height in pixels of the source image
-        SLint cropW  = 0; // crop width in pixels of the source image
-        SLint wModulo4;
-        SLint hModulo4;
+        int width  = 0; // width in pixels of the destination image
+        int height = 0; // height in pixels of the destination image
+        int cropH  = 0; // crop height in pixels of the source image
+        int cropW  = 0; // crop width in pixels of the source image
+        int wModulo4;
+        int hModulo4;
 
         if (inWdivH > outWdivH) // crop input image left & right
         {
-            width  = (SLint)((SLfloat)lastFrame.rows * outWdivH);
+            width  = (int)((float)lastFrame.rows * outWdivH);
             height = lastFrame.rows;
-            cropW  = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);
+            cropW  = (int)((float)(lastFrame.cols - width) * 0.5f);
 
             // Width must be devidable by 4
             wModulo4 = width % 4;
@@ -302,8 +298,8 @@ void SLCVCapture::adjustForSL(float scrWdivH)
         else // crop input image at top & bottom
         {
             width  = lastFrame.cols;
-            height = (SLint)((SLfloat)lastFrame.cols / outWdivH);
-            cropH  = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
+            height = (int)((float)lastFrame.cols / outWdivH);
+            cropH  = (int)((float)(lastFrame.rows - height) * 0.5f);
 
             // Height must be devidable by 4
             hModulo4 = height % 4;
@@ -316,7 +312,7 @@ void SLCVCapture::adjustForSL(float scrWdivH)
             if (hModulo4 == 3) height++;
         }
 
-        lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(lastFrame);
+        lastFrame(CVRect(cropW, cropH, width, height)).copyTo(lastFrame);
         //imwrite("AfterCropping.bmp", lastFrame);
     }
 
@@ -329,7 +325,7 @@ void SLCVCapture::adjustForSL(float scrWdivH)
 
     if (activeCalib->isMirroredH())
     {
-        SLCVMat mirrored;
+        CVMat mirrored;
         if (activeCalib->isMirroredV())
             cv::flip(lastFrame, mirrored, -1);
         else
@@ -338,7 +334,7 @@ void SLCVCapture::adjustForSL(float scrWdivH)
     }
     else if (activeCalib->isMirroredV())
     {
-        SLCVMat mirrored;
+        CVMat mirrored;
         if (activeCalib->isMirroredH())
             cv::flip(lastFrame, mirrored, -1);
         else
@@ -360,40 +356,40 @@ void SLCVCapture::adjustForSL(float scrWdivH)
     if (lastFrame.size() != activeCalib->imageSize())
         activeCalib->imageSize(lastFrame.size());
 
-    _captureTimesMS.set(SLApplication::timeMS() - startCaptureTimeMS);
+    _captureTimesMS.set(_timer.elapsedTimeInMilliSec() - startCaptureTimeMS);
 }
 //-----------------------------------------------------------------------------
 /*! This method is called by iOS and Android projects that capture their video
 cameras on their own. We only adjust the color space. See the app-Demo-SLProject/iOS and
 app-Demo-SLProject/android projects for the usage.
 */
-void SLCVCapture::loadIntoLastFrame(const SLfloat       scrWdivH,
-                                    const SLint         width,
-                                    const SLint         height,
-                                    const SLPixelFormat format,
-                                    const SLuchar*      data,
-                                    const SLbool        isContinuous)
+void CVCapture::loadIntoLastFrame(const float       scrWdivH,
+                                  const int         width,
+                                  const int         height,
+                                  const CVPixFormat format,
+                                  const uchar*      data,
+                                  const bool        isContinuous)
 {
-    SLCVCapture::startCaptureTimeMS = SLApplication::timeMS();
+    CVCapture::startCaptureTimeMS = _timer.elapsedTimeInMilliSec();
 
     // treat Android YUV to RGB conversion special
     if (format == PF_yuv_420_888)
     {
-        SLCVMat yuv(height + height / 2, width, CV_8UC1, (void*)data);
+        CVMat yuv(height + height / 2, width, CV_8UC1, (void*)data);
 
         // Android image copy loop #1
-        cvtColor(yuv, SLCVCapture::lastFrame, cv::COLOR_YUV2RGB_NV21, 3);
+        cvtColor(yuv, CVCapture::lastFrame, cv::COLOR_YUV2RGB_NV21, 3);
     }
     // convert 4 channel images to 3 channel
     else if (format == PF_bgra || format == PF_rgba)
     {
-        SLCVMat rgba(height, width, CV_8UC4, (void*)data);
-        cvtColor(rgba, SLCVCapture::lastFrame, cv::COLOR_RGBA2RGB, 3);
+        CVMat rgba(height, width, CV_8UC4, (void*)data);
+        cvtColor(rgba, CVCapture::lastFrame, cv::COLOR_RGBA2RGB, 3);
     }
     else
     {
         // Set the according OpenCV format
-        SLint cvType = 0, bpp = 0;
+        int cvType = 0, bpp = 0;
 
         switch (format)
         {
@@ -434,12 +430,12 @@ void SLCVCapture::loadIntoLastFrame(const SLfloat       scrWdivH,
         size_t destStride = 0;
         if (!isContinuous)
         {
-            SLint bitsPerPixel = bpp * 8;
-            SLint bpl          = ((width * bitsPerPixel + 31) / 32) * 4;
-            destStride         = (size_t)(bpl - width * bpp);
+            int bitsPerPixel = bpp * 8;
+            int bpl          = ((width * bitsPerPixel + 31) / 32) * 4;
+            destStride       = (size_t)(bpl - width * bpp);
         }
 
-        SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, destStride);
+        CVCapture::lastFrame = CVMat(height, width, cvType, (void*)data, destStride);
     }
 
     adjustForSL(scrWdivH);
@@ -447,7 +443,7 @@ void SLCVCapture::loadIntoLastFrame(const SLfloat       scrWdivH,
 //-----------------------------------------------------------------------------
 //! YUV to RGB image infos. Offset value can be negative for mirrored copy.
 inline void
-yuv2rbg(SLubyte y, SLubyte u, SLubyte v, SLubyte& r, SLubyte& g, SLubyte& b)
+yuv2rbg(uchar y, uchar u, uchar v, uchar& r, uchar& g, uchar& b)
 {
     // Conversion from:
     // https://de.wikipedia.org/wiki/YUV-Farbmodell
@@ -470,15 +466,15 @@ yuv2rbg(SLubyte y, SLubyte u, SLubyte v, SLubyte& r, SLubyte& g, SLubyte& b)
     int a2 = 832 * e;
     int a3 = 400 * d;
     int a4 = 2066 * d;
-    r      = (SLubyte)SL_clamp((a0 + a1) >> 10, 0, 255);
-    g      = (SLubyte)SL_clamp((a0 - a2 - a3) >> 10, 0, 255);
-    b      = (SLubyte)SL_clamp((a0 + a4) >> 10, 0, 255);
+    r      = (uchar)SL_clamp((a0 + a1) >> 10, 0, 255);
+    g      = (uchar)SL_clamp((a0 - a2 - a3) >> 10, 0, 255);
+    b      = (uchar)SL_clamp((a0 + a4) >> 10, 0, 255);
 }
 //-----------------------------------------------------------------------------
 //! YUV to RGB image infos. Offset value can be negative for mirrored copy.
 struct colorBGR
 {
-    SLubyte b, g, r;
+    uchar b, g, r;
 };
 //-----------------------------------------------------------------------------
 //! YUV to RGB image infos. Offset value can be negative for mirrored copy.
@@ -502,11 +498,11 @@ struct YUV2RGB_BlockInfo
     YUV2RGB_ImageInfo* imageInfo; //!< Pointer to the image info
     int                rowCount;  //!< Num. of rows in block
     int                colCount;  //!< Num. of columns in block
-    SLubyte*           bgrRow;    //!< Pointer to the bgr row
-    SLubyte*           grayRow;   //!< Pointer to the grayscale row
-    SLubyte*           yRow;      //!< Pointer to the y value row
-    SLubyte*           uRow;      //!< Pointer to the u value row
-    SLubyte*           vRow;      //!< Pointer to the v value row
+    uchar*             bgrRow;    //!< Pointer to the bgr row
+    uchar*             grayRow;   //!< Pointer to the grayscale row
+    uchar*             yRow;      //!< Pointer to the y value row
+    uchar*             uRow;      //!< Pointer to the u value row
+    uchar*             vRow;      //!< Pointer to the v value row
 };
 //-----------------------------------------------------------------------------
 //! YUV to RGB conversion function called by multiple threads
@@ -520,10 +516,10 @@ void* convertYUV2RGB(YUV2RGB_BlockInfo* block)
     for (int row = 0; row < block->rowCount; ++row)
     {
         colorBGR* bgrCol  = (colorBGR*)block->bgrRow;
-        SLubyte*  grayCol = block->grayRow;
-        SLubyte*  yCol    = block->yRow;
-        SLubyte*  uCol    = block->uRow;
-        SLubyte*  vCol    = block->vRow;
+        uchar*    grayCol = block->grayRow;
+        uchar*    yCol    = block->yRow;
+        uchar*    uCol    = block->uRow;
+        uchar*    vCol    = block->vRow;
 
         // convert 2 pixels in the inner loop
         for (int col = 0; col < block->colCount; col += 2)
@@ -562,9 +558,9 @@ void* convertYUV2RGB(YUV2RGB_BlockInfo* block)
 }
 //------------------------------------------------------------------------------
 //! Copies and converts the video image in YUV_420 format to RGB and Grayscale
-/*! SLCVCapture::copyYUVPlanes copies and converts the video image in YUV_420
-format to the RGB image in SLCVCapture::lastFrame and the Y channel the grayscale
-image in SLCVCapture::lastFrameGray.\n
+/*! CVCapture::copyYUVPlanes copies and converts the video image in YUV_420
+format to the RGB image in CVCapture::lastFrame and the Y channel the grayscale
+image in CVCapture::lastFrameGray.\n
 In the YUV_420 format only the luminosity channel Y has the full resolution
 (one byte per pixel). The color channels U and V are subsampled and have only
 one byte per 4 pixel. See also https://en.wikipedia.org/wiki/Chroma_subsampling
@@ -596,7 +592,7 @@ A faster integer version with bit shifting is:\n
 - B = clip((C + 516*D) >> 8)
 \n
 4) Many of the image processing tasks are faster done on grayscale images.
-We therefore create a copy of the y-channel into SLCVCapture::lastFrameGray.
+We therefore create a copy of the y-channel into CVCapture::lastFrameGray.
 \n
 \param srcW        Source image width in pixel
 \param srcH        Source image height in pixel
@@ -613,61 +609,58 @@ We therefore create a copy of the y-channel into SLCVCapture::lastFrameGray.
 \param vColOffset  Offset in bytes to the next pixel in the v-plane
 \param vRowOffset  Offset in bytes to the next line in the v-plane
 */
-void SLCVCapture::copyYUVPlanes(float    scrWdivH,
-                                int      srcW,
-                                int      srcH,
-                                SLuchar* y,
-                                int      yBytes,
-                                int      yColOffset,
-                                int      yRowOffset,
-                                SLuchar* u,
-                                int      uBytes,
-                                int      uColOffset,
-                                int      uRowOffset,
-                                SLuchar* v,
-                                int      vBytes,
-                                int      vColOffset,
-                                int      vRowOffset)
+void CVCapture::copyYUVPlanes(float  scrWdivH,
+                              int    srcW,
+                              int    srcH,
+                              uchar* y,
+                              int    yBytes,
+                              int    yColOffset,
+                              int    yRowOffset,
+                              uchar* u,
+                              int    uBytes,
+                              int    uColOffset,
+                              int    uRowOffset,
+                              uchar* v,
+                              int    vBytes,
+                              int    vColOffset,
+                              int    vRowOffset)
 {
-    // pointer to the active scene
-    SLScene* s = SLApplication::scene;
-
     // Set the start time to measure the MS for the whole conversion
-    SLCVCapture::startCaptureTimeMS = SLApplication::timeMS();
+    CVCapture::startCaptureTimeMS = _timer.elapsedTimeInMilliSec();
 
     // input image aspect ratio
-    SLfloat imgWdivH = (SLfloat)srcW / (SLfloat)srcH;
+    float imgWdivH = (float)srcW / (float)srcH;
 
-    SLint dstW  = srcW; // width in pixels of the destination image
-    SLint dstH  = srcH; // height in pixels of the destination image
-    SLint cropH = 0;    // crop height in pixels of the source image
-    SLint cropW = 0;    // crop width in pixels of the source image
+    int dstW  = srcW; // width in pixels of the destination image
+    int dstH  = srcH; // height in pixels of the destination image
+    int cropH = 0;    // crop height in pixels of the source image
+    int cropW = 0;    // crop width in pixels of the source image
 
     // Crop image if source and destination aspect is not the same
     if (SL_abs(imgWdivH - scrWdivH) > 0.01f)
     {
         if (imgWdivH > scrWdivH) // crop input image left & right
         {
-            dstW  = (SLint)((SLfloat)srcH * scrWdivH);
+            dstW  = (int)((float)srcH * scrWdivH);
             dstH  = srcH;
-            cropW = (SLint)((SLfloat)(srcW - dstW) * 0.5f);
+            cropW = (int)((float)(srcW - dstW) * 0.5f);
         }
         else // crop input image at top & bottom
         {
             dstW  = srcW;
-            dstH  = (SLint)((SLfloat)srcW / scrWdivH);
-            cropH = (SLint)((SLfloat)(srcH - dstH) * 0.5f);
+            dstH  = (int)((float)srcW / scrWdivH);
+            cropH = (int)((float)(srcH - dstH) * 0.5f);
         }
     }
 
     // Get the infos if the destination image must be mirrored
-    bool mirrorH = SLCVCapture::activeCalib->isMirroredH();
-    bool mirrorV = SLCVCapture::activeCalib->isMirroredV();
+    bool mirrorH = CVCapture::activeCalib->isMirroredH();
+    bool mirrorV = CVCapture::activeCalib->isMirroredV();
 
     // Create output color (BGR) and grayscale images
-    lastFrame     = SLCVMat(dstH, dstW, CV_8UC(3));
-    lastFrameGray = SLCVMat(dstH, dstW, CV_8UC(1));
-    format        = SLCVImage::cv2glPixelFormat(lastFrame.type());
+    lastFrame     = CVMat(dstH, dstW, CV_8UC(3));
+    lastFrameGray = CVMat(dstH, dstW, CV_8UC(1));
+    format        = CVImage::cv2glPixelFormat(lastFrame.type());
 
     // Bugfix on some devices with wrong pixel offsets
     if (yRowOffset == uRowOffset && uColOffset == 1)
@@ -676,8 +669,8 @@ void SLCVCapture::copyYUVPlanes(float    scrWdivH,
         vColOffset = 2;
     }
 
-    SLubyte* bgrRow  = lastFrame.data;
-    SLubyte* grayRow = lastFrameGray.data;
+    uchar* bgrRow  = lastFrame.data;
+    uchar* grayRow = lastFrameGray.data;
 
     int bgrColBytes  = 3;
     int bgrRowBytes  = dstW * bgrColBytes;
@@ -707,11 +700,11 @@ void SLCVCapture::copyYUVPlanes(float    scrWdivH,
     }
 
     // Set source buffer pointers
-    int      halfCropH = cropH / 2;
-    int      halfCropW = cropW / 2;
-    SLubyte* yRow      = y + cropH * yRowOffset + cropW * yColOffset;
-    SLubyte* uRow      = u + halfCropH * uRowOffset + halfCropW * uColOffset;
-    SLubyte* vRow      = v + halfCropH * vRowOffset + halfCropW * vColOffset;
+    int    halfCropH = cropH / 2;
+    int    halfCropW = cropW / 2;
+    uchar* yRow      = y + cropH * yRowOffset + cropW * yColOffset;
+    uchar* uRow      = u + halfCropH * uRowOffset + halfCropW * uColOffset;
+    uchar* vRow      = v + halfCropH * vRowOffset + halfCropW * vColOffset;
 
     // Set the information common for all thread blocks
     YUV2RGB_ImageInfo imageInfo{};
@@ -777,7 +770,7 @@ void SLCVCapture::copyYUVPlanes(float    scrWdivH,
         thread.join();
 
     // Stop the capture time displayed in the statistics info
-    _captureTimesMS.set(SLApplication::timeMS() - startCaptureTimeMS);
+    _captureTimesMS.set(_timer.elapsedTimeInMilliSec() - startCaptureTimeMS);
 }
 //-----------------------------------------------------------------------------
 //! Setter for video type also sets the active calibration
@@ -787,7 +780,7 @@ mobile devices (SLApplication::calibScndCam) and one for video file simulation
 (SLApplication::calibVideoFile). The member SLApplication::activeCalib
 references the active one.
 */
-void SLCVCapture::videoType(SLVideoType vt)
+void CVCapture::videoType(CVVideoType vt)
 {
     _videoType = vt;
     _captureTimesMS.set(0.0f);
@@ -812,19 +805,17 @@ void SLCVCapture::videoType(SLVideoType vt)
     }
 }
 //-----------------------------------------------------------------------------
-void SLCVCapture::loadCalibrations(const SLstring& configPath,
-                                   const SLstring& calibInitPath,
-                                   const SLstring& videoPath)
+void CVCapture::loadCalibrations(const string& computerInfo,
+                                 const string& configPath,
+                                 const string& calibInitPath,
+                                 const string& videoPath)
 {
 
-    videoDefaultPath              = videoPath;
-    SLCVCalibration::calibIniPath = calibInitPath;
+    videoDefaultPath            = videoPath;
+    CVCalibration::calibIniPath = calibInitPath;
 
-    // This gets computerUser,-Name,-Brand,-Model,-OS,-OSVer,-Arch,-ID
-    SLstring deviceString = SLApplication::getComputerInfos();
-
-    SLstring mainCalibFilename = "camCalib_" + deviceString + "_main.xml";
-    SLstring scndCalibFilename = "camCalib_" + deviceString + "_scnd.xml";
+    string mainCalibFilename = "camCalib_" + computerInfo + "_main.xml";
+    string scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";
 
     // load opencv camera calibration for main and secondary camera
 #if defined(SL_USES_CVCAPTURE)
@@ -843,12 +834,12 @@ void SLCVCapture::loadCalibrations(const SLstring& configPath,
 }
 //-----------------------------------------------------------------------------
 /*! Sets the with and height of a camera size at index sizeIndex.
-If sizeIndexMax changes the vector in SLCVCapture gets cleared and resized.
+If sizeIndexMax changes the vector in CVCapture gets cleared and resized.
 */
-void SLCVCapture::setCameraSize(int sizeIndex,
-                                int sizeIndexMax,
-                                int width,
-                                int height)
+void CVCapture::setCameraSize(int sizeIndex,
+                              int sizeIndexMax,
+                              int width,
+                              int height)
 {
     if ((uint)sizeIndexMax != camSizes.size())
     {

@@ -14,6 +14,7 @@
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
 #include <SLInputManager.h>
+#include <HighResTimer.h>
 #include <atomic>
 #include <mutex>
 #include <map>
@@ -54,10 +55,10 @@ class SLApplication
     static SLfloat  timeS() { return (SLfloat)_timer.elapsedTimeInSec(); }
     static SLfloat  timeMS() { return (SLfloat)_timer.elapsedTimeInMilliSec(); }
 
-    static SLScene*         scene;          //!< scene pointer
-    static SLInputManager   inputManager;   //!< Input events manager
-    static SLDeviceRotation devRot;         //!< Mobile device rotation from IMU
-    static SLDeviceLocation devLoc;         //!< Mobile device location from GPS
+    static SLScene*         scene;        //!< scene pointer
+    static SLInputManager   inputManager; //!< Input events manager
+    static SLDeviceRotation devRot;       //!< Mobile device rotation from IMU
+    static SLDeviceLocation devLoc;       //!< Mobile device location from GPS
 
     static SLstring  name;          //!< Applcation name
     static SLstring  version;       //!< SLProject version string
@@ -83,11 +84,11 @@ class SLApplication
     static atomic<bool>                jobIsRunning;       //!< True if a parallel job is running
 
     private:
-    static SLTimer     _timer;          //!< high precision timer
-    static string      _jobProgressMsg; //!< Text message to show during progress
-    static atomic<int> _jobProgressNum; //!< Integer value to show progess
-    static atomic<int> _jobProgressMax; //!< Max. integer progress value
-    static mutex       _jobMutex;       //!< Mutex to protect parallel access
+    static HighResTimer _timer;          //!< high precision timer
+    static string       _jobProgressMsg; //!< Text message to show during progress
+    static atomic<int>  _jobProgressNum; //!< Integer value to show progess
+    static atomic<int>  _jobProgressMax; //!< Max. integer progress value
+    static mutex        _jobMutex;       //!< Mutex to protect parallel access
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -17,6 +17,7 @@
 
 #include <SLGLEnums.h>
 #include <SLGLState.h>
+#include <CVImage.h>
 
 //-----------------------------------------------------------------------------
 SLGLState* SLGLState::_instance = nullptr;

@@ -229,7 +229,7 @@ void SLGLTexture::load(SLstring filename,
         }
     }
 
-    _images.push_back(new SLCVImage(filename,
+    _images.push_back(new CVImage(filename,
                                     flipVertical,
                                     loadGrayscaleIntoAlpha));
 }
@@ -239,7 +239,7 @@ void SLGLTexture::load(const SLVCol4f& colors)
 {
     assert(colors.size() > 1);
 
-    _images.push_back(new SLCVImage(colors));
+    _images.push_back(new CVImage(colors));
 }
 //-----------------------------------------------------------------------------
 //! Copies the image data from a video camera into the current video image
@@ -257,14 +257,14 @@ otherwise an expensive conversion must be done.
 */
 SLbool SLGLTexture::copyVideoImage(SLint         camWidth,
                                    SLint         camHeight,
-                                   SLPixelFormat srcFormat,
+                                   CVPixFormat srcFormat,
                                    SLuchar*      data,
                                    SLbool        isContinuous,
                                    SLbool        isTopLeft)
 {
     // Add image for the first time
     if (_images.empty())
-        _images.push_back(new SLCVImage(camWidth,
+        _images.push_back(new CVImage(camWidth,
                                         camHeight,
                                         PF_rgb,
                                         "LiveVideoImageFromMemory"));
@@ -461,7 +461,7 @@ void SLGLTexture::build(SLint texID)
         SLuchar* imageData = &buffer[0];
 
         // copy each image data into temp. buffer
-        for (SLCVImage* img : _images)
+        for (CVImage* img : _images)
         {
             memcpy(imageData, img->data(), img->bytesPerImage());
             imageData += img->bytesPerImage();
@@ -770,7 +770,7 @@ void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
     GET_GL_ERROR;
 
     // working copy of the base mipmap
-    SLCVImage img2(*_images[index]);
+    CVImage img2(*_images[index]);
 
     // create half sized sub level mipmaps
     while (img2.width() > 1 || img2.height() > 1)

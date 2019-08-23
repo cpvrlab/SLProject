@@ -11,14 +11,22 @@
 #include <SLApplication.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLCVCapture.h>
-#include <SLCVTrackedAruco.h>
+#include <CVCapture.h>
+#include <CVTrackedAruco.h>
 #include <SLGLTexture.h>
 
 //-----------------------------------------------------------------------------
-// Global pointer for the video texture defined in AppDemoLoad for video scenes
-// It gets updated in the following onUpdateTracking routine
+/*! Global pointer for the video texture defined in AppDemoLoad for video scenes
+ It gets updated in the following onUpdateTracking routine */
 SLGLTexture* videoTexture = nullptr;
+
+/*! Global pointer for a tracker that is set in AppDemoLoad for video scenes
+ It gets updated in the following onUpdateTracking routine */
+CVTracked* tracker = nullptr;
+
+/*! Global pointer to a node that from witch the tracker changes the pose.
+ it gets updated in the following onUpdateTracking routine */
+SLNode* trackedNode = nullptr;
 
 //-----------------------------------------------------------------------------
 //! Implements the update per frame for feature tracking and video update
@@ -31,10 +39,10 @@ bool onUpdateTracking()
     SLScene*     s  = SLApplication::scene;
     SLSceneView* sv = s->sceneView(0);
 
-    if (SLCVCapture::instance()->videoType() != VT_NONE && !SLCVCapture::instance()->lastFrame.empty())
+    if (CVCapture::instance()->videoType() != VT_NONE && !CVCapture::instance()->lastFrame.empty())
     {
         SLfloat          trackingTimeStartMS = SLApplication::timeMS();
-        SLCVCalibration* ac                  = SLCVCapture::instance()->activeCalib;
+        CVCalibration* ac                  = CVCapture::instance()->activeCalib;
 
         // Invalidate calibration if camera input aspect doesn't match output
         SLfloat calibWdivH              = ac->imageAspectRatio();
@@ -55,16 +63,28 @@ bool onUpdateTracking()
                 ac->state(CS_calibrateStream);
             }
             else
-            { // Changes the state to CS_guessed
-                ac->createFromGuessedFOV(SLCVCapture::instance()->lastFrame.cols,
-                                         SLCVCapture::instance()->lastFrame.rows);
+            {
+                // Try to read device lens and sensor information
+                string strF = SLApplication::deviceParameter["DeviceLensFocalLength"];
+                string strW = SLApplication::deviceParameter["DeviceSensorPhysicalSizeW"];
+                string strH = SLApplication::deviceParameter["DeviceSensorPhysicalSizeH"];
+                float  devF = strF.empty() ? 0.0f : stof(strF);
+                float  devW = strW.empty() ? 0.0f : stof(strW);
+                float  devH = strH.empty() ? 0.0f : stof(strH);
+                ac->devFocalLength(devF);
+                ac->devSensorSizeW(devW);
+                ac->devSensorSizeH(devH);
+
+                // Changes the state to CS_guessed
+                ac->createFromGuessedFOV(CVCapture::instance()->lastFrame.cols,
+                                         CVCapture::instance()->lastFrame.rows);
                 sv->camera()->fov(ac->cameraFovVDeg());
             }
         }
         else //..............................................................
           if (ac->state() == CS_calibrateStream || ac->state() == CS_calibrateGrab)
         {
-            ac->findChessboard(SLCVCapture::instance()->lastFrame, SLCVCapture::instance()->lastFrameGray, true);
+            ac->findChessboard(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, true);
             int imgsToCap = ac->numImgsToCapture();
             int imgsCaped = ac->numCapturedImgs();
 
@@ -93,16 +113,29 @@ bool onUpdateTracking()
         }
         else if (ac->state() == CS_calibrated || ac->state() == CS_guessed) //......
         {
-            SLCVTrackedAruco::trackAllOnce = true;
-
-            // track all trackers in the first sceneview
-            for (auto tracker : SLCVTracked::trackers)
+            if (tracker && trackedNode)
             {
-                tracker->track(SLCVCapture::instance()->lastFrameGray,
-                               SLCVCapture::instance()->lastFrame,
-                               ac,
-                               SLCVTracked::showDetection,
-                               sv);
+                bool foundPose = tracker->track(CVCapture::instance()->lastFrameGray,
+                                                CVCapture::instance()->lastFrame,
+                                                ac);
+                if (foundPose)
+                {
+                    // set the object matrix depending if the
+                    // tracked node is attached to a camera or not
+                    if (typeid(*trackedNode) == typeid(SLCamera))
+                    {
+                        trackedNode->om(tracker->objectViewMat().inverted());
+                        trackedNode->setDrawBitsRec(SL_DB_HIDDEN, true);
+                    }
+                    else
+                    {
+                        trackedNode->om(tracker->calcObjectMatrix(sv->camera()->om(),
+                                                                  tracker->objectViewMat()));
+                        trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);
+                    }
+                }
+                else
+                    trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);
             }
 
             // Update info text only for chessboard scene
@@ -113,7 +146,7 @@ bool onUpdateTracking()
             {
                 SLfloat fovH = ac->cameraFovHDeg();
                 SLfloat err  = ac->reprojectionError();
-                ss << "Tracking Chessboard on " << (SLCVCapture::instance()->videoType() == VT_MAIN ? "main " : "scnd. ") << "camera. ";
+                ss << "Tracking Chessboard on " << (CVCapture::instance()->videoType() == VT_MAIN ? "main " : "scnd. ") << "camera. ";
                 if (ac->state() == CS_calibrated)
                     ss << "FOVH: " << fovH << ", error: " << err;
                 else
@@ -127,32 +160,32 @@ bool onUpdateTracking()
         {
             if (ac->state() == CS_calibrated && ac->showUndistorted())
             {
-                SLCVMat undistorted;
-                ac->remap(SLCVCapture::instance()->lastFrame, undistorted);
+                CVMat undistorted;
+                ac->remap(CVCapture::instance()->lastFrame, undistorted);
 
-                //SLCVCapture::instance()->videoTexture()->copyVideoImage(undistorted.cols,
+                //CVCapture::instance()->videoTexture()->copyVideoImage(undistorted.cols,
                 videoTexture->copyVideoImage(undistorted.cols,
                                              undistorted.rows,
-                                             SLCVCapture::instance()->format,
+                                             CVCapture::instance()->format,
                                              undistorted.data,
                                              undistorted.isContinuous(),
                                              true);
             }
             else
             {
-                //SLCVCapture::instance()->videoTexture()->copyVideoImage(SLCVCapture::instance()->lastFrame.cols,
-                videoTexture->copyVideoImage(SLCVCapture::instance()->lastFrame.cols,
-                                             SLCVCapture::instance()->lastFrame.rows,
-                                             SLCVCapture::instance()->format,
-                                             SLCVCapture::instance()->lastFrame.data,
-                                             SLCVCapture::instance()->lastFrame.isContinuous(),
+                //CVCapture::instance()->videoTexture()->copyVideoImage(CVCapture::instance()->lastFrame.cols,
+                videoTexture->copyVideoImage(CVCapture::instance()->lastFrame.cols,
+                                             CVCapture::instance()->lastFrame.rows,
+                                             CVCapture::instance()->format,
+                                             CVCapture::instance()->lastFrame.data,
+                                             CVCapture::instance()->lastFrame.isContinuous(),
                                              true);
             }
         }
         else
             SL_WARN_MSG("No video texture to copy to.");
 
-        SLCVTracked::trackingTimesMS.set(SLApplication::timeMS() - trackingTimeStartMS);
+        CVTracked::trackingTimesMS.set(SLApplication::timeMS() - trackingTimeStartMS);
         return true;
     }
     return false;

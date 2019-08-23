@@ -157,7 +157,9 @@ float GetSeconds()
     SLApplication::computerOSVer = std::string([osver UTF8String]);
     SLApplication::computerArch  = std::string([arch UTF8String]);
     
-    SLCVCapture::instance()->loadCalibrations(configDir, // for stored calibrations
+    SLCVImage::defaultPath = exeDir;
+    SLCVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(), // deviceInfo string
+                                              configDir, // for stored calibrations
                                               exeDir,    // for calibIniPath
                                               exeDir);   // for videos
     

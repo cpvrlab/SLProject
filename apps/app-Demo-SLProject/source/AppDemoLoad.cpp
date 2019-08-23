@@ -19,11 +19,11 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLBox.h>
-#include <SLCVCapture.h>
-#include <SLCVTrackedAruco.h>
-#include <SLCVTrackedChessboard.h>
-#include <SLCVTrackedFaces.h>
-#include <SLCVTrackedFeatures.h>
+#include <CVCapture.h>
+#include <CVTrackedAruco.h>
+#include <CVTrackedChessboard.h>
+#include <CVTrackedFaces.h>
+#include <CVTrackedFeatures.h>
 #include <SLCone.h>
 #include <SLCoordAxis.h>
 #include <SLCylinder.h>
@@ -41,7 +41,11 @@
 #include <SLText.h>
 #include <SLTransferFunction.h>
 
+//-----------------------------------------------------------------------------
+// Global pointers declared in AppDemoTracking
 extern SLGLTexture* videoTexture;
+extern CVTracked* tracker;
+extern SLNode*      trackedNode;
 
 //-----------------------------------------------------------------------------
 // Forward declarations for helper functions used only in this file
@@ -61,14 +65,18 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation = false);
 void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 {
     // Reset calibration process at scene change
-    SLCVCalibration* activeCalib = SLCVCapture::instance()->activeCalib;
+    CVCalibration* activeCalib = CVCapture::instance()->activeCalib;
     if (activeCalib->state() != CS_calibrated &&
         activeCalib->state() != CS_uncalibrated)
         activeCalib->state(CS_uncalibrated);
 
-    SLCVTracked::reset(); // delete all trackers from previous scenes
-    SLCVCapture::instance()->videoType(VT_NONE); // turn off any video
-    videoTexture = nullptr; // video texture will be deleted by scene uninit
+    CVTracked::resetTimes();                   // delete all tracker times
+    CVCapture::instance()->videoType(VT_NONE); // turn off any video
+
+    delete tracker;
+    tracker      = nullptr;
+    videoTexture = nullptr; // The video texture will be deleted by scene uninit
+    trackedNode  = nullptr; // The tracked node will be deleted by scene uninit
 
     SLApplication::sceneID = sceneID;
 
@@ -1937,19 +1945,19 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             s->name("Live Video Texture");
             s->info("Minimal texture mapping example with live video source.");
-            SLCVCapture::instance()->videoType(VT_SCND); // on desktop it will be the main camera
+            CVCapture::instance()->videoType(VT_SCND); // on desktop it will be the main camera
         }
         else
         {
             s->name("File Video Texture");
             s->info("Minimal texture mapping example with video file source.");
-            SLCVCapture::instance()->videoType(VT_FILE);
-            SLCVCapture::instance()->videoFilename = "street3.mp4";
-            SLCVCapture::instance()->videoLoops    = true;
+            CVCapture::instance()->videoType(VT_FILE);
+            CVCapture::instance()->videoFilename = "street3.mp4";
+            CVCapture::instance()->videoLoops    = true;
         }
 
         // Create video texture on global pointer updated in AppDemoTracking
-        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture   = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
         SLMaterial* m1 = new SLMaterial("VideoMat", videoTexture);
 
         // Create a root scene group for all nodes
@@ -1997,7 +2005,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         /*
         The tracking of markers is done in SLScene::onUpdate by calling the specific
-        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
+        CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
@@ -2012,25 +2020,25 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             if (SLApplication::sceneID == SID_VideoTrackChessMain)
             {
-                SLCVCapture::instance()->videoType(VT_MAIN);
+                CVCapture::instance()->videoType(VT_MAIN);
                 s->name("Track Chessboard (main cam.)");
             }
             else
             {
-                SLCVCapture::instance()->videoType(VT_SCND);
+                CVCapture::instance()->videoType(VT_SCND);
                 s->name("Track Chessboard (scnd cam.");
             }
         }
         else if (SLApplication::sceneID == SID_VideoCalibrateMain)
         {
-            SLCVCapture::instance()->videoType(VT_MAIN);
+            CVCapture::instance()->videoType(VT_MAIN);
             activeCalib->clear();
 
             s->name("Calibrate Main Cam.");
         }
         else if (SLApplication::sceneID == SID_VideoCalibrateScnd)
         {
-            SLCVCapture::instance()->videoType(VT_SCND);
+            CVCapture::instance()->videoType(VT_SCND);
             activeCalib->clear();
             s->name("Calibrate Scnd Cam.");
         }
@@ -2081,8 +2089,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             scene->addChild(boxNode);
         }
 
-        // Create OpenCV Tracker for the box node
-        SLCVTracked::trackers.push_back(new SLCVTrackedChessboard(cam1));
+        // Create OpenCV Tracker for the camera node for AR camera.
+        tracker     = new CVTrackedChessboard();
+        tracker->drawDetection(true);
+        trackedNode = cam1;
 
         // pass the scene group as root node
         s->root3D(scene);
@@ -2096,7 +2106,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         /*
         The tracking of markers is done in SLScene::onUpdate by calling the specific
-        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
+        CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
@@ -2104,15 +2114,15 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         if (SLApplication::sceneID == SID_VideoTrackArucoMain)
         {
-            SLCVCapture::instance()->videoType(VT_MAIN);
+            CVCapture::instance()->videoType(VT_MAIN);
             s->name("Track Aruco (main cam.)");
-            s->info("Hold Aruco Marker 0 and/or 1 into the field of view of the main camera. You can find the Aruco markers in the file data/Calibrations/ArucoMarkersDict0_Marker0-9.pdf");
+            s->info("Hold the Aruco board dictionary 0 into the field of view of the main camera. You can find the Aruco markers in the file data/Calibrations");
         }
         else
         {
-            SLCVCapture::instance()->videoType(VT_SCND);
+            CVCapture::instance()->videoType(VT_SCND);
             s->name("Track Aruco (scnd. cam.)");
-            s->info("Hold Aruco Marker 0 and/or 1 into the field of view of the secondary camera. You can find the Aruco markers in the file data/Calibrations/ArucoMarkersDict0_Marker0-9.pdf");
+            s->info("Hold the Aruco board dictionary 0 into the field of view of the secondary camera. You can find the Aruco markers in the file data/Calibrations");
         }
 
         // Create video texture on global pointer updated in AppDemoTracking
@@ -2141,7 +2151,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light1);
 
         // Get the half edge length of the aruco marker
-        SLfloat edgeLen = SLCVTrackedAruco::params.edgeLength;
+        SLfloat edgeLen = CVTrackedAruco::params.edgeLength;
         SLfloat he      = edgeLen * 0.5f;
 
         // Build mesh & node that will be tracked by the 1st marker (camera)
@@ -2154,20 +2164,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         boxNode1->setDrawBitsRec(SL_DB_CULLOFF, true);
         scene->addChild(boxNode1);
 
-        // Build mesh & node that will be tracked by the 2nd marker
-        SLBox*  box2      = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 2", cyan);
-        SLNode* boxNode2  = new SLNode(box2, "Box Node 2");
-        SLNode* axisNode2 = new SLNode(new SLCoordAxis(), "Axis Node 2");
-        axisNode2->setDrawBitsRec(SL_DB_WIREMESH, false);
-        axisNode2->scale(edgeLen);
-        boxNode2->addChild(axisNode2);
-        boxNode2->setDrawBitsRec(SL_DB_HIDDEN, true);
-        boxNode2->setDrawBitsRec(SL_DB_CULLOFF, true);
-        scene->addChild(boxNode2);
-
-        // Create OpenCV Tracker for the camera & the 2nd box node
-        SLCVTracked::trackers.push_back(new SLCVTrackedAruco(cam1, 0));
-        SLCVTracked::trackers.push_back(new SLCVTrackedAruco(boxNode2, 1));
+        // Create OpenCV Tracker for the box node
+        tracker     = new CVTrackedAruco(9);
+        tracker->drawDetection(true);
+        trackedNode = boxNode1;
 
         // pass the scene group as root node
         s->root3D(scene);
@@ -2182,7 +2182,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         /*
         The tracking of markers is done in SLScene::onUpdate by calling the specific
-        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
+        CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
@@ -2201,7 +2201,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
         cam1->background().texture(videoTexture);
-        SLCVCapture::instance()->videoType(VT_MAIN);
+        CVCapture::instance()->videoType(VT_MAIN);
 
         SLLightSpot* light1 = new SLLightSpot(420, 420, 420, 1);
         light1->ambient(SLCol4f(1, 1, 1));
@@ -2241,7 +2241,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(box);
         scene->addChild(cam1);
 
-        SLCVTracked::trackers.push_back(new SLCVTrackedFeatures(cam1, "features_stones.png"));
+        // Create feature tracker and let it pose the camera for AR posing
+        tracker = new CVTrackedFeatures("features_stones.png");
+        tracker->drawDetection(true);
+        trackedNode = cam1;
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
@@ -2254,7 +2257,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         /*
         The tracking of markers is done in SLScene::onUpdate by calling the specific
-        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
+        CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
@@ -2262,12 +2265,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         if (SLApplication::sceneID == SID_VideoTrackFaceMain)
         {
-            SLCVCapture::instance()->videoType(VT_MAIN);
+            CVCapture::instance()->videoType(VT_MAIN);
             s->name("Track Face (main cam.)");
         }
         else
         {
-            SLCVCapture::instance()->videoType(VT_SCND);
+            CVCapture::instance()->videoType(VT_SCND);
             s->name("Track Face (scnd. cam.)");
         }
         s->info("Face and facial landmark detection.");
@@ -2306,8 +2309,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(axis);
 
         // Add a face tracker that moves the camera node
-        SLCVTracked::trackers.push_back(new SLCVTrackedFaces(cam1, 3));
-        SLCVTracked::showDetection = true;
+        tracker = new CVTrackedFaces(3);
+        trackedNode = cam1;
+        tracker->drawDetection(true);
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
@@ -2333,7 +2337,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().texture(videoTexture);
 
         // Turn on main video
-        SLCVCapture::instance()->videoType(VT_MAIN);
+        CVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(1.0f);
@@ -2397,7 +2401,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().texture(videoTexture);
 
         // Turn on main video
-        SLCVCapture::instance()->videoType(VT_MAIN);
+        CVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(5.0f);
@@ -2907,8 +2911,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (sceneView != nullptr)
             sceneView->onInitialize();
 
-    if (SLCVCapture::instance()->videoType() != VT_NONE)
-        SLCVCapture::instance()->start(sv->scrWdivH());
+    if (CVCapture::instance()->videoType() != VT_NONE)
+        CVCapture::instance()->start(sv->scrWdivH());
 }
 //-----------------------------------------------------------------------------
 //! Creates a recursive sphere group used for the ray tracing scenes

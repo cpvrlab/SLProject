@@ -129,7 +129,7 @@
     <ClInclude Include="..\include\SL.h">
       <Filter>SL</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLAverage.h">
+    <ClInclude Include="..\include\Averaged.h">
       <Filter>SL</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLDrawBits.h">
@@ -270,10 +270,10 @@
     <ClInclude Include="..\include\SLGLEnums.h">
       <Filter>GL</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLCVCapture.h">
+    <ClInclude Include="..\include\CVCapture.h">
       <Filter>CV</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLCVCalibration.h">
+    <ClInclude Include="..\include\CVCalibration.h">
       <Filter>CV</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLCoordAxis.h">
@@ -312,13 +312,13 @@
     <ClInclude Include="..\include\SLCV.h">
       <Filter>CV</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLCVImage.h">
+    <ClInclude Include="..\include\CVImage.h">
       <Filter>CV</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLCVRaulMurExtractorNode.h">
+    <ClInclude Include="..\include\CVRaulMurExtNode.h">
       <Filter>CV</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLCVRaulMurOrb.h">
+    <ClInclude Include="..\include\CVRaulMurOrb.h">
       <Filter>CV</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLCVTrackerFeatures.h">
@@ -467,10 +467,10 @@
     <ClCompile Include="source\SLBackground.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="source\CV\SLCVCapture.cpp">
+    <ClCompile Include="source\CV\CVCapture.cpp">
       <Filter>CV</Filter>
     </ClCompile>
-    <ClCompile Include="source\CV\SLCVCalibration.cpp">
+    <ClCompile Include="source\CV\CVCalibration.cpp">
       <Filter>CV</Filter>
     </ClCompile>
     <ClCompile Include="source\GL\SLGLOculus.cpp">
@@ -524,7 +524,7 @@
     <ClCompile Include="source\CV\SLCVTracker.cpp">
       <Filter>CV</Filter>
     </ClCompile>
-    <ClCompile Include="source\CV\SLCVImage.cpp">
+    <ClCompile Include="source\CV\CVImage.cpp">
       <Filter>CV</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\SLCVDescriptor.cpp">
@@ -536,10 +536,10 @@
     <ClCompile Include="source\CV\SLCVTrackerFeatures.cpp">
       <Filter>CV</Filter>
     </ClCompile>
-    <ClCompile Include="source\CV\SLCVRaulMurExtractorNode.cpp">
+    <ClCompile Include="source\CV\CVRaulMurExtNode.cpp">
       <Filter>CV</Filter>
     </ClCompile>
-    <ClCompile Include="source\CV\SLCVRaulMurOrb.cpp">
+    <ClCompile Include="source\CV\CVRaulMurOrb.cpp">
       <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>

@@ -44,10 +44,10 @@
 		41421AEF2146A53400554495 /* earth2048_H.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41421AE72146A53400554495 /* earth2048_H.jpg */; };
 		41421AF02146A53400554495 /* earth2048_G.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41421AE82146A53400554495 /* earth2048_G.jpg */; };
 		41421AF12146A53400554495 /* earth2048_N.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41421AE92146A53400554495 /* earth2048_N.jpg */; };
-		414333791DE03D590027E1C3 /* SLCVCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333751DE03D590027E1C3 /* SLCVCalibration.cpp */; };
-		4143337A1DE03D590027E1C3 /* SLCVCapture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333761DE03D590027E1C3 /* SLCVCapture.cpp */; };
-		4143337B1DE03D590027E1C3 /* SLCVTrackedAruco.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333771DE03D590027E1C3 /* SLCVTrackedAruco.cpp */; };
-		4143337C1DE03D590027E1C3 /* SLCVTrackedChessboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333781DE03D590027E1C3 /* SLCVTrackedChessboard.cpp */; };
+		414333791DE03D590027E1C3 /* CVCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333751DE03D590027E1C3 /* CVCalibration.cpp */; };
+		4143337A1DE03D590027E1C3 /* CVCapture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333761DE03D590027E1C3 /* CVCapture.cpp */; };
+		4143337B1DE03D590027E1C3 /* CVTrackedAruco.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333771DE03D590027E1C3 /* CVTrackedAruco.cpp */; };
+		4143337C1DE03D590027E1C3 /* CVTrackedChessboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333781DE03D590027E1C3 /* CVTrackedChessboard.cpp */; };
 		414333851DE03F0C0027E1C3 /* SLLightDirect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333821DE03F0C0027E1C3 /* SLLightDirect.cpp */; };
 		414333861DE03F0C0027E1C3 /* SLLightSpot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333831DE03F0C0027E1C3 /* SLLightSpot.cpp */; };
 		414333871DE03F0C0027E1C3 /* SLSpheric.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333841DE03F0C0027E1C3 /* SLSpheric.cpp */; };
@@ -55,10 +55,10 @@
 		4143338C1DE041310027E1C3 /* SLTriangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333891DE041310027E1C3 /* SLTriangle.cpp */; };
 		41483533182CBE2700312D36 /* SLPathtracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41483532182CBE2700312D36 /* SLPathtracer.cpp */; };
 		41486AB815165E2A00102F27 /* CompileError.png in Resources */ = {isa = PBXBuildFile; fileRef = 41486AB715165E2A00102F27 /* CompileError.png */; };
-		414AC53B1F52A8070003867A /* SLCVFeatureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414AC5371F52A8070003867A /* SLCVFeatureManager.cpp */; };
-		414AC53C1F52A8070003867A /* SLCVRaulMurExtractorNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414AC5381F52A8070003867A /* SLCVRaulMurExtractorNode.cpp */; };
-		414AC53D1F52A8070003867A /* SLCVRaulMurOrb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414AC5391F52A8070003867A /* SLCVRaulMurOrb.cpp */; };
-		414AC53E1F52A8070003867A /* SLCVTrackedFeatures.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414AC53A1F52A8070003867A /* SLCVTrackedFeatures.cpp */; };
+		414AC53B1F52A8070003867A /* CVFeatureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414AC5371F52A8070003867A /* CVFeatureManager.cpp */; };
+		414AC53C1F52A8070003867A /* CVRaulMurExtNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414AC5381F52A8070003867A /* CVRaulMurExtNode.cpp */; };
+		414AC53D1F52A8070003867A /* CVRaulMurOrb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414AC5391F52A8070003867A /* CVRaulMurOrb.cpp */; };
+		414AC53E1F52A8070003867A /* CVTrackedFeatures.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414AC53A1F52A8070003867A /* CVTrackedFeatures.cpp */; };
 		414B3FEB148AAE520074D939 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 414B3FE8148AAE520074D939 /* Default.png */; };
 		414B3FED148AAE520074D939 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 414B3FEA148AAE520074D939 /* Icon.png */; };
 		414C1423207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml in Resources */ = {isa = PBXBuildFile; fileRef = 414C1422207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml */; };
@@ -623,10 +623,9 @@
 		41C99E7C18D431B50045FD2D /* Icon_72.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7B18D431B50045FD2D /* Icon_72.png */; };
 		41CF01DC1F096ABB00CA36C9 /* Decompose.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41CF01D61F096ABB00CA36C9 /* Decompose.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		41CF01DD1F096ABB00CA36C9 /* EulerAngles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41CF01D81F096ABB00CA36C9 /* EulerAngles.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
-		41E46000176C8F6800AB4653 /* SLTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E45FFE176C8F6800AB4653 /* SLTimer.cpp */; };
-		41E9843A1E3BABB1003D5CCF /* SLCVImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E984391E3BABB1003D5CCF /* SLCVImage.cpp */; };
+		41E9843A1E3BABB1003D5CCF /* CVImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E984391E3BABB1003D5CCF /* CVImage.cpp */; };
 		41EA2F4D1F558DDF00C34BC7 /* features_stones.png in Resources */ = {isa = PBXBuildFile; fileRef = 41EA2F4C1F558DDF00C34BC7 /* features_stones.png */; };
-		41EAAE0B2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EAAE0A2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp */; };
+		41EAAE0B2067BB3C00F7E9B9 /* CVTrackedFaces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EAAE0A2067BB3C00F7E9B9 /* CVTrackedFaces.cpp */; };
 		41EBB5E31C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */; };
 		41EDCB591B67B47B00DDC945 /* SLCompactGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */; };
 		41F365182008E49B00782F42 /* street3.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41F365162008E49A00782F42 /* street3.mp4 */; };
@@ -648,7 +647,7 @@
 		41FD9D191E523AD70063A1B7 /* Font20.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D0E1E523AD70063A1B7 /* Font20.png */; };
 		41FD9D1A1E523AD70063A1B7 /* Font22.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D0F1E523AD70063A1B7 /* Font22.png */; };
 		41FD9D1B1E523AD70063A1B7 /* Font24.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D101E523AD70063A1B7 /* Font24.png */; };
-		CF3F571A1DE5906C00928DDD /* SLCVTracked.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CF3F57191DE5906C00928DDD /* SLCVTracked.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
+		CF3F571A1DE5906C00928DDD /* CVTracked.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CF3F57191DE5906C00928DDD /* CVTracked.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		CF3F571D1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert in Resources */ = {isa = PBXBuildFile; fileRef = CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */; };
 		CF3F57221DE5945F00928DDD /* calib_in_params.yml in Resources */ = {isa = PBXBuildFile; fileRef = CF3F57211DE5945F00928DDD /* calib_in_params.yml */; };
 		DE38C74819EFCB420069B8BB /* SLGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE38C74719EFCB420069B8BB /* SLGrid.cpp */; };
@@ -674,6 +673,7 @@
 		411BA73018C0773B00F10475 /* Default-Portrait@2~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Portrait@2~ipad.png"; path = "images/Default-Portrait@2~ipad.png"; sourceTree = SOURCE_ROOT; };
 		411E93171B3D92DC007B0C6F /* SLDisk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLDisk.cpp; path = "../../../lib-SLProject/source/SLDisk.cpp"; sourceTree = SOURCE_ROOT; };
 		411E931A1B3D92EB007B0C6F /* SLDisk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDisk.h; path = "../../../lib-SLProject/include/SLDisk.h"; sourceTree = SOURCE_ROOT; };
+		4124201B230FF83C0091BDE1 /* HighResTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HighResTimer.h; path = "../../../externals/utils/lib-Utils/source/HighResTimer.h"; sourceTree = SOURCE_ROOT; };
 		4124EC051959C137003AA059 /* shapes.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shapes.cc; path = "../../../externals/lib-assimp/contrib/poly2tri/poly2tri/common/shapes.cc"; sourceTree = SOURCE_ROOT; };
 		4124EC061959C137003AA059 /* shapes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shapes.h; path = "../../../externals/lib-assimp/contrib/poly2tri/poly2tri/common/shapes.h"; sourceTree = SOURCE_ROOT; };
 		4124EC081959C137003AA059 /* poly2tri.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = poly2tri.h; path = "../../../externals/lib-assimp/contrib/poly2tri/poly2tri/poly2tri.h"; sourceTree = SOURCE_ROOT; };
@@ -715,15 +715,15 @@
 		41421AE72146A53400554495 /* earth2048_H.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth2048_H.jpg; path = ../../../data/images/textures/earth2048_H.jpg; sourceTree = "<group>"; };
 		41421AE82146A53400554495 /* earth2048_G.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth2048_G.jpg; path = ../../../data/images/textures/earth2048_G.jpg; sourceTree = "<group>"; };
 		41421AE92146A53400554495 /* earth2048_N.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth2048_N.jpg; path = ../../../data/images/textures/earth2048_N.jpg; sourceTree = "<group>"; };
-		414333751DE03D590027E1C3 /* SLCVCalibration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVCalibration.cpp; path = "../../../lib-SLProject/source/CV/SLCVCalibration.cpp"; sourceTree = SOURCE_ROOT; };
-		414333761DE03D590027E1C3 /* SLCVCapture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVCapture.cpp; path = "../../../lib-SLProject/source/CV/SLCVCapture.cpp"; sourceTree = SOURCE_ROOT; };
-		414333771DE03D590027E1C3 /* SLCVTrackedAruco.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVTrackedAruco.cpp; path = "../../../lib-SLProject/source/CV/SLCVTrackedAruco.cpp"; sourceTree = SOURCE_ROOT; };
-		414333781DE03D590027E1C3 /* SLCVTrackedChessboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVTrackedChessboard.cpp; path = "../../../lib-SLProject/source/CV/SLCVTrackedChessboard.cpp"; sourceTree = SOURCE_ROOT; };
-		4143337D1DE03DAD0027E1C3 /* SLCVCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVCalibration.h; path = "../../../lib-SLProject/include/CV/SLCVCalibration.h"; sourceTree = SOURCE_ROOT; };
-		4143337E1DE03DAD0027E1C3 /* SLCVCapture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVCapture.h; path = "../../../lib-SLProject/include/CV/SLCVCapture.h"; sourceTree = SOURCE_ROOT; };
-		4143337F1DE03DAD0027E1C3 /* SLCVTracked.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVTracked.h; path = "../../../lib-SLProject/include/CV/SLCVTracked.h"; sourceTree = SOURCE_ROOT; };
-		414333801DE03DAD0027E1C3 /* SLCVTrackedAruco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVTrackedAruco.h; path = "../../../lib-SLProject/include/CV/SLCVTrackedAruco.h"; sourceTree = SOURCE_ROOT; };
-		414333811DE03DAD0027E1C3 /* SLCVTrackedChessboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVTrackedChessboard.h; path = "../../../lib-SLProject/include/CV/SLCVTrackedChessboard.h"; sourceTree = SOURCE_ROOT; };
+		414333751DE03D590027E1C3 /* CVCalibration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVCalibration.cpp; path = "../../../lib-SLProject/source/CV/CVCalibration.cpp"; sourceTree = SOURCE_ROOT; };
+		414333761DE03D590027E1C3 /* CVCapture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVCapture.cpp; path = "../../../lib-SLProject/source/CV/CVCapture.cpp"; sourceTree = SOURCE_ROOT; };
+		414333771DE03D590027E1C3 /* CVTrackedAruco.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVTrackedAruco.cpp; path = "../../../lib-SLProject/source/CV/CVTrackedAruco.cpp"; sourceTree = SOURCE_ROOT; };
+		414333781DE03D590027E1C3 /* CVTrackedChessboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVTrackedChessboard.cpp; path = "../../../lib-SLProject/source/CV/CVTrackedChessboard.cpp"; sourceTree = SOURCE_ROOT; };
+		4143337D1DE03DAD0027E1C3 /* CVCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVCalibration.h; path = "../../../lib-SLProject/include/CV/CVCalibration.h"; sourceTree = SOURCE_ROOT; };
+		4143337E1DE03DAD0027E1C3 /* CVCapture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVCapture.h; path = "../../../lib-SLProject/include/CV/CVCapture.h"; sourceTree = SOURCE_ROOT; };
+		4143337F1DE03DAD0027E1C3 /* CVTracked.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVTracked.h; path = "../../../lib-SLProject/include/CV/CVTracked.h"; sourceTree = SOURCE_ROOT; };
+		414333801DE03DAD0027E1C3 /* CVTrackedAruco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVTrackedAruco.h; path = "../../../lib-SLProject/include/CV/CVTrackedAruco.h"; sourceTree = SOURCE_ROOT; };
+		414333811DE03DAD0027E1C3 /* CVTrackedChessboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVTrackedChessboard.h; path = "../../../lib-SLProject/include/CV/CVTrackedChessboard.h"; sourceTree = SOURCE_ROOT; };
 		414333821DE03F0C0027E1C3 /* SLLightDirect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLLightDirect.cpp; path = "../../../lib-SLProject/source/SLLightDirect.cpp"; sourceTree = SOURCE_ROOT; };
 		414333831DE03F0C0027E1C3 /* SLLightSpot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLLightSpot.cpp; path = "../../../lib-SLProject/source/SLLightSpot.cpp"; sourceTree = SOURCE_ROOT; };
 		414333841DE03F0C0027E1C3 /* SLSpheric.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLSpheric.cpp; path = "../../../lib-SLProject/source/SLSpheric.cpp"; sourceTree = SOURCE_ROOT; };
@@ -732,14 +732,14 @@
 		41483531182CBE1100312D36 /* SLPathtracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLPathtracer.h; path = "../../../lib-SLProject/include/SLPathtracer.h"; sourceTree = SOURCE_ROOT; };
 		41483532182CBE2700312D36 /* SLPathtracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLPathtracer.cpp; path = "../../../lib-SLProject/source/SLPathtracer.cpp"; sourceTree = SOURCE_ROOT; };
 		41486AB715165E2A00102F27 /* CompileError.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = CompileError.png; path = ../../../data/images/textures/CompileError.png; sourceTree = "<group>"; };
-		414AC5371F52A8070003867A /* SLCVFeatureManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVFeatureManager.cpp; path = "../../../lib-SLProject/source/CV/SLCVFeatureManager.cpp"; sourceTree = SOURCE_ROOT; };
-		414AC5381F52A8070003867A /* SLCVRaulMurExtractorNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVRaulMurExtractorNode.cpp; path = "../../../lib-SLProject/source/CV/SLCVRaulMurExtractorNode.cpp"; sourceTree = SOURCE_ROOT; };
-		414AC5391F52A8070003867A /* SLCVRaulMurOrb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVRaulMurOrb.cpp; path = "../../../lib-SLProject/source/CV/SLCVRaulMurOrb.cpp"; sourceTree = SOURCE_ROOT; };
-		414AC53A1F52A8070003867A /* SLCVTrackedFeatures.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVTrackedFeatures.cpp; path = "../../../lib-SLProject/source/CV/SLCVTrackedFeatures.cpp"; sourceTree = SOURCE_ROOT; };
-		414AC5401F52A8430003867A /* SLCVFeatureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVFeatureManager.h; path = "../../../lib-SLProject/include/CV/SLCVFeatureManager.h"; sourceTree = SOURCE_ROOT; };
-		414AC5411F52A8430003867A /* SLCVRaulMurExtractorNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVRaulMurExtractorNode.h; path = "../../../lib-SLProject/include/CV/SLCVRaulMurExtractorNode.h"; sourceTree = SOURCE_ROOT; };
-		414AC5421F52A8430003867A /* SLCVRaulMurOrb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVRaulMurOrb.h; path = "../../../lib-SLProject/include/CV/SLCVRaulMurOrb.h"; sourceTree = "<group>"; };
-		414AC5431F52A8430003867A /* SLCVTrackedFeatures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVTrackedFeatures.h; path = "../../../lib-SLProject/include/CV/SLCVTrackedFeatures.h"; sourceTree = SOURCE_ROOT; };
+		414AC5371F52A8070003867A /* CVFeatureManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVFeatureManager.cpp; path = "../../../lib-SLProject/source/CV/CVFeatureManager.cpp"; sourceTree = SOURCE_ROOT; };
+		414AC5381F52A8070003867A /* CVRaulMurExtNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVRaulMurExtNode.cpp; path = "../../../lib-SLProject/source/CV/CVRaulMurExtNode.cpp"; sourceTree = SOURCE_ROOT; };
+		414AC5391F52A8070003867A /* CVRaulMurOrb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVRaulMurOrb.cpp; path = "../../../lib-SLProject/source/CV/CVRaulMurOrb.cpp"; sourceTree = SOURCE_ROOT; };
+		414AC53A1F52A8070003867A /* CVTrackedFeatures.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVTrackedFeatures.cpp; path = "../../../lib-SLProject/source/CV/CVTrackedFeatures.cpp"; sourceTree = SOURCE_ROOT; };
+		414AC5401F52A8430003867A /* CVFeatureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVFeatureManager.h; path = "../../../lib-SLProject/include/CV/CVFeatureManager.h"; sourceTree = SOURCE_ROOT; };
+		414AC5411F52A8430003867A /* CVRaulMurExtNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVRaulMurExtNode.h; path = "../../../lib-SLProject/include/CV/CVRaulMurExtNode.h"; sourceTree = SOURCE_ROOT; };
+		414AC5421F52A8430003867A /* CVRaulMurOrb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVRaulMurOrb.h; path = "../../../lib-SLProject/include/CV/CVRaulMurOrb.h"; sourceTree = "<group>"; };
+		414AC5431F52A8430003867A /* CVTrackedFeatures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVTrackedFeatures.h; path = "../../../lib-SLProject/include/CV/CVTrackedFeatures.h"; sourceTree = SOURCE_ROOT; };
 		414B3FE8148AAE520074D939 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = images/Default.png; sourceTree = SOURCE_ROOT; };
 		414B3FEA148AAE520074D939 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = images/Icon.png; sourceTree = SOURCE_ROOT; };
 		414C1422207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = haarcascade_frontalface_alt2.xml; path = ../../../data/calibrations/haarcascade_frontalface_alt2.xml; sourceTree = SOURCE_ROOT; };
@@ -1517,7 +1517,7 @@
 		41A355091A7E676800791841 /* SLInputManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLInputManager.cpp; path = "../../../lib-SLProject/source/SLInputManager.cpp"; sourceTree = SOURCE_ROOT; };
 		41A6A07F1FF5887200C795A4 /* SLSkybox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLSkybox.cpp; path = "../../../lib-SLProject/source/SL/SLSkybox.cpp"; sourceTree = SOURCE_ROOT; };
 		41A6A0811FF588A400C795A4 /* SLSkybox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLSkybox.h; path = "../../../lib-SLProject/include/SL/SLSkybox.h"; sourceTree = SOURCE_ROOT; };
-		41B3821E18D593D1000F37CC /* SLAverage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAverage.h; path = "../../../lib-SLProject/include/SLAverage.h"; sourceTree = SOURCE_ROOT; };
+		41B3821E18D593D1000F37CC /* Averaged.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Averaged.h; path = "../../../lib-SLProject/include/Averaged.h"; sourceTree = SOURCE_ROOT; };
 		41B7BDDC1E49B4BC007B8B39 /* cursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cursor.png; path = ../../../data/images/textures/cursor.png; sourceTree = "<group>"; };
 		41B7BDDF1E49B553007B8B39 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SLProject/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		41B86C591C4FE21400BB409D /* SLGLVertexBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexBuffer.cpp; path = "../../../lib-SLProject/source/GL/SLGLVertexBuffer.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1553,14 +1553,12 @@
 		41CF01D81F096ABB00CA36C9 /* EulerAngles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EulerAngles.cpp; path = "../../../externals/lib-SLExternal/Shoemake/EulerAngles.cpp"; sourceTree = SOURCE_ROOT; };
 		41CF01D91F096ABB00CA36C9 /* EulerAngles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EulerAngles.h; path = "../../../externals/lib-SLExternal/Shoemake/EulerAngles.h"; sourceTree = SOURCE_ROOT; };
 		41CF01DA1F096ABB00CA36C9 /* TypeDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TypeDefs.h; path = "../../../externals/lib-SLExternal/Shoemake/TypeDefs.h"; sourceTree = SOURCE_ROOT; };
-		41E45FFE176C8F6800AB4653 /* SLTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLTimer.cpp; path = "../../../lib-SLProject/source/SL/SLTimer.cpp"; sourceTree = SOURCE_ROOT; };
-		41E45FFF176C8F6800AB4653 /* SLTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLTimer.h; path = "../../../lib-SLProject/include/SLTimer.h"; sourceTree = SOURCE_ROOT; };
 		41E984371E3BAB68003D5CCF /* SLCV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCV.h; path = "../../../lib-SLProject/include/CV/SLCV.h"; sourceTree = SOURCE_ROOT; };
-		41E984381E3BAB7D003D5CCF /* SLCVImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVImage.h; path = "../../../lib-SLProject/include/CV/SLCVImage.h"; sourceTree = SOURCE_ROOT; };
-		41E984391E3BABB1003D5CCF /* SLCVImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVImage.cpp; path = "../../../lib-SLProject/source/CV/SLCVImage.cpp"; sourceTree = SOURCE_ROOT; };
+		41E984381E3BAB7D003D5CCF /* CVImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVImage.h; path = "../../../lib-SLProject/include/CV/CVImage.h"; sourceTree = SOURCE_ROOT; };
+		41E984391E3BABB1003D5CCF /* CVImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVImage.cpp; path = "../../../lib-SLProject/source/CV/CVImage.cpp"; sourceTree = SOURCE_ROOT; };
 		41EA2F4C1F558DDF00C34BC7 /* features_stones.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = features_stones.png; path = ../../../data/images/textures/features_stones.png; sourceTree = SOURCE_ROOT; };
-		41EAAE092067BB2800F7E9B9 /* SLCVTrackedFaces.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVTrackedFaces.h; path = "../../../lib-SLProject/include/CV/SLCVTrackedFaces.h"; sourceTree = "<group>"; };
-		41EAAE0A2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVTrackedFaces.cpp; path = "../../../lib-SLProject/source/CV/SLCVTrackedFaces.cpp"; sourceTree = "<group>"; };
+		41EAAE092067BB2800F7E9B9 /* CVTrackedFaces.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVTrackedFaces.h; path = "../../../lib-SLProject/include/CV/CVTrackedFaces.h"; sourceTree = "<group>"; };
+		41EAAE0A2067BB3C00F7E9B9 /* CVTrackedFaces.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVTrackedFaces.cpp; path = "../../../lib-SLProject/source/CV/CVTrackedFaces.cpp"; sourceTree = "<group>"; };
 		41EBB5E01C44D96900C9BAA5 /* SLGLVertexArrayExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLVertexArrayExt.h; path = "../../../lib-SLProject/include/GL/SLGLVertexArrayExt.h"; sourceTree = SOURCE_ROOT; };
 		41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexArrayExt.cpp; path = "../../../lib-SLProject/source/GL/SLGLVertexArrayExt.cpp"; sourceTree = SOURCE_ROOT; };
 		41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCompactGrid.cpp; path = "../../../lib-SLProject/source/SLCompactGrid.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1591,7 +1589,7 @@
 		41FD9D0F1E523AD70063A1B7 /* Font22.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font22.png; path = ../../../data/images/fonts/Font22.png; sourceTree = "<group>"; };
 		41FD9D101E523AD70063A1B7 /* Font24.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font24.png; path = ../../../data/images/fonts/Font24.png; sourceTree = "<group>"; };
 		41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "lib-SLExternal.xcodeproj"; path = "../../../externals/lib-SLExternal/lib-SLExternal.xcodeproj"; sourceTree = "<group>"; };
-		CF3F57191DE5906C00928DDD /* SLCVTracked.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = SLCVTracked.cpp; path = "../../../lib-SLProject/source/CV/SLCVTracked.cpp"; sourceTree = SOURCE_ROOT; };
+		CF3F57191DE5906C00928DDD /* CVTracked.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = CVTracked.cpp; path = "../../../lib-SLProject/source/CV/CVTracked.cpp"; sourceTree = SOURCE_ROOT; };
 		CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerVrtBlinnColorAttrib.vert; path = ../../../data/shaders/PerVrtBlinnColorAttrib.vert; sourceTree = "<group>"; };
 		CF3F57211DE5945F00928DDD /* calib_in_params.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = calib_in_params.yml; path = ../../../data/calibrations/calib_in_params.yml; sourceTree = "<group>"; };
 		DE38C74619EFCA5B0069B8BB /* SLGrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGrid.h; path = "../../../lib-SLProject/include/SLGrid.h"; sourceTree = SOURCE_ROOT; };
@@ -1656,28 +1654,28 @@
 			isa = PBXGroup;
 			children = (
 				41E984371E3BAB68003D5CCF /* SLCV.h */,
-				414333751DE03D590027E1C3 /* SLCVCalibration.cpp */,
-				4143337D1DE03DAD0027E1C3 /* SLCVCalibration.h */,
-				414333761DE03D590027E1C3 /* SLCVCapture.cpp */,
-				4143337E1DE03DAD0027E1C3 /* SLCVCapture.h */,
-				414AC5371F52A8070003867A /* SLCVFeatureManager.cpp */,
-				414AC5401F52A8430003867A /* SLCVFeatureManager.h */,
-				41E984391E3BABB1003D5CCF /* SLCVImage.cpp */,
-				41E984381E3BAB7D003D5CCF /* SLCVImage.h */,
-				414AC5381F52A8070003867A /* SLCVRaulMurExtractorNode.cpp */,
-				414AC5411F52A8430003867A /* SLCVRaulMurExtractorNode.h */,
-				414AC5391F52A8070003867A /* SLCVRaulMurOrb.cpp */,
-				414AC5421F52A8430003867A /* SLCVRaulMurOrb.h */,
-				CF3F57191DE5906C00928DDD /* SLCVTracked.cpp */,
-				4143337F1DE03DAD0027E1C3 /* SLCVTracked.h */,
-				414333771DE03D590027E1C3 /* SLCVTrackedAruco.cpp */,
-				414333801DE03DAD0027E1C3 /* SLCVTrackedAruco.h */,
-				414333781DE03D590027E1C3 /* SLCVTrackedChessboard.cpp */,
-				414333811DE03DAD0027E1C3 /* SLCVTrackedChessboard.h */,
-				41EAAE0A2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp */,
-				41EAAE092067BB2800F7E9B9 /* SLCVTrackedFaces.h */,
-				414AC53A1F52A8070003867A /* SLCVTrackedFeatures.cpp */,
-				414AC5431F52A8430003867A /* SLCVTrackedFeatures.h */,
+				414333751DE03D590027E1C3 /* CVCalibration.cpp */,
+				4143337D1DE03DAD0027E1C3 /* CVCalibration.h */,
+				414333761DE03D590027E1C3 /* CVCapture.cpp */,
+				4143337E1DE03DAD0027E1C3 /* CVCapture.h */,
+				414AC5371F52A8070003867A /* CVFeatureManager.cpp */,
+				414AC5401F52A8430003867A /* CVFeatureManager.h */,
+				41E984391E3BABB1003D5CCF /* CVImage.cpp */,
+				41E984381E3BAB7D003D5CCF /* CVImage.h */,
+				414AC5381F52A8070003867A /* CVRaulMurExtNode.cpp */,
+				414AC5411F52A8430003867A /* CVRaulMurExtNode.h */,
+				414AC5391F52A8070003867A /* CVRaulMurOrb.cpp */,
+				414AC5421F52A8430003867A /* CVRaulMurOrb.h */,
+				CF3F57191DE5906C00928DDD /* CVTracked.cpp */,
+				4143337F1DE03DAD0027E1C3 /* CVTracked.h */,
+				414333771DE03D590027E1C3 /* CVTrackedAruco.cpp */,
+				414333801DE03DAD0027E1C3 /* CVTrackedAruco.h */,
+				414333781DE03D590027E1C3 /* CVTrackedChessboard.cpp */,
+				414333811DE03DAD0027E1C3 /* CVTrackedChessboard.h */,
+				41EAAE0A2067BB3C00F7E9B9 /* CVTrackedFaces.cpp */,
+				41EAAE092067BB2800F7E9B9 /* CVTrackedFaces.h */,
+				414AC53A1F52A8070003867A /* CVTrackedFeatures.cpp */,
+				414AC5431F52A8430003867A /* CVTrackedFeatures.h */,
 			);
 			name = CV;
 			sourceTree = SOURCE_ROOT;
@@ -1717,7 +1715,7 @@
 				4178D6662020A9C000F4F699 /* SLApplication.cpp */,
 				4178D6652020A9AF00F4F699 /* SLApplication.h */,
 				41A354EA1A7E634F00791841 /* SLAssimpImporter.cpp */,
-				41B3821E18D593D1000F37CC /* SLAverage.h */,
+				41B3821E18D593D1000F37CC /* Averaged.h */,
 				419E11A71B74AF0000203E70 /* SLBackground.cpp */,
 				419E11A51B74AED200203E70 /* SLBackground.h */,
 				418178261FC5D68F00200D02 /* SLDeviceLocation.cpp */,
@@ -1736,8 +1734,6 @@
 				41C5EEE0175B1A340005A588 /* SLParallel.h */,
 				41627E9A15CA8CE70023B936 /* SLTexFont.cpp */,
 				41627E9B15CA8CE70023B936 /* SLTexFont.h */,
-				41E45FFE176C8F6800AB4653 /* SLTimer.cpp */,
-				41E45FFF176C8F6800AB4653 /* SLTimer.h */,
 				414FE8F01F1506BC00F2FD4D /* SLTransferFunction.cpp */,
 				414FE8F31F1506CF00F2FD4D /* SLTransferFunction.h */,
 				41627E9E15CA8CE70023B936 /* SLUtils.h */,
@@ -2149,6 +2145,7 @@
 		418152C022A00FBD0080ED72 /* lib-Utils */ = {
 			isa = PBXGroup;
 			children = (
+				4124201B230FF83C0091BDE1 /* HighResTimer.h */,
 				418152C622A010760080ED72 /* ftplib.cpp */,
 				418152C522A010760080ED72 /* ftplib.h */,
 				418152C222A00FEE0080ED72 /* Utils.cpp */,
@@ -3255,7 +3252,7 @@
 				419808B61959BA670048085E /* XGLLoader.cpp in Sources */,
 				419808961959BA670048085E /* ObjFileImporter.cpp in Sources */,
 				419808821959BA670048085E /* HMPLoader.cpp in Sources */,
-				414AC53E1F52A8070003867A /* SLCVTrackedFeatures.cpp in Sources */,
+				414AC53E1F52A8070003867A /* CVTrackedFeatures.cpp in Sources */,
 				4198086B1959BA670048085E /* BlenderTessellator.cpp in Sources */,
 				41FC947B19F7D6410026919B /* SLGLOculus.cpp in Sources */,
 				419808B31959BA670048085E /* UnrealLoader.cpp in Sources */,
@@ -3309,7 +3306,7 @@
 				4124EC141959C137003AA059 /* sweep_context.cc in Sources */,
 				41C7582B230D7CCE0083A25D /* AppDemoTracking.cpp in Sources */,
 				418E0C4A148929C800C6274F /* SLPolygon.cpp in Sources */,
-				41E9843A1E3BABB1003D5CCF /* SLCVImage.cpp in Sources */,
+				41E9843A1E3BABB1003D5CCF /* CVImage.cpp in Sources */,
 				418E0C4B148929C800C6274F /* SLRay.cpp in Sources */,
 				41CF01DC1F096ABB00CA36C9 /* Decompose.cpp in Sources */,
 				418178271FC5D68F00200D02 /* SLDeviceRotation.cpp in Sources */,
@@ -3334,7 +3331,7 @@
 				411E93181B3D92DC007B0C6F /* SLDisk.cpp in Sources */,
 				419808791959BA670048085E /* FBXImporter.cpp in Sources */,
 				419808CC1959BA670048085E /* FBXNodeAttribute.cpp in Sources */,
-				414333791DE03D590027E1C3 /* SLCVCalibration.cpp in Sources */,
+				414333791DE03D590027E1C3 /* CVCalibration.cpp in Sources */,
 				419808A11959BA670048085E /* PlyParser.cpp in Sources */,
 				419F43431959C072009D9E2E /* ioapi.c in Sources */,
 				419808D41959BA670048085E /* IFCOpenings.cpp in Sources */,
@@ -3348,7 +3345,7 @@
 				419808EC1959BA670048085E /* SplitLargeMeshes.cpp in Sources */,
 				419808D71959BA670048085E /* JoinVerticesProcess.cpp in Sources */,
 				419808CE1959BA670048085E /* FBXUtil.cpp in Sources */,
-				414AC53D1F52A8070003867A /* SLCVRaulMurOrb.cpp in Sources */,
+				414AC53D1F52A8070003867A /* CVRaulMurOrb.cpp in Sources */,
 				419808D21959BA670048085E /* IFCGeometry.cpp in Sources */,
 				419808901959BA670048085E /* MD3Loader.cpp in Sources */,
 				419808631959BA670048085E /* Assimp.cpp in Sources */,
@@ -3368,8 +3365,8 @@
 				419808841959BA670048085E /* IFCMaterial.cpp in Sources */,
 				41394E9322A1436000C2448F /* SLKeyframeCamera.cpp in Sources */,
 				419808AE1959BA670048085E /* STEPFileReader.cpp in Sources */,
-				41EAAE0B2067BB3C00F7E9B9 /* SLCVTrackedFaces.cpp in Sources */,
-				414AC53B1F52A8070003867A /* SLCVFeatureManager.cpp in Sources */,
+				41EAAE0B2067BB3C00F7E9B9 /* CVTrackedFaces.cpp in Sources */,
+				414AC53B1F52A8070003867A /* CVFeatureManager.cpp in Sources */,
 				419808AF1959BA670048085E /* TargetAnimation.cpp in Sources */,
 				41A355031A7E63E100791841 /* SLAnimTrack.cpp in Sources */,
 				419808A91959BA670048085E /* SGSpatialSort.cpp in Sources */,
@@ -3402,7 +3399,7 @@
 				4198089E1959BA670048085E /* OptimizeMeshes.cpp in Sources */,
 				41A354EB1A7E634F00791841 /* SLImporter.cpp in Sources */,
 				419808761959BA670048085E /* FBXConverter.cpp in Sources */,
-				4143337C1DE03D590027E1C3 /* SLCVTrackedChessboard.cpp in Sources */,
+				4143337C1DE03D590027E1C3 /* CVTrackedChessboard.cpp in Sources */,
 				419808E31959BA670048085E /* OgreSkeleton.cpp in Sources */,
 				4198088F1959BA670048085E /* MaterialSystem.cpp in Sources */,
 				4198087D1959BA670048085E /* FBXTokenizer.cpp in Sources */,
@@ -3426,11 +3423,11 @@
 				419808721959BA670048085E /* DXFLoader.cpp in Sources */,
 				419808DE1959BA670048085E /* MDLMaterialLoader.cpp in Sources */,
 				41B86C5A1C4FE21400BB409D /* SLGLVertexBuffer.cpp in Sources */,
-				4143337B1DE03D590027E1C3 /* SLCVTrackedAruco.cpp in Sources */,
+				4143337B1DE03D590027E1C3 /* CVTrackedAruco.cpp in Sources */,
 				4124EC151959C137003AA059 /* sweep.cc in Sources */,
 				419808E51959BA670048085E /* PostStepRegistry.cpp in Sources */,
 				419F43441959C072009D9E2E /* unzip.c in Sources */,
-				CF3F571A1DE5906C00928DDD /* SLCVTracked.cpp in Sources */,
+				CF3F571A1DE5906C00928DDD /* CVTracked.cpp in Sources */,
 				419808B71959BA670048085E /* 3DSLoader.cpp in Sources */,
 				418152C322A00FEE0080ED72 /* Utils.cpp in Sources */,
 				419808E91959BA670048085E /* RemoveComments.cpp in Sources */,
@@ -3449,7 +3446,7 @@
 				419808A51959BA670048085E /* Q3DLoader.cpp in Sources */,
 				41394E9122A1428800C2448F /* SLAnimKeyframe.cpp in Sources */,
 				419808621959BA670048085E /* ASEParser.cpp in Sources */,
-				4143337A1DE03D590027E1C3 /* SLCVCapture.cpp in Sources */,
+				4143337A1DE03D590027E1C3 /* CVCapture.cpp in Sources */,
 				419808C71959BA670048085E /* ConvertToLHProcess.cpp in Sources */,
 				419808D81959BA670048085E /* LWOBLoader.cpp in Sources */,
 				419808DC1959BA670048085E /* MD2Loader.cpp in Sources */,
@@ -3464,7 +3461,7 @@
 				414DC77D1501076F00B959B9 /* SLAABBox.cpp in Sources */,
 				413B3631156CF93100B8284A /* SLCurveBezier.cpp in Sources */,
 				413B3635156CF97900B8284A /* SLAnimation.cpp in Sources */,
-				414AC53C1F52A8070003867A /* SLCVRaulMurExtractorNode.cpp in Sources */,
+				414AC53C1F52A8070003867A /* CVRaulMurExtNode.cpp in Sources */,
 				41A355071A7E63E100791841 /* SLSkeleton.cpp in Sources */,
 				419808781959BA670048085E /* FBXDocumentUtil.cpp in Sources */,
 				419808C41959BA670048085E /* BVHLoader.cpp in Sources */,
@@ -3489,7 +3486,6 @@
 				419808D01959BA670048085E /* GenVertexNormalsProcess.cpp in Sources */,
 				419808DF1959BA670048085E /* MS3DLoader.cpp in Sources */,
 				419808741959BA670048085E /* FBXAnimation.cpp in Sources */,
-				41E46000176C8F6800AB4653 /* SLTimer.cpp in Sources */,
 				41A355011A7E63E100791841 /* SLAnimManager.cpp in Sources */,
 				41C7582A230D7CCE0083A25D /* AppDemoSceneView.cpp in Sources */,
 				419808AD1959BA670048085E /* STEPFileEncoding.cpp in Sources */,

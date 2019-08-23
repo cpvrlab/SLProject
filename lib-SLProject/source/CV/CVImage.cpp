@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      CV/SLCVImage.cpp
+//  File:      CV/CVImage.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      Spring 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
@@ -13,24 +13,26 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLCVImage.h>
+#include <CVImage.h>
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------
+string CVImage::defaultPath;
+//-----------------------------------------------------------------------------
 //! Constructor for empty image of a certain format and size
-SLCVImage::SLCVImage(SLint         width,
-                     SLint         height,
-                     SLPixelFormat format,
-                     SLstring      name) : SLObject(name)
+CVImage::CVImage(int         width,
+                 int         height,
+                 CVPixFormat format,
+                 string      name) : _name(name)
 {
     allocate(width, height, format);
 }
 //-----------------------------------------------------------------------------
 //! Contructor for image from file
-SLCVImage::SLCVImage(const SLstring filename,
-                     SLbool         flipVertical,
-                     SLbool         loadGrayscaleIntoAlpha)
-  : SLObject(Utils::getFileName(filename), filename)
+CVImage::CVImage(const string filename,
+                 bool         flipVertical,
+                 bool         loadGrayscaleIntoAlpha)
+  : _name(Utils::getFileName(filename))
 {
     assert(filename != "");
     clearData();
@@ -38,7 +40,7 @@ SLCVImage::SLCVImage(const SLstring filename,
 }
 //-----------------------------------------------------------------------------
 //! Copy contructor from a source image
-SLCVImage::SLCVImage(SLCVImage& src) : SLObject(src.name(), src.url())
+CVImage::CVImage(CVImage& src) : _name(src.name())
 {
     assert(src.width() && src.height() && src.data());
     _format        = src.format();
@@ -50,42 +52,42 @@ SLCVImage::SLCVImage(SLCVImage& src) : SLObject(src.name(), src.url())
 }
 //-----------------------------------------------------------------------------
 //! Creates a 1D image from a SLCol3f vector
-SLCVImage::SLCVImage(const SLVCol3f& colors)
+CVImage::CVImage(const SLVCol3f& colors)
 {
-    allocate((SLint)colors.size(), 1, PF_rgb);
+    allocate((int)colors.size(), 1, PF_rgb);
 
-    SLint x = 0;
+    int x = 0;
     for (auto color : colors)
     {
-        _cvMat.at<cv::Vec3b>(0, x++) = cv::Vec3b((SLuchar)(color.r * 255.0f),
-                                                 (SLuchar)(color.g * 255.0f),
-                                                 (SLuchar)(color.b * 255.0f));
+        _cvMat.at<cv::Vec3b>(0, x++) = cv::Vec3b((uchar)(color.r * 255.0f),
+                                                 (uchar)(color.g * 255.0f),
+                                                 (uchar)(color.b * 255.0f));
     }
 }
 //-----------------------------------------------------------------------------
 //! Creates a 1D image from a SLCol4f vector
-SLCVImage::SLCVImage(const SLVCol4f& colors)
+CVImage::CVImage(const SLVCol4f& colors)
 {
-    allocate((SLint)colors.size(), 1, PF_rgba);
+    allocate((int)colors.size(), 1, PF_rgba);
 
-    SLint x = 0;
+    int x = 0;
     for (auto color : colors)
     {
-        _cvMat.at<cv::Vec4b>(0, x++) = cv::Vec4b((SLuchar)(color.r * 255.0f),
-                                                 (SLuchar)(color.g * 255.0f),
-                                                 (SLuchar)(color.b * 255.0f),
-                                                 (SLuchar)(color.a * 255.0f));
+        _cvMat.at<cv::Vec4b>(0, x++) = cv::Vec4b((uchar)(color.r * 255.0f),
+                                                 (uchar)(color.g * 255.0f),
+                                                 (uchar)(color.b * 255.0f),
+                                                 (uchar)(color.a * 255.0f));
     }
 }
 //-----------------------------------------------------------------------------
-SLCVImage::~SLCVImage()
+CVImage::~CVImage()
 {
-    //SL_LOG("~SLCVImage(%s)\n", name().c_str());
+    //SL_LOG("CVImages)\n", name().c_str());
     clearData();
 }
 //-----------------------------------------------------------------------------
 //! Deletes all data and resets the image parameters
-void SLCVImage::clearData()
+void CVImage::clearData()
 {
     _cvMat.release();
     _bytesPerPixel = 0;
@@ -101,10 +103,10 @@ void SLCVImage::clearData()
 /param pixelFormatGL OpenGL pixel format enum
 /param isContinuous True if the memory is continuous and has no stride bytes at the end of the line
 */
-SLbool SLCVImage::allocate(SLint         width,
-                           SLint         height,
-                           SLPixelFormat pixelFormatGL,
-                           SLbool        isContinuous)
+bool CVImage::allocate(int         width,
+                       int         height,
+                       CVPixFormat pixelFormatGL,
+                       bool        isContinuous)
 {
     assert(width > 0 && height > 0);
 
@@ -116,8 +118,8 @@ SLbool SLCVImage::allocate(SLint         width,
         return false;
 
     // Set the according OpenCV format
-    SLint  cvType = 0;
-    SLuint bpp    = 0;
+    int  cvType = 0;
+    uint bpp    = 0;
     switch (pixelFormatGL)
     {
         case PF_luminance:
@@ -163,16 +165,16 @@ SLbool SLCVImage::allocate(SLint         width,
 
     _format        = pixelFormatGL;
     _bytesPerPixel = bpp;
-    _bytesPerLine  = bytesPerLine((SLuint)width, pixelFormatGL, isContinuous);
-    _bytesPerImage = _bytesPerLine * (SLuint)height;
+    _bytesPerLine  = bytesPerLine((uint)width, pixelFormatGL, isContinuous);
+    _bytesPerImage = _bytesPerLine * (uint)height;
 
     if (!_cvMat.data)
-        SL_EXIT_MSG("SLCVImage::Allocate: Allocation failed");
+        SL_EXIT_MSG("CVImage::Allocate: Allocation failed");
     return true;
 }
 //-----------------------------------------------------------------------------
 //! Returns the NO. of bytes per pixel for the passed pixel format
-SLuint SLCVImage::bytesPerPixel(SLPixelFormat format)
+uint CVImage::bytesPerPixel(CVPixFormat format)
 {
     switch (format)
     {
@@ -195,7 +197,7 @@ SLuint SLCVImage::bytesPerPixel(SLPixelFormat format)
         case PF_rgba_integer:
         case PF_bgra_integer: return 4;
         default:
-            SL_EXIT_MSG("SLCVImage::bytesPerPixel: unknown pixel format");
+            SL_EXIT_MSG("CVImage::bytesPerPixel: unknown pixel format");
     }
     return 0;
 }
@@ -206,13 +208,13 @@ SLuint SLCVImage::bytesPerPixel(SLPixelFormat format)
 /param pixelFormatGL OpenGL pixel format enum
 /param isContinuous True if the memory is continuous and has no stride bytes at the end of the line
 */
-SLuint SLCVImage::bytesPerLine(SLuint        width,
-                               SLPixelFormat format,
-                               SLbool        isContinuous)
+uint CVImage::bytesPerLine(uint        width,
+                           CVPixFormat format,
+                           bool        isContinuous)
 {
-    SLuint bpp          = bytesPerPixel(format);
-    SLuint bitsPerPixel = bpp * 8;
-    SLuint bpl          = isContinuous ? width * bpp : ((width * bitsPerPixel + 31) / 32) * 4;
+    uint bpp          = bytesPerPixel(format);
+    uint bitsPerPixel = bpp * 8;
+    uint bpl          = isContinuous ? width * bpp : ((width * bitsPerPixel + 31) / 32) * 4;
     return bpl;
 }
 //-----------------------------------------------------------------------------
@@ -229,35 +231,34 @@ done.
 /param isContinuous True if the memory is continuous and has no stride bytes at the end of the line
 /param isTopLeft True if image data starts at top left of image (else bottom left)
 */
-SLbool
-SLCVImage::load(SLint         width,
-                SLint         height,
-                SLPixelFormat srcPixelFormatGL,
-                SLPixelFormat dstPixelFormatGL,
-                SLuchar*      data,
-                SLbool        isContinuous,
-                SLbool        isTopLeft)
+bool CVImage::load(int         width,
+                   int         height,
+                   CVPixFormat srcPixelFormatGL,
+                   CVPixFormat dstPixelFormatGL,
+                   uchar*      data,
+                   bool        isContinuous,
+                   bool        isTopLeft)
 {
 
-    SLbool needsTextureRebuild = allocate(width,
-                                          height,
-                                          dstPixelFormatGL,
-                                          false);
+    bool needsTextureRebuild = allocate(width,
+                                        height,
+                                        dstPixelFormatGL,
+                                        false);
 
-    SLuint dstBPL = _bytesPerLine;
-    SLuint dstBPP = _bytesPerPixel;
-    SLuint srcBPP = bytesPerPixel(srcPixelFormatGL);
-    SLuint srcBPL = bytesPerLine((SLuint)width, srcPixelFormatGL, isContinuous);
+    uint dstBPL = _bytesPerLine;
+    uint dstBPP = _bytesPerPixel;
+    uint srcBPP = bytesPerPixel(srcPixelFormatGL);
+    uint srcBPL = bytesPerLine((uint)width, srcPixelFormatGL, isContinuous);
 
     if (isTopLeft)
     {
         // copy lines and flip vertically
-        SLubyte* dstStart = _cvMat.data + _bytesPerImage - dstBPL;
-        SLubyte* srcStart = data;
+        uchar* dstStart = _cvMat.data + _bytesPerImage - dstBPL;
+        uchar* srcStart = data;
 
         if (srcPixelFormatGL == dstPixelFormatGL)
         {
-            for (SLint h = 0; h < _cvMat.rows; ++h, srcStart += srcBPL, dstStart -= dstBPL)
+            for (int h = 0; h < _cvMat.rows; ++h, srcStart += srcBPL, dstStart -= dstBPL)
             {
                 memcpy(dstStart, srcStart, (SLulong)dstBPL);
             }
@@ -268,11 +269,11 @@ SLCVImage::load(SLint         width,
             {
                 if (dstPixelFormatGL == PF_rgb)
                 {
-                    for (SLint h = 0; h < _cvMat.rows; ++h, srcStart += srcBPL, dstStart -= dstBPL)
+                    for (int h = 0; h < _cvMat.rows; ++h, srcStart += srcBPL, dstStart -= dstBPL)
                     {
-                        SLubyte* src = srcStart;
-                        SLubyte* dst = dstStart;
-                        for (SLint w = 0; w < _cvMat.cols - 1; ++w, dst += dstBPP, src += srcBPP)
+                        uchar* src = srcStart;
+                        uchar* dst = dstStart;
+                        for (int w = 0; w < _cvMat.cols - 1; ++w, dst += dstBPP, src += srcBPP)
                         {
                             dst[0] = src[2];
                             dst[1] = src[1];
@@ -282,11 +283,11 @@ SLCVImage::load(SLint         width,
                 }
                 else if (dstPixelFormatGL == PF_rgba)
                 {
-                    for (SLint h = 0; h < _cvMat.rows; ++h, srcStart += srcBPL, dstStart -= dstBPL)
+                    for (int h = 0; h < _cvMat.rows; ++h, srcStart += srcBPL, dstStart -= dstBPL)
                     {
-                        SLubyte* src = srcStart;
-                        SLubyte* dst = dstStart;
-                        for (SLint w = 0; w < _cvMat.cols - 1; ++w, dst += dstBPP, src += srcBPP)
+                        uchar* src = srcStart;
+                        uchar* dst = dstStart;
+                        for (int w = 0; w < _cvMat.cols - 1; ++w, dst += dstBPP, src += srcBPP)
                         {
                             dst[0] = src[2];
                             dst[1] = src[1];
@@ -300,11 +301,11 @@ SLCVImage::load(SLint         width,
             {
                 if (dstPixelFormatGL == PF_rgb || dstPixelFormatGL == PF_bgr)
                 {
-                    for (SLint h = 0; h < _cvMat.rows; ++h, srcStart += srcBPL, dstStart -= dstBPL)
+                    for (int h = 0; h < _cvMat.rows; ++h, srcStart += srcBPL, dstStart -= dstBPL)
                     {
-                        SLubyte* src = srcStart;
-                        SLubyte* dst = dstStart;
-                        for (SLint w = 0; w < _cvMat.cols - 1; ++w, dst += dstBPP, src += srcBPP)
+                        uchar* src = srcStart;
+                        uchar* dst = dstStart;
+                        for (int w = 0; w < _cvMat.cols - 1; ++w, dst += dstBPP, src += srcBPP)
                         {
                             dst[0] = src[2];
                             dst[1] = src[1];
@@ -315,7 +316,7 @@ SLCVImage::load(SLint         width,
             }
             else
             {
-                cout << "SLCVImage::load from memory: Pixel format conversion not allowed" << endl;
+                cout << "CVImage::load from memory: Pixel format conversion not allowed" << endl;
                 exit(1);
             }
         }
@@ -328,18 +329,18 @@ SLCVImage::load(SLint         width,
         }
         else
         {
-            SLubyte* dstStart = _cvMat.data;
-            SLubyte* srcStart = data;
+            uchar* dstStart = _cvMat.data;
+            uchar* srcStart = data;
 
             if (srcPixelFormatGL == PF_bgra)
             {
                 if (dstPixelFormatGL == PF_rgb)
                 {
-                    for (SLint h = 0; h < _cvMat.rows - 1; ++h, srcStart += srcBPL, dstStart += dstBPL)
+                    for (int h = 0; h < _cvMat.rows - 1; ++h, srcStart += srcBPL, dstStart += dstBPL)
                     {
-                        SLubyte* src = srcStart;
-                        SLubyte* dst = dstStart;
-                        for (SLint w = 0; w < _cvMat.cols - 1; ++w, dst += dstBPP, src += srcBPP)
+                        uchar* src = srcStart;
+                        uchar* dst = dstStart;
+                        for (int w = 0; w < _cvMat.cols - 1; ++w, dst += dstBPP, src += srcBPP)
                         {
                             dst[0] = src[2];
                             dst[1] = src[1];
@@ -349,11 +350,11 @@ SLCVImage::load(SLint         width,
                 }
                 else if (dstPixelFormatGL == PF_rgba)
                 {
-                    for (SLint h = 0; h < _cvMat.rows - 1; ++h, srcStart += srcBPL, dstStart += dstBPL)
+                    for (int h = 0; h < _cvMat.rows - 1; ++h, srcStart += srcBPL, dstStart += dstBPL)
                     {
-                        SLubyte* src = srcStart;
-                        SLubyte* dst = dstStart;
-                        for (SLint w = 0; w < _cvMat.cols - 1; ++w, dst += dstBPP, src += srcBPP)
+                        uchar* src = srcStart;
+                        uchar* dst = dstStart;
+                        for (int w = 0; w < _cvMat.cols - 1; ++w, dst += dstBPP, src += srcBPP)
                         {
                             dst[0] = src[2];
                             dst[1] = src[1];
@@ -367,11 +368,11 @@ SLCVImage::load(SLint         width,
             {
                 if (dstPixelFormatGL == PF_rgb || dstPixelFormatGL == PF_bgr)
                 {
-                    for (SLint h = 0; h < _cvMat.rows - 1; ++h, srcStart += srcBPL, dstStart += dstBPL)
+                    for (int h = 0; h < _cvMat.rows - 1; ++h, srcStart += srcBPL, dstStart += dstBPL)
                     {
-                        SLubyte* src = srcStart;
-                        SLubyte* dst = dstStart;
-                        for (SLint w = 0; w < _cvMat.cols - 1; ++w, dst += dstBPP, src += srcBPP)
+                        uchar* src = srcStart;
+                        uchar* dst = dstStart;
+                        for (int w = 0; w < _cvMat.cols - 1; ++w, dst += dstBPP, src += srcBPP)
                         {
                             dst[0] = src[2];
                             dst[1] = src[1];
@@ -382,7 +383,7 @@ SLCVImage::load(SLint         width,
             }
             else
             {
-                cout << "SLCVImage::load from memory: Pixel format conversion not allowed" << endl;
+                cout << "CVImage::load from memory: Pixel format conversion not allowed" << endl;
                 exit(1);
             }
         }
@@ -392,20 +393,20 @@ SLCVImage::load(SLint         width,
 }
 //-----------------------------------------------------------------------------
 //! Loads the image with the appropriate image loader
-void SLCVImage::load(const SLstring filename,
-                     SLbool         flipVertical,
-                     SLbool         loadGrayscaleIntoAlpha)
+void CVImage::load(const string filename,
+                   bool         flipVertical,
+                   bool         loadGrayscaleIntoAlpha)
 {
-    SLstring ext = Utils::getFileExt(filename);
-    _name        = Utils::getFileName(filename);
-    _path        = Utils::getPath(filename);
+    string ext = Utils::getFileExt(filename);
+    _name      = Utils::getFileName(filename);
+    _path      = Utils::getPath(filename);
 
     // load the image format as stored in the file
     _cvMat = cv::imread(filename, -1);
 
     if (!_cvMat.data)
     {
-        SLstring msg = "SLCVImage.load: Loading failed: " + filename;
+        string msg = "CVImage.load: Loading failed: " + filename;
         SL_EXIT_MSG(msg.c_str());
     }
 
@@ -429,14 +430,14 @@ void SLCVImage::load(const SLstring filename,
     }
     else if (_format == PF_red && loadGrayscaleIntoAlpha)
     {
-        SLCVMat rgbaImg;
+        CVMat rgbaImg;
         rgbaImg.create(_cvMat.rows, _cvMat.cols, CV_8UC4);
 
         // Copy grayscale into alpha channel
         for (int y = 0; y < rgbaImg.rows; ++y)
         {
-            SLuchar* dst = rgbaImg.ptr<SLuchar>(y);
-            SLuchar* src = _cvMat.ptr<SLuchar>(y);
+            uchar* dst = rgbaImg.ptr<uchar>(y);
+            uchar* src = _cvMat.ptr<uchar>(y);
 
             for (int x = 0; x < rgbaImg.cols; ++x)
             {
@@ -452,13 +453,13 @@ void SLCVImage::load(const SLstring filename,
         _format = PF_rgba;
 
         // for debug check
-        //SLstring pathfilename = _path + name();
-        //SLstring filename = Utils::getFileNameWOExt(pathfilename);
+        //string pathfilename = _path + name();
+        //string filename = Utils::getFileNameWOExt(pathfilename);
         //savePNG(_path + filename + "_InAlpha.png");
     }
 
-    _bytesPerLine  = bytesPerLine((SLuint)_cvMat.cols, _format, _cvMat.isContinuous());
-    _bytesPerImage = _bytesPerLine * (SLuint)_cvMat.rows;
+    _bytesPerLine  = bytesPerLine((uint)_cvMat.cols, _format, _cvMat.isContinuous());
+    _bytesPerImage = _bytesPerLine * (uint)_cvMat.rows;
 
     // OpenCV loads top-left but OpenGL is bottom left
     if (flipVertical)
@@ -466,7 +467,7 @@ void SLCVImage::load(const SLstring filename,
 }
 //-----------------------------------------------------------------------------
 //! Converts OpenCV mat type to OpenGL pixel format
-SLPixelFormat SLCVImage::cv2glPixelFormat(SLint cvType)
+CVPixFormat CVImage::cv2glPixelFormat(int cvType)
 {
     switch (cvType)
     {
@@ -500,29 +501,29 @@ SLPixelFormat SLCVImage::cv2glPixelFormat(SLint cvType)
 }
 //-----------------------------------------------------------------------------
 //! Returns the pixel format as string
-SLstring SLCVImage::formatString()
+string CVImage::formatString()
 {
     switch (_format)
     {
-        case PF_rgb: return SLstring("SL_RGB");
-        case PF_rgba: return SLstring("SL_RGBA");
-        case PF_bgra: return SLstring("SL_BGRA");
-        case PF_red: return SLstring("SL_RED");
-        case PF_red_integer: return SLstring("SL_RED_INTEGER");
-        case PF_green: return SLstring("SL_GREEN");
-        case PF_alpha: return SLstring("SL_BLUE");
-        case PF_blue: return SLstring("SL_BLUE");
-        case PF_luminance: return SLstring("SL_LUMINANCE");
-        case PF_intensity: return SLstring("SL_INTENSITY");
-        case PF_rg: return SLstring("SL_RG");
-        case PF_rg_integer: return SLstring("SL_RG_INTEGER");
-        case PF_luminance_alpha: return SLstring("SL_LUMINANCE_ALPHA");
-        case PF_bgr: return SLstring("SL_BGR");
-        case PF_rgb_integer: return SLstring("SL_RGB_INTEGER");
-        case PF_bgr_integer: return SLstring("SL_BGR_INTEGER");
-        case PF_rgba_integer: return SLstring("SL_RGBA_INTEGER");
-        case PF_bgra_integer: return SLstring("SL_BGRA_INTEGER");
-        default: return SLstring("Unknow pixel format");
+        case PF_rgb: return string("SL_RGB");
+        case PF_rgba: return string("SL_RGBA");
+        case PF_bgra: return string("SL_BGRA");
+        case PF_red: return string("SL_RED");
+        case PF_red_integer: return string("SL_RED_INTEGER");
+        case PF_green: return string("SL_GREEN");
+        case PF_alpha: return string("SL_BLUE");
+        case PF_blue: return string("SL_BLUE");
+        case PF_luminance: return string("SL_LUMINANCE");
+        case PF_intensity: return string("SL_INTENSITY");
+        case PF_rg: return string("SL_RG");
+        case PF_rg_integer: return string("SL_RG_INTEGER");
+        case PF_luminance_alpha: return string("SL_LUMINANCE_ALPHA");
+        case PF_bgr: return string("SL_BGR");
+        case PF_rgb_integer: return string("SL_RGB_INTEGER");
+        case PF_bgr_integer: return string("SL_BGR_INTEGER");
+        case PF_rgba_integer: return string("SL_RGBA_INTEGER");
+        case PF_bgra_integer: return string("SL_BGRA_INTEGER");
+        default: return string("Unknow pixel format");
     }
 }
 
@@ -534,10 +535,10 @@ SLstring SLCVImage::formatString()
 \param flipY Flag for vertical mirroring
 \param convertBGR2RGB Flag for BGR to RGB conversion
 */
-void SLCVImage::savePNG(const SLstring filename,
-                        const SLint    compressionLevel,
-                        const SLbool   flipY,
-                        const SLbool   convertBGR2RGB)
+void CVImage::savePNG(const string filename,
+                      const int    compressionLevel,
+                      const bool   flipY,
+                      const bool   convertBGR2RGB)
 {
     SLVint compression_params;
     compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
@@ -545,7 +546,7 @@ void SLCVImage::savePNG(const SLstring filename,
 
     try
     {
-        SLCVMat outImg = _cvMat.clone();
+        CVMat outImg = _cvMat.clone();
 
         if (flipY)
             cv::flip(outImg, outImg, 0);
@@ -556,7 +557,7 @@ void SLCVImage::savePNG(const SLstring filename,
     }
     catch (runtime_error& ex)
     {
-        SLstring msg = "SLCVImage.savePNG: Exception: ";
+        string msg = "CVImage.savePNG: Exception: ";
         msg += ex.what();
         SL_EXIT_MSG(msg.c_str());
     }
@@ -570,10 +571,10 @@ void SLCVImage::savePNG(const SLstring filename,
 \param flipY Flag for vertical mirroring
 \param convertBGR2RGB Flag for BGR to RGB conversion
 */
-void SLCVImage::saveJPG(const SLstring filename,
-                        const SLint    compressionLevel,
-                        const SLbool   flipY,
-                        const SLbool   convertBGR2RGB)
+void CVImage::saveJPG(const string filename,
+                      const int    compressionLevel,
+                      const bool   flipY,
+                      const bool   convertBGR2RGB)
 {
     SLVint compression_params;
     compression_params.push_back(cv::IMWRITE_JPEG_QUALITY);
@@ -582,7 +583,7 @@ void SLCVImage::saveJPG(const SLstring filename,
 
     try
     {
-        SLCVMat outImg = _cvMat.clone();
+        CVMat outImg = _cvMat.clone();
 
         if (flipY)
             cv::flip(outImg, outImg, 0);
@@ -591,7 +592,7 @@ void SLCVImage::saveJPG(const SLstring filename,
     }
     catch (runtime_error& ex)
     {
-        SLstring msg = "SLCVImage.saveJPG: Exception: ";
+        string msg = "CVImage.saveJPG: Exception: ";
         msg += ex.what();
         SL_EXIT_MSG(msg.c_str());
     }
@@ -602,7 +603,7 @@ void SLCVImage::saveJPG(const SLstring filename,
 /*! Returns the pixel color at the integer pixel coordinate x, y. The color
 components range from 0-1 float.
 */
-SLCol4f SLCVImage::getPixeli(SLint x, SLint y)
+SLCol4f CVImage::getPixeli(int x, int y)
 {
     SLCol4f color;
 
@@ -635,7 +636,7 @@ SLCol4f SLCVImage::getPixeli(SLint x, SLint y)
         case PF_red:
 #endif
         {
-            SLuchar c = _cvMat.at<SLuchar>(y, x);
+            uchar c = _cvMat.at<uchar>(y, x);
             color.set(c, c, c, 255.0f);
             break;
         }
@@ -649,7 +650,7 @@ SLCol4f SLCVImage::getPixeli(SLint x, SLint y)
             color.set(c.val[0], c.val[0], c.val[0], c.val[1]);
             break;
         }
-        default: SL_EXIT_MSG("SLCVImage::getPixeli: Unknown format!");
+        default: SL_EXIT_MSG("CVImage::getPixeli: Unknown format!");
     }
     color /= 255.0f;
     return color;
@@ -660,28 +661,28 @@ getPixelf returns a pixel color with its x & y texture coordinates.
 If the OpenGL filtering is set to GL_LINEAR a bilinear interpolated color out
 of four neighbouring pixels is return. Otherwise the nearest pixel is returned.
 */
-SLCol4f SLCVImage::getPixelf(SLfloat x, SLfloat y)
+SLCol4f CVImage::getPixelf(float x, float y)
 {
     // Bilinear interpolation
-    SLfloat xf = SL_fract(x) * _cvMat.cols;
-    SLfloat yf = SL_fract(y) * _cvMat.rows;
+    float xf = SL_fract(x) * _cvMat.cols;
+    float yf = SL_fract(y) * _cvMat.rows;
 
     // corrected fractional parts
-    SLfloat fracX = SL_fract(xf);
-    SLfloat fracY = SL_fract(yf);
+    float fracX = SL_fract(xf);
+    float fracY = SL_fract(yf);
     fracX -= SL_sign(fracX - 0.5f) * 0.5f;
     fracY -= SL_sign(fracY - 0.5f) * 0.5f;
 
     // calculate area weights of the four neighbouring texels
-    SLfloat X1 = 1.0f - fracX;
-    SLfloat Y1 = 1.0f - fracY;
-    SLfloat UL = X1 * Y1;
-    SLfloat UR = fracX * Y1;
-    SLfloat LL = X1 * fracY;
-    SLfloat LR = fracX * fracY;
+    float X1 = 1.0f - fracX;
+    float Y1 = 1.0f - fracY;
+    float UL = X1 * Y1;
+    float UR = fracX * Y1;
+    float LL = X1 * fracY;
+    float LR = fracX * fracY;
 
     // get the color of the four neighbouring texels
-    //SLint xm, xp, ym, yp;
+    //int xm, xp, ym, yp;
     //Fast2Int(&xm, xf-1.0f);
     //Fast2Int(&ym, yf-1.0f);
     //Fast2Int(&xp, xf);
@@ -692,130 +693,130 @@ SLCol4f SLCVImage::getPixelf(SLfloat x, SLfloat y)
     //SLCol4f cLL = getPixeli(xm,yp);
     //SLCol4f cLR = getPixeli(xp,yp);
 
-    SLCol4f cUL = getPixeli((SLint)(xf - 0.5f), (SLint)(yf - 0.5f));
-    SLCol4f cUR = getPixeli((SLint)(xf + 0.5f), (SLint)(yf - 0.5f));
-    SLCol4f cLL = getPixeli((SLint)(xf - 0.5f), (SLint)(yf + 0.5f));
-    SLCol4f cLR = getPixeli((SLint)(xf + 0.5f), (SLint)(yf + 0.5f));
+    SLCol4f cUL = getPixeli((int)(xf - 0.5f), (int)(yf - 0.5f));
+    SLCol4f cUR = getPixeli((int)(xf + 0.5f), (int)(yf - 0.5f));
+    SLCol4f cLL = getPixeli((int)(xf - 0.5f), (int)(yf + 0.5f));
+    SLCol4f cLR = getPixeli((int)(xf + 0.5f), (int)(yf + 0.5f));
 
     // calculate a new interpolated color with the area weights
-    SLfloat r = UL * cUL.r + LL * cLL.r + UR * cUR.r + LR * cLR.r;
-    SLfloat g = UL * cUL.g + LL * cLL.g + UR * cUR.g + LR * cLR.g;
-    SLfloat b = UL * cUL.b + LL * cLL.b + UR * cUR.b + LR * cLR.b;
+    float r = UL * cUL.r + LL * cLL.r + UR * cUR.r + LR * cLR.r;
+    float g = UL * cUL.g + LL * cLL.g + UR * cUR.g + LR * cLR.g;
+    float b = UL * cUL.b + LL * cLL.b + UR * cUR.b + LR * cLR.b;
 
     return SLCol4f(r, g, b, 1);
 }
 //-----------------------------------------------------------------------------
 //! setPixeli sets the pixel color at the integer pixel coordinate x, y
-void SLCVImage::setPixeli(SLint x, SLint y, SLCol4f color)
+void CVImage::setPixeli(int x, int y, SLCol4f color)
 {
     if (x < 0) x = 0;
-    if (x >= (SLint)_cvMat.cols) x = _cvMat.cols - 1; // 0 <= x < _width
+    if (x >= (int)_cvMat.cols) x = _cvMat.cols - 1; // 0 <= x < _width
     if (y < 0) y = 0;
-    if (y >= (SLint)_cvMat.rows) y = _cvMat.rows - 1; // 0 <= y < _height
+    if (y >= (int)_cvMat.rows) y = _cvMat.rows - 1; // 0 <= y < _height
 
-    SLint R, G, B;
+    int R, G, B;
 
     switch (_format)
     {
         case PF_rgb:
-            _cvMat.at<cv::Vec3b>(y, x) = cv::Vec3b((SLuchar)(color.r * 255.0f),
-                                                   (SLuchar)(color.g * 255.0f),
-                                                   (SLuchar)(color.b * 255.0f));
+            _cvMat.at<cv::Vec3b>(y, x) = cv::Vec3b((uchar)(color.r * 255.0f),
+                                                   (uchar)(color.g * 255.0f),
+                                                   (uchar)(color.b * 255.0f));
             break;
         case PF_bgr:
-            _cvMat.at<cv::Vec3b>(y, x) = cv::Vec3b((SLuchar)(color.b * 255.0f),
-                                                   (SLuchar)(color.g * 255.0f),
-                                                   (SLuchar)(color.r * 255.0f));
+            _cvMat.at<cv::Vec3b>(y, x) = cv::Vec3b((uchar)(color.b * 255.0f),
+                                                   (uchar)(color.g * 255.0f),
+                                                   (uchar)(color.r * 255.0f));
             break;
         case PF_rgba:
-            _cvMat.at<cv::Vec4b>(y, x) = cv::Vec4b((SLuchar)(color.r * 255.0f),
-                                                   (SLuchar)(color.g * 255.0f),
-                                                   (SLuchar)(color.b * 255.0f),
-                                                   (SLuchar)(color.a * 255.0f));
+            _cvMat.at<cv::Vec4b>(y, x) = cv::Vec4b((uchar)(color.r * 255.0f),
+                                                   (uchar)(color.g * 255.0f),
+                                                   (uchar)(color.b * 255.0f),
+                                                   (uchar)(color.a * 255.0f));
             break;
         case PF_bgra:
-            _cvMat.at<cv::Vec4b>(y, x) = cv::Vec4b((SLuchar)(color.b * 255.0f),
-                                                   (SLuchar)(color.g * 255.0f),
-                                                   (SLuchar)(color.r * 255.0f),
-                                                   (SLuchar)(color.a * 255.0f));
+            _cvMat.at<cv::Vec4b>(y, x) = cv::Vec4b((uchar)(color.b * 255.0f),
+                                                   (uchar)(color.g * 255.0f),
+                                                   (uchar)(color.r * 255.0f),
+                                                   (uchar)(color.a * 255.0f));
             break;
 #ifdef SL_GLES2
         case PF_luminance:
 #else
         case PF_red:
 #endif
-            R                      = (SLint)(color.r * 255.0f);
-            G                      = (SLint)(color.g * 255.0f);
-            B                      = (SLint)(color.b * 255.0f);
-            _cvMat.at<uchar>(y, x) = (SLubyte)(((66 * R + 129 * G + 25 * B + 128) >> 8) + 16);
+            R                      = (int)(color.r * 255.0f);
+            G                      = (int)(color.g * 255.0f);
+            B                      = (int)(color.b * 255.0f);
+            _cvMat.at<uchar>(y, x) = (uchar)(((66 * R + 129 * G + 25 * B + 128) >> 8) + 16);
             break;
 #ifdef SL_GLES2
         case PF_luminance_alpha:
 #else
         case PF_rg:
 #endif
-            R                          = (SLint)(color.r * 255.0f);
-            G                          = (SLint)(color.g * 255.0f);
-            B                          = (SLint)(color.b * 255.0f);
-            _cvMat.at<cv::Vec2b>(y, x) = cv::Vec2b((SLubyte)(((66 * R + 129 * G + 25 * B + 128) >> 8) + 16),
-                                                   (SLubyte)(color.a * 255.0f));
+            R                          = (int)(color.r * 255.0f);
+            G                          = (int)(color.g * 255.0f);
+            B                          = (int)(color.b * 255.0f);
+            _cvMat.at<cv::Vec2b>(y, x) = cv::Vec2b((uchar)(((66 * R + 129 * G + 25 * B + 128) >> 8) + 16),
+                                                   (uchar)(color.a * 255.0f));
             break;
-        default: SL_EXIT_MSG("SLCVImage::setPixeli: Unknown format!");
+        default: SL_EXIT_MSG("CVImage::setPixeli: Unknown format!");
     }
 }
 //-----------------------------------------------------------------------------
 //! setPixeli sets the RGB pixel color at the integer pixel coordinate x, y
-void SLCVImage::setPixeliRGB(SLint x, SLint y, SLCol3f color)
+void CVImage::setPixeliRGB(int x, int y, SLCol3f color)
 {
     assert(_bytesPerPixel == 3);
     if (x < 0) x = 0;
-    if (x >= (SLint)_cvMat.cols) x = _cvMat.cols - 1; // 0 <= x < _width
+    if (x >= (int)_cvMat.cols) x = _cvMat.cols - 1; // 0 <= x < _width
     if (y < 0) y = 0;
-    if (y >= (SLint)_cvMat.rows) y = _cvMat.rows - 1; // 0 <= y < _height
+    if (y >= (int)_cvMat.rows) y = _cvMat.rows - 1; // 0 <= y < _height
 
-    _cvMat.at<cv::Vec3b>(y, x) = cv::Vec3b((SLuchar)(color.r * 255.0f + 0.5f),
-                                           (SLuchar)(color.g * 255.0f + 0.5f),
-                                           (SLuchar)(color.b * 255.0f + 0.5f));
+    _cvMat.at<cv::Vec3b>(y, x) = cv::Vec3b((uchar)(color.r * 255.0f + 0.5f),
+                                           (uchar)(color.g * 255.0f + 0.5f),
+                                           (uchar)(color.b * 255.0f + 0.5f));
 }
 //-----------------------------------------------------------------------------
 //! setPixeli sets the RGB pixel color at the integer pixel coordinate x, y
-void SLCVImage::setPixeliRGB(SLint x, SLint y, SLCol4f color)
+void CVImage::setPixeliRGB(int x, int y, SLCol4f color)
 {
     assert(_bytesPerPixel == 3);
     if (x < 0) x = 0;
-    if (x >= (SLint)_cvMat.cols) x = _cvMat.cols - 1; // 0 <= x < _width
+    if (x >= (int)_cvMat.cols) x = _cvMat.cols - 1; // 0 <= x < _width
     if (y < 0) y = 0;
-    if (y >= (SLint)_cvMat.rows) y = _cvMat.rows - 1; // 0 <= y < _height
+    if (y >= (int)_cvMat.rows) y = _cvMat.rows - 1; // 0 <= y < _height
 
-    _cvMat.at<cv::Vec3b>(y, x) = cv::Vec3b((SLuchar)(color.r * 255.0f + 0.5f),
-                                           (SLuchar)(color.g * 255.0f + 0.5f),
-                                           (SLuchar)(color.b * 255.0f + 0.5f));
+    _cvMat.at<cv::Vec3b>(y, x) = cv::Vec3b((uchar)(color.r * 255.0f + 0.5f),
+                                           (uchar)(color.g * 255.0f + 0.5f),
+                                           (uchar)(color.b * 255.0f + 0.5f));
 }
 //-----------------------------------------------------------------------------
 //! setPixeli sets the RGBA pixel color at the integer pixel coordinate x, y
-void SLCVImage::setPixeliRGBA(SLint x, SLint y, SLCol4f color)
+void CVImage::setPixeliRGBA(int x, int y, SLCol4f color)
 {
     assert(_bytesPerPixel == 4);
     if (x < 0) x = 0;
-    if (x >= (SLint)_cvMat.cols) x = _cvMat.cols - 1; // 0 <= x < _width
+    if (x >= (int)_cvMat.cols) x = _cvMat.cols - 1; // 0 <= x < _width
     if (y < 0) y = 0;
-    if (y >= (SLint)_cvMat.rows) y = _cvMat.rows - 1; // 0 <= y < _height
+    if (y >= (int)_cvMat.rows) y = _cvMat.rows - 1; // 0 <= y < _height
 
-    _cvMat.at<cv::Vec4b>(y, x) = cv::Vec4b((SLuchar)(color.r * 255.0f + 0.5f),
-                                           (SLuchar)(color.g * 255.0f + 0.5f),
-                                           (SLuchar)(color.b * 255.0f + 0.5f),
-                                           (SLuchar)(color.a * 255.0f + 0.5f));
+    _cvMat.at<cv::Vec4b>(y, x) = cv::Vec4b((uchar)(color.r * 255.0f + 0.5f),
+                                           (uchar)(color.g * 255.0f + 0.5f),
+                                           (uchar)(color.b * 255.0f + 0.5f),
+                                           (uchar)(color.a * 255.0f + 0.5f));
 }
 //-----------------------------------------------------------------------------
 /*!
 SLCVImage::Resize does a scaling with bilinear interpolation.
 */
-void SLCVImage::resize(SLint width, SLint height)
+void CVImage::resize(int width, int height)
 {
     assert(_cvMat.cols > 0 && _cvMat.rows > 0 && width > 0 && height > 0);
     if (_cvMat.cols == width && _cvMat.rows == height) return;
 
-    SLCVMat dst = SLCVMat(height, width, _cvMat.type());
+    CVMat dst = CVMat(height, width, _cvMat.type());
 
     cv::resize(_cvMat, dst, dst.size(), 0, 0, cv::INTER_LINEAR);
 
@@ -823,18 +824,18 @@ void SLCVImage::resize(SLint width, SLint height)
 }
 //-----------------------------------------------------------------------------
 //! Flip Y coordiantes used to make JPEGs from top-left to bottom-left images.
-void SLCVImage::flipY()
+void CVImage::flipY()
 {
     if (_cvMat.cols > 0 && _cvMat.rows > 0)
     {
-        SLCVMat dst = SLCVMat(_cvMat.rows, _cvMat.cols, _cvMat.type());
+        CVMat dst = CVMat(_cvMat.rows, _cvMat.cols, _cvMat.type());
         cv::flip(_cvMat, dst, 0);
         _cvMat = dst;
     }
 }
 //-----------------------------------------------------------------------------
 //! Fills the image with a certain rgb color
-void SLCVImage::fill(SLubyte r, SLubyte g, SLubyte b)
+void CVImage::fill(uchar r, uchar g, uchar b)
 {
     switch (_format)
     {
@@ -844,12 +845,12 @@ void SLCVImage::fill(SLubyte r, SLubyte g, SLubyte b)
         case PF_bgr:
             _cvMat.setTo(cv::Vec3b(b, g, r));
             break;
-        default: SL_EXIT_MSG("SLCVImage::fill(r,g,b): Wrong format!");
+        default: SL_EXIT_MSG("CVImage::fill(r,g,b): Wrong format!");
     }
 }
 //-----------------------------------------------------------------------------
 //! Fills the image with a certain rgba color
-void SLCVImage::fill(SLubyte r, SLubyte g, SLubyte b, SLubyte a)
+void CVImage::fill(uchar r, uchar g, uchar b, uchar a)
 {
     switch (_format)
     {
@@ -859,7 +860,7 @@ void SLCVImage::fill(SLubyte r, SLubyte g, SLubyte b, SLubyte a)
         case PF_bgra:
             _cvMat.setTo(cv::Vec4b(b, g, r, a));
             break;
-        default: SL_EXIT_MSG("SLCVImage::fill(r,g,b,a): Wrong format!");
+        default: SL_EXIT_MSG("CVImage::fill(r,g,b,a): Wrong format!");
     }
 }
 //-----------------------------------------------------------------------------

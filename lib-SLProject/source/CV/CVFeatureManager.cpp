@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVFeatureManager.cpp
+//  File:      CVFeatureManager.cpp
 //  Purpose:   OpenCV Detector Describer Wrapper
 //  Author:    Marcus Hudritsch
 //  Date:      Spring 2017
@@ -16,28 +16,28 @@ The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
-See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
+See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <SLCVFeatureManager.h>
-#include <SLCVRaulMurOrb.h>
-#include <SLScene.h>
-#include <SLSceneView.h>
+#include <CVFeatureManager.h>
+#include <CVRaulMurOrb.h>
+
 using namespace cv;
+using namespace std;
 
 //-----------------------------------------------------------------------------
-SLCVFeatureManager::SLCVFeatureManager()
+CVFeatureManager::CVFeatureManager()
 {
     createDetectorDescriptor(DDT_RAUL_RAUL);
 }
 //-----------------------------------------------------------------------------
-SLCVFeatureManager::~SLCVFeatureManager()
+CVFeatureManager::~CVFeatureManager()
 {
 }
 //-----------------------------------------------------------------------------
 //! Creates a detector and decriptor to the passed type
-void SLCVFeatureManager::createDetectorDescriptor(SLCVDetectDescribeType type)
+void CVFeatureManager::createDetectorDescriptor(CVDetectDescribeType type)
 {
     switch (type)
     {
@@ -50,7 +50,7 @@ void SLCVFeatureManager::createDetectorDescriptor(SLCVDetectDescribeType type)
             _descriptor = _detector;
             break;
         case DDT_RAUL_RAUL:
-            _detector   = new SLCVRaulMurOrb(1500, 1.44f, 4, 30, 20);
+            _detector   = new CVRaulMurOrb(1500, 1.44f, 4, 30, 20);
             _descriptor = _detector;
             break;
         case DDT_SURF_SURF:
@@ -70,22 +70,22 @@ void SLCVFeatureManager::createDetectorDescriptor(SLCVDetectDescribeType type)
 }
 //-----------------------------------------------------------------------------
 //! Sets the detector and decriptor to the passed ones
-void SLCVFeatureManager::setDetectorDescriptor(SLCVDetectDescribeType type,
-                                               cv::Ptr<SLCVFeature2D> detector,
-                                               cv::Ptr<SLCVFeature2D> descriptor)
+void CVFeatureManager::setDetectorDescriptor(CVDetectDescribeType type,
+                                               cv::Ptr<CVFeature2D> detector,
+                                               cv::Ptr<CVFeature2D> descriptor)
 {
     _type       = type;
     _detector   = detector;
     _descriptor = descriptor;
 }
 //-----------------------------------------------------------------------------
-void SLCVFeatureManager::detectAndDescribe(SLCVInputArray  image,
-                                           SLCVVKeyPoint&  keypoints,
-                                           SLCVOutputArray descriptors,
-                                           SLCVInputArray  mask)
+void CVFeatureManager::detectAndDescribe(CVInputArray    image,
+                                           CVVKeyPoint&  keypoints,
+                                           CVOutputArray  descriptors,
+                                           CVInputArray    mask)
 {
-    assert(_detector && "SLCVFeatureManager::detectAndDescribe: No detector!");
-    assert(_descriptor && "SLCVFeatureManager::detectAndDescribe: No descriptor!");
+    assert(_detector && "CVFeatureManager::detectAndDescribe: No detector!");
+    assert(_descriptor && "CVFeatureManager::detectAndDescribe: No descriptor!");
 
     if (_detector == _descriptor)
         _detector->detectAndCompute(image, mask, keypoints, descriptors);

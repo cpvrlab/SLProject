@@ -14,7 +14,7 @@
 #include <GL/glew.h>    // OpenGL headers
 #include <GLFW/glfw3.h> // GLFW GUI library
 #include <SL.h>         // Basic SL type definitions
-#include <SLCVImage.h>  // Image class for image loading
+#include <CVImage.h>    // Image class for image loading
 #include <SLMat4.h>     // 4x4 matrix class
 #include <SLVec3.h>     // 3D vector class
 #include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures

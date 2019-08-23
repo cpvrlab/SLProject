@@ -18,9 +18,9 @@
 #include <AppDemoGui.h>
 #include <SLAnimPlayback.h>
 #include <SLApplication.h>
-#include <SLCVCapture.h>
-#include <SLCVImage.h>
-#include <SLCVTrackedFeatures.h>
+#include <CVCapture.h>
+#include <CVImage.h>
+#include <CVTrackedFeatures.h>
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
@@ -38,6 +38,11 @@
 
 #include <imgui.h>
 #include <ftplib.h>
+
+//-----------------------------------------------------------------------------
+// Global pointers declared in AppDemoTracking
+extern CVTracked* tracker;
+extern SLNode*      trackedNode;
 
 //#define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
 
@@ -295,16 +300,16 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
             if (rType == RT_gl)
             {
-                // Get averages from average variables (see SLAverage)
-                SLfloat captureTime    = SLCVCapture::instance()->captureTimesMS().average();
+                // Get averages from average variables (see Averaged)
+                SLfloat captureTime    = CVCapture::instance()->captureTimesMS().average();
                 SLfloat updateTime     = s->updateTimesMS().average();
-                SLfloat trackingTime   = SLCVTracked::trackingTimesMS.average();
-                SLfloat detectTime     = SLCVTracked::detectTimesMS.average();
-                SLfloat detect1Time    = SLCVTracked::detect1TimesMS.average();
-                SLfloat detect2Time    = SLCVTracked::detect2TimesMS.average();
-                SLfloat matchTime      = SLCVTracked::matchTimesMS.average();
-                SLfloat optFlowTime    = SLCVTracked::optFlowTimesMS.average();
-                SLfloat poseTime       = SLCVTracked::poseTimesMS.average();
+                SLfloat trackingTime   = CVTracked::trackingTimesMS.average();
+                SLfloat detectTime     = CVTracked::detectTimesMS.average();
+                SLfloat detect1Time    = CVTracked::detect1TimesMS.average();
+                SLfloat detect2Time    = CVTracked::detect2TimesMS.average();
+                SLfloat matchTime      = CVTracked::matchTimesMS.average();
+                SLfloat optFlowTime    = CVTracked::optFlowTimesMS.average();
+                SLfloat poseTime       = CVTracked::poseTimesMS.average();
                 SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                 SLfloat updateAABBTime = s->updateAnimTimesMS().average();
                 SLfloat cullTime       = s->cullTimesMS().average();
@@ -455,9 +460,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             SLchar m[2550]; // message character array
             m[0] = 0;       // set zero length
 
-            SLCVCalibration* c        = SLCVCapture::instance()->activeCalib;
-            SLCVSize         capSize  = SLCVCapture::instance()->captureSize;
-            SLVideoType      vt       = SLCVCapture::instance()->videoType();
+            CVCalibration* c        = CVCapture::instance()->activeCalib;
+            CVSize           capSize  = CVCapture::instance()->captureSize;
+            CVVideoType      vt       = CVCapture::instance()->videoType();
             SLstring         mirrored = "None";
             if (c->isMirroredH() && c->isMirroredV())
                 mirrored = "horizontally & vertically";
@@ -467,7 +472,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 mirrored = "vertically";
 
             sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera" : vt == VT_FILE ? "File" : "Secondary Camera");
-            sprintf(m + strlen(m), "Display size : %d x %d\n", SLCVCapture::instance()->lastFrame.cols, SLCVCapture::instance()->lastFrame.rows);
+            sprintf(m + strlen(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
             sprintf(m + strlen(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
             sprintf(m + strlen(m), "Size Index   : %d\n", c->camSizeIndex());
             sprintf(m + strlen(m), "Mirrored     : %s\n", mirrored.c_str());
@@ -481,27 +486,20 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Calib. time  : %s\n", c->calibrationTime().c_str());
             sprintf(m + strlen(m), "Calib. state : %s\n", c->stateStr().c_str());
 
-            if (vt != VT_NONE && !SLCVTracked::trackers.empty())
+            if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
             {
                 sprintf(m + strlen(m), "-------------:\n");
-                for (auto tracker : SLCVTracked::trackers)
+                if (typeid(*trackedNode) == typeid(SLCamera))
                 {
-                    SLNode* node = tracker->node();
-                    if (node)
-                    {
-                        if (typeid(*node) == typeid(SLCamera))
-                        {
-                            SLVec3f cameraPos = tracker->node()->updateAndGetWM().translation();
-                            sprintf(m + strlen(m), "Dist. to zero: %4.2f\n", cameraPos.length());
-                        }
-                        else
-                        {
-                            SLVec3f cameraPos = ((SLNode*)sv->camera())->updateAndGetWM().translation();
-                            SLVec3f objectPos = tracker->node()->updateAndGetWM().translation();
-                            SLVec3f camToObj  = objectPos - cameraPos;
-                            sprintf(m + strlen(m), "Dist. to obj.: %4.2f\n", camToObj.length());
-                        }
-                    }
+                    SLVec3f cameraPos = trackedNode->updateAndGetWM().translation();
+                    sprintf(m + strlen(m), "Dist. to zero: %4.2f\n", cameraPos.length());
+                }
+                else
+                {
+                    SLVec3f cameraPos = ((SLNode*)sv->camera())->updateAndGetWM().translation();
+                    SLVec3f objectPos = trackedNode->updateAndGetWM().translation();
+                    SLVec3f camToObj  = objectPos - cameraPos;
+                    sprintf(m + strlen(m), "Dist. to obj.: %4.2f\n", camToObj.length());
                 }
             }
 
@@ -845,7 +843,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 {
     SLSceneID    sid           = SLApplication::sceneID;
     SLGLState*   stateGL       = SLGLState::instance();
-    SLCVCapture* capture       = SLCVCapture::instance();
+    CVCapture* capture       = CVCapture::instance();
     SLRenderType rType         = sv->renderType();
     SLbool       hasAnimations = (!s->animManager().allAnimNames().empty());
     static SLint curAnimIx     = -1;
@@ -1155,19 +1153,13 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 #endif
             if (ImGui::BeginMenu("Video Sensor"))
             {
-                SLCVCalibration* ac = capture->activeCalib;
-                SLCVCalibration* mc = &capture->calibMainCam;
-                SLCVCalibration* sc = &capture->calibScndCam;
+                CVCalibration* ac = capture->activeCalib;
+                CVCalibration* mc = &capture->calibMainCam;
+                CVCalibration* sc = &capture->calibScndCam;
 
-                SLCVTrackedFeatures* featureTracker = nullptr;
-                for (auto tracker : SLCVTracked::trackers)
-                {
-                    if (typeid(*tracker) == typeid(SLCVTrackedFeatures))
-                    {
-                        featureTracker = (SLCVTrackedFeatures*)tracker;
-                        break;
-                    }
-                }
+                CVTrackedFeatures* featureTracker = nullptr;
+                if (typeid(*tracker) == typeid(CVTrackedFeatures))
+                    featureTracker = (CVTrackedFeatures*)tracker;
 
                 if (capture->videoType() == VT_MAIN &&
                     ImGui::BeginMenu("Mirror Main Camera"))
@@ -1242,8 +1234,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::MenuItem("Show Detection", nullptr, SLCVTracked::showDetection))
-                    SLCVTracked::showDetection = !SLCVTracked::showDetection;
+                if (tracker != nullptr)
+                    if (ImGui::MenuItem("Draw Detection", nullptr, tracker->drawDetection()))
+                        tracker->drawDetection(!tracker->drawDetection());
 
                 if (ImGui::BeginMenu("Feature Tracking", featureTracker != nullptr))
                 {
@@ -1252,7 +1245,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                     if (ImGui::BeginMenu("Detector/Descriptor", featureTracker != nullptr))
                     {
-                        SLCVDetectDescribeType type = featureTracker->type();
+                        CVDetectDescribeType type = featureTracker->type();
 
                         if (ImGui::MenuItem("RAUL/RAUL", nullptr, type == DDT_RAUL_RAUL))
                             featureTracker->type(DDT_RAUL_RAUL);
@@ -2262,10 +2255,10 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         return;
     }
 
-    SLCVFileStorage fs;
+    CVFileStorage fs;
     try
     {
-        fs.open(fullPathAndFilename, SLCVFileStorage::READ);
+        fs.open(fullPathAndFilename, CVFileStorage::READ);
         if (fs.isOpened())
         {
             // clang-format off
@@ -2289,7 +2282,6 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
             fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
             fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
-            fs["showDetection"] >> b;       SLCVTracked::showDetection = b;
             // clang-format on
 
             fs.release();
@@ -2335,7 +2327,7 @@ void AppDemoGui::saveConfig()
         SL_LOG("New config file will be written: %s\n",
                fullPathAndFilename.c_str());
 
-    SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::WRITE);
+    CVFileStorage fs(fullPathAndFilename, CVFileStorage::WRITE);
 
     if (!fs.isOpened())
     {
@@ -2360,7 +2352,6 @@ void AppDemoGui::saveConfig()
     fs << "showProperties" << AppDemoGui::showProperties;
     fs << "showChristoffel" << AppDemoGui::showChristoffel;
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;
-    fs << "showDetection" << SLCVTracked::showDetection;
 
     fs.release();
     SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());

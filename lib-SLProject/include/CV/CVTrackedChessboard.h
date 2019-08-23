@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTrackedChessboard.h
+//  File:      CVTrackedChessboard.h
 //  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
@@ -8,20 +8,20 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLCVCHESSBOARDTRACKER_H
-#define SLCVCHESSBOARDTRACKER_H
+#ifndef CVCHESSBOARDTRACKER_H
+#define CVCHESSBOARDTRACKER_H
 
 /*
 The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
-All classes that use OpenCV begin with SLCV.
-See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
+All classes that use OpenCV begin with CV.
+See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <SLCV.h>
-#include <SLCVTracked.h>
+#include <CVTypedefs.h>
+#include <CVTracked.h>
 
 //-----------------------------------------------------------------------------
 //! OpenCV chessboard tracker class derived from SLCVTracked
@@ -29,24 +29,22 @@ for a good top down information.
 class defined in SLCVCalibration. See SLCVTrackedChessboard::track for the
 core tracking implementation.
 */
-class SLCVTrackedChessboard : public SLCVTracked
+class CVTrackedChessboard : public CVTracked
 {
     public:
-    explicit SLCVTrackedChessboard(SLNode* node);
+    explicit CVTrackedChessboard();
 
-    bool track(SLCVMat          imageGray,
-               SLCVMat          imageRgb,
-               SLCVCalibration* calib,
-               SLbool           drawDetection,
-               SLSceneView*     sv) final;
+    bool track(CVMat          imageGray,
+               CVMat          imageRgb,
+               CVCalibration* calib) final;
 
     private:
-    SLfloat      _edgeLengthM{};   //<! Length of chessboard square in meters
-    SLCVVPoint3f _boardPoints3D; //<! chessboard corners in world coordinate system
-    SLCVSize     _boardSize;     //<! NO. of inner chessboard corners
-    SLbool       _solved;        //<! Flag if last solvePnP was solved
-    SLCVMat      _rVec;          //<! rotation angle vector from solvePnP
-    SLCVMat      _tVec;          //<! translation vector from solvePnP
+    float      _edgeLengthM{}; //<! Length of chessboard square in meters
+    CVVPoint3f _boardPoints3D; //<! chessboard corners in world coordinate system
+    CVSize     _boardSize;     //<! NO. of inner chessboard corners
+    bool       _solved;        //<! Flag if last solvePnP was solved
+    CVMat      _rVec;          //<! rotation angle vector from solvePnP
+    CVMat      _tVec;          //<! translation vector from solvePnP
 };
 //-----------------------------------------------------------------------------
 

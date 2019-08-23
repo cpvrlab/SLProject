@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVRaulMurExtractorNode.h
+//  File:      CVRaulMurExtNode.h
 //  Author:    Pascal Zingg, Timon Tschanz
 //  Purpose:   Declares the Raul Mur ORB feature detector and descriptor
 //  Source:    This File is based on the ORB Implementation of ORB_SLAM
@@ -11,27 +11,27 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLCVRAULMUREXTRACTORNODE_H
-#define SLCVRAULMUREXTRACTORNODE_H
+#ifndef CVRAULMUREXTNODE_H
+#define CVRAULMUREXTNODE_H
 
-#include <SLCV.h>
+#include <CVTypedefs.h>
 
 //-----------------------------------------------------------------------------
-//!Datastructure used to subdivide the Image with keypoints into segments.
-class SLCVRaulMurExtractorNode
+//!Data structure used to subdivide the Image with key points into segments.
+class CVRaulMurExtNode
 {
     public:
-    SLCVRaulMurExtractorNode() : bNoMore(false) {}
+    CVRaulMurExtNode() : bNoMore(false) {}
 
-    void DivideNode(SLCVRaulMurExtractorNode& n1,
-                    SLCVRaulMurExtractorNode& n2,
-                    SLCVRaulMurExtractorNode& n3,
-                    SLCVRaulMurExtractorNode& n4);
+    void DivideNode(CVRaulMurExtNode& n1,
+                    CVRaulMurExtNode& n2,
+                    CVRaulMurExtNode& n3,
+                    CVRaulMurExtNode& n4);
 
-    SLCVVKeyPoint                                 vKeys;
-    SLCVPoint2i                                   UL, UR, BL, BR;
-    std::list<SLCVRaulMurExtractorNode>::iterator lit;
-    bool                                          bNoMore;
+    CVVKeyPoint                      vKeys;
+    CVPoint2i                        UL, UR, BL, BR;
+    list<CVRaulMurExtNode>::iterator lit;
+    bool                             bNoMore;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVRAULMUREXTRACTORNODE_H

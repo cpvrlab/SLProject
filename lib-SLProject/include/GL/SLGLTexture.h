@@ -11,7 +11,7 @@
 #ifndef SLGLTEXTURE_H
 #define SLGLTEXTURE_H
 
-#include <SLCVImage.h>
+#include <CVImage.h>
 #include <SLGLVertexArray.h>
 #include <SLMat4.h>
 #include <atomic>
@@ -51,7 +51,7 @@ enum SLTextureType
 //! Texture object for OpenGL texturing
 /*!      
 The SLGLTexture class implements an OpenGL texture object that can be used by the 
-SLMaterial class. A texture can have 1-n SLCVImages in the vector _images.
+SLMaterial class. A texture can have 1-n CVImages in the vector _images.
 A simple 2D texture has just a single texture image (_images[0]). For cube maps
 you will need 6 images (_images[0-5]). For 3D textures you can have as much
 images of the same size than your GPU and/or CPU memory can hold.
@@ -117,7 +117,7 @@ class SLGLTexture : public SLObject
     void needsUpdate(SLbool update) { _needsUpdate = update; }
 
     // Getters
-    SLCVVImage&   images() { return _images; }
+    CVVImage&     images() { return _images; }
     SLenum        target() { return _target; }
     SLuint        texName() { return _texName; }
     SLTextureType texType() { return _texType; }
@@ -141,12 +141,12 @@ class SLGLTexture : public SLObject
     SLuint        closestPowerOf2(SLuint num);
     SLuint        nextPowerOf2(SLuint num);
     void          build2DMipmaps(SLint target, SLuint index);
-    SLbool        copyVideoImage(SLint         camWidth,
-                                 SLint         camHeight,
-                                 SLPixelFormat glFormat,
-                                 SLuchar*      data,
-                                 SLbool        isContinuous,
-                                 SLbool        isTopLeft);
+    SLbool        copyVideoImage(SLint       camWidth,
+                                 SLint       camHeight,
+                                 CVPixFormat glFormat,
+                                 SLuchar*    data,
+                                 SLbool      isContinuous,
+                                 SLbool      isTopLeft);
     void          calc3DGradients(SLint sampleRadius);
     void          smooth3DGradients(SLint smoothRadius);
 
@@ -166,7 +166,7 @@ class SLGLTexture : public SLObject
               SLbool   loadGrayscaleIntoAlpha = false);
     void load(const SLVCol4f& colors);
 
-    SLCVVImage      _images;        //!< vector of SLCVImage pointers
+    CVVImage        _images;        //!< vector of CVImage pointers
     SLuint          _texName;       //!< OpenGL texture "name" (= ID)
     SLTextureType   _texType;       //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
     SLint           _min_filter;    //!< Minification filter

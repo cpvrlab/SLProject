@@ -13,7 +13,7 @@
 
 #include <SL.h>
 #include <SLAnimManager.h>
-#include <SLAverage.h>
+#include <Averaged.h>
 #include <SLEventHandler.h>
 #include <SLGLOculus.h>
 #include <SLLight.h>
@@ -79,13 +79,13 @@ class SLScene : public SLObject
     SLCol4f       globalAmbiLight() const { return _globalAmbiLight; }
     SLVLight&     lights() { return _lights; }
     SLfloat       fps() { return _fps; }
-    SLAvgFloat&   frameTimesMS() { return _frameTimesMS; }
-    SLAvgFloat&   updateTimesMS() { return _updateTimesMS; }
-    SLAvgFloat&   updateAnimTimesMS() { return _updateAnimTimesMS; }
-    SLAvgFloat&   updateAABBTimesMS() { return _updateAABBTimesMS; }
-    SLAvgFloat&   cullTimesMS() { return _cullTimesMS; }
-    SLAvgFloat&   draw2DTimesMS() { return _draw2DTimesMS; }
-    SLAvgFloat&   draw3DTimesMS() { return _draw3DTimesMS; }
+    AvgFloat&     frameTimesMS() { return _frameTimesMS; }
+    AvgFloat&     updateTimesMS() { return _updateTimesMS; }
+    AvgFloat&     updateAnimTimesMS() { return _updateAnimTimesMS; }
+    AvgFloat&     updateAABBTimesMS() { return _updateAABBTimesMS; }
+    AvgFloat&     cullTimesMS() { return _cullTimesMS; }
+    AvgFloat&     draw2DTimesMS() { return _draw2DTimesMS; }
+    AvgFloat&     draw3DTimesMS() { return _draw3DTimesMS; }
     SLVMaterial&  materials() { return _materials; }
     SLVMesh&      meshes() { return _meshes; }
     SLVGLTexture& textures() { return _textures; }
@@ -133,18 +133,18 @@ class SLScene : public SLObject
     SLbool  _rootInitialized; //!< Flag if scene is initialized
     SLint   _numProgsPreload; //!< No. of preloaded shaderProgs
 
-    SLfloat    _frameTimeMS;      //!< Last frame time in ms
-    SLfloat    _lastUpdateTimeMS; //!< Last time after update in ms
-    SLfloat    _fps;              //!< Averaged no. of frames per second
-    SLAvgFloat _frameTimesMS;     //!< Averaged total time per frame in ms
+    SLfloat _frameTimeMS;      //!< Last frame time in ms
+    SLfloat _lastUpdateTimeMS; //!< Last time after update in ms
+    SLfloat _fps;              //!< Averaged no. of frames per second
 
     // major part times
-    SLAvgFloat _updateTimesMS;     //!< Averaged time for update in ms
-    SLAvgFloat _cullTimesMS;       //!< Averaged time for culling in ms
-    SLAvgFloat _draw3DTimesMS;     //!< Averaged time for 3D drawing in ms
-    SLAvgFloat _draw2DTimesMS;     //!< Averaged time for 2D drawing in ms
-    SLAvgFloat _updateAABBTimesMS; //!< Averaged time for update the nodes AABB in ms
-    SLAvgFloat _updateAnimTimesMS; //!< Averaged time for update the animations in ms
+    AvgFloat _frameTimesMS;      //!< Averaged total time per frame in ms
+    AvgFloat _updateTimesMS;     //!< Averaged time for update in ms
+    AvgFloat _cullTimesMS;       //!< Averaged time for culling in ms
+    AvgFloat _draw3DTimesMS;     //!< Averaged time for 3D drawing in ms
+    AvgFloat _draw2DTimesMS;     //!< Averaged time for 2D drawing in ms
+    AvgFloat _updateAABBTimesMS; //!< Averaged time for update the nodes AABB in ms
+    AvgFloat _updateAnimTimesMS; //!< Averaged time for update the animations in ms
 
     SLbool _stopAnimations; //!< Global flag for stopping all animations
 

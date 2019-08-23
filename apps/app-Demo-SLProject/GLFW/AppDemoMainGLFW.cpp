@@ -22,7 +22,7 @@
 
 #include <AppDemoGui.h>
 #include <AppDemoSceneView.h>
-#include <SLCVCapture.h>
+#include <CVCapture.h>
 #include <SLEnums.h>
 #include <SLInterface.h>
 #include <SLApplication.h>
@@ -71,10 +71,10 @@ onPaint: Paint event handler that passes the event to the slPaint function.
 SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
-    if (SLCVCapture::instance()->videoType() != VT_NONE)
+    if (CVCapture::instance()->videoType() != VT_NONE)
     {
         float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
-        SLCVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
     }
 
     /////////////////////////////////////////////
@@ -268,7 +268,7 @@ static void onMouseButton(GLFWwindow* window,
             else // normal mouse clicks
             {
                 // Start timer for the long touch detection
-                SLTimer::callAfterSleep(SLSceneView::LONGTOUCH_MS, onLongTouch);
+                HighResTimer::callAfterSleep(SLSceneView::LONGTOUCH_MS, onLongTouch);
 
                 switch (button)
                 {
@@ -567,7 +567,9 @@ int main(int argc, char* argv[])
     SLstring configDir   = Utils::getAppsWritableDir();
     slSetupExternalDir("../data");
 
-    SLCVCapture::instance()->loadCalibrations(configDir,                            // for calibrations made
+    CVImage::defaultPath = projectRoot + "/data/images/textures/";
+    CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(),
+                                              configDir,                            // for calibrations made
                                               projectRoot + "/data/calibrations/",  // for calibInitPath
                                               projectRoot + "/data/videos/");       // for videos
 

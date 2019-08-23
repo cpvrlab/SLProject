@@ -22,7 +22,6 @@ class SLRay;
 class SLAABBox;
 class SLNode;
 class SLAnimation;
-//class SLCVTracked;
 
 //-----------------------------------------------------------------------------
 //! SLVNode typdef for a vector of SLNodes
@@ -271,7 +270,7 @@ class SLNode
     virtual void needUpdate();
     void         needWMUpdate();
     void         needAABBUpdate();
-    //void         tracker(SLCVTracked* t);
+    //void         tracker(CVTracked* t);
 
     // Getters (see also member)
     SLNode*           parent() { return _parent; }
@@ -288,7 +287,7 @@ class SLNode
     SLVMesh&          meshes() { return _meshes; }
     SLVNode&          children() { return _children; }
     const SLSkeleton* skeleton();
-    //SLCVTracked*      tracker() { return _tracker; }
+    //CVTracked*      tracker() { return _tracker; }
     void         update();
     virtual void doUpdate() {}
 
@@ -323,7 +322,7 @@ class SLNode
     SLDrawBits      _drawBits;       //!< node level drawing flags
     SLAABBox        _aabb;           //!< axis aligned bounding box
     SLAnimation*    _animation;      //!< animation of the node
-    //SLCVTracked*    _tracker;        //!< OpenCV Augmented Reality Tracker
+    //CVTracked*    _tracker;        //!< OpenCV Augmented Reality Tracker
 };
 
 ////////////////////////

@@ -81,36 +81,6 @@ enum SLAxis
     A_z = 2
 };
 //-----------------------------------------------------------------------------
-//! Pixel format according to OpenGL pixel format defines
-enum SLPixelFormat
-{
-    PF_unknown     = 0,
-    PF_yuv_420_888 = 1, // YUV format from Android not supported in GL
-
-    PF_alpha           = 0x1906, // ES2 ES3 GL2
-    PF_luminance       = 0x1909, // ES2 ES3 GL2
-    PF_luminance_alpha = 0x190A, // ES2 ES3 GL2
-    PF_intensity       = 0x8049, //         GL2
-    PF_green           = 0x1904, //         GL2
-    PF_blue            = 0x1905, //         GL2
-    PF_depth_component = 0x1902, //     ES3 GL2     GL4
-
-    PF_red  = 0x1903, //     ES3 GL2 GL3 GL4
-    PF_rg   = 0x8227, //     ES3     GL3 GL4
-    PF_rgb  = 0x1907, // ES2 ES3 GL2 GL3 GL4
-    PF_rgba = 0x1908, // ES2 ES3 GL2 GL3 GL4
-    PF_bgr  = 0x80E0, //         GL2 GL3 GL4
-    PF_bgra = 0x80E1, //         GL2 GL3 GL4
-
-    PF_rg_integer   = 0x8228, //     ES3         GL4
-    PF_red_integer  = 0x8D94, //     ES3         GL4
-    PF_rgb_integer  = 0x8D98, //     ES3         GL4
-    PF_rgba_integer = 0x8D99, //     ES3         GL4
-    PF_bgr_integer  = 0x8D9A, //                 GL4
-    PF_bgra_integer = 0x8D9B, //                 GL4
-
-};
-//-----------------------------------------------------------------------------
 //! SLCommand enumerates all possible menu and keyboard commands
 enum SLSceneID
 {
@@ -343,44 +313,6 @@ enum SLLogVerbosity
     LV_normal     = 2,
     LV_detailed   = 3,
     LV_diagnostic = 4
-};
-//-----------------------------------------------------------------------------
-//! OpenCV Calibration state
-enum SLCVCalibState
-{
-    CS_uncalibrated,     //!< The camera is not calibrated (no calibration found)
-    CS_calibrateStream,  //!< The calibration is running with live video stream
-    CS_calibrateGrab,    //!< The calibration is running and an image should be grabbed
-    CS_startCalculating, //!< The calibration starts during the next frame
-    CS_calibrated,       //!< The camera is calibrated
-    CS_guessed           //!< The camera intrinsics where estimated from FOV
-};
-//-----------------------------------------------------------------------------
-//! OpenCV feature type
-enum SLCVFeatureType
-{
-    FT_SIFT, //!<
-    FT_SURF, //!<
-    FT_ORB   //!<
-};
-//-----------------------------------------------------------------------------
-//! Video type if multiple exist on mobile devices
-enum SLVideoType
-{
-    VT_NONE = 0, //!< No camera needed
-    VT_MAIN = 1, //!< Main camera on all on all all devices
-    VT_SCND = 2, //!< Selfie camera on mobile devices
-    VT_FILE = 3, //!< Loads a video from file with OpenCV
-};
-//-----------------------------------------------------------------------------
-//! Feature detector-decriptor types
-enum SLCVDetectDescribeType
-{
-    DDT_FAST_BRIEF,
-    DDT_RAUL_RAUL,
-    DDT_ORB_ORB,
-    DDT_SURF_SURF,
-    DDT_SIFT_SIFT
 };
 //-----------------------------------------------------------------------------
 #endif

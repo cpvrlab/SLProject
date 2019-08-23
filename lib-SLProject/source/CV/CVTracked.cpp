@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTracked.cpp
+//  File:      CVTracked.cpp
 //  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
@@ -15,51 +15,44 @@ The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
-See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
+See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
-#include <SLApplication.h>
-#include <SLCVTracked.h>
-#include <SLCVCapture.h>
+
+#include <CVTracked.h>
+#include <CVCapture.h>
 
 using namespace cv;
 using namespace std;
 //-----------------------------------------------------------------------------
 // Static declarations
-vector<SLCVTracked*> SLCVTracked::trackers;
-bool                 SLCVTracked::showDetection = false;
-SLAvgFloat           SLCVTracked::trackingTimesMS;
-SLAvgFloat           SLCVTracked::detectTimesMS;
-SLAvgFloat           SLCVTracked::detect1TimesMS;
-SLAvgFloat           SLCVTracked::detect2TimesMS;
-SLAvgFloat           SLCVTracked::matchTimesMS;
-SLAvgFloat           SLCVTracked::optFlowTimesMS;
-SLAvgFloat           SLCVTracked::poseTimesMS;
+AvgFloat CVTracked::trackingTimesMS;
+AvgFloat CVTracked::detectTimesMS;
+AvgFloat CVTracked::detect1TimesMS;
+AvgFloat CVTracked::detect2TimesMS;
+AvgFloat CVTracked::matchTimesMS;
+AvgFloat CVTracked::optFlowTimesMS;
+AvgFloat CVTracked::poseTimesMS;
 //-----------------------------------------------------------------------------
-void SLCVTracked::reset()
+void CVTracked::resetTimes()
 {
-    // delete all trackers from previous scenes
-    for (auto t : SLCVTracked::trackers)
-        delete t;
-    SLCVTracked::trackers.clear();
-
     // Reset all timing variables
-    SLCVTracked::trackingTimesMS.set(0.0f);
-    SLCVTracked::detectTimesMS.set(0.0f);
-    SLCVTracked::detect1TimesMS;
-    SLCVTracked::detect2TimesMS.set(0.0f);
-    SLCVTracked::matchTimesMS.set(0.0f);
-    SLCVTracked::optFlowTimesMS.set(0.0f);
-    SLCVTracked::poseTimesMS.set(0.0f);
+    CVTracked::trackingTimesMS.set(0.0f);
+    CVTracked::detectTimesMS.set(0.0f);
+    CVTracked::detect1TimesMS;
+    CVTracked::detect2TimesMS.set(0.0f);
+    CVTracked::matchTimesMS.set(0.0f);
+    CVTracked::optFlowTimesMS.set(0.0f);
+    CVTracked::poseTimesMS.set(0.0f);
 }
 //-----------------------------------------------------------------------------
 // clang-format off
 //-----------------------------------------------------------------------------
 //! Create an OpenGL 4x4 matrix from an OpenCV translation & rotation vector
-SLMat4f SLCVTracked::createGLMatrix(const SLCVMat& tVec, const SLCVMat& rVec)
+SLMat4f CVTracked::createGLMatrix(const CVMat& tVec, const CVMat& rVec)
 {
     // 1) convert the passed rotation vector to a rotation matrix
-    SLCVMat rMat;
+    CVMat rMat;
     Rodrigues(rVec, rMat);
 
     // 2) Create an OpenGL 4x4 column major matrix from the rotation matrix and 
@@ -76,15 +69,15 @@ SLMat4f SLCVTracked::createGLMatrix(const SLCVMat& tVec, const SLCVMat& rVec)
            | r02, r12, r22 |            |    0     0     0    1 |
     */
 
-    SLMat4f slMat((SLfloat) rMat.at<double>(0, 0), (SLfloat) rMat.at<double>(0, 1), (SLfloat) rMat.at<double>(0, 2), (SLfloat) tVec.at<double>(0, 0),
-                  (SLfloat)-rMat.at<double>(1, 0), (SLfloat)-rMat.at<double>(1, 1), (SLfloat)-rMat.at<double>(1, 2), (SLfloat)-tVec.at<double>(1, 0),
-                  (SLfloat)-rMat.at<double>(2, 0), (SLfloat)-rMat.at<double>(2, 1), (SLfloat)-rMat.at<double>(2, 2), (SLfloat)-tVec.at<double>(2, 0),
+    SLMat4f slMat((float) rMat.at<double>(0, 0), (float) rMat.at<double>(0, 1), (float) rMat.at<double>(0, 2), (float) tVec.at<double>(0, 0),
+                  (float)-rMat.at<double>(1, 0), (float)-rMat.at<double>(1, 1), (float)-rMat.at<double>(1, 2), (float)-tVec.at<double>(1, 0),
+                  (float)-rMat.at<double>(2, 0), (float)-rMat.at<double>(2, 1), (float)-rMat.at<double>(2, 2), (float)-tVec.at<double>(2, 0),
                                              0.0f,                            0.0f,                            0.0f,                           1.0f);
     return slMat;
 }
 //-----------------------------------------------------------------------------
 //! Creates the OpenCV rvec & tvec vectors from an column major OpenGL 4x4 matrix
-void SLCVTracked::createRvecTvec(const SLMat4f& glMat, SLCVMat& tVec, SLCVMat& rVec)
+void CVTracked::createRvecTvec(const SLMat4f& glMat, CVMat& tVec, CVMat& rVec)
 {
     // The y- and z- axis have to be inverted:
     /*
@@ -140,7 +133,7 @@ w    w     c
  T  = T  *  T   = Transformation of object with respect to world
   o    c     o    coordinate system (object matrix)
 */
-SLMat4f SLCVTracked::calcObjectMatrix(const SLMat4f& cameraObjectMat, 
+SLMat4f CVTracked::calcObjectMatrix(const SLMat4f& cameraObjectMat,
                                       const SLMat4f& objectViewMat)
 {   
     // new object matrix = camera object matrix * object-view matrix

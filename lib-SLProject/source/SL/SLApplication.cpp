@@ -23,7 +23,7 @@
 //-----------------------------------------------------------------------------
 //! Global static objects
 SLInputManager      SLApplication::inputManager;
-SLScene*            SLApplication::scene       = nullptr;
+SLScene*            SLApplication::scene = nullptr;
 SLDeviceRotation    SLApplication::devRot;
 SLDeviceLocation    SLApplication::devLoc;
 SLstring            SLApplication::name          = "SLProjectApp";
@@ -50,11 +50,11 @@ deque<function<void(void)>> SLApplication::jobsToBeThreaded;
 deque<function<void(void)>> SLApplication::jobsToFollowInMain;
 atomic<bool>
   SLApplication::jobIsRunning(false);
-string      SLApplication::_jobProgressMsg = "";
-atomic<int> SLApplication::_jobProgressNum(0);
-atomic<int> SLApplication::_jobProgressMax(0);
-mutex       SLApplication::_jobMutex;
-SLTimer     SLApplication::_timer;
+string       SLApplication::_jobProgressMsg = "";
+atomic<int>  SLApplication::_jobProgressNum(0);
+atomic<int>  SLApplication::_jobProgressMax(0);
+mutex        SLApplication::_jobMutex;
+HighResTimer SLApplication::_timer;
 
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function
@@ -76,7 +76,7 @@ void SLApplication::createAppAndScene(SLstring appName,
     assert(SLApplication::scene == nullptr &&
            "You can create only one SLApplication");
 
-    name = std::move(appName);
+    name  = std::move(appName);
     scene = new SLScene(name, (cbOnSceneLoad)onSceneLoadCallback);
     _timer.start();
 }

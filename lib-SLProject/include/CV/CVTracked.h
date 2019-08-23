@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTracked.h
+//  File:      CVTracked.h
 //  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
@@ -8,27 +8,26 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLCVTRACKER_H
-#define SLCVTRACKER_H
+#ifndef CVTRACKER_H
+#define CVTRACKER_H
 
 /*
 The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
-All classes that use OpenCV begin with SLCV.
-See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
+All classes that use OpenCV begin with CV.
+See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <SLCV.h>
-#include <SLCVCalibration.h>
-#include <SLNode.h>
+#include <CVTypedefs.h>
+#include <CVCalibration.h>
 #include <opencv2/aruco.hpp>
 #include <opencv2/xfeatures2d.hpp>
 
 //-----------------------------------------------------------------------------
 //! SLCVTracked is the pure virtual base class for tracking features in video.
-/*! The static vector trackers can hold multiple of SLCVTrackeds that are
+/*! The static vector trackers can hold multiple of CVTracked that are
  tracked in scenes that require a live video image from the device camera.
  A tracker is bound to a scene node. If the node is the camera node the tracker
  calculates the relative position of the camera to the tracker. This is the
@@ -40,46 +39,48 @@ for a good top down information.
  AppDemoTracking.cpp and called once per frame within the main render loop.
 */
 //-----------------------------------------------------------------------------
-class SLCVTracked
+class CVTracked
 {
     public:
-    explicit SLCVTracked(SLNode* node = nullptr) : _node(node), _isVisible(false) {}
+    explicit CVTracked() : _isVisible(false) {}
 
-    virtual SLbool track(SLCVMat          imageGray,
-                         SLCVMat          imageRgb,
-                         SLCVCalibration* calib,
-                         SLbool           drawDetection,
-                         SLSceneView*     sv) = 0;
+    virtual bool track(CVMat          imageGray,
+                       CVMat          imageRgb,
+                       CVCalibration* calib) = 0;
 
-    SLMat4f createGLMatrix(const SLCVMat& tVec,
-                           const SLCVMat& rVec);
+    SLMat4f createGLMatrix(const CVMat& tVec,
+                           const CVMat& rVec);
     void    createRvecTvec(const SLMat4f& glMat,
-                           SLCVMat&       tVec,
-                           SLCVMat&       rVec);
+                           CVMat&         tVec,
+                           CVMat&         rVec);
     SLMat4f calcObjectMatrix(const SLMat4f& cameraObjectMat,
                              const SLMat4f& objectViewMat);
 
-    SLNode* node() { return _node; }
+    // Setters
+    void drawDetection(bool draw) { _drawDetection = draw; }
+
+    // Getters
+    bool    isVisible() { return _isVisible; }
+    bool    drawDetection() { return _drawDetection; }
+    SLMat4f objectViewMat() { return _objectViewMat; }
 
     // Statics: These statics are used directly in application code (e.g. in )
-    static void                 reset();       //!< Resets all static variables
-    static vector<SLCVTracked*> trackers;      //!< Vector of CV tracker pointer trackers
-    static SLbool               showDetection; //!< Flag if detection should be visualized
-
-    static SLAvgFloat trackingTimesMS; //!< Averaged time for video tracking in ms
-    static SLAvgFloat detectTimesMS;   //!< Averaged time for video feature detection & description in ms
-    static SLAvgFloat detect1TimesMS;  //!< Averaged time for video feature detection subpart 1 in ms
-    static SLAvgFloat detect2TimesMS;  //!< Averaged time for video feature detection subpart 2 in ms
-    static SLAvgFloat matchTimesMS;    //!< Averaged time for video feature matching in ms
-    static SLAvgFloat optFlowTimesMS;  //!< Averaged time for video feature optical flow tracking in ms
-    static SLAvgFloat poseTimesMS;     //!< Averaged time for video feature pose estimation in ms
+    static void     resetTimes();    //!< Resets all static variables
+    static AvgFloat trackingTimesMS; //!< Averaged time for video tracking in ms
+    static AvgFloat detectTimesMS;   //!< Averaged time for video feature detection & description in ms
+    static AvgFloat detect1TimesMS;  //!< Averaged time for video feature detection subpart 1 in ms
+    static AvgFloat detect2TimesMS;  //!< Averaged time for video feature detection subpart 2 in ms
+    static AvgFloat matchTimesMS;    //!< Averaged time for video feature matching in ms
+    static AvgFloat optFlowTimesMS;  //!< Averaged time for video feature optical flow tracking in ms
+    static AvgFloat poseTimesMS;     //!< Averaged time for video feature pose estimation in ms
 
     protected:
-    SLNode* _node;          //!< Tracked node
-    SLbool  _isVisible;     //!< Flag if marker is visible
-    SLMat4f _objectViewMat; //!< view transformation matrix
+    bool         _isVisible;     //!< Flag if marker is visible
+    bool         _drawDetection; //! Flag if detection should be drawn into image
+    SLMat4f      _objectViewMat; //!< view transformation matrix
+    HighResTimer _timer;         //!< High resolution timer
 };
 //-----------------------------------------------------------------------------
-typedef std::vector<SLCVTracked*> SLVCVTracked; //!< Vector of CV tracker pointer
+typedef std::vector<CVTracked*> SLVCVTracked; //!< Vector of CV tracker pointer
 //-----------------------------------------------------------------------------
 #endif

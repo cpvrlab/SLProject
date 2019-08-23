@@ -114,7 +114,7 @@ void SLKeyframeCamera::drawMeshes(SLSceneView* sv)
 
         //if (_background.texture()->images().size()) {
         //    auto& imgs = _background.texture()->images();
-        //    SLCVImage* img = imgs[0];
+        //    CVImage* img = imgs[0];
         //    auto mat = img->cvMat();
         //    cv::imwrite("D:/Development/SLProject/_data/calibrations/imgs/kf0-test.jpg", mat);
         //}

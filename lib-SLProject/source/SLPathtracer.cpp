@@ -55,7 +55,7 @@ SLPathtracer::render(SLSceneView* sv)
         delete _images[_images.size() - 1];
         _images.pop_back();
     }
-    _images.push_back(new SLCVImage(_sv->scrW(), _sv->scrH(), PF_rgb, "Pathtracer"));
+    _images.push_back(new CVImage(_sv->scrW(), _sv->scrH(), PF_rgb, "Pathtracer"));
 
     // Measure time
     double t1 = SLApplication::timeS();

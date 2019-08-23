@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVRaulMurExtractorNode.h
+//  File:      CVRaulMurExtNode.h
 //  Author:    Pascal Zingg, Timon Tschanz
 //  Purpose:   Declares the Raul Mur ORB feature detector and descriptor
 //  Source:    This File is based on the ORB Implementation of ORB_SLAM
@@ -11,39 +11,37 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
-#include <SLCV.h>
-#include <SLCVRaulMurExtractorNode.h>
+#include <CVTypedefs.h>
+#include <CVRaulMurExtNode.h>
 
 //-----------------------------------------------------------------------------
 //! Divides the current ExtractorNode into four ExtractorNodes.
 //! The Keypoints are also divided between the four ExtractorNodes by space.
-void SLCVRaulMurExtractorNode::DivideNode(SLCVRaulMurExtractorNode& n1,
-                                          SLCVRaulMurExtractorNode& n2,
-                                          SLCVRaulMurExtractorNode& n3,
-                                          SLCVRaulMurExtractorNode& n4)
+void CVRaulMurExtNode::DivideNode(CVRaulMurExtNode& n1,
+                                  CVRaulMurExtNode& n2,
+                                  CVRaulMurExtNode& n3,
+                                  CVRaulMurExtNode& n4)
 {
     const int halfX = (int)(ceil(static_cast<float>(UR.x - UL.x) / 2));
     const int halfY = (int)(ceil(static_cast<float>(BR.y - UL.y) / 2));
 
     //Define boundaries of childs
     n1.UL = UL;
-    n1.UR = SLCVPoint2i(UL.x + halfX, UL.y);
-    n1.BL = SLCVPoint2i(UL.x, UL.y + halfY);
-    n1.BR = SLCVPoint2i(UL.x + halfX, UL.y + halfY);
+    n1.UR = CVPoint2i(UL.x + halfX, UL.y);
+    n1.BL = CVPoint2i(UL.x, UL.y + halfY);
+    n1.BR = CVPoint2i(UL.x + halfX, UL.y + halfY);
     n1.vKeys.reserve(vKeys.size());
 
     n2.UL = n1.UR;
     n2.UR = UR;
     n2.BL = n1.BR;
-    n2.BR = SLCVPoint2i(UR.x, UL.y + halfY);
+    n2.BR = CVPoint2i(UR.x, UL.y + halfY);
     n2.vKeys.reserve(vKeys.size());
 
     n3.UL = n1.BL;
     n3.UR = n1.BR;
     n3.BL = BL;
-    n3.BR = SLCVPoint2i(n1.BR.x, BL.y);
+    n3.BR = CVPoint2i(n1.BR.x, BL.y);
     n3.vKeys.reserve(vKeys.size());
 
     n4.UL = n3.UR;
@@ -55,7 +53,7 @@ void SLCVRaulMurExtractorNode::DivideNode(SLCVRaulMurExtractorNode& n1,
     //Associate points to childs
     for (size_t i = 0; i < vKeys.size(); i++)
     {
-        const SLCVKeyPoint& kp = vKeys[i];
+        const CVKeyPoint& kp = vKeys[i];
         if (kp.pt.x < n1.UR.x)
         {
             if (kp.pt.y < n1.BR.y)

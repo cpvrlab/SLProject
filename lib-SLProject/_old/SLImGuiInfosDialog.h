@@ -34,7 +34,7 @@ private:
     //! name in imgui menu entry for this infos dialogue
     std::string _name;
 };
-
+//-----------------------------------------------------------------------------
 #endif // !SLIMGUI_INFOSDIALOG_H
 
 

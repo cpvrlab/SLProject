@@ -8,10 +8,11 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLCVCAMERA_H
-#define SLCVCAMERA_H
+#ifndef SLKEYFRAMECAMERA_H
+#define SLKEYFRAMECAMERA_H
 
 #include <SLCamera.h>
+#include <SLKeyframeCamera.h>
 
 //-----------------------------------------------------------------------------
 /*! Special camera for ORB-SLAM keyframes that allows the video image display
@@ -20,7 +21,7 @@ on the near clippling plane.
 class SLKeyframeCamera : public SLCamera
 {
     public:
-    SLKeyframeCamera(SLstring name = "Camera");
+    explicit SLKeyframeCamera(SLstring name = "Camera");
     virtual ~SLKeyframeCamera() { ; }
     virtual void drawMeshes(SLSceneView* sv);
 
@@ -33,4 +34,4 @@ class SLKeyframeCamera : public SLCamera
     bool _renderBackground = false;
 };
 //-----------------------------------------------------------------------------
-#endif //SLCVCAMERA_H
+#endif //SLKEYFRAMECAMERA_H

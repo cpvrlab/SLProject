@@ -36,5 +36,5 @@ class SLImGuiInfosMapNodeTransform : public SLImGuiInfosDialog
     SLCVMapNode*     _mapNode  = nullptr;
     SLCVMapTracking* _tracking = nullptr;
 };
-
+//-----------------------------------------------------------------------------
 #endif //SL_IMGUI_INFOSMAPNODETRANSFORM_H

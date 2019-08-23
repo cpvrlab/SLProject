@@ -85,13 +85,13 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../lib-SLProject/source/CV/SLCVCalibration.cpp"
+            filePath = "../lib-SLProject/source/CV/CVCalibration.cpp"
             timestampString = "539167278.626217"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "234"
             endingLineNumber = "234"
-            landmarkName = "SLCVCalibration::calcBoardCorners3D(SLCVSize boardSize, SLfloat squareSize, SLCVVPoint3f&amp; objectPoints3D)"
+            landmarkName = "CVCalibration::calcBoardCorners3D(CVSize boardSize, SLfloat squareSize, CVVPoint3f&amp; objectPoints3D)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

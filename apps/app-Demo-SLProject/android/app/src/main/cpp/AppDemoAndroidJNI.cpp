@@ -14,7 +14,7 @@
 #include <SLInterface.h>
 #include <SLScene.h>
 #include <SLApplication.h>
-#include <SLCVCapture.h>
+#include <CVCapture.h>
 #include <AppDemoGui.h>
 #include <AppDemoSceneView.h>
 
@@ -122,9 +122,11 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject o
     string device_path_msg = "Device path:" + devicePath;
     SL_LOG(device_path_msg.c_str(),0);
 
-    SLCVCapture::instance()->loadCalibrations(devicePath + "/config/",       // for calibrations made
-                                              devicePath + "/calibrations/", // for calibInitPath
-                                              devicePath + "/videos/");      // for videos
+    SLCVImage::defaultPath = devicePath + "/textures/";
+    CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(), // deviceInfo string
+                                              devicePath + "/config/",           // for calibrations made
+                                              devicePath + "/calibrations/",     // for calibInitPath
+                                              devicePath + "/videos/");          // for videos
 
     ////////////////////////////////////////////////////
     slCreateAppAndScene(  *cmdLineArgs,
@@ -237,18 +239,18 @@ JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesRotation(JNIEnv *env,
 //-----------------------------------------------------------------------------
 JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoType(JNIEnv *env, jobject obj)
 {
-    return (int)SLCVCapture::instance()->videoType();
+    return (int)CVCapture::instance()->videoType();
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoSizeIndex(JNIEnv *env, jobject obj)
 {
-    return SLCVCapture::instance()->activeCalib->camSizeIndex();
+    return CVCapture::instance()->activeCalib->camSizeIndex();
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_grabVideoFileFrame(JNIEnv *env, jobject obj)
 {
     float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
-    return SLCVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+    return CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, jobject obj, jint imgWidth, jint imgHeight, jbyteArray imgBuffer)
@@ -259,7 +261,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, j
         SL_EXIT_MSG("copyVideoImage: No image data pointer passed!");
 
     float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
-    SLCVCapture::instance()->loadIntoLastFrame(scrWdivH, imgWidth, imgHeight, PF_yuv_420_888, srcLumaPtr, true);
+    CVCapture::instance()->loadIntoLastFrame(scrWdivH, imgWidth, imgHeight, PF_yuv_420_888, srcLumaPtr, true);
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes(JNIEnv *env, jobject obj, jint  srcW, jint srcH,
@@ -277,7 +279,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes(JNIEnv *en
     if (v == nullptr) SL_EXIT_MSG("copyVideoYUVPlanes: No pointer for v-buffer passed!");
 
     float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
-    SLCVCapture::instance()->copyYUVPlanes(scrWdivH, srcW, srcH,
+    CVCapture::instance()->copyYUVPlanes(scrWdivH, srcW, srcH,
                                            y, ySize, yPixStride, yLineStride,
                                            u, uSize, uPixStride, uLineStride,
                                            v, vSize, vPixStride, vLineStride);
@@ -313,7 +315,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setCameraSize(JNIEnv *env,
                                                                  jint width,
                                                                  jint height)
 {
-    SLCVCapture::instance()->setCameraSize(sizeIndex, sizeIndexMax, width, height);
+    CVCapture::instance()->setCameraSize(sizeIndex, sizeIndexMax, width, height);
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setDeviceParameter(JNIEnv *env,

@@ -8,37 +8,38 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-
 #ifndef SL_AVERAGE_TIMING
 #define SL_AVERAGE_TIMING
 
 #include <string>
 #include <map>
 
-#include <SLTimer.h>
-#include <SLAverage.h>
+#include <HighResTimer.h>
+#include <Averaged.h>
 #include <sstream>
-
+#include <utility>
 
 //!concatenation of average value and timer
 /*!
 Define a hierarchy by posV and posH which is used in ui to arrange the measurements.
 The first found content with posV==0 is used as reference measurement for the percental value.
 */
-struct SLAverageTimingBlock {
+struct SLAverageTimingBlock
+{
     SLAverageTimingBlock(SLint averageNumValues, SLstring name, SLint posV, SLint posH)
-        : val(averageNumValues, 0.0f),
-        name(name),
+      : val(averageNumValues, 0.0f),
+        name(std::move(name)),
         posV(posV),
         posH(posH)
-    {}
-    SLAvgFloat val;
-    SLstring name;
-    SLTimer timer;
-    SLint posV=0;
-    SLint posH=0;
-    SLint nCalls=0;
-    bool isStarted = false;
+    {
+    }
+    AvgFloat     val;
+    SLstring     name;
+    HighResTimer timer;
+    SLint        posV      = 0;
+    SLint        posH      = 0;
+    SLint        nCalls    = 0;
+    bool         isStarted = false;
 };
 
 //-----------------------------------------------------------------------------
@@ -51,7 +52,7 @@ The first found content with posV==0 is used as reference measurement for the pe
 */
 class SLAverageTiming : public std::map<std::string, SLAverageTimingBlock*>
 {
-public:
+    public:
     SLAverageTiming();
     ~SLAverageTiming();
 
@@ -72,7 +73,8 @@ public:
         static SLAverageTiming timing;
         return timing;
     }
-private:
+
+    private:
     //!do start timer for a new or existing block
     void doStart(const std::string& name);
     //!do stop timer for a running block with name
@@ -86,8 +88,8 @@ private:
 
     //average numValues
     SLint _averageNumValues = 200;
-    SLint _currentPosV = 0;
-    SLint _currentPosH = 0;
+    SLint _currentPosV      = 0;
+    SLint _currentPosH      = 0;
 };
 //-----------------------------------------------------------------------------
 

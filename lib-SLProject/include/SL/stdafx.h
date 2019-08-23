@@ -60,7 +60,6 @@
 #include <SLPlane.h>
 #include <SLQuat4.h>
 #include <SLRect.h>
-#include <SLTimer.h>
 #include <SLVec2.h>
 #include <SLVec3.h>
 #include <SLVec4.h>

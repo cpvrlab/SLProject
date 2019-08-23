@@ -11,7 +11,7 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#include <SLCVImage.h> // for image loading
+#include <CVImage.h> // for image loading
 #include <glUtils.h>
 #include <Utils.h>
 
@@ -337,7 +337,7 @@ GLuint glUtils::buildTexture(string textureFile,
                              GLint  wrapT)
 {
     // load texture image
-    SLCVImage img(std::move(textureFile));
+    CVImage img(std::move(textureFile));
 
     // check max. size
     GLint maxSize = 0;
@@ -402,7 +402,7 @@ GLuint glUtils::build3DTexture(const vector<string>&    files,
     //The checks takes up valuable runtime; only do it in debug builds
     assert(!files.empty());
 
-    SLCVImage first(files.front());
+    CVImage first(files.front());
     if ((GLint)min(min((SLuint)files.size(), first.height()), first.width()) > maxSize)
     {
         cout << "glUtils: Texture is too big in at least one dimension." << endl;
@@ -414,7 +414,7 @@ GLuint glUtils::build3DTexture(const vector<string>&    files,
     unsigned char* imageData = &buffer[0]; //Concatenate the image data in a new buffer
     for (auto& file : files)
     {
-        SLCVImage image(file);
+        CVImage image(file);
         assert(image.height() == first.height());
         assert(image.width() == first.width());
         assert(image.format() == first.format());
