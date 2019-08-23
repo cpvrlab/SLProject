@@ -674,6 +674,7 @@
 		411E93171B3D92DC007B0C6F /* SLDisk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLDisk.cpp; path = "../../../lib-SLProject/source/SLDisk.cpp"; sourceTree = SOURCE_ROOT; };
 		411E931A1B3D92EB007B0C6F /* SLDisk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDisk.h; path = "../../../lib-SLProject/include/SLDisk.h"; sourceTree = SOURCE_ROOT; };
 		4124201B230FF83C0091BDE1 /* HighResTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HighResTimer.h; path = "../../../externals/utils/lib-Utils/source/HighResTimer.h"; sourceTree = SOURCE_ROOT; };
+		4124202A23102B7F0091BDE1 /* CVTypedefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVTypedefs.h; path = "../../../lib-SLProject/include/CV/CVTypedefs.h"; sourceTree = SOURCE_ROOT; };
 		4124EC051959C137003AA059 /* shapes.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shapes.cc; path = "../../../externals/lib-assimp/contrib/poly2tri/poly2tri/common/shapes.cc"; sourceTree = SOURCE_ROOT; };
 		4124EC061959C137003AA059 /* shapes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shapes.h; path = "../../../externals/lib-assimp/contrib/poly2tri/poly2tri/common/shapes.h"; sourceTree = SOURCE_ROOT; };
 		4124EC081959C137003AA059 /* poly2tri.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = poly2tri.h; path = "../../../externals/lib-assimp/contrib/poly2tri/poly2tri/poly2tri.h"; sourceTree = SOURCE_ROOT; };
@@ -1553,7 +1554,6 @@
 		41CF01D81F096ABB00CA36C9 /* EulerAngles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EulerAngles.cpp; path = "../../../externals/lib-SLExternal/Shoemake/EulerAngles.cpp"; sourceTree = SOURCE_ROOT; };
 		41CF01D91F096ABB00CA36C9 /* EulerAngles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EulerAngles.h; path = "../../../externals/lib-SLExternal/Shoemake/EulerAngles.h"; sourceTree = SOURCE_ROOT; };
 		41CF01DA1F096ABB00CA36C9 /* TypeDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TypeDefs.h; path = "../../../externals/lib-SLExternal/Shoemake/TypeDefs.h"; sourceTree = SOURCE_ROOT; };
-		41E984371E3BAB68003D5CCF /* SLCV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCV.h; path = "../../../lib-SLProject/include/CV/SLCV.h"; sourceTree = SOURCE_ROOT; };
 		41E984381E3BAB7D003D5CCF /* CVImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVImage.h; path = "../../../lib-SLProject/include/CV/CVImage.h"; sourceTree = SOURCE_ROOT; };
 		41E984391E3BABB1003D5CCF /* CVImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVImage.cpp; path = "../../../lib-SLProject/source/CV/CVImage.cpp"; sourceTree = SOURCE_ROOT; };
 		41EA2F4C1F558DDF00C34BC7 /* features_stones.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = features_stones.png; path = ../../../data/images/textures/features_stones.png; sourceTree = SOURCE_ROOT; };
@@ -1653,7 +1653,7 @@
 		4143336B1DE03D130027E1C3 /* CV */ = {
 			isa = PBXGroup;
 			children = (
-				41E984371E3BAB68003D5CCF /* SLCV.h */,
+				4124202A23102B7F0091BDE1 /* CVTypedefs.h */,
 				414333751DE03D590027E1C3 /* CVCalibration.cpp */,
 				4143337D1DE03DAD0027E1C3 /* CVCalibration.h */,
 				414333761DE03D590027E1C3 /* CVCapture.cpp */,

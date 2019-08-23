@@ -14,7 +14,7 @@
 The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
-All classes that use OpenCV begin with SLCV.
+All classes that use OpenCV begin with CV.
 See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
@@ -82,8 +82,7 @@ CVTrackedFeatures::~CVTrackedFeatures()
     SL_LOG("------------------------------------------------------------------\n");
     SL_LOG("CVTrackedFeatures statistics \n");
     SL_LOG("------------------------------------------------------------------\n");
-    SL_LOG("Avg frame rate                                   : %f FPS\n", SLApplication::scene->frameTimesMS().average());
-    SL_LOG("Avg calculation time per frame                   : %f ms\n", SLApplication::scene->trackingTimesMS().average());
+    SL_LOG("Avg calculation time per frame                   : %f ms\n", _trackingTimesMS().average());
     SL_LOG(" \n");
     SL_LOG("Settings for Pose estimation: ------------------------------------\n");
     SL_LOG("Features                                         : %d\n", nFeatures);

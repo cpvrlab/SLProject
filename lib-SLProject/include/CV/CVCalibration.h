@@ -47,7 +47,7 @@ The chessboard pattern can be printed from the CalibrationChessboard_8x5_A4.pdf
 in the folder data/calibration. It is important that one side has an odd number
 of inner corners. Like this it is unambiguous and can be rotated in any direction.
 \n
-The different calibration states are handled within SLScene::onUpdate:
+The different calibration states are handled within AppDemoTracking::onUpdateTracking:
 \n
 - CS_uncalibrated:     The camera is not calibrated (no calibration found found)
 - CS_calibrateStream:  The calibration is running with live video stream
@@ -68,7 +68,7 @@ The CVCapture instance has two video camera calibrations, one for a main camera
 (CVCapture::calibMainCam) and one for the selfie camera on mobile devices
 (CVCapture::calibScndCam). The member CVCapture::activeCalib points to the active
 one and is set by the CVCapture::videoType (VT_NONE, VT_MAIN, VT_SCND) during the
-scene assembly in SLScene::onLoad. On mobile devices the front camera is the
+scene assembly in AppDemoLoad. On mobile devices the front camera is the
 selfie camera (our secondary) and the back camera is the our main camera.
 */
 class CVCalibration

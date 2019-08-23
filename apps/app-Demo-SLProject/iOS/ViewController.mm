@@ -22,7 +22,7 @@
 #include <Utils.h>
 #include "Utils_iOS.h"
 #include <SLInterface.h>
-#include <SLCVCapture.h>
+#include <CVCapture.h>
 #include <AppDemoGui.h>
 #include <SLApplication.h>
 #include <AppDemoSceneView.h>
@@ -157,11 +157,11 @@ float GetSeconds()
     SLApplication::computerOSVer = std::string([osver UTF8String]);
     SLApplication::computerArch  = std::string([arch UTF8String]);
     
-    SLCVImage::defaultPath = exeDir;
-    SLCVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(), // deviceInfo string
-                                              configDir, // for stored calibrations
-                                              exeDir,    // for calibIniPath
-                                              exeDir);   // for videos
+    CVImage::defaultPath = exeDir;
+    CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(), // deviceInfo string
+                                            configDir, // for stored calibrations
+                                            exeDir,    // for calibIniPath
+                                            exeDir);   // for videos
     
     /////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
@@ -193,9 +193,9 @@ float GetSeconds()
     
     // Set the available capture resolutions
     
-    SLCVCapture::instance()->setCameraSize(0, 3, 1920, 1080);
-    SLCVCapture::instance()->setCameraSize(1, 3, 1280,  720);
-    SLCVCapture::instance()->setCameraSize(2, 3,  640,  480);
+    CVCapture::instance()->setCameraSize(0, 3, 1920, 1080);
+    CVCapture::instance()->setCameraSize(1, 3, 1280,  720);
+    CVCapture::instance()->setCameraSize(2, 3,  640,  480);
     m_lastVideoSizeIndex = -1; // default size index
 }
 //-----------------------------------------------------------------------------
@@ -227,8 +227,8 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    [self setVideoType:SLCVCapture::instance()->videoType()
-          videoSizeIndex:SLCVCapture::instance()->activeCalib->camSizeIndex()];
+    [self setVideoType:CVCapture::instance()->videoType()
+          videoSizeIndex:CVCapture::instance()->activeCalib->camSizeIndex()];
     
     if (slUsesLocation())
          [self startLocationManager];
@@ -396,7 +396,7 @@ float GetSeconds()
     }
     
     float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
-    SLCVCapture::instance()->loadIntoLastFrame(scrWdivH, width, height, PF_bgra, data, false);
+    CVCapture::instance()->loadIntoLastFrame(scrWdivH, width, height, PF_bgra, data, false);
     
     CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
         
@@ -533,7 +533,7 @@ float GetSeconds()
         }
         
         float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
-        SLCVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
     }
     else if (videoType == VT_MAIN) // back facing video needed
     {

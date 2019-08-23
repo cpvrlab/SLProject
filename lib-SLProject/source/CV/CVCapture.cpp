@@ -13,7 +13,7 @@
 The OpenCV library version 3.4 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
-All classes that use OpenCV begin with SLCV.
+All classes that use OpenCV begin with CV.
 See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
@@ -47,7 +47,7 @@ CVCapture::~CVCapture()
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
 /* This so far called in start if a scene uses a live video by
-setting the the SLScene::_videoType to VT_MAIN. On desktop systems the webcam
+setting the the CVCapture::videoType to VT_MAIN. On desktop systems the webcam
 is the only and main camera.
 */
 SLVec2i CVCapture::open(int deviceNum)
@@ -84,8 +84,8 @@ SLVec2i CVCapture::open(int deviceNum)
 }
 //-----------------------------------------------------------------------------
 //! Opens the video file instead of a camera feed.
-/* This so far called in SLScene::onAfterLoad if a scene uses a video by
-setting the the SLScene::_videoType to VT_FILE.
+/* This so far called in CVCapture::start if a scene uses a video by
+setting the the CVCapture::videoType to VT_FILE.
 */
 SLVec2i CVCapture::openFile()
 {
@@ -212,7 +212,7 @@ void CVCapture::grabAndAdjustForSL(float scrWdivH)
 }
 
 //-----------------------------------------------------------------------------
-//! Does all adjustments needed for the SLScene::_videoTexture
+//! Does all adjustments needed for the videoTexture
 /*! CVCapture::adjustForSL processes the following adjustments for all input
 images no matter with what they where captured:
 \n
@@ -774,10 +774,10 @@ void CVCapture::copyYUVPlanes(float  scrWdivH,
 }
 //-----------------------------------------------------------------------------
 //! Setter for video type also sets the active calibration
-/*! The SLApplication instance has up to three video camera calibrations, one
-for a main camera (SLApplication::calibMainCam), one for the selfie camera on
-mobile devices (SLApplication::calibScndCam) and one for video file simulation
-(SLApplication::calibVideoFile). The member SLApplication::activeCalib
+/*! The CVCapture instance has up to three video camera calibrations, one
+for a main camera (CVCapture::calibMainCam), one for the selfie camera on
+mobile devices (CVCapture::calibScndCam) and one for video file simulation
+(CVCapture::calibVideoFile). The member CVCapture::activeCalib
 references the active one.
 */
 void CVCapture::videoType(CVVideoType vt)

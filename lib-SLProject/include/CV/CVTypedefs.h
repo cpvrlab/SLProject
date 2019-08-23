@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef CV_TYPEDEFS_H
-#define CV_TYPEDEFS_H
+#ifndef CVTYPEDEFS_H
+#define CVTYPEDEFS_H
 
 /*
 The OpenCV library version 3.4 with extra module must be present.
@@ -75,4 +75,4 @@ typedef vector<vector<cv::Point3d>>  CVVVPoint3d;
 typedef vector<vector<cv::DMatch>>   CVVVDMatch;
 typedef vector<vector<cv::KeyPoint>> CVVVKeyPoint;
 //-----------------------------------------------------------------------------
-#endif // SL_CV_H
+#endif // CVTYPEDEFS_H

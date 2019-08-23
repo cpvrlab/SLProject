@@ -89,7 +89,6 @@ class CVTrackedFeatures : public CVTracked
     void      relocate();
     void      tracking();
     void      drawDebugInformation(bool drawDetection);
-    void      updateSceneCamera(SLSceneView* sv);
     void      transferFrameData();
     void      detectKeypointsAndDescriptors();
     CVVDMatch getFeatureMatches();

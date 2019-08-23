@@ -45,7 +45,7 @@ int ftpCallbackUpload(off64_t xfered, void* arg)
 //-----------------------------------------------------------------------------
 //! Default path for calibration files
 //! Is overwritten in slCreateAppAndScene.
-string CVCalibration::calibIniPath = string(SL_PROJECT_ROOT) + "/data/calibrations/";
+string CVCalibration::calibIniPath;
 //-----------------------------------------------------------------------------
 //! FTP credentials for calibration up- and download
 const string CVCalibration::_FTP_HOST = "pallas.bfh.ch:21";
