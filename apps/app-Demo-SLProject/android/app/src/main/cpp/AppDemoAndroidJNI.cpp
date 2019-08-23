@@ -76,14 +76,6 @@ bool Java_renderRaytracingCallback()
     return environment->CallStaticBooleanMethod(klass,method);
 }
 //-----------------------------------------------------------------------------
-//! Native callback function that calls the Java class method GLES3Lib.RaytracingCallback
-void Java_updateMemoryStatsCallback(double& value)
-{
-    jclass klass = environment->FindClass("ch/fhnw/comgr/GLES3Lib");
-    jmethodID method = environment->GetStaticMethodID(klass, "retrieveMemoryStats", "()V");
-    environment->CallVoidMethod(klass,method);
-}
-//-----------------------------------------------------------------------------
 //! Native OpenGL info string print functions used in onInit
 static void printGLString(const char *name, GLenum s)
 {
