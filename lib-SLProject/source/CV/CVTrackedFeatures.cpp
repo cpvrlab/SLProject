@@ -62,13 +62,13 @@ CVTrackedFeatures::CVTrackedFeatures(string markerFilename)
     loadMarker(std::move(markerFilename));
 
 // Create directory for debug output if flag is set
-#ifdef SL_DEBUG_OUTPUT_PATH
+#ifdef DEBUG_OUTPUT_PATH
 #    if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
-    mkdir(SL_DEBUG_OUTPUT_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    mkdir(DEBUG_OUTPUT_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #    elif defined(SL_OS_WINDOWS)
-    _mkdir(SL_DEBUG_OUTPUT_PATH);
+    _mkdir(DEBUG_OUTPUT_PATH);
 #    else
-#        undef SL_SAVE_SNAPSHOTS_OUTPUT
+#        undef SAVE_SNAPSHOTS_OUTPUT
 #    endif
 #endif
 }
@@ -76,7 +76,7 @@ CVTrackedFeatures::CVTrackedFeatures(string markerFilename)
 //! Show statistics if program terminates
 CVTrackedFeatures::~CVTrackedFeatures()
 {
-#if SL_DO_FEATURE_BENCHMARKING
+#if DO_FEATURE_BENCHMARKING
     Utils::log(" \n");
     Utils::log(" \n");
     Utils::log("------------------------------------------------------------------\n");
@@ -105,7 +105,7 @@ CVTrackedFeatures::~CVTrackedFeatures()
 // Only used for testing with slight movements
 //Utils::log("Avg Rotation error                               : %f deg\n", rotationError / frames_with_pose);
 //Utils::log("Avg Translation error                            : %f px\n", translationError / frames_with_pose);
-#endif //SL_DO_FEATURE_BENCHMARKING
+#endif //DO_FEATURE_BENCHMARKING
 }
 //-----------------------------------------------------------------------------
 //! Loads the marker image form the filesystem
@@ -166,7 +166,7 @@ void CVTrackedFeatures::initFeaturesOnMarker()
 // Draw points and indices which should be reprojected later.
 // Only a few (defined with reposeFrequency)
 // points are used for the reprojection.
-#if defined(SL_DEBUG_OUTPUT_PATH) || SL_DRAW_REPROJECTION_ERROR
+#if defined(DEBUG_OUTPUT_PATH) || DRAW_REPROJECTION_POINTS
     _marker.imageGray.copyTo(_marker.imageDrawing);
     cvtColor(_marker.imageDrawing, _marker.imageDrawing, cv::COLOR_GRAY2BGR);
 
@@ -315,14 +315,14 @@ void CVTrackedFeatures::drawDebugInformation(bool drawDetection)
                    Scalar(0, 0, 255));
     }
 
-#if SL_DRAW_REPROJECTION_POINTS
+#if DRAW_REPROJECTION_POINTS
     CVMat imgReprojection = _currentFrame.image;
-#elif defined(SL_SAVE_SNAPSHOTS_OUTPUT)
+#elif defined(SAVE_SNAPSHOTS_OUTPUT)
     CVMat imgReprojection;
     _currentFrame.image.copyTo(imgReprojection);
 #endif
 
-#if SL_DRAW_REPROJECTION_POINTS || defined(SL_DEBUG_OUTPUT_PATH)
+#if DRAW_REPROJECTION_POINTS || defined(DEBUG_OUTPUT_PATH)
     if (!_currentFrame.inlierMatches.empty())
     {
         CVVPoint2f projectedPoints(_marker.keypoints3D.size());
@@ -368,7 +368,7 @@ void CVTrackedFeatures::drawDebugInformation(bool drawDetection)
     }
 #endif
 
-#if defined(SL_DEBUG_OUTPUT_PATH)
+#if defined(DEBUG_OUTPUT_PATH)
     // Draw reprojection
     CVMat imgOut;
     drawMatches(imgReprojection,
@@ -380,7 +380,7 @@ void CVTrackedFeatures::drawDebugInformation(bool drawDetection)
                 CV_RGB(255, 0, 0),
                 CV_RGB(255, 0, 0));
 
-    imwrite(SL_DEBUG_OUTPUT_PATH + to_string(_frameCount) + "_reprojection.png",
+    imwrite(DEBUG_OUTPUT_PATH + to_string(_frameCount) + "_reprojection.png",
             imgOut);
 
     // Draw keypoints
@@ -391,7 +391,7 @@ void CVTrackedFeatures::drawDebugInformation(bool drawDetection)
                       _currentFrame.keypoints,
                       imgKeypoints);
 
-        imwrite(SL_DEBUG_OUTPUT_PATH + to_string(_frameCount) + "_keypoints.png",
+        imwrite(DEBUG_OUTPUT_PATH + to_string(_frameCount) + "_keypoints.png",
                 imgKeypoints);
     }
 
@@ -414,7 +414,7 @@ void CVTrackedFeatures::drawDebugInformation(bool drawDetection)
                     CV_RGB(255, 0, 0),
                     CV_RGB(255, 0, 0));
 
-        imwrite(SL_DEBUG_OUTPUT_PATH + to_string(_frameCount) + "_matching.png",
+        imwrite(DEBUG_OUTPUT_PATH + to_string(_frameCount) + "_matching.png",
                 imgMatches);
     }
 
@@ -434,7 +434,7 @@ void CVTrackedFeatures::drawDebugInformation(bool drawDetection)
                             0,
                             0.2);
 
-        imwrite(SL_DEBUG_OUTPUT_PATH + to_string(_frameCount) + "-optflow.png", rgb);
+        imwrite(DEBUG_OUTPUT_PATH + to_string(_frameCount) + "-optflow.png", rgb);
     }
 #endif
 }
@@ -643,7 +643,7 @@ bool CVTrackedFeatures::calculatePose()
                                  true,
                                  SOLVEPNP_ITERATIVE);
 
-#if SL_DO_FEATURE_BENCHMARKING
+#if DO_FEATURE_BENCHMARKING
         sum_matches += _currentFrame.matches.size();
         sum_inlier_matches += _currentFrame.inlierMatches.size();
         sum_allmatches_to_inliers += _currentFrame.inlierMatches.size() /
@@ -676,8 +676,8 @@ void CVTrackedFeatures::optimizeMatches()
                       _calib->distortion(),
                       projectedPoints);
 
-    CVVKeyPoint bboxFrameKeypoints;
-    SLVsize_t   frameIndicesInsideRect;
+    CVVKeyPoint    bboxFrameKeypoints;
+    vector<size_t> frameIndicesInsideRect;
 
     for (size_t i = 0; i < _marker.keypoints3D.size(); i++)
     {
@@ -774,7 +774,7 @@ void CVTrackedFeatures::optimizeMatches()
         reprojectionError += (float)norm(CVMat(projectedModelPoint),
                                          CVMat(keypointForPose));
 
-#if SL_DRAW_PATCHES
+#if DRAW_PATCHES
         //draw green rectangle around every map point
         rectangle(_currentFrame.image,
                   Point2f(projectedModelPoint.x - (float)patchSize / 2.0f,
@@ -794,7 +794,7 @@ void CVTrackedFeatures::optimizeMatches()
 #endif
     }
 
-#if SL_DO_FEATURE_BENCHMARKING
+#if DO_FEATURE_BENCHMARKING
     sum_reprojection_error += reprojectionError / _marker.keypoints3D.size();
 
     CVMat prevRmat, currRmat;
@@ -808,7 +808,7 @@ void CVTrackedFeatures::optimizeMatches()
     }
 #endif
 
-#if SL_DRAW_REPROJECTION_ERROR
+#if DRAW_REPROJECTION_POINTS
     // Draw the projection error for the current frame
     putText(_currentFrame.image,
             "Reprojection error: " + to_string(reprojectionError / _marker.keypoints3D.size()),

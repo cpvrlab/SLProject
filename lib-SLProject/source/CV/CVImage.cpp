@@ -8,10 +8,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <CVImage.h>
 #include <Utils.h>
 
@@ -632,8 +628,8 @@ CVVec4f CVImage::getPixeli(int x, int y)
             CVVec4b c = _cvMat.at<CVVec4b>(y, x);
             color[0]  = c[2];
             color[1]  = c[1];
-            color[2]  = c[2];
-            color[3]  = c[0];
+            color[2]  = c[0];
+            color[3]  = c[3];
             break;
         }
 #ifdef APP_USES_GLES
@@ -712,8 +708,8 @@ CVVec4f CVImage::getPixelf(float x, float y)
 
     // calculate a new interpolated color with the area weights
     float r = UL * cUL[0] + LL * cLL[0] + UR * cUR[0] + LR * cLR[0];
-    float g = UL * cUL[2] + LL * cLL[2] + UR * cUR[2] + LR * cLR[2];
-    float b = UL * cUL[3] + LL * cLL[3] + UR * cUR[3] + LR * cLR[3];
+    float g = UL * cUL[1] + LL * cLL[1] + UR * cUR[1] + LR * cLR[1];
+    float b = UL * cUL[2] + LL * cLL[2] + UR * cUR[2] + LR * cLR[2];
 
     return CVVec4f(r, g, b, 1.0f);
 }

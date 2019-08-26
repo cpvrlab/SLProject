@@ -231,7 +231,7 @@ const SLMat4f* SLGLState::mvpMatrix()
  */
 void SLGLState::calcLightPosVS(SLint nLights)
 {
-    assert(nLights >= 0 && nLights <= Utils::max_LIGHTS);
+    assert(nLights >= 0 && nLights <= SL_MAX_LIGHTS);
     for (SLint i = 0; i < nLights; ++i)
         lightPosVS[i].set(viewMatrix * lightPosWS[i]);
 }
@@ -240,7 +240,7 @@ void SLGLState::calcLightPosVS(SLint nLights)
  */
 void SLGLState::calcLightDirVS(SLint nLights)
 {
-    assert(nLights >= 0 && nLights <= Utils::max_LIGHTS);
+    assert(nLights >= 0 && nLights <= SL_MAX_LIGHTS);
     SLMat4f vRot(viewMatrix);
     vRot.translation(0, 0, 0); // delete translation part, only rotation needed
 
