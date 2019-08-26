@@ -120,13 +120,13 @@ class SLVec4
                                                          y = (y>max)?max : (y<min)?min : y;
                                                          z = (z>max)?max : (z<min)?min : z;
                                                          w = 1;}
-    inline T        diff        (const SLVec4& v)       {return SL_abs(x-v.x) + 
-                                                                    SL_abs(y-v.y) + 
-                                                                    SL_abs(z-v.z) + 
-                                                                    SL_abs(w-v.w);}
-    inline T        diffRGB     (const SLVec4& v)       {return SL_abs(x-v.x) + 
-                                                                    SL_abs(y-v.y) + 
-                                                                    SL_abs(z-v.z);}
+    inline T        diff        (const SLVec4& v)       {return Utils::abs(x-v.x) +
+                                                                    Utils::abs(y-v.y) +
+                                                                    Utils::abs(z-v.z) +
+                                                                    Utils::abs(w-v.w);}
+    inline T        diffRGB     (const SLVec4& v)       {return Utils::abs(x-v.x) +
+                                                                    Utils::abs(y-v.y) +
+                                                                    Utils::abs(z-v.z);}
     inline void     mix         (const SLVec4& a,
                                  const SLVec4& b,
                                  const T factor_b)      {T factor_a = 1-factor_b;
@@ -190,9 +190,9 @@ class SLVec4
             void    hsva2rgba   (const SLVec4 &hsva)
             {
                 T h = fmod(fmod(hsva.x, SL_2PI) + SL_2PI, SL_2PI); // 0 deg <= H <= 360 deg
-                T s = SL_clamp(hsva.y, 0.0f, 1.0f);
-                T v = SL_clamp(hsva.z, 0.0f, 1.0f);
-                T a = SL_clamp(hsva.w, 0.0f, 1.0f);
+                T s = Utils::clamp(hsva.y, 0.0f, 1.0f);
+                T v = Utils::clamp(hsva.z, 0.0f, 1.0f);
+                T a = Utils::clamp(hsva.w, 0.0f, 1.0f);
 
                 T c = v * s;
                 T x = c * (1.0f - (T)fabs((T)fmod(h*3.0f / M_PI, 2.0f) - 1.0f));

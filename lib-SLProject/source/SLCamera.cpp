@@ -155,7 +155,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             SLfloat        b = -t;                                           // bottom
             SLfloat        l = -sv->scrWdivH() * t;                          // left
             SLfloat        r = -l;                                           // right
-            SLfloat        c = SL_min(l, r) * 0.05f;                         // size of cross at focal point
+            SLfloat        c = Utils::min(l, r) * 0.05f;                         // size of cross at focal point
 
             // small line in view direction
             P.push_back(SLVec3f(0, 0, 0));
@@ -226,7 +226,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             SLfloat  tP     = tanFov * _focalDist;    //top projection at focal distance
             SLfloat  rP     = tP * aspect;            //right projection at focal distance
             SLfloat  lP     = -tP * aspect;           //left projection at focal distance
-            SLfloat  cP     = SL_min(lP, rP) * 0.05f; //size of cross at focal point
+            SLfloat  cP     = Utils::min(lP, rP) * 0.05f; //size of cross at focal point
             SLfloat  tN     = tanFov * _clipNear;     //top near
             SLfloat  rN     = tN * aspect;            //right near
             SLfloat  lN     = -tN * aspect;           //left near
@@ -987,7 +987,7 @@ SLCamera::onMouseWheel event handler moves camera forwards or backwards
 SLbool SLCamera::onMouseWheel(const SLint delta,
                               const SLKey mod)
 {
-    SLfloat sign = (SLfloat)SL_sign(delta);
+    SLfloat sign = (SLfloat)Utils::sign(delta);
 
     if (_camAnim == CA_turntableYUp ||
         _camAnim == CA_turntableZUp ||
@@ -1068,7 +1068,7 @@ SLbool SLCamera::onTouch2Move(const SLint x1,
     SLfloat spaceW = spaceH * _aspect;
 
     // if fingers move parallel slide camera vertically or horizontally
-    if (SL_abs(phi1 - phi2) < 0.2f)
+    if (Utils::abs(phi1 - phi2) < 0.2f)
     {
         // Calculate center between finger points
         SLVec2f nowCenter((now1 + now2) * 0.5f);
@@ -1123,7 +1123,7 @@ SLbool SLCamera::onTouch2Move(const SLint x1,
         else if (_camAnim == CA_walkingYUp)
         {
             // change field of view
-            _fov += SL_sign(delta) * 0.5f;
+            _fov += Utils::sign(delta) * 0.5f;
             currentFOV = _fov;
         }
     }

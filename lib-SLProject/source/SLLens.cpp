@@ -192,7 +192,7 @@ SLfloat SLLens::generateLensBot(SLfloat radius)
     if ((sagitta >= 0))
     {
         SLfloat alphaAsin       = _diameter / (2.0f * radius);
-        alphaAsin               = SL_clamp(alphaAsin, -1.0f, 1.0f);
+        alphaAsin               = Utils::clamp(alphaAsin, -1.0f, 1.0f);
         SLfloat alphaRAD        = 2.0f * (SLfloat)asin(alphaAsin);
         SLfloat dAlphaRAD       = (alphaRAD * 0.5f) / halfStacks;
         SLfloat yStart1         = -sagitta;

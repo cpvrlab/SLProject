@@ -139,7 +139,7 @@ SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat      time,
         t2  = (*k2)->time();
     }
 
-    if (SL_abs(t1 - t2) < 0.0001f)
+    if (Utils::abs(t1 - t2) < 0.0001f)
         return 0.0f;
 
     /// @todo   do we want to consider the edge case below or do we want

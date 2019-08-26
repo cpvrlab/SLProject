@@ -11,7 +11,7 @@
 /*
 The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
-to define in addition the constant SL_USES_CVCAPTURE.
+to define in addition the constant APP_USES_CVCAPTURE.
 All classes that use OpenCV begin with CV.
 See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.

@@ -342,11 +342,11 @@ SLfloat SLCurveBezier::findParamByDist(SLfloat t1, SLfloat s)
     {
         // compute function value and test against zero
         SLfloat func = arcLength(t1, p) - s;
-        if (SL_abs(func) < 1.0e-03f) return p;
+        if (Utils::abs(func) < 1.0e-03f) return p;
 
         // perform Newton-Raphson iteration step
         SLfloat speed = velocity(p).length();
-        assert(SL_abs(speed) > FLT_EPSILON);
+        assert(Utils::abs(speed) > FLT_EPSILON);
         p -= func / speed;
     }
 

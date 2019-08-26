@@ -300,7 +300,7 @@ static void onMouseWheel(GLFWwindow* window,
 {
     // make sure the delta is at least one integer
     int dY = (int)yscroll;
-    if (dY == 0) dY = (int)(SL_sign(yscroll));
+    if (dY == 0) dY = (int)(Utils::sign(yscroll));
 
     slMouseWheel(svIndex, dY, modifiers);
 }

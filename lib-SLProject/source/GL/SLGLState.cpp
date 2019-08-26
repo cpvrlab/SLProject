@@ -231,7 +231,7 @@ const SLMat4f* SLGLState::mvpMatrix()
  */
 void SLGLState::calcLightPosVS(SLint nLights)
 {
-    assert(nLights >= 0 && nLights <= SL_MAX_LIGHTS);
+    assert(nLights >= 0 && nLights <= Utils::max_LIGHTS);
     for (SLint i = 0; i < nLights; ++i)
         lightPosVS[i].set(viewMatrix * lightPosWS[i]);
 }
@@ -240,7 +240,7 @@ void SLGLState::calcLightPosVS(SLint nLights)
  */
 void SLGLState::calcLightDirVS(SLint nLights)
 {
-    assert(nLights >= 0 && nLights <= SL_MAX_LIGHTS);
+    assert(nLights >= 0 && nLights <= Utils::max_LIGHTS);
     SLMat4f vRot(viewMatrix);
     vRot.translation(0, 0, 0); // delete translation part, only rotation needed
 
@@ -409,8 +409,8 @@ void SLGLState::polygonOffset(SLbool stateNew, SLfloat factor, SLfloat units)
         if (stateNew)
         {
             glEnable(GL_POLYGON_OFFSET_FILL);
-            if (SL_abs(_polygonOffsetFactor - factor) > 0.0001f ||
-                SL_abs(_polygonOffsetUnits - units) > 0.0001f)
+            if (Utils::abs(_polygonOffsetFactor - factor) > 0.0001f ||
+                Utils::abs(_polygonOffsetUnits - units) > 0.0001f)
             {
                 glPolygonOffset(factor, units);
                 _polygonOffsetFactor = factor;

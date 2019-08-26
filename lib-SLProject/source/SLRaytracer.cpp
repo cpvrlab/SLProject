@@ -88,7 +88,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
             _images[0]->setPixeliRGB((SLint)x, (SLint)y, CVVec4f(color.r, color.g, color.b, color.a));
 
             SLRay::avgDepth += SLRay::depthReached;
-            SLRay::maxDepthReached = SL_max(SLRay::depthReached,
+            SLRay::maxDepthReached = Utils::max(SLRay::depthReached,
                                             SLRay::maxDepthReached);
         }
 
@@ -222,7 +222,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
                 _images[0]->setPixeliRGB((SLint)x, (SLint)y, CVVec4f(color.r, color.g, color.b, color.a));
 
                 SLRay::avgDepth += SLRay::depthReached;
-                SLRay::maxDepthReached = SL_max(SLRay::depthReached,
+                SLRay::maxDepthReached = Utils::max(SLRay::depthReached,
                                                 SLRay::maxDepthReached);
             }
 
@@ -302,7 +302,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                         ////////////////////////////
 
                         SLRay::avgDepth += SLRay::depthReached;
-                        SLRay::maxDepthReached = SL_max(SLRay::depthReached,
+                        SLRay::maxDepthReached = Utils::max(SLRay::depthReached,
                                                         SLRay::maxDepthReached);
                     }
                 }
@@ -313,7 +313,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                 _images[0]->setPixeliRGB((SLint)x, y, CVVec4f(color.r, color.g, color.b, color.a));
 
                 SLRay::avgDepth += SLRay::depthReached;
-                SLRay::maxDepthReached = SL_max(SLRay::depthReached, SLRay::maxDepthReached);
+                SLRay::maxDepthReached = Utils::max(SLRay::depthReached, SLRay::maxDepthReached);
             }
 
             if (isMainThread && !_doContinuous)
@@ -490,7 +490,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             // calculate spot effect if light is a spotlight
             if (lighted > 0.0f && light->spotCutOffDEG() < 180.0f)
             {
-                SLfloat LdS = SL_max(-L.dot(light->spotDirWS()), 0.0f);
+                SLfloat LdS = Utils::max(-L.dot(light->spotDirWS()), 0.0f);
 
                 // check if point is in spot cone
                 if (LdS > light->spotCosCut())
@@ -511,8 +511,8 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             {
                 H.sub(L, ray->dir); // half vector between light & eye
                 H.normalize();
-                df  = SL_max(LdN, 0.0f); // diffuse factor
-                NdH = SL_max(N.dot(H), 0.0f);
+                df  = Utils::max(LdN, 0.0f); // diffuse factor
+                NdH = Utils::max(N.dot(H), 0.0f);
                 sf  = pow(NdH, (SLfloat)mat->shininess()); // specular factor
 
                 amdi += lighted * df * light->diffuse() & mat->diffuse();
@@ -829,8 +829,8 @@ void SLRaytracer::renderImage()
 {
     SLfloat w = (SLfloat)_sv->scrW();
     SLfloat h = (SLfloat)_sv->scrH();
-    if (SL_abs(_images[0]->width() - w) > 0.0001f) return;
-    if (SL_abs(_images[0]->height() - h) > 0.0001f) return;
+    if (Utils::abs(_images[0]->width() - w) > 0.0001f) return;
+    if (Utils::abs(_images[0]->height() - h) > 0.0001f) return;
 
     // Set orthographic projection with the size of the window
     SLGLState* stateGL = SLGLState::instance();

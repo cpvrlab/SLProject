@@ -198,7 +198,7 @@ void SLTransferFunction::generateTexture()
 
     // Clamp all color and alpha values
     for (auto c : _colors) c.color.clampMinMax(0.0f, 1.0f);
-    for (auto a : _alphas) a.alpha = SL_clamp(a.alpha, 0.0f, 1.0f);
+    for (auto a : _alphas) a.alpha = Utils::clamp(a.alpha, 0.0f, 1.0f);
 
     // Finally create transfer function vector by lerping color and alpha values
     SLuint  c      = 0;    // current color segment index
@@ -212,9 +212,9 @@ void SLTransferFunction::generateTexture()
     // Interpolate color values
     for (SLuint i = 0; i < _length; ++i)
     {
-        tf[i].r = SL_lerp(posC, _colors[c].color.r, _colors[c + 1].color.r);
-        tf[i].g = SL_lerp(posC, _colors[c].color.g, _colors[c + 1].color.g);
-        tf[i].b = SL_lerp(posC, _colors[c].color.b, _colors[c + 1].color.b);
+        tf[i].r = Utils::lerp(posC, _colors[c].color.r, _colors[c + 1].color.r);
+        tf[i].g = Utils::lerp(posC, _colors[c].color.g, _colors[c + 1].color.g);
+        tf[i].b = Utils::lerp(posC, _colors[c].color.b, _colors[c + 1].color.b);
 
         pos += delta;
         posC += deltaC;
@@ -234,7 +234,7 @@ void SLTransferFunction::generateTexture()
     pos            = 0.0f;
     for (SLuint i = 0; i < _length; ++i)
     {
-        tf[i].a = SL_lerp(posA, _alphas[a].alpha, _alphas[a + 1].alpha);
+        tf[i].a = Utils::lerp(posA, _alphas[a].alpha, _alphas[a + 1].alpha);
 
         //_allAlphas[i] = tf[i].a;
 

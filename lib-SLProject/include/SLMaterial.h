@@ -40,13 +40,13 @@ class SLMaterial : public SLObject
 {
     public:
     //! Default ctor
-    SLMaterial(const SLchar*  name,
-               const SLCol4f& amdi      = SLCol4f::WHITE,
-               const SLCol4f& spec      = SLCol4f::WHITE,
-               SLfloat        shininess = 100.0f,
-               SLfloat        kr        = 0.0,
-               SLfloat        kt        = 0.0f,
-               SLfloat        kn        = 1.0f);
+    explicit SLMaterial(const SLchar*  name,
+                        const SLCol4f& amdi      = SLCol4f::WHITE,
+                        const SLCol4f& spec      = SLCol4f::WHITE,
+                        SLfloat        shininess = 100.0f,
+                        SLfloat        kr        = 0.0,
+                        SLfloat        kt        = 0.0f,
+                        SLfloat        kn        = 1.0f);
 
     //! Ctor for textures
     SLMaterial(const SLchar* name,
@@ -63,14 +63,8 @@ class SLMaterial : public SLObject
                SLfloat        metalness);
 
     //! Ctor for uniform color material without lighting
-    SLMaterial(const SLCol4f& uniformColor,
-               const SLchar*  name = (const char*)"Uniform color");
-
-    //! Copy ctor
-    SLMaterial(SLMaterial* m)
-    {
-        if (m) set(m);
-    }
+    explicit SLMaterial(const SLCol4f& uniformColor,
+                        const SLchar*  name = (const char*)"Uniform color");
 
     ~SLMaterial() final;
 
@@ -79,7 +73,7 @@ class SLMaterial : public SLObject
 
     //! Returns true if there is any transparency in diffuse alpha or textures
     SLbool hasAlpha() { return (_diffuse.a < 1.0f ||
-                                (_textures.size() &&
+                                (!_textures.empty() &&
                                  _textures[0]->hasAlpha())); }
 
 //! Returns true if a material has a 3D texture
@@ -91,7 +85,7 @@ class SLMaterial : public SLObject
 #else
     SLbool has3DTexture()
     {
-        return _textures.size() > 0 &&
+        return !_textures.empty() > 0 &&
                _textures[0]->target() == GL_TEXTURE_3D;
     }
 #endif
@@ -100,21 +94,20 @@ class SLMaterial : public SLObject
                                      _textures[0]->target() == GL_TEXTURE_2D &&
                                      _textures[1]->texType() == TT_normal); }
     // Setters
-    void set(SLMaterial* m);
-    void ambient(SLCol4f ambi) { _ambient = ambi; }
-    void diffuse(SLCol4f diff) { _diffuse = diff; }
-    void ambientDiffuse(SLCol4f am_di) { _ambient = _diffuse = am_di; }
-    void specular(SLCol4f spec) { _specular = spec; }
-    void emissive(SLCol4f emis) { _emissive = emis; }
-    void transmissiv(SLCol4f transm) { _transmissive = transm; }
+    void ambient(const SLCol4f& ambi) { _ambient = ambi; }
+    void diffuse(const SLCol4f& diff) { _diffuse = diff; }
+    void ambientDiffuse(const SLCol4f& am_di) { _ambient = _diffuse = am_di; }
+    void specular(const SLCol4f& spec) { _specular = spec; }
+    void emissive(const SLCol4f& emis) { _emissive = emis; }
+    void transmissiv(const SLCol4f& transm) { _transmissive = transm; }
     void translucency(SLfloat transl) { _translucency = transl; }
     void shininess(SLfloat shin)
     {
         if (shin < 0.0f) shin = 0.0;
         _shininess = shin;
     }
-    void roughness(SLfloat r) { _roughness = SL_clamp(r, 0.0f, 1.0f); }
-    void metalness(SLfloat m) { _metalness = SL_clamp(m, 0.0f, 1.0f); }
+    void roughness(SLfloat r) { _roughness = Utils::clamp(r, 0.0f, 1.0f); }
+    void metalness(SLfloat m) { _metalness = Utils::clamp(m, 0.0f, 1.0f); }
     void kr(SLfloat kr)
     {
         if (kr < 0.0f) kr = 0.0f;

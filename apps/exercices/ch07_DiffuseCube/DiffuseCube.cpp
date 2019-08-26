@@ -357,7 +357,7 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 {
     if (_modifiers == NONE)
     {
-        _camZ += (SLfloat)SL_sign(yscroll) * 0.1f;
+        _camZ += (SLfloat)Utils::sign(yscroll) * 0.1f;
         onPaint();
     }
 }

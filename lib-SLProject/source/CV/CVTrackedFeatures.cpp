@@ -13,7 +13,7 @@
 /*
 The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
-to define in addition the constant SL_USES_CVCAPTURE.
+to define in addition the constant APP_USES_CVCAPTURE.
 All classes that use OpenCV begin with CV.
 See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
@@ -187,7 +187,7 @@ void CVTrackedFeatures::initFeaturesOnMarker()
         putText(_marker.imageDrawing,
                 to_string(i),
                 CVPoint2f(originalModelPoint.x - 1,
-                            originalModelPoint.y - 1),
+                          originalModelPoint.y - 1),
                 FONT_HERSHEY_SIMPLEX,
                 0.25,
                 CV_RGB(255, 0, 0),
@@ -217,9 +217,9 @@ void CVTrackedFeatures::type(CVDetectDescribeType ddType)
 @param sv The current scene view
 @return So far allways false
 */
-bool CVTrackedFeatures::track(CVMat            imageGray,
-                                CVMat            image,
-                                CVCalibration* calib)
+bool CVTrackedFeatures::track(CVMat          imageGray,
+                              CVMat          image,
+                              CVCalibration* calib)
 {
     assert(!image.empty() && "Image is empty");
     assert(!calib->cameraMat().empty() && "Calibration is empty");
@@ -504,8 +504,8 @@ CVVDMatch CVTrackedFeatures::getFeatureMatches()
 {
     float startMS = _timer.elapsedTimeInMilliSec();
 
-    int          k = 2;
-    CVVVDMatch   matches;
+    int        k = 2;
+    CVVVDMatch matches;
     _matcher->knnMatch(_currentFrame.descriptors, _marker.descriptors, matches, k);
 
     // Perform ratio test which determines if k matches from the knn matcher
@@ -572,7 +572,7 @@ bool CVTrackedFeatures::calculatePose()
     // solvePnP crashes if less than 5 points are given
     if (_currentFrame.matches.size() < 10) return false;
 
-    float  startMS = _timer.elapsedTimeInMilliSec();
+    float startMS = _timer.elapsedTimeInMilliSec();
 
     // Find 2D/3D correspondences
     // At the moment we are using only the two correspondences like this:
@@ -583,8 +583,8 @@ bool CVTrackedFeatures::calculatePose()
     if (_currentFrame.matches.size() < 10)
         return false;
 
-    CVVPoint3f   modelPoints(_currentFrame.matches.size());
-    CVVPoint2f   framePoints(_currentFrame.matches.size());
+    CVVPoint3f modelPoints(_currentFrame.matches.size());
+    CVVPoint2f framePoints(_currentFrame.matches.size());
 
     for (size_t i = 0; i < _currentFrame.matches.size(); i++)
     {
@@ -676,8 +676,8 @@ void CVTrackedFeatures::optimizeMatches()
                       _calib->distortion(),
                       projectedPoints);
 
-    CVVKeyPoint   bboxFrameKeypoints;
-    SLVsize_t     frameIndicesInsideRect;
+    CVVKeyPoint bboxFrameKeypoints;
+    SLVsize_t   frameIndicesInsideRect;
 
     for (size_t i = 0; i < _marker.keypoints3D.size(); i++)
     {
@@ -698,8 +698,8 @@ void CVTrackedFeatures::optimizeMatches()
         if (alreadyMatched > 0) continue;
 
         // Get the corresponding projected point of the actual (i) modelpoint
-        CVPoint2f   projectedModelPoint = projectedPoints[i];
-        CVVDMatch   newMatches;
+        CVPoint2f projectedModelPoint = projectedPoints[i];
+        CVVDMatch newMatches;
 
         int patchSize = initialPatchSize;
 
@@ -846,11 +846,11 @@ bool CVTrackedFeatures::trackWithOptFlow(CVMat rvec, CVMat tvec)
 {
     if (_prevFrame.inlierPoints2D.size() < 4) return false;
 
-    float  startMS = _timer.elapsedTimeInMilliSec();
+    float startMS = _timer.elapsedTimeInMilliSec();
 
-    SLVuchar status;
-    SLVfloat err;
-    CVSize   winSize(15, 15);
+    vector<uchar> status;
+    vector<float> err;
+    CVSize        winSize(15, 15);
 
     cv::TermCriteria criteria(cv::TermCriteria::COUNT | cv::TermCriteria::EPS,
                               10,    // terminate after this many iterations, or
@@ -874,8 +874,8 @@ bool CVTrackedFeatures::trackWithOptFlow(CVMat rvec, CVMat tvec)
       0.001);                    // Minimal Eigen threshold
 
     // Only use points which are not wrong in any way during the optical flow calculation
-    CVVPoint2f   frame2DPoints;
-    CVVPoint3f   model3DPoints;
+    CVVPoint2f frame2DPoints;
+    CVVPoint3f model3DPoints;
     for (size_t i = 0; i < status.size(); i++)
     {
         if (status[i])

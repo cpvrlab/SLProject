@@ -115,8 +115,8 @@ class SLVec2
     }
 
     //! Calculate the absolute to the vector v
-    T       diff        (const SLVec2& v)       {return SL_abs(x-v.x) + 
-                                                        SL_abs(y-v.y);}  
+    T       diff        (const SLVec2& v)       {return Utils::abs(x-v.x) +
+                                                        Utils::abs(y-v.y);}
     void    setMin      (const SLVec2& v)       {if (v.x < x) x=v.x;
                                                   if (v.y < y) y=v.y;}
     void    setMax      (const SLVec2& v)       {if (v.x > x) x=v.x;

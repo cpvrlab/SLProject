@@ -59,7 +59,7 @@ class CVImage
             int         height,
             CVPixFormat format,
             string      name);
-    explicit CVImage(string imageFilename,
+    explicit CVImage(const string& imageFilename,
                      bool   flipVertical           = true,
                      bool   loadGrayscaleIntoAlpha = false);
     CVImage(CVImage& srcImage);

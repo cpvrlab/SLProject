@@ -181,7 +181,7 @@ void SLAABBox::updateBoneWS(const SLMat4f& parentWM,
 
         // set the axis scale factor depending on the length of the parent bone
         SLVec3f parentToMe = _axis0WS - _parent0WS;
-        axisScaleFactor    = SL_max(parentToMe.length() / 10.0f, axisScaleFactor);
+        axisScaleFactor    = Utils::max(parentToMe.length() / 10.0f, axisScaleFactor);
 
         // check if the parent to me direction is parallel to the parents actual y-axis
         parentToMe.normalize();

@@ -14,7 +14,8 @@
 
 #include <CVImage.h>
 #include <Utils.h>
-#include <SLMath.h>
+
+#include <utility>
 
 //-----------------------------------------------------------------------------
 string CVImage::defaultPath;
@@ -23,15 +24,15 @@ string CVImage::defaultPath;
 CVImage::CVImage(int         width,
                  int         height,
                  CVPixFormat format,
-                 string      name) : _name(name)
+                 string      name) : _name(std::move(name))
 {
     allocate(width, height, format);
 }
 //-----------------------------------------------------------------------------
 //! Contructor for image from file
-CVImage::CVImage(const string filename,
-                 bool         flipVertical,
-                 bool         loadGrayscaleIntoAlpha)
+CVImage::CVImage(const string& filename,
+                 bool          flipVertical,
+                 bool          loadGrayscaleIntoAlpha)
   : _name(Utils::getFileName(filename))
 {
     assert(filename != "");
@@ -675,14 +676,14 @@ of four neighbouring pixels is return. Otherwise the nearest pixel is returned.
 CVVec4f CVImage::getPixelf(float x, float y)
 {
     // Bilinear interpolation
-    float xf = SL_fract(x) * _cvMat.cols;
-    float yf = SL_fract(y) * _cvMat.rows;
+    float xf = Utils::fract(x) * _cvMat.cols;
+    float yf = Utils::fract(y) * _cvMat.rows;
 
     // corrected fractional parts
-    float fracX = SL_fract(xf);
-    float fracY = SL_fract(yf);
-    fracX -= SL_sign(fracX - 0.5f) * 0.5f;
-    fracY -= SL_sign(fracY - 0.5f) * 0.5f;
+    float fracX = Utils::fract(xf);
+    float fracY = Utils::fract(yf);
+    fracX -= Utils::sign(fracX - 0.5f) * 0.5f;
+    fracY -= Utils::sign(fracY - 0.5f) * 0.5f;
 
     // calculate area weights of the four neighbouring texels
     float X1 = 1.0f - fracX;

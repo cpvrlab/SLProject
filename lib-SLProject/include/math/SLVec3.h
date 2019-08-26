@@ -121,9 +121,9 @@ class SLVec3
                                  const T max)           {x = (x>max)?max : (x<min)?min : x;
                                                          y = (y>max)?max : (y<min)?min : y;
                                                          z = (z>max)?max : (z<min)?min : z;}
-    inline  T       diff        (const SLVec3& v)       {return SL_abs(x-v.x) +
-                                                                SL_abs(y-v.y) +
-                                                                SL_abs(z-v.z);}
+    inline  T       diff        (const SLVec3& v)       {return Utils::abs(x-v.x) +
+                                                                Utils::abs(y-v.y) +
+                                                                Utils::abs(z-v.z);}
     inline  void    mix         (const SLVec3& a,
                                  const SLVec3& b,
                                  const T factor_b)      {T factor_a = 1-factor_b;
@@ -207,9 +207,9 @@ class SLVec3
             void hsv2rgb (const SLVec3 &hsv)
             {
                 T h = fmod(fmod(hsv.x, SL_2PI) + SL_2PI, SL_2PI); // 0 deg <= H <= 360 deg
-                T s = SL_clamp(hsv.y, 0.0f, 1.0f);
-                T v = SL_clamp(hsv.z, 0.0f, 1.0f);
-                T a = SL_clamp(hsv.w, 0.0f, 1.0f);
+                T s = Utils::clamp(hsv.y, 0.0f, 1.0f);
+                T v = Utils::clamp(hsv.z, 0.0f, 1.0f);
+                T a = Utils::clamp(hsv.w, 0.0f, 1.0f);
 
                 T c = v * s;
                 T x = c * (1.0f - fabs(fmod(h*3.0f / M_PI, 2.0f) - 1.0f));

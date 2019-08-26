@@ -46,7 +46,7 @@ bool onUpdateTracking()
 
         // Invalidate calibration if camera input aspect doesn't match output
         SLfloat calibWdivH              = ac->imageAspectRatio();
-        SLbool  aspectRatioDoesNotMatch = SL_abs(sv->scrWdivH() - calibWdivH) > 0.01f;
+        SLbool  aspectRatioDoesNotMatch = Utils::abs(sv->scrWdivH() - calibWdivH) > 0.01f;
         if (aspectRatioDoesNotMatch && ac->state() == CS_calibrated)
         {
             ac->clear();

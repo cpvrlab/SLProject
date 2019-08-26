@@ -31,6 +31,8 @@ by a native API such as Java Native Interface (JNI).
 bool gShouldClose = false;
 
 //-----------------------------------------------------------------------------
+extern string logAppName;
+//-----------------------------------------------------------------------------
 /*! Global creation function for a SLScene instance. This function should be
 called only once per application. The SLScene constructor call is delayed until
 the first SLSceneView is created to guarantee, that the OpenGL context is
@@ -70,7 +72,7 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
 
     SLGLState* stateGL = SLGLState::instance();
 
-    Utils::logAppName = "SLProject";
+    logAppName = "SLProject";
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
     SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
     SL_LOG("Path to Textures: %s\n", texturePath.c_str());

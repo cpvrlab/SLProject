@@ -8,24 +8,23 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 /*
 The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
-to define in addition the constant SL_USES_CVCAPTURE.
+to define in addition the constant APP_USES_CVCAPTURE.
 All classes that use OpenCV begin with CV.
 See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 #include <CVTrackedAruco.h>
 #include <Utils.h>
+#include <SLMat4.h>
 
 using namespace cv;
 //-----------------------------------------------------------------------------
 // Initialize static variables
 bool          CVTrackedAruco::paramsLoaded = false;
-SLVint        CVTrackedAruco::arucoIDs;
+vector<int>   CVTrackedAruco::arucoIDs;
 SLVMat4f      CVTrackedAruco::objectViewMats;
 CVArucoParams CVTrackedAruco::params;
 //-----------------------------------------------------------------------------
@@ -49,11 +48,15 @@ bool CVTrackedAruco::track(CVMat          imageGray,
     {
         paramsLoaded = params.loadFromFile();
         if (!paramsLoaded)
-            Utils::exitMsg("CVTrackedAruco::track: Failed to load Aruco parameters.", __LINE__, __FILE__);
+            Utils::exitMsg("CVTrackedAruco::track: Failed to load Aruco parameters.",
+                           __LINE__,
+                           __FILE__);
     }
     if (params.arucoParams.empty() || params.dictionary.empty())
     {
-        Utils::warnMsg("CVTrackedAruco::track: Aruco paramters are empty.", __LINE__, __FILE__);
+        Utils::warnMsg("CVTrackedAruco::track: Aruco paramters are empty.",
+                       __LINE__,
+                       __FILE__);
         return false;
     }
 

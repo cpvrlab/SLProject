@@ -201,7 +201,7 @@ include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(compile_definitions
             ${compile_definitions}
-            SL_USES_CVCAPTURE
+            APP_USES_CVCAPTURE
             SL_GUI_GLFW)
 
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
@@ -210,14 +210,14 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
             GLEW_STATIC
             _GLFW_NO_DLOAD_GDI32
             _GLFW_NO_DLOAD_WINMM
-            SL_USES_CVCAPTURE
+            APP_USES_CVCAPTURE
             SL_GUI_GLFW)
 
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     set(compile_definitions
             ${compile_definitions}
             GLEW_STATIC
-            SL_USES_CVCAPTURE
+            APP_USES_CVCAPTURE
             SL_GUI_GLFW)
 
 endif ()

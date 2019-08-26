@@ -201,7 +201,7 @@ SLfloat SLLightSpot::shadowTest(SLRay*         ray, // ray of hit point
             if (shadowRay.hitMesh->mat()->hasAlpha())
             {
                 shadowRay.hitMesh->preShade(&shadowRay);
-                SLfloat shadowTransp = SL_abs(shadowRay.dir.dot(shadowRay.hitNormal));
+                SLfloat shadowTransp = Utils::abs(shadowRay.dir.dot(shadowRay.hitNormal));
                 return shadowTransp * shadowRay.hitMesh->mat()->kt();
             }
             else
@@ -293,7 +293,7 @@ SLfloat SLLightSpot::shadowTestMC(SLRay*         ray, // ray of hit point
             if (shadowRay.hitMesh->mat()->hasAlpha())
             {
                 shadowRay.hitMesh->preShade(&shadowRay);
-                SLfloat shadowTransp = SL_abs(shadowRay.dir.dot(shadowRay.hitNormal));
+                SLfloat shadowTransp = Utils::abs(shadowRay.dir.dot(shadowRay.hitNormal));
                 return shadowTransp * shadowRay.hitMesh->mat()->kt();
             }
             else

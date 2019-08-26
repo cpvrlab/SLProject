@@ -12,7 +12,7 @@
 /*
 The OpenCV library version 3.4 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
-to define in addition the constant SL_USES_CVCAPTURE.
+to define in addition the constant APP_USES_CVCAPTURE.
 All classes that use OpenCV begin with CV.
 See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
@@ -22,7 +22,6 @@ for a good top down information.
 #include <CVCapture.h>
 #include <CVImage.h>
 #include <utils.h>
-#include <SLMath.h>
 
 //-----------------------------------------------------------------------------
 CVCapture* CVCapture::_instance = nullptr;
@@ -133,7 +132,7 @@ CVSize2i CVCapture::openFile()
 //! starts the video capturing
 void CVCapture::start(float scrWdivH)
 {
-#ifdef SL_USES_CVCAPTURE
+#ifdef APP_USES_CVCAPTURE
     if (_videoType != VT_NONE)
     {
         if (!isOpened())
@@ -272,7 +271,7 @@ void CVCapture::adjustForSL(float scrWdivH)
     float inWdivH  = (float)lastFrame.cols / (float)lastFrame.rows;
     float outWdivH = scrWdivH;
 
-    if (SL_abs(inWdivH - outWdivH) > 0.01f)
+    if (Utils::abs(inWdivH - outWdivH) > 0.01f)
     {
         int width  = 0; // width in pixels of the destination image
         int height = 0; // height in pixels of the destination image
@@ -468,9 +467,9 @@ yuv2rbg(uchar y, uchar u, uchar v, uchar& r, uchar& g, uchar& b)
     int a2 = 832 * e;
     int a3 = 400 * d;
     int a4 = 2066 * d;
-    r      = (uchar)SL_clamp((a0 + a1) >> 10, 0, 255);
-    g      = (uchar)SL_clamp((a0 - a2 - a3) >> 10, 0, 255);
-    b      = (uchar)SL_clamp((a0 + a4) >> 10, 0, 255);
+    r      = (uchar)Utils::clamp((a0 + a1) >> 10, 0, 255);
+    g      = (uchar)Utils::clamp((a0 - a2 - a3) >> 10, 0, 255);
+    b      = (uchar)Utils::clamp((a0 + a4) >> 10, 0, 255);
 }
 //-----------------------------------------------------------------------------
 //! YUV to RGB image infos. Offset value can be negative for mirrored copy.
@@ -639,7 +638,7 @@ void CVCapture::copyYUVPlanes(float  scrWdivH,
     int cropW = 0;    // crop width in pixels of the source image
 
     // Crop image if source and destination aspect is not the same
-    if (SL_abs(imgWdivH - scrWdivH) > 0.01f)
+    if (Utils::abs(imgWdivH - scrWdivH) > 0.01f)
     {
         if (imgWdivH > scrWdivH) // crop input image left & right
         {
@@ -722,7 +721,7 @@ void CVCapture::copyYUVPlanes(float  scrWdivH,
     imageInfo.vRowOffest    = vRowOffset;
 
     // Prepare the threads (hyperthreads seam to be unefficient on ARM)
-    const int         threadNum = 4; //SL_max(thread::hardware_concurrency(), 1U);
+    const int         threadNum = 4; //Utils::max(thread::hardware_concurrency(), 1U);
     vector<thread>    threads;
     YUV2RGB_BlockInfo threadInfos[threadNum];
     int               rowsPerThread     = dstH / (threadNum + 1);
@@ -820,7 +819,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
     string scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";
 
     // load opencv camera calibration for main and secondary camera
-#if defined(SL_USES_CVCAPTURE)
+#if defined(APP_USES_CVCAPTURE)
     calibMainCam.load(configPath, mainCalibFilename, true, false);
     calibMainCam.loadCalibParams();
     activeCalib        = &calibMainCam;

@@ -852,7 +852,7 @@ SLSceneView::draw2DGLNodes draws 2D nodes from root2D in ortho projection.
 void SLSceneView::draw2DGLNodes()
 {
     SLfloat    depth   = 1.0f;                         // Render depth between -1 & 1
-    SLfloat    cs      = SL_min(_scrW, _scrH) * 0.01f; // center size
+    SLfloat    cs      = Utils::min(_scrW, _scrH) * 0.01f; // center size
     SLGLState* stateGL = SLGLState::instance();
 
     stateGL->pushModelViewMatrix();

@@ -45,9 +45,9 @@ class SLGLState
         else
             return _instance;
     }
-    static void       deleteInstance();                 //!< global destruction
-    void              onInitialize(SLCol4f clearColor); //!< On init GL
-    void              initAll();                        //! Init all states
+    static void deleteInstance();                 //!< global destruction
+    void        onInitialize(SLCol4f clearColor); //!< On init GL
+    void        initAll();                        //! Init all states
 
     // matrices
     SLMat4f modelViewMatrix;  //!< matrix for OpenGL modelview transform

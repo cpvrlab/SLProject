@@ -21,7 +21,6 @@
 #include <CVCapture.h>
 #include <CVImage.h>
 #include <CVTrackedFeatures.h>
-#include <SLGLProgram.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
 #include <SLImporter.h>
@@ -42,7 +41,7 @@
 //-----------------------------------------------------------------------------
 // Global pointers declared in AppDemoTracking
 extern CVTracked* tracker;
-extern SLNode*      trackedNode;
+extern SLNode*    trackedNode;
 
 //#define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
 
@@ -317,18 +316,18 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat draw2DTime     = s->draw2DTimesMS().average();
 
                 // Calculate percentage from frame time
-                SLfloat captureTimePC    = SL_clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat updateTimePC     = SL_clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat trackingTimePC   = SL_clamp(trackingTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat detectTimePC     = SL_clamp(detectTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat matchTimePC      = SL_clamp(matchTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat optFlowTimePC    = SL_clamp(optFlowTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat poseTimePC       = SL_clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat updateAnimTimePC = SL_clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat updateAABBTimePC = SL_clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat draw3DTimePC     = SL_clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat draw2DTimePC     = SL_clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat cullTimePC       = SL_clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat updateTimePC     = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat trackingTimePC   = Utils::clamp(trackingTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat detectTimePC     = Utils::clamp(detectTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat matchTimePC      = Utils::clamp(matchTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat optFlowTimePC    = Utils::clamp(optFlowTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat poseTimePC       = Utils::clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
 
                 sprintf(m + strlen(m), "Renderer   :OpenGL\n");
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
@@ -461,9 +460,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             m[0] = 0;       // set zero length
 
             CVCalibration* c        = CVCapture::instance()->activeCalib;
-            CVSize           capSize  = CVCapture::instance()->captureSize;
-            CVVideoType      vt       = CVCapture::instance()->videoType();
-            SLstring         mirrored = "None";
+            CVSize         capSize  = CVCapture::instance()->captureSize;
+            CVVideoType    vt       = CVCapture::instance()->videoType();
+            SLstring       mirrored = "None";
             if (c->isMirroredH() && c->isMirroredV())
                 mirrored = "horizontally & vertically";
             else if (c->isMirroredH())
@@ -843,7 +842,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 {
     SLSceneID    sid           = SLApplication::sceneID;
     SLGLState*   stateGL       = SLGLState::instance();
-    CVCapture* capture       = CVCapture::instance();
+    CVCapture*   capture       = CVCapture::instance();
     SLRenderType rType         = sv->renderType();
     SLbool       hasAnimations = (!s->animManager().allAnimNames().empty());
     static SLint curAnimIx     = -1;
@@ -1540,7 +1539,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
                     cam->focalDist(focalDist);
 
-                if (ImGui::SliderFloat("Far Clip", &clipF, clipN, SL_min(clipF * 1.1f, 1000000.f)))
+                if (ImGui::SliderFloat("Far Clip", &clipF, clipN, Utils::min(clipF * 1.1f, 1000000.f)))
                     cam->clipFar(clipF);
 
                 ImGui::PopItemWidth();
@@ -1577,7 +1576,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ca == CA_walkingZUp || ca == CA_walkingYUp || ca == CA_deviceRotYUp)
                 {
                     static SLfloat ms = cam->maxSpeed();
-                    if (ImGui::SliderFloat("Walk Speed", &ms, 0.01f, SL_min(ms * 1.1f, 10000.f)))
+                    if (ImGui::SliderFloat("Walk Speed", &ms, 0.01f, Utils::min(ms * 1.1f, 10000.f)))
                         cam->maxSpeed(ms);
                 }
 
@@ -1865,7 +1864,7 @@ void AppDemoGui::buildProperties(SLScene* s)
                         if (ImGui::SliderFloat("Near Clip", &clipN, 0.001f, 10.f))
                             cam->clipNear(clipN);
 
-                        if (ImGui::SliderFloat("Far Clip", &clipF, clipN, SL_min(clipF * 1.1f, 1000000.f)))
+                        if (ImGui::SliderFloat("Far Clip", &clipF, clipN, Utils::min(clipF * 1.1f, 1000000.f)))
                             cam->clipFar(clipF);
 
                         if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
@@ -2230,8 +2229,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
 
         // Default settings for the first time
-        SLGLImGui::fontPropDots  = SL_max(16.0f * dpiScaleProp, 16.0f);
-        SLGLImGui::fontFixedDots = SL_max(13.0f * dpiScaleFixed, 13.0f);
+        SLGLImGui::fontPropDots  = Utils::max(16.0f * dpiScaleProp, 16.0f);
+        SLGLImGui::fontFixedDots = Utils::max(13.0f * dpiScaleFixed, 13.0f);
 
         // Store dialog show states
         AppDemoGui::showAbout        = true;
@@ -2245,11 +2244,11 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         AppDemoGui::showProperties   = false;
 
         // Adjust UI paddings on DPI
-        style.FramePadding.x     = SL_max(8.0f * dpiScaleFixed, 8.0f);
+        style.FramePadding.x     = Utils::max(8.0f * dpiScaleFixed, 8.0f);
         style.WindowPadding.x    = style.FramePadding.x;
-        style.FramePadding.y     = SL_max(3.0f * dpiScaleFixed, 3.0f);
-        style.ItemSpacing.x      = SL_max(8.0f * dpiScaleFixed, 8.0f);
-        style.ItemSpacing.y      = SL_max(3.0f * dpiScaleFixed, 3.0f);
+        style.FramePadding.y     = Utils::max(3.0f * dpiScaleFixed, 3.0f);
+        style.ItemSpacing.x      = Utils::max(8.0f * dpiScaleFixed, 8.0f);
+        style.ItemSpacing.y      = Utils::max(3.0f * dpiScaleFixed, 3.0f);
         style.ItemInnerSpacing.x = style.ItemSpacing.y;
 
         return;
@@ -2311,8 +2310,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
 
             // Default settings for the first time
-            SLGLImGui::fontPropDots  = SL_max(16.0f * dpiScaleProp, 16.0f);
-            SLGLImGui::fontFixedDots = SL_max(13.0f * dpiScaleFixed, 13.0f);
+            SLGLImGui::fontPropDots  = Utils::max(16.0f * dpiScaleProp, 16.0f);
+            SLGLImGui::fontFixedDots = Utils::max(13.0f * dpiScaleFixed, 13.0f);
         }
     }
 }

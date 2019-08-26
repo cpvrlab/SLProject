@@ -44,7 +44,7 @@
 //-----------------------------------------------------------------------------
 // Global pointers declared in AppDemoTracking
 extern SLGLTexture* videoTexture;
-extern CVTracked* tracker;
+extern CVTracked*   tracker;
 extern SLNode*      trackedNode;
 
 //-----------------------------------------------------------------------------
@@ -579,12 +579,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                 if (iX != 0 || iZ != 0)
                 {
                     SLNode* t = tree->copyRec();
-                    t->translate(float(iX) * 2 + SL_random(0.7f, 1.4f),
+                    t->translate(float(iX) * 2 + Utils::random(0.7f, 1.4f),
                                  0,
-                                 float(iZ) * 2 + SL_random(0.7f, 1.4f),
+                                 float(iZ) * 2 + Utils::random(0.7f, 1.4f),
                                  TS_object);
-                    t->rotate(SL_random(0, 90), 0, 1, 0);
-                    t->scale(SL_random(0.5f, 1.0f));
+                    t->rotate(Utils::random(0, 90), 0, 1, 0);
+                    t->scale(Utils::random(0.5f, 1.0f));
                     scene->addChild(t);
                 }
             }
@@ -1078,7 +1078,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // Cook-Torrance material without textures
                     mat[i] = new SLMaterial("CookTorranceMat",
                                             SLCol4f::RED * 0.5f,
-                                            SL_clamp((float)r * deltaR, 0.05f, 1.0f),
+                                            Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
                                             (float)m * deltaM);
                 }
 
@@ -2090,7 +2090,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Create OpenCV Tracker for the camera node for AR camera.
-        tracker     = new CVTrackedChessboard();
+        tracker = new CVTrackedChessboard();
         tracker->drawDetection(true);
         trackedNode = cam1;
 
@@ -2165,7 +2165,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(boxNode1);
 
         // Create OpenCV Tracker for the box node
-        tracker     = new CVTrackedAruco(9);
+        tracker = new CVTrackedAruco(9);
         tracker->drawDetection(true);
         trackedNode = boxNode1;
 
@@ -2309,7 +2309,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(axis);
 
         // Add a face tracker that moves the camera node
-        tracker = new CVTrackedFaces(3);
+        tracker     = new CVTrackedFaces(3);
         trackedNode = cam1;
         tracker->drawDetection(true);
 
@@ -2937,7 +2937,7 @@ SLNode* SphereGroup(SLint       depth, // depth of recursion
         depth--;
         SLNode* sGroup = new SLNode("SphereGroup");
         sGroup->translate(x, y, z, TS_object);
-        SLuint newRes = (SLuint)SL_max((SLint)resolution - 8, 8);
+        SLuint newRes = (SLuint)Utils::max((SLint)resolution - 8, 8);
         sGroup->addChild(new SLNode(new SLSphere(0.5f * scale, resolution, resolution, name, matGlass)));
         sGroup->addChild(SphereGroup(depth, 0.643951f * scale, 0, 0.172546f * scale, scale / 3, newRes, matRed, matRed));
         sGroup->addChild(SphereGroup(depth, 0.172546f * scale, 0, 0.643951f * scale, scale / 3, newRes, matRed, matRed));

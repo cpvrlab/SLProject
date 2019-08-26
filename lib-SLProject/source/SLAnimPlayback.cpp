@@ -93,7 +93,7 @@ void SLAnimPlayback::advanceTime(SLfloat delta)
     }
 
     // don't go any further, nothing's changed
-    if (SL_abs(_linearLocalTime - prevTime) < 0.0001f)
+    if (Utils::abs(_linearLocalTime - prevTime) < 0.0001f)
         return;
 
     // mark the playback as changed
