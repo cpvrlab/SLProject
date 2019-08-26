@@ -636,7 +636,7 @@ CVVec4f CVImage::getPixeli(int x, int y)
             color[3]  = c[0];
             break;
         }
-#ifdef SL_GLES2
+#ifdef APP_USES_GLES
         case PF_luminance:
 #else
         case PF_red:
@@ -649,7 +649,7 @@ CVVec4f CVImage::getPixeli(int x, int y)
             color[3] = 255.0f;
             break;
         }
-#ifdef SL_GLES2
+#ifdef APP_USES_GLES
         case PF_luminance_alpha:
 #else
         case PF_rg:
@@ -752,7 +752,7 @@ void CVImage::setPixeli(int x, int y, CVVec4f color)
                                                (uchar)(color[0] * 255.0f),
                                                (uchar)(color[3] * 255.0f));
             break;
-#ifdef SL_GLES2
+#ifdef APP_USES_GLES
         case PF_luminance:
 #else
         case PF_red:
@@ -762,7 +762,7 @@ void CVImage::setPixeli(int x, int y, CVVec4f color)
             B                      = (int)(color[2] * 255.0f);
             _cvMat.at<uchar>(y, x) = (uchar)(((66 * R + 129 * G + 25 * B + 128) >> 8) + 16);
             break;
-#ifdef SL_GLES2
+#ifdef APP_USES_GLES
         case PF_luminance_alpha:
 #else
         case PF_rg:

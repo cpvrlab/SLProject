@@ -77,7 +77,7 @@ class SLMaterial : public SLObject
                                  _textures[0]->hasAlpha())); }
 
 //! Returns true if a material has a 3D texture
-#ifdef SL_GLES2
+#ifdef APP_USES_GLES
     SLbool has3DTexture()
     {
         return false;

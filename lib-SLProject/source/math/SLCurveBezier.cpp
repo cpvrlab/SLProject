@@ -174,7 +174,7 @@ void SLCurveBezier::draw(const SLMat4f& wm)
                             (SLuint)numCurvePoints);
 
 // ES2 has often problems with rendering points
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     // Draw curve as a line strip through interpolated points
     _vao.drawArrayAsColored(PT_points,
                             SLCol4f::RED,

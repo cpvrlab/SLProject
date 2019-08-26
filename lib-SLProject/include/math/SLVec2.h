@@ -12,6 +12,7 @@
 #define SLVEC2_H
 
 #include <SL.h>
+#include <Utils.h>
 
 //-----------------------------------------------------------------------------
 //! 2D vector template class for standard 2D vector algebra.

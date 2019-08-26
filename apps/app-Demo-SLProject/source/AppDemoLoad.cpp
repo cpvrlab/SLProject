@@ -646,7 +646,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         VR.push_back(SLVec3f(0.5f, -0.5f, -2.0f));
         SLNode* polyR = new SLNode(new SLPolygon(VR, T, "PolygonR", matR));
 
-#ifdef SL_GLES2
+#ifdef APP_USES_GLES
         // Create 3D textured sphere mesh and node
         SLNode* sphere = new SLNode(new SLSphere(0.2f, 16, 16, "Sphere", matL));
 #else
@@ -684,7 +684,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(polyR);
         scene->addChild(sphere);
         scene->addChild(cam1);
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
         scene->addChild(pyramidNode);
 #endif
 
@@ -1910,7 +1910,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
 // create astroboys around the center astroboy
-#ifdef SL_GLES2
+#ifdef APP_USES_GLES
         SLint size = 4;
 #else
         SLint        size   = 8;
@@ -2687,7 +2687,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         rect->translate(0, -1, -0.5f, TS_object);
 
         SLLightSpot* light1 = new SLLightSpot(3, 3, 3, 0.3f);
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
         SLuint numSamples = 10;
 #else
         SLuint numSamples = 8;
@@ -2806,7 +2806,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //SLGLShaderProg* sp1 = new SLGLShaderProgGeneric("RefractReflect.vert", "RefractReflect.frag");
         //matLens->shaderProg(sp1);
 
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
         SLuint numSamples = 10;
 #else
         SLuint numSamples = 6;

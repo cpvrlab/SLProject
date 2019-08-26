@@ -592,7 +592,7 @@ bool CVTrackedFeatures::calculatePose()
         framePoints[i] = _currentFrame.keypoints[(uint)_currentFrame.matches[i].queryIdx].pt;
     }
 
-    SLVuchar inliersMask(modelPoints.size());
+    vector<uchar> inliersMask(modelPoints.size());
 
     //////////////////////
     // 1. RANSAC with EPnP

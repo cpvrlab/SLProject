@@ -95,7 +95,7 @@ void SLGLState::initAll()
     _glIsES3       = (_glVersion.find("OpenGL ES 3") != string::npos);
 
 // Get extensions
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_glVersionNOf > 3.0f)
     {
         GLint n;
@@ -352,7 +352,7 @@ void SLGLState::blend(SLbool stateNew)
  */
 void SLGLState::multiSample(SLbool stateNew)
 {
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_multisample != stateNew)
     {
         if (_multiSampleSamples > 0)
@@ -379,7 +379,7 @@ void SLGLState::multiSample(SLbool stateNew)
  */
 void SLGLState::polygonLine(SLbool stateNew)
 {
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_polygonLine != stateNew)
     {
 #    ifndef SL_GLES3
