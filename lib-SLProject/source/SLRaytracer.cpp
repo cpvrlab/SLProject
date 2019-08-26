@@ -85,7 +85,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
 
             color.gammaCorrect(_oneOverGamma);
 
-            _images[0]->setPixeliRGB((SLint)x, (SLint)y, color);
+            _images[0]->setPixeliRGB((SLint)x, (SLint)y, CVVec4f(color.r, color.g, color.b, color.a));
 
             SLRay::avgDepth += SLRay::depthReached;
             SLRay::maxDepthReached = SL_max(SLRay::depthReached,
@@ -219,7 +219,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
 
                 color.gammaCorrect(_oneOverGamma);
 
-                _images[0]->setPixeliRGB((SLint)x, (SLint)y, color);
+                _images[0]->setPixeliRGB((SLint)x, (SLint)y, CVVec4f(color.r, color.g, color.b, color.a));
 
                 SLRay::avgDepth += SLRay::depthReached;
                 SLRay::maxDepthReached = SL_max(SLRay::depthReached,
@@ -310,7 +310,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
 
                 color.gammaCorrect(_oneOverGamma);
 
-                _images[0]->setPixeliRGB((SLint)x, y, color);
+                _images[0]->setPixeliRGB((SLint)x, y, CVVec4f(color.r, color.g, color.b, color.a));
 
                 SLRay::avgDepth += SLRay::depthReached;
                 SLRay::maxDepthReached = SL_max(SLRay::depthReached, SLRay::maxDepthReached);
@@ -559,11 +559,14 @@ void SLRaytracer::getAAPixels()
     {
         for (SLuint x = 0; x < _images[0]->width(); ++x)
         {
-            color        = _images[0]->getPixeli((SLint)x, (SLint)y);
+            CVVec4f c4f = _images[0]->getPixeli((SLint)x, (SLint)y);
+            color.set(c4f[0], c4f[1], c4f[2], c4f[3]);
+
             isSubsampled = false;
             if (x > 0)
             {
-                colorLeft = _images[0]->getPixeli((SLint)x - 1, (SLint)y);
+                CVVec4f colL = _images[0]->getPixeli((SLint)x - 1, (SLint)y);
+                colorLeft.set(colL[0], colL[1], colL[2], colL[3]);
                 if (color.diffRGB(colorLeft) > _aaThreshold)
                 {
                     if (!gotSampled[x - 1])
@@ -577,7 +580,8 @@ void SLRaytracer::getAAPixels()
             }
             if (y > 0)
             {
-                colorUp = _images[0]->getPixeli((SLint)x, (SLint)y - 1);
+                CVVec4f colU = _images[0]->getPixeli((SLint)x, (SLint)y - 1);
+                colorUp.set(colU[0], colU[1], colU[2], colU[3]);
                 if (color.diffRGB(colorUp) > _aaThreshold)
                 {
                     if (!gotSampled[x]) _aaPixels.push_back(SLRTAAPixel((SLushort)x, (SLushort)y - 1));
@@ -615,9 +619,10 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
 
         for (SLuint i = mini; i < mini + 4 && i < _aaPixels.size(); ++i)
         {
-            SLuint  x           = _aaPixels[i].x;
-            SLuint  y           = _aaPixels[i].y;
-            SLCol4f centerColor = _images[0]->getPixeli((SLint)x, (SLint)y);
+            SLuint  x   = _aaPixels[i].x;
+            SLuint  y   = _aaPixels[i].y;
+            CVVec4f c4f = _images[0]->getPixeli((SLint)x, (SLint)y);
+            SLCol4f centerColor(c4f[0], c4f[1], c4f[2], c4f[3]);
             SLint   centerIndex = _aaSamples >> 1;
             SLfloat f           = 1.0f / (SLfloat)_aaSamples;
             SLfloat xpos        = x - centerIndex * f;
@@ -646,7 +651,7 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
 
             color.gammaCorrect(_oneOverGamma);
 
-            _images[0]->setPixeliRGB((SLint)x, (SLint)y, color);
+            _images[0]->setPixeliRGB((SLint)x, (SLint)y, CVVec4f(color.r, color.g, color.b, color.a));
         }
 
         if (isMainThread && !_doContinuous)

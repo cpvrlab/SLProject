@@ -128,7 +128,8 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
                 SLCol4f oldColor;
                 if (currentSample > 1)
                 {
-                    oldColor = _images[1]->getPixeli(x, (SLint)y);
+                    CVVec4f c4f = _images[1]->getPixeli(x, (SLint)y);
+                    oldColor.set(c4f[0], c4f[1], c4f[2], c4f[3]);
 
                     // weight old color ( examp. 3/4, 4/5, 5/6 )
                     oldColor /= (SLfloat)currentSample;
@@ -144,12 +145,12 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
                 color.clampMinMax(0.0f, 1.0f);
 
                 // save image without gamma
-                _images[1]->setPixeliRGB(x, (SLint)y, color);
+                _images[1]->setPixeliRGB(x, (SLint)y, CVVec4f(color.r, color.g, color.b, color.a));
 
                 color.gammaCorrect(_oneOverGamma);
 
                 // image to render
-                _images[0]->setPixeliRGB(x, (SLint)y, color);
+                _images[0]->setPixeliRGB(x, (SLint)y, CVVec4f(color.r, color.g, color.b, color.a));
             }
 
             // update image after 500 ms

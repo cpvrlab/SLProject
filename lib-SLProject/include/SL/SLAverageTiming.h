@@ -14,6 +14,7 @@
 #include <string>
 #include <map>
 
+#include <SL.h>
 #include <HighResTimer.h>
 #include <Averaged.h>
 #include <sstream>

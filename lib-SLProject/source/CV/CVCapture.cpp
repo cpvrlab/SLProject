@@ -21,6 +21,8 @@ for a good top down information.
 #include <CVCalibration.h>
 #include <CVCapture.h>
 #include <CVImage.h>
+#include <utils.h>
+#include <SLMath.h>
 
 //-----------------------------------------------------------------------------
 CVCapture* CVCapture::_instance = nullptr;
@@ -249,7 +251,7 @@ void CVCapture::adjustForSL(float scrWdivH)
 
         if (activeCamSizeIndex == -1 || captureSize != activeSize)
         {
-            for (SLulong i = 0; i < camSizes.size(); ++i)
+            for (unsigned long i = 0; i < camSizes.size(); ++i)
             {
                 if (camSizes[i] == captureSize)
                 {

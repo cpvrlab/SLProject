@@ -14,6 +14,7 @@
 
 #include <CVImage.h>
 #include <Utils.h>
+#include <SLMath.h>
 
 //-----------------------------------------------------------------------------
 string CVImage::defaultPath;
@@ -50,32 +51,32 @@ CVImage::CVImage(CVImage& src) : _name(src.name())
     src.cvMat().copyTo(_cvMat);
 }
 //-----------------------------------------------------------------------------
-//! Creates a 1D image from a SLCol3f vector
-CVImage::CVImage(const SLVCol3f& colors)
+//! Creates a 1D image from a CVVec3f color vector
+CVImage::CVImage(const CVVVec3f& colors)
 {
     allocate((int)colors.size(), 1, PF_rgb);
 
     int x = 0;
     for (auto color : colors)
     {
-        _cvMat.at<cv::Vec3b>(0, x++) = cv::Vec3b((uchar)(color.r * 255.0f),
-                                                 (uchar)(color.g * 255.0f),
-                                                 (uchar)(color.b * 255.0f));
+        _cvMat.at<CVVec3b>(0, x++) = CVVec3b((uchar)(color[0] * 255.0f),
+                                             (uchar)(color[1] * 255.0f),
+                                             (uchar)(color[2] * 255.0f));
     }
 }
 //-----------------------------------------------------------------------------
-//! Creates a 1D image from a SLCol4f vector
-CVImage::CVImage(const SLVCol4f& colors)
+//! Creates a 1D image from a CVVec4f vector
+CVImage::CVImage(const CVVVec4f& colors)
 {
     allocate((int)colors.size(), 1, PF_rgba);
 
     int x = 0;
     for (auto color : colors)
     {
-        _cvMat.at<cv::Vec4b>(0, x++) = cv::Vec4b((uchar)(color.r * 255.0f),
-                                                 (uchar)(color.g * 255.0f),
-                                                 (uchar)(color.b * 255.0f),
-                                                 (uchar)(color.a * 255.0f));
+        _cvMat.at<CVVec4b>(0, x++) = CVVec4b((uchar)(color[0] * 255.0f),
+                                             (uchar)(color[1] * 255.0f),
+                                             (uchar)(color[2] * 255.0f),
+                                             (uchar)(color[3] * 255.0f));
     }
 }
 //-----------------------------------------------------------------------------
@@ -259,7 +260,7 @@ bool CVImage::load(int         width,
         {
             for (int h = 0; h < _cvMat.rows; ++h, srcStart += srcBPL, dstStart -= dstBPL)
             {
-                memcpy(dstStart, srcStart, (SLulong)dstBPL);
+                memcpy(dstStart, srcStart, (unsigned long)dstBPL);
             }
         }
         else
@@ -324,7 +325,7 @@ bool CVImage::load(int         width,
     {
         if (srcPixelFormatGL == dstPixelFormatGL)
         {
-            memcpy(_cvMat.data, data, (SLulong)_bytesPerImage);
+            memcpy(_cvMat.data, data, (unsigned long)_bytesPerImage);
         }
         else
         {
@@ -539,7 +540,7 @@ void CVImage::savePNG(const string filename,
                       const bool   flipY,
                       const bool   convertBGR2RGB)
 {
-    SLVint compression_params;
+    vector<int> compression_params;
     compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
     compression_params.push_back(compressionLevel);
 
@@ -570,12 +571,12 @@ void CVImage::savePNG(const string filename,
 \param flipY Flag for vertical mirroring
 \param convertBGR2RGB Flag for BGR to RGB conversion
 */
-void CVImage::saveJPG(const string filename,
-                      const int    compressionLevel,
-                      const bool   flipY,
-                      const bool   convertBGR2RGB)
+void CVImage::saveJPG(const string& filename,
+                      const int     compressionLevel,
+                      const bool    flipY,
+                      const bool    convertBGR2RGB)
 {
-    SLVint compression_params;
+    vector<int> compression_params;
     compression_params.push_back(cv::IMWRITE_JPEG_QUALITY);
     compression_params.push_back(cv::IMWRITE_JPEG_PROGRESSIVE);
     compression_params.push_back(compressionLevel);
@@ -602,9 +603,9 @@ void CVImage::saveJPG(const string filename,
 /*! Returns the pixel color at the integer pixel coordinate x, y. The color
 components range from 0-1 float.
 */
-SLCol4f CVImage::getPixeli(int x, int y)
+CVVec4f CVImage::getPixeli(int x, int y)
 {
-    SLCol4f color;
+    CVVec4f color;
 
     x %= _cvMat.cols;
     y %= _cvMat.rows;
@@ -613,20 +614,25 @@ SLCol4f CVImage::getPixeli(int x, int y)
     {
         case PF_rgb:
         {
-            cv::Vec3b c = _cvMat.at<cv::Vec3b>(y, x);
-            color.set(c.val[0], c.val[1], c.val[2], 255.0f);
+            CVVec3b c = _cvMat.at<CVVec3b>(y, x);
+            color[0]  = c[0];
+            color[1]  = c[1];
+            color[2]  = c[2];
+            color[3]  = 255.0f;
             break;
         }
         case PF_rgba:
         {
-            cv::Vec4b c = _cvMat.at<cv::Vec4b>(y, x);
-            color.set(c.val[0], c.val[1], c.val[2], c.val[3]);
+            color = _cvMat.at<CVVec4b>(y, x);
             break;
         }
         case PF_bgra:
         {
-            cv::Vec4b c = _cvMat.at<cv::Vec4b>(y, x);
-            color.set(c.val[2], c.val[1], c.val[0], c.val[3]);
+            CVVec4b c = _cvMat.at<CVVec4b>(y, x);
+            color[0]  = c[2];
+            color[1]  = c[1];
+            color[2]  = c[2];
+            color[3]  = c[0];
             break;
         }
 #ifdef SL_GLES2
@@ -635,8 +641,11 @@ SLCol4f CVImage::getPixeli(int x, int y)
         case PF_red:
 #endif
         {
-            uchar c = _cvMat.at<uchar>(y, x);
-            color.set(c, c, c, 255.0f);
+            uchar c  = _cvMat.at<uchar>(y, x);
+            color[0] = (float)c;
+            color[1] = (float)c;
+            color[2] = (float)c;
+            color[3] = 255.0f;
             break;
         }
 #ifdef SL_GLES2
@@ -645,8 +654,11 @@ SLCol4f CVImage::getPixeli(int x, int y)
         case PF_rg:
 #endif
         {
-            cv::Vec2b c = _cvMat.at<cv::Vec2b>(y, x);
-            color.set(c.val[0], c.val[0], c.val[0], c.val[1]);
+            CVVec2b c = _cvMat.at<cv::Vec2b>(y, x);
+            color[0]  = c[0];
+            color[1]  = c[0];
+            color[2]  = c[0];
+            color[3]  = c[1];
             break;
         }
         default: Utils::exitMsg("CVImage::getPixeli: Unknown format!", __LINE__, __FILE__);
@@ -660,7 +672,7 @@ getPixelf returns a pixel color with its x & y texture coordinates.
 If the OpenGL filtering is set to GL_LINEAR a bilinear interpolated color out
 of four neighbouring pixels is return. Otherwise the nearest pixel is returned.
 */
-SLCol4f CVImage::getPixelf(float x, float y)
+CVVec4f CVImage::getPixelf(float x, float y)
 {
     // Bilinear interpolation
     float xf = SL_fract(x) * _cvMat.cols;
@@ -692,21 +704,21 @@ SLCol4f CVImage::getPixelf(float x, float y)
     //SLCol4f cLL = getPixeli(xm,yp);
     //SLCol4f cLR = getPixeli(xp,yp);
 
-    SLCol4f cUL = getPixeli((int)(xf - 0.5f), (int)(yf - 0.5f));
-    SLCol4f cUR = getPixeli((int)(xf + 0.5f), (int)(yf - 0.5f));
-    SLCol4f cLL = getPixeli((int)(xf - 0.5f), (int)(yf + 0.5f));
-    SLCol4f cLR = getPixeli((int)(xf + 0.5f), (int)(yf + 0.5f));
+    CVVec4f cUL = getPixeli((int)(xf - 0.5f), (int)(yf - 0.5f));
+    CVVec4f cUR = getPixeli((int)(xf + 0.5f), (int)(yf - 0.5f));
+    CVVec4f cLL = getPixeli((int)(xf - 0.5f), (int)(yf + 0.5f));
+    CVVec4f cLR = getPixeli((int)(xf + 0.5f), (int)(yf + 0.5f));
 
     // calculate a new interpolated color with the area weights
-    float r = UL * cUL.r + LL * cLL.r + UR * cUR.r + LR * cLR.r;
-    float g = UL * cUL.g + LL * cLL.g + UR * cUR.g + LR * cLR.g;
-    float b = UL * cUL.b + LL * cLL.b + UR * cUR.b + LR * cLR.b;
+    float r = UL * cUL[0] + LL * cLL[0] + UR * cUR[0] + LR * cLR[0];
+    float g = UL * cUL[2] + LL * cLL[2] + UR * cUR[2] + LR * cLR[2];
+    float b = UL * cUL[3] + LL * cLL[3] + UR * cUR[3] + LR * cLR[3];
 
-    return SLCol4f(r, g, b, 1);
+    return CVVec4f(r, g, b, 1.0f);
 }
 //-----------------------------------------------------------------------------
-//! setPixeli sets the pixel color at the integer pixel coordinate x, y
-void CVImage::setPixeli(int x, int y, SLCol4f color)
+//! setPixeli sets the RGB pixel color at the integer pixel coordinate x, y
+void CVImage::setPixeli(int x, int y, CVVec4f color)
 {
     if (x < 0) x = 0;
     if (x >= (int)_cvMat.cols) x = _cvMat.cols - 1; // 0 <= x < _width
@@ -718,35 +730,35 @@ void CVImage::setPixeli(int x, int y, SLCol4f color)
     switch (_format)
     {
         case PF_rgb:
-            _cvMat.at<cv::Vec3b>(y, x) = cv::Vec3b((uchar)(color.r * 255.0f),
-                                                   (uchar)(color.g * 255.0f),
-                                                   (uchar)(color.b * 255.0f));
+            _cvMat.at<CVVec3b>(y, x) = CVVec3b((uchar)(color[0] * 255.0f),
+                                               (uchar)(color[1] * 255.0f),
+                                               (uchar)(color[2] * 255.0f));
             break;
         case PF_bgr:
-            _cvMat.at<cv::Vec3b>(y, x) = cv::Vec3b((uchar)(color.b * 255.0f),
-                                                   (uchar)(color.g * 255.0f),
-                                                   (uchar)(color.r * 255.0f));
+            _cvMat.at<CVVec3b>(y, x) = CVVec3b((uchar)(color[2] * 255.0f),
+                                               (uchar)(color[1] * 255.0f),
+                                               (uchar)(color[0] * 255.0f));
             break;
         case PF_rgba:
-            _cvMat.at<cv::Vec4b>(y, x) = cv::Vec4b((uchar)(color.r * 255.0f),
-                                                   (uchar)(color.g * 255.0f),
-                                                   (uchar)(color.b * 255.0f),
-                                                   (uchar)(color.a * 255.0f));
+            _cvMat.at<CVVec4b>(y, x) = CVVec4b((uchar)(color[0] * 255.0f),
+                                               (uchar)(color[1] * 255.0f),
+                                               (uchar)(color[2] * 255.0f),
+                                               (uchar)(color[3] * 255.0f));
             break;
         case PF_bgra:
-            _cvMat.at<cv::Vec4b>(y, x) = cv::Vec4b((uchar)(color.b * 255.0f),
-                                                   (uchar)(color.g * 255.0f),
-                                                   (uchar)(color.r * 255.0f),
-                                                   (uchar)(color.a * 255.0f));
+            _cvMat.at<CVVec4b>(y, x) = CVVec4b((uchar)(color[2] * 255.0f),
+                                               (uchar)(color[1] * 255.0f),
+                                               (uchar)(color[0] * 255.0f),
+                                               (uchar)(color[3] * 255.0f));
             break;
 #ifdef SL_GLES2
         case PF_luminance:
 #else
         case PF_red:
 #endif
-            R                      = (int)(color.r * 255.0f);
-            G                      = (int)(color.g * 255.0f);
-            B                      = (int)(color.b * 255.0f);
+            R                      = (int)(color[0] * 255.0f);
+            G                      = (int)(color[1] * 255.0f);
+            B                      = (int)(color[2] * 255.0f);
             _cvMat.at<uchar>(y, x) = (uchar)(((66 * R + 129 * G + 25 * B + 128) >> 8) + 16);
             break;
 #ifdef SL_GLES2
@@ -754,18 +766,18 @@ void CVImage::setPixeli(int x, int y, SLCol4f color)
 #else
         case PF_rg:
 #endif
-            R                          = (int)(color.r * 255.0f);
-            G                          = (int)(color.g * 255.0f);
-            B                          = (int)(color.b * 255.0f);
-            _cvMat.at<cv::Vec2b>(y, x) = cv::Vec2b((uchar)(((66 * R + 129 * G + 25 * B + 128) >> 8) + 16),
-                                                   (uchar)(color.a * 255.0f));
+            R                        = (int)(color[0] * 255.0f);
+            G                        = (int)(color[1] * 255.0f);
+            B                        = (int)(color[2] * 255.0f);
+            _cvMat.at<CVVec2b>(y, x) = CVVec2b((uchar)(((66 * R + 129 * G + 25 * B + 128) >> 8) + 16),
+                                               (uchar)(color[3] * 255.0f));
             break;
         default: Utils::exitMsg("CVImage::setPixeli: Unknown format!", __LINE__, __FILE__);
     }
 }
 //-----------------------------------------------------------------------------
 //! setPixeli sets the RGB pixel color at the integer pixel coordinate x, y
-void CVImage::setPixeliRGB(int x, int y, SLCol3f color)
+void CVImage::setPixeliRGB(int x, int y, CVVec3f color)
 {
     assert(_bytesPerPixel == 3);
     if (x < 0) x = 0;
@@ -773,13 +785,13 @@ void CVImage::setPixeliRGB(int x, int y, SLCol3f color)
     if (y < 0) y = 0;
     if (y >= (int)_cvMat.rows) y = _cvMat.rows - 1; // 0 <= y < _height
 
-    _cvMat.at<cv::Vec3b>(y, x) = cv::Vec3b((uchar)(color.r * 255.0f + 0.5f),
-                                           (uchar)(color.g * 255.0f + 0.5f),
-                                           (uchar)(color.b * 255.0f + 0.5f));
+    _cvMat.at<CVVec3b>(y, x) = CVVec3b((uchar)(color[0] * 255.0f + 0.5f),
+                                       (uchar)(color[1] * 255.0f + 0.5f),
+                                       (uchar)(color[2] * 255.0f + 0.5f));
 }
 //-----------------------------------------------------------------------------
 //! setPixeli sets the RGB pixel color at the integer pixel coordinate x, y
-void CVImage::setPixeliRGB(int x, int y, SLCol4f color)
+void CVImage::setPixeliRGB(int x, int y, CVVec4f color)
 {
     assert(_bytesPerPixel == 3);
     if (x < 0) x = 0;
@@ -787,13 +799,13 @@ void CVImage::setPixeliRGB(int x, int y, SLCol4f color)
     if (y < 0) y = 0;
     if (y >= (int)_cvMat.rows) y = _cvMat.rows - 1; // 0 <= y < _height
 
-    _cvMat.at<cv::Vec3b>(y, x) = cv::Vec3b((uchar)(color.r * 255.0f + 0.5f),
-                                           (uchar)(color.g * 255.0f + 0.5f),
-                                           (uchar)(color.b * 255.0f + 0.5f));
+    _cvMat.at<CVVec3b>(y, x) = CVVec3b((uchar)(color[0] * 255.0f + 0.5f),
+                                       (uchar)(color[1] * 255.0f + 0.5f),
+                                       (uchar)(color[2] * 255.0f + 0.5f));
 }
 //-----------------------------------------------------------------------------
 //! setPixeli sets the RGBA pixel color at the integer pixel coordinate x, y
-void CVImage::setPixeliRGBA(int x, int y, SLCol4f color)
+void CVImage::setPixeliRGBA(int x, int y, CVVec4f color)
 {
     assert(_bytesPerPixel == 4);
     if (x < 0) x = 0;
@@ -801,10 +813,10 @@ void CVImage::setPixeliRGBA(int x, int y, SLCol4f color)
     if (y < 0) y = 0;
     if (y >= (int)_cvMat.rows) y = _cvMat.rows - 1; // 0 <= y < _height
 
-    _cvMat.at<cv::Vec4b>(y, x) = cv::Vec4b((uchar)(color.r * 255.0f + 0.5f),
-                                           (uchar)(color.g * 255.0f + 0.5f),
-                                           (uchar)(color.b * 255.0f + 0.5f),
-                                           (uchar)(color.a * 255.0f + 0.5f));
+    _cvMat.at<CVVec4b>(y, x) = CVVec4b((uchar)(color[0] * 255.0f + 0.5f),
+                                       (uchar)(color[1] * 255.0f + 0.5f),
+                                       (uchar)(color[2] * 255.0f + 0.5f),
+                                       (uchar)(color[3] * 255.0f + 0.5f));
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -839,10 +851,10 @@ void CVImage::fill(uchar r, uchar g, uchar b)
     switch (_format)
     {
         case PF_rgb:
-            _cvMat.setTo(cv::Vec3b(r, g, b));
+            _cvMat.setTo(CVVec3b(r, g, b));
             break;
         case PF_bgr:
-            _cvMat.setTo(cv::Vec3b(b, g, r));
+            _cvMat.setTo(CVVec3b(b, g, r));
             break;
         default: Utils::exitMsg("CVImage::fill(r,g,b): Wrong format!", __LINE__, __FILE__);
     }
@@ -854,10 +866,10 @@ void CVImage::fill(uchar r, uchar g, uchar b, uchar a)
     switch (_format)
     {
         case PF_rgba:
-            _cvMat.setTo(cv::Vec4b(r, g, b, a));
+            _cvMat.setTo(CVVec4b(r, g, b, a));
             break;
         case PF_bgra:
-            _cvMat.setTo(cv::Vec4b(b, g, r, a));
+            _cvMat.setTo(CVVec4b(b, g, r, a));
             break;
         default: Utils::exitMsg("CVImage::fill(r,g,b,a): Wrong format!", __LINE__, __FILE__);
     }

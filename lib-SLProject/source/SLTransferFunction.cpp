@@ -260,7 +260,10 @@ SLVfloat SLTransferFunction::allAlphas()
     allA.resize(_length);
 
     for (SLuint i = 0; i < _length; ++i)
-        allA[i] = _images[0]->getPixeli((SLint)i, 0).a;
+    {
+        CVVec4f c4f = _images[0]->getPixeli((SLint)i, 0);
+        allA[i] = c4f[3];
+    }
 
     return allA;
 }

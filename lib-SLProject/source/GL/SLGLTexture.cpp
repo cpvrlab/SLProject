@@ -230,8 +230,8 @@ void SLGLTexture::load(SLstring filename,
     }
 
     _images.push_back(new CVImage(filename,
-                                    flipVertical,
-                                    loadGrayscaleIntoAlpha));
+                                  flipVertical,
+                                  loadGrayscaleIntoAlpha));
 }
 //-----------------------------------------------------------------------------
 //! Loads the 1D color data into an image of height 1
@@ -239,7 +239,12 @@ void SLGLTexture::load(const SLVCol4f& colors)
 {
     assert(colors.size() > 1);
 
-    _images.push_back(new CVImage(colors));
+    // convert to CV color vector
+    CVVVec4f col4f;
+    for (const auto& c : colors)
+        col4f.push_back(CVVec4f(c.r, c.g, c.b, c.a));
+
+    _images.push_back(new CVImage(col4f));
 }
 //-----------------------------------------------------------------------------
 //! Copies the image data from a video camera into the current video image
@@ -255,19 +260,19 @@ void SLGLTexture::load(const SLVCol4f& colors)
 It is important that passed pixel format is either PF_LUMINANCE, RGB or RGBA.
 otherwise an expensive conversion must be done.
 */
-SLbool SLGLTexture::copyVideoImage(SLint         camWidth,
-                                   SLint         camHeight,
+SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
+                                   SLint       camHeight,
                                    CVPixFormat srcFormat,
-                                   SLuchar*      data,
-                                   SLbool        isContinuous,
-                                   SLbool        isTopLeft)
+                                   SLuchar*    data,
+                                   SLbool      isContinuous,
+                                   SLbool      isTopLeft)
 {
     // Add image for the first time
     if (_images.empty())
         _images.push_back(new CVImage(camWidth,
-                                        camHeight,
-                                        PF_rgb,
-                                        "LiveVideoImageFromMemory"));
+                                      camHeight,
+                                      PF_rgb,
+                                      "LiveVideoImageFromMemory"));
 
     // load returns true if size or format changes
     bool needsBuild = _images[0]->load(camWidth,
@@ -667,10 +672,16 @@ SLCol4f SLGLTexture::getTexelf(SLfloat s, SLfloat t, SLuint imgIndex)
 
     // Bilinear interpolation
     if (_min_filter == GL_LINEAR || _mag_filter == GL_LINEAR)
-        return _images[imgIndex]->getPixelf(s, t);
+    {
+        CVVec4f c4f = _images[imgIndex]->getPixelf(s, t);
+        return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
+    }
     else
-        return _images[imgIndex]->getPixeli((SLint)(s * _images[imgIndex]->width()),
-                                            (SLint)(t * _images[imgIndex]->height()));
+    {
+        CVVec4f c4f = _images[imgIndex]->getPixeli((SLint)(s * _images[imgIndex]->width()),
+                                                   (SLint)(t * _images[imgIndex]->height()));
+        return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
+    }
 }
 //-----------------------------------------------------------------------------
 //! SLGLTexture::getTexelf returns a pixel color at the specified cubemap direction

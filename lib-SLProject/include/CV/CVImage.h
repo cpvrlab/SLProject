@@ -12,8 +12,6 @@
 #define CVIMAGE_H
 
 #include <CVTypedefs.h>
-#include <SLVec3.h>
-#include <SLVec4.h>
 
 //-----------------------------------------------------------------------------
 //! Pixel format according to OpenGL pixel format defines
@@ -65,9 +63,10 @@ class CVImage
                      bool   flipVertical           = true,
                      bool   loadGrayscaleIntoAlpha = false);
     CVImage(CVImage& srcImage);
-    explicit CVImage(const SLVCol3f& colors);
-    explicit CVImage(const SLVCol4f& colors);
+    explicit CVImage(const CVVVec3f& colors);
+    explicit CVImage(const CVVVec4f& colors);
     ~CVImage();
+
     // Misc
     void               clearData();
     bool               allocate(int         width,
@@ -81,33 +80,28 @@ class CVImage
                             int         inHeight,
                             CVPixFormat srcFormat,
                             CVPixFormat dstFormat,
-                            uchar*    data,
+                            uchar*      data,
                             bool        isContinuous,
                             bool        isTopLeft);
     void               savePNG(string filename,
                                int    compressionLevel = 6,
                                bool   flipY            = true,
                                bool   convertBGR2RGB   = true);
-    void               saveJPG(string filename,
-                               int    compressionLevel = 95,
-                               bool   flipY            = true,
-                               bool   convertBGR2RGB   = true);
-    SLCol4f            getPixeli(int x, int y);
-    SLCol4f            getPixelf(float x, float y);
-    void               setPixeli(int x, int y, SLCol4f color);
-    void               setPixeliRGB(int x, int y, SLCol3f color);
-    void               setPixeliRGB(int x, int y, SLCol4f color);
-    void               setPixeliRGBA(int x, int y, SLCol4f color);
+    void               saveJPG(const string& filename,
+                               int           compressionLevel = 95,
+                               bool          flipY            = true,
+                               bool          convertBGR2RGB   = true);
+    CVVec4f            getPixeli(int x, int y);
+    CVVec4f            getPixelf(float x, float y);
+    void               setPixeli(int x, int y, CVVec4f color);
+    void               setPixeliRGB(int x, int y, CVVec3f color);
+    void               setPixeliRGB(int x, int y, CVVec4f color);
+    void               setPixeliRGBA(int x, int y, CVVec4f color);
     void               resize(int width,
                               int height);
     void               flipY();
-    void               fill(uchar r,
-                            uchar g,
-                            uchar b);
-    void               fill(uchar r,
-                            uchar g,
-                            uchar b,
-                            uchar a);
+    void               fill(uchar r, uchar g, uchar b);
+    void               fill(uchar r, uchar g, uchar b, uchar a);
     static CVPixFormat cv2glPixelFormat(int cvType);
 
     // Getters
