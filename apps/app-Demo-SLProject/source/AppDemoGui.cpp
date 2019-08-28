@@ -2121,7 +2121,12 @@ void AppDemoGui::buildProperties(SLScene* s)
                                     }
                                     else
                                     {
-                                        ImGui::Image(tid, ImVec2(texW, texW * h_to_w), ImVec2(0, 1), ImVec2(1, 0), ImVec4(1, 1, 1, 1), ImVec4(1, 1, 1, 1));
+                                        ImGui::Image(tid,
+                                                     ImVec2(texW, texW * h_to_w),
+                                                     ImVec2(0, 1),
+                                                     ImVec2(1, 0),
+                                                     ImVec4(1, 1, 1, 1),
+                                                     ImVec4(1, 1, 1, 1));
                                     }
                                 }
 
