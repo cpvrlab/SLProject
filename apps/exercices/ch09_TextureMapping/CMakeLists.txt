@@ -8,21 +8,21 @@ set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB headers
-    ${SL_PROJECT_ROOT}/lib-SLProject/include/glUtils.h
-    ${SL_PROJECT_ROOT}/lib-SLProject/include/SLCV.h
-    ${SL_PROJECT_ROOT}/lib-SLProject/include/SLCVImage.h
+        ${SL_PROJECT_ROOT}/lib-SLProject/include/glUtils.h
+        ${SL_PROJECT_ROOT}/lib-SLProject/include/CVTypedefs.h
+        ${SL_PROJECT_ROOT}/lib-SLProject/include/CVImage.h
     )
 
 file(GLOB sources
-    ${SL_PROJECT_ROOT}/lib-SLProject/source/glUtils.cpp
-    ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SL.cpp
-    ${SL_PROJECT_ROOT}/lib-SLProject/source/CV/SLCVImage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/TextureMapping.cpp
+        ${SL_PROJECT_ROOT}/lib-SLProject/source/glUtils.cpp
+        ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SL.cpp
+        ${SL_PROJECT_ROOT}/lib-SLProject/source/CV/CVImage.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/TextureMapping.cpp
     )
 
 file(GLOB shaders
-    ${SL_PROJECT_ROOT}/data/shaders/ADSTex.frag
-    ${SL_PROJECT_ROOT}/data/shaders/ADSTex.vert
+        ${SL_PROJECT_ROOT}/data/shaders/ADSTex.frag
+        ${SL_PROJECT_ROOT}/data/shaders/ADSTex.vert
     )
 
 add_executable(${target}

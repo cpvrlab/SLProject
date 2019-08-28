@@ -8,6 +8,7 @@
 //             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
+
 #include "stdafx.h" // Precompiled Headers
 
 #include <GL/glew.h>    // OpenGL headers

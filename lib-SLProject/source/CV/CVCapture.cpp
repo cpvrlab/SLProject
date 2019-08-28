@@ -576,7 +576,7 @@ crop it on the sides.
 \n
 2) Some cameras toward a face mirror the image and some do not. If a input
 image should be mirrored or not is stored in CVCalibration::_isMirroredH
-(H for horizontal) and SLCVCalibration::_isMirroredV (V for vertical).
+(H for horizontal) and CVCalibration::_isMirroredV (V for vertical).
 \n
 3) The most expensive part of course is the color space conversion from the
 YUV to RGB conversion. According to Wikipedia the conversion is defined as:
