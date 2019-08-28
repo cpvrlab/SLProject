@@ -121,7 +121,7 @@ class CVTrackedAruco : public CVTracked
     private:
     static bool        paramsLoaded;   //!< Flag for loaded parameters
     static vector<int> arucoIDs;       //!< detected Aruco marker IDs
-    static SLVMat4f    objectViewMats; //!< object view matrices for all found markers
+    static CVVMatx44f  objectViewMats; //!< object view matrices for all found markers
 
     int _arucoID; //!< Aruco Marker ID for this node
 };

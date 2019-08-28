@@ -8,8 +8,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 /*
 The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
@@ -49,7 +47,7 @@ void CVTracked::resetTimes()
 // clang-format off
 //-----------------------------------------------------------------------------
 //! Create an OpenGL 4x4 matrix from an OpenCV translation & rotation vector
-SLMat4f CVTracked::createGLMatrix(const CVMat& tVec, const CVMat& rVec)
+CVMatx44f CVTracked::createGLMatrix(const CVMat& tVec, const CVMat& rVec)
 {
     // 1) convert the passed rotation vector to a rotation matrix
     CVMat rMat;
@@ -69,15 +67,15 @@ SLMat4f CVTracked::createGLMatrix(const CVMat& tVec, const CVMat& rVec)
            | r02, r12, r22 |            |    0     0     0    1 |
     */
 
-    SLMat4f slMat((float) rMat.at<double>(0, 0), (float) rMat.at<double>(0, 1), (float) rMat.at<double>(0, 2), (float) tVec.at<double>(0, 0),
+    CVMatx44f glM((float) rMat.at<double>(0, 0), (float) rMat.at<double>(0, 1), (float) rMat.at<double>(0, 2), (float) tVec.at<double>(0, 0),
                   (float)-rMat.at<double>(1, 0), (float)-rMat.at<double>(1, 1), (float)-rMat.at<double>(1, 2), (float)-tVec.at<double>(1, 0),
                   (float)-rMat.at<double>(2, 0), (float)-rMat.at<double>(2, 1), (float)-rMat.at<double>(2, 2), (float)-tVec.at<double>(2, 0),
-                                             0.0f,                            0.0f,                            0.0f,                           1.0f);
-    return slMat;
+                0.0f,                          0.0f,                          0.0f,                          1.0f);
+    return glM;
 }
 //-----------------------------------------------------------------------------
 //! Creates the OpenCV rvec & tvec vectors from an column major OpenGL 4x4 matrix
-void CVTracked::createRvecTvec(const SLMat4f& glMat, CVMat& tVec, CVMat& rVec)
+void CVTracked::createRvecTvec(const CVMatx44f& glMat, CVMat& tVec, CVMat& rVec)
 {
     // The y- and z- axis have to be inverted:
     /*
@@ -89,17 +87,17 @@ void CVTracked::createRvecTvec(const SLMat4f& glMat, CVMat& tVec, CVMat& rVec)
     */
     
     // 1) Create cv rotation matrix from OpenGL rotation matrix
-    cv::Matx33d rMat( glMat.m(0),-glMat.m(1),-glMat.m(2),
-                      glMat.m(4),-glMat.m(5),-glMat.m(6),
-                      glMat.m(8),-glMat.m(9),-glMat.m(10));
+    CVMatx33f rMat(glMat.val[0], -glMat.val[1], -glMat.val[2],
+                   glMat.val[4], -glMat.val[5], -glMat.val[6],
+                   glMat.val[8], -glMat.val[9], -glMat.val[10]);
     
     // 2) Convert rotation matrix to Rodrigues rotation vector
     Rodrigues(rMat, rVec);
     
     // 3) Create tvec vector from translation components
-    tVec.at<double>(0, 0) =  glMat.m(12);
-    tVec.at<double>(1, 0) = -glMat.m(13);
-    tVec.at<double>(2, 0) = -glMat.m(14);
+    tVec.at<double>(0, 0) =  glMat.val[3];
+    tVec.at<double>(1, 0) = -glMat.val[7];
+    tVec.at<double>(2, 0) = -glMat.val[11];
 }
 //-----------------------------------------------------------------------------
 /*! Calculates the object matrix from the cameraObject and the object view matrix.
@@ -133,8 +131,8 @@ w    w     c
  T  = T  *  T   = Transformation of object with respect to world
   o    c     o    coordinate system (object matrix)
 */
-SLMat4f CVTracked::calcObjectMatrix(const SLMat4f& cameraObjectMat,
-                                      const SLMat4f& objectViewMat)
+CVMatx44f CVTracked::calcObjectMatrix(const CVMatx44f& cameraObjectMat,
+                                      const CVMatx44f& objectViewMat)
 {   
     // new object matrix = camera object matrix * object-view matrix
     return cameraObjectMat * objectViewMat;

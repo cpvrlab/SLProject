@@ -18,14 +18,13 @@ for a good top down information.
 */
 #include <CVTrackedAruco.h>
 #include <Utils.h>
-#include <SLMat4.h>
 
 using namespace cv;
 //-----------------------------------------------------------------------------
 // Initialize static variables
 bool          CVTrackedAruco::paramsLoaded = false;
 vector<int>   CVTrackedAruco::arucoIDs;
-SLVMat4f      CVTrackedAruco::objectViewMats;
+CVVMatx44f    CVTrackedAruco::objectViewMats;
 CVArucoParams CVTrackedAruco::params;
 //-----------------------------------------------------------------------------
 CVTrackedAruco::CVTrackedAruco(int arucoID)
@@ -110,7 +109,7 @@ bool CVTrackedAruco::track(CVMat          imageGray,
         for (size_t i = 0; i < arucoIDs.size(); ++i)
         {
             cout << arucoIDs[i] << ",";
-            SLMat4f ovm = createGLMatrix(cv::Mat(tVecs[i]), cv::Mat(rVecs[i]));
+            CVMatx44f ovm = createGLMatrix(cv::Mat(tVecs[i]), cv::Mat(rVecs[i]));
             objectViewMats.push_back(ovm);
         }
         cout << endl;

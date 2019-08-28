@@ -11,8 +11,6 @@
 #include <CVImage.h>
 #include <Utils.h>
 
-#include <utility>
-
 //-----------------------------------------------------------------------------
 string CVImage::defaultPath;
 //-----------------------------------------------------------------------------
@@ -25,7 +23,7 @@ CVImage::CVImage(int         width,
     allocate(width, height, format);
 }
 //-----------------------------------------------------------------------------
-//! Contructor for image from file
+//! Constructor for image from file
 CVImage::CVImage(const string& filename,
                  bool          flipVertical,
                  bool          loadGrayscaleIntoAlpha)
@@ -36,7 +34,7 @@ CVImage::CVImage(const string& filename,
     load(filename, flipVertical, loadGrayscaleIntoAlpha);
 }
 //-----------------------------------------------------------------------------
-//! Copy contructor from a source image
+//! Copy constructor from a source image
 CVImage::CVImage(CVImage& src) : _name(src.name())
 {
     assert(src.width() && src.height() && src.data());

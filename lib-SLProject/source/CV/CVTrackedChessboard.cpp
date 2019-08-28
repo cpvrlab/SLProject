@@ -8,8 +8,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 /*
 The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have

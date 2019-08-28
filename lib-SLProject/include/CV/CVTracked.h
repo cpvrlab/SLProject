@@ -20,7 +20,6 @@ See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <SLMat4.h>
 #include <Averaged.h>
 #include <HighResTimer.h>
 #include <CVTypedefs.h>
@@ -45,27 +44,27 @@ for a good top down information.
 class CVTracked
 {
     public:
-    explicit CVTracked() : _isVisible(false) {}
+    explicit CVTracked() : _isVisible(false), _drawDetection(true) {}
 
     virtual bool track(CVMat          imageGray,
                        CVMat          imageRgb,
                        CVCalibration* calib) = 0;
 
-    SLMat4f createGLMatrix(const CVMat& tVec,
-                           const CVMat& rVec);
-    void    createRvecTvec(const SLMat4f& glMat,
-                           CVMat&         tVec,
-                           CVMat&         rVec);
-    SLMat4f calcObjectMatrix(const SLMat4f& cameraObjectMat,
-                             const SLMat4f& objectViewMat);
+    cv::Matx44f createGLMatrix(const CVMat& tVec,
+                               const CVMat& rVec);
+    void        createRvecTvec(const CVMatx44f& glMat,
+                               CVMat&           tVec,
+                               CVMat&           rVec);
+    CVMatx44f   calcObjectMatrix(const CVMatx44f& cameraObjectMat,
+                                 const CVMatx44f& objectViewMat);
 
     // Setters
     void drawDetection(bool draw) { _drawDetection = draw; }
 
     // Getters
-    bool    isVisible() { return _isVisible; }
-    bool    drawDetection() { return _drawDetection; }
-    SLMat4f objectViewMat() { return _objectViewMat; }
+    bool      isVisible() { return _isVisible; }
+    bool      drawDetection() { return _drawDetection; }
+    CVMatx44f objectViewMat() { return _objectViewMat; }
 
     // Statics: These statics are used directly in application code (e.g. in )
     static void     resetTimes();    //!< Resets all static variables
@@ -80,7 +79,7 @@ class CVTracked
     protected:
     bool         _isVisible;     //!< Flag if marker is visible
     bool         _drawDetection; //! Flag if detection should be drawn into image
-    SLMat4f      _objectViewMat; //!< view transformation matrix
+    CVMatx44f    _objectViewMat; //!< view transformation matrix
     HighResTimer _timer;         //!< High resolution timer
 };
 //-----------------------------------------------------------------------------

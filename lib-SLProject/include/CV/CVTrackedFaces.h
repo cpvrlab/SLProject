@@ -23,7 +23,7 @@ for a good top down information.
 #include <CVTypedefs.h>
 #include <CVTracked.h>
 
-typedef Averaged<SLVec2f> AvgVec2f;
+typedef Averaged<CVVec2f> AvgCVVec2f;
 //-----------------------------------------------------------------------------
 //! OpenCV face & facial landmark tracker class derived from CVTracked
 /*! Tracking class for face and facial landmark tracking. The class uses the
@@ -50,7 +50,7 @@ class CVTrackedFaces : public CVTracked
     private:
     CVCascadeClassifier* _faceDetector;    //!< Viola-Jones face detector
     cv::Ptr<CVFacemark>  _facemark;        //!< Facial landmarks detector smart pointer
-    vector<AvgVec2f>     _avgPosePoints2D; //!< vector of averaged facial landmark 2D points
+    vector<AvgCVVec2f>   _avgPosePoints2D; //!< vector of averaged facial landmark 2D points
     CVRect               _boundingRect;    //!< Bounding rectangle around landmarks
     CVVPoint2f           _cvPosePoints2D;  //!< vector of OpenCV point2D
     CVVPoint3f           _cvPosePoints3D;  //!< vector of OpenCV point2D

@@ -21,7 +21,7 @@ for a good top down information.
 #include <CVCalibration.h>
 #include <CVCapture.h>
 #include <CVImage.h>
-#include <utils.h>
+#include <Utils.h>
 
 //-----------------------------------------------------------------------------
 CVCapture* CVCapture::_instance = nullptr;

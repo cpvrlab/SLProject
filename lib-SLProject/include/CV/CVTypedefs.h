@@ -48,6 +48,8 @@ typedef cv::Vec4f             CVVec4f;
 typedef cv::Size              CVSize;
 typedef cv::Size2i            CVSize2i;
 typedef cv::Size2f            CVSize2f;
+typedef cv::Matx33f           CVMatx33f;
+typedef cv::Matx44f           CVMatx44f;
 typedef cv::KeyPoint          CVKeyPoint;
 typedef cv::FileStorage       CVFileStorage;
 typedef cv::DMatch            CVDMatch;
@@ -76,6 +78,8 @@ typedef vector<cv::Vec4f>    CVVVec4f;
 typedef vector<cv::Size>     CVVSize;
 typedef vector<cv::KeyPoint> CVVKeyPoint;
 typedef vector<cv::DMatch>   CVVDMatch;
+typedef vector<cv::Matx44f>  CVVMatx44f;
+typedef vector<cv::Matx33f>  CVVMatx33f;
 
 // 2D STL vectors
 typedef vector<vector<cv::Point>>    CVVVPoint;

@@ -2004,14 +2004,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
              SLApplication::sceneID == SID_VideoCalibrateScnd) //........................................
     {
         /*
-        The tracking of markers is done in SLScene::onUpdate by calling the specific
+        The tracking of markers is done in AppDemoTracking::onUpdateTracking by calling the specific
         CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
         The chessboard marker used in these scenes is also used for the camera
         calibration. The different calibration state changes are also handled in
-        SLScene::onUpdate.
+        AppDemoTracking::onUpdateTracking.
         */
 
         // Setup here only the requested scene.
@@ -2105,7 +2105,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
              SLApplication::sceneID == SID_VideoTrackArucoScnd) //.......................................
     {
         /*
-        The tracking of markers is done in SLScene::onUpdate by calling the specific
+        The tracking of markers is done in AppDemoTracking::onUpdateTracking by calling the specific
         CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
@@ -2116,13 +2116,13 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             CVCapture::instance()->videoType(VT_MAIN);
             s->name("Track Aruco (main cam.)");
-            s->info("Hold the Aruco board dictionary 0 into the field of view of the main camera. You can find the Aruco markers in the file data/Calibrations");
+            s->info("Hold the Aruco board dictionary 0 into the field of view of the main camera. You can find the Aruco markers in the file data/Calibrations. If not all markers are tracked you may have the mirror the video horizontally.");
         }
         else
         {
             CVCapture::instance()->videoType(VT_SCND);
             s->name("Track Aruco (scnd. cam.)");
-            s->info("Hold the Aruco board dictionary 0 into the field of view of the secondary camera. You can find the Aruco markers in the file data/Calibrations");
+            s->info("Hold the Aruco board dictionary 0 into the field of view of the secondary camera. You can find the Aruco markers in the file data/Calibrations. If not all markers are tracked you may have the mirror the video horizontally.");
         }
 
         // Create video texture on global pointer updated in AppDemoTracking
@@ -2181,7 +2181,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_VideoTrackFeature2DMain) //...................................
     {
         /*
-        The tracking of markers is done in SLScene::onUpdate by calling the specific
+        The tracking of markers is done in AppDemoTracking::onUpdateTracking by calling the specific
         CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
@@ -2256,7 +2256,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
              SLApplication::sceneID == SID_VideoTrackFaceScnd) //........................................
     {
         /*
-        The tracking of markers is done in SLScene::onUpdate by calling the specific
+        The tracking of markers is done in AppDemoTracking::onUpdateTracking by calling the specific
         CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy

@@ -41,7 +41,7 @@ bool onUpdateTracking()
 
     if (CVCapture::instance()->videoType() != VT_NONE && !CVCapture::instance()->lastFrame.empty())
     {
-        SLfloat          trackingTimeStartMS = SLApplication::timeMS();
+        SLfloat        trackingTimeStartMS = SLApplication::timeMS();
         CVCalibration* ac                  = CVCapture::instance()->activeCalib;
 
         // Invalidate calibration if camera input aspect doesn't match output
@@ -120,17 +120,26 @@ bool onUpdateTracking()
                                                 ac);
                 if (foundPose)
                 {
+                    // clang-format off
+                    // convert matrix type CVMatx44f to SLMat4f
+                    CVMatx44f cvOVM = tracker->objectViewMat();
+                    SLMat4f glOVM(cvOVM.val[0], cvOVM.val[1], cvOVM.val[2], cvOVM.val[3],
+                                  cvOVM.val[4], cvOVM.val[5], cvOVM.val[6], cvOVM.val[7],
+                                  cvOVM.val[8], cvOVM.val[9], cvOVM.val[10],cvOVM.val[11],
+                                  cvOVM.val[12],cvOVM.val[13],cvOVM.val[14],cvOVM.val[15]);
+                    // clang-format on
+
                     // set the object matrix depending if the
                     // tracked node is attached to a camera or not
                     if (typeid(*trackedNode) == typeid(SLCamera))
                     {
-                        trackedNode->om(tracker->objectViewMat().inverted());
+                        trackedNode->om(glOVM.inverted());
                         trackedNode->setDrawBitsRec(SL_DB_HIDDEN, true);
                     }
                     else
                     {
-                        trackedNode->om(tracker->calcObjectMatrix(sv->camera()->om(),
-                                                                  tracker->objectViewMat()));
+                        // see comments in CVTracked::calcObjectMatrix
+                        trackedNode->om(sv->camera()->om() * glOVM);
                         trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);
                     }
                 }
