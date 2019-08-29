@@ -213,8 +213,8 @@ class SLSceneView : public SLObject
 
     SLGLOculusFB _oculusFB; //!< Oculus framebuffer
 
-    SLVNode _blendNodes;     //!< Vector of visible and blended nodes
     SLVNode _visibleNodes;   //!< Vector of all visible nodes
+    SLVNode _blendNodes;     //!< Vector of visible and blended nodes
     SLVNode _visibleNodes2D; //!< Vector of all visible 2D nodes drawn in ortho projection
 
     SLRaytracer  _raytracer;  //!< Whitted style raytracer

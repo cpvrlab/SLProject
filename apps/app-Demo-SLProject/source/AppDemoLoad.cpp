@@ -2011,7 +2011,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         use case.
         The chessboard marker used in these scenes is also used for the camera
         calibration. The different calibration state changes are also handled in
-        AppDemoTracking::onUpdateTracking.
+        AppDemoTracking::onUpdateVideo.
         */
 
         // Setup here only the requested scene.
@@ -2105,7 +2105,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
              SLApplication::sceneID == SID_VideoTrackArucoScnd) //.......................................
     {
         /*
-        The tracking of markers is done in AppDemoTracking::onUpdateTracking by calling the specific
+        The tracking of markers is done in AppDemoTracking::onUpdateVideo by calling the specific
         CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
@@ -2181,7 +2181,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_VideoTrackFeature2DMain) //...................................
     {
         /*
-        The tracking of markers is done in AppDemoTracking::onUpdateTracking by calling the specific
+        The tracking of markers is done in AppDemoTracking::onUpdateVideo by calling the specific
         CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
@@ -2256,7 +2256,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
              SLApplication::sceneID == SID_VideoTrackFaceScnd) //........................................
     {
         /*
-        The tracking of markers is done in AppDemoTracking::onUpdateTracking by calling the specific
+        The tracking of markers is done in AppDemoTracking::onUpdateVideo by calling the specific
         CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy

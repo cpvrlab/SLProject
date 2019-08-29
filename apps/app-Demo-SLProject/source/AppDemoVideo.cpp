@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppDemoTracking.cpp
+//  File:      AppDemoVideo.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      August 2019
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
@@ -29,12 +29,12 @@ CVTracked* tracker = nullptr;
 SLNode* trackedNode = nullptr;
 
 //-----------------------------------------------------------------------------
-//! Implements the update per frame for feature tracking and video update
+//! Implements the update per frame for video update and feature tracking
 /*! This routine is called once per frame before any other update within the
  the main rendering loop (see: AppDemoMainGLFW::onPaint or GLES3View::onDrawFrame).
  See the documentation within SLCVTracked and in all of its inheritants.
 */
-bool onUpdateTracking()
+bool onUpdateVideo()
 {
     SLScene*     s  = SLApplication::scene;
     SLSceneView* sv = s->sceneView(0);

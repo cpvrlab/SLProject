@@ -31,7 +31,7 @@
 //-----------------------------------------------------------------------------
 //! Forward declaration of the scene definition function from AppDemoLoad.cpp
 extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
-extern bool onUpdateTracking();
+extern bool onUpdateVideo();
 
 //-----------------------------------------------------------------------------
 // Global application variables
@@ -78,7 +78,7 @@ SLbool onPaint()
     }
 
     /////////////////////////////////////////////
-    bool trackingGotUpdated = onUpdateTracking();
+    bool trackingGotUpdated = onUpdateVideo();
     bool sceneGotUpdated    = slUpdateScene();
     bool viewsNeedsRepaint  = slPaintAllViews();
     /////////////////////////////////////////////

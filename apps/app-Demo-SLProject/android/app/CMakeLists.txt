@@ -11,7 +11,7 @@ set(
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoAndroidJNI.cpp
         ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoGui.cpp
         ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoLoad.cpp
-        ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoTracking.cpp
+        ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoVideo.cpp
         ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoSceneView.cpp
     )
 

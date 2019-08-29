@@ -33,7 +33,7 @@ extern "C"
 {
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit              (JNIEnv *env, jclass obj, jint width, jint height, jint dpi, jstring filePath);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTerminate         (JNIEnv *env, jclass obj);
-JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateTracking    (JNIEnv *env, jclass obj);
+JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateVideo       (JNIEnv *env, jclass obj);
 JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateScene       (JNIEnv *env, jclass obj);
 JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onPaintAllViews     (JNIEnv *env, jclass obj);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onResize            (JNIEnv *env, jclass obj, jint width, jint height);
@@ -66,7 +66,7 @@ JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_setDeviceParameter  (JNIE
 //-----------------------------------------------------------------------------
 // external functions application code not in SLProject
 extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
-extern bool onUpdateTracking();
+extern bool onUpdateVideo();
 //-----------------------------------------------------------------------------
 //! Native ray tracing callback function that calls the Java class method GLES3Lib.RaytracingCallback
 bool Java_renderRaytracingCallback()
@@ -157,9 +157,9 @@ void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTerminate(JNIEnv *env, jclass obj)
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT
-jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateTracking(JNIEnv *env, jclass obj)
+jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateVideo(JNIEnv *env, jclass obj)
 {
-    return onUpdateTracking();
+    return onUpdateVideo();
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT
