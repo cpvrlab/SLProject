@@ -288,8 +288,8 @@ void CVCalibration::calcCameraFov()
     float fy       = (float)_cameraMat.at<double>(1, 1);
     float cx       = (float)_cameraMat.at<double>(0, 2);
     float cy       = (float)_cameraMat.at<double>(1, 2);
-    _cameraFovHDeg = 2.0f * (float)atan2(cx, fx) * 180.0f / M_PI;
-    _cameraFovVDeg = 2.0f * (float)atan2(cy, fy) * 180.0f / M_PI;
+    _cameraFovHDeg = 2.0f * (float)atan2(cx, fx) * Utils::RAD2DEG;
+    _cameraFovVDeg = 2.0f * (float)atan2(cy, fy) * Utils::RAD2DEG;
 }
 //-----------------------------------------------------------------------------
 //! Calculates the 3D positions of the chessboard corners
@@ -529,7 +529,7 @@ bool CVCalibration::calculate()
                               _calibFlags);
 
     if (!rvecs.empty() || !reprojErrs.empty())
-        _numCaptured = (int)std::max(rvecs.size(), reprojErrs.size());
+        _numCaptured = (int)Utils::max(rvecs.size(), reprojErrs.size());
     else
         _numCaptured = 0;
 
@@ -633,7 +633,7 @@ void CVCalibration::createFromGuessedFOV(int imageWidthPX,
     // overwrite if device lens and sensor information exist and are reasonable
     if (_devFocalLength > 0.0f && _devSensorSizeW > 0.0f && _devSensorSizeH > 0.0f)
     {
-        float devFovH = 2.0f * atan(_devSensorSizeW / (2.0f * _devFocalLength)) * 180.0f / M_PI;
+        float devFovH = 2.0f * atan(_devSensorSizeW / (2.0f * _devFocalLength)) * Utils::RAD2DEG;
         float devFovV = devFovH / withOverHeight;
         if (devFovH > 60.0f && devFovH < 70.0f)
         {
@@ -651,7 +651,7 @@ void CVCalibration::createFromGuessedFOV(int imageWidthPX,
 
     float cx = (float)imageWidthPX * 0.5f;
     float cy = (float)imageHeightPX * 0.5f;
-    float fx = cx / tanf(fovH * 0.5f * M_PI / 180.0f);
+    float fx = cx / tanf(fovH * 0.5f * Utils::DEG2RAD);
     float fy = fx;
 
     _imageSize.width  = imageWidthPX;
@@ -673,7 +673,7 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
     // new center and focal length in pixels not mm
     float cx = (float)newSize.width * 0.5f;
     float cy = (float)newSize.height * 0.5f;
-    float fx = cx / tanf(_cameraFovHDeg * 0.5f * M_PI / 180.0f);
+    float fx = cx / tanf(_cameraFovHDeg * 0.5f * Utils::DEG2RAD);
     float fy = fx;
 
     _imageSize.width  = newSize.width;

@@ -37,9 +37,12 @@ set(DEFAULT_COMPILE_DEFINITIONS
 # MSVC compiler options
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     set(DEFAULT_COMPILE_DEFINITIONS ${DEFAULT_COMPILE_DEFINITIONS}
-        _SCL_SECURE_NO_WARNINGS  # Calling any one of the potentially unsafe methods in the Standard C++ Library
-        _CRT_SECURE_NO_WARNINGS  # Calling any one of the potentially unsafe methods in the CRT Library
-    )
+            _SCL_SECURE_NO_WARNINGS  # Calling any one of the potentially unsafe methods in the Standard C++ Library
+            _CRT_SECURE_NO_WARNINGS  # Calling any one of the potentially unsafe methods in the CRT Library
+            )
+    set(DEFAULT_PROJECT_OPTIONS  ${DEFAULT_PROJECT_OPTIONS}
+            CXX_STANDARD 17
+            )
 endif ()
 
 set(DEFAULT_COMPILE_OPTIONS)
