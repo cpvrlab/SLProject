@@ -165,7 +165,7 @@ void SLRay::normalizeNormal()
 /*!
 SLRay::reflect calculates a secondary ray reflected at the normal, starting at 
 the intersection point. All vectors must be normalized vectors.
-R = 2(-I·N) N + I
+R = 2(-Iï¿½N) N + I
 */
 void SLRay::reflect(SLRay* reflected)
 {  SLVec3f R(dir - 2.0f*(dir*hitNormal)*hitNormal);
@@ -343,7 +343,7 @@ void SLRay::diffuseMC(SLRay* scattered)
    SLMat3f rotMat;
    SLVec3f rotAxis((SLVec3f(0.0,0.0,1.0) ^ scattered->dir).normalize());
    SLfloat rotAngle=acos(scattered->dir.z); //z*scattered.dir()
-   rotMat.rotation(rotAngle*180.0f/SL_PI, rotAxis);
+   rotMat.rotation(rotAngle*180.0f/Utils::ONEPI, rotAxis);
 
    //cosine distribution
    eta1 = (SLfloat)random->Random(); 

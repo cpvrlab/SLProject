@@ -40,7 +40,6 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLCurveBezier.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMat3.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMat4.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMath.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLPlane.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLQuat4.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVec2.h

@@ -15,7 +15,6 @@
 #include <stack>
 #include <Utils.h>
 #include <SLMat3.h>
-#include <SLMath.h>
 #include <SLVec3.h>
 #include <SLVec4.h>
 #include <assert.h>
@@ -850,7 +849,7 @@ template<class T>
 void SLMat4<T>::perspective(const T fov, const T aspect, 
                             const T n, const T f)
 {
-   T t = (T)tan(fov*SL_DEG2RAD*0.5)*n;
+   T t = (T)tan(fov * DEG2RAD * 0.5)*n;
    T b = -t;
    T r = t*aspect;
    T l = -r;
@@ -950,7 +949,7 @@ void SLMat4<T>::rotation(const T degAng,
                          const T axisx, const T axisy, const T axisz,
                          const SLbool keepTrans)
 {
-    T RadAng = (T)degAng*SL_DEG2RAD;
+    T RadAng = (T)degAng * DEG2RAD;
     T ca=(T)cos(RadAng), sa=(T)sin(RadAng);
     if (axisx==1 && axisy==0 && axisz==0)              // about x-axis
     {   _m[0]=1; _m[4]=0;  _m[8]=0;   

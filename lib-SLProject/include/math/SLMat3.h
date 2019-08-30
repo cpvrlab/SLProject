@@ -15,8 +15,9 @@
 #include <SL.h>
 #include <Utils.h>
 #include <SLVec3.h>
-#include <SLMath.h>
 #include <iostream>
+
+using namespace Utils;
 
 //-----------------------------------------------------------------------------
 //! 3x3 matrix template class
@@ -162,9 +163,9 @@ SLMat3<T>::SLMat3(const T angleZDEG,
                   const T angleYDEG,
                   const T angleXDEG)
 {
-    fromEulerAnglesXYZ(angleXDEG*SL_DEG2RAD,
-                       angleYDEG*SL_DEG2RAD,
-                       angleZDEG*SL_DEG2RAD);
+    fromEulerAnglesXYZ(angleXDEG * DEG2RAD,
+                       angleYDEG * DEG2RAD,
+                       angleZDEG * DEG2RAD);
 }
 
 
@@ -367,7 +368,7 @@ template<class T>
 void SLMat3<T>::rotation(const T angleDEG, 
                          const T axisx, const T axisy, const T axisz)
 {
-    T angleRAD = (T)angleDEG*SL_DEG2RAD;
+    T angleRAD = (T)angleDEG * DEG2RAD;
     T ca = (T)cos(angleRAD);
     T sa = (T)sin(angleRAD);
 
@@ -501,7 +502,7 @@ void SLMat3<T>::toAngleAxis(T& angleDEG, SLVec3<T>& axis) const
 
     if (angleRAD > (T)0)
     {
-        if (angleRAD < SL_PI)
+        if (angleRAD < PI)
         {
             axis.x = _m[5] - _m[7];
             axis.y = _m[6] - _m[2];
@@ -562,7 +563,7 @@ void SLMat3<T>::toAngleAxis(T& angleDEG, SLVec3<T>& axis) const
         axis.y = (T)0;
         axis.z = (T)0;
     }
-    angleDEG = angleRAD * SL_RAD2DEG;
+    angleDEG = angleRAD * RAD2DEG;
 }
 
 //-----------------------------------------------------------------------------

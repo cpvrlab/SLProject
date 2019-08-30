@@ -59,7 +59,7 @@ void SLGLState::initAll()
         lightSpotDirWS[i]  = SLVec3f(0, 0, -1);
         lightSpotDirVS[i]  = SLVec3f(0, 0, -1);
         lightSpotCutoff[i] = 180.0f;
-        lightSpotCosCut[i] = cos(SL_DEG2RAD * lightSpotCutoff[i]);
+        lightSpotCosCut[i] = cos(Utils::DEG2RAD * lightSpotCutoff[i]);
         lightSpotExp[i]    = 1.0f;
         lightAtt[i].set(1.0f, 0.0f, 0.0f);
         lightDoAtt[i] = 0;

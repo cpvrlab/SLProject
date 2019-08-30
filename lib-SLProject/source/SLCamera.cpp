@@ -151,7 +151,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             const SLMat4f& vm = updateAndGetWMI();
             SLVVec3f       P;
             SLVec3f        pos(vm.translation());
-            SLfloat        t = tan(SL_DEG2RAD * _fov * 0.5f) * pos.length(); // top
+            SLfloat        t = tan(Utils::DEG2RAD * _fov * 0.5f) * pos.length(); // top
             SLfloat        b = -t;                                           // bottom
             SLfloat        l = -sv->scrWdivH() * t;                          // left
             SLfloat        r = -l;                                           // right
@@ -219,7 +219,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
         {
             SLVVec3f P;
             SLfloat  aspect = sv->scrWdivH();
-            SLfloat  tanFov = tan(_fov * SL_DEG2RAD * 0.5f);
+            SLfloat  tanFov = tan(_fov * Utils::DEG2RAD * 0.5f);
             SLfloat  tF     = tanFov * _clipFar;      //top far
             SLfloat  rF     = tF * aspect;            //right far
             SLfloat  lF     = -rF;                    //left far
@@ -312,7 +312,7 @@ the camera position and the 4 near clipping plane points in object space (OS).
 void SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV)
 {
     SLVec3f P[5];
-    SLfloat tanFov = tan(_fov * SL_DEG2RAD * 0.5f);
+    SLfloat tanFov = tan(_fov * Utils::DEG2RAD * 0.5f);
     SLfloat tN     = tanFov * _clipNear; //top near
     SLfloat rN     = tN * _aspect;       //right near
 
@@ -383,7 +383,7 @@ should correspond to the height of the projection plane.
 */
 SLfloat SLCamera::focalDistScrH() const
 {
-    return tan(_fov * SL_DEG2RAD / 2.0f) * _focalDist * 2.0f;
+    return tan(_fov * Utils::DEG2RAD / 2.0f) * _focalDist * 2.0f;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -426,7 +426,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
             break;
 
         case P_monoOrthographic:
-            top    = tan(SL_DEG2RAD * _fov * 0.5f) * pos.length();
+            top    = tan(Utils::DEG2RAD * _fov * 0.5f) * pos.length();
             bottom = -top;
             left   = -sv->scrWdivH() * top;
             right  = -left;
@@ -445,7 +445,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         default:
             // asymmetric frustum shift d (see chapter stereo projection)
             d      = (SLfloat)eye * 0.5f * _eyeSeparation * _clipNear / _focalDist;
-            top    = tan(SL_DEG2RAD * _fov / 2) * _clipNear;
+            top    = tan(Utils::DEG2RAD * _fov / 2) * _clipNear;
             bottom = -top;
             left   = -sv->scrWdivH() * top - d;
             right  = sv->scrWdivH() * top - d;
@@ -584,7 +584,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         if (SLApplication::devRot.zeroYawAtStart())
         {
             //east-north-down w.r.t. world-yaw
-            SLfloat rotYawOffsetDEG = -SLApplication::devRot.startYawRAD() * SL_RAD2DEG + 90;
+            SLfloat rotYawOffsetDEG = -SLApplication::devRot.startYawRAD() * Utils::RAD2DEG + 90;
             if (rotYawOffsetDEG > 180)
                 rotYawOffsetDEG -= 360;
             wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
@@ -638,7 +638,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             if (SLApplication::devRot.zeroYawAtStart())
             {
                 //east-north-down w.r.t. world-yaw
-                SLfloat rotYawOffsetDEG = -SLApplication::devRot.startYawRAD() * SL_RAD2DEG + 90;
+                SLfloat rotYawOffsetDEG = -SLApplication::devRot.startYawRAD() * Utils::RAD2DEG + 90;
                 if (rotYawOffsetDEG > 180)
                     rotYawOffsetDEG -= 360;
                 wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
@@ -862,7 +862,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
                 // Take care that the dot product isn't greater than 1.0 otherwise
                 // the acos will return indefined.
                 SLfloat dot   = _trackballStartVec.dot(curMouseVec);
-                SLfloat angle = acos(dot > 1 ? 1 : dot) * SL_RAD2DEG;
+                SLfloat angle = acos(dot > 1 ? 1 : dot) * Utils::RAD2DEG;
 
                 // calculate rotation axis with the cross product
                 SLVec3f axisVS;
@@ -940,7 +940,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             dMouse.y /= (SLfloat)_scrH;
 
             // scale factor depending on the space size at focal dist
-            SLfloat spaceH = tan(SL_DEG2RAD * _fov / 2) * _focalDist * 2.0f;
+            SLfloat spaceH = tan(Utils::DEG2RAD * _fov / 2) * _focalDist * 2.0f;
             SLfloat spaceW = spaceH * _aspect;
 
             dMouse.x *= spaceW;
@@ -1064,7 +1064,7 @@ SLbool SLCamera::onTouch2Move(const SLint x1,
     avgDelta2.toPolar(r2, phi2);
 
     // scale factor depending on the space sice at focal dist
-    SLfloat spaceH = tan(SL_DEG2RAD * _fov / 2) * _focalDist * 2.0f;
+    SLfloat spaceH = tan(Utils::DEG2RAD * _fov / 2) * _focalDist * 2.0f;
     SLfloat spaceW = spaceH * _aspect;
 
     // if fingers move parallel slide camera vertically or horizontally
@@ -1271,7 +1271,7 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
         parallel to the projection plan at zero distance from the eye.
         */
         SLVec3f pos(updateAndGetVM().translation());
-        SLfloat hh = tan(SL_DEG2RAD * _fov * 0.5f) * pos.length();
+        SLfloat hh = tan(Utils::DEG2RAD * _fov * 0.5f) * pos.length();
         SLfloat hw = hh * _aspect;
 
         // calculate the size of a pixel in world coords.
@@ -1291,7 +1291,7 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
         primary ray calculation.
         */
         // calculate half window width & height in world coords
-        SLfloat hh = tan(SL_DEG2RAD * _fov * 0.5f) * _focalDist;
+        SLfloat hh = tan(Utils::DEG2RAD * _fov * 0.5f) * _focalDist;
         SLfloat hw = hh * _aspect;
 
         // calculate the size of a pixel in world coords.

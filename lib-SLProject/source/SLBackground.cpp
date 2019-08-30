@@ -281,12 +281,12 @@ SLCol4f SLBackground::colorAtPos(SLfloat x, SLfloat y)
     // Quadrilateral interpolation
     // First check with barycentric coords if p is in the upper left triangle
     SLVec2f p(x, y);
-    SLVec3f bc = p.barycentricCoords(SLVec2f(0, 0),
-                                     SLVec2f((SLfloat)_resX, (SLfloat)_resY),
-                                     SLVec2f(0, (SLfloat)_resY));
-    SLfloat u  = bc.x;
-    SLfloat v  = bc.y;
-    SLfloat w  = 1 - bc.x - bc.y;
+    SLVec3f bc(p.barycentricCoords(SLVec2f(0, 0),
+                                   SLVec2f((SLfloat)_resX, (SLfloat)_resY),
+                                   SLVec2f(0, (SLfloat)_resY)));
+    SLfloat u = bc.x;
+    SLfloat v = bc.y;
+    SLfloat w = 1 - bc.x - bc.y;
 
     SLCol4f color;
 

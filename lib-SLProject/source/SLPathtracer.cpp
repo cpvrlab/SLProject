@@ -248,7 +248,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
             SLMat3f rotMat;
             SLVec3f rotAxis((SLVec3f(0.0f, 0.0f, 1.0f) ^ reflected.dir).normalize());
             SLfloat rotAngle = acos(reflected.dir.z);
-            rotMat.rotation(rotAngle * 180.0f / SL_PI, rotAxis);
+            rotMat.rotation(rotAngle * 180.0f * Utils::ONEOVERPI, rotAxis);
             ray->reflectMC(&reflected, rotMat);
         }
 
@@ -303,7 +303,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
             SLMat3f rotMat;
             SLVec3f rotAxis((SLVec3f(0.0f, 0.0f, 1.0f) ^ refracted.dir).normalize());
             SLfloat rotAngle = acos(refracted.dir.z);
-            rotMat.rotation((SLfloat)(rotAngle * 180.0f / SL_PI), rotAxis);
+            rotMat.rotation((SLfloat)(rotAngle * 180.0f * Utils::ONEOVERPI), rotAxis);
             ray->refractMC(&refracted, rotMat);
         }
 
@@ -384,7 +384,7 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor)
                 df = Utils::max(LdN, 0.0f); // diffuse factor
 
                 // material color * light emission * LdN * brdf(1/pi) * lighted(for soft shadows)
-                diffuseColor = (*objectColor & (light->diffuse() * df) * (1 / SL_PI) * lighted);
+                diffuseColor = (*objectColor & (light->diffuse() * df) * Utils::ONEOVERPI * lighted);
             }
 
             color += light->attenuation(lightDist) * spotEffect * diffuseColor;

@@ -1136,7 +1136,13 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial* matRed = new SLMaterial("matRed", SLCol4f(1.00f, 0.00f, 0.00f));
 
         // water rectangle in the y=0 plane
-        SLNode* wave = new SLNode(new SLRectangle(SLVec2f(-SL_PI, -SL_PI), SLVec2f(SL_PI, SL_PI), 40, 40, "WaterRect", matWater));
+        SLNode* wave = new SLNode(new SLRectangle(SLVec2f(-Utils::PI,
+                                                          -Utils::PI),
+                                                  SLVec2f(Utils::PI, Utils::PI),
+                                                  40,
+                                                  40,
+                                                  "WaterRect",
+                                                  matWater));
         wave->rotate(90, -1, 0, 0);
 
         SLLightSpot* light0 = new SLLightSpot();
@@ -1191,8 +1197,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         matTile->textures().push_back(tex2);
 
         // water rectangle in the y=0 plane
-        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-SL_PI, -SL_PI),
-                                                  SLVec2f(SL_PI, SL_PI),
+        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-Utils::PI, -Utils::PI),
+                                                  SLVec2f(Utils::PI, Utils::PI),
                                                   40,
                                                   40,
                                                   "WaterRect",
@@ -1201,20 +1207,20 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Pool rectangles
         SLuint  res   = 10;
-        SLNode* rectF = new SLNode(new SLRectangle(SLVec2f(-SL_PI, -SL_PI / 6), SLVec2f(SL_PI, SL_PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectF", matTile));
-        SLNode* rectN = new SLNode(new SLRectangle(SLVec2f(-SL_PI, -SL_PI / 6), SLVec2f(SL_PI, SL_PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectN", matTile));
-        SLNode* rectL = new SLNode(new SLRectangle(SLVec2f(-SL_PI, -SL_PI / 6), SLVec2f(SL_PI, SL_PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectL", matTile));
-        SLNode* rectR = new SLNode(new SLRectangle(SLVec2f(-SL_PI, -SL_PI / 6), SLVec2f(SL_PI, SL_PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectR", matTile));
-        SLNode* rectB = new SLNode(new SLRectangle(SLVec2f(-SL_PI, -SL_PI), SLVec2f(SL_PI, SL_PI), SLVec2f(0, 0), SLVec2f(10, 10), res, res, "rectB", matTile));
-        rectF->translate(0, 0, -SL_PI, TS_object);
+        SLNode* rectF = new SLNode(new SLRectangle(SLVec2f(-Utils::PI, -Utils::PI / 6), SLVec2f(Utils::PI, Utils::PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectF", matTile));
+        SLNode* rectN = new SLNode(new SLRectangle(SLVec2f(-Utils::PI, -Utils::PI / 6), SLVec2f(Utils::PI, Utils::PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectN", matTile));
+        SLNode* rectL = new SLNode(new SLRectangle(SLVec2f(-Utils::PI, -Utils::PI / 6), SLVec2f(Utils::PI, Utils::PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectL", matTile));
+        SLNode* rectR = new SLNode(new SLRectangle(SLVec2f(-Utils::PI, -Utils::PI / 6), SLVec2f(Utils::PI, Utils::PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectR", matTile));
+        SLNode* rectB = new SLNode(new SLRectangle(SLVec2f(-Utils::PI, -Utils::PI), SLVec2f(Utils::PI, Utils::PI), SLVec2f(0, 0), SLVec2f(10, 10), res, res, "rectB", matTile));
+        rectF->translate(0, 0, -Utils::PI, TS_object);
         rectL->rotate(90, 0, 1, 0);
-        rectL->translate(0, 0, -SL_PI, TS_object);
+        rectL->translate(0, 0, -Utils::PI, TS_object);
         rectN->rotate(180, 0, 1, 0);
-        rectN->translate(0, 0, -SL_PI, TS_object);
+        rectN->translate(0, 0, -Utils::PI, TS_object);
         rectR->rotate(270, 0, 1, 0);
-        rectR->translate(0, 0, -SL_PI, TS_object);
+        rectR->translate(0, 0, -Utils::PI, TS_object);
         rectB->rotate(90, -1, 0, 0);
-        rectB->translate(0, 0, -SL_PI / 6, TS_object);
+        rectB->translate(0, 0, -Utils::PI / 6, TS_object);
 
         SLLightSpot* light0 = new SLLightSpot();
         light0->ambient(SLCol4f(0, 0, 0));

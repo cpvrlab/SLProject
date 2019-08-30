@@ -18,7 +18,6 @@
 #import <CoreMotion/CoreMotion.h>
 
 // C++ includes for the SceneLibrary
-#include <SLMath.h>
 #include <Utils.h>
 #include "Utils_iOS.h"
 #include <SLInterface.h>

@@ -51,9 +51,9 @@ SLSpheric::SLSpheric(SLfloat     sphereRadius,
     _revAxis.set(0, 0, 1);
     _revPoints.reserve(stacks + 1);
 
-    SLfloat theta  = -SL_PI + thetaStartDEG * SL_DEG2RAD;
+    SLfloat theta  = -Utils::PI + thetaStartDEG * Utils::DEG2RAD;
     SLfloat phi    = 0;
-    SLfloat dTheta = (thetaEndDEG - thetaStartDEG) * SL_DEG2RAD / stacks;
+    SLfloat dTheta = (thetaEndDEG - thetaStartDEG) * Utils::DEG2RAD / stacks;
 
     for (SLuint i = 0; i <= stacks; ++i)
     {

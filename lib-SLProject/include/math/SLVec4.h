@@ -14,6 +14,7 @@
 #include <SL.h>
 #include <SLVec2.h>
 #include <SLVec3.h>
+#include <Utils.h>
 
 //-----------------------------------------------------------------------------
 //! 4D vector template class for standard 4D vector algebra.
@@ -189,7 +190,7 @@ class SLVec4
             //! HSVA to RGBA color conversion (http://www.rapidtables.com/convert/color/hsv-to-rgb.htm)
             void    hsva2rgba   (const SLVec4 &hsva)
             {
-                T h = fmod(fmod(hsva.x, SL_2PI) + SL_2PI, SL_2PI); // 0 deg <= H <= 360 deg
+                T h = fmod(fmod(hsva.x, Utils::TWOPI) + Utils::TWOPI, Utils::TWOPI); // 0 deg <= H <= 360 deg
                 T s = Utils::clamp(hsva.y, 0.0f, 1.0f);
                 T v = Utils::clamp(hsva.z, 0.0f, 1.0f);
                 T a = Utils::clamp(hsva.w, 0.0f, 1.0f);
@@ -198,7 +199,7 @@ class SLVec4
                 T x = c * (1.0f - (T)fabs((T)fmod(h*3.0f / M_PI, 2.0f) - 1.0f));
                 T m = v - c;
 
-                switch (SLint(floor(h*3.0f / SL_PI)))
+                switch (SLint(floor(h*3.0f * Utils::ONEOVERPI)))
                 {   case 0: return set(m + c, m + x, m    , a); // [  0 deg, 60 deg]
                     case 1: return set(m + x, m + c, m    , a); // [ 60 deg,120 deg]
                     case 2: return set(m    , m + c, m + x, a); // [120 deg,180 deg]

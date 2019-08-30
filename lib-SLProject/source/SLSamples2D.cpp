@@ -36,7 +36,7 @@ void SLSamples2D::distribConcentric(SLbool evenlyDistributed)
 {
     if (_points.size())
     {
-        SLfloat halfDeltaPhi = SL_2PI / _samplesY * 0.5f;
+        SLfloat halfDeltaPhi = Utils::TWOPI / _samplesY * 0.5f;
         SLfloat phi, r, last_r = 1.0f;
 
         // Loop over radius r and angle phi
@@ -50,7 +50,7 @@ void SLSamples2D::distribConcentric(SLbool evenlyDistributed)
             SLfloat iModPhi = (iR % 2) * halfDeltaPhi;
             for (SLint iPhi = (SLint)_samplesY - 1; iPhi >= 0; --iPhi)
             {
-                phi = SL_2PI * ((SLfloat)iPhi) / _samplesY + iModPhi;
+                phi = Utils::TWOPI * ((SLfloat)iPhi) / _samplesY + iModPhi;
                 point((SLuint)iR, (SLuint)iPhi, SLVec2f(r * cos(phi), r * sin(phi)));
             }
             last_r = r;
@@ -73,12 +73,12 @@ SLVec2f SLSamples2D::mapSquareToDisc(SLfloat x, // [0 < x <=1]
         if (a > b)
         {
             r   = a;
-            phi = (SL_PI / 4) * (b / a);
+            phi = (Utils::PI / 4) * (b / a);
         }
         else
         {
             r   = b;
-            phi = (SL_PI / 4) * (2 - a / b);
+            phi = (Utils::PI / 4) * (2 - a / b);
         }
     }
     else
@@ -86,14 +86,14 @@ SLVec2f SLSamples2D::mapSquareToDisc(SLfloat x, // [0 < x <=1]
         if (a < b)
         {
             r   = -a;
-            phi = (SL_PI / 4) * (4 + b / a);
+            phi = (Utils::PI / 4) * (4 + b / a);
         }
         else
         {
             r = -b;
             if (b != 0)
             {
-                phi = (SL_PI / 4) * (6 - a / b);
+                phi = (Utils::PI / 4) * (6 - a / b);
             }
             else
                 phi = 0;

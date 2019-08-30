@@ -182,19 +182,19 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
         {
             vsCorner = vm * vsCorner;
 
-            vsMin.x = min(vsMin.x, vsCorner.x);
-            vsMin.y = min(vsMin.y, vsCorner.y);
-            vsMin.z = min(vsMin.z, vsCorner.z);
+            vsMin.x = Utils::min(vsMin.x, vsCorner.x);
+            vsMin.y = Utils::min(vsMin.y, vsCorner.y);
+            vsMin.z = Utils::min(vsMin.z, vsCorner.z);
 
-            vsMax.x = max(vsMax.x, vsCorner.x);
-            vsMax.y = max(vsMax.y, vsCorner.y);
-            vsMax.z = max(vsMax.z, vsCorner.z);
+            vsMax.x = Utils::max(vsMax.x, vsCorner.x);
+            vsMax.y = Utils::max(vsMax.y, vsCorner.y);
+            vsMax.z = Utils::max(vsMax.z, vsCorner.z);
         }
 
         SLfloat dist    = 0.0f;
         SLfloat distX   = 0.0f;
         SLfloat distY   = 0.0f;
-        SLfloat halfTan = tan(SL_DEG2RAD * _sceneViewCamera.fov() * 0.5f);
+        SLfloat halfTan = tan(Utils::DEG2RAD * _sceneViewCamera.fov() * 0.5f);
 
         // @todo There is still a bug when OSX doesn't pass correct GLWidget size
         // correctly set the camera distance...
@@ -219,7 +219,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
             distY += vsMax.z;
         }
 
-        dist = max(distX, distY);
+        dist = Utils::max(distX, distY);
 
         // set focal distance
         _sceneViewCamera.focalDist(dist);
@@ -909,7 +909,7 @@ void SLSceneView::draw2DGLNodes()
 
             // Add points for circle over window
             SLint   circlePoints = 60;
-            SLfloat deltaPhi     = SL_2PI / (SLfloat)circlePoints;
+            SLfloat deltaPhi     = Utils::TWOPI / (SLfloat)circlePoints;
             for (SLint i = 0; i < circlePoints; ++i)
             {
                 SLVec2f c;

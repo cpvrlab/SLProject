@@ -351,7 +351,7 @@ bool SLRay::reflectMC(SLRay* reflected, SLMat3f rotMat)
 
     //scatter within specular lobe
     eta1       = rnd01();
-    eta2       = SL_2PI * rnd01();
+    eta2       = Utils::TWOPI * rnd01();
     SLfloat f1 = sqrt(1.0f - pow(eta1, 2.0f / (shininess + 1.0f)));
 
     //tranform to cartesian
@@ -403,7 +403,7 @@ void SLRay::refractMC(SLRay* refracted, SLMat3f rotMat)
 
     //scatter within transmissive lobe
     eta1       = rnd01();
-    eta2       = SL_2PI * rnd01();
+    eta2       = Utils::TWOPI * rnd01();
     SLfloat f1 = sqrt(1.0f - pow(eta1, 2.0f / (translucency + 1.0f)));
 
     //transform to cartesian
@@ -459,11 +459,11 @@ void SLRay::diffuseMC(SLRay* scattered)
     SLMat3f rotMat;
     SLVec3f rotAxis((SLVec3f(0.0, 0.0, 1.0) ^ scattered->dir).normalize());
     SLfloat rotAngle = acos(scattered->dir.z); //z*scattered.dir()
-    rotMat.rotation(rotAngle * 180.0f / SL_PI, rotAxis);
+    rotMat.rotation(rotAngle * 180.0f * Utils::ONEOVERPI, rotAxis);
 
     //cosine distribution
     eta1     = rnd01();
-    eta2     = SL_2PI * rnd01();
+    eta2     = Utils::TWOPI * rnd01();
     eta1sqrt = sqrt(1 - eta1);
 
     //transform to cartesian

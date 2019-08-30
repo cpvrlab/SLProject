@@ -55,7 +55,6 @@
 #include <SLGLState.h>
 #include <SLMat3.h>
 #include <SLMat4.h>
-#include <SLMath.h>
 #include <SLObject.h>
 #include <SLPlane.h>
 #include <SLQuat4.h>

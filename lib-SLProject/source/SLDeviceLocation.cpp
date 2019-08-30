@@ -109,8 +109,8 @@ void SLDeviceLocation::originLLA(SLdouble latDEG, SLdouble lonDEG, SLdouble altM
     //calculation of ecef to world (scene) rotation matrix
     //definition of rotation matrix for ECEF to world frame rotation:
     //world frame (scene) w.r.t. ENU frame
-    double phiRad = latDEG * SL_DEG2RAD; //   phi == latitude
-    double lamRad = lonDEG * SL_DEG2RAD; //lambda == longitude
+    double phiRad = latDEG * Utils::DEG2RAD; //   phi == latitude
+    double lamRad = lonDEG * Utils::DEG2RAD; //lambda == longitude
     double sinPhi = sin(phiRad);
     double cosPhi = cos(phiRad);
     double sinLam = sin(lamRad);

@@ -13,8 +13,8 @@
 
 #include <SL.h>
 #include <SLMat4.h>
-#include <SLMath.h>
 #include <SLVec4.h>
+#include <Utils.h>
 
 //-----------------------------------------------------------------------------
 //!Quaternion class for angle-axis rotation representation.
@@ -29,10 +29,10 @@ class SLQuat4
 {  
     public:         SLQuat4         ();
                     SLQuat4         (T x, T y, T z, T w);
-                    SLQuat4         (const SLMat3<T>& m);
-                    SLQuat4         (const T angleDEG, const SLVec3<T>& axis);
+           explicit SLQuat4         (const SLMat3<T>& m);
+                    SLQuat4         (T angleDEG, const SLVec3<T>& axis);
                     SLQuat4         (const SLVec3<T>& v0, const SLVec3<T>& v1);
-                    SLQuat4         (const T pitchRAD, const T yawRAD, const T rollRAD);
+                    SLQuat4         (T pitchRAD, T yawRAD, T rollRAD);
       
         T           x               () const { return _x; }
         T           y               () const { return _y; }
@@ -41,9 +41,9 @@ class SLQuat4
 
         void        set             (T x, T y, T z, T w);
         void        fromMat3        (const SLMat3<T>& m);
-        void        fromAngleAxis   (const T angleRAD,
-                                     const T axisX, const T axisY, const T axisZ);
-        void        fromEulerAngles (const T pitchRAD, const T yawRAD, const T rollRAD);
+        void        fromAngleAxis   (T angleRAD,
+                                     T axisX, T axisY, T axisZ);
+        void        fromEulerAngles (T pitchRAD, T yawRAD, T rollRAD);
         void        fromVec3        (const SLVec3<T>& v0, const SLVec3<T>& v1);
 
  static SLQuat4<T>  fromLookRotation(const SLVec3<T>& forward, const SLVec3<T>& up);
@@ -68,23 +68,23 @@ class SLQuat4
         SLVec3<T>   rotate          (const SLVec3<T>& vec) const;
         SLQuat4<T>  scaled          (T scale) const;
         void        scale           (T scale);
-        SLQuat4<T>  lerp            (const SLQuat4<T>& q2, const T t) const;
+        SLQuat4<T>  lerp            (const SLQuat4<T>& q2, T t) const;
         void        lerp            (const SLQuat4<T>& q1,
-                                    const SLQuat4<T>& q2, const T t);
-        SLQuat4<T>  slerp           (const SLQuat4<T>& q2, const T t) const;
+                                    const SLQuat4<T>& q2, T t);
+        SLQuat4<T>  slerp           (const SLQuat4<T>& q2, T t) const;
         void        slerp           (const SLQuat4<T>& q1,
-                                    const SLQuat4<T>& q2, const T t);
+                                    const SLQuat4<T>& q2, T t);
 
-        SLQuat4<T>& operator=       (const SLQuat4<T> q);
+        SLQuat4<T>& operator=       (SLQuat4<T> q);
         SLQuat4<T>  operator-       (const SLQuat4<T>& q) const;
         SLQuat4<T>  operator+       (const SLQuat4<T>& q) const;
         SLQuat4<T>  operator*       (const SLQuat4<T>& q) const;
-        SLQuat4<T>  operator*       (const T s) const;
+        SLQuat4<T>  operator*       (T s) const;
         SLVec3<T>   operator*       (const SLVec3<T>& v) const;
         SLbool      operator==      (const SLQuat4<T>& q) const;
         SLbool      operator!=      (const SLQuat4<T>& q) const;
         SLQuat4<T>& operator*=      (const SLQuat4<T>& q2);
-        SLQuat4<T>& operator*=      (const T s);
+        SLQuat4<T>& operator*=      (T s);
         
     static SLQuat4 IDENTITY;
 
@@ -118,7 +118,7 @@ inline SLQuat4<T>::SLQuat4(const SLMat3<T>& m)
 template <class T>
 inline SLQuat4<T>::SLQuat4(const T angleDEG, const SLVec3<T>& axis)
 {
-    fromAngleAxis(angleDEG*SL_DEG2RAD, axis.x, axis.y, axis.z);
+    fromAngleAxis(angleDEG * DEG2RAD, axis.x, axis.y, axis.z);
 }
 
 //-----------------------------------------------------------------------------
@@ -193,7 +193,7 @@ void SLQuat4<T>::fromVec3(const SLVec3<T>& v0, const SLVec3<T>& v1)
     // by Stan Melax in "Game Programming Gems".
     if (v0 == -v1)
     {
-        fromAngleAxis(SL_PI, 1, 0, 0);
+        fromAngleAxis(PI, 1, 0, 0);
         return;
     }
       
@@ -366,7 +366,7 @@ void SLQuat4<T>::toAngleAxis (T& angleDEG, SLVec3<T>& axis) const
 
     if (sqrLen > FLT_EPSILON)
     {
-        angleDEG = ((T)2) * acos(_w) * SL_RAD2DEG;
+        angleDEG = ((T)2) * acos(_w) * RAD2DEG;
         T len = sqrt(sqrLen);
         axis.x = _x / len;
         axis.y = _y / len;

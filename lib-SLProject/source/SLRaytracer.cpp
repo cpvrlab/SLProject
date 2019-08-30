@@ -772,7 +772,7 @@ void SLRaytracer::prepareImage()
         parallel to the projection plan at zero distance from the eye.
         */
         SLVec3f pos(_cam->updateAndGetVM().translation());
-        SLfloat hh = tan(SL_DEG2RAD * _cam->fov() * 0.5f) * pos.length();
+        SLfloat hh = tan(Utils::DEG2RAD * _cam->fov() * 0.5f) * pos.length();
         SLfloat hw = hh * _sv->scrWdivH();
 
         // calculate the size of a pixel in world coords.
@@ -788,7 +788,7 @@ void SLRaytracer::prepareImage()
         primary ray calculation.
         */
         // calculate half window width & height in world coords
-        SLfloat hh = tan(SL_DEG2RAD * _cam->fov() * 0.5f) * _cam->focalDist();
+        SLfloat hh = tan(Utils::DEG2RAD * _cam->fov() * 0.5f) * _cam->focalDist();
         SLfloat hw = hh * _sv->scrWdivH();
 
         // calculate the size of a pixel in world coords.

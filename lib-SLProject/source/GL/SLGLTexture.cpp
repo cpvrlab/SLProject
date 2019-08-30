@@ -405,8 +405,8 @@ void SLGLTexture::build(SLint texID)
         if (_min_filter == SL_ANISOTROPY_MAX)
             anisotropy = maxAnisotropy;
         else
-            anisotropy = min((SLfloat)(_min_filter - GL_LINEAR_MIPMAP_LINEAR),
-                             maxAnisotropy);
+            anisotropy = Utils::min((SLfloat)(_min_filter - GL_LINEAR_MIPMAP_LINEAR),
+                                    maxAnisotropy);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
     }
     else
@@ -787,8 +787,8 @@ void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
     while (img2.width() > 1 || img2.height() > 1)
     {
         level++;
-        img2.resize((SLint)max(img2.width() >> 1, (SLuint)1),
-                    (SLint)max(img2.height() >> 1, (SLuint)1));
+        img2.resize((SLint)Utils::max(img2.width() >> 1, (SLuint)1),
+                    (SLint)Utils::max(img2.height() >> 1, (SLuint)1));
 
         //SLfloat gauss[9] = {1.0f, 2.0f, 1.0f,
         //                    2.0f, 4.0f, 2.0f,

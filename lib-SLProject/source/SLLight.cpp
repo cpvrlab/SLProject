@@ -26,7 +26,7 @@ SLLight::SLLight(SLfloat ambiPower,
     _id               = id;
     _isOn             = true;
     _spotCutOffDEG    = 180.0f;
-    _spotCosCutOffRAD = cos(SL_DEG2RAD * _spotCutOffDEG);
+    _spotCosCutOffRAD = cos(Utils::DEG2RAD * _spotCutOffDEG);
     _spotExponent     = 1.0f;
 
     // Set parameters of inherited SLMaterial
@@ -49,24 +49,24 @@ SLLight::SLLight(SLfloat ambiPower,
 void SLLight::kc(SLfloat kc)
 {
     _kc           = kc;
-    _isAttenuated = (_kc == 1.0f && _kl == 0.0f && _kq == 0.0f) ? false : true;
+    _isAttenuated = !(_kc == 1.0f && _kl == 0.0f && _kq == 0.0f);
 }
 //-----------------------------------------------------------------------------
 void SLLight::kl(SLfloat kl)
 {
     _kl           = kl;
-    _isAttenuated = (_kc == 1.0f && _kl == 0.0f && _kq == 0.0f) ? false : true;
+    _isAttenuated = !(_kc == 1.0f && _kl == 0.0f && _kq == 0.0f);
 }
 //-----------------------------------------------------------------------------
 void SLLight::kq(SLfloat kq)
 {
     _kq           = kq;
-    _isAttenuated = (_kc == 1.0f && _kl == 0.0f && _kq == 0.0f) ? false : true;
+    _isAttenuated = !(_kc == 1.0f && _kl == 0.0f && _kq == 0.0f);
 }
 //-----------------------------------------------------------------------------
 void SLLight::spotCutOffDEG(const SLfloat cutOffAngleDEG)
 {
     _spotCutOffDEG    = cutOffAngleDEG;
-    _spotCosCutOffRAD = cos(SL_DEG2RAD * _spotCutOffDEG);
+    _spotCosCutOffRAD = cos(Utils::DEG2RAD * _spotCutOffDEG);
 }
 //-----------------------------------------------------------------------------
