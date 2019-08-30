@@ -13,6 +13,8 @@
 
 #include <SLSpheric.h>
 
+#include <utility>
+
 class SLRay;
 class SLMaterial;
 
@@ -21,19 +23,17 @@ class SLMaterial;
 class SLSphere : public SLSpheric
 {
     public:
-    SLSphere(SLfloat     radius,
-             SLuint      stacks = 32,
-             SLuint      slices = 32,
-             SLstring    name   = "sphere mesh",
-             SLMaterial* mat    = nullptr) : SLSpheric(radius,
-                                                    0.0f,
-                                                    180.0f,
-                                                    stacks,
-                                                    slices,
-                                                    name,
-                                                    mat) { ; }
-
-    ~SLSphere() { ; }
+    explicit SLSphere(SLfloat     radius,
+                      SLuint      stacks = 32,
+                      SLuint      slices = 32,
+                      SLstring    name   = "sphere mesh",
+                      SLMaterial* mat    = nullptr) : SLSpheric(radius,
+                                                             0.0f,
+                                                             180.0f,
+                                                             stacks,
+                                                             slices,
+                                                             std::move(name),
+                                                             mat) {}
 };
 //-----------------------------------------------------------------------------
 #endif //SLSPHERE_H

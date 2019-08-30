@@ -47,15 +47,17 @@ typedef void(SL_STDCALL* cbOnImGuiBuild)(SLScene* s, SLSceneView* sv);
 //-----------------------------------------------------------------------------
 //! SceneView class represents a dynamic real time 3D view onto the scene.
 /*!      
-The SLSceneView class has a pointer to an active camera that is used to 
-generate the 3D view into a window of the clients GUI system. 
-OpenGL ES3.0 or newer is used the default renderer for framebuffer rendering.
-Alternatively the sceneview can be rendered with a software ray tracing or
-path tracing renderer. 
-All mouse, touch, keyboard, resize and paint events of the GUI system are 
-handled in this class by the appropriate event handler methods.
-If the scene contains itself no camera node the sceneview provides its own
-camera object.
+ The SLSceneView class has a pointer to an active camera that is used to
+ generate the 3D view into a window of the clients GUI system.
+ OpenGL ES3.0 or newer is used the default renderer for framebuffer rendering.
+ Alternatively the sceneview can be rendered with a software ray tracing or
+ path tracing renderer.
+ All mouse, touch, keyboard, resize and paint events of the GUI system are
+ handled in this class by the appropriate event handler methods. If your
+ app need special event handling you can subclass this class and override the
+ virtual function.
+ If the scene contains itself no camera node the sceneview provides its own
+ camera object.
 */
 class SLSceneView : public SLObject
 {
@@ -74,18 +76,16 @@ class SLSceneView : public SLObject
               void*    onSelectNodeMeshCallback,
               void*    onImGuiBBuild);
 
-    // virtual hooks for subclasses of SLSceneView
-    virtual void onStartup() {}
-    virtual void preDraw() {}
-    virtual void postDraw() {}
-    virtual void postSceneLoad() {}
-
     // Not overridable event handlers
-    void           onInitialize();
-    SLbool         onPaint();
-    void           onResize(SLint width, SLint height);
+    void   onInitialize();
+    SLbool onPaint();
+    void   onResize(SLint width, SLint height);
 
-    // overridable event-handlers
+    // overridable for subclasses of SLSceneView
+    virtual void   onStartup() {}
+    virtual void   preDraw() {}
+    virtual void   postDraw() {}
+    virtual void   postSceneLoad() {}
     virtual SLbool onMouseDown(SLMouseButton button, SLint x, SLint y, SLKey mod);
     virtual SLbool onMouseUp(SLMouseButton button, SLint x, SLint y, SLKey mod);
     virtual SLbool onMouseMove(SLint x, SLint y);
@@ -125,8 +125,8 @@ class SLSceneView : public SLObject
     void     printStats() { _stats3D.print(); }
 
     // Callback routines
-    cbOnWndUpdate      onWndUpdate;        //!< C-Callback for intermediate window repaint
-    cbOnSelectNodeMesh onSelectedNodeMesh; //!< C-Callback on node selection
+    cbOnWndUpdate      onWndUpdate;        //!< C-Callback for app for intermediate window repaint
+    cbOnSelectNodeMesh onSelectedNodeMesh; //!< C-Callback for app on node selection
 
     // Setters
     void camera(SLCamera* camera) { _camera = camera; }
@@ -156,9 +156,9 @@ class SLSceneView : public SLObject
     SLbool        doMultiSampling() const { return _doMultiSampling; }
     SLbool        doDepthTest() const { return _doDepthTest; }
     SLbool        doWaitOnIdle() const { return _doWaitOnIdle; }
-    SLVNode*      visibleNodes() { return &_visibleNodes; }
-    SLVNode*      visibleNodes2D() { return &_visibleNodes2D; }
-    SLVNode*      blendNodes() { return &_blendNodes; }
+    SLVNode*      nodesVisible() { return &_nodesVisible; }
+    SLVNode*      nodesVisible2D() { return &_nodesVisible2D; }
+    SLVNode*      nodesBlended() { return &_nodesBlended; }
     SLRaytracer*  raytracer() { return &_raytracer; }
     SLPathtracer* pathtracer() { return &_pathtracer; }
     SLRenderType  renderType() const { return _renderType; }
@@ -213,9 +213,9 @@ class SLSceneView : public SLObject
 
     SLGLOculusFB _oculusFB; //!< Oculus framebuffer
 
-    SLVNode _visibleNodes;   //!< Vector of all visible nodes
-    SLVNode _blendNodes;     //!< Vector of visible and blended nodes
-    SLVNode _visibleNodes2D; //!< Vector of all visible 2D nodes drawn in ortho projection
+    SLVNode _nodesVisible;   //!< Vector of all visible 3D nodes
+    SLVNode _nodesVisible2D; //!< Vector of all visible 2D nodes drawn in ortho projection
+    SLVNode _nodesBlended;   //!< Vector of visible and blended nodes
 
     SLRaytracer  _raytracer;  //!< Whitted style raytracer
     SLbool       _stopRT;     //!< Flag to stop the RT

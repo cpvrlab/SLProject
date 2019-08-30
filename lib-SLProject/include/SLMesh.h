@@ -118,8 +118,8 @@ transformed vertices and normals are stored in _finalP and _finalN.
 class SLMesh : public SLObject
 {
     public:
-    SLMesh(SLstring name = "Mesh");
-    ~SLMesh();
+    explicit SLMesh(SLstring name = "Mesh");
+    ~SLMesh() override;
 
     virtual void init(SLNode* node);
     virtual void draw(SLSceneView* sv, SLNode* node);
@@ -146,7 +146,7 @@ class SLMesh : public SLObject
     SLMaterial*       matOut() const { return _matOut; }
     SLGLPrimitiveType primitive() const { return _primitive; }
     const SLSkeleton* skeleton() const { return _skeleton; }
-    SLuint            numI() { return (SLuint)(I16.size() ? I16.size() : I32.size()); }
+    SLuint            numI() { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }

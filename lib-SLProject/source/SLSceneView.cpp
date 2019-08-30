@@ -291,9 +291,9 @@ void SLSceneView::onInitialize()
     else
         stateGL->onInitialize(SLCol4f::GRAY);
 
-    _blendNodes.clear();
-    _visibleNodes.clear();
-    _visibleNodes2D.clear();
+    _nodesBlended.clear();
+    _nodesVisible.clear();
+    _nodesVisible2D.clear();
     _stats2D.clear();
     _stats3D.clear();
 
@@ -544,8 +544,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     ////////////////////////
 
     _camera->setFrustumPlanes();
-    _blendNodes.clear();
-    _visibleNodes.clear();
+    _nodesBlended.clear();
+    _nodesVisible.clear();
     if (s->root3D())
         s->root3D()->cull3DRec(this);
 
@@ -597,16 +597,16 @@ pass only the alpha meshes and in the opaque pass only the opaque meshes.
 void SLSceneView::draw3DGLAll()
 {
     // 1) Draw first the opaque shapes and all helper lines (normals and AABBs)
-    draw3DGLNodes(_visibleNodes, false, false);
-    draw3DGLLines(_visibleNodes);
-    draw3DGLLines(_blendNodes);
+    draw3DGLNodes(_nodesVisible, false, false);
+    draw3DGLLines(_nodesVisible);
+    draw3DGLLines(_nodesBlended);
 
     // 2) Draw blended nodes sorted back to front
-    draw3DGLNodes(_blendNodes, true, true);
+    draw3DGLNodes(_nodesBlended, true, true);
 
     // 3) Draw helper
-    draw3DGLLinesOverlay(_visibleNodes);
-    draw3DGLLinesOverlay(_blendNodes);
+    draw3DGLLinesOverlay(_nodesVisible);
+    draw3DGLLinesOverlay(_nodesBlended);
 
     // 4) Draw visualization lines of animation curves
     SLApplication::scene->animManager().drawVisuals(this);
@@ -800,7 +800,7 @@ void SLSceneView::draw2DGL()
         stateGL->viewport(0, 0, _scrW, _scrH);
 
         // 2. Pseudo 2D Frustum Culling
-        _visibleNodes2D.clear();
+        _nodesVisible2D.clear();
         if (s->root2D())
             s->root2D()->cull2DRec(this);
 
@@ -864,7 +864,7 @@ void SLSceneView::draw2DGLNodes()
 
     // Draw all 2D nodes blended (mostly text font textures)
     // draw the shapes directly with their wm transform
-    for (auto node : _visibleNodes2D)
+    for (auto node : _nodesVisible2D)
     {
         // Apply world transform
         stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
@@ -1414,7 +1414,7 @@ SLstring SLSceneView::windowTitle()
     }
     else
     {
-        SLuint nr = (uint)_visibleNodes.size();
+        SLuint nr = (uint)_nodesVisible.size();
         if (s->fps() > 5)
             sprintf(title,
                     "%s (fps: %4.0f, %u nodes of %u rendered)",

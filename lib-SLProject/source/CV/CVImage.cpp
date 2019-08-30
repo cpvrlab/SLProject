@@ -14,6 +14,17 @@
 //-----------------------------------------------------------------------------
 string CVImage::defaultPath;
 //-----------------------------------------------------------------------------
+//! Default constructor
+CVImage::CVImage()
+{
+    _name          = "unknown";
+    _format        = PF_unknown;
+    _path          = "";
+    _bytesPerPixel = 0;
+    _bytesPerLine  = 0;
+    _bytesPerImage = 0;
+};
+//------------------------------------------------------------------------------
 //! Constructor for empty image of a certain format and size
 CVImage::CVImage(int         width,
                  int         height,

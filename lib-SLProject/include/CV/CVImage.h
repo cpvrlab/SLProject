@@ -47,21 +47,21 @@ enum CVPixFormat
 //! OpenCV image class with the same interface as the former SLImage class
 /*! The core object is the OpenCV matrix _cvMat. Be aware the OpenCV accesses its
 matrix of type mat often by row and columns. In that order it corresponds to
-the y and x coordiantes and not x and y as we are used to! 
+the y and x coordinates and not x and y as we are used to!
 See the OpenCV docs for more information: 
 http://docs.opencv.org/2.4.10/modules/core/doc/basic_structures.html#mat
 */
 class CVImage
 {
     public:
-    CVImage() {}
+    CVImage();
     CVImage(int         width,
             int         height,
             CVPixFormat format,
             string      name);
     explicit CVImage(const string& imageFilename,
-                     bool   flipVertical           = true,
-                     bool   loadGrayscaleIntoAlpha = false);
+                     bool          flipVertical           = true,
+                     bool          loadGrayscaleIntoAlpha = false);
     CVImage(CVImage& srcImage);
     explicit CVImage(const CVVVec3f& colors);
     explicit CVImage(const CVVVec4f& colors);

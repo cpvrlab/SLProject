@@ -22,7 +22,6 @@ class SLKeyframeCamera : public SLCamera
 {
     public:
     explicit SLKeyframeCamera(SLstring name = "Camera");
-    virtual ~SLKeyframeCamera() { ; }
     virtual void drawMeshes(SLSceneView* sv);
 
     // Getters

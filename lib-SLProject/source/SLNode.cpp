@@ -472,11 +472,11 @@ void SLNode::cull3DRec(SLSceneView* sv)
 
         // for leaf nodes add them to the blended vector
         if (_aabb.hasAlpha())
-            sv->blendNodes()->push_back(this);
+            sv->nodesBlended()->push_back(this);
 
         // Add all nodes to the opaque list
         // A node that has alpha meshes still can have opaque meshes
-        sv->visibleNodes()->push_back(this);
+        sv->nodesVisible()->push_back(this);
     }
 } //-----------------------------------------------------------------------------
 /*!
@@ -492,7 +492,7 @@ void SLNode::cull2DRec(SLSceneView* sv)
 
     // Add all nodes to the opaque list
     // A node that has alpha meshes still can have opaque meshes
-    sv->visibleNodes2D()->push_back(this);
+    sv->nodesVisible2D()->push_back(this);
 }
 //-----------------------------------------------------------------------------
 /*!

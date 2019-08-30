@@ -18,13 +18,13 @@
 class SLArrow : public SLRevolver
 {
     public:
-    SLArrow(SLfloat     arrowCylinderRadius,
-            SLfloat     length,
-            SLfloat     headLength,
-            SLfloat     headWidth,
-            SLuint      slices,
-            SLstring    name = "arrow mesh",
-            SLMaterial* mat  = nullptr)
+    SLArrow(SLfloat         arrowCylinderRadius,
+            SLfloat         length,
+            SLfloat         headLength,
+            SLfloat         headWidth,
+            SLuint          slices,
+            const SLstring& name = "arrow mesh",
+            SLMaterial*     mat  = nullptr)
     {
         assert(slices >= 3 && "Error: Not enough slices.");
         assert(headLength < length);
@@ -50,7 +50,6 @@ class SLArrow : public SLRevolver
 
         buildMesh(mat);
     }
-    ~SLArrow() { ; }
 
     private:
     SLfloat _radius;     //!< radius of arrow cylinder

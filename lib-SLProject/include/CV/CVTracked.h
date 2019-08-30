@@ -40,7 +40,6 @@ for a good top down information.
  The update of the tracking per frame is implemented in onUpdateTracking in
  AppDemoTracking.cpp and called once per frame within the main render loop.
 */
-//-----------------------------------------------------------------------------
 class CVTracked
 {
     public:

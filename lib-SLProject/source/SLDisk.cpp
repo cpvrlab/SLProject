@@ -16,16 +16,18 @@
 
 #include <SLDisk.h>
 
+#include <utility>
+
 //-----------------------------------------------------------------------------
 /*!
 SLDisk::SLDisk ctor for disk revolution object around the z-axis
 */
-SLDisk::SLDisk(SLfloat     radius,
-               SLVec3f     revolveAxis,
-               SLuint      slices,
-               SLbool      doubleSided,
-               SLstring    name,
-               SLMaterial* mat) : SLRevolver(name)
+SLDisk::SLDisk(SLfloat        radius,
+               const SLVec3f& revolveAxis,
+               SLuint         slices,
+               SLbool         doubleSided,
+               SLstring       name,
+               SLMaterial*    mat) : SLRevolver(std::move(name))
 {
     assert(slices >= 3 && "Error: Not enough slices.");
 

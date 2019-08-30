@@ -12,7 +12,10 @@
 #ifndef SLGLSTATE_H
 #define SLGLSTATE_H
 
-#include <SLStack.h>
+//#include <SLStack.h>
+#include <SLVec3.h>
+#include <SLVec4.h>
+#include <SLMat4.h>
 
 //-----------------------------------------------------------------------------
 static const SLint SL_MAX_LIGHTS = 8; //!< max. number of used lights
@@ -46,7 +49,7 @@ class SLGLState
             return _instance;
     }
     static void deleteInstance();                 //!< global destruction
-    void        onInitialize(SLCol4f clearColor); //!< On init GL
+    void        onInitialize(const SLCol4f& clearColor); //!< On init GL
     void        initAll();                        //! Init all states
 
     // matrices
@@ -137,7 +140,7 @@ class SLGLState
     void useProgram(SLuint progID);
     void bindTexture(SLenum target, SLuint textureID);
     void activeTexture(SLenum textureUnit);
-    void clearColor(SLCol4f c);
+    void clearColor(const SLCol4f& c);
     void clearColorBuffer() { glClear(GL_COLOR_BUFFER_BIT); }
     void clearDepthBuffer() { glClear(GL_DEPTH_BUFFER_BIT); }
     void clearColorDepthBuffer() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
@@ -153,11 +156,11 @@ class SLGLState
     SLstring glSLVersionNO() { return _glSLVersionNO; }
     SLbool   glIsES2() { return _glIsES2; }
     SLbool   glIsES3() { return _glIsES3; }
-    SLbool   hasExtension(SLstring e) { return _glExtensions.find(e) != string::npos; }
+    SLbool   hasExtension(const SLstring& e) { return _glExtensions.find(e) != string::npos; }
 
     // stack operations
-    inline void pushModelViewMatrix() { _modelViewMatrixStack.push_back(modelViewMatrix); }
-    inline void popModelViewMatrix() { modelViewMatrix = _modelViewMatrixStack.pop_back(); }
+    inline void pushModelViewMatrix() { _modelViewMatrixStack.push(modelViewMatrix); }
+    inline void popModelViewMatrix() { modelViewMatrix = _modelViewMatrixStack.top(); _modelViewMatrixStack.pop();}
 
     //! Checks if an OpenGL error occurred
     static void getGLError(const char* file, int line, bool quit);

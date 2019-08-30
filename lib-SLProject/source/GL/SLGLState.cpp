@@ -9,8 +9,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
 #    include <debug_new.h> // memory leak detector
 #endif
@@ -22,7 +20,7 @@
 //-----------------------------------------------------------------------------
 SLGLState* SLGLState::_instance = nullptr;
 //-----------------------------------------------------------------------------
-std::vector<string> errors; // global vector for errors used in getGLError
+SLVstring errors; // global vector for errors used in getGLError
 //-----------------------------------------------------------------------------
 /*! Public static destruction.
  */
@@ -158,12 +156,14 @@ void SLGLState::initAll()
  */
 SLGLState::~SLGLState()
 {
-    _modelViewMatrixStack.clear();
+    // should be empty
+    while (!_modelViewMatrixStack.empty())
+        _modelViewMatrixStack.pop();
 }
 //-----------------------------------------------------------------------------
 /*! One time initialization
  */
-void SLGLState::onInitialize(SLCol4f clearColor)
+void SLGLState::onInitialize(const SLCol4f& clearColor)
 {
     // Reset all internal states
     if (!_isInitialized) initAll();
@@ -258,7 +258,7 @@ const SLCol4f* SLGLState::globalAmbient()
     return &_globalAmbient;
 }
 //-----------------------------------------------------------------------------
-void SLGLState::clearColor(SLCol4f newColor)
+void SLGLState::clearColor(const SLCol4f& newColor)
 {
     if (_clearColor != newColor)
     {
@@ -613,7 +613,7 @@ void SLGLState::getGLError(const char* file,
 SLstring SLGLState::getGLVersionNO()
 {
     SLstring versionStr = SLstring((const char*)glGetString(GL_VERSION));
-    size_t   dotPos     = versionStr.find(".");
+    size_t   dotPos     = versionStr.find('.');
     SLchar   NO[4];
     NO[0] = versionStr[dotPos - 1];
     NO[1] = '.';
@@ -636,7 +636,7 @@ SLstring SLGLState::getGLVersionNO()
 SLstring SLGLState::getSLVersionNO()
 {
     SLstring versionStr = SLstring((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
-    size_t   dotPos     = versionStr.find(".");
+    size_t   dotPos     = versionStr.find('.');
     SLchar   NO[4];
     NO[0] = versionStr[dotPos - 1];
     NO[1] = versionStr[dotPos + 1];

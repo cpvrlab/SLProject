@@ -13,6 +13,8 @@
 
 #include <SLMesh.h>
 
+#include <utility>
+
 //-----------------------------------------------------------------------------
 //! SLRevolver is an SLMesh object built out of revolving points.
 /*! 
@@ -36,14 +38,17 @@ class SLRevolver : public SLMesh
                SLMaterial* mat         = nullptr);
 
     //! ctor for derived revolver shapes
-    SLRevolver(SLstring name) : SLMesh(name) { ; }
+    SLRevolver(SLstring name) : SLMesh(std::move(name)) { ; }
     SLRevolver() { ; }
 
     void buildMesh(SLMaterial* mat = nullptr);
+    SLuint  stacks() { return _stacks; }
+    SLuint  slices() { return _slices; }
 
     protected:
     SLVVec3f _revPoints; //!< Array revolving points
     SLVec3f  _revAxis;   //!< axis of revolution
+    SLuint   _stacks;    //!< No. of stacks (mostly used)
     SLuint   _slices;    //!< NO. of slices
 
     //! flag if the normal of the first point is eqaual to -revAxis

@@ -16,6 +16,8 @@
 
 #include <SLCylinder.h>
 
+#include <utility>
+
 //-----------------------------------------------------------------------------
 /*!
 SLCylinder::SLCylinder ctor for cylindric revolution object around the z-axis.
@@ -27,17 +29,17 @@ SLCylinder::SLCylinder(SLfloat     cylinderRadius,
                        SLbool      hasTop,
                        SLbool      hasBottom,
                        SLstring    name,
-                       SLMaterial* mat) : SLRevolver(name)
+                       SLMaterial* mat) : SLRevolver(std::move(name))
 {
     assert(slices >= 3 && "Error: Not enough slices.");
     assert(slices > 0 && "Error: Not enough stacks.");
 
     _radius    = cylinderRadius;
     _height    = cylinderHeight;
-    _stacks    = stacks;
     _hasTop    = hasTop;
     _hasBottom = hasBottom;
 
+    _stacks      = stacks;
     _slices      = slices;
     _smoothFirst = hasBottom;
     _smoothLast  = hasTop;

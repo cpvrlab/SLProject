@@ -25,18 +25,15 @@ class SLCone : public SLRevolver
            SLbool      hasBottom = true,
            SLstring    name      = "cone mesh",
            SLMaterial* mat       = nullptr);
-    ~SLCone() { ; }
 
     // Getters
     SLfloat radius() { return _radius; }
     SLfloat height() { return _height; }
-    SLuint  stacks() { return _stacks; }
     SLbool  hasBottom() { return _hasBottom; }
 
     protected:
     SLfloat _radius;    //!< radius of cone
     SLfloat _height;    //!< height of cone
-    SLuint  _stacks;    //!< No. of stacks of cone
     SLbool  _hasBottom; //!< Flag if cone has a bottom
 };
 //-----------------------------------------------------------------------------

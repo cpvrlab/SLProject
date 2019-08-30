@@ -12,6 +12,7 @@
 #define SLMAT4_H
 
 #include <SL.h>
+#include <stack>
 #include <Utils.h>
 #include <SLMat3.h>
 #include <SLMath.h>
@@ -1485,5 +1486,6 @@ typedef SLMat4<SLfloat>  SLMat4f;
 typedef SLMat4<SLdouble> SLMat4d;
 #endif
 typedef std::vector<SLMat4f>  SLVMat4f;
+typedef std::stack<SLMat4f> SLSMat4f;
 //-----------------------------------------------------------------------------
 #endif

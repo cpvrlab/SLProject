@@ -394,8 +394,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             SLfloat      voxelsEmpty     = vox > 0.0f ? voxEmpty / vox * 100.0f : 0.0f;
             SLfloat      numRTTria       = (SLfloat)stats3D.numTriangles;
             SLfloat      avgTriPerVox    = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
-            SLint        numOpaqueNodes  = (int)sv->visibleNodes()->size();
-            SLint        numBlendedNodes = (int)sv->blendNodes()->size();
+            SLint        numOpaqueNodes  = (int)sv->nodesVisible()->size();
+            SLint        numBlendedNodes = (int)sv->nodesBlended()->size();
             SLint        numVisibleNodes = numOpaqueNodes + numBlendedNodes;
             SLint        numGroupPC      = (SLint)((SLfloat)stats3D.numGroupNodes / (SLfloat)stats3D.numNodes * 100.0f);
             SLint        numLeafPC       = (SLint)((SLfloat)stats3D.numLeafNodes / (SLfloat)stats3D.numNodes * 100.0f);

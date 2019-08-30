@@ -38,9 +38,9 @@ class SLLightSpot : public SLNode
   , public SLLight
 {
     public:
-    SLLightSpot(SLfloat radius       = 0.3f,
-                SLfloat spotAngleDEG = 180.0f,
-                SLbool  hasMesh      = true);
+    explicit SLLightSpot(SLfloat radius       = 0.3f,
+                         SLfloat spotAngleDEG = 180.0f,
+                         SLbool  hasMesh      = true);
     SLLightSpot(SLfloat posx,
                 SLfloat posy,
                 SLfloat posz,
@@ -50,7 +50,6 @@ class SLLightSpot : public SLNode
                 SLfloat diffPower    = 10.0f,
                 SLfloat specPower    = 10.0f,
                 SLbool  hasMesh      = true);
-    ~SLLightSpot() { ; }
 
     void init();
     bool hitRec(SLRay* ray);
@@ -60,10 +59,10 @@ class SLLightSpot : public SLNode
     void    setState();
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
-                       const SLfloat  lightDist);
+                       SLfloat        lightDist);
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
-                         const SLfloat  lightDist);
+                         SLfloat        lightDist);
 
     // Setters
     void samples(SLuint x, SLuint y)

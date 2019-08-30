@@ -62,10 +62,10 @@ class SLImporter
 {
     public:
     SLImporter();
-    SLImporter(SLLogVerbosity consoleVerb);
-    SLImporter(const SLstring& logFile,
-               SLLogVerbosity  logConsoleVerb = LV_normal,
-               SLLogVerbosity  logFileVerb    = LV_diagnostic);
+    explicit SLImporter(SLLogVerbosity consoleVerb);
+    explicit SLImporter(const SLstring& logFile,
+                        SLLogVerbosity  logConsoleVerb = LV_normal,
+                        SLLogVerbosity  logFileVerb    = LV_diagnostic);
     virtual ~SLImporter();
 
     void logConsoleVerbosity(SLLogVerbosity verb) { _logConsoleVerbosity = verb; }

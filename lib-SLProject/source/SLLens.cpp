@@ -92,7 +92,7 @@ SLLens::SLLens(SLfloat     radiusBot,
                SLuint      stacks,
                SLuint      slices,
                SLstring    name,
-               SLMaterial* mat) : SLRevolver(name)
+               SLMaterial* mat) : SLRevolver(std::move(name))
 {
     SLfloat nOut       = 1.00;      // kn material outside lens
     SLfloat nLens      = mat->kn(); // kn material of the lens

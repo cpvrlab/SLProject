@@ -16,6 +16,8 @@
 
 #include <SLSpheric.h>
 
+#include <utility>
+
 //-----------------------------------------------------------------------------
 /*!
 SLSpheric::SLSpheric ctor for spheric revolution object around the z-axis.
@@ -26,7 +28,7 @@ SLSpheric::SLSpheric(SLfloat     sphereRadius,
                      SLuint      stacks,
                      SLuint      slices,
                      SLstring    name,
-                     SLMaterial* mat) : SLRevolver(name)
+                     SLMaterial* mat) : SLRevolver(std::move(name))
 {
     assert(slices >= 3 && "Error: Not enough slices.");
     assert(slices > 0 && "Error: Not enough stacks.");
@@ -38,10 +40,10 @@ SLSpheric::SLSpheric(SLfloat     sphereRadius,
            "Error: Polar start angle > end angle");
 
     _radius        = sphereRadius;
-    _stacks        = stacks;
     _thetaStartDEG = thetaStartDEG;
     _thetaEndDEG   = thetaEndDEG;
 
+    _stacks      = stacks;
     _slices      = slices;
     _smoothFirst = (thetaStartDEG == 0.0f);
     _smoothLast  = (thetaEndDEG == 180.0f);
