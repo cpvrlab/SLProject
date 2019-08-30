@@ -838,6 +838,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
+//! Builds the entire menu bar once per frame
 void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 {
     SLSceneID    sid           = SLApplication::sceneID;
@@ -1694,6 +1695,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
+//! Builds the scenegraph dialog once per frame
 void AppDemoGui::buildSceneGraph(SLScene* s)
 {
     ImGui::Begin("Scenegraph", &showSceneGraph);
@@ -1704,6 +1706,7 @@ void AppDemoGui::buildSceneGraph(SLScene* s)
     ImGui::End();
 }
 //-----------------------------------------------------------------------------
+//! Builds the node information once per frame
 void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 {
     SLbool isSelectedNode = s->selectedNode() == node;
@@ -1749,6 +1752,7 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     }
 }
 //-----------------------------------------------------------------------------
+//! Builds the properties dialog once per frame
 void AppDemoGui::buildProperties(SLScene* s)
 {
     SLNode* node = s->selectedNode();
@@ -2221,6 +2225,7 @@ void AppDemoGui::buildProperties(SLScene* s)
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
+//! Loads the UI configuration
 void AppDemoGui::loadConfig(SLint dotsPerInch)
 {
     ImGuiStyle& style               = ImGui::GetStyle();
@@ -2321,6 +2326,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
     }
 }
 //-----------------------------------------------------------------------------
+//! Stores the UI configuration
 void AppDemoGui::saveConfig()
 {
     ImGuiStyle& style               = ImGui::GetStyle();
