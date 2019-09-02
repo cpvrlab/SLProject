@@ -11,6 +11,7 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
+#include <Utils.h>
 #include <GL/glew.h>    // OpenGL headers
 #include <GLFW/glfw3.h> // GLFW GUI library
 #include <SL.h>         // Basic SL type definitions

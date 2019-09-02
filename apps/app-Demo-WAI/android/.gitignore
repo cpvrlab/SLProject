@@ -1,0 +1,11 @@
+*.iml
+app-release.apk
+.gradle
+.idea
+/local.properties
+.DS_Store
+build/
+/captures
+.externalNativeBuild
+app/src/main/assets/*
+!app/src/main/assets/.gitkeep

@@ -34,6 +34,9 @@ if (SL_DOWNLOAD_PREBUILTS)
 	include(cmake/DownloadPrebuilts.cmake)
 endif()
 
+option(SL_APP
+	   "Specifies if sample apps should be built"
+	   SL_APP_ALL)
 option(SL_BUILD_APPS
 	   "Specifies if sample apps should be built"
 	   ON)
@@ -43,4 +46,5 @@ if (SL_BUILD_APPS)
 endif()
 
 add_subdirectory(externals)
+add_subdirectory(lib-WAI)
 add_subdirectory(lib-SLProject)

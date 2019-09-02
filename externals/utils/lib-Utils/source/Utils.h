@@ -13,6 +13,7 @@
 
 #include <string>
 #include <vector>
+#include <cfloat>
 
 using namespace std;
 
