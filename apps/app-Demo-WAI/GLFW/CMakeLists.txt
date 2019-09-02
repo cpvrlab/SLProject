@@ -74,7 +74,7 @@ add_executable(${target}
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
-    FOLDER "examples"
+    FOLDER "apps"
     )
 
 target_include_directories(${target}
