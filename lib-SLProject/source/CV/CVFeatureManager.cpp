@@ -21,6 +21,7 @@ for a good top down information.
 #include <CVFeatureManager.h>
 #include <CVRaulMurOrb.h>
 #include <Utils.h>
+#include <algorithm>    // std::max
 
 using namespace cv;
 using namespace std;

@@ -10,6 +10,7 @@
 
 #include <CVImage.h>
 #include <Utils.h>
+#include <algorithm>    // std::max
 
 //-----------------------------------------------------------------------------
 string CVImage::defaultPath;

@@ -2943,7 +2943,7 @@ SLNode* SphereGroup(SLint       depth, // depth of recursion
         depth--;
         SLNode* sGroup = new SLNode("SphereGroup");
         sGroup->translate(x, y, z, TS_object);
-        SLuint newRes = (SLuint)Utils::max((SLint)resolution - 8, 8);
+        SLuint newRes = (SLuint)std::max((SLint)resolution - 8, 8);
         sGroup->addChild(new SLNode(new SLSphere(0.5f * scale, resolution, resolution, name, matGlass)));
         sGroup->addChild(SphereGroup(depth, 0.643951f * scale, 0, 0.172546f * scale, scale / 3, newRes, matRed, matRed));
         sGroup->addChild(SphereGroup(depth, 0.172546f * scale, 0, 0.643951f * scale, scale / 3, newRes, matRed, matRed));

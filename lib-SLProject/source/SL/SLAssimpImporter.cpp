@@ -538,7 +538,7 @@ void SLAssimpImporter::findSkeletonRoot()
                        it->first.c_str(),
                        list.size());
 
-        minDepth = Utils::min(minDepth, (SLint)list.size());
+        minDepth = std::min(minDepth, (SLint)list.size());
     }
 
     logMessage(LV_detailed,

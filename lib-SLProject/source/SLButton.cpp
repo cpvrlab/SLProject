@@ -518,7 +518,7 @@ void SLButton::setPosRec(SLfloat x, SLfloat y)
         SLfloat childH = ((SLButton*)_children[0])->btnH();
         if (_children.size()>2)
             curChildY -= (_children.size()/2) * (childH + SL::dpmm()*BTN_GAP_H_MM);
-        curChildY = Utils::max(curChildY, minMenuPos.y);
+        curChildY = std::max(curChildY, minMenuPos.y);
              
         // Loop through children & set their position
         for (auto child : _children)

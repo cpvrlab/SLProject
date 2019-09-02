@@ -20,6 +20,7 @@ for a good top down information.
 #include <CVCalibration.h>
 #include <Utils.h>
 #include <ftplib.h>
+#include <algorithm> // std::max
 
 using namespace cv;
 using namespace std;
@@ -529,7 +530,7 @@ bool CVCalibration::calculate()
                               _calibFlags);
 
     if (!rvecs.empty() || !reprojErrs.empty())
-        _numCaptured = (int)Utils::max(rvecs.size(), reprojErrs.size());
+        _numCaptured = (int)std::max(rvecs.size(), reprojErrs.size());
     else
         _numCaptured = 0;
 

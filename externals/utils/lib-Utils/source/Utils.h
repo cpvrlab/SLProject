@@ -166,10 +166,6 @@ static const float ONEOVERPI = 1.0f / PI; // is faster than / PI
 static const float HALFPI    = PI * 0.5f;
 
 // clang-format off
-template<class T> inline T min(T a, T b){return (a < b) ? a : b;}
-template<class T> inline T max(T a, T b){return (a > b) ? a : b;}
-template<class T> inline T min(T a, T b, T c){return (a < b && a < c) ? a : (b < c) ? b : c;}
-template<class T> inline T max(T a, T b, T c){return (a > b && a > c) ? a : (b > c) ? b : c;}
 template<class T> inline T sign(T a){return (T)((a > 0) ? 1 : (a < 0) ? -1 : 0);}
 template<class T> inline T floor(T a){return (T)((int)a - ((a < 0 && a != (int)(a))));}
 template<class T> inline T ceil(T a){return (T)((int)a + ((a > 0 && a != (int)(a))));}

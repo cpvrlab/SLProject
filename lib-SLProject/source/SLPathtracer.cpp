@@ -363,7 +363,7 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor)
             // calculate spot effect if light is a spotlight
             if (lighted > 0.0f && light->spotCutOffDEG() < 180.0f)
             {
-                SLfloat LdS = Utils::max(-L.dot(light->spotDirWS()), 0.0f);
+                SLfloat LdS = std::max(-L.dot(light->spotDirWS()), 0.0f);
 
                 // check if point is in spot cone
                 if (LdS > light->spotCosCut())
@@ -381,7 +381,7 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor)
 
             if (lighted > 0.0f)
             {
-                df = Utils::max(LdN, 0.0f); // diffuse factor
+                df = std::max(LdN, 0.0f); // diffuse factor
 
                 // material color * light emission * LdN * brdf(1/pi) * lighted(for soft shadows)
                 diffuseColor = (*objectColor & (light->diffuse() * df) * Utils::ONEOVERPI * lighted);

@@ -39,6 +39,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     set(DEFAULT_COMPILE_DEFINITIONS ${DEFAULT_COMPILE_DEFINITIONS}
             _SCL_SECURE_NO_WARNINGS  # Calling any one of the potentially unsafe methods in the Standard C++ Library
             _CRT_SECURE_NO_WARNINGS  # Calling any one of the potentially unsafe methods in the CRT Library
+            NOMINMAX #No min max makros (use the ones in std)
             )
     set(DEFAULT_PROJECT_OPTIONS  ${DEFAULT_PROJECT_OPTIONS}
             CXX_STANDARD 17

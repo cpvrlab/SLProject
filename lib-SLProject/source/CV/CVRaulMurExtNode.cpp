@@ -13,6 +13,7 @@
 
 #include <CVTypedefs.h>
 #include <CVRaulMurExtNode.h>
+#include <algorithm> // std::max
 
 //-----------------------------------------------------------------------------
 //! Divides the current ExtractorNode into four ExtractorNodes.

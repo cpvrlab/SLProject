@@ -1540,7 +1540,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
                     cam->focalDist(focalDist);
 
-                if (ImGui::SliderFloat("Far Clip", &clipF, clipN, Utils::min(clipF * 1.1f, 1000000.f)))
+                if (ImGui::SliderFloat("Far Clip", &clipF, clipN, std::min(clipF * 1.1f, 1000000.f)))
                     cam->clipFar(clipF);
 
                 ImGui::PopItemWidth();
@@ -1577,7 +1577,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ca == CA_walkingZUp || ca == CA_walkingYUp || ca == CA_deviceRotYUp)
                 {
                     static SLfloat ms = cam->maxSpeed();
-                    if (ImGui::SliderFloat("Walk Speed", &ms, 0.01f, Utils::min(ms * 1.1f, 10000.f)))
+                    if (ImGui::SliderFloat("Walk Speed", &ms, 0.01f, std::min(ms * 1.1f, 10000.f)))
                         cam->maxSpeed(ms);
                 }
 
@@ -1868,7 +1868,7 @@ void AppDemoGui::buildProperties(SLScene* s)
                         if (ImGui::SliderFloat("Near Clip", &clipN, 0.001f, 10.f))
                             cam->clipNear(clipN);
 
-                        if (ImGui::SliderFloat("Far Clip", &clipF, clipN, Utils::min(clipF * 1.1f, 1000000.f)))
+                        if (ImGui::SliderFloat("Far Clip", &clipF, clipN, std::min(clipF * 1.1f, 1000000.f)))
                             cam->clipFar(clipF);
 
                         if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
@@ -2239,8 +2239,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
 
         // Default settings for the first time
-        SLGLImGui::fontPropDots  = Utils::max(16.0f * dpiScaleProp, 16.0f);
-        SLGLImGui::fontFixedDots = Utils::max(13.0f * dpiScaleFixed, 13.0f);
+        SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
+        SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
 
         // Store dialog show states
         AppDemoGui::showAbout        = true;
@@ -2254,11 +2254,11 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         AppDemoGui::showProperties   = false;
 
         // Adjust UI paddings on DPI
-        style.FramePadding.x     = Utils::max(8.0f * dpiScaleFixed, 8.0f);
+        style.FramePadding.x     = std::max(8.0f * dpiScaleFixed, 8.0f);
         style.WindowPadding.x    = style.FramePadding.x;
-        style.FramePadding.y     = Utils::max(3.0f * dpiScaleFixed, 3.0f);
-        style.ItemSpacing.x      = Utils::max(8.0f * dpiScaleFixed, 8.0f);
-        style.ItemSpacing.y      = Utils::max(3.0f * dpiScaleFixed, 3.0f);
+        style.FramePadding.y     = std::max(3.0f * dpiScaleFixed, 3.0f);
+        style.ItemSpacing.x      = std::max(8.0f * dpiScaleFixed, 8.0f);
+        style.ItemSpacing.y      = std::max(3.0f * dpiScaleFixed, 3.0f);
         style.ItemInnerSpacing.x = style.ItemSpacing.y;
 
         return;
@@ -2320,8 +2320,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
 
             // Default settings for the first time
-            SLGLImGui::fontPropDots  = Utils::max(16.0f * dpiScaleProp, 16.0f);
-            SLGLImGui::fontFixedDots = Utils::max(13.0f * dpiScaleFixed, 13.0f);
+            SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
+            SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
         }
     }
 }

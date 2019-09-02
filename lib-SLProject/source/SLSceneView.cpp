@@ -182,13 +182,13 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
         {
             vsCorner = vm * vsCorner;
 
-            vsMin.x = Utils::min(vsMin.x, vsCorner.x);
-            vsMin.y = Utils::min(vsMin.y, vsCorner.y);
-            vsMin.z = Utils::min(vsMin.z, vsCorner.z);
+            vsMin.x = std::min(vsMin.x, vsCorner.x);
+            vsMin.y = std::min(vsMin.y, vsCorner.y);
+            vsMin.z = std::min(vsMin.z, vsCorner.z);
 
-            vsMax.x = Utils::max(vsMax.x, vsCorner.x);
-            vsMax.y = Utils::max(vsMax.y, vsCorner.y);
-            vsMax.z = Utils::max(vsMax.z, vsCorner.z);
+            vsMax.x = std::max(vsMax.x, vsCorner.x);
+            vsMax.y = std::max(vsMax.y, vsCorner.y);
+            vsMax.z = std::max(vsMax.z, vsCorner.z);
         }
 
         SLfloat dist    = 0.0f;
@@ -219,7 +219,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
             distY += vsMax.z;
         }
 
-        dist = Utils::max(distX, distY);
+        dist = std::max(distX, distY);
 
         // set focal distance
         _sceneViewCamera.focalDist(dist);
@@ -852,7 +852,7 @@ SLSceneView::draw2DGLNodes draws 2D nodes from root2D in ortho projection.
 void SLSceneView::draw2DGLNodes()
 {
     SLfloat    depth   = 1.0f;                         // Render depth between -1 & 1
-    SLfloat    cs      = Utils::min(_scrW, _scrH) * 0.01f; // center size
+    SLfloat    cs      = std::min(_scrW, _scrH) * 0.01f; // center size
     SLGLState* stateGL = SLGLState::instance();
 
     stateGL->pushModelViewMatrix();

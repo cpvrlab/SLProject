@@ -155,7 +155,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             SLfloat        b = -t;                                           // bottom
             SLfloat        l = -sv->scrWdivH() * t;                          // left
             SLfloat        r = -l;                                           // right
-            SLfloat        c = Utils::min(l, r) * 0.05f;                         // size of cross at focal point
+            SLfloat        c = std::min(l, r) * 0.05f;                         // size of cross at focal point
 
             // small line in view direction
             P.push_back(SLVec3f(0, 0, 0));
@@ -226,7 +226,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             SLfloat  tP     = tanFov * _focalDist;    //top projection at focal distance
             SLfloat  rP     = tP * aspect;            //right projection at focal distance
             SLfloat  lP     = -tP * aspect;           //left projection at focal distance
-            SLfloat  cP     = Utils::min(lP, rP) * 0.05f; //size of cross at focal point
+            SLfloat  cP     = std::min(lP, rP) * 0.05f; //size of cross at focal point
             SLfloat  tN     = tanFov * _clipNear;     //top near
             SLfloat  rN     = tN * aspect;            //right near
             SLfloat  lN     = -tN * aspect;           //left near
