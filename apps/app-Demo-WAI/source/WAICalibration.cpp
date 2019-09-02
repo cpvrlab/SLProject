@@ -24,7 +24,7 @@ void WAICalibration::changeImageSize(int width, int height)
 
 void WAICalibration::reset()
 {
-    float fov = 30;
+    float fov = 65;
     computeMatrix(_cameraMat, fov);
     // No distortion
     _distortion = (Mat_<double>(5, 1) << 0, 0, 0, 0, 0);
@@ -38,8 +38,8 @@ void WAICalibration::computeMatrix(cv::Mat& mat, float fov)
 {
     float cx = (float)_imgSize.width * 0.5f;
     float cy = (float)_imgSize.height * 0.5f;
-    float fy = cy / tanf(fov * 0.5f * M_PI / 180.0);
-    float fx = fy;
+    float fx = cx / tanf(fov * 0.5f * M_PI / 180.0);
+    float fy = fx;
     mat      = (Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
 }
 
