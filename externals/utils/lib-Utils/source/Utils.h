@@ -13,6 +13,7 @@
 
 #include <string>
 #include <vector>
+#include <cfloat>
 
 using namespace std;
 
@@ -146,8 +147,6 @@ void warnMsg(const char* appString,
 //! Returns in release config the max. NO. of threads otherwise 1
 unsigned int maxThreads();
 
-
-
 ////////////////////////////////
 // Network Handling Functions //
 ////////////////////////////////
@@ -155,18 +154,16 @@ unsigned int maxThreads();
 //! Download a file from an http url into the outFile
 uint64_t httpGet(const string& httpURL, const string& outFolder = "");
 
-
-
 //////////////////////////////////
 // Math Constants and Functions //
 //////////////////////////////////
 
-static const float PI      = 3.14159265358979f;
-static const float RAD2DEG = 180.0f / PI;
-static const float DEG2RAD = PI / 180.0f;
-static const float TWOPI   = 2.0f * PI;
-static const float ONEOVERPI  = 1.0f / PI;  // is faster than / PI
-static const float HALFPI  = PI * 0.5f;
+static const float PI        = 3.14159265358979f;
+static const float RAD2DEG   = 180.0f / PI;
+static const float DEG2RAD   = PI / 180.0f;
+static const float TWOPI     = 2.0f * PI;
+static const float ONEOVERPI = 1.0f / PI; // is faster than / PI
+static const float HALFPI    = PI * 0.5f;
 
 // clang-format off
 template<class T> inline T min(T a, T b){return (a < b) ? a : b;}

@@ -11,6 +11,7 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
+#include <Utils.h>
 #include <GL/glew.h>    // OpenGL headers
 #include <GLFW/glfw3.h> // GLFW GUI library
 #include <SL.h>         // Basic SL type definitions
@@ -122,8 +123,8 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
 
     // init start values
     theta  = 0.0f;
-    dtheta = PI / stacks;
-    dphi   = 2.0f * PI / slices;
+    dtheta = Utils::PI / stacks;
+    dphi   = 2.0f * Utils::PI / slices;
 
     // Define vertex position & normals by looping through all stacks
     for (i = 0; i <= stacks; ++i)

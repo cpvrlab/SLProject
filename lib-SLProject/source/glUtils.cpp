@@ -74,7 +74,7 @@ profile from OpenGL 2.1 and OpenGL ES 2 that runs on most mobile devices.
 To be upwards compatible some modification have to be done.
 */
 GLuint glUtils::buildShader(const string& shaderFile,
-                            GLenum shaderType)
+                            GLenum        shaderType)
 {
     // Load shader file, create shader and compile it
     string source = loadShader(shaderFile);
@@ -403,7 +403,7 @@ GLuint glUtils::build3DTexture(const vector<string>&    files,
     assert(!files.empty());
 
     CVImage first(files.front());
-    if ((GLint)min(min((SLuint)files.size(), first.height()), first.width()) > maxSize)
+    if ((GLint)Utils::min((SLuint)files.size(), first.height(), first.width()) > maxSize)
     {
         cout << "glUtils: Texture is too big in at least one dimension." << endl;
         exit(0);
