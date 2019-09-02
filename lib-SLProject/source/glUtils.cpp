@@ -403,7 +403,7 @@ GLuint glUtils::build3DTexture(const vector<string>&    files,
     assert(!files.empty());
 
     CVImage first(files.front());
-    if ((GLint)Utils::min((SLuint)files.size(), first.height(), first.width()) > maxSize)
+    if ((GLint)std::min(std::min((SLuint)files.size(), first.height()), first.width()) > maxSize)
     {
         cout << "glUtils: Texture is too big in at least one dimension." << endl;
         exit(0);

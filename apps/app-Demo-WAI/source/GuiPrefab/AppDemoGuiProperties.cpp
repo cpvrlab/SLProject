@@ -132,7 +132,7 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
                         if (ImGui::SliderFloat("Near Clip", &clipN, 0.001f, 10.f))
                             cam->clipNear(clipN);
 
-                        if (ImGui::SliderFloat("Far Clip", &clipF, clipN, Utils::min(clipF * 1.1f, 1000000.f)))
+                        if (ImGui::SliderFloat("Far Clip", &clipF, clipN, std::min(clipF * 1.1f, 1000000.f)))
                             cam->clipFar(clipF);
 
                         if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))

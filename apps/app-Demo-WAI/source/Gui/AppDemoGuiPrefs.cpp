@@ -54,20 +54,20 @@ void GUIPreferences::load()
         SLfloat dpiScaleFixed = dpi / 142.0f;
 
         // Default settings for the first time
-        SLGLImGui::fontPropDots  = Utils::max(16.0f * dpiScaleProp, 16.0f);
-        SLGLImGui::fontFixedDots = Utils::max(13.0f * dpiScaleFixed, 13.0f);
+        SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
+        SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
 
         // Store dialog show states
         reset();
 
         // Adjust UI paddings on DPI
-        style.FramePadding.x     = Utils::max(8.0f * dpiScaleFixed, 8.0f);
+        style.FramePadding.x     = std::max(8.0f * dpiScaleFixed, 8.0f);
         style.WindowPadding.x    = style.FramePadding.x;
-        style.FramePadding.y     = Utils::max(3.0f * dpiScaleFixed, 3.0f);
-        style.ItemSpacing.x      = Utils::max(8.0f * dpiScaleFixed, 8.0f);
-        style.ItemSpacing.y      = Utils::max(3.0f * dpiScaleFixed, 3.0f);
+        style.FramePadding.y     = std::max(3.0f * dpiScaleFixed, 3.0f);
+        style.ItemSpacing.x      = std::max(8.0f * dpiScaleFixed, 8.0f);
+        style.ItemSpacing.y      = std::max(3.0f * dpiScaleFixed, 3.0f);
         style.ItemInnerSpacing.x = style.ItemSpacing.y;
-        style.ScrollbarSize      = Utils::max(16.0f * dpiScaleFixed, 16.0f);
+        style.ScrollbarSize      = std::max(16.0f * dpiScaleFixed, 16.0f);
         style.ScrollbarRounding  = std::floor(style.ScrollbarSize / 2);
 
         return;
@@ -130,8 +130,8 @@ void GUIPreferences::load()
             SLfloat dpiScaleFixed = dpi / 142.0f;
 
             // Default settings for the first time
-            SLGLImGui::fontPropDots  = Utils::max(16.0f * dpiScaleProp, 16.0f);
-            SLGLImGui::fontFixedDots = Utils::max(13.0f * dpiScaleFixed, 13.0f);
+            SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
+            SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
         }
     }
 }
