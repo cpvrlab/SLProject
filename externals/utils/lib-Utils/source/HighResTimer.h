@@ -33,8 +33,8 @@ class HighResTimer
 
     void    start() { _timePoint1 = HighResClock::now(); }
     void    stop() { _timePoint2 = HighResClock::now(); }
-    float   elapsedTimeInSec() { return duration_cast<seconds>(HighResClock::now() - _timePoint1).count(); }
-    float   elapsedTimeInMilliSec() { return duration_cast<milliseconds>(HighResClock::now() - _timePoint1).count(); }
+    float   elapsedTimeInSec() { return (float)duration_cast<seconds>(HighResClock::now() - _timePoint1).count(); }
+    float   elapsedTimeInMilliSec() { return (float)duration_cast<milliseconds>(HighResClock::now() - _timePoint1).count(); }
     int64_t elapsedTimeInMicroSec() { return duration_cast<microseconds>(HighResClock::now() - _timePoint1).count(); }
 
     static void callAfterSleep(int milliSec, function<void(void)> callbackFunc)

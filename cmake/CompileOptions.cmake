@@ -41,9 +41,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
             _CRT_SECURE_NO_WARNINGS  # Calling any one of the potentially unsafe methods in the CRT Library
             NOMINMAX #No min max makros (use the ones in std)
             )
-    set(DEFAULT_PROJECT_OPTIONS  ${DEFAULT_PROJECT_OPTIONS}
-            CXX_STANDARD 17
-            )
 endif ()
 
 set(DEFAULT_COMPILE_OPTIONS)
@@ -55,6 +52,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
         /W3           # -> warning level 3
         /wd4251       # -> disable warning: 'identifier': class 'type' needs to have dll-interface to be used by clients of class 'type2'
         /wd4592       # -> disable warning: 'identifier': symbol will be dynamically initialized (implementation limitation)
+        /wd4804       # -> disable warning: unsichere Verwendung des Typs "bool" in einer Operation	C:\Users\hsm4\Documents\GitHub\SLProject	C:\Users\hsm4\Documents\GitHub\SLProject\lib-SLProject\include\SLMaterial.h	88	
+
         /bigobj
         
         $<$<CONFIG:Release>: 
@@ -119,8 +118,8 @@ set(EXTERNAL_LIB_COMPILE_OPTIONS)
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     set(EXTERNAL_LIB_COMPILE_OPTIONS ${EXTERNAL_LIB_COMPILE_OPTIONS}
         /MP           # -> build with multiple processes
-        /W0           # -> warning level 0 all off
-        /w
+        #/W0           # -> warning level 0 all off
+        #/w
 
         $<$<CONFIG:Release>:
         /Gw           # -> whole program global optimization
