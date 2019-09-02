@@ -77,11 +77,11 @@ SLbool onPaint()
         CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
     }
 
-    /////////////////////////////////////////////
+    ////////////////////////////////////////////
     bool trackingGotUpdated = onUpdateVideo();
     bool sceneGotUpdated    = slUpdateScene();
     bool viewsNeedsRepaint  = slPaintAllViews();
-    /////////////////////////////////////////////
+    ////////////////////////////////////////////
 
     // Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);

@@ -122,8 +122,8 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
 
     // init start values
     theta  = 0.0f;
-    dtheta = PI / stacks;
-    dphi   = 2.0f * PI / slices;
+    dtheta = Utils::PI / stacks;
+    dphi   = 2.0f * Utils::PI / slices;
 
     // Define vertex position & normals by looping through all stacks
     for (i = 0; i <= stacks; ++i)

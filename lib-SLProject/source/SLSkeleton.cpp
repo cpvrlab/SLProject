@@ -214,13 +214,13 @@ void SLSkeleton::updateMinMax()
         }
         else
         {
-            _minOS.x = Utils::min(_minOS.x, curMin.x);
-            _minOS.y = Utils::min(_minOS.y, curMin.y);
-            _minOS.z = Utils::min(_minOS.z, curMin.z);
+            _minOS.x = std::min(_minOS.x, curMin.x);
+            _minOS.y = std::min(_minOS.y, curMin.y);
+            _minOS.z = std::min(_minOS.z, curMin.z);
 
-            _maxOS.x = Utils::max(_maxOS.x, curMax.x);
-            _maxOS.y = Utils::max(_maxOS.y, curMax.y);
-            _maxOS.z = Utils::max(_maxOS.z, curMax.z);
+            _maxOS.x = std::max(_maxOS.x, curMax.x);
+            _maxOS.y = std::max(_maxOS.y, curMax.y);
+            _maxOS.z = std::max(_maxOS.z, curMax.z);
         }
     }
     _minMaxOutOfDate = false;

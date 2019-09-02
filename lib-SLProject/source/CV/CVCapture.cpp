@@ -22,6 +22,7 @@ for a good top down information.
 #include <CVCapture.h>
 #include <CVImage.h>
 #include <Utils.h>
+#include <algorithm> // std::max
 
 //-----------------------------------------------------------------------------
 CVCapture* CVCapture::_instance = nullptr;
@@ -721,7 +722,7 @@ void CVCapture::copyYUVPlanes(float  scrWdivH,
     imageInfo.vRowOffest    = vRowOffset;
 
     // Prepare the threads (hyperthreads seam to be unefficient on ARM)
-    const int         threadNum = 4; //Utils::max(thread::hardware_concurrency(), 1U);
+    const int         threadNum = 4; //std::max(thread::hardware_concurrency(), 1U);
     vector<thread>    threads;
     YUV2RGB_BlockInfo threadInfos[threadNum];
     int               rowsPerThread     = dstH / (threadNum + 1);

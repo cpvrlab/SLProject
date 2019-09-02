@@ -85,7 +85,7 @@ class SLDeviceLocation
     SLbool  hasOrigin() const { return _hasOrigin; }
     SLbool  useOriginAltitude() const { return _useOriginAltitude; }
     SLMat3d wRecef() const { return _wRecef; }
-    SLfloat improveTime() { return Utils::max(_improveTimeSEC - _improveTimer.elapsedTimeInSec(), 0.0f); }
+    SLfloat improveTime() { return std::max(_improveTimeSEC - _improveTimer.elapsedTimeInSec(), 0.0f); }
     SLfloat originSolarZenit() const { return _originSolarZenit; }
     SLfloat originSolarAzimut() const { return _originSolarAzimut; }
 

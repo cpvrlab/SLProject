@@ -159,7 +159,7 @@ void SLCompactGrid::build(SLVec3f minV, SLVec3f maxV)
     _voxelCntEmpty = (_voxelOffsets[0] == 0) - 1;
     for (SLuint i = 1; i < _voxelOffsets.size(); ++i)
     {
-        _voxelMaxTria = Utils::max(_voxelMaxTria, (SLuint)_voxelOffsets[i]);
+        _voxelMaxTria = std::max(_voxelMaxTria, (SLuint)_voxelOffsets[i]);
         _voxelCntEmpty += _voxelOffsets[i] == 0;
         _voxelOffsets[i] += _voxelOffsets[i - 1];
     }
@@ -198,7 +198,7 @@ void SLCompactGrid::updateStats(SLNodeStats& stats)
                              ? SL_sizeOfVector(_triangleIndexes16)
                              : SL_sizeOfVector(_triangleIndexes32);
 
-    stats.numVoxMaxTria = Utils::max(_voxelMaxTria, stats.numVoxMaxTria);
+    stats.numVoxMaxTria = std::max(_voxelMaxTria, stats.numVoxMaxTria);
 }
 //-----------------------------------------------------------------------------
 //! SLCompactGrid::draw draws the non-empty voxels of the uniform grid
@@ -319,7 +319,7 @@ SLbool SLCompactGrid::intersect(SLRay* ray, SLNode* node)
                 tMaxZ = (minVox.z - O.z) * invD.z;
 
             // tMax is max. distance along the ray to stay in the current voxel
-            SLfloat tMax = Utils::min(tMaxX, tMaxY, tMaxZ);
+            SLfloat tMax = std::min(tMaxX, std::min(tMaxY, tMaxZ));
 
             // Precalculate the voxel id increment
             SLint incIDX = stepX;

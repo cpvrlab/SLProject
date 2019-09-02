@@ -171,7 +171,7 @@ float EvalCatmullRom10Spline(float const* K, float scaledVal)
 #endif
 
     float scaledValFloor = floorf(scaledVal);
-    scaledValFloor       = Utils::max(0.0f, Utils::min((float)(NumSegments - 1), scaledValFloor));
+    scaledValFloor       = std::max(0.0f, std::min((float)(NumSegments - 1), scaledValFloor));
     float t              = scaledVal - scaledValFloor;
     int   k              = (int)scaledValFloor;
 
@@ -868,8 +868,8 @@ void createSLDistortionMesh(DistortionMeshVertexData**  ppVertices,
             // with the shape of the distortion to minimize the number of triangles needed.
             SLVec2f screenNDC = TransformTanFovSpaceToScreenNDC(distortion, tanEyeAngle, false);
             // ...but don't let verts overlap to the other eye.
-            screenNDC.x = Utils::max(-1.0f, Utils::min(screenNDC.x, 1.0f));
-            screenNDC.y = Utils::max(-1.0f, Utils::min(screenNDC.y, 1.0f));
+            screenNDC.x = std::max(-1.0f, std::min(screenNDC.x, 1.0f));
+            screenNDC.y = std::max(-1.0f, std::min(screenNDC.y, 1.0f));
 
             // From those screen positions, we then need (effectively) RGB UVs.
             // This is the function that actually matters when doing the distortion calculation.
@@ -913,13 +913,13 @@ void createSLDistortionMesh(DistortionMeshVertexData**  ppVertices,
             // The furthest out will be the blue channel, because of chromatic aberration (true of any standard lens)
             SLVec2f sourceTexCoordBlueNDC = TransformTanFovSpaceToRendertargetNDC(eyeToSourceNDC, tanEyeAnglesB);
             float   edgeFadeIn            = (1.0f / fadeOutBorderFraction) *
-                               (1.0f - Utils::max(Utils::abs(sourceTexCoordBlueNDC.x), Utils::abs(sourceTexCoordBlueNDC.y)));
+                               (1.0f - std::max(Utils::abs(sourceTexCoordBlueNDC.x), Utils::abs(sourceTexCoordBlueNDC.y)));
             // Also fade out at screen edges.
             float edgeFadeInScreen = (2.0f / fadeOutBorderFraction) *
-                                     (1.0f - Utils::max(Utils::abs(screenNDC.x), Utils::abs(screenNDC.y)));
-            edgeFadeIn = Utils::min(edgeFadeInScreen, edgeFadeIn);
+                                     (1.0f - std::max(Utils::abs(screenNDC.x), Utils::abs(screenNDC.y)));
+            edgeFadeIn = std::min(edgeFadeInScreen, edgeFadeIn);
 
-            pcurVert->Shade          = Utils::max(0.0f, Utils::min(edgeFadeIn, 1.0f));
+            pcurVert->Shade          = std::max(0.0f, std::min(edgeFadeIn, 1.0f));
             pcurVert->ScreenPosNDC.x = 0.5f * screenNDC.x - 0.5f + xOffset;
             pcurVert->ScreenPosNDC.y = -screenNDC.y;
 

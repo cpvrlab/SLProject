@@ -234,22 +234,22 @@ void SLKDTree::buildTree(SLint maxDepth, SLVec3f minV, SLVec3f maxV)
    {  _kdRoot->tria.push_back(i);
       // for findSplit3 calculate AABB and surface area  
       _m->P[_m->F[i].iA].x;    
-      _kdTriaAB[i].min.x = Utils::min(_m->P[_m->F[i].iA].x,
+      _kdTriaAB[i].min.x = std::min(_m->P[_m->F[i].iA].x,
                                   _m->P[_m->F[i].iB].x, 
                                   _m->P[_m->F[i].iC].x);
-      _kdTriaAB[i].min.y = Utils::min(_m->P[_m->F[i].iA].y,
+      _kdTriaAB[i].min.y = std::min(_m->P[_m->F[i].iA].y,
                                   _m->P[_m->F[i].iB].y, 
                                   _m->P[_m->F[i].iC].y);
-      _kdTriaAB[i].min.z = Utils::min(_m->P[_m->F[i].iA].z,
+      _kdTriaAB[i].min.z = std::min(_m->P[_m->F[i].iA].z,
                                   _m->P[_m->F[i].iB].z, 
                                   _m->P[_m->F[i].iC].z);
-      _kdTriaAB[i].max.x = Utils::max(_m->P[_m->F[i].iA].x,
+      _kdTriaAB[i].max.x = std::max(_m->P[_m->F[i].iA].x,
                                   _m->P[_m->F[i].iB].x, 
                                   _m->P[_m->F[i].iC].x);
-      _kdTriaAB[i].max.y = Utils::max(_m->P[_m->F[i].iA].y,
+      _kdTriaAB[i].max.y = std::max(_m->P[_m->F[i].iA].y,
                                   _m->P[_m->F[i].iB].y, 
                                   _m->P[_m->F[i].iC].y);
-      _kdTriaAB[i].max.z = Utils::max(_m->P[_m->F[i].iA].z,
+      _kdTriaAB[i].max.z = std::max(_m->P[_m->F[i].iA].z,
                                   _m->P[_m->F[i].iB].z, 
                                   _m->P[_m->F[i].iC].z);
       

@@ -58,7 +58,7 @@ SLJoint* SLJoint::createChild(const SLstring& name, SLuint id)
 void SLJoint::calcMaxRadius(const SLVec3f& vec)
 {
     SLVec3f boneSpaceVec = _offsetMat * vec;
-    _radius              = Utils::max(_radius, boneSpaceVec.length());
+    _radius              = std::max(_radius, boneSpaceVec.length());
 }
 //-----------------------------------------------------------------------------
 /*! Getter that calculates the final joint transform matrix.
