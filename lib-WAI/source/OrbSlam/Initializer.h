@@ -38,6 +38,8 @@ class Initializer
     // Computes in parallel a fundamental matrix and a homography
     // Selects a model and tries to recover the motion and the structure from motion
     bool Initialize(const WAIFrame& CurrentFrame, const vector<int>& vMatches12, cv::Mat& R21, cv::Mat& t21, vector<cv::Point3f>& vP3D, vector<bool>& vbTriangulated);
+    bool InitializeWithKnownPose(const WAIFrame& InitialFrame, const WAIFrame& CurrentFrame, const vector<int>& vMatches12, cv::Mat& R21, cv::Mat& t21, vector<cv::Point3f>& vP3D, vector<bool>& vbTriangulated, int minTriangulated = 50);
+    bool InitializeWithKnownPose(const std::vector<cv::KeyPoint>& mvKeysUnInitialFrame, const std::vector<cv::KeyPoint>& mvKeysUnCurrentFrame, const cv::Mat& mTcwInitialFrame, const cv::Mat& mTcwCurrentFrame, const cv::Mat& cameraMatInitialFrame, const cv::Mat& cameraMatCurrentFrame, const vector<int>& vMatches12, cv::Mat& R21, cv::Mat& t21, vector<cv::Point3f>& vP3D, vector<bool>& vbTriangulated, int minTriangulated = 50);
 
     private:
     void FindHomography(vector<bool>& vbMatchesInliers, float& score, cv::Mat& H21);

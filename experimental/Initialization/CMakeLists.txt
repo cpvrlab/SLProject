@@ -2,16 +2,13 @@
 # CMake configuration for app-Demo-WAI application
 #
 
-set(target app-Demo-OrbExtractor)
-
-set(compile_definitions
-    BUILD_DEBUG)
+set(target app-test-initialization)
 
 file(GLOB headers
     )
 
 file(GLOB sources
-    ${SL_PROJECT_ROOT}/experimental/app-Demo-OrbExtractor/fpl_orbextractor.cpp
+    ${SL_PROJECT_ROOT}/experimental/Initialization/sl_initializationTest.cpp
     )
 
 add_executable(${target}
@@ -27,7 +24,7 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
-    ${SL_PROJECT_ROOT}/experimental/app-Demo-OrbExtractor
+    ${SL_PROJECT_ROOT}/experimental/Initialization
 
     PUBLIC
     ${OpenCV_INCLUDE_DIR}
@@ -40,6 +37,7 @@ target_link_libraries(${target}
 
     PUBLIC
     ${META_PROJECT_NAME}::lib-WAI
+    lib-SLProject
 
     INTERFACE
     )
@@ -65,7 +63,6 @@ target_compile_options(${target}
 
 target_link_libraries(${target}
     PRIVATE
-    ${OpenCV_LIBS}
 
     PUBLIC
     ${DEFAULT_LINKER_OPTIONS}

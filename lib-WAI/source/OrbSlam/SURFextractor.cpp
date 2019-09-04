@@ -78,9 +78,9 @@ const int HALF_PATCH_SIZE = 15;
 const int EDGE_THRESHOLD  = 19;
 
 static void computeBRIEFDescriptor(const KeyPoint& kpt,
-                                 const Mat&      img,
-                                 const Point*    pattern,
-                                 uchar*          desc)
+                                   const Mat&      img,
+                                   const Point*    pattern,
+                                   uchar*          desc)
 {
     const uchar* center = &img.at<uchar>(cvRound(kpt.pt.y), cvRound(kpt.pt.x));
     const int    step   = (int)img.step;
@@ -1161,8 +1161,8 @@ SURFextractor::SURFextractor(double threshold)
     mvInvLevelSigma2.resize(1);
     mvInvScaleFactor[0] = 1.0f;
     mvInvLevelSigma2[0] = 1.0f;
-    nlevels = 1;
-    scaleFactor = 1.0;
+    nlevels             = 1;
+    scaleFactor         = 1.0;
 
     mvImagePyramid.resize(1);
 
@@ -1192,11 +1192,16 @@ SURFextractor::SURFextractor(double threshold)
     }
 }
 
-
 static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Mat& descriptors, const vector<Point>& pattern)
 {
     for (size_t i = 0; i < keypoints.size(); i++)
         computeBRIEFDescriptor(keypoints[i], image, &pattern[0], descriptors.ptr((int)i));
+}
+
+void SURFextractor::computeKeyPointDescriptors(const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors)
+{
+    descriptors.create(keypoints.size(), 32, CV_8U);
+    computeDescriptors(image, keypoints, descriptors, pattern);
 }
 
 void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, OutputArray _descriptors)
@@ -1221,7 +1226,8 @@ void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
 
     // Compute the descriptors
     Mat desc = descriptors.rowRange(0, _keypoints.size());
-    computeDescriptors(workingMat, _keypoints, desc, pattern);;
+    computeDescriptors(workingMat, _keypoints, desc, pattern);
+    ;
 }
 
 }

@@ -25,54 +25,60 @@
 #include <list>
 #include <opencv/cv.h>
 
-
 namespace ORB_SLAM2
 {
 
 class KPextractor
 {
-public:
-
+    public:
     // Compute the ORB features and descriptors on an image.
     // ORB are dispersed on the image using an octree.
     // Mask is ignored in the current implementation.
-    virtual void operator()( cv::InputArray image,
-                             std::vector<cv::KeyPoint>& keypoints,
-                             cv::OutputArray descriptors ) = 0;
+    virtual void operator()(cv::InputArray             image,
+                            std::vector<cv::KeyPoint>& keypoints,
+                            cv::OutputArray            descriptors)          = 0;
+    virtual void computeKeyPointDescriptors(const cv::Mat&             image,
+                                            std::vector<cv::KeyPoint>& keypoints,
+                                            cv::Mat&                   descriptors) = 0;
 
-    int GetLevels(){
+    int GetLevels()
+    {
         return nlevels;
     }
 
-    float GetScaleFactor(){
+    float GetScaleFactor()
+    {
         return scaleFactor;
     }
 
-    std::vector<float> GetScaleFactors(){
+    std::vector<float> GetScaleFactors()
+    {
         return mvScaleFactor;
     }
 
-    std::vector<float> GetInverseScaleFactors(){
+    std::vector<float> GetInverseScaleFactors()
+    {
         return mvInvScaleFactor;
     }
 
-    std::vector<float> GetScaleSigmaSquares(){
+    std::vector<float> GetScaleSigmaSquares()
+    {
         return mvLevelSigma2;
     }
 
-    std::vector<float> GetInverseScaleSigmaSquares(){
+    std::vector<float> GetInverseScaleSigmaSquares()
+    {
         return mvInvLevelSigma2;
     }
 
     std::vector<cv::Mat> mvImagePyramid;
 
-protected:
-
-    int nfeatures;
-    double scaleFactor;
-    int nlevels;
-    std::vector<int> mnFeaturesPerLevel;
-    std::vector<int> umax;
+    protected:
+    int                nfeatures;
+    double             scaleFactor;
+    int                nlevels;
+    std::vector<int>   mnFeaturesPerLevel;
+    std::vector<int>   umax;
     std::vector<float> mvScaleFactor;
     std::vector<float> mvInvScaleFactor;
     std::vector<float> mvLevelSigma2;
@@ -82,4 +88,3 @@ protected:
 } //namespace ORB_SLAM
 
 #endif
-

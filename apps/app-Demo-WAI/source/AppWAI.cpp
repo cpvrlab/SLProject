@@ -219,32 +219,26 @@ bool WAIApp::update()
 
     if (iKnowWhereIAm)
     {
-        // update camera node position
-        cv::Mat Rwc(3, 3, CV_32F);
-        cv::Mat twc(3, 1, CV_32F);
+        SLMat4f om;
+        om.setMatrix(pose.at<float>(0, 0),
+                     pose.at<float>(0, 1),
+                     pose.at<float>(0, 2),
+                     pose.at<float>(0, 3),
+                     pose.at<float>(1, 0),
+                     pose.at<float>(1, 1),
+                     pose.at<float>(1, 2),
+                     pose.at<float>(1, 3),
+                     pose.at<float>(2, 0),
+                     pose.at<float>(2, 1),
+                     pose.at<float>(2, 2),
+                     pose.at<float>(2, 3),
+                     pose.at<float>(3, 0),
+                     pose.at<float>(3, 1),
+                     pose.at<float>(3, 2),
+                     pose.at<float>(3, 3));
+        om.rotate(180, 1, 0, 0);
 
-        Rwc = pose.rowRange(0, 3).colRange(0, 3).t();
-        twc = -Rwc * pose.rowRange(0, 3).col(3);
-
-        SLMat4f slPose((SLfloat)Rwc.at<float>(0, 0),
-                       (SLfloat)Rwc.at<float>(0, 1),
-                       (SLfloat)Rwc.at<float>(0, 2),
-                       (SLfloat)twc.at<float>(0, 0),
-                       (SLfloat)Rwc.at<float>(1, 0),
-                       (SLfloat)Rwc.at<float>(1, 1),
-                       (SLfloat)Rwc.at<float>(1, 2),
-                       (SLfloat)twc.at<float>(1, 0),
-                       (SLfloat)Rwc.at<float>(2, 0),
-                       (SLfloat)Rwc.at<float>(2, 1),
-                       (SLfloat)Rwc.at<float>(2, 2),
-                       (SLfloat)twc.at<float>(2, 0),
-                       0.0f,
-                       0.0f,
-                       0.0f,
-                       1.0f);
-        slPose.rotate(180, 1, 0, 0);
-
-        waiScene->cameraNode->om(slPose);
+        waiScene->cameraNode->om(om);
     }
 
     return true;
@@ -252,6 +246,31 @@ bool WAIApp::update()
 //-----------------------------------------------------------------------------
 void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
+    // TODO(dgj1): markerInitialization - decide to keep
+    if (mode->isMarkerCorrected() && iKnowWhereIAm)
+    {
+        cv::Mat mapTransform = mode->getMarkerCorrectionTransformation();
+        SLMat4f om;
+        om.setMatrix(mapTransform.at<float>(0, 0),
+                     mapTransform.at<float>(0, 1),
+                     mapTransform.at<float>(0, 2),
+                     mapTransform.at<float>(0, 3),
+                     mapTransform.at<float>(1, 0),
+                     mapTransform.at<float>(1, 1),
+                     mapTransform.at<float>(1, 2),
+                     mapTransform.at<float>(1, 3),
+                     mapTransform.at<float>(2, 0),
+                     mapTransform.at<float>(2, 1),
+                     mapTransform.at<float>(2, 2),
+                     mapTransform.at<float>(2, 3),
+                     mapTransform.at<float>(3, 0),
+                     mapTransform.at<float>(3, 1),
+                     mapTransform.at<float>(3, 2),
+                     mapTransform.at<float>(3, 3));
+
+        waiScene->mapNode->om(om);
+    }
+
     //update keypoints visualization (2d image points):
     //TODO: 2d visualization is still done in mode... do we want to keep it there?
     mode->showKeyPoints(showKeyPoints);
@@ -376,23 +395,25 @@ void WAIApp::renderKeyframes()
         }
 
         cv::Mat Twc = kf->getObjectMatrix();
+
         SLMat4f om;
         om.setMatrix(Twc.at<float>(0, 0),
-                     -Twc.at<float>(0, 1),
-                     -Twc.at<float>(0, 2),
+                     Twc.at<float>(0, 1),
+                     Twc.at<float>(0, 2),
                      Twc.at<float>(0, 3),
                      Twc.at<float>(1, 0),
-                     -Twc.at<float>(1, 1),
-                     -Twc.at<float>(1, 2),
+                     Twc.at<float>(1, 1),
+                     Twc.at<float>(1, 2),
                      Twc.at<float>(1, 3),
                      Twc.at<float>(2, 0),
-                     -Twc.at<float>(2, 1),
-                     -Twc.at<float>(2, 2),
+                     Twc.at<float>(2, 1),
+                     Twc.at<float>(2, 2),
                      Twc.at<float>(2, 3),
                      Twc.at<float>(3, 0),
-                     -Twc.at<float>(3, 1),
-                     -Twc.at<float>(3, 2),
+                     Twc.at<float>(3, 1),
+                     Twc.at<float>(3, 2),
                      Twc.at<float>(3, 3));
+        om.rotate(180, 1, 0, 0);
 
         cam->om(om);
 

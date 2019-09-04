@@ -34,6 +34,7 @@ class WAI_API ModeOrbSlam2 : public Mode
                  bool          retainImg,
                  bool          onlyTracking,
                  bool          trackOptFlow,
+                 bool          markerCorrected,
                  std::string   orbVocFile);
     ~ModeOrbSlam2();
     bool getPose(cv::Mat* pose);
@@ -64,7 +65,7 @@ class WAI_API ModeOrbSlam2 : public Mode
     int         getNumKeyFrames();
     float       poseDifference();
     float       getMeanReprojectionError();
-    void        findMatches(std::vector<cv::Point2f> &vP2D, std::vector<cv::Point3f> &vP3Dw);
+    void        findMatches(std::vector<cv::Point2f>& vP2D, std::vector<cv::Point3f>& vP3Dw);
 
     std::string getLoopCloseStatus();
     uint32_t    getLoopCloseCount();
@@ -99,6 +100,9 @@ class WAI_API ModeOrbSlam2 : public Mode
 
     void loadMapData(std::vector<WAIKeyFrame*> keyFrames, std::vector<WAIMapPoint*> mapPoints, int numLoopClosings);
 
+    bool    isMarkerCorrected();
+    cv::Mat getMarkerCorrectionTransformation();
+
     private:
     enum TrackingState
     {
@@ -118,6 +122,9 @@ class WAI_API ModeOrbSlam2 : public Mode
     };
 
     void initialize();
+    //void initializeWithKnownPose(int minKeys = 100, bool matchesKnown = false);
+    //void initializeWithArucoMarkerCorrection();
+    //void initializeWithChessboardCorrection();
     bool createInitialMapMonocular();
     void track3DPts();
 
@@ -149,6 +156,7 @@ class WAI_API ModeOrbSlam2 : public Mode
     bool _initialized;
     bool _onlyTracking;
     bool _trackOptFlow;
+    bool _markerCorrected;
 
     SensorCamera*  _camera            = nullptr;
     TrackingState  _state             = TrackingState_None;
@@ -248,6 +256,24 @@ class WAI_API ModeOrbSlam2 : public Mode
     bool   _showLoopEdges         = true;
     bool   _renderKfBackground    = false;
     bool   _allowKfsAsActiveCam   = false;
+
+    // marker correction stuff
+    cv::Ptr<cv::aruco::DetectorParameters> _arucoParams;
+    cv::Ptr<cv::aruco::Dictionary>         _arucoDictionary;
+    float                                  _arucoEdgeLength;
+
+    bool    findChessboardPose(cv::Mat& foundPose);
+    cv::Mat _initialFrameChessboardPose;
+    cv::Mat _markerCorrectionTransformation;
+
+    cv::Size _chessboardSize;
+    int      _chessboardFlags;
+    float    _chessboardWidthM;
+
+    WAIFrame                _markerFrame;
+    ORB_SLAM2::KPextractor* _markerOrbExtractor;
+    std::vector<int>        _initialFrameToMarkerMatches;
+    bool                    _relocalizeFromMarkerMap;
 };
 }
 

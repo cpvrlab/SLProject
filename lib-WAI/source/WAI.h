@@ -18,12 +18,12 @@ class WAI_API WAI
 {
     public:
     WAI(std::string dataRoot);
-    void  setDataRoot(std::string dataRoot);
-    void  activateSensor(SensorType sensorType, void* sensorInfo);
-    void  updateSensor(SensorType type, void* value);
-    bool  whereAmI(cv::Mat* pose);
-    Mode* setMode(ModeType mode);
-    Mode* getCurrentMode();
+    void     setDataRoot(std::string dataRoot);
+    void     activateSensor(SensorType sensorType, void* sensorInfo);
+    void     updateSensor(SensorType type, void* value);
+    bool     whereAmI(cv::Mat* pose);
+    Mode*    setMode(ModeType mode);
+    Mode*    getCurrentMode();
     ModeType getCurrentModeType();
 
     private:

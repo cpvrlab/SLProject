@@ -30,6 +30,8 @@
 #ifndef WAIFRAME_H
 #define WAIFRAME_H
 
+#include <WAIHelper.h>
+
 #include <opencv2/opencv.hpp>
 #include <DBoW2/BowVector.h>
 #include <DBoW2/FeatureVector.h>
@@ -45,7 +47,7 @@ class WAIKeyFrame;
 
 using namespace ORB_SLAM2;
 
-class WAIFrame
+class WAI_API WAIFrame
 {
     public:
     WAIFrame();
@@ -53,6 +55,7 @@ class WAIFrame
     WAIFrame(const WAIFrame& frame);
     //!constructor used for detection in tracking
     WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, ORBVocabulary* orbVocabulary, bool retainImg = false);
+    WAIFrame(const cv::Mat& imGray, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, std::vector<cv::KeyPoint>& vKeys, ORBVocabulary* orbVocabulary, bool retainImg = false);
 
     // Extract ORB on the image
     void ExtractORB(const cv::Mat& im);
@@ -83,6 +86,7 @@ class WAIFrame
     {
         return mtcw.clone();
     }
+
     //ghm1: added
     inline cv::Mat GetRotationCW()
     {
