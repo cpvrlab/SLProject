@@ -29,6 +29,7 @@
 */
 
 #include <WAIMap.h>
+#include <Utils.h>
 
 using namespace cv;
 
@@ -145,7 +146,7 @@ void WAIMap::clear()
 void WAIMap::rotate(float degVal, int type)
 {
     //transform to degree
-    float value = WAI::rad(degVal);
+    float value = degVal * Utils::DEG2RAD;
 
     Mat rot = buildRotMat(value, type);
     cout << "rot: " << rot << endl;

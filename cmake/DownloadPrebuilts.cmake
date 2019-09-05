@@ -97,37 +97,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
         VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-    file(GLOB usedCVLibs_Debug
-        ${OpenCV_DIR}/lib/opencv_aruco*d.dll
-        ${OpenCV_DIR}/lib/opencv_calib3d*d.dll
-        ${OpenCV_DIR}/lib/opencv_core*d.dll
-        ${OpenCV_DIR}/lib/opencv_features2d*d.dll
-        ${OpenCV_DIR}/lib/opencv_face*d.dll
-        ${OpenCV_DIR}/lib/opencv_flann*d.dll
-        ${OpenCV_DIR}/lib/opencv_highgui*d.dll
-        ${OpenCV_DIR}/lib/opencv_imgproc*d.dll
-        ${OpenCV_DIR}/lib/opencv_imgcodecs*d.dll
-        ${OpenCV_DIR}/lib/opencv_objdetect*d.dll
-        ${OpenCV_DIR}/lib/opencv_video*d.dll
-        ${OpenCV_DIR}/lib/opencv_videoio*d.dll
-        ${OpenCV_DIR}/lib/opencv_xfeatures2d*d.dll
-        )
-    file(GLOB usedCVLibs_Release
-        ${OpenCV_DIR}/lib/opencv_aruco*.dll
-        ${OpenCV_DIR}/lib/opencv_calib3d*.dll
-        ${OpenCV_DIR}/lib/opencv_core*.dll
-        ${OpenCV_DIR}/lib/opencv_features2d*.dll
-        ${OpenCV_DIR}/lib/opencv_face*.dll
-        ${OpenCV_DIR}/lib/opencv_flann*.dll
-        ${OpenCV_DIR}/lib/opencv_highgui*.dll
-        ${OpenCV_DIR}/lib/opencv_imgproc*.dll
-        ${OpenCV_DIR}/lib/opencv_imgcodecs*.dll
-        ${OpenCV_DIR}/lib/opencv_objdetect*.dll
-        ${OpenCV_DIR}/lib/opencv_video*.dll
-        ${OpenCV_DIR}/lib/opencv_videoio*.dll
-        ${OpenCV_DIR}/lib/opencv_xfeatures2d*.dll
-        )
-
+    # For MSVS copy them to working dir
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
         file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
@@ -162,7 +132,26 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
             "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
             WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-    endif ()
+    endif()
+
+    # For MSVS copy g2o dlls to working dir
+    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+		foreach(lib ${g2o_LINK_LIBS})
+			file(GLOB g2o_dll_to_copy_debug
+				${g2o_dll_to_copy_debug}
+				${g2o_DIR}/bin/${lib}*d.dll
+				)
+			file(GLOB g2o_dll_to_copy_release
+				${g2o_dll_to_copy_release}
+				${g2o_DIR}/bin/${lib}*.dll
+				)
+		endforeach(lib)
+			
+        #message(STATUS "Copy g2o debug DLLs: ${g2o_dll_to_copy_debug}")
+        file(COPY ${g2o_dll_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        #message(STATUS "Copy g2o release DLLs: ${g2o_dll_to_copy_release}")
+        file(COPY ${g2o_dll_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+    endif()
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     # Download first for iOS
