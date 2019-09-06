@@ -17,7 +17,7 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMode.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeAruco.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2DataOriented.h
+    #${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2DataOriented.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISensor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISensorCamera.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.h
@@ -47,7 +47,7 @@ file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeAruco.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2DataOriented.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2DataOriented.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISensor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISensorCamera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.cpp

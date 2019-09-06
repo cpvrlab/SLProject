@@ -89,7 +89,7 @@ PnPsolver::PnPsolver(const WAIFrame& F, const vector<WAIMapPoint*>& vpMapPointMa
                 //cv::Mat Pos = pMP->GetWorldPos();
                 //mvP3Dw.push_back(cv::Point3f(Pos.at<float>(0), Pos.at<float>(1), Pos.at<float>(2)));
                 auto Pos = pMP->worldPosVec();
-                mvP3Dw.push_back(cv::Point3f(Pos.x, Pos.y, Pos.z));
+                mvP3Dw.emplace_back(cv::Point3f(Pos.x, Pos.y, Pos.z));
 
                 mvKeyPointIndices.push_back(i);
                 mvAllIndices.push_back(idx);
@@ -186,9 +186,9 @@ cv::Mat PnPsolver::iterate(int nIterations, bool& bNoMore, vector<bool>& vbInlie
         vAvailableIndices = mvAllIndices;
 
         // Get min set of points
-        for (short i = 0; i < mRansacMinSet; ++i)
+        for (int i = 0; i < mRansacMinSet; ++i)
         {
-            int randi = DUtils::Random::RandomInt(0, vAvailableIndices.size() - 1);
+            int randi = DUtils::Random::RandomInt(0, (int)vAvailableIndices.size() - 1);
 
             int idx = vAvailableIndices[randi];
 
@@ -271,9 +271,8 @@ bool PnPsolver::Refine()
 
     reset_correspondences();
 
-    for (size_t i = 0; i < vIndices.size(); i++)
+    for (int idx : vIndices)
     {
-        int idx = vIndices[i];
         add_correspondence(mvP3Dw[idx].x, mvP3Dw[idx].y, mvP3Dw[idx].z, mvP2D[idx].x, mvP2D[idx].y);
     }
 
@@ -310,15 +309,15 @@ void PnPsolver::CheckInliers()
         cv::Point3f P3Dw = mvP3Dw[i];
         cv::Point2f P2D  = mvP2D[i];
 
-        float Xc    = mRi[0][0] * P3Dw.x + mRi[0][1] * P3Dw.y + mRi[0][2] * P3Dw.z + mti[0];
-        float Yc    = mRi[1][0] * P3Dw.x + mRi[1][1] * P3Dw.y + mRi[1][2] * P3Dw.z + mti[1];
-        float invZc = 1 / (mRi[2][0] * P3Dw.x + mRi[2][1] * P3Dw.y + mRi[2][2] * P3Dw.z + mti[2]);
+        float Xc    = (float)(mRi[0][0] * P3Dw.x + mRi[0][1] * P3Dw.y + mRi[0][2] * P3Dw.z + mti[0]);
+        float Yc    = (float)(mRi[1][0] * P3Dw.x + mRi[1][1] * P3Dw.y + mRi[1][2] * P3Dw.z + mti[1]);
+        float invZc = (float)(1.0f / (mRi[2][0] * P3Dw.x + mRi[2][1] * P3Dw.y + mRi[2][2] * P3Dw.z + mti[2]));
 
         double ue = uc + fu * Xc * invZc;
         double ve = vc + fv * Yc * invZc;
 
-        float distX = P2D.x - ue;
-        float distY = P2D.y - ve;
+        float distX = (float)(P2D.x - ue);
+        float distY = (float)(P2D.y - ve);
 
         float error2 = distX * distX + distY * distY;
 
@@ -338,10 +337,10 @@ void PnPsolver::set_maximum_number_of_correspondences(int n)
 {
     if (maximum_number_of_correspondences < n)
     {
-        if (pws != 0) delete[] pws;
-        if (us != 0) delete[] us;
-        if (alphas != 0) delete[] alphas;
-        if (pcs != 0) delete[] pcs;
+        delete[] pws;
+        delete[] us;
+        delete[] alphas;
+        delete[] pcs;
 
         maximum_number_of_correspondences = n;
         pws                               = new double[3 * maximum_number_of_correspondences];
@@ -351,7 +350,7 @@ void PnPsolver::set_maximum_number_of_correspondences(int n)
     }
 }
 
-void PnPsolver::reset_correspondences(void)
+void PnPsolver::reset_correspondences()
 {
     number_of_correspondences = 0;
 }
@@ -368,7 +367,7 @@ void PnPsolver::add_correspondence(double X, double Y, double Z, double u, doubl
     number_of_correspondences++;
 }
 
-void PnPsolver::choose_control_points(void)
+void PnPsolver::choose_control_points()
 {
     // Take C0 as the reference points centroid:
     cws[0][0] = cws[0][1] = cws[0][2] = 0;
@@ -380,21 +379,26 @@ void PnPsolver::choose_control_points(void)
         cws[0][j] /= number_of_correspondences;
 
     // Take C1, C2, and C3 from PCA on the reference points:
-    CvMat* PW0 = cvCreateMat(number_of_correspondences, 3, CV_64F);
+    //cv::Mat* PW0 = cvCreateMat(number_of_correspondences, 3, CV_64F);
+    cv::Ptr<cv::Mat> PW0 = cv::makePtr<cv::Mat>(number_of_correspondences, 3, CV_64F);
 
-    double pw0tpw0[3 * 3], dc[3], uct[3 * 3];
-    CvMat  PW0tPW0 = cvMat(3, 3, CV_64F, pw0tpw0);
-    CvMat  DC      = cvMat(3, 1, CV_64F, dc);
-    CvMat  UCt     = cvMat(3, 3, CV_64F, uct);
+    double  pw0tpw0[3 * 3], dc[3], uct[3 * 3];
+    cv::Mat PW0tPW0 = cv::Mat(3, 3, CV_64F, pw0tpw0);
+    cv::Mat DC      = cv::Mat(3, 1, CV_64F, dc);
+    cv::Mat UCt     = cv::Mat(3, 3, CV_64F, uct);
 
     for (int i = 0; i < number_of_correspondences; i++)
         for (int j = 0; j < 3; j++)
-            PW0->data.db[3 * i + j] = pws[3 * i + j] - cws[0][j];
+            //PW0->data.db[3 * i + j] = pws[3 * i + j] - cws[0][j];
+            PW0[3 * i + j] = pws[3 * i + j] - cws[0][j];
 
-    cvMulTransposed(PW0, &PW0tPW0, 1);
+    //TODO: delete old code
+    //cvMulTransposed(PW0, &PW0tPW0, 1);
+    cv::mulTransposed(*PW0, PW0tPW0, true);
+
     cvSVD(&PW0tPW0, &DC, &UCt, 0, CV_SVD_MODIFY_A | CV_SVD_U_T);
 
-    cvReleaseMat(&PW0);
+    //cvReleaseMat(&PW0);
 
     for (int i = 1; i < 4; i++)
     {
@@ -404,17 +408,20 @@ void PnPsolver::choose_control_points(void)
     }
 }
 
-void PnPsolver::compute_barycentric_coordinates(void)
+void PnPsolver::compute_barycentric_coordinates()
 {
-    double cc[3 * 3], cc_inv[3 * 3];
-    CvMat  CC     = cvMat(3, 3, CV_64F, cc);
-    CvMat  CC_inv = cvMat(3, 3, CV_64F, cc_inv);
+    double  cc[3 * 3], cc_inv[3 * 3];
+    cv::Mat CC     = cv::Mat(3, 3, CV_64F, cc);
+    cv::Mat CC_inv = cv::Mat(3, 3, CV_64F, cc_inv);
 
     for (int i = 0; i < 3; i++)
         for (int j = 1; j < 4; j++)
             cc[3 * i + j - 1] = cws[j][i] - cws[0][i];
 
-    cvInvert(&CC, &CC_inv, CV_SVD);
+    //TODO: delete old code
+    //cvInvert(&CC, &CC_inv, CV_SVD);
+    cv::invert(CC, CC_inv, cv::DECOMP_SVD);
+
     double* ci = cc_inv;
     for (int i = 0; i < number_of_correspondences; i++)
     {
@@ -430,13 +437,15 @@ void PnPsolver::compute_barycentric_coordinates(void)
     }
 }
 
-void PnPsolver::fill_M(CvMat*        M,
+void PnPsolver::fill_M(cv::Mat*      M,
                        const int     row,
                        const double* as,
                        const double  u,
                        const double  v)
 {
-    double* M1 = M->data.db + row * 12;
+    //TODO: delete old code
+    //double* M1 = M->data.db + row * 12;
+    double* M1 = M->ptr<double>(0) + row * 12;
     double* M2 = M1 + 12;
 
     for (int i = 0; i < 4; i++)
@@ -465,7 +474,7 @@ void PnPsolver::compute_ccs(const double* betas, const double* ut)
     }
 }
 
-void PnPsolver::compute_pcs(void)
+void PnPsolver::compute_pcs()
 {
     for (int i = 0; i < number_of_correspondences; i++)
     {
@@ -482,23 +491,28 @@ double PnPsolver::compute_pose(double R[3][3], double t[3])
     choose_control_points();
     compute_barycentric_coordinates();
 
-    CvMat* M = cvCreateMat(2 * number_of_correspondences, 12, CV_64F);
+    //TODO: delete old code
+    //cv::Mat* M = cvCreateMat(2 * number_of_correspondences, 12, CV_64F);
+    cv::Ptr<cv::Mat> M = cv::makePtr<cv::Mat>(2 * number_of_correspondences, 12, CV_64F);
 
     for (int i = 0; i < number_of_correspondences; i++)
         fill_M(M, 2 * i, alphas + 4 * i, us[2 * i], us[2 * i + 1]);
 
-    double mtm[12 * 12], d[12], ut[12 * 12];
-    CvMat  MtM = cvMat(12, 12, CV_64F, mtm);
-    CvMat  D   = cvMat(12, 1, CV_64F, d);
-    CvMat  Ut  = cvMat(12, 12, CV_64F, ut);
+    double  mtm[12 * 12], d[12], ut[12 * 12];
+    cv::Mat MtM = cv::Mat(12, 12, CV_64F, mtm);
+    cv::Mat D   = cv::Mat(12, 1, CV_64F, d);
+    cv::Mat Ut  = cv::Mat(12, 12, CV_64F, ut);
 
-    cvMulTransposed(M, &MtM, 1);
+    //TODO: delete old code
+    //cvMulTransposed(M, &MtM, 1);
+    cv::mulTransposed(*M, MtM, true);
+
     cvSVD(&MtM, &D, &Ut, 0, CV_SVD_MODIFY_A | CV_SVD_U_T);
-    cvReleaseMat(&M);
+    //cvReleaseMat(&M);
 
-    double l_6x10[6 * 10], rho[6];
-    CvMat  L_6x10 = cvMat(6, 10, CV_64F, l_6x10);
-    CvMat  Rho    = cvMat(6, 1, CV_64F, rho);
+    double  l_6x10[6 * 10], rho[6];
+    cv::Mat L_6x10 = cv::Mat(6, 10, CV_64F, l_6x10);
+    cv::Mat Rho    = cv::Mat(6, 1, CV_64F, rho);
 
     compute_L_6x10(ut, l_6x10);
     compute_rho(rho);
@@ -593,13 +607,14 @@ void PnPsolver::estimate_R_and_t(double R[3][3], double t[3])
         pw0[j] /= number_of_correspondences;
     }
 
-    double abt[3 * 3], abt_d[3], abt_u[3 * 3], abt_v[3 * 3];
-    CvMat  ABt   = cvMat(3, 3, CV_64F, abt);
-    CvMat  ABt_D = cvMat(3, 1, CV_64F, abt_d);
-    CvMat  ABt_U = cvMat(3, 3, CV_64F, abt_u);
-    CvMat  ABt_V = cvMat(3, 3, CV_64F, abt_v);
+    double  abt[3 * 3], abt_d[3], abt_u[3 * 3], abt_v[3 * 3];
+    cv::Mat ABt   = cv::Mat(3, 3, CV_64F, abt);
+    cv::Mat ABt_D = cv::Mat(3, 1, CV_64F, abt_d);
+    cv::Mat ABt_U = cv::Mat(3, 3, CV_64F, abt_u);
+    cv::Mat ABt_V = cv::Mat(3, 3, CV_64F, abt_v);
 
     cvSetZero(&ABt);
+
     for (int i = 0; i < number_of_correspondences; i++)
     {
         double* pc = pcs + 3 * i;
@@ -642,7 +657,7 @@ void PnPsolver::print_pose(const double R[3][3], const double t[3])
     cout << R[2][0] << " " << R[2][1] << " " << R[2][2] << " " << t[2] << endl;
 }
 
-void PnPsolver::solve_for_sign(void)
+void PnPsolver::solve_for_sign()
 {
     if (pcs[2] < 0.0)
     {
@@ -674,21 +689,29 @@ double PnPsolver::compute_R_and_t(const double* ut, const double* betas, double 
 // betas10        = [B11 B12 B22 B13 B23 B33 B14 B24 B34 B44]
 // betas_approx_1 = [B11 B12     B13         B14]
 
-void PnPsolver::find_betas_approx_1(const CvMat* L_6x10, const CvMat* Rho, double* betas)
+void PnPsolver::find_betas_approx_1(const cv::Mat* L_6x10, const cv::Mat* Rho, double* betas)
 {
-    double l_6x4[6 * 4], b4[4];
-    CvMat  L_6x4 = cvMat(6, 4, CV_64F, l_6x4);
-    CvMat  B4    = cvMat(4, 1, CV_64F, b4);
+    double  l_6x4[6 * 4], b4[4];
+    cv::Mat L_6x4 = cv::Mat(6, 4, CV_64F, l_6x4);
+    cv::Mat B4    = cv::Mat(4, 1, CV_64F, b4);
 
     for (int i = 0; i < 6; i++)
     {
-        cvmSet(&L_6x4, i, 0, cvmGet(L_6x10, i, 0));
-        cvmSet(&L_6x4, i, 1, cvmGet(L_6x10, i, 1));
-        cvmSet(&L_6x4, i, 2, cvmGet(L_6x10, i, 3));
-        cvmSet(&L_6x4, i, 3, cvmGet(L_6x10, i, 6));
+        //TODO: delete old code
+        //cvmSet(&L_6x4, i, 0, cvmGet(L_6x10, i, 0));
+        //cvmSet(&L_6x4, i, 1, cvmGet(L_6x10, i, 1));
+        //cvmSet(&L_6x4, i, 2, cvmGet(L_6x10, i, 3));
+        //cvmSet(&L_6x4, i, 3, cvmGet(L_6x10, i, 6));
+
+        L_6x4.at<double>(i, 0) = L_6x10->at<double>(i, 0);
+        L_6x4.at<double>(i, 1) = L_6x10->at<double>(i, 1);
+        L_6x4.at<double>(i, 2) = L_6x10->at<double>(i, 3);
+        L_6x4.at<double>(i, 3) = L_6x10->at<double>(i, 6);
     }
 
-    cvSolve(&L_6x4, Rho, &B4, CV_SVD);
+    //TODO: Check correctness
+    //cvSolve(&L_6x4, Rho, &B4, CV_SVD);
+    cv::solve(L_6x4, *Rho, B4, cv::DECOMP_SVD);
 
     if (b4[0] < 0)
     {
@@ -709,20 +732,27 @@ void PnPsolver::find_betas_approx_1(const CvMat* L_6x10, const CvMat* Rho, doubl
 // betas10        = [B11 B12 B22 B13 B23 B33 B14 B24 B34 B44]
 // betas_approx_2 = [B11 B12 B22                            ]
 
-void PnPsolver::find_betas_approx_2(const CvMat* L_6x10, const CvMat* Rho, double* betas)
+void PnPsolver::find_betas_approx_2(const cv::Mat* L_6x10, const cv::Mat* Rho, double* betas)
 {
-    double l_6x3[6 * 3], b3[3];
-    CvMat  L_6x3 = cvMat(6, 3, CV_64F, l_6x3);
-    CvMat  B3    = cvMat(3, 1, CV_64F, b3);
+    double  l_6x3[6 * 3], b3[3];
+    cv::Mat L_6x3 = cv::Mat(6, 3, CV_64F, l_6x3);
+    cv::Mat B3    = cv::Mat(3, 1, CV_64F, b3);
 
     for (int i = 0; i < 6; i++)
     {
-        cvmSet(&L_6x3, i, 0, cvmGet(L_6x10, i, 0));
-        cvmSet(&L_6x3, i, 1, cvmGet(L_6x10, i, 1));
-        cvmSet(&L_6x3, i, 2, cvmGet(L_6x10, i, 2));
+        //TODO: delete old code
+        //cvmSet(&L_6x3, i, 0, cvmGet(L_6x10, i, 0));
+        //cvmSet(&L_6x3, i, 1, cvmGet(L_6x10, i, 1));
+        //cvmSet(&L_6x3, i, 2, cvmGet(L_6x10, i, 2));
+
+        L_6x3.at<double>(i, 0) = L_6x10->at<double>(i, 0);
+        L_6x3.at<double>(i, 1) = L_6x10->at<double>(i, 1);
+        L_6x3.at<double>(i, 2) = L_6x10->at<double>(i, 3);
     }
 
-    cvSolve(&L_6x3, Rho, &B3, CV_SVD);
+    //TODO: Check correctness
+    //cvSolve(&L_6x3, Rho, &B3, CV_SVD);
+    cv::solve(L_6x3, *Rho, B3, cv::DECOMP_SVD);
 
     if (b3[0] < 0)
     {
@@ -744,22 +774,31 @@ void PnPsolver::find_betas_approx_2(const CvMat* L_6x10, const CvMat* Rho, doubl
 // betas10        = [B11 B12 B22 B13 B23 B33 B14 B24 B34 B44]
 // betas_approx_3 = [B11 B12 B22 B13 B23                    ]
 
-void PnPsolver::find_betas_approx_3(const CvMat* L_6x10, const CvMat* Rho, double* betas)
+void PnPsolver::find_betas_approx_3(const cv::Mat* L_6x10, const cv::Mat* Rho, double* betas)
 {
-    double l_6x5[6 * 5], b5[5];
-    CvMat  L_6x5 = cvMat(6, 5, CV_64F, l_6x5);
-    CvMat  B5    = cvMat(5, 1, CV_64F, b5);
+    double  l_6x5[6 * 5], b5[5];
+    cv::Mat L_6x5 = cv::Mat(6, 5, CV_64F, l_6x5);
+    cv::Mat B5    = cv::Mat(5, 1, CV_64F, b5);
 
     for (int i = 0; i < 6; i++)
     {
-        cvmSet(&L_6x5, i, 0, cvmGet(L_6x10, i, 0));
-        cvmSet(&L_6x5, i, 1, cvmGet(L_6x10, i, 1));
-        cvmSet(&L_6x5, i, 2, cvmGet(L_6x10, i, 2));
-        cvmSet(&L_6x5, i, 3, cvmGet(L_6x10, i, 3));
-        cvmSet(&L_6x5, i, 4, cvmGet(L_6x10, i, 4));
+        //TODO: delete old code
+        //cvmSet(&L_6x5, i, 0, cvmGet(L_6x10, i, 0));
+        //cvmSet(&L_6x5, i, 1, cvmGet(L_6x10, i, 1));
+        //cvmSet(&L_6x5, i, 2, cvmGet(L_6x10, i, 2));
+        //cvmSet(&L_6x5, i, 3, cvmGet(L_6x10, i, 3));
+        //cvmSet(&L_6x5, i, 4, cvmGet(L_6x10, i, 4));
+
+        L_6x5.at<double>(i, 0) = L_6x10->at<double>(i, 0);
+        L_6x5.at<double>(i, 1) = L_6x10->at<double>(i, 1);
+        L_6x5.at<double>(i, 2) = L_6x10->at<double>(i, 2);
+        L_6x5.at<double>(i, 3) = L_6x10->at<double>(i, 3);
+        L_6x5.at<double>(i, 4) = L_6x10->at<double>(i, 4);
     }
 
-    cvSolve(&L_6x5, Rho, &B5, CV_SVD);
+    //TODO: Check correctness
+    //cvSolve(&L_6x5, Rho, &B5, CV_SVD);
+    cv::solve(L_6x5, *Rho, B5, cv::DECOMP_SVD);
 
     if (b5[0] < 0)
     {
@@ -832,34 +871,47 @@ void PnPsolver::compute_rho(double* rho)
     rho[5] = dist2(cws[2], cws[3]);
 }
 
-void PnPsolver::compute_A_and_b_gauss_newton(const double* l_6x10, const double* rho, double betas[4], CvMat* A, CvMat* b)
+void PnPsolver::compute_A_and_b_gauss_newton(const double* l_6x10, const double* rho, double betas[4], cv::Mat* A, cv::Mat* b)
 {
     for (int i = 0; i < 6; i++)
     {
         const double* rowL = l_6x10 + i * 10;
-        double*       rowA = A->data.db + i * 4;
+
+        //TODO: delete old code
+        //double* rowA = A->data.db + i * 4;
+        double* rowA = A->ptr<double>(0) + i * 4;
+        ;
 
         rowA[0] = 2 * rowL[0] * betas[0] + rowL[1] * betas[1] + rowL[3] * betas[2] + rowL[6] * betas[3];
         rowA[1] = rowL[1] * betas[0] + 2 * rowL[2] * betas[1] + rowL[4] * betas[2] + rowL[7] * betas[3];
         rowA[2] = rowL[3] * betas[0] + rowL[4] * betas[1] + 2 * rowL[5] * betas[2] + rowL[8] * betas[3];
         rowA[3] = rowL[6] * betas[0] + rowL[7] * betas[1] + rowL[8] * betas[2] + 2 * rowL[9] * betas[3];
 
-        cvmSet(b, i, 0, rho[i] - (rowL[0] * betas[0] * betas[0] + rowL[1] * betas[0] * betas[1] + rowL[2] * betas[1] * betas[1] + rowL[3] * betas[0] * betas[2] + rowL[4] * betas[1] * betas[2] + rowL[5] * betas[2] * betas[2] + rowL[6] * betas[0] * betas[3] + rowL[7] * betas[1] * betas[3] + rowL[8] * betas[2] * betas[3] + rowL[9] * betas[3] * betas[3]));
+        //cvmSet(b, i, 0, rho[i] - (rowL[0] * betas[0] * betas[0] + rowL[1] * betas[0] * betas[1] + rowL[2] * betas[1] * betas[1] + rowL[3] * betas[0] * betas[2] + rowL[4] * betas[1] * betas[2] + rowL[5] * betas[2] * betas[2] + rowL[6] * betas[0] * betas[3] + rowL[7] * betas[1] * betas[3] + rowL[8] * betas[2] * betas[3] + rowL[9] * betas[3] * betas[3]));
+        b->at<double>(i, 0) = rho[i] -
+                              (rowL[0] * betas[0] * betas[0] + rowL[1] * betas[0] * betas[1] +
+                               rowL[2] * betas[1] * betas[1] + rowL[3] * betas[0] * betas[2] +
+                               rowL[4] * betas[1] * betas[2] + rowL[5] * betas[2] * betas[2] +
+                               rowL[6] * betas[0] * betas[3] + rowL[7] * betas[1] * betas[3] +
+                               rowL[8] * betas[2] * betas[3] + rowL[9] * betas[3] * betas[3]);
     }
 }
 
-void PnPsolver::gauss_newton(const CvMat* L_6x10, const CvMat* Rho, double betas[4])
+void PnPsolver::gauss_newton(const cv::Mat* L_6x10, const cv::Mat* Rho, double betas[4])
 {
     const int iterations_number = 5;
 
-    double a[6 * 4], b[6], x[4];
-    CvMat  A = cvMat(6, 4, CV_64F, a);
-    CvMat  B = cvMat(6, 1, CV_64F, b);
-    CvMat  X = cvMat(4, 1, CV_64F, x);
+    double  a[6 * 4], b[6], x[4];
+    cv::Mat A = cv::Mat(6, 4, CV_64F, a);
+    cv::Mat B = cv::Mat(6, 1, CV_64F, b);
+    cv::Mat X = cv::Mat(4, 1, CV_64F, x);
 
     for (int k = 0; k < iterations_number; k++)
     {
-        compute_A_and_b_gauss_newton(L_6x10->data.db, Rho->data.db, betas, &A, &B);
+        //TODO: delete old code
+        //compute_A_and_b_gauss_newton(L_6x10->data.db, Rho->data.db, betas, &A, &B);
+        compute_A_and_b_gauss_newton(L_6x10->ptr<double>(0), Rho->ptr<double>(0), betas, &A, &B);
+
         qr_solve(&A, &B, &X);
 
         for (int i = 0; i < 4; i++)
@@ -867,7 +919,7 @@ void PnPsolver::gauss_newton(const CvMat* L_6x10, const CvMat* Rho, double betas
     }
 }
 
-void PnPsolver::qr_solve(CvMat* A, CvMat* b, CvMat* X)
+void PnPsolver::qr_solve(cv::Mat* A, cv::Mat* b, cv::Mat* X)
 {
     static int     max_nr = 0;
     static double *A1, *A2;
@@ -887,7 +939,10 @@ void PnPsolver::qr_solve(CvMat* A, CvMat* b, CvMat* X)
         A2     = new double[nr];
     }
 
-    double *pA = A->data.db, *ppAkk = pA;
+    //TODO: delete old code
+    //double* pA = A->data.db;
+    double* pA =  A->ptr<double>(0);
+    double* ppAkk = pA;
     for (int k = 0; k < nc; k++)
     {
         double *ppAik = ppAkk, eta = fabs(*ppAik);
@@ -940,7 +995,12 @@ void PnPsolver::qr_solve(CvMat* A, CvMat* b, CvMat* X)
     }
 
     // b <- Qt b
-    double *ppAjj = pA, *pb = b->data.db;
+    double *ppAjj = pA;
+
+    //TODO: delete old code
+    //double *pb = b->data.db;
+    double *pb = b->ptr<double>(0);
+
     for (int j = 0; j < nc; j++)
     {
         double *ppAij = ppAjj, tau = 0;
@@ -960,7 +1020,10 @@ void PnPsolver::qr_solve(CvMat* A, CvMat* b, CvMat* X)
     }
 
     // X = R-1 b
-    double* pX = X->data.db;
+    //TODO: delete old code
+    //double* pX = X->data.db;
+    double* pX = X->ptr<double>(0);
+
     pX[nc - 1] = pb[nc - 1] / A2[nc - 1];
     for (int i = nc - 2; i >= 0; i--)
     {
