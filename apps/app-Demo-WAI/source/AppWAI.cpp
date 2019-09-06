@@ -5,6 +5,7 @@
 #include <CVCapture.h>
 #include <Utils.h>
 
+#include <WAIModeOrbSlam2.h>
 #include <WAIMapStorage.h>
 
 #include <WAICalibration.h>
@@ -91,7 +92,6 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
     // This load the GUI configs that are locally stored
     uiPrefs.setDPI(dpi);
     uiPrefs.load();
-    setupGUI();
 
     int svIndex = slCreateSceneView((int)(width * scr2fbX),
                                     (int)(height * scr2fbY),
@@ -120,7 +120,7 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosSensors("sensors", &uiPrefs.showInfosSensors));
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosTracking("tracking", (WAI::ModeOrbSlam2*)wai->getCurrentMode(), &uiPrefs.showInfosTracking));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiMapStorage("map storage", (WAI::ModeOrbSlam2*)wai->getCurrentMode(), waiScene->mapNode, dirs->writableDir, &uiPrefs.showMapStorage));
+    AppDemoGui::addInfoDialog(new AppDemoGuiMapStorage("map storage", (WAI::ModeOrbSlam2*)wai->getCurrentMode(), waiScene->mapNode, dirs->slDataRoot + "/slam-maps/", &uiPrefs.showMapStorage));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiProperties("properties", &uiPrefs.showProperties));
     AppDemoGui::addInfoDialog(new AppDemoGuiSceneGraph("scene graph", &uiPrefs.showSceneGraph));
@@ -160,6 +160,7 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
 {
     s->init();
     waiScene->rebuild();
+    setupGUI();
 
     // Set scene name and info string
     s->name("Track Keyframe based Features");
@@ -247,7 +248,7 @@ bool WAIApp::update()
 void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
     // TODO(dgj1): markerInitialization - decide to keep
-    if (mode->isMarkerCorrected() && iKnowWhereIAm)
+    if (mode->getMarkerCorrectedType() == WAI::MarkerCorrectionType_Chessboard && iKnowWhereIAm)
     {
         cv::Mat mapTransform = mode->getMarkerCorrectionTransformation();
         SLMat4f om;

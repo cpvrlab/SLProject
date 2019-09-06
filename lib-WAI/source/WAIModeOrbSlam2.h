@@ -26,16 +26,24 @@
 namespace WAI
 {
 
+enum MarkerCorrectionType
+{
+    MarkerCorrectionType_None,
+    MarkerCorrectionType_Chessboard,
+    MarkerCorrectionType_MapCreation,
+    MarkerCorrectionType_Map
+};
+
 class WAI_API ModeOrbSlam2 : public Mode
 {
     public:
-    ModeOrbSlam2(SensorCamera* camera,
-                 bool          serial,
-                 bool          retainImg,
-                 bool          onlyTracking,
-                 bool          trackOptFlow,
-                 bool          markerCorrected,
-                 std::string   orbVocFile);
+    ModeOrbSlam2(SensorCamera*        camera,
+                 bool                 serial,
+                 bool                 retainImg,
+                 bool                 onlyTracking,
+                 bool                 trackOptFlow,
+                 MarkerCorrectionType markerCorrectionType,
+                 std::string          orbVocFile);
     ~ModeOrbSlam2();
     bool getPose(cv::Mat* pose);
     void notifyUpdate();
@@ -44,7 +52,6 @@ class WAI_API ModeOrbSlam2 : public Mode
     bool isInitialized();
 
     void disableMapping();
-
     void enableMapping();
 
     WAIMap*        getMap() { return _map; }
@@ -100,8 +107,8 @@ class WAI_API ModeOrbSlam2 : public Mode
 
     void loadMapData(std::vector<WAIKeyFrame*> keyFrames, std::vector<WAIMapPoint*> mapPoints, int numLoopClosings);
 
-    bool    isMarkerCorrected();
-    cv::Mat getMarkerCorrectionTransformation();
+    MarkerCorrectionType getMarkerCorrectedType() { return _markerCorrectionType; }
+    cv::Mat              getMarkerCorrectionTransformation();
 
     private:
     enum TrackingState
@@ -122,9 +129,9 @@ class WAI_API ModeOrbSlam2 : public Mode
     };
 
     void initialize();
-    //void initializeWithKnownPose(int minKeys = 100, bool matchesKnown = false);
+    void initializeWithKnownPose(int minKeys = 100, bool matchesKnown = false);
     //void initializeWithArucoMarkerCorrection();
-    //void initializeWithChessboardCorrection();
+    void initializeWithChessboardCorrection();
     bool createInitialMapMonocular();
     void track3DPts();
 
@@ -156,7 +163,6 @@ class WAI_API ModeOrbSlam2 : public Mode
     bool _initialized;
     bool _onlyTracking;
     bool _trackOptFlow;
-    bool _markerCorrected;
 
     SensorCamera*  _camera            = nullptr;
     TrackingState  _state             = TrackingState_None;
@@ -258,9 +264,7 @@ class WAI_API ModeOrbSlam2 : public Mode
     bool   _allowKfsAsActiveCam   = false;
 
     // marker correction stuff
-    cv::Ptr<cv::aruco::DetectorParameters> _arucoParams;
-    cv::Ptr<cv::aruco::Dictionary>         _arucoDictionary;
-    float                                  _arucoEdgeLength;
+    MarkerCorrectionType _markerCorrectionType;
 
     bool    findChessboardPose(cv::Mat& foundPose);
     cv::Mat _initialFrameChessboardPose;

@@ -35,7 +35,7 @@ WAI::Mode* WAI::WAI::setMode(ModeType modeType)
                                          false,
                                          false,
                                          false,
-                                         false,
+                                         MarkerCorrectionType_Map,
                                          _dataRoot + "/calibrations/ORBvoc.bin");
             }
         }
