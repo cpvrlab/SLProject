@@ -74,8 +74,13 @@ AppDemoGuiMapStorage::AppDemoGuiMapStorage(const string&      name,
 //-----------------------------------------------------------------------------
 void AppDemoGuiMapStorage::saveMap()
 {
+    std::cout << "save map" << std::endl;
+    WAIMapStorage::saveMap(_map,
+                           _mapNode,
+                           "mapSaveTest.json");
     //save keyframes (without graph/neigbourhood information)
-    std::vector<WAIKeyFrame*> kfs = _tracking->getKeyFrames();
+    //std::vector<WAIKeyFrame*> kfs = _tracking->getKeyFrames();
+    /*
     if (kfs.size())
     {
         std::string mapDir   = _mapDir + _mapPrefix + std::to_string(_nextId) + "/";
@@ -261,6 +266,7 @@ void AppDemoGuiMapStorage::saveMap()
 
         ImGui::Text("Info: Map saved successfully");
     }
+    */
 }
 //-----------------------------------------------------------------------------
 void AppDemoGuiMapStorage::buildInfos(SLScene* s, SLSceneView* sv)
@@ -277,15 +283,18 @@ void AppDemoGuiMapStorage::buildInfos(SLScene* s, SLSceneView* sv)
     ImGui::Separator();
     if (ImGui::Button("New map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
+        /*
         //increase current id and maximum id in MapStorage
         WAIMapStorage::newMap();
         //clear current field in combobox, until this new map is saved
         WAIMapStorage::currItem = nullptr;
         WAIMapStorage::currN    = -1;
+        */
     }
 
     ImGui::Separator();
     {
+        /*
         if (ImGui::BeginCombo("Current", WAIMapStorage::currItem)) // The second parameter is the label previewed before opening the combo.
         {
             for (int n = 0; n < _existingMapNames.size(); n++)
@@ -301,8 +310,9 @@ void AppDemoGuiMapStorage::buildInfos(SLScene* s, SLSceneView* sv)
             }
             ImGui::EndCombo();
         }
+        */
     }
-
+/*
     if (ImGui::Button("Load map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
         if (WAIMapStorage::currItem)
@@ -748,5 +758,7 @@ void AppDemoGuiMapStorage::buildInfos(SLScene* s, SLSceneView* sv)
 #endif
         }
     }
+*/
     ImGui::End();
+
 }

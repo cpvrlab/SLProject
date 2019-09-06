@@ -28,6 +28,8 @@
 #include <AppDemoGuiTransform.h>
 #include <AppDemoGuiUIPrefs.h>
 #include <AppDemoGuiVideoStorage.h>
+#include <AppDemoGuiTestOpen.h>
+#include <AppDemoGuiTestWrite.h>
 #include <AppWAI.h>
 #include <AppDirectories.h>
 
@@ -63,7 +65,6 @@ bool               WAIApp::loaded          = false;
 int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* directories)
 {
     dirs = directories;
-    WAIMapStorage::init(dirs->writableDir);
 
     wai             = new WAI::WAI(dirs->waiDataRoot);
     wc              = new WAICalibration();
@@ -91,7 +92,6 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
     // This load the GUI configs that are locally stored
     uiPrefs.setDPI(dpi);
     uiPrefs.load();
-    setupGUI();
 
     int svIndex = slCreateSceneView((int)(width * scr2fbX),
                                     (int)(height * scr2fbY),
@@ -108,6 +108,9 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
 
 void WAIApp::setupGUI()
 {
+    static bool guiReady;
+    if (guiReady)
+        return;
     aboutDial = new AppDemoGuiAbout("about", cpvrLogo, &uiPrefs.showAbout);
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosFrameworks("frameworks", &uiPrefs.showInfosFrameworks));
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosMapNodeTransform("map node",
@@ -132,6 +135,15 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiTransform("transform", &uiPrefs.showTransform));
     AppDemoGui::addInfoDialog(new AppDemoGuiUIPrefs("prefs", &uiPrefs, &uiPrefs.showUIPrefs));
     AppDemoGui::addInfoDialog(new AppDemoGuiVideoStorage("video storage", dirs->writableDir + "/videos/", videoWriter, videoWriterInfo, &uiPrefs.showVideoStorage));
+
+    AppDemoGui::addInfoDialog(new AppDemoGuiTestOpen("Tests Settings", dirs->writableDir + "/savedTests/",
+                                                     wai, wc, waiScene->mapNode, &uiPrefs.showTestSettings));
+
+    AppDemoGui::addInfoDialog(new AppDemoGuiTestWrite("Test Writer", dirs->writableDir + "/savedTests/",
+                                                      wai, wc, waiScene->mapNode,
+                                                      videoWriter, videoWriterInfo,
+                                                      &uiPrefs.showTestWriter));
+    guiReady = true;
 }
 
 void WAIApp::buildGUI(SLScene* s, SLSceneView* sv)
@@ -160,7 +172,7 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
 {
     s->init();
     waiScene->rebuild();
-
+    setupGUI();
     // Set scene name and info string
     s->name("Track Keyframe based Features");
     s->info("Example for loading an existing pose graph with map points.");

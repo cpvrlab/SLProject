@@ -180,6 +180,13 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             ImGui::EndMenu();
         }
 
+        if (ImGui::BeginMenu("Tests"))
+        {
+            ImGui::MenuItem("Load", nullptr, &prefs->showTestSettings);
+            ImGui::MenuItem("New Test", nullptr, &prefs->showTestWriter);
+            ImGui::EndMenu();
+        }
+
         if (ImGui::BeginMenu("Infos"))
         {
             ImGui::MenuItem("Infos on Scene", nullptr, &prefs->showInfosScene);

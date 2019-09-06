@@ -77,6 +77,8 @@ bool WAICalibration::saveToFile(std::string path)
     fs << "CreationDate" << Utils::getDateTime2String();
 
     fs.release();
+
+    return true;
 }
 
 bool WAICalibration::loadFromFile(std::string path)
