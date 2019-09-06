@@ -21,13 +21,15 @@
 #define INITIALIZER_H
 
 #include <opencv2/opencv.hpp>
+
+#include <WAIHelper.h>
 #include <WAIFrame.h>
 
 namespace ORB_SLAM2
 {
 
 // THIS IS THE INITIALIZER FOR MONOCULAR SLAM. NOT USED IN THE STEREO OR RGBD CASE.
-class Initializer
+class WAI_API Initializer
 {
     typedef std::pair<int, int> Match;
 

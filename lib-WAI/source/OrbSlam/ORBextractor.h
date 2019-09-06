@@ -24,6 +24,8 @@
 #include <vector>
 #include <list>
 #include <opencv/cv.h>
+
+#include <WAIHelper.h>
 #include <KPextractor.h>
 
 namespace ORB_SLAM2
@@ -42,7 +44,7 @@ class ExtractorNode
     bool                               bNoMore;
 };
 
-class ORBextractor : public KPextractor
+class WAI_API ORBextractor : public KPextractor
 {
     public:
     enum

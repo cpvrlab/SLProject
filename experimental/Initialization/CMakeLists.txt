@@ -37,7 +37,7 @@ target_link_libraries(${target}
 
     PUBLIC
     ${META_PROJECT_NAME}::lib-WAI
-    lib-SLProject
+    ${META_PROJECT_NAME}::lib-SLProject
 
     INTERFACE
     )
