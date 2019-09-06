@@ -145,7 +145,7 @@ void PnPsolver::SetRansacParameters(double probability,
     _mvbInliersi.resize(_mN);
 
     // Adjust Parameters according to number of correspondences
-    int nMinInliers = _mN * _mRansacEpsilon;
+    int nMinInliers = (int)(_mN * _mRansacEpsilon);
     if (nMinInliers < _mRansacMinInliers)
         nMinInliers = _mRansacMinInliers;
     if (nMinInliers < minSet)
@@ -401,28 +401,36 @@ void PnPsolver::choose_control_points()
     for (int j = 0; j < 3; j++)
         _cws[0][j] /= _numCorrespondences;
 
-    // Take C1, C2, and C3 from PCA on the reference points:
-    //TODO: delete old code
-    //cv::Mat* PW0 = cvCreateMat(_numCorrespondences, 3, CV_64F);
+        // Take C1, C2, and C3 from PCA on the reference points:
+#if CV_VERSION_MAJOR < 4
+    CvMat* PW0 = cvCreateMat(_numCorrespondences, 3, CV_64F);
+#else
     cv::Ptr<cv::Mat> PW0 = cv::makePtr<cv::Mat>(_numCorrespondences, 3, CV_64F);
+#endif
 
-    double  pw0tpw0[3 * 3], dc[3], uct[3 * 3];
+    double  pw0tpw0[3 * 3], dc[3], uct[3 * 3], vct[3 * 3];
     cv::Mat PW0tPW0 = cv::Mat(3, 3, CV_64F, pw0tpw0);
     cv::Mat DC      = cv::Mat(3, 1, CV_64F, dc);
     cv::Mat UCt     = cv::Mat(3, 3, CV_64F, uct);
+    cv::Mat VCt     = cv::Mat(3, 3, CV_64F, vct);
 
     for (int i = 0; i < _numCorrespondences; i++)
         for (int j = 0; j < 3; j++)
-            //PW0->data.db[3 * i + j] = _pws[3 * i + j] - _cws[0][j];
+#if CV_VERSION_MAJOR < 4
+            PW0->data.db[3 * i + j] = _pws[3 * i + j] - _cws[0][j];
+#else
             PW0[3 * i + j] = _pws[3 * i + j] - _cws[0][j];
+#endif
 
-    //TODO: delete old code
-    //cvMulTransposed(PW0, &PW0tPW0, 1);
-    cv::mulTransposed(*PW0, PW0tPW0, true);
-
+#if CV_VERSION_MAJOR < 4
+    cvMulTransposed(PW0, &PW0tPW0, 1);
     cvSVD(&PW0tPW0, &DC, &UCt, 0, CV_SVD_MODIFY_A | CV_SVD_U_T);
-
-    //cvReleaseMat(&PW0);
+    cvReleaseMat(&PW0);
+#else
+    cv::mulTransposed(*PW0, PW0tPW0, true);
+    cv::SVD::compute(PW0tPW0, DC, UCt, VCt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    cv::transpose(UCt, UCt);
+#endif
 
     for (int i = 1; i < 4; i++)
     {
@@ -487,8 +495,8 @@ void PnPsolver::fill_M(cv::Mat*      M,
 //-----------------------------------------------------------------------------
 void PnPsolver::compute_ccs(const double* betas, const double* ut)
 {
-    for (int i = 0; i < 4; i++)
-        _ccs[i][0] = _ccs[i][1] = _ccs[i][2] = 0.0f;
+    for (auto & _cc : _ccs)
+        _cc[0] = _cc[1] = _cc[2] = 0.0f;
 
     for (int i = 0; i < 4; i++)
     {
@@ -517,23 +525,27 @@ double PnPsolver::compute_pose(double R[3][3], double t[3])
     compute_barycentric_coordinates();
 
     //TODO: delete old code
-    //cv::Mat* M = cvCreateMat(2 * _numCorrespondences, 12, CV_64F);
+    //CvMat* M = cvCreateMat(2 * _numCorrespondences, 12, CV_64F);
     cv::Ptr<cv::Mat> M = cv::makePtr<cv::Mat>(2 * _numCorrespondences, 12, CV_64F);
 
     for (int i = 0; i < _numCorrespondences; i++)
         fill_M(M, 2 * i, _alphas + 4 * i, _us[2 * i], _us[2 * i + 1]);
 
-    double  mtm[12 * 12], d[12], ut[12 * 12];
+    double  mtm[12 * 12], d[12], ut[12 * 12], vt[12 * 12];
     cv::Mat MtM = cv::Mat(12, 12, CV_64F, mtm);
     cv::Mat D   = cv::Mat(12, 1, CV_64F, d);
     cv::Mat Ut  = cv::Mat(12, 12, CV_64F, ut);
+    cv::Mat Vt  = cv::Mat(12, 12, CV_64F, vt);
 
-    //TODO: delete old code
-    //cvMulTransposed(M, &MtM, 1);
-    cv::mulTransposed(*M, MtM, true);
-
+#if CV_VERSION_MAJOR < 4
+    cvMulTransposed(M, &MtM, 1);
     cvSVD(&MtM, &D, &Ut, 0, CV_SVD_MODIFY_A | CV_SVD_U_T);
     //cvReleaseMat(&M);
+#else
+    cv::mulTransposed(*M, MtM, true);
+    cv::SVD::compute(MtM, D, Ut, Vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    cv::transpose(Ut, Ut);
+#endif
 
     double  l_6x10[6 * 10], rho[6];
     cv::Mat L_6x10 = cv::Mat(6, 10, CV_64F, l_6x10);
@@ -641,7 +653,11 @@ void PnPsolver::estimate_R_and_t(double R[3][3], double t[3])
     cv::Mat ABt_U = cv::Mat(3, 3, CV_64F, abt_u);
     cv::Mat ABt_V = cv::Mat(3, 3, CV_64F, abt_v);
 
+#if CV_VERSION_MAJOR < 4
     cvSetZero(&ABt);
+#else
+    ABt.setTo(0);
+#endif
 
     for (int i = 0; i < _numCorrespondences; i++)
     {
@@ -656,7 +672,11 @@ void PnPsolver::estimate_R_and_t(double R[3][3], double t[3])
         }
     }
 
+#if CV_VERSION_MAJOR < 4
     cvSVD(&ABt, &ABt_D, &ABt_U, &ABt_V, CV_SVD_MODIFY_A);
+#else
+    cv::SVD::compute(ABt, ABt_D, ABt_U, ABt_V, cv::SVD::MODIFY_A);
+#endif
 
     for (int i = 0; i < 3; i++)
         for (int j = 0; j < 3; j++)
@@ -689,9 +709,9 @@ void PnPsolver::solve_for_sign()
 {
     if (_pcs[2] < 0.0)
     {
-        for (int i = 0; i < 4; i++)
-            for (int j = 0; j < 3; j++)
-                _ccs[i][j] = -_ccs[i][j];
+        for (auto & _cc : _ccs)
+            for (double & j : _cc)
+                j = -j;
 
         for (int i = 0; i < _numCorrespondences; i++)
         {
@@ -898,7 +918,7 @@ void PnPsolver::compute_rho(double* rho)
 //-----------------------------------------------------------------------------
 void PnPsolver::compute_A_and_b_gauss_newton(const double* l_6x10,
                                              const double* rho,
-                                             double        betas[4],
+                                             const double  betas[4],
                                              cv::Mat*      A,
                                              cv::Mat*      b)
 {
@@ -909,7 +929,6 @@ void PnPsolver::compute_A_and_b_gauss_newton(const double* l_6x10,
         //TODO: delete old code
         //double* rowA = A->data.db + i * 4;
         double* rowA = A->ptr<double>(0) + i * 4;
-        ;
 
         rowA[0] = 2 * rowL[0] * betas[0] + rowL[1] * betas[1] + rowL[3] * betas[2] + rowL[6] * betas[3];
         rowA[1] = rowL[1] * betas[0] + 2 * rowL[2] * betas[1] + rowL[4] * betas[2] + rowL[7] * betas[3];
@@ -972,7 +991,8 @@ void PnPsolver::qr_solve(cv::Mat* A, cv::Mat* b, cv::Mat* X)
 
     //TODO: delete old code
     //double* pA = A->data.db;
-    double* pA    = A->ptr<double>(0);
+    double* pA = A->ptr<double>(0);
+
     double* ppAkk = pA;
     for (int k = 0; k < nc; k++)
     {
@@ -1051,6 +1071,7 @@ void PnPsolver::qr_solve(cv::Mat* A, cv::Mat* b, cv::Mat* X)
     }
 
     // X = R-1 b
+
     //TODO: delete old code
     //double* pX = X->data.db;
     double* pX = X->ptr<double>(0);
