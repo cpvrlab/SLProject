@@ -457,6 +457,7 @@ void PnPsolver::compute_barycentric_coordinates()
               ci[3 * j] * (pi[0] - _cws[0][0]) +
               ci[3 * j + 1] * (pi[1] - _cws[0][1]) +
               ci[3 * j + 2] * (pi[2] - _cws[0][2]);
+
         a[0] = 1.0f - a[1] - a[2] - a[3];
     }
 }

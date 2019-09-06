@@ -40,10 +40,10 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera* camera,
     int   fMinThFAST   = 7;
 
     //instantiate Orb extractor
-    //_extractor        = new ORB_SLAM2::ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
-    //pIniORBextractor = new ORB_SLAM2::ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
-    _extractor        = new ORB_SLAM2::SURFextractor(1500);
-    mpIniORBextractor = new ORB_SLAM2::SURFextractor(1000);
+    _extractor        = new ORB_SLAM2::ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+    mpIniORBextractor = new ORB_SLAM2::ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+    //_extractor        = new ORB_SLAM2::SURFextractor(1500);
+    //mpIniORBextractor = new ORB_SLAM2::SURFextractor(1000);
     //instantiate local mapping
     mpLocalMapper = new ORB_SLAM2::LocalMapping(_map, 1, mpVocabulary);
     mpLoopCloser  = new ORB_SLAM2::LoopClosing(_map, mpKeyFrameDatabase, mpVocabulary, false, false);
