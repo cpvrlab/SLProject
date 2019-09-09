@@ -31,7 +31,7 @@
 
 // Forward declaration of C functions in other files
 extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
-extern bool onUpdateTracking();
+extern bool onUpdateVideo();
 
 //-----------------------------------------------------------------------------
 // C-Prototypes
@@ -198,11 +198,11 @@ float GetSeconds()
     m_lastVideoSizeIndex = -1; // default size index
 }
 //-----------------------------------------------------------------------------
-- (void)viewDidUnload
+- (void)didReceiveMemoryWarning
 {
-    printf("viewDidUnload\n");
+    printf("didReceiveMemoryWarning\n");
     
-    [super viewDidUnload];
+    [super didReceiveMemoryWarning];
    
     slTerminate();
    
@@ -210,12 +210,7 @@ float GetSeconds()
     {   [EAGLContext setCurrentContext:nil];
     }
     self.context = nil;
-}
-//-----------------------------------------------------------------------------
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Release any cached data, images, etc. that aren't in use.
+    [super dealloc];
 }
 //-----------------------------------------------------------------------------
 - (void)update
@@ -234,7 +229,7 @@ float GetSeconds()
     else [self stopLocationManager];
     
     /////////////////////////////////////////////
-    bool trackingGotUpdated = onUpdateTracking();
+    bool trackingGotUpdated = onUpdateVideo();
     bool sceneGotUpdated    = slUpdateScene();
     bool viewsNeedsRepaint  = slPaintAllViews();
     /////////////////////////////////////////////
@@ -424,13 +419,13 @@ float GetSeconds()
         }
         else if ([[UIDevice currentDevice] orientation ]== UIDeviceOrientationLandscapeRight)
         {
-            float pitch = attitude.roll            - SL_HALFPI;
-            float yaw   = attitude.yaw             - SL_HALFPI;
+            float pitch = attitude.roll - Utils::HALFPI;
+            float yaw   = attitude.yaw  - Utils::HALFPI;
             float roll  = attitude.pitch;
             SL_LOG("Pitch: %3.0f, Yaw: %3.0f, Roll: %3.0f\n",
-                   pitch*SL_RAD2DEG,
-                   yaw*SL_RAD2DEG,
-                   roll*SL_RAD2DEG);
+                   pitch*Utils::RAD2DEG,
+                   yaw*Utils::RAD2DEG,
+                   roll*Utils::RAD2DEG);
         }
         else if([[UIDevice currentDevice] orientation] == UIDeviceOrientationPortrait)
         {

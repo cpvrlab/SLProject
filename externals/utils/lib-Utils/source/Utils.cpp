@@ -471,11 +471,11 @@ string getFileName(const string& pathFilename)
     int i = -1;
 
     if (i1 != string::npos && i2 != string::npos)
-        i = std::max(i1, i2);
+        i = (int)std::max(i1, i2);
     else if (i1 != string::npos)
-        i = i1;
+        i = (int)i1;
     else if (i2 != string::npos)
-        i = i2;
+        i = (int)i2;
 
     return pathFilename.substr(i + 1, pathFilename.length() - i);
 }
