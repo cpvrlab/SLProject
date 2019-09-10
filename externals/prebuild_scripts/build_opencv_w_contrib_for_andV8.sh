@@ -67,6 +67,7 @@ cmake \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
 -DBUILD_ANDROID_EXAMPLES=off \
+-DOPENCV_ENABLE_NONFREE=true \
 -DANDROID_SDK_ROOT=$HOME/Android/Sdk/ \
 ../..
 
@@ -97,6 +98,7 @@ cmake \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
 -DBUILD_ANDROID_EXAMPLES=off \
+-DOPENCV_ENABLE_NONFREE=true \
 -DANDROID_SDK_ROOT=$HOME/Android/Sdk/ \
 ../..
 
