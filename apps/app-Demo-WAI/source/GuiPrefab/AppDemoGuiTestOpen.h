@@ -34,7 +34,7 @@ class AppDemoGuiTestOpen : public AppDemoGuiInfosDialog
     struct TestInfo
     {
         bool open;
-        std::string path;
+        std::string name;
         std::string testScene;
         std::string lighting;
         std::string features;
@@ -44,7 +44,6 @@ class AppDemoGuiTestOpen : public AppDemoGuiInfosDialog
         std::string mapPath;
     };
 
-    void loadMap(std::string map);
     TestInfo openTestSettings(std::string path);
     void loadTestSettings(TestInfo * infos);
 
@@ -58,4 +57,4 @@ class AppDemoGuiTestOpen : public AppDemoGuiInfosDialog
     WAI::WAI*                _wai;
 };
 
-#endif //SL_IMGUI_MAPSTORAGE_H
+#endif

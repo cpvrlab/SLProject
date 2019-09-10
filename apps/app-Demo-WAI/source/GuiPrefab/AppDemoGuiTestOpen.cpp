@@ -34,7 +34,7 @@ AppDemoGuiTestOpen::AppDemoGuiTestOpen(const std::string& name, std::string save
     std::vector<std::string> content = Utils::getFileNamesInDir(_settingsDir);
     for (auto path : content)
     {
-        _infos.push_back(openTestSettings(Utils::getFileName(path)));
+        _infos.push_back(openTestSettings(path));
     }
 }
 
@@ -42,13 +42,16 @@ struct AppDemoGuiTestOpen::TestInfo AppDemoGuiTestOpen::openTestSettings(std::st
 {
     struct TestInfo infos;
     cv::FileStorage fs(path, cv::FileStorage::READ);
+    std::cout << path << std::endl;
     if (!fs.isOpened())
     {
+        std::cout << "File not open" << std::endl;
         infos.open = false;
+        return;
     }
-    
+
     infos.open = true;
-    infos.path = path;
+    infos.name = Utils::getFileName(path);
     fs["Date"] >> infos.date;
     fs["Scene"] >> infos.testScene;
     fs["Conditions"] >> infos.lighting;
@@ -58,39 +61,9 @@ struct AppDemoGuiTestOpen::TestInfo AppDemoGuiTestOpen::openTestSettings(std::st
     fs["Maps"] >> infos.mapPath;
     //std::string dbowPath = (std::string)n["DBOW"];
 
-
-    std::cout << "Print file info" << std::endl;
-    std::cout << infos.date << std::endl;
-
     fs.release();
 
     return infos;
-}
-
-void AppDemoGuiTestOpen::loadTestSettings(TestInfo * infos)
-{
-    _wc->loadFromFile(infos->calPath);
-
-    CVCapture::instance()->release();
-    CVCapture::instance()->videoFilename = infos->vidPath;
-    CVCapture::instance()->videoType(VT_FILE);
-    CVCapture::instance()->start(1.0);
-}
-
-void AppDemoGuiTestOpen::loadMap(std::string mapPath)
-{
-    WAI::ModeOrbSlam2 * mode = (WAI::ModeOrbSlam2*)_wai->getCurrentMode();
-    mode->requestStateIdle();
-    while (!mode->hasStateIdle())
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    mode->reset();
-
-    WAIMapStorage::loadMap(mode->getMap(), mode->getKfDB(), _mapNode, mapPath, "");
-
-    mode->resume();
-    mode->setInitialized(true);
 }
 
 void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
@@ -106,18 +79,38 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
 
     if (ImGui::Button("Load", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
-        loadMap(_saveDir + "map.json");
+        TestInfo info = _infos[_currentItem];
+
+        _wc->loadFromFile(info.calPath);
+
+        WAI::ModeOrbSlam2 * mode = (WAI::ModeOrbSlam2 *)_wai->getCurrentMode();
+        mode->requestStateIdle();
+        while (!mode->hasStateIdle())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        mode->reset();
+
+        WAIMapStorage::loadMap(mode->getMap(), mode->getKfDB(), _mapNode, info.mapPath, "");
+
+        CVCapture::instance()->videoType(VT_FILE);
+        CVCapture::instance()->videoFilename = info.vidPath;
+        CVCapture::instance()->videoLoops    = true;
+        CVCapture::instance()->openFile();
+
+        mode->resume();
+        mode->setInitialized(true);
     }
 
     ImGui::Separator();
 
 
-    if (ImGui::BeginCombo("Current", _infos[_currentItem].path.c_str()))
+    if (ImGui::BeginCombo("Current", _infos[_currentItem].name.c_str()))
     {
         for (int i = 0; i < _infos.size(); i++)
         {
             bool isSelected = (_currentItem == i);
-            if (ImGui::Selectable(_infos[i].path.c_str(), isSelected))
+            if (ImGui::Selectable(Utils::getFileName(_infos[i].name).c_str(), isSelected))
             {
                 _currentItem = i;
                 ImGui::Separator();
@@ -135,9 +128,6 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
         ImGui::Text(("scene : " + info.testScene).c_str());
         ImGui::Text(("lighting conditions : " + info.lighting).c_str());
         ImGui::Text(("features types : " + info.features).c_str());
-        ImGui::Text(("calibration : " + info.calPath).c_str());
-        ImGui::Text(("video path : " + info.vidPath).c_str());
-        ImGui::Text(("map path : " + info.mapPath).c_str());
     }
 
     ImGui::End();

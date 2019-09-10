@@ -58,8 +58,8 @@ void AppDemoGuiTestWrite::prepareExperiment(std::string testScene, std::string w
 
     WAI::ModeOrbSlam2* mode = (WAI::ModeOrbSlam2*)_wai->getCurrentMode();
 
-    std::string sceneDir = Utils::unifySlashes(_saveDir + "/" + testScene);
-    std::string baseDir = Utils::unifySlashes(sceneDir + "/" + weather);
+    std::string sceneDir = Utils::unifySlashes(_saveDir + testScene);
+    std::string baseDir = Utils::unifySlashes(sceneDir + weather);
     std::string mapBaseDir = Utils::unifySlashes(baseDir + "/map/");
 
     _videoDir   = Utils::unifySlashes(baseDir + "/video/");
@@ -102,8 +102,8 @@ void AppDemoGuiTestWrite::recordExperiment()
         _videoWriterInfo->release();
 
     size = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
-    _videoWriter->open((_videoDir + _date + ".avi"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
-    _videoWriterInfo->open((_runDir + _date + ".avi"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
+    _videoWriter->open((_videoDir + _date + ".mp4"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
+    _videoWriterInfo->open((_runDir + _date + ".mp4"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
     saveTestSettings(_settingsDir + _date + ".xml");
 }
 
@@ -113,7 +113,7 @@ void AppDemoGuiTestWrite::stopRecording()
     _videoWriterInfo->release();
     saveCalibration(_videoDir + _date + ".xml");
 
-    saveMap(_mapDir + _date + ".map");
+    saveMap(_mapDir + _date + ".json");
 }
 
 void AppDemoGuiTestWrite::saveCalibration(std::string calib)
@@ -145,7 +145,7 @@ void AppDemoGuiTestWrite::saveTestSettings(std::string path)
     fs << "Conditions" << _conditions[_currentConditionId];
     fs << "Features" << mode->getKPextractor()->GetName();
     fs << "Calibration" << _videoDir + _date + ".xml";
-    fs << "Videos" << _videoDir + _date + ".avi";
+    fs << "Videos" << _videoDir + _date + ".mp4";
     fs << "Maps" << _mapDir + _date + ".map";
     //std::string dbowPath = (std::string)n["DBOW"];
 

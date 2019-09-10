@@ -28,6 +28,7 @@
 #include <AppDemoGuiTransform.h>
 #include <AppDemoGuiUIPrefs.h>
 #include <AppDemoGuiVideoStorage.h>
+#include <AppDemoGuiVideoLoad.h>
 #include <AppDemoGuiTestOpen.h>
 #include <AppDemoGuiTestWrite.h>
 #include <AppWAI.h>
@@ -123,8 +124,6 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosSensors("sensors", &uiPrefs.showInfosSensors));
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosTracking("tracking", (WAI::ModeOrbSlam2*)wai->getCurrentMode(), &uiPrefs.showInfosTracking));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiMapStorage("map storage", (WAI::ModeOrbSlam2*)wai->getCurrentMode(), waiScene->mapNode, dirs->writableDir, &uiPrefs.showMapStorage));
-
     AppDemoGui::addInfoDialog(new AppDemoGuiProperties("properties", &uiPrefs.showProperties));
     AppDemoGui::addInfoDialog(new AppDemoGuiSceneGraph("scene graph", &uiPrefs.showSceneGraph));
     AppDemoGui::addInfoDialog(new AppDemoGuiStatsDebugTiming("debug timing", &uiPrefs.showStatsDebugTiming));
@@ -135,6 +134,10 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiTransform("transform", &uiPrefs.showTransform));
     AppDemoGui::addInfoDialog(new AppDemoGuiUIPrefs("prefs", &uiPrefs, &uiPrefs.showUIPrefs));
     AppDemoGui::addInfoDialog(new AppDemoGuiVideoStorage("video storage", dirs->writableDir + "/videos/", videoWriter, videoWriterInfo, &uiPrefs.showVideoStorage));
+    AppDemoGui::addInfoDialog(new AppDemoGuiVideoLoad("video load", dirs->writableDir + "/videos/", wai, &uiPrefs.showVideoLoad));
+
+    AppDemoGui::addInfoDialog(new AppDemoGuiMapStorage("Map storage", (WAI::ModeOrbSlam2*)wai->getCurrentMode(), waiScene->mapNode,
+                                                                       dirs->writableDir + "/maps/", &uiPrefs.showMapStorage));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTestOpen("Tests Settings", dirs->writableDir + "/savedTests/",
                                                      wai, wc, waiScene->mapNode, &uiPrefs.showTestSettings));
@@ -235,9 +238,33 @@ bool WAIApp::update()
         cv::Mat Rwc(3, 3, CV_32F);
         cv::Mat twc(3, 1, CV_32F);
 
-        Rwc = pose.rowRange(0, 3).colRange(0, 3).t();
+        Rwc = (pose.rowRange(0, 3).colRange(0, 3)).t();
         twc = -Rwc * pose.rowRange(0, 3).col(3);
 
+        cv::Mat PoseInv = cv::Mat::eye(4, 4, CV_32F);
+
+        Rwc.copyTo(PoseInv.colRange(0, 3).rowRange(0, 3));
+        twc.copyTo(PoseInv.rowRange(0, 3).col(3));
+        SLMat4f om;
+
+        om.setMatrix(PoseInv.at<float>(0, 0),
+                     -PoseInv.at<float>(0, 1),
+                     -PoseInv.at<float>(0, 2),
+                     PoseInv.at<float>(0, 3),
+                     PoseInv.at<float>(1, 0),
+                     -PoseInv.at<float>(1, 1),
+                     -PoseInv.at<float>(1, 2),
+                     PoseInv.at<float>(1, 3),
+                     PoseInv.at<float>(2, 0),
+                     -PoseInv.at<float>(2, 1),
+                     -PoseInv.at<float>(2, 2),
+                     PoseInv.at<float>(2, 3),
+                     PoseInv.at<float>(3, 0),
+                     -PoseInv.at<float>(3, 1),
+                     -PoseInv.at<float>(3, 2),
+                     PoseInv.at<float>(3, 3));
+
+        /*
         SLMat4f slPose((SLfloat)Rwc.at<float>(0, 0),
                        (SLfloat)Rwc.at<float>(0, 1),
                        (SLfloat)Rwc.at<float>(0, 2),
@@ -255,8 +282,9 @@ bool WAIApp::update()
                        0.0f,
                        1.0f);
         slPose.rotate(180, 1, 0, 0);
+        */
 
-        waiScene->cameraNode->om(slPose);
+        waiScene->cameraNode->om(om);
     }
 
     return true;
@@ -372,7 +400,7 @@ void WAIApp::renderKeyframes()
     for (WAIKeyFrame* kf : keyframes)
     {
         if (kf->isBad())
-            continue;
+           continue;
 
         SLKeyframeCamera* cam = new SLKeyframeCamera("KeyFrame " + std::to_string(kf->mnId));
         //set background

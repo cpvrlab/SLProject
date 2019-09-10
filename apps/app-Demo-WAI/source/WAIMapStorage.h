@@ -5,18 +5,17 @@
 #include <WAIHelper.h>
 #include <OrbSlam/ORBVocabulary.h>
 #include <WAIModeOrbSlam2.h>
-#include <WAIMapIO.h>
 #include <Utils.h>
 
 class WAI_API WAIMapStorage
 {
     public:
-    static void saveMap(WAIMap*     waiMap,
+    static bool saveMap(WAIMap*     waiMap,
                         SLNode*     mapNode,
                         std::string path,
                         std::string imgDir = "");
 
-    static void loadMap(WAIMap*        waiMap,
+    static bool loadMap(WAIMap*        waiMap,
                         WAIKeyFrameDB* kfDB,
                         SLNode*        mapNode,
                         std::string    path,

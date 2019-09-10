@@ -49,39 +49,49 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
 
-            ImGui::Separator();
+            ImGui::EndMenu();
+        }
 
-            if (ImGui::BeginMenu("Video"))
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("Video"))
+        {
+            CVCalibration* ac = CVCapture::instance()->activeCalib;
+            CVCalibration* mc = &CVCapture::instance()->calibMainCam;
+            CVCalibration* sc = &CVCapture::instance()->calibScndCam;
+
+            ImGui::MenuItem("Video Storage", nullptr, &prefs->showVideoStorage);
+            ImGui::MenuItem("Video Load", nullptr, &prefs->showVideoLoad);
+
+            if (ImGui::BeginMenu("Mirror Main Camera"))
             {
-                CVCalibration* ac = CVCapture::instance()->activeCalib;
-                CVCalibration* mc = &CVCapture::instance()->calibMainCam;
-                CVCalibration* sc = &CVCapture::instance()->calibScndCam;
+                if (ImGui::MenuItem("Horizontally", nullptr, mc->isMirroredH()))
+                    mc->toggleMirrorH();
 
-                if (ImGui::BeginMenu("Mirror Main Camera"))
-                {
-                    if (ImGui::MenuItem("Horizontally", nullptr, mc->isMirroredH()))
-                        mc->toggleMirrorH();
-
-                    if (ImGui::MenuItem("Vertically", nullptr, mc->isMirroredV()))
-                        mc->toggleMirrorV();
-
-                    ImGui::EndMenu();
-                }
-
-                if (ImGui::BeginMenu("Mirror Scnd. Camera", CVCapture::instance()->hasSecondaryCamera))
-                {
-                    if (ImGui::MenuItem("Horizontally", nullptr, sc->isMirroredH()))
-                        sc->toggleMirrorH();
-
-                    if (ImGui::MenuItem("Vertically", nullptr, sc->isMirroredV()))
-                        sc->toggleMirrorV();
-
-                    ImGui::EndMenu();
-                }
+                if (ImGui::MenuItem("Vertically", nullptr, mc->isMirroredV()))
+                    mc->toggleMirrorV();
 
                 ImGui::EndMenu();
             }
 
+            if (ImGui::BeginMenu("Mirror Scnd. Camera", CVCapture::instance()->hasSecondaryCamera))
+            {
+                if (ImGui::MenuItem("Horizontally", nullptr, sc->isMirroredH()))
+                    sc->toggleMirrorH();
+
+                if (ImGui::MenuItem("Vertically", nullptr, sc->isMirroredV()))
+                    sc->toggleMirrorV();
+
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Map"))
+        {
+            ImGui::MenuItem("Map storage", nullptr, &prefs->showMapStorage);
+            ImGui::MenuItem("Infos Map Node Transform", nullptr, &prefs->showInfosMapNodeTransform);
             ImGui::EndMenu();
         }
 
@@ -180,10 +190,10 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Tests"))
+        if (ImGui::BeginMenu("Experiments"))
         {
-            ImGui::MenuItem("Load", nullptr, &prefs->showTestSettings);
-            ImGui::MenuItem("New Test", nullptr, &prefs->showTestWriter);
+            ImGui::MenuItem("Load Experiment", nullptr, &prefs->showTestSettings);
+            ImGui::MenuItem("New Experiment", nullptr, &prefs->showTestWriter);
             ImGui::EndMenu();
         }
 
@@ -198,7 +208,6 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             }
 
             ImGui::MenuItem("Stats on Scene", nullptr, &prefs->showStatsScene);
-            ImGui::MenuItem("Infos Map Node Transform", nullptr, &prefs->showInfosMapNodeTransform);
             ImGui::MenuItem("Stats on Video", nullptr, &prefs->showStatsVideo);
             ImGui::Separator();
             ImGui::MenuItem("Show Scenegraph", nullptr, &prefs->showSceneGraph);
@@ -211,9 +220,7 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", nullptr, &prefs->showHelp);
             ImGui::MenuItem("Help on Calibration", nullptr, &prefs->showHelpCalibration);
-            ImGui::MenuItem("Map storage", nullptr, &prefs->showMapStorage);
             ImGui::MenuItem("Tracked Mapping", nullptr, &prefs->showTrackedMapping);
-            ImGui::MenuItem("Video Storage", nullptr, &prefs->showVideoStorage);
             ImGui::Separator();
             ImGui::MenuItem("UI Preferences", nullptr, &prefs->showUIPrefs);
             ImGui::MenuItem("Credits", nullptr, &prefs->showCredits);

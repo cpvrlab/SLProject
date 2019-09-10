@@ -1,20 +1,24 @@
 #include <WAIMapStorage.h>
 
-void WAIMapStorage::saveMap(WAIMap*     waiMap,
+bool WAIMapStorage::saveMap(WAIMap*     waiMap,
                             SLNode*     mapNode,
                             std::string filename,
                             std::string imgDir)
 {
-    std::cout << "save map" << std::endl;
     std::vector<WAIKeyFrame*> kfs = waiMap->GetAllKeyFrames();
     std::vector<WAIMapPoint*> mpts = waiMap->GetAllMapPoints();
 
     //save keyframes (without graph/neigbourhood information)
 
-
     if (kfs.size())
     {
         cv::FileStorage fs(filename, cv::FileStorage::WRITE);
+
+       if (!fs.isOpened())
+       {
+           return false;
+       }
+
         SLMat4f om           = mapNode->om();
         cv::Mat cvOm         = cv::Mat(4, 4, CV_32F);
         cvOm.at<float>(0, 0) = om.m(0);
@@ -144,7 +148,7 @@ void WAIMapStorage::saveMap(WAIMap*     waiMap,
 
             //reference key frame (I think this is the keyframe from which this
             //map point was generated -> first reference?)
-            //if((kfs.find(pKF) != mspKeyFrames.end()))
+            //if((kfs.find(pKF) != mspKeyFramstd::string(_nextId)es.end()))
             //if (!map.isKeyFrameInMap(mpt->refKf()))
             //{
             //    kfs.find(mpt->refKf())
@@ -162,6 +166,11 @@ void WAIMapStorage::saveMap(WAIMap*     waiMap,
         // explicit close
         fs.release();
     }
+    else
+    {
+        return false;
+    }
+    return true;
 }
 
 SLMat4f WAIMapStorage::loadMatrix(const cv::FileNode& n)
@@ -188,7 +197,7 @@ SLMat4f WAIMapStorage::loadMatrix(const cv::FileNode& n)
     return om;
 }
 
-void WAIMapStorage::loadMap(WAIMap* waiMap, WAIKeyFrameDB* kfDB, SLNode* mapNode,
+bool WAIMapStorage::loadMap(WAIMap* waiMap, WAIKeyFrameDB* kfDB, SLNode* mapNode,
                             std::string path, std::string imgDir)
 {
     std::vector<WAIMapPoint*> mapPoints;
@@ -199,6 +208,12 @@ void WAIMapStorage::loadMap(WAIMap* waiMap, WAIKeyFrameDB* kfDB, SLNode* mapNode
     int numLoopClosings = 0;
 
     cv::FileStorage fs(path, cv::FileStorage::READ);
+
+    if (!fs.isOpened())
+    {
+        return false;
+    }
+
     mapNode->om(loadMatrix(fs["mapNodeOm"]));
 
     cv::FileNode n = fs["KeyFrames"];
@@ -493,4 +508,5 @@ void WAIMapStorage::loadMap(WAIMap* waiMap, WAIKeyFrameDB* kfDB, SLNode* mapNode
     }
 
     waiMap->setNumLoopClosings(numLoopClosings);
+    return true;
 }

@@ -63,4 +63,4 @@ class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
     int _currentConditionId;
 };
 
-#endif //SL_IMGUI_MAPSTORAGE_H
+#endif

@@ -34,6 +34,7 @@ void GUIPreferences::reset()
     showUIPrefs               = false;
     showMapStorage            = false;
     showVideoStorage          = false;
+    showVideoLoad             = false;
     showTestSettings          = false;
     showTestWriter            = false;
 };

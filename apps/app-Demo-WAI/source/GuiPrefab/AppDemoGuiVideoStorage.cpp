@@ -70,6 +70,7 @@ AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string& name, std::str
         _existingVideoNames.push_back(it->second);
 }
 //-----------------------------------------------------------------------------
+
 void AppDemoGuiVideoStorage::saveVideo(std::string filename)
 {
     std::string infoDir = _videoDir + "info/";
