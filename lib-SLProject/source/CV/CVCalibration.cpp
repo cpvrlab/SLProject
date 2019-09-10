@@ -77,7 +77,9 @@ CVCalibration::CVCalibration()
     _calibrationTime("-"),
     _devFocalLength(0.0f),
     _devSensorSizeW(0.0f),
-    _devSensorSizeH(0.0f)
+    _devSensorSizeH(0.0f),
+    _isMirroredH(false),
+    _isMirroredV(false)
 {}
 //-----------------------------------------------------------------------------
 //! Resets the calibration to the uncalibrated state

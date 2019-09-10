@@ -1,43 +1,37 @@
 //#############################################################################
-//  File:      AppDemoGuiMapStorage.h
-//  Author:    Michael Goettlicher
-//  Date:      April 2018
+//  File:      AppDemoGuiVideoStorage.h
+//  Author:    Luc Girod
+//  Date:      April 2019
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SL_IMGUI_VIDEOSTORAGE_H
-#define SL_IMGUI_VIDEOSTORAGE_H
+#ifndef SL_IMGUI_VIDEOLOAD_H
+#define SL_IMGUI_VIDEOLOAD_H
 
 #include <opencv2/core.hpp>
 #include <AppDemoGuiInfosDialog.h>
-
+#include <WAI.h>
 #include <SLMat4.h>
 #include <SLNode.h>
 
 //-----------------------------------------------------------------------------
-class AppDemoGuiVideoStorage : public AppDemoGuiInfosDialog
+class AppDemoGuiVideoLoad : public AppDemoGuiInfosDialog
 {
     public:
-    AppDemoGuiVideoStorage(const std::string& name, std::string videoDir,
-                           cv::VideoWriter* videoWriter, cv::VideoWriter* videoWriterInfo,
-                           bool* activator);
+    AppDemoGuiVideoLoad(const std::string& name, std::string videoDir, WAI::WAI * wai, bool* activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     private:
+    void loadVideo(std::string path);
 
-    void saveVideo(std::string filename);
-
-    cv::VideoWriter*         _videoWriter;
-    cv::VideoWriter*         _videoWriterInfo;
     std::string              _videoDir;
-    std::string              _videoPrefix;
     std::vector<std::string> _existingVideoNames;
-    int                      _nextId;
     std::string              _currentItem;
+    WAI::WAI*                _wai;
 };
 
-#endif //SL_IMGUI_MAPSTORAGE_H
+#endif

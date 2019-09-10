@@ -36,8 +36,8 @@ class AppDemoGuiMapStorage : public AppDemoGuiInfosDialog
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     private:
-    void saveMap();
 
+    std::string              _currentItem;
     WAIMap*                  _map;
     WAIKeyFrameDB*           _kfDB;
     WAI::ModeOrbSlam2*       _tracking;

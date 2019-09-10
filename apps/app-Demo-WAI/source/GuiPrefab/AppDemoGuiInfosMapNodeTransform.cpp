@@ -131,11 +131,12 @@ void AppDemoGuiInfosMapNodeTransform::buildInfos(SLScene* s, SLSceneView* sv)
         cvOm.at<float>(2, 2) = -om.m(10);
         cvOm.at<float>(2, 3) = -om.m(14);
         cvOm.at<float>(3, 3) = 1.0f;
+        /*
         WAIMapStorage::saveMap(WAIMapStorage::getCurrentId(),
                                _tracking,
                                true,
                                cvOm,
-                               _externalDir);
+                               _externalDir);*/
     }
 
     ImGui::End();

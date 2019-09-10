@@ -34,6 +34,9 @@ class GUIPreferences
     SLbool   showUIPrefs;          //!< Flag if UI preferences
     SLbool   showMapStorage;
     SLbool   showVideoStorage;
+    SLbool   showVideoLoad;
+    SLbool   showTestSettings;
+    SLbool   showTestWriter;
     SLstring configTime;
 };
 
