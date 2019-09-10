@@ -401,12 +401,12 @@ void PnPsolver::choose_control_points()
     for (int j = 0; j < 3; j++)
         _cws[0][j] /= _numCorrespondences;
 
-        // Take C1, C2, and C3 from PCA on the reference points:
-#if CV_VERSION_MAJOR < 4
-    CvMat* PW0 = cvCreateMat(_numCorrespondences, 3, CV_64F);
-#else
-    cv::Ptr<cv::Mat> PW0 = cv::makePtr<cv::Mat>(_numCorrespondences, 3, CV_64F);
-#endif
+    // Take C1, C2, and C3 from PCA on the reference points:
+    //#if CV_VERSION_MAJOR < 4
+    //    CvMat* PW0 = cvCreateMat(_numCorrespondences, 3, CV_64F);
+    //#else
+    cv::Mat PW0(_numCorrespondences, 3, CV_64F);
+    //#endif
 
     double  pw0tpw0[3 * 3], dc[3], uct[3 * 3], vct[3 * 3];
     cv::Mat PW0tPW0 = cv::Mat(3, 3, CV_64F, pw0tpw0);
@@ -414,21 +414,24 @@ void PnPsolver::choose_control_points()
     cv::Mat UCt     = cv::Mat(3, 3, CV_64F, uct);
     cv::Mat VCt     = cv::Mat(3, 3, CV_64F, vct);
 
+    //#if CV_VERSION_MAJOR < 4
+    //    for (int i = 0; i < _numCorrespondences; i++)
+    //        for (int j = 0; j < 3; j++)
+    //            PW0->data.db[3 * i + j] = _pws[3 * i + j] - _cws[0][j];
+    //#else
+    double* db = PW0.ptr<double>(0);
     for (int i = 0; i < _numCorrespondences; i++)
         for (int j = 0; j < 3; j++)
-#if CV_VERSION_MAJOR < 4
-            PW0->data.db[3 * i + j] = _pws[3 * i + j] - _cws[0][j];
-#else
-            PW0[3 * i + j] = _pws[3 * i + j] - _cws[0][j];
-#endif
+            db[3 * i + j] = _pws[3 * i + j] - _cws[0][j];
+            //#endif
 
 #if CV_VERSION_MAJOR < 4
-    cvMulTransposed(PW0, &PW0tPW0, 1);
+    cvMulTransposed(&PW0, &PW0tPW0, 1);
     cvSVD(&PW0tPW0, &DC, &UCt, 0, CV_SVD_MODIFY_A | CV_SVD_U_T);
-    cvReleaseMat(&PW0);
+    //cvReleaseMat(&PW0);
 #else
-    cv::mulTransposed(*PW0, PW0tPW0, true);
-    cv::SVD::compute(PW0tPW0, DC, UCt, VCt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    cv::mulTransposed(PW0, PW0tPW0, true);
+    cv::SVD::compute(PW0tPW0, DC, UCt, VCt, cv::SVD::MODIFY_A /*| cv::SVD::FULL_UV*/);
     cv::transpose(UCt, UCt);
 #endif
 
@@ -495,7 +498,7 @@ void PnPsolver::fill_M(cv::Mat*      M,
 //-----------------------------------------------------------------------------
 void PnPsolver::compute_ccs(const double* betas, const double* ut)
 {
-    for (auto & _cc : _ccs)
+    for (auto& _cc : _ccs)
         _cc[0] = _cc[1] = _cc[2] = 0.0f;
 
     for (int i = 0; i < 4; i++)
@@ -526,10 +529,10 @@ double PnPsolver::compute_pose(double R[3][3], double t[3])
 
     //TODO: delete old code
     //CvMat* M = cvCreateMat(2 * _numCorrespondences, 12, CV_64F);
-    cv::Ptr<cv::Mat> M = cv::makePtr<cv::Mat>(2 * _numCorrespondences, 12, CV_64F);
+    cv::Mat M(2 * _numCorrespondences, 12, CV_64F);
 
     for (int i = 0; i < _numCorrespondences; i++)
-        fill_M(M, 2 * i, _alphas + 4 * i, _us[2 * i], _us[2 * i + 1]);
+        fill_M(&M, 2 * i, _alphas + 4 * i, _us[2 * i], _us[2 * i + 1]);
 
     double  mtm[12 * 12], d[12], ut[12 * 12], vt[12 * 12];
     cv::Mat MtM = cv::Mat(12, 12, CV_64F, mtm);
@@ -538,12 +541,12 @@ double PnPsolver::compute_pose(double R[3][3], double t[3])
     cv::Mat Vt  = cv::Mat(12, 12, CV_64F, vt);
 
 #if CV_VERSION_MAJOR < 4
-    cvMulTransposed(M, &MtM, 1);
+    cvMulTransposed(&M, &MtM, 1);
     cvSVD(&MtM, &D, &Ut, 0, CV_SVD_MODIFY_A | CV_SVD_U_T);
     //cvReleaseMat(&M);
 #else
-    cv::mulTransposed(*M, MtM, true);
-    cv::SVD::compute(MtM, D, Ut, Vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    cv::mulTransposed(M, MtM, true);
+    cv::SVD::compute(MtM, D, Ut, Vt, cv::SVD::MODIFY_A /*| cv::SVD::FULL_UV*/);
     cv::transpose(Ut, Ut);
 #endif
 
@@ -709,8 +712,8 @@ void PnPsolver::solve_for_sign()
 {
     if (_pcs[2] < 0.0)
     {
-        for (auto & _cc : _ccs)
-            for (double & j : _cc)
+        for (auto& _cc : _ccs)
+            for (double& j : _cc)
                 j = -j;
 
         for (int i = 0; i < _numCorrespondences; i++)
@@ -922,13 +925,14 @@ void PnPsolver::compute_A_and_b_gauss_newton(const double* l_6x10,
                                              cv::Mat*      A,
                                              cv::Mat*      b)
 {
+    double* db = A->ptr<double>(0);
     for (int i = 0; i < 6; i++)
     {
         const double* rowL = l_6x10 + i * 10;
 
         //TODO: delete old code
         //double* rowA = A->data.db + i * 4;
-        double* rowA = A->ptr<double>(0) + i * 4;
+        double* rowA = db + i * 4;
 
         rowA[0] = 2 * rowL[0] * betas[0] + rowL[1] * betas[1] + rowL[3] * betas[2] + rowL[6] * betas[3];
         rowA[1] = rowL[1] * betas[0] + 2 * rowL[2] * betas[1] + rowL[4] * betas[2] + rowL[7] * betas[3];

@@ -224,8 +224,8 @@ class CVCalibration
     bool         _calibFixPrincipalPoint; //!< Calib. flag for fix principal point
     bool         _calibFixAspectRatio;    //!< Calib. flag for fix aspect ratio
     bool         _calibZeroTangentDist;   //!< Calib. flag for zero tangent distortion
-    bool         _isMirroredH;            //!< Flag if image must be horizontally mirrored
-    bool         _isMirroredV;            //!< Flag if image must be vertically mirrored
+    bool         _isMirroredH = false;    //!< Flag if image must be horizontally mirrored
+    bool         _isMirroredV = false;    //!< Flag if image must be vertically mirrored
     CVSize       _boardSize;              //!< NO. of inner chessboard corners.
     float        _boardSquareMM;          //!< Size of chessboard square in mm
     int          _numOfImgsToCapture;     //!< NO. of images to capture
