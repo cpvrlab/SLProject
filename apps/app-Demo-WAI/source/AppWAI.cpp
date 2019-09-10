@@ -109,9 +109,6 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
 
 void WAIApp::setupGUI()
 {
-    static bool guiReady;
-    if (guiReady)
-        return;
     aboutDial = new AppDemoGuiAbout("about", cpvrLogo, &uiPrefs.showAbout);
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosFrameworks("frameworks", &uiPrefs.showInfosFrameworks));
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosMapNodeTransform("map node",
@@ -146,7 +143,6 @@ void WAIApp::setupGUI()
                                                       wai, wc, waiScene->mapNode,
                                                       videoWriter, videoWriterInfo,
                                                       &uiPrefs.showTestWriter));
-    guiReady = true;
 }
 
 void WAIApp::buildGUI(SLScene* s, SLSceneView* sv)
@@ -188,7 +184,7 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
     videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
     waiScene->cameraNode->background().texture(videoImage);
 
-    waiScene->cameraNode->fov(wc->calcCameraHorizontalFOV());
+    waiScene->cameraNode->fov(wc->calcCameraVerticalFOV());
 
     s->root3D(waiScene->rootNode);
 
