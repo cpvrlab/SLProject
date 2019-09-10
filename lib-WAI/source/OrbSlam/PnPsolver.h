@@ -125,7 +125,7 @@ class PnPsolver
     void   gauss_newton(const cv::Mat* L_6x10, const cv::Mat* Rho, double current_betas[4]);
     void   compute_A_and_b_gauss_newton(const double* l_6x10,
                                         const double* rho,
-                                        const double        cb[4],
+                                        const double  cb[4],
                                         cv::Mat*      A,
                                         cv::Mat*      b);
     double compute_R_and_t(const double* ut,
