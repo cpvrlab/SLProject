@@ -11,25 +11,21 @@
 #include <opencv/cv.h>
 #include <opencv2/xfeatures2d/nonfree.hpp>
 
-
 class SURFextractor
 {
-public:
-
+    public:
     SURFextractor();
 
-    ~SURFextractor(){}
+    ~SURFextractor() {}
 
-    void operator()( cv::InputArray image,
-                     std::vector<cv::KeyPoint>& keypoints,
-                     cv::OutputArray descriptors);
+    void operator()(cv::InputArray             image,
+                    std::vector<cv::KeyPoint>& keypoints,
+                    cv::OutputArray            descriptors);
 
-protected:
-
+    protected:
     std::vector<cv::Point> pattern;
 
     cv::Ptr<cv::xfeatures2d::SURF> surf_detector;
 };
 
 #endif
-

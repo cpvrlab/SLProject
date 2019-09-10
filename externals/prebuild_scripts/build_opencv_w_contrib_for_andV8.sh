@@ -5,7 +5,7 @@
 # ####################################################
 
 CV_VERSION=$1
-ARCH=linux
+ARCH=andV8
 ZIPFILE="$ARCH"_opencv_"$CV_VERSION"
 ZIPFOLDER=build/$ZIPFILE
 BUILD_D=build/"$ARCH"_debug_"$CV_VERSION"
@@ -55,16 +55,19 @@ cd $BUILD_D
 
 # Run cmake to configure and generate the make files
 cmake \
--DCMAKE_CONFIGURATION_TYPES=Debug \
--DBUILD_WITH_DEBUG_INFO=true \
--DCMAKE_INSTALL_PREFIX=./install \
+-DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk/20.0.5594570/build/cmake/android.toolchain.cmake \
+-DCMAKE_BUILD_TYPE=Debug \
+-DANDROID_ABI=arm64-v8a \
+-DWITH_CUDA=off \
+-DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
 -DBUILD_opencv_python_bindings_generator=false \
 -DBUILD_opencv_python2=false \
 -DBUILD_opencv_java_bindings_generator=false \
 -DBUILD_PERF_TESTS=false \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
--DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
+-DBUILD_ANDROID_EXAMPLES=off \
+-DANDROID_SDK_ROOT=$HOME/Android/Sdk/ \
 ../..
 
 # finally build it
@@ -81,16 +84,20 @@ cd $BUILD_R
 
 # Run cmake to configure and generate the make files
 cmake \
--DCMAKE_CONFIGURATION_TYPES=Release \
+-DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk/20.0.5594570/build/cmake/android.toolchain.cmake \
+-DCMAKE_BUILD_TYPE=Release \
 -DBUILD_WITH_DEBUG_INFO=false \
--DCMAKE_INSTALL_PREFIX=./install \
+-DANDROID_ABI=arm64-v8a \
+-DWITH_CUDA=off \
+-DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
 -DBUILD_opencv_python_bindings_generator=false \
 -DBUILD_opencv_python2=false \
 -DBUILD_opencv_java_bindings_generator=false \
 -DBUILD_PERF_TESTS=false \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
--DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
+-DBUILD_ANDROID_EXAMPLES=off \
+-DANDROID_SDK_ROOT=$HOME/Android/Sdk/ \
 ../..
 
 # finally build it
@@ -103,14 +110,11 @@ cd ../.. # back to opencv
 # Create zip folder for debug and release version
 rm -rf $ZIPFOLDER
 mkdir $ZIPFOLDER
-cp -R $BUILD_R/install/include   $ZIPFOLDER/include
-cp -R $BUILD_R/install/lib       $ZIPFOLDER/Release
-cp -R $BUILD_D/install/lib       $ZIPFOLDER/Debug
-
-if [ -d  $BUILD_D/install/lib64 ]; then
-    cp -R $BUILD_R/install/lib64 $ZIPFOLDER/Release
-    cp -R $BUILD_D/install/lib64 $ZIPFOLDER/Debug
-fi
+cp -R $BUILD_R/install/sdk/native/jni/include      $ZIPFOLDER/include
+cp -R $BUILD_R/install/sdk/native/staticlibs       $ZIPFOLDER/Release
+cp -R $BUILD_R/install/sdk/native/3rdparty/libs/arm64-v8a/*       $ZIPFOLDER/Release/arm64-v8a
+cp -R $BUILD_D/install/sdk/native/staticlibs       $ZIPFOLDER/Debug
+cp -R $BUILD_D/install/sdk/native/3rdparty/libs/arm64-v8a/*       $ZIPFOLDER/Debug/arm64-v8a
 
 cp LICENSE $ZIPFOLDER
 cp README.md $ZIPFOLDER

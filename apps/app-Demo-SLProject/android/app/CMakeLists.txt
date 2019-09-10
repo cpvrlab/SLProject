@@ -51,7 +51,6 @@ target_include_directories(
 
 
 
-message(STATUS "OpenCV_LIBS before linking ${OpenCV_LIBS}")
 target_link_libraries(
         ${target}
         ${DEFAULT_LIBRARIES}
