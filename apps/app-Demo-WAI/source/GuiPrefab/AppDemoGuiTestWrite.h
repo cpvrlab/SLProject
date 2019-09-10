@@ -44,11 +44,14 @@ class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
     void saveMap(std::string map);
     void saveTestSettings(std::string path);
 
-    std::string _saveDir;
-    std::string _settingsDir;
-    std::string _videoDir;
+    std::string _baseDir;
     std::string _mapDir;
-    std::string _runDir;
+
+    std::string _savePath;
+    std::string _settingsPath;
+    std::string _videoPath;
+    std::string _mapPath;
+    std::string _runPath;
     std::string _date;
 
     SLNode*                  _mapNode;

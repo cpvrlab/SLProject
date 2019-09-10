@@ -59,6 +59,10 @@ struct AppDemoGuiTestOpen::TestInfo AppDemoGuiTestOpen::openTestSettings(std::st
     fs["Calibration"] >> infos.calPath;
     fs["Videos"] >> infos.vidPath;
     fs["Maps"] >> infos.mapPath;
+
+    infos.calPath = _saveDir + infos.calPath;
+    infos.vidPath = _saveDir + infos.vidPath;
+    infos.mapPath = _saveDir + infos.mapPath;
     //std::string dbowPath = (std::string)n["DBOW"];
 
     fs.release();
@@ -93,6 +97,7 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
 
         WAIMapStorage::loadMap(mode->getMap(), mode->getKfDB(), _mapNode, info.mapPath, "");
 
+        std::cout << info.vidPath << std::endl;
         CVCapture::instance()->videoType(VT_FILE);
         CVCapture::instance()->videoFilename = info.vidPath;
         CVCapture::instance()->videoLoops    = true;

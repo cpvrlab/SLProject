@@ -33,8 +33,8 @@ AppDemoGuiTestWrite::AppDemoGuiTestWrite(const std::string& name, std::string sa
     _videoWriter(writer1),
     _videoWriterInfo(writer2)
 {
-    _saveDir = Utils::unifySlashes(saveDir);
-    _settingsDir = _saveDir + "TestSettings/";
+    _savePath = Utils::unifySlashes(saveDir);
+    _settingsPath = _savePath + "TestSettings/";
 
     std::cout << "AppDemoGuiTestWrite mapNode " << mapNode << std::endl;
 
@@ -58,38 +58,43 @@ void AppDemoGuiTestWrite::prepareExperiment(std::string testScene, std::string w
 
     WAI::ModeOrbSlam2* mode = (WAI::ModeOrbSlam2*)_wai->getCurrentMode();
 
-    std::string sceneDir = Utils::unifySlashes(_saveDir + testScene);
-    std::string baseDir = Utils::unifySlashes(sceneDir + weather);
-    std::string mapBaseDir = Utils::unifySlashes(baseDir + "/map/");
+    _baseDir = Utils::unifySlashes(testScene + "/" + weather);
+    _mapDir = Utils::unifySlashes(_baseDir + "/map/" + mode->getKPextractor()->GetName() + "/");
 
-    _videoDir   = Utils::unifySlashes(baseDir + "/video/");
-    _mapDir     = Utils::unifySlashes(mapBaseDir + mode->getKPextractor()->GetName() + "/");
-    _runDir     = Utils::unifySlashes(baseDir + "/run/"); //Video with map info
+    std::string scenePath = Utils::unifySlashes(_savePath + testScene);
+    std::string basePath = Utils::unifySlashes(scenePath + weather);
+    std::string mapBasePath = Utils::unifySlashes(basePath + "/map/");
+
+    _videoPath   = Utils::unifySlashes(basePath + "/video/");
+    _mapPath     = Utils::unifySlashes(mapBasePath + mode->getKPextractor()->GetName() + "/");
+    _runPath     = Utils::unifySlashes(basePath + "/run/"); //Video with map info
     _date       = Utils::getDateTime2String();
 
-    if (!Utils::dirExists(_settingsDir))
-        Utils::makeDir(_settingsDir);
+    std::cout << _videoPath << std::endl;
 
-    if (!Utils::dirExists(_saveDir))
-        Utils::makeDir(_saveDir);
+    if (!Utils::dirExists(_savePath))
+        Utils::makeDir(_savePath);
 
-    if (!Utils::dirExists(sceneDir))
-        Utils::makeDir(sceneDir);
+    if (!Utils::dirExists(_settingsPath))
+        Utils::makeDir(_settingsPath);
 
-    if (!Utils::dirExists(baseDir))
-        Utils::makeDir(baseDir);
+    if (!Utils::dirExists(scenePath))
+        Utils::makeDir(scenePath);
 
-    if (!Utils::dirExists(_videoDir))
-        Utils::makeDir(_videoDir);
+    if (!Utils::dirExists(basePath))
+        Utils::makeDir(basePath);
 
-    if (!Utils::dirExists(_runDir))
-        Utils::makeDir(_runDir);
+    if (!Utils::dirExists(_videoPath))
+        Utils::makeDir(_videoPath);
 
-    if (!Utils::dirExists(mapBaseDir))
-        Utils::makeDir(mapBaseDir);
+    if (!Utils::dirExists(_runPath))
+        Utils::makeDir(_runPath);
 
-    if (!Utils::dirExists(_mapDir))
-        Utils::makeDir(_mapDir);
+    if (!Utils::dirExists(mapBasePath))
+        Utils::makeDir(mapBasePath);
+
+    if (!Utils::dirExists(_mapPath))
+        Utils::makeDir(_mapPath);
 }
 
 void AppDemoGuiTestWrite::recordExperiment()
@@ -102,18 +107,18 @@ void AppDemoGuiTestWrite::recordExperiment()
         _videoWriterInfo->release();
 
     size = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
-    _videoWriter->open((_videoDir + _date + ".mp4"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
-    _videoWriterInfo->open((_runDir + _date + ".mp4"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
-    saveTestSettings(_settingsDir + _date + ".xml");
+    _videoWriter->open((_videoPath + _date + ".mp4"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
+    _videoWriterInfo->open((_runPath + _date + ".mp4"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
+    saveTestSettings(_settingsPath + _date + ".xml");
 }
 
 void AppDemoGuiTestWrite::stopRecording()
 {
     _videoWriter->release();
     _videoWriterInfo->release();
-    saveCalibration(_videoDir + _date + ".xml");
+    saveCalibration(_videoPath + _date + ".xml");
 
-    saveMap(_mapDir + _date + ".json");
+    saveMap(_mapPath + _date + ".json");
 }
 
 void AppDemoGuiTestWrite::saveCalibration(std::string calib)
@@ -139,14 +144,13 @@ void AppDemoGuiTestWrite::saveTestSettings(std::string path)
     WAI::ModeOrbSlam2* mode = (WAI::ModeOrbSlam2*)_wai->getCurrentMode();
 
     cv::FileStorage fs(path, cv::FileStorage::WRITE);
-
     fs << "Date" << _date;
     fs << "Scene" << _testScenes[_currentSceneId];
     fs << "Conditions" << _conditions[_currentConditionId];
     fs << "Features" << mode->getKPextractor()->GetName();
-    fs << "Calibration" << _videoDir + _date + ".xml";
-    fs << "Videos" << _videoDir + _date + ".mp4";
-    fs << "Maps" << _mapDir + _date + ".map";
+    fs << "Calibration" << _baseDir + "/video/" + _date + ".xml";
+    fs << "Videos" << _baseDir + "/video/" + _date + ".mp4";
+    fs << "Maps" << _mapDir + _date + ".json";
     //std::string dbowPath = (std::string)n["DBOW"];
 
     fs.release();
