@@ -77,8 +77,6 @@ set_target_properties(${target}
     ${DEFAULT_PROJECT_OPTIONS}
     )
 
-message(STATUS "g2o_LIBS ${g2o_LIBS}")
-
 target_include_directories(${target}
     PRIVATE
 

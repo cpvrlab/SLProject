@@ -48,10 +48,16 @@ set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
 
 #==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
-    set(OpenCV_VERSION "3.4.1")
+    set(OpenCV_VERSION "4.1.1")
     set(OpenCV_DIR "${PREBUILT_PATH}/linux_opencv_${OpenCV_VERSION}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
+    
+    # new include directory structure for opencv 4
+    if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
+        set(OpenCV_INCLUDE_DIR "${OpenCV_INCLUDE_DIR}/opencv4")
+    endif()
+
     set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
     set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
 
@@ -285,12 +291,24 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
         cpufeatures
         IlmImf
         libjasper
-        libjpeg
         libpng
         libprotobuf
         libtiff
         libwebp
         tegra_hal)
+
+    # new link libraries for opencv 4
+    if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
+        set(OpenCV_LINK_LIBS
+            ${OpenCV_LINK_LIBS}
+            ittnotify
+            libjpeg-turbo
+            quirc)
+    else()
+        set(OpenCV_LINK_LIBS
+            ${OpenCV_LINK_LIBS}
+            libjpeg)
+    endif()
 
     foreach(lib ${OpenCV_LINK_LIBS})
         add_library(lib_${lib} STATIC IMPORTED)

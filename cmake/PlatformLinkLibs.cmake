@@ -45,7 +45,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #----------------------------
     set(PlatformLinkLibs
         GLESv3
         ${log-lib}
-        z)
+        z
+        mediandk)
 
 endif()
 #==============================================================================
