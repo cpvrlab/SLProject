@@ -55,6 +55,8 @@
 #include <WAIFrame.h>
 #include <WAIMapPoint.h>
 
+#define REFAC_TEST
+
 namespace ORB_SLAM2
 {
 
@@ -90,15 +92,21 @@ class PnPsolver
     void choose_control_points(void);
     void compute_barycentric_coordinates(void);
     void fill_M(CvMat* M, const int row, const double* alphas, const double u, const double v);
+    void fill_M(cv::Mat* M, const int row, const double* alphas, const double u, const double v);
     void compute_ccs(const double* betas, const double* ut);
     void compute_pcs(void);
 
     void solve_for_sign(void);
 
     void find_betas_approx_1(const CvMat* L_6x10, const CvMat* Rho, double* betas);
+    void find_betas_approx_1(const cv::Mat* L_6x10, const cv::Mat* Rho, double* betas);
     void find_betas_approx_2(const CvMat* L_6x10, const CvMat* Rho, double* betas);
+    void find_betas_approx_2(const cv::Mat* L_6x10, const cv::Mat* Rho, double* betas);
     void find_betas_approx_3(const CvMat* L_6x10, const CvMat* Rho, double* betas);
+    void find_betas_approx_3(const cv::Mat* L_6x10, const cv::Mat* Rho, double* betas);
+
     void qr_solve(CvMat* A, CvMat* b, CvMat* X);
+    void qr_solve(cv::Mat* A, cv::Mat* b, cv::Mat* X);
 
     double dot(const double* v1, const double* v2);
     double dist2(const double* p1, const double* p2);
@@ -107,11 +115,15 @@ class PnPsolver
     void compute_L_6x10(const double* ut, double* l_6x10);
 
     void gauss_newton(const CvMat* L_6x10, const CvMat* Rho, double current_betas[4]);
+    void gauss_newton(const cv::Mat* L_6x10, const cv::Mat* Rho, double betas[4]);
     void compute_A_and_b_gauss_newton(const double* l_6x10, const double* rho, double cb[4], CvMat* A, CvMat* b);
+    void compute_A_and_b_gauss_newton(const double* l_6x10, const double* rho, const double betas[4], cv::Mat* A, cv::Mat* b);
 
     double compute_R_and_t(const double* ut, const double* betas, double R[3][3], double t[3]);
+    double compute_R_and_t_N(const double* ut, const double* betas, double R[3][3], double t[3]);
 
     void estimate_R_and_t(double R[3][3], double t[3]);
+    void estimate_R_and_t_N(double R[3][3], double t[3]);
 
     void copy_R_and_t(const double R_dst[3][3], const double t_dst[3], double R_src[3][3], double t_src[3]);
 
@@ -120,8 +132,10 @@ class PnPsolver
     double uc, vc, fu, fv;
 
     double *pws, *us, *alphas, *pcs;
-    int     maximum_number_of_correspondences;
-    int     number_of_correspondences;
+    double* pcs_OLD = NULL;
+
+    int maximum_number_of_correspondences;
+    int number_of_correspondences;
 
     double cws[4][3], ccs[4][3];
     double cws_determinant;
