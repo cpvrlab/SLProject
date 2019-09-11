@@ -38,8 +38,8 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera*        camera,
 
 //instantiate KeyPoint extractor
 #if 0
-    _extractor          = new ORB_SLAM2::ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
-    mpIniORBextractor   = new ORB_SLAM2::ORBextractor(5 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+    _extractor        = new ORB_SLAM2::ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+    mpIniORBextractor = new ORB_SLAM2::ORBextractor(5 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
 #else
     _extractor        = new ORB_SLAM2::SURFextractor(1500);
     mpIniORBextractor = new ORB_SLAM2::SURFextractor(1000);
@@ -703,10 +703,8 @@ void WAI::ModeOrbSlam2::initialize()
         {
             // Find correspondences
             ORBmatcher matcher(0.9, true);
-            nmatches = matcher.SearchForInitialization(mInitialFrame, mCurrentFrame, mvbPrevMatched, mvIniMatches, 10);
+            nmatches = matcher.SearchForInitialization(mInitialFrame, mCurrentFrame, mvbPrevMatched, mvIniMatches, 100);
         }
-
-        WAI_LOG("nmatches for initialization: %i", nmatches);
 
         // Check if there are enough correspondences
         if (nmatches < 100)
@@ -750,8 +748,6 @@ void WAI::ModeOrbSlam2::initialize()
                     nmatches--;
                 }
             }
-
-            WAI_LOG("%i triangulated", nmatches);
 
             // Set Frame Poses
             mInitialFrame.SetPose(cv::Mat::eye(4, 4, CV_32F));
@@ -1456,6 +1452,7 @@ void WAI::ModeOrbSlam2::track3DPts()
                 Tcw = mCurrentFrame.mTcw.clone();
             }
 
+#if 0
             cv::Mat Twc = cv::Mat::eye(4, 4, CV_32F);
 
             // update camera node position
@@ -1491,7 +1488,11 @@ void WAI::ModeOrbSlam2::track3DPts()
             }
             //_markerCorrectionTransformation = cv::Mat::eye(4, 4, CV_32F);
 
-            _pose    = Twc;
+            // TODO(dgj1): rethink this
+            _pose = Twc;
+#else
+            _pose               = Tcw;
+#endif
             _poseSet = true;
         }
 
@@ -1631,7 +1632,7 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular()
     float medianDepth    = pKFini->ComputeSceneMedianDepth(2);
     float invMedianDepth = 1.0f / medianDepth;
 
-    if (medianDepth < 0 || pKFcur->TrackedMapPoints(1) < 10) //80)
+    if (medianDepth < 0 || pKFcur->TrackedMapPoints(1) < 100)
     {
         WAI_LOG("Wrong initialization, reseting...");
         reset();

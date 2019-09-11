@@ -1,306 +1,512 @@
-//#############################################################################
-//  File:      WAIMapStorage.cpp
-//  Author:    Michael Goettlicher
-//  Date:      April 2018
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch, Michael Goettlicher
-//             This softwareis provide under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
-
 #include <WAIMapStorage.h>
 
-//-----------------------------------------------------------------------------
-unsigned int WAIMapStorage::_nextId      = 0;
-unsigned int WAIMapStorage::_currentId   = 0;
-std::string  WAIMapStorage::_mapPrefix   = "slam-map-";
-std::string  WAIMapStorage::_mapsDirName = "slam-maps";
-std::string  WAIMapStorage::_mapsDir     = "";
-std::string  WAIMapStorage::_externalDir = "";
-//values used by imgui
-std::vector<std::string> WAIMapStorage::existingMapNames;
-const char*              WAIMapStorage::currItem       = nullptr;
-int                      WAIMapStorage::currN          = -1;
-bool                     WAIMapStorage::_isInitialized = false;
-//-----------------------------------------------------------------------------
-WAIMapStorage::WAIMapStorage()
+bool WAIMapStorage::saveMap(WAIMap*     waiMap,
+                            SLNode*     mapNode,
+                            std::string filename,
+                            std::string imgDir)
 {
-}
-//-----------------------------------------------------------------------------
-void WAIMapStorage::init(std::string externalDir)
-{
-    _externalDir = externalDir;
-    existingMapNames.clear();
-    vector<pair<int, string>> existingMapNamesSorted;
+    std::vector<WAIKeyFrame*> kfs = waiMap->GetAllKeyFrames();
+    std::vector<WAIMapPoint*> mpts = waiMap->GetAllMapPoints();
 
-    //setup file system and check for existing files
-    if (Utils::dirExists(_externalDir))
+    //save keyframes (without graph/neigbourhood information)
+
+    if (kfs.size())
     {
-        _mapsDir = Utils::unifySlashes(externalDir + _mapsDirName);
+        cv::FileStorage fs(filename, cv::FileStorage::WRITE);
 
-        //check if visual odometry maps directory exists
-        if (!Utils::dirExists(_mapsDir))
+       if (!fs.isOpened())
+       {
+           return false;
+       }
+
+        SLMat4f om           = mapNode->om();
+        cv::Mat cvOm         = cv::Mat(4, 4, CV_32F);
+        cvOm.at<float>(0, 0) = om.m(0);
+        cvOm.at<float>(0, 1) = om.m(1);
+        cvOm.at<float>(0, 2) = om.m(2);
+        cvOm.at<float>(0, 3) = om.m(12);
+        cvOm.at<float>(1, 0) = om.m(4);
+        cvOm.at<float>(1, 1) = om.m(5);
+        cvOm.at<float>(1, 2) = om.m(6);
+        cvOm.at<float>(1, 3) = om.m(13);
+        cvOm.at<float>(2, 0) = om.m(8);
+        cvOm.at<float>(2, 1) = om.m(9);
+        cvOm.at<float>(2, 2) = om.m(10);
+        cvOm.at<float>(2, 3) = om.m(14);
+        cvOm.at<float>(3, 0) = 0.f;
+        cvOm.at<float>(3, 1) = 0.f;
+        cvOm.at<float>(3, 2) = 0.f;
+        cvOm.at<float>(3, 3) = 1.0f;
+        fs << "mapNodeOm" << cvOm;
+
+        //start sequence keyframes
+        fs << "KeyFrames"
+           << "[";
+        for (int i = 0; i < kfs.size(); ++i)
         {
-            WAI_LOG("Making dir: %s\n", _mapsDir.c_str());
-            Utils::makeDir(_mapsDir);
-        }
-        else
-        {
-            //parse content: we search for directories in mapsDir
-            std::vector<std::string> content = Utils::getFileNamesInDir(_mapsDir);
-            for (auto path : content)
+            WAIKeyFrame* kf = kfs[i];
+            if (kf->isBad())
+                continue;
+
+            fs << "{"; //new map keyFrame
+                       //add id
+            fs << "id" << (int)kf->mnId;
+            if (kf->mnId != 0) //kf with id 0 has no parent
+                fs << "parentId" << (int)kf->GetParent()->mnId;
+            else
+                fs << "parentId" << -1;
+            //loop edges: we store the id of the connected kf
+            auto loopEdges = kf->GetLoopEdges();
+            if (loopEdges.size())
             {
-                std::string name = Utils::getFileName(path);
-                //find json files that contain mapPrefix and estimate highest used id
-                if (Utils::containsString(name, _mapPrefix))
+                std::vector<int> loopEdgeIds;
+                for (auto loopEdgeKf : loopEdges)
                 {
-                    WAI_LOG("VO-Map found: %s\n", name.c_str());
-                    //estimate highest used id
-                    std::vector<std::string> splitted;
-                    Utils::splitString(name, '-', splitted);
-                    if (splitted.size())
-                    {
-                        int id = atoi(splitted.back().c_str());
-                        existingMapNamesSorted.push_back(make_pair(id, name));
-                        if (id >= _nextId)
-                        {
-                            _nextId = id + 1;
-                            WAI_LOG("New next id: %i\n", _nextId);
-                        }
-                    }
+                    loopEdgeIds.push_back(loopEdgeKf->mnId);
+                }
+                fs << "loopEdges" << loopEdgeIds;
+            }
+
+            // world w.r.t camera
+            fs << "Tcw" << kf->GetPose();
+            fs << "featureDescriptors" << kf->mDescriptors;
+            fs << "keyPtsUndist" << kf->mvKeysUn;
+
+            //scale factor
+            fs << "scaleFactor" << kf->mfScaleFactor;
+            //number of pyriamid scale levels
+            fs << "nScaleLevels" << kf->mnScaleLevels;
+            //fs << "fx" << kf->fx;
+            //fs << "fy" << kf->fy;
+            //fs << "cx" << kf->cx;
+            //fs << "cy" << kf->cy;
+            fs << "K" << kf->mK;
+
+            //debug print
+            //std::cout << "fx" << kf->fx << std::endl;
+            //std::cout << "fy" << kf->fy << std::endl;
+            //std::cout << "cx" << kf->cx << std::endl;
+            //std::cout << "cy" << kf->cy << std::endl;
+            //std::cout << "K" << kf->mK << std::endl;
+
+            fs << "nMinX" << kf->mnMinX;
+            fs << "nMinY" << kf->mnMinY;
+            fs << "nMaxX" << kf->mnMaxX;
+            fs << "nMaxY" << kf->mnMaxY;
+
+            fs << "}"; //close map
+
+            //save the original frame image for this keyframe
+            if (imgDir != "")
+            {
+                cv::Mat imgColor;
+                if (!kf->imgGray.empty())
+                {
+                    std::stringstream ss;
+                    ss << imgDir << "kf" << (int)kf->mnId << ".jpg";
+
+                    cv::cvtColor(kf->imgGray, imgColor, cv::COLOR_GRAY2BGR);
+                    cv::imwrite(ss.str(), imgColor);
+
+                    //if this kf was never loaded, we still have to set the texture path
+                    kf->setTexturePath(ss.str());
                 }
             }
         }
-        //sort existingMapNames
-        std::sort(existingMapNamesSorted.begin(), existingMapNamesSorted.end(), [](const pair<int, string>& left, const pair<int, string>& right) { return left.first < right.first; });
-        for (auto it = existingMapNamesSorted.begin(); it != existingMapNamesSorted.end(); ++it)
-            existingMapNames.push_back(it->second);
+        fs << "]"; //close sequence keyframes
 
-        //mark storage as initialized
-        _isInitialized = true;
+        //start map points sequence
+        fs << "MapPoints"
+           << "[";
+        for (int i = 0; i < mpts.size(); ++i)
+        {
+            WAIMapPoint* mpt = mpts[i];
+            //TODO: ghm1: check if it is necessary to removed points that have no reference keyframe OR can we somehow update the reference keyframe in the SLAM
+            if (mpt->isBad() || mpt->refKf()->isBad())
+                continue;
+
+            fs << "{"; //new map for MapPoint
+                       //add id
+            fs << "id" << (int)mpt->mnId;
+            //add position
+            fs << "mWorldPos" << mpt->GetWorldPos();
+            //save keyframe observations
+            auto        observations = mpt->GetObservations();
+            vector<int> observingKfIds;
+            vector<int> corrKpIndices; //corresponding keypoint indices in observing keyframe
+            for (auto it : observations)
+            {
+                if (!it.first->isBad())
+                {
+                    observingKfIds.push_back(it.first->mnId);
+                    corrKpIndices.push_back(it.second);
+                }
+            }
+            fs << "observingKfIds" << observingKfIds;
+            fs << "corrKpIndices" << corrKpIndices;
+            //(we calculate mean descriptor and mean deviation after loading)
+
+            //reference key frame (I think this is the keyframe from which this
+            //map point was generated -> first reference?)
+            //if((kfs.find(pKF) != mspKeyFramstd::string(_nextId)es.end()))
+            //if (!map.isKeyFrameInMap(mpt->refKf()))
+            //{
+            //    kfs.find(mpt->refKf())
+            //    cout << "Reference keyframe not in map!" << endl;
+            //}
+            //else if (mpt->refKf()->isBad())
+            //{
+            //    cout << "Reference keyframe is bad!" << endl;
+            //}
+            fs << "refKfId" << (int)mpt->refKf()->mnId;
+            fs << "}"; //close map
+        }
+        fs << "]";
+
+        // explicit close
+        fs.release();
     }
     else
     {
-        WAI_LOG("Failed to setup external map storage!\n");
-        WAI_LOG("Exit in WAIMapStorage::init()");
-        std::exit(0);
+        return false;
     }
+    return true;
 }
-//-----------------------------------------------------------------------------
-void WAIMapStorage::saveMap(int id, WAI::ModeOrbSlam2* orbSlamMode, bool saveImgs, cv::Mat nodeOm, std::string externalDir)
+
+SLMat4f WAIMapStorage::loadMatrix(const cv::FileNode& n)
 {
-    if (!_isInitialized)
+    cv::Mat cvOm = cv::Mat(4, 4, CV_32F);
+    SLMat4f om;
+    n >> cvOm;
+    om.setMatrix(cvOm.at<float>(0, 0),
+                 cvOm.at<float>(0, 1),
+                 cvOm.at<float>(0, 2),
+                 cvOm.at<float>(0, 3),
+                 cvOm.at<float>(1, 0),
+                 cvOm.at<float>(1, 1),
+                 cvOm.at<float>(1, 2),
+                 cvOm.at<float>(1, 3),
+                 cvOm.at<float>(2, 0),
+                 cvOm.at<float>(2, 1),
+                 cvOm.at<float>(2, 2),
+                 cvOm.at<float>(2, 3),
+                 cvOm.at<float>(3, 0),
+                 cvOm.at<float>(3, 1),
+                 cvOm.at<float>(3, 2),
+                 cvOm.at<float>(3, 3));
+    return om;
+}
+
+bool WAIMapStorage::loadMap(WAIMap* waiMap, WAIKeyFrameDB* kfDB, SLNode* mapNode,
+                            std::string path, std::string imgDir)
+{
+    std::vector<WAIMapPoint*> mapPoints;
+    std::vector<WAIKeyFrame*> keyFrames;
+    std::map<int, int> parentIdMap;
+    std::map<int, std::vector<int>> loopEdgesMap;
+    std::map<int, WAIKeyFrame*> kfsMap;
+    int numLoopClosings = 0;
+
+    cv::FileStorage fs(path, cv::FileStorage::READ);
+
+    if (!fs.isOpened())
     {
-        WAI_LOG("External map storage is not initialized, you have to call init() first!\n");
-        return;
+        return false;
     }
 
-    if (!orbSlamMode->isInitialized())
-    {
-        WAI_LOG("Map storage: System is not initialized. Map saving is not possible!\n");
-        return;
-    }
+    mapNode->om(loadMatrix(fs["mapNodeOm"]));
 
-    bool errorOccured = false;
-    //check if map exists
-    string mapName  = _mapPrefix + to_string(id);
-    string path     = Utils::unifySlashes(_mapsDir + mapName);
-    string pathImgs = path + "imgs/";
-    string filename = path + mapName + ".json";
-
-    try
+    cv::FileNode n = fs["KeyFrames"];
+    for (auto it = n.begin(); it != n.end(); ++it)
     {
-        //if path exists, delete content
-        if (Utils::fileExists(path))
+        int id = (*it)["id"];
+        if (!(*it)["parentId"].empty())
         {
-            //remove json file
-            if (Utils::fileExists(filename))
+            int parentId    = (*it)["parentId"];
+            parentIdMap[id] = parentId;
+        }
+        if (!(*it)["loopEdges"].empty() && (*it)["loopEdges"].isSeq())
+        {
+            cv::FileNode     les = (*it)["loopEdges"];
+            std::vector<int> loopEdges;
+            for (auto itLes = les.begin(); itLes != les.end(); ++itLes)
             {
-                Utils::deleteFile(filename);
-                //check if imgs dir exists and delete all containing files
-                if (Utils::fileExists(pathImgs))
-                {
-                    std::vector<std::string> content = Utils::getFileNamesInDir(pathImgs);
-                    for (auto path : content)
-                    {
-                        Utils::deleteFile(path);
-                    }
-                }
+                loopEdges.push_back((int)*itLes);
             }
+            loopEdgesMap[id] = loopEdges;
+        }
+        cv::Mat Tcw; //has to be here!
+        (*it)["Tcw"] >> Tcw;
+
+        cv::Mat featureDescriptors; //has to be here!
+        (*it)["featureDescriptors"] >> featureDescriptors;
+        std::vector<cv::KeyPoint> keyPtsUndist;
+        (*it)["keyPtsUndist"] >> keyPtsUndist;
+        float scaleFactor;
+        (*it)["scaleFactor"] >> scaleFactor;
+        int nScaleLevels = -1;
+        (*it)["nScaleLevels"] >> nScaleLevels;
+
+        //vectors for precalculation of scalefactors
+        std::vector<float> vScaleFactor;
+        std::vector<float> vInvScaleFactor;
+        std::vector<float> vLevelSigma2;
+        std::vector<float> vInvLevelSigma2;
+        vScaleFactor.clear();
+        vLevelSigma2.clear();
+        vScaleFactor.resize(nScaleLevels);
+        vLevelSigma2.resize(nScaleLevels);
+        vScaleFactor[0] = 1.0f;
+        vLevelSigma2[0] = 1.0f;
+        for (int i = 1; i < nScaleLevels; i++)
+        {
+            vScaleFactor[i] = vScaleFactor[i - 1] * scaleFactor;
+            vLevelSigma2[i] = vScaleFactor[i] * vScaleFactor[i];
+        }
+
+        vInvScaleFactor.resize(nScaleLevels);
+        vInvLevelSigma2.resize(nScaleLevels);
+        for (int i = 0; i < nScaleLevels; i++)
+        {
+            vInvScaleFactor[i] = 1.0f / vScaleFactor[i];
+            vInvLevelSigma2[i] = 1.0f / vLevelSigma2[i];
+        }
+
+        cv::Mat K;
+        (*it)["K"] >> K;
+        float fx, fy, cx, cy;
+        fx = K.at<float>(0, 0);
+        fy = K.at<float>(1, 1);
+        cx = K.at<float>(0, 2);
+        cy = K.at<float>(1, 2);
+
+        //image bounds
+        float nMinX, nMinY, nMaxX, nMaxY;
+        (*it)["nMinX"] >> nMinX;
+        (*it)["nMinY"] >> nMinY;
+        (*it)["nMaxX"] >> nMaxX;
+        (*it)["nMaxY"] >> nMaxY;
+
+        WAIKeyFrame* newKf = new WAIKeyFrame(Tcw, id, fx, fy, cx, cy,
+                                             keyPtsUndist.size(), keyPtsUndist,
+                                             featureDescriptors, WAIOrbVocabulary::get(),
+                                             nScaleLevels, scaleFactor, vScaleFactor,
+                                             vLevelSigma2, vInvLevelSigma2,
+                                             nMinX, nMinY, nMaxX, nMaxY,
+                                             K, kfDB, waiMap);
+
+        if (imgDir != "")
+        {
+            stringstream ss;
+            ss << imgDir << "kf" << id << ".jpg";
+            //newKf->imgGray = kfImg;
+            if (Utils::fileExists(ss.str()))
+            {
+                newKf->setTexturePath(ss.str());
+                cv::Mat imgColor = cv::imread(ss.str());
+                cv::cvtColor(imgColor, newKf->imgGray, cv::COLOR_BGR2GRAY);
+            }
+        }
+        keyFrames.push_back(newKf);
+        kfsMap[newKf->mnId] = newKf;
+    }
+
+    //set parent keyframe pointers into keyframes
+    for (WAIKeyFrame* kf : keyFrames)
+    {
+        if (kf->mnId != 0)
+        {
+            auto itParentId = parentIdMap.find(kf->mnId);
+            if (itParentId != parentIdMap.end())
+            {
+                int  parentId   = itParentId->second;
+                auto itParentKf = kfsMap.find(parentId);
+                if (itParentKf != kfsMap.end())
+                    kf->ChangeParent(itParentKf->second);
+                else
+                    cerr << "[WAIMapIO] loadKeyFrames: Parent does not exist! FAIL" << endl;
+            }
+            else
+                cerr << "[WAIMapIO] loadKeyFrames: Parent does not exist! FAIL" << endl;
+        }
+    }
+
+    int numberOfLoopClosings = 0;
+    //set loop edge pointer into keyframes
+    for (WAIKeyFrame* kf : keyFrames)
+    {
+        auto it = loopEdgesMap.find(kf->mnId);
+        if (it != loopEdgesMap.end())
+        {
+            const auto& loopEdgeIds = it->second;
+            for (int loopKfId : loopEdgeIds)
+            {
+                auto loopKfIt = kfsMap.find(loopKfId);
+                if (loopKfIt != kfsMap.end())
+                {
+                    kf->AddLoopEdge(loopKfIt->second);
+                    numberOfLoopClosings++;
+                }
+                else
+                    cerr << "[WAIMapIO] loadKeyFrames: Loop keyframe id does not exist! FAIL" << endl;
+            }
+        }
+    }
+    numLoopClosings = numberOfLoopClosings / 2;
+
+
+    n = fs["MapPoints"];
+    if (n.type() != cv::FileNode::SEQ)
+    {
+        cerr << "strings is not a sequence! FAIL" << endl;
+    }
+
+    for (auto it = n.begin(); it != n.end(); ++it)
+    {
+        //newPt->id( (int)(*it)["id"]);
+        int id = (int)(*it)["id"];
+
+        cv::Mat mWorldPos; //has to be here!
+        (*it)["mWorldPos"] >> mWorldPos;
+
+        WAIMapPoint* newPt = new WAIMapPoint(id, mWorldPos, waiMap);
+        vector<int> observingKfIds;
+        (*it)["observingKfIds"] >> observingKfIds;
+        vector<int> corrKpIndices;
+        (*it)["corrKpIndices"] >> corrKpIndices;
+
+        //get reference keyframe id
+        int  refKfId    = (int)(*it)["refKfId"];
+        bool refKFFound = false;
+
+        if (kfsMap.find(refKfId) != kfsMap.end())
+        {
+            newPt->refKf(kfsMap[refKfId]);
+            refKFFound = true;
         }
         else
         {
-            //create map directory and imgs directory
-            Utils::makeDir(path);
-        }
-
-        if (!Utils::fileExists(pathImgs))
-        {
-            Utils::makeDir(pathImgs);
-        }
-
-        //switch to idle, so that map does not change, while we are accessing keyframes
-        orbSlamMode->pause();
-#if 0
-        mapTracking->sm.requestStateIdle();
-        while (!mapTracking->sm.hasStateIdle())
-        {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
-#endif
-
-        //save the map
-        WAIMapIO::save(filename, *orbSlamMode->getMap(), saveImgs, pathImgs, nodeOm);
-
-        //update list of existing maps
-        WAIMapStorage::init(externalDir);
-        //update current combobox item
-        auto it = std::find(existingMapNames.begin(), existingMapNames.end(), mapName);
-        if (it != existingMapNames.end())
-        {
-            currN    = it - existingMapNames.begin();
-            currItem = existingMapNames[currN].c_str();
-        }
-    }
-    catch (std::exception& e)
-    {
-        string msg = "Exception during slam map storage: " + filename + "\n" +
-                     e.what() + "\n";
-        WAI_LOG("%s\n", msg.c_str());
-        errorOccured = true;
-    }
-    catch (...)
-    {
-        string msg = "Exception during slam map storage: " + filename + "\n";
-        WAI_LOG("%s\n", msg.c_str());
-        errorOccured = true;
-    }
-
-    //if an error occured, we delete the whole directory
-    if (errorOccured)
-    {
-        //if path exists, delete content
-        if (Utils::fileExists(path))
-        {
-            //remove json file
-            if (Utils::fileExists(filename))
-                Utils::deleteFile(filename);
-            //check if imgs dir exists and delete all containing files
-            if (Utils::fileExists(pathImgs))
+            cout << "no reference keyframe found!" << endl;
+            if (observingKfIds.size())
             {
-                std::vector<std::string> content = Utils::getFileNamesInDir(pathImgs);
-                for (auto path : content)
+                //we use the first of the observing keyframes
+                int kfId = observingKfIds[0];
+                if (kfsMap.find(kfId) != kfsMap.end())
                 {
-                    Utils::deleteFile(path);
+                    newPt->refKf(kfsMap[kfId]);
+                    refKFFound = true;
                 }
-                Utils::deleteFile(pathImgs);
             }
-            Utils::deleteFile(path);
+        }
+
+        if (refKFFound)
+        {
+            //find and add pointers of observing keyframes to map point
+            for (int i = 0; i < observingKfIds.size(); ++i)
+            {
+                const int kfId = observingKfIds[i];
+                if (kfsMap.find(kfId) != kfsMap.end())
+                {
+                    WAIKeyFrame* kf = kfsMap[kfId];
+                    kf->AddMapPoint(newPt, corrKpIndices[i]);
+                    newPt->AddObservation(kf, corrKpIndices[i]);
+                }
+                else
+                {
+                    cout << "keyframe with id " << i << " not found!";
+                }
+            }
+            mapPoints.push_back(newPt);
+        }
+        else
+        {
+            delete newPt;
         }
     }
 
-    //switch back to initialized state and resume tracking
-    orbSlamMode->resume();
-}
-//-----------------------------------------------------------------------------
-bool WAIMapStorage::loadMap(const string& path, WAI::ModeOrbSlam2* orbSlamMode, ORBVocabulary* orbVoc, bool loadKfImgs, cv::Mat& nodeOm)
-{
-    bool loadingSuccessful = false;
-    if (!_isInitialized)
+    //update the covisibility graph, when all keyframes and mappoints are loaded
+    WAIKeyFrame* firstKF           = nullptr;
+    bool         buildSpanningTree = false;
+    for (WAIKeyFrame* kf : keyFrames)
     {
-        WAI_LOG("External map storage is not initialized, you have to call init() first!\n");
-        return loadingSuccessful;
-    }
-    if (!orbSlamMode)
-    {
-        WAI_LOG("Map tracking not initialized!\n");
-        return loadingSuccessful;
-    }
-
-    //reset tracking (and all dependent threads/objects like Map, KeyFrameDatabase, LocalMapping, loopClosing)
-    orbSlamMode->requestStateIdle();
-    while (!orbSlamMode->hasStateIdle())
-    {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-    orbSlamMode->reset();
-
-    //clear map and keyframe database
-    WAIMap*        map  = orbSlamMode->getMap();
-    WAIKeyFrameDB* kfDB = orbSlamMode->getKfDB();
-
-    //extract id from map name
-    size_t prefixIndex = path.find(_mapPrefix);
-    if (prefixIndex != string::npos)
-    {
-        std::string name     = path.substr(prefixIndex);
-        std::string idString = name.substr(_mapPrefix.length());
-        _currentId           = atoi(idString.c_str());
-    }
-    else
-    {
-        WAI_LOG("Could not load map. Map id not found in name: %s\n", path.c_str());
-        return loadingSuccessful;
+        // Update links in the Covisibility Graph, do not build the spanning tree yet
+        kf->UpdateConnections(false);
+        if (kf->mnId == 0)
+        {
+            firstKF = kf;
+        }
+        else if (kf->GetParent() == NULL)
+        {
+            buildSpanningTree = true;
+        }
     }
 
-    //check if map exists
-    string mapName      = _mapPrefix + to_string(_currentId);
-    string mapPath      = Utils::unifySlashes(_mapsDir + mapName);
-    string currPathImgs = mapPath + "imgs/";
-    string filename     = mapPath + mapName + ".json";
+    wai_assert(firstKF && "Could not find keyframe with id 0\n");
 
-    //check if dir and file exist
-    if (!Utils::dirExists(mapPath))
+    // Build spanning tree if keyframes have no parents (legacy support)
+    if (buildSpanningTree)
     {
-        string msg = "Failed to load map. Path does not exist: " + mapPath + "\n";
-        WAI_LOG("%s\n", msg.c_str());
-        return loadingSuccessful;
-    }
-    if (!Utils::fileExists(filename))
-    {
-        string msg = "Failed to load map: " + filename + "\n";
-        WAI_LOG("%s\n", msg.c_str());
-        return loadingSuccessful;
-    }
+        //QueueElem: <unconnected_kf, graph_kf, weight>
+        using QueueElem                 = std::tuple<WAIKeyFrame*, WAIKeyFrame*, int>;
+        auto                   cmpQueue = [](const QueueElem& left, const QueueElem& right) { return (std::get<2>(left) < std::get<2>(right)); };
+        auto                   cmpMap   = [](const pair<WAIKeyFrame*, int>& left, const pair<WAIKeyFrame*, int>& right) { return left.second < right.second; };
+        std::set<WAIKeyFrame*> graph;
+        std::set<WAIKeyFrame*> unconKfs;
+        for (auto& kf : keyFrames)
+            unconKfs.insert(kf);
 
-    try
-    {
-        WAIMapIO mapIO(filename, orbVoc, loadKfImgs, currPathImgs);
-        mapIO.load(nodeOm, *map, *kfDB);
+        //pick first kf
+        graph.insert(firstKF);
+        unconKfs.erase(firstKF);
 
-        //if map loading was successful, switch to initialized
-        orbSlamMode->setInitialized(true);
-        loadingSuccessful = true;
-    }
-    catch (std::exception& e)
-    {
-        string msg = "Exception during slam map loading: " + filename +
-                     e.what() + "\n";
-        WAI_LOG("%s\n", msg.c_str());
-    }
-    catch (...)
-    {
-        string msg = "Exception during slam map loading: " + filename + "\n";
-        WAI_LOG("%s\n", msg.c_str());
-    }
-
-    orbSlamMode->resume();
-    return loadingSuccessful;
-}
-//-----------------------------------------------------------------------------
-void WAIMapStorage::newMap()
-{
-    if (!_isInitialized)
-    {
-        WAI_LOG("External map storage is not initialized, you have to call init() first!\n");
-        return;
+        while (unconKfs.size())
+        {
+            std::priority_queue<QueueElem, std::vector<QueueElem>, decltype(cmpQueue)> q(cmpQueue);
+            //update queue with keyframes with neighbous in the graph
+            for (auto& unconKf : unconKfs)
+            {
+                const std::map<WAIKeyFrame*, int>& weights = unconKf->GetConnectedKfWeights();
+                for (auto& graphKf : graph)
+                {
+                    auto it = weights.find(graphKf);
+                    if (it != weights.end())
+                    {
+                        QueueElem newElem = std::make_tuple(unconKf, it->first, it->second);
+                        q.push(newElem);
+                    }
+                }
+            }
+            //extract keyframe with shortest connection
+            QueueElem topElem = q.top();
+            //remove it from unconKfs and add it to graph
+            WAIKeyFrame* newGraphKf = std::get<0>(topElem);
+            unconKfs.erase(newGraphKf);
+            newGraphKf->ChangeParent(std::get<1>(topElem));
+            std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
+            //update parent
+            graph.insert(newGraphKf);
+        }
     }
 
-    //assign next id to current id. The nextId will be increased after file save.
-    _currentId = _nextId;
-}
-//-----------------------------------------------------------------------------
-string WAIMapStorage::mapsDir()
-{
-    return _mapsDir;
+    //compute resulting values for map points
+    for (WAIMapPoint*& mp : mapPoints)
+    {
+        //mean viewing direction and depth
+        mp->UpdateNormalAndDepth();
+        mp->ComputeDistinctiveDescriptors();
+    }
+
+    for (WAIKeyFrame* kf : keyFrames)
+    {
+        waiMap->AddKeyFrame(kf);
+        kfDB->add(kf);
+    }
+
+    for (WAIMapPoint* point : mapPoints)
+    {
+        waiMap->AddMapPoint(point);
+    }
+
+    waiMap->setNumLoopClosings(numLoopClosings);
+    return true;
 }

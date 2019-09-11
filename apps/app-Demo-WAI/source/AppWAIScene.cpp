@@ -4,10 +4,8 @@
 #include <SLCoordAxis.h>
 #include <SLPoints.h>
 
-
 AppWAIScene::AppWAIScene()
 {
-
 }
 
 void AppWAIScene::rebuild()

@@ -1193,7 +1193,8 @@ ORBextractor::ORBextractor(int   _nfeatures,
                            int   _iniThFAST,
                            int   _minThFAST)
   : iniThFAST(_iniThFAST),
-    minThFAST(_minThFAST)
+    minThFAST(_minThFAST),
+    KPextractor("FAST_ORBS")
 {
     nfeatures   = _nfeatures;
     scaleFactor = _scaleFactor;

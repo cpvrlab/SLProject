@@ -1,7 +1,7 @@
 //#############################################################################
-//  File:      AppDemoGuiMapStorage.cpp
-//  Author:    Michael Goettlicher
-//  Date:      April 2018
+//  File:      AppDemoGuiVideoStorage.cpp
+//  Author:    Luc Girod
+//  Date:      April 2019
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
@@ -70,6 +70,7 @@ AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string& name, std::str
         _existingVideoNames.push_back(it->second);
 }
 //-----------------------------------------------------------------------------
+
 void AppDemoGuiVideoStorage::saveVideo(std::string filename)
 {
     std::string infoDir = _videoDir + "info/";

@@ -31,6 +31,10 @@ namespace ORB_SLAM2
 class KPextractor
 {
     public:
+    KPextractor(std::string name)
+    {
+        mname = name;
+    }
     // Compute the ORB features and descriptors on an image.
     // ORB are dispersed on the image using an octree.
     // Mask is ignored in the current implementation.
@@ -40,6 +44,11 @@ class KPextractor
     virtual void computeKeyPointDescriptors(const cv::Mat&             image,
                                             std::vector<cv::KeyPoint>& keypoints,
                                             cv::Mat&                   descriptors) = 0;
+
+    std::string GetName()
+    {
+        return mname;
+    }
 
     int GetLevels()
     {
@@ -77,6 +86,7 @@ class KPextractor
     int                nfeatures;
     double             scaleFactor;
     int                nlevels;
+    std::string        mname;
     std::vector<int>   mnFeaturesPerLevel;
     std::vector<int>   umax;
     std::vector<float> mvScaleFactor;

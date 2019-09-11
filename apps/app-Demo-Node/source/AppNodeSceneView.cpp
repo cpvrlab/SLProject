@@ -383,10 +383,6 @@ void AppNodeSceneView::updateCurOrigin()
         _axesNode->translate(_pivotPos.x, _pivotPos.y, _pivotPos.z, TS_object);
     }
 
-    // todo: position the pivot for rotate arond based on a set vector!
-    // remove the current _pivot and just use the grid to visualize it.
-    // _pivot is now a vec3 containing the pivot position in relative space
-
     _curOrigin;
 }
 //-----------------------------------------------------------------------------

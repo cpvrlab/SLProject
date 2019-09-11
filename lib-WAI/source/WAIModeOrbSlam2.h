@@ -95,6 +95,11 @@ class WAI_API ModeOrbSlam2 : public Mode
         _showKeyPoints = flag;
     }
 
+    KPextractor* getKPextractor()
+    {
+        return _extractor;
+    }
+
     bool getTrackOptFlow();
     void setTrackOptFlow(bool flag);
 
