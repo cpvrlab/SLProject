@@ -52,7 +52,7 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
         b = WAIApp::showKeyPoints;
         if (ImGui::Checkbox("KeyPts", &b))
         {
-            WAIApp::showKeyPoints;
+            WAIApp::showKeyPoints = b;
         }
 
         //show matched 2D key points in video image

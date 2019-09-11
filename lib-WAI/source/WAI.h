@@ -27,10 +27,12 @@ class WAI_API WAI
     ModeType getCurrentModeType();
 
     private:
+    std::string                   _featuresType;
     std::string                   _dataRoot;
     Mode*                         _mode = nullptr;
     ModeType                      _modeType;
     std::map<SensorType, Sensor*> _sensors;
+
 };
 }
 

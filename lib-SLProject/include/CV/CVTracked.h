@@ -44,6 +44,7 @@ class CVTracked
 {
     public:
     explicit CVTracked() : _isVisible(false), _drawDetection(true) {}
+    virtual ~CVTracked() = default;
 
     virtual bool track(CVMat          imageGray,
                        CVMat          imageRgb,

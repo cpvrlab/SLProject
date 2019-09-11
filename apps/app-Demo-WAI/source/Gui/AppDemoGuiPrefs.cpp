@@ -34,6 +34,9 @@ void GUIPreferences::reset()
     showUIPrefs               = false;
     showMapStorage            = false;
     showVideoStorage          = false;
+    showVideoLoad             = false;
+    showTestSettings          = false;
+    showTestWriter            = false;
 };
 
 void GUIPreferences::setDPI(int dotsPerInch)
@@ -101,6 +104,8 @@ void GUIPreferences::load()
             fs["showSceneGraph"] >> b;      showSceneGraph = b;
             fs["showProperties"] >> b;      showProperties = b;
             fs["showUIPrefs"] >> b;         showUIPrefs = b;
+            fs["showTestSettings"] >> b;    showTestSettings = b;
+            fs["showTestWriter"] >> b;      showTestWriter = b;
             // clang-format on
 
             fs.release();
@@ -166,6 +171,8 @@ void GUIPreferences::save()
     fs << "showSceneGraph" << showSceneGraph;
     fs << "showProperties" << showProperties;
     fs << "showUIPrefs" << showUIPrefs;
+    fs << "showTestSettings" << showTestSettings;
+    fs << "showTestWriter" << showTestWriter;
 
     fs.release();
     SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());

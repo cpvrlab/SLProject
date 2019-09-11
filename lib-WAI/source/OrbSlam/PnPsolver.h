@@ -65,120 +65,125 @@ class PnPsolver
 
     ~PnPsolver();
 
-    void SetRansacParameters(double probability   = 0.99,
-                             int    minInliers    = 8,
-                             int    maxIterations = 300,
-                             int    minSet        = 4,
-                             float  epsilon       = 0.4,
-                             float  th2           = 5.991);
+    void SetRansacParameters(double probability = 0.99, int minInliers = 8, int maxIterations = 300, int minSet = 4, float epsilon = 0.4, float th2 = 5.991);
 
     cv::Mat find(vector<bool>& vbInliers, int& nInliers);
 
-    cv::Mat iterate(int           nIterations,
-                    bool&         bNoMore,
-                    vector<bool>& vbInliers,
-                    int&          nInliers);
+    cv::Mat iterate(int nIterations, bool& bNoMore, vector<bool>& vbInliers, int& nInliers);
 
     private:
     void CheckInliers();
     bool Refine();
 
     // Functions from the original EPnP code
-    void set_maximum_number_of_correspondences(int n);
-    void reset_correspondences();
-    void add_correspondence(double X,
-                            double Y,
-                            double Z,
-                            double u,
-                            double v);
+    void set_maximum_number_of_correspondences(const int n);
+    void reset_correspondences(void);
+    void add_correspondence(const double X, const double Y, const double Z, const double u, const double v);
 
     double compute_pose(double R[3][3], double T[3]);
 
-    void relative_error(double&      rot_err,
-                        double&      transl_err,
-                        const double Rtrue[3][3],
-                        const double ttrue[3],
-                        const double Rest[3][3],
-                        const double test[3]);
+    void relative_error(double& rot_err, double& transl_err, const double Rtrue[3][3], const double ttrue[3], const double Rest[3][3], const double test[3]);
 
     void   print_pose(const double R[3][3], const double t[3]);
     double reprojection_error(const double R[3][3], const double t[3]);
 
-    void choose_control_points();
-    void compute_barycentric_coordinates();
-    void fill_M(cv::Mat* M, int row, const double* alphas, double u, double v);
+    void choose_control_points(void);
+    void compute_barycentric_coordinates(void);
+    void fill_M(cv::Mat* M, const int row, const double* alphas, const double u, const double v);
     void compute_ccs(const double* betas, const double* ut);
-    void compute_pcs();
+    void compute_pcs(void);
 
-    void solve_for_sign();
+    void solve_for_sign(void);
 
     void find_betas_approx_1(const cv::Mat* L_6x10, const cv::Mat* Rho, double* betas);
     void find_betas_approx_2(const cv::Mat* L_6x10, const cv::Mat* Rho, double* betas);
     void find_betas_approx_3(const cv::Mat* L_6x10, const cv::Mat* Rho, double* betas);
+
     void qr_solve(cv::Mat* A, cv::Mat* b, cv::Mat* X);
 
     double dot(const double* v1, const double* v2);
     double dist2(const double* p1, const double* p2);
 
-    void   compute_rho(double* rho);
-    void   compute_L_6x10(const double* ut, double* l_6x10);
-    void   gauss_newton(const cv::Mat* L_6x10, const cv::Mat* Rho, double current_betas[4]);
-    void   compute_A_and_b_gauss_newton(const double* l_6x10,
-                                        const double* rho,
-                                        const double  cb[4],
-                                        cv::Mat*      A,
-                                        cv::Mat*      b);
-    double compute_R_and_t(const double* ut,
-                           const double* betas,
-                           double        R[3][3],
-                           double        t[3]);
-    void   estimate_R_and_t(double R[3][3], double t[3]);
-    void   copy_R_and_t(const double R_dst[3][3],
-                        const double t_dst[3],
-                        double       R_src[3][3],
-                        double       t_src[3]);
-    void   mat_to_quat(const double R[3][3], double q[4]);
+    void compute_rho(double* rho);
+    void compute_L_6x10(const double* ut, double* l_6x10);
 
-    double  _uc, _vc, _fu, _fv;
-    double *_pws, *_us, *_alphas, *_pcs;
-    int     _maxNumCorrespondences;
-    int     _numCorrespondences;
-    double  _cws[4][3], _ccs[4][3];
-    double  _cws_determinant;
+    void gauss_newton(const cv::Mat* L_6x10, const cv::Mat* Rho, double betas[4]);
+    void compute_A_and_b_gauss_newton(const double* l_6x10, const double* rho, const double betas[4], cv::Mat* A, cv::Mat* b);
 
-    vector<WAIMapPoint*> _mvpMapPointMatches;
-    vector<cv::Point2f>  _mvP2D; //!< 2D Points
-    vector<float>        _mvSigma2;
-    vector<cv::Point3f>  _mvP3Dw;            //!< 3D Points
-    vector<size_t>       _mvKeyPointIndices; //!< Index in Frame
+    double compute_R_and_t_N(const double* ut, const double* betas, double R[3][3], double t[3]);
+
+    void estimate_R_and_t_N(double R[3][3], double t[3]);
+
+    void copy_R_and_t(const double R_dst[3][3], const double t_dst[3], double R_src[3][3], double t_src[3]);
+
+    void mat_to_quat(const double R[3][3], double q[4]);
+
+    double uc, vc, fu, fv;
+
+    double *pws, *us, *alphas, *pcs;
+
+    int maximum_number_of_correspondences;
+    int number_of_correspondences;
+
+    double cws[4][3], ccs[4][3];
+    double cws_determinant;
+
+    vector<WAIMapPoint*> mvpMapPointMatches;
+
+    // 2D Points
+    vector<cv::Point2f> mvP2D;
+    vector<float>       mvSigma2;
+
+    // 3D Points
+    vector<cv::Point3f> mvP3Dw;
+
+    // Index in Frame
+    vector<size_t> mvKeyPointIndices;
 
     // Current Estimation
-    double       _mRi[3][3];
-    double       _mti[3];
-    cv::Mat      _mTcwi;
-    vector<bool> _mvbInliersi;
-    int          _mnInliersi;
+    double       mRi[3][3];
+    double       mti[3];
+    cv::Mat      mTcwi;
+    vector<bool> mvbInliersi;
+    int          mnInliersi;
 
     // Current Ransac State
-    int          _mnIterations;
-    vector<bool> _mvbBestInliers;
-    int          _mnBestInliers;
-    cv::Mat      _mBestTcw;
+    int          mnIterations;
+    vector<bool> mvbBestInliers;
+    int          mnBestInliers;
+    cv::Mat      mBestTcw;
 
     // Refined
-    cv::Mat      _mRefinedTcw;
-    vector<bool> _mvbRefinedInliers;
-    int          _mnRefinedInliers;
+    cv::Mat      mRefinedTcw;
+    vector<bool> mvbRefinedInliers;
+    int          mnRefinedInliers;
 
-    int            _mN;                //!< Number of Correspondences
-    vector<size_t> _mvAllIndices;      //!< Indices for random selection [0 .. _numCorresp-1]
-    double         _mRansacProb;       //!< RANSAC probability
-    int            _mRansacMinInliers; //!< RANSAC min inliers
-    int            _mRansacMaxIts;     //!< RANSAC max iterations
-    float          _mRansacEpsilon;    //!< RANSAC expected inliers/total ratio
-    float          _mRansacTh;         //!< RANSAC Threshold inlier/outlier. Max error e = dist(P1,T_12*P2)^2
-    int            _mRansacMinSet;     //!< RANSAC Minimun Set used at each iteration
-    vector<float>  _mvMaxError;        //!< Max square error associated with scale level. Max error = th*th*sigma(level)*sigma(level)
+    // Number of Correspondences
+    int N;
+
+    // Indices for random selection [0 .. N-1]
+    vector<size_t> mvAllIndices;
+
+    // RANSAC probability
+    double mRansacProb;
+
+    // RANSAC min inliers
+    int mRansacMinInliers;
+
+    // RANSAC max iterations
+    int mRansacMaxIts;
+
+    // RANSAC expected inliers/total ratio
+    float mRansacEpsilon;
+
+    // RANSAC Threshold inlier/outlier. Max error e = dist(P1,T_12*P2)^2
+    float mRansacTh;
+
+    // RANSAC Minimun Set used at each iteration
+    int mRansacMinSet;
+
+    // Max square error associated with scale level. Max error = th*th*sigma(level)*sigma(level)
+    vector<float> mvMaxError;
 };
 
 } //namespace ORB_SLAM

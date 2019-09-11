@@ -54,7 +54,7 @@ git pull origin %OPENCV_VERSION%
 :: make build directory, run cmake and build
 mkdir BUILD-%OPENCV_VERSION%-vs
 cd BUILD-%OPENCV_VERSION%-vs
-cmake -G %CMAKE_GENERATOR% -A %CMAKE_ARCHITECTURE% -DWITH_CUDA=off -DOPENCV_EXTRA_MODULES_PATH=..\..\opencv_contrib\modules -DWITH_FFMPEG=true -DBUILD_opencv_python_bindings_generator=off -DBUILD_opencv_java=off -DBUILD_opencv_python=off -DCMAKE_INSTALL_PREFIX=%OPENCV_INSTALL_DIR% ..
+cmake -G %CMAKE_GENERATOR% -A %CMAKE_ARCHITECTURE% -DWITH_CUDA=off -DOPENCV_EXTRA_MODULES_PATH=..\..\opencv_contrib\modules -DWITH_FFMPEG=true -DBUILD_opencv_python_bindings_generator=off -DBUILD_opencv_java=off -DBUILD_opencv_python=off -DOPENCV_ENABLE_NONFREE=on -DCMAKE_INSTALL_PREFIX=%OPENCV_INSTALL_DIR% ..
 msbuild INSTALL.vcxproj -maxcpucount:%MAX_NUM_CPU_CORES% /p:Configuration=Debug
 msbuild INSTALL.vcxproj -maxcpucount:%MAX_NUM_CPU_CORES% /p:Configuration=Release
 cd ..\..
