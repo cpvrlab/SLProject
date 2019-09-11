@@ -1158,7 +1158,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 CVCalibration* sc = &capture->calibScndCam;
 
                 CVTrackedFeatures* featureTracker = nullptr;
-                if (typeid(*tracker) == typeid(CVTrackedFeatures))
+                if (tracker != nullptr && typeid(*tracker) == typeid(CVTrackedFeatures))
                     featureTracker = (CVTrackedFeatures*)tracker;
 
                 if (capture->videoType() == VT_MAIN &&
