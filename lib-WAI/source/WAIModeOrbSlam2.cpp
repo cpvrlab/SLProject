@@ -41,7 +41,7 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera* camera,
 
     //instantiate Orb extractor
     //_extractor        = new ORB_SLAM2::ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
-    //pIniORBextractor = new ORB_SLAM2::ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+    //mpIniORBextractor = new ORB_SLAM2::ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
     _extractor        = new ORB_SLAM2::SURFextractor(1500);
     mpIniORBextractor = new ORB_SLAM2::SURFextractor(1000);
     //instantiate local mapping
@@ -113,15 +113,13 @@ void WAI::ModeOrbSlam2::notifyUpdate()
 
     switch (_state)
     {
-        case TrackingState_Initializing:
-        {
+        case TrackingState_Initializing: {
             initialize();
         }
         break;
 
         case TrackingState_TrackingOK:
-        case TrackingState_TrackingLost:
-        {
+        case TrackingState_TrackingLost: {
             //relocalize or track 3d points
             track3DPts();
         }
@@ -129,8 +127,7 @@ void WAI::ModeOrbSlam2::notifyUpdate()
 
         case TrackingState_Idle:
         case TrackingState_None:
-        default:
-        {
+        default: {
         }
         break;
     }
@@ -207,38 +204,32 @@ std::string WAI::ModeOrbSlam2::getPrintableState()
 
     switch (_state)
     {
-        case TrackingState_Initializing:
-        {
+        case TrackingState_Initializing: {
             printableState = "INITIALIZING";
         }
         break;
 
-        case TrackingState_Idle:
-        {
+        case TrackingState_Idle: {
             printableState = "IDLE";
         }
         break;
 
-        case TrackingState_TrackingLost:
-        {
+        case TrackingState_TrackingLost: {
             printableState = "TRACKING_LOST"; //motion model tracking
         }
         break;
 
-        case TrackingState_TrackingOK:
-        {
+        case TrackingState_TrackingOK: {
             printableState = "TRACKING_OK";
         }
         break;
 
-        case TrackingState_None:
-        {
+        case TrackingState_None: {
             printableState = "TRACKING_NONE";
         }
         break;
 
-        default:
-        {
+        default: {
             printableState = "";
         }
         break;
