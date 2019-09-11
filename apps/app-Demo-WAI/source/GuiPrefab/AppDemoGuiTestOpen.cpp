@@ -19,15 +19,13 @@
 
 //-----------------------------------------------------------------------------
 
-AppDemoGuiTestOpen::AppDemoGuiTestOpen(const std::string& name, std::string saveDir,
-                                       WAI::WAI * wai, WAICalibration* wc, SLNode* mapNode,
-                                       bool* activator)
+AppDemoGuiTestOpen::AppDemoGuiTestOpen(const std::string& name, std::string saveDir, WAI::WAI* wai, WAICalibration* wc, SLNode* mapNode, bool* activator)
   : AppDemoGuiInfosDialog(name, activator),
     _wai(wai),
     _wc(wc),
     _mapNode(mapNode)
 {
-    _saveDir = Utils::unifySlashes(saveDir);
+    _saveDir     = Utils::unifySlashes(saveDir);
     _settingsDir = _saveDir + "TestSettings/";
     _currentItem = 0;
 
@@ -47,7 +45,7 @@ struct AppDemoGuiTestOpen::TestInfo AppDemoGuiTestOpen::openTestSettings(std::st
     {
         std::cout << "File not open" << std::endl;
         infos.open = false;
-        return;
+        return infos;
     }
 
     infos.open = true;
@@ -87,7 +85,7 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
 
         _wc->loadFromFile(info.calPath);
 
-        WAI::ModeOrbSlam2 * mode = (WAI::ModeOrbSlam2 *)_wai->getCurrentMode();
+        WAI::ModeOrbSlam2* mode = (WAI::ModeOrbSlam2*)_wai->getCurrentMode();
         mode->requestStateIdle();
         while (!mode->hasStateIdle())
         {
@@ -108,7 +106,6 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
     }
 
     ImGui::Separator();
-
 
     if (ImGui::BeginCombo("Current", _infos[_currentItem].name.c_str()))
     {
