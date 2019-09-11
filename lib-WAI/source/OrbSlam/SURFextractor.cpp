@@ -1151,7 +1151,7 @@ static int bit_pattern_31_[256 * 4] =
 };
 
 SURFextractor::SURFextractor(double threshold)
-: KPextractor("SURF_BRIEF")
+  : KPextractor("SURF_BRIEF")
 {
     mvScaleFactor.resize(1);
     mvLevelSigma2.resize(1);
@@ -1167,7 +1167,7 @@ SURFextractor::SURFextractor(double threshold)
 
     mvImagePyramid.resize(1);
 
-    surf_detector = cv::xfeatures2d::SURF::create(threshold);
+    surf_detector = cv::xfeatures2d::SURF::create(threshold, 4, 3, false, false);
 
     const int    npoints  = 512;
     const Point* pattern0 = (const Point*)bit_pattern_31_;
@@ -1203,7 +1203,12 @@ void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
 {
     Mat image = _image.getMat();
     Mat descriptors;
-    surf_detector->detect(image, _keypoints);
+
+    //reduce keypoint detection to an inner region because of descriptor pasize
+    cv::Mat mask = cv::Mat::zeros(image.size(), image.type());
+    mask(cv::Rect(HALF_PATCH_SIZE, HALF_PATCH_SIZE, image.cols - HALF_PATCH_SIZE - 1, image.rows - HALF_PATCH_SIZE - 1)).setTo(1);
+    //detect keypoints
+    surf_detector->detect(image, _keypoints, mask);
 
     if (_keypoints.size() == 0)
     {
@@ -1222,7 +1227,6 @@ void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     // Compute the descriptors
     Mat desc = descriptors.rowRange(0, _keypoints.size());
     computeDescriptors(workingMat, _keypoints, desc, pattern);
-    ;
 }
 
 }

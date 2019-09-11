@@ -24,36 +24,33 @@
 #include <vector>
 #include <list>
 #if CV_VERSION_MAJOR >= 4
-#include <opencv2/opencv.hpp>
+#    include <opencv2/opencv.hpp>
 #else
-#include <opencv/cv.h>
+#    include <opencv/cv.h>
 #endif
 #include <KPextractor.h>
 #include <opencv2/xfeatures2d/nonfree.hpp>
-
 
 namespace ORB_SLAM2
 {
 
 class SURFextractor : public KPextractor
 {
-public:
-
+    public:
     SURFextractor(double threshold);
 
-    ~SURFextractor(){}
+    ~SURFextractor() {}
 
     // Compute the ORB features and descriptors on an image.
     // ORB are dispersed on the image using an octree.
     // Mask is ignored in the current implementation.
-    void operator()( cv::InputArray image,
-                     std::vector<cv::KeyPoint>& keypoints,
-                     cv::OutputArray descriptors);
+    void operator()(cv::InputArray             image,
+                    std::vector<cv::KeyPoint>& keypoints,
+                    cv::OutputArray            descriptors);
 
     std::vector<cv::Mat> mvImagePyramid;
 
-protected:
-
+    protected:
     std::vector<cv::Point> pattern;
 
     cv::Ptr<cv::xfeatures2d::SURF> surf_detector;
@@ -62,4 +59,3 @@ protected:
 } //namespace ORB_SLAM
 
 #endif
-
