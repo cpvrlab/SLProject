@@ -33,12 +33,19 @@ class KPextractor
 {
 public:
 
+    KPextractor(std::string name){
+        mname = name;
+    }
     // Compute the ORB features and descriptors on an image.
     // ORB are dispersed on the image using an octree.
     // Mask is ignored in the current implementation.
     virtual void operator()( cv::InputArray image,
                              std::vector<cv::KeyPoint>& keypoints,
                              cv::OutputArray descriptors ) = 0;
+
+    std::string GetName(){
+        return mname;
+    }
 
     int GetLevels(){
         return nlevels;
@@ -71,6 +78,7 @@ protected:
     int nfeatures;
     double scaleFactor;
     int nlevels;
+    std::string mname;
     std::vector<int> mnFeaturesPerLevel;
     std::vector<int> umax;
     std::vector<float> mvScaleFactor;

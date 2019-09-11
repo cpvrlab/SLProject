@@ -21,6 +21,15 @@ void AppDemoGuiTrackedMapping::buildInfos(SLScene* s, SLSceneView* sv)
         _orbSlamMode->reset();
     }
 
+    if (ImGui::Button("Disable Mapping", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    {
+        _orbSlamMode->disableMapping();
+    }
+    if (ImGui::Button("Enable Mapping", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    {
+        _orbSlamMode->enableMapping();
+    }
+
     //add tracking state
     ImGui::Text("Tracking State : %s ", _orbSlamMode->getPrintableState().c_str());
     //add number of matches map points in current frame

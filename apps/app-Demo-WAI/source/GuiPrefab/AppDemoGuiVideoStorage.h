@@ -1,7 +1,7 @@
 //#############################################################################
-//  File:      AppDemoGuiMapStorage.h
-//  Author:    Michael Goettlicher
-//  Date:      April 2018
+//  File:      AppDemoGuiVideoStorage.h
+//  Author:    Luc Girod
+//  Date:      April 2019
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
