@@ -45,6 +45,11 @@ CVCapture::CVCapture()
 CVCapture::~CVCapture()
 {
     release();
+    if (CVCapture::_instance)
+    {
+        delete CVCapture::_instance;
+        CVCapture::_instance = nullptr;
+    }
 }
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
@@ -395,32 +400,27 @@ void CVCapture::loadIntoLastFrame(const float       scrWdivH,
 
         switch (format)
         {
-            case PF_luminance:
-            {
+            case PF_luminance: {
                 cvType = CV_8UC1;
                 bpp    = 1;
                 break;
             }
-            case PF_bgr:
-            {
+            case PF_bgr: {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_rgb:
-            {
+            case PF_rgb: {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_bgra:
-            {
+            case PF_bgra: {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
             }
-            case PF_rgba:
-            {
+            case PF_rgba: {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
