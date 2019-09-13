@@ -41,6 +41,11 @@ void LoopClosing::SetLocalMapper(LocalMapping* pLocalMapper)
     mpLocalMapper = pLocalMapper;
 }
 
+void LoopClosing::SetVocabulary(ORBVocabulary* voc)
+{
+    mpORBVocabulary = voc;
+}
+
 void LoopClosing::Run()
 {
     //mbFinished =false;

@@ -31,6 +31,7 @@
 #include <AppDemoGuiVideoLoad.h>
 #include <AppDemoGuiTestOpen.h>
 #include <AppDemoGuiTestWrite.h>
+#include <AppDemoGuiSlamParam.h>
 #include <AppWAI.h>
 #include <AppDirectories.h>
 
@@ -143,6 +144,9 @@ void WAIApp::setupGUI()
                                                       wai, wc, waiScene->mapNode,
                                                       videoWriter, videoWriterInfo,
                                                       &uiPrefs.showTestWriter));
+
+    AppDemoGui::addInfoDialog(new AppDemoGuiSlamParam("Slam Param", dirs->writableDir + "/voc/",
+                                                      wai, &uiPrefs.showSlamParam));
 }
 
 void WAIApp::buildGUI(SLScene* s, SLSceneView* sv)

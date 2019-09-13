@@ -1151,7 +1151,7 @@ static int bit_pattern_31_[256 * 4] =
 };
 
 SURFextractor::SURFextractor(double threshold)
-: KPextractor("SURF_BRIEF")
+: KPextractor("SURF_BRIEF_" + std::to_string(threshold))
 {
     mvScaleFactor.resize(1);
     mvLevelSigma2.resize(1);

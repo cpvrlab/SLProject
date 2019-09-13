@@ -315,7 +315,10 @@ void WAIFrame::ComputeBoW()
     if (mBowVec.empty())
     {
         vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(mDescriptors);
-        mpORBvocabulary->transform(vCurrentDesc, mBowVec, mFeatVec, 4);
+        // Luc: In a 6 levels and 10 branch per level voc, 4 levelup mean the 2nd level from the top
+        // that make a total of 100 words. More words means more variance between keyframe and less
+        // preselected keyframe but that will make also the relocalization less invariant to changes
+        mpORBvocabulary->transform(vCurrentDesc, mBowVec, mFeatVec, mpORBvocabulary->getDepthLevels() - 2);
     }
 }
 //-----------------------------------------------------------------------------

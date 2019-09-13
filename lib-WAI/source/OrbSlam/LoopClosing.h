@@ -50,6 +50,7 @@ class LoopClosing
     LoopClosing(WAIMap* pMap, WAIKeyFrameDB* pDB, ORBVocabulary* pVoc, const bool bFixScale, const bool manualLoopClose = false);
 
     void SetLocalMapper(LocalMapping* pLocalMapper);
+    void SetVocabulary(ORBVocabulary* voc);
 
     // Main function
     void Run();

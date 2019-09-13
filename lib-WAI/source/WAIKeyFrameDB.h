@@ -39,12 +39,14 @@
 
 //-----------------------------------------------------------------------------
 //! AR Keyframe database class
-/*! 
+/*!
 */
 class WAI_API WAIKeyFrameDB
 {
     public:
     WAIKeyFrameDB(const ORB_SLAM2::ORBVocabulary& voc);
+
+    void changeVocabulary(ORBVocabulary& voc, std::vector<WAIKeyFrame*> kfs);
 
     void add(WAIKeyFrame* pKF);
     void erase(WAIKeyFrame* pKF);

@@ -47,7 +47,7 @@ class LocalMapping
 
     void SetLoopCloser(LoopClosing* pLoopCloser);
 
-    //void SetTracker(Tracking* pTracker);
+    void SetVocabulary(ORBVocabulary* voc);
 
     // Main function
     void Run();

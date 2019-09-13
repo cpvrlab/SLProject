@@ -26,12 +26,13 @@
 #include <opencv/cv.h>
 #include <KPextractor.h>
 #include <opencv2/xfeatures2d/nonfree.hpp>
+#include <WAIHelper.h>
 
 
 namespace ORB_SLAM2
 {
 
-class SURFextractor : public KPextractor
+class WAI_API SURFextractor : public KPextractor
 {
 public:
 
