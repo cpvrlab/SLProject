@@ -4,8 +4,6 @@
 
 set(target lib-SLProject)
 
-set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
-set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(compile_definitions GLEW_NO_GLU)
 set(platform_specific_include_dirs)
 
@@ -193,6 +191,10 @@ file(GLOB shaders
         ${SL_PROJECT_ROOT}/data/shaders/*.vert
         ${SL_PROJECT_ROOT}/data/shaders/*.frag
         )
+		
+# Group source files
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/include" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
 
 include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 

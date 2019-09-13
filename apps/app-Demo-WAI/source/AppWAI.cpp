@@ -133,16 +133,24 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiVideoStorage("video storage", dirs->writableDir + "/videos/", videoWriter, videoWriterInfo, &uiPrefs.showVideoStorage));
     AppDemoGui::addInfoDialog(new AppDemoGuiVideoLoad("video load", dirs->writableDir + "/videos/", wai, &uiPrefs.showVideoLoad));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiMapStorage("Map storage", (WAI::ModeOrbSlam2*)wai->getCurrentMode(), waiScene->mapNode,
-                                                                       dirs->writableDir + "/maps/", &uiPrefs.showMapStorage));
+    AppDemoGui::addInfoDialog(new AppDemoGuiMapStorage("Map storage", (WAI::ModeOrbSlam2*)wai->getCurrentMode(), waiScene->mapNode, dirs->writableDir + "/maps/", &uiPrefs.showMapStorage));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiTestOpen("Tests Settings", dirs->writableDir + "/savedTests/",
-                                                     wai, wc, waiScene->mapNode, &uiPrefs.showTestSettings));
+    AppDemoGui::addInfoDialog(new AppDemoGuiTestOpen("Tests Settings",
+                                                     dirs->writableDir + "/savedTests/",
+                                                     wai,
+                                                     wc,
+                                                     waiScene->mapNode,
+                                                     &uiPrefs.showTestSettings));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiTestWrite("Test Writer", dirs->writableDir + "/savedTests/",
-                                                      wai, wc, waiScene->mapNode,
-                                                      videoWriter, videoWriterInfo,
+    AppDemoGui::addInfoDialog(new AppDemoGuiTestWrite("Test Writer",
+                                                      dirs->writableDir + "/savedTests/",
+                                                      wai,
+                                                      wc,
+                                                      waiScene->mapNode,
+                                                      videoWriter,
+                                                      videoWriterInfo,
                                                       &uiPrefs.showTestWriter));
+    //TODO: AppDemoGuiInfosDialog are never deleted. Why not use smart pointer when the reponsibility for an object is not clear?
 }
 
 void WAIApp::buildGUI(SLScene* s, SLSceneView* sv)
@@ -396,7 +404,7 @@ void WAIApp::renderKeyframes()
     for (WAIKeyFrame* kf : keyframes)
     {
         if (kf->isBad())
-           continue;
+            continue;
 
         SLKeyframeCamera* cam = new SLKeyframeCamera("KeyFrame " + std::to_string(kf->mnId));
         //set background

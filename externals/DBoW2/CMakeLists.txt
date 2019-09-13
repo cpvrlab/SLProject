@@ -23,6 +23,10 @@ file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/DUtils/Random.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/DUtils/Timestamp.cpp
     )
+	
+# Group source files (for visual studio ide)
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
 
 add_library(${target}
     ${headers}
