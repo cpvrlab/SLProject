@@ -69,6 +69,7 @@ class WAIApp
     static bool               loaded;
     static SLGLTexture*       cpvrLogo;
     static SLGLTexture*       videoImage;
+    static ofstream           gpsDataStream;
 
     static int   minNumOfCovisibles;
     static float meanReprojectionError;

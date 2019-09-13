@@ -63,6 +63,7 @@ cv::VideoWriter*   WAIApp::videoWriter     = nullptr;
 cv::VideoWriter*   WAIApp::videoWriterInfo = nullptr;
 WAI::ModeOrbSlam2* WAIApp::mode            = nullptr;
 bool               WAIApp::loaded          = false;
+ofstream           WAIApp::gpsDataStream;
 
 int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* directories)
 {
@@ -131,7 +132,9 @@ void WAIApp::setupGUI()
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTransform("transform", &uiPrefs.showTransform));
     AppDemoGui::addInfoDialog(new AppDemoGuiUIPrefs("prefs", &uiPrefs, &uiPrefs.showUIPrefs));
-    AppDemoGui::addInfoDialog(new AppDemoGuiVideoStorage("video storage", dirs->writableDir + "/videos/", videoWriter, videoWriterInfo, &uiPrefs.showVideoStorage));
+
+    AppDemoGui::addInfoDialog(new AppDemoGuiVideoStorage("video storage", dirs->writableDir + "/videos/", videoWriter, videoWriterInfo, &gpsDataStream, &uiPrefs.showVideoStorage));
+
     AppDemoGui::addInfoDialog(new AppDemoGuiVideoLoad("video load", dirs->writableDir + "/videos/", wai, &uiPrefs.showVideoLoad));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiMapStorage("Map storage", (WAI::ModeOrbSlam2*)wai->getCurrentMode(), waiScene->mapNode, dirs->writableDir + "/maps/", &uiPrefs.showMapStorage));
@@ -231,6 +234,16 @@ bool WAIApp::update()
         if (videoWriterInfo->isOpened())
         {
             videoWriterInfo->write(*cameraData.imageRGB);
+        }
+
+        if (gpsDataStream && SLApplication::devLoc.isUsed())
+        {
+            SLVec3d v = SLApplication::devLoc.locLLA();
+            gpsDataStream << SLApplication::devLoc.locAccuracyM();
+            gpsDataStream << std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
+            gpsDataStream << std::to_string(SLApplication::devRot.yawRAD());
+            gpsDataStream << std::to_string(SLApplication::devRot.pitchRAD());
+            gpsDataStream << std::to_string(SLApplication::devRot.rollRAD());
         }
     }
 
