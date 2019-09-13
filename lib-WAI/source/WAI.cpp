@@ -4,7 +4,7 @@
 WAI::WAI::WAI(std::string dataRoot)
 {
     _dataRoot = dataRoot;
-    _mode = nullptr;
+    _mode     = nullptr;
 }
 
 void WAI::WAI::setDataRoot(std::string dataRoot)
@@ -39,7 +39,7 @@ WAI::Mode* WAI::WAI::setMode(ModeType modeType)
             }
         }
         break;
-
+        /*
         case ModeType_ORB_SLAM2_DATA_ORIENTED:
         {
             if (_sensors.find(SensorType_Camera) == _sensors.end())
@@ -52,7 +52,7 @@ WAI::Mode* WAI::WAI::setMode(ModeType modeType)
             }
         }
         break;
-
+        */
         case ModeType_Aruco:
         {
             if (_sensors.find(SensorType_Camera) == _sensors.end())

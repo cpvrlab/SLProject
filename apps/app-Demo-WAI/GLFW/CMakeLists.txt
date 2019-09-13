@@ -7,6 +7,9 @@ set(target app-Demo-WAI)
 set(compile_definitions
     SL_STARTSCENE=SID_Minimal)
 
+set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
+set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
+
 file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGui.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.h
@@ -72,6 +75,12 @@ file(GLOB sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIMapStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
     )
+	
+# Group source files
+set(headers_sources ${sources} ${headers})
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.h$|\\\\.hpp$" "" ${headers_sources})
+#source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
+#source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
 
 add_executable(${target}
     ${headers}

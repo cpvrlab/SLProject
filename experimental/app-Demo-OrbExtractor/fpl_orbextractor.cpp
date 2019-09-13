@@ -58,8 +58,8 @@ void cv_extractAndDrawKeyPoints(OrbExtractionState*    state,
 int main(int argc, char** argv)
 {
     cv::Mat image1, image2;
-    image1 = cv::imread("/home/jdellsperger/projects/WAI/data/images/textures/Lena.tiff", CV_LOAD_IMAGE_COLOR);
-    image2 = cv::imread("/home/jdellsperger/projects/WAI/data/images/textures/Lena_s.tiff", CV_LOAD_IMAGE_COLOR);
+    image1 = cv::imread("/home/jdellsperger/projects/WAI/data/images/textures/Lena.tiff", cv::IMREAD_COLOR);
+    image2 = cv::imread("/home/jdellsperger/projects/WAI/data/images/textures/Lena_s.tiff", cv::IMREAD_COLOR);
 
     if (!image1.data || !image2.data)
     {
@@ -121,7 +121,7 @@ int main(int argc, char** argv)
                  cv::Scalar(255, 0, 0));
     }
 
-    cv::namedWindow("orbextractor", CV_WINDOW_AUTOSIZE);
+    cv::namedWindow("orbextractor", cv::WINDOW_AUTOSIZE);
 
     cv::imshow("orbextractor", concatenatedImage);
 

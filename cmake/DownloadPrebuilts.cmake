@@ -48,10 +48,16 @@ set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
 
 #==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
-    set(OpenCV_VERSION "3.4.1")
+    set(OpenCV_VERSION "4.1.1")
     set(OpenCV_DIR "${PREBUILT_PATH}/linux_opencv_${OpenCV_VERSION}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
+    
+    # new include directory structure for opencv 4
+    if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
+        set(OpenCV_INCLUDE_DIR "${OpenCV_INCLUDE_DIR}/opencv4")
+    endif()
+
     set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
     set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
 
@@ -61,7 +67,7 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(g2o_LIBS ${g2o_LINK_LIBS})
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
-    set(OpenCV_VERSION "3.4.1")
+    set(OpenCV_VERSION "4.1.1")
     set(OpenCV_PREBUILT_DIR "win64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
@@ -70,10 +76,15 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 
     if (NOT EXISTS "${OpenCV_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
+		
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
             "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
             WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
+		
+		if( NOT EXISTS "${OpenCV_DIR}" )
+			message( SEND_ERROR "Downloading Prebuilds failed! OpenCV prebuilds for version ${OpenCV_VERSION} do not extist! Build required version yourself to location ${OpenCV_DIR} using script in directory externals/prebuild_scipts or try another OpenCV version." )
+		endif()
     endif ()
 
     string(REPLACE "." "" OpenCV_LIBS_POSTFIX ${OpenCV_VERSION})
@@ -101,6 +112,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
         file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+		file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
 
     #G2O
@@ -151,6 +163,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         file(COPY ${g2o_dll_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         #message(STATUS "Copy g2o release DLLs: ${g2o_dll_to_copy_release}")
         file(COPY ${g2o_dll_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+		file(COPY ${g2o_dll_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
@@ -263,7 +276,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     endforeach(lib)
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
-    set(OpenCV_VERSION "3.4.1")
+    set(OpenCV_VERSION "4.1.1")
     set(OpenCV_PREBUILT_DIR "andV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}")
@@ -283,12 +296,24 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
         cpufeatures
         IlmImf
         libjasper
-        libjpeg
         libpng
         libprotobuf
         libtiff
         libwebp
         tegra_hal)
+
+    # new link libraries for opencv 4
+    if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
+        set(OpenCV_LINK_LIBS
+            ${OpenCV_LINK_LIBS}
+            ittnotify
+            libjpeg-turbo
+            quirc)
+    else()
+        set(OpenCV_LINK_LIBS
+            ${OpenCV_LINK_LIBS}
+            libjpeg)
+    endif()
 
     foreach(lib ${OpenCV_LINK_LIBS})
         add_library(lib_${lib} STATIC IMPORTED)

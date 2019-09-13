@@ -78,9 +78,9 @@ const int HALF_PATCH_SIZE = 15;
 const int EDGE_THRESHOLD  = 19;
 
 static void computeBRIEFDescriptor(const KeyPoint& kpt,
-                                 const Mat&      img,
-                                 const Point*    pattern,
-                                 uchar*          desc)
+                                   const Mat&      img,
+                                   const Point*    pattern,
+                                   uchar*          desc)
 {
     const uchar* center = &img.at<uchar>(cvRound(kpt.pt.y), cvRound(kpt.pt.x));
     const int    step   = (int)img.step;
@@ -1162,12 +1162,12 @@ SURFextractor::SURFextractor(double threshold)
     mvInvLevelSigma2.resize(1);
     mvInvScaleFactor[0] = 1.0f;
     mvInvLevelSigma2[0] = 1.0f;
-    nlevels = 1;
-    scaleFactor = 1.0;
+    nlevels             = 1;
+    scaleFactor         = 1.0;
 
     mvImagePyramid.resize(1);
 
-    surf_detector = cv::xfeatures2d::SURF::create(threshold);
+    surf_detector = cv::xfeatures2d::SURF::create(threshold, 4, 3, false, false);
 
     const int    npoints  = 512;
     const Point* pattern0 = (const Point*)bit_pattern_31_;
@@ -1193,7 +1193,6 @@ SURFextractor::SURFextractor(double threshold)
     }
 }
 
-
 static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Mat& descriptors, const vector<Point>& pattern)
 {
     for (size_t i = 0; i < keypoints.size(); i++)
@@ -1204,7 +1203,12 @@ void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
 {
     Mat image = _image.getMat();
     Mat descriptors;
-    surf_detector->detect(image, _keypoints);
+
+    //reduce keypoint detection to an inner region because of descriptor patch size
+    cv::Mat mask = cv::Mat::zeros(image.size(), image.type());
+    mask(cv::Rect(HALF_PATCH_SIZE, HALF_PATCH_SIZE, image.cols - HALF_PATCH_SIZE - 1, image.rows - HALF_PATCH_SIZE - 1)).setTo(1);
+    //detect keypoints
+    surf_detector->detect(image, _keypoints, mask);
 
     if (_keypoints.size() == 0)
     {
@@ -1222,7 +1226,7 @@ void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
 
     // Compute the descriptors
     Mat desc = descriptors.rowRange(0, _keypoints.size());
-    computeDescriptors(workingMat, _keypoints, desc, pattern);;
+    computeDescriptors(workingMat, _keypoints, desc, pattern);
 }
 
 }

@@ -489,12 +489,12 @@ static void computeScalePyramid(const cv::Mat           image,
 
         if (level)
         {
-            resize(imagePyramid[level - 1],
-                   imagePyramid[level],
-                   sz,
-                   0,
-                   0,
-                   CV_INTER_LINEAR);
+            cv::resize(imagePyramid[level - 1],
+                       imagePyramid[level],
+                       sz,
+                       0,
+                       0,
+                       cv::INTER_LINEAR);
 
             copyMakeBorder(imagePyramid[level],
                            temp,

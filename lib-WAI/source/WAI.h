@@ -9,7 +9,7 @@
 #include <WAIMode.h>
 #include <WAIModeAruco.h>
 #include <WAIModeOrbSlam2.h>
-#include <WAIModeOrbSlam2DataOriented.h>
+//#include <WAIModeOrbSlam2DataOriented.h>
 
 namespace WAI
 {

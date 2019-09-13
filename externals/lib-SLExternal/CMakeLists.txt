@@ -214,7 +214,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 endif()
 #==============================================================================
 
-
+# Group source files (for visual studio ide)
+set(headers_sources ${headers} ${sources})
+# combination of headers and sources as the sub libs already have source and header directories
+source_group_by_path("${include_path}" "\\\\.h$|\\\\.hpp$" "" ${headers_sources})
 
 add_library(${target}
     ${headers}

@@ -31,7 +31,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.cpp
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.cpp
     )
-
+	
 #==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
     set(platform_specific_include_dirs
@@ -42,6 +42,10 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
         ${UTILS_ROOT}/thirdparty/dirent/dirent.c)
 endif()
 #==============================================================================
+
+# Group source files (for visual studio ide)
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
 
 add_library(${target}
     ${headers}
