@@ -18,11 +18,14 @@
 
 //-----------------------------------------------------------------------------
 
-AppDemoGuiVideoLoad::AppDemoGuiVideoLoad(const std::string& name, std::string videoDir, WAI::WAI * wai, bool* activator)
+AppDemoGuiVideoLoad::AppDemoGuiVideoLoad(const std::string& name, std::string videoDir, std::string calibDir, WAICalibration* wc, WAI::WAI* wai, bool* activator)
   : AppDemoGuiInfosDialog(name, activator),
-  _wai(wai)
+    _wai(wai),
+    _wc(wc)
 {
     _videoDir = Utils::unifySlashes(videoDir);
+    _calibDir = Utils::unifySlashes(calibDir);
+
     _currentItem = "";
 
     _existingVideoNames.clear();
@@ -47,9 +50,9 @@ AppDemoGuiVideoLoad::AppDemoGuiVideoLoad(const std::string& name, std::string vi
     }
 }
 
-void AppDemoGuiVideoLoad::loadVideo(std::string path)
+void AppDemoGuiVideoLoad::loadVideo(std::string videoFileName, std::string path)
 {
-    WAI::ModeOrbSlam2 * mode = (WAI::ModeOrbSlam2 *)_wai->getCurrentMode();
+    WAI::ModeOrbSlam2* mode = (WAI::ModeOrbSlam2*)_wai->getCurrentMode();
     mode->requestStateIdle();
     while (!mode->hasStateIdle())
     {
@@ -58,9 +61,22 @@ void AppDemoGuiVideoLoad::loadVideo(std::string path)
     mode->reset();
 
     CVCapture::instance()->videoType(VT_FILE);
-    CVCapture::instance()->videoFilename = path;
+    CVCapture::instance()->videoFilename = path + videoFileName;
     CVCapture::instance()->videoLoops    = true;
     CVCapture::instance()->openFile();
+
+    // get calibration file name from video file name
+    std::vector<std::string> extensionParts;
+    Utils::splitString(videoFileName, '.', extensionParts);
+
+    std::vector<std::string> stringParts;
+    Utils::splitString(extensionParts[0], '_', stringParts);
+
+    if (stringParts.size() >= 3)
+    {
+        std::string computerInfo = stringParts[1] + "_" + stringParts[2];
+        _wc->loadFromFile(_calibDir + "camCalib_" + computerInfo + "_main.xml");
+    }
 
     mode->resume();
 }
@@ -73,7 +89,7 @@ void AppDemoGuiVideoLoad::buildInfos(SLScene* s, SLSceneView* sv)
     ImGui::Separator();
     if (ImGui::Button("Open Video", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
-        loadVideo(_videoDir + _currentItem);
+        loadVideo(_currentItem, _videoDir);
     }
 
     ImGui::Separator();

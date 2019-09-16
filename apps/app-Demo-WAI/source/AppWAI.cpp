@@ -78,7 +78,7 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
     videoWriterInfo = new cv::VideoWriter();
 
     wc->changeImageSize(width, height);
-    wc->loadFromFile(dirs->writableDir + "/calibrations/cam_calibration_main.xml");
+    wc->loadFromFile(dirs->writableDir + "/calibrations/camCalib_" + SLApplication::getComputerInfos() + "_main.xml");
     WAI::CameraCalibration calibration = wc->getCameraCalibration();
     wai->activateSensor(WAI::SensorType_Camera, &calibration);
     mode = ((WAI::ModeOrbSlam2*)wai->setMode(WAI::ModeType_ORB_SLAM2));
@@ -137,9 +137,9 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiTransform("transform", &uiPrefs.showTransform));
     AppDemoGui::addInfoDialog(new AppDemoGuiUIPrefs("prefs", &uiPrefs, &uiPrefs.showUIPrefs));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiVideoStorage("video storage", dirs->writableDir + "/videos/", videoWriter, videoWriterInfo, &gpsDataStream, &uiPrefs.showVideoStorage));
+    AppDemoGui::addInfoDialog(new AppDemoGuiVideoStorage("video storage", dirs->writableDir + "videos/", videoWriter, videoWriterInfo, &gpsDataStream, &uiPrefs.showVideoStorage));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiVideoLoad("video load", dirs->writableDir + "/videos/", wai, &uiPrefs.showVideoLoad));
+    AppDemoGui::addInfoDialog(new AppDemoGuiVideoLoad("video load", dirs->writableDir + "videos/", dirs->writableDir + "calibrations/", wc, wai, &uiPrefs.showVideoLoad));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiMapStorage("Map storage", (WAI::ModeOrbSlam2*)wai->getCurrentMode(), waiScene->mapNode, dirs->writableDir + "/maps/", &uiPrefs.showMapStorage));
 
@@ -160,8 +160,7 @@ void WAIApp::setupGUI()
                                                       &gpsDataStream,
                                                       &uiPrefs.showTestWriter));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiSlamParam("Slam Param", dirs->writableDir + "/voc/",
-                                                      wai, &uiPrefs.showSlamParam));
+    AppDemoGui::addInfoDialog(new AppDemoGuiSlamParam("Slam Param", dirs->writableDir + "/voc/", wai, &uiPrefs.showSlamParam));
     //TODO: AppDemoGuiInfosDialog are never deleted. Why not use smart pointer when the reponsibility for an object is not clear?
 }
 
@@ -243,7 +242,7 @@ bool WAIApp::update()
 
         if (gpsDataStream.is_open())
         {
-            if(SLApplication::devLoc.isUsed())
+            if (SLApplication::devLoc.isUsed())
             {
                 SLVec3d v = SLApplication::devLoc.locLLA();
                 gpsDataStream << SLApplication::devLoc.locAccuracyM();
