@@ -38,12 +38,12 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera*        camera,
 
 //instantiate KeyPoint extractor
 #if 0
-    _extractor        = new ORB_SLAM2::ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
-    mpIniORBextractor = new ORB_SLAM2::ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+    mpDefaultExtractor        = new ORB_SLAM2::ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+    mpIniDefaultExtractor = new ORB_SLAM2::ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
 #else
     // TODO(dgj1): adjust thresholds for normal mapping
-    mpDefaultExtractor = new ORB_SLAM2::SURFextractor(1000);
-    mpIniORBextractor  = new ORB_SLAM2::SURFextractor(800);
+    mpDefaultExtractor    = new ORB_SLAM2::SURFextractor(1000);
+    mpIniDefaultExtractor = new ORB_SLAM2::SURFextractor(800);
 #endif
 
     mpExtractor    = mpDefaultExtractor;
@@ -632,7 +632,7 @@ void WAI::ModeOrbSlam2::initialize()
                 }
 
                 mCurrentFrame = WAIFrame(_camera->getImageGray(),
-                                         mpIniORBextractor,
+                                         mpIniExtractor,
                                          cameraMat,
                                          distortionMat,
                                          matches,
@@ -1205,14 +1205,14 @@ void WAI::ModeOrbSlam2::initializeWithChessboardCorrection()
 #if 1
             mCurrentFrame = WAIFrame(_camera->getImageGray(),
                                      0.0f,
-                                     mpIniORBextractor,
+                                     mpIniExtractor,
                                      cameraMat,
                                      distortionMat,
                                      mpVocabulary,
                                      _retainImg);
 #else
             mCurrentFrame       = WAIFrame(_camera->getImageGray(),
-                                     mpIniORBextractor,
+                                     mpIniExtractor,
                                      cameraMat,
                                      distortionMat,
                                      kp,
@@ -1283,7 +1283,7 @@ void WAI::ModeOrbSlam2::track3DPts()
             }
 
             mCurrentFrame = WAIFrame(_camera->getImageGray(),
-                                     mpIniORBextractor,
+                                     mpIniExtractor,
                                      cameraMat,
                                      distortionMat,
                                      matches,
