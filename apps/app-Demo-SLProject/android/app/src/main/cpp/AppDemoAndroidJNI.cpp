@@ -118,7 +118,7 @@ void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jclass obj, jint wi
 
     CVImage::defaultPath = devicePath + "/textures/";
     CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(), // deviceInfo string
-                                            externalDirPathNative + "/config/",           // for calibrations made
+                                            externalDirPathNative + "/calibrations/",           // for calibrations made
                                             externalDirPathNative + "/calibrations/",     // for calibInitPath
                                             devicePath + "/videos/");          // for videos
 
