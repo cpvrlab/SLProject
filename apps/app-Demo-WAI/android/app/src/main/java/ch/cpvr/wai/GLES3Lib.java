@@ -9,8 +9,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-// Please do not change the name space. The SLProject app is identified in the app-store with it.
-package ch.fhnw.comgr;
+package ch.cpvr.wai;
 
 import android.app.ActivityManager;
 import android.app.Application;

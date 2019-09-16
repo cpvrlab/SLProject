@@ -17,7 +17,7 @@
  * along with GPSLogger for Android.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ch.fhnw.comgr;
+package ch.cpvr.wai;
 
 import android.location.Location;
 import android.location.LocationListener;
@@ -30,7 +30,7 @@ class GeneralLocationListener implements LocationListener {
 
     private static String _listenerName;
     private static GLES3Activity _activity;
-    private static final String TAG = "SLProject";
+    private static final String TAG = "WAIApp";
     protected String latestHdop;
     protected String latestPdop;
     protected String latestVdop;
