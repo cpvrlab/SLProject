@@ -32,6 +32,7 @@
 #include <AppDemoGuiTestOpen.h>
 #include <AppDemoGuiTestWrite.h>
 #include <AppDemoGuiSlamParam.h>
+#include <AppDemoGuiCalibrationLoad.h>
 #include <AppWAI.h>
 #include <AppDirectories.h>
 
@@ -56,7 +57,7 @@ SLGLTexture*       WAIApp::videoImage = nullptr;
 AppWAIDirectories* WAIApp::dirs       = nullptr;
 AppWAIScene*       WAIApp::waiScene   = nullptr;
 WAI::WAI*          WAIApp::wai        = nullptr;
-WAICalibration*    WAIApp::wc;
+WAICalibration*    WAIApp::wc         = nullptr;
 int                WAIApp::scrWidth;
 int                WAIApp::scrHeight;
 cv::VideoWriter*   WAIApp::videoWriter     = nullptr;
@@ -161,6 +162,9 @@ void WAIApp::setupGUI()
                                                       &uiPrefs.showTestWriter));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiSlamParam("Slam Param", dirs->writableDir + "/voc/", wai, &uiPrefs.showSlamParam));
+
+    AppDemoGui::addInfoDialog(new AppDemoGuiCalibrationLoad("Calibration Load", dirs->writableDir + "/calibration/",
+                                                            wai, wc, &uiPrefs.showCalibrationLoad));
     //TODO: AppDemoGuiInfosDialog are never deleted. Why not use smart pointer when the reponsibility for an object is not clear?
 }
 

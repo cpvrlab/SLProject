@@ -38,6 +38,7 @@ void GUIPreferences::reset()
     showTestSettings          = false;
     showTestWriter            = false;
     showSlamParam             = false;
+    showCalibrationLoad       = false;
 };
 
 void GUIPreferences::setDPI(int dotsPerInch)

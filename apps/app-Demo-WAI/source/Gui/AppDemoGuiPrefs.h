@@ -38,6 +38,7 @@ class GUIPreferences
     SLbool   showTestSettings;
     SLbool   showTestWriter;
     SLbool   showSlamParam;
+    SLbool   showCalibrationLoad;
     SLstring configTime;
 };
 
