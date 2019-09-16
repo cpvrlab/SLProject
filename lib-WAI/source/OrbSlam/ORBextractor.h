@@ -28,6 +28,7 @@
 #else
 #include <opencv/cv.h>
 #endif
+#include <WAIHelper.h>
 #include <KPextractor.h>
 
 namespace ORB_SLAM2
@@ -46,7 +47,7 @@ public:
     bool bNoMore;
 };
 
-class ORBextractor : public KPextractor
+class WAI_API ORBextractor : public KPextractor
 {
 public:
 

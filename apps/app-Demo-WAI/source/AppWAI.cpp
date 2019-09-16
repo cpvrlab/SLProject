@@ -31,6 +31,7 @@
 #include <AppDemoGuiVideoLoad.h>
 #include <AppDemoGuiTestOpen.h>
 #include <AppDemoGuiTestWrite.h>
+#include <AppDemoGuiSlamParam.h>
 #include <AppWAI.h>
 #include <AppDirectories.h>
 
@@ -62,10 +63,13 @@ cv::VideoWriter*   WAIApp::videoWriter     = nullptr;
 cv::VideoWriter*   WAIApp::videoWriterInfo = nullptr;
 WAI::ModeOrbSlam2* WAIApp::mode            = nullptr;
 bool               WAIApp::loaded          = false;
+ofstream           WAIApp::gpsDataStream;
 
 int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* directories)
 {
     dirs = directories;
+    SLApplication::devRot.isUsed(true);
+    SLApplication::devLoc.isUsed(true);
 
     wai             = new WAI::WAI(dirs->waiDataRoot);
     wc              = new WAICalibration();
@@ -104,6 +108,8 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
                                     (void*)buildGUI);
 
     loaded = true;
+    SLApplication::devRot.isUsed(true);
+    SLApplication::devLoc.isUsed(true);
     return svIndex;
 }
 
@@ -130,7 +136,9 @@ void WAIApp::setupGUI()
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTransform("transform", &uiPrefs.showTransform));
     AppDemoGui::addInfoDialog(new AppDemoGuiUIPrefs("prefs", &uiPrefs, &uiPrefs.showUIPrefs));
-    AppDemoGui::addInfoDialog(new AppDemoGuiVideoStorage("video storage", dirs->writableDir + "/videos/", videoWriter, videoWriterInfo, &uiPrefs.showVideoStorage));
+
+    AppDemoGui::addInfoDialog(new AppDemoGuiVideoStorage("video storage", dirs->writableDir + "/videos/", videoWriter, videoWriterInfo, &gpsDataStream, &uiPrefs.showVideoStorage));
+
     AppDemoGui::addInfoDialog(new AppDemoGuiVideoLoad("video load", dirs->writableDir + "/videos/", wai, &uiPrefs.showVideoLoad));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiMapStorage("Map storage", (WAI::ModeOrbSlam2*)wai->getCurrentMode(), waiScene->mapNode, dirs->writableDir + "/maps/", &uiPrefs.showMapStorage));
@@ -149,7 +157,11 @@ void WAIApp::setupGUI()
                                                       waiScene->mapNode,
                                                       videoWriter,
                                                       videoWriterInfo,
+                                                      &gpsDataStream,
                                                       &uiPrefs.showTestWriter));
+
+    AppDemoGui::addInfoDialog(new AppDemoGuiSlamParam("Slam Param", dirs->writableDir + "/voc/",
+                                                      wai, &uiPrefs.showSlamParam));
     //TODO: AppDemoGuiInfosDialog are never deleted. Why not use smart pointer when the reponsibility for an object is not clear?
 }
 
@@ -227,6 +239,19 @@ bool WAIApp::update()
         if (videoWriterInfo->isOpened())
         {
             videoWriterInfo->write(*cameraData.imageRGB);
+        }
+
+        if (gpsDataStream.is_open())
+        {
+            if(SLApplication::devLoc.isUsed())
+            {
+                SLVec3d v = SLApplication::devLoc.locLLA();
+                gpsDataStream << SLApplication::devLoc.locAccuracyM();
+                gpsDataStream << std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
+                gpsDataStream << std::to_string(SLApplication::devRot.yawRAD());
+                gpsDataStream << std::to_string(SLApplication::devRot.pitchRAD());
+                gpsDataStream << std::to_string(SLApplication::devRot.rollRAD());
+            }
         }
     }
 

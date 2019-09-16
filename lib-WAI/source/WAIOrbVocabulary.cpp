@@ -57,6 +57,8 @@ void WAIOrbVocabulary::doFree()
 {
     if (_vocabulary)
         delete _vocabulary;
+
+    _vocabulary = nullptr;
 }
 //-----------------------------------------------------------------------------
 ORB_SLAM2::ORBVocabulary* WAIOrbVocabulary::doGet()

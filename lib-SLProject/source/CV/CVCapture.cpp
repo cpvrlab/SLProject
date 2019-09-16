@@ -39,6 +39,7 @@ CVCapture::CVCapture()
     activeCamSizeIndex = -1;
     activeCalib        = nullptr;
     _captureTimesMS.init(60, 0);
+
 }
 //-----------------------------------------------------------------------------
 //! Private constructor

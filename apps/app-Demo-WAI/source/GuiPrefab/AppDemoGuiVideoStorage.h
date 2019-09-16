@@ -22,7 +22,7 @@ class AppDemoGuiVideoStorage : public AppDemoGuiInfosDialog
 {
     public:
     AppDemoGuiVideoStorage(const std::string& name, std::string videoDir,
-                           cv::VideoWriter* videoWriter, cv::VideoWriter* videoWriterInfo,
+                           cv::VideoWriter* videoWriter, cv::VideoWriter* videoWriterInfo, std::ofstream* gpsDataStream,
                            bool* activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
@@ -30,7 +30,9 @@ class AppDemoGuiVideoStorage : public AppDemoGuiInfosDialog
     private:
 
     void saveVideo(std::string filename);
+    void saveGPSData(std::string videofile);
 
+    ofstream*                _gpsDataFile;
     cv::VideoWriter*         _videoWriter;
     cv::VideoWriter*         _videoWriterInfo;
     std::string              _videoDir;

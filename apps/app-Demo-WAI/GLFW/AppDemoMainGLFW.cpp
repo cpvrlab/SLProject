@@ -462,7 +462,7 @@ void GLFWInit()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     scrWidth  = 640;
-    scrHeight = 480;
+    scrHeight = 360;
 
     //we have to fix aspect ratio, because the video image is initialized with this ratio
     fixAspectRatio = true;

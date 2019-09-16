@@ -43,10 +43,11 @@ void LocalMapping::SetLoopCloser(LoopClosing* pLoopCloser)
     mpLoopCloser = pLoopCloser;
 }
 
-//void LocalMapping::SetTracker(Tracking *pTracker)
-//{
-//    mpTracker=pTracker;
-//}
+// TODO: pause thread change voc and restart thread
+void LocalMapping::SetVocabulary(ORBVocabulary* voc)
+{
+    mpORBvocabulary = voc;
+}
 
 void LocalMapping::Run()
 {
