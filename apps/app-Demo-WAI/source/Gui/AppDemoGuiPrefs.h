@@ -37,6 +37,7 @@ class GUIPreferences
     SLbool   showVideoLoad;
     SLbool   showTestSettings;
     SLbool   showTestWriter;
+    SLbool   showSlamParam;
     SLstring configTime;
 };
 

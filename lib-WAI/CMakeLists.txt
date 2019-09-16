@@ -17,7 +17,7 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMode.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeAruco.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2DataOriented.h
+    #${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2DataOriented.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISensor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISensorCamera.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.h
@@ -47,7 +47,7 @@ file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeAruco.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2DataOriented.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2DataOriented.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISensor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISensorCamera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.cpp
@@ -61,6 +61,10 @@ file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/PnPsolver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Sim3Solver.cpp
     )
+
+# Group source files (for visual studio ide)
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
 
 add_library(${target} SHARED
     ${headers}

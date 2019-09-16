@@ -12,7 +12,7 @@
 #include <WAIMap.h>
 #include <WAIOrbVocabulary.h>
 
-#include <SURFextractor.h>
+#include <OrbSlam/SURFextractor.h>
 #include <OrbSlam/LocalMapping.h>
 #include <OrbSlam/LoopClosing.h>
 #include <OrbSlam/Initializer.h>
@@ -97,7 +97,7 @@ class WAI_API ModeOrbSlam2 : public Mode
 
     KPextractor* getKPextractor()
     {
-        return _extractor;
+        return mpExtractor;
     }
 
     bool getTrackOptFlow();
@@ -110,6 +110,8 @@ class WAI_API ModeOrbSlam2 : public Mode
     bool hasStateIdle();
     void setInitialized(bool initialized) { _initialized = initialized; }
 
+    void setExtractor(KPextractor * extractor, KPextractor * iniExtractor);
+    void setVocabulary(std::string orbVocFile);
     void loadMapData(std::vector<WAIKeyFrame*> keyFrames, std::vector<WAIMapPoint*> mapPoints, int numLoopClosings);
 
     MarkerCorrectionType getMarkerCorrectedType() { return _markerCorrectionType; }
@@ -176,8 +178,12 @@ class WAI_API ModeOrbSlam2 : public Mode
     WAIMap*        _map               = nullptr;
 
     ORB_SLAM2::ORBVocabulary* mpVocabulary      = nullptr;
-    ORB_SLAM2::KPextractor*   _extractor        = nullptr;
-    ORB_SLAM2::KPextractor*   mpIniORBextractor = nullptr;
+    ORB_SLAM2::KPextractor*   mpExtractor        = nullptr;
+    ORB_SLAM2::KPextractor*   mpIniExtractor     = nullptr;
+
+    ORB_SLAM2::KPextractor*   mpDefaultExtractor        = nullptr;
+    ORB_SLAM2::KPextractor*   mpIniDefaultExtractor     = nullptr;
+
     ORB_SLAM2::LocalMapping*  mpLocalMapper     = nullptr;
     ORB_SLAM2::LoopClosing*   mpLoopCloser      = nullptr;
     ORB_SLAM2::Initializer*   mpInitializer     = nullptr;

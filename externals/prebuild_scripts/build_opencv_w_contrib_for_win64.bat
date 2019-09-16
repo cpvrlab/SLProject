@@ -1,19 +1,24 @@
 ::-----------------------------------------------------------------::
 :: Build script for OpenCV with contributions x64 with 
-:: visual studio 2017 compiler
+:: visual studio 2019 compiler
 ::-----------------------------------------------------------------::
 
 @echo off
 ::-----------------------------------------------------------------::
-:: open "Developer Command Prompt for VS 2017" and navigate to a 
-:: directory where you want to setup your development environment
-:: add git to your PATH variable (C:\Program Files (x86)\Git\bin)
+:: Open "Developer Command Prompt for VS 2019" and navigate to a 
+:: directory where you want to clone and build opencv library.
+:: Add git to your PATH variable (C:\Program Files (x86)\Git\bin).
+:: Call this script from build directory and transfer first required version (e.g. 4.1.1)
+
+:: To use the library with SLProject, copy all *.lib and *.dll files to a directory called lib.
+:: To enable downloading prebuilds copy 
 set PATH=%PATH%;C:\Program Files (x86)\Git\bin
 set MAX_NUM_CPU_CORES=6
-set CMAKE_GENERATOR="Visual Studio 15 2017 Win64"
-
+set CMAKE_GENERATOR="Visual Studio 16 2019"
+set CMAKE_ARCHITECTURE=x64
 set OPENCV_VERSION=%1
-set OPENCV_INSTALL_DIR=%cd%\..\prebuilt\win64_opencv_%OPENCV_VERSION%
+set SLPROJECT_ROOT=%2
+set OPENCV_INSTALL_DIR=%cd%\win64_opencv_%OPENCV_VERSION%
 
 echo Building OpenCV Version: %OPENCV_VERSION%
 echo Using cmake generator: %CMAKE_GENERATOR%
@@ -49,7 +54,7 @@ git pull origin %OPENCV_VERSION%
 :: make build directory, run cmake and build
 mkdir BUILD-%OPENCV_VERSION%-vs
 cd BUILD-%OPENCV_VERSION%-vs
-cmake -G %CMAKE_GENERATOR% -DWITH_CUDA=off -DOPENCV_EXTRA_MODULES_PATH=..\..\opencv_contrib\modules -DWITH_FFMPEG=true -DBUILD_opencv_python_bindings_generator=off -DBUILD_opencv_java=off -DBUILD_opencv_python=off -DCMAKE_INSTALL_PREFIX=%OPENCV_INSTALL_DIR% ..
+cmake -G %CMAKE_GENERATOR% -A %CMAKE_ARCHITECTURE% -DWITH_CUDA=off -DOPENCV_EXTRA_MODULES_PATH=..\..\opencv_contrib\modules -DWITH_FFMPEG=true -DBUILD_opencv_python_bindings_generator=off -DBUILD_opencv_java=off -DBUILD_opencv_python=off -DOPENCV_ENABLE_NONFREE=on -DCMAKE_INSTALL_PREFIX=%OPENCV_INSTALL_DIR% ..
 msbuild INSTALL.vcxproj -maxcpucount:%MAX_NUM_CPU_CORES% /p:Configuration=Debug
 msbuild INSTALL.vcxproj -maxcpucount:%MAX_NUM_CPU_CORES% /p:Configuration=Release
 cd ..\..

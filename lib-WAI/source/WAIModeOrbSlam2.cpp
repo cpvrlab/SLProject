@@ -42,9 +42,12 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera*        camera,
     mpIniORBextractor = new ORB_SLAM2::ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
 #else
     // TODO(dgj1): adjust thresholds for normal mapping
-    _extractor        = new ORB_SLAM2::SURFextractor(1000);
-    mpIniORBextractor = new ORB_SLAM2::SURFextractor(800);
+    mpDefaultExtractor = new ORB_SLAM2::SURFextractor(1000);
+    mpIniORBextractor  = new ORB_SLAM2::SURFextractor(800);
 #endif
+
+    mpExtractor    = mpDefaultExtractor;
+    mpIniExtractor = mpIniDefaultExtractor;
 
     //instantiate local mapping
     mpLocalMapper = new ORB_SLAM2::LocalMapping(_map, 1, mpVocabulary);
@@ -120,6 +123,28 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera*        camera,
     }
 }
 
+//TODO : Verify that this is really thread safe
+
+void WAI::ModeOrbSlam2::setExtractor(KPextractor* extractor, KPextractor* iniExtractor)
+{
+    requestStateIdle();
+    mpExtractor    = extractor;
+    mpIniExtractor = iniExtractor;
+    resume();
+}
+
+void WAI::ModeOrbSlam2::setVocabulary(std::string orbVocFile)
+{
+    requestStateIdle();
+    WAIOrbVocabulary::free();
+    WAIOrbVocabulary::initialize(orbVocFile);
+    mpVocabulary = WAIOrbVocabulary::get();
+    mpKeyFrameDatabase->changeVocabulary(*mpVocabulary, getKeyFrames());
+    mpLocalMapper->SetVocabulary(mpVocabulary);
+    mpLoopCloser->SetVocabulary(mpVocabulary);
+    resume();
+}
+
 WAI::ModeOrbSlam2::~ModeOrbSlam2()
 {
     if (!_serial)
@@ -132,13 +157,13 @@ WAI::ModeOrbSlam2::~ModeOrbSlam2()
         mptLoopClosing->join();
     }
 
-    if (_extractor)
+    if (mpDefaultExtractor)
     {
-        delete _extractor;
+        delete mpDefaultExtractor;
     }
-    if (mpIniORBextractor)
+    if (mpIniDefaultExtractor)
     {
-        delete mpIniORBextractor;
+        delete mpIniDefaultExtractor;
     }
     if (mpLocalMapper)
     {
@@ -564,7 +589,7 @@ void WAI::ModeOrbSlam2::initialize()
     cv::Mat distortionMat = _camera->getDistortionMatrix();
     mCurrentFrame         = WAIFrame(_camera->getImageGray(),
                              0.0,
-                             mpIniORBextractor,
+                             mpIniExtractor,
                              cameraMat,
                              distortionMat,
                              mpVocabulary,
@@ -1221,7 +1246,7 @@ void WAI::ModeOrbSlam2::track3DPts()
     cv::Mat distortionMat = _camera->getDistortionMatrix();
     mCurrentFrame         = WAIFrame(_camera->getImageGray(),
                              0.0,
-                             _extractor,
+                             mpExtractor,
                              cameraMat,
                              distortionMat,
                              mpVocabulary,

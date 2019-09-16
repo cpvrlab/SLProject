@@ -10,8 +10,9 @@ set(compile_definitions
 file(GLOB headers
     )
 
+message(STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
 file(GLOB sources
-    ${SL_PROJECT_ROOT}/experimental/app-Demo-OrbExtractor/fpl_orbextractor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fpl_orbextractor.cpp
     )
 
 add_executable(${target}

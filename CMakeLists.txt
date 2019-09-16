@@ -46,6 +46,7 @@ if (SL_BUILD_APPS)
 endif()
 
 add_subdirectory(externals)
+add_subdirectory(experimental)
 add_subdirectory(lib-WAI)
 add_subdirectory(lib-SLProject)
 #add_subdirectory(experimental)

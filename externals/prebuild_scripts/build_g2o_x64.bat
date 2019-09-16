@@ -11,7 +11,7 @@
 
 @echo off
 ::-----------------------------------------------------------------::
-:: open "Developer Command Prompt for VS 2017" and navigate to a 
+:: open "Developer Command Prompt for VS 2019" and navigate to a 
 :: directory where you want to setup your development environment
 
 :: add git to your PATH variable (C:\Program Files (x86)\Git\bin)
@@ -19,7 +19,8 @@ set PATH=%PATH%;C:\Program Files (x86)\Git\bin
 
 :: build configuration
 set MAX_NUM_CPU_CORES=6
-set CMAKE_GENERATOR="Visual Studio 15 2017 Win64"
+set CMAKE_GENERATOR="Visual Studio 16 2019"
+set CMAKE_ARCHITECTURE=x64
 set EIGEN_VERSION=3.3.3
 
 :: g2o configuration flags
@@ -63,7 +64,7 @@ cd g2o
 mkdir %INSTALL_DIR%
 mkdir BUILD-vs
 cd BUILD-vs
-cmake -G %CMAKE_GENERATOR% -DEIGEN3_INCLUDE_DIR=..\eigen -DEigen3_DIR=..\eigen -DG2O_BUILD_APPS=%BUILD_APPS% -DG2O_BUILD_EXAMPLES=%BUILD_EXAMPLES% -DG2O_USE_CSPARSE=%USE_CSPARSE% -DG2O_USE_CHOLMOD=%USE_CHOLMOD% -DG2O_USE_OPENGL=%USE_OPENGL% -DQt5_DIR=%QT_DIR% -DQGLVIEWER_INCLUDE_DIR=%QGLVIEWER_DIR% -DQGLVIEWER_LIBRARY_DEBUG=%QGLVIEWER_DEBUG_LIB% -DQGLVIEWER_LIBRARY_RELEASE=%QGLVIEWER_RELEASE_LIB% -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR% ..
+cmake -G %CMAKE_GENERATOR% -A %CMAKE_ARCHITECTURE% -DEIGEN3_INCLUDE_DIR=..\eigen -DEigen3_DIR=..\eigen -DG2O_BUILD_APPS=%BUILD_APPS% -DG2O_BUILD_EXAMPLES=%BUILD_EXAMPLES% -DG2O_USE_CSPARSE=%USE_CSPARSE% -DG2O_USE_CHOLMOD=%USE_CHOLMOD% -DG2O_USE_OPENGL=%USE_OPENGL% -DQt5_DIR=%QT_DIR% -DQGLVIEWER_INCLUDE_DIR=%QGLVIEWER_DIR% -DQGLVIEWER_LIBRARY_DEBUG=%QGLVIEWER_DEBUG_LIB% -DQGLVIEWER_LIBRARY_RELEASE=%QGLVIEWER_RELEASE_LIB% -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR% ..
 msbuild INSTALL.vcxproj -maxcpucount:%MAX_NUM_CPU_CORES% /p:Configuration=Debug
 msbuild INSTALL.vcxproj -maxcpucount:%MAX_NUM_CPU_CORES% /p:Configuration=Release
 cd ..\..

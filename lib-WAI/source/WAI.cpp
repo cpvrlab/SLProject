@@ -40,7 +40,7 @@ WAI::Mode* WAI::WAI::setMode(ModeType modeType)
             }
         }
         break;
-
+        /*
         case ModeType_ORB_SLAM2_DATA_ORIENTED:
         {
             if (_sensors.find(SensorType_Camera) == _sensors.end())
@@ -53,7 +53,7 @@ WAI::Mode* WAI::WAI::setMode(ModeType modeType)
             }
         }
         break;
-
+        */
         case ModeType_Aruco:
         {
             if (_sensors.find(SensorType_Camera) == _sensors.end())

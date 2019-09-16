@@ -35,6 +35,23 @@ WAIKeyFrameDB::WAIKeyFrameDB(const ORBVocabulary& voc) : mpVoc(&voc)
 {
     mvInvertedFile.resize(voc.size());
 }
+
+void WAIKeyFrameDB::changeVocabulary(ORBVocabulary& voc, std::vector<WAIKeyFrame*> kfs)
+{
+    unique_lock<mutex> lock(mMutex);
+    mvInvertedFile.clear();
+    unsigned int size = voc.size();
+    mvInvertedFile.resize(size);
+    mpVoc = &voc;
+
+    for (WAIKeyFrame * pKF : kfs)
+    {
+        pKF->ComputeBoW(&voc);
+        for (DBoW2::BowVector::const_iterator vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
+            mvInvertedFile[vit->first].push_back(pKF);
+    }
+}
+
 //-----------------------------------------------------------------------------
 void WAIKeyFrameDB::add(WAIKeyFrame* pKF)
 {

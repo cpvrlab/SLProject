@@ -23,8 +23,11 @@
 
 #include <vector>
 #include <list>
-#include <opencv/cv.h>
-
+#if CV_VERSION_MAJOR >= 4
+#    include <opencv2/opencv.hpp>
+#else
+#    include <opencv/cv.h>
+#endif
 #include <WAIHelper.h>
 #include <KPextractor.h>
 

@@ -194,6 +194,7 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
         {
             ImGui::MenuItem("Load Experiment", nullptr, &prefs->showTestSettings);
             ImGui::MenuItem("New Experiment", nullptr, &prefs->showTestWriter);
+            ImGui::MenuItem("Slam", nullptr, &prefs->showSlamParam);
             ImGui::EndMenu();
         }
 

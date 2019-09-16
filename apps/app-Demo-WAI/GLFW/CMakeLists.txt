@@ -7,6 +7,9 @@ set(target app-Demo-WAI)
 set(compile_definitions
     SL_STARTSCENE=SID_Minimal)
 
+set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
+set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
+
 file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGui.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.h
@@ -31,6 +34,7 @@ file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoLoad.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestOpen.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestWrite.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAI.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppDirectories.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.h
@@ -64,12 +68,19 @@ file(GLOB sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestOpen.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestWrite.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAI.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIMapStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
     )
+	
+# Group source files
+set(headers_sources ${sources} ${headers})
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.h$|\\\\.hpp$" "" ${headers_sources})
+#source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
+#source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
 
 add_executable(${target}
     ${headers}

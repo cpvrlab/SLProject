@@ -153,6 +153,8 @@ WAIKeyFrame::WAIKeyFrame(WAIFrame& F, WAIMap* pMap, WAIKeyFrameDB* pKFDB, bool r
         imgGray = F.imgGray;
 }
 //-----------------------------------------------------------------------------
+
+//TODO: set levels according to vocabulary
 void WAIKeyFrame::ComputeBoW(ORBVocabulary* orbVocabulary)
 {
     if (mBowVec.empty() || mFeatVec.empty())
@@ -160,7 +162,11 @@ void WAIKeyFrame::ComputeBoW(ORBVocabulary* orbVocabulary)
         vector<cv::Mat> vCurrentDesc = ORB_SLAM2::Converter::toDescriptorVector(mDescriptors);
         // Feature vector associate features with nodes in the 4th level (from leaves up)
         // We assume the vocabulary tree has 6 levels, change the 4 otherwise
-        orbVocabulary->transform(vCurrentDesc, mBowVec, mFeatVec, 4);
+
+        // Luc: In a 6 levels and 10 branch per level voc, 4 levelup mean the 2nd level from the top
+        // that make a total of 100 words. More words means more variance between keyframe and less
+        // preselected keyframe but that will make also the relocalization less invariant to changes
+        orbVocabulary->transform(vCurrentDesc, mBowVec, mFeatVec, orbVocabulary->getDepthLevels() - 2);
     }
 }
 //-----------------------------------------------------------------------------

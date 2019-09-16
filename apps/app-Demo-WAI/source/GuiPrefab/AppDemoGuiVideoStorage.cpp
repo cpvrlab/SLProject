@@ -19,13 +19,14 @@
 //-----------------------------------------------------------------------------
 
 AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string& name, std::string videoDir,
-                           cv::VideoWriter* videoWriter, cv::VideoWriter* videoWriterInfo,
-                           bool* activator)
+                                               cv::VideoWriter* videoWriter, cv::VideoWriter* videoWriterInfo,
+                                               std::ofstream* gpsDataStream, bool* activator)
   : AppDemoGuiInfosDialog(name, activator),
     _videoPrefix("video-"),
     _nextId(0),
     _videoWriter(videoWriter),
-    _videoWriterInfo(videoWriterInfo)
+    _videoWriterInfo(videoWriterInfo),
+    _gpsDataFile(gpsDataStream)
 {
     _videoDir = Utils::unifySlashes(videoDir);
     _currentItem = "";
@@ -115,7 +116,17 @@ void AppDemoGuiVideoStorage::saveVideo(std::string filename)
     bool ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
 
     ret = _videoWriterInfo->open(infoPath, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
+
 }
+
+
+void AppDemoGuiVideoStorage::saveGPSData(std::string videofile)
+{
+    std::string filename = Utils::getFileNameWOExt(videofile) + ".txt";
+    std::string path = _videoDir + filename;
+    _gpsDataFile->open(filename);
+}
+
 //-----------------------------------------------------------------------------
 void AppDemoGuiVideoStorage::buildInfos(SLScene* s, SLSceneView* sv)
 {
@@ -139,6 +150,7 @@ void AppDemoGuiVideoStorage::buildInfos(SLScene* s, SLSceneView* sv)
     if (ImGui::Button("Stop recording", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
         _videoWriter->release();
+        _gpsDataFile->close();
     }
 
     ImGui::Separator();
