@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ch.fhnw.comgr"
+    package="ch.cpvr.wai"
     android:versionCode="19"
     android:versionName="2.0.019">
 
@@ -41,7 +41,7 @@
         </activity>
 
         <service
-            android:name="ch.fhnw.comgr.GLES3Camera2Service"
+            android:name="ch.cpvr.wai.GLES3Camera2Service"
             android:label="Camera service"/>
     </application>
 </manifest>

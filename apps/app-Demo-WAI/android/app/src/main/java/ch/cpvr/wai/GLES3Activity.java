@@ -9,8 +9,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-// Please do not change the name space. The SLProject app is identified in the app-store with it.
-package ch.fhnw.comgr;
+package ch.cpvr.wai;
 
 import android.Manifest;
 import android.app.Activity;
@@ -42,7 +41,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     static int                  pointersDown = 0;   // NO. of fingers down
     static long                 lastTouchMS = 0;    // Time of last touch in ms
 
-    private static final String TAG = "SLProject";
+    private static final String TAG = "WAIApp";
     private static final int PERMISSIONS_MULTIPLE_REQUEST = 123;
 
     private int                     _currentVideoType;
@@ -383,7 +382,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
 
         // just got a new single touch
         if (touchCount == 1) {
-        
+
             // get time to detect double taps
             long touchNowMS = System.currentTimeMillis();
             long touchDeltaMS = touchNowMS - lastTouchMS;

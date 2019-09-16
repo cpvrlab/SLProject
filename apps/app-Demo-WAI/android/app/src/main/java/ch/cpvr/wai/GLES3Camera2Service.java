@@ -9,8 +9,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-// Please do not change the name space. The SLProject app is identified in the app-store with it.
-package ch.fhnw.comgr;
+package ch.cpvr.wai;
 
 import android.app.Service;
 import android.content.Intent;
@@ -42,7 +41,7 @@ import java.util.Arrays;
  */
 @SuppressWarnings("MissingPermission")
 public class GLES3Camera2Service extends Service {
-    protected static final String TAG = "SLProject";
+    protected static final String TAG = "WAIApp";
     public static int videoType = CameraCharacteristics.LENS_FACING_BACK;
     public static int requestedVideoSizeIndex = -1; // see getRequestedSize
     public static boolean isTransitioning = false;
