@@ -163,7 +163,7 @@ void WAIApp::setupGUI()
 
     AppDemoGui::addInfoDialog(new AppDemoGuiSlamParam("Slam Param", dirs->writableDir + "/voc/", wai, &uiPrefs.showSlamParam));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiCalibrationLoad("Calibration Load", dirs->writableDir + "/calibration/",
+    AppDemoGui::addInfoDialog(new AppDemoGuiCalibrationLoad("Calibration Load", dirs->writableDir + "/calibrations/",
                                                             wai, wc, &uiPrefs.showCalibrationLoad));
     //TODO: AppDemoGuiInfosDialog are never deleted. Why not use smart pointer when the reponsibility for an object is not clear?
 }

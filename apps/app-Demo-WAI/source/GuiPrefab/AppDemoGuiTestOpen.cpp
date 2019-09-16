@@ -85,6 +85,9 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
 
         _wc->loadFromFile(info.calPath);
 
+        WAI::CameraCalibration calibration = _wc->getCameraCalibration();
+        _wai->activateSensor(WAI::SensorType_Camera, &calibration);
+
         WAI::ModeOrbSlam2* mode = (WAI::ModeOrbSlam2*)_wai->getCurrentMode();
         mode->requestStateIdle();
         while (!mode->hasStateIdle())

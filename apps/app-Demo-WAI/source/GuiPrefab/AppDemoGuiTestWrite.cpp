@@ -12,6 +12,7 @@
 #include <imgui_internal.h>
 #include <string>
 
+#include <SLApplication.h>
 #include <Utils.h>
 #include <WAIMapStorage.h>
 #include <AppDemoGuiTestWrite.h>
@@ -35,6 +36,7 @@ AppDemoGuiTestWrite::AppDemoGuiTestWrite(const std::string& name, std::string sa
     _settingsPath = _savePath + "TestSettings/";
 
     _testScenes.push_back("Garage");
+    _testScenes.push_back("Northwall");
     _testScenes.push_back("Southwall");
     _testScenes.push_back("Fountain");
     _testScenes.push_back("Parking");
@@ -63,10 +65,12 @@ void AppDemoGuiTestWrite::prepareExperiment(std::string testScene, std::string w
     std::string basePath    = Utils::unifySlashes(scenePath + weather);
     std::string mapBasePath = Utils::unifySlashes(basePath + "/map/");
 
+    _calibrationsPath = Utils::unifySlashes(basePath + "/calibrations/");
     _videoPath = Utils::unifySlashes(basePath + "/video/");
     _mapPath   = Utils::unifySlashes(mapBasePath + mode->getKPextractor()->GetName() + "/");
     _runPath   = Utils::unifySlashes(basePath + "/run/"); //Video with map info
     _date      = Utils::getDateTime2String();
+    _filename  = _date + "_" + SLApplication::getComputerInfos();
 
     std::cout << _videoPath << std::endl;
 
@@ -84,6 +88,9 @@ void AppDemoGuiTestWrite::prepareExperiment(std::string testScene, std::string w
 
     if (!Utils::dirExists(_videoPath))
         Utils::makeDir(_videoPath);
+
+    if (!Utils::dirExists(_calibrationsPath))
+        Utils::makeDir(_calibrationsPath);
 
     if (!Utils::dirExists(_runPath))
         Utils::makeDir(_runPath);
@@ -104,27 +111,27 @@ void AppDemoGuiTestWrite::recordExperiment()
 {
     cv::Size size;
 
+
     if (_videoWriter->isOpened())
         _videoWriter->release();
     if (_videoWriterInfo->isOpened())
         _videoWriterInfo->release();
 
     size = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
-    _videoWriter->open((_videoPath + _date + ".avi"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
-    _videoWriterInfo->open((_runPath + _date + ".avi"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
+    _videoWriter->open((_videoPath + _filename + ".avi"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
+    _videoWriterInfo->open((_runPath + _filename + ".avi"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
     saveTestSettings(_settingsPath + _date + ".xml");
-    saveGPSData(_videoPath + _date + ".txt");
+    saveGPSData(_videoPath + _filename + ".txt");
+    saveCalibration(_calibrationsPath + _filename + ".xml");
 }
 
 void AppDemoGuiTestWrite::stopRecording()
 {
+    std::string filename = Utils::getDateTime2String() + "_" + SLApplication::getComputerInfos();
     _videoWriter->release();
     _videoWriterInfo->release();
     _gpsDataFile->close();
-    saveCalibration(_videoPath + _date + ".xml");
-
-    saveMap(_mapPath + _date + ".json");
-    _gpsDataFile->close();
+    saveMap(_mapPath + filename + ".json");
 }
 
 void AppDemoGuiTestWrite::saveCalibration(std::string calib)
@@ -154,9 +161,9 @@ void AppDemoGuiTestWrite::saveTestSettings(std::string path)
     fs << "Scene" << _testScenes[_currentSceneId];
     fs << "Conditions" << _conditions[_currentConditionId];
     fs << "Features" << mode->getKPextractor()->GetName();
-    fs << "Calibration" << _baseDir + "video/" + _date + ".xml";
-    fs << "Videos" << _baseDir + "video/" + _date + ".avi";
-    fs << "Maps" << _mapDir + _date + ".json";
+    fs << "Calibration" << _baseDir + "calibrations/" + _filename + ".xml";
+    fs << "Videos" << _baseDir + "video/" + _filename + ".avi";
+    fs << "Maps" << _mapDir + _filename + ".json";
     //std::string dbowPath = (std::string)n["DBOW"];
 
     fs.release();

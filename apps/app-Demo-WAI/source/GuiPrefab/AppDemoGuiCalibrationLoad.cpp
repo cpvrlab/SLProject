@@ -40,7 +40,7 @@ AppDemoGuiCalibrationLoad::AppDemoGuiCalibrationLoad(const std::string& name, st
         for (auto path : content)
         {
             std::string name = Utils::getFileName(path);
-            if (Utils::containsString(name, ".avi") || Utils::containsString(name, ".mp4"))
+            if (Utils::containsString(name, ".xml"))
             {
                 _existingCalibrationNames.push_back(name);
             }
