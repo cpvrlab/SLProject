@@ -281,6 +281,7 @@ class WAI_API ModeOrbSlam2 : public Mode
 
     WAIFrame                _markerFrame;
     ORB_SLAM2::KPextractor* _markerOrbExtractor;
+    float                   _markerWidthMM;
     std::vector<int>        _initialFrameToMarkerMatches;
     bool                    _relocalizeFromMarkerMap;
 };

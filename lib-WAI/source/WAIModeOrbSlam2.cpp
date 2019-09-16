@@ -39,10 +39,11 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera*        camera,
 //instantiate KeyPoint extractor
 #if 0
     _extractor        = new ORB_SLAM2::ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
-    mpIniORBextractor = new ORB_SLAM2::ORBextractor(5 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+    mpIniORBextractor = new ORB_SLAM2::ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
 #else
-    _extractor        = new ORB_SLAM2::SURFextractor(1500);
-    mpIniORBextractor = new ORB_SLAM2::SURFextractor(1000);
+    // TODO(dgj1): adjust thresholds for normal mapping
+    _extractor        = new ORB_SLAM2::SURFextractor(1000);
+    mpIniORBextractor = new ORB_SLAM2::SURFextractor(800);
 #endif
 
     //instantiate local mapping
@@ -84,12 +85,23 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera*        camera,
 #else
             _markerOrbExtractor = new ORB_SLAM2::SURFextractor(500); // TODO(dgj1): markerInitialization - adjust nFeatures
 #endif
+            cv::Mat markerImgGray = cv::imread(std::string(SL_PROJECT_ROOT) + "/data/calibrations/marker_640_360.jpg", cv::IMREAD_GRAYSCALE);
 
-            cv::Mat cameraMat     = _camera->getCameraMatrix();
-            cv::Mat distortionMat = _camera->getDistortionMatrix();
-            cv::Mat markerImgGray = cv::imread(std::string(SL_PROJECT_ROOT) + "/data/calibrations/marker.jpg", cv::IMREAD_GRAYSCALE);
+            cv::Mat cameraMat = _camera->getCameraMatrix();
+            float   fyCam     = cameraMat.at<float>(1, 1);
+            float   cyCam     = cameraMat.at<float>(1, 2);
+            float   fov       = 2.0f * atan2(cyCam, fyCam) * 180.0f / M_PI;
 
-            _markerFrame = WAIFrame(markerImgGray, 0.0f, _markerOrbExtractor, cameraMat, distortionMat, mpVocabulary);
+            float cx = (float)markerImgGray.cols * 0.5f;
+            float cy = (float)markerImgGray.rows * 0.5f;
+            float fy = cy / tanf(fov * 0.5f * M_PI / 180.0);
+            float fx = fy;
+
+            cv::Mat markerCameraMat     = (cv::Mat_<float>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
+            cv::Mat markerDistortionMat = cv::Mat::zeros(4, 1, CV_32F);
+
+            _markerFrame   = WAIFrame(markerImgGray, 0.0f, _markerOrbExtractor, markerCameraMat, markerDistortionMat, mpVocabulary);
+            _markerWidthMM = 289.0f;
         }
         break;
 
