@@ -88,15 +88,15 @@ void AppDemoGuiMapStorage::buildInfos(SLScene* s, SLSceneView* sv)
             Utils::makeDir(_mapDir);
 
         if (WAIMapStorage::saveMap(_map,
-                               _mapNode,
-                               _mapDir + filename))
-       {
-           ImGui::Text("Info: Map saved successfully");
-       }
-       else
-       {
-           ImGui::Text("Info: Failed to save map");
-       }
+                                   _mapNode,
+                                   _mapDir + filename))
+        {
+            ImGui::Text("Info: Map saved successfully");
+        }
+        else
+        {
+            ImGui::Text("Info: Failed to save map");
+        }
     }
 
     ImGui::Separator();
@@ -127,7 +127,7 @@ void AppDemoGuiMapStorage::buildInfos(SLScene* s, SLSceneView* sv)
     {
         if (!_currentItem.empty())
         {
-            cv::Mat     cvOm            = cv::Mat(4, 4, CV_32F);
+            cv::Mat cvOm = cv::Mat(4, 4, CV_32F);
 
             _tracking->requestStateIdle();
             while (!_tracking->hasStateIdle())
@@ -136,7 +136,7 @@ void AppDemoGuiMapStorage::buildInfos(SLScene* s, SLSceneView* sv)
             }
             _tracking->reset();
 
-            if(!WAIMapStorage::loadMap(_map, _kfDB, _mapNode, _currentItem))
+            if (!WAIMapStorage::loadMap(_map, _kfDB, _mapNode, _mapDir + _currentItem))
             {
                 ImGui::Text("Info: map loading failed!");
             }
