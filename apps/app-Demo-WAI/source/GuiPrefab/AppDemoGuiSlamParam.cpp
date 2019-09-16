@@ -17,7 +17,6 @@
 #include <OrbSlam/ORBextractor.h>
 #include <OrbSlam/ORBmatcher.h>
 #include <AppDemoGuiSlamParam.h>
-#include <CVCapture.h>
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------

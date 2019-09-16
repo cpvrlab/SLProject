@@ -68,6 +68,8 @@ ofstream           WAIApp::gpsDataStream;
 int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* directories)
 {
     dirs = directories;
+    SLApplication::devRot.isUsed(true);
+    SLApplication::devLoc.isUsed(true);
 
     wai             = new WAI::WAI(dirs->waiDataRoot);
     wc              = new WAICalibration();
@@ -106,6 +108,8 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
                                     (void*)buildGUI);
 
     loaded = true;
+    SLApplication::devRot.isUsed(true);
+    SLApplication::devLoc.isUsed(true);
     return svIndex;
 }
 
@@ -153,6 +157,7 @@ void WAIApp::setupGUI()
                                                       waiScene->mapNode,
                                                       videoWriter,
                                                       videoWriterInfo,
+                                                      &gpsDataStream,
                                                       &uiPrefs.showTestWriter));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiSlamParam("Slam Param", dirs->writableDir + "/voc/",
@@ -236,14 +241,17 @@ bool WAIApp::update()
             videoWriterInfo->write(*cameraData.imageRGB);
         }
 
-        if (gpsDataStream && SLApplication::devLoc.isUsed())
+        if (gpsDataStream.is_open())
         {
-            SLVec3d v = SLApplication::devLoc.locLLA();
-            gpsDataStream << SLApplication::devLoc.locAccuracyM();
-            gpsDataStream << std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
-            gpsDataStream << std::to_string(SLApplication::devRot.yawRAD());
-            gpsDataStream << std::to_string(SLApplication::devRot.pitchRAD());
-            gpsDataStream << std::to_string(SLApplication::devRot.rollRAD());
+            if(SLApplication::devLoc.isUsed())
+            {
+                SLVec3d v = SLApplication::devLoc.locLLA();
+                gpsDataStream << SLApplication::devLoc.locAccuracyM();
+                gpsDataStream << std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
+                gpsDataStream << std::to_string(SLApplication::devRot.yawRAD());
+                gpsDataStream << std::to_string(SLApplication::devRot.pitchRAD());
+                gpsDataStream << std::to_string(SLApplication::devRot.rollRAD());
+            }
         }
     }
 

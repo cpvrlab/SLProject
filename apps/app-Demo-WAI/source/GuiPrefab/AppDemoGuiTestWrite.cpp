@@ -25,18 +25,18 @@
 AppDemoGuiTestWrite::AppDemoGuiTestWrite(const std::string& name, std::string saveDir,
                                          WAI::WAI* wai, WAICalibration* wc, SLNode* mapNode,
                                          cv::VideoWriter* writer1, cv::VideoWriter* writer2,
+                                         std::ofstream* gpsDataStream,
                                          bool* activator)
   : AppDemoGuiInfosDialog(name, activator),
     _wai(wai),
     _wc(wc),
     _mapNode(mapNode),
     _videoWriter(writer1),
-    _videoWriterInfo(writer2)
+    _videoWriterInfo(writer2),
+    _gpsDataFile(gpsDataStream)
 {
     _savePath = Utils::unifySlashes(saveDir);
     _settingsPath = _savePath + "TestSettings/";
-
-    std::cout << "AppDemoGuiTestWrite mapNode " << mapNode << std::endl;
 
     _testScenes.push_back("Garage");
     _testScenes.push_back("Fountain");
@@ -97,6 +97,11 @@ void AppDemoGuiTestWrite::prepareExperiment(std::string testScene, std::string w
         Utils::makeDir(_mapPath);
 }
 
+void AppDemoGuiTestWrite::saveGPSData(std::string path)
+{
+    _gpsDataFile->open(path);
+}
+
 void AppDemoGuiTestWrite::recordExperiment()
 {
     cv::Size size;
@@ -107,18 +112,21 @@ void AppDemoGuiTestWrite::recordExperiment()
         _videoWriterInfo->release();
 
     size = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
-    _videoWriter->open((_videoPath + _date + ".mp4"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
-    _videoWriterInfo->open((_runPath + _date + ".mp4"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
+    _videoWriter->open((_videoPath + _date + ".avi"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
+    _videoWriterInfo->open((_runPath + _date + ".avi"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
     saveTestSettings(_settingsPath + _date + ".xml");
+    saveGPSData(_videoPath + _date + ".txt");
 }
 
 void AppDemoGuiTestWrite::stopRecording()
 {
     _videoWriter->release();
     _videoWriterInfo->release();
+    _gpsDataFile->close();
     saveCalibration(_videoPath + _date + ".xml");
 
     saveMap(_mapPath + _date + ".json");
+    _gpsDataFile->close();
 }
 
 void AppDemoGuiTestWrite::saveCalibration(std::string calib)
