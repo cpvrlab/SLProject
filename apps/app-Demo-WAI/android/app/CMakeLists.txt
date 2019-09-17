@@ -10,6 +10,7 @@ file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiMenu.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiPrefs.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAbout.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiCalibrationLoad.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosScene.h
@@ -43,6 +44,7 @@ file(GLOB sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiMenu.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiPrefs.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAbout.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiCalibrationLoad.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosScene.cpp
