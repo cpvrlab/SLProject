@@ -35,6 +35,7 @@ file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestOpen.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestWrite.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiCalibrationLoad.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAI.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppDirectories.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.h
@@ -69,13 +70,14 @@ file(GLOB sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestOpen.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestWrite.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiCalibrationLoad.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAI.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIMapStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
     )
-	
+
 # Group source files
 set(headers_sources ${sources} ${headers})
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.h$|\\\\.hpp$" "" ${headers_sources})

@@ -14,13 +14,12 @@
 
 #include <Utils.h>
 #include <AppDemoGuiVideoStorage.h>
+#include <SLApplication.h>
 #include <CVCapture.h>
 
 //-----------------------------------------------------------------------------
 
-AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string& name, std::string videoDir,
-                                               cv::VideoWriter* videoWriter, cv::VideoWriter* videoWriterInfo,
-                                               std::ofstream* gpsDataStream, bool* activator)
+AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string& name, std::string videoDir, cv::VideoWriter* videoWriter, cv::VideoWriter* videoWriterInfo, std::ofstream* gpsDataStream, bool* activator)
   : AppDemoGuiInfosDialog(name, activator),
     _videoPrefix("video-"),
     _nextId(0),
@@ -28,7 +27,7 @@ AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string& name, std::str
     _videoWriterInfo(videoWriterInfo),
     _gpsDataFile(gpsDataStream)
 {
-    _videoDir = Utils::unifySlashes(videoDir);
+    _videoDir    = Utils::unifySlashes(videoDir);
     _currentItem = "";
 
     _existingVideoNames.clear();
@@ -74,9 +73,9 @@ AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string& name, std::str
 
 void AppDemoGuiVideoStorage::saveVideo(std::string filename)
 {
-    std::string infoDir = _videoDir + "info/";
+    std::string infoDir  = _videoDir + "info/";
     std::string infoPath = infoDir + filename;
-    std::string path = _videoDir + filename;
+    std::string path     = _videoDir + filename;
 
     if (!Utils::dirExists(_videoDir))
     {
@@ -111,19 +110,17 @@ void AppDemoGuiVideoStorage::saveVideo(std::string filename)
         _videoWriterInfo->release();
     }
 
-    cv::Size size  = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
+    cv::Size size = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
 
     bool ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
 
     ret = _videoWriterInfo->open(infoPath, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
-
 }
-
 
 void AppDemoGuiVideoStorage::saveGPSData(std::string videofile)
 {
     std::string filename = Utils::getFileNameWOExt(videofile) + ".txt";
-    std::string path = _videoDir + filename;
+    std::string path     = _videoDir + filename;
     _gpsDataFile->open(filename);
 }
 
@@ -133,15 +130,7 @@ void AppDemoGuiVideoStorage::buildInfos(SLScene* s, SLSceneView* sv)
     ImGui::Begin("Video storage", _activator, ImGuiWindowFlags_AlwaysAutoResize);
     if (ImGui::Button("Start recording", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
-        std::string filename;
-        if (_currentItem.empty())
-        {
-            filename = _videoPrefix + std::to_string(_nextId) + ".avi";
-        }
-        else
-        {
-            filename = _currentItem;
-        }
+        std::string filename = Utils::getDateTime2String() + "_" + SLApplication::getComputerInfos() + ".avi";
         saveVideo(filename);
     }
 
@@ -157,7 +146,7 @@ void AppDemoGuiVideoStorage::buildInfos(SLScene* s, SLSceneView* sv)
     if (ImGui::Button("New video", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
         _currentItem = "";
-        _nextId = _nextId + 1;
+        _nextId      = _nextId + 1;
         _videoWriter->release();
     }
 

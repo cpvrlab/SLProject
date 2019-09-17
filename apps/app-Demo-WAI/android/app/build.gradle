@@ -11,7 +11,7 @@ android {
     }
     compileSdkVersion 26
     defaultConfig {
-        applicationId "ch.fhnw.comgr"
+        applicationId "ch.cpvr.wai"
         minSdkVersion 21
         targetSdkVersion 26
         versionCode 19

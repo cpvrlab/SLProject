@@ -63,6 +63,8 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Video Storage", nullptr, &prefs->showVideoStorage);
             ImGui::MenuItem("Video Load", nullptr, &prefs->showVideoLoad);
 
+            ImGui::MenuItem("Calibration Load", nullptr, &prefs->showCalibrationLoad);
+
             if (ImGui::BeginMenu("Mirror Main Camera"))
             {
                 if (ImGui::MenuItem("Horizontally", nullptr, mc->isMirroredH()))

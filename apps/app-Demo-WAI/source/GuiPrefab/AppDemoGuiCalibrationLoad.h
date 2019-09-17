@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SL_IMGUI_VIDEOLOAD_H
-#define SL_IMGUI_VIDEOLOAD_H
+#ifndef SL_IMGUI_CALIBRATION_LOAD_H
+#define SL_IMGUI_CALIBRATION_LOAD_H
 
 #include <opencv2/core.hpp>
 #include <AppDemoGuiInfosDialog.h>
@@ -19,19 +19,18 @@
 #include <SLNode.h>
 
 //-----------------------------------------------------------------------------
-class AppDemoGuiVideoLoad : public AppDemoGuiInfosDialog
+class AppDemoGuiCalibrationLoad : public AppDemoGuiInfosDialog
 {
     public:
-    AppDemoGuiVideoLoad(const std::string& name, std::string videoDir, std::string calibDir, WAICalibration* wc, WAI::WAI* wai, bool* activator);
+    AppDemoGuiCalibrationLoad(const std::string& name, std::string calDir, WAI::WAI * wai,  WAICalibration* wc, bool* activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     private:
-    void loadVideo(std::string videoFileName, std::string path);
+    void loadCalibration(std::string path);
 
-    std::string              _videoDir;
-    std::string              _calibDir;
-    std::vector<std::string> _existingVideoNames;
+    std::string              _calibrationDir;
+    std::vector<std::string> _existingCalibrationNames;
     std::string              _currentItem;
     WAI::WAI*                _wai;
     WAICalibration*          _wc;

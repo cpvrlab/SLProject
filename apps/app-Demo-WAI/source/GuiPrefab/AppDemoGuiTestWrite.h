@@ -52,9 +52,11 @@ class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
     std::string _savePath;
     std::string _settingsPath;
     std::string _videoPath;
+    std::string _calibrationsPath;
     std::string _mapPath;
     std::string _runPath;
     std::string _date;
+    std::string _filename;
 
     std::ofstream*           _gpsDataFile;
     SLNode*                  _mapNode;
