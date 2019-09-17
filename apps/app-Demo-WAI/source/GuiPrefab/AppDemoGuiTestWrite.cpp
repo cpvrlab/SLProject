@@ -40,6 +40,7 @@ AppDemoGuiTestWrite::AppDemoGuiTestWrite(const std::string& name, std::string sa
     _testScenes.push_back("Southwall");
     _testScenes.push_back("Fountain");
     _testScenes.push_back("Parking");
+    _testScenes.push_back("Avenches_Arena");
     _testScenes.push_back("Avenches");
     _testScenes.push_back("Christofel");
     _testScenes.push_back("Others");
@@ -70,9 +71,17 @@ void AppDemoGuiTestWrite::prepareExperiment(std::string testScene, std::string w
     _mapPath   = Utils::unifySlashes(mapBasePath + mode->getKPextractor()->GetName() + "/");
     _runPath   = Utils::unifySlashes(basePath + "/run/"); //Video with map info
     _date      = Utils::getDateTime2String();
-    _filename  = _date + "_" + SLApplication::getComputerInfos();
 
-    std::cout << _videoPath << std::endl;
+    std::cout << _calibrationsPath << std::endl;
+
+    std::string filename  = _date + "_" + _wc->computerInfo() + "_";
+    _size = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
+
+    mapname = filename + ".json";
+    videoname = filename + std::to_string(_size.width) + "x" + std::to_string(_size.height) + ".avi";
+    gpsname = filename + std::to_string(_size.width) + "x" + std::to_string(_size.height) + ".txt";
+    settingname = _date + ".xml";
+    calibrationname = "camCalib_" + _wc->computerInfo() + "_main.xml";
 
     if (!Utils::dirExists(_savePath))
         Utils::makeDir(_savePath);
@@ -109,29 +118,26 @@ void AppDemoGuiTestWrite::saveGPSData(std::string path)
 
 void AppDemoGuiTestWrite::recordExperiment()
 {
-    cv::Size size;
-
 
     if (_videoWriter->isOpened())
         _videoWriter->release();
     if (_videoWriterInfo->isOpened())
         _videoWriterInfo->release();
 
-    size = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
-    _videoWriter->open((_videoPath + _filename + ".avi"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
-    _videoWriterInfo->open((_runPath + _filename + ".avi"), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
-    saveTestSettings(_settingsPath + _date + ".xml");
-    saveGPSData(_videoPath + _filename + ".txt");
-    saveCalibration(_calibrationsPath + _filename + ".xml");
+
+    _videoWriter->open((_videoPath + videoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
+    _videoWriterInfo->open((_runPath + videoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
+    saveTestSettings(_settingsPath + settingname);
+    saveGPSData(_videoPath + gpsname);
+    saveCalibration(_calibrationsPath + calibrationname);
 }
 
 void AppDemoGuiTestWrite::stopRecording()
 {
-    std::string filename = Utils::getDateTime2String() + "_" + SLApplication::getComputerInfos();
     _videoWriter->release();
     _videoWriterInfo->release();
     _gpsDataFile->close();
-    saveMap(_mapPath + filename + ".json");
+    saveMap(_mapPath + mapname);
 }
 
 void AppDemoGuiTestWrite::saveCalibration(std::string calib)
@@ -161,9 +167,9 @@ void AppDemoGuiTestWrite::saveTestSettings(std::string path)
     fs << "Scene" << _testScenes[_currentSceneId];
     fs << "Conditions" << _conditions[_currentConditionId];
     fs << "Features" << mode->getKPextractor()->GetName();
-    fs << "Calibration" << _baseDir + "calibrations/" + _filename + ".xml";
-    fs << "Videos" << _baseDir + "video/" + _filename + ".avi";
-    fs << "Maps" << _mapDir + _filename + ".json";
+    fs << "Calibration" << _baseDir + "calibrations/" + calibrationname;
+    fs << "Videos" << _baseDir + "video/" + videoname;
+    fs << "Maps" << _mapDir + mapname;
     //std::string dbowPath = (std::string)n["DBOW"];
 
     fs.release();
@@ -213,7 +219,7 @@ void AppDemoGuiTestWrite::buildInfos(SLScene* s, SLSceneView* sv)
 
     ImGui::Separator();
 
-    if (ImGui::Button("Save Experiment", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    if (ImGui::Button("Start Experiment", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
         prepareExperiment(_testScenes[_currentSceneId], _conditions[_currentConditionId]);
         recordExperiment();

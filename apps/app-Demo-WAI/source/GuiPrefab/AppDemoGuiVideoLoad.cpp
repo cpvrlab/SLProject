@@ -66,15 +66,12 @@ void AppDemoGuiVideoLoad::loadVideo(std::string videoFileName, std::string path)
     CVCapture::instance()->openFile();
 
     // get calibration file name from video file name
-    std::vector<std::string> extensionParts;
-    Utils::splitString(videoFileName, '.', extensionParts);
-
     std::vector<std::string> stringParts;
-    Utils::splitString(extensionParts[0], '_', stringParts);
+    Utils::splitString(Utils::getFileNameWOExt(videoFileName), '_', stringParts);
 
     if (stringParts.size() >= 3)
     {
-        std::string computerInfo = stringParts[1] + "_" + stringParts[2];
+        std::string computerInfo = stringParts[1];
         _wc->loadFromFile(_calibDir + "camCalib_" + computerInfo + "_main.xml");
     }
 

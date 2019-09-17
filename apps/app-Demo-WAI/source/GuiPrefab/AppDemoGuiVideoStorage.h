@@ -36,10 +36,6 @@ class AppDemoGuiVideoStorage : public AppDemoGuiInfosDialog
     cv::VideoWriter*         _videoWriter;
     cv::VideoWriter*         _videoWriterInfo;
     std::string              _videoDir;
-    std::string              _videoPrefix;
-    std::vector<std::string> _existingVideoNames;
-    int                      _nextId;
-    std::string              _currentItem;
 };
 
-#endif //SL_IMGUI_MAPSTORAGE_H
+#endif //SL_IMGUI_VIDEOSTORAGE_H

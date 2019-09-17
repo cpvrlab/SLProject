@@ -22,6 +22,8 @@ class WAICalibration
     virtual void reset();
     virtual void changeImageSize(int width, int height);
 
+    std::string computerInfo() { return _computerInfo; }
+    std::string filename() { return _filename; }
     float calcCameraVerticalFOV();
     float calcCameraHorizontalFOV();
     float calcCameraVerticalFOV(cv::Mat& cameraMat);
@@ -60,7 +62,8 @@ class WAICalibration
     float            _reprojectionError;
     float            _calibrationTime;
     int              _camSizeIndex;
-    std::string      _computerModel;
+    std::string      _computerInfo;
     std::string      _creationDate;
+    std::string      _filename;
 };
 #endif

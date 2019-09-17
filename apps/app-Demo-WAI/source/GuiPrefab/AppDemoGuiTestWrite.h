@@ -56,8 +56,13 @@ class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
     std::string _mapPath;
     std::string _runPath;
     std::string _date;
-    std::string _filename;
+    std::string gpsname;
+    std::string videoname;
+    std::string calibrationname;
+    std::string settingname;
+    std::string mapname;
 
+    cv::Size                 _size;
     std::ofstream*           _gpsDataFile;
     SLNode*                  _mapNode;
     std::vector<std::string> _testScenes;

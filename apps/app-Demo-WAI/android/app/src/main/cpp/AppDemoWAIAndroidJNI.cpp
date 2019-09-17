@@ -254,7 +254,7 @@ extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onSetupExternalDir(J
                                                                                jstring externalDirPath)
 {
     std::string externalDirPathNative = jstring2stdstring(env, externalDirPath);
-    dirs.writableDir                  = externalDirPathNative;
+    dirs.writableDir                  = externalDirPathNative + "/";
     slSetupExternalDir(externalDirPathNative);
 }
 //-----------------------------------------------------------------------------

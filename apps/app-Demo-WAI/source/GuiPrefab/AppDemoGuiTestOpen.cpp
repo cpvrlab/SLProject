@@ -98,7 +98,6 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
 
         WAIMapStorage::loadMap(mode->getMap(), mode->getKfDB(), _mapNode, info.mapPath, "");
 
-        std::cout << info.vidPath << std::endl;
         CVCapture::instance()->videoType(VT_FILE);
         CVCapture::instance()->videoFilename = info.vidPath;
         CVCapture::instance()->videoLoops    = true;

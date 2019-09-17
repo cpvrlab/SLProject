@@ -29,9 +29,10 @@ void WAICalibration::reset()
     // No distortion
     _distortion = (Mat_<double>(5, 1) << 0, 0, 0, 0, 0);
 
-    _cameraFovDeg = fov;
+    _cameraFovDeg    = fov;
     _calibrationPath = std::string("");
-    _state        = CalibrationState_Guess;
+    _state           = CalibrationState_Guess;
+    _computerInfo    = SLApplication::getComputerInfos();
 }
 
 void WAICalibration::computeMatrix(cv::Mat& mat, float fov)
@@ -86,8 +87,11 @@ bool WAICalibration::loadFromFile(std::string path)
     FileStorage fs(path, FileStorage::READ);
     if (!fs.isOpened())
     {
+        std::cout << "Can t open calibration " << path << std::endl;
         return false;
     }
+
+    _filename = Utils::getFileName(path);
 
     fs["imageSizeWidth"] >> _imgSize.width;
     fs["imageSizeHeight"] >> _imgSize.height;
@@ -102,7 +106,22 @@ bool WAICalibration::loadFromFile(std::string path)
     fs["reprojectionError"] >> _reprojectionError;
     fs["calibrationTime"] >> _calibrationTime;
     fs["camSizeIndex"] >> _camSizeIndex;
-    fs["ComputerModel"] >> _computerModel;
+    if (!fs["ComputerModel"].empty())
+    {
+        std::vector<std::string> stringParts;
+        Utils::splitString(Utils::getFileNameWOExt(_filename), '_', stringParts);
+        if (stringParts.size() >= 3)
+            _computerInfo = stringParts[1];
+        else
+        {
+            _computerInfo = SLApplication::getComputerInfos();
+            std::cout << "Assuming calibration is for current device" << std::endl;
+        }
+    }
+    else
+    {
+        _computerInfo;
+    }
     fs["CreationDate"] >> _creationDate;
     fs.release();
 
