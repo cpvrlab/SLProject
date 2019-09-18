@@ -100,7 +100,6 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/
-    ${SL_PROJECT_ROOT}/apps/source
     PUBLIC
 
     INTERFACE

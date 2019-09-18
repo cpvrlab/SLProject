@@ -5,7 +5,7 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
                             std::string filename,
                             std::string imgDir)
 {
-    std::vector<WAIKeyFrame*> kfs = waiMap->GetAllKeyFrames();
+    std::vector<WAIKeyFrame*> kfs  = waiMap->GetAllKeyFrames();
     std::vector<WAIMapPoint*> mpts = waiMap->GetAllMapPoints();
 
     //save keyframes (without graph/neigbourhood information)
@@ -14,10 +14,10 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
     {
         cv::FileStorage fs(filename, cv::FileStorage::WRITE);
 
-       if (!fs.isOpened())
-       {
-           return false;
-       }
+        if (!fs.isOpened())
+        {
+            return false;
+        }
 
         SLMat4f om           = mapNode->om();
         cv::Mat cvOm         = cv::Mat(4, 4, CV_32F);
@@ -197,15 +197,14 @@ SLMat4f WAIMapStorage::loadMatrix(const cv::FileNode& n)
     return om;
 }
 
-bool WAIMapStorage::loadMap(WAIMap* waiMap, WAIKeyFrameDB* kfDB, SLNode* mapNode,
-                            std::string path, std::string imgDir)
+bool WAIMapStorage::loadMap(WAIMap* waiMap, WAIKeyFrameDB* kfDB, SLNode* mapNode, std::string path, std::string imgDir)
 {
-    std::vector<WAIMapPoint*> mapPoints;
-    std::vector<WAIKeyFrame*> keyFrames;
-    std::map<int, int> parentIdMap;
+    std::vector<WAIMapPoint*>       mapPoints;
+    std::vector<WAIKeyFrame*>       keyFrames;
+    std::map<int, int>              parentIdMap;
     std::map<int, std::vector<int>> loopEdgesMap;
-    std::map<int, WAIKeyFrame*> kfsMap;
-    int numLoopClosings = 0;
+    std::map<int, WAIKeyFrame*>     kfsMap;
+    int                             numLoopClosings = 0;
 
     cv::FileStorage fs(path, cv::FileStorage::READ);
 
@@ -214,7 +213,10 @@ bool WAIMapStorage::loadMap(WAIMap* waiMap, WAIKeyFrameDB* kfDB, SLNode* mapNode
         return false;
     }
 
-    mapNode->om(loadMatrix(fs["mapNodeOm"]));
+    if (mapNode)
+    {
+        mapNode->om(loadMatrix(fs["mapNodeOm"]));
+    }
 
     cv::FileNode n = fs["KeyFrames"];
     for (auto it = n.begin(); it != n.end(); ++it)
@@ -287,13 +289,7 @@ bool WAIMapStorage::loadMap(WAIMap* waiMap, WAIKeyFrameDB* kfDB, SLNode* mapNode
         (*it)["nMaxX"] >> nMaxX;
         (*it)["nMaxY"] >> nMaxY;
 
-        WAIKeyFrame* newKf = new WAIKeyFrame(Tcw, id, fx, fy, cx, cy,
-                                             keyPtsUndist.size(), keyPtsUndist,
-                                             featureDescriptors, WAIOrbVocabulary::get(),
-                                             nScaleLevels, scaleFactor, vScaleFactor,
-                                             vLevelSigma2, vInvLevelSigma2,
-                                             nMinX, nMinY, nMaxX, nMaxY,
-                                             K, kfDB, waiMap);
+        WAIKeyFrame* newKf = new WAIKeyFrame(Tcw, id, fx, fy, cx, cy, keyPtsUndist.size(), keyPtsUndist, featureDescriptors, WAIOrbVocabulary::get(), nScaleLevels, scaleFactor, vScaleFactor, vLevelSigma2, vInvLevelSigma2, nMinX, nMinY, nMaxX, nMaxY, K, kfDB, waiMap);
 
         if (imgDir != "")
         {
@@ -354,7 +350,6 @@ bool WAIMapStorage::loadMap(WAIMap* waiMap, WAIKeyFrameDB* kfDB, SLNode* mapNode
     }
     numLoopClosings = numberOfLoopClosings / 2;
 
-
     n = fs["MapPoints"];
     if (n.type() != cv::FileNode::SEQ)
     {
@@ -370,7 +365,7 @@ bool WAIMapStorage::loadMap(WAIMap* waiMap, WAIKeyFrameDB* kfDB, SLNode* mapNode
         (*it)["mWorldPos"] >> mWorldPos;
 
         WAIMapPoint* newPt = new WAIMapPoint(id, mWorldPos, waiMap);
-        vector<int> observingKfIds;
+        vector<int>  observingKfIds;
         (*it)["observingKfIds"] >> observingKfIds;
         vector<int> corrKpIndices;
         (*it)["corrKpIndices"] >> corrKpIndices;

@@ -67,20 +67,20 @@ void AppDemoGuiTestWrite::prepareExperiment(std::string testScene, std::string w
     std::string mapBasePath = Utils::unifySlashes(basePath + "/map/");
 
     _calibrationsPath = Utils::unifySlashes(basePath + "/calibrations/");
-    _videoPath = Utils::unifySlashes(basePath + "/video/");
-    _mapPath   = Utils::unifySlashes(mapBasePath + mode->getKPextractor()->GetName() + "/");
-    _runPath   = Utils::unifySlashes(basePath + "/run/"); //Video with map info
-    _date      = Utils::getDateTime2String();
+    _videoPath        = Utils::unifySlashes(basePath + "/video/");
+    _mapPath          = Utils::unifySlashes(mapBasePath + mode->getKPextractor()->GetName() + "/");
+    _runPath          = Utils::unifySlashes(basePath + "/run/"); //Video with map info
+    _date             = Utils::getDateTime2String();
 
     std::cout << _calibrationsPath << std::endl;
 
-    std::string filename  = _date + "_" + _wc->computerInfo() + "_";
-    _size = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
+    std::string filename = _date + "_" + _wc->computerInfo() + "_";
+    _size                = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
 
-    mapname = filename + ".json";
-    videoname = filename + std::to_string(_size.width) + "x" + std::to_string(_size.height) + ".avi";
-    gpsname = filename + std::to_string(_size.width) + "x" + std::to_string(_size.height) + ".txt";
-    settingname = _date + ".xml";
+    mapname         = filename + ".json";
+    videoname       = filename + std::to_string(_size.width) + "x" + std::to_string(_size.height) + ".avi";
+    gpsname         = filename + std::to_string(_size.width) + "x" + std::to_string(_size.height) + ".txt";
+    settingname     = _date + ".xml";
     calibrationname = "camCalib_" + _wc->computerInfo() + "_main.xml";
 
     if (!Utils::dirExists(_savePath))
@@ -123,7 +123,6 @@ void AppDemoGuiTestWrite::recordExperiment()
         _videoWriter->release();
     if (_videoWriterInfo->isOpened())
         _videoWriterInfo->release();
-
 
     _videoWriter->open((_videoPath + videoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
     _videoWriterInfo->open((_runPath + videoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);

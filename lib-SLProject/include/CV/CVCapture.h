@@ -70,7 +70,7 @@ class CVCapture
     CVSize2i open(int deviceNum);
     CVSize2i openFile();
     void     start(float scrWdivH);
-    void     grabAndAdjustForSL(float scrWdivH);
+    bool     grabAndAdjustForSL(float scrWdivH);
     void     adjustForSL(float scrWdivH);
     bool     isOpened() { return _captureDevice.isOpened(); }
     void     release();

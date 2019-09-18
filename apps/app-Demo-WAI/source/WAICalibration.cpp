@@ -125,7 +125,7 @@ bool WAICalibration::loadFromFile(std::string path)
     fs["CreationDate"] >> _creationDate;
     fs.release();
 
-    _state = CalibrationState_Calibrated;
+    _state    = CalibrationState_Calibrated;
     float fov = calcCameraHorizontalFOV();
 
     _calibrationPath = path;
@@ -141,29 +141,28 @@ WAI::CameraCalibration WAICalibration::getCameraCalibration()
 
 float WAICalibration::calcCameraVerticalFOV()
 {
-    float fy       = (float)_cameraMat.at<double>(1, 1);
-    float cy       = (float)_cameraMat.at<double>(1, 2);
+    float fy = (float)_cameraMat.at<double>(1, 1);
+    float cy = (float)_cameraMat.at<double>(1, 2);
     return 2.0 * atan2(cy, fy) * 180.0 / M_PI;
 }
 
 float WAICalibration::calcCameraHorizontalFOV()
 {
-    float fx       = (float)_cameraMat.at<double>(0, 0);
-    float cx       = (float)_cameraMat.at<double>(0, 2);
+    float fx = (float)_cameraMat.at<double>(0, 0);
+    float cx = (float)_cameraMat.at<double>(0, 2);
     return 2.0 * atan2(cx, fx) * 180.0 / M_PI;
 }
 
 float WAICalibration::calcCameraVerticalFOV(cv::Mat& cameraMat)
 {
-    float fy       = (float)cameraMat.at<double>(1, 1);
-    float cy       = (float)cameraMat.at<double>(1, 2);
+    float fy = (float)cameraMat.at<double>(1, 1);
+    float cy = (float)cameraMat.at<double>(1, 2);
     return 2.0 * atan2(cy, fy) * 180.0 / M_PI;
 }
 
 float WAICalibration::calcCameraHorizontalFOV(cv::Mat& cameraMat)
 {
-    float fx       = (float)cameraMat.at<double>(0, 0);
-    float cx       = (float)cameraMat.at<double>(0, 2);
+    float fx = (float)cameraMat.at<double>(0, 0);
+    float cx = (float)cameraMat.at<double>(0, 2);
     return 2.0 * atan2(cx, fx) * 180.0 / M_PI;
 }
-

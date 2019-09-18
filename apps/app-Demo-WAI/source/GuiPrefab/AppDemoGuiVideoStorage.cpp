@@ -25,7 +25,7 @@ AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string& name, std::str
     _videoWriterInfo(videoWriterInfo),
     _gpsDataFile(gpsDataStream)
 {
-    _videoDir    = Utils::unifySlashes(videoDir);
+    _videoDir = Utils::unifySlashes(videoDir);
 
     //check if visual odometry maps directory exists
     if (!Utils::dirExists(_videoDir))

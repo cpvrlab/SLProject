@@ -29,11 +29,11 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera* camera,
         _initialized = false;
 
     //instantiate Orb extractor
-    mpDefaultExtractor        = new ORB_SLAM2::SURFextractor(1500);
-    mpIniDefaultExtractor     = new ORB_SLAM2::SURFextractor(1000);
+    mpDefaultExtractor    = new ORB_SLAM2::SURFextractor(1500);
+    mpIniDefaultExtractor = new ORB_SLAM2::SURFextractor(1000);
 
-    mpExtractor        = mpDefaultExtractor;
-    mpIniExtractor     = mpIniDefaultExtractor;
+    mpExtractor    = mpDefaultExtractor;
+    mpIniExtractor = mpIniDefaultExtractor;
 
     //instantiate local mapping
     mpLocalMapper = new ORB_SLAM2::LocalMapping(_map, 1, mpVocabulary);
@@ -56,10 +56,10 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera* camera,
 
 //TODO : Verify that this is really thread safe
 
-void WAI::ModeOrbSlam2::setExtractor(KPextractor * extractor, KPextractor * iniExtractor)
+void WAI::ModeOrbSlam2::setExtractor(KPextractor* extractor, KPextractor* iniExtractor)
 {
     requestStateIdle();
-    mpExtractor = extractor;
+    mpExtractor    = extractor;
     mpIniExtractor = iniExtractor;
     resume();
 }
@@ -126,13 +126,15 @@ void WAI::ModeOrbSlam2::notifyUpdate()
 
     switch (_state)
     {
-        case TrackingState_Initializing: {
+        case TrackingState_Initializing:
+        {
             initialize();
         }
         break;
 
         case TrackingState_TrackingOK:
-        case TrackingState_TrackingLost: {
+        case TrackingState_TrackingLost:
+        {
             //relocalize or track 3d points
             track3DPts();
         }
@@ -140,7 +142,8 @@ void WAI::ModeOrbSlam2::notifyUpdate()
 
         case TrackingState_Idle:
         case TrackingState_None:
-        default: {
+        default:
+        {
         }
         break;
     }
@@ -217,32 +220,38 @@ std::string WAI::ModeOrbSlam2::getPrintableState()
 
     switch (_state)
     {
-        case TrackingState_Initializing: {
+        case TrackingState_Initializing:
+        {
             printableState = "INITIALIZING";
         }
         break;
 
-        case TrackingState_Idle: {
+        case TrackingState_Idle:
+        {
             printableState = "IDLE";
         }
         break;
 
-        case TrackingState_TrackingLost: {
+        case TrackingState_TrackingLost:
+        {
             printableState = "TRACKING_LOST"; //motion model tracking
         }
         break;
 
-        case TrackingState_TrackingOK: {
+        case TrackingState_TrackingOK:
+        {
             printableState = "TRACKING_OK";
         }
         break;
 
-        case TrackingState_None: {
+        case TrackingState_None:
+        {
             printableState = "TRACKING_NONE";
         }
         break;
 
-        default: {
+        default:
+        {
             printableState = "";
         }
         break;
@@ -685,7 +694,7 @@ void WAI::ModeOrbSlam2::track3DPts()
         }
         else
         {
-            _bOK = relocalization();
+            _bOK = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId);
         }
     }
     else
@@ -694,7 +703,7 @@ void WAI::ModeOrbSlam2::track3DPts()
 
         if (_state == TrackingState_TrackingLost)
         {
-            _bOK       = relocalization();
+            _bOK       = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId);
             _optFlowOK = false;
             //cout << "Relocalization: " << bOK << endl;
         }
@@ -738,7 +747,7 @@ void WAI::ModeOrbSlam2::track3DPts()
                     vbOutMM = mCurrentFrame.mvbOutlier;
                     TcwMM   = mCurrentFrame.mTcw.clone();
                 }
-                bOKReloc = relocalization();
+                bOKReloc = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId);
 
                 //relocalization method is not valid but the velocity model method
                 if (bOKMM && !bOKReloc)
@@ -1338,6 +1347,175 @@ void WAI::ModeOrbSlam2::findMatches(std::vector<cv::Point2f>& vP2D, std::vector<
     }
 }
 
+bool WAI::ModeOrbSlam2::relocalization(WAIFrame&      currentFrame,
+                                       WAIKeyFrameDB* keyFrameDB,
+                                       unsigned int*  lastRelocFrameId)
+{
+    // Compute Bag of Words Vector
+    currentFrame.ComputeBoW();
+
+    // Relocalization is performed when tracking is lost
+    // Track Lost: Query WAIKeyFrame Database for keyframe candidates for relocalisation
+    vector<WAIKeyFrame*> vpCandidateKFs = keyFrameDB->DetectRelocalizationCandidates(&currentFrame);
+
+    if (vpCandidateKFs.empty())
+        return false;
+
+    //vector<WAIKeyFrame*> vpCandidateKFs = mpKeyFrameDatabase->keyFrames();
+    const int nKFs = vpCandidateKFs.size();
+
+    // We perform first an ORB matching with each candidate
+    // If enough matches are found we setup a PnP solver
+    // Best match < 0.75 * second best match (default is 0.6)
+    ORBmatcher matcher(0.75, true);
+
+    vector<PnPsolver*> vpPnPsolvers;
+    vpPnPsolvers.resize(nKFs);
+
+    vector<vector<WAIMapPoint*>> vvpMapPointMatches;
+    vvpMapPointMatches.resize(nKFs);
+
+    vector<bool> vbDiscarded;
+    vbDiscarded.resize(nKFs);
+
+    int nCandidates = 0;
+
+    for (int i = 0; i < nKFs; i++)
+    {
+        WAIKeyFrame* pKF = vpCandidateKFs[i];
+        if (pKF->isBad())
+            vbDiscarded[i] = true;
+        else
+        {
+            int nmatches = matcher.SearchByBoW(pKF, currentFrame, vvpMapPointMatches[i]);
+            //cout << "Num matches: " << nmatches << endl;
+            if (nmatches < 15)
+            {
+                vbDiscarded[i] = true;
+                continue;
+            }
+            else
+            {
+                PnPsolver* pSolver = new PnPsolver(currentFrame, vvpMapPointMatches[i]);
+                pSolver->SetRansacParameters(0.99, 10, 300, 4, 0.5, 5.991);
+                vpPnPsolvers[i] = pSolver;
+                nCandidates++;
+            }
+        }
+    }
+
+    // Alternatively perform some iterations of P4P RANSAC
+    // Until we found a camera pose supported by enough inliers
+    bool       bMatch = false;
+    ORBmatcher matcher2(0.9, true);
+
+    while (nCandidates > 0 && !bMatch)
+    {
+        for (int i = 0; i < nKFs; i++)
+        {
+            if (vbDiscarded[i])
+                continue;
+
+            // Perform 5 Ransac Iterations
+            vector<bool> vbInliers;
+            int          nInliers;
+            bool         bNoMore;
+
+            PnPsolver* pSolver = vpPnPsolvers[i];
+            cv::Mat    Tcw     = pSolver->iterate(5, bNoMore, vbInliers, nInliers);
+
+            // If Ransac reachs max. iterations discard keyframe
+            if (bNoMore)
+            {
+                vbDiscarded[i] = true;
+                nCandidates--;
+            }
+
+            // If a Camera Pose is computed, optimize
+            if (!Tcw.empty())
+            {
+                Tcw.copyTo(currentFrame.mTcw);
+
+                set<WAIMapPoint*> sFound;
+
+                const int np = vbInliers.size();
+
+                for (int j = 0; j < np; j++)
+                {
+                    if (vbInliers[j])
+                    {
+                        currentFrame.mvpMapPoints[j] = vvpMapPointMatches[i][j];
+                        sFound.insert(vvpMapPointMatches[i][j]);
+                    }
+                    else
+                        currentFrame.mvpMapPoints[j] = NULL;
+                }
+
+                int nGood = Optimizer::PoseOptimization(&currentFrame);
+
+                if (nGood < 10)
+                    continue;
+
+                for (int io = 0; io < currentFrame.N; io++)
+                    if (currentFrame.mvbOutlier[io])
+                        currentFrame.mvpMapPoints[io] = static_cast<WAIMapPoint*>(NULL);
+
+                // If few inliers, search by projection in a coarse window and optimize again:
+                //ghm1: mappoints seen in the keyframe which was found as candidate via BoW-search are projected into
+                //the current frame using the position that was calculated using the matches from BoW matcher
+                if (nGood < 50)
+                {
+                    int nadditional = matcher2.SearchByProjection(currentFrame, vpCandidateKFs[i], sFound, 10, 100);
+
+                    if (nadditional + nGood >= 50)
+                    {
+                        nGood = Optimizer::PoseOptimization(&currentFrame);
+
+                        // If many inliers but still not enough, search by projection again in a narrower window
+                        // the camera has been already optimized with many points
+                        if (nGood > 30 && nGood < 50)
+                        {
+                            sFound.clear();
+                            for (int ip = 0; ip < currentFrame.N; ip++)
+                                if (currentFrame.mvpMapPoints[ip])
+                                    sFound.insert(currentFrame.mvpMapPoints[ip]);
+                            nadditional = matcher2.SearchByProjection(currentFrame, vpCandidateKFs[i], sFound, 3, 64);
+
+                            // Final optimization
+                            if (nGood + nadditional >= 50)
+                            {
+                                nGood = Optimizer::PoseOptimization(&currentFrame);
+
+                                for (int io = 0; io < currentFrame.N; io++)
+                                    if (currentFrame.mvbOutlier[io])
+                                        currentFrame.mvpMapPoints[io] = NULL;
+                            }
+                        }
+                    }
+                }
+
+                // If the pose is supported by enough inliers stop ransacs and continue
+                if (nGood >= 50)
+                {
+                    bMatch = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!bMatch)
+    {
+        return false;
+    }
+    else
+    {
+        *lastRelocFrameId = currentFrame.mnId;
+        return true;
+    }
+}
+
+#if 0
 bool WAI::ModeOrbSlam2::relocalization()
 {
     // Compute Bag of Words Vector
@@ -1503,6 +1681,7 @@ bool WAI::ModeOrbSlam2::relocalization()
         return true;
     }
 }
+#endif
 
 bool WAI::ModeOrbSlam2::trackReferenceKeyFrame()
 {

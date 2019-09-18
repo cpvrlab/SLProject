@@ -179,7 +179,7 @@ CVCapture::adjustForSL. This function can also be called by Android or iOS
 app for grabbing a frame of a video file. Android and iOS use their own
 capture functionality.
 */
-void CVCapture::grabAndAdjustForSL(float scrWdivH)
+bool CVCapture::grabAndAdjustForSL(float scrWdivH)
 {
     CVCapture::startCaptureTimeMS = _timer.elapsedTimeInMilliSec();
 
@@ -194,10 +194,10 @@ void CVCapture::grabAndAdjustForSL(float scrWdivH)
                 {
                     _captureDevice.set(cv::CAP_PROP_POS_FRAMES, 0);
                     if (!_captureDevice.read(lastFrame))
-                        return;
+                        return false;
                 }
                 else
-                    return;
+                    return false;
             }
 
             adjustForSL(scrWdivH);
@@ -209,13 +209,17 @@ void CVCapture::grabAndAdjustForSL(float scrWdivH)
             {
                 Utils::log("OpenCV: Capture device or video file is not open!\n");
                 logOnce = false;
+                return false;
             }
         }
     }
     catch (exception& e)
     {
         Utils::log("Exception during OpenCV video capture creation\n");
+        return false;
     }
+
+    return true;
 }
 
 //-----------------------------------------------------------------------------

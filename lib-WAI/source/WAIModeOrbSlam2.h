@@ -39,6 +39,8 @@ class WAI_API ModeOrbSlam2 : public Mode
     bool getPose(cv::Mat* pose);
     void notifyUpdate();
 
+    static bool relocalization(WAIFrame& currentFrame, WAIKeyFrameDB* keyFrameDB, unsigned int* lastRelocFrameId);
+
     void reset();
     bool isInitialized();
 
@@ -64,7 +66,7 @@ class WAI_API ModeOrbSlam2 : public Mode
     int         getNumKeyFrames();
     float       poseDifference();
     float       getMeanReprojectionError();
-    void        findMatches(std::vector<cv::Point2f> &vP2D, std::vector<cv::Point3f> &vP3Dw);
+    void        findMatches(std::vector<cv::Point2f>& vP2D, std::vector<cv::Point3f>& vP3Dw);
 
     std::string getLoopCloseStatus();
     uint32_t    getLoopCloseCount();
@@ -102,7 +104,7 @@ class WAI_API ModeOrbSlam2 : public Mode
     bool hasStateIdle();
     void setInitialized(bool initialized) { _initialized = initialized; }
 
-    void setExtractor(KPextractor * extractor, KPextractor * iniExtractor);
+    void setExtractor(KPextractor* extractor, KPextractor* iniExtractor);
     void setVocabulary(std::string orbVocFile);
     void loadMapData(std::vector<WAIKeyFrame*> keyFrames, std::vector<WAIMapPoint*> mapPoints, int numLoopClosings);
 
@@ -128,7 +130,7 @@ class WAI_API ModeOrbSlam2 : public Mode
     bool createInitialMapMonocular();
     void track3DPts();
 
-    bool relocalization();
+    //bool        relocalization();
     bool trackReferenceKeyFrame();
     bool trackWithMotionModel();
     bool trackLocalMap();
@@ -163,16 +165,16 @@ class WAI_API ModeOrbSlam2 : public Mode
     WAIKeyFrameDB* mpKeyFrameDatabase = nullptr;
     WAIMap*        _map               = nullptr;
 
-    ORB_SLAM2::ORBVocabulary* mpVocabulary      = nullptr;
-    ORB_SLAM2::KPextractor*   mpExtractor        = nullptr;
-    ORB_SLAM2::KPextractor*   mpIniExtractor     = nullptr;
+    ORB_SLAM2::ORBVocabulary* mpVocabulary   = nullptr;
+    ORB_SLAM2::KPextractor*   mpExtractor    = nullptr;
+    ORB_SLAM2::KPextractor*   mpIniExtractor = nullptr;
 
-    ORB_SLAM2::KPextractor*   mpDefaultExtractor        = nullptr;
-    ORB_SLAM2::KPextractor*   mpIniDefaultExtractor     = nullptr;
+    ORB_SLAM2::KPextractor* mpDefaultExtractor    = nullptr;
+    ORB_SLAM2::KPextractor* mpIniDefaultExtractor = nullptr;
 
-    ORB_SLAM2::LocalMapping*  mpLocalMapper     = nullptr;
-    ORB_SLAM2::LoopClosing*   mpLoopCloser      = nullptr;
-    ORB_SLAM2::Initializer*   mpInitializer     = nullptr;
+    ORB_SLAM2::LocalMapping* mpLocalMapper = nullptr;
+    ORB_SLAM2::LoopClosing*  mpLoopCloser  = nullptr;
+    ORB_SLAM2::Initializer*  mpInitializer = nullptr;
 
     std::thread* mptLocalMapping = nullptr;
     std::thread* mptLoopClosing  = nullptr;
