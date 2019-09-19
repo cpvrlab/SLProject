@@ -5,7 +5,7 @@ project (FeatureMatching C CXX)
 string(TOUPPER ${CMAKE_SYSTEM_NAME} SYSTEM_NAME_UPPER)
 set(CMAKE_BUILD_TYPE Debug)
 
-set(WAI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+set(SL_PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 include(../../cmake/PlatformLinkLibs.cmake)
 include(../../cmake/DownloadPrebuilts.cmake)
 
@@ -38,7 +38,6 @@ file(GLOB sources
 
 add_executable( FeatureMatching ${sources} ${headers} )
 
-message (STATUS "WAI_ROOT ${WAI_ROOT}")
 message (STATUS "OpenCV_INCLUDE_DIR ${OpenCV_INCLUDE_DIR}")
 message (STATUS "OpenCV_LIBS ${OpenCV_LIBS}")
 message (STATUS "OpenCV_LINK_DIR ${OpenCV_LINK_DIR}")
