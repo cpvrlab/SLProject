@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/luc/Development/SLProject/experimental/DBoW2/app-Demo-OrbExtractor",
+  "command": "/usr/bin/c++  -DBUILD_DEBUG -I/experimental/app-Demo-OrbExtractor  -O3 -DNDEBUG   -o CMakeFiles/app-Demo-OrbExtractor.dir/fpl_orbextractor.o -c /home/luc/Development/SLProject/experimental/app-Demo-OrbExtractor/fpl_orbextractor.cpp",
+  "file": "/home/luc/Development/SLProject/experimental/app-Demo-OrbExtractor/fpl_orbextractor.cpp"
+}
+]
