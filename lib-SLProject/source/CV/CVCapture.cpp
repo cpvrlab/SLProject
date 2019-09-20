@@ -70,8 +70,8 @@ CVSize2i CVCapture::open(int deviceNum)
 
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
-        Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
-        Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
+        //Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
+        //Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
         fps                = _captureDevice.get(cv::CAP_PROP_FPS);
@@ -116,12 +116,12 @@ CVSize2i CVCapture::openFile()
             return CVSize2i(0, 0);
         }
 
-        Utils::log("Capture devices created with video.\n");
+        //Utils::log("Capture devices created with video.\n");
 
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
-        Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
-        Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
+        //Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
+        //Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
         fps                = _captureDevice.get(cv::CAP_PROP_FPS);

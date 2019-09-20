@@ -129,7 +129,7 @@ bool WAICalibration::loadFromFile(std::string path)
     float fov = calcCameraHorizontalFOV();
 
     _calibrationPath = path;
-    std::cout << "calibration file " << path << " loaded.    FOV = " << fov << std::endl;
+    //std::cout << "calibration file " << path << " loaded.    FOV = " << fov << std::endl;
     return true;
 }
 
