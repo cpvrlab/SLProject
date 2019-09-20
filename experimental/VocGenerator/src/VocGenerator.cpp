@@ -73,7 +73,7 @@ int loadFeatures(std::string videoname, vector<vector<cv::Mat>>& features)
         //orb->detectAndCompute(frame, mask, keypoints, descriptors);
 
         features.push_back(vector<cv::Mat>());
-        changeStructure(descriptors, features.back());
+        changeStructure(descriptors, map, features.back());
         nb_features += features.back().size();
     }
     vidcap.release();
@@ -106,15 +106,13 @@ void changeStructure(const cv::Mat& plain, vector<cv::Mat>& out)
 
 void changeStructure(const cv::Mat& plain, std::map<std::string, cv::Mat>& map,  vector<cv::Mat>& out)
 {
-    out.resize(plain.rows);
-
     for (int i = 0; i < plain.rows; ++i)
     {
         cv::Mat m = plain.row(i);
         std::string str = desc_to_str(m);
         if (map.find(str) == map.end())
         {
-            out[i] = m.clone();
+            out.push_back(m);
             map[str] = m;
         }
     }
