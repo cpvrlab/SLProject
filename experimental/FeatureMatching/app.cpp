@@ -5,11 +5,11 @@
 #include "brief_descriptor.h"
 #include "matching.h"
 
-void orb_descriptors_orb_keypoints(App &app)
+void orb_descriptors_orb_keypoints(App& app)
 {
-    cv::Mat grayscaleImg;
+    cv::Mat                                grayscaleImg;
     std::vector<std::vector<cv::KeyPoint>> all_keypoints;
-    std::vector<std::vector<Descriptor>> all_desc;
+    std::vector<std::vector<Descriptor>>   all_desc;
 
     //Image 1
     grayscaleImg = rgb_to_grayscale(app.image1);
@@ -24,7 +24,6 @@ void orb_descriptors_orb_keypoints(App &app)
 
     flatten_keypoints(app.keypoints1, all_keypoints, app.pyramid_param);
     flatten_decriptors(app.descs1, all_desc, app.pyramid_param);
-
 
     //Image 2
     all_keypoints.clear();
@@ -43,17 +42,16 @@ void orb_descriptors_orb_keypoints(App &app)
     flatten_keypoints(app.keypoints2, all_keypoints, app.pyramid_param);
     flatten_decriptors(app.descs2, all_desc, app.pyramid_param);
 
-
     match_keypoints_1(app.matching_2_1, app.keypoints1, app.descs1, app.keypoints2, app.descs2, true);
 }
 
-void brief_descriptors_tilde_keypoints(App &app)
+void brief_descriptors_tilde_keypoints(App& app)
 {
     cv::Mat grayscaleImg1;
     cv::Mat grayscaleImg2;
     app.image1_pyramid.clear();
     app.image2_pyramid.clear();
-    
+
     grayscaleImg1 = rgb_to_grayscale(app.image1);
     app.image1_pyramid.push_back(grayscaleImg1.clone());
     KPExtractTILDE(app.keypoints1, app.image1);
@@ -69,13 +67,13 @@ void brief_descriptors_tilde_keypoints(App &app)
     match_keypoints_1(app.matching_2_1, app.keypoints1, app.descs1, app.keypoints2, app.descs2, false);
 }
 
-void orb_descriptors_surf_keypoints(App &app)
+void orb_descriptors_surf_keypoints(App& app)
 {
     cv::Mat grayscaleImg1;
     cv::Mat grayscaleImg2;
     app.image1_pyramid.clear();
     app.image2_pyramid.clear();
-    
+
     grayscaleImg1 = rgb_to_grayscale(app.image1);
     app.image1_pyramid.push_back(grayscaleImg1.clone());
     KPExtractSURF(app.keypoints1, app.image1);
@@ -88,17 +86,16 @@ void orb_descriptors_surf_keypoints(App &app)
     KPExtractSURF(app.keypoints2, app.image2);
     ComputeORBDescriptors(app.descs2, grayscaleImg2, app.keypoints2);
 
-
     match_keypoints_1(app.matching_2_1, app.keypoints1, app.descs1, app.keypoints2, app.descs2, true);
 }
 
-void brief_descriptors_surf_keypoints(App &app)
+void brief_descriptors_surf_keypoints(App& app)
 {
     cv::Mat grayscaleImg1;
     cv::Mat grayscaleImg2;
     app.image1_pyramid.clear();
     app.image2_pyramid.clear();
-    
+
     grayscaleImg1 = rgb_to_grayscale(app.image1);
     app.image1_pyramid.push_back(grayscaleImg1.clone());
     KPExtractSURF(app.keypoints1, app.image1);
@@ -111,15 +108,15 @@ void brief_descriptors_surf_keypoints(App &app)
     KPExtractSURF(app.keypoints2, app.image2);
     ComputeBRIEFDescriptors(app.descs2, grayscaleImg2, app.keypoints2);
 
-    match_keypoints_1(app.matching_2_1, app.keypoints1, app.descs1, app.keypoints2, app.descs2, false);
+    match_keypoints_1(app.matching_2_1, app.keypoints1, app.descs1, app.keypoints2, app.descs2, false, 0.03f, 0.75f, 70.0f);
 }
 
-void app_next_method(App &app)
+void app_next_method(App& app)
 {
-    app.method = (app.method+1) % END_METHOD;
+    app.method = (app.method + 1) % END_METHOD;
 }
 
-void app_reset(App &app)
+void app_reset(App& app)
 {
     app.keypoints1.clear();
     app.keypoints2.clear();
@@ -140,7 +137,7 @@ void app_reset(App &app)
     app.pyramid_param.total_features = 0;
 }
 
-void app_prepare(App &app)
+void app_prepare(App& app)
 {
     init_pyramid_parameters(app.pyramid_param, 1, 1.2, 1000);
 
@@ -164,5 +161,3 @@ void app_prepare(App &app)
     app.matching_1_2.resize(app.keypoints1.size());
     get_inverted_matching(app.matching_1_2, app.matching_2_1);
 }
-
-
