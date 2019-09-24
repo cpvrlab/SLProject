@@ -596,17 +596,32 @@ void KPExtractTILDE(std::vector<cv::KeyPoint>& allKeypoints, cv::Mat image)
     // resize back
     resizeRatio = 1. / resizeRatio;
 
+    cv::Rect roi = cv::Rect(HALF_PATCH_SIZE, HALF_PATCH_SIZE, image.cols - PATCH_SIZE, image.rows - PATCH_SIZE);
+
     for (int i = 0; i < res_with_score.size(); i++)
     {
         cv::KeyPoint kp = cv::KeyPoint(res_with_score[i].x * resizeRatio, res_with_score[i].y * resizeRatio, 1.0, 0, res_with_score[i].z, 0);
-        //cv::KeyPoint kp = cv::KeyPoint(res_with_score[i].x * resizeRatio, res_with_score[i].y * resizeRatio, 1.0, 0, 1, 0);
-        kp.size = PATCH_SIZE;
-        allKeypoints.push_back(kp);
+        kp.size         = PATCH_SIZE;
+
+        //check that keypoint is inside of a reduced roi because of descriptor patch size
+        if (roi.contains(kp.pt))
+        {
+            allKeypoints.push_back(kp);
+        }
+        //else
+        //{
+        //    std::cout << "KPExtractTILDE: keypoint outside roi: " << kp.pt << std::endl;
+        //}
     }
 }
 
 void KPExtractSURF(std::vector<cv::KeyPoint>& allKeypoints, cv::Mat image)
 {
-    cv::Ptr<cv::xfeatures2d::SURF> surf_detector = cv::xfeatures2d::SURF::create(1000);
-    surf_detector->detect(image, allKeypoints);
+    cv::Ptr<cv::xfeatures2d::SURF> surf_detector = cv::xfeatures2d::SURF::create(50);
+
+    //reduce keypoint detection to an inner region because of descriptor patch size
+    cv::Mat  mask = cv::Mat::zeros(image.size(), CV_8U);
+    cv::Rect roi  = cv::Rect(HALF_PATCH_SIZE, HALF_PATCH_SIZE, image.cols - PATCH_SIZE, image.rows - PATCH_SIZE);
+    mask(roi).setTo(1);
+    surf_detector->detect(image, allKeypoints, mask);
 }
