@@ -41,46 +41,54 @@ void set_color_by_value(std::vector<cv::Scalar>& colors, std::vector<cv::KeyPoin
     }
 }
 
-void draw_match_line(App& app, int matchIndex1, int matchIndex2)
+//draw concatenated image
+void draw_concat_images(App& app)
 {
     cv::hconcat(app.image1, app.image2, app.out_image);
+}
 
+void draw_all_keypoins(App& app, cv::Scalar color)
+{
     for (int i = 0; i < app.keypoints1.size(); i++)
     {
-        cv::circle(app.out_image, app.keypoints1[i].pt, 3, app.kp1_colors[i], 1);
+        cv::circle(app.out_image, app.keypoints1[i].pt, 3, color, 1);
     }
 
     for (int i = 0; i < app.keypoints2.size(); i++)
     {
-        cv::circle(app.out_image, app.keypoints2[i].pt + cv::Point2f(app.image1.cols, 0), 3, app.kp2_colors[i], 1);
+        cv::circle(app.out_image, app.keypoints2[i].pt + cv::Point2f(app.image1.cols, 0), 3, color, 1);
+    }
+}
+
+void draw_match_line(App& app, int matchIndex1, int matchIndex2, cv::Scalar color)
+{
+    if (matchIndex1 >= app.keypoints1.size() || matchIndex2 >= app.keypoints2.size())
+    {
+        std::cout << "WARNING in function draw_match_line: indices out of range!" << std::endl;
+        return;
     }
 
+    cv::Point2f offset(app.image1.cols, 0);
+    cv::circle(app.out_image, app.keypoints1[matchIndex1].pt, 3, color, 1);
+    cv::circle(app.out_image, app.keypoints2[matchIndex2].pt + offset, 3, color, 1);
     cv::line(app.out_image,
-             app.keypoints2[matchIndex2].pt + cv::Point2f(app.image1.cols, 0),
+             app.keypoints2[matchIndex2].pt + offset,
              app.keypoints1[matchIndex1].pt,
-             app.kp2_colors[matchIndex2],
+             color,
              2);
 }
 
-void draw_matches_lines(App& app)
+//draw all keypoints and all matches
+void draw_matches_lines(App& app, const cv::Scalar color)
 {
-    cv::hconcat(app.image1, app.image2, app.out_image);
-
-    for (int i = 0; i < app.keypoints1.size(); i++)
-    {
-        cv::circle(app.out_image, app.keypoints1[i].pt, 3, app.kp1_colors[i], 1);
-    }
-
-    for (int i = 0; i < app.keypoints2.size(); i++)
-    {
-        cv::circle(app.out_image, app.keypoints2[i].pt + cv::Point2f(app.image1.cols, 0), 3, app.kp2_colors[i], 1);
-    }
-
+    cv::Point2f offset(app.image1.cols, 0);
     for (int i = 0; i < app.matching_2_1.size(); i++)
     {
         if (app.matching_2_1[i] >= 0)
         {
-            cv::line(app.out_image, app.keypoints2[i].pt + cv::Point2f(app.image1.cols, 0), app.keypoints1[app.matching_2_1[i]].pt, app.kp2_colors[i], 2);
+            cv::circle(app.out_image, app.keypoints2[i].pt + offset, 3, color, 1);
+            cv::circle(app.out_image, app.keypoints1[app.matching_2_1[i]].pt, 3, color, 1);
+            cv::line(app.out_image, app.keypoints2[i].pt + offset, app.keypoints1[app.matching_2_1[i]].pt, color, 2);
         }
     }
 }
@@ -105,4 +113,43 @@ void draw_by_similarity(App& app)
             cv::circle(app.out_image, app.ordered_keypoints2[i].pt + cv::Point2f(app.image1.cols, 0), 15, app.kp2_colors[i], 3);
         }
     }
+}
+
+void draw_main(App& app)
+{
+    cv::Mat out;
+    cv::copyMakeBorder(app.out_image, out, 0, 100, 0, 0, cv::BORDER_CONSTANT, 0);
+    cv::Point pos(30, app.out_image.rows + 30);
+
+    std::string text = app.inspection_mode_text();
+
+    if (text.length() > 0)
+    {
+        std::vector<std::string> strs = str_split(text);
+        for (int i = 0; i < strs.size(); i++)
+        {
+            cv::putText(out, strs[i], cv::Point(pos.x, pos.y + 20 + 20 * i), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
+        }
+    }
+
+    switch (app.method)
+    {
+        case STOCK_ORBSLAM:
+            cv::putText(out, "ORB keypoint, ORB descrptor", pos, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
+            break;
+
+        case TILDE_BRIEF:
+            cv::putText(out, "TILDE keypoint, BRIEF descrptor", pos, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
+            break;
+
+        case SURF_BRIEF:
+            cv::putText(out, "SURF keypoint, BRIEF descrptor", pos, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
+            break;
+
+        case SURF_ORB:
+            cv::putText(out, "SURF keypoint, ORB descrptor", pos, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
+            break;
+    }
+
+    imshow(app.name, out);
 }

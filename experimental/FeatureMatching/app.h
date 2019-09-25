@@ -14,10 +14,11 @@
 
 enum class InspectionMode
 {
-    MATCH_DRAWING             = 49, //1
-    MATCHED_POINT_SIMILIARITY = 50, //2
-    ANY_KEYPOINT_COMPARISON   = 51, //3
-    ANY_PIXEL_COMPARISON      = 52, //4
+    MATCH_DRAWING_ALL = 49, //1
+    MATCH_DRAWING_SINGLE,
+    MATCHED_POINT_SIMILIARITY,
+    ANY_KEYPOINT_COMPARISON,
+    ANY_PIXEL_COMPARISON,
     END
 };
 
@@ -54,22 +55,28 @@ typedef struct App
     int       local_idx;
     float     select_radius;
 
+    //currently selected mouse position
+    cv::Point mouse_pos;
+    int       keyboard_flags = 0;
+
     int            method         = SURF_BRIEF;
-    InspectionMode inspectionMode = InspectionMode::MATCH_DRAWING;
+    InspectionMode inspectionMode = InspectionMode::MATCH_DRAWING_ALL;
 
     std::string inspection_mode_text()
     {
         std::string text;
         switch (inspectionMode)
         {
-            case InspectionMode::MATCH_DRAWING:
-                return "draw matching";
+            case InspectionMode::MATCH_DRAWING_ALL:
+                return "All matches are visualized connected with lines";
+            case InspectionMode::MATCH_DRAWING_SINGLE:
+                return "Click on the image to visualize closed match by a single line. Close-up views for both keypoints are shown.";
             case InspectionMode::MATCHED_POINT_SIMILIARITY:
-                return "matched points similarity";
+                return "Click on left or right image to catch the closest feature point. Closest feature points in the other image are highlighted\nand a close-up of the catched keypoint is drawn. (Multi-click on the same position iterates keypoints in the neighbourhood.)";
             case InspectionMode::ANY_PIXEL_COMPARISON:
-                return "any pixel comparison";
+                return "Click on both images to select two pixel positons. The descriptors at selected positions are compared and visualized in close-up views";
             case InspectionMode::ANY_KEYPOINT_COMPARISON:
-                return "any keypoint comparison";
+                return "Click on both images to catch two keypoints. The descriptors at selected positions are compared and visualized in close-up views. (Multi-click on the same position iterates keypoints in the neighbourhood.)";
             default:
                 return "";
         }

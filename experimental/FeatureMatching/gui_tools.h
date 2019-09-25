@@ -19,9 +19,13 @@ void init_color(std::vector<cv::Scalar>& colors, int size);
 
 void set_color_by_value(std::vector<cv::Scalar>& colors, std::vector<cv::KeyPoint>& kps);
 
-void draw_matches_lines(App& app);
+void draw_matches_lines(App& app, const cv::Scalar color);
 
-void draw_match_line(App& app, int matchIndex1, int matchIndex2);
+void draw_concat_images(App& app);
+
+void draw_all_keypoins(App& app, cv::Scalar color);
+
+void draw_match_line(App& app, int matchIndex1, int matchIndex2, cv::Scalar color);
 
 void draw_by_similarity(App& app);
 
@@ -29,6 +33,6 @@ void draw_closeup_right(App& app, int idx);
 
 void draw_closeup_left(App& app, int idx);
 
-void draw_main(App& app, std::string text);
+void draw_main(App& app);
 
 #endif
