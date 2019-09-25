@@ -17,7 +17,7 @@ const int PATCH_SIZE      = 31;
 const int HALF_PATCH_SIZE = 15;
 //const int PATCH_SIZE      = 61;
 //const int HALF_PATCH_SIZE = 30;
-const int EDGE_THRESHOLD = 34;
+const int EDGE_THRESHOLD = 19;
 
 typedef struct PyramidParameters
 {

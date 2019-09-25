@@ -12,6 +12,15 @@
 #define SURF_ORB 3
 #define END_METHOD 4
 
+enum class InspectionMode
+{
+    MATCH_DRAWING             = 49, //1
+    MATCHED_POINT_SIMILIARITY = 50, //2
+    ANY_KEYPOINT_COMPARISON   = 51, //3
+    ANY_PIXEL_COMPARISON      = 52, //4
+    END
+};
+
 typedef struct App
 {
     std::string name;
@@ -45,7 +54,26 @@ typedef struct App
     int       local_idx;
     float     select_radius;
 
-    int method = SURF_BRIEF;
+    int            method         = SURF_BRIEF;
+    InspectionMode inspectionMode = InspectionMode::MATCH_DRAWING;
+
+    std::string inspection_mode_text()
+    {
+        std::string text;
+        switch (inspectionMode)
+        {
+            case InspectionMode::MATCH_DRAWING:
+                return "draw matching";
+            case InspectionMode::MATCHED_POINT_SIMILIARITY:
+                return "matched points similarity";
+            case InspectionMode::ANY_PIXEL_COMPARISON:
+                return "any pixel comparison";
+            case InspectionMode::ANY_KEYPOINT_COMPARISON:
+                return "any keypoint comparison";
+            default:
+                return "";
+        }
+    }
 } App;
 
 void app_next_method(App& app);

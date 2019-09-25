@@ -596,7 +596,7 @@ void KPExtractTILDE(std::vector<cv::KeyPoint>& allKeypoints, cv::Mat image)
     // resize back
     resizeRatio = 1. / resizeRatio;
 
-    cv::Rect roi = cv::Rect(HALF_PATCH_SIZE, HALF_PATCH_SIZE, image.cols - PATCH_SIZE, image.rows - PATCH_SIZE);
+    cv::Rect roi = cv::Rect(EDGE_THRESHOLD, EDGE_THRESHOLD, image.cols - 2 * EDGE_THRESHOLD, image.rows - 2 * EDGE_THRESHOLD);
 
     for (int i = 0; i < res_with_score.size(); i++)
     {
@@ -621,7 +621,7 @@ void KPExtractSURF(std::vector<cv::KeyPoint>& allKeypoints, cv::Mat image)
 
     //reduce keypoint detection to an inner region because of descriptor patch size
     cv::Mat  mask = cv::Mat::zeros(image.size(), CV_8U);
-    cv::Rect roi  = cv::Rect(HALF_PATCH_SIZE, HALF_PATCH_SIZE, image.cols - PATCH_SIZE, image.rows - PATCH_SIZE);
+    cv::Rect roi  = cv::Rect(EDGE_THRESHOLD, EDGE_THRESHOLD, image.cols - 2 * EDGE_THRESHOLD, image.rows - 2 * EDGE_THRESHOLD);
     mask(roi).setTo(1);
     surf_detector->detect(image, allKeypoints, mask);
 }

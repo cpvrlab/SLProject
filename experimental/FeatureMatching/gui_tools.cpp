@@ -1,7 +1,6 @@
 #include "gui_tools.h"
 #include "app.h"
 
-
 cv::Scalar red() { return cv::Scalar(0, 0, 255); }
 cv::Scalar blue() { return cv::Scalar(255, 0, 0); }
 cv::Scalar green() { return cv::Scalar(0, 255, 0); }
@@ -9,18 +8,18 @@ cv::Scalar white() { return cv::Scalar(255, 255, 255); }
 
 cv::Scalar color_interpolate(cv::Scalar c1, cv::Scalar c2, float v)
 {
-    return (1-v) * c1 + v * c2;
+    return (1 - v) * c1 + v * c2;
 }
 
-void reset_similarity(std::vector<cv::KeyPoint> &kps)
+void reset_similarity(std::vector<cv::KeyPoint>& kps)
 {
-    for (cv::KeyPoint &kp : kps)
+    for (cv::KeyPoint& kp : kps)
     {
         kp.response = 1.0;
     }
 }
 
-void reset_color(std::vector<cv::Scalar> &colors, cv::Scalar col)
+void reset_color(std::vector<cv::Scalar>& colors, cv::Scalar col)
 {
     for (int i = 0; i < colors.size(); i++)
     {
@@ -28,13 +27,13 @@ void reset_color(std::vector<cv::Scalar> &colors, cv::Scalar col)
     }
 }
 
-void init_color(std::vector<cv::Scalar> &colors, int size)
+void init_color(std::vector<cv::Scalar>& colors, int size)
 {
     colors.resize(size);
     reset_color(colors, blue());
 }
 
-void set_color_by_value(std::vector<cv::Scalar> &colors, std::vector<cv::KeyPoint> &kps)
+void set_color_by_value(std::vector<cv::Scalar>& colors, std::vector<cv::KeyPoint>& kps)
 {
     for (int i = 0; i < kps.size(); i++)
     {
@@ -42,7 +41,28 @@ void set_color_by_value(std::vector<cv::Scalar> &colors, std::vector<cv::KeyPoin
     }
 }
 
-void draw_matches_lines(App &app)
+void draw_match_line(App& app, int matchIndex1, int matchIndex2)
+{
+    cv::hconcat(app.image1, app.image2, app.out_image);
+
+    for (int i = 0; i < app.keypoints1.size(); i++)
+    {
+        cv::circle(app.out_image, app.keypoints1[i].pt, 3, app.kp1_colors[i], 1);
+    }
+
+    for (int i = 0; i < app.keypoints2.size(); i++)
+    {
+        cv::circle(app.out_image, app.keypoints2[i].pt + cv::Point2f(app.image1.cols, 0), 3, app.kp2_colors[i], 1);
+    }
+
+    cv::line(app.out_image,
+             app.keypoints2[matchIndex2].pt + cv::Point2f(app.image1.cols, 0),
+             app.keypoints1[matchIndex1].pt,
+             app.kp2_colors[matchIndex2],
+             2);
+}
+
+void draw_matches_lines(App& app)
 {
     cv::hconcat(app.image1, app.image2, app.out_image);
 
@@ -65,7 +85,7 @@ void draw_matches_lines(App &app)
     }
 }
 
-void draw_by_similarity(App &app)
+void draw_by_similarity(App& app)
 {
     cv::hconcat(app.image1, app.image2, app.out_image);
 
@@ -86,5 +106,3 @@ void draw_by_similarity(App &app)
         }
     }
 }
-
-

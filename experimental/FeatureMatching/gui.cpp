@@ -82,11 +82,13 @@ void draw_closeup_left(App& app, int idx)
     imshow(app.closeup_left, out);
 }
 
-void draw_main(App& app, std::string text)
+void draw_main(App& app)
 {
     cv::Mat out;
     cv::copyMakeBorder(app.out_image, out, 0, 100, 0, 0, cv::BORDER_CONSTANT, 0);
     cv::Point pos(30, app.out_image.rows + 30);
+
+    std::string text = app.inspection_mode_text();
 
     if (text.length() > 0)
     {
@@ -124,7 +126,7 @@ bool sort_fct(cv::KeyPoint& p1, cv::KeyPoint& p2)
     return p1.response > p2.response;
 }
 
-void mouse_button_left(int x, int y, int flags, App* app)
+void match_drawing(int x, int y, int flags, App* app)
 {
     reset_color(app->kp1_colors, blue());
     reset_color(app->kp2_colors, blue());
@@ -147,6 +149,7 @@ void mouse_button_left(int x, int y, int flags, App* app)
         }
         app->kp1_colors[idx1] = red();
         app->kp2_colors[idx2] = red();
+        draw_match_line(*app, idx1, idx2);
     }
     else //input for image displayed on the left
     {
@@ -165,12 +168,13 @@ void mouse_button_left(int x, int y, int flags, App* app)
         }
         app->kp1_colors[idx1] = red();
         app->kp2_colors[idx2] = red();
+        draw_match_line(*app, idx1, idx2);
     }
-    draw_matches_lines(*app);
-    draw_main(*app, "draw matches");
+
+    draw_main(*app);
 }
 
-void mouse_button_right(int x, int y, int flags, App* app)
+void matched_point_similarity(int x, int y, int flags, App* app)
 {
     reset_similarity(app->keypoints1);
     reset_similarity(app->keypoints2);
@@ -237,7 +241,37 @@ void mouse_button_right(int x, int y, int flags, App* app)
     }
 
     draw_by_similarity(*app);
-    draw_main(*app, "point similarity");
+    draw_main(*app);
+}
+
+void any_keypoint_comparison(int x, int y, int flags, App* app)
+{
+}
+
+void any_pixel_comparison(int x, int y, int flags, App* app)
+{
+}
+
+void mouse_button_left(int x, int y, int flags, App* app)
+{
+    switch (app->inspectionMode)
+    {
+        case InspectionMode::MATCH_DRAWING:
+            match_drawing(x, y, flags, app);
+            break;
+        case InspectionMode::MATCHED_POINT_SIMILIARITY:
+            matched_point_similarity(x, y, flags, app);
+            break;
+        case InspectionMode::ANY_KEYPOINT_COMPARISON:
+            any_keypoint_comparison(x, y, flags, app);
+            break;
+        case InspectionMode::ANY_PIXEL_COMPARISON:
+            break;
+            any_pixel_comparison(x, y, flags, app);
+            break;
+        default:
+            throw std::runtime_error("Unknown InspectionMode");
+    }
 }
 
 void main_mouse_events(int event, int x, int y, int flags, void* userdata)
@@ -246,12 +280,10 @@ void main_mouse_events(int event, int x, int y, int flags, void* userdata)
 
     switch (event)
     {
-        case cv::EVENT_LBUTTONDOWN:
+        case cv::EVENT_LBUTTONDOWN: {
             mouse_button_left(x, y, flags, app);
             break;
-        case cv::EVENT_RBUTTONDOWN:
-            mouse_button_right(x, y, flags, app);
-            break;
+        }
     }
 }
 
@@ -260,11 +292,38 @@ void print_help()
     std::cout << "-----------------------------------------------------------------------------------------" << std::endl;
     std::cout << "Usage of Best Tool Ever Made" << std::endl;
     std::cout << "Space:    change detection and description method" << std::endl;
+    std::cout << "1:        Change inspection mode to 'draw matching'" << std::endl;
+    std::cout << "2:        Change inspection mode to 'matched points similarity'" << std::endl;
+    std::cout << "3:        Change inspection mode to 'any keypoint comparison'" << std::endl;
+    std::cout << "4:        Change inspection mode to 'any pixel comparison'" << std::endl;
     std::cout << "LMB:      Select closest match and highlight in red" << std::endl;
     std::cout << "Ctrl+LMB: Additionally update closeup windows of closest matching pair" << std::endl;
-    std::cout << "RMB:      Select closest keypoint and visualize closest matches in other image." << std::endl;
-    std::cout << "          Show closeup window of closest match." << std::endl;
+    //std::cout << "RMB:      Select closest keypoint and visualize closest matches in other image." << std::endl;
+    //std::cout << "          Show closeup window of closest match." << std::endl;
     std::cout << "-----------------------------------------------------------------------------------------" << std::endl;
+}
+
+void update_inspection_mode(const int key, App& app)
+{
+    InspectionMode newMode = (InspectionMode)key;
+    if (newMode < InspectionMode::END)
+    {
+        app.inspectionMode = newMode;
+    }
+    else
+        std::cout << "INFO: update_inspection_mode: unused key for mode selection" << std::endl;
+}
+
+void update_detection(App& app)
+{
+    app_reset(app);
+    app_prepare(app);
+
+    init_color(app.kp1_colors, app.keypoints1.size());
+    init_color(app.kp2_colors, app.keypoints2.size());
+
+    draw_matches_lines(app);
+    draw_main(app);
 }
 
 void start_gui(App& app)
@@ -278,31 +337,21 @@ void start_gui(App& app)
     init_color(app.kp2_colors, app.keypoints2.size());
 
     //in the first run use default detection method
-    app_reset(app);
-    //define default method
     app.method = SURF_BRIEF;
-    app_prepare(app);
-
-    init_color(app.kp1_colors, app.keypoints1.size());
-    init_color(app.kp2_colors, app.keypoints2.size());
-
-    draw_matches_lines(app);
-    draw_main(app, "draw matches");
+    update_detection(app);
 
     for (;;)
     {
         int retval = cv::waitKey(0);
         if (retval == ' ') //change extraction method with space
         {
-            app_reset(app);
             app_next_method(app);
-            app_prepare(app);
-
-            init_color(app.kp1_colors, app.keypoints1.size());
-            init_color(app.kp2_colors, app.keypoints2.size());
-
-            draw_matches_lines(app);
-            draw_main(app, "draw matches");
+            update_detection(app);
+        }
+        else if (retval > 47 && retval < 58) //numbers pressed for inspection mode change
+        {
+            update_inspection_mode(retval, app);
+            update_detection(app);
         }
         else if (retval == 105 || retval == 104) // i for info or h for help
         {
