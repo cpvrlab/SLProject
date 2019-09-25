@@ -87,6 +87,13 @@ void draw_selected_keypoints(App& app)
     }
 }
 
+//void draw_selected_pixels(App& app)
+//{
+//    cv::circle(app.out_image, app.left_pix, 3, green(), 2, cv::LineTypes::FILLED);
+//    cv::Point offset(app.image1.cols, 0);
+//    cv::circle(app.out_image, app.right_pix + offset, 3, green(), 2, cv::LineTypes::FILLED);
+//}
+
 void draw_match_line(App& app, int matchIndex1, int matchIndex2, cv::Scalar color)
 {
     if (matchIndex1 >= app.keypoints1.size() || matchIndex2 >= app.keypoints2.size())

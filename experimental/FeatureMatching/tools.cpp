@@ -194,13 +194,13 @@ void compute_three_maxima(std::vector<int>* histo, const int L, int& ind1, int& 
     }
 }
 
-cv::Mat extract_patch(cv::Mat& image, cv::KeyPoint& kp)
+cv::Mat extract_patch(cv::Mat& image, cv::Point2f& pt)
 {
     std::vector<int> umax;
     init_patch(umax, HALF_PATCH_SIZE);
     cv::Mat gray = rgb_to_grayscale(image);
 
-    const uchar* center       = &gray.at<uchar>(cvRound(kp.pt.y), cvRound(kp.pt.x));
+    const uchar* center       = &gray.at<uchar>(cvRound(pt.y), cvRound(pt.x));
     cv::Mat      patch        = cv::Mat::zeros(PATCH_SIZE, PATCH_SIZE, CV_8UC1);
     uchar*       patch_center = &patch.at<uchar>(HALF_PATCH_SIZE, HALF_PATCH_SIZE);
 

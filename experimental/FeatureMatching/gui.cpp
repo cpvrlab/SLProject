@@ -1,13 +1,13 @@
 #include "gui_tools.h"
 
-cv::Mat draw_closeup(cv::Mat& image, cv::KeyPoint& kp, std::string text)
+cv::Mat draw_closeup(cv::Mat& image, cv::Point2f& pt, std::string text)
 {
     cv::Mat          out;
     cv::Mat          closeup;
     std::vector<int> umax;
 
     init_patch(umax);
-    cv::Mat patch = extract_patch(image, kp);
+    cv::Mat patch = extract_patch(image, pt);
     cv::resize(patch, closeup, cv::Size(500, 500), cv::INTER_NEAREST);
     cv::copyMakeBorder(closeup, out, 0, 200, 0, 0, cv::BORDER_CONSTANT, 0);
 
@@ -55,20 +55,48 @@ void draw_closeup_right(App& app, bool calcDistSelected)
     cv::Mat out;
     if (app.method == STOCK_ORBSLAM)
     {
-        out = draw_closeup(app.image2_pyramid[app.keypoints2[app.right_idx].octave], app.keypoints2[app.right_idx], ss.str());
+        out = draw_closeup(app.image2_pyramid[app.keypoints2[app.right_idx].octave], app.keypoints2[app.right_idx].pt, ss.str());
     }
     else
     {
-        out = draw_closeup(app.image2, app.keypoints2[app.right_idx], ss.str());
+        out = draw_closeup(app.image2, app.keypoints2[app.right_idx].pt, ss.str());
     }
     imshow(app.closeup_right, out);
 }
+
+//void draw_closeup_pixel_left(App& app)
+//{
+//    //check that pixel is inside roi of image (respecting descritor patch size)
+//    if (!(app.left_pix.x > EDGE_THRESHOLD &&
+//          app.left_pix.y > EDGE_THRESHOLD &&
+//          app.left_pix.x < app.image1.cols - EDGE_THRESHOLD &&
+//          app.left_pix.y < app.image1.rows - EDGE_THRESHOLD))
+//    {
+//        cv::destroyWindow(app.closeup_left);
+//        return;
+//    }
+//
+//    //calculate descriptor at this pixel position
+//
+//    std::stringstream ss;
+//    if (true)
+//    {
+//        ss << "Distance to left index " << app.left_idx << " is " << hamming_distance(app.descs1[app.left_idx], app.descs2[app.right_idx]) << std::endl;
+//    }
+//    else
+//    {
+//        ss << "Pixel is outside of ROI";
+//    }
+//
+//    cv::Mat out = draw_closeup(app.image1, cv::Point2f(app.left_pix), ss.str());
+//    imshow(app.closeup_left, out);
+//}
 
 void draw_closeup_left(App& app, bool calcDistSelected)
 {
     if (app.left_idx < 0)
     {
-        cv::destroyWindow("closeup left");
+        cv::destroyWindow(app.closeup_left);
         return;
     }
 
@@ -96,11 +124,11 @@ void draw_closeup_left(App& app, bool calcDistSelected)
     cv::Mat out;
     if (app.method == STOCK_ORBSLAM)
     {
-        out = draw_closeup(app.image1_pyramid[app.keypoints1[app.left_idx].octave], app.keypoints1[app.left_idx], ss.str());
+        out = draw_closeup(app.image1_pyramid[app.keypoints1[app.left_idx].octave], app.keypoints1[app.left_idx].pt, ss.str());
     }
     else
     {
-        out = draw_closeup(app.image1, app.keypoints1[app.left_idx], ss.str());
+        out = draw_closeup(app.image1, app.keypoints1[app.left_idx].pt, ss.str());
     }
 
     imshow(app.closeup_left, out);
@@ -321,11 +349,30 @@ void any_keypoint_comparison(int x, int y, int flags, App& app)
     draw_main(app);
 }
 
-void any_pixel_comparison(int x, int y, int flags, App& app)
-{
-    draw_concat_images(app);
-    draw_main(app);
-}
+//void any_pixel_comparison(int x, int y, int flags, App& app)
+//{
+//    reset_similarity(app.keypoints1);
+//    reset_similarity(app.keypoints2);
+//    reset_color(app.kp1_colors, blue());
+//    reset_color(app.kp2_colors, blue());
+//
+//    app.ordered_keypoints1 = app.keypoints1;
+//    app.ordered_keypoints2 = app.keypoints2;
+//
+//    if (x > app.image1.cols)
+//    {
+//        app.right_pix = {x - app.image1.cols, y};
+//    }
+//    else
+//    {
+//        app.left_pix = {x, y};
+//    }
+//
+//    draw_closeup_pixel_left(app);
+//    draw_concat_images(app);
+//    draw_selected_pixels(app);
+//    draw_main(app);
+//}
 
 void update_inspection(App& app)
 {
@@ -347,10 +394,9 @@ void update_inspection(App& app)
         case InspectionMode::ANY_KEYPOINT_COMPARISON:
             any_keypoint_comparison(x, y, flags, app);
             break;
-        case InspectionMode::ANY_PIXEL_COMPARISON:
-            break;
-            any_pixel_comparison(x, y, flags, app);
-            break;
+        //case InspectionMode::ANY_PIXEL_COMPARISON:
+        //    any_pixel_comparison(x, y, flags, app);
+        //    break;
         default:
             throw std::runtime_error("Unknown InspectionMode");
     }

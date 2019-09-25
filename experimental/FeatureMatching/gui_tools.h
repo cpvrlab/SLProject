@@ -29,13 +29,11 @@ void draw_matched_keypoints(App& app, cv::Scalar color);
 
 void draw_selected_keypoints(App& app);
 
+//void draw_selected_pixels(App& app);
+
 void draw_match_line(App& app, int matchIndex1, int matchIndex2, cv::Scalar color);
 
 void draw_by_similarity(App& app);
-
-void draw_closeup_right(App& app, int idx);
-
-void draw_closeup_left(App& app, int idx);
 
 void draw_main(App& app);
 

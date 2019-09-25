@@ -53,7 +53,7 @@ void print_desc(Descriptor& d);
 
 void compute_three_maxima(std::vector<int>* histo, const int L, int& ind1, int& ind2, int& ind3);
 
-cv::Mat extract_patch(cv::Mat& image, cv::KeyPoint& kp);
+cv::Mat extract_patch(cv::Mat& image, cv::Point2f& pt);
 
 void get_inverted_matching(std::vector<int>& inverted_matching, std::vector<int>& matching);
 

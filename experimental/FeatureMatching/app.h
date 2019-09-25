@@ -18,7 +18,7 @@ enum class InspectionMode
     MATCH_DRAWING_SINGLE,
     MATCHED_POINT_SIMILIARITY,
     ANY_KEYPOINT_COMPARISON,
-    ANY_PIXEL_COMPARISON,
+    //ANY_PIXEL_COMPARISON,
     END
 };
 
@@ -59,9 +59,9 @@ typedef struct App
     cv::Point mouse_pos;
     int       keyboard_flags = 0;
 
-    ////selected pixel left and right
-    //cv::Point pix_left;
-    //cv::Point pix_right;
+    ////selected pixel
+    //cv::Point left_pix;
+    //cv::Point right_pix;
 
     int            method         = SURF_BRIEF;
     InspectionMode inspectionMode = InspectionMode::MATCH_DRAWING_ALL;
