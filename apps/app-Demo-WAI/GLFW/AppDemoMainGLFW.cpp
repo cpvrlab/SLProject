@@ -37,8 +37,6 @@
 #include <SLPoints.h>
 #include <Utils.h>
 
-#include <WAI.h>
-
 //-----------------------------------------------------------------------------
 // GLobal application variables
 static GLFWwindow* window;                     //!< The global glfw window handle
@@ -46,7 +44,6 @@ static SLint       svIndex;                    //!< SceneView index
 static SLint       scrWidth;                   //!< Window width at start up
 static SLint       scrHeight;                  //!< Window height at start up
 static SLbool      fixAspectRatio;             //!< Flag if aspect ratio should be fixed
-static SLfloat     scrWdivH;                   //!< aspect ratio screen width divided by height
 static SLfloat     scr2fbX;                    //!< Factor from screen to framebuffer coords
 static SLfloat     scr2fbY;                    //!< Factor from screen to framebuffer coords
 static SLint       startX;                     //!< start position x in pixels
@@ -136,32 +133,37 @@ SLKey mapKeyToSLKey(SLint key)
 onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event.
 */
-static void onResize(GLFWwindow* window, int width, int height)
+void onResize(GLFWwindow* window, int width, int height)
 {
     if (fixAspectRatio)
     {
         //correct target width and height
-        if (height * scrWdivH <= width)
+        if (height * WAIApp::scrWdivH <= width)
         {
-            width  = (int)(height * scrWdivH);
-            height = (int)(width / scrWdivH);
+            width  = (int)(height * WAIApp::scrWdivH);
+            height = (int)(width / WAIApp::scrWdivH);
         }
         else
         {
-            height = (int)(width / scrWdivH);
-            width  = (int)(height * scrWdivH);
+            height = (int)(width / WAIApp::scrWdivH);
+            width  = (int)(height * WAIApp::scrWdivH);
         }
     }
 
     lastWidth  = width;
     lastHeight = height;
 
+    //update glfw window with new size
+    glfwSetWindowSize(window, width, height);
+
+    SLint fbWidth, fbHeight;
+    glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+    scr2fbX = (float)fbWidth / (float)width;
+    scr2fbY = (float)fbHeight / (float)height;
+
     // width & height are in screen coords.
     // We need to scale them to framebuffer coords.
     slResize(svIndex, (int)(width * scr2fbX), (int)(height * scr2fbY));
-
-    //update glfw window with new size
-    glfwSetWindowSize(window, width, height);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -466,7 +468,6 @@ void GLFWInit()
 
     //we have to fix aspect ratio, because the video image is initialized with this ratio
     fixAspectRatio = true;
-    scrWdivH       = (float)scrWidth / (float)scrHeight;
 
     touch2.set(-1, -1);
     touchDelta.set(-1, -1);
@@ -546,18 +547,15 @@ int main(int argc, char* argv[])
     dirs.slDataRoot  = SLstring(SL_PROJECT_ROOT) + "/data";
     dirs.writableDir = Utils::getAppsWritableDir();
 
-    CVCapture::instance()->open(0);
     svIndex = WAIApp::load(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, &dirs);
-
-    CVCapture::instance()->videoType(VT_MAIN);
-    CVCapture::instance()->start(scrWdivH);
 
     // Event loop
     while (!slShouldClose())
     {
-        if (CVCapture::instance()->videoType() != VT_NONE)
+        if (WAIApp::resizeWindow)
         {
-            CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+            onResize(window, WAIApp::scrWidth, WAIApp::scrHeight);
+            WAIApp::resizeWindow = false;
         }
 
         WAIApp::update();

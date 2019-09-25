@@ -1,6 +1,6 @@
 //#############################################################################
-//  File:      AppDemoGuiVideoStorage.h
-//  Author:    Luc Girod
+//  File:      AppDemoGuiSlamLoad.h
+//  Author:    Luc Girod, Jan Dellsperger
 //  Date:      April 2019
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -8,32 +8,43 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SL_IMGUI_VIDEOLOAD_H
-#define SL_IMGUI_VIDEOLOAD_H
+#ifndef SL_IMGUI_SLAMLOAD_H
+#define SL_IMGUI_SLAMLOAD_H
 
 #include <opencv2/core.hpp>
 #include <AppDemoGuiInfosDialog.h>
-#include <WAI.h>
 #include <WAICalibration.h>
 #include <SLMat4.h>
 #include <SLNode.h>
 
 //-----------------------------------------------------------------------------
-class AppDemoGuiVideoLoad : public AppDemoGuiInfosDialog
+class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {
     public:
-    AppDemoGuiVideoLoad(const std::string& name, std::string videoDir, std::string calibDir, WAICalibration* wc, WAI::WAI* wai, bool* activator);
+    AppDemoGuiSlamLoad(const std::string& name,
+                       std::string        videoDir,
+                       std::string        calibDir,
+                       std::string        mapDir,
+                       WAICalibration*    wc,
+                       bool*              activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     private:
+    void loadFileNamesInVector(std::string               directory,
+                               std::vector<std::string>& fileNames,
+                               std::vector<std::string>& extensions);
     void loadVideo(std::string videoFileName, std::string path);
 
     std::string              _videoDir;
     std::string              _calibDir;
+    std::string              _mapDir;
     std::vector<std::string> _existingVideoNames;
-    std::string              _currentItem;
-    WAI::WAI*                _wai;
+    std::vector<std::string> _existingCalibrationNames;
+    std::vector<std::string> _existingMapNames;
+    std::string              _currentVideo;
+    std::string              _currentCalibration;
+    std::string              _currentMap;
     WAICalibration*          _wc;
 };
 

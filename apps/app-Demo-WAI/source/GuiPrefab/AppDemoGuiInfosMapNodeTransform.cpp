@@ -17,15 +17,13 @@
 
 //-----------------------------------------------------------------------------
 AppDemoGuiInfosMapNodeTransform::AppDemoGuiInfosMapNodeTransform(
-  std::string        name,
-  SLNode*            mapNode,
-  WAI::ModeOrbSlam2* tracking,
-  std::string        externalDir,
-  bool*              activator)
+  std::string name,
+  SLNode*     mapNode,
+  std::string externalDir,
+  bool*       activator)
   : AppDemoGuiInfosDialog(name, activator),
     _externalDir(externalDir),
-    _mapNode(mapNode),
-    _tracking(tracking)
+    _mapNode(mapNode)
 {
 }
 
@@ -131,12 +129,6 @@ void AppDemoGuiInfosMapNodeTransform::buildInfos(SLScene* s, SLSceneView* sv)
         cvOm.at<float>(2, 2) = -om.m(10);
         cvOm.at<float>(2, 3) = -om.m(14);
         cvOm.at<float>(3, 3) = 1.0f;
-        /*
-        WAIMapStorage::saveMap(WAIMapStorage::getCurrentId(),
-                               _tracking,
-                               true,
-                               cvOm,
-                               _externalDir);*/
     }
 
     ImGui::End();

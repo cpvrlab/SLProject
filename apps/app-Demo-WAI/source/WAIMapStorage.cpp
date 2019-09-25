@@ -197,7 +197,11 @@ SLMat4f WAIMapStorage::loadMatrix(const cv::FileNode& n)
     return om;
 }
 
-bool WAIMapStorage::loadMap(WAIMap* waiMap, WAIKeyFrameDB* kfDB, SLNode* mapNode, std::string path, std::string imgDir)
+bool WAIMapStorage::loadMap(WAIMap*        waiMap,
+                            WAIKeyFrameDB* kfDB,
+                            SLNode*        mapNode,
+                            std::string    path,
+                            std::string    imgDir)
 {
     std::vector<WAIMapPoint*>       mapPoints;
     std::vector<WAIKeyFrame*>       keyFrames;

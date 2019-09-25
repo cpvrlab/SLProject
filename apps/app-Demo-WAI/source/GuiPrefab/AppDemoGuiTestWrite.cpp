@@ -18,14 +18,19 @@
 #include <AppDemoGuiTestWrite.h>
 #include <CVCapture.h>
 #include <WAICalibration.h>
-#include <WAI.h>
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------
 
-AppDemoGuiTestWrite::AppDemoGuiTestWrite(const std::string& name, std::string saveDir, WAI::WAI* wai, WAICalibration* wc, SLNode* mapNode, cv::VideoWriter* writer1, cv::VideoWriter* writer2, std::ofstream* gpsDataStream, bool* activator)
+AppDemoGuiTestWrite::AppDemoGuiTestWrite(const std::string& name,
+                                         std::string        saveDir,
+                                         WAICalibration*    wc,
+                                         SLNode*            mapNode,
+                                         cv::VideoWriter*   writer1,
+                                         cv::VideoWriter*   writer2,
+                                         std::ofstream*     gpsDataStream,
+                                         bool*              activator)
   : AppDemoGuiInfosDialog(name, activator),
-    _wai(wai),
     _wc(wc),
     _mapNode(mapNode),
     _videoWriter(writer1),
@@ -57,7 +62,7 @@ void AppDemoGuiTestWrite::prepareExperiment(std::string testScene, std::string w
 {
     //TODO WAI return features type
 
-    WAI::ModeOrbSlam2* mode = (WAI::ModeOrbSlam2*)_wai->getCurrentMode();
+    WAI::ModeOrbSlam2* mode = WAIApp::mode;
 
     _baseDir = Utils::unifySlashes(testScene + "/" + weather);
     _mapDir  = Utils::unifySlashes(_baseDir + "map/" + mode->getKPextractor()->GetName() + "/");
@@ -159,7 +164,7 @@ void AppDemoGuiTestWrite::saveTestSettings(std::string path)
     if (Utils::fileExists(path))
         return;
 
-    WAI::ModeOrbSlam2* mode = (WAI::ModeOrbSlam2*)_wai->getCurrentMode();
+    WAI::ModeOrbSlam2* mode = WAIApp::mode;
 
     cv::FileStorage fs(path, cv::FileStorage::WRITE);
     fs << "Date" << _date;
@@ -176,7 +181,7 @@ void AppDemoGuiTestWrite::saveTestSettings(std::string path)
 
 void AppDemoGuiTestWrite::saveMap(std::string map)
 {
-    WAI::ModeOrbSlam2* mode = (WAI::ModeOrbSlam2*)_wai->getCurrentMode();
+    WAI::ModeOrbSlam2* mode = WAIApp::mode;
     WAIMapStorage::saveMap(mode->getMap(), _mapNode, map);
 }
 

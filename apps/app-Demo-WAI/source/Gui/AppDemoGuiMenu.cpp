@@ -54,6 +54,13 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
 
         ImGui::Separator();
 
+        if (ImGui::BeginMenu("Slam"))
+        {
+            ImGui::MenuItem("Load", nullptr, &prefs->showSlamLoad);
+
+            ImGui::EndMenu();
+        }
+
         if (ImGui::BeginMenu("Video"))
         {
             CVCalibration* ac = CVCapture::instance()->activeCalib;
@@ -61,9 +68,7 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             CVCalibration* sc = &CVCapture::instance()->calibScndCam;
 
             ImGui::MenuItem("Video Storage", nullptr, &prefs->showVideoStorage);
-            ImGui::MenuItem("Video Load", nullptr, &prefs->showVideoLoad);
-
-            ImGui::MenuItem("Calibration Load", nullptr, &prefs->showCalibrationLoad);
+            ImGui::MenuItem("Video Controls", nullptr, &prefs->showVideoControls);
 
             if (ImGui::BeginMenu("Mirror Main Camera"))
             {

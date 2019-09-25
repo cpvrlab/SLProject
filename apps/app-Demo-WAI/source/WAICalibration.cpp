@@ -133,12 +133,6 @@ bool WAICalibration::loadFromFile(std::string path)
     return true;
 }
 
-WAI::CameraCalibration WAICalibration::getCameraCalibration()
-{
-    WAI::CameraCalibration calibration = {fx(), fy(), cx(), cy(), k1(), k2(), p1(), p2()};
-    return calibration;
-}
-
 float WAICalibration::calcCameraVerticalFOV()
 {
     float fy = (float)_cameraMat.at<double>(1, 1);

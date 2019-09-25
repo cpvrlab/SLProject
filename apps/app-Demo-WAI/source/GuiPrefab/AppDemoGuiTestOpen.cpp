@@ -19,9 +19,12 @@
 
 //-----------------------------------------------------------------------------
 
-AppDemoGuiTestOpen::AppDemoGuiTestOpen(const std::string& name, std::string saveDir, WAI::WAI* wai, WAICalibration* wc, SLNode* mapNode, bool* activator)
+AppDemoGuiTestOpen::AppDemoGuiTestOpen(const std::string& name,
+                                       std::string        saveDir,
+                                       WAICalibration*    wc,
+                                       SLNode*            mapNode,
+                                       bool*              activator)
   : AppDemoGuiInfosDialog(name, activator),
-    _wai(wai),
     _wc(wc),
     _mapNode(mapNode)
 {
@@ -83,28 +86,7 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
     {
         TestInfo info = _infos[_currentItem];
 
-        _wc->loadFromFile(info.calPath);
-
-        WAI::CameraCalibration calibration = _wc->getCameraCalibration();
-        _wai->activateSensor(WAI::SensorType_Camera, &calibration);
-
-        WAI::ModeOrbSlam2* mode = (WAI::ModeOrbSlam2*)_wai->getCurrentMode();
-        mode->requestStateIdle();
-        while (!mode->hasStateIdle())
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
-        mode->reset();
-
-        WAIMapStorage::loadMap(mode->getMap(), mode->getKfDB(), _mapNode, info.mapPath, "");
-
-        CVCapture::instance()->videoType(VT_FILE);
-        CVCapture::instance()->videoFilename = info.vidPath;
-        CVCapture::instance()->videoLoops    = true;
-        CVCapture::instance()->openFile();
-
-        mode->resume();
-        mode->setInitialized(true);
+        WAIApp::startOrbSlam(info.vidPath, info.calPath, info.mapPath);
     }
 
     ImGui::Separator();

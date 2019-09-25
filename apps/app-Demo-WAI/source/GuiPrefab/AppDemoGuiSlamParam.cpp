@@ -21,22 +21,22 @@
 
 //-----------------------------------------------------------------------------
 
-AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name, std::string vocDir,
-                                         WAI::WAI * wai, bool* activator)
+AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
+                                         std::string        vocDir,
+                                         bool*              activator)
   : AppDemoGuiInfosDialog(name, activator),
-    _wai(wai),
     _vocDir(vocDir)
 {
-    int   nFeatures    = 1000;
-    float fScaleFactor = 1.2;
-    int   nLevels      = 8;
-    int   fIniThFAST   = 20;
-    int   fMinThFAST   = 7;
-    KPextractor * orbExtractor    = new ORB_SLAM2::ORBextractor(nFeatures,
-                                                                fScaleFactor,
-                                                                nLevels,
-                                                                fIniThFAST,
-                                                                fMinThFAST);
+    int          nFeatures    = 1000;
+    float        fScaleFactor = 1.2;
+    int          nLevels      = 8;
+    int          fIniThFAST   = 20;
+    int          fMinThFAST   = 7;
+    KPextractor* orbExtractor = new ORB_SLAM2::ORBextractor(nFeatures,
+                                                            fScaleFactor,
+                                                            nLevels,
+                                                            fIniThFAST,
+                                                            fMinThFAST);
 
     _extractors.push_back(new ORB_SLAM2::SURFextractor(800));
     _extractors.push_back(new ORB_SLAM2::SURFextractor(1000));
@@ -45,7 +45,7 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name, std::string vo
     _extractors.push_back(new ORB_SLAM2::SURFextractor(2500));
     _extractors.push_back(orbExtractor);
 
-    _current = _extractors.at(1);
+    _current    = _extractors.at(1);
     _iniCurrent = _extractors.at(1);
 
     _currentVoc = "";
@@ -74,7 +74,7 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name, std::string vo
 
 void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    WAI::ModeOrbSlam2 * mode = (WAI::ModeOrbSlam2*)_wai->getCurrentMode();
+    WAI::ModeOrbSlam2* mode = WAIApp::mode;
     ImGui::Begin("Slam Param", _activator, ImGuiWindowFlags_AlwaysAutoResize);
 
     if (ImGui::BeginCombo("Extractor", _current->GetName().c_str()))
@@ -108,6 +108,7 @@ void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
     }
     if (ImGui::Button("Change features", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
+        // TODO(dgj1): this should only happen when creating the mode!!!
         mode->setExtractor(_current, _iniCurrent);
     }
 
@@ -129,6 +130,7 @@ void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
     }
     if (ImGui::Button("Change Voc", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
+        // TODO(dgj1): this should only happen when creating the mode!!!
         mode->setVocabulary(_vocDir + _currentVoc);
     }
 

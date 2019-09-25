@@ -16,7 +16,6 @@
 #include <map>
 #include <memory>
 #include <AppDemoGuiInfosDialog.h>
-#include <WAI.h>
 #include <WAICalibration.h>
 #include <AppDemoGuiPrefs.h>
 
