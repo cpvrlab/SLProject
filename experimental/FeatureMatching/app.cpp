@@ -135,6 +135,11 @@ void app_reset(App& app)
     app.pyramid_param.inv_level_sigma2.clear();
     app.pyramid_param.nb_feature_per_level.clear();
     app.pyramid_param.total_features = 0;
+
+    app.left_idx  = -1;
+    app.right_idx = -1;
+
+    app.mouse_pos = {0, 0};
 }
 
 void app_prepare(App& app)
@@ -160,4 +165,24 @@ void app_prepare(App& app)
 
     app.matching_1_2.resize(app.keypoints1.size());
     get_inverted_matching(app.matching_1_2, app.matching_2_1);
+}
+
+std::string app_inspection_mode_text(App& app)
+{
+    std::string text;
+    switch (app.inspectionMode)
+    {
+        case InspectionMode::MATCH_DRAWING_ALL:
+            return "All matches are visualized connected with lines";
+        case InspectionMode::MATCH_DRAWING_SINGLE:
+            return "Click on the image to visualize closed match by a single line. Close-up views for both keypoints are shown.";
+        case InspectionMode::MATCHED_POINT_SIMILIARITY:
+            return "Click on left or right image to catch the closest feature point. Closest feature points in the other image are highlighted\nand a close-up of the catched keypoint is drawn. (Multi-click on the same position iterates keypoints in the neighbourhood.)";
+        case InspectionMode::ANY_PIXEL_COMPARISON:
+            return "Click on both images to select two pixel positons. The descriptors at selected positions are compared and visualized in close-up views";
+        case InspectionMode::ANY_KEYPOINT_COMPARISON:
+            return "Click on both images to catch two keypoints. The descriptors at selected positions are compared and visualized in close-up views. (Multi-click on the same position iterates keypoints in the neighbourhood.)";
+        default:
+            return "";
+    }
 }

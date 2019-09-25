@@ -60,6 +60,33 @@ void draw_all_keypoins(App& app, cv::Scalar color)
     }
 }
 
+void draw_matched_keypoints(App& app, cv::Scalar color)
+{
+    cv::Point2f offset(app.image1.cols, 0);
+    for (int i = 0; i < app.matching_2_1.size(); i++)
+    {
+        if (app.matching_2_1[i] >= 0)
+        {
+            cv::circle(app.out_image, app.keypoints2[i].pt + offset, 3, color, 1);
+            cv::circle(app.out_image, app.keypoints1[app.matching_2_1[i]].pt, 3, color, 1);
+        }
+    }
+}
+
+void draw_selected_keypoints(App& app)
+{
+    if (app.left_idx >= 0 && app.left_idx < app.keypoints1.size())
+    {
+        cv::circle(app.out_image, app.keypoints1[app.left_idx].pt, 3, green(), 2, cv::LineTypes::FILLED);
+    }
+
+    if (app.right_idx >= 0 && app.right_idx < app.keypoints2.size())
+    {
+        cv::Point2f offset(app.image1.cols, 0);
+        cv::circle(app.out_image, app.keypoints2[app.right_idx].pt + offset, 3, green(), 2, cv::LineTypes::FILLED);
+    }
+}
+
 void draw_match_line(App& app, int matchIndex1, int matchIndex2, cv::Scalar color)
 {
     if (matchIndex1 >= app.keypoints1.size() || matchIndex2 >= app.keypoints2.size())
@@ -121,8 +148,8 @@ void draw_main(App& app)
     cv::copyMakeBorder(app.out_image, out, 0, 100, 0, 0, cv::BORDER_CONSTANT, 0);
     cv::Point pos(30, app.out_image.rows + 30);
 
-    std::string text = app.inspection_mode_text();
-
+    std::string text = app_inspection_mode_text(app);
+    text             = std::to_string((int)app.inspectionMode - 48) + ": " + text;
     if (text.length() > 0)
     {
         std::vector<std::string> strs = str_split(text);
