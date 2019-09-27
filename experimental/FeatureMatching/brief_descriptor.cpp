@@ -4,11 +4,11 @@
 static void computeBRIEFDescriptor(const cv::KeyPoint& kpt,
                                    const cv::Mat&      img,
                                    const cv::Point*    pattern,
-                                   Descriptor &desc)
+                                   Descriptor&         desc)
 {
     desc.p = desc.mem;
-    float angle = kpt.angle;
-    float a = (float)cos(angle), b = (float)sin(angle);
+    //float angle = kpt.angle * DEG2RAD;
+    //float a = (float)cos(angle), b = (float)sin(angle);
 
     const uchar* center = &img.at<uchar>(cvRound(kpt.pt.y), cvRound(kpt.pt.x));
     const int    step   = (int)img.step;
@@ -49,14 +49,14 @@ static void computeBRIEFDescriptor(const cv::KeyPoint& kpt,
 #undef GET_VALUE
 }
 
-static void get_pattern(std::vector<cv::Point> &pattern)
+static void get_pattern(std::vector<cv::Point>& pattern)
 {
-    const int    npoints  = 512;
+    const int        npoints  = 512;
     const cv::Point* pattern0 = (const cv::Point*)bit_pattern_31_;
     std::copy(pattern0, pattern0 + npoints, std::back_inserter(pattern));
 }
 
-void ComputeBRIEFDescriptors(std::vector<Descriptor> &descriptors, const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints,  const std::vector<cv::Point> * pattern)
+void ComputeBRIEFDescriptors(std::vector<Descriptor>& descriptors, const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints, const std::vector<cv::Point>* pattern)
 {
     if (descriptors.size() == 0)
     {
@@ -75,11 +75,9 @@ void ComputeBRIEFDescriptors(std::vector<Descriptor> &descriptors, const cv::Mat
         for (size_t i = 0; i < keypoints.size(); i++)
             computeBRIEFDescriptor(keypoints[i], image, &(*pattern)[0], descriptors[i]);
     }
-
 }
 
-
-void ComputeBRIEFDescriptors(std::vector<std::vector<Descriptor>> &descriptors, std::vector<cv::Mat> image_pyramid, PyramidParameters &p, std::vector<std::vector<cv::KeyPoint>>& allKeypoints)
+void ComputeBRIEFDescriptors(std::vector<std::vector<Descriptor>>& descriptors, std::vector<cv::Mat> image_pyramid, PyramidParameters& p, std::vector<std::vector<cv::KeyPoint>>& allKeypoints)
 {
     int nlevels = p.scale_factors.size();
     descriptors.resize(nlevels);
@@ -100,8 +98,8 @@ void ComputeBRIEFDescriptors(std::vector<std::vector<Descriptor>> &descriptors, 
     int offset = 0;
     for (int level = 0; level < nlevels; ++level)
     {
-        std::vector<cv::KeyPoint>& keypoints = allKeypoints[level];
-        int               nkeypointsLevel = (int)keypoints.size();
+        std::vector<cv::KeyPoint>& keypoints       = allKeypoints[level];
+        int                        nkeypointsLevel = (int)keypoints.size();
 
         if (nkeypointsLevel == 0)
             continue;
@@ -113,6 +111,3 @@ void ComputeBRIEFDescriptors(std::vector<std::vector<Descriptor>> &descriptors, 
         ComputeBRIEFDescriptors(descriptors[level], workingMat, keypoints, &pattern);
     }
 }
-
-
-

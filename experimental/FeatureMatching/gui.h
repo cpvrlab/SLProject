@@ -3,7 +3,6 @@
 
 #include "gui_tools.h"
 
-void start_gui(App &app);
+void start_gui(App& app);
 
 #endif
-

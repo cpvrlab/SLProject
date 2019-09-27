@@ -17,7 +17,7 @@ const int PATCH_SIZE      = 31;
 const int HALF_PATCH_SIZE = 15;
 //const int PATCH_SIZE      = 61;
 //const int HALF_PATCH_SIZE = 30;
-const int EDGE_THRESHOLD = 34;
+const int EDGE_THRESHOLD = 19;
 
 typedef struct PyramidParameters
 {
@@ -53,7 +53,7 @@ void print_desc(Descriptor& d);
 
 void compute_three_maxima(std::vector<int>* histo, const int L, int& ind1, int& ind2, int& ind3);
 
-cv::Mat extract_patch(cv::Mat& image, cv::KeyPoint& kp);
+cv::Mat extract_patch(cv::Mat& image, cv::Point2f& pt);
 
 void get_inverted_matching(std::vector<int>& inverted_matching, std::vector<int>& matching);
 
