@@ -13,8 +13,10 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
     _trackOptFlow(trackOptFlow)
 {
     cameraMat.convertTo(_cameraMat, CV_32F);
-    //distortionMat.convertTo(_distortionMat, CV_32F);
-    _distortionMat = cv::Mat::zeros(1, 5, CV_32F);
+    distortionMat.convertTo(_distortionMat, CV_32F);
+
+    // Tell WAIFrame to compute image bounds
+    WAIFrame::mbInitialComputations = true;
 
     //load visual vocabulary for relocalization
     WAIOrbVocabulary::initialize(orbVocFile);

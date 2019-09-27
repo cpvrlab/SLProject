@@ -264,10 +264,10 @@ OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFile,
     }
 
     // 6. resize window
-    //scrWidth  = videoFrameSize.width;
-    //scrHeight = videoFrameSize.height;
-    //scrWdivH  = (float)scrWidth / (float)scrHeight;
-    //resizeWindow = true;
+    scrWidth     = videoFrameSize.width;
+    scrHeight    = videoFrameSize.height;
+    scrWdivH     = (float)scrWidth / (float)scrHeight;
+    resizeWindow = true;
 
     result.wasSuccessful = true;
     return result;
@@ -364,7 +364,7 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
     videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
     waiScene->cameraNode->background().texture(videoImage);
 
-    waiScene->cameraNode->fov(wc->calcCameraVerticalFOV());
+    //waiScene->cameraNode->fov(wc->calcCameraVerticalFOV());
 
     s->root3D(waiScene->rootNode);
 
