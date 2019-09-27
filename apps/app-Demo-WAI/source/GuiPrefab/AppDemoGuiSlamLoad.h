@@ -22,9 +22,6 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {
     public:
     AppDemoGuiSlamLoad(const std::string& name,
-                       std::string        videoDir,
-                       std::string        calibDir,
-                       std::string        mapDir,
                        WAICalibration*    wc,
                        bool*              activator);
 
@@ -34,11 +31,7 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
     void loadFileNamesInVector(std::string               directory,
                                std::vector<std::string>& fileNames,
                                std::vector<std::string>& extensions);
-    void loadVideo(std::string videoFileName, std::string path);
 
-    std::string              _videoDir;
-    std::string              _calibDir;
-    std::string              _mapDir;
     std::vector<std::string> _existingVideoNames;
     std::vector<std::string> _existingCalibrationNames;
     std::vector<std::string> _existingMapNames;

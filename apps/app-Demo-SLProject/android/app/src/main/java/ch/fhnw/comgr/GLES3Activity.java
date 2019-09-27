@@ -312,7 +312,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         }
         return false;
     }
-
+§
     /* Get available external directories and inform slproject about them */
     public String setupExternalDirectories() {
 

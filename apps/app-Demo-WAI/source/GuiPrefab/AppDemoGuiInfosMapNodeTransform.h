@@ -27,7 +27,6 @@ class WAI_API AppDemoGuiInfosMapNodeTransform : public AppDemoGuiInfosDialog
     AppDemoGuiInfosMapNodeTransform(
       std::string name,
       SLNode*     mapNode,
-      std::string externalDir,
       bool*       activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
@@ -36,8 +35,6 @@ class WAI_API AppDemoGuiInfosMapNodeTransform : public AppDemoGuiInfosDialog
     float _transformationRotValue   = 10.0f;
     float _transformationTransValue = 1.0f;
     float _transformationScaleValue = 1.2f;
-
-    std::string _externalDir;
 
     SLNode* _mapNode = nullptr;
 };

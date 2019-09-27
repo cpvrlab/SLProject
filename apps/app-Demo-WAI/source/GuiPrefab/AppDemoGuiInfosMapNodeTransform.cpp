@@ -19,10 +19,8 @@
 AppDemoGuiInfosMapNodeTransform::AppDemoGuiInfosMapNodeTransform(
   std::string name,
   SLNode*     mapNode,
-  std::string externalDir,
   bool*       activator)
   : AppDemoGuiInfosDialog(name, activator),
-    _externalDir(externalDir),
     _mapNode(mapNode)
 {
 }

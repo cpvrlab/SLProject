@@ -20,18 +20,11 @@
 //-----------------------------------------------------------------------------
 
 AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
-                                       std::string        videoDir,
-                                       std::string        calibDir,
-                                       std::string        mapDir,
                                        WAICalibration*    wc,
                                        bool*              activator)
   : AppDemoGuiInfosDialog(name, activator),
     _wc(wc)
 {
-    _videoDir = Utils::unifySlashes(videoDir);
-    _calibDir = Utils::unifySlashes(calibDir);
-    _mapDir   = Utils::unifySlashes(mapDir);
-
     _currentVideo       = "";
     _currentCalibration = "";
     _currentMap         = "";
@@ -46,9 +39,9 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     std::vector<std::string> mapExtensions;
     mapExtensions.push_back(".json");
 
-    loadFileNamesInVector(_videoDir, _existingVideoNames, videoExtensions);
-    loadFileNamesInVector(_calibDir, _existingCalibrationNames, calibExtensions);
-    loadFileNamesInVector(_mapDir, _existingMapNames, mapExtensions);
+    loadFileNamesInVector(WAIApp::videoDir, _existingVideoNames, videoExtensions);
+    loadFileNamesInVector(WAIApp::calibDir, _existingCalibrationNames, calibExtensions);
+    loadFileNamesInVector(WAIApp::mapDir, _existingMapNames, mapExtensions);
 }
 
 void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directory,
@@ -88,32 +81,22 @@ void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directo
     }
 }
 
-void AppDemoGuiSlamLoad::loadVideo(std::string videoFileName, std::string path)
-{
-    std::string videoFile = (!_currentVideo.empty() ? _videoDir + _currentVideo : "");
-    std::string calibFile = (!_currentCalibration.empty() ? _calibDir + _currentCalibration : "");
-    std::string mapFile   = (!_currentMap.empty() ? _mapDir + _currentMap : "");
-
-    OrbSlamStartResult startResult = WAIApp::startOrbSlam(videoFile,
-                                                          calibFile,
-                                                          mapFile);
-
-    if (!startResult.wasSuccessful)
-    {
-        WAIApp::errorDial->setErrorMsg(startResult.errorString);
-        WAIApp::uiPrefs.showError = true;
-    }
-}
-
-//-----------------------------------------------------------------------------
 void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    ImGui::Begin("Video Load", _activator, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("Slam Load", _activator, ImGuiWindowFlags_AlwaysAutoResize);
 
     ImGui::Separator();
-    if (ImGui::Button("Open Video", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    if (ImGui::Button("Start", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
-        loadVideo(_currentVideo, _videoDir);
+        OrbSlamStartResult startResult = WAIApp::startOrbSlam(_currentVideo,
+                                                              _currentCalibration,
+                                                              _currentMap);
+
+        if (!startResult.wasSuccessful)
+        {
+            WAIApp::errorDial->setErrorMsg(startResult.errorString);
+            WAIApp::uiPrefs.showError = true;
+        }
     }
 
     ImGui::Separator();

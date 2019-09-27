@@ -107,6 +107,8 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             _permissionWriteStorageGranted = true;
             _permissionReadStorageGranted = true;
             _permissionInternetGranted = true;
+
+            setupExternalDirectories();
         }
         else {
             _permissionRequestIsOpen = true;
@@ -119,7 +121,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                     Manifest.permission.INTERNET
             }, PERMISSIONS_MULTIPLE_REQUEST);
         }
-        setupExternalDirectories();
     }
 
     // After on onCreate
@@ -669,5 +670,19 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                         loc.getAccuracy());
             }
         });
+    }
+
+    public boolean isPermissionWriteStorageGranted()
+    {
+        boolean result = _permissionWriteStorageGranted;
+
+        return result;
+    }
+
+    public boolean isPermissionReadStorageGranted()
+    {
+        boolean result = _permissionReadStorageGranted;
+
+        return result;
     }
 }

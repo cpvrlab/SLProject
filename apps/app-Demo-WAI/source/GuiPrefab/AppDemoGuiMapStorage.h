@@ -29,7 +29,6 @@ class AppDemoGuiMapStorage : public AppDemoGuiInfosDialog
     public:
     AppDemoGuiMapStorage(const std::string& name,
                          SLNode*            mapNode,
-                         std::string        mapDir,
                          bool*              activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
@@ -37,7 +36,6 @@ class AppDemoGuiMapStorage : public AppDemoGuiInfosDialog
     private:
     std::string              _currentItem;
     SLNode*                  _mapNode;
-    std::string              _mapDir;
     std::string              _mapPrefix;
     std::vector<std::string> _existingMapNames;
     int                      _nextId;

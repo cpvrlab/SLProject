@@ -18,27 +18,24 @@
 //-----------------------------------------------------------------------------
 AppDemoGuiMapStorage::AppDemoGuiMapStorage(const string& name,
                                            SLNode*       mapNode,
-                                           std::string   mapDir,
                                            bool*         activator)
   : AppDemoGuiInfosDialog(name, activator),
     _mapNode(mapNode),
     _mapPrefix("slam-map-"),
     _nextId(0)
 {
-    _mapDir = Utils::unifySlashes(mapDir);
-
     _existingMapNames.clear();
     vector<pair<int, string>> existingMapNamesSorted;
 
     //check if visual odometry maps directory exists
-    if (!Utils::dirExists(_mapDir))
+    if (!Utils::dirExists(WAIApp::mapDir))
     {
-        Utils::makeDir(_mapDir);
+        Utils::makeDir(WAIApp::mapDir);
     }
     else
     {
         //parse content: we search for directories in mapsDir
-        std::vector<std::string> content = Utils::getFileNamesInDir(_mapDir);
+        std::vector<std::string> content = Utils::getFileNamesInDir(WAIApp::mapDir);
         for (auto path : content)
         {
             std::string name = Utils::getFileName(path);
@@ -79,12 +76,12 @@ void AppDemoGuiMapStorage::buildInfos(SLScene* s, SLSceneView* sv)
         else
             filename = _currentItem;
 
-        if (!Utils::dirExists(_mapDir))
-            Utils::makeDir(_mapDir);
+        if (!Utils::dirExists(WAIApp::mapDir))
+            Utils::makeDir(WAIApp::mapDir);
 
         if (WAIMapStorage::saveMap(WAIApp::mode->getMap(),
                                    _mapNode,
-                                   _mapDir + filename))
+                                   WAIApp::mapDir + filename))
         {
             ImGui::Text("Info: Map saved successfully");
         }

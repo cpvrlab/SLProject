@@ -95,6 +95,10 @@ class WAIApp
 
     static bool resizeWindow;
 
+    static std::string videoDir;
+    static std::string calibDir;
+    static std::string mapDir;
+
     static bool pauseVideo; // pause video file
 };
 
