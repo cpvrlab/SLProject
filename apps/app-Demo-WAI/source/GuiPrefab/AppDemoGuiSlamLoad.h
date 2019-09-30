@@ -30,15 +30,20 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
     private:
     void loadFileNamesInVector(std::string               directory,
                                std::vector<std::string>& fileNames,
-                               std::vector<std::string>& extensions);
+                               std::vector<std::string>& extensions,
+                               bool                      addEmpty);
 
     std::vector<std::string> _existingVideoNames;
     std::vector<std::string> _existingCalibrationNames;
     std::vector<std::string> _existingMapNames;
-    std::string              _currentVideo;
-    std::string              _currentCalibration;
-    std::string              _currentMap;
-    WAICalibration*          _wc;
+    std::vector<std::string> _existingVocNames;
+
+    std::string _currentVideo;
+    std::string _currentCalibration;
+    std::string _currentMap;
+    std::string _currentVoc;
+
+    WAICalibration* _wc;
 };
 
 #endif

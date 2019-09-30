@@ -28,6 +28,7 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     _currentVideo       = "";
     _currentCalibration = "";
     _currentMap         = "";
+    _currentVoc         = "ORBvoc.bin";
 
     std::vector<std::string> videoExtensions;
     videoExtensions.push_back(".avi");
@@ -39,14 +40,19 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     std::vector<std::string> mapExtensions;
     mapExtensions.push_back(".json");
 
-    loadFileNamesInVector(WAIApp::videoDir, _existingVideoNames, videoExtensions);
-    loadFileNamesInVector(WAIApp::calibDir, _existingCalibrationNames, calibExtensions);
-    loadFileNamesInVector(WAIApp::mapDir, _existingMapNames, mapExtensions);
+    std::vector<std::string> vocExtensions;
+    vocExtensions.push_back(".bin");
+
+    loadFileNamesInVector(WAIApp::videoDir, _existingVideoNames, videoExtensions, true);
+    loadFileNamesInVector(WAIApp::calibDir, _existingCalibrationNames, calibExtensions, true);
+    loadFileNamesInVector(WAIApp::mapDir, _existingMapNames, mapExtensions, true);
+    loadFileNamesInVector(WAIApp::vocDir, _existingVocNames, vocExtensions, false);
 }
 
 void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directory,
                                                std::vector<std::string>& fileNames,
-                                               std::vector<std::string>& extensions)
+                                               std::vector<std::string>& extensions,
+                                               bool                      addEmpty)
 {
     fileNames.clear();
 
@@ -57,7 +63,7 @@ void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directo
     else
     {
         std::vector<std::string> content = Utils::getFileNamesInDir(directory);
-        fileNames.push_back("");
+        if (addEmpty) fileNames.push_back("");
 
         for (auto path : content)
         {
@@ -137,6 +143,20 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 if (ImGui::Selectable(_existingMapNames[n].c_str(), isSelected))
                 {
                     _currentMap = _existingMapNames[n];
+                }
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+            }
+            ImGui::EndCombo();
+        }
+        if (ImGui::BeginCombo("Vocabulary", _currentVoc.c_str()))
+        {
+            for (int i = 0; i < _existingVocNames.size(); i++)
+            {
+                bool isSelected = (_currentVoc == _existingVocNames[i]); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(_existingVocNames[i].c_str(), isSelected))
+                {
+                    _currentVoc = _existingVocNames[i];
                 }
                 if (isSelected)
                     ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)

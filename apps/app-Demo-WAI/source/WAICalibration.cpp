@@ -1,7 +1,8 @@
 #include <opencv2/core/core.hpp>
+
 #include <iostream>
+
 #include <WAICalibration.h>
-#include <WAISensorCamera.h>
 #include <SLApplication.h>
 #include <Utils.h>
 

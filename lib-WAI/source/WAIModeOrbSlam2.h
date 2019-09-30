@@ -6,8 +6,6 @@
 #include <opencv2/core.hpp>
 
 #include <WAIHelper.h>
-#include <WAIMode.h>
-#include <WAISensorCamera.h>
 #include <WAIKeyFrameDB.h>
 #include <WAIMap.h>
 #include <WAIOrbVocabulary.h>

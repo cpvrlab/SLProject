@@ -56,7 +56,9 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Slam"))
         {
-            ImGui::MenuItem("Load", nullptr, &prefs->showSlamLoad);
+            ImGui::MenuItem("Start", nullptr, &prefs->showSlamLoad);
+            ImGui::MenuItem("Tracked Mapping", nullptr, &prefs->showTrackedMapping);
+            ImGui::MenuItem("Params", nullptr, &prefs->showSlamParam);
 
             ImGui::EndMenu();
         }
@@ -201,7 +203,6 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
         {
             ImGui::MenuItem("Load Experiment", nullptr, &prefs->showTestSettings);
             ImGui::MenuItem("New Experiment", nullptr, &prefs->showTestWriter);
-            ImGui::MenuItem("Slam", nullptr, &prefs->showSlamParam);
             ImGui::EndMenu();
         }
 
@@ -228,7 +229,6 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", nullptr, &prefs->showHelp);
             ImGui::MenuItem("Help on Calibration", nullptr, &prefs->showHelpCalibration);
-            ImGui::MenuItem("Tracked Mapping", nullptr, &prefs->showTrackedMapping);
             ImGui::Separator();
             ImGui::MenuItem("UI Preferences", nullptr, &prefs->showUIPrefs);
             ImGui::MenuItem("Credits", nullptr, &prefs->showCredits);

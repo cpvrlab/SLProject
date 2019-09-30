@@ -38,7 +38,8 @@ class WAIApp
     static int                load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* dirs);
     static OrbSlamStartResult startOrbSlam(std::string videoFile       = "",
                                            std::string calibrationFile = "",
-                                           std::string mapFile         = "");
+                                           std::string mapFile         = "",
+                                           std::string vocFileName     = "ORBvoc.bin");
 
     static void onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid);
     static bool update();
@@ -98,6 +99,7 @@ class WAIApp
     static std::string videoDir;
     static std::string calibDir;
     static std::string mapDir;
+    static std::string vocDir;
 
     static bool pauseVideo; // pause video file
 };

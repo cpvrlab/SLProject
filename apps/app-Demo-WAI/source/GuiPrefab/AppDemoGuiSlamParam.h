@@ -24,7 +24,8 @@
 class AppDemoGuiSlamParam : public AppDemoGuiInfosDialog
 {
     public:
-    AppDemoGuiSlamParam(const std::string& name, std::string vocDir, bool* activator);
+    AppDemoGuiSlamParam(const std::string& name,
+                        bool*              activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
@@ -32,9 +33,6 @@ class AppDemoGuiSlamParam : public AppDemoGuiInfosDialog
     KPextractor*              _current;
     KPextractor*              _iniCurrent;
     std::vector<KPextractor*> _extractors;
-    std::string               _vocDir;
-    std::vector<std::string>  _vocList;
-    std::string               _currentVoc;
 };
 
 #endif

@@ -108,7 +108,7 @@ RelocalizationTestResult runRelocalizationTest(std::string videoFile,
     result.frameCount               = frameCount;
     result.relocalizationFrameCount = relocalizationFrameCount;
     result.ratio                    = ((float)relocalizationFrameCount / (float)frameCount);
-    result.wasSuccessful            = true; // TODO(dgj1): maybe check that files exist etc.
+    result.wasSuccessful            = true;
 
     return result;
 }

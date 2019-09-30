@@ -1,8 +1,10 @@
 #ifndef WAIAUTOCALIBRATION
 #define WAIAUTOCALIBRATION
+
 using namespace std;
+
 #include <WAICalibration.h>
-#include <WAISensorCamera.h>
+
 #include <opencv2/core/core.hpp>
 
 class AutoCalibration : public WAICalibration
@@ -44,30 +46,18 @@ class AutoCalibration : public WAICalibration
 
     float calibrate_opencv_no_distortion(cv::Mat& matrix, cv::Size& size, std::vector<cv::Mat>& rvecs, std::vector<cv::Mat>& tvecs, std::vector<std::vector<cv::Point2f>>& keypoints, std::vector<std::vector<cv::Point3f>>& worldpoints);
 
-    float calibrate_opencv_no_distortion_fixed_center(cv::Mat& matrix, cv::Size& size,
-                                                     std::vector<cv::Mat>& rvecs,
-                                                     std::vector<cv::Mat>& tvecs,
-                                                     std::vector<std::vector<cv::Point2f>>& keypoints,
-                                                     std::vector<std::vector<cv::Point3f>>& worldpoints);
+    float calibrate_opencv_no_distortion_fixed_center(cv::Mat& matrix, cv::Size& size, std::vector<cv::Mat>& rvecs, std::vector<cv::Mat>& tvecs, std::vector<std::vector<cv::Point2f>>& keypoints, std::vector<std::vector<cv::Point3f>>& worldpoints);
 
-    float reprojectionRMS(cv::Mat intrinsic, cv::Mat distortion,
-                          std::vector<cv::Point2f>& vP2D,
-                          std::vector<cv::Point3f>& vP3Dw,
-                          const cv::Mat& rvec,
-                          const cv::Mat& tvec);
+    float reprojectionRMS(cv::Mat intrinsic, cv::Mat distortion, std::vector<cv::Point2f>& vP2D, std::vector<cv::Point3f>& vP3Dw, const cv::Mat& rvec, const cv::Mat& tvec);
 
-    float reprojectionRMS(cv::Mat intrinsic, cv::Mat distortion,
-                          std::vector<std::vector<cv::Point2f>>& vvP2D,
-                          std::vector<std::vector<cv::Point3f>>& vvP3Dw,
-                          const std::vector<cv::Mat>& rvecs,
-                          const std::vector<cv::Mat>& tvecs);
+    float reprojectionRMS(cv::Mat intrinsic, cv::Mat distortion, std::vector<std::vector<cv::Point2f>>& vvP2D, std::vector<std::vector<cv::Point3f>>& vvP3Dw, const std::vector<cv::Mat>& rvecs, const std::vector<cv::Mat>& tvecs);
 
-    bool calibrateBruteForce(cv::Mat &intrinsic,
+    bool calibrateBruteForce(cv::Mat&                               intrinsic,
                              std::vector<std::vector<cv::Point2f>>& vvP2D,
                              std::vector<std::vector<cv::Point3f>>& vvP3Dw,
-                             std::vector<cv::Mat>& rvecs,
-                             std::vector<cv::Mat>& tvecs,
-                             float &error);
+                             std::vector<cv::Mat>&                  rvecs,
+                             std::vector<cv::Mat>&                  tvecs,
+                             float&                                 error);
 
     cv::Mat                               _intrinsic;
     cv::Mat                               _distortion;

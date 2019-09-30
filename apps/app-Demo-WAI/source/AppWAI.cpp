@@ -73,6 +73,7 @@ ofstream           WAIApp::gpsDataStream;
 std::string WAIApp::videoDir = "";
 std::string WAIApp::calibDir = "";
 std::string WAIApp::mapDir   = "";
+std::string WAIApp::vocDir   = "";
 
 bool WAIApp::resizeWindow = false;
 
@@ -91,6 +92,7 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
     videoDir = dirs->writableDir + "videos/";
     calibDir = dirs->writableDir + "calibrations/";
     mapDir   = dirs->writableDir + "maps/";
+    vocDir   = dirs->writableDir + "voc/";
 
     wc              = new WAICalibration();
     waiScene        = new AppWAIScene();
@@ -135,7 +137,8 @@ mapFile: path to a map or empty if no map should be used
 */
 OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
                                         std::string calibrationFileName,
-                                        std::string mapFileName)
+                                        std::string mapFileName,
+                                        std::string vocFileName)
 {
     OrbSlamStartResult result = {};
     uiPrefs.showError         = false;
@@ -198,6 +201,13 @@ OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
         return result;
     }
 
+    std::string vocFile = vocDir + vocFileName;
+    if (!vocFileName.empty() && !Utils::fileExists(vocFile))
+    {
+        result.errorString = "Vocabulary file does not exist: " + vocFile;
+        return result;
+    }
+
     std::string mapFile = mapDir + mapFileName;
     if (useMapFile && !Utils::fileExists(mapFile))
     {
@@ -216,7 +226,6 @@ OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
     }
     else
     {
-        // TODO(dgj1): adjust scrWdivH according to current screen size?
         CVCapture::instance()->videoType(VT_MAIN);
         CVCapture::instance()->open(0);
 
@@ -248,13 +257,6 @@ OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
     waiScene->cameraNode->fov(wc->calcCameraVerticalFOV());
 
     // 4. Create new mode ORBSlam
-    std::string vocFile = dirs->slDataRoot + "/calibrations/ORBvoc.bin";
-    if (!Utils::fileExists(vocFile))
-    {
-        result.errorString = "Vocabulary file does not exist: " + vocFile;
-        return result;
-    }
-
     mode = new WAI::ModeOrbSlam2(wc->cameraMat(),
                                  wc->distortion(),
                                  false,
@@ -344,7 +346,7 @@ void WAIApp::setupGUI()
                                                       &gpsDataStream,
                                                       &uiPrefs.showTestWriter));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiSlamParam("Slam Param", dirs->writableDir + "/voc/", &uiPrefs.showSlamParam));
+    AppDemoGui::addInfoDialog(new AppDemoGuiSlamParam("Slam Param", &uiPrefs.showSlamParam));
     errorDial = new AppDemoGuiError("Error", &uiPrefs.showError);
 
     AppDemoGui::addInfoDialog(errorDial);
