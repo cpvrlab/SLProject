@@ -24,7 +24,13 @@
 class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
 {
     public:
-    AppDemoGuiTestWrite(const std::string& name, std::string saveDir, WAICalibration* wc, SLNode* mapNode, cv::VideoWriter* writer1, cv::VideoWriter* writer2, std::ofstream* gpsDataStream, bool* activator);
+    AppDemoGuiTestWrite(const std::string& name,
+                        WAICalibration*    wc,
+                        SLNode*            mapNode,
+                        cv::VideoWriter*   writer1,
+                        cv::VideoWriter*   writer2,
+                        std::ofstream*     gpsDataStream,
+                        bool*              activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
@@ -41,18 +47,10 @@ class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
     void saveMap(std::string map);
     void saveTestSettings(std::string path);
 
-    std::string _baseDir;
-    std::string _mapDir;
-
-    std::string _savePath;
-    std::string _settingsPath;
-    std::string _videoPath;
-    std::string _calibrationsPath;
-    std::string _mapPath;
-    std::string _runPath;
     std::string _date;
     std::string gpsname;
     std::string videoname;
+    std::string runvideoname;
     std::string calibrationname;
     std::string settingname;
     std::string mapname;

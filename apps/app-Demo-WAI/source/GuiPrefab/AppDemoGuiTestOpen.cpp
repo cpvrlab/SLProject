@@ -20,7 +20,6 @@
 //-----------------------------------------------------------------------------
 
 AppDemoGuiTestOpen::AppDemoGuiTestOpen(const std::string& name,
-                                       std::string        saveDir,
                                        WAICalibration*    wc,
                                        SLNode*            mapNode,
                                        bool*              activator)
@@ -28,25 +27,23 @@ AppDemoGuiTestOpen::AppDemoGuiTestOpen(const std::string& name,
     _wc(wc),
     _mapNode(mapNode)
 {
-    _saveDir     = Utils::unifySlashes(saveDir);
-    _settingsDir = _saveDir + "TestSettings/";
     _currentItem = 0;
 
-    std::vector<std::string> content = Utils::getFileNamesInDir(_settingsDir);
-    for (auto path : content)
+    std::vector<std::string> content = Utils::getFileNamesInDir(WAIApp::experimentsDir);
+    for (std::string path : content)
     {
         _infos.push_back(openTestSettings(path));
     }
 }
 
-struct AppDemoGuiTestOpen::TestInfo AppDemoGuiTestOpen::openTestSettings(std::string path)
+AppDemoGuiTestOpen::TestInfo AppDemoGuiTestOpen::openTestSettings(std::string path)
 {
-    struct TestInfo infos;
+    TestInfo        infos;
     cv::FileStorage fs(path, cv::FileStorage::READ);
-    std::cout << path << std::endl;
+
     if (!fs.isOpened())
     {
-        std::cout << "File not open" << std::endl;
+        WAI_LOG("File not open");
         infos.open = false;
         return infos;
     }
@@ -60,11 +57,6 @@ struct AppDemoGuiTestOpen::TestInfo AppDemoGuiTestOpen::openTestSettings(std::st
     fs["Calibration"] >> infos.calPath;
     fs["Videos"] >> infos.vidPath;
     fs["Maps"] >> infos.mapPath;
-
-    infos.calPath = _saveDir + infos.calPath;
-    infos.vidPath = _saveDir + infos.vidPath;
-    infos.mapPath = _saveDir + infos.mapPath;
-    //std::string dbowPath = (std::string)n["DBOW"];
 
     fs.release();
 
@@ -86,7 +78,12 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
     {
         TestInfo info = _infos[_currentItem];
 
-        WAIApp::startOrbSlam(info.vidPath, info.calPath, info.mapPath);
+        OrbSlamStartResult result = WAIApp::startOrbSlam(info.vidPath, info.calPath, info.mapPath);
+        if (!result.wasSuccessful)
+        {
+            WAIApp::errorDial->setErrorMsg(result.errorString);
+            WAIApp::uiPrefs.showError = true;
+        }
     }
 
     ImGui::Separator();
