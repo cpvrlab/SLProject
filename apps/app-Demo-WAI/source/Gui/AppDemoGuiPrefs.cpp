@@ -33,11 +33,13 @@ void GUIPreferences::reset()
     showTrackedMapping        = false;
     showUIPrefs               = false;
     showMapStorage            = false;
+    showVideoControls         = false;
     showVideoStorage          = false;
-    showVideoLoad             = false;
+    showSlamLoad              = false;
     showTestSettings          = false;
     showTestWriter            = false;
     showSlamParam             = false;
+    showCalibrationLoad       = false;
 };
 
 void GUIPreferences::setDPI(int dotsPerInch)

@@ -9,8 +9,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-// Please do not change the name space. The SLProject app is identified in the app-store with it.
-package ch.fhnw.comgr;
+package ch.cpvr.wai;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
@@ -23,7 +22,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class GLES3View extends GLSurfaceView
 {
-    private static String TAG = "SLProject";
+    private static String TAG = "WAIApp";
     private static final boolean DEBUG = false;
     private static final int VT_NONE = 0;
     private static final int VT_MAIN = 1;
@@ -62,14 +61,13 @@ public class GLES3View extends GLSurfaceView
      */
     private static class Renderer implements GLSurfaceView.Renderer {
         protected Handler mainLoop;
+        int _w, _h;
+        boolean _initialized = false;
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             Log.i(TAG, "Renderer.onSurfaceCreated");
-            int w = GLES3Lib.view.getWidth();
-            int h = GLES3Lib.view.getHeight();
-            GLES3Lib.onInit(w, h,
-                            GLES3Lib.dpi,
-                            GLES3Lib.App.getApplicationContext().getFilesDir().getAbsolutePath());
+            _w = GLES3Lib.view.getWidth();
+            _h = GLES3Lib.view.getHeight();
 
             // Get main event handler of UI thread
             mainLoop = new Handler(Looper.getMainLooper());
@@ -82,6 +80,16 @@ public class GLES3View extends GLSurfaceView
         }
 
         public void onDrawFrame(GL10 gl) {
+            if (!GLES3Lib.activity.isPermissionReadStorageGranted() || !GLES3Lib.activity.isPermissionWriteStorageGranted()) return;
+
+            if (!_initialized)
+            {
+                GLES3Lib.onInit(_w, _h,
+                        GLES3Lib.dpi,
+                        GLES3Lib.App.getApplicationContext().getFilesDir().getAbsolutePath());
+                _initialized = true;
+            }
+
             int videoType = GLES3Lib.getVideoType();
             int sizeIndex = GLES3Lib.getVideoSizeIndex();
             boolean usesRotation = GLES3Lib.usesRotation();

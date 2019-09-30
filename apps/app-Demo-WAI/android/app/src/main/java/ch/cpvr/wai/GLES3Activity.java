@@ -9,8 +9,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-// Please do not change the name space. The SLProject app is identified in the app-store with it.
-package ch.fhnw.comgr;
+package ch.cpvr.wai;
 
 import android.Manifest;
 import android.app.Activity;
@@ -35,14 +34,20 @@ import android.view.View;
 import android.support.annotation.NonNull;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 
 public class GLES3Activity extends Activity implements View.OnTouchListener, SensorEventListener {
     GLES3View                   myView;             // OpenGL view
     static int                  pointersDown = 0;   // NO. of fingers down
     static long                 lastTouchMS = 0;    // Time of last touch in ms
 
-    private static final String TAG = "SLProject";
+    private static final String TAG = "WAIApp";
     private static final int PERMISSIONS_MULTIPLE_REQUEST = 123;
 
     private int                     _currentVideoType;
@@ -108,6 +113,8 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             _permissionWriteStorageGranted = true;
             _permissionReadStorageGranted = true;
             _permissionInternetGranted = true;
+
+            setupExternalDirectories();
         }
         else {
             _permissionRequestIsOpen = true;
@@ -120,7 +127,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                     Manifest.permission.INTERNET
             }, PERMISSIONS_MULTIPLE_REQUEST);
         }
-        setupExternalDirectories();
     }
 
     // After on onCreate
@@ -273,7 +279,48 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                 Log.i(TAG, "onRequestPermissionsResult: Permission WRITE_EXTERNAL_STORAGE granted.");
                 _permissionWriteStorageGranted = true;
                 //read available external files and update slproject
-                setupExternalDirectories();
+                String externalDir = setupExternalDirectories();
+
+                // copy default vocabulary file to external storage
+                String vocFilePath = GLES3Lib.App.getApplicationContext().getFilesDir().getAbsolutePath() + "/calibrations/ORBvoc.bin";
+                File vocFile = new File(vocFilePath);
+
+                String newVocFolderPath = externalDir + "/voc/";
+                String newVocFilePath = newVocFolderPath + "ORBvoc.bin";
+                File newVocFolder = new File(newVocFolderPath);
+                File newVocFile = new File(newVocFilePath);
+
+                if (!vocFile.exists())
+                {
+                    Log.e(TAG, "Vocabulary file does not exist at specified path. Can not copy.");
+                }
+                else
+                {
+                    if (!newVocFolder.exists()) {
+                        if (!newVocFolder.mkdirs())
+                        {
+                            Log.e(TAG, "Could not create vocabulary folder.");
+                        }
+                    }
+
+                    if (newVocFolder.exists())
+                    {
+                        try (InputStream in = new FileInputStream(vocFile)) {
+                            try (OutputStream out = new FileOutputStream(newVocFile)) {
+                                // Transfer bytes from in to out
+                                byte[] buf = new byte[1024];
+                                int len;
+                                while ((len = in.read(buf)) > 0) {
+                                    out.write(buf, 0, len);
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Log.e(TAG, "Could not copy vocabulary file.");
+                        }
+                    }
+                }
             } else {
                 Log.i(TAG, "onRequestPermissionsResult: Permission WRITE_EXTERNAL_STORAGE refused.");
                 _permissionWriteStorageGranted = false;
@@ -314,7 +361,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     }
 
     /* Get available external directories and inform slproject about them */
-    public void setupExternalDirectories() {
+    public String setupExternalDirectories() {
 
         String state = Environment.getExternalStorageState();
         boolean externalPublicDirCreated = false;
@@ -352,7 +399,10 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         }
 
         String absPath = slProjectDataPath;
-        myView.queueEvent( new Runnable() {public void run() {GLES3Lib.onSetupExternalDir(absPath);}});
+        //myView.queueEvent( new Runnable() {public void run() {GLES3Lib.onSetupExternalDir(absPath);}});
+        GLES3Lib.onSetupExternalDir(absPath);
+
+        return absPath;
     }
 
     /**
@@ -383,7 +433,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
 
         // just got a new single touch
         if (touchCount == 1) {
-        
+
             // get time to detect double taps
             long touchNowMS = System.currentTimeMillis();
             long touchDeltaMS = touchNowMS - lastTouchMS;
@@ -670,5 +720,19 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                         loc.getAccuracy());
             }
         });
+    }
+
+    public boolean isPermissionWriteStorageGranted()
+    {
+        boolean result = _permissionWriteStorageGranted;
+
+        return result;
+    }
+
+    public boolean isPermissionReadStorageGranted()
+    {
+        boolean result = _permissionReadStorageGranted;
+
+        return result;
     }
 }

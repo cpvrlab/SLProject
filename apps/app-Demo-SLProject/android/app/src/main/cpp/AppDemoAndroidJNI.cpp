@@ -32,7 +32,7 @@ in SLInterface.h.
 */
 extern "C"
 {
-JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit              (JNIEnv *env, jclass obj, jint width, jint height, jint dpi, jstring filePath);
+JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit              (JNIEnv *env, jclass obj, jint width, jint height, jint dpi, jstring filePath, jstring externalDirPath);
 JNIEXPORT void     JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTerminate         (JNIEnv *env, jclass obj);
 JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateVideo       (JNIEnv *env, jclass obj);
 JNIEXPORT jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateScene       (JNIEnv *env, jclass obj);
@@ -102,12 +102,15 @@ SLuint createAppDemoSceneView()
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT
-void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jclass obj, jint width, jint height, jint dpi, jstring filePath)
+void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jclass obj, jint width, jint height, jint dpi, jstring filePath, jstring externalDirPath)
 {
     environment = env;
     const char *nativeString = env->GetStringUTFChars(filePath, 0);
     string devicePath(nativeString);
     env->ReleaseStringUTFChars(filePath, nativeString);
+
+    std::string externalDirPathNative = jstring2stdstring(env, externalDirPath);
+    slSetupExternalDir(externalDirPathNative);
 
     SLVstring *cmdLineArgs = new SLVstring();
 

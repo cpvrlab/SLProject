@@ -6,8 +6,6 @@
 #include <opencv2/core.hpp>
 
 #include <WAIHelper.h>
-#include <WAIMode.h>
-#include <WAISensorCamera.h>
 #include <WAIKeyFrameDB.h>
 #include <WAIMap.h>
 #include <WAIOrbVocabulary.h>
@@ -34,10 +32,11 @@ enum MarkerCorrectionType
     MarkerCorrectionType_Map
 };
 
-class WAI_API ModeOrbSlam2 : public Mode
+class WAI_API ModeOrbSlam2
 {
     public:
-    ModeOrbSlam2(SensorCamera*        camera,
+    ModeOrbSlam2(cv::Mat              cameraMat,
+                 cv::Mat              distortionMat,
                  bool                 serial,
                  bool                 retainImg,
                  bool                 onlyTracking,
@@ -46,7 +45,9 @@ class WAI_API ModeOrbSlam2 : public Mode
                  std::string          orbVocFile);
     ~ModeOrbSlam2();
     bool getPose(cv::Mat* pose);
-    void notifyUpdate();
+    bool update(cv::Mat& imageGray, cv::Mat& imageRGB);
+
+    static bool relocalization(WAIFrame& currentFrame, WAIKeyFrameDB* keyFrameDB, unsigned int* lastRelocFrameId);
 
     void reset();
     bool isInitialized();
@@ -110,9 +111,8 @@ class WAI_API ModeOrbSlam2 : public Mode
     bool hasStateIdle();
     void setInitialized(bool initialized) { _initialized = initialized; }
 
-    void setExtractor(KPextractor * extractor, KPextractor * iniExtractor);
+    void setExtractor(KPextractor* extractor, KPextractor* iniExtractor);
     void setVocabulary(std::string orbVocFile);
-    void loadMapData(std::vector<WAIKeyFrame*> keyFrames, std::vector<WAIMapPoint*> mapPoints, int numLoopClosings);
 
     MarkerCorrectionType getMarkerCorrectedType() { return _markerCorrectionType; }
     cv::Mat              getMarkerCorrectionTransformation();
@@ -135,14 +135,13 @@ class WAI_API ModeOrbSlam2 : public Mode
         TrackingType_OptFlow
     };
 
-    void initialize();
-    void initializeWithKnownPose(int minKeys = 100, bool matchesKnown = false);
-    //void initializeWithArucoMarkerCorrection();
-    void initializeWithChessboardCorrection();
+    void initialize(cv::Mat& imageGray, cv::Mat& imageRGB);
+    void initializeWithKnownPose(cv::Mat& imageGray, cv::Mat& imageRGB, int minKeys = 100, bool matchesKnown = false);
+    void initializeWithChessboardCorrection(cv::Mat& imageGray, cv::Mat& imageRGB);
     bool createInitialMapMonocular();
-    void track3DPts();
+    void track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB);
 
-    bool relocalization();
+    //bool        relocalization();
     bool trackReferenceKeyFrame();
     bool trackWithMotionModel();
     bool trackLocalMap();
@@ -171,22 +170,24 @@ class WAI_API ModeOrbSlam2 : public Mode
     bool _onlyTracking;
     bool _trackOptFlow;
 
-    SensorCamera*  _camera            = nullptr;
+    cv::Mat _cameraMat;
+    cv::Mat _distortionMat;
+
     TrackingState  _state             = TrackingState_None;
     TrackingType   _trackingType      = TrackingType_None;
     WAIKeyFrameDB* mpKeyFrameDatabase = nullptr;
     WAIMap*        _map               = nullptr;
 
-    ORB_SLAM2::ORBVocabulary* mpVocabulary      = nullptr;
-    ORB_SLAM2::KPextractor*   mpExtractor        = nullptr;
-    ORB_SLAM2::KPextractor*   mpIniExtractor     = nullptr;
+    ORB_SLAM2::ORBVocabulary* mpVocabulary   = nullptr;
+    ORB_SLAM2::KPextractor*   mpExtractor    = nullptr;
+    ORB_SLAM2::KPextractor*   mpIniExtractor = nullptr;
 
-    ORB_SLAM2::KPextractor*   mpDefaultExtractor        = nullptr;
-    ORB_SLAM2::KPextractor*   mpIniDefaultExtractor     = nullptr;
+    ORB_SLAM2::KPextractor* mpDefaultExtractor    = nullptr;
+    ORB_SLAM2::KPextractor* mpIniDefaultExtractor = nullptr;
 
-    ORB_SLAM2::LocalMapping*  mpLocalMapper     = nullptr;
-    ORB_SLAM2::LoopClosing*   mpLoopCloser      = nullptr;
-    ORB_SLAM2::Initializer*   mpInitializer     = nullptr;
+    ORB_SLAM2::LocalMapping* mpLocalMapper = nullptr;
+    ORB_SLAM2::LoopClosing*  mpLoopCloser  = nullptr;
+    ORB_SLAM2::Initializer*  mpInitializer = nullptr;
 
     std::thread* mptLocalMapping = nullptr;
     std::thread* mptLoopClosing  = nullptr;
@@ -254,7 +255,7 @@ class WAI_API ModeOrbSlam2 : public Mode
     std::mutex _mutexStates;
 
     // debug visualization
-    void decorate();
+    void decorate(cv::Mat& image);
     void calculateMeanReprojectionError();
     void calculatePoseDifference();
     void decorateVideoWithKeyPoints(cv::Mat& image);
@@ -277,7 +278,7 @@ class WAI_API ModeOrbSlam2 : public Mode
     // marker correction stuff
     MarkerCorrectionType _markerCorrectionType;
 
-    bool    findChessboardPose(cv::Mat& foundPose);
+    bool    findChessboardPose(cv::Mat& imageGray, cv::Mat& imageRGB, cv::Mat& foundPose);
     cv::Mat _initialFrameChessboardPose;
     cv::Mat _markerCorrectionTransformation;
 

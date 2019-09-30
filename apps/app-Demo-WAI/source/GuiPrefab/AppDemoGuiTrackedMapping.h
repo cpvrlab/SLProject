@@ -9,13 +9,11 @@
 class AppDemoGuiTrackedMapping : public AppDemoGuiInfosDialog
 {
     public:
-    AppDemoGuiTrackedMapping(std::string name, WAI::ModeOrbSlam2* orbSlamMode, bool* activator);
+    AppDemoGuiTrackedMapping(std::string name, bool* activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     private:
-    WAI::ModeOrbSlam2* _orbSlamMode = nullptr;
-
     //!currently selected combobox item
     static const char* _currItem;
     //!currently selected combobox index

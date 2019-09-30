@@ -54,6 +54,15 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
 
         ImGui::Separator();
 
+        if (ImGui::BeginMenu("Slam"))
+        {
+            ImGui::MenuItem("Start", nullptr, &prefs->showSlamLoad);
+            ImGui::MenuItem("Tracked Mapping", nullptr, &prefs->showTrackedMapping);
+            ImGui::MenuItem("Params", nullptr, &prefs->showSlamParam);
+
+            ImGui::EndMenu();
+        }
+
         if (ImGui::BeginMenu("Video"))
         {
             CVCalibration* ac = CVCapture::instance()->activeCalib;
@@ -61,7 +70,7 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             CVCalibration* sc = &CVCapture::instance()->calibScndCam;
 
             ImGui::MenuItem("Video Storage", nullptr, &prefs->showVideoStorage);
-            ImGui::MenuItem("Video Load", nullptr, &prefs->showVideoLoad);
+            ImGui::MenuItem("Video Controls", nullptr, &prefs->showVideoControls);
 
             if (ImGui::BeginMenu("Mirror Main Camera"))
             {
@@ -194,7 +203,6 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
         {
             ImGui::MenuItem("Load Experiment", nullptr, &prefs->showTestSettings);
             ImGui::MenuItem("New Experiment", nullptr, &prefs->showTestWriter);
-            ImGui::MenuItem("Slam", nullptr, &prefs->showSlamParam);
             ImGui::EndMenu();
         }
 
@@ -221,7 +229,6 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", nullptr, &prefs->showHelp);
             ImGui::MenuItem("Help on Calibration", nullptr, &prefs->showHelpCalibration);
-            ImGui::MenuItem("Tracked Mapping", nullptr, &prefs->showTrackedMapping);
             ImGui::Separator();
             ImGui::MenuItem("UI Preferences", nullptr, &prefs->showUIPrefs);
             ImGui::MenuItem("Credits", nullptr, &prefs->showCredits);

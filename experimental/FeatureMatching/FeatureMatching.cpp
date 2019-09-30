@@ -35,7 +35,7 @@ int main(int argc, char** argv)
         exit(1);
     }
 
-    app_prepare(app);
+    //app_prepare(app);
 
     start_gui(app);
 

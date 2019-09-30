@@ -23,11 +23,7 @@
 
 #include <vector>
 #include <list>
-#if CV_VERSION_MAJOR >= 4
-#    include <opencv2/opencv.hpp>
-#else
-#    include <opencv/cv.h>
-#endif
+#include <opencv2/opencv.hpp>
 #include <WAIHelper.h>
 #include <KPextractor.h>
 
@@ -58,7 +54,9 @@ class WAI_API ORBextractor : public KPextractor
 
     ORBextractor(int nfeatures, float scaleFactor, int nlevels, int iniThFAST, int minThFAST);
 
-    ~ORBextractor() {}
+    ~ORBextractor()
+    {
+    }
 
     // Compute the ORB features and descriptors on an image.
     // ORB are dispersed on the image using an octree.

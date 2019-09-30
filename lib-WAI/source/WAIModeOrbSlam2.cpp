@@ -1,20 +1,25 @@
 #include <WAIModeOrbSlam2.h>
 
-WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera*        camera,
+WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat              cameraMat,
+                                cv::Mat              distortionMat,
                                 bool                 serial,
                                 bool                 retainImg,
                                 bool                 onlyTracking,
                                 bool                 trackOptFlow,
                                 MarkerCorrectionType markerCorrectionType,
                                 std::string          orbVocFile)
-  : Mode(WAI::ModeType_ORB_SLAM2),
-    _serial(serial),
+  : _serial(serial),
     _retainImg(retainImg),
     _onlyTracking(onlyTracking),
     _trackOptFlow(trackOptFlow),
-    _markerCorrectionType(markerCorrectionType),
-    _camera(camera)
+    _markerCorrectionType(markerCorrectionType)
 {
+    cameraMat.convertTo(_cameraMat, CV_32F);
+    distortionMat.convertTo(_distortionMat, CV_32F);
+
+    // Tell WAIFrame to compute image bounds
+    WAIFrame::mbInitialComputations = true;
+
     //load visual vocabulary for relocalization
     WAIOrbVocabulary::initialize(orbVocFile);
     mpVocabulary = WAIOrbVocabulary::get();
@@ -29,6 +34,8 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera*        camera,
     else
         _initialized = false;
 
+//instantiate KeyPoint extractor
+#if 0
     int nFeatures = 1000;
 
     float fScaleFactor = 1.2;
@@ -36,8 +43,6 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera*        camera,
     int   fIniThFAST   = 20;
     int   fMinThFAST   = 7;
 
-//instantiate KeyPoint extractor
-#if 0
     mpDefaultExtractor        = new ORB_SLAM2::ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
     mpIniDefaultExtractor = new ORB_SLAM2::ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
 #else
@@ -62,7 +67,6 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera*        camera,
         mptLoopClosing  = new std::thread(&LoopClosing::Run, mpLoopCloser);
     }
 
-    _camera->subscribeToUpdate(this);
     _state = TrackingState_Initializing;
 
     _pose = cv::Mat(4, 4, CV_32F);
@@ -90,10 +94,9 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(SensorCamera*        camera,
 #endif
             cv::Mat markerImgGray = cv::imread(std::string(SL_PROJECT_ROOT) + "/data/calibrations/marker_640_360.jpg", cv::IMREAD_GRAYSCALE);
 
-            cv::Mat cameraMat = _camera->getCameraMatrix();
-            float   fyCam     = cameraMat.at<float>(1, 1);
-            float   cyCam     = cameraMat.at<float>(1, 2);
-            float   fov       = 2.0f * atan2(cyCam, fyCam) * 180.0f / M_PI;
+            float fyCam = _cameraMat.at<float>(1, 1);
+            float cyCam = _cameraMat.at<float>(1, 2);
+            float fov   = 2.0f * atan2(cyCam, fyCam) * 180.0f / M_PI;
 
             float cx = (float)markerImgGray.cols * 0.5f;
             float cy = (float)markerImgGray.rows * 0.5f;
@@ -195,26 +198,26 @@ cv::Mat WAI::ModeOrbSlam2::getMarkerCorrectionTransformation()
     return result;
 }
 
-void WAI::ModeOrbSlam2::notifyUpdate()
+bool WAI::ModeOrbSlam2::update(cv::Mat& imageGray, cv::Mat& imageRGB)
 {
-    //__android_log_print(ANDROID_LOG_INFO, "lib-WAI", "update notified");
+    _poseSet = false;
     stateTransition();
 
     switch (_state)
     {
         case TrackingState_Initializing:
         {
-#if 0
+#if 0 
             if (_markerCorrectionType == MarkerCorrectionType_Chessboard)
             {
                 initializeWithChessboardCorrection();
             }
             else
             {
-                initialize();
+                initialize(imageGray, imageRGB);
             }
 #endif
-            initialize();
+            initialize(imageGray, imageRGB);
         }
         break;
 
@@ -222,7 +225,7 @@ void WAI::ModeOrbSlam2::notifyUpdate()
         case TrackingState_TrackingLost:
         {
             //relocalize or track 3d points
-            track3DPts();
+            track3DPts(imageGray, imageRGB);
         }
         break;
 
@@ -233,6 +236,8 @@ void WAI::ModeOrbSlam2::notifyUpdate()
         }
         break;
     }
+
+    return _poseSet;
 }
 
 uint32_t WAI::ModeOrbSlam2::getMapPointCount()
@@ -564,7 +569,7 @@ void WAI::ModeOrbSlam2::stateTransition()
     }
 }
 
-void WAI::ModeOrbSlam2::initialize()
+void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
 {
     //1. if there are more than 100 keypoints in the current frame, the Initializer is instantiated
     //2. if there are less than 100 keypoints in the next frame, the Initializer is deinstantiated again
@@ -585,13 +590,11 @@ void WAI::ModeOrbSlam2::initialize()
         lock.lock();
     }
 
-    cv::Mat cameraMat     = _camera->getCameraMatrix();
-    cv::Mat distortionMat = _camera->getDistortionMatrix();
-    mCurrentFrame         = WAIFrame(_camera->getImageGray(),
+    mCurrentFrame = WAIFrame(imageGray,
                              0.0,
                              mpIniExtractor,
-                             cameraMat,
-                             distortionMat,
+                             _cameraMat,
+                             _distortionMat,
                              mpVocabulary,
                              _retainImg);
 
@@ -601,7 +604,7 @@ void WAI::ModeOrbSlam2::initialize()
     {
         case MarkerCorrectionType_Chessboard:
         {
-            if (!findChessboardPose(markerCorrectedPose))
+            if (!findChessboardPose(imageGray, imageRGB, markerCorrectedPose))
             {
                 return;
             }
@@ -631,10 +634,10 @@ void WAI::ModeOrbSlam2::initialize()
                     }
                 }
 
-                mCurrentFrame = WAIFrame(_camera->getImageGray(),
+                mCurrentFrame = WAIFrame(imageGray,
                                          mpIniExtractor,
-                                         cameraMat,
-                                         distortionMat,
+                                         _cameraMat,
+                                         _distortionMat,
                                          matches,
                                          mpVocabulary,
                                          _retainImg);
@@ -753,7 +756,7 @@ void WAI::ModeOrbSlam2::initialize()
 
         for (unsigned int i = 0; i < mInitialFrame.mvKeys.size(); i++)
         {
-            cv::rectangle(_camera->getImageRGB(),
+            cv::rectangle(imageRGB,
                           mInitialFrame.mvKeys[i].pt,
                           cv::Point(mInitialFrame.mvKeys[i].pt.x + 3, mInitialFrame.mvKeys[i].pt.y + 3),
                           cv::Scalar(0, 0, 255));
@@ -764,7 +767,7 @@ void WAI::ModeOrbSlam2::initialize()
         {
             if (mvIniMatches[i] >= 0)
             {
-                cv::line(_camera->getImageRGB(),
+                cv::line(imageRGB,
                          mInitialFrame.mvKeys[i].pt,
                          mCurrentFrame.mvKeys[mvIniMatches[i]].pt,
                          cv::Scalar(0, 255, 0));
@@ -844,7 +847,7 @@ void WAI::ModeOrbSlam2::initialize()
     }
 }
 
-void WAI::ModeOrbSlam2::initializeWithKnownPose(int minKeys, bool matchesKnown)
+void WAI::ModeOrbSlam2::initializeWithKnownPose(cv::Mat& imageGray, cv::Mat& imageRGB, int minKeys, bool matchesKnown)
 {
     // Get Map Mutex -> Map cannot be changed
     std::unique_lock<std::mutex> lock(_map->mMutexMapUpdate, std::defer_lock);
@@ -852,9 +855,6 @@ void WAI::ModeOrbSlam2::initializeWithKnownPose(int minKeys, bool matchesKnown)
     {
         lock.lock();
     }
-
-    cv::Mat cameraMat     = _camera->getCameraMatrix();
-    cv::Mat distortionMat = _camera->getDistortionMatrix();
 
 #if 0
     if (keyPoints.size())
@@ -970,7 +970,7 @@ void WAI::ModeOrbSlam2::initializeWithKnownPose(int minKeys, bool matchesKnown)
 #if 1
         for (unsigned int i = 0; i < mInitialFrame.mvKeys.size(); i++)
         {
-            cv::rectangle(_camera->getImageRGB(),
+            cv::rectangle(imageRGB,
                           mInitialFrame.mvKeys[i].pt,
                           cv::Point(mInitialFrame.mvKeys[i].pt.x + 3, mInitialFrame.mvKeys[i].pt.y + 3),
                           cv::Scalar(0, 0, 255));
@@ -981,7 +981,7 @@ void WAI::ModeOrbSlam2::initializeWithKnownPose(int minKeys, bool matchesKnown)
         {
             if (mvIniMatches[i] >= 0)
             {
-                cv::line(_camera->getImageRGB(),
+                cv::line(imageRGB,
                          mInitialFrame.mvKeys[i].pt,
                          mCurrentFrame.mvKeys[mvIniMatches[i]].pt,
                          cv::Scalar(0, 255, 0));
@@ -1098,19 +1098,19 @@ void WAI::ModeOrbSlam2::initializeWithKnownPose(int minKeys, bool matchesKnown)
     }
 }
 
-bool WAI::ModeOrbSlam2::findChessboardPose(cv::Mat& foundPose)
+bool WAI::ModeOrbSlam2::findChessboardPose(cv::Mat& imageGray, cv::Mat& imageRGB, cv::Mat& foundPose)
 {
     bool result = false;
 
     std::vector<cv::Point2f> p2D;
-    bool                     found = cv::findChessboardCorners(_camera->getImageGray(),
+    bool                     found = cv::findChessboardCorners(imageGray,
                                            _chessboardSize,
                                            p2D,
                                            _chessboardFlags);
 
     if (found)
     {
-        cv::drawChessboardCorners(_camera->getImageRGB(), _chessboardSize, p2D, found);
+        cv::drawChessboardCorners(imageRGB, _chessboardSize, p2D, found);
 
         std::vector<cv::Point3f> p3Dw;
 
@@ -1122,14 +1122,11 @@ bool WAI::ModeOrbSlam2::findChessboardPose(cv::Mat& foundPose)
             }
         }
 
-        cv::Mat cameraMat     = _camera->getCameraMatrix();
-        cv::Mat distortionMat = _camera->getDistortionMatrix();
-
         cv::Mat r, t;
         bool    poseFound = cv::solvePnP(p3Dw,
                                       p2D,
-                                      cameraMat,
-                                      distortionMat,
+                                      _cameraMat,
+                                      _distortionMat,
                                       r,
                                       t,
                                       false,
@@ -1153,17 +1150,17 @@ bool WAI::ModeOrbSlam2::findChessboardPose(cv::Mat& foundPose)
     return result;
 }
 
-void WAI::ModeOrbSlam2::initializeWithChessboardCorrection()
+void WAI::ModeOrbSlam2::initializeWithChessboardCorrection(cv::Mat& imageGray, cv::Mat& imageRGB)
 {
     std::vector<cv::Point2f> p2D;
-    bool                     found = cv::findChessboardCorners(_camera->getImageGray(),
+    bool                     found = cv::findChessboardCorners(imageGray,
                                            _chessboardSize,
                                            p2D,
                                            _chessboardFlags);
 
     if (found)
     {
-        cv::drawChessboardCorners(_camera->getImageRGB(), _chessboardSize, p2D, found);
+        cv::drawChessboardCorners(imageRGB, _chessboardSize, p2D, found);
 
         std::vector<cv::Point3f> p3Dw;
 
@@ -1178,8 +1175,8 @@ void WAI::ModeOrbSlam2::initializeWithChessboardCorrection()
         cv::Mat r, t;
         bool    poseFound = cv::solvePnP(p3Dw,
                                       p2D,
-                                      _camera->getCameraMatrix(),
-                                      _camera->getDistortionMatrix(),
+                                      _cameraMat,
+                                      _distortionMat,
                                       r,
                                       t,
                                       false,
@@ -1200,21 +1197,19 @@ void WAI::ModeOrbSlam2::initializeWithChessboardCorrection()
                 kp.push_back(cv::KeyPoint(p2D[i], 1.0f));
             }
 
-            cv::Mat cameraMat     = _camera->getCameraMatrix();
-            cv::Mat distortionMat = _camera->getDistortionMatrix();
 #if 1
-            mCurrentFrame = WAIFrame(_camera->getImageGray(),
+            mCurrentFrame = WAIFrame(imageGray,
                                      0.0f,
                                      mpIniExtractor,
-                                     cameraMat,
-                                     distortionMat,
+                                     _cameraMat,
+                                     _distortionMat,
                                      mpVocabulary,
                                      _retainImg);
 #else
-            mCurrentFrame       = WAIFrame(_camera->getImageGray(),
+            mCurrentFrame       = WAIFrame(imageGray,
                                      mpIniExtractor,
-                                     cameraMat,
-                                     distortionMat,
+                                     _cameraMat,
+                                     _distortionMat,
                                      kp,
                                      mpVocabulary,
                                      _retainImg);
@@ -1223,7 +1218,7 @@ void WAI::ModeOrbSlam2::initializeWithChessboardCorrection()
 
             //initializeWithKnownPose(kp.size() - 1, true);
             //initializeWithKnownPose(kp.size() - 1);
-            initializeWithKnownPose();
+            initializeWithKnownPose(imageGray, imageRGB);
         }
     }
 }
@@ -1240,15 +1235,13 @@ bool WAI::ModeOrbSlam2::posInGrid(const cv::KeyPoint& kp, int& posX, int& posY, 
     return true;
 }
 
-void WAI::ModeOrbSlam2::track3DPts()
+void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
 {
-    cv::Mat cameraMat     = _camera->getCameraMatrix();
-    cv::Mat distortionMat = _camera->getDistortionMatrix();
-    mCurrentFrame         = WAIFrame(_camera->getImageGray(),
+    mCurrentFrame = WAIFrame(imageGray,
                              0.0,
                              mpExtractor,
-                             cameraMat,
-                             distortionMat,
+                             _cameraMat,
+                             _distortionMat,
                              mpVocabulary,
                              _retainImg);
 
@@ -1258,7 +1251,7 @@ void WAI::ModeOrbSlam2::track3DPts()
     {
         case MarkerCorrectionType_Chessboard:
         {
-            chessboardFound = findChessboardPose(markerCorrectedPose);
+            chessboardFound = findChessboardPose(imageGray, imageRGB, markerCorrectedPose);
         }
         break;
 
@@ -1282,10 +1275,10 @@ void WAI::ModeOrbSlam2::track3DPts()
                 }
             }
 
-            mCurrentFrame = WAIFrame(_camera->getImageGray(),
+            mCurrentFrame = WAIFrame(imageGray,
                                      mpIniExtractor,
-                                     cameraMat,
-                                     distortionMat,
+                                     _cameraMat,
+                                     _distortionMat,
                                      matches,
                                      mpVocabulary,
                                      _retainImg);
@@ -1341,7 +1334,7 @@ void WAI::ModeOrbSlam2::track3DPts()
         }
         else
         {
-            _bOK = relocalization();
+            _bOK = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId);
         }
     }
     else
@@ -1350,7 +1343,7 @@ void WAI::ModeOrbSlam2::track3DPts()
 
         if (_state == TrackingState_TrackingLost)
         {
-            _bOK       = relocalization();
+            _bOK       = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId);
             _optFlowOK = false;
             //cout << "Relocalization: " << bOK << endl;
         }
@@ -1394,7 +1387,7 @@ void WAI::ModeOrbSlam2::track3DPts()
                     vbOutMM = mCurrentFrame.mvbOutlier;
                     TcwMM   = mCurrentFrame.mTcw.clone();
                 }
-                bOKReloc = relocalization();
+                bOKReloc = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId);
 
                 //relocalization method is not valid but the velocity model method
                 if (bOKMM && !bOKReloc)
@@ -1586,7 +1579,7 @@ void WAI::ModeOrbSlam2::track3DPts()
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
     }
 
-    decorate();
+    decorate(imageRGB);
 
     mLastFrame = WAIFrame(mCurrentFrame);
 
@@ -2001,6 +1994,175 @@ void WAI::ModeOrbSlam2::findMatches(std::vector<cv::Point2f>& vP2D, std::vector<
     }
 }
 
+bool WAI::ModeOrbSlam2::relocalization(WAIFrame&      currentFrame,
+                                       WAIKeyFrameDB* keyFrameDB,
+                                       unsigned int*  lastRelocFrameId)
+{
+    // Compute Bag of Words Vector
+    currentFrame.ComputeBoW();
+
+    // Relocalization is performed when tracking is lost
+    // Track Lost: Query WAIKeyFrame Database for keyframe candidates for relocalisation
+    vector<WAIKeyFrame*> vpCandidateKFs = keyFrameDB->DetectRelocalizationCandidates(&currentFrame);
+
+    if (vpCandidateKFs.empty())
+        return false;
+
+    //vector<WAIKeyFrame*> vpCandidateKFs = mpKeyFrameDatabase->keyFrames();
+    const int nKFs = vpCandidateKFs.size();
+
+    // We perform first an ORB matching with each candidate
+    // If enough matches are found we setup a PnP solver
+    // Best match < 0.75 * second best match (default is 0.6)
+    ORBmatcher matcher(0.75, true);
+
+    vector<PnPsolver*> vpPnPsolvers;
+    vpPnPsolvers.resize(nKFs);
+
+    vector<vector<WAIMapPoint*>> vvpMapPointMatches;
+    vvpMapPointMatches.resize(nKFs);
+
+    vector<bool> vbDiscarded;
+    vbDiscarded.resize(nKFs);
+
+    int nCandidates = 0;
+
+    for (int i = 0; i < nKFs; i++)
+    {
+        WAIKeyFrame* pKF = vpCandidateKFs[i];
+        if (pKF->isBad())
+            vbDiscarded[i] = true;
+        else
+        {
+            int nmatches = matcher.SearchByBoW(pKF, currentFrame, vvpMapPointMatches[i]);
+            //cout << "Num matches: " << nmatches << endl;
+            if (nmatches < 15)
+            {
+                vbDiscarded[i] = true;
+                continue;
+            }
+            else
+            {
+                PnPsolver* pSolver = new PnPsolver(currentFrame, vvpMapPointMatches[i]);
+                pSolver->SetRansacParameters(0.99, 10, 300, 4, 0.5, 5.991);
+                vpPnPsolvers[i] = pSolver;
+                nCandidates++;
+            }
+        }
+    }
+
+    // Alternatively perform some iterations of P4P RANSAC
+    // Until we found a camera pose supported by enough inliers
+    bool       bMatch = false;
+    ORBmatcher matcher2(0.9, true);
+
+    while (nCandidates > 0 && !bMatch)
+    {
+        for (int i = 0; i < nKFs; i++)
+        {
+            if (vbDiscarded[i])
+                continue;
+
+            // Perform 5 Ransac Iterations
+            vector<bool> vbInliers;
+            int          nInliers;
+            bool         bNoMore;
+
+            PnPsolver* pSolver = vpPnPsolvers[i];
+            cv::Mat    Tcw     = pSolver->iterate(5, bNoMore, vbInliers, nInliers);
+
+            // If Ransac reachs max. iterations discard keyframe
+            if (bNoMore)
+            {
+                vbDiscarded[i] = true;
+                nCandidates--;
+            }
+
+            // If a Camera Pose is computed, optimize
+            if (!Tcw.empty())
+            {
+                Tcw.copyTo(currentFrame.mTcw);
+
+                set<WAIMapPoint*> sFound;
+
+                const int np = vbInliers.size();
+
+                for (int j = 0; j < np; j++)
+                {
+                    if (vbInliers[j])
+                    {
+                        currentFrame.mvpMapPoints[j] = vvpMapPointMatches[i][j];
+                        sFound.insert(vvpMapPointMatches[i][j]);
+                    }
+                    else
+                        currentFrame.mvpMapPoints[j] = NULL;
+                }
+
+                int nGood = Optimizer::PoseOptimization(&currentFrame);
+
+                if (nGood < 10)
+                    continue;
+
+                for (int io = 0; io < currentFrame.N; io++)
+                    if (currentFrame.mvbOutlier[io])
+                        currentFrame.mvpMapPoints[io] = static_cast<WAIMapPoint*>(NULL);
+
+                // If few inliers, search by projection in a coarse window and optimize again:
+                //ghm1: mappoints seen in the keyframe which was found as candidate via BoW-search are projected into
+                //the current frame using the position that was calculated using the matches from BoW matcher
+                if (nGood < 50)
+                {
+                    int nadditional = matcher2.SearchByProjection(currentFrame, vpCandidateKFs[i], sFound, 10, 100);
+
+                    if (nadditional + nGood >= 50)
+                    {
+                        nGood = Optimizer::PoseOptimization(&currentFrame);
+
+                        // If many inliers but still not enough, search by projection again in a narrower window
+                        // the camera has been already optimized with many points
+                        if (nGood > 30 && nGood < 50)
+                        {
+                            sFound.clear();
+                            for (int ip = 0; ip < currentFrame.N; ip++)
+                                if (currentFrame.mvpMapPoints[ip])
+                                    sFound.insert(currentFrame.mvpMapPoints[ip]);
+                            nadditional = matcher2.SearchByProjection(currentFrame, vpCandidateKFs[i], sFound, 3, 64);
+
+                            // Final optimization
+                            if (nGood + nadditional >= 50)
+                            {
+                                nGood = Optimizer::PoseOptimization(&currentFrame);
+
+                                for (int io = 0; io < currentFrame.N; io++)
+                                    if (currentFrame.mvbOutlier[io])
+                                        currentFrame.mvpMapPoints[io] = NULL;
+                            }
+                        }
+                    }
+                }
+
+                // If the pose is supported by enough inliers stop ransacs and continue
+                if (nGood >= 50)
+                {
+                    bMatch = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!bMatch)
+    {
+        return false;
+    }
+    else
+    {
+        *lastRelocFrameId = currentFrame.mnId;
+        return true;
+    }
+}
+
+#if 0
 bool WAI::ModeOrbSlam2::relocalization()
 {
     // Compute Bag of Words Vector
@@ -2178,6 +2340,7 @@ bool WAI::ModeOrbSlam2::relocalization()
         return true;
     }
 }
+#endif
 
 bool WAI::ModeOrbSlam2::trackReferenceKeyFrame()
 {
@@ -2750,8 +2913,8 @@ bool WAI::ModeOrbSlam2::trackWithOptFlow()
 
     bool foundPose = cv::solvePnP(model3DPoints,
                                   frame2DPoints,
-                                  _camera->getCameraMatrix(),
-                                  _camera->getDistortionMatrix(),
+                                  _cameraMat,
+                                  _distortionMat,
                                   rvec,
                                   tvec,
                                   true);
@@ -2783,8 +2946,8 @@ bool WAI::ModeOrbSlam2::trackWithOptFlow()
         cv::projectPoints(model3DPoints,
                           rvec,
                           tvec,
-                          _camera->getCameraMatrix(),
-                          _camera->getDistortionMatrix(),
+                          _cameraMat,
+                          _distortionMat,
                           projectedPts);
 
         _optFlowMapPtsLastFrame.clear();
@@ -2847,16 +3010,15 @@ WAIKeyFrame* WAI::ModeOrbSlam2::currentKeyFrame()
     return result;
 }
 
-void WAI::ModeOrbSlam2::decorate()
+void WAI::ModeOrbSlam2::decorate(cv::Mat& image)
 {
     //calculation of mean reprojection error of all matches
     calculateMeanReprojectionError();
     //calculate pose difference
     calculatePoseDifference();
     //show rectangle for key points in video that where matched to map points
-    cv::Mat imgRGB = _camera->getImageRGB();
-    decorateVideoWithKeyPoints(imgRGB);
-    decorateVideoWithKeyPointMatches(imgRGB);
+    decorateVideoWithKeyPoints(image);
+    decorateVideoWithKeyPointMatches(image);
     //decorate scene with matched map points, local map points and matched map points
     //decorateScene();
 }
@@ -2994,27 +3156,4 @@ void WAI::ModeOrbSlam2::decorateVideoWithKeyPointMatches(cv::Mat& image)
             }
         }
     }
-}
-
-void WAI::ModeOrbSlam2::loadMapData(std::vector<WAIKeyFrame*> keyFrames,
-                                    std::vector<WAIMapPoint*> mapPoints,
-                                    int                       numLoopClosings)
-{
-    for (WAIKeyFrame* kf : keyFrames)
-    {
-        _map->AddKeyFrame(kf);
-
-        //Update keyframe database:
-        //add to keyframe database
-        mpKeyFrameDatabase->add(kf);
-    }
-
-    for (WAIMapPoint* point : mapPoints)
-    {
-        _map->AddMapPoint(point);
-    }
-
-    _map->setNumLoopClosings(numLoopClosings);
-
-    setInitialized(true);
 }

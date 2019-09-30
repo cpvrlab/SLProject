@@ -39,7 +39,6 @@ CVCapture::CVCapture()
     activeCamSizeIndex = -1;
     activeCalib        = nullptr;
     _captureTimesMS.init(60, 0);
-
 }
 //-----------------------------------------------------------------------------
 //! Private constructor
@@ -71,8 +70,8 @@ CVSize2i CVCapture::open(int deviceNum)
 
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
-        Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
-        Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
+        //Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
+        //Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
         fps                = _captureDevice.get(cv::CAP_PROP_FPS);
@@ -117,12 +116,12 @@ CVSize2i CVCapture::openFile()
             return CVSize2i(0, 0);
         }
 
-        Utils::log("Capture devices created with video.\n");
+        //Utils::log("Capture devices created with video.\n");
 
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
-        Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
-        Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
+        //Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
+        //Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
         fps                = _captureDevice.get(cv::CAP_PROP_FPS);
@@ -180,7 +179,7 @@ CVCapture::adjustForSL. This function can also be called by Android or iOS
 app for grabbing a frame of a video file. Android and iOS use their own
 capture functionality.
 */
-void CVCapture::grabAndAdjustForSL(float scrWdivH)
+bool CVCapture::grabAndAdjustForSL(float scrWdivH)
 {
     CVCapture::startCaptureTimeMS = _timer.elapsedTimeInMilliSec();
 
@@ -195,10 +194,10 @@ void CVCapture::grabAndAdjustForSL(float scrWdivH)
                 {
                     _captureDevice.set(cv::CAP_PROP_POS_FRAMES, 0);
                     if (!_captureDevice.read(lastFrame))
-                        return;
+                        return false;
                 }
                 else
-                    return;
+                    return false;
             }
 
             adjustForSL(scrWdivH);
@@ -210,13 +209,17 @@ void CVCapture::grabAndAdjustForSL(float scrWdivH)
             {
                 Utils::log("OpenCV: Capture device or video file is not open!\n");
                 logOnce = false;
+                return false;
             }
         }
     }
     catch (exception& e)
     {
         Utils::log("Exception during OpenCV video capture creation\n");
+        return false;
     }
+
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -401,27 +404,32 @@ void CVCapture::loadIntoLastFrame(const float       scrWdivH,
 
         switch (format)
         {
-            case PF_luminance: {
+            case PF_luminance:
+            {
                 cvType = CV_8UC1;
                 bpp    = 1;
                 break;
             }
-            case PF_bgr: {
+            case PF_bgr:
+            {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_rgb: {
+            case PF_rgb:
+            {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_bgra: {
+            case PF_bgra:
+            {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
             }
-            case PF_rgba: {
+            case PF_rgba:
+            {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;

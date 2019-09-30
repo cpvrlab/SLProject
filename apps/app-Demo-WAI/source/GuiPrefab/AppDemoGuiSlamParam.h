@@ -16,27 +16,23 @@
 
 #include <SLMat4.h>
 #include <SLNode.h>
+#include <AppWAI.h>
 #include <WAICalibration.h>
-#include <WAI.h>
 #include <vector>
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiSlamParam : public AppDemoGuiInfosDialog
 {
     public:
-    AppDemoGuiSlamParam(const std::string& name, std::string vocDir,
-                        WAI::WAI * wai, bool* activator);
+    AppDemoGuiSlamParam(const std::string& name,
+                        bool*              activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     private:
-    KPextractor *            _current;
-    KPextractor *            _iniCurrent;
+    KPextractor*              _current;
+    KPextractor*              _iniCurrent;
     std::vector<KPextractor*> _extractors;
-    std::string              _vocDir;
-    std::vector<std::string> _vocList;
-    std::string              _currentVoc;
-    WAI::WAI*                _wai;
 };
 
 #endif

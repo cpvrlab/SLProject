@@ -4,7 +4,6 @@ using namespace std;
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include <WAISensorCamera.h>
 
 enum CalibrationState
 {
@@ -22,18 +21,20 @@ class WAICalibration
     virtual void reset();
     virtual void changeImageSize(int width, int height);
 
-    float calcCameraVerticalFOV();
-    float calcCameraHorizontalFOV();
-    float calcCameraVerticalFOV(cv::Mat& cameraMat);
-    float calcCameraHorizontalFOV(cv::Mat& cameraMat);
+    std::string computerInfo() { return _computerInfo; }
+    std::string filename() { return _filename; }
+    float       calcCameraVerticalFOV();
+    float       calcCameraHorizontalFOV();
+    float       calcCameraVerticalFOV(cv::Mat& cameraMat);
+    float       calcCameraHorizontalFOV(cv::Mat& cameraMat);
+    float       aspectRatio() { return (float)_imgSize.width / (float)_imgSize.height; }
 
-    void                   computeMatrix(cv::Mat& mat, float fov);
-    WAI::CameraCalibration getCameraCalibration();
-    cv::Mat&               cameraMat() { return _cameraMat; }
-    cv::Mat&               distortion() { return _distortion; }
-    CalibrationState       getState() { return _state; }
-    std::string            getCalibrationPath() { return _calibrationPath; }
-    std::string            stateStr();
+    void             computeMatrix(cv::Mat& mat, float fov);
+    cv::Mat&         cameraMat() { return _cameraMat; }
+    cv::Mat&         distortion() { return _distortion; }
+    CalibrationState getState() { return _state; }
+    std::string      getCalibrationPath() { return _calibrationPath; }
+    std::string      stateStr();
 
     float fx() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(0, 0) : 0.0f; }
     float fy() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(1, 1) : 0.0f; }
@@ -60,7 +61,8 @@ class WAICalibration
     float            _reprojectionError;
     float            _calibrationTime;
     int              _camSizeIndex;
-    std::string      _computerModel;
+    std::string      _computerInfo;
     std::string      _creationDate;
+    std::string      _filename;
 };
 #endif

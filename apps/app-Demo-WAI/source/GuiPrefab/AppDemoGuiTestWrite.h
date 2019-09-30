@@ -17,23 +17,18 @@
 
 #include <SLMat4.h>
 #include <SLNode.h>
+#include <AppWAI.h>
 #include <WAICalibration.h>
-#include <WAI.h>
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
 {
     public:
-    AppDemoGuiTestWrite(const std::string& name, std::string saveDir,
-                        WAI::WAI* wai, WAICalibration* wc, SLNode* mapNode,
-                        cv::VideoWriter* writer1, cv::VideoWriter* writer2,
-                        std::ofstream* gpsDataStream,
-                        bool* activator);
+    AppDemoGuiTestWrite(const std::string& name, std::string saveDir, WAICalibration* wc, SLNode* mapNode, cv::VideoWriter* writer1, cv::VideoWriter* writer2, std::ofstream* gpsDataStream, bool* activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     private:
-
     void prepareExperiment(std::string testScene, std::string weather);
 
     void recordExperiment();
@@ -52,10 +47,17 @@ class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
     std::string _savePath;
     std::string _settingsPath;
     std::string _videoPath;
+    std::string _calibrationsPath;
     std::string _mapPath;
     std::string _runPath;
     std::string _date;
+    std::string gpsname;
+    std::string videoname;
+    std::string calibrationname;
+    std::string settingname;
+    std::string mapname;
 
+    cv::Size                 _size;
     std::ofstream*           _gpsDataFile;
     SLNode*                  _mapNode;
     std::vector<std::string> _testScenes;
@@ -63,7 +65,6 @@ class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
     cv::VideoWriter*         _videoWriter;
     cv::VideoWriter*         _videoWriterInfo;
     WAICalibration*          _wc;
-    WAI::WAI*                _wai;
 
     int _currentSceneId;
     int _currentConditionId;

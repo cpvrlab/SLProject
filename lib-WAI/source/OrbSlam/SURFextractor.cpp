@@ -1211,8 +1211,8 @@ void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     Mat descriptors;
 
     //reduce keypoint detection to an inner region because of descriptor patch size
-    cv::Mat mask = cv::Mat::zeros(image.size(), image.type());
-    mask(cv::Rect(HALF_PATCH_SIZE, HALF_PATCH_SIZE, image.cols - HALF_PATCH_SIZE - 1, image.rows - HALF_PATCH_SIZE - 1)).setTo(1);
+    cv::Mat mask = cv::Mat::zeros(image.size(), CV_8U);
+    mask(cv::Rect(HALF_PATCH_SIZE, HALF_PATCH_SIZE, image.cols - PATCH_SIZE, image.rows - PATCH_SIZE)).setTo(1);
     //detect keypoints
     surf_detector->detect(image, _keypoints, mask);
 

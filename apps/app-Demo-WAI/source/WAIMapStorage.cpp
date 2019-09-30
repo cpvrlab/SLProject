@@ -19,17 +19,25 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
             return false;
         }
 
-        SLMat4f om = mapNode->om();
-        cv::Mat cvOM(4, 4, CV_32F);
-        for (int i = 0; i < 4; ++i)
-        {
-            for (int j = 0; j < 4; ++j)
-            {
-                cvOM.at<float>(i, j) = om(i, j);
-            }
-        }
-
-        fs << "mapNodeOm" << cvOM;
+        SLMat4f om           = mapNode->om();
+        cv::Mat cvOm         = cv::Mat(4, 4, CV_32F);
+        cvOm.at<float>(0, 0) = om.m(0);
+        cvOm.at<float>(0, 1) = om.m(1);
+        cvOm.at<float>(0, 2) = om.m(2);
+        cvOm.at<float>(0, 3) = om.m(12);
+        cvOm.at<float>(1, 0) = om.m(4);
+        cvOm.at<float>(1, 1) = om.m(5);
+        cvOm.at<float>(1, 2) = om.m(6);
+        cvOm.at<float>(1, 3) = om.m(13);
+        cvOm.at<float>(2, 0) = om.m(8);
+        cvOm.at<float>(2, 1) = om.m(9);
+        cvOm.at<float>(2, 2) = om.m(10);
+        cvOm.at<float>(2, 3) = om.m(14);
+        cvOm.at<float>(3, 0) = 0.f;
+        cvOm.at<float>(3, 1) = 0.f;
+        cvOm.at<float>(3, 2) = 0.f;
+        cvOm.at<float>(3, 3) = 1.0f;
+        fs << "mapNodeOm" << cvOm;
 
         //start sequence keyframes
         fs << "KeyFrames"
@@ -180,7 +188,11 @@ SLMat4f WAIMapStorage::loadMatrix(const cv::FileNode& n)
     return om;
 }
 
-bool WAIMapStorage::loadMap(WAIMap* waiMap, WAIKeyFrameDB* kfDB, SLNode* mapNode, std::string path, std::string imgDir)
+bool WAIMapStorage::loadMap(WAIMap*        waiMap,
+                            WAIKeyFrameDB* kfDB,
+                            SLNode*        mapNode,
+                            std::string    path,
+                            std::string    imgDir)
 {
     std::vector<WAIMapPoint*>       mapPoints;
     std::vector<WAIKeyFrame*>       keyFrames;
@@ -196,7 +208,10 @@ bool WAIMapStorage::loadMap(WAIMap* waiMap, WAIKeyFrameDB* kfDB, SLNode* mapNode
         return false;
     }
 
-    mapNode->om(loadMatrix(fs["mapNodeOm"]));
+    if (mapNode)
+    {
+        mapNode->om(loadMatrix(fs["mapNodeOm"]));
+    }
 
     cv::FileNode n = fs["KeyFrames"];
     for (auto it = n.begin(); it != n.end(); ++it)

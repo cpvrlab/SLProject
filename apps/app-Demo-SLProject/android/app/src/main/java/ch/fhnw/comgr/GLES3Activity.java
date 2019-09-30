@@ -108,7 +108,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             _permissionWriteStorageGranted = true;
             _permissionReadStorageGranted = true;
             _permissionInternetGranted = true;
-            setupExternalDirectories();
         }
         else {
             _permissionRequestIsOpen = true;
@@ -273,7 +272,8 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                 Log.i(TAG, "onRequestPermissionsResult: Permission WRITE_EXTERNAL_STORAGE granted.");
                 _permissionWriteStorageGranted = true;
                 //read available external files and update slproject
-                setupExternalDirectories();
+                String externalDirPath = GLES3Lib.activity.setupExternalDirectories();
+                GLES3Lib.onSetupExternalDir(externalDirPath);
             } else {
                 Log.i(TAG, "onRequestPermissionsResult: Permission WRITE_EXTERNAL_STORAGE refused.");
                 _permissionWriteStorageGranted = false;
@@ -314,7 +314,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     }
 
     /* Get available external directories and inform slproject about them */
-    public void setupExternalDirectories() {
+    public String setupExternalDirectories() {
 
         String state = Environment.getExternalStorageState();
         boolean externalPublicDirCreated = false;
@@ -352,7 +352,10 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         }
 
         String absPath = slProjectDataPath;
-        myView.queueEvent( new Runnable() {public void run() {GLES3Lib.onSetupExternalDir(absPath);}});
+
+        return absPath;
+
+        //myView.queueEvent( new Runnable() {public void run() {GLES3Lib.onSetupExternalDir(absPath);}});
     }
 
     /**
