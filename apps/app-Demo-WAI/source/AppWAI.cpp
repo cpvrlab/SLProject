@@ -264,7 +264,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
                                  false,
                                  false,
                                  false,
-                                 WAI::MarkerCorrectionType_None, // TODO(dgj1): possibility to chose if marker correction type in GUI
+                                 WAI::MarkerCorrectionType_Map, // TODO(dgj1): possibility to chose if marker correction type in GUI
                                  vocFile);
 
     // 5. Load map data
@@ -277,6 +277,8 @@ OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
         }
         mode->reset();
 
+        // TODO(dgj1): extract feature type
+        // TODO(dgj1): check that map feature type matches with mode feature type
         bool mapLoadingSuccess = WAIMapStorage::loadMap(mode->getMap(),
                                                         mode->getKfDB(),
                                                         waiScene->mapNode,

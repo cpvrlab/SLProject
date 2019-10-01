@@ -27,7 +27,11 @@ bool WAIOrbVocabulary::loadFromFile(std::string strVocFile)
 {
     bool result = false;
 
-    _vocabulary   = new ORB_SLAM2::ORBVocabulary();
+    if (!_vocabulary)
+    {
+        _vocabulary = new ORB_SLAM2::ORBVocabulary();
+    }
+
     bool bVocLoad = _vocabulary->loadFromBinaryFile(strVocFile);
     if (!bVocLoad)
     {
@@ -36,7 +40,6 @@ bool WAIOrbVocabulary::loadFromFile(std::string strVocFile)
     }
     else
     {
-        WAI_LOG("Vocabulary loaded!\n");
         result = true;
     }
 
@@ -68,16 +71,7 @@ ORB_SLAM2::ORBVocabulary* WAIOrbVocabulary::doGet()
 //-----------------------------------------------------------------------------
 bool WAIOrbVocabulary::doInitialize(std::string filename)
 {
-    bool result = false;
-
-    if (!_vocabulary)
-    {
-        result = loadFromFile(filename);
-    }
-    else
-    {
-        result = true;
-    }
+    bool result = loadFromFile(filename);
 
     return result;
 }

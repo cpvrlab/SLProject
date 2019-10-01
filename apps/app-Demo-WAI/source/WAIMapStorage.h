@@ -12,6 +12,7 @@ class WAI_API WAIMapStorage
     public:
     static bool saveMap(WAIMap*     waiMap,
                         SLNode*     mapNode,
+                        std::string featureType,
                         std::string path,
                         std::string imgDir = "");
 

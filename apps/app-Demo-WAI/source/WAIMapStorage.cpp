@@ -2,6 +2,7 @@
 
 bool WAIMapStorage::saveMap(WAIMap*     waiMap,
                             SLNode*     mapNode,
+                            std::string featureType,
                             std::string filename,
                             std::string imgDir)
 {
@@ -18,6 +19,8 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
         {
             return false;
         }
+
+        fs << "featureType" << featureType;
 
         SLMat4f om           = mapNode->om();
         cv::Mat cvOm         = cv::Mat(4, 4, CV_32F);

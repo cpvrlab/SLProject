@@ -103,6 +103,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             WAIApp::errorDial->setErrorMsg(startResult.errorString);
             WAIApp::uiPrefs.showError = true;
         }
+
+        _currentCalibration = WAIApp::wc->filename();
     }
 
     ImGui::Separator();

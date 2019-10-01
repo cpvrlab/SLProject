@@ -81,6 +81,7 @@ void AppDemoGuiMapStorage::buildInfos(SLScene* s, SLSceneView* sv)
 
         if (WAIMapStorage::saveMap(WAIApp::mode->getMap(),
                                    _mapNode,
+                                   WAIApp::mode->getKPextractor()->GetName(),
                                    WAIApp::mapDir + filename))
         {
             ImGui::Text("Info: Map saved successfully");

@@ -66,10 +66,14 @@ RelocalizationTestResult runRelocalizationTest(std::string videoFile,
 {
     RelocalizationTestResult result = {};
 
+    // TODO(dgj1): this is a bit of a hack... improve
+    WAIFrame::mbInitialComputations = true;
+
     WAIOrbVocabulary::initialize(vocFile);
-    ORB_SLAM2::ORBVocabulary* orbVoc     = WAIOrbVocabulary::get();
-    ORB_SLAM2::KPextractor*   extractor  = new ORB_SLAM2::SURFextractor(1500);
-    WAIKeyFrameDB*            keyFrameDB = new WAIKeyFrameDB(*orbVoc);
+    ORB_SLAM2::ORBVocabulary* orbVoc = WAIOrbVocabulary::get();
+    // TODO(dgj1): we should be able to select what kind of extractor we want for each case
+    ORB_SLAM2::KPextractor* extractor  = new ORB_SLAM2::SURFextractor(1000);
+    WAIKeyFrameDB*          keyFrameDB = new WAIKeyFrameDB(*orbVoc);
 
     WAIMap* map = new WAIMap("map");
     WAIMapStorage::loadMap(map, keyFrameDB, nullptr, mapFile);
@@ -197,8 +201,8 @@ int main()
 
     addRelocalizationTestCase(southwallBench, "160919-143001_android-mcrd1-35-ASUS-A002_640.mp4");
     addRelocalizationTestCase(southwallBench, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4");
-    addRelocalizationTestCase(southwallBench, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4");
-    addRelocalizationTestCase(southwallBench, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4");
+    addRelocalizationTestCase(southwallBench, "160919-143003_android-mcrd1-35-ASUS-A002_640.mp4");
+    addRelocalizationTestCase(southwallBench, "160919-143004_android-mcrd1-35-ASUS-A002_640.mp4");
     addRelocalizationTestCase(southwallBench, "160919-143001_cm-cm-build-c25-TA-1021_640.mp4");
     addRelocalizationTestCase(southwallBench, "160919-143002_cm-cm-build-c25-TA-1021_640.mp4");
     addRelocalizationTestCase(southwallBench, "160919-143003_cm-cm-build-c25-TA-1021_640.mp4");
@@ -225,8 +229,8 @@ int main()
 
     addRelocalizationTestCase(southwallBench2, "160919-143001_android-mcrd1-35-ASUS-A002_640.mp4");
     addRelocalizationTestCase(southwallBench2, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4");
-    addRelocalizationTestCase(southwallBench2, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4");
-    addRelocalizationTestCase(southwallBench2, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4");
+    addRelocalizationTestCase(southwallBench2, "160919-143003_android-mcrd1-35-ASUS-A002_640.mp4");
+    addRelocalizationTestCase(southwallBench2, "160919-143004_android-mcrd1-35-ASUS-A002_640.mp4");
     addRelocalizationTestCase(southwallBench2, "160919-143001_cm-cm-build-c25-TA-1021_640.mp4");
     addRelocalizationTestCase(southwallBench2, "160919-143002_cm-cm-build-c25-TA-1021_640.mp4");
     addRelocalizationTestCase(southwallBench2, "160919-143003_cm-cm-build-c25-TA-1021_640.mp4");
@@ -245,6 +249,22 @@ int main()
     addRelocalizationTestCase(southwallBench2, "200919-154459_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
 
     testBenches.push_back(southwallBench2);
+
+    RelocalizationTestBench southwallMarkerMapBench = createRelocalizationTestBench("southwall",
+                                                                                    "shade",
+                                                                                    "marker_map.json",
+                                                                                    "ORBvoc.bin");
+
+    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143003_android-mcrd1-35-ASUS-A002_640.mp4");
+    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143004_android-mcrd1-35-ASUS-A002_640.mp4");
+    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143001_cm-cm-build-c25-TA-1021_640.mp4");
+    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143002_cm-cm-build-c25-TA-1021_640.mp4");
+    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
+    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
+    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143001_cm-cm-build-c25-TA-1021_640.mp4", "camCalib_generic_smartphone.xml");
+    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143002_cm-cm-build-c25-TA-1021_640.mp4", "camCalib_generic_smartphone.xml");
+
+    testBenches.push_back(southwallMarkerMapBench);
 
     for (int benchIndex = 0; benchIndex < testBenches.size(); benchIndex++)
     {
