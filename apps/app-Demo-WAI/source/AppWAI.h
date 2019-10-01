@@ -100,6 +100,7 @@ class WAIApp
     static std::string calibDir;
     static std::string mapDir;
     static std::string vocDir;
+    static std::string experimentsDir;
 
     static bool pauseVideo; // pause video file
 };

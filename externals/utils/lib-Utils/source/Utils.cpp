@@ -504,7 +504,7 @@ string getFileExt(const string& filename)
     return ("");
 }
 //-----------------------------------------------------------------------------
-//! Returns a vector of storted filesnames with path in dir
+//! Returns a vector of sorted filesnames with path in dir
 vector<string> getFileNamesInDir(const string& dirName)
 {
     vector<string> filePathNames;

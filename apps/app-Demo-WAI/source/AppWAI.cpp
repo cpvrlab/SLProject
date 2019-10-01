@@ -69,10 +69,11 @@ WAI::ModeOrbSlam2* WAIApp::mode            = nullptr;
 bool               WAIApp::loaded          = false;
 ofstream           WAIApp::gpsDataStream;
 
-std::string WAIApp::videoDir = "";
-std::string WAIApp::calibDir = "";
-std::string WAIApp::mapDir   = "";
-std::string WAIApp::vocDir   = "";
+std::string WAIApp::videoDir       = "";
+std::string WAIApp::calibDir       = "";
+std::string WAIApp::mapDir         = "";
+std::string WAIApp::vocDir         = "";
+std::string WAIApp::experimentsDir = "";
 
 bool WAIApp::resizeWindow = false;
 
@@ -88,10 +89,11 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
     SLApplication::devRot.isUsed(true);
     SLApplication::devLoc.isUsed(true);
 
-    videoDir = dirs->writableDir + "videos/";
-    calibDir = dirs->writableDir + "calibrations/";
-    mapDir   = dirs->writableDir + "maps/";
-    vocDir   = dirs->writableDir + "voc/";
+    videoDir       = dirs->writableDir + "videos/";
+    calibDir       = dirs->writableDir + "calibrations/";
+    mapDir         = dirs->writableDir + "maps/";
+    vocDir         = dirs->writableDir + "voc/";
+    experimentsDir = dirs->writableDir + "experiments/";
 
     wc              = new WAICalibration();
     waiScene        = new AppWAIScene();
@@ -332,13 +334,11 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiMapStorage("Map storage", waiScene->mapNode, &uiPrefs.showMapStorage));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTestOpen("Tests Settings",
-                                                     dirs->writableDir + "/savedTests/",
                                                      wc,
                                                      waiScene->mapNode,
                                                      &uiPrefs.showTestSettings));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTestWrite("Test Writer",
-                                                      dirs->writableDir + "/savedTests/",
                                                       wc,
                                                       waiScene->mapNode,
                                                       videoWriter,

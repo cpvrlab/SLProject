@@ -23,7 +23,6 @@
 //-----------------------------------------------------------------------------
 
 AppDemoGuiTestWrite::AppDemoGuiTestWrite(const std::string& name,
-                                         std::string        saveDir,
                                          WAICalibration*    wc,
                                          SLNode*            mapNode,
                                          cv::VideoWriter*   writer1,
@@ -37,9 +36,6 @@ AppDemoGuiTestWrite::AppDemoGuiTestWrite(const std::string& name,
     _videoWriterInfo(writer2),
     _gpsDataFile(gpsDataStream)
 {
-    _savePath     = Utils::unifySlashes(saveDir);
-    _settingsPath = _savePath + "TestSettings/";
-
     _testScenes.push_back("Garage");
     _testScenes.push_back("Northwall");
     _testScenes.push_back("Southwall");
@@ -47,7 +43,7 @@ AppDemoGuiTestWrite::AppDemoGuiTestWrite(const std::string& name,
     _testScenes.push_back("Parking");
     _testScenes.push_back("Avenches_Arena");
     _testScenes.push_back("Avenches");
-    _testScenes.push_back("Christofel");
+    _testScenes.push_back("Christoffel");
     _testScenes.push_back("Others");
 
     _conditions.push_back("sunny");
@@ -60,60 +56,19 @@ AppDemoGuiTestWrite::AppDemoGuiTestWrite(const std::string& name,
 
 void AppDemoGuiTestWrite::prepareExperiment(std::string testScene, std::string weather)
 {
-    //TODO WAI return features type
-
     WAI::ModeOrbSlam2* mode = WAIApp::mode;
 
-    _baseDir = Utils::unifySlashes(testScene + "/" + weather);
-    _mapDir  = Utils::unifySlashes(_baseDir + "map/" + mode->getKPextractor()->GetName() + "/");
+    _date = Utils::getDateTime2String();
 
-    std::string scenePath   = Utils::unifySlashes(_savePath + testScene);
-    std::string basePath    = Utils::unifySlashes(scenePath + weather);
-    std::string mapBasePath = Utils::unifySlashes(basePath + "/map/");
-
-    _calibrationsPath = Utils::unifySlashes(basePath + "/calibrations/");
-    _videoPath        = Utils::unifySlashes(basePath + "/video/");
-    _mapPath          = Utils::unifySlashes(mapBasePath + mode->getKPextractor()->GetName() + "/");
-    _runPath          = Utils::unifySlashes(basePath + "/run/"); //Video with map info
-    _date             = Utils::getDateTime2String();
-
-    std::cout << _calibrationsPath << std::endl;
-
-    std::string filename = _date + "_" + _wc->computerInfo() + "_";
+    std::string filename = Utils::toLowerString(testScene) + "_" + Utils::toLowerString(weather) + "_" + _date + "_" + _wc->computerInfo() + "_";
     _size                = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
 
-    mapname         = filename + ".json";
+    mapname         = filename + mode->getKPextractor()->GetName() + ".json";
     videoname       = filename + std::to_string(_size.width) + "x" + std::to_string(_size.height) + ".avi";
+    runvideoname    = filename + std::to_string(_size.width) + "x" + std::to_string(_size.height) + "_run.avi";
     gpsname         = filename + std::to_string(_size.width) + "x" + std::to_string(_size.height) + ".txt";
-    settingname     = _date + ".xml";
-    calibrationname = "camCalib_" + _wc->computerInfo() + "_main.xml";
-
-    if (!Utils::dirExists(_savePath))
-        Utils::makeDir(_savePath);
-
-    if (!Utils::dirExists(_settingsPath))
-        Utils::makeDir(_settingsPath);
-
-    if (!Utils::dirExists(scenePath))
-        Utils::makeDir(scenePath);
-
-    if (!Utils::dirExists(basePath))
-        Utils::makeDir(basePath);
-
-    if (!Utils::dirExists(_videoPath))
-        Utils::makeDir(_videoPath);
-
-    if (!Utils::dirExists(_calibrationsPath))
-        Utils::makeDir(_calibrationsPath);
-
-    if (!Utils::dirExists(_runPath))
-        Utils::makeDir(_runPath);
-
-    if (!Utils::dirExists(mapBasePath))
-        Utils::makeDir(mapBasePath);
-
-    if (!Utils::dirExists(_mapPath))
-        Utils::makeDir(_mapPath);
+    settingname     = filename + ".xml";
+    calibrationname = WAIApp::wc->filename();
 }
 
 void AppDemoGuiTestWrite::saveGPSData(std::string path)
@@ -123,17 +78,16 @@ void AppDemoGuiTestWrite::saveGPSData(std::string path)
 
 void AppDemoGuiTestWrite::recordExperiment()
 {
-
     if (_videoWriter->isOpened())
         _videoWriter->release();
     if (_videoWriterInfo->isOpened())
         _videoWriterInfo->release();
 
-    _videoWriter->open((_videoPath + videoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
-    _videoWriterInfo->open((_runPath + videoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
-    saveTestSettings(_settingsPath + settingname);
-    saveGPSData(_videoPath + gpsname);
-    saveCalibration(_calibrationsPath + calibrationname);
+    _videoWriter->open((WAIApp::videoDir + videoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
+    _videoWriterInfo->open((WAIApp::videoDir + runvideoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
+    saveTestSettings(WAIApp::experimentsDir + settingname);
+    saveGPSData(WAIApp::videoDir + gpsname);
+    saveCalibration(WAIApp::calibDir + calibrationname);
 }
 
 void AppDemoGuiTestWrite::stopRecording()
@@ -141,7 +95,7 @@ void AppDemoGuiTestWrite::stopRecording()
     _videoWriter->release();
     _videoWriterInfo->release();
     _gpsDataFile->close();
-    saveMap(_mapPath + mapname);
+    saveMap(WAIApp::mapDir + mapname);
 }
 
 void AppDemoGuiTestWrite::saveCalibration(std::string calib)
@@ -171,10 +125,9 @@ void AppDemoGuiTestWrite::saveTestSettings(std::string path)
     fs << "Scene" << _testScenes[_currentSceneId];
     fs << "Conditions" << _conditions[_currentConditionId];
     fs << "Features" << mode->getKPextractor()->GetName();
-    fs << "Calibration" << _baseDir + "calibrations/" + calibrationname;
-    fs << "Videos" << _baseDir + "video/" + videoname;
-    fs << "Maps" << _mapDir + mapname;
-    //std::string dbowPath = (std::string)n["DBOW"];
+    fs << "Calibration" << calibrationname;
+    fs << "Videos" << videoname;
+    fs << "Maps" << mapname;
 
     fs.release();
 }

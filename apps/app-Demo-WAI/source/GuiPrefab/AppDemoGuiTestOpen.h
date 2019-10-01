@@ -24,7 +24,10 @@
 class AppDemoGuiTestOpen : public AppDemoGuiInfosDialog
 {
     public:
-    AppDemoGuiTestOpen(const std::string& name, std::string saveDir, WAICalibration* wc, SLNode* mapNode, bool* activator);
+    AppDemoGuiTestOpen(const std::string& name,
+                       WAICalibration*    wc,
+                       SLNode*            mapNode,
+                       bool*              activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
@@ -49,8 +52,6 @@ class AppDemoGuiTestOpen : public AppDemoGuiInfosDialog
     SLNode*               _mapNode;
     int                   _currentItem;
 
-    std::string     _saveDir;
-    std::string     _settingsDir;
     WAICalibration* _wc;
 };
 
