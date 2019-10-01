@@ -63,6 +63,8 @@ AppWAIScene*       WAIApp::waiScene   = nullptr;
 WAICalibration*    WAIApp::wc         = nullptr;
 int                WAIApp::scrWidth;
 int                WAIApp::scrHeight;
+int                WAIApp::defaultScrWidth;
+int                WAIApp::defaultScrHeight;
 float              WAIApp::scrWdivH;
 cv::VideoWriter*   WAIApp::videoWriter     = nullptr;
 cv::VideoWriter*   WAIApp::videoWriterInfo = nullptr;
@@ -82,9 +84,8 @@ bool WAIApp::pauseVideo = false;
 
 int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* directories)
 {
-    scrWidth  = width;
-    scrHeight = height;
-    scrWdivH  = (float)width / (float)height;
+    defaultScrWidth  = width;
+    defaultScrHeight = height;
 
     dirs = directories;
     SLApplication::devRot.isUsed(true);
@@ -231,7 +232,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
         CVCapture::instance()->videoType(VT_MAIN);
         CVCapture::instance()->open(0);
 
-        videoFrameSize = cv::Size2i(640, 360); // TODO(dgj1): rethink this fixed 16:9 aspect ratio
+        videoFrameSize = cv::Size2i(defaultScrWidth, defaultScrHeight);
     }
 
     // 2. Load Calibration

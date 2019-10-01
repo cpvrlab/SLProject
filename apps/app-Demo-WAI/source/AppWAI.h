@@ -70,6 +70,8 @@ class WAIApp
     static WAICalibration*    wc;
     static int                scrWidth;
     static int                scrHeight;
+    static int                defaultScrWidth;
+    static int                defaultScrHeight;
     static float              scrWdivH;
     static cv::VideoWriter*   videoWriter;
     static cv::VideoWriter*   videoWriterInfo;
