@@ -21,22 +21,20 @@
 
 //-----------------------------------------------------------------------------
 
-AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name, std::string vocDir,
-                                         WAI::WAI * wai, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator),
-    _wai(wai),
-    _vocDir(vocDir)
+AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
+                                         bool*              activator)
+  : AppDemoGuiInfosDialog(name, activator)
 {
-    int   nFeatures    = 1000;
-    float fScaleFactor = 1.2;
-    int   nLevels      = 8;
-    int   fIniThFAST   = 20;
-    int   fMinThFAST   = 7;
-    KPextractor * orbExtractor    = new ORB_SLAM2::ORBextractor(nFeatures,
-                                                                fScaleFactor,
-                                                                nLevels,
-                                                                fIniThFAST,
-                                                                fMinThFAST);
+    int          nFeatures    = 1000;
+    float        fScaleFactor = 1.2;
+    int          nLevels      = 8;
+    int          fIniThFAST   = 20;
+    int          fMinThFAST   = 7;
+    KPextractor* orbExtractor = new ORB_SLAM2::ORBextractor(nFeatures,
+                                                            fScaleFactor,
+                                                            nLevels,
+                                                            fIniThFAST,
+                                                            fMinThFAST);
 
     _extractors.push_back(new ORB_SLAM2::SURFextractor(800));
     _extractors.push_back(new ORB_SLAM2::SURFextractor(1000));
@@ -45,36 +43,13 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name, std::string vo
     _extractors.push_back(new ORB_SLAM2::SURFextractor(2500));
     _extractors.push_back(orbExtractor);
 
-    _current = _extractors.at(1);
+    _current    = _extractors.at(1);
     _iniCurrent = _extractors.at(1);
-
-    _currentVoc = "";
-
-    _vocList.clear();
-
-    //check if visual odometry maps directory exists
-    if (!Utils::dirExists(_vocDir))
-    {
-        Utils::makeDir(_vocDir);
-    }
-    else
-    {
-        //parse content: we search for directories in mapsDir
-        std::vector<std::string> content = Utils::getFileNamesInDir(_vocDir);
-        for (auto path : content)
-        {
-            std::string name = Utils::getFileName(path);
-            if (Utils::containsString(name, ".bin"))
-            {
-                _vocList.push_back(name);
-            }
-        }
-    }
 }
 
 void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    WAI::ModeOrbSlam2 * mode = (WAI::ModeOrbSlam2*)_wai->getCurrentMode();
+    WAI::ModeOrbSlam2* mode = WAIApp::mode;
     ImGui::Begin("Slam Param", _activator, ImGuiWindowFlags_AlwaysAutoResize);
 
     if (ImGui::BeginCombo("Extractor", _current->GetName().c_str()))
@@ -110,29 +85,6 @@ void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
     {
         mode->setExtractor(_current, _iniCurrent);
     }
-
-    ImGui::Separator();
-
-    if (ImGui::BeginCombo("Vocabulary", _currentVoc.c_str()))
-    {
-        for (int i = 0; i < _vocList.size(); i++)
-        {
-            bool isSelected = (_currentVoc == _vocList[i]); // You can store your selection however you want, outside or inside your objects
-            if (ImGui::Selectable(_vocList[i].c_str(), isSelected))
-            {
-                _currentVoc = _vocList[i];
-            }
-            if (isSelected)
-                ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
-        }
-        ImGui::EndCombo();
-    }
-    if (ImGui::Button("Change Voc", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
-    {
-        mode->setVocabulary(_vocDir + _currentVoc);
-    }
-
-    ImGui::Separator();
 
     ImGui::End();
 }

@@ -1,7 +1,8 @@
 #include <opencv2/core/core.hpp>
+
 #include <iostream>
+
 #include <WAICalibration.h>
-#include <WAISensorCamera.h>
 #include <SLApplication.h>
 #include <Utils.h>
 
@@ -106,7 +107,9 @@ bool WAICalibration::loadFromFile(std::string path)
     fs["reprojectionError"] >> _reprojectionError;
     fs["calibrationTime"] >> _calibrationTime;
     fs["camSizeIndex"] >> _camSizeIndex;
-    if (!fs["ComputerModel"].empty())
+
+    fs["ComputerModel"] >> _computerInfo;
+    if (_computerInfo.empty())
     {
         std::vector<std::string> stringParts;
         Utils::splitString(Utils::getFileNameWOExt(_filename), '_', stringParts);
@@ -118,10 +121,7 @@ bool WAICalibration::loadFromFile(std::string path)
             std::cout << "Assuming calibration is for current device" << std::endl;
         }
     }
-    else
-    {
-        _computerInfo;
-    }
+
     fs["CreationDate"] >> _creationDate;
     fs.release();
 
@@ -131,12 +131,6 @@ bool WAICalibration::loadFromFile(std::string path)
     _calibrationPath = path;
     //std::cout << "calibration file " << path << " loaded.    FOV = " << fov << std::endl;
     return true;
-}
-
-WAI::CameraCalibration WAICalibration::getCameraCalibration()
-{
-    WAI::CameraCalibration calibration = {fx(), fy(), cx(), cy(), k1(), k2(), p1(), p2()};
-    return calibration;
 }
 
 float WAICalibration::calcCameraVerticalFOV()

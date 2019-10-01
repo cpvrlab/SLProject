@@ -7,8 +7,6 @@
 
 #include <CVCalibration.h>
 
-#include <WAI.h>
-
 class AppWAIScene
 {
     public:

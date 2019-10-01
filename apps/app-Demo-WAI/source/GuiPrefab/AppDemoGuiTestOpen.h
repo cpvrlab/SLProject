@@ -14,26 +14,27 @@
 #include <opencv2/core.hpp>
 #include <AppDemoGuiInfosDialog.h>
 
+#include <AppWAI.h>
+
 #include <SLMat4.h>
 #include <SLNode.h>
 #include <WAICalibration.h>
-#include <WAI.h>
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiTestOpen : public AppDemoGuiInfosDialog
 {
     public:
-    AppDemoGuiTestOpen(const std::string& name, std::string saveDir,
-                       WAI::WAI * wai, WAICalibration* wc,  SLNode* mapNode,
-                       bool* activator);
+    AppDemoGuiTestOpen(const std::string& name,
+                       WAICalibration*    wc,
+                       SLNode*            mapNode,
+                       bool*              activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     private:
-
     struct TestInfo
     {
-        bool open;
+        bool        open;
         std::string name;
         std::string testScene;
         std::string lighting;
@@ -45,16 +46,13 @@ class AppDemoGuiTestOpen : public AppDemoGuiInfosDialog
     };
 
     TestInfo openTestSettings(std::string path);
-    void loadTestSettings(TestInfo * infos);
+    void     loadTestSettings(TestInfo* infos);
 
     std::vector<TestInfo> _infos;
-    SLNode * _mapNode;
-    int _currentItem;
+    SLNode*               _mapNode;
+    int                   _currentItem;
 
-    std::string              _saveDir;
-    std::string              _settingsDir;
-    WAICalibration*          _wc;
-    WAI::WAI*                _wai;
+    WAICalibration* _wc;
 };
 
 #endif

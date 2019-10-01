@@ -115,13 +115,12 @@ class CVCalibration
         {
             //if (_state == CS_calibrated)
             //    adaptForNewResolution(newSize);
+            //save();
             //else
             {
                 clear();
                 _imageSize = newSize;
             }
-
-            save();
         }
     }
     void camSizeIndex(int index)

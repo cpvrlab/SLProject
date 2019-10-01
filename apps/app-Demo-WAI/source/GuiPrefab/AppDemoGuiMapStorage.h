@@ -28,21 +28,14 @@ class AppDemoGuiMapStorage : public AppDemoGuiInfosDialog
 {
     public:
     AppDemoGuiMapStorage(const std::string& name,
-                         WAI::ModeOrbSlam2* tracking,
-                         SLNode* mapNode,
-                         std::string mapDir,
-                         bool* activator);
+                         SLNode*            mapNode,
+                         bool*              activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     private:
-
     std::string              _currentItem;
-    WAIMap*                  _map;
-    WAIKeyFrameDB*           _kfDB;
-    WAI::ModeOrbSlam2*       _tracking;
     SLNode*                  _mapNode;
-    std::string              _mapDir;
     std::string              _mapPrefix;
     std::vector<std::string> _existingMapNames;
     int                      _nextId;

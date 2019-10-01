@@ -7,7 +7,6 @@ typedef struct AppWAIDirectories
     std::string writableDir;
     std::string waiDataRoot;
     std::string slDataRoot;
-
-}AppWAIDirectories;
+} AppWAIDirectories;
 
 #endif

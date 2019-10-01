@@ -23,16 +23,23 @@
 #include <AppDirectories.h>
 #include <AppDemoGuiPrefs.h>
 #include <AppDemoGuiAbout.h>
+#include <AppDemoGuiError.h>
 
-#include <WAI.h>
-
-#define LIVE_VIDEO 1
+struct OrbSlamStartResult
+{
+    bool        wasSuccessful;
+    std::string errorString;
+};
 
 //-----------------------------------------------------------------------------
 class WAIApp
 {
     public:
-    static int load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* dirs);
+    static int                load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* dirs);
+    static OrbSlamStartResult startOrbSlam(std::string videoFile       = "",
+                                           std::string calibrationFile = "",
+                                           std::string mapFile         = "",
+                                           std::string vocFileName     = "ORBvoc.bin");
 
     static void onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid);
     static bool update();
@@ -48,20 +55,22 @@ class WAIApp
 
     static void renderKeyframes();
     static void renderGraphs();
-    static void refreshTexture(cv::Mat *image);
+    static void refreshTexture(cv::Mat* image);
 
     static void setupGUI();
     static void buildGUI(SLScene* s, SLSceneView* sv);
     static void openTest(std::string path);
 
     //! minimum number of covisibles for covisibility graph visualization
-    static AppDemoGuiAbout*   aboutDial;
+    static AppDemoGuiAbout* aboutDial;
+    static AppDemoGuiError* errorDial;
+
     static GUIPreferences     uiPrefs;
     static AppWAIDirectories* dirs;
-    static WAI::WAI*          wai;
     static WAICalibration*    wc;
     static int                scrWidth;
     static int                scrHeight;
+    static float              scrWdivH;
     static cv::VideoWriter*   videoWriter;
     static cv::VideoWriter*   videoWriterInfo;
     static WAI::ModeOrbSlam2* mode;
@@ -84,6 +93,16 @@ class WAIApp
     static bool  showCovisibilityGraph;
     static bool  showSpanningTree;
     static bool  showLoopEdges;
+
+    static bool resizeWindow;
+
+    static std::string videoDir;
+    static std::string calibDir;
+    static std::string mapDir;
+    static std::string vocDir;
+    static std::string experimentsDir;
+
+    static bool pauseVideo; // pause video file
 };
 
 #endif

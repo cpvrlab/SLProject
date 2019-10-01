@@ -6,8 +6,6 @@
 #include <opencv2/core.hpp>
 
 #include <WAIHelper.h>
-#include <WAIMode.h>
-#include <WAISensorCamera.h>
 #include <WAIKeyFrameDB.h>
 #include <WAIMap.h>
 #include <WAIOrbVocabulary.h>
@@ -26,18 +24,26 @@
 namespace WAI
 {
 
-class WAI_API ModeOrbSlam2 : public Mode
+struct MapData
+{
+    std::vector<WAIKeyFrame*> keyFrames;
+    std::vector<WAIMapPoint*> mapPoints;
+    int                       numLoopClosings;
+};
+
+class WAI_API ModeOrbSlam2
 {
     public:
-    ModeOrbSlam2(SensorCamera* camera,
-                 bool          serial,
-                 bool          retainImg,
-                 bool          onlyTracking,
-                 bool          trackOptFlow,
-                 std::string   orbVocFile);
+    ModeOrbSlam2(cv::Mat     cameraMat,
+                 cv::Mat     distortionMat,
+                 bool        serial,
+                 bool        retainImg,
+                 bool        onlyTracking,
+                 bool        trackOptFlow,
+                 std::string orbVocFile);
     ~ModeOrbSlam2();
     bool getPose(cv::Mat* pose);
-    void notifyUpdate();
+    bool update(cv::Mat& imageGray, cv::Mat& imageRGB);
 
     static bool relocalization(WAIFrame& currentFrame, WAIKeyFrameDB* keyFrameDB, unsigned int* lastRelocFrameId);
 
@@ -106,7 +112,6 @@ class WAI_API ModeOrbSlam2 : public Mode
 
     void setExtractor(KPextractor* extractor, KPextractor* iniExtractor);
     void setVocabulary(std::string orbVocFile);
-    void loadMapData(std::vector<WAIKeyFrame*> keyFrames, std::vector<WAIMapPoint*> mapPoints, int numLoopClosings);
 
     private:
     enum TrackingState
@@ -126,9 +131,9 @@ class WAI_API ModeOrbSlam2 : public Mode
         TrackingType_OptFlow
     };
 
-    void initialize();
+    void initialize(cv::Mat& imageGray, cv::Mat& imageRGB);
     bool createInitialMapMonocular();
-    void track3DPts();
+    void track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB);
 
     //bool        relocalization();
     bool trackReferenceKeyFrame();
@@ -159,7 +164,9 @@ class WAI_API ModeOrbSlam2 : public Mode
     bool _onlyTracking;
     bool _trackOptFlow;
 
-    SensorCamera*  _camera            = nullptr;
+    cv::Mat _cameraMat;
+    cv::Mat _distortionMat;
+
     TrackingState  _state             = TrackingState_None;
     TrackingType   _trackingType      = TrackingType_None;
     WAIKeyFrameDB* mpKeyFrameDatabase = nullptr;
@@ -242,7 +249,7 @@ class WAI_API ModeOrbSlam2 : public Mode
     std::mutex _mutexStates;
 
     // debug visualization
-    void decorate();
+    void decorate(cv::Mat& image);
     void calculateMeanReprojectionError();
     void calculatePoseDifference();
     void decorateVideoWithKeyPoints(cv::Mat& image);

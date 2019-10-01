@@ -12,7 +12,6 @@
 #define APP_DEMO_GUI_INFOSMAPNODETRANSFORM_H
 
 #include <WAIMapStorage.h>
-#include <WAI.h>
 #include <SLScene.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <string>
@@ -26,11 +25,9 @@ class WAI_API AppDemoGuiInfosMapNodeTransform : public AppDemoGuiInfosDialog
 {
     public:
     AppDemoGuiInfosMapNodeTransform(
-      std::string        name,
-      SLNode*            mapNode,
-      WAI::ModeOrbSlam2* tracking,
-      std::string        externalDir,
-      bool*              activator);
+      std::string name,
+      SLNode*     mapNode,
+      bool*       activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
@@ -39,10 +36,7 @@ class WAI_API AppDemoGuiInfosMapNodeTransform : public AppDemoGuiInfosDialog
     float _transformationTransValue = 1.0f;
     float _transformationScaleValue = 1.2f;
 
-    std::string _externalDir;
-
-    SLNode*            _mapNode  = nullptr;
-    WAI::ModeOrbSlam2* _tracking = nullptr;
+    SLNode* _mapNode = nullptr;
 };
 
 #endif
