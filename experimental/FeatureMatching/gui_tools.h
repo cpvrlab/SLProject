@@ -29,6 +29,7 @@ void draw_matched_keypoints(App& app, cv::Scalar color);
 
 void draw_selected_keypoints(App& app);
 
+void draw_similarity_circles(App& app);
 //void draw_selected_pixels(App& app);
 
 void draw_match_line(App& app, int matchIndex1, int matchIndex2, cv::Scalar color);

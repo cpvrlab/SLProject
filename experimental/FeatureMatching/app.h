@@ -64,7 +64,29 @@ typedef struct App
     //cv::Point right_pix;
 
     int            method         = SURF_BRIEF;
-    InspectionMode inspectionMode = InspectionMode::MATCH_DRAWING_ALL;
+    InspectionMode inspectionMode = InspectionMode::MATCHED_POINT_SIMILIARITY;
+
+    //MATCHED_POINT_SIMILIARITY params:
+    // number of best matches retrieved in MATCHED_POINT_SIMILIARITY
+    int num_next_matches = 10;
+    // stores if last click was left or right
+    bool last_click_was_left = false;
+    // currently selected next best match (index between 0 and num_next_matches-1)
+    int curr_selected_match_idx = 0;
+    // currently selected match in mouse wheel selection
+    int next_sel_wheel = 0;
+    // next matches description
+    struct NextMatch
+    {
+        int        idx      = -1;
+        float      distance = -1.f;
+        cv::Scalar color;
+        bool       operator<(const NextMatch& other)
+        {
+            return distance < other.distance;
+        }
+    };
+    std::vector<NextMatch> next_matches;
 } App;
 
 void        app_next_method(App& app);

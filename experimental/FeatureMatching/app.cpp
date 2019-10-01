@@ -140,6 +140,9 @@ void app_reset(App& app)
     app.right_idx = -1;
 
     app.mouse_pos = {0, 0};
+
+    app.next_matches.resize(app.num_next_matches);
+    app.next_matches.clear();
 }
 
 void app_prepare(App& app)

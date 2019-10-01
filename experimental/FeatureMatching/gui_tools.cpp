@@ -87,12 +87,53 @@ void draw_selected_keypoints(App& app)
     }
 }
 
-//void draw_selected_pixels(App& app)
-//{
-//    cv::circle(app.out_image, app.left_pix, 3, green(), 2, cv::LineTypes::FILLED);
-//    cv::Point offset(app.image1.cols, 0);
-//    cv::circle(app.out_image, app.right_pix + offset, 3, green(), 2, cv::LineTypes::FILLED);
-//}
+void draw_similarity_circles(App& app)
+{
+    int         radius    = 4;
+    int         thickness = 3;
+    cv::Point2f offset    = cv::Point2f(app.image1.cols, 0);
+
+    if (app.next_sel_wheel > app.next_matches.size() - 1)
+    {
+        std::cout << "ERROR in draw_similarity_circles: next_sel_wheel larger than next_matches.size()" << std::endl;
+        return;
+    }
+
+    if (app.last_click_was_left)
+    {
+        //mark selected on the left
+        cv::circle(app.out_image, app.keypoints1[app.left_idx].pt, radius, red(), thickness);
+
+        //draw matches on the right
+        for (auto it = app.next_matches.begin(); it != app.next_matches.end(); ++it)
+        {
+            cv::circle(app.out_image, app.keypoints2[it->idx].pt + offset, radius, it->color, thickness);
+        }
+
+        cv::line(app.out_image,
+                 app.keypoints1[app.left_idx].pt,
+                 app.keypoints2[app.next_matches[app.next_sel_wheel].idx].pt + offset,
+                 app.next_matches[app.next_sel_wheel].color,
+                 2);
+    }
+    else
+    {
+        //mark selected on the right
+        cv::circle(app.out_image, app.keypoints2[app.right_idx].pt + offset, radius, red(), thickness);
+
+        //draw matches on the left
+        for (auto it = app.next_matches.begin(); it != app.next_matches.end(); ++it)
+        {
+            cv::circle(app.out_image, app.keypoints1[it->idx].pt, radius, it->color, thickness);
+        }
+
+        cv::line(app.out_image,
+                 app.keypoints2[app.right_idx].pt + offset,
+                 app.keypoints1[app.next_matches[app.next_sel_wheel].idx].pt,
+                 app.next_matches[app.next_sel_wheel].color,
+                 2);
+    }
+}
 
 void draw_match_line(App& app, int matchIndex1, int matchIndex2, cv::Scalar color)
 {

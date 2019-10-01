@@ -23,6 +23,10 @@ cv::Mat draw_closeup(cv::Mat& image, cv::Point2f& pt, std::string text)
     return out;
 }
 
+void draw_closeup_similarity(App& app)
+{
+}
+
 void draw_closeup_right(App& app, bool calcDistSelected)
 {
     if (app.right_idx < 0)
@@ -161,7 +165,7 @@ void match_drawing_single(int x, int y, int flags, App& app)
     //input for image displayed on the right
     if (x > app.image1.cols)
     {
-        idx2 = select_closest_feature(app.keypoints2, app.matching_2_1, x - app.image1.cols, y);
+        idx2 = select_closest_keypoint(app.keypoints2, app.matching_2_1, x - app.image1.cols, y);
         if (idx2 < 0)
         {
             std::cout << "INFO in function match_drawing_single: no feature selected" << std::endl;
@@ -179,7 +183,7 @@ void match_drawing_single(int x, int y, int flags, App& app)
     }
     else //input for image displayed on the left
     {
-        idx1 = select_closest_feature(app.keypoints1, app.matching_1_2, x, y);
+        idx1 = select_closest_keypoint(app.keypoints1, app.matching_1_2, x, y);
         if (idx1 < 0)
         {
             std::cout << "INFO in function match_drawing_single: no feature selected" << std::endl;
@@ -206,79 +210,90 @@ void match_drawing_single(int x, int y, int flags, App& app)
     draw_main(app);
 }
 
+//find n next best matches in other image.
+//Attention: n can be reduced if not enough matches
+std::vector<App::NextMatch> select_n_closest_features(const std::vector<cv::KeyPoint>& keypoints,
+                                                      std::vector<Descriptor>&         descs,
+                                                      Descriptor&                      refDesc,
+                                                      int&                             n)
+{
+    std::vector<App::NextMatch> nextMatches;
+    if (!keypoints.size())
+        return nextMatches;
+
+    //Attention: n can be reduced if not enough matches
+    n = (keypoints.size() < n) ? keypoints.size() : n;
+
+    float max_dist = 0;
+    float min_dist = 0;
+
+    //find next n matches
+    {
+        std::vector<App::NextMatch> matches(keypoints.size());
+        //calculate distance of
+        for (int i = 0; i < keypoints.size(); i++)
+        {
+            matches[i].distance = hamming_distance(refDesc, descs[i]);
+            matches[i].idx      = i;
+        }
+
+        //extract n best
+        std::sort(matches.begin(), matches.end());
+        std::copy(matches.begin(), matches.begin() + n, std::back_inserter(nextMatches));
+    }
+
+    //calculate color value
+    float min = nextMatches.front().distance;
+    //float max = matches[n - 1].distance;
+    float max = nextMatches.back().distance;
+    float w   = max - min;
+
+    cv::Mat valImg(n, 1, CV_8UC1);
+    for (int i = 0; i < n; ++i)
+    {
+        float frag             = (nextMatches[i].distance - min) / w;
+        uchar val              = (uchar)(frag * 255.f);
+        valImg.at<uchar>(i, 0) = val;
+    }
+
+    cv::Mat colImg;
+    cv::applyColorMap(valImg, colImg, cv::ColormapTypes::COLORMAP_AUTUMN);
+    for (int i = 0; i < n; ++i)
+    {
+        nextMatches[i].color = colImg.at<cv::Vec3b>(i, 0);
+    }
+
+    return nextMatches;
+}
+
 void matched_point_similarity(int x, int y, int flags, App& app)
 {
-    reset_similarity(app.keypoints1);
-    reset_similarity(app.keypoints2);
-    reset_color(app.kp1_colors, blue());
-    reset_color(app.kp2_colors, blue());
+    //reset mousewheel selected index after on click
+    app.next_sel_wheel = 0;
 
-    app.ordered_keypoints1 = app.keypoints1;
-    app.ordered_keypoints2 = app.keypoints2;
-
-    if (x > app.image1.cols)
+    if (x > app.image1.cols) //right image
     {
-        cv::destroyWindow("closeup left");
-
-        std::vector<int> idxs2 = select_closest_features(app.ordered_keypoints2, app.select_radius, x - app.image1.cols, y);
-        int              idx2;
-
-        if (idxs2.size() > 1)
-        {
-            if (app.local_idx >= idxs2.size())
-                app.local_idx = 0;
-
-            idx2 = idxs2[app.local_idx++];
-        }
-        else if (idxs2.size() == 1)
-        {
-            idx2 = idxs2[0];
-        }
-        else
-        {
-            idx2 = select_closest_feature(app.ordered_keypoints2, x - app.image1.cols, y);
-        }
-
-        app.right_idx = idx2;
-        draw_closeup_right(app, false);
-        app.kp2_colors[idx2] = red();
-
-        compute_similarity(app.ordered_keypoints1, app.descs1, app.descs2[idx2]);
-        sort(app.ordered_keypoints1.begin(), app.ordered_keypoints1.end(), sort_fct);
-        set_color_by_value(app.kp1_colors, app.ordered_keypoints1);
+        cv::destroyWindow(app.closeup_right);
+        app.last_click_was_left = false;
+        //find next keypoint to click in right image
+        app.right_idx = select_closest_keypoint(app.keypoints2, x - app.image1.cols, y);
+        //find next descriptors in left image
+        app.next_matches = select_n_closest_features(app.keypoints1, app.descs1, app.descs2[app.right_idx], app.num_next_matches);
     }
-    else
+    else //left image
     {
-        cv::destroyWindow("closeup right");
-
-        std::vector<int> idxs1 = select_closest_features(app.ordered_keypoints1, app.select_radius, x, y);
-        int              idx1;
-        if (idxs1.size() > 1)
-        {
-            if (app.local_idx >= idxs1.size())
-                app.local_idx = 0;
-
-            idx1 = idxs1[app.local_idx++];
-        }
-        else if (idxs1.size() == 1)
-        {
-            idx1 = idxs1[0];
-        }
-        else
-        {
-            idx1 = select_closest_feature(app.ordered_keypoints1, x, y);
-        }
-
-        app.left_idx = idx1;
-        draw_closeup_left(app, false);
-        app.kp1_colors[idx1] = red();
-
-        compute_similarity(app.ordered_keypoints2, app.descs2, app.descs1[idx1]);
-        sort(app.ordered_keypoints2.begin(), app.ordered_keypoints2.end(), sort_fct);
-        set_color_by_value(app.kp2_colors, app.ordered_keypoints2);
+        cv::destroyWindow(app.closeup_left);
+        app.last_click_was_left = true;
+        app.left_idx            = select_closest_keypoint(app.keypoints1, x, y);
+        //find next descriptors in left image
+        app.next_matches = select_n_closest_features(app.keypoints2, app.descs2, app.descs1[app.left_idx], app.num_next_matches);
     }
 
-    draw_by_similarity(app);
+    draw_closeup_similarity(app);
+
+    draw_concat_images(app);
+    draw_all_keypoins(app, blue());
+    draw_similarity_circles(app);
     draw_main(app);
 }
 
@@ -310,7 +325,7 @@ void any_keypoint_comparison(int x, int y, int flags, App& app)
         }
         else
         {
-            idx2 = select_closest_feature(app.ordered_keypoints2, x - app.image1.cols, y);
+            idx2 = select_closest_keypoint(app.ordered_keypoints2, x - app.image1.cols, y);
         }
 
         app.right_idx = idx2;
@@ -332,7 +347,7 @@ void any_keypoint_comparison(int x, int y, int flags, App& app)
         }
         else
         {
-            idx1 = select_closest_feature(app.ordered_keypoints1, x, y);
+            idx1 = select_closest_keypoint(app.ordered_keypoints1, x, y);
         }
 
         app.left_idx = idx1;
@@ -443,15 +458,19 @@ void print_help()
     std::cout << "-----------------------------------------------------------------------------------------" << std::endl;
 }
 
-void update_inspection_mode(const int key, App& app)
+bool update_inspection_mode(const int key, App& app)
 {
     InspectionMode newMode = (InspectionMode)key;
     if (newMode < InspectionMode::END)
     {
         app.inspectionMode = newMode;
+        return true;
     }
     else
+    {
         std::cout << "INFO: update_inspection_mode: unused key for mode selection" << std::endl;
+        return false;
+    }
 }
 
 void update_detection(App& app)
@@ -473,9 +492,13 @@ void start_gui(App& app)
     init_color(app.kp1_colors, app.keypoints1.size());
     init_color(app.kp2_colors, app.keypoints2.size());
 
-    //default detection method and inspection mode
-    app.method         = SURF_BRIEF;
-    app.inspectionMode = InspectionMode::MATCH_DRAWING_ALL;
+    //-----------------------------------------------------------------------------
+    //config
+    app.method           = SURF_BRIEF;
+    app.inspectionMode   = InspectionMode::MATCHED_POINT_SIMILIARITY;
+    app.num_next_matches = 10;
+    //-----------------------------------------------------------------------------
+
     update_detection(app);
     update_inspection(app);
 
@@ -490,8 +513,8 @@ void start_gui(App& app)
         }
         else if (retval > 47 && retval < 58) //numbers pressed for inspection mode change
         {
-            update_inspection_mode(retval, app);
-            update_inspection(app);
+            if (update_inspection_mode(retval, app))
+                update_inspection(app);
         }
         else if (retval == 105 || retval == 104) // i for info or h for help
         {
