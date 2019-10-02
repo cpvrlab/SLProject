@@ -172,18 +172,10 @@ void draw_closeup_left(App& app, bool calcDistSelected)
     imshow(app.closeup_left, out);
 }
 
-bool sort_fct(cv::KeyPoint& p1, cv::KeyPoint& p2)
-{
-    return p1.response > p2.response;
-}
-
 void match_drawing_all(App& app)
 {
     cv::destroyWindow("closeup left");
     cv::destroyWindow("closeup right");
-
-    reset_color(app.kp1_colors, blue());
-    reset_color(app.kp2_colors, blue());
 
     draw_concat_images(app);
     draw_all_keypoins(app, blue());
@@ -193,8 +185,6 @@ void match_drawing_all(App& app)
 
 void match_drawing_single(int x, int y, int flags, App& app)
 {
-    reset_color(app.kp1_colors, blue());
-    reset_color(app.kp2_colors, blue());
     int idx1 = 0, idx2 = 0;
     //input for image displayed on the right
     if (x > app.image1.cols)
@@ -206,14 +196,10 @@ void match_drawing_single(int x, int y, int flags, App& app)
             return;
         }
 
-        idx1    = app.matching_2_1[idx2];
-        app.poi = app.keypoints2[idx2].pt;
+        idx1 = app.matching_2_1[idx2];
 
         app.left_idx  = idx1;
         app.right_idx = idx2;
-
-        app.kp1_colors[idx1] = red();
-        app.kp2_colors[idx2] = red();
     }
     else //input for image displayed on the left
     {
@@ -224,14 +210,10 @@ void match_drawing_single(int x, int y, int flags, App& app)
             return;
         }
 
-        app.poi = app.keypoints1[idx1].pt;
-        idx2    = app.matching_1_2[idx1];
+        idx2 = app.matching_1_2[idx1];
 
         app.left_idx  = idx1;
         app.right_idx = idx2;
-
-        app.kp1_colors[idx1] = red();
-        app.kp2_colors[idx2] = red();
     }
 
     draw_closeup_left(app, false);
@@ -332,11 +314,6 @@ void matched_point_similarity(int x, int y, int flags, App& app)
 
 void any_keypoint_comparison(int x, int y, int flags, App& app)
 {
-    reset_similarity(app.keypoints1);
-    reset_similarity(app.keypoints2);
-    reset_color(app.kp1_colors, blue());
-    reset_color(app.kp2_colors, blue());
-
     app.ordered_keypoints1 = app.keypoints1;
     app.ordered_keypoints2 = app.keypoints2;
 
@@ -511,9 +488,6 @@ void update_detection(App& app)
 {
     app_reset(app);
     app_prepare(app);
-
-    init_color(app.kp1_colors, app.keypoints1.size());
-    init_color(app.kp2_colors, app.keypoints2.size());
 }
 
 void start_gui(App& app)
@@ -522,9 +496,6 @@ void start_gui(App& app)
     cv::setMouseCallback(app.name, main_mouse_events, &app);
     std::cout << "Welcome to best tool ever made!" << std::endl;
     print_help();
-
-    init_color(app.kp1_colors, app.keypoints1.size());
-    init_color(app.kp2_colors, app.keypoints2.size());
 
     //-----------------------------------------------------------------------------
     //config

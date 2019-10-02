@@ -25,45 +25,52 @@ enum class InspectionMode
 typedef struct App
 {
     std::string name;
+    //identifier for close up view
     std::string closeup_left;
     std::string closeup_right;
-    cv::Mat     image1;
-    cv::Mat     image2;
-    int         left_idx  = -1;
-    int         right_idx = -1;
+    //left image
+    cv::Mat image1;
+    //right image
+    cv::Mat image2;
+    //last selected keypoint index in the left image
+    int left_idx = -1;
+    //last selected keypoint index in the right image
+    int right_idx = -1;
 
     PyramidParameters    pyramid_param;
     std::vector<cv::Mat> image1_pyramid;
     std::vector<cv::Mat> image2_pyramid;
 
+    //extracted keypoints in left and right image
     std::vector<cv::KeyPoint> keypoints1;
     std::vector<cv::KeyPoint> keypoints2;
-    std::vector<Descriptor>   descs1;
-    std::vector<Descriptor>   descs2;
-    std::vector<int>          matching_2_1;
-    std::vector<int>          matching_1_2;
+    //extracted descriptors in left and right image corresponding to keypoint indices
+    std::vector<Descriptor> descs1;
+    std::vector<Descriptor> descs2;
+    //look up best matching index in left image at index position of right image
+    std::vector<int> matching_2_1;
+    //look up best matching index in right image at index position of left image
+    std::vector<int> matching_1_2;
 
-    std::vector<cv::Scalar> kp1_colors;
-    std::vector<cv::Scalar> kp2_colors;
-
+    //key points in closest cartesian distance to last mouse click position
     std::vector<cv::KeyPoint> ordered_keypoints1;
     std::vector<cv::KeyPoint> ordered_keypoints2;
+    //search radius for cartesian neighbour search after mouse click
+    float select_radius = 10;
+    //currently selected index for multi-click selection of nearest neighbour
+    int local_idx = 0;
 
+    //concatenated image of left and right image
     cv::Mat out_image;
-
-    cv::Point poi;
-    int       local_idx;
-    float     select_radius;
 
     //currently selected mouse position
     cv::Point mouse_pos;
-    int       keyboard_flags = 0;
+    //keyboard flags of last mouse click
+    int keyboard_flags = 0;
 
-    ////selected pixel
-    //cv::Point left_pix;
-    //cv::Point right_pix;
-
-    int            method         = SURF_BRIEF;
+    //feature extraction method
+    int method = SURF_BRIEF;
+    //current inspection mode (changable with keyboard numbers)
     InspectionMode inspectionMode = InspectionMode::MATCHED_POINT_SIMILIARITY;
 
     //MATCHED_POINT_SIMILIARITY params:

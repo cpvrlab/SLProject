@@ -11,13 +11,13 @@ cv::Scalar color_interpolate(cv::Scalar c1, cv::Scalar c2, float v)
     return (1 - v) * c1 + v * c2;
 }
 
-void reset_similarity(std::vector<cv::KeyPoint>& kps)
-{
-    for (cv::KeyPoint& kp : kps)
-    {
-        kp.response = 1.0;
-    }
-}
+//void reset_similarity(std::vector<cv::KeyPoint>& kps)
+//{
+//    for (cv::KeyPoint& kp : kps)
+//    {
+//        kp.response = 1.0;
+//    }
+//}
 
 void reset_color(std::vector<cv::Scalar>& colors, cv::Scalar col)
 {
@@ -33,13 +33,13 @@ void init_color(std::vector<cv::Scalar>& colors, int size)
     reset_color(colors, blue());
 }
 
-void set_color_by_value(std::vector<cv::Scalar>& colors, std::vector<cv::KeyPoint>& kps)
-{
-    for (int i = 0; i < kps.size(); i++)
-    {
-        colors[i] = color_interpolate(blue(), red(), kps[i].response);
-    }
-}
+//void set_color_by_value(std::vector<cv::Scalar>& colors, std::vector<cv::KeyPoint>& kps)
+//{
+//    for (int i = 0; i < kps.size(); i++)
+//    {
+//        colors[i] = color_interpolate(blue(), red(), kps[i].response);
+//    }
+//}
 
 //draw concatenated image
 void draw_concat_images(App& app)
@@ -168,27 +168,27 @@ void draw_matches_lines(App& app, const cv::Scalar color)
     }
 }
 
-void draw_by_similarity(App& app)
-{
-    cv::hconcat(app.image1, app.image2, app.out_image);
-
-    for (int i = 0; i < app.ordered_keypoints1.size(); i++)
-    {
-        cv::circle(app.out_image, app.ordered_keypoints1[i].pt, 3, app.kp1_colors[i], 1);
-        if (app.ordered_keypoints1[i].response < 0.5)
-        {
-            cv::circle(app.out_image, app.ordered_keypoints1[i].pt, 15, app.kp1_colors[i], 3);
-        }
-    }
-    for (int i = 0; i < app.keypoints2.size(); i++)
-    {
-        cv::circle(app.out_image, app.ordered_keypoints2[i].pt + cv::Point2f(app.image1.cols, 0), 3, app.kp2_colors[i], 1);
-        if (app.ordered_keypoints2[i].response < 0.5)
-        {
-            cv::circle(app.out_image, app.ordered_keypoints2[i].pt + cv::Point2f(app.image1.cols, 0), 15, app.kp2_colors[i], 3);
-        }
-    }
-}
+//void draw_by_similarity(App& app)
+//{
+//    cv::hconcat(app.image1, app.image2, app.out_image);
+//
+//    for (int i = 0; i < app.ordered_keypoints1.size(); i++)
+//    {
+//        cv::circle(app.out_image, app.ordered_keypoints1[i].pt, 3, app.kp1_colors[i], 1);
+//        if (app.ordered_keypoints1[i].response < 0.5)
+//        {
+//            cv::circle(app.out_image, app.ordered_keypoints1[i].pt, 15, app.kp1_colors[i], 3);
+//        }
+//    }
+//    for (int i = 0; i < app.keypoints2.size(); i++)
+//    {
+//        cv::circle(app.out_image, app.ordered_keypoints2[i].pt + cv::Point2f(app.image1.cols, 0), 3, app.kp2_colors[i], 1);
+//        if (app.ordered_keypoints2[i].response < 0.5)
+//        {
+//            cv::circle(app.out_image, app.ordered_keypoints2[i].pt + cv::Point2f(app.image1.cols, 0), 15, app.kp2_colors[i], 3);
+//        }
+//    }
+//}
 
 void draw_main(App& app)
 {

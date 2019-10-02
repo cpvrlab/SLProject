@@ -122,8 +122,6 @@ void app_reset(App& app)
     app.keypoints2.clear();
     app.descs1.clear();
     app.descs2.clear();
-    app.kp1_colors.clear();
-    app.kp2_colors.clear();
     app.ordered_keypoints1.clear();
     app.ordered_keypoints2.clear();
     app.matching_2_1.clear();
