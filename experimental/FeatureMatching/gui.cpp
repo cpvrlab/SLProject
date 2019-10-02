@@ -29,19 +29,18 @@ void draw_closeup_similarity(App& app)
     float distance = -1;
 
     //estimate wheel selected
+    const App::NextMatch& nextMatch = app.next_matches[app.next_sel_wheel];
     if (app.last_click_was_left)
     {
-        idx1                            = app.left_idx;
-        const App::NextMatch& nextMatch = app.next_matches[app.next_sel_wheel];
-        idx2                            = nextMatch.idx;
-        distance                        = nextMatch.distance;
+        idx1     = app.left_idx;
+        idx2     = nextMatch.idx;
+        distance = nextMatch.distance;
     }
     else
     {
-        const App::NextMatch& nextMatch = app.next_matches[app.next_sel_wheel];
-        idx1                            = nextMatch.idx;
-        idx2                            = app.right_idx;
-        distance                        = nextMatch.distance;
+        idx1     = nextMatch.idx;
+        idx2     = app.right_idx;
+        distance = nextMatch.distance;
     }
 
     //draw left closeup
@@ -244,8 +243,8 @@ std::vector<App::NextMatch> select_n_closest_features(const std::vector<cv::KeyP
     float min_dist = 0;
 
     //find next n matches
+    std::vector<App::NextMatch> matches(keypoints.size());
     {
-        std::vector<App::NextMatch> matches(keypoints.size());
         //calculate distance of
         for (int i = 0; i < keypoints.size(); i++)
         {
@@ -260,7 +259,6 @@ std::vector<App::NextMatch> select_n_closest_features(const std::vector<cv::KeyP
 
     //calculate color value
     float min = nextMatches.front().distance;
-    //float max = matches[n - 1].distance;
     float max = nextMatches.back().distance;
     float w   = max - min;
 
