@@ -195,6 +195,9 @@ void draw_main(App& app)
     cv::Mat out;
     cv::copyMakeBorder(app.out_image, out, 0, 100, 0, 0, cv::BORDER_CONSTANT, 0);
     cv::Point pos(30, app.out_image.rows + 30);
+    int       font      = cv::FONT_HERSHEY_PLAIN;
+    float     fontScale = 1.0;
+    int       thick     = 1;
 
     std::string text = app_inspection_mode_text(app);
     text             = std::to_string((int)app.inspectionMode - 48) + ": " + text;
@@ -203,26 +206,26 @@ void draw_main(App& app)
         std::vector<std::string> strs = str_split(text);
         for (int i = 0; i < strs.size(); i++)
         {
-            cv::putText(out, strs[i], cv::Point(pos.x, pos.y + 20 + 20 * i), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
+            cv::putText(out, strs[i], cv::Point(pos.x, pos.y + 20 + 20 * i), font, fontScale, cv::Scalar(255, 255, 255), thick, cv::LINE_AA);
         }
     }
 
     switch (app.method)
     {
         case STOCK_ORBSLAM:
-            cv::putText(out, "ORB keypoint, ORB descrptor", pos, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
+            cv::putText(out, "ORB keypoint, ORB descrptor", pos, font, fontScale, cv::Scalar(255, 255, 255), thick, cv::LINE_AA);
             break;
 
         case TILDE_BRIEF:
-            cv::putText(out, "TILDE keypoint, BRIEF descrptor", pos, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
+            cv::putText(out, "TILDE keypoint, BRIEF descrptor", pos, font, fontScale, cv::Scalar(255, 255, 255), thick, cv::LINE_AA);
             break;
 
         case SURF_BRIEF:
-            cv::putText(out, "SURF keypoint, BRIEF descrptor", pos, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
+            cv::putText(out, "SURF keypoint, BRIEF descrptor", pos, font, fontScale, cv::Scalar(255, 255, 255), thick, cv::LINE_AA);
             break;
 
         case SURF_ORB:
-            cv::putText(out, "SURF keypoint, ORB descrptor", pos, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
+            cv::putText(out, "SURF keypoint, ORB descrptor", pos, font, fontScale, cv::Scalar(255, 255, 255), thick, cv::LINE_AA);
             break;
     }
 

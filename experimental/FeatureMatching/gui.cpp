@@ -16,7 +16,7 @@ cv::Mat draw_closeup(cv::Mat& image, cv::Point2f& pt, std::string text)
         std::vector<std::string> strs = str_split(text);
         for (int i = 0; i < strs.size(); i++)
         {
-            cv::putText(out, strs[i], cv::Point(10, closeup.rows + 30 + 20 * i), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
+            cv::putText(out, strs[i], cv::Point(10, closeup.rows + 30 + 20 * i), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(255, 255, 255), 1, cv::LINE_AA);
         }
     }
 
@@ -25,6 +25,68 @@ cv::Mat draw_closeup(cv::Mat& image, cv::Point2f& pt, std::string text)
 
 void draw_closeup_similarity(App& app)
 {
+    int   idx1 = -1, idx2 = -1;
+    float distance = -1;
+
+    //estimate wheel selected
+    if (app.last_click_was_left)
+    {
+        idx1                            = app.left_idx;
+        const App::NextMatch& nextMatch = app.next_matches[app.next_sel_wheel];
+        idx2                            = nextMatch.idx;
+        distance                        = nextMatch.distance;
+    }
+    else
+    {
+        const App::NextMatch& nextMatch = app.next_matches[app.next_sel_wheel];
+        idx1                            = nextMatch.idx;
+        idx2                            = app.right_idx;
+        distance                        = nextMatch.distance;
+    }
+
+    //draw left closeup
+    {
+        cv::KeyPoint&     kpt1 = app.keypoints1[idx1];
+        std::stringstream ss;
+        ss << "Point idx: " << idx1 << std::endl;
+        ss << "Octave: " << kpt1.octave << std::endl;
+        ss << "size: " << kpt1.size << std::endl;
+        ss << "Angle: " << kpt1.angle << std::endl;
+        ss << "Distance to right index " << idx2 << " is " << distance << std::endl;
+
+        cv::Mat out;
+        if (app.method == STOCK_ORBSLAM)
+        {
+            out = draw_closeup(app.image1_pyramid[kpt1.octave], kpt1.pt, ss.str());
+        }
+        else
+        {
+            out = draw_closeup(app.image1, kpt1.pt, ss.str());
+        }
+        imshow(app.closeup_left, out);
+    }
+
+    //draw right closeup
+    {
+        cv::KeyPoint&     kpt2 = app.keypoints2[idx2];
+        std::stringstream ss;
+        ss << "Point idx: " << idx2 << std::endl;
+        ss << "Octave: " << kpt2.octave << std::endl;
+        ss << "size: " << kpt2.size << std::endl;
+        ss << "Angle: " << kpt2.angle << std::endl;
+        ss << "Distance to left index " << idx1 << " is " << distance << std::endl;
+
+        cv::Mat out;
+        if (app.method == STOCK_ORBSLAM)
+        {
+            out = draw_closeup(app.image2_pyramid[kpt2.octave], kpt2.pt, ss.str());
+        }
+        else
+        {
+            out = draw_closeup(app.image2, kpt2.pt, ss.str());
+        }
+        imshow(app.closeup_right, out);
+    }
 }
 
 void draw_closeup_right(App& app, bool calcDistSelected)
@@ -67,34 +129,6 @@ void draw_closeup_right(App& app, bool calcDistSelected)
     }
     imshow(app.closeup_right, out);
 }
-
-//void draw_closeup_pixel_left(App& app)
-//{
-//    //check that pixel is inside roi of image (respecting descritor patch size)
-//    if (!(app.left_pix.x > EDGE_THRESHOLD &&
-//          app.left_pix.y > EDGE_THRESHOLD &&
-//          app.left_pix.x < app.image1.cols - EDGE_THRESHOLD &&
-//          app.left_pix.y < app.image1.rows - EDGE_THRESHOLD))
-//    {
-//        cv::destroyWindow(app.closeup_left);
-//        return;
-//    }
-//
-//    //calculate descriptor at this pixel position
-//
-//    std::stringstream ss;
-//    if (true)
-//    {
-//        ss << "Distance to left index " << app.left_idx << " is " << hamming_distance(app.descs1[app.left_idx], app.descs2[app.right_idx]) << std::endl;
-//    }
-//    else
-//    {
-//        ss << "Pixel is outside of ROI";
-//    }
-//
-//    cv::Mat out = draw_closeup(app.image1, cv::Point2f(app.left_pix), ss.str());
-//    imshow(app.closeup_left, out);
-//}
 
 void draw_closeup_left(App& app, bool calcDistSelected)
 {
@@ -273,7 +307,6 @@ void matched_point_similarity(int x, int y, int flags, App& app)
 
     if (x > app.image1.cols) //right image
     {
-        cv::destroyWindow(app.closeup_right);
         app.last_click_was_left = false;
         //find next keypoint to click in right image
         app.right_idx = select_closest_keypoint(app.keypoints2, x - app.image1.cols, y);
@@ -282,7 +315,6 @@ void matched_point_similarity(int x, int y, int flags, App& app)
     }
     else //left image
     {
-        cv::destroyWindow(app.closeup_left);
         app.last_click_was_left = true;
         app.left_idx            = select_closest_keypoint(app.keypoints1, x, y);
         //find next descriptors in left image
@@ -293,6 +325,7 @@ void matched_point_similarity(int x, int y, int flags, App& app)
 
     draw_concat_images(app);
     draw_all_keypoins(app, blue());
+    draw_matched_keypoints(app, red());
     draw_similarity_circles(app);
     draw_main(app);
 }
@@ -364,31 +397,6 @@ void any_keypoint_comparison(int x, int y, int flags, App& app)
     draw_main(app);
 }
 
-//void any_pixel_comparison(int x, int y, int flags, App& app)
-//{
-//    reset_similarity(app.keypoints1);
-//    reset_similarity(app.keypoints2);
-//    reset_color(app.kp1_colors, blue());
-//    reset_color(app.kp2_colors, blue());
-//
-//    app.ordered_keypoints1 = app.keypoints1;
-//    app.ordered_keypoints2 = app.keypoints2;
-//
-//    if (x > app.image1.cols)
-//    {
-//        app.right_pix = {x - app.image1.cols, y};
-//    }
-//    else
-//    {
-//        app.left_pix = {x, y};
-//    }
-//
-//    draw_closeup_pixel_left(app);
-//    draw_concat_images(app);
-//    draw_selected_pixels(app);
-//    draw_main(app);
-//}
-
 void update_inspection(App& app)
 {
     const int x     = app.mouse_pos.x;
@@ -409,9 +417,6 @@ void update_inspection(App& app)
         case InspectionMode::ANY_KEYPOINT_COMPARISON:
             any_keypoint_comparison(x, y, flags, app);
             break;
-        //case InspectionMode::ANY_PIXEL_COMPARISON:
-        //    any_pixel_comparison(x, y, flags, app);
-        //    break;
         default:
             throw std::runtime_error("Unknown InspectionMode");
     }
@@ -429,6 +434,36 @@ void mouse_button_left(int x, int y, int flags, App& app)
     update_inspection(app);
 }
 
+void on_mouse_wheel(App& app, int flags)
+{
+    int val = cv::getMouseWheelDelta(flags);
+    if (val > 0)
+        app.next_sel_wheel = ++app.next_sel_wheel % app.num_next_matches;
+    else
+        app.next_sel_wheel = --app.next_sel_wheel < 0 ? app.num_next_matches - 1 : app.next_sel_wheel;
+
+    switch (app.inspectionMode)
+    {
+        case InspectionMode::MATCH_DRAWING_ALL:
+            break;
+        case InspectionMode::MATCH_DRAWING_SINGLE:
+            break;
+        case InspectionMode::MATCHED_POINT_SIMILIARITY:
+            draw_closeup_similarity(app);
+            draw_concat_images(app);
+            draw_all_keypoins(app, blue());
+            draw_matched_keypoints(app, red());
+            draw_similarity_circles(app);
+            draw_main(app);
+
+            break;
+        case InspectionMode::ANY_KEYPOINT_COMPARISON:
+            break;
+        default:
+            throw std::runtime_error("Unknown InspectionMode");
+    }
+}
+
 void main_mouse_events(int event, int x, int y, int flags, void* userdata)
 {
     App& app = *(App*)userdata;
@@ -439,6 +474,10 @@ void main_mouse_events(int event, int x, int y, int flags, void* userdata)
             mouse_button_left(x, y, flags, app);
             break;
         }
+        case cv::EVENT_MOUSEWHEEL: {
+            on_mouse_wheel(app, flags);
+            break;
+        }
     }
 }
 
@@ -446,15 +485,10 @@ void print_help()
 {
     std::cout << "-----------------------------------------------------------------------------------------" << std::endl;
     std::cout << "Usage of Best Tool Ever Made" << std::endl;
-    std::cout << "Space:    change detection and description method" << std::endl;
-    std::cout << "1:        Change inspection mode to 'draw matching'" << std::endl;
-    std::cout << "2:        Change inspection mode to 'matched points similarity'" << std::endl;
-    std::cout << "3:        Change inspection mode to 'any keypoint comparison'" << std::endl;
-    std::cout << "4:        Change inspection mode to 'any pixel comparison'" << std::endl;
-    std::cout << "LMB:      Select closest match and highlight in red" << std::endl;
-    std::cout << "Ctrl+LMB: Additionally update closeup windows of closest matching pair" << std::endl;
-    //std::cout << "RMB:      Select closest keypoint and visualize closest matches in other image." << std::endl;
-    //std::cout << "          Show closeup window of closest match." << std::endl;
+    std::cout << "Space:    Change detection and description method" << std::endl;
+    std::cout << "1-4:      Change inspection mode" << std::endl;
+    std::cout << "LMB:      Select closest match" << std::endl;
+    std::cout << "M-Wheel:  Select between next matches" << std::endl;
     std::cout << "-----------------------------------------------------------------------------------------" << std::endl;
 }
 

@@ -180,11 +180,9 @@ std::string app_inspection_mode_text(App& app)
         case InspectionMode::MATCH_DRAWING_SINGLE:
             return "Click on the image to visualize closed match by a single line. Close-up views for both keypoints are shown.";
         case InspectionMode::MATCHED_POINT_SIMILIARITY:
-            return "Click on left or right image to catch the closest feature point. Closest feature points in the other image are highlighted\nand a close-up of the catched keypoint is drawn. (Multi-click on the same position iterates keypoints in the neighbourhood.)";
-        //case InspectionMode::ANY_PIXEL_COMPARISON:
-        //    return "Click on both images to select two pixel positons. The descriptors at selected positions are compared and visualized in close-up views";
+            return "Click on left or right image to catch the closest feature point. N closest feature points in the other image are highlighted\nand a close-ups are updated. Use the mouse wheel to iterate N next feature points.";
         case InspectionMode::ANY_KEYPOINT_COMPARISON:
-            return "Click on both images to catch two keypoints. The descriptors at selected positions are compared and visualized in close-up views. (Multi-click on the same position iterates keypoints in the neighbourhood.)";
+            return "Click on both images to catch two keypoints. The descriptors at selected positions are compared and visualized in close-up views.\n(Multi-click on the same position iterates keypoints in the neighbourhood.)";
         default:
             return "";
     }
