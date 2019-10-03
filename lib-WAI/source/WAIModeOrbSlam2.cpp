@@ -1685,6 +1685,12 @@ bool WAI::ModeOrbSlam2::relocalization()
 }
 #endif
 
+WAIFrame WAI::ModeOrbSlam2::getCurrentFrame()
+{
+    return mCurrentFrame;
+}
+
+
 bool WAI::ModeOrbSlam2::trackReferenceKeyFrame()
 {
     //This routine is called if current tracking state is OK but we have NO valid motion model

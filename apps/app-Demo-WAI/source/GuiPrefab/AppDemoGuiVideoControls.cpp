@@ -15,5 +15,16 @@ void AppDemoGuiVideoControls::buildInfos(SLScene* s, SLSceneView* sv)
         WAIApp::pauseVideo != WAIApp::pauseVideo;
     }
 
+    if (ImGui::Button("Save current frame with candidates", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    {
+        if (WAIApp::mode != nullptr && WAIApp::mode->retainImage())
+        {
+            WAIFrame frame = WAIApp::mode->getCurrentFrame();
+            WAIKeyFrame * ref = frame.mpReferenceKF;
+
+            //Save image from frame and its reference keyframe
+        }
+    }
+
     ImGui::End();
 }

@@ -114,6 +114,8 @@ class WAI_API ModeOrbSlam2
     void setExtractor(KPextractor* extractor, KPextractor* iniExtractor);
     void setVocabulary(std::string orbVocFile);
 
+    WAIFrame getCurrentFrame();
+
     private:
     enum TrackingState
     {
