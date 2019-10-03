@@ -617,7 +617,7 @@ void KPExtractTILDE(std::vector<cv::KeyPoint>& allKeypoints, cv::Mat image)
 
 void KPExtractSURF(std::vector<cv::KeyPoint>& allKeypoints, cv::Mat image)
 {
-    cv::Ptr<cv::xfeatures2d::SURF> surf_detector = cv::xfeatures2d::SURF::create(50);
+    cv::Ptr<cv::xfeatures2d::SURF> surf_detector = cv::xfeatures2d::SURF::create(50 /*, 1, 1*/);
 
     //reduce keypoint detection to an inner region because of descriptor patch size
     cv::Mat  mask = cv::Mat::zeros(image.size(), CV_8U);
