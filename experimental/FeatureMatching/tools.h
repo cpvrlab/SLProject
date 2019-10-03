@@ -57,9 +57,9 @@ cv::Mat extract_patch(cv::Mat& image, cv::Point2f& pt);
 
 void get_inverted_matching(std::vector<int>& inverted_matching, std::vector<int>& matching);
 
-int select_closest_feature(std::vector<cv::KeyPoint>& keypoints, int x, int y);
+int select_closest_keypoint(std::vector<cv::KeyPoint>& keypoints, int x, int y);
 
-int select_closest_feature(std::vector<cv::KeyPoint>& keypoints, std::vector<int> matches, int x, int y);
+int select_closest_keypoint(std::vector<cv::KeyPoint>& keypoints, std::vector<int> matches, int x, int y);
 
 std::vector<int> select_closest_features(std::vector<cv::KeyPoint>& keypoints, float radius, int x, int y);
 

@@ -242,7 +242,8 @@ void get_inverted_matching(std::vector<int>& inverted_matching, std::vector<int>
     }
 }
 
-int select_closest_feature(std::vector<cv::KeyPoint>& keypoints, int x, int y)
+//select keypoint closest to click position
+int select_closest_keypoint(std::vector<cv::KeyPoint>& keypoints, int x, int y)
 {
     float min_dist = 10000000;
     int   min_idx  = -1;
@@ -264,7 +265,7 @@ int select_closest_feature(std::vector<cv::KeyPoint>& keypoints, int x, int y)
     return min_idx;
 }
 
-int select_closest_feature(std::vector<cv::KeyPoint>& keypoints, std::vector<int> matches, int x, int y)
+int select_closest_keypoint(std::vector<cv::KeyPoint>& keypoints, std::vector<int> matches, int x, int y)
 {
     float min_dist = 10000000;
     int   min_idx  = -1;
@@ -300,7 +301,7 @@ std::vector<int> select_closest_features(std::vector<cv::KeyPoint>& keypoints, f
 
     std::vector<int>      selection;
     std::vector<SortElem> sorter;
-    int                   idx = select_closest_feature(keypoints, x, y);
+    int                   idx = select_closest_keypoint(keypoints, x, y);
 
     if (idx < 0)
         return selection;
