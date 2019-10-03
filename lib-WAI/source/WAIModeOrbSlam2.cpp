@@ -33,7 +33,8 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
         _initialized = false;
 
     //instantiate Orb extractor
-    mpDefaultExtractor    = new ORB_SLAM2::SURFextractor(1500);
+    // TODO(dgj1): we need to find a good value for the extractor threshold
+    mpDefaultExtractor    = new ORB_SLAM2::SURFextractor(800);
     mpIniDefaultExtractor = new ORB_SLAM2::SURFextractor(1000);
 
     mpExtractor    = mpDefaultExtractor;
