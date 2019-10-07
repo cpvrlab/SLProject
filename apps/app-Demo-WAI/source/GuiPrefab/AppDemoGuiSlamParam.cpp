@@ -36,12 +36,20 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
                                                             fIniThFAST,
                                                             fMinThFAST);
 
+    KPextractor* orbExtractor2 = new ORB_SLAM2::ORBextractor(2 * nFeatures,
+                                                            fScaleFactor,
+                                                            nLevels,
+                                                            fIniThFAST,
+                                                            fMinThFAST);
+
+    _extractors.push_back(new ORB_SLAM2::SURFextractor(500));
     _extractors.push_back(new ORB_SLAM2::SURFextractor(800));
     _extractors.push_back(new ORB_SLAM2::SURFextractor(1000));
     _extractors.push_back(new ORB_SLAM2::SURFextractor(1500));
     _extractors.push_back(new ORB_SLAM2::SURFextractor(2000));
     _extractors.push_back(new ORB_SLAM2::SURFextractor(2500));
     _extractors.push_back(orbExtractor);
+    _extractors.push_back(orbExtractor2);
 
     _current    = _extractors.at(1);
     _iniCurrent = _extractors.at(1);

@@ -239,7 +239,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
     }
 
     float videoAspectRatio = (float)videoFrameSize.width / (float)videoFrameSize.height;
-    float epsilon          = 0.0001f;
+    float epsilon          = 0.01f;
     if (wc->aspectRatio() > videoAspectRatio + epsilon ||
         wc->aspectRatio() < videoAspectRatio - epsilon)
     {
