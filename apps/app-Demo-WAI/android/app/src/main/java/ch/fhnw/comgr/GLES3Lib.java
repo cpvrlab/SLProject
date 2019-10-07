@@ -31,6 +31,7 @@ import static android.content.Context.ACTIVITY_SERVICE;
 
 // Java class that encapsulates the native C-functions into SLProject
 public class GLES3Lib {
+    protected static final String TAG = GLES3Lib.class.getSimpleName();
 
     static {
         System.loadLibrary("native-lib");
@@ -105,7 +106,7 @@ public class GLES3Lib {
      */
     public static void extractAPK() throws IOException {
         FilesPath = App.getApplicationContext().getFilesDir().getAbsolutePath();
-        Log.i("SLProject", "Destination: " + FilesPath);
+        Log.i(TAG, "::extractAPK.Destination: " + FilesPath);
         extractAPKFolder(FilesPath, "images/textures");
         extractAPKFolder(FilesPath, "videos");
         extractAPKFolder(FilesPath, "images/fonts");
@@ -136,10 +137,10 @@ public class GLES3Lib {
                 continue;
 
             if (createDir(FilesPath + "/" + AssetPath))
-                Log.i("SLProject", "Folder created: " + FilesPath + "/" + AssetPath + "/ -------------------------------------------\r\n");
+                Log.i(TAG, "Folder created: " + FilesPath + "/" + AssetPath + "/ -------------------------------------------\r\n");
 
             copyFile(App.getAssets().open(AssetPath + "/" + file), new FileOutputStream(FilesPath + "/" + AssetPath + "/" + file));
-            Log.i("SLProject", "File: " + FilesPath + "/" + AssetPath + "/" + file + "\r\n");
+            Log.i(TAG, "File: " + FilesPath + "/" + AssetPath + "/" + file + "\r\n");
         }
     }
 

@@ -30,7 +30,7 @@ class GeneralLocationListener implements LocationListener {
 
     private static String _listenerName;
     private static GLES3Activity _activity;
-    private static final String TAG = "SLProject";
+    private static final String TAG = GeneralLocationListener.class.getSimpleName();
     protected String latestHdop;
     protected String latestPdop;
     protected String latestVdop;

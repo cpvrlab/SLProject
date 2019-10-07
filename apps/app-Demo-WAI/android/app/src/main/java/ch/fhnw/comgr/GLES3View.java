@@ -23,7 +23,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class GLES3View extends GLSurfaceView
 {
-    private static String TAG = "SLProject";
+    private static String TAG = GLES3View.class.getSimpleName();
     private static final boolean DEBUG = false;
     private static final int VT_NONE = 0;
     private static final int VT_MAIN = 1;
@@ -63,8 +63,9 @@ public class GLES3View extends GLSurfaceView
     private static class Renderer implements GLSurfaceView.Renderer {
         protected Handler mainLoop;
 
+        @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-            Log.i(TAG, "Renderer.onSurfaceCreated");
+            Log.i(TAG, "::onSurfaceCreated");
             int w = GLES3Lib.view.getWidth();
             int h = GLES3Lib.view.getHeight();
             GLES3Lib.onInit(w, h,
@@ -75,12 +76,14 @@ public class GLES3View extends GLSurfaceView
             mainLoop = new Handler(Looper.getMainLooper());
         }
 
+        @Override
         public void onSurfaceChanged(GL10 gl, int width, int height) {
-            Log.i(TAG, "Renderer.onSurfaceChanged");
+            Log.i(TAG, "::onSurfaceChanged");
             GLES3Lib.onResize(width, height);
             GLES3Lib.view.requestRender();
         }
 
+        @Override
         public void onDrawFrame(GL10 gl) {
             int videoType = GLES3Lib.getVideoType();
             int sizeIndex = GLES3Lib.getVideoSizeIndex();

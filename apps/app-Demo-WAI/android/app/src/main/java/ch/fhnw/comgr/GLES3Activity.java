@@ -24,15 +24,14 @@ import android.hardware.SensorManager;
 import android.hardware.camera2.CameraCharacteristics;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.app.ActivityCompat;
+import androidx.core.app.ActivityCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +41,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     static int                  pointersDown = 0;   // NO. of fingers down
     static long                 lastTouchMS = 0;    // Time of last touch in ms
 
-    private static final String TAG = "SLProject";
+    private static final String TAG = GLES3Activity.class.getSimpleName();
     private static final int PERMISSIONS_MULTIPLE_REQUEST = 123;
 
     private int                     _currentVideoType;
@@ -60,7 +59,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
 
     @Override
     protected void onCreate(Bundle icicle) {
-        Log.i(TAG, "GLES3Activity.onCreate");
+        Log.i(TAG, "::onCreate");
         super.onCreate(icicle);
 
         // Extract (unzip) files in APK
@@ -126,21 +125,21 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     // After on onCreate
     @Override
     protected void onStart() {
-        Log.i(TAG, "GLES3Activity.onStart");
+        Log.i(TAG, "::onStart");
         super.onStart();
     }
 
     // Another activity comes into foreground but this is still visible (e.g. with the home button)
     @Override
     protected void onPause() {
-        Log.i(TAG, "GLES3Activity.onPause");
+        Log.i(TAG, "::onPause");
         super.onPause();
     }
 
     @Override
     // My activity is no longer visible
     protected void onStop() {
-        Log.i(TAG, "GLES3Activity.onStop");
+        Log.i(TAG, "::onStop");
 
         // Stop sensors to save energy
         cameraStop();
@@ -153,21 +152,21 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     // The user resumed this activity
     @Override
     protected void onResume() {
-        Log.i(TAG, "GLES3Activity.onResume");
+        Log.i(TAG, "::onResume");
         super.onResume();
     }
 
     // A stopped but not destroyed activity is reactivated
     @Override
     protected void onRestart() {
-        Log.i(TAG, "GLES3Activity.onRestart");
+        Log.i(TAG, "::onRestart");
         super.onRestart();
     }
 
     @Override
     // The process of this activity is getting killed (e.g. with the back button)
     protected void onDestroy() {
-        Log.i(TAG, "GLES3Activity.onDestroy");
+        Log.i(TAG, "::onDestroy");
         myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onClose();}});
         super.onDestroy();
         finish();
@@ -176,7 +175,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     @Override
     public boolean onTouch(View v, final MotionEvent event) {
         if (event == null) {
-            Log.i(TAG, "onTouch: null event");
+            Log.i(TAG, "::onTouch: null event");
             return false;
         }
 
@@ -192,9 +191,9 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                 return handleTouchUp(event);
             else if (actionCode == MotionEvent.ACTION_MOVE)
                 return handleTouchMove(event);
-            else Log.i(TAG, "Unhandeled Event: " + actionCode);
+            else Log.i(TAG, "::onTouch Unhandled Event: " + actionCode);
         } catch (Exception ex) {
-            Log.i(TAG, "onTouch (Exception: " + actionCode);
+            Log.i(TAG, "::onTouch (Exception: " + actionCode);
         }
 
         return false;
@@ -202,7 +201,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        Log.i(TAG, String.format("onAccuracyChanged"));
+        Log.i(TAG, "::onAccuracyChanged");
     }
 
     @Override
@@ -242,16 +241,16 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSIONS_MULTIPLE_REQUEST) {
 
             //0: permission.CAMERA
             if (grantResults.length > 0 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.i(TAG, "onRequestPermissionsResult: Permission CAMERA granted.");
+                Log.i(TAG, "::onRequestPermissionsResult: Permission CAMERA granted.");
                 _permissionCameraGranted = true;
             } else {
-                Log.i(TAG, "onRequestPermissionsResult: Permission CAMERA refused.");
+                Log.i(TAG, "::onRequestPermissionsResult: Permission CAMERA refused.");
                 _permissionCameraGranted = false;
             }
 
@@ -260,42 +259,42 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             if (grantResults.length > 2 &&
                     grantResults[1] == PackageManager.PERMISSION_GRANTED &&
                     grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-                Log.i(TAG, "onRequestPermissionsResult: Permission ACCESS_COARSE_LOCATION and ACCESS_FINE_LOCATION granted.");
+                Log.i(TAG, "::onRequestPermissionsResult: Permission ACCESS_COARSE_LOCATION and ACCESS_FINE_LOCATION granted.");
                 _permissionLocationGranted = true;
             } else {
-                Log.i(TAG, "onRequestPermissionsResult: Permission ACCESS_COARSE_LOCATION and ACCESS_FINE_LOCATION refused.");
+                Log.i(TAG, "::onRequestPermissionsResult: Permission ACCESS_COARSE_LOCATION and ACCESS_FINE_LOCATION refused.");
                 _permissionLocationGranted = false;
             }
 
             //3: permission.WRITE_EXTERNAL_STORAGE
             if (grantResults.length > 3 &&
                     grantResults[3] == PackageManager.PERMISSION_GRANTED ) {
-                Log.i(TAG, "onRequestPermissionsResult: Permission WRITE_EXTERNAL_STORAGE granted.");
+                Log.i(TAG, "::onRequestPermissionsResult: Permission WRITE_EXTERNAL_STORAGE granted.");
                 _permissionWriteStorageGranted = true;
                 //read available external files and update slproject
                 setupExternalDirectories();
             } else {
-                Log.i(TAG, "onRequestPermissionsResult: Permission WRITE_EXTERNAL_STORAGE refused.");
+                Log.i(TAG, "::onRequestPermissionsResult: Permission WRITE_EXTERNAL_STORAGE refused.");
                 _permissionWriteStorageGranted = false;
             }
 
             //4: permission.READ_EXTERNAL_STORAGE
             if (grantResults.length > 4 &&
                     grantResults[4] == PackageManager.PERMISSION_GRANTED ) {
-                Log.i(TAG, "onRequestPermissionsResult: Permission READ_EXTERNAL_STORAGE granted.");
+                Log.i(TAG, "::onRequestPermissionsResult: Permission READ_EXTERNAL_STORAGE granted.");
                 _permissionReadStorageGranted = true;
             } else {
-                Log.i(TAG, "onRequestPermissionsResult: Permission READ_EXTERNAL_STORAGE refused.");
+                Log.i(TAG, "::onRequestPermissionsResult: Permission READ_EXTERNAL_STORAGE refused.");
                 _permissionReadStorageGranted = false;
             }
 
             //5: permission.INTERNET
             if (grantResults.length > 5 &&
                     grantResults[5] == PackageManager.PERMISSION_GRANTED ) {
-                Log.i(TAG, "onRequestPermissionsResult: Permission INTERNET granted.");
+                Log.i(TAG, "::onRequestPermissionsResult: Permission INTERNET granted.");
                 _permissionInternetGranted = true;
             } else {
-                Log.i(TAG, "onRequestPermissionsResult: Permission INTERNET refused.");
+                Log.i(TAG, "::onRequestPermissionsResult: Permission INTERNET refused.");
                 _permissionInternetGranted = false;
             }
 
@@ -562,7 +561,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             if (sm != null) {
                 sm.registerListener(this,
                         sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
-                        sm.SENSOR_DELAY_GAME);
+                        SensorManager.SENSOR_DELAY_GAME);
                 _rotationSensorStartTime = System.currentTimeMillis();
                 _rotationSensorIsRunning = true;
             } else {
@@ -570,10 +569,10 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             }
         }
         catch (Exception e) {
-            Log.i(TAG, "Exception: " + e.getMessage());
+            Log.e(TAG, "Exception: " + e.getMessage());
             _rotationSensorIsRunning = false;
         }
-        Log.d(TAG, "Rotation Sensor is running: "+ _rotationSensorIsRunning);
+        Log.i(TAG, "Rotation Sensor is running: "+ _rotationSensorIsRunning);
     }
 
     /**
@@ -594,10 +593,10 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             _rotationSensorIsRunning = false;
         }
         catch (Exception e) {
-            Log.i(TAG, "Exception: " + e.getMessage());
+            Log.e(TAG, "Exception: " + e.getMessage());
             _rotationSensorIsRunning = false;
         }
-        Log.d(TAG, "Rotation Sensor is running: "+ _rotationSensorIsRunning);
+        Log.i(TAG, "Rotation Sensor is running: "+ _rotationSensorIsRunning);
     }
 
     /**
@@ -625,7 +624,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         } else {
             _locationSensorIsRunning = false;
         }
-        Log.d(TAG, "GPS Sensor is running: "+ _locationSensorIsRunning);
+        Log.i(TAG, "GPS Sensor is running: "+ _locationSensorIsRunning);
     }
 
     /**
@@ -634,7 +633,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     @SuppressWarnings("ResourceType")
     public void locationSensorStop() {
         if (_locationListener != null) {
-            Log.d(TAG, "Removing _locationManager updates");
+            Log.i(TAG, "Removing _locationManager updates");
             _locationManager.removeUpdates(_locationListener);
             _locationListener = null;
         }
@@ -644,7 +643,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
      * Stops location manager, then starts it.
      */
     public void locationSensorRestart() {
-        Log.d(TAG, "Restarting location managers");
+        Log.i(TAG, "Restarting location managers");
         locationSensorStop();
         locationSensorStart();
     }
@@ -660,7 +659,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         //long currentTimeStamp = System.currentTimeMillis();
         //if (!loc.hasAccuracy() || loc.getAccuracy() == 0) return;
 
-        Log.i(TAG, "onLocationChanged: " + String.valueOf(loc.getLatitude()) + "," + String.valueOf(loc.getLongitude()));
+        Log.i(TAG, "::onLocationChanged: " + String.valueOf(loc.getLatitude()) + "," + String.valueOf(loc.getLongitude()));
         myView.queueEvent(new Runnable() {
             public void run() {
                 GLES3Lib.onLocationLLA(

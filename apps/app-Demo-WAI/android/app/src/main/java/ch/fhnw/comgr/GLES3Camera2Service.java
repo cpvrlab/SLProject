@@ -26,7 +26,7 @@ import android.media.Image;
 import android.media.ImageReader;
 //import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.util.Size;
 import android.util.SizeF;
@@ -42,7 +42,7 @@ import java.util.Arrays;
  */
 @SuppressWarnings("MissingPermission")
 public class GLES3Camera2Service extends Service {
-    protected static final String TAG = "SLProject";
+    protected static final String TAG = GLES3Camera2Service.class.getSimpleName();
     public static int videoType = CameraCharacteristics.LENS_FACING_BACK;
     public static int requestedVideoSizeIndex = -1; // see getRequestedSize
     public static boolean isTransitioning = false;
@@ -59,7 +59,7 @@ public class GLES3Camera2Service extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "GLES3Camera2Service.onStartCommand flags " + flags + " startId " + startId);
+        Log.i(TAG, "::onStartCommand flags " + flags + " startId " + startId);
 
         CameraManager manager = (CameraManager) getSystemService(CAMERA_SERVICE);
         try {
@@ -195,7 +195,7 @@ public class GLES3Camera2Service extends Service {
     protected CameraDevice.StateCallback cameraStateCallback = new CameraDevice.StateCallback() {
         @Override
         public void onOpened(@NonNull CameraDevice camera) {
-            Log.i(TAG, "CameraDevice.StateCallback onOpened");
+            Log.i(TAG, "::CameraDevice.StateCallback onOpened");
             cameraDevice = camera;
             actOnReadyCameraDevice();
         }
@@ -325,7 +325,7 @@ public class GLES3Camera2Service extends Service {
 
     @Override
     public void onDestroy() {
-        Log.i(TAG, "GLES3Camera2Service.onDestroy");
+        Log.i(TAG, "::onDestroy");
         try {
             captureSession.abortCaptures();
         } catch (CameraAccessException e) {
