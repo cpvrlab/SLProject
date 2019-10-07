@@ -1,4 +1,5 @@
 #include <WAIModeOrbSlam2.h>
+#include <AverageTiming.h>
 
 WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat              cameraMat,
                                 cv::Mat              distortionMat,
@@ -34,22 +35,10 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat              cameraMat,
     else
         _initialized = false;
 
-//instantiate KeyPoint extractor
-#if 0
-    int nFeatures = 1000;
-
-    float fScaleFactor = 1.2;
-    int   nLevels      = 8;
-    int   fIniThFAST   = 20;
-    int   fMinThFAST   = 7;
-
-    mpDefaultExtractor        = new ORB_SLAM2::ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
-    mpIniDefaultExtractor = new ORB_SLAM2::ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
-#else
-    // TODO(dgj1): adjust thresholds for normal mapping
-    mpDefaultExtractor    = new ORB_SLAM2::SURFextractor(1000);
-    mpIniDefaultExtractor = new ORB_SLAM2::SURFextractor(800);
-#endif
+    //instantiate Orb extractor
+    // TODO(dgj1): we need to find a good value for the extractor threshold
+    mpDefaultExtractor    = new ORB_SLAM2::SURFextractor(800);
+    mpIniDefaultExtractor = new ORB_SLAM2::SURFextractor(1000);
 
     mpExtractor    = mpDefaultExtractor;
     mpIniExtractor = mpIniDefaultExtractor;
@@ -207,16 +196,6 @@ bool WAI::ModeOrbSlam2::update(cv::Mat& imageGray, cv::Mat& imageRGB)
     {
         case TrackingState_Initializing:
         {
-#if 0 
-            if (_markerCorrectionType == MarkerCorrectionType_Chessboard)
-            {
-                initializeWithChessboardCorrection();
-            }
-            else
-            {
-                initialize(imageGray, imageRGB);
-            }
-#endif
             initialize(imageGray, imageRGB);
         }
         break;
@@ -1354,6 +1333,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
             {
                 if (!mVelocity.empty())
                 { //we have a valid motion model
+
                     _bOK = trackWithMotionModel();
                     //trackingType = TrackingType_MotionModel;
                     //cout << "TrackWithMotionModel: " << bOK << endl;
@@ -1388,7 +1368,6 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
                     TcwMM   = mCurrentFrame.mTcw.clone();
                 }
                 bOKReloc = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId);
-
                 //relocalization method is not valid but the velocity model method
                 if (bOKMM && !bOKReloc)
                 {
@@ -1423,6 +1402,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
     {
         if (_bOK)
         {
+
             _bOK = trackLocalMap();
         }
     }
@@ -1998,6 +1978,7 @@ bool WAI::ModeOrbSlam2::relocalization(WAIFrame&      currentFrame,
                                        WAIKeyFrameDB* keyFrameDB,
                                        unsigned int*  lastRelocFrameId)
 {
+    AVERAGE_TIMING_START("relocalization");
     // Compute Bag of Words Vector
     currentFrame.ComputeBoW();
 
@@ -2006,7 +1987,10 @@ bool WAI::ModeOrbSlam2::relocalization(WAIFrame&      currentFrame,
     vector<WAIKeyFrame*> vpCandidateKFs = keyFrameDB->DetectRelocalizationCandidates(&currentFrame);
 
     if (vpCandidateKFs.empty())
+    {
+        AVERAGE_TIMING_STOP("relocalization");
         return false;
+    }
 
     //vector<WAIKeyFrame*> vpCandidateKFs = mpKeyFrameDatabase->keyFrames();
     const int nKFs = vpCandidateKFs.size();
@@ -2151,6 +2135,7 @@ bool WAI::ModeOrbSlam2::relocalization(WAIFrame&      currentFrame,
         }
     }
 
+    AVERAGE_TIMING_STOP("relocalization");
     if (!bMatch)
     {
         return false;
@@ -2342,6 +2327,11 @@ bool WAI::ModeOrbSlam2::relocalization()
 }
 #endif
 
+WAIFrame WAI::ModeOrbSlam2::getCurrentFrame()
+{
+    return mCurrentFrame;
+}
+
 bool WAI::ModeOrbSlam2::trackReferenceKeyFrame()
 {
     //This routine is called if current tracking state is OK but we have NO valid motion model
@@ -2353,6 +2343,7 @@ bool WAI::ModeOrbSlam2::trackReferenceKeyFrame()
     //6. Matches classified as outliers by the optimization routine are updated in the mvpMapPoints vector in the current frame and the valid matches are counted
     //7. If there are more than 10 valid matches the reference frame tracking was successful.
 
+    AVERAGE_TIMING_START("trackReferenceKeyFrame");
     // Compute Bag of Words vector
     mCurrentFrame.ComputeBoW();
 
@@ -2364,7 +2355,10 @@ bool WAI::ModeOrbSlam2::trackReferenceKeyFrame()
     int nmatches = matcher.SearchByBoW(mpReferenceKF, mCurrentFrame, vpMapPointMatches);
 
     if (nmatches < 15)
+    {
+        AVERAGE_TIMING_STOP("trackReferenceKeyFrame");
         return false;
+    }
 
     mCurrentFrame.mvpMapPoints = vpMapPointMatches;
     mCurrentFrame.SetPose(mLastFrame.mTcw);
@@ -2392,6 +2386,7 @@ bool WAI::ModeOrbSlam2::trackReferenceKeyFrame()
         }
     }
 
+    AVERAGE_TIMING_STOP("trackReferenceKeyFrame");
     return nmatchesMap >= 10;
 }
 
@@ -2412,6 +2407,7 @@ bool WAI::ModeOrbSlam2::trackLocalMap()
     //(this function)
     //6. The Pose is optimized using the found additional matches and the already found pose as initial guess
 
+    AVERAGE_TIMING_START("trackLocalMap");
     updateLocalMap();
     searchLocalPoints();
 
@@ -2444,6 +2440,7 @@ bool WAI::ModeOrbSlam2::trackLocalMap()
         }
     }
 
+    AVERAGE_TIMING_STOP("trackLocalMap");
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently
     if (mCurrentFrame.mnId < mnLastRelocFrameId + mMaxFrames && mnMatchesInliers < 50)
@@ -2672,7 +2669,7 @@ bool WAI::ModeOrbSlam2::trackWithMotionModel()
     //8. Matches classified as outliers by the optimization routine are updated in the mvpMapPoints vector in the current frame and the valid matches are counted
     //9. If less than 10 matches to the local map remain the tracking with visual odometry is activated (mbVO = true) and that means no tracking with motion model or reference keyframe
     //10. The tracking with motion model was successful, if we found more than 20 matches to map points
-
+    AVERAGE_TIMING_START("trackWithMotionModel");
     ORBmatcher matcher(0.9, true);
 
     // Update last frame pose according to its reference keyframe
@@ -2696,7 +2693,10 @@ bool WAI::ModeOrbSlam2::trackWithMotionModel()
     }
 
     if (nmatches < 20)
+    {
+        AVERAGE_TIMING_STOP("trackWithMotionModel");
         return false;
+    }
 
     // Optimize frame pose with all matches
     Optimizer::PoseOptimization(&mCurrentFrame);
@@ -2722,6 +2722,7 @@ bool WAI::ModeOrbSlam2::trackWithMotionModel()
         }
     }
 
+    AVERAGE_TIMING_STOP("trackWithMotionModel");
     if (_onlyTracking)
     {
         mbVO = nmatchesMap < 10;

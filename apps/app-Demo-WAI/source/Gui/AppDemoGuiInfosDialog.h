@@ -20,7 +20,7 @@
 //! ImGui UI interface to show scene specific infos in an imgui dialogue
 class AppDemoGuiInfosDialog
 {
-public:
+    public:
     AppDemoGuiInfosDialog(std::string name, bool* activator);
 
     virtual ~AppDemoGuiInfosDialog() {}
@@ -29,12 +29,14 @@ public:
     //!get name of dialog
     const char* getName() const { return _name.c_str(); }
     //! flag for activation and deactivation of dialog
-    bool show() { return *_activator; }
-    bool* activator(){ return _activator; }
+    bool  show() { return *_activator; }
+    bool* activator() { return _activator; }
 
-protected:
-    bool *_activator;
-private:
+    protected:
+    bool* _activator;
+    //! initial minimum dialog size
+    static ImVec2 _initMinDialogSize;
+
     //! name in imgui menu entry for this infos dialogue
     std::string _name;
 };

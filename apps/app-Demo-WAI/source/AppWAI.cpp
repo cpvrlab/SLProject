@@ -5,6 +5,7 @@
 #include <SLKeyframeCamera.h>
 #include <CVCapture.h>
 #include <Utils.h>
+#include <AverageTiming.h>
 
 #include <WAIModeOrbSlam2.h>
 #include <WAIMapStorage.h>
@@ -37,20 +38,6 @@
 #include <AppWAI.h>
 #include <AppDirectories.h>
 
-int   WAIApp::minNumOfCovisibles = 50;
-float WAIApp::meanReprojectionError;
-bool  WAIApp::showKeyPoints         = true;
-bool  WAIApp::showKeyPointsMatched  = true;
-bool  WAIApp::showMapPC             = true;
-bool  WAIApp::showLocalMapPC        = true;
-bool  WAIApp::showMatchesPC         = true;
-bool  WAIApp::showKeyFrames         = true;
-bool  WAIApp::renderKfBackground    = true;
-bool  WAIApp::allowKfsAsActiveCam   = true;
-bool  WAIApp::showCovisibilityGraph = true;
-bool  WAIApp::showSpanningTree      = true;
-bool  WAIApp::showLoopEdges         = true;
-
 AppDemoGuiAbout* WAIApp::aboutDial = nullptr;
 AppDemoGuiError* WAIApp::errorDial = nullptr;
 
@@ -62,6 +49,8 @@ AppWAIScene*       WAIApp::waiScene   = nullptr;
 WAICalibration*    WAIApp::wc         = nullptr;
 int                WAIApp::scrWidth;
 int                WAIApp::scrHeight;
+int                WAIApp::defaultScrWidth;
+int                WAIApp::defaultScrHeight;
 float              WAIApp::scrWdivH;
 cv::VideoWriter*   WAIApp::videoWriter     = nullptr;
 cv::VideoWriter*   WAIApp::videoWriterInfo = nullptr;
@@ -77,13 +66,13 @@ std::string WAIApp::experimentsDir = "";
 
 bool WAIApp::resizeWindow = false;
 
-bool WAIApp::pauseVideo = false;
+bool WAIApp::pauseVideo           = false;
+int  WAIApp::videoCursorMoveIndex = 0;
 
 int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* directories)
 {
-    scrWidth  = width;
-    scrHeight = height;
-    scrWdivH  = (float)width / (float)height;
+    defaultScrWidth  = width;
+    defaultScrHeight = height;
 
     dirs = directories;
     SLApplication::devRot.isUsed(true);
@@ -131,6 +120,12 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
     return svIndex;
 }
 
+void WAIApp::close()
+{
+    uiPrefs.save();
+    //ATTENTION: Other imgui stuff is automatically saved every 5 seconds
+}
+
 /*
 videoFile: path to a video or empty if live video should be used
 calibrationFile: path to a calibration or empty if calibration should be searched automatically
@@ -139,7 +134,8 @@ mapFile: path to a map or empty if no map should be used
 OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
                                         std::string calibrationFileName,
                                         std::string mapFileName,
-                                        std::string vocFileName)
+                                        std::string vocFileName,
+                                        bool        saveVideoFrames)
 {
     OrbSlamStartResult result = {};
     uiPrefs.showError         = false;
@@ -230,7 +226,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
         CVCapture::instance()->videoType(VT_MAIN);
         CVCapture::instance()->open(0);
 
-        videoFrameSize = cv::Size2i(640, 360); // TODO(dgj1): rethink this fixed 16:9 aspect ratio
+        videoFrameSize = cv::Size2i(defaultScrWidth, defaultScrHeight);
     }
 
     // 2. Load Calibration
@@ -261,7 +257,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
     mode = new WAI::ModeOrbSlam2(wc->cameraMat(),
                                  wc->distortion(),
                                  false,
-                                 false,
+                                 saveVideoFrames,
                                  false,
                                  false,
                                  WAI::MarkerCorrectionType_Map, // TODO(dgj1): possibility to chose if marker correction type in GUI
@@ -317,7 +313,7 @@ void WAIApp::setupGUI()
 
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosScene("scene", &uiPrefs.showInfosScene));
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosSensors("sensors", &uiPrefs.showInfosSensors));
-    AppDemoGui::addInfoDialog(new AppDemoGuiInfosTracking("tracking", mode, &uiPrefs.showInfosTracking));
+    AppDemoGui::addInfoDialog(new AppDemoGuiInfosTracking("tracking", uiPrefs));
     AppDemoGui::addInfoDialog(new AppDemoGuiSlamLoad("slam load", wc, &uiPrefs.showSlamLoad));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiProperties("properties", &uiPrefs.showProperties));
@@ -353,7 +349,6 @@ void WAIApp::setupGUI()
 
     AppDemoGui::addInfoDialog(errorDial);
 
-    //AppDemoGui::addInfoDialog(new AppDemoGuiCalibrationLoad("Calibration Load", dirs->writableDir + "calibrations/", wai, wc, &uiPrefs.showCalibrationLoad));
     //TODO: AppDemoGuiInfosDialog are never deleted. Why not use smart pointer when the reponsibility for an object is not clear?
 }
 
@@ -383,7 +378,9 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
 {
     s->init();
     waiScene->rebuild();
+    //setup gui at last because ui elements depend on other instances
     setupGUI();
+
     // Set scene name and info string
     s->name("Track Keyframe based Features");
     s->info("Example for loading an existing pose graph with map points.");
@@ -409,59 +406,45 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
         errorDial->setErrorMsg(orbSlamStartResult.errorString);
         uiPrefs.showError = true;
     }
+
+    ////setup gui at last because ui elements depend on other instances
+    //setupGUI();
 }
 
 //-----------------------------------------------------------------------------
 bool WAIApp::update()
 {
+    AVERAGE_TIMING_START("WAIAppUpdate");
     if (!mode)
         return false;
 
     if (!loaded)
         return false;
 
-    if (CVCapture::instance()->videoType() == VT_FILE && pauseVideo)
-        return true;
+    bool iKnowWhereIAm = (mode->getTrackingState() == WAI::TrackingState_TrackingOK);
+    while (videoCursorMoveIndex < 0)
+    {
+        CVCapture::instance()->moveCapturePosition(-2);
+        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+        iKnowWhereIAm = updateTracking();
+
+        videoCursorMoveIndex++;
+    }
+
+    while (videoCursorMoveIndex > 0)
+    {
+        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+        iKnowWhereIAm = updateTracking();
+
+        videoCursorMoveIndex--;
+    }
 
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
-        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
-    }
-
-    bool iKnowWhereIAm = false;
-    if (CVCapture::instance()->videoType() != VT_NONE && !CVCapture::instance()->lastFrame.empty())
-    {
-        if (videoWriter->isOpened())
+        if (CVCapture::instance()->videoType() != VT_FILE || !pauseVideo)
         {
-            videoWriter->write(CVCapture::instance()->lastFrame);
-        }
-
-        iKnowWhereIAm = mode->update(CVCapture::instance()->lastFrameGray,
-                                     CVCapture::instance()->lastFrame);
-
-        videoImage->copyVideoImage(CVCapture::instance()->lastFrame.cols,
-                                   CVCapture::instance()->lastFrame.rows,
-                                   CVCapture::instance()->format,
-                                   CVCapture::instance()->lastFrame.data,
-                                   CVCapture::instance()->lastFrame.isContinuous(),
-                                   true);
-
-        if (videoWriterInfo->isOpened())
-        {
-            videoWriterInfo->write(CVCapture::instance()->lastFrame);
-        }
-
-        if (gpsDataStream.is_open())
-        {
-            if (SLApplication::devLoc.isUsed())
-            {
-                SLVec3d v = SLApplication::devLoc.locLLA();
-                gpsDataStream << SLApplication::devLoc.locAccuracyM();
-                gpsDataStream << std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
-                gpsDataStream << std::to_string(SLApplication::devRot.yawRAD());
-                gpsDataStream << std::to_string(SLApplication::devRot.pitchRAD());
-                gpsDataStream << std::to_string(SLApplication::devRot.rollRAD());
-            }
+            CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+            iKnowWhereIAm = updateTracking();
         }
     }
 
@@ -510,7 +493,52 @@ bool WAIApp::update()
         waiScene->cameraNode->om(om);
     }
 
+    AVERAGE_TIMING_STOP("WAIAppUpdate");
+
     return true;
+}
+//-----------------------------------------------------------------------------
+bool WAIApp::updateTracking()
+{
+    bool iKnowWhereIAm = false;
+
+    if (CVCapture::instance()->videoType() != VT_NONE && !CVCapture::instance()->lastFrame.empty())
+    {
+        if (videoWriter->isOpened())
+        {
+            videoWriter->write(CVCapture::instance()->lastFrame);
+        }
+
+        iKnowWhereIAm = mode->update(CVCapture::instance()->lastFrameGray,
+                                     CVCapture::instance()->lastFrame);
+
+        videoImage->copyVideoImage(CVCapture::instance()->lastFrame.cols,
+                                   CVCapture::instance()->lastFrame.rows,
+                                   CVCapture::instance()->format,
+                                   CVCapture::instance()->lastFrame.data,
+                                   CVCapture::instance()->lastFrame.isContinuous(),
+                                   true);
+
+        if (videoWriterInfo->isOpened())
+        {
+            videoWriterInfo->write(CVCapture::instance()->lastFrame);
+        }
+
+        if (gpsDataStream.is_open())
+        {
+            if (SLApplication::devLoc.isUsed())
+            {
+                SLVec3d v = SLApplication::devLoc.locLLA();
+                gpsDataStream << SLApplication::devLoc.locAccuracyM();
+                gpsDataStream << std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
+                gpsDataStream << std::to_string(SLApplication::devRot.yawRAD());
+                gpsDataStream << std::to_string(SLApplication::devRot.pitchRAD());
+                gpsDataStream << std::to_string(SLApplication::devRot.rollRAD());
+            }
+        }
+    }
+
+    return iKnowWhereIAm;
 }
 //-----------------------------------------------------------------------------
 void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
@@ -542,12 +570,12 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 
     //update keypoints visualization (2d image points):
     //TODO: 2d visualization is still done in mode... do we want to keep it there?
-    mode->showKeyPoints(showKeyPoints);
-    mode->showKeyPointsMatched(showKeyPointsMatched);
+    mode->showKeyPoints(uiPrefs.showKeyPoints);
+    mode->showKeyPointsMatched(uiPrefs.showKeyPointsMatched);
 
     //update map point visualization:
     //if we still want to visualize the point cloud
-    if (showMapPC)
+    if (uiPrefs.showMapPC)
     {
         //get new points and add them
         renderMapPoints("MapPoints",
@@ -564,7 +592,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 
     //update visualization of local map points:
     //only update them with a valid pose from WAI
-    if (showLocalMapPC && iKnowWhereIAm)
+    if (uiPrefs.showLocalMapPC && iKnowWhereIAm)
     {
         renderMapPoints("LocalMapPoints",
                         mode->getLocalMapPoints(),
@@ -580,7 +608,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 
     //update visualization of matched map points
     //only update them with a valid pose from WAI
-    if (showMatchesPC && iKnowWhereIAm)
+    if (uiPrefs.showMatchesPC && iKnowWhereIAm)
     {
         renderMapPoints("MatchedMapPoints",
                         mode->getMatchedMapPoints(),
@@ -596,7 +624,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 
     //update keyframe visualization
     waiScene->keyFrameNode->deleteChildren();
-    if (showKeyFrames)
+    if (uiPrefs.showKeyFrames)
     {
         renderKeyframes();
     }
@@ -605,11 +633,6 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
     renderGraphs();
 }
 
-//-----------------------------------------------------------------------------
-void WAIApp::updateMinNumOfCovisibles(int n)
-{
-    minNumOfCovisibles = n;
-}
 //-----------------------------------------------------------------------------
 void WAIApp::renderMapPoints(std::string                      name,
                              const std::vector<WAIMapPoint*>& pts,
@@ -711,7 +734,7 @@ void WAIApp::renderGraphs()
         cv::Mat Ow = kf->GetCameraCenter();
 
         //covisibility graph
-        const std::vector<WAIKeyFrame*> vCovKFs = kf->GetBestCovisibilityKeyFrames(minNumOfCovisibles);
+        const std::vector<WAIKeyFrame*> vCovKFs = kf->GetBestCovisibilityKeyFrames(uiPrefs.minNumOfCovisibles);
 
         if (!vCovKFs.empty())
         {
@@ -750,7 +773,7 @@ void WAIApp::renderGraphs()
     if (waiScene->covisibilityGraphMesh)
         waiScene->covisibilityGraph->deleteMesh(waiScene->covisibilityGraphMesh);
 
-    if (covisGraphPts.size() && showCovisibilityGraph)
+    if (covisGraphPts.size() && uiPrefs.showCovisibilityGraph)
     {
         waiScene->covisibilityGraphMesh = new SLPolyline(covisGraphPts, false, "CovisibilityGraph", waiScene->covisibilityGraphMat);
         waiScene->covisibilityGraph->addMesh(waiScene->covisibilityGraphMesh);
@@ -760,7 +783,7 @@ void WAIApp::renderGraphs()
     if (waiScene->spanningTreeMesh)
         waiScene->spanningTree->deleteMesh(waiScene->spanningTreeMesh);
 
-    if (spanningTreePts.size() && showSpanningTree)
+    if (spanningTreePts.size() && uiPrefs.showSpanningTree)
     {
         waiScene->spanningTreeMesh = new SLPolyline(spanningTreePts, false, "SpanningTree", waiScene->spanningTreeMat);
         waiScene->spanningTree->addMesh(waiScene->spanningTreeMesh);
@@ -770,7 +793,7 @@ void WAIApp::renderGraphs()
     if (waiScene->loopEdgesMesh)
         waiScene->loopEdges->deleteMesh(waiScene->loopEdgesMesh);
 
-    if (loopEdgesPts.size() && showLoopEdges)
+    if (loopEdgesPts.size() && uiPrefs.showLoopEdges)
     {
         waiScene->loopEdgesMesh = new SLPolyline(loopEdgesPts, false, "LoopEdges", waiScene->loopEdgesMat);
         waiScene->loopEdges->addMesh(waiScene->loopEdgesMesh);

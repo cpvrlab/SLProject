@@ -68,27 +68,40 @@ AppDemoGuiMapStorage::AppDemoGuiMapStorage(const string& name,
 void AppDemoGuiMapStorage::buildInfos(SLScene* s, SLSceneView* sv)
 {
     ImGui::Begin("Map storage", _activator, ImGuiWindowFlags_AlwaysAutoResize);
-    if (ImGui::Button("Save map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
-    {
-        std::string filename;
-        if (_currentItem.empty())
-            filename = _mapPrefix + std::to_string(_nextId) + ".json";
-        else
-            filename = _currentItem;
 
+    std::string mapName = _mapPrefix + std::to_string(_nextId);
+    ImGui::Text("Map name: %s", mapName.c_str());
+
+    //if (ImGui::Button("Save map", ImVec2(120.f, 30.0f)))
+    if (ImGui::Button("Save map"))
+    {
+        std::string filename = mapName + ".json";
         if (!Utils::dirExists(WAIApp::mapDir))
             Utils::makeDir(WAIApp::mapDir);
 
+        std::string imgDir = WAIApp::mapDir + mapName + "/";
+        if (!Utils::dirExists(imgDir))
+            Utils::makeDir(imgDir);
+
         if (WAIMapStorage::saveMap(WAIApp::mode->getMap(),
                                    _mapNode,
+                                   WAIApp::mapDir + filename,
                                    WAIApp::mode->getKPextractor()->GetName(),
-                                   WAIApp::mapDir + filename))
+                                   imgDir))
         {
             ImGui::Text("Info: Map saved successfully");
         }
         else
         {
             ImGui::Text("Info: Failed to save map");
+        }
+    }
+
+    if (ImGui::Button("New map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    {
+        while (Utils::fileExists(WAIApp::mapDir + _mapPrefix + std::to_string(_nextId)))
+        {
+            _nextId++;
         }
     }
 

@@ -6,41 +6,7 @@
 #include <opencv2/core/core.hpp>
 #include <Utils.h>
 
-GUIPreferences::GUIPreferences()
-{
-    dpi = 200;
-    reset();
-};
-
-void GUIPreferences::reset()
-{
-    showAbout                 = true;
-    showChristoffel           = false;
-    showCredits               = false;
-    showHelp                  = false;
-    showHelpCalibration       = false;
-    showInfosFrameworks       = false;
-    showInfosMapNodeTransform = false;
-    showInfosScene            = false;
-    showInfosSensors          = false;
-    showProperties            = false;
-    showSceneGraph            = false;
-    showStatsDebugTiming      = false;
-    showStatsScene            = false;
-    showStatsTiming           = false;
-    showStatsVideo            = false;
-    showTransform             = false;
-    showTrackedMapping        = false;
-    showUIPrefs               = false;
-    showMapStorage            = false;
-    showVideoControls         = false;
-    showVideoStorage          = false;
-    showSlamLoad              = false;
-    showTestSettings          = false;
-    showTestWriter            = false;
-    showSlamParam             = false;
-    showCalibrationLoad       = false;
-};
+GUIPreferences::GUIPreferences(){};
 
 void GUIPreferences::setDPI(int dotsPerInch)
 {
@@ -63,9 +29,6 @@ void GUIPreferences::load()
         SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
         SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
 
-        // Store dialog show states
-        reset();
-
         // Adjust UI paddings on DPI
         style.FramePadding.x     = std::max(8.0f * dpiScaleFixed, 8.0f);
         style.WindowPadding.x    = style.FramePadding.x;
@@ -85,31 +48,112 @@ void GUIPreferences::load()
         fs.open(fullPathAndFilename, cv::FileStorage::READ);
         if (fs.isOpened())
         {
-            // clang-format off
             SLint  i;
             SLbool b;
-            fs["configTime"] >>             configTime;
-            fs["fontPropDots"] >> i;        SLGLImGui::fontPropDots = (SLfloat)i;
-            fs["fontFixedDots"] >> i;       SLGLImGui::fontFixedDots = (SLfloat)i;
-            fs["ItemSpacingX"] >> i;        style.ItemSpacing.x = (SLfloat)i;
-            fs["ItemSpacingY"] >> i;        style.ItemSpacing.y = (SLfloat)i;
+
+            if (!fs["configTime"].empty())
+                fs["configTime"] >> configTime;
+
+            if (!fs["fontPropDots"].empty())
+                fs["fontPropDots"] >> i;
+            SLGLImGui::fontPropDots = (SLfloat)i;
+
+            if (!fs["fontFixedDots"].empty())
+                fs["fontFixedDots"] >> i;
+            SLGLImGui::fontFixedDots = (SLfloat)i;
+
+            if (!fs["ItemSpacingX"].empty())
+                fs["ItemSpacingX"] >> i;
+            style.ItemSpacing.x = (SLfloat)i;
+
+            if (!fs["ItemSpacingY"].empty())
+                fs["ItemSpacingY"] >> i;
+            style.ItemSpacing.y   = (SLfloat)i;
             style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
             style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
-            fs["ScrollbarSize"] >> i; style.ScrollbarSize = (SLfloat)i;
+
+            if (!fs["ScrollbarSize"].empty())
+                fs["ScrollbarSize"] >> i;
+            style.ScrollbarSize     = (SLfloat)i;
             style.ScrollbarRounding = std::floor(style.ScrollbarSize / 2);
-            fs["sceneID"] >> i;             SLApplication::sceneID = (SLSceneID)i;
-            fs["showInfosScene"] >> b;      showInfosScene = b;
-            fs["showStatsTiming"] >> b;     showStatsTiming = b;
-            fs["showStatsMemory"] >> b;     showStatsScene = b;
-            fs["showStatsVideo"] >> b;      showStatsVideo = b;
-            fs["showInfosFrameworks"] >> b; showInfosFrameworks = b;
-            fs["showInfosSensors"] >> b;    showInfosSensors = b;
-            fs["showSceneGraph"] >> b;      showSceneGraph = b;
-            fs["showProperties"] >> b;      showProperties = b;
-            fs["showUIPrefs"] >> b;         showUIPrefs = b;
-            fs["showTestSettings"] >> b;    showTestSettings = b;
-            fs["showTestWriter"] >> b;      showTestWriter = b;
-            // clang-format on
+
+            //slam menu
+            if (!fs["showSlamParam"].empty())
+                fs["showSlamParam"] >> showSlamParam;
+            if (!fs["showTrackedMapping"].empty())
+                fs["showTrackedMapping"] >> showTrackedMapping;
+
+            //video menu
+            if (!fs["showVideoControls"].empty())
+                fs["showVideoControls"] >> showVideoControls;
+            if (!fs["showVideoStorage"].empty())
+                fs["showVideoStorage"] >> showVideoStorage;
+
+            //map menu
+            if (!fs["showMapStorage"].empty())
+                fs["showMapStorage"] >> showMapStorage;
+            if (!fs["showInfosMapNodeTransform"].empty())
+                fs["showInfosMapNodeTransform"] >> showInfosMapNodeTransform;
+
+            //experiments menu
+            if (!fs["showSlamLoad"].empty())
+                fs["showSlamLoad"] >> showSlamLoad;
+            if (!fs["showTestSettings"].empty())
+                fs["showTestSettings"] >> showTestSettings;
+            if (!fs["showTestWriter"].empty())
+                fs["showTestWriter"] >> showTestWriter;
+
+            //infos menu
+            if (!fs["showInfosScene"].empty())
+                fs["showInfosScene"] >> showInfosScene;
+            if (!fs["showStatsTiming"].empty())
+                fs["showStatsTiming"] >> showStatsTiming;
+            if (!fs["showStatsDebugTiming"].empty())
+                fs["showStatsDebugTiming"] >> showStatsDebugTiming;
+            if (!fs["showStatsVideo"].empty())
+                fs["showStatsVideo"] >> showStatsVideo;
+            if (!fs["showSceneGraph"].empty())
+                fs["showSceneGraph"] >> showSceneGraph;
+            if (!fs["showProperties"].empty())
+                fs["showProperties"] >> showProperties;
+            if (!fs["showTransform"].empty())
+                fs["showTransform"] >> showTransform;
+            if (!fs["showInfosSensors"].empty())
+                fs["showInfosSensors"] >> showInfosSensors;
+            if (!fs["showInfosFrameworks"].empty())
+                fs["showInfosFrameworks"] >> showInfosFrameworks;
+            if (!fs["showInfosTracking"].empty())
+                fs["showInfosTracking"] >> showInfosTracking;
+            if (!fs["showUIPrefs"].empty())
+                fs["showUIPrefs"] >> showUIPrefs;
+            if (!fs["showAbout"].empty())
+                fs["showAbout"] >> showAbout;
+
+            //dialogue AppDemoGuiInfosTracking
+            if (!fs["minNumOfCovisibles"].empty())
+                fs["minNumOfCovisibles"] >> minNumOfCovisibles;
+            if (!fs["showKeyPoints"].empty())
+                fs["showKeyPoints"] >> showKeyPoints;
+            if (!fs["showKeyPointsMatched"].empty())
+                fs["showKeyPointsMatched"] >> showKeyPointsMatched;
+            if (!fs["showMapPC"].empty())
+                fs["showMapPC"] >> showMapPC;
+            if (!fs["showLocalMapPC"].empty())
+                fs["showLocalMapPC"] >> showLocalMapPC;
+            if (!fs["showMatchesPC"].empty())
+                fs["showMatchesPC"] >> showMatchesPC;
+            if (!fs["showKeyFrames"].empty())
+                fs["showKeyFrames"] >> showKeyFrames;
+            if (!fs["renderKfBackground"].empty())
+                fs["renderKfBackground"] >> renderKfBackground;
+            if (!fs["allowKfsAsActiveCam"].empty())
+                fs["allowKfsAsActiveCam"] >> allowKfsAsActiveCam;
+            if (!fs["showCovisibilityGraph"].empty())
+                fs["showCovisibilityGraph"] >> showCovisibilityGraph;
+            if (!fs["showSpanningTree"].empty())
+                fs["showSpanningTree"] >> showSpanningTree;
+            if (!fs["showLoopEdges"].empty())
+                fs["showLoopEdges"] >> showLoopEdges;
 
             fs.release();
             SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
@@ -165,17 +209,51 @@ void GUIPreferences::save()
     fs << "ItemSpacingX" << (SLint)style.ItemSpacing.x;
     fs << "ItemSpacingY" << (SLint)style.ItemSpacing.y;
     fs << "ScrollbarSize" << (SLint)style.ScrollbarSize;
-    fs << "showStatsTiming" << showStatsTiming;
-    fs << "showStatsMemory" << showStatsScene;
-    fs << "showStatsVideo" << showStatsVideo;
-    fs << "showInfosFrameworks" << showInfosFrameworks;
-    fs << "showInfosScene" << showInfosScene;
-    fs << "showInfosSensors" << showInfosSensors;
-    fs << "showSceneGraph" << showSceneGraph;
-    fs << "showProperties" << showProperties;
-    fs << "showUIPrefs" << showUIPrefs;
+
+    //slam menu
+    fs << "showSlamParam" << showSlamParam;
+    fs << "showTrackedMapping" << showTrackedMapping;
+
+    //video menu
+    fs << "showVideoControls" << showVideoControls;
+    fs << "showVideoStorage" << showVideoStorage;
+
+    //map menu
+    fs << "showMapStorage" << showMapStorage;
+    fs << "showInfosMapNodeTransform" << showInfosMapNodeTransform;
+
+    //experiments menu
+    fs << "showSlamLoad" << showSlamLoad;
     fs << "showTestSettings" << showTestSettings;
     fs << "showTestWriter" << showTestWriter;
+
+    //infos menu
+    fs << "showInfosScene" << showInfosScene;
+    fs << "showStatsTiming" << showStatsTiming;
+    fs << "showStatsDebugTiming" << showStatsDebugTiming;
+    fs << "showStatsVideo" << showStatsVideo;
+    fs << "showSceneGraph" << showSceneGraph;
+    fs << "showProperties" << showProperties;
+    fs << "showTransform" << showTransform;
+    fs << "showInfosSensors" << showInfosSensors;
+    fs << "showInfosFrameworks" << showInfosFrameworks;
+    fs << "showInfosTracking" << showInfosTracking;
+    fs << "showUIPrefs" << showUIPrefs;
+    fs << "showAbout" << showAbout;
+
+    //dialogue AppDemoGuiInfosTracking
+    fs << "minNumOfCovisibles" << minNumOfCovisibles;
+    fs << "showKeyPoints" << showKeyPoints;
+    fs << "showKeyPointsMatched" << showKeyPointsMatched;
+    fs << "showMapPC" << showMapPC;
+    fs << "showLocalMapPC" << showLocalMapPC;
+    fs << "showMatchesPC" << showMatchesPC;
+    fs << "showKeyFrames" << showKeyFrames;
+    fs << "renderKfBackground" << renderKfBackground;
+    fs << "allowKfsAsActiveCam" << allowKfsAsActiveCam;
+    fs << "showCovisibilityGraph" << showCovisibilityGraph;
+    fs << "showSpanningTree" << showSpanningTree;
+    fs << "showLoopEdges" << showLoopEdges;
 
     fs.release();
     SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());

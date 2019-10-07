@@ -32,6 +32,15 @@ enum MarkerCorrectionType
     MarkerCorrectionType_Map
 };
 
+enum TrackingState
+{
+    TrackingState_None,
+    TrackingState_Idle,
+    TrackingState_Initializing,
+    TrackingState_TrackingOK,
+    TrackingState_TrackingLost
+};
+
 class WAI_API ModeOrbSlam2
 {
     public:
@@ -64,16 +73,18 @@ class WAI_API ModeOrbSlam2
     int mMaxFrames = 30; //= fps
 
     // Debug functions
-    std::string getPrintableState();
-    std::string getPrintableType();
-    uint32_t    getMapPointCount();
-    uint32_t    getMapPointMatchesCount();
-    uint32_t    getKeyFrameCount();
-    int         getNMapMatches();
-    int         getNumKeyFrames();
-    float       poseDifference();
-    float       getMeanReprojectionError();
-    void        findMatches(std::vector<cv::Point2f>& vP2D, std::vector<cv::Point3f>& vP3Dw);
+    std::string   getPrintableState();
+    TrackingState getTrackingState() { return _state; }
+    std::string
+    getPrintableType();
+    uint32_t getMapPointCount();
+    uint32_t getMapPointMatchesCount();
+    uint32_t getKeyFrameCount();
+    int      getNMapMatches();
+    int      getNumKeyFrames();
+    float    poseDifference();
+    float    getMeanReprojectionError();
+    void     findMatches(std::vector<cv::Point2f>& vP2D, std::vector<cv::Point3f>& vP3Dw);
 
     std::string getLoopCloseStatus();
     uint32_t    getLoopCloseCount();
@@ -109,6 +120,7 @@ class WAI_API ModeOrbSlam2
     void resume();
     void requestStateIdle();
     bool hasStateIdle();
+    bool retainImage() { return _retainImg; }
     void setInitialized(bool initialized) { _initialized = initialized; }
 
     void setExtractor(KPextractor* extractor, KPextractor* iniExtractor);
@@ -117,16 +129,9 @@ class WAI_API ModeOrbSlam2
     MarkerCorrectionType getMarkerCorrectedType() { return _markerCorrectionType; }
     cv::Mat              getMarkerCorrectionTransformation();
 
-    private:
-    enum TrackingState
-    {
-        TrackingState_None,
-        TrackingState_Idle,
-        TrackingState_Initializing,
-        TrackingState_TrackingOK,
-        TrackingState_TrackingLost
-    };
+    WAIFrame getCurrentFrame();
 
+    private:
     enum TrackingType
     {
         TrackingType_None,

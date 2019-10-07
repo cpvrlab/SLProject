@@ -43,6 +43,8 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
     std::string _currentMap;
     std::string _currentVoc;
 
+    bool _storeKeyFrameImage;
+
     WAICalibration* _wc;
 };
 

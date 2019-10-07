@@ -4,7 +4,7 @@
 #include <CVCapture.h>
 #include <SLCamera.h>
 #include <SLGLImGui.h>
-#include <SLAverageTiming.h>
+#include <AverageTiming.h>
 #include <AppDemoGuiMenu.h>
 #include <Utils.h>
 
@@ -52,8 +52,6 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             ImGui::EndMenu();
         }
 
-        ImGui::Separator();
-
         if (ImGui::BeginMenu("Slam"))
         {
             ImGui::MenuItem("Start", nullptr, &prefs->showSlamLoad);
@@ -65,7 +63,6 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Video"))
         {
-            CVCalibration* ac = CVCapture::instance()->activeCalib;
             CVCalibration* mc = &CVCapture::instance()->calibMainCam;
             CVCalibration* sc = &CVCapture::instance()->calibScndCam;
 
@@ -211,12 +208,8 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Infos on Scene", nullptr, &prefs->showInfosScene);
             ImGui::MenuItem("Stats on Timing", nullptr, &prefs->showStatsTiming);
 
-            if (SLAverageTiming::instance().size())
-            {
-                ImGui::MenuItem("Stats on Debug Time", nullptr, &prefs->showStatsDebugTiming);
-            }
+            ImGui::MenuItem("Stats on Debug Time", nullptr, &prefs->showStatsDebugTiming);
 
-            ImGui::MenuItem("Stats on Scene", nullptr, &prefs->showStatsScene);
             ImGui::MenuItem("Stats on Video", nullptr, &prefs->showStatsVideo);
             ImGui::Separator();
             ImGui::MenuItem("Show Scenegraph", nullptr, &prefs->showSceneGraph);
@@ -226,12 +219,7 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Infos on Sensors", nullptr, &prefs->showInfosSensors);
             ImGui::MenuItem("Infos on Frameworks", nullptr, &prefs->showInfosFrameworks);
             ImGui::MenuItem("Infos on Tracking", nullptr, &prefs->showInfosTracking);
-            ImGui::Separator();
-            ImGui::MenuItem("Help on Interaction", nullptr, &prefs->showHelp);
-            ImGui::MenuItem("Help on Calibration", nullptr, &prefs->showHelpCalibration);
-            ImGui::Separator();
             ImGui::MenuItem("UI Preferences", nullptr, &prefs->showUIPrefs);
-            ImGui::MenuItem("Credits", nullptr, &prefs->showCredits);
             ImGui::MenuItem("About WAI-Demo", nullptr, &prefs->showAbout);
 
             ImGui::EndMenu();

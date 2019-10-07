@@ -143,36 +143,36 @@ void AppDemoGuiTestWrite::buildInfos(SLScene* s, SLSceneView* sv)
 {
     ImGui::Begin("Test Bench", _activator, ImGuiWindowFlags_AlwaysAutoResize);
 
-    if (ImGui::BeginCombo("Scene", _testScenes[_currentSceneId].c_str()))
-    {
-        for (int i = 0; i < _testScenes.size(); i++)
-        {
-            bool isSelected = (_currentSceneId == i);
+    //if (ImGui::BeginCombo("Scene", _testScenes[_currentSceneId].c_str()))
+    //{
+    //    for (int i = 0; i < _testScenes.size(); i++)
+    //    {
+    //        bool isSelected = (_currentSceneId == i);
 
-            if (ImGui::Selectable(_testScenes[i].c_str(), isSelected))
-                _currentSceneId = i;
+    //        if (ImGui::Selectable(_testScenes[i].c_str(), isSelected))
+    //            _currentSceneId = i;
 
-            if (isSelected)
-                ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-    }
+    //        if (isSelected)
+    //            ImGui::SetItemDefaultFocus();
+    //    }
+    //    ImGui::EndCombo();
+    //}
 
-    ImGui::Separator();
+    //ImGui::Separator();
 
-    if (ImGui::BeginCombo("Conditions", _conditions[_currentConditionId].c_str()))
-    {
-        for (int i = 0; i < _conditions.size(); i++)
-        {
-            bool isSelected = (_currentConditionId == i);
+    //if (ImGui::BeginCombo("Conditions", _conditions[_currentConditionId].c_str()))
+    //{
+    //    for (int i = 0; i < _conditions.size(); i++)
+    //    {
+    //        bool isSelected = (_currentConditionId == i);
 
-            if (ImGui::Selectable(_conditions[i].c_str(), isSelected))
-                _currentConditionId = i;
-            if (isSelected)
-                ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-    }
+    //        if (ImGui::Selectable(_conditions[i].c_str(), isSelected))
+    //            _currentConditionId = i;
+    //        if (isSelected)
+    //            ImGui::SetItemDefaultFocus();
+    //    }
+    //    ImGui::EndCombo();
+    //}
 
     ImGui::Separator();
 

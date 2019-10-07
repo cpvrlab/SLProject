@@ -191,10 +191,11 @@ file(GLOB shaders
         ${SL_PROJECT_ROOT}/data/shaders/*.vert
         ${SL_PROJECT_ROOT}/data/shaders/*.frag
         )
-		
+
 # Group source files
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/include" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
+source_group_by_path("${SL_PROJECT_ROOT}/data/shaders" "\\\\.frag|\\\\.vert$" "Shaders" ${shaders})
 
 include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 

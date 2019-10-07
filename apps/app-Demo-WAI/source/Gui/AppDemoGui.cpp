@@ -19,7 +19,7 @@
 #include <SLAnimPlayback.h>
 #include <SLApplication.h>
 #include <SLInterface.h>
-#include <SLAverageTiming.h>
+#include <AverageTiming.h>
 #include <CVCapture.h>
 #include <CVImage.h>
 #include <CVTrackedFeatures.h>
