@@ -24,11 +24,13 @@
 namespace WAI
 {
 
-struct MapData
+enum TrackingState
 {
-    std::vector<WAIKeyFrame*> keyFrames;
-    std::vector<WAIMapPoint*> mapPoints;
-    int                       numLoopClosings;
+    TrackingState_None,
+    TrackingState_Idle,
+    TrackingState_Initializing,
+    TrackingState_TrackingOK,
+    TrackingState_TrackingLost
 };
 
 class WAI_API ModeOrbSlam2
@@ -63,16 +65,18 @@ class WAI_API ModeOrbSlam2
     int mMaxFrames = 30; //= fps
 
     // Debug functions
-    std::string getPrintableState();
-    std::string getPrintableType();
-    uint32_t    getMapPointCount();
-    uint32_t    getMapPointMatchesCount();
-    uint32_t    getKeyFrameCount();
-    int         getNMapMatches();
-    int         getNumKeyFrames();
-    float       poseDifference();
-    float       getMeanReprojectionError();
-    void        findMatches(std::vector<cv::Point2f>& vP2D, std::vector<cv::Point3f>& vP3Dw);
+    std::string   getPrintableState();
+    TrackingState getTrackingState() { return _state; }
+    std::string
+    getPrintableType();
+    uint32_t getMapPointCount();
+    uint32_t getMapPointMatchesCount();
+    uint32_t getKeyFrameCount();
+    int      getNMapMatches();
+    int      getNumKeyFrames();
+    float    poseDifference();
+    float    getMeanReprojectionError();
+    void     findMatches(std::vector<cv::Point2f>& vP2D, std::vector<cv::Point3f>& vP3Dw);
 
     std::string getLoopCloseStatus();
     uint32_t    getLoopCloseCount();
@@ -117,15 +121,6 @@ class WAI_API ModeOrbSlam2
     WAIFrame getCurrentFrame();
 
     private:
-    enum TrackingState
-    {
-        TrackingState_None,
-        TrackingState_Idle,
-        TrackingState_Initializing,
-        TrackingState_TrackingOK,
-        TrackingState_TrackingLost
-    };
-
     enum TrackingType
     {
         TrackingType_None,

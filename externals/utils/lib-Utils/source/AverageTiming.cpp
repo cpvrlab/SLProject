@@ -12,7 +12,7 @@
 #include <HighResTimer.h>
 #include <Utils.h>
 #include <algorithm>
-
+#include <cstring>
 //-----------------------------------------------------------------------------
 AverageTiming::AverageTiming()
 {
@@ -168,8 +168,8 @@ void AverageTiming::doGetTimingMessage(char* m)
         float        valPC = Utils::clamp(val / refTime * 100.0f, 0.0f, 100.0f);
         string       name  = block->name;
         stringstream ss;
-        for (int i = 0; i < block->posH; ++i)
-            ss << " ";
+        //for (int i = 0; i < block->posH; ++i)
+        //    ss << " ";
         ss << "%s: %4.1f ms (%3d%%)\n";
         sprintf(m + strlen(m), ss.str().c_str(), name.c_str(), val, (int)valPC);
     }
