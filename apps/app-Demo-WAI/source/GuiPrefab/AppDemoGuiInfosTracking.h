@@ -19,19 +19,21 @@
 
 #include <AppDemoGuiInfosDialog.h>
 #include <AppWAI.h>
+#include <AppDemoGuiPrefs.h>
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiInfosTracking : public AppDemoGuiInfosDialog
 {
     public:
-    AppDemoGuiInfosTracking(std::string        name,
-                            WAI::ModeOrbSlam2* mode,
-                            bool*              activator);
+    AppDemoGuiInfosTracking(std::string name,
+                            //WAI::ModeOrbSlam2* mode,
+                            GUIPreferences& preferences);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     private:
-    WAI::ModeOrbSlam2* _mode      = nullptr;
+    //WAI::ModeOrbSlam2* _mode = nullptr;
+    GUIPreferences&    _prefs;
 
     int _minNumCovisibleMapPts = 0;
 };

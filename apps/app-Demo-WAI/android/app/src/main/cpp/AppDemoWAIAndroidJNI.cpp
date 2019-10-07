@@ -101,7 +101,7 @@ extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onInit(JNIEnv* env, 
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onTerminate(JNIEnv* env, jclass obj)
 {
-    //AppDemoGui::saveConfig();
+    WAIApp::close();
     slTerminate();
 }
 //-----------------------------------------------------------------------------
@@ -176,9 +176,17 @@ extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onClose(JNIEnv* env,
     SL_LOG("onClose\n ");
 
     // This saves the GUI configs
-    // AppDemoGui::saveConfig();
+    WAIApp::close();
 
     slTerminate();
+}
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onStop(JNIEnv* env, jclass obj)
+{
+    SL_LOG("onStop\n ");
+
+    // This saves the GUI configs
+    WAIApp::close();
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT jboolean JNICALL Java_ch_cpvr_wai_GLES3Lib_usesRotation(JNIEnv* env, jclass obj)

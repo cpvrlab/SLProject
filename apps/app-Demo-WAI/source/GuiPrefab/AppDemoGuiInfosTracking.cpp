@@ -16,13 +16,13 @@
 #include <AppDemoGuiInfosTracking.h>
 
 //-----------------------------------------------------------------------------
-AppDemoGuiInfosTracking::AppDemoGuiInfosTracking(std::string        name,
-                                                 WAI::ModeOrbSlam2* mode,
-                                                 bool*              activator)
-  : AppDemoGuiInfosDialog(name, activator),
-    _mode(mode)
+AppDemoGuiInfosTracking::AppDemoGuiInfosTracking(std::string name,
+                                                 //WAI::ModeOrbSlam2* mode,
+                                                 GUIPreferences& preferences)
+  : AppDemoGuiInfosDialog(name, &preferences.showInfosTracking),
+    _prefs(preferences)
 {
-    _minNumCovisibleMapPts = WAIApp::minNumOfCovisibles;
+    _minNumCovisibleMapPts = _prefs.minNumOfCovisibles;
 }
 //-----------------------------------------------------------------------------
 void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
@@ -32,15 +32,15 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
     ImGui::Begin("Tracking Informations", _activator, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
     //numbers
     //add tracking state
-    ImGui::Text("Tracking State : %s ", _mode->getPrintableState().c_str());
+    ImGui::Text("Tracking State : %s ", WAIApp::mode->getPrintableState().c_str());
     //tracking type
-    ImGui::Text("Tracking Type : %s ", _mode->getPrintableType().c_str());
+    ImGui::Text("Tracking Type : %s ", WAIApp::mode->getPrintableType().c_str());
     //mean reprojection error
-    ImGui::Text("Mean Reproj. Error : %f ", _mode->getMeanReprojectionError());
+    ImGui::Text("Mean Reproj. Error : %f ", WAIApp::mode->getMeanReprojectionError());
     //add number of matches map points in current frame
-    ImGui::Text("Num Map Matches : %d ", _mode->getNMapMatches());
+    ImGui::Text("Num Map Matches : %d ", WAIApp::mode->getNMapMatches());
     //L2 norm of the difference between the last and the current camera pose
-    ImGui::Text("Pose Difference : %f ", _mode->poseDifference());
+    ImGui::Text("Pose Difference : %f ", WAIApp::mode->poseDifference());
     ImGui::Separator();
 
     bool b;
@@ -49,17 +49,17 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
     if (ImGui::CollapsingHeader("KeyPoints"))
     {
         //show 2D key points in video image
-        b = WAIApp::showKeyPoints;
+        b = _prefs.showKeyPoints;
         if (ImGui::Checkbox("KeyPts", &b))
         {
-            WAIApp::showKeyPoints = b;
+            _prefs.showKeyPoints = b;
         }
 
         //show matched 2D key points in video image
-        b = WAIApp::showKeyPointsMatched;
+        b = _prefs.showKeyPointsMatched;
         if (ImGui::Checkbox("KeyPts Matched", &b))
         {
-            WAIApp::showKeyPointsMatched = b;
+            _prefs.showKeyPointsMatched = b;
         }
     }
     //-------------------------------------------------------------------------
@@ -67,23 +67,23 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
     if (ImGui::CollapsingHeader("MapPoints"))
     {
         //number of map points
-        ImGui::Text("Count : %d ", _mode->getMapPointCount());
+        ImGui::Text("Count : %d ", WAIApp::mode->getMapPointCount());
         //show and update all mappoints
-        b = WAIApp::showMapPC;
+        b = _prefs.showMapPC;
         ImGui::Checkbox("Show Map Pts", &b);
-        WAIApp::showMapPC = b;
+        _prefs.showMapPC = b;
 
         //show and update matches to mappoints
-        b = WAIApp::showMatchesPC;
+        b = _prefs.showMatchesPC;
         if (ImGui::Checkbox("Show Matches to Map Pts", &b))
         {
-            WAIApp::showMatchesPC = b;
+            _prefs.showMatchesPC = b;
         }
         //show and update local map points
-        b = WAIApp::showLocalMapPC;
+        b = _prefs.showLocalMapPC;
         if (ImGui::Checkbox("Show Local Map Pts", &b))
         {
-            WAIApp::showLocalMapPC = b;
+            _prefs.showLocalMapPC = b;
         }
     }
     //-------------------------------------------------------------------------
@@ -91,23 +91,23 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
     if (ImGui::CollapsingHeader("KeyFrames"))
     {
         //add number of keyframes
-        ImGui::Text("Number of Keyframes : %d ", _mode->getKeyFrameCount());
+        ImGui::Text("Number of Keyframes : %d ", WAIApp::mode->getKeyFrameCount());
         //show keyframe scene objects
         //show and update all mappoints
-        b = WAIApp::showKeyFrames;
+        b = _prefs.showKeyFrames;
         ImGui::Checkbox("Show", &b);
-        WAIApp::showKeyFrames = b;
+        _prefs.showKeyFrames = b;
 
         //if backgound rendering is active kf images will be rendered on
         //near clipping plane if kf is not the active camera
-        b = WAIApp::renderKfBackground;
+        b = _prefs.renderKfBackground;
         ImGui::Checkbox("Show Image", &b);
-        WAIApp::renderKfBackground = b;
+        _prefs.renderKfBackground = b;
 
         //allow SLCVCameras as active camera so that we can look through it
-        b = WAIApp::allowKfsAsActiveCam;
+        b = _prefs.allowKfsAsActiveCam;
         ImGui::Checkbox("Allow as Active Cam", &b);
-        WAIApp::allowKfsAsActiveCam = b;
+        _prefs.allowKfsAsActiveCam = b;
     }
 
     //-------------------------------------------------------------------------
@@ -115,25 +115,25 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
     if (ImGui::CollapsingHeader("Graph"))
     {
         //covisibility graph
-        b = WAIApp::showCovisibilityGraph;
+        b = _prefs.showCovisibilityGraph;
         ImGui::Checkbox("Show Covisibility (100 common KPts)", &b);
-        WAIApp::showCovisibilityGraph = b;
+        _prefs.showCovisibilityGraph = b;
         if (b)
         {
             //Definition of minimum number of covisible map points
             if (ImGui::InputInt("Min. covis. map pts", &_minNumCovisibleMapPts, 10, 0))
             {
-                WAIApp::minNumOfCovisibles = (_minNumCovisibleMapPts);
+                _prefs.minNumOfCovisibles = (_minNumCovisibleMapPts);
             }
         }
         //spanning tree
-        b = WAIApp::showSpanningTree;
+        b = _prefs.showSpanningTree;
         ImGui::Checkbox("Show spanning tree", &b);
-        WAIApp::showSpanningTree = b;
+        _prefs.showSpanningTree = b;
         //loop edges
-        b = WAIApp::showLoopEdges;
+        b = _prefs.showLoopEdges;
         ImGui::Checkbox("Show loop edges", &b);
-        WAIApp::showLoopEdges = b;
+        _prefs.showLoopEdges = b;
     }
     ImGui::End();
 }

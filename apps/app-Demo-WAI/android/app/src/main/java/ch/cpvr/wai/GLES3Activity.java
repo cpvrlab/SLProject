@@ -152,6 +152,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         cameraStop();
         locationSensorStop();
         rotationSensorStop();
+        //myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onStop();}});
 
         super.onStop();
     }

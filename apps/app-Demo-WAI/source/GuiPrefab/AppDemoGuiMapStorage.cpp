@@ -72,7 +72,8 @@ void AppDemoGuiMapStorage::buildInfos(SLScene* s, SLSceneView* sv)
     std::string mapName = _mapPrefix + std::to_string(_nextId);
     ImGui::Text("Map name: %s", mapName.c_str());
 
-    if (ImGui::Button("Save map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    //if (ImGui::Button("Save map", ImVec2(120.f, 30.0f)))
+    if (ImGui::Button("Save map"))
     {
         std::string filename = mapName + ".json";
         if (!Utils::dirExists(WAIApp::mapDir))

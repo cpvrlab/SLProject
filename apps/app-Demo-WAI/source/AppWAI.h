@@ -36,6 +36,7 @@ class WAIApp
 {
     public:
     static int                load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* dirs);
+    static void               close();
     static OrbSlamStartResult startOrbSlam(std::string videoFile       = "",
                                            std::string calibrationFile = "",
                                            std::string mapFile         = "",
@@ -45,7 +46,6 @@ class WAIApp
     static void onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid);
     static bool update();
     static bool updateTracking();
-    static void updateMinNumOfCovisibles(int n);
 
     static void updateTrackingVisualization(const bool iKnowWhereIAm);
 
@@ -63,7 +63,6 @@ class WAIApp
     static void buildGUI(SLScene* s, SLSceneView* sv);
     static void openTest(std::string path);
 
-    //! minimum number of covisibles for covisibility graph visualization
     static AppDemoGuiAbout* aboutDial;
     static AppDemoGuiError* errorDial;
 
@@ -83,20 +82,6 @@ class WAIApp
     static SLGLTexture*       cpvrLogo;
     static SLGLTexture*       videoImage;
     static ofstream           gpsDataStream;
-
-    static int   minNumOfCovisibles;
-    static float meanReprojectionError;
-    static bool  showKeyPoints;
-    static bool  showKeyPointsMatched;
-    static bool  showMapPC;
-    static bool  showLocalMapPC;
-    static bool  showMatchesPC;
-    static bool  showKeyFrames;
-    static bool  renderKfBackground;
-    static bool  allowKfsAsActiveCam;
-    static bool  showCovisibilityGraph;
-    static bool  showSpanningTree;
-    static bool  showLoopEdges;
 
     static bool resizeWindow;
 

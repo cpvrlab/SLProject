@@ -572,6 +572,8 @@ int main(int argc, char* argv[])
             glfwPollEvents();
     }
 
+    WAIApp::close();
+
     slTerminate();
     glfwDestroyWindow(window);
     glfwTerminate();
