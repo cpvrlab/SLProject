@@ -53,6 +53,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     private boolean                 _permissionRequestIsOpen;
     private boolean                 _rotationSensorIsRunning = false;
     private long                    _rotationSensorStartTime = 0; //Time when rotation sensor was started
+    private boolean                  _rotationSensorIsValid = false;
     private boolean                 _locationSensorIsRunning = false;
     private LocationManager         _locationManager;
     private GeneralLocationListener _locationListener;
@@ -82,7 +83,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         // Get display resolution. This is used to scale the menu buttons accordingly
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        int dpi = (int) (((float) metrics.xdpi + (float) metrics.ydpi) * 0.5);
+        int dpi = (int) (((float) metrics.xdpi + (float) metrics.ydpi) * 0.7);
         GLES3Lib.dpi = dpi;
         Log.i(TAG, "DisplayMetrics: " + dpi);
 
@@ -125,21 +126,21 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     // After on onCreate
     @Override
     protected void onStart() {
-        Log.i(TAG, "::onStart");
+        Log.i(TAG, ":onStart");
         super.onStart();
     }
 
     // Another activity comes into foreground but this is still visible (e.g. with the home button)
     @Override
     protected void onPause() {
-        Log.i(TAG, "::onPause");
+        Log.i(TAG, ":onPause");
         super.onPause();
     }
 
     @Override
     // My activity is no longer visible
     protected void onStop() {
-        Log.i(TAG, "::onStop");
+        Log.i(TAG, ":onStop");
 
         // Stop sensors to save energy
         cameraStop();
@@ -152,21 +153,21 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     // The user resumed this activity
     @Override
     protected void onResume() {
-        Log.i(TAG, "::onResume");
+        Log.i(TAG, ":onResume");
         super.onResume();
     }
 
     // A stopped but not destroyed activity is reactivated
     @Override
     protected void onRestart() {
-        Log.i(TAG, "::onRestart");
+        Log.i(TAG, ":onRestart");
         super.onRestart();
     }
 
     @Override
     // The process of this activity is getting killed (e.g. with the back button)
     protected void onDestroy() {
-        Log.i(TAG, "::onDestroy");
+        Log.i(TAG, ":onDestroy");
         myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onClose();}});
         super.onDestroy();
         finish();
@@ -175,7 +176,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     @Override
     public boolean onTouch(View v, final MotionEvent event) {
         if (event == null) {
-            Log.i(TAG, "::onTouch: null event");
+            Log.i(TAG, ":onTouch: null event");
             return false;
         }
 
@@ -191,9 +192,9 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                 return handleTouchUp(event);
             else if (actionCode == MotionEvent.ACTION_MOVE)
                 return handleTouchMove(event);
-            else Log.i(TAG, "::onTouch Unhandled Event: " + actionCode);
+            else Log.w(TAG, ":onTouch Unhandled Event: " + actionCode);
         } catch (Exception ex) {
-            Log.i(TAG, "::onTouch (Exception: " + actionCode);
+            Log.e(TAG, ":onTouch (Exception: " + actionCode);
         }
 
         return false;
@@ -201,7 +202,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        Log.i(TAG, "::onAccuracyChanged");
+        Log.i(TAG, ":onAccuracyChanged");
     }
 
     @Override
@@ -559,7 +560,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         try {
             SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
             if (sm != null) {
-                sm.registerListener(this,
+                _rotationSensorIsValid = sm.registerListener(this,
                         sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
                         SensorManager.SENSOR_DELAY_GAME);
                 _rotationSensorStartTime = System.currentTimeMillis();
@@ -567,11 +568,13 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             } else {
                 _rotationSensorIsRunning = true;
             }
+            Log.w(TAG, "Sensor is valid : " + _rotationSensorIsValid);
         }
         catch (Exception e) {
             Log.e(TAG, "Exception: " + e.getMessage());
             _rotationSensorIsRunning = false;
         }
+
         Log.i(TAG, "Rotation Sensor is running: "+ _rotationSensorIsRunning);
     }
 
@@ -659,7 +662,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         //long currentTimeStamp = System.currentTimeMillis();
         //if (!loc.hasAccuracy() || loc.getAccuracy() == 0) return;
 
-        Log.i(TAG, "::onLocationChanged: " + String.valueOf(loc.getLatitude()) + "," + String.valueOf(loc.getLongitude()));
+        Log.i(TAG, ":onLocationChanged: " + String.valueOf(loc.getLatitude()) + "," + String.valueOf(loc.getLongitude()));
         myView.queueEvent(new Runnable() {
             public void run() {
                 GLES3Lib.onLocationLLA(
