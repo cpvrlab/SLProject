@@ -14,13 +14,9 @@ package ch.fhnw.comgr;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-
-import java.io.File;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -69,15 +65,11 @@ public class GLES3View extends GLSurfaceView
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             Log.i(TAG, "Renderer.onSurfaceCreated");
-
-            String externalDirPath = GLES3Lib.activity.setupExternalDirectories();
-
             int w = GLES3Lib.view.getWidth();
             int h = GLES3Lib.view.getHeight();
             GLES3Lib.onInit(w, h,
                             GLES3Lib.dpi,
-                            GLES3Lib.App.getApplicationContext().getFilesDir().getAbsolutePath(),
-                            externalDirPath);
+                            GLES3Lib.App.getApplicationContext().getFilesDir().getAbsolutePath());
 
             // Get main event handler of UI thread
             mainLoop = new Handler(Looper.getMainLooper());

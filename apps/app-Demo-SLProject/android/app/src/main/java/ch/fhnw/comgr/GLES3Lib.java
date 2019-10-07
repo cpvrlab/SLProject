@@ -51,7 +51,7 @@ public class GLES3Lib {
     public static final int VIDEO_TYPE_SCND = 2;    // Maps to Androids front facing camera
     public static final int VIDEO_TYPE_FILE = 3;    // Maps to Androids front facing camera
 
-    public static native void    onInit             (int width, int height, int dotsPerInch, String FilePath, String externalDirPath);
+    public static native void    onInit             (int width, int height, int dotsPerInch, String FilePath);
     public static native boolean onUpdateVideo      ();
     public static native boolean onUpdateScene      ();
     public static native boolean onPaintAllViews    ();
@@ -103,7 +103,7 @@ public class GLES3Lib {
      * into the corresponding folders. This has to be done because most files in the apk/assets
      * folder are compressed and can not be read with standard C-file IO.
      */
-    private static void extractAPK() throws IOException {
+    public static void extractAPK() throws IOException {
         FilesPath = App.getApplicationContext().getFilesDir().getAbsolutePath();
         Log.i("SLProject", "Destination: " + FilesPath);
         extractAPKFolder(FilesPath, "textures");
