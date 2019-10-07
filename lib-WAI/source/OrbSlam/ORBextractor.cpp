@@ -58,6 +58,7 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <vector>
+#include <AverageTiming.h>
 
 #include "ORBextractor.h"
 
@@ -120,7 +121,6 @@ static void computeOrbDescriptor(const KeyPoint& kpt,
 
     const uchar* center = &img.at<uchar>(cvRound(kpt.pt.y), cvRound(kpt.pt.x));
     const int    step   = (int)img.step;
-
 
 #define GET_VALUE(idx) \
     center[cvRound(pattern[idx].x * b + pattern[idx].y * a) * step + \
@@ -1197,9 +1197,9 @@ ORBextractor::ORBextractor(int   _nfeatures,
     minThFAST(_minThFAST),
     KPextractor("FAST_ORBS")
 {
-    nfeatures = _nfeatures;
+    nfeatures   = _nfeatures;
     scaleFactor = _scaleFactor;
-    nlevels = _nlevels;
+    nlevels     = _nlevels;
     mvScaleFactor.resize(nlevels);
     mvLevelSigma2.resize(nlevels);
     mvScaleFactor[0] = 1.0f;
@@ -1841,15 +1841,18 @@ void ORBextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, O
     assert(image.type() == CV_8UC1);
 
     // Pre-compute the scale pyramid
+    AVERAGE_TIMING_START("ComputePyramid");
     ComputePyramid(image);
+    AVERAGE_TIMING_STOP("ComputePyramid");
 
     vector<vector<KeyPoint>> allKeypoints;
+    AVERAGE_TIMING_START("ComputeKeyPointsOctTree");
     ComputeKeyPointsOctTree(allKeypoints);
-
-
+    AVERAGE_TIMING_STOP("ComputeKeyPointsOctTree");
 
     //ComputeKeyPointsOld(allKeypoints);
 
+    AVERAGE_TIMING_START("blurAndcomputeDescriptors");
     Mat descriptors;
 
     int nkeypoints = 0;
@@ -1900,6 +1903,8 @@ void ORBextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, O
         // And add the keypoints to the output
         _keypoints.insert(_keypoints.end(), keypoints.begin(), keypoints.end());
     }
+
+    AVERAGE_TIMING_STOP("blurAndcomputeDescriptors");
 }
 
 void ORBextractor::ComputePyramid(cv::Mat image)
