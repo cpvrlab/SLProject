@@ -47,6 +47,8 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     loadFileNamesInVector(WAIApp::calibDir, _existingCalibrationNames, calibExtensions, true);
     loadFileNamesInVector(WAIApp::mapDir, _existingMapNames, mapExtensions, true);
     loadFileNamesInVector(WAIApp::vocDir, _existingVocNames, vocExtensions, false);
+
+    _storeKeyFrameImage = false;
 }
 
 void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directory,
@@ -96,7 +98,9 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
     {
         OrbSlamStartResult startResult = WAIApp::startOrbSlam(_currentVideo,
                                                               _currentCalibration,
-                                                              _currentMap);
+                                                              _currentMap,
+                                                              _currentVoc,
+                                                              _storeKeyFrameImage);
 
         if (!startResult.wasSuccessful)
         {
@@ -163,6 +167,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             }
             ImGui::EndCombo();
         }
+
+        ImGui::Checkbox("store keyframes image", &_storeKeyFrameImage);
     }
     ImGui::End();
 }

@@ -108,10 +108,13 @@ class WAI_API ModeOrbSlam2
     void resume();
     void requestStateIdle();
     bool hasStateIdle();
+    bool retainImage() { return _retainImg; }
     void setInitialized(bool initialized) { _initialized = initialized; }
 
     void setExtractor(KPextractor* extractor, KPextractor* iniExtractor);
     void setVocabulary(std::string orbVocFile);
+
+    WAIFrame getCurrentFrame();
 
     private:
     enum TrackingState

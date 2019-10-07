@@ -134,7 +134,8 @@ mapFile: path to a map or empty if no map should be used
 OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
                                         std::string calibrationFileName,
                                         std::string mapFileName,
-                                        std::string vocFileName)
+                                        std::string vocFileName,
+                                        bool saveVideoFrames)
 {
     OrbSlamStartResult result = {};
     uiPrefs.showError         = false;
@@ -256,7 +257,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
     mode = new WAI::ModeOrbSlam2(wc->cameraMat(),
                                  wc->distortion(),
                                  false,
-                                 false,
+                                 saveVideoFrames,
                                  false,
                                  false,
                                  vocFile);

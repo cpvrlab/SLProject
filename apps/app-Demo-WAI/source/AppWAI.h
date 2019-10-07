@@ -40,7 +40,8 @@ class WAIApp
     static OrbSlamStartResult startOrbSlam(std::string videoFile       = "",
                                            std::string calibrationFile = "",
                                            std::string mapFile         = "",
-                                           std::string vocFileName     = "ORBvoc.bin");
+                                           std::string vocFileName     = "ORBvoc.bin",
+                                           bool saveVideoFrames        = false);
     static void               onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid);
     static bool               update();
 
