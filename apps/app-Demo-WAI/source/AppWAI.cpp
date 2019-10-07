@@ -39,20 +39,6 @@
 #include <AppWAI.h>
 #include <AppDirectories.h>
 
-int WAIApp::minNumOfCovisibles = 50;
-
-bool WAIApp::showKeyPoints         = true;
-bool WAIApp::showKeyPointsMatched  = true;
-bool WAIApp::showMapPC             = true;
-bool WAIApp::showLocalMapPC        = true;
-bool WAIApp::showMatchesPC         = true;
-bool WAIApp::showKeyFrames         = true;
-bool WAIApp::renderKfBackground    = true;
-bool WAIApp::allowKfsAsActiveCam   = true;
-bool WAIApp::showCovisibilityGraph = true;
-bool WAIApp::showSpanningTree      = true;
-bool WAIApp::showLoopEdges         = true;
-
 AppDemoGuiAbout* WAIApp::aboutDial = nullptr;
 AppDemoGuiError* WAIApp::errorDial = nullptr;
 
@@ -323,7 +309,7 @@ void WAIApp::setupGUI()
 
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosScene("scene", &uiPrefs.showInfosScene));
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosSensors("sensors", &uiPrefs.showInfosSensors));
-    AppDemoGui::addInfoDialog(new AppDemoGuiInfosTracking("tracking", mode, &uiPrefs.showInfosTracking));
+    AppDemoGui::addInfoDialog(new AppDemoGuiInfosTracking("tracking", uiPrefs));
     AppDemoGui::addInfoDialog(new AppDemoGuiSlamLoad("slam load", wc, &uiPrefs.showSlamLoad));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiProperties("properties", &uiPrefs.showProperties));
@@ -388,6 +374,8 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
 {
     s->init();
     waiScene->rebuild();
+    //setup gui at last because ui elements depend on other instances
+    setupGUI();
 
     // Set scene name and info string
     s->name("Track Keyframe based Features");
@@ -415,8 +403,8 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
         uiPrefs.showError = true;
     }
 
-    //setup gui at last because ui elements depend on other instances
-    setupGUI();
+    ////setup gui at last because ui elements depend on other instances
+    //setupGUI();
 }
 
 //-----------------------------------------------------------------------------
@@ -528,12 +516,12 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
     //update keypoints visualization (2d image points):
     //TODO: 2d visualization is still done in mode... do we want to keep it there?
-    mode->showKeyPoints(showKeyPoints);
-    mode->showKeyPointsMatched(showKeyPointsMatched);
+    mode->showKeyPoints(uiPrefs.showKeyPoints);
+    mode->showKeyPointsMatched(uiPrefs.showKeyPointsMatched);
 
     //update map point visualization:
     //if we still want to visualize the point cloud
-    if (showMapPC)
+    if (uiPrefs.showMapPC)
     {
         //get new points and add them
         renderMapPoints("MapPoints",
@@ -550,7 +538,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 
     //update visualization of local map points:
     //only update them with a valid pose from WAI
-    if (showLocalMapPC && iKnowWhereIAm)
+    if (uiPrefs.showLocalMapPC && iKnowWhereIAm)
     {
         renderMapPoints("LocalMapPoints",
                         mode->getLocalMapPoints(),
@@ -566,7 +554,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 
     //update visualization of matched map points
     //only update them with a valid pose from WAI
-    if (showMatchesPC && iKnowWhereIAm)
+    if (uiPrefs.showMatchesPC && iKnowWhereIAm)
     {
         renderMapPoints("MatchedMapPoints",
                         mode->getMatchedMapPoints(),
@@ -582,7 +570,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 
     //update keyframe visualization
     waiScene->keyFrameNode->deleteChildren();
-    if (showKeyFrames)
+    if (uiPrefs.showKeyFrames)
     {
         renderKeyframes();
     }
@@ -690,7 +678,7 @@ void WAIApp::renderGraphs()
         cv::Mat Ow = kf->GetCameraCenter();
 
         //covisibility graph
-        const std::vector<WAIKeyFrame*> vCovKFs = kf->GetBestCovisibilityKeyFrames(minNumOfCovisibles);
+        const std::vector<WAIKeyFrame*> vCovKFs = kf->GetBestCovisibilityKeyFrames(uiPrefs.minNumOfCovisibles);
 
         if (!vCovKFs.empty())
         {
@@ -729,7 +717,7 @@ void WAIApp::renderGraphs()
     if (waiScene->covisibilityGraphMesh)
         waiScene->covisibilityGraph->deleteMesh(waiScene->covisibilityGraphMesh);
 
-    if (covisGraphPts.size() && showCovisibilityGraph)
+    if (covisGraphPts.size() && uiPrefs.showCovisibilityGraph)
     {
         waiScene->covisibilityGraphMesh = new SLPolyline(covisGraphPts, false, "CovisibilityGraph", waiScene->covisibilityGraphMat);
         waiScene->covisibilityGraph->addMesh(waiScene->covisibilityGraphMesh);
@@ -739,7 +727,7 @@ void WAIApp::renderGraphs()
     if (waiScene->spanningTreeMesh)
         waiScene->spanningTree->deleteMesh(waiScene->spanningTreeMesh);
 
-    if (spanningTreePts.size() && showSpanningTree)
+    if (spanningTreePts.size() && uiPrefs.showSpanningTree)
     {
         waiScene->spanningTreeMesh = new SLPolyline(spanningTreePts, false, "SpanningTree", waiScene->spanningTreeMat);
         waiScene->spanningTree->addMesh(waiScene->spanningTreeMesh);
@@ -749,7 +737,7 @@ void WAIApp::renderGraphs()
     if (waiScene->loopEdgesMesh)
         waiScene->loopEdges->deleteMesh(waiScene->loopEdgesMesh);
 
-    if (loopEdgesPts.size() && showLoopEdges)
+    if (loopEdgesPts.size() && uiPrefs.showLoopEdges)
     {
         waiScene->loopEdgesMesh = new SLPolyline(loopEdgesPts, false, "LoopEdges", waiScene->loopEdgesMat);
         waiScene->loopEdges->addMesh(waiScene->loopEdgesMesh);

@@ -129,6 +129,32 @@ void GUIPreferences::load()
             if (!fs["showAbout"].empty())
                 fs["showAbout"] >> showAbout;
 
+            //dialogue AppDemoGuiInfosTracking
+            if (!fs["minNumOfCovisibles"].empty())
+                fs["minNumOfCovisibles"] >> minNumOfCovisibles;
+            if (!fs["showKeyPoints"].empty())
+                fs["showKeyPoints"] >> showKeyPoints;
+            if (!fs["showKeyPointsMatched"].empty())
+                fs["showKeyPointsMatched"] >> showKeyPointsMatched;
+            if (!fs["showMapPC"].empty())
+                fs["showMapPC"] >> showMapPC;
+            if (!fs["showLocalMapPC"].empty())
+                fs["showLocalMapPC"] >> showLocalMapPC;
+            if (!fs["showMatchesPC"].empty())
+                fs["showMatchesPC"] >> showMatchesPC;
+            if (!fs["showKeyFrames"].empty())
+                fs["showKeyFrames"] >> showKeyFrames;
+            if (!fs["renderKfBackground"].empty())
+                fs["renderKfBackground"] >> renderKfBackground;
+            if (!fs["allowKfsAsActiveCam"].empty())
+                fs["allowKfsAsActiveCam"] >> allowKfsAsActiveCam;
+            if (!fs["showCovisibilityGraph"].empty())
+                fs["showCovisibilityGraph"] >> showCovisibilityGraph;
+            if (!fs["showSpanningTree"].empty())
+                fs["showSpanningTree"] >> showSpanningTree;
+            if (!fs["showLoopEdges"].empty())
+                fs["showLoopEdges"] >> showLoopEdges;
+
             fs.release();
             SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
             SL_LOG("Config. date    : %s\n", configTime.c_str());
@@ -215,18 +241,19 @@ void GUIPreferences::save()
     fs << "showUIPrefs" << showUIPrefs;
     fs << "showAbout" << showAbout;
 
-    SLbool showInfosScene       = false; //!< Flag if scene info should be shown
-    SLbool showStatsTiming      = false; //!< Flag if timing info should be shown
-    SLbool showStatsDebugTiming = false; //!< Flag if tracking info should be shown
-    SLbool showStatsVideo       = false; //!< Flag if video info should be shown
-    SLbool showSceneGraph       = false; //!< Flag if scene graph should be shown
-    SLbool showProperties       = false; //!< Flag if properties should be shown
-    SLbool showTransform        = false; //!< Flag if tranform dialog should be shown
-    SLbool showInfosSensors     = false; //!< Flag if device sensors info should be shown
-    SLbool showInfosFrameworks  = false; //!< Flag if frameworks info should be shown
-    SLbool showInfosTracking    = false; //!< Flag if frameworks info should be shown
-    SLbool showUIPrefs          = false; //!< Flag if UI preferences
-    SLbool showAbout            = true;  //!< Flag if about info should be shown
+    //dialogue AppDemoGuiInfosTracking
+    fs << "minNumOfCovisibles" << minNumOfCovisibles;
+    fs << "showKeyPoints" << showKeyPoints;
+    fs << "showKeyPointsMatched" << showKeyPointsMatched;
+    fs << "showMapPC" << showMapPC;
+    fs << "showLocalMapPC" << showLocalMapPC;
+    fs << "showMatchesPC" << showMatchesPC;
+    fs << "showKeyFrames" << showKeyFrames;
+    fs << "renderKfBackground" << renderKfBackground;
+    fs << "allowKfsAsActiveCam" << allowKfsAsActiveCam;
+    fs << "showCovisibilityGraph" << showCovisibilityGraph;
+    fs << "showSpanningTree" << showSpanningTree;
+    fs << "showLoopEdges" << showLoopEdges;
 
     fs.release();
     SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());

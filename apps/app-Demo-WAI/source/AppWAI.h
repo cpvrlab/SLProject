@@ -80,20 +80,6 @@ class WAIApp
     static SLGLTexture*       videoImage;
     static ofstream           gpsDataStream;
 
-    static int minNumOfCovisibles;
-
-    static bool showKeyPoints;
-    static bool showKeyPointsMatched;
-    static bool showMapPC;
-    static bool showLocalMapPC;
-    static bool showMatchesPC;
-    static bool showKeyFrames;
-    static bool renderKfBackground;
-    static bool allowKfsAsActiveCam;
-    static bool showCovisibilityGraph;
-    static bool showSpanningTree;
-    static bool showLoopEdges;
-
     static bool resizeWindow;
 
     static std::string videoDir;

@@ -12,40 +12,54 @@ class GUIPreferences
     void save();
 
     //slam menu
-    SLbool showSlamParam      = false;
-    SLbool showTrackedMapping = false;
+    bool showSlamParam      = false;
+    bool showTrackedMapping = false;
 
     //video menu
-    SLbool showVideoControls = false;
-    SLbool showVideoStorage  = false;
+    bool showVideoControls = false;
+    bool showVideoStorage  = false;
 
     //map menu
-    SLbool showMapStorage            = false;
-    SLbool showInfosMapNodeTransform = false;
+    bool showMapStorage            = false;
+    bool showInfosMapNodeTransform = false;
 
     //experiments menu
-    SLbool showSlamLoad     = false;
-    SLbool showTestSettings = false;
-    SLbool showTestWriter   = false;
+    bool showSlamLoad     = false;
+    bool showTestSettings = false;
+    bool showTestWriter   = false;
 
     //infos menu
-    SLbool showInfosScene       = false; //!< Flag if scene info should be shown
-    SLbool showStatsTiming      = false; //!< Flag if timing info should be shown
-    SLbool showStatsDebugTiming = false; //!< Flag if tracking info should be shown
-    SLbool showStatsVideo       = false; //!< Flag if video info should be shown
-    SLbool showSceneGraph       = false; //!< Flag if scene graph should be shown
-    SLbool showProperties       = false; //!< Flag if properties should be shown
-    SLbool showTransform        = false; //!< Flag if tranform dialog should be shown
-    SLbool showInfosSensors     = false; //!< Flag if device sensors info should be shown
-    SLbool showInfosFrameworks  = false; //!< Flag if frameworks info should be shown
-    SLbool showInfosTracking    = false; //!< Flag if frameworks info should be shown
-    SLbool showUIPrefs          = false; //!< Flag if UI preferences
-    SLbool showAbout            = true;  //!< Flag if about info should be shown
+    bool showInfosScene       = false; //!< Flag if scene info should be shown
+    bool showStatsTiming      = false; //!< Flag if timing info should be shown
+    bool showStatsDebugTiming = false; //!< Flag if tracking info should be shown
+    bool showStatsVideo       = false; //!< Flag if video info should be shown
+    bool showSceneGraph       = false; //!< Flag if scene graph should be shown
+    bool showProperties       = false; //!< Flag if properties should be shown
+    bool showTransform        = false; //!< Flag if tranform dialog should be shown
+    bool showInfosSensors     = false; //!< Flag if device sensors info should be shown
+    bool showInfosFrameworks  = false; //!< Flag if frameworks info should be shown
+    bool showInfosTracking    = false; //!< Flag if frameworks info should be shown
+    bool showUIPrefs          = false; //!< Flag if UI preferences
+    bool showAbout            = true;  //!< Flag if about info should be shown
+
+    //dialogue AppDemoGuiInfosTracking
+    int  minNumOfCovisibles    = 50;
+    bool showKeyPoints         = true;
+    bool showKeyPointsMatched  = true;
+    bool showMapPC             = true;
+    bool showLocalMapPC        = false;
+    bool showMatchesPC         = true;
+    bool showKeyFrames         = true;
+    bool renderKfBackground    = false;
+    bool allowKfsAsActiveCam   = false;
+    bool showCovisibilityGraph = false;
+    bool showSpanningTree      = true;
+    bool showLoopEdges         = true;
 
     SLstring configTime;
 
     //error dialog
-    SLbool showError = false;
+    bool showError = false;
 
     private:
     int dpi = 200;
