@@ -36,6 +36,7 @@ CVCapture::CVCapture()
     videoFilename      = "";
     videoLoops         = true;
     fps                = 1.0f;
+    frameCount         = 0;
     activeCamSizeIndex = -1;
     activeCalib        = nullptr;
     _captureTimesMS.init(60, 0);
@@ -75,6 +76,7 @@ CVSize2i CVCapture::open(int deviceNum)
 
         hasSecondaryCamera = false;
         fps                = _captureDevice.get(cv::CAP_PROP_FPS);
+        frameCount         = 0;
 
         // Set one camera size entry
         CVCapture::camSizes.clear();
@@ -125,6 +127,7 @@ CVSize2i CVCapture::openFile()
 
         hasSecondaryCamera = false;
         fps                = _captureDevice.get(cv::CAP_PROP_FPS);
+        frameCount         = _captureDevice.get(cv::CAP_PROP_FRAME_COUNT);
 
         return CVSize2i(w, h);
     }
@@ -861,3 +864,30 @@ void CVCapture::setCameraSize(int sizeIndex,
     camSizes[(uint)sizeIndex].height = height;
 }
 //-----------------------------------------------------------------------------
+/*
+Moves the current frame position in a video file.
+*/
+void CVCapture::moveCapturePosition(int n)
+{
+    if (_videoType != VT_FILE) return;
+
+    int frameIndex = _captureDevice.get(cv::CAP_PROP_POS_FRAMES);
+    frameIndex += n;
+
+    if (frameIndex < 0) frameIndex = 0;
+    if (frameIndex > frameCount) frameIndex = frameCount;
+
+    _captureDevice.set(cv::CAP_PROP_POS_FRAMES, frameIndex);
+}
+//-----------------------------------------------------------------------------
+int CVCapture::nextFrameIndex()
+{
+    int result = 0;
+
+    if (_videoType == VT_FILE)
+    {
+        result = _captureDevice.get(cv::CAP_PROP_POS_FRAMES);
+    }
+
+    return result;
+}

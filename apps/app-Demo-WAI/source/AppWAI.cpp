@@ -80,7 +80,8 @@ std::string WAIApp::experimentsDir = "";
 
 bool WAIApp::resizeWindow = false;
 
-bool WAIApp::pauseVideo = false;
+bool WAIApp::pauseVideo           = false;
+int  WAIApp::videoCursorMoveIndex = 0;
 
 int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* directories)
 {
@@ -142,7 +143,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
                                         std::string calibrationFileName,
                                         std::string mapFileName,
                                         std::string vocFileName,
-                                        bool saveVideoFrames)
+                                        bool        saveVideoFrames)
 {
     OrbSlamStartResult result = {};
     uiPrefs.showError         = false;
@@ -420,48 +421,30 @@ bool WAIApp::update()
     if (!loaded)
         return false;
 
-    if (CVCapture::instance()->videoType() == VT_FILE && pauseVideo)
-        return true;
+    bool iKnowWhereIAm = (mode->getTrackingState() == WAI::TrackingState_TrackingOK);
+    while (videoCursorMoveIndex < 0)
+    {
+        CVCapture::instance()->moveCapturePosition(-2);
+        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+        iKnowWhereIAm = updateTracking();
+
+        videoCursorMoveIndex++;
+    }
+
+    while (videoCursorMoveIndex > 0)
+    {
+        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+        iKnowWhereIAm = updateTracking();
+
+        videoCursorMoveIndex--;
+    }
 
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
-        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
-    }
-
-    bool iKnowWhereIAm = false;
-    if (CVCapture::instance()->videoType() != VT_NONE && !CVCapture::instance()->lastFrame.empty())
-    {
-        if (videoWriter->isOpened())
+        if (CVCapture::instance()->videoType() != VT_FILE || !pauseVideo)
         {
-            videoWriter->write(CVCapture::instance()->lastFrame);
-        }
-
-        iKnowWhereIAm = mode->update(CVCapture::instance()->lastFrameGray,
-                                     CVCapture::instance()->lastFrame);
-
-        videoImage->copyVideoImage(CVCapture::instance()->lastFrame.cols,
-                                   CVCapture::instance()->lastFrame.rows,
-                                   CVCapture::instance()->format,
-                                   CVCapture::instance()->lastFrame.data,
-                                   CVCapture::instance()->lastFrame.isContinuous(),
-                                   true);
-
-        if (videoWriterInfo->isOpened())
-        {
-            videoWriterInfo->write(CVCapture::instance()->lastFrame);
-        }
-
-        if (gpsDataStream.is_open())
-        {
-            if (SLApplication::devLoc.isUsed())
-            {
-                SLVec3d v = SLApplication::devLoc.locLLA();
-                gpsDataStream << SLApplication::devLoc.locAccuracyM();
-                gpsDataStream << std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
-                gpsDataStream << std::to_string(SLApplication::devRot.yawRAD());
-                gpsDataStream << std::to_string(SLApplication::devRot.pitchRAD());
-                gpsDataStream << std::to_string(SLApplication::devRot.rollRAD());
-            }
+            CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+            iKnowWhereIAm = updateTracking();
         }
     }
 
@@ -511,6 +494,49 @@ bool WAIApp::update()
     }
 
     return true;
+}
+//-----------------------------------------------------------------------------
+bool WAIApp::updateTracking()
+{
+    bool iKnowWhereIAm = false;
+
+    if (CVCapture::instance()->videoType() != VT_NONE && !CVCapture::instance()->lastFrame.empty())
+    {
+        if (videoWriter->isOpened())
+        {
+            videoWriter->write(CVCapture::instance()->lastFrame);
+        }
+
+        iKnowWhereIAm = mode->update(CVCapture::instance()->lastFrameGray,
+                                     CVCapture::instance()->lastFrame);
+
+        videoImage->copyVideoImage(CVCapture::instance()->lastFrame.cols,
+                                   CVCapture::instance()->lastFrame.rows,
+                                   CVCapture::instance()->format,
+                                   CVCapture::instance()->lastFrame.data,
+                                   CVCapture::instance()->lastFrame.isContinuous(),
+                                   true);
+
+        if (videoWriterInfo->isOpened())
+        {
+            videoWriterInfo->write(CVCapture::instance()->lastFrame);
+        }
+
+        if (gpsDataStream.is_open())
+        {
+            if (SLApplication::devLoc.isUsed())
+            {
+                SLVec3d v = SLApplication::devLoc.locLLA();
+                gpsDataStream << SLApplication::devLoc.locAccuracyM();
+                gpsDataStream << std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
+                gpsDataStream << std::to_string(SLApplication::devRot.yawRAD());
+                gpsDataStream << std::to_string(SLApplication::devRot.pitchRAD());
+                gpsDataStream << std::to_string(SLApplication::devRot.rollRAD());
+            }
+        }
+    }
+
+    return iKnowWhereIAm;
 }
 //-----------------------------------------------------------------------------
 void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
