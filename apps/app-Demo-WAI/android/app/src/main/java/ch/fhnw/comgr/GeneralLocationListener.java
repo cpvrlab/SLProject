@@ -19,14 +19,14 @@
 
 package ch.fhnw.comgr;
 
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 
-
-class GeneralLocationListener implements LocationListener {
+class GeneralLocationListener implements GpsStatus.Listener, LocationListener {
 
     private static String _listenerName;
     private static GLES3Activity _activity;
@@ -39,6 +39,8 @@ class GeneralLocationListener implements LocationListener {
     protected String dgpsId;
     protected int satellitesUsedInFix;
 
+    private GpsStatus mStatus;
+
     GeneralLocationListener(GLES3Activity activity, String name) {
         _activity = activity;
         _listenerName = name;
@@ -47,20 +49,25 @@ class GeneralLocationListener implements LocationListener {
     /**
      * Event raised when a new fix is received.
      */
+    @Override
     public void onLocationChanged(Location loc) {
         if (loc != null) {
             _activity.onLocationChanged(loc);
         }
     }
 
+    @Override
     public void onProviderDisabled(String provider) {
         _activity.locationSensorRestart();
     }
 
+    @Override
     public void onProviderEnabled(String provider) {
         _activity.locationSensorRestart();
     }
 
+    //TODO Constant was deprecated in API level 29. Location provider statuses are no longer supported.
+    @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         if (status == LocationProvider.OUT_OF_SERVICE) {
             Log.i(TAG, provider + " is out of service");
@@ -73,6 +80,27 @@ class GeneralLocationListener implements LocationListener {
 
         if (status == LocationProvider.TEMPORARILY_UNAVAILABLE) {
             Log.i(TAG, "onStatusChanged:" + provider + " is temporarily unavailable");
+        }
+    }
+
+    @Override
+    public void onGpsStatusChanged(int event) {
+       switch (event) {
+            case GpsStatus.GPS_EVENT_STARTED:
+                // Do Something with mStatus info
+                break;
+
+            case GpsStatus.GPS_EVENT_STOPPED:
+                // Do Something with mStatus info
+                break;
+
+            case GpsStatus.GPS_EVENT_FIRST_FIX:
+                // Do Something with mStatus info
+                break;
+
+            case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
+                // Do Something with mStatus info
+                break;
         }
     }
 }
