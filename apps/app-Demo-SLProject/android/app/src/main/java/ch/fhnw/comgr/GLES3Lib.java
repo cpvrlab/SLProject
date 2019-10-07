@@ -103,7 +103,7 @@ public class GLES3Lib {
      * into the corresponding folders. This has to be done because most files in the apk/assets
      * folder are compressed and can not be read with standard C-file IO.
      */
-    public static void extractAPK() throws IOException {
+    private static void extractAPK() throws IOException {
         FilesPath = App.getApplicationContext().getFilesDir().getAbsolutePath();
         Log.i("SLProject", "Destination: " + FilesPath);
         extractAPKFolder(FilesPath, "textures");
