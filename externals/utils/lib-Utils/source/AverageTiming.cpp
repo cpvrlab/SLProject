@@ -12,6 +12,7 @@
 #include <HighResTimer.h>
 #include <Utils.h>
 #include <algorithm>
+#include <cstring>
 //-----------------------------------------------------------------------------
 AverageTiming::AverageTiming()
 {

@@ -98,6 +98,7 @@ class CVCapture
 
     void        videoType(CVVideoType vt);
     CVVideoType videoType() { return _videoType; }
+    int         nextFrameIndex();
     AvgFloat&   captureTimesMS() { return _captureTimesMS; }
     void        loadCalibrations(const string& computerInfo,
                                  const string& configPath,
@@ -108,6 +109,8 @@ class CVCapture
                               int width,
                               int height);
 
+    void moveCapturePosition(int n);
+
     CVMat       lastFrame;          //!< last frame grabbed in RGB
     CVMat       lastFrameGray;      //!< last frame in grayscale
     CVPixFormat format;             //!< GL pixel format
@@ -117,7 +120,8 @@ class CVCapture
     string      videoDefaultPath;   //!< default path for video files
     string      videoFilename;      //!< video filename to load
     bool        videoLoops;         //!< flag if video should loop
-    double      fps;
+    int         fps;
+    int         frameCount;
 
     /*! A requestedSizeIndex of -1 returns on Android the default size of 640x480.
     This is the default size index if the camera resolutions are unknown.*/

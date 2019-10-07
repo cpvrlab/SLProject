@@ -41,9 +41,11 @@ class WAIApp
                                            std::string calibrationFile = "",
                                            std::string mapFile         = "",
                                            std::string vocFileName     = "ORBvoc.bin",
-                                           bool saveVideoFrames        = false);
-    static void               onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid);
-    static bool               update();
+                                           bool        saveVideoFrames = false);
+
+    static void onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid);
+    static bool update();
+    static bool updateTracking();
 
     static void updateTrackingVisualization(const bool iKnowWhereIAm);
 
@@ -90,6 +92,7 @@ class WAIApp
     static std::string experimentsDir;
 
     static bool pauseVideo; // pause video file
+    static int  videoCursorMoveIndex;
 };
 
 #endif
