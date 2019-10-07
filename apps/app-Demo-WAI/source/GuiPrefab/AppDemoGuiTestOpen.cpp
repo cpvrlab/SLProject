@@ -69,7 +69,7 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
 
     if (_infos.size() == 0)
     {
-        ImGui::Text("There is no test to load");
+        ImGui::Text(std::string("There are no experiments in: " + WAIApp::experimentsDir).c_str());
         ImGui::End();
         return;
     }

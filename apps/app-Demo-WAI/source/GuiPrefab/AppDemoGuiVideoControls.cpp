@@ -8,8 +8,8 @@ AppDemoGuiVideoControls::AppDemoGuiVideoControls(const std::string& name, bool* 
 
 void AppDemoGuiVideoControls::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    ImGui::Begin("Video controls", _activator, 0);
-    ImGui::Separator();
+    ImGui::Begin("Video controls", _activator, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Text("sdfsfsfsfsfdsfdsfdsfds");
     if (ImGui::Button("Pause", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
         WAIApp::pauseVideo != WAIApp::pauseVideo;

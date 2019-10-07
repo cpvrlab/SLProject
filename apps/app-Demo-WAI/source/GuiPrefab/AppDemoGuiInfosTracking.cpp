@@ -22,6 +22,7 @@ AppDemoGuiInfosTracking::AppDemoGuiInfosTracking(std::string        name,
   : AppDemoGuiInfosDialog(name, activator),
     _mode(mode)
 {
+    //GEIL!!!!!!!!!!!!!!!!!!!!!! top
     _minNumCovisibleMapPts = WAIApp::minNumOfCovisibles;
 }
 //-----------------------------------------------------------------------------

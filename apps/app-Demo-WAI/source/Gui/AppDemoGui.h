@@ -50,9 +50,10 @@ class AppDemoGui
     static void clearInfoDialogs();
     static void buildInfosDialogs(SLScene* s, SLSceneView* sv);
 
-    static void saveConfig(GUIPreferences* prefs);
-    static void loadConfig(GUIPreferences* prefs, SLint dotsPerInch);
+    static void saveConfig();
+    static void loadConfig(SLint dotsPerInch);
 
+    private:
     //! Vector containing all info dialogs, that belong to special scenes
     static std::map<std::string, AppDemoGuiInfosDialog*> _infoDialogs;
 };

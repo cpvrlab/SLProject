@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLAverageTiming.h
+//  File:      AverageTiming.h
 //  Author:    Michael Goettlicher
 //  Date:      March 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
@@ -8,13 +8,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SL_AVERAGE_TIMING
-#define SL_AVERAGE_TIMING
+#ifndef AVERAGE_TIMING
+#define AVERAGE_TIMING
 
 #include <string>
 #include <map>
 
-#include <SL.h>
 #include <HighResTimer.h>
 #include <Averaged.h>
 #include <sstream>
@@ -25,9 +24,9 @@
 Define a hierarchy by posV and posH which is used in ui to arrange the measurements.
 The first found content with posV==0 is used as reference measurement for the percental value.
 */
-struct SLAverageTimingBlock
+struct AverageTimingBlock
 {
-    SLAverageTimingBlock(SLint averageNumValues, SLstring name, SLint posV, SLint posH)
+    AverageTimingBlock(int averageNumValues, std::string name, int posV, int posH)
       : val(averageNumValues, 0.0f),
         name(std::move(name)),
         posV(posV),
@@ -35,11 +34,11 @@ struct SLAverageTimingBlock
     {
     }
     AvgFloat     val;
-    SLstring     name;
+    std::string  name;
     HighResTimer timer;
-    SLint        posV      = 0;
-    SLint        posH      = 0;
-    SLint        nCalls    = 0;
+    int          posV      = 0;
+    int          posH      = 0;
+    int          nCalls    = 0;
     bool         isStarted = false;
 };
 
@@ -51,27 +50,29 @@ of an existing block. Call stop("name") to finish measurement for this block.
 Define a hierarchy by posV and posH which is used in ui to arrange the measurements.
 The first found content with posV==0 is used as reference measurement for the percental value.
 */
-class SLAverageTiming : public std::map<std::string, SLAverageTimingBlock*>
+class AverageTiming : public std::map<std::string, AverageTimingBlock*>
 {
     public:
-    SLAverageTiming();
-    ~SLAverageTiming();
+    AverageTiming();
+    ~AverageTiming();
 
     //!start timer for a new or existing block
     static void start(const std::string& name);
     //!stop timer for a running block with name
     static void stop(const std::string& name);
     //!get time for block with name
-    static SLfloat getTime(const std::string& name);
+    static float getTime(const std::string& name);
     //!get time for multiple blocks with given names
-    static SLfloat getTime(const std::vector<std::string>& names);
+    static float getTime(const std::vector<std::string>& names);
     //!get the number of values
-    static SLint getNumValues(const std::string& name);
+    static int getNumValues(const std::string& name);
+    //!get timings formatted via string
+    static void getTimingMessage(char* m);
 
     //!singleton
-    static SLAverageTiming& instance()
+    static AverageTiming& instance()
     {
-        static SLAverageTiming timing;
+        static AverageTiming timing;
         return timing;
     }
 
@@ -81,17 +82,24 @@ class SLAverageTiming : public std::map<std::string, SLAverageTimingBlock*>
     //!do stop timer for a running block with name
     void doStop(const std::string& name);
     //!do get time for block with name
-    SLfloat doGetTime(const std::string& name);
+    float doGetTime(const std::string& name);
     //!do get time for multiple blocks with given names
-    SLfloat doGetTime(const std::vector<std::string>& names);
+    float doGetTime(const std::vector<std::string>& names);
     //!do get the number of values
-    SLint doGetNumValues(const std::string& name);
+    int doGetNumValues(const std::string& name);
+    //!do get timings formatted via string
+    void doGetTimingMessage(char* m);
 
     //average numValues
-    SLint _averageNumValues = 200;
-    SLint _currentPosV      = 0;
-    SLint _currentPosH      = 0;
+    int _averageNumValues = 200;
+    int _currentPosV      = 0;
+    int _currentPosH      = 0;
 };
+
+#define AVERAGE_TIMING_START(name) AverageTiming::start(name)
+#define AVERAGE_TIMING_STOP(name) AverageTiming::stop(name)
+//#define AVERAGE_TIMING_START
+//#define AVERAGE_TIMING_STOP
 //-----------------------------------------------------------------------------
 
-#endif //SL_AVERAGE_TIMING
+#endif //AVERAGE_TIMING

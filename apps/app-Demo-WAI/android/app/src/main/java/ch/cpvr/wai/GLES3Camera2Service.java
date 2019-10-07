@@ -236,7 +236,7 @@ public class GLES3Camera2Service extends Service {
         public void onImageAvailable(ImageReader reader) {
 
             // The following code withing run() {...} runs in the view thread
-            GLES3Lib.view.queueEvent(new Runnable() {
+            GLES3Lib.view.queueEvent( new Runnable() {
                 @Override
                 public void run() {
 

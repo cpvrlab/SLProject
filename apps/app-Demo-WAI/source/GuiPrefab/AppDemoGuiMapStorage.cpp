@@ -68,7 +68,8 @@ AppDemoGuiMapStorage::AppDemoGuiMapStorage(const string& name,
 void AppDemoGuiMapStorage::buildInfos(SLScene* s, SLSceneView* sv)
 {
     ImGui::Begin("Map storage", _activator, ImGuiWindowFlags_AlwaysAutoResize);
-    if (ImGui::Button("Save map", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    //if (ImGui::Button("Save map", ImVec2(120.f, 30.0f)))
+    if (ImGui::Button("Save map"))
     {
         std::string filename;
         if (_currentItem.empty())

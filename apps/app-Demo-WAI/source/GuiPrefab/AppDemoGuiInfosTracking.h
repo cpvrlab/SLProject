@@ -31,7 +31,7 @@ class AppDemoGuiInfosTracking : public AppDemoGuiInfosDialog
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     private:
-    WAI::ModeOrbSlam2* _mode      = nullptr;
+    WAI::ModeOrbSlam2* _mode = nullptr;
 
     int _minNumCovisibleMapPts = 0;
 };

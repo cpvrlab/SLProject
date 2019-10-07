@@ -4,6 +4,7 @@
 #include <SLKeyframeCamera.h>
 #include <CVCapture.h>
 #include <Utils.h>
+#include <AverageTiming.h>
 
 #include <WAIModeOrbSlam2.h>
 
@@ -38,19 +39,19 @@
 #include <AppWAI.h>
 #include <AppDirectories.h>
 
-int   WAIApp::minNumOfCovisibles = 50;
-float WAIApp::meanReprojectionError;
-bool  WAIApp::showKeyPoints         = true;
-bool  WAIApp::showKeyPointsMatched  = true;
-bool  WAIApp::showMapPC             = true;
-bool  WAIApp::showLocalMapPC        = true;
-bool  WAIApp::showMatchesPC         = true;
-bool  WAIApp::showKeyFrames         = true;
-bool  WAIApp::renderKfBackground    = true;
-bool  WAIApp::allowKfsAsActiveCam   = true;
-bool  WAIApp::showCovisibilityGraph = true;
-bool  WAIApp::showSpanningTree      = true;
-bool  WAIApp::showLoopEdges         = true;
+int WAIApp::minNumOfCovisibles = 50;
+
+bool WAIApp::showKeyPoints         = true;
+bool WAIApp::showKeyPointsMatched  = true;
+bool WAIApp::showMapPC             = true;
+bool WAIApp::showLocalMapPC        = true;
+bool WAIApp::showMatchesPC         = true;
+bool WAIApp::showKeyFrames         = true;
+bool WAIApp::renderKfBackground    = true;
+bool WAIApp::allowKfsAsActiveCam   = true;
+bool WAIApp::showCovisibilityGraph = true;
+bool WAIApp::showSpanningTree      = true;
+bool WAIApp::showLoopEdges         = true;
 
 AppDemoGuiAbout* WAIApp::aboutDial = nullptr;
 AppDemoGuiError* WAIApp::errorDial = nullptr;
@@ -131,6 +132,12 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
     SLApplication::devLoc.isUsed(true);
 
     return svIndex;
+}
+
+void WAIApp::close()
+{
+    uiPrefs.save();
+    //ATTENTION: Other imgui stuff is automatically saved every 5 seconds
 }
 
 /*
@@ -352,7 +359,6 @@ void WAIApp::setupGUI()
 
     AppDemoGui::addInfoDialog(errorDial);
 
-    //AppDemoGui::addInfoDialog(new AppDemoGuiCalibrationLoad("Calibration Load", dirs->writableDir + "calibrations/", wai, wc, &uiPrefs.showCalibrationLoad));
     //TODO: AppDemoGuiInfosDialog are never deleted. Why not use smart pointer when the reponsibility for an object is not clear?
 }
 
@@ -382,7 +388,7 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
 {
     s->init();
     waiScene->rebuild();
-    setupGUI();
+
     // Set scene name and info string
     s->name("Track Keyframe based Features");
     s->info("Example for loading an existing pose graph with map points.");
@@ -408,11 +414,15 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
         errorDial->setErrorMsg(orbSlamStartResult.errorString);
         uiPrefs.showError = true;
     }
+
+    //setup gui at last because ui elements depend on other instances
+    setupGUI();
 }
 
 //-----------------------------------------------------------------------------
 bool WAIApp::update()
 {
+    AVERAGE_TIMING_START("WAIAppUpdate");
     if (!mode)
         return false;
 
@@ -509,6 +519,8 @@ bool WAIApp::update()
         waiScene->cameraNode->om(om);
     }
 
+    AVERAGE_TIMING_STOP("WAIAppUpdate");
+
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -579,11 +591,6 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
     renderGraphs();
 }
 
-//-----------------------------------------------------------------------------
-void WAIApp::updateMinNumOfCovisibles(int n)
-{
-    minNumOfCovisibles = n;
-}
 //-----------------------------------------------------------------------------
 void WAIApp::renderMapPoints(std::string                      name,
                              const std::vector<WAIMapPoint*>& pts,
