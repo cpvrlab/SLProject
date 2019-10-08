@@ -58,6 +58,7 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <vector>
+#include <AverageTiming.h>
 
 #include "SURFextractor.h"
 
@@ -1210,12 +1211,15 @@ void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     Mat image = _image.getMat();
     Mat descriptors;
 
+    AVERAGE_TIMING_START("detectSURFKpts");
     //reduce keypoint detection to an inner region because of descriptor patch size
     cv::Mat mask = cv::Mat::zeros(image.size(), CV_8U);
     mask(cv::Rect(HALF_PATCH_SIZE, HALF_PATCH_SIZE, image.cols - PATCH_SIZE, image.rows - PATCH_SIZE)).setTo(1);
     //detect keypoints
     surf_detector->detect(image, _keypoints, mask);
+    AVERAGE_TIMING_STOP("detectSURFKpts");
 
+    AVERAGE_TIMING_START("computeDescriptors2");
     if (_keypoints.size() == 0)
     {
         _descriptors.release();
@@ -1233,6 +1237,7 @@ void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     // Compute the descriptors
     Mat desc = descriptors.rowRange(0, _keypoints.size());
     computeDescriptors(workingMat, _keypoints, desc, pattern);
+    AVERAGE_TIMING_STOP("computeDescriptors2");
 }
 
 }

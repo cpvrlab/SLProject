@@ -57,8 +57,8 @@ class WAI_API WAIFrame
     WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, ORBVocabulary* orbVocabulary, bool retainImg = false);
     WAIFrame(const cv::Mat& imGray, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, std::vector<cv::KeyPoint>& vKeys, ORBVocabulary* orbVocabulary, bool retainImg = false);
 
-    // Extract ORB on the image
-    void ExtractORB(const cv::Mat& im);
+    // Extract feature points on the image
+    void ExtractFeaturePoints(const cv::Mat& im);
 
     // Compute Bag of Words representation.
     void ComputeBoW();

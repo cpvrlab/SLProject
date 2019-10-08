@@ -79,14 +79,19 @@ void AppDemoGuiMapStorage::buildInfos(SLScene* s, SLSceneView* sv)
         if (!Utils::dirExists(WAIApp::mapDir))
             Utils::makeDir(WAIApp::mapDir);
 
-        std::string imgDir = WAIApp::mapDir + mapName + "/";
-        if (!Utils::dirExists(imgDir))
-            Utils::makeDir(imgDir);
+        std::string imgDir = "";
+
+        if (WAIApp::mode->retainImage())
+        {
+            imgDir = WAIApp::mapDir + mapName + "/";
+            if (!Utils::dirExists(imgDir))
+                Utils::makeDir(imgDir);
+        }
 
         if (WAIMapStorage::saveMap(WAIApp::mode->getMap(),
                                    _mapNode,
-                                   WAIApp::mapDir + filename,
                                    WAIApp::mode->getKPextractor()->GetName(),
+                                   WAIApp::mapDir + filename,
                                    imgDir))
         {
             ImGui::Text("Info: Map saved successfully");

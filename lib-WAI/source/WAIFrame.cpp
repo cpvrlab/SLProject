@@ -114,7 +114,7 @@ WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* 
     mvInvLevelSigma2  = mpORBextractorLeft->GetInverseScaleSigmaSquares();
 
     // ORB extraction
-    ExtractORB(imGray);
+    ExtractFeaturePoints(imGray);
 
     N = (int)mvKeys.size();
 
@@ -231,7 +231,7 @@ void WAIFrame::AssignFeaturesToGrid()
     }
 }
 //-----------------------------------------------------------------------------
-void WAIFrame::ExtractORB(const cv::Mat& im)
+void WAIFrame::ExtractFeaturePoints(const cv::Mat& im)
 {
     (*mpORBextractorLeft)(im, mvKeys, mDescriptors);
 }
