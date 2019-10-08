@@ -365,15 +365,6 @@ void WAIApp::buildGUI(SLScene* s, SLSceneView* sv)
         AppDemoGuiMenu::build(&uiPrefs, s, sv);
     }
 }
-
-void WAIApp::refreshTexture(cv::Mat* image)
-{
-    if (image == nullptr)
-        return;
-
-    videoImage->copyVideoImage(image->cols, image->rows, CVCapture::instance()->format, image->data, image->isContinuous(), true);
-}
-
 //-----------------------------------------------------------------------------
 void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
 {
@@ -393,8 +384,6 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
     videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
     waiScene->cameraNode->background().texture(videoImage);
 
-    //waiScene->cameraNode->fov(wc->calcCameraVerticalFOV());
-
     s->root3D(waiScene->rootNode);
 
     sv->onInitialize();
@@ -407,9 +396,6 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
         errorDial->setErrorMsg(orbSlamStartResult.errorString);
         uiPrefs.showError = true;
     }
-
-    ////setup gui at last because ui elements depend on other instances
-    //setupGUI();
 }
 
 //-----------------------------------------------------------------------------
@@ -513,13 +499,6 @@ bool WAIApp::updateTracking()
         iKnowWhereIAm = mode->update(CVCapture::instance()->lastFrameGray,
                                      CVCapture::instance()->lastFrame);
 
-        videoImage->copyVideoImage(CVCapture::instance()->lastFrame.cols,
-                                   CVCapture::instance()->lastFrame.rows,
-                                   CVCapture::instance()->format,
-                                   CVCapture::instance()->lastFrame.data,
-                                   CVCapture::instance()->lastFrame.isContinuous(),
-                                   true);
-
         if (videoWriterInfo->isOpened())
         {
             videoWriterInfo->write(CVCapture::instance()->lastFrame);
@@ -544,6 +523,14 @@ bool WAIApp::updateTracking()
 //-----------------------------------------------------------------------------
 void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
+    // refresh video image
+    videoImage->copyVideoImage(CVCapture::instance()->lastFrame.cols,
+                               CVCapture::instance()->lastFrame.rows,
+                               CVCapture::instance()->format,
+                               CVCapture::instance()->lastFrame.data,
+                               CVCapture::instance()->lastFrame.isContinuous(),
+                               true);
+
     //update keypoints visualization (2d image points):
     //TODO: 2d visualization is still done in mode... do we want to keep it there?
     mode->showKeyPoints(uiPrefs.showKeyPoints);

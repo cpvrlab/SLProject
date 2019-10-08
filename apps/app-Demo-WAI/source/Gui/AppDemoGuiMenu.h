@@ -8,7 +8,7 @@
 class AppDemoGuiMenu
 {
     public:
-    static void build(GUIPreferences * prefs, SLScene* s, SLSceneView* sv);
+    static void build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv);
 };
 
 #endif

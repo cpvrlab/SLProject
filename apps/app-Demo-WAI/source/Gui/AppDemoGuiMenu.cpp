@@ -57,6 +57,7 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Start", nullptr, &prefs->showSlamLoad);
             ImGui::MenuItem("Tracked Mapping", nullptr, &prefs->showTrackedMapping);
             ImGui::MenuItem("Params", nullptr, &prefs->showSlamParam);
+            ImGui::MenuItem("Marker", nullptr, &prefs->showMarker);
 
             ImGui::EndMenu();
         }

@@ -14,6 +14,7 @@ class GUIPreferences
     //slam menu
     bool showSlamParam      = false;
     bool showTrackedMapping = false;
+    bool showMarker         = false;
 
     //video menu
     bool showVideoControls = false;

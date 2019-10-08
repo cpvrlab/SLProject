@@ -156,6 +156,7 @@ WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* 
     AVERAGE_TIMING_STOP("WAIFrame");
 }
 
+// TODO(dgj1): used for chessboard marker initialization...
 WAIFrame::WAIFrame(const cv::Mat& imGray, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, std::vector<cv::KeyPoint>& vKeys, ORBVocabulary* orbVocabulary, bool retainImg)
   : mpORBextractorLeft(extractor), mvKeys(vKeys), mpORBvocabulary(orbVocabulary)
 {

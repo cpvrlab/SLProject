@@ -49,6 +49,7 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     loadFileNamesInVector(WAIApp::vocDir, _existingVocNames, vocExtensions, false);
 
     _storeKeyFrameImage = false;
+    _createMarkerMap    = false;
 }
 
 void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directory,

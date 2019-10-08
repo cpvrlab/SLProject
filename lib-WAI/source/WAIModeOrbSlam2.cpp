@@ -35,7 +35,7 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
     else
         _initialized = false;
 
-    //instantiate Orb extractor
+    //instantiate feature extractor
     // TODO(dgj1): we need to find a good value for the extractor threshold
     mpDefaultExtractor    = new ORB_SLAM2::SURFextractor(800);
     mpIniDefaultExtractor = new ORB_SLAM2::SURFextractor(1000);
@@ -57,16 +57,12 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
     }
 
     _state = TrackingState_Initializing;
-
-    _pose = cv::Mat(4, 4, CV_32F);
+    _pose  = cv::Mat(4, 4, CV_32F);
 
     if (_createMarkerMap)
     {
-#if 0
-            _markerOrbExtractor = new ORB_SLAM2::ORBextractor(10 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST); // TODO(dgj1): markerInitialization - adjust nFeatures
-#else
         _markerOrbExtractor = new ORB_SLAM2::SURFextractor(500); // TODO(dgj1): markerInitialization - adjust nFeatures
-#endif
+
         cv::Mat markerImgGray = cv::imread(std::string(SL_PROJECT_ROOT) + "/data/calibrations/marker_640_360.jpg", cv::IMREAD_GRAYSCALE);
 
         float fyCam = _cameraMat.at<float>(1, 1);
@@ -81,13 +77,13 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
         cv::Mat markerCameraMat     = (cv::Mat_<float>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
         cv::Mat markerDistortionMat = cv::Mat::zeros(4, 1, CV_32F);
 
-        _markerFrame   = WAIFrame(markerImgGray, 0.0f, _markerOrbExtractor, markerCameraMat, markerDistortionMat, mpVocabulary);
+        _markerFrame   = WAIFrame(markerImgGray, 0.0f, _markerOrbExtractor, markerCameraMat, markerDistortionMat, mpVocabulary, true);
         _markerWidthMM = 289.0f;
     }
 }
 
-//TODO : Verify that this is really thread safe
-
+// TODO : Verify that this is really thread safe
+// TODO(dgj1): should this even be possible when the system is running?
 void WAI::ModeOrbSlam2::setExtractor(KPextractor* extractor, KPextractor* iniExtractor)
 {
     requestStateIdle();
@@ -541,7 +537,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
                              mpVocabulary,
                              _retainImg);
 
-    cv::Mat          markerCorrectedPose;
+    // NOTE(dgj1): find matches with marker if necessary
     std::vector<int> markerMatchesCurrentFrame;
     if (_createMarkerMap)
     {
@@ -552,7 +548,6 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
 
         std::vector<int> markerMatchesToCurrentFrame;
         int              nmatches = matcher.SearchForInitialization(_markerFrame, mCurrentFrame, prevMatched, markerMatchesToCurrentFrame, 100);
-        WAI_LOG("nmatches: %i", nmatches);
 
         if (nmatches > 100)
         {
@@ -765,7 +760,6 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
 
         std::vector<int> markerMatchesToCurrentFrame;
         int              nmatches = matcher.SearchForInitialization(_markerFrame, mCurrentFrame, prevMatched, markerMatchesToCurrentFrame, 100);
-        WAI_LOG("nmatches: %i", nmatches);
 
         std::vector<cv::KeyPoint> matches;
         for (int i = 0; i < markerMatchesToCurrentFrame.size(); i++)
@@ -1062,17 +1056,12 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular()
     WAIKeyFrame* pKFini = new WAIKeyFrame(mInitialFrame, _map, mpKeyFrameDatabase);
     WAIKeyFrame* pKFcur = new WAIKeyFrame(mCurrentFrame, _map, mpKeyFrameDatabase);
 
-    WAI_LOG("pKFini num keypoints: %i", mInitialFrame.N);
-    WAI_LOG("pKFcur num keypoints: %i", mCurrentFrame.N);
-
     pKFini->ComputeBoW(mpVocabulary);
     pKFcur->ComputeBoW(mpVocabulary);
 
     // Insert KFs in the map
     _map->AddKeyFrame(pKFini);
     _map->AddKeyFrame(pKFcur);
-    //mpKeyFrameDatabase->add(pKFini);
-    //mpKeyFrameDatabase->add(pKFcur);
 
     // Create MapPoints and asscoiate to keyframes
     for (size_t i = 0; i < mvIniMatches.size(); i++)
@@ -1170,9 +1159,6 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular()
     // Bundle Adjustment
     WAI_LOG("Number of Map points after local mapping: %i", _map->MapPointsInMap());
 
-    std::cout << pKFini->getObjectMatrix() << std::endl;
-    std::cout << pKFcur->getObjectMatrix() << std::endl;
-
     //ghm1: add keyframe to scene graph. this position is wrong after bundle adjustment!
     //set map dirty, the map will be updated in next decoration
     _mapHasChanged = true;
@@ -1238,19 +1224,16 @@ bool WAI::ModeOrbSlam2::needNewKeyFrame()
         // Otherwise send a signal to interrupt BA
         if (bLocalMappingIdle)
         {
-            std::cout << "[WAITrackedMapping] NeedNewKeyFrame: YES bLocalMappingIdle!" << std::endl;
             return true;
         }
         else
         {
             mpLocalMapper->InterruptBA();
-            std::cout << "[WAITrackedMapping] NeedNewKeyFrame: NO InterruptBA!" << std::endl;
             return false;
         }
     }
     else
     {
-        std::cout << "[WAITrackedMapping] NeedNewKeyFrame: NO!" << std::endl;
         return false;
     }
 }

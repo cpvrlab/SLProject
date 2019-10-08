@@ -58,7 +58,6 @@ class WAIApp
 
     static void renderKeyframes();
     static void renderGraphs();
-    static void refreshTexture(cv::Mat* image);
 
     static void setupGUI();
     static void buildGUI(SLScene* s, SLSceneView* sv);
