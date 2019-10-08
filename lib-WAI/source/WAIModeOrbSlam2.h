@@ -24,14 +24,6 @@
 namespace WAI
 {
 
-enum MarkerCorrectionType
-{
-    MarkerCorrectionType_None,
-    MarkerCorrectionType_Chessboard,
-    MarkerCorrectionType_MapCreation,
-    MarkerCorrectionType_Map
-};
-
 enum TrackingState
 {
     TrackingState_None,
@@ -44,14 +36,14 @@ enum TrackingState
 class WAI_API ModeOrbSlam2
 {
     public:
-    ModeOrbSlam2(cv::Mat              cameraMat,
-                 cv::Mat              distortionMat,
-                 bool                 serial,
-                 bool                 retainImg,
-                 bool                 onlyTracking,
-                 bool                 trackOptFlow,
-                 MarkerCorrectionType markerCorrectionType,
-                 std::string          orbVocFile);
+    ModeOrbSlam2(cv::Mat     cameraMat,
+                 cv::Mat     distortionMat,
+                 bool        serial,
+                 bool        retainImg,
+                 bool        onlyTracking,
+                 bool        trackOptFlow,
+                 bool        createMarkerMap,
+                 std::string orbVocFile);
     ~ModeOrbSlam2();
     bool getPose(cv::Mat* pose);
     bool update(cv::Mat& imageGray, cv::Mat& imageRGB);
@@ -126,9 +118,6 @@ class WAI_API ModeOrbSlam2
     void setExtractor(KPextractor* extractor, KPextractor* iniExtractor);
     void setVocabulary(std::string orbVocFile);
 
-    MarkerCorrectionType getMarkerCorrectedType() { return _markerCorrectionType; }
-    cv::Mat              getMarkerCorrectionTransformation();
-
     WAIFrame getCurrentFrame();
 
     private:
@@ -141,8 +130,6 @@ class WAI_API ModeOrbSlam2
     };
 
     void initialize(cv::Mat& imageGray, cv::Mat& imageRGB);
-    void initializeWithKnownPose(cv::Mat& imageGray, cv::Mat& imageRGB, int minKeys = 100, bool matchesKnown = false);
-    void initializeWithChessboardCorrection(cv::Mat& imageGray, cv::Mat& imageRGB);
     bool createInitialMapMonocular();
     void track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB);
 
@@ -281,10 +268,8 @@ class WAI_API ModeOrbSlam2
     bool   _allowKfsAsActiveCam   = false;
 
     // marker correction stuff
-    MarkerCorrectionType _markerCorrectionType;
+    bool _createMarkerMap;
 
-    bool    findChessboardPose(cv::Mat& imageGray, cv::Mat& imageRGB, cv::Mat& foundPose);
-    cv::Mat _initialFrameChessboardPose;
     cv::Mat _markerCorrectionTransformation;
 
     cv::Size _chessboardSize;

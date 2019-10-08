@@ -44,6 +44,7 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
     std::string _currentVoc;
 
     bool _storeKeyFrameImage;
+    bool _createMarkerMap;
 
     WAICalibration* _wc;
 };

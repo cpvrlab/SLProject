@@ -41,7 +41,8 @@ class WAIApp
                                            std::string calibrationFile = "",
                                            std::string mapFile         = "",
                                            std::string vocFileName     = "ORBvoc.bin",
-                                           bool        saveVideoFrames = false);
+                                           bool        saveVideoFrames = false,
+                                           bool        createMarkerMap = false);
 
     static void onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid);
     static bool update();

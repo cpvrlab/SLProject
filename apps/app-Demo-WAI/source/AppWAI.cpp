@@ -135,7 +135,8 @@ OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
                                         std::string calibrationFileName,
                                         std::string mapFileName,
                                         std::string vocFileName,
-                                        bool        saveVideoFrames)
+                                        bool        saveVideoFrames,
+                                        bool        createMarkerMap)
 {
     OrbSlamStartResult result = {};
     uiPrefs.showError         = false;
@@ -260,7 +261,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(std::string videoFileName,
                                  saveVideoFrames,
                                  false,
                                  false,
-                                 WAI::MarkerCorrectionType_Map, // TODO(dgj1): possibility to chose if marker correction type in GUI
+                                 createMarkerMap,
                                  vocFile);
 
     // 5. Load map data
@@ -543,31 +544,6 @@ bool WAIApp::updateTracking()
 //-----------------------------------------------------------------------------
 void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
-    // TODO(dgj1): markerInitialization - decide to keep
-    if (mode->getMarkerCorrectedType() == WAI::MarkerCorrectionType_Chessboard && iKnowWhereIAm)
-    {
-        cv::Mat mapTransform = mode->getMarkerCorrectionTransformation();
-        SLMat4f om;
-        om.setMatrix(mapTransform.at<float>(0, 0),
-                     mapTransform.at<float>(0, 1),
-                     mapTransform.at<float>(0, 2),
-                     mapTransform.at<float>(0, 3),
-                     mapTransform.at<float>(1, 0),
-                     mapTransform.at<float>(1, 1),
-                     mapTransform.at<float>(1, 2),
-                     mapTransform.at<float>(1, 3),
-                     mapTransform.at<float>(2, 0),
-                     mapTransform.at<float>(2, 1),
-                     mapTransform.at<float>(2, 2),
-                     mapTransform.at<float>(2, 3),
-                     mapTransform.at<float>(3, 0),
-                     mapTransform.at<float>(3, 1),
-                     mapTransform.at<float>(3, 2),
-                     mapTransform.at<float>(3, 3));
-
-        waiScene->mapNode->om(om);
-    }
-
     //update keypoints visualization (2d image points):
     //TODO: 2d visualization is still done in mode... do we want to keep it there?
     mode->showKeyPoints(uiPrefs.showKeyPoints);

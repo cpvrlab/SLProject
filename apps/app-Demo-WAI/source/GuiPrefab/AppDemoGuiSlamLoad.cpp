@@ -100,7 +100,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                                                               _currentCalibration,
                                                               _currentMap,
                                                               _currentVoc,
-                                                              _storeKeyFrameImage);
+                                                              _storeKeyFrameImage,
+                                                              _createMarkerMap);
 
         if (!startResult.wasSuccessful)
         {
@@ -171,6 +172,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         }
 
         ImGui::Checkbox("store keyframes image", &_storeKeyFrameImage);
+        ImGui::Checkbox("create marker map", &_createMarkerMap);
     }
     ImGui::End();
 }
