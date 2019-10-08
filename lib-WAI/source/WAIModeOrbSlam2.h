@@ -120,6 +120,8 @@ class WAI_API ModeOrbSlam2
 
     WAIFrame getCurrentFrame();
 
+    bool getMarkerCorrectionTransformation(cv::Mat* markerCorrectionTransformation);
+
     private:
     enum TrackingType
     {
@@ -270,6 +272,7 @@ class WAI_API ModeOrbSlam2
     // marker correction stuff
     bool _createMarkerMap;
 
+    bool    _hasMarkerCorrectionTransformation;
     cv::Mat _markerCorrectionTransformation;
 
     cv::Size _chessboardSize;
@@ -278,7 +281,7 @@ class WAI_API ModeOrbSlam2
 
     WAIFrame                _markerFrame;
     ORB_SLAM2::KPextractor* _markerOrbExtractor;
-    float                   _markerWidthMM;
+    float                   _markerWidthM;
     std::vector<int>        _initialFrameToMarkerMatches;
     bool                    _relocalizeFromMarkerMap;
 };

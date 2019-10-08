@@ -447,6 +447,45 @@ bool WAIApp::update()
             return false;
         }
 
+        cv::Mat markerCorrectionTransformation = cv::Mat(3, 4, CV_32F);
+        if (mode->getMarkerCorrectionTransformation(&markerCorrectionTransformation))
+        {
+            markerCorrectionTransformation.at<float>(2, 2) = 1.0f;
+            std::cout << markerCorrectionTransformation << std::endl;
+
+            // update camera node position
+            cv::Mat Rwc(3, 3, CV_32F);
+            cv::Mat twc(3, 1, CV_32F);
+
+            Rwc = (markerCorrectionTransformation.rowRange(0, 3).colRange(0, 3)).t();
+            twc = -Rwc * markerCorrectionTransformation.rowRange(0, 3).col(3);
+
+            cv::Mat CorInv = cv::Mat::eye(4, 4, CV_32F);
+
+            Rwc.copyTo(CorInv.colRange(0, 3).rowRange(0, 3));
+            twc.copyTo(CorInv.rowRange(0, 3).col(3));
+            SLMat4f nodeOm;
+
+            nodeOm.setMatrix(CorInv.at<float>(0, 0),
+                             -CorInv.at<float>(0, 1),
+                             -CorInv.at<float>(0, 2),
+                             CorInv.at<float>(0, 3),
+                             CorInv.at<float>(1, 0),
+                             -CorInv.at<float>(1, 1),
+                             -CorInv.at<float>(1, 2),
+                             CorInv.at<float>(1, 3),
+                             CorInv.at<float>(2, 0),
+                             -CorInv.at<float>(2, 1),
+                             -CorInv.at<float>(2, 2),
+                             CorInv.at<float>(2, 3),
+                             CorInv.at<float>(3, 0),
+                             -CorInv.at<float>(3, 1),
+                             -CorInv.at<float>(3, 2),
+                             CorInv.at<float>(3, 3));
+
+            waiScene->mapNode->om(nodeOm);
+        }
+
         // update camera node position
         cv::Mat Rwc(3, 3, CV_32F);
         cv::Mat twc(3, 1, CV_32F);

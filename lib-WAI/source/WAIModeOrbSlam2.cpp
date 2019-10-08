@@ -77,8 +77,8 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
         cv::Mat markerCameraMat     = (cv::Mat_<float>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
         cv::Mat markerDistortionMat = cv::Mat::zeros(4, 1, CV_32F);
 
-        _markerFrame   = WAIFrame(markerImgGray, 0.0f, _markerOrbExtractor, markerCameraMat, markerDistortionMat, mpVocabulary, true);
-        _markerWidthMM = 289.0f;
+        _markerFrame  = WAIFrame(markerImgGray, 0.0f, _markerOrbExtractor, markerCameraMat, markerDistortionMat, mpVocabulary, true);
+        _markerWidthM = 0.289f;
     }
 }
 
@@ -698,6 +698,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
             mCurrentFrame.SetPose(Tcw);
 
             bool mapInitializedSuccessfully = createInitialMapMonocular();
+
             if (mapInitializedSuccessfully)
             {
                 //mark tracking as initialized
@@ -1111,7 +1112,6 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular()
         return false;
     }
 
-#if 1 // TODO(dgj1): REACTIVATE THIS FOR REGULAR INITIALIZATION
     // Scale initial baseline
     cv::Mat Tc2w               = pKFcur->GetPose();
     Tc2w.col(3).rowRange(0, 3) = Tc2w.col(3).rowRange(0, 3) * invMedianDepth;
@@ -1127,7 +1127,6 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular()
             pMP->SetWorldPos(pMP->GetWorldPos() * invMedianDepth);
         }
     }
-#endif
 
     mpLocalMapper->InsertKeyFrame(pKFini);
     mpLocalMapper->InsertKeyFrame(pKFcur);
@@ -1158,6 +1157,100 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular()
 
     // Bundle Adjustment
     WAI_LOG("Number of Map points after local mapping: %i", _map->MapPointsInMap());
+
+    if (_createMarkerMap)
+    {
+        float mPerPx = _markerWidthM / _markerFrame.imgGray.cols;
+
+        // find marker key points used to generate map points
+        std::vector<cv::Point3f> markerPointCoordinates;
+        std::vector<cv::Point3f> mapPointCoordinates;
+
+        std::vector<WAIMapPoint*> markerKeyPointToMapPointMatches(_markerFrame.N, nullptr);
+        std::vector<WAIMapPoint*> mapPoints = _map->GetAllMapPoints();
+        for (int i = 0; i < mapPoints.size(); i++)
+        {
+            WAIMapPoint* mapPoint = mapPoints[i];
+
+            // get index of keypoint in initial frame that generated this map point
+            std::map<WAIKeyFrame*, size_t> obs                 = mapPoint->GetObservations();
+            size_t                         kpIndexInitialFrame = obs.at(pKFini);
+
+            // get index of keypoint in marker frame that matched to this keypoint in the initial frame
+            int kpIndexMarkerFrame = _initialFrameToMarkerMatches[kpIndexInitialFrame];
+
+            // calculate position in marker frame coordinate system
+            cv::Point2f markerKeyPoint = _markerFrame.mvKeysUn[kpIndexMarkerFrame].pt;
+            //cv::Point3f markerPointCoordinate = cv::Point3f(markerKeyPoint.x * mPerPx, markerKeyPoint.y * mPerPx, 0.0f);
+            cv::Point3f markerPointCoordinate = cv::Point3f(markerKeyPoint.x, markerKeyPoint.y, 0.0f);
+
+            cv::Mat     mapPointPos        = mapPoint->GetWorldPos();
+            cv::Point3f mapPointCoordinate = cv::Point3f(mapPointPos.at<float>(0, 0),
+                                                         mapPointPos.at<float>(1, 0),
+                                                         mapPointPos.at<float>(2, 0));
+
+            // add to vector
+            //markerKeyPointToMapPointMatches[kpIndexMarkerFrame] = mapPoint;
+
+            markerPointCoordinates.push_back(markerPointCoordinate);
+            mapPointCoordinates.push_back(mapPointCoordinate);
+        }
+
+        cv::Mat inliers;
+        _markerCorrectionTransformation = cv::Mat(3, 4, CV_32F);
+        cv::estimateAffine3D(mapPointCoordinates,
+                             markerPointCoordinates,
+                             _markerCorrectionTransformation,
+                             inliers);
+
+        _hasMarkerCorrectionTransformation = true;
+
+#if 0
+        // find two map points that are the furthest apart
+        float mapDist = 0.0f;
+        int   indexKP1, indexKP2;
+        for (int i = 0; i < markerKeyPointToMapPointMatches.size(); i++)
+        {
+            WAIMapPoint* mp1 = markerKeyPointToMapPointMatches[i];
+
+            if (!mp1) continue;
+
+            for (int j = 0; j < markerKeyPointToMapPointMatches.size(); j++)
+            {
+                WAIMapPoint* mp2 = markerKeyPointToMapPointMatches[j];
+
+                if (!mp2) continue;
+
+                float dist = cv::norm(mp1->GetWorldPos() - mp2->GetWorldPos());
+
+                if (dist > mapDist)
+                {
+                    mapDist  = dist;
+                    indexKP1 = i;
+                    indexKP2 = j;
+                }
+            }
+        }
+
+        // calculate dist on marker in 2D
+        float markerDistInPx = cv::norm(_markerFrame.mvKeysUn[indexKP1].pt - _markerFrame.mvKeysUn[indexKP2].pt);
+        float mPerPx         = _markerWidthM / _markerFrame.imgGray.cols;
+        float markerDistInM  = markerDistInPx * mPerPx;
+
+        // calculate scale factor
+        float scaleFactor = markerDistInM / mapDist;
+
+        WAI_LOG("kp1: %f, %f\nkp2: %f, %f",
+                _markerFrame.mvKeysUn[indexKP1].pt.x,
+                _markerFrame.mvKeysUn[indexKP1].pt.y,
+                _markerFrame.mvKeysUn[indexKP2].pt.x,
+                _markerFrame.mvKeysUn[indexKP2].pt.y);
+        WAI_LOG("dist in m: %f, in px: %f",
+                markerDistInM,
+                markerDistInPx);
+        WAI_LOG("scale factor is: %f", scaleFactor);
+#endif
+    }
 
     //ghm1: add keyframe to scene graph. this position is wrong after bundle adjustment!
     //set map dirty, the map will be updated in next decoration
@@ -2433,4 +2526,17 @@ void WAI::ModeOrbSlam2::decorateVideoWithKeyPointMatches(cv::Mat& image)
             }
         }
     }
+}
+
+bool WAI::ModeOrbSlam2::getMarkerCorrectionTransformation(cv::Mat* markerCorrectionTransformation)
+{
+    bool result = false;
+
+    if (_hasMarkerCorrectionTransformation)
+    {
+        *markerCorrectionTransformation = _markerCorrectionTransformation.clone();
+        result                          = true;
+    }
+
+    return result;
 }
