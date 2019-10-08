@@ -118,13 +118,13 @@ transformed vertices and normals are stored in _finalP and _finalN.
 class SLMesh : public SLObject
 {
     public:
-    explicit SLMesh(SLstring name = "Mesh");
+    explicit SLMesh(const SLstring& name = "Mesh");
     ~SLMesh() override;
 
     virtual void init(SLNode* node);
     virtual void draw(SLSceneView* sv, SLNode* node);
     void         addStats(SLNodeStats& stats);
-    virtual void buildAABB(SLAABBox& aabb, SLMat4f wmNode);
+    virtual void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
     void         updateAccelStruct();
     SLbool       hit(SLRay* ray, SLNode* node);
     virtual void preShade(SLRay* ray);
