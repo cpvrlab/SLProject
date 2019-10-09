@@ -63,7 +63,9 @@ public class GLES3View extends GLSurfaceView
         protected Handler mainLoop;
         int _w, _h;
         boolean _initialized = false;
+        private int videoType;
 
+        @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             Log.i(TAG, "Renderer.onSurfaceCreated");
             _w = GLES3Lib.view.getWidth();
@@ -71,42 +73,46 @@ public class GLES3View extends GLSurfaceView
 
             // Get main event handler of UI thread
             mainLoop = new Handler(Looper.getMainLooper());
+			
+            if (!GLES3Lib.activity.isPermissionReadStorageGranted() || !GLES3Lib.activity.isPermissionWriteStorageGranted())
+				return;
+
+			if (!_initialized)
+			{
+				GLES3Lib.onInit(_w, _h,
+						GLES3Lib.dpi,
+						GLES3Lib.App.getApplicationContext().getFilesDir().getAbsolutePath());
+				_initialized = true;
+			}
+
+			videoType = GLES3Lib.getVideoType();
+			int sizeIndex = GLES3Lib.getVideoSizeIndex();
+			boolean usesRotation = GLES3Lib.usesRotation();
+			boolean usesLocation = GLES3Lib.usesLocation();
+
+			if (videoType==VT_MAIN || videoType==VT_SCND)
+				mainLoop.post(() -> GLES3Lib.activity.cameraStart(videoType, sizeIndex));
+			else mainLoop.post(() -> GLES3Lib.activity.cameraStop());
+
+			if (usesRotation)
+				mainLoop.post(() -> GLES3Lib.activity.rotationSensorStart());
+			else mainLoop.post(() -> GLES3Lib.activity.rotationSensorStop());
+
+			if (usesLocation)
+				mainLoop.post(() -> GLES3Lib.activity.locationSensorStart());
+			else mainLoop.post(() -> GLES3Lib.activity.locationSensorStop());
         }
 
+        @Override
         public void onSurfaceChanged(GL10 gl, int width, int height) {
             Log.i(TAG, "Renderer.onSurfaceChanged");
             GLES3Lib.onResize(width, height);
             GLES3Lib.view.requestRender();
         }
 
+        @Override
         public void onDrawFrame(GL10 gl) {
-            if (!GLES3Lib.activity.isPermissionReadStorageGranted() || !GLES3Lib.activity.isPermissionWriteStorageGranted()) return;
-
-            if (!_initialized)
-            {
-                GLES3Lib.onInit(_w, _h,
-                        GLES3Lib.dpi,
-                        GLES3Lib.App.getApplicationContext().getFilesDir().getAbsolutePath());
-                _initialized = true;
-            }
-
-            int videoType = GLES3Lib.getVideoType();
-            int sizeIndex = GLES3Lib.getVideoSizeIndex();
-            boolean usesRotation = GLES3Lib.usesRotation();
-            boolean usesLocation = GLES3Lib.usesLocation();
-
-            if (videoType==VT_MAIN || videoType==VT_SCND)
-                 mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStart(videoType, sizeIndex);}});
-            else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStop();}});
-
-            if (usesRotation)
-                 mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.rotationSensorStart();}});
-            else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.rotationSensorStop();}});
-
-            if (usesLocation)
-                 mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.locationSensorStart();}});
-            else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.locationSensorStop();}});
-
+         
             if (videoType==VT_FILE)
                 GLES3Lib.grabVideoFileFrame();
 
