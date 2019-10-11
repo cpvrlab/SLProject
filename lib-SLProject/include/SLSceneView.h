@@ -22,6 +22,7 @@
 #include <SLRaytracer.h>
 #include <SLScene.h>
 #include <SLSkybox.h>
+#include <SLRect.h>
 
 //-----------------------------------------------------------------------------
 class SLCamera;
@@ -123,6 +124,8 @@ class SLSceneView : public SLObject
     void     startRaytracing(SLint maxDepth);
     void     startPathtracing(SLint maxDepth, SLint samples);
     void     printStats() { _stats3D.print(); }
+    void     setViewportFromRatio(const SLVec2i&      vpRatio,
+                                  SLViewportAlignment vpAlignment = VA_center);
 
     // Callback routines
     cbOnWndUpdate      onWndUpdate;        //!< C-Callback for app for intermediate window repaint
@@ -150,6 +153,7 @@ class SLSceneView : public SLObject
     SLint         scrWdiv2() const { return _scrWdiv2; }
     SLint         scrHdiv2() const { return _scrHdiv2; }
     SLfloat       scrWdivH() const { return _scrWdivH; }
+    SLRecti       viewportRect() const { return _viewportRect; }
     SLGLImGui&    gui() { return _gui; }
     SLbool        gotPainted() const { return _gotPainted; }
     SLbool        doFrustumCulling() const { return _doFrustumCulling; }
@@ -205,11 +209,14 @@ class SLSceneView : public SLObject
     SLGLVertexArrayExt _vaoTouch;  //!< Buffer for touch pos. rendering
     SLGLVertexArrayExt _vaoCursor; //!< Virtual cursor for stereo rendering
 
-    SLint   _scrW;     //!< Screen width in pixels
-    SLint   _scrH;     //!< Screen height in pixels
-    SLint   _scrWdiv2; //!< Screen half width in pixels
-    SLint   _scrHdiv2; //!< Screen half height in pixels
-    SLfloat _scrWdivH; //!< Screen side aspect ratio
+    SLint               _scrW;              //!< Screen width in pixels
+    SLint               _scrH;              //!< Screen height in pixels
+    SLint               _scrWdiv2;          //!< Screen half width in pixels
+    SLint               _scrHdiv2;          //!< Screen half height in pixels
+    SLfloat             _scrWdivH;          //!< Screen side aspect ratio
+    SLVec2i             _viewportRatio;     //!< ratio of viewport
+    SLViewportAlignment _viewportAlignment; //!< alignment of viewport
+    SLRecti             _viewportRect;      //!< rectangle of viewport
 
     SLGLOculusFB _oculusFB; //!< Oculus framebuffer
 

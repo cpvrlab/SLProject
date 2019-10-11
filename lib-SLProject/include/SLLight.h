@@ -14,7 +14,6 @@
 #include <SL.h>
 #include <SLVec4.h>
 
-class SLSceneView;
 class SLRay;
 
 //-----------------------------------------------------------------------------
@@ -26,25 +25,25 @@ also derive from SLNode and can therefore be freely placed in space.
 class SLLight
 {
     public:
-    SLLight(SLfloat ambiPower = 0.1f,
-            SLfloat diffPower = 1.0f,
-            SLfloat specPower = 1.0f,
-            SLint   id        = -1);
-    virtual ~SLLight() {}
+    explicit SLLight(SLfloat ambiPower = 0.1f,
+                     SLfloat diffPower = 1.0f,
+                     SLfloat specPower = 1.0f,
+                     SLint   id        = -1);
+    virtual ~SLLight() = default;
 
     virtual void setState() = 0;
 
     // Setters
     void id(const SLint id) { _id = id; }
     void isOn(const SLbool on) { _isOn = on; }
-    void ambient(const SLCol4f ambi) { _ambient = ambi; }
-    void diffuse(const SLCol4f diff) { _diffuse = diff; }
-    void specular(const SLCol4f spec) { _specular = spec; }
+    void ambient(const SLCol4f& ambi) { _ambient = ambi; }
+    void diffuse(const SLCol4f& diff) { _diffuse = diff; }
+    void specular(const SLCol4f& spec) { _specular = spec; }
     void spotExponent(const SLfloat exp) { _spotExponent = exp; }
-    void spotCutOffDEG(const SLfloat cutOffAngleDEG);
-    void kc(const SLfloat kc);
-    void kl(const SLfloat kl);
-    void kq(const SLfloat kq);
+    void spotCutOffDEG(SLfloat cutOffAngleDEG);
+    void kc(SLfloat kc);
+    void kl(SLfloat kl);
+    void kq(SLfloat kq);
     void attenuation(const SLfloat kC,
                      const SLfloat kL,
                      const SLfloat kQ)
@@ -74,10 +73,10 @@ class SLLight
     virtual SLVec3f spotDirWS()                           = 0;
     virtual SLfloat shadowTest(SLRay*         ray,
                                const SLVec3f& L,
-                               const SLfloat  lightDist)   = 0;
+                               SLfloat  lightDist)   = 0;
     virtual SLfloat shadowTestMC(SLRay*         ray,
                                  const SLVec3f& L,
-                                 const SLfloat  lightDist) = 0;
+                                 SLfloat  lightDist) = 0;
 
     protected:
     SLint   _id;               //!< OpenGL light number (0-7)

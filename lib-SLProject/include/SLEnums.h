@@ -315,4 +315,12 @@ enum SLLogVerbosity
     LV_diagnostic = 4
 };
 //-----------------------------------------------------------------------------
+//! Mouse button codes
+enum SLViewportAlignment
+{
+    VA_center = 0,
+    VA_leftOrTop,
+    VA_rightOrBottom
+};
+//-----------------------------------------------------------------------------
 #endif

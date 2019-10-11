@@ -17,6 +17,7 @@
 #endif
 
 #include <SLApplication.h>
+#include <SLSceneView.h>
 #include <SLGLImGui.h>
 #include <SLScene.h>
 
@@ -359,7 +360,7 @@ void SLGLImGui::onResize(SLint scrW, SLint scrH)
 }
 //-----------------------------------------------------------------------------
 //! Callback for main rendering for the ImGui GUI system
-void SLGLImGui::onPaint(ImDrawData* draw_data)
+void SLGLImGui::onPaint(ImDrawData* draw_data, const SLRecti& viewportRect)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -416,15 +417,25 @@ void SLGLImGui::onPaint(ImDrawData* draw_data)
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_SCISSOR_TEST);
 
-    // Setup viewport, orthographic projection matrix
-    glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
+    // Setup viewport
+    if (viewportRect.isEmpty())
+        glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
+    else
+        glViewport((GLsizei)viewportRect.x,
+                   (GLsizei)viewportRect.y,
+                   (GLsizei)viewportRect.width,
+                   (GLsizei)viewportRect.height);
+
+    // Setup orthographic projection matrix
+    // clang-format off
     const float ortho_projection[4][4] =
-      {
-        {2.0f / io.DisplaySize.x, 0.0f, 0.0f, 0.0f},
-        {0.0f, 2.0f / -io.DisplaySize.y, 0.0f, 0.0f},
-        {0.0f, 0.0f, -1.0f, 0.0f},
-        {-1.0f, 1.0f, 0.0f, 1.0f},
-      };
+    {
+        {2.0f / io.DisplaySize.x, 0.0f,                     0.0f, 0.0f},
+        {0.0f,                    2.0f / -io.DisplaySize.y, 0.0f, 0.0f},
+        {0.0f,                    0.0f,                    -1.0f, 0.0f},
+        {-1.0f,                   1.0f,                     0.0f, 1.0f},
+    };
+    // clang-format on
 
     glUseProgram((SLuint)_progHandle);
     glUniform1i(_attribLocTex, 0);
@@ -488,22 +499,27 @@ void SLGLImGui::onPaint(ImDrawData* draw_data)
         glEnable(GL_BLEND);
     else
         glDisable(GL_BLEND);
+
     if (last_enable_cull_face)
         glEnable(GL_CULL_FACE);
     else
         glDisable(GL_CULL_FACE);
+
     if (last_enable_depth_test)
         glEnable(GL_DEPTH_TEST);
     else
         glDisable(GL_DEPTH_TEST);
+
     if (last_enable_scissor_test)
         glEnable(GL_SCISSOR_TEST);
     else
         glDisable(GL_SCISSOR_TEST);
+
     glViewport(last_viewport[0],
                last_viewport[1],
                (GLsizei)last_viewport[2],
                (GLsizei)last_viewport[3]);
+
     glScissor(last_scissor_box[0],
               last_scissor_box[1],
               (GLsizei)last_scissor_box[2],
@@ -590,7 +606,7 @@ void SLGLImGui::renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLin
         ImGui::GetIO().MousePos = ImVec2((SLfloat)mouseX, (SLfloat)mouseY);
         onInitNewFrame(s, sv);
         ImGui::Render();
-        onPaint(ImGui::GetDrawData());
+        onPaint(ImGui::GetDrawData(), sv->viewportRect());
     }
 }
 //-----------------------------------------------------------------------------

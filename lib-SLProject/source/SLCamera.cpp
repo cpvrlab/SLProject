@@ -152,10 +152,10 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             SLVVec3f       P;
             SLVec3f        pos(vm.translation());
             SLfloat        t = tan(Utils::DEG2RAD * _fov * 0.5f) * pos.length(); // top
-            SLfloat        b = -t;                                           // bottom
-            SLfloat        l = -sv->scrWdivH() * t;                          // left
-            SLfloat        r = -l;                                           // right
-            SLfloat        c = std::min(l, r) * 0.05f;                         // size of cross at focal point
+            SLfloat        b = -t;                                               // bottom
+            SLfloat        l = -sv->scrWdivH() * t;                              // left
+            SLfloat        r = -l;                                               // right
+            SLfloat        c = std::min(l, r) * 0.05f;                           // size of cross at focal point
 
             // small line in view direction
             P.push_back(SLVec3f(0, 0, 0));
@@ -220,16 +220,16 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             SLVVec3f P;
             SLfloat  aspect = sv->scrWdivH();
             SLfloat  tanFov = tan(_fov * Utils::DEG2RAD * 0.5f);
-            SLfloat  tF     = tanFov * _clipFar;      //top far
-            SLfloat  rF     = tF * aspect;            //right far
-            SLfloat  lF     = -rF;                    //left far
-            SLfloat  tP     = tanFov * _focalDist;    //top projection at focal distance
-            SLfloat  rP     = tP * aspect;            //right projection at focal distance
-            SLfloat  lP     = -tP * aspect;           //left projection at focal distance
+            SLfloat  tF     = tanFov * _clipFar;        //top far
+            SLfloat  rF     = tF * aspect;              //right far
+            SLfloat  lF     = -rF;                      //left far
+            SLfloat  tP     = tanFov * _focalDist;      //top projection at focal distance
+            SLfloat  rP     = tP * aspect;              //right projection at focal distance
+            SLfloat  lP     = -tP * aspect;             //left projection at focal distance
             SLfloat  cP     = std::min(lP, rP) * 0.05f; //size of cross at focal point
-            SLfloat  tN     = tanFov * _clipNear;     //top near
-            SLfloat  rN     = tN * aspect;            //right near
-            SLfloat  lN     = -tN * aspect;           //left near
+            SLfloat  tN     = tanFov * _clipNear;       //top near
+            SLfloat  rN     = tN * aspect;              //right near
+            SLfloat  lN     = -tN * aspect;             //left near
 
             // small line in view direction
             P.push_back(SLVec3f(0, 0, 0));
@@ -415,20 +415,21 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
 
     SLVec3f pos(vm.translation());
     SLfloat top, bottom, left, right, d; // frustum parameters
-    _scrW   = sv->scrW();
-    _scrH   = sv->scrH();
-    _aspect = sv->scrWdivH();
+    SLRecti vpRect = sv->viewportRect();
+    _scrW          = vpRect.width;
+    _scrH          = vpRect.height;
+    _aspect        = (float)vpRect.width / (float)vpRect.height;
 
     switch (_projection)
     {
         case P_monoPerspective:
-            stateGL->projectionMatrix.perspective(_fov, sv->scrWdivH(), _clipNear, _clipFar);
+            stateGL->projectionMatrix.perspective(_fov, _aspect, _clipNear, _clipFar);
             break;
 
         case P_monoOrthographic:
             top    = tan(Utils::DEG2RAD * _fov * 0.5f) * pos.length();
             bottom = -top;
-            left   = -sv->scrWdivH() * top;
+            left   = -_aspect * top;
             right  = -left;
 
             // The orthographic projection should have its near clip plane behind the camera
@@ -447,19 +448,19 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
             d      = (SLfloat)eye * 0.5f * _eyeSeparation * _clipNear / _focalDist;
             top    = tan(Utils::DEG2RAD * _fov / 2) * _clipNear;
             bottom = -top;
-            left   = -sv->scrWdivH() * top - d;
-            right  = sv->scrWdivH() * top - d;
+            left   = -_aspect * top - d;
+            right  = _aspect * top - d;
             stateGL->projectionMatrix.frustum(left, right, bottom, top, _clipNear, _clipFar);
     }
 
     //////////////////
-    // Set Viewport //
+    // Set viewport //
     //////////////////
 
-    SLint w  = sv->scrW();
-    SLint h  = sv->scrH();
-    SLint w2 = sv->scrWdiv2();
-    SLint h2 = sv->scrHdiv2();
+    SLint w  = vpRect.width;
+    SLint h  = vpRect.height;
+    SLint w2 = w >> 1;
+    SLint h2 = h >> 1;
     SLint h4 = h2 >> 1;
 
     if (_projection == P_stereoSideBySideD)
@@ -486,7 +487,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
             stateGL->viewport(w2, h4, w2, h2);
     }
     else
-        stateGL->viewport(0, 0, w, h);
+        stateGL->viewport(vpRect.x, vpRect.y, vpRect.width, vpRect.height);
 
     ///////////////////
     // Clear Buffers //
@@ -497,7 +498,10 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         // left eye. The right eye must be drawn after the left into the same buffer
         stateGL->clearDepthBuffer();
 
-    //  Set Color Mask and Filter
+    /////////////////////////////////
+    //  Set Color Mask and Filter  //
+    /////////////////////////////////
+
     if (_projection >= P_stereoColorRC)
     {
         if (eye == ET_left)

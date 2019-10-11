@@ -86,6 +86,9 @@ void SLSceneView::init(SLstring name,
     _scrH       = screenHeight;
     _gotPainted = true;
 
+    // Set default viewport ratio to the same as the screen
+    setViewportFromRatio(SLVec2i(_scrW, _scrH), VA_center);
+
     // The window update callback function is used to refresh the ray tracing
     // image during the rendering process. The ray tracing image is drawn by OpenGL
     // as a texture on a single quad.
@@ -178,7 +181,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 
         SLMat4f vm = _sceneViewCamera.updateAndGetWMI();
 
-        for (auto & vsCorner : vsCorners)
+        for (auto& vsCorner : vsCorners)
         {
             vsCorner = vm * vsCorner;
 
@@ -191,7 +194,6 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
             vsMax.z = std::max(vsMax.z, vsCorner.z);
         }
 
-        SLfloat dist    = 0.0f;
         SLfloat distX   = 0.0f;
         SLfloat distY   = 0.0f;
         SLfloat halfTan = tan(Utils::DEG2RAD * _sceneViewCamera.fov() * 0.5f);
@@ -219,7 +221,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
             distY += vsMax.z;
         }
 
-        dist = std::max(distX, distY);
+        SLfloat dist = std::max(distX, distY);
 
         // set focal distance
         _sceneViewCamera.focalDist(dist);
@@ -258,7 +260,7 @@ void SLSceneView::switchToSceneViewCamera()
     _camera = &_sceneViewCamera;
 }
 //-----------------------------------------------------------------------------
-//! Sets the acitve camera to the next in the scene
+//! Sets the active camera to the next in the scene
 void SLSceneView::switchToNextCameraInScene()
 {
     SLCamera* nextCam = SLApplication::scene->nextCameraInScene(this);
@@ -272,6 +274,64 @@ void SLSceneView::switchToNextCameraInScene()
         _camera = &_sceneViewCamera;
 
     _camera->background().rebuild();
+}
+//-----------------------------------------------------------------------------
+//! Sets the viewport ratio and the viewport rectangle
+void SLSceneView::setViewportFromRatio(const SLVec2i&      vpRatio,
+                                       SLViewportAlignment vpAlignment)
+{
+    assert(_scrW > 0 && _scrH > 0 && "SLSceneView::setViewportFromRatio: Invalid screen size");
+
+    _viewportRatio     = vpRatio;
+    _viewportAlignment = vpAlignment;
+
+    // Shortcut if viewport is the same as the screen
+    if (vpRatio == SLVec2i::ZERO || (vpRatio.x == _scrW && vpRatio.y == _scrH))
+    {
+        _viewportRect.set(0, 0, _scrW, _scrH);
+        _viewportAlignment = VA_center;
+        return;
+    }
+
+    // Calculate viewport rect from viewport aspect ratio
+    SLfloat vpWdivH = (float)vpRatio.x / (float)vpRatio.y;
+    _scrWdivH       = (float)_scrW / (float)_scrH;
+    SLRecti vpRect;
+    if (_scrW > _scrH)
+    {
+        vpRect.width  = _scrH * vpWdivH;
+        vpRect.height = _scrH;
+        vpRect.y      = 0;
+
+        switch (vpAlignment)
+        {
+            case VA_leftOrTop: vpRect.x = 0; break;
+            case VA_rightOrBottom: _scrW - vpRect.width; break;
+            case VA_center:
+            default: vpRect.x = (_scrW - vpRect.width) / 2; break;
+        }
+    }
+    else
+    {
+        vpRect.width  = _scrW;
+        vpRect.height = _scrH * vpWdivH;
+        vpRect.x      = 0;
+
+        switch (vpAlignment)
+        {
+            case VA_leftOrTop: vpRect.y = 0; break;
+            case VA_rightOrBottom: _scrH - vpRect.height; break;
+            case VA_center:
+            default: vpRect.y = (_scrH - vpRect.height) / 2; break;
+        }
+    }
+
+    if (SLRecti(_scrW, _scrH).contains(vpRect))
+    {
+        _viewportRect = vpRect;
+    }
+    else
+        SL_EXIT_MSG("SLSceneView::viewport: Viewport is bigger than the screen!");
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -360,7 +420,10 @@ void SLSceneView::onResize(SLint width, SLint height)
         _scrHdiv2 = _scrH >> 1; // height / 2
         _scrWdivH = (SLfloat)_scrW / (SLfloat)_scrH;
 
-        _gui.onResize(width, height);
+        setViewportFromRatio(_viewportRatio,
+                             _viewportAlignment);
+
+        _gui.onResize(_viewportRect.width, _viewportRect.height);
 
         // Resize Oculus framebuffer
         if (_camera && _camera->projection() == P_stereoSideBySideD)
@@ -509,15 +572,12 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     }
 
     // Clear color buffer
-    // Apply gamma correction only on uniform background. No shader runs on it!
-    SLCol4f backColor = _camera->background().colors()[0];
-    backColor.gammaCorrect(stateGL->oneOverGamma);
-    stateGL->clearColor(backColor);
+    stateGL->clearColor(SLCol4f::BLACK);
     stateGL->clearColorDepthBuffer();
 
     // Render gradient or textured background from active camera
-    if (!_skybox && !_camera->background().isUniform())
-        _camera->background().render(_scrW, _scrH);
+    if (!_skybox)
+        _camera->background().render(_viewportRect.width, _viewportRect.height);
 
     // Change state (only when changed)
     stateGL->multiSample(_doMultiSampling);
@@ -575,7 +635,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     }
 
     // Enable all color channels again
-    stateGL->colorMask(1, 1, 1, 1);
+    stateGL->colorMask(true, true, true, true);
 
     _draw3DTimeMS = SLApplication::timeMS() - startMS;
 
@@ -839,7 +899,7 @@ void SLSceneView::draw2DGL()
         if (_gui.build)
         {
             ImGui::Render();
-            _gui.onPaint(ImGui::GetDrawData());
+            _gui.onPaint(ImGui::GetDrawData(), _viewportRect);
         }
     }
 
@@ -851,7 +911,7 @@ SLSceneView::draw2DGLNodes draws 2D nodes from root2D in ortho projection.
 */
 void SLSceneView::draw2DGLNodes()
 {
-    SLfloat    depth   = 1.0f;                         // Render depth between -1 & 1
+    SLfloat    depth   = 1.0f;                           // Render depth between -1 & 1
     SLfloat    cs      = std::min(_scrW, _scrH) * 0.01f; // center size
     SLGLState* stateGL = SLGLState::instance();
 
