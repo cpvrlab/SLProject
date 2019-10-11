@@ -87,14 +87,14 @@ class SLSceneView : public SLObject
     virtual void   preDraw() {}
     virtual void   postDraw() {}
     virtual void   postSceneLoad() {}
-    virtual SLbool onMouseDown(SLMouseButton button, SLint x, SLint y, SLKey mod);
-    virtual SLbool onMouseUp(SLMouseButton button, SLint x, SLint y, SLKey mod);
+    virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
+    virtual SLbool onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
     virtual SLbool onMouseMove(SLint x, SLint y);
     virtual SLbool onMouseWheelPos(SLint wheelPos, SLKey mod);
     virtual SLbool onMouseWheel(SLint delta, SLKey mod);
-    virtual SLbool onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2);
-    virtual SLbool onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2);
-    virtual SLbool onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2);
+    virtual SLbool onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2);
+    virtual SLbool onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2);
+    virtual SLbool onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2);
     virtual SLbool onDoubleClick(SLMouseButton button, SLint x, SLint y, SLKey mod);
     virtual SLbool onLongTouch(SLint x, SLint y);
     virtual SLbool onKeyPress(SLKey key, SLKey mod);

@@ -469,10 +469,18 @@ void SLGLImGui::onPaint(ImDrawData* draw_data, const SLRecti& viewportRect)
             else
             {
                 glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
-                glScissor((int)pcmd->ClipRect.x,
-                          (int)(fb_height - pcmd->ClipRect.w),
-                          (int)(pcmd->ClipRect.z - pcmd->ClipRect.x),
-                          (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+
+                if (viewportRect.isEmpty())
+                    glScissor((int)pcmd->ClipRect.x,
+                              (int)(fb_height - pcmd->ClipRect.w),
+                              (int)(pcmd->ClipRect.z - pcmd->ClipRect.x),
+                              (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+                else
+                    glScissor((GLsizei)viewportRect.x,
+                              (GLsizei)viewportRect.y,
+                              (GLsizei)viewportRect.width,
+                              (GLsizei)viewportRect.height);
+
                 glDrawElements(GL_TRIANGLES,
                                (GLsizei)pcmd->ElemCount,
                                sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT,

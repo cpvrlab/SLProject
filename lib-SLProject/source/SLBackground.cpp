@@ -112,8 +112,6 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
     SLGLState* stateGL = SLGLState::instance();
     SLScene*   s       = SLApplication::scene;
 
-    //backColor.gammaCorrect(stateGL->oneOverGamma);
-
     // Set orthographic projection
     stateGL->projectionMatrix.ortho(0.0f, (SLfloat)widthPX, 0.0f, (SLfloat)heightPX, 0.0f, 1.0f);
     stateGL->modelViewMatrix.identity();
