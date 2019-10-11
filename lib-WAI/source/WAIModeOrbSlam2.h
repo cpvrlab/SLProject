@@ -62,13 +62,12 @@ class WAI_API ModeOrbSlam2
     // New KeyFrame rules (according to fps)
     // Max/Min Frames to insert keyframes and to check relocalisation
     int mMinFrames = 0;
-    int mMaxFrames = 30; //= fps
+    int mMaxFrames = 30; //= fps (max number of frames between keyframes)
 
     // Debug functions
     std::string   getPrintableState();
     TrackingState getTrackingState() { return _state; }
-    std::string
-    getPrintableType();
+    std::string   getPrintableType();
     uint32_t getMapPointCount();
     uint32_t getMapPointMatchesCount();
     uint32_t getKeyFrameCount();

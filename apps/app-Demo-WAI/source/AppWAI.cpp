@@ -58,6 +58,9 @@ cv::VideoWriter*   WAIApp::videoWriterInfo = nullptr;
 WAI::ModeOrbSlam2* WAIApp::mode            = nullptr;
 bool               WAIApp::loaded          = false;
 ofstream           WAIApp::gpsDataStream;
+WAIApp::GLSLKP     WAIApp::glslKP;
+SLGLTexture*       WAIApp::testTexture;
+unsigned char * WAIApp::outputTexture;
 
 std::string WAIApp::videoDir       = "";
 std::string WAIApp::calibDir       = "";
@@ -70,15 +73,398 @@ bool WAIApp::resizeWindow = false;
 bool WAIApp::pauseVideo           = false;
 int  WAIApp::videoCursorMoveIndex = 0;
 
+
+GLuint WAIApp::buildShaderFromSource(string source,
+                                     GLenum shaderType)
+{
+    // Compile Shader code
+    GLuint      shaderHandle = glCreateShader(shaderType);
+    const char* src          = source.c_str();
+    glShaderSource(shaderHandle, 1, &src, nullptr);
+    glCompileShader(shaderHandle);
+
+    // Check compile success
+    GLint compileSuccess;
+    glGetShaderiv(shaderHandle,
+                  GL_COMPILE_STATUS,
+                  &compileSuccess);
+
+    GLint logSize = 0;
+    glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &logSize);
+
+    GLchar * log = new GLchar[logSize];
+
+    glGetShaderInfoLog(shaderHandle, logSize, nullptr, log);
+
+    if (!compileSuccess)
+    {
+        Utils::log("Cannot compile shader %s\n", log);
+
+        std::cout << source << std::endl;
+        exit(1);
+    }
+
+    return shaderHandle;
+}
+
+void WAIApp::initTestProgram()
+{
+    glslKP.curr = 1;
+    glslKP.ready = 0;
+    glGenFramebuffers(2, glslKP.framebuffers);
+    glGenFramebuffers(1, &glslKP.interFBO);
+    glGenBuffers(2, glslKP.pbo);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, glslKP.pbo[0]);
+    glBufferData(GL_PIXEL_PACK_BUFFER, scrWidth * scrHeight, 0, GL_STREAM_READ);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, glslKP.pbo[1]);
+    glBufferData(GL_PIXEL_PACK_BUFFER, scrWidth * scrHeight, 0, GL_STREAM_READ);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+    glslKP.hLaplacianId = glCreateProgram();
+    glslKP.vLaplacianId = glCreateProgram();
+
+#ifdef ANDROID
+    std::string screeQuadVs = "#version 320 es\n"
+                              "in vec3 vcoords;\n"
+                              "out mediump vec2 texcoords;\n"
+                              "\n"
+                              "void main()\n"
+                              "{\n"
+                              "    texcoords = 0.5 * (vcoords.xy + vec2(1.0));\n"
+                              "    gl_Position = vec4(vcoords, 1.0);\n"
+                              "}\n" ;
+
+    std::string hLaplacianFs = "#version 320 es\n"
+                               "precision mediump float;\n"
+                               "out mediump float pixel;\n"
+                               "in mediump vec2 texcoords;\n"
+                               "uniform mediump float w;\n"
+                               "uniform sampler2D tex;\n"
+                               "\n"
+                               "void main()\n"
+                               "{\n"
+                               "\n"
+                               "const float kernel[11] = float[11](1.37959207955, "
+                               "3.07380807807, 3.88509751298, 0.92611021675, "
+                               "-5.34775050133, -8.83371477203, -5.34775050133, "
+                               "0.92611021675, 3.88509751298, 3.07380807807, 1.37959207955);\n"
+                               "\n"
+                               "    \n"
+                               "    float val = 0.0;\n"
+                               "    for (int i = 0; i < 11; i++)\n"
+                               "    {\n"
+                               "        float p = float(i);\n"
+                               "\n"
+                               "\n"
+                               "\n"
+                               "\n"
+                               "        vec2 offset = vec2(float(p - 5.0f) / w, 0.0f);\n"
+                               "\n"
+                               "\n"
+                               "\n"
+                               "        val += kernel[i] * float(texture(tex, texcoords + offset).r);\n"
+                               "    }\n"
+                               "    pixel = val;\n"
+                               "}\n";
+
+    std::string vLaplacianFs = "#version 320 es\n"
+                               "precision mediump float;\n"
+                               "out mediump float pixel;\n"
+                               "in mediump vec2 texcoords;\n"
+                               "uniform mediump float w;\n"
+                               "uniform sampler2D tex;\n"
+                               "\n"
+                               "void main()\n"
+                               "{\n"
+                               "const float kernel[11] = float[11](1.37959207955, "
+                               "3.07380807807, 3.88509751298, 0.92611021675, "
+                               "-5.34775050133, -8.83371477203, -5.34775050133, "
+                               "0.92611021675, 3.88509751298, 3.07380807807, 1.37959207955);\n"
+                               "\n"
+                               "    \n"
+                               "    float val = 0.0;\n"
+                               "\n"
+                               "\n"
+                               "\n"
+                               "    for (int i = 0; i < 11; i++)\n"
+                               "    {\n"
+                               "        float p = float(i);\n"
+                               "        vec2 offset = vec2(0.0f, float(p - 5.0f) / w);\n"
+                               "\n"
+                               "\n"
+                               "\n"
+                               "        val += kernel[i] * float(texture(tex, texcoords + offset).r);\n"
+                               "    }\n"
+                               "    pixel = val;\n"
+                               "}\n";
+#else
+    std::string screeQuadVs = "#version 330\n"
+                              "in vec3 vcoords;\n"
+                              "out vec2 texcoords;\n"
+                              "\n"
+                              "void main()\n"
+                              "{\n"
+                              "    texcoords = 0.5 * (vcoords.xy + vec2(1.0));\n"
+                              "    gl_Position = vec4(vcoords, 1.0);\n"
+                              "}\n" ;
+
+    std::string hLaplacianFs = "#version 330\n"
+                               "out float pixel;\n"
+                               "in vec2 texcoords;\n"
+                               "uniform float w;\n"
+                               "uniform sampler2D tex;\n"
+                               "\n"
+                               "void main()\n"
+                               "{\n"
+                               "\n"
+                               "const float kernel[11] = float[11](1.37959207955, "
+                               "3.07380807807, 3.88509751298, 0.92611021675, "
+                               "-5.34775050133, -8.83371477203, -5.34775050133, "
+                               "0.92611021675, 3.88509751298, 3.07380807807, 1.37959207955);\n"
+                               "\n"
+                               "    \n"
+                               "    float val = 0.0;\n"
+                               "    for (int i = 0; i < 11; i++)\n"
+                               "    {\n"
+                               "        vec2 offset = vec2((i - 5) / w, 0.0);\n"
+                               "        val += kernel[i] * texture(tex, texcoords + offset).r;\n"
+                               "    }\n"
+                               "    pixel = val;\n"
+                               "}\n";
+
+    std::string vLaplacianFs = "#version 330\n"
+                               "out float pixel;\n"
+                               "in vec2 texcoords;\n"
+                               "uniform float w;\n"
+                               "uniform sampler2D tex;\n"
+                               "\n"
+                               "void main()\n"
+                               "{\n"
+                               "const float kernel[11] = float[11](1.37959207955, "
+                               "3.07380807807, 3.88509751298, 0.92611021675, "
+                               "-5.34775050133, -8.83371477203, -5.34775050133, "
+                               "0.92611021675, 3.88509751298, 3.07380807807, 1.37959207955);\n"
+                               "\n"
+                               "    \n"
+                               "    float val = 0.0;\n"
+                               "    for (int i = 0; i < 11; i++)\n"
+                               "    {\n"
+                               "        vec2 offset = vec2(0.0, (i - 5) / w);\n"
+                               "        val += kernel[i] * texture(tex, texcoords + offset).r;\n"
+                               "    }\n"
+                               "    pixel = val;\n"
+                               "}\n";
+#endif
+
+    GLuint vid = buildShaderFromSource(screeQuadVs, GL_VERTEX_SHADER);
+    GLuint hfid = buildShaderFromSource(hLaplacianFs, GL_FRAGMENT_SHADER);
+    GLuint vfid = buildShaderFromSource(vLaplacianFs, GL_FRAGMENT_SHADER);
+
+    glAttachShader(glslKP.hLaplacianId, vid);
+    glAttachShader(glslKP.hLaplacianId, hfid);
+    glLinkProgram(glslKP.hLaplacianId);
+    glAttachShader(glslKP.vLaplacianId, vid);
+    glAttachShader(glslKP.vLaplacianId, vfid);
+    glLinkProgram(glslKP.vLaplacianId);
+
+    GLuint hLapVtxLoc = glGetAttribLocation(glslKP.hLaplacianId, "vcoords");
+    glslKP.hLapTexLoc = glGetUniformLocation(glslKP.hLaplacianId, "tex");
+    glslKP.hLapWLoc   = glGetUniformLocation(glslKP.hLaplacianId, "w");
+    GLuint vLapVtxLoc = glGetAttribLocation(glslKP.vLaplacianId, "vcoords");
+    glslKP.vLapTexLoc = glGetUniformLocation(glslKP.vLaplacianId, "tex");
+    glslKP.vLapWLoc   = glGetUniformLocation(glslKP.vLaplacianId, "w");
+
+    float vertices[12] = {-1, -1,  0,
+                           1, -1,  0,
+                           1,  1,  0,
+                          -1,  1,  0 };
+
+    GLuint indices[6] = {0, 1, 2, 2, 3, 0};
+
+    glGenBuffers(1, &glslKP.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, glslKP.vbo);
+    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), vertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &glslKP.vboi);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(float), indices, GL_STATIC_DRAW);
+
+    glGenVertexArrays(1, &glslKP.hLapVAO);
+    glGenVertexArrays(1, &glslKP.vLapVAO);
+
+    glBindVertexArray(glslKP.hLapVAO);
+    glUseProgram(glslKP.hLaplacianId);
+    glBindBuffer(GL_ARRAY_BUFFER, glslKP.vbo);
+    glVertexAttribPointer(hLapVtxLoc, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(hLapVtxLoc);
+    glBindVertexArray(0);
+    glUseProgram(0);
+
+    glBindVertexArray(glslKP.vLapVAO);
+    glUseProgram(glslKP.vLaplacianId);
+    glBindBuffer(GL_ARRAY_BUFFER, glslKP.vbo);
+    glVertexAttribPointer(vLapVtxLoc, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(vLapVtxLoc);
+    glBindVertexArray(0);
+    glUseProgram(0);
+
+    glGenTextures(1, &glslKP.grayTexture);
+    glGenTextures(1, &glslKP.interTexture);
+    glGenTextures(1, &glslKP.renderTexture[0]);
+    glGenTextures(1, &glslKP.renderTexture[1]);
+
+    glBindTexture(GL_TEXTURE_2D, glslKP.grayTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexImage2D(GL_TEXTURE_2D,    // target texture type 1D, 2D or 3D
+                 0,                // Base level for mipmapped textures
+                 GL_RED,           // internal format: e.g. GL_RGBA, see spec.
+                 scrWidth,         // image width
+                 scrHeight,        // image height
+                 0,                // border pixels: must be 0
+                 GL_RED,           // data format: e.g. GL_RGBA, see spec.
+                 GL_UNSIGNED_BYTE, // data type
+                 nullptr);         // image data pointer
+
+    glBindTexture(GL_TEXTURE_2D, glslKP.interTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexImage2D(GL_TEXTURE_2D, // target texture type 1D, 2D or 3D
+                 0,             // Base level for mipmapped textures
+                 GL_RED,        // internal format: e.g. GL_RGBA, see spec.
+                 scrWidth,      // image width
+                 scrHeight,     // image height
+                 0,             // border pixels: must be 0
+                 GL_RED,        // data format: e.g. GL_RGBA, see spec.
+                 GL_UNSIGNED_BYTE,      // data type
+                 nullptr);      // image data pointer
+
+    glBindTexture(GL_TEXTURE_2D, glslKP.renderTexture[0]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexImage2D(GL_TEXTURE_2D, // target texture type 1D, 2D or 3D
+                 0,             // Base level for mipmapped textures
+                 GL_RED,        // internal format: e.g. GL_RGBA, see spec.
+                 scrWidth,      // image width
+                 scrHeight,     // image height
+                 0,             // border pixels: must be 0
+                 GL_RED,        // data format: e.g. GL_RGBA, see spec.
+                 GL_UNSIGNED_BYTE,      // data type
+                 nullptr);      // image data pointer
+
+    glBindTexture(GL_TEXTURE_2D, glslKP.renderTexture[1]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexImage2D(GL_TEXTURE_2D, // target texture type 1D, 2D or 3D
+                 0,             // Base level for mipmapped textures
+                 GL_RED,        // internal format: e.g. GL_RGBA, see spec.
+                 scrWidth,      // image width
+                 scrHeight,     // image height
+                 0,             // border pixels: must be 0
+                 GL_RED,        // data format: e.g. GL_RGBA, see spec.
+                 GL_UNSIGNED_BYTE,      // data type
+                 nullptr);      // image data pointer
+}
+
+void WAIApp::gpu_kp()
+{
+    glDisable(GL_DEPTH_TEST);
+
+
+    // Horizontal Laplacian
+    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.interFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.interTexture, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glUseProgram(glslKP.hLaplacianId);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, glslKP.grayTexture);
+    glUniform1i(glslKP.hLapTexLoc, GL_TEXTURE0);
+    glUniform1f(glslKP.hLapWLoc, scrWidth);
+    glBindVertexArray(glslKP.hLapVAO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glUseProgram(0);
+
+    // Vertical Laplacian
+    glslKP.ready = glslKP.curr;
+    glslKP.curr = (glslKP.curr+1) % 2; //Set rendering FB
+
+    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.framebuffers[glslKP.curr]);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.renderTexture[glslKP.curr], 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glUseProgram(glslKP.vLaplacianId);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, glslKP.interTexture);
+    glUniform1i(glslKP.vLapTexLoc, GL_TEXTURE0);
+    glUniform1f(glslKP.vLapWLoc, scrHeight);
+    glBindVertexArray(glslKP.vLapVAO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glUseProgram(0);
+
+    glEnable(GL_DEPTH_TEST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void WAIApp::readResult()
+{
+    HighResTimer t;
+    t.start();
+
+    /* Copy pixel to curr pbo */
+    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.framebuffers[glslKP.ready]);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, glslKP.pbo[glslKP.curr]);
+    glReadPixels(0, 0, scrWidth, scrHeight, GL_RED, GL_UNSIGNED_BYTE, 0);
+    /* Continue processing without stall */
+
+    /* Read pixels from ready pbo */
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, glslKP.pbo[glslKP.ready]); //Read pixel from ready pbo
+    unsigned char * data = (unsigned char*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, scrWidth * scrHeight, GL_MAP_READ_BIT);
+
+    Utils::log("timing %f\n", (float)t.elapsedTimeInMicroSec());
+
+    if (data)
+    {
+        testTexture->copyVideoImage(scrWidth,
+                                    scrHeight,
+                                    PF_red,
+                                    PF_red,
+                                    data,
+                                    true,
+                                    true);
+
+        glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        return;
+    }
+
+    Utils::log("Texture empty\n");
+    Utils::log("Data not ready\n");
+}
+
 int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* directories)
 {
     defaultScrWidth  = width;
     defaultScrHeight = height;
 
     dirs = directories;
-    SLApplication::devRot.isUsed(true);
-    SLApplication::devLoc.isUsed(true);
-
     videoDir       = dirs->writableDir + "videos/";
     calibDir       = dirs->writableDir + "calibrations/";
     mapDir         = dirs->writableDir + "maps/";
@@ -89,6 +475,10 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
     waiScene        = new AppWAIScene();
     videoWriter     = new cv::VideoWriter();
     videoWriterInfo = new cv::VideoWriter();
+
+    outputTexture = new unsigned char[width * height];
+    for (int i = 0; i < scrWidth * scrHeight; i++)
+        outputTexture[i] = 0;
 
     SLVstring empty;
     empty.push_back("WAI APP");
@@ -117,6 +507,8 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
     loaded = true;
     SLApplication::devRot.isUsed(true);
     SLApplication::devLoc.isUsed(true);
+
+    initTestProgram();
 
     return svIndex;
 }
@@ -368,6 +760,7 @@ void WAIApp::refreshTexture(cv::Mat* image)
     if (image == nullptr)
         return;
 
+
     videoImage->copyVideoImage(image->cols, image->rows, CVCapture::instance()->format, image->data, image->isContinuous(), true);
 }
 
@@ -388,7 +781,10 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
     sv->camera(waiScene->cameraNode);
 
     videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    waiScene->cameraNode->background().texture(videoImage);
+    //waiScene->cameraNode->background().texture(videoImage);
+
+    testTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+    waiScene->cameraNode->background().texture(testTexture);
 
     //waiScene->cameraNode->fov(wc->calcCameraVerticalFOV());
 
@@ -418,6 +814,25 @@ bool WAIApp::update()
 
     if (!loaded)
         return false;
+
+
+    glBindTexture(GL_TEXTURE_2D, glslKP.grayTexture);
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 GL_RED,
+                 CVCapture::instance()->lastFrameGray.cols,
+                 CVCapture::instance()->lastFrameGray.rows,
+                 0,
+                 GL_RED,
+                 GL_UNSIGNED_BYTE,
+                 CVCapture::instance()->lastFrameGray.data);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+
+    gpu_kp();
+    readResult();
+
+
 
     bool iKnowWhereIAm = (mode->getTrackingState() == WAI::TrackingState_TrackingOK);
     while (videoCursorMoveIndex < 0)

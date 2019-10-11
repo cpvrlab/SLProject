@@ -51,6 +51,63 @@ SLGLTexture::SLGLTexture()
     _bytesOnGPU   = 0;
     _needsUpdate  = false;
 }
+
+//! ctor 2D textures with internal image allocation
+SLGLTexture::SLGLTexture(SLint           min_filter,
+                         SLint           mag_filter,
+                         SLint           wrapS,
+                         SLint           wrapT)
+{
+
+    //CVImage *image = new CVImage(width, height, PF_red, ":D");
+
+    _min_filter   = min_filter;
+    _mag_filter   = mag_filter;
+    _wrap_s       = wrapS;
+    _wrap_t       = wrapT;
+    _target       = GL_TEXTURE_2D;
+    _texName      = 0;
+    _bumpScale    = 1.0f;
+    _resizeToPow2 = false;
+    _autoCalcTM3D = false;
+    _needsUpdate  = false;
+    _bytesOnGPU   = 0;
+
+    //_images.push_back(image);
+    // Add pointer to the global resource vectors for deallocation
+    SLApplication::scene->textures().push_back(this);
+}
+
+//-----------------------------------------------------------------------------
+//! ctor 2D textures with internal image allocation
+SLGLTexture::SLGLTexture(unsigned char * data, int width, int height, int cvtype,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLTextureType   type,
+                         SLint           wrapS,
+                         SLint           wrapT)
+{
+
+    CVImage *image = new CVImage();
+    image->load(width, height, PF_red, PF_red, data, true, false);
+
+    _min_filter   = min_filter;
+    _mag_filter   = mag_filter;
+    _wrap_s       = wrapS;
+    _wrap_t       = wrapT;
+    _target       = GL_TEXTURE_2D;
+    _texName      = 0;
+    _bumpScale    = 1.0f;
+    _resizeToPow2 = false;
+    _autoCalcTM3D = false;
+    _needsUpdate  = false;
+    _bytesOnGPU   = 0;
+
+    _images.push_back(image);
+    // Add pointer to the global resource vectors for deallocation
+    SLApplication::scene->textures().push_back(this);
+}
+//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
 SLGLTexture::SLGLTexture(const SLstring& filename,
@@ -298,8 +355,50 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
     _needsUpdate = true;
     return needsBuild;
 }
+
+SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
+                                   SLint       camHeight,
+                                   CVPixFormat srcFormat,
+                                   CVPixFormat dstFormat,
+                                   SLuchar*    data,
+                                   SLbool      isContinuous,
+                                   SLbool      isTopLeft)
+{
+    // Add image for the first time
+    if (_images.empty())
+        _images.push_back(new CVImage(camWidth,
+                                      camHeight,
+                                      dstFormat,
+                                      "LiveVideoImageFromMemory"));
+
+    // load returns true if size or format changes
+    bool needsBuild = _images[0]->load(camWidth,
+                                       camHeight,
+                                       srcFormat,
+                                       dstFormat,
+                                       data,
+                                       isContinuous,
+                                       isTopLeft);
+
+    // OpenGL ES 2 only can resize non-power-of-two texture with clamp to edge
+    _wrap_s = GL_CLAMP_TO_EDGE;
+    _wrap_t = GL_CLAMP_TO_EDGE;
+
+    if (needsBuild || _texName == 0)
+    {
+        SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s\n",
+               _texName,
+               _images[0]->name().c_str());
+        build();
+    }
+
+    _needsUpdate = true;
+    return needsBuild;
+}
+
+
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Builds an OpenGL texture object with the according OpenGL commands.
 This texture creation must be done only once when a valid OpenGL rendering
 context is present. This function is called the first time within the enable
@@ -526,8 +625,8 @@ void SLGLTexture::build(SLint texID)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLGLTexture::bindActive binds the active texture. This method must be called 
-by the object that uses the texture every time BEFORE the its rendering. 
+SLGLTexture::bindActive binds the active texture. This method must be called
+by the object that uses the texture every time BEFORE the its rendering.
 The texID is only used for multi texturing. Before the first time the texture
 is passed to OpenGL.
 */
@@ -562,7 +661,7 @@ void SLGLTexture::bindActive(SLint texID)
 }
 //-----------------------------------------------------------------------------
 /*!
-Fully updates the OpenGL internal texture data by the image data 
+Fully updates the OpenGL internal texture data by the image data
 */
 void SLGLTexture::fullUpdate()
 {
@@ -699,7 +798,7 @@ SLCol4f SLGLTexture::getTexelf(SLVec3f cubemapDir)
     return getTexelf(u, v, (SLuint)index);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 dsdt calculates the partial derivation (gray value slope) at s,t for bump
 mapping either from a height map or a normal map
 */

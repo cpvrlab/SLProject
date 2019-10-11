@@ -81,6 +81,7 @@ class WAIApp
     static bool               loaded;
     static SLGLTexture*       cpvrLogo;
     static SLGLTexture*       videoImage;
+    static SLGLTexture*       testTexture;
     static ofstream           gpsDataStream;
 
     static bool resizeWindow;
@@ -93,6 +94,40 @@ class WAIApp
 
     static bool pauseVideo; // pause video file
     static int  videoCursorMoveIndex;
+
+    struct GLSLKP
+    {
+        GLuint yuv422Converter;
+        GLuint RGBTexture;
+        GLuint grayTexture;
+
+        GLuint hLaplacianId;
+        GLuint vLaplacianId;
+        GLuint interFBO;
+        GLuint interTexture;
+        GLuint hLapVAO;
+        GLuint vLapVAO;
+        GLuint vbo;
+        GLuint vboi;
+        GLuint framebuffers[2];
+        GLuint renderTexture[2];
+        GLuint pbo[2];
+        GLint hLapTexLoc;
+        GLint vLapTexLoc;
+        GLint hLapWLoc;
+        GLint vLapWLoc;
+        int curr;
+        int ready;
+    };
+
+    static GLSLKP glslKP;
+
+    static GLuint buildShaderFromSource(string source,
+                                        GLenum shaderType);
+    static void initTestProgram();
+    static void gpu_kp();
+    static void readResult();
+    static unsigned char * outputTexture;
 };
 
 #endif
