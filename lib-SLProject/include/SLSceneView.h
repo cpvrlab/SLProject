@@ -154,6 +154,10 @@ class SLSceneView : public SLObject
     SLint         scrHdiv2() const { return _scrHdiv2; }
     SLfloat       scrWdivH() const { return _scrWdivH; }
     SLRecti       viewportRect() const { return _viewportRect; }
+    SLVec2i       viewportRatio() const { return _viewportRatio; }
+    SLfloat       viewportWdivH() const { return (float)_viewportRect.width / (float)_viewportRect.height; }
+    SLint         viewportW() const { return _viewportRect.width; }
+    SLint         viewportH() const { return _viewportRect.height; }
     SLGLImGui&    gui() { return _gui; }
     SLbool        gotPainted() const { return _gotPainted; }
     SLbool        doFrustumCulling() const { return _doFrustumCulling; }

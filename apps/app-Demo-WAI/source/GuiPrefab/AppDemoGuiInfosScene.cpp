@@ -17,7 +17,7 @@ void AppDemoGuiInfosScene::buildInfos(SLScene* s, SLSceneView* sv)
     ImGuiWindowFlags window_flags = 0;
     window_flags |= ImGuiWindowFlags_NoTitleBar;
     window_flags |= ImGuiWindowFlags_NoResize;
-    SLfloat  w    = (SLfloat)sv->scrW();
+    SLfloat  w    = (SLfloat)sv->viewportW();
     ImVec2   size = ImGui::CalcTextSize(s->info().c_str(), nullptr, true, w);
     SLfloat  h    = size.y + SLGLImGui::fontPropDots * 1.2f;
     SLstring info = "Scene Info: " + s->info();

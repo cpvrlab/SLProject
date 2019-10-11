@@ -87,7 +87,7 @@ void SLSceneView::init(SLstring name,
     _gotPainted = true;
 
     // Set default viewport ratio to the same as the screen
-    setViewportFromRatio(SLVec2i(_scrW, _scrH), VA_center);
+    setViewportFromRatio(SLVec2i(0, 0), VA_center);
 
     // The window update callback function is used to refresh the ray tracing
     // image during the rendering process. The ray tracing image is drawn by OpenGL
@@ -429,9 +429,9 @@ void SLSceneView::onResize(SLint width, SLint height)
         // Resize Oculus framebuffer
         if (_camera && _camera->projection() == P_stereoSideBySideD)
         {
-            _oculusFB.updateSize((SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrW),
-                                 (SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrH));
-            s->oculus()->renderResolution(_scrW, _scrH);
+            _oculusFB.updateSize((SLint)(s->oculus()->resolutionScale() * (SLfloat)_viewportRect.width),
+                                 (SLint)(s->oculus()->resolutionScale() * (SLfloat)_viewportRect.height));
+            s->oculus()->renderResolution(_viewportRect.width, _viewportRect.height);
         }
 
         // Stop raytracing & pathtracing on resize
@@ -1230,7 +1230,6 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
     // Correct viewport offset
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - _viewportRect.y;
-
 
     SLbool result = false;
 

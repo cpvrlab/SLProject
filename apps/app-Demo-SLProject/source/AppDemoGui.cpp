@@ -87,8 +87,8 @@ void centerNextWindow(SLSceneView* sv,
                       SLfloat      widthPC  = 0.9f,
                       SLfloat      heightPC = 0.9f)
 {
-    SLfloat width  = (SLfloat)sv->scrW() * widthPC;
-    SLfloat height = (SLfloat)sv->scrH() * heightPC;
+    SLfloat width  = (SLfloat)sv->viewportW() * widthPC;
+    SLfloat height = (SLfloat)sv->viewportH() * heightPC;
     ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiSetCond_Always);
     ImGui::SetNextWindowPosCenter(ImGuiSetCond_Always);
 }
@@ -330,7 +330,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
 
                 sprintf(m + strlen(m), "Renderer   :OpenGL\n");
-                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->viewportW(), sv->viewportH());
                 sprintf(m + strlen(m), "Drawcalls  :%d\n", SLGLVertexArray::totalDrawCalls);
                 sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
                 sprintf(m + strlen(m), "Frame time :%5.1f ms (100%%)\n", ft);
@@ -352,12 +352,12 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             else if (rType == RT_rt)
             {
                 SLRaytracer* rt           = sv->raytracer();
-                SLuint       rayPrimaries = (SLuint)(sv->scrW() * sv->scrH());
+                SLuint       rayPrimaries = (SLuint)(sv->viewportW() * sv->viewportH());
                 SLuint       rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
                 SLfloat      rpms         = rt->renderSec() > 0.0f ? rayTotal / rt->renderSec() / 1000.0f : 0.0f;
 
                 sprintf(m + strlen(m), "Renderer   :Ray Tracer\n");
-                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->viewportW(), sv->viewportH());
                 sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / rt->renderSec());
                 sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", rt->renderSec());
                 sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rpms);
@@ -516,7 +516,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             ImGuiWindowFlags window_flags = 0;
             window_flags |= ImGuiWindowFlags_NoTitleBar;
             window_flags |= ImGuiWindowFlags_NoResize;
-            SLfloat  w    = (SLfloat)sv->scrW();
+            SLfloat  w    = (SLfloat)sv->viewportW();
             ImVec2   size = ImGui::CalcTextSize(s->info().c_str(), nullptr, true, w);
             SLfloat  h    = size.y + SLGLImGui::fontPropDots * 1.2f;
             SLstring info = "Scene Info: " + s->info();

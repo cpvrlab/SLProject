@@ -62,7 +62,7 @@ class SLRaytracer : public SLGLTexture
     void    renderSlices(bool isMainThread);
     void    renderSlicesMS(bool isMainThread);
     SLCol4f trace(SLRay* ray);
-    SLCol4f shade(SLRay* ray);
+    static SLCol4f shade(SLRay* ray);
     void    sampleAAPixels(bool isMainThread);
     void    finishBeforeUpdate();
 

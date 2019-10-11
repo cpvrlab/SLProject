@@ -1980,7 +1980,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create rectangle meshe and nodes
         SLfloat h        = 5.0f;
-        SLfloat w        = h * sv->scrWdivH();
+        SLfloat w        = h * sv->viewportWdivH();
         SLMesh* rectMesh = new SLRectangle(SLVec2f(-w, -h), SLVec2f(w, h), 1, 1, "rect mesh", m1);
         SLNode* rectNode = new SLNode(rectMesh, "rect node");
         rectNode->translation(0, 0, -5);
@@ -2918,7 +2918,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             sceneView->onInitialize();
 
     if (CVCapture::instance()->videoType() != VT_NONE)
-        CVCapture::instance()->start(sv->scrWdivH());
+        CVCapture::instance()->start(sv->viewportWdivH());
 }
 //-----------------------------------------------------------------------------
 //! Creates a recursive sphere group used for the ray tracing scenes
