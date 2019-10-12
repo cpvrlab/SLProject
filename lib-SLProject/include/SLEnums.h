@@ -316,7 +316,7 @@ enum SLLogVerbosity
 };
 //-----------------------------------------------------------------------------
 //! Mouse button codes
-enum SLViewportAlignment
+enum SLViewportAlign
 {
     VA_center = 0,
     VA_leftOrTop,

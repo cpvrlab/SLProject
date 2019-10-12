@@ -1151,6 +1151,46 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
 #endif
+
+            if (ImGui::BeginMenu("Viewport Aspect"))
+            {
+
+                SLVec2i videoAspect(0, 0);
+                if (capture->videoType() != VT_NONE)
+                {
+                    videoAspect.x  = capture->captureSize.width;
+                    videoAspect.y  = capture->captureSize.height;
+                }
+                SLchar strSameAsVideo[256];
+                sprintf(strSameAsVideo, "Same as Video (%d:%d)", videoAspect.x, videoAspect.y);
+
+                if (ImGui::MenuItem("Same as window", nullptr, sv->viewportRatio() == SLVec2i::ZERO))
+                    sv->setViewportFromRatio(SLVec2i(0, 0), sv->viewportAlign(), false);
+                if (ImGui::MenuItem(strSameAsVideo, nullptr, sv->viewportSameAsVideo()))
+                    sv->setViewportFromRatio(videoAspect, sv->viewportAlign(), true);
+                if (ImGui::MenuItem("16:9", nullptr, sv->viewportRatio() == SLVec2i(16, 9)))
+                    sv->setViewportFromRatio(SLVec2i(16, 9), sv->viewportAlign(), false);
+                if (ImGui::MenuItem("4:3", nullptr, sv->viewportRatio() == SLVec2i(4, 3)))
+                    sv->setViewportFromRatio(SLVec2i(4, 3), sv->viewportAlign(), false);
+                if (ImGui::MenuItem("2:1", nullptr, sv->viewportRatio() == SLVec2i(2, 1)))
+                    sv->setViewportFromRatio(SLVec2i(2, 1), sv->viewportAlign(), false);
+                if (ImGui::MenuItem("1:1", nullptr, sv->viewportRatio() == SLVec2i(1, 1)))
+                    sv->setViewportFromRatio(SLVec2i(1, 1), sv->viewportAlign(), false);
+
+                if (ImGui::BeginMenu("Alignment", sv->viewportRatio() != SLVec2i::ZERO))
+                {
+                    if (ImGui::MenuItem("Center", nullptr, sv->viewportAlign() == VA_center))
+                        sv->setViewportFromRatio(sv->viewportRatio(), VA_center, sv->viewportSameAsVideo());
+                    if (ImGui::MenuItem("Left or top", nullptr, sv->viewportAlign() == VA_leftOrTop))
+                        sv->setViewportFromRatio(sv->viewportRatio(), VA_leftOrTop, sv->viewportSameAsVideo());
+                    if (ImGui::MenuItem("Right or bottom", nullptr, sv->viewportAlign() == VA_rightOrBottom))
+                        sv->setViewportFromRatio(sv->viewportRatio(), VA_rightOrBottom, sv->viewportSameAsVideo());
+
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMenu();
+            }
+
             if (ImGui::BeginMenu("Video Sensor"))
             {
                 CVCalibration* ac = capture->activeCalib;

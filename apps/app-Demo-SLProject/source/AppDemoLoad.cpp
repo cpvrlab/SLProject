@@ -1961,6 +1961,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             CVCapture::instance()->videoFilename = "street3.mp4";
             CVCapture::instance()->videoLoops    = true;
         }
+        sv->viewportSameAsVideo(true);
 
         // Create video texture on global pointer updated in AppDemoTracking
         videoTexture   = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -2918,7 +2919,18 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             sceneView->onInitialize();
 
     if (CVCapture::instance()->videoType() != VT_NONE)
-        CVCapture::instance()->start(sv->viewportWdivH());
+    {
+        if (sv->viewportSameAsVideo())
+        {
+            CVCapture::instance()->start(-1.0f);
+            SLVec2i videoAspect;
+            videoAspect.x = CVCapture::instance()->captureSize.width;
+            videoAspect.y = CVCapture::instance()->captureSize.height;
+            sv->setViewportFromRatio(videoAspect, sv->viewportAlign(), true);
+        }
+        else
+            CVCapture::instance()->start(sv->viewportWdivH());
+    }
 }
 //-----------------------------------------------------------------------------
 //! Creates a recursive sphere group used for the ray tracing scenes

@@ -87,7 +87,7 @@ void SLSceneView::init(SLstring name,
     _gotPainted = true;
 
     // Set default viewport ratio to the same as the screen
-    setViewportFromRatio(SLVec2i(0, 0), VA_center);
+    setViewportFromRatio(SLVec2i(0, 0), VA_center, false);
 
     // The window update callback function is used to refresh the ray tracing
     // image during the rendering process. The ray tracing image is drawn by OpenGL
@@ -277,19 +277,22 @@ void SLSceneView::switchToNextCameraInScene()
 }
 //-----------------------------------------------------------------------------
 //! Sets the viewport ratio and the viewport rectangle
-void SLSceneView::setViewportFromRatio(const SLVec2i&      vpRatio,
-                                       SLViewportAlignment vpAlignment)
+void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
+                                       SLViewportAlign vpAlign,
+                                       SLbool vpSameAsVideo)
 {
     assert(_scrW > 0 && _scrH > 0 && "SLSceneView::setViewportFromRatio: Invalid screen size");
 
-    _viewportRatio     = vpRatio;
-    _viewportAlignment = vpAlignment;
+    _viewportRatio = vpRatio;
+    _viewportAlign = vpAlign;
+    _viewportSameAsVideo = vpSameAsVideo;
 
     // Shortcut if viewport is the same as the screen
-    if (vpRatio == SLVec2i::ZERO || (vpRatio.x == _scrW && vpRatio.y == _scrH))
+    if (vpRatio == SLVec2i::ZERO)
     {
         _viewportRect.set(0, 0, _scrW, _scrH);
-        _viewportAlignment = VA_center;
+        _viewportAlign = VA_center;
+        _gui.onResize(_viewportRect.width, _viewportRect.height);
         return;
     }
 
@@ -304,10 +307,11 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&      vpRatio,
         vpRect.height = _scrH;
         vpRect.y      = 0;
 
-        switch (vpAlignment)
+        switch (vpAlign)
         {
+            // viewport coordinates are bottom-left
             case VA_leftOrTop: vpRect.x = 0; break;
-            case VA_rightOrBottom: _scrW - vpRect.width; break;
+            case VA_rightOrBottom: vpRect.x = _scrW - vpRect.width; break;
             case VA_center:
             default: vpRect.x = (_scrW - vpRect.width) / 2; break;
         }
@@ -318,10 +322,11 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&      vpRatio,
         vpRect.height = _scrW / vpWdivH;
         vpRect.x      = 0;
 
-        switch (vpAlignment)
+        switch (vpAlign)
         {
-            case VA_leftOrTop: vpRect.y = 0; break;
-            case VA_rightOrBottom: _scrH - vpRect.height; break;
+            // viewport coordinates are bottom-left
+            case VA_leftOrTop: vpRect.y = _scrH - vpRect.height; break;
+            case VA_rightOrBottom: vpRect.y = 0; break;
             case VA_center:
             default: vpRect.y = (_scrH - vpRect.height) / 2; break;
         }
@@ -330,6 +335,7 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&      vpRatio,
     if (SLRecti(_scrW, _scrH).contains(vpRect))
     {
         _viewportRect = vpRect;
+        _gui.onResize(_viewportRect.width, _viewportRect.height);
     }
     else
         SL_EXIT_MSG("SLSceneView::viewport: Viewport is bigger than the screen!");
@@ -399,7 +405,7 @@ void SLSceneView::onInitialize()
 
     initSceneViewCamera();
 
-    _gui.onResize(_scrW, _scrH);
+    _gui.onResize(_viewportRect.width, _viewportRect.height);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -422,9 +428,8 @@ void SLSceneView::onResize(SLint width, SLint height)
         _scrWdivH = (SLfloat)_scrW / (SLfloat)_scrH;
 
         setViewportFromRatio(_viewportRatio,
-                             _viewportAlignment);
-
-        _gui.onResize(_viewportRect.width, _viewportRect.height);
+                             _viewportAlign,
+                             _viewportSameAsVideo);
 
         // Resize Oculus framebuffer
         if (_camera && _camera->projection() == P_stereoSideBySideD)
@@ -1024,8 +1029,9 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     SLScene* s = SLApplication::scene;
 
     // Correct viewport offset
+    // mouse corrds are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
-    SLint y = scrY - _viewportRect.y;
+    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     // Pass the event to imgui
     _gui.onMouseDown(button, x, y);
@@ -1072,8 +1078,9 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
     _touchDowns = 0;
 
     // Correct viewport offset
+    // mouse corrds are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
-    SLint y = scrY - _viewportRect.y;
+    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     // Continue with ray tracing
     if (_raytracer.state() == rtMoveGL)
@@ -1119,8 +1126,9 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
     SLScene* s = SLApplication::scene;
 
     // Correct viewport offset
+    // mouse corrds are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
-    SLint y = scrY - _viewportRect.y;
+    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     // Pass the event to imgui
     _gui.onMouseMove(x, y);
@@ -1228,8 +1236,9 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
     if (!s->root3D()) return false;
 
     // Correct viewport offset
+    // mouse corrds are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
-    SLint y = scrY - _viewportRect.y;
+    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     SLbool result = false;
 
@@ -1276,8 +1285,9 @@ SLbool SLSceneView::onLongTouch(SLint scrX, SLint scrY)
     //SL_LOG("onLongTouch(%d, %d)\n", x, y);
 
     // Correct viewport offset
+    // mouse corrds are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
-    SLint y = scrY - _viewportRect.y;
+    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     return true;
 }
@@ -1292,10 +1302,11 @@ SLbool SLSceneView::onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
     if (!s->root3D()) return false;
 
     // Correct viewport offset
+    // mouse corrds are top-left, viewport is bottom-left)
     SLint x1 = scrX1 - _viewportRect.x;
-    SLint y1 = scrY1 - _viewportRect.y;
+    SLint y1 = scrY1 - ((_scrH - _viewportRect.height) - _viewportRect.y);
     SLint x2 = scrX2 - _viewportRect.x;
-    SLint y2 = scrY2 - _viewportRect.y;
+    SLint y2 = scrY2 - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     _touch[0].set(x1, y1);
     _touch[1].set(x2, y2);
@@ -1322,9 +1333,9 @@ SLbool SLSceneView::onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
 
     // Correct viewport offset
     SLint x1 = scrX1 - _viewportRect.x;
-    SLint y1 = scrY1 - _viewportRect.y;
+    SLint y1 = scrY1 - ((_scrH - _viewportRect.height) - _viewportRect.y);
     SLint x2 = scrX2 - _viewportRect.x;
-    SLint y2 = scrY2 - _viewportRect.y;
+    SLint y2 = scrY2 - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     _touch[0].set(x1, y1);
     _touch[1].set(x2, y2);
@@ -1353,9 +1364,9 @@ SLbool SLSceneView::onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY
 
     // Correct viewport offset
     SLint x1 = scrX1 - _viewportRect.x;
-    SLint y1 = scrY1 - _viewportRect.y;
+    SLint y1 = scrY1 - ((_scrH - _viewportRect.height) - _viewportRect.y);
     SLint x2 = scrX2 - _viewportRect.x;
-    SLint y2 = scrY2 - _viewportRect.y;
+    SLint y2 = scrY2 - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     _touch[0].set(x1, y1);
     _touch[1].set(x2, y2);

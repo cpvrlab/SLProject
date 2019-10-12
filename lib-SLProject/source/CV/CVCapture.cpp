@@ -139,7 +139,7 @@ CVSize2i CVCapture::openFile()
 }
 //-----------------------------------------------------------------------------
 //! starts the video capturing
-void CVCapture::start(float scrWdivH)
+void CVCapture::start(float viewportWdivH)
 {
 #ifdef APP_USES_CVCAPTURE
     if (_videoType != VT_NONE)
@@ -154,7 +154,7 @@ void CVCapture::start(float scrWdivH)
 
             if (videoSize != CVSize2i(0, 0))
             {
-                grabAndAdjustForSL(scrWdivH);
+                grabAndAdjustForSL(viewportWdivH);
             }
         }
     }
@@ -182,7 +182,7 @@ CVCapture::adjustForSL. This function can also be called by Android or iOS
 app for grabbing a frame of a video file. Android and iOS use their own
 capture functionality.
 */
-bool CVCapture::grabAndAdjustForSL(float scrWdivH)
+bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
 {
     CVCapture::startCaptureTimeMS = _timer.elapsedTimeInMilliSec();
 
@@ -203,7 +203,7 @@ bool CVCapture::grabAndAdjustForSL(float scrWdivH)
                     return false;
             }
 
-            adjustForSL(scrWdivH);
+            adjustForSL(viewportWdivH);
         }
         else
         {
@@ -242,7 +242,7 @@ image should be mirrored or not is stored in CVCalibration::_isMirroredH
 3) Many of the further processing steps are faster done on grayscale images.
 We therefore create a copy that is grayscale converted.
 */
-void CVCapture::adjustForSL(float scrWdivH)
+void CVCapture::adjustForSL(float viewportWdivH)
 {
     format = CVImage::cv2glPixelFormat(lastFrame.type());
 
@@ -282,7 +282,9 @@ void CVCapture::adjustForSL(float scrWdivH)
     // So this is Android image copy loop #2
 
     float inWdivH  = (float)lastFrame.cols / (float)lastFrame.rows;
-    float outWdivH = scrWdivH;
+
+    // viewportWdivH is negative the viewport aspect will be the same
+    float outWdivH = viewportWdivH < 0.0f ? inWdivH : viewportWdivH;
 
     if (Utils::abs(inWdivH - outWdivH) > 0.01f)
     {
@@ -377,7 +379,7 @@ void CVCapture::adjustForSL(float scrWdivH)
 cameras on their own. We only adjust the color space. See the app-Demo-SLProject/iOS and
 app-Demo-SLProject/android projects for the usage.
 */
-void CVCapture::loadIntoLastFrame(const float       scrWdivH,
+void CVCapture::loadIntoLastFrame(const float       vieportWdivH,
                                   const int         width,
                                   const int         height,
                                   const CVPixFormat format,
@@ -452,7 +454,7 @@ void CVCapture::loadIntoLastFrame(const float       scrWdivH,
         CVCapture::lastFrame = CVMat(height, width, cvType, (void*)data, destStride);
     }
 
-    adjustForSL(scrWdivH);
+    adjustForSL(vieportWdivH);
 }
 //-----------------------------------------------------------------------------
 //! YUV to RGB image infos. Offset value can be negative for mirrored copy.
