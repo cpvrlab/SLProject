@@ -181,6 +181,8 @@ void CVCapture::release()
 CVCapture::adjustForSL. This function can also be called by Android or iOS
 app for grabbing a frame of a video file. Android and iOS use their own
 capture functionality.
+If viewportWdivH is negative the viewport aspect will be adapted to the video
+aspect ratio.
 */
 bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
 {
@@ -234,6 +236,8 @@ images no matter with what they where captured:
 input image mostly does't fit the aspect of the output screen aspect. If the
 input image is too high we crop it on top and bottom, if it is too wide we
 crop it on the sides.
+If viewportWdivH is negative the viewport aspect will be adapted to the video
+aspect ratio. No cropping will be applied.
 \n
 2) Some cameras toward a face mirror the image and some do not. If a input
 image should be mirrored or not is stored in CVCalibration::_isMirroredH

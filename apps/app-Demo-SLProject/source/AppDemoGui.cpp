@@ -1122,35 +1122,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 s->stopAnimations(!s->stopAnimations());
 
             ImGui::Separator();
-#if defined(SL_OS_ANDROID) || defined(SL_OS_IOS)
-            if (ImGui::BeginMenu("Rotation Sensor"))
-            {
-                if (ImGui::MenuItem("Use Device Rotation (IMU)", nullptr, SLApplication::devRot.isUsed()))
-                    SLApplication::devRot.isUsed(!SLApplication::devRot.isUsed());
-
-                if (ImGui::MenuItem("Zero Yaw at Start", nullptr, SLApplication::devRot.zeroYawAtStart()))
-                    SLApplication::devRot.zeroYawAtStart(!SLApplication::devRot.zeroYawAtStart());
-
-                if (ImGui::MenuItem("Reset Zero Yaw"))
-                    SLApplication::devRot.hasStarted(true);
-
-                ImGui::EndMenu();
-            }
-
-            if (ImGui::BeginMenu("Location Sensor"))
-            {
-                if (ImGui::MenuItem("Use Device Location (GPS)", nullptr, SLApplication::devLoc.isUsed()))
-                    SLApplication::devLoc.isUsed(!SLApplication::devLoc.isUsed());
-
-                if (ImGui::MenuItem("Use Origin Altitude", nullptr, SLApplication::devLoc.useOriginAltitude()))
-                    SLApplication::devLoc.useOriginAltitude(!SLApplication::devLoc.useOriginAltitude());
-
-                if (ImGui::MenuItem("Reset Origin to here"))
-                    SLApplication::devLoc.hasOrigin(false);
-
-                ImGui::EndMenu();
-            }
-#endif
 
             if (ImGui::BeginMenu("Viewport Aspect"))
             {
@@ -1190,6 +1161,37 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 }
                 ImGui::EndMenu();
             }
+
+            ImGui::Separator();
+#if defined(SL_OS_ANDROID) || defined(SL_OS_IOS)
+            if (ImGui::BeginMenu("Rotation Sensor"))
+            {
+                if (ImGui::MenuItem("Use Device Rotation (IMU)", nullptr, SLApplication::devRot.isUsed()))
+                    SLApplication::devRot.isUsed(!SLApplication::devRot.isUsed());
+
+                if (ImGui::MenuItem("Zero Yaw at Start", nullptr, SLApplication::devRot.zeroYawAtStart()))
+                    SLApplication::devRot.zeroYawAtStart(!SLApplication::devRot.zeroYawAtStart());
+
+                if (ImGui::MenuItem("Reset Zero Yaw"))
+                    SLApplication::devRot.hasStarted(true);
+
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Location Sensor"))
+            {
+                if (ImGui::MenuItem("Use Device Location (GPS)", nullptr, SLApplication::devLoc.isUsed()))
+                    SLApplication::devLoc.isUsed(!SLApplication::devLoc.isUsed());
+
+                if (ImGui::MenuItem("Use Origin Altitude", nullptr, SLApplication::devLoc.useOriginAltitude()))
+                    SLApplication::devLoc.useOriginAltitude(!SLApplication::devLoc.useOriginAltitude());
+
+                if (ImGui::MenuItem("Reset Origin to here"))
+                    SLApplication::devLoc.hasOrigin(false);
+
+                ImGui::EndMenu();
+            }
+#endif
 
             if (ImGui::BeginMenu("Video Sensor"))
             {

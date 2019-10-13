@@ -83,6 +83,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     // Initialize all preloaded stuff from SLScene
     s->init();
 
+    // Disable viewport with the same aspect ratio a the video
+    // This makes only sense in scenes that use video
+    sv->setViewportFromRatio(SLVec2i(0,0),VA_center, false);
+
     if (SLApplication::sceneID == SID_Empty) //..........................................................
     {
         s->name("No Scene loaded.");
@@ -2922,6 +2926,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         if (sv->viewportSameAsVideo())
         {
+            // Pass a negative value to the start function, so that the
+            // viewport aspect ratio can be adapted later to the video aspect.
+            // This will be know after start.
             CVCapture::instance()->start(-1.0f);
             SLVec2i videoAspect;
             videoAspect.x = CVCapture::instance()->captureSize.width;
