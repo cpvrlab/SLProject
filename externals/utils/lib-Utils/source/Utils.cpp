@@ -929,5 +929,19 @@ uint64_t httpGet(const string& httpURL, const string& outFolder)
     return 0;
 }
 //-----------------------------------------------------------------------------
+//! Greatest common divisor of two integer numbers (ggT = grösster gemeinsame Teiler)
+int gcd(int a, int b)
+{
+    if (b == 0)
+        return a;
+    return gcd(b, a % b);
+}
+//-----------------------------------------------------------------------------
+//! Lowest common multiple (kgV = kleinstes gemeinsames Vielfache)
+int lcm(int a, int b)
+{
+    return (a*b)/Utils::gcd(a, b);
+}
+//-----------------------------------------------------------------------------
 
 };

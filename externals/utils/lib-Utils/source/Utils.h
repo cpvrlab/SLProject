@@ -70,7 +70,7 @@ string getDateTime2String();
 string getHostName();
 
 //! Returns a formatted string as sprintf
-string formatString(const string fmt_str, ...);
+string formatString(string fmt_str, ...);
 
 //! Returns true if container contains the search string
 bool containsString(const string& container, const string& search);
@@ -195,6 +195,13 @@ inline int pow(int x, int p)
     if (p == 1) return x;
     return x * pow(x, p - 1);
 }
+//-----------------------------------------------------------------------------
+//! Greatest common divisor of two integer numbers (ggT = grösster gemeinsame Teiler)
+int gcd(int a, int b);
+//-----------------------------------------------------------------------------
+//! Lowest common multiple (kgV = kleinstes gemeinsames Vielfache)
+int lcm(int a, int b);
+//-----------------------------------------------------------------------------
 };
 //-----------------------------------------------------------------------------
 // clang-format on

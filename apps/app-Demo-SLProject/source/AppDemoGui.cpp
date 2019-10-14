@@ -329,9 +329,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
                 SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
 
-                sprintf(m + strlen(m), "Renderer   :OpenGL\n");
-                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->viewportW(), sv->viewportH());
-                sprintf(m + strlen(m), "Drawcalls  :%d\n", SLGLVertexArray::totalDrawCalls);
+                sprintf(m + strlen(m), "Renderer   : OpenGL\n");
+                sprintf(m + strlen(m), "Frame size : %d x %d\n", sv->viewportW(), sv->viewportH());
+                sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
                 sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
                 sprintf(m + strlen(m), "Frame time :%5.1f ms (100%%)\n", ft);
                 sprintf(m + strlen(m), " Capture   :%5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
