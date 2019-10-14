@@ -189,8 +189,8 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
     memcpy(&lt, std::localtime(&t), sizeof(tm));
 
     SL_LOG("\n");
-    SL_LOG("Universal time  : %d.%d.%d %d:%d:%d\n", ut.tm_mday, ut.tm_mon, ut.tm_year, ut.tm_hour, ut.tm_min, ut.tm_sec);
-    SL_LOG("Local time      : %d.%d.%d %d:%d:%d\n", lt.tm_mday, lt.tm_mon, lt.tm_year, lt.tm_hour, lt.tm_min, lt.tm_sec);
+    SL_LOG("Universal time  : %02d.%02d.%02d %02d:%02d:%02d\n", ut.tm_mday, ut.tm_mon, ut.tm_year + 1900, ut.tm_hour, ut.tm_min, ut.tm_sec);
+    SL_LOG("Local time      : %02d.%02d.%02d %02d:%02d:%02d\n", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min, lt.tm_sec);
     SL_LOG("Timezone        : %d\n", lt.tm_hour - ut.tm_hour);
 
     spa_data spa; //declare the SPA structure
