@@ -120,7 +120,7 @@ class CVCapture
     string      videoDefaultPath;   //!< default path for video files
     string      videoFilename;      //!< video filename to load
     bool        videoLoops;         //!< flag if video should loop
-    int         fps;
+    float       fps;
     int         frameCount;
 
     /*! A requestedSizeIndex of -1 returns on Android the default size of 640x480.

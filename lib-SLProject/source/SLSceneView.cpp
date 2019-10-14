@@ -303,7 +303,7 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
 
     if (_scrWdivH > vpWdivH)
     {
-        vpRect.width  = _scrH * vpWdivH;
+        vpRect.width  = (int)((float)_scrH * vpWdivH);
         vpRect.height = _scrH;
         vpRect.y      = 0;
 
@@ -319,7 +319,7 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
     else
     {
         vpRect.width  = _scrW;
-        vpRect.height = _scrW / vpWdivH;
+        vpRect.height = (SLint)((float)_scrW / (float)vpWdivH);
         vpRect.x      = 0;
 
         switch (vpAlign)
