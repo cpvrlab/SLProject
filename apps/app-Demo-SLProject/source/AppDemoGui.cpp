@@ -375,6 +375,28 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
                 sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
             }
+            else if (rType == RT_pt)
+            {
+                SLPathtracer* pt           = sv->pathtracer();
+                SLuint       rayPrimaries = (SLuint)(sv->viewportW() * sv->viewportH());
+                SLuint       rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
+                SLfloat      rpms         = pt->renderSec() > 0.0f ? rayTotal / pt->renderSec() / 1000.0f : 0.0f;
+
+                sprintf(m + strlen(m), "Renderer   :Path Tracer\n");
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->viewportW(), sv->viewportH());
+                sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / pt->renderSec());
+                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", pt->renderSec());
+                sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rpms);
+                sprintf(m + strlen(m), "Samples/pix:%d\n", pt->aaSamples());
+                sprintf(m + strlen(m), "Threads    :%d\n", pt->numThreads());
+                sprintf(m + strlen(m), "---------------------------\n");
+                sprintf(m + strlen(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
+                sprintf(m + strlen(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
+                sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "---------------------------\n");
+            }
 
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
             ImGui::Begin("Timing", &showStatsTiming, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);

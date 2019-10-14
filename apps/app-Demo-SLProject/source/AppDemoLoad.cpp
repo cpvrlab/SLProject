@@ -1955,7 +1955,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             s->name("Live Video Texture");
             s->info("Minimal texture mapping example with live video source.");
-            CVCapture::instance()->videoType(VT_SCND); // on desktop it will be the main camera
+            CVCapture::instance()->videoType(VT_MAIN); // on desktop it will be the main camera
         }
         else
         {
