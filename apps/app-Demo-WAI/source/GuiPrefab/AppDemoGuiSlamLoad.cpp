@@ -47,8 +47,6 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     loadFileNamesInVector(WAIApp::calibDir, _existingCalibrationNames, calibExtensions, true);
     loadFileNamesInVector(WAIApp::mapDir, _existingMapNames, mapExtensions, true);
     loadFileNamesInVector(WAIApp::vocDir, _existingVocNames, vocExtensions, false);
-
-    _storeKeyFrameImage = false;
 }
 
 void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directory,
@@ -168,7 +166,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             ImGui::EndCombo();
         }
 
-        ImGui::Checkbox("store keyframes image", &_storeKeyFrameImage);
+        ImGui::Checkbox("store keyframe images", &_storeKeyFrameImage);
     }
     ImGui::End();
 }
