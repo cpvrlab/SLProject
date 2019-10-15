@@ -1383,7 +1383,7 @@ bool WAI::ModeOrbSlam2::relocalization(WAIFrame&      currentFrame,
         vpCandidateKFs = keyFrameDB->DetectRelocalizationCandidates(&currentFrame);
     }
 
-    std::cout << "N after DetectRelocalizationCandidates: " << vpCandidateKFs.size() << std::endl;
+    //std::cout << "N after DetectRelocalizationCandidates: " << vpCandidateKFs.size() << std::endl;
 
     if (vpCandidateKFs.empty())
     {
