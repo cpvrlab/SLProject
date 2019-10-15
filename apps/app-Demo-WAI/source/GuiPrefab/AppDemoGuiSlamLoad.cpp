@@ -276,7 +276,6 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             ImGui::EndCombo();
         }
 
-<<<<<<< HEAD
         ImGui::Checkbox("store keyframes image", &_storeKeyFrameImage);
 
         if (ImGui::Button("Start", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
@@ -303,9 +302,6 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         {
             _changeSlamParams = false;
         }
-=======
-        ImGui::Checkbox("store keyframe images", &_storeKeyFrameImage);
->>>>>>> 8be2f87032be961ed676a26ff131a38b8d48bb7e
     }
 
     ImGui::End();
