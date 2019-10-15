@@ -16,6 +16,7 @@
 #include <SL.h>
 #include <SLEnums.h>
 #include <SLVec2.h>
+#include <SLRect.h>
 #include <imgui.h>
 
 class SLScene;
@@ -61,7 +62,7 @@ class SLGLImGui
 
     void onInitNewFrame(SLScene* s, SLSceneView* sv);
     void onResize(SLint scrW, SLint scrH);
-    void onPaint(ImDrawData* draw_data);
+    void onPaint(ImDrawData* draw_data, const SLRecti& viewport);
     void onMouseDown(SLMouseButton button, SLint x, SLint y);
     void onMouseUp(SLMouseButton button, SLint x, SLint y);
     void onMouseMove(SLint xPos, SLint yPos);

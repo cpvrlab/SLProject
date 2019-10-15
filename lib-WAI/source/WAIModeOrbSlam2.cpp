@@ -514,7 +514,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
     //2. if there are less than 100 keypoints in the next frame, the Initializer is deinstantiated again
     //3. else if there are more than 100 keypoints we try to match the keypoints in the current with the initial frame
     //4. if we found less than 100 matches between the current and the initial keypoints, the Initializer is deinstantiated
-    //5. else we try to initializer: that means a homograhy and a fundamental matrix are calculated in parallel and 3D points are triangulated initially
+    //5. else we try to initialize: that means a homograhy and a fundamental matrix are calculated in parallel and 3D points are triangulated initially
     //6. if the initialization (by homograhy or fundamental matrix) was successful an inital map is created:
     //  - two keyframes are generated from the initial and the current frame and added to keyframe database and map
     //  - a mappoint is instantiated from the triangulated 3D points and all necessary members are calculated (distinctive descriptor, depth and normal, add observation reference of keyframes)
@@ -681,6 +681,10 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
 
         if (mpInitializer->Initialize(mCurrentFrame, mvIniMatches, Rcw, tcw, mvIniP3D, vbTriangulated))
         {
+            //cv::imwrite("mCurrentFrame.png", mCurrentFrame.imgGray);
+            //cv::imwrite("mInitialFrame.png", mInitialFrame.imgGray);
+
+            //std::cout << "Initialize num matches: " << mvIniMatches.size() << std::endl;
             for (size_t i = 0, iend = mvIniMatches.size(); i < iend; i++)
             {
                 if (mvIniMatches[i] >= 0 && !vbTriangulated[i])
@@ -689,6 +693,10 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
                     nmatches--;
                 }
             }
+
+            //std::cout << "ModeOrbSlam2::initialize" << std::endl;
+            //std::cout << "R: " << Rcw << std::endl;
+            //std::cout << "t: " << tcw << std::endl;
 
             // Set Frame Poses
             mInitialFrame.SetPose(cv::Mat::eye(4, 4, CV_32F));
@@ -705,6 +713,8 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
                 _initialized = true;
                 _bOK         = true;
             }
+
+            //std::cout << "mCurrentFrame.mTcw: " << mCurrentFrame.mTcw << std::endl;
 
             //ghm1: in the original implementation the initialization is defined in the track() function and this part is always called at the end!
             // Store frame pose information to retrieve the complete camera trajectory afterwards.
@@ -821,7 +831,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
         }
         else
         {
-            _bOK = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId);
+            _bOK = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId, *_map);
         }
     }
     else
@@ -830,7 +840,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
 
         if (_state == TrackingState_TrackingLost)
         {
-            _bOK       = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId);
+            _bOK       = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId, *_map);
             _optFlowOK = false;
             //cout << "Relocalization: " << bOK << endl;
         }
@@ -875,7 +885,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
                     vbOutMM = mCurrentFrame.mvbOutlier;
                     TcwMM   = mCurrentFrame.mTcw.clone();
                 }
-                bOKReloc = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId);
+                bOKReloc = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId, *_map);
                 //relocalization method is not valid but the velocity model method
                 if (bOKMM && !bOKReloc)
                 {
@@ -1096,10 +1106,18 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular()
     pKFini->UpdateConnections();
     pKFcur->UpdateConnections();
 
-    // Bundle Adjustment
-    WAI_LOG("New Map created with %i points", _map->MapPointsInMap());
+    //cout << "New Map created with " << _map->MapPointsInMap() << " points" << endl;
 
-    Optimizer::GlobalBundleAdjustemnt(_map, 20);
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //ghm1: change comprared to original implementation:
+    // I recognized that for a certain video after the first initialization after application start
+    // it worked and after the following resets the initial map was always messed up by the  GlobalBundleAdjustemnt
+    // on the two initial keyframes. I comment this for now, we have to test this further and understand,
+    // why the bundle adjustment has a different behaviour on multiple runs.
+
+    // Bundle Adjustment
+    //Optimizer::GlobalBundleAdjustemnt(_map, 20);
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     // Set median depth to 1
     float medianDepth    = pKFini->ComputeSceneMedianDepth(2);
@@ -1156,7 +1174,7 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular()
     }
 
     // Bundle Adjustment
-    WAI_LOG("Number of Map points after local mapping: %i", _map->MapPointsInMap());
+    //WAI_LOG("Number of Map points after local mapping: %i", _map->MapPointsInMap());
 
     if (_createMarkerMap)
     {
@@ -1525,7 +1543,9 @@ void WAI::ModeOrbSlam2::findMatches(std::vector<cv::Point2f>& vP2D, std::vector<
 
 bool WAI::ModeOrbSlam2::relocalization(WAIFrame&      currentFrame,
                                        WAIKeyFrameDB* keyFrameDB,
-                                       unsigned int*  lastRelocFrameId)
+                                       unsigned int*  lastRelocFrameId,
+                                       WAIMap&        waiMap,
+                                       bool           relocWithAllKFs)
 {
     AVERAGE_TIMING_START("relocalization");
     // Compute Bag of Words Vector
@@ -1533,7 +1553,18 @@ bool WAI::ModeOrbSlam2::relocalization(WAIFrame&      currentFrame,
 
     // Relocalization is performed when tracking is lost
     // Track Lost: Query WAIKeyFrame Database for keyframe candidates for relocalisation
-    vector<WAIKeyFrame*> vpCandidateKFs = keyFrameDB->DetectRelocalizationCandidates(&currentFrame);
+    vector<WAIKeyFrame*> vpCandidateKFs;
+    if (relocWithAllKFs)
+    {
+        //alternative candidate search (test code)
+        vpCandidateKFs = waiMap.GetAllKeyFrames();
+    }
+    else
+    {
+        vpCandidateKFs = keyFrameDB->DetectRelocalizationCandidates(&currentFrame);
+    }
+
+    //std::cout << "N after DetectRelocalizationCandidates: " << vpCandidateKFs.size() << std::endl;
 
     if (vpCandidateKFs.empty())
     {
@@ -1942,7 +1973,7 @@ void WAI::ModeOrbSlam2::updateLocalKeyFrames()
     }
 
     // Include also some not-already-included keyframes that are neighbors to already-included keyframes
-    for (vector<WAIKeyFrame*>::const_iterator itKF = mvpLocalKeyFrames.begin(), itEndKF = mvpLocalKeyFrames.end(); itKF != itEndKF; itKF++)
+    for (auto itKF = mvpLocalKeyFrames.begin(); itKF != mvpLocalKeyFrames.end(); itKF++)
     {
         // Limit the number of keyframes
         if (mvpLocalKeyFrames.size() > 80)

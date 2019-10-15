@@ -73,8 +73,8 @@ SLbool onPaint()
     // If live video image is requested grab it and copy it
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
-        float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
-        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+        float viewportWdivH = SLApplication::scene->sceneView(0)->viewportWdivH();
+        CVCapture::instance()->grabAndAdjustForSL(viewportWdivH);
     }
 
     ////////////////////////////////////////////

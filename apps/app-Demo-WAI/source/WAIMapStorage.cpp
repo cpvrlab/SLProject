@@ -1,5 +1,80 @@
 #include <WAIMapStorage.h>
 
+//SLMat4f WAIMapStorage::loadObjectMatrix(const cv::FileNode& n)
+//{
+//    cv::Mat cvOm = cv::Mat(4, 4, CV_32F);
+//    SLMat4f om;
+//    n >> cvOm;
+//    om.setMatrix(cvOm.at<float>(0, 0),
+//                 cvOm.at<float>(0, 1),
+//                 cvOm.at<float>(0, 2),
+//                 cvOm.at<float>(0, 3),
+//                 cvOm.at<float>(1, 0),
+//                 cvOm.at<float>(1, 1),
+//                 cvOm.at<float>(1, 2),
+//                 cvOm.at<float>(1, 3),
+//                 cvOm.at<float>(2, 0),
+//                 cvOm.at<float>(2, 1),
+//                 cvOm.at<float>(2, 2),
+//                 cvOm.at<float>(2, 3),
+//                 cvOm.at<float>(3, 0),
+//                 cvOm.at<float>(3, 1),
+//                 cvOm.at<float>(3, 2),
+//                 cvOm.at<float>(3, 3));
+//    return om;
+//}
+
+cv::Mat convertToCVMat(const SLMat4f slMat)
+{
+    cv::Mat cvMat = cv::Mat(4, 4, CV_32F);
+    // clang-format off
+        //so ein scheiss!!!
+        //  T M0, T M4, T M8, T M12,
+        //  T M1, T M5, T M9, T M13,
+        //  T M2, T M6, T M10, T M14,
+        //  T M3, T M7, T M11, T M15)
+    cvMat.at<float>(0, 0) = slMat.m(0);  
+    cvMat.at<float>(0, 1) = slMat.m(1); 
+    cvMat.at<float>(0, 2) = slMat.m(2);  
+    cvMat.at<float>(0, 3) = slMat.m(3);
+
+    cvMat.at<float>(1, 0) = slMat.m(4);
+    cvMat.at<float>(1, 1) = slMat.m(5);
+    cvMat.at<float>(1, 2) = slMat.m(6);
+    cvMat.at<float>(1, 3) = slMat.m(7);
+
+    cvMat.at<float>(2, 0) = slMat.m(8);
+    cvMat.at<float>(2, 1) = slMat.m(9);
+    cvMat.at<float>(2, 2) = slMat.m(10);
+    cvMat.at<float>(2, 3) = slMat.m(11);
+
+    cvMat.at<float>(3, 0) = slMat.m(12);
+    cvMat.at<float>(3, 1) = slMat.m(13);
+    cvMat.at<float>(3, 2) = slMat.m(14);
+    cvMat.at<float>(3, 3) = slMat.m(15);
+    // clang-format on
+    return cvMat;
+}
+
+SLMat4f convertToSLMat(const cv::Mat& cvMat)
+{
+    SLMat4f slMat;
+    // clang-format off
+        //so ein scheiss!!!
+        //  T M0, T M4, T M8, T M12,
+        //  T M1, T M5, T M9, T M13,
+        //  T M2, T M6, T M10, T M14,
+        //  T M3, T M7, T M11, T M15)
+    slMat.setMatrix(
+        cvMat.at<float>(0, 0), cvMat.at<float>(1, 0), cvMat.at<float>(2, 0), cvMat.at<float>(3, 0), 
+        cvMat.at<float>(0, 1), cvMat.at<float>(1, 1), cvMat.at<float>(2, 1), cvMat.at<float>(3, 1), 
+        cvMat.at<float>(0, 2), cvMat.at<float>(1, 2), cvMat.at<float>(2, 2), cvMat.at<float>(3, 2), 
+        cvMat.at<float>(0, 3), cvMat.at<float>(1, 3), cvMat.at<float>(2, 3), cvMat.at<float>(3, 3));
+    // clang-format on
+
+    return slMat;
+}
+
 bool WAIMapStorage::saveMap(WAIMap*     waiMap,
                             SLNode*     mapNode,
                             std::string featureType,
@@ -20,26 +95,10 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
             return false;
         }
 
-        fs << "featureType" << featureType;
-
-        SLMat4f om           = mapNode->om();
-        cv::Mat cvOm         = cv::Mat(4, 4, CV_32F);
-        cvOm.at<float>(0, 0) = om.m(0);
-        cvOm.at<float>(0, 1) = om.m(1);
-        cvOm.at<float>(0, 2) = om.m(2);
-        cvOm.at<float>(0, 3) = om.m(12);
-        cvOm.at<float>(1, 0) = om.m(4);
-        cvOm.at<float>(1, 1) = om.m(5);
-        cvOm.at<float>(1, 2) = om.m(6);
-        cvOm.at<float>(1, 3) = om.m(13);
-        cvOm.at<float>(2, 0) = om.m(8);
-        cvOm.at<float>(2, 1) = om.m(9);
-        cvOm.at<float>(2, 2) = om.m(10);
-        cvOm.at<float>(2, 3) = om.m(14);
-        cvOm.at<float>(3, 0) = 0.f;
-        cvOm.at<float>(3, 1) = 0.f;
-        cvOm.at<float>(3, 2) = 0.f;
-        cvOm.at<float>(3, 3) = 1.0f;
+        SLMat4f slOm = mapNode->om();
+        std::cout << "slOm: " << slOm.toString() << std::endl;
+        cv::Mat cvOm = convertToCVMat(mapNode->om());
+        std::cout << "cvOM: " << cvOm << std::endl;
         fs << "mapNodeOm" << cvOm;
 
         //start sequence keyframes
@@ -176,26 +235,11 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
     return true;
 }
 
-SLMat4f WAIMapStorage::loadMatrix(const cv::FileNode& n)
-{
-    cv::Mat cvOm = cv::Mat(4, 4, CV_32F);
-    SLMat4f om;
-    n >> cvOm;
-    for (int i = 0; i < 4; ++i)
-    {
-        for (int j = 0; j < 4; ++j)
-        {
-            om(i, j) = cvOm.at<float>(i, j);
-        }
-    }
-    return om;
-}
-
 bool WAIMapStorage::loadMap(WAIMap*        waiMap,
                             WAIKeyFrameDB* kfDB,
                             SLNode*        mapNode,
                             std::string    path,
-                            std::string    imgDir)
+                            bool           loadImgs)
 {
     std::vector<WAIMapPoint*>       mapPoints;
     std::vector<WAIKeyFrame*>       keyFrames;
@@ -204,6 +248,13 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
     std::map<int, WAIKeyFrame*>     kfsMap;
     int                             numLoopClosings = 0;
 
+    std::string imgDir;
+    if (loadImgs)
+    {
+        std::string dir = Utils::getPath(path);
+        imgDir          = dir + Utils::getFileNameWOExt(path) + "/";
+    }
+
     cv::FileStorage fs(path, cv::FileStorage::READ);
 
     if (!fs.isOpened())
@@ -211,9 +262,14 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
         return false;
     }
 
-    if (mapNode)
+    if (mapNode && !fs["mapNodeOm"].empty())
     {
-        mapNode->om(loadMatrix(fs["mapNodeOm"]));
+        cv::Mat cvOm;
+        fs["mapNodeOm"] >> cvOm;
+        SLMat4f slOm = convertToSLMat(cvOm);
+        std::cout << "slOm: " << slOm.toString() << std::endl;
+
+        mapNode->om(slOm);
     }
 
     cv::FileNode n = fs["KeyFrames"];

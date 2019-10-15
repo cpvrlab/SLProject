@@ -3604,6 +3604,7 @@
 				HEADER_SEARCH_PATHS = (
 					"include/**",
 					"../../../externals/utils/thirdparty/asio/include/**",
+					../../../externals/prebuilt/iosV8_opencv_3.4.0/include,
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -3696,13 +3697,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
-				HEADER_SEARCH_PATHS = "";
-				"HEADER_SEARCH_PATHS[arch=*]" = (
+				HEADER_SEARCH_PATHS = (
 					"include/**",
-					"lib-SLExternal/**",
-					"lib-SLExternal/imgui/**",
 					"../../../externals/utils/thirdparty/asio/include/**",
-					"../../../externals/utils/lib-Utils/source/**",
+					../../../externals/prebuilt/iosV8_opencv_3.4.0/include,
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -3861,7 +3859,6 @@
 					"../../../externals/utils/lib-Utils/source",
 					../../../externals/utils/thirdparty/ftplibpp,
 				);
-				"HEADER_SEARCH_PATHS[arch=*]" = "";
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";

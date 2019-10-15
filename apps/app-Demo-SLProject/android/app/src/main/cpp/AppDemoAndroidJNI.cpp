@@ -259,8 +259,13 @@ jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoSizeIndex(JNIEnv *env, jclass o
 extern "C" JNIEXPORT
 void JNICALL Java_ch_fhnw_comgr_GLES3Lib_grabVideoFileFrame(JNIEnv *env, jclass obj)
 {
-    float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
-    return CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+    // If viewportWdivH is negative the viewport aspect will be adapted to the video
+    // aspect ratio. No cropping will be applied.
+    float viewportWdivH = SLApplication::scene->sceneView(0)->viewportWdivH();
+    if (SLApplication::scene->sceneView(0)->viewportSameAsVideo())
+        viewportWdivH = -1;
+
+    CVCapture::instance()->grabAndAdjustForSL(viewportWdivH);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT
@@ -271,8 +276,14 @@ void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, jclass obj,
     if (srcLumaPtr == nullptr)
         SL_EXIT_MSG("copyVideoImage: No image data pointer passed!");
 
-    float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
-    CVCapture::instance()->loadIntoLastFrame(scrWdivH, imgWidth, imgHeight, PF_yuv_420_888, srcLumaPtr, true);
+
+    // If viewportWdivH is negative the viewport aspect will be adapted to the video
+    // aspect ratio. No cropping will be applied.
+    float viewportWdivH = SLApplication::scene->sceneView(0)->viewportWdivH();
+    if (SLApplication::scene->sceneView(0)->viewportSameAsVideo())
+        viewportWdivH = -1;
+
+    CVCapture::instance()->loadIntoLastFrame(viewportWdivH, imgWidth, imgHeight, PF_yuv_420_888, srcLumaPtr, true);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT
@@ -290,8 +301,13 @@ void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes(JNIEnv *env, jclass 
     if (u == nullptr) SL_EXIT_MSG("copyVideoYUVPlanes: No pointer for u-buffer passed!");
     if (v == nullptr) SL_EXIT_MSG("copyVideoYUVPlanes: No pointer for v-buffer passed!");
 
-    float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
-    CVCapture::instance()->copyYUVPlanes(scrWdivH, srcW, srcH,
+    // If viewportWdivH is negative the viewport aspect will be adapted to the video
+    // aspect ratio. No cropping will be applied.
+    float viewportWdivH = SLApplication::scene->sceneView(0)->viewportWdivH();
+    if (SLApplication::scene->sceneView(0)->viewportSameAsVideo())
+        viewportWdivH = -1;
+
+    CVCapture::instance()->copyYUVPlanes(viewportWdivH, srcW, srcH,
                                            y, ySize, yPixStride, yLineStride,
                                            u, uSize, uPixStride, uLineStride,
                                            v, vSize, vPixStride, vLineStride);
@@ -316,8 +332,8 @@ jboolean JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesLocation(JNIEnv *env, jclass ob
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT
 void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onSetupExternalDir(JNIEnv *env,
-                                                                      jclass obj,
-                                                                      jstring  externalDirPath)
+                                                            jclass obj,
+                                                            jstring externalDirPath)
 {
     std::string externalDirPathNative = jstring2stdstring(env, externalDirPath);
     slSetupExternalDir(externalDirPathNative);
@@ -325,20 +341,20 @@ void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onSetupExternalDir(JNIEnv *env,
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT
 void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setCameraSize(JNIEnv *env,
-                                                                 jclass obj,
-                                                                 jint sizeIndex,
-                                                                 jint sizeIndexMax,
-                                                                 jint width,
-                                                                 jint height)
+                                                       jclass obj,
+                                                       jint sizeIndex,
+                                                       jint sizeIndexMax,
+                                                       jint width,
+                                                       jint height)
 {
     CVCapture::instance()->setCameraSize(sizeIndex, sizeIndexMax, width, height);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT
 void JNICALL Java_ch_fhnw_comgr_GLES3Lib_setDeviceParameter(JNIEnv *env,
-                                                                      jclass obj,
-                                                                      jstring parameter,
-                                                                      jstring value)
+                                                            jclass obj,
+                                                            jstring parameter,
+                                                            jstring value)
 {
     std::string par = jstring2stdstring(env, parameter);
     std::string val = jstring2stdstring(env, value);

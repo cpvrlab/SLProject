@@ -85,6 +85,7 @@ class SLCamera : public SLNode
     SLbool  isInFrustum(SLAABBox* aabb);
 
     // Apply projection, viewport and view transformations
+    void setViewport(SLSceneView* sv, const SLEyeType eye);
     void setProjection(SLSceneView* sv, const SLEyeType eye);
     void setView(SLSceneView* sv, const SLEyeType eye);
     void setFrustumPlanes();
@@ -126,7 +127,7 @@ class SLCamera : public SLNode
     SLstring       projectionStr() const { return projectionToStr(_projection); }
     SLfloat        unitScaling() { return _unitScaling; }
     SLfloat        fov() const { return _fov; }
-    SLfloat        aspect() const { return _aspect; }
+    SLfloat        aspect() const { return _viewportRatio; }
     SLfloat        clipNear() const { return _clipNear; }
     SLfloat        clipFar() const { return _clipFar; }
     SLCamAnim      camAnim() const { return _camAnim; }
@@ -156,15 +157,15 @@ class SLCamera : public SLNode
 
     protected:
     // projection parameters
-    SLProjection _projection; //!< projection type
-    SLint        _scrW;       //!< screen width in pixels
-    SLint        _scrH;       //!< screen height in pixels
-    SLfloat      _aspect;     //!< _scrW /_srcH = screen ratio
-    SLfloat      _fov;        //!< Current field of view (view angle)
-    SLfloat      _fovInit;    //!< Initial field of view (view angle)
-    SLfloat      _clipNear;   //!< Dist. to the near clipping plane
-    SLfloat      _clipFar;    //!< Dist. to the far clipping plane
-    SLPlane      _plane[6];   //!< 6 frustum planes (t, b, l, r, n, f)
+    SLProjection _projection;    //!< projection type
+    SLfloat      _fov;           //!< Current field of view (view angle)
+    SLfloat      _fovInit;       //!< Initial field of view (view angle)
+    SLfloat      _clipNear;      //!< Dist. to the near clipping plane
+    SLfloat      _clipFar;       //!< Dist. to the far clipping plane
+    SLPlane      _plane[6];      //!< 6 frustum planes (t, b, l, r, n, f)
+    SLint        _viewportW;     //!< screen width in pixels
+    SLint        _viewportH;     //!< screen height in pixels
+    SLfloat      _viewportRatio; //!< _scrW /_srcH = screen ratio
     enum
     {
         T = 0,

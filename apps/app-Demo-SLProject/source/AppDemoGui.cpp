@@ -87,8 +87,8 @@ void centerNextWindow(SLSceneView* sv,
                       SLfloat      widthPC  = 0.9f,
                       SLfloat      heightPC = 0.9f)
 {
-    SLfloat width  = (SLfloat)sv->scrW() * widthPC;
-    SLfloat height = (SLfloat)sv->scrH() * heightPC;
+    SLfloat width  = (SLfloat)sv->viewportW() * widthPC;
+    SLfloat height = (SLfloat)sv->viewportH() * heightPC;
     ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiSetCond_Always);
     ImGui::SetNextWindowPosCenter(ImGuiSetCond_Always);
 }
@@ -329,9 +329,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
                 SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
 
-                sprintf(m + strlen(m), "Renderer   :OpenGL\n");
-                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
-                sprintf(m + strlen(m), "Drawcalls  :%d\n", SLGLVertexArray::totalDrawCalls);
+                sprintf(m + strlen(m), "Renderer   : OpenGL\n");
+                sprintf(m + strlen(m), "Frame size : %d x %d\n", sv->viewportW(), sv->viewportH());
+                sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
                 sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
                 sprintf(m + strlen(m), "Frame time :%5.1f ms (100%%)\n", ft);
                 sprintf(m + strlen(m), " Capture   :%5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
@@ -352,12 +352,12 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             else if (rType == RT_rt)
             {
                 SLRaytracer* rt           = sv->raytracer();
-                SLuint       rayPrimaries = (SLuint)(sv->scrW() * sv->scrH());
+                SLuint       rayPrimaries = (SLuint)(sv->viewportW() * sv->viewportH());
                 SLuint       rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
                 SLfloat      rpms         = rt->renderSec() > 0.0f ? rayTotal / rt->renderSec() / 1000.0f : 0.0f;
 
                 sprintf(m + strlen(m), "Renderer   :Ray Tracer\n");
-                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->viewportW(), sv->viewportH());
                 sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / rt->renderSec());
                 sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", rt->renderSec());
                 sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rpms);
@@ -374,6 +374,28 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "---------------------------\n");
                 sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
                 sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
+            }
+            else if (rType == RT_pt)
+            {
+                SLPathtracer* pt           = sv->pathtracer();
+                SLuint        rayPrimaries = (SLuint)(sv->viewportW() * sv->viewportH());
+                SLuint        rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
+                SLfloat       rpms         = pt->renderSec() > 0.0f ? rayTotal / pt->renderSec() / 1000.0f : 0.0f;
+
+                sprintf(m + strlen(m), "Renderer   :Path Tracer\n");
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->viewportW(), sv->viewportH());
+                sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / pt->renderSec());
+                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", pt->renderSec());
+                sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rpms);
+                sprintf(m + strlen(m), "Samples/pix:%d\n", pt->aaSamples());
+                sprintf(m + strlen(m), "Threads    :%d\n", pt->numThreads());
+                sprintf(m + strlen(m), "---------------------------\n");
+                sprintf(m + strlen(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
+                sprintf(m + strlen(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
+                sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "---------------------------\n");
             }
 
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -516,7 +538,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             ImGuiWindowFlags window_flags = 0;
             window_flags |= ImGuiWindowFlags_NoTitleBar;
             window_flags |= ImGuiWindowFlags_NoResize;
-            SLfloat  w    = (SLfloat)sv->scrW();
+            SLfloat  w    = (SLfloat)sv->viewportW();
             ImVec2   size = ImGui::CalcTextSize(s->info().c_str(), nullptr, true, w);
             SLfloat  h    = size.y + SLGLImGui::fontPropDots * 1.2f;
             SLstring info = "Scene Info: " + s->info();
@@ -1122,6 +1144,47 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 s->stopAnimations(!s->stopAnimations());
 
             ImGui::Separator();
+
+            if (ImGui::BeginMenu("Viewport Aspect"))
+            {
+
+                SLVec2i videoAspect(0, 0);
+                if (capture->videoType() != VT_NONE)
+                {
+                    videoAspect.x = capture->captureSize.width;
+                    videoAspect.y = capture->captureSize.height;
+                }
+                SLchar strSameAsVideo[256];
+                sprintf(strSameAsVideo, "Same as Video (%d:%d)", videoAspect.x, videoAspect.y);
+
+                if (ImGui::MenuItem("Same as window", nullptr, sv->viewportRatio() == SLVec2i::ZERO))
+                    sv->setViewportFromRatio(SLVec2i(0, 0), sv->viewportAlign(), false);
+                if (ImGui::MenuItem(strSameAsVideo, nullptr, sv->viewportSameAsVideo()))
+                    sv->setViewportFromRatio(videoAspect, sv->viewportAlign(), true);
+                if (ImGui::MenuItem("16:9", nullptr, sv->viewportRatio() == SLVec2i(16, 9)))
+                    sv->setViewportFromRatio(SLVec2i(16, 9), sv->viewportAlign(), false);
+                if (ImGui::MenuItem("4:3", nullptr, sv->viewportRatio() == SLVec2i(4, 3)))
+                    sv->setViewportFromRatio(SLVec2i(4, 3), sv->viewportAlign(), false);
+                if (ImGui::MenuItem("2:1", nullptr, sv->viewportRatio() == SLVec2i(2, 1)))
+                    sv->setViewportFromRatio(SLVec2i(2, 1), sv->viewportAlign(), false);
+                if (ImGui::MenuItem("1:1", nullptr, sv->viewportRatio() == SLVec2i(1, 1)))
+                    sv->setViewportFromRatio(SLVec2i(1, 1), sv->viewportAlign(), false);
+
+                if (ImGui::BeginMenu("Alignment", sv->viewportRatio() != SLVec2i::ZERO))
+                {
+                    if (ImGui::MenuItem("Center", nullptr, sv->viewportAlign() == VA_center))
+                        sv->setViewportFromRatio(sv->viewportRatio(), VA_center, sv->viewportSameAsVideo());
+                    if (ImGui::MenuItem("Left or top", nullptr, sv->viewportAlign() == VA_leftOrTop))
+                        sv->setViewportFromRatio(sv->viewportRatio(), VA_leftOrTop, sv->viewportSameAsVideo());
+                    if (ImGui::MenuItem("Right or bottom", nullptr, sv->viewportAlign() == VA_rightOrBottom))
+                        sv->setViewportFromRatio(sv->viewportRatio(), VA_rightOrBottom, sv->viewportSameAsVideo());
+
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMenu();
+            }
+
+            ImGui::Separator();
 #if defined(SL_OS_ANDROID) || defined(SL_OS_IOS)
             if (ImGui::BeginMenu("Rotation Sensor"))
             {
@@ -1151,6 +1214,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
 #endif
+
             if (ImGui::BeginMenu("Video Sensor"))
             {
                 CVCalibration* ac = capture->activeCalib;
@@ -2260,6 +2324,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         style.ItemSpacing.x      = std::max(8.0f * dpiScaleFixed, 8.0f);
         style.ItemSpacing.y      = std::max(3.0f * dpiScaleFixed, 3.0f);
         style.ItemInnerSpacing.x = style.ItemSpacing.y;
+        style.ScrollbarSize      = std::max(16.0f * dpiScaleFixed, 16.0f);
+        style.ScrollbarRounding  = std::floor(style.ScrollbarSize / 2);
 
         return;
     }
@@ -2280,6 +2346,10 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["ItemSpacingY"] >> i;        style.ItemSpacing.y = (SLfloat)i;
             style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
             style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
+            fs["ScrollbarSize"] >> i;
+            style.ScrollbarSize = (SLfloat)i;
+            fs["ScrollbarRounding"] >> i;
+            style.ScrollbarRounding = (SLfloat)i;
             fs["sceneID"] >> i;             SLApplication::sceneID = (SLSceneID)i;
             fs["showInfosScene"] >> b;      AppDemoGui::showInfosScene = b;
             fs["showStatsTiming"] >> b;     AppDemoGui::showStatsTiming = b;
@@ -2352,6 +2422,8 @@ void AppDemoGui::saveConfig()
     fs << "sceneID" << (SLint)SLApplication::sceneID;
     fs << "ItemSpacingX" << (SLint)style.ItemSpacing.x;
     fs << "ItemSpacingY" << (SLint)style.ItemSpacing.y;
+    fs << "ScrollbarSize" << (SLfloat)style.ScrollbarSize;
+    fs << "ScrollbarRounding" << (SLfloat)style.ScrollbarRounding;
     fs << "showStatsTiming" << AppDemoGui::showStatsTiming;
     fs << "showStatsMemory" << AppDemoGui::showStatsScene;
     fs << "showStatsVideo" << AppDemoGui::showStatsVideo;

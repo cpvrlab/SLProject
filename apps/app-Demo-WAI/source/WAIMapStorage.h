@@ -20,10 +20,10 @@ class WAI_API WAIMapStorage
                         WAIKeyFrameDB* kfDB,
                         SLNode*        mapNode,
                         std::string    path,
-                        std::string    imgDir = "");
+                        bool           loadImgs = false);
 
     private:
-    static SLMat4f loadMatrix(const cv::FileNode& n);
+    //static SLMat4f loadObjectMatrix(const cv::FileNode& n);
 };
 
 #endif

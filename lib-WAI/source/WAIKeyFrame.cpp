@@ -37,60 +37,30 @@ long unsigned int WAIKeyFrame::nNextId = 0;
 
 //-----------------------------------------------------------------------------
 //!load an existing keyframe (used during file load)
-WAIKeyFrame::WAIKeyFrame(const cv::Mat& Tcw,
-                         unsigned long id,
-                         float fx, float fy,
-                         float cx, float cy, size_t N,
+WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
+                         unsigned long                    id,
+                         float                            fx,
+                         float                            fy,
+                         float                            cx,
+                         float                            cy,
+                         size_t                           N,
                          const std::vector<cv::KeyPoint>& vKeysUn,
-                         const cv::Mat& descriptors,
-                         ORBVocabulary* mpORBvocabulary,
-                         int nScaleLevels,
-                         float fScaleFactor,
-                         const std::vector<float>& vScaleFactors,
-                         const std::vector<float>& vLevelSigma2,
-                         const std::vector<float>& vInvLevelSigma2,
-                         int nMinX, int nMinY, int nMaxX, int nMaxY,
-                         const cv::Mat& K,
-                         WAIKeyFrameDB* pKFDB,
-                         WAIMap* pMap)
+                         const cv::Mat&                   descriptors,
+                         ORBVocabulary*                   mpORBvocabulary,
+                         int                              nScaleLevels,
+                         float                            fScaleFactor,
+                         const std::vector<float>&        vScaleFactors,
+                         const std::vector<float>&        vLevelSigma2,
+                         const std::vector<float>&        vInvLevelSigma2,
+                         int                              nMinX,
+                         int                              nMinY,
+                         int                              nMaxX,
+                         int                              nMaxY,
+                         const cv::Mat&                   K,
+                         WAIKeyFrameDB*                   pKFDB,
+                         WAIMap*                          pMap)
 
-  : mnId(id), mnFrameId(0),
-    mTimeStamp(0),
-    mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
-    mfGridElementWidthInv(static_cast<float>(FRAME_GRID_COLS) / (nMaxX - nMinX)),
-    mfGridElementHeightInv(static_cast<float>(FRAME_GRID_ROWS) / (nMaxY - nMinY)),
-    mnTrackReferenceForFrame(0),
-    mnFuseTargetForKF(0),
-    mnBALocalForKF(0),
-    mnBAFixedForKF(0),
-    mnLoopQuery(0),
-    mnLoopWords(0),
-    mnRelocQuery(0),
-    mnRelocWords(0),
-    mnBAGlobalForKF(0),
-    fx(fx), fy(fy), cx(cx), cy(cy),
-    invfx(1 / fx), invfy(1 / fy),
-    N(N),
-    mvKeysUn(vKeysUn),
-    mDescriptors(descriptors.clone()),
-    mnScaleLevels(nScaleLevels),
-    mfScaleFactor(fScaleFactor),
-    mfLogScaleFactor(log(fScaleFactor)),
-    mvScaleFactors(vScaleFactors),
-    mvLevelSigma2(vLevelSigma2),
-    mvInvLevelSigma2(vInvLevelSigma2),
-    mnMinX(nMinX),
-    mnMinY(nMinY),
-    mnMaxX(nMaxX),
-    mnMaxY(nMaxY),
-    mK(K.clone()),
-    _kfDb(pKFDB),
-    mbFirstConnection(true),
-    mpParent(NULL),
-    mbNotErase(false),
-    mbToBeErased(false),
-    mbBad(false),
-    mpMap(pMap)
+  : mnId(id), mnFrameId(0), mTimeStamp(0), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS), mfGridElementWidthInv(static_cast<float>(FRAME_GRID_COLS) / (nMaxX - nMinX)), mfGridElementHeightInv(static_cast<float>(FRAME_GRID_ROWS) / (nMaxY - nMinY)), mnTrackReferenceForFrame(0), mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0), mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0), mnBAGlobalForKF(0), fx(fx), fy(fy), cx(cx), cy(cy), invfx(1 / fx), invfy(1 / fy), N(N), mvKeysUn(vKeysUn), mDescriptors(descriptors.clone()), mnScaleLevels(nScaleLevels), mfScaleFactor(fScaleFactor), mfLogScaleFactor(log(fScaleFactor)), mvScaleFactors(vScaleFactors), mvLevelSigma2(vLevelSigma2), mvInvLevelSigma2(vInvLevelSigma2), mnMinX(nMinX), mnMinY(nMinY), mnMaxX(nMaxX), mnMaxY(nMaxY), mK(K.clone()), _kfDb(pKFDB), mbFirstConnection(true), mpParent(NULL), mbNotErase(false), mbToBeErased(false), mbBad(false), mpMap(pMap)
 {
     if (id >= nNextId)
         nNextId = id + 1;
@@ -563,20 +533,24 @@ void WAIKeyFrame::SetBadFlag()
         unique_lock<mutex> lock(mMutexConnections);
         if (mnId == 0)
         {
+            //never delete first keyframe
             return;
         }
         else if (mbNotErase)
         {
+            //never delete keyframes with this flag
             mbToBeErased = true;
             return;
         }
     }
 
+    //for all connected keyframes remove this as a neighbour
     for (map<WAIKeyFrame*, int>::iterator mit = mConnectedKeyFrameWeights.begin(), mend = mConnectedKeyFrameWeights.end(); mit != mend; mit++)
     {
         mit->first->EraseConnection(this);
     }
 
+    //erase observation from keypoints observed by this keyframe
     for (size_t i = 0; i < mvpMapPoints.size(); i++)
     {
         if (mvpMapPoints[i])
@@ -592,12 +566,14 @@ void WAIKeyFrame::SetBadFlag()
         mConnectedKeyFrameWeights.clear();
         mvpOrderedConnectedKeyFrames.clear();
 
-        // Update Spanning Tree
+        // ghm1: Update Spanning Tree: As we try to cull a keyframe we have to update the parent keyframe from all his children.
+        // A parent keyframe is the one that has the best covisibility with his potential child. So it is not necessaryly the parent of the culled keyframe.
+        // Rather we search all connected keyframes in covisibilty graph (see GetWeight) for every child to find the best parent
         set<WAIKeyFrame*> sParentCandidates;
         sParentCandidates.insert(mpParent);
 
-        // Assign at each iteration one children with a parent (the pair with highest covisibility weight)
-        // Include that children as new parent candidate for the rest
+        // Assign at each iteration one child with a parent (the pair with highest covisibility weight)
+        // Include that child as new parent candidate for the rest
         while (!mspChildrens.empty())
         {
             bool bContinue = false;
@@ -620,10 +596,19 @@ void WAIKeyFrame::SetBadFlag()
                 {
                     for (set<WAIKeyFrame*>::iterator spcit = sParentCandidates.begin(), spcend = sParentCandidates.end(); spcit != spcend; spcit++)
                     {
+                        ////list of connected contains itself
+                        //if (vpConnected[i]->mnId == pKF->mnId)
+                        //    throw std::runtime_error("bad stuff 1");
+                        ////parent equals child itself
+                        //if ((*spcit)->mnId == pKF->mnId)
+                        //    throw std::runtime_error("bad stuff 2");
+
                         if (vpConnected[i]->mnId == (*spcit)->mnId)
                         {
                             int w = pKF->GetWeight(vpConnected[i]);
-                            if (w > max)
+                            //ghm1: (added pC != pP because of exception in ChangeParent) this could only prevent the next ChangeParent from crashing.
+                            //This case would originiate from a child containing itself in vpConnected. It could still crash later
+                            if (w > max /*&& pC != pP*/)
                             {
                                 pC        = pKF;
                                 pP        = vpConnected[i];
@@ -648,11 +633,21 @@ void WAIKeyFrame::SetBadFlag()
         }
 
         // If a children has no covisibility links with any parent candidate, assign to the original parent of this KF
+        //ghm1: (change because of exception in ChangeParent) check that the parent is not the child itself. If this is
+        //the case, remove itself from covisibles and use the second best covisible as parent.
         if (!mspChildrens.empty())
         {
             for (set<WAIKeyFrame*>::iterator sit = mspChildrens.begin(); sit != mspChildrens.end(); sit++)
             {
+                //check that parent is not the child itself
+                //if ((*sit)->mnId != mpParent->mnId)
+                //{
                 (*sit)->ChangeParent(mpParent);
+                //}
+                //else
+                //{
+                //    vector<WAIKeyFrame*> vpConnected = (*sit)->GetVectorCovisibleKeyFrames();
+                //}
             }
         }
 

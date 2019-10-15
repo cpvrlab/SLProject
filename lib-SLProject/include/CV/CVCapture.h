@@ -69,12 +69,12 @@ class CVCapture
 
     CVSize2i open(int deviceNum);
     CVSize2i openFile();
-    void     start(float scrWdivH);
-    bool     grabAndAdjustForSL(float scrWdivH);
-    void     adjustForSL(float scrWdivH);
+    void     start(float viewportWdivH);
+    bool     grabAndAdjustForSL(float viewportWdivH);
+    void     adjustForSL(float viewportWdivH);
     bool     isOpened() { return _captureDevice.isOpened(); }
     void     release();
-    void     loadIntoLastFrame(float        scrWdivH,
+    void     loadIntoLastFrame(float        vieportWdivH,
                                int          camWidth,
                                int          camHeight,
                                CVPixFormat  srcPixelFormat,
@@ -120,7 +120,7 @@ class CVCapture
     string      videoDefaultPath;   //!< default path for video files
     string      videoFilename;      //!< video filename to load
     bool        videoLoops;         //!< flag if video should loop
-    int         fps;
+    float       fps;
     int         frameCount;
 
     /*! A requestedSizeIndex of -1 returns on Android the default size of 640x480.

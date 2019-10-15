@@ -48,7 +48,11 @@ class WAI_API ModeOrbSlam2
     bool getPose(cv::Mat* pose);
     bool update(cv::Mat& imageGray, cv::Mat& imageRGB);
 
-    static bool relocalization(WAIFrame& currentFrame, WAIKeyFrameDB* keyFrameDB, unsigned int* lastRelocFrameId);
+    static bool relocalization(WAIFrame&      currentFrame,
+                               WAIKeyFrameDB* keyFrameDB,
+                               unsigned int*  lastRelocFrameId,
+                               WAIMap&        waiMap,
+                               bool           relocWithAllKFs = false);
 
     void reset();
     bool isInitialized();

@@ -70,6 +70,7 @@ file(GLOB sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAI.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppDirectories.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.cpp

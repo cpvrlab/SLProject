@@ -43,9 +43,9 @@ SLbool
 SLPathtracer::render(SLSceneView* sv)
 {
     _sv         = sv;
-    _state      = rtBusy;                   // From here we state the PT as busy
-    _renderSec  = 0.0f;                     // reset time
-    _pcRendered = 0;                        // % rendered
+    _state      = rtBusy; // From here we state the PT as busy
+    _renderSec  = 0.0f;   // reset time
+    _pcRendered = 0;      // % rendered
 
     prepareImage();
 
@@ -55,7 +55,7 @@ SLPathtracer::render(SLSceneView* sv)
         delete _images[_images.size() - 1];
         _images.pop_back();
     }
-    _images.push_back(new CVImage(_sv->scrW(), _sv->scrH(), PF_rgb, "Pathtracer"));
+    _images.push_back(new CVImage(_sv->viewportW(), _sv->viewportH(), PF_rgb, "Pathtracer"));
 
     // Measure time
     double t1 = SLApplication::timeS();
@@ -74,7 +74,7 @@ SLPathtracer::render(SLSceneView* sv)
 
         // Start additional threads on the renderSlices function
         for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
-            threads.push_back(thread(renderSlicesFunction, false, currentSample));
+            threads.emplace_back(renderSlicesFunction, false, currentSample);
 
         // Do the same work in the main thread
         renderSlicesFunction(true, currentSample);
@@ -99,7 +99,7 @@ Renders a slice of 4px width.
 void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
 {
     // Time points
-    double        t1           = 0;
+    double t1 = 0;
 
     while (_next < (SLint)_images[0]->width())
     {
@@ -120,9 +120,9 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
                               (SLfloat)(y - rnd01() + 0.5f),
                               &primaryRay);
 
-                ///////////////////////////////
-                color += trace(&primaryRay, 0);
-                ///////////////////////////////
+                ///////////////////////////////////
+                color += trace(&primaryRay, false);
+                ///////////////////////////////////
 
                 // weight old and new color for continuous rendering
                 SLCol4f oldColor;
@@ -168,7 +168,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
 }
 //-----------------------------------------------------------------------------
 /*!
-Recursively traces Ray in Scene.
+Recursively traces ray in scene.
 */
 SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
 {
@@ -218,7 +218,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
     if (ray->hitMatIsDiffuse())
     {
         // Add component wise the texture color
-        if (mat->textures().size())
+        if (!mat->textures().empty())
         {
             objectColor &= ray->hitColor;
         }
@@ -232,7 +232,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
             ray->diffuseMC(&scatter);
 
             // material emission, material diffuse and recursive indirect illumination
-            finalColor += (trace(&scatter, 0) & objectColor) * scaleBy;
+            finalColor += (trace(&scatter, false) & objectColor) * scaleBy;
         }
     }
     else if (ray->hitMatIsReflective())
@@ -253,7 +253,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
         }
 
         // shininess contribution * recursive indirect illumination and matrial base color
-        finalColor += ((mat->shininess() + 2.0f) / (mat->shininess() + 1.0f) * (trace(&reflected, 1) & objectColor)) * scaleBy;
+        finalColor += ((mat->shininess() + 2.0f) / (mat->shininess() + 1.0f) * (trace(&reflected, true) & objectColor)) * scaleBy;
     }
     else if (ray->hitMatIsTransparent())
     {
@@ -312,7 +312,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
             // scatter toward transmissive direction
             finalColor += ((mat->translucency() + 2.0f) /
                            (mat->translucency() + 1.0f) *
-                           (trace(&refracted, 1) & objectColor) *
+                           (trace(&refracted, true) & objectColor) *
                            refractionProbability) *
                           scaleBy;
         else
@@ -324,7 +324,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
             // shininess contribution * recursive indirect illumination and matrial basecolor
             finalColor += ((mat->shininess() + 2.0f) /
                            (mat->shininess() + 1.0f) *
-                           (trace(&scattered, 1) & objectColor) *
+                           (trace(&scattered, true) & objectColor) *
                            reflectionProbability) *
                           scaleBy;
         }
@@ -342,13 +342,11 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor)
     SLCol4f  color        = SLCol4f::BLACK;
     SLCol4f  diffuseColor = SLCol4f::BLACK;
     SLVec3f  L, N;
-    SLfloat  lightDist, LdN, df, spotEffect, lighted = 0.0f;
+    SLfloat  lightDist, LdN, df, spotEffect, lighted;
 
     // loop over light sources in scene
-    for (SLuint i = 0; i < s->lights().size(); ++i)
+    for (auto light : s->lights())
     {
-        SLLight* light = s->lights()[i];
-
         if (light && light->isOn())
         {
             N.set(ray->hitNormal);

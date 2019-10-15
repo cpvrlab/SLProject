@@ -100,7 +100,7 @@ RelocalizationTestResult runRelocalizationTest(std::string videoFile,
                                          orbVoc,
                                          false);
 
-        if (WAI::ModeOrbSlam2::relocalization(currentFrame, keyFrameDB, &lastRelocFrameId))
+        if (WAI::ModeOrbSlam2::relocalization(currentFrame, keyFrameDB, &lastRelocFrameId, *map, false))
         {
             relocalizationFrameCount++;
         }

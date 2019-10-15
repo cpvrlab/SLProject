@@ -42,6 +42,7 @@ file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAI.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppDirectories.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.h
