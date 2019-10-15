@@ -89,7 +89,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
 
             SLRay::avgDepth += SLRay::depthReached;
             SLRay::maxDepthReached = std::max(SLRay::depthReached,
-                                            SLRay::maxDepthReached);
+                                              SLRay::maxDepthReached);
         }
 
         // Update image after 500 ms
@@ -145,7 +145,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
 
     // Start additional threads on the renderSlices function
     for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
-        threads.push_back(thread(renderSlicesFunction, false));
+        threads.emplace_back(renderSlicesFunction, false);
 
     // Do the same work in the main thread
     renderSlicesFunction(true);
@@ -163,7 +163,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
 
         // Start additional threads on the sampleAAPixelFunction function
         for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
-            threads.push_back(thread(sampleAAPixelsFunction, false));
+            threads.emplace_back(sampleAAPixelsFunction, false);
 
         // Do the same work in the main thread
         sampleAAPixelsFunction(true);
@@ -223,7 +223,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
 
                 SLRay::avgDepth += SLRay::depthReached;
                 SLRay::maxDepthReached = std::max(SLRay::depthReached,
-                                                SLRay::maxDepthReached);
+                                                  SLRay::maxDepthReached);
             }
 
             // Update image after 500 ms
@@ -303,7 +303,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
 
                         SLRay::avgDepth += SLRay::depthReached;
                         SLRay::maxDepthReached = std::max(SLRay::depthReached,
-                                                        SLRay::maxDepthReached);
+                                                          SLRay::maxDepthReached);
                     }
                 }
                 color /= (SLfloat)_cam->lensSamples()->samples();
@@ -446,7 +446,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
     SLMaterial*   mat        = ray->hitMesh->mat();
     SLVGLTexture& texture    = mat->textures();
     SLVec3f       L, N, H;
-    SLfloat       lightDist, LdN, NdH, df, sf, spotEffect, att, lighted = 0.0f;
+    SLfloat       lightDist, LdN, NdH, df, sf, spotEffect, att, lighted;
     SLCol4f       amdi, spec;
     SLCol4f       localSpec(0, 0, 0, 1);
 
@@ -454,10 +454,8 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
 
     ray->hitMesh->preShade(ray);
 
-    for (SLuint i = 0; i < s->lights().size(); ++i)
+    for (auto light : s->lights())
     {
-        SLLight* light = s->lights()[i];
-
         if (light && light->isOn())
         {
             // calculate light vector L and distance to light
@@ -526,7 +524,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
         }
     }
 
-    if (texture.size() || ray->hitMesh->C.size())
+    if (!texture.empty() || ray->hitMesh->C.size())
     {
         localColor &= ray->hitColor; // component wise multiply
         localColor += localSpec;     // add afterwards the specular component
@@ -722,7 +720,7 @@ void SLRaytracer::printStats(SLfloat sec)
     SL_LOG("\nNum. Threads : %10d", Utils::maxThreads());
     SL_LOG("\nAllowed depth: %10d", SLRay::maxDepth);
 
-    SLuint primarys = (SLuint)(_sv->scrW() * _sv->scrH());
+    SLuint primarys = (SLuint)(_sv->viewportRect().width * _sv->viewportRect().height);
     SLuint total    = primarys +
                    SLRay::reflectedRays +
                    SLRay::subsampledRays +
@@ -773,10 +771,10 @@ void SLRaytracer::prepareImage()
         */
         SLVec3f pos(_cam->updateAndGetVM().translation());
         SLfloat hh = tan(Utils::DEG2RAD * _cam->fov() * 0.5f) * pos.length();
-        SLfloat hw = hh * _sv->scrWdivH();
+        SLfloat hw = hh * _sv->viewportWdivH();
 
         // calculate the size of a pixel in world coords.
-        _pxSize = hw * 2 / _sv->scrW();
+        _pxSize = hw * 2 / _sv->viewportW();
 
         _BL = _EYE - hw * _LR - hh * _LU + _pxSize / 2 * _LR - _pxSize / 2 * _LU;
     }
@@ -789,10 +787,10 @@ void SLRaytracer::prepareImage()
         */
         // calculate half window width & height in world coords
         SLfloat hh = tan(Utils::DEG2RAD * _cam->fov() * 0.5f) * _cam->focalDist();
-        SLfloat hw = hh * _sv->scrWdivH();
+        SLfloat hw = hh * _sv->viewportWdivH();
 
         // calculate the size of a pixel in world coords.
-        _pxSize = hw * 2 / _sv->scrW();
+        _pxSize = hw * 2 / _sv->viewportW();
 
         // calculate a vector to the center (C) of the bottom left (BL) pixel
         SLVec3f C = _LA * _cam->focalDist();
@@ -801,11 +799,14 @@ void SLRaytracer::prepareImage()
 
     // Create the image for the first time
     if (_images.empty())
-        _images.push_back(new CVImage(_sv->scrW(), _sv->scrH(), PF_rgb, "Raytracer"));
+        _images.push_back(new CVImage(_sv->viewportW(),
+                                      _sv->viewportH(),
+                                      PF_rgb,
+                                      "Raytracer"));
 
     // Allocate image of the inherited texture class
-    if (_sv->scrW() != (SLint)_images[0]->width() ||
-        _sv->scrH() != (SLint)_images[0]->height())
+    if (_sv->viewportW() != (SLint)_images[0]->width() ||
+        _sv->viewportH() != (SLint)_images[0]->height())
     {
         // Delete the OpenGL Texture if it already exists
         if (_texName)
@@ -815,7 +816,9 @@ void SLRaytracer::prepareImage()
         }
 
         _vaoSprite.clearAttribs();
-        _images[0]->allocate(_sv->scrW(), _sv->scrH(), PF_rgb);
+        _images[0]->allocate(_sv->viewportW(),
+                             _sv->viewportH(),
+                             PF_rgb);
     }
 
     // Fill image black for single RT
@@ -827,13 +830,15 @@ Draw the RT-Image as a textured quad in 2D-Orthographic projection
 */
 void SLRaytracer::renderImage()
 {
-    SLfloat w = (SLfloat)_sv->scrW();
-    SLfloat h = (SLfloat)_sv->scrH();
+    SLRecti vpRect = _sv->viewportRect();
+    SLfloat w = (SLfloat)vpRect.width;
+    SLfloat h = (SLfloat)vpRect.height;
     if (Utils::abs(_images[0]->width() - w) > 0.0001f) return;
     if (Utils::abs(_images[0]->height() - h) > 0.0001f) return;
 
     // Set orthographic projection with the size of the window
     SLGLState* stateGL = SLGLState::instance();
+    stateGL->viewport(vpRect.x, vpRect.y, w, h);
     stateGL->projectionMatrix.ortho(0.0f, w, 0.0f, h, -1.0f, 0.0f);
     stateGL->modelViewMatrix.identity();
     stateGL->clearColorBuffer();

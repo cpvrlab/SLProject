@@ -389,8 +389,18 @@ float GetSeconds()
         return;
     }
     
-    float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
-    CVCapture::instance()->loadIntoLastFrame(scrWdivH, width, height, PF_bgra, data, false);
+    // If viewportWdivH is negative the viewport aspect will be adapted to the video
+    // aspect ratio. No cropping will be applied.
+    float viewportWdivH = SLApplication::scene->sceneView(0)->viewportWdivH();
+    if (SLApplication::scene->sceneView(0)->viewportSameAsVideo())
+        viewportWdivH = -1;
+        
+    CVCapture::instance()->loadIntoLastFrame(viewportWdivH,
+                                             width,
+                                             height,
+                                             PF_bgra,
+                                             data,
+                                             false);
     
     CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
         

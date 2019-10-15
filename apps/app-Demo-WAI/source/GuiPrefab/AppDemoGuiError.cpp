@@ -2,9 +2,11 @@
 #include <imgui_internal.h>
 
 #include <AppDemoGuiError.h>
+
+#include <utility>
 //-----------------------------------------------------------------------------
 AppDemoGuiError::AppDemoGuiError(string name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+  : AppDemoGuiInfosDialog(std::move(name), activator)
 {
 }
 
@@ -15,7 +17,7 @@ void AppDemoGuiError::buildInfos(SLScene* s, SLSceneView* sv)
     ImGuiWindowFlags window_flags = 0;
     window_flags |= ImGuiWindowFlags_NoTitleBar;
     window_flags |= ImGuiWindowFlags_NoResize;
-    SLfloat w    = (SLfloat)sv->scrW() - 10;
+    SLfloat w    = (SLfloat)sv->viewportW() - 10;
     ImVec2  size = ImGui::CalcTextSize(_errorMsg.c_str(), nullptr, true, w);
     SLfloat h    = size.y + SLGLImGui::fontPropDots * 1.2f + 20;
 

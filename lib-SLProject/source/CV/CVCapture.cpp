@@ -75,7 +75,7 @@ CVSize2i CVCapture::open(int deviceNum)
         //Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
-        fps                = _captureDevice.get(cv::CAP_PROP_FPS);
+        fps                = (float)_captureDevice.get(cv::CAP_PROP_FPS);
         frameCount         = 0;
 
         // Set one camera size entry
@@ -126,8 +126,8 @@ CVSize2i CVCapture::openFile()
         //Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
-        fps                = _captureDevice.get(cv::CAP_PROP_FPS);
-        frameCount         = _captureDevice.get(cv::CAP_PROP_FRAME_COUNT);
+        fps                = (float)_captureDevice.get(cv::CAP_PROP_FPS);
+        frameCount         = (int)_captureDevice.get(cv::CAP_PROP_FRAME_COUNT);
 
         return CVSize2i(w, h);
     }
@@ -139,7 +139,7 @@ CVSize2i CVCapture::openFile()
 }
 //-----------------------------------------------------------------------------
 //! starts the video capturing
-void CVCapture::start(float scrWdivH)
+void CVCapture::start(float viewportWdivH)
 {
 #ifdef APP_USES_CVCAPTURE
     if (_videoType != VT_NONE)
@@ -154,7 +154,7 @@ void CVCapture::start(float scrWdivH)
 
             if (videoSize != CVSize2i(0, 0))
             {
-                grabAndAdjustForSL(scrWdivH);
+                grabAndAdjustForSL(viewportWdivH);
             }
         }
     }
@@ -181,8 +181,10 @@ void CVCapture::release()
 CVCapture::adjustForSL. This function can also be called by Android or iOS
 app for grabbing a frame of a video file. Android and iOS use their own
 capture functionality.
+If viewportWdivH is negative the viewport aspect will be adapted to the video
+aspect ratio.
 */
-bool CVCapture::grabAndAdjustForSL(float scrWdivH)
+bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
 {
     CVCapture::startCaptureTimeMS = _timer.elapsedTimeInMilliSec();
 
@@ -203,7 +205,7 @@ bool CVCapture::grabAndAdjustForSL(float scrWdivH)
                     return false;
             }
 
-            adjustForSL(scrWdivH);
+            adjustForSL(viewportWdivH);
         }
         else
         {
@@ -234,6 +236,8 @@ images no matter with what they where captured:
 input image mostly does't fit the aspect of the output screen aspect. If the
 input image is too high we crop it on top and bottom, if it is too wide we
 crop it on the sides.
+If viewportWdivH is negative the viewport aspect will be adapted to the video
+aspect ratio. No cropping will be applied.
 \n
 2) Some cameras toward a face mirror the image and some do not. If a input
 image should be mirrored or not is stored in CVCalibration::_isMirroredH
@@ -242,7 +246,7 @@ image should be mirrored or not is stored in CVCalibration::_isMirroredH
 3) Many of the further processing steps are faster done on grayscale images.
 We therefore create a copy that is grayscale converted.
 */
-void CVCapture::adjustForSL(float scrWdivH)
+void CVCapture::adjustForSL(float viewportWdivH)
 {
     format = CVImage::cv2glPixelFormat(lastFrame.type());
 
@@ -282,7 +286,9 @@ void CVCapture::adjustForSL(float scrWdivH)
     // So this is Android image copy loop #2
 
     float inWdivH  = (float)lastFrame.cols / (float)lastFrame.rows;
-    float outWdivH = scrWdivH;
+
+    // viewportWdivH is negative the viewport aspect will be the same
+    float outWdivH = viewportWdivH < 0.0f ? inWdivH : viewportWdivH;
 
     if (Utils::abs(inWdivH - outWdivH) > 0.01f)
     {
@@ -377,7 +383,7 @@ void CVCapture::adjustForSL(float scrWdivH)
 cameras on their own. We only adjust the color space. See the app-Demo-SLProject/iOS and
 app-Demo-SLProject/android projects for the usage.
 */
-void CVCapture::loadIntoLastFrame(const float       scrWdivH,
+void CVCapture::loadIntoLastFrame(const float       vieportWdivH,
                                   const int         width,
                                   const int         height,
                                   const CVPixFormat format,
@@ -452,7 +458,7 @@ void CVCapture::loadIntoLastFrame(const float       scrWdivH,
         CVCapture::lastFrame = CVMat(height, width, cvType, (void*)data, destStride);
     }
 
-    adjustForSL(scrWdivH);
+    adjustForSL(vieportWdivH);
 }
 //-----------------------------------------------------------------------------
 //! YUV to RGB image infos. Offset value can be negative for mirrored copy.
@@ -871,7 +877,7 @@ void CVCapture::moveCapturePosition(int n)
 {
     if (_videoType != VT_FILE) return;
 
-    int frameIndex = _captureDevice.get(cv::CAP_PROP_POS_FRAMES);
+    int frameIndex = (int)_captureDevice.get(cv::CAP_PROP_POS_FRAMES);
     frameIndex += n;
 
     if (frameIndex < 0) frameIndex = 0;
@@ -886,7 +892,7 @@ int CVCapture::nextFrameIndex()
 
     if (_videoType == VT_FILE)
     {
-        result = _captureDevice.get(cv::CAP_PROP_POS_FRAMES);
+        result = (int)_captureDevice.get(cv::CAP_PROP_POS_FRAMES);
     }
 
     return result;

@@ -9,14 +9,14 @@ android {
             storePassword 'uwenadat'
         }
     }
-    compileSdkVersion 24
+    compileSdkVersion 29
     defaultConfig {
         applicationId "ch.fhnw.comgr"
         minSdkVersion 21
-        targetSdkVersion 23
+        targetSdkVersion 29
         versionCode 19
         versionName "2.0.019"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters 'arm64-v8a'
         }
@@ -37,13 +37,13 @@ android {
         debug {
             // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
             jniLibs.srcDirs = [
-                    '../../../../externals/prebuilt/andV8_opencv_3.4.1/Debug'
+                    //'../../../../externals/prebuilt/andV8_opencv_4.1.1/Debug'
             ]
         }
         release {
             // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
             jniLibs.srcDirs = [
-                    '../../../../externals/prebuilt/andV8_opencv_3.4.1/Release'
+                    //'../../../../externals/prebuilt/andV8_opencv_4.1.1/Release'
             ]
         }
     }
@@ -72,10 +72,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
     }
-    buildToolsVersion '28.0.3'
+    buildToolsVersion '29.0.1'
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:24.+'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
 }

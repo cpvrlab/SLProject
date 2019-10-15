@@ -83,6 +83,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     // Initialize all preloaded stuff from SLScene
     s->init();
 
+    // Disable viewport with the same aspect ratio a the video
+    // This makes only sense in scenes that use video
+    sv->setViewportFromRatio(SLVec2i(0,0),VA_center, false);
+
     if (SLApplication::sceneID == SID_Empty) //..........................................................
     {
         s->name("No Scene loaded.");
@@ -1951,7 +1955,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             s->name("Live Video Texture");
             s->info("Minimal texture mapping example with live video source.");
-            CVCapture::instance()->videoType(VT_SCND); // on desktop it will be the main camera
+            CVCapture::instance()->videoType(VT_MAIN); // on desktop it will be the main camera
         }
         else
         {
@@ -1961,6 +1965,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             CVCapture::instance()->videoFilename = "street3.mp4";
             CVCapture::instance()->videoLoops    = true;
         }
+        sv->viewportSameAsVideo(true);
 
         // Create video texture on global pointer updated in AppDemoTracking
         videoTexture   = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -1980,7 +1985,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create rectangle meshe and nodes
         SLfloat h        = 5.0f;
-        SLfloat w        = h * sv->scrWdivH();
+        SLfloat w        = h * sv->viewportWdivH();
         SLMesh* rectMesh = new SLRectangle(SLVec2f(-w, -h), SLVec2f(w, h), 1, 1, "rect mesh", m1);
         SLNode* rectNode = new SLNode(rectMesh, "rect node");
         rectNode->translation(0, 0, -5);
@@ -2918,7 +2923,21 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             sceneView->onInitialize();
 
     if (CVCapture::instance()->videoType() != VT_NONE)
-        CVCapture::instance()->start(sv->scrWdivH());
+    {
+        if (sv->viewportSameAsVideo())
+        {
+            // Pass a negative value to the start function, so that the
+            // viewport aspect ratio can be adapted later to the video aspect.
+            // This will be know after start.
+            CVCapture::instance()->start(-1.0f);
+            SLVec2i videoAspect;
+            videoAspect.x = CVCapture::instance()->captureSize.width;
+            videoAspect.y = CVCapture::instance()->captureSize.height;
+            sv->setViewportFromRatio(videoAspect, sv->viewportAlign(), true);
+        }
+        else
+            CVCapture::instance()->start(sv->viewportWdivH());
+    }
 }
 //-----------------------------------------------------------------------------
 //! Creates a recursive sphere group used for the ray tracing scenes
