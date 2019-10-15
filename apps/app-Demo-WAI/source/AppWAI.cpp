@@ -280,8 +280,6 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
                                  wc->distortion(),
                                  serial,
                                  saveVideoFrames,
-                                 false,
-                                 false,
                                  onlyTracking,
                                  trackOpticalFlow,
                                  createMarkerMap,
