@@ -31,17 +31,22 @@ struct OrbSlamStartResult
     std::string errorString;
 };
 
+struct SlamParams
+{
+    std::string videoFile;
+    std::string mapFile;
+    std::string calibrationFile;
+    std::string vocabularyFile;
+    bool        storeKeyFrameImg;
+};
+
 //-----------------------------------------------------------------------------
 class WAIApp
 {
     public:
     static int                load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* dirs);
     static void               close();
-    static OrbSlamStartResult startOrbSlam(std::string videoFile       = "",
-                                           std::string calibrationFile = "",
-                                           std::string mapFile         = "",
-                                           std::string vocFileName     = "ORBvoc.bin",
-                                           bool        saveVideoFrames = false);
+    static OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);
 
     static void onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid);
     static bool update();
@@ -82,6 +87,8 @@ class WAIApp
     static SLGLTexture*       cpvrLogo;
     static SLGLTexture*       videoImage;
     static ofstream           gpsDataStream;
+
+    static SlamParams* currentSlamParams;
 
     static bool resizeWindow;
 

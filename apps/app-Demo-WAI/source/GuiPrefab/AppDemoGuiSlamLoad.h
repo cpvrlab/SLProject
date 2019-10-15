@@ -23,6 +23,9 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
     public:
     AppDemoGuiSlamLoad(const std::string& name,
                        WAICalibration*    wc,
+                       std::string        slamRootDir,
+                       std::string        calibrationsDir,
+                       std::string        vocabulariesDir,
                        bool*              activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
@@ -33,11 +36,19 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
                                std::vector<std::string>& extensions,
                                bool                      addEmpty);
 
-    std::vector<std::string> _existingVideoNames;
-    std::vector<std::string> _existingCalibrationNames;
-    std::vector<std::string> _existingMapNames;
-    std::vector<std::string> _existingVocNames;
+    bool _changeSlamParams;
 
+    std::string _slamRootDir;
+    std::string _calibrationsDir;
+    std::string _vocabulariesDir;
+
+    std::vector<std::string> _videoExtensions;
+    std::vector<std::string> _mapExtensions;
+    std::vector<std::string> _calibExtensions;
+    std::vector<std::string> _vocExtensions;
+
+    std::string _currentLocation;
+    std::string _currentArea;
     std::string _currentVideo;
     std::string _currentCalibration;
     std::string _currentMap;

@@ -78,7 +78,13 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
     {
         TestInfo info = _infos[_currentItem];
 
-        OrbSlamStartResult result = WAIApp::startOrbSlam(info.vidPath, info.calPath, info.mapPath);
+        SlamParams params = {
+          info.vidPath,
+          info.calPath,
+          info.mapPath,
+          "",
+          false};
+        OrbSlamStartResult result = WAIApp::startOrbSlam(&params);
         if (!result.wasSuccessful)
         {
             WAIApp::errorDial->setErrorMsg(result.errorString);
