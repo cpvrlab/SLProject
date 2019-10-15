@@ -1211,6 +1211,12 @@ void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     mask(cv::Rect(HALF_PATCH_SIZE, HALF_PATCH_SIZE, image.cols - PATCH_SIZE, image.rows - PATCH_SIZE)).setTo(1);
     //detect keypoints
     surf_detector->detect(image, _keypoints, mask);
+    //set octave to zero because we have no pyramids implemented for surf
+    for (KeyPoint& kpt : _keypoints)
+    {
+        kpt.octave = 0;
+    }
+
     AVERAGE_TIMING_STOP("detectSURFKpts");
 
     AVERAGE_TIMING_START("computeDescriptors2");
@@ -1231,6 +1237,7 @@ void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     // Compute the descriptors
     Mat desc = descriptors.rowRange(0, _keypoints.size());
     computeDescriptors(workingMat, _keypoints, desc, pattern);
+
     AVERAGE_TIMING_STOP("computeDescriptors2");
 }
 

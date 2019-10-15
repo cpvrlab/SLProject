@@ -43,13 +43,13 @@ class SLTexFont : public SLGLTexture
     ~SLTexFont() { ; }
 
     void      create(SLstring fontFilename);
-    SLVec2f   calcTextSize(SLstring text,
-                           SLfloat  maxWidth         = 0.0f,
-                           SLfloat  lineHeightFactor = 1.5f);
+    SLVec2f   calcTextSize(const SLstring& text,
+                           SLfloat         maxWidth         = 0.0f,
+                           SLfloat         lineHeightFactor = 1.5f);
     SLVstring wrapTextToLines(SLstring text,
                               SLfloat  maxW);
     void      buildTextBuffers(SLGLVertexArray& vao,
-                               SLstring         text,
+                               const SLstring&  text,
                                SLfloat          maxWidth   = 0.0f,
                                SLfloat          lineHeight = 1.5f);
 

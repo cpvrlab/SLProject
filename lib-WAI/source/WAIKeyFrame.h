@@ -75,14 +75,15 @@ class WAI_API WAIKeyFrame
     void ComputeBoW(ORBVocabulary* orbVocabulary);
 
     // Covisibility graph functions
-    void                               AddConnection(WAIKeyFrame* pKF, int weight);
-    void                               EraseConnection(WAIKeyFrame* pKF);
-    void                               UpdateConnections(bool buildSpanningTree = true);
-    void                               UpdateBestCovisibles();
-    std::set<WAIKeyFrame*>             GetConnectedKeyFrames();
-    std::vector<WAIKeyFrame*>          GetVectorCovisibleKeyFrames();
-    vector<WAIKeyFrame*>               GetBestCovisibilityKeyFrames(const int& N);
-    std::vector<WAIKeyFrame*>          GetCovisiblesByWeight(const int& w);
+    void                      AddConnection(WAIKeyFrame* pKF, int weight);
+    void                      EraseConnection(WAIKeyFrame* pKF);
+    void                      UpdateConnections(bool buildSpanningTree = true);
+    void                      UpdateBestCovisibles();
+    std::set<WAIKeyFrame*>    GetConnectedKeyFrames();
+    std::vector<WAIKeyFrame*> GetVectorCovisibleKeyFrames();
+    vector<WAIKeyFrame*>      GetBestCovisibilityKeyFrames(const int& N);
+    std::vector<WAIKeyFrame*> GetCovisiblesByWeight(const int& w);
+    //get weight of covisibility connection to this keyframe
     int                                GetWeight(WAIKeyFrame* pKF);
     const std::map<WAIKeyFrame*, int>& GetConnectedKfWeights();
 
@@ -233,9 +234,11 @@ class WAI_API WAIKeyFrame
     // Grid over the image to speed up feature matching
     std::vector<std::size_t> mGrid[FRAME_GRID_COLS][FRAME_GRID_ROWS];
 
+    //maps covisibility weights to this keyframe by keyframe pointer of the connected one
     std::map<WAIKeyFrame*, int> mConnectedKeyFrameWeights;
-    std::vector<WAIKeyFrame*>   mvpOrderedConnectedKeyFrames;
-    std::vector<int>            mvOrderedWeights;
+    //all covisibility keyframes ordered by weight (over min thres 15) (number of common keypoint observations)
+    std::vector<WAIKeyFrame*> mvpOrderedConnectedKeyFrames;
+    std::vector<int>          mvOrderedWeights;
 
     // Spanning Tree and Loop Edges
     bool                   mbFirstConnection = true;

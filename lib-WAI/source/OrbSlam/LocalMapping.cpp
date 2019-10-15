@@ -285,7 +285,7 @@ void LocalMapping::MapPointCulling()
             lit++;
     }
 
-    printf("Culled %i map points\n", mapPointsCulled);
+    //printf("Culled %i map points\n", mapPointsCulled);
 }
 
 void LocalMapping::CreateNewMapPoints()
@@ -306,7 +306,7 @@ void LocalMapping::CreateNewMapPoints()
     Rcw1.copyTo(Tcw1.colRange(0, 3));
     tcw1.copyTo(Tcw1.col(3));
     cv::Mat Ow1 = mpCurrentKeyFrame->GetCameraCenter();
-    std::cout << Ow1 << std::endl;
+    //std::cout << Ow1 << std::endl;
 
     const float& fx1    = mpCurrentKeyFrame->fx;
     const float& fy1    = mpCurrentKeyFrame->fy;
@@ -331,7 +331,7 @@ void LocalMapping::CreateNewMapPoints()
         cv::Mat Ow2       = pKF2->GetCameraCenter();
         cv::Mat vBaseline = Ow2 - Ow1;
 
-        std::cout << Ow2 << std::endl;
+        //std::cout << Ow2 << std::endl;
 
         const float baseline = cv::norm(vBaseline);
 
@@ -540,7 +540,7 @@ void LocalMapping::CreateNewMapPoints()
         }
     }
 
-    printf("Created %i new map points\n", nnew);
+    //printf("Created %i new map points\n", nnew);
 }
 
 void LocalMapping::SearchInNeighbors()

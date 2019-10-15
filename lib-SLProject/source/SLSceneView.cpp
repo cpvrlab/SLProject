@@ -303,7 +303,7 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
 
     if (_scrWdivH > vpWdivH)
     {
-        vpRect.width  = _scrH * vpWdivH;
+        vpRect.width  = (int)((float)_scrH * vpWdivH);
         vpRect.height = _scrH;
         vpRect.y      = 0;
 
@@ -319,7 +319,7 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
     else
     {
         vpRect.width  = _scrW;
-        vpRect.height = _scrW / vpWdivH;
+        vpRect.height = (SLint)((float)_scrW / (float)vpWdivH);
         vpRect.x      = 0;
 
         switch (vpAlign)
@@ -649,7 +649,13 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // For stereo draw for right eye
     if (_camera->projection() > P_monoOrthographic)
     {
+        // Change state (only when changed)
+        stateGL->multiSample(_doMultiSampling);
+        stateGL->depthTest(_doDepthTest);
         _camera->setViewport(this, ET_right);
+        // Render solid color, gradient or textured background from active camera
+        if (!_skybox)
+            _camera->background().render(_viewportRect.width, _viewportRect.height);
         _camera->setProjection(this, ET_right);
         _camera->setView(this, ET_right);
         draw3DGLAll();

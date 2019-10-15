@@ -378,9 +378,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             else if (rType == RT_pt)
             {
                 SLPathtracer* pt           = sv->pathtracer();
-                SLuint       rayPrimaries = (SLuint)(sv->viewportW() * sv->viewportH());
-                SLuint       rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
-                SLfloat      rpms         = pt->renderSec() > 0.0f ? rayTotal / pt->renderSec() / 1000.0f : 0.0f;
+                SLuint        rayPrimaries = (SLuint)(sv->viewportW() * sv->viewportH());
+                SLuint        rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
+                SLfloat       rpms         = pt->renderSec() > 0.0f ? rayTotal / pt->renderSec() / 1000.0f : 0.0f;
 
                 sprintf(m + strlen(m), "Renderer   :Path Tracer\n");
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->viewportW(), sv->viewportH());
@@ -1151,8 +1151,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 SLVec2i videoAspect(0, 0);
                 if (capture->videoType() != VT_NONE)
                 {
-                    videoAspect.x  = capture->captureSize.width;
-                    videoAspect.y  = capture->captureSize.height;
+                    videoAspect.x = capture->captureSize.width;
+                    videoAspect.y = capture->captureSize.height;
                 }
                 SLchar strSameAsVideo[256];
                 sprintf(strSameAsVideo, "Same as Video (%d:%d)", videoAspect.x, videoAspect.y);
@@ -2324,6 +2324,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         style.ItemSpacing.x      = std::max(8.0f * dpiScaleFixed, 8.0f);
         style.ItemSpacing.y      = std::max(3.0f * dpiScaleFixed, 3.0f);
         style.ItemInnerSpacing.x = style.ItemSpacing.y;
+        style.ScrollbarSize      = std::max(16.0f * dpiScaleFixed, 16.0f);
+        style.ScrollbarRounding  = std::floor(style.ScrollbarSize / 2);
 
         return;
     }
@@ -2344,6 +2346,10 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["ItemSpacingY"] >> i;        style.ItemSpacing.y = (SLfloat)i;
             style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
             style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
+            fs["ScrollbarSize"] >> i;
+            style.ScrollbarSize = (SLfloat)i;
+            fs["ScrollbarRounding"] >> i;
+            style.ScrollbarRounding = (SLfloat)i;
             fs["sceneID"] >> i;             SLApplication::sceneID = (SLSceneID)i;
             fs["showInfosScene"] >> b;      AppDemoGui::showInfosScene = b;
             fs["showStatsTiming"] >> b;     AppDemoGui::showStatsTiming = b;
@@ -2416,6 +2422,8 @@ void AppDemoGui::saveConfig()
     fs << "sceneID" << (SLint)SLApplication::sceneID;
     fs << "ItemSpacingX" << (SLint)style.ItemSpacing.x;
     fs << "ItemSpacingY" << (SLint)style.ItemSpacing.y;
+    fs << "ScrollbarSize" << (SLfloat)style.ScrollbarSize;
+    fs << "ScrollbarRounding" << (SLfloat)style.ScrollbarRounding;
     fs << "showStatsTiming" << AppDemoGui::showStatsTiming;
     fs << "showStatsMemory" << AppDemoGui::showStatsScene;
     fs << "showStatsVideo" << AppDemoGui::showStatsVideo;

@@ -44,7 +44,7 @@ void WAIKeyFrameDB::changeVocabulary(ORBVocabulary& voc, std::vector<WAIKeyFrame
     mvInvertedFile.resize(size);
     mpVoc = &voc;
 
-    for (WAIKeyFrame * pKF : kfs)
+    for (WAIKeyFrame* pKF : kfs)
     {
         pKF->ComputeBoW(&voc);
         for (DBoW2::BowVector::const_iterator vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
@@ -217,7 +217,7 @@ vector<WAIKeyFrame*> WAIKeyFrameDB::DetectLoopCandidates(WAIKeyFrame* pKF, float
     return vpLoopCandidates;
 }
 //-----------------------------------------------------------------------------
-vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame* F)
+vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame* F, bool applyMinAccScoreFilter)
 {
     list<WAIKeyFrame*> lKFsSharingWords;
 
@@ -235,6 +235,7 @@ vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame* F)
                 if (pKFi->mnRelocQuery != F->mnId)
                 {
                     pKFi->mnRelocWords = 0;
+                    pKFi->mRelocScore  = 0.f;
                     pKFi->mnRelocQuery = F->mnId;
                     lKFsSharingWords.push_back(pKFi);
                 }
@@ -255,23 +256,111 @@ vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame* F)
 
     int minCommonWords = maxCommonWords * 0.8f;
 
-    list<pair<float, WAIKeyFrame*>> lScoreAndMatch;
-
-    int nscores = 0;
-
-    // Compute similarity score.
-    for (list<WAIKeyFrame*>::iterator lit = lKFsSharingWords.begin(), lend = lKFsSharingWords.end(); lit != lend; lit++)
+    if (!applyMinAccScoreFilter)
     {
-        WAIKeyFrame* pKFi = *lit;
+        vector<WAIKeyFrame*> vpRelocCandidates;
 
-        if (pKFi->mnRelocWords > minCommonWords)
+        // Compute similarity score.
+        for (list<WAIKeyFrame*>::iterator lit = lKFsSharingWords.begin(), lend = lKFsSharingWords.end(); lit != lend; lit++)
         {
-            nscores++;
-            float si          = mpVoc->score(F->mBowVec, pKFi->mBowVec);
-            pKFi->mRelocScore = si;
-            lScoreAndMatch.push_back(make_pair(si, pKFi));
+            WAIKeyFrame* pKFi = *lit;
+
+            if (pKFi->mnRelocWords > minCommonWords)
+            {
+                vpRelocCandidates.push_back(pKFi);
+            }
         }
+
+        return vpRelocCandidates;
     }
+    else
+    {
+        //apply minimum accumulated score filter:
+        /*We group those keyframes that are connected in the covisibility graph and caluculate an accumulated score.
+            We return all keyframe matches whose scores are higher than the 75 % of the best score.*/
+        list<pair<float, WAIKeyFrame*>> lScoreAndMatch;
+        int                             nscores = 0;
+
+        // Compute similarity score.
+        for (list<WAIKeyFrame*>::iterator lit = lKFsSharingWords.begin(), lend = lKFsSharingWords.end(); lit != lend; lit++)
+        {
+            WAIKeyFrame* pKFi = *lit;
+
+            if (pKFi->mnRelocWords > minCommonWords)
+            {
+                nscores++;
+                float si = mpVoc->score(F->mBowVec, pKFi->mBowVec);
+                std::cout << "si: " << si << std::endl;
+                pKFi->mRelocScore = si;
+                lScoreAndMatch.push_back(make_pair(si, pKFi));
+            }
+        }
+
+        if (lScoreAndMatch.empty())
+            return vector<WAIKeyFrame*>();
+
+        list<pair<float, WAIKeyFrame*>> lAccScoreAndMatch;
+        float                           bestAccScore = 0;
+
+        // Lets now accumulate score by covisibility
+        for (list<pair<float, WAIKeyFrame*>>::iterator it = lScoreAndMatch.begin(), itend = lScoreAndMatch.end(); it != itend; it++)
+        {
+            WAIKeyFrame*         pKFi     = it->second;
+            vector<WAIKeyFrame*> vpNeighs = pKFi->GetBestCovisibilityKeyFrames(10);
+
+            float        bestScore = it->first;
+            float        accScore  = bestScore;
+            WAIKeyFrame* pBestKF   = pKFi;
+            std::cout << "vpNeighs: " << vpNeighs.size() << std::endl;
+            for (vector<WAIKeyFrame*>::iterator vit = vpNeighs.begin(), vend = vpNeighs.end(); vit != vend; vit++)
+            {
+                WAIKeyFrame* pKF2 = *vit;
+
+                //TODO (luc)
+                //Evaluate which is the best between avoid bad neighbour or compute the reloc score for all neighbours.
+                if (pKF2->mnRelocQuery != F->mnId && pKF2->mnRelocWords <= minCommonWords)
+                    continue;
+
+                accScore += pKF2->mRelocScore;
+                if (pKF2->mRelocScore > bestScore)
+                {
+                    pBestKF   = pKF2;
+                    bestScore = pKF2->mRelocScore;
+                }
+            }
+            lAccScoreAndMatch.push_back(make_pair(accScore, pBestKF));
+            if (accScore > bestAccScore)
+                bestAccScore = accScore;
+        }
+
+        std::cout << "lAccScoreAndMatch: " << lAccScoreAndMatch.size() << std::endl;
+
+        // Return all those keyframes with a score higher than 0.75*bestScore
+        // This ensures that all the neighbours are also
+        float minScoreToRetain = 0.75f * bestAccScore;
+        std::cout << "minScoreToRetain: " << minScoreToRetain << std::endl;
+        set<WAIKeyFrame*>    spAlreadyAddedKF;
+        vector<WAIKeyFrame*> vpRelocCandidates;
+        vpRelocCandidates.reserve(lAccScoreAndMatch.size());
+        for (list<pair<float, WAIKeyFrame*>>::iterator it = lAccScoreAndMatch.begin(), itend = lAccScoreAndMatch.end(); it != itend; it++)
+        {
+            const float& si = it->first;
+            std::cout << "final si: " << si << std::endl;
+
+            if (si > minScoreToRetain)
+            {
+                WAIKeyFrame* pKFi = it->second;
+                if (!spAlreadyAddedKF.count(pKFi))
+                {
+                    vpRelocCandidates.push_back(pKFi);
+                    spAlreadyAddedKF.insert(pKFi);
+                }
+            }
+        }
+
+        return vpRelocCandidates;
+    }
+    /*
 
     if (lScoreAndMatch.empty())
         return vector<WAIKeyFrame*>();
@@ -288,6 +377,7 @@ vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame* F)
         float        bestScore = it->first;
         float        accScore  = bestScore;
         WAIKeyFrame* pBestKF   = pKFi;
+        std::cout << "vpNeighs: " << vpNeighs.size() << std::endl;
         for (vector<WAIKeyFrame*>::iterator vit = vpNeighs.begin(), vend = vpNeighs.end(); vit != vend; vit++)
         {
             WAIKeyFrame* pKF2 = *vit;
@@ -309,14 +399,20 @@ vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame* F)
             bestAccScore = accScore;
     }
 
+    std::cout << "lAccScoreAndMatch: " << lAccScoreAndMatch.size() << std::endl;
+
     // Return all those keyframes with a score higher than 0.75*bestScore
-    float                minScoreToRetain = 0.75f * bestAccScore;
+    // This ensures that all the neighbours are also
+    float minScoreToRetain = 0.75f * bestAccScore;
+    std::cout << "minScoreToRetain: " << minScoreToRetain << std::endl;
     set<WAIKeyFrame*>    spAlreadyAddedKF;
     vector<WAIKeyFrame*> vpRelocCandidates;
     vpRelocCandidates.reserve(lAccScoreAndMatch.size());
     for (list<pair<float, WAIKeyFrame*>>::iterator it = lAccScoreAndMatch.begin(), itend = lAccScoreAndMatch.end(); it != itend; it++)
     {
         const float& si = it->first;
+        std::cout << "final si: " << si << std::endl;
+
         if (si > minScoreToRetain)
         {
             WAIKeyFrame* pKFi = it->second;
@@ -329,4 +425,5 @@ vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame* F)
     }
 
     return vpRelocCandidates;
+    */
 }

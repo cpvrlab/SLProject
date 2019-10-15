@@ -272,12 +272,15 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     waiScene->cameraNode->fov(wc->calcCameraVerticalFOV());
 
     // 4. Create new mode ORBSlam
-    mode = new WAI::ModeOrbSlam2(wc->cameraMat(),
+    bool serial           = false;
+    bool onlyTracking     = false;
+    bool trackOpticalFlow = false;
+    mode                  = new WAI::ModeOrbSlam2(wc->cameraMat(),
                                  wc->distortion(),
-                                 false,
+                                 serial,
                                  saveVideoFrames,
-                                 false,
-                                 false,
+                                 onlyTracking,
+                                 trackOpticalFlow,
                                  vocFile);
 
     // 5. Load map data
@@ -293,7 +296,8 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         bool mapLoadingSuccess = WAIMapStorage::loadMap(mode->getMap(),
                                                         mode->getKfDB(),
                                                         waiScene->mapNode,
-                                                        mapFile);
+                                                        mapFile,
+                                                        WAIApp::mode->retainImage());
 
         if (!mapLoadingSuccess)
         {

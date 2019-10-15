@@ -63,7 +63,7 @@ class WAI_API WAIKeyFrameDB
     std::vector<WAIKeyFrame*> DetectLoopCandidates(WAIKeyFrame* pKF, float minScore, int* errorCode);
 
     // Relocalization
-    std::vector<WAIKeyFrame*> DetectRelocalizationCandidates(WAIFrame* F);
+    std::vector<WAIKeyFrame*> DetectRelocalizationCandidates(WAIFrame* F, bool applyMinAccScoreFilter = false);
 
     protected:
     // Associated vocabulary

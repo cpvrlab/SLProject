@@ -40,6 +40,8 @@ Initializer::Initializer(const WAIFrame& ReferenceFrame, float sigma, int iterat
     mSigma         = sigma;
     mSigma2        = sigma * sigma;
     mMaxIterations = iterations;
+
+    DUtils::Random::SeedRand(1337);
 }
 
 bool Initializer::Initialize(const WAIFrame& CurrentFrame, const vector<int>& vMatches12, cv::Mat& R21, cv::Mat& t21, vector<cv::Point3f>& vP3D, vector<bool>& vbTriangulated)
@@ -77,8 +79,6 @@ bool Initializer::Initialize(const WAIFrame& CurrentFrame, const vector<int>& vM
     // Generate sets of 8 points for each RANSAC iteration
     mvSets = vector<vector<size_t>>(mMaxIterations, vector<size_t>(8, 0));
 
-    DUtils::Random::SeedRandOnce(1337);
-
     for (int it = 0; it < mMaxIterations; it++)
     {
         vAvailableIndices = vAllIndices;
@@ -113,11 +113,15 @@ bool Initializer::Initialize(const WAIFrame& CurrentFrame, const vector<int>& vM
 
     // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
     if (RH > 0.40)
+    {
+        std::cout << "ReconstructH" << std::endl;
         return ReconstructH(vbMatchesInliersH, H, mK, R21, t21, vP3D, vbTriangulated, 1.0, 50);
+    }
     else //if(pF_HF>0.6)
+    {
+        std::cout << "ReconstructF" << std::endl;
         return ReconstructF(vbMatchesInliersF, F, mK, R21, t21, vP3D, vbTriangulated, 1.0, 50);
-
-    return false;
+    }
 }
 
 void Initializer::FindHomography(vector<bool>& vbMatchesInliers, float& score, cv::Mat& H21)
