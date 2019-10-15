@@ -13,6 +13,13 @@ struct SlamVideoInfos
     std::string resolution;
 };
 
+struct SlamMapInfos
+{
+    std::string dateTime;
+    std::string location;
+    std::string area;
+};
+
 static bool extractSlamVideoInfosFromFileName(std::string     fileName,
                                               SlamVideoInfos* slamVideoInfos)
 {
@@ -31,6 +38,89 @@ static bool extractSlamVideoInfosFromFileName(std::string     fileName,
 
         result = true;
     }
+
+    return result;
+}
+
+static std::string constructSlamMapIdentifierString(std::string location, std::string area, std::string dateTime = "")
+{
+    if (dateTime.empty())
+    {
+        dateTime = Utils::getDateTime2String();
+    }
+
+    std::string result = "DEVELOPMENT-map_" + dateTime + "_" + location + "_" + area;
+
+    return result;
+}
+
+static bool extractSlamMapInfosFromFileName(std::string   fileName,
+                                            SlamMapInfos* slamMapInfos)
+{
+    bool result = false;
+
+    std::vector<std::string> stringParts;
+    Utils::splitString(fileName, '_', stringParts);
+
+    if (stringParts.size() == 4)
+    {
+        slamMapInfos->dateTime = stringParts[1];
+        slamMapInfos->location = stringParts[2];
+        slamMapInfos->area     = stringParts[3];
+
+        result = true;
+    }
+
+    return result;
+}
+
+static std::string constructSlamLocationDir(std::string locationsRootDir, std::string location)
+{
+    std::string result = Utils::unifySlashes(locationsRootDir) + location + "/";
+
+    return result;
+}
+
+static std::string constructSlamAreaDir(std::string locationsRootDir, std::string location, std::string area)
+{
+    std::string result = constructSlamLocationDir(locationsRootDir, location) + area + "/";
+
+    return result;
+}
+
+static std::string constructSlamMapDir(std::string locationsRootDir, std::string location, std::string area)
+{
+    std::string result = constructSlamAreaDir(locationsRootDir, location, area) + "maps/";
+
+    return result;
+}
+
+static std::string constructSlamMapImgDir(std::string locationsRootDir, std::string mapFileName)
+{
+    SlamMapInfos mapInfos;
+
+    std::string result = "";
+    if (extractSlamMapInfosFromFileName(mapFileName, &mapInfos))
+    {
+        result = constructSlamAreaDir(locationsRootDir, mapInfos.location, mapInfos.area) +
+                 "maps/" +
+                 constructSlamMapIdentifierString(mapInfos.location, mapInfos.area, mapInfos.dateTime) +
+                 "/";
+    }
+
+    return result;
+}
+
+static std::string constructSlamVideoDir(std::string locationsRootDir, std::string location, std::string area)
+{
+    std::string result = constructSlamAreaDir(locationsRootDir, location, area) + "videos/";
+
+    return result;
+}
+
+static std::string constructSlamMapFileName(std::string location, std::string area, std::string dateTime = "")
+{
+    std::string result = constructSlamMapIdentifierString(location, area, dateTime) + ".json";
 
     return result;
 }

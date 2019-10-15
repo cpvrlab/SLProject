@@ -17,20 +17,27 @@
 #include <AppDemoGuiSlamLoad.h>
 #include <CVCapture.h>
 #include <AppWaiSlamParamHelper.h>
+#include <WAIMapStorage.h>
 
 AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
                                        WAICalibration*    wc,
                                        std::string        slamRootDir,
                                        std::string        calibrationsDir,
                                        std::string        vocabulariesDir,
+                                       SLNode*            mapNode,
                                        bool*              activator)
   : AppDemoGuiInfosDialog(name, activator),
     _wc(wc),
     _slamRootDir(slamRootDir),
     _calibrationsDir(calibrationsDir),
-    _vocabulariesDir(vocabulariesDir)
+    _vocabulariesDir(vocabulariesDir),
+    _mapNode(mapNode)
 {
-    _changeSlamParams = false;
+    _changeSlamParams   = true;
+    _storeKeyFrameImage = true;
+    _serial             = false;
+    _trackingOnly       = false;
+    _trackOpticalFlow   = false;
 
     _currentLocation    = "";
     _currentArea        = "";
@@ -44,8 +51,6 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     _mapExtensions.push_back(".json");
     _calibExtensions.push_back(".xml");
     _vocExtensions.push_back(".bin");
-
-    _storeKeyFrameImage = false;
 }
 
 void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directory,
@@ -95,13 +100,17 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         ImGui::Text("Location: %s", _currentLocation.c_str());
         ImGui::Text("Area: %s", _currentArea.c_str());
 
-        SlamVideoInfos slamVideoInfos;
+        ImGui::Separator();
+
         if (!WAIApp::currentSlamParams->videoFile.empty())
         {
-            extractSlamVideoInfosFromFileName(Utils::getFileNameWOExt(WAIApp::currentSlamParams->videoFile),
+            SlamVideoInfos slamVideoInfos;
+            std::string    videoFileName = Utils::getFileNameWOExt(WAIApp::currentSlamParams->videoFile);
+            extractSlamVideoInfosFromFileName(videoFileName,
                                               &slamVideoInfos);
 
             ImGui::Text("Video Mode: File");
+            ImGui::Text("File: %s", videoFileName.c_str());
             ImGui::Text("Date-Time: %s", slamVideoInfos.dateTime.c_str());
             ImGui::Text("Weather: %s", slamVideoInfos.weatherConditions.c_str());
             ImGui::Text("Device: %s", slamVideoInfos.deviceString.c_str());
@@ -113,14 +122,25 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             ImGui::Text("Video Mode: Live");
         }
 
+        ImGui::Separator();
+
         if (!WAIApp::currentSlamParams->mapFile.empty())
         {
+            SlamMapInfos slamMapInfos;
+            std::string  mapFileName = Utils::getFileNameWOExt(WAIApp::currentSlamParams->mapFile);
+            extractSlamMapInfosFromFileName(mapFileName,
+                                            &slamMapInfos);
+
             ImGui::Text("Map Mode: File");
+            ImGui::Text("File: %s", mapFileName.c_str());
+            ImGui::Text("Date-Time: %s", slamMapInfos.dateTime.c_str());
         }
         else
         {
             ImGui::Text("Map Mode: Live");
         }
+
+        ImGui::Separator();
 
         ImGui::Text("Calibration: %s", Utils::getFileName(WAIApp::currentSlamParams->calibrationFile).c_str());
 
@@ -129,6 +149,49 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         if (ImGui::Button("Change Params", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
         {
             _changeSlamParams = true;
+        }
+        if (ImGui::Button("Save map"))
+        {
+            if (!_currentLocation.empty() && !_currentArea.empty() && WAIApp::mode)
+            {
+                std::string mapDir = constructSlamMapDir(_slamRootDir, _currentLocation, _currentArea);
+                if (!Utils::dirExists(mapDir))
+                    Utils::makeDir(mapDir);
+
+                std::string mapDateTime = "";
+                if (!WAIApp::currentSlamParams->videoFile.empty())
+                {
+                    SlamVideoInfos videoInfos;
+                    if (extractSlamVideoInfosFromFileName(Utils::getFileNameWOExt(WAIApp::currentSlamParams->videoFile), &videoInfos))
+                    {
+                        mapDateTime = videoInfos.dateTime;
+                    }
+                }
+
+                std::string filename = constructSlamMapFileName(_currentLocation, _currentArea, mapDateTime);
+                std::string imgDir   = constructSlamMapImgDir(_slamRootDir, filename);
+
+                if (WAIApp::mode->retainImage())
+                {
+                    if (!Utils::dirExists(imgDir))
+                        Utils::makeDir(imgDir);
+                }
+
+                if (!WAIMapStorage::saveMap(WAIApp::mode->getMap(),
+                                            _mapNode,
+                                            mapDir + filename,
+                                            imgDir))
+                {
+                    WAIApp::errorDial->setErrorMsg("Failed to save map");
+                    WAIApp::uiPrefs.showError = true;
+                }
+            }
+            else
+            {
+
+                WAIApp::errorDial->setErrorMsg("Failed to save map - No location and/or area selected.");
+                WAIApp::uiPrefs.showError = true;
+            }
         }
     }
     else
@@ -188,13 +251,14 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
             if (!_currentArea.empty())
             {
+#ifndef ANDROID
                 if (ImGui::BeginCombo("Video", _currentVideo.c_str())) // The second parameter is the label previewed before opening the combo.
                 {
                     std::vector<std::string> availableVideos;
                     loadFileNamesInVector(_slamRootDir + _currentLocation + "/" + _currentArea + "/videos/",
                                           availableVideos,
                                           _videoExtensions,
-                                          false);
+                                          true);
 
                     for (int n = 0; n < availableVideos.size(); n++)
                     {
@@ -208,6 +272,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                     }
                     ImGui::EndCombo();
                 }
+#endif
 
                 if (ImGui::BeginCombo("Map", _currentMap.c_str())) // The second parameter is the label previewed before opening the combo.
                 {
@@ -215,7 +280,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                     loadFileNamesInVector(_slamRootDir + _currentLocation + "/" + _currentArea + "/maps/",
                                           availableMaps,
                                           _mapExtensions,
-                                          false);
+                                          true);
 
                     for (int n = 0; n < availableMaps.size(); n++)
                     {
@@ -240,7 +305,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             loadFileNamesInVector(_calibrationsDir,
                                   availableCalibrations,
                                   _calibExtensions,
-                                  false);
+                                  true);
 
             for (int n = 0; n < availableCalibrations.size(); n++)
             {
@@ -277,25 +342,39 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         }
 
         ImGui::Checkbox("store keyframes image", &_storeKeyFrameImage);
+        ImGui::Checkbox("track optical flow", &_trackOpticalFlow);
+        ImGui::Checkbox("tracking only", &_trackingOnly);
+        ImGui::Checkbox("serial", &_serial);
 
         if (ImGui::Button("Start", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
         {
-            SlamParams params = {
-              (_currentVideo.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/videos/" + _currentVideo),
-              (_currentCalibration.empty() ? "" : _calibrationsDir + _currentCalibration),
-              (_currentMap.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/maps/" + _currentMap),
-              (_currentVoc.empty() ? "" : _vocabulariesDir + _currentVoc),
-              _storeKeyFrameImage};
-            OrbSlamStartResult startResult = WAIApp::startOrbSlam(&params);
-
-            if (!startResult.wasSuccessful)
+            if (_currentLocation.empty() || _currentArea.empty())
             {
-                WAIApp::errorDial->setErrorMsg(startResult.errorString);
+                WAIApp::errorDial->setErrorMsg("Choose location and area");
                 WAIApp::uiPrefs.showError = true;
             }
             else
             {
-                _changeSlamParams = false;
+                SlamParams params = {
+                  (_currentVideo.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/videos/" + _currentVideo),
+                  (_currentMap.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/maps/" + _currentMap),
+                  (_currentCalibration.empty() ? "" : _calibrationsDir + _currentCalibration),
+                  (_currentVoc.empty() ? "" : _vocabulariesDir + _currentVoc),
+                  _storeKeyFrameImage,
+                  _trackOpticalFlow,
+                  _trackingOnly,
+                  _serial};
+                OrbSlamStartResult startResult = WAIApp::startOrbSlam(&params);
+
+                if (!startResult.wasSuccessful)
+                {
+                    WAIApp::errorDial->setErrorMsg(startResult.errorString);
+                    WAIApp::uiPrefs.showError = true;
+                }
+                else
+                {
+                    _changeSlamParams = false;
+                }
             }
         }
         if (ImGui::Button("Cancel", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))

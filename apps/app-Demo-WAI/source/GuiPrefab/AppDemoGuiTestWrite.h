@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppDemoGuiMapStorage.h
+//  File:      AppDemoGuiTestWrite.h
 //  Author:    Michael Goettlicher
 //  Date:      April 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines

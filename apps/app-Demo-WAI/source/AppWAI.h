@@ -38,6 +38,9 @@ struct SlamParams
     std::string calibrationFile;
     std::string vocabularyFile;
     bool        storeKeyFrameImg;
+    bool        trackOpticalFlow;
+    bool        trackingOnly;
+    bool        serial;
 };
 
 //-----------------------------------------------------------------------------
