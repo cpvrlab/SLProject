@@ -99,23 +99,50 @@ class WAIApp
     {
         GLuint yuv422Converter;
         GLuint RGBTexture;
-        GLuint grayTexture;
 
-        GLuint hLaplacianId;
-        GLuint vLaplacianId;
-        GLuint interFBO;
-        GLuint interTexture;
-        GLuint hLapVAO;
-        GLuint vLapVAO;
+        GLuint d2Gdx2;
+        GLuint d2Gdy2;
+        GLuint dGdx;
+        GLuint dGdy;
+        GLuint Gx;
+        GLuint Gy;
+        GLuint detH;
+        GLuint nmsx;
+        GLuint nmsy;
+
+        GLuint d2Gdx2WLoc;
+        GLuint d2Gdy2WLoc;
+        GLuint dGdxWLoc;
+        GLuint dGdyWLoc;
+        GLuint GxWLoc;
+        GLuint GyWLoc;
+        GLuint nmsxWLoc;
+        GLuint nmsyWLoc;
+        GLuint d2Gdx2TexLoc;
+        GLuint d2Gdy2TexLoc;
+        GLuint dGdxTexLoc;
+        GLuint dGdyTexLoc;
+        GLuint GxTexLoc;
+        GLuint GyTexLoc;
+        GLuint detHGxxLoc;
+        GLuint detHGyyLoc;
+        GLuint detHGxyLoc;
+        GLuint nmsxTexLoc;
+        GLuint nmsyTexLoc;
+
+        GLuint grayTexture;
+        GLuint renderTextures[3];
+        GLuint renderFBO[6];
+        GLuint Gxx;
+        GLuint Gyy;
+        GLuint Gxy;
+
+        GLuint vao;
         GLuint vbo;
         GLuint vboi;
         GLuint framebuffers[2];
-        GLuint renderTexture[2];
+        GLuint outTextures[2];
         GLuint pbo[2];
-        GLint hLapTexLoc;
-        GLint vLapTexLoc;
-        GLint hLapWLoc;
-        GLint vLapWLoc;
         int curr;
         int ready;
     };
@@ -125,6 +152,11 @@ class WAIApp
     static GLuint buildShaderFromSource(string source,
                                         GLenum shaderType);
     static void initTestProgram();
+    static void gxx();
+    static void gyy();
+    static void gxy();
+    static void detH();
+    static void nms(int id);
     static void gpu_kp();
     static void readResult();
     static unsigned char * outputTexture;
