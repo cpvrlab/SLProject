@@ -539,7 +539,7 @@ vector<string> getDirNamesInDir(const string& dirName)
             {
                 struct stat path_stat;
                 stat(name.c_str(), &path_stat);
-                if (S_ISREG(path_stat.st_mode))
+                if (!S_ISREG(path_stat.st_mode))
                     filePathNames.push_back(dirName + name);
             }
         }
@@ -620,7 +620,7 @@ vector<string> getFileNamesInDir(const string& dirName)
             {
                 struct stat path_stat;
                 stat(name.c_str(), &path_stat);
-                if (!S_ISREG(path_stat.st_mode))
+                if (S_ISREG(path_stat.st_mode))
                     filePathNames.push_back(dirName + name);
             }
         }
