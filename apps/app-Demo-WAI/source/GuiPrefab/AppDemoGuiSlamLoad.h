@@ -26,6 +26,7 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
                        std::string        slamRootDir,
                        std::string        calibrationsDir,
                        std::string        vocabulariesDir,
+                       SLNode*            mapNode,
                        bool*              activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
@@ -56,9 +57,13 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
     std::string _currentMap;
     std::string _currentVoc;
 
-    bool _storeKeyFrameImage = true;
+    bool _storeKeyFrameImage;
+    bool _trackOpticalFlow;
+    bool _serial;
+    bool _trackingOnly;
 
     WAICalibration* _wc;
+    SLNode*         _mapNode;
 };
 
 #endif

@@ -96,7 +96,6 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Map"))
         {
-            ImGui::MenuItem("Map storage", nullptr, &prefs->showMapStorage);
             ImGui::MenuItem("Infos Map Node Transform", nullptr, &prefs->showInfosMapNodeTransform);
             ImGui::EndMenu();
         }

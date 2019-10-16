@@ -28,7 +28,6 @@
 #include <SLGLTexture.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiTrackedMapping.h>
-#include <AppDemoGuiMapStorage.h>
 #include <SLImporter.h>
 #include <SLInterface.h>
 #include <SLMaterial.h>

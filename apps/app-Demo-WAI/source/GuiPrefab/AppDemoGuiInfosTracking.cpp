@@ -30,9 +30,14 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
     //-------------------------------------------------------------------------
 
     ImGui::Begin("Tracking Informations", _activator, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-    //numbers
-    if (WAIApp::mode)
+
+    if (!WAIApp::mode)
     {
+        ImGui::Text("SLAM not running.");
+    }
+    else
+    {
+        //numbers
         //add tracking state
         ImGui::Text("Tracking State : %s ", WAIApp::mode->getPrintableState().c_str());
         //tracking type

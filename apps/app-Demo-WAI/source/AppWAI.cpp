@@ -21,7 +21,6 @@
 #include <AppDemoGuiInfosScene.h>
 #include <AppDemoGuiInfosSensors.h>
 #include <AppDemoGuiInfosTracking.h>
-#include <AppDemoGuiMapStorage.h>
 #include <AppDemoGuiProperties.h>
 #include <AppDemoGuiSceneGraph.h>
 #include <AppDemoGuiStatsDebugTiming.h>
@@ -144,19 +143,25 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     OrbSlamStartResult result = {};
     uiPrefs.showError         = false;
 
-    std::string videoFile       = "";
-    std::string calibrationFile = "";
-    std::string mapFile         = "";
-    std::string vocFile         = "";
-    bool        saveVideoFrames = false;
+    std::string videoFile        = "";
+    std::string calibrationFile  = "";
+    std::string mapFile          = "";
+    std::string vocFile          = "";
+    bool        saveVideoFrames  = false;
+    bool        serial           = false;
+    bool        onlyTracking     = false;
+    bool        trackOpticalFlow = false;
 
     if (slamParams)
     {
-        videoFile       = slamParams->videoFile;
-        calibrationFile = slamParams->calibrationFile;
-        mapFile         = slamParams->mapFile;
-        vocFile         = slamParams->vocabularyFile;
-        saveVideoFrames = slamParams->storeKeyFrameImg;
+        videoFile        = slamParams->videoFile;
+        calibrationFile  = slamParams->calibrationFile;
+        mapFile          = slamParams->mapFile;
+        vocFile          = slamParams->vocabularyFile;
+        saveVideoFrames  = slamParams->storeKeyFrameImg;
+        serial           = slamParams->serial;
+        onlyTracking     = slamParams->trackingOnly;
+        trackOpticalFlow = slamParams->trackOpticalFlow;
     }
 
     bool useVideoFile             = !videoFile.empty();
@@ -276,10 +281,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     //sv->setViewportFromRatio(SLVec2i(4, 3), SLViewportAlign::VA_center, true);
 
     // 4. Create new mode ORBSlam
-    bool serial           = false;
-    bool onlyTracking     = false;
-    bool trackOpticalFlow = false;
-    mode                  = new WAI::ModeOrbSlam2(wc->cameraMat(),
+    mode = new WAI::ModeOrbSlam2(wc->cameraMat(),
                                  wc->distortion(),
                                  serial,
                                  saveVideoFrames,
@@ -349,6 +351,7 @@ void WAIApp::setupGUI()
                                                      dirs->writableDir + "erleb-AR/locations/",
                                                      dirs->writableDir + "calibrations/",
                                                      dirs->writableDir + "voc/",
+                                                     waiScene->mapNode,
                                                      &uiPrefs.showSlamLoad));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiProperties("properties", &uiPrefs.showProperties));
@@ -363,8 +366,6 @@ void WAIApp::setupGUI()
 
     AppDemoGui::addInfoDialog(new AppDemoGuiVideoStorage("video storage", videoWriter, videoWriterInfo, &gpsDataStream, &uiPrefs.showVideoStorage));
     AppDemoGui::addInfoDialog(new AppDemoGuiVideoControls("video load", &uiPrefs.showVideoControls));
-
-    AppDemoGui::addInfoDialog(new AppDemoGuiMapStorage("Map storage", waiScene->mapNode, &uiPrefs.showMapStorage));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTestOpen("Tests Settings",
                                                      wc,
@@ -434,13 +435,13 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
     sv->onInitialize();
     sv->doWaitOnIdle(false);
 
-    OrbSlamStartResult orbSlamStartResult = startOrbSlam();
+    /*OrbSlamStartResult orbSlamStartResult = startOrbSlam();
 
     if (!orbSlamStartResult.wasSuccessful)
     {
         errorDial->setErrorMsg(orbSlamStartResult.errorString);
         uiPrefs.showError = true;
-    }
+    }*/
 
     ////setup gui at last because ui elements depend on other instances
     //setupGUI();
