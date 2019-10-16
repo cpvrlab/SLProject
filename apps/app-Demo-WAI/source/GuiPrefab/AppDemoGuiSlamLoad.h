@@ -36,6 +36,8 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
                                std::vector<std::string>& fileNames,
                                std::vector<std::string>& extensions,
                                bool                      addEmpty);
+    void loadDirNamesInVector(std::string               directory,
+                              std::vector<std::string>& dirNames);
 
     bool _changeSlamParams;
 

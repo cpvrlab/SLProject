@@ -53,6 +53,26 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     _vocExtensions.push_back(".bin");
 }
 
+void AppDemoGuiSlamLoad::loadDirNamesInVector(std::string               directory,
+                                              std::vector<std::string>& dirNames)
+{
+    dirNames.clear();
+
+    if (!Utils::dirExists(directory))
+    {
+        Utils::makeDir(directory);
+    }
+    else
+    {
+        std::vector<std::string> content = Utils::getDirNamesInDir(directory);
+        for (auto path : content)
+        {
+            std::string name = Utils::getFileName(path);
+            dirNames.push_back(name);
+        }
+    }
+}
+
 void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directory,
                                                std::vector<std::string>& fileNames,
                                                std::vector<std::string>& extensions,
@@ -66,7 +86,7 @@ void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directo
     }
     else
     {
-        std::vector<std::string> content = Utils::getFileNamesInDir(directory);
+        std::vector<std::string> content = Utils::getAllNamesInDir(directory);
         if (addEmpty) fileNames.push_back("");
 
         for (auto path : content)
@@ -169,7 +189,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 }
 
                 std::string filename = constructSlamMapFileName(_currentLocation, _currentArea, mapDateTime);
-                std::string imgDir   = constructSlamMapImgDir(_slamRootDir, filename);
+                std::string imgDir   = constructSlamMapImgDir(mapDir, filename);
 
                 if (WAIApp::mode->retainImage())
                 {
@@ -199,12 +219,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         if (ImGui::BeginCombo("Location", _currentLocation.c_str())) // The second parameter is the label previewed before opening the combo.
         {
             std::vector<std::string> availableLocations;
-            std::vector<std::string> extensions;
-            extensions.push_back("");
-            loadFileNamesInVector(_slamRootDir,
-                                  availableLocations,
-                                  extensions,
-                                  false);
+            loadDirNamesInVector(_slamRootDir,
+                                 availableLocations);
 
             for (int n = 0; n < availableLocations.size(); n++)
             {
@@ -251,7 +267,6 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
             if (!_currentArea.empty())
             {
-#ifndef ANDROID
                 if (ImGui::BeginCombo("Video", _currentVideo.c_str())) // The second parameter is the label previewed before opening the combo.
                 {
                     std::vector<std::string> availableVideos;
@@ -272,7 +287,6 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                     }
                     ImGui::EndCombo();
                 }
-#endif
 
                 if (ImGui::BeginCombo("Map", _currentMap.c_str())) // The second parameter is the label previewed before opening the combo.
                 {
@@ -365,6 +379,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                   _trackingOnly,
                   _serial};
                 OrbSlamStartResult startResult = WAIApp::startOrbSlam(&params);
+                sv->setViewportFromRatio(SLVec2i(WAIApp::videoFrameSize.width, WAIApp::videoFrameSize.height), SLViewportAlign::VA_center, true);
 
                 if (!startResult.wasSuccessful)
                 {

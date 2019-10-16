@@ -1,29 +1,5 @@
 #include <WAIMapStorage.h>
 
-//SLMat4f WAIMapStorage::loadObjectMatrix(const cv::FileNode& n)
-//{
-//    cv::Mat cvOm = cv::Mat(4, 4, CV_32F);
-//    SLMat4f om;
-//    n >> cvOm;
-//    om.setMatrix(cvOm.at<float>(0, 0),
-//                 cvOm.at<float>(0, 1),
-//                 cvOm.at<float>(0, 2),
-//                 cvOm.at<float>(0, 3),
-//                 cvOm.at<float>(1, 0),
-//                 cvOm.at<float>(1, 1),
-//                 cvOm.at<float>(1, 2),
-//                 cvOm.at<float>(1, 3),
-//                 cvOm.at<float>(2, 0),
-//                 cvOm.at<float>(2, 1),
-//                 cvOm.at<float>(2, 2),
-//                 cvOm.at<float>(2, 3),
-//                 cvOm.at<float>(3, 0),
-//                 cvOm.at<float>(3, 1),
-//                 cvOm.at<float>(3, 2),
-//                 cvOm.at<float>(3, 3));
-//    return om;
-//}
-
 cv::Mat convertToCVMat(const SLMat4f slMat)
 {
     cv::Mat cvMat = cv::Mat(4, 4, CV_32F);
@@ -60,7 +36,6 @@ SLMat4f convertToSLMat(const cv::Mat& cvMat)
 {
     SLMat4f slMat;
     // clang-format off
-        //so ein scheiss!!!
         //  T M0, T M4, T M8, T M12,
         //  T M1, T M5, T M9, T M13,
         //  T M2, T M6, T M10, T M14,

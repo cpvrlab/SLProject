@@ -27,7 +27,8 @@
 
 #if defined(_WIN32)
 #    if _MSC_VER >= 1912
-#        include <filesystem>
+#        define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#        include <experimental/filesystem>
 #        define USE_STD_FILESYSTEM
 namespace fs = std::experimental::filesystem;
 #    else
@@ -503,9 +504,10 @@ string getFileExt(const string& filename)
         return toLowerString(filename.substr(i + 1, filename.length() - i));
     return ("");
 }
+
 //-----------------------------------------------------------------------------
-//! Returns a vector of sorted filesnames with path in dir
-vector<string> getFileNamesInDir(const string& dirName)
+//! Returns a vector directory names with path in dir
+vector<string> getDirNamesInDir(const string& dirName)
 {
     vector<string> filePathNames;
 
@@ -515,8 +517,51 @@ vector<string> getFileNamesInDir(const string& dirName)
         for (const auto& entry : fs::directory_iterator(dirName))
         {
             auto filename = entry.path().filename();
-            if (fs::is_regular_file(entry.status()))
+            if (fs::is_directory(entry.status()))
                 filePathNames.push_back(dirName + "/" + filename.u8string());
+        }
+    }
+#else
+    DIR* dir;
+    dir = opendir(dirName.c_str());
+
+    if (dir)
+    {
+        struct dirent* dirContent;
+        int            i = 0;
+
+        while ((dirContent = readdir(dir)) != nullptr)
+        {
+            i++;
+            string name(dirContent->d_name);
+
+            if (name != "." && name != "..")
+            {
+                struct stat path_stat;
+                stat(name.c_str(), &path_stat);
+                if (!S_ISREG(path_stat.st_mode))
+                    filePathNames.push_back(dirName + name);
+            }
+        }
+        closedir(dir);
+    }
+#endif
+
+    return filePathNames;
+}
+//-----------------------------------------------------------------------------
+//! Returns a vector of sorted names (files and directories) with path in dir
+vector<string> getAllNamesInDir(const string& dirName)
+{
+    vector<string> filePathNames;
+
+#if defined(USE_STD_FILESYSTEM)
+    if (fs::exists(dirName) && fs::is_directory(dirName))
+    {
+        for (const auto& entry : fs::directory_iterator(dirName))
+        {
+            auto filename = entry.path().filename();
+            filePathNames.push_back(dirName + "/" + filename.u8string());
         }
     }
 #else
@@ -534,6 +579,50 @@ vector<string> getFileNamesInDir(const string& dirName)
             string name(dirContent->d_name);
             if (name != "." && name != "..")
                 filePathNames.push_back(dirName + name);
+        }
+        closedir(dir);
+    }
+#endif
+
+    return filePathNames;
+}
+//-----------------------------------------------------------------------------
+//! Returns a vector of sorted filesnames with path in dir
+vector<string> getFileNamesInDir(const string& dirName)
+{
+    vector<string> filePathNames;
+
+#if defined(USE_STD_FILESYSTEM)
+    if (fs::exists(dirName) && fs::is_directory(dirName))
+    {
+        for (const auto& entry : fs::directory_iterator(dirName))
+        {
+            auto filename = entry.path().filename();
+            if (fs::is_regular_file(entry.status()))
+                filePathNames.push_back(dirName + "/" + filename.u8string());
+        }
+    }
+#else
+    //todo: does this part also return directories? It should only return file names..
+    DIR* dir;
+    dir = opendir(dirName.c_str());
+
+    if (dir)
+    {
+        struct dirent* dirContent;
+        int            i = 0;
+
+        while ((dirContent = readdir(dir)) != nullptr)
+        {
+            i++;
+            string name(dirContent->d_name);
+            if (name != "." && name != "..")
+            {
+                struct stat path_stat;
+                stat(name.c_str(), &path_stat);
+                if (S_ISREG(path_stat.st_mode))
+                    filePathNames.push_back(dirName + name);
+            }
         }
         closedir(dir);
     }
@@ -940,7 +1029,7 @@ int gcd(int a, int b)
 //! Lowest common multiple (kgV = kleinstes gemeinsames Vielfache)
 int lcm(int a, int b)
 {
-    return (a*b)/Utils::gcd(a, b);
+    return (a * b) / Utils::gcd(a, b);
 }
 //-----------------------------------------------------------------------------
 

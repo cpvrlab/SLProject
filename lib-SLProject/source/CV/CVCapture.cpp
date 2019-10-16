@@ -235,7 +235,7 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
 cameras on their own. We only adjust the color space. See the app-Demo-SLProject/iOS and
 app-Demo-SLProject/android projects for the usage.
 */
-void CVCapture::loadIntoLastFrame(const float       vieportWdivH,
+void CVCapture::loadIntoLastFrame(const float       viewportWdivH,
                                   const int         width,
                                   const int         height,
                                   const CVPixFormat format,
@@ -310,7 +310,7 @@ void CVCapture::loadIntoLastFrame(const float       vieportWdivH,
         CVCapture::lastFrame = CVMat(height, width, cvType, (void*)data, destStride);
     }
 
-    adjustForSL(vieportWdivH);
+    adjustForSL(viewportWdivH);
 }
 //-----------------------------------------------------------------------------
 //! Does all adjustments needed for the videoTexture

@@ -101,6 +101,7 @@ class WAIApp
     static std::string vocDir;
     static std::string experimentsDir;
 
+    static cv::Size2i videoFrameSize;
     static bool pauseVideo; // pause video file
     static int  videoCursorMoveIndex;
 };

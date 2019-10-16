@@ -67,6 +67,8 @@ std::string WAIApp::mapDir         = "";
 std::string WAIApp::vocDir         = "";
 std::string WAIApp::experimentsDir = "";
 
+cv::Size2i WAIApp::videoFrameSize;
+
 bool WAIApp::resizeWindow = false;
 
 bool WAIApp::pauseVideo           = false;
@@ -236,7 +238,6 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     }
 
     // 1. Initialize CVCapture with either video file or live video
-    cv::Size2i videoFrameSize;
     if (useVideoFile)
     {
         CVCapture::instance()->videoType(VT_FILE);
@@ -247,6 +248,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     else
     {
         CVCapture::instance()->videoType(VT_MAIN);
+        //open(0) only has an effect on desktop. On Android it just returns {0,0}
         CVCapture::instance()->open(0);
 
         videoFrameSize = cv::Size2i(defaultScrWidth, defaultScrHeight);
@@ -271,10 +273,12 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         return result;
     }
 
-    CVCapture::instance()->activeCalib->load(calibDir, Utils::getFileName(calibrationFile), 0, 0);
+    //CVCapture::instance()->activeCalib->load(calibDir, Utils::getFileName(calibrationFile), 0, 0);
 
     // 3. Adjust FOV of camera node according to new calibration
     waiScene->cameraNode->fov(wc->calcCameraVerticalFOV());
+    // adjust viewport of sceneview
+    //sv->setViewportFromRatio(SLVec2i(4, 3), SLViewportAlign::VA_center, true);
 
     // 4. Create new mode ORBSlam
     mode = new WAI::ModeOrbSlam2(wc->cameraMat(),
@@ -441,6 +445,7 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
 
     ////setup gui at last because ui elements depend on other instances
     //setupGUI();
+    sv->setViewportFromRatio(SLVec2i(WAIApp::scrWidth, WAIApp::scrHeight), SLViewportAlign::VA_center, true);
 }
 
 //-----------------------------------------------------------------------------
