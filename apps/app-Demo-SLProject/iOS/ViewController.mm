@@ -380,8 +380,8 @@ float GetSeconds()
     
     CVPixelBufferLockBaseAddress(pixelBuffer,0);
     
-    int width  = (int) CVPixelBufferGetWidth(pixelBuffer);
-    int height = (int) CVPixelBufferGetHeight(pixelBuffer);
+    int imgWidth  = (int) CVPixelBufferGetWidth(pixelBuffer);
+    int imgHeight = (int) CVPixelBufferGetHeight(pixelBuffer);
     unsigned char* data = (unsigned char*)CVPixelBufferGetBaseAddress(pixelBuffer);
         
     if(!data)
@@ -389,15 +389,20 @@ float GetSeconds()
         return;
     }
     
-    // If viewportWdivH is negative the viewport aspect will be adapted to the video
-    // aspect ratio. No cropping will be applied.
-    float viewportWdivH = SLApplication::scene->sceneView(0)->viewportWdivH();
+    SLSceneView* sv = SLApplication::scene->sceneView(0);
+    CVCapture* capture = CVCapture::instance();
+    float videoImgWdivH = (float)imgWidth / (float)imgHeight;
+
     if (SLApplication::scene->sceneView(0)->viewportSameAsVideo())
-        viewportWdivH = -1;
+    {
+        // If video aspect has changed we need to tell the new viewport to the sceneview
+        if (Utils::abs(videoImgWdivH - sv->viewportWdivH()) > 0.01f)
+            sv->setViewportFromRatio(SLVec2i(imgWidth, imgHeight), sv->viewportAlign(), true);
+    }
         
-    CVCapture::instance()->loadIntoLastFrame(viewportWdivH,
-                                             width,
-                                             height,
+    CVCapture::instance()->loadIntoLastFrame(sv->viewportWdivH(),
+                                             imgWidth,
+                                             imgHeight,
                                              PF_bgra,
                                              data,
                                              false);
@@ -536,8 +541,27 @@ float GetSeconds()
             [m_avSession stopRunning];
         }
         
-        float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
-        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+        SLSceneView* sv = SLApplication::scene->sceneView(0);
+        CVCapture* capture = CVCapture::instance();
+
+        // Get the current capture size of the videofile
+        CVSize videoSizeBefore = capture->captureSize;
+
+        // If viewportWdivH is negative the viewport aspect will be adapted to the video
+        // aspect ratio. No cropping will be applied.
+        // iOS doesn't know the video file frame size before grab
+        float viewportWdivH = sv->viewportWdivH();
+        if (sv->viewportSameAsVideo())
+            viewportWdivH = -1;
+
+        capture->grabAndAdjustForSL(viewportWdivH);
+
+        // If video aspect has changed we need to tell the new viewport to the sceneview
+        CVSize videoSizeAfter = capture->captureSize;
+        if (sv->viewportSameAsVideo() && videoSizeBefore != videoSizeAfter)
+            sv->setViewportFromRatio(SLVec2i(videoSizeAfter.width, videoSizeAfter.height),
+                                     sv->viewportAlign(),
+                                     sv->viewportSameAsVideo());
     }
     else if (videoType == VT_MAIN) // back facing video needed
     {

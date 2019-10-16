@@ -71,15 +71,15 @@ class CVCapture
     CVSize2i openFile();
     void     start(float viewportWdivH);
     bool     grabAndAdjustForSL(float viewportWdivH);
-    void     adjustForSL(float viewportWdivH);
-    bool     isOpened() { return _captureDevice.isOpened(); }
-    void     release();
     void     loadIntoLastFrame(float        vieportWdivH,
                                int          camWidth,
                                int          camHeight,
                                CVPixFormat  srcPixelFormat,
                                const uchar* data,
                                bool         isContinuous);
+    void     adjustForSL(float viewportWdivH);
+    bool     isOpened() { return _captureDevice.isOpened(); }
+    void     release();
     void     copyYUVPlanes(float  scrWdivH,
                            int    srcW,
                            int    srcH,
