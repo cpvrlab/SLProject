@@ -48,6 +48,21 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     _storeKeyFrameImage = false;
 }
 
+void AppDemoGuiSlamLoad::loadDirNamesInVector(std::string               directory,
+                                              std::vector<std::string>& dirNames)
+{
+    dirNames.clear();
+
+    if (!Utils::dirExists(directory))
+    {
+        Utils::makeDir(directory);
+    }
+    else
+    {
+        dirNames = Utils::getDirNamesInDir(directory);
+    }
+}
+
 void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directory,
                                                std::vector<std::string>& fileNames,
                                                std::vector<std::string>& extensions,
@@ -61,7 +76,7 @@ void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directo
     }
     else
     {
-        std::vector<std::string> content = Utils::getFileNamesInDir(directory);
+        std::vector<std::string> content = Utils::getAllNamesInDir(directory);
         if (addEmpty) fileNames.push_back("");
 
         for (auto path : content)
@@ -287,6 +302,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
               (_currentVoc.empty() ? "" : _vocabulariesDir + _currentVoc),
               _storeKeyFrameImage};
             OrbSlamStartResult startResult = WAIApp::startOrbSlam(&params);
+            sv->setViewportFromRatio(SLVec2i(WAIApp::videoFrameSize.width, WAIApp::videoFrameSize.height), SLViewportAlign::VA_center, true);
 
             if (!startResult.wasSuccessful)
             {

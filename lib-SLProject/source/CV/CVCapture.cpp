@@ -285,7 +285,7 @@ void CVCapture::adjustForSL(float viewportWdivH)
     // Cropping is done almost always.
     // So this is Android image copy loop #2
 
-    float inWdivH  = (float)lastFrame.cols / (float)lastFrame.rows;
+    float inWdivH = (float)lastFrame.cols / (float)lastFrame.rows;
 
     // viewportWdivH is negative the viewport aspect will be the same
     float outWdivH = viewportWdivH < 0.0f ? inWdivH : viewportWdivH;
@@ -413,32 +413,27 @@ void CVCapture::loadIntoLastFrame(const float       vieportWdivH,
 
         switch (format)
         {
-            case PF_luminance:
-            {
+            case PF_luminance: {
                 cvType = CV_8UC1;
                 bpp    = 1;
                 break;
             }
-            case PF_bgr:
-            {
+            case PF_bgr: {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_rgb:
-            {
+            case PF_rgb: {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_bgra:
-            {
+            case PF_bgra: {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
             }
-            case PF_rgba:
-            {
+            case PF_rgba: {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
