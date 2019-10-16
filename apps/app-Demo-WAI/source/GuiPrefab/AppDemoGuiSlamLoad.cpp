@@ -189,7 +189,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 }
 
                 std::string filename = constructSlamMapFileName(_currentLocation, _currentArea, mapDateTime);
-                std::string imgDir   = constructSlamMapImgDir(_slamRootDir, filename);
+                std::string imgDir   = constructSlamMapImgDir(mapDir, filename);
 
                 if (WAIApp::mode->retainImage())
                 {

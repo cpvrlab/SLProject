@@ -49,7 +49,7 @@ static std::string constructSlamMapIdentifierString(std::string location, std::s
         dateTime = Utils::getDateTime2String();
     }
 
-    std::string result = "DEVELOPMENT-map_" + dateTime + "_" + location + "_" + area;
+    std::string result = "DEVELOPMENT-map_" + dateTime + "_" + location + "_" + Utils::getFileNameWOExt(area);
 
     return result;
 }
@@ -83,7 +83,7 @@ static std::string constructSlamLocationDir(std::string locationsRootDir, std::s
 
 static std::string constructSlamAreaDir(std::string locationsRootDir, std::string location, std::string area)
 {
-    std::string result = constructSlamLocationDir(locationsRootDir, location) + area + "/";
+    std::string result = constructSlamLocationDir(locationsRootDir, location) + Utils::getFileNameWOExt(area) + "/";
 
     return result;
 }
@@ -95,18 +95,11 @@ static std::string constructSlamMapDir(std::string locationsRootDir, std::string
     return result;
 }
 
-static std::string constructSlamMapImgDir(std::string locationsRootDir, std::string mapFileName)
+static std::string constructSlamMapImgDir(std::string mapDir, std::string mapFileName)
 {
     SlamMapInfos mapInfos;
 
-    std::string result = "";
-    if (extractSlamMapInfosFromFileName(mapFileName, &mapInfos))
-    {
-        result = constructSlamAreaDir(locationsRootDir, mapInfos.location, mapInfos.area) +
-                 "maps/" +
-                 constructSlamMapIdentifierString(mapInfos.location, mapInfos.area, mapInfos.dateTime) +
-                 "/";
-    }
+    std::string result = Utils::unifySlashes(mapDir + Utils::getFileNameWOExt(mapFileName));
 
     return result;
 }
