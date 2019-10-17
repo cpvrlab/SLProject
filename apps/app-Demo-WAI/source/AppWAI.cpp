@@ -103,7 +103,6 @@ GLuint WAIApp::buildShaderFromSource(string source,
         std::cout << source << std::endl;
         exit(1);
     }
-
     return shaderHandle;
 }
 
@@ -111,8 +110,8 @@ void WAIApp::initTestProgram()
 {
     glslKP.curr = 1;
     glslKP.ready = 0;
+    glGenFramebuffers(8, glslKP.renderFBO);
     glGenFramebuffers(2, glslKP.framebuffers);
-    glGenFramebuffers(6, glslKP.renderFBO);
     glGenBuffers(2, glslKP.pbo);
     glBindBuffer(GL_PIXEL_PACK_BUFFER, glslKP.pbo[0]);
     glBufferData(GL_PIXEL_PACK_BUFFER, scrWidth * scrHeight, 0, GL_STREAM_READ);
@@ -122,13 +121,14 @@ void WAIApp::initTestProgram()
 
     glslKP.d2Gdx2 = glCreateProgram();
     glslKP.d2Gdy2 = glCreateProgram();
-    glslKP.dGdx = glCreateProgram();
-    glslKP.dGdy = glCreateProgram();
-    glslKP.Gx = glCreateProgram();
-    glslKP.Gy = glCreateProgram();
-    glslKP.detH = glCreateProgram();
-    glslKP.nmsx = glCreateProgram();
-    glslKP.nmsy = glCreateProgram();
+    glslKP.dGdx   = glCreateProgram();
+    glslKP.dGdy   = glCreateProgram();
+    glslKP.Gx     = glCreateProgram();
+    glslKP.Gy     = glCreateProgram();
+    glslKP.detH   = glCreateProgram();
+    glslKP.nmsx   = glCreateProgram();
+    glslKP.nmsy   = glCreateProgram();
+    glslKP.nmsz   = glCreateProgram();
 
 #ifdef ANDROID
     std::string screeQuadVs = "#version 320 es\n"
@@ -217,7 +217,7 @@ void WAIApp::initTestProgram()
 
 
     std::string hGaussianFs = "#version 330\n"
-                               "out float pixel;\n"
+                               "out vec3 pixel;\n"
                                "in vec2 texcoords;\n"
                                "uniform float w;\n"
                                "uniform sampler2D tex;\n"
@@ -225,47 +225,127 @@ void WAIApp::initTestProgram()
                                "void main()\n"
                                "{\n"
                                "\n"
-                               "const float kernel[9] = float[9](0.007614419169296346, "
-                               "0.03607496968918392, 0.10958608179781393, 0.2134445419434044, "
-                               "0.26655997480060273, 0.21344454194340445, 0.109586081797814, "
-                               "0.036074969689183944, 0.007614419169296356);\n"
+                               "const float kernel12[9] = float[9]("
+                               "    0.007614419169296346, 0.03607496968918392, 0.10958608179781393, "
+                               "    0.2134445419434044, 0.26655997480060273, 0.21344454194340445, "
+                               "    0.109586081797814, 0.036074969689183944, 0.007614419169296356);\n"
+                               "\n"
+                               "const float kernel20[15] = float[15]("
+                               "    0.0031742033144480037, 0.008980510024247402, 0.02165110898093487, "
+                               "    0.04448075733770272, 0.07787123866346017, 0.11617023707406768, "
+                               "    0.1476813151730447, 0.15998125886418896, 0.14768131517304472, "
+                               "    0.11617023707406769, 0.07787123866346018, 0.04448075733770272, "
+                               "    0.02165110898093487, 0.008980510024247402, 0.0031742033144480037);\n"
+                               "\n"
+                               "const float kernel28[21] = float[21]("
+                               "    0.0019290645132252363, 0.004189349123089384, 0.008384820035189703, "
+                               "    0.015466367540072906, 0.02629240397422038, 0.041192642776781994, "
+                               "    0.05947800651444567, 0.07914810874862578, 0.09706710312973113, "
+                               "    0.10971120494447856, 0.11428185740027867, 0.10971120494447856, "
+                               "    0.09706710312973113, 0.07914810874862578, 0.05947800651444567, "
+                               "    0.041192642776781994, 0.02629240397422038, 0.015466367540072906, "
+                               "    0.008384820035189703, 0.004189349123089384, 0.0019290645132252363);\n"
                                "\n"
                                "    \n"
-                               "    float val = 0.0;\n"
+                               "    vec3 response = vec3(0.0);\n"
+                               "    for (int i = 0; i < 3; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 10.0) / w;\n"
+                               "        response.b += kernel28[i] * texture(tex, texcoords + vec2(ofst, 0.0)).b;\n"
+                               "    }\n"
+                               "    for (int i = 0; i < 3; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 7.0) / w;\n"
+                               "        response.b += kernel28[i+3] * texture(tex, texcoords + vec2(ofst, 0.0)).b;\n"
+                               "        response.g += kernel20[i] * texture(tex, texcoords + vec2(ofst, 0.0)).g;\n"
+                               "    }\n"
                                "    for (int i = 0; i < 9; i++)\n"
                                "    {\n"
-                               "        vec2 offset = vec2((i - 4) / w, 0.0);\n"
-                               "        val += kernel[i] * texture(tex, texcoords + offset).r;\n"
+                               "        float ofst = (float(i) - 4.0) / w;\n"
+                               "        response.b += kernel28[i+6] * texture(tex, texcoords + vec2(ofst, 0.0)).b;\n"
+                               "        response.g += kernel20[i+3] * texture(tex, texcoords + vec2(ofst, 0.0)).g;\n"
+                               "        response.r += kernel12[i] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
                                "    }\n"
-                               "    pixel = val;\n"
+                               "    for (int i = 12; i < 15; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 7.0) / w;\n"
+                               "        response.g += kernel20[i] * texture(tex, texcoords + vec2(ofst, 0.0)).g;\n"
+                               "        response.b += kernel28[i+3] * texture(tex, texcoords + vec2(ofst, 0.0)).b;\n"
+                               "    }\n"
+                               "    for (int i = 18; i < 21; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 10.0) / w;\n"
+                               "        response.b += kernel28[i] * texture(tex, texcoords + vec2(ofst, 0.0)).b;\n"
+                               "    }\n"
+                               "    pixel = response;\n"
                                "}\n";
 
     std::string vGaussianFs = "#version 330\n"
-                               "out float pixel;\n"
+                               "out vec3 pixel;\n"
                                "in vec2 texcoords;\n"
                                "uniform float w;\n"
                                "uniform sampler2D tex;\n"
                                "\n"
                                "void main()\n"
                                "{\n"
-                               "const float kernel[9] = float[9](0.007614419169296346, "
-                               "0.03607496968918392, 0.10958608179781393, 0.2134445419434044, "
-                               "0.26655997480060273, 0.21344454194340445, 0.109586081797814, "
-                               "0.036074969689183944, 0.007614419169296356);\n"
+                               "\n"
+                               "const float kernel12[9] = float[9]("
+                               "    0.007614419169296346, 0.03607496968918392, 0.10958608179781393, "
+                               "    0.2134445419434044, 0.26655997480060273, 0.21344454194340445, "
+                               "    0.109586081797814, 0.036074969689183944, 0.007614419169296356);\n"
+                               "\n"
+                               "const float kernel20[15] = float[15]("
+                               "    0.0031742033144480037, 0.008980510024247402, 0.02165110898093487, "
+                               "    0.04448075733770272, 0.07787123866346017, 0.11617023707406768, "
+                               "    0.1476813151730447, 0.15998125886418896, 0.14768131517304472, "
+                               "    0.11617023707406769, 0.07787123866346018, 0.04448075733770272, "
+                               "    0.02165110898093487, 0.008980510024247402, 0.0031742033144480037);\n"
+                               "\n"
+                               "const float kernel28[21] = float[21]("
+                               "    0.0019290645132252363, 0.004189349123089384, 0.008384820035189703, "
+                               "    0.015466367540072906, 0.02629240397422038, 0.041192642776781994, "
+                               "    0.05947800651444567, 0.07914810874862578, 0.09706710312973113, "
+                               "    0.10971120494447856, 0.11428185740027867, 0.10971120494447856, "
+                               "    0.09706710312973113, 0.07914810874862578, 0.05947800651444567, "
+                               "    0.041192642776781994, 0.02629240397422038, 0.015466367540072906, "
+                               "    0.008384820035189703, 0.004189349123089384, 0.0019290645132252363);\n"
                                "\n"
                                "    \n"
-                               "    float val = 0.0;\n"
+                               "    vec3 response = vec3(0.0);\n"
+                               "    for (int i = 0; i < 3; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 10.0) / w;\n"
+                               "        response.b += kernel28[i] * texture(tex, texcoords + vec2(0.0, ofst)).b;\n"
+                               "    }\n"
+                               "    for (int i = 0; i < 3; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 7.0) / w;\n"
+                               "        response.b += kernel28[i+3] * texture(tex, texcoords + vec2(0.0, ofst)).b;\n"
+                               "        response.g += kernel20[i] * texture(tex, texcoords + vec2(0.0, ofst)).g;\n"
+                               "    }\n"
                                "    for (int i = 0; i < 9; i++)\n"
                                "    {\n"
-                               "        vec2 offset = vec2(0.0, (i - 4) / w);\n"
-                               "        val += kernel[i] * texture(tex, texcoords + offset).r;\n"
+                               "        float ofst = (float(i) - 4.0) / w;\n"
+                               "        response.b += kernel28[i+6] * texture(tex, texcoords + vec2(0.0, ofst)).b;\n"
+                               "        response.g += kernel20[i+3] * texture(tex, texcoords + vec2(0.0, ofst)).g;\n"
+                               "        response.r += kernel12[i] * texture(tex, texcoords + vec2(0.0, ofst)).r;\n"
                                "    }\n"
-                               "    pixel = val;\n"
+                               "    for (int i = 12; i < 15; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 7.0) / w;\n"
+                               "        response.g += kernel20[i] * texture(tex, texcoords + vec2(0.0, ofst)).g;\n"
+                               "        response.b += kernel28[i+3] * texture(tex, texcoords + vec2(0.0, ofst)).b;\n"
+                               "    }\n"
+                               "    for (int i = 18; i < 21; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 10.0) / w;\n"
+                               "        response.b += kernel28[i] * texture(tex, texcoords + vec2(0.0, ofst)).b;\n"
+                               "    }\n"
+                               "    pixel = response;\n"
                                "}\n";
-
 
     std::string hGaussianDxFs = "#version 330\n"
-                               "out float pixel;\n"
+                               "out vec3 pixel;\n"
                                "in vec2 texcoords;\n"
                                "uniform float w;\n"
                                "uniform sampler2D tex;\n"
@@ -273,46 +353,53 @@ void WAIApp::initTestProgram()
                                "void main()\n"
                                "{\n"
                                "\n"
-                               "const float kernel[9] = float[9](0.020305117784790255, "
-                               "0.07214993937836783, 0.1461147757304186, 0.14229636129560297, "
-                               "5.918820429342613e-17, -0.1422963612956029, -0.14611477573041862, "
-                               "-0.07214993937836787, -0.02030511778479028);\n"
+                               "const float kernel12[9] = float[9]("
+                               "0.02030511778479025, 0.07214993937836783, 0.14611477573041856, 0.14229636129560294, 4.9323503577855103e-17, -0.1422963612956029, -0.14611477573041862, -0.07214993937836786, -0.02030511778479028);\n"
+                               "\n"
+                               "const float kernel20[15] = float[15]("
+                               "0.00888776928045441, 0.021553224058193758, 0.04330221796186974, 0.07116921174032437, 0.09344548639615223, 0.09293618965925417, 0.0590725260692179, 1.7761487709954e-17, -0.059072526069217875, -0.09293618965925415, -0.09344548639615223, -0.07116921174032437, -0.04330221796186974, -0.021553224058193758, -0.00888776928045441);\n"
+                               "\n"
+                               "const float kernel28[21] = float[21]("
+                               "0.005511612894929245, 0.01077261203080127, 0.01916530293757646, 0.03093273508014581, 0.04507269252723493, 0.058846632538259974, 0.06797486458793789, 0.06784123607025065, 0.05546691607413207, 0.0313460585555653, -0.0, -0.0313460585555653, -0.05546691607413207, -0.06784123607025065, -0.06797486458793789, -0.058846632538259974, -0.04507269252723493, -0.03093273508014581, -0.01916530293757646, -0.01077261203080127, -0.005511612894929245);\n"
+                               "\n"
                                "\n"
                                "    \n"
-                               "    float val = 0.0;\n"
+                               "    vec3 response = vec3(0.0);\n"
+                               "    for (int i = 0; i < 3; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 10.0) / w;\n"
+                               "        response.b += kernel28[i] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "    }\n"
+                               "    for (int i = 0; i < 3; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 7.0) / w;\n"
+                               "        response.b += kernel28[i+3] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "        response.g += kernel20[i] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "    }\n"
                                "    for (int i = 0; i < 9; i++)\n"
                                "    {\n"
-                               "        vec2 offset = vec2((i - 4) / w, 0.0);\n"
-                               "        val += kernel[i] * texture(tex, texcoords + offset).r;\n"
+                               "        float ofst = (float(i) - 4.0) / w;\n"
+                               "        response.b += kernel28[i+6] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "        response.g += kernel20[i+3] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "        response.r += kernel12[i] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
                                "    }\n"
-                               "    pixel = val;\n"
+                               "    for (int i = 12; i < 15; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 7.0) / w;\n"
+                               "        response.g += kernel20[i] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "        response.b += kernel28[i+3] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "    }\n"
+                               "    for (int i = 18; i < 21; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 10.0) / w;\n"
+                               "        response.b += kernel28[i] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "    }\n"
+                               "    pixel = response;\n"
                                "}\n";
+
 
     std::string vGaussianDyFs = "#version 330\n"
-                               "out float pixel;\n"
-                               "in vec2 texcoords;\n"
-                               "uniform float w;\n"
-                               "uniform sampler2D tex;\n"
-                               "\n"
-                               "void main()\n"
-                               "{\n"
-                               "const float kernel[9] = float[9](0.020305117784790255, "
-                               "0.07214993937836783, 0.1461147757304186, 0.14229636129560297, "
-                               "5.918820429342613e-17, -0.1422963612956029, -0.14611477573041862, "
-                               "-0.07214993937836787, -0.02030511778479028);\n"
-                               "\n"
-                               "    \n"
-                               "    float val = 0.0;\n"
-                               "    for (int i = 0; i < 9; i++)\n"
-                               "    {\n"
-                               "        vec2 offset = vec2(0.0, (i - 4) / w);\n"
-                               "        val += kernel[i] * texture(tex, texcoords + offset).r;\n"
-                               "    }\n"
-                               "    pixel = val;\n"
-                               "}\n";
-
-    std::string hGaussianDx2Fs = "#version 330\n"
-                               "out float pixel;\n"
+                               "out vec3 pixel;\n"
                                "in vec2 texcoords;\n"
                                "uniform float w;\n"
                                "uniform sampler2D tex;\n"
@@ -320,44 +407,153 @@ void WAIApp::initTestProgram()
                                "void main()\n"
                                "{\n"
                                "\n"
-                               "const float kernel[9] = float[9](0.046532561590144336, "
-                               "0.10822490906755175, 0.08523361917607754, -0.11858030107966908, "
-                               "-0.26655997480060273, -0.11858030107966923, 0.08523361917607747, "
-                               "0.10822490906755178, 0.04653256159014437);\n"
+                               "const float kernel12[9] = float[9]("
+                               "0.02030511778479025, 0.07214993937836783, 0.14611477573041856, 0.14229636129560294, 4.9323503577855103e-17, -0.1422963612956029, -0.14611477573041862, -0.07214993937836786, -0.02030511778479028);\n"
+                               "\n"
+                               "const float kernel20[15] = float[15]("
+                               "0.00888776928045441, 0.021553224058193758, 0.04330221796186974, 0.07116921174032437, 0.09344548639615223, 0.09293618965925417, 0.0590725260692179, 1.7761487709954e-17, -0.059072526069217875, -0.09293618965925415, -0.09344548639615223, -0.07116921174032437, -0.04330221796186974, -0.021553224058193758, -0.00888776928045441);\n"
+                               "\n"
+                               "const float kernel28[21] = float[21]("
+                               "0.005511612894929245, 0.01077261203080127, 0.01916530293757646, 0.03093273508014581, 0.04507269252723493, 0.058846632538259974, 0.06797486458793789, 0.06784123607025065, 0.05546691607413207, 0.0313460585555653, -0.0, -0.0313460585555653, -0.05546691607413207, -0.06784123607025065, -0.06797486458793789, -0.058846632538259974, -0.04507269252723493, -0.03093273508014581, -0.01916530293757646, -0.01077261203080127, -0.005511612894929245);\n"
                                "\n"
                                "    \n"
-                               "    float val = 0.0;\n"
+                               "    vec3 response = vec3(0.0);\n"
+                               "    for (int i = 0; i < 3; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 10.0) / w;\n"
+                               "        response.b += kernel28[i] * texture(tex, texcoords + vec2(0.0, ofst)).b;\n"
+                               "    }\n"
+                               "    for (int i = 0; i < 3; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 7.0) / w;\n"
+                               "        response.b += kernel28[i+3] * texture(tex, texcoords + vec2(0.0, ofst)).b;\n"
+                               "        response.g += kernel20[i  ] * texture(tex, texcoords + vec2(0.0, ofst)).g;\n"
+                               "    }\n"
                                "    for (int i = 0; i < 9; i++)\n"
                                "    {\n"
-                               "        vec2 offset = vec2((i - 4) / w, 0.0);\n"
-                               "        val += kernel[i] * texture(tex, texcoords + offset).r;\n"
+                               "        float ofst = (float(i) - 4.0) / w;\n"
+                               "        response.b += kernel28[i+6] * texture(tex, texcoords + vec2(0.0, ofst)).b;\n"
+                               "        response.g += kernel20[i+3] * texture(tex, texcoords + vec2(0.0, ofst)).g;\n"
+                               "        response.r += kernel12[i  ] * texture(tex, texcoords + vec2(0.0, ofst)).r;\n"
                                "    }\n"
-                               "    pixel = val;\n"
+                               "    for (int i = 12; i < 15; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 7.0) / w;\n"
+                               "        response.g += kernel20[i  ] * texture(tex, texcoords + vec2(0.0, ofst)).g;\n"
+                               "        response.b += kernel28[i+3] * texture(tex, texcoords + vec2(0.0, ofst)).b;\n"
+                               "    }\n"
+                               "    for (int i = 18; i < 21; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 10.0) / w;\n"
+                               "        response.b += kernel28[i] * texture(tex, texcoords + vec2(0.0, ofst)).b;\n"
+                               "    }\n"
+                               "    pixel = response;\n"
                                "}\n";
 
-    std::string vGaussianDy2Fs = "#version 330\n"
-                               "out float pixel;\n"
+
+    std::string hGaussianDx2Fs  = "#version 330\n"
+                               "out vec3 pixel;\n"
                                "in vec2 texcoords;\n"
                                "uniform float w;\n"
                                "uniform sampler2D tex;\n"
                                "\n"
                                "void main()\n"
                                "{\n"
-                               "const float kernel[9] = float[9](0.046532561590144336, "
-                               "0.10822490906755175, 0.08523361917607754, -0.11858030107966908, "
-                               "-0.26655997480060273, -0.11858030107966923, 0.08523361917607747, "
-                               "0.10822490906755178, 0.04653256159014437);\n"
+                               "\n"
+                               "const float kernel12[9] = float[9]("
+                               "0.04653256159014432, 0.10822490906755174, 0.08523361917607754, -0.11858030107966908, -0.2665599748006027, -0.1185803010796692, 0.08523361917607745, 0.10822490906755174, 0.046532561590144364);\n"
+                               "\n"
+                               "const float kernel20[15] = float[15]("
+                               "0.021711550670824344, 0.04274722771541763, 0.0649533269428046, 0.06938998144681627, 0.034263345011922505, -0.04182128534666434, -0.12405230474535753, -0.15998125886418896, -0.12405230474535757, -0.041821285346664384, 0.03426334501192248, 0.06938998144681627, 0.0649533269428046, 0.04274722771541763, 0.021711550670824344);\n"
+                               "\n"
+                               "const float kernel28[21] = float[21]("
+                               "0.013818400900858318, 0.02351165324182817, 0.035421586679270776, 0.046399102620218693, 0.05097506892961091, 0.04287397513501796, 0.018207553014626197, -0.020998477831268087, -0.06537172251594138, -0.10075518821431705, -0.11428185740027866, -0.10075518821431705, -0.06537172251594138, -0.020998477831268087, 0.018207553014626197, 0.04287397513501796, 0.05097506892961091, 0.046399102620218693, 0.035421586679270776, 0.02351165324182817, 0.013818400900858318);\n"
                                "\n"
                                "    \n"
-                               "    float val = 0.0;\n"
+                               "    vec3 response = vec3(0.0);\n"
+                               "    for (int i = 0; i < 3; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 10.0) / w;\n"
+                               "        response.b += kernel28[i] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "    }\n"
+                               "    for (int i = 0; i < 3; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 7.0) / w;\n"
+                               "        response.b += kernel28[i+3] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "        response.g += kernel20[i  ] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "    }\n"
                                "    for (int i = 0; i < 9; i++)\n"
                                "    {\n"
-                               "        vec2 offset = vec2(0.0, (i - 4) / w);\n"
-                               "        val += kernel[i] * texture(tex, texcoords + offset).r;\n"
+                               "        float ofst = (float(i) - 4.0) / w;\n"
+                               "        response.b += kernel28[i+6] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "        response.g += kernel20[i+3] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "        response.r += kernel12[i  ] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
                                "    }\n"
-                               "    pixel = val;\n"
+                               "    for (int i = 12; i < 15; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 7.0) / w;\n"
+                               "        response.g += kernel20[i  ] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "        response.b += kernel28[i+3] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "    }\n"
+                               "    for (int i = 18; i < 21; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 10.0) / w;\n"
+                               "        response.b += kernel28[i] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "    }\n"
+                               "    pixel = response;\n"
                                "}\n";
 
+    std::string vGaussianDy2Fs  = "#version 330\n"
+                               "out vec3 pixel;\n"
+                               "in vec2 texcoords;\n"
+                               "uniform float w;\n"
+                               "uniform sampler2D tex;\n"
+                               "\n"
+                               "void main()\n"
+                               "{\n"
+                               "\n"
+                               "const float kernel12[9] = float[9]("
+                               "0.04653256159014432, 0.10822490906755174, 0.08523361917607754, -0.11858030107966908, -0.2665599748006027, -0.1185803010796692, 0.08523361917607745, 0.10822490906755174, 0.046532561590144364);\n"
+                               "\n"
+                               "const float kernel20[15] = float[15]("
+                               "0.021711550670824344, 0.04274722771541763, 0.0649533269428046, 0.06938998144681627, 0.034263345011922505, -0.04182128534666434, -0.12405230474535753, -0.15998125886418896, -0.12405230474535757, -0.041821285346664384, 0.03426334501192248, 0.06938998144681627, 0.0649533269428046, 0.04274722771541763, 0.021711550670824344);\n"
+                               "\n"
+                               "const float kernel28[21] = float[21]("
+                               "0.013818400900858318, 0.02351165324182817, 0.035421586679270776, 0.046399102620218693, 0.05097506892961091, 0.04287397513501796, 0.018207553014626197, -0.020998477831268087, -0.06537172251594138, -0.10075518821431705, -0.11428185740027866, -0.10075518821431705, -0.06537172251594138, -0.020998477831268087, 0.018207553014626197, 0.04287397513501796, 0.05097506892961091, 0.046399102620218693, 0.035421586679270776, 0.02351165324182817, 0.013818400900858318);\n"
+                               "\n"
+                               "    \n"
+                               "    vec3 response = vec3(0.0);\n"
+                               "    for (int i = 0; i < 3; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 10.0) / w;\n"
+                               "        response.b += kernel28[i] * texture(tex, texcoords + vec2(0.0, ofst)).r;\n"
+                               "    }\n"
+                               "    for (int i = 0; i < 3; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 7.0) / w;\n"
+                               "        response.b += kernel28[i+3] * texture(tex, texcoords + vec2(0.0, ofst)).r;\n"
+                               "        response.g += kernel20[i  ] * texture(tex, texcoords + vec2(0.0, ofst)).r;\n"
+                               "    }\n"
+                               "    for (int i = 0; i < 9; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 4.0) / w;\n"
+                               "        response.b += kernel28[i+6] * texture(tex, texcoords + vec2(0.0, ofst)).r;\n"
+                               "        response.g += kernel20[i+3] * texture(tex, texcoords + vec2(0.0, ofst)).r;\n"
+                               "        response.r += kernel12[i  ] * texture(tex, texcoords + vec2(0.0, ofst)).r;\n"
+                               "    }\n"
+                               "    for (int i = 12; i < 15; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 7.0) / w;\n"
+                               "        response.g += kernel20[i] * texture(tex, texcoords + vec2(0.0, ofst)).r;\n"
+                               "        response.b += kernel28[i+3] * texture(tex, texcoords + vec2(0.0, ofst)).r;\n"
+                               "    }\n"
+                               "    for (int i = 18; i < 21; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 10.0) / w;\n"
+                               "        response.b += kernel28[i] * texture(tex, texcoords + vec2(0.0, ofst)).r;\n"
+                               "    }\n"
+                               "    pixel = response;\n"
+                               "}\n";
 
     std::string detHFs = "#version 330\n"
                         "out float pixel;\n"
@@ -369,21 +565,20 @@ void WAIApp::initTestProgram()
                         "void main()\n"
                         "{\n"
                         "    \n"
-                        "    float gxx = texture(tgxx, texcoords).r;\n"
-                        "    float gyy = texture(tgyy, texcoords).r;\n"
-                        "    float gxy = texture(tgxy, texcoords).r;\n"
-                        "    float v = 50 * (gxx * gyy - gxy * gxy);\n"
-                        "    if (v < 0.5)\n"
-                        "    {\n"
-                        "       pixel = 0.0;\n"
-                        "    }\n"
-                        "    else\n"
-                        "    {\n"
-                        "       pixel = v;\n"
-                        "    }\n"
+                        "    vec3 gxx = texture(tgxx, texcoords).rgb;\n"
+                        "    vec3 gyy = texture(tgyy, texcoords).rgb;\n"
+                        "    vec3 gxy = texture(tgxy, texcoords).rgb;\n"
+                        "    vec3 det = abs(gxx * gyy - gxy * gxy);\n"
+                        "    vec3 trace = gxx + gyy;\n"
+                        "    vec3 r = trace*trace / det;\n"
+                        "    float maxd = max(det.x, max(det.y, det.z));\n"
+                        "    float maxr = max(r.x, max(r.y, r.z));\n"
+                        "    float minr = min(r.x, min(r.y, r.z));\n"
+                        "    pixel = 0.0;\n"
+                        "    if (maxr < 1.05 && minr > 0.95) { pixel = 100.0 * maxd; }\n"
                         "}\n";
 
-    std::string hnmsFs = "#version 330\n"
+    std::string nmsxFs = "#version 330\n"
                         "out float pixel;\n"
                         "in vec2 texcoords;\n"
                         "uniform sampler2D tex;\n"
@@ -391,21 +586,17 @@ void WAIApp::initTestProgram()
                         "\n"
                         "void main()\n"
                         "{\n"
-                        "    \n"
                         "    float o = texture(tex, texcoords).r;\n"
                         "    float px = texture(tex, texcoords + vec2(1.0/w, 0.0f)).r;\n"
                         "    float nx = texture(tex, texcoords - vec2(1.0/w, 0.0f)).r;\n"
+                        "    pixel = 1.0;\n"
                         "    if (o <= nx || o <= px)\n"
                         "    {\n"
                         "       pixel = 0.0;\n"
                         "    }\n"
-                        "    else\n"
-                        "    {\n"
-                        "       pixel = o;\n"
-                        "    }\n"
                         "}\n";
 
-    std::string vnmsFs = "#version 330\n"
+    std::string nmsyFs = "#version 330\n"
                         "out float pixel;\n"
                         "in vec2 texcoords;\n"
                         "uniform sampler2D tex;\n"
@@ -417,15 +608,26 @@ void WAIApp::initTestProgram()
                         "    float o = texture(tex, texcoords).r;\n"
                         "    float py = texture(tex, texcoords + vec2(0.0f, 1.0/w)).r;\n"
                         "    float ny = texture(tex, texcoords - vec2(0.0f, 1.0/w)).r;\n"
+                        "    pixel = 1.0;\n"
                         "    if (o <= ny || o <= py)\n"
                         "    {\n"
                         "       pixel = 0.0;\n"
                         "    }\n"
-                        "    else\n"
-                        "    {\n"
-                        "       pixel = o;\n"
-                        "    }\n"
                         "}\n";
+
+    std::string nmszFs = "#version 330\n"
+                         "out float pixel;\n"
+                         "in vec2 texcoords;\n"
+                         "uniform sampler2D tex;\n"
+                         "\n"
+                         "void main()\n"
+                         "{\n"
+                         "    \n"
+                         "    float o = texture(tex, texcoords).g;\n"
+                         "    float pz = texture(tex, texcoords).r;\n"
+                         "    float nz = texture(tex, texcoords).b;\n"
+                         "    pixel = max(nz, max(o, pz));\n"
+                         "}\n";
 
 #endif
 
@@ -437,8 +639,9 @@ void WAIApp::initTestProgram()
     GLuint fGx = buildShaderFromSource(hGaussianFs, GL_FRAGMENT_SHADER);
     GLuint fGy = buildShaderFromSource(vGaussianFs, GL_FRAGMENT_SHADER);
     GLuint fdetH = buildShaderFromSource(detHFs, GL_FRAGMENT_SHADER);
-    GLuint fnmsx = buildShaderFromSource(hnmsFs, GL_FRAGMENT_SHADER);
-    GLuint fnmsy = buildShaderFromSource(vnmsFs, GL_FRAGMENT_SHADER);
+    GLuint fnmsx = buildShaderFromSource(nmsxFs, GL_FRAGMENT_SHADER);
+    GLuint fnmsy = buildShaderFromSource(nmsyFs, GL_FRAGMENT_SHADER);
+    GLuint fnmsz = buildShaderFromSource(nmszFs, GL_FRAGMENT_SHADER);
 
     glAttachShader(glslKP.d2Gdx2, vscreenQuad);
     glAttachShader(glslKP.d2Gdx2, fd2Gdx2);
@@ -476,6 +679,10 @@ void WAIApp::initTestProgram()
     glAttachShader(glslKP.nmsy, fnmsy);
     glLinkProgram(glslKP.nmsy);
 
+    glAttachShader(glslKP.nmsz, vscreenQuad);
+    glAttachShader(glslKP.nmsz, fnmsz);
+    glLinkProgram(glslKP.nmsz);
+
     GLuint vertexLoc = glGetAttribLocation(glslKP.d2Gdx2, "vcoords");
     glslKP.d2Gdx2TexLoc = glGetUniformLocation(glslKP.d2Gdx2, "tex");
     glslKP.d2Gdx2WLoc = glGetUniformLocation(glslKP.d2Gdx2, "w");
@@ -496,6 +703,7 @@ void WAIApp::initTestProgram()
     glslKP.nmsxWLoc = glGetUniformLocation(glslKP.nmsx, "w");
     glslKP.nmsyTexLoc = glGetUniformLocation(glslKP.nmsy, "tex");
     glslKP.nmsyWLoc = glGetUniformLocation(glslKP.nmsy, "w");
+    glslKP.nmszTexLoc = glGetUniformLocation(glslKP.nmsz, "tex");
 
     float vertices[12] = {-1, -1,  0,
                            1, -1,  0,
@@ -522,16 +730,8 @@ void WAIApp::initTestProgram()
     glBindVertexArray(0);
 
     glGenTextures(1, &glslKP.grayTexture);
-    glGenTextures(3, glslKP.renderTextures);
-    glGenTextures(1, &glslKP.Gxx);
-    glGenTextures(1, &glslKP.Gyy);
-    glGenTextures(1, &glslKP.Gxy);
+    glGenTextures(8, glslKP.renderTextures);
     glGenTextures(2, glslKP.outTextures);
-
-    std::cout << "Texture" << std::endl;
-    std::cout << glslKP.Gxx << std::endl;
-    std::cout << glslKP.Gyy << std::endl;
-    std::cout << glslKP.Gxy << std::endl;
 
     glBindTexture(GL_TEXTURE_2D, glslKP.grayTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -548,7 +748,25 @@ void WAIApp::initTestProgram()
                  GL_UNSIGNED_BYTE, // data type
                  nullptr);         // image data pointer
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 6; i++)
+    {
+        glBindTexture(GL_TEXTURE_2D, glslKP.renderTextures[i]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+        glTexImage2D(GL_TEXTURE_2D,    // target texture type 1D, 2D or 3D
+                     0,                // Base level for mipmapped textures
+                     GL_RGB,           // internal format: e.g. GL_RGBA, see spec.
+                     scrWidth,         // image width
+                     scrHeight,        // image height
+                     0,                // border pixels: must be 0
+                     GL_RGB,           // data format: e.g. GL_RGBA, see spec.
+                     GL_UNSIGNED_BYTE, // data type
+                     nullptr);         // image data pointer
+    }
+
+    for (int i = 6; i < 8; i++)
     {
         glBindTexture(GL_TEXTURE_2D, glslKP.renderTextures[i]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -565,7 +783,6 @@ void WAIApp::initTestProgram()
                      GL_UNSIGNED_BYTE, // data type
                      nullptr);         // image data pointer
     }
-
     for (int i = 0; i < 2; i++)
     {
         glBindTexture(GL_TEXTURE_2D, glslKP.outTextures[i]);
@@ -584,62 +801,27 @@ void WAIApp::initTestProgram()
                      nullptr);         // image data pointer
     }
 
-    glBindTexture(GL_TEXTURE_2D, glslKP.Gxx);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    glTexImage2D(GL_TEXTURE_2D, // target texture type 1D, 2D or 3D
-                 0,             // Base level for mipmapped textures
-                 GL_RED,        // internal format: e.g. GL_RGBA, see spec.
-                 scrWidth,      // image width
-                 scrHeight,     // image height
-                 0,             // border pixels: must be 0
-                 GL_RED,        // data format: e.g. GL_RGBA, see spec.
-                 GL_UNSIGNED_BYTE,      // data type
-                 nullptr);      // image data pointer
+    for (int i = 0; i < 8; i++)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.renderTextures[i], 0);
+    }
 
-    glBindTexture(GL_TEXTURE_2D, glslKP.Gyy);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    glTexImage2D(GL_TEXTURE_2D, // target texture type 1D, 2D or 3D
-                 0,             // Base level for mipmapped textures
-                 GL_RED,        // internal format: e.g. GL_RGBA, see spec.
-                 scrWidth,      // image width
-                 scrHeight,     // image height
-                 0,             // border pixels: must be 0
-                 GL_RED,        // data format: e.g. GL_RGBA, see spec.
-                 GL_UNSIGNED_BYTE,      // data type
-                 nullptr);      // image data pointer
+    for (int i = 0; i < 2; i++)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, glslKP.framebuffers[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.outTextures[i], 0);
+    }
 
-    glBindTexture(GL_TEXTURE_2D, glslKP.Gxy);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    glTexImage2D(GL_TEXTURE_2D, // target texture type 1D, 2D or 3D
-                 0,             // Base level for mipmapped textures
-                 GL_RED,        // internal format: e.g. GL_RGBA, see spec.
-                 scrWidth,      // image width
-                 scrHeight,     // image height
-                 0,             // border pixels: must be 0
-                 GL_RED,        // data format: e.g. GL_RGBA, see spec.
-                 GL_UNSIGNED_BYTE,      // data type
-                 nullptr);      // image data pointer
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void WAIApp::gxx()
 {
     glUseProgram(glslKP.d2Gdx2);
-    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[0]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.renderTextures[0], 0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[D2GDX2]);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, glslKP.grayTexture);
-    glUniform1i(glslKP.d2Gdx2TexLoc, 0);
+    glUniform1i(glslKP.d2Gdx2TexLoc, INPUT_TEXTURE);
     glUniform1f(glslKP.d2Gdx2WLoc, scrWidth);
     glBindVertexArray(glslKP.vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
@@ -647,34 +829,22 @@ void WAIApp::gxx()
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
     glUseProgram(glslKP.Gy);
-    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[3]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.Gxx, 0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[GXX]);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, glslKP.renderTextures[0]);
-    glUniform1i(glslKP.GyTexLoc, 0);
+    glUniform1i(glslKP.GyTexLoc, D2GDX2);
     glUniform1f(glslKP.GyWLoc, scrHeight);
     glBindVertexArray(glslKP.vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glUseProgram(0);
 }
 
 void WAIApp::gyy()
 {
     glUseProgram(glslKP.d2Gdy2);
-    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[1]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.renderTextures[1], 0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[D2GDY2]);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, glslKP.grayTexture);
-    glUniform1i(glslKP.d2Gdy2TexLoc, 0);
+    glUniform1i(glslKP.d2Gdy2TexLoc, INPUT_TEXTURE);
     glUniform1f(glslKP.d2Gdy2WLoc, scrHeight);
     glBindVertexArray(glslKP.vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
@@ -682,34 +852,22 @@ void WAIApp::gyy()
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
     glUseProgram(glslKP.Gx);
-    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[4]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.Gyy, 0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[GYY]);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, glslKP.renderTextures[1]);
-    glUniform1i(glslKP.GxTexLoc, 0);
+    glUniform1i(glslKP.GxTexLoc, D2GDY2);
     glUniform1f(glslKP.GxWLoc, scrWidth);
     glBindVertexArray(glslKP.vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glUseProgram(0);
 }
 
 void WAIApp::gxy()
 {
     glUseProgram(glslKP.dGdx);
-    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[2]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.renderTextures[2], 0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[DGDX]);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, glslKP.grayTexture);
-    glUniform1i(glslKP.dGdxTexLoc, 0);
+    glUniform1i(glslKP.dGdxTexLoc, INPUT_TEXTURE);
     glUniform1f(glslKP.dGdxWLoc, scrWidth);
     glBindVertexArray(glslKP.vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
@@ -717,61 +875,37 @@ void WAIApp::gxy()
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
     glUseProgram(glslKP.dGdy);
-    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[5]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.Gxy, 0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[GXY]);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, glslKP.renderTextures[2]);
-    glUniform1i(glslKP.GyTexLoc, 0);
+    glUniform1i(glslKP.GyTexLoc, DGDX);
     glUniform1f(glslKP.GyWLoc, scrHeight);
     glBindVertexArray(glslKP.vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glUseProgram(0);
 }
 
 void WAIApp::detH()
 {
     glUseProgram(glslKP.detH);
-    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[0]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.renderTextures[0], 0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[DETH]);
 
-    glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_2D, glslKP.Gxx);
-    glUniform1i(glslKP.detHGxxLoc, 5);
-    glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, glslKP.Gyy);
-    glUniform1i(glslKP.detHGyyLoc, 6);
-    glActiveTexture(GL_TEXTURE7);
-    glBindTexture(GL_TEXTURE_2D, glslKP.Gxy);
-    glUniform1i(glslKP.detHGxyLoc, 7);
+    glUniform1i(glslKP.detHGxxLoc, GXX);
+    glUniform1i(glslKP.detHGyyLoc, GYY);
+    glUniform1i(glslKP.detHGxyLoc, GXY);
 
     glBindVertexArray(glslKP.vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glUseProgram(0);
 }
 
 void WAIApp::nms(int id)
 {
     glUseProgram(glslKP.nmsx);
-    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[1]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.renderTextures[1], 0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[NMSX]);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, glslKP.renderTextures[0]);
-    glUniform1i(glslKP.nmsxTexLoc, 0);
+    glUniform1i(glslKP.nmsxTexLoc, DETH);
     glUniform1f(glslKP.nmsxWLoc, scrWidth);
     glBindVertexArray(glslKP.vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
@@ -780,21 +914,25 @@ void WAIApp::nms(int id)
 
     glUseProgram(glslKP.nmsy);
     glBindFramebuffer(GL_FRAMEBUFFER, glslKP.framebuffers[id]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.outTextures[id], 0);
-    glClear(GL_COLOR_BUFFER_BIT);
 
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, glslKP.renderTextures[1]);
-    glUniform1i(glslKP.nmsyTexLoc, 1);
+    glUniform1i(glslKP.nmsyTexLoc, NMSX);
     glUniform1f(glslKP.nmsyWLoc, scrHeight);
     glBindVertexArray(glslKP.vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glUseProgram(0);
+    /*
+    glUseProgram(glslKP.nmsz);
+    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.framebuffers[id]);
+
+    glUniform1i(glslKP.nmszTexLoc, NMSY);
+    glBindVertexArray(glslKP.vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    */
+
 }
 
 void WAIApp::gpu_kp()
@@ -804,12 +942,22 @@ void WAIApp::gpu_kp()
     glslKP.ready = glslKP.curr;
     glslKP.curr = (glslKP.curr+1) % 2; //Set rendering F
 
+    glActiveTexture(GL_TEXTURE0 + INPUT_TEXTURE);
+    glBindTexture(GL_TEXTURE_2D, glslKP.grayTexture);
+
+    for (int i = 0; i < 8; i++)
+    {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, glslKP.renderTextures[i]);
+    }
+
     gxx();
     gyy();
     gxy();
     detH();
     nms(glslKP.curr);
 
+    glUseProgram(0);
     glEnable(GL_DEPTH_TEST);
 }
 

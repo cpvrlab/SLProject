@@ -95,6 +95,19 @@ class WAIApp
     static bool pauseVideo; // pause video file
     static int  videoCursorMoveIndex;
 
+#define D2GDX2 0
+#define D2GDY2 1
+#define DGDX   2
+#define GXX    3
+#define GYY    4
+#define GXY    5
+
+#define DETH   6
+#define NMSX   7
+#define NMSY   8
+
+#define INPUT_TEXTURE 9
+
     struct GLSLKP
     {
         GLuint yuv422Converter;
@@ -109,6 +122,7 @@ class WAIApp
         GLuint detH;
         GLuint nmsx;
         GLuint nmsy;
+        GLuint nmsz;
 
         GLuint d2Gdx2WLoc;
         GLuint d2Gdy2WLoc;
@@ -129,13 +143,11 @@ class WAIApp
         GLuint detHGxyLoc;
         GLuint nmsxTexLoc;
         GLuint nmsyTexLoc;
+        GLuint nmszTexLoc;
 
         GLuint grayTexture;
-        GLuint renderTextures[3];
-        GLuint renderFBO[6];
-        GLuint Gxx;
-        GLuint Gyy;
-        GLuint Gxy;
+        GLuint renderTextures[8];
+        GLuint renderFBO[8];
 
         GLuint vao;
         GLuint vbo;
