@@ -20,11 +20,9 @@
 //-----------------------------------------------------------------------------
 
 AppDemoGuiTestOpen::AppDemoGuiTestOpen(const std::string& name,
-                                       WAICalibration*    wc,
                                        SLNode*            mapNode,
                                        bool*              activator)
   : AppDemoGuiInfosDialog(name, activator),
-    _wc(wc),
     _mapNode(mapNode)
 {
     _currentItem = 0;

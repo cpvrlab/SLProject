@@ -17,20 +17,19 @@
 #include <WAIMapStorage.h>
 #include <AppDemoGuiTestWrite.h>
 #include <CVCapture.h>
-#include <WAICalibration.h>
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------
 
 AppDemoGuiTestWrite::AppDemoGuiTestWrite(const std::string& name,
-                                         WAICalibration*    wc,
+                                         CVCalibration*     calib,
                                          SLNode*            mapNode,
                                          cv::VideoWriter*   writer1,
                                          cv::VideoWriter*   writer2,
                                          std::ofstream*     gpsDataStream,
                                          bool*              activator)
   : AppDemoGuiInfosDialog(name, activator),
-    _wc(wc),
+    _calib(calib),
     _mapNode(mapNode),
     _videoWriter(writer1),
     _videoWriterInfo(writer2),
@@ -60,7 +59,7 @@ void AppDemoGuiTestWrite::prepareExperiment(std::string testScene, std::string w
 
     _date = Utils::getDateTime2String();
 
-    std::string filename = Utils::toLowerString(testScene) + "_" + Utils::toLowerString(weather) + "_" + _date + "_" + _wc->computerInfo() + "_";
+    std::string filename = Utils::toLowerString(testScene) + "_" + Utils::toLowerString(weather) + "_" + _date + "_" + _calib->computerModel() + "_";
     _size                = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
 
     mapname         = filename + mode->getKPextractor()->GetName() + ".json";
@@ -68,7 +67,7 @@ void AppDemoGuiTestWrite::prepareExperiment(std::string testScene, std::string w
     runvideoname    = filename + std::to_string(_size.width) + "x" + std::to_string(_size.height) + "_run.avi";
     gpsname         = filename + std::to_string(_size.width) + "x" + std::to_string(_size.height) + ".txt";
     settingname     = filename + ".xml";
-    calibrationname = WAIApp::wc->filename();
+    calibrationname = _calib->calibFileName();
 }
 
 void AppDemoGuiTestWrite::saveGPSData(std::string path)
@@ -103,9 +102,9 @@ void AppDemoGuiTestWrite::saveCalibration(std::string calib)
     if (Utils::fileExists(calib))
         return;
 
-    if (_wc->getState() == CalibrationState_Calibrated)
+    if (_calib->state() == CS_calibrated)
     {
-        _wc->saveToFile(calib);
+        _calib->save(calib);
     }
     else
     {

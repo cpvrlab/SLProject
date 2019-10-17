@@ -18,14 +18,14 @@
 #include <SLMat4.h>
 #include <SLNode.h>
 #include <AppWAI.h>
-#include <WAICalibration.h>
+#include <CVCalibration.h>
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
 {
     public:
     AppDemoGuiTestWrite(const std::string& name,
-                        WAICalibration*    wc,
+                        CVCalibration*     calib,
                         SLNode*            mapNode,
                         cv::VideoWriter*   writer1,
                         cv::VideoWriter*   writer2,
@@ -62,7 +62,7 @@ class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
     std::vector<std::string> _conditions;
     cv::VideoWriter*         _videoWriter;
     cv::VideoWriter*         _videoWriterInfo;
-    WAICalibration*          _wc;
+    CVCalibration*           _calib;
 
     int _currentSceneId;
     int _currentConditionId;

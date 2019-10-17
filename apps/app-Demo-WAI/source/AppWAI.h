@@ -76,7 +76,7 @@ class WAIApp
 
     static GUIPreferences     uiPrefs;
     static AppWAIDirectories* dirs;
-    static WAICalibration*    wc;
+
     static int                scrWidth;
     static int                scrHeight;
     static int                defaultScrWidth;
@@ -102,8 +102,8 @@ class WAIApp
     static std::string experimentsDir;
 
     static cv::Size2i videoFrameSize;
-    static bool pauseVideo; // pause video file
-    static int  videoCursorMoveIndex;
+    static bool       pauseVideo; // pause video file
+    static int        videoCursorMoveIndex;
 };
 
 #endif

@@ -22,7 +22,6 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {
     public:
     AppDemoGuiSlamLoad(const std::string& name,
-                       WAICalibration*    wc,
                        std::string        slamRootDir,
                        std::string        calibrationsDir,
                        std::string        vocabulariesDir,
@@ -62,8 +61,7 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
     bool _serial;
     bool _trackingOnly;
 
-    WAICalibration* _wc;
-    SLNode*         _mapNode;
+    SLNode* _mapNode;
 };
 
 #endif

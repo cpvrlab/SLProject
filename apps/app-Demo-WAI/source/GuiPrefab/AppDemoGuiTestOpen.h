@@ -18,14 +18,12 @@
 
 #include <SLMat4.h>
 #include <SLNode.h>
-#include <WAICalibration.h>
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiTestOpen : public AppDemoGuiInfosDialog
 {
     public:
     AppDemoGuiTestOpen(const std::string& name,
-                       WAICalibration*    wc,
                        SLNode*            mapNode,
                        bool*              activator);
 
@@ -51,8 +49,6 @@ class AppDemoGuiTestOpen : public AppDemoGuiInfosDialog
     std::vector<TestInfo> _infos;
     SLNode*               _mapNode;
     int                   _currentItem;
-
-    WAICalibration* _wc;
 };
 
 #endif

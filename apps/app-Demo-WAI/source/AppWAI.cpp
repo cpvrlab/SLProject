@@ -47,7 +47,7 @@ SLGLTexture*       WAIApp::cpvrLogo   = nullptr;
 SLGLTexture*       WAIApp::videoImage = nullptr;
 AppWAIDirectories* WAIApp::dirs       = nullptr;
 AppWAIScene*       WAIApp::waiScene   = nullptr;
-WAICalibration*    WAIApp::wc         = nullptr;
+
 int                WAIApp::scrWidth;
 int                WAIApp::scrHeight;
 int                WAIApp::defaultScrWidth;
@@ -91,7 +91,6 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
     vocDir         = dirs->writableDir + "voc/";
     experimentsDir = dirs->writableDir + "experiments/";
 
-    wc              = new WAICalibration();
     waiScene        = new AppWAIScene();
     videoWriter     = new cv::VideoWriter();
     videoWriterInfo = new cv::VideoWriter();
@@ -237,25 +236,26 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         return result;
     }
 
+    CVCapture* cap = CVCapture::instance();
     // 1. Initialize CVCapture with either video file or live video
     if (useVideoFile)
     {
-        CVCapture::instance()->videoType(VT_FILE);
-        CVCapture::instance()->videoFilename = videoFile;
-        CVCapture::instance()->videoLoops    = true;
-        videoFrameSize                       = CVCapture::instance()->openFile();
+        cap->videoType(VT_FILE);
+        cap->videoFilename = videoFile;
+        cap->videoLoops    = true;
+        videoFrameSize     = cap->openFile();
     }
     else
     {
-        CVCapture::instance()->videoType(VT_MAIN);
+        cap->videoType(VT_MAIN);
         //open(0) only has an effect on desktop. On Android it just returns {0,0}
-        CVCapture::instance()->open(0);
+        cap->open(0);
 
         videoFrameSize = cv::Size2i(defaultScrWidth, defaultScrHeight);
     }
 
     // 2. Load Calibration
-    if (!wc->loadFromFile(calibrationFile))
+    if (!cap->activeCalib->load(calibDir, Utils::getFileName(calibrationFile), 0, 0))
     {
         result.errorString = "Error when loading calibration from file: " +
                              calibrationFile;
@@ -264,8 +264,8 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
 
     float videoAspectRatio = (float)videoFrameSize.width / (float)videoFrameSize.height;
     float epsilon          = 0.01f;
-    if (wc->aspectRatio() > videoAspectRatio + epsilon ||
-        wc->aspectRatio() < videoAspectRatio - epsilon)
+    if (cap->activeCalib->imageAspectRatio() > videoAspectRatio + epsilon ||
+        cap->activeCalib->imageAspectRatio() < videoAspectRatio - epsilon)
     {
         result.errorString = "Calibration aspect ratio does not fit video aspect ratio.\nCalib file: " +
                              calibrationFile + "\nVideo file: " +
@@ -273,16 +273,12 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         return result;
     }
 
-    //CVCapture::instance()->activeCalib->load(calibDir, Utils::getFileName(calibrationFile), 0, 0);
-
     // 3. Adjust FOV of camera node according to new calibration
-    waiScene->cameraNode->fov(wc->calcCameraVerticalFOV());
-    // adjust viewport of sceneview
-    //sv->setViewportFromRatio(SLVec2i(4, 3), SLViewportAlign::VA_center, true);
+    waiScene->cameraNode->fov(cap->activeCalib->cameraFovVDeg());
 
     // 4. Create new mode ORBSlam
-    mode = new WAI::ModeOrbSlam2(wc->cameraMat(),
-                                 wc->distortion(),
+    mode = new WAI::ModeOrbSlam2(cap->activeCalib->cameraMat(),
+                                 cap->activeCalib->distortion(),
                                  serial,
                                  saveVideoFrames,
                                  onlyTracking,
@@ -347,7 +343,6 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosSensors("sensors", &uiPrefs.showInfosSensors));
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosTracking("tracking", uiPrefs));
     AppDemoGui::addInfoDialog(new AppDemoGuiSlamLoad("slam load",
-                                                     wc,
                                                      dirs->writableDir + "erleb-AR/locations/",
                                                      dirs->writableDir + "calibrations/",
                                                      dirs->writableDir + "voc/",
@@ -358,7 +353,7 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiSceneGraph("scene graph", &uiPrefs.showSceneGraph));
     AppDemoGui::addInfoDialog(new AppDemoGuiStatsDebugTiming("debug timing", &uiPrefs.showStatsDebugTiming));
     AppDemoGui::addInfoDialog(new AppDemoGuiStatsTiming("timing", &uiPrefs.showStatsTiming));
-    AppDemoGui::addInfoDialog(new AppDemoGuiStatsVideo("video", wc, &uiPrefs.showStatsVideo));
+    AppDemoGui::addInfoDialog(new AppDemoGuiStatsVideo("video", CVCapture::instance()->activeCalib, &uiPrefs.showStatsVideo));
     AppDemoGui::addInfoDialog(new AppDemoGuiTrackedMapping("tracked mapping", &uiPrefs.showTrackedMapping));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTransform("transform", &uiPrefs.showTransform));
@@ -368,12 +363,11 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiVideoControls("video load", &uiPrefs.showVideoControls));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTestOpen("Tests Settings",
-                                                     wc,
                                                      waiScene->mapNode,
                                                      &uiPrefs.showTestSettings));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTestWrite("Test Writer",
-                                                      wc,
+                                                      CVCapture::instance()->activeCalib,
                                                       waiScene->mapNode,
                                                       videoWriter,
                                                       videoWriterInfo,
@@ -532,6 +526,8 @@ bool WAIApp::update()
 
     AVERAGE_TIMING_STOP("WAIAppUpdate");
 
+    //we can undistort the image now
+
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -539,26 +535,47 @@ bool WAIApp::updateTracking()
 {
     bool iKnowWhereIAm = false;
 
-    if (CVCapture::instance()->videoType() != VT_NONE && !CVCapture::instance()->lastFrame.empty())
+    CVCapture* cap = CVCapture::instance();
+    if (cap->videoType() != VT_NONE && !cap->lastFrame.empty())
     {
         if (videoWriter->isOpened())
         {
-            videoWriter->write(CVCapture::instance()->lastFrame);
+            videoWriter->write(cap->lastFrame);
         }
 
-        iKnowWhereIAm = mode->update(CVCapture::instance()->lastFrameGray,
-                                     CVCapture::instance()->lastFrame);
+        iKnowWhereIAm = mode->update(cap->lastFrameGray,
+                                     cap->lastFrame);
 
-        videoImage->copyVideoImage(CVCapture::instance()->lastFrame.cols,
-                                   CVCapture::instance()->lastFrame.rows,
-                                   CVCapture::instance()->format,
-                                   CVCapture::instance()->lastFrame.data,
-                                   CVCapture::instance()->lastFrame.isContinuous(),
-                                   true);
+        //copy image to video texture
+        if (videoImage && cap->activeCalib)
+        {
+            if (cap->activeCalib->state() == CS_calibrated && cap->activeCalib->showUndistorted())
+            {
+                CVMat undistorted;
+                cap->activeCalib->remap(cap->lastFrame, undistorted);
+
+                videoImage->copyVideoImage(undistorted.cols,
+                                           undistorted.rows,
+                                           cap->format,
+                                           undistorted.data,
+                                           undistorted.isContinuous(),
+                                           true);
+            }
+            else
+            {
+                //cap->videoTexture()->copyVideoImage(cap->lastFrame.cols,
+                videoImage->copyVideoImage(cap->lastFrame.cols,
+                                           cap->lastFrame.rows,
+                                           cap->format,
+                                           cap->lastFrame.data,
+                                           cap->lastFrame.isContinuous(),
+                                           true);
+            }
+        }
 
         if (videoWriterInfo->isOpened())
         {
-            videoWriterInfo->write(CVCapture::instance()->lastFrame);
+            videoWriterInfo->write(cap->lastFrame);
         }
 
         if (gpsDataStream.is_open())

@@ -20,14 +20,12 @@
 #include <WAIMapStorage.h>
 
 AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
-                                       WAICalibration*    wc,
                                        std::string        slamRootDir,
                                        std::string        calibrationsDir,
                                        std::string        vocabulariesDir,
                                        SLNode*            mapNode,
                                        bool*              activator)
   : AppDemoGuiInfosDialog(name, activator),
-    _wc(wc),
     _slamRootDir(slamRootDir),
     _calibrationsDir(calibrationsDir),
     _vocabulariesDir(vocabulariesDir),

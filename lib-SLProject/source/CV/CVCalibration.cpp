@@ -21,6 +21,7 @@ for a good top down information.
 #include <Utils.h>
 #include <ftplib.h>
 #include <algorithm> // std::max
+#include <SLApplication.h>
 
 using namespace cv;
 using namespace std;
@@ -80,7 +81,8 @@ CVCalibration::CVCalibration()
     _devSensorSizeH(0.0f),
     _isMirroredH(false),
     _isMirroredV(false)
-{}
+{
+}
 //-----------------------------------------------------------------------------
 //! Resets the calibration to the uncalibrated state
 void CVCalibration::clear()
@@ -161,6 +163,21 @@ bool CVCalibration::load(const string& calibDir,
         fs["reprojectionError"] >> _reprojectionError;
         fs["calibrationTime"] >> _calibrationTime;
         fs["camSizeIndex"] >> _camSizeIndex;
+        if (!fs["computerModel"].empty())
+            fs["computerModel"] >> _computerModel;
+        if (_computerModel.empty())
+        {
+            std::vector<std::string> stringParts;
+            Utils::splitString(Utils::getFileNameWOExt(_calibFileName), '_', stringParts);
+            if (stringParts.size() >= 3)
+                _computerModel = stringParts[1];
+            else
+            {
+                _computerModel = SLApplication::getComputerInfos();
+                std::cout << "Assuming calibration is for current device" << std::endl;
+            }
+        }
+
         _state = _numCaptured ? CS_calibrated : CS_uncalibrated;
     }
 
@@ -182,9 +199,14 @@ bool CVCalibration::load(const string& calibDir,
 }
 //-----------------------------------------------------------------------------
 //! Saves the camera calibration parameters to the config file
-void CVCalibration::save()
+void CVCalibration::save(std::string forceSavePath)
 {
-    string          fullPathAndFilename = _calibDir + _calibFileName;
+    string fullPathAndFilename;
+    if (forceSavePath.empty())
+        fullPathAndFilename = _calibDir + _calibFileName;
+    else
+        fullPathAndFilename = forceSavePath;
+
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 
     if (!fs.isOpened())
@@ -294,6 +316,7 @@ void CVCalibration::calcCameraFov()
     _cameraFovHDeg = 2.0f * (float)atan2(cx, fx) * Utils::RAD2DEG;
     _cameraFovVDeg = 2.0f * (float)atan2(cy, fy) * Utils::RAD2DEG;
 }
+
 //-----------------------------------------------------------------------------
 //! Calculates the 3D positions of the chessboard corners
 void CVCalibration::calcBoardCorners3D(const CVSize& boardSize,
