@@ -28,6 +28,22 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <Windows.h>
+#include <stdio.h>
+
+#define MY_ASSERT(f) (void)((f) || !MyAssertFailedLine(__FILE__, __LINE__))
+
+//LPCWSTR
+BOOL MyAssertFailedLine(LPCSTR lpszFile, int nLine)
+{
+    char lpszMsg[512];
+    _snprintf(lpszMsg, 512, "MyAssert failed in %s on line %d.\nExit?", lpszFile, nLine);
+    lpszMsg[511] = '\0';
+    if (IDYES == ::MessageBoxA(NULL, lpszMsg, NULL, MB_YESNO))
+        ::PostQuitMessage(1);
+    return TRUE;
+}
+
 #include <WAIKeyFrame.h>
 #include <WAIMapPoint.h>
 #include <WAIKeyFrameDB.h>
@@ -449,6 +465,7 @@ void WAIKeyFrame::UpdateConnections(bool buildSpanningTree)
             {
                 mpParent = mvpOrderedConnectedKeyFrames.front();
                 mpParent->AddChild(this);
+                MY_ASSERT(!findChildRecursive(mpParent));
             }
             mbFirstConnection = false;
         }
@@ -470,6 +487,8 @@ void WAIKeyFrame::EraseChild(WAIKeyFrame* pKF)
 void WAIKeyFrame::ChangeParent(WAIKeyFrame* pKF)
 {
     unique_lock<mutex> lockCon(mMutexConnections);
+    MY_ASSERT(!findChildRecursive(pKF));
+
     mpParent = pKF;
     pKF->AddChild(this);
 }
@@ -587,6 +606,7 @@ void WAIKeyFrame::SetBadFlag()
                 WAIKeyFrame* pKF = *sit;
                 if (pKF->isBad())
                 {
+                    sit = mspChildrens.erase(sit);
                     continue;
                 }
 
@@ -596,19 +616,10 @@ void WAIKeyFrame::SetBadFlag()
                 {
                     for (set<WAIKeyFrame*>::iterator spcit = sParentCandidates.begin(), spcend = sParentCandidates.end(); spcit != spcend; spcit++)
                     {
-                        ////list of connected contains itself
-                        //if (vpConnected[i]->mnId == pKF->mnId)
-                        //    throw std::runtime_error("bad stuff 1");
-                        ////parent equals child itself
-                        //if ((*spcit)->mnId == pKF->mnId)
-                        //    throw std::runtime_error("bad stuff 2");
-
                         if (vpConnected[i]->mnId == (*spcit)->mnId)
                         {
                             int w = pKF->GetWeight(vpConnected[i]);
-                            //ghm1: (added pC != pP because of exception in ChangeParent) this could only prevent the next ChangeParent from crashing.
-                            //This case would originiate from a child containing itself in vpConnected. It could still crash later
-                            if (w > max /*&& pC != pP*/)
+                            if (w > max && pKF != vpConnected[i])
                             {
                                 pC        = pKF;
                                 pP        = vpConnected[i];
@@ -640,14 +651,28 @@ void WAIKeyFrame::SetBadFlag()
             for (set<WAIKeyFrame*>::iterator sit = mspChildrens.begin(); sit != mspChildrens.end(); sit++)
             {
                 //check that parent is not the child itself
-                //if ((*sit)->mnId != mpParent->mnId)
-                //{
-                (*sit)->ChangeParent(mpParent);
-                //}
-                //else
-                //{
-                //    vector<WAIKeyFrame*> vpConnected = (*sit)->GetVectorCovisibleKeyFrames();
-                //}
+                if ((*sit)->mnId != mpParent->mnId)
+                {
+                    (*sit)->ChangeParent(mpParent);
+                }
+                else //assign the second best covisible (quick fix, not a very good solution)
+                {
+                    vector<WAIKeyFrame*> vpConnected = (*sit)->GetVectorCovisibleKeyFrames();
+                    for (size_t i = 0, iend = vpConnected.size(); i < iend; i++)
+                    {
+                        //assign the first we find that is not the child itself as parent
+                        if (vpConnected[i]->mnId != (*sit)->mnId)
+                        {
+                            //check recursively if parentCandidate is not among children
+                            WAIKeyFrame* parentCandidate = vpConnected[i];
+                            if (!findChildRecursive(parentCandidate))
+                            {
+                                (*sit)->ChangeParent(mpParent);
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -659,6 +684,24 @@ void WAIKeyFrame::SetBadFlag()
     //ghm1: map pointer is only used to erase key frames here
     mpMap->EraseKeyFrame(this);
     _kfDb->erase(this);
+}
+//-----------------------------------------------------------------------------
+bool WAIKeyFrame::findChildRecursive(WAIKeyFrame* kf)
+{
+    for (auto it = mspChildrens.begin(); it != mspChildrens.end(); ++it)
+    {
+        if (*it != kf)
+        {
+            return (*it)->findChildRecursive(kf);
+        }
+        else
+        {
+            std::cout << "findChildRecursive found among children of id: " << (*it)->mnId << std::endl;
+            return true;
+        }
+    }
+
+    return false;
 }
 //-----------------------------------------------------------------------------
 bool WAIKeyFrame::isBad()
