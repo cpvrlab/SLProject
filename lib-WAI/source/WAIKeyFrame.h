@@ -123,6 +123,8 @@ class WAI_API WAIKeyFrame
     // Set/check bad flag
     void SetBadFlag();
     bool isBad();
+    // recursively check if kf is among children
+    bool findChildRecursive(WAIKeyFrame* kf);
 
     // Compute Scene Depth (q=2 median). Used in monocular.
     float ComputeSceneMedianDepth(const int q);

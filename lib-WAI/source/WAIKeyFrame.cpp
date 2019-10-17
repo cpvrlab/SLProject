@@ -587,6 +587,7 @@ void WAIKeyFrame::SetBadFlag()
                 WAIKeyFrame* pKF = *sit;
                 if (pKF->isBad())
                 {
+                    sit = mspChildrens.erase(sit);
                     continue;
                 }
 
@@ -596,19 +597,10 @@ void WAIKeyFrame::SetBadFlag()
                 {
                     for (set<WAIKeyFrame*>::iterator spcit = sParentCandidates.begin(), spcend = sParentCandidates.end(); spcit != spcend; spcit++)
                     {
-                        ////list of connected contains itself
-                        //if (vpConnected[i]->mnId == pKF->mnId)
-                        //    throw std::runtime_error("bad stuff 1");
-                        ////parent equals child itself
-                        //if ((*spcit)->mnId == pKF->mnId)
-                        //    throw std::runtime_error("bad stuff 2");
-
                         if (vpConnected[i]->mnId == (*spcit)->mnId)
                         {
                             int w = pKF->GetWeight(vpConnected[i]);
-                            //ghm1: (added pC != pP because of exception in ChangeParent) this could only prevent the next ChangeParent from crashing.
-                            //This case would originiate from a child containing itself in vpConnected. It could still crash later
-                            if (w > max /*&& pC != pP*/)
+                            if (w > max)
                             {
                                 pC        = pKF;
                                 pP        = vpConnected[i];
@@ -639,15 +631,7 @@ void WAIKeyFrame::SetBadFlag()
         {
             for (set<WAIKeyFrame*>::iterator sit = mspChildrens.begin(); sit != mspChildrens.end(); sit++)
             {
-                //check that parent is not the child itself
-                //if ((*sit)->mnId != mpParent->mnId)
-                //{
                 (*sit)->ChangeParent(mpParent);
-                //}
-                //else
-                //{
-                //    vector<WAIKeyFrame*> vpConnected = (*sit)->GetVectorCovisibleKeyFrames();
-                //}
             }
         }
 
@@ -659,6 +643,24 @@ void WAIKeyFrame::SetBadFlag()
     //ghm1: map pointer is only used to erase key frames here
     mpMap->EraseKeyFrame(this);
     _kfDb->erase(this);
+}
+//-----------------------------------------------------------------------------
+bool WAIKeyFrame::findChildRecursive(WAIKeyFrame* kf)
+{
+    for (auto it = mspChildrens.begin(); it != mspChildrens.end(); ++it)
+    {
+        if (*it != kf)
+        {
+            return (*it)->findChildRecursive(kf);
+        }
+        else
+        {
+            std::cout << "findChildRecursive found among children of id: " << (*it)->mnId << std::endl;
+            return true;
+        }
+    }
+
+    return false;
 }
 //-----------------------------------------------------------------------------
 bool WAIKeyFrame::isBad()
