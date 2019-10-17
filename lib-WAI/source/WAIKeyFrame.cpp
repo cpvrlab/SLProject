@@ -28,22 +28,6 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Windows.h>
-#include <stdio.h>
-
-#define MY_ASSERT(f) (void)((f) || !MyAssertFailedLine(__FILE__, __LINE__))
-
-//LPCWSTR
-BOOL MyAssertFailedLine(LPCSTR lpszFile, int nLine)
-{
-    char lpszMsg[512];
-    _snprintf(lpszMsg, 512, "MyAssert failed in %s on line %d.\nExit?", lpszFile, nLine);
-    lpszMsg[511] = '\0';
-    if (IDYES == ::MessageBoxA(NULL, lpszMsg, NULL, MB_YESNO))
-        ::PostQuitMessage(1);
-    return TRUE;
-}
-
 #include <WAIKeyFrame.h>
 #include <WAIMapPoint.h>
 #include <WAIKeyFrameDB.h>
@@ -465,7 +449,6 @@ void WAIKeyFrame::UpdateConnections(bool buildSpanningTree)
             {
                 mpParent = mvpOrderedConnectedKeyFrames.front();
                 mpParent->AddChild(this);
-                MY_ASSERT(!findChildRecursive(mpParent));
             }
             mbFirstConnection = false;
         }
@@ -487,8 +470,6 @@ void WAIKeyFrame::EraseChild(WAIKeyFrame* pKF)
 void WAIKeyFrame::ChangeParent(WAIKeyFrame* pKF)
 {
     unique_lock<mutex> lockCon(mMutexConnections);
-    MY_ASSERT(!findChildRecursive(pKF));
-
     mpParent = pKF;
     pKF->AddChild(this);
 }
@@ -619,7 +600,7 @@ void WAIKeyFrame::SetBadFlag()
                         if (vpConnected[i]->mnId == (*spcit)->mnId)
                         {
                             int w = pKF->GetWeight(vpConnected[i]);
-                            if (w > max && pKF != vpConnected[i])
+                            if (w > max)
                             {
                                 pC        = pKF;
                                 pP        = vpConnected[i];
@@ -650,29 +631,7 @@ void WAIKeyFrame::SetBadFlag()
         {
             for (set<WAIKeyFrame*>::iterator sit = mspChildrens.begin(); sit != mspChildrens.end(); sit++)
             {
-                //check that parent is not the child itself
-                if ((*sit)->mnId != mpParent->mnId)
-                {
-                    (*sit)->ChangeParent(mpParent);
-                }
-                else //assign the second best covisible (quick fix, not a very good solution)
-                {
-                    vector<WAIKeyFrame*> vpConnected = (*sit)->GetVectorCovisibleKeyFrames();
-                    for (size_t i = 0, iend = vpConnected.size(); i < iend; i++)
-                    {
-                        //assign the first we find that is not the child itself as parent
-                        if (vpConnected[i]->mnId != (*sit)->mnId)
-                        {
-                            //check recursively if parentCandidate is not among children
-                            WAIKeyFrame* parentCandidate = vpConnected[i];
-                            if (!findChildRecursive(parentCandidate))
-                            {
-                                (*sit)->ChangeParent(mpParent);
-                                break;
-                            }
-                        }
-                    }
-                }
+                (*sit)->ChangeParent(mpParent);
             }
         }
 

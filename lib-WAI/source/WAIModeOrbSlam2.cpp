@@ -961,6 +961,12 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
 
 bool WAI::ModeOrbSlam2::createInitialMapMonocular()
 {
+    //ghm1: reset nNextId to 0! This is important otherwise the first keyframe cannot be identified via its id and a lot of stuff gets messed up!
+    //One problem we identified is in UpdateConnections: the first one is not allowed to have a parent,
+    //because the second will set the first as a parent too. We get problems later during culling.
+    //This also fixes a problem in first GlobalBundleAdjustment which messed up the map after a reset.
+    WAIKeyFrame::nNextId = 0;
+
     // Create KeyFrames
     WAIKeyFrame* pKFini = new WAIKeyFrame(mInitialFrame, _map, mpKeyFrameDatabase);
     WAIKeyFrame* pKFcur = new WAIKeyFrame(mCurrentFrame, _map, mpKeyFrameDatabase);
@@ -1011,16 +1017,8 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular()
 
     //cout << "New Map created with " << _map->MapPointsInMap() << " points" << endl;
 
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //ghm1: change comprared to original implementation:
-    // I recognized that for a certain video after the first initialization after application start
-    // it worked and after the following resets the initial map was always messed up by the  GlobalBundleAdjustemnt
-    // on the two initial keyframes. I comment this for now, we have to test this further and understand,
-    // why the bundle adjustment has a different behaviour on multiple runs.
-
     // Bundle Adjustment
-    //Optimizer::GlobalBundleAdjustemnt(_map, 20);
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    Optimizer::GlobalBundleAdjustemnt(_map, 20);
 
     // Set median depth to 1
     float medianDepth    = pKFini->ComputeSceneMedianDepth(2);
