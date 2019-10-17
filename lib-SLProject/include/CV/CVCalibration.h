@@ -192,7 +192,7 @@ class CVCalibration
     string       calibrationTime() { return _calibrationTime; }
     string       calibDir() { return _calibDir; }
     string       calibFileName() { return _calibFileName; }
-    string       computerModel() { return _computerModel; }
+    string       computerInfos() { return _computerInfos; }
     string       stateStr()
     {
         switch (_state)
@@ -243,7 +243,7 @@ class CVCalibration
     float        _devFocalLength;         //!< Androids DeviceLensFocalLength
     float        _devSensorSizeW;         //!< Androids DeviceSensorPhysicalSizeW
     float        _devSensorSizeH;         //!< Androids DeviceSensorPhysicalSizeH
-    string       _computerModel;
+    string       _computerInfos;
 
     static const int    _CALIBFILEVERSION; //!< Global const file format version
     static const string _FTP_HOST;         //!< ftp host for calibration up and download

@@ -95,7 +95,8 @@ void CVCalibration::clear()
     _calibrationTime = "-";
     _undistortMapX.release();
     _undistortMapY.release();
-    _state = CS_uncalibrated;
+    _state         = CS_uncalibrated;
+    _computerInfos = SLApplication::getComputerInfos();
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
@@ -163,22 +164,18 @@ bool CVCalibration::load(const string& calibDir,
         fs["reprojectionError"] >> _reprojectionError;
         fs["calibrationTime"] >> _calibrationTime;
         fs["camSizeIndex"] >> _camSizeIndex;
-        if (!fs["computerModel"].empty())
-            fs["computerModel"] >> _computerModel;
-        if (_computerModel.empty())
-        {
-            std::vector<std::string> stringParts;
-            Utils::splitString(Utils::getFileNameWOExt(_calibFileName), '_', stringParts);
-            if (stringParts.size() >= 3)
-                _computerModel = stringParts[1];
-            else
-            {
-                _computerModel = SLApplication::getComputerInfos();
-                std::cout << "Assuming calibration is for current device" << std::endl;
-            }
-        }
-
         _state = _numCaptured ? CS_calibrated : CS_uncalibrated;
+    }
+
+    //estimate computer infos
+    if (!fs["computerInfos"].empty())
+        fs["computerInfos"] >> _computerInfos;
+    else
+    {
+        std::vector<std::string> stringParts;
+        Utils::splitString(Utils::getFileNameWOExt(_calibFileName), '_', stringParts);
+        if (stringParts.size() >= 3)
+            _computerInfos = stringParts[1];
     }
 
     // close the input file
@@ -250,12 +247,12 @@ void CVCalibration::save(std::string forceSavePath)
     fs << "DeviceLensFocalLength" << _devFocalLength;
     fs << "DeviceSensorPhysicalSizeW" << _devSensorSizeW;
     fs << "DeviceSensorPhysicalSizeH" << _devSensorSizeW;
+    fs << "computerInfos" << _computerInfos;
     /*
     SLGLState* stateGL = SLGLState::instance();
     fs << "computerUser" << SLApplication::computerUser;
     fs << "computerName" << SLApplication::computerName;
     fs << "computerBrand" << SLApplication::computerBrand;
-    fs << "computerModel" << SLApplication::computerModel;
     fs << "computerArch" << SLApplication::computerArch;
     fs << "computerOS" << SLApplication::computerOS;
     fs << "computerOSVer" << SLApplication::computerOSVer;
@@ -532,7 +529,8 @@ static bool calcCalibration(CVSize&            imageSize,
 //! Initiates the final calculation
 bool CVCalibration::calculate()
 {
-    _state = CS_startCalculating;
+    _state         = CS_startCalculating;
+    _computerInfos = SLApplication::getComputerInfos();
 
     CVVMat        rvecs, tvecs;
     vector<float> reprojErrs;

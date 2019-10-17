@@ -59,7 +59,7 @@ void AppDemoGuiTestWrite::prepareExperiment(std::string testScene, std::string w
 
     _date = Utils::getDateTime2String();
 
-    std::string filename = Utils::toLowerString(testScene) + "_" + Utils::toLowerString(weather) + "_" + _date + "_" + _calib->computerModel() + "_";
+    std::string filename = Utils::toLowerString(testScene) + "_" + Utils::toLowerString(weather) + "_" + _date + "_" + _calib->computerInfos() + "_";
     _size                = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
 
     mapname         = filename + mode->getKPextractor()->GetName() + ".json";
