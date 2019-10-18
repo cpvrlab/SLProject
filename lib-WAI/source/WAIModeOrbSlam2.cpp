@@ -13,11 +13,15 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
     _onlyTracking(onlyTracking),
     _trackOptFlow(trackOptFlow)
 {
+    //we have to reset global static stuff here
+    WAIKeyFrame::nNextId = 0; //will be updated when a map is loaded
+    WAIFrame::nNextId    = 0;
+    WAIMapPoint::nNextId = 0;
+    // Tell WAIFrame to compute image bounds on first instantiation
+    WAIFrame::mbInitialComputations = true;
+
     cameraMat.convertTo(_cameraMat, CV_32F);
     distortionMat.convertTo(_distortionMat, CV_32F);
-
-    // Tell WAIFrame to compute image bounds
-    WAIFrame::mbInitialComputations = true;
 
     //load visual vocabulary for relocalization
     WAIOrbVocabulary::initialize(orbVocFile);
@@ -1213,10 +1217,13 @@ void WAI::ModeOrbSlam2::reset()
     // Clear Map (this erase MapPoints and KeyFrames)
     _map->clear();
 
-    WAIKeyFrame::nNextId = 0;
-    WAIFrame::nNextId    = 0;
-    _bOK                 = false;
-    _initialized         = false;
+    WAIKeyFrame::nNextId            = 0;
+    WAIFrame::nNextId               = 0;
+    WAIFrame::mbInitialComputations = true;
+    WAIMapPoint::nNextId            = 0;
+
+    _bOK         = false;
+    _initialized = false;
 
     if (mpInitializer)
     {

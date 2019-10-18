@@ -4,7 +4,7 @@
 
 set(target lib-WAI)
 
-file(GLOB headers
+set(headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIHelper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIFrame.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIKeyFrame.h
@@ -27,18 +27,22 @@ file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/ORBVocabulary.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/PnPsolver.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Sim3Solver.h
+	${CMAKE_CURRENT_SOURCE_DIR}/source/logging/FileLog.h
+	${CMAKE_CURRENT_SOURCE_DIR}/source/logging/Logger.h
+	${CMAKE_CURRENT_SOURCE_DIR}/source/logging/LogLevelDebug.h
+	${CMAKE_CURRENT_SOURCE_DIR}/source/logging/LogLevelWarn.h
+	${CMAKE_CURRENT_SOURCE_DIR}/source/logging/LogLevelInfo.h
+	${CMAKE_CURRENT_SOURCE_DIR}/source/logging/LogLevelError.h
     )
 
-file(GLOB sources
+set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIHelper.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/source/WAIInterface.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIFrame.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIKeyFrame.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIKeyFrameDB.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMapPoint.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIOrbVocabulary.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeAruco.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2DataOriented.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.cpp
@@ -51,6 +55,8 @@ file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/SURFextractor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/PnPsolver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Sim3Solver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/logging/FileLog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/source/logging/Logger.cpp
     )
 
 # Group source files (for visual studio ide)

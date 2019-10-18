@@ -123,7 +123,7 @@ static void computeBRIEFDescriptor(const KeyPoint& kpt,
 #undef GET_VALUE
 }
 
-static int bit_pattern_31_[256 * 4] =
+static const int bit_pattern_31_[256 * 4] =
   {
     8,
     -3,

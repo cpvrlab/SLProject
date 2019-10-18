@@ -62,6 +62,7 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
 
   : mnId(id), mnFrameId(0), mTimeStamp(0), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS), mfGridElementWidthInv(static_cast<float>(FRAME_GRID_COLS) / (nMaxX - nMinX)), mfGridElementHeightInv(static_cast<float>(FRAME_GRID_ROWS) / (nMaxY - nMinY)), mnTrackReferenceForFrame(0), mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0), mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0), mnBAGlobalForKF(0), fx(fx), fy(fy), cx(cx), cy(cy), invfx(1 / fx), invfy(1 / fy), N(N), mvKeysUn(vKeysUn), mDescriptors(descriptors.clone()), mnScaleLevels(nScaleLevels), mfScaleFactor(fScaleFactor), mfLogScaleFactor(log(fScaleFactor)), mvScaleFactors(vScaleFactors), mvLevelSigma2(vLevelSigma2), mvInvLevelSigma2(vInvLevelSigma2), mnMinX(nMinX), mnMinY(nMinY), mnMaxX(nMaxX), mnMaxY(nMaxY), mK(K.clone()), _kfDb(pKFDB), mbFirstConnection(true), mpParent(NULL), mbNotErase(false), mbToBeErased(false), mbBad(false), mpMap(pMap)
 {
+    //Update next id so we never have twice the same id and especially only one with 0 (this is important)
     if (id >= nNextId)
         nNextId = id + 1;
 

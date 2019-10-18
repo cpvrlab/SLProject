@@ -317,7 +317,28 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
         (*it)["nMaxX"] >> nMaxX;
         (*it)["nMaxY"] >> nMaxY;
 
-        WAIKeyFrame* newKf = new WAIKeyFrame(Tcw, id, fx, fy, cx, cy, keyPtsUndist.size(), keyPtsUndist, featureDescriptors, WAIOrbVocabulary::get(), nScaleLevels, scaleFactor, vScaleFactor, vLevelSigma2, vInvLevelSigma2, nMinX, nMinY, nMaxX, nMaxY, K, kfDB, waiMap);
+        WAIKeyFrame* newKf = new WAIKeyFrame(Tcw,
+                                             id,
+                                             fx,
+                                             fy,
+                                             cx,
+                                             cy,
+                                             keyPtsUndist.size(),
+                                             keyPtsUndist,
+                                             featureDescriptors,
+                                             WAIOrbVocabulary::get(),
+                                             nScaleLevels,
+                                             scaleFactor,
+                                             vScaleFactor,
+                                             vLevelSigma2,
+                                             vInvLevelSigma2,
+                                             nMinX,
+                                             nMinY,
+                                             nMaxX,
+                                             nMaxY,
+                                             K,
+                                             kfDB,
+                                             waiMap);
 
         if (imgDir != "")
         {

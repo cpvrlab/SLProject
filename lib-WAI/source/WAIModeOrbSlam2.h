@@ -200,7 +200,7 @@ class WAI_API ModeOrbSlam2
     std::vector<int>         mvIniMatches;
     std::vector<cv::Point2f> mvbPrevMatched;
     std::vector<cv::Point3f> mvIniP3D;
-    bool                     _bOK;
+    bool                     _bOK           = false;
     bool                     _mapHasChanged = false;
 
     // In case of performing only localization, this flag is true when there are no matches to
