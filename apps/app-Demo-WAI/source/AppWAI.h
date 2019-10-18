@@ -104,9 +104,10 @@ class WAIApp
 
 #define DETH   6
 #define NMSX   7
-#define NMSY   8
 
-#define INPUT_TEXTURE 9
+#define INPUT_TEXTURE 8
+#define BLURRED_TEXTURE1 9
+#define BLURRED_TEXTURE2 10
 
     struct GLSLKP
     {
@@ -119,6 +120,8 @@ class WAIApp
         GLuint dGdy;
         GLuint Gx;
         GLuint Gy;
+        GLuint Gx1ch;
+        GLuint Gy1ch;
         GLuint detH;
         GLuint nmsx;
         GLuint nmsy;
@@ -130,6 +133,8 @@ class WAIApp
         GLuint dGdyWLoc;
         GLuint GxWLoc;
         GLuint GyWLoc;
+        GLuint Gx1chWLoc;
+        GLuint Gy1chWLoc;
         GLuint nmsxWLoc;
         GLuint nmsyWLoc;
         GLuint d2Gdx2TexLoc;
@@ -138,6 +143,8 @@ class WAIApp
         GLuint dGdyTexLoc;
         GLuint GxTexLoc;
         GLuint GyTexLoc;
+        GLuint Gx1chTexLoc;
+        GLuint Gy1chTexLoc;
         GLuint detHGxxLoc;
         GLuint detHGyyLoc;
         GLuint detHGxyLoc;
@@ -146,8 +153,10 @@ class WAIApp
         GLuint nmszTexLoc;
 
         GLuint grayTexture;
+        GLuint blurTexture[2];
         GLuint renderTextures[8];
         GLuint renderFBO[8];
+        GLuint blurpassFBO[2];
 
         GLuint vao;
         GLuint vbo;
@@ -164,6 +173,7 @@ class WAIApp
     static GLuint buildShaderFromSource(string source,
                                         GLenum shaderType);
     static void initTestProgram();
+    static void blur();
     static void gxx();
     static void gyy();
     static void gxy();

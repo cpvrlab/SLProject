@@ -111,6 +111,7 @@ void WAIApp::initTestProgram()
     glslKP.curr = 1;
     glslKP.ready = 0;
     glGenFramebuffers(8, glslKP.renderFBO);
+    glGenFramebuffers(2, glslKP.blurpassFBO);
     glGenFramebuffers(2, glslKP.framebuffers);
     glGenBuffers(2, glslKP.pbo);
     glBindBuffer(GL_PIXEL_PACK_BUFFER, glslKP.pbo[0]);
@@ -125,6 +126,8 @@ void WAIApp::initTestProgram()
     glslKP.dGdy   = glCreateProgram();
     glslKP.Gx     = glCreateProgram();
     glslKP.Gy     = glCreateProgram();
+    glslKP.Gx1ch     = glCreateProgram();
+    glslKP.Gy1ch     = glCreateProgram();
     glslKP.detH   = glCreateProgram();
     glslKP.nmsx   = glCreateProgram();
     glslKP.nmsy   = glCreateProgram();
@@ -215,6 +218,49 @@ void WAIApp::initTestProgram()
                               "    gl_Position = vec4(vcoords, 1.0);\n"
                               "}\n" ;
 
+    std::string hGaussian1chFs = "#version 330\n"
+                               "out float pixel;\n"
+                               "in vec2 texcoords;\n"
+                               "uniform float w;\n"
+                               "uniform sampler2D tex;\n"
+                               "\n"
+                               "void main()\n"
+                               "{\n"
+                               "\n"
+                               "const float kernel05[7] = float[7]("
+                               "0.012560200468474598, 0.07882796468172999, 0.23729607711717057, 0.3426315154652495, 0.23729607711717066, 0.07882796468173005, 0.012560200468474616);"
+                               "\n"
+                               "    \n"
+                               "    float response = 0.0;\n"
+                               "    for (int i = 0; i < 7; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 3.0) / w;\n"
+                               "        response += kernel05[i] * texture(tex, texcoords + vec2(ofst, 0.0)).r;\n"
+                               "    }\n"
+                               "    pixel = response;\n"
+                               "}\n";
+
+    std::string vGaussian1chFs = "#version 330\n"
+                               "out float pixel;\n"
+                               "in vec2 texcoords;\n"
+                               "uniform float w;\n"
+                               "uniform sampler2D tex;\n"
+                               "\n"
+                               "void main()\n"
+                               "{\n"
+                               "\n"
+                               "const float kernel05[7] = float[7]("
+                               "0.012560200468474598, 0.07882796468172999, 0.23729607711717057, 0.3426315154652495, 0.23729607711717066, 0.07882796468173005, 0.012560200468474616);"
+                               "\n"
+                               "    \n"
+                               "    float response = 0.0;\n"
+                               "    for (int i = 0; i < 7; i++)\n"
+                               "    {\n"
+                               "        float ofst = (float(i) - 3.0) / w;\n"
+                               "        response += kernel05[i] * texture(tex, texcoords + vec2(0.0, ofst)).r;\n"
+                               "    }\n"
+                               "    pixel = response;\n"
+                               "}\n";
 
     std::string hGaussianFs = "#version 330\n"
                                "out vec3 pixel;\n"
@@ -354,13 +400,14 @@ void WAIApp::initTestProgram()
                                "{\n"
                                "\n"
                                "const float kernel12[9] = float[9]("
-                               "0.02030511778479025, 0.07214993937836783, 0.14611477573041856, 0.14229636129560294, 4.9323503577855103e-17, -0.1422963612956029, -0.14611477573041862, -0.07214993937836786, -0.02030511778479028);\n"
+                               "0.01853595173921492, 0.06586358220027054, 0.1333839310872644, 0.12989821155417797, 4.5025992541296685e-17, -0.12989821155417794, -0.13338393108726446, -0.06586358220027058, -0.018535951739214945);\n"
                                "\n"
                                "const float kernel20[15] = float[15]("
-                               "0.00888776928045441, 0.021553224058193758, 0.04330221796186974, 0.07116921174032437, 0.09344548639615223, 0.09293618965925417, 0.0590725260692179, 1.7761487709954e-17, -0.059072526069217875, -0.09293618965925415, -0.09344548639615223, -0.07116921174032437, -0.04330221796186974, -0.021553224058193758, -0.00888776928045441);\n"
+                               "0.006284601927830796, 0.015240430887981849, 0.030619291961256016, 0.05032423223328462, 0.06607593710199453, 0.06571580992569773, 0.04177058376536309, 1.2559268403669998e-17, -0.04177058376536307, -0.06571580992569771, -0.06607593710199453, -0.05032423223328462, -0.030619291961256016, -0.015240430887981849, -0.006284601927830796);\n"
                                "\n"
                                "const float kernel28[21] = float[21]("
-                               "0.005511612894929245, 0.01077261203080127, 0.01916530293757646, 0.03093273508014581, 0.04507269252723493, 0.058846632538259974, 0.06797486458793789, 0.06784123607025065, 0.05546691607413207, 0.0313460585555653, -0.0, -0.0313460585555653, -0.05546691607413207, -0.06784123607025065, -0.06797486458793789, -0.058846632538259974, -0.04507269252723493, -0.03093273508014581, -0.01916530293757646, -0.01077261203080127, -0.005511612894929245);\n"
+                               "0.003293818707797897, 0.006437867048236782, 0.011453459188775942, 0.018485844966375946, 0.026936085804141863, 0.03516758938635828, 0.04062275143556737, 0.040542893121886005, 0.0331478224816762, 0.018732852987741393, -0.0, -0.018732852987741393, -0.0331478224816762, -0.040542893121886005, -0.04062275143556737, -0.03516758938635828, -0.026936085804141863, -0.018485844966375946, -0.011453459188775942, -0.006437867048236782, -0.003293818707797897);\n"
+                               "\n"
                                "\n"
                                "\n"
                                "    \n"
@@ -408,13 +455,13 @@ void WAIApp::initTestProgram()
                                "{\n"
                                "\n"
                                "const float kernel12[9] = float[9]("
-                               "0.02030511778479025, 0.07214993937836783, 0.14611477573041856, 0.14229636129560294, 4.9323503577855103e-17, -0.1422963612956029, -0.14611477573041862, -0.07214993937836786, -0.02030511778479028);\n"
+                               "0.01853595173921492, 0.06586358220027054, 0.1333839310872644, 0.12989821155417797, 4.5025992541296685e-17, -0.12989821155417794, -0.13338393108726446, -0.06586358220027058, -0.018535951739214945);\n"
                                "\n"
                                "const float kernel20[15] = float[15]("
-                               "0.00888776928045441, 0.021553224058193758, 0.04330221796186974, 0.07116921174032437, 0.09344548639615223, 0.09293618965925417, 0.0590725260692179, 1.7761487709954e-17, -0.059072526069217875, -0.09293618965925415, -0.09344548639615223, -0.07116921174032437, -0.04330221796186974, -0.021553224058193758, -0.00888776928045441);\n"
+                               "0.006284601927830796, 0.015240430887981849, 0.030619291961256016, 0.05032423223328462, 0.06607593710199453, 0.06571580992569773, 0.04177058376536309, 1.2559268403669998e-17, -0.04177058376536307, -0.06571580992569771, -0.06607593710199453, -0.05032423223328462, -0.030619291961256016, -0.015240430887981849, -0.006284601927830796);\n"
                                "\n"
                                "const float kernel28[21] = float[21]("
-                               "0.005511612894929245, 0.01077261203080127, 0.01916530293757646, 0.03093273508014581, 0.04507269252723493, 0.058846632538259974, 0.06797486458793789, 0.06784123607025065, 0.05546691607413207, 0.0313460585555653, -0.0, -0.0313460585555653, -0.05546691607413207, -0.06784123607025065, -0.06797486458793789, -0.058846632538259974, -0.04507269252723493, -0.03093273508014581, -0.01916530293757646, -0.01077261203080127, -0.005511612894929245);\n"
+                               "0.003293818707797897, 0.006437867048236782, 0.011453459188775942, 0.018485844966375946, 0.026936085804141863, 0.03516758938635828, 0.04062275143556737, 0.040542893121886005, 0.0331478224816762, 0.018732852987741393, -0.0, -0.018732852987741393, -0.0331478224816762, -0.040542893121886005, -0.04062275143556737, -0.03516758938635828, -0.026936085804141863, -0.018485844966375946, -0.011453459188775942, -0.006437867048236782, -0.003293818707797897);\n"
                                "\n"
                                "    \n"
                                "    vec3 response = vec3(0.0);\n"
@@ -568,14 +615,29 @@ void WAIApp::initTestProgram()
                         "    vec3 gxx = texture(tgxx, texcoords).rgb;\n"
                         "    vec3 gyy = texture(tgyy, texcoords).rgb;\n"
                         "    vec3 gxy = texture(tgxy, texcoords).rgb;\n"
-                        "    vec3 det = abs(gxx * gyy - gxy * gxy);\n"
-                        "    vec3 trace = gxx + gyy;\n"
-                        "    vec3 r = trace*trace / det;\n"
-                        "    float maxd = max(det.x, max(det.y, det.z));\n"
-                        "    float maxr = max(r.x, max(r.y, r.z));\n"
-                        "    float minr = min(r.x, min(r.y, r.z));\n"
-                        "    pixel = 0.0;\n"
-                        "    if (maxr < 1.05 && minr > 0.95) { pixel = 100.0 * maxd; }\n"
+                        "    vec3 det = gxx * gyy - gxy * gxy;\n"
+                        "    vec3 tr = gxx + gyy;\n"
+                        "    vec3 v = tr*tr / det;\n"
+                        "    float deti = 0;\n"
+                        "    float vi;\n"
+                        "    if (det.x > det.y && det.x > det.z)\n"
+                        "    {\n"
+                        "         deti = det.x;\n"
+                        "         vi = v.x;\n"
+                        "    }\n"
+                        "    else if (det.y > det.x && det.y > det.z)\n"
+                        "    {\n"
+                        "         deti = det.y;\n"
+                        "         vi = v.y;\n"
+                        "    }\n"
+                        "    else if (det.z > det.x && det.z > det.x)\n"
+                        "    {\n"
+                        "         deti = det.z;\n"
+                        "         vi = v.z;\n"
+                        "    }\n"
+                        "    \n"
+                        "    pixel = 50.0 * deti;\n"
+                        "    if (pixel < 0.3 && vi > 3.0) {pixel = 0;};\n"
                         "}\n";
 
     std::string nmsxFs = "#version 330\n"
@@ -589,7 +651,7 @@ void WAIApp::initTestProgram()
                         "    float o = texture(tex, texcoords).r;\n"
                         "    float px = texture(tex, texcoords + vec2(1.0/w, 0.0f)).r;\n"
                         "    float nx = texture(tex, texcoords - vec2(1.0/w, 0.0f)).r;\n"
-                        "    pixel = 1.0;\n"
+                        "    pixel = o;\n"
                         "    if (o <= nx || o <= px)\n"
                         "    {\n"
                         "       pixel = 0.0;\n"
@@ -608,7 +670,7 @@ void WAIApp::initTestProgram()
                         "    float o = texture(tex, texcoords).r;\n"
                         "    float py = texture(tex, texcoords + vec2(0.0f, 1.0/w)).r;\n"
                         "    float ny = texture(tex, texcoords - vec2(0.0f, 1.0/w)).r;\n"
-                        "    pixel = 1.0;\n"
+                        "    pixel = o;\n"
                         "    if (o <= ny || o <= py)\n"
                         "    {\n"
                         "       pixel = 0.0;\n"
@@ -638,6 +700,8 @@ void WAIApp::initTestProgram()
     GLuint fdGdy = buildShaderFromSource(vGaussianDyFs, GL_FRAGMENT_SHADER);
     GLuint fGx = buildShaderFromSource(hGaussianFs, GL_FRAGMENT_SHADER);
     GLuint fGy = buildShaderFromSource(vGaussianFs, GL_FRAGMENT_SHADER);
+    GLuint fGx1ch = buildShaderFromSource(hGaussian1chFs, GL_FRAGMENT_SHADER);
+    GLuint fGy1ch = buildShaderFromSource(vGaussian1chFs, GL_FRAGMENT_SHADER);
     GLuint fdetH = buildShaderFromSource(detHFs, GL_FRAGMENT_SHADER);
     GLuint fnmsx = buildShaderFromSource(nmsxFs, GL_FRAGMENT_SHADER);
     GLuint fnmsy = buildShaderFromSource(nmsyFs, GL_FRAGMENT_SHADER);
@@ -666,6 +730,14 @@ void WAIApp::initTestProgram()
     glAttachShader(glslKP.Gy, vscreenQuad);
     glAttachShader(glslKP.Gy, fGy);
     glLinkProgram(glslKP.Gy);
+
+    glAttachShader(glslKP.Gx1ch, vscreenQuad);
+    glAttachShader(glslKP.Gx1ch, fGx1ch);
+    glLinkProgram(glslKP.Gx1ch);
+
+    glAttachShader(glslKP.Gy1ch, vscreenQuad);
+    glAttachShader(glslKP.Gy1ch, fGy1ch);
+    glLinkProgram(glslKP.Gy1ch);
 
     glAttachShader(glslKP.detH, vscreenQuad);
     glAttachShader(glslKP.detH, fdetH);
@@ -696,6 +768,10 @@ void WAIApp::initTestProgram()
     glslKP.GxWLoc = glGetUniformLocation(glslKP.Gx, "w");
     glslKP.GyTexLoc = glGetUniformLocation(glslKP.Gy, "tex");
     glslKP.GyWLoc = glGetUniformLocation(glslKP.Gy, "w");
+    glslKP.Gx1chTexLoc = glGetUniformLocation(glslKP.Gx1ch, "tex");
+    glslKP.Gx1chWLoc = glGetUniformLocation(glslKP.Gx1ch, "w");
+    glslKP.Gy1chTexLoc = glGetUniformLocation(glslKP.Gy1ch, "tex");
+    glslKP.Gy1chWLoc = glGetUniformLocation(glslKP.Gy1ch, "w");
     glslKP.detHGxxLoc = glGetUniformLocation(glslKP.detH, "tgxx");
     glslKP.detHGyyLoc = glGetUniformLocation(glslKP.detH, "tgyy");
     glslKP.detHGxyLoc = glGetUniformLocation(glslKP.detH, "tgxy");
@@ -730,6 +806,7 @@ void WAIApp::initTestProgram()
     glBindVertexArray(0);
 
     glGenTextures(1, &glslKP.grayTexture);
+    glGenTextures(2, glslKP.blurTexture);
     glGenTextures(8, glslKP.renderTextures);
     glGenTextures(2, glslKP.outTextures);
 
@@ -748,6 +825,8 @@ void WAIApp::initTestProgram()
                  GL_UNSIGNED_BYTE, // data type
                  nullptr);         // image data pointer
 
+
+
     for (int i = 0; i < 6; i++)
     {
         glBindTexture(GL_TEXTURE_2D, glslKP.renderTextures[i]);
@@ -762,7 +841,7 @@ void WAIApp::initTestProgram()
                      scrHeight,        // image height
                      0,                // border pixels: must be 0
                      GL_RGB,           // data format: e.g. GL_RGBA, see spec.
-                     GL_UNSIGNED_BYTE, // data type
+                     GL_FLOAT, // data type
                      nullptr);         // image data pointer
     }
 
@@ -780,12 +859,27 @@ void WAIApp::initTestProgram()
                      scrHeight,        // image height
                      0,                // border pixels: must be 0
                      GL_RED,           // data format: e.g. GL_RGBA, see spec.
-                     GL_UNSIGNED_BYTE, // data type
+                     GL_FLOAT, // data type
                      nullptr);         // image data pointer
     }
     for (int i = 0; i < 2; i++)
     {
         glBindTexture(GL_TEXTURE_2D, glslKP.outTextures[i]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+        glTexImage2D(GL_TEXTURE_2D,    // target texture type 1D, 2D or 3D
+                     0,                // Base level for mipmapped textures
+                     GL_RED,           // internal format: e.g. GL_RGBA, see spec.
+                     scrWidth,         // image width
+                     scrHeight,        // image height
+                     0,                // border pixels: must be 0
+                     GL_RED,           // data format: e.g. GL_RGBA, see spec.
+                     GL_UNSIGNED_BYTE, // data type
+                     nullptr);         // image data pointer
+
+        glBindTexture(GL_TEXTURE_2D, glslKP.blurTexture[i]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
@@ -811,9 +905,35 @@ void WAIApp::initTestProgram()
     {
         glBindFramebuffer(GL_FRAMEBUFFER, glslKP.framebuffers[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.outTextures[i], 0);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, glslKP.blurpassFBO[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glslKP.blurTexture[i], 0);
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void WAIApp::blur()
+{
+    glUseProgram(glslKP.Gx1ch);
+    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.blurpassFBO[0]);
+
+    glUniform1i(glslKP.Gx1chTexLoc, INPUT_TEXTURE);
+    glUniform1f(glslKP.Gx1chWLoc, scrWidth);
+    glBindVertexArray(glslKP.vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+    glUseProgram(glslKP.Gy1ch);
+    glBindFramebuffer(GL_FRAMEBUFFER, glslKP.blurpassFBO[1]);
+
+    glUniform1i(glslKP.Gy1chTexLoc, BLURRED_TEXTURE1);
+    glUniform1f(glslKP.GyWLoc, scrHeight);
+    glBindVertexArray(glslKP.vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
 void WAIApp::gxx()
@@ -821,7 +941,7 @@ void WAIApp::gxx()
     glUseProgram(glslKP.d2Gdx2);
     glBindFramebuffer(GL_FRAMEBUFFER, glslKP.renderFBO[D2GDX2]);
 
-    glUniform1i(glslKP.d2Gdx2TexLoc, INPUT_TEXTURE);
+    glUniform1i(glslKP.d2Gdx2TexLoc, BLURRED_TEXTURE2);
     glUniform1f(glslKP.d2Gdx2WLoc, scrWidth);
     glBindVertexArray(glslKP.vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glslKP.vboi);
@@ -945,12 +1065,18 @@ void WAIApp::gpu_kp()
     glActiveTexture(GL_TEXTURE0 + INPUT_TEXTURE);
     glBindTexture(GL_TEXTURE_2D, glslKP.grayTexture);
 
+    glActiveTexture(GL_TEXTURE0 + BLURRED_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, glslKP.blurTexture[0]);
+    glActiveTexture(GL_TEXTURE0 + BLURRED_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, glslKP.blurTexture[1]);
+
     for (int i = 0; i < 8; i++)
     {
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, glslKP.renderTextures[i]);
     }
 
+    blur();
     gxx();
     gyy();
     gxy();
