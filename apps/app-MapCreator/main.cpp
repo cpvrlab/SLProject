@@ -19,6 +19,7 @@ public:
     {
         try
         {
+            WAI_DEBUG("MapCreator: loading sites:");
             //parse config file
             cv::FileStorage fs;
             fs.open(configFile, cv::FileStorage::READ);
@@ -39,6 +40,7 @@ public:
                     (*itAreas)["enabled"] >> enabled;
                     if (enabled)
                     {
+                        WAI_DEBUG("enabling %s %s", location.c_str(), area.c_str());
                         Areas& areas = _erlebAR[location];
                         //insert empty Videos vector
                         areas.insert(std::pair<std::string, std::vector<std::string>>(area, Videos()));
@@ -46,13 +48,22 @@ public:
                 }
             }
 
+            std::string erlebARDirUnified = Utils::unifySlashes(erlebARDir);
             //try to find corresponding files in sites directory and add full file paths to _sites
-            for (auto itLocs = _erlebAR.begin(); itLocs != _erlebAR.end(); ++itLocs)
+            cv::FileNode videoAreasNode = fs["mappingVideos"];
+            for (auto itVideoAreas = videoAreasNode.begin(); itVideoAreas != videoAreasNode.end(); ++itVideoAreas)
             {
-                Location location = itLocs->first;
-                Areas&   areas    = itLocs->second;
-                for (auto itAreas = areas.begin(); itAreas != areas.end(); ++itAreas)
+                Location     location   = (*itVideoAreas)["location"];
+                Area         area       = (*itVideoAreas)["area"];
+                cv::FileNode videosNode = (*itVideoAreas)["videos"];
+                for (auto itVideos = videosNode.begin(); itVideos != videosNode.end(); ++itVideos)
                 {
+                    std::string name          = *itVideos;
+                    std::string videoFullName = erlebARDirUnified + "locations/" + location + "/" + area + "/" + "videos/" + name;
+                    if (!Utils::fileExists(videoFullName))
+                        throw std::runtime_error("MapCreator::loadSites: Video file does not exist: " + videoFullName);
+
+                    _erlebAR[location][area].push_back(videoFullName);
                 }
             }
 
