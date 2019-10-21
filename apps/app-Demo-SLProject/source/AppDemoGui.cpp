@@ -248,6 +248,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             centerNextWindow(sv);
             ImGui::Begin("About SLProject", &showAbout, ImGuiWindowFlags_NoResize);
             ImGui::Text("Version: %s", SLApplication::version.c_str());
+            ImGui::Text("Configuration: %s", SLApplication::configuration.c_str());
             ImGui::Separator();
             ImGui::Text("Git Branch: %s (Commit: %s)", SLApplication::gitBranch.c_str(), SLApplication::gitCommit.c_str());
             ImGui::Text("Git Date: %s", SLApplication::gitDate.c_str());

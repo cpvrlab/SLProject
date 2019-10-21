@@ -37,6 +37,8 @@ SLCamera::SLCamera(const SLstring& name) : SLNode(name),
                                            _unitScaling(1.0f)
 {
     _fovInit       = 0;
+    _viewportW     = 640;
+    _viewportH     = 480;
     _viewportRatio = 640.0f / 480.0f; // will be overwritten in setProjection
     _clipNear      = 0.1f;
     _clipFar       = 300.0f;
@@ -495,7 +497,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     // Clear Buffers //
     ///////////////////
 
-    if (eye == ET_right) //&& _projection >= stereoColorRC)
+    if (eye == ET_right)
         // Do not clear color on right eye because it contains the color of the
         // left eye. The right eye must be drawn after the left into the same buffer
         stateGL->clearDepthBuffer();
@@ -510,10 +512,10 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         {
             switch (_projection)
             {
-                case P_stereoColorRC: stateGL->colorMask(true, false, false, true); break;
-                case P_stereoColorRB: stateGL->colorMask(true, false, false, true); break;
-                case P_stereoColorRG: stateGL->colorMask(true, false, false, true); break;
-                case P_stereoColorYB: stateGL->colorMask(true, true, false, true); break;
+                case P_stereoColorRC: stateGL->colorMask(1, 0, 0, 1); break;
+                case P_stereoColorRB: stateGL->colorMask(1, 0, 0, 1); break;
+                case P_stereoColorRG: stateGL->colorMask(1, 0, 0, 1); break;
+                case P_stereoColorYB: stateGL->colorMask(1, 1, 0, 1); break;
                 default: break;
             }
         }
@@ -521,10 +523,10 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         {
             switch (_projection)
             {
-                case P_stereoColorRC: stateGL->colorMask(false, true, true, true); break;
-                case P_stereoColorRB: stateGL->colorMask(false, false, true, true); break;
-                case P_stereoColorRG: stateGL->colorMask(false, true, false, true); break;
-                case P_stereoColorYB: stateGL->colorMask(false, false, true, true); break;
+                case P_stereoColorRC: stateGL->colorMask(0, 1, 1, 1); break;
+                case P_stereoColorRB: stateGL->colorMask(0, 0, 1, 1); break;
+                case P_stereoColorRG: stateGL->colorMask(0, 1, 0, 1); break;
+                case P_stereoColorYB: stateGL->colorMask(0, 0, 1, 1); break;
                 default: break;
             }
         }
@@ -1144,11 +1146,10 @@ SLbool SLCamera::onTouch2Move(const SLint x1,
 SLCamera::onDoubleTouch gets called whenever two fingers touch a handheld
 screen.
 */
-SLbool
-SLCamera::onTouch2Up(const SLint x1,
-                     const SLint y1,
-                     const SLint x2,
-                     const SLint y2)
+SLbool SLCamera::onTouch2Up(const SLint x1,
+                            const SLint y1,
+                            const SLint x2,
+                            const SLint y2)
 {
     _velocity.set(0.0f, 0.0f, 0.0f);
     return true;

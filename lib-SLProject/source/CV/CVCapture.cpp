@@ -824,7 +824,10 @@ void CVCapture::videoType(CVVideoType vt)
     {
         activeCalib = &calibMainCam;
         if (vt == VT_NONE)
+        {
             release();
+            _captureTimesMS.set(0.0f);
+        }
     }
 }
 //-----------------------------------------------------------------------------

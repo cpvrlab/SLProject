@@ -62,6 +62,7 @@ class SLApplication
 
     static SLstring  name;          //!< Applcation name
     static SLstring  version;       //!< SLProject version string
+    static SLstring  configuration; //!< Debug or Release configuration
     static SLstring  computerUser;  //!< Computer Name (= env-var USER)
     static SLstring  computerName;  //!< Computer Name (= env-var HOSTNAME)
     static SLstring  computerBrand; //!< Computer brand name

@@ -445,7 +445,7 @@ void SLGLState::viewport(SLint x, SLint y, SLsizei width, SLsizei height)
 //-----------------------------------------------------------------------------
 /*! SLGLState::colorMask sets the OpenGL colorMask for framebuffer masking
  */
-void SLGLState::colorMask(SLbool r, SLbool g, SLbool b, SLbool a)
+void SLGLState::colorMask(GLboolean r, GLboolean g, GLboolean b, GLboolean a)
 {
     if (r != _colorMaskR || g != _colorMaskG || b != _colorMaskB || a != _colorMaskA)
     {

@@ -70,6 +70,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         activeCalib->state() != CS_uncalibrated)
         activeCalib->state(CS_uncalibrated);
 
+    // Reset non CVTracked and CVCapture infos
     CVTracked::resetTimes();                   // delete all tracker times
     CVCapture::instance()->videoType(VT_NONE); // turn off any video
 
