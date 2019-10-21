@@ -65,8 +65,8 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     prepareImage();       // Setup image & precalculations
 
     // Measure time
-    double t1     = SLApplication::timeS();
-    double tStart = t1;
+    float t1     = SLApplication::timeS();
+    float tStart = t1;
 
     for (SLuint y = 0; y < _images[0]->height(); ++y)
     {
@@ -103,7 +103,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
         }
     }
 
-    _renderSec  = (SLfloat)(SLApplication::timeS() - tStart);
+    _renderSec  = SLApplication::timeS() - tStart;
     _pcRendered = 100;
 
     if (_doContinuous)
@@ -130,7 +130,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     prepareImage();       // Setup image & precalculations
 
     // Measure time
-    double t1 = SLApplication::timeS();
+    float t1 = SLApplication::timeS();
 
     // Bind render functions to be called multithreaded
     auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1);
@@ -173,7 +173,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
             thread.join();
     }
 
-    _renderSec  = (SLfloat)(SLApplication::timeS() - t1);
+    _renderSec  = SLApplication::timeS() - t1;
     _pcRendered = 100;
 
     if (_doContinuous)
@@ -831,8 +831,8 @@ Draw the RT-Image as a textured quad in 2D-Orthographic projection
 void SLRaytracer::renderImage()
 {
     SLRecti vpRect = _sv->viewportRect();
-    SLfloat w = (SLfloat)vpRect.width;
-    SLfloat h = (SLfloat)vpRect.height;
+    SLfloat w      = (SLfloat)vpRect.width;
+    SLfloat h      = (SLfloat)vpRect.height;
     if (Utils::abs(_images[0]->width() - w) > 0.0001f) return;
     if (Utils::abs(_images[0]->height() - h) > 0.0001f) return;
 

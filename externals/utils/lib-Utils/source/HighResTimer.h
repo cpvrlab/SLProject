@@ -37,7 +37,7 @@ class HighResTimer
     float   elapsedTimeInMilliSec() { return (float)duration_cast<milliseconds>(HighResClock::now() - _timePoint1).count(); }
     int64_t elapsedTimeInMicroSec() { return duration_cast<microseconds>(HighResClock::now() - _timePoint1).count(); }
 
-    static void callAfterSleep(int milliSec, function<void(void)> callbackFunc)
+    static void callAfterSleep(int milliSec, const function<void(void)>& callbackFunc)
     {
         // Create a thread that immediately sleeps the milliseconds
         thread t([=]() {

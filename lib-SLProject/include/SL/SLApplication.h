@@ -52,8 +52,8 @@ class SLApplication
     static int      jobProgressMax() { return _jobProgressMax; }
     static SLfloat  dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
     static void     timerStart() { _timer.start(); }
-    static SLfloat  timeS() { return (SLfloat)_timer.elapsedTimeInSec(); }
-    static SLfloat  timeMS() { return (SLfloat)_timer.elapsedTimeInMilliSec(); }
+    static SLfloat  timeS() { return _timer.elapsedTimeInSec(); }
+    static SLfloat  timeMS() { return _timer.elapsedTimeInMilliSec(); }
 
     static SLScene*         scene;        //!< scene pointer
     static SLInputManager   inputManager; //!< Input events manager

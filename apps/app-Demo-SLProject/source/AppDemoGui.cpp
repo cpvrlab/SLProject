@@ -355,12 +355,14 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLRaytracer* rt           = sv->raytracer();
                 SLuint       rayPrimaries = (SLuint)(sv->viewportW() * sv->viewportH());
                 SLuint       rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
-                SLfloat      rpms         = rt->renderSec() > 0.0f ? rayTotal / rt->renderSec() / 1000.0f : 0.0f;
+                SLfloat      renderSec    = rt->renderSec();
+                SLfloat      rpms         = renderSec > 0.001f ? rayTotal / renderSec / 1000.0f : 0.0f;
+                SLfloat      fps          = renderSec > 0.001f ? 1.0f / rt->renderSec() : 0.0f;
 
                 sprintf(m + strlen(m), "Renderer   :Ray Tracer\n");
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->viewportW(), sv->viewportH());
-                sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / rt->renderSec());
-                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", rt->renderSec());
+                sprintf(m + strlen(m), "FPS        :%0.2f\n", fps);
+                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", renderSec);
                 sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rpms);
                 sprintf(m + strlen(m), "AA Pixels  :%d (%d%%)\n", SLRay::subsampledPixels, (int)((float)SLRay::subsampledPixels / (float)rayPrimaries * 100.0f));
                 sprintf(m + strlen(m), "Threads    :%d\n", rt->numThreads());
