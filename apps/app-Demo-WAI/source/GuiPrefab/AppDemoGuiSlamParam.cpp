@@ -37,10 +37,10 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
                                                             fMinThFAST);
 
     KPextractor* orbExtractor2 = new ORB_SLAM2::ORBextractor(2 * nFeatures,
-                                                            fScaleFactor,
-                                                            nLevels,
-                                                            fIniThFAST,
-                                                            fMinThFAST);
+                                                             fScaleFactor,
+                                                             nLevels,
+                                                             fIniThFAST,
+                                                             fMinThFAST);
 
     _extractors.push_back(new ORB_SLAM2::SURFextractor(500));
     _extractors.push_back(new ORB_SLAM2::SURFextractor(800));
@@ -58,40 +58,47 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
 void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
 {
     WAI::ModeOrbSlam2* mode = WAIApp::mode;
+
     ImGui::Begin("Slam Param", _activator, ImGuiWindowFlags_AlwaysAutoResize);
-
-    if (ImGui::BeginCombo("Extractor", _current->GetName().c_str()))
+    if (!mode)
     {
-        for (int i = 0; i < _extractors.size(); i++)
-        {
-            bool isSelected = (_current == _extractors[i]); // You can store your selection however you want, outside or inside your objects
-            if (ImGui::Selectable(_extractors[i]->GetName().c_str(), isSelected))
-            {
-                _current = _extractors[i];
-            }
-            if (isSelected)
-                ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
-        }
-        ImGui::EndCombo();
+        ImGui::Text("SLAM not running.");
     }
-
-    if (ImGui::BeginCombo("Init extractor", _iniCurrent->GetName().c_str()))
+    else
     {
-        for (int i = 0; i < _extractors.size(); i++)
+        if (ImGui::BeginCombo("Extractor", _current->GetName().c_str()))
         {
-            bool isSelected = (_iniCurrent == _extractors[i]); // You can store your selection however you want, outside or inside your objects
-            if (ImGui::Selectable(_extractors[i]->GetName().c_str(), isSelected))
+            for (int i = 0; i < _extractors.size(); i++)
             {
-                _iniCurrent = _extractors[i];
+                bool isSelected = (_current == _extractors[i]); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(_extractors[i]->GetName().c_str(), isSelected))
+                {
+                    _current = _extractors[i];
+                }
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
             }
-            if (isSelected)
-                ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+            ImGui::EndCombo();
         }
-        ImGui::EndCombo();
-    }
-    if (ImGui::Button("Change features", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
-    {
-        mode->setExtractor(_current, _iniCurrent);
+
+        if (ImGui::BeginCombo("Init extractor", _iniCurrent->GetName().c_str()))
+        {
+            for (int i = 0; i < _extractors.size(); i++)
+            {
+                bool isSelected = (_iniCurrent == _extractors[i]); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(_extractors[i]->GetName().c_str(), isSelected))
+                {
+                    _iniCurrent = _extractors[i];
+                }
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+            }
+            ImGui::EndCombo();
+        }
+        if (ImGui::Button("Change features", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+        {
+            mode->setExtractor(_current, _iniCurrent);
+        }
     }
 
     ImGui::End();

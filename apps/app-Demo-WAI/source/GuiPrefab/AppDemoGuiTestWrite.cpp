@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppDemoGuiMapStorage.cpp
+//  File:      AppDemoGuiTestWrite.cpp
 //  Author:    Michael Goettlicher
 //  Date:      April 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -176,23 +176,30 @@ void AppDemoGuiTestWrite::buildInfos(SLScene* s, SLSceneView* sv)
 
     ImGui::Separator();
 
-    if (ImGui::Button("Start Experiment", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    if (!WAIApp::mode)
     {
-        prepareExperiment(_testScenes[_currentSceneId], _conditions[_currentConditionId]);
-        recordExperiment();
+        ImGui::Text("SLAM not running.");
     }
-
-    ImGui::Separator();
-
-    if (ImGui::Button("Stop Experiment", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    else
     {
-        stopRecording();
-    }
+        if (ImGui::Button("Start Experiment", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+        {
+            prepareExperiment(_testScenes[_currentSceneId], _conditions[_currentConditionId]);
+            recordExperiment();
+        }
 
-    ImGui::Separator();
-    if (ImGui::Button("Commit", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
-    {
-        //Save to server
+        ImGui::Separator();
+
+        if (ImGui::Button("Stop Experiment", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+        {
+            stopRecording();
+        }
+
+        ImGui::Separator();
+        if (ImGui::Button("Commit", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+        {
+            //Save to server
+        }
     }
 
     ImGui::End();

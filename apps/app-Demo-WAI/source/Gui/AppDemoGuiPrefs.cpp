@@ -90,8 +90,6 @@ void GUIPreferences::load()
                 fs["showVideoStorage"] >> showVideoStorage;
 
             //map menu
-            if (!fs["showMapStorage"].empty())
-                fs["showMapStorage"] >> showMapStorage;
             if (!fs["showInfosMapNodeTransform"].empty())
                 fs["showInfosMapNodeTransform"] >> showInfosMapNodeTransform;
 
@@ -219,7 +217,6 @@ void GUIPreferences::save()
     fs << "showVideoStorage" << showVideoStorage;
 
     //map menu
-    fs << "showMapStorage" << showMapStorage;
     fs << "showInfosMapNodeTransform" << showInfosMapNodeTransform;
 
     //experiments menu

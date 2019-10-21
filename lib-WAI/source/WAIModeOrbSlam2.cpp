@@ -37,7 +37,7 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
 
     //instantiate feature extractor
     // TODO(dgj1): we need to find a good value for the extractor threshold
-    mpDefaultExtractor    = new ORB_SLAM2::SURFextractor(800);
+    mpDefaultExtractor    = new ORB_SLAM2::SURFextractor(500);
     mpIniDefaultExtractor = new ORB_SLAM2::SURFextractor(1000);
 
     mpExtractor    = mpDefaultExtractor;
@@ -61,9 +61,9 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
 
     if (_createMarkerMap)
     {
-        _markerOrbExtractor = new ORB_SLAM2::SURFextractor(500); // TODO(dgj1): markerInitialization - adjust nFeatures
+        _markerOrbExtractor = new ORB_SLAM2::SURFextractor(100); // TODO(dgj1): markerInitialization - adjust nFeatures
 
-        cv::Mat markerImgGray = cv::imread(std::string(SL_PROJECT_ROOT) + "/data/calibrations/marker_640_360.jpg", cv::IMREAD_GRAYSCALE);
+        cv::Mat markerImgGray = cv::imread(std::string(SL_PROJECT_ROOT) + "/data/calibrations/20191009_110647_android-mcrd1-35-ASUS-A002_640x360.jpg", cv::IMREAD_GRAYSCALE);
 
         float fyCam = _cameraMat.at<float>(1, 1);
         float cyCam = _cameraMat.at<float>(1, 2);
