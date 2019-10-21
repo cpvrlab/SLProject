@@ -24,11 +24,12 @@
 #include <vector>
 #include <list>
 #include <opencv2/opencv.hpp>
+#include <WAIHelper.h>
 
 namespace ORB_SLAM2
 {
 
-class KPextractor
+class  WAI_API KPextractor
 {
 public:
 

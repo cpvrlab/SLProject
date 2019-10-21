@@ -18,6 +18,7 @@
 #include <OrbSlam/ORBmatcher.h>
 #include <AppDemoGuiSlamParam.h>
 #include <Utils.h>
+#include <GLSLextractor.h>
 
 //-----------------------------------------------------------------------------
 
@@ -42,6 +43,8 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
                                                             fIniThFAST,
                                                             fMinThFAST);
 
+    KPextractor* glslExtractor = new GLSLextractor(640, 480);
+
     _extractors.push_back(new ORB_SLAM2::SURFextractor(500));
     _extractors.push_back(new ORB_SLAM2::SURFextractor(800));
     _extractors.push_back(new ORB_SLAM2::SURFextractor(1000));
@@ -50,6 +53,7 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
     _extractors.push_back(new ORB_SLAM2::SURFextractor(2500));
     _extractors.push_back(orbExtractor);
     _extractors.push_back(orbExtractor2);
+    _extractors.push_back(glslExtractor);
 
     _current    = _extractors.at(1);
     _iniCurrent = _extractors.at(1);

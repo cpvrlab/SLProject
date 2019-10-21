@@ -24,6 +24,7 @@
 #include <AppDemoGuiPrefs.h>
 #include <AppDemoGuiAbout.h>
 #include <AppDemoGuiError.h>
+#include "ImageProcessor.h"
 
 struct OrbSlamStartResult
 {
@@ -83,6 +84,7 @@ class WAIApp
     static SLGLTexture*       videoImage;
     static SLGLTexture*       testTexture;
     static ofstream           gpsDataStream;
+    static ImageProcessor     imgProc;
 
     static bool resizeWindow;
 
@@ -95,92 +97,6 @@ class WAIApp
     static bool pauseVideo; // pause video file
     static int  videoCursorMoveIndex;
 
-#define D2GDX2 0
-#define D2GDY2 1
-#define DGDX   2
-#define GXX    3
-#define GYY    4
-#define GXY    5
-
-#define DETH   6
-#define NMSX   7
-
-#define INPUT_TEXTURE 8
-#define BLURRED_TEXTURE1 9
-#define BLURRED_TEXTURE2 10
-
-    struct GLSLKP
-    {
-        GLuint yuv422Converter;
-        GLuint RGBTexture;
-
-        GLuint d2Gdx2;
-        GLuint d2Gdy2;
-        GLuint dGdx;
-        GLuint dGdy;
-        GLuint Gx;
-        GLuint Gy;
-        GLuint Gx1ch;
-        GLuint Gy1ch;
-        GLuint detH;
-        GLuint nmsx;
-        GLuint nmsy;
-        GLuint nmsz;
-
-        GLuint d2Gdx2WLoc;
-        GLuint d2Gdy2WLoc;
-        GLuint dGdxWLoc;
-        GLuint dGdyWLoc;
-        GLuint GxWLoc;
-        GLuint GyWLoc;
-        GLuint Gx1chWLoc;
-        GLuint Gy1chWLoc;
-        GLuint nmsxWLoc;
-        GLuint nmsyWLoc;
-        GLuint d2Gdx2TexLoc;
-        GLuint d2Gdy2TexLoc;
-        GLuint dGdxTexLoc;
-        GLuint dGdyTexLoc;
-        GLuint GxTexLoc;
-        GLuint GyTexLoc;
-        GLuint Gx1chTexLoc;
-        GLuint Gy1chTexLoc;
-        GLuint detHGxxLoc;
-        GLuint detHGyyLoc;
-        GLuint detHGxyLoc;
-        GLuint nmsxTexLoc;
-        GLuint nmsyTexLoc;
-        GLuint nmszTexLoc;
-
-        GLuint grayTexture;
-        GLuint blurTexture[2];
-        GLuint renderTextures[8];
-        GLuint renderFBO[8];
-        GLuint blurpassFBO[2];
-
-        GLuint vao;
-        GLuint vbo;
-        GLuint vboi;
-        GLuint framebuffers[2];
-        GLuint outTextures[2];
-        GLuint pbo[2];
-        int curr;
-        int ready;
-    };
-
-    static GLSLKP glslKP;
-
-    static GLuint buildShaderFromSource(string source,
-                                        GLenum shaderType);
-    static void initTestProgram();
-    static void blur();
-    static void gxx();
-    static void gyy();
-    static void gxy();
-    static void detH();
-    static void nms(int id);
-    static void gpu_kp();
-    static void readResult();
     static unsigned char * outputTexture;
 };
 
