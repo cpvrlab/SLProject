@@ -10,7 +10,8 @@ class MapCreator
     typedef struct VideoAndCalib
     {
         std::string videoFile;
-        std::string calibFile;
+        //std::string calibFile;
+        CVCalibration calibration;
     };
     typedef std::vector<VideoAndCalib> Videos;
     typedef std::map<Area, Videos>     Areas;
@@ -18,6 +19,8 @@ class MapCreator
 public:
     MapCreator(std::string erlebARDir, std::string configFile)
     {
+        //scan erlebar directory and config file, collect everything that is enabled in the config file and
+        //check that all files (video and calibration) exist.
         loadSites(erlebARDir, configFile);
     }
 
@@ -30,7 +33,7 @@ public:
             cv::FileStorage fs;
             fs.open(configFile, cv::FileStorage::READ);
             if (!fs.isOpened())
-                throw std::runtime_error("MapCreator: loadSites: Could not open configFile: " + configFile);
+                throw std::runtime_error("Could not open configFile: " + configFile);
 
             //helper for areas that have been enabled
             std::set<Area> enabledAreas;
@@ -71,48 +74,53 @@ public:
                     for (auto itVideos = videosNode.begin(); itVideos != videosNode.end(); ++itVideos)
                     {
                         //check if this is enabled
-
                         std::string   name = *itVideos;
                         VideoAndCalib videoAndCalib;
                         videoAndCalib.videoFile = erlebARDirUnified + "locations/" + location + "/" + area + "/" + "videos/" + name;
 
                         if (!Utils::fileExists(videoAndCalib.videoFile))
-                            throw std::runtime_error("MapCreator::loadSites: Video file does not exist: " + videoAndCalib.videoFile);
+                            throw std::runtime_error("Video file does not exist: " + videoAndCalib.videoFile);
 
                         //check if calibration file exists
                         SlamVideoInfos slamVideoInfos;
 
                         if (!extractSlamVideoInfosFromFileName(name, &slamVideoInfos))
-                            throw std::runtime_error("MapCreator::loadSites: Could not extract slam video infos: " + name);
+                            throw std::runtime_error("Could not extract slam video infos: " + name);
 
                         // construct calibrations file name and check if it exists
-                        videoAndCalib.calibFile = erlebARDirUnified + "../calibrations/" + "camCalib_" + slamVideoInfos.deviceString + "_main.xml";
-                        if (!Utils::fileExists(videoAndCalib.calibFile))
-                            throw std::runtime_error("MapCreator::loadSites: Calibration file does not exist: " + videoAndCalib.calibFile);
+                        std::string calibDir  = erlebARDirUnified + "../calibrations/";
+                        std::string calibFile = "camCalib_" + slamVideoInfos.deviceString + "_main.xml";
+
+                        //videoAndCalib.calibFile = erlebARDirUnified + "../calibrations/" + "camCalib_" + slamVideoInfos.deviceString + "_main.xml";
+                        if (!Utils::fileExists(calibDir + calibFile))
+                            throw std::runtime_error("Calibration file does not exist: " + calibDir + calibFile);
+
+                        //load calibration file and check for aspect ratio
+                        if (!videoAndCalib.calibration.load(calibDir, calibFile, false, false))
+                            throw std::runtime_error("Could not load calibration file: " + calibDir + calibFile);
+
+                        std::vector<std::string> size;
+                        Utils::splitString(slamVideoInfos.resolution, 'x', size);
+                        if (size.size() == 2)
+                        {
+                            int width  = std::stoi(size[0]);
+                            int height = std::stoi(size[1]);
+                            if (videoAndCalib.calibration.imageSize().width != width ||
+                                videoAndCalib.calibration.imageSize().height != height)
+                            {
+                                throw std::runtime_error("Resolutions of video and calibration do not fit together. Using: " + calibFile + " and " + name);
+                            }
+                        }
+                        else
+                        {
+                            throw std::runtime_error("Could not estimate resolution string: " + calibFile);
+                        }
 
                         //add video to videos vector
                         _erlebAR[location][area].push_back(videoAndCalib);
                     }
                 }
             }
-
-            //Check that there is a corresponding calibration file for every video:
-            //We extract the device name and the resolution from the video file name and search for a calibration file from this device with the same resolution.
-
-            //prepare content of calibrations directory:
-            //(maps by device a vector of resolutions and the fullpath of the calibrations file)
-            //struct Calibrations
-            //{
-            //    bool operator==(const Calibrations& other)
-            //    {
-            //        return (resolution.width == other.resolution.width &&
-            //                resolution.height == other.resolution.height);
-            //    }
-            //    cv::Size    resolution;
-            //    std::string fileName;
-            //    std::string deviceName;
-            //};
-            //std::map<std::string, std::vector<Calibrations>> calibrations;
         }
         catch (std::exception& e)
         {
@@ -120,7 +128,65 @@ public:
         }
         catch (...)
         {
-            throw std::runtime_error("Unknown exception catched in MapCreator!");
+            throw std::runtime_error("Unknown exception catched in MapCreator::loadSites!");
+        }
+    }
+
+    void createWaiMap(const Area& area, Videos& videos)
+    {
+        CVCapture* cap = CVCapture::instance();
+        cap->videoType(CVVideoType::VT_FILE);
+
+        WAI_INFO("Starting map creation for area: %s", area.c_str());
+        for (auto itVideos = videos.begin(); itVideos != videos.end(); ++itVideos)
+        {
+            cap->videoFilename    = itVideos->videoFile;
+            cap->activeCalib      = &itVideos->calibration;
+            cap->videoLoops       = false;
+            cv::Size capturedSize = cap->openFile();
+
+            if (capturedSize.width != cap->activeCalib->imageSize().width ||
+                capturedSize.height != cap->activeCalib->imageSize().height)
+                throw std::runtime_error("MapCreator::createWaiMap: Resolution of captured frame does not fit to calibration: " + itVideos->videoFile);
+            float aspectRatio = cap->activeCalib->imageAspectRatio();
+
+            while (cap->isOpened())
+            {
+                if (!cap->grabAndAdjustForSL(aspectRatio))
+                    break;
+
+#ifdef _DEBUG
+                if (!cap->lastFrame.empty())
+                {
+                    cv::imshow("lastFrame", cap->lastFrame);
+                    cv::waitKey(1);
+                }
+#endif
+            }
+        }
+        WAI_INFO("Finished map creation for area: %s", area.c_str());
+    }
+
+    void execute()
+    {
+        try
+        {
+            for (auto itLocations = _erlebAR.begin(); itLocations != _erlebAR.end(); ++itLocations)
+            {
+                Areas& areas = itLocations->second;
+                for (auto itAreas = areas.begin(); itAreas != areas.end(); ++itAreas)
+                {
+                    createWaiMap(itAreas->first, itAreas->second);
+                }
+            }
+        }
+        catch (std::exception& e)
+        {
+            throw std::runtime_error("Exception in MapCreator::execute: " + std::string(e.what()));
+        }
+        catch (...)
+        {
+            throw std::runtime_error("Unknown exception catched in MapCreator::execute!");
         }
     }
 
@@ -192,13 +258,11 @@ int main(int argc, char* argv[])
 
         //init map creator
         MapCreator mapCreator(config.erlebARDir, config.configFile);
-
-        //CVCapture* cap = CVCapture::instance();
-        //cap->activeCalib
+        mapCreator.execute();
     }
     catch (std::exception& e)
     {
-        WAI_ERROR("Exception catched during map creation: ", e.what());
+        WAI_ERROR("Exception catched during map creation: %s", e.what());
     }
     catch (...)
     {
