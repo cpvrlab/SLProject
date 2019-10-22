@@ -50,6 +50,9 @@ public:
     GLuint nmsxTexLoc;
     GLuint nmsyTexLoc;
     GLuint nmszTexLoc;
+    GLuint nmszGxxLoc;
+    GLuint nmszGyyLoc;
+    GLuint nmszGxyLoc;
 
     GLuint renderTextures[12];
     GLuint renderFBO[12];
@@ -57,7 +60,7 @@ public:
     GLuint vao;
     GLuint vbo;
     GLuint vboi;
-    GLuint outFBO[2];
+    GLuint outFBO[1];
     GLuint outTextures[2];
     GLuint pbo[2];
     int curr;
