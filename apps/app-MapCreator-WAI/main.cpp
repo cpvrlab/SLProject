@@ -1,13 +1,19 @@
 #include <CVCapture.h>
 #include <WAIHelper.h>
 #include <Utils.h>
+#include <AppWaiSlamParamHelper.h>
 
 class MapCreator
 {
-    typedef std::string              Location;
-    typedef std::string              Area;
-    typedef std::vector<std::string> Videos;
-    typedef std::map<Area, Videos>   Areas;
+    typedef std::string Location;
+    typedef std::string Area;
+    typedef struct VideoAndCalib
+    {
+        std::string videoFile;
+        std::string calibFile;
+    };
+    typedef std::vector<VideoAndCalib> Videos;
+    typedef std::map<Area, Videos>     Areas;
 
 public:
     MapCreator(std::string erlebARDir, std::string configFile)
@@ -26,6 +32,9 @@ public:
             if (!fs.isOpened())
                 throw std::runtime_error("MapCreator: loadSites: Could not open configFile: " + configFile);
 
+            //helper for areas that have been enabled
+            std::set<Area> enabledAreas;
+
             //setup for enabled areas
             cv::FileNode locsNode = fs["locationsEnabling"];
             for (auto itLocs = locsNode.begin(); itLocs != locsNode.end(); ++itLocs)
@@ -43,7 +52,8 @@ public:
                         WAI_DEBUG("enabling %s %s", location.c_str(), area.c_str());
                         Areas& areas = _erlebAR[location];
                         //insert empty Videos vector
-                        areas.insert(std::pair<std::string, std::vector<std::string>>(area, Videos()));
+                        areas.insert(std::pair<std::string, std::vector<VideoAndCalib>>(area, Videos()));
+                        enabledAreas.insert(area);
                     }
                 }
             }
@@ -53,21 +63,56 @@ public:
             cv::FileNode videoAreasNode = fs["mappingVideos"];
             for (auto itVideoAreas = videoAreasNode.begin(); itVideoAreas != videoAreasNode.end(); ++itVideoAreas)
             {
-                Location     location   = (*itVideoAreas)["location"];
-                Area         area       = (*itVideoAreas)["area"];
-                cv::FileNode videosNode = (*itVideoAreas)["videos"];
-                for (auto itVideos = videosNode.begin(); itVideos != videosNode.end(); ++itVideos)
+                Location location = (*itVideoAreas)["location"];
+                Area     area     = (*itVideoAreas)["area"];
+                if (enabledAreas.find(area) != enabledAreas.end())
                 {
-                    std::string name          = *itVideos;
-                    std::string videoFullName = erlebARDirUnified + "locations/" + location + "/" + area + "/" + "videos/" + name;
-                    if (!Utils::fileExists(videoFullName))
-                        throw std::runtime_error("MapCreator::loadSites: Video file does not exist: " + videoFullName);
+                    cv::FileNode videosNode = (*itVideoAreas)["videos"];
+                    for (auto itVideos = videosNode.begin(); itVideos != videosNode.end(); ++itVideos)
+                    {
+                        //check if this is enabled
 
-                    _erlebAR[location][area].push_back(videoFullName);
+                        std::string   name = *itVideos;
+                        VideoAndCalib videoAndCalib;
+                        videoAndCalib.videoFile = erlebARDirUnified + "locations/" + location + "/" + area + "/" + "videos/" + name;
+
+                        if (!Utils::fileExists(videoAndCalib.videoFile))
+                            throw std::runtime_error("MapCreator::loadSites: Video file does not exist: " + videoAndCalib.videoFile);
+
+                        //check if calibration file exists
+                        SlamVideoInfos slamVideoInfos;
+
+                        if (!extractSlamVideoInfosFromFileName(name, &slamVideoInfos))
+                            throw std::runtime_error("MapCreator::loadSites: Could not extract slam video infos: " + name);
+
+                        // construct calibrations file name and check if it exists
+                        videoAndCalib.calibFile = erlebARDirUnified + "../calibrations/" + "camCalib_" + slamVideoInfos.deviceString + "_main.xml";
+                        if (!Utils::fileExists(videoAndCalib.calibFile))
+                            throw std::runtime_error("MapCreator::loadSites: Calibration file does not exist: " + videoAndCalib.calibFile);
+
+                        //add video to videos vector
+                        _erlebAR[location][area].push_back(videoAndCalib);
+                    }
                 }
             }
 
-            //check that there is a corresponding calibration file
+            //Check that there is a corresponding calibration file for every video:
+            //We extract the device name and the resolution from the video file name and search for a calibration file from this device with the same resolution.
+
+            //prepare content of calibrations directory:
+            //(maps by device a vector of resolutions and the fullpath of the calibrations file)
+            //struct Calibrations
+            //{
+            //    bool operator==(const Calibrations& other)
+            //    {
+            //        return (resolution.width == other.resolution.width &&
+            //                resolution.height == other.resolution.height);
+            //    }
+            //    cv::Size    resolution;
+            //    std::string fileName;
+            //    std::string deviceName;
+            //};
+            //std::map<std::string, std::vector<Calibrations>> calibrations;
         }
         catch (std::exception& e)
         {

@@ -1,17 +1,18 @@
 #
-# CMake configuration for app-MapCreator application
+# CMake configuration for app-MapCreator-WAI application
 #
 
-set(target app-MapCreator)
+set(target app-MapCreator-WAI)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
-file(GLOB headers
+set(headers
+    ${SL_PROJECT_ROOT}/apps/source/wai/AppWaiSlamParamHelper.h
     )
 
-file(GLOB sources
-    ${SL_PROJECT_ROOT}/apps/app-MapCreator/main.cpp
+set(sources
+    ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/main.cpp
     )
 
 # Group source files
@@ -31,7 +32,7 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
-
+    ${SL_PROJECT_ROOT}/apps/source/wai
     PUBLIC
 
     INTERFACE
