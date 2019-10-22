@@ -78,12 +78,16 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
     {
         TestInfo info = _infos[_currentItem];
 
-        SlamParams params = {
-          info.vidPath,
-          info.calPath,
-          info.mapPath,
-          "",
-          false};
+        SlamParams params;
+        params.videoFile          = info.vidPath;
+        params.mapFile            = info.mapPath;
+        params.calibrationFile    = info.calPath;
+        params.vocabularyFile     = "";
+        params.markerFile         = "";
+        params.storeKeyFrameImg   = false;
+        params.trackOpticalFlow   = false;
+        params.trackingOnly       = false;
+        params.serial             = false;
         OrbSlamStartResult result = WAIApp::startOrbSlam(&params);
         if (!result.wasSuccessful)
         {

@@ -59,6 +59,8 @@ static bool extractSlamMapInfosFromFileName(std::string   fileName,
 {
     bool result = false;
 
+    fileName = Utils::getFileNameWOExt(fileName);
+
     std::vector<std::string> stringParts;
     Utils::splitString(fileName, '_', stringParts);
 

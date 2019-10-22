@@ -42,7 +42,7 @@ class WAI_API ModeOrbSlam2
                  bool        retainImg,
                  bool        onlyTracking,
                  bool        trackOptFlow,
-                 bool        createMarkerMap,
+                 std::string markerFile,
                  std::string orbVocFile);
     ~ModeOrbSlam2();
     bool getPose(cv::Mat* pose);
@@ -136,7 +136,7 @@ class WAI_API ModeOrbSlam2
     };
 
     void initialize(cv::Mat& imageGray, cv::Mat& imageRGB);
-    bool createInitialMapMonocular();
+    bool createInitialMapMonocular(int mapPointsNeeded);
     void track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB);
 
     //bool        relocalization();

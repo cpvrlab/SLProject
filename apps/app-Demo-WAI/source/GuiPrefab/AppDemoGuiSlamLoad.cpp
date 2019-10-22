@@ -38,7 +38,6 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     _serial             = false;
     _trackingOnly       = false;
     _trackOpticalFlow   = false;
-    _createMarkerMap    = false;
 
     _currentLocation    = "";
     _currentArea        = "";
@@ -52,6 +51,7 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     _mapExtensions.push_back(".json");
     _calibExtensions.push_back(".xml");
     _vocExtensions.push_back(".bin");
+    _markerExtensions.push_back(".jpg");
 }
 
 void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directory,
@@ -180,10 +180,11 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
                 if (!WAIMapStorage::saveMap(WAIApp::mode->getMap(),
                                             _mapNode,
+                                            WAIApp::mode->getKPextractor()->GetName(),
                                             mapDir + filename,
                                             imgDir))
                 {
-                    WAIApp::errorDial->setErrorMsg("Failed to save map");
+                    WAIApp::errorDial->setErrorMsg("Failed to save map " + mapDir + filename);
                     WAIApp::uiPrefs.showError = true;
                 }
             }
@@ -295,6 +296,27 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                     }
                     ImGui::EndCombo();
                 }
+
+                if (ImGui::BeginCombo("Marker", _currentMarker.c_str())) // The second parameter is the label previewed before opening the combo.
+                {
+                    std::vector<std::string> availableMarkers;
+                    loadFileNamesInVector(_slamRootDir + _currentLocation + "/" + _currentArea + "/markers/",
+                                          availableMarkers,
+                                          _markerExtensions,
+                                          true);
+
+                    for (int n = 0; n < availableMarkers.size(); n++)
+                    {
+                        bool isSelected = (_currentMarker == availableMarkers[n]); // You can store your selection however you want, outside or inside your objects
+                        if (ImGui::Selectable(availableMarkers[n].c_str(), isSelected))
+                        {
+                            _currentMarker = availableMarkers[n];
+                        }
+                        if (isSelected)
+                            ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+                    }
+                    ImGui::EndCombo();
+                }
             }
         }
 
@@ -346,7 +368,6 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         ImGui::Checkbox("track optical flow", &_trackOpticalFlow);
         ImGui::Checkbox("tracking only", &_trackingOnly);
         ImGui::Checkbox("serial", &_serial);
-        ImGui::Checkbox("create marker map", &_createMarkerMap);
 
         if (ImGui::Button("Start", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
         {
@@ -362,11 +383,11 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 params.mapFile          = (_currentMap.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/maps/" + _currentMap);
                 params.calibrationFile  = (_currentCalibration.empty() ? "" : _calibrationsDir + _currentCalibration);
                 params.vocabularyFile   = (_currentVoc.empty() ? "" : _vocabulariesDir + _currentVoc);
+                params.markerFile       = (_currentMarker.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/markers/" + _currentMarker);
                 params.storeKeyFrameImg = _storeKeyFrameImage;
                 params.trackOpticalFlow = _trackOpticalFlow;
                 params.trackingOnly     = _trackingOnly;
                 params.serial           = _serial;
-                params.createMarkerMap  = _createMarkerMap;
 
                 OrbSlamStartResult startResult = WAIApp::startOrbSlam(&params);
 

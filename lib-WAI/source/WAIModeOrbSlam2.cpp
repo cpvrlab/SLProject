@@ -7,14 +7,16 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
                                 bool        retainImg,
                                 bool        onlyTracking,
                                 bool        trackOptFlow,
-                                bool        createMarkerMap,
+                                std::string markerFile,
                                 std::string orbVocFile)
   : _serial(serial),
     _retainImg(retainImg),
     _onlyTracking(onlyTracking),
-    _trackOptFlow(trackOptFlow),
-    _createMarkerMap(createMarkerMap)
+    _trackOptFlow(trackOptFlow)
 {
+    _hasMarkerCorrectionTransformation = false;
+    _createMarkerMap                   = !markerFile.empty();
+
     cameraMat.convertTo(_cameraMat, CV_32F);
     distortionMat.convertTo(_distortionMat, CV_32F);
 
@@ -44,7 +46,7 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
     mpIniExtractor = mpIniDefaultExtractor;
 
     //instantiate local mapping
-    mpLocalMapper = new ORB_SLAM2::LocalMapping(_map, 1, mpVocabulary);
+    mpLocalMapper = new ORB_SLAM2::LocalMapping(_map, 1, mpVocabulary, !_createMarkerMap);
     mpLoopCloser  = new ORB_SLAM2::LoopClosing(_map, mpKeyFrameDatabase, mpVocabulary, false, false);
 
     mpLocalMapper->SetLoopCloser(mpLoopCloser);
@@ -61,9 +63,9 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
 
     if (_createMarkerMap)
     {
-        _markerOrbExtractor = new ORB_SLAM2::SURFextractor(100); // TODO(dgj1): markerInitialization - adjust nFeatures
+        _markerOrbExtractor = new ORB_SLAM2::SURFextractor(500); // TODO(dgj1): markerInitialization - adjust nFeatures
 
-        cv::Mat markerImgGray = cv::imread(std::string(SL_PROJECT_ROOT) + "/data/calibrations/20191009_110647_android-mcrd1-35-ASUS-A002_640x360.jpg", cv::IMREAD_GRAYSCALE);
+        cv::Mat markerImgGray = cv::imread(markerFile, cv::IMREAD_GRAYSCALE);
 
         float fyCam = _cameraMat.at<float>(1, 1);
         float cyCam = _cameraMat.at<float>(1, 2);
@@ -76,6 +78,9 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
 
         cv::Mat markerCameraMat     = (cv::Mat_<float>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
         cv::Mat markerDistortionMat = cv::Mat::zeros(4, 1, CV_32F);
+
+        //cv::Mat markerCameraMat     = cameraMat;
+        //cv::Mat markerDistortionMat = distortionMat;
 
         _markerFrame  = WAIFrame(markerImgGray, 0.0f, _markerOrbExtractor, markerCameraMat, markerDistortionMat, mpVocabulary, true);
         _markerWidthM = 0.289f;
@@ -522,6 +527,9 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
     //  - the two new keyframes are added to the local mapper and the local mapper is started twice
     //  - the tracking state is changed to TRACKING/INITIALIZED
 
+    // NOTE(dgj1): was originally 100
+    int matchesNeeded = 100;
+
     // Get Map Mutex -> Map cannot be changed
     std::unique_lock<std::mutex> lock(_map->mMutexMapUpdate, std::defer_lock);
     if (!_serial)
@@ -549,7 +557,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
         std::vector<int> markerMatchesToCurrentFrame;
         int              nmatches = matcher.SearchForInitialization(_markerFrame, mCurrentFrame, prevMatched, markerMatchesToCurrentFrame, 100);
 
-        if (nmatches > 100)
+        if (nmatches > matchesNeeded)
         {
             std::vector<cv::KeyPoint> matches;
             for (int i = 0; i < markerMatchesToCurrentFrame.size(); i++)
@@ -578,7 +586,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
     if (!mpInitializer)
     {
         // Set Reference Frame
-        if (mCurrentFrame.mvKeys.size() > 100)
+        if (mCurrentFrame.mvKeys.size() > matchesNeeded)
         {
             mInitialFrame = WAIFrame(mCurrentFrame);
             mLastFrame    = WAIFrame(mCurrentFrame);
@@ -607,7 +615,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
     else
     {
         // Try to initialize
-        if ((int)mCurrentFrame.mvKeys.size() <= 100)
+        if ((int)mCurrentFrame.mvKeys.size() <= matchesNeeded)
         {
             delete mpInitializer;
             mpInitializer = static_cast<Initializer*>(NULL);
@@ -648,7 +656,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
         }
 
         // Check if there are enough correspondences
-        if (nmatches < 100)
+        if (nmatches < matchesNeeded)
         {
             delete mpInitializer;
             mpInitializer = static_cast<Initializer*>(NULL);
@@ -705,13 +713,17 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
             tcw.copyTo(Tcw.rowRange(0, 3).col(3));
             mCurrentFrame.SetPose(Tcw);
 
-            bool mapInitializedSuccessfully = createInitialMapMonocular();
+            bool mapInitializedSuccessfully = createInitialMapMonocular(matchesNeeded);
 
             if (mapInitializedSuccessfully)
             {
                 //mark tracking as initialized
                 _initialized = true;
                 _bOK         = true;
+            }
+            else
+            {
+                WAI_LOG("createInitialMapMonocular failed");
             }
 
             //std::cout << "mCurrentFrame.mTcw: " << mCurrentFrame.mTcw << std::endl;
@@ -1061,7 +1073,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
     }
 }
 
-bool WAI::ModeOrbSlam2::createInitialMapMonocular()
+bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
 {
     // Create KeyFrames
     WAIKeyFrame* pKFini = new WAIKeyFrame(mInitialFrame, _map, mpKeyFrameDatabase);
@@ -1123,7 +1135,7 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular()
     float medianDepth    = pKFini->ComputeSceneMedianDepth(2);
     float invMedianDepth = 1.0f / medianDepth;
 
-    if (medianDepth < 0 || pKFcur->TrackedMapPoints(1) < 100)
+    if (medianDepth < 0 || pKFcur->TrackedMapPoints(1) < mapPointsNeeded)
     {
         WAI_LOG("Wrong initialization, reseting...");
         reset();
@@ -1214,59 +1226,80 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular()
             mapPointCoordinates.push_back(mapPointCoordinate);
         }
 
-        cv::Mat inliers;
-        _markerCorrectionTransformation = cv::Mat(3, 4, CV_32F);
-        cv::estimateAffine3D(mapPointCoordinates,
-                             markerPointCoordinates,
-                             _markerCorrectionTransformation,
-                             inliers);
-
-        _hasMarkerCorrectionTransformation = true;
-
 #if 0
+// TODO(dgj1): finish this
+        _markerCorrectionTransformation = cv::Mat::eye(4, 4, CV_32F);
+
         // find two map points that are the furthest apart
-        float mapDist = 0.0f;
-        int   indexKP1, indexKP2;
+        float        mapDist = 0.0f;
+        int          indexKP1, indexKP2;
+        WAIMapPoint* mp1;
+        WAIMapPoint* mp2;
+
+        bool candidatesFound = false;
+
         for (int i = 0; i < markerKeyPointToMapPointMatches.size(); i++)
         {
-            WAIMapPoint* mp1 = markerKeyPointToMapPointMatches[i];
+            WAIMapPoint* mp1Cand = markerKeyPointToMapPointMatches[i];
 
-            if (!mp1) continue;
+            if (!mp1Cand) continue;
 
             for (int j = 0; j < markerKeyPointToMapPointMatches.size(); j++)
             {
-                WAIMapPoint* mp2 = markerKeyPointToMapPointMatches[j];
+                WAIMapPoint* mp2Cand = markerKeyPointToMapPointMatches[j];
 
-                if (!mp2) continue;
+                if (!mp2Cand) continue;
 
-                float dist = cv::norm(mp1->GetWorldPos() - mp2->GetWorldPos());
+                float dist = cv::norm(mp1Cand->GetWorldPos() - mp2Cand->GetWorldPos());
 
                 if (dist > mapDist)
                 {
                     mapDist  = dist;
                     indexKP1 = i;
                     indexKP2 = j;
+                    mp1      = mp1Cand;
+                    mp2      = mp2Cand;
+
+                    candidatesFound = true;
                 }
             }
         }
 
-        // calculate dist on marker in 2D
-        float markerDistInPx = cv::norm(_markerFrame.mvKeysUn[indexKP1].pt - _markerFrame.mvKeysUn[indexKP2].pt);
-        float mPerPx         = _markerWidthM / _markerFrame.imgGray.cols;
-        float markerDistInM  = markerDistInPx * mPerPx;
+        if (candidatesFound)
+        {
+            // calculate dist on marker in 2D
+            float markerDistInPx = cv::norm(_markerFrame.mvKeysUn[indexKP1].pt - _markerFrame.mvKeysUn[indexKP2].pt);
+            float markerDistInM  = markerDistInPx * mPerPx;
 
-        // calculate scale factor
-        float scaleFactor = markerDistInM / mapDist;
+            // calculate scale factor
+            float scaleFactor = markerDistInM / mapDist;
 
-        WAI_LOG("kp1: %f, %f\nkp2: %f, %f",
-                _markerFrame.mvKeysUn[indexKP1].pt.x,
-                _markerFrame.mvKeysUn[indexKP1].pt.y,
-                _markerFrame.mvKeysUn[indexKP2].pt.x,
-                _markerFrame.mvKeysUn[indexKP2].pt.y);
-        WAI_LOG("dist in m: %f, in px: %f",
-                markerDistInM,
-                markerDistInPx);
-        WAI_LOG("scale factor is: %f", scaleFactor);
+            cv::Mat markerKp3D         = cv::Mat::zeros(3, 1, CV_32F);
+            markerKp3D.at<float>(0, 0) = _markerFrame.mvKeysUn[indexKP1].pt.x;
+            markerKp3D.at<float>(1, 0) = _markerFrame.mvKeysUn[indexKP1].pt.y;
+
+            cv::Mat t = markerKp3D - mp1->GetWorldPos();
+
+            WAI_LOG("kp1: %f, %f\nkp2: %f, %f",
+                    _markerFrame.mvKeysUn[indexKP1].pt.x,
+                    _markerFrame.mvKeysUn[indexKP1].pt.y,
+                    _markerFrame.mvKeysUn[indexKP2].pt.x,
+                    _markerFrame.mvKeysUn[indexKP2].pt.y);
+            WAI_LOG("dist in m: %f, in px: %f",
+                    markerDistInM,
+                    markerDistInPx);
+            WAI_LOG("scale factor is: %f", scaleFactor);
+
+            _markerCorrectionTransformation.at<float>(0, 0) = scaleFactor;
+            _markerCorrectionTransformation.at<float>(1, 1) = scaleFactor;
+            _markerCorrectionTransformation.at<float>(2, 2) = scaleFactor;
+            _markerCorrectionTransformation.at<float>(0, 3) = t.at<float>(0, 0);
+            _markerCorrectionTransformation.at<float>(1, 3) = t.at<float>(1, 0);
+            _markerCorrectionTransformation.at<float>(2, 3) = t.at<float>(2, 0);
+            _markerCorrectionTransformation.at<float>(3, 3) = 1.0f;
+
+            _hasMarkerCorrectionTransformation = true;
+        }
 #endif
     }
 

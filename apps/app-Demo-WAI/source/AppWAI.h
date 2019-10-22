@@ -37,11 +37,11 @@ struct SlamParams
     std::string mapFile;
     std::string calibrationFile;
     std::string vocabularyFile;
+    std::string markerFile;
     bool        storeKeyFrameImg;
     bool        trackOpticalFlow;
     bool        trackingOnly;
     bool        serial;
-    bool        createMarkerMap;
 };
 
 //-----------------------------------------------------------------------------

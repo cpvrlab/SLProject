@@ -45,6 +45,7 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 
     std::vector<std::string> _videoExtensions;
     std::vector<std::string> _mapExtensions;
+    std::vector<std::string> _markerExtensions;
     std::vector<std::string> _calibExtensions;
     std::vector<std::string> _vocExtensions;
 
@@ -54,12 +55,12 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
     std::string _currentCalibration;
     std::string _currentMap;
     std::string _currentVoc;
+    std::string _currentMarker;
 
     bool _storeKeyFrameImage;
     bool _trackOpticalFlow;
     bool _serial;
     bool _trackingOnly;
-    bool _createMarkerMap;
 
     WAICalibration* _wc;
     SLNode*         _mapNode;

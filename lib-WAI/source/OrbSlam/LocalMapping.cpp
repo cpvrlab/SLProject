@@ -33,8 +33,19 @@
 namespace ORB_SLAM2
 {
 
-LocalMapping::LocalMapping(WAIMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary)
-  : mpMap(pMap), mbMonocular(bMonocular), mpORBvocabulary(mpORBvocabulary), mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mbAbortBA(false), mbStopped(false), mbStopRequested(false), mbNotStop(false), mbAcceptKeyFrames(true)
+LocalMapping::LocalMapping(WAIMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary, bool cullKeyFrames)
+  : mpMap(pMap),
+    mbMonocular(bMonocular),
+    mpORBvocabulary(mpORBvocabulary),
+    mbResetRequested(false),
+    mbFinishRequested(false),
+    mbFinished(true),
+    mbAbortBA(false),
+    mbStopped(false),
+    mbStopRequested(false),
+    mbNotStop(false),
+    mbAcceptKeyFrames(true),
+    _cullKeyFrames(cullKeyFrames)
 {
 }
 
@@ -97,8 +108,11 @@ void LocalMapping::Run()
                     if (mpMap->KeyFramesInMap() > 2)
                         Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame, &mbAbortBA, mpMap);
 
-                    // Check redundant local Keyframes
-                    KeyFrameCulling();
+                    if (_cullKeyFrames)
+                    {
+                        // Check redundant local Keyframes
+                        KeyFrameCulling();
+                    }
                 }
             }
 
@@ -174,8 +188,11 @@ void LocalMapping::RunOnce()
                 Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame, &mbAbortBA, mpMap);
             }
 
-            // Check redundant local Keyframes
-            KeyFrameCulling();
+            if (_cullKeyFrames)
+            {
+                // Check redundant local Keyframes
+                KeyFrameCulling();
+            }
         }
 
         mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);

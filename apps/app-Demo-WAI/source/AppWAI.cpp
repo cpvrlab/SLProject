@@ -144,11 +144,11 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     std::string calibrationFile  = "";
     std::string mapFile          = "";
     std::string vocFile          = "";
+    std::string markerFile       = "";
     bool        saveVideoFrames  = false;
     bool        serial           = false;
     bool        onlyTracking     = false;
     bool        trackOpticalFlow = false;
-    bool        createMarkerMap  = false;
 
     if (slamParams)
     {
@@ -156,11 +156,11 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         calibrationFile  = slamParams->calibrationFile;
         mapFile          = slamParams->mapFile;
         vocFile          = slamParams->vocabularyFile;
+        markerFile       = slamParams->markerFile;
         saveVideoFrames  = slamParams->storeKeyFrameImg;
         serial           = slamParams->serial;
         onlyTracking     = slamParams->trackingOnly;
         trackOpticalFlow = slamParams->trackOpticalFlow;
-        createMarkerMap  = slamParams->createMarkerMap;
     }
 
     bool useVideoFile             = !videoFile.empty();
@@ -284,7 +284,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
                                  saveVideoFrames,
                                  onlyTracking,
                                  trackOpticalFlow,
-                                 createMarkerMap,
+                                 markerFile,
                                  vocFile);
 
     // 5. Load map data

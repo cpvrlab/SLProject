@@ -43,7 +43,7 @@ class LoopClosing;
 class LocalMapping
 {
     public:
-    LocalMapping(WAIMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary);
+    LocalMapping(WAIMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary, bool cullKeyFrames = true);
 
     void SetLoopCloser(LoopClosing* pLoopCloser);
 
@@ -136,6 +136,8 @@ class LocalMapping
     std::mutex mMutexAccept;
 
     ORBVocabulary* mpORBvocabulary = NULL;
+
+    bool _cullKeyFrames;
 };
 
 } //namespace ORB_SLAM
