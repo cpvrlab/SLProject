@@ -557,25 +557,58 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
         std::vector<int> markerMatchesToCurrentFrame;
         int              nmatches = matcher.SearchForInitialization(_markerFrame, mCurrentFrame, prevMatched, markerMatchesToCurrentFrame, 100);
 
-        if (nmatches > matchesNeeded)
+        if (nmatches > 50)
         {
-            std::vector<cv::KeyPoint> matches;
+            std::vector<cv::Point2f> markerPoints;
+            std::vector<cv::Point2f> framePoints;
+
+            //std::vector<cv::KeyPoint> matches;
             for (int i = 0; i < markerMatchesToCurrentFrame.size(); i++)
             {
                 if (markerMatchesToCurrentFrame[i] >= 0)
                 {
-                    matches.push_back(mCurrentFrame.mvKeys[markerMatchesToCurrentFrame[i]]);
-                    markerMatchesCurrentFrame.push_back(i);
+                    markerPoints.push_back(_markerFrame.mvKeysUn[i].pt);
+                    framePoints.push_back(mCurrentFrame.mvKeysUn[markerMatchesToCurrentFrame[i]].pt);
+                    //matches.push_back(mCurrentFrame.mvKeys[markerMatchesToCurrentFrame[i]]);
+                    //markerMatchesCurrentFrame.push_back(i);
                 }
             }
 
-            mCurrentFrame = WAIFrame(imageGray,
-                                     mpIniExtractor,
-                                     _cameraMat,
-                                     _distortionMat,
-                                     matches,
-                                     mpVocabulary,
-                                     _retainImg);
+            cv::Mat markerHomography = cv::findHomography(markerPoints, framePoints, cv::RANSAC);
+            markerHomography.convertTo(markerHomography, CV_32F);
+
+            cv::Mat ul = cv::Mat(cv::Point3f(0, 0, 1));
+            cv::Mat ur = cv::Mat(cv::Point3f(_markerFrame.imgGray.cols, 0, 1));
+            cv::Mat ll = cv::Mat(cv::Point3f(0, _markerFrame.imgGray.rows, 1));
+            cv::Mat lr = cv::Mat(cv::Point3f(_markerFrame.imgGray.cols, _markerFrame.imgGray.rows, 1));
+
+            // NOTE(dgj1): assumption that intrinsic camera parameters are the same
+            // TODO(dgj1): think about this assumption
+            ul = markerHomography * ul;
+            ul /= ul.at<float>(2, 0);
+            ur = markerHomography * ur;
+            ur /= ur.at<float>(2, 0);
+            ll = markerHomography * ll;
+            ll /= ll.at<float>(2, 0);
+            lr = markerHomography * lr;
+            lr /= lr.at<float>(2, 0);
+
+            cv::rectangle(imageRGB,
+                          cv::Point(ul.at<float>(0, 0), ul.at<float>(1, 0)),
+                          cv::Point(ul.at<float>(0, 0) + 3, ul.at<float>(1, 0) + 3),
+                          cv::Scalar(255, 0, 0));
+            cv::rectangle(imageRGB,
+                          cv::Point(ur.at<float>(0, 0), ur.at<float>(1, 0)),
+                          cv::Point(ur.at<float>(0, 0) + 3, ur.at<float>(1, 0) + 3),
+                          cv::Scalar(255, 0, 0));
+            cv::rectangle(imageRGB,
+                          cv::Point(ll.at<float>(0, 0), ll.at<float>(1, 0)),
+                          cv::Point(ll.at<float>(0, 0) + 3, ll.at<float>(1, 0) + 3),
+                          cv::Scalar(255, 0, 0));
+            cv::rectangle(imageRGB,
+                          cv::Point(lr.at<float>(0, 0), lr.at<float>(1, 0)),
+                          cv::Point(lr.at<float>(0, 0) + 3, lr.at<float>(1, 0) + 3),
+                          cv::Scalar(255, 0, 0));
         }
         else
         {
