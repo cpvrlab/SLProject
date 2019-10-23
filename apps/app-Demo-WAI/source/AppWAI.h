@@ -33,20 +33,17 @@ struct OrbSlamStartResult
 
 struct SlamParams
 {
-    std::string videoFile;
-    std::string mapFile;
-    std::string calibrationFile;
-    std::string vocabularyFile;
-    bool        storeKeyFrameImg;
-    bool        trackOpticalFlow;
-    bool        trackingOnly;
-    bool        serial;
+    std::string               videoFile;
+    std::string               mapFile;
+    std::string               calibrationFile;
+    std::string               vocabularyFile;
+    WAI::ModeOrbSlam2::Params params;
 };
 
 //-----------------------------------------------------------------------------
 class WAIApp
 {
-    public:
+public:
     static int                load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* dirs);
     static void               close();
     static OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);

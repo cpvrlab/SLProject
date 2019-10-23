@@ -367,16 +367,17 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             }
             else
             {
-                SlamParams params = {
-                  (_currentVideo.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/videos/" + _currentVideo),
-                  (_currentMap.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/maps/" + _currentMap),
-                  (_currentCalibration.empty() ? "" : _calibrationsDir + _currentCalibration),
-                  (_currentVoc.empty() ? "" : _vocabulariesDir + _currentVoc),
-                  _storeKeyFrameImage,
-                  _trackOpticalFlow,
-                  _trackingOnly,
-                  _serial};
-                OrbSlamStartResult startResult = WAIApp::startOrbSlam(&params);
+                SlamParams slamParams;
+                slamParams.videoFile           = _currentVideo.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/videos/" + _currentVideo;
+                slamParams.mapFile             = _currentMap.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/maps/" + _currentMap;
+                slamParams.calibrationFile     = _currentCalibration.empty() ? "" : _calibrationsDir + _currentCalibration;
+                slamParams.vocabularyFile      = _currentVoc.empty() ? "" : _vocabulariesDir + _currentVoc;
+                slamParams.params.retainImg    = _storeKeyFrameImage;
+                slamParams.params.trackOptFlow = _trackOpticalFlow;
+                slamParams.params.onlyTracking = _trackingOnly;
+                slamParams.params.serial       = _serial;
+
+                OrbSlamStartResult startResult = WAIApp::startOrbSlam(&slamParams);
                 sv->setViewportFromRatio(SLVec2i(WAIApp::videoFrameSize.width, WAIApp::videoFrameSize.height), SLViewportAlign::VA_center, true);
 
                 if (!startResult.wasSuccessful)

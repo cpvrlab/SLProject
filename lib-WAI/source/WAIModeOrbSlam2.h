@@ -35,14 +35,28 @@ enum TrackingState
 
 class WAI_API ModeOrbSlam2
 {
-    public:
-    ModeOrbSlam2(cv::Mat     cameraMat,
-                 cv::Mat     distortionMat,
-                 bool        serial,
-                 bool        retainImg,
-                 bool        onlyTracking,
-                 bool        trackOptFlow,
-                 std::string orbVocFile);
+public:
+    struct Params
+    {
+        //run local mapper and loopclosing serial to tracking
+        bool serial = false;
+        //retain the images in the keyframes, so we can store them later
+        bool retainImg = false;
+        //in onlyTracking mode we do not use local mapping and loop closing
+        bool onlyTracking = false;
+        //use lucas canade optical flow tracking
+        bool trackOptFlow = false;
+
+        //keyframe culling strategy params:
+        // A keyframe is considered redundant if _cullRedundantPerc of the MapPoints it sees, are seen
+        // in at least other 3 keyframes (in the same or finer scale)
+        float cullRedundantPerc = 0.9f; //originally it was 0.9
+    };
+
+    ModeOrbSlam2(cv::Mat       cameraMat,
+                 cv::Mat       distortionMat,
+                 const Params& params,
+                 std::string   orbVocFile);
     ~ModeOrbSlam2();
     bool getPose(cv::Mat* pose);
     bool update(cv::Mat& imageGray, cv::Mat& imageRGB);
@@ -116,7 +130,7 @@ class WAI_API ModeOrbSlam2
     void resume();
     void requestStateIdle();
     bool hasStateIdle();
-    bool retainImage() { return _retainImg; }
+    bool retainImage() { return _params.retainImg; }
     void setInitialized(bool initialized) { _initialized = initialized; }
 
     void setExtractor(KPextractor* extractor, KPextractor* iniExtractor);
@@ -124,7 +138,7 @@ class WAI_API ModeOrbSlam2
 
     WAIFrame getCurrentFrame();
 
-    private:
+private:
     enum TrackingType
     {
         TrackingType_None,
@@ -159,12 +173,9 @@ class WAI_API ModeOrbSlam2
 
     cv::Mat _pose;
 
-    bool _poseSet = false;
-    bool _serial;
-    bool _retainImg;
-    bool _initialized;
-    bool _onlyTracking;
-    bool _trackOptFlow;
+    bool   _poseSet = false;
+    bool   _initialized;
+    Params _params;
 
     cv::Mat _cameraMat;
     cv::Mat _distortionMat;

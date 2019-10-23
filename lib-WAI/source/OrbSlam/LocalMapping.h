@@ -42,8 +42,8 @@ class LoopClosing;
 
 class LocalMapping
 {
-    public:
-    LocalMapping(WAIMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary);
+public:
+    LocalMapping(WAIMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary, float cullRedundantPerc = 0.9);
 
     void SetLoopCloser(LoopClosing* pLoopCloser);
 
@@ -80,7 +80,7 @@ class LocalMapping
         return mlNewKeyFrames.size();
     }
 
-    protected:
+protected:
     bool CheckNewKeyFrames();
     void ProcessNewKeyFrame();
     void CreateNewMapPoints();
@@ -136,6 +136,10 @@ class LocalMapping
     std::mutex mMutexAccept;
 
     ORBVocabulary* mpORBvocabulary = NULL;
+
+    // A keyframe is considered redundant if the _cullRedundantPerc of the MapPoints it sees, are seen
+    // in at least other 3 keyframes (in the same or finer scale)
+    float _cullRedundantPerc;
 };
 
 } //namespace ORB_SLAM

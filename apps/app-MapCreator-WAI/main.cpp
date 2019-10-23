@@ -143,13 +143,9 @@ public:
 
     void createNewWaiMap(const Location& location, const Area& area, Videos& videos)
     {
-
         //wai mode config
-        bool serial           = true;
-        bool saveVideoFrames  = true;
-        bool onlyTracking     = false;
-        bool trackOpticalFlow = false;
-        bool disableKFCulling = true;
+        WAI::ModeOrbSlam2::Params modeParams;
+        modeParams.cullRedundantPerc = 0.99;
 
         //map creation parameter:
         bool initialized = false;
@@ -183,10 +179,7 @@ public:
             std::unique_ptr<WAI::ModeOrbSlam2> waiMode =
               std::make_unique<WAI::ModeOrbSlam2>(cap->activeCalib->cameraMat(),
                                                   cap->activeCalib->distortion(),
-                                                  serial,
-                                                  saveVideoFrames,
-                                                  onlyTracking,
-                                                  trackOpticalFlow,
+                                                  modeParams,
                                                   _vocFile);
             //if we have an active map from one of the previously processed videos for this area then load it
             if (initialized)
@@ -209,19 +202,8 @@ public:
                 if (!cap->grabAndAdjustForSL(cap->activeCalib->imageAspectRatio()))
                     break;
 
-                //todo: check that video is runs one complete circle after initialization or first relocalization
-
                 //update wai
                 waiMode->update(cap->lastFrameGray, cap->lastFrame);
-
-                //check if slam was initialized in this video
-                //if (!initialized && waiMode->isInitialized())
-                //{
-                //    initialized = true;
-                //    //frame where initialization took place
-                //    finalFrameIndex = currentFrameIndex;
-                //    WAI_DEBUG("Initialized map for area %s with video %s at index %2", area.c_str(), itVideos->videoFile.c_str(), std::to_string(finalFrameIndex).c_str());
-                //}
 
                 //check if it relocalized once
                 if (!relocalizedOnce && waiMode->getTrackingState() == WAI::TrackingState::TrackingState_TrackingOK)

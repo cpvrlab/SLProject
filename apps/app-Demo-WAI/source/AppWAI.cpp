@@ -142,25 +142,23 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     OrbSlamStartResult result = {};
     uiPrefs.showError         = false;
 
-    std::string videoFile        = "";
-    std::string calibrationFile  = "";
-    std::string mapFile          = "";
-    std::string vocFile          = "";
-    bool        saveVideoFrames  = false;
-    bool        serial           = false;
-    bool        onlyTracking     = false;
-    bool        trackOpticalFlow = false;
+    std::string               videoFile       = "";
+    std::string               calibrationFile = "";
+    std::string               mapFile         = "";
+    std::string               vocFile         = "";
+    WAI::ModeOrbSlam2::Params params;
+    params.retainImg    = false;
+    params.serial       = false;
+    params.onlyTracking = false;
+    params.trackOptFlow = false;
 
     if (slamParams)
     {
-        videoFile        = slamParams->videoFile;
-        calibrationFile  = slamParams->calibrationFile;
-        mapFile          = slamParams->mapFile;
-        vocFile          = slamParams->vocabularyFile;
-        saveVideoFrames  = slamParams->storeKeyFrameImg;
-        serial           = slamParams->serial;
-        onlyTracking     = slamParams->trackingOnly;
-        trackOpticalFlow = slamParams->trackOpticalFlow;
+        videoFile       = slamParams->videoFile;
+        calibrationFile = slamParams->calibrationFile;
+        mapFile         = slamParams->mapFile;
+        vocFile         = slamParams->vocabularyFile;
+        params          = slamParams->params;
     }
 
     bool useVideoFile             = !videoFile.empty();
@@ -279,10 +277,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     // 4. Create new mode ORBSlam
     mode = new WAI::ModeOrbSlam2(cap->activeCalib->cameraMat(),
                                  cap->activeCalib->distortion(),
-                                 serial,
-                                 saveVideoFrames,
-                                 onlyTracking,
-                                 trackOpticalFlow,
+                                 params,
                                  vocFile);
 
     // 5. Load map data
@@ -322,7 +317,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
 
     currentSlamParams->calibrationFile  = calibrationFile;
     currentSlamParams->mapFile          = mapFile;
-    currentSlamParams->storeKeyFrameImg = saveVideoFrames;
+    currentSlamParams->params.retainImg = params.retainImg;
     currentSlamParams->videoFile        = videoFile;
     currentSlamParams->vocabularyFile   = vocFile;
 
