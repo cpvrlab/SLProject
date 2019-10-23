@@ -1,7 +1,10 @@
+#include <memory>
 #include <CVCapture.h>
 #include <WAIHelper.h>
 #include <Utils.h>
 #include <AppWaiSlamParamHelper.h>
+#include <WAIModeOrbSlam2.h>
+#include <WAIMapStorage.h>
 
 class MapCreator
 {
@@ -18,7 +21,14 @@ class MapCreator
 
 public:
     MapCreator(std::string erlebARDir, std::string configFile)
+      : _erlebARDir(Utils::unifySlashes(erlebARDir))
     {
+        _calibrationsDir = _erlebARDir + "../calibrations/";
+        _vocFile         = _erlebARDir + "../voc/ORBvoc.bin";
+        _outputDir       = _erlebARDir + "MapCreator/";
+        if (!Utils::dirExists(_outputDir))
+            Utils::makeDir(_outputDir);
+
         //scan erlebar directory and config file, collect everything that is enabled in the config file and
         //check that all files (video and calibration) exist.
         loadSites(erlebARDir, configFile);
@@ -88,16 +98,15 @@ public:
                             throw std::runtime_error("Could not extract slam video infos: " + name);
 
                         // construct calibrations file name and check if it exists
-                        std::string calibDir  = erlebARDirUnified + "../calibrations/";
                         std::string calibFile = "camCalib_" + slamVideoInfos.deviceString + "_main.xml";
 
                         //videoAndCalib.calibFile = erlebARDirUnified + "../calibrations/" + "camCalib_" + slamVideoInfos.deviceString + "_main.xml";
-                        if (!Utils::fileExists(calibDir + calibFile))
-                            throw std::runtime_error("Calibration file does not exist: " + calibDir + calibFile);
+                        if (!Utils::fileExists(_calibrationsDir + calibFile))
+                            throw std::runtime_error("Calibration file does not exist: " + _calibrationsDir + calibFile);
 
                         //load calibration file and check for aspect ratio
-                        if (!videoAndCalib.calibration.load(calibDir, calibFile, false, false))
-                            throw std::runtime_error("Could not load calibration file: " + calibDir + calibFile);
+                        if (!videoAndCalib.calibration.load(_calibrationsDir, calibFile, false, false))
+                            throw std::runtime_error("Could not load calibration file: " + _calibrationsDir + calibFile);
 
                         std::vector<std::string> size;
                         Utils::splitString(slamVideoInfos.resolution, 'x', size);
@@ -132,39 +141,183 @@ public:
         }
     }
 
-    void createWaiMap(const Area& area, Videos& videos)
+    void createNewWaiMap(const Location& location, const Area& area, Videos& videos)
     {
-        CVCapture* cap = CVCapture::instance();
-        cap->videoType(CVVideoType::VT_FILE);
+
+        //wai mode config
+        bool serial           = true;
+        bool saveVideoFrames  = true;
+        bool onlyTracking     = false;
+        bool trackOpticalFlow = false;
+        bool disableKFCulling = true;
+
+        //map creation parameter:
+        bool initialized = false;
+
+        //the lastly saved map file (only valid if initialized is true)
+        std::string mapFile    = constructSlamMapFileName(location, area, Utils::getDateTime2String());
+        std::string mapDir     = _outputDir + area + "/";
+        int         videoIndex = 0;
+        std::string lastMapFileName;
+        std::string currentMapFileName;
 
         WAI_INFO("Starting map creation for area: %s", area.c_str());
         for (auto itVideos = videos.begin(); itVideos != videos.end(); ++itVideos)
         {
+            WAI_DEBUG("Starting video %s", itVideos->videoFile.c_str());
+            lastMapFileName    = currentMapFileName;
+            currentMapFileName = std::to_string(videoIndex) + "_" + mapFile;
+
+            //initialze capture
+            CVCapture* cap = CVCapture::instance();
+            cap->videoType(CVVideoType::VT_FILE);
             cap->videoFilename    = itVideos->videoFile;
             cap->activeCalib      = &itVideos->calibration;
-            cap->videoLoops       = false;
+            cap->videoLoops       = true;
             cv::Size capturedSize = cap->openFile();
-
+            //check if resolution of captured frame fits to calibration
             if (capturedSize.width != cap->activeCalib->imageSize().width ||
                 capturedSize.height != cap->activeCalib->imageSize().height)
                 throw std::runtime_error("MapCreator::createWaiMap: Resolution of captured frame does not fit to calibration: " + itVideos->videoFile);
-            float aspectRatio = cap->activeCalib->imageAspectRatio();
+            //instantiate wai mode
+            std::unique_ptr<WAI::ModeOrbSlam2> waiMode =
+              std::make_unique<WAI::ModeOrbSlam2>(cap->activeCalib->cameraMat(),
+                                                  cap->activeCalib->distortion(),
+                                                  serial,
+                                                  saveVideoFrames,
+                                                  onlyTracking,
+                                                  trackOpticalFlow,
+                                                  _vocFile);
+            //if we have an active map from one of the previously processed videos for this area then load it
+            if (initialized)
+            {
+                loadMap(waiMode.get(), mapDir, lastMapFileName);
+            }
+
+            //frame with which map was initialized (we want to run the previous frames again)
+            int  finalFrameIndex = 0;
+            bool relocalizedOnce = false;
 
             while (cap->isOpened())
             {
-                if (!cap->grabAndAdjustForSL(aspectRatio))
+                int currentFrameIndex = cap->nextFrameIndex();
+                if (finalFrameIndex == currentFrameIndex && relocalizedOnce)
+                {
+                    break;
+                }
+
+                if (!cap->grabAndAdjustForSL(cap->activeCalib->imageAspectRatio()))
                     break;
 
-#ifdef _DEBUG
-                if (!cap->lastFrame.empty())
+                //todo: check that video is runs one complete circle after initialization or first relocalization
+
+                //update wai
+                waiMode->update(cap->lastFrameGray, cap->lastFrame);
+
+                //check if slam was initialized in this video
+                //if (!initialized && waiMode->isInitialized())
+                //{
+                //    initialized = true;
+                //    //frame where initialization took place
+                //    finalFrameIndex = currentFrameIndex;
+                //    WAI_DEBUG("Initialized map for area %s with video %s at index %2", area.c_str(), itVideos->videoFile.c_str(), std::to_string(finalFrameIndex).c_str());
+                //}
+
+                //check if it relocalized once
+                if (!relocalizedOnce && waiMode->getTrackingState() == WAI::TrackingState::TrackingState_TrackingOK)
                 {
-                    cv::imshow("lastFrame", cap->lastFrame);
-                    cv::waitKey(1);
+                    relocalizedOnce = true;
+                    //if it relocalized once we will store the current index and repeat video up to this index
+                    finalFrameIndex = currentFrameIndex;
+                    WAI_DEBUG("Relocalized once for area %s with video %s at index %2", area.c_str(), itVideos->videoFile.c_str(), std::to_string(finalFrameIndex).c_str());
                 }
-#endif
+
+                decorateDebug(waiMode.get(), cap, currentFrameIndex);
             }
+
+            //save map if it was initialized
+            if (waiMode->isInitialized())
+            {
+                initialized = true;
+                saveMap(waiMode.get(), mapDir, currentMapFileName);
+            }
+            WAI_INFO("Finished map creation for area: %s", area.c_str());
+
+            //increment video index for map saving
+            videoIndex++;
         }
-        WAI_INFO("Finished map creation for area: %s", area.c_str());
+    }
+
+    void decorateDebug(WAI::ModeOrbSlam2* waiMode, CVCapture* cap, const int currentFrameIndex)
+    {
+        //#ifdef _DEBUG
+        if (!cap->lastFrame.empty())
+        {
+            cv::Mat            decoImg      = cap->lastFrame.clone();
+            WAI::TrackingState waiModeState = waiMode->getTrackingState();
+
+            double     fontScale = 0.5;
+            cv::Point  stateOff(10, 25);
+            cv::Point  idxOff = stateOff + cv::Point(0, 20);
+            cv::Scalar color  = CV_RGB(255, 0, 0);
+            if (waiModeState == WAI::TrackingState::TrackingState_Initializing)
+                cv::putText(decoImg, "Initializing", stateOff, 0, fontScale, color);
+            else if (waiModeState == WAI::TrackingState::TrackingState_TrackingLost)
+                cv::putText(decoImg, "Relocalizing", stateOff, 0, fontScale, color);
+            else if (waiModeState == WAI::TrackingState::TrackingState_TrackingOK)
+                cv::putText(decoImg, "Tracking", stateOff, 0, fontScale, color);
+
+            cv::putText(decoImg, "FrameId: " + std::to_string(currentFrameIndex), idxOff, 0, fontScale, color);
+            cv::imshow("lastFrame", decoImg);
+            cv::waitKey(1);
+        }
+        //#endif
+    }
+
+    void saveMap(WAI::ModeOrbSlam2* waiMode, const std::string& mapDir, const std::string& currentMapFileName)
+    {
+        if (!Utils::dirExists(mapDir))
+            Utils::makeDir(mapDir);
+
+        std::string imgDir = constructSlamMapImgDir(mapDir, currentMapFileName);
+
+        if (waiMode->retainImage())
+        {
+            if (!Utils::dirExists(imgDir))
+                Utils::makeDir(imgDir);
+        }
+
+        if (!WAIMapStorage::saveMap(waiMode->getMap(),
+                                    nullptr,
+                                    mapDir + currentMapFileName,
+                                    imgDir))
+        {
+            throw std::runtime_error("Could not save map file: " + mapDir + currentMapFileName);
+        }
+    }
+
+    void loadMap(WAI::ModeOrbSlam2* waiMode, const std::string& mapDir, const std::string& currentMapFileName)
+    {
+        waiMode->requestStateIdle();
+        while (!waiMode->hasStateIdle())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        waiMode->reset();
+
+        bool mapLoadingSuccess = WAIMapStorage::loadMap(waiMode->getMap(),
+                                                        waiMode->getKfDB(),
+                                                        nullptr,
+                                                        mapDir + currentMapFileName,
+                                                        waiMode->retainImage());
+
+        if (!mapLoadingSuccess)
+        {
+            throw std::runtime_error("Could not load map from file: " + mapDir + currentMapFileName);
+        }
+
+        waiMode->resume();
+        waiMode->setInitialized(true);
     }
 
     void execute()
@@ -176,7 +329,7 @@ public:
                 Areas& areas = itLocations->second;
                 for (auto itAreas = areas.begin(); itAreas != areas.end(); ++itAreas)
                 {
-                    createWaiMap(itAreas->first, itAreas->second);
+                    createNewWaiMap(itLocations->first, itAreas->first, itAreas->second);
                 }
             }
         }
@@ -193,6 +346,10 @@ public:
 private:
     MapCreator() {}
     std::map<Location, Areas> _erlebAR;
+    std::string               _erlebARDir;
+    std::string               _vocFile;
+    std::string               _calibrationsDir;
+    std::string               _outputDir;
 };
 
 //app parameter

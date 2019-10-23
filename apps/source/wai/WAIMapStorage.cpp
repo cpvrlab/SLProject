@@ -69,11 +69,14 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
             return false;
         }
 
-        SLMat4f slOm = mapNode->om();
-        std::cout << "slOm: " << slOm.toString() << std::endl;
-        cv::Mat cvOm = convertToCVMat(mapNode->om());
-        std::cout << "cvOM: " << cvOm << std::endl;
-        fs << "mapNodeOm" << cvOm;
+        if (mapNode)
+        {
+            SLMat4f slOm = mapNode->om();
+            std::cout << "slOm: " << slOm.toString() << std::endl;
+            cv::Mat cvOm = convertToCVMat(mapNode->om());
+            std::cout << "cvOM: " << cvOm << std::endl;
+            fs << "mapNodeOm" << cvOm;
+        }
 
         //start sequence keyframes
         fs << "KeyFrames"

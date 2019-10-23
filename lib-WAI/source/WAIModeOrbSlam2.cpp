@@ -24,7 +24,8 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
     distortionMat.convertTo(_distortionMat, CV_32F);
 
     //load visual vocabulary for relocalization
-    WAIOrbVocabulary::initialize(orbVocFile);
+    if (!WAIOrbVocabulary::initialize(orbVocFile))
+        throw std::runtime_error("ModeOrbSlam2: could not find vocabulary file: " + orbVocFile);
     mpVocabulary = WAIOrbVocabulary::get();
 
     //instantiate and load slam map
