@@ -33,7 +33,7 @@ To correct presbyopic (far-sightedness) a converging lens is needed.
 class SLLens : public SLRevolver
 {
     public:
-    //! Create a lense with given sphere, cylinder, diameter and thickness
+    //! Create a lens with given sphere, cylinder, diameter and thickness
     SLLens(double      sphere,
            double      cylinder,
            SLfloat     diameter,
@@ -43,7 +43,7 @@ class SLLens : public SLRevolver
            SLstring    name   = "lens mesh",
            SLMaterial* mat    = nullptr);
 
-    //! Create a lense with given radius, diameter and thickness
+    //! Create a lens with given radius, diameter and thickness
     SLLens(SLfloat     radiusBot,
            SLfloat     radiusTop,
            SLfloat     diameter,
@@ -52,8 +52,6 @@ class SLLens : public SLRevolver
            SLuint      slices = 32,
            SLstring    name   = "lens mesh",
            SLMaterial* mat    = nullptr);
-
-    ~SLLens() { ; }
 
     private:
     void    initLens(SLfloat     diopterBot,
@@ -70,7 +68,6 @@ class SLLens : public SLRevolver
     SLfloat generateLensTop(SLfloat radius);
     SLfloat calcSagitta(SLfloat radius);
 
-    SLuint  _stacks;      //!< NO. of stacks
     SLfloat _diameter;    //!< The diameter of the lens
     SLfloat _thickness;   //!< The space between the primary planes of lens sides
     SLfloat _radiusBot;   //!< The radius of the bot (front) side of the lens

@@ -4,7 +4,7 @@
 //             See also: https://github.com/ocornut/imgui
 //  Author:    Marcus Hudritsch
 //  Date:      October 2015
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -16,6 +16,7 @@
 #include <SL.h>
 #include <SLEnums.h>
 #include <SLVec2.h>
+#include <SLRect.h>
 #include <imgui.h>
 
 class SLScene;
@@ -61,7 +62,7 @@ class SLGLImGui
 
     void onInitNewFrame(SLScene* s, SLSceneView* sv);
     void onResize(SLint scrW, SLint scrH);
-    void onPaint(ImDrawData* draw_data);
+    void onPaint(ImDrawData* draw_data, const SLRecti& viewport);
     void onMouseDown(SLMouseButton button, SLint x, SLint y);
     void onMouseUp(SLMouseButton button, SLint x, SLint y);
     void onMouseMove(SLint xPos, SLint yPos);

@@ -12,8 +12,18 @@
 #define SLVEC3_H
 
 #include <SL.h>
-#include <SLUtils.h>
 #include <SLVec2.h>
+#include <Utils.h>
+
+// Some constants for ecef to lla conversions
+static const double EARTH_RADIUS_A          = 6378137;
+static const double EARTH_ECCENTRICTIY      = 8.1819190842622e-2;
+static const double EARTH_RADIUS_A_SQR      = EARTH_RADIUS_A * EARTH_RADIUS_A;
+static const double EARTH_ECCENTRICTIY_SQR  = EARTH_ECCENTRICTIY * EARTH_ECCENTRICTIY;
+static const double EARTH_RADIUS_B          = sqrt(EARTH_RADIUS_A_SQR * (1 - EARTH_ECCENTRICTIY_SQR));
+static const double EARTH_RADIUS_B_SQR      = EARTH_RADIUS_B * EARTH_RADIUS_B;
+static const double EARTH_ECCENTRICTIY2     = sqrt((EARTH_RADIUS_A_SQR - EARTH_RADIUS_B_SQR) / EARTH_RADIUS_B_SQR);
+static const double EARTH_ECCENTRICTIY2_SQR = EARTH_ECCENTRICTIY2 * EARTH_ECCENTRICTIY2;
 
 //-----------------------------------------------------------------------------
 //! 3D vector template class for standard 3D vector algebra.
@@ -27,7 +37,7 @@
 template<class T> 
 class SLVec3
 {
-    public:     
+    public:
             union
             {   struct {T x, y, z;};        // 3D cartesian coordinates
                 struct {T r, g, b;};        // Red, green & blue color components
@@ -35,14 +45,14 @@ class SLVec3
                 struct {T comp[3];};
             };
             
-                    SLVec3      (void)                  {}
+                    SLVec3      ()                      {}
                     SLVec3      (const T X,
                                  const T Y,
                                  const T Z=0)           {x=X;    y=Y;    z=Z;}
-                    SLVec3      (const T v[3])          {x=v[0]; y=v[1]; z=v[2];}
-                    SLVec3      (const SLVec2<T>& v)    {x=v.x;  y=v.y;  z=0;}
+           explicit SLVec3      (const T v[3])          {x=v[0]; y=v[1]; z=v[2];}
+           explicit SLVec3      (const SLVec2<T>& v)    {x=v.x;  y=v.y;  z=0;}
                     SLVec3      (const SLVec3<T>& v)    { x = v.x;  y = v.y;  z = v.z; }
-                    SLVec3      (const SLstring threeFloatsWithDelimiter) {fromString(threeFloatsWithDelimiter);}
+                    SLVec3      (const SLstring& threeFloatsWithDelimiter) {fromString(threeFloatsWithDelimiter);}
 
             void    set         (const T X,
                                  const T Y,
@@ -66,7 +76,7 @@ class SLVec3
     inline  SLbool  operator >  (const T v)       const {return (x> v && y> v && z> v);}
    
     // Operators with temp. allocation
-    inline  SLVec3  operator -  (void) const            {return SLVec3(-x, -y, -z);}
+    inline  SLVec3  operator -  () const                {return SLVec3(-x, -y, -z);}
     inline  SLVec3  operator +  (const SLVec3& v) const {return SLVec3(x+v.x, y+v.y, z+v.z);}
     inline  SLVec3  operator -  (const SLVec3& v) const {return SLVec3(x-v.x, y-v.y, z-v.z);}
     inline  T       operator *  (const SLVec3& v) const {return x*v.x+y*v.y+z*v.z;} // dot
@@ -120,9 +130,9 @@ class SLVec3
                                  const T max)           {x = (x>max)?max : (x<min)?min : x;
                                                          y = (y>max)?max : (y<min)?min : y;
                                                          z = (z>max)?max : (z<min)?min : z;}
-    inline  T       diff        (const SLVec3& v)       {return SL_abs(x-v.x) +
-                                                                SL_abs(y-v.y) +
-                                                                SL_abs(z-v.z);}
+    inline  T       diff        (const SLVec3& v)       {return Utils::abs(x-v.x) +
+                                                                Utils::abs(y-v.y) +
+                                                                Utils::abs(z-v.z);}
     inline  void    mix         (const SLVec3& a,
                                  const SLVec3& b,
                                  const T factor_b)      {T factor_a = 1-factor_b;
@@ -187,17 +197,17 @@ class SLVec3
 
             //! Conversion to string
             SLstring toString   (SLstring delimiter = ", ")
-            {   return SLUtils::toString(x,2) + delimiter +
-                       SLUtils::toString(y,2) + delimiter +
-                       SLUtils::toString(z,2);
+            {   return Utils::toString(x,2) + delimiter +
+                       Utils::toString(y,2) + delimiter +
+                       Utils::toString(z,2);
             }
 
             //! Conversion from string
             void fromString (SLstring threeFloatsWithDelimiter, SLchar delimiter = ',')
             {   SLVstring components;
-                SLUtils::split(threeFloatsWithDelimiter, delimiter, components);
+                Utils::splitString(threeFloatsWithDelimiter, delimiter, components);
                 float f[3] = {0.0, 0.0f, 0.0f};
-                for (SLuint i=0; i<components.size(); ++i)
+                for (SLulong i=0; i<components.size(); ++i)
                     f[i] = (SLfloat)atof(components[i].c_str());
                 x = f[0]; y = f[1]; z = f[2];
             }
@@ -205,16 +215,16 @@ class SLVec3
             //! HSV (0-1) to RGB (0-1) color conversion (http://www.rapidtables.com/convert/color/hsv-to-rgb.htm)
             void hsv2rgb (const SLVec3 &hsv)
             {
-                T h = fmod(fmod(hsv.x, SL_2PI) + SL_2PI, SL_2PI); // 0 deg <= H <= 360 deg
-                T s = SL_clamp(hsv.y, 0.0f, 1.0f);
-                T v = SL_clamp(hsv.z, 0.0f, 1.0f);
-                T a = SL_clamp(hsv.w, 0.0f, 1.0f);
+                T h = fmod(fmod(hsv.x, Utils::TWOPI) + Utils::TWOPI, Utils::TWOPI); // 0 deg <= H <= 360 deg
+                T s = clamp(hsv.y, 0.0f, 1.0f);
+                T v = clamp(hsv.z, 0.0f, 1.0f);
+                T a = clamp(hsv.w, 0.0f, 1.0f);
 
                 T c = v * s;
                 T x = c * (1.0f - fabs(fmod(h*3.0f / M_PI, 2.0f) - 1.0f));
                 T m = v - c;
 
-                switch (SLint(floor(h*3.0f / SL_PI)))
+                switch (SLint(floor(h*3.0f * Utils::ONEOVERPI)))
                 {   case 0: return set(m + c, m + x, m    ); // [  0 deg, 60 deg]
                     case 1: return set(m + x, m + c, m    ); // [ 60 deg,120 deg]
                     case 2: return set(m    , m + c, m + x); // [120 deg,180 deg]
@@ -232,10 +242,10 @@ class SLVec3
             */
             void ecef2lla(const SLVec3 &ecef)
             {
-                double a    = SL_EARTH_RADIUS_A;
-                double b    = SL_EARTH_RADIUS_B;
-                double esq  = SL_EARTH_ECCENTRICTIY_SQR;
-                double epsq = SL_EARTH_ECCENTRICTIY2_SQR;
+                double a    = EARTH_RADIUS_A;
+                double b    = EARTH_RADIUS_B;
+                double esq  = EARTH_ECCENTRICTIY_SQR;
+                double epsq = EARTH_ECCENTRICTIY2_SQR;
 
                 double p   = sqrt(ecef.x * ecef.x + ecef.y*ecef.y);
                 double th  = atan2(a*ecef.z, b*p);
@@ -245,9 +255,9 @@ class SLVec3
                 double N   = a/(sqrt(1-esq*pow(sin(lat),2)));
                 double alt = p/cos(lat) - N;
 
-                x = lat * SL_RAD2DEG;
-                y = fmod(lon,SL_2PI) * SL_RAD2DEG;
-                z = alt * SL_RAD2DEG;
+                x = lat * Utils::RAD2DEG;
+                y = fmod(lon,Utils::TWOPI) * Utils::RAD2DEG;
+                z = alt * Utils::RAD2DEG;
             }
 
             //! Latitude Longitude Altitude (lla) to Earth Centered Earth Fixed (ecef) using the WGS84 model
@@ -258,11 +268,11 @@ class SLVec3
             */
             void lla2ecef(const SLVec3 &LongDegLatDegAltM)
             {
-                double lat = LongDegLatDegAltM.x * SL_DEG2RAD;
-                double lon = LongDegLatDegAltM.y * SL_DEG2RAD;
+                double lat = LongDegLatDegAltM.x * Utils::DEG2RAD;
+                double lon = LongDegLatDegAltM.y * Utils::DEG2RAD;
                 double alt = LongDegLatDegAltM.z;
-                double a   = SL_EARTH_RADIUS_A;
-                double esq = SL_EARTH_ECCENTRICTIY_SQR;
+                double a   = EARTH_RADIUS_A;
+                double esq = EARTH_ECCENTRICTIY_SQR;
                 double cosLat = cos(lat);
 
                 double N = a / sqrt(1 - esq * pow(sin(lat),2));

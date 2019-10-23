@@ -163,7 +163,7 @@ SLCol4f SLPhotonMap::irradianceEstimate (SLVec3f pos, SLVec3f normal, SLFilterTy
    //
    ///////////////////////////////////////////////////////////////////////////////
 
-   const SLfloat tmp = (1.0f/SL_PI)/np.dist2[0]; //estimate of density
+   const SLfloat tmp = (1.0f/Utils::ONEPI)/np.dist2[0]; //estimate of density
 
    irrad *= tmp;
    result.set(irrad.x,irrad.y,irrad.z);

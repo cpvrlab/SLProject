@@ -2,7 +2,7 @@
 //  File:      SLLightSpot.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -126,10 +126,10 @@ void SLLightSpot::init()
 
     // Set the OpenGL light states
     SLLightSpot::setState();
-    _stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
+    SLGLState::instance()->numLightsUsed = (SLint)SLApplication::scene->lights().size();
 
     // Set emissive light material to the lights diffuse color
-    if (_meshes.size() > 0)
+    if (!_meshes.empty())
         if (_meshes[0]->mat())
             _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
 }
@@ -167,10 +167,11 @@ void SLLightSpot::drawMeshes(SLSceneView* sv)
     {
         // Set the OpenGL light states
         SLLightSpot::setState();
-        _stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
+        SLGLState* stateGL = SLGLState::instance();
+        stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
 
         // Set emissive light material to the lights diffuse color
-        if (_meshes.size() > 0)
+        if (!_meshes.empty())
             if (_meshes[0]->mat())
                 _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
 
@@ -200,7 +201,7 @@ SLfloat SLLightSpot::shadowTest(SLRay*         ray, // ray of hit point
             if (shadowRay.hitMesh->mat()->hasAlpha())
             {
                 shadowRay.hitMesh->preShade(&shadowRay);
-                SLfloat shadowTransp = SL_abs(shadowRay.dir.dot(shadowRay.hitNormal));
+                SLfloat shadowTransp = Utils::abs(shadowRay.dir.dot(shadowRay.hitNormal));
                 return shadowTransp * shadowRay.hitMesh->mat()->kt();
             }
             else
@@ -292,7 +293,7 @@ SLfloat SLLightSpot::shadowTestMC(SLRay*         ray, // ray of hit point
             if (shadowRay.hitMesh->mat()->hasAlpha())
             {
                 shadowRay.hitMesh->preShade(&shadowRay);
-                SLfloat shadowTransp = SL_abs(shadowRay.dir.dot(shadowRay.hitNormal));
+                SLfloat shadowTransp = Utils::abs(shadowRay.dir.dot(shadowRay.hitNormal));
                 return shadowTransp * shadowRay.hitMesh->mat()->kt();
             }
             else
@@ -369,19 +370,20 @@ void SLLightSpot::setState()
 {
     if (_id != -1)
     {
-        _stateGL->lightIsOn[_id]       = _isOn;
-        _stateGL->lightPosWS[_id]      = positionWS();
-        _stateGL->lightSpotDirWS[_id]  = spotDirWS();
-        _stateGL->lightAmbient[_id]    = _ambient;
-        _stateGL->lightDiffuse[_id]    = _diffuse;
-        _stateGL->lightSpecular[_id]   = _specular;
-        _stateGL->lightSpotCutoff[_id] = _spotCutOffDEG;
-        _stateGL->lightSpotCosCut[_id] = _spotCosCutOffRAD;
-        _stateGL->lightSpotExp[_id]    = _spotExponent;
-        _stateGL->lightAtt[_id].x      = _kc;
-        _stateGL->lightAtt[_id].y      = _kl;
-        _stateGL->lightAtt[_id].z      = _kq;
-        _stateGL->lightDoAtt[_id]      = isAttenuated();
+        SLGLState* stateGL = SLGLState::instance();
+        stateGL->lightIsOn[_id]       = _isOn;
+        stateGL->lightPosWS[_id]      = positionWS();
+        stateGL->lightSpotDirWS[_id]  = spotDirWS();
+        stateGL->lightAmbient[_id]    = _ambient;
+        stateGL->lightDiffuse[_id]    = _diffuse;
+        stateGL->lightSpecular[_id]   = _specular;
+        stateGL->lightSpotCutoff[_id] = _spotCutOffDEG;
+        stateGL->lightSpotCosCut[_id] = _spotCosCutOffRAD;
+        stateGL->lightSpotExp[_id]    = _spotExponent;
+        stateGL->lightAtt[_id].x      = _kc;
+        stateGL->lightAtt[_id].y      = _kl;
+        stateGL->lightAtt[_id].z      = _kq;
+        stateGL->lightDoAtt[_id]      = isAttenuated();
     }
 }
 //-----------------------------------------------------------------------------

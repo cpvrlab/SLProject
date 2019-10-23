@@ -2,7 +2,7 @@
 //  File:      SLScene.h
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -13,25 +13,23 @@
 
 #include <SL.h>
 #include <SLAnimManager.h>
-#include <SLAverage.h>
+#include <Averaged.h>
 #include <SLEventHandler.h>
 #include <SLGLOculus.h>
 #include <SLLight.h>
 #include <SLMaterial.h>
 #include <SLMesh.h>
 #include <SLRect.h>
-#include <SLTimer.h>
 #include <SLVec3.h>
 #include <SLVec4.h>
+#include <utility>
 #include <vector>
 
 class SLSceneView;
-class SLCVTracked;
 class SLCamera;
 
 //-----------------------------------------------------------------------------
 typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
-typedef std::vector<SLCVTracked*> SLVCVTracker; //!< Vector of CV tracker pointers
 //-----------------------------------------------------------------------------
 //! C-Callback function typedef for scene load function
 typedef void(SL_STDCALL* cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint sceneID);
@@ -58,46 +56,36 @@ class SLScene : public SLObject
     public:
     SLScene(SLstring      name,
             cbOnSceneLoad onSceneLoadCallback);
-    ~SLScene();
+    ~SLScene() final;
+
     // Setters
     void root3D(SLNode* root3D) { _root3D = root3D; }
     void root2D(SLNode* root2D) { _root2D = root2D; }
-    void globalAmbiLight(SLCol4f gloAmbi) { _globalAmbiLight = gloAmbi; }
+    void globalAmbiLight(const SLCol4f& gloAmbi) { _globalAmbiLight = gloAmbi; }
     void stopAnimations(SLbool stop) { _stopAnimations = stop; }
-    void videoType(SLVideoType vt);
-    void showDetection(SLbool st) { _showDetection = st; }
-    void info(SLstring i) { _info = i; }
+    void info(SLstring i) { _info = std::move(i); }
 
     // Getters
     SLAnimManager&   animManager() { return _animManager; }
-    SLSceneView*     sv(SLuint index) { return _sceneViews[index]; }
+    SLSceneView*     sceneView(SLuint index) { return _sceneViews[index]; }
     SLVSceneView&    sceneViews() { return _sceneViews; }
     SLNode*          root3D() { return _root3D; }
     SLNode*          root2D() { return _root2D; }
     SLstring&        info() { return _info; }
-    void             timerStart() { _timer.start(); }
-    SLfloat          timeSec() { return (SLfloat)_timer.elapsedTimeInSec(); }
-    SLfloat          timeMilliSec() { return (SLfloat)_timer.elapsedTimeInMilliSec(); }
-    SLfloat          elapsedTimeMS() { return _elapsedTimeMS; }
-    SLfloat          elapsedTimeSec() { return _elapsedTimeMS * 0.001f; }
+    SLfloat          elapsedTimeMS() { return _frameTimeMS; }
+    SLfloat          elapsedTimeSec() { return _frameTimeMS * 0.001f; }
     SLVEventHandler& eventHandlers() { return _eventHandlers; }
 
     SLCol4f       globalAmbiLight() const { return _globalAmbiLight; }
     SLVLight&     lights() { return _lights; }
     SLfloat       fps() { return _fps; }
-    SLAvgFloat&   frameTimesMS() { return _frameTimesMS; }
-    SLAvgFloat&   updateTimesMS() { return _updateTimesMS; }
-    SLAvgFloat&   trackingTimesMS() { return _trackingTimesMS; }
-    SLAvgFloat&   detectTimesMS() { return _detectTimesMS; }
-    SLAvgFloat&   detect1TimesMS() { return _detect1TimesMS; }
-    SLAvgFloat&   detect2TimesMS() { return _detect2TimesMS; }
-    SLAvgFloat&   matchTimesMS() { return _matchTimesMS; }
-    SLAvgFloat&   optFlowTimesMS() { return _optFlowTimesMS; }
-    SLAvgFloat&   poseTimesMS() { return _poseTimesMS; }
-    SLAvgFloat&   cullTimesMS() { return _cullTimesMS; }
-    SLAvgFloat&   draw2DTimesMS() { return _draw2DTimesMS; }
-    SLAvgFloat&   draw3DTimesMS() { return _draw3DTimesMS; }
-    SLAvgFloat&   captureTimesMS() { return _captureTimesMS; }
+    AvgFloat&     frameTimesMS() { return _frameTimesMS; }
+    AvgFloat&     updateTimesMS() { return _updateTimesMS; }
+    AvgFloat&     updateAnimTimesMS() { return _updateAnimTimesMS; }
+    AvgFloat&     updateAABBTimesMS() { return _updateAABBTimesMS; }
+    AvgFloat&     cullTimesMS() { return _cullTimesMS; }
+    AvgFloat&     draw2DTimesMS() { return _draw2DTimesMS; }
+    AvgFloat&     draw3DTimesMS() { return _draw3DTimesMS; }
     SLVMaterial&  materials() { return _materials; }
     SLVMesh&      meshes() { return _meshes; }
     SLVGLTexture& textures() { return _textures; }
@@ -111,25 +99,18 @@ class SLScene : public SLObject
     SLint         numSceneCameras();
     SLCamera*     nextCameraInScene(SLSceneView* activeSV);
 
-    // Video stuff
-    SLVideoType   videoType() { return _videoType; }
-    SLGLTexture*  videoTexture() { return &_videoTexture; }
-    SLGLTexture*  videoTextureErr() { return &_videoTextureErr; }
-    SLVCVTracker& trackers() { return _trackers; }
-    SLbool        showDetection() { return _showDetection; }
-
     cbOnSceneLoad onLoad; //!< C-Callback for scene load
 
     // Misc.
-    //virtual  void            onLoad              (SLSceneView* sv, SLCommand _currentID);
-    virtual void onLoadAsset(SLstring assetFile,
-                             SLuint   processFlags);
-    virtual void onAfterLoad();
+    virtual void onLoadAsset(const SLstring& assetFile,
+                             SLuint          processFlags);
     bool         onUpdate();
     void         init();
     void         unInit();
     void         selectNode(SLNode* nodeToSelect);
     void         selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
+    bool         removeMesh(SLMesh* mesh);
+    bool         deleteTexture(SLGLTexture* texture);
 
     protected:
     SLVSceneView    _sceneViews;    //!< Vector of all sceneview pointers
@@ -148,38 +129,26 @@ class SLScene : public SLObject
     SLMesh*  _selectedMesh; //!< Pointer to the selected mesh
     SLRectf  _selectedRect; //!< Mouse selection rectangle
 
-    SLTimer _timer;           //!< high precision timer
     SLCol4f _globalAmbiLight; //!< global ambient light intensity
     SLbool  _rootInitialized; //!< Flag if scene is initialized
     SLint   _numProgsPreload; //!< No. of preloaded shaderProgs
 
-    SLfloat    _elapsedTimeMS;    //!< Last frame time in ms
-    SLfloat    _lastUpdateTimeMS; //!< Last time after update in ms
-    SLfloat    _fps;              //!< Averaged no. of frames per second
-    SLAvgFloat _updateTimesMS;    //!< Averaged time for update in ms
-    SLAvgFloat _trackingTimesMS;  //!< Averaged time for video tracking in ms
-    SLAvgFloat _detectTimesMS;    //!< Averaged time for video feature detection & description in ms
-    SLAvgFloat _detect1TimesMS;   //!< Averaged time for video feature detection subpart 1 in ms
-    SLAvgFloat _detect2TimesMS;   //!< Averaged time for video feature detection subpart 2 in ms
-    SLAvgFloat _matchTimesMS;     //!< Averaged time for video feature matching in ms
-    SLAvgFloat _optFlowTimesMS;   //!< Averaged time for video feature optical flow tracking in ms
-    SLAvgFloat _poseTimesMS;      //!< Averaged time for video feature pose estimation in ms
-    SLAvgFloat _frameTimesMS;     //!< Averaged time per frame in ms
-    SLAvgFloat _cullTimesMS;      //!< Averaged time for culling in ms
-    SLAvgFloat _draw3DTimesMS;    //!< Averaged time for 3D drawing in ms
-    SLAvgFloat _draw2DTimesMS;    //!< Averaged time for 2D drawing in ms
-    SLAvgFloat _captureTimesMS;   //!< Averaged time for video capturing in ms
+    SLfloat _frameTimeMS;      //!< Last frame time in ms
+    SLfloat _lastUpdateTimeMS; //!< Last time after update in ms
+    SLfloat _fps;              //!< Averaged no. of frames per second
+
+    // major part times
+    AvgFloat _frameTimesMS;      //!< Averaged total time per frame in ms
+    AvgFloat _updateTimesMS;     //!< Averaged time for update in ms
+    AvgFloat _cullTimesMS;       //!< Averaged time for culling in ms
+    AvgFloat _draw3DTimesMS;     //!< Averaged time for 3D drawing in ms
+    AvgFloat _draw2DTimesMS;     //!< Averaged time for 2D drawing in ms
+    AvgFloat _updateAABBTimesMS; //!< Averaged time for update the nodes AABB in ms
+    AvgFloat _updateAnimTimesMS; //!< Averaged time for update the animations in ms
 
     SLbool _stopAnimations; //!< Global flag for stopping all animations
 
     SLGLOculus _oculus; //!< Oculus Rift interface
-
-    // Video stuff
-    SLVideoType  _videoType;       //!< Flag for using the live video image
-    SLGLTexture  _videoTexture;    //!< Texture for live video image
-    SLGLTexture  _videoTextureErr; //!< Texture for live video error
-    SLVCVTracker _trackers;        //!< Vector of all AR trackers
-    SLbool       _showDetection;   //!< Flag if detection should be visualized
 };
 //-----------------------------------------------------------------------------
 #endif

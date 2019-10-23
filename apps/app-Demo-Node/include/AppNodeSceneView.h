@@ -1,10 +1,10 @@
 //#############################################################################
-//  File:      NewNodeSceneView.h
+//  File:      AppNodeSceneView.h
 //  Purpose:   Node transform test application that demonstrates all transform
 //             possibilities of SLNode
 //  Author:    Marc Wacker
 //  Date:      July 2015
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -22,14 +22,16 @@ enum TransformMode
 };
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView derived class for a node transform test application that
-demonstrates all transform possibilities in SLNode
+ SLSceneView derived class for a node transform test application that
+ demonstrates all transform possibilities in SLNode. The SLSceneView class is
+ inherited because we override here the default event-handling for the keyboard
+ (onKeyPress and onKeyRelease)
 */
-class NewNodeSceneView : public SLSceneView
+class AppNodeSceneView : public SLSceneView
 {
     public:
-    NewNodeSceneView();
-    ~NewNodeSceneView();
+    AppNodeSceneView();
+    ~AppNodeSceneView();
 
     // From SLSceneView overwritten
     void   preDraw();
@@ -45,9 +47,8 @@ class NewNodeSceneView : public SLSceneView
 
     SLbool onContinuousKeyPress(SLKey key);
 
-    SLbool update();
-    void   updateCurOrigin();
-    void   updateInfoText();
+    void updateCurOrigin();
+    void updateInfoText();
 
     SLMat4f _curOrigin; //!< current origin of relative space (orientation and position of axes)
 

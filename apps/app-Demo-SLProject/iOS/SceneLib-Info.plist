@@ -39,6 +39,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Used for Augmented Reality rendering</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Used to determine the users global position with GPS</string>
 	<key>UIApplicationExitsOnSuspend</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

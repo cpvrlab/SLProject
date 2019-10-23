@@ -2,7 +2,7 @@
 //  File:      AppDemoSceneLoad.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      Februar 2018
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -18,13 +18,12 @@
 #include <SLAssimpImporter.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-
 #include <SLBox.h>
-#include <SLCVCapture.h>
-#include <SLCVTrackedAruco.h>
-#include <SLCVTrackedChessboard.h>
-#include <SLCVTrackedFaces.h>
-#include <SLCVTrackedFeatures.h>
+#include <CVCapture.h>
+#include <CVTrackedAruco.h>
+#include <CVTrackedChessboard.h>
+#include <CVTrackedFaces.h>
+#include <CVTrackedFeatures.h>
 #include <SLCone.h>
 #include <SLCoordAxis.h>
 #include <SLCylinder.h>
@@ -43,7 +42,13 @@
 #include <SLTransferFunction.h>
 
 //-----------------------------------------------------------------------------
-// Foreward declarations for helper functions used only in this file
+// Global pointers declared in AppDemoTracking
+extern SLGLTexture* videoTexture;
+extern CVTracked*   tracker;
+extern SLNode*      trackedNode;
+
+//-----------------------------------------------------------------------------
+// Forward declarations for helper functions used only in this file
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLuint, SLMaterial*, SLMaterial*);
 SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation = false);
 
@@ -59,12 +64,31 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation = false);
 */
 void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 {
+    // Reset calibration process at scene change
+    CVCalibration* activeCalib = CVCapture::instance()->activeCalib;
+    if (activeCalib->state() != CS_calibrated &&
+        activeCalib->state() != CS_uncalibrated)
+        activeCalib->state(CS_uncalibrated);
+
+    // Reset non CVTracked and CVCapture infos
+    CVTracked::resetTimes();                   // delete all tracker times
+    CVCapture::instance()->videoType(VT_NONE); // turn off any video
+
+    delete tracker;
+    tracker      = nullptr;
+    videoTexture = nullptr; // The video texture will be deleted by scene uninit
+    trackedNode  = nullptr; // The tracked node will be deleted by scene uninit
+
     SLApplication::sceneID = sceneID;
 
     // Initialize all preloaded stuff from SLScene
     s->init();
 
-    if (SLApplication::sceneID == SID_Empty) //.....................................................
+    // Disable viewport with the same aspect ratio a the video
+    // This makes only sense in scenes that use video
+    sv->setViewportFromRatio(SLVec2i(0, 0), VA_center, false);
+
+    if (SLApplication::sceneID == SID_Empty) //..........................................................
     {
         s->name("No Scene loaded.");
         s->info("No Scene loaded.");
@@ -417,44 +441,47 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (SLApplication::sceneID == SID_LargeModel) //................................................
     {
-        s->name("Large Model Test");
-        s->info("Large Model with 7.2 mio. triangles.");
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 600000);
-        cam1->lookAt(0, 0, 0);
-        cam1->clipNear(20);
-        cam1->clipFar(1000000);
-        cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
-        cam1->setInitialState();
-
-        SLLightSpot* light1 = new SLLightSpot(600000, 600000, 600000, 1);
-        light1->ambient(SLCol4f(1, 1, 1));
-        light1->diffuse(SLCol4f(1, 1, 1));
-        light1->specular(SLCol4f(1, 1, 1));
-        light1->attenuation(1, 0, 0);
-
-        SLAssimpImporter importer;
-        SLNode*          largeModel = importer.load("PLY/switzerland.ply", true, nullptr
-                                           //,SLProcess_JoinIdenticalVertices
-                                           //|SLProcess_RemoveRedundantMaterials
-                                           //|SLProcess_SortByPType
-                                           //|SLProcess_FindDegenerates
-                                           //|SLProcess_FindInvalidData
-                                           //|SLProcess_SplitLargeMeshes
-        );
-
-        SLNode* scene = new SLNode("Scene");
-        scene->addChild(light1);
-        if (largeModel)
+#ifdef SL_OS_ANDROID
+        SLstring largeFile = SLImporter::defaultPath + "xyzrgb_dragon.ply";
+#else
+        SLstring     largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+#endif
+        if (Utils::fileExists(largeFile))
         {
-            largeModel->scaleToCenter(100000.0f);
-            scene->addChild(largeModel);
-        }
-        scene->addChild(cam1);
+            s->name("Large Model Test");
+            s->info("Large Model with 7.2 mio. triangles.");
 
-        sv->camera(cam1);
-        s->root3D(scene);
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(0, 0, 220);
+            cam1->lookAt(0, 0, 0);
+            cam1->clipNear(1);
+            cam1->clipFar(10000);
+            cam1->focalDist(220);
+            cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
+            cam1->setInitialState();
+
+            SLLightSpot* light1 = new SLLightSpot(200, 200, 200, 1);
+            light1->ambient(SLCol4f(1, 1, 1));
+            light1->diffuse(SLCol4f(1, 1, 1));
+            light1->specular(SLCol4f(1, 1, 1));
+            light1->attenuation(1, 0, 0);
+
+            SLAssimpImporter importer;
+            SLfloat          timeStart  = SLApplication::timeS();
+            SLNode*          largeModel = importer.load("PLY/xyzrgb_dragon.ply",
+                                               true,
+                                               nullptr,
+                                               SLProcess_Triangulate | SLProcess_JoinIdenticalVertices);
+            SLfloat          timeEnd    = SLApplication::timeS();
+            SL_LOG("Time to load  : %4.2f sec.\n", timeEnd - timeStart);
+            SLNode* scene = new SLNode("Scene");
+            scene->addChild(light1);
+            scene->addChild(largeModel);
+            scene->addChild(cam1);
+
+            sv->camera(cam1);
+            s->root3D(scene);
+        }
     }
     else if (SLApplication::sceneID == SID_TextureBlend) //..............................................
     {
@@ -557,12 +584,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                 if (iX != 0 || iZ != 0)
                 {
                     SLNode* t = tree->copyRec();
-                    t->translate(float(iX) * 2 + SL_random(0.7f, 1.4f),
+                    t->translate(float(iX) * 2 + Utils::random(0.7f, 1.4f),
                                  0,
-                                 float(iZ) * 2 + SL_random(0.7f, 1.4f),
+                                 float(iZ) * 2 + Utils::random(0.7f, 1.4f),
                                  TS_object);
-                    t->rotate(SL_random(0, 90), 0, 1, 0);
-                    t->scale(SL_random(0.5f, 1.0f));
+                    t->rotate(Utils::random(0, 90), 0, 1, 0);
+                    t->scale(Utils::random(0.5f, 1.0f));
                     scene->addChild(t);
                 }
             }
@@ -624,10 +651,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         VR.push_back(SLVec3f(0.5f, -0.5f, -2.0f));
         SLNode* polyR = new SLNode(new SLPolygon(VR, T, "PolygonR", matR));
 
-#ifdef SL_GLES2
-        // Create 3D textured sphere mesh and node
-        SLNode* sphere = new SLNode(new SLSphere(0.2f, 16, 16, "Sphere", matL));
-#else
         // 3D Texture Mapping on a pyramid
         SLVstring tex3DFiles;
         for (SLint i = 0; i < 256; ++i) tex3DFiles.push_back("Wave_radial10_256C.jpg");
@@ -645,10 +668,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         pyramidNode->translate(0, 0, -3);
 
         // Create 3D textured sphere mesh and node
-        SLNode*      sphere = new SLNode(new SLSphere(0.2f, 16, 16, "Sphere", mat3D));
-#endif
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
+        SLNode*   sphere = new SLNode(new SLSphere(0.2f, 16, 16, "Sphere", mat3D));
+        SLCamera* cam1   = new SLCamera("Camera 1");
         cam1->translation(0, 0, 2.2f);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(2.2f);
@@ -662,10 +683,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(polyR);
         scene->addChild(sphere);
         scene->addChild(cam1);
-#ifndef SL_GLES2
-        scene->addChild(pyramidNode);
-#endif
-
         sv->camera(cam1);
         s->root3D(scene);
     }
@@ -800,7 +817,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Assemble 2D scene
         SLNode* scene2D = new SLNode("root2D");
-        ;
         scene2D->addChild(t2D16);
 
         sv->camera(cam1);
@@ -1029,8 +1045,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         const SLint nrRows  = 7;
         const SLint nrCols  = 7;
         SLfloat     spacing = 2.5f;
-        SLfloat     maxX    = (nrCols / 2) * spacing;
-        SLfloat     maxY    = (nrRows / 2) * spacing;
+        SLfloat     maxX    = ((float)nrCols / 2.0f) * spacing;
+        SLfloat     maxY    = ((float)nrRows / 2.0f) * spacing;
         SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
         SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
 
@@ -1057,7 +1073,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // Cook-Torrance material without textures
                     mat[i] = new SLMaterial("CookTorranceMat",
                                             SLCol4f::RED * 0.5f,
-                                            SL_clamp((float)r * deltaR, 0.05f, 1.0f),
+                                            Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
                                             (float)m * deltaM);
                 }
 
@@ -1115,7 +1131,13 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial* matRed = new SLMaterial("matRed", SLCol4f(1.00f, 0.00f, 0.00f));
 
         // water rectangle in the y=0 plane
-        SLNode* wave = new SLNode(new SLRectangle(SLVec2f(-SL_PI, -SL_PI), SLVec2f(SL_PI, SL_PI), 40, 40, "WaterRect", matWater));
+        SLNode* wave = new SLNode(new SLRectangle(SLVec2f(-Utils::PI,
+                                                          -Utils::PI),
+                                                  SLVec2f(Utils::PI, Utils::PI),
+                                                  40,
+                                                  40,
+                                                  "WaterRect",
+                                                  matWater));
         wave->rotate(90, -1, 0, 0);
 
         SLLightSpot* light0 = new SLLightSpot();
@@ -1170,8 +1192,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         matTile->textures().push_back(tex2);
 
         // water rectangle in the y=0 plane
-        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-SL_PI, -SL_PI),
-                                                  SLVec2f(SL_PI, SL_PI),
+        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-Utils::PI, -Utils::PI),
+                                                  SLVec2f(Utils::PI, Utils::PI),
                                                   40,
                                                   40,
                                                   "WaterRect",
@@ -1180,20 +1202,20 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Pool rectangles
         SLuint  res   = 10;
-        SLNode* rectF = new SLNode(new SLRectangle(SLVec2f(-SL_PI, -SL_PI / 6), SLVec2f(SL_PI, SL_PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectF", matTile));
-        SLNode* rectN = new SLNode(new SLRectangle(SLVec2f(-SL_PI, -SL_PI / 6), SLVec2f(SL_PI, SL_PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectN", matTile));
-        SLNode* rectL = new SLNode(new SLRectangle(SLVec2f(-SL_PI, -SL_PI / 6), SLVec2f(SL_PI, SL_PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectL", matTile));
-        SLNode* rectR = new SLNode(new SLRectangle(SLVec2f(-SL_PI, -SL_PI / 6), SLVec2f(SL_PI, SL_PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectR", matTile));
-        SLNode* rectB = new SLNode(new SLRectangle(SLVec2f(-SL_PI, -SL_PI), SLVec2f(SL_PI, SL_PI), SLVec2f(0, 0), SLVec2f(10, 10), res, res, "rectB", matTile));
-        rectF->translate(0, 0, -SL_PI, TS_object);
+        SLNode* rectF = new SLNode(new SLRectangle(SLVec2f(-Utils::PI, -Utils::PI / 6), SLVec2f(Utils::PI, Utils::PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectF", matTile));
+        SLNode* rectN = new SLNode(new SLRectangle(SLVec2f(-Utils::PI, -Utils::PI / 6), SLVec2f(Utils::PI, Utils::PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectN", matTile));
+        SLNode* rectL = new SLNode(new SLRectangle(SLVec2f(-Utils::PI, -Utils::PI / 6), SLVec2f(Utils::PI, Utils::PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectL", matTile));
+        SLNode* rectR = new SLNode(new SLRectangle(SLVec2f(-Utils::PI, -Utils::PI / 6), SLVec2f(Utils::PI, Utils::PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectR", matTile));
+        SLNode* rectB = new SLNode(new SLRectangle(SLVec2f(-Utils::PI, -Utils::PI), SLVec2f(Utils::PI, Utils::PI), SLVec2f(0, 0), SLVec2f(10, 10), res, res, "rectB", matTile));
+        rectF->translate(0, 0, -Utils::PI, TS_object);
         rectL->rotate(90, 0, 1, 0);
-        rectL->translate(0, 0, -SL_PI, TS_object);
+        rectL->translate(0, 0, -Utils::PI, TS_object);
         rectN->rotate(180, 0, 1, 0);
-        rectN->translate(0, 0, -SL_PI, TS_object);
+        rectN->translate(0, 0, -Utils::PI, TS_object);
         rectR->rotate(270, 0, 1, 0);
-        rectR->translate(0, 0, -SL_PI, TS_object);
+        rectR->translate(0, 0, -Utils::PI, TS_object);
         rectB->rotate(90, -1, 0, 0);
-        rectB->translate(0, 0, -SL_PI / 6, TS_object);
+        rectB->translate(0, 0, -Utils::PI / 6, TS_object);
 
         SLLightSpot* light0 = new SLLightSpot();
         light0->ambient(SLCol4f(0, 0, 0));
@@ -1398,11 +1420,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texG  = new SLGLTexture("earth2048_G.jpg");      // gloss map
         SLGLTexture* texNC = new SLGLTexture("earthNight2048_C.jpg"); // night color  map
 #else
-        SLGLTexture* texC   = new SLGLTexture("earth1024_C.jpg");      // color map
-        SLGLTexture* texN   = new SLGLTexture("earth1024_N.jpg");      // normal map
-        SLGLTexture* texH   = new SLGLTexture("earth1024_H.jpg");      // height map
-        SLGLTexture* texG   = new SLGLTexture("earth1024_G.jpg");      // gloss map
-        SLGLTexture* texNC  = new SLGLTexture("earthNight1024_C.jpg"); // night color  map
+        SLGLTexture* texC      = new SLGLTexture("earth1024_C.jpg");      // color map
+        SLGLTexture* texN      = new SLGLTexture("earth1024_N.jpg");      // normal map
+        SLGLTexture* texH      = new SLGLTexture("earth1024_H.jpg");      // height map
+        SLGLTexture* texG      = new SLGLTexture("earth1024_G.jpg");      // gloss map
+        SLGLTexture* texNC     = new SLGLTexture("earthNight1024_C.jpg"); // night color  map
 #endif
         SLGLTexture* texClC = new SLGLTexture("earthCloud1024_C.jpg"); // cloud color map
         SLGLTexture* texClA = new SLGLTexture("earthCloud1024_A.jpg"); // cloud alpha map
@@ -1451,10 +1473,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Load volume data into 3D texture
         SLVstring mriImages;
         for (SLint i = 0; i < 207; ++i)
-            mriImages.push_back(SLUtils::formatString("i%04u_0000b.png", i));
+            mriImages.push_back(Utils::formatString("i%04u_0000b.png", i));
 
         SLint clamping3D = GL_CLAMP_TO_EDGE;
-        if (SLGLState::getInstance()->getSLVersionNO() > "320")
+        if (SLGLState::instance()->getSLVersionNO() > "320")
             clamping3D = 0x812D; // GL_CLAMP_TO_BORDER
 
         SLGLTexture* texMRI = new SLGLTexture(mriImages,
@@ -1471,8 +1493,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLTransferFunction* tf       = new SLTransferFunction(tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
-        SLGLProgram*   sp   = new SLGLGenericProgram("VolumeRenderingRayCast.vert",
-                                                 "VolumeRenderingRayCast.frag");
+        SLGLProgram*   sp   = new SLGLGenericProgram("VolumeRenderingRayCast.vert", "VolumeRenderingRayCast.frag");
         SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)texMRI->images()[0]->width());
         SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)texMRI->images()[0]->height());
         SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)mriImages.size());
@@ -1516,10 +1537,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Load volume data into 3D texture
         SLVstring mriImages;
         for (SLint i = 0; i < 207; ++i)
-            mriImages.push_back(SLUtils::formatString("i%04u_0000b.png", i));
+            mriImages.push_back(Utils::formatString("i%04u_0000b.png", i));
 
         SLint clamping3D = GL_CLAMP_TO_EDGE;
-        if (SLGLState::getInstance()->getSLVersionNO() > "320")
+        if (SLGLState::instance()->getSLVersionNO() > "320")
             clamping3D = 0x812D; // GL_CLAMP_TO_BORDER
 
         SLGLTexture* texMRI = new SLGLTexture(mriImages,
@@ -1810,7 +1831,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         parents.push_back(s->root3D());
 
         SLint nodeIndex = 0;
-        for (SLint lvl = 0; lvl < levels; ++lvl)
+        for (float lvl : nodeSpacing)
         {
             curParentsVector = parents;
             parents.clear();
@@ -1828,14 +1849,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // position
                     SLfloat x = (SLfloat)(i % gridSize - gridHalf);
                     SLfloat z = (SLfloat)((i > 0) ? i / gridSize - gridHalf : -gridHalf);
-                    SLVec3f pos(x * nodeSpacing[lvl] * 1.1f, 1.5f, z * nodeSpacing[lvl] * 1.1f);
+                    SLVec3f pos(x * lvl * 1.1f, 1.5f, z * lvl * 1.1f);
 
                     node->translate(pos, TS_object);
                     //node->scale(1.1f);
 
                     SLfloat       duration = 1.0f + 5.0f * ((SLfloat)i / (SLfloat)nodesPerLvl);
                     ostringstream oss;
-                    ;
+
                     oss << "random anim " << nodeIndex++;
                     SLAnimation* anim = SLAnimation::create(oss.str(), duration, true, EC_inOutSine, AL_pingPongLoop);
                     anim->createSimpleTranslationNodeTrack(node, SLVec3f(0.0f, 1.0f, 0.0f));
@@ -1890,10 +1911,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
 // create astroboys around the center astroboy
-#ifdef SL_GLES2
+#ifdef APP_USES_GLES
         SLint size = 4;
 #else
-        SLint        size   = 8;
+        SLint        size      = 8;
 #endif
         for (SLint iZ = -size; iZ <= size; ++iZ)
         {
@@ -1925,19 +1946,21 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             s->name("Live Video Texture");
             s->info("Minimal texture mapping example with live video source.");
-            s->videoType(VT_SCND); // on desktop it will be the main camera
+            CVCapture::instance()->videoType(VT_MAIN); // on desktop it will be the main camera
         }
         else
         {
             s->name("File Video Texture");
             s->info("Minimal texture mapping example with video file source.");
-            s->videoType(VT_FILE);
-            SLCVCapture::videoFilename = "street3.mp4";
-            SLCVCapture::videoLoops    = true;
+            CVCapture::instance()->videoType(VT_FILE);
+            CVCapture::instance()->videoFilename = "street3.mp4";
+            CVCapture::instance()->videoLoops    = true;
         }
+        sv->viewportSameAsVideo(true);
 
-        // Back wall material with live video texture
-        SLMaterial* m1 = new SLMaterial("VideoMat", s->videoTexture());
+        // Create video texture on global pointer updated in AppDemoTracking
+        videoTexture   = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        SLMaterial* m1 = new SLMaterial("VideoMat", videoTexture);
 
         // Create a root scene group for all nodes
         SLNode* scene = new SLNode("scene node");
@@ -1947,13 +1970,13 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 0, 20);
         cam1->focalDist(20);
         cam1->lookAt(0, 0, 0);
-        cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
+        cam1->background().texture(videoTexture);
         cam1->setInitialState();
         scene->addChild(cam1);
 
         // Create rectangle meshe and nodes
         SLfloat h        = 5.0f;
-        SLfloat w        = h * sv->scrWdivH();
+        SLfloat w        = h * sv->viewportWdivH();
         SLMesh* rectMesh = new SLRectangle(SLVec2f(-w, -h), SLVec2f(w, h), 1, 1, "rect mesh", m1);
         SLNode* rectNode = new SLNode(rectMesh, "rect node");
         rectNode->translation(0, 0, -5);
@@ -1983,14 +2006,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
              SLApplication::sceneID == SID_VideoCalibrateScnd) //........................................
     {
         /*
-        The tracking of markers is done in SLScene::onUpdate by calling the specific
-        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
+        The tracking of markers is done in AppDemoTracking::onUpdateTracking by calling the specific
+        CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
         The chessboard marker used in these scenes is also used for the camera
         calibration. The different calibration state changes are also handled in
-        SLScene::onUpdate.
+        AppDemoTracking::onUpdateVideo.
         */
 
         // Setup here only the requested scene.
@@ -1999,28 +2022,31 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             if (SLApplication::sceneID == SID_VideoTrackChessMain)
             {
-                s->videoType(VT_MAIN);
+                CVCapture::instance()->videoType(VT_MAIN);
                 s->name("Track Chessboard (main cam.)");
             }
             else
             {
-                s->videoType(VT_SCND);
-                s->name("Track Chessboard (scnd. cam.");
+                CVCapture::instance()->videoType(VT_SCND);
+                s->name("Track Chessboard (scnd cam.");
             }
         }
         else if (SLApplication::sceneID == SID_VideoCalibrateMain)
         {
-            s->videoType(VT_MAIN);
-            SLApplication::activeCalib->clear();
+            CVCapture::instance()->videoType(VT_MAIN);
+            activeCalib->clear();
 
             s->name("Calibrate Main Cam.");
         }
         else if (SLApplication::sceneID == SID_VideoCalibrateScnd)
         {
-            s->videoType(VT_SCND);
-            SLApplication::activeCalib->clear();
-            s->name("Calibrate Scnd. Cam.");
+            CVCapture::instance()->videoType(VT_SCND);
+            activeCalib->clear();
+            s->name("Calibrate Scnd Cam.");
         }
+
+        // Create video texture on global pointer updated in AppDemoTracking
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
@@ -2040,8 +2066,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(5);
         cam1->clipFar(10);
-        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
-        cam1->background().texture(s->videoTexture());
+        cam1->fov(activeCalib->cameraFovVDeg());
+        cam1->background().texture(videoTexture);
         cam1->setInitialState();
         scene->addChild(cam1);
 
@@ -2065,8 +2091,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             scene->addChild(boxNode);
         }
 
-        // Create OpenCV Tracker for the box node
-        s->trackers().push_back(new SLCVTrackedChessboard(cam1));
+        // Create OpenCV Tracker for the camera node for AR camera.
+        tracker = new CVTrackedChessboard();
+        tracker->drawDetection(true);
+        trackedNode = cam1;
 
         // pass the scene group as root node
         s->root3D(scene);
@@ -2079,8 +2107,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
              SLApplication::sceneID == SID_VideoTrackArucoScnd) //.......................................
     {
         /*
-        The tracking of markers is done in SLScene::onUpdate by calling the specific
-        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
+        The tracking of markers is done in AppDemoTracking::onUpdateVideo by calling the specific
+        CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
@@ -2088,16 +2116,19 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         if (SLApplication::sceneID == SID_VideoTrackArucoMain)
         {
-            s->videoType(VT_MAIN);
+            CVCapture::instance()->videoType(VT_MAIN);
             s->name("Track Aruco (main cam.)");
-            s->info("Hold Aruco Marker 0 and/or 1 into the field of view of the main camera. You can find the Aruco markers in the file data/Calibrations/ArucoMarkersDict0_Marker0-9.pdf");
+            s->info("Hold the Aruco board dictionary 0 into the field of view of the main camera. You can find the Aruco markers in the file data/Calibrations. If not all markers are tracked you may have the mirror the video horizontally.");
         }
         else
         {
-            s->videoType(VT_SCND);
+            CVCapture::instance()->videoType(VT_SCND);
             s->name("Track Aruco (scnd. cam.)");
-            s->info("Hold Aruco Marker 0 and/or 1 into the field of view of the secondary camera. You can find the Aruco markers in the file data/Calibrations/ArucoMarkersDict0_Marker0-9.pdf");
+            s->info("Hold the Aruco board dictionary 0 into the field of view of the secondary camera. You can find the Aruco markers in the file data/Calibrations. If not all markers are tracked you may have the mirror the video horizontally.");
         }
+
+        // Create video texture on global pointer updated in AppDemoTracking
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
@@ -2110,8 +2141,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 5);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
-        cam1->background().texture(s->videoTexture());
+        cam1->fov(activeCalib->cameraFovVDeg());
+        cam1->background().texture(videoTexture);
         cam1->setInitialState();
         scene->addChild(cam1);
 
@@ -2122,7 +2153,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light1);
 
         // Get the half edge length of the aruco marker
-        SLfloat edgeLen = SLCVTrackedAruco::params.edgeLength;
+        SLfloat edgeLen = CVTrackedAruco::params.edgeLength;
         SLfloat he      = edgeLen * 0.5f;
 
         // Build mesh & node that will be tracked by the 1st marker (camera)
@@ -2135,20 +2166,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         boxNode1->setDrawBitsRec(SL_DB_CULLOFF, true);
         scene->addChild(boxNode1);
 
-        // Build mesh & node that will be tracked by the 2nd marker
-        SLBox*  box2      = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 2", cyan);
-        SLNode* boxNode2  = new SLNode(box2, "Box Node 2");
-        SLNode* axisNode2 = new SLNode(new SLCoordAxis(), "Axis Node 2");
-        axisNode2->setDrawBitsRec(SL_DB_WIREMESH, false);
-        axisNode2->scale(edgeLen);
-        boxNode2->addChild(axisNode2);
-        boxNode2->setDrawBitsRec(SL_DB_HIDDEN, true);
-        boxNode2->setDrawBitsRec(SL_DB_CULLOFF, true);
-        scene->addChild(boxNode2);
-
-        // Create OpenCV Tracker for the camera & the 2nd box node
-        s->trackers().push_back(new SLCVTrackedAruco(cam1, 0));
-        s->trackers().push_back(new SLCVTrackedAruco(boxNode2, 1));
+        // Create OpenCV Tracker for the box node
+        tracker = new CVTrackedAruco(9);
+        tracker->drawDetection(true);
+        trackedNode = boxNode1;
 
         // pass the scene group as root node
         s->root3D(scene);
@@ -2162,8 +2183,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_VideoTrackFeature2DMain) //...................................
     {
         /*
-        The tracking of markers is done in SLScene::onUpdate by calling the specific
-        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
+        The tracking of markers is done in AppDemoTracking::onUpdateVideo by calling the specific
+        CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
@@ -2172,14 +2193,17 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Track 2D Features");
         s->info("Augmented Reality 2D Feature Tracking: You need to print out the stones image target from the file data/calibrations/vuforia_markers.pdf");
 
+        // Create video texture on global pointer updated in AppDemoTracking
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 60);
         cam1->lookAt(15, 15, 0);
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
-        cam1->background().texture(s->videoTexture());
-        s->videoType(VT_MAIN);
+        cam1->background().texture(videoTexture);
+        CVCapture::instance()->videoType(VT_MAIN);
 
         SLLightSpot* light1 = new SLLightSpot(420, 420, 420, 1);
         light1->ambient(SLCol4f(1, 1, 1));
@@ -2219,7 +2243,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(box);
         scene->addChild(cam1);
 
-        s->trackers().push_back(new SLCVTrackedFeatures(cam1, "features_stones.png"));
+        // Create feature tracker and let it pose the camera for AR posing
+        tracker = new CVTrackedFeatures("features_stones.png");
+        tracker->drawDetection(true);
+        trackedNode = cam1;
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
@@ -2231,8 +2258,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
              SLApplication::sceneID == SID_VideoTrackFaceScnd) //........................................
     {
         /*
-        The tracking of markers is done in SLScene::onUpdate by calling the specific
-        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
+        The tracking of markers is done in AppDemoTracking::onUpdateVideo by calling the specific
+        CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
@@ -2240,22 +2267,25 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         if (SLApplication::sceneID == SID_VideoTrackFaceMain)
         {
-            s->videoType(VT_MAIN);
+            CVCapture::instance()->videoType(VT_MAIN);
             s->name("Track Face (main cam.)");
         }
         else
         {
-            s->videoType(VT_SCND);
+            CVCapture::instance()->videoType(VT_SCND);
             s->name("Track Face (scnd. cam.)");
         }
         s->info("Face and facial landmark detection.");
+
+        // Create video texture on global pointer updated in AppDemoTracking
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 0.5f);
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
-        cam1->background().texture(s->videoTexture());
+        cam1->background().texture(videoTexture);
 
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 1);
         light1->ambient(SLCol4f(1, 1, 1));
@@ -2281,9 +2311,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(axis);
 
         // Add a face tracker that moves the camera node
-        s->trackers().push_back(new SLCVTrackedFaces(cam1, 3));
-
-        s->showDetection(true);
+        tracker     = new CVTrackedFaces(3);
+        trackedNode = cam1;
+        tracker->drawDetection(true);
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
@@ -2296,17 +2326,20 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Video Sensor AR");
         s->info("Minimal scene to test the devices IMU and GPS Sensors. See the sensor information. GPS needs a few sec. to improve the accuracy.");
 
+        // Create video texture on global pointer updated in AppDemoTracking
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 60);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(SLApplication::activeCalib->cameraFovDeg());
+        cam1->fov(activeCalib->cameraFovVDeg());
         cam1->clipNear(0.1f);
         cam1->clipFar(10000.0f);
         cam1->setInitialState();
+        cam1->background().texture(videoTexture);
 
         // Turn on main video
-        cam1->background().texture(s->videoTexture());
-        s->videoType(VT_MAIN);
+        CVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(1.0f);
@@ -2358,16 +2391,19 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Christoffel Tower AR");
         s->info("Augmented Reality Christoffel Tower");
 
+        // Create video texture on global pointer updated in AppDemoTracking
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 0);
         cam1->lookAt(-10, 2, 0);
         cam1->clipNear(0.1f);
         cam1->clipFar(500.0f);
         cam1->setInitialState();
+        cam1->background().texture(videoTexture);
 
         // Turn on main video
-        cam1->background().texture(s->videoTexture());
-        s->videoType(VT_MAIN);
+        CVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(5.0f);
@@ -2653,7 +2689,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         rect->translate(0, -1, -0.5f, TS_object);
 
         SLLightSpot* light1 = new SLLightSpot(3, 3, 3, 0.3f);
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
         SLuint numSamples = 10;
 #else
         SLuint numSamples = 8;
@@ -2772,7 +2808,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         //SLGLShaderProg* sp1 = new SLGLShaderProgGeneric("RefractReflect.vert", "RefractReflect.frag");
         //matLens->shaderProg(sp1);
 
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
         SLuint numSamples = 10;
 #else
         SLuint numSamples = 6;
@@ -2873,15 +2909,26 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
     ////////////////////////////////////////////////////////////////////////////
     // call onInitialize on all scene views to init the scenegraph and stats
-    for (auto sv : s->sceneViews())
-    {
-        if (sv != nullptr)
-        {
-            sv->onInitialize();
-        }
-    }
+    for (auto sceneView : s->sceneViews())
+        if (sceneView != nullptr)
+            sceneView->onInitialize();
 
-    s->onAfterLoad();
+    if (CVCapture::instance()->videoType() != VT_NONE)
+    {
+        if (sv->viewportSameAsVideo())
+        {
+            // Pass a negative value to the start function, so that the
+            // viewport aspect ratio can be adapted later to the video aspect.
+            // This will be know after start.
+            CVCapture::instance()->start(-1.0f);
+            SLVec2i videoAspect;
+            videoAspect.x = CVCapture::instance()->captureSize.width;
+            videoAspect.y = CVCapture::instance()->captureSize.height;
+            sv->setViewportFromRatio(videoAspect, sv->viewportAlign(), true);
+        }
+        else
+            CVCapture::instance()->start(sv->viewportWdivH());
+    }
 }
 //-----------------------------------------------------------------------------
 //! Creates a recursive sphere group used for the ray tracing scenes
@@ -2906,7 +2953,7 @@ SLNode* SphereGroup(SLint       depth, // depth of recursion
         depth--;
         SLNode* sGroup = new SLNode("SphereGroup");
         sGroup->translate(x, y, z, TS_object);
-        SLuint newRes = (SLuint)SL_max((SLint)resolution - 8, 8);
+        SLuint newRes = (SLuint)std::max((SLint)resolution - 8, 8);
         sGroup->addChild(new SLNode(new SLSphere(0.5f * scale, resolution, resolution, name, matGlass)));
         sGroup->addChild(SphereGroup(depth, 0.643951f * scale, 0, 0.172546f * scale, scale / 3, newRes, matRed, matRed));
         sGroup->addChild(SphereGroup(depth, 0.172546f * scale, 0, 0.643951f * scale, scale / 3, newRes, matRed, matRed));

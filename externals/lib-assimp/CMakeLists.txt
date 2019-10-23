@@ -436,6 +436,10 @@ file(GLOB sources
    ${include_path}/contrib/zlib/zutil.c
 )
 
+# Group source files (for visual studio ide)
+source_group_by_path("${include_path}" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
+source_group_by_path("${include_path}" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
+
 #==============================================================================
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
     set(compile_definitions

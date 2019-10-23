@@ -3,7 +3,7 @@
 //  Purpose:   Minimal core profile OpenGL application for ambient-diffuse-
 //             specular lighting shaders with Textures.
 //  Date:      February 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -11,10 +11,11 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
+#include <Utils.h>
 #include <GL/glew.h>    // OpenGL headers
 #include <GLFW/glfw3.h> // GLFW GUI library
 #include <SL.h>         // Basic SL type definitions
-#include <SLCVImage.h>  // Image class for image loading
+#include <CVImage.h>    // Image class for image loading
 #include <SLMat4.h>     // 4x4 matrix class
 #include <SLVec3.h>     // 3D vector class
 #include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
@@ -122,8 +123,8 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
 
     // init start values
     theta  = 0.0f;
-    dtheta = PI / stacks;
-    dphi   = 2.0f * PI / slices;
+    dtheta = Utils::PI / stacks;
+    dphi   = 2.0f * Utils::PI / slices;
 
     // Define vertex position & normals by looping through all stacks
     for (i = 0; i <= stacks; ++i)
@@ -556,7 +557,7 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 {
     if (_modifiers == NONE)
     {
-        _camZ += (SLfloat)SL_sign(yscroll) * 0.1f;
+        _camZ += (SLfloat)Utils::sign(yscroll) * 0.1f;
         onPaint();
     }
 }

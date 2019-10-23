@@ -7,7 +7,7 @@
 //             such as Windows, MacOS and Linux.
 //  Author:    Marcus Hudritsch
 //  Date:      November 2017
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -18,15 +18,20 @@
 #import <CoreMotion/CoreMotion.h>
 
 // C++ includes for the SceneLibrary
-#include <SLMath.h>
-#include <SLFileSystem.h>
+#include <Utils.h>
+#include "Utils_iOS.h"
 #include <SLInterface.h>
-#include <SLCVCapture.h>
+#include <CVCapture.h>
 #include <AppDemoGui.h>
+#include <SLApplication.h>
+#include <AppDemoSceneView.h>
 #include <mach/mach_time.h>
+#import <sys/utsname.h>
+#import <mach-o/arch.h>
 
-// Declaration of scene load function
+// Forward declaration of C functions in other files
 extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
+extern bool onUpdateVideo();
 
 //-----------------------------------------------------------------------------
 // C-Prototypes
@@ -47,6 +52,14 @@ float screenScale = 1.0f;
 SLbool onPaintRTGL()
 {  [myView display];
    return true;
+}
+
+//-----------------------------------------------------------------------------
+//! Alternative SceneView creation C-function passed by slCreateSceneView
+SLuint createAppDemoSceneView()
+{
+    SLSceneView* appDemoSV = new AppDemoSceneView();
+    return appDemoSV->index();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -76,6 +89,7 @@ float GetSeconds()
     NSString*           m_avSessionPreset;      //!< Session name
     bool                m_lastVideoImageIsConsumed;
     int                 m_lastVideoType;        //! VT_NONE=0,VT_MAIN=1,VT_SCND=2
+    int                 m_lastVideoSizeIndex;   //! 0=1920x1080, 1=1280x720 else 640x480
     bool                m_locationIsRunning;    //! GPS is running
 }
 @property (strong, nonatomic) EAGLContext       *context;
@@ -128,13 +142,28 @@ float GetSeconds()
     else dpi = 160 * screenScale;
    
     SLVstring cmdLineArgs;
-    SLstring exeDir = SLFileSystem::getCurrentWorkingDir();
-    SLstring configDir = SLFileSystem::getAppsWritableDir();
+    SLstring exeDir = Utils_iOS::getCurrentWorkingDir();
+    SLstring configDir = Utils_iOS::getAppsWritableDir();
+    
+    // Some some computer informations
+    struct utsname systemInfo; uname(&systemInfo);
+    NSString* model = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
+    NSString* osver = [[UIDevice currentDevice] systemVersion];
+    const NXArchInfo* archInfo = NXGetLocalArchInfo();
+    NSString* arch = [NSString stringWithUTF8String:archInfo->description];
+    
+    SLApplication::computerModel = std::string([model UTF8String]);
+    SLApplication::computerOSVer = std::string([osver UTF8String]);
+    SLApplication::computerArch  = std::string([arch UTF8String]);
+    
+    CVImage::defaultPath = exeDir;
+    CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(), // deviceInfo string
+                                            configDir, // for stored calibrations
+                                            exeDir,    // for calibIniPath
+                                            exeDir);   // for videos
     
     /////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
-                        exeDir,
-                        exeDir,
                         exeDir,
                         exeDir,
                         exeDir,
@@ -154,19 +183,26 @@ float GetSeconds()
                                 SID_Revolver,
                                 (void*)&onPaintRTGL,
                                 0,
-                                0,
+                                (void*)createAppDemoSceneView,
                                 (void*)AppDemoGui::build);
     ///////////////////////////////////////////////////////////////////////
     
     [self setupMotionManager: 1.0/20.0];
     [self setupLocationManager];
+    
+    // Set the available capture resolutions
+    
+    CVCapture::instance()->setCameraSize(0, 3, 1920, 1080);
+    CVCapture::instance()->setCameraSize(1, 3, 1280,  720);
+    CVCapture::instance()->setCameraSize(2, 3,  640,  480);
+    m_lastVideoSizeIndex = -1; // default size index
 }
 //-----------------------------------------------------------------------------
-- (void)viewDidUnload
+- (void)didReceiveMemoryWarning
 {
-    printf("viewDidUnload\n");
+    printf("didReceiveMemoryWarning\n");
     
-    [super viewDidUnload];
+    [super didReceiveMemoryWarning];
    
     slTerminate();
    
@@ -174,12 +210,7 @@ float GetSeconds()
     {   [EAGLContext setCurrentContext:nil];
     }
     self.context = nil;
-}
-//-----------------------------------------------------------------------------
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Release any cached data, images, etc. that aren't in use.
+    [super dealloc];
 }
 //-----------------------------------------------------------------------------
 - (void)update
@@ -190,13 +221,19 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    [self setVideoType:slGetVideoType()];
+    [self setVideoType:CVCapture::instance()->videoType()
+          videoSizeIndex:CVCapture::instance()->activeCalib->camSizeIndex()];
     
     if (slUsesLocation())
          [self startLocationManager];
     else [self stopLocationManager];
     
-    slUpdateAndPaint(svIndex);
+    /////////////////////////////////////////////
+    bool trackingGotUpdated = onUpdateVideo();
+    bool sceneGotUpdated    = slUpdateScene();
+    bool viewsNeedsRepaint  = slPaintAllViews();
+    /////////////////////////////////////////////
+    
     m_lastVideoImageIsConsumed = true;
     
     if (slShouldClose())
@@ -343,16 +380,32 @@ float GetSeconds()
     
     CVPixelBufferLockBaseAddress(pixelBuffer,0);
     
-    int width  = (int) CVPixelBufferGetWidth(pixelBuffer);
-    int height = (int) CVPixelBufferGetHeight(pixelBuffer);
+    int imgWidth  = (int) CVPixelBufferGetWidth(pixelBuffer);
+    int imgHeight = (int) CVPixelBufferGetHeight(pixelBuffer);
     unsigned char* data = (unsigned char*)CVPixelBufferGetBaseAddress(pixelBuffer);
         
     if(!data)
     {   NSLog(@"No pixel buffer data");
         return;
     }
+    
+    SLSceneView* sv = SLApplication::scene->sceneView(0);
+    CVCapture* capture = CVCapture::instance();
+    float videoImgWdivH = (float)imgWidth / (float)imgHeight;
+
+    if (SLApplication::scene->sceneView(0)->viewportSameAsVideo())
+    {
+        // If video aspect has changed we need to tell the new viewport to the sceneview
+        if (Utils::abs(videoImgWdivH - sv->viewportWdivH()) > 0.01f)
+            sv->setViewportFromRatio(SLVec2i(imgWidth, imgHeight), sv->viewportAlign(), true);
+    }
         
-    slCopyVideoImage(width, height, PF_bgra, data, false);
+    CVCapture::instance()->loadIntoLastFrame(sv->viewportWdivH(),
+                                             imgWidth,
+                                             imgHeight,
+                                             PF_bgra,
+                                             data,
+                                             false);
     
     CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
         
@@ -381,13 +434,13 @@ float GetSeconds()
         }
         else if ([[UIDevice currentDevice] orientation ]== UIDeviceOrientationLandscapeRight)
         {
-            float pitch = attitude.roll            - SL_HALFPI;
-            float yaw   = attitude.yaw             - SL_HALFPI;
+            float pitch = attitude.roll - Utils::HALFPI;
+            float yaw   = attitude.yaw  - Utils::HALFPI;
             float roll  = attitude.pitch;
             SL_LOG("Pitch: %3.0f, Yaw: %3.0f, Roll: %3.0f\n",
-                   pitch*SL_RAD2DEG,
-                   yaw*SL_RAD2DEG,
-                   roll*SL_RAD2DEG);
+                   pitch*Utils::RAD2DEG,
+                   yaw*Utils::RAD2DEG,
+                   roll*Utils::RAD2DEG);
         }
         else if([[UIDevice currentDevice] orientation] == UIDeviceOrientationPortrait)
         {
@@ -401,9 +454,13 @@ float GetSeconds()
 }
 //-----------------------------------------------------------------------------
 //! Prepares the video capture (taken from the GLCameraRipple example)
-- (void)setupVideo: (bool)useFaceCamera
+- (void)setupVideo: (bool)useFaceCamera videoSizeIndex:(int)sizeIndex
 {
-    m_avSessionPreset = AVCaptureSessionPreset640x480;
+    switch(sizeIndex)
+    {   case 0: m_avSessionPreset = AVCaptureSessionPreset1920x1080; break;
+        case 1: m_avSessionPreset = AVCaptureSessionPreset1280x720; break;
+        default : m_avSessionPreset = AVCaptureSessionPreset640x480;
+    }
     
     //-- Setup Capture Session.
     m_avSession = [[AVCaptureSession alloc] init];
@@ -468,6 +525,7 @@ float GetSeconds()
  camera that faces the face.
 */
 - (void) setVideoType:(int)videoType
+         videoSizeIndex:(int)sizeIndex
 {
     if (videoType == VT_NONE) // No video needed. Turn off any video
     {
@@ -482,19 +540,43 @@ float GetSeconds()
         {   printf("Stopping AV Session\n");
             [m_avSession stopRunning];
         }
-        SLCVCapture::grabAndAdjustForSL();
+        
+        SLSceneView* sv = SLApplication::scene->sceneView(0);
+        CVCapture* capture = CVCapture::instance();
+
+        // Get the current capture size of the videofile
+        CVSize videoSizeBefore = capture->captureSize;
+
+        // If viewportWdivH is negative the viewport aspect will be adapted to the video
+        // aspect ratio. No cropping will be applied.
+        // iOS doesn't know the video file frame size before grab
+        float viewportWdivH = sv->viewportWdivH();
+        if (sv->viewportSameAsVideo())
+            viewportWdivH = -1;
+
+        capture->grabAndAdjustForSL(viewportWdivH);
+
+        // If video aspect has changed we need to tell the new viewport to the sceneview
+        CVSize videoSizeAfter = capture->captureSize;
+        if (sv->viewportSameAsVideo() && videoSizeBefore != videoSizeAfter)
+            sv->setViewportFromRatio(SLVec2i(videoSizeAfter.width, videoSizeAfter.height),
+                                     sv->viewportAlign(),
+                                     sv->viewportSameAsVideo());
     }
     else if (videoType == VT_MAIN) // back facing video needed
     {
         if (m_avSession == nil)
         {   printf("Creating AV Session for Front Camera\n");
-            [self setupVideo:false];
+            [self setupVideo:false videoSizeIndex: sizeIndex];
             printf("Starting AV Session\n");
             [m_avSession startRunning];
         }
         else if (m_lastVideoType == videoType)
-        {
-            if (![m_avSession isRunning])
+        {   if (m_lastVideoSizeIndex != sizeIndex)
+            {   printf("Stopping AV Session for resolution change\n");
+                [m_avSession stopRunning];
+                m_avSession = nil;
+            } else if (![m_avSession isRunning])
             {   printf("Starting AV Session\n");
                 [m_avSession startRunning];
             }
@@ -506,7 +588,7 @@ float GetSeconds()
                 m_avSession = nil;
             }
             printf("Creating AV Session for Front Camera\n");
-            [self setupVideo:false];
+            [self setupVideo:false videoSizeIndex: sizeIndex];
             printf("Starting AV Session\n");
             [m_avSession startRunning];
         }
@@ -515,12 +597,16 @@ float GetSeconds()
     {
         if (m_avSession == nil)
         {   printf("Creating AV Session for Back Camera\n");
-            [self setupVideo:true];
+            [self setupVideo:true videoSizeIndex: sizeIndex];
             printf("Starting AV Session\n");
             [m_avSession startRunning];
         }
         else if (m_lastVideoType == videoType)
-        {   if (![m_avSession isRunning])
+        {   if (m_lastVideoSizeIndex != sizeIndex)
+            {   printf("Stopping AV Session for resolution change\n");
+                [m_avSession stopRunning];
+                m_avSession = nil;
+            } else if (![m_avSession isRunning])
             {   printf("Starting AV Session\n");
                 [m_avSession startRunning];
             }
@@ -532,13 +618,14 @@ float GetSeconds()
                 m_avSession = nil;
             }
             printf("Creating AV Session for Back Camera\n");
-            [self setupVideo:true];
+            [self setupVideo:true videoSizeIndex: sizeIndex];
             printf("Starting AV Session\n");
             [m_avSession startRunning];
         }
     }
     
     m_lastVideoType = videoType;
+    m_lastVideoSizeIndex = sizeIndex;
 }
 //-----------------------------------------------------------------------------
 //! Starts the motion data update if the interval time > 0 else it stops

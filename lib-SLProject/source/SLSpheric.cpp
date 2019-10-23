@@ -2,7 +2,7 @@
 //  File:      SLSpheric.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -16,6 +16,8 @@
 
 #include <SLSpheric.h>
 
+#include <utility>
+
 //-----------------------------------------------------------------------------
 /*!
 SLSpheric::SLSpheric ctor for spheric revolution object around the z-axis.
@@ -26,7 +28,7 @@ SLSpheric::SLSpheric(SLfloat     sphereRadius,
                      SLuint      stacks,
                      SLuint      slices,
                      SLstring    name,
-                     SLMaterial* mat) : SLRevolver(name)
+                     SLMaterial* mat) : SLRevolver(std::move(name))
 {
     assert(slices >= 3 && "Error: Not enough slices.");
     assert(slices > 0 && "Error: Not enough stacks.");
@@ -38,10 +40,10 @@ SLSpheric::SLSpheric(SLfloat     sphereRadius,
            "Error: Polar start angle > end angle");
 
     _radius        = sphereRadius;
-    _stacks        = stacks;
     _thetaStartDEG = thetaStartDEG;
     _thetaEndDEG   = thetaEndDEG;
 
+    _stacks      = stacks;
     _slices      = slices;
     _smoothFirst = (thetaStartDEG == 0.0f);
     _smoothLast  = (thetaEndDEG == 180.0f);
@@ -49,9 +51,9 @@ SLSpheric::SLSpheric(SLfloat     sphereRadius,
     _revAxis.set(0, 0, 1);
     _revPoints.reserve(stacks + 1);
 
-    SLfloat theta  = -SL_PI + thetaStartDEG * SL_DEG2RAD;
+    SLfloat theta  = -Utils::PI + thetaStartDEG * Utils::DEG2RAD;
     SLfloat phi    = 0;
-    SLfloat dTheta = (thetaEndDEG - thetaStartDEG) * SL_DEG2RAD / stacks;
+    SLfloat dTheta = (thetaEndDEG - thetaStartDEG) * Utils::DEG2RAD / stacks;
 
     for (SLuint i = 0; i <= stacks; ++i)
     {

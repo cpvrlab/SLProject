@@ -2,7 +2,7 @@
 //  File:      SLGLTexture.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -17,6 +17,7 @@
 #include <SLApplication.h>
 #include <SLGLTexture.h>
 #include <SLScene.h>
+#include <Utils.h>
 
 //-----------------------------------------------------------------------------
 //! Default path for texture files used when only filename is passed in load.
@@ -37,7 +38,6 @@ pointer to the SLScene::_texture vector for global deallocation.
 */
 SLGLTexture::SLGLTexture()
 {
-    _stateGL      = SLGLState::getInstance();
     _texName      = 0;
     _texType      = TT_unknown;
     _min_filter   = GL_NEAREST;
@@ -49,19 +49,20 @@ SLGLTexture::SLGLTexture()
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
     _bytesOnGPU   = 0;
+    _needsUpdate  = false;
 }
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
-SLGLTexture::SLGLTexture(SLstring      filename,
-                         SLint         min_filter,
-                         SLint         mag_filter,
-                         SLTextureType type,
-                         SLint         wrapS,
-                         SLint         wrapT)
-  : SLObject(SLUtils::getFileName(filename), filename)
+SLGLTexture::SLGLTexture(const SLstring& filename,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLTextureType   type,
+                         SLint           wrapS,
+                         SLint           wrapT)
+  : SLObject(Utils::getFileName(filename), filename)
 {
     assert(filename != "");
-    _stateGL = SLGLState::getInstance();
+
     _texType = type == TT_unknown ? detectType(filename) : type;
 
     load(filename);
@@ -83,20 +84,19 @@ SLGLTexture::SLGLTexture(SLstring      filename,
 }
 //-----------------------------------------------------------------------------
 //! ctor for 3D texture
-SLGLTexture::SLGLTexture(SLVstring files,
-                         SLint     min_filter,
-                         SLint     mag_filter,
-                         SLint     wrapS,
-                         SLint     wrapT,
-                         SLstring  name,
-                         SLbool    loadGrayscaleIntoAlpha) : SLObject(name)
+SLGLTexture::SLGLTexture(const SLVstring& files,
+                         SLint            min_filter,
+                         SLint            mag_filter,
+                         SLint            wrapS,
+                         SLint            wrapT,
+                         const SLstring&  name,
+                         SLbool           loadGrayscaleIntoAlpha) : SLObject(name)
 {
     assert(files.size() > 1);
 
-    _stateGL = SLGLState::getInstance();
     _texType = TT_color;
 
-    for (auto filename : files)
+    for (const auto& filename : files)
         load(filename, true, loadGrayscaleIntoAlpha);
 
     _min_filter   = min_filter;
@@ -116,15 +116,14 @@ SLGLTexture::SLGLTexture(SLVstring files,
 }
 //-----------------------------------------------------------------------------
 //! ctor for 1D texture
-SLGLTexture::SLGLTexture(SLVCol4f colors,
-                         SLint    min_filter,
-                         SLint    mag_filter,
-                         SLint    wrapS,
-                         SLstring name) : SLObject(name)
+SLGLTexture::SLGLTexture(const SLVCol4f& colors,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLint           wrapS,
+                         const SLstring& name) : SLObject(name)
 {
     assert(colors.size() > 1);
 
-    _stateGL = SLGLState::getInstance();
     _texType = TT_color;
 
     load(colors);
@@ -149,30 +148,30 @@ SLGLTexture::SLGLTexture(SLVCol4f colors,
 }
 //-----------------------------------------------------------------------------
 //! ctor for cube mapping with internal image allocation
-SLGLTexture::SLGLTexture(SLstring      filenameXPos,
-                         SLstring      filenameXNeg,
-                         SLstring      filenameYPos,
-                         SLstring      filenameYNeg,
-                         SLstring      filenameZPos,
-                         SLstring      filenameZNeg,
-                         SLint         min_filter,
-                         SLint         mag_filter,
-                         SLTextureType type) : SLObject(filenameXPos)
+SLGLTexture::SLGLTexture(const SLstring& filenameXPos,
+                         const SLstring& filenameXNeg,
+                         const SLstring& filenameYPos,
+                         const SLstring& filenameYNeg,
+                         const SLstring& filenameZPos,
+                         const SLstring& filenameZNeg,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLTextureType   type) : SLObject(filenameXPos)
 {
-    _stateGL = SLGLState::getInstance();
     _texType = type == TT_unknown ? detectType(filenameXPos) : type;
 
-    assert(filenameXPos != "");
+    assert(!filenameXPos.empty());
+    assert(!filenameXNeg.empty());
+    assert(!filenameYPos.empty());
+    assert(!filenameYNeg.empty());
+    assert(!filenameZPos.empty());
+    assert(!filenameZNeg.empty());
+
     load(filenameXPos, false);
-    assert(filenameXNeg != "");
     load(filenameXNeg, false);
-    assert(filenameYPos != "");
     load(filenameYPos, false);
-    assert(filenameYNeg != "");
     load(filenameYNeg, false);
-    assert(filenameZPos != "");
     load(filenameZPos, false);
-    assert(filenameZNeg != "");
     load(filenameZNeg, false);
 
     _min_filter   = min_filter;
@@ -202,10 +201,10 @@ void SLGLTexture::clearData()
 
     numBytesInTextures -= _bytesOnGPU;
 
-    for (SLuint i = 0; i < _images.size(); ++i)
+    for (auto& _image : _images)
     {
-        delete _images[i];
-        _images[i] = nullptr;
+        delete _image;
+        _image = nullptr;
     }
     _images.clear();
 
@@ -220,19 +219,19 @@ void SLGLTexture::load(SLstring filename,
                        SLbool   loadGrayscaleIntoAlpha)
 {
     // Load the file directly
-    if (!SLFileSystem::fileExists(filename))
+    if (!Utils::fileExists(filename))
     {
         filename = defaultPath + filename;
-        if (!SLFileSystem::fileExists(filename))
+        if (!Utils::fileExists(filename))
         {
             SLstring msg = "SLGLTexture: File not found: " + filename;
             SL_EXIT_MSG(msg.c_str());
         }
     }
 
-    _images.push_back(new SLCVImage(filename,
-                                    flipVertical,
-                                    loadGrayscaleIntoAlpha));
+    _images.push_back(new CVImage(filename,
+                                  flipVertical,
+                                  loadGrayscaleIntoAlpha));
 }
 //-----------------------------------------------------------------------------
 //! Loads the 1D color data into an image of height 1
@@ -240,16 +239,12 @@ void SLGLTexture::load(const SLVCol4f& colors)
 {
     assert(colors.size() > 1);
 
-    _images.push_back(new SLCVImage(colors));
-}
-//-----------------------------------------------------------------------------
-void SLGLTexture::setVideoImage(SLstring videoImageFile)
-{
-    load(videoImageFile);
-    name(videoImageFile);
-    _min_filter  = GL_LINEAR;
-    _mag_filter  = GL_LINEAR;
-    _needsUpdate = false;
+    // convert to CV color vector
+    CVVVec4f col4f;
+    for (const auto& c : colors)
+        col4f.push_back(CVVec4f(c.r, c.g, c.b, c.a));
+
+    _images.push_back(new CVImage(col4f));
 }
 //-----------------------------------------------------------------------------
 //! Copies the image data from a video camera into the current video image
@@ -265,19 +260,19 @@ void SLGLTexture::setVideoImage(SLstring videoImageFile)
 It is important that passed pixel format is either PF_LUMINANCE, RGB or RGBA.
 otherwise an expensive conversion must be done.
 */
-SLbool SLGLTexture::copyVideoImage(SLint         camWidth,
-                                   SLint         camHeight,
-                                   SLPixelFormat srcFormat,
-                                   SLuchar*      data,
-                                   SLbool        isContinuous,
-                                   SLbool        isTopLeft)
+SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
+                                   SLint       camHeight,
+                                   CVPixFormat srcFormat,
+                                   SLuchar*    data,
+                                   SLbool      isContinuous,
+                                   SLbool      isTopLeft)
 {
     // Add image for the first time
-    if (_images.size() == 0)
-        _images.push_back(new SLCVImage(camWidth,
-                                        camHeight,
-                                        PF_rgb,
-                                        "LiveVideoImageFromMemory"));
+    if (_images.empty())
+        _images.push_back(new CVImage(camWidth,
+                                      camHeight,
+                                      PF_rgb,
+                                      "LiveVideoImageFromMemory"));
 
     // load returns true if size or format changes
     bool needsBuild = _images[0]->load(camWidth,
@@ -314,7 +309,7 @@ void SLGLTexture::build(SLint texID)
 {
     assert(texID >= 0 && texID < 32);
 
-    if (_images.size() == 0)
+    if (_images.empty())
         SL_EXIT_MSG("No images loaded in SLGLTexture::build");
 
     // delete texture name if it already exits
@@ -385,15 +380,16 @@ void SLGLTexture::build(SLint texID)
     // Generate texture names
     glGenTextures(1, &_texName);
 
-    _stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
 
     // create binding and apply texture properties
-    _stateGL->bindTexture(_target, _texName);
+    stateGL->bindTexture(_target, _texName);
 
     // check if anisotropic texture filter extension is available
     if (maxAnisotropy < 0.0f)
     {
-        if (_stateGL->hasExtension("GL_EXT_texture_filter_anisotropic"))
+        if (stateGL->hasExtension("GL_EXT_texture_filter_anisotropic"))
             glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
         else
         {
@@ -409,8 +405,8 @@ void SLGLTexture::build(SLint texID)
         if (_min_filter == SL_ANISOTROPY_MAX)
             anisotropy = maxAnisotropy;
         else
-            anisotropy = min((SLfloat)(_min_filter - GL_LINEAR_MIPMAP_LINEAR),
-                             maxAnisotropy);
+            anisotropy = std::min((SLfloat)(_min_filter - GL_LINEAR_MIPMAP_LINEAR),
+                                    maxAnisotropy);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
     }
     else
@@ -450,9 +446,9 @@ void SLGLTexture::build(SLint texID)
 
         if (_min_filter >= GL_NEAREST_MIPMAP_NEAREST)
         {
-            if (_stateGL->glIsES2() ||
-                _stateGL->glIsES3() ||
-                _stateGL->glVersionNOf() >= 3.0)
+            if (stateGL->glIsES2() ||
+                stateGL->glIsES3() ||
+                stateGL->glVersionNOf() >= 3.0)
                 glGenerateMipmap(GL_TEXTURE_2D);
             else
                 build2DMipmaps(GL_TEXTURE_2D, 0);
@@ -470,7 +466,7 @@ void SLGLTexture::build(SLint texID)
         SLuchar* imageData = &buffer[0];
 
         // copy each image data into temp. buffer
-        for (SLCVImage* img : _images)
+        for (CVImage* img : _images)
         {
             memcpy(imageData, img->data(), img->bytesPerImage());
             imageData += img->bytesPerImage();
@@ -545,8 +541,9 @@ void SLGLTexture::bindActive(SLint texID)
 
     if (_texName)
     {
-        _stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
-        _stateGL->bindTexture(_target, _texName);
+        SLGLState* stateGL = SLGLState::instance();
+        stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
+        stateGL->bindTexture(_target, _texName);
 
         // Check if texture name is valid only for debug purpose
         //if (!glIsTexture(_texName))
@@ -554,11 +551,7 @@ void SLGLTexture::bindActive(SLint texID)
         //           _texName, texID, _images[0]->name().c_str());
         //}
 
-        SLScene* s = SLApplication::scene;
-
-        if (this == s->videoTexture() &&
-            s->videoType() != VT_NONE &&
-            _needsUpdate)
+        if (_needsUpdate)
         {
             fullUpdate();
             _needsUpdate = false;
@@ -578,6 +571,7 @@ void SLGLTexture::fullUpdate()
         _images[0]->data() &&
         _target == GL_TEXTURE_2D)
     {
+        // Do not allow MIP-Maps as they are to big
         if (_min_filter == GL_NEAREST || _min_filter == GL_LINEAR)
         {
             numBytesInTextures -= _bytesOnGPU;
@@ -597,6 +591,8 @@ void SLGLTexture::fullUpdate()
             _bytesOnGPU = _images[0]->bytesPerImage();
             numBytesInTextures += _bytesOnGPU;
         }
+        else
+            SL_WARN_MSG("Filtering to expensive to full update in SLGLTexture::fullupdate!");
     }
     GET_GL_ERROR;
 }
@@ -649,7 +645,8 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
     if (doUpdate) fullUpdate(); // Update the OpenGL texture on each draw
 
     // Draw the character triangles
-    SLMat4f      mvp(_stateGL->projectionMatrix * _stateGL->modelViewMatrix);
+    SLGLState*   stateGL = SLGLState::instance();
+    SLMat4f      mvp(stateGL->projectionMatrix * stateGL->modelViewMatrix);
     SLGLProgram* sp = SLApplication::scene->programs(SP_TextureOnly);
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
@@ -675,10 +672,16 @@ SLCol4f SLGLTexture::getTexelf(SLfloat s, SLfloat t, SLuint imgIndex)
 
     // Bilinear interpolation
     if (_min_filter == GL_LINEAR || _mag_filter == GL_LINEAR)
-        return _images[imgIndex]->getPixelf(s, t);
+    {
+        CVVec4f c4f = _images[imgIndex]->getPixelf(s, t);
+        return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
+    }
     else
-        return _images[imgIndex]->getPixeli((SLint)(s * _images[imgIndex]->width()),
-                                            (SLint)(t * _images[imgIndex]->height()));
+    {
+        CVVec4f c4f = _images[imgIndex]->getPixeli((SLint)(s * _images[imgIndex]->width()),
+                                                   (SLint)(t * _images[imgIndex]->height()));
+        return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
+    }
 }
 //-----------------------------------------------------------------------------
 //! SLGLTexture::getTexelf returns a pixel color at the specified cubemap direction
@@ -723,7 +726,7 @@ SLVec2f SLGLTexture::dsdt(SLfloat s, SLfloat t)
 //! Detects the texture type from the filename appendix (See SLTexType def.)
 SLTextureType SLGLTexture::detectType(SLstring filename)
 {
-    SLstring name     = SLUtils::getFileNameWOExt(filename);
+    SLstring name     = Utils::getFileNameWOExt(filename);
     SLstring appendix = name.substr(name.length() - 2, 2);
     if (appendix == "_C") return TT_color;
     if (appendix == "_N") return TT_normal;
@@ -778,14 +781,14 @@ void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
     GET_GL_ERROR;
 
     // working copy of the base mipmap
-    SLCVImage img2(*_images[index]);
+    CVImage img2(*_images[index]);
 
     // create half sized sub level mipmaps
     while (img2.width() > 1 || img2.height() > 1)
     {
         level++;
-        img2.resize((SLint)max(img2.width() >> 1, (SLuint)1),
-                    (SLint)max(img2.height() >> 1, (SLuint)1));
+        img2.resize((SLint)std::max(img2.width() >> 1, (SLuint)1),
+                    (SLint)std::max(img2.height() >> 1, (SLuint)1));
 
         //SLfloat gauss[9] = {1.0f, 2.0f, 1.0f,
         //                    2.0f, 4.0f, 2.0f,

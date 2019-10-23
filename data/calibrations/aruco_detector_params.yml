@@ -8,7 +8,7 @@ maxMarkerPerimeterRate: 4.0
 polygonalApproxAccuracyRate: 0.05
 minCornerDistance: 10.0
 minDistanceToBorder: 3
-doCornerRefinement: true
+cornerRefinementMethod: 1
 cornerRefinementWinSize: 5
 cornerRefinementMaxIterations: 30
 cornerRefinementMinAccuracy: 0.1

@@ -2,7 +2,7 @@
 //  File:      SLDisk.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -16,16 +16,18 @@
 
 #include <SLDisk.h>
 
+#include <utility>
+
 //-----------------------------------------------------------------------------
 /*!
 SLDisk::SLDisk ctor for disk revolution object around the z-axis
 */
-SLDisk::SLDisk(SLfloat     radius,
-               SLVec3f     revolveAxis,
-               SLuint      slices,
-               SLbool      doubleSided,
-               SLstring    name,
-               SLMaterial* mat) : SLRevolver(name)
+SLDisk::SLDisk(SLfloat        radius,
+               const SLVec3f& revolveAxis,
+               SLuint         slices,
+               SLbool         doubleSided,
+               SLstring       name,
+               SLMaterial*    mat) : SLRevolver(std::move(name))
 {
     assert(slices >= 3 && "Error: Not enough slices.");
 

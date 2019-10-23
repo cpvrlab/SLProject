@@ -8,17 +8,16 @@ set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB headers
-    ${SL_PROJECT_ROOT}/lib-SLProject/include/glUtils.h
-    ${SL_PROJECT_ROOT}/lib-SLProject/include/SLCV.h
-    ${SL_PROJECT_ROOT}/lib-SLProject/include/SLCVImage.h
+        ${SL_PROJECT_ROOT}/lib-SLProject/include/glUtils.h
+        ${SL_PROJECT_ROOT}/lib-SLProject/include/CVTypedefs.h
+        ${SL_PROJECT_ROOT}/lib-SLProject/include/CVImage.h
     )
 
 file(GLOB sources
-    ${SL_PROJECT_ROOT}/lib-SLProject/source/glUtils.cpp
-    ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SL.cpp
-    ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SLFileSystem.cpp
-    ${SL_PROJECT_ROOT}/lib-SLProject/source/CV/SLCVImage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/ColorCube.cpp
+        ${SL_PROJECT_ROOT}/lib-SLProject/source/glUtils.cpp
+        ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SL.cpp
+        ${SL_PROJECT_ROOT}/lib-SLProject/source/CV/CVImage.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ColorCube.cpp
     )
 
 file(GLOB shaders
@@ -46,9 +45,9 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/lib-SLProject/include/math
     ${SL_PROJECT_ROOT}/lib-SLProject/include/SL
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal
-    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/dirent
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glfw3/include
+    ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
     ${OpenCV_INCLUDE_DIR}
     PUBLIC
     INTERFACE
@@ -60,6 +59,7 @@ target_link_libraries(${target}
     PRIVATE
     ${PlatformLinkLibs}
     lib-SLExternal
+    lib-Utils
     ${OpenCV_LIBS}
     PUBLIC
     INTERFACE

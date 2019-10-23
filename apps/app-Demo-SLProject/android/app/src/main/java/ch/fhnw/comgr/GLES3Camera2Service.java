@@ -26,9 +26,10 @@ import android.media.Image;
 import android.media.ImageReader;
 //import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.util.Size;
+import android.util.SizeF;
 
 import java.util.Arrays;
 
@@ -43,7 +44,7 @@ import java.util.Arrays;
 public class GLES3Camera2Service extends Service {
     protected static final String TAG = "SLProject";
     public static int videoType = CameraCharacteristics.LENS_FACING_BACK;
-    public static int requestedVideoSizeIndex = 0; // see getRequestedSize
+    public static int requestedVideoSizeIndex = -1; // see getRequestedSize
     public static boolean isTransitioning = false;
     public static boolean isRunning = false;
     protected CameraDevice cameraDevice;
@@ -53,7 +54,6 @@ public class GLES3Camera2Service extends Service {
     /*
     // Thread that handles the onImageAvailable (this would be the russian way)
     private Handler GLES_ThreadHandler;
-
     public GLES3Camera2Service() {GLES_ThreadHandler = GLES3Lib.view.getHandler();}
     */
 
@@ -90,8 +90,31 @@ public class GLES3Camera2Service extends Service {
             for (String cameraId : manager.getCameraIdList()) {
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
                 int cOrientation = characteristics.get(CameraCharacteristics.LENS_FACING);
-                if (cOrientation == lensFacing)
+                if (cOrientation == lensFacing) {
+
+                    float[] lensFocalLengths             = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
+                    int     lensFocusDistanceCalibration = characteristics.get(CameraCharacteristics.LENS_INFO_FOCUS_DISTANCE_CALIBRATION);
+                    float   lensMinimumFocusDistance     = characteristics.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE);
+                    float[] lensApertures                = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_APERTURES);
+                    SizeF   sensorPhysicalSize           = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE);
+                    android.graphics.Rect sensorActiveArraySize = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+
+                    GLES3Lib.view.queueEvent(new Runnable() {
+                        @Override
+                        public void run() {
+                            GLES3Lib.setDeviceParameter("DeviceLensFocalLength",              String.valueOf(lensFocalLengths[0]));
+                            GLES3Lib.setDeviceParameter("DeviceLensAperture",                 String.valueOf(lensApertures[0]));
+                            GLES3Lib.setDeviceParameter("DeviceLensFocusDistanceCalibration", String.valueOf(lensFocusDistanceCalibration));
+                            GLES3Lib.setDeviceParameter("DeviceLensMinimumFocusDistance",     String.valueOf(lensMinimumFocusDistance));
+                            GLES3Lib.setDeviceParameter("DeviceSensorPhysicalSizeW",          String.valueOf(sensorPhysicalSize.getWidth()));
+                            GLES3Lib.setDeviceParameter("DeviceSensorPhysicalSizeH",          String.valueOf(sensorPhysicalSize.getHeight()));
+                            GLES3Lib.setDeviceParameter("DeviceSensorActiveArraySizeW",       String.valueOf(sensorActiveArraySize.width()));
+                            GLES3Lib.setDeviceParameter("DeviceSensorActiveArraySizeH",       String.valueOf(sensorActiveArraySize.height()));
+                        }
+                    });
+
                     return cameraId;
+                }
             }
         } catch (CameraAccessException e) {
             e.printStackTrace();
@@ -104,40 +127,48 @@ public class GLES3Camera2Service extends Service {
      * Returns the requested video size in pixel
      * @param manager The manager got by getSystemService(CAMERA_SERVICE)
      * @param lensFacing LENS_FACING_BACK or LENS_FACING_FRONT
-     * @param requestedSizeIndex An index of 0 returns the default size of 640x480
-     *                           If this size is not available the median size is returned.
-     *                           An index of -1 return the next smaller one
-     *                           An index of +1 return the next bigger one
+     * @param requestedSizeIndex An index of -1 returns the default size of 640x480
      */
     private Size getRequestedSize(CameraManager manager,
                                   int lensFacing,
                                   int requestedSizeIndex) {
 
-        Size[] availableSizes = getOutputSizes(manager, lensFacing);
+        Size[] sizes = getOutputSizes(manager, lensFacing);
 
         // On certain old Androids getOutputSizes can return empty arrays
-        if (availableSizes == null || availableSizes.length == 0)
+        if (sizes == null || sizes.length == 0)
             return new Size(0,0);
 
-        // set default size index to a size in the middle of the array
-        int defaultSizeIndex = availableSizes.length / 2;
+        // set default size index to a size in the middle of the array if 640x480 is not found
+        int defaultSizeIndex = sizes.length / 2;
 
         // get the index of the 640x480 resolution
-        for (int i=0; i< availableSizes.length; ++i) {
-            int w = availableSizes[i].getWidth();
-            int h = availableSizes[i].getHeight();
-            if (w == 640 && h == 480) {
+        for (int i = 0; i < sizes.length; ++i) {
+            if (sizes[i].getWidth() == 640 && sizes[i].getHeight() == 480) {
                 defaultSizeIndex = i;
                 break;
             }
         }
 
-        if (defaultSizeIndex - requestedSizeIndex < 0)
-            return availableSizes[0];
-        else if (defaultSizeIndex - requestedSizeIndex >= availableSizes.length)
-            return availableSizes[availableSizes.length-1];
+        // pass all resolutions to SLProject
+        GLES3Lib.view.queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < sizes.length; ++i) {
+                    GLES3Lib.setCameraSize(i,
+                            sizes.length,
+                            sizes[i].getWidth(),
+                            sizes[i].getHeight());
+                }
+            }
+        });
+
+        if (requestedSizeIndex <= -1)
+            return sizes[defaultSizeIndex];
+        else if (requestedSizeIndex >= sizes.length)
+            return sizes[sizes.length-1];
         else
-            return availableSizes[defaultSizeIndex - requestedSizeIndex];
+            return sizes[requestedSizeIndex];
     }
 
     /**
@@ -311,6 +342,11 @@ public class GLES3Camera2Service extends Service {
     protected CaptureRequest createCaptureRequest() {
         try {
             CaptureRequest.Builder builder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
+
+            // Turn off auto focus. We want to calibrate with the focus on infinty.
+            //builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF);
+            //builder.set(CaptureRequest.LENS_FOCUS_DISTANCE,0.0f);
+
             builder.addTarget(imageReader.getSurface());
             return builder.build();
         } catch (CameraAccessException e) {

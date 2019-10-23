@@ -75,7 +75,7 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
     const SLfloat DENSITY = 20.0f;
     SLuint  numTriangles = _m->numI / 3; // NO. of triangles
     SLfloat f = (SLfloat)pow(DENSITY*numTriangles,1.0f/3.0f);
-    SLfloat maxS = SL_max(size.x, size.y, size.z);
+    SLfloat maxS = std::max(size.x, size.y, size.z);
     _size.x = max(1, (SLint)(f*size.x/maxS));
     _size.y = max(1, (SLint)(f*size.y/maxS));
     _size.z = max(1, (SLint)(f*size.z/maxS));
@@ -122,12 +122,12 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
             vert[2][2] = _m->finalP()[_m->I32[i+2]].z;
         }
         // Min. and max. point of triangle
-        SLVec3f minT = SLVec3f(SL_min(vert[0][0], vert[1][0], vert[2][0]),
-                               SL_min(vert[0][1], vert[1][1], vert[2][1]),
-                               SL_min(vert[0][2], vert[1][2], vert[2][2]));
-        SLVec3f maxT = SLVec3f(SL_max(vert[0][0], vert[1][0], vert[2][0]),
-                               SL_max(vert[0][1], vert[1][1], vert[2][1]),
-                               SL_max(vert[0][2], vert[1][2], vert[2][2]));
+        SLVec3f minT = SLVec3f(std::min(vert[0][0], vert[1][0], vert[2][0]),
+                               std::min(vert[0][1], vert[1][1], vert[2][1]),
+                               std::min(vert[0][2], vert[1][2], vert[2][2]));
+        SLVec3f maxT = SLVec3f(std::max(vert[0][0], vert[1][0], vert[2][0]),
+                               std::max(vert[0][1], vert[1][1], vert[2][1]),
+                               std::max(vert[0][2], vert[1][2], vert[2][2]));
       
         // min voxel index of triangle
         SLint minx = (SLint)((minT.x-_minV.x) / _voxelSize.x);
@@ -153,7 +153,7 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
                 {  
                     voxelID = x + y*_size.x + z*_size.x*_size.y;
                
-                    //triangle-AABB overlap test by Thomas Möller
+                    //triangle-AABB overlap test by Thomas Mï¿½ller
                     if (triBoxOverlap(curVoxelCenter, boxHalfExt, vert))
                     //trianlgesAABB-AABB overlap test is faster but not as precise
                     //if (triBoxBoxOverlap(curVoxelCenter, boxHalfExt, vert)) 
@@ -237,7 +237,7 @@ void SLUniformGrid::draw(SLSceneView* sv)
                 {   v.x = _minV.x;
                     for (x=0; x<_size.x; ++x, v.x += _voxelSize.x) 
                     {  
-                        if (_voxel[curVoxel] && _voxel[curVoxel]->size() > 0)
+                        if (_voxel[curVoxel] && !_voxel[curVoxel]->empty())
                         {  
                             P[i++].set(v.x,          v.y,          v.z         ); 
                             P[i++].set(v.x+_voxelSize.x, v.y,          v.z         );
@@ -359,7 +359,7 @@ SLbool SLUniformGrid::intersect(SLRay* ray, SLNode* node)
             if (stepZ==-1) tMaxZ = (minVox.z - O.z) * invD.z;
          
             // tMax is max. distance along the ray to stay in the current voxel
-            SLfloat tMax = SL_min(tMaxX, tMaxY, tMaxZ);
+            SLfloat tMax = std::min(tMaxX, tMaxY, tMaxZ);
          
             // Precalculate the voxel id increment
             SLint incIDX = stepX;

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<!-- flags: +fix_aspectRatio +fix_principal_point +zero_tangent_dist -->
+<CALIBFILEVERSION>3</CALIBFILEVERSION>
+<imageSizeWidth>640</imageSizeWidth>
+<imageSizeHeight>360</imageSizeHeight>
+<boardSizeWidth>8</boardSizeWidth>
+<boardSizeHeight>5</boardSizeHeight>
+<boardSquareMM>28.</boardSquareMM>
+<numCaptured>20</numCaptured>
+<calibFlags>14</calibFlags>
+<isMirroredH>0</isMirroredH>
+<isMirroredV>0</isMirroredV>
+<calibFixAspectRatio>1</calibFixAspectRatio>
+<calibFixPrincipalPoint>1</calibFixPrincipalPoint>
+<calibZeroTangentDist>1</calibZeroTangentDist>
+<cameraMat type_id="opencv-matrix">
+  <rows>3</rows>
+  <cols>3</cols>
+  <dt>d</dt>
+  <data>
+    641.284541087572 0. 320. 0. 641.284541087572 180. 0. 0.
+    1.</data></cameraMat>
+<distortion type_id="opencv-matrix">
+  <rows>5</rows>
+  <cols>1</cols>
+  <dt>d</dt>
+  <data>
+    1.5333335893629652e-01 -1.2034526230267242e+00 0. 0.
+    2.5522010876819099e+00</data></distortion>
+<reprojectionError>1.2232761383056641e+00</reprojectionError>
+<cameraFovDeg>3.1357440948486328e+01</cameraFovDeg>
+<calibrationTime>"Mon Jun 18 10:05:45 2018"</calibrationTime>
+<requestedVideoSizeIndex>0</requestedVideoSizeIndex>
+</opencv_storage>

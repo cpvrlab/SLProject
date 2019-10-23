@@ -2,7 +2,7 @@
 //  File:      SLAnimPlay.cpp
 //  Author:    Marc Wacker
 //  Date:      Autumn 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -93,7 +93,7 @@ void SLAnimPlayback::advanceTime(SLfloat delta)
     }
 
     // don't go any further, nothing's changed
-    if (SL_abs(_linearLocalTime - prevTime) < 0.0001f)
+    if (Utils::abs(_linearLocalTime - prevTime) < 0.0001f)
         return;
 
     // mark the playback as changed
@@ -207,10 +207,10 @@ SLfloat SLAnimPlayback::calcEasingTime(SLfloat time) const
         case EC_inOutQuint: y = (x < 0.5f) ? 16.0f * pow(x, 5.0f) : 16.0f * pow(x - 1.0f, 5.0f) + 1.0f; break;
         case EC_outInQuint: y = 16.0f * pow(x - 0.5f, 5.0f) + 0.5f; break;
 
-        case EC_inSine: y = sin(x * SL_PI * 0.5f - SL_PI * 0.5f) + 1.0f; break;
-        case EC_outSine: y = sin(x * SL_PI * 0.5f); break;
-        case EC_inOutSine: y = 0.5f * sin(x * SL_PI - SL_PI * 0.5f) + 0.5f; break;
-        case EC_outInSine: y = (x < 0.5f) ? 0.5f * sin(x * SL_PI) : 0.5f * sin(x * SL_PI - SL_PI) + 1.0f; break;
+        case EC_inSine: y = sin(x * Utils::PI * 0.5f - Utils::PI * 0.5f) + 1.0f; break;
+        case EC_outSine: y = sin(x * Utils::PI * 0.5f); break;
+        case EC_inOutSine: y = 0.5f * sin(x * Utils::PI - Utils::PI * 0.5f) + 0.5f; break;
+        case EC_outInSine: y = (x < 0.5f) ? 0.5f * sin(x * Utils::PI) : 0.5f * sin(x * Utils::PI - Utils::PI) + 1.0f; break;
     }
 
     return y * _animation->lengthSec();
@@ -247,10 +247,10 @@ SLfloat SLAnimPlayback::calcEasingTimeInv(SLfloat time) const
         case EC_inOutQuint: y = (x < 0.5f) ? pow(x, 1.0f / 5.0f) / pow(16.0f, 1.0f / 5.0f) : 1.0f - pow(1.0f - x, 1.0f / 5.0f) / pow(16.0f, 1.0f / 5.0f); break;
         case EC_outInQuint: y = (x < 0.5f) ? -pow(0.5f - x, 1.0f / 5.0f) / pow(16.0f, 1.0f / 5.0f) + 0.5f : pow(x - 0.5f, 1.0f / 5.0f) / pow(16.0f, 1.0f / 5.0f) + 0.5f; break;
 
-        case EC_inSine: y = -2.0f * asin(1.0f - x) / SL_PI + 1.0f; break;
-        case EC_outSine: y = -2.0f * acos(x) / SL_PI + 1.0f; break;
-        case EC_inOutSine: y = acos(1.0f - 2.0f * x) / SL_PI; break;
-        case EC_outInSine: y = (x < 0.5f) ? asin(2.0f * x) / SL_PI : asin(2.0f * (x - 1.0f)) / SL_PI + 1.0f; break;
+        case EC_inSine: y = -2.0f * asin(1.0f - x) * Utils::ONEOVERPI + 1.0f; break;
+        case EC_outSine: y = -2.0f * acos(x) * Utils::ONEOVERPI + 1.0f; break;
+        case EC_inOutSine: y = acos(1.0f - 2.0f * x) * Utils::ONEOVERPI; break;
+        case EC_outInSine: y = (x < 0.5f) ? asin(2.0f * x) * Utils::ONEOVERPI : asin(2.0f * (x - 1.0f)) * Utils::ONEOVERPI + 1.0f; break;
     }
 
     return y * _animation->lengthSec();

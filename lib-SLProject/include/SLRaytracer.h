@@ -32,7 +32,7 @@ typedef enum
 //! Pixel index struct used in anti aliasing in ray tracing
 struct SLRTAAPixel
 {
-    SLRTAAPixel(SLushort X = 0, SLushort Y = 0)
+    explicit SLRTAAPixel(SLushort X = 0, SLushort Y = 0)
     {
         x = X;
         y = Y;
@@ -54,17 +54,17 @@ class SLRaytracer : public SLGLTexture
 {
     public:
     SLRaytracer();
-    virtual ~SLRaytracer();
+    ~SLRaytracer() override;
 
     // ray tracer functions
-    SLbool  renderClassic(SLSceneView* sv);
-    SLbool  renderDistrib(SLSceneView* sv);
-    void    renderSlices(const bool isMainThread);
-    void    renderSlicesMS(const bool isMainThread);
-    SLCol4f trace(SLRay* ray);
-    SLCol4f shade(SLRay* ray);
-    void    sampleAAPixels(const bool isMainThread);
-    void    renderUIBeforeUpdate();
+    SLbool         renderClassic(SLSceneView* sv);
+    SLbool         renderDistrib(SLSceneView* sv);
+    void           renderSlices(bool isMainThread);
+    void           renderSlicesMS(bool isMainThread);
+    SLCol4f        trace(SLRay* ray);
+    static SLCol4f shade(SLRay* ray);
+    void           sampleAAPixels(bool isMainThread);
+    void           renderUIBeforeUpdate();
 
     // additional ray tracer functions
     void    setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay);
@@ -112,7 +112,7 @@ class SLRaytracer : public SLGLTexture
     SLbool    doContinuous() const { return _doContinuous; }
     SLbool    doFresnel() const { return _doFresnel; }
     SLint     aaSamples() const { return _aaSamples; }
-    SLuint    numThreads() const { return SL::maxThreads(); }
+    SLuint    numThreads() const { return Utils::maxThreads(); }
     SLint     pcRendered() const { return _pcRendered; }
     SLfloat   aaThreshold() const { return _aaThreshold; }
     SLfloat   renderSec() const { return _renderSec; }

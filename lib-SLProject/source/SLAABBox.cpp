@@ -2,7 +2,7 @@
 //  File:      SLAABBox.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -19,7 +19,7 @@
 #include <SLScene.h>
 
 //-----------------------------------------------------------------------------
-//! Default contructor with default zero vector initialization
+//! Default constructor with default zero vector initialization
 SLAABBox::SLAABBox()
 {
     reset();
@@ -181,7 +181,7 @@ void SLAABBox::updateBoneWS(const SLMat4f& parentWM,
 
         // set the axis scale factor depending on the length of the parent bone
         SLVec3f parentToMe = _axis0WS - _parent0WS;
-        axisScaleFactor    = SL_max(parentToMe.length() / 10.0f, axisScaleFactor);
+        axisScaleFactor    = std::max(parentToMe.length() / 10.0f, axisScaleFactor);
 
         // check if the parent to me direction is parallel to the parents actual y-axis
         parentToMe.normalize();
@@ -303,7 +303,6 @@ void SLAABBox::drawBoneWS()
 }
 //-----------------------------------------------------------------------------
 //! SLAABBox::isHitInWS: Ray - AABB Intersection Test in object space
-#define SL_RAY_AABB_FYFFE
 SLbool SLAABBox::isHitInOS(SLRay* ray)
 {
     //See: "An Efficient and Robust Ray Box Intersection Algorithm"

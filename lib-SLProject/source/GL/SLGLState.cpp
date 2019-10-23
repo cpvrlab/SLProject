@@ -3,13 +3,11 @@
 //  Purpose:   Singleton class implementation for global OpenGL replacement
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
-
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 #ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
 #    include <debug_new.h> // memory leak detector
@@ -17,32 +15,19 @@
 
 #include <SLGLEnums.h>
 #include <SLGLState.h>
+#include <CVImage.h>
 
 //-----------------------------------------------------------------------------
-SLGLState* SLGLState::instance = nullptr;
+SLGLState* SLGLState::_instance = nullptr;
 //-----------------------------------------------------------------------------
-std::vector<string> errors; // global vector for errors used in getGLError
-//-----------------------------------------------------------------------------
-/*! Public static creator and getter function. Guarantees the the static
- instance is created only once. The constructor is therefore private.
- */
-SLGLState* SLGLState::getInstance()
-{
-    if (!instance)
-    {
-        instance = new SLGLState();
-        return instance;
-    }
-    else
-        return instance;
-}
+SLVstring errors; // global vector for errors used in getGLError
 //-----------------------------------------------------------------------------
 /*! Public static destruction.
  */
 void SLGLState::deleteInstance()
 {
-    delete instance;
-    instance = nullptr;
+    delete _instance;
+    _instance = nullptr;
 }
 //-----------------------------------------------------------------------------
 /*! Private constructor should be called only once for a singleton class.
@@ -74,7 +59,7 @@ void SLGLState::initAll()
         lightSpotDirWS[i]  = SLVec3f(0, 0, -1);
         lightSpotDirVS[i]  = SLVec3f(0, 0, -1);
         lightSpotCutoff[i] = 180.0f;
-        lightSpotCosCut[i] = cos(SL_DEG2RAD * lightSpotCutoff[i]);
+        lightSpotCosCut[i] = cos(Utils::DEG2RAD * lightSpotCutoff[i]);
         lightSpotExp[i]    = 1.0f;
         lightAtt[i].set(1.0f, 0.0f, 0.0f);
         lightDoAtt[i] = 0;
@@ -108,7 +93,7 @@ void SLGLState::initAll()
     _glIsES3       = (_glVersion.find("OpenGL ES 3") != string::npos);
 
 // Get extensions
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_glVersionNOf > 3.0f)
     {
         GLint n;
@@ -171,12 +156,14 @@ void SLGLState::initAll()
  */
 SLGLState::~SLGLState()
 {
-    _modelViewMatrixStack.clear();
+    // should be empty
+    while (!_modelViewMatrixStack.empty())
+        _modelViewMatrixStack.pop();
 }
 //-----------------------------------------------------------------------------
 /*! One time initialization
  */
-void SLGLState::onInitialize(SLCol4f clearColor)
+void SLGLState::onInitialize(const SLCol4f& clearColor)
 {
     // Reset all internal states
     if (!_isInitialized) initAll();
@@ -271,7 +258,7 @@ const SLCol4f* SLGLState::globalAmbient()
     return &_globalAmbient;
 }
 //-----------------------------------------------------------------------------
-void SLGLState::clearColor(SLCol4f newColor)
+void SLGLState::clearColor(const SLCol4f& newColor)
 {
     if (_clearColor != newColor)
     {
@@ -365,7 +352,7 @@ void SLGLState::blend(SLbool stateNew)
  */
 void SLGLState::multiSample(SLbool stateNew)
 {
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_multisample != stateNew)
     {
         if (_multiSampleSamples > 0)
@@ -392,7 +379,7 @@ void SLGLState::multiSample(SLbool stateNew)
  */
 void SLGLState::polygonLine(SLbool stateNew)
 {
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_polygonLine != stateNew)
     {
 #    ifndef SL_GLES3
@@ -422,8 +409,8 @@ void SLGLState::polygonOffset(SLbool stateNew, SLfloat factor, SLfloat units)
         if (stateNew)
         {
             glEnable(GL_POLYGON_OFFSET_FILL);
-            if (SL_abs(_polygonOffsetFactor - factor) > 0.0001f ||
-                SL_abs(_polygonOffsetUnits - units) > 0.0001f)
+            if (Utils::abs(_polygonOffsetFactor - factor) > 0.0001f ||
+                Utils::abs(_polygonOffsetUnits - units) > 0.0001f)
             {
                 glPolygonOffset(factor, units);
                 _polygonOffsetFactor = factor;
@@ -458,7 +445,7 @@ void SLGLState::viewport(SLint x, SLint y, SLsizei width, SLsizei height)
 //-----------------------------------------------------------------------------
 /*! SLGLState::colorMask sets the OpenGL colorMask for framebuffer masking
  */
-void SLGLState::colorMask(SLbool r, SLbool g, SLbool b, SLbool a)
+void SLGLState::colorMask(GLboolean r, GLboolean g, GLboolean b, GLboolean a)
 {
     if (r != _colorMaskR || g != _colorMaskG || b != _colorMaskB || a != _colorMaskA)
     {
@@ -626,7 +613,7 @@ void SLGLState::getGLError(const char* file,
 SLstring SLGLState::getGLVersionNO()
 {
     SLstring versionStr = SLstring((const char*)glGetString(GL_VERSION));
-    size_t   dotPos     = versionStr.find(".");
+    size_t   dotPos     = versionStr.find('.');
     SLchar   NO[4];
     NO[0] = versionStr[dotPos - 1];
     NO[1] = '.';
@@ -649,7 +636,7 @@ SLstring SLGLState::getGLVersionNO()
 SLstring SLGLState::getSLVersionNO()
 {
     SLstring versionStr = SLstring((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
-    size_t   dotPos     = versionStr.find(".");
+    size_t   dotPos     = versionStr.find('.');
     SLchar   NO[4];
     NO[0] = versionStr[dotPos - 1];
     NO[1] = versionStr[dotPos + 1];

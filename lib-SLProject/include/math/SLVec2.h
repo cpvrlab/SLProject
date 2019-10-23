@@ -2,7 +2,7 @@
 //  File:      math/SLVec2.h
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -12,6 +12,7 @@
 #define SLVEC2_H
 
 #include <SL.h>
+#include <Utils.h>
 
 //-----------------------------------------------------------------------------
 //! 2D vector template class for standard 2D vector algebra.
@@ -115,8 +116,8 @@ class SLVec2
     }
 
     //! Calculate the absolute to the vector v
-    T       diff        (const SLVec2& v)       {return SL_abs(x-v.x) + 
-                                                        SL_abs(y-v.y);}  
+    T       diff        (const SLVec2& v)       {return Utils::abs(x-v.x) +
+                                                        Utils::abs(y-v.y);}
     void    setMin      (const SLVec2& v)       {if (v.x < x) x=v.x;
                                                   if (v.y < y) y=v.y;}
     void    setMax      (const SLVec2& v)       {if (v.x > x) x=v.x;

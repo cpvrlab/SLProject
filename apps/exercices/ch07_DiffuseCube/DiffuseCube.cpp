@@ -8,6 +8,7 @@
 //             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
+
 #include "stdafx.h" // Precompiled Headers
 
 #include <GL/glew.h>    // OpenGL headers
@@ -357,7 +358,7 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 {
     if (_modifiers == NONE)
     {
-        _camZ += (SLfloat)SL_sign(yscroll) * 0.1f;
+        _camZ += (SLfloat)Utils::sign(yscroll) * 0.1f;
         onPaint();
     }
 }

@@ -2,7 +2,7 @@
 //  File:      SLSceneView.cpp
 //  Author:    Marc Wacker, Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -15,18 +15,14 @@
 #endif
 
 #include <SLAnimManager.h>
-#include <SLAnimation.h>
 #include <SLApplication.h>
-#include <SLCVCalibration.h>
-#include <SLCVCapture.h>
 #include <SLCamera.h>
-#include <SLImporter.h>
 #include <SLInterface.h>
 #include <SLLight.h>
 #include <SLLightRect.h>
-#include <SLLightSpot.h>
 #include <SLSceneView.h>
-#include <SLTexFont.h>
+
+#include <utility>
 
 //-----------------------------------------------------------------------------
 // Milliseconds duration of a long touch event
@@ -44,12 +40,12 @@ SLSceneView::SLSceneView() : SLObject()
     assert(s && "No SLApplication::scene instance.");
 
     // Find first a zero pointer gap in
-    for (SLuint i = 0; i < s->sceneViews().size(); ++i)
+    for (SLulong i = 0; i < s->sceneViews().size(); ++i)
     {
         if (s->sceneViews()[i] == nullptr)
         {
             s->sceneViews()[i] = this;
-            _index             = i;
+            _index             = (SLuint)i;
             return;
         }
     }
@@ -85,10 +81,13 @@ void SLSceneView::init(SLstring name,
                        void*    onSelectNodeMeshCallback,
                        void*    onImGuiBuild)
 {
-    _name       = name;
+    _name       = std::move(name);
     _scrW       = screenWidth;
     _scrH       = screenHeight;
     _gotPainted = true;
+
+    // Set default viewport ratio to the same as the screen
+    setViewportFromRatio(SLVec2i(0, 0), VA_center, false);
 
     // The window update callback function is used to refresh the ray tracing
     // image during the rendering process. The ray tracing image is drawn by OpenGL
@@ -101,8 +100,6 @@ void SLSceneView::init(SLstring name,
 
     // Set the ImGui build function. Every sceneview could have it's own GUI.
     _gui.build = (cbOnImGuiBuild)onImGuiBuild;
-
-    _stateGL = nullptr;
 
     _camera = nullptr;
 
@@ -118,6 +115,7 @@ void SLSceneView::init(SLstring name,
     _doWaitOnIdle     = true;
     _drawBits.allOff();
 
+    _stats2D.clear();
     _stats3D.clear();
 
     _scrWdiv2 = _scrW >> 1;
@@ -183,23 +181,22 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 
         SLMat4f vm = _sceneViewCamera.updateAndGetWMI();
 
-        for (SLint i = 0; i < 8; ++i)
+        for (auto& vsCorner : vsCorners)
         {
-            vsCorners[i] = vm * vsCorners[i];
+            vsCorner = vm * vsCorner;
 
-            vsMin.x = min(vsMin.x, vsCorners[i].x);
-            vsMin.y = min(vsMin.y, vsCorners[i].y);
-            vsMin.z = min(vsMin.z, vsCorners[i].z);
+            vsMin.x = std::min(vsMin.x, vsCorner.x);
+            vsMin.y = std::min(vsMin.y, vsCorner.y);
+            vsMin.z = std::min(vsMin.z, vsCorner.z);
 
-            vsMax.x = max(vsMax.x, vsCorners[i].x);
-            vsMax.y = max(vsMax.y, vsCorners[i].y);
-            vsMax.z = max(vsMax.z, vsCorners[i].z);
+            vsMax.x = std::max(vsMax.x, vsCorner.x);
+            vsMax.y = std::max(vsMax.y, vsCorner.y);
+            vsMax.z = std::max(vsMax.z, vsCorner.z);
         }
 
-        SLfloat dist    = 0.0f;
         SLfloat distX   = 0.0f;
         SLfloat distY   = 0.0f;
-        SLfloat halfTan = tan(SL_DEG2RAD * _sceneViewCamera.fov() * 0.5f);
+        SLfloat halfTan = tan(Utils::DEG2RAD * _sceneViewCamera.fov() * 0.5f);
 
         // @todo There is still a bug when OSX doesn't pass correct GLWidget size
         // correctly set the camera distance...
@@ -224,14 +221,14 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
             distY += vsMax.z;
         }
 
-        dist = max(distX, distY);
+        SLfloat dist = std::max(distX, distY);
 
         // set focal distance
         _sceneViewCamera.focalDist(dist);
         _sceneViewCamera.translate(SLVec3f(0, 0, dist), TS_object);
     }
 
-    _stateGL->modelViewMatrix.identity();
+    SLGLState::instance()->modelViewMatrix.identity();
     _sceneViewCamera.updateAABBRec();
     _sceneViewCamera.setInitialState();
 
@@ -263,7 +260,7 @@ void SLSceneView::switchToSceneViewCamera()
     _camera = &_sceneViewCamera;
 }
 //-----------------------------------------------------------------------------
-//! Sets the acitve camera to the next in the scene
+//! Sets the active camera to the next in the scene
 void SLSceneView::switchToNextCameraInScene()
 {
     SLCamera* nextCam = SLApplication::scene->nextCameraInScene(this);
@@ -277,7 +274,71 @@ void SLSceneView::switchToNextCameraInScene()
         _camera = &_sceneViewCamera;
 
     _camera->background().rebuild();
-    return;
+}
+//-----------------------------------------------------------------------------
+//! Sets the viewport ratio and the viewport rectangle
+void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
+                                       SLViewportAlign vpAlign,
+                                       SLbool vpSameAsVideo)
+{
+    assert(_scrW > 0 && _scrH > 0 && "SLSceneView::setViewportFromRatio: Invalid screen size");
+
+    _viewportRatio = vpRatio;
+    _viewportAlign = vpAlign;
+    _viewportSameAsVideo = vpSameAsVideo;
+
+    // Shortcut if viewport is the same as the screen
+    if (vpRatio == SLVec2i::ZERO)
+    {
+        _viewportRect.set(0, 0, _scrW, _scrH);
+        _viewportAlign = VA_center;
+        _gui.onResize(_viewportRect.width, _viewportRect.height);
+        return;
+    }
+
+    // Calculate viewport rect from viewport aspect ratio
+    SLfloat vpWdivH = (float)vpRatio.x / (float)vpRatio.y;
+    _scrWdivH       = (float)_scrW / (float)_scrH;
+    SLRecti vpRect;
+
+    if (_scrWdivH > vpWdivH)
+    {
+        vpRect.width  = (int)((float)_scrH * vpWdivH);
+        vpRect.height = _scrH;
+        vpRect.y      = 0;
+
+        switch (vpAlign)
+        {
+            // viewport coordinates are bottom-left
+            case VA_leftOrTop: vpRect.x = 0; break;
+            case VA_rightOrBottom: vpRect.x = _scrW - vpRect.width; break;
+            case VA_center:
+            default: vpRect.x = (_scrW - vpRect.width) / 2; break;
+        }
+    }
+    else
+    {
+        vpRect.width  = _scrW;
+        vpRect.height = (SLint)((float)_scrW / (float)vpWdivH);
+        vpRect.x      = 0;
+
+        switch (vpAlign)
+        {
+            // viewport coordinates are bottom-left
+            case VA_leftOrTop: vpRect.y = _scrH - vpRect.height; break;
+            case VA_rightOrBottom: vpRect.y = 0; break;
+            case VA_center:
+            default: vpRect.y = (_scrH - vpRect.height) / 2; break;
+        }
+    }
+
+    if (SLRecti(_scrW, _scrH).contains(vpRect))
+    {
+        _viewportRect = vpRect;
+        _gui.onResize(_viewportRect.width, _viewportRect.height);
+    }
+    else
+        SL_EXIT_MSG("SLSceneView::viewport: Viewport is bigger than the screen!");
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -289,17 +350,19 @@ void SLSceneView::onInitialize()
 {
     postSceneLoad();
 
-    SLScene* s = SLApplication::scene;
-    _stateGL   = SLGLState::getInstance();
+    SLScene*   s       = SLApplication::scene;
+    SLGLState* stateGL = SLGLState::instance();
 
     if (_camera)
-        _stateGL->onInitialize(_camera->background().colors()[0]);
+        stateGL->onInitialize(_camera->background().colors()[0]);
     else
-        _stateGL->onInitialize(SLCol4f::GRAY);
+        stateGL->onInitialize(SLCol4f::GRAY);
 
-    _blendNodes.clear();
-    _visibleNodes.clear();
-    _visibleNodes2D.clear();
+    _nodesBlended.clear();
+    _nodesVisible.clear();
+    _nodesVisible2D.clear();
+    _stats2D.clear();
+    _stats3D.clear();
 
     _raytracer.clearData();
     _renderType   = RT_gl;
@@ -322,12 +385,10 @@ void SLSceneView::onInitialize()
                (SLfloat)(clock() - t) / (SLfloat)CLOCKS_PER_SEC);
 
         // Collect node statistics
-        _stats3D.clear();
-        _stats2D.clear();
         s->root3D()->statsRec(_stats3D);
 
         // Warn if there are no light in scene
-        if (s->lights().size() == 0)
+        if (s->lights().empty())
             SL_LOG("\n**** No Lights found in scene! ****\n");
     }
 
@@ -344,7 +405,7 @@ void SLSceneView::onInitialize()
 
     initSceneViewCamera();
 
-    _gui.onResize(_scrW, _scrH);
+    _gui.onResize(_viewportRect.width, _viewportRect.height);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -366,14 +427,16 @@ void SLSceneView::onResize(SLint width, SLint height)
         _scrHdiv2 = _scrH >> 1; // height / 2
         _scrWdivH = (SLfloat)_scrW / (SLfloat)_scrH;
 
-        _gui.onResize(width, height);
+        setViewportFromRatio(_viewportRatio,
+                             _viewportAlign,
+                             _viewportSameAsVideo);
 
         // Resize Oculus framebuffer
         if (_camera && _camera->projection() == P_stereoSideBySideD)
         {
-            _oculusFB.updateSize((SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrW),
-                                 (SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrH));
-            s->oculus()->renderResolution(_scrW, _scrH);
+            _oculusFB.updateSize((SLint)(s->oculus()->resolutionScale() * (SLfloat)_viewportRect.width),
+                                 (SLint)(s->oculus()->resolutionScale() * (SLfloat)_viewportRect.height));
+            s->oculus()->renderResolution(_viewportRect.width, _viewportRect.height);
         }
 
         // Stop raytracing & pathtracing on resize
@@ -412,12 +475,12 @@ SLbool SLSceneView::onPaint()
             case RT_rt: camUpdated = draw3DRT(); break;
             case RT_pt: camUpdated = draw3DPT(); break;
         }
-    };
+    }
 
     // Render the 2D stuff inclusive the ImGui
     draw2DGL();
 
-    _stateGL->unbindAnythingAndFlush();
+    SLGLState::instance()->unbindAnythingAndFlush();
 
     // Finish Oculus framebuffer
     if (_camera && _camera->projection() == P_stereoSideBySideD)
@@ -488,7 +551,8 @@ is drawn.
 */
 SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 {
-    SLScene* s = SLApplication::scene;
+    SLScene*   s       = SLApplication::scene;
+    SLGLState* stateGL = SLGLState::instance();
 
     preDraw();
 
@@ -496,14 +560,14 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // 1. Do camera Update //
     /////////////////////////
 
-    SLfloat startMS = s->timeMilliSec();
+    SLfloat startMS = SLApplication::timeMS();
 
     // Update camera animation separately (smooth transition on key movement)
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
 
-    ///////////////////////////////////////
-    // 2. Clear Buffers & set Background //
-    ///////////////////////////////////////
+    //////////////////////
+    // 2. Clear Buffers //
+    //////////////////////
 
     // Render into framebuffer if Oculus stereo projection is used
     if (_camera->projection() == P_stereoSideBySideD)
@@ -514,75 +578,92 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     }
 
     // Clear color buffer
-    // Apply gamma correction only on uniform background. No shader runs on it!
-    SLCol4f backColor = _camera->background().colors()[0];
-    backColor.gammaCorrect(_stateGL->oneOverGamma);
-    _stateGL->clearColor(backColor);
-    _stateGL->clearColorDepthBuffer();
+    stateGL->clearColor(SLCol4f::BLACK);
+    stateGL->clearColorDepthBuffer();
 
-    // Render gradient or textured background from active camera
-    if (!_skybox && !_camera->background().isUniform())
-        _camera->background().render(_scrW, _scrH);
+    /////////////////////
+    // 3. Set viewport //
+    /////////////////////
+
+    // Set viewport
+    if (_camera->projection() > P_monoOrthographic)
+        _camera->setViewport(this, ET_left);
+    else
+        _camera->setViewport(this, ET_center);
+
+    //////////////////////////
+    // 3. Render background //
+    //////////////////////////
+
+    // Render solid color, gradient or textured background from active camera
+    if (!_skybox)
+        _camera->background().render(_viewportRect.width, _viewportRect.height);
 
     // Change state (only when changed)
-    _stateGL->multiSample(_doMultiSampling);
-    _stateGL->depthTest(_doDepthTest);
+    stateGL->multiSample(_doMultiSampling);
+    stateGL->depthTest(_doDepthTest);
 
     //////////////////////////////
-    // 3. Set Projection & View //
+    // 4. Set Projection & View //
     //////////////////////////////
 
-    // Set projection and viewport
+    // Set projection
     if (_camera->projection() > P_monoOrthographic)
+    {
         _camera->setProjection(this, ET_left);
-    else
-        _camera->setProjection(this, ET_center);
-
-    // Set view center eye or left eye
-    if (_camera->projection() > P_monoOrthographic)
         _camera->setView(this, ET_left);
+    }
     else
+    {
+        _camera->setProjection(this, ET_center);
         _camera->setView(this, ET_center);
+    }
 
     ////////////////////////
-    // 4. Frustum Culling //
+    // 5. Frustum Culling //
     ////////////////////////
 
     _camera->setFrustumPlanes();
-    _blendNodes.clear();
-    _visibleNodes.clear();
+    _nodesBlended.clear();
+    _nodesVisible.clear();
     if (s->root3D())
         s->root3D()->cull3DRec(this);
-
-    _cullTimeMS = s->timeMilliSec() - startMS;
+    _cullTimeMS = SLApplication::timeMS() - startMS;
 
     ////////////////////
-    // 5. Draw skybox //
+    // 6. Draw skybox //
     ////////////////////
 
     if (_skybox)
         _skybox->drawAroundCamera(this);
 
     ////////////////////////////////////
-    // 5. Draw Opaque & Blended Nodes //
+    // 7. Draw Opaque & Blended Nodes //
     ////////////////////////////////////
 
-    startMS = s->timeMilliSec();
+    startMS = SLApplication::timeMS();
 
     draw3DGLAll();
 
     // For stereo draw for right eye
     if (_camera->projection() > P_monoOrthographic)
     {
+        _camera->setViewport(this, ET_right);
+
+        // Only draw backrounds for stereo projections in different viewports
+        if (!_skybox && _camera->projection() < P_stereoLineByLine)
+            _camera->background().render(_viewportRect.width, _viewportRect.height);
+
         _camera->setProjection(this, ET_right);
         _camera->setView(this, ET_right);
+        stateGL->depthTest(true);
         draw3DGLAll();
     }
 
     // Enable all color channels again
-    _stateGL->colorMask(1, 1, 1, 1);
+    stateGL->colorMask(1, 1, 1, 1);
 
-    _draw3DTimeMS = s->timeMilliSec() - startMS;
+    _draw3DTimeMS = SLApplication::timeMS() - startMS;
 
     postDraw();
 
@@ -602,24 +683,25 @@ pass only the alpha meshes and in the opaque pass only the opaque meshes.
 void SLSceneView::draw3DGLAll()
 {
     // 1) Draw first the opaque shapes and all helper lines (normals and AABBs)
-    draw3DGLNodes(_visibleNodes, false, false);
-    draw3DGLLines(_visibleNodes);
-    draw3DGLLines(_blendNodes);
+    draw3DGLNodes(_nodesVisible, false, false);
+    draw3DGLLines(_nodesVisible);
+    draw3DGLLines(_nodesBlended);
 
     // 2) Draw blended nodes sorted back to front
-    draw3DGLNodes(_blendNodes, true, true);
+    draw3DGLNodes(_nodesBlended, true, true);
 
     // 3) Draw helper
-    draw3DGLLinesOverlay(_visibleNodes);
-    draw3DGLLinesOverlay(_blendNodes);
+    draw3DGLLinesOverlay(_nodesVisible);
+    draw3DGLLinesOverlay(_nodesBlended);
 
     // 4) Draw visualization lines of animation curves
     SLApplication::scene->animManager().drawVisuals(this);
 
     // 5) Turn blending off again for correct anaglyph stereo modes
-    _stateGL->blend(false);
-    _stateGL->depthMask(true);
-    _stateGL->depthTest(true);
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->blend(false);
+    stateGL->depthMask(true);
+    stateGL->depthTest(true);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -630,11 +712,12 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
                                 SLbool   alphaBlended,
                                 SLbool   depthSorted)
 {
-    if (nodes.size() == 0) return;
+    if (nodes.empty()) return;
 
     // For blended nodes we activate OpenGL blending and stop depth buffer updates
-    _stateGL->blend(alphaBlended);
-    _stateGL->depthMask(!alphaBlended);
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->blend(alphaBlended);
+    stateGL->depthMask(!alphaBlended);
 
     // Important and expensive step for blended nodes with alpha meshes
     // Depth sort with lambda function by their view distance
@@ -651,10 +734,10 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
     for (auto node : nodes)
     {
         // Set the view transform
-        _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
+        stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
         // Apply world transform
-        _stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+        stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
         // Finally the nodes meshes
         node->drawMeshes(this);
@@ -674,13 +757,14 @@ Yellow: AABB of selected node
 */
 void SLSceneView::draw3DGLLines(SLVNode& nodes)
 {
-    if (nodes.size() == 0) return;
+    if (nodes.empty()) return;
 
-    _stateGL->blend(false);
-    _stateGL->depthMask(true);
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->blend(false);
+    stateGL->depthMask(true);
 
     // Set the view transform
-    _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
+    stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
     // draw the opaque shapes directly w. their wm transform
     for (auto node : nodes)
@@ -733,10 +817,11 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                 node->drawBit(SL_DB_SELECTED))
             {
                 // Set the view transform
-                _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
-                _stateGL->blend(false);     // Turn off blending for overlay
-                _stateGL->depthMask(true);  // Freeze depth buffer for blending
-                _stateGL->depthTest(false); // Turn of depth test for overlay
+                SLGLState* stateGL = SLGLState::instance();
+                stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
+                stateGL->blend(false);     // Turn off blending for overlay
+                stateGL->depthMask(true);  // Freeze depth buffer for blending
+                stateGL->depthTest(false); // Turn of depth test for overlay
 
                 // Draw axis
                 if (drawBit(SL_DB_AXIS) ||
@@ -786,8 +871,9 @@ update is done to the 2D scenegraph.
 */
 void SLSceneView::draw2DGL()
 {
-    SLScene* s       = SLApplication::scene;
-    SLfloat  startMS = s->timeMilliSec();
+    SLScene*   s       = SLApplication::scene;
+    SLGLState* stateGL = SLGLState::instance();
+    SLfloat    startMS = SLApplication::timeMS();
 
     SLfloat w2 = (SLfloat)_scrWdiv2;
     SLfloat h2 = (SLfloat)_scrHdiv2;
@@ -796,11 +882,11 @@ void SLSceneView::draw2DGL()
     if (_camera && _camera->projection() != P_stereoSideBySideD)
     {
         // 1. Set Projection & View
-        _stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
-        _stateGL->viewport(0, 0, _scrW, _scrH);
+        stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
+        stateGL->viewport(0, 0, _scrW, _scrH);
 
         // 2. Pseudo 2D Frustum Culling
-        _visibleNodes2D.clear();
+        _nodesVisible2D.clear();
         if (s->root2D())
             s->root2D()->cull2DRec(this);
 
@@ -817,34 +903,33 @@ void SLSceneView::draw2DGL()
 
         if (!s->selectedRect().isEmpty())
         {
-            _stateGL->pushModelViewMatrix();
-            _stateGL->modelViewMatrix.identity();
-            _stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
-            _stateGL->depthMask(false); // Freeze depth buffer for blending
-            _stateGL->depthTest(false); // Disable depth testing
-            //_stateGL->blendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR); // inverts background
-            _stateGL->blend(true); // Enable blending
-            //_stateGL->polygonLine(false);       // Only filled polygons
+            stateGL->pushModelViewMatrix();
+            stateGL->modelViewMatrix.identity();
+            stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+            stateGL->depthMask(false); // Freeze depth buffer for blending
+            stateGL->depthTest(false); // Disable depth testing
+            //stateGL->blendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR); // inverts background
+            stateGL->blend(true); // Enable blending
+            //stateGL->polygonLine(false);       // Only filled polygons
 
             s->selectedRect().drawGL(SLCol4f::WHITE);
 
-            _stateGL->blend(false); // turn off blending
-            //_stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // std. transparency
-            _stateGL->depthMask(true); // enable depth buffer writing
-            _stateGL->depthTest(true); // enable depth testing
-            _stateGL->popModelViewMatrix();
+            stateGL->blend(false); // turn off blending
+            //stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // std. transparency
+            stateGL->depthMask(true); // enable depth buffer writing
+            stateGL->depthTest(true); // enable depth testing
+            stateGL->popModelViewMatrix();
         }
 
         // 4. Draw ImGui UI
         if (_gui.build)
         {
             ImGui::Render();
-            _gui.onPaint(ImGui::GetDrawData());
+            _gui.onPaint(ImGui::GetDrawData(), _viewportRect);
         }
     }
 
-    _draw2DTimeMS = s->timeMilliSec() - startMS;
-    return;
+    _draw2DTimeMS = SLApplication::timeMS() - startMS;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -852,22 +937,23 @@ SLSceneView::draw2DGLNodes draws 2D nodes from root2D in ortho projection.
 */
 void SLSceneView::draw2DGLNodes()
 {
-    SLfloat depth = 1.0f;                         // Render depth between -1 & 1
-    SLfloat cs    = SL_min(_scrW, _scrH) * 0.01f; // center size
+    SLfloat    depth   = 1.0f;                           // Render depth between -1 & 1
+    SLfloat    cs      = std::min(_scrW, _scrH) * 0.01f; // center size
+    SLGLState* stateGL = SLGLState::instance();
 
-    _stateGL->pushModelViewMatrix();
-    _stateGL->modelViewMatrix.identity();
-    _stateGL->depthMask(false);   // Freeze depth buffer for blending
-    _stateGL->depthTest(false);   // Disable depth testing
-    _stateGL->blend(true);        // Enable blending
-    _stateGL->polygonLine(false); // Only filled polygons
+    stateGL->pushModelViewMatrix();
+    stateGL->modelViewMatrix.identity();
+    stateGL->depthMask(false);   // Freeze depth buffer for blending
+    stateGL->depthTest(false);   // Disable depth testing
+    stateGL->blend(true);        // Enable blending
+    stateGL->polygonLine(false); // Only filled polygons
 
     // Draw all 2D nodes blended (mostly text font textures)
     // draw the shapes directly with their wm transform
-    for (auto node : _visibleNodes2D)
+    for (auto node : _nodesVisible2D)
     {
         // Apply world transform
-        _stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+        stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
         // Finally the nodes meshes
         node->drawMeshes(this);
@@ -879,8 +965,8 @@ void SLSceneView::draw2DGLNodes()
         if (_camera->camAnim() == CA_turntableYUp ||
             _camera->camAnim() == CA_turntableZUp)
         {
-            _stateGL->pushModelViewMatrix();
-            _stateGL->modelViewMatrix.translate(0, 0, depth);
+            stateGL->pushModelViewMatrix();
+            stateGL->modelViewMatrix.translate(0, 0, depth);
 
             SLVVec3f centerRombusPoints = {{-cs, 0, 0},
                                            {0, -cs, 0},
@@ -892,12 +978,12 @@ void SLSceneView::draw2DGLNodes()
 
             _vaoTouch.drawArrayAsColored(PT_lineLoop, yelloAlpha);
 
-            _stateGL->popModelViewMatrix();
+            stateGL->popModelViewMatrix();
         }
         else if (_camera->camAnim() == CA_trackball)
         {
-            _stateGL->pushModelViewMatrix();
-            _stateGL->modelViewMatrix.translate(0, 0, depth);
+            stateGL->pushModelViewMatrix();
+            stateGL->modelViewMatrix.translate(0, 0, depth);
 
             // radius = half width or height
             SLfloat r = (SLfloat)(_scrW < _scrH
@@ -909,7 +995,7 @@ void SLSceneView::draw2DGLNodes()
 
             // Add points for circle over window
             SLint   circlePoints = 60;
-            SLfloat deltaPhi     = SL_2PI / (SLfloat)circlePoints;
+            SLfloat deltaPhi     = Utils::TWOPI / (SLfloat)circlePoints;
             for (SLint i = 0; i < circlePoints; ++i)
             {
                 SLVec2f c;
@@ -922,16 +1008,16 @@ void SLSceneView::draw2DGLNodes()
 
             _vaoTouch.drawArrayAsColored(PT_lineLoop, yelloAlpha);
 
-            _stateGL->popModelViewMatrix();
+            stateGL->popModelViewMatrix();
         }
     }
 
-    _stateGL->popModelViewMatrix();
+    stateGL->popModelViewMatrix();
 
-    _stateGL->blend(false);    // turn off blending
-    _stateGL->depthMask(true); // enable depth buffer writing
-    _stateGL->depthTest(true); // enable depth testing
-    GET_GL_ERROR;              // check if any OGL errors occurred
+    stateGL->blend(false);    // turn off blending
+    stateGL->depthMask(true); // enable depth buffer writing
+    stateGL->depthTest(true); // enable depth testing
+    GET_GL_ERROR;             // check if any OGL errors occurred
 }
 //-----------------------------------------------------------------------------
 
@@ -941,11 +1027,16 @@ SLSceneView::onMouseDown gets called whenever a mouse button gets pressed and
 dispatches the event to the currently attached event handler object.
 */
 SLbool SLSceneView::onMouseDown(SLMouseButton button,
-                                SLint         x,
-                                SLint         y,
+                                SLint         scrX,
+                                SLint         scrY,
                                 SLKey         mod)
 {
     SLScene* s = SLApplication::scene;
+
+    // Correct viewport offset
+    // mouse corrds are top-left, viewport is bottom-left)
+    SLint x = scrX - _viewportRect.x;
+    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     // Pass the event to imgui
     _gui.onMouseDown(button, x, y);
@@ -977,10 +1068,6 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
         }
     }
 
-    // Grab image during calibration if calibration stream is running
-    if (SLApplication::activeCalib->state() == CS_calibrateStream)
-        SLApplication::activeCalib->state(CS_calibrateGrab);
-
     return result;
 }
 //-----------------------------------------------------------------------------
@@ -988,12 +1075,17 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
 SLSceneView::onMouseUp gets called whenever a mouse button gets released.
 */
 SLbool SLSceneView::onMouseUp(SLMouseButton button,
-                              SLint         x,
-                              SLint         y,
+                              SLint         scrX,
+                              SLint         scrY,
                               SLKey         mod)
 {
     SLScene* s  = SLApplication::scene;
     _touchDowns = 0;
+
+    // Correct viewport offset
+    // mouse corrds are top-left, viewport is bottom-left)
+    SLint x = scrX - _viewportRect.x;
+    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     // Continue with ray tracing
     if (_raytracer.state() == rtMoveGL)
@@ -1019,8 +1111,7 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
 
     if (_camera && s->root3D())
     {
-        SLbool result = false;
-        result        = _camera->onMouseUp(button, x, y, mod);
+        SLbool result = _camera->onMouseUp(button, x, y, mod);
         for (auto eh : s->eventHandlers())
         {
             if (eh->onMouseUp(button, x, y, mod))
@@ -1035,9 +1126,14 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
 /*! 
 SLSceneView::onMouseMove gets called whenever the mouse is moved.
 */
-SLbool SLSceneView::onMouseMove(SLint x, SLint y)
+SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
 {
     SLScene* s = SLApplication::scene;
+
+    // Correct viewport offset
+    // mouse corrds are top-left, viewport is bottom-left)
+    SLint x = scrX - _viewportRect.x;
+    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     // Pass the event to imgui
     _gui.onMouseMove(x, y);
@@ -1121,10 +1217,8 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
     if (_renderType == RT_rt && !_raytracer.doContinuous() &&
         _raytracer.state() == rtFinished)
         _raytracer.state(rtReady);
-    SLbool result = false;
 
-    // update active camera
-    result = _camera->onMouseWheel(delta, mod);
+    SLbool result = _camera->onMouseWheel(delta, mod);
 
     for (auto eh : s->eventHandlers())
     {
@@ -1139,12 +1233,17 @@ SLSceneView::onDoubleClick gets called when a mouse double click or finger
 double tab occurs.
 */
 SLbool SLSceneView::onDoubleClick(SLMouseButton button,
-                                  SLint         x,
-                                  SLint         y,
+                                  SLint         scrX,
+                                  SLint         scrY,
                                   SLKey         mod)
 {
     SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
+
+    // Correct viewport offset
+    // mouse corrds are top-left, viewport is bottom-left)
+    SLint x = scrX - _viewportRect.x;
+    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     SLbool result = false;
 
@@ -1186,9 +1285,15 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
 /*! SLSceneView::onLongTouch gets called when the mouse or touch is down for
 more than 500ms and has not moved.
 */
-SLbool SLSceneView::onLongTouch(SLint x, SLint y)
+SLbool SLSceneView::onLongTouch(SLint scrX, SLint scrY)
 {
     //SL_LOG("onLongTouch(%d, %d)\n", x, y);
+
+    // Correct viewport offset
+    // mouse corrds are top-left, viewport is bottom-left)
+    SLint x = scrX - _viewportRect.x;
+    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
+
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -1196,17 +1301,24 @@ SLbool SLSceneView::onLongTouch(SLint x, SLint y)
 SLSceneView::onTouch2Down gets called whenever two fingers touch a handheld
 screen.
 */
-SLbool SLSceneView::onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2)
+SLbool SLSceneView::onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2)
 {
     SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
+
+    // Correct viewport offset
+    // mouse corrds are top-left, viewport is bottom-left)
+    SLint x1 = scrX1 - _viewportRect.x;
+    SLint y1 = scrY1 - ((_scrH - _viewportRect.height) - _viewportRect.y);
+    SLint x2 = scrX2 - _viewportRect.x;
+    SLint y2 = scrY2 - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     _touch[0].set(x1, y1);
     _touch[1].set(x2, y2);
     _touchDowns = 2;
 
-    SLbool result = false;
-    result        = _camera->onTouch2Down(x1, y1, x2, y2);
+    SLbool result = _camera->onTouch2Down(x1, y1, x2, y2);
+
     for (auto eh : s->eventHandlers())
     {
         if (eh->onTouch2Down(x1, y1, x2, y2))
@@ -1219,10 +1331,16 @@ SLbool SLSceneView::onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2)
 SLSceneView::onTouch2Move gets called whenever two fingers touch a handheld
 screen.
 */
-SLbool SLSceneView::onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2)
+SLbool SLSceneView::onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2)
 {
     SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
+
+    // Correct viewport offset
+    SLint x1 = scrX1 - _viewportRect.x;
+    SLint y1 = scrY1 - ((_scrH - _viewportRect.height) - _viewportRect.y);
+    SLint x2 = scrX2 - _viewportRect.x;
+    SLint y2 = scrY2 - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     _touch[0].set(x1, y1);
     _touch[1].set(x2, y2);
@@ -1244,17 +1362,22 @@ SLbool SLSceneView::onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2)
 SLSceneView::onTouch2Up gets called whenever two fingers touch a handheld
 screen.
 */
-SLbool SLSceneView::onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2)
+SLbool SLSceneView::onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2)
 {
     SLScene* s = SLApplication::scene;
     if (!s->root3D()) return false;
 
+    // Correct viewport offset
+    SLint x1 = scrX1 - _viewportRect.x;
+    SLint y1 = scrY1 - ((_scrH - _viewportRect.height) - _viewportRect.y);
+    SLint x2 = scrX2 - _viewportRect.x;
+    SLint y2 = scrY2 - ((_scrH - _viewportRect.height) - _viewportRect.y);
+
     _touch[0].set(x1, y1);
     _touch[1].set(x2, y2);
-    _touchDowns   = 0;
-    SLbool result = false;
+    _touchDowns = 0;
 
-    result = _camera->onTouch2Up(x1, y1, x2, y2);
+    SLbool result = _camera->onTouch2Up(x1, y1, x2, y2);
     for (auto eh : s->eventHandlers())
     {
         if (eh->onTouch2Up(x1, y1, x2, y2))
@@ -1308,7 +1431,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
             _raytracer.state(rtReady);
     }
 
-    if (key==K_tab) {switchToNextCameraInScene(); return true;};
+    if (key==K_tab) {switchToNextCameraInScene(); return true;}
 
     if (key==K_esc && mod==K_ctrl)
     {   if(_renderType == RT_rt)
@@ -1385,8 +1508,6 @@ SLbool SLSceneView::onCharInput(SLuint c)
     return false;
 }
 //-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
 /*!
 Returns the window title with name & FPS
 */
@@ -1424,7 +1545,7 @@ SLstring SLSceneView::windowTitle()
     }
     else
     {
-        SLuint nr = (uint)_visibleNodes.size();
+        SLuint nr = (uint)_nodesVisible.size();
         if (s->fps() > 5)
             sprintf(title,
                     "%s (fps: %4.0f, %u nodes of %u rendered)",

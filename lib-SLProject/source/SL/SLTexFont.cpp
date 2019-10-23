@@ -2,7 +2,7 @@
 //  File:      SL/SLTexFont.cpp
 //  Author:    Marcus Hudritsch, original author is Philippe Decaudin
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Philippe Decaudin - http://www.antisphere.com
 //             M. Hudritsch, Berner Fachhochschule
 //             This software is provide under the GNU General Public License
@@ -17,6 +17,9 @@
 #include <SLApplication.h>
 #include <SLScene.h>
 #include <SLTexFont.h>
+#include <Utils.h>
+
+#include <utility>
 
 //-----------------------------------------------------------------------------
 // Initialize static font pointers
@@ -41,17 +44,17 @@ SLTexFont::SLTexFont(SLstring fontFilename)
     _min_filter = GL_NEAREST;
     _mag_filter = GL_NEAREST;
 
-    for (SLint i = 0; i < 256; ++i)
+    for (auto& i : chars)
     {
-        chars[i].width = 0;
-        chars[i].tx1   = 0;
-        chars[i].tx2   = 0;
-        chars[i].ty1   = 0;
-        chars[i].ty2   = 0;
+        i.width = 0;
+        i.tx1   = 0;
+        i.tx2   = 0;
+        i.ty1   = 0;
+        i.ty2   = 0;
     }
     charsHeight = 0;
 
-    create(fontFilename);
+    create(std::move(fontFilename));
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -62,17 +65,17 @@ according texture coordinate.
 void SLTexFont::create(SLstring fontFilename)
 {
     // Check the font filename with path
-    if (!SLFileSystem::fileExists(fontFilename))
+    if (!Utils::fileExists(fontFilename))
     {
         fontFilename = defaultPathFonts + fontFilename;
-        if (!SLFileSystem::fileExists(fontFilename))
+        if (!Utils::fileExists(fontFilename))
         {
             SLstring msg = "SLTexFont::create: File not found: " + fontFilename;
             SL_EXIT_MSG(msg.c_str());
         }
     }
 
-    SLCVImage img;
+    CVImage img;
     img.load(fontFilename, false);
 
     // find height of the font
@@ -191,11 +194,12 @@ void SLTexFont::create(SLstring fontFilename)
 
     //Allocate memory for image pixels using only the alpha channel
     _images.clear();
-    SLPixelFormat format = _stateGL->pixelFormatIsSupported(PF_luminance) ? PF_luminance : PF_red;
-    _images.push_back(new SLCVImage((SLint)texWidth,
-                                    (SLint)texHeight,
-                                    format,
-                                    fontFilename));
+    SLGLState*  stateGL = SLGLState::instance();
+    CVPixFormat format  = stateGL->pixelFormatIsSupported(PF_luminance) ? PF_luminance : PF_red;
+    _images.push_back(new CVImage((SLint)texWidth,
+                                  (SLint)texHeight,
+                                  format,
+                                  fontFilename));
     _images[0]->load((SLint)texWidth,
                      (SLint)texHeight,
                      format,
@@ -221,10 +225,9 @@ void SLTexFont::create(SLstring fontFilename)
 max. width is passed text is first wrapped into multiple lines. For mulitline
 text the line height is calculate as the font height * lineHeightFactor.
 */
-SLVec2f
-SLTexFont::calcTextSize(SLstring text,
-                        SLfloat  maxWidth,
-                        SLfloat  lineHeightFactor)
+SLVec2f SLTexFont::calcTextSize(const SLstring& text,
+                                SLfloat         maxWidth,
+                                SLfloat         lineHeightFactor)
 {
     SLVec2f size(0, 0);
 
@@ -232,9 +235,9 @@ SLTexFont::calcTextSize(SLstring text,
     {
         SLfloat   maxX  = FLT_MIN;
         SLVstring lines = wrapTextToLines(text, maxWidth);
-        for (SLuint i = 0; i < lines.size(); ++i)
+        for (const auto& line : lines)
         {
-            SLVec2f size = calcTextSize(lines[i]);
+            SLVec2f size = calcTextSize(line);
             if (size.x > maxX) maxX = size.x;
         }
         size.x = maxX;
@@ -243,9 +246,8 @@ SLTexFont::calcTextSize(SLstring text,
     }
     else
     { // Loop through each character of text
-        for (SLuint i = 0; i < text.length(); ++i)
+        for (char c : text)
         {
-            SLchar c = text[i];
             size.x += chars[(SLuint)c].width;
         }
         size.y = (SLfloat)charsHeight;
@@ -328,14 +330,14 @@ wider it will be split into multiple lines with a
 height = font height * lineHeight.
 */
 void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
-                                 SLstring         text,     // text
+                                 const SLstring&  text,     // text
                                  SLfloat          maxWidth, // max. width for multi-line text
                                  SLfloat          lineHeight)        // line height factor
 {
     SLVstring lines;    // Vector of text lines
     SLVVec2f  sizes;    // Sizes of text lines
-    SLuint    numP = 0; // No. of vertices
-    SLuint    numI = 0; // No. of indices (3 per triangle)
+    size_t    numP = 0; // No. of vertices
+    size_t    numI = 0; // No. of indices (3 per triangle)
     SLfloat   x;        // current lower-left x position
     SLfloat   y;        // current lower-left y position
     SLuint    iV;       // current vertex index
@@ -345,10 +347,10 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
     if (maxWidth > 0.0f)
     { // multiple text lines
         lines = wrapTextToLines(text, maxWidth);
-        for (SLuint l = 0; l < lines.size(); ++l)
+        for (auto& line : lines)
         {
-            numP += lines[l].length();
-            sizes.push_back(calcTextSize(lines[l]));
+            numP += line.length();
+            sizes.push_back(calcTextSize(line));
         }
         numP *= 4;
         numI = numP * 2 * 3;
@@ -356,8 +358,8 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
     else
     { // single text line
         lines.push_back(text);
-        numP = (SLuint)text.length() * 4;
-        numI = (SLuint)text.length() * 2 * 3;
+        numP = text.length() * 4;
+        numI = text.length() * 2 * 3;
     }
 
     SLVVec3f P;
@@ -368,17 +370,15 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
     I.resize(numI); // Indexes
 
     iV = iI = 0;
-    y       = (lines.size() - 1) * (SLfloat)charsHeight * lineHeight;
+    y       = ((SLfloat)lines.size() - 1) * (SLfloat)charsHeight * lineHeight;
 
-    for (SLuint l = 0; l < lines.size(); ++l)
+    for (auto& line : lines)
     {
         x = 0;
 
         // Loop through characters
-        for (SLuint i = 0; i < lines[l].length(); ++i)
+        for (char c : line)
         {
-            SLchar c = lines[l][i];
-
             // Get width and height
             SLfloat w = chars[(SLuint)c].width;
             SLfloat h = (SLfloat)charsHeight;
@@ -417,7 +417,7 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
     vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
     vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
     vao.setIndices(&I);
-    vao.generate(numP);
+    vao.generate((SLuint)numP);
 }
 //-----------------------------------------------------------------------------
 //! Generates all static fonts
@@ -450,27 +450,27 @@ void SLTexFont::generateFonts()
 //! Deletes all static fonts
 void SLTexFont::deleteFonts()
 {
-    if (font07) delete font07;
+    delete font07;
     font07 = nullptr;
-    if (font08) delete font08;
+    delete font08;
     font08 = nullptr;
-    if (font09) delete font09;
+    delete font09;
     font09 = nullptr;
-    if (font10) delete font10;
+    delete font10;
     font10 = nullptr;
-    if (font12) delete font12;
+    delete font12;
     font12 = nullptr;
-    if (font14) delete font14;
+    delete font14;
     font14 = nullptr;
-    if (font16) delete font16;
+    delete font16;
     font16 = nullptr;
-    if (font18) delete font18;
+    delete font18;
     font18 = nullptr;
-    if (font20) delete font20;
+    delete font20;
     font20 = nullptr;
-    if (font22) delete font22;
+    delete font22;
     font22 = nullptr;
-    if (font24) delete font24;
+    delete font24;
     font24 = nullptr;
 }
 //-----------------------------------------------------------------------------

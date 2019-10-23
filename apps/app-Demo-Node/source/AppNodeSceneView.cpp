@@ -4,7 +4,7 @@
 //             possibilities of SLNode
 //  Author:    Marc Wacker
 //  Date:      July 2015
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -86,7 +86,7 @@ void drawXZGrid(const SLMat4f& mat)
         initialized = true;
     }
 
-    SLGLState* state = SLGLState::getInstance();
+    SLGLState* state = SLGLState::instance();
     state->pushModelViewMatrix();
     state->modelViewMatrix = mat;
 
@@ -97,31 +97,14 @@ void drawXZGrid(const SLMat4f& mat)
     state->popModelViewMatrix();
 }
 //-----------------------------------------------------------------------------
-void onLoad(SLScene* s, SLSceneView* sv, SLSceneID sid)
-{
-    s->init();
-
-    SLCamera* cam1 = new SLCamera;
-    cam1->translation(2, 3, 5);
-    cam1->lookAt(-2, -1.0, 1);
-    cam1->focalDist(6);
-    cam1->background().colors(SLCol4f(0.8f, 0.8f, 0.8f));
-
-    SLLightSpot* light1 = new SLLightSpot(0.3f);
-    light1->translation(10, 10, 10);
-
-    SLNode* scene = new SLNode;
-    scene->addChild(light1);
-    scene->addChild(cam1);
-
-    s->root3D(scene);
-
-    sv->camera(cam1);
-    sv->doWaitOnIdle(false);
-    sv->onInitialize();
-}
-//-----------------------------------------------------------------------------
-NewNodeSceneView::NewNodeSceneView()
+/*! AppNodeSceneView inherits the base class SLSceneView and overrides some
+ eventhandler.
+ Most events such as all mouse and keyboard events from the OS is forwarded to
+ SLSceneview. SLSceneview implements a default behaviour. If you want a
+ different or additional behaviour for a certain eventhandler you have to sub-
+ class SLSceneView and override the eventhandler.
+ */
+AppNodeSceneView::AppNodeSceneView()
   : _modifiers(K_none),
     _continuousInput(true),
     _curMode(TranslationMode),
@@ -134,11 +117,11 @@ NewNodeSceneView::NewNodeSceneView()
     _pivotPos.set(0, 0, 0);
 }
 //-----------------------------------------------------------------------------
-NewNodeSceneView::~NewNodeSceneView()
+AppNodeSceneView::~AppNodeSceneView()
 {
 }
 //-----------------------------------------------------------------------------
-void NewNodeSceneView::postSceneLoad()
+void AppNodeSceneView::postSceneLoad()
 {
     SLMaterial* rMat = new SLMaterial("rMat", SLCol4f(1.0f, 0.7f, 0.7f));
     SLMaterial* gMat = new SLMaterial("gMat", SLCol4f(0.7f, 1.0f, 0.7f));
@@ -174,10 +157,10 @@ void NewNodeSceneView::postSceneLoad()
     updateCurOrigin();
 }
 //-----------------------------------------------------------------------------
-void NewNodeSceneView::preDraw()
+void AppNodeSceneView::preDraw()
 {
-    static SLfloat lastTime    = SLApplication::scene->timeSec();
-    SLfloat        currentTime = SLApplication::scene->timeSec();
+    static SLfloat lastTime    = SLApplication::timeS();
+    SLfloat        currentTime = SLApplication::timeS();
     _deltaTime                 = currentTime - lastTime;
     lastTime                   = currentTime;
 
@@ -199,14 +182,14 @@ void NewNodeSceneView::preDraw()
     }
 }
 //-----------------------------------------------------------------------------
-void NewNodeSceneView::reset()
+void AppNodeSceneView::reset()
 {
     _pivotPos.set(0, 0, 0);
     _moveBox->resetToInitialState();
     _moveBoxChild->resetToInitialState();
 }
 //-----------------------------------------------------------------------------
-void NewNodeSceneView::translateObject(SLVec3f val)
+void AppNodeSceneView::translateObject(SLVec3f val)
 {
     if (_continuousInput)
         val *= _deltaTime;
@@ -216,7 +199,7 @@ void NewNodeSceneView::translateObject(SLVec3f val)
     _curObject->translate(val, _curSpace);
 }
 //-----------------------------------------------------------------------------
-void NewNodeSceneView::rotateObject(SLVec3f val)
+void AppNodeSceneView::rotateObject(SLVec3f val)
 {
     SLfloat angle = 22.5;
     if (_continuousInput)
@@ -225,7 +208,7 @@ void NewNodeSceneView::rotateObject(SLVec3f val)
     _curObject->rotate(angle, val, _curSpace);
 }
 //-----------------------------------------------------------------------------
-void NewNodeSceneView::rotateObjectAroundPivot(SLVec3f val)
+void AppNodeSceneView::rotateObjectAroundPivot(SLVec3f val)
 {
     SLfloat angle = 22.5;
     if (_continuousInput)
@@ -234,7 +217,7 @@ void NewNodeSceneView::rotateObjectAroundPivot(SLVec3f val)
     _curObject->rotateAround(_pivotPos, val, angle, _curSpace);
 }
 //-----------------------------------------------------------------------------
-void NewNodeSceneView::translatePivot(SLVec3f val)
+void AppNodeSceneView::translatePivot(SLVec3f val)
 {
     if (_continuousInput)
         val *= _deltaTime;
@@ -244,7 +227,7 @@ void NewNodeSceneView::translatePivot(SLVec3f val)
     _pivotPos += val;
 }
 //-----------------------------------------------------------------------------
-SLbool NewNodeSceneView::onContinuousKeyPress(SLKey key)
+SLbool AppNodeSceneView::onContinuousKeyPress(SLKey key)
 {
     if (!_continuousInput)
         _keyStates[key] = false;
@@ -329,7 +312,7 @@ SLbool NewNodeSceneView::onContinuousKeyPress(SLKey key)
     return false;
 }
 //-----------------------------------------------------------------------------
-SLbool NewNodeSceneView::onKeyPress(const SLKey key, const SLKey mod)
+SLbool AppNodeSceneView::onKeyPress(const SLKey key, const SLKey mod)
 {
     _keyStates[key] = true;
     _modifiers      = mod;
@@ -361,7 +344,7 @@ SLbool NewNodeSceneView::onKeyPress(const SLKey key, const SLKey mod)
     return false;
 }
 //-----------------------------------------------------------------------------
-SLbool NewNodeSceneView::onKeyRelease(const SLKey key, const SLKey mod)
+SLbool AppNodeSceneView::onKeyRelease(const SLKey key, const SLKey mod)
 {
     _keyStates[key] = false;
     _modifiers      = mod;
@@ -369,7 +352,7 @@ SLbool NewNodeSceneView::onKeyRelease(const SLKey key, const SLKey mod)
     return false;
 }
 //-----------------------------------------------------------------------------
-void NewNodeSceneView::updateCurOrigin()
+void AppNodeSceneView::updateCurOrigin()
 {
     switch (_curSpace)
     {
@@ -400,14 +383,10 @@ void NewNodeSceneView::updateCurOrigin()
         _axesNode->translate(_pivotPos.x, _pivotPos.y, _pivotPos.z, TS_object);
     }
 
-    // todo: position the pivot for rotate arond based on a set vector!
-    // remove the current _pivot and just use the grid to visualize it.
-    // _pivot is now a vec3 containing the pivot position in relative space
-
     _curOrigin;
 }
 //-----------------------------------------------------------------------------
-void NewNodeSceneView::updateInfoText()
+void AppNodeSceneView::updateInfoText()
 {
     SLchar m[2550]; // message character array
     m[0] = 0;       // set zero length

@@ -2,7 +2,7 @@
 //  File:      SLNode.h
 //  Author:    Marc Wacker, Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -22,7 +22,6 @@ class SLRay;
 class SLAABBox;
 class SLNode;
 class SLAnimation;
-class SLCVTracked;
 
 //-----------------------------------------------------------------------------
 //! SLVNode typdef for a vector of SLNodes
@@ -137,9 +136,9 @@ class SLNode
     friend class SLSceneView;
 
     public:
-    SLNode(SLstring name = "Node");
-    SLNode(SLMesh* mesh, SLstring name = "Node");
-    virtual ~SLNode();
+    explicit SLNode(const SLstring& name = "Node");
+    explicit SLNode(SLMesh* mesh, const SLstring& name = "Node");
+    ~SLNode() override;
 
     // Recursive scene traversal methods (see impl. for details)
     virtual void      cull3DRec(SLSceneView* sv);
@@ -161,8 +160,9 @@ class SLNode
     bool         removeMesh();
     bool         removeMesh(SLMesh* mesh);
     bool         removeMesh(SLstring name);
-    SLMesh*      findMesh(SLstring name,
-                          SLbool   recursive = false);
+    bool         deleteMesh(SLMesh* mesh);
+    SLMesh*      findMesh(const SLstring& name,
+                          SLbool          recursive = false);
     void         setAllMeshMaterials(SLMaterial* mat,
                                      SLbool      recursive = true);
     SLbool       containsMesh(const SLMesh* mesh);
@@ -175,7 +175,7 @@ class SLNode
     void  deleteChildren();
     bool  deleteChild();
     bool  deleteChild(SLNode* child);
-    bool  deleteChild(const SLstring name);
+    bool  deleteChild(const SLstring& name);
     template<typename T>
     T* find(const SLstring& name          = "",
             SLbool          findRecursive = true);
@@ -188,8 +188,8 @@ class SLNode
                                  SLbool          canContain    = false);
     vector<SLNode*> findChildren(const SLMesh* mesh,
                                  SLbool        findRecursive = true);
-    vector<SLNode*> findChildren(const SLuint drawbit,
-                                 SLbool       findRecursive = true);
+    vector<SLNode*> findChildren(SLuint drawbit,
+                                 SLbool findRecursive = true);
 
     // local direction getter functions
     SLVec3f translationOS() const;
@@ -270,7 +270,7 @@ class SLNode
     virtual void needUpdate();
     void         needWMUpdate();
     void         needAABBUpdate();
-    void         tracker(SLCVTracked* t);
+    //void         tracker(CVTracked* t);
 
     // Getters (see also member)
     SLNode*           parent() { return _parent; }
@@ -287,7 +287,9 @@ class SLNode
     SLVMesh&          meshes() { return _meshes; }
     SLVNode&          children() { return _children; }
     const SLSkeleton* skeleton();
-    SLCVTracked*      tracker() { return _tracker; }
+    //CVTracked*      tracker() { return _tracker; }
+    void         update();
+    virtual void doUpdate() {}
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 
@@ -301,12 +303,11 @@ class SLNode
     void findChildrenHelper(const SLMesh*    mesh,
                             vector<SLNode*>& list,
                             SLbool           findRecursive);
-    void findChildrenHelper(const SLuint     drawbit,
+    void findChildrenHelper(SLuint           drawbit,
                             vector<SLNode*>& list,
                             SLbool           findRecursive);
 
     protected:
-    SLGLState*      _stateGL;        //!< pointer to the global SLGLState instance
     SLNode*         _parent;         //!< pointer to the parent node
     SLVNode         _children;       //!< vector of children nodes
     SLVMesh         _meshes;         //!< vector of meshes of the node
@@ -321,7 +322,7 @@ class SLNode
     SLDrawBits      _drawBits;       //!< node level drawing flags
     SLAABBox        _aabb;           //!< axis aligned bounding box
     SLAnimation*    _animation;      //!< animation of the node
-    SLCVTracked*    _tracker;        //!< OpenCV Augmented Reality Tracker
+    //CVTracked*    _tracker;        //!< OpenCV Augmented Reality Tracker
 };
 
 ////////////////////////
@@ -336,7 +337,7 @@ template<typename T>
 T* SLNode::find(const SLstring& name, SLbool findRecursive)
 {
     T* found = dynamic_cast<T*>(this);
-    if (found && (name.size() == 0 || name == _name))
+    if (found && (name.empty() || name == _name))
         return found;
     return findChild<T>(name, findRecursive);
 }
@@ -347,18 +348,17 @@ SLNode::findChild<T> finds the first child that is of type T or a subclass of T.
 template<typename T>
 T* SLNode::findChild(const SLstring& name, SLbool findRecursive)
 {
-    for (SLuint i = 0; i < _children.size(); ++i)
+    for (auto node : _children)
     {
-        SLNode* node  = _children[i];
-        T*      found = dynamic_cast<T*>(node);
-        if (found && (name.size() == 0 || name == node->name()))
+        T* found = dynamic_cast<T*>(node);
+        if (found && (name.empty() || name == node->name()))
             return found;
     }
     if (findRecursive)
     {
-        for (SLuint i = 0; i < _children.size(); ++i)
+        for (auto& i : _children)
         {
-            T* found = _children[i]->findChild<T>(name, findRecursive);
+            T* found = i->findChild<T>(name, findRecursive);
             if (found)
                 return found;
         }
@@ -394,25 +394,25 @@ void SLNode::findChildrenHelper(const SLstring& name,
                                 SLbool          findRecursive,
                                 SLbool          canContain)
 {
-    for (SLuint i = 0; i < _children.size(); ++i)
+    for (auto& i : _children)
     {
-        SLNode* node  = _children[i];
+        SLNode* node  = i;
         T*      found = dynamic_cast<T*>(node);
 
         if (canContain)
         {
-            if (found && (name.size() == 0 ||
-                          SLUtils::contains(node->name(), name)))
+            if (found && (name.empty() ||
+                          Utils::containsString(node->name(), name)))
                 list.push_back(found);
         }
         else
         {
-            if (found && (name.size() == 0 || name == node->name()))
+            if (found && (name.empty() || name == node->name()))
                 list.push_back(found);
         }
 
         if (findRecursive)
-            _children[i]->findChildrenHelper<T>(name, list, findRecursive);
+            i->findChildrenHelper<T>(name, list, findRecursive);
     }
 }
 //-----------------------------------------------------------------------------

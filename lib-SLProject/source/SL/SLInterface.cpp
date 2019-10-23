@@ -3,7 +3,7 @@
 //  Purpose:   Implementation of the main Scene Library C-Interface.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -11,12 +11,10 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
+#include <SLInterface.h>
 #include <SLApplication.h>
 #include <SLAssimpImporter.h>
-#include <SLCVCalibration.h>
-#include <SLCVCapture.h>
 #include <SLInputManager.h>
-#include <SLInterface.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 
@@ -32,6 +30,8 @@ by a native API such as Java Native Interface (JNI).
 //! global flag that determines if the application should be closed
 bool gShouldClose = false;
 
+//-----------------------------------------------------------------------------
+extern string logAppName;
 //-----------------------------------------------------------------------------
 /*! Global creation function for a SLScene instance. This function should be
 called only once per application. The SLScene constructor call is delayed until
@@ -52,36 +52,31 @@ See examples usages in:
   - app-Demo-SLProject/android: native-lib.cpp      in Java_ch_fhnw_comgr_GLES3Lib_onInit()
   - app-Demo-SLProject/iOS:     ViewController.m    in viewDidLoad()
 */
-void slCreateAppAndScene(SLVstring& cmdLineArgs,
-                         SLstring   shaderPath,
-                         SLstring   modelPath,
-                         SLstring   texturePath,
-                         SLstring   videoPath,
-                         SLstring   fontPath,
-                         SLstring   calibrationPath,
-                         SLstring   configPath,
-                         SLstring   applicationName,
-                         void*      onSceneLoadCallback)
+void slCreateAppAndScene(SLVstring&      cmdLineArgs,
+                         const SLstring& shaderPath,
+                         const SLstring& modelPath,
+                         const SLstring& texturePath,
+                         const SLstring& fontPath,
+                         const SLstring& configPath,
+                         const SLstring& applicationName,
+                         void*           onSceneLoadCallback)
 {
     assert(SLApplication::scene == nullptr && "SLScene is already created!");
 
     // Default paths for all loaded resources
-    SLGLProgram::defaultPath      = shaderPath;
-    SLGLTexture::defaultPath      = texturePath;
-    SLGLTexture::defaultPathFonts = fontPath;
-    SLAssimpImporter::defaultPath = modelPath;
-    SLCVCapture::videoDefaultPath = videoPath;
-    SLCVCalibration::calibIniPath = calibrationPath;
-    SLApplication::configPath     = configPath;
+    SLGLProgram::defaultPath                  = shaderPath;
+    SLGLTexture::defaultPath                  = texturePath;
+    SLGLTexture::defaultPathFonts             = fontPath;
+    SLAssimpImporter::defaultPath             = modelPath;
+    SLApplication::configPath                 = configPath;
 
-    SLGLState* stateGL = SLGLState::getInstance();
+    SLGLState* stateGL = SLGLState::instance();
 
+    logAppName = "SLProject";
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
     SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
     SL_LOG("Path to Textures: %s\n", texturePath.c_str());
-    SL_LOG("Path to Textures: %s\n", videoPath.c_str());
     SL_LOG("Path to Fonts   : %s\n", fontPath.c_str());
-    SL_LOG("Path to Calibr. : %s\n", calibrationPath.c_str());
     SL_LOG("Path to Config. : %s\n", configPath.c_str());
     SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
     SL_LOG("CV has OpenCL   : %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");
@@ -125,7 +120,7 @@ int slCreateSceneView(int       screenWidth,
 
     // Create the sceneview & get the pointer with the sceneview index
     SLuint       index = (SLuint)newSVCallback();
-    SLSceneView* sv    = SLApplication::scene->sv(index);
+    SLSceneView* sv    = SLApplication::scene->sceneView(index);
 
     sv->init("SceneView",
              screenWidth,
@@ -193,21 +188,23 @@ void slTerminate()
     SLApplication::deleteAppAndScene();
 }
 //-----------------------------------------------------------------------------
-/*! Global rendering function that first updates the scene due to user or
-device inputs and due to active animations. This happens only if all sceneviews
-where finished with rendering. After the update sceneviews onPaint routine is
-called to initiate the rendering of the frame. If either the onUpdate or onPaint
-returned true a new frame should be drawn.
-*/
-bool slUpdateAndPaint(int sceneViewIndex)
+bool slUpdateScene()
 {
-    SLSceneView* sv = SLApplication::scene->sv((SLuint)sceneViewIndex);
-
+    SLApplication::handleParallelJob();
     bool sceneGotUpdated = SLApplication::scene->onUpdate();
 
-    bool viewNeedsUpdate = sv->onPaint();
+    return SLApplication::jobIsRunning || sceneGotUpdated;
+}
+//-----------------------------------------------------------------------------
+bool slPaintAllViews()
+{
+    bool needUpdate = false;
 
-    return sceneGotUpdated || viewNeedsUpdate;
+    for (auto sv : SLApplication::scene->sceneViews())
+        if (sv->onPaint() && !needUpdate)
+            needUpdate = true;
+
+    return needUpdate;
 }
 //-----------------------------------------------------------------------------
 /*! Global resize function that must be called whenever the OpenGL frame
@@ -440,91 +437,31 @@ void slLocationLLA(double latitudeDEG,
                                         accuracyM);
 }
 //-----------------------------------------------------------------------------
-/*! Global function to retrieve a window title text generated by the scene
-library. 
-*/
+//! Global function to retrieve a window title generated by the scene library.
 string slGetWindowTitle(int sceneViewIndex)
 {
-    SLSceneView* sv = SLApplication::scene->sv((SLuint)sceneViewIndex);
+    SLSceneView* sv = SLApplication::scene->sceneView((SLuint)sceneViewIndex);
     return sv->windowTitle();
 }
 //-----------------------------------------------------------------------------
-/*! Global function that returns the type of video camera wanted
-*/
-int slGetVideoType()
+// Get available external directories and inform slproject about them
+void slSetupExternalDir(const SLstring& externalPath)
 {
-    return (int)SLApplication::scene->videoType();
+    if (Utils::dirExists(externalPath))
+    {
+        SL_LOG("External directory: %s\n", externalPath.c_str());
+        SLApplication::externalPath = externalPath;
+    }
+    else
+    {
+        SL_LOG("ERROR: external directory does not exists: %s\n", externalPath.c_str());
+    }
 }
 //-----------------------------------------------------------------------------
-/*! Global function that returns the size index offset of the requested video.
-An index offset of 0 returns the default size of 640x480. If this size is not
-available the median element of the available sizes array is returned.
-An index of -n return the n-th smaller one. \n
-An index of +n return the n-th bigger one. \n
-*/
-int slGetVideoSizeIndex()
+//! Adds a value to the applications device parameter map
+void slSetDeviceParameter(const SLstring& parameter,
+                          SLstring value)
 {
-    return SLCVCapture::requestedSizeIndex;
-}
-//-----------------------------------------------------------------------------
-/*! Global function to grab the next frame with the OpenCV capture device. This
-should be used by Android and iOS apps for grabbing the next video frame from
-a video file.
-*/
-void slGrabVideoFileFrame()
-{
-    SLCVCapture::grabAndAdjustForSL();
-}
-//-----------------------------------------------------------------------------
-/*! Global function to copy a new video image to the SLScene::_videoTexture.
-An application can grab the live video image with OpenCV via slGrabCopyVideoImage
-or with another OS dependent framework.
-*/
-void slCopyVideoImage(SLint         width,
-                      SLint         height,
-                      SLPixelFormat format,
-                      SLuchar*      data,
-                      SLbool        isContinuous)
-{
-    SLCVCapture::loadIntoLastFrame(width,
-                                   height,
-                                   format,
-                                   data,
-                                   isContinuous);
-}
-//-----------------------------------------------------------------------------
-/*! Global function to copy a new video image in the YUV_420 format plane by
-plane to the SLCVCapture::lastFrame. This should mainly used by mobile platforms
-to efficiently copy the video frame to the SLCVCapture::lastFrame.
-*/
-void slCopyVideoYUVPlanes(int      srcW,
-                          int      srcH,
-                          SLuchar* y,
-                          int      ySize,
-                          int      yPixStride,
-                          int      yLineStride,
-                          SLuchar* u,
-                          int      uSize,
-                          int      uPixStride,
-                          int      uLineStride,
-                          SLuchar* v,
-                          int      vSize,
-                          int      vPixStride,
-                          int      vLineStride)
-{
-    SLCVCapture::copyYUVPlanes(srcW,
-                               srcH,
-                               y,
-                               ySize,
-                               yPixStride,
-                               yLineStride,
-                               u,
-                               uSize,
-                               uPixStride,
-                               uLineStride,
-                               v,
-                               vSize,
-                               vPixStride,
-                               vLineStride);
+    SLApplication::deviceParameter[parameter] = std::move(value);
 }
 //-----------------------------------------------------------------------------

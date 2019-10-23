@@ -2,7 +2,7 @@
 //  File:      SLLightRect.h
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -54,10 +54,10 @@ class SLLightRect : public SLNode
     void    setState();
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
-                       const SLfloat  lightDist);
+                       SLfloat        lightDist);
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
-                         const SLfloat  lightDist);
+                         SLfloat        lightDist);
 
     // Setters
     void width(const SLfloat w)
@@ -70,8 +70,8 @@ class SLLightRect : public SLNode
         _height     = h;
         _halfHeight = h * 0.5f;
     }
-    void samples(const SLVec2i samples);
-    void samplesXY(const SLint x, const SLint y);
+    void samples(SLVec2i samples);
+    void samplesXY(SLint x, SLint y);
 
     // Getters
     SLfloat width() { return _width; }

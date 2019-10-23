@@ -185,7 +185,7 @@ void SLPhotonMapper::photonScatter(SLRay* photon,
             SLMat3f rotMat;
             SLVec3f rotAxis((SLVec3f(0.0,0.0,1.0) ^ scattered.dir).normalize());
             SLfloat rotAngle=acos(scattered.dir.z);//z*scattered.dir()
-            rotMat.rotation(rotAngle*180.0/SL_PI,rotAxis);
+            rotMat.rotation(rotAngle*180.0/Utils::ONEPI,rotAxis);
             photon->reflectMC(&scattered,rotMat);
          }
          
@@ -214,7 +214,7 @@ void SLPhotonMapper::photonScatter(SLRay* photon,
             SLMat3f rotMat;
             SLVec3f rotAxis((SLVec3f(0.0,0.0,1.0) ^ scattered.dir).normalize());
             SLfloat rotAngle=acos(scattered.dir.z);//z*scattered.dir()
-            rotMat.rotation(rotAngle*180.0/SL_PI,rotAxis);
+            rotMat.rotation(rotAngle*180.0/Utils::ONEPI,rotAxis);
             photon->refractMC(&scattered,rotMat);
          }
          SLVec3f N = -photon->hitNormal;

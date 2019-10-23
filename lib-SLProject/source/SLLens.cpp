@@ -92,7 +92,7 @@ SLLens::SLLens(SLfloat     radiusBot,
                SLuint      stacks,
                SLuint      slices,
                SLstring    name,
-               SLMaterial* mat) : SLRevolver(name)
+               SLMaterial* mat) : SLRevolver(std::move(name))
 {
     SLfloat nOut       = 1.00;      // kn material outside lens
     SLfloat nLens      = mat->kn(); // kn material of the lens
@@ -192,12 +192,12 @@ SLfloat SLLens::generateLensBot(SLfloat radius)
     if ((sagitta >= 0))
     {
         SLfloat alphaAsin       = _diameter / (2.0f * radius);
-        alphaAsin               = SL_clamp(alphaAsin, -1.0f, 1.0f);
+        alphaAsin               = Utils::clamp(alphaAsin, -1.0f, 1.0f);
         SLfloat alphaRAD        = 2.0f * (SLfloat)asin(alphaAsin);
         SLfloat dAlphaRAD       = (alphaRAD * 0.5f) / halfStacks;
         SLfloat yStart1         = -sagitta;
-        SLfloat currentAlphaRAD = -SL_HALFPI;
-        SLfloat currentAlphaDEG = currentAlphaRAD * SL_RAD2DEG;
+        SLfloat currentAlphaRAD = -Utils::HALFPI;
+        SLfloat currentAlphaDEG = currentAlphaRAD * Utils::RAD2DEG;
         SLfloat radiusAmount1   = radius;
         SLfloat yTranslate1     = radius - sagitta;
 
@@ -205,7 +205,7 @@ SLfloat SLLens::generateLensBot(SLfloat radius)
         if (radius < 0)
         {
             yStart1         = 0;
-            currentAlphaRAD = SL_HALFPI;
+            currentAlphaRAD = Utils::HALFPI;
             radiusAmount1   = -radius;
             yTranslate1     = radius;
         }
@@ -223,7 +223,7 @@ SLfloat SLLens::generateLensBot(SLfloat radius)
         {
             // change angle
             currentAlphaRAD += dAlphaRAD;
-            currentAlphaDEG = currentAlphaRAD * SL_RAD2DEG;
+            currentAlphaDEG = currentAlphaRAD * Utils::RAD2DEG;
 
             // calc x
             x = cos(currentAlphaRAD) * radiusAmount1;
@@ -291,18 +291,18 @@ SLfloat SLLens::generateLensTop(SLfloat radius)
         betaAsin               = (betaAsin > 1) ? 1 : betaAsin;   // correct rounding errors
         betaAsin               = (betaAsin < -1) ? -1 : betaAsin; // correct rounding errors
         SLfloat betaRAD        = 2.0f * (SLfloat)asin(betaAsin);
-        SLfloat currentBetaRAD = SL_HALFPI - (betaRAD * 0.5f);
+        SLfloat currentBetaRAD = Utils::HALFPI - (betaRAD * 0.5f);
 
         // settings for negative radius
         if (radius < 0)
         {
-            currentBetaRAD = -SL_HALFPI - (betaRAD * 0.5f);
+            currentBetaRAD = -Utils::HALFPI - (betaRAD * 0.5f);
             yStart2        = sagitta + _thickness;
             radiusAmount2  = -radius;
             yTranslate2    = -radius;
         }
 
-        SLfloat currentBetaDEG = currentBetaRAD * SL_RAD2DEG;
+        SLfloat currentBetaDEG = currentBetaRAD * Utils::RAD2DEG;
         SLfloat dBetaRAD       = (betaRAD * 0.5f) / halfStacks;
 
         // set start point
@@ -318,7 +318,7 @@ SLfloat SLLens::generateLensTop(SLfloat radius)
         {
             // change angle
             currentBetaRAD += dBetaRAD;
-            currentBetaDEG = currentBetaRAD * SL_RAD2DEG;
+            currentBetaDEG = currentBetaRAD * Utils::RAD2DEG;
 
             // calc y
             y = (((sin(currentBetaRAD)) * (radiusAmount2)) + yTranslate2 + _thickness);

@@ -2,7 +2,7 @@
 //  File:      SLAnimation.cpp
 //  Author:    Marc Wacker
 //  Date:      Autumn 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -46,8 +46,8 @@ SLfloat SLAnimation::nextKeyframeTime(SLfloat time)
 {
     // find the closest keyframe time to the right
     SLfloat     result = _lengthSec;
-    SLKeyframe* kf1;
-    SLKeyframe* kf2;
+    SLAnimKeyframe* kf1;
+    SLAnimKeyframe* kf2;
 
     for (auto it : _nodeAnimTracks)
     {
@@ -65,8 +65,8 @@ SLfloat SLAnimation::prevKeyframeTime(SLfloat time)
 {
     // find the closest keyframe time to the right
     SLfloat     result = 0.0;
-    SLKeyframe* kf1;
-    SLKeyframe* kf2;
+    SLAnimKeyframe* kf1;
+    SLAnimKeyframe* kf2;
 
     // shift the time a little bit to the left or else the getKeyframesAtTime function
     // would return the same keyframe over and over again

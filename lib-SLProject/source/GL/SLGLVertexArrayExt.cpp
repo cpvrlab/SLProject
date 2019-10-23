@@ -3,7 +3,7 @@
 //  Purpose:   Extension class with functions for quick line & point drawing
 //  Author:    Marcus Hudritsch
 //  Date:      January 2016
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -66,7 +66,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
     // Prepare shader
     SLMaterial::current = nullptr;
     SLGLProgram* sp     = SLApplication::scene->programs(SP_colorUniform);
-    SLGLState*   state  = SLGLState::getInstance();
+    SLGLState*   state  = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
     sp->uniform1f("u_oneOverGamma", 1.0f);
@@ -113,7 +113,7 @@ void SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
     // Prepare shader
     SLMaterial::current = nullptr;
     SLGLProgram* sp     = SLApplication::scene->programs(SP_colorUniform);
-    SLGLState*   state  = SLGLState::getInstance();
+    SLGLState*   state  = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
     sp->uniform1f("u_oneOverGamma", 1.0f);

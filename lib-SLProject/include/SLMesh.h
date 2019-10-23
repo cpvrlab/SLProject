@@ -2,7 +2,7 @@
 //  File:      SLMesh.h
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -118,13 +118,13 @@ transformed vertices and normals are stored in _finalP and _finalN.
 class SLMesh : public SLObject
 {
     public:
-    SLMesh(SLstring name = "Mesh");
-    ~SLMesh();
+    explicit SLMesh(const SLstring& name = "Mesh");
+    ~SLMesh() override;
 
     virtual void init(SLNode* node);
     virtual void draw(SLSceneView* sv, SLNode* node);
     void         addStats(SLNodeStats& stats);
-    virtual void buildAABB(SLAABBox& aabb, SLMat4f wmNode);
+    virtual void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
     void         updateAccelStruct();
     SLbool       hit(SLRay* ray, SLNode* node);
     virtual void preShade(SLRay* ray);
@@ -146,7 +146,7 @@ class SLMesh : public SLObject
     SLMaterial*       matOut() const { return _matOut; }
     SLGLPrimitiveType primitive() const { return _primitive; }
     const SLSkeleton* skeleton() const { return _skeleton; }
-    SLuint            numI() { return (SLuint)(I16.size() ? I16.size() : I32.size()); }
+    SLuint            numI() { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }
@@ -177,16 +177,13 @@ class SLMesh : public SLObject
     SLVec3f maxP; //!< max. vertex in OS
 
     protected:
-    SLGLState*        _stateGL;   //!< Pointer to the global SLGLState instance
-    SLGLPrimitiveType _primitive; //!< Primitive type (default triangles)
-
-    SLMaterial* _mat;    //!< Pointer to the inside material
-    SLMaterial* _matOut; //!< Pointer to the outside material
-
-    SLGLVertexArray    _vao;  //!< OpenGL Vertex Array Object for drawing
-    SLGLVertexArrayExt _vaoN; //!< OpenGL VAO for optional normal drawing
-    SLGLVertexArrayExt _vaoT; //!< OpenGL VAO for optional tangent drawing
-    SLGLVertexArrayExt _vaoS; //!< OpenGL VAO for optional selection drawing
+    SLGLPrimitiveType  _primitive; //!< Primitive type (default triangles)
+    SLMaterial*        _mat;       //!< Pointer to the inside material
+    SLMaterial*        _matOut;    //!< Pointer to the outside material
+    SLGLVertexArray    _vao;       //!< OpenGL Vertex Array Object for drawing
+    SLGLVertexArrayExt _vaoN;      //!< OpenGL VAO for optional normal drawing
+    SLGLVertexArrayExt _vaoT;      //!< OpenGL VAO for optional tangent drawing
+    SLGLVertexArrayExt _vaoS;      //!< OpenGL VAO for optional selection drawing
 
     SLbool         _isVolume;             //!< Flag for RT if mesh is a closed volume
     SLAccelStruct* _accelStruct;          //!< KD-tree or uniform grid

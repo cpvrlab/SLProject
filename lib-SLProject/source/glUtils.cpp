@@ -3,6 +3,7 @@
 //  Purpose:   General OpenGL utility functions for simple OpenGL demo apps
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -10,12 +11,12 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#include <SLCVImage.h> // for image loading
+#include <CVImage.h> // for image loading
 #include <glUtils.h>
+#include <Utils.h>
 
 #include <algorithm>
-#include <dirent.h> // opendir
-#include <numeric>
+#include <utility>
 
 static vector<string> errors; // global vector for errors used in getGLError
 
@@ -47,7 +48,7 @@ loadShader loads the ASCII content of a shader file and returns it as a string.
 If the file can not be opened an error message is sent to stdout before the app
 exits with code 1.
 */
-string glUtils::loadShader(string filename)
+string glUtils::loadShader(const string& filename)
 {
     // Loader file and return it as a string
     fstream shaderFile(filename.c_str(), ios::in);
@@ -72,8 +73,8 @@ in the code and are therefore backwards compatible with the compatibility
 profile from OpenGL 2.1 and OpenGL ES 2 that runs on most mobile devices.
 To be upwards compatible some modification have to be done.
 */
-GLuint glUtils::buildShader(string shaderFile,
-                            GLenum shaderType)
+GLuint glUtils::buildShader(const string& shaderFile,
+                            GLenum        shaderType)
 {
     // Load shader file, create shader and compile it
     string source = loadShader(shaderFile);
@@ -86,12 +87,12 @@ GLuint glUtils::buildShader(string shaderFile,
     {
         if (shaderType == GL_VERTEX_SHADER)
         {
-            SLUtils::replaceString(source, "attribute", "in       ");
-            SLUtils::replaceString(source, "varying", "out    ");
+            Utils::replaceString(source, "attribute", "in       ");
+            Utils::replaceString(source, "varying", "out    ");
         }
         if (shaderType == GL_FRAGMENT_SHADER)
         {
-            SLUtils::replaceString(source, "varying", "in     ");
+            Utils::replaceString(source, "varying", "in     ");
         }
     }
 
@@ -100,13 +101,13 @@ GLuint glUtils::buildShader(string shaderFile,
     {
         if (shaderType == GL_FRAGMENT_SHADER)
         {
-            SLUtils::replaceString(source,
-                                   "gl_FragColor",
-                                   "fragColor");
-            SLUtils::replaceString(source,
+            Utils::replaceString(source,
+                                 "gl_FragColor",
+                                 "fragColor");
+            Utils::replaceString(source,
 
-                                   "void main",
-                                   "out vec4 fragColor; \n\nvoid main");
+                                 "void main",
+                                 "out vec4 fragColor; \n\nvoid main");
         }
     }
 
@@ -115,10 +116,10 @@ GLuint glUtils::buildShader(string shaderFile,
     {
         if (shaderType == GL_FRAGMENT_SHADER)
         {
-            SLUtils::replaceString(source, "texture1D", "texture");
-            SLUtils::replaceString(source, "texture2D", "texture");
-            SLUtils::replaceString(source, "texture3D", "texture");
-            SLUtils::replaceString(source, "textureCube", "texture");
+            Utils::replaceString(source, "texture1D", "texture");
+            Utils::replaceString(source, "texture2D", "texture");
+            Utils::replaceString(source, "texture3D", "texture");
+            Utils::replaceString(source, "textureCube", "texture");
         }
     }
 
@@ -336,7 +337,7 @@ GLuint glUtils::buildTexture(string textureFile,
                              GLint  wrapT)
 {
     // load texture image
-    SLCVImage img(textureFile);
+    CVImage img(std::move(textureFile));
 
     // check max. size
     GLint maxSize = 0;
@@ -399,10 +400,10 @@ GLuint glUtils::build3DTexture(const vector<string>&    files,
     glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &maxSize);
 
     //The checks takes up valuable runtime; only do it in debug builds
-    assert(files.size() > 0);
+    assert(!files.empty());
 
-    SLCVImage first(files.front());
-    if ((GLint)min(min((SLuint)files.size(), first.height()), first.width()) > maxSize)
+    CVImage first(files.front());
+    if ((GLint)std::min(std::min((SLuint)files.size(), first.height()), first.width()) > maxSize)
     {
         cout << "glUtils: Texture is too big in at least one dimension." << endl;
         exit(0);
@@ -413,7 +414,7 @@ GLuint glUtils::build3DTexture(const vector<string>&    files,
     unsigned char* imageData = &buffer[0]; //Concatenate the image data in a new buffer
     for (auto& file : files)
     {
-        SLCVImage image(file);
+        CVImage image(file);
         assert(image.height() == first.height());
         assert(image.width() == first.width());
         assert(image.format() == first.format());
@@ -529,32 +530,6 @@ void glUtils::getGLError(const char* file,
 #endif
 }
 //-----------------------------------------------------------------------------
-//! Returns a vector of sorted file names with path within a directory
-SLVstring
-glUtils::getFileNamesInDir(SLstring dirName)
-{
-    SLVstring      fileNames;
-    DIR*           dir;
-    struct dirent* dirContent;
-    int            i = 0;
-    dir              = opendir(dirName.c_str());
-
-    if (dir)
-    {
-        while ((dirContent = readdir(dir)) != nullptr)
-        {
-            i++;
-            //cout << sizeof(dirent) << endl;
-            //printf("%s",dirContent->d_name);
-            SLstring name(dirContent->d_name);
-            if (name != "." && name != "..")
-                fileNames.push_back(dirName + "/" + name);
-        }
-        closedir(dir);
-    }
-    return fileNames;
-}
-//-----------------------------------------------------------------------------
 //! Returns the OpenGL Shading Language version number as a string.
 /*! The string returned by glGetString can contain additional vendor
 information such as the build number and the brand name.
@@ -564,7 +539,7 @@ string
 glUtils::glSLVersionNO()
 {
     string versionStr = SLstring((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
-    size_t dotPos     = versionStr.find(".");
+    size_t dotPos     = versionStr.find('.');
     char   NO[4];
     NO[0] = versionStr[dotPos - 1];
     NO[1] = versionStr[dotPos + 1];

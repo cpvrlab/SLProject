@@ -2,7 +2,7 @@
 //  File:      SLRevolver.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -150,7 +150,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
         }
     }
 
-    assert(faces.size() > 0 && "SLRevolver::buildMesh: No faces defined!");
+    assert(!faces.empty() && "SLRevolver::buildMesh: No faces defined!");
 
     // calculate no. of faces (triangles) & allocate arrays
     SLuint i = 0;

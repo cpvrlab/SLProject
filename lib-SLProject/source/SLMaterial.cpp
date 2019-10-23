@@ -2,7 +2,7 @@
 //  File:      SLMaterial.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -27,21 +27,22 @@ SLMaterial* SLMaterial::_defaultGray   = nullptr;
 SLMaterial* SLMaterial::_diffuseAttrib = nullptr;
 //-----------------------------------------------------------------------------
 // Default ctor
-SLMaterial::SLMaterial(const SLchar* name,
-                       SLCol4f       amdi,
-                       SLCol4f       spec,
-                       SLfloat       shininess,
-                       SLfloat       kr,
-                       SLfloat       kt,
-                       SLfloat       kn) : SLObject(name)
+SLMaterial::SLMaterial(const SLchar*  name,
+                       const SLCol4f& amdi,
+                       const SLCol4f& spec,
+                       SLfloat        shininess,
+                       SLfloat        kr,
+                       SLfloat        kt,
+                       SLfloat        kn) : SLObject(name)
 {
     _ambient = _diffuse = amdi;
     _specular           = spec;
     _emissive.set(0, 0, 0, 0);
-    _shininess = shininess;
-    _roughness = 0.5f;
-    _metalness = 0.0f;
-    _program   = nullptr;
+    _shininess    = shininess;
+    _roughness    = 0.5f;
+    _metalness    = 0.0f;
+    _translucency = 0.0f;
+    _program      = nullptr;
 
     _kr = kr;
     _kt = kt;
@@ -67,9 +68,10 @@ SLMaterial::SLMaterial(const SLchar* name,
     _diffuse.set(1, 1, 1);
     _specular.set(1, 1, 1);
     _emissive.set(0, 0, 0, 0);
-    _shininess = 125;
-    _roughness = 0.5f;
-    _metalness = 0.0f;
+    _shininess    = 125;
+    _roughness    = 0.5f;
+    _metalness    = 0.0f;
+    _translucency = 0.0f;
 
     if (texture1) _textures.push_back(texture1);
     if (texture2) _textures.push_back(texture2);
@@ -88,10 +90,10 @@ SLMaterial::SLMaterial(const SLchar* name,
 }
 //-----------------------------------------------------------------------------
 // Ctor for Cook-Torrance shading
-SLMaterial::SLMaterial(const SLchar* name,
-                       SLCol4f       diffuse,
-                       SLfloat       roughness,
-                       SLfloat       metalness)
+SLMaterial::SLMaterial(const SLchar*  name,
+                       const SLCol4f& diffuse,
+                       SLfloat        roughness,
+                       SLfloat        metalness) : SLObject(name)
 {
     _ambient.set(0, 0, 0); // not used in Cook-Torrance
     _diffuse = diffuse;
@@ -110,7 +112,8 @@ SLMaterial::SLMaterial(const SLchar* name,
 }
 //-----------------------------------------------------------------------------
 // Ctor for uniform color material without lighting
-SLMaterial::SLMaterial(SLCol4f uniformColor, const SLchar* name)
+SLMaterial::SLMaterial(const SLCol4f& uniformColor, const SLchar* name)
+  : SLObject(name)
 {
     _ambient.set(0, 0, 0);
     _diffuse = uniformColor;
@@ -142,9 +145,10 @@ SLMaterial::~SLMaterial()
 SLMaterial::activate applies the material parameter to the global render state
 and activates the attached shader
 */
-void SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
+void SLMaterial::activate(SLDrawBits drawBits)
 {
-    SLScene* s = SLApplication::scene;
+    SLScene*   s       = SLApplication::scene;
+    SLGLState* stateGL = SLGLState::instance();
 
     // Deactivate shader program of the current active material
     if (current && current->program())
@@ -156,7 +160,7 @@ void SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
     // If no shader program is attached add the default shader program
     if (!_program)
     {
-        if (_textures.size() > 0)
+        if (!_textures.empty())
             program(s->programs(SP_perVrtBlinnTex));
         else
             program(s->programs(SP_perVrtBlinn));
@@ -170,21 +174,21 @@ void SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
     }
 
     // Set material in the state
-    state->matAmbient   = _ambient;
-    state->matDiffuse   = _diffuse;
-    state->matSpecular  = _specular;
-    state->matEmissive  = _emissive;
-    state->matShininess = _shininess;
-    state->matRoughness = _roughness;
-    state->matMetallic  = _metalness;
+    stateGL->matAmbient   = _ambient;
+    stateGL->matDiffuse   = _diffuse;
+    stateGL->matSpecular  = _specular;
+    stateGL->matEmissive  = _emissive;
+    stateGL->matShininess = _shininess;
+    stateGL->matRoughness = _roughness;
+    stateGL->matMetallic  = _metalness;
 
     // Determine use of shaders & textures
     SLbool useTexture = !drawBits.get(SL_DB_TEXOFF);
 
     // Enable or disable texturing
-    if (useTexture && _textures.size() > 0)
+    if (useTexture && !_textures.empty())
     {
-        for (SLuint i = 0; i < _textures.size(); ++i)
+        for (SLulong i = 0; i < _textures.size(); ++i)
             _textures[i]->bindActive((SLint)i);
     }
 

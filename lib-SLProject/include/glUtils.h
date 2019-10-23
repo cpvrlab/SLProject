@@ -26,11 +26,11 @@ class glUtils
     static void printGLInfo();
 
     //! Loads an GLSL-shader file and returns the code as a string
-    static string loadShader(string filename);
+    static string loadShader(const string& filename);
 
     //! Builds an GLSL-Shader object and returns the shader id
-    static GLuint buildShader(string shaderFile,
-                              GLenum shaderType);
+    static GLuint buildShader(const string& shaderFile,
+                              GLenum        shaderType);
 
     //! Builds an GLSL-Shader program and returns the program id
     static GLuint buildProgram(GLuint vertShaderID,
@@ -81,9 +81,6 @@ class glUtils
 
     //! Checks if an OpenGL error occurred
     static void getGLError(const char* file, int line, bool quit);
-
-    //! Returns a vector of sorted file names within a directory
-    static SLVstring getFileNamesInDir(SLstring dirName);
 
     //! Returns the GLSL version string
     static SLstring glSLVersionNO();

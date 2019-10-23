@@ -33,15 +33,15 @@ set(g2o_DIR)
 set(g2o_INCLUDE_DIR)
 set(g2o_LINK_DIR)
 set(g2o_LINK_LIBS
-        g2o_core
-        g2o_solver_dense
-        g2o_solver_eigen
-        g2o_stuff
-        g2o_types_sba
-        g2o_types_sim3
-        g2o_types_slam3d
-        g2o_types_slam3d_addons
-        )
+    g2o_core
+    g2o_solver_dense
+    g2o_solver_eigen
+    g2o_stuff
+    g2o_types_sba
+    g2o_types_sim3
+    g2o_types_slam3d
+    g2o_types_slam3d_addons
+    )
 
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
@@ -76,15 +76,14 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 
     if (NOT EXISTS "${OpenCV_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
+            "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-
-        if( NOT EXISTS "${OpenCV_DIR}" )
-            message( SEND_ERROR "Downloading Prebuilds failed! OpenCV prebuilds for version ${OpenCV_VERSION} do not extist! Build required version yourself to location ${OpenCV_DIR} using script in directory externals/prebuild_scipts or try another OpenCV version." )
-        endif()
+		
+		if( NOT EXISTS "${OpenCV_DIR}" )
+			message( SEND_ERROR "Downloading Prebuilds failed! OpenCV prebuilds for version ${OpenCV_VERSION} do not extist! Build required version yourself to location ${OpenCV_DIR} using script in directory externals/prebuild_scipts or try another OpenCV version." )
+		endif()
     endif ()
 
     string(REPLACE "." "" OpenCV_LIBS_POSTFIX ${OpenCV_VERSION})
@@ -112,7 +111,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
         file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-        file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
+		file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
 
     #G2O
@@ -123,47 +122,47 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     foreach(lib ${g2o_LINK_LIBS})
         add_library(${lib} SHARED IMPORTED)
         set_target_properties(${lib} PROPERTIES
-                IMPORTED_IMPLIB_DEBUG "${g2o_LINK_DIR}/${lib}_d.lib"
-                IMPORTED_IMPLIB "${g2o_LINK_DIR}/${lib}.lib"
-                IMPORTED_LOCATION_DEBUG "${g2o_LINK_DIR}/${lib}_d.dll"
-                IMPORTED_LOCATION "${g2o_LINK_DIR}/${lib}.dll"
-                INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
-                )
+            IMPORTED_IMPLIB_DEBUG "${g2o_LINK_DIR}/${lib}_d.lib"
+            IMPORTED_IMPLIB "${g2o_LINK_DIR}/${lib}.lib"
+            IMPORTED_LOCATION_DEBUG "${g2o_LINK_DIR}/${lib}_d.dll"
+            IMPORTED_LOCATION "${g2o_LINK_DIR}/${lib}.dll"
+            INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
+        )
         set(g2o_LIBS
-                ${g2o_LIBS}
-                ${lib}
-                )
+            ${g2o_LIBS}
+            ${lib}
+        )
     endforeach(lib)
-
+    
     set(g2o_PREBUILT_ZIP "win64_g2o.zip")
     set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
-
+      
     if (NOT EXISTS "${g2o_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
+            "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif()
 
     # For MSVS copy g2o dlls to working dir
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
-        foreach(lib ${g2o_LINK_LIBS})
-            file(GLOB g2o_dll_to_copy_debug
-                    ${g2o_dll_to_copy_debug}
-                    ${g2o_DIR}/bin/${lib}*d.dll
-                    )
-            file(GLOB g2o_dll_to_copy_release
-                    ${g2o_dll_to_copy_release}
-                    ${g2o_DIR}/bin/${lib}*.dll
-                    )
-        endforeach(lib)
+		foreach(lib ${g2o_LINK_LIBS})
+			file(GLOB g2o_dll_to_copy_debug
+				${g2o_dll_to_copy_debug}
+				${g2o_DIR}/bin/${lib}*d.dll
+				)
+			file(GLOB g2o_dll_to_copy_release
+				${g2o_dll_to_copy_release}
+				${g2o_DIR}/bin/${lib}*.dll
+				)
+		endforeach(lib)
 
         #message(STATUS "Copy g2o debug DLLs: ${g2o_dll_to_copy_debug}")
         file(COPY ${g2o_dll_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         #message(STATUS "Copy g2o release DLLs: ${g2o_dll_to_copy_release}")
         file(COPY ${g2o_dll_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-        file(COPY ${g2o_dll_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
+		file(COPY ${g2o_dll_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
@@ -181,8 +180,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
         message(STATUS "Download to: ${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
+            "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
     endif ()
 
@@ -205,8 +204,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
         message(STATUS "Download to: ${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
+            "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
     endif ()
 
@@ -234,7 +233,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     # Copy plist file with camera access description beside executable
     # This is needed for security purpose since MacOS Mohave
     set(MACOS_PLIST_FILE
-            ${SL_PROJECT_ROOT}/data/config/info.plist)
+        ${SL_PROJECT_ROOT}/data/config/info.plist)
+
     #message(STATUS "MACOS_PLIST_FILE: ${MACOS_PLIST_FILE}")
     #message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
     if(${CMAKE_GENERATOR} STREQUAL Xcode)
@@ -258,8 +258,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     if (NOT EXISTS "${g2o_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
+            "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif ()
 
@@ -268,11 +268,11 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
         set_target_properties(lib${lib} PROPERTIES IMPORTED_LOCATION "${g2o_LINK_DIR}/lib${lib}.dylib")
         #message(STATUS "IMPORTED_LOCATION: ${g2o_LINK_DIR}/lib${lib}.dylib")
         set(g2o_LIBS
-                ${g2o_LIBS}
-                lib${lib}
-                #optimized ${lib}
-                #debug ${lib}
-                )
+            ${g2o_LIBS}
+            lib${lib}
+            #optimized ${lib}
+            #debug ${lib}
+            )
     endforeach(lib)
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
@@ -286,33 +286,33 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
     if (NOT EXISTS "${OpenCV_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
+            "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
     endif ()
 
     set(OpenCV_LINK_LIBS
-            ${OpenCV_LINK_LIBS}
-            cpufeatures
-            IlmImf
-            libjasper
-            libpng
-            libprotobuf
-            libtiff
-            libwebp
-            tegra_hal)
+        ${OpenCV_LINK_LIBS}
+        cpufeatures
+        IlmImf
+        libjasper
+        libpng
+        libprotobuf
+        libtiff
+        libwebp
+        tegra_hal)
 
     # new link libraries for opencv 4
     if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
         set(OpenCV_LINK_LIBS
-                ${OpenCV_LINK_LIBS}
-                ittnotify
-                libjpeg-turbo
-                quirc)
+            ${OpenCV_LINK_LIBS}
+            ittnotify
+            libjpeg-turbo
+            quirc)
     else()
         set(OpenCV_LINK_LIBS
-                ${OpenCV_LINK_LIBS}
-                libjpeg)
+            ${OpenCV_LINK_LIBS}
+            libjpeg)
     endif()
 
     foreach(lib ${OpenCV_LINK_LIBS})
@@ -335,20 +335,20 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
     if (NOT EXISTS "${g2o_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
+            "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif ()
 
     foreach(lib ${g2o_LINK_LIBS})
         add_library(lib_${lib} SHARED IMPORTED)
         set_target_properties(lib_${lib} PROPERTIES
-                IMPORTED_LOCATION "${g2o_LINK_DIR}/lib${lib}.so"
-                )
+            IMPORTED_LOCATION "${g2o_LINK_DIR}/lib${lib}.so"
+        )
         set(g2o_LIBS
-                ${g2o_LIBS}
-                lib_${lib}
-                )
+            ${g2o_LIBS}
+            lib_${lib}
+        )
     endforeach(lib)
 endif()
 #==============================================================================

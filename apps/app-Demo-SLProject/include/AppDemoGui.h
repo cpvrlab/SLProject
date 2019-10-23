@@ -2,7 +2,7 @@
 //  File:      AppDemoGui.h
 //  Author:    Marcus Hudritsch
 //  Date:      Summer 2017
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -39,27 +39,27 @@ class AppDemoGui
     static void loadConfig(SLint dotsPerInch);
     static void saveConfig();
 
-    static SLGLTexture* cpvrLogo;            //!< cpvr logo texture image
-    static SLstring     configTime;          //!< Time of stored configuration
-    static SLstring     infoAbout;           //!< About info string
-    static SLstring     infoCredits;         //!< Credits info string
-    static SLstring     infoHelp;            //!< Help info string
-    static SLstring     infoCalibrate;       //!< Calibration info string
-    static SLbool       showAbout;           //!< Flag if about info should be shown
-    static SLbool       showHelp;            //!< Flag if help info should be shown
-    static SLbool       showHelpCalibration; //!< Flag if calibration info should be shown
-    static SLbool       showCredits;         //!< Flag if credits info should be shown
-    static SLbool       showStatsTiming;     //!< Flag if timing info should be shown
-    static SLbool       showStatsScene;      //!< Flag if scene info should be shown
-    static SLbool       showStatsVideo;      //!< Flag if video info should be shown
-    static SLbool       showInfosSensors;    //!< Flag if device sensors info should be shown
-    static SLbool       showInfosFrameworks; //!< Flag if frameworks info should be shown
-    static SLbool       showInfosScene;      //!< Flag if scene info should be shown
-    static SLbool       showSceneGraph;      //!< Flag if scene graph should be shown
-    static SLbool       showProperties;      //!< Flag if properties should be shown
-    static SLbool       showChristoffel;     //!< Flag if Christoffel infos should be shown
-    static SLbool       showUIPrefs;         //!< Flag if UI preferences
-    static SLbool       showTransform;       //!< Flag if tranform dialog should be shown
+    static SLstring configTime;          //!< Time of stored configuration
+    static SLstring infoAbout;           //!< About info string
+    static SLstring infoCredits;         //!< Credits info string
+    static SLstring infoHelp;            //!< Help info string
+    static SLstring infoCalibrate;       //!< Calibration info string
+    static SLbool   showProgress;        //!< Flag if about info should be shown
+    static SLbool   showAbout;           //!< Flag if about info should be shown
+    static SLbool   showHelp;            //!< Flag if help info should be shown
+    static SLbool   showHelpCalibration; //!< Flag if calibration info should be shown
+    static SLbool   showCredits;         //!< Flag if credits info should be shown
+    static SLbool   showStatsTiming;     //!< Flag if timing info should be shown
+    static SLbool   showStatsScene;      //!< Flag if scene info should be shown
+    static SLbool   showStatsVideo;      //!< Flag if video info should be shown
+    static SLbool   showInfosSensors;    //!< Flag if device sensors info should be shown
+    static SLbool   showInfosDevice;     //!< Flag if device info should be shown
+    static SLbool   showInfosScene;      //!< Flag if scene info should be shown
+    static SLbool   showSceneGraph;      //!< Flag if scene graph should be shown
+    static SLbool   showProperties;      //!< Flag if properties should be shown
+    static SLbool   showChristoffel;     //!< Flag if Christoffel infos should be shown
+    static SLbool   showUIPrefs;         //!< Flag if UI preferences
+    static SLbool   showTransform;       //!< Flag if tranform dialog should be shown
 };
 //-----------------------------------------------------------------------------
 #endif

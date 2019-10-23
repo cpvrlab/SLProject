@@ -2,7 +2,7 @@
 //  File:      SLSkeleton.cpp
 //  Author:    Marc Wacker
 //  Date:      Autumn 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -214,13 +214,13 @@ void SLSkeleton::updateMinMax()
         }
         else
         {
-            _minOS.x = min(_minOS.x, curMin.x);
-            _minOS.y = min(_minOS.y, curMin.y);
-            _minOS.z = min(_minOS.z, curMin.z);
+            _minOS.x = std::min(_minOS.x, curMin.x);
+            _minOS.y = std::min(_minOS.y, curMin.y);
+            _minOS.z = std::min(_minOS.z, curMin.z);
 
-            _maxOS.x = max(_maxOS.x, curMax.x);
-            _maxOS.y = max(_maxOS.y, curMax.y);
-            _maxOS.z = max(_maxOS.z, curMax.z);
+            _maxOS.x = std::max(_maxOS.x, curMax.x);
+            _maxOS.y = std::max(_maxOS.y, curMax.y);
+            _maxOS.z = std::max(_maxOS.z, curMax.z);
         }
     }
     _minMaxOutOfDate = false;

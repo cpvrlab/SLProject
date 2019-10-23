@@ -2,7 +2,7 @@
 //  File:      SLBackground.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      August 2015
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -21,10 +21,6 @@
 #include <SLScene.h>
 
 //-----------------------------------------------------------------------------
-SLBackground::~SLBackground()
-{
-}
-//-----------------------------------------------------------------------------
 //! The constructor initializes to a uniform black background color
 SLBackground::SLBackground() : SLObject("Background")
 {
@@ -34,13 +30,13 @@ SLBackground::SLBackground() : SLObject("Background")
     _colors.push_back(SLCol4f::BLACK); // top left
     _isUniform    = true;
     _texture      = nullptr;
-    _textureError = SLApplication::scene->videoTextureErr(); // Fix for black video error
+    _textureError = nullptr;
     _resX         = -1;
     _resY         = -1;
 }
 //-----------------------------------------------------------------------------
 //! Sets a uniform background color
-void SLBackground::colors(SLCol4f uniformColor)
+void SLBackground::colors(const SLCol4f& uniformColor)
 {
     _colors[0].set(uniformColor);
     _colors[1].set(uniformColor);
@@ -52,7 +48,8 @@ void SLBackground::colors(SLCol4f uniformColor)
 }
 //-----------------------------------------------------------------------------
 //! Sets a gradient top-down background color
-void SLBackground::colors(SLCol4f topColor, SLCol4f bottomColor)
+void SLBackground::colors(const SLCol4f& topColor,
+                          const SLCol4f& bottomColor)
 {
     _colors[0].set(topColor);
     _colors[1].set(bottomColor);
@@ -64,10 +61,10 @@ void SLBackground::colors(SLCol4f topColor, SLCol4f bottomColor)
 }
 //-----------------------------------------------------------------------------
 //! Sets a gradient background color with a color per corner
-void SLBackground::colors(SLCol4f topLeftColor,
-                          SLCol4f bottomLeftColor,
-                          SLCol4f topRightColor,
-                          SLCol4f bottomRightColor)
+void SLBackground::colors(const SLCol4f& topLeftColor,
+                          const SLCol4f& bottomLeftColor,
+                          const SLCol4f& topRightColor,
+                          const SLCol4f& bottomRightColor)
 {
     _colors[0].set(topLeftColor);
     _colors[1].set(bottomLeftColor);
@@ -112,7 +109,7 @@ We render the quad as a triangle strip: <br>
 */
 void SLBackground::render(SLint widthPX, SLint heightPX)
 {
-    SLGLState* stateGL = SLGLState::getInstance();
+    SLGLState* stateGL = SLGLState::instance();
     SLScene*   s       = SLApplication::scene;
 
     // Set orthographic projection
@@ -169,11 +166,8 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
 
     // draw a textured or colored quad
     if (_texture)
-    { // if video texture is not ready show error texture
-        if (_texture->texName())
-            _texture->bindActive(0);
-        else
-            _textureError->bindActive(0);
+    {
+        _texture->bindActive(0);
         sp->uniform1i("u_texture0", 0);
     }
 
@@ -194,9 +188,12 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
        +-----+
      LB       RB
 */
-void SLBackground::renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB)
+void SLBackground::renderInScene(SLVec3f LT,
+                                 SLVec3f LB,
+                                 SLVec3f RT,
+                                 SLVec3f RB)
 {
-    SLGLState* stateGL = SLGLState::getInstance();
+    SLGLState* stateGL = SLGLState::instance();
     SLScene*   s       = SLApplication::scene;
 
     // Get shader program
@@ -235,11 +232,8 @@ void SLBackground::renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB)
 
     // draw a textured or colored quad
     if (_texture)
-    { // if video texture is not ready show error texture
-        if (_texture->texName())
-            _texture->bindActive(0);
-        else
-            _textureError->bindActive(0);
+    {
+        _texture->bindActive(0);
         sp->uniform1i("u_texture0", 0);
     }
 
@@ -287,12 +281,12 @@ SLCol4f SLBackground::colorAtPos(SLfloat x, SLfloat y)
     // Quadrilateral interpolation
     // First check with barycentric coords if p is in the upper left triangle
     SLVec2f p(x, y);
-    SLVec3f bc = p.barycentricCoords(SLVec2f(0, 0),
-                                     SLVec2f((SLfloat)_resX, (SLfloat)_resY),
-                                     SLVec2f(0, (SLfloat)_resY));
-    SLfloat u  = bc.x;
-    SLfloat v  = bc.y;
-    SLfloat w  = 1 - bc.x - bc.y;
+    SLVec3f bc(p.barycentricCoords(SLVec2f(0, 0),
+                                   SLVec2f((SLfloat)_resX, (SLfloat)_resY),
+                                   SLVec2f(0, (SLfloat)_resY)));
+    SLfloat u = bc.x;
+    SLfloat v = bc.y;
+    SLfloat w = 1 - bc.x - bc.y;
 
     SLCol4f color;
 

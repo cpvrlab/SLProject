@@ -2,7 +2,7 @@
 //  File:      math/SLCurveBezier.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -65,7 +65,7 @@ void SLCurveBezier::init(const SLVVec4f& points,
         _points[i] = points[i];
     }
 
-    if (controlPoints.size() == 0)
+    if (controlPoints.empty())
     {
         if (points.size() > 2)
         { // create approximating control points
@@ -157,7 +157,7 @@ void SLCurveBezier::draw(const SLMat4f& wm)
     if (!_vao.id()) return;
 
     // Set the view transform
-    SLGLState* stateGL = SLGLState::getInstance();
+    SLGLState* stateGL = SLGLState::instance();
     stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
     SLint numTangentPoints = numControlPoints * 2;
@@ -174,7 +174,7 @@ void SLCurveBezier::draw(const SLMat4f& wm)
                             (SLuint)numCurvePoints);
 
 // ES2 has often problems with rendering points
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     // Draw curve as a line strip through interpolated points
     _vao.drawArrayAsColored(PT_points,
                             SLCol4f::RED,
@@ -342,11 +342,11 @@ SLfloat SLCurveBezier::findParamByDist(SLfloat t1, SLfloat s)
     {
         // compute function value and test against zero
         SLfloat func = arcLength(t1, p) - s;
-        if (SL_abs(func) < 1.0e-03f) return p;
+        if (Utils::abs(func) < 1.0e-03f) return p;
 
         // perform Newton-Raphson iteration step
         SLfloat speed = velocity(p).length();
-        assert(SL_abs(speed) > FLT_EPSILON);
+        assert(Utils::abs(speed) > FLT_EPSILON);
         p -= func / speed;
     }
 
@@ -475,7 +475,7 @@ void SLCurveBezier::subdivideRender(SLVVec3f&      renderPoints,
                                     const SLVec3f& P3)
 {
     // add first point transformed by wm if not already in the list
-    if (renderPoints.size() == 0)
+    if (renderPoints.empty())
         renderPoints.push_back(wm.multVec(P0));
     else if (P0 != renderPoints.back())
         renderPoints.push_back(wm.multVec(P0));

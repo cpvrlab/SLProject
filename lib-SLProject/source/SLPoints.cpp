@@ -2,7 +2,7 @@
 //  File:      SLPoints.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -18,9 +18,9 @@
 
 //-----------------------------------------------------------------------------
 //! SLPoints ctor with a given vector of points
-SLPoints::SLPoints(SLVVec3f&   points,
-                   SLstring    name,
-                   SLMaterial* material) : SLMesh(name)
+SLPoints::SLPoints(const SLVVec3f& points,
+                   SLstring        name,
+                   SLMaterial*     material) : SLMesh(name)
 {
     assert(name != "");
 
@@ -30,6 +30,27 @@ SLPoints::SLPoints(SLVVec3f&   points,
         SL_EXIT_MSG("SLPoints supports max. 2^32 vertices.");
 
     P = points;
+
+    mat(material);
+}
+//-----------------------------------------------------------------------------
+//! SLPoints ctor with a givven vector of points
+SLPoints::SLPoints(const SLVVec3f& points,
+                   const SLVVec3f& normals,
+                   SLstring        name,
+                   SLMaterial*     material) : SLMesh(name)
+{
+    assert(name != "");
+
+    _primitive = PT_points;
+
+    if (points.size() > UINT_MAX)
+        SL_EXIT_MSG("SLPoints supports max. 2^32 vertices.");
+    if (points.size() != normals.size())
+        SL_EXIT_MSG("SLPoints: diffent size of points and normals vector.");
+
+    P = points;
+    N = normals;
 
     mat(material);
 }

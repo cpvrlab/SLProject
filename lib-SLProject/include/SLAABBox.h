@@ -2,7 +2,7 @@
 //  File:      SLAABBox.h
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -15,7 +15,6 @@
 #include <SLMat4.h>
 
 class SLRay;
-class SLScene;
 
 //-----------------------------------------------------------------------------
 //! Defines an axis aligned bounding box
@@ -35,13 +34,12 @@ class SLAABBox
 {
     public:
     SLAABBox();
-    ~SLAABBox() { ; }
 
     // Setters
-    void minWS(SLVec3f minC) { _minWS = minC; }
-    void maxWS(SLVec3f maxC) { _maxWS = maxC; }
-    void minOS(SLVec3f minC) { _minOS = minC; }
-    void maxOS(SLVec3f maxC) { _maxOS = maxC; }
+    void minWS(const SLVec3f& minC) { _minWS = minC; }
+    void maxWS(const SLVec3f& maxC) { _maxWS = maxC; }
+    void minOS(const SLVec3f& minC) { _minOS = minC; }
+    void maxOS(const SLVec3f& maxC) { _maxOS = maxC; }
 
     void isVisible(SLbool visible) { _isVisible = visible; }
     void hasAlpha(SLbool transp) { _hasAlpha = transp; }
@@ -70,10 +68,10 @@ class SLAABBox
                       const SLMat4f& wmI);
     void   updateAxisWS(const SLMat4f& wm);
     void   updateBoneWS(const SLMat4f& parentWM,
-                        const SLbool   isRoot,
+                        SLbool         isRoot,
                         const SLMat4f& nodeWM);
     void   mergeWS(SLAABBox& bb);
-    void   drawWS(const SLCol4f color);
+    void   drawWS(SLCol4f color);
     void   drawAxisWS();
     void   drawBoneWS();
     void   setCenterAndRadius();

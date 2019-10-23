@@ -2,7 +2,7 @@
 //  File:      math/Math/SLVec4.h
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -14,6 +14,7 @@
 #include <SL.h>
 #include <SLVec2.h>
 #include <SLVec3.h>
+#include <Utils.h>
 
 //-----------------------------------------------------------------------------
 //! 4D vector template class for standard 4D vector algebra.
@@ -120,13 +121,13 @@ class SLVec4
                                                          y = (y>max)?max : (y<min)?min : y;
                                                          z = (z>max)?max : (z<min)?min : z;
                                                          w = 1;}
-    inline T        diff        (const SLVec4& v)       {return SL_abs(x-v.x) + 
-                                                                    SL_abs(y-v.y) + 
-                                                                    SL_abs(z-v.z) + 
-                                                                    SL_abs(w-v.w);}
-    inline T        diffRGB     (const SLVec4& v)       {return SL_abs(x-v.x) + 
-                                                                    SL_abs(y-v.y) + 
-                                                                    SL_abs(z-v.z);}
+    inline T        diff        (const SLVec4& v)       {return Utils::abs(x-v.x) +
+                                                                    Utils::abs(y-v.y) +
+                                                                    Utils::abs(z-v.z) +
+                                                                    Utils::abs(w-v.w);}
+    inline T        diffRGB     (const SLVec4& v)       {return Utils::abs(x-v.x) +
+                                                                    Utils::abs(y-v.y) +
+                                                                    Utils::abs(z-v.z);}
     inline void     mix         (const SLVec4& a,
                                  const SLVec4& b,
                                  const T factor_b)      {T factor_a = 1-factor_b;
@@ -170,16 +171,16 @@ class SLVec4
 
             //! Conversion to string
             SLstring toString   (SLstring delimiter=", ")
-             {   return SLUtils::toString(x) + delimiter +
-                        SLUtils::toString(y) + delimiter +
-                        SLUtils::toString(z) + delimiter +
-                        SLUtils::toString(w);
+             {   return Utils::toString(x) + delimiter +
+                        Utils::toString(y) + delimiter +
+                        Utils::toString(z) + delimiter +
+                        Utils::toString(w);
              }
 
             //! Conversion from string
             void    fromString  (SLstring fourFloatsWithDelimiter, SLchar delimiter=',')
             {   SLVstring components;
-                SLUtils::split(fourFloatsWithDelimiter, delimiter, components);
+                Utils::splitString(fourFloatsWithDelimiter, delimiter, components);
                 float f[4] = {0.0, 0.0f, 0.0f, 1.0f};
                 for (SLuint i=0; i<components.size(); ++i)
                     f[i] = (SLfloat)atof(components[i].c_str());
@@ -189,16 +190,16 @@ class SLVec4
             //! HSVA to RGBA color conversion (http://www.rapidtables.com/convert/color/hsv-to-rgb.htm)
             void    hsva2rgba   (const SLVec4 &hsva)
             {
-                T h = fmod(fmod(hsva.x, SL_2PI) + SL_2PI, SL_2PI); // 0 deg <= H <= 360 deg
-                T s = SL_clamp(hsva.y, 0.0f, 1.0f);
-                T v = SL_clamp(hsva.z, 0.0f, 1.0f);
-                T a = SL_clamp(hsva.w, 0.0f, 1.0f);
+                T h = fmod(fmod(hsva.x, Utils::TWOPI) + Utils::TWOPI, Utils::TWOPI); // 0 deg <= H <= 360 deg
+                T s = Utils::clamp(hsva.y, 0.0f, 1.0f);
+                T v = Utils::clamp(hsva.z, 0.0f, 1.0f);
+                T a = Utils::clamp(hsva.w, 0.0f, 1.0f);
 
                 T c = v * s;
                 T x = c * (1.0f - (T)fabs((T)fmod(h*3.0f / M_PI, 2.0f) - 1.0f));
                 T m = v - c;
 
-                switch (SLint(floor(h*3.0f / SL_PI)))
+                switch (SLint(floor(h*3.0f * Utils::ONEOVERPI)))
                 {   case 0: return set(m + c, m + x, m    , a); // [  0 deg, 60 deg]
                     case 1: return set(m + x, m + c, m    , a); // [ 60 deg,120 deg]
                     case 2: return set(m    , m + c, m + x, a); // [120 deg,180 deg]

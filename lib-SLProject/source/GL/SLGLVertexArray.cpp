@@ -3,7 +3,7 @@
 //  Purpose:   Wrapper around an OpenGL Vertex Array Objects
 //  Author:    Marcus Hudritsch
 //  Date:      January 2016
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -27,7 +27,7 @@ SLuint SLGLVertexArray::totalDrawCalls = 0;
 */
 SLGLVertexArray::SLGLVertexArray()
 {
-    _hasGL3orGreater = SLGLState::getInstance()->glVersionNOf() >= 3.0f;
+    _hasGL3orGreater = SLGLState::instance()->glVersionNOf() >= 3.0f;
     _idVAO           = 0;
 
     _VBOf.dataType(BT_float);
@@ -42,7 +42,7 @@ The vector _attribs with the attribute information is not cleared.
 */
 void SLGLVertexArray::deleteGL()
 {
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_hasGL3orGreater && _idVAO)
     {
         glDeleteVertexArrays(1, &_idVAO);
@@ -64,7 +64,7 @@ void SLGLVertexArray::deleteGL()
 // Returns the vertex array object id
 SLint SLGLVertexArray::id()
 {
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     return _hasGL3orGreater ? (SLint)_idVAO : (SLint)_VBOf.id();
 #else
     return _VBOf.id();
@@ -142,7 +142,7 @@ void SLGLVertexArray::updateAttrib(SLGLAttributeType type,
     if (indexf == -1)
         SL_EXIT_MSG("Attribute type does not exist in VAO.");
 
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_hasGL3orGreater)
     {
         if (!_idVAO)
@@ -155,7 +155,7 @@ void SLGLVertexArray::updateAttrib(SLGLAttributeType type,
     if (indexf > -1)
         _VBOf.updateAttrib(type, elementSize, dataPointer);
 
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_hasGL3orGreater)
         glBindVertexArray(0);
 #endif
@@ -205,7 +205,7 @@ void SLGLVertexArray::generate(SLuint          numVertices,
     _numVertices = numVertices;
 
 // Generate and bind VAO
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_hasGL3orGreater)
     {
         glGenVertexArrays(1, &_idVAO);
@@ -238,7 +238,7 @@ void SLGLVertexArray::generate(SLuint          numVertices,
         SLGLVertexBuffer::totalBufferSize += _numIndices * (SLuint)typeSize;
     }
 
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_hasGL3orGreater)
         glBindVertexArray(0);
 #endif
@@ -260,7 +260,7 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
     // From OpenGL 3.0 on we have the OpenGL Vertex Arrays
     // Binding the VAO saves all the commands after the else (per draw call!)
 
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_hasGL3orGreater)
     {
         glBindVertexArray(_idVAO);
@@ -292,7 +292,7 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
     GET_GL_ERROR;
     totalDrawCalls++;
 
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_hasGL3orGreater)
         glBindVertexArray(0);
 #else
@@ -313,7 +313,7 @@ void SLGLVertexArray::drawArrayAs(SLGLPrimitiveType primitiveType,
 {
     assert((_VBOf.id()) && "No VBO generated for VAO.");
 
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_hasGL3orGreater)
         glBindVertexArray(_idVAO);
 #else
@@ -329,7 +329,7 @@ void SLGLVertexArray::drawArrayAs(SLGLPrimitiveType primitiveType,
 
     totalDrawCalls++;
 
-#ifndef SL_GLES2
+#ifndef APP_USES_GLES
     if (_hasGL3orGreater)
         glBindVertexArray(0);
 #else

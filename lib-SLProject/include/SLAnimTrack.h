@@ -2,7 +2,7 @@
 //  File:      SLAnimTrack.h
 //  Author:    Marc Wacker
 //  Date:      Autumn 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -14,7 +14,7 @@
 #include <map>
 
 #include <SLEnums.h>
-#include <SLKeyframe.h>
+#include <SLAnimKeyframe.h>
 
 class SLNode;
 class SLAnimation;
@@ -35,22 +35,22 @@ class SLAnimTrack
     SLAnimTrack(SLAnimation* parent);
     virtual ~SLAnimTrack();
 
-    SLKeyframe*  createKeyframe(SLfloat time); // create and add a new keyframe
+    SLAnimKeyframe*  createKeyframe(SLfloat time); // create and add a new keyframe
     SLfloat      getKeyframesAtTime(SLfloat      time,
-                                    SLKeyframe** k1,
-                                    SLKeyframe** k2) const;
+                                    SLAnimKeyframe** k1,
+                                    SLAnimKeyframe** k2) const;
     virtual void calcInterpolatedKeyframe(SLfloat     time,
-                                          SLKeyframe* keyframe) const = 0; // we need a way to get an output value for a time we put in
+                                          SLAnimKeyframe* keyframe) const = 0; // we need a way to get an output value for a time we put in
     virtual void apply(SLfloat time,
                        SLfloat weight = 1.0f,
                        SLfloat scale  = 1.0f)                          = 0;
     virtual void drawVisuals(SLSceneView* sv)                         = 0;
     SLint        numKeyframes() const { return (SLint)_keyframes.size(); }
-    SLKeyframe*  keyframe(SLint index);
+    SLAnimKeyframe*  keyframe(SLint index);
 
     protected:
     /// Keyframe creator function for derived implementations
-    virtual SLKeyframe* createKeyframeImpl(SLfloat time) = 0;
+    virtual SLAnimKeyframe* createKeyframeImpl(SLfloat time) = 0;
 
     SLAnimation* _animation; //!< parent animation that created this track
     SLVKeyframe  _keyframes; //!< keyframe list for this track
@@ -74,7 +74,7 @@ class SLNodeAnimTrack : public SLAnimTrack
     void    animatedNode(SLNode* target) { _animatedNode = target; }
     SLNode* animatedNode() { return _animatedNode; }
 
-    virtual void calcInterpolatedKeyframe(SLfloat time, SLKeyframe* keyframe) const;
+    virtual void calcInterpolatedKeyframe(SLfloat time, SLAnimKeyframe* keyframe) const;
     virtual void apply(SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
     virtual void applyToNode(SLNode* node, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
     virtual void drawVisuals(SLSceneView* sv);
@@ -84,7 +84,7 @@ class SLNodeAnimTrack : public SLAnimTrack
 
     protected:
     void                buildInterpolationCurve() const;
-    virtual SLKeyframe* createKeyframeImpl(SLfloat time);
+    virtual SLAnimKeyframe* createKeyframeImpl(SLfloat time);
 
     SLNode*             _animatedNode;              //!< the target node for this track_nodeID
     mutable SLCurve*    _interpolationCurve;        //!< the translation interpolation curve

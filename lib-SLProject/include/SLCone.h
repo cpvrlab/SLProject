@@ -2,7 +2,7 @@
 //  File:      SLCone.h
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -25,18 +25,15 @@ class SLCone : public SLRevolver
            SLbool      hasBottom = true,
            SLstring    name      = "cone mesh",
            SLMaterial* mat       = nullptr);
-    ~SLCone() { ; }
 
     // Getters
     SLfloat radius() { return _radius; }
     SLfloat height() { return _height; }
-    SLuint  stacks() { return _stacks; }
     SLbool  hasBottom() { return _hasBottom; }
 
     protected:
     SLfloat _radius;    //!< radius of cone
     SLfloat _height;    //!< height of cone
-    SLuint  _stacks;    //!< No. of stacks of cone
     SLbool  _hasBottom; //!< Flag if cone has a bottom
 };
 //-----------------------------------------------------------------------------

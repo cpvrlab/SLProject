@@ -2,7 +2,7 @@
 //  File:      SLSkybox
 //  Author:    Marcus Hudritsch
 //  Date:      December 2017
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -37,7 +37,7 @@ class SLSkybox : public SLNode
              SLstring name = "Default Skybox");
     ~SLSkybox() { ; }
 
-    SLCol4f colorAtDir(SLVec3f dir);
+    SLCol4f colorAtDir(const SLVec3f& dir);
 
     void drawAroundCamera(SLSceneView* sv);
 };

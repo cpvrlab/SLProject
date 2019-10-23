@@ -4,7 +4,7 @@
 //             See also: https://github.com/ocornut/imgui
 //  Author:    Marcus Hudritsch
 //  Date:      October 2015
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -17,6 +17,7 @@
 #endif
 
 #include <SLApplication.h>
+#include <SLSceneView.h>
 #include <SLGLImGui.h>
 #include <SLScene.h>
 
@@ -97,7 +98,7 @@ void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
 
     // Load proportional font for menue and text displays
     SLstring DroidSans = SLGLTexture::defaultPathFonts + "DroidSans.ttf";
-    if (SLFileSystem::fileExists(DroidSans))
+    if (Utils::fileExists(DroidSans))
     {
         io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
         SL_LOG("SLGLImGui::loadFonts: %f\n", fontPropDots);
@@ -107,7 +108,7 @@ void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
 
     // Load fixed size font for statistics windows
     SLstring ProggyClean = SLGLTexture::defaultPathFonts + "ProggyClean.ttf";
-    if (SLFileSystem::fileExists(ProggyClean))
+    if (Utils::fileExists(ProggyClean))
     {
         io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
         SL_LOG("SLGLImGui::loadFonts: %f\n", fontFixedDots);
@@ -129,7 +130,7 @@ void SLGLImGui::createOpenGLObjects()
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
 
     // Build version string as the first statement
-    SLGLState* state         = SLGLState::getInstance();
+    SLGLState* state         = SLGLState::instance();
     SLstring   verGLSL       = state->glSLVersionNO();
     SLstring   vertex_shader = "#version " + verGLSL;
     if (state->glIsES3()) vertex_shader += " es";
@@ -330,7 +331,7 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
     ImGuiIO& io = ImGui::GetIO();
 
     // Setup time step
-    SLfloat nowSec = SLApplication::scene->timeSec();
+    SLfloat nowSec = SLApplication::timeS();
     io.DeltaTime   = _timeSec > 0.0 ? nowSec - _timeSec : 1.0f / 60.0f;
     if (io.DeltaTime < 0) io.DeltaTime = 1.0f / 60.0f;
     _timeSec = nowSec;
@@ -359,7 +360,7 @@ void SLGLImGui::onResize(SLint scrW, SLint scrH)
 }
 //-----------------------------------------------------------------------------
 //! Callback for main rendering for the ImGui GUI system
-void SLGLImGui::onPaint(ImDrawData* draw_data)
+void SLGLImGui::onPaint(ImDrawData* draw_data, const SLRecti& viewportRect)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -416,15 +417,25 @@ void SLGLImGui::onPaint(ImDrawData* draw_data)
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_SCISSOR_TEST);
 
-    // Setup viewport, orthographic projection matrix
-    glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
+    // Setup viewport
+    if (viewportRect.isEmpty())
+        glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
+    else
+        glViewport((GLsizei)viewportRect.x,
+                   (GLsizei)viewportRect.y,
+                   (GLsizei)viewportRect.width,
+                   (GLsizei)viewportRect.height);
+
+    // Setup orthographic projection matrix
+    // clang-format off
     const float ortho_projection[4][4] =
-      {
-        {2.0f / io.DisplaySize.x, 0.0f, 0.0f, 0.0f},
-        {0.0f, 2.0f / -io.DisplaySize.y, 0.0f, 0.0f},
-        {0.0f, 0.0f, -1.0f, 0.0f},
-        {-1.0f, 1.0f, 0.0f, 1.0f},
-      };
+    {
+        {2.0f / io.DisplaySize.x, 0.0f,                     0.0f, 0.0f},
+        {0.0f,                    2.0f / -io.DisplaySize.y, 0.0f, 0.0f},
+        {0.0f,                    0.0f,                    -1.0f, 0.0f},
+        {-1.0f,                   1.0f,                     0.0f, 1.0f},
+    };
+    // clang-format on
 
     glUseProgram((SLuint)_progHandle);
     glUniform1i(_attribLocTex, 0);
@@ -458,10 +469,18 @@ void SLGLImGui::onPaint(ImDrawData* draw_data)
             else
             {
                 glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
-                glScissor((int)pcmd->ClipRect.x,
-                          (int)(fb_height - pcmd->ClipRect.w),
-                          (int)(pcmd->ClipRect.z - pcmd->ClipRect.x),
-                          (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+
+                if (viewportRect.isEmpty())
+                    glScissor((int)pcmd->ClipRect.x,
+                              (int)(fb_height - pcmd->ClipRect.w),
+                              (int)(pcmd->ClipRect.z - pcmd->ClipRect.x),
+                              (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+                else
+                    glScissor((GLsizei)viewportRect.x,
+                              (GLsizei)viewportRect.y,
+                              (GLsizei)viewportRect.width,
+                              (GLsizei)viewportRect.height);
+
                 glDrawElements(GL_TRIANGLES,
                                (GLsizei)pcmd->ElemCount,
                                sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT,
@@ -488,22 +507,27 @@ void SLGLImGui::onPaint(ImDrawData* draw_data)
         glEnable(GL_BLEND);
     else
         glDisable(GL_BLEND);
+
     if (last_enable_cull_face)
         glEnable(GL_CULL_FACE);
     else
         glDisable(GL_CULL_FACE);
+
     if (last_enable_depth_test)
         glEnable(GL_DEPTH_TEST);
     else
         glDisable(GL_DEPTH_TEST);
+
     if (last_enable_scissor_test)
         glEnable(GL_SCISSOR_TEST);
     else
         glDisable(GL_SCISSOR_TEST);
+
     glViewport(last_viewport[0],
                last_viewport[1],
                (GLsizei)last_viewport[2],
                (GLsizei)last_viewport[3]);
+
     glScissor(last_scissor_box[0],
               last_scissor_box[1],
               (GLsizei)last_scissor_box[2],
@@ -590,7 +614,7 @@ void SLGLImGui::renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLin
         ImGui::GetIO().MousePos = ImVec2((SLfloat)mouseX, (SLfloat)mouseY);
         onInitNewFrame(s, sv);
         ImGui::Render();
-        onPaint(ImGui::GetDrawData());
+        onPaint(ImGui::GetDrawData(), sv->viewportRect());
     }
 }
 //-----------------------------------------------------------------------------

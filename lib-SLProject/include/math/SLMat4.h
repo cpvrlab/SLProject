@@ -2,7 +2,7 @@
 //  File:      math/SLMat4.h
 //  Purpose:   4 x 4 Matrix for affine transformations
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -12,12 +12,12 @@
 #define SLMAT4_H
 
 #include <SL.h>
+#include <stack>
+#include <Utils.h>
 #include <SLMat3.h>
-#include <SLMath.h>
 #include <SLVec3.h>
 #include <SLVec4.h>
 #include <assert.h>
-//#include <SLVec4.h>
 #include <Shoemake/Decompose.h>
 #include <Shoemake/EulerAngles.h>
 
@@ -849,7 +849,7 @@ template<class T>
 void SLMat4<T>::perspective(const T fov, const T aspect, 
                             const T n, const T f)
 {
-   T t = (T)tan(fov*SL_DEG2RAD*0.5)*n;
+   T t = (T)tan(fov * DEG2RAD * 0.5)*n;
    T b = -t;
    T r = t*aspect;
    T l = -r;
@@ -949,7 +949,7 @@ void SLMat4<T>::rotation(const T degAng,
                          const T axisx, const T axisy, const T axisz,
                          const SLbool keepTrans)
 {
-    T RadAng = (T)degAng*SL_DEG2RAD;
+    T RadAng = (T)degAng * DEG2RAD;
     T ca=(T)cos(RadAng), sa=(T)sin(RadAng);
     if (axisx==1 && axisy==0 && axisz==0)              // about x-axis
     {   _m[0]=1; _m[4]=0;  _m[8]=0;   
@@ -1207,7 +1207,7 @@ void SLMat4<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD)
     Cy = (T)sqrt(1.0 - Sy*Sy);
     
     // normal case
-    if (SL_abs(Cy) > FLT_EPSILON)
+    if (Utils::abs(Cy) > FLT_EPSILON)
     {
         T factor = (T)(1.0 / Cy);
         Sx = -_m[ 9]*factor;
@@ -1485,5 +1485,6 @@ typedef SLMat4<SLfloat>  SLMat4f;
 typedef SLMat4<SLdouble> SLMat4d;
 #endif
 typedef std::vector<SLMat4f>  SLVMat4f;
+typedef std::stack<SLMat4f> SLSMat4f;
 //-----------------------------------------------------------------------------
 #endif

@@ -10,7 +10,6 @@ set(compile_definitions	GLEW_NO_GLU)
 set(platform_specific_link_libraries)
 set(platform_specific_include_directories)
 
-
 file(GLOB headers
     ${include_path}/Shoemake/Decompose.h
     ${include_path}/Shoemake/EulerAngles.h
@@ -25,13 +24,12 @@ file(GLOB headers
 )
 
 file(GLOB sources
-    ${source_path}/Shoemake/EulerAngles.cpp
-    ${source_path}/Shoemake/Decompose.cpp
-    ${source_path}/imgui/imgui_draw.cpp
-    ${source_path}/imgui/imgui.cpp
-    ${source_path}/spa/spa.cpp
+    ${include_path}/Shoemake/EulerAngles.cpp
+    ${include_path}/Shoemake/Decompose.cpp
+    ${include_path}/imgui/imgui_draw.cpp
+    ${include_path}/imgui/imgui.cpp
+    ${include_path}/spa/spa.cpp
     )
-
 
 #==============================================================================
 if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
@@ -161,7 +159,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 	
     file(GLOB headers
         ${headers}
-        ${include_path}/dirent/dirent.h
         ${include_path}/glew/include/GL/wglew.h
         ${include_path}/glfw3/src/win32_platform.h
         ${include_path}/glfw3/src/win32_tls.h
@@ -187,7 +184,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
   
     file(GLOB sources
         ${sources}
-        ${source_path}/dirent/dirent.c
         ${source_path}/glfw3/src/win32_init.c
         ${source_path}/glfw3/src/win32_monitor.c
         ${source_path}/glfw3/src/win32_time.c
@@ -218,14 +214,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 endif()
 #==============================================================================
 
-
-
-#==============================================================================
-if("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #--------------------------------
-    set(platform_specific_include_directories
-        ${CMAKE_CURRENT_SOURCE_DIR}/dirent)
-endif()
-#==============================================================================
+# Group source files (for visual studio ide)
+set(headers_sources ${headers} ${sources})
+# combination of headers and sources as the sub libs already have source and header directories
+source_group_by_path("${include_path}" "\\\\.h$|\\\\.hpp$" "" ${headers_sources})
 
 add_library(${target}
     ${headers}
@@ -253,8 +245,10 @@ target_include_directories(${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/zlib
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/spa
+    ${CMAKE_CURRENT_SOURCE_DIR}/eigen
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${platform_specific_include_directories}
+    ${OpenCV_INCLUDE_DIR}
 
     INTERFACE
     )
@@ -264,7 +258,6 @@ target_compile_definitions(${target}
     ${compile_definitions}
     PUBLIC
     GLEW_STATIC
-    #SL_MEMLEAKDETECT
     ${DEFAULT_COMPILE_DEFINITIONS}
     INTERFACE
     )
@@ -289,4 +282,3 @@ target_link_libraries(${target}
 
     INTERFACE
     )
-

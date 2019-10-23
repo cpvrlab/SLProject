@@ -3,7 +3,7 @@
 //  Purpose:   Singleton class for global render state
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -12,7 +12,10 @@
 #ifndef SLGLSTATE_H
 #define SLGLSTATE_H
 
-#include <SLStack.h>
+//#include <SLStack.h>
+#include <SLVec3.h>
+#include <SLVec4.h>
+#include <SLMat4.h>
 
 //-----------------------------------------------------------------------------
 static const SLint SL_MAX_LIGHTS = 8; //!< max. number of used lights
@@ -34,10 +37,20 @@ static const SLint SL_MAX_LIGHTS = 8; //!< max. number of used lights
 class SLGLState
 {
     public:
-    static SLGLState* getInstance();                    //!< global creator & getter
-    static void       deleteInstance();                 //!< global destruction
-    void              onInitialize(SLCol4f clearColor); //!< On init GL
-    void              initAll();                        //! Init all states
+    //! Public static instance getter for singleton pattern
+    static SLGLState* instance()
+    {
+        if (!_instance)
+        {
+            _instance = new SLGLState();
+            return _instance;
+        }
+        else
+            return _instance;
+    }
+    static void deleteInstance();                        //!< global destruction
+    void        onInitialize(const SLCol4f& clearColor); //!< On init GL
+    void        initAll();                               //! Init all states
 
     // matrices
     SLMat4f modelViewMatrix;  //!< matrix for OpenGL modelview transform
@@ -123,11 +136,11 @@ class SLGLState
     void polygonLine(SLbool state);
     void polygonOffset(SLbool state, SLfloat factor = 1.0f, SLfloat units = 1.0f);
     void viewport(SLint x, SLint y, SLsizei w, SLsizei h);
-    void colorMask(SLbool r, SLbool g, SLbool b, SLbool a);
+    void colorMask(GLboolean r, GLboolean g, GLboolean b, GLboolean a);
     void useProgram(SLuint progID);
     void bindTexture(SLenum target, SLuint textureID);
     void activeTexture(SLenum textureUnit);
-    void clearColor(SLCol4f c);
+    void clearColor(const SLCol4f& c);
     void clearColorBuffer() { glClear(GL_COLOR_BUFFER_BIT); }
     void clearDepthBuffer() { glClear(GL_DEPTH_BUFFER_BIT); }
     void clearColorDepthBuffer() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
@@ -143,11 +156,15 @@ class SLGLState
     SLstring glSLVersionNO() { return _glSLVersionNO; }
     SLbool   glIsES2() { return _glIsES2; }
     SLbool   glIsES3() { return _glIsES3; }
-    SLbool   hasExtension(SLstring e) { return _glExtensions.find(e) != string::npos; }
+    SLbool   hasExtension(const SLstring& e) { return _glExtensions.find(e) != string::npos; }
 
     // stack operations
-    inline void pushModelViewMatrix() { _modelViewMatrixStack.push_back(modelViewMatrix); }
-    inline void popModelViewMatrix() { modelViewMatrix = _modelViewMatrixStack.pop_back(); }
+    inline void pushModelViewMatrix() { _modelViewMatrixStack.push(modelViewMatrix); }
+    inline void popModelViewMatrix()
+    {
+        modelViewMatrix = _modelViewMatrixStack.top();
+        _modelViewMatrixStack.pop();
+    }
 
     //! Checks if an OpenGL error occurred
     static void getGLError(const char* file, int line, bool quit);
@@ -159,7 +176,7 @@ class SLGLState
     SLGLState();  //!< private onetime constructor
     ~SLGLState(); //!< destruction in ~SLScene
 
-    static SLGLState* instance; //!< global singleton object
+    static SLGLState* _instance; //!< global singleton object
 
     SLbool   _isInitialized;        //!< flag for first init
     SLMat4f  _invModelViewMatrix;   //!< inverse modelview transform
@@ -197,14 +214,14 @@ class SLGLState
     SLfloat _gamma;                //!< final output gamma value
 
     // states
-    SLuint _programID;     //!< current shader program id
-    SLenum _textureUnit;   //!< current texture unit
-    SLenum _textureTarget; //!< current texture target
-    SLuint _textureID;     //!< current texture id
-    SLint  _colorMaskR;    //!< current color mask for R
-    SLint  _colorMaskG;    //!< current color mask for G
-    SLint  _colorMaskB;    //!< current color mask for B
-    SLint  _colorMaskA;    //!< current color mask for A
+    SLuint    _programID;     //!< current shader program id
+    SLenum    _textureUnit;   //!< current texture unit
+    SLenum    _textureTarget; //!< current texture target
+    SLuint    _textureID;     //!< current texture id
+    GLboolean _colorMaskR;    //!< current color mask for R
+    GLboolean _colorMaskG;    //!< current color mask for G
+    GLboolean _colorMaskB;    //!< current color mask for B
+    GLboolean _colorMaskA;    //!< current color mask for A
 };
 //-----------------------------------------------------------------------------
 #endif

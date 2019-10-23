@@ -2,7 +2,7 @@
 //  File:      SL/SLAssimpImporter.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -11,6 +11,7 @@
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 #include <iomanip>
+#include <Utils.h>
 
 #include <SLAnimation.h>
 #include <SLApplication.h>
@@ -270,19 +271,19 @@ materials within the file are ignored.
 SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path or on default path
                                SLbool      loadMeshesOnly, //!< Only load nodes with meshes
                                SLMaterial* overrideMat,    //!< Override material
-                               SLuint      flags)               //!< Import flags (see postprocess.h)
+                               SLuint      flags)          //!< Import flags (see postprocess.h)
 {
     // clear the intermediate data
     clear();
 
     // Check existance
-    if (!SLFileSystem::fileExists(file))
+    if (!Utils::fileExists(file))
     {
         file = defaultPath + file;
-        if (!SLFileSystem::fileExists(file))
+        if (!Utils::fileExists(file))
         {
-            file = defaultPath + SLUtils::getFileName(file);
-            if (!SLFileSystem::fileExists(file))
+            file = defaultPath + Utils::getFileName(file);
+            if (!Utils::fileExists(file))
             {
                 SLstring msg = "SLAssimpImporter: File not found: " + file + "\n";
                 SL_WARN_MSG(msg.c_str());
@@ -308,7 +309,7 @@ SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path o
     loadSkeleton(nullptr, _skeletonRoot);
 
     // load materials
-    SLstring    modelPath = SLUtils::getPath(file);
+    SLstring    modelPath = Utils::getPath(file);
     SLVMaterial materials;
     if (!overrideMat)
     {
@@ -348,7 +349,7 @@ SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path o
 
     // Rename root node to the more meaningfull filename
     if (_sceneRoot)
-        _sceneRoot->name(SLUtils::getFileName(file));
+        _sceneRoot->name(Utils::getFileName(file));
 
     return _sceneRoot;
 }
@@ -497,7 +498,7 @@ void SLAssimpImporter::findSkeletonRoot()
 {
     _skeletonRoot = nullptr;
     // early out if we don't have any joint bindings
-    if (_jointOffsets.size() == 0) return;
+    if (_jointOffsets.empty()) return;
 
     vector<SLVaiNode> ancestorList(_jointOffsets.size());
     SLint             minDepth = INT_MAX;
@@ -537,7 +538,7 @@ void SLAssimpImporter::findSkeletonRoot()
                        it->first.c_str(),
                        list.size());
 
-        minDepth = min(minDepth, (SLint)list.size());
+        minDepth = std::min(minDepth, (SLint)list.size());
     }
 
     logMessage(LV_detailed,
@@ -1067,7 +1068,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
     logMessage(LV_normal, " Num channels: %d\n", anim->mNumChannels);
 
     // exit if we didn't load a skeleton but have animations for one
-    if (_skinnedMeshes.size() > 0)
+    if (!_skinnedMeshes.empty())
         assert(_skeleton != nullptr && "The skeleton wasn't impoted correctly.");
 
     // create the animation
@@ -1266,16 +1267,16 @@ SLstring SLAssimpImporter::checkFilePath(SLstring modelPath, SLstring aiTexFile)
 {
     // Check path & file combination
     SLstring pathFile = modelPath + aiTexFile;
-    if (SLFileSystem::fileExists(pathFile))
+    if (Utils::fileExists(pathFile))
         return pathFile;
 
     // Check file alone
-    if (SLFileSystem::fileExists(aiTexFile))
+    if (Utils::fileExists(aiTexFile))
         return aiTexFile;
 
     // Check path & file combination
-    pathFile = modelPath + SLUtils::getFileName(aiTexFile);
-    if (SLFileSystem::fileExists(pathFile))
+    pathFile = modelPath + Utils::getFileName(aiTexFile);
+    if (Utils::fileExists(pathFile))
         return pathFile;
 
     SLstring msg = "SLAssimpImporter: Texture file not found: \n" + aiTexFile +

@@ -6,6 +6,7 @@
 //             such as Windows, MacOS and Linux.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -20,35 +21,39 @@
 #include <GLFW/glfw3.h>
 
 #include <AppDemoGui.h>
-#include <SLCVCapture.h>
+#include <AppDemoSceneView.h>
+#include <CVCapture.h>
 #include <SLEnums.h>
 #include <SLInterface.h>
+#include <SLApplication.h>
 #include <SLSceneView.h>
 
 //-----------------------------------------------------------------------------
 //! Forward declaration of the scene definition function from AppDemoLoad.cpp
 extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
+extern bool onUpdateVideo();
 
 //-----------------------------------------------------------------------------
-// GLobal application variables
-GLFWwindow* window;                     //!< The global glfw window handle
-SLint       svIndex;                    //!< SceneView index
-SLint       scrWidth;                   //!< Window width at start up
-SLint       scrHeight;                  //!< Window height at start up
-SLfloat     scr2fbX;                    //!< Factor from screen to framebuffer coords
-SLfloat     scr2fbY;                    //!< Factor from screen to framebuffer coords
-SLint       startX;                     //!< start position x in pixels
-SLint       startY;                     //!< start position y in pixels
-SLint       mouseX;                     //!< Last mouse position x in pixels
-SLint       mouseY;                     //!< Last mouse position y in pixels
-SLVec2i     touch2;                     //!< Last finger touch 2 position in pixels
-SLVec2i     touchDelta;                 //!< Delta between two fingers in x
-SLint       lastWidth;                  //!< Last window width in pixels
-SLint       lastHeight;                 //!< Last window height in pixels
-SLint       lastMouseWheelPos;          //!< Last mouse wheel position
-SLfloat     lastMouseDownTime = 0.0f;   //!< Last mouse press time
-SLKey       modifiers         = K_none; //!< last modifier keys
-SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mode
+// Global application variables
+static GLFWwindow* window;                     //!< The global glfw window handle
+static SLint       svIndex;                    //!< SceneView index
+static SLint       scrWidth;                   //!< Window width at start up
+static SLint       scrHeight;                  //!< Window height at start up
+static SLbool      fixAspectRatio;             //!< Flag if wnd aspect ratio should be fixed
+static SLfloat     scrWdivH;                   //!< aspect ratio screen width divided by height
+static SLfloat     scr2fbX;                    //!< Factor from screen to framebuffer coords
+static SLfloat     scr2fbY;                    //!< Factor from screen to framebuffer coords
+static SLint       startX;                     //!< start position x in pixels
+static SLint       startY;                     //!< start position y in pixels
+static SLint       mouseX;                     //!< Last mouse position x in pixels
+static SLint       mouseY;                     //!< Last mouse position y in pixels
+static SLVec2i     touch2;                     //!< Last finger touch 2 position in pixels
+static SLVec2i     touchDelta;                 //!< Delta between two fingers in x
+static SLint       lastWidth;                  //!< Last window width in pixels
+static SLint       lastHeight;                 //!< Last window height in pixels
+static SLfloat     lastMouseDownTime = 0.0f;   //!< Last mouse press time
+static SLKey       modifiers         = K_none; //!< last modifier keys
+static SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mode
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -66,12 +71,17 @@ onPaint: Paint event handler that passes the event to the slPaint function.
 SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
-    if (slGetVideoType() != VT_NONE)
-        SLCVCapture::grabAndAdjustForSL();
+    if (CVCapture::instance()->videoType() != VT_NONE)
+    {
+        float viewportWdivH = SLApplication::scene->sceneView(0)->viewportWdivH();
+        CVCapture::instance()->grabAndAdjustForSL(viewportWdivH);
+    }
 
-    //////////////////////////////////////////////////
-    bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
-    //////////////////////////////////////////////////
+    ////////////////////////////////////////////
+    bool trackingGotUpdated = onUpdateVideo();
+    bool sceneGotUpdated    = slUpdateScene();
+    bool viewsNeedsRepaint  = slPaintAllViews();
+    ////////////////////////////////////////////
 
     // Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
@@ -79,7 +89,7 @@ SLbool onPaint()
     // Show the title generated by the scene library (FPS etc.)
     glfwSetWindowTitle(window, slGetWindowTitle(svIndex).c_str());
 
-    return viewNeedsRepaint;
+    return trackingGotUpdated || sceneGotUpdated || viewsNeedsRepaint;
 }
 //-----------------------------------------------------------------------------
 //! Maps the GLFW key codes to the SLKey codes
@@ -137,6 +147,7 @@ SLKey mapKeyToSLKey(SLint key)
         case GLFW_KEY_KP_SUBTRACT: return K_NPSubtract;
         case GLFW_KEY_KP_ADD: return K_NPAdd;
         case GLFW_KEY_KP_DECIMAL: return K_NPDecimal;
+        default: break;
     }
     return (SLKey)key;
 }
@@ -147,12 +158,35 @@ should called once before the onPaint event.
 */
 static void onResize(GLFWwindow* window, int width, int height)
 {
+    if (fixAspectRatio)
+    {
+        //correct target width and height
+        if ((float)height * scrWdivH <= (float)width)
+        {
+            width  = (int)((float)height * scrWdivH);
+            height = (int)((float)width / scrWdivH);
+        }
+        else
+        {
+            height = (int)((float)width / scrWdivH);
+            width  = (int)((float)height * scrWdivH);
+        }
+    }
+
     lastWidth  = width;
     lastHeight = height;
 
     // width & height are in screen coords.
     // We need to scale them to framebuffer coords.
-    slResize(svIndex, (int)(width * scr2fbX), (int)(height * scr2fbY));
+    slResize(svIndex,
+             (int)((float)width * scr2fbX),
+             (int)((float)height * scr2fbY));
+
+    //update glfw window with new size but keep position
+    int curW, curH;
+    glfwGetWindowPos(window, &curW, &curH);
+    glfwSetWindowSize(window, width, height);
+    glfwSetWindowPos(window, curW, curH);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -161,7 +195,7 @@ onLongTouch gets called from a 500ms timer after a mouse down event.
 void onLongTouch()
 {
     // forward the long touch only if the mouse or touch hasn't moved.
-    if (SL_abs(mouseX - startX) < 2 && SL_abs(mouseY - startY) < 2)
+    if (Utils::abs(mouseX - startX) < 2 && Utils::abs(mouseY - startY) < 2)
         slLongTouch(svIndex, mouseX, mouseY);
 }
 //-----------------------------------------------------------------------------
@@ -228,12 +262,13 @@ static void onMouseButton(GLFWwindow* window,
                     case GLFW_MOUSE_BUTTON_MIDDLE:
                         slDoubleClick(svIndex, MB_middle, x, y, modifiers);
                         break;
+                    default: break;
                 }
             }
             else // normal mouse clicks
             {
                 // Start timer for the long touch detection
-                SLTimer::callAfterSleep(SLSceneView::LONGTOUCH_MS, onLongTouch);
+                HighResTimer::callAfterSleep(SLSceneView::LONGTOUCH_MS, onLongTouch);
 
                 switch (button)
                 {
@@ -246,6 +281,7 @@ static void onMouseButton(GLFWwindow* window,
                     case GLFW_MOUSE_BUTTON_MIDDLE:
                         slMouseDown(svIndex, MB_middle, x, y, modifiers);
                         break;
+                    default: break;
                 }
             }
         }
@@ -281,6 +317,7 @@ static void onMouseButton(GLFWwindow* window,
                 case GLFW_MOUSE_BUTTON_MIDDLE:
                     slMouseUp(svIndex, MB_middle, x, y, modifiers);
                     break;
+                default: break;
             }
         }
     }
@@ -336,7 +373,7 @@ static void onMouseWheel(GLFWwindow* window,
 {
     // make sure the delta is at least one integer
     int dY = (int)yscroll;
-    if (dY == 0) dY = (int)(SL_sign(yscroll));
+    if (dY == 0) dY = (int)(Utils::sign(yscroll));
 
     slMouseWheel(svIndex, dY, modifiers);
 }
@@ -432,6 +469,13 @@ void onGLFWError(int error, const char* description)
     fputs(description, stderr);
 }
 //-----------------------------------------------------------------------------
+//! Alternative SceneView creation C-function passed by slCreateSceneView
+SLuint createAppDemoSceneView()
+{
+    SLSceneView* appDemoSV = new AppDemoSceneView();
+    return appDemoSV->index();
+}
+//-----------------------------------------------------------------------------
 /*!
 The C main procedure running the GLFW GUI application.
 */
@@ -459,8 +503,10 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    scrWidth  = 640;
-    scrHeight = 480;
+    scrWidth       = 640;
+    scrHeight      = 480;
+    scrWdivH       = (float)scrWidth / (float)scrHeight;
+    fixAspectRatio = false; //we want to fix aspect ratio for some video apps
     touch2.set(-1, -1);
     touchDelta.set(-1, -1);
 
@@ -505,7 +551,7 @@ int main(int argc, char* argv[])
     glfwSetWindowPos(window, 10, 30);
 
     // Set number of monitor refreshes between 2 buffer swaps
-    glfwSwapInterval(1);
+    glfwSwapInterval(2);
 
     // Get GL errors that occurred before our framework is involved
     GET_GL_ERROR;
@@ -518,16 +564,21 @@ int main(int argc, char* argv[])
 
     // get executable path
     SLstring projectRoot = SLstring(SL_PROJECT_ROOT);
-    SLstring configDir   = SLFileSystem::getAppsWritableDir();
+    SLstring configDir   = Utils::getAppsWritableDir();
+    slSetupExternalDir("../data");
+
+    CVImage::defaultPath = projectRoot + "/data/images/textures/";
+    CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(),
+                                              configDir,                            // for calibrations made
+                                              projectRoot + "/data/calibrations/",  // for calibInitPath
+                                              projectRoot + "/data/videos/");       // for videos
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
                         projectRoot + "/data/shaders/",
                         projectRoot + "/data/models/",
                         projectRoot + "/data/images/textures/",
-                        projectRoot + "/data/videos/",
                         projectRoot + "/data/images/fonts/",
-                        projectRoot + "/data/calibrations/",
                         configDir,
                         "AppDemoGLFW",
                         (void*)appDemoLoadScene);
@@ -543,7 +594,7 @@ int main(int argc, char* argv[])
                                 (SLSceneID)SL_STARTSCENE,
                                 (void*)&onPaint,
                                 nullptr,
-                                nullptr,
+                                (void*)createAppDemoSceneView,
                                 (void*)AppDemoGui::build);
     /////////////////////////////////////////////////////////
 

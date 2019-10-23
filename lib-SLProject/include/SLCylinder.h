@@ -2,7 +2,7 @@
 //  File:      SLCylinder.h
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -26,19 +26,16 @@ class SLCylinder : public SLRevolver
                SLbool      hasBottom = true,
                SLstring    name      = "cylinder mesh",
                SLMaterial* mat       = nullptr);
-    ~SLCylinder() { ; }
 
     // Getters
     SLfloat radius() { return _radius; }
     SLfloat height() { return _height; }
-    SLuint  stacks() { return _stacks; }
     SLbool  hasTop() { return _hasTop; }
     SLbool  hasBottom() { return _hasBottom; }
 
     private:
     SLfloat _radius;    //!< radius of cylinder
     SLfloat _height;    //!< height of cylinder
-    SLuint  _stacks;    //!< No. of stacks of cylinder
     SLbool  _hasTop;    //!< Flag if cylinder has a top
     SLbool  _hasBottom; //!< Flag if cylinder has a bottom
 };

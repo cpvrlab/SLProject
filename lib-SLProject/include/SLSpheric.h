@@ -2,7 +2,7 @@
 //  File:      SLSpheric.h
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -29,17 +29,13 @@ class SLSpheric : public SLRevolver
               SLstring    name   = "spheric mesh",
               SLMaterial* mat    = nullptr);
 
-    ~SLSpheric() { ; }
-
     // Getters
     SLfloat radius() { return _radius; }
-    SLuint  stacks() { return _stacks; }
 
     protected:
     SLfloat _radius;        //!< radius of the sphere
     SLfloat _thetaStartDEG; //!< Polar start angle 0-180deg
     SLfloat _thetaEndDEG;   //!< Polar end angle 1-180deg
-    SLuint  _stacks;        //!< No. of stacks of the sphere
 };
 //-----------------------------------------------------------------------------
 #endif //SLSPHERE_H

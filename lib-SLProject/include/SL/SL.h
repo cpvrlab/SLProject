@@ -2,7 +2,7 @@
 //  File:      SL/SL.h
 //  Author:    Marcus Hudritsch
 //  Date:      October 2015
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -89,6 +89,7 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #    include <random>
 #    include <sys/time.h>
 #    include <thread>
+#    include <CoreServices/CoreServices.h> // for system info
 #    include <zlib.h>
 #elif defined(SL_OS_MACOS)
 #    include <GL/glew.h>
@@ -97,16 +98,19 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #    include <random>
 #    include <sys/time.h>
 #    include <thread>
+#    include <CoreServices/CoreServices.h> // for system info
+#    include <sys/sysctl.h> // for system info
 #elif defined(SL_OS_ANDROID)
 #    include <sys/time.h>
+#    include <sys/system_properties.h>
 #    ifdef SL_GLES3
 #        include <GLES3/gl3.h>
 #        include <GLES3/gl3ext.h>
 #    endif
-#    include <android/log.h>
 #    include <chrono>
 #    include <functional>
 #    include <random>
+#    include <sstream>
 #    include <thread>
 #elif defined(SL_OS_WINDOWS)
 #    include <GL/glew.h>
@@ -126,6 +130,8 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #else
 #    error "SL has not been ported to this OS"
 #endif
+
+#include <Utils.h>
 
 //-----------------------------------------------------------------------------
 using namespace std;
@@ -218,37 +224,22 @@ SL_sizeOfVector(const T& vector)
 }
 //-----------------------------------------------------------------------------
 // Bit manipulation macros for ones that forget it always
-#define SL_GETBIT(VAR, BITVAL) VAR& BITVAL
-#define SL_SETBIT(VAR, BITVAL) VAR |= BITVAL
-#define SL_DELBIT(VAR, BITVAL) VAR &= ~BITVAL
-#define SL_TOGBIT(VAR, BITVAL) \
-    if (VAR & BITVAL) \
-        VAR &= ~BITVAL; \
+#define SL_GETBIT(VAR, VAL) VAR& VAL
+#define SL_SETBIT(VAR, VAL) VAR |= VAL
+#define SL_DELBIT(VAR, VAL) VAR &= ~VAL
+#define SL_TOGBIT(VAR, VAL) \
+    if (VAR & VAL) \
+        VAR &= ~VAL; \
     else \
-        VAR |= BITVAL
-
+        VAR |= VAL
 //-----------------------------------------------------------------------------
 // Prevention for warnings in XCode
 #define UNUSED_PARAMETER(r) ((void)(x))
 
 //-----------------------------------------------------------------------------
-// Some debugging and error handling functions and macros
-#define SL_LOG(...) SL::log(__VA_ARGS__)
-#define SL_EXIT_MSG(M) SL::exitMsg((M), __LINE__, __FILE__)
-#define SL_WARN_MSG(M) SL::warnMsg((M), __LINE__, __FILE__)
-//-----------------------------------------------------------------------------
-//! Class SL with some global static functions and members.
-class SL
-{
-    public:
-    static void   log(const char* format, ...);
-    static void   exitMsg(const SLchar* msg,
-                          const SLint   line,
-                          const SLchar* file);
-    static void   warnMsg(const SLchar* msg,
-                          const SLint   line,
-                          const SLchar* file);
-    static SLuint maxThreads();
-};
+// Some debugging and error handling macros
+#define SL_LOG(...) Utils::log(__VA_ARGS__)
+#define SL_EXIT_MSG(M) Utils::exitMsg((M), __LINE__, __FILE__)
+#define SL_WARN_MSG(M) Utils::warnMsg((M), __LINE__, __FILE__)
 //-----------------------------------------------------------------------------
 #endif

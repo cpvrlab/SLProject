@@ -93,8 +93,7 @@ enum EyeCupType
 };
 
 //-------------------------------------------------------------------------------------
-bool
-FitCubicPolynomial(float* pResult, const float* pFitX, const float* pFitY)
+bool FitCubicPolynomial(float* pResult, const float* pFitX, const float* pFitY)
 {
     float d0 = ((pFitX[0] - pFitX[1]) * (pFitX[0] - pFitX[2]) * (pFitX[0] - pFitX[3]));
     float d1 = ((pFitX[1] - pFitX[2]) * (pFitX[1] - pFitX[3]) * (pFitX[1] - pFitX[0]));
@@ -147,8 +146,7 @@ static float percent_out_of_range;
 #endif
 
 //-------------------------------------------------------------------------------------
-float
-EvalCatmullRom10Spline(float const* K, float scaledVal)
+float EvalCatmullRom10Spline(float const* K, float scaledVal)
 {
     int const NumSegments = NumCoefficients;
 
@@ -173,7 +171,7 @@ EvalCatmullRom10Spline(float const* K, float scaledVal)
 #endif
 
     float scaledValFloor = floorf(scaledVal);
-    scaledValFloor       = SL_max(0.0f, SL_min((float)(NumSegments - 1), scaledValFloor));
+    scaledValFloor       = std::max(0.0f, std::min((float)(NumSegments - 1), scaledValFloor));
     float t              = scaledVal - scaledValFloor;
     int   k              = (int)scaledValFloor;
 
@@ -688,8 +686,7 @@ TransformTanFovSpaceToScreenNDC(DistortionRenderDesc const& distortion,
 
 //-------------------------------------------------------------------------------------
 // Same, with chromatic aberration correction.
-void
-TransformScreenNDCToTanFovSpaceChroma(SLVec2f* resultR, SLVec2f* resultG, SLVec2f* resultB, DistortionRenderDesc const& distortion, const SLVec2f& framebufferNDC)
+void TransformScreenNDCToTanFovSpaceChroma(SLVec2f* resultR, SLVec2f* resultG, SLVec2f* resultB, DistortionRenderDesc const& distortion, const SLVec2f& framebufferNDC)
 {
     // Scale to TanHalfFov space, but still distorted.
     SLVec2f tanEyeAngleDistorted;
@@ -822,15 +819,14 @@ CreateProjection(bool rightHanded, ovrFovPort tanHalfFov, float zNear /*= 0.01f*
 }
 
 //-------------------------------------------------------------------------------------
-void
-createSLDistortionMesh(DistortionMeshVertexData**  ppVertices,
-                       uint16_t**                  ppTriangleListIndices,
-                       SLuint*                     pNumVertices,
-                       SLuint*                     pNumTriangles,
-                       bool                        rightEye,
-                       const HmdRenderInfo&        hmdRenderInfo,
-                       const DistortionRenderDesc& distortion,
-                       const ScaleAndOffset2D&     eyeToSourceNDC)
+void createSLDistortionMesh(DistortionMeshVertexData**  ppVertices,
+                            uint16_t**                  ppTriangleListIndices,
+                            SLuint*                     pNumVertices,
+                            SLuint*                     pNumTriangles,
+                            bool                        rightEye,
+                            const HmdRenderInfo&        hmdRenderInfo,
+                            const DistortionRenderDesc& distortion,
+                            const ScaleAndOffset2D&     eyeToSourceNDC)
 {
     static const int DMA_GridSizeLog2   = 6;
     static const int DMA_GridSize       = 1 << DMA_GridSizeLog2;
@@ -872,8 +868,8 @@ createSLDistortionMesh(DistortionMeshVertexData**  ppVertices,
             // with the shape of the distortion to minimize the number of triangles needed.
             SLVec2f screenNDC = TransformTanFovSpaceToScreenNDC(distortion, tanEyeAngle, false);
             // ...but don't let verts overlap to the other eye.
-            screenNDC.x = SL_max(-1.0f, SL_min(screenNDC.x, 1.0f));
-            screenNDC.y = SL_max(-1.0f, SL_min(screenNDC.y, 1.0f));
+            screenNDC.x = std::max(-1.0f, std::min(screenNDC.x, 1.0f));
+            screenNDC.y = std::max(-1.0f, std::min(screenNDC.y, 1.0f));
 
             // From those screen positions, we then need (effectively) RGB UVs.
             // This is the function that actually matters when doing the distortion calculation.
@@ -917,13 +913,13 @@ createSLDistortionMesh(DistortionMeshVertexData**  ppVertices,
             // The furthest out will be the blue channel, because of chromatic aberration (true of any standard lens)
             SLVec2f sourceTexCoordBlueNDC = TransformTanFovSpaceToRendertargetNDC(eyeToSourceNDC, tanEyeAnglesB);
             float   edgeFadeIn            = (1.0f / fadeOutBorderFraction) *
-                               (1.0f - SL_max(SL_abs(sourceTexCoordBlueNDC.x), SL_abs(sourceTexCoordBlueNDC.y)));
+                               (1.0f - std::max(Utils::abs(sourceTexCoordBlueNDC.x), Utils::abs(sourceTexCoordBlueNDC.y)));
             // Also fade out at screen edges.
             float edgeFadeInScreen = (2.0f / fadeOutBorderFraction) *
-                                     (1.0f - SL_max(SL_abs(screenNDC.x), SL_abs(screenNDC.y)));
-            edgeFadeIn = SL_min(edgeFadeInScreen, edgeFadeIn);
+                                     (1.0f - std::max(Utils::abs(screenNDC.x), Utils::abs(screenNDC.y)));
+            edgeFadeIn = std::min(edgeFadeInScreen, edgeFadeIn);
 
-            pcurVert->Shade          = SL_max(0.0f, SL_min(edgeFadeIn, 1.0f));
+            pcurVert->Shade          = std::max(0.0f, std::min(edgeFadeIn, 1.0f));
             pcurVert->ScreenPosNDC.x = 0.5f * screenNDC.x - 0.5f + xOffset;
             pcurVert->ScreenPosNDC.y = -screenNDC.y;
 
@@ -1001,8 +997,7 @@ createSLDistortionMesh(DistortionMeshVertexData**  ppVertices,
 }
 
 //-------------------------------------------------------------------------------------
-void
-createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
+void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
 {
     // fill the variables below with useful data from dk2
     HmdRenderInfo hmdri;
