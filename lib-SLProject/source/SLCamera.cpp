@@ -365,7 +365,7 @@ SLstring SLCamera::projectionToStr(SLProjection p)
         case P_stereoSideBySideP: return "Side by Side proportional";
         case P_stereoSideBySideD: return "Side by Side distorted";
         case P_stereoLineByLine: return "Line by Line";
-        case P_stereoColumnByColumn: return "Pixel by Pixel";
+        case P_stereoColumnByColumn: return "Column by Column";
         case P_stereoPixelByPixel: return "Checkerboard";
         case P_stereoColorRC: return "Red-Cyan";
         case P_stereoColorRG: return "Red-Green";

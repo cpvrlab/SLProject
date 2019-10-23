@@ -86,6 +86,7 @@ file(
         ${SL_PROJECT_ROOT}/data/images/textures/features_stones.png
         ${SL_PROJECT_ROOT}/data/images/textures/Desert*_C.jpg
         ${SL_PROJECT_ROOT}/data/images/textures/i*_0000b.png
+        ${SL_PROJECT_ROOT}/data/images/textures/Wave_radial10_256C.jpg
     )
 
 file(

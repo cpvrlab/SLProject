@@ -704,7 +704,7 @@ unsigned int getFileSize(const string& pathfilename)
 {
 #if defined(USE_STD_FILESYSTEM)
     if (fs::exists(pathfilename))
-        return fs::file_size(pathfilename);
+        return (unsigned int)fs::file_size(pathfilename);
     else
         return 0;
 #else
