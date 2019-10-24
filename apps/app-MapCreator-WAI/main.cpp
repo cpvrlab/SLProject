@@ -160,6 +160,10 @@ public:
             //select one calibration (we need one to instantiate mode and we need mode to load map)
             thinOutNewWaiMap(mapDir, currentMapFileName, mapFile, videos.front().calibration, cullRedundantPerc);
         }
+        else
+        {
+            WAI_WARN("No map created for area: %s", area.c_str());
+        }
 
         WAI_INFO("Finished map creation for area: %s", area.c_str());
     }
