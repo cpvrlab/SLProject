@@ -75,7 +75,7 @@ RelocalizationTestResult runRelocalizationTest(std::string videoFile,
     WAIKeyFrameDB*            keyFrameDB = new WAIKeyFrameDB(*orbVoc);
 
     WAIMap* map = new WAIMap("map");
-    WAIMapStorage::loadMap(map, keyFrameDB, nullptr, mapFile);
+    WAIMapStorage::loadMap(map, keyFrameDB, nullptr, mapFile, false, true);
 
     CVCapture::instance()->videoType(VT_FILE);
     CVCapture::instance()->videoFilename = videoFile;

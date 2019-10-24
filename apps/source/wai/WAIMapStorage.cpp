@@ -69,11 +69,14 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
             return false;
         }
 
-        SLMat4f slOm = mapNode->om();
-        std::cout << "slOm: " << slOm.toString() << std::endl;
-        cv::Mat cvOm = convertToCVMat(mapNode->om());
-        std::cout << "cvOM: " << cvOm << std::endl;
-        fs << "mapNodeOm" << cvOm;
+        if (mapNode)
+        {
+            SLMat4f slOm = mapNode->om();
+            std::cout << "slOm: " << slOm.toString() << std::endl;
+            cv::Mat cvOm = convertToCVMat(mapNode->om());
+            std::cout << "cvOM: " << cvOm << std::endl;
+            fs << "mapNodeOm" << cvOm;
+        }
 
         //start sequence keyframes
         fs << "KeyFrames"
@@ -213,7 +216,8 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
                             WAIKeyFrameDB* kfDB,
                             SLNode*        mapNode,
                             std::string    path,
-                            bool           loadImgs)
+                            bool           loadImgs,
+                            bool           fixKfsAndMPts)
 {
     std::vector<WAIMapPoint*>       mapPoints;
     std::vector<WAIKeyFrame*>       keyFrames;
@@ -317,7 +321,29 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
         (*it)["nMaxX"] >> nMaxX;
         (*it)["nMaxY"] >> nMaxY;
 
-        WAIKeyFrame* newKf = new WAIKeyFrame(Tcw, id, fx, fy, cx, cy, keyPtsUndist.size(), keyPtsUndist, featureDescriptors, WAIOrbVocabulary::get(), nScaleLevels, scaleFactor, vScaleFactor, vLevelSigma2, vInvLevelSigma2, nMinX, nMinY, nMaxX, nMaxY, K, kfDB, waiMap);
+        WAIKeyFrame* newKf = new WAIKeyFrame(Tcw,
+                                             id,
+                                             fixKfsAndMPts,
+                                             fx,
+                                             fy,
+                                             cx,
+                                             cy,
+                                             keyPtsUndist.size(),
+                                             keyPtsUndist,
+                                             featureDescriptors,
+                                             WAIOrbVocabulary::get(),
+                                             nScaleLevels,
+                                             scaleFactor,
+                                             vScaleFactor,
+                                             vLevelSigma2,
+                                             vInvLevelSigma2,
+                                             nMinX,
+                                             nMinY,
+                                             nMaxX,
+                                             nMaxY,
+                                             K,
+                                             kfDB,
+                                             waiMap);
 
         if (imgDir != "")
         {
@@ -392,7 +418,7 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
         cv::Mat mWorldPos; //has to be here!
         (*it)["mWorldPos"] >> mWorldPos;
 
-        WAIMapPoint* newPt = new WAIMapPoint(id, mWorldPos, waiMap);
+        WAIMapPoint* newPt = new WAIMapPoint(id, mWorldPos, waiMap, fixKfsAndMPts);
         vector<int>  observingKfIds;
         (*it)["observingKfIds"] >> observingKfIds;
         vector<int> corrKpIndices;

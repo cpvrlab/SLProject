@@ -4,6 +4,9 @@
 #include <cstdarg>
 #include <cstdio>
 
+//here we define the current log level for the global usage of wai logging
+#include "logging/LogLevelDebug.h"
+
 // Generic helper definitions for shared library support
 #if defined _WIN32 || defined __CYGWIN__
 #    define WAI_HELPER_DLL_IMPORT __declspec(dllimport)
@@ -57,7 +60,7 @@
 #endif
 
 typedef void (*DebugLogCallback)(const char* str);
-void registerDebugCallback(DebugLogCallback callback);
+void         registerDebugCallback(DebugLogCallback callback);
 void WAI_API WAI_LOG(const char* format, ...);
 
 #ifdef WAI_BUILD_DEBUG

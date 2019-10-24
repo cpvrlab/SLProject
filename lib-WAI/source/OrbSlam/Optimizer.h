@@ -36,7 +36,7 @@ namespace ORB_SLAM2
 
 class Optimizer
 {
-    public:
+public:
     void static BundleAdjustment(const std::vector<WAIKeyFrame*>& vpKF, const std::vector<WAIMapPoint*>& vpMP, int nIterations = 5, bool* pbStopFlag = NULL, const unsigned long nLoopKF = 0, const bool bRobust = true);
     void static GlobalBundleAdjustemnt(WAIMap* pMap, int nIterations = 5, bool* pbStopFlag = NULL, const unsigned long nLoopKF = 0, const bool bRobust = true);
     void static LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap* pMap);

@@ -9,19 +9,20 @@
 
 class WAI_API WAIMapStorage
 {
-    public:
+public:
     static bool saveMap(WAIMap*     waiMap,
                         SLNode*     mapNode,
-                        std::string path,
+                        std::string fileName,
                         std::string imgDir = "");
 
     static bool loadMap(WAIMap*        waiMap,
                         WAIKeyFrameDB* kfDB,
                         SLNode*        mapNode,
                         std::string    path,
-                        bool           loadImgs = false);
+                        bool           loadImgs,
+                        bool           fixKfsAndMPts);
 
-    private:
+private:
     //static SLMat4f loadObjectMatrix(const cv::FileNode& n);
 };
 

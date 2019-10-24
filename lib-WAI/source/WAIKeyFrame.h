@@ -57,9 +57,31 @@ keypoints.
 */
 class WAI_API WAIKeyFrame
 {
-    public:
+public:
     //!keyframe generation during map loading
-    WAIKeyFrame(const cv::Mat& Tcw, unsigned long id, float fx, float fy, float cx, float cy, size_t N, const std::vector<cv::KeyPoint>& vKeysUn, const cv::Mat& descriptors, ORBVocabulary* mpORBvocabulary, int nScaleLevels, float fScaleFactor, const std::vector<float>& vScaleFactors, const std::vector<float>& vLevelSigma2, const std::vector<float>& vInvLevelSigma2, int nMinX, int nMinY, int nMaxX, int nMaxY, const cv::Mat& K, WAIKeyFrameDB* pKFDB, WAIMap* pMap);
+    WAIKeyFrame(const cv::Mat&                   Tcw,
+                unsigned long                    id,
+                bool                             fixKF,
+                float                            fx,
+                float                            fy,
+                float                            cx,
+                float                            cy,
+                size_t                           N,
+                const std::vector<cv::KeyPoint>& vKeysUn,
+                const cv::Mat&                   descriptors,
+                ORBVocabulary*                   mpORBvocabulary,
+                int                              nScaleLevels,
+                float                            fScaleFactor,
+                const std::vector<float>&        vScaleFactors,
+                const std::vector<float>&        vLevelSigma2,
+                const std::vector<float>&        vInvLevelSigma2,
+                int                              nMinX,
+                int                              nMinY,
+                int                              nMaxX,
+                int                              nMaxY,
+                const cv::Mat&                   K,
+                WAIKeyFrameDB*                   pKFDB,
+                WAIMap*                          pMap);
     //!keyframe generation from frame
     WAIKeyFrame(WAIFrame& F, WAIMap* pMap, WAIKeyFrameDB* pKFDB, bool retainImg = true);
 
@@ -110,6 +132,8 @@ class WAI_API WAIKeyFrame
     WAIMapPoint*           GetMapPoint(const size_t& idx);
     bool                   hasMapPoint(WAIMapPoint* mp);
 
+    bool isFixed() const;
+
     // KeyPoint functions
     std::vector<size_t> GetFeaturesInArea(const float& x, const float& y, const float& r) const;
 
@@ -144,12 +168,15 @@ class WAI_API WAIKeyFrame
     size_t getSizeOf();
 
     // The following variables are accesed from only 1 thread or never change (no mutex needed).
-    public:
+public:
     static long unsigned int nNextId;
     long unsigned int        mnId;
     const long unsigned int  mnFrameId;
 
     const double mTimeStamp;
+
+    //flags, if this keyframe is not to be culled and the pose of this keyframe is not to be optimized in local bundle adjustment
+    const bool _fixed = false;
 
     // Grid (to speed up feature matching)
     const int   mnGridCols;
@@ -216,7 +243,7 @@ class WAI_API WAIKeyFrame
     cv::Mat imgGray;
 
     // The following variables need to be accessed trough a mutex to be thread safe.
-    protected:
+protected:
     // SE3 Pose and camera center
     //! opencv coordinate representation: z-axis points to principlal point,
     //! x-axis to the right and y-axis down
@@ -259,7 +286,7 @@ class WAI_API WAIKeyFrame
     std::mutex mMutexConnections;
     std::mutex mMutexFeatures;
 
-    public:
+public:
     //ghm1: added funtions
     //set path to texture image
     void               setTexturePath(const string& path) { _pathToTexture = path; }
@@ -272,7 +299,7 @@ class WAI_API WAIKeyFrame
     cv::Mat getObjectMatrix();
 #endif
 
-    private:
+private:
     //! this is a function from Frame, but we need it here for map loading
     void AssignFeaturesToGrid();
     //! this is a function from Frame, but we need it here for map loading

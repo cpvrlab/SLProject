@@ -20,7 +20,7 @@
 //-----------------------------------------------------------------------------
 class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {
-    public:
+public:
     AppDemoGuiSlamLoad(const std::string& name,
                        std::string        slamRootDir,
                        std::string        calibrationsDir,
@@ -30,7 +30,7 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
-    private:
+private:
     void loadFileNamesInVector(std::string               directory,
                                std::vector<std::string>& fileNames,
                                std::vector<std::string>& extensions,
@@ -60,6 +60,7 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
     bool _trackOpticalFlow;
     bool _serial;
     bool _trackingOnly;
+    bool fixLoadedKfs;
 
     SLNode* _mapNode;
 };

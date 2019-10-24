@@ -36,6 +36,7 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     _serial             = false;
     _trackingOnly       = false;
     _trackOpticalFlow   = false;
+    fixLoadedKfs        = false;
 
     _currentLocation    = "";
     _currentArea        = "";
@@ -353,10 +354,11 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             ImGui::EndCombo();
         }
 
-        ImGui::Checkbox("store keyframes image", &_storeKeyFrameImage);
+        ImGui::Checkbox("store/load keyframes image", &_storeKeyFrameImage);
         ImGui::Checkbox("track optical flow", &_trackOpticalFlow);
         ImGui::Checkbox("tracking only", &_trackingOnly);
         ImGui::Checkbox("serial", &_serial);
+        ImGui::Checkbox("fix Kfs and MPts loaded from map\n(disables loop closing)", &fixLoadedKfs);
 
         if (ImGui::Button("Start", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
         {
@@ -367,16 +369,18 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             }
             else
             {
-                SlamParams params = {
-                  (_currentVideo.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/videos/" + _currentVideo),
-                  (_currentMap.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/maps/" + _currentMap),
-                  (_currentCalibration.empty() ? "" : _calibrationsDir + _currentCalibration),
-                  (_currentVoc.empty() ? "" : _vocabulariesDir + _currentVoc),
-                  _storeKeyFrameImage,
-                  _trackOpticalFlow,
-                  _trackingOnly,
-                  _serial};
-                OrbSlamStartResult startResult = WAIApp::startOrbSlam(&params);
+                SlamParams slamParams;
+                slamParams.videoFile           = _currentVideo.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/videos/" + _currentVideo;
+                slamParams.mapFile             = _currentMap.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/maps/" + _currentMap;
+                slamParams.calibrationFile     = _currentCalibration.empty() ? "" : _calibrationsDir + _currentCalibration;
+                slamParams.vocabularyFile      = _currentVoc.empty() ? "" : _vocabulariesDir + _currentVoc;
+                slamParams.params.retainImg    = _storeKeyFrameImage;
+                slamParams.params.trackOptFlow = _trackOpticalFlow;
+                slamParams.params.onlyTracking = _trackingOnly;
+                slamParams.params.serial       = _serial;
+                slamParams.params.fixOldKfs    = fixLoadedKfs;
+
+                OrbSlamStartResult startResult = WAIApp::startOrbSlam(&slamParams);
                 sv->setViewportFromRatio(SLVec2i(WAIApp::videoFrameSize.width, WAIApp::videoFrameSize.height), SLViewportAlign::VA_center, true);
 
                 if (!startResult.wasSuccessful)
