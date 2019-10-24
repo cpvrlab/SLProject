@@ -358,7 +358,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         ImGui::Checkbox("track optical flow", &_trackOpticalFlow);
         ImGui::Checkbox("tracking only", &_trackingOnly);
         ImGui::Checkbox("serial", &_serial);
-        ImGui::Checkbox("fix Kfs loaded from map (disables loop closing)", &fixLoadedKfs);
+        ImGui::Checkbox("fix Kfs and MPts loaded from map\n(disables loop closing)", &fixLoadedKfs);
 
         if (ImGui::Button("Start", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
         {

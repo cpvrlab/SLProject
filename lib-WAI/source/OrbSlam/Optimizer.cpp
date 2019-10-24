@@ -692,9 +692,6 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap
         }
     }
 
-    //if (lLocalKeyFrames.size() < 2)
-    //    return;
-
     // Local MapPoints seen in Local KeyFrames
     list<WAIMapPoint*> lLocalMapPoints;
     for (list<WAIKeyFrame*>::iterator lit = lLocalKeyFrames.begin(), lend = lLocalKeyFrames.end(); lit != lend; lit++)
@@ -704,12 +701,16 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap
         {
             WAIMapPoint* pMP = *vit;
             if (pMP)
-                if (!pMP->isBad())
+            {
+                if (!pMP->isBad() && !pMP->isFixed())
+                {
                     if (pMP->mnBALocalForKF != pKF->mnId)
                     {
                         lLocalMapPoints.push_back(pMP);
                         pMP->mnBALocalForKF = pKF->mnId;
                     }
+                }
+            }
         }
     }
 

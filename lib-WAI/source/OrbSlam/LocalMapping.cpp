@@ -273,6 +273,7 @@ void LocalMapping::MapPointCulling()
     while (lit != mlpRecentAddedMapPoints.end())
     {
         WAIMapPoint* pMP = *lit;
+
         if (pMP->isBad())
         {
             lit = mlpRecentAddedMapPoints.erase(lit);

@@ -20,7 +20,7 @@ public:
                         SLNode*        mapNode,
                         std::string    path,
                         bool           loadImgs,
-                        bool           fixKfsForLBA);
+                        bool           fixKfsAndMPts);
 
 private:
     //static SLMat4f loadObjectMatrix(const cv::FileNode& n);

@@ -217,7 +217,7 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
                             SLNode*        mapNode,
                             std::string    path,
                             bool           loadImgs,
-                            bool           fixKfsForLBA)
+                            bool           fixKfsAndMPts)
 {
     std::vector<WAIMapPoint*>       mapPoints;
     std::vector<WAIKeyFrame*>       keyFrames;
@@ -323,7 +323,7 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
 
         WAIKeyFrame* newKf = new WAIKeyFrame(Tcw,
                                              id,
-                                             fixKfsForLBA,
+                                             fixKfsAndMPts,
                                              fx,
                                              fy,
                                              cx,
@@ -418,7 +418,7 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
         cv::Mat mWorldPos; //has to be here!
         (*it)["mWorldPos"] >> mWorldPos;
 
-        WAIMapPoint* newPt = new WAIMapPoint(id, mWorldPos, waiMap);
+        WAIMapPoint* newPt = new WAIMapPoint(id, mWorldPos, waiMap, fixKfsAndMPts);
         vector<int>  observingKfIds;
         (*it)["observingKfIds"] >> observingKfIds;
         vector<int> corrKpIndices;
