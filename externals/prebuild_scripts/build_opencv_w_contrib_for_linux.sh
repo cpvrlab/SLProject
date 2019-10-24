@@ -61,6 +61,7 @@ cmake \
 -DBUILD_opencv_python_bindings_generator=false \
 -DBUILD_opencv_python2=false \
 -DBUILD_opencv_java_bindings_generator=false \
+-DBUILD_opencv_cudacodec=OFF \
 -DBUILD_PERF_TESTS=false \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
@@ -88,6 +89,7 @@ cmake \
 -DBUILD_opencv_python_bindings_generator=false \
 -DBUILD_opencv_python2=false \
 -DBUILD_opencv_java_bindings_generator=false \
+-DBUILD_opencv_cudacodec=OFF \
 -DBUILD_PERF_TESTS=false \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \

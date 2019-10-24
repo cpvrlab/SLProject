@@ -7,6 +7,13 @@ set(target lib-SLProject)
 set(compile_definitions GLEW_NO_GLU)
 set(platform_specific_include_dirs)
 
+project(LANGUAGES CUDA)
+find_package(CUDA 10 REQUIRED)
+
+file(GLOB cuda
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerCamera.cu
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerShading.cu)
+
 file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTypedefs.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibration.h
@@ -90,6 +97,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMemoryStats.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMesh.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLNode.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixRaytracer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLObject.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPathtracer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPoints.h
@@ -170,6 +178,7 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMaterial.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMesh.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLNode.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixRaytracer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPathtracer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPoints.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPolygon.cpp
@@ -225,11 +234,18 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
 endif ()
 #==============================================================================
 
+cuda_include_directories(ptx
+        ${OptiX_INCLUDE})
+cuda_compile_ptx(ptx
+        ${cuda})
+add_custom_target(ptx ALL
+        DEPENDS ${cuda}
+        SOURCES ${cuda})
+
 add_library(${target}
         ${headers}
         ${sources}
-        ${shaders}
-        )
+        ${shaders})
 
 add_library(${META_PROJECT_NAME}::${target}
         ALIAS
@@ -262,9 +278,10 @@ target_include_directories(${target}
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/zlib
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
+        ${SL_PROJECT_ROOT}/externals/lib-SLEx   ternal/glew/include
         ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
         ${OpenCV_INCLUDE_DIR}
+        ${OptiX_INCLUDE}
         ${DEFAULT_INCLUDE_DIRECTORIES}
 
         INTERFACE
@@ -294,9 +311,13 @@ target_link_libraries(${target}
         PUBLIC
         ${PlatformLinkLibs}
         ${OpenCV_LIBS}
+        ${CUDA_LIBRARIES}
+        ${CUDA_CUDA_LIBRARY}
         ${META_PROJECT_NAME}::lib-SLExternal
         ${META_PROJECT_NAME}::lib-assimp
         lib-Utils
         ${DEFAULT_LINKER_OPTIONS}
         INTERFACE
         )
+
+add_dependencies(${target} ptx)

@@ -45,6 +45,8 @@ if (SL_BUILD_APPS)
 	add_subdirectory(apps)
 endif()
 
+include(cmake/FindOptiX.cmake)
+
 add_subdirectory(externals)
 add_subdirectory(experimental)
 add_subdirectory(lib-WAI)
