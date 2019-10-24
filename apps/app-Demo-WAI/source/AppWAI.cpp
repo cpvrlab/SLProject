@@ -147,10 +147,6 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     std::string               mapFile         = "";
     std::string               vocFile         = "";
     WAI::ModeOrbSlam2::Params params;
-    params.retainImg    = false;
-    params.serial       = false;
-    params.onlyTracking = false;
-    params.trackOptFlow = false;
 
     if (slamParams)
     {
@@ -294,7 +290,8 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
                                                         mode->getKfDB(),
                                                         waiScene->mapNode,
                                                         mapFile,
-                                                        WAIApp::mode->retainImage());
+                                                        WAIApp::mode->retainImage(),
+                                                        params.fixOldKfs);
 
         if (!mapLoadingSuccess)
         {

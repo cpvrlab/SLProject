@@ -19,7 +19,8 @@ public:
                         WAIKeyFrameDB* kfDB,
                         SLNode*        mapNode,
                         std::string    path,
-                        bool           loadImgs = false);
+                        bool           loadImgs,
+                        bool           fixKfsForLBA);
 
 private:
     //static SLMat4f loadObjectMatrix(const cv::FileNode& n);

@@ -146,10 +146,12 @@ public:
         //wai mode config
         WAI::ModeOrbSlam2::Params modeParams;
         modeParams.cullRedundantPerc = 0.99;
+        modeParams.serial            = true;
+        modeParams.fixOldKfs         = false;
+        modeParams.retainImg         = true;
 
         //map creation parameter:
         bool initialized = false;
-
         //the lastly saved map file (only valid if initialized is true)
         std::string mapFile    = constructSlamMapFileName(location, area, Utils::getDateTime2String());
         std::string mapDir     = _outputDir + area + "/";
@@ -158,6 +160,7 @@ public:
         std::string currentMapFileName;
 
         WAI_INFO("Starting map creation for area: %s", area.c_str());
+        //use all videos to create a new map
         for (auto itVideos = videos.begin(); itVideos != videos.end(); ++itVideos)
         {
             WAI_DEBUG("Starting video %s", itVideos->videoFile.c_str());
@@ -175,16 +178,18 @@ public:
             if (capturedSize.width != cap->activeCalib->imageSize().width ||
                 capturedSize.height != cap->activeCalib->imageSize().height)
                 throw std::runtime_error("MapCreator::createWaiMap: Resolution of captured frame does not fit to calibration: " + itVideos->videoFile);
+
             //instantiate wai mode
             std::unique_ptr<WAI::ModeOrbSlam2> waiMode =
               std::make_unique<WAI::ModeOrbSlam2>(cap->activeCalib->cameraMat(),
                                                   cap->activeCalib->distortion(),
                                                   modeParams,
                                                   _vocFile);
+
             //if we have an active map from one of the previously processed videos for this area then load it
             if (initialized)
             {
-                loadMap(waiMode.get(), mapDir, lastMapFileName);
+                loadMap(waiMode.get(), mapDir, lastMapFileName, modeParams.fixOldKfs);
             }
 
             //frame with which map was initialized (we want to run the previous frames again)
@@ -214,7 +219,7 @@ public:
                     WAI_DEBUG("Relocalized once for area %s with video %s at index %2", area.c_str(), itVideos->videoFile.c_str(), std::to_string(finalFrameIndex).c_str());
                 }
 
-                decorateDebug(waiMode.get(), cap, currentFrameIndex);
+                decorateDebug(waiMode.get(), cap, currentFrameIndex, waiMode->getNumKeyFrames());
             }
 
             //save map if it was initialized
@@ -230,7 +235,7 @@ public:
         }
     }
 
-    void decorateDebug(WAI::ModeOrbSlam2* waiMode, CVCapture* cap, const int currentFrameIndex)
+    void decorateDebug(WAI::ModeOrbSlam2* waiMode, CVCapture* cap, const int currentFrameIndex, const int numOfKfs)
     {
         //#ifdef _DEBUG
         if (!cap->lastFrame.empty())
@@ -241,6 +246,7 @@ public:
             double     fontScale = 0.5;
             cv::Point  stateOff(10, 25);
             cv::Point  idxOff = stateOff + cv::Point(0, 20);
+            cv::Point  kfsOff = idxOff + cv::Point(0, 20);
             cv::Scalar color  = CV_RGB(255, 0, 0);
             if (waiModeState == WAI::TrackingState::TrackingState_Initializing)
                 cv::putText(decoImg, "Initializing", stateOff, 0, fontScale, color);
@@ -250,6 +256,7 @@ public:
                 cv::putText(decoImg, "Tracking", stateOff, 0, fontScale, color);
 
             cv::putText(decoImg, "FrameId: " + std::to_string(currentFrameIndex), idxOff, 0, fontScale, color);
+            cv::putText(decoImg, "Num Kfs: " + std::to_string(numOfKfs), kfsOff, 0, fontScale, color);
             cv::imshow("lastFrame", decoImg);
             cv::waitKey(1);
         }
@@ -278,7 +285,7 @@ public:
         }
     }
 
-    void loadMap(WAI::ModeOrbSlam2* waiMode, const std::string& mapDir, const std::string& currentMapFileName)
+    void loadMap(WAI::ModeOrbSlam2* waiMode, const std::string& mapDir, const std::string& currentMapFileName, bool fixKfsForLBA)
     {
         waiMode->requestStateIdle();
         while (!waiMode->hasStateIdle())
@@ -291,7 +298,8 @@ public:
                                                         waiMode->getKfDB(),
                                                         nullptr,
                                                         mapDir + currentMapFileName,
-                                                        waiMode->retainImage());
+                                                        waiMode->retainImage(),
+                                                        fixKfsForLBA);
 
         if (!mapLoadingSuccess)
         {

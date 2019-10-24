@@ -33,7 +33,10 @@
 namespace ORB_SLAM2
 {
 
-LocalMapping::LocalMapping(WAIMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary, float cullRedundantPerc)
+LocalMapping::LocalMapping(WAIMap*        pMap,
+                           const float    bMonocular,
+                           ORBVocabulary* mpORBvocabulary,
+                           float          cullRedundantPerc)
   : mpMap(pMap),
     mbMonocular(bMonocular),
     mpORBvocabulary(mpORBvocabulary),
@@ -746,8 +749,13 @@ void LocalMapping::KeyFrameCulling()
     for (vector<WAIKeyFrame*>::iterator vit = vpLocalKeyFrames.begin(), vend = vpLocalKeyFrames.end(); vit != vend; vit++)
     {
         WAIKeyFrame* pKF = *vit;
+        //do not cull the first keyframe
         if (pKF->mnId == 0)
             continue;
+        //do not cull fixed keyframes
+        if (pKF->isFixed())
+            continue;
+
         const vector<WAIMapPoint*> vpMapPoints = pKF->GetMapPointMatches();
 
         //int       nObs                   = 3;

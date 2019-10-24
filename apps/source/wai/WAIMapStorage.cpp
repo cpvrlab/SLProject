@@ -216,7 +216,8 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
                             WAIKeyFrameDB* kfDB,
                             SLNode*        mapNode,
                             std::string    path,
-                            bool           loadImgs)
+                            bool           loadImgs,
+                            bool           fixKfsForLBA)
 {
     std::vector<WAIMapPoint*>       mapPoints;
     std::vector<WAIKeyFrame*>       keyFrames;
@@ -322,6 +323,7 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
 
         WAIKeyFrame* newKf = new WAIKeyFrame(Tcw,
                                              id,
+                                             fixKfsForLBA,
                                              fx,
                                              fy,
                                              cx,

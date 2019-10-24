@@ -50,7 +50,8 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat       cameraMat,
     if (!_params.serial)
     {
         mptLocalMapping = new std::thread(&LocalMapping::Run, mpLocalMapper);
-        mptLoopClosing  = new std::thread(&LoopClosing::Run, mpLoopCloser);
+        if (!_params.fixOldKfs)
+            mptLoopClosing = new std::thread(&LoopClosing::Run, mpLoopCloser);
     }
 
     _state = TrackingState_Initializing;
@@ -75,8 +76,10 @@ void WAI::ModeOrbSlam2::setVocabulary(std::string orbVocFile)
     WAIOrbVocabulary::initialize(orbVocFile);
     mpVocabulary = WAIOrbVocabulary::get();
     mpKeyFrameDatabase->changeVocabulary(*mpVocabulary, getKeyFrames());
-    mpLocalMapper->SetVocabulary(mpVocabulary);
-    mpLoopCloser->SetVocabulary(mpVocabulary);
+    if (mpLocalMapper)
+        mpLocalMapper->SetVocabulary(mpVocabulary);
+    if (mpLoopCloser)
+        mpLoopCloser->SetVocabulary(mpVocabulary);
     resume();
 }
 
@@ -85,11 +88,13 @@ WAI::ModeOrbSlam2::~ModeOrbSlam2()
     if (!_params.serial)
     {
         mpLocalMapper->RequestFinish();
-        mpLoopCloser->RequestFinish();
+        if (!_params.fixOldKfs)
+            mpLoopCloser->RequestFinish();
 
         // Wait until all thread have effectively stopped
         mptLocalMapping->join();
-        mptLoopClosing->join();
+        if (mptLoopClosing)
+            mptLoopClosing->join();
     }
 
     if (mpDefaultExtractor)
@@ -908,7 +913,8 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
                 //mpKeyFrameDatabase->add(mpLastKeyFrame);
 
                 //loop closing
-                mpLoopCloser->RunOnce();
+                if (!_params.fixOldKfs)
+                    mpLoopCloser->RunOnce();
             }
 
             //update visualization of map, it may have changed because of global bundle adjustment.
@@ -1078,6 +1084,7 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular()
     if (_params.serial)
     {
         mpLocalMapper->RunOnce();
+        //todo: why two times??
         mpLocalMapper->RunOnce();
     }
 
@@ -1199,7 +1206,8 @@ void WAI::ModeOrbSlam2::reset()
     //// Reset Loop Closing
     if (!_params.serial)
     {
-        mpLoopCloser->RequestReset();
+        if (!_params.fixOldKfs)
+            mpLoopCloser->RequestReset();
     }
     else
     {
@@ -2371,11 +2379,11 @@ void WAI::ModeOrbSlam2::updateLastFrame()
     mLastFrame.SetPose(Tlr * pRef->GetPose());
 }
 
-void WAI::ModeOrbSlam2::globalBundleAdjustment()
-{
-    Optimizer::GlobalBundleAdjustemnt(_map, 20);
-    //_mapNode->updateAll(*_map);
-}
+//void WAI::ModeOrbSlam2::globalBundleAdjustment()
+//{
+//    Optimizer::GlobalBundleAdjustemnt(_map, 20);
+//    //_mapNode->updateAll(*_map);
+//}
 
 #if 0
 size_t WAI::ModeOrbSlam2::getSizeOf()

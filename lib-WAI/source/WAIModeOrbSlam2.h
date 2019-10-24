@@ -44,6 +44,9 @@ public:
         bool retainImg = false;
         //in onlyTracking mode we do not use local mapping and loop closing
         bool onlyTracking = false;
+        //If true, keyframes loaded from a map will not be culled and the pose will not be changed. Local bundle adjustment is applied only on newly added kfs.
+        //Also, the loop closing will be disabled so that there will be no optimization of the essential graph and no global bundle adjustment.
+        bool fixOldKfs = false;
         //use lucas canade optical flow tracking
         bool trackOptFlow = false;
 
@@ -167,7 +170,7 @@ private:
     void updateLocalPoints();
     void searchLocalPoints();
     void updateLastFrame();
-    void globalBundleAdjustment();
+    //void globalBundleAdjustment();
 
     WAIKeyFrame* currentKeyFrame();
 

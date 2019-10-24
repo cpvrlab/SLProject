@@ -36,6 +36,7 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     _serial             = false;
     _trackingOnly       = false;
     _trackOpticalFlow   = false;
+    fixLoadedKfs        = false;
 
     _currentLocation    = "";
     _currentArea        = "";
@@ -353,10 +354,11 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             ImGui::EndCombo();
         }
 
-        ImGui::Checkbox("store keyframes image", &_storeKeyFrameImage);
+        ImGui::Checkbox("store/load keyframes image", &_storeKeyFrameImage);
         ImGui::Checkbox("track optical flow", &_trackOpticalFlow);
         ImGui::Checkbox("tracking only", &_trackingOnly);
         ImGui::Checkbox("serial", &_serial);
+        ImGui::Checkbox("fix Kfs loaded from map (disables loop closing)", &fixLoadedKfs);
 
         if (ImGui::Button("Start", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
         {
@@ -376,6 +378,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 slamParams.params.trackOptFlow = _trackOpticalFlow;
                 slamParams.params.onlyTracking = _trackingOnly;
                 slamParams.params.serial       = _serial;
+                slamParams.params.fixOldKfs    = fixLoadedKfs;
 
                 OrbSlamStartResult startResult = WAIApp::startOrbSlam(&slamParams);
                 sv->setViewportFromRatio(SLVec2i(WAIApp::videoFrameSize.width, WAIApp::videoFrameSize.height), SLViewportAlign::VA_center, true);

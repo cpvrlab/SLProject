@@ -139,7 +139,7 @@ protected:
 
     // A keyframe is considered redundant if the _cullRedundantPerc of the MapPoints it sees, are seen
     // in at least other 3 keyframes (in the same or finer scale)
-    float _cullRedundantPerc;
+    const float _cullRedundantPerc;
 };
 
 } //namespace ORB_SLAM
