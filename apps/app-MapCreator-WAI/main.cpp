@@ -143,23 +143,45 @@ public:
 
     void createNewWaiMap(const Location& location, const Area& area, Videos& videos)
     {
+        WAI_INFO("Starting map creation for area: %s", area.c_str());
+
+        //the lastly saved map file (only valid if initialized is true)
+        std::string mapFile     = constructSlamMapFileName(location, area, Utils::getDateTime2String());
+        std::string mapDir      = _outputDir + area + "/";
+        bool        initialized = false;
+        std::string currentMapFileName;
+
+        const float cullRedundantPerc = 0.98f;
+        initialized                   = createNewDenseWaiMap(videos, mapFile, mapDir, cullRedundantPerc, currentMapFileName);
+
+        if (videos.size() && initialized)
+        {
+            const float cullRedundantPerc = 0.90f;
+            //select one calibration (we need one to instantiate mode and we need mode to load map)
+            thinOutNewWaiMap(mapDir, currentMapFileName, mapFile, videos.front().calibration, cullRedundantPerc);
+        }
+
+        WAI_INFO("Finished map creation for area: %s", area.c_str());
+    }
+
+    bool createNewDenseWaiMap(Videos&            videos,
+                              const std::string& mapFile,
+                              const std::string& mapDir,
+                              const float        cullRedundantPerc,
+                              std::string&       currentMapFileName)
+    {
+        bool initialized = false;
         //wai mode config
         WAI::ModeOrbSlam2::Params modeParams;
-        modeParams.cullRedundantPerc = 0.99;
+        modeParams.cullRedundantPerc = cullRedundantPerc;
         modeParams.serial            = true;
         modeParams.fixOldKfs         = false;
         modeParams.retainImg         = true;
 
         //map creation parameter:
-        bool initialized = false;
-        //the lastly saved map file (only valid if initialized is true)
-        std::string mapFile    = constructSlamMapFileName(location, area, Utils::getDateTime2String());
-        std::string mapDir     = _outputDir + area + "/";
         int         videoIndex = 0;
         std::string lastMapFileName;
-        std::string currentMapFileName;
 
-        WAI_INFO("Starting map creation for area: %s", area.c_str());
         //use all videos to create a new map
         for (auto itVideos = videos.begin(); itVideos != videos.end(); ++itVideos)
         {
@@ -216,7 +238,7 @@ public:
                     relocalizedOnce = true;
                     //if it relocalized once we will store the current index and repeat video up to this index
                     finalFrameIndex = currentFrameIndex;
-                    WAI_DEBUG("Relocalized once for area %s with video %s at index %2", area.c_str(), itVideos->videoFile.c_str(), std::to_string(finalFrameIndex).c_str());
+                    WAI_DEBUG("Relocalized once for video %s at index %2", itVideos->videoFile.c_str(), std::to_string(finalFrameIndex).c_str());
                 }
 
                 decorateDebug(waiMode.get(), cap, currentFrameIndex, waiMode->getNumKeyFrames());
@@ -228,10 +250,110 @@ public:
                 initialized = true;
                 saveMap(waiMode.get(), mapDir, currentMapFileName);
             }
-            WAI_INFO("Finished map creation for area: %s", area.c_str());
 
             //increment video index for map saving
             videoIndex++;
+        }
+
+        return initialized;
+    }
+
+    void thinOutNewWaiMap(const std::string& mapDir,
+                          const std::string& inputMapFile,
+                          const std::string  outputMapFile,
+                          CVCalibration&     calib,
+                          const float        cullRedundantPerc)
+    {
+        //wai mode config
+        WAI::ModeOrbSlam2::Params modeParams;
+        modeParams.cullRedundantPerc = cullRedundantPerc;
+        modeParams.serial            = true;
+        modeParams.fixOldKfs         = false;
+        modeParams.retainImg         = true;
+
+        //instantiate wai mode
+        std::unique_ptr<WAI::ModeOrbSlam2> waiMode =
+          std::make_unique<WAI::ModeOrbSlam2>(calib.cameraMat(),
+                                              calib.distortion(),
+                                              modeParams,
+                                              _vocFile);
+
+        //load the map (currentMapFileName is valid if initialized is true)
+        loadMap(waiMode.get(), mapDir, inputMapFile, modeParams.fixOldKfs);
+
+        //cull keyframes
+        std::vector<WAIKeyFrame*> kfs = waiMode->getMap()->GetAllKeyFrames();
+        cullKeyframes(kfs, modeParams.cullRedundantPerc);
+
+        //save map again (we use the map file name without index because this is the final map)
+        saveMap(waiMode.get(), mapDir, outputMapFile);
+    }
+
+    void cullKeyframes(std::vector<WAIKeyFrame*>& kfs, const float cullRedundantPerc)
+    {
+        for (auto itKF = kfs.begin(); itKF != kfs.end(); ++itKF)
+        {
+            vector<WAIKeyFrame*> vpLocalKeyFrames = (*itKF)->GetVectorCovisibleKeyFrames();
+
+            for (vector<WAIKeyFrame*>::iterator vit = vpLocalKeyFrames.begin(), vend = vpLocalKeyFrames.end(); vit != vend; vit++)
+            {
+                WAIKeyFrame* pKF = *vit;
+                //do not cull the first keyframe
+                if (pKF->mnId == 0)
+                    continue;
+                //do not cull fixed keyframes
+                if (pKF->isFixed())
+                    continue;
+
+                const vector<WAIMapPoint*> vpMapPoints = pKF->GetMapPointMatches();
+
+                //int       nObs                   = 3;
+                const int thObs                  = 3;
+                int       nRedundantObservations = 0;
+                int       nMPs                   = 0;
+                for (size_t i = 0, iend = vpMapPoints.size(); i < iend; i++)
+                {
+                    WAIMapPoint* pMP = vpMapPoints[i];
+                    if (pMP)
+                    {
+                        if (!pMP->isBad())
+                        {
+                            nMPs++;
+                            if (pMP->Observations() > thObs)
+                            {
+                                const int&                           scaleLevel   = pKF->mvKeysUn[i].octave;
+                                const std::map<WAIKeyFrame*, size_t> observations = pMP->GetObservations();
+                                int                                  nObs         = 0;
+                                for (std::map<WAIKeyFrame*, size_t>::const_iterator mit = observations.begin(), mend = observations.end(); mit != mend; mit++)
+                                {
+                                    WAIKeyFrame* pKFi = mit->first;
+                                    if (pKFi == pKF)
+                                        continue;
+                                    const int& scaleLeveli = pKFi->mvKeysUn[mit->second].octave;
+
+                                    if (scaleLeveli <= scaleLevel + 1)
+                                    {
+                                        nObs++;
+                                        if (nObs >= thObs)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (nObs >= thObs)
+                                {
+                                    nRedundantObservations++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (nRedundantObservations > cullRedundantPerc * nMPs)
+                {
+                    pKF->SetBadFlag();
+                }
+            }
         }
     }
 
@@ -400,7 +522,7 @@ int main(int argc, char* argv[])
 
         //initialize logger
         std::string cwd = Utils::getCurrentWorkingDir();
-        Logger::initFileLog(cwd, false);
+        Logger::initFileLog(cwd, true);
         WAI_INFO("WAI MapCreator");
 
         //init map creator
@@ -410,10 +532,12 @@ int main(int argc, char* argv[])
     catch (std::exception& e)
     {
         WAI_ERROR("Exception catched during map creation: %s", e.what());
+        Logger::flushFileLog();
     }
     catch (...)
     {
         WAI_ERROR("Unknown exception during map creation!");
+        Logger::flushFileLog();
     }
 
     return 0;
