@@ -8,12 +8,14 @@ set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(headers
+    ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/MapCreator.h
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWaiSlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     )
 
 set(sources
     ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/main.cpp
+    ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/MapCreator.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     )
 
