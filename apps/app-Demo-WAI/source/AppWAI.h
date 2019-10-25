@@ -67,6 +67,7 @@ public:
     static void setupGUI();
     static void buildGUI(SLScene* s, SLSceneView* sv);
     static void openTest(std::string path);
+    static bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
 
     static AppDemoGuiAbout* aboutDial;
     static AppDemoGuiError* errorDial;

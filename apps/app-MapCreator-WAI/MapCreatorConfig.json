@@ -1,0 +1,173 @@
+{
+	"locationsEnabling": [
+		{
+			"location": "augst",
+			"areas": [
+				{ "area": "templeHillTheaterBottom", "enabled": false },
+				{ "area": "templeHillTheaterTop", "enabled": false },
+				{ "area": "theaterArena", "enabled": false },
+				{ "area": "theaterMid", "enabled": false },
+				{ "area": "theaterTop", "enabled": false },
+			]
+		},
+		{
+			"location": "avenches",
+			"areas": [
+				{ "area": "arena", "enabled": true },
+				{ "area": "entrance", "enabled": false }
+			]
+		},
+		{
+			"location": "biel",
+			"areas": [
+				{ "area": "gerechtigkeitsbrunnen", "enabled": false },
+				{ "area": "jakobRosius", "enabled": false },
+				{ "area": "leubringenbahn", "enabled": false },
+				{ "area": "ring", "enabled": false },
+				{ "area": "southWall", "enabled": false },
+			]
+		},
+	],
+	"mappingVideos": [
+		{
+			"location": "augst",
+			"area": "templeHillTheaterBottom",
+			"videos": [
+				"20191009-102457_rainy_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20191009-102554_rainy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20191009-104244_rainy_android-mcrd1-35-ASUS-A002_map_640x360.mp4"
+			]
+		},
+		{
+			"location": "augst",
+			"area": "templeHillTheaterTop",
+			"videos": [
+				"20191009-102705_rainy_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20191009-102829_rainy_android-mcrd1-35-ASUS-A002_map_640x360.mp4",
+				"20191009-103057_rainy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4"
+			]
+		},
+		{
+			"location": "augst",
+			"area": "theaterArena",
+			"videos": [
+				"20191009-110940_rainy_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20191009-111050_rainy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20191009-111118_rainy_android-mcrd1-35-ASUS-A002_map_640x360.mp4"
+			]
+		},
+		{
+			"location": "augst",
+			"area": "theaterMid",
+			"videos": [
+				"20191002-113923_sunny_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_map_640x360.mp4",
+				"20191002-115054_sunny_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_map_640x360.mp4",
+				"20191002-115146_sunny_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20191002-115233_sunny_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20191002-120109_cloudy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20191002-120530_cloudy_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_map_640x360.mp4",
+				"20191009-104815_rainy_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20191009-104901_rainy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20191009-104932_rainy_android-mcrd1-35-ASUS-A002_map_640x360.mp4"
+			]
+		},
+		{
+			"location": "augst",
+			"area": "theaterTop",
+			"videos": [
+				"20191009-105238_rainy_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20191009-105321_rainy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20191009-105350_rainy_android-mcrd1-35-ASUS-A002_map_640x360.mp4"
+			]
+		},
+		{
+			"location": "avenches",
+			"area": "arena",
+			"videos": [
+			]
+		},
+		{
+			"location": "avenches",
+			"area": "entrance",
+			"videos": [
+				"20190916-120000_cloudy_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_relocalization_640x360.mp4",
+				"20190916-120001_sunny_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_relocalization_640x360.mp4",
+				"20191004-120000_cloudy_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_relocalization_640x360.mp4"
+			]
+		},
+		{
+			"location": "biel",
+			"area": "gerechtigkeitsbrunnen",
+			"videos": [
+				"20191003-155031_sunny_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20191003-155115_sunny_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20191003-155647_sunny_android-build-abfarm865-Pixel-3_relocalization_640x360.mp4",
+				"20191004-161601_rainy_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_relocalization_640x360.mp4",
+				"20191004-161605_rainy_test-WUH1000105881-VTR-L29_relocalization_640x360.mp4",
+				"20191004-161645_rainy_android-build-abfarm865-Pixel-3_relocalization_640x360.mp4",
+				"20191011-075832_rainy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20191011-075938_rainy_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4"
+			]
+		},
+		{
+			"location": "biel",
+			"area": "jakobRosius",
+			"videos": [
+				"20191003-153643_sunny_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20191003-153732_sunny_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20191003-154456_sunny_android-mcrd1-35-ASUS-A002_map_640x360.mp4",
+				"20191003-154535_sunny_test-WUH1000105881-VTR-L29_relocalization_640x360.mp4",
+				"20191003-154637_sunny_android-build-abfarm865-Pixel-3_relocalization_640x360.mp4",
+				"20191004-161300_rainy_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_relocalization_640x360.mp4",
+				"20191004-161340_rainy_android-build-abfarm865-Pixel-3_relocalization_640x360.mp4",
+				"20191011-075429_rainy_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20191011-075534_rainy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4"
+			]
+		},
+		{
+			"location": "biel",
+			"area": "leubringenbahn",
+			"videos": [
+				"20191003-152758_sunny_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20191003-152854_sunny_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20191003-153022_sunny_test-WUH1000105881-VTR-L29_relocalization_640x360.mp4",
+				"20191003-153251_sunny_android-build-abfarm865-Pixel-3_relocalization_640x360.mp4",
+				"20191004-160800_rainy_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_relocalization_640x360.mp4",
+				"20191004-160801_rainy_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_map_640x360.mp4",
+				"20191004-160802_rainy_test-WUH1000105881-VTR-L29_relocalization_640x360.mp4",
+				"20191004-161046_rainy_android-build-abfarm865-Pixel-3_relocalization_640x360.mp4",
+				"20191011-080437_cloudy_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20191011-080522_cloudy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4"
+			]
+		},
+		{
+			"location": "biel",
+			"area": "ring",
+			"videos": [
+				"20191003-155923_cloudy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20191003-155946_cloudy_test-WUH1000105881-VTR-L29_relocalization_640x360.mp4",
+				"20191003-160012_cloudy_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20191003-160255_cloudy_android-build-abfarm865-Pixel-3_relocalization_640x360.mp4",
+				"20191004-161921_rainy_test-WUH1000105881-VTR-L29_relocalization_640x360.mp4",
+				"20191004-162000_rainy_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_map_640x360.mp4",
+				"20191004-162008_rainy_android-build-abfarm865-Pixel-3_relocalization_640x360.mp4",
+				"20191011-080134_cloudy_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20191011-080218_cloudy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4"
+			]
+		},
+		{
+			"location": "biel",
+			"area": "southWall",
+			"videos": [
+				"20190916-141503_cloudy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20190916-141533_cloudy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20190916-143001_cloudy_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_relocalization_640x360.mp4",
+				"20190916-143003_cloudy_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20190916-143004_cloudy_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4",
+				"20191001-164748_rainy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20191001-164844_rainy_android-mcrd1-35-ASUS-A002_relocalization_640x360.mp4",
+				"20191001-165120_rainy_cm-cm-build-c25-TA-1021_relocalization_640x360.mp4"
+			]
+		}
+	]
+}

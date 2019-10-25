@@ -181,6 +181,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     }
 
     // determine correct calibration file
+    std::string calibrationFileName;
     if (detectCalibAutomatically)
     {
         std::string computerInfo;
@@ -203,13 +204,19 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
             computerInfo = SLApplication::getComputerInfos();
         }
 
-        std::string calibrationFileName = "camCalib_" + computerInfo + "_main.xml";
-        calibrationFile                 = calibDir + calibrationFileName;
+        calibrationFileName = "camCalib_" + computerInfo + "_main.xml";
+        calibrationFile     = calibDir + calibrationFileName;
     }
 
     if (!Utils::fileExists(calibrationFile))
     {
         result.errorString = "Calibration file " + calibrationFile + " does not exist.";
+        return result;
+    }
+
+    if (!checkCalibration(calibDir, calibrationFileName))
+    {
+        result.errorString = "Calibration file " + calibrationFile + " is incorrect.";
         return result;
     }
 
@@ -321,6 +328,20 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     result.wasSuccessful = true;
 
     return result;
+}
+
+bool WAIApp::checkCalibration(const std::string& calibDir, const std::string& calibFileName)
+{
+    CVCalibration testCalib;
+    testCalib.load(calibDir, calibFileName, false, false);
+    if (testCalib.cameraMat().empty() || testCalib.distortion().empty()) //app will crash if distortion is empty
+        return false;
+    if (testCalib.numCapturedImgs() == 0) //if this is 0 then the calibration is automatically invalidated in load()
+        return false;
+    if (testCalib.imageSize() == cv::Size(0, 0))
+        return false;
+
+    return true;
 }
 
 void WAIApp::setupGUI()

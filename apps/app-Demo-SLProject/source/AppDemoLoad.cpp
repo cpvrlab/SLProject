@@ -84,10 +84,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     // Initialize all preloaded stuff from SLScene
     s->init();
 
-    // Disable viewport with the same aspect ratio a the video
-    // This makes only sense in scenes that use video
-    sv->setViewportFromRatio(SLVec2i(0, 0), VA_center, false);
-
     if (SLApplication::sceneID == SID_Empty) //..........................................................
     {
         s->name("No Scene loaded.");
