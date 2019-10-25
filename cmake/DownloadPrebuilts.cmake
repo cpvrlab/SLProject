@@ -1,8 +1,8 @@
-# 
+#
 # CMake options downloading and installing prebuilt libs
 #
 
-# 
+#
 # Download and install OpenCV from pallas.bfh.ch
 #
 
@@ -12,20 +12,20 @@ set(OpenCV_LINK_DIR)
 set(OpenCV_INCLUDE_DIR)
 
 set(OpenCV_LINK_LIBS
-    opencv_aruco
-    opencv_calib3d
-    opencv_features2d
-    opencv_face
-    opencv_flann
-    opencv_highgui
-    opencv_imgcodecs
-    opencv_objdetect
-    opencv_video
-    opencv_imgproc
-    opencv_videoio
-    opencv_xfeatures2d
-    opencv_core
-    )
+        opencv_aruco
+        opencv_calib3d
+        opencv_features2d
+        opencv_face
+        opencv_flann
+        opencv_highgui
+        opencv_imgcodecs
+        opencv_objdetect
+        opencv_video
+        opencv_imgproc
+        opencv_videoio
+        opencv_xfeatures2d
+        opencv_core
+        )
 
 set(OpenCV_LIBS)
 
@@ -52,7 +52,7 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(OpenCV_DIR "${PREBUILT_PATH}/linux_opencv_${OpenCV_VERSION}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
-    
+
     # new include directory structure for opencv 4
     if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
         set(OpenCV_INCLUDE_DIR "${OpenCV_INCLUDE_DIR}/opencv4")
@@ -76,7 +76,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 
     if (NOT EXISTS "${OpenCV_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-		
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
             "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
             WORKING_DIRECTORY "${PREBUILT_PATH}")
@@ -91,22 +90,22 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 
     foreach(lib ${OpenCV_LINK_LIBS})
         set(OpenCV_LIBS
-            ${OpenCV_LIBS}
-            optimized ${lib}${OpenCV_LIBS_POSTFIX}
-            debug ${lib}${OpenCV_LIBS_POSTFIX}d)
+                ${OpenCV_LIBS}
+                optimized ${lib}${OpenCV_LIBS_POSTFIX}
+                debug ${lib}${OpenCV_LIBS_POSTFIX}d)
         file(GLOB OpenCV_LIBS_to_copy_debug
-            ${OpenCV_LIBS_to_copy_debug}
-            ${OpenCV_DIR}/lib/${lib}*d.dll
-            )
+                ${OpenCV_LIBS_to_copy_debug}
+                ${OpenCV_DIR}/lib/${lib}*d.dll
+                )
         file(GLOB OpenCV_LIBS_to_copy_release
-            ${OpenCV_LIBS_to_copy_release}
-            ${OpenCV_DIR}/lib/${lib}*.dll
-            )
+                ${OpenCV_LIBS_to_copy_release}
+                ${OpenCV_DIR}/lib/${lib}*.dll
+                )
     endforeach(lib)
 
     # Set working dir for VS
     set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
-        VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+            VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
     # For MSVS copy them to working dir
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
@@ -158,7 +157,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 				${g2o_DIR}/bin/${lib}*.dll
 				)
 		endforeach(lib)
-			
+
         #message(STATUS "Copy g2o debug DLLs: ${g2o_dll_to_copy_debug}")
         file(COPY ${g2o_dll_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         #message(STATUS "Copy g2o release DLLs: ${g2o_dll_to_copy_release}")
@@ -212,19 +211,19 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
 
     foreach(lib ${OpenCV_LINK_LIBS})
         set(OpenCV_LIBS
-            ${OpenCV_LIBS}
-            optimized ${lib}
-            debug ${lib})
+                ${OpenCV_LIBS}
+                optimized ${lib}
+                debug ${lib})
     endforeach(lib)
 
     file(GLOB OpenCV_LIBS_to_copy_debug
-        ${OpenCV_LIBS_to_copy_debug}
-        ${OpenCV_DIR}/Debug/libopencv_*.dylib
-        )
+            ${OpenCV_LIBS_to_copy_debug}
+            ${OpenCV_DIR}/Debug/libopencv_*.dylib
+            )
     file(GLOB OpenCV_LIBS_to_copy_release
-        ${OpenCV_LIBS_to_copy_release}
-        ${OpenCV_DIR}/Release/libopencv_*.dylib
-        )
+            ${OpenCV_LIBS_to_copy_release}
+            ${OpenCV_DIR}/Release/libopencv_*.dylib
+            )
 
     if(${CMAKE_GENERATOR} STREQUAL Xcode)
         file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
@@ -235,6 +234,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     # This is needed for security purpose since MacOS Mohave
     set(MACOS_PLIST_FILE
         ${SL_PROJECT_ROOT}/data/config/info.plist)
+
     #message(STATUS "MACOS_PLIST_FILE: ${MACOS_PLIST_FILE}")
     #message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
     if(${CMAKE_GENERATOR} STREQUAL Xcode)
@@ -319,8 +319,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
         add_library(lib_${lib} STATIC IMPORTED)
         set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${OpenCV_LINK_DIR}/lib${lib}.a)
         set(OpenCV_LIBS
-            ${OpenCV_LIBS}
-            lib_${lib})
+                ${OpenCV_LIBS}
+                lib_${lib})
     endforeach(lib)
 
     set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})

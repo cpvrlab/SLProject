@@ -32,7 +32,7 @@ typedef enum
 //! Pixel index struct used in anti aliasing in ray tracing
 struct SLRTAAPixel
 {
-    SLRTAAPixel(SLushort X = 0, SLushort Y = 0)
+    explicit SLRTAAPixel(SLushort X = 0, SLushort Y = 0)
     {
         x = X;
         y = Y;
@@ -57,14 +57,14 @@ class SLRaytracer : public SLGLTexture
     ~SLRaytracer() override;
 
     // ray tracer functions
-    SLbool  renderClassic(SLSceneView* sv);
-    SLbool  renderDistrib(SLSceneView* sv);
-    void    renderSlices(bool isMainThread);
-    void    renderSlicesMS(bool isMainThread);
-    SLCol4f trace(SLRay* ray);
+    SLbool         renderClassic(SLSceneView* sv);
+    SLbool         renderDistrib(SLSceneView* sv);
+    void           renderSlices(bool isMainThread);
+    void           renderSlicesMS(bool isMainThread);
+    SLCol4f        trace(SLRay* ray);
     static SLCol4f shade(SLRay* ray);
-    void    sampleAAPixels(bool isMainThread);
-    void    finishBeforeUpdate();
+    void           sampleAAPixels(bool isMainThread);
+    void           renderUIBeforeUpdate();
 
     // additional ray tracer functions
     void    setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay);

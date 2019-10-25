@@ -158,7 +158,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
             {
                 if (SLApplication::timeS() - t1 > 0.5f)
                 {
-                    finishBeforeUpdate();
+                    renderUIBeforeUpdate();
                     _sv->onWndUpdate(); // update window
                     t1 = SLApplication::timeS();
                 }
