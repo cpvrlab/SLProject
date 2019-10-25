@@ -157,6 +157,7 @@ class SLGLState
     SLbool   glIsES2() { return _glIsES2; }
     SLbool   glIsES3() { return _glIsES3; }
     SLbool   hasExtension(const SLstring& e) { return _glExtensions.find(e) != string::npos; }
+    SLVec4i  getViewport() { return _viewport; }
 
     // stack operations
     inline void pushModelViewMatrix() { _modelViewMatrixStack.push(modelViewMatrix); }

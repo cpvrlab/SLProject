@@ -1157,7 +1157,6 @@ GLSLextractor::GLSLextractor(int w, int h)
     old = cv::Mat(w, h, CV_8UC1);
     old2 = cv::Mat(w, h, CV_8UC1);
 
-
     const int    npoints  = 512;
     const Point* pattern0 = (const Point*)bit_pattern_31_;
     std::copy(pattern0, pattern0 + npoints, std::back_inserter(pattern));
@@ -1178,7 +1177,7 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     glBindTexture(GL_TEXTURE_2D, imgProc.renderTextures[0]);
     glTexImage2D(GL_TEXTURE_2D,
                  0,
-                 GL_RED,
+                 GL_R8,
                  image.cols,
                  image.rows,
                  0,
@@ -1203,6 +1202,8 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
             }
         }
     }
+
+    Utils::log("nb keypoints : %d\n", _keypoints.size());
 
     if (_keypoints.size() == 0)
     {

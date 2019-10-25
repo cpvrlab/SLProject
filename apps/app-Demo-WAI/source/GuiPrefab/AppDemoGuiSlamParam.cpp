@@ -43,7 +43,7 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
                                                             fIniThFAST,
                                                             fMinThFAST);
 
-    KPextractor* glslExtractor = new GLSLextractor(640, 480);
+    KPextractor* glslExtractor = new GLSLextractor(640, 360);
 
     _extractors.push_back(new ORB_SLAM2::SURFextractor(500));
     _extractors.push_back(new ORB_SLAM2::SURFextractor(800));

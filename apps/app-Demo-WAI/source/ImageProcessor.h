@@ -19,8 +19,6 @@ public:
     GLuint dGdy;
     GLuint Gx;
     GLuint Gy;
-    GLuint Gx1ch;
-    GLuint Gy1ch;
     GLuint detH;
     GLuint nmsx;
     GLuint nmsy;
@@ -32,8 +30,6 @@ public:
     GLuint dGdyWLoc;
     GLuint GxWLoc;
     GLuint GyWLoc;
-    GLuint Gx1chWLoc;
-    GLuint Gy1chWLoc;
     GLuint nmsxWLoc;
     GLuint nmsyWLoc;
     GLuint d2Gdx2TexLoc;
@@ -54,8 +50,8 @@ public:
     GLuint nmszGyyLoc;
     GLuint nmszGxyLoc;
 
-    GLuint renderTextures[12];
-    GLuint renderFBO[12];
+    GLuint renderTextures[10];
+    GLuint renderFBO[10];
 
     GLuint vao;
     GLuint vbo;
@@ -80,7 +76,6 @@ public:
     void textureRB(int w, int h);
     GLuint buildShaderFromSource(string source, GLenum shaderType);
 
-    void blur(int w, int h);
     void gxx(int w, int h);
     void gyy(int w, int h);
     void gxy(int w, int h);

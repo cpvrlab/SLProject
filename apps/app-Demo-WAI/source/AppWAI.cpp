@@ -351,7 +351,6 @@ void WAIApp::setupGUI()
     errorDial = new AppDemoGuiError("Error", &uiPrefs.showError);
 
     AppDemoGui::addInfoDialog(errorDial);
-
     //TODO: AppDemoGuiInfosDialog are never deleted. Why not use smart pointer when the reponsibility for an object is not clear?
 }
 
@@ -372,9 +371,6 @@ void WAIApp::refreshTexture(cv::Mat* image)
 {
     if (image == nullptr)
         return;
-
-
-    //videoImage->copyVideoImage(image->cols, image->rows, CVCapture::instance()->format, image->data, image->isContinuous(), true);
 }
 
 //-----------------------------------------------------------------------------
@@ -394,8 +390,9 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
     sv->camera(waiScene->cameraNode);
 
     videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    //waiScene->cameraNode->background().texture(videoImage);
+    //testTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
     waiScene->cameraNode->background().texture(videoImage);
+    //waiScene->cameraNode->background().texture(testTexture);
 
     //waiScene->cameraNode->fov(wc->calcCameraVerticalFOV());
 
@@ -454,6 +451,7 @@ bool WAIApp::update()
             iKnowWhereIAm = updateTracking();
         }
     }
+
 
     //update tracking infos visualization
     updateTrackingVisualization(iKnowWhereIAm);
@@ -519,12 +517,30 @@ bool WAIApp::updateTracking()
         iKnowWhereIAm = mode->update(CVCapture::instance()->lastFrameGray,
                                      CVCapture::instance()->lastFrame);
 
+        ///*
         videoImage->copyVideoImage(CVCapture::instance()->lastFrame.cols,
                                    CVCapture::instance()->lastFrame.rows,
                                    CVCapture::instance()->format,
-                                   CVCapture::instance()->lastFrame.data,
-                                   CVCapture::instance()->lastFrame.isContinuous(),
-                                   true);
+                                   CVCapture::instance()->lastFrame.data, true, true);
+
+        //*/
+        /*
+        glBindTexture(GL_TEXTURE_2D, imgProc.renderTextures[0]);
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     GL_R8,
+                     CVCapture::instance()->lastFrameGray.cols,
+                     CVCapture::instance()->lastFrameGray.rows,
+                     0,
+                     GL_RED,
+                     GL_UNSIGNED_BYTE,
+                     CVCapture::instance()->lastFrameGray.data);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        imgProc.gpu_kp();
+        imgProc.readResult(videoImage);
+        */
+
 
         if (videoWriterInfo->isOpened())
         {
