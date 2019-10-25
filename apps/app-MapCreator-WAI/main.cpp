@@ -151,7 +151,7 @@ public:
         bool        initialized = false;
         std::string currentMapFileName;
 
-        const float cullRedundantPerc = 0.98f;
+        const float cullRedundantPerc = 0.99f;
         initialized                   = createNewDenseWaiMap(videos, mapFile, mapDir, cullRedundantPerc, currentMapFileName);
 
         if (videos.size() && initialized)
