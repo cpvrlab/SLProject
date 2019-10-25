@@ -265,32 +265,27 @@ void CVCapture::loadIntoLastFrame(const float       viewportWdivH,
 
         switch (format)
         {
-            case PF_luminance:
-            {
+            case PF_luminance: {
                 cvType = CV_8UC1;
                 bpp    = 1;
                 break;
             }
-            case PF_bgr:
-            {
+            case PF_bgr: {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_rgb:
-            {
+            case PF_rgb: {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_bgra:
-            {
+            case PF_bgra: {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
             }
-            case PF_rgba:
-            {
+            case PF_rgba: {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
@@ -899,6 +894,18 @@ int CVCapture::nextFrameIndex()
     if (_videoType == VT_FILE)
     {
         result = (int)_captureDevice.get(cv::CAP_PROP_POS_FRAMES);
+    }
+
+    return result;
+}
+//-----------------------------------------------------------------------------
+int CVCapture::videoLength()
+{
+    int result = 0;
+
+    if (_videoType == VT_FILE)
+    {
+        result = (int)_captureDevice.get(cv::CAP_PROP_FRAME_COUNT);
     }
 
     return result;

@@ -167,24 +167,29 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
     int         videoIndex = 0;
     std::string lastMapFileName;
 
+    //We want to repeat videos that did not initialize or relocalize after processing all other videos once.
+    //alreadyRepeatedVideos is a helper set to track which videos are already repeated to not repeat endlessly.
+    //We use the video file name as identifier.
+    std::set<std::string> alreadyRepeatedVideos;
+
     //use all videos to create a new map
-    for (auto itVideos = videos.begin(); itVideos != videos.end(); ++itVideos)
+    for (Videos::size_type videoIdx = 0; videoIdx < videos.size(); ++videoIdx)
     {
-        WAI_DEBUG("Starting video %s", itVideos->videoFile.c_str());
+        WAI_DEBUG("Starting video %s", videos[videoIdx].videoFile.c_str());
         lastMapFileName    = currentMapFileName;
         currentMapFileName = std::to_string(videoIndex) + "_" + mapFile;
 
         //initialze capture
         CVCapture* cap = CVCapture::instance();
         cap->videoType(CVVideoType::VT_FILE);
-        cap->videoFilename    = itVideos->videoFile;
-        cap->activeCalib      = &itVideos->calibration;
+        cap->videoFilename    = videos[videoIdx].videoFile;
+        cap->activeCalib      = &videos[videoIdx].calibration;
         cap->videoLoops       = true;
         cv::Size capturedSize = cap->openFile();
         //check if resolution of captured frame fits to calibration
         if (capturedSize.width != cap->activeCalib->imageSize().width ||
             capturedSize.height != cap->activeCalib->imageSize().height)
-            throw std::runtime_error("MapCreator::createWaiMap: Resolution of captured frame does not fit to calibration: " + itVideos->videoFile);
+            throw std::runtime_error("MapCreator::createWaiMap: Resolution of captured frame does not fit to calibration: " + videos[videoIdx].videoFile);
 
         //instantiate wai mode
         std::unique_ptr<WAI::ModeOrbSlam2> waiMode =
@@ -200,14 +205,25 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
         }
 
         //frame with which map was initialized (we want to run the previous frames again)
-        int  finalFrameIndex = 0;
+        int  videoLength     = cap->videoLength();
+        int  finalFrameIndex = videoLength;
         bool relocalizedOnce = false;
 
         while (cap->isOpened())
         {
             int currentFrameIndex = cap->nextFrameIndex();
-            if (finalFrameIndex == currentFrameIndex && relocalizedOnce)
+            if (finalFrameIndex == currentFrameIndex)
             {
+                if (!relocalizedOnce)
+                {
+                    //If this is not the last video or we already repeated it add it at the end of videos so that is
+                    //can be processed again later when there is more information in the map
+                    if (videoIdx != videos.size() - 1 && alreadyRepeatedVideos.find(videos[videoIdx].videoFile) == alreadyRepeatedVideos.end())
+                    {
+                        alreadyRepeatedVideos.insert(videos[videoIdx].videoFile);
+                        videos.push_back(videos[videoIdx]);
+                    }
+                }
                 break;
             }
 
@@ -223,10 +239,10 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
                 relocalizedOnce = true;
                 //if it relocalized once we will store the current index and repeat video up to this index
                 finalFrameIndex = currentFrameIndex;
-                WAI_DEBUG("Relocalized once for video %s at index %2", itVideos->videoFile.c_str(), std::to_string(finalFrameIndex).c_str());
+                WAI_DEBUG("Relocalized once for video %s at index %2", videos[videoIdx].videoFile.c_str(), std::to_string(finalFrameIndex).c_str());
             }
 
-            decorateDebug(waiMode.get(), cap, currentFrameIndex, waiMode->getNumKeyFrames());
+            decorateDebug(waiMode.get(), cap, currentFrameIndex, videoLength, waiMode->getNumKeyFrames());
         }
 
         //save map if it was initialized
@@ -342,7 +358,7 @@ void MapCreator::cullKeyframes(std::vector<WAIKeyFrame*>& kfs, const float cullR
     }
 }
 
-void MapCreator::decorateDebug(WAI::ModeOrbSlam2* waiMode, CVCapture* cap, const int currentFrameIndex, const int numOfKfs)
+void MapCreator::decorateDebug(WAI::ModeOrbSlam2* waiMode, CVCapture* cap, const int currentFrameIndex, const int videoLength, const int numOfKfs)
 {
     //#ifdef _DEBUG
     if (!cap->lastFrame.empty())
@@ -362,7 +378,7 @@ void MapCreator::decorateDebug(WAI::ModeOrbSlam2* waiMode, CVCapture* cap, const
         else if (waiModeState == WAI::TrackingState::TrackingState_TrackingOK)
             cv::putText(decoImg, "Tracking", stateOff, 0, fontScale, color);
 
-        cv::putText(decoImg, "FrameId: " + std::to_string(currentFrameIndex), idxOff, 0, fontScale, color);
+        cv::putText(decoImg, "FrameId: (" + std::to_string(currentFrameIndex) + "/" + std::to_string(videoLength) + ")", idxOff, 0, fontScale, color);
         cv::putText(decoImg, "Num Kfs: " + std::to_string(numOfKfs), kfsOff, 0, fontScale, color);
         cv::imshow("lastFrame", decoImg);
         cv::waitKey(1);

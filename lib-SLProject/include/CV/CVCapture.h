@@ -55,7 +55,7 @@ https://docs.opencv.org/3.0-beta/modules/videoio/doc/reading_and_writing_video.h
 */
 class CVCapture
 {
-    public: //! Public static instance getter for singleton pattern
+public: //! Public static instance getter for singleton pattern
     static CVCapture* instance()
     {
         if (!_instance)
@@ -99,15 +99,17 @@ class CVCapture
     void        videoType(CVVideoType vt);
     CVVideoType videoType() { return _videoType; }
     int         nextFrameIndex();
-    AvgFloat&   captureTimesMS() { return _captureTimesMS; }
-    void        loadCalibrations(const string& computerInfo,
-                                 const string& configPath,
-                                 const string& calibInitPath,
-                                 const string& videoPath);
-    void        setCameraSize(int sizeIndex,
-                              int sizeIndexMax,
-                              int width,
-                              int height);
+    //! get number of frames in video
+    int       videoLength();
+    AvgFloat& captureTimesMS() { return _captureTimesMS; }
+    void      loadCalibrations(const string& computerInfo,
+                               const string& configPath,
+                               const string& calibInitPath,
+                               const string& videoPath);
+    void      setCameraSize(int sizeIndex,
+                            int sizeIndexMax,
+                            int width,
+                            int height);
 
     void moveCapturePosition(int n);
 
@@ -133,7 +135,7 @@ class CVCapture
     CVCalibration  calibScndCam;   //!< OpenCV calibration for secondary video camera
     CVCalibration  calibVideoFile; //!< OpenCV calibration for simulation using a video file
 
-    private:
+private:
     CVCapture(); //!< private onetime constructor
     ~CVCapture();
     static CVCapture* _instance; //!< global singleton object
