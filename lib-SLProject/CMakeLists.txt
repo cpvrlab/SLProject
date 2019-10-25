@@ -9,6 +9,7 @@ set(platform_specific_include_dirs)
 
 project(LANGUAGES CUDA)
 find_package(CUDA 10 REQUIRED)
+find_package(OptiX REQUIRED VERSION 7.0)
 
 file(GLOB cuda
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerCamera.cu
@@ -97,6 +98,8 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMemoryStats.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMesh.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLNode.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixDefinitions.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixHelper.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixRaytracer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLObject.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPathtracer.h
@@ -235,17 +238,23 @@ endif ()
 #==============================================================================
 
 cuda_include_directories(ptx
-        ${OptiX_INCLUDE})
+        ${OptiX_INCLUDE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        )
+
 cuda_compile_ptx(ptx
-        ${cuda})
+        ${cuda}
+        )
+
 add_custom_target(ptx ALL
         DEPENDS ${cuda}
-        SOURCES ${cuda})
+        SOURCES ${cuda}
+        )
 
 add_library(${target}
         ${headers}
         ${sources}
-        ${shaders})
+        ${shaders} source/SLOptixHelper.cpp)
 
 add_library(${META_PROJECT_NAME}::${target}
         ALIAS
@@ -281,6 +290,7 @@ target_include_directories(${target}
         ${SL_PROJECT_ROOT}/externals/lib-SLEx   ternal/glew/include
         ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
         ${OpenCV_INCLUDE_DIR}
+        ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
         ${OptiX_INCLUDE}
         ${DEFAULT_INCLUDE_DIRECTORIES}
 
@@ -313,6 +323,7 @@ target_link_libraries(${target}
         ${OpenCV_LIBS}
         ${CUDA_LIBRARIES}
         ${CUDA_CUDA_LIBRARY}
+        ${optix_LIBRARY}
         ${META_PROJECT_NAME}::lib-SLExternal
         ${META_PROJECT_NAME}::lib-assimp
         lib-Utils

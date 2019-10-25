@@ -11,6 +11,9 @@
 #define SLPROJECT_SLOPTIXRAYTRACER_H
 #include <SLEventHandler.h>
 #include <SLGLTexture.h>
+#include <optix_types.h>
+#include <cuda.h>
+#include "SLOptixDefinitions.h"
 
 class SLScene;
 class SLSceneView;
@@ -28,7 +31,7 @@ public:
     ~SLOptixRaytracer() override;
 
     // setup raytracer
-    void loadPrograms();
+    void setupOptix();
     void setupScene(SLSceneView* sv);
 
     // ray tracer functions
@@ -56,6 +59,33 @@ public:
     void saveImage();
 
 protected:
+    void _createContext();
+    void _createModule(std::string filename);
+    void _createProgrames();
+    void _createPipeline();
+
+    OptixDeviceContext          _context;
+    CUstream                    _stream;
+
+    OptixModule                 _cameraModule;
+    OptixModule                 _shadingModule;
+    OptixModuleCompileOptions   _module_compile_options;
+    OptixPipelineCompileOptions _pipeline_compile_options;
+    OptixPipeline               _pipeline;
+
+    OptixProgramGroup           _raygen_prog_group;
+    OptixProgramGroup           _radiance_miss_group;
+    OptixProgramGroup           _occlusion_miss_group;
+    OptixProgramGroup           _adiance_hit_group;
+    OptixProgramGroup           _occlusion_hit_group;
+
+    OptixShaderBindingTable     _sbt;
+    OptixTraversableHandle      _handle;
+    Params                      _params;
+    Params*                     _d_params;
+    Light*                      _lights;
+    Light*                      _d_lights;
+
     SLSceneView* _sv;            //!< Parent sceneview
     SLRTState    _state;         //!< RT state;
     SLCamera*    _cam;           //!< shortcut to the camera

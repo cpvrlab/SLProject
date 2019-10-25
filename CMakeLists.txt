@@ -6,6 +6,8 @@ cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
 set(SL_PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${SL_PROJECT_ROOT}/cmake/")
+
 # Register general cmake commands (set_policy, source_group_by_path, list_extract)
 include(cmake/CustomCommands.cmake)
 
@@ -44,8 +46,6 @@ if (SL_BUILD_APPS)
     message(STATUS "Building sample apps")
 	add_subdirectory(apps)
 endif()
-
-include(cmake/FindOptiX.cmake)
 
 add_subdirectory(externals)
 add_subdirectory(experimental)
