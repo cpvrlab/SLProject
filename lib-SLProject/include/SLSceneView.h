@@ -64,6 +64,7 @@ class SLSceneView : public SLObject
 {
     friend class SLNode;
     friend class SLRaytracer;
+    friend class SLOptixRaytracer;
     friend class SLPathtracer;
 
     public:
@@ -111,6 +112,7 @@ class SLSceneView : public SLObject
     void   draw2DGLNodes();
     SLbool draw3DRT();
     SLbool draw3DPT();
+    SLbool draw3DOptixRT();
 
     // SceneView camera
     void   initSceneViewCamera(const SLVec3f& dir  = -SLVec3f::AXISZ,

@@ -9,7 +9,7 @@
 
 struct Params
 {
-    uchar4* image;
+    uchar3* image;
     unsigned int image_width;
 };
 

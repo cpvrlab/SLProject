@@ -76,6 +76,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCone.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCompactGrid.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCoordAxis.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCudaBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCylinder.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDeviceRotation.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDeviceLocation.h

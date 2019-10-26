@@ -7,6 +7,8 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <cuda_runtime.h>
+#include <SLOptixHelper.h>
 
 static bool readSourceFile(std::string& str, const std::string& filename )
 {
@@ -42,6 +44,8 @@ std::string getPtxStringFromFile(
 
     std::string *   ptx, sourceFilePath;
     sourceFilePath  = "lib-SLProject/" + getPtxFilename(filename);
+
+    ptx = new std::string();
 
     // Try to open source PTX file
     if( !readSourceFile( *ptx, sourceFilePath ) )

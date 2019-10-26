@@ -298,6 +298,7 @@ void SLSceneView::onInitialize()
     _stats3D.clear();
 
     _raytracer.clearData();
+    _optixRaytracer.setupOptix();
     _renderType   = RT_gl;
     _isFirstFrame = true;
 
@@ -405,6 +406,7 @@ SLbool SLSceneView::onPaint()
             case RT_gl: camUpdated = draw3DGL(s->elapsedTimeMS()); break;
             case RT_rt: camUpdated = draw3DRT(); break;
             case RT_pt: camUpdated = draw3DPT(); break;
+            case RT_optix_rt: camUpdated = draw3DOptixRT(); break;
         }
     }
 
@@ -1540,5 +1542,42 @@ void SLSceneView::startOptixRaytracing(SLint maxDepth) {
     _renderType     = RT_optix_rt;
     _stopOptixRT    = false;
     _optixRaytracer.maxDepth(maxDepth);
+}
+SLbool SLSceneView::draw3DOptixRT()
+{
+    SLbool updated = false;
+
+    // if the raytracer not yet got started
+    if (_optixRaytracer.state() == rtReady)
+    {
+        SLScene* s = SLApplication::scene;
+
+        // Update transforms and aabbs
+        // @Todo: causes multithreading bug in RT
+        //s->root3D()->needUpdate();
+
+        // Do software skinning on all changed skeletons
+//        for (auto mesh : s->meshes())
+//            mesh->updateAccelStruct();
+
+        // Start raytracing
+//        if (_raytracer.doDistributed())
+//            _raytracer.renderDistrib(this);
+//        else
+            _optixRaytracer.setupScene(this);
+            _optixRaytracer.renderClassic();
+    }
+
+    // Refresh the render image during RT
+    _optixRaytracer.renderImage();
+
+    // React on the stop flag (e.g. ESC)
+    if (_stopOptixRT)
+    {
+        _renderType = RT_gl;
+        updated     = true;
+    }
+
+    return updated;
 }
 //-----------------------------------------------------------------------------

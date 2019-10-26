@@ -12,6 +12,8 @@
 //
 //------------------------------------------------------------------------------
 
+#include <optix_stubs.h>
+
 #define OPTIX_CHECK( call )                                                    \
     do                                                                         \
     {                                                                          \
@@ -51,28 +53,33 @@
 #define CUDA_CHECK( call )                                                     \
     do                                                                         \
     {                                                                          \
-        cudaError_t error = call;                                              \
-        if( error != cudaSuccess )                                             \
+        CUresult result = call;                                                \
+        if( result != CUDA_SUCCESS )                                           \
         {                                                                      \
+            const char *errorstr;                                              \
+            cuGetErrorString(result, &errorstr);                               \
             std::stringstream ss;                                              \
             ss << "CUDA call (" << #call << " ) failed with error: '"          \
-               << cudaGetErrorString( error )                                  \
-               << "' (" __FILE__ << ":" << __LINE__ << ")\n";                  \
+               << errorstr                                                     \
+               << "' (" __FILE__ << ":" << __LINE__ << ")\n"                   \
+               << result << "\n";                                              \
             throw SLOptixException( ss.str().c_str() );                        \
         }                                                                      \
     } while( 0 )
 
 
-#define CUDA_SYNC_CHECK()                                                      \
+#define CUDA_SYNC_CHECK( call )                                                \
     do                                                                         \
     {                                                                          \
-        cudaDeviceSynchronize();                                               \
-        cudaError_t error = cudaGetLastError();                                \
-        if( error != cudaSuccess )                                             \
+        CUstream stream = call;                                                \
+        CUresult result = cuStreamSynchronize(stream);                         \
+        if( result != CUDA_SUCCESS )                                           \
         {                                                                      \
+            const char *errorstr;                                              \
+            cuGetErrorString(result, &errorstr);                               \
             std::stringstream ss;                                              \
             ss << "CUDA error on synchronize with error '"                     \
-               << cudaGetErrorString( error )                                  \
+               << errorstr                                                     \
                << "' (" __FILE__ << ":" << __LINE__ << ")\n";                  \
             throw SLOptixException( ss.str().c_str() );                        \
         }                                                                      \
