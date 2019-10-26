@@ -50,7 +50,7 @@ SLCudaBuffer<T>::SLCudaBuffer() {
 
 template<typename T>
 SLCudaBuffer<T>::~SLCudaBuffer() {
-    free();
+//    free();
 }
 
 template<typename T>

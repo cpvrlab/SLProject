@@ -60,12 +60,12 @@ SLOptixRaytracer::~SLOptixRaytracer()
 
     OPTIX_CHECK( optixPipelineDestroy( _pipeline ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _radiance_hit_group ) );
-    OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_hit_group ) );
+//    OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_hit_group ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _radiance_miss_group ) );
-    OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_miss_group ) );
+//    OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_miss_group ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _raygen_prog_group ) );
     OPTIX_CHECK( optixModuleDestroy( _cameraModule ) );
-    OPTIX_CHECK( optixModuleDestroy( _shadingModule ) );
+//    OPTIX_CHECK( optixModuleDestroy( _shadingModule ) );
 
     OPTIX_CHECK( optixDeviceContextDestroy( _context ) );
 }
@@ -114,7 +114,7 @@ void SLOptixRaytracer::setupOptix() {
 
     _sbt = _createShaderBindingTable();
 
-//    _paramsBuffer.alloc(sizeof(Params));
+    _paramsBuffer.alloc(sizeof(Params));
 }
 
 static void context_log_cb( unsigned int level, const char* tag, const char* message, void* /*cbdata */)
@@ -254,7 +254,7 @@ void SLOptixRaytracer::setupScene(SLSceneView *sv) {
     _params.image = reinterpret_cast<uchar3 *>(_imageBuffer.devicePointer());
     _params.image_width = _sv->scrW();
 
-    _paramsBuffer.alloc_and_upload(&_params, 1);
+    _paramsBuffer.upload(&_params);
 }
 
 SLbool SLOptixRaytracer::renderClassic() {
