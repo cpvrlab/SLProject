@@ -30,17 +30,6 @@ using namespace std::chrono;
 #    include <debug_new.h> // memory leak detector
 #endif
 
-template <typename T>
-struct SbtRecord
-{
-    __align__( OPTIX_SBT_RECORD_ALIGNMENT ) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
-    T data;
-};
-
-typedef SbtRecord<CameraData>   RayGenSbtRecord;
-typedef SbtRecord<int>   MissSbtRecord;
-typedef SbtRecord<int>   HitSbtRecord;
-
 //-----------------------------------------------------------------------------
 SLOptixRaytracer::SLOptixRaytracer()
 : SLRaytracer()
@@ -53,10 +42,6 @@ SLOptixRaytracer::SLOptixRaytracer()
 SLOptixRaytracer::~SLOptixRaytracer()
 {
     SL_LOG("Destructor      : ~SLOptixRaytracer\n");
-
-    CUDA_CHECK( cuMemFree( _sbt.raygenRecord       ) );
-    CUDA_CHECK( cuMemFree( _sbt.missRecordBase     ) );
-    CUDA_CHECK( cuMemFree( _sbt.hitgroupRecordBase ) );
 
     OPTIX_CHECK( optixPipelineDestroy( _pipeline ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _radiance_hit_group ) );
@@ -125,14 +110,13 @@ static void context_log_cb( unsigned int level, const char* tag, const char* mes
 
 void SLOptixRaytracer::_createContext() {
     // Initialize CUDA
+    CUcontext          cu_ctx = 0;  // zero means take the current context
     CUDA_CHECK( cuInit( 0 ) );
     CUDA_CHECK( cuMemFree( 0 ) );
-
-    CUcontext          cu_ctx = 0;  // zero means take the current context
-    CUcontext           s_ctx = 0;
     CUDA_CHECK( cuCtxCreate( &cu_ctx, 0, 0) );
     CUDA_CHECK( cuStreamCreate( &_stream, CU_STREAM_DEFAULT ) );
-    CUDA_CHECK( cuStreamGetCtx(_stream, &s_ctx));
+
+    // Initialize OptiX
     OPTIX_CHECK( optixInit() );
     OptixDeviceContextOptions options = {};
     options.logCallbackFunction       = &context_log_cb;
@@ -216,29 +200,26 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable() {
         RayGenSbtRecord rg_sbt;
         OPTIX_CHECK( optixSbtRecordPackHeader( _raygen_prog_group, &rg_sbt ) );
         rg_sbt.data = {1.0f, 0.f, 0.f};
-        SLCudaBuffer<RayGenSbtRecord> rayGenBuffer = SLCudaBuffer<RayGenSbtRecord>();
         rayGenRecords.push_back(rg_sbt);
-        rayGenBuffer.alloc_and_upload(rayGenRecords);
+        _rayGenBuffer.alloc_and_upload(rayGenRecords);
 
         std::vector<MissSbtRecord> missRecords;
         MissSbtRecord ms_sbt;
         OPTIX_CHECK( optixSbtRecordPackHeader( _radiance_miss_group , &ms_sbt ) );
-        SLCudaBuffer<MissSbtRecord> missBuffer = SLCudaBuffer<MissSbtRecord>();
         missRecords.push_back(ms_sbt);
-        missBuffer.alloc_and_upload(missRecords);
+        _missBuffer.alloc_and_upload(missRecords);
 
         std::vector<HitSbtRecord> hitRecords;
         HitSbtRecord hg_sbt;
         OPTIX_CHECK( optixSbtRecordPackHeader( _radiance_hit_group, &hg_sbt ) );
-        SLCudaBuffer<HitSbtRecord> hitBuffer = SLCudaBuffer<HitSbtRecord>();
         hitRecords.push_back(hg_sbt);
-        hitBuffer.alloc_and_upload(hitRecords);
+        _hitBuffer.alloc_and_upload(hitRecords);
 
-        sbt.raygenRecord                = rayGenBuffer.devicePointer();
-        sbt.missRecordBase              = missBuffer.devicePointer();
+        sbt.raygenRecord                = _rayGenBuffer.devicePointer();
+        sbt.missRecordBase              = _missBuffer.devicePointer();
         sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
         sbt.missRecordCount             = 1;
-        sbt.hitgroupRecordBase          = hitBuffer.devicePointer();
+        sbt.hitgroupRecordBase          = _hitBuffer.devicePointer();
         sbt.hitgroupRecordStrideInBytes = sizeof( HitSbtRecord );
         sbt.hitgroupRecordCount         = 1;
     }
@@ -258,9 +239,6 @@ void SLOptixRaytracer::setupScene(SLSceneView *sv) {
 }
 
 SLbool SLOptixRaytracer::renderClassic() {
-    CUcontext ctx;
-    CUDA_CHECK( cuCtxGetCurrent(&ctx));
-
     OPTIX_CHECK( optixLaunch(
             _pipeline,
             _stream,
@@ -274,7 +252,7 @@ SLbool SLOptixRaytracer::renderClassic() {
 
     prepareImage();       // Setup image & precalculations
 
-    uchar3 image[_sv->scrW() * _sv->scrH()];
+    uchar3* image = reinterpret_cast<uchar3 *>( malloc(_imageBuffer.size()) );
     _imageBuffer.download(image);;
 
     _images[0]->load(
@@ -285,4 +263,6 @@ SLbool SLOptixRaytracer::renderClassic() {
             reinterpret_cast<uchar *>(image),
             true,
             true);
+
+    free(image);
 }

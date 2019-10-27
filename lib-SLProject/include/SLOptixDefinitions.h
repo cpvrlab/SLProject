@@ -24,4 +24,15 @@ struct Light
     float3 color;
 };
 
+template <typename T>
+struct SbtRecord
+{
+    __align__( OPTIX_SBT_RECORD_ALIGNMENT ) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
+    T data;
+};
+
+typedef SbtRecord<CameraData>   RayGenSbtRecord;
+typedef SbtRecord<int>   MissSbtRecord;
+typedef SbtRecord<int>   HitSbtRecord;
+
 #endif //SLPROJECT_SLOPTIXDEFINITIONS_H

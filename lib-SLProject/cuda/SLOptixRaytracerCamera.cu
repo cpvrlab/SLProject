@@ -14,5 +14,5 @@ __global__ void __raygen__draw_solid_color()
 {
     uint3 launch_index = optixGetLaunchIndex();
     CameraData* rtData = (CameraData*)optixGetSbtDataPointer();
-    params.image[launch_index.y * params.image_width + launch_index.x] = make_uchar3( 255, 0, 0 );
+    params.image[launch_index.y * params.image_width + launch_index.x] = make_uchar3( rtData->r * 255, rtData->g * 255, rtData->b * 255 );
 }

@@ -47,8 +47,11 @@ protected:
     OptixDeviceContext          _context{};
     CUstream                    _stream{};
 
-    SLCudaBuffer<uchar3>        _imageBuffer = SLCudaBuffer<uchar3>();
-    SLCudaBuffer<Params>        _paramsBuffer = SLCudaBuffer<Params>();
+    SLCudaBuffer<uchar3>            _imageBuffer = SLCudaBuffer<uchar3>();
+    SLCudaBuffer<Params>            _paramsBuffer = SLCudaBuffer<Params>();
+    SLCudaBuffer<RayGenSbtRecord>   _rayGenBuffer = SLCudaBuffer<RayGenSbtRecord>();
+    SLCudaBuffer<MissSbtRecord>     _missBuffer = SLCudaBuffer<MissSbtRecord>();
+    SLCudaBuffer<HitSbtRecord>      _hitBuffer = SLCudaBuffer<HitSbtRecord>();
 
     OptixModule                 _cameraModule{};
     OptixModule                 _shadingModule{};
