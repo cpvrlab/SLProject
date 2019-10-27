@@ -13,9 +13,12 @@ find_package(OptiX REQUIRED VERSION 7.0)
 
 file(GLOB cuda
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerCamera.cu
-        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerShading.cu)
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerShading.cu
+        )
 
 file(GLOB headers
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerHelper.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixVectorMath.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTypedefs.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibration.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCapture.h
@@ -240,6 +243,7 @@ endif ()
 
 cuda_include_directories(ptx
         ${OptiX_INCLUDE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         )
 

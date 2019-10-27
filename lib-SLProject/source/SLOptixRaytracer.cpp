@@ -233,7 +233,8 @@ void SLOptixRaytracer::setupScene(SLSceneView *sv) {
     _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(uchar3));
 
     _params.image = reinterpret_cast<uchar3 *>(_imageBuffer.devicePointer());
-    _params.image_width = _sv->scrW();
+    _params.width = _sv->scrW();
+    _params.height = _sv->scrH();
 
     _paramsBuffer.upload(&_params);
 }
