@@ -85,6 +85,11 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
         _markerFrame  = WAIFrame(markerImgGray, 0.0f, _markerOrbExtractor, markerCameraMat, markerDistortionMat, mpVocabulary, true);
         _markerWidthM = 0.289f;
     }
+
+    _mpUL = nullptr;
+    _mpUR = nullptr;
+    _mpLL = nullptr;
+    _mpLR = nullptr;
 }
 
 // TODO : Verify that this is really thread safe
@@ -320,6 +325,46 @@ std::vector<WAIMapPoint*> WAI::ModeOrbSlam2::getMapPoints()
     return result;
 }
 
+std::vector<WAIMapPoint*> WAI::ModeOrbSlam2::getMarkerCornerMapPoints()
+{
+    std::vector<WAIMapPoint*> result;
+
+    if (_mpUL)
+    {
+        if (_mpUL->isBad())
+        {
+            WAI_LOG("_mpUL->isBad()!!!");
+        }
+        result.push_back(_mpUL);
+    }
+    if (_mpUR)
+    {
+        if (_mpUR->isBad())
+        {
+            WAI_LOG("_mpUR->isBad()!!!");
+        }
+        result.push_back(_mpUR);
+    }
+    if (_mpLL)
+    {
+        if (_mpLL->isBad())
+        {
+            WAI_LOG("_mpLL->isBad()!!!");
+        }
+        result.push_back(_mpLL);
+    }
+    if (_mpLR)
+    {
+        if (_mpLR->isBad())
+        {
+            WAI_LOG("_mpLR->isBad()!!!");
+        }
+        result.push_back(_mpLR);
+    }
+
+    return result;
+}
+
 std::vector<WAIMapPoint*> WAI::ModeOrbSlam2::getMatchedMapPoints()
 {
     std::lock_guard<std::mutex> guard(_mapLock);
@@ -545,6 +590,12 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
                              mpVocabulary,
                              _retainImg);
 
+    // TODO(dgj1): move this somewhere more sensible
+    cv::Mat ul = cv::Mat(cv::Point3f(0, 0, 1));
+    cv::Mat ur = cv::Mat(cv::Point3f(_markerFrame.imgGray.cols, 0, 1));
+    cv::Mat ll = cv::Mat(cv::Point3f(0, _markerFrame.imgGray.rows, 1));
+    cv::Mat lr = cv::Mat(cv::Point3f(_markerFrame.imgGray.cols, _markerFrame.imgGray.rows, 1));
+
     // NOTE(dgj1): find matches with marker if necessary
     std::vector<int> markerMatchesCurrentFrame;
     if (_createMarkerMap)
@@ -577,10 +628,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
             cv::Mat markerHomography = cv::findHomography(markerPoints, framePoints, cv::RANSAC);
             markerHomography.convertTo(markerHomography, CV_32F);
 
-            cv::Mat ul = cv::Mat(cv::Point3f(0, 0, 1));
-            cv::Mat ur = cv::Mat(cv::Point3f(_markerFrame.imgGray.cols, 0, 1));
-            cv::Mat ll = cv::Mat(cv::Point3f(0, _markerFrame.imgGray.rows, 1));
-            cv::Mat lr = cv::Mat(cv::Point3f(_markerFrame.imgGray.cols, _markerFrame.imgGray.rows, 1));
+            // TODO(dgj1): handle case if findHomography fails (markerHomography is empty)?
 
             // NOTE(dgj1): assumption that intrinsic camera parameters are the same
             // TODO(dgj1): think about this assumption
@@ -639,7 +687,12 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
 
             if (_createMarkerMap)
             {
-                _initialFrameToMarkerMatches = markerMatchesCurrentFrame;
+                _ulIniFrame = ul;
+                _urIniFrame = ur;
+                _llIniFrame = ll;
+                _lrIniFrame = lr;
+
+                //_initialFrameToMarkerMatches = markerMatchesCurrentFrame;
             }
 
             return;
@@ -658,6 +711,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
 
         int nmatches = 0;
 
+#if 0
         if (_createMarkerMap)
         {
             mvIniMatches = std::vector<int>(mInitialFrame.mvKeysUn.size(), -1);
@@ -682,6 +736,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
             }
         }
         else
+#endif
         {
             // Find correspondences
             ORBmatcher matcher(0.9, true);
@@ -746,6 +801,11 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
             tcw.copyTo(Tcw.rowRange(0, 3).col(3));
             mCurrentFrame.SetPose(Tcw);
 
+            _ulCurFrame = ul;
+            _urCurFrame = ur;
+            _llCurFrame = ll;
+            _lrCurFrame = lr;
+
             bool mapInitializedSuccessfully = createInitialMapMonocular(matchesNeeded);
 
             if (mapInitializedSuccessfully)
@@ -754,12 +814,6 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
                 _initialized = true;
                 _bOK         = true;
             }
-            else
-            {
-                WAI_LOG("createInitialMapMonocular failed");
-            }
-
-            //std::cout << "mCurrentFrame.mTcw: " << mCurrentFrame.mTcw << std::endl;
 
             //ghm1: in the original implementation the initialization is defined in the track() function and this part is always called at the end!
             // Store frame pose information to retrieve the complete camera trajectory afterwards.
@@ -805,8 +859,10 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
                              mpVocabulary,
                              _retainImg);
 
-    cv::Mat markerCorrectedPose;
+    // TODO(dgj1): move this somewhere more sensible
 
+    // NOTE(dgj1): find matches with marker if necessary
+    std::vector<int> markerMatchesCurrentFrame;
     if (_createMarkerMap)
     {
         ORBmatcher               matcher(0.9, true);
@@ -817,22 +873,58 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
         std::vector<int> markerMatchesToCurrentFrame;
         int              nmatches = matcher.SearchForInitialization(_markerFrame, mCurrentFrame, prevMatched, markerMatchesToCurrentFrame, 100);
 
-        std::vector<cv::KeyPoint> matches;
-        for (int i = 0; i < markerMatchesToCurrentFrame.size(); i++)
+        if (nmatches > 50)
         {
-            if (markerMatchesToCurrentFrame[i] >= 0)
-            {
-                matches.push_back(mCurrentFrame.mvKeys[markerMatchesToCurrentFrame[i]]);
-            }
-        }
+            std::vector<cv::Point2f> markerPoints;
+            std::vector<cv::Point2f> framePoints;
 
-        mCurrentFrame = WAIFrame(imageGray,
-                                 mpIniExtractor,
-                                 _cameraMat,
-                                 _distortionMat,
-                                 matches,
-                                 mpVocabulary,
-                                 _retainImg);
+            //std::vector<cv::KeyPoint> matches;
+            for (int i = 0; i < markerMatchesToCurrentFrame.size(); i++)
+            {
+                if (markerMatchesToCurrentFrame[i] >= 0)
+                {
+                    markerPoints.push_back(_markerFrame.mvKeysUn[i].pt);
+                    framePoints.push_back(mCurrentFrame.mvKeysUn[markerMatchesToCurrentFrame[i]].pt);
+                }
+            }
+
+            cv::Mat markerHomography = cv::findHomography(markerPoints, framePoints, cv::RANSAC);
+            markerHomography.convertTo(markerHomography, CV_32F);
+
+            // TODO(dgj1): handle case if findHomography fails (markerHomography is empty)?
+            cv::Mat ul = cv::Mat(cv::Point3f(0, 0, 1));
+            cv::Mat ur = cv::Mat(cv::Point3f(_markerFrame.imgGray.cols, 0, 1));
+            cv::Mat ll = cv::Mat(cv::Point3f(0, _markerFrame.imgGray.rows, 1));
+            cv::Mat lr = cv::Mat(cv::Point3f(_markerFrame.imgGray.cols, _markerFrame.imgGray.rows, 1));
+
+            // NOTE(dgj1): assumption that intrinsic camera parameters are the same
+            // TODO(dgj1): think about this assumption
+            ul = markerHomography * ul;
+            ul /= ul.at<float>(2, 0);
+            ur = markerHomography * ur;
+            ur /= ur.at<float>(2, 0);
+            ll = markerHomography * ll;
+            ll /= ll.at<float>(2, 0);
+            lr = markerHomography * lr;
+            lr /= lr.at<float>(2, 0);
+
+            cv::rectangle(imageRGB,
+                          cv::Point(ul.at<float>(0, 0), ul.at<float>(1, 0)),
+                          cv::Point(ul.at<float>(0, 0) + 3, ul.at<float>(1, 0) + 3),
+                          cv::Scalar(255, 0, 0));
+            cv::rectangle(imageRGB,
+                          cv::Point(ur.at<float>(0, 0), ur.at<float>(1, 0)),
+                          cv::Point(ur.at<float>(0, 0) + 3, ur.at<float>(1, 0) + 3),
+                          cv::Scalar(255, 0, 0));
+            cv::rectangle(imageRGB,
+                          cv::Point(ll.at<float>(0, 0), ll.at<float>(1, 0)),
+                          cv::Point(ll.at<float>(0, 0) + 3, ll.at<float>(1, 0) + 3),
+                          cv::Scalar(255, 0, 0));
+            cv::rectangle(imageRGB,
+                          cv::Point(lr.at<float>(0, 0), lr.at<float>(1, 0)),
+                          cv::Point(lr.at<float>(0, 0) + 3, lr.at<float>(1, 0) + 3),
+                          cv::Scalar(255, 0, 0));
+        }
     }
 
     // Get Map Mutex -> Map cannot be changed
@@ -1027,6 +1119,59 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
 
             _pose    = Tcw;
             _poseSet = true;
+
+#if 0
+            if (_createMarkerMap)
+            {
+                {
+                    cv::Mat ulProj = cv::Mat(4, 1, CV_32F);
+                    ulProj         = Tcw * _ul4D;
+                    ulProj         = mCurrentFrame.mK * ulProj.rowRange(0, 3);
+                    ulProj         = ulProj / ulProj.at<float>(2, 0);
+
+                    cv::rectangle(imageRGB,
+                                  cv::Point(ulProj.at<float>(0, 0), ulProj.at<float>(1, 0)),
+                                  cv::Point(ulProj.at<float>(0, 0) + 3, ulProj.at<float>(1, 0) + 3),
+                                  cv::Scalar(0, 255, 0));
+                }
+
+                {
+                    cv::Mat urProj = cv::Mat(4, 1, CV_32F);
+                    urProj         = Tcw * _ur4D;
+                    urProj         = mCurrentFrame.mK * urProj.rowRange(0, 3);
+                    urProj         = urProj / urProj.at<float>(2, 0);
+
+                    cv::rectangle(imageRGB,
+                                  cv::Point(urProj.at<float>(0, 0), urProj.at<float>(1, 0)),
+                                  cv::Point(urProj.at<float>(0, 0) + 3, urProj.at<float>(1, 0) + 3),
+                                  cv::Scalar(0, 255, 0));
+                }
+
+                {
+                    cv::Mat llProj = cv::Mat(4, 1, CV_32F);
+                    llProj         = Tcw * _ll4D;
+                    llProj         = mCurrentFrame.mK * llProj.rowRange(0, 3);
+                    llProj         = llProj / llProj.at<float>(2, 0);
+
+                    cv::rectangle(imageRGB,
+                                  cv::Point(llProj.at<float>(0, 0), llProj.at<float>(1, 0)),
+                                  cv::Point(llProj.at<float>(0, 0) + 3, llProj.at<float>(1, 0) + 3),
+                                  cv::Scalar(0, 255, 0));
+                }
+
+                {
+                    cv::Mat lrProj = cv::Mat(4, 1, CV_32F);
+                    lrProj         = Tcw * _lr4D;
+                    lrProj         = mCurrentFrame.mK * lrProj.rowRange(0, 3);
+                    lrProj         = lrProj / lrProj.at<float>(2, 0);
+
+                    cv::rectangle(imageRGB,
+                                  cv::Point(lrProj.at<float>(0, 0), lrProj.at<float>(1, 0)),
+                                  cv::Point(lrProj.at<float>(0, 0) + 3, lrProj.at<float>(1, 0) + 3),
+                                  cv::Scalar(0, 255, 0));
+                }
+            }
+#endif
         }
 
         // Clean VO matches
@@ -1108,6 +1253,59 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
 
 bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
 {
+    int kpUlIniIndex, kpUrIniIndex, kpLlIniIndex, kpLrIniIndex;
+    int kpUlCurIndex, kpUrCurIndex, kpLlCurIndex, kpLrCurIndex;
+    if (_createMarkerMap)
+    {
+        {
+            cv::KeyPoint kpUlIniFrame, kpUlCurFrame;
+            kpUlIniFrame.pt.x = _ulIniFrame.at<float>(0, 0);
+            kpUlIniFrame.pt.y = _ulIniFrame.at<float>(1, 0);
+
+            kpUlCurFrame.pt.x = _ulCurFrame.at<float>(0, 0);
+            kpUlCurFrame.pt.y = _ulCurFrame.at<float>(1, 0);
+
+            kpUlIniIndex = mInitialFrame.addKeyPoint(kpUlIniFrame);
+            kpUlCurIndex = mCurrentFrame.addKeyPoint(kpUlCurFrame);
+        }
+
+        {
+            cv::KeyPoint kpUrIniFrame, kpUrCurFrame;
+            kpUrIniFrame.pt.x = _urIniFrame.at<float>(0, 0);
+            kpUrIniFrame.pt.y = _urIniFrame.at<float>(1, 0);
+
+            kpUrCurFrame.pt.x = _urCurFrame.at<float>(0, 0);
+            kpUrCurFrame.pt.y = _urCurFrame.at<float>(1, 0);
+
+            kpUrIniIndex = mInitialFrame.addKeyPoint(kpUrIniFrame);
+            kpUrCurIndex = mCurrentFrame.addKeyPoint(kpUrCurFrame);
+        }
+
+        {
+            cv::KeyPoint kpLlIniFrame, kpLlCurFrame;
+            kpLlIniFrame.pt.x = _llIniFrame.at<float>(0, 0);
+            kpLlIniFrame.pt.y = _llIniFrame.at<float>(1, 0);
+
+            kpLlCurFrame.pt.x = _llCurFrame.at<float>(0, 0);
+            kpLlCurFrame.pt.y = _llCurFrame.at<float>(1, 0);
+
+            kpLlIniIndex = mInitialFrame.addKeyPoint(kpLlIniFrame);
+            kpLlCurIndex = mCurrentFrame.addKeyPoint(kpLlCurFrame);
+        }
+
+        {
+            cv::KeyPoint kpLrIniFrame, kpLrCurFrame;
+            kpLrIniFrame.pt.x = _lrIniFrame.at<float>(0, 0);
+            kpLrIniFrame.pt.y = _lrIniFrame.at<float>(1, 0);
+
+            kpLrCurFrame.pt.x = _lrCurFrame.at<float>(0, 0);
+            kpLrCurFrame.pt.y = _lrCurFrame.at<float>(1, 0);
+
+            kpLrIniIndex = mInitialFrame.addKeyPoint(kpLrIniFrame);
+            kpLrCurIndex = mCurrentFrame.addKeyPoint(kpLrCurFrame);
+        }
+    }
+
     // Create KeyFrames
     WAIKeyFrame* pKFini = new WAIKeyFrame(mInitialFrame, _map, mpKeyFrameDatabase);
     WAIKeyFrame* pKFcur = new WAIKeyFrame(mCurrentFrame, _map, mpKeyFrameDatabase);
@@ -1145,6 +1343,208 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
 
         //Add to Map
         _map->AddMapPoint(pMP);
+    }
+
+    if (_createMarkerMap)
+    {
+        cv::Mat Rcw1 = pKFini->GetRotation();
+        cv::Mat Rwc1 = Rcw1.t();
+        cv::Mat tcw1 = pKFini->GetTranslation();
+        cv::Mat Tcw1(3, 4, CV_32F);
+        Rcw1.copyTo(Tcw1.colRange(0, 3));
+        tcw1.copyTo(Tcw1.col(3));
+
+        const float& fx1    = pKFini->fx;
+        const float& fy1    = pKFini->fy;
+        const float& cx1    = pKFini->cx;
+        const float& cy1    = pKFini->cy;
+        const float& invfx1 = pKFini->invfx;
+        const float& invfy1 = pKFini->invfy;
+
+        cv::Mat Rcw2 = pKFcur->GetRotation();
+        cv::Mat Rwc2 = Rcw2.t();
+        cv::Mat tcw2 = pKFcur->GetTranslation();
+        cv::Mat Tcw2(3, 4, CV_32F);
+        Rcw2.copyTo(Tcw2.colRange(0, 3));
+        tcw2.copyTo(Tcw2.col(3));
+
+        const float& fx2    = pKFcur->fx;
+        const float& fy2    = pKFcur->fy;
+        const float& cx2    = pKFcur->cx;
+        const float& cy2    = pKFcur->cy;
+        const float& invfx2 = pKFcur->invfx;
+        const float& invfy2 = pKFcur->invfy;
+
+        cv::Mat ul3D, ur3D, ll3D, lr3D;
+
+        {
+            cv::Mat ul1 = (cv::Mat_<float>(3, 1) << (_ulIniFrame.at<float>(0, 0) - cx1) * invfx1, (_ulIniFrame.at<float>(1, 0) - cy1) * invfy1, 1.0);
+            cv::Mat ul2 = (cv::Mat_<float>(3, 1) << (_ulCurFrame.at<float>(0, 0) - cx2) * invfx2, (_ulCurFrame.at<float>(1, 0) - cy2) * invfy2, 1.0);
+
+            // Linear Triangulation Method
+            cv::Mat A(4, 4, CV_32F);
+            A.row(0) = ul1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
+            A.row(1) = ul1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
+            A.row(2) = ul2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
+            A.row(3) = ul2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
+
+            cv::Mat w, u, vt;
+            cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+
+            ul3D = vt.row(3).t();
+
+            if (ul3D.at<float>(3) != 0)
+            {
+                // Euclidean coordinates
+                ul3D = ul3D.rowRange(0, 3) / ul3D.at<float>(3);
+            }
+        }
+
+        {
+            cv::Mat ur1 = (cv::Mat_<float>(3, 1) << (_urIniFrame.at<float>(0, 0) - cx1) * invfx1, (_urIniFrame.at<float>(1, 0) - cy1) * invfy1, 1.0);
+            cv::Mat ur2 = (cv::Mat_<float>(3, 1) << (_urCurFrame.at<float>(0, 0) - cx2) * invfx2, (_urCurFrame.at<float>(1, 0) - cy2) * invfy2, 1.0);
+
+            // Linear Triangulation Method
+            cv::Mat A(4, 4, CV_32F);
+            A.row(0) = ur1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
+            A.row(1) = ur1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
+            A.row(2) = ur2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
+            A.row(3) = ur2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
+
+            cv::Mat w, u, vt;
+            cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+
+            ur3D = vt.row(3).t();
+
+            if (ur3D.at<float>(3) != 0)
+            {
+                // Euclidean coordinates
+                ur3D = ur3D.rowRange(0, 3) / ur3D.at<float>(3);
+            }
+        }
+
+        {
+            cv::Mat ll1 = (cv::Mat_<float>(3, 1) << (_llIniFrame.at<float>(0, 0) - cx1) * invfx1, (_llIniFrame.at<float>(1, 0) - cy1) * invfy1, 1.0);
+            cv::Mat ll2 = (cv::Mat_<float>(3, 1) << (_llCurFrame.at<float>(0, 0) - cx2) * invfx2, (_llCurFrame.at<float>(1, 0) - cy2) * invfy2, 1.0);
+
+            // Linear Triangulation Method
+            cv::Mat A(4, 4, CV_32F);
+            A.row(0) = ll1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
+            A.row(1) = ll1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
+            A.row(2) = ll2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
+            A.row(3) = ll2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
+
+            cv::Mat w, u, vt;
+            cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+
+            ll3D = vt.row(3).t();
+
+            if (ll3D.at<float>(3) != 0)
+            {
+                // Euclidean coordinates
+                ll3D = ll3D.rowRange(0, 3) / ll3D.at<float>(3);
+            }
+        }
+
+        {
+            cv::Mat lr1 = (cv::Mat_<float>(3, 1) << (_lrIniFrame.at<float>(0, 0) - cx1) * invfx1, (_lrIniFrame.at<float>(1, 0) - cy1) * invfy1, 1.0);
+            cv::Mat lr2 = (cv::Mat_<float>(3, 1) << (_lrCurFrame.at<float>(0, 0) - cx2) * invfx2, (_lrCurFrame.at<float>(1, 0) - cy2) * invfy2, 1.0);
+
+            // Linear Triangulation Method
+            cv::Mat A(4, 4, CV_32F);
+            A.row(0) = lr1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
+            A.row(1) = lr1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
+            A.row(2) = lr2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
+            A.row(3) = lr2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
+
+            cv::Mat w, u, vt;
+            cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+
+            lr3D = vt.row(3).t();
+
+            if (lr3D.at<float>(3) != 0)
+            {
+                // Euclidean coordinates
+                lr3D = lr3D.rowRange(0, 3) / lr3D.at<float>(3);
+            }
+        }
+
+        _mpUL = new WAIMapPoint(ul3D, pKFcur, _map);
+        _mpUR = new WAIMapPoint(ur3D, pKFcur, _map);
+        _mpLL = new WAIMapPoint(ll3D, pKFcur, _map);
+        _mpLR = new WAIMapPoint(lr3D, pKFcur, _map);
+
+        {
+            pKFini->AddMapPoint(_mpUL, kpUlIniIndex);
+            pKFcur->AddMapPoint(_mpUL, kpUlCurIndex);
+
+            _mpUL->AddObservation(pKFini, kpUlIniIndex);
+            _mpUL->AddObservation(pKFcur, kpUlCurIndex);
+
+            _mpUL->ComputeDistinctiveDescriptors();
+            _mpUL->UpdateNormalAndDepth();
+
+            //Fill Current Frame structure
+            mCurrentFrame.mvpMapPoints[kpUlCurIndex] = _mpUL;
+            mCurrentFrame.mvbOutlier[kpUlCurIndex]   = false;
+
+            //Add to Map
+            _map->AddMapPoint(_mpUL);
+        }
+
+        {
+            pKFini->AddMapPoint(_mpUR, kpUrIniIndex);
+            pKFcur->AddMapPoint(_mpUR, kpUrCurIndex);
+
+            _mpUR->AddObservation(pKFini, kpUrIniIndex);
+            _mpUR->AddObservation(pKFcur, kpUrCurIndex);
+
+            _mpUR->ComputeDistinctiveDescriptors();
+            _mpUR->UpdateNormalAndDepth();
+
+            //Fill Current Frame structure
+            mCurrentFrame.mvpMapPoints[kpUrCurIndex] = _mpUR;
+            mCurrentFrame.mvbOutlier[kpUrCurIndex]   = false;
+
+            //Add to Map
+            _map->AddMapPoint(_mpUR);
+        }
+
+        {
+            pKFini->AddMapPoint(_mpLL, kpLlIniIndex);
+            pKFcur->AddMapPoint(_mpLL, kpLlCurIndex);
+
+            _mpLL->AddObservation(pKFini, kpLlIniIndex);
+            _mpLL->AddObservation(pKFcur, kpLlCurIndex);
+
+            _mpLL->ComputeDistinctiveDescriptors();
+            _mpLL->UpdateNormalAndDepth();
+
+            //Fill Current Frame structure
+            mCurrentFrame.mvpMapPoints[kpLlCurIndex] = _mpLL;
+            mCurrentFrame.mvbOutlier[kpLlCurIndex]   = false;
+
+            //Add to Map
+            _map->AddMapPoint(_mpLL);
+        }
+
+        {
+            pKFini->AddMapPoint(_mpLR, kpLrIniIndex);
+            pKFcur->AddMapPoint(_mpLR, kpLrCurIndex);
+
+            _mpLR->AddObservation(pKFini, kpLrIniIndex);
+            _mpLR->AddObservation(pKFcur, kpLrCurIndex);
+
+            _mpLR->ComputeDistinctiveDescriptors();
+            _mpLR->UpdateNormalAndDepth();
+
+            //Fill Current Frame structure
+            mCurrentFrame.mvpMapPoints[kpLrCurIndex] = _mpLR;
+            mCurrentFrame.mvbOutlier[kpLrCurIndex]   = false;
+
+            //Add to Map
+            _map->AddMapPoint(_mpLR);
+        }
     }
 
     // Update Connections
@@ -1223,6 +1623,7 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
 
     if (_createMarkerMap)
     {
+#if 0
         float mPerPx = _markerWidthM / _markerFrame.imgGray.cols;
 
         // find marker key points used to generate map points
@@ -1257,9 +1658,9 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
 
             markerPointCoordinates.push_back(markerPointCoordinate);
             mapPointCoordinates.push_back(mapPointCoordinate);
-        }
+    }
 
-#if 0
+#    if 0
 // TODO(dgj1): finish this
         _markerCorrectionTransformation = cv::Mat::eye(4, 4, CV_32F);
 
@@ -1333,6 +1734,7 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
 
             _hasMarkerCorrectionTransformation = true;
         }
+#    endif
 #endif
     }
 

@@ -16,6 +16,7 @@ void AppWAIScene::rebuild()
     mapPC               = new SLNode("MapPC");
     mapMatchedPC        = new SLNode("MapMatchedPC");
     mapLocalPC          = new SLNode("MapLocalPC");
+    mapMarkerCornerPC   = new SLNode("MapMarkerCornerPC");
     keyFrameNode        = new SLNode("KeyFrames");
     covisibilityGraph   = new SLNode("CovisibilityGraph");
     spanningTree        = new SLNode("SpanningTree");
@@ -59,6 +60,7 @@ void AppWAIScene::rebuild()
     mapNode->addChild(mapPC);
     mapNode->addChild(mapMatchedPC);
     mapNode->addChild(mapLocalPC);
+    mapNode->addChild(mapMarkerCornerPC);
     mapNode->addChild(keyFrameNode);
     mapNode->addChild(covisibilityGraph);
     mapNode->addChild(spanningTree);

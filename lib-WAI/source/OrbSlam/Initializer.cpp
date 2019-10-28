@@ -877,14 +877,18 @@ bool Initializer::ReconstructH(vector<bool>& vbMatchesInliers, cv::Mat& H21, cv:
     return false;
 }
 
-void Initializer::Triangulate(const cv::KeyPoint& kp1, const cv::KeyPoint& kp2, const cv::Mat& P1, const cv::Mat& P2, cv::Mat& x3D)
+void Initializer::Triangulate(const cv::Point& p1,
+                              const cv::Point& p2,
+                              const cv::Mat&   P1,
+                              const cv::Mat&   P2,
+                              cv::Mat&         x3D)
 {
     cv::Mat A(4, 4, CV_32F);
 
-    A.row(0) = kp1.pt.x * P1.row(2) - P1.row(0);
-    A.row(1) = kp1.pt.y * P1.row(2) - P1.row(1);
-    A.row(2) = kp2.pt.x * P2.row(2) - P2.row(0);
-    A.row(3) = kp2.pt.y * P2.row(2) - P2.row(1);
+    A.row(0) = p1.x * P1.row(2) - P1.row(0);
+    A.row(1) = p1.y * P1.row(2) - P1.row(1);
+    A.row(2) = p2.x * P2.row(2) - P2.row(0);
+    A.row(3) = p2.y * P2.row(2) - P2.row(1);
 
     cv::Mat u, w, vt;
     cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
@@ -979,7 +983,7 @@ int Initializer::CheckRT(const cv::Mat& R, const cv::Mat& t, const vector<cv::Ke
         const cv::KeyPoint& kp2 = vKeys2[vMatches12[i].second];
         cv::Mat             p3dC1;
 
-        Triangulate(kp1, kp2, P1, P2, p3dC1);
+        Triangulate(kp1.pt, kp2.pt, P1, P2, p3dC1);
 
         if (!isfinite(p3dC1.at<float>(0)) || !isfinite(p3dC1.at<float>(1)) || !isfinite(p3dC1.at<float>(2)))
         {

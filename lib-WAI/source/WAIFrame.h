@@ -102,6 +102,9 @@ class WAI_API WAIFrame
 
     vector<size_t> GetFeaturesInArea(const float& x, const float& y, const float& r, const int minLevel = -1, const int maxLevel = -1) const;
 
+    // NOTE(dgj1): used in marker map case to add marker corner points
+    int addKeyPoint(cv::KeyPoint kp);
+
     public:
     // Vocabulary used for relocalization.
     ORBVocabulary* mpORBvocabulary = NULL;

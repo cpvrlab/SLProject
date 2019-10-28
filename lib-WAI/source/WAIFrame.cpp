@@ -452,3 +452,30 @@ void WAIFrame::ComputeImageBounds(const cv::Mat& imLeft)
         mnMaxY = imLeft.rows;
     }
 }
+
+int WAIFrame::addKeyPoint(cv::KeyPoint point)
+{
+    int result = N;
+
+    N += 1;
+    mvKeys.resize(N);
+    mvKeysUn.resize(N);
+    mDescriptors.resize(N);
+    mvpMapPoints.resize(N);
+    mvbOutlier.resize(N);
+
+    mvKeys[result]   = point;
+    mvKeysUn[result] = point;
+
+    cv::Mat                   kpDesc;
+    std::vector<cv::KeyPoint> kps;
+    kps.push_back(point);
+
+    mpORBextractorLeft->computeKeyPointDescriptors(imgGray, kps, kpDesc);
+    kpDesc.copyTo(mDescriptors.row(result));
+
+    mvpMapPoints[result] = nullptr;
+    mvbOutlier[result]   = false;
+
+    return result;
+}

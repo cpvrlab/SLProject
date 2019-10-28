@@ -17,6 +17,7 @@ class AppWAIScene
     SLNode*   mapPC             = nullptr;
     SLNode*   mapMatchedPC      = nullptr;
     SLNode*   mapLocalPC        = nullptr;
+    SLNode*   mapMarkerCornerPC = nullptr;
     SLNode*   keyFrameNode      = nullptr;
     SLNode*   covisibilityGraph = nullptr;
     SLNode*   spanningTree      = nullptr;
@@ -29,12 +30,13 @@ class AppWAIScene
     SLMaterial* spanningTreeMat      = nullptr;
     SLMaterial* loopEdgesMat         = nullptr;
 
-    SLPoints*   mappointsMesh         = nullptr;
-    SLPoints*   mappointsMatchedMesh  = nullptr;
-    SLPoints*   mappointsLocalMesh    = nullptr;
-    SLPolyline* covisibilityGraphMesh = nullptr;
-    SLPolyline* spanningTreeMesh      = nullptr;
-    SLPolyline* loopEdgesMesh         = nullptr;
+    SLPoints*   mappointsMesh             = nullptr;
+    SLPoints*   mappointsMatchedMesh      = nullptr;
+    SLPoints*   mappointsLocalMesh        = nullptr;
+    SLPoints*   mappointsMarkerCornerMesh = nullptr;
+    SLPolyline* covisibilityGraphMesh     = nullptr;
+    SLPolyline* spanningTreeMesh          = nullptr;
+    SLPolyline* loopEdgesMesh             = nullptr;
 
     void rebuild();
 };

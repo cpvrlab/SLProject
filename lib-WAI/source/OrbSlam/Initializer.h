@@ -43,6 +43,8 @@ class WAI_API Initializer
     bool InitializeWithKnownPose(const WAIFrame& InitialFrame, const WAIFrame& CurrentFrame, const vector<int>& vMatches12, cv::Mat& R21, cv::Mat& t21, vector<cv::Point3f>& vP3D, vector<bool>& vbTriangulated, int minTriangulated = 50);
     bool InitializeWithKnownPose(const std::vector<cv::KeyPoint>& mvKeysUnInitialFrame, const std::vector<cv::KeyPoint>& mvKeysUnCurrentFrame, const cv::Mat& mTcwInitialFrame, const cv::Mat& mTcwCurrentFrame, const cv::Mat& cameraMatInitialFrame, const cv::Mat& cameraMatCurrentFrame, const vector<int>& vMatches12, cv::Mat& R21, cv::Mat& t21, vector<cv::Point3f>& vP3D, vector<bool>& vbTriangulated, int minTriangulated = 50);
 
+    static void Triangulate(const cv::Point& p1, const cv::Point& p2, const cv::Mat& P1, const cv::Mat& P2, cv::Mat& x3D);
+
     private:
     void FindHomography(vector<bool>& vbMatchesInliers, float& score, cv::Mat& H21);
     void FindFundamental(vector<bool>& vbInliers, float& score, cv::Mat& F21);
@@ -57,8 +59,6 @@ class WAI_API Initializer
     bool ReconstructF(vector<bool>& vbMatchesInliers, cv::Mat& F21, cv::Mat& K, cv::Mat& R21, cv::Mat& t21, vector<cv::Point3f>& vP3D, vector<bool>& vbTriangulated, float minParallax, int minTriangulated);
 
     bool ReconstructH(vector<bool>& vbMatchesInliers, cv::Mat& H21, cv::Mat& K, cv::Mat& R21, cv::Mat& t21, vector<cv::Point3f>& vP3D, vector<bool>& vbTriangulated, float minParallax, int minTriangulated);
-
-    void Triangulate(const cv::KeyPoint& kp1, const cv::KeyPoint& kp2, const cv::Mat& P1, const cv::Mat& P2, cv::Mat& x3D);
 
     void Normalize(const vector<cv::KeyPoint>& vKeys, vector<cv::Point2f>& vNormalizedPoints, cv::Mat& T);
 

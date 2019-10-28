@@ -20,7 +20,25 @@ mutex             WAIMapPoint::mGlobalMutex;
 //-----------------------------------------------------------------------------
 //!constructor used during map loading
 WAIMapPoint::WAIMapPoint(int id, const cv::Mat& Pos, WAIMap* pMap)
-  : mnId(id), mnFirstKFid(-1), /* mnFirstFrame(pRefKF->mnFrameId), */ nObs(0), mnTrackReferenceForFrame(0), mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0), mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(NULL), mnVisible(1), mnFound(1), mbBad(false), mpReplaced(static_cast<WAIMapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0), mpMap(pMap)
+  : mnId(id),
+    mnFirstKFid(-1),
+    /* mnFirstFrame(pRefKF->mnFrameId), */ nObs(0),
+    mnTrackReferenceForFrame(0),
+    mnLastFrameSeen(0),
+    mnBALocalForKF(0),
+    mnFuseCandidateForKF(0),
+    mnLoopPointForKF(0),
+    mnCorrectedByKF(0),
+    mnCorrectedReference(0),
+    mnBAGlobalForKF(0),
+    mpRefKF(NULL),
+    mnVisible(1),
+    mnFound(1),
+    mbBad(false),
+    mpReplaced(static_cast<WAIMapPoint*>(NULL)),
+    mfMinDistance(0),
+    mfMaxDistance(0),
+    mpMap(pMap)
 {
     SetWorldPos(Pos);
     mNormalVector = cv::Mat::zeros(3, 1, CV_32F);
@@ -30,7 +48,25 @@ WAIMapPoint::WAIMapPoint(int id, const cv::Mat& Pos, WAIMap* pMap)
         nNextId = id + 1;
 }
 //-----------------------------------------------------------------------------
-WAIMapPoint::WAIMapPoint(const cv::Mat& Pos, WAIKeyFrame* pRefKF, WAIMap* pMap) : mnFirstKFid(pRefKF->mnId), /* mnFirstFrame(pRefKF->mnFrameId), */ nObs(0), mnTrackReferenceForFrame(0), mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0), mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(pRefKF), mnVisible(1), mnFound(1), mbBad(false), mpReplaced(static_cast<WAIMapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0), mpMap(pMap)
+WAIMapPoint::WAIMapPoint(const cv::Mat& Pos, WAIKeyFrame* pRefKF, WAIMap* pMap)
+  : mnFirstKFid(pRefKF->mnId),
+    /* mnFirstFrame(pRefKF->mnFrameId), */ nObs(0),
+    mnTrackReferenceForFrame(0),
+    mnLastFrameSeen(0),
+    mnBALocalForKF(0),
+    mnFuseCandidateForKF(0),
+    mnLoopPointForKF(0),
+    mnCorrectedByKF(0),
+    mnCorrectedReference(0),
+    mnBAGlobalForKF(0),
+    mpRefKF(pRefKF),
+    mnVisible(1),
+    mnFound(1),
+    mbBad(false),
+    mpReplaced(static_cast<WAIMapPoint*>(NULL)),
+    mfMinDistance(0),
+    mfMaxDistance(0),
+    mpMap(pMap)
 {
     SetWorldPos(Pos);
     //Pos.copyTo(mWorldPos);

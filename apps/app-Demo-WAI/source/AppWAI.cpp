@@ -623,11 +623,26 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
                         waiScene->mapPC,
                         waiScene->mappointsMesh,
                         waiScene->redMat);
+
+        //get new points and add them
+        renderMapPoints("MarkerCornerMapPoints",
+                        mode->getMarkerCornerMapPoints(),
+                        waiScene->mapMarkerCornerPC,
+                        waiScene->mappointsMarkerCornerMesh,
+                        waiScene->blueMat);
     }
-    else if (waiScene->mappointsMesh)
+    else
     {
-        //delete mesh if we do not want do visualize it anymore
-        waiScene->mapPC->deleteMesh(waiScene->mappointsMesh);
+        if (waiScene->mappointsMesh)
+        {
+            //delete mesh if we do not want do visualize it anymore
+            waiScene->mapPC->deleteMesh(waiScene->mappointsMesh);
+        }
+        if (waiScene->mappointsMarkerCornerMesh)
+        {
+            //delete mesh if we do not want do visualize it anymore
+            waiScene->mapMarkerCornerPC->deleteMesh(waiScene->mappointsMarkerCornerMesh);
+        }
     }
 
     //update visualization of local map points:

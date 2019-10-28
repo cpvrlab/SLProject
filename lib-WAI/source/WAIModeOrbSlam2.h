@@ -89,6 +89,7 @@ class WAI_API ModeOrbSlam2
     std::vector<WAIMapPoint*>                                 getMapPoints();
     std::vector<WAIMapPoint*>                                 getMatchedMapPoints();
     std::vector<WAIMapPoint*>                                 getLocalMapPoints();
+    std::vector<WAIMapPoint*>                                 getMarkerCornerMapPoints();
     std::vector<WAIKeyFrame*>                                 getKeyFrames();
     std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> getMatchedCorrespondances();
     std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> getCorrespondances();
@@ -288,6 +289,14 @@ class WAI_API ModeOrbSlam2
     float                   _markerWidthM;
     std::vector<int>        _initialFrameToMarkerMatches;
     bool                    _relocalizeFromMarkerMap;
+
+    cv::Mat      _ulIniFrame, _urIniFrame, _llIniFrame, _lrIniFrame;
+    cv::Mat      _ulCurFrame, _urCurFrame, _llCurFrame, _lrCurFrame;
+    cv::Mat      _ul4D, _ur4D, _ll4D, _lr4D;
+    WAIMapPoint* _mpUL;
+    WAIMapPoint* _mpUR;
+    WAIMapPoint* _mpLL;
+    WAIMapPoint* _mpLR;
 };
 }
 
