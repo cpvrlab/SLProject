@@ -30,9 +30,19 @@ class AppDemoGuiSlamParam : public AppDemoGuiInfosDialog
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     private:
+
+    KPextractor * orbExtractor(int nf);
+    KPextractor * surfExtractor(int th);
+    KPextractor * glslExtractor();
+    KPextractor * kpExtractor(int id);
+
     KPextractor*              _current;
     KPextractor*              _iniCurrent;
-    std::vector<KPextractor*> _extractors;
+
+    int              _currentId;
+    int              _iniCurrentId;
+
+    std::vector<std::string>  _extractors;
 };
 
 #endif

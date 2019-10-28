@@ -21,42 +21,69 @@
 #include <GLSLextractor.h>
 
 //-----------------------------------------------------------------------------
-
 AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
                                          bool*              activator)
   : AppDemoGuiInfosDialog(name, activator)
 {
-    int          nFeatures    = 1000;
+    _extractors.push_back("SURF extractor th = 500");
+    _extractors.push_back("SURF extractor th = 800");
+    _extractors.push_back("SURF extractor th = 1000");
+    _extractors.push_back("SURF extractor th = 1200");
+    _extractors.push_back("SURF extractor th = 1500");
+    _extractors.push_back("SURF extractor th = 2000");
+    _extractors.push_back("ORB extractor nf = 1000");
+    _extractors.push_back("ORB extractor nf = 2000");
+    _extractors.push_back("GLSL Hessian extractor");
+
+    _currentId    = 2;
+    _iniCurrentId = 1;
+    _current      = surfExtractor(1000);
+    _iniCurrent   = surfExtractor(800);
+}
+
+KPextractor* AppDemoGuiSlamParam::orbExtractor(int nf)
+{
     float        fScaleFactor = 1.2;
     int          nLevels      = 8;
     int          fIniThFAST   = 20;
     int          fMinThFAST   = 7;
-    KPextractor* orbExtractor = new ORB_SLAM2::ORBextractor(nFeatures,
-                                                            fScaleFactor,
-                                                            nLevels,
-                                                            fIniThFAST,
-                                                            fMinThFAST);
+    return new ORB_SLAM2::ORBextractor(nf, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+}
 
-    KPextractor* orbExtractor2 = new ORB_SLAM2::ORBextractor(2 * nFeatures,
-                                                             fScaleFactor,
-                                                             nLevels,
-                                                             fIniThFAST,
-                                                             fMinThFAST);
+KPextractor* AppDemoGuiSlamParam::surfExtractor(int th)
+{
+    return new ORB_SLAM2::SURFextractor(th);
+}
 
-    KPextractor* glslExtractor = new GLSLextractor(640, 360);
+KPextractor* AppDemoGuiSlamParam::glslExtractor()
+{
+    return new GLSLextractor(WAIApp::scrWidth, WAIApp::scrHeight);
+}
 
-    _extractors.push_back(new ORB_SLAM2::SURFextractor(500));
-    _extractors.push_back(new ORB_SLAM2::SURFextractor(800));
-    _extractors.push_back(new ORB_SLAM2::SURFextractor(1000));
-    _extractors.push_back(new ORB_SLAM2::SURFextractor(1500));
-    _extractors.push_back(new ORB_SLAM2::SURFextractor(2000));
-    _extractors.push_back(new ORB_SLAM2::SURFextractor(2500));
-    _extractors.push_back(orbExtractor);
-    _extractors.push_back(orbExtractor2);
-    _extractors.push_back(glslExtractor);
-
-    _current    = _extractors.at(1);
-    _iniCurrent = _extractors.at(1);
+KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
+{
+    switch (id)
+    {
+        case 0:
+            return surfExtractor(500);
+        case 1:
+            return surfExtractor(800);
+        case 2:
+            return surfExtractor(1000);
+        case 3:
+            return surfExtractor(1200);
+        case 4:
+            return surfExtractor(1500);
+        case 5:
+            return surfExtractor(2000);
+        case 6:
+            return orbExtractor(1000);
+        case 7:
+            return orbExtractor(2000);
+        case 8:
+            return glslExtractor();
+    }
+    return surfExtractor(1000);
 }
 
 void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
@@ -70,14 +97,27 @@ void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
     }
     else
     {
-        if (ImGui::BeginCombo("Extractor", _current->GetName().c_str()))
+        if (ImGui::BeginCombo("Extractor", _extractors[_currentId].c_str()))
         {
             for (int i = 0; i < _extractors.size(); i++)
             {
-                bool isSelected = (_current == _extractors[i]); // You can store your selection however you want, outside or inside your objects
-                if (ImGui::Selectable(_extractors[i]->GetName().c_str(), isSelected))
+                bool isSelected = (_currentId == i); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(_extractors[i].c_str(), isSelected))
+                    _currentId = i;
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+            }
+            ImGui::EndCombo();
+        }
+
+        if (ImGui::BeginCombo("Init extractor", _extractors[_iniCurrentId].c_str()))
+        {
+            for (int i = 0; i < _extractors.size(); i++)
+            {
+                bool isSelected = (_iniCurrentId == i); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(_extractors[i].c_str(), isSelected))
                 {
-                    _current = _extractors[i];
+                    _iniCurrentId = i;
                 }
                 if (isSelected)
                     ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
@@ -85,22 +125,12 @@ void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
             ImGui::EndCombo();
         }
 
-        if (ImGui::BeginCombo("Init extractor", _iniCurrent->GetName().c_str()))
-        {
-            for (int i = 0; i < _extractors.size(); i++)
-            {
-                bool isSelected = (_iniCurrent == _extractors[i]); // You can store your selection however you want, outside or inside your objects
-                if (ImGui::Selectable(_extractors[i]->GetName().c_str(), isSelected))
-                {
-                    _iniCurrent = _extractors[i];
-                }
-                if (isSelected)
-                    ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
-            }
-            ImGui::EndCombo();
-        }
         if (ImGui::Button("Change features", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
         {
+            delete (_current);
+            delete (_iniCurrent);
+            _current = kpExtractor(_currentId);
+            _iniCurrent = kpExtractor(_iniCurrentId);
             mode->setExtractor(_current, _iniCurrent);
         }
     }

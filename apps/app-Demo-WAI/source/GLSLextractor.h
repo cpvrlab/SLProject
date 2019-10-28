@@ -24,7 +24,6 @@ class GLSLextractor : public ORB_SLAM2::KPextractor
     protected:
     std::vector<cv::Point> pattern;
     cv::Mat old;
-    cv::Mat old2;
     ImageProcessor imgProc;
 };
 

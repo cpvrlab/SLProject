@@ -571,16 +571,16 @@ GLuint ImageProcessor::buildShaderFromSource(string source, GLenum shaderType)
 void ImageProcessor::initShaders()
 {
     GLuint vscreenQuad = buildShaderFromSource(screeQuadVs, GL_VERTEX_SHADER);
-    GLuint fd2Gdx2 = buildShaderFromSource(hGaussianDx2Fs, GL_FRAGMENT_SHADER);
-    GLuint fd2Gdy2 = buildShaderFromSource(vGaussianDy2Fs, GL_FRAGMENT_SHADER);
-    GLuint fdGdx = buildShaderFromSource(hGaussianDxFs, GL_FRAGMENT_SHADER);
-    GLuint fdGdy = buildShaderFromSource(vGaussianDyFs, GL_FRAGMENT_SHADER);
-    GLuint fGx = buildShaderFromSource(hGaussianFs, GL_FRAGMENT_SHADER);
-    GLuint fGy = buildShaderFromSource(vGaussianFs, GL_FRAGMENT_SHADER);
-    GLuint fdetH = buildShaderFromSource(detHFs, GL_FRAGMENT_SHADER);
-    GLuint fnmsx = buildShaderFromSource(nmsxFs, GL_FRAGMENT_SHADER);
-    GLuint fnmsy = buildShaderFromSource(nmsyFs, GL_FRAGMENT_SHADER);
-    GLuint fnmsz = buildShaderFromSource(nmszFs, GL_FRAGMENT_SHADER);
+    GLuint fd2Gdx2     = buildShaderFromSource(hGaussianDx2Fs, GL_FRAGMENT_SHADER);
+    GLuint fd2Gdy2     = buildShaderFromSource(vGaussianDy2Fs, GL_FRAGMENT_SHADER);
+    GLuint fdGdx       = buildShaderFromSource(hGaussianDxFs, GL_FRAGMENT_SHADER);
+    GLuint fdGdy       = buildShaderFromSource(vGaussianDyFs, GL_FRAGMENT_SHADER);
+    GLuint fGx         = buildShaderFromSource(hGaussianFs, GL_FRAGMENT_SHADER);
+    GLuint fGy         = buildShaderFromSource(vGaussianFs, GL_FRAGMENT_SHADER);
+    GLuint fdetH       = buildShaderFromSource(detHFs, GL_FRAGMENT_SHADER);
+    GLuint fnmsx       = buildShaderFromSource(nmsxFs, GL_FRAGMENT_SHADER);
+    GLuint fnmsy       = buildShaderFromSource(nmsyFs, GL_FRAGMENT_SHADER);
+    GLuint fnmsz       = buildShaderFromSource(nmszFs, GL_FRAGMENT_SHADER);
 
     d2Gdx2      = glCreateProgram();
     d2Gdy2      = glCreateProgram();
@@ -633,29 +633,41 @@ void ImageProcessor::initShaders()
     glAttachShader(nmsz, fnmsz);
     glLinkProgram(nmsz);
 
+    glDeleteShader(vscreenQuad);
+    glDeleteShader(fd2Gdx2);
+    glDeleteShader(fd2Gdy2);
+    glDeleteShader(fdGdx);
+    glDeleteShader(fdGdy);
+    glDeleteShader(fGx);
+    glDeleteShader(fGy);
+    glDeleteShader(fdetH);
+    glDeleteShader(fnmsx);
+    glDeleteShader(fnmsy);
+    glDeleteShader(fnmsz);
+
     d2Gdx2TexLoc = glGetUniformLocation(d2Gdx2, "tex");
-    d2Gdx2WLoc = glGetUniformLocation(d2Gdx2, "w");
+    d2Gdx2WLoc   = glGetUniformLocation(d2Gdx2, "w");
     d2Gdy2TexLoc = glGetUniformLocation(d2Gdy2, "tex");
-    d2Gdy2WLoc = glGetUniformLocation(d2Gdy2, "w");
-    dGdxTexLoc = glGetUniformLocation(dGdx, "tex");
-    dGdxWLoc = glGetUniformLocation(dGdx, "w");
-    dGdyTexLoc = glGetUniformLocation(dGdy, "tex");
-    dGdyWLoc = glGetUniformLocation(dGdy, "w");
-    GxTexLoc = glGetUniformLocation(Gx, "tex");
-    GxWLoc = glGetUniformLocation(Gx, "w");
-    GyTexLoc = glGetUniformLocation(Gy, "tex");
-    GyWLoc = glGetUniformLocation(Gy, "w");
-    detHGxxLoc = glGetUniformLocation(detH, "tgxx");
-    detHGyyLoc = glGetUniformLocation(detH, "tgyy");
-    detHGxyLoc = glGetUniformLocation(detH, "tgxy");
-    nmsxTexLoc = glGetUniformLocation(nmsx, "tex");
-    nmsxWLoc = glGetUniformLocation(nmsx, "w");
-    nmsyTexLoc = glGetUniformLocation(nmsy, "tex");
-    nmsyWLoc = glGetUniformLocation(nmsy, "w");
-    nmszTexLoc = glGetUniformLocation(nmsz, "det");
-    nmszGxxLoc = glGetUniformLocation(nmsz, "tgxx");
-    nmszGyyLoc = glGetUniformLocation(nmsz, "tgyy");
-    nmszGxyLoc = glGetUniformLocation(nmsz, "tgxy");
+    d2Gdy2WLoc   = glGetUniformLocation(d2Gdy2, "w");
+    dGdxTexLoc   = glGetUniformLocation(dGdx, "tex");
+    dGdxWLoc     = glGetUniformLocation(dGdx, "w");
+    dGdyTexLoc   = glGetUniformLocation(dGdy, "tex");
+    dGdyWLoc     = glGetUniformLocation(dGdy, "w");
+    GxTexLoc     = glGetUniformLocation(Gx, "tex");
+    GxWLoc       = glGetUniformLocation(Gx, "w");
+    GyTexLoc     = glGetUniformLocation(Gy, "tex");
+    GyWLoc       = glGetUniformLocation(Gy, "w");
+    detHGxxLoc   = glGetUniformLocation(detH, "tgxx");
+    detHGyyLoc   = glGetUniformLocation(detH, "tgyy");
+    detHGxyLoc   = glGetUniformLocation(detH, "tgxy");
+    nmsxTexLoc   = glGetUniformLocation(nmsx, "tex");
+    nmsxWLoc     = glGetUniformLocation(nmsx, "w");
+    nmsyTexLoc   = glGetUniformLocation(nmsy, "tex");
+    nmsyWLoc     = glGetUniformLocation(nmsy, "w");
+    nmszTexLoc   = glGetUniformLocation(nmsz, "det");
+    nmszGxxLoc   = glGetUniformLocation(nmsz, "tgxx");
+    nmszGyyLoc   = glGetUniformLocation(nmsz, "tgyy");
+    nmszGxyLoc   = glGetUniformLocation(nmsz, "tgxy");
 }
 
 void ImageProcessor::initVBO()
@@ -711,7 +723,7 @@ void ImageProcessor::textureRB(int w, int h)
 void ImageProcessor::initTextureBuffers(int width, int height)
 {
     glGenTextures(10, renderTextures);
-    glGenTextures(2, outTextures);
+    glGenTextures(1, &outTextures);
 
     glBindTexture(GL_TEXTURE_2D, renderTextures[0]);
     setTextureParameters();
@@ -726,12 +738,9 @@ void ImageProcessor::initTextureBuffers(int width, int height)
         textureRGBF(width, height);
     }
 
-    for (i = 0; i < 2; i++)
-    {
-        glBindTexture(GL_TEXTURE_2D, outTextures[i]);
-        setTextureParameters();
-        textureRB(width, height);
-    }
+    glBindTexture(GL_TEXTURE_2D, outTextures);
+    setTextureParameters();
+    textureRB(width, height);
 
     glGenBuffers(2, pbo);
     glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[0]);
@@ -744,7 +753,7 @@ void ImageProcessor::initTextureBuffers(int width, int height)
 void ImageProcessor::initFBO()
 {
     glGenFramebuffers(10, renderFBO);
-    glGenFramebuffers(2, outFBO);
+    glGenFramebuffers(1, &outFBO);
 
     for (int i = 0; i < 10; i++)
     {
@@ -752,11 +761,8 @@ void ImageProcessor::initFBO()
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTextures[i], 0);
     }
 
-    for (int i = 0; i < 2; i++)
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, outFBO[i]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outTextures[i], 0);
-    }
+    glBindFramebuffer(GL_FRAMEBUFFER, outFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outTextures, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -845,7 +851,7 @@ void ImageProcessor::det(int w, int h)
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
-void ImageProcessor::nms(int w, int h, int id)
+void ImageProcessor::nms(int w, int h)
 {
     glUseProgram(nmsx);
     glBindFramebuffer(GL_FRAMEBUFFER, renderFBO[NMSX]);
@@ -855,7 +861,6 @@ void ImageProcessor::nms(int w, int h, int id)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboi);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
 
     glUseProgram(nmsy);
     glBindFramebuffer(GL_FRAMEBUFFER, renderFBO[NMSY]);
@@ -867,7 +872,7 @@ void ImageProcessor::nms(int w, int h, int id)
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
     glUseProgram(nmsz);
-    glBindFramebuffer(GL_FRAMEBUFFER, outFBO[id]);
+    glBindFramebuffer(GL_FRAMEBUFFER, outFBO);
     glUniform1i(nmszTexLoc, NMSY);
     glUniform1i(nmszGxxLoc, GXX);
     glUniform1i(nmszGyyLoc, GYY);
@@ -897,6 +902,30 @@ ImageProcessor::ImageProcessor(int w, int h)
     init(w, h);
 }
 
+
+ImageProcessor::~ImageProcessor()
+{
+    glDeleteTextures(10, renderTextures);
+    glDeleteFramebuffers(10, renderFBO);
+    glDeleteFramebuffers(1, &outFBO);
+    glDeleteTextures(1, &outTextures);
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(2, pbo);
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &vboi);
+
+    glDeleteProgram(d2Gdx2);
+    glDeleteProgram(d2Gdy2);
+    glDeleteProgram(dGdx);
+    glDeleteProgram(dGdy);
+    glDeleteProgram(Gx);
+    glDeleteProgram(Gy);
+    glDeleteProgram(detH);
+    glDeleteProgram(nmsx);
+    glDeleteProgram(nmsy);
+    glDeleteProgram(nmsz);
+}
+
 void ImageProcessor::gpu_kp()
 {
     glDisable(GL_DEPTH_TEST);
@@ -922,7 +951,7 @@ void ImageProcessor::gpu_kp()
     gyy(m_w, m_h);
     gxy(m_w, m_h);
     det(m_w, m_h);
-    nms(m_w, m_h, 0);
+    nms(m_w, m_h);
 
     glUseProgram(0);
     glEnable(GL_DEPTH_TEST);
@@ -940,7 +969,7 @@ void ImageProcessor::readResult(SLGLTexture * tex)
     AVERAGE_TIMING_START("PBO");
 
     /* Copy pixel to curr pbo */
-    glBindFramebuffer(GL_FRAMEBUFFER, outFBO[0]);
+    glBindFramebuffer(GL_FRAMEBUFFER, outFBO);
     glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[curr]);
     glReadPixels(0, 0, m_w, m_h, GL_RED, GL_UNSIGNED_BYTE, 0);
     /* Continue processing without stall */
@@ -968,7 +997,7 @@ void ImageProcessor::readResult(cv::Mat * tex)
     AVERAGE_TIMING_START("PBO");
 
     /* Copy pixel to curr pbo */
-    glBindFramebuffer(GL_FRAMEBUFFER, outFBO[0]);
+    glBindFramebuffer(GL_FRAMEBUFFER, outFBO);
     glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[curr]);
     glReadPixels(0, 0, m_w, m_h, GL_RED, GL_UNSIGNED_BYTE, 0);
     /* Continue processing without stall */

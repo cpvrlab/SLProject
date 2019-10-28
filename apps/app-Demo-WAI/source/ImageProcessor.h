@@ -56,13 +56,14 @@ public:
     GLuint vao;
     GLuint vbo;
     GLuint vboi;
-    GLuint outFBO[1];
-    GLuint outTextures[2];
+    GLuint outFBO;
+    GLuint outTextures;
     GLuint pbo[2];
     int curr;
     int ready;
     int m_w, m_h;
 
+    ~ImageProcessor();
     ImageProcessor();
     ImageProcessor(int w, int h);
     void init(int w, int h);
@@ -80,7 +81,7 @@ public:
     void gyy(int w, int h);
     void gxy(int w, int h);
     void det(int w, int h);
-    void nms(int w, int h, int id);
+    void nms(int w, int h);
     void gpu_kp();
     void readResult(SLGLTexture * tex);
     void readResult(cv::Mat * tex);
