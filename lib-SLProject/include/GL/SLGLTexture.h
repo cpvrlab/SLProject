@@ -71,22 +71,15 @@ class SLGLTexture : public SLObject
                          SLint           wrapS      = GL_REPEAT,
                          const SLstring& name       = "1D-Texture");
 
+    //! ctor for empty 2D textures
     explicit SLGLTexture(SLint         min_filter,
                          SLint         mag_filter,
                          SLint         wrapS,
                          SLint         wrapT);
 
+    //! ctor for 2D textures from byte pointer
     explicit SLGLTexture(unsigned char* data,
                          int            width,
-                         int            height,
-                         int            cvtype,
-                         SLint          min_filter,
-                         SLint          mag_filter,
-                         SLTextureType  type,
-                         SLint          wrapS,
-                         SLint          wrapT);
-
-    explicit SLGLTexture(int            width,
                          int            height,
                          int            cvtype,
                          SLint          min_filter,

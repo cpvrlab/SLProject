@@ -52,15 +52,13 @@ SLGLTexture::SLGLTexture()
     _needsUpdate  = false;
 }
 
-//! ctor 2D textures with internal image allocation
+//-----------------------------------------------------------------------------
+//! ctor for empty 2D textures
 SLGLTexture::SLGLTexture(SLint           min_filter,
                          SLint           mag_filter,
                          SLint           wrapS,
                          SLint           wrapT)
 {
-
-    //CVImage *image = new CVImage(width, height, PF_red, ":D");
-
     _min_filter   = min_filter;
     _mag_filter   = mag_filter;
     _wrap_s       = wrapS;
@@ -73,14 +71,16 @@ SLGLTexture::SLGLTexture(SLint           min_filter,
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
 
-    //_images.push_back(image);
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->textures().push_back(this);
 }
 
 //-----------------------------------------------------------------------------
-//! ctor 2D textures with internal image allocation
-SLGLTexture::SLGLTexture(unsigned char * data, int width, int height, int cvtype,
+//! ctor for 2D textures from byte pointer
+SLGLTexture::SLGLTexture(unsigned char * data, 
+                         int             width, 
+                         int             height, 
+                         int             cvtype,
                          SLint           min_filter,
                          SLint           mag_filter,
                          SLTextureType   type,
@@ -107,7 +107,7 @@ SLGLTexture::SLGLTexture(unsigned char * data, int width, int height, int cvtype
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->textures().push_back(this);
 }
-//-----------------------------------------------------------------------------
+
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
 SLGLTexture::SLGLTexture(const SLstring& filename,
