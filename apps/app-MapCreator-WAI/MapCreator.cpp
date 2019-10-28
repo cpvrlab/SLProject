@@ -399,6 +399,12 @@ void MapCreator::saveMap(WAI::ModeOrbSlam2* waiMode, const std::string& mapDir, 
             Utils::makeDir(imgDir);
     }
 
+    waiMode->requestStateIdle();
+    while (!waiMode->hasStateIdle())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+
     if (!WAIMapStorage::saveMap(waiMode->getMap(),
                                 nullptr,
                                 mapDir + currentMapFileName,
@@ -406,6 +412,8 @@ void MapCreator::saveMap(WAI::ModeOrbSlam2* waiMode, const std::string& mapDir, 
     {
         throw std::runtime_error("Could not save map file: " + mapDir + currentMapFileName);
     }
+
+    waiMode->resume();
 }
 
 void MapCreator::loadMap(WAI::ModeOrbSlam2* waiMode, const std::string& mapDir, const std::string& currentMapFileName, bool fixKfsForLBA)

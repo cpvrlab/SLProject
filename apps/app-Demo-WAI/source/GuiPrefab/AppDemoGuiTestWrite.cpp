@@ -134,7 +134,16 @@ void AppDemoGuiTestWrite::saveTestSettings(std::string path)
 void AppDemoGuiTestWrite::saveMap(std::string map)
 {
     WAI::ModeOrbSlam2* mode = WAIApp::mode;
+
+    mode->requestStateIdle();
+    while (!mode->hasStateIdle())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+
     WAIMapStorage::saveMap(mode->getMap(), _mapNode, map);
+
+    mode->resume();
 }
 
 //-----------------------------------------------------------------------------

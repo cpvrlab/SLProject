@@ -196,6 +196,12 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                         Utils::makeDir(imgDir);
                 }
 
+                WAIApp::mode->requestStateIdle();
+                while (!WAIApp::mode->hasStateIdle())
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                }
+
                 if (!WAIMapStorage::saveMap(WAIApp::mode->getMap(),
                                             _mapNode,
                                             mapDir + filename,
@@ -204,6 +210,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                     WAIApp::errorDial->setErrorMsg("Failed to save map");
                     WAIApp::uiPrefs.showError = true;
                 }
+
+                WAIApp::mode->resume();
             }
             else
             {
