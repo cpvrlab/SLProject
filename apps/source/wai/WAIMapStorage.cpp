@@ -549,6 +549,12 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
     {
         waiMap->AddKeyFrame(kf);
         kfDB->add(kf);
+
+        //Add keyframe with id 0 to this vector. Otherwise RunGlobalBundleAdjustment in LoopClosing after loop was detected crashes.
+        if (kf->mnId == 0)
+        {
+            waiMap->mvpKeyFrameOrigins.push_back(kf);
+        }
     }
 
     for (WAIMapPoint* point : mapPoints)
