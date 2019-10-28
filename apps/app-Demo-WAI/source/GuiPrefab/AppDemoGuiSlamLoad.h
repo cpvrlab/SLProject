@@ -20,32 +20,49 @@
 //-----------------------------------------------------------------------------
 class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {
-    public:
+public:
     AppDemoGuiSlamLoad(const std::string& name,
-                       WAICalibration*    wc,
+                       std::string        slamRootDir,
+                       std::string        calibrationsDir,
+                       std::string        vocabulariesDir,
+                       SLNode*            mapNode,
                        bool*              activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
-    private:
+private:
     void loadFileNamesInVector(std::string               directory,
                                std::vector<std::string>& fileNames,
                                std::vector<std::string>& extensions,
                                bool                      addEmpty);
+    void loadDirNamesInVector(std::string               directory,
+                              std::vector<std::string>& dirNames);
 
-    std::vector<std::string> _existingVideoNames;
-    std::vector<std::string> _existingCalibrationNames;
-    std::vector<std::string> _existingMapNames;
-    std::vector<std::string> _existingVocNames;
+    bool _changeSlamParams;
 
+    std::string _slamRootDir;
+    std::string _calibrationsDir;
+    std::string _vocabulariesDir;
+
+    std::vector<std::string> _videoExtensions;
+    std::vector<std::string> _mapExtensions;
+    std::vector<std::string> _calibExtensions;
+    std::vector<std::string> _vocExtensions;
+
+    std::string _currentLocation;
+    std::string _currentArea;
     std::string _currentVideo;
     std::string _currentCalibration;
     std::string _currentMap;
     std::string _currentVoc;
 
     bool _storeKeyFrameImage;
+    bool _trackOpticalFlow;
+    bool _serial;
+    bool _trackingOnly;
+    bool fixLoadedKfs;
 
-    WAICalibration* _wc;
+    SLNode* _mapNode;
 };
 
 #endif

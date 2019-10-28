@@ -15,11 +15,14 @@
 
 //-----------------------------------------------------------------------------
 //! Pixel format according to OpenGL pixel format defines
+/*!
+ * This is a pretty delicate topic in OpenGL because bugs in GLSL due to pixel
+ * format errors are very hard to detect and debug.
+ */
 enum CVPixFormat
 {
-    PF_unknown     = 0,
-    PF_yuv_420_888 = 1, // YUV format from Android not supported in GL
-
+    PF_unknown         = 0,
+    PF_yuv_420_888     = 1,      // YUV format from Android not supported in GL
     PF_alpha           = 0x1906, // ES2 ES3 GL2
     PF_luminance       = 0x1909, // ES2 ES3 GL2
     PF_luminance_alpha = 0x190A, // ES2 ES3 GL2
@@ -27,21 +30,18 @@ enum CVPixFormat
     PF_green           = 0x1904, //         GL2
     PF_blue            = 0x1905, //         GL2
     PF_depth_component = 0x1902, //     ES3 GL2     GL4
-
-    PF_red  = 0x1903, //     ES3 GL2 GL3 GL4
-    PF_rg   = 0x8227, //     ES3     GL3 GL4
-    PF_rgb  = 0x1907, // ES2 ES3 GL2 GL3 GL4
-    PF_rgba = 0x1908, // ES2 ES3 GL2 GL3 GL4
-    PF_bgr  = 0x80E0, //         GL2 GL3 GL4
-    PF_bgra = 0x80E1, //         GL2 GL3 GL4
-
-    PF_rg_integer   = 0x8228, //     ES3         GL4
-    PF_red_integer  = 0x8D94, //     ES3         GL4
-    PF_rgb_integer  = 0x8D98, //     ES3         GL4
-    PF_rgba_integer = 0x8D99, //     ES3         GL4
-    PF_bgr_integer  = 0x8D9A, //                 GL4
-    PF_bgra_integer = 0x8D9B, //                 GL4
-
+    PF_red             = 0x1903, //     ES3 GL2 GL3 GL4
+    PF_rg              = 0x8227, //     ES3     GL3 GL4
+    PF_rgb             = 0x1907, // ES2 ES3 GL2 GL3 GL4
+    PF_rgba            = 0x1908, // ES2 ES3 GL2 GL3 GL4
+    PF_bgr             = 0x80E0, //         GL2 GL3 GL4
+    PF_bgra            = 0x80E1, //         GL2 GL3 GL4
+    PF_rg_integer      = 0x8228, //     ES3         GL4
+    PF_red_integer     = 0x8D94, //     ES3         GL4
+    PF_rgb_integer     = 0x8D98, //     ES3         GL4
+    PF_rgba_integer    = 0x8D99, //     ES3         GL4
+    PF_bgr_integer     = 0x8D9A, //                 GL4
+    PF_bgra_integer    = 0x8D9B, //                 GL4
 };
 //-----------------------------------------------------------------------------
 //! OpenCV image class with the same interface as the former SLImage class

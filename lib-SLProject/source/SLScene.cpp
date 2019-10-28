@@ -299,8 +299,11 @@ bool SLScene::onUpdate()
 
     // Calculate the frames per second metric
     _frameTimesMS.set(_frameTimeMS);
-    _fps = 1 / _frameTimesMS.average() * 1000.0f;
-    if (_fps < 0.0f) _fps = 0.0f;
+    SLfloat averagedFrameTimeMS = _frameTimesMS.average();
+    if (averagedFrameTimeMS > 0.001f)
+        _fps = 1 / _frameTimesMS.average() * 1000.0f;
+    else
+        _fps = 0.0f;
 
     SLfloat startUpdateMS = SLApplication::timeMS();
 

@@ -3,19 +3,18 @@
 
 #include <WAIModeOrbSlam2.h>
 #include <AppDemoGuiInfosDialog.h>
-#include <WAICalibration.h>
+#include <CVCalibration.h>
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiStatsVideo : public AppDemoGuiInfosDialog
 {
     public:
-    AppDemoGuiStatsVideo(std::string name, WAICalibration* wc, bool* activator);
+    AppDemoGuiStatsVideo(std::string name, CVCalibration* calib, bool* activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     private:
-
-    WAICalibration* _wc;
+    CVCalibration* _calib;
 };
 
 #endif //SL_IMGUI_TRACKEDMAPPING_H

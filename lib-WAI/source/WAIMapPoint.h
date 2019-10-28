@@ -30,9 +30,9 @@ class WAIMap;
 */
 class WAI_API WAIMapPoint
 {
-    public:
+public:
     //!constructor used during map loading
-    WAIMapPoint(int id, const cv::Mat& Pos, WAIMap* pMap);
+    WAIMapPoint(int id, const cv::Mat& Pos, WAIMap* pMap, bool fixMp);
     WAIMapPoint(const cv::Mat& Pos, WAIKeyFrame* pRefKF, WAIMap* pMap);
 
     //ghm1: getters for scene object position initialization
@@ -92,7 +92,9 @@ class WAI_API WAIMapPoint
     size_t getSizeOfCvMat(const cv::Mat& mat);
     size_t getSizeOf();
 
-    public:
+    bool isFixed() const { return _fixed; }
+
+public:
     long unsigned int mnId = -1;
     //ghm1: this keeps track of the highest used id, to never use the same id again
     static long unsigned int nNextId;
@@ -124,7 +126,10 @@ class WAI_API WAIMapPoint
 
     static std::mutex mGlobalMutex;
 
-    protected:
+protected:
+    //flags if fixed, then
+    bool _fixed = false;
+
     //open cv coordinate representation: z-axis points to principlal point,
     // x-axis to the right and y-axis down
     cv::Mat mWorldPos;

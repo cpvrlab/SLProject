@@ -20,7 +20,6 @@ class GUIPreferences
     bool showVideoStorage  = false;
 
     //map menu
-    bool showMapStorage            = false;
     bool showInfosMapNodeTransform = false;
 
     //experiments menu

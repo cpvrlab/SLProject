@@ -44,9 +44,9 @@ bool onUpdateVideo()
         SLfloat        trackingTimeStartMS = SLApplication::timeMS();
         CVCalibration* ac                  = CVCapture::instance()->activeCalib;
 
-        // Invalidate calibration if camera input aspect doesn't match output
+        // Invalidate calibration if viewport aspect doesn't match calibration aspect ratio
         SLfloat calibWdivH              = ac->imageAspectRatio();
-        SLbool  aspectRatioDoesNotMatch = Utils::abs(sv->scrWdivH() - calibWdivH) > 0.01f;
+        SLbool  aspectRatioDoesNotMatch = Utils::abs(sv->viewportWdivH() - calibWdivH) > 0.01f;
         if (aspectRatioDoesNotMatch && ac->state() == CS_calibrated)
         {
             ac->clear();

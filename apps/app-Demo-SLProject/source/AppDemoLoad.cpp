@@ -70,6 +70,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         activeCalib->state() != CS_uncalibrated)
         activeCalib->state(CS_uncalibrated);
 
+    // Reset non CVTracked and CVCapture infos
     CVTracked::resetTimes();                   // delete all tracker times
     CVCapture::instance()->videoType(VT_NONE); // turn off any video
 
@@ -439,7 +440,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 #ifdef SL_OS_ANDROID
         SLstring largeFile = SLImporter::defaultPath + "xyzrgb_dragon.ply";
 #else
-        SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+        SLstring     largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
 #endif
         if (Utils::fileExists(largeFile))
         {
@@ -646,10 +647,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         VR.push_back(SLVec3f(0.5f, -0.5f, -2.0f));
         SLNode* polyR = new SLNode(new SLPolygon(VR, T, "PolygonR", matR));
 
-#ifdef APP_USES_GLES
-        // Create 3D textured sphere mesh and node
-        SLNode* sphere = new SLNode(new SLSphere(0.2f, 16, 16, "Sphere", matL));
-#else
         // 3D Texture Mapping on a pyramid
         SLVstring tex3DFiles;
         for (SLint i = 0; i < 256; ++i) tex3DFiles.push_back("Wave_radial10_256C.jpg");
@@ -667,10 +664,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         pyramidNode->translate(0, 0, -3);
 
         // Create 3D textured sphere mesh and node
-        SLNode*      sphere = new SLNode(new SLSphere(0.2f, 16, 16, "Sphere", mat3D));
-#endif
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
+        SLNode*   sphere = new SLNode(new SLSphere(0.2f, 16, 16, "Sphere", mat3D));
+        SLCamera* cam1   = new SLCamera("Camera 1");
         cam1->translation(0, 0, 2.2f);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(2.2f);
@@ -684,10 +679,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(polyR);
         scene->addChild(sphere);
         scene->addChild(cam1);
-#ifndef APP_USES_GLES
-        scene->addChild(pyramidNode);
-#endif
-
         sv->camera(cam1);
         s->root3D(scene);
     }
@@ -1425,11 +1416,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texG  = new SLGLTexture("earth2048_G.jpg");      // gloss map
         SLGLTexture* texNC = new SLGLTexture("earthNight2048_C.jpg"); // night color  map
 #else
-        SLGLTexture* texC   = new SLGLTexture("earth1024_C.jpg");      // color map
-        SLGLTexture* texN   = new SLGLTexture("earth1024_N.jpg");      // normal map
-        SLGLTexture* texH   = new SLGLTexture("earth1024_H.jpg");      // height map
-        SLGLTexture* texG   = new SLGLTexture("earth1024_G.jpg");      // gloss map
-        SLGLTexture* texNC  = new SLGLTexture("earthNight1024_C.jpg"); // night color  map
+        SLGLTexture* texC      = new SLGLTexture("earth1024_C.jpg");      // color map
+        SLGLTexture* texN      = new SLGLTexture("earth1024_N.jpg");      // normal map
+        SLGLTexture* texH      = new SLGLTexture("earth1024_H.jpg");      // height map
+        SLGLTexture* texG      = new SLGLTexture("earth1024_G.jpg");      // gloss map
+        SLGLTexture* texNC     = new SLGLTexture("earthNight1024_C.jpg"); // night color  map
 #endif
         SLGLTexture* texClC = new SLGLTexture("earthCloud1024_C.jpg"); // cloud color map
         SLGLTexture* texClA = new SLGLTexture("earthCloud1024_A.jpg"); // cloud alpha map
@@ -1919,7 +1910,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 #ifdef APP_USES_GLES
         SLint size = 4;
 #else
-        SLint        size   = 8;
+        SLint        size      = 8;
 #endif
         for (SLint iZ = -size; iZ <= size; ++iZ)
         {
@@ -1951,7 +1942,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             s->name("Live Video Texture");
             s->info("Minimal texture mapping example with live video source.");
-            CVCapture::instance()->videoType(VT_SCND); // on desktop it will be the main camera
+            CVCapture::instance()->videoType(VT_MAIN); // on desktop it will be the main camera
         }
         else
         {
@@ -1961,6 +1952,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             CVCapture::instance()->videoFilename = "street3.mp4";
             CVCapture::instance()->videoLoops    = true;
         }
+        sv->viewportSameAsVideo(true);
 
         // Create video texture on global pointer updated in AppDemoTracking
         videoTexture   = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -1980,7 +1972,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create rectangle meshe and nodes
         SLfloat h        = 5.0f;
-        SLfloat w        = h * sv->scrWdivH();
+        SLfloat w        = h * sv->viewportWdivH();
         SLMesh* rectMesh = new SLRectangle(SLVec2f(-w, -h), SLVec2f(w, h), 1, 1, "rect mesh", m1);
         SLNode* rectNode = new SLNode(rectMesh, "rect node");
         rectNode->translation(0, 0, -5);
@@ -2918,7 +2910,21 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             sceneView->onInitialize();
 
     if (CVCapture::instance()->videoType() != VT_NONE)
-        CVCapture::instance()->start(sv->scrWdivH());
+    {
+        if (sv->viewportSameAsVideo())
+        {
+            // Pass a negative value to the start function, so that the
+            // viewport aspect ratio can be adapted later to the video aspect.
+            // This will be know after start.
+            CVCapture::instance()->start(-1.0f);
+            SLVec2i videoAspect;
+            videoAspect.x = CVCapture::instance()->captureSize.width;
+            videoAspect.y = CVCapture::instance()->captureSize.height;
+            sv->setViewportFromRatio(videoAspect, sv->viewportAlign(), true);
+        }
+        else
+            CVCapture::instance()->start(sv->viewportWdivH());
+    }
 }
 //-----------------------------------------------------------------------------
 //! Creates a recursive sphere group used for the ray tracing scenes

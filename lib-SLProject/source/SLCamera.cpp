@@ -24,25 +24,27 @@ SLProjection SLCamera::currentProjection  = P_monoPerspective;
 SLfloat      SLCamera::currentFOV         = 45.0f;
 SLint        SLCamera::currentDevRotation = 0;
 //-----------------------------------------------------------------------------
-SLCamera::SLCamera(SLstring name) : SLNode(name),
-                                    _movedLastFrame(false),
-                                    _trackballSize(0.8f),
-                                    _moveDir(0, 0, 0),
-                                    _drag(0.05f),
-                                    _maxSpeed(2.0f),
-                                    _velocity(0.0f, 0.0f, 0.0f),
-                                    _acceleration(0, 0, 0),
-                                    _brakeAccel(16.0f),
-                                    _moveAccel(16.0f),
-                                    _unitScaling(1.0f)
+SLCamera::SLCamera(const SLstring& name) : SLNode(name),
+                                           _movedLastFrame(false),
+                                           _trackballSize(0.8f),
+                                           _moveDir(0, 0, 0),
+                                           _drag(0.05f),
+                                           _maxSpeed(2.0f),
+                                           _velocity(0.0f, 0.0f, 0.0f),
+                                           _acceleration(0, 0, 0),
+                                           _brakeAccel(16.0f),
+                                           _moveAccel(16.0f),
+                                           _unitScaling(1.0f)
 {
-    _fovInit    = 0;
-    _aspect     = 640.0f / 480.0f; // will be overwritten in setProjection
-    _clipNear   = 0.1f;
-    _clipFar    = 300.0f;
-    _fov        = 45.0;
-    _projection = P_monoPerspective;
-    _camAnim    = CA_turntableYUp;
+    _fovInit       = 0;
+    _viewportW     = 640;
+    _viewportH     = 480;
+    _viewportRatio = 640.0f / 480.0f; // will be overwritten in setProjection
+    _clipNear      = 0.1f;
+    _clipFar       = 300.0f;
+    _fov           = 45.0;
+    _projection    = P_monoPerspective;
+    _camAnim       = CA_turntableYUp;
 
     // depth of field parameters
     _lensDiameter = 0.3f;
@@ -51,10 +53,6 @@ SLCamera::SLCamera(SLstring name) : SLNode(name),
     _eyeSeparation = _focalDist / 30.0f;
 
     _background.colors(SLCol4f(0.6f, 0.6f, 0.6f), SLCol4f(0.3f, 0.3f, 0.3f));
-}
-//-----------------------------------------------------------------------------
-SLCamera::~SLCamera()
-{
 }
 //-----------------------------------------------------------------------------
 /*! SLCamera::camUpdate does the smooth transition for the walk animation. It
@@ -152,10 +150,10 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             SLVVec3f       P;
             SLVec3f        pos(vm.translation());
             SLfloat        t = tan(Utils::DEG2RAD * _fov * 0.5f) * pos.length(); // top
-            SLfloat        b = -t;                                           // bottom
-            SLfloat        l = -sv->scrWdivH() * t;                          // left
-            SLfloat        r = -l;                                           // right
-            SLfloat        c = std::min(l, r) * 0.05f;                         // size of cross at focal point
+            SLfloat        b = -t;                                               // bottom
+            SLfloat        l = -sv->scrWdivH() * t;                              // left
+            SLfloat        r = -l;                                               // right
+            SLfloat        c = std::min(l, r) * 0.05f;                           // size of cross at focal point
 
             // small line in view direction
             P.push_back(SLVec3f(0, 0, 0));
@@ -220,16 +218,16 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             SLVVec3f P;
             SLfloat  aspect = sv->scrWdivH();
             SLfloat  tanFov = tan(_fov * Utils::DEG2RAD * 0.5f);
-            SLfloat  tF     = tanFov * _clipFar;      //top far
-            SLfloat  rF     = tF * aspect;            //right far
-            SLfloat  lF     = -rF;                    //left far
-            SLfloat  tP     = tanFov * _focalDist;    //top projection at focal distance
-            SLfloat  rP     = tP * aspect;            //right projection at focal distance
-            SLfloat  lP     = -tP * aspect;           //left projection at focal distance
+            SLfloat  tF     = tanFov * _clipFar;        //top far
+            SLfloat  rF     = tF * aspect;              //right far
+            SLfloat  lF     = -rF;                      //left far
+            SLfloat  tP     = tanFov * _focalDist;      //top projection at focal distance
+            SLfloat  rP     = tP * aspect;              //right projection at focal distance
+            SLfloat  lP     = -tP * aspect;             //left projection at focal distance
             SLfloat  cP     = std::min(lP, rP) * 0.05f; //size of cross at focal point
-            SLfloat  tN     = tanFov * _clipNear;     //top near
-            SLfloat  rN     = tN * aspect;            //right near
-            SLfloat  lN     = -tN * aspect;           //left near
+            SLfloat  tN     = tanFov * _clipNear;       //top near
+            SLfloat  rN     = tN * aspect;              //right near
+            SLfloat  lN     = -tN * aspect;             //left near
 
             // small line in view direction
             P.push_back(SLVec3f(0, 0, 0));
@@ -313,8 +311,8 @@ void SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV)
 {
     SLVec3f P[5];
     SLfloat tanFov = tan(_fov * Utils::DEG2RAD * 0.5f);
-    SLfloat tN     = tanFov * _clipNear; //top near
-    SLfloat rN     = tN * _aspect;       //right near
+    SLfloat tN     = tanFov * _clipNear;  //top near
+    SLfloat rN     = tN * _viewportRatio; //right near
 
     // The camera center
     P[0].set(0, 0, 0);
@@ -330,14 +328,14 @@ void SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV)
     maxV.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
     // calc min and max point of all vertices
-    for (SLuint i = 0; i < 5; ++i)
+    for (auto& i : P)
     {
-        if (P[i].x < minV.x) minV.x = P[i].x;
-        if (P[i].x > maxV.x) maxV.x = P[i].x;
-        if (P[i].y < minV.y) minV.y = P[i].y;
-        if (P[i].y > maxV.y) maxV.y = P[i].y;
-        if (P[i].z < minV.z) minV.z = P[i].z;
-        if (P[i].z > maxV.z) maxV.z = P[i].z;
+        if (i.x < minV.x) minV.x = i.x;
+        if (i.x > maxV.x) maxV.x = i.x;
+        if (i.y < minV.y) minV.y = i.y;
+        if (i.y > maxV.y) maxV.y = i.y;
+        if (i.z < minV.z) minV.z = i.z;
+        if (i.z > maxV.z) maxV.z = i.z;
     }
 }
 //-----------------------------------------------------------------------------
@@ -347,7 +345,7 @@ void SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV)
  node has no mesh accociated, so we have to calculate the min and max point
  from the camera frustum.
  */
-void SLCamera::buildAABB(SLAABBox& aabb, SLMat4f wmNode)
+void SLCamera::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 {
     SLVec3f minP, maxP;
     calcMinMax(minP, maxP);
@@ -367,7 +365,7 @@ SLstring SLCamera::projectionToStr(SLProjection p)
         case P_stereoSideBySideP: return "Side by Side proportional";
         case P_stereoSideBySideD: return "Side by Side distorted";
         case P_stereoLineByLine: return "Line by Line";
-        case P_stereoColumnByColumn: return "Pixel by Pixel";
+        case P_stereoColumnByColumn: return "Column by Column";
         case P_stereoPixelByPixel: return "Checkerboard";
         case P_stereoColorRC: return "Red-Cyan";
         case P_stereoColorRG: return "Red-Green";
@@ -392,75 +390,27 @@ should correspond to the width of the projection plane.
 */
 SLfloat SLCamera::focalDistScrW() const
 {
-    return focalDistScrH() * _aspect;
+    return focalDistScrH() * _viewportRatio;
 }
 //-----------------------------------------------------------------------------
-/*!
-Sets the projection transformation matrix, the viewport transformation and the
-drawing buffer. In case of a stereographic projection it additionally sets the
-stereo splitting parameters such as the color masks and the color filter matrix
-for stereo color anaglyph.
-*/
-void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
+//! Sets the viewport transform depending on the projection
+void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
 {
-    ////////////////////
-    // Set Projection //
-    ////////////////////
-
-    const SLMat4f& vm      = updateAndGetWMI();
-    SLGLState*     stateGL = SLGLState::instance();
-
-    stateGL->stereoEye  = eye;
-    stateGL->projection = _projection;
-
-    SLVec3f pos(vm.translation());
-    SLfloat top, bottom, left, right, d; // frustum parameters
-    _scrW   = sv->scrW();
-    _scrH   = sv->scrH();
-    _aspect = sv->scrWdivH();
-
-    switch (_projection)
-    {
-        case P_monoPerspective:
-            stateGL->projectionMatrix.perspective(_fov, sv->scrWdivH(), _clipNear, _clipFar);
-            break;
-
-        case P_monoOrthographic:
-            top    = tan(Utils::DEG2RAD * _fov * 0.5f) * pos.length();
-            bottom = -top;
-            left   = -sv->scrWdivH() * top;
-            right  = -left;
-
-            // The orthographic projection should have its near clip plane behind the camera
-            // rather than slightly in front of it. Else we will see cross sections of scenes if
-            // we zoom in close
-            stateGL->projectionMatrix.ortho(left, right, bottom, top, -_clipNear, _clipFar);
-            break;
-
-        case P_stereoSideBySideD:
-            stateGL->projectionMatrix = SLApplication::scene->oculus()->projection(eye);
-
-            break;
-        // all other stereo projections
-        default:
-            // asymmetric frustum shift d (see chapter stereo projection)
-            d      = (SLfloat)eye * 0.5f * _eyeSeparation * _clipNear / _focalDist;
-            top    = tan(Utils::DEG2RAD * _fov / 2) * _clipNear;
-            bottom = -top;
-            left   = -sv->scrWdivH() * top - d;
-            right  = sv->scrWdivH() * top - d;
-            stateGL->projectionMatrix.frustum(left, right, bottom, top, _clipNear, _clipFar);
-    }
+    SLGLState* stateGL = SLGLState::instance();
+    SLRecti    vpRect  = sv->viewportRect();
+    _viewportW         = vpRect.width;
+    _viewportH         = vpRect.height;
+    _viewportRatio     = (float)vpRect.width / (float)vpRect.height;
 
     //////////////////
-    // Set Viewport //
+    // Set viewport //
     //////////////////
 
-    SLint w  = sv->scrW();
-    SLint h  = sv->scrH();
-    SLint w2 = sv->scrWdiv2();
-    SLint h2 = sv->scrHdiv2();
-    SLint h4 = h2 >> 1;
+    SLint w  = vpRect.width;
+    SLint h  = vpRect.height;
+    SLint w2 = w >> 1;  // w/2
+    SLint h2 = h >> 1;  // h/2
+    SLint h4 = h2 >> 1; //h2/2
 
     if (_projection == P_stereoSideBySideD)
     {
@@ -486,28 +436,86 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
             stateGL->viewport(w2, h4, w2, h2);
     }
     else
-        stateGL->viewport(0, 0, w, h);
+        stateGL->viewport(vpRect.x, vpRect.y, vpRect.width, vpRect.height);
+}
+//-----------------------------------------------------------------------------
+/*!
+Sets the projection transformation matrix and the drawing buffer.
+In case of a stereographic projection it additionally sets the
+stereo splitting parameters such as the color masks and the color filter matrix
+for stereo color anaglyph.
+*/
+void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
+{
+    ////////////////////
+    // Set Projection //
+    ////////////////////
+
+    const SLMat4f& vm      = updateAndGetWMI();
+    SLGLState*     stateGL = SLGLState::instance();
+
+    stateGL->stereoEye  = eye;
+    stateGL->projection = _projection;
+
+    SLVec3f pos(vm.translation());
+    SLfloat top, bottom, left, right, d; // frustum parameters
+
+    switch (_projection)
+    {
+        case P_monoPerspective:
+            stateGL->projectionMatrix.perspective(_fov, _viewportRatio, _clipNear, _clipFar);
+            break;
+
+        case P_monoOrthographic:
+            top    = tan(Utils::DEG2RAD * _fov * 0.5f) * pos.length();
+            bottom = -top;
+            left   = -_viewportRatio * top;
+            right  = -left;
+
+            // The orthographic projection should have its near clip plane behind the camera
+            // rather than slightly in front of it. Else we will see cross sections of scenes if
+            // we zoom in close
+            stateGL->projectionMatrix.ortho(left, right, bottom, top, -_clipNear, _clipFar);
+            break;
+
+        case P_stereoSideBySideD:
+            stateGL->projectionMatrix = SLApplication::scene->oculus()->projection(eye);
+
+            break;
+        // all other stereo projections
+        default:
+            // asymmetric frustum shift d (see chapter stereo projection)
+            d      = (SLfloat)eye * 0.5f * _eyeSeparation * _clipNear / _focalDist;
+            top    = tan(Utils::DEG2RAD * _fov / 2) * _clipNear;
+            bottom = -top;
+            left   = -_viewportRatio * top - d;
+            right  = _viewportRatio * top - d;
+            stateGL->projectionMatrix.frustum(left, right, bottom, top, _clipNear, _clipFar);
+    }
 
     ///////////////////
     // Clear Buffers //
     ///////////////////
 
-    if (eye == ET_right) //&& _projection >= stereoColorRC)
+    if (eye == ET_right)
         // Do not clear color on right eye because it contains the color of the
         // left eye. The right eye must be drawn after the left into the same buffer
         stateGL->clearDepthBuffer();
 
-    //  Set Color Mask and Filter
+    /////////////////////////////////
+    //  Set Color Mask and Filter  //
+    /////////////////////////////////
+
     if (_projection >= P_stereoColorRC)
     {
         if (eye == ET_left)
         {
             switch (_projection)
             {
-                case P_stereoColorRC: stateGL->colorMask(true, false, false, true); break;
-                case P_stereoColorRB: stateGL->colorMask(true, false, false, true); break;
-                case P_stereoColorRG: stateGL->colorMask(true, false, false, true); break;
-                case P_stereoColorYB: stateGL->colorMask(true, true, false, true); break;
+                case P_stereoColorRC: stateGL->colorMask(1, 0, 0, 1); break;
+                case P_stereoColorRB: stateGL->colorMask(1, 0, 0, 1); break;
+                case P_stereoColorRG: stateGL->colorMask(1, 0, 0, 1); break;
+                case P_stereoColorYB: stateGL->colorMask(1, 1, 0, 1); break;
                 default: break;
             }
         }
@@ -515,10 +523,10 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         {
             switch (_projection)
             {
-                case P_stereoColorRC: stateGL->colorMask(false, true, true, true); break;
-                case P_stereoColorRB: stateGL->colorMask(false, false, true, true); break;
-                case P_stereoColorRG: stateGL->colorMask(false, true, false, true); break;
-                case P_stereoColorYB: stateGL->colorMask(false, false, true, true); break;
+                case P_stereoColorRC: stateGL->colorMask(0, 1, 1, 1); break;
+                case P_stereoColorRB: stateGL->colorMask(0, 0, 1, 1); break;
+                case P_stereoColorRG: stateGL->colorMask(0, 1, 0, 1); break;
+                case P_stereoColorYB: stateGL->colorMask(0, 0, 1, 1); break;
                 default: break;
             }
         }
@@ -745,7 +753,8 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 }
 //-----------------------------------------------------------------------------
 //! Sets the view to look from a direction towards the current focal point
-void SLCamera::lookFrom(const SLVec3f fromDir, const SLVec3f upDir)
+void SLCamera::lookFrom(const SLVec3f& fromDir,
+                        const SLVec3f& upDir)
 {
     SLVec3f lookAt = focalPointWS();
     this->translation(lookAt + _focalDist * fromDir);
@@ -936,12 +945,12 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         {
             // Calculate the fraction delta of the mouse movement
             SLVec2f dMouse(x - _oldTouchPos1.x, _oldTouchPos1.y - y);
-            dMouse.x /= (SLfloat)_scrW;
-            dMouse.y /= (SLfloat)_scrH;
+            dMouse.x /= (SLfloat)_viewportW;
+            dMouse.y /= (SLfloat)_viewportH;
 
             // scale factor depending on the space size at focal dist
             SLfloat spaceH = tan(Utils::DEG2RAD * _fov / 2) * _focalDist * 2.0f;
-            SLfloat spaceW = spaceH * _aspect;
+            SLfloat spaceW = spaceH * _viewportRatio;
 
             dMouse.x *= spaceW;
             dMouse.y *= spaceH;
@@ -1065,7 +1074,7 @@ SLbool SLCamera::onTouch2Move(const SLint x1,
 
     // scale factor depending on the space sice at focal dist
     SLfloat spaceH = tan(Utils::DEG2RAD * _fov / 2) * _focalDist * 2.0f;
-    SLfloat spaceW = spaceH * _aspect;
+    SLfloat spaceW = spaceH * _viewportRatio;
 
     // if fingers move parallel slide camera vertically or horizontally
     if (Utils::abs(phi1 - phi2) < 0.2f)
@@ -1080,8 +1089,8 @@ SLbool SLCamera::onTouch2Move(const SLint x1,
         SLVec2f delta(nowCenter - oldCenter);
 
         // scale to 0-1
-        delta.x /= _scrW;
-        delta.y /= _scrH;
+        delta.x /= _viewportW;
+        delta.y /= _viewportH;
 
         // scale to space size
         delta.x *= spaceW;
@@ -1111,7 +1120,7 @@ SLbool SLCamera::onTouch2Move(const SLint x1,
 
         if (_camAnim == CA_turntableYUp)
         { // scale to 0-1
-            delta /= (SLfloat)_scrH;
+            delta /= (SLfloat)_viewportH;
 
             // scale to space height
             delta *= spaceH * 2;
@@ -1137,11 +1146,10 @@ SLbool SLCamera::onTouch2Move(const SLint x1,
 SLCamera::onDoubleTouch gets called whenever two fingers touch a handheld
 screen.
 */
-SLbool
-SLCamera::onTouch2Up(const SLint x1,
-                     const SLint y1,
-                     const SLint x2,
-                     const SLint y2)
+SLbool SLCamera::onTouch2Up(const SLint x1,
+                            const SLint y1,
+                            const SLint x2,
+                            const SLint y2)
 {
     _velocity.set(0.0f, 0.0f, 0.0f);
     return true;
@@ -1272,10 +1280,10 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
         */
         SLVec3f pos(updateAndGetVM().translation());
         SLfloat hh = tan(Utils::DEG2RAD * _fov * 0.5f) * pos.length();
-        SLfloat hw = hh * _aspect;
+        SLfloat hw = hh * _viewportRatio;
 
         // calculate the size of a pixel in world coords.
-        SLfloat pixel = hw * 2 / _scrW;
+        SLfloat pixel = hw * 2 / _viewportW;
 
         SLVec3f TL  = EYE - hw * LR + hh * LU + pixel / 2 * LR - pixel / 2 * LU;
         SLVec3f dir = LA;
@@ -1292,10 +1300,10 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
         */
         // calculate half window width & height in world coords
         SLfloat hh = tan(Utils::DEG2RAD * _fov * 0.5f) * _focalDist;
-        SLfloat hw = hh * _aspect;
+        SLfloat hw = hh * _viewportRatio;
 
         // calculate the size of a pixel in world coords.
-        SLfloat pixel = hw * 2 / _scrW;
+        SLfloat pixel = hw * 2 / _viewportW;
 
         // calculate a vector to the center (C) of the top left (TL) pixel
         SLVec3f C   = LA * _focalDist;
@@ -1373,10 +1381,10 @@ SLVec3f SLCamera::trackballVec(const SLint x, const SLint y)
     SLVec3f vec;
 
     //Calculate x & y component to the virtual unit sphere
-    SLfloat r = (SLfloat)(_scrW < _scrH ? _scrW / 2 : _scrH / 2) * _trackballSize;
+    SLfloat r = (SLfloat)(_viewportW < _viewportH ? _viewportW / 2 : _viewportH / 2) * _trackballSize;
 
-    vec.x = (SLfloat)(x - _scrW * 0.5f) / r;
-    vec.y = -(SLfloat)(y - _scrH * 0.5f) / r;
+    vec.x = (SLfloat)(x - _viewportW * 0.5f) / r;
+    vec.y = -(SLfloat)(y - _viewportH * 0.5f) / r;
 
     // d = length of vector x,y
     SLfloat d = sqrt(vec.x * vec.x + vec.y * vec.y);

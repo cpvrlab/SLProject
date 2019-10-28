@@ -25,15 +25,15 @@ CVTrackedChessboard::CVTrackedChessboard()
 {
     CVCalibration* calib = CVCapture::instance()->activeCalib;
     CVCalibration::calcBoardCorners3D(calib->boardSize(),
-                                        calib->boardSquareM(),
-                                        _boardPoints3D);
+                                      calib->boardSquareM(),
+                                      _boardPoints3D);
     _solved = false;
 }
 //-----------------------------------------------------------------------------
 //! Tracks the chessboard image in the given image for the first sceneview
-bool CVTrackedChessboard::track(CVMat            imageGray,
-                                  CVMat            imageRgb,
-                                  CVCalibration* calib)
+bool CVTrackedChessboard::track(CVMat          imageGray,
+                                CVMat          imageRgb,
+                                CVCalibration* calib)
 {
     assert(!imageGray.empty() && "ImageGray is empty");
     assert(!imageRgb.empty() && "ImageRGB is empty");
@@ -43,7 +43,7 @@ bool CVTrackedChessboard::track(CVMat            imageGray,
     // Detect //
     ////////////
 
-    float  startMS = _timer.elapsedTimeInMilliSec();
+    float startMS = _timer.elapsedTimeInMilliSec();
 
     //detect chessboard corners
     int flags = //CALIB_CB_ADAPTIVE_THRESH |

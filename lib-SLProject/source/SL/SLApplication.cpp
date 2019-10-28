@@ -27,7 +27,12 @@ SLScene*            SLApplication::scene = nullptr;
 SLDeviceRotation    SLApplication::devRot;
 SLDeviceLocation    SLApplication::devLoc;
 SLstring            SLApplication::name          = "SLProjectApp";
-SLstring            SLApplication::version       = "2.3.100";
+SLstring            SLApplication::version       = "2.4.000";
+#ifdef _DEBUG
+SLstring            SLApplication::configuration = "Debug";
+#else
+SLstring            SLApplication::configuration = "Release";
+#endif
 SLstring            SLApplication::computerUser  = "USER?";
 SLstring            SLApplication::computerName  = "NAME?";
 SLstring            SLApplication::computerBrand = "BRAND?";

@@ -37,39 +37,52 @@ long unsigned int WAIKeyFrame::nNextId = 0;
 
 //-----------------------------------------------------------------------------
 //!load an existing keyframe (used during file load)
-WAIKeyFrame::WAIKeyFrame(const cv::Mat& Tcw,
-                         unsigned long id,
-                         float fx, float fy,
-                         float cx, float cy, size_t N,
+WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
+                         unsigned long                    id,
+                         bool                             fixKF,
+                         float                            fx,
+                         float                            fy,
+                         float                            cx,
+                         float                            cy,
+                         size_t                           N,
                          const std::vector<cv::KeyPoint>& vKeysUn,
-                         const cv::Mat& descriptors,
-                         ORBVocabulary* mpORBvocabulary,
-                         int nScaleLevels,
-                         float fScaleFactor,
-                         const std::vector<float>& vScaleFactors,
-                         const std::vector<float>& vLevelSigma2,
-                         const std::vector<float>& vInvLevelSigma2,
-                         int nMinX, int nMinY, int nMaxX, int nMaxY,
-                         const cv::Mat& K,
-                         WAIKeyFrameDB* pKFDB,
-                         WAIMap* pMap)
-
-  : mnId(id), mnFrameId(0),
+                         const cv::Mat&                   descriptors,
+                         ORBVocabulary*                   mpORBvocabulary,
+                         int                              nScaleLevels,
+                         float                            fScaleFactor,
+                         const std::vector<float>&        vScaleFactors,
+                         const std::vector<float>&        vLevelSigma2,
+                         const std::vector<float>&        vInvLevelSigma2,
+                         int                              nMinX,
+                         int                              nMinY,
+                         int                              nMaxX,
+                         int                              nMaxY,
+                         const cv::Mat&                   K,
+                         WAIKeyFrameDB*                   pKFDB,
+                         WAIMap*                          pMap)
+  : mnId(id),
+    mnFrameId(0),
     mTimeStamp(0),
-    mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
+    mnGridCols(FRAME_GRID_COLS),
+    mnGridRows(FRAME_GRID_ROWS),
     mfGridElementWidthInv(static_cast<float>(FRAME_GRID_COLS) / (nMaxX - nMinX)),
     mfGridElementHeightInv(static_cast<float>(FRAME_GRID_ROWS) / (nMaxY - nMinY)),
     mnTrackReferenceForFrame(0),
     mnFuseTargetForKF(0),
     mnBALocalForKF(0),
     mnBAFixedForKF(0),
+    _fixed(fixKF),
     mnLoopQuery(0),
     mnLoopWords(0),
     mnRelocQuery(0),
     mnRelocWords(0),
     mnBAGlobalForKF(0),
-    fx(fx), fy(fy), cx(cx), cy(cy),
-    invfx(1 / fx), invfy(1 / fy),
+    fx(fx),
+    fy(fy),
+    cx(cx),
+    cy(cy),
+    invfx(1 / fx),
+    invfy(1 / fy),
     N(N),
     mvKeysUn(vKeysUn),
     mDescriptors(descriptors.clone()),
@@ -92,6 +105,7 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat& Tcw,
     mbBad(false),
     mpMap(pMap)
 {
+    //Update next id so we never have twice the same id and especially only one with 0 (this is important)
     if (id >= nNextId)
         nNextId = id + 1;
 
@@ -107,7 +121,28 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat& Tcw,
 }
 //-----------------------------------------------------------------------------
 WAIKeyFrame::WAIKeyFrame(WAIFrame& F, WAIMap* pMap, WAIKeyFrameDB* pKFDB, bool retainImg)
-  : mnFrameId(F.mnId), mTimeStamp(F.mTimeStamp), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS), mfGridElementWidthInv(F.mfGridElementWidthInv), mfGridElementHeightInv(F.mfGridElementHeightInv), mnTrackReferenceForFrame(0), mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0), mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0), mnBAGlobalForKF(0), fx(F.fx), fy(F.fy), cx(F.cx), cy(F.cy), invfx(F.invfx), invfy(F.invfy),
+  : mnFrameId(F.mnId),
+    mTimeStamp(F.mTimeStamp),
+    mnGridCols(FRAME_GRID_COLS),
+    mnGridRows(FRAME_GRID_ROWS),
+    mfGridElementWidthInv(F.mfGridElementWidthInv),
+    mfGridElementHeightInv(F.mfGridElementHeightInv),
+    mnTrackReferenceForFrame(0),
+    mnFuseTargetForKF(0),
+    mnBALocalForKF(0),
+    mnBAFixedForKF(0),
+    _fixed(false),
+    mnLoopQuery(0),
+    mnLoopWords(0),
+    mnRelocQuery(0),
+    mnRelocWords(0),
+    mnBAGlobalForKF(0),
+    fx(F.fx),
+    fy(F.fy),
+    cx(F.cx),
+    cy(F.cy),
+    invfx(F.invfx),
+    invfy(F.invfy),
     /* mbf(F.mbf), mb(F.mb), mThDepth(F.mThDepth),*/ N(F.N),
     /*mvKeys(F.mvKeys),*/ mvKeysUn(F.mvKeysUn),
     /* mvuRight(F.mvuRight), mvDepth(F.mvDepth),*/ mDescriptors(F.mDescriptors.clone()),
@@ -563,20 +598,24 @@ void WAIKeyFrame::SetBadFlag()
         unique_lock<mutex> lock(mMutexConnections);
         if (mnId == 0)
         {
+            //never delete first keyframe
             return;
         }
         else if (mbNotErase)
         {
+            //never delete keyframes with this flag
             mbToBeErased = true;
             return;
         }
     }
 
+    //for all connected keyframes remove this as a neighbour
     for (map<WAIKeyFrame*, int>::iterator mit = mConnectedKeyFrameWeights.begin(), mend = mConnectedKeyFrameWeights.end(); mit != mend; mit++)
     {
         mit->first->EraseConnection(this);
     }
 
+    //erase observation from keypoints observed by this keyframe
     for (size_t i = 0; i < mvpMapPoints.size(); i++)
     {
         if (mvpMapPoints[i])
@@ -592,12 +631,14 @@ void WAIKeyFrame::SetBadFlag()
         mConnectedKeyFrameWeights.clear();
         mvpOrderedConnectedKeyFrames.clear();
 
-        // Update Spanning Tree
+        // ghm1: Update Spanning Tree: As we try to cull a keyframe we have to update the parent keyframe from all his children.
+        // A parent keyframe is the one that has the best covisibility with his potential child. So it is not necessaryly the parent of the culled keyframe.
+        // Rather we search all connected keyframes in covisibilty graph (see GetWeight) for every child to find the best parent
         set<WAIKeyFrame*> sParentCandidates;
         sParentCandidates.insert(mpParent);
 
-        // Assign at each iteration one children with a parent (the pair with highest covisibility weight)
-        // Include that children as new parent candidate for the rest
+        // Assign at each iteration one child with a parent (the pair with highest covisibility weight)
+        // Include that child as new parent candidate for the rest
         while (!mspChildrens.empty())
         {
             bool bContinue = false;
@@ -611,6 +652,7 @@ void WAIKeyFrame::SetBadFlag()
                 WAIKeyFrame* pKF = *sit;
                 if (pKF->isBad())
                 {
+                    sit = mspChildrens.erase(sit);
                     continue;
                 }
 
@@ -648,6 +690,8 @@ void WAIKeyFrame::SetBadFlag()
         }
 
         // If a children has no covisibility links with any parent candidate, assign to the original parent of this KF
+        //ghm1: (change because of exception in ChangeParent) check that the parent is not the child itself. If this is
+        //the case, remove itself from covisibles and use the second best covisible as parent.
         if (!mspChildrens.empty())
         {
             for (set<WAIKeyFrame*>::iterator sit = mspChildrens.begin(); sit != mspChildrens.end(); sit++)
@@ -664,6 +708,24 @@ void WAIKeyFrame::SetBadFlag()
     //ghm1: map pointer is only used to erase key frames here
     mpMap->EraseKeyFrame(this);
     _kfDb->erase(this);
+}
+//-----------------------------------------------------------------------------
+bool WAIKeyFrame::findChildRecursive(WAIKeyFrame* kf)
+{
+    for (auto it = mspChildrens.begin(); it != mspChildrens.end(); ++it)
+    {
+        if (*it != kf)
+        {
+            return (*it)->findChildRecursive(kf);
+        }
+        else
+        {
+            std::cout << "findChildRecursive found among children of id: " << (*it)->mnId << std::endl;
+            return true;
+        }
+    }
+
+    return false;
 }
 //-----------------------------------------------------------------------------
 bool WAIKeyFrame::isBad()
@@ -855,4 +917,9 @@ bool WAIKeyFrame::hasMapPoint(WAIMapPoint* mp)
     }
 
     return result;
+}
+
+bool WAIKeyFrame::isFixed() const
+{
+    return _fixed;
 }

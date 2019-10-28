@@ -37,7 +37,7 @@ void AppDemoGuiStatsTiming::buildInfos(SLScene* s, SLSceneView* sv)
     SLfloat cullTimePC   = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
 
     sprintf(m + strlen(m), "Renderer      : OpenGL\n");
-    sprintf(m + strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
+    sprintf(m + strlen(m), "Frame size    : %d x %d\n", sv->viewportW(), sv->viewportH());
     sprintf(m + strlen(m), "NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
     sprintf(m + strlen(m), "Frames per s. : %4.1f\n", s->fps());
     sprintf(m + strlen(m), "Frame time    : %4.1f ms (100%%)\n", ft);

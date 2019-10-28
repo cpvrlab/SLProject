@@ -22,6 +22,7 @@
 #include <SLRaytracer.h>
 #include <SLScene.h>
 #include <SLSkybox.h>
+#include <SLRect.h>
 
 //-----------------------------------------------------------------------------
 class SLCamera;
@@ -86,14 +87,14 @@ class SLSceneView : public SLObject
     virtual void   preDraw() {}
     virtual void   postDraw() {}
     virtual void   postSceneLoad() {}
-    virtual SLbool onMouseDown(SLMouseButton button, SLint x, SLint y, SLKey mod);
-    virtual SLbool onMouseUp(SLMouseButton button, SLint x, SLint y, SLKey mod);
+    virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
+    virtual SLbool onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
     virtual SLbool onMouseMove(SLint x, SLint y);
     virtual SLbool onMouseWheelPos(SLint wheelPos, SLKey mod);
     virtual SLbool onMouseWheel(SLint delta, SLKey mod);
-    virtual SLbool onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2);
-    virtual SLbool onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2);
-    virtual SLbool onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2);
+    virtual SLbool onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2);
+    virtual SLbool onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2);
+    virtual SLbool onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2);
     virtual SLbool onDoubleClick(SLMouseButton button, SLint x, SLint y, SLKey mod);
     virtual SLbool onLongTouch(SLint x, SLint y);
     virtual SLbool onKeyPress(SLKey key, SLKey mod);
@@ -123,7 +124,9 @@ class SLSceneView : public SLObject
     void     startRaytracing(SLint maxDepth);
     void     startPathtracing(SLint maxDepth, SLint samples);
     void     printStats() { _stats3D.print(); }
-
+    void     setViewportFromRatio(const SLVec2i&  vpRatio,
+                                  SLViewportAlign vpAlignment,
+                                  SLbool          vpSameAsVideo);
     // Callback routines
     cbOnWndUpdate      onWndUpdate;        //!< C-Callback for app for intermediate window repaint
     cbOnSelectNodeMesh onSelectedNodeMesh; //!< C-Callback for app on node selection
@@ -139,37 +142,45 @@ class SLSceneView : public SLObject
     void doFrustumCulling(SLbool doFC) { _doFrustumCulling = doFC; }
     void gotPainted(SLbool val) { _gotPainted = val; }
     void renderType(SLRenderType rt) { _renderType = rt; }
+    void viewportSameAsVideo(bool sameAsVideo) { _viewportSameAsVideo = sameAsVideo; }
 
     // Getters
-    SLuint        index() const { return _index; }
-    SLCamera*     camera() { return _camera; }
-    SLCamera*     sceneViewCamera() { return &_sceneViewCamera; }
-    SLSkybox*     skybox() { return _skybox; }
-    SLint         scrW() const { return _scrW; }
-    SLint         scrH() const { return _scrH; }
-    SLint         scrWdiv2() const { return _scrWdiv2; }
-    SLint         scrHdiv2() const { return _scrHdiv2; }
-    SLfloat       scrWdivH() const { return _scrWdivH; }
-    SLGLImGui&    gui() { return _gui; }
-    SLbool        gotPainted() const { return _gotPainted; }
-    SLbool        doFrustumCulling() const { return _doFrustumCulling; }
-    SLbool        doMultiSampling() const { return _doMultiSampling; }
-    SLbool        doDepthTest() const { return _doDepthTest; }
-    SLbool        doWaitOnIdle() const { return _doWaitOnIdle; }
-    SLVNode*      nodesVisible() { return &_nodesVisible; }
-    SLVNode*      nodesVisible2D() { return &_nodesVisible2D; }
-    SLVNode*      nodesBlended() { return &_nodesBlended; }
-    SLRaytracer*  raytracer() { return &_raytracer; }
-    SLPathtracer* pathtracer() { return &_pathtracer; }
-    SLRenderType  renderType() const { return _renderType; }
-    SLGLOculusFB* oculusFB() { return &_oculusFB; }
-    SLDrawBits*   drawBits() { return &_drawBits; }
-    SLbool        drawBit(SLuint bit) { return _drawBits.get(bit); }
-    SLfloat       cullTimeMS() const { return _cullTimeMS; }
-    SLfloat       draw3DTimeMS() const { return _draw3DTimeMS; }
-    SLfloat       draw2DTimeMS() const { return _draw2DTimeMS; }
-    SLNodeStats&  stats2D() { return _stats2D; }
-    SLNodeStats&  stats3D() { return _stats3D; }
+    SLuint          index() const { return _index; }
+    SLCamera*       camera() { return _camera; }
+    SLCamera*       sceneViewCamera() { return &_sceneViewCamera; }
+    SLSkybox*       skybox() { return _skybox; }
+    SLint           scrW() const { return _scrW; }
+    SLint           scrH() const { return _scrH; }
+    SLint           scrWdiv2() const { return _scrWdiv2; }
+    SLint           scrHdiv2() const { return _scrHdiv2; }
+    SLfloat         scrWdivH() const { return _scrWdivH; }
+    SLRecti         viewportRect() const { return _viewportRect; }
+    SLVec2i         viewportRatio() const { return _viewportRatio; }
+    SLfloat         viewportWdivH() const { return (float)_viewportRect.width / (float)_viewportRect.height; }
+    SLint           viewportW() const { return _viewportRect.width; }
+    SLint           viewportH() const { return _viewportRect.height; }
+    SLViewportAlign viewportAlign() const { return _viewportAlign; }
+    SLbool          viewportSameAsVideo() const { return _viewportSameAsVideo; }
+    SLGLImGui&      gui() { return _gui; }
+    SLbool          gotPainted() const { return _gotPainted; }
+    SLbool          doFrustumCulling() const { return _doFrustumCulling; }
+    SLbool          doMultiSampling() const { return _doMultiSampling; }
+    SLbool          doDepthTest() const { return _doDepthTest; }
+    SLbool          doWaitOnIdle() const { return _doWaitOnIdle; }
+    SLVNode*        nodesVisible() { return &_nodesVisible; }
+    SLVNode*        nodesVisible2D() { return &_nodesVisible2D; }
+    SLVNode*        nodesBlended() { return &_nodesBlended; }
+    SLRaytracer*    raytracer() { return &_raytracer; }
+    SLPathtracer*   pathtracer() { return &_pathtracer; }
+    SLRenderType    renderType() const { return _renderType; }
+    SLGLOculusFB*   oculusFB() { return &_oculusFB; }
+    SLDrawBits*     drawBits() { return &_drawBits; }
+    SLbool          drawBit(SLuint bit) { return _drawBits.get(bit); }
+    SLfloat         cullTimeMS() const { return _cullTimeMS; }
+    SLfloat         draw3DTimeMS() const { return _draw3DTimeMS; }
+    SLfloat         draw2DTimeMS() const { return _draw2DTimeMS; }
+    SLNodeStats&    stats2D() { return _stats2D; }
+    SLNodeStats&    stats3D() { return _stats3D; }
 
     static const SLint LONGTOUCH_MS; //!< Milliseconds duration of a long touch event
 
@@ -205,11 +216,15 @@ class SLSceneView : public SLObject
     SLGLVertexArrayExt _vaoTouch;  //!< Buffer for touch pos. rendering
     SLGLVertexArrayExt _vaoCursor; //!< Virtual cursor for stereo rendering
 
-    SLint   _scrW;     //!< Screen width in pixels
-    SLint   _scrH;     //!< Screen height in pixels
-    SLint   _scrWdiv2; //!< Screen half width in pixels
-    SLint   _scrHdiv2; //!< Screen half height in pixels
-    SLfloat _scrWdivH; //!< Screen side aspect ratio
+    SLint           _scrW;                //!< Screen width in pixels
+    SLint           _scrH;                //!< Screen height in pixels
+    SLint           _scrWdiv2;            //!< Screen half width in pixels
+    SLint           _scrHdiv2;            //!< Screen half height in pixels
+    SLfloat         _scrWdivH;            //!< Screen side aspect ratio
+    SLVec2i         _viewportRatio;       //!< ratio of viewport
+    SLViewportAlign _viewportAlign;       //!< alignment of viewport
+    SLRecti         _viewportRect;        //!< rectangle of viewport
+    SLbool          _viewportSameAsVideo; //!< Adapt viewport aspect to the input video
 
     SLGLOculusFB _oculusFB; //!< Oculus framebuffer
 

@@ -24,7 +24,6 @@ import javax.microedition.khronos.opengles.GL10;
 public class GLES3View extends GLSurfaceView
 {
     private static String TAG = "SLProject";
-    private static final boolean DEBUG = false;
     private static final int VT_NONE = 0;
     private static final int VT_MAIN = 1;
     private static final int VT_SCND = 2;
@@ -61,7 +60,7 @@ public class GLES3View extends GLSurfaceView
      * activity cross thread invocations.
      */
     private static class Renderer implements GLSurfaceView.Renderer {
-        protected Handler mainLoop;
+        private Handler mainLoop;
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             Log.i(TAG, "Renderer.onSurfaceCreated");

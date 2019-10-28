@@ -32,17 +32,22 @@ struct OrbSlamStartResult
     std::string errorString;
 };
 
+struct SlamParams
+{
+    std::string               videoFile;
+    std::string               mapFile;
+    std::string               calibrationFile;
+    std::string               vocabularyFile;
+    WAI::ModeOrbSlam2::Params params;
+};
+
 //-----------------------------------------------------------------------------
 class WAIApp
 {
-    public:
+public:
     static int                load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* dirs);
     static void               close();
-    static OrbSlamStartResult startOrbSlam(std::string videoFile       = "",
-                                           std::string calibrationFile = "",
-                                           std::string mapFile         = "",
-                                           std::string vocFileName     = "ORBvoc.bin",
-                                           bool        saveVideoFrames = false);
+    static OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);
 
     static void onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid);
     static bool update();
@@ -63,13 +68,14 @@ class WAIApp
     static void setupGUI();
     static void buildGUI(SLScene* s, SLSceneView* sv);
     static void openTest(std::string path);
+    static bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
 
     static AppDemoGuiAbout* aboutDial;
     static AppDemoGuiError* errorDial;
 
     static GUIPreferences     uiPrefs;
     static AppWAIDirectories* dirs;
-    static WAICalibration*    wc;
+
     static int                scrWidth;
     static int                scrHeight;
     static int                defaultScrWidth;
@@ -86,6 +92,8 @@ class WAIApp
     static ofstream           gpsDataStream;
     static ImageProcessor     imgProc;
 
+    static SlamParams* currentSlamParams;
+
     static bool resizeWindow;
 
     static std::string videoDir;
@@ -94,10 +102,9 @@ class WAIApp
     static std::string vocDir;
     static std::string experimentsDir;
 
-    static bool pauseVideo; // pause video file
-    static int  videoCursorMoveIndex;
-
-    static unsigned char * outputTexture;
+    static cv::Size2i videoFrameSize;
+    static bool       pauseVideo; // pause video file
+    static int        videoCursorMoveIndex;
 };
 
 #endif

@@ -21,6 +21,7 @@ for a good top down information.
 #include <Utils.h>
 #include <ftplib.h>
 #include <algorithm> // std::max
+#include <SLApplication.h>
 
 using namespace cv;
 using namespace std;
@@ -80,7 +81,8 @@ CVCalibration::CVCalibration()
     _devSensorSizeH(0.0f),
     _isMirroredH(false),
     _isMirroredV(false)
-{}
+{
+}
 //-----------------------------------------------------------------------------
 //! Resets the calibration to the uncalibrated state
 void CVCalibration::clear()
@@ -93,7 +95,8 @@ void CVCalibration::clear()
     _calibrationTime = "-";
     _undistortMapX.release();
     _undistortMapY.release();
-    _state = CS_uncalibrated;
+    _state         = CS_uncalibrated;
+    _computerInfos = SLApplication::getComputerInfos();
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
@@ -164,6 +167,17 @@ bool CVCalibration::load(const string& calibDir,
         _state = _numCaptured ? CS_calibrated : CS_uncalibrated;
     }
 
+    //estimate computer infos
+    if (!fs["computerInfos"].empty())
+        fs["computerInfos"] >> _computerInfos;
+    else
+    {
+        std::vector<std::string> stringParts;
+        Utils::splitString(Utils::getFileNameWOExt(_calibFileName), '_', stringParts);
+        if (stringParts.size() >= 3)
+            _computerInfos = stringParts[1];
+    }
+
     // close the input file
     fs.release();
 
@@ -182,9 +196,14 @@ bool CVCalibration::load(const string& calibDir,
 }
 //-----------------------------------------------------------------------------
 //! Saves the camera calibration parameters to the config file
-void CVCalibration::save()
+void CVCalibration::save(std::string forceSavePath)
 {
-    string          fullPathAndFilename = _calibDir + _calibFileName;
+    string fullPathAndFilename;
+    if (forceSavePath.empty())
+        fullPathAndFilename = _calibDir + _calibFileName;
+    else
+        fullPathAndFilename = forceSavePath;
+
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 
     if (!fs.isOpened())
@@ -228,12 +247,12 @@ void CVCalibration::save()
     fs << "DeviceLensFocalLength" << _devFocalLength;
     fs << "DeviceSensorPhysicalSizeW" << _devSensorSizeW;
     fs << "DeviceSensorPhysicalSizeH" << _devSensorSizeW;
+    fs << "computerInfos" << _computerInfos;
     /*
     SLGLState* stateGL = SLGLState::instance();
     fs << "computerUser" << SLApplication::computerUser;
     fs << "computerName" << SLApplication::computerName;
     fs << "computerBrand" << SLApplication::computerBrand;
-    fs << "computerModel" << SLApplication::computerModel;
     fs << "computerArch" << SLApplication::computerArch;
     fs << "computerOS" << SLApplication::computerOS;
     fs << "computerOSVer" << SLApplication::computerOSVer;
@@ -294,6 +313,7 @@ void CVCalibration::calcCameraFov()
     _cameraFovHDeg = 2.0f * (float)atan2(cx, fx) * Utils::RAD2DEG;
     _cameraFovVDeg = 2.0f * (float)atan2(cy, fy) * Utils::RAD2DEG;
 }
+
 //-----------------------------------------------------------------------------
 //! Calculates the 3D positions of the chessboard corners
 void CVCalibration::calcBoardCorners3D(const CVSize& boardSize,
@@ -509,7 +529,8 @@ static bool calcCalibration(CVSize&            imageSize,
 //! Initiates the final calculation
 bool CVCalibration::calculate()
 {
-    _state = CS_startCalculating;
+    _state         = CS_startCalculating;
+    _computerInfos = SLApplication::getComputerInfos();
 
     CVVMat        rvecs, tvecs;
     vector<float> reprojErrs;

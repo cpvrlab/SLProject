@@ -27,8 +27,8 @@ bool calibZeroTangentDistortion = false;
 bool calibFixPrincipalPoint     = false;
 
 //cv::Size2i defaultCamResolution = cv::Size2i(640, 480);
-cv::Size2i defaultCamResolution = cv::Size2i(1920, 1080);
-std::string windowName = "Camera Calibration";
+cv::Size2i  defaultCamResolution = cv::Size2i(1920, 1080);
+std::string windowName           = "Camera Calibration";
 cv::Size    chessboardSize(16, 9);
 //cv::Size chessboardSize(10, 7);
 float squareLength = 0.168f;
@@ -65,7 +65,6 @@ void extractCorners(cv::Mat frame, std::string savePath)
 
         std::stringstream ss;
         ss << savePath << "/img" << iImg << ".png";
-        //ss << sfv::Resource::path("test_data") << "/img" << iImg << ".png";
         cv::imwrite(ss.str(), frame);
         cv::drawChessboardCorners(frame, chessboardSize, cv::Mat(corners), foundCorners);
         std::stringstream sss;

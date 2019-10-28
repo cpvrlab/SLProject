@@ -33,8 +33,22 @@
 namespace ORB_SLAM2
 {
 
-LocalMapping::LocalMapping(WAIMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary)
-  : mpMap(pMap), mbMonocular(bMonocular), mpORBvocabulary(mpORBvocabulary), mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mbAbortBA(false), mbStopped(false), mbStopRequested(false), mbNotStop(false), mbAcceptKeyFrames(true)
+LocalMapping::LocalMapping(WAIMap*        pMap,
+                           const float    bMonocular,
+                           ORBVocabulary* mpORBvocabulary,
+                           float          cullRedundantPerc)
+  : mpMap(pMap),
+    mbMonocular(bMonocular),
+    mpORBvocabulary(mpORBvocabulary),
+    mbResetRequested(false),
+    mbFinishRequested(false),
+    mbFinished(true),
+    mbAbortBA(false),
+    mbStopped(false),
+    mbStopRequested(false),
+    mbNotStop(false),
+    mbAcceptKeyFrames(true),
+    _cullRedundantPerc(cullRedundantPerc)
 {
 }
 
@@ -259,6 +273,7 @@ void LocalMapping::MapPointCulling()
     while (lit != mlpRecentAddedMapPoints.end())
     {
         WAIMapPoint* pMP = *lit;
+
         if (pMP->isBad())
         {
             lit = mlpRecentAddedMapPoints.erase(lit);
@@ -285,7 +300,7 @@ void LocalMapping::MapPointCulling()
             lit++;
     }
 
-    printf("Culled %i map points\n", mapPointsCulled);
+    //printf("Culled %i map points\n", mapPointsCulled);
 }
 
 void LocalMapping::CreateNewMapPoints()
@@ -306,7 +321,7 @@ void LocalMapping::CreateNewMapPoints()
     Rcw1.copyTo(Tcw1.colRange(0, 3));
     tcw1.copyTo(Tcw1.col(3));
     cv::Mat Ow1 = mpCurrentKeyFrame->GetCameraCenter();
-    std::cout << Ow1 << std::endl;
+    //std::cout << Ow1 << std::endl;
 
     const float& fx1    = mpCurrentKeyFrame->fx;
     const float& fy1    = mpCurrentKeyFrame->fy;
@@ -331,7 +346,7 @@ void LocalMapping::CreateNewMapPoints()
         cv::Mat Ow2       = pKF2->GetCameraCenter();
         cv::Mat vBaseline = Ow2 - Ow1;
 
-        std::cout << Ow2 << std::endl;
+        //std::cout << Ow2 << std::endl;
 
         const float baseline = cv::norm(vBaseline);
 
@@ -540,7 +555,7 @@ void LocalMapping::CreateNewMapPoints()
         }
     }
 
-    printf("Created %i new map points\n", nnew);
+    //printf("Created %i new map points\n", nnew);
 }
 
 void LocalMapping::SearchInNeighbors()
@@ -735,12 +750,17 @@ void LocalMapping::KeyFrameCulling()
     for (vector<WAIKeyFrame*>::iterator vit = vpLocalKeyFrames.begin(), vend = vpLocalKeyFrames.end(); vit != vend; vit++)
     {
         WAIKeyFrame* pKF = *vit;
+        //do not cull the first keyframe
         if (pKF->mnId == 0)
             continue;
+        //do not cull fixed keyframes
+        if (pKF->isFixed())
+            continue;
+
         const vector<WAIMapPoint*> vpMapPoints = pKF->GetMapPointMatches();
 
-        int       nObs                   = 3;
-        const int thObs                  = nObs;
+        //int       nObs                   = 3;
+        const int thObs                  = 3;
         int       nRedundantObservations = 0;
         int       nMPs                   = 0;
         for (size_t i = 0, iend = vpMapPoints.size(); i < iend; i++)
@@ -787,7 +807,7 @@ void LocalMapping::KeyFrameCulling()
             }
         }
 
-        if (nRedundantObservations > 0.9 * nMPs)
+        if (nRedundantObservations > _cullRedundantPerc * nMPs)
         {
             pKF->SetBadFlag();
         }

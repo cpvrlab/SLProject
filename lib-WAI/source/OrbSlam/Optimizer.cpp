@@ -110,8 +110,6 @@ void Optimizer::BundleAdjustment(const vector<WAIKeyFrame*>& vpKFs, const vector
 
             const cv::KeyPoint& kpUn = pKF->mvKeysUn[mit->second];
 
-            //if(pKF->mvuRight[mit->second]<0)
-            //{
             Eigen::Matrix<double, 2, 1> obs;
             obs << kpUn.pt.x, kpUn.pt.y;
 
@@ -136,37 +134,6 @@ void Optimizer::BundleAdjustment(const vector<WAIKeyFrame*>& vpKFs, const vector
             e->cy = pKF->cy;
 
             optimizer.addEdge(e);
-            //}
-            //else
-            //{
-            //    Eigen::Matrix<double,3,1> obs;
-            //    const float kp_ur = pKF->mvuRight[mit->second];
-            //    obs << kpUn.pt.x, kpUn.pt.y, kp_ur;
-
-            //    g2o::EdgeStereoSE3ProjectXYZ* e = new g2o::EdgeStereoSE3ProjectXYZ();
-
-            //    e->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(id)));
-            //    e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(pKF->mnId)));
-            //    e->setMeasurement(obs);
-            //    const float &invSigma2 = pKF->mvInvLevelSigma2[kpUn.octave];
-            //    Eigen::Matrix3d Info = Eigen::Matrix3d::Identity()*invSigma2;
-            //    e->setInformation(Info);
-
-            //    if(bRobust)
-            //    {
-            //        g2o::RobustKernelHuber* rk = new g2o::RobustKernelHuber;
-            //        e->setRobustKernel(rk);
-            //        rk->setDelta(thHuber3D);
-            //    }
-
-            //    e->fx = pKF->fx;
-            //    e->fy = pKF->fy;
-            //    e->cx = pKF->cx;
-            //    e->cy = pKF->cy;
-            //    e->bf = pKF->mbf;
-
-            //    optimizer.addEdge(e);
-            //}
         }
 
         if (nEdges == 0)
@@ -715,10 +682,14 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap
     const vector<WAIKeyFrame*> vNeighKFs = pKF->GetVectorCovisibleKeyFrames();
     for (int i = 0, iend = vNeighKFs.size(); i < iend; i++)
     {
-        WAIKeyFrame* pKFi    = vNeighKFs[i];
-        pKFi->mnBALocalForKF = pKF->mnId;
-        if (!pKFi->isBad())
-            lLocalKeyFrames.push_back(pKFi);
+        WAIKeyFrame* pKFi = vNeighKFs[i];
+
+        if (!pKFi->isFixed())
+        {
+            pKFi->mnBALocalForKF = pKF->mnId;
+            if (!pKFi->isBad())
+                lLocalKeyFrames.push_back(pKFi);
+        }
     }
 
     // Local MapPoints seen in Local KeyFrames
@@ -730,12 +701,16 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap
         {
             WAIMapPoint* pMP = *vit;
             if (pMP)
-                if (!pMP->isBad())
+            {
+                if (!pMP->isBad() && !pMP->isFixed())
+                {
                     if (pMP->mnBALocalForKF != pKF->mnId)
                     {
                         lLocalMapPoints.push_back(pMP);
                         pMP->mnBALocalForKF = pKF->mnId;
                     }
+                }
+            }
         }
     }
 

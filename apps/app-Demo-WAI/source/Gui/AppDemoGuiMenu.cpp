@@ -80,6 +80,13 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
 
+            CVCapture* cap = CVCapture::instance();
+            if (cap->activeCalib)
+            {
+                if (ImGui::MenuItem("Undistort Image", nullptr, cap->activeCalib->showUndistorted(), cap->activeCalib->state() == CS_calibrated))
+                    cap->activeCalib->showUndistorted(!cap->activeCalib->showUndistorted());
+            }
+
             if (ImGui::BeginMenu("Mirror Scnd. Camera", CVCapture::instance()->hasSecondaryCamera))
             {
                 if (ImGui::MenuItem("Horizontally", nullptr, sc->isMirroredH()))
@@ -96,7 +103,6 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Map"))
         {
-            ImGui::MenuItem("Map storage", nullptr, &prefs->showMapStorage);
             ImGui::MenuItem("Infos Map Node Transform", nullptr, &prefs->showInfosMapNodeTransform);
             ImGui::EndMenu();
         }

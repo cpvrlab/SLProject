@@ -123,7 +123,7 @@ static void computeBRIEFDescriptor(const KeyPoint& kpt,
 #undef GET_VALUE
 }
 
-static int bit_pattern_31_[256 * 4] =
+static const int bit_pattern_31_[256 * 4] =
   {
     8,
     -3,
@@ -1168,7 +1168,7 @@ SURFextractor::SURFextractor(double threshold)
 
     mvImagePyramid.resize(1);
 
-    surf_detector = cv::xfeatures2d::SURF::create(threshold, 4, 3, false, false);
+    surf_detector = cv::xfeatures2d::SURF::create(threshold, 4, 3, false, true);
 
     const int    npoints  = 512;
     const Point* pattern0 = (const Point*)bit_pattern_31_;
@@ -1211,6 +1211,12 @@ void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     mask(cv::Rect(HALF_PATCH_SIZE, HALF_PATCH_SIZE, image.cols - PATCH_SIZE, image.rows - PATCH_SIZE)).setTo(1);
     //detect keypoints
     surf_detector->detect(image, _keypoints, mask);
+    //set octave to zero because we have no pyramids implemented for surf
+    for (KeyPoint& kpt : _keypoints)
+    {
+        kpt.octave = 0;
+    }
+
     AVERAGE_TIMING_STOP("detectSURFKpts");
 
     AVERAGE_TIMING_START("computeDescriptors2");
@@ -1231,6 +1237,7 @@ void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     // Compute the descriptors
     Mat desc = descriptors.rowRange(0, _keypoints.size());
     computeDescriptors(workingMat, _keypoints, desc, pattern);
+
     AVERAGE_TIMING_STOP("computeDescriptors2");
 }
 
