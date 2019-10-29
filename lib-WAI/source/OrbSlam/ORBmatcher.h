@@ -65,6 +65,8 @@ class ORBmatcher
     // Matching for the Map Initialization (only used in the monocular case)
     int SearchForInitialization(WAIFrame& F1, WAIFrame& F2, std::vector<cv::Point2f>& vbPrevMatched, std::vector<int>& vnMatches12, int windowSize = 10);
 
+    int SearchForMarkerMap(WAIFrame& F1, WAIKeyFrame& F2, vector<int>& vnMatches12);
+
     // Matching to triangulate new MapPoints. Check Epipolar Constraint.
     int SearchForTriangulation(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, cv::Mat F12, std::vector<pair<size_t, size_t>>& vMatchedPairs, const bool bOnlyStereo);
 

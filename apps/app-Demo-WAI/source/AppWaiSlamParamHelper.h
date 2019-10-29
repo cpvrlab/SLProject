@@ -127,4 +127,11 @@ static std::string constructSlamMapFileName(std::string location, std::string ar
     return result;
 }
 
+static std::string constructSlamMarkerDir(std::string locationsRootDir, std::string location, std::string area)
+{
+    std::string result = constructSlamAreaDir(locationsRootDir, location, area) + "markers/";
+
+    return result;
+}
+
 #endif

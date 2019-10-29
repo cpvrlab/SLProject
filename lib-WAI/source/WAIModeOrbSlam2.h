@@ -125,6 +125,8 @@ class WAI_API ModeOrbSlam2
 
     WAIFrame getCurrentFrame();
 
+    bool doMarkerMapPreprocessing(std::string markerFile);
+
     bool getMarkerCorrectionTransformation(cv::Mat* markerCorrectionTransformation);
 
     private:

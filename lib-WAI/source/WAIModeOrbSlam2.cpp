@@ -709,39 +709,9 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
             return;
         }
 
-        int nmatches = 0;
-
-#if 0
-        if (_createMarkerMap)
-        {
-            mvIniMatches = std::vector<int>(mInitialFrame.mvKeysUn.size(), -1);
-            for (int i = 0; i < _initialFrameToMarkerMatches.size(); i++)
-            {
-                for (int j = 0; j < markerMatchesCurrentFrame.size(); j++)
-                {
-                    if (_initialFrameToMarkerMatches[i] == markerMatchesCurrentFrame[j])
-                    {
-                        mvIniMatches[i] = j;
-                        nmatches++;
-                    }
-                }
-            }
-
-            for (int i = 0; i < mvIniMatches.size(); i++)
-            {
-                if (mvIniMatches[i] >= 0)
-                {
-                    mvbPrevMatched[i] = mCurrentFrame.mvKeysUn[mvIniMatches[i]].pt;
-                }
-            }
-        }
-        else
-#endif
-        {
-            // Find correspondences
-            ORBmatcher matcher(0.9, true);
-            nmatches = matcher.SearchForInitialization(mInitialFrame, mCurrentFrame, mvbPrevMatched, mvIniMatches, 100);
-        }
+        // Find correspondences
+        ORBmatcher matcher(0.9, true);
+        int        nmatches = matcher.SearchForInitialization(mInitialFrame, mCurrentFrame, mvbPrevMatched, mvIniMatches, 100);
 
         // Check if there are enough correspondences
         if (nmatches < matchesNeeded)
@@ -1253,6 +1223,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
 
 bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
 {
+#if 0
     int kpUlIniIndex, kpUrIniIndex, kpLlIniIndex, kpLrIniIndex;
     int kpUlCurIndex, kpUrCurIndex, kpLlCurIndex, kpLrCurIndex;
     if (_createMarkerMap)
@@ -1305,6 +1276,7 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
             kpLrCurIndex = mCurrentFrame.addKeyPoint(kpLrCurFrame);
         }
     }
+#endif
 
     // Create KeyFrames
     WAIKeyFrame* pKFini = new WAIKeyFrame(mInitialFrame, _map, mpKeyFrameDatabase);
@@ -1345,6 +1317,7 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
         _map->AddMapPoint(pMP);
     }
 
+#if 0
     if (_createMarkerMap)
     {
         cv::Mat Rcw1 = pKFini->GetRotation();
@@ -1546,6 +1519,7 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
             _map->AddMapPoint(_mpLR);
         }
     }
+#endif
 
     // Update Connections
     pKFini->UpdateConnections();
@@ -3038,4 +3012,395 @@ bool WAI::ModeOrbSlam2::getMarkerCorrectionTransformation(cv::Mat* markerCorrect
     }
 
     return result;
+}
+
+bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile)
+{
+    // Additional steps to save marker map
+    // 1. Find matches to marker on two keyframes
+    // 1.a Extract features from marker image
+    // TODO(dgj1): automatically detect used feature extractor
+    KPextractor* markerExtractor = new ORB_SLAM2::SURFextractor(500); // TODO(dgj1): markerInitialization - adjust nFeatures
+    cv::Mat      markerImgGray   = cv::imread(markerFile, cv::IMREAD_GRAYSCALE);
+
+    float fyCam = _cameraMat.at<float>(1, 1);
+    float cyCam = _cameraMat.at<float>(1, 2);
+    float fov   = 2.0f * atan2(cyCam, fyCam) * 180.0f / M_PI;
+
+    float cx = (float)markerImgGray.cols * 0.5f;
+    float cy = (float)markerImgGray.rows * 0.5f;
+    float fy = cy / tanf(fov * 0.5f * M_PI / 180.0);
+    float fx = fy;
+
+    cv::Mat markerCameraMat     = (cv::Mat_<float>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
+    cv::Mat markerDistortionMat = cv::Mat::zeros(4, 1, CV_32F);
+
+    WAIFrame markerFrame = WAIFrame(markerImgGray, 0.0f, markerExtractor, markerCameraMat, markerDistortionMat, mpVocabulary, true);
+
+    // 1.b Find keyframes with enough matches to marker image
+    std::vector<WAIKeyFrame*> kfs = _map->GetAllKeyFrames();
+
+    WAIKeyFrame* matchedKf1 = nullptr;
+    WAIKeyFrame* matchedKf2 = nullptr;
+
+    cv::Mat ul = cv::Mat(cv::Point3f(0, 0, 1));
+    cv::Mat ur = cv::Mat(cv::Point3f(markerFrame.imgGray.cols, 0, 1));
+    cv::Mat ll = cv::Mat(cv::Point3f(0, markerFrame.imgGray.rows, 1));
+    cv::Mat lr = cv::Mat(cv::Point3f(markerFrame.imgGray.cols, markerFrame.imgGray.rows, 1));
+
+    cv::Mat ulKf1, urKf1, llKf1, lrKf1, ulKf2, urKf2, llKf2, lrKf2;
+    cv::Mat ul3D, ur3D, ll3D, lr3D;
+    cv::Mat AC, AB, n;
+
+    for (int i = 0; i < kfs.size(); i++)
+    {
+        WAIKeyFrame* kfCand = kfs[i];
+
+        if (kfCand->isBad()) continue;
+
+        ORBmatcher matcher(0.9, true);
+
+        std::vector<int> markerMatchesToCurrentFrame;
+        int              nmatches = matcher.SearchForMarkerMap(markerFrame, *kfCand, markerMatchesToCurrentFrame);
+
+        if (nmatches > 80)
+        {
+            std::vector<cv::Point2f> markerPoints;
+            std::vector<cv::Point2f> framePoints;
+
+            //std::vector<cv::KeyPoint> matches;
+            for (int j = 0; j < markerMatchesToCurrentFrame.size(); j++)
+            {
+                if (markerMatchesToCurrentFrame[j] >= 0)
+                {
+                    markerPoints.push_back(markerFrame.mvKeysUn[j].pt);
+                    framePoints.push_back(kfCand->mvKeysUn[markerMatchesToCurrentFrame[j]].pt);
+                }
+            }
+
+            // 2. Calculate homography between the keyframes and marker
+            cv::Mat markerHomography = cv::findHomography(markerPoints,
+                                                          framePoints,
+                                                          cv::RANSAC);
+
+            if (!markerHomography.empty())
+            {
+                markerHomography.convertTo(markerHomography, CV_32F);
+
+                if (!matchedKf1)
+                {
+                    // 3. Calculate position of the markers cornerpoints on the keyframes in 2D
+                    // NOTE(dgj1): assumption that intrinsic camera parameters are the same
+                    // TODO(dgj1): think about this assumption
+                    ulKf1 = markerHomography * ul;
+                    ulKf1 /= ulKf1.at<float>(2, 0);
+                    urKf1 = markerHomography * ur;
+                    urKf1 /= urKf1.at<float>(2, 0);
+                    llKf1 = markerHomography * ll;
+                    llKf1 /= llKf1.at<float>(2, 0);
+                    lrKf1 = markerHomography * lr;
+                    lrKf1 /= lrKf1.at<float>(2, 0);
+
+                    matchedKf1 = kfCand;
+                }
+                else
+                {
+                    // 3. Calculate position of the markers cornerpoints on the keyframes in 2D
+                    // NOTE(dgj1): assumption that intrinsic camera parameters are the same
+                    // TODO(dgj1): think about this assumption
+                    ulKf2 = markerHomography * ul;
+                    ulKf2 /= ulKf2.at<float>(2, 0);
+                    urKf2 = markerHomography * ur;
+                    urKf2 /= urKf2.at<float>(2, 0);
+                    llKf2 = markerHomography * ll;
+                    llKf2 /= llKf2.at<float>(2, 0);
+                    lrKf2 = markerHomography * lr;
+                    lrKf2 /= lrKf2.at<float>(2, 0);
+
+                    // 4. Triangulate position of the markers cornerpoints
+
+                    cv::Mat Rcw1 = matchedKf1->GetRotation();
+                    cv::Mat Rwc1 = Rcw1.t();
+                    cv::Mat tcw1 = matchedKf1->GetTranslation();
+                    cv::Mat Tcw1(3, 4, CV_32F);
+                    Rcw1.copyTo(Tcw1.colRange(0, 3));
+                    tcw1.copyTo(Tcw1.col(3));
+
+                    const float& fx1    = matchedKf1->fx;
+                    const float& fy1    = matchedKf1->fy;
+                    const float& cx1    = matchedKf1->cx;
+                    const float& cy1    = matchedKf1->cy;
+                    const float& invfx1 = matchedKf1->invfx;
+                    const float& invfy1 = matchedKf1->invfy;
+
+                    cv::Mat Rcw2 = kfCand->GetRotation();
+                    cv::Mat Rwc2 = Rcw2.t();
+                    cv::Mat tcw2 = kfCand->GetTranslation();
+                    cv::Mat Tcw2(3, 4, CV_32F);
+                    Rcw2.copyTo(Tcw2.colRange(0, 3));
+                    tcw2.copyTo(Tcw2.col(3));
+
+                    const float& fx2    = kfCand->fx;
+                    const float& fy2    = kfCand->fy;
+                    const float& cx2    = kfCand->cx;
+                    const float& cy2    = kfCand->cy;
+                    const float& invfx2 = kfCand->invfx;
+                    const float& invfy2 = kfCand->invfy;
+
+                    {
+                        cv::Mat ul1 = (cv::Mat_<float>(3, 1) << (ulKf1.at<float>(0, 0) - cx1) * invfx1, (ulKf1.at<float>(1, 0) - cy1) * invfy1, 1.0);
+                        cv::Mat ul2 = (cv::Mat_<float>(3, 1) << (ulKf2.at<float>(0, 0) - cx2) * invfx2, (ulKf2.at<float>(1, 0) - cy2) * invfy2, 1.0);
+
+                        // Linear Triangulation Method
+                        cv::Mat A(4, 4, CV_32F);
+                        A.row(0) = ul1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
+                        A.row(1) = ul1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
+                        A.row(2) = ul2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
+                        A.row(3) = ul2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
+
+                        cv::Mat w, u, vt;
+                        cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+
+                        ul3D = vt.row(3).t();
+
+                        if (ul3D.at<float>(3) != 0)
+                        {
+                            // Euclidean coordinates
+                            ul3D = ul3D.rowRange(0, 3) / ul3D.at<float>(3);
+                        }
+                    }
+
+                    {
+                        cv::Mat ur1 = (cv::Mat_<float>(3, 1) << (urKf1.at<float>(0, 0) - cx1) * invfx1, (urKf1.at<float>(1, 0) - cy1) * invfy1, 1.0);
+                        cv::Mat ur2 = (cv::Mat_<float>(3, 1) << (urKf2.at<float>(0, 0) - cx2) * invfx2, (urKf2.at<float>(1, 0) - cy2) * invfy2, 1.0);
+
+                        // Linear Triangulation Method
+                        cv::Mat A(4, 4, CV_32F);
+                        A.row(0) = ur1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
+                        A.row(1) = ur1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
+                        A.row(2) = ur2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
+                        A.row(3) = ur2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
+
+                        cv::Mat w, u, vt;
+                        cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+
+                        ur3D = vt.row(3).t();
+
+                        if (ur3D.at<float>(3) != 0)
+                        {
+                            // Euclidean coordinates
+                            ur3D = ur3D.rowRange(0, 3) / ur3D.at<float>(3);
+                        }
+                    }
+
+                    {
+                        cv::Mat ll1 = (cv::Mat_<float>(3, 1) << (llKf1.at<float>(0, 0) - cx1) * invfx1, (llKf1.at<float>(1, 0) - cy1) * invfy1, 1.0);
+                        cv::Mat ll2 = (cv::Mat_<float>(3, 1) << (llKf2.at<float>(0, 0) - cx2) * invfx2, (llKf2.at<float>(1, 0) - cy2) * invfy2, 1.0);
+
+                        // Linear Triangulation Method
+                        cv::Mat A(4, 4, CV_32F);
+                        A.row(0) = ll1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
+                        A.row(1) = ll1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
+                        A.row(2) = ll2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
+                        A.row(3) = ll2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
+
+                        cv::Mat w, u, vt;
+                        cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+
+                        ll3D = vt.row(3).t();
+
+                        if (ll3D.at<float>(3) != 0)
+                        {
+                            // Euclidean coordinates
+                            ll3D = ll3D.rowRange(0, 3) / ll3D.at<float>(3);
+                        }
+                    }
+
+                    {
+                        cv::Mat lr1 = (cv::Mat_<float>(3, 1) << (lrKf1.at<float>(0, 0) - cx1) * invfx1, (lrKf1.at<float>(1, 0) - cy1) * invfy1, 1.0);
+                        cv::Mat lr2 = (cv::Mat_<float>(3, 1) << (lrKf2.at<float>(0, 0) - cx2) * invfx2, (lrKf2.at<float>(1, 0) - cy2) * invfy2, 1.0);
+
+                        // Linear Triangulation Method
+                        cv::Mat A(4, 4, CV_32F);
+                        A.row(0) = lr1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
+                        A.row(1) = lr1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
+                        A.row(2) = lr2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
+                        A.row(3) = lr2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
+
+                        cv::Mat w, u, vt;
+                        cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+
+                        lr3D = vt.row(3).t();
+
+                        if (lr3D.at<float>(3) != 0)
+                        {
+                            // Euclidean coordinates
+                            lr3D = lr3D.rowRange(0, 3) / lr3D.at<float>(3);
+                        }
+                    }
+
+                    AC = ll3D - ul3D;
+                    AB = ur3D - ul3D;
+
+                    cv::Vec3f vAC = AC;
+                    cv::Vec3f vAB = AB;
+
+                    cv::Vec3f vn = vAB.cross(vAC);
+                    n            = cv::Mat(vn);
+
+                    cv::Mat   AD  = lr3D - ul3D;
+                    cv::Vec3f vAD = AD;
+
+                    float d = cv::norm(vn.dot(vAD)) / cv::norm(vn);
+                    if (d < 0.01f)
+                    {
+                        matchedKf2 = kfCand;
+
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    if (!matchedKf1 || !matchedKf2)
+    {
+        return false;
+    }
+
+    WAI_LOG("matchedKF1: %i, matchedKF2: %i",
+            matchedKf1->mnId,
+            matchedKf2->mnId);
+    std::cout << "ulKf1" << ulKf1 << std::endl;
+    std::cout << "urKf1" << urKf1 << std::endl;
+    std::cout << "llKf1" << llKf1 << std::endl;
+    std::cout << "lrKf1" << lrKf1 << std::endl;
+    std::cout << "ulKf2" << ulKf2 << std::endl;
+    std::cout << "urKf2" << urKf2 << std::endl;
+    std::cout << "llKf2" << llKf2 << std::endl;
+    std::cout << "lrKf2" << lrKf2 << std::endl;
+
+#if 1
+    int     borderWidth       = 250;
+    int     doubleBorderWidth = borderWidth * 2;
+    cv::Mat imgKf1            = cv::Mat::zeros(matchedKf1->imgGray.rows + doubleBorderWidth,
+                                    matchedKf1->imgGray.cols + doubleBorderWidth,
+                                    matchedKf1->imgGray.type());
+    matchedKf1->imgGray.copyTo(imgKf1.rowRange(borderWidth, matchedKf1->imgGray.rows + borderWidth).colRange(borderWidth, matchedKf1->imgGray.cols + borderWidth));
+
+    cv::rectangle(imgKf1,
+                  cv::Point(ulKf1.at<float>(0, 0) + borderWidth, ulKf1.at<float>(1, 0) + borderWidth),
+                  cv::Point(ulKf1.at<float>(0, 0) + borderWidth + 3, ulKf1.at<float>(1, 0) + borderWidth + 3),
+                  cv::Scalar(255, 0, 0));
+    cv::rectangle(imgKf1,
+                  cv::Point(urKf1.at<float>(0, 0) + borderWidth, urKf1.at<float>(1, 0) + borderWidth),
+                  cv::Point(urKf1.at<float>(0, 0) + borderWidth + 3, urKf1.at<float>(1, 0) + borderWidth + 3),
+                  cv::Scalar(255, 0, 0));
+    cv::rectangle(imgKf1,
+                  cv::Point(llKf1.at<float>(0, 0) + borderWidth, llKf1.at<float>(1, 0) + borderWidth),
+                  cv::Point(llKf1.at<float>(0, 0) + borderWidth + 3, llKf1.at<float>(1, 0) + borderWidth + 3),
+                  cv::Scalar(255, 0, 0));
+    cv::rectangle(imgKf1,
+                  cv::Point(lrKf1.at<float>(0, 0) + borderWidth, lrKf1.at<float>(1, 0) + borderWidth),
+                  cv::Point(lrKf1.at<float>(0, 0) + borderWidth + 3, lrKf1.at<float>(1, 0) + borderWidth + 3),
+                  cv::Scalar(255, 0, 0));
+
+    cv::namedWindow("imgKf1", cv::WINDOW_AUTOSIZE);
+    cv::imshow("imgKf1", imgKf1);
+
+    cv::waitKey(0);
+
+    cv::Mat imgKf2 = cv::Mat::zeros(matchedKf2->imgGray.rows + doubleBorderWidth,
+                                    matchedKf2->imgGray.cols + doubleBorderWidth,
+                                    matchedKf2->imgGray.type());
+    matchedKf2->imgGray.copyTo(imgKf2.rowRange(borderWidth, matchedKf2->imgGray.rows + borderWidth).colRange(borderWidth, matchedKf2->imgGray.cols + borderWidth));
+
+    cv::rectangle(imgKf2,
+                  cv::Point(ulKf2.at<float>(0, 0) + borderWidth, ulKf2.at<float>(1, 0) + borderWidth),
+                  cv::Point(ulKf2.at<float>(0, 0) + borderWidth + 3, ulKf2.at<float>(1, 0) + borderWidth + 3),
+                  cv::Scalar(255, 0, 0));
+    cv::rectangle(imgKf2,
+                  cv::Point(urKf2.at<float>(0, 0) + borderWidth, urKf2.at<float>(1, 0) + borderWidth),
+                  cv::Point(urKf2.at<float>(0, 0) + borderWidth + 3, urKf2.at<float>(1, 0) + borderWidth + 3),
+                  cv::Scalar(255, 0, 0));
+    cv::rectangle(imgKf2,
+                  cv::Point(llKf2.at<float>(0, 0) + borderWidth, llKf2.at<float>(1, 0) + borderWidth),
+                  cv::Point(llKf2.at<float>(0, 0) + borderWidth + 3, llKf2.at<float>(1, 0) + borderWidth + 3),
+                  cv::Scalar(255, 0, 0));
+    cv::rectangle(imgKf2,
+                  cv::Point(lrKf2.at<float>(0, 0) + borderWidth, lrKf2.at<float>(1, 0) + borderWidth),
+                  cv::Point(lrKf2.at<float>(0, 0) + borderWidth + 3, lrKf2.at<float>(1, 0) + borderWidth + 3),
+                  cv::Scalar(255, 0, 0));
+
+    cv::namedWindow("imgKf2", cv::WINDOW_AUTOSIZE);
+    cv::imshow("imgKf2", imgKf2);
+
+    cv::waitKey(0);
+#endif
+
+#if 1
+    // 5. Cull mappoints outside of marker
+    std::vector<WAIMapPoint*> mapPoints = _map->GetAllMapPoints();
+
+    cv::Mat system = cv::Mat::zeros(3, 3, CV_32F);
+    AC.copyTo(system.rowRange(0, 3).col(0));
+    AB.copyTo(system.rowRange(0, 3).col(1));
+    n.copyTo(system.rowRange(0, 3).col(2));
+
+    system = system.inv();
+
+    std::cout << "ac" << AC << std::endl;
+    std::cout << "ab" << AB << std::endl;
+    std::cout << "n" << n << std::endl;
+    std::cout << "system" << system << std::endl;
+    std::cout << "system det" << cv::determinant(system) << std::endl;
+
+    for (int i = 0; i < mapPoints.size(); i++)
+    {
+        WAIMapPoint* mp = mapPoints[i];
+
+        if (mp->isBad()) continue;
+
+        cv::Mat sol = system * mp->GetWorldPos();
+
+        if (sol.at<float>(0, 0) < 0 || sol.at<float>(0, 0) > 1 ||
+            sol.at<float>(1, 0) < 0 || sol.at<float>(1, 0) > 1 ||
+            sol.at<float>(2, 0) < 0.01f || sol.at<float>(2, 0) > 0.01f)
+        {
+            mp->SetBadFlag();
+        }
+    }
+
+    std::cout << "mp first" << mapPoints[0]->GetWorldPos() << std::endl;
+    std::cout << "mp mid" << mapPoints[mapPoints.size() / 2]->GetWorldPos() << std::endl;
+    std::cout << "mp last" << mapPoints[mapPoints.size() - 1]->GetWorldPos() << std::endl;
+#endif
+
+    if (_mpUL)
+    {
+        delete _mpUL;
+        _mpUL = nullptr;
+    }
+    if (_mpUR)
+    {
+        delete _mpUR;
+        _mpUR = nullptr;
+    }
+    if (_mpLL)
+    {
+        delete _mpLL;
+        _mpLL = nullptr;
+    }
+    if (_mpLR)
+    {
+        delete _mpLR;
+        _mpLR = nullptr;
+    }
+
+    _mpUL = new WAIMapPoint(0, ul3D, nullptr);
+    _mpUR = new WAIMapPoint(0, ur3D, nullptr);
+    _mpLL = new WAIMapPoint(0, ll3D, nullptr);
+    _mpLR = new WAIMapPoint(0, lr3D, nullptr);
+
+    return true;
 }

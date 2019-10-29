@@ -153,6 +153,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         }
         if (ImGui::Button("Save map"))
         {
+            WAIApp::mode->pause();
+
             if (!_currentLocation.empty() && !_currentArea.empty() && WAIApp::mode)
             {
                 std::string mapDir = constructSlamMapDir(_slamRootDir, _currentLocation, _currentArea);
@@ -178,22 +180,34 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                         Utils::makeDir(imgDir);
                 }
 
-                if (!WAIMapStorage::saveMap(WAIApp::mode->getMap(),
-                                            _mapNode,
-                                            WAIApp::mode->getKPextractor()->GetName(),
-                                            mapDir + filename,
-                                            imgDir))
+                if (!_currentMarker.empty())
                 {
-                    WAIApp::errorDial->setErrorMsg("Failed to save map " + mapDir + filename);
-                    WAIApp::uiPrefs.showError = true;
+                    if (!WAIApp::mode->doMarkerMapPreprocessing(constructSlamMarkerDir(_slamRootDir, _currentLocation, _currentArea) + _currentMarker))
+                    {
+                        WAIApp::errorDial->setErrorMsg("Failed to do marker map preprocessing");
+                        WAIApp::uiPrefs.showError = true;
+                    }
+                }
+                else
+                {
+                    if (!WAIMapStorage::saveMap(WAIApp::mode->getMap(),
+                                                _mapNode,
+                                                WAIApp::mode->getKPextractor()->GetName(),
+                                                mapDir + filename,
+                                                imgDir))
+                    {
+                        WAIApp::errorDial->setErrorMsg("Failed to save map " + mapDir + filename);
+                        WAIApp::uiPrefs.showError = true;
+                    }
+                    else
+                    {
+                        WAIApp::errorDial->setErrorMsg("Failed to save map - No location and/or area selected.");
+                        WAIApp::uiPrefs.showError = true;
+                    }
                 }
             }
-            else
-            {
 
-                WAIApp::errorDial->setErrorMsg("Failed to save map - No location and/or area selected.");
-                WAIApp::uiPrefs.showError = true;
-            }
+            WAIApp::mode->resume();
         }
     }
     else
@@ -217,6 +231,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                     _currentArea     = "";
                     _currentVideo    = "";
                     _currentMap      = "";
+                    _currentMarker   = "";
                 }
                 if (isSelected)
                     ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
@@ -231,7 +246,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 std::vector<std::string> availableAreas;
                 std::vector<std::string> extensions;
                 extensions.push_back("");
-                loadFileNamesInVector(_slamRootDir + _currentLocation + "/",
+                loadFileNamesInVector(constructSlamLocationDir(_slamRootDir, _currentLocation),
                                       availableAreas,
                                       extensions,
                                       false);
@@ -257,7 +272,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 if (ImGui::BeginCombo("Video", _currentVideo.c_str())) // The second parameter is the label previewed before opening the combo.
                 {
                     std::vector<std::string> availableVideos;
-                    loadFileNamesInVector(_slamRootDir + _currentLocation + "/" + _currentArea + "/videos/",
+                    loadFileNamesInVector(constructSlamVideoDir(_slamRootDir, _currentLocation, _currentArea),
                                           availableVideos,
                                           _videoExtensions,
                                           true);
@@ -279,7 +294,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 if (ImGui::BeginCombo("Map", _currentMap.c_str())) // The second parameter is the label previewed before opening the combo.
                 {
                     std::vector<std::string> availableMaps;
-                    loadFileNamesInVector(_slamRootDir + _currentLocation + "/" + _currentArea + "/maps/",
+                    loadFileNamesInVector(constructSlamMapDir(_slamRootDir, _currentLocation, _currentArea),
                                           availableMaps,
                                           _mapExtensions,
                                           true);
@@ -300,7 +315,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 if (ImGui::BeginCombo("Marker", _currentMarker.c_str())) // The second parameter is the label previewed before opening the combo.
                 {
                     std::vector<std::string> availableMarkers;
-                    loadFileNamesInVector(_slamRootDir + _currentLocation + "/" + _currentArea + "/markers/",
+                    loadFileNamesInVector(constructSlamMarkerDir(_slamRootDir, _currentLocation, _currentArea),
                                           availableMarkers,
                                           _markerExtensions,
                                           true);
