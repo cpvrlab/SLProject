@@ -259,6 +259,13 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         videoFrameSize = cv::Size2i(defaultScrWidth, defaultScrHeight);
     }
 
+    scrWidth     = videoFrameSize.width;
+    scrHeight    = videoFrameSize.height;
+    scrWdivH     = (float)scrWidth / (float)scrHeight;
+
+
+
+
     // 2. Load Calibration
     if (!cap->activeCalib->load(calibDir, Utils::getFileName(calibrationFile), 0, 0))
     {
@@ -286,6 +293,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
                                  cap->activeCalib->distortion(),
                                  params,
                                  vocFile);
+
 
     // 5. Load map data
     if (useMapFile)
@@ -317,10 +325,10 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         mode->setInitialized(true);
     }
 
+
     // 6. resize window
-    scrWidth     = videoFrameSize.width;
-    scrHeight    = videoFrameSize.height;
-    scrWdivH     = (float)scrWidth / (float)scrHeight;
+
+
     resizeWindow = true;
 
     currentSlamParams->calibrationFile  = calibrationFile;
@@ -453,7 +461,6 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
         uiPrefs.showError = true;
     }*/
 
-    imgProc.init(scrWidth, scrHeight);
     ////setup gui at last because ui elements depend on other instances
     //setupGUI();
     sv->setViewportFromRatio(SLVec2i(WAIApp::scrWidth, WAIApp::scrHeight), SLViewportAlign::VA_center, true);
@@ -469,6 +476,13 @@ bool WAIApp::update()
 
     if (!loaded)
         return false;
+
+    if (CVCapture::instance()->lastFrame.empty() ||
+        CVCapture::instance()->lastFrame.cols == 0 && CVCapture::instance()->lastFrame.rows == 0)
+    {
+        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+        return false;
+    }
 
     bool iKnowWhereIAm = (mode->getTrackingState() == WAI::TrackingState_TrackingOK);
     while (videoCursorMoveIndex < 0)
