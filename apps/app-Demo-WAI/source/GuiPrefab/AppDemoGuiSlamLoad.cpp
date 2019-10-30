@@ -180,17 +180,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 if (!Utils::dirExists(mapDir))
                     Utils::makeDir(mapDir);
 
-                std::string mapDateTime = "";
-                if (!WAIApp::currentSlamParams->videoFile.empty())
-                {
-                    SlamVideoInfos videoInfos;
-                    if (extractSlamVideoInfosFromFileName(Utils::getFileNameWOExt(WAIApp::currentSlamParams->videoFile), &videoInfos))
-                    {
-                        mapDateTime = videoInfos.dateTime;
-                    }
-                }
-
-                std::string filename = constructSlamMapFileName(_currentLocation, _currentArea, mapDateTime);
+                std::string filename = constructSlamMapFileName(_currentLocation, _currentArea);
                 std::string imgDir   = constructSlamMapImgDir(mapDir, filename);
 
                 if (WAIApp::mode->retainImage())

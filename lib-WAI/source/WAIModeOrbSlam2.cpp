@@ -15,8 +15,7 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat       cameraMat,
     // Tell WAIFrame to compute image bounds on first instantiation
     WAIFrame::mbInitialComputations = true;
 
-    _hasMarkerCorrectionTransformation = false;
-    _createMarkerMap                   = !markerFile.empty();
+    _createMarkerMap = !markerFile.empty();
 
     cameraMat.convertTo(_cameraMat, CV_32F);
     distortionMat.convertTo(_distortionMat, CV_32F);
@@ -689,16 +688,6 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
             //ghm1: clear mvIniMatches. it contains the index of the matched keypoint in the current frame
             fill(mvIniMatches.begin(), mvIniMatches.end(), -1);
 
-            if (_createMarkerMap)
-            {
-                _ulIniFrame = ul;
-                _urIniFrame = ur;
-                _llIniFrame = ll;
-                _lrIniFrame = lr;
-
-                //_initialFrameToMarkerMatches = markerMatchesCurrentFrame;
-            }
-
             return;
         }
     }
@@ -774,11 +763,6 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
             Rcw.copyTo(Tcw.rowRange(0, 3).colRange(0, 3));
             tcw.copyTo(Tcw.rowRange(0, 3).col(3));
             mCurrentFrame.SetPose(Tcw);
-
-            _ulCurFrame = ul;
-            _urCurFrame = ur;
-            _llCurFrame = ll;
-            _lrCurFrame = lr;
 
             bool mapInitializedSuccessfully = createInitialMapMonocular(matchesNeeded);
 
@@ -1093,59 +1077,6 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
 
             _pose    = Tcw;
             _poseSet = true;
-
-#if 0
-            if (_createMarkerMap)
-            {
-                {
-                    cv::Mat ulProj = cv::Mat(4, 1, CV_32F);
-                    ulProj         = Tcw * _ul4D;
-                    ulProj         = mCurrentFrame.mK * ulProj.rowRange(0, 3);
-                    ulProj         = ulProj / ulProj.at<float>(2, 0);
-
-                    cv::rectangle(imageRGB,
-                                  cv::Point(ulProj.at<float>(0, 0), ulProj.at<float>(1, 0)),
-                                  cv::Point(ulProj.at<float>(0, 0) + 3, ulProj.at<float>(1, 0) + 3),
-                                  cv::Scalar(0, 255, 0));
-                }
-
-                {
-                    cv::Mat urProj = cv::Mat(4, 1, CV_32F);
-                    urProj         = Tcw * _ur4D;
-                    urProj         = mCurrentFrame.mK * urProj.rowRange(0, 3);
-                    urProj         = urProj / urProj.at<float>(2, 0);
-
-                    cv::rectangle(imageRGB,
-                                  cv::Point(urProj.at<float>(0, 0), urProj.at<float>(1, 0)),
-                                  cv::Point(urProj.at<float>(0, 0) + 3, urProj.at<float>(1, 0) + 3),
-                                  cv::Scalar(0, 255, 0));
-                }
-
-                {
-                    cv::Mat llProj = cv::Mat(4, 1, CV_32F);
-                    llProj         = Tcw * _ll4D;
-                    llProj         = mCurrentFrame.mK * llProj.rowRange(0, 3);
-                    llProj         = llProj / llProj.at<float>(2, 0);
-
-                    cv::rectangle(imageRGB,
-                                  cv::Point(llProj.at<float>(0, 0), llProj.at<float>(1, 0)),
-                                  cv::Point(llProj.at<float>(0, 0) + 3, llProj.at<float>(1, 0) + 3),
-                                  cv::Scalar(0, 255, 0));
-                }
-
-                {
-                    cv::Mat lrProj = cv::Mat(4, 1, CV_32F);
-                    lrProj         = Tcw * _lr4D;
-                    lrProj         = mCurrentFrame.mK * lrProj.rowRange(0, 3);
-                    lrProj         = lrProj / lrProj.at<float>(2, 0);
-
-                    cv::rectangle(imageRGB,
-                                  cv::Point(lrProj.at<float>(0, 0), lrProj.at<float>(1, 0)),
-                                  cv::Point(lrProj.at<float>(0, 0) + 3, lrProj.at<float>(1, 0) + 3),
-                                  cv::Scalar(0, 255, 0));
-                }
-            }
-#endif
         }
 
         // Clean VO matches
@@ -1273,210 +1204,6 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
         _map->AddMapPoint(pMP);
     }
 
-#if 0
-    if (_createMarkerMap)
-    {
-        cv::Mat Rcw1 = pKFini->GetRotation();
-        cv::Mat Rwc1 = Rcw1.t();
-        cv::Mat tcw1 = pKFini->GetTranslation();
-        cv::Mat Tcw1(3, 4, CV_32F);
-        Rcw1.copyTo(Tcw1.colRange(0, 3));
-        tcw1.copyTo(Tcw1.col(3));
-
-        const float& fx1    = pKFini->fx;
-        const float& fy1    = pKFini->fy;
-        const float& cx1    = pKFini->cx;
-        const float& cy1    = pKFini->cy;
-        const float& invfx1 = pKFini->invfx;
-        const float& invfy1 = pKFini->invfy;
-
-        cv::Mat Rcw2 = pKFcur->GetRotation();
-        cv::Mat Rwc2 = Rcw2.t();
-        cv::Mat tcw2 = pKFcur->GetTranslation();
-        cv::Mat Tcw2(3, 4, CV_32F);
-        Rcw2.copyTo(Tcw2.colRange(0, 3));
-        tcw2.copyTo(Tcw2.col(3));
-
-        const float& fx2    = pKFcur->fx;
-        const float& fy2    = pKFcur->fy;
-        const float& cx2    = pKFcur->cx;
-        const float& cy2    = pKFcur->cy;
-        const float& invfx2 = pKFcur->invfx;
-        const float& invfy2 = pKFcur->invfy;
-
-        cv::Mat ul3D, ur3D, ll3D, lr3D;
-
-        {
-            cv::Mat ul1 = (cv::Mat_<float>(3, 1) << (_ulIniFrame.at<float>(0, 0) - cx1) * invfx1, (_ulIniFrame.at<float>(1, 0) - cy1) * invfy1, 1.0);
-            cv::Mat ul2 = (cv::Mat_<float>(3, 1) << (_ulCurFrame.at<float>(0, 0) - cx2) * invfx2, (_ulCurFrame.at<float>(1, 0) - cy2) * invfy2, 1.0);
-
-            // Linear Triangulation Method
-            cv::Mat A(4, 4, CV_32F);
-            A.row(0) = ul1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
-            A.row(1) = ul1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
-            A.row(2) = ul2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
-            A.row(3) = ul2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
-
-            cv::Mat w, u, vt;
-            cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
-
-            ul3D = vt.row(3).t();
-
-            if (ul3D.at<float>(3) != 0)
-            {
-                // Euclidean coordinates
-                ul3D = ul3D.rowRange(0, 3) / ul3D.at<float>(3);
-            }
-        }
-
-        {
-            cv::Mat ur1 = (cv::Mat_<float>(3, 1) << (_urIniFrame.at<float>(0, 0) - cx1) * invfx1, (_urIniFrame.at<float>(1, 0) - cy1) * invfy1, 1.0);
-            cv::Mat ur2 = (cv::Mat_<float>(3, 1) << (_urCurFrame.at<float>(0, 0) - cx2) * invfx2, (_urCurFrame.at<float>(1, 0) - cy2) * invfy2, 1.0);
-
-            // Linear Triangulation Method
-            cv::Mat A(4, 4, CV_32F);
-            A.row(0) = ur1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
-            A.row(1) = ur1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
-            A.row(2) = ur2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
-            A.row(3) = ur2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
-
-            cv::Mat w, u, vt;
-            cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
-
-            ur3D = vt.row(3).t();
-
-            if (ur3D.at<float>(3) != 0)
-            {
-                // Euclidean coordinates
-                ur3D = ur3D.rowRange(0, 3) / ur3D.at<float>(3);
-            }
-        }
-
-        {
-            cv::Mat ll1 = (cv::Mat_<float>(3, 1) << (_llIniFrame.at<float>(0, 0) - cx1) * invfx1, (_llIniFrame.at<float>(1, 0) - cy1) * invfy1, 1.0);
-            cv::Mat ll2 = (cv::Mat_<float>(3, 1) << (_llCurFrame.at<float>(0, 0) - cx2) * invfx2, (_llCurFrame.at<float>(1, 0) - cy2) * invfy2, 1.0);
-
-            // Linear Triangulation Method
-            cv::Mat A(4, 4, CV_32F);
-            A.row(0) = ll1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
-            A.row(1) = ll1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
-            A.row(2) = ll2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
-            A.row(3) = ll2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
-
-            cv::Mat w, u, vt;
-            cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
-
-            ll3D = vt.row(3).t();
-
-            if (ll3D.at<float>(3) != 0)
-            {
-                // Euclidean coordinates
-                ll3D = ll3D.rowRange(0, 3) / ll3D.at<float>(3);
-            }
-        }
-
-        {
-            cv::Mat lr1 = (cv::Mat_<float>(3, 1) << (_lrIniFrame.at<float>(0, 0) - cx1) * invfx1, (_lrIniFrame.at<float>(1, 0) - cy1) * invfy1, 1.0);
-            cv::Mat lr2 = (cv::Mat_<float>(3, 1) << (_lrCurFrame.at<float>(0, 0) - cx2) * invfx2, (_lrCurFrame.at<float>(1, 0) - cy2) * invfy2, 1.0);
-
-            // Linear Triangulation Method
-            cv::Mat A(4, 4, CV_32F);
-            A.row(0) = lr1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
-            A.row(1) = lr1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
-            A.row(2) = lr2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
-            A.row(3) = lr2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
-
-            cv::Mat w, u, vt;
-            cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
-
-            lr3D = vt.row(3).t();
-
-            if (lr3D.at<float>(3) != 0)
-            {
-                // Euclidean coordinates
-                lr3D = lr3D.rowRange(0, 3) / lr3D.at<float>(3);
-            }
-        }
-
-        _mpUL = new WAIMapPoint(ul3D, pKFcur, _map);
-        _mpUR = new WAIMapPoint(ur3D, pKFcur, _map);
-        _mpLL = new WAIMapPoint(ll3D, pKFcur, _map);
-        _mpLR = new WAIMapPoint(lr3D, pKFcur, _map);
-
-        {
-            pKFini->AddMapPoint(_mpUL, kpUlIniIndex);
-            pKFcur->AddMapPoint(_mpUL, kpUlCurIndex);
-
-            _mpUL->AddObservation(pKFini, kpUlIniIndex);
-            _mpUL->AddObservation(pKFcur, kpUlCurIndex);
-
-            _mpUL->ComputeDistinctiveDescriptors();
-            _mpUL->UpdateNormalAndDepth();
-
-            //Fill Current Frame structure
-            mCurrentFrame.mvpMapPoints[kpUlCurIndex] = _mpUL;
-            mCurrentFrame.mvbOutlier[kpUlCurIndex]   = false;
-
-            //Add to Map
-            _map->AddMapPoint(_mpUL);
-        }
-
-        {
-            pKFini->AddMapPoint(_mpUR, kpUrIniIndex);
-            pKFcur->AddMapPoint(_mpUR, kpUrCurIndex);
-
-            _mpUR->AddObservation(pKFini, kpUrIniIndex);
-            _mpUR->AddObservation(pKFcur, kpUrCurIndex);
-
-            _mpUR->ComputeDistinctiveDescriptors();
-            _mpUR->UpdateNormalAndDepth();
-
-            //Fill Current Frame structure
-            mCurrentFrame.mvpMapPoints[kpUrCurIndex] = _mpUR;
-            mCurrentFrame.mvbOutlier[kpUrCurIndex]   = false;
-
-            //Add to Map
-            _map->AddMapPoint(_mpUR);
-        }
-
-        {
-            pKFini->AddMapPoint(_mpLL, kpLlIniIndex);
-            pKFcur->AddMapPoint(_mpLL, kpLlCurIndex);
-
-            _mpLL->AddObservation(pKFini, kpLlIniIndex);
-            _mpLL->AddObservation(pKFcur, kpLlCurIndex);
-
-            _mpLL->ComputeDistinctiveDescriptors();
-            _mpLL->UpdateNormalAndDepth();
-
-            //Fill Current Frame structure
-            mCurrentFrame.mvpMapPoints[kpLlCurIndex] = _mpLL;
-            mCurrentFrame.mvbOutlier[kpLlCurIndex]   = false;
-
-            //Add to Map
-            _map->AddMapPoint(_mpLL);
-        }
-
-        {
-            pKFini->AddMapPoint(_mpLR, kpLrIniIndex);
-            pKFcur->AddMapPoint(_mpLR, kpLrCurIndex);
-
-            _mpLR->AddObservation(pKFini, kpLrIniIndex);
-            _mpLR->AddObservation(pKFcur, kpLrCurIndex);
-
-            _mpLR->ComputeDistinctiveDescriptors();
-            _mpLR->UpdateNormalAndDepth();
-
-            //Fill Current Frame structure
-            mCurrentFrame.mvpMapPoints[kpLrCurIndex] = _mpLR;
-            mCurrentFrame.mvbOutlier[kpLrCurIndex]   = false;
-
-            //Add to Map
-            _map->AddMapPoint(_mpLR);
-        }
-    }
-#endif
-
     // Update Connections
     pKFini->UpdateConnections();
     pKFcur->UpdateConnections();
@@ -1543,123 +1270,6 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
 
     // Bundle Adjustment
     //WAI_LOG("Number of Map points after local mapping: %i", _map->MapPointsInMap());
-
-    if (_createMarkerMap)
-    {
-#if 0
-        float mPerPx = _markerWidthM / _markerFrame.imgGray.cols;
-
-        // find marker key points used to generate map points
-        std::vector<cv::Point3f> markerPointCoordinates;
-        std::vector<cv::Point3f> mapPointCoordinates;
-
-        std::vector<WAIMapPoint*> markerKeyPointToMapPointMatches(_markerFrame.N, nullptr);
-        std::vector<WAIMapPoint*> mapPoints = _map->GetAllMapPoints();
-        for (int i = 0; i < mapPoints.size(); i++)
-        {
-            WAIMapPoint* mapPoint = mapPoints[i];
-
-            // get index of keypoint in initial frame that generated this map point
-            std::map<WAIKeyFrame*, size_t> obs                 = mapPoint->GetObservations();
-            size_t                         kpIndexInitialFrame = obs.at(pKFini);
-
-            // get index of keypoint in marker frame that matched to this keypoint in the initial frame
-            int kpIndexMarkerFrame = _initialFrameToMarkerMatches[kpIndexInitialFrame];
-
-            // calculate position in marker frame coordinate system
-            cv::Point2f markerKeyPoint = _markerFrame.mvKeysUn[kpIndexMarkerFrame].pt;
-            //cv::Point3f markerPointCoordinate = cv::Point3f(markerKeyPoint.x * mPerPx, markerKeyPoint.y * mPerPx, 0.0f);
-            cv::Point3f markerPointCoordinate = cv::Point3f(markerKeyPoint.x, markerKeyPoint.y, 0.0f);
-
-            cv::Mat     mapPointPos        = mapPoint->GetWorldPos();
-            cv::Point3f mapPointCoordinate = cv::Point3f(mapPointPos.at<float>(0, 0),
-                                                         mapPointPos.at<float>(1, 0),
-                                                         mapPointPos.at<float>(2, 0));
-
-            // add to vector
-            //markerKeyPointToMapPointMatches[kpIndexMarkerFrame] = mapPoint;
-
-            markerPointCoordinates.push_back(markerPointCoordinate);
-            mapPointCoordinates.push_back(mapPointCoordinate);
-    }
-
-#    if 0
-// TODO(dgj1): finish this
-        _markerCorrectionTransformation = cv::Mat::eye(4, 4, CV_32F);
-
-        // find two map points that are the furthest apart
-        float        mapDist = 0.0f;
-        int          indexKP1, indexKP2;
-        WAIMapPoint* mp1;
-        WAIMapPoint* mp2;
-
-        bool candidatesFound = false;
-
-        for (int i = 0; i < markerKeyPointToMapPointMatches.size(); i++)
-        {
-            WAIMapPoint* mp1Cand = markerKeyPointToMapPointMatches[i];
-
-            if (!mp1Cand) continue;
-
-            for (int j = 0; j < markerKeyPointToMapPointMatches.size(); j++)
-            {
-                WAIMapPoint* mp2Cand = markerKeyPointToMapPointMatches[j];
-
-                if (!mp2Cand) continue;
-
-                float dist = cv::norm(mp1Cand->GetWorldPos() - mp2Cand->GetWorldPos());
-
-                if (dist > mapDist)
-                {
-                    mapDist  = dist;
-                    indexKP1 = i;
-                    indexKP2 = j;
-                    mp1      = mp1Cand;
-                    mp2      = mp2Cand;
-
-                    candidatesFound = true;
-                }
-            }
-        }
-
-        if (candidatesFound)
-        {
-            // calculate dist on marker in 2D
-            float markerDistInPx = cv::norm(_markerFrame.mvKeysUn[indexKP1].pt - _markerFrame.mvKeysUn[indexKP2].pt);
-            float markerDistInM  = markerDistInPx * mPerPx;
-
-            // calculate scale factor
-            float scaleFactor = markerDistInM / mapDist;
-
-            cv::Mat markerKp3D         = cv::Mat::zeros(3, 1, CV_32F);
-            markerKp3D.at<float>(0, 0) = _markerFrame.mvKeysUn[indexKP1].pt.x;
-            markerKp3D.at<float>(1, 0) = _markerFrame.mvKeysUn[indexKP1].pt.y;
-
-            cv::Mat t = markerKp3D - mp1->GetWorldPos();
-
-            WAI_LOG("kp1: %f, %f\nkp2: %f, %f",
-                    _markerFrame.mvKeysUn[indexKP1].pt.x,
-                    _markerFrame.mvKeysUn[indexKP1].pt.y,
-                    _markerFrame.mvKeysUn[indexKP2].pt.x,
-                    _markerFrame.mvKeysUn[indexKP2].pt.y);
-            WAI_LOG("dist in m: %f, in px: %f",
-                    markerDistInM,
-                    markerDistInPx);
-            WAI_LOG("scale factor is: %f", scaleFactor);
-
-            _markerCorrectionTransformation.at<float>(0, 0) = scaleFactor;
-            _markerCorrectionTransformation.at<float>(1, 1) = scaleFactor;
-            _markerCorrectionTransformation.at<float>(2, 2) = scaleFactor;
-            _markerCorrectionTransformation.at<float>(0, 3) = t.at<float>(0, 0);
-            _markerCorrectionTransformation.at<float>(1, 3) = t.at<float>(1, 0);
-            _markerCorrectionTransformation.at<float>(2, 3) = t.at<float>(2, 0);
-            _markerCorrectionTransformation.at<float>(3, 3) = 1.0f;
-
-            _hasMarkerCorrectionTransformation = true;
-        }
-#    endif
-#endif
-    }
 
     //ghm1: add keyframe to scene graph. this position is wrong after bundle adjustment!
     //set map dirty, the map will be updated in next decoration
@@ -2952,19 +2562,6 @@ void WAI::ModeOrbSlam2::decorateVideoWithKeyPointMatches(cv::Mat& image)
             }
         }
     }
-}
-
-bool WAI::ModeOrbSlam2::getMarkerCorrectionTransformation(cv::Mat* markerCorrectionTransformation)
-{
-    bool result = false;
-
-    if (_hasMarkerCorrectionTransformation)
-    {
-        *markerCorrectionTransformation = _markerCorrectionTransformation.clone();
-        result                          = true;
-    }
-
-    return result;
 }
 
 bool WAI::ModeOrbSlam2::findMarkerHomography(WAIFrame&    markerFrame,

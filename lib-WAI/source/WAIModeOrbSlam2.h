@@ -142,7 +142,6 @@ public:
     WAIFrame getCurrentFrame();
 
     bool doMarkerMapPreprocessing(std::string markerFile);
-    bool getMarkerCorrectionTransformation(cv::Mat* markerCorrectionTransformation);
 
 private:
     enum TrackingType
@@ -296,22 +295,10 @@ private:
 
     bool _createMarkerMap;
 
-    bool    _hasMarkerCorrectionTransformation;
-    cv::Mat _markerCorrectionTransformation;
-
-    cv::Size _chessboardSize;
-    int      _chessboardFlags;
-    float    _chessboardWidthM;
-
     WAIFrame                _markerFrame;
     ORB_SLAM2::KPextractor* _markerOrbExtractor;
     float                   _markerWidthM;
-    std::vector<int>        _initialFrameToMarkerMatches;
-    bool                    _relocalizeFromMarkerMap;
 
-    cv::Mat      _ulIniFrame, _urIniFrame, _llIniFrame, _lrIniFrame;
-    cv::Mat      _ulCurFrame, _urCurFrame, _llCurFrame, _lrCurFrame;
-    cv::Mat      _ul4D, _ur4D, _ll4D, _lr4D;
     WAIMapPoint* _mpUL;
     WAIMapPoint* _mpUR;
     WAIMapPoint* _mpLL;
