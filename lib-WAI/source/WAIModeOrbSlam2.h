@@ -277,6 +277,11 @@ class WAI_API ModeOrbSlam2
     bool   _allowKfsAsActiveCam   = false;
 
     // marker correction stuff
+    bool findMarkerHomography(WAIFrame&    markerFrame,
+                              WAIKeyFrame* kfCand,
+                              cv::Mat&     homography,
+                              int          minMatches);
+
     bool _createMarkerMap;
 
     bool    _hasMarkerCorrectionTransformation;

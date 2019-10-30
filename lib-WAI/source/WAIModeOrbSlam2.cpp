@@ -3014,6 +3014,49 @@ bool WAI::ModeOrbSlam2::getMarkerCorrectionTransformation(cv::Mat* markerCorrect
     return result;
 }
 
+bool WAI::ModeOrbSlam2::findMarkerHomography(WAIFrame&    markerFrame,
+                                             WAIKeyFrame* kfCand,
+                                             cv::Mat&     homography,
+                                             int          minMatches)
+{
+    bool result = false;
+
+    ORBmatcher matcher(0.9, true);
+
+    std::vector<int> markerMatchesToCurrentFrame;
+    int              nmatches = matcher.SearchForMarkerMap(markerFrame, *kfCand, markerMatchesToCurrentFrame);
+
+    if (nmatches > minMatches)
+    {
+        std::vector<cv::Point2f> markerPoints;
+        std::vector<cv::Point2f> framePoints;
+
+        //std::vector<cv::KeyPoint> matches;
+        for (int j = 0; j < markerMatchesToCurrentFrame.size(); j++)
+        {
+            if (markerMatchesToCurrentFrame[j] >= 0)
+            {
+                markerPoints.push_back(markerFrame.mvKeysUn[j].pt);
+                framePoints.push_back(kfCand->mvKeysUn[markerMatchesToCurrentFrame[j]].pt);
+            }
+        }
+
+        // 2. Calculate homography between the keyframes and marker
+        homography = cv::findHomography(markerPoints,
+                                        framePoints,
+                                        cv::RANSAC);
+
+        if (!homography.empty())
+        {
+            homography.convertTo(homography, CV_32F);
+
+            result = true;
+        }
+    }
+
+    return result;
+}
+
 bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile)
 {
     // Additional steps to save marker map
@@ -3052,100 +3095,76 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile)
     cv::Mat ul3D, ur3D, ll3D, lr3D;
     cv::Mat AC, AB, n;
 
-    for (int i = 0; i < kfs.size(); i++)
+    for (int i1 = 0; i1 < kfs.size() - 1; i1++)
     {
-        WAIKeyFrame* kfCand = kfs[i];
+        WAIKeyFrame* kfCand1 = kfs[i1];
 
-        if (kfCand->isBad()) continue;
+        if (kfCand1->isBad()) continue;
 
-        ORBmatcher matcher(0.9, true);
-
-        std::vector<int> markerMatchesToCurrentFrame;
-        int              nmatches = matcher.SearchForMarkerMap(markerFrame, *kfCand, markerMatchesToCurrentFrame);
-
-        if (nmatches > 80)
+        cv::Mat homography1;
+        if (findMarkerHomography(markerFrame, kfCand1, homography1, 50))
         {
-            std::vector<cv::Point2f> markerPoints;
-            std::vector<cv::Point2f> framePoints;
+            // 3. Calculate position of the markers cornerpoints on the keyframes in 2D
+            // NOTE(dgj1): assumption that intrinsic camera parameters are the same
+            // TODO(dgj1): think about this assumption
+            ulKf1 = homography1 * ul;
+            ulKf1 /= ulKf1.at<float>(2, 0);
+            urKf1 = homography1 * ur;
+            urKf1 /= urKf1.at<float>(2, 0);
+            llKf1 = homography1 * ll;
+            llKf1 /= llKf1.at<float>(2, 0);
+            lrKf1 = homography1 * lr;
+            lrKf1 /= lrKf1.at<float>(2, 0);
 
-            //std::vector<cv::KeyPoint> matches;
-            for (int j = 0; j < markerMatchesToCurrentFrame.size(); j++)
+            for (int i2 = i1 + 1; i2 < kfs.size(); i2++)
             {
-                if (markerMatchesToCurrentFrame[j] >= 0)
-                {
-                    markerPoints.push_back(markerFrame.mvKeysUn[j].pt);
-                    framePoints.push_back(kfCand->mvKeysUn[markerMatchesToCurrentFrame[j]].pt);
-                }
-            }
+                WAIKeyFrame* kfCand2 = kfs[i2];
 
-            // 2. Calculate homography between the keyframes and marker
-            cv::Mat markerHomography = cv::findHomography(markerPoints,
-                                                          framePoints,
-                                                          cv::RANSAC);
+                if (kfCand2->isBad()) continue;
 
-            if (!markerHomography.empty())
-            {
-                markerHomography.convertTo(markerHomography, CV_32F);
-
-                if (!matchedKf1)
+                cv::Mat homography2;
+                if (findMarkerHomography(markerFrame, kfCand2, homography2, 50))
                 {
                     // 3. Calculate position of the markers cornerpoints on the keyframes in 2D
                     // NOTE(dgj1): assumption that intrinsic camera parameters are the same
                     // TODO(dgj1): think about this assumption
-                    ulKf1 = markerHomography * ul;
-                    ulKf1 /= ulKf1.at<float>(2, 0);
-                    urKf1 = markerHomography * ur;
-                    urKf1 /= urKf1.at<float>(2, 0);
-                    llKf1 = markerHomography * ll;
-                    llKf1 /= llKf1.at<float>(2, 0);
-                    lrKf1 = markerHomography * lr;
-                    lrKf1 /= lrKf1.at<float>(2, 0);
-
-                    matchedKf1 = kfCand;
-                }
-                else
-                {
-                    // 3. Calculate position of the markers cornerpoints on the keyframes in 2D
-                    // NOTE(dgj1): assumption that intrinsic camera parameters are the same
-                    // TODO(dgj1): think about this assumption
-                    ulKf2 = markerHomography * ul;
+                    ulKf2 = homography2 * ul;
                     ulKf2 /= ulKf2.at<float>(2, 0);
-                    urKf2 = markerHomography * ur;
+                    urKf2 = homography2 * ur;
                     urKf2 /= urKf2.at<float>(2, 0);
-                    llKf2 = markerHomography * ll;
+                    llKf2 = homography2 * ll;
                     llKf2 /= llKf2.at<float>(2, 0);
-                    lrKf2 = markerHomography * lr;
+                    lrKf2 = homography2 * lr;
                     lrKf2 /= lrKf2.at<float>(2, 0);
 
                     // 4. Triangulate position of the markers cornerpoints
-
-                    cv::Mat Rcw1 = matchedKf1->GetRotation();
+                    cv::Mat Rcw1 = kfCand1->GetRotation();
                     cv::Mat Rwc1 = Rcw1.t();
-                    cv::Mat tcw1 = matchedKf1->GetTranslation();
+                    cv::Mat tcw1 = kfCand1->GetTranslation();
                     cv::Mat Tcw1(3, 4, CV_32F);
                     Rcw1.copyTo(Tcw1.colRange(0, 3));
                     tcw1.copyTo(Tcw1.col(3));
 
-                    const float& fx1    = matchedKf1->fx;
-                    const float& fy1    = matchedKf1->fy;
-                    const float& cx1    = matchedKf1->cx;
-                    const float& cy1    = matchedKf1->cy;
-                    const float& invfx1 = matchedKf1->invfx;
-                    const float& invfy1 = matchedKf1->invfy;
+                    const float& fx1    = kfCand1->fx;
+                    const float& fy1    = kfCand1->fy;
+                    const float& cx1    = kfCand1->cx;
+                    const float& cy1    = kfCand1->cy;
+                    const float& invfx1 = kfCand1->invfx;
+                    const float& invfy1 = kfCand1->invfy;
 
-                    cv::Mat Rcw2 = kfCand->GetRotation();
+                    cv::Mat Rcw2 = kfCand2->GetRotation();
                     cv::Mat Rwc2 = Rcw2.t();
-                    cv::Mat tcw2 = kfCand->GetTranslation();
+                    cv::Mat tcw2 = kfCand2->GetTranslation();
                     cv::Mat Tcw2(3, 4, CV_32F);
                     Rcw2.copyTo(Tcw2.colRange(0, 3));
                     tcw2.copyTo(Tcw2.col(3));
 
-                    const float& fx2    = kfCand->fx;
-                    const float& fy2    = kfCand->fy;
-                    const float& cx2    = kfCand->cx;
-                    const float& cy2    = kfCand->cy;
-                    const float& invfx2 = kfCand->invfx;
-                    const float& invfy2 = kfCand->invfy;
+                    const float& fx2    = kfCand2->fx;
+                    const float& fy2    = kfCand2->fy;
+                    const float& cx2    = kfCand2->cx;
+                    const float& cy2    = kfCand2->cy;
+                    const float& invfx2 = kfCand2->invfx;
+                    const float& invfy2 = kfCand2->invfy;
 
                     {
                         cv::Mat ul1 = (cv::Mat_<float>(3, 1) << (ulKf1.at<float>(0, 0) - cx1) * invfx1, (ulKf1.at<float>(1, 0) - cy1) * invfy1, 1.0);
@@ -3254,13 +3273,16 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile)
                     float d = cv::norm(vn.dot(vAD)) / cv::norm(vn);
                     if (d < 0.01f)
                     {
-                        matchedKf2 = kfCand;
+                        matchedKf1 = kfCand1;
+                        matchedKf2 = kfCand2;
 
                         break;
                     }
                 }
             }
         }
+
+        if (matchedKf2) break;
     }
 
     if (!matchedKf1 || !matchedKf2)
