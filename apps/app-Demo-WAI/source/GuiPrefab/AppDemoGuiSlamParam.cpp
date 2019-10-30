@@ -18,6 +18,7 @@
 #include <OrbSlam/ORBmatcher.h>
 #include <AppDemoGuiSlamParam.h>
 #include <Utils.h>
+#include <CVCapture.h>
 #include <GLSLextractor.h>
 
 //-----------------------------------------------------------------------------
@@ -57,7 +58,7 @@ KPextractor* AppDemoGuiSlamParam::surfExtractor(int th)
 
 KPextractor* AppDemoGuiSlamParam::glslExtractor()
 {
-    return new GLSLextractor(WAIApp::scrWidth, WAIApp::scrHeight);
+    return new GLSLextractor(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
 }
 
 KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
