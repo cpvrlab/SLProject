@@ -187,6 +187,18 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                         WAIApp::errorDial->setErrorMsg("Failed to do marker map preprocessing");
                         WAIApp::uiPrefs.showError = true;
                     }
+                    else
+                    {
+                        if (!WAIMapStorage::saveMap(WAIApp::mode->getMap(),
+                                                    _mapNode,
+                                                    WAIApp::mode->getKPextractor()->GetName(),
+                                                    mapDir + filename,
+                                                    imgDir))
+                        {
+                            WAIApp::errorDial->setErrorMsg("Failed to save map " + mapDir + filename);
+                            WAIApp::uiPrefs.showError = true;
+                        }
+                    }
                 }
                 else
                 {
@@ -199,12 +211,12 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                         WAIApp::errorDial->setErrorMsg("Failed to save map " + mapDir + filename);
                         WAIApp::uiPrefs.showError = true;
                     }
-                    else
-                    {
-                        WAIApp::errorDial->setErrorMsg("Failed to save map - No location and/or area selected.");
-                        WAIApp::uiPrefs.showError = true;
-                    }
                 }
+            }
+            else
+            {
+                WAIApp::errorDial->setErrorMsg("Failed to save map - No location and/or area selected.");
+                WAIApp::uiPrefs.showError = true;
             }
 
             WAIApp::mode->resume();

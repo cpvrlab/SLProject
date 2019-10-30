@@ -3290,77 +3290,6 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile)
         return false;
     }
 
-    WAI_LOG("matchedKF1: %i, matchedKF2: %i",
-            matchedKf1->mnId,
-            matchedKf2->mnId);
-    std::cout << "ulKf1" << ulKf1 << std::endl;
-    std::cout << "urKf1" << urKf1 << std::endl;
-    std::cout << "llKf1" << llKf1 << std::endl;
-    std::cout << "lrKf1" << lrKf1 << std::endl;
-    std::cout << "ulKf2" << ulKf2 << std::endl;
-    std::cout << "urKf2" << urKf2 << std::endl;
-    std::cout << "llKf2" << llKf2 << std::endl;
-    std::cout << "lrKf2" << lrKf2 << std::endl;
-
-#if 1
-    int     borderWidth       = 250;
-    int     doubleBorderWidth = borderWidth * 2;
-    cv::Mat imgKf1            = cv::Mat::zeros(matchedKf1->imgGray.rows + doubleBorderWidth,
-                                    matchedKf1->imgGray.cols + doubleBorderWidth,
-                                    matchedKf1->imgGray.type());
-    matchedKf1->imgGray.copyTo(imgKf1.rowRange(borderWidth, matchedKf1->imgGray.rows + borderWidth).colRange(borderWidth, matchedKf1->imgGray.cols + borderWidth));
-
-    cv::rectangle(imgKf1,
-                  cv::Point(ulKf1.at<float>(0, 0) + borderWidth, ulKf1.at<float>(1, 0) + borderWidth),
-                  cv::Point(ulKf1.at<float>(0, 0) + borderWidth + 3, ulKf1.at<float>(1, 0) + borderWidth + 3),
-                  cv::Scalar(255, 0, 0));
-    cv::rectangle(imgKf1,
-                  cv::Point(urKf1.at<float>(0, 0) + borderWidth, urKf1.at<float>(1, 0) + borderWidth),
-                  cv::Point(urKf1.at<float>(0, 0) + borderWidth + 3, urKf1.at<float>(1, 0) + borderWidth + 3),
-                  cv::Scalar(255, 0, 0));
-    cv::rectangle(imgKf1,
-                  cv::Point(llKf1.at<float>(0, 0) + borderWidth, llKf1.at<float>(1, 0) + borderWidth),
-                  cv::Point(llKf1.at<float>(0, 0) + borderWidth + 3, llKf1.at<float>(1, 0) + borderWidth + 3),
-                  cv::Scalar(255, 0, 0));
-    cv::rectangle(imgKf1,
-                  cv::Point(lrKf1.at<float>(0, 0) + borderWidth, lrKf1.at<float>(1, 0) + borderWidth),
-                  cv::Point(lrKf1.at<float>(0, 0) + borderWidth + 3, lrKf1.at<float>(1, 0) + borderWidth + 3),
-                  cv::Scalar(255, 0, 0));
-
-    cv::namedWindow("imgKf1", cv::WINDOW_AUTOSIZE);
-    cv::imshow("imgKf1", imgKf1);
-
-    cv::waitKey(0);
-
-    cv::Mat imgKf2 = cv::Mat::zeros(matchedKf2->imgGray.rows + doubleBorderWidth,
-                                    matchedKf2->imgGray.cols + doubleBorderWidth,
-                                    matchedKf2->imgGray.type());
-    matchedKf2->imgGray.copyTo(imgKf2.rowRange(borderWidth, matchedKf2->imgGray.rows + borderWidth).colRange(borderWidth, matchedKf2->imgGray.cols + borderWidth));
-
-    cv::rectangle(imgKf2,
-                  cv::Point(ulKf2.at<float>(0, 0) + borderWidth, ulKf2.at<float>(1, 0) + borderWidth),
-                  cv::Point(ulKf2.at<float>(0, 0) + borderWidth + 3, ulKf2.at<float>(1, 0) + borderWidth + 3),
-                  cv::Scalar(255, 0, 0));
-    cv::rectangle(imgKf2,
-                  cv::Point(urKf2.at<float>(0, 0) + borderWidth, urKf2.at<float>(1, 0) + borderWidth),
-                  cv::Point(urKf2.at<float>(0, 0) + borderWidth + 3, urKf2.at<float>(1, 0) + borderWidth + 3),
-                  cv::Scalar(255, 0, 0));
-    cv::rectangle(imgKf2,
-                  cv::Point(llKf2.at<float>(0, 0) + borderWidth, llKf2.at<float>(1, 0) + borderWidth),
-                  cv::Point(llKf2.at<float>(0, 0) + borderWidth + 3, llKf2.at<float>(1, 0) + borderWidth + 3),
-                  cv::Scalar(255, 0, 0));
-    cv::rectangle(imgKf2,
-                  cv::Point(lrKf2.at<float>(0, 0) + borderWidth, lrKf2.at<float>(1, 0) + borderWidth),
-                  cv::Point(lrKf2.at<float>(0, 0) + borderWidth + 3, lrKf2.at<float>(1, 0) + borderWidth + 3),
-                  cv::Scalar(255, 0, 0));
-
-    cv::namedWindow("imgKf2", cv::WINDOW_AUTOSIZE);
-    cv::imshow("imgKf2", imgKf2);
-
-    cv::waitKey(0);
-#endif
-
-#if 1
     // 5. Cull mappoints outside of marker
     std::vector<WAIMapPoint*> mapPoints = _map->GetAllMapPoints();
 
@@ -3383,20 +3312,20 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile)
 
         if (mp->isBad()) continue;
 
-        cv::Mat sol = system * mp->GetWorldPos();
+        cv::Mat sol = system * (mp->GetWorldPos() - ul3D);
+        if (i == 0 || i == mapPoints.size() / 2 || i == mapPoints.size() - 1)
+        {
+            std::cout << "mp " << i << " worldPos: " << mp->GetWorldPos() << std::endl;
+            std::cout << "mp " << i << " sol: " << sol << std::endl;
+        }
 
         if (sol.at<float>(0, 0) < 0 || sol.at<float>(0, 0) > 1 ||
             sol.at<float>(1, 0) < 0 || sol.at<float>(1, 0) > 1 ||
-            sol.at<float>(2, 0) < 0.01f || sol.at<float>(2, 0) > 0.01f)
+            sol.at<float>(2, 0) < -0.1f || sol.at<float>(2, 0) > 0.1f)
         {
             mp->SetBadFlag();
         }
     }
-
-    std::cout << "mp first" << mapPoints[0]->GetWorldPos() << std::endl;
-    std::cout << "mp mid" << mapPoints[mapPoints.size() / 2]->GetWorldPos() << std::endl;
-    std::cout << "mp last" << mapPoints[mapPoints.size() - 1]->GetWorldPos() << std::endl;
-#endif
 
     if (_mpUL)
     {
