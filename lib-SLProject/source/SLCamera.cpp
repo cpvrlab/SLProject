@@ -24,19 +24,21 @@ SLProjection SLCamera::currentProjection  = P_monoPerspective;
 SLfloat      SLCamera::currentFOV         = 45.0f;
 SLint        SLCamera::currentDevRotation = 0;
 //-----------------------------------------------------------------------------
-SLCamera::SLCamera(SLstring name) : SLNode(name),
-                                    _movedLastFrame(false),
-                                    _trackballSize(0.8f),
-                                    _moveDir(0, 0, 0),
-                                    _drag(0.05f),
-                                    _maxSpeed(2.0f),
-                                    _velocity(0.0f, 0.0f, 0.0f),
-                                    _acceleration(0, 0, 0),
-                                    _brakeAccel(16.0f),
-                                    _moveAccel(16.0f),
-                                    _unitScaling(1.0f)
+SLCamera::SLCamera(const SLstring& name) : SLNode(name),
+                                           _movedLastFrame(false),
+                                           _trackballSize(0.8f),
+                                           _moveDir(0, 0, 0),
+                                           _drag(0.05f),
+                                           _maxSpeed(2.0f),
+                                           _velocity(0.0f, 0.0f, 0.0f),
+                                           _acceleration(0, 0, 0),
+                                           _brakeAccel(16.0f),
+                                           _moveAccel(16.0f),
+                                           _unitScaling(1.0f)
 {
     _fovInit       = 0;
+    _viewportW     = 640;
+    _viewportH     = 480;
     _viewportRatio = 640.0f / 480.0f; // will be overwritten in setProjection
     _clipNear      = 0.1f;
     _clipFar       = 300.0f;
@@ -51,10 +53,6 @@ SLCamera::SLCamera(SLstring name) : SLNode(name),
     _eyeSeparation = _focalDist / 30.0f;
 
     _background.colors(SLCol4f(0.6f, 0.6f, 0.6f), SLCol4f(0.3f, 0.3f, 0.3f));
-}
-//-----------------------------------------------------------------------------
-SLCamera::~SLCamera()
-{
 }
 //-----------------------------------------------------------------------------
 /*! SLCamera::camUpdate does the smooth transition for the walk animation. It
@@ -330,14 +328,14 @@ void SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV)
     maxV.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
     // calc min and max point of all vertices
-    for (SLuint i = 0; i < 5; ++i)
+    for (auto& i : P)
     {
-        if (P[i].x < minV.x) minV.x = P[i].x;
-        if (P[i].x > maxV.x) maxV.x = P[i].x;
-        if (P[i].y < minV.y) minV.y = P[i].y;
-        if (P[i].y > maxV.y) maxV.y = P[i].y;
-        if (P[i].z < minV.z) minV.z = P[i].z;
-        if (P[i].z > maxV.z) maxV.z = P[i].z;
+        if (i.x < minV.x) minV.x = i.x;
+        if (i.x > maxV.x) maxV.x = i.x;
+        if (i.y < minV.y) minV.y = i.y;
+        if (i.y > maxV.y) maxV.y = i.y;
+        if (i.z < minV.z) minV.z = i.z;
+        if (i.z > maxV.z) maxV.z = i.z;
     }
 }
 //-----------------------------------------------------------------------------
@@ -347,7 +345,7 @@ void SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV)
  node has no mesh accociated, so we have to calculate the min and max point
  from the camera frustum.
  */
-void SLCamera::buildAABB(SLAABBox& aabb, SLMat4f wmNode)
+void SLCamera::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 {
     SLVec3f minP, maxP;
     calcMinMax(minP, maxP);
@@ -367,7 +365,7 @@ SLstring SLCamera::projectionToStr(SLProjection p)
         case P_stereoSideBySideP: return "Side by Side proportional";
         case P_stereoSideBySideD: return "Side by Side distorted";
         case P_stereoLineByLine: return "Line by Line";
-        case P_stereoColumnByColumn: return "Pixel by Pixel";
+        case P_stereoColumnByColumn: return "Column by Column";
         case P_stereoPixelByPixel: return "Checkerboard";
         case P_stereoColorRC: return "Red-Cyan";
         case P_stereoColorRG: return "Red-Green";
@@ -395,7 +393,7 @@ SLfloat SLCamera::focalDistScrW() const
     return focalDistScrH() * _viewportRatio;
 }
 //-----------------------------------------------------------------------------
-//! Sets the viewport transfor depending on the projection
+//! Sets the viewport transform depending on the projection
 void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
 {
     SLGLState* stateGL = SLGLState::instance();
@@ -410,9 +408,9 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
 
     SLint w  = vpRect.width;
     SLint h  = vpRect.height;
-    SLint w2 = w >> 1;
-    SLint h2 = h >> 1;
-    SLint h4 = h2 >> 1;
+    SLint w2 = w >> 1;  // w/2
+    SLint h2 = h >> 1;  // h/2
+    SLint h4 = h2 >> 1; //h2/2
 
     if (_projection == P_stereoSideBySideD)
     {
@@ -499,7 +497,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     // Clear Buffers //
     ///////////////////
 
-    if (eye == ET_right) //&& _projection >= stereoColorRC)
+    if (eye == ET_right)
         // Do not clear color on right eye because it contains the color of the
         // left eye. The right eye must be drawn after the left into the same buffer
         stateGL->clearDepthBuffer();
@@ -514,10 +512,10 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         {
             switch (_projection)
             {
-                case P_stereoColorRC: stateGL->colorMask(true, false, false, true); break;
-                case P_stereoColorRB: stateGL->colorMask(true, false, false, true); break;
-                case P_stereoColorRG: stateGL->colorMask(true, false, false, true); break;
-                case P_stereoColorYB: stateGL->colorMask(true, true, false, true); break;
+                case P_stereoColorRC: stateGL->colorMask(1, 0, 0, 1); break;
+                case P_stereoColorRB: stateGL->colorMask(1, 0, 0, 1); break;
+                case P_stereoColorRG: stateGL->colorMask(1, 0, 0, 1); break;
+                case P_stereoColorYB: stateGL->colorMask(1, 1, 0, 1); break;
                 default: break;
             }
         }
@@ -525,10 +523,10 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         {
             switch (_projection)
             {
-                case P_stereoColorRC: stateGL->colorMask(false, true, true, true); break;
-                case P_stereoColorRB: stateGL->colorMask(false, false, true, true); break;
-                case P_stereoColorRG: stateGL->colorMask(false, true, false, true); break;
-                case P_stereoColorYB: stateGL->colorMask(false, false, true, true); break;
+                case P_stereoColorRC: stateGL->colorMask(0, 1, 1, 1); break;
+                case P_stereoColorRB: stateGL->colorMask(0, 0, 1, 1); break;
+                case P_stereoColorRG: stateGL->colorMask(0, 1, 0, 1); break;
+                case P_stereoColorYB: stateGL->colorMask(0, 0, 1, 1); break;
                 default: break;
             }
         }
@@ -755,7 +753,8 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 }
 //-----------------------------------------------------------------------------
 //! Sets the view to look from a direction towards the current focal point
-void SLCamera::lookFrom(const SLVec3f fromDir, const SLVec3f upDir)
+void SLCamera::lookFrom(const SLVec3f& fromDir,
+                        const SLVec3f& upDir)
 {
     SLVec3f lookAt = focalPointWS();
     this->translation(lookAt + _focalDist * fromDir);
@@ -1147,11 +1146,10 @@ SLbool SLCamera::onTouch2Move(const SLint x1,
 SLCamera::onDoubleTouch gets called whenever two fingers touch a handheld
 screen.
 */
-SLbool
-SLCamera::onTouch2Up(const SLint x1,
-                     const SLint y1,
-                     const SLint x2,
-                     const SLint y2)
+SLbool SLCamera::onTouch2Up(const SLint x1,
+                            const SLint y1,
+                            const SLint x2,
+                            const SLint y2)
 {
     _velocity.set(0.0f, 0.0f, 0.0f);
     return true;

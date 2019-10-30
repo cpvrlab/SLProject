@@ -49,8 +49,8 @@ drawn on the far clipping plane of the visualized view frustum.
 class SLCamera : public SLNode
 {
     public:
-    SLCamera(SLstring name = "Camera");
-    ~SLCamera();
+    SLCamera(const SLstring& name = "Camera");
+    ~SLCamera() { ; }
 
     void statsRec(SLNodeStats& stats);
 
@@ -58,36 +58,36 @@ class SLCamera : public SLNode
     virtual SLbool camUpdate(SLfloat timeMS);
     void           preShade(SLRay* ray) { (void)ray; }
     void           calcMinMax(SLVec3f& minV, SLVec3f& maxV);
-    void           buildAABB(SLAABBox& aabb, SLMat4f wmNode);
+    void           buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
 
     // Event handlers for camera animation
-    virtual SLbool onMouseDown(const SLMouseButton button,
-                               const SLint         x,
-                               const SLint         y,
-                               const SLKey         mod);
-    virtual SLbool onMouseMove(const SLMouseButton button,
-                               const SLint         x,
-                               const SLint         y,
-                               const SLKey         mod);
-    virtual SLbool onMouseUp(const SLMouseButton button,
-                             const SLint         x,
-                             const SLint         y,
-                             const SLKey         mod);
-    virtual SLbool onMouseWheel(const SLint delta, const SLKey mod);
-    virtual SLbool onTouch2Down(const SLint x1, const SLint y1, const SLint x2, const SLint y2);
-    virtual SLbool onTouch2Move(const SLint x1, const SLint y1, const SLint x2, const SLint y2);
-    virtual SLbool onTouch2Up(const SLint x1, const SLint y1, const SLint x2, const SLint y2);
-    virtual SLbool onKeyPress(const SLKey key, const SLKey mod);
-    virtual SLbool onKeyRelease(const SLKey key, const SLKey mod);
+    virtual SLbool onMouseDown(SLMouseButton button,
+                               SLint         x,
+                               SLint         y,
+                               SLKey         mod);
+    virtual SLbool onMouseMove(SLMouseButton button,
+                               SLint         x,
+                               SLint         y,
+                               SLKey         mod);
+    virtual SLbool onMouseUp(SLMouseButton button,
+                             SLint         x,
+                             SLint         y,
+                             SLKey         mod);
+    virtual SLbool onMouseWheel(SLint delta, SLKey mod);
+    virtual SLbool onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2);
+    virtual SLbool onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2);
+    virtual SLbool onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2);
+    virtual SLbool onKeyPress(SLKey key, SLKey mod);
+    virtual SLbool onKeyRelease(SLKey key, SLKey mod);
 
     void    eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray);
-    SLVec3f trackballVec(const SLint x, const SLint y);
+    SLVec3f trackballVec(SLint x, SLint y);
     SLbool  isInFrustum(SLAABBox* aabb);
 
     // Apply projection, viewport and view transformations
-    void setViewport(SLSceneView* sv, const SLEyeType eye);
-    void setProjection(SLSceneView* sv, const SLEyeType eye);
-    void setView(SLSceneView* sv, const SLEyeType eye);
+    void setViewport(SLSceneView* sv, SLEyeType eye);
+    void setProjection(SLSceneView* sv, SLEyeType eye);
+    void setView(SLSceneView* sv, SLEyeType eye);
     void setFrustumPlanes();
 
     // Setters
@@ -110,8 +110,8 @@ class SLCamera : public SLNode
     }
     void clipNear(const SLfloat cNear) { _clipNear = cNear; }
     void clipFar(const SLfloat cFar) { _clipFar = cFar; }
-    void lookFrom(const SLVec3f fromDir,
-                  const SLVec3f upDir = SLVec3f::AXISY);
+    void lookFrom(const SLVec3f& fromDir,
+                  const SLVec3f& upDir = SLVec3f::AXISY);
     void maxSpeed(const SLfloat ms) { _maxSpeed = ms; }
     void moveAccel(const SLfloat accel) { _moveAccel = accel; }
     void brakeAccel(const SLfloat accel) { _brakeAccel = accel; }

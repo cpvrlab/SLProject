@@ -49,8 +49,8 @@ enum SLTextureType
 };
 //-----------------------------------------------------------------------------
 //! Texture object for OpenGL texturing
-/*!      
-The SLGLTexture class implements an OpenGL texture object that can be used by the 
+/*!
+The SLGLTexture class implements an OpenGL texture object that can be used by the
 SLMaterial class. A texture can have 1-n CVImages in the vector _images.
 A simple 2D texture has just a single texture image (_images[0]). For cube maps
 you will need 6 images (_images[0-5]). For 3D textures you can have as much
@@ -70,6 +70,23 @@ class SLGLTexture : public SLObject
                          SLint           mag_filter = GL_LINEAR,
                          SLint           wrapS      = GL_REPEAT,
                          const SLstring& name       = "1D-Texture");
+
+    //! ctor for empty 2D textures
+    explicit SLGLTexture(SLint         min_filter,
+                         SLint         mag_filter,
+                         SLint         wrapS,
+                         SLint         wrapT);
+
+    //! ctor for 2D textures from byte pointer
+    explicit SLGLTexture(unsigned char* data,
+                         int            width,
+                         int            height,
+                         int            cvtype,
+                         SLint          min_filter,
+                         SLint          mag_filter,
+                         SLTextureType  type,
+                         SLint          wrapS,
+                         SLint          wrapT);
 
     //! ctor for 2D textures with internal image allocation
     explicit SLGLTexture(const SLstring& imageFilename,
@@ -147,6 +164,15 @@ class SLGLTexture : public SLObject
                                  SLuchar*    data,
                                  SLbool      isContinuous,
                                  SLbool      isTopLeft);
+
+    SLbool        copyVideoImage(SLint       camWidth,
+                                 SLint       camHeight,
+                                 CVPixFormat srcFormat,
+                                 CVPixFormat dstFormat,
+                                 SLuchar*    data,
+                                 SLbool      isContinuous,
+                                 SLbool      isTopLeft);
+
     void          calc3DGradients(SLint sampleRadius);
     void          smooth3DGradients(SLint smoothRadius);
 

@@ -464,7 +464,7 @@ void GLFWInit()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     scrWidth  = 640;
-    scrHeight = 360;
+    scrHeight = 480;
 
     //we have to fix aspect ratio, because the video image is initialized with this ratio
     fixAspectRatio = true;
@@ -549,6 +549,8 @@ int main(int argc, char* argv[])
 
     svIndex = WAIApp::load(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, &dirs);
 
+    HighResTimer hrt;
+
     // Event loop
     while (!slShouldClose())
     {
@@ -562,6 +564,7 @@ int main(int argc, char* argv[])
         slUpdateScene();
 
         SLbool doRepaint = slPaintAllViews();
+
         glfwSwapBuffers(window);
         glfwSetWindowTitle(window, slGetWindowTitle(svIndex).c_str());
 

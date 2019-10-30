@@ -205,6 +205,10 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
                     return false;
             }
 
+#if defined(ANDROID)
+            // Convert BGR to RGB on mobile phones
+            cvtColor(CVCapture::lastFrame, CVCapture::lastFrame, cv::COLOR_BGR2RGB, 3);
+#endif
             adjustForSL(viewportWdivH);
         }
         else
@@ -226,7 +230,83 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
 
     return true;
 }
+//-----------------------------------------------------------------------------
+/*! This method is called by iOS and Android projects that capture their video
+cameras on their own. We only adjust the color space. See the app-Demo-SLProject/iOS and
+app-Demo-SLProject/android projects for the usage.
+*/
+void CVCapture::loadIntoLastFrame(const float       viewportWdivH,
+                                  const int         width,
+                                  const int         height,
+                                  const CVPixFormat format,
+                                  const uchar*      data,
+                                  const bool        isContinuous)
+{
+    CVCapture::startCaptureTimeMS = _timer.elapsedTimeInMilliSec();
 
+    // treat Android YUV to RGB conversion special
+    if (format == PF_yuv_420_888)
+    {
+        CVMat yuv(height + height / 2, width, CV_8UC1, (void*)data);
+
+        // Android image copy loop #1
+        cvtColor(yuv, CVCapture::lastFrame, cv::COLOR_YUV2RGB_NV21, 3);
+    }
+    // convert 4 channel images to 3 channel
+    else if (format == PF_bgra || format == PF_rgba)
+    {
+        CVMat rgba(height, width, CV_8UC4, (void*)data);
+        cvtColor(rgba, CVCapture::lastFrame, cv::COLOR_RGBA2RGB, 3);
+    }
+    else
+    {
+        // Set the according OpenCV format
+        int cvType = 0, bpp = 0;
+
+        switch (format)
+        {
+            case PF_luminance: {
+                cvType = CV_8UC1;
+                bpp    = 1;
+                break;
+            }
+            case PF_bgr: {
+                cvType = CV_8UC3;
+                bpp    = 3;
+                break;
+            }
+            case PF_rgb: {
+                cvType = CV_8UC3;
+                bpp    = 3;
+                break;
+            }
+            case PF_bgra: {
+                cvType = CV_8UC4;
+                bpp    = 4;
+                break;
+            }
+            case PF_rgba: {
+                cvType = CV_8UC4;
+                bpp    = 4;
+                break;
+            }
+            default: Utils::exitMsg("Pixel format not supported", __LINE__, __FILE__);
+        }
+
+        // calculate padding NO. of bgrRowOffset bytes (= step in OpenCV terminology)
+        size_t destStride = 0;
+        if (!isContinuous)
+        {
+            int bitsPerPixel = bpp * 8;
+            int bpl          = ((width * bitsPerPixel + 31) / 32) * 4;
+            destStride       = (size_t)(bpl - width * bpp);
+        }
+
+        CVCapture::lastFrame = CVMat(height, width, cvType, (void*)data, destStride);
+    }
+
+    adjustForSL(viewportWdivH);
+}
 //-----------------------------------------------------------------------------
 //! Does all adjustments needed for the videoTexture
 /*! CVCapture::adjustForSL processes the following adjustments for all input
@@ -285,7 +365,7 @@ void CVCapture::adjustForSL(float viewportWdivH)
     // Cropping is done almost always.
     // So this is Android image copy loop #2
 
-    float inWdivH  = (float)lastFrame.cols / (float)lastFrame.rows;
+    float inWdivH = (float)lastFrame.cols / (float)lastFrame.rows;
 
     // viewportWdivH is negative the viewport aspect will be the same
     float outWdivH = viewportWdivH < 0.0f ? inWdivH : viewportWdivH;
@@ -377,88 +457,6 @@ void CVCapture::adjustForSL(float viewportWdivH)
         activeCalib->imageSize(lastFrame.size());
 
     _captureTimesMS.set(_timer.elapsedTimeInMilliSec() - startCaptureTimeMS);
-}
-//-----------------------------------------------------------------------------
-/*! This method is called by iOS and Android projects that capture their video
-cameras on their own. We only adjust the color space. See the app-Demo-SLProject/iOS and
-app-Demo-SLProject/android projects for the usage.
-*/
-void CVCapture::loadIntoLastFrame(const float       vieportWdivH,
-                                  const int         width,
-                                  const int         height,
-                                  const CVPixFormat format,
-                                  const uchar*      data,
-                                  const bool        isContinuous)
-{
-    CVCapture::startCaptureTimeMS = _timer.elapsedTimeInMilliSec();
-
-    // treat Android YUV to RGB conversion special
-    if (format == PF_yuv_420_888)
-    {
-        CVMat yuv(height + height / 2, width, CV_8UC1, (void*)data);
-
-        // Android image copy loop #1
-        cvtColor(yuv, CVCapture::lastFrame, cv::COLOR_YUV2RGB_NV21, 3);
-    }
-    // convert 4 channel images to 3 channel
-    else if (format == PF_bgra || format == PF_rgba)
-    {
-        CVMat rgba(height, width, CV_8UC4, (void*)data);
-        cvtColor(rgba, CVCapture::lastFrame, cv::COLOR_RGBA2RGB, 3);
-    }
-    else
-    {
-        // Set the according OpenCV format
-        int cvType = 0, bpp = 0;
-
-        switch (format)
-        {
-            case PF_luminance:
-            {
-                cvType = CV_8UC1;
-                bpp    = 1;
-                break;
-            }
-            case PF_bgr:
-            {
-                cvType = CV_8UC3;
-                bpp    = 3;
-                break;
-            }
-            case PF_rgb:
-            {
-                cvType = CV_8UC3;
-                bpp    = 3;
-                break;
-            }
-            case PF_bgra:
-            {
-                cvType = CV_8UC4;
-                bpp    = 4;
-                break;
-            }
-            case PF_rgba:
-            {
-                cvType = CV_8UC4;
-                bpp    = 4;
-                break;
-            }
-            default: Utils::exitMsg("Pixel format not supported", __LINE__, __FILE__);
-        }
-
-        // calculate padding NO. of bgrRowOffset bytes (= step in OpenCV terminology)
-        size_t destStride = 0;
-        if (!isContinuous)
-        {
-            int bitsPerPixel = bpp * 8;
-            int bpl          = ((width * bitsPerPixel + 31) / 32) * 4;
-            destStride       = (size_t)(bpl - width * bpp);
-        }
-
-        CVCapture::lastFrame = CVMat(height, width, cvType, (void*)data, destStride);
-    }
-
-    adjustForSL(vieportWdivH);
 }
 //-----------------------------------------------------------------------------
 //! YUV to RGB image infos. Offset value can be negative for mirrored copy.
@@ -821,7 +819,10 @@ void CVCapture::videoType(CVVideoType vt)
     {
         activeCalib = &calibMainCam;
         if (vt == VT_NONE)
+        {
             release();
+            _captureTimesMS.set(0.0f);
+        }
     }
 }
 //-----------------------------------------------------------------------------
@@ -893,6 +894,18 @@ int CVCapture::nextFrameIndex()
     if (_videoType == VT_FILE)
     {
         result = (int)_captureDevice.get(cv::CAP_PROP_POS_FRAMES);
+    }
+
+    return result;
+}
+//-----------------------------------------------------------------------------
+int CVCapture::videoLength()
+{
+    int result = 0;
+
+    if (_videoType == VT_FILE)
+    {
+        result = (int)_captureDevice.get(cv::CAP_PROP_FRAME_COUNT);
     }
 
     return result;

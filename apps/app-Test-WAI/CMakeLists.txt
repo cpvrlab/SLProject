@@ -9,12 +9,12 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIMapStorage.h
+    ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     )
 
 file(GLOB sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIMapStorage.cpp
+    ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/app-Test-WAI/WAITester.cpp
     )
 
@@ -39,7 +39,7 @@ target_include_directories(${target}
     PRIVATE
     ${SL_PROJECT_ROOT}/apps/app-Test-WAI/
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
-
+    ${SL_PROJECT_ROOT}/apps/source/wai/
     PUBLIC
 
     INTERFACE

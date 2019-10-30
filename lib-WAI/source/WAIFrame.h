@@ -49,13 +49,12 @@ using namespace ORB_SLAM2;
 
 class WAI_API WAIFrame
 {
-    public:
+public:
     WAIFrame();
     //!copy constructor
     WAIFrame(const WAIFrame& frame);
     //!constructor used for detection in tracking
     WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, ORBVocabulary* orbVocabulary, bool retainImg = false);
-    WAIFrame(const cv::Mat& imGray, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, std::vector<cv::KeyPoint>& vKeys, ORBVocabulary* orbVocabulary, bool retainImg = false);
 
     // Extract feature points on the image
     void ExtractFeaturePoints(const cv::Mat& im);
@@ -102,10 +101,7 @@ class WAI_API WAIFrame
 
     vector<size_t> GetFeaturesInArea(const float& x, const float& y, const float& r, const int minLevel = -1, const int maxLevel = -1) const;
 
-    // NOTE(dgj1): used in marker map case to add marker corner points
-    int addKeyPoint(cv::KeyPoint kp);
-
-    public:
+public:
     // Vocabulary used for relocalization.
     ORBVocabulary* mpORBvocabulary = NULL;
 
@@ -193,7 +189,7 @@ class WAI_API WAIFrame
     //frame image
     cv::Mat imgGray;
 
-    private:
+private:
     // Undistort keypoints given OpenCV distortion parameters.
     // Only for the RGB-D case. Stereo must be already rectified!
     // (called in the constructor).

@@ -609,15 +609,15 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 
     // Set projection
     if (_camera->projection() > P_monoOrthographic)
+    {
         _camera->setProjection(this, ET_left);
-    else
-        _camera->setProjection(this, ET_center);
-
-    // Set view center eye or left eye
-    if (_camera->projection() > P_monoOrthographic)
         _camera->setView(this, ET_left);
+    }
     else
+    {
+        _camera->setProjection(this, ET_center);
         _camera->setView(this, ET_center);
+    }
 
     ////////////////////////
     // 5. Frustum Culling //
@@ -628,7 +628,6 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     _nodesVisible.clear();
     if (s->root3D())
         s->root3D()->cull3DRec(this);
-
     _cullTimeMS = SLApplication::timeMS() - startMS;
 
     ////////////////////
@@ -649,20 +648,20 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // For stereo draw for right eye
     if (_camera->projection() > P_monoOrthographic)
     {
-        // Change state (only when changed)
-        stateGL->multiSample(_doMultiSampling);
-        stateGL->depthTest(_doDepthTest);
         _camera->setViewport(this, ET_right);
-        // Render solid color, gradient or textured background from active camera
-        if (!_skybox)
+
+        // Only draw backrounds for stereo projections in different viewports
+        if (!_skybox && _camera->projection() < P_stereoLineByLine)
             _camera->background().render(_viewportRect.width, _viewportRect.height);
+
         _camera->setProjection(this, ET_right);
         _camera->setView(this, ET_right);
+        stateGL->depthTest(true);
         draw3DGLAll();
     }
 
     // Enable all color channels again
-    stateGL->colorMask(true, true, true, true);
+    stateGL->colorMask(1, 1, 1, 1);
 
     _draw3DTimeMS = SLApplication::timeMS() - startMS;
 

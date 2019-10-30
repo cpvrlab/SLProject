@@ -24,13 +24,14 @@
 #include <vector>
 #include <list>
 #include <opencv2/opencv.hpp>
+#include <WAIHelper.h>
 
 namespace ORB_SLAM2
 {
 
-class KPextractor
+class WAI_API KPextractor
 {
-    public:
+public:
     KPextractor(std::string name)
     {
         mname = name;
@@ -40,10 +41,7 @@ class KPextractor
     // Mask is ignored in the current implementation.
     virtual void operator()(cv::InputArray             image,
                             std::vector<cv::KeyPoint>& keypoints,
-                            cv::OutputArray            descriptors)          = 0;
-    virtual void computeKeyPointDescriptors(const cv::Mat&             image,
-                                            std::vector<cv::KeyPoint>& keypoints,
-                                            cv::Mat&                   descriptors) = 0;
+                            cv::OutputArray            descriptors) = 0;
 
     std::string GetName()
     {
@@ -82,7 +80,7 @@ class KPextractor
 
     std::vector<cv::Mat> mvImagePyramid;
 
-    protected:
+protected:
     int                nfeatures;
     double             scaleFactor;
     int                nlevels;

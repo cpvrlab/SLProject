@@ -52,8 +52,8 @@ class SLApplication
     static int      jobProgressMax() { return _jobProgressMax; }
     static SLfloat  dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
     static void     timerStart() { _timer.start(); }
-    static SLfloat  timeS() { return (SLfloat)_timer.elapsedTimeInSec(); }
-    static SLfloat  timeMS() { return (SLfloat)_timer.elapsedTimeInMilliSec(); }
+    static SLfloat  timeS() { return _timer.elapsedTimeInSec(); }
+    static SLfloat  timeMS() { return _timer.elapsedTimeInMilliSec(); }
 
     static SLScene*         scene;        //!< scene pointer
     static SLInputManager   inputManager; //!< Input events manager
@@ -62,6 +62,7 @@ class SLApplication
 
     static SLstring  name;          //!< Applcation name
     static SLstring  version;       //!< SLProject version string
+    static SLstring  configuration; //!< Debug or Release configuration
     static SLstring  computerUser;  //!< Computer Name (= env-var USER)
     static SLstring  computerName;  //!< Computer Name (= env-var HOSTNAME)
     static SLstring  computerBrand; //!< Computer brand name

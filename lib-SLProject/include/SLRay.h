@@ -75,11 +75,11 @@ class SLRay
     // Classic ray members
     SLVec3f origin;   //!< Vector to the origin of ray in WS
     SLVec3f dir;      //!< Direction vector of ray in WS
-    SLVec3f originOS; //!< Vector to the origin of ray in OS
-    SLVec3f dirOS;    //!< Direction vector of ray in OS
     SLfloat length;   //!< length from origin to an intersection
     SLint   depth;    //!< Recursion depth for ray tracing
     SLfloat contrib;  //!< Current contribution of ray to color
+    SLVec3f originOS; //!< Vector to the origin of ray in OS
+    SLVec3f dirOS;    //!< Direction vector of ray in OS
 
     // Additional info for intersection
     SLRayType    type;            //!< PRIMARY, REFLECTED, REFRACTED, SHADOW

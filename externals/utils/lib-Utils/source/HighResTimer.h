@@ -33,11 +33,11 @@ class HighResTimer
 
     void    start() { _timePoint1 = HighResClock::now(); }
     void    stop() { _timePoint2 = HighResClock::now(); }
-    float   elapsedTimeInSec() { return (float)duration_cast<seconds>(HighResClock::now() - _timePoint1).count(); }
-    float   elapsedTimeInMilliSec() { return (float)duration_cast<milliseconds>(HighResClock::now() - _timePoint1).count(); }
+    float   elapsedTimeInSec() { return (float)((double)elapsedTimeInMicroSec() / 1000000.0); }
+    float   elapsedTimeInMilliSec() { return (float)((double)elapsedTimeInMicroSec() / 1000.0); }
     int64_t elapsedTimeInMicroSec() { return duration_cast<microseconds>(HighResClock::now() - _timePoint1).count(); }
 
-    static void callAfterSleep(int milliSec, function<void(void)> callbackFunc)
+    static void callAfterSleep(int milliSec, const function<void(void)>& callbackFunc)
     {
         // Create a thread that immediately sleeps the milliseconds
         thread t([=]() {

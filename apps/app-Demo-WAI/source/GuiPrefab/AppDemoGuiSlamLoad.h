@@ -20,9 +20,8 @@
 //-----------------------------------------------------------------------------
 class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {
-    public:
+public:
     AppDemoGuiSlamLoad(const std::string& name,
-                       WAICalibration*    wc,
                        std::string        slamRootDir,
                        std::string        calibrationsDir,
                        std::string        vocabulariesDir,
@@ -31,11 +30,13 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
-    private:
+private:
     void loadFileNamesInVector(std::string               directory,
                                std::vector<std::string>& fileNames,
                                std::vector<std::string>& extensions,
                                bool                      addEmpty);
+    void loadDirNamesInVector(std::string               directory,
+                              std::vector<std::string>& dirNames);
 
     bool _changeSlamParams;
 
@@ -61,9 +62,9 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
     bool _trackOpticalFlow;
     bool _serial;
     bool _trackingOnly;
+    bool fixLoadedKfs;
 
-    WAICalibration* _wc;
-    SLNode*         _mapNode;
+    SLNode* _mapNode;
 };
 
 #endif

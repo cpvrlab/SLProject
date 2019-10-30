@@ -24,6 +24,7 @@
 #include <AppDemoGuiPrefs.h>
 #include <AppDemoGuiAbout.h>
 #include <AppDemoGuiError.h>
+#include "ImageProcessor.h"
 
 struct OrbSlamStartResult
 {
@@ -33,21 +34,18 @@ struct OrbSlamStartResult
 
 struct SlamParams
 {
-    std::string videoFile;
-    std::string mapFile;
-    std::string calibrationFile;
-    std::string vocabularyFile;
-    std::string markerFile;
-    bool        storeKeyFrameImg;
-    bool        trackOpticalFlow;
-    bool        trackingOnly;
-    bool        serial;
+    std::string               videoFile;
+    std::string               mapFile;
+    std::string               calibrationFile;
+    std::string               vocabularyFile;
+    std::string               markerFile;
+    WAI::ModeOrbSlam2::Params params;
 };
 
 //-----------------------------------------------------------------------------
 class WAIApp
 {
-    public:
+public:
     static int                load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* dirs);
     static void               close();
     static OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);
@@ -70,13 +68,14 @@ class WAIApp
     static void setupGUI();
     static void buildGUI(SLScene* s, SLSceneView* sv);
     static void openTest(std::string path);
+    static bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
 
     static AppDemoGuiAbout* aboutDial;
     static AppDemoGuiError* errorDial;
 
     static GUIPreferences     uiPrefs;
     static AppWAIDirectories* dirs;
-    static WAICalibration*    wc;
+
     static int                scrWidth;
     static int                scrHeight;
     static int                defaultScrWidth;
@@ -89,7 +88,9 @@ class WAIApp
     static bool               loaded;
     static SLGLTexture*       cpvrLogo;
     static SLGLTexture*       videoImage;
+    static SLGLTexture*       testTexture;
     static ofstream           gpsDataStream;
+    static ImageProcessor     imgProc;
 
     static SlamParams* currentSlamParams;
 
@@ -101,8 +102,9 @@ class WAIApp
     static std::string vocDir;
     static std::string experimentsDir;
 
-    static bool pauseVideo; // pause video file
-    static int  videoCursorMoveIndex;
+    static cv::Size2i videoFrameSize;
+    static bool       pauseVideo; // pause video file
+    static int        videoCursorMoveIndex;
 };
 
 #endif

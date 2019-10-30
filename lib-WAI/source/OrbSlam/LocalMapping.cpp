@@ -33,7 +33,10 @@
 namespace ORB_SLAM2
 {
 
-LocalMapping::LocalMapping(WAIMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary, bool cullKeyFrames)
+LocalMapping::LocalMapping(WAIMap*        pMap,
+                           const float    bMonocular,
+                           ORBVocabulary* mpORBvocabulary,
+                           float          cullRedundantPerc)
   : mpMap(pMap),
     mbMonocular(bMonocular),
     mpORBvocabulary(mpORBvocabulary),
@@ -45,7 +48,7 @@ LocalMapping::LocalMapping(WAIMap* pMap, const float bMonocular, ORBVocabulary* 
     mbStopRequested(false),
     mbNotStop(false),
     mbAcceptKeyFrames(true),
-    _cullKeyFrames(cullKeyFrames)
+    _cullRedundantPerc(cullRedundantPerc)
 {
 }
 
@@ -108,11 +111,8 @@ void LocalMapping::Run()
                     if (mpMap->KeyFramesInMap() > 2)
                         Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame, &mbAbortBA, mpMap);
 
-                    if (_cullKeyFrames)
-                    {
-                        // Check redundant local Keyframes
-                        KeyFrameCulling();
-                    }
+                    // Check redundant local Keyframes
+                    KeyFrameCulling();
                 }
             }
 
@@ -188,11 +188,8 @@ void LocalMapping::RunOnce()
                 Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame, &mbAbortBA, mpMap);
             }
 
-            if (_cullKeyFrames)
-            {
-                // Check redundant local Keyframes
-                KeyFrameCulling();
-            }
+            // Check redundant local Keyframes
+            KeyFrameCulling();
         }
 
         mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
@@ -276,6 +273,7 @@ void LocalMapping::MapPointCulling()
     while (lit != mlpRecentAddedMapPoints.end())
     {
         WAIMapPoint* pMP = *lit;
+
         if (pMP->isBad())
         {
             lit = mlpRecentAddedMapPoints.erase(lit);
@@ -745,12 +743,17 @@ void LocalMapping::KeyFrameCulling()
     for (vector<WAIKeyFrame*>::iterator vit = vpLocalKeyFrames.begin(), vend = vpLocalKeyFrames.end(); vit != vend; vit++)
     {
         WAIKeyFrame* pKF = *vit;
+        //do not cull the first keyframe
         if (pKF->mnId == 0)
             continue;
+        //do not cull fixed keyframes
+        if (pKF->isFixed())
+            continue;
+
         const vector<WAIMapPoint*> vpMapPoints = pKF->GetMapPointMatches();
 
-        int       nObs                   = 3;
-        const int thObs                  = nObs;
+        //int       nObs                   = 3;
+        const int thObs                  = 3;
         int       nRedundantObservations = 0;
         int       nMPs                   = 0;
         for (size_t i = 0, iend = vpMapPoints.size(); i < iend; i++)
@@ -797,7 +800,7 @@ void LocalMapping::KeyFrameCulling()
             }
         }
 
-        if (nRedundantObservations > 0.9 * nMPs)
+        if (nRedundantObservations > _cullRedundantPerc * nMPs)
         {
             pKF->SetBadFlag();
         }

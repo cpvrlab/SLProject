@@ -141,6 +141,9 @@ void WAIMap::clear()
     mvpReferenceMapPoints.clear();
     mvpKeyFrameOrigins.clear();
     setNumLoopClosings(0);
+
+    WAIKeyFrame::nNextId = 0;
+    WAIFrame::nNextId    = 0;
 }
 //-----------------------------------------------------------------------------
 void WAIMap::rotate(float degVal, int type)

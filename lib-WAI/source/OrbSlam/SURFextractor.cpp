@@ -123,7 +123,7 @@ static void computeBRIEFDescriptor(const KeyPoint& kpt,
 #undef GET_VALUE
 }
 
-static int bit_pattern_31_[256 * 4] =
+static const int bit_pattern_31_[256 * 4] =
   {
     8,
     -3,
@@ -1168,7 +1168,7 @@ SURFextractor::SURFextractor(double threshold)
 
     mvImagePyramid.resize(1);
 
-    surf_detector = cv::xfeatures2d::SURF::create(threshold, 4, 3, false, false);
+    surf_detector = cv::xfeatures2d::SURF::create(threshold, 4, 3, false, true);
 
     const int    npoints  = 512;
     const Point* pattern0 = (const Point*)bit_pattern_31_;

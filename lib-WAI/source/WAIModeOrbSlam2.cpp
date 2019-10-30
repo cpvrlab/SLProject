@@ -1,30 +1,29 @@
 #include <WAIModeOrbSlam2.h>
 #include <AverageTiming.h>
 
-WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
-                                cv::Mat     distortionMat,
-                                bool        serial,
-                                bool        retainImg,
-                                bool        onlyTracking,
-                                bool        trackOptFlow,
-                                std::string markerFile,
-                                std::string orbVocFile)
-  : _serial(serial),
-    _retainImg(retainImg),
-    _onlyTracking(onlyTracking),
-    _trackOptFlow(trackOptFlow)
+WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat       cameraMat,
+                                cv::Mat       distortionMat,
+                                const Params& params,
+                                std::string   orbVocFile,
+                                std::string   markerFile)
+  : _params(params)
 {
+    //we have to reset global static stuff here
+    WAIKeyFrame::nNextId = 0; //will be updated when a map is loaded
+    WAIFrame::nNextId    = 0;
+    WAIMapPoint::nNextId = 0;
+    // Tell WAIFrame to compute image bounds on first instantiation
+    WAIFrame::mbInitialComputations = true;
+
     _hasMarkerCorrectionTransformation = false;
     _createMarkerMap                   = !markerFile.empty();
 
     cameraMat.convertTo(_cameraMat, CV_32F);
     distortionMat.convertTo(_distortionMat, CV_32F);
 
-    // Tell WAIFrame to compute image bounds
-    WAIFrame::mbInitialComputations = true;
-
     //load visual vocabulary for relocalization
-    WAIOrbVocabulary::initialize(orbVocFile);
+    if (!WAIOrbVocabulary::initialize(orbVocFile))
+        throw std::runtime_error("ModeOrbSlam2: could not find vocabulary file: " + orbVocFile);
     mpVocabulary = WAIOrbVocabulary::get();
 
     //instantiate and load slam map
@@ -46,16 +45,17 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat     cameraMat,
     mpIniExtractor = mpIniDefaultExtractor;
 
     //instantiate local mapping
-    mpLocalMapper = new ORB_SLAM2::LocalMapping(_map, 1, mpVocabulary, !_createMarkerMap);
+    mpLocalMapper = new ORB_SLAM2::LocalMapping(_map, 1, mpVocabulary, _params.cullRedundantPerc);
     mpLoopCloser  = new ORB_SLAM2::LoopClosing(_map, mpKeyFrameDatabase, mpVocabulary, false, false);
 
     mpLocalMapper->SetLoopCloser(mpLoopCloser);
     mpLoopCloser->SetLocalMapper(mpLocalMapper);
 
-    if (!_serial)
+    if (!_params.serial)
     {
         mptLocalMapping = new std::thread(&LocalMapping::Run, mpLocalMapper);
-        mptLoopClosing  = new std::thread(&LoopClosing::Run, mpLoopCloser);
+        if (!_params.fixOldKfs)
+            mptLoopClosing = new std::thread(&LoopClosing::Run, mpLoopCloser);
     }
 
     _state = TrackingState_Initializing;
@@ -109,21 +109,25 @@ void WAI::ModeOrbSlam2::setVocabulary(std::string orbVocFile)
     WAIOrbVocabulary::initialize(orbVocFile);
     mpVocabulary = WAIOrbVocabulary::get();
     mpKeyFrameDatabase->changeVocabulary(*mpVocabulary, getKeyFrames());
-    mpLocalMapper->SetVocabulary(mpVocabulary);
-    mpLoopCloser->SetVocabulary(mpVocabulary);
+    if (mpLocalMapper)
+        mpLocalMapper->SetVocabulary(mpVocabulary);
+    if (mpLoopCloser)
+        mpLoopCloser->SetVocabulary(mpVocabulary);
     resume();
 }
 
 WAI::ModeOrbSlam2::~ModeOrbSlam2()
 {
-    if (!_serial)
+    if (!_params.serial)
     {
         mpLocalMapper->RequestFinish();
-        mpLoopCloser->RequestFinish();
+        if (!_params.fixOldKfs)
+            mpLoopCloser->RequestFinish();
 
         // Wait until all thread have effectively stopped
         mptLocalMapping->join();
-        mptLoopClosing->join();
+        if (mptLoopClosing)
+            mptLoopClosing->join();
     }
 
     if (mpDefaultExtractor)
@@ -470,20 +474,20 @@ std::vector<WAIKeyFrame*> WAI::ModeOrbSlam2::getKeyFrames()
 bool WAI::ModeOrbSlam2::getTrackOptFlow()
 {
     std::lock_guard<std::mutex> guard(_optFlowLock);
-    return _trackOptFlow;
+    return _params.trackOptFlow;
 }
 
 void WAI::ModeOrbSlam2::setTrackOptFlow(bool flag)
 {
     std::lock_guard<std::mutex> guard(_optFlowLock);
-    _trackOptFlow = flag;
-    _optFlowOK    = false;
+    _params.trackOptFlow = flag;
+    _optFlowOK           = false;
 }
 
 void WAI::ModeOrbSlam2::disableMapping()
 {
-    _onlyTracking = true;
-    if (!_serial)
+    _params.onlyTracking = true;
+    if (!_params.serial)
     {
         mpLocalMapper->RequestStop();
         while (!mpLocalMapper->isStopped())
@@ -496,7 +500,7 @@ void WAI::ModeOrbSlam2::disableMapping()
 
 void WAI::ModeOrbSlam2::enableMapping()
 {
-    _onlyTracking = false;
+    _params.onlyTracking = false;
     resume();
 }
 
@@ -577,7 +581,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
 
     // Get Map Mutex -> Map cannot be changed
     std::unique_lock<std::mutex> lock(_map->mMutexMapUpdate, std::defer_lock);
-    if (!_serial)
+    if (!_params.serial)
     {
         lock.lock();
     }
@@ -588,7 +592,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
                              _cameraMat,
                              _distortionMat,
                              mpVocabulary,
-                             _retainImg);
+                             _params.retainImg);
 
     // TODO(dgj1): move this somewhere more sensible
     cv::Mat ul = cv::Mat(cv::Point3f(0, 0, 1));
@@ -827,7 +831,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
                              _cameraMat,
                              _distortionMat,
                              mpVocabulary,
-                             _retainImg);
+                             _params.retainImg);
 
     // TODO(dgj1): move this somewhere more sensible
 
@@ -899,7 +903,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
 
     // Get Map Mutex -> Map cannot be changed
     std::unique_lock<std::mutex> lock(_map->mMutexMapUpdate, std::defer_lock);
-    if (!_serial)
+    if (!_params.serial)
     {
         lock.lock();
     }
@@ -909,7 +913,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
     _bOK = false;
     //trackingType = TrackingType_None;
 
-    if (!_onlyTracking)
+    if (!_params.onlyTracking)
     {
         // Local Mapping is activated. This is the normal behaviour, unless
         // you explicitly activate the "only tracking" mode.
@@ -1023,7 +1027,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
     }
 
     // If we have an initial estimation of the camera pose and matching. Track the local map.
-    if (!_onlyTracking)
+    if (!_params.onlyTracking)
     {
         if (_bOK)
         {
@@ -1040,7 +1044,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
             _bOK = trackLocalMap();
     }
 
-    if (_trackOptFlow && _bOK && _state == TrackingState_TrackingOK)
+    if (_params.trackOptFlow && _bOK && _state == TrackingState_TrackingOK)
     {
         //We always run the optical flow additionally, because it gives
         //a more stable pose. We use this pose if successful.
@@ -1163,7 +1167,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
         {
             createNewKeyFrame();
 
-            if (_serial)
+            if (_params.serial)
             {
                 //call local mapper
                 mpLocalMapper->RunOnce();
@@ -1171,7 +1175,8 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
                 //mpKeyFrameDatabase->add(mpLastKeyFrame);
 
                 //loop closing
-                mpLoopCloser->RunOnce();
+                if (!_params.fixOldKfs)
+                    mpLoopCloser->RunOnce();
             }
 
             //update visualization of map, it may have changed because of global bundle adjustment.
@@ -1223,60 +1228,11 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
 
 bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
 {
-#if 0
-    int kpUlIniIndex, kpUrIniIndex, kpLlIniIndex, kpLrIniIndex;
-    int kpUlCurIndex, kpUrCurIndex, kpLlCurIndex, kpLrCurIndex;
-    if (_createMarkerMap)
-    {
-        {
-            cv::KeyPoint kpUlIniFrame, kpUlCurFrame;
-            kpUlIniFrame.pt.x = _ulIniFrame.at<float>(0, 0);
-            kpUlIniFrame.pt.y = _ulIniFrame.at<float>(1, 0);
-
-            kpUlCurFrame.pt.x = _ulCurFrame.at<float>(0, 0);
-            kpUlCurFrame.pt.y = _ulCurFrame.at<float>(1, 0);
-
-            kpUlIniIndex = mInitialFrame.addKeyPoint(kpUlIniFrame);
-            kpUlCurIndex = mCurrentFrame.addKeyPoint(kpUlCurFrame);
-        }
-
-        {
-            cv::KeyPoint kpUrIniFrame, kpUrCurFrame;
-            kpUrIniFrame.pt.x = _urIniFrame.at<float>(0, 0);
-            kpUrIniFrame.pt.y = _urIniFrame.at<float>(1, 0);
-
-            kpUrCurFrame.pt.x = _urCurFrame.at<float>(0, 0);
-            kpUrCurFrame.pt.y = _urCurFrame.at<float>(1, 0);
-
-            kpUrIniIndex = mInitialFrame.addKeyPoint(kpUrIniFrame);
-            kpUrCurIndex = mCurrentFrame.addKeyPoint(kpUrCurFrame);
-        }
-
-        {
-            cv::KeyPoint kpLlIniFrame, kpLlCurFrame;
-            kpLlIniFrame.pt.x = _llIniFrame.at<float>(0, 0);
-            kpLlIniFrame.pt.y = _llIniFrame.at<float>(1, 0);
-
-            kpLlCurFrame.pt.x = _llCurFrame.at<float>(0, 0);
-            kpLlCurFrame.pt.y = _llCurFrame.at<float>(1, 0);
-
-            kpLlIniIndex = mInitialFrame.addKeyPoint(kpLlIniFrame);
-            kpLlCurIndex = mCurrentFrame.addKeyPoint(kpLlCurFrame);
-        }
-
-        {
-            cv::KeyPoint kpLrIniFrame, kpLrCurFrame;
-            kpLrIniFrame.pt.x = _lrIniFrame.at<float>(0, 0);
-            kpLrIniFrame.pt.y = _lrIniFrame.at<float>(1, 0);
-
-            kpLrCurFrame.pt.x = _lrCurFrame.at<float>(0, 0);
-            kpLrCurFrame.pt.y = _lrCurFrame.at<float>(1, 0);
-
-            kpLrIniIndex = mInitialFrame.addKeyPoint(kpLrIniFrame);
-            kpLrCurIndex = mCurrentFrame.addKeyPoint(kpLrCurFrame);
-        }
-    }
-#endif
+    //ghm1: reset nNextId to 0! This is important otherwise the first keyframe cannot be identified via its id and a lot of stuff gets messed up!
+    //One problem we identified is in UpdateConnections: the first one is not allowed to have a parent,
+    //because the second will set the first as a parent too. We get problems later during culling.
+    //This also fixes a problem in first GlobalBundleAdjustment which messed up the map after a reset.
+    WAIKeyFrame::nNextId = 0;
 
     // Create KeyFrames
     WAIKeyFrame* pKFini = new WAIKeyFrame(mInitialFrame, _map, mpKeyFrameDatabase);
@@ -1527,16 +1483,8 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
 
     //cout << "New Map created with " << _map->MapPointsInMap() << " points" << endl;
 
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //ghm1: change comprared to original implementation:
-    // I recognized that for a certain video after the first initialization after application start
-    // it worked and after the following resets the initial map was always messed up by the  GlobalBundleAdjustemnt
-    // on the two initial keyframes. I comment this for now, we have to test this further and understand,
-    // why the bundle adjustment has a different behaviour on multiple runs.
-
     // Bundle Adjustment
-    //Optimizer::GlobalBundleAdjustemnt(_map, 20);
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    Optimizer::GlobalBundleAdjustemnt(_map, 20);
 
     // Set median depth to 1
     float medianDepth    = pKFini->ComputeSceneMedianDepth(2);
@@ -1586,9 +1534,10 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
     _map->mvpKeyFrameOrigins.push_back(pKFini);
 
     //ghm1: run local mapping once
-    if (_serial)
+    if (_params.serial)
     {
         mpLocalMapper->RunOnce();
+        //todo: why two times??
         mpLocalMapper->RunOnce();
     }
 
@@ -1737,7 +1686,7 @@ void WAI::ModeOrbSlam2::checkReplacedInLastFrame()
 
 bool WAI::ModeOrbSlam2::needNewKeyFrame()
 {
-    if (_onlyTracking)
+    if (_params.onlyTracking)
         return false;
 
     // If Local Mapping is freezed by a Loop Closure do not insert keyframes
@@ -1813,7 +1762,7 @@ void WAI::ModeOrbSlam2::reset()
     WAI_LOG("System Reseting");
 
     // Reset Local Mapping
-    if (!_serial)
+    if (!_params.serial)
     {
         mpLocalMapper->RequestReset();
     }
@@ -1823,9 +1772,10 @@ void WAI::ModeOrbSlam2::reset()
     }
 
     //// Reset Loop Closing
-    if (!_serial)
+    if (!_params.serial)
     {
-        mpLoopCloser->RequestReset();
+        if (!_params.fixOldKfs)
+            mpLoopCloser->RequestReset();
     }
     else
     {
@@ -1838,10 +1788,13 @@ void WAI::ModeOrbSlam2::reset()
     // Clear Map (this erase MapPoints and KeyFrames)
     _map->clear();
 
-    WAIKeyFrame::nNextId = 0;
-    WAIFrame::nNextId    = 0;
-    _bOK                 = false;
-    _initialized         = false;
+    WAIKeyFrame::nNextId            = 0;
+    WAIFrame::nNextId               = 0;
+    WAIFrame::mbInitialComputations = true;
+    WAIMapPoint::nNextId            = 0;
+
+    _bOK         = false;
+    _initialized = false;
 
     if (mpInitializer)
     {
@@ -1874,7 +1827,7 @@ bool WAI::ModeOrbSlam2::isInitialized()
 
 void WAI::ModeOrbSlam2::pause()
 {
-    if (!_serial)
+    if (!_params.serial)
     {
         mpLocalMapper->RequestStop();
         while (!mpLocalMapper->isStopped())
@@ -1892,7 +1845,7 @@ void WAI::ModeOrbSlam2::pause()
 
 void WAI::ModeOrbSlam2::resume()
 {
-    if (!_serial)
+    if (!_params.serial)
     {
         mpLocalMapper->Release();
         //mptLocalMapping = new thread(&LocalMapping::Run, mpLocalMapper);
@@ -2265,7 +2218,7 @@ bool WAI::ModeOrbSlam2::trackLocalMap()
             if (!mCurrentFrame.mvbOutlier[i])
             {
                 mCurrentFrame.mvpMapPoints[i]->IncreaseFound();
-                if (!_onlyTracking)
+                if (!_params.onlyTracking)
                 {
                     if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
                     {
@@ -2565,7 +2518,7 @@ bool WAI::ModeOrbSlam2::trackWithMotionModel()
     }
 
     AVERAGE_TIMING_STOP("trackWithMotionModel");
-    if (_onlyTracking)
+    if (_params.onlyTracking)
     {
         mbVO = nmatchesMap < 10;
         return nmatches > 20;
@@ -2826,11 +2779,11 @@ void WAI::ModeOrbSlam2::updateLastFrame()
     mLastFrame.SetPose(Tlr * pRef->GetPose());
 }
 
-void WAI::ModeOrbSlam2::globalBundleAdjustment()
-{
-    Optimizer::GlobalBundleAdjustemnt(_map, 20);
-    //_mapNode->updateAll(*_map);
-}
+//void WAI::ModeOrbSlam2::globalBundleAdjustment()
+//{
+//    Optimizer::GlobalBundleAdjustemnt(_map, 20);
+//    //_mapNode->updateAll(*_map);
+//}
 
 #if 0
 size_t WAI::ModeOrbSlam2::getSizeOf()
@@ -3348,10 +3301,10 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile)
         _mpLR = nullptr;
     }
 
-    _mpUL = new WAIMapPoint(0, ul3D, nullptr);
-    _mpUR = new WAIMapPoint(0, ur3D, nullptr);
-    _mpLL = new WAIMapPoint(0, ll3D, nullptr);
-    _mpLR = new WAIMapPoint(0, lr3D, nullptr);
+    _mpUL = new WAIMapPoint(0, ul3D, nullptr, false);
+    _mpUR = new WAIMapPoint(0, ur3D, nullptr, false);
+    _mpLL = new WAIMapPoint(0, ll3D, nullptr, false);
+    _mpLR = new WAIMapPoint(0, lr3D, nullptr, false);
 
     return true;
 }

@@ -46,7 +46,7 @@ SLGLTexture*       WAIApp::cpvrLogo   = nullptr;
 SLGLTexture*       WAIApp::videoImage = nullptr;
 AppWAIDirectories* WAIApp::dirs       = nullptr;
 AppWAIScene*       WAIApp::waiScene   = nullptr;
-WAICalibration*    WAIApp::wc         = nullptr;
+
 int                WAIApp::scrWidth;
 int                WAIApp::scrHeight;
 int                WAIApp::defaultScrWidth;
@@ -57,6 +57,8 @@ cv::VideoWriter*   WAIApp::videoWriterInfo = nullptr;
 WAI::ModeOrbSlam2* WAIApp::mode            = nullptr;
 bool               WAIApp::loaded          = false;
 ofstream           WAIApp::gpsDataStream;
+SLGLTexture*       WAIApp::testTexture;
+ImageProcessor     WAIApp::imgProc;
 
 SlamParams* WAIApp::currentSlamParams = nullptr;
 
@@ -65,6 +67,8 @@ std::string WAIApp::calibDir       = "";
 std::string WAIApp::mapDir         = "";
 std::string WAIApp::vocDir         = "";
 std::string WAIApp::experimentsDir = "";
+
+cv::Size2i WAIApp::videoFrameSize;
 
 bool WAIApp::resizeWindow = false;
 
@@ -77,6 +81,7 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
     defaultScrHeight = height;
 
     dirs = directories;
+
     SLApplication::devRot.isUsed(true);
     SLApplication::devLoc.isUsed(true);
 
@@ -88,7 +93,6 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
     vocDir         = dirs->writableDir + "voc/";
     experimentsDir = dirs->writableDir + "experiments/";
 
-    wc              = new WAICalibration();
     waiScene        = new AppWAIScene();
     videoWriter     = new cv::VideoWriter();
     videoWriterInfo = new cv::VideoWriter();
@@ -140,27 +144,21 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     OrbSlamStartResult result = {};
     uiPrefs.showError         = false;
 
-    std::string videoFile        = "";
-    std::string calibrationFile  = "";
-    std::string mapFile          = "";
-    std::string vocFile          = "";
-    std::string markerFile       = "";
-    bool        saveVideoFrames  = false;
-    bool        serial           = false;
-    bool        onlyTracking     = false;
-    bool        trackOpticalFlow = false;
+    std::string               videoFile       = "";
+    std::string               calibrationFile = "";
+    std::string               mapFile         = "";
+    std::string               vocFile         = "";
+    std::string               markerFile      = "";
+    WAI::ModeOrbSlam2::Params params;
 
     if (slamParams)
     {
-        videoFile        = slamParams->videoFile;
-        calibrationFile  = slamParams->calibrationFile;
-        mapFile          = slamParams->mapFile;
-        vocFile          = slamParams->vocabularyFile;
-        markerFile       = slamParams->markerFile;
-        saveVideoFrames  = slamParams->storeKeyFrameImg;
-        serial           = slamParams->serial;
-        onlyTracking     = slamParams->trackingOnly;
-        trackOpticalFlow = slamParams->trackOpticalFlow;
+        videoFile       = slamParams->videoFile;
+        calibrationFile = slamParams->calibrationFile;
+        mapFile         = slamParams->mapFile;
+        vocFile         = slamParams->vocabularyFile;
+        markerFile      = slamParams->markerFile;
+        params          = slamParams->params;
     }
 
     bool useVideoFile             = !videoFile.empty();
@@ -187,6 +185,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     }
 
     // determine correct calibration file
+    std::string calibrationFileName;
     if (detectCalibAutomatically)
     {
         std::string computerInfo;
@@ -209,13 +208,19 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
             computerInfo = SLApplication::getComputerInfos();
         }
 
-        std::string calibrationFileName = "camCalib_" + computerInfo + "_main.xml";
-        calibrationFile                 = calibDir + calibrationFileName;
+        calibrationFileName = "camCalib_" + computerInfo + "_main.xml";
+        calibrationFile     = calibDir + calibrationFileName;
     }
 
     if (!Utils::fileExists(calibrationFile))
     {
         result.errorString = "Calibration file " + calibrationFile + " does not exist.";
+        return result;
+    }
+
+    if (!checkCalibration(calibDir, calibrationFileName))
+    {
+        result.errorString = "Calibration file " + calibrationFile + " is incorrect.";
         return result;
     }
 
@@ -236,25 +241,30 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         return result;
     }
 
+    CVCapture* cap = CVCapture::instance();
     // 1. Initialize CVCapture with either video file or live video
-    cv::Size2i videoFrameSize;
     if (useVideoFile)
     {
-        CVCapture::instance()->videoType(VT_FILE);
-        CVCapture::instance()->videoFilename = videoFile;
-        CVCapture::instance()->videoLoops    = true;
-        videoFrameSize                       = CVCapture::instance()->openFile();
+        cap->videoType(VT_FILE);
+        cap->videoFilename = videoFile;
+        cap->videoLoops    = true;
+        videoFrameSize     = cap->openFile();
     }
     else
     {
-        CVCapture::instance()->videoType(VT_MAIN);
-        CVCapture::instance()->open(0);
+        cap->videoType(VT_MAIN);
+        //open(0) only has an effect on desktop. On Android it just returns {0,0}
+        cap->open(0);
 
         videoFrameSize = cv::Size2i(defaultScrWidth, defaultScrHeight);
     }
 
+    scrWidth  = videoFrameSize.width;
+    scrHeight = videoFrameSize.height;
+    scrWdivH  = (float)scrWidth / (float)scrHeight;
+
     // 2. Load Calibration
-    if (!wc->loadFromFile(calibrationFile))
+    if (!cap->activeCalib->load(calibDir, Utils::getFileName(calibrationFile), 0, 0))
     {
         result.errorString = "Error when loading calibration from file: " +
                              calibrationFile;
@@ -263,8 +273,8 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
 
     float videoAspectRatio = (float)videoFrameSize.width / (float)videoFrameSize.height;
     float epsilon          = 0.01f;
-    if (wc->aspectRatio() > videoAspectRatio + epsilon ||
-        wc->aspectRatio() < videoAspectRatio - epsilon)
+    if (cap->activeCalib->imageAspectRatio() > videoAspectRatio + epsilon ||
+        cap->activeCalib->imageAspectRatio() < videoAspectRatio - epsilon)
     {
         result.errorString = "Calibration aspect ratio does not fit video aspect ratio.\nCalib file: " +
                              calibrationFile + "\nVideo file: " +
@@ -272,20 +282,15 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         return result;
     }
 
-    CVCapture::instance()->activeCalib->load(calibDir, Utils::getFileName(calibrationFile), 0, 0);
-
     // 3. Adjust FOV of camera node according to new calibration
-    waiScene->cameraNode->fov(wc->calcCameraVerticalFOV());
+    waiScene->cameraNode->fov(cap->activeCalib->cameraFovVDeg());
 
     // 4. Create new mode ORBSlam
-    mode = new WAI::ModeOrbSlam2(wc->cameraMat(),
-                                 wc->distortion(),
-                                 serial,
-                                 saveVideoFrames,
-                                 onlyTracking,
-                                 trackOpticalFlow,
-                                 markerFile,
-                                 vocFile);
+    mode = new WAI::ModeOrbSlam2(cap->activeCalib->cameraMat(),
+                                 cap->activeCalib->distortion(),
+                                 params,
+                                 vocFile,
+                                 markerFile);
 
     // 5. Load map data
     if (useMapFile)
@@ -303,7 +308,8 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
                                                         mode->getKfDB(),
                                                         waiScene->mapNode,
                                                         mapFile,
-                                                        WAIApp::mode->retainImage());
+                                                        WAIApp::mode->retainImage(),
+                                                        params.fixOldKfs);
 
         if (!mapLoadingSuccess)
         {
@@ -319,20 +325,32 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     }
 
     // 6. resize window
-    scrWidth     = videoFrameSize.width;
-    scrHeight    = videoFrameSize.height;
-    scrWdivH     = (float)scrWidth / (float)scrHeight;
+
     resizeWindow = true;
 
     currentSlamParams->calibrationFile  = calibrationFile;
     currentSlamParams->mapFile          = mapFile;
-    currentSlamParams->storeKeyFrameImg = saveVideoFrames;
+    currentSlamParams->params.retainImg = params.retainImg;
     currentSlamParams->videoFile        = videoFile;
     currentSlamParams->vocabularyFile   = vocFile;
 
     result.wasSuccessful = true;
 
     return result;
+}
+
+bool WAIApp::checkCalibration(const std::string& calibDir, const std::string& calibFileName)
+{
+    CVCalibration testCalib;
+    testCalib.load(calibDir, calibFileName, false, false);
+    if (testCalib.cameraMat().empty() || testCalib.distortion().empty()) //app will crash if distortion is empty
+        return false;
+    if (testCalib.numCapturedImgs() == 0) //if this is 0 then the calibration is automatically invalidated in load()
+        return false;
+    if (testCalib.imageSize() == cv::Size(0, 0))
+        return false;
+
+    return true;
 }
 
 void WAIApp::setupGUI()
@@ -347,7 +365,6 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosSensors("sensors", &uiPrefs.showInfosSensors));
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosTracking("tracking", uiPrefs));
     AppDemoGui::addInfoDialog(new AppDemoGuiSlamLoad("slam load",
-                                                     wc,
                                                      dirs->writableDir + "erleb-AR/locations/",
                                                      dirs->writableDir + "calibrations/",
                                                      dirs->writableDir + "voc/",
@@ -358,7 +375,7 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiSceneGraph("scene graph", &uiPrefs.showSceneGraph));
     AppDemoGui::addInfoDialog(new AppDemoGuiStatsDebugTiming("debug timing", &uiPrefs.showStatsDebugTiming));
     AppDemoGui::addInfoDialog(new AppDemoGuiStatsTiming("timing", &uiPrefs.showStatsTiming));
-    AppDemoGui::addInfoDialog(new AppDemoGuiStatsVideo("video", wc, &uiPrefs.showStatsVideo));
+    AppDemoGui::addInfoDialog(new AppDemoGuiStatsVideo("video", CVCapture::instance()->activeCalib, &uiPrefs.showStatsVideo));
     AppDemoGui::addInfoDialog(new AppDemoGuiTrackedMapping("tracked mapping", &uiPrefs.showTrackedMapping));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTransform("transform", &uiPrefs.showTransform));
@@ -368,12 +385,11 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiVideoControls("video load", &uiPrefs.showVideoControls));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTestOpen("Tests Settings",
-                                                     wc,
                                                      waiScene->mapNode,
                                                      &uiPrefs.showTestSettings));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTestWrite("Test Writer",
-                                                      wc,
+                                                      CVCapture::instance()->activeCalib,
                                                       waiScene->mapNode,
                                                       videoWriter,
                                                       videoWriterInfo,
@@ -384,7 +400,6 @@ void WAIApp::setupGUI()
     errorDial = new AppDemoGuiError("Error", &uiPrefs.showError);
 
     AppDemoGui::addInfoDialog(errorDial);
-
     //TODO: AppDemoGuiInfosDialog are never deleted. Why not use smart pointer when the reponsibility for an object is not clear?
 }
 
@@ -417,7 +432,9 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
     sv->camera(waiScene->cameraNode);
 
     videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+    //testTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
     waiScene->cameraNode->background().texture(videoImage);
+    //waiScene->cameraNode->background().texture(testTexture);
 
     s->root3D(waiScene->rootNode);
 
@@ -434,17 +451,26 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
 
     ////setup gui at last because ui elements depend on other instances
     //setupGUI();
+    sv->setViewportFromRatio(SLVec2i(WAIApp::scrWidth, WAIApp::scrHeight), SLViewportAlign::VA_center, true);
 }
 
 //-----------------------------------------------------------------------------
 bool WAIApp::update()
 {
     AVERAGE_TIMING_START("WAIAppUpdate");
+    //resetAllTexture();
     if (!mode)
         return false;
 
     if (!loaded)
         return false;
+
+    if (CVCapture::instance()->lastFrame.empty() ||
+        CVCapture::instance()->lastFrame.cols == 0 && CVCapture::instance()->lastFrame.rows == 0)
+    {
+        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+        return false;
+    }
 
     bool iKnowWhereIAm = (mode->getTrackingState() == WAI::TrackingState_TrackingOK);
     while (videoCursorMoveIndex < 0)
@@ -559,6 +585,8 @@ bool WAIApp::update()
 
     AVERAGE_TIMING_STOP("WAIAppUpdate");
 
+    //we can undistort the image now
+
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -566,19 +594,20 @@ bool WAIApp::updateTracking()
 {
     bool iKnowWhereIAm = false;
 
-    if (CVCapture::instance()->videoType() != VT_NONE && !CVCapture::instance()->lastFrame.empty())
+    CVCapture* cap = CVCapture::instance();
+    if (cap->videoType() != VT_NONE && !cap->lastFrame.empty())
     {
         if (videoWriter->isOpened())
         {
-            videoWriter->write(CVCapture::instance()->lastFrame);
+            videoWriter->write(cap->lastFrame);
         }
 
-        iKnowWhereIAm = mode->update(CVCapture::instance()->lastFrameGray,
-                                     CVCapture::instance()->lastFrame);
+        iKnowWhereIAm = mode->update(cap->lastFrameGray,
+                                     cap->lastFrame);
 
         if (videoWriterInfo->isOpened())
         {
-            videoWriterInfo->write(CVCapture::instance()->lastFrame);
+            videoWriterInfo->write(cap->lastFrame);
         }
 
         if (gpsDataStream.is_open())
@@ -600,13 +629,33 @@ bool WAIApp::updateTracking()
 //-----------------------------------------------------------------------------
 void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
-    // refresh video image
-    videoImage->copyVideoImage(CVCapture::instance()->lastFrame.cols,
-                               CVCapture::instance()->lastFrame.rows,
-                               CVCapture::instance()->format,
-                               CVCapture::instance()->lastFrame.data,
-                               CVCapture::instance()->lastFrame.isContinuous(),
-                               true);
+    CVCapture* cap = CVCapture::instance();
+    //copy image to video texture
+    if (videoImage && cap->activeCalib)
+    {
+        if (cap->activeCalib->state() == CS_calibrated && cap->activeCalib->showUndistorted())
+        {
+            CVMat undistorted;
+            cap->activeCalib->remap(cap->lastFrame, undistorted);
+
+            videoImage->copyVideoImage(undistorted.cols,
+                                       undistorted.rows,
+                                       cap->format,
+                                       undistorted.data,
+                                       undistorted.isContinuous(),
+                                       true);
+        }
+        else
+        {
+            //cap->videoTexture()->copyVideoImage(cap->lastFrame.cols,
+            videoImage->copyVideoImage(cap->lastFrame.cols,
+                                       cap->lastFrame.rows,
+                                       cap->format,
+                                       cap->lastFrame.data,
+                                       cap->lastFrame.isContinuous(),
+                                       true);
+        }
+    }
 
     //update keypoints visualization (2d image points):
     //TODO: 2d visualization is still done in mode... do we want to keep it there?

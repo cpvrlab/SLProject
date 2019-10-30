@@ -20,11 +20,9 @@
 //-----------------------------------------------------------------------------
 
 AppDemoGuiTestOpen::AppDemoGuiTestOpen(const std::string& name,
-                                       WAICalibration*    wc,
                                        SLNode*            mapNode,
                                        bool*              activator)
   : AppDemoGuiInfosDialog(name, activator),
-    _wc(wc),
     _mapNode(mapNode)
 {
     _currentItem = 0;
@@ -78,17 +76,17 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
     {
         TestInfo info = _infos[_currentItem];
 
-        SlamParams params;
-        params.videoFile          = info.vidPath;
-        params.mapFile            = info.mapPath;
-        params.calibrationFile    = info.calPath;
-        params.vocabularyFile     = "";
-        params.markerFile         = "";
-        params.storeKeyFrameImg   = false;
-        params.trackOpticalFlow   = false;
-        params.trackingOnly       = false;
-        params.serial             = false;
-        OrbSlamStartResult result = WAIApp::startOrbSlam(&params);
+        SlamParams slamParams;
+        slamParams.videoFile           = info.vidPath;
+        slamParams.mapFile             = info.mapPath;
+        slamParams.calibrationFile     = info.calPath;
+        slamParams.vocabularyFile      = "";
+        slamParams.markerFile          = "";
+        slamParams.params.retainImg    = false;
+        slamParams.params.trackOptFlow = false;
+        slamParams.params.onlyTracking = false;
+        slamParams.params.serial       = false;
+        OrbSlamStartResult result      = WAIApp::startOrbSlam(&slamParams);
         if (!result.wasSuccessful)
         {
             WAIApp::errorDial->setErrorMsg(result.errorString);

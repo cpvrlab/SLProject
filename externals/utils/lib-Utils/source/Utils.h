@@ -101,6 +101,12 @@ string getFileNameWOExt(const string& pathFilename);
 //! Returns the file extension without dot in lower case
 string getFileExt(const string& filename);
 
+//! Returns a vector directory names with path in dir
+vector<string> getDirNamesInDir(const string& dirName);
+
+//! Returns a vector of sorted names (files and directories) with path in dir
+vector<string> getAllNamesInDir(const string& dirName);
+
 //! Returns a vector of storted filesnames in dirName
 vector<string> getFileNamesInDir(const string& dirName);
 

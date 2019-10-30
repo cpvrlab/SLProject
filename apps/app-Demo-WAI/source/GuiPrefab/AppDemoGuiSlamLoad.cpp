@@ -20,14 +20,12 @@
 #include <WAIMapStorage.h>
 
 AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
-                                       WAICalibration*    wc,
                                        std::string        slamRootDir,
                                        std::string        calibrationsDir,
                                        std::string        vocabulariesDir,
                                        SLNode*            mapNode,
                                        bool*              activator)
   : AppDemoGuiInfosDialog(name, activator),
-    _wc(wc),
     _slamRootDir(slamRootDir),
     _calibrationsDir(calibrationsDir),
     _vocabulariesDir(vocabulariesDir),
@@ -38,6 +36,7 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     _serial             = false;
     _trackingOnly       = false;
     _trackOpticalFlow   = false;
+    fixLoadedKfs        = false;
 
     _currentLocation    = "";
     _currentArea        = "";
@@ -54,6 +53,26 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
     _markerExtensions.push_back(".jpg");
 }
 
+void AppDemoGuiSlamLoad::loadDirNamesInVector(std::string               directory,
+                                              std::vector<std::string>& dirNames)
+{
+    dirNames.clear();
+
+    if (!Utils::dirExists(directory))
+    {
+        Utils::makeDir(directory);
+    }
+    else
+    {
+        std::vector<std::string> content = Utils::getDirNamesInDir(directory);
+        for (auto path : content)
+        {
+            std::string name = Utils::getFileName(path);
+            dirNames.push_back(name);
+        }
+    }
+}
+
 void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directory,
                                                std::vector<std::string>& fileNames,
                                                std::vector<std::string>& extensions,
@@ -67,7 +86,7 @@ void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directo
     }
     else
     {
-        std::vector<std::string> content = Utils::getFileNamesInDir(directory);
+        std::vector<std::string> content = Utils::getAllNamesInDir(directory);
         if (addEmpty) fileNames.push_back("");
 
         for (auto path : content)
@@ -172,7 +191,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 }
 
                 std::string filename = constructSlamMapFileName(_currentLocation, _currentArea, mapDateTime);
-                std::string imgDir   = constructSlamMapImgDir(_slamRootDir, filename);
+                std::string imgDir   = constructSlamMapImgDir(mapDir, filename);
 
                 if (WAIApp::mode->retainImage())
                 {
@@ -191,7 +210,6 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                     {
                         if (!WAIMapStorage::saveMap(WAIApp::mode->getMap(),
                                                     _mapNode,
-                                                    WAIApp::mode->getKPextractor()->GetName(),
                                                     mapDir + filename,
                                                     imgDir))
                         {
@@ -204,7 +222,6 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 {
                     if (!WAIMapStorage::saveMap(WAIApp::mode->getMap(),
                                                 _mapNode,
-                                                WAIApp::mode->getKPextractor()->GetName(),
                                                 mapDir + filename,
                                                 imgDir))
                     {
@@ -227,12 +244,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         if (ImGui::BeginCombo("Location", _currentLocation.c_str())) // The second parameter is the label previewed before opening the combo.
         {
             std::vector<std::string> availableLocations;
-            std::vector<std::string> extensions;
-            extensions.push_back("");
-            loadFileNamesInVector(_slamRootDir,
-                                  availableLocations,
-                                  extensions,
-                                  false);
+            loadDirNamesInVector(_slamRootDir,
+                                 availableLocations);
 
             for (int n = 0; n < availableLocations.size(); n++)
             {
@@ -280,7 +293,6 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
             if (!_currentArea.empty())
             {
-#ifndef ANDROID
                 if (ImGui::BeginCombo("Video", _currentVideo.c_str())) // The second parameter is the label previewed before opening the combo.
                 {
                     std::vector<std::string> availableVideos;
@@ -301,7 +313,6 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                     }
                     ImGui::EndCombo();
                 }
-#endif
 
                 if (ImGui::BeginCombo("Map", _currentMap.c_str())) // The second parameter is the label previewed before opening the combo.
                 {
@@ -391,10 +402,11 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             ImGui::EndCombo();
         }
 
-        ImGui::Checkbox("store keyframes image", &_storeKeyFrameImage);
+        ImGui::Checkbox("store/load keyframes image", &_storeKeyFrameImage);
         ImGui::Checkbox("track optical flow", &_trackOpticalFlow);
         ImGui::Checkbox("tracking only", &_trackingOnly);
         ImGui::Checkbox("serial", &_serial);
+        ImGui::Checkbox("fix Kfs and MPts loaded from map\n(disables loop closing)", &fixLoadedKfs);
 
         if (ImGui::Button("Start", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
         {
@@ -405,18 +417,20 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             }
             else
             {
-                SlamParams params;
-                params.videoFile        = (_currentVideo.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/videos/" + _currentVideo);
-                params.mapFile          = (_currentMap.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/maps/" + _currentMap);
-                params.calibrationFile  = (_currentCalibration.empty() ? "" : _calibrationsDir + _currentCalibration);
-                params.vocabularyFile   = (_currentVoc.empty() ? "" : _vocabulariesDir + _currentVoc);
-                params.markerFile       = (_currentMarker.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/markers/" + _currentMarker);
-                params.storeKeyFrameImg = _storeKeyFrameImage;
-                params.trackOpticalFlow = _trackOpticalFlow;
-                params.trackingOnly     = _trackingOnly;
-                params.serial           = _serial;
+                SlamParams slamParams;
+                slamParams.videoFile           = _currentVideo.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/videos/" + _currentVideo;
+                slamParams.mapFile             = _currentMap.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/maps/" + _currentMap;
+                slamParams.calibrationFile     = _currentCalibration.empty() ? "" : _calibrationsDir + _currentCalibration;
+                slamParams.vocabularyFile      = _currentVoc.empty() ? "" : _vocabulariesDir + _currentVoc;
+                slamParams.markerFile          = _currentMarker.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/markers/" + _currentMarker;
+                slamParams.params.retainImg    = _storeKeyFrameImage;
+                slamParams.params.trackOptFlow = _trackOpticalFlow;
+                slamParams.params.onlyTracking = _trackingOnly;
+                slamParams.params.serial       = _serial;
+                slamParams.params.fixOldKfs    = fixLoadedKfs;
 
-                OrbSlamStartResult startResult = WAIApp::startOrbSlam(&params);
+                OrbSlamStartResult startResult = WAIApp::startOrbSlam(&slamParams);
+                sv->setViewportFromRatio(SLVec2i(WAIApp::videoFrameSize.width, WAIApp::videoFrameSize.height), SLViewportAlign::VA_center, true);
 
                 if (!startResult.wasSuccessful)
                 {

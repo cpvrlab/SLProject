@@ -10,8 +10,7 @@ set(compile_definitions
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
-file(GLOB headers
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AverageTiming.h
+set(headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGui.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiMenu.h
@@ -39,16 +38,17 @@ file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestWrite.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAI.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ImageProcessor.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppDirectories.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.h
+    ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
+    ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     )
 
-file(GLOB sources
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AverageTiming.cpp
+set(sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGui.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiMenu.cpp
@@ -75,10 +75,12 @@ file(GLOB sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestOpen.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestWrite.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ImageProcessor.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAI.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIMapStorage.cpp
+    ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
     )
 
@@ -104,6 +106,7 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/
+    ${SL_PROJECT_ROOT}/apps/source/wai/
     PUBLIC
 
     INTERFACE

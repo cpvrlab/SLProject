@@ -89,10 +89,10 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
     SLApplication::createAppAndScene(applicationName, onSceneLoadCallback);
 }
 //-----------------------------------------------------------------------------
-/*! Global creation function for a SLSceneview instance returning the index of 
+/*! Global creation function for a SLSceneview instance returning the index of
 the sceneview. It creates the new SLSceneView instance by calling the callback
-function slNewSceneView. If you have a custom SLSceneView inherited class you 
-have to provide a similar function and pass it function pointer to 
+function slNewSceneView. If you have a custom SLSceneView inherited class you
+have to provide a similar function and pass it function pointer to
 slCreateSceneView. You can create multiple sceneview per application.<br>
 <br>
 See examples usages in:
@@ -151,8 +151,8 @@ int slCreateSceneView(int       screenWidth,
 }
 //-----------------------------------------------------------------------------
 /*! Global sceneview construction function returning the index of the created
-sceneview instance. If you have a custom SLSceneView inherited class you 
-have to provide a similar function and pass it function pointer to 
+sceneview instance. If you have a custom SLSceneView inherited class you
+have to provide a similar function and pass it function pointer to
 slCreateSceneView.
 */
 int slNewSceneView()
@@ -219,7 +219,7 @@ void slResize(int sceneViewIndex, int width, int height)
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for mouse button down events. 
+/*! Global event handler for mouse button down events.
 */
 void slMouseDown(int           sceneViewIndex,
                  SLMouseButton button,
@@ -294,7 +294,7 @@ void slLongTouch(int sceneViewIndex, int xpos, int ypos)
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for the two finger touch down events of touchscreen 
+/*! Global event handler for the two finger touch down events of touchscreen
 devices.
 */
 void slTouch2Down(int sceneViewIndex,
@@ -313,7 +313,7 @@ void slTouch2Down(int sceneViewIndex,
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for the two finger move events of touchscreen devices. 
+/*! Global event handler for the two finger move events of touchscreen devices.
 */
 void slTouch2Move(int sceneViewIndex,
                   int xpos1,
@@ -330,8 +330,8 @@ void slTouch2Move(int sceneViewIndex,
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for the two finger touch up events of touchscreen 
-devices. 
+/*! Global event handler for the two finger touch up events of touchscreen
+devices.
 */
 void slTouch2Up(int sceneViewIndex,
                 int xpos1,
@@ -348,7 +348,7 @@ void slTouch2Up(int sceneViewIndex,
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for mouse wheel events. 
+/*! Global event handler for mouse wheel events.
 */
 void slMouseWheel(int   sceneViewIndex,
                   int   pos,
@@ -361,7 +361,7 @@ void slMouseWheel(int   sceneViewIndex,
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for keyboard key press events. 
+/*! Global event handler for keyboard key press events.
 */
 void slKeyPress(int   sceneViewIndex,
                 SLKey key,
@@ -374,7 +374,7 @@ void slKeyPress(int   sceneViewIndex,
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for keyboard key release events. 
+/*! Global event handler for keyboard key release events.
 */
 void slKeyRelease(int   sceneViewIndex,
                   SLKey key,

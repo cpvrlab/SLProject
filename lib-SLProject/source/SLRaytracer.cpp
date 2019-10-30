@@ -65,8 +65,8 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     prepareImage();       // Setup image & precalculations
 
     // Measure time
-    double t1     = SLApplication::timeS();
-    double tStart = t1;
+    float t1     = SLApplication::timeS();
+    float tStart = t1;
 
     for (SLuint y = 0; y < _images[0]->height(); ++y)
     {
@@ -97,13 +97,13 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
         if (t2 - t1 > 0.5)
         {
             _pcRendered = (SLint)((SLfloat)y / (SLfloat)_images[0]->height() * 100);
-            finishBeforeUpdate();
+            renderUIBeforeUpdate();
             _sv->onWndUpdate();
             t1 = SLApplication::timeS();
         }
     }
 
-    _renderSec  = (SLfloat)(SLApplication::timeS() - tStart);
+    _renderSec  = SLApplication::timeS() - tStart;
     _pcRendered = 100;
 
     if (_doContinuous)
@@ -130,7 +130,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     prepareImage();       // Setup image & precalculations
 
     // Measure time
-    double t1 = SLApplication::timeS();
+    float t1 = SLApplication::timeS();
 
     // Bind render functions to be called multithreaded
     auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1);
@@ -173,7 +173,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
             thread.join();
     }
 
-    _renderSec  = (SLfloat)(SLApplication::timeS() - t1);
+    _renderSec  = SLApplication::timeS() - t1;
     _pcRendered = 100;
 
     if (_doContinuous)
@@ -234,7 +234,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
                     _pcRendered = (SLint)((SLfloat)y /
                                           (SLfloat)_images[0]->height() * 100);
                     if (_aaSamples > 0) _pcRendered /= 2;
-                    finishBeforeUpdate();
+                    renderUIBeforeUpdate();
                     _sv->onWndUpdate();
                     t1 = SLApplication::timeS();
                 }
@@ -320,7 +320,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
             {
                 if (SLApplication::timeS() - t1 > 0.5)
                 {
-                    finishBeforeUpdate();
+                    renderUIBeforeUpdate();
                     _sv->onWndUpdate();
                     t1 = SLApplication::timeS();
                 }
@@ -524,7 +524,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
         }
     }
 
-    if (!texture.empty() || ray->hitMesh->C.size())
+    if (!texture.empty() || !ray->hitMesh->C.empty())
     {
         localColor &= ray->hitColor; // component wise multiply
         localColor += localSpec;     // add afterwards the specular component
@@ -545,7 +545,7 @@ void SLRaytracer::getAAPixels()
     SLCol4f color, colorLeft, colorUp; // pixel colors to be compared
     SLVbool gotSampled;
     gotSampled.resize(_images[0]->width()); // Flags if above pixel got sampled
-    SLbool isSubsampled = false;            // Flag if pixel got subsampled
+    SLbool isSubsampled;                    // Flag if pixel got subsampled
 
     // Nothing got sampled at beginning
     for (SLuint x = 0; x < _images[0]->width(); ++x)
@@ -658,7 +658,7 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
             if (t2 - t1 > 0.5)
             {
                 _pcRendered = 50 + (SLint)((SLfloat)_next / (SLfloat)_aaPixels.size() * 50);
-                finishBeforeUpdate();
+                renderUIBeforeUpdate();
                 _sv->onWndUpdate();
                 t1 = SLApplication::timeS();
             }
@@ -831,14 +831,14 @@ Draw the RT-Image as a textured quad in 2D-Orthographic projection
 void SLRaytracer::renderImage()
 {
     SLRecti vpRect = _sv->viewportRect();
-    SLfloat w = (SLfloat)vpRect.width;
-    SLfloat h = (SLfloat)vpRect.height;
+    SLfloat w      = (SLfloat)vpRect.width;
+    SLfloat h      = (SLfloat)vpRect.height;
     if (Utils::abs(_images[0]->width() - w) > 0.0001f) return;
     if (Utils::abs(_images[0]->height() - h) > 0.0001f) return;
 
     // Set orthographic projection with the size of the window
     SLGLState* stateGL = SLGLState::instance();
-    stateGL->viewport(vpRect.x, vpRect.y, w, h);
+    stateGL->viewport(vpRect.x, vpRect.y, (size_t)w, (size_t)h);
     stateGL->projectionMatrix.ortho(0.0f, w, 0.0f, h, -1.0f, 0.0f);
     stateGL->modelViewMatrix.identity();
     stateGL->clearColorBuffer();
@@ -867,7 +867,7 @@ We therefore call every half second _sv->onWndUpdate() that initiates another
 paint message from the top-level UI system of the OS. We therefore have to
 finish our UI and end OpenGL rendering properly.
 */
-void SLRaytracer::finishBeforeUpdate()
+void SLRaytracer::renderUIBeforeUpdate()
 {
     ImGui::Render();
     SLGLState::instance()->unbindAnythingAndFlush();

@@ -19,7 +19,7 @@ mutex             WAIMapPoint::mGlobalMutex;
 
 //-----------------------------------------------------------------------------
 //!constructor used during map loading
-WAIMapPoint::WAIMapPoint(int id, const cv::Mat& Pos, WAIMap* pMap)
+WAIMapPoint::WAIMapPoint(int id, const cv::Mat& Pos, WAIMap* pMap, bool fixMp)
   : mnId(id),
     mnFirstKFid(-1),
     /* mnFirstFrame(pRefKF->mnFrameId), */ nObs(0),
@@ -38,7 +38,8 @@ WAIMapPoint::WAIMapPoint(int id, const cv::Mat& Pos, WAIMap* pMap)
     mpReplaced(static_cast<WAIMapPoint*>(NULL)),
     mfMinDistance(0),
     mfMaxDistance(0),
-    mpMap(pMap)
+    mpMap(pMap),
+    _fixed(fixMp)
 {
     SetWorldPos(Pos);
     mNormalVector = cv::Mat::zeros(3, 1, CV_32F);
@@ -48,9 +49,12 @@ WAIMapPoint::WAIMapPoint(int id, const cv::Mat& Pos, WAIMap* pMap)
         nNextId = id + 1;
 }
 //-----------------------------------------------------------------------------
-WAIMapPoint::WAIMapPoint(const cv::Mat& Pos, WAIKeyFrame* pRefKF, WAIMap* pMap)
+WAIMapPoint::WAIMapPoint(const cv::Mat& Pos,
+                         WAIKeyFrame*   pRefKF,
+                         WAIMap*        pMap)
   : mnFirstKFid(pRefKF->mnId),
-    /* mnFirstFrame(pRefKF->mnFrameId), */ nObs(0),
+    /* mnFirstFrame(pRefKF->mnFrameId), */
+    nObs(0),
     mnTrackReferenceForFrame(0),
     mnLastFrameSeen(0),
     mnBALocalForKF(0),
@@ -66,7 +70,8 @@ WAIMapPoint::WAIMapPoint(const cv::Mat& Pos, WAIKeyFrame* pRefKF, WAIMap* pMap)
     mpReplaced(static_cast<WAIMapPoint*>(NULL)),
     mfMinDistance(0),
     mfMaxDistance(0),
-    mpMap(pMap)
+    mpMap(pMap),
+    _fixed(false)
 {
     SetWorldPos(Pos);
     //Pos.copyTo(mWorldPos);
