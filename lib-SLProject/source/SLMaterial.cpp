@@ -33,7 +33,8 @@ SLMaterial::SLMaterial(const SLchar*  name,
                        SLfloat        shininess,
                        SLfloat        kr,
                        SLfloat        kt,
-                       SLfloat        kn) : SLObject(name)
+                       SLfloat        kn,
+                       SLGLProgram*   program) : SLObject(name)
 {
     _ambient = _diffuse = amdi;
     _specular           = spec;
@@ -42,7 +43,7 @@ SLMaterial::SLMaterial(const SLchar*  name,
     _roughness    = 0.5f;
     _metalness    = 0.0f;
     _translucency = 0.0f;
-    _program      = nullptr;
+    _program      = program;
 
     _kr = kr;
     _kt = kt;
@@ -88,6 +89,18 @@ SLMaterial::SLMaterial(const SLchar* name,
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->materials().push_back(this);
 }
+//-----------------------------------------------------------------------------
+// Ctor for cone tracer
+SLMaterial::SLMaterial(const SLchar* name,
+                       SLGLProgram*  shaderProg) : SLObject(name)
+{
+
+    _program = shaderProg;
+
+    // Add pointer to the global resource vectors for deallocation
+    SLApplication::scene->materials().push_back(this);
+}
+
 //-----------------------------------------------------------------------------
 // Ctor for Cook-Torrance shading
 SLMaterial::SLMaterial(const SLchar*  name,
@@ -139,6 +152,25 @@ Such shared resources get deleted in the arrays of SLScene.
 */
 SLMaterial::~SLMaterial()
 {
+}
+//-----------------------------------------------------------------------------
+/*! Upload material settings to the GPU for a given shader program. This is 
+useful if one wants to handle shader and material separatly from one another.
+ */
+void SLMaterial::upload(SLuint program)
+{
+    glUniform4fv(glGetUniformLocation(program, "u_matAmbient"), 1, (SLfloat*)&_ambient);
+    glUniform4fv(glGetUniformLocation(program, "u_matDiffuse"), 1, (SLfloat*)&_diffuse);
+    glUniform4fv(glGetUniformLocation(program, "u_matSpecular"), 1, (SLfloat*)&_specular);
+    glUniform4fv(glGetUniformLocation(program, "u_matEmissive"), 1, (SLfloat*)&_emissive);
+
+    glUniform1f(glGetUniformLocation(program, "u_matShininess"), _shininess);
+    glUniform1f(glGetUniformLocation(program, "u_matRoughness"), _roughness);
+    glUniform1f(glGetUniformLocation(program, "u_matMetallic"), _metalness);
+
+    glUniform1f(glGetUniformLocation(program, "u_matKr"), _kr);
+    glUniform1f(glGetUniformLocation(program, "u_matKt"), _kt);
+    glUniform1f(glGetUniformLocation(program, "u_matKn"), _kn);
 }
 //-----------------------------------------------------------------------------
 /*!

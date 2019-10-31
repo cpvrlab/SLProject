@@ -30,7 +30,8 @@ extern char* aGLSLErrorString[];
 //-----------------------------------------------------------------------------
 //! Ctor with a vertex and a fragment shader filename.
 SLGLProgram::SLGLProgram(SLstring vertShaderFile,
-                         SLstring fragShaderFile) : SLObject("")
+                         SLstring fragShaderFile,
+                         SLstring geomShaderFile) : SLObject("")
 {
     _isLinked = false;
     _objectGL = 0;
@@ -38,6 +39,8 @@ SLGLProgram::SLGLProgram(SLstring vertShaderFile,
     // optional load vertex and/or fragment shaders
     addShader(new SLGLShader(defaultPath + vertShaderFile, ST_vertex));
     addShader(new SLGLShader(defaultPath + fragShaderFile, ST_fragment));
+    if (!geomShaderFile.empty())
+        addShader(new SLGLShader(defaultPath + geomShaderFile, ST_geometry));
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->programs().push_back(this);
@@ -78,6 +81,47 @@ void SLGLProgram::addShader(SLGLShader* shader)
 {
     assert(shader);
     _shaders.push_back(shader);
+}
+//-----------------------------------------------------------------------------
+/*! SLGLProgram::initRaw() does not replace any code from the shader and 
+assumes valid syntax for the shader used.
+ */
+void SLGLProgram::initRaw()
+{
+    // create program object if it doesn't exist
+    if (!_objectGL) _objectGL = glCreateProgram();
+
+    for (auto shader : _shaders)
+    {
+        shader->createAndCompileSimple();
+    }
+
+    // Add shaders:
+    for (auto shader : _shaders)
+    {
+        glAttachShader(_objectGL, shader->_objectGL);
+        GET_GL_ERROR;
+    }
+
+    glLinkProgram(_objectGL);
+
+    GLint success;
+    glGetProgramiv(_objectGL, GL_LINK_STATUS, &success);
+
+    if (!success)
+    {
+        GLchar log[1024];
+        glGetProgramInfoLog(_objectGL, 1024, nullptr, log);
+        std::cerr << "- Failed to link program (" << _objectGL << ")." << std::endl;
+        std::cerr << "LOG: " << std::endl
+                  << log << std::endl;
+    }
+
+    for (auto shader : _shaders)
+    {
+        glDeleteShader(shader->_objectGL);
+        GET_GL_ERROR;
+    }
 }
 //-----------------------------------------------------------------------------
 /*! SLGLProgram::init creates the OpenGL shaderprogram object, compiles all

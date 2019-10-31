@@ -993,6 +993,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderSkyBox);
                     if (ImGui::MenuItem("Earth Shader", nullptr, sid == SID_ShaderEarth))
                         s->onLoad(s, sv, SID_ShaderEarth);
+                    if (ImGui::MenuItem("Voxel Cone Tracing Shader", nullptr, sid == SID_ShaderVoxelConeDemo))
+                        s->onLoad(s, sv, SID_ShaderVoxelConeDemo);
 
                     ImGui::EndMenu();
                 }
@@ -1352,6 +1354,17 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Path Tracing (PT)", nullptr, rType == RT_pt))
                 sv->startPathtracing(5, 10);
 
+            if (glewIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
+            {
+                if (ImGui::MenuItem("Cone Tracing (CT)", "C", rType == RT_ct))
+                    sv->startConetracing();
+            }
+            else
+            {
+                if (ImGui::MenuItem("Cone Tracing (CT) (GL 4.4 or higher)", nullptr, rType == RT_ct, false))
+                    sv->startConetracing();
+            }
+
             ImGui::EndMenu();
         }
 
@@ -1517,6 +1530,48 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     sv->startPathtracing(5, 1);
                 }
                 ImGui::PopItemWidth();
+
+                ImGui::EndMenu();
+            }
+        }
+        else if (rType == RT_ct)
+        {
+            if (ImGui::BeginMenu("CT-Setting"))
+            {
+                if (ImGui::MenuItem("Show Voxelization", nullptr, sv->conetracer()->voxelVisualization()))
+                    sv->conetracer()->toggleVoxelVisualization();
+
+                if (ImGui::MenuItem("Direct illumination", nullptr, sv->conetracer()->directIllum()))
+                    sv->conetracer()->toggleDirectIllum();
+
+                if (ImGui::MenuItem("Diffuse indirect illumination", nullptr, sv->conetracer()->diffuseIllum()))
+                    sv->conetracer()->toggleDiffuseIllum();
+
+                if (ImGui::MenuItem("Specular indirect illumination", nullptr, sv->conetracer()->specularIllum()))
+                    sv->conetracer()->toggleSpecIllumination();
+
+                if (ImGui::MenuItem("Shadows", nullptr, sv->conetracer()->shadows()))
+                    sv->conetracer()->toggleShadows();
+
+                SLfloat angle = sv->conetracer()->diffuseConeAngle();
+                if (ImGui::SliderFloat("Diffuse cone angle (rad)", &angle, 0.f, 1.5f))
+                    sv->conetracer()->diffuseConeAngle(angle);
+
+                SLfloat specAngle = sv->conetracer()->specularConeAngle();
+                if (ImGui::SliderFloat("Specular cone angle (rad)", &specAngle, 0.004f, 0.5f))
+                    sv->conetracer()->specularConeAngle(specAngle);
+
+                SLfloat shadowAngle = sv->conetracer()->shadowConeAngle();
+                if (ImGui::SliderFloat("Shadow cone angle (rad)", &shadowAngle, 0.f, 1.5f))
+                    sv->conetracer()->shadowConeAngle(shadowAngle);
+
+                SLfloat lightSize = sv->conetracer()->lightMeshSize();
+                if (ImGui::SliderFloat("Max. size of a lightsource mesh", &lightSize, 0.0f, 100.0f))
+                    sv->conetracer()->lightMeshSize(lightSize);
+
+                SLfloat gamma = sv->conetracer()->gamma();
+                if (ImGui::SliderFloat("Gamma", &gamma, 1.0f, 3.0f))
+                    sv->conetracer()->gamma(gamma);
 
                 ImGui::EndMenu();
             }

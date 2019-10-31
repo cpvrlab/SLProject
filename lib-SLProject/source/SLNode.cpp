@@ -34,8 +34,8 @@ Default constructor just setting the name.
 */
 SLNode::SLNode(const SLstring& name) : SLObject(name)
 {
-    _parent  = nullptr;
-    _depth   = 1;
+    _parent = nullptr;
+    _depth  = 1;
     _om.identity();
     _wm.identity();
     _wmI.identity();
@@ -52,8 +52,8 @@ Constructor with a mesh pointer and name.
 */
 SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
 {
-    _parent  = nullptr;
-    _depth   = 1;
+    _parent = nullptr;
+    _depth  = 1;
     _om.identity();
     _wm.identity();
     _wmI.identity();
@@ -293,7 +293,23 @@ void SLNode::drawMeshes(SLSceneView* sv)
             mesh->draw(sv, this);
 }
 //-----------------------------------------------------------------------------
+//! Renders the node with a specific shader program id
+void SLNode::draw(SLuint programId)
+{
+    // upload model and mvp matrix:
+    glUniformMatrix4fv(glGetUniformLocation(programId,
+                                            "u_mMatrix"),
+                       1,
+                       GL_FALSE,
+                       (SLfloat*)&this->updateAndGetWM());
 
+    // draw meshes:
+    for (auto mesh : _meshes)
+    {
+        mesh->mat()->upload(programId);
+        mesh->draw(programId);
+    }
+}
 //-----------------------------------------------------------------------------
 /*!
 Adds a child node to the children vector
@@ -334,7 +350,7 @@ Deletes all child nodes.
 */
 void SLNode::deleteChildren()
 {
-    for (auto & i : _children)
+    for (auto& i : _children)
         delete i;
     _children.clear();
 }

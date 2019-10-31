@@ -117,12 +117,13 @@ transformed vertices and normals are stored in _finalP and _finalN.
 
 class SLMesh : public SLObject
 {
-    public:
+public:
     explicit SLMesh(const SLstring& name = "Mesh");
     ~SLMesh() override;
 
     virtual void init(SLNode* node);
     virtual void draw(SLSceneView* sv, SLNode* node);
+    void         draw(SLuint progId);
     void         addStats(SLNodeStats& stats);
     virtual void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
     void         updateAccelStruct();
@@ -176,7 +177,7 @@ class SLMesh : public SLObject
     SLVec3f minP; //!< min. vertex in OS
     SLVec3f maxP; //!< max. vertex in OS
 
-    protected:
+protected:
     SLGLPrimitiveType  _primitive; //!< Primitive type (default triangles)
     SLMaterial*        _mat;       //!< Pointer to the inside material
     SLMaterial*        _matOut;    //!< Pointer to the outside material
@@ -195,6 +196,9 @@ class SLMesh : public SLObject
     SLVVec3f*   _finalN;        //!< pointer to final vertex normal vector
 
     void notifyParentNodesAABBUpdate() const;
+
+private:
+    void generateVAO(SLuint progId);
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLMesh*> SLVMesh;

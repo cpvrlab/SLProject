@@ -81,6 +81,49 @@ SLGLShader::~SLGLShader()
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
+SLbool SLGLShader::createAndCompileSimple()
+{
+    // delete if object already exits
+    if (_objectGL) glDeleteShader(_objectGL);
+
+    if (_code != "")
+    {
+        switch (_type)
+        {
+            case ST_vertex:
+                _objectGL = glCreateShader(GL_VERTEX_SHADER);
+                break;
+            case ST_fragment:
+                _objectGL = glCreateShader(GL_FRAGMENT_SHADER);
+                break;
+            case ST_geometry:
+                _objectGL = glCreateShader(GL_GEOMETRY_SHADER);
+                break;
+            default:
+                SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
+        }
+    }
+
+    const char* src = _code.c_str();
+    glShaderSource(_objectGL, 1, &src, nullptr);
+    glCompileShader(_objectGL);
+
+    // Check compiler log
+    SLint compileSuccess = 0;
+    glGetShaderiv(_objectGL, GL_COMPILE_STATUS, &compileSuccess);
+    if (compileSuccess == GL_FALSE)
+    {
+        GLchar log[256];
+        glGetShaderInfoLog(_objectGL, sizeof(log), nullptr, &log[0]);
+        SL_LOG("*** COMPILER ERROR ***\n");
+        SL_LOG("Source file: %s\n", _file.c_str());
+        SL_LOG("%s\n---\n", log);
+        SL_LOG("%s\n", src);
+        return false;
+    }
+    return true;
+}
+//-----------------------------------------------------------------------------
 //! SLGLShader::createAndCompile creates & compiles the OpenGL shader object
 /*!
 All shaders are written with the initial GLSL version 110 and are therefore

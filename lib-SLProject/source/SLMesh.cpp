@@ -554,6 +554,38 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     if (blended) stateGL->blend(true);
 }
 //-----------------------------------------------------------------------------
+//!Renders a mesh with a specific shader program id
+void SLMesh::draw(SLuint progId)
+{
+    GET_GL_ERROR;
+    // generate a VAO if it does not exist yet
+    if (!_vao.id())
+    {
+        generateVAO(progId);
+    }
+
+    // bind the buffer
+    glBindVertexArray(_vao.id());
+    GET_GL_ERROR;
+
+    //std::cout << "number of vertices for object: " << _vao.numIndices();
+    glDrawElements(GL_TRIANGLES, _vao.numIndices(), GL_UNSIGNED_SHORT, 0);
+    GET_GL_ERROR;
+}
+//-----------------------------------------------------------------------------
+void SLMesh::generateVAO(SLuint progId)
+{
+    _vao.setAttrib(AT_position, glGetAttribLocation(progId, "a_position"), _finalP);
+    if (N.size()) _vao.setAttrib(AT_normal, glGetAttribLocation(progId, "a_normal"), _finalN);
+    if (Tc.size()) _vao.setAttrib(AT_texCoord, glGetAttribLocation(progId, "a_texCoord"), &Tc);
+    if (C.size()) _vao.setAttrib(AT_color, glGetAttribLocation(progId, "a_color"), &C);
+    if (T.size()) _vao.setAttrib(AT_tangent, glGetAttribLocation(progId, "a_tangent"), &T);
+    if (I16.size()) _vao.setIndices(&I16);
+    if (I32.size()) _vao.setIndices(&I32);
+
+    _vao.generate((SLuint)P.size(), Ji.size() ? BU_stream : BU_static, !Ji.size());
+}
+//-----------------------------------------------------------------------------
 /*!
 SLMesh::hit does the ray-mesh intersection test. If no acceleration 
 structure is defined all triangles are tested in a brute force manner.

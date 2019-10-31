@@ -11,6 +11,7 @@
 #ifndef SLGLTEXTURE_H
 #define SLGLTEXTURE_H
 
+#include <SLObject.h>
 #include <CVImage.h>
 #include <SLGLVertexArray.h>
 #include <SLMat4.h>
@@ -116,7 +117,7 @@ class SLGLTexture : public SLObject
                 SLint           mag_filter = GL_LINEAR,
                 SLTextureType   type       = TT_unknown);
 
-    ~SLGLTexture() override;
+    virtual ~SLGLTexture();
 
     void clearData();
     void build(SLint texID = 0);

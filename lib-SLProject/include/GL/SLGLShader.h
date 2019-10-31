@@ -57,6 +57,7 @@ class SLGLShader : public SLObject
     void     load(SLstring filename);
     void     loadFromMemory(SLstring program);
     SLbool   createAndCompile();
+    SLbool   createAndCompileSimple();
     SLstring removeComments(SLstring src);
     SLstring typeName();
 

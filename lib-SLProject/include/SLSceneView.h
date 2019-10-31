@@ -20,6 +20,7 @@
 #include <SLNode.h>
 #include <SLPathtracer.h>
 #include <SLRaytracer.h>
+#include <SLGLConetracer.h>
 #include <SLScene.h>
 #include <SLSkybox.h>
 #include <SLRect.h>
@@ -66,7 +67,7 @@ class SLSceneView : public SLObject
     friend class SLRaytracer;
     friend class SLPathtracer;
 
-    public:
+public:
     SLSceneView();
     ~SLSceneView() override;
 
@@ -111,6 +112,7 @@ class SLSceneView : public SLObject
     void   draw2DGLNodes();
     SLbool draw3DRT();
     SLbool draw3DPT();
+    SLbool draw3DCT();
 
     // SceneView camera
     void   initSceneViewCamera(const SLVec3f& dir  = -SLVec3f::AXISZ,
@@ -123,6 +125,7 @@ class SLSceneView : public SLObject
     SLstring windowTitle();
     void     startRaytracing(SLint maxDepth);
     void     startPathtracing(SLint maxDepth, SLint samples);
+    void     startConetracing();
     void     printStats() { _stats3D.print(); }
     void     setViewportFromRatio(const SLVec2i&  vpRatio,
                                   SLViewportAlign vpAlignment,
@@ -172,6 +175,7 @@ class SLSceneView : public SLObject
     SLVNode*        nodesBlended() { return &_nodesBlended; }
     SLRaytracer*    raytracer() { return &_raytracer; }
     SLPathtracer*   pathtracer() { return &_pathtracer; }
+    SLGLConetracer* conetracer() { return &_conetracer; }
     SLRenderType    renderType() const { return _renderType; }
     SLGLOculusFB*   oculusFB() { return &_oculusFB; }
     SLDrawBits*     drawBits() { return &_drawBits; }
@@ -184,7 +188,7 @@ class SLSceneView : public SLObject
 
     static const SLint LONGTOUCH_MS; //!< Milliseconds duration of a long touch event
 
-    protected:
+protected:
     SLuint       _index;           //!< index of this pointer in SLScene::sceneView vector
     SLCamera*    _camera;          //!< Pointer to the _active camera
     SLCamera     _sceneViewCamera; //!< Default camera for this SceneView (default cam not in scenegraph)
@@ -232,10 +236,11 @@ class SLSceneView : public SLObject
     SLVNode _nodesVisible2D; //!< Vector of all visible 2D nodes drawn in ortho projection
     SLVNode _nodesBlended;   //!< Vector of visible and blended nodes
 
-    SLRaytracer  _raytracer;  //!< Whitted style raytracer
-    SLbool       _stopRT;     //!< Flag to stop the RT
-    SLPathtracer _pathtracer; //!< Pathtracer
-    SLbool       _stopPT;     //!< Flag to stop the PT
+    SLRaytracer    _raytracer;  //!< Whitted style raytracer
+    SLbool         _stopRT;     //!< Flag to stop the RT
+    SLPathtracer   _pathtracer; //!< Pathtracer
+    SLbool         _stopPT;     //!< Flag to stop the PT
+    SLGLConetracer _conetracer; //!< Conetracer CT
 };
 //-----------------------------------------------------------------------------
 #endif
