@@ -194,7 +194,8 @@ SLbool SLNode::deleteMesh(SLMesh* mesh)
     return false;
 }
 //-----------------------------------------------------------------------------
-/*!
+/*! Finds a mesh by name and returns its pointer. Optionally you can search
+
 */
 SLMesh* SLNode::findMesh(const SLstring& name, SLbool recursive)
 {
@@ -296,12 +297,9 @@ void SLNode::drawMeshes(SLSceneView* sv)
 //! Renders the node with a specific shader program id
 void SLNode::draw(SLuint programId)
 {
-    // upload model and mvp matrix:
-    glUniformMatrix4fv(glGetUniformLocation(programId,
-                                            "u_mMatrix"),
-                       1,
-                       GL_FALSE,
-                       (SLfloat*)&this->updateAndGetWM());
+    // pass the model matrix:
+    GLint loc = glGetUniformLocation(programId, "u_mMatrix");
+    glUniformMatrix4fv(loc, 1, GL_FALSE, (SLfloat*)&this->updateAndGetWM());
 
     // draw meshes:
     for (auto mesh : _meshes)

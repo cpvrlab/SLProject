@@ -34,8 +34,7 @@ public:
     void    voxelize();
     void    renderNode(SLNode* node, const SLuint progid); // <-- renders a node with all its children
     void    uploadLights(SLuint programId);
-    void    visualizeVoxelization();
-    void    renderConetraced();
+    void    visualizeVoxels();
     SLfloat diffuseConeAngle() { return _diffuseConeAngle; };
     void    diffuseConeAngle(SLfloat angle) { _diffuseConeAngle = angle; };
     SLfloat specularConeAngle() { return _specularConeAngle; };
@@ -46,16 +45,16 @@ public:
     void    lightMeshSize(SLfloat size) { _lightMeshSize = size; };
     SLfloat shadowConeAngle() { return _shadowConeAngle; };
     void    shadowConeAngle(SLfloat angle) { _shadowConeAngle = angle; };
-    void    toggleVoxelVisualization() { _voxelVisualize = !_voxelVisualize; }
-    SLbool  voxelVisualization() { return _voxelVisualize; }
-    void    toggleDirectIllum() { _directIllum = !_directIllum; }
-    SLbool  directIllum() { return _directIllum; }
-    void    toggleDiffuseIllum() { _diffuseIllum = !_diffuseIllum; }
-    SLbool  diffuseIllum() { return _diffuseIllum; }
-    void    toggleSpecIllumination() { _specularIllum = !_specularIllum; }
-    SLbool  specularIllum() { return _specularIllum; }
-    void    toggleShadows() { _shadows = !_shadows; }
-    SLbool  shadows() { return _shadows; }
+    SLbool  showVoxels() { return _showVoxels; }
+    SLbool  doDirectIllum() { return _doDirectIllum; }
+    SLbool  doDiffuseIllum() { return _doDiffuseIllum; }
+    SLbool  doSpecularIllum() { return _doSpecularIllum; }
+    void    toggleVoxels() { _showVoxels = !_showVoxels; }
+    void    toggleDirectIllum() { _doDirectIllum = !_doDirectIllum; }
+    void    toggleDiffuseIllum() { _doDiffuseIllum = !_doDiffuseIllum; }
+    void    toggleSpecIllumination() { _doSpecularIllum = !_doSpecularIllum; }
+    void    toggleShadows() { _doShadows = !_doShadows; }
+    SLbool  shadows() { return _doShadows; }
     SLfloat gamma() { return _gamma; };
     void    gamma(SLfloat gamma) { _gamma = gamma; };
 
@@ -93,11 +92,11 @@ private:
     SLfloat      _shadowConeAngle   = 0.f;
     SLfloat      _lightMeshSize     = 2.7f;
 
-    SLbool _voxelVisualize = false;
-    SLbool _directIllum    = true;
-    SLbool _diffuseIllum   = true;
-    SLbool _specularIllum  = true;
-    SLbool _shadows        = true;
+    SLbool _showVoxels      = false;
+    SLbool _doDirectIllum   = true;
+    SLbool _doDiffuseIllum  = true;
+    SLbool _doSpecularIllum = true;
+    SLbool _doShadows       = true;
 
     SLMat4f* _wsToVoxelSpace = new SLMat4f();
 };

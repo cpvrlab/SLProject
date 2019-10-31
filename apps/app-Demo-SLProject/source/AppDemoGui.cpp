@@ -1538,16 +1538,16 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         {
             if (ImGui::BeginMenu("CT-Setting"))
             {
-                if (ImGui::MenuItem("Show Voxelization", nullptr, sv->conetracer()->voxelVisualization()))
-                    sv->conetracer()->toggleVoxelVisualization();
+                if (ImGui::MenuItem("Show Voxelization", nullptr, sv->conetracer()->showVoxels()))
+                    sv->conetracer()->toggleVoxels();
 
-                if (ImGui::MenuItem("Direct illumination", nullptr, sv->conetracer()->directIllum()))
+                if (ImGui::MenuItem("Direct illumination", nullptr, sv->conetracer()->doDirectIllum()))
                     sv->conetracer()->toggleDirectIllum();
 
-                if (ImGui::MenuItem("Diffuse indirect illumination", nullptr, sv->conetracer()->diffuseIllum()))
+                if (ImGui::MenuItem("Diffuse indirect illumination", nullptr, sv->conetracer()->doDiffuseIllum()))
                     sv->conetracer()->toggleDiffuseIllum();
 
-                if (ImGui::MenuItem("Specular indirect illumination", nullptr, sv->conetracer()->specularIllum()))
+                if (ImGui::MenuItem("Specular indirect illumination", nullptr, sv->conetracer()->doSpecularIllum()))
                     sv->conetracer()->toggleSpecIllumination();
 
                 if (ImGui::MenuItem("Shadows", nullptr, sv->conetracer()->shadows()))

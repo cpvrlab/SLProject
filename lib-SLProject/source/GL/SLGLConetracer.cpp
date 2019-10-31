@@ -83,7 +83,7 @@ void SLGLConetracer::init(SLint scrW, SLint scrH)
     calcWS2VoxelSpaceTransform();
 }
 //-----------------------------------------------------------------------------
-void SLGLConetracer::visualizeVoxelization()
+void SLGLConetracer::visualizeVoxels()
 {
     // store viewport
     GLint m_viewport[4];
@@ -148,39 +148,30 @@ SLbool SLGLConetracer::render(SLSceneView* sv)
 
     voxelize();
 
-    if (_voxelVisualize)
+    if (_showVoxels)
     {
-        visualizeVoxelization();
+        visualizeVoxels();
     }
     else
     {
-        renderConetraced();
+        SLuint progId = _conetraceMat->program()->progid();
+        GET_GL_ERROR;
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        GET_GL_ERROR;
+
+        glUseProgram(progId);
+
+        renderSceneGraph(progId);
     }
     GET_GL_ERROR;
-    // reset vp after voxelization:
-    // GL Settings.
-
-    // SL_LOG("I can render!      : SLConetracer\n");
     return true;
-}
-//-----------------------------------------------------------------------------
-void SLGLConetracer::renderConetraced()
-{
-    SLuint progId = _conetraceMat->program()->progid();
-    GET_GL_ERROR;
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    GET_GL_ERROR;
-
-    glUseProgram(progId);
-
-    renderSceneGraph(progId);
 }
 //-----------------------------------------------------------------------------
 void SLGLConetracer::uploadLights(SLuint progId)
@@ -213,19 +204,17 @@ void SLGLConetracer::uploadLights(SLuint progId)
         glUniform1iv(glGetUniformLocation(progId, "u_lightDoAtt"), nL, (SLint*)stateGL->lightDoAtt);
     }
 }
-
+//-----------------------------------------------------------------------------
 void SLGLConetracer::uploadRenderSettings(SLuint progId)
 {
     glUniform1f(glGetUniformLocation(progId, "s_diffuseConeAngle"), _diffuseConeAngle);
     glUniform1f(glGetUniformLocation(progId, "s_specularConeAngle"), _specularConeAngle);
     glUniform1f(glGetUniformLocation(progId, "s_shadowConeAngle"), _shadowConeAngle);
-    glUniform1i(glGetUniformLocation(progId, "s_directEnabled"), _directIllum);
-    glUniform1i(glGetUniformLocation(progId, "s_diffuseEnabled"), _diffuseIllum);
-    glUniform1i(glGetUniformLocation(progId, "s_specEnabled"), _specularIllum);
-    glUniform1i(glGetUniformLocation(progId, "s_shadowsEnabled"), _shadows);
-
+    glUniform1i(glGetUniformLocation(progId, "s_directEnabled"), _doDirectIllum);
+    glUniform1i(glGetUniformLocation(progId, "s_diffuseEnabled"), _doDiffuseIllum);
+    glUniform1i(glGetUniformLocation(progId, "s_specEnabled"), _doSpecularIllum);
+    glUniform1i(glGetUniformLocation(progId, "s_shadowsEnabled"), _doShadows);
     glUniform1f(glGetUniformLocation(progId, "s_lightMeshSize"), _lightMeshSize);
-
     glUniform1f(glGetUniformLocation(progId, "u_oneOverGamma"), oneOverGamma());
 }
 //-----------------------------------------------------------------------------
@@ -236,7 +225,12 @@ void SLGLConetracer::voxelSpaceTransform(const SLfloat l,
                                          const SLfloat n,
                                          const SLfloat f)
 {
-    _wsToVoxelSpace->setMatrix(1 / (r - l), 0, 0, -l / (r - l), 0, 1 / (t - b), 0, -b / (t - b), 0, 0, 1 / (f - n), -n / (f - n), 0, 0, 0, 1);
+    // clang-format off
+    _wsToVoxelSpace->setMatrix(1/(r-l),      0,      0,-l/(r-l),
+                                     0,1/(t-b),      0,-b/(t-b),
+                                     0,      0,1/(f-n),-n/(f-n),
+                                     0,      0,      0,      1);
+    //clang-format on
 }
 //-----------------------------------------------------------------------------
 void SLGLConetracer::calcWS2VoxelSpaceTransform()
@@ -246,9 +240,8 @@ void SLGLConetracer::calcWS2VoxelSpaceTransform()
 
     SLNode*   root = s->root3D();
     SLAABBox* aabb = root->aabb();
-
-    SLVec3f minWs = aabb->minWS();
-    SLVec3f maxWs = aabb->maxWS();
+    SLVec3f   minWs = aabb->minWS();
+    SLVec3f   maxWs = aabb->maxWS();
 
     // figure out biggest component:
     SLVec3f p1 = maxWs - minWs;
@@ -274,14 +267,15 @@ void SLGLConetracer::renderSceneGraph(SLuint progId)
     glUniformMatrix4fv(loc, 1, GL_FALSE, (SLfloat*)_wsToVoxelSpace->m());
 
     uploadRenderSettings(progId);
-    // upload light settings:
     GET_GL_ERROR;
+
+    // upload light settings:
     uploadLights(progId);
     GET_GL_ERROR;
+
     // upload camera position:
     SLVec3f camPosWS = _sv->camera()->translationWS();
     SLVec3f camPos   = _wsToVoxelSpace->multVec(camPosWS);
-
     glUniform3fv(glGetUniformLocation(progId, "u_EyePos"), 1, (SLfloat*)&camPos);
     glUniform3fv(glGetUniformLocation(progId, "u_EyePosWS"), 1, (SLfloat*)&camPosWS);
     GET_GL_ERROR;
@@ -309,14 +303,11 @@ void SLGLConetracer::renderNode(SLNode* node, const SLuint progId)
     // set view transform:
     stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
-    // apply world transform for this node:
+    // add updated model transform:
     stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
-    // print mvp matrix
-    //stateGL->mvpMatrix()->print("mvp matrix: ");
-
+	// pass the modelview projection matrix to the shader
     GLint loc = glGetUniformLocation(progId, "u_mvpMatrix");
-
     glUniformMatrix4fv(loc, 1, GL_FALSE, (SLfloat*)stateGL->mvpMatrix());
 
     node->draw(progId);
@@ -367,7 +358,6 @@ void SLGLConetracer::voxelize()
     setCameraOrthographic();
 
     renderSceneGraph(prog->progid());
-    //resetCamera();
 
     // restore viewport:
     glViewport(m_viewport[0], m_viewport[1], m_viewport[2], m_viewport[3]);
