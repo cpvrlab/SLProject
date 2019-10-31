@@ -56,6 +56,8 @@ public:
     GLuint vao;
     GLuint vbo;
     GLuint vboi;
+    GLuint KpSSBO;
+    GLuint patternSSBO;
     GLuint outFBO;
     GLuint outTextures;
     GLuint pbo[2];
@@ -85,6 +87,9 @@ public:
     void gpu_kp();
     void readResult(SLGLTexture * tex);
     void readResult(cv::Mat * tex);
+
+    void initComputeShader();
+    void computeBRIEF();
 };
 
 #endif

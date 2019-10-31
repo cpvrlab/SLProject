@@ -4,6 +4,7 @@
 #include <SLPoints.h>
 #include <SLPolyline.h>
 #include <CVCalibration.h>
+//#include <BRIEFpattern.h>
 
 #define INPUT 0
 #define D2GDX2 1
@@ -1016,4 +1017,95 @@ void ImageProcessor::readResult(cv::Mat * tex)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     AVERAGE_TIMING_STOP("PBO");
+}
+
+std::string csBRIEFsrc =
+"layout (local_size_x = 16, local_size_y = 16) in;\n" //16x16 tiles
+"layout(r8) readonly uniform image2D kpTex;\n"
+"layout(r8) readonly uniform image2D grayTex;\n"
+"layout (r8, binding = 0) imageBuffer pattern;\n"
+"layout (rb8, binding = 1) imageBuffer keypoints:\n"
+"layout (rgba32i, binding = 1) imageBuffer descs;\n"
+"uniform atomic_uint kpIdAC;\n"
+"\n"
+"\n"
+"void main()\n"
+"{\n"
+"\n"
+"   ivec2 pixel_pos = ivec2(gl_GlobalInvocationID.xy);\n"
+"   int hasKP = imageLoad(kpTex, pixel_pos).r;\n"
+"   if (hasKP > 0)\n"
+"   {\n"
+"       uint kpId = atomicCounterIncrement(kpId​AC);\n"
+"       int desc[32];\n"
+"       \n"
+"       ivec2 sample_pos0;\n"
+"       ivec2 sample_pos1;\n"
+"       float v0;\n"
+"       float v1;\n"
+"       \n"
+"       for (int i = 0; i < 256; i++)\n"
+"       {\n"
+"           int b = 0;\n"
+"           sample_pos0 = pixel_pos + pattern[i];\n"
+"           sample_pos1 = pixel_pos + pattern[i+1];\n"
+"           v0 = imageLoad(grayTex, sample_pos0).r;\n"
+"           v1 = imageLoad(grayTex, sample_pos1).r;\n"
+"           if(sample_pos0 > sample_pos1)\n"
+"           {\n"
+"               b = 0x1;\n"
+"           }\n"
+"       }\n"
+"   }\n"
+"\n"
+"}\n"
+;
+
+
+
+void ImageProcessor::initComputeShader()
+{
+    GLuint csBRIEF = buildShaderFromSource(csBRIEFsrc, GL_COMPUTE_SHADER);
+    GLuint prgBRIEF = glCreateProgram();
+
+    glAttachShader(prgBRIEF, csBRIEF);
+    glLinkProgram(prgBRIEF);
+    glDeleteShader(csBRIEF);
+
+    unsigned int blockLoc = 0;
+    unsigned int blockIndex = 0;
+    blockLoc = glGetProgramResourceIndex(prgBRIEF, GL_SHADER_STORAGE_BLOCK, "keypoints");
+
+    glGenBuffers(1, &KpSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, KpSSBO);
+    //Size = 1024 keypoints * sizeof (int)
+    glBufferData(GL_SHADER_STORAGE_BUFFER, 1024*sizeof(int), 0, GL_STREAM_READ);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+
+    glGenBuffers(1, &patternSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, KpSSBO);
+    //Size = 2 * 256 * sizeof (vec2)
+    glBufferData(GL_SHADER_STORAGE_BUFFER, 1024*sizeof(int), bit_pattern_31_, GL_STATIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+
+    glShaderStorageBlockBinding(prgBRIEF, blockLoc, 0);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, KpSSBO);
+}
+
+
+void ImageProcessor::computeBRIEF()
+{
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, posSSbo);
+}
+
+void ImageProcessor::readBRIEF()
+{
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, KpSSBO);
+    GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_STREAM_READ);
+
+    // Read keypoints
+
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 }
