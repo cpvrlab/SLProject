@@ -32,10 +32,12 @@ public:
 
     // setup raytracer
     void setupOptix();
-    void setupScene(SLSceneView* sv);
+    void setupScene();
+    void updateScene(SLSceneView* sv);
 
     // ray tracer functions
     SLbool  renderClassic();
+    void renderImage() override;
 
 protected:
     void _createContext();
@@ -43,11 +45,12 @@ protected:
     OptixProgramGroup _createProgram(OptixProgramGroupDesc);
     OptixPipeline _createPipeline(OptixProgramGroup *, unsigned int);
     OptixShaderBindingTable _createShaderBindingTable();
+    OptixTraversableHandle _createMeshAccelerationStructure(SLMesh);
 
     OptixDeviceContext          _context{};
     CUstream                    _stream{};
 
-    SLCudaBuffer<uchar3>            _imageBuffer = SLCudaBuffer<uchar3>();
+    SLCudaBuffer<uchar4>            _imageBuffer = SLCudaBuffer<uchar4>();
     SLCudaBuffer<Params>            _paramsBuffer = SLCudaBuffer<Params>();
     SLCudaBuffer<RayGenSbtRecord>   _rayGenBuffer = SLCudaBuffer<RayGenSbtRecord>();
     SLCudaBuffer<MissSbtRecord>     _missBuffer = SLCudaBuffer<MissSbtRecord>();

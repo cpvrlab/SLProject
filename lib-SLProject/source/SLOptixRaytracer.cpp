@@ -45,12 +45,12 @@ SLOptixRaytracer::~SLOptixRaytracer()
 
     OPTIX_CHECK( optixPipelineDestroy( _pipeline ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _radiance_hit_group ) );
-//    OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_hit_group ) );
+    OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_hit_group ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _radiance_miss_group ) );
-//    OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_miss_group ) );
+    OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_miss_group ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _raygen_prog_group ) );
     OPTIX_CHECK( optixModuleDestroy( _cameraModule ) );
-//    OPTIX_CHECK( optixModuleDestroy( _shadingModule ) );
+    OPTIX_CHECK( optixModuleDestroy( _shadingModule ) );
 
     OPTIX_CHECK( optixDeviceContextDestroy( _context ) );
 }
@@ -70,7 +70,7 @@ void SLOptixRaytracer::setupOptix() {
 
     _pipeline_compile_options.usesMotionBlur        = false;
     _pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
-    _pipeline_compile_options.numPayloadValues      = 2;
+    _pipeline_compile_options.numPayloadValues      = 6;
     _pipeline_compile_options.numAttributeValues    = 2;
     _pipeline_compile_options.exceptionFlags        = OPTIX_EXCEPTION_FLAG_USER;
     _pipeline_compile_options.pipelineLaunchParamsVariableName = "params";
@@ -78,24 +78,48 @@ void SLOptixRaytracer::setupOptix() {
     _createContext();
 
     _cameraModule = _createModule("SLOptixRaytracerCamera.cu");
-//    _shadingModule = _createModule("SLOptixRaytracerShading.cu");
+    _shadingModule = _createModule("SLOptixRaytracerShading.cu");
 
     OptixProgramGroupDesc raygen_prog_group_desc  = {}; //
-    raygen_prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
-    raygen_prog_group_desc.raygen.module            = _cameraModule;
-    raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__draw_solid_color";
+    raygen_prog_group_desc.kind                                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+    raygen_prog_group_desc.raygen.module                            = _cameraModule;
+    raygen_prog_group_desc.raygen.entryFunctionName                 = "__raygen__draw_solid_color";
     _raygen_prog_group = _createProgram(raygen_prog_group_desc);
 
     OptixProgramGroupDesc radiance_miss_prog_group_desc = {};
-    radiance_miss_prog_group_desc.kind = OPTIX_PROGRAM_GROUP_KIND_MISS;
+    radiance_miss_prog_group_desc.kind                              = OPTIX_PROGRAM_GROUP_KIND_MISS;
+    radiance_miss_prog_group_desc.miss.module                       = _shadingModule;
+    radiance_miss_prog_group_desc.miss.entryFunctionName            = "__miss__radiance";
     _radiance_miss_group = _createProgram(radiance_miss_prog_group_desc);
 
+    OptixProgramGroupDesc occlusion_miss_prog_group_desc = {};
+    occlusion_miss_prog_group_desc.kind                             = OPTIX_PROGRAM_GROUP_KIND_MISS;
+    occlusion_miss_prog_group_desc.miss.module                      = _shadingModule;
+    occlusion_miss_prog_group_desc.miss.entryFunctionName           = "__miss__occlusion";
+    _occlusion_miss_group = _createProgram(occlusion_miss_prog_group_desc);
+
     OptixProgramGroupDesc radiance_hitgroup_prog_group_desc = {};
-    radiance_hitgroup_prog_group_desc.kind = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    radiance_hitgroup_prog_group_desc.kind                          = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    radiance_hitgroup_prog_group_desc.hitgroup.moduleAH             = _shadingModule;
+    radiance_hitgroup_prog_group_desc.hitgroup.moduleCH             = _shadingModule;
+    radiance_hitgroup_prog_group_desc.hitgroup.entryFunctionNameAH  = "__anyhit__radiance";
+    radiance_hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH  = "__closesthit__radiance";
     _radiance_hit_group = _createProgram(radiance_hitgroup_prog_group_desc);
 
-    OptixProgramGroup program_groups[] = { _raygen_prog_group };
-    _pipeline = _createPipeline(program_groups, 1);
+    OptixProgramGroupDesc occlusion_hitgroup_prog_group_desc = {};
+    occlusion_hitgroup_prog_group_desc.kind                          = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    occlusion_hitgroup_prog_group_desc.hitgroup.moduleAH             = _shadingModule;
+    occlusion_hitgroup_prog_group_desc.hitgroup.entryFunctionNameAH  = "__anyhit__radiance";
+    _occlusion_hit_group = _createProgram(occlusion_hitgroup_prog_group_desc);
+
+    OptixProgramGroup program_groups[] = {
+            _raygen_prog_group,
+            _radiance_miss_group,
+            _occlusion_miss_group,
+            _radiance_hit_group,
+            _occlusion_hit_group,
+    };
+    _pipeline = _createPipeline(program_groups, 5);
 
     _sbt = _createShaderBindingTable();
 
@@ -110,7 +134,7 @@ static void context_log_cb( unsigned int level, const char* tag, const char* mes
 
 void SLOptixRaytracer::_createContext() {
     // Initialize CUDA
-    CUcontext          cu_ctx = 0;  // zero means take the current context
+    CUcontext        cu_ctx = 0;  // zero means take the current context
     CUDA_CHECK( cuInit( 0 ) );
     CUDA_CHECK( cuMemFree( 0 ) );
     CUDA_CHECK( cuCtxCreate( &cu_ctx, 0, 0) );
@@ -196,43 +220,111 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable() {
 
     OptixShaderBindingTable sbt = {};
     {
+        // Setup ray generation records
         std::vector<RayGenSbtRecord> rayGenRecords;
+
         RayGenSbtRecord rg_sbt;
         OPTIX_CHECK( optixSbtRecordPackHeader( _raygen_prog_group, &rg_sbt ) );
-        rg_sbt.data = {1.0f, 0.f, 0.f};
         rayGenRecords.push_back(rg_sbt);
+
         _rayGenBuffer.alloc_and_upload(rayGenRecords);
 
+        // Setup miss records
         std::vector<MissSbtRecord> missRecords;
-        MissSbtRecord ms_sbt;
-        OPTIX_CHECK( optixSbtRecordPackHeader( _radiance_miss_group , &ms_sbt ) );
-        missRecords.push_back(ms_sbt);
+
+        MissSbtRecord radiance_ms_sbt;
+        OPTIX_CHECK( optixSbtRecordPackHeader( _radiance_miss_group , &radiance_ms_sbt ) );
+        missRecords.push_back(radiance_ms_sbt);
+
+        MissSbtRecord occlusion_ms_sbt;
+        OPTIX_CHECK( optixSbtRecordPackHeader( _occlusion_miss_group , &occlusion_ms_sbt ) );
+        missRecords.push_back(occlusion_ms_sbt);
+
         _missBuffer.alloc_and_upload(missRecords);
 
+        // Setup hit records
         std::vector<HitSbtRecord> hitRecords;
-        HitSbtRecord hg_sbt;
-        OPTIX_CHECK( optixSbtRecordPackHeader( _radiance_hit_group, &hg_sbt ) );
-        hitRecords.push_back(hg_sbt);
+
+        HitSbtRecord radiance_hg_sbt;
+        OPTIX_CHECK( optixSbtRecordPackHeader( _radiance_hit_group, &radiance_hg_sbt ) );
+        hitRecords.push_back(radiance_hg_sbt);
+
+        HitSbtRecord occlusion_hg_sbt;
+        OPTIX_CHECK( optixSbtRecordPackHeader( _occlusion_hit_group, &occlusion_hg_sbt ) );
+        hitRecords.push_back(occlusion_hg_sbt);
+
         _hitBuffer.alloc_and_upload(hitRecords);
 
         sbt.raygenRecord                = _rayGenBuffer.devicePointer();
         sbt.missRecordBase              = _missBuffer.devicePointer();
         sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
-        sbt.missRecordCount             = 1;
+        sbt.missRecordCount             = RAY_TYPE_COUNT;
         sbt.hitgroupRecordBase          = _hitBuffer.devicePointer();
         sbt.hitgroupRecordStrideInBytes = sizeof( HitSbtRecord );
-        sbt.hitgroupRecordCount         = 1;
+        sbt.hitgroupRecordCount         = RAY_TYPE_COUNT;
     }
 
     return sbt;
 }
 
-void SLOptixRaytracer::setupScene(SLSceneView *sv) {
+OptixTraversableHandle SLOptixRaytracer::_createMeshAccelerationStructure(SLMesh mesh)
+{
+
+    //
+    // copy mesh data to device
+    //
+    SLCudaBuffer<SLVec3f> vertexBuffer = SLCudaBuffer<SLVec3f>();
+    vertexBuffer.alloc_and_upload(mesh.P);
+
+    SLCudaBuffer<SLushort> indexBuffer = SLCudaBuffer<SLushort>();
+    if (mesh.I16.size() < USHRT_MAX) {
+        indexBuffer.alloc_and_upload(mesh.I16);
+    }
+
+    //
+    // Build triangle GAS
+    //
+    uint32_t triangle_input_flags[1] =  // One per SBT record for this build input
+    {
+        OPTIX_GEOMETRY_FLAG_NONE
+    };
+
+    OptixBuildInput triangle_input                           = {};
+    triangle_input.type                                      = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
+    triangle_input.triangleArray.indexBuffer                 = indexBuffer.devicePointer();
+    triangle_input.triangleArray.indexFormat                 = OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3;
+    triangle_input.triangleArray.indexStrideInBytes          = sizeof( SLushort );
+    triangle_input.triangleArray.numIndexTriplets            = static_cast<uint32_t>( mesh.I16.size());
+    triangle_input.triangleArray.vertexFormat                = OPTIX_VERTEX_FORMAT_FLOAT3;
+    triangle_input.triangleArray.vertexStrideInBytes         = sizeof( SLVec3f );
+    triangle_input.triangleArray.vertexBuffers               = reinterpret_cast<const CUdeviceptr *>(vertexBuffer.devicePointer());
+    triangle_input.triangleArray.numVertices                 = static_cast<uint32_t>( mesh.P.size() );
+    triangle_input.triangleArray.flags                       = triangle_input_flags;
+    triangle_input.triangleArray.numSbtRecords               = 1;
+//    triangle_input.triangleArray.sbtIndexOffsetBuffer        = 0;
+//    triangle_input.triangleArray.sbtIndexOffsetSizeInBytes   = sizeof( uint32_t );
+//    triangle_input.triangleArray.sbtIndexOffsetStrideInBytes = sizeof( uint32_t );
+
+//    OptixTraversableHandle gas_handle = buildAccel(state, triangle_input);
+
+//    return gas_handle;
+}
+
+void SLOptixRaytracer::setupScene() {
+    SLScene* scene = SLApplication::scene;
+    SLVMesh meshes = scene->meshes();
+
+    // Iterate over all meshes
+    for(auto mesh : meshes) {
+    }
+}
+
+void SLOptixRaytracer::updateScene(SLSceneView *sv) {
     _sv = sv;
 
-    _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(uchar3));
+    _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(uchar4));
 
-    _params.image = reinterpret_cast<uchar3 *>(_imageBuffer.devicePointer());
+    _params.image = reinterpret_cast<uchar4 *>(_imageBuffer.devicePointer());
     _params.width = _sv->scrW();
     _params.height = _sv->scrH();
 
@@ -240,7 +332,7 @@ void SLOptixRaytracer::setupScene(SLSceneView *sv) {
 }
 
 SLbool SLOptixRaytracer::renderClassic() {
-    OPTIX_CHECK( optixLaunch(
+    OPTIX_CHECK(optixLaunch(
             _pipeline,
             _stream,
             _paramsBuffer.devicePointer(),
@@ -248,22 +340,38 @@ SLbool SLOptixRaytracer::renderClassic() {
             &_sbt,
             _sv->scrW(),
             _sv->scrH(),
-            /*depth=*/1 ) );
+            /*depth=*/1));
     CUDA_SYNC_CHECK(_stream);
 
     prepareImage();       // Setup image & precalculations
+}
 
-    uchar3* image = reinterpret_cast<uchar3 *>( malloc(_imageBuffer.size()) );
-    _imageBuffer.download(image);;
+void SLOptixRaytracer::renderImage() {
+    SLRaytracer::renderImage();
 
-    _images[0]->load(
-            _sv->scrW(),
-            _sv->scrH(),
-            PF_rgb,
-            PF_rgb,
-            reinterpret_cast<uchar *>(image),
-            true,
-            true);
+    // We want to copy cuda_dev_render_buffer data to the texture
+    // Map buffer objects to get CUDA device pointers
+    CUarray texture_ptr;
+    CUDA_CHECK( cuGraphicsMapResources(1, &_cudaGraphicsResource, _stream) );
+    CUDA_CHECK( cuGraphicsSubResourceGetMappedArray(&texture_ptr, _cudaGraphicsResource, 0, 0) );
 
-    free(image);
+    CUDA_ARRAY_DESCRIPTOR des;
+    cuArrayGetDescriptor(&des, texture_ptr);
+
+    CUDA_MEMCPY2D memcpy2D;
+    memcpy2D.srcDevice = _imageBuffer.devicePointer();
+    memcpy2D.srcMemoryType = CU_MEMORYTYPE_DEVICE;
+    memcpy2D.srcXInBytes = 0;
+    memcpy2D.srcY = 0;
+    memcpy2D.srcPitch = 0;
+    memcpy2D.dstArray = texture_ptr;
+    memcpy2D.dstMemoryType = CU_MEMORYTYPE_ARRAY;
+    memcpy2D.dstXInBytes = 0;
+    memcpy2D.dstY = 0;
+    memcpy2D.dstPitch = 0;
+    memcpy2D.WidthInBytes = des.Width * des.NumChannels;
+    memcpy2D.Height = des.Height;
+
+    CUDA_CHECK(cuMemcpy2D(&memcpy2D) );
+    CUDA_CHECK( cuGraphicsUnmapResources(1, &_cudaGraphicsResource, _stream) );
 }

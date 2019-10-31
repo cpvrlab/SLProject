@@ -18,6 +18,8 @@
 #include <SLGLTexture.h>
 #include <SLScene.h>
 #include <Utils.h>
+#include <cudaGL.h>
+#include <SLOptixHelper.h>
 
 //-----------------------------------------------------------------------------
 //! Default path for texture files used when only filename is passed in load.
@@ -521,6 +523,8 @@ void SLGLTexture::build(SLint texID)
     //if (glIsTexture(_texName))
     //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
     //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
+
+    CUDA_CHECK(cuGraphicsGLRegisterImage(&_cudaGraphicsResource, _texName, _target, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD));
 
     GET_GL_ERROR;
 }

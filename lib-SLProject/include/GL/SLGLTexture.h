@@ -15,6 +15,7 @@
 #include <SLGLVertexArray.h>
 #include <SLMat4.h>
 #include <atomic>
+#include <cuda.h>
 
 class SLGLState;
 
@@ -135,6 +136,7 @@ class SLGLTexture : public SLObject
     SLbool        autoCalcTM3D() { return _autoCalcTM3D; }
     SLbool        needsUpdate() { return _needsUpdate; }
     SLstring      typeName();
+    CUgraphicsResource getCudaGraphicsResource() { return _cudaGraphicsResource; }
 
     // Misc
     SLTextureType detectType(SLstring filename);
@@ -181,6 +183,7 @@ class SLGLTexture : public SLObject
     SLbool          _resizeToPow2;  //!< Flag if image should be resized to n^2
     SLGLVertexArray _vaoSprite;     //!< Vertex array object for sprite rendering
     atomic<bool>    _needsUpdate{}; //!< Flag if image needs an single update
+    CUgraphicsResource  _cudaGraphicsResource; //!< Cuda Graphics object
 };
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLTexture pointers

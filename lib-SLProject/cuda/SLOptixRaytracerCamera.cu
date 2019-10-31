@@ -5,7 +5,13 @@ extern "C" {
 __constant__ Params params;
 }
 
-extern "C" __global__ void __raygen__rg()
+extern "C" __global__ void __raygen__draw_solid_color()
+{
+    uint3 launch_index = optixGetLaunchIndex();
+    params.image[launch_index.y * params.width + launch_index.x] = make_uchar4( 255, 0, 0, 255 );
+}
+
+extern "C" __global__ void __raygen__pinhole_camera()
 {
     const uint3 idx = optixGetLaunchIndex();
     const uint3 dim = optixGetLaunchDimensions();

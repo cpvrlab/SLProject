@@ -27,7 +27,7 @@ struct Light
 
 struct Params
 {
-    uchar3*                 image;
+    uchar4*                 image;
     unsigned int            width;
     unsigned int            height;
 
@@ -60,7 +60,7 @@ struct MissData
     float3 bg_color;
 };
 
-struct HitGroupData
+struct HitData
 {
     Material material;
 
@@ -77,7 +77,7 @@ struct SbtRecord
 };
 
 typedef SbtRecord<CameraData>   RayGenSbtRecord;
-typedef SbtRecord<int>   MissSbtRecord;
-typedef SbtRecord<int>   HitSbtRecord;
+typedef SbtRecord<MissData>     MissSbtRecord;
+typedef SbtRecord<HitData>      HitSbtRecord;
 
 #endif //SLPROJECT_SLOPTIXDEFINITIONS_H

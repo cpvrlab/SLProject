@@ -121,7 +121,8 @@ class SLRaytracer : public SLGLTexture
 
     // Render target image
     void prepareImage();
-    void renderImage();
+
+    virtual void renderImage();
     void saveImage();
 
     protected:

@@ -4,61 +4,30 @@ extern "C" {
 __constant__ Params params;
 }
 
-extern "C" __global__ void __miss__ms()
+extern "C" __global__ void __miss__radiance()
 {
     auto* rt_data  = reinterpret_cast<MissData*>( optixGetSbtDataPointer() );
     setColor(rt_data->bg_color);
 }
 
-extern "C" __global__ void __miss__ms_occlusion()
+extern "C" __global__ void __miss__occlusion()
 {
 }
 
-extern "C" __global__ void __anyhit__ah()
+extern "C" __global__ void __anyhit__radiance()
 {
 }
 
-extern "C" __global__ void __anyhit__ah__occlusion()
+extern "C" __global__ void __anyhit__occlusion()
 {
-    auto *rt_data = reinterpret_cast<HitGroupData *>( optixGetSbtDataPointer());
+    auto *rt_data = reinterpret_cast<HitData *>( optixGetSbtDataPointer());
     float occlusion = getOcclusion();
     setOcclusion(occlusion + (1.0f - rt_data->material.kt));
 }
 
-__forceinline__ __device__ bool refract(float3& r, const float3& i, const float3& n, const float ior) {
-    float3 nn = n;
-    float negNdotV = dot( i, nn );
-    float eta;
-
-    if (negNdotV > 0.0f)
-    {
-        eta = ior;
-        nn = -n;
-        negNdotV = -negNdotV;
-    }
-    else
-    {
-        eta = 1.f / ior;
-    }
-
-    const float k = 1.f - eta * eta * (1.f - negNdotV * negNdotV);
-
-    if (k < 0.0f)
-    {
-        // Initialize this value, so that r always leaves this function initialized.
-        r = make_float3( 0.f );
-        return false;
-    }
-    else
-    {
-        r = normalize( eta * i - (eta * negNdotV + sqrtf( k )) * nn );
-        return true;
-    }
-}
-
-extern "C" __global__ void __closesthit__ch() {
+extern "C" __global__ void __closesthit__radiance() {
     // Get all data for the hit point
-    auto *rt_data = reinterpret_cast<HitGroupData *>( optixGetSbtDataPointer());
+    auto *rt_data = reinterpret_cast<HitData *>( optixGetSbtDataPointer());
     Material material = rt_data->material;
     unsigned int idx = optixGetPrimitiveIndex();
     const float3 ray_dir = optixGetWorldRayDirection();

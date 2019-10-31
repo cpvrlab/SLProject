@@ -31,11 +31,12 @@ static __forceinline__ __device__ float getOcclusion() {
     return int_as_float(optixGetPayload_1());
 }
 
-__forceinline__ __device__ uchar3 make_color(const float3 &c) {
-    return make_uchar3(
+__forceinline__ __device__ uchar4 make_color(const float3 &c) {
+    return make_uchar4(
             static_cast<uint8_t>( clamp(c.x, 0.0f, 1.0f) * 255.0f ),
             static_cast<uint8_t>( clamp(c.y, 0.0f, 1.0f) * 255.0f ),
-            static_cast<uint8_t>( clamp(c.z, 0.0f, 1.0f) * 255.0f )
+            static_cast<uint8_t>( clamp(c.z, 0.0f, 1.0f) * 255.0f ),
+            255.0f
     );
 }
 
