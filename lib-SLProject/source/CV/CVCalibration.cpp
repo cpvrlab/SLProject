@@ -863,7 +863,7 @@ int CVCalibration::getVersionInCalibFilename(const string& calibFilename)
     int versionNO = 0;
     if (!calibFilenameWOExt.empty())
     {
-        unsigned long len = calibFilenameWOExt.length();
+        size_t len = calibFilenameWOExt.length();
         if (calibFilenameWOExt.at(len - 1) == ')')
         {
             size_t leftPos = calibFilenameWOExt.rfind('(');
