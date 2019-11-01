@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLGLTexture3D.cpp
+//  File:      SLGLConetracerTex3D.cpp
 //  Author:    Stefan Thoeni
 //  Date:      September 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
@@ -8,15 +8,15 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <SLGLTexture3D.h>
+#include <SLGLConetracerTex3D.h>
 #include <SLGLState.h>
 
 //-----------------------------------------------------------------------------
-SLGLTexture3D::SLGLTexture3D(const SLVfloat& textureBuffer,
-                             SLint           width,
-                             SLint           height,
-                             SLint           depth,
-                             SLbool          generateMipmaps)
+SLGLConetracerTex3D::SLGLConetracerTex3D(const SLVfloat& textureBuffer,
+                                         SLint           width,
+                                         SLint           height,
+                                         SLint           depth,
+                                         SLbool          generateMipmaps)
   : _width(width), _height(height), _depth(depth)
 {
 
@@ -42,10 +42,10 @@ SLGLTexture3D::SLGLTexture3D(const SLVfloat& textureBuffer,
                    _height,
                    _depth);
     GET_GL_ERROR;
-    std::cout << "width: " << _width << std::endl;
-    std::cout << "height: " << _height << std::endl;
-    std::cout << "depth: " << _depth << std::endl;
-    std::cout << "size: " << textureBuffer.size() << std::endl;
+    //std::cout << "width: " << _width << std::endl;
+    //std::cout << "height: " << _height << std::endl;
+    //std::cout << "depth: " << _depth << std::endl;
+    //std::cout << "size: " << textureBuffer.size() << std::endl;
 
     glTexSubImage3D(GL_TEXTURE_3D,
                     0,
@@ -59,16 +59,18 @@ SLGLTexture3D::SLGLTexture3D(const SLVfloat& textureBuffer,
                     GL_FLOAT,
                     &textureBuffer[0]);
     GET_GL_ERROR;
-    if (generateMipmaps) glGenerateMipmap(GL_TEXTURE_3D);
+
+    if (generateMipmaps)
+        glGenerateMipmap(GL_TEXTURE_3D);
     GET_GL_ERROR;
-    // unbind texture
+
     glBindTexture(GL_TEXTURE_3D, 0);
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-void SLGLTexture3D::activate(SLint    shaderProgram,
-                             SLstring glSamplerName,
-                             SLint    textureUnit)
+void SLGLConetracerTex3D::activate(SLint    shaderProgram,
+                                   SLstring glSamplerName,
+                                   SLint    textureUnit)
 {
     glActiveTexture(GL_TEXTURE0 + textureUnit);
     glBindTexture(GL_TEXTURE_3D, textureID);
@@ -79,7 +81,7 @@ void SLGLTexture3D::activate(SLint    shaderProgram,
                 textureUnit);
 }
 //-----------------------------------------------------------------------------
-void SLGLTexture3D::clear(SLVec4f clearColor)
+void SLGLConetracerTex3D::clear(SLVec4f clearColor)
 {
     // retrieve currently activated texture
     GLint previousBoundTextureID;

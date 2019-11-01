@@ -10,9 +10,9 @@
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 #include <SLGLConetracer.h>
+#include <SLGLConetracerTex3D.h>
 #include <SLGLProgram.h>
 #include <SLGLGenericProgram.h>
-#include <SLGLTexture3D.h>
 #include <SLSceneView.h>
 #include <SLApplication.h>
 
@@ -34,11 +34,11 @@ void SLGLConetracer::init(SLint scrW, SLint scrH)
 
     // Initialize voxel 3D-Texture:
     const SLVfloat texture3D(4 * _voxelTexSize * _voxelTexSize * _voxelTexSize, 0.0f);
-    _voxelTex = new SLGLTexture3D(texture3D,
-                                  _voxelTexSize,
-                                  _voxelTexSize,
-                                  _voxelTexSize,
-                                  true);
+    _voxelTex = new SLGLConetracerTex3D(texture3D,
+                                        _voxelTexSize,
+                                        _voxelTexSize,
+                                        _voxelTexSize,
+                                        true);
     GET_GL_ERROR;
 
     // Initialize voxelization:
@@ -65,7 +65,7 @@ void SLGLConetracer::init(SLint scrW, SLint scrH)
     SLGLProgram* ctShader = new SLGLGenericProgram("CT.vert",
                                                    "CT.frag");
     ctShader->initRaw();
-    _conetraceMat = new SLMaterial("Voxel Cone Tracing Material", ctShader);
+    _conetraceMat = new SLMaterial("Conetrace Material", ctShader);
 
     // FBOs.
     // read current viewport
@@ -216,7 +216,7 @@ void SLGLConetracer::uploadRenderSettings(SLGLProgram* program)
     glUniform1f(glGetUniformLocation(progID, "s_shadowConeAngle"), _shadowConeAngle);
     glUniform1i(glGetUniformLocation(progID, "s_directEnabled"), _doDirectIllum);
     glUniform1i(glGetUniformLocation(progID, "s_diffuseEnabled"), _doDiffuseIllum);
-    glUniform1i(glGetUniformLocation(progID, "s_specEnabled"), _doSpecularIllum);
+    glUniform1i(glGetUniformLocation(progID, "s_specularEnabled"), _doSpecularIllum);
     glUniform1i(glGetUniformLocation(progID, "s_shadowsEnabled"), _doShadows);
     glUniform1f(glGetUniformLocation(progID, "s_lightMeshSize"), _lightMeshSize);
     glUniform1f(glGetUniformLocation(progID, "u_oneOverGamma"), oneOverGamma());
@@ -263,7 +263,6 @@ void SLGLConetracer::calcWS2VoxelSpaceTransform()
 //! Renders scene using a given Program
 void SLGLConetracer::renderSceneGraph(SLGLProgram* program)
 {
-    // set viewport:
     glViewport(0, 0, _sv->viewportW(), _sv->viewportH());
 
 	SLuint progID = program->progID();

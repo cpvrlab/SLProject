@@ -21,6 +21,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTrackedFaces.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTrackedFeatures.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLConetracer.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLConetracerTex3D.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLEnums.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLFbo.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLGenericProgram.h
@@ -32,7 +33,6 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLShader.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLState.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLTexture.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLTexture3D.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLUniform.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexArray.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexArrayExt.h
@@ -127,6 +127,7 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVTrackedFaces.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVTrackedFeatures.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLConetracer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLConetracerTex3D.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLFbo.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLImGui.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculus.cpp
@@ -135,7 +136,6 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLShader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLState.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLTexture.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLTexture3D.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexArray.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexArrayExt.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexBuffer.cpp

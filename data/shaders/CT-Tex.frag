@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      CT.frag
+//  File:      CT-Tex.frag
 //  Purpose:   Calculated direct illumination using Blinn-Phong
 //             and indirect illumination using voxel cone tracing
 //  Author:    Stefan Thoeni
@@ -13,6 +13,7 @@
 in vec3 o_N_WS;
 in vec3 o_P_VS;
 in vec3 o_P_WS;
+in vec2 o_Tc;
 
 #define VOXEL_SIZE (1/64.0)
 #define SQRT2 (1.41421)
@@ -59,6 +60,7 @@ uniform float  u_matShininess;      // shininess exponent
 uniform float  u_matKr;             // reflection factor (kr)
 uniform float  u_oneOverGamma;		// oneOverGamma correction factor
 
+uniform sampler2D u_texture0;       // Color texture map
 uniform sampler3D texture3D;        // Voxelization texture.
 
 out vec4 color;
@@ -232,9 +234,22 @@ vec4 direct()
     if (u_lightIsOn[7]) {if (u_lightPosVS[7].w == 0.0) DirectLight(7, N, E, Id, Is); else PointLight(7, o_P_WS, N, E, Id, Is);}
     
 
-    return u_matEmissive + 
-           Id * u_matDiffuse +
-           Is * u_matSpecular;
+    //return u_matEmissive + 
+    //       Id * u_matDiffuse +
+    //       Is * u_matSpecular;
+
+    // Sum up all the direct reflected color components
+    vec4 color =  u_matEmissive +
+                  Id * u_matDiffuse;
+                   
+    // Componentwise multiply w. texture color
+    color *= texture2D(u_texture0, o_Tc); 
+   
+    // add finally the specular RGB-part
+    vec4 specColor = Is * u_matSpecular;
+    color.rgb += specColor.rgb;
+
+    return color;
 }
 //-----------------------------------------------------------------------------
 vec4 indirectDiffuse()
@@ -292,7 +307,13 @@ vec4 indirectSpecularLight()
     vec3 E = normalize(u_EyePos - o_P_VS);
     vec3 R = normalize(reflect(-E, N));
 
-    vec4 spec = coneTraceStopDist(o_P_VS, R, s_specularConeAngle, SQRT3DOUBLE, o_N_WS, 0.0);
+    vec4 spec = coneTraceStopDist(o_P_VS, 
+                                  R, 
+                                  s_specularConeAngle, 
+                                  SQRT3DOUBLE, 
+                                  o_N_WS, 
+                                  0.0);
+
     return u_matKr * u_matSpecular * spec;
 }
 //-----------------------------------------------------------------------------

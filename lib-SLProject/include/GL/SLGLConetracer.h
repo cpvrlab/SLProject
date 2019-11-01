@@ -12,7 +12,7 @@
 
 #include <SLGLTexture.h>
 #include <SLMaterial.h>
-#include <SLGLTexture3D.h>
+#include <SLGLConetracerTex3D.h>
 #include <SLGLFbo.h>
 #include <SLRectangle.h>
 #include <SLBox.h>
@@ -56,18 +56,18 @@ public:
     void gamma(SLfloat gamma) { _gamma = gamma; };
 
 protected:
-    SLSceneView*   _sv;
-    SLCamera*      _cam;
-    SLMaterial*    _voxelizeMat;
-    SLMaterial*    _worldMat;
-    SLMaterial*    _visualizeMat;
-    SLMaterial*    _conetraceMat;
-    SLGLTexture3D* _voxelTex;
-    SLuint         _voxelTexSize = 64; // power of 2
-    SLGLFbo*       _visualizeBackfaceFBO;
-    SLGLFbo*       _visualizeFrontfaceFBO;
-    SLRectangle*   _quadMesh;
-    SLBox*         _cubeMesh;
+    SLSceneView*         _sv;
+    SLCamera*            _cam;
+    SLMaterial*          _voxelizeMat;
+    SLMaterial*          _worldMat;
+    SLMaterial*          _visualizeMat;
+    SLMaterial*          _conetraceMat;
+    SLGLConetracerTex3D* _voxelTex;
+    SLuint               _voxelTexSize = 64; // power of 2
+    SLGLFbo*             _visualizeBackfaceFBO;
+    SLGLFbo*             _visualizeFrontfaceFBO;
+    SLRectangle*         _quadMesh;
+    SLBox*               _cubeMesh;
 
 private:
     void    voxelize();

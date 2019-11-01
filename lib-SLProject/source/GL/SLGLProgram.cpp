@@ -84,8 +84,8 @@ void SLGLProgram::addShader(SLGLShader* shader)
 }
 //-----------------------------------------------------------------------------
 /*! SLGLProgram::initRaw() does not replace any code from the shader and 
-assumes valid syntax for the shader used.
- */
+assumes valid syntax for the shader used. Used in SLGLConetracer
+*/
 void SLGLProgram::initRaw()
 {
     // create program object if it doesn't exist
@@ -93,16 +93,12 @@ void SLGLProgram::initRaw()
 		_progID = glCreateProgram();
 
     for (auto shader : _shaders)
-    {
         shader->createAndCompileSimple();
-    }
 
-    // Add shaders:
     for (auto shader : _shaders)
-    {
         glAttachShader(_progID, shader->_shaderID);
-        GET_GL_ERROR;
-    }
+    
+    GET_GL_ERROR;
 
     glLinkProgram(_progID);
 

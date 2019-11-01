@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLGLTexture3D.h
+//  File:      SLGLConetracerTex3D.h
 //  Author:    Stefan Thoeni
 //  Date:      September 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
@@ -15,13 +15,13 @@
 #include <SLVector.h>
 
 //-----------------------------------------------------------------------------
-class SLGLTexture3D
+class SLGLConetracerTex3D
 {
 public:
     SLuchar* textureBuffer = nullptr;
     SLuint   textureID;
 
-    SLGLTexture3D(
+    SLGLConetracerTex3D(
       const SLVfloat& textureBuffer, // Is there a SL implementation for this?
       SLint           width,
       SLint           height,
