@@ -58,6 +58,7 @@ uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks
 uniform vec4   u_matEmissive;       // emissive color for selfshining materials
 uniform float  u_matShininess;      // shininess exponent
 uniform float  u_matKr;             // reflection factor (kr)
+uniform bool   u_matHasTexture;     // flag if material has texture
 uniform float  u_oneOverGamma;		// oneOverGamma correction factor
 
 uniform sampler2D u_texture0;       // Color texture map
@@ -233,23 +234,26 @@ vec4 direct()
     if (u_lightIsOn[6]) {if (u_lightPosVS[6].w == 0.0) DirectLight(6, N, E, Id, Is); else PointLight(6, o_P_WS, N, E, Id, Is);}
     if (u_lightIsOn[7]) {if (u_lightPosVS[7].w == 0.0) DirectLight(7, N, E, Id, Is); else PointLight(7, o_P_WS, N, E, Id, Is);}
     
-
-    //return u_matEmissive + 
-    //       Id * u_matDiffuse +
-    //       Is * u_matSpecular;
-
-    // Sum up all the direct reflected color components
-    vec4 color =  u_matEmissive +
-                  Id * u_matDiffuse;
+    if (u_matHasTexture)
+    {    
+        // Sum up all the direct reflected color components
+        vec4 color =  u_matEmissive +
+                      Id * u_matDiffuse;
                    
-    // Componentwise multiply w. texture color
-    color *= texture2D(u_texture0, o_Tc); 
+        // Componentwise multiply w. texture color
+        color *= texture2D(u_texture0, o_Tc); 
    
-    // add finally the specular RGB-part
-    vec4 specColor = Is * u_matSpecular;
-    color.rgb += specColor.rgb;
-
-    return color;
+        // add finally the specular RGB-part
+        vec4 specColor = Is * u_matSpecular;
+        color.rgb += specColor.rgb;
+        return color;
+    }
+    else
+    {
+        return u_matEmissive + 
+               Id * u_matDiffuse +
+               Is * u_matSpecular;
+    }
 }
 //-----------------------------------------------------------------------------
 vec4 indirectDiffuse()

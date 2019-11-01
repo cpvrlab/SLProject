@@ -146,7 +146,7 @@ For more information please visit: https://github.com/cpvrlab/SLProject\n\
 SLstring AppDemoGui::infoCredits =
   "Contributors since 2005 in alphabetic order: \
 Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, \
-Michael Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
+Michael Goettlicher, Stefan Thoeni, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
 Credits for external libraries:\n\
 - assimp: assimp.sourceforge.net\n\
 - imgui: github.com/ocornut/imgui\n\
@@ -346,6 +346,46 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "   Match   :%5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
                 sprintf(m + strlen(m), "   OptFlow :%5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
                 sprintf(m + strlen(m), "   Pose    :%5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
+                sprintf(m + strlen(m), " Culling   :%5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
+                sprintf(m + strlen(m), " Drawing 3D:%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
+                sprintf(m + strlen(m), " Drawing 2D:%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
+            }
+            else if (rType == RT_ct)
+            {
+                // Get averages from average variables (see Averaged)
+                SLfloat captureTime    = CVCapture::instance()->captureTimesMS().average();
+                SLfloat updateTime     = s->updateTimesMS().average();
+                SLfloat trackingTime   = CVTracked::trackingTimesMS.average();
+                SLfloat detectTime     = CVTracked::detectTimesMS.average();
+                SLfloat detect1Time    = CVTracked::detect1TimesMS.average();
+                SLfloat detect2Time    = CVTracked::detect2TimesMS.average();
+                SLfloat matchTime      = CVTracked::matchTimesMS.average();
+                SLfloat optFlowTime    = CVTracked::optFlowTimesMS.average();
+                SLfloat poseTime       = CVTracked::poseTimesMS.average();
+                SLfloat updateAnimTime = s->updateAnimTimesMS().average();
+                SLfloat updateAABBTime = s->updateAnimTimesMS().average();
+                SLfloat cullTime       = s->cullTimesMS().average();
+                SLfloat draw3DTime     = s->draw3DTimesMS().average();
+                SLfloat draw2DTime     = s->draw2DTimesMS().average();
+
+                // Calculate percentage from frame time
+                SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat updateTimePC     = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
+
+                sprintf(m + strlen(m), "Renderer   : Conetracing (OpenGL)\n");
+                sprintf(m + strlen(m), "Frame size : %d x %d\n", sv->viewportW(), sv->viewportH());
+                sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
+                sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
+                sprintf(m + strlen(m), "Frame time :%5.1f ms (100%%)\n", ft);
+                sprintf(m + strlen(m), " Capture   :%5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
+                sprintf(m + strlen(m), " Update    :%5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
+                sprintf(m + strlen(m), "  Anim.    :%5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
+                sprintf(m + strlen(m), "  AABB     :%5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
                 sprintf(m + strlen(m), " Culling   :%5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
                 sprintf(m + strlen(m), " Drawing 3D:%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
                 sprintf(m + strlen(m), " Drawing 2D:%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);

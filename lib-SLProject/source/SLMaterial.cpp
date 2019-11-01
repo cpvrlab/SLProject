@@ -214,6 +214,7 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     loc = program->uniform1f("u_matKr", _kr);
     loc = program->uniform1f("u_matKt", _kt);
     loc = program->uniform1f("u_matKn", _kn);
+    loc = program->uniform1i("u_matHasTexture", !_textures.empty() ? 1 : 0);
 }
 //-----------------------------------------------------------------------------
 /*! 

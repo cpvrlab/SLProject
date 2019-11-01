@@ -78,12 +78,6 @@ void SLGLConetracer::init(SLint scrW, SLint scrH)
     _quadMesh = new SLRectangle(SLVec2f(-1, -1), SLVec2f(1, 1), 1, 1);
     _cubeMesh = new SLBox(-1, -1, -1);
 
-    /* not used yet, the idea is to calculate only in voxel-texure space
-    _scaleAndBiasMatrix = new SLMat4f(0.5, 0.0, 0.0, 0.5,
-                                      0.0, 0.5, 0.0, 0.5,
-                                      0.0, 0.0, 0.5, 0.5,
-                                      0.0, 0.0, 0.0, 1.0); */
-
     // The world's bounding box should not change during runtime.
     calcWS2VoxelSpaceTransform();
 }
@@ -312,9 +306,12 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
 		SLMaterial* mat = mesh->mat();
 		mat->passToUniforms(program);		
 
+        if (!mat->textures().empty())
+            glUniform1i(glGetUniformLocation(program->progID(), "u_texture0"), 0);
+
 		// generate a VAO if it does not exist yet
 		if (!mesh->vao().vaoID())
-			mesh->generateVAO(mat->program());
+			mesh->generateVAO(program);
 
 		// bind the buffer
 		glBindVertexArray(mesh->vao().vaoID());
