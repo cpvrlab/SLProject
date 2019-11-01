@@ -36,6 +36,7 @@ public:
     void download(T *);
 
     CUdeviceptr devicePointer () { return _devicePointer; }
+    CUdeviceptr* devicePointerPointer () { return &_devicePointer; }
     size_t size() { return _size; }
 
 private:

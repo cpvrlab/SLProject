@@ -132,6 +132,7 @@ SLNode.
 class SLNode
   : public SLObject
   , public SLEventHandler
+  , public SLOptixAccelerationStructure
 {
     friend class SLSceneView;
 

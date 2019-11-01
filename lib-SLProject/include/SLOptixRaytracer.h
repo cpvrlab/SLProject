@@ -14,7 +14,6 @@
 #include <optix_types.h>
 #include <cuda.h>
 #include <SLOptixDefinitions.h>
-#include "SLCudaBuffer.h"
 
 class SLScene;
 class SLSceneView;
@@ -45,7 +44,9 @@ protected:
     OptixProgramGroup _createProgram(OptixProgramGroupDesc);
     OptixPipeline _createPipeline(OptixProgramGroup *, unsigned int);
     OptixShaderBindingTable _createShaderBindingTable();
-    OptixTraversableHandle _createMeshAccelerationStructure(SLMesh);
+    void _buildAccelerationStructure(OptixBuildInput, SLOptixAccelerationStructure*);
+    void _createMeshAccelerationStructure(SLMesh*);
+    void _createInstanceAccelerationStructure(SLNode*);
 
     OptixDeviceContext          _context{};
     CUstream                    _stream{};

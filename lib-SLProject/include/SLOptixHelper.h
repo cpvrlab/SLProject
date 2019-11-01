@@ -5,6 +5,13 @@
 #ifndef SLPROJECT_SLOPTIXHELPER_H
 #define SLPROJECT_SLOPTIXHELPER_H
 
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+
+using namespace std::placeholders;
+using namespace std::chrono;
+
+
 // Optix error-checking and CUDA error-checking are copied from nvidia optix sutil
 //------------------------------------------------------------------------------
 //

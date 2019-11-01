@@ -15,6 +15,7 @@
 #include <SLEnums.h>
 #include <SLGLVertexArray.h>
 #include <SLObject.h>
+#include <SLOptixAccelerationStructure.h>
 
 class SLSceneView;
 class SLNode;
@@ -115,7 +116,7 @@ called skinning and is done in CPU in the method transformSkin. The final
 transformed vertices and normals are stored in _finalP and _finalN.
 */
 
-class SLMesh : public SLObject
+class SLMesh : public SLObject, public SLOptixAccelerationStructure
 {
     public:
     explicit SLMesh(const SLstring& name = "Mesh");

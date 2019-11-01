@@ -6,12 +6,6 @@
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
-
-using namespace std::placeholders;
-using namespace std::chrono;
-
 #include <SLApplication.h>
 #include <SLLightRect.h>
 #include <SLSceneView.h>
@@ -21,10 +15,7 @@ using namespace std::chrono;
 #include <optix.h>
 #include <cuda_runtime.h>
 #include <optix_stubs.h>
-#include <SLOptixHelper.h>
-
 #include <utility>
-#include <SLCudaBuffer.h>
 
 #ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
 #    include <debug_new.h> // memory leak detector
@@ -267,19 +258,87 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable() {
     return sbt;
 }
 
-OptixTraversableHandle SLOptixRaytracer::_createMeshAccelerationStructure(SLMesh mesh)
+void SLOptixRaytracer::_buildAccelerationStructure(OptixBuildInput buildInput, SLOptixAccelerationStructure* accelerationStructure)
+{
+    OptixTraversableHandle handle;
+
+    OptixAccelBuildOptions accel_options = {};
+    accel_options.buildFlags             = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_ALLOW_RANDOM_VERTEX_ACCESS;
+    accel_options.operation              = OPTIX_BUILD_OPERATION_BUILD;
+
+    OptixAccelBufferSizes accel_buffer_sizes;
+    OPTIX_CHECK( optixAccelComputeMemoryUsage(
+            _context,
+            &accel_options,
+            &buildInput,
+            1,  // num_build_inputs
+            &accel_buffer_sizes
+    ) );
+
+    SLCudaBuffer<void> temp_buffer = SLCudaBuffer<void>();
+    temp_buffer.alloc(accel_buffer_sizes.tempSizeInBytes);
+
+    // non-compacted output
+    auto* non_compacted_output_buffer = new SLCudaBuffer<void>();
+    non_compacted_output_buffer->alloc(accel_buffer_sizes.outputSizeInBytes);
+
+    SLCudaBuffer<size_t> compactedSize = SLCudaBuffer<size_t>();
+    compactedSize.alloc(sizeof(size_t));
+
+    OptixAccelEmitDesc emitProperty = {};
+    emitProperty.type               = OPTIX_PROPERTY_TYPE_COMPACTED_SIZE;
+    emitProperty.result             = compactedSize.devicePointer();
+
+    OPTIX_CHECK( optixAccelBuild(
+            _context,
+            _stream,                            // CUDA stream
+            &accel_options,
+            &buildInput,
+            1,                                  // num build inputs
+            temp_buffer.devicePointer(),
+            accel_buffer_sizes.tempSizeInBytes,
+            non_compacted_output_buffer->devicePointer(),
+            accel_buffer_sizes.outputSizeInBytes,
+            &handle,
+            &emitProperty,                      // emitted property list
+            1                                   // num emitted properties
+    ) );
+    CUDA_SYNC_CHECK( _stream );
+
+    size_t compacted_accel_size;
+    compactedSize.download(&compacted_accel_size);
+
+    if(compacted_accel_size < accel_buffer_sizes.outputSizeInBytes )
+    {
+        auto* outputBuffer = new SLCudaBuffer<void>();
+        outputBuffer->alloc(compacted_accel_size );
+
+        // use handle as input and output
+        OPTIX_CHECK( optixAccelCompact(_context,
+                _stream,
+                handle,
+                outputBuffer->devicePointer(),
+                compacted_accel_size,
+                &handle ) );
+        CUDA_SYNC_CHECK( _stream );
+
+        delete non_compacted_output_buffer;
+        accelerationStructure->buffer(outputBuffer);
+    } else {
+        accelerationStructure->buffer(non_compacted_output_buffer);
+    }
+
+    accelerationStructure->optixTraversableHandle(handle);
+}
+
+void SLOptixRaytracer::_createMeshAccelerationStructure(SLMesh* mesh)
 {
 
     //
     // copy mesh data to device
     //
     SLCudaBuffer<SLVec3f> vertexBuffer = SLCudaBuffer<SLVec3f>();
-    vertexBuffer.alloc_and_upload(mesh.P);
-
-    SLCudaBuffer<SLushort> indexBuffer = SLCudaBuffer<SLushort>();
-    if (mesh.I16.size() < USHRT_MAX) {
-        indexBuffer.alloc_and_upload(mesh.I16);
-    }
+    vertexBuffer.alloc_and_upload(mesh->P);
 
     //
     // Build triangle GAS
@@ -291,23 +350,97 @@ OptixTraversableHandle SLOptixRaytracer::_createMeshAccelerationStructure(SLMesh
 
     OptixBuildInput triangle_input                           = {};
     triangle_input.type                                      = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
-    triangle_input.triangleArray.indexBuffer                 = indexBuffer.devicePointer();
-    triangle_input.triangleArray.indexFormat                 = OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3;
-    triangle_input.triangleArray.indexStrideInBytes          = sizeof( SLushort );
-    triangle_input.triangleArray.numIndexTriplets            = static_cast<uint32_t>( mesh.I16.size());
+
+    if (mesh->I16.size() < USHRT_MAX) {
+        SLCudaBuffer<SLushort> indexBuffer = SLCudaBuffer<SLushort>();
+        indexBuffer.alloc_and_upload(mesh->I16);
+
+        triangle_input.triangleArray.indexBuffer                 = indexBuffer.devicePointer();
+        triangle_input.triangleArray.indexFormat                 = OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3;
+        triangle_input.triangleArray.indexStrideInBytes          = sizeof( SLushort ) * 3;
+    } else {
+        SLCudaBuffer<SLuint> indexBuffer = SLCudaBuffer<SLuint>();
+        indexBuffer.alloc_and_upload(mesh->I32);
+
+        triangle_input.triangleArray.indexBuffer                 = indexBuffer.devicePointer();
+        triangle_input.triangleArray.indexFormat                 = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
+        triangle_input.triangleArray.indexStrideInBytes          = sizeof( SLuint ) * 3;
+    }
+
+
+    triangle_input.triangleArray.numIndexTriplets            = static_cast<uint32_t>( mesh->I16.size());
     triangle_input.triangleArray.vertexFormat                = OPTIX_VERTEX_FORMAT_FLOAT3;
     triangle_input.triangleArray.vertexStrideInBytes         = sizeof( SLVec3f );
-    triangle_input.triangleArray.vertexBuffers               = reinterpret_cast<const CUdeviceptr *>(vertexBuffer.devicePointer());
-    triangle_input.triangleArray.numVertices                 = static_cast<uint32_t>( mesh.P.size() );
+    triangle_input.triangleArray.vertexBuffers               = vertexBuffer.devicePointerPointer();
+    triangle_input.triangleArray.numVertices                 = static_cast<uint32_t>( mesh->P.size() );
     triangle_input.triangleArray.flags                       = triangle_input_flags;
     triangle_input.triangleArray.numSbtRecords               = 1;
 //    triangle_input.triangleArray.sbtIndexOffsetBuffer        = 0;
 //    triangle_input.triangleArray.sbtIndexOffsetSizeInBytes   = sizeof( uint32_t );
 //    triangle_input.triangleArray.sbtIndexOffsetStrideInBytes = sizeof( uint32_t );
 
-//    OptixTraversableHandle gas_handle = buildAccel(state, triangle_input);
+     _buildAccelerationStructure(triangle_input, mesh);
+}
 
-//    return gas_handle;
+void SLOptixRaytracer::_createInstanceAccelerationStructure(SLNode* node) {
+    std::vector<OptixInstance> instances;
+
+    SLVNode children = node->children();
+    for(auto child : children) {
+        _createInstanceAccelerationStructure(child);
+
+        if (child->optixTraversableHandle()) {
+            OptixInstance instance;
+
+            SLMat4f mat4x4 = child->updateAndGetWM();
+            float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
+                                   mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
+                                   mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
+            memcpy(instance.transform, transform, sizeof(float)*12);
+
+            instance.instanceId = 0;
+            instance.visibilityMask = 255;
+            instance.flags = 0;
+            instance.traversableHandle = child->optixTraversableHandle();
+            instance.sbtOffset = 0;
+
+            instances.push_back(instance);
+        }
+    }
+
+    SLVMesh meshes = node->meshes();
+    for(auto mesh : meshes) {
+        OptixInstance instance;
+
+        SLMat4f mat4x4 = node->updateAndGetWM();
+        float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
+                               mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
+                               mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
+        memcpy(instance.transform, transform, sizeof(float)*12);
+
+        instance.instanceId = 0;
+        instance.visibilityMask = 255;
+        instance.flags = OPTIX_INSTANCE_FLAG_NONE;
+        instance.traversableHandle = mesh->optixTraversableHandle();
+        instance.sbtOffset = 0;
+
+        instances.push_back(instance);
+    }
+
+    if (instances.empty()) {
+        node->optixTraversableHandle(0);
+        return;
+    }
+
+    SLCudaBuffer<OptixInstance> instanceBuffer = SLCudaBuffer<OptixInstance>();
+    instanceBuffer.alloc_and_upload(instances);
+
+    OptixBuildInput instance_input                           = {};
+    instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
+    instance_input.instanceArray.instances = instanceBuffer.devicePointer();
+    instance_input.instanceArray.numInstances = instances.size();
+
+    _buildAccelerationStructure(instance_input, node);
 }
 
 void SLOptixRaytracer::setupScene() {
@@ -316,7 +449,10 @@ void SLOptixRaytracer::setupScene() {
 
     // Iterate over all meshes
     for(auto mesh : meshes) {
+        _createMeshAccelerationStructure(mesh);
     }
+
+    _createInstanceAccelerationStructure(scene->root3D());
 }
 
 void SLOptixRaytracer::updateScene(SLSceneView *sv) {
