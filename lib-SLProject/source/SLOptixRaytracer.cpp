@@ -332,6 +332,17 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
 }
 
 SLbool SLOptixRaytracer::renderClassic() {
+    _state      = rtBusy; // From here we state the RT as busy
+    _pcRendered = 0;      // % rendered
+    _renderSec  = 0.0f;   // reset time
+
+    initStats(_maxDepth); // init statistics
+    prepareImage();       // Setup image & precalculations
+
+    // Measure time
+    double t1     = SLApplication::timeS();
+    double tStart = t1;
+
     OPTIX_CHECK(optixLaunch(
             _pipeline,
             _stream,
@@ -343,21 +354,22 @@ SLbool SLOptixRaytracer::renderClassic() {
             /*depth=*/1));
     CUDA_SYNC_CHECK(_stream);
 
-    prepareImage();       // Setup image & precalculations
+    _renderSec  = (SLfloat)(SLApplication::timeS() - tStart);
+    _pcRendered = 100;
+
+    _state = rtReady;
+    return true;
 }
 
 void SLOptixRaytracer::renderImage() {
-    SLRaytracer::renderImage();
+    SLGLTexture::bindActive(0);
 
-    // We want to copy cuda_dev_render_buffer data to the texture
-    // Map buffer objects to get CUDA device pointers
     CUarray texture_ptr;
     CUDA_CHECK( cuGraphicsMapResources(1, &_cudaGraphicsResource, _stream) );
     CUDA_CHECK( cuGraphicsSubResourceGetMappedArray(&texture_ptr, _cudaGraphicsResource, 0, 0) );
 
     CUDA_ARRAY_DESCRIPTOR des;
     cuArrayGetDescriptor(&des, texture_ptr);
-
     CUDA_MEMCPY2D memcpy2D;
     memcpy2D.srcDevice = _imageBuffer.devicePointer();
     memcpy2D.srcMemoryType = CU_MEMORYTYPE_DEVICE;
@@ -371,7 +383,26 @@ void SLOptixRaytracer::renderImage() {
     memcpy2D.dstPitch = 0;
     memcpy2D.WidthInBytes = des.Width * des.NumChannels;
     memcpy2D.Height = des.Height;
-
     CUDA_CHECK(cuMemcpy2D(&memcpy2D) );
+
     CUDA_CHECK( cuGraphicsUnmapResources(1, &_cudaGraphicsResource, _stream) );
+
+    SLfloat w = (SLfloat)_sv->scrW();
+    SLfloat h = (SLfloat)_sv->scrH();
+    if (Utils::abs(_images[0]->width() - w) > 0.0001f) return;
+    if (Utils::abs(_images[0]->height() - h) > 0.0001f) return;
+
+    // Set orthographic projection with the size of the window
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->projectionMatrix.ortho(0.0f, w, 0.0f, h, -1.0f, 0.0f);
+    stateGL->modelViewMatrix.identity();
+    stateGL->clearColorBuffer();
+    stateGL->depthTest(false);
+    stateGL->multiSample(false);
+    stateGL->polygonLine(false);
+
+    drawSprite(false);
+
+    stateGL->depthTest(true);
+    GET_GL_ERROR;
 }
