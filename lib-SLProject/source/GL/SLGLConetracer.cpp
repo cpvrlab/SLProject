@@ -1,8 +1,8 @@
 //#############################################################################
 //  File:      SLGLConetracer.cpp
-//  Author:    Stefan Thöni
+//  Author:    Stefan Thoeni
 //  Date:      September 2018
-//  Copyright: Stefan Thöni
+//  Copyright: Stefan Thoeni
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -19,7 +19,12 @@
 //-----------------------------------------------------------------------------
 SLGLConetracer::SLGLConetracer()
 {
-    SL_LOG("Constructor      : SLConetracer\n");
+    SL_LOG("Constructor     : SLConetracer\n");
+}
+//-----------------------------------------------------------------------------
+SLGLConetracer::~SLGLConetracer()
+{
+    SL_LOG("Destructor      : ~SLConetracer\n");
 }
 //-----------------------------------------------------------------------------
 void SLGLConetracer::init(SLint scrW, SLint scrH)
@@ -67,8 +72,8 @@ void SLGLConetracer::init(SLint scrW, SLint scrH)
     GLint m_viewport[4];
     glGetIntegerv(GL_VIEWPORT, m_viewport);
 
-    _visualizeFBO1 = new SLGLFbo(scrW, scrH);
-    _visualizeFBO2 = new SLGLFbo(scrW, scrH);
+    _visualizeBackfaceFBO  = new SLGLFbo(scrW, scrH);
+    _visualizeFrontfaceFBO = new SLGLFbo(scrW, scrH);
 
     _quadMesh = new SLRectangle(SLVec2f(-1, -1), SLVec2f(1, 1), 1, 1);
     _cubeMesh = new SLBox(-1, -1, -1);
@@ -91,7 +96,7 @@ void SLGLConetracer::visualizeVoxels()
 
     glViewport(0, 0, _voxelTexSize, _voxelTexSize);
 
-    glUseProgram(_worldMat->program()->progid());
+    glUseProgram(_worldMat->program()->progID());
     GET_GL_ERROR;
     // Settings.
     SLGLState* stateGL = SLGLState::instance();
@@ -101,45 +106,48 @@ void SLGLConetracer::visualizeVoxels()
     glEnable(GL_DEPTH_TEST);
     GET_GL_ERROR;
 
-    // Back.
+    // Back faces
     glCullFace(GL_FRONT);
-    glBindFramebuffer(GL_FRAMEBUFFER, _visualizeFBO1->frameBuffer);
-    glViewport(0, 0, _visualizeFBO1->width, _visualizeFBO1->height);
+    glBindFramebuffer(GL_FRAMEBUFFER, _visualizeBackfaceFBO->fboID);
+    glViewport(0, 0, _visualizeBackfaceFBO->width, _visualizeBackfaceFBO->height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    renderNode(new SLNode(_cubeMesh), _worldMat->program()->progid());
+    renderNode(new SLNode(_cubeMesh), _worldMat->program());
     GET_GL_ERROR;
 
-    // Front.
+    // Front faces
     glCullFace(GL_BACK);
-    glBindFramebuffer(GL_FRAMEBUFFER, _visualizeFBO2->frameBuffer);
-    glViewport(0, 0, _visualizeFBO2->width, _visualizeFBO2->height);
+    glBindFramebuffer(GL_FRAMEBUFFER, _visualizeFrontfaceFBO->fboID);
+    glViewport(0, 0, _visualizeFrontfaceFBO->width, _visualizeFrontfaceFBO->height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    renderNode(new SLNode(_cubeMesh), _worldMat->program()->progid());
+    renderNode(new SLNode(_cubeMesh), _worldMat->program());
     GET_GL_ERROR;
 
     // Render 3D Texture to screen
-    glUseProgram(_visualizeMat->program()->progid());
-
+    glUseProgram(_visualizeMat->program()->progID());
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     GET_GL_ERROR;
 
-    _visualizeFBO1->activateAsTexture(_visualizeMat->program()->progid(), "textureBack", 0);
-    _visualizeFBO2->activateAsTexture(_visualizeMat->program()->progid(), "textureFront", 1);
-    _voxelTex->activate(_visualizeMat->program()->progid(), "texture3D", 2);
+    _visualizeBackfaceFBO->activateAsTexture(_visualizeMat->program()->progID(),
+                                             "textureBack",
+                                             0);
+    _visualizeFrontfaceFBO->activateAsTexture(_visualizeMat->program()->progID(),
+                                              "textureFront",
+                                              1);
+    _voxelTex->activate(_visualizeMat->program()->progID(), "texture3D", 2);
     GET_GL_ERROR;
 
-    // Render.
-    // restore viewport:
     glViewport(m_viewport[0], m_viewport[1], m_viewport[2], m_viewport[3]);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    GLint   loc = glGetUniformLocation(_visualizeMat->program()->progid(), "cameraPosition");
+    GLint   loc = glGetUniformLocation(_visualizeMat->program()->progID(),
+                                     "cameraPosition");
     SLVec3f pos = _sv->camera()->translationWS();
     glUniform3fv(loc, 1, (float*)&pos);
 
-    renderNode(new SLNode(_quadMesh), _visualizeMat->program()->progid());
+    renderNode(new SLNode(_quadMesh),
+               _visualizeMat->program());
 }
 //-----------------------------------------------------------------------------
 SLbool SLGLConetracer::render(SLSceneView* sv)
@@ -149,13 +157,9 @@ SLbool SLGLConetracer::render(SLSceneView* sv)
     voxelize();
 
     if (_showVoxels)
-    {
         visualizeVoxels();
-    }
     else
     {
-        SLuint progId = _conetraceMat->program()->progid();
-        GET_GL_ERROR;
         glClearColor(0.0f, 0.0f, 0.0f, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
@@ -166,56 +170,56 @@ SLbool SLGLConetracer::render(SLSceneView* sv)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         GET_GL_ERROR;
 
-        glUseProgram(progId);
+        glUseProgram(_conetraceMat->program()->progID());
 
-        renderSceneGraph(progId);
+        renderSceneGraph(_conetraceMat->program());
     }
     GET_GL_ERROR;
     return true;
 }
 //-----------------------------------------------------------------------------
-void SLGLConetracer::uploadLights(SLuint progId)
+void SLGLConetracer::uploadLights(SLGLProgram* program)
 {
     SLGLState* stateGL = SLGLState::instance();
+    SLuint     progID  = program->progID();
+
     // no ambient color needed. :-)
-    //glUniform1f(glGetUniformLocation(program, "u_matShininess"), _shininess);
-    glUniform1i(glGetUniformLocation(progId, "u_numLightsUsed"), stateGL->numLightsUsed);
+    glUniform1i(glGetUniformLocation(progID, "u_numLightsUsed"), stateGL->numLightsUsed);
 
     SLVec4f lightsVoxelSpace[SL_MAX_LIGHTS];
 
     for (int i = 0; i < stateGL->numLightsUsed; i++)
-    {
         lightsVoxelSpace[i] = _wsToVoxelSpace->multVec(stateGL->lightPosWS[i]);
-    }
 
     if (stateGL->numLightsUsed > 0)
     {
         SLint nL = SL_MAX_LIGHTS;
-        glUniform1iv(glGetUniformLocation(progId, "u_lightIsOn"), nL, (SLint*)stateGL->lightIsOn);
-        glUniform4fv(glGetUniformLocation(progId, "u_lightPosVS"), nL, (SLfloat*)lightsVoxelSpace);
-        glUniform4fv(glGetUniformLocation(progId, "u_lightPosWS"), nL, (SLfloat*)stateGL->lightPosWS);
-        glUniform4fv(glGetUniformLocation(progId, "u_lightDiffuse"), nL, (SLfloat*)stateGL->lightDiffuse);
-        glUniform4fv(glGetUniformLocation(progId, "u_lightSpecular"), nL, (SLfloat*)stateGL->lightSpecular);
-        glUniform3fv(glGetUniformLocation(progId, "u_lightSpotDirWS"), nL, (SLfloat*)stateGL->lightSpotDirWS);
-        glUniform1fv(glGetUniformLocation(progId, "u_lightSpotCutoff"), nL, (SLfloat*)stateGL->lightSpotCutoff);
-        glUniform1fv(glGetUniformLocation(progId, "u_lightSpotCosCut"), nL, (SLfloat*)stateGL->lightSpotCosCut);
-        glUniform1fv(glGetUniformLocation(progId, "u_lightSpotExp"), nL, (SLfloat*)stateGL->lightSpotExp);
-        glUniform3fv(glGetUniformLocation(progId, "u_lightAtt"), nL, (SLfloat*)stateGL->lightAtt);
-        glUniform1iv(glGetUniformLocation(progId, "u_lightDoAtt"), nL, (SLint*)stateGL->lightDoAtt);
+        glUniform1iv(glGetUniformLocation(progID, "u_lightIsOn"), nL, (SLint*)stateGL->lightIsOn);
+        glUniform4fv(glGetUniformLocation(progID, "u_lightPosVS"), nL, (SLfloat*)lightsVoxelSpace);
+        glUniform4fv(glGetUniformLocation(progID, "u_lightPosWS"), nL, (SLfloat*)stateGL->lightPosWS);
+        glUniform4fv(glGetUniformLocation(progID, "u_lightDiffuse"), nL, (SLfloat*)stateGL->lightDiffuse);
+        glUniform4fv(glGetUniformLocation(progID, "u_lightSpecular"), nL, (SLfloat*)stateGL->lightSpecular);
+        glUniform3fv(glGetUniformLocation(progID, "u_lightSpotDirWS"), nL, (SLfloat*)stateGL->lightSpotDirWS);
+        glUniform1fv(glGetUniformLocation(progID, "u_lightSpotCutoff"), nL, (SLfloat*)stateGL->lightSpotCutoff);
+        glUniform1fv(glGetUniformLocation(progID, "u_lightSpotCosCut"), nL, (SLfloat*)stateGL->lightSpotCosCut);
+        glUniform1fv(glGetUniformLocation(progID, "u_lightSpotExp"), nL, (SLfloat*)stateGL->lightSpotExp);
+        glUniform3fv(glGetUniformLocation(progID, "u_lightAtt"), nL, (SLfloat*)stateGL->lightAtt);
+        glUniform1iv(glGetUniformLocation(progID, "u_lightDoAtt"), nL, (SLint*)stateGL->lightDoAtt);
     }
 }
 //-----------------------------------------------------------------------------
-void SLGLConetracer::uploadRenderSettings(SLuint progId)
+void SLGLConetracer::uploadRenderSettings(SLGLProgram* program)
 {
-    glUniform1f(glGetUniformLocation(progId, "s_diffuseConeAngle"), _diffuseConeAngle);
-    glUniform1f(glGetUniformLocation(progId, "s_specularConeAngle"), _specularConeAngle);
-    glUniform1f(glGetUniformLocation(progId, "s_shadowConeAngle"), _shadowConeAngle);
-    glUniform1i(glGetUniformLocation(progId, "s_directEnabled"), _doDirectIllum);
-    glUniform1i(glGetUniformLocation(progId, "s_diffuseEnabled"), _doDiffuseIllum);
-    glUniform1i(glGetUniformLocation(progId, "s_specEnabled"), _doSpecularIllum);
-    glUniform1i(glGetUniformLocation(progId, "s_shadowsEnabled"), _doShadows);
-    glUniform1f(glGetUniformLocation(progId, "s_lightMeshSize"), _lightMeshSize);
-    glUniform1f(glGetUniformLocation(progId, "u_oneOverGamma"), oneOverGamma());
+    SLuint progID = program->progID();
+    glUniform1f(glGetUniformLocation(progID, "s_diffuseConeAngle"), _diffuseConeAngle);
+    glUniform1f(glGetUniformLocation(progID, "s_specularConeAngle"), _specularConeAngle);
+    glUniform1f(glGetUniformLocation(progID, "s_shadowConeAngle"), _shadowConeAngle);
+    glUniform1i(glGetUniformLocation(progID, "s_directEnabled"), _doDirectIllum);
+    glUniform1i(glGetUniformLocation(progID, "s_diffuseEnabled"), _doDiffuseIllum);
+    glUniform1i(glGetUniformLocation(progID, "s_specEnabled"), _doSpecularIllum);
+    glUniform1i(glGetUniformLocation(progID, "s_shadowsEnabled"), _doShadows);
+    glUniform1f(glGetUniformLocation(progID, "s_lightMeshSize"), _lightMeshSize);
+    glUniform1f(glGetUniformLocation(progID, "u_oneOverGamma"), oneOverGamma());
 }
 //-----------------------------------------------------------------------------
 void SLGLConetracer::voxelSpaceTransform(const SLfloat l,
@@ -256,46 +260,35 @@ void SLGLConetracer::calcWS2VoxelSpaceTransform()
                         minWs.z + maxComp);
 }
 //-----------------------------------------------------------------------------
-// Renders scene using a given Program
-void SLGLConetracer::renderSceneGraph(SLuint progId)
+//! Renders scene using a given Program
+void SLGLConetracer::renderSceneGraph(SLGLProgram* program)
 {
     // set viewport:
     glViewport(0, 0, _sv->viewportW(), _sv->viewportH());
 
-    //calcAndUploadWsToVoxelSpace(progId);
-    GLint loc = glGetUniformLocation(progId, "u_wsToVs");
+	SLuint progID = program->progID();
+    GLint loc = glGetUniformLocation(progID, "u_wsToVs");
     glUniformMatrix4fv(loc, 1, GL_FALSE, (SLfloat*)_wsToVoxelSpace->m());
 
-    uploadRenderSettings(progId);
+    uploadRenderSettings(program);
     GET_GL_ERROR;
 
-    // upload light settings:
-    uploadLights(progId);
+    uploadLights(program);
     GET_GL_ERROR;
 
     // upload camera position:
     SLVec3f camPosWS = _sv->camera()->translationWS();
     SLVec3f camPos   = _wsToVoxelSpace->multVec(camPosWS);
-    glUniform3fv(glGetUniformLocation(progId, "u_EyePos"), 1, (SLfloat*)&camPos);
-    glUniform3fv(glGetUniformLocation(progId, "u_EyePosWS"), 1, (SLfloat*)&camPosWS);
+    glUniform3fv(glGetUniformLocation(progID, "u_EyePos"), 1, (SLfloat*)&camPos);
+    glUniform3fv(glGetUniformLocation(progID, "u_EyePosWS"), 1, (SLfloat*)&camPosWS);
     GET_GL_ERROR;
 
-    renderNode(SLApplication::scene->root3D(), progId);
+    renderNode(SLApplication::scene->root3D(), program);
 }
 //-----------------------------------------------------------------------------
-void SLGLConetracer::setCameraOrthographic()
+void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
 {
-    // _sv->camera()->projection(P_monoOrthographic);
-    _sv->camera()->setProjection(_sv, ET_center);
-    _sv->camera()->setView(_sv, ET_center);
-    GET_GL_ERROR;
-}
-//-----------------------------------------------------------------------------
-void SLGLConetracer::renderNode(SLNode* node, const SLuint progId)
-{
-    GET_GL_ERROR;
     assert(node);
-
     GET_GL_ERROR;
 
     SLGLState* stateGL = SLGLState::instance();
@@ -307,41 +300,62 @@ void SLGLConetracer::renderNode(SLNode* node, const SLuint progId)
     stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
 	// pass the modelview projection matrix to the shader
-    GLint loc = glGetUniformLocation(progId, "u_mvpMatrix");
+    GLint loc = glGetUniformLocation(program->progID(), "u_mvpMatrix");
     glUniformMatrix4fv(loc, 1, GL_FALSE, (SLfloat*)stateGL->mvpMatrix());
+	
+	// pass the model matrix:
+    GLint locm = glGetUniformLocation(program->progID(), "u_mMatrix");
+    glUniformMatrix4fv(locm, 1, GL_FALSE, (SLfloat*)&node->updateAndGetWM());
 
-    node->draw(progId);
+    // draw meshes of the node
+    for (auto mesh : node->meshes())
+    {
+		SLMaterial* mat = mesh->mat();
+		mat->passToUniforms(program);		
+
+		// generate a VAO if it does not exist yet
+		if (!mesh->vao().vaoID())
+			mesh->generateVAO(mat->program());
+
+		// bind the buffer
+		glBindVertexArray(mesh->vao().vaoID());
+		GET_GL_ERROR;
+
+		glDrawElements(GL_TRIANGLES, mesh->vao().numIndices(), GL_UNSIGNED_SHORT, 0);
+		GET_GL_ERROR;
+    }
 
     GET_GL_ERROR;
 
+	// recursively draw the child nodes
     for (auto child : node->children())
-    {
-        renderNode(child, progId);
-    }
+        renderNode(child, program);
 }
 //-----------------------------------------------------------------------------
 void SLGLConetracer::voxelize()
 {
     _voxelTex->clear(SLVec4f(0.0f, 0.0f, 0.0f, 0.0f));
-    SLGLProgram* prog = _voxelizeMat->program();
+    SLGLProgram* program = _voxelizeMat->program();
 
     // store viewport
     GLint m_viewport[4];
     glGetIntegerv(GL_VIEWPORT, m_viewport);
 
-    glUseProgram(prog->progid());
+    glUseProgram(program->progID());
     GET_GL_ERROR;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     GET_GL_ERROR;
 
     glViewport(0, 0, _voxelTexSize, _voxelTexSize);
     GET_GL_ERROR;
+
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
     GET_GL_ERROR;
-    _voxelTex->activate(prog->progid(), "texture3D", 0);
+
+    _voxelTex->activate(program->progID(), "texture3D", 0);
     GET_GL_ERROR;
 
     // Bind texture where we want to write to:
@@ -352,12 +366,13 @@ void SLGLConetracer::voxelize()
                        0,
                        GL_WRITE_ONLY,
                        GL_RGBA8);
-
+    GET_GL_ERROR;
+	
+    _sv->camera()->setProjection(_sv, ET_center);
+    _sv->camera()->setView(_sv, ET_center);
     GET_GL_ERROR;
 
-    setCameraOrthographic();
-
-    renderSceneGraph(prog->progid());
+    renderSceneGraph(program);
 
     // restore viewport:
     glViewport(m_viewport[0], m_viewport[1], m_viewport[2], m_viewport[3]);
@@ -367,10 +382,5 @@ void SLGLConetracer::voxelize()
     // reset color mask
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     GET_GL_ERROR;
-}
-//-----------------------------------------------------------------------------
-SLGLConetracer::~SLGLConetracer()
-{
-    SL_LOG("Destructor      : ~SLConetracer\n");
 }
 //-----------------------------------------------------------------------------

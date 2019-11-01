@@ -2149,7 +2149,7 @@ void AppDemoGui::buildProperties(SLScene* s)
                         for (SLulong i = 0; i < m->textures().size(); ++i)
                         {
                             SLGLTexture* t      = m->textures()[i];
-                            void*        tid    = (ImTextureID)(intptr_t)t->texName();
+                            void*        tid    = (ImTextureID)(intptr_t)t->texID();
                             SLfloat      w      = (SLfloat)t->width();
                             SLfloat      h      = (SLfloat)t->height();
                             SLfloat      h_to_w = h / w;

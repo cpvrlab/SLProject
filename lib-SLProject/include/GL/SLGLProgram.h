@@ -56,10 +56,9 @@ public:
 
     virtual ~SLGLProgram();
 
-    void  addShader(SLGLShader* shader);
-    void  init(); //!< create, attach & link shaders
-    void  initRaw();
-    char* getLinkerLog(); //!< get linker messages
+    void addShader(SLGLShader* shader);
+    void init(); //!< create, attach & link shaders
+    void initRaw();
 
     virtual void beginShader(SLMaterial* mat) = 0; //!< starter for derived classes
     virtual void endShader()                  = 0;
@@ -72,9 +71,8 @@ public:
     void addUniform1i(SLGLUniform1i* u); //!< add int uniform
 
     //Getters
-    SLuint       programObjectGL() { return _objectGL; }
+    SLuint       progID() { return _progID; }
     SLVGLShader& shaders() { return _shaders; }
-    SLuint       progid() { return _objectGL; };
 
     //Variable location getters
     SLint getUniformLocation(const SLchar* name);
@@ -129,7 +127,7 @@ public:
     static SLstring defaultPath; //!< default path for GLSL programs
 
 private:
-    SLuint       _objectGL;   //!< OpenGL shader program object
+    SLuint       _progID;     //!< OpenGL shader program object ID
     SLbool       _isLinked;   //!< Flag if program is linked
     SLVGLShader  _shaders;    //!< Vector of all shader objects
     SLVUniform1f _uniforms1f; //!< Vector of uniform1f variables

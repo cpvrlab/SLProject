@@ -34,8 +34,7 @@ vertex and fragment shader.
 All parameters get synced into their corresponding parameter in SLGLState
 when a the material gets activated by the method activate.
 Light and material paramters get passed to their corresponding shader
-variables in SLGLPro
-gram::beginUse.
+variables in SLGLProgram::beginUse.
 */
 class SLMaterial : public SLObject
 {
@@ -77,27 +76,21 @@ public:
     //! Sets the material states and passes all variables to the shader program
     void activate(SLDrawBits drawBits);
 
+	//! Passes the material paramters to shader programs uniform variables
+    void passToUniforms(SLGLProgram* program);
+
     //! Returns true if there is any transparency in diffuse alpha or textures
     SLbool hasAlpha() { return (_diffuse.a < 1.0f ||
                                 (!_textures.empty() &&
                                  _textures[0]->hasAlpha())); }
 
-    //! Upload material settings to the GPU for a given Shader Program
-    void upload(SLuint program);
-
-//! Returns true if a material has a 3D texture
-#ifdef APP_USES_GLES
-    SLbool has3DTexture()
-    {
-        return false;
-    }
-#else
+    //! Returns true if a material has a 3D texture
     SLbool has3DTexture()
     {
         return !_textures.empty() > 0 &&
                _textures[0]->target() == GL_TEXTURE_3D;
     }
-#endif
+
     //! Returns true if a material with textures tangents as additional attributes
     SLbool needsTangents() { return (_textures.size() >= 2 &&
                                      _textures[0]->target() == GL_TEXTURE_2D &&

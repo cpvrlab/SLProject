@@ -1,13 +1,14 @@
 //############################################################################
-//  File:      Voxelization.vert
+//  File:      CTVoxelization.vert
 //  Purpose:   GLSL vertex shader calculating world-space point used in the
 //             voxelization process.
-//  Author:    Stefan Thöni
+//  Author:    Stefan Thoeni
 //  Date:      September 2018
-//  Copyright: Stefan Thöni
+//  Copyright: Stefan Thoeni
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //############################################################################
+
 #version 430 core
 
 layout(location = 0) in vec4  a_position;    // Vertex position attribute
@@ -29,7 +30,7 @@ void main(void)
   v_P_WS = vec3(u_mMatrix * a_position);
   v_N_WS = normalize(mat3(transpose(inverse(u_mMatrix))) * a_normal);
   v_P_VS = vec3(u_wsToVs * u_mMatrix * a_position);
-  //  v_N_WS = mat3(u_mMatrix) * a_normal;
+
   gl_Position = u_mvpMatrix * a_position;
 }
 //-----------------------------------------------------------------------------

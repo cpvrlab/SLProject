@@ -196,7 +196,7 @@ void SLMesh::deleteUnused()
 
     // A boolean for each vertex to flag it as used or not
     SLVbool used(P.size());
-    for (auto && u : used)
+    for (auto&& u : used)
         u = false;
 
     // Loop over all indexes and mark them as used
@@ -392,18 +392,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 3) Generate Vertex Array Object once
     ///////////////////////////////////////
 
-    if (!_vao.id())
-    {
-        _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), _finalP);
-        if (!N.empty()) _vao.setAttrib(AT_normal, sp->getAttribLocation("a_normal"), _finalN);
-        if (!Tc.empty()) _vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &Tc);
-        if (!C.empty()) _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
-        if (!T.empty()) _vao.setAttrib(AT_tangent, sp->getAttribLocation("a_tangent"), &T);
-        if (!I16.empty()) _vao.setIndices(&I16);
-        if (!I32.empty()) _vao.setIndices(&I32);
-
-        _vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
-    }
+    if (!_vao.vaoID())
+        generateVAO(sp);
 
     ///////////////////////////////
     // 4): Finally do the draw call
@@ -457,8 +447,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     }
     else
     { // release buffer objects for normal & tangent rendering
-        if (_vaoN.id()) _vaoN.deleteGL();
-        if (_vaoT.id()) _vaoT.deleteGL();
+        if (_vaoN.vaoID()) _vaoN.deleteGL();
+        if (_vaoT.vaoID()) _vaoT.deleteGL();
     }
 
     //////////////////////////////////////////
@@ -541,7 +531,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     }
     else
     {
-        if (_vaoS.id())
+        if (_vaoS.vaoID())
         {
             _vaoS.clearAttribs();
             IS32.clear();
@@ -554,36 +544,18 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     if (blended) stateGL->blend(true);
 }
 //-----------------------------------------------------------------------------
-//!Renders a mesh with a specific shader program id
-void SLMesh::draw(SLuint progId)
+//! Generate the Vertex Array Object for a specific shader program
+void SLMesh::generateVAO(SLGLProgram* sp)
 {
-    GET_GL_ERROR;
-    // generate a VAO if it does not exist yet
-    if (!_vao.id())
-    {
-        generateVAO(progId);
-    }
+    _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), _finalP);
+    if (!N.empty()) _vao.setAttrib(AT_normal, sp->getAttribLocation("a_normal"), _finalN);
+    if (!Tc.empty()) _vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &Tc);
+    if (!C.empty()) _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
+    if (!T.empty()) _vao.setAttrib(AT_tangent, sp->getAttribLocation("a_tangent"), &T);
+    if (!I16.empty()) _vao.setIndices(&I16);
+    if (!I32.empty()) _vao.setIndices(&I32);
 
-    // bind the buffer
-    glBindVertexArray(_vao.id());
-    GET_GL_ERROR;
-
-    //std::cout << "number of vertices for object: " << _vao.numIndices();
-    glDrawElements(GL_TRIANGLES, _vao.numIndices(), GL_UNSIGNED_SHORT, 0);
-    GET_GL_ERROR;
-}
-//-----------------------------------------------------------------------------
-void SLMesh::generateVAO(SLuint progId)
-{
-    _vao.setAttrib(AT_position, glGetAttribLocation(progId, "a_position"), _finalP);
-    if (N.size()) _vao.setAttrib(AT_normal, glGetAttribLocation(progId, "a_normal"), _finalN);
-    if (Tc.size()) _vao.setAttrib(AT_texCoord, glGetAttribLocation(progId, "a_texCoord"), &Tc);
-    if (C.size()) _vao.setAttrib(AT_color, glGetAttribLocation(progId, "a_color"), &C);
-    if (T.size()) _vao.setAttrib(AT_tangent, glGetAttribLocation(progId, "a_tangent"), &T);
-    if (I16.size()) _vao.setIndices(&I16);
-    if (I32.size()) _vao.setIndices(&I32);
-
-    _vao.generate((SLuint)P.size(), Ji.size() ? BU_stream : BU_static, !Ji.size());
+    _vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -670,7 +642,7 @@ bounding sphere. Code by Jack Ritter from Graphic Gems.
 */
 void SLMesh::calcCenterRad(SLVec3f& center, SLfloat& radius)
 {
-    SLulong  i;
+    SLulong i;
     SLfloat dx, dy, dz;
     SLfloat radius2, xspan, yspan, zspan, maxspan;
     SLfloat old_to_p, old_to_p_sq, old_to_new;
@@ -1286,7 +1258,7 @@ void SLMesh::transformSkin()
     }
 
     // update or create buffers
-    if (_vao.id())
+    if (_vao.vaoID())
     {
         _vao.updateAttrib(AT_position, _finalP);
         if (!N.empty()) _vao.updateAttrib(AT_normal, _finalN);

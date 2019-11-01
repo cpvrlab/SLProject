@@ -94,7 +94,6 @@ SLMaterial::SLMaterial(const SLchar* name,
 SLMaterial::SLMaterial(const SLchar* name,
                        SLGLProgram*  shaderProg) : SLObject(name)
 {
-
     _program = shaderProg;
 
     // Add pointer to the global resource vectors for deallocation
@@ -154,25 +153,6 @@ SLMaterial::~SLMaterial()
 {
 }
 //-----------------------------------------------------------------------------
-/*! Upload material settings to the GPU for a given shader program. This is 
-useful if one wants to handle shader and material separatly from one another.
- */
-void SLMaterial::upload(SLuint program)
-{
-    glUniform4fv(glGetUniformLocation(program, "u_matAmbient"), 1, (SLfloat*)&_ambient);
-    glUniform4fv(glGetUniformLocation(program, "u_matDiffuse"), 1, (SLfloat*)&_diffuse);
-    glUniform4fv(glGetUniformLocation(program, "u_matSpecular"), 1, (SLfloat*)&_specular);
-    glUniform4fv(glGetUniformLocation(program, "u_matEmissive"), 1, (SLfloat*)&_emissive);
-
-    glUniform1f(glGetUniformLocation(program, "u_matShininess"), _shininess);
-    glUniform1f(glGetUniformLocation(program, "u_matRoughness"), _roughness);
-    glUniform1f(glGetUniformLocation(program, "u_matMetallic"), _metalness);
-
-    glUniform1f(glGetUniformLocation(program, "u_matKr"), _kr);
-    glUniform1f(glGetUniformLocation(program, "u_matKt"), _kt);
-    glUniform1f(glGetUniformLocation(program, "u_matKn"), _kn);
-}
-//-----------------------------------------------------------------------------
 /*!
 SLMaterial::activate applies the material parameter to the global render state
 and activates the attached shader
@@ -205,15 +185,6 @@ void SLMaterial::activate(SLDrawBits drawBits)
         _textures.push_back(new SLGLTexture("CompileError.png"));
     }
 
-    // Set material in the state
-    stateGL->matAmbient   = _ambient;
-    stateGL->matDiffuse   = _diffuse;
-    stateGL->matSpecular  = _specular;
-    stateGL->matEmissive  = _emissive;
-    stateGL->matShininess = _shininess;
-    stateGL->matRoughness = _roughness;
-    stateGL->matMetallic  = _metalness;
-
     // Determine use of shaders & textures
     SLbool useTexture = !drawBits.get(SL_DB_TEXOFF);
 
@@ -226,6 +197,23 @@ void SLMaterial::activate(SLDrawBits drawBits)
 
     // Activate the shader program now
     program()->beginUse(this);
+}
+//-----------------------------------------------------------------------------
+void SLMaterial::passToUniforms(SLGLProgram* program)
+{
+    assert(program && "SLMaterial::passToUniforms: No shader program set!");
+
+    SLint loc;
+    loc = program->uniform4fv("u_matAmbient", 1, (SLfloat*)&_ambient);
+    loc = program->uniform4fv("u_matDiffuse", 1, (SLfloat*)&_diffuse);
+    loc = program->uniform4fv("u_matSpecular", 1, (SLfloat*)&_specular);
+    loc = program->uniform4fv("u_matEmissive", 1, (SLfloat*)&_emissive);
+    loc = program->uniform1f("u_matShininess", _shininess);
+    loc = program->uniform1f("u_matRoughness", _roughness);
+    loc = program->uniform1f("u_matMetallic", _metalness);
+    loc = program->uniform1f("u_matKr", _kr);
+    loc = program->uniform1f("u_matKt", _kt);
+    loc = program->uniform1f("u_matKn", _kn);
 }
 //-----------------------------------------------------------------------------
 /*! 

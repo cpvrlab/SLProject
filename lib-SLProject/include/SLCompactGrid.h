@@ -43,7 +43,7 @@ class SLCompactGrid : public SLAccelStruct
     void deleteAll();
     void disposeBuffers()
     {
-        if (_vao.id()) _vao.clearAttribs();
+        if (_vao.vaoID()) _vao.clearAttribs();
     }
 
     SLuint indexAtPos(const SLVec3i& p) const

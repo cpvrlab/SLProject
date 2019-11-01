@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      SLGLFbo.h
 //  Purpose:   Wraps an OpenGL framebuffer object
-//  Author:    Stefan Thöni
+//  Author:    Stefan Thoeni
 //  Date:      September 2018
-//  Copyright: Stefan Thöni
+//  Copyright: Stefan Thoeni
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -27,11 +27,12 @@ public:
     void activateAsTexture(int             progId,
                            const SLstring& samplerName,
                            int             textureUnit = GL_TEXTURE0);
+
     SLuint width;
     SLuint height;
-    SLuint frameBuffer;
-    SLuint textureColorBuffer;
     SLuint attachment;
-    SLuint rbo;
+    SLuint fboID;
+    SLuint texID;
+    SLuint rboID;
 };
 //-----------------------------------------------------------------------------

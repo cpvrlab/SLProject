@@ -1,13 +1,13 @@
 //#############################################################################
-//  File:      Voxelization.frag
-//  Purpose:   Calculates diffuse illumination and stores it into voxelized 3D
-//             Texture
-//  Author:    Stefan Thöni
+//  File:      CTVoxelization.frag
+//  Purpose:   Calculates diffuse illum. & stores it into voxelized 3D texture
+//  Author:    Stefan Thoeni
 //  Date:      September 2018
-//  Copyright: Stefan Thöni
+//  Copyright: Stefan Thoeni
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
+
 #version 430 core
 in vec3 o_F_WS;
 in vec3 o_F_VS;

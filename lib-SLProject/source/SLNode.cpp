@@ -195,7 +195,7 @@ SLbool SLNode::deleteMesh(SLMesh* mesh)
 }
 //-----------------------------------------------------------------------------
 /*! Finds a mesh by name and returns its pointer. Optionally you can search
-
+the node hierarchy recursively.
 */
 SLMesh* SLNode::findMesh(const SLstring& name, SLbool recursive)
 {
@@ -292,21 +292,6 @@ void SLNode::drawMeshes(SLSceneView* sv)
         if ((stateGL->blend() && mesh->mat()->hasAlpha()) ||
             (!stateGL->blend() && !mesh->mat()->hasAlpha()))
             mesh->draw(sv, this);
-}
-//-----------------------------------------------------------------------------
-//! Renders the node with a specific shader program id
-void SLNode::draw(SLuint programId)
-{
-    // pass the model matrix:
-    GLint loc = glGetUniformLocation(programId, "u_mMatrix");
-    glUniformMatrix4fv(loc, 1, GL_FALSE, (SLfloat*)&this->updateAndGetWM());
-
-    // draw meshes:
-    for (auto mesh : _meshes)
-    {
-        mesh->mat()->upload(programId);
-        mesh->draw(programId);
-    }
 }
 //-----------------------------------------------------------------------------
 /*!

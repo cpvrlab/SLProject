@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      SLGLFbo.cpp
 //  Purpose:   Wraps an OpenGL framebuffer object
-//  Author:    Stefan Thöni
+//  Author:    Stefan Thoeni
 //  Date:      September 2018
-//  Copyright: Stefan Thöni
+//  Copyright: Stefan Thoeni
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -25,11 +25,11 @@ SLGLFbo::SLGLFbo(GLuint w,
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousFrameBuffer);
 
     // Init framebuffer.
-    glGenFramebuffers(1, &frameBuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+    glGenFramebuffers(1, &fboID);
+    glBindFramebuffer(GL_FRAMEBUFFER, fboID);
 
-    glGenTextures(1, &textureColorBuffer);
-    glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+    glGenTextures(1, &texID);
+    glBindTexture(GL_TEXTURE_2D, texID);
 
     // Texture parameters.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
@@ -50,11 +50,11 @@ SLGLFbo::SLGLFbo(GLuint w,
     glFramebufferTexture2D(GL_FRAMEBUFFER,
                            GL_COLOR_ATTACHMENT0,
                            GL_TEXTURE_2D,
-                           textureColorBuffer,
+                           texID,
                            0);
 
-    glGenRenderbuffers(1, &rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glGenRenderbuffers(1, &rboID);
+    glBindRenderbuffer(GL_RENDERBUFFER, rboID);
 
     // Use a single rbo for both depth and stencil buffer
     glRenderbufferStorage(GL_RENDERBUFFER,
@@ -65,7 +65,7 @@ SLGLFbo::SLGLFbo(GLuint w,
     glFramebufferRenderbuffer(GL_FRAMEBUFFER,
                               GL_DEPTH_ATTACHMENT,
                               GL_RENDERBUFFER,
-                              rbo);
+                              rboID);
 
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glBindFramebuffer(GL_FRAMEBUFFER,
@@ -77,16 +77,16 @@ SLGLFbo::SLGLFbo(GLuint w,
 //-----------------------------------------------------------------------------
 SLGLFbo::~SLGLFbo()
 {
-    glDeleteTextures(1, &textureColorBuffer);
-    glDeleteFramebuffers(1, &frameBuffer);
+    glDeleteTextures(1, &texID);
+    glDeleteFramebuffers(1, &fboID);
 }
 //-----------------------------------------------------------------------------
-void SLGLFbo::activateAsTexture(const int progId,
-                                const SLstring&  glSamplerName,
-                                const int textureUnit)
+void SLGLFbo::activateAsTexture(const int       progId,
+                                const SLstring& glSamplerName,
+                                const int       textureUnit)
 {
     glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+    glBindTexture(GL_TEXTURE_2D, texID);
     glUniform1i(glGetUniformLocation(progId,
                                      glSamplerName.c_str()),
                 textureUnit);

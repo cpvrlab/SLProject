@@ -1,13 +1,14 @@
 //#############################################################################
-//  File:      VXConetracing.frag
+//  File:      CT.frag
 //  Purpose:   Calculated direct illumination using Blinn-Phong
 //             and indirect illumination using voxel cone tracing
-//  Author:    Stefan Thöni
+//  Author:    Stefan Thoeni
 //  Date:      September 2018
-//  Copyright: Stefan Thöni
+//  Copyright: Stefan Thoeni
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
+
 #version 430 core
 in vec3 o_N_WS;
 in vec3 o_P_VS;
@@ -17,6 +18,7 @@ in vec3 o_P_WS;
 #define SQRT2 (1.41421)
 #define SQRT3 (1.732050807)
 #define SQRT3DOUBLE (2 * 1.732050807)
+
 // general settings:
 uniform float   s_diffuseConeAngle;
 uniform float   s_specularConeAngle;
@@ -24,7 +26,6 @@ uniform bool    s_directEnabled;
 uniform bool    s_diffuseEnabled;
 uniform bool    s_specEnabled;
 uniform bool    s_shadowsEnabled;
-
 uniform float   s_shadowConeAngle;
 
 // how big the mesh of a lightsource is. (This can vary from scene to scene)
@@ -56,58 +57,69 @@ uniform vec4   u_matSpecular;       //!< specular color reflection coefficient (
 uniform vec4   u_matEmissive;       //!< emissive color for selfshining materials
 uniform float  u_matShininess;      //!< shininess exponent
 uniform float  u_matKr;             //!< reflection factor (kr)
-
-uniform float  u_oneOverGamma;
+uniform float  u_oneOverGamma;		//!< oneOverGamma correction factor
 
 uniform sampler3D texture3D; // Voxelization texture.
 
 out vec4 color;
 
-// Returns true if the point p is inside the unity cube. 
-bool isInsideCube(const vec3 p, float e) { return abs(p.x) < 1 + e && abs(p.y) < 1 + e && abs(p.z) < 1 + e; }
+//-----------------------------------------------------------------------------
+// Returns true if the point p is inside the unity cube.
+bool isInsideCube(const vec3 p, float e) 
+{ 
+	return abs(p.x) < 1 + e && 
+	       abs(p.y) < 1 + e && 
+		   abs(p.z) < 1 + e; 
+}
+//-----------------------------------------------------------------------------
+vec4 coneTraceStopDist(vec3  from, 
+                       vec3  dir, 
+					   float angle, 
+					   float stopDistance, 
+					   vec3  offsetVector, 
+					   float firstSampleDist)
+{
+	dir = normalize(dir);
 
-vec4 coneTraceStopDist(vec3 from, vec3 dir, float angle, float stopDistance, vec3 offsetVector, float firstSampleDist){
-  dir = normalize(dir);
+	vec3  res = vec3(0.0f);
+	float alpha = 0.0;
+	float dist = VOXEL_SIZE * firstSampleDist;
 
-  vec3 res = vec3(0.0f);
-  float alpha = 0.0;
+	// offset to avoid sampling its own voxel
+	vec3 offset = normalize(offsetVector) * VOXEL_SIZE * SQRT3;
+	from = from + offset;
+
+	float tanTheta2 = tan(angle) * 2;
+
+	stopDistance -= length(offset); // remove the offset from distance
   
-  float dist = VOXEL_SIZE * firstSampleDist;
+	while(dist < stopDistance && alpha < 1) 
+	{
+		// calculate voxel coordinate:
+		vec3 coordinate = from + dist * dir;
 
-  // offset to avoid sampling its own voxel
-  vec3 offset = normalize(offsetVector) * VOXEL_SIZE * SQRT3;
-  from = from + offset;
-
-  float tanTheta2 = tan(angle) * 2;
-
-  stopDistance -= length(offset); // remove the offset from distance
-  
-  while(dist < stopDistance && alpha < 1) {
-    // calculate voxel coordinate:
-    vec3 coordinate = from + dist * dir;
-
-    //if(!isInsideCube(coordinate, 0.0)) break;
+		//if(!isInsideCube(coordinate, 0.0)) break;
         
-    float diameter = max(VOXEL_SIZE, tanTheta2 * dist);
-    float mip = log2(diameter / VOXEL_SIZE);
-    if(mip > 6) break;
-    vec4 samp = textureLod(texture3D, coordinate, mip);
+		float diameter = max(VOXEL_SIZE, tanTheta2 * dist);
+		float mip = log2(diameter / VOXEL_SIZE);
+		if(mip > 6) break;
+		vec4 samp = textureLod(texture3D, coordinate, mip);
 
-    // alpha blending
-    float f = 1 - alpha;
-    res.rgb += samp.rgb * f; 
-    alpha += samp.a * f;
+		// alpha blending
+		float f = 1 - alpha;
+		res.rgb += samp.rgb * f; 
+		alpha += samp.a * f;
     
-    dist += diameter * 0.55;
-  }
-  return vec4(res, alpha);
+		dist += diameter * 0.55;
+	}
+	return vec4(res, alpha);
 }
-
-vec4 coneTrace(vec3 from, vec3 dir, float angle){
-  const float stopDistance = 50 * VOXEL_SIZE; // performance boost!
-  return coneTraceStopDist(from, dir, angle, stopDistance, o_N_WS, 3.0);
+//-----------------------------------------------------------------------------
+vec4 coneTrace(vec3 from, vec3 dir, float angle)
+{
+	const float stopDistance = 50 * VOXEL_SIZE; // performance boost!
+	return coneTraceStopDist(from, dir, angle, stopDistance, o_N_WS, 3.0);
 }
-
 //-----------------------------------------------------------------------------
 void DirectLight(in    int  i,   // Light number
                  in    vec3 N,   // Normalized normal 
@@ -115,21 +127,21 @@ void DirectLight(in    int  i,   // Light number
                  inout vec4 Id,  // Diffuse light intesity
                  inout vec4 Is)  // Specular light intesity
 {  
-  // We use the spot light direction as the light direction vector
-  vec3 L = normalize(-u_lightSpotDirWS[i].xyz);
+	// We use the spot light direction as the light direction vector
+	vec3 L = normalize(-u_lightSpotDirWS[i].xyz);
 
-  // Half vector H between L and E
-  vec3 H = normalize(L+E);
+	// Half vector H between L and E
+	vec3 H = normalize(L+E);
    
-  // Calculate diffuse & specular factors
-  float diffFactor = max(dot(N,L), 0.0);
-  float specFactor = 0.0;
-  if (diffFactor!=0.0) 
-    specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
+	// Calculate diffuse & specular factors
+	float diffFactor = max(dot(N,L), 0.0);
+	float specFactor = 0.0;
+	if (diffFactor!=0.0) 
+	specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
    
-  // accumulate directional light intesities w/o attenuation
-  Id += u_lightDiffuse[i] * diffFactor;
-  Is += u_lightSpecular[i] * specFactor;
+	// accumulate directional light intesities w/o attenuation
+	Id += u_lightDiffuse[i] * diffFactor;
+	Is += u_lightSpecular[i] * specFactor;
 }
 
 //-----------------------------------------------------------------------------
@@ -210,12 +222,12 @@ vec4 direct(){
   if (u_lightIsOn[6]) {if (u_lightPosVS[6].w == 0.0) DirectLight(6, N, E, Id, Is); else PointLight(6, o_P_WS, N, E, Id, Is);}
   if (u_lightIsOn[7]) {if (u_lightPosVS[7].w == 0.0) DirectLight(7, N, E, Id, Is); else PointLight(7, o_P_WS, N, E, Id, Is);}
 
-  return u_matEmissive + 
-    Id * u_matDiffuse +
-    Is * u_matSpecular;
+	return u_matEmissive + 
+			Id * u_matDiffuse +
+			Is * u_matSpecular;
 
 }
-
+//-----------------------------------------------------------------------------
 vec4 indirectDiffuse(){
   vec4 res = vec4(0.0);
   vec3 N = normalize(o_N_WS);
@@ -291,3 +303,4 @@ void main(){
 
   color.rgb = pow(color.rgb, vec3(u_oneOverGamma));
 }
+//-----------------------------------------------------------------------------

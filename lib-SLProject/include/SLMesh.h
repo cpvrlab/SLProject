@@ -24,6 +24,7 @@ class SLMaterial;
 class SLRay;
 class SLSkeleton;
 class SLGLState;
+class SLGLProgram;
 
 //-----------------------------------------------------------------------------
 //!An SLMesh object is a triangulated mesh that is drawn with one draw call.
@@ -123,7 +124,6 @@ public:
 
     virtual void init(SLNode* node);
     virtual void draw(SLSceneView* sv, SLNode* node);
-    void         draw(SLuint progId);
     void         addStats(SLNodeStats& stats);
     virtual void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
     void         updateAccelStruct();
@@ -139,8 +139,8 @@ public:
     virtual void calcMinMax();
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
-
-    void transformSkin();
+    void         generateVAO(SLGLProgram* sp);
+    void         transformSkin();
 
     // Getters
     SLMaterial*       mat() const { return _mat; }
@@ -148,6 +148,7 @@ public:
     SLGLPrimitiveType primitive() const { return _primitive; }
     const SLSkeleton* skeleton() const { return _skeleton; }
     SLuint            numI() { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
+    SLGLVertexArray&  vao() { return _vao; }
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }
@@ -196,9 +197,6 @@ protected:
     SLVVec3f*   _finalN;        //!< pointer to final vertex normal vector
 
     void notifyParentNodesAABBUpdate() const;
-
-private:
-    void generateVAO(SLuint progId);
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLMesh*> SLVMesh;
