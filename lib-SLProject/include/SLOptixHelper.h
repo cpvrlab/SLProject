@@ -117,4 +117,8 @@ std::string getPtxStringFromFile(
         std::string filename,               // Cuda C input file name
         const char** log = NULL );          // (Optional) pointer to compiler log string. If *log == NULL there is no output.
 
+float4 make_float4(const SLVec4f& f);
+
+float3 make_float3(const SLVec3f& f);
+
 #endif //SLPROJECT_SLOPTIXHELPER_H

@@ -187,6 +187,7 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMesh.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLNode.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixAccelerationStructure.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixHelper.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixRaytracer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPathtracer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPoints.cpp
@@ -261,7 +262,7 @@ add_custom_target(ptx ALL
 add_library(${target}
         ${headers}
         ${sources}
-        ${shaders} source/SLOptixHelper.cpp)
+        ${shaders})
 
 add_library(${META_PROJECT_NAME}::${target}
         ALIAS
@@ -294,7 +295,7 @@ target_include_directories(${target}
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/zlib
-        ${SL_PROJECT_ROOT}/externals/lib-SLEx   ternal/glew/include
+        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
         ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
         ${OpenCV_INCLUDE_DIR}
         ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}

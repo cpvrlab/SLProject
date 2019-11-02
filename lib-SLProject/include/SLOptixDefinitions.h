@@ -10,9 +10,9 @@
 
 struct Material
 {
-    float3 diffuse_color;
-    float3 ambient_color;
-    float3 specular_color;
+    float4 diffuse_color;
+    float4 ambient_color;
+    float4 specular_color;
     float shininess;
     float kr;
     float kt;
@@ -22,7 +22,7 @@ struct Material
 struct Light
 {
     float3 position;
-    float3 color;
+    float4 color;
 };
 
 struct Params
@@ -38,6 +38,8 @@ struct Params
 
     Light*                  lights;
     int                     numLights;
+
+    float3*                  debug;
 };
 
 enum RayType
@@ -57,7 +59,7 @@ struct CameraData
 
 struct MissData
 {
-    float3 bg_color;
+    float4 bg_color;
 };
 
 struct HitData

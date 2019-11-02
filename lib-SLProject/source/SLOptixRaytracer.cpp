@@ -61,7 +61,7 @@ void SLOptixRaytracer::setupOptix() {
 
     _pipeline_compile_options.usesMotionBlur        = false;
     _pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
-    _pipeline_compile_options.numPayloadValues      = 6;
+    _pipeline_compile_options.numPayloadValues      = 7;
     _pipeline_compile_options.numAttributeValues    = 2;
     _pipeline_compile_options.exceptionFlags        = OPTIX_EXCEPTION_FLAG_USER;
     _pipeline_compile_options.pipelineLaunchParamsVariableName = "params";
@@ -74,7 +74,7 @@ void SLOptixRaytracer::setupOptix() {
     OptixProgramGroupDesc raygen_prog_group_desc  = {}; //
     raygen_prog_group_desc.kind                                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
     raygen_prog_group_desc.raygen.module                            = _cameraModule;
-    raygen_prog_group_desc.raygen.entryFunctionName                 = "__raygen__draw_solid_color";
+    raygen_prog_group_desc.raygen.entryFunctionName                 = "__raygen__pinhole_camera";
     _raygen_prog_group = _createProgram(raygen_prog_group_desc);
 
     OptixProgramGroupDesc radiance_miss_prog_group_desc = {};
@@ -111,8 +111,6 @@ void SLOptixRaytracer::setupOptix() {
             _occlusion_hit_group,
     };
     _pipeline = _createPipeline(program_groups, 5);
-
-    _sbt = _createShaderBindingTable();
 
     _paramsBuffer.alloc(sizeof(Params));
 }
@@ -207,24 +205,21 @@ OptixPipeline SLOptixRaytracer::_createPipeline(OptixProgramGroup * program_grou
     return pipeline;
 }
 
-OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable() {
+OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(SLVMesh meshes) {
 
     OptixShaderBindingTable sbt = {};
     {
         // Setup ray generation records
-        std::vector<RayGenSbtRecord> rayGenRecords;
-
         RayGenSbtRecord rg_sbt;
         OPTIX_CHECK( optixSbtRecordPackHeader( _raygen_prog_group, &rg_sbt ) );
-        rayGenRecords.push_back(rg_sbt);
-
-        _rayGenBuffer.alloc_and_upload(rayGenRecords);
+        _rayGenBuffer.alloc_and_upload(&rg_sbt, 1);
 
         // Setup miss records
         std::vector<MissSbtRecord> missRecords;
 
         MissSbtRecord radiance_ms_sbt;
         OPTIX_CHECK( optixSbtRecordPackHeader( _radiance_miss_group , &radiance_ms_sbt ) );
+        radiance_ms_sbt.data.bg_color = {1.0f, 1.0f, 1.0f, 1.0f};
         missRecords.push_back(radiance_ms_sbt);
 
         MissSbtRecord occlusion_ms_sbt;
@@ -236,14 +231,27 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable() {
         // Setup hit records
         std::vector<HitSbtRecord> hitRecords;
 
-        HitSbtRecord radiance_hg_sbt;
-        OPTIX_CHECK( optixSbtRecordPackHeader( _radiance_hit_group, &radiance_hg_sbt ) );
-        hitRecords.push_back(radiance_hg_sbt);
+        for(auto mesh : meshes) {
+            HitSbtRecord radiance_hg_sbt;
+            OPTIX_CHECK( optixSbtRecordPackHeader( _radiance_hit_group, &radiance_hg_sbt ) );
+            radiance_hg_sbt.data.sbtIndex = 0;
+//            radiance_hg_sbt.data.normals = mesh->N.data();
+//            radiance_hg_sbt.data.indices = mesh->N.data();
+            radiance_hg_sbt.data.material.kn = mesh->mat()->kn();
+            radiance_hg_sbt.data.material.kt = mesh->mat()->kt();
+            radiance_hg_sbt.data.material.kr = mesh->mat()->kr();
+            radiance_hg_sbt.data.material.shininess = mesh->mat()->shininess();
+            radiance_hg_sbt.data.material.ambient_color = make_float4(mesh->mat()->ambient());
+            radiance_hg_sbt.data.material.specular_color = make_float4(mesh->mat()->specular());
+            radiance_hg_sbt.data.material.diffuse_color = make_float4(mesh->mat()->diffuse());
+            hitRecords.push_back(radiance_hg_sbt);
 
-        HitSbtRecord occlusion_hg_sbt;
-        OPTIX_CHECK( optixSbtRecordPackHeader( _occlusion_hit_group, &occlusion_hg_sbt ) );
-        hitRecords.push_back(occlusion_hg_sbt);
+            HitSbtRecord occlusion_hg_sbt;
+            OPTIX_CHECK( optixSbtRecordPackHeader( _occlusion_hit_group, &occlusion_hg_sbt ) );
+            occlusion_hg_sbt.data.material.kt = mesh->mat()->kt();
+            hitRecords.push_back(occlusion_hg_sbt);
 
+        }
         _hitBuffer.alloc_and_upload(hitRecords);
 
         sbt.raygenRecord                = _rayGenBuffer.devicePointer();
@@ -331,9 +339,8 @@ void SLOptixRaytracer::_buildAccelerationStructure(OptixBuildInput buildInput, S
     accelerationStructure->optixTraversableHandle(handle);
 }
 
-void SLOptixRaytracer::_createMeshAccelerationStructure(SLMesh* mesh)
+void SLOptixRaytracer::_createMeshAccelerationStructure(SLMesh* mesh, unsigned int index)
 {
-
     //
     // copy mesh data to device
     //
@@ -379,6 +386,8 @@ void SLOptixRaytracer::_createMeshAccelerationStructure(SLMesh* mesh)
 //    triangle_input.triangleArray.sbtIndexOffsetSizeInBytes   = sizeof( uint32_t );
 //    triangle_input.triangleArray.sbtIndexOffsetStrideInBytes = sizeof( uint32_t );
 
+    mesh->sbtIndex(RAY_TYPE_COUNT * index);
+
      _buildAccelerationStructure(triangle_input, mesh);
 }
 
@@ -392,7 +401,7 @@ void SLOptixRaytracer::_createInstanceAccelerationStructure(SLNode* node) {
         if (child->optixTraversableHandle()) {
             OptixInstance instance;
 
-            SLMat4f mat4x4 = child->updateAndGetWM();
+            const SLMat4f mat4x4 = child->updateAndGetWM();
             float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
                                    mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
                                    mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
@@ -412,7 +421,7 @@ void SLOptixRaytracer::_createInstanceAccelerationStructure(SLNode* node) {
     for(auto mesh : meshes) {
         OptixInstance instance;
 
-        SLMat4f mat4x4 = node->updateAndGetWM();
+        const SLMat4f& mat4x4 = node->updateAndGetWM();
         float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
                                mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
                                mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
@@ -422,7 +431,7 @@ void SLOptixRaytracer::_createInstanceAccelerationStructure(SLNode* node) {
         instance.visibilityMask = 255;
         instance.flags = OPTIX_INSTANCE_FLAG_NONE;
         instance.traversableHandle = mesh->optixTraversableHandle();
-        instance.sbtOffset = 0;
+        instance.sbtOffset = mesh->sbtIndex();
 
         instances.push_back(instance);
     }
@@ -448,21 +457,52 @@ void SLOptixRaytracer::setupScene() {
     SLVMesh meshes = scene->meshes();
 
     // Iterate over all meshes
+    unsigned int idx = 0;
     for(auto mesh : meshes) {
-        _createMeshAccelerationStructure(mesh);
+        _createMeshAccelerationStructure(mesh, idx++);
     }
 
     _createInstanceAccelerationStructure(scene->root3D());
+
+    _sbt = _createShaderBindingTable(meshes);
 }
 
 void SLOptixRaytracer::updateScene(SLSceneView *sv) {
+    SLScene* scene = SLApplication::scene;
+    SLCamera* camera = sv->camera();
     _sv = sv;
 
+    RayGenSbtRecord rayGenSbtRecord;
+    _rayGenBuffer.download(&rayGenSbtRecord);
+    SLVec3f eye, u, v, w;
+    camera->UVWFrame(eye, u, v, w);
+    rayGenSbtRecord.data.eye = make_float3(eye);
+    rayGenSbtRecord.data.U = make_float3(u);
+    rayGenSbtRecord.data.V = make_float3(v);
+    rayGenSbtRecord.data.W = make_float3(w);
+    _rayGenBuffer.upload(&rayGenSbtRecord);
+
     _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(uchar4));
+    _debugBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float3));
 
     _params.image = reinterpret_cast<uchar4 *>(_imageBuffer.devicePointer());
+    _params.debug = reinterpret_cast<float3 *>(_debugBuffer.devicePointer());
     _params.width = _sv->scrW();
     _params.height = _sv->scrH();
+    _params.handle = scene->root3D()->optixTraversableHandle();
+    _params.max_depth = _maxDepth;
+
+    std::vector<Light> lights;
+    _lightBuffer.free();
+    for(auto light : scene->lights()) {
+        SLVec3f position = { light->positionWS().x, light->positionWS().y, light->positionWS().z};
+        lights.push_back({
+           make_float3(position),
+           make_float4(light->diffuse())
+        });
+    }
+    _lightBuffer.alloc_and_upload(lights);
+    _params.lights = reinterpret_cast<Light *>(_lightBuffer.devicePointer());
 
     _paramsBuffer.upload(&_params);
 }
@@ -541,4 +581,8 @@ void SLOptixRaytracer::renderImage() {
 
     stateGL->depthTest(true);
     GET_GL_ERROR;
+
+    float3* debug = reinterpret_cast<float3 *>( malloc(_debugBuffer.size()) );
+    _debugBuffer.download(debug);;
+    free(debug);
 }

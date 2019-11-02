@@ -81,6 +81,7 @@ class SLCamera : public SLNode
     virtual SLbool onKeyRelease(const SLKey key, const SLKey mod);
 
     void    eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray);
+    void    UVWFrame(SLVec3f& EYE, SLVec3f& U, SLVec3f& V, SLVec3f& W);
     SLVec3f trackballVec(const SLint x, const SLint y);
     SLbool  isInFrustum(SLAABBox* aabb);
 

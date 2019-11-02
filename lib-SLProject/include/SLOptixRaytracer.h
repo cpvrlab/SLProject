@@ -43,16 +43,18 @@ protected:
     OptixModule _createModule(std::string);
     OptixProgramGroup _createProgram(OptixProgramGroupDesc);
     OptixPipeline _createPipeline(OptixProgramGroup *, unsigned int);
-    OptixShaderBindingTable _createShaderBindingTable();
+    OptixShaderBindingTable _createShaderBindingTable(SLVMesh);
     void _buildAccelerationStructure(OptixBuildInput, SLOptixAccelerationStructure*);
-    void _createMeshAccelerationStructure(SLMesh*);
+    void _createMeshAccelerationStructure(SLMesh*, unsigned int);
     void _createInstanceAccelerationStructure(SLNode*);
 
     OptixDeviceContext          _context{};
     CUstream                    _stream{};
 
     SLCudaBuffer<uchar4>            _imageBuffer = SLCudaBuffer<uchar4>();
+    SLCudaBuffer<float3>            _debugBuffer = SLCudaBuffer<float3>();
     SLCudaBuffer<Params>            _paramsBuffer = SLCudaBuffer<Params>();
+    SLCudaBuffer<Light>             _lightBuffer = SLCudaBuffer<Light>();
     SLCudaBuffer<RayGenSbtRecord>   _rayGenBuffer = SLCudaBuffer<RayGenSbtRecord>();
     SLCudaBuffer<MissSbtRecord>     _missBuffer = SLCudaBuffer<MissSbtRecord>();
     SLCudaBuffer<HitSbtRecord>      _hitBuffer = SLCudaBuffer<HitSbtRecord>();
@@ -72,8 +74,5 @@ protected:
     OptixShaderBindingTable     _sbt{};
     OptixTraversableHandle      _handle{};
     Params                      _params{};
-    Params*                     _d_params{};
-    Light*                      _lights{};
-    Light*                      _d_lights{};
 };
 #endif //SLPROJECT_SLOPTIXRAYTRACER_H

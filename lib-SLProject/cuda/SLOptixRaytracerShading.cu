@@ -60,7 +60,7 @@ extern "C" __global__ void __closesthit__radiance() {
 //    const float3 N = normalize( optixTransformNormalFromObjectToWorldSpace( N_0) );
     const float3 P = optixGetWorldRayOrigin() + optixGetRayTmax() * ray_dir;
 
-    float3 color = make_float3(0.0f);
+    float4 color = make_float4(0.0f);
     // calculate local illumination for every light source
     for (int i = 0; i < params.numLights; i++) {
         const float Ldist = length(params.lights[i].position - P);
@@ -102,13 +102,13 @@ extern "C" __global__ void __closesthit__radiance() {
     }
 
     // Send reflection ray
-    float3 reflection = make_float3(0.0f);
+    float4 reflection = make_float4(0.0f);
     if(getDepth() < params.max_depth && material.kr > 0.0f) {
         reflection = traceRadianceRay(params.handle, P, reflect(ray_dir, N), getRefractionIndex(), isInside(), getDepth() + 1);
     }
 
     // Send refraction ray
-    float3 transmission = make_float3(0.0f);
+    float4 transmission = make_float4(0.0f);
     if(getDepth() < params.max_depth && material.kt > 0.0f) {
         // calculate eta
         float refractionIndex = material.kn;

@@ -1320,6 +1320,30 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
     ray->hitMesh     = nullptr;
     ray->srcTriangle = 0;
 }
+
+void SLCamera::UVWFrame(SLVec3f& EYE, SLVec3f& U, SLVec3f& V, SLVec3f& W)
+{
+    SLVec3f LA, LU, LR;
+
+    // get camera vectors eye, lookAt, lookUp from view matrix
+    updateAndGetVM().lookAt(&EYE, &LA, &LU, &LR);
+
+    LA *= _focalDist;
+
+    W = LA - EYE; // Do not normalize W -- it implies focal length
+
+    U.cross(W, LU);
+    U.normalize();
+
+    V.cross(U, W);
+    V.normalize();
+
+    SLfloat hh = tan(Utils::DEG2RAD * _fov * 0.5f) * _focalDist;
+    V *= hh;
+    SLfloat hw = hh * _aspect;
+    U *= hw;
+}
+
 //-----------------------------------------------------------------------------
 //! SLCamera::isInFrustum does a simple and fast frustum culling test for AABBs
 /*! SLCamera::isInFrustum checks if the bounding sphere of an AABB is within

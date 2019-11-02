@@ -56,3 +56,11 @@ std::string getPtxStringFromFile(
 
     return *ptx;
 }
+
+float4 make_float4(const SLVec4f& f) {
+    return {f.x, f.y, f.z, f.w};
+};
+
+float3 make_float3(const SLVec3f& f) {
+    return {f.x, f.y, f.z};
+};
