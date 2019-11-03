@@ -46,6 +46,7 @@ private:
 
 template<typename T>
 SLCudaBuffer<T>::SLCudaBuffer() {
+    _devicePointer = 0;
     _size = 0;
 }
 
@@ -56,7 +57,7 @@ SLCudaBuffer<T>::~SLCudaBuffer() {
 
 template<typename T>
 void SLCudaBuffer<T>::resize(size_t size) {
-    if (_devicePointer) free();
+    free();
     alloc(size);
 }
 
@@ -68,8 +69,10 @@ void SLCudaBuffer<T>::alloc(size_t size) {
 
 template<typename T>
 void SLCudaBuffer<T>::free() {
-    CUDA_CHECK(cuMemFree(_devicePointer));
-    _size = 0;
+    if (_devicePointer){
+        CUDA_CHECK(cuMemFree(_devicePointer));
+        _size = 0;
+    }
 }
 
 template<typename T>

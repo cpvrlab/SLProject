@@ -524,6 +524,9 @@ void SLGLTexture::build(SLint texID)
     //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
     //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
 
+//    if (_cudaGraphicsResource) {
+//        CUDA_CHECK(cuGraphicsUnregisterResource(_cudaGraphicsResource));
+//    }
     CUDA_CHECK(cuGraphicsGLRegisterImage(&_cudaGraphicsResource, _texName, _target, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD));
 
     GET_GL_ERROR;

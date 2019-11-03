@@ -60,7 +60,7 @@ void SLOptixRaytracer::setupOptix() {
 #endif
 
     _pipeline_compile_options.usesMotionBlur        = false;
-    _pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
+    _pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
     _pipeline_compile_options.numPayloadValues      = 7;
     _pipeline_compile_options.numAttributeValues    = 2;
     _pipeline_compile_options.exceptionFlags        = OPTIX_EXCEPTION_FLAG_USER;
@@ -92,15 +92,15 @@ void SLOptixRaytracer::setupOptix() {
     OptixProgramGroupDesc radiance_hitgroup_prog_group_desc = {};
     radiance_hitgroup_prog_group_desc.kind                          = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
     radiance_hitgroup_prog_group_desc.hitgroup.moduleAH             = _shadingModule;
-    radiance_hitgroup_prog_group_desc.hitgroup.moduleCH             = _shadingModule;
     radiance_hitgroup_prog_group_desc.hitgroup.entryFunctionNameAH  = "__anyhit__radiance";
+    radiance_hitgroup_prog_group_desc.hitgroup.moduleCH             = _shadingModule;
     radiance_hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH  = "__closesthit__radiance";
     _radiance_hit_group = _createProgram(radiance_hitgroup_prog_group_desc);
 
     OptixProgramGroupDesc occlusion_hitgroup_prog_group_desc = {};
     occlusion_hitgroup_prog_group_desc.kind                          = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
     occlusion_hitgroup_prog_group_desc.hitgroup.moduleAH             = _shadingModule;
-    occlusion_hitgroup_prog_group_desc.hitgroup.entryFunctionNameAH  = "__anyhit__radiance";
+    occlusion_hitgroup_prog_group_desc.hitgroup.entryFunctionNameAH  = "__anyhit__occlusion";
     _occlusion_hit_group = _createProgram(occlusion_hitgroup_prog_group_desc);
 
     OptixProgramGroup program_groups[] = {
@@ -358,28 +358,25 @@ void SLOptixRaytracer::_createMeshAccelerationStructure(SLMesh* mesh, unsigned i
     OptixBuildInput triangle_input                           = {};
     triangle_input.type                                      = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
 
+    SLCudaBuffer<SLuint> indexBufferInt = SLCudaBuffer<SLuint>();
+    SLCudaBuffer<SLushort> indexBufferShort = SLCudaBuffer<SLushort>();
     if (mesh->I16.size() < USHRT_MAX) {
-        SLCudaBuffer<SLushort> indexBuffer = SLCudaBuffer<SLushort>();
-        indexBuffer.alloc_and_upload(mesh->I16);
+        indexBufferShort.alloc_and_upload(mesh->I16);
 
-        triangle_input.triangleArray.indexBuffer                 = indexBuffer.devicePointer();
         triangle_input.triangleArray.indexFormat                 = OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3;
-        triangle_input.triangleArray.indexStrideInBytes          = sizeof( SLushort ) * 3;
+        triangle_input.triangleArray.numIndexTriplets            = mesh->I16.size() / 3;
+        triangle_input.triangleArray.indexBuffer                 = indexBufferShort.devicePointer();
     } else {
-        SLCudaBuffer<SLuint> indexBuffer = SLCudaBuffer<SLuint>();
-        indexBuffer.alloc_and_upload(mesh->I32);
+        indexBufferInt.alloc_and_upload(mesh->I32);
 
-        triangle_input.triangleArray.indexBuffer                 = indexBuffer.devicePointer();
         triangle_input.triangleArray.indexFormat                 = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
-        triangle_input.triangleArray.indexStrideInBytes          = sizeof( SLuint ) * 3;
+        triangle_input.triangleArray.numIndexTriplets            = mesh->I32.size() / 3;
+        triangle_input.triangleArray.indexBuffer                 = indexBufferInt.devicePointer();
     }
 
-
-    triangle_input.triangleArray.numIndexTriplets            = static_cast<uint32_t>( mesh->I16.size());
     triangle_input.triangleArray.vertexFormat                = OPTIX_VERTEX_FORMAT_FLOAT3;
-    triangle_input.triangleArray.vertexStrideInBytes         = sizeof( SLVec3f );
     triangle_input.triangleArray.vertexBuffers               = vertexBuffer.devicePointerPointer();
-    triangle_input.triangleArray.numVertices                 = static_cast<uint32_t>( mesh->P.size() );
+    triangle_input.triangleArray.numVertices                 = mesh->P.size();
     triangle_input.triangleArray.flags                       = triangle_input_flags;
     triangle_input.triangleArray.numSbtRecords               = 1;
 //    triangle_input.triangleArray.sbtIndexOffsetBuffer        = 0;
@@ -402,14 +399,17 @@ void SLOptixRaytracer::_createInstanceAccelerationStructure(SLNode* node) {
             OptixInstance instance;
 
             const SLMat4f mat4x4 = child->updateAndGetWM();
-            float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
-                                   mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
-                                   mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
+//            float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
+//                                   mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
+//                                   mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
+            float transform[12] = {1, 0, 0, 0,
+                                   0, 1, 0, 0,
+                                   0, 0, 1, 0};
             memcpy(instance.transform, transform, sizeof(float)*12);
 
             instance.instanceId = 0;
             instance.visibilityMask = 255;
-            instance.flags = 0;
+            instance.flags = OPTIX_INSTANCE_FLAG_NONE;
             instance.traversableHandle = child->optixTraversableHandle();
             instance.sbtOffset = 0;
 
@@ -422,9 +422,12 @@ void SLOptixRaytracer::_createInstanceAccelerationStructure(SLNode* node) {
         OptixInstance instance;
 
         const SLMat4f& mat4x4 = node->updateAndGetWM();
-        float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
-                               mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
-                               mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
+//        float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
+//                               mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
+//                               mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
+        float transform[12] = {1, 0, 0, 0,
+                               0, 1, 0, 0,
+                               0, 0, 1, 0};
         memcpy(instance.transform, transform, sizeof(float)*12);
 
         instance.instanceId = 0;
