@@ -87,7 +87,7 @@ CVSize2i CVCapture::open(int deviceNum)
     }
     catch (exception& e)
     {
-        Utils::log("Exception during OpenCV video capture creation\n");
+        Utils::log("Exception during OpenCV video capture creation: %s\n", e.what());
     }
     return CVSize2i(0, 0);
 }
@@ -133,7 +133,7 @@ CVSize2i CVCapture::openFile()
     }
     catch (exception& e)
     {
-        Utils::log("CVCapture::openFile: Exception during OpenCV video capture creation with video file\n");
+        Utils::log("CVCapture::openFile: Exception during OpenCV video capture creation with video file: %s\n", e.what());
     }
     return CVSize2i(0, 0);
 }
@@ -224,7 +224,7 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
     }
     catch (exception& e)
     {
-        Utils::log("Exception during OpenCV video capture creation\n");
+        Utils::log("Exception during OpenCV video capture creation: %s\n", e.what());
         return false;
     }
 
