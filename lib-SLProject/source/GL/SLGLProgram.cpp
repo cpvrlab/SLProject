@@ -89,15 +89,15 @@ assumes valid syntax for the shader used. Used in SLGLConetracer
 void SLGLProgram::initRaw()
 {
     // create program object if it doesn't exist
-    if (!_progID) 
-		_progID = glCreateProgram();
+    if (!_progID)
+        _progID = glCreateProgram();
 
     for (auto shader : _shaders)
         shader->createAndCompileSimple();
 
     for (auto shader : _shaders)
         glAttachShader(_progID, shader->_shaderID);
-    
+
     GET_GL_ERROR;
 
     glLinkProgram(_progID);
@@ -244,6 +244,8 @@ the custom uniform variables of the _uniform1fList as well as the texture names.
 */
 void SLGLProgram::beginUse(SLMaterial* mat)
 {
+    assert(mat != nullptr && "SLGLProgram::beginUse: No material passed.");
+
     if (_progID == 0 && !_shaders.empty()) init();
 
     if (_isLinked)
@@ -284,7 +286,8 @@ void SLGLProgram::beginUse(SLMaterial* mat)
         loc = uniformMatrix3fv("u_stereoColorFilter", 1, (SLfloat*)&stateGL->stereoColorFilter);
 
         // 2c: Pass diffuse color for uniform color shader
-        loc = uniform4fv("u_color", 1, (SLfloat*)&mat->diffuse());
+        SLCol4f diffuse = mat->diffuse();
+        loc             = uniform4fv("u_color", 1, (SLfloat*)&diffuse);
 
         // 2d: Pass gamma correction value
         loc = uniform1f("u_oneOverGamma", stateGL->oneOverGamma);
@@ -296,14 +299,11 @@ void SLGLProgram::beginUse(SLMaterial* mat)
             loc = uniform1i(ui->name(), ui->value());
 
         // 4: Send texture units as uniforms texture samplers
-        if (mat)
+        for (SLint i = 0; i < (SLint)mat->textures().size(); ++i)
         {
-            for (SLint i = 0; i < (SLint)mat->textures().size(); ++i)
-            {
-                SLchar name[100];
-                sprintf(name, "u_texture%d", i);
-                loc = uniform1i(name, i);
-            }
+            SLchar name[100];
+            sprintf(name, "u_texture%d", i);
+            loc = uniform1i(name, i);
         }
         GET_GL_ERROR;
     }

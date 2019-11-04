@@ -61,15 +61,15 @@ CVTrackedFaces::CVTrackedFaces(int    smoothLenght,
 
     // Init averaged 2D facial landmark points
     _smoothLenght = smoothLenght;
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Nose tip
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Nose hole left
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Nose hole right
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Left eye left corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Left eye right corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Right eye left corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Right eye right corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Left mouth corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Right mouth corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Nose tip
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Nose hole left
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Nose hole right
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Left eye left corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Left eye right corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Right eye left corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Right eye right corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Left mouth corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Right mouth corner
 
     _cvPosePoints2D.resize(_avgPosePoints2D.size(), CVPoint2f(0, 0));
 
