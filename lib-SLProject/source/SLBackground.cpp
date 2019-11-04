@@ -129,7 +129,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
     sp->uniform1f("u_oneOverGamma", stateGL->oneOverGamma);
 
     // Create or update buffer for vertex position and indices
-    if (!_vao.id() || _resX != widthPX || _resY != heightPX)
+    if (!_vao.vaoID() || _resX != widthPX || _resY != heightPX)
     {
         _resX = widthPX;
         _resY = heightPX;

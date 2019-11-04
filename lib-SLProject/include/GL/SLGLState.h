@@ -75,15 +75,6 @@ class SLGLState
     SLint   lightDoAtt[SL_MAX_LIGHTS];      //!< Flag if att. must be calculated
     SLCol4f globalAmbientLight;             //!< global ambient light intensity
 
-    // material
-    SLCol4f matAmbient;   //!< ambient color reflection (ka)
-    SLCol4f matDiffuse;   //!< diffuse color reflection (kd)
-    SLCol4f matSpecular;  //!< specular color reflection (ks)
-    SLCol4f matEmissive;  //!< emissive color (ke)
-    SLfloat matShininess; //!< shininess exponent for Blinn-Phong lighting
-    SLfloat matRoughness; //!< roughness for Cook-Torrance lighting
-    SLfloat matMetallic;  //!< metallic for Cook-Torrance lighing
-
     // fog
     SLbool  fogIsOn;      //!< Flag if fog blending is enabled
     SLint   fogMode;      //!< 0=GL_LINEAR, 1=GL_EXP, 2=GL_EXP2

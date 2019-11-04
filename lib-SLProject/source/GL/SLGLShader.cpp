@@ -32,7 +32,7 @@ SLGLShader::SLGLShader()
 {
     _type     = ST_none;
     _code     = "";
-    _objectGL = 0;
+    _shaderID = 0;
     _file     = "";
 }
 //-----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ SLGLShader::SLGLShader(SLstring filename, SLShaderType shaderType)
 {
     _type     = shaderType;
     _code     = "";
-    _objectGL = 0;
+    _shaderID = 0;
     _file     = filename;
 
     // Only load file at this moment, don't compile it.
@@ -76,9 +76,52 @@ void SLGLShader::loadFromMemory(const SLstring shaderSource)
 SLGLShader::~SLGLShader()
 {
     //SL_LOG("~SLGLShader(%s)\n", name().c_str());
-    if (_objectGL)
-        glDeleteShader(_objectGL);
+    if (_shaderID)
+        glDeleteShader(_shaderID);
     GET_GL_ERROR;
+}
+//-----------------------------------------------------------------------------
+SLbool SLGLShader::createAndCompileSimple()
+{
+    // delete if object already exits
+    if (_shaderID) glDeleteShader(_shaderID);
+
+    if (_code != "")
+    {
+        switch (_type)
+        {
+            case ST_vertex:
+                _shaderID = glCreateShader(GL_VERTEX_SHADER);
+                break;
+            case ST_fragment:
+                _shaderID = glCreateShader(GL_FRAGMENT_SHADER);
+                break;
+            case ST_geometry:
+                _shaderID = glCreateShader(GL_GEOMETRY_SHADER);
+                break;
+            default:
+                SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
+        }
+    }
+
+    const char* src = _code.c_str();
+    glShaderSource(_shaderID, 1, &src, nullptr);
+    glCompileShader(_shaderID);
+
+    // Check compiler log
+    SLint compileSuccess = 0;
+    glGetShaderiv(_shaderID, GL_COMPILE_STATUS, &compileSuccess);
+    if (compileSuccess == GL_FALSE)
+    {
+        GLchar log[256];
+        glGetShaderInfoLog(_shaderID, sizeof(log), nullptr, &log[0]);
+        SL_LOG("*** COMPILER ERROR ***\n");
+        SL_LOG("Source file: %s\n", _file.c_str());
+        SL_LOG("%s\n---\n", log);
+        SL_LOG("%s\n", src);
+        return false;
+    }
+    return true;
 }
 //-----------------------------------------------------------------------------
 //! SLGLShader::createAndCompile creates & compiles the OpenGL shader object
@@ -92,17 +135,17 @@ modification have to be done.
 SLbool SLGLShader::createAndCompile()
 {
     // delete if object already exits
-    if (_objectGL) glDeleteShader(_objectGL);
+    if (_shaderID) glDeleteShader(_shaderID);
 
     if (_code != "")
     {
         switch (_type)
         {
             case ST_vertex:
-                _objectGL = glCreateShader(GL_VERTEX_SHADER);
+                _shaderID = glCreateShader(GL_VERTEX_SHADER);
                 break;
             case ST_fragment:
-                _objectGL = glCreateShader(GL_FRAGMENT_SHADER);
+                _shaderID = glCreateShader(GL_FRAGMENT_SHADER);
                 break;
             default:
                 SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
@@ -164,16 +207,16 @@ SLbool SLGLShader::createAndCompile()
         //#endif
 
         const char* src = _code.c_str();
-        glShaderSource(_objectGL, 1, &src, nullptr);
-        glCompileShader(_objectGL);
+        glShaderSource(_shaderID, 1, &src, nullptr);
+        glCompileShader(_shaderID);
 
         // Check compiler log
         SLint compileSuccess = 0;
-        glGetShaderiv(_objectGL, GL_COMPILE_STATUS, &compileSuccess);
+        glGetShaderiv(_shaderID, GL_COMPILE_STATUS, &compileSuccess);
         if (compileSuccess == GL_FALSE)
         {
             GLchar log[256];
-            glGetShaderInfoLog(_objectGL, sizeof(log), nullptr, &log[0]);
+            glGetShaderInfoLog(_shaderID, sizeof(log), nullptr, &log[0]);
             SL_LOG("*** COMPILER ERROR ***\n");
             SL_LOG("Source file: %s\n", _file.c_str());
             SL_LOG("%s\n---\n", log);

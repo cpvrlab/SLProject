@@ -279,12 +279,12 @@ void SLSceneView::switchToNextCameraInScene()
 //! Sets the viewport ratio and the viewport rectangle
 void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
                                        SLViewportAlign vpAlign,
-                                       SLbool vpSameAsVideo)
+                                       SLbool          vpSameAsVideo)
 {
     assert(_scrW > 0 && _scrH > 0 && "SLSceneView::setViewportFromRatio: Invalid screen size");
 
-    _viewportRatio = vpRatio;
-    _viewportAlign = vpAlign;
+    _viewportRatio       = vpRatio;
+    _viewportAlign       = vpAlign;
     _viewportSameAsVideo = vpSameAsVideo;
 
     // Shortcut if viewport is the same as the screen
@@ -405,6 +405,10 @@ void SLSceneView::onInitialize()
 
     initSceneViewCamera();
 
+    // init conetracer if possible:
+    if (glewIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
+        _conetracer.init(_scrW, _scrH);
+
     _gui.onResize(_viewportRect.width, _viewportRect.height);
 }
 //-----------------------------------------------------------------------------
@@ -472,6 +476,7 @@ SLbool SLSceneView::onPaint()
         switch (_renderType)
         {
             case RT_gl: camUpdated = draw3DGL(s->elapsedTimeMS()); break;
+            case RT_ct: camUpdated = draw3DCT(); break;
             case RT_rt: camUpdated = draw3DRT(); break;
             case RT_pt: camUpdated = draw3DPT(); break;
         }
@@ -1413,6 +1418,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 
     if (key=='G') {renderType(RT_gl); return true;}
     if (key=='R') {startRaytracing(5);}
+    if (key=='C') {startConetracing();}
 
     if (key=='P') {drawBits()->toggle(SL_DB_WIREMESH); return true;}
     if (key=='N') {drawBits()->toggle(SL_DB_NORMALS); return true;}
@@ -1665,5 +1671,29 @@ SLbool SLSceneView::draw3DPT()
     }
 
     return updated;
+}
+//-----------------------------------------------------------------------------
+/*!
+Starts the voxel cone tracing
+*/
+void SLSceneView::startConetracing()
+{
+    _renderType = RT_ct;
+}
+//-----------------------------------------------------------------------------
+/*!
+SLSceneView::draw3DCT draws all 3D content with voxel cone tracing.
+*/
+SLbool SLSceneView::draw3DCT()
+{
+    //SL_LOG("Rendering VXC \n");
+    SLScene* s       = SLApplication::scene;
+    SLfloat  startMS = SLApplication::timeMS();
+
+    SLbool rendered = _conetracer.render(this);
+
+    _draw3DTimeMS = SLApplication::timeMS() - startMS;
+
+    return true;
 }
 //-----------------------------------------------------------------------------

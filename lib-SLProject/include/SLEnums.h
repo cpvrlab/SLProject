@@ -70,7 +70,8 @@ enum SLRenderType
 {
     RT_gl = 0, //!< OpenGL
     RT_rt = 1, //!< Ray Tracing
-    RT_pt = 2  //!< Path Tracing
+    RT_pt = 2, //!< Path Tracing
+    RT_ct = 3  //!< Voxel Cone Tracing
 };
 //-----------------------------------------------------------------------------
 //! Coordinate axis enumeration
@@ -110,6 +111,7 @@ enum SLSceneID
     SID_ShaderBumpParallax,
     SID_ShaderSkyBox,
     SID_ShaderEarth,
+    SID_ShaderVoxelConeDemo,
 
     SID_VolumeRayCast,
     SID_VolumeRayCastLighted,

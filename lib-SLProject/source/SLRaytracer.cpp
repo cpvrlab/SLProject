@@ -809,10 +809,10 @@ void SLRaytracer::prepareImage()
         _sv->viewportH() != (SLint)_images[0]->height())
     {
         // Delete the OpenGL Texture if it already exists
-        if (_texName)
+        if (_texID)
         {
-            glDeleteTextures(1, &_texName);
-            _texName = 0;
+            glDeleteTextures(1, &_texID);
+            _texID = 0;
         }
 
         _vaoSprite.clearAttribs();

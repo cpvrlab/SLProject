@@ -30,14 +30,17 @@ extern char* aGLSLErrorString[];
 //-----------------------------------------------------------------------------
 //! Ctor with a vertex and a fragment shader filename.
 SLGLProgram::SLGLProgram(SLstring vertShaderFile,
-                         SLstring fragShaderFile) : SLObject("")
+                         SLstring fragShaderFile,
+                         SLstring geomShaderFile) : SLObject("")
 {
     _isLinked = false;
-    _objectGL = 0;
+    _progID   = 0;
 
     // optional load vertex and/or fragment shaders
     addShader(new SLGLShader(defaultPath + vertShaderFile, ST_vertex));
     addShader(new SLGLShader(defaultPath + fragShaderFile, ST_fragment));
+    if (!geomShaderFile.empty())
+        addShader(new SLGLShader(defaultPath + geomShaderFile, ST_geometry));
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->programs().push_back(this);
@@ -52,7 +55,7 @@ SLGLProgram::~SLGLProgram()
     {
         if (_isLinked)
         {
-            glDetachShader(_objectGL, shader->_objectGL);
+            glDetachShader(_progID, shader->_shaderID);
             GET_GL_ERROR;
         }
 
@@ -60,9 +63,9 @@ SLGLProgram::~SLGLProgram()
         delete shader;
     }
 
-    if (_objectGL > 0)
+    if (_progID > 0)
     {
-        glDeleteProgram(_objectGL);
+        glDeleteProgram(_progID);
         GET_GL_ERROR;
     }
 
@@ -80,6 +83,44 @@ void SLGLProgram::addShader(SLGLShader* shader)
     _shaders.push_back(shader);
 }
 //-----------------------------------------------------------------------------
+/*! SLGLProgram::initRaw() does not replace any code from the shader and 
+assumes valid syntax for the shader used. Used in SLGLConetracer
+*/
+void SLGLProgram::initRaw()
+{
+    // create program object if it doesn't exist
+    if (!_progID) 
+		_progID = glCreateProgram();
+
+    for (auto shader : _shaders)
+        shader->createAndCompileSimple();
+
+    for (auto shader : _shaders)
+        glAttachShader(_progID, shader->_shaderID);
+    
+    GET_GL_ERROR;
+
+    glLinkProgram(_progID);
+
+    GLint success;
+    glGetProgramiv(_progID, GL_LINK_STATUS, &success);
+
+    if (!success)
+    {
+        GLchar log[1024];
+        glGetProgramInfoLog(_progID, 1024, nullptr, log);
+        std::cerr << "- Failed to link program (" << _progID << ")." << std::endl;
+        std::cerr << "LOG: " << std::endl
+                  << log << std::endl;
+    }
+
+    for (auto shader : _shaders)
+    {
+        glDeleteShader(shader->_shaderID);
+        GET_GL_ERROR;
+    }
+}
+//-----------------------------------------------------------------------------
 /*! SLGLProgram::init creates the OpenGL shaderprogram object, compiles all
 shader objects and attaches them to the shaderprogram. At the end all shaders
 are linked. If a shader fails to compile a simple texture only shader is
@@ -88,7 +129,7 @@ compiled that shows an error message in the texture.
 void SLGLProgram::init()
 {
     // create program object if it doesn't exist
-    if (!_objectGL) _objectGL = glCreateProgram();
+    if (!_progID) _progID = glCreateProgram();
 
     // if already linked, detach, recreate and compile shaders
     if (_isLinked)
@@ -97,7 +138,7 @@ void SLGLProgram::init()
         {
             if (_isLinked)
             {
-                glDetachShader(_objectGL, shader->_objectGL);
+                glDetachShader(_progID, shader->_shaderID);
                 GET_GL_ERROR;
             }
         }
@@ -150,7 +191,7 @@ void SLGLProgram::init()
     {
         for (auto shader : _shaders)
         {
-            glAttachShader(_objectGL, shader->_objectGL);
+            glAttachShader(_progID, shader->_shaderID);
             GET_GL_ERROR;
         }
     }
@@ -158,9 +199,9 @@ void SLGLProgram::init()
         SL_EXIT_MSG("No successufully compiled shaders attached!");
 
     int linked;
-    glLinkProgram(_objectGL);
+    glLinkProgram(_progID);
     GET_GL_ERROR;
-    glGetProgramiv(_objectGL, GL_LINK_STATUS, &linked);
+    glGetProgramiv(_progID, GL_LINK_STATUS, &linked);
     GET_GL_ERROR;
 
     if (linked)
@@ -173,7 +214,7 @@ void SLGLProgram::init()
     else
     {
         SLchar log[256];
-        glGetProgramInfoLog(_objectGL, sizeof(log), nullptr, &log[0]);
+        glGetProgramInfoLog(_progID, sizeof(log), nullptr, &log[0]);
         SL_LOG("*** LINKER ERROR ***\n");
         SL_LOG("Source files: \n");
         for (auto shader : _shaders)
@@ -188,11 +229,11 @@ Call this initialization if you pass your own custom uniform variables.
 */
 void SLGLProgram::useProgram()
 {
-    if (_objectGL == 0 && !_shaders.empty()) init();
+    if (_progID == 0 && !_shaders.empty()) init();
 
     if (_isLinked)
     {
-        SLGLState::instance()->useProgram(_objectGL);
+        SLGLState::instance()->useProgram(_progID);
         GET_GL_ERROR;
     }
 }
@@ -203,19 +244,19 @@ the custom uniform variables of the _uniform1fList as well as the texture names.
 */
 void SLGLProgram::beginUse(SLMaterial* mat)
 {
-    if (_objectGL == 0 && !_shaders.empty()) init();
+    if (_progID == 0 && !_shaders.empty()) init();
 
     if (_isLinked)
     {
         SLGLState* stateGL = SLGLState::instance();
 
         // 1: Activate the shader program object
-        stateGL->useProgram(_objectGL);
+        stateGL->useProgram(_progID);
 
         // 2: Pass light & material parameters
         stateGL->globalAmbientLight = SLApplication::scene->globalAmbiLight();
-        SLint loc                    = uniform4fv("u_globalAmbient", 1, (const SLfloat*)stateGL->globalAmbient());
-        loc                          = uniform1i("u_numLightsUsed", stateGL->numLightsUsed);
+        SLint loc                   = uniform4fv("u_globalAmbient", 1, (const SLfloat*)stateGL->globalAmbient());
+        loc                         = uniform1i("u_numLightsUsed", stateGL->numLightsUsed);
 
         if (stateGL->numLightsUsed > 0)
         {
@@ -233,13 +274,8 @@ void SLGLProgram::beginUse(SLMaterial* mat)
             loc = uniform1fv("u_lightSpotExp", nL, (SLfloat*)stateGL->lightSpotExp);
             loc = uniform3fv("u_lightAtt", nL, (SLfloat*)stateGL->lightAtt);
             loc = uniform1iv("u_lightDoAtt", nL, (SLint*)stateGL->lightDoAtt);
-            loc = uniform4fv("u_matAmbient", 1, (SLfloat*)&stateGL->matAmbient);
-            loc = uniform4fv("u_matDiffuse", 1, (SLfloat*)&stateGL->matDiffuse);
-            loc = uniform4fv("u_matSpecular", 1, (SLfloat*)&stateGL->matSpecular);
-            loc = uniform4fv("u_matEmissive", 1, (SLfloat*)&stateGL->matEmissive);
-            loc = uniform1f("u_matShininess", stateGL->matShininess);
-            loc = uniform1f("u_matRoughness", stateGL->matRoughness);
-            loc = uniform1f("u_matMetallic", stateGL->matMetallic);
+
+            mat->passToUniforms(this);
         }
 
         // 2b: Set stereo states
@@ -248,7 +284,7 @@ void SLGLProgram::beginUse(SLMaterial* mat)
         loc = uniformMatrix3fv("u_stereoColorFilter", 1, (SLfloat*)&stateGL->stereoColorFilter);
 
         // 2c: Pass diffuse color for uniform color shader
-        loc = uniform4fv("u_color", 1, (SLfloat*)&stateGL->matDiffuse);
+        loc = uniform4fv("u_color", 1, (SLfloat*)&mat->diffuse());
 
         // 2d: Pass gamma correction value
         loc = uniform1f("u_oneOverGamma", stateGL->oneOverGamma);
@@ -298,7 +334,7 @@ void SLGLProgram::addUniform1i(SLGLUniform1i* u)
 //-----------------------------------------------------------------------------
 SLint SLGLProgram::getUniformLocation(const SLchar* name)
 {
-    SLint loc = glGetUniformLocation(_objectGL, name);
+    SLint loc = glGetUniformLocation(_progID, name);
 #ifdef _GLDEBUG
     GET_GL_ERROR;
 #endif
@@ -307,7 +343,7 @@ SLint SLGLProgram::getUniformLocation(const SLchar* name)
 //-----------------------------------------------------------------------------
 SLint SLGLProgram::getAttribLocation(const SLchar* name)
 {
-    SLint loc = glGetAttribLocation(_objectGL, name);
+    SLint loc = glGetAttribLocation(_progID, name);
 #ifdef _GLDEBUG
     GET_GL_ERROR;
 #endif
