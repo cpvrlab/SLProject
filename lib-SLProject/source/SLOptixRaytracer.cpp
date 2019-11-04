@@ -16,6 +16,7 @@
 #include <cuda_runtime.h>
 #include <optix_stubs.h>
 #include <utility>
+#include <optix_stack_size.h>
 
 #ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
 #    include <debug_new.h> // memory leak detector
@@ -54,16 +55,19 @@ void SLOptixRaytracer::setupOptix() {
 #ifdef NDEBUG
     _module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
     _module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
+
+    _pipeline_compile_options.exceptionFlags     = OPTIX_EXCEPTION_FLAG_NONEE;
 #else
     _module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
     _module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
+
+    _pipeline_compile_options.exceptionFlags     = OPTIX_EXCEPTION_FLAG_USER;
 #endif
 
     _pipeline_compile_options.usesMotionBlur        = false;
     _pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
     _pipeline_compile_options.numPayloadValues      = 7;
     _pipeline_compile_options.numAttributeValues    = 2;
-    _pipeline_compile_options.exceptionFlags        = OPTIX_EXCEPTION_FLAG_USER;
     _pipeline_compile_options.pipelineLaunchParamsVariableName = "params";
 
     _createContext();
@@ -260,7 +264,7 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(SLVMesh mesh
         sbt.missRecordCount             = RAY_TYPE_COUNT;
         sbt.hitgroupRecordBase          = _hitBuffer.devicePointer();
         sbt.hitgroupRecordStrideInBytes = sizeof( HitSbtRecord );
-        sbt.hitgroupRecordCount         = RAY_TYPE_COUNT;
+        sbt.hitgroupRecordCount         = RAY_TYPE_COUNT * meshes.size();
     }
 
     return sbt;
@@ -290,12 +294,16 @@ void SLOptixRaytracer::_buildAccelerationStructure(OptixBuildInput buildInput, S
     auto* non_compacted_output_buffer = new SLCudaBuffer<void>();
     non_compacted_output_buffer->alloc(accel_buffer_sizes.outputSizeInBytes);
 
+    SLCudaBuffer<OptixAabb> aabbBuffer = SLCudaBuffer<OptixAabb>();
+    aabbBuffer.alloc(sizeof(OptixAabb));
     SLCudaBuffer<size_t> compactedSize = SLCudaBuffer<size_t>();
     compactedSize.alloc(sizeof(size_t));
 
-    OptixAccelEmitDesc emitProperty = {};
-    emitProperty.type               = OPTIX_PROPERTY_TYPE_COMPACTED_SIZE;
-    emitProperty.result             = compactedSize.devicePointer();
+    OptixAccelEmitDesc emitProperty[2];
+    emitProperty[0].type               = OPTIX_PROPERTY_TYPE_AABBS;
+    emitProperty[0].result             = aabbBuffer.devicePointer();
+    emitProperty[1].type               = OPTIX_PROPERTY_TYPE_COMPACTED_SIZE;
+    emitProperty[1].result             = compactedSize.devicePointer();
 
     OPTIX_CHECK( optixAccelBuild(
             _context,
@@ -308,10 +316,13 @@ void SLOptixRaytracer::_buildAccelerationStructure(OptixBuildInput buildInput, S
             non_compacted_output_buffer->devicePointer(),
             accel_buffer_sizes.outputSizeInBytes,
             &handle,
-            &emitProperty,                      // emitted property list
-            1                                   // num emitted properties
+            emitProperty,                      // emitted property list
+            2                                   // num emitted properties
     ) );
     CUDA_SYNC_CHECK( _stream );
+
+    OptixAabb aabb;
+    aabbBuffer.download(&aabb);
 
     size_t compacted_accel_size;
     compactedSize.download(&compacted_accel_size);
@@ -392,6 +403,7 @@ void SLOptixRaytracer::_createInstanceAccelerationStructure(SLNode* node) {
     std::vector<OptixInstance> instances;
 
     SLVNode children = node->children();
+    unsigned int i;
     for(auto child : children) {
         _createInstanceAccelerationStructure(child);
 
@@ -399,15 +411,12 @@ void SLOptixRaytracer::_createInstanceAccelerationStructure(SLNode* node) {
             OptixInstance instance;
 
             const SLMat4f mat4x4 = child->updateAndGetWM();
-//            float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
-//                                   mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
-//                                   mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
-            float transform[12] = {1, 0, 0, 0,
-                                   0, 1, 0, 0,
-                                   0, 0, 1, 0};
+            float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
+                                   mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
+                                   mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
             memcpy(instance.transform, transform, sizeof(float)*12);
 
-            instance.instanceId = 0;
+            instance.instanceId = i++;
             instance.visibilityMask = 255;
             instance.flags = OPTIX_INSTANCE_FLAG_NONE;
             instance.traversableHandle = child->optixTraversableHandle();
@@ -422,12 +431,9 @@ void SLOptixRaytracer::_createInstanceAccelerationStructure(SLNode* node) {
         OptixInstance instance;
 
         const SLMat4f& mat4x4 = node->updateAndGetWM();
-//        float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
-//                               mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
-//                               mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
-        float transform[12] = {1, 0, 0, 0,
-                               0, 1, 0, 0,
-                               0, 0, 1, 0};
+        float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
+                               mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
+                               mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
         memcpy(instance.transform, transform, sizeof(float)*12);
 
         instance.instanceId = 0;
@@ -468,6 +474,28 @@ void SLOptixRaytracer::setupScene() {
     _createInstanceAccelerationStructure(scene->root3D());
 
     _sbt = _createShaderBindingTable(meshes);
+
+    OptixStackSizes stack_sizes = {};
+    OPTIX_CHECK( optixUtilAccumulateStackSizes( _raygen_prog_group,    &stack_sizes ) );
+    OPTIX_CHECK( optixUtilAccumulateStackSizes( _radiance_miss_group,  &stack_sizes ) );
+    OPTIX_CHECK( optixUtilAccumulateStackSizes( _occlusion_miss_group, &stack_sizes ) );
+    OPTIX_CHECK( optixUtilAccumulateStackSizes( _radiance_hit_group,   &stack_sizes ) );
+    OPTIX_CHECK( optixUtilAccumulateStackSizes( _occlusion_hit_group,  &stack_sizes ) );
+    unsigned int directCallableStackSizeFromTraversal;
+    unsigned int directCallableStackSizeFromState;
+    unsigned int continuationStackSize;
+    OPTIX_CHECK( optixUtilComputeStackSizes(&stack_sizes,
+            1,
+            0,
+            0,
+            &directCallableStackSizeFromTraversal,
+            &directCallableStackSizeFromState,
+            &continuationStackSize) );
+    OPTIX_CHECK( optixPipelineSetStackSize(_pipeline,
+                              directCallableStackSizeFromTraversal,
+                              directCallableStackSizeFromState,
+                              continuationStackSize,
+                              scene->maxTreeDepth()) );
 }
 
 void SLOptixRaytracer::updateScene(SLSceneView *sv) {
@@ -506,6 +534,7 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
     }
     _lightBuffer.alloc_and_upload(lights);
     _params.lights = reinterpret_cast<Light *>(_lightBuffer.devicePointer());
+    _params.numLights = lights.size();
 
     _paramsBuffer.upload(&_params);
 }

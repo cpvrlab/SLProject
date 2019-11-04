@@ -550,4 +550,16 @@ bool SLScene::deleteTexture(SLGLTexture* texture)
     }
     return false;
 }
+
+unsigned int SLScene::maxTreeDepth() {
+    return _maxTreeDepth(_root3D) + 1;
+}
+
+unsigned int SLScene::_maxTreeDepth(SLNode* node) {
+    unsigned int max = 1;
+    for(auto child : node->children()) {
+        max = std::max(max, _maxTreeDepth(child) + 1);
+    }
+    return max;
+}
 //----------------------------------------------------------------------------

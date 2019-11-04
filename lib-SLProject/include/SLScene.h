@@ -111,8 +111,11 @@ class SLScene : public SLObject
     void         selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
     bool         removeMesh(SLMesh* mesh);
     bool         deleteTexture(SLGLTexture* texture);
+    unsigned int  maxTreeDepth();
 
     protected:
+    static unsigned int _maxTreeDepth(SLNode* node);
+
     SLVSceneView    _sceneViews;    //!< Vector of all sceneview pointers
     SLVMesh         _meshes;        //!< Vector of all meshes
     SLVMaterial     _materials;     //!< Vector of all materials pointers
