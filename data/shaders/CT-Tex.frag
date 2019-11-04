@@ -62,7 +62,7 @@ uniform bool   u_matHasTexture;     // flag if material has texture
 uniform float  u_oneOverGamma;		// oneOverGamma correction factor
 
 uniform sampler2D u_texture0;       // Color texture map
-uniform sampler3D texture3D;        // Voxelization texture.
+uniform sampler3D u_texture3D;        // Voxelization texture.
 
 out vec4 color;
 
@@ -106,7 +106,7 @@ vec4 coneTraceStopDist(vec3  from,
         float diameter = max(VOXEL_SIZE, tanTheta2 * dist);
         float mip = log2(diameter / VOXEL_SIZE);
         if(mip > 6) break;
-        vec4 samp = textureLod(texture3D, coordinate, mip);
+        vec4 samp = textureLod(u_texture3D, coordinate, mip);
 
         // alpha blending
         float f = 1 - alpha;
@@ -219,8 +219,8 @@ vec4 direct()
 {
     vec4 Id, Is;        // Accumulated light intensities at v_P_VS
    
-    Id = vec4(0.0);         // Diffuse light intesity
-    Is = vec4(0.0);         // Specular light intesity
+    Id = vec4(0.0);     // Diffuse light intesity
+    Is = vec4(0.0);     // Specular light intesity
    
     vec3 N = normalize(o_N_WS);  // A varying normal has not anymore unit length
     vec3 E = normalize(u_EyePosWS - o_P_WS); // Vector from p to the eye
@@ -233,27 +233,18 @@ vec4 direct()
     if (u_lightIsOn[5]) {if (u_lightPosVS[5].w == 0.0) DirectLight(5, N, E, Id, Is); else PointLight(5, o_P_WS, N, E, Id, Is);}
     if (u_lightIsOn[6]) {if (u_lightPosVS[6].w == 0.0) DirectLight(6, N, E, Id, Is); else PointLight(6, o_P_WS, N, E, Id, Is);}
     if (u_lightIsOn[7]) {if (u_lightPosVS[7].w == 0.0) DirectLight(7, N, E, Id, Is); else PointLight(7, o_P_WS, N, E, Id, Is);}
+     
+    // Sum up all the direct reflected color components
+    vec4 color =  u_matEmissive +
+                  Id * u_matDiffuse;
+               
+    // Componentwise multiply w. texture color
+    color *= texture2D(u_texture0, o_Tc); 
     
-    if (u_matHasTexture)
-    {    
-        // Sum up all the direct reflected color components
-        vec4 color =  u_matEmissive +
-                      Id * u_matDiffuse;
-                   
-        // Componentwise multiply w. texture color
-        color *= texture2D(u_texture0, o_Tc); 
-   
-        // add finally the specular RGB-part
-        vec4 specColor = Is * u_matSpecular;
-        color.rgb += specColor.rgb;
-        return color;
-    }
-    else
-    {
-        return u_matEmissive + 
-               Id * u_matDiffuse +
-               Is * u_matSpecular;
-    }
+    // add finally the specular RGB-part
+    vec4 specColor = Is * u_matSpecular;
+    color.rgb += specColor.rgb;
+    return color;
 }
 //-----------------------------------------------------------------------------
 vec4 indirectDiffuse()
@@ -279,9 +270,9 @@ vec4 indirectDiffuse()
 
     // Trace 4 side cones.
     float mixIn = 0.5;
-    const vec3 s1 = mix(N, ortho1, mixIn);
+    const vec3 s1 = mix(N,  ortho1, mixIn);
     const vec3 s2 = mix(N, -ortho1, mixIn);
-    const vec3 s3 = mix(N, ortho2, mixIn);
+    const vec3 s3 = mix(N,  ortho2, mixIn);
     const vec3 s4 = mix(N, -ortho2, mixIn);
 
     res +=  coneTrace(from, s1, s_diffuseConeAngle);
@@ -292,9 +283,9 @@ vec4 indirectDiffuse()
     const vec3 corner1 = 0.5f * (ortho1 + ortho2);
     const vec3 corner2 = 0.5f * (ortho1 - ortho2);
 
-    const vec3 c1 = mix(N, corner1, mixIn);
+    const vec3 c1 = mix(N,  corner1, mixIn);
     const vec3 c2 = mix(N, -corner1, mixIn);
-    const vec3 c3 = mix(N, corner2, mixIn);
+    const vec3 c3 = mix(N,  corner2, mixIn);
     const vec3 c4 = mix(N, -corner2, mixIn);
 
     res +=  coneTrace(from, c1, s_diffuseConeAngle);

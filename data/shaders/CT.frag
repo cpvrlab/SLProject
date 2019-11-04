@@ -59,7 +59,7 @@ uniform float  u_matShininess;      // shininess exponent
 uniform float  u_matKr;             // reflection factor (kr)
 uniform float  u_oneOverGamma;		// oneOverGamma correction factor
 
-uniform sampler3D texture3D;        // Voxelization texture.
+uniform sampler3D u_texture3D;      // Voxelization texture.
 
 out vec4 color;
 
@@ -103,7 +103,7 @@ vec4 coneTraceStopDist(vec3  from,
         float diameter = max(VOXEL_SIZE, tanTheta2 * dist);
         float mip = log2(diameter / VOXEL_SIZE);
         if(mip > 6) break;
-        vec4 samp = textureLod(texture3D, coordinate, mip);
+        vec4 samp = textureLod(u_texture3D, coordinate, mip);
 
         // alpha blending
         float f = 1 - alpha;

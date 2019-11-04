@@ -128,7 +128,7 @@ void SLGLConetracer::visualizeVoxels()
     _visualizeFrontfaceFBO->activateAsTexture(_visualizeMat->program()->progID(),
                                               "textureFront",
                                               1);
-    _voxelTex->activate(_visualizeMat->program()->progID(), "texture3D", 2);
+    _voxelTex->activate(_visualizeMat->program()->progID(), "u_texture3D", 2);
     GET_GL_ERROR;
 
     glViewport(m_viewport[0], m_viewport[1], m_viewport[2], m_viewport[3]);
@@ -285,6 +285,7 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
     GET_GL_ERROR;
 
     SLGLState* stateGL = SLGLState::instance();
+    GLint progID = program->progID();
 
     // set view transform:
     stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
@@ -293,7 +294,7 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
     stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
 	// pass the modelview projection matrix to the shader
-    GLint loc = glGetUniformLocation(program->progID(), "u_mvpMatrix");
+    GLint loc = glGetUniformLocation(progID, "u_mvpMatrix");
     glUniformMatrix4fv(loc, 1, GL_FALSE, (SLfloat*)stateGL->mvpMatrix());
 	
 	// pass the model matrix:
@@ -306,8 +307,16 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
 		SLMaterial* mat = mesh->mat();
 		mat->passToUniforms(program);		
 
+        /*
         if (!mat->textures().empty())
-            glUniform1i(glGetUniformLocation(program->progID(), "u_texture0"), 0);
+        {
+            SLGLTexture* tex = mat->textures()[0];
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(tex->target(), (SLuint)tex->texID());
+            GLint locT = glGetUniformLocation(progID, "u_texture0");
+            glUniform1i(locT, 0);
+        }
+        */
 
 		// generate a VAO if it does not exist yet
 		if (!mesh->vao().vaoID())
@@ -351,7 +360,7 @@ void SLGLConetracer::voxelize()
     glDisable(GL_BLEND);
     GET_GL_ERROR;
 
-    _voxelTex->activate(program->progID(), "texture3D", 0);
+    _voxelTex->activate(program->progID(), "u_texture3D", 0);
     GET_GL_ERROR;
 
     // Bind texture where we want to write to:

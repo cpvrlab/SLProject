@@ -22,16 +22,20 @@ SLGLConetracerTex3D::SLGLConetracerTex3D(const SLVfloat& textureBuffer,
 
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_3D, textureID);
+    GET_GL_ERROR;
 
     // Parameter options.
     const auto wrap = GL_CLAMP_TO_BORDER;
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, wrap);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, wrap);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, wrap);
+    GET_GL_ERROR;
 
     const auto filter = GL_LINEAR_MIPMAP_LINEAR;
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, filter);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, filter);
+    GET_GL_ERROR;
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    GET_GL_ERROR;
 
     // Upload texture buffer.
     const int levels = 7;
