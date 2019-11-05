@@ -12,7 +12,6 @@
 #ifndef SLGLSTATE_H
 #define SLGLSTATE_H
 
-//#include <SLStack.h>
 #include <SLVec3.h>
 #include <SLVec4.h>
 #include <SLMat4.h>

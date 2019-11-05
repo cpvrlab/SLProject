@@ -37,7 +37,7 @@ SLGLShader::SLGLShader()
 }
 //-----------------------------------------------------------------------------
 //! Ctor with shader filename & shader type
-SLGLShader::SLGLShader(SLstring filename, SLShaderType shaderType)
+SLGLShader::SLGLShader(const SLstring& filename, SLShaderType shaderType)
   : SLObject(Utils::getFileName(filename), filename)
 {
     _type     = shaderType;
@@ -50,7 +50,7 @@ SLGLShader::SLGLShader(SLstring filename, SLShaderType shaderType)
 }
 //-----------------------------------------------------------------------------
 //! SLGLShader::load loads a shader file into string _shaderSource
-void SLGLShader::load(SLstring filename)
+void SLGLShader::load(const SLstring& filename)
 {
     fstream shaderFile(filename.c_str(), ios::in);
 
@@ -68,7 +68,7 @@ void SLGLShader::load(SLstring filename)
 }
 //-----------------------------------------------------------------------------
 //! SLGLShader::load loads a shader file from memory into memory
-void SLGLShader::loadFromMemory(const SLstring shaderSource)
+void SLGLShader::loadFromMemory(const SLstring& shaderSource)
 {
     _code = shaderSource;
 }
@@ -86,7 +86,7 @@ SLbool SLGLShader::createAndCompileSimple()
     // delete if object already exits
     if (_shaderID) glDeleteShader(_shaderID);
 
-    if (_code != "")
+    if (!_code.empty())
     {
         switch (_type)
         {
@@ -96,9 +96,11 @@ SLbool SLGLShader::createAndCompileSimple()
             case ST_fragment:
                 _shaderID = glCreateShader(GL_FRAGMENT_SHADER);
                 break;
+#if defined(GL_VERSION_4_0) || defined(GL_ES_VERSION_3_2)
             case ST_geometry:
                 _shaderID = glCreateShader(GL_GEOMETRY_SHADER);
                 break;
+#endif
             default:
                 SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
         }
@@ -137,7 +139,7 @@ SLbool SLGLShader::createAndCompile()
     // delete if object already exits
     if (_shaderID) glDeleteShader(_shaderID);
 
-    if (_code != "")
+    if (!_code.empty())
     {
         switch (_type)
         {
