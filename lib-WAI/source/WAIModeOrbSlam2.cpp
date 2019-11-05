@@ -167,15 +167,13 @@ bool WAI::ModeOrbSlam2::update(cv::Mat& imageGray, cv::Mat& imageRGB)
 
     switch (_state)
     {
-        case TrackingState_Initializing:
-        {
+        case TrackingState_Initializing: {
             initialize(imageGray, imageRGB);
         }
         break;
 
         case TrackingState_TrackingOK:
-        case TrackingState_TrackingLost:
-        {
+        case TrackingState_TrackingLost: {
             //relocalize or track 3d points
             track3DPts(imageGray, imageRGB);
         }
@@ -183,8 +181,7 @@ bool WAI::ModeOrbSlam2::update(cv::Mat& imageGray, cv::Mat& imageRGB)
 
         case TrackingState_Idle:
         case TrackingState_None:
-        default:
-        {
+        default: {
         }
         break;
     }
@@ -263,38 +260,32 @@ std::string WAI::ModeOrbSlam2::getPrintableState()
 
     switch (_state)
     {
-        case TrackingState_Initializing:
-        {
+        case TrackingState_Initializing: {
             printableState = "INITIALIZING";
         }
         break;
 
-        case TrackingState_Idle:
-        {
+        case TrackingState_Idle: {
             printableState = "IDLE";
         }
         break;
 
-        case TrackingState_TrackingLost:
-        {
+        case TrackingState_TrackingLost: {
             printableState = "TRACKING_LOST"; //motion model tracking
         }
         break;
 
-        case TrackingState_TrackingOK:
-        {
+        case TrackingState_TrackingOK: {
             printableState = "TRACKING_OK";
         }
         break;
 
-        case TrackingState_None:
-        {
+        case TrackingState_None: {
             printableState = "TRACKING_NONE";
         }
         break;
 
-        default:
-        {
+        default: {
             printableState = "";
         }
         break;
@@ -2607,7 +2598,9 @@ bool WAI::ModeOrbSlam2::findMarkerHomography(WAIFrame&    markerFrame,
     return result;
 }
 
-bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile)
+bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile,
+                                                 cv::Mat&    nodeTransform,
+                                                 float       markerWidthInM)
 {
     // Additional steps to save marker map
     // 1. Find matches to marker on two keyframes
@@ -2848,13 +2841,7 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile)
     AB.copyTo(system.rowRange(0, 3).col(1));
     n.copyTo(system.rowRange(0, 3).col(2));
 
-    system = system.inv();
-
-    std::cout << "ac" << AC << std::endl;
-    std::cout << "ab" << AB << std::endl;
-    std::cout << "n" << n << std::endl;
-    std::cout << "system" << system << std::endl;
-    std::cout << "system det" << cv::determinant(system) << std::endl;
+    cv::Mat systemInv = system.inv();
 
     for (int i = 0; i < mapPoints.size(); i++)
     {
@@ -2862,12 +2849,7 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile)
 
         if (mp->isBad()) continue;
 
-        cv::Mat sol = system * (mp->GetWorldPos() - ul3D);
-        if (i == 0 || i == mapPoints.size() / 2 || i == mapPoints.size() - 1)
-        {
-            std::cout << "mp " << i << " worldPos: " << mp->GetWorldPos() << std::endl;
-            std::cout << "mp " << i << " sol: " << sol << std::endl;
-        }
+        cv::Mat sol = systemInv * (mp->GetWorldPos() - ul3D);
 
         if (sol.at<float>(0, 0) < 0 || sol.at<float>(0, 0) > 1 ||
             sol.at<float>(1, 0) < 0 || sol.at<float>(1, 0) > 1 ||
@@ -2876,6 +2858,22 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile)
             mp->SetBadFlag();
         }
     }
+
+    cv::Mat systemNorm               = cv::Mat::zeros(3, 3, CV_32F);
+    systemNorm.rowRange(0, 3).col(0) = system.rowRange(0, 3).col(1) / cv::norm(AB);
+    systemNorm.rowRange(0, 3).col(1) = system.rowRange(0, 3).col(0) / cv::norm(AC);
+    systemNorm.rowRange(0, 3).col(2) = system.rowRange(0, 3).col(2) / cv::norm(n);
+
+    float markerWidthInRef = cv::norm(ul3D - ur3D);
+    float scaleFactor      = markerWidthInM / markerWidthInRef;
+    systemNorm *= scaleFactor;
+
+    cv::Mat systemNormInv = systemNorm.inv();
+
+    nodeTransform   = cv::Mat::eye(4, 4, CV_32F);
+    cv::Mat ul3Dinv = -systemNormInv * ul3D;
+    ul3Dinv.copyTo(nodeTransform.rowRange(0, 3).col(3));
+    systemNormInv.copyTo(nodeTransform.rowRange(0, 3).colRange(0, 3));
 
     if (_mpUL)
     {

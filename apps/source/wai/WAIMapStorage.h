@@ -22,8 +22,8 @@ public:
                         bool           loadImgs,
                         bool           fixKfsAndMPts);
 
-private:
-    //static SLMat4f loadObjectMatrix(const cv::FileNode& n);
+    static cv::Mat convertToCVMat(const SLMat4f slMat);
+    static SLMat4f convertToSLMat(const cv::Mat& cvMat);
 };
 
 #endif

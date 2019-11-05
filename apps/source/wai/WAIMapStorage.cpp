@@ -1,6 +1,6 @@
 #include <WAIMapStorage.h>
 
-cv::Mat convertToCVMat(const SLMat4f slMat)
+cv::Mat WAIMapStorage::convertToCVMat(const SLMat4f slMat)
 {
     cv::Mat cvMat = cv::Mat(4, 4, CV_32F);
     // clang-format off
@@ -10,29 +10,29 @@ cv::Mat convertToCVMat(const SLMat4f slMat)
         //  T M2, T M6, T M10, T M14,
         //  T M3, T M7, T M11, T M15)
     cvMat.at<float>(0, 0) = slMat.m(0);  
-    cvMat.at<float>(0, 1) = slMat.m(1); 
-    cvMat.at<float>(0, 2) = slMat.m(2);  
-    cvMat.at<float>(0, 3) = slMat.m(3);
+    cvMat.at<float>(1, 0) = slMat.m(1); 
+    cvMat.at<float>(2, 0) = slMat.m(2);  
+    cvMat.at<float>(3, 0) = slMat.m(3);
 
-    cvMat.at<float>(1, 0) = slMat.m(4);
+    cvMat.at<float>(0, 1) = slMat.m(4);
     cvMat.at<float>(1, 1) = slMat.m(5);
-    cvMat.at<float>(1, 2) = slMat.m(6);
-    cvMat.at<float>(1, 3) = slMat.m(7);
+    cvMat.at<float>(2, 1) = slMat.m(6);
+    cvMat.at<float>(3, 1) = slMat.m(7);
 
-    cvMat.at<float>(2, 0) = slMat.m(8);
-    cvMat.at<float>(2, 1) = slMat.m(9);
+    cvMat.at<float>(0, 2) = slMat.m(8);
+    cvMat.at<float>(1, 2) = slMat.m(9);
     cvMat.at<float>(2, 2) = slMat.m(10);
-    cvMat.at<float>(2, 3) = slMat.m(11);
+    cvMat.at<float>(3, 2) = slMat.m(11);
 
-    cvMat.at<float>(3, 0) = slMat.m(12);
-    cvMat.at<float>(3, 1) = slMat.m(13);
-    cvMat.at<float>(3, 2) = slMat.m(14);
+    cvMat.at<float>(0, 3) = slMat.m(12);
+    cvMat.at<float>(1, 3) = slMat.m(13);
+    cvMat.at<float>(2, 3) = slMat.m(14);
     cvMat.at<float>(3, 3) = slMat.m(15);
     // clang-format on
     return cvMat;
 }
 
-SLMat4f convertToSLMat(const cv::Mat& cvMat)
+SLMat4f WAIMapStorage::convertToSLMat(const cv::Mat& cvMat)
 {
     SLMat4f slMat;
     // clang-format off
@@ -41,10 +41,10 @@ SLMat4f convertToSLMat(const cv::Mat& cvMat)
         //  T M2, T M6, T M10, T M14,
         //  T M3, T M7, T M11, T M15)
     slMat.setMatrix(
-        cvMat.at<float>(0, 0), cvMat.at<float>(1, 0), cvMat.at<float>(2, 0), cvMat.at<float>(3, 0), 
-        cvMat.at<float>(0, 1), cvMat.at<float>(1, 1), cvMat.at<float>(2, 1), cvMat.at<float>(3, 1), 
-        cvMat.at<float>(0, 2), cvMat.at<float>(1, 2), cvMat.at<float>(2, 2), cvMat.at<float>(3, 2), 
-        cvMat.at<float>(0, 3), cvMat.at<float>(1, 3), cvMat.at<float>(2, 3), cvMat.at<float>(3, 3));
+        cvMat.at<float>(0, 0), cvMat.at<float>(0, 1), cvMat.at<float>(0, 2), cvMat.at<float>(0, 3), 
+        cvMat.at<float>(1, 0), cvMat.at<float>(1, 1), cvMat.at<float>(1, 2), cvMat.at<float>(1, 3), 
+        cvMat.at<float>(2, 0), cvMat.at<float>(2, 1), cvMat.at<float>(2, 2), cvMat.at<float>(2, 3), 
+        cvMat.at<float>(3, 0), cvMat.at<float>(3, 1), cvMat.at<float>(3, 2), cvMat.at<float>(3, 3));
     // clang-format on
 
     return slMat;

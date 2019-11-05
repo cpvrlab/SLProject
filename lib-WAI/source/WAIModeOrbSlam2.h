@@ -141,7 +141,7 @@ public:
 
     WAIFrame getCurrentFrame();
 
-    bool doMarkerMapPreprocessing(std::string markerFile);
+    bool doMarkerMapPreprocessing(std::string markerFile, cv::Mat& nodeTransform, float markerWidthInM);
 
 private:
     enum TrackingType
