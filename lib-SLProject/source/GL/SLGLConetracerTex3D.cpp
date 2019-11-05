@@ -25,7 +25,12 @@ SLGLConetracerTex3D::SLGLConetracerTex3D(const SLVfloat& textureBuffer,
     GET_GL_ERROR;
 
     // Parameter options.
+#if defined(GL_VERSION_4_0) || defined(GL_ES_VERSION_3_2)
     const auto wrap = GL_CLAMP_TO_BORDER;
+#else
+    const auto wrap = GL_CLAMP_TO_EDGE;
+#endif
+
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, wrap);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, wrap);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, wrap);
@@ -72,9 +77,9 @@ SLGLConetracerTex3D::SLGLConetracerTex3D(const SLVfloat& textureBuffer,
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-void SLGLConetracerTex3D::activate(SLint    shaderProgram,
-                                   SLstring glSamplerName,
-                                   SLint    textureUnit)
+void SLGLConetracerTex3D::activate(SLint           shaderProgram,
+                                   const SLstring& glSamplerName,
+                                   SLint           textureUnit)
 {
     glActiveTexture(GL_TEXTURE0 + textureUnit);
     glBindTexture(GL_TEXTURE_3D, textureID);
@@ -93,7 +98,10 @@ void SLGLConetracerTex3D::clear(SLVec4f clearColor)
 
     // retrieve this texutre
     glBindTexture(GL_TEXTURE_3D, textureID);
+
+#if defined(GL_VERSION_4_4)
     glClearTexImage(textureID, 0, GL_RGBA, GL_FLOAT, &clearColor);
+#endif
 
     // rebind previous texture
     glBindTexture(GL_TEXTURE_3D, previousBoundTextureID);

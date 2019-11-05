@@ -50,12 +50,12 @@ class SLGLShader : public SLObject
 
 public:
     SLGLShader();
-    SLGLShader(SLstring     filename,
+    SLGLShader(const SLstring&     filename,
                SLShaderType type);
     ~SLGLShader();
 
-    void     load(SLstring filename);
-    void     loadFromMemory(SLstring program);
+    void     load(const SLstring& filename);
+    void     loadFromMemory(const SLstring& program);
     SLbool   createAndCompile();
     SLbool   createAndCompileSimple();
     SLstring removeComments(SLstring src);

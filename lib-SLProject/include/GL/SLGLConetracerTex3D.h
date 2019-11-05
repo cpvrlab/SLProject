@@ -28,9 +28,9 @@ public:
       SLint           depth,
       SLbool          generateMipmaps = true);
 
-    void activate(SLint    shaderProgram,
-                  SLstring glSamplerName,
-                  SLint    textureUnit = GL_TEXTURE0);
+    void activate(SLint           shaderProgram,
+                  const SLstring& glSamplerName,
+                  SLint           textureUnit = GL_TEXTURE0);
     void clear(SLVec4f clearColor);
 
 private:

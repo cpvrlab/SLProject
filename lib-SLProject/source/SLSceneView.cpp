@@ -406,8 +406,11 @@ void SLSceneView::onInitialize()
     initSceneViewCamera();
 
     // init conetracer if possible:
+#if defined(GL_VERSION_4_4)
     if (glewIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
         _conetracer.init(_scrW, _scrH);
+#endif
+
 
     _gui.onResize(_viewportRect.width, _viewportRect.height);
 }

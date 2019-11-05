@@ -30,7 +30,9 @@ SLGLConetracer::~SLGLConetracer()
 void SLGLConetracer::init(SLint scrW, SLint scrH)
 {
     // enable multisampling
+#ifndef SL_GLES3
     glEnable(GL_MULTISAMPLE);
+#endif
 
     // Initialize voxel 3D-Texture:
     const SLVfloat texture3D(4 * _voxelTexSize * _voxelTexSize * _voxelTexSize, 0.0f);
@@ -364,6 +366,7 @@ void SLGLConetracer::voxelize()
     GET_GL_ERROR;
 
     // Bind texture where we want to write to:
+#if defined(GL_VERSION_4_4)
     glBindImageTexture(0,
                        _voxelTex->textureID,
                        0,
@@ -371,6 +374,8 @@ void SLGLConetracer::voxelize()
                        0,
                        GL_WRITE_ONLY,
                        GL_RGBA8);
+#endif
+    
     GET_GL_ERROR;
 	
     _sv->camera()->setProjection(_sv, ET_center);

@@ -77,12 +77,12 @@ private:
     void    uploadRenderSettings(SLGLProgram* sp);
     void    uploadLights(SLGLProgram* sp);
     void    calcWS2VoxelSpaceTransform();
-    void    voxelSpaceTransform(const SLfloat l,
-                                const SLfloat r,
-                                const SLfloat b,
-                                const SLfloat t,
-                                const SLfloat n,
-                                const SLfloat f);
+    void    voxelSpaceTransform(SLfloat l,
+                                SLfloat r,
+                                SLfloat b,
+                                SLfloat t,
+                                SLfloat n,
+                                SLfloat f);
     SLfloat oneOverGamma() { return (1.0f / _gamma); }
 
     SLfloat _gamma             = 2.2f;
