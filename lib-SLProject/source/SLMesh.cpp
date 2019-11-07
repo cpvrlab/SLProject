@@ -21,6 +21,9 @@
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
 #include <SLSkybox.h>
+#include <SLMesh.h>
+
+unsigned int SLMesh::meshIndex = 0;
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -87,6 +90,11 @@ void SLMesh::deleteData()
     _vao.deleteGL();
     _vaoN.deleteGL();
     _vaoT.deleteGL();
+
+    _vertexBuffer.free();
+    _normalBuffer.free();
+    _indexShortBuffer.free();
+    _indexIntBuffer.free();
 }
 //-----------------------------------------------------------------------------
 //! Deletes the rectangle selected vertices and the dependend triangles.
@@ -1265,5 +1273,64 @@ void SLMesh::notifyParentNodesAABBUpdate() const
     SLVNode nodes = SLApplication::scene->root3D()->findChildren(this);
     for (auto node : nodes)
         node->needAABBUpdate();
+}
+
+void SLMesh::uploadData() {
+    _vertexBuffer.alloc_and_upload(P);
+
+    _normalBuffer.alloc_and_upload(N);
+
+    if (!I16.empty()) {
+        _indexShortBuffer.alloc_and_upload(I16);
+    } else {
+        _indexIntBuffer.alloc_and_upload(I32);
+    }
+}
+
+void SLMesh::createMeshAccelerationStructure() {
+    if (!_vertexBuffer.isAllocated()) {
+        uploadData();
+    }
+
+    // Build triangle GAS
+    uint32_t triangle_input_flags[1] = { OPTIX_GEOMETRY_FLAG_NONE };
+
+    OptixBuildInput triangle_input                           = {};
+    triangle_input.type                                      = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
+    if (!I16.empty()) {
+        triangle_input.triangleArray.indexFormat             = OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3;
+        triangle_input.triangleArray.numIndexTriplets        = I16.size() / 3;
+        triangle_input.triangleArray.indexBuffer             = _indexShortBuffer.devicePointer();
+    } else {
+        triangle_input.triangleArray.indexFormat             = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
+        triangle_input.triangleArray.numIndexTriplets        = I32.size() / 3;
+        triangle_input.triangleArray.indexBuffer             = _indexIntBuffer.devicePointer();
+    }
+    triangle_input.triangleArray.vertexFormat                = OPTIX_VERTEX_FORMAT_FLOAT3;
+    triangle_input.triangleArray.vertexBuffers               = _vertexBuffer.devicePointerPointer();
+    triangle_input.triangleArray.numVertices                 = P.size();
+    triangle_input.triangleArray.flags                       = triangle_input_flags;
+    triangle_input.triangleArray.numSbtRecords               = 1;
+
+    _sbtIndex = RAY_TYPE_COUNT * meshIndex++;
+
+    buildAccelerationStructure(triangle_input);
+}
+
+HitData SLMesh::createHitData() {
+    HitData hitData = {};
+
+    hitData.sbtIndex = 0;
+    hitData.normals = reinterpret_cast<float3 *>(_normalBuffer.devicePointer());
+    hitData.indices = reinterpret_cast<short3 *>(_indexShortBuffer.devicePointer());
+    hitData.material.kn = mat()->kn();
+    hitData.material.kt = mat()->kt();
+    hitData.material.kr = mat()->kr();
+    hitData.material.shininess = mat()->shininess();
+    hitData.material.ambient_color = make_float4(mat()->ambient());
+    hitData.material.specular_color = make_float4(mat()->specular());
+    hitData.material.diffuse_color = make_float4(mat()->diffuse());
+
+    return hitData;
 }
 //-----------------------------------------------------------------------------

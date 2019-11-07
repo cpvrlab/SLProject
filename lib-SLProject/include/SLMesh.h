@@ -16,6 +16,7 @@
 #include <SLGLVertexArray.h>
 #include <SLObject.h>
 #include <SLOptixAccelerationStructure.h>
+#include <SLOptixDefinitions.h>
 
 class SLSceneView;
 class SLNode;
@@ -142,12 +143,17 @@ class SLMesh : public SLObject, public SLOptixAccelerationStructure
 
     void transformSkin();
 
+    void    uploadData();
+    void    createMeshAccelerationStructure();
+    HitData createHitData();
+
     // Getters
     SLMaterial*       mat() const { return _mat; }
     SLMaterial*       matOut() const { return _matOut; }
     SLGLPrimitiveType primitive() const { return _primitive; }
     const SLSkeleton* skeleton() const { return _skeleton; }
     SLuint            numI() { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
+    unsigned int      sbtIndex() const { return _sbtIndex;}
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }
@@ -177,6 +183,8 @@ class SLMesh : public SLObject, public SLOptixAccelerationStructure
     SLVec3f minP; //!< min. vertex in OS
     SLVec3f maxP; //!< max. vertex in OS
 
+    static unsigned int meshIndex;
+
     protected:
     SLGLPrimitiveType  _primitive; //!< Primitive type (default triangles)
     SLMaterial*        _mat;       //!< Pointer to the inside material
@@ -185,6 +193,12 @@ class SLMesh : public SLObject, public SLOptixAccelerationStructure
     SLGLVertexArrayExt _vaoN;      //!< OpenGL VAO for optional normal drawing
     SLGLVertexArrayExt _vaoT;      //!< OpenGL VAO for optional tangent drawing
     SLGLVertexArrayExt _vaoS;      //!< OpenGL VAO for optional selection drawing
+
+    SLCudaBuffer<SLVec3f>   _vertexBuffer;
+    SLCudaBuffer<SLVec3f>   _normalBuffer;
+    SLCudaBuffer<SLushort>  _indexShortBuffer;
+    SLCudaBuffer<SLuint>    _indexIntBuffer;
+    unsigned int            _sbtIndex;
 
     SLbool         _isVolume;             //!< Flag for RT if mesh is a closed volume
     SLAccelStruct* _accelStruct;          //!< KD-tree or uniform grid

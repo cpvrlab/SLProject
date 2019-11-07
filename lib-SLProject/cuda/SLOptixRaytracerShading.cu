@@ -96,8 +96,8 @@ extern "C" __global__ void __closesthit__radiance() {
 
         // Shading like whitted
         color = color +
-                (material.specular_color * pow( max(dot(R, V), 0.0), material.shininess ) * (1.0f - occlusion) + // specular
-                 material.diffuse_color * max(nDl, 0.0f) * (1.0f - occlusion)) // diffuse
+                (material.specular_color * pow( max(dot(R, V), 0.0), material.shininess ) * (1.0f - occlusion) // specular
+                + material.diffuse_color * max(nDl, 0.0f) * (1.0f - occlusion)) // diffuse
                 * params.lights[i].color; // multiply with light color
     }
 
@@ -113,7 +113,7 @@ extern "C" __global__ void __closesthit__radiance() {
         // calculate eta
         float refractionIndex = material.kn;
         float eta = getRefractionIndex() / material.kn;
-        if ( optixIsTriangleBackFaceHit()) {
+        if (optixIsTriangleBackFaceHit()) {
             refractionIndex = getRefractionIndex();
             eta = material.kn / getRefractionIndex();
         }

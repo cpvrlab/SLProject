@@ -41,6 +41,7 @@ class SLApplication
     public:
     static void     createAppAndScene(SLstring appName,
                                       void*    onSceneLoadCallback);
+    static void     createOptixContext();
     static void     deleteAppAndScene();
     static SLstring getComputerInfos();
     static void     handleParallelJob();
@@ -82,6 +83,9 @@ class SLApplication
     static deque<function<void(void)>> jobsToBeThreaded;   //!< queue of functions to be executed in a thread
     static deque<function<void(void)>> jobsToFollowInMain; //!< queue of function to follow in the main thread
     static atomic<bool>                jobIsRunning;       //!< True if a parallel job is running
+
+    static OptixDeviceContext context;
+    static CUstream           stream;
 
     private:
     static HighResTimer _timer;          //!< high precision timer

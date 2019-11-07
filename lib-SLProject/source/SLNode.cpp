@@ -1195,4 +1195,64 @@ void SLNode::update()
     for (auto child : _children)
         child->update();
 }
+
+void SLNode::createInstanceAccelerationStructure() {
+    std::vector<OptixInstance> instances;
+
+    for(auto child : children()) {
+        if (!child->optixTraversableHandle()) {
+            child->createInstanceAccelerationStructure();
+        }
+
+        if (child->optixTraversableHandle()) {
+            OptixInstance instance;
+
+            const SLMat4f mat4x4 = child->updateAndGetWM();
+            float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
+                                   mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
+                                   mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
+            memcpy(instance.transform, transform, sizeof(float)*12);
+
+            instance.instanceId         = 0;
+            instance.visibilityMask     = 255;
+            instance.flags              = OPTIX_INSTANCE_FLAG_NONE;
+            instance.traversableHandle  = child->optixTraversableHandle();
+            instance.sbtOffset          = 0;
+
+            instances.push_back(instance);
+        }
+    }
+
+    for(auto mesh : meshes()) {
+        OptixInstance instance;
+
+        const SLMat4f& mat4x4 = updateAndGetWM();
+        float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
+                               mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
+                               mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
+        memcpy(instance.transform, transform, sizeof(float)*12);
+
+        instance.instanceId         = 0;
+        instance.visibilityMask     = 255;
+        instance.flags              = OPTIX_INSTANCE_FLAG_NONE;
+        instance.traversableHandle  = mesh->optixTraversableHandle();
+        instance.sbtOffset          = mesh->sbtIndex();
+
+        instances.push_back(instance);
+    }
+
+    if (instances.empty()) {
+        return;
+    }
+
+    SLCudaBuffer<OptixInstance> instanceBuffer = SLCudaBuffer<OptixInstance>();
+    instanceBuffer.alloc_and_upload(instances);
+
+    OptixBuildInput instance_input              = {};
+    instance_input.type                         = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
+    instance_input.instanceArray.instances      = instanceBuffer.devicePointer();
+    instance_input.instanceArray.numInstances   = instances.size();
+
+    buildAccelerationStructure(instance_input);
+}
 //-----------------------------------------------------------------------------

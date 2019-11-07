@@ -56,6 +56,9 @@ atomic<int>  SLApplication::_jobProgressMax(0);
 mutex        SLApplication::_jobMutex;
 HighResTimer SLApplication::_timer;
 
+OptixDeviceContext SLApplication::context   = {};
+CUstream           SLApplication::stream    = {};
+
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function
 /*! Writes and inits the static application information and create the single
@@ -79,6 +82,29 @@ void SLApplication::createAppAndScene(SLstring appName,
     name  = std::move(appName);
     scene = new SLScene(name, (cbOnSceneLoad)onSceneLoadCallback);
     _timer.start();
+}
+//-----------------------------------------------------------------------------
+//! callback function for optix
+static void context_log_cb( unsigned int level, const char* tag, const char* message, void* /*cbdata */)
+{
+    std::cerr << "[" << std::setw( 2 ) << level << "][" << std::setw( 12 ) << tag << "]: "
+              << message << "\n";
+}
+//! creates the optix and cuda context for the application
+void SLApplication::createOptixContext() {
+    // Initialize CUDA
+    CUcontext        cu_ctx;
+    CUDA_CHECK( cuInit( 0 ) );
+    CUDA_CHECK( cuMemFree( 0 ) );
+    CUDA_CHECK( cuCtxCreate( &cu_ctx, 0, 0) );
+    CUDA_CHECK( cuStreamCreate( &stream, CU_STREAM_DEFAULT ) );
+
+    // Initialize OptiX
+    OPTIX_CHECK( optixInit() );
+    OptixDeviceContextOptions options = {};
+    options.logCallbackFunction       = &context_log_cb;
+    options.logCallbackLevel          = 4;
+    OPTIX_CHECK( optixDeviceContextCreate( cu_ctx, &options, &context ) );
 }
 //-----------------------------------------------------------------------------
 //! Calls the destructor of the single scene instance.

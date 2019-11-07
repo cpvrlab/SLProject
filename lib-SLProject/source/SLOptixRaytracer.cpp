@@ -44,10 +44,12 @@ SLOptixRaytracer::~SLOptixRaytracer()
     OPTIX_CHECK( optixModuleDestroy( _cameraModule ) );
     OPTIX_CHECK( optixModuleDestroy( _shadingModule ) );
 
-    OPTIX_CHECK( optixDeviceContextDestroy( _context ) );
+//    OPTIX_CHECK( optixDeviceContextDestroy( context ) );
+//    CUDA_CHECK( cuStreamDestroy( stream ) );
 }
 
 void SLOptixRaytracer::setupOptix() {
+    SLApplication::createOptixContext();
 
     // Set compile options for modules and pipelines
     _module_compile_options = {};
@@ -61,7 +63,7 @@ void SLOptixRaytracer::setupOptix() {
     _module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
     _module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
 
-    _pipeline_compile_options.exceptionFlags     = OPTIX_EXCEPTION_FLAG_USER;
+    _pipeline_compile_options.exceptionFlags     = OPTIX_EXCEPTION_FLAG_DEBUG;
 #endif
 
     _pipeline_compile_options.usesMotionBlur        = false;
@@ -69,8 +71,6 @@ void SLOptixRaytracer::setupOptix() {
     _pipeline_compile_options.numPayloadValues      = 7;
     _pipeline_compile_options.numAttributeValues    = 2;
     _pipeline_compile_options.pipelineLaunchParamsVariableName = "params";
-
-    _createContext();
 
     _cameraModule = _createModule("SLOptixRaytracerCamera.cu");
     _shadingModule = _createModule("SLOptixRaytracerShading.cu");
@@ -119,29 +119,9 @@ void SLOptixRaytracer::setupOptix() {
     _paramsBuffer.alloc(sizeof(Params));
 }
 
-static void context_log_cb( unsigned int level, const char* tag, const char* message, void* /*cbdata */)
-{
-    std::cerr << "[" << std::setw( 2 ) << level << "][" << std::setw( 12 ) << tag << "]: "
-              << message << "\n";
-}
-
-void SLOptixRaytracer::_createContext() {
-    // Initialize CUDA
-    CUcontext        cu_ctx = 0;  // zero means take the current context
-    CUDA_CHECK( cuInit( 0 ) );
-    CUDA_CHECK( cuMemFree( 0 ) );
-    CUDA_CHECK( cuCtxCreate( &cu_ctx, 0, 0) );
-    CUDA_CHECK( cuStreamCreate( &_stream, CU_STREAM_DEFAULT ) );
-
-    // Initialize OptiX
-    OPTIX_CHECK( optixInit() );
-    OptixDeviceContextOptions options = {};
-    options.logCallbackFunction       = &context_log_cb;
-    options.logCallbackLevel          = 4;
-    OPTIX_CHECK( optixDeviceContextCreate( cu_ctx, &options, &_context ) );
-}
-
 OptixModule SLOptixRaytracer::_createModule(std::string filename) {
+    OptixDeviceContext context = SLApplication::context;
+
     OptixModule module = nullptr;
     {
         const std::string ptx = getPtxStringFromFile(std::move(filename));
@@ -149,7 +129,7 @@ OptixModule SLOptixRaytracer::_createModule(std::string filename) {
         size_t sizeof_log = sizeof( log );
 
         OPTIX_CHECK_LOG( optixModuleCreateFromPTX(
-                _context,
+                context,
                 &_module_compile_options,
                 &_pipeline_compile_options,
                 ptx.c_str(),
@@ -163,6 +143,8 @@ OptixModule SLOptixRaytracer::_createModule(std::string filename) {
 }
 
 OptixProgramGroup SLOptixRaytracer::_createProgram(OptixProgramGroupDesc prog_group_desc) {
+    OptixDeviceContext context = SLApplication::context;
+
     OptixProgramGroup program_group = {};
     OptixProgramGroupOptions  program_group_options = {};
 
@@ -171,7 +153,7 @@ OptixProgramGroup SLOptixRaytracer::_createProgram(OptixProgramGroupDesc prog_gr
 
     {
         OPTIX_CHECK_LOG( optixProgramGroupCreate(
-                _context,
+                context,
                 &prog_group_desc,
                 1,  // num program groups
                 &program_group_options,
@@ -185,9 +167,9 @@ OptixProgramGroup SLOptixRaytracer::_createProgram(OptixProgramGroupDesc prog_gr
 }
 
 OptixPipeline SLOptixRaytracer::_createPipeline(OptixProgramGroup * program_groups, unsigned int numProgramGroups) {
+    OptixDeviceContext context = SLApplication::context;
 
     OptixPipeline pipeline;
-
     OptixPipelineLinkOptions pipeline_link_options = {};
     pipeline_link_options.maxTraceDepth            = _maxDepth;
     pipeline_link_options.debugLevel               = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
@@ -196,7 +178,7 @@ OptixPipeline SLOptixRaytracer::_createPipeline(OptixProgramGroup * program_grou
     char   log[2048];
     size_t sizeof_log = sizeof( log );
     OPTIX_CHECK_LOG( optixPipelineCreate(
-            _context,
+            context,
             &_pipeline_compile_options,
             &pipeline_link_options,
             program_groups,
@@ -209,7 +191,7 @@ OptixPipeline SLOptixRaytracer::_createPipeline(OptixProgramGroup * program_grou
     return pipeline;
 }
 
-OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(SLVMesh meshes) {
+OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMesh& meshes) {
 
     OptixShaderBindingTable sbt = {};
     {
@@ -238,16 +220,7 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(SLVMesh mesh
         for(auto mesh : meshes) {
             HitSbtRecord radiance_hg_sbt;
             OPTIX_CHECK( optixSbtRecordPackHeader( _radiance_hit_group, &radiance_hg_sbt ) );
-            radiance_hg_sbt.data.sbtIndex = 0;
-//            radiance_hg_sbt.data.normals = mesh->N.data();
-//            radiance_hg_sbt.data.indices = mesh->N.data();
-            radiance_hg_sbt.data.material.kn = mesh->mat()->kn();
-            radiance_hg_sbt.data.material.kt = mesh->mat()->kt();
-            radiance_hg_sbt.data.material.kr = mesh->mat()->kr();
-            radiance_hg_sbt.data.material.shininess = mesh->mat()->shininess();
-            radiance_hg_sbt.data.material.ambient_color = make_float4(mesh->mat()->ambient());
-            radiance_hg_sbt.data.material.specular_color = make_float4(mesh->mat()->specular());
-            radiance_hg_sbt.data.material.diffuse_color = make_float4(mesh->mat()->diffuse());
+            radiance_hg_sbt.data = mesh->createHitData();
             hitRecords.push_back(radiance_hg_sbt);
 
             HitSbtRecord occlusion_hg_sbt;
@@ -270,208 +243,16 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(SLVMesh mesh
     return sbt;
 }
 
-void SLOptixRaytracer::_buildAccelerationStructure(OptixBuildInput buildInput, SLOptixAccelerationStructure* accelerationStructure)
-{
-    OptixTraversableHandle handle;
-
-    OptixAccelBuildOptions accel_options = {};
-    accel_options.buildFlags             = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_ALLOW_RANDOM_VERTEX_ACCESS;
-    accel_options.operation              = OPTIX_BUILD_OPERATION_BUILD;
-
-    OptixAccelBufferSizes accel_buffer_sizes;
-    OPTIX_CHECK( optixAccelComputeMemoryUsage(
-            _context,
-            &accel_options,
-            &buildInput,
-            1,  // num_build_inputs
-            &accel_buffer_sizes
-    ) );
-
-    SLCudaBuffer<void> temp_buffer = SLCudaBuffer<void>();
-    temp_buffer.alloc(accel_buffer_sizes.tempSizeInBytes);
-
-    // non-compacted output
-    auto* non_compacted_output_buffer = new SLCudaBuffer<void>();
-    non_compacted_output_buffer->alloc(accel_buffer_sizes.outputSizeInBytes);
-
-    SLCudaBuffer<OptixAabb> aabbBuffer = SLCudaBuffer<OptixAabb>();
-    aabbBuffer.alloc(sizeof(OptixAabb));
-    SLCudaBuffer<size_t> compactedSize = SLCudaBuffer<size_t>();
-    compactedSize.alloc(sizeof(size_t));
-
-    OptixAccelEmitDesc emitProperty[2];
-    emitProperty[0].type               = OPTIX_PROPERTY_TYPE_AABBS;
-    emitProperty[0].result             = aabbBuffer.devicePointer();
-    emitProperty[1].type               = OPTIX_PROPERTY_TYPE_COMPACTED_SIZE;
-    emitProperty[1].result             = compactedSize.devicePointer();
-
-    OPTIX_CHECK( optixAccelBuild(
-            _context,
-            _stream,                            // CUDA stream
-            &accel_options,
-            &buildInput,
-            1,                                  // num build inputs
-            temp_buffer.devicePointer(),
-            accel_buffer_sizes.tempSizeInBytes,
-            non_compacted_output_buffer->devicePointer(),
-            accel_buffer_sizes.outputSizeInBytes,
-            &handle,
-            emitProperty,                      // emitted property list
-            2                                   // num emitted properties
-    ) );
-    CUDA_SYNC_CHECK( _stream );
-
-    OptixAabb aabb;
-    aabbBuffer.download(&aabb);
-
-    size_t compacted_accel_size;
-    compactedSize.download(&compacted_accel_size);
-
-    if(compacted_accel_size < accel_buffer_sizes.outputSizeInBytes )
-    {
-        auto* outputBuffer = new SLCudaBuffer<void>();
-        outputBuffer->alloc(compacted_accel_size );
-
-        // use handle as input and output
-        OPTIX_CHECK( optixAccelCompact(_context,
-                _stream,
-                handle,
-                outputBuffer->devicePointer(),
-                compacted_accel_size,
-                &handle ) );
-        CUDA_SYNC_CHECK( _stream );
-
-        delete non_compacted_output_buffer;
-        accelerationStructure->buffer(outputBuffer);
-    } else {
-        accelerationStructure->buffer(non_compacted_output_buffer);
-    }
-
-    accelerationStructure->optixTraversableHandle(handle);
-}
-
-void SLOptixRaytracer::_createMeshAccelerationStructure(SLMesh* mesh, unsigned int index)
-{
-    //
-    // copy mesh data to device
-    //
-    SLCudaBuffer<SLVec3f> vertexBuffer = SLCudaBuffer<SLVec3f>();
-    vertexBuffer.alloc_and_upload(mesh->P);
-
-    //
-    // Build triangle GAS
-    //
-    uint32_t triangle_input_flags[1] =  // One per SBT record for this build input
-    {
-        OPTIX_GEOMETRY_FLAG_NONE
-    };
-
-    OptixBuildInput triangle_input                           = {};
-    triangle_input.type                                      = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
-
-    SLCudaBuffer<SLuint> indexBufferInt = SLCudaBuffer<SLuint>();
-    SLCudaBuffer<SLushort> indexBufferShort = SLCudaBuffer<SLushort>();
-    if (mesh->I16.size() < USHRT_MAX) {
-        indexBufferShort.alloc_and_upload(mesh->I16);
-
-        triangle_input.triangleArray.indexFormat                 = OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3;
-        triangle_input.triangleArray.numIndexTriplets            = mesh->I16.size() / 3;
-        triangle_input.triangleArray.indexBuffer                 = indexBufferShort.devicePointer();
-    } else {
-        indexBufferInt.alloc_and_upload(mesh->I32);
-
-        triangle_input.triangleArray.indexFormat                 = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
-        triangle_input.triangleArray.numIndexTriplets            = mesh->I32.size() / 3;
-        triangle_input.triangleArray.indexBuffer                 = indexBufferInt.devicePointer();
-    }
-
-    triangle_input.triangleArray.vertexFormat                = OPTIX_VERTEX_FORMAT_FLOAT3;
-    triangle_input.triangleArray.vertexBuffers               = vertexBuffer.devicePointerPointer();
-    triangle_input.triangleArray.numVertices                 = mesh->P.size();
-    triangle_input.triangleArray.flags                       = triangle_input_flags;
-    triangle_input.triangleArray.numSbtRecords               = 1;
-//    triangle_input.triangleArray.sbtIndexOffsetBuffer        = 0;
-//    triangle_input.triangleArray.sbtIndexOffsetSizeInBytes   = sizeof( uint32_t );
-//    triangle_input.triangleArray.sbtIndexOffsetStrideInBytes = sizeof( uint32_t );
-
-    mesh->sbtIndex(RAY_TYPE_COUNT * index);
-
-     _buildAccelerationStructure(triangle_input, mesh);
-}
-
-void SLOptixRaytracer::_createInstanceAccelerationStructure(SLNode* node) {
-    std::vector<OptixInstance> instances;
-
-    SLVNode children = node->children();
-    unsigned int i;
-    for(auto child : children) {
-        _createInstanceAccelerationStructure(child);
-
-        if (child->optixTraversableHandle()) {
-            OptixInstance instance;
-
-            const SLMat4f mat4x4 = child->updateAndGetWM();
-            float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
-                                   mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
-                                   mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
-            memcpy(instance.transform, transform, sizeof(float)*12);
-
-            instance.instanceId = i++;
-            instance.visibilityMask = 255;
-            instance.flags = OPTIX_INSTANCE_FLAG_NONE;
-            instance.traversableHandle = child->optixTraversableHandle();
-            instance.sbtOffset = 0;
-
-            instances.push_back(instance);
-        }
-    }
-
-    SLVMesh meshes = node->meshes();
-    for(auto mesh : meshes) {
-        OptixInstance instance;
-
-        const SLMat4f& mat4x4 = node->updateAndGetWM();
-        float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
-                               mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
-                               mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
-        memcpy(instance.transform, transform, sizeof(float)*12);
-
-        instance.instanceId = 0;
-        instance.visibilityMask = 255;
-        instance.flags = OPTIX_INSTANCE_FLAG_NONE;
-        instance.traversableHandle = mesh->optixTraversableHandle();
-        instance.sbtOffset = mesh->sbtIndex();
-
-        instances.push_back(instance);
-    }
-
-    if (instances.empty()) {
-        node->optixTraversableHandle(0);
-        return;
-    }
-
-    SLCudaBuffer<OptixInstance> instanceBuffer = SLCudaBuffer<OptixInstance>();
-    instanceBuffer.alloc_and_upload(instances);
-
-    OptixBuildInput instance_input                           = {};
-    instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
-    instance_input.instanceArray.instances = instanceBuffer.devicePointer();
-    instance_input.instanceArray.numInstances = instances.size();
-
-    _buildAccelerationStructure(instance_input, node);
-}
-
 void SLOptixRaytracer::setupScene() {
     SLScene* scene = SLApplication::scene;
     SLVMesh meshes = scene->meshes();
 
     // Iterate over all meshes
-    unsigned int idx = 0;
     for(auto mesh : meshes) {
-        _createMeshAccelerationStructure(mesh, idx++);
+        mesh->createMeshAccelerationStructure();
     }
 
-    _createInstanceAccelerationStructure(scene->root3D());
+    scene->root3D()->createInstanceAccelerationStructure();
 
     _sbt = _createShaderBindingTable(meshes);
 
@@ -485,7 +266,7 @@ void SLOptixRaytracer::setupScene() {
     unsigned int directCallableStackSizeFromState;
     unsigned int continuationStackSize;
     OPTIX_CHECK( optixUtilComputeStackSizes(&stack_sizes,
-            1,
+            _maxDepth,
             0,
             0,
             &directCallableStackSizeFromTraversal,
@@ -553,14 +334,14 @@ SLbool SLOptixRaytracer::renderClassic() {
 
     OPTIX_CHECK(optixLaunch(
             _pipeline,
-            _stream,
+            SLApplication::stream,
             _paramsBuffer.devicePointer(),
             _paramsBuffer.size(),
             &_sbt,
             _sv->scrW(),
             _sv->scrH(),
             /*depth=*/1));
-    CUDA_SYNC_CHECK(_stream);
+    CUDA_SYNC_CHECK(SLApplication::stream);
 
     _renderSec  = (SLfloat)(SLApplication::timeS() - tStart);
     _pcRendered = 100;
@@ -570,10 +351,12 @@ SLbool SLOptixRaytracer::renderClassic() {
 }
 
 void SLOptixRaytracer::renderImage() {
+    CUstream stream = SLApplication::stream;
+
     SLGLTexture::bindActive(0);
 
     CUarray texture_ptr;
-    CUDA_CHECK( cuGraphicsMapResources(1, &_cudaGraphicsResource, _stream) );
+    CUDA_CHECK( cuGraphicsMapResources(1, &_cudaGraphicsResource, stream) );
     CUDA_CHECK( cuGraphicsSubResourceGetMappedArray(&texture_ptr, _cudaGraphicsResource, 0, 0) );
 
     CUDA_ARRAY_DESCRIPTOR des;
@@ -593,7 +376,7 @@ void SLOptixRaytracer::renderImage() {
     memcpy2D.Height = des.Height;
     CUDA_CHECK(cuMemcpy2D(&memcpy2D) );
 
-    CUDA_CHECK( cuGraphicsUnmapResources(1, &_cudaGraphicsResource, _stream) );
+    CUDA_CHECK( cuGraphicsUnmapResources(1, &_cudaGraphicsResource, stream) );
 
     SLfloat w = (SLfloat)_sv->scrW();
     SLfloat h = (SLfloat)_sv->scrH();

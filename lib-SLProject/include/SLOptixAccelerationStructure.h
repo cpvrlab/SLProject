@@ -15,15 +15,10 @@ public:
     ~SLOptixAccelerationStructure();
 
     OptixTraversableHandle optixTraversableHandle() { return _handle; }
-    unsigned int sbtIndex() const { return _sbtIndex;}
-
-    void optixTraversableHandle(OptixTraversableHandle handle) { _handle = handle; }
-    void buffer(SLCudaBuffer<void>*  buffer) { _buffer = buffer; }
-    void sbtIndex(unsigned int sbtIndex) { _sbtIndex = sbtIndex; }
-private:
-    OptixTraversableHandle  _handle; //!< Handle for generated geometry acceleration structure
-    SLCudaBuffer<void>*     _buffer;
-    unsigned int            _sbtIndex;
+protected:
+    void buildAccelerationStructure(OptixBuildInput);
+    OptixTraversableHandle  _handle = 0;         //!< Handle for generated geometry acceleration structure
+    SLCudaBuffer<void>*     _buffer = nullptr;
 };
 
 #endif //SLPROJECT_SLOPTIXACCELERATIONSTRUCTURE_H

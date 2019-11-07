@@ -68,7 +68,7 @@ struct HitData
 
     int sbtIndex;
     float3* normals;
-    int3* indices;
+    short3* indices;
 };
 
 template <typename T>

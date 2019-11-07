@@ -19,6 +19,8 @@ public:
     SLCudaBuffer();
     ~SLCudaBuffer();
 
+    bool isAllocated();
+
     void resize(size_t);
 
     //! allocate to given number of bytes
@@ -56,6 +58,11 @@ SLCudaBuffer<T>::~SLCudaBuffer() {
 }
 
 template<typename T>
+bool SLCudaBuffer<T>::isAllocated() {
+    return _devicePointer != 0;
+}
+
+template<typename T>
 void SLCudaBuffer<T>::resize(size_t size) {
     free();
     alloc(size);
@@ -72,6 +79,7 @@ void SLCudaBuffer<T>::free() {
     if (_devicePointer){
         CUDA_CHECK(cuMemFree(_devicePointer));
         _size = 0;
+        _devicePointer = 0;
     }
 }
 

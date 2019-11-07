@@ -152,6 +152,7 @@ class SLNode
     virtual void      dumpRec();
     void              setDrawBitsRec(SLuint bit, SLbool state);
     void              setPrimitiveTypeRec(SLGLPrimitiveType primitiveType);
+    void              createInstanceAccelerationStructure();
 
     // Mesh methods (see impl. for details)
     SLint        numMeshes() { return (SLint)_meshes.size(); }

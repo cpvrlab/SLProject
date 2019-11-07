@@ -39,17 +39,10 @@ public:
     void renderImage() override;
 
 protected:
-    void _createContext();
     OptixModule _createModule(std::string);
     OptixProgramGroup _createProgram(OptixProgramGroupDesc);
     OptixPipeline _createPipeline(OptixProgramGroup *, unsigned int);
-    OptixShaderBindingTable _createShaderBindingTable(SLVMesh);
-    void _buildAccelerationStructure(OptixBuildInput, SLOptixAccelerationStructure*);
-    void _createMeshAccelerationStructure(SLMesh*, unsigned int);
-    void _createInstanceAccelerationStructure(SLNode*);
-
-    OptixDeviceContext          _context{};
-    CUstream                    _stream{};
+    OptixShaderBindingTable _createShaderBindingTable(const SLVMesh&);
 
     SLCudaBuffer<uchar4>            _imageBuffer = SLCudaBuffer<uchar4>();
     SLCudaBuffer<float3>            _debugBuffer = SLCudaBuffer<float3>();
