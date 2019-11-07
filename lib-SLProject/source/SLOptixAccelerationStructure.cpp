@@ -14,7 +14,6 @@ SLOptixAccelerationStructure::~SLOptixAccelerationStructure() {
 }
 
 void SLOptixAccelerationStructure::buildAccelerationStructure(OptixBuildInput buildInput) {
-    CUstream stream            = SLApplication::stream;
     OptixDeviceContext context = SLApplication::context;
 
     OptixAccelBuildOptions accel_options = {};

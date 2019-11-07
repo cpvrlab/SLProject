@@ -58,7 +58,7 @@ void SLOptixRaytracer::setupOptix() {
     _module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
     _module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
 
-    _pipeline_compile_options.exceptionFlags     = OPTIX_EXCEPTION_FLAG_NONEE;
+    _pipeline_compile_options.exceptionFlags     = OPTIX_EXCEPTION_FLAG_NONE;
 #else
     _module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
     _module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
@@ -192,6 +192,7 @@ OptixPipeline SLOptixRaytracer::_createPipeline(OptixProgramGroup * program_grou
 }
 
 OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMesh& meshes) {
+    SLCamera* camera = _sv->camera();
 
     OptixShaderBindingTable sbt = {};
     {
@@ -205,7 +206,7 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMes
 
         MissSbtRecord radiance_ms_sbt;
         OPTIX_CHECK( optixSbtRecordPackHeader( _radiance_miss_group , &radiance_ms_sbt ) );
-        radiance_ms_sbt.data.bg_color = {1.0f, 1.0f, 1.0f, 1.0f};
+        radiance_ms_sbt.data.bg_color = make_float4(camera->background().colors()[0]);
         missRecords.push_back(radiance_ms_sbt);
 
         MissSbtRecord occlusion_ms_sbt;
@@ -243,9 +244,10 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMes
     return sbt;
 }
 
-void SLOptixRaytracer::setupScene() {
+void SLOptixRaytracer::setupScene(SLSceneView* sv) {
     SLScene* scene = SLApplication::scene;
     SLVMesh meshes = scene->meshes();
+    _sv = sv;
 
     // Iterate over all meshes
     for(auto mesh : meshes) {

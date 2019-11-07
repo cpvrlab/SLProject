@@ -1542,7 +1542,7 @@ void SLSceneView::startOptixRaytracing(SLint maxDepth) {
     _renderType     = RT_optix_rt;
     _stopOptixRT    = false;
     _optixRaytracer.maxDepth(maxDepth);
-    _optixRaytracer.setupScene();
+    _optixRaytracer.setupScene(this);
 }
 SLbool SLSceneView::draw3DOptixRT()
 {

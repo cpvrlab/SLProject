@@ -31,7 +31,7 @@ public:
 
     // setup raytracer
     void setupOptix();
-    void setupScene();
+    void setupScene(SLSceneView* sv);
     void updateScene(SLSceneView* sv);
 
     // ray tracer functions
