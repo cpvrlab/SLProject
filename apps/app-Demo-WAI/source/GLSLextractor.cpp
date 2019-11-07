@@ -1166,12 +1166,11 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
                  image.data);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    imgProc.gpu_kp();
-    imgProc.readResult(&m);
     _keypoints.clear();
+    imgProc.gpu_kp();
+    imgProc.readResult(_keypoints);
 
-    AVERAGE_TIMING_START("LOOP");
-
+    /*
     mutex mymutex;
 
     parallel_for_(Range(0, m.rows * m.cols), [&](const Range& range) {
@@ -1187,8 +1186,7 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
             }
         }
     });
-
-    AVERAGE_TIMING_STOP("LOOP");
+    */
 
     AVERAGE_TIMING_STOP("PBO complete");
 
