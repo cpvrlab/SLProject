@@ -825,7 +825,7 @@ void ImageProcessor::initKeypointBuffers(int nb_elements)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    textureRGBAI(nb_elements, 1);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, nb_elements, 1);
 
     glGenBuffers(2, pbo);
     glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[0]);
@@ -847,9 +847,11 @@ void ImageProcessor::initFBO()
 
     glGenFramebuffers(1, &outFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, outFBO);
+    glBindTexture(GL_TEXTURE_2D, outTexture);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outTexture, 0);
     glClear(GL_COLOR_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void ImageProcessor::gxx(int w, int h)
@@ -980,8 +982,6 @@ void ImageProcessor::extract(int w, int h, int curr)
     glBindVertexArray(vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboi);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-    glMemoryBarrier(GL_FRAMEBUFFER_BARRIER_BIT);
 }
 
 void ImageProcessor::init(int w, int h)
@@ -1095,10 +1095,11 @@ void ImageProcessor::readResult(std::vector<cv::KeyPoint> &kps)
 
     /* Continue processing without stall */
 
+    /*
     glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicCounters[ready]);
     int * n = (int*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(int), GL_MAP_READ_BIT);
-    Utils::log("atomic counter value %d\n", *n);
     glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+    */
 
     /* Read pixels from ready pbo */
     glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[ready]); //Read pixel from ready pbo
@@ -1113,7 +1114,6 @@ void ImageProcessor::readResult(std::vector<cv::KeyPoint> &kps)
             if (data[idx] == 0) { break; }
             kps.push_back(cv::KeyPoint(cv::Point2f(data[idx], data[idx+1]), 1));
         }
-            //Utils::log("AAAAAAAA  %d\n", i);
     }
     else
         std::cout << "null data" << std::endl;
