@@ -25,11 +25,11 @@ static __forceinline__ __device__ unsigned int getDepth() {
 }
 
 static __forceinline__ __device__ void setOcclusion(float occlusion) {
-    optixSetPayload_0(float_as_int(occlusion));
+    optixSetPayload_4(float_as_int(occlusion));
 }
 
 static __forceinline__ __device__ float getOcclusion() {
-    return int_as_float(optixGetPayload_1());
+    return int_as_float(optixGetPayload_4());
 }
 
 __forceinline__ __device__ uchar4 make_color(const float4 &c) {

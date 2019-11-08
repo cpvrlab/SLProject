@@ -44,8 +44,8 @@ SLOptixRaytracer::~SLOptixRaytracer()
     OPTIX_CHECK( optixModuleDestroy( _cameraModule ) );
     OPTIX_CHECK( optixModuleDestroy( _shadingModule ) );
 
-//    OPTIX_CHECK( optixDeviceContextDestroy( context ) );
-//    CUDA_CHECK( cuStreamDestroy( stream ) );
+    OPTIX_CHECK( optixDeviceContextDestroy( SLApplication::context ) );
+    CUDA_CHECK( cuStreamDestroy( SLApplication::stream ) );
 }
 
 void SLOptixRaytracer::setupOptix() {
@@ -63,7 +63,7 @@ void SLOptixRaytracer::setupOptix() {
     _module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
     _module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
 
-    _pipeline_compile_options.exceptionFlags     = OPTIX_EXCEPTION_FLAG_DEBUG;
+    _pipeline_compile_options.exceptionFlags     = OPTIX_EXCEPTION_FLAG_USER;
 #endif
 
     _pipeline_compile_options.usesMotionBlur        = false;
@@ -227,6 +227,7 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMes
             HitSbtRecord occlusion_hg_sbt;
             OPTIX_CHECK( optixSbtRecordPackHeader( _occlusion_hit_group, &occlusion_hg_sbt ) );
             occlusion_hg_sbt.data.material.kt = mesh->mat()->kt();
+            occlusion_hg_sbt.data.material.emissive_color = make_float4(mesh->mat()->emissive());
             hitRecords.push_back(occlusion_hg_sbt);
 
         }
@@ -312,7 +313,6 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
         SLVec3f position = { light->positionWS().x, light->positionWS().y, light->positionWS().z};
         lights.push_back({
            make_float3(position),
-           make_float4(light->diffuse())
         });
     }
     _lightBuffer.alloc_and_upload(lights);

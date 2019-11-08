@@ -244,7 +244,7 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
 endif ()
 #==============================================================================
 
-set(CUDA_NVCC_FLAGS -lineinfo)
+set(CUDA_NVCC_FLAGS -lineinfo -use_fast_math)
 
 cuda_include_directories(ptx
         ${OptiX_INCLUDE}

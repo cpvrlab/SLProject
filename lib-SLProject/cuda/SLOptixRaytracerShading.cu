@@ -21,8 +21,16 @@ extern "C" __global__ void __anyhit__radiance()
 extern "C" __global__ void __anyhit__occlusion()
 {
     auto *rt_data = reinterpret_cast<HitData *>( optixGetSbtDataPointer());
-    float occlusion = getOcclusion();
-    setOcclusion(occlusion + (1.0f - rt_data->material.kt));
+    if (length(rt_data->material.emissive_color) > 0.0f) {
+        setColor(make_float4(1.0f));
+    } else {
+        float occlusion = getOcclusion() + (1.0f - rt_data->material.kt);
+        setOcclusion(occlusion);
+        if(occlusion >= 1) {
+            optixTerminateRay();
+        }
+    }
+
 }
 
 extern "C" __global__ void __closesthit__radiance() {
@@ -56,8 +64,8 @@ extern "C" __global__ void __closesthit__radiance() {
 
 
     // calculate normal vector and hit point
-    const float3 N = faceforward(N_0, -ray_dir, N_0);
-//    const float3 N = normalize( optixTransformNormalFromObjectToWorldSpace( N_0) );
+//    const float3 N = faceforward(N_0, -ray_dir, N_0);
+    float3 N = normalize( optixTransformNormalFromObjectToWorldSpace( N_0) );
     const float3 P = optixGetWorldRayOrigin() + optixGetRayTmax() * ray_dir;
 
     float4 color = make_float4(0.0f);
@@ -65,13 +73,16 @@ extern "C" __global__ void __closesthit__radiance() {
     for (int i = 0; i < params.numLights; i++) {
         const float Ldist = length(params.lights[i].position - P);
         const float3 L = normalize(params.lights[i].position - P);
-        const float nDl = dot(N, L);
+        const float nDl = dot(L, N);
 
         const float3 R = normalize(reflect(-L, N));
         const float3 V = normalize(-ray_dir);
 
-        float occlusion = 0.0f;
-        uint32_t p0 = float_as_int( occlusion );
+        uint32_t p0 = float_as_int( 0.0f );
+        uint32_t p1 = float_as_int( 0.0f );
+        uint32_t p2 = float_as_int( 0.0f );
+        uint32_t p3 = float_as_int( 0.0f );
+        uint32_t p4 = float_as_int( 0.0f );
         if ( nDl > 0.0f)
         {
             // Send shadow ray
@@ -87,18 +98,21 @@ extern "C" __global__ void __closesthit__radiance() {
                     RAY_TYPE_OCCLUSION,                   // SBT offset
                     RAY_TYPE_COUNT,                   // SBT stride
                     RAY_TYPE_OCCLUSION,                   // missSBTIndex
-                    p0 // payload
+                    p0, p1, p2, p3, p4 // payload
             );
         }
 
-        occlusion = int_as_float( p0 );
+        float4 light_color = make_float4(int_as_float( p0 ), int_as_float( p1 ), int_as_float( p2 ), int_as_float( p3 ));
+        float occlusion = int_as_float( p4 );
         occlusion = min(occlusion, 1.0f);
 
         // Shading like whitted
-        color = color +
-                (material.specular_color * powf( max(dot(R, V), 0.0), material.shininess ) * (1.0f - occlusion) // specular
-                + material.diffuse_color * max(nDl, 0.0f) * (1.0f - occlusion)) // diffuse
-                * params.lights[i].color; // multiply with light color
+        if (occlusion < 1) {
+            color = color +
+                    (material.specular_color * powf( max(dot(R, V), 0.0), material.shininess ) // specular
+                     + material.diffuse_color * max(nDl, 0.0f)) * (1.0f - occlusion) // diffuse
+                    * light_color; // multiply with light color
+        }
     }
 
     // Send reflection ray
@@ -116,6 +130,7 @@ extern "C" __global__ void __closesthit__radiance() {
         if (optixIsTriangleBackFaceHit()) {
             refractionIndex = getRefractionIndex();
             eta = material.kn / getRefractionIndex();
+            N = N * -1;
         }
 
         // calculate transmission vector T
