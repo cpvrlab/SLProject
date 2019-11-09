@@ -244,7 +244,23 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
 endif ()
 #==============================================================================
 
-set(CUDA_NVCC_FLAGS -lineinfo -use_fast_math)
+#==============================================================================
+list(FIND CUDA_NVCC_FLAGS "-arch" index)
+if(index EQUAL -1)
+    list(APPEND CUDA_NVCC_FLAGS -arch sm_30)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
+endif()
+set(flag "--use_fast_math")
+list(FIND CUDA_NVCC_FLAGS ${flag} index)
+if(index EQUAL -1)
+    list(APPEND CUDA_NVCC_FLAGS ${flag})
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    list(APPEND CUDA_NVCC_FLAGS -g -G)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
+endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 cuda_include_directories(ptx
         ${OptiX_INCLUDE}
@@ -255,6 +271,7 @@ cuda_include_directories(ptx
 cuda_compile_ptx(ptx
         ${cuda}
         )
+#==============================================================================
 
 add_custom_target(ptx ALL
         DEPENDS ${cuda}
