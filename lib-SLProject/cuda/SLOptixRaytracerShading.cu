@@ -1,4 +1,5 @@
 #include <SLOptixRaytracerHelper.h>
+#include <SLOptixDefinitions.h>
 
 extern "C" {
 __constant__ Params params;
@@ -152,8 +153,9 @@ extern "C" __global__ void __closesthit__radiance() {
     color.z = min(color.z, 1.0f);
 
     // Add together local material shading + ambient color of the material + reflection + transmission
-    setColor((color + // local
-              material.ambient_color + // ambient color
+    setColor(material.emissive_color +                           // emissive
+            (color +                                             // local
+              material.ambient_color +                           // ambient color
               reflection * material.kr) * (1.0f - material.kt) + // reflection
-             transmission * material.kt); // transmission
+             transmission * material.kt);                        // transmission
 }

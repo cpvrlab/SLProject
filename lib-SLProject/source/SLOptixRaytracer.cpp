@@ -63,7 +63,7 @@ void SLOptixRaytracer::setupOptix() {
     _module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
     _module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
 
-    _pipeline_compile_options.exceptionFlags     = OPTIX_EXCEPTION_FLAG_USER;
+    _pipeline_compile_options.exceptionFlags     = OPTIX_EXCEPTION_FLAG_DEBUG;
 #endif
 
     _pipeline_compile_options.usesMotionBlur        = false;

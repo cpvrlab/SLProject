@@ -1330,6 +1330,7 @@ HitData SLMesh::createHitData() {
     hitData.material.ambient_color = make_float4(mat()->ambient());
     hitData.material.specular_color = make_float4(mat()->specular());
     hitData.material.diffuse_color = make_float4(mat()->diffuse());
+    hitData.material.emissive_color = make_float4(mat()->emissive());
 
     return hitData;
 }
