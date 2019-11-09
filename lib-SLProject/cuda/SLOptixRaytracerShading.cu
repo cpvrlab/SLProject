@@ -23,21 +23,22 @@ extern "C" __global__ void __anyhit__occlusion()
 {
     auto *rt_data = reinterpret_cast<HitData *>( optixGetSbtDataPointer());
     if (length(rt_data->material.emissive_color) > 0.0f) {
-        setColor(make_float4(1.0f));
+        // If the hit material is emissive set this as the light color
+        setColor(rt_data->material.emissive_color);
     } else {
+        // Add the kt value of the hit material to the occlusion value
         float occlusion = getOcclusion() + (1.0f - rt_data->material.kt);
         setOcclusion(occlusion);
+        // If the occlusion reaches one then we can terminate the ray
         if(occlusion >= 1) {
             optixTerminateRay();
         }
     }
-
 }
 
 extern "C" __global__ void __closesthit__radiance() {
     // Get all data for the hit point
     auto *rt_data = reinterpret_cast<HitData *>( optixGetSbtDataPointer());
-    Material material = rt_data->material;
     unsigned int idx = optixGetPrimitiveIndex();
     const float3 ray_dir = optixGetWorldRayDirection();
 
@@ -58,15 +59,15 @@ extern "C" __global__ void __closesthit__radiance() {
                                    rt_data->sbtIndex,
                                    0,
                                    vertex);
-        float transform[12];
-        optixGetObjectToWorldTransformMatrix(transform);
         N_0 = normalize(cross(vertex[1] - vertex[0], vertex[2] - vertex[0]));
     }
 
 
     // calculate normal vector and hit point
-//    const float3 N = faceforward(N_0, -ray_dir, N_0);
     float3 N = normalize( optixTransformNormalFromObjectToWorldSpace( N_0) );
+    if (optixIsTriangleBackFaceHit()) {
+        N = N * -1;
+    }
     const float3 P = optixGetWorldRayOrigin() + optixGetRayTmax() * ray_dir;
 
     float4 color = make_float4(0.0f);
@@ -109,29 +110,29 @@ extern "C" __global__ void __closesthit__radiance() {
 
         // Shading like whitted
         if (occlusion < 1) {
-            color = color +
-                    (material.specular_color * powf( max(dot(R, V), 0.0), material.shininess ) // specular
-                     + material.diffuse_color * max(nDl, 0.0f)) * (1.0f - occlusion) // diffuse
-                    * light_color; // multiply with light color
+            color += (rt_data->material.specular_color * powf( max(dot(R, V), 0.0), rt_data->material.shininess ) // specular
+                     + rt_data->material.diffuse_color * max(nDl, 0.0f)) * (1.0f - occlusion)                     // diffuse
+                    * light_color                                                                                 // multiply with light color
+                    * lightAttenuation(params.lights[i], Ldist);                                                  // multiply with light attenuation
         }
     }
 
     // Send reflection ray
-    float4 reflection = make_float4(0.0f);
-    if(getDepth() < params.max_depth && material.kr > 0.0f) {
-        reflection = traceRadianceRay(params.handle, P, reflect(ray_dir, N), getRefractionIndex(), isInside(), getDepth() + 1);
+    if(getDepth() < params.max_depth && rt_data->material.kr > 0.0f) {
+        color += (traceRadianceRay(params.handle, P, reflect(ray_dir, N), getRefractionIndex(), isInside(), getDepth() + 1) * rt_data->material.kr);
     }
 
+    // The color value so far is only as strong as the light that does not pass through the object
+    color *= (1.0f - rt_data->material.kt);
+
     // Send refraction ray
-    float4 transmission = make_float4(0.0f);
-    if(getDepth() < params.max_depth && material.kt > 0.0f) {
+    if(getDepth() < params.max_depth && rt_data->material.kt > 0.0f) {
         // calculate eta
-        float refractionIndex = material.kn;
-        float eta = getRefractionIndex() / material.kn;
+        float refractionIndex = rt_data->material.kn;
+        float eta = getRefractionIndex() / rt_data->material.kn;
         if (optixIsTriangleBackFaceHit()) {
             refractionIndex = getRefractionIndex();
-            eta = material.kn / getRefractionIndex();
-            N = N * -1;
+            eta = rt_data->material.kn / getRefractionIndex();
         }
 
         // calculate transmission vector T
@@ -144,18 +145,17 @@ extern "C" __global__ void __closesthit__radiance() {
         } else {
             T = 2.0f * (dot(-ray_dir, N)) * N  + ray_dir;
         }
-        transmission = traceRadianceRay(params.handle, P, T, refractionIndex, isInside(), getDepth() + 1);
+        color += (traceRadianceRay(params.handle, P, T, refractionIndex, isInside(), getDepth() + 1) * rt_data->material.kt);
     }
+
+    // Add emissive and ambient to current color
+    color += rt_data->material.emissive_color;
 
     // Make sure the color value does not exceed 1
     color.x = min(color.x, 1.0f);
     color.y = min(color.y, 1.0f);
     color.z = min(color.z, 1.0f);
 
-    // Add together local material shading + ambient color of the material + reflection + transmission
-    setColor(material.emissive_color +                           // emissive
-            (color +                                             // local
-              material.ambient_color +                           // ambient color
-              reflection * material.kr) * (1.0f - material.kt) + // reflection
-             transmission * material.kt);                        // transmission
+    // Set color to payload
+    setColor(color);
 }

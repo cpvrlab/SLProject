@@ -309,15 +309,22 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
 
     std::vector<Light> lights;
     _lightBuffer.free();
+    unsigned int light_count = 0;
     for(auto light : scene->lights()) {
-        SLVec3f position = { light->positionWS().x, light->positionWS().y, light->positionWS().z};
-        lights.push_back({
-           make_float3(position),
-        });
+        if(light->isOn()) {
+            SLVec3f position = { light->positionWS().x, light->positionWS().y, light->positionWS().z};
+            lights.push_back({
+                                     make_float3(position),
+                                     light->kc(),
+                                     light->kl(),
+                                     light->kq()
+            });
+            light_count++;
+        }
     }
     _lightBuffer.alloc_and_upload(lights);
     _params.lights = reinterpret_cast<Light *>(_lightBuffer.devicePointer());
-    _params.numLights = lights.size();
+    _params.numLights = light_count;
 
     _paramsBuffer.upload(&_params);
 }

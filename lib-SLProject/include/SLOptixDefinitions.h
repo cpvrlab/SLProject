@@ -23,6 +23,9 @@ struct Material
 struct Light
 {
     float3 position;
+    float kc;
+    float kl;
+    float kq;
 };
 
 struct Params
@@ -37,7 +40,7 @@ struct Params
     OptixTraversableHandle  handle;
 
     Light*                  lights;
-    int                     numLights;
+    unsigned int            numLights;
 
     float3*                  debug;
 };

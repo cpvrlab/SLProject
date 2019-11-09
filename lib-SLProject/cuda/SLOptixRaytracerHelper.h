@@ -32,6 +32,10 @@ static __forceinline__ __device__ float getOcclusion() {
     return int_as_float(optixGetPayload_4());
 }
 
+static __forceinline__ __device__ float lightAttenuation(Light light, float dist) {
+    return 1.0f / (light.kc + light.kl * dist + light.kq * dist * dist);
+}
+
 __forceinline__ __device__ uchar4 make_color(const float4 &c) {
     return make_uchar4(
             static_cast<uint8_t>( clamp(c.x, 0.0f, 1.0f) * 255.0f ),
