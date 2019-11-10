@@ -1328,9 +1328,7 @@ void SLCamera::UVWFrame(SLVec3f& EYE, SLVec3f& U, SLVec3f& V, SLVec3f& W)
     // get camera vectors eye, lookAt, lookUp from view matrix
     updateAndGetVM().lookAt(&EYE, &LA, &LU, &LR);
 
-    LA *= _focalDist;
-
-    W = LA - EYE; // Do not normalize W -- it implies focal length
+    W = LA * _focalDist;
 
     U.cross(W, LU);
     U.normalize();
@@ -1339,8 +1337,8 @@ void SLCamera::UVWFrame(SLVec3f& EYE, SLVec3f& U, SLVec3f& V, SLVec3f& W)
     V.normalize();
 
     SLfloat hh = tan(Utils::DEG2RAD * _fov * 0.5f) * _focalDist;
-    V *= hh;
     SLfloat hw = hh * _aspect;
+    V *= hh;
     U *= hw;
 }
 

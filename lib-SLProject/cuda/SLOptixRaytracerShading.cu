@@ -96,7 +96,7 @@ extern "C" __global__ void __closesthit__radiance() {
                     Ldist,  // tmax
                     0.0f,                // rayTime
                     OptixVisibilityMask( 1 ),
-                    OPTIX_RAY_FLAG_DISABLE_CLOSESTHIT,
+                    OPTIX_RAY_FLAG_DISABLE_CLOSESTHIT | OPTIX_RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
                     RAY_TYPE_OCCLUSION,                   // SBT offset
                     RAY_TYPE_COUNT,                   // SBT stride
                     RAY_TYPE_OCCLUSION,                   // missSBTIndex
@@ -114,6 +114,7 @@ extern "C" __global__ void __closesthit__radiance() {
                      + rt_data->material.diffuse_color * max(nDl, 0.0f)) * (1.0f - occlusion)                     // diffuse
                     * light_color                                                                                 // multiply with light color
                     * lightAttenuation(params.lights[i], Ldist);                                                  // multiply with light attenuation
+            color += rt_data->material.ambient_color * lightAttenuation(params.lights[i], Ldist);
         }
     }
 
@@ -150,6 +151,7 @@ extern "C" __global__ void __closesthit__radiance() {
 
     // Add emissive and ambient to current color
     color += rt_data->material.emissive_color;
+//    color += rt_data->material.ambient_color;
 
     // Make sure the color value does not exceed 1
     color.x = min(color.x, 1.0f);
