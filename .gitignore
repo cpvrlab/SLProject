@@ -66,6 +66,7 @@ GenerateHTMLDoc.log
 *.class
 *.classpath
 *.project
+.cproject
 .settings
 .vs
 .vscode/*
