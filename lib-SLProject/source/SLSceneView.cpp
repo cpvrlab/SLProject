@@ -298,7 +298,6 @@ void SLSceneView::onInitialize()
     _stats3D.clear();
 
     _raytracer.clearData();
-    _optixRaytracer.setupOptix();
     _renderType   = RT_gl;
     _isFirstFrame = true;
 

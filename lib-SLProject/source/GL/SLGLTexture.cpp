@@ -52,6 +52,7 @@ SLGLTexture::SLGLTexture()
     _autoCalcTM3D = false;
     _bytesOnGPU   = 0;
     _needsUpdate  = false;
+    _cudaGraphicsResource = nullptr;
 }
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
@@ -80,6 +81,7 @@ SLGLTexture::SLGLTexture(const SLstring& filename,
     _autoCalcTM3D = false;
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
+    _cudaGraphicsResource = nullptr;
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->textures().push_back(this);
@@ -112,6 +114,7 @@ SLGLTexture::SLGLTexture(const SLVstring& files,
     _autoCalcTM3D = true;
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
+    _cudaGraphicsResource = nullptr;
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->textures().push_back(this);
@@ -144,6 +147,7 @@ SLGLTexture::SLGLTexture(const SLVCol4f& colors,
     _autoCalcTM3D = true;
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
+    _cudaGraphicsResource = nullptr;
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->textures().push_back(this);
@@ -187,6 +191,7 @@ SLGLTexture::SLGLTexture(const SLstring& filenameXPos,
     _autoCalcTM3D = false;
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
+    _cudaGraphicsResource = nullptr;
 
     SLApplication::scene->textures().push_back(this);
 }
@@ -524,9 +529,9 @@ void SLGLTexture::build(SLint texID)
     //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
     //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
 
-//    if (_cudaGraphicsResource) {
-//        CUDA_CHECK(cuGraphicsUnregisterResource(_cudaGraphicsResource));
-//    }
+    if (_cudaGraphicsResource) {
+        CUDA_CHECK(cuGraphicsUnregisterResource(_cudaGraphicsResource));
+    }
     CUDA_CHECK(cuGraphicsGLRegisterImage(&_cudaGraphicsResource, _texName, _target, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD));
 
     GET_GL_ERROR;

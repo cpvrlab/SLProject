@@ -87,6 +87,7 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
     SL_LOG("------------------------------------------------------------------\n");
 
     SLApplication::createAppAndScene(applicationName, onSceneLoadCallback);
+    SLApplication::createOptixContext();
 }
 //-----------------------------------------------------------------------------
 /*! Global creation function for a SLSceneview instance returning the index of 

@@ -29,6 +29,7 @@ SLOptixRaytracer::SLOptixRaytracer()
     name("myCoolRaytracer");
 
     _params = {};
+    setupOptix();
 }
 //-----------------------------------------------------------------------------
 SLOptixRaytracer::~SLOptixRaytracer()
@@ -49,8 +50,6 @@ SLOptixRaytracer::~SLOptixRaytracer()
 }
 
 void SLOptixRaytracer::setupOptix() {
-    SLApplication::createOptixContext();
-
     // Set compile options for modules and pipelines
     _module_compile_options = {};
     _module_compile_options.maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
@@ -251,6 +250,7 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv) {
     _sv = sv;
 
     // Iterate over all meshes
+    SLMesh::meshIndex = 0;
     for(auto mesh : meshes) {
         mesh->createMeshAccelerationStructure();
     }
