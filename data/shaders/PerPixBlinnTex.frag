@@ -42,7 +42,7 @@ uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
 uniform int    u_projection;        // type of stereo
 uniform int    u_stereoEye;         // -1=left, 0=center, 1=right 
 uniform mat3   u_stereoColorFilter; // color filter matrix
-uniform sampler2D u_texture0;       // Color map
+uniform sampler2D u_texture0;       // Color texture map
 
 //-----------------------------------------------------------------------------
 void DirectLight(in    int  i,   // Light number

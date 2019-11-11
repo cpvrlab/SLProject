@@ -135,7 +135,7 @@ class SLNode
 {
     friend class SLSceneView;
 
-    public:
+public:
     explicit SLNode(const SLstring& name = "Node");
     explicit SLNode(SLMesh* mesh, const SLstring& name = "Node");
     ~SLNode() override;
@@ -293,7 +293,7 @@ class SLNode
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 
-    private:
+private:
     void updateWM() const;
     template<typename T>
     void findChildrenHelper(const SLstring& name,
@@ -307,7 +307,7 @@ class SLNode
                             vector<SLNode*>& list,
                             SLbool           findRecursive);
 
-    protected:
+protected:
     SLNode*         _parent;         //!< pointer to the parent node
     SLVNode         _children;       //!< vector of children nodes
     SLVMesh         _meshes;         //!< vector of meshes of the node

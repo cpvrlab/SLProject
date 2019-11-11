@@ -24,7 +24,7 @@ android {
             cmake {
                 cppFlags "-frtti -fexceptions -std=c++14 -w -Wno-error=format-security"
                 abiFilters 'arm64-v8a'
-                arguments "-DANDROID_STL=c++_shared", "-DSL_APP=SL_APP_WAI"
+                arguments "-DANDROID_STL=c++_shared", "-DSL_BUILD_WAI=ON", "-DSL_APP=SL_APP_WAI"
             }
         }
     }

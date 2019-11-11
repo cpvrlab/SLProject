@@ -15,6 +15,7 @@
 
 #include <SLGLEnums.h>
 #include <SLGLState.h>
+#include <SLMaterial.h>
 #include <CVImage.h>
 
 //-----------------------------------------------------------------------------
@@ -65,11 +66,13 @@ void SLGLState::initAll()
         lightDoAtt[i] = 0;
     }
 
+	/*
     matAmbient   = SLCol4f::WHITE;
     matDiffuse   = SLCol4f::WHITE;
     matSpecular  = SLCol4f::WHITE;
     matEmissive  = SLCol4f::BLACK;
     matShininess = 100;
+	*/
 
     fogIsOn      = false;
     fogMode      = GL_LINEAR;
@@ -254,7 +257,7 @@ void SLGLState::calcLightDirVS(SLint nLights)
  */
 const SLCol4f* SLGLState::globalAmbient()
 {
-    _globalAmbient.set(globalAmbientLight & matAmbient);
+    _globalAmbient.set(globalAmbientLight & SLMaterial::current->ambient());
     return &_globalAmbient;
 }
 //-----------------------------------------------------------------------------

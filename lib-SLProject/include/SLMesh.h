@@ -24,6 +24,7 @@ class SLMaterial;
 class SLRay;
 class SLSkeleton;
 class SLGLState;
+class SLGLProgram;
 
 //-----------------------------------------------------------------------------
 //!An SLMesh object is a triangulated mesh that is drawn with one draw call.
@@ -117,7 +118,7 @@ transformed vertices and normals are stored in _finalP and _finalN.
 
 class SLMesh : public SLObject
 {
-    public:
+public:
     explicit SLMesh(const SLstring& name = "Mesh");
     ~SLMesh() override;
 
@@ -138,8 +139,8 @@ class SLMesh : public SLObject
     virtual void calcMinMax();
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
-
-    void transformSkin();
+    void         generateVAO(SLGLProgram* sp);
+    void         transformSkin();
 
     // Getters
     SLMaterial*       mat() const { return _mat; }
@@ -147,6 +148,7 @@ class SLMesh : public SLObject
     SLGLPrimitiveType primitive() const { return _primitive; }
     const SLSkeleton* skeleton() const { return _skeleton; }
     SLuint            numI() { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
+    SLGLVertexArray&  vao() { return _vao; }
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }
@@ -176,7 +178,7 @@ class SLMesh : public SLObject
     SLVec3f minP; //!< min. vertex in OS
     SLVec3f maxP; //!< max. vertex in OS
 
-    protected:
+protected:
     SLGLPrimitiveType  _primitive; //!< Primitive type (default triangles)
     SLMaterial*        _mat;       //!< Pointer to the inside material
     SLMaterial*        _matOut;    //!< Pointer to the outside material

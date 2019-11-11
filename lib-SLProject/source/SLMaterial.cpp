@@ -33,7 +33,8 @@ SLMaterial::SLMaterial(const SLchar*  name,
                        SLfloat        shininess,
                        SLfloat        kr,
                        SLfloat        kt,
-                       SLfloat        kn) : SLObject(name)
+                       SLfloat        kn,
+                       SLGLProgram*   program) : SLObject(name)
 {
     _ambient = _diffuse = amdi;
     _specular           = spec;
@@ -42,7 +43,7 @@ SLMaterial::SLMaterial(const SLchar*  name,
     _roughness    = 0.5f;
     _metalness    = 0.0f;
     _translucency = 0.0f;
-    _program      = nullptr;
+    _program      = program;
 
     _kr = kr;
     _kt = kt;
@@ -88,6 +89,17 @@ SLMaterial::SLMaterial(const SLchar* name,
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->materials().push_back(this);
 }
+//-----------------------------------------------------------------------------
+// Ctor for cone tracer
+SLMaterial::SLMaterial(const SLchar* name,
+                       SLGLProgram*  shaderProg) : SLObject(name)
+{
+    _program = shaderProg;
+
+    // Add pointer to the global resource vectors for deallocation
+    SLApplication::scene->materials().push_back(this);
+}
+
 //-----------------------------------------------------------------------------
 // Ctor for Cook-Torrance shading
 SLMaterial::SLMaterial(const SLchar*  name,
@@ -173,15 +185,6 @@ void SLMaterial::activate(SLDrawBits drawBits)
         _textures.push_back(new SLGLTexture("CompileError.png"));
     }
 
-    // Set material in the state
-    stateGL->matAmbient   = _ambient;
-    stateGL->matDiffuse   = _diffuse;
-    stateGL->matSpecular  = _specular;
-    stateGL->matEmissive  = _emissive;
-    stateGL->matShininess = _shininess;
-    stateGL->matRoughness = _roughness;
-    stateGL->matMetallic  = _metalness;
-
     // Determine use of shaders & textures
     SLbool useTexture = !drawBits.get(SL_DB_TEXOFF);
 
@@ -194,6 +197,24 @@ void SLMaterial::activate(SLDrawBits drawBits)
 
     // Activate the shader program now
     program()->beginUse(this);
+}
+//-----------------------------------------------------------------------------
+void SLMaterial::passToUniforms(SLGLProgram* program)
+{
+    assert(program && "SLMaterial::passToUniforms: No shader program set!");
+
+    SLint loc;
+    loc = program->uniform4fv("u_matAmbient", 1, (SLfloat*)&_ambient);
+    loc = program->uniform4fv("u_matDiffuse", 1, (SLfloat*)&_diffuse);
+    loc = program->uniform4fv("u_matSpecular", 1, (SLfloat*)&_specular);
+    loc = program->uniform4fv("u_matEmissive", 1, (SLfloat*)&_emissive);
+    loc = program->uniform1f("u_matShininess", _shininess);
+    loc = program->uniform1f("u_matRoughness", _roughness);
+    loc = program->uniform1f("u_matMetallic", _metalness);
+    loc = program->uniform1f("u_matKr", _kr);
+    loc = program->uniform1f("u_matKt", _kt);
+    loc = program->uniform1f("u_matKn", _kn);
+    loc = program->uniform1i("u_matHasTexture", !_textures.empty() ? 1 : 0);
 }
 //-----------------------------------------------------------------------------
 /*! 

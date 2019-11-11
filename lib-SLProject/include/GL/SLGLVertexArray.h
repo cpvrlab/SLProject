@@ -35,7 +35,7 @@ SLGLVertexArray::setIndices are still present when generate is called.
 */
 class SLGLVertexArray
 {
-    public:
+public:
     SLGLVertexArray();
     ~SLGLVertexArray() { deleteGL(); }
 
@@ -50,7 +50,7 @@ class SLGLVertexArray
     }
 
     //! Returns either the VAO id or the VBO id
-    SLint id();
+    SLint vaoID() { return _vaoID; }
 
     //! Adds a vertex attribute with data pointer and an element size
     void setAttrib(SLGLAttributeType type,
@@ -140,15 +140,14 @@ class SLGLVertexArray
     // Some statistics
     static SLuint totalDrawCalls; //! static total no. of draw calls
 
-    protected:
-    SLbool           _hasGL3orGreater; //! VAOs are present if OpenGL > 3.0
-    SLuint           _idVAO;           //! OpenGL id of vertex array object
-    SLuint           _numVertices;     //! NO. of vertices in array
-    SLGLVertexBuffer _VBOf;            //! Vertex buffer object for float attributes
-    SLuint           _idVBOIndices;    //! OpenGL id of index vbo
-    SLuint           _numIndices;      //! NO. of vertex indices in array
-    void*            _indexData;       //! pointer to index data
-    SLGLBufferType   _indexDataType;   //! index data type (ubyte, ushort, uint)
+protected:
+    SLuint           _vaoID;         //! OpenGL id of vertex array object
+    SLuint           _numVertices;   //! NO. of vertices in array
+    SLGLVertexBuffer _VBOf;          //! Vertex buffer object for float attributes
+    SLuint           _idVBOIndices;  //! OpenGL id of index vbo
+    SLuint           _numIndices;    //! NO. of vertex indices in array
+    void*            _indexData;     //! pointer to index data
+    SLGLBufferType   _indexDataType; //! index data type (ubyte, ushort, uint)
 };
 //-----------------------------------------------------------------------------
 

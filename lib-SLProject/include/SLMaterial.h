@@ -38,7 +38,7 @@ variables in SLGLProgram::beginUse.
 */
 class SLMaterial : public SLObject
 {
-    public:
+public:
     //! Default ctor
     explicit SLMaterial(const SLchar*  name,
                         const SLCol4f& amdi      = SLCol4f::WHITE,
@@ -46,7 +46,8 @@ class SLMaterial : public SLObject
                         SLfloat        shininess = 100.0f,
                         SLfloat        kr        = 0.0,
                         SLfloat        kt        = 0.0f,
-                        SLfloat        kn        = 1.0f);
+                        SLfloat        kn        = 1.0f,
+                        SLGLProgram*   program   = nullptr);
 
     //! Ctor for textures
     SLMaterial(const SLchar* name,
@@ -66,29 +67,30 @@ class SLMaterial : public SLObject
     explicit SLMaterial(const SLCol4f& uniformColor,
                         const SLchar*  name = (const char*)"Uniform color");
 
+    //! Ctor for cone tracer
+    SLMaterial(const SLchar* name,
+               SLGLProgram*  program);
+
     ~SLMaterial() final;
 
     //! Sets the material states and passes all variables to the shader program
     void activate(SLDrawBits drawBits);
+
+	//! Passes the material paramters to shader programs uniform variables
+    void passToUniforms(SLGLProgram* program);
 
     //! Returns true if there is any transparency in diffuse alpha or textures
     SLbool hasAlpha() { return (_diffuse.a < 1.0f ||
                                 (!_textures.empty() &&
                                  _textures[0]->hasAlpha())); }
 
-//! Returns true if a material has a 3D texture
-#ifdef APP_USES_GLES
-    SLbool has3DTexture()
-    {
-        return false;
-    }
-#else
+    //! Returns true if a material has a 3D texture
     SLbool has3DTexture()
     {
         return !_textures.empty() > 0 &&
                _textures[0]->target() == GL_TEXTURE_3D;
     }
-#endif
+
     //! Returns true if a material with textures tangents as additional attributes
     SLbool needsTangents() { return (_textures.size() >= 2 &&
                                      _textures[0]->target() == GL_TEXTURE_2D &&
@@ -156,7 +158,7 @@ class SLMaterial : public SLObject
     static SLfloat     K;       //!< PM: Constant of gloss calibration (slope of point light at dist 1)
     static SLfloat     PERFECT; //!< PM: shininess/translucency limit
 
-    protected:
+protected:
     SLCol4f      _ambient;      //!< ambient color (RGB reflection coefficients)
     SLCol4f      _diffuse;      //!< diffuse color (RGB reflection coefficients)
     SLCol4f      _specular;     //!< specular color (RGB reflection coefficients)
@@ -172,7 +174,7 @@ class SLMaterial : public SLObject
     SLVGLTexture _textures;     //!< vector of texture pointers
     SLGLProgram* _program{};    //!< pointer to a GLSL shader program
 
-    private:
+private:
     static SLMaterial* _defaultGray;   //!< Global default gray color material for meshes that don't define their own.
     static SLMaterial* _diffuseAttrib; //!< Global diffuse reflection material for meshes with color vertex attributes.
 };

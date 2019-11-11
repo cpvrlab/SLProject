@@ -34,8 +34,8 @@ Default constructor just setting the name.
 */
 SLNode::SLNode(const SLstring& name) : SLObject(name)
 {
-    _parent  = nullptr;
-    _depth   = 1;
+    _parent = nullptr;
+    _depth  = 1;
     _om.identity();
     _wm.identity();
     _wmI.identity();
@@ -52,8 +52,8 @@ Constructor with a mesh pointer and name.
 */
 SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
 {
-    _parent  = nullptr;
-    _depth   = 1;
+    _parent = nullptr;
+    _depth  = 1;
     _om.identity();
     _wm.identity();
     _wmI.identity();
@@ -194,7 +194,8 @@ SLbool SLNode::deleteMesh(SLMesh* mesh)
     return false;
 }
 //-----------------------------------------------------------------------------
-/*!
+/*! Finds a mesh by name and returns its pointer. Optionally you can search
+the node hierarchy recursively.
 */
 SLMesh* SLNode::findMesh(const SLstring& name, SLbool recursive)
 {
@@ -293,8 +294,6 @@ void SLNode::drawMeshes(SLSceneView* sv)
             mesh->draw(sv, this);
 }
 //-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
 /*!
 Adds a child node to the children vector
 */
@@ -334,7 +333,7 @@ Deletes all child nodes.
 */
 void SLNode::deleteChildren()
 {
-    for (auto & i : _children)
+    for (auto& i : _children)
         delete i;
     _children.clear();
 }

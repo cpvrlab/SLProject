@@ -20,7 +20,10 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTrackedChessboard.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTrackedFaces.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTrackedFeatures.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLConetracer.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLConetracerTex3D.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLEnums.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLFbo.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLGenericProgram.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLImGui.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLOculus.h
@@ -123,6 +126,9 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVTrackedChessboard.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVTrackedFaces.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVTrackedFeatures.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLConetracer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLConetracerTex3D.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLFbo.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLImGui.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculus.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculusFB.cpp
@@ -190,12 +196,13 @@ file(GLOB sources
 file(GLOB shaders
         ${SL_PROJECT_ROOT}/data/shaders/*.vert
         ${SL_PROJECT_ROOT}/data/shaders/*.frag
+        ${SL_PROJECT_ROOT}/data/shaders/*.geom
         )
 
 # Group source files
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/include" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
-source_group_by_path("${SL_PROJECT_ROOT}/data/shaders" "\\\\.frag|\\\\.vert$" "Shaders" ${shaders})
+source_group_by_path("${SL_PROJECT_ROOT}/data/shaders" "\\\\.frag|\\\\.vert|\\\\.geom$" "Shaders" ${shaders})
 
 include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 

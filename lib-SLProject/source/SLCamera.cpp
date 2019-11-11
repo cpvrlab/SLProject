@@ -757,7 +757,7 @@ void SLCamera::lookFrom(const SLVec3f& fromDir,
                         const SLVec3f& upDir)
 {
     SLVec3f lookAt = focalPointWS();
-    this->translation(lookAt + _focalDist * fromDir);
+    translation(lookAt + _focalDist * fromDir);
     this->lookAt(lookAt, upDir);
 }
 //-----------------------------------------------------------------------------
