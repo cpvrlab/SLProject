@@ -47,7 +47,7 @@ void SLText::drawRec(SLSceneView* sv)
     if (_drawBits.get(SL_DB_HIDDEN) || !SLGLState::instance()->blend()) return;
 
     // create buffer object for text once
-    if (!_vao.id())
+    if (!_vao.vaoID())
     {
         _font->buildTextBuffers(_vao, _text, _maxW, _lineH);
         _font->minFiler(SL_ANISOTROPY_MAX);

@@ -11,6 +11,7 @@
 #ifndef SLGLTEXTURE_H
 #define SLGLTEXTURE_H
 
+#include <SLObject.h>
 #include <CVImage.h>
 #include <SLGLVertexArray.h>
 #include <SLMat4.h>
@@ -60,7 +61,7 @@ for ray tracing.
 */
 class SLGLTexture : public SLObject
 {
-    public:
+public:
     //! Default ctor for all stack instances (not created with new)
     SLGLTexture();
 
@@ -72,10 +73,10 @@ class SLGLTexture : public SLObject
                          const SLstring& name       = "1D-Texture");
 
     //! ctor for empty 2D textures
-    explicit SLGLTexture(SLint         min_filter,
-                         SLint         mag_filter,
-                         SLint         wrapS,
-                         SLint         wrapT);
+    explicit SLGLTexture(SLint min_filter,
+                         SLint mag_filter,
+                         SLint wrapS,
+                         SLint wrapT);
 
     //! ctor for 2D textures from byte pointer
     explicit SLGLTexture(unsigned char* data,
@@ -116,7 +117,7 @@ class SLGLTexture : public SLObject
                 SLint           mag_filter = GL_LINEAR,
                 SLTextureType   type       = TT_unknown);
 
-    ~SLGLTexture() override;
+    virtual ~SLGLTexture();
 
     void clearData();
     void build(SLint texID = 0);
@@ -136,7 +137,7 @@ class SLGLTexture : public SLObject
     // Getters
     CVVImage&     images() { return _images; }
     SLenum        target() { return _target; }
-    SLuint        texName() { return _texName; }
+    SLuint        texID() { return _texID; }
     SLTextureType texType() { return _texType; }
     SLfloat       bumpScale() { return _bumpScale; }
     SLCol4f       getTexelf(SLfloat s, SLfloat t, SLuint imgIndex = 0);
@@ -165,16 +166,16 @@ class SLGLTexture : public SLObject
                                  SLbool      isContinuous,
                                  SLbool      isTopLeft);
 
-    SLbool        copyVideoImage(SLint       camWidth,
-                                 SLint       camHeight,
-                                 CVPixFormat srcFormat,
-                                 CVPixFormat dstFormat,
-                                 SLuchar*    data,
-                                 SLbool      isContinuous,
-                                 SLbool      isTopLeft);
+    SLbool copyVideoImage(SLint       camWidth,
+                          SLint       camHeight,
+                          CVPixFormat srcFormat,
+                          CVPixFormat dstFormat,
+                          SLuchar*    data,
+                          SLbool      isContinuous,
+                          SLbool      isTopLeft);
 
-    void          calc3DGradients(SLint sampleRadius);
-    void          smooth3DGradients(SLint smoothRadius);
+    void calc3DGradients(SLint sampleRadius);
+    void smooth3DGradients(SLint smoothRadius);
 
     // Bumpmap methods
     SLVec2f dsdt(SLfloat s, SLfloat t); //! Returns the derivation as [s,t]
@@ -185,7 +186,7 @@ class SLGLTexture : public SLObject
     static SLfloat  maxAnisotropy;      //!< max. anisotropy available
     static SLuint   numBytesInTextures; //!< NO. of texture bytes on GPU
 
-    protected:
+protected:
     // loading the image files
     void load(SLstring filename,
               SLbool   flipVertical           = true,
@@ -193,7 +194,7 @@ class SLGLTexture : public SLObject
     void load(const SLVCol4f& colors);
 
     CVVImage        _images;        //!< vector of CVImage pointers
-    SLuint          _texName;       //!< OpenGL texture "name" (= ID)
+    SLuint          _texID;         //!< OpenGL texture ID
     SLTextureType   _texType;       //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
     SLint           _min_filter;    //!< Minification filter
     SLint           _mag_filter;    //!< Magnification filter

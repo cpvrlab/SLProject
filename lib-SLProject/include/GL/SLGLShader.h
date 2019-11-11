@@ -48,26 +48,27 @@ class SLGLShader : public SLObject
 {
     friend class SLGLProgram;
 
-    public:
+public:
     SLGLShader();
-    SLGLShader(SLstring     filename,
+    SLGLShader(const SLstring&     filename,
                SLShaderType type);
     ~SLGLShader();
 
-    void     load(SLstring filename);
-    void     loadFromMemory(SLstring program);
+    void     load(const SLstring& filename);
+    void     loadFromMemory(const SLstring& program);
     SLbool   createAndCompile();
+    SLbool   createAndCompileSimple();
     SLstring removeComments(SLstring src);
     SLstring typeName();
 
     // Getters
     SLShaderType type() { return _type; }
-    SLuint       objectGL() { return _objectGL; }
+    SLuint       shaderID() { return _shaderID; }
     SLstring     code() { return _code; }
 
-    protected:
+protected:
     SLShaderType _type;     //!< Shader type enumeration
-    SLuint       _objectGL; //!< Program Object
+    SLuint       _shaderID; //!< Program Object
     SLstring     _code;     //!< ASCII Source-Code
     SLstring     _file;     //!< Path & filename of shader
 };

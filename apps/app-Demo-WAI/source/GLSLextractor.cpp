@@ -1152,6 +1152,8 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     Mat m;
     Mat descriptors;
 
+    AVERAGE_TIMING_START("PBO complete");
+
     glBindTexture(GL_TEXTURE_2D, imgProc.renderTextures[0]);
     glTexImage2D(GL_TEXTURE_2D,
                  0,
@@ -1168,19 +1170,29 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     imgProc.readResult(&m);
     _keypoints.clear();
 
-    int i, j;
-    for (i = 15; i < m.rows - 15; i++)
-    {
-        for (j = 15; j < m.cols - 15; j++)
+    AVERAGE_TIMING_START("LOOP");
+
+    mutex mymutex;
+
+    parallel_for_(Range(0, m.rows * m.cols), [&](const Range& range) {
+        for (int r = range.start; r < range.end; r++)
         {
-            if (m.at<uchar>(i, j) > 0)
+            int            i  = r / m.cols;
+            int            j  = r % m.cols;
+            if (i >= 15 && j >= 15 && i < m.rows - 15 && j < m.cols - 15 && m.ptr<uchar>(i)[j] > 0)
             {
-                KeyPoint kp(Point2f(j, i), 1);
-                _keypoints.push_back(kp);
+                mymutex.lock();
+                _keypoints.push_back(KeyPoint(Point2f(j, i), 1));
+                mymutex.unlock();
             }
         }
-    }
+    });
 
+    AVERAGE_TIMING_STOP("LOOP");
+
+    AVERAGE_TIMING_STOP("PBO complete");
+
+    AVERAGE_TIMING_START("DESC");
     if (_keypoints.size() == 0)
     {
         _descriptors.release();
@@ -1199,5 +1211,7 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     Mat desc = descriptors.rowRange(0, _keypoints.size());
     computeDescriptors(workingMat, _keypoints, desc, pattern);
     old = image.clone();
+
+    AVERAGE_TIMING_STOP("DESC");
 }
 

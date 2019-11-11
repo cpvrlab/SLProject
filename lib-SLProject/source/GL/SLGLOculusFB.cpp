@@ -154,7 +154,7 @@ void SLGLOculusFB::drawFramebuffer()
     SLint location = sp->getAttribLocation("a_position");
 
     // Create VBO for screen quad once
-    if (!_vao.id())
+    if (!_vao.vaoID())
     {
         SLfloat P[] = {-1, -1, 1, -1, -1, 1, 1, 1};
         _vao.setAttrib(AT_position, 2, location, P);
