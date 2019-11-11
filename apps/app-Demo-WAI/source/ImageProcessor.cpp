@@ -552,7 +552,6 @@ static std::string extractorFS = "#ifdef GL_ES\n"
                                  "    }\n"
                                  "}\n";
 
-
 GLuint ImageProcessor::buildShaderFromSource(string source, GLenum shaderType)
 {
     // Compile Shader code
@@ -593,7 +592,7 @@ GLuint ImageProcessor::buildShaderFromSource(string source, GLenum shaderType)
     if (!compileSuccess)
     {
         Utils::log("Cannot compile shader %s\n", log);
-        std::cout << completeSrc << std::endl;
+        Utils::log("%s\n", completeSrc);
         exit(1);
     }
     return shaderHandle;
@@ -614,17 +613,17 @@ void ImageProcessor::initShaders()
     GLuint fnmsz       = buildShaderFromSource(nmszFs, GL_FRAGMENT_SHADER);
     GLuint fextractor  = buildShaderFromSource(extractorFS, GL_FRAGMENT_SHADER);
 
-    d2Gdx2      = glCreateProgram();
-    d2Gdy2      = glCreateProgram();
-    dGdx        = glCreateProgram();
-    dGdy        = glCreateProgram();
-    Gx          = glCreateProgram();
-    Gy          = glCreateProgram();
-    detH        = glCreateProgram();
-    nmsx        = glCreateProgram();
-    nmsy        = glCreateProgram();
-    nmsz        = glCreateProgram();
-    extractor   = glCreateProgram();
+    d2Gdx2    = glCreateProgram();
+    d2Gdy2    = glCreateProgram();
+    dGdx      = glCreateProgram();
+    dGdy      = glCreateProgram();
+    Gx        = glCreateProgram();
+    Gy        = glCreateProgram();
+    detH      = glCreateProgram();
+    nmsx      = glCreateProgram();
+    nmsy      = glCreateProgram();
+    nmsz      = glCreateProgram();
+    extractor = glCreateProgram();
 
     glAttachShader(d2Gdx2, vscreenQuad);
     glAttachShader(d2Gdx2, fd2Gdx2);
@@ -819,8 +818,15 @@ void ImageProcessor::initTextureBuffers(int width, int height)
 
 void ImageProcessor::initKeypointBuffers(int nb_elements)
 {
-    glGenTextures(1, &outTexture);
-    glBindTexture(GL_TEXTURE_2D, outTexture);
+    glGenTextures(2, outTexture);
+    glBindTexture(GL_TEXTURE_2D, outTexture[0]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, nb_elements, 1);
+
+    glBindTexture(GL_TEXTURE_2D, outTexture[1]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -845,10 +851,16 @@ void ImageProcessor::initFBO()
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTextures[i], 0);
     }
 
-    glGenFramebuffers(1, &outFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, outFBO);
-    glBindTexture(GL_TEXTURE_2D, outTexture);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outTexture, 0);
+    glGenFramebuffers(2, outFBO);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, outFBO[0]);
+    glBindTexture(GL_TEXTURE_2D, outTexture[0]);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outTexture[0], 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, outFBO[1]);
+    glBindTexture(GL_TEXTURE_2D, outTexture[1]);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outTexture[1], 0);
     glClear(GL_COLOR_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -975,7 +987,7 @@ void ImageProcessor::extract(int w, int h, int curr)
     glUniform1f(extractorHLoc, (float)h);
     glUniform1i(extractorTexLoc, NMSZ);
 
-    glBindImageTexture(0, outTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
+    glBindImageTexture(0, outTexture[curr], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
     glUniform1i(extractorKpBufferLoc, 0);
 
     glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, extractorAtomicCounterLoc, atomicCounters[curr]);
@@ -996,7 +1008,6 @@ void ImageProcessor::init(int w, int h)
     initTextureBuffers(w, h);
     initKeypointBuffers(4096);
     initFBO();
-    GET_GL_ERROR;
 }
 
 ImageProcessor::ImageProcessor(){}
@@ -1010,7 +1021,7 @@ ImageProcessor::~ImageProcessor()
 {
     glDeleteTextures(12, renderTextures);
     glDeleteFramebuffers(12, renderFBO);
-    glDeleteTextures(1, &outTexture);
+    glDeleteTextures(2, outTexture);
     glDeleteBuffers(2, atomicCounters);
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(2, pbo);
@@ -1041,11 +1052,7 @@ void ImageProcessor::gpu_kp()
 
     AVERAGE_TIMING_START("DETECT KEYPOINTS");
 
-    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicCounters[curr]);
-    resetAtomicCounter();
 
-    glBindFramebuffer(GL_FRAMEBUFFER, outFBO);
-    glClear(GL_COLOR_BUFFER_BIT);
 
     SLVec4i wp = SLGLState::instance()->getViewport();
     SLGLState::instance()->viewport(0, 0, m_w, m_h);
@@ -1056,12 +1063,18 @@ void ImageProcessor::gpu_kp()
         glBindTexture(GL_TEXTURE_2D, renderTextures[i]);
     }
 
-    //blur(m_w, m_h);
     gxx(m_w, m_h);
     gyy(m_w, m_h);
     gxy(m_w, m_h);
     det(m_w, m_h);
     nms(m_w, m_h);
+
+    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicCounters[curr]);
+    resetAtomicCounter();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, outFBO[curr]);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     extract(m_w, m_h, curr);
 
     glUseProgram(0);
@@ -1071,18 +1084,13 @@ void ImageProcessor::gpu_kp()
     SLGLState::instance()->viewport(wp.x, wp.y, wp.z, wp.w);
 
     AVERAGE_TIMING_STOP("DETECT KEYPOINTS");
-    GET_GL_ERROR;
 }
 
 void ImageProcessor::readResult(std::vector<cv::KeyPoint> &kps)
 {
-    HighResTimer t;
-    t.start();
-    AVERAGE_TIMING_START("PBO");
-
     /* Start asynchronous copy pixel to curr pbo */
 
-    glBindFramebuffer(GL_FRAMEBUFFER, outFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, outFBO[ready]);
     glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[curr]);
     glReadPixels(0, 0, 4096, 1, GL_RGBA_INTEGER, GL_INT, (GLvoid*)0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1094,12 +1102,11 @@ void ImageProcessor::readResult(std::vector<cv::KeyPoint> &kps)
     */
 
     /* Continue processing without stall */
-
     /*
     glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicCounters[ready]);
     int * n = (int*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(int), GL_MAP_READ_BIT);
-    glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
-    */
+    Utils::log("AAAA ATOMIC COUNTER %p  %d\n", n, *n);
+    glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);*/
 
     /* Read pixels from ready pbo */
     glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[ready]); //Read pixel from ready pbo
@@ -1120,8 +1127,5 @@ void ImageProcessor::readResult(std::vector<cv::KeyPoint> &kps)
 
     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-
-    AVERAGE_TIMING_STOP("PBO");
-    GET_GL_ERROR;
 }
 

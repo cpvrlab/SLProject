@@ -58,14 +58,14 @@ public:
 
     GLuint renderTextures[12];
     GLuint renderFBO[12];
-    GLuint outFBO;
+    GLuint outFBO[2];
     GLuint atomicCounters[2];
     GLuint kpBuffer;
 
     GLuint vao;
     GLuint vbo;
     GLuint vboi;
-    GLuint outTexture;
+    GLuint outTexture[2];
     GLuint pbo[2];
     int curr;
     int ready;

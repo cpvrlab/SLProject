@@ -1134,6 +1134,7 @@ GLSLextractor::GLSLextractor(int w, int h)
     scaleFactor         = 1.0;
 
     old = cv::Mat(w, h, CV_8UC1);
+    old2 = cv::Mat(w, h, CV_8UC1);
 
     const int    npoints  = 512;
     const Point* pattern0 = (const Point*)bit_pattern_31_;
@@ -1152,7 +1153,7 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     Mat m;
     Mat descriptors;
 
-    AVERAGE_TIMING_START("PBO complete");
+    AVERAGE_TIMING_START("Get Keypoint");
 
     glBindTexture(GL_TEXTURE_2D, imgProc.renderTextures[0]);
     glTexImage2D(GL_TEXTURE_2D,
@@ -1188,7 +1189,7 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     });
     */
 
-    AVERAGE_TIMING_STOP("PBO complete");
+    AVERAGE_TIMING_STOP("Get Keypoint");
 
     AVERAGE_TIMING_START("DESC");
     if (_keypoints.size() == 0)
@@ -1203,11 +1204,12 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     }
 
     Mat workingMat;
-    GaussianBlur(old, workingMat, Size(7, 7), 2, 2, BORDER_REFLECT_101);
+    GaussianBlur(old2, workingMat, Size(7, 7), 2, 2, BORDER_REFLECT_101);
 
     // Compute the descriptors
     Mat desc = descriptors.rowRange(0, _keypoints.size());
     computeDescriptors(workingMat, _keypoints, desc, pattern);
+    old2 = old.clone();
     old = image.clone();
 
     AVERAGE_TIMING_STOP("DESC");
