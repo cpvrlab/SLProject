@@ -14,7 +14,6 @@ set(headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIOrbVocabulary.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMath.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2.h
-    #${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2DataOriented.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Initializer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/LocalMapping.h
@@ -44,7 +43,6 @@ set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMapPoint.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIOrbVocabulary.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2DataOriented.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Initializer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/LocalMapping.cpp

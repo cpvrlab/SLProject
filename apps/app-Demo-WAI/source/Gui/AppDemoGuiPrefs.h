@@ -4,7 +4,7 @@
 
 class GUIPreferences
 {
-    public:
+public:
     GUIPreferences();
     void setDPI(int dotsPerInch);
 
@@ -14,7 +14,6 @@ class GUIPreferences
     //slam menu
     bool showSlamParam      = false;
     bool showTrackedMapping = false;
-    bool showMarker         = false;
 
     //video menu
     bool showVideoControls = false;
@@ -61,7 +60,7 @@ class GUIPreferences
     //error dialog
     bool showError = false;
 
-    private:
+private:
     int dpi = 200;
 };
 

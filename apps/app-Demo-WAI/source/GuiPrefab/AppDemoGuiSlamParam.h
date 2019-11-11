@@ -23,26 +23,25 @@
 //-----------------------------------------------------------------------------
 class AppDemoGuiSlamParam : public AppDemoGuiInfosDialog
 {
-    public:
+public:
     AppDemoGuiSlamParam(const std::string& name,
                         bool*              activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
-    private:
+private:
+    KPextractor* orbExtractor(int nf);
+    KPextractor* surfExtractor(int th);
+    KPextractor* glslExtractor();
+    KPextractor* kpExtractor(int id);
 
-    KPextractor * orbExtractor(int nf);
-    KPextractor * surfExtractor(int th);
-    KPextractor * glslExtractor();
-    KPextractor * kpExtractor(int id);
+    KPextractor* _current;
+    KPextractor* _iniCurrent;
 
-    KPextractor*              _current;
-    KPextractor*              _iniCurrent;
+    int _currentId;
+    int _iniCurrentId;
 
-    int              _currentId;
-    int              _iniCurrentId;
-
-    std::vector<std::string>  _extractors;
+    std::vector<std::string> _extractors;
 };
 
 #endif

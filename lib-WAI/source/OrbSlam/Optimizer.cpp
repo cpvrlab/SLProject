@@ -684,12 +684,9 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap
     {
         WAIKeyFrame* pKFi = vNeighKFs[i];
 
-        if (!pKFi->isFixed())
-        {
-            pKFi->mnBALocalForKF = pKF->mnId;
-            if (!pKFi->isBad())
-                lLocalKeyFrames.push_back(pKFi);
-        }
+        pKFi->mnBALocalForKF = pKF->mnId;
+        if (!pKFi->isBad())
+            lLocalKeyFrames.push_back(pKFi);
     }
 
     // Local MapPoints seen in Local KeyFrames
@@ -702,7 +699,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap
             WAIMapPoint* pMP = *vit;
             if (pMP)
             {
-                if (!pMP->isBad() && !pMP->isFixed())
+                if (!pMP->isBad())
                 {
                     if (pMP->mnBALocalForKF != pKF->mnId)
                     {
@@ -755,7 +752,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap
         g2o::VertexSE3Expmap* vSE3 = new g2o::VertexSE3Expmap();
         vSE3->setEstimate(Converter::toSE3Quat(pKFi->GetPose()));
         vSE3->setId(pKFi->mnId);
-        vSE3->setFixed(pKFi->mnId == 0);
+        vSE3->setFixed(pKFi->mnId == 0 || pKFi->isFixed());
         optimizer.addVertex(vSE3);
         if (pKFi->mnId > maxKFid)
             maxKFid = pKFi->mnId;
@@ -805,6 +802,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap
         int id = pMP->mnId + maxKFid + 1;
         vPoint->setId(id);
         vPoint->setMarginalized(true);
+        vPoint->setFixed(pMP->isFixed());
         optimizer.addVertex(vPoint);
 
         const map<WAIKeyFrame*, size_t> observations = pMP->GetObservations();

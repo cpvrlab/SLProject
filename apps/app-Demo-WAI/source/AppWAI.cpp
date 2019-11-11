@@ -211,6 +211,10 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         calibrationFileName = "camCalib_" + computerInfo + "_main.xml";
         calibrationFile     = calibDir + calibrationFileName;
     }
+    else
+    {
+        calibrationFileName = Utils::getFileName(calibrationFile);
+    }
 
     if (!Utils::fileExists(calibrationFile))
     {
@@ -242,6 +246,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     }
 
     CVCapture* cap = CVCapture::instance();
+
     // 1. Initialize CVCapture with either video file or live video
     if (useVideoFile)
     {

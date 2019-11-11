@@ -296,7 +296,7 @@ private:
     bool _createMarkerMap;
 
     WAIFrame                _markerFrame;
-    ORB_SLAM2::KPextractor* _markerOrbExtractor;
+    ORB_SLAM2::KPextractor* _markerExtractor;
     float                   _markerWidthM;
 
     WAIMapPoint* _mpUL;
