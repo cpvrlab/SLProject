@@ -70,15 +70,14 @@ public:
     static SLstring  computerOS;    //!< Computer OS name
     static SLstring  computerOSVer; //!< Computer OS version
     static SLstring  computerArch;  //!< Computer Architecture
-    static SLstring  computerSerialNo;
-    static SLstring  computerID;   //!< Computer identification string
-    static SLstring  gitBranch;    //!< Current GIT branch
-    static SLstring  gitCommit;    //!< Current GIT commit short hash id
-    static SLstring  gitDate;      //!< Current GIT commit date
-    static SLint     dpi;          //!< Current UI dot per inch resolution
-    static SLstring  configPath;   //!< Default path for calibration files
-    static SLstring  externalPath; //!< Default path for external file storage
-    static SLSceneID sceneID;      //!< ID of last loaded scene
+    static SLstring  computerID;    //!< Computer identification string
+    static SLstring  gitBranch;     //!< Current GIT branch
+    static SLstring  gitCommit;     //!< Current GIT commit short hash id
+    static SLstring  gitDate;       //!< Current GIT commit date
+    static SLint     dpi;           //!< Current UI dot per inch resolution
+    static SLstring  configPath;    //!< Default path for calibration files
+    static SLstring  externalPath;  //!< Default path for external file storage
+    static SLSceneID sceneID;       //!< ID of last loaded scene
 
     static map<string, string>         deviceParameter;    //! Generic device parameter
     static deque<function<void(void)>> jobsToBeThreaded;   //!< queue of functions to be executed in a thread

@@ -210,8 +210,6 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
 
         calibrationFileName = "camCalib_" + computerInfo + "_main.xml";
         calibrationFile     = calibDir + calibrationFileName;
-    } else {
-        calibrationFileName = Utils::getFileName(calibrationFile);
     }
     else
     {

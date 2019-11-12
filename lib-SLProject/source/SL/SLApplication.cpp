@@ -33,19 +33,18 @@ SLstring SLApplication::configuration = "Debug";
 #else
 SLstring SLApplication::configuration = "Release";
 #endif
-SLstring            SLApplication::computerUser     = "USER?";
-SLstring            SLApplication::computerName     = "NAME?";
-SLstring            SLApplication::computerBrand    = "BRAND?";
-SLstring            SLApplication::computerModel    = "MODEL?";
-SLstring            SLApplication::computerOS       = "OS?";
-SLstring            SLApplication::computerOSVer    = "OSVER?";
-SLstring            SLApplication::computerArch     = "ARCH?";
-SLstring            SLApplication::computerID       = "ID?";
-SLstring            SLApplication::computerSerialNo = "SERIALNO?";
-SLstring            SLApplication::gitBranch        = SL_GIT_BRANCH;
-SLstring            SLApplication::gitCommit        = SL_GIT_COMMIT;
-SLstring            SLApplication::gitDate          = SL_GIT_DATE;
-SLint               SLApplication::dpi              = 0;
+SLstring            SLApplication::computerUser  = "USER?";
+SLstring            SLApplication::computerName  = "NAME?";
+SLstring            SLApplication::computerBrand = "BRAND?";
+SLstring            SLApplication::computerModel = "MODEL?";
+SLstring            SLApplication::computerOS    = "OS?";
+SLstring            SLApplication::computerOSVer = "OSVER?";
+SLstring            SLApplication::computerArch  = "ARCH?";
+SLstring            SLApplication::computerID    = "ID?";
+SLstring            SLApplication::gitBranch     = SL_GIT_BRANCH;
+SLstring            SLApplication::gitCommit     = SL_GIT_COMMIT;
+SLstring            SLApplication::gitDate       = SL_GIT_DATE;
+SLint               SLApplication::dpi           = 0;
 map<string, string> SLApplication::deviceParameter;
 
 //! SLApplication::configPath is overwritten in slCreateAppAndScene.
@@ -308,11 +307,6 @@ SLstring SLApplication::getComputerInfos()
     len          = __system_property_get("ro.product.cpu.abi", arch);
     computerArch = string(arch);
 
-    char serial[PROP_VALUE_MAX];
-    len              = __system_property_get("ro.serialno", serial);
-    computerSerialNo = string(serial);
-
-    computerModel = computerModel + "-" + computerSerialNo;
 #endif
 
     // build a unique as possible ID string that can be used in a filename
