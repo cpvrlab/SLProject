@@ -104,7 +104,7 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #    include <sys/time.h>
 #    include <sys/system_properties.h>
 #    ifdef SL_GLES3
-#        include <GLES3/gl3.h>
+#        include <GLES3/gl31.h>
 #        include <GLES3/gl3ext.h>
 #    endif
 #    include <chrono>
