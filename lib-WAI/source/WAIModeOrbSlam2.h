@@ -136,7 +136,7 @@ public:
     bool retainImage() { return _params.retainImg; }
     void setInitialized(bool initialized) { _initialized = initialized; }
 
-    void setExtractor(KPextractor* extractor, KPextractor* iniExtractor);
+    void setExtractor(KPextractor* extractor, KPextractor* iniExtractor, KPextractor* markerExtractor = nullptr);
     void setVocabulary(std::string orbVocFile);
 
     WAIFrame getCurrentFrame();
@@ -193,9 +193,6 @@ private:
     ORB_SLAM2::ORBVocabulary* mpVocabulary   = nullptr;
     ORB_SLAM2::KPextractor*   mpExtractor    = nullptr;
     ORB_SLAM2::KPextractor*   mpIniExtractor = nullptr;
-
-    ORB_SLAM2::KPextractor* mpDefaultExtractor    = nullptr;
-    ORB_SLAM2::KPextractor* mpIniDefaultExtractor = nullptr;
 
     ORB_SLAM2::LocalMapping* mpLocalMapper = nullptr;
     ORB_SLAM2::LoopClosing*  mpLoopCloser  = nullptr;
@@ -288,16 +285,18 @@ private:
     bool   _allowKfsAsActiveCam   = false;
 
     // marker correction stuff
-    bool findMarkerHomography(WAIFrame&    markerFrame,
-                              WAIKeyFrame* kfCand,
-                              cv::Mat&     homography,
-                              int          minMatches);
+    WAIFrame createMarkerFrame(std::string  markerFile,
+                               KPextractor* markerExtractor);
+    bool     findMarkerHomography(WAIFrame&    markerFrame,
+                                  WAIKeyFrame* kfCand,
+                                  cv::Mat&     homography,
+                                  int          minMatches);
 
     bool _createMarkerMap;
 
+    std::string             _markerFile;
     WAIFrame                _markerFrame;
     ORB_SLAM2::KPextractor* _markerExtractor;
-    float                   _markerWidthM;
 
     WAIMapPoint* _mpUL;
     WAIMapPoint* _mpUR;

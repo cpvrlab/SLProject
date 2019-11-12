@@ -6,7 +6,9 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat       cameraMat,
                                 const Params& params,
                                 std::string   orbVocFile,
                                 std::string   markerFile)
-  : _params(params)
+  : _params(params),
+    _markerFile(markerFile),
+    _markerExtractor(nullptr)
 {
     //we have to reset global static stuff here
     WAIKeyFrame::nNextId = 0; //will be updated when a map is loaded
@@ -37,13 +39,10 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat       cameraMat,
 
     //instantiate feature extractor
     // TODO(dgj1): we need to find a good value for the extractor threshold
-    //mpDefaultExtractor    = new ORB_SLAM2::SURFextractor(1000);
-    //mpIniDefaultExtractor = new ORB_SLAM2::SURFextractor(800);
-    mpDefaultExtractor    = new ORB_SLAM2::ORBextractor(1000, 1.2, 8, 20, 7);
-    mpIniDefaultExtractor = new ORB_SLAM2::ORBextractor(2000, 1.2, 8, 20, 7);
-
-    mpExtractor    = mpDefaultExtractor;
-    mpIniExtractor = mpIniDefaultExtractor;
+    mpExtractor    = new ORB_SLAM2::SURFextractor(1000);
+    mpIniExtractor = new ORB_SLAM2::SURFextractor(800);
+    //mpExtractor    = new ORB_SLAM2::ORBextractor(1000, 1.2, 8, 20, 7);
+    //mpIniExtractor = new ORB_SLAM2::ORBextractor(2000, 1.2, 8, 20, 7);
 
     //instantiate local mapping
     mpLocalMapper = new ORB_SLAM2::LocalMapping(_map, 1, mpVocabulary, _params.cullRedundantPerc);
@@ -64,28 +63,9 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat       cameraMat,
 
     if (_createMarkerMap)
     {
-        //_markerExtractor = new ORB_SLAM2::SURFextractor(800); // TODO(dgj1): markerInitialization - adjust nFeatures
-        _markerExtractor = new ORB_SLAM2::ORBextractor(4000, 1.2, 8, 20, 7);
+        KPextractor* markerExtractor = new ORB_SLAM2::SURFextractor(800); // TODO(dgj1): markerInitialization - adjust nFeatures
 
-        cv::Mat markerImgGray = cv::imread(markerFile, cv::IMREAD_GRAYSCALE);
-
-        float fyCam = _cameraMat.at<float>(1, 1);
-        float cyCam = _cameraMat.at<float>(1, 2);
-        float fov   = 2.0f * atan2(cyCam, fyCam) * 180.0f / M_PI;
-
-        float cx = (float)markerImgGray.cols * 0.5f;
-        float cy = (float)markerImgGray.rows * 0.5f;
-        float fy = cy / tanf(fov * 0.5f * M_PI / 180.0);
-        float fx = fy;
-
-        cv::Mat markerCameraMat     = (cv::Mat_<float>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
-        cv::Mat markerDistortionMat = cv::Mat::zeros(4, 1, CV_32F);
-
-        //cv::Mat markerCameraMat     = cameraMat;
-        //cv::Mat markerDistortionMat = distortionMat;
-
-        _markerFrame  = WAIFrame(markerImgGray, 0.0f, _markerExtractor, markerCameraMat, markerDistortionMat, mpVocabulary, true);
-        _markerWidthM = 0.289f;
+        _markerFrame = createMarkerFrame(markerFile, markerExtractor);
     }
 
     _mpUL = nullptr;
@@ -97,11 +77,24 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat       cameraMat,
 // TODO : Verify that this is really thread safe
 // TODO(dgj1): should this even be possible when the system is running?
 void WAI::ModeOrbSlam2::setExtractor(KPextractor* extractor,
-                                     KPextractor* iniExtractor)
+                                     KPextractor* iniExtractor,
+                                     KPextractor* markerExtractor)
 {
     requestStateIdle();
-    mpExtractor    = extractor;
-    mpIniExtractor = iniExtractor;
+
+    if (mpExtractor) delete mpExtractor;
+    if (mpIniExtractor) delete mpIniExtractor;
+    if (_markerExtractor) delete _markerExtractor;
+
+    mpExtractor      = extractor;
+    mpIniExtractor   = iniExtractor;
+    _markerExtractor = markerExtractor;
+
+    if (_markerExtractor && _createMarkerMap)
+    {
+        _markerFrame = createMarkerFrame(_markerFile, _markerExtractor);
+    }
+
     resume();
 }
 
@@ -133,22 +126,11 @@ WAI::ModeOrbSlam2::~ModeOrbSlam2()
             mptLoopClosing->join();
     }
 
-    if (mpDefaultExtractor)
-    {
-        delete mpDefaultExtractor;
-    }
-    if (mpIniDefaultExtractor)
-    {
-        delete mpIniDefaultExtractor;
-    }
-    if (mpLocalMapper)
-    {
-        delete mpLocalMapper;
-    }
-    if (mpLoopCloser)
-    {
-        delete mpLoopCloser;
-    }
+    if (mpExtractor) delete mpExtractor;
+    if (mpIniExtractor) delete mpIniExtractor;
+    if (_markerExtractor) delete _markerExtractor;
+    if (mpLocalMapper) delete mpLocalMapper;
+    if (mpLoopCloser) delete mpLoopCloser;
 }
 
 bool WAI::ModeOrbSlam2::getPose(cv::Mat* pose)
@@ -592,6 +574,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
     {
         // NOTE(dgj1): find matches with marker if necessary
         // We only initialize if the first frame has enough matches to the marker
+        // TODO(dgj1): rethink this constraint
         if (_createMarkerMap)
         {
             ORBmatcher               matcher(0.9, true);
@@ -602,63 +585,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
             std::vector<int> markerMatchesToCurrentFrame;
             int              nmatches = matcher.SearchForInitialization(_markerFrame, mCurrentFrame, prevMatched, markerMatchesToCurrentFrame, 100);
 
-            if (nmatches > 30)
-            {
-                std::vector<cv::Point2f> markerPoints;
-                std::vector<cv::Point2f> framePoints;
-
-                //std::vector<cv::KeyPoint> matches;
-                for (int i = 0; i < markerMatchesToCurrentFrame.size(); i++)
-                {
-                    if (markerMatchesToCurrentFrame[i] >= 0)
-                    {
-                        markerPoints.push_back(_markerFrame.mvKeysUn[i].pt);
-                        framePoints.push_back(mCurrentFrame.mvKeysUn[markerMatchesToCurrentFrame[i]].pt);
-                        //matches.push_back(mCurrentFrame.mvKeys[markerMatchesToCurrentFrame[i]]);
-                        //markerMatchesCurrentFrame.push_back(i);
-                    }
-                }
-
-                cv::Mat markerHomography = cv::findHomography(markerPoints, framePoints, cv::RANSAC);
-                markerHomography.convertTo(markerHomography, CV_32F);
-
-                // TODO(dgj1): handle case if findHomography fails (markerHomography is empty)?
-
-                // NOTE(dgj1): assumption that intrinsic camera parameters are the same
-                // TODO(dgj1): think about this assumption
-                // TODO(dgj1): move this somewhere more sensible
-                cv::Mat ul = cv::Mat(cv::Point3f(0, 0, 1));
-                cv::Mat ur = cv::Mat(cv::Point3f(_markerFrame.imgGray.cols, 0, 1));
-                cv::Mat ll = cv::Mat(cv::Point3f(0, _markerFrame.imgGray.rows, 1));
-                cv::Mat lr = cv::Mat(cv::Point3f(_markerFrame.imgGray.cols, _markerFrame.imgGray.rows, 1));
-
-                ul = markerHomography * ul;
-                ul /= ul.at<float>(2, 0);
-                ur = markerHomography * ur;
-                ur /= ur.at<float>(2, 0);
-                ll = markerHomography * ll;
-                ll /= ll.at<float>(2, 0);
-                lr = markerHomography * lr;
-                lr /= lr.at<float>(2, 0);
-
-                cv::rectangle(imageRGB,
-                              cv::Point(ul.at<float>(0, 0), ul.at<float>(1, 0)),
-                              cv::Point(ul.at<float>(0, 0) + 3, ul.at<float>(1, 0) + 3),
-                              cv::Scalar(255, 0, 0));
-                cv::rectangle(imageRGB,
-                              cv::Point(ur.at<float>(0, 0), ur.at<float>(1, 0)),
-                              cv::Point(ur.at<float>(0, 0) + 3, ur.at<float>(1, 0) + 3),
-                              cv::Scalar(255, 0, 0));
-                cv::rectangle(imageRGB,
-                              cv::Point(ll.at<float>(0, 0), ll.at<float>(1, 0)),
-                              cv::Point(ll.at<float>(0, 0) + 3, ll.at<float>(1, 0) + 3),
-                              cv::Scalar(255, 0, 0));
-                cv::rectangle(imageRGB,
-                              cv::Point(lr.at<float>(0, 0), lr.at<float>(1, 0)),
-                              cv::Point(lr.at<float>(0, 0) + 3, lr.at<float>(1, 0) + 3),
-                              cv::Scalar(255, 0, 0));
-            }
-            else
+            if (nmatches <= 30)
             {
                 return;
             }
@@ -811,74 +738,6 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
                              _distortionMat,
                              mpVocabulary,
                              _params.retainImg);
-
-    // TODO(dgj1): move this somewhere more sensible
-
-    // NOTE(dgj1): find matches with marker if necessary
-    std::vector<int> markerMatchesCurrentFrame;
-    if (_createMarkerMap)
-    {
-        ORBmatcher               matcher(0.9, true);
-        std::vector<cv::Point2f> prevMatched(_markerFrame.mvKeysUn.size());
-        for (size_t i = 0; i < _markerFrame.mvKeysUn.size(); i++)
-            prevMatched[i] = _markerFrame.mvKeysUn[i].pt;
-
-        std::vector<int> markerMatchesToCurrentFrame;
-        int              nmatches = matcher.SearchForInitialization(_markerFrame, mCurrentFrame, prevMatched, markerMatchesToCurrentFrame, 100);
-
-        if (nmatches > 80)
-        {
-            std::vector<cv::Point2f> markerPoints;
-            std::vector<cv::Point2f> framePoints;
-
-            //std::vector<cv::KeyPoint> matches;
-            for (int i = 0; i < markerMatchesToCurrentFrame.size(); i++)
-            {
-                if (markerMatchesToCurrentFrame[i] >= 0)
-                {
-                    markerPoints.push_back(_markerFrame.mvKeysUn[i].pt);
-                    framePoints.push_back(mCurrentFrame.mvKeysUn[markerMatchesToCurrentFrame[i]].pt);
-                }
-            }
-
-            cv::Mat markerHomography = cv::findHomography(markerPoints, framePoints, cv::RANSAC);
-            markerHomography.convertTo(markerHomography, CV_32F);
-
-            // TODO(dgj1): handle case if findHomography fails (markerHomography is empty)?
-            cv::Mat ul = cv::Mat(cv::Point3f(0, 0, 1));
-            cv::Mat ur = cv::Mat(cv::Point3f(_markerFrame.imgGray.cols, 0, 1));
-            cv::Mat ll = cv::Mat(cv::Point3f(0, _markerFrame.imgGray.rows, 1));
-            cv::Mat lr = cv::Mat(cv::Point3f(_markerFrame.imgGray.cols, _markerFrame.imgGray.rows, 1));
-
-            // NOTE(dgj1): assumption that intrinsic camera parameters are the same
-            // TODO(dgj1): think about this assumption
-            ul = markerHomography * ul;
-            ul /= ul.at<float>(2, 0);
-            ur = markerHomography * ur;
-            ur /= ur.at<float>(2, 0);
-            ll = markerHomography * ll;
-            ll /= ll.at<float>(2, 0);
-            lr = markerHomography * lr;
-            lr /= lr.at<float>(2, 0);
-
-            cv::rectangle(imageRGB,
-                          cv::Point(ul.at<float>(0, 0), ul.at<float>(1, 0)),
-                          cv::Point(ul.at<float>(0, 0) + 3, ul.at<float>(1, 0) + 3),
-                          cv::Scalar(255, 0, 0));
-            cv::rectangle(imageRGB,
-                          cv::Point(ur.at<float>(0, 0), ur.at<float>(1, 0)),
-                          cv::Point(ur.at<float>(0, 0) + 3, ur.at<float>(1, 0) + 3),
-                          cv::Scalar(255, 0, 0));
-            cv::rectangle(imageRGB,
-                          cv::Point(ll.at<float>(0, 0), ll.at<float>(1, 0)),
-                          cv::Point(ll.at<float>(0, 0) + 3, ll.at<float>(1, 0) + 3),
-                          cv::Scalar(255, 0, 0));
-            cv::rectangle(imageRGB,
-                          cv::Point(lr.at<float>(0, 0), lr.at<float>(1, 0)),
-                          cv::Point(lr.at<float>(0, 0) + 3, lr.at<float>(1, 0) + 3),
-                          cv::Scalar(255, 0, 0));
-        }
-    }
 
     // Get Map Mutex -> Map cannot be changed
     std::unique_lock<std::mutex> lock(_map->mMutexMapUpdate, std::defer_lock);
@@ -2576,7 +2435,6 @@ bool WAI::ModeOrbSlam2::findMarkerHomography(WAIFrame&    markerFrame,
         std::vector<cv::Point2f> markerPoints;
         std::vector<cv::Point2f> framePoints;
 
-        //std::vector<cv::KeyPoint> matches;
         for (int j = 0; j < markerMatchesToCurrentFrame.size(); j++)
         {
             if (markerMatchesToCurrentFrame[j] >= 0)
@@ -2586,7 +2444,6 @@ bool WAI::ModeOrbSlam2::findMarkerHomography(WAIFrame&    markerFrame,
             }
         }
 
-        // 2. Calculate homography between the keyframes and marker
         homography = cv::findHomography(markerPoints,
                                         framePoints,
                                         cv::RANSAC);
@@ -2602,14 +2459,11 @@ bool WAI::ModeOrbSlam2::findMarkerHomography(WAIFrame&    markerFrame,
     return result;
 }
 
-bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile,
-                                                 cv::Mat&    nodeTransform,
-                                                 float       markerWidthInM)
+WAIFrame WAI::ModeOrbSlam2::createMarkerFrame(std::string  markerFile,
+                                              KPextractor* markerExtractor)
 {
-    // Additional steps to save marker map
-    // 1. Find matches to marker on two keyframes
-    // 1.a Extract features from marker image
-    // TODO(dgj1): automatically detect used feature extractor
+    _markerExtractor = markerExtractor;
+
     cv::Mat markerImgGray = cv::imread(markerFile, cv::IMREAD_GRAYSCALE);
 
     float fyCam = _cameraMat.at<float>(1, 1);
@@ -2621,10 +2475,22 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile,
     float fy = cy / tanf(fov * 0.5f * M_PI / 180.0);
     float fx = fy;
 
+    // TODO(dgj1): pass actual calibration for marker frame?
     cv::Mat markerCameraMat     = (cv::Mat_<float>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
     cv::Mat markerDistortionMat = cv::Mat::zeros(4, 1, CV_32F);
 
-    WAIFrame markerFrame = WAIFrame(markerImgGray, 0.0f, _markerExtractor, markerCameraMat, markerDistortionMat, mpVocabulary, true);
+    WAIFrame result = WAIFrame(markerImgGray, 0.0f, _markerExtractor, markerCameraMat, markerDistortionMat, mpVocabulary, true);
+    return result;
+}
+
+bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile,
+                                                 cv::Mat&    nodeTransform,
+                                                 float       markerWidthInM)
+{
+    // Additional steps to save marker map
+    // 1. Find matches to marker on two keyframes
+    // 1.a Extract features from marker image
+    WAIFrame markerFrame = createMarkerFrame(markerFile, _markerExtractor);
 
     // 1.b Find keyframes with enough matches to marker image
     std::vector<WAIKeyFrame*> kfs = _map->GetAllKeyFrames();
@@ -2647,10 +2513,11 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile,
 
         if (kfCand1->isBad()) continue;
 
+        // 2. Calculate homography between the keyframes and marker
         cv::Mat homography1;
         if (findMarkerHomography(markerFrame, kfCand1, homography1, 50))
         {
-            // 3. Calculate position of the markers cornerpoints on the keyframes in 2D
+            // 3.a Calculate position of the markers cornerpoints on first keyframe in 2D
             // NOTE(dgj1): assumption that intrinsic camera parameters are the same
             // TODO(dgj1): think about this assumption
             ulKf1 = homography1 * ul;
@@ -2671,7 +2538,7 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile,
                 cv::Mat homography2;
                 if (findMarkerHomography(markerFrame, kfCand2, homography2, 50))
                 {
-                    // 3. Calculate position of the markers cornerpoints on the keyframes in 2D
+                    // 3.b Calculate position of the markers cornerpoints on second keyframe in 2D
                     // NOTE(dgj1): assumption that intrinsic camera parameters are the same
                     // TODO(dgj1): think about this assumption
                     ulKf2 = homography2 * ul;

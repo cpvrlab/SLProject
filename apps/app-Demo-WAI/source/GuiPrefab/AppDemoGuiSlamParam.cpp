@@ -36,10 +36,12 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
     _extractors.push_back("ORB extractor nf = 2000");
     _extractors.push_back("GLSL Hessian extractor");
 
-    _currentId    = 2;
-    _iniCurrentId = 1;
-    _current      = surfExtractor(1000);
-    _iniCurrent   = surfExtractor(800);
+    _currentId       = 2;
+    _iniCurrentId    = 1;
+    _markerCurrentId = 1;
+    _current         = surfExtractor(1000);
+    _iniCurrent      = surfExtractor(800);
+    _markerCurrent   = surfExtractor(800);
 }
 
 KPextractor* AppDemoGuiSlamParam::orbExtractor(int nf)
@@ -126,13 +128,28 @@ void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
             ImGui::EndCombo();
         }
 
+        // TODO(dgj1): display this only if a markerfile has been selected
+        if (ImGui::BeginCombo("Marker extractor", _extractors[_markerCurrentId].c_str()))
+        {
+            for (int i = 0; i < _extractors.size(); i++)
+            {
+                bool isSelected = (_markerCurrentId == i); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(_extractors[i].c_str(), isSelected))
+                {
+                    _markerCurrentId = i;
+                }
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+            }
+            ImGui::EndCombo();
+        }
+
         if (ImGui::Button("Change features", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
         {
-            delete (_current);
-            delete (_iniCurrent);
-            _current    = kpExtractor(_currentId);
-            _iniCurrent = kpExtractor(_iniCurrentId);
-            mode->setExtractor(_current, _iniCurrent);
+            _current       = kpExtractor(_currentId);
+            _iniCurrent    = kpExtractor(_iniCurrentId);
+            _markerCurrent = kpExtractor(_markerCurrentId);
+            mode->setExtractor(_current, _iniCurrent, _markerCurrent);
         }
     }
 

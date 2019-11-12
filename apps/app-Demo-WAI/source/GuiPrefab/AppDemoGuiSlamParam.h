@@ -37,9 +37,11 @@ private:
 
     KPextractor* _current;
     KPextractor* _iniCurrent;
+    KPextractor* _markerCurrent;
 
     int _currentId;
     int _iniCurrentId;
+    int _markerCurrentId;
 
     std::vector<std::string> _extractors;
 };
