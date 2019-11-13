@@ -81,7 +81,7 @@ static std::string normalizedFct = "\n"
 */
 
 //#version 320 es
-static std::string screeQuadVs = "layout (location = 0) in vec3 vcoords;\n"
+static std::string screenQuadVs = "layout (location = 0) in vec3 vcoords;\n"
                                  "out vec2 texcoords;\n"
                                  "\n"
                                  "void main()\n"
@@ -89,6 +89,7 @@ static std::string screeQuadVs = "layout (location = 0) in vec3 vcoords;\n"
                                  "    texcoords = 0.5 * (vcoords.xy + vec2(1.0));\n"
                                  "    gl_Position = vec4(vcoords, 1.0);\n"
                                  "}\n";
+
 
 static std::string hGaussianFs = "#ifdef GL_ES\n"
                                  "precision highp float;\n"
@@ -500,7 +501,7 @@ static std::string nmsyFs = "#ifdef GL_ES\n"
 static std::string nmszFs = "#ifdef GL_ES\n"
                             "precision highp float;\n"
                             "#endif\n"
-                            "out vec4 pixel;\n"
+                            "out float pixel;\n"
                             "in vec2 texcoords;\n"
                             "uniform sampler2D det;\n"
                             "uniform sampler2D tgxx;\n"
@@ -518,39 +519,72 @@ static std::string nmszFs = "#ifdef GL_ES\n"
                             "    float gxy = UN(texture(tgxy, texcoords).g);\n"
                             "    float tr = gxx + gyy;\n"
                             "    float r = tr * tr / l.g;\n"
-                            "    pixel = vec4(vec3(0.0), 1.0);\n"
-                            "    if (l.g > 0.0015 && l.g > l.r && l.g > l.b && r < 6.0)\n"
+                            "    pixel = (0.0);\n"
+                            "    if (l.g > l.r && l.g > l.b && r < 6.0)\n"
                             "    {\n"
-                            "       pixel = vec4(1.0);\n"
+                            "       pixel = (l.g);\n"
                             "    }\n"
                             "}\n";
 
+
+
+static std::string screenQuadOffsetVs = "layout (location = 0) in vec3 vcoords;\n"
+                                       "out vec2 texcoords;\n"
+                                       "uniform vec2 ofst;\n"
+                                       "uniform vec2 s;\n"
+                                       "\n"
+                                       "void main()\n"
+                                       "{\n"
+                                       "    vec2 coords = 0.5 * (vcoords.xy + vec2(1.0));\n" //[0, 1]
+                                       "    texcoords = ofst + coords * s;\n" // offset + [0, s]
+                                       "    gl_Position = vec4((2.0 * texcoords) - vec2(1.0), 0.0, 1.0);\n"
+                                       "}\n"
+                                       ;
+
 static std::string extractorFS = "#ifdef GL_ES\n"
                                  "precision highp float;\n"
+                                 "precision highp uimage2D;\n"
                                  "precision highp iimage2D;\n"
                                  "#endif\n"
-                                 "layout (binding = 0, offset = 0) uniform atomic_uint counter;\n"
-                                 "layout (rgba32i) uniform writeonly iimage2D image;\n"
+                                 "layout (binding = 0, offset = 0) uniform atomic_uint highCounter;\n"
+                                 "layout (binding = 0, offset = 4) uniform atomic_uint lowCounter;\n"
+                                 "layout (rgba32i) uniform writeonly iimage2D lowImage;\n"
+                                 "layout (rgba32i) uniform writeonly iimage2D highImage;\n"
                                  "uniform sampler2D tex;\n"
                                  "uniform float w;\n"
                                  "uniform float h;\n"
+                                 "uniform int idx;\n"
                                  "in vec2 texcoords;\n"
                                  "\n"
                                  "void main()\n"
                                  "{\n"
-                                 "    ivec2 pos = ivec2(int(w * texcoords.x), int(h * texcoords.y));\n"
-                                 "    if (pos.x < 15 || pos.y < 15 || pos.x > int(w)-15 || pos.y > int(h)-15)\n"
-                                 "        discard;"
+                                 "    ivec4 pos = ivec4(int(w * texcoords.x), int(h * texcoords.y), 0, 0);\n"
+                                 "\n"
                                  "    float r = texture(tex, texcoords).r;\n"
-                                 "    if (r > 0.1)\n"
+                                 "    if (r > 0.0025)\n"
                                  "    {\n"
-                                 "         int i = int(atomicCounterIncrement(counter));\n"
-                                 "         if (i < 4096)\n"
+                                 "         int ih = int(atomicCounterIncrement(highCounter));\n"
+                                 "         int il = int(atomicCounterIncrement(lowCounter));\n"
+                                 "         if (il < 256)\n"
                                  "         {\n"
-                                 "             imageStore(image, ivec2(i, 0), ivec4(pos, 10, 10));\n"
+                                 "             imageStore(highImage, ivec2(ih, idx), pos);\n"
+                                 "             imageStore(lowImage, ivec2(il, idx), pos);\n"
+                                 "         }\n"
+                                 "         if (ih < 256)\n"
+                                 "         {\n"
+                                 "             imageStore(highImage, ivec2(ih, idx), pos);\n"
                                  "         }\n"
                                  "    }\n"
-                                 "}\n";
+                                 "    else if (r > 0.0010)\n"
+                                 "    {\n"
+                                 "         int il = int(atomicCounterIncrement(lowCounter));\n"
+                                 "         if (il < 256)\n"
+                                 "         {\n"
+                                 "             imageStore(lowImage, ivec2(il, idx), pos);\n"
+                                 "         }\n"
+                                 "    }\n"
+                                 "}\n"
+                                 ;
 
 GLuint ImageProcessor::buildShaderFromSource(string source, GLenum shaderType)
 {
@@ -591,8 +625,8 @@ GLuint ImageProcessor::buildShaderFromSource(string source, GLenum shaderType)
 
     if (!compileSuccess)
     {
-        Utils::log("Cannot compile shader %s\n", log);
-        Utils::log("%s\n", completeSrc);
+        Utils::log("AAAA Cannot compile shader %s\n", log);
+        Utils::log("AAAA %s\n", completeSrc);
         exit(1);
     }
     return shaderHandle;
@@ -600,18 +634,19 @@ GLuint ImageProcessor::buildShaderFromSource(string source, GLenum shaderType)
 
 void ImageProcessor::initShaders()
 {
-    GLuint vscreenQuad = buildShaderFromSource(screeQuadVs, GL_VERTEX_SHADER);
-    GLuint fd2Gdx2     = buildShaderFromSource(hGaussianDx2Fs, GL_FRAGMENT_SHADER);
-    GLuint fd2Gdy2     = buildShaderFromSource(vGaussianDy2Fs, GL_FRAGMENT_SHADER);
-    GLuint fdGdx       = buildShaderFromSource(hGaussianDxFs, GL_FRAGMENT_SHADER);
-    GLuint fdGdy       = buildShaderFromSource(vGaussianDyFs, GL_FRAGMENT_SHADER);
-    GLuint fGx         = buildShaderFromSource(hGaussianFs, GL_FRAGMENT_SHADER);
-    GLuint fGy         = buildShaderFromSource(vGaussianFs, GL_FRAGMENT_SHADER);
-    GLuint fdetH       = buildShaderFromSource(detHFs, GL_FRAGMENT_SHADER);
-    GLuint fnmsx       = buildShaderFromSource(nmsxFs, GL_FRAGMENT_SHADER);
-    GLuint fnmsy       = buildShaderFromSource(nmsyFs, GL_FRAGMENT_SHADER);
-    GLuint fnmsz       = buildShaderFromSource(nmszFs, GL_FRAGMENT_SHADER);
-    GLuint fextractor  = buildShaderFromSource(extractorFS, GL_FRAGMENT_SHADER);
+    GLuint vscreenQuad       = buildShaderFromSource(screenQuadVs, GL_VERTEX_SHADER);
+    GLuint vscreenQuadOffset = buildShaderFromSource(screenQuadOffsetVs, GL_VERTEX_SHADER);
+    GLuint fd2Gdx2           = buildShaderFromSource(hGaussianDx2Fs, GL_FRAGMENT_SHADER);
+    GLuint fd2Gdy2           = buildShaderFromSource(vGaussianDy2Fs, GL_FRAGMENT_SHADER);
+    GLuint fdGdx             = buildShaderFromSource(hGaussianDxFs, GL_FRAGMENT_SHADER);
+    GLuint fdGdy             = buildShaderFromSource(vGaussianDyFs, GL_FRAGMENT_SHADER);
+    GLuint fGx               = buildShaderFromSource(hGaussianFs, GL_FRAGMENT_SHADER);
+    GLuint fGy               = buildShaderFromSource(vGaussianFs, GL_FRAGMENT_SHADER);
+    GLuint fdetH             = buildShaderFromSource(detHFs, GL_FRAGMENT_SHADER);
+    GLuint fnmsx             = buildShaderFromSource(nmsxFs, GL_FRAGMENT_SHADER);
+    GLuint fnmsy             = buildShaderFromSource(nmsyFs, GL_FRAGMENT_SHADER);
+    GLuint fnmsz             = buildShaderFromSource(nmszFs, GL_FRAGMENT_SHADER);
+    GLuint fextractor        = buildShaderFromSource(extractorFS, GL_FRAGMENT_SHADER);
 
     d2Gdx2    = glCreateProgram();
     d2Gdy2    = glCreateProgram();
@@ -665,7 +700,7 @@ void ImageProcessor::initShaders()
     glAttachShader(nmsz, fnmsz);
     glLinkProgram(nmsz);
 
-    glAttachShader(extractor, vscreenQuad);
+    glAttachShader(extractor, vscreenQuadOffset);
     glAttachShader(extractor, fextractor);
     glLinkProgram(extractor);
 
@@ -706,11 +741,18 @@ void ImageProcessor::initShaders()
     nmszGyyLoc   = glGetUniformLocation(nmsz, "tgyy");
     nmszGxyLoc   = glGetUniformLocation(nmsz, "tgxy");
 
-    extractorTexLoc = glGetUniformLocation(extractor, "tex");
-    extractorWLoc = glGetUniformLocation(extractor, "w");
-    extractorHLoc = glGetUniformLocation(extractor, "h");
-    extractorAtomicCounterLoc = 0;//glGetUniformLocation(extractor, "counter");
-    extractorKpBufferLoc = glGetUniformLocation(extractor, "image");
+    extractorTexLoc          = glGetUniformLocation(extractor, "tex");
+    extractorOffsetLoc       = glGetUniformLocation(extractor, "ofst");
+    extractorSizeLoc         = glGetUniformLocation(extractor, "s");
+    extractorIdxLoc          = glGetUniformLocation(extractor, "idx");
+    extractorWLoc            = glGetUniformLocation(extractor, "w");
+    extractorHLoc            = glGetUniformLocation(extractor, "h");
+    extractorHighCountersLoc = glGetUniformLocation(extractor, "highCounters");
+    extractorLowCountersLoc  = glGetUniformLocation(extractor, "lowCounters");
+    extractorLowImageLoc     = glGetUniformLocation(extractor, "lowImage");
+    extractorHighImageLoc    = glGetUniformLocation(extractor, "highImage");
+
+    std::cout << "idx loc " << extractorIdxLoc << std::endl;
 }
 
 void ImageProcessor::initVBO()
@@ -748,11 +790,6 @@ void ImageProcessor::setTextureParameters()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 }
 
-void ImageProcessor::textureRGBAI(int w, int h)
-{
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32I, w, h, 0, GL_RGBA_INTEGER, GL_INT, nullptr);
-}
-
 void ImageProcessor::textureRGBF(int w, int h)
 {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, w, h, 0, GL_RGB, GL_HALF_FLOAT, nullptr);
@@ -768,28 +805,6 @@ void ImageProcessor::textureRB(int w, int h)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, w, h, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 }
 
-void ImageProcessor::resetAtomicCounter()
-{
-    GLuint data = 0;
-    glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), &data);
-
-    /*
-    GLuint * n = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), GL_MAP_WRITE_BIT);
-    *n = 0;
-    glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
-    */
-}
-
-void ImageProcessor::initAtomicCounters()
-{
-    glGenBuffers(2, atomicCounters);
-
-    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicCounters[0]);
-    glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), NULL, GL_DYNAMIC_COPY);
-
-    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicCounters[1]);
-    glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), NULL, GL_DYNAMIC_COPY);
-}
 
 void ImageProcessor::initTextureBuffers(int width, int height)
 {
@@ -816,29 +831,54 @@ void ImageProcessor::initTextureBuffers(int width, int height)
     }
 }
 
-void ImageProcessor::initKeypointBuffers(int nb_elements)
+void ImageProcessor::clearCounterBuffer()
 {
-    glGenTextures(2, outTexture);
-    glBindTexture(GL_TEXTURE_2D, outTexture[0]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, nb_elements, 1);
+    int i[2] = {0};
+    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicCounter);
+    glBufferData(GL_ATOMIC_COUNTER_BUFFER, 8, i, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+}
 
-    glBindTexture(GL_TEXTURE_2D, outTexture[1]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, nb_elements, 1);
+void ImageProcessor::initKeypointBuffers()
+{
+    /* Buffers to store keypoints */
+    glGenTextures(2, highImages);
+    glGenTextures(2, lowImages);
 
-    glGenBuffers(2, pbo);
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[0]);
-    glBufferData(GL_PIXEL_PACK_BUFFER, nb_elements * 4 * sizeof(int), 0, GL_DYNAMIC_READ);
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[1]);
-    glBufferData(GL_PIXEL_PACK_BUFFER, nb_elements * 4 * sizeof(int), 0, GL_DYNAMIC_READ);
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+    glGenFramebuffers(2, highImagesFB);
+    glGenFramebuffers(2, lowImagesFB);
+
+    glGenBuffers(2, highImagePBOs);
+    glGenBuffers(2, lowImagePBOs);
+
+
+    int i[2] = {0};
+    glGenBuffers(1, &atomicCounter);
+    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicCounter);
+    glBufferData(GL_ATOMIC_COUNTER_BUFFER, 8, i, GL_DYNAMIC_DRAW);
+    glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+
+
+    for (int i = 0; i < 2; i++)
+    {
+        glBindTexture(GL_TEXTURE_2D, highImages[i]);
+        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, 32, 16);
+        glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, highImages[i], 0);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glBindTexture(GL_TEXTURE_2D, lowImages[i]);
+        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, 32, 16);
+        glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lowImages[i], 0);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[i]);
+        glBufferData(GL_PIXEL_PACK_BUFFER, 32 * 16 * 4 * 4, 0, GL_DYNAMIC_READ);
+
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, lowImagePBOs[i]);
+        glBufferData(GL_PIXEL_PACK_BUFFER, 32 * 16 * 4 * 4, 0, GL_DYNAMIC_READ);
+    }
 }
 
 void ImageProcessor::initFBO()
@@ -851,17 +891,6 @@ void ImageProcessor::initFBO()
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTextures[i], 0);
     }
 
-    glGenFramebuffers(2, outFBO);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, outFBO[0]);
-    glBindTexture(GL_TEXTURE_2D, outTexture[0]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outTexture[0], 0);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, outFBO[1]);
-    glBindTexture(GL_TEXTURE_2D, outTexture[1]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outTexture[1], 0);
-    glClear(GL_COLOR_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -986,14 +1015,32 @@ void ImageProcessor::extract(int w, int h, int curr)
     glUniform1f(extractorWLoc, (float)w);
     glUniform1f(extractorHLoc, (float)h);
     glUniform1i(extractorTexLoc, NMSZ);
+    glBindImageTexture(0, highImages[curr], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
+    glUniform1i(extractorHighImageLoc, 0);
+    glBindImageTexture(1, lowImages[curr], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
+    glUniform1i(extractorLowImageLoc, 1);
 
-    glBindImageTexture(0, outTexture[curr], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
-    glUniform1i(extractorKpBufferLoc, 0);
-
-    glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, extractorAtomicCounterLoc, atomicCounters[curr]);
     glBindVertexArray(vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboi);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+    float offsetx = 15.0 / (float)m_w;
+    float offsety = 15.0 / (float)m_h;
+    float sizex = ((float)m_w - 30.0) / (4.0 * float(m_w));
+    float sizey = ((float)m_h - 30.0) / (4.0 * float(m_h));
+
+    glUniform2f(extractorSizeLoc, sizex, sizey);
+
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            clearCounterBuffer();
+            glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, atomicCounter);
+            glUniform1i(extractorIdxLoc, i * 4 + j);
+            glUniform2f(extractorOffsetLoc, offsetx + j * sizex, offsety + i * sizey);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        }
+    }
 }
 
 void ImageProcessor::init(int w, int h)
@@ -1003,10 +1050,9 @@ void ImageProcessor::init(int w, int h)
     curr = 1;
     ready = 0;
     initShaders();
-    initAtomicCounters();
     initVBO();
     initTextureBuffers(w, h);
-    initKeypointBuffers(4096);
+    initKeypointBuffers();
     initFBO();
 }
 
@@ -1021,10 +1067,7 @@ ImageProcessor::~ImageProcessor()
 {
     glDeleteTextures(12, renderTextures);
     glDeleteFramebuffers(12, renderFBO);
-    glDeleteTextures(2, outTexture);
-    glDeleteBuffers(2, atomicCounters);
     glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(2, pbo);
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &vboi);
 
@@ -1047,12 +1090,6 @@ void ImageProcessor::gpu_kp()
 
     ready = curr;
     curr = (curr+1) % 2; //Set rendering buffers
-    HighResTimer t;
-    t.start();
-
-    AVERAGE_TIMING_START("DETECT KEYPOINTS");
-
-
 
     SLVec4i wp = SLGLState::instance()->getViewport();
     SLGLState::instance()->viewport(0, 0, m_w, m_h);
@@ -1063,18 +1100,16 @@ void ImageProcessor::gpu_kp()
         glBindTexture(GL_TEXTURE_2D, renderTextures[i]);
     }
 
+    glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB[curr]);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB[curr]);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     gxx(m_w, m_h);
     gyy(m_w, m_h);
     gxy(m_w, m_h);
     det(m_w, m_h);
     nms(m_w, m_h);
-
-    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicCounters[curr]);
-    resetAtomicCounter();
-
-    glBindFramebuffer(GL_FRAMEBUFFER, outFBO[curr]);
-    glClear(GL_COLOR_BUFFER_BIT);
-
     extract(m_w, m_h, curr);
 
     glUseProgram(0);
@@ -1082,50 +1117,64 @@ void ImageProcessor::gpu_kp()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     SLGLState::instance()->viewport(wp.x, wp.y, wp.z, wp.w);
-
-    AVERAGE_TIMING_STOP("DETECT KEYPOINTS");
 }
 
 void ImageProcessor::readResult(std::vector<cv::KeyPoint> &kps)
 {
-    /* Start asynchronous copy pixel to curr pbo */
+    glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB[ready]);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[curr]);
+    glReadPixels(0, 0, 32, 16, GL_RGBA_INTEGER, GL_INT, 0);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, outFBO[ready]);
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[curr]);
-    glReadPixels(0, 0, 4096, 1, GL_RGBA_INTEGER, GL_INT, (GLvoid*)0);
+    glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB[ready]);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, lowImagePBOs[curr]);
+    glReadPixels(0, 0, 32, 16, GL_RGBA_INTEGER, GL_INT, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    /*
-    glBindTexture(GL_TEXTURE_2D, outTexture);
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[curr]);
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA_INTEGER, GL_INT, (GLvoid*)0);
-    */
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[ready]);
+    unsigned int * hData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, 32 * 16 * 4 * 4, GL_MAP_READ_BIT);
 
-    /* Continue processing without stall */
-    /*
-    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicCounters[ready]);
-    int * n = (int*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(int), GL_MAP_READ_BIT);
-    Utils::log("AAAA ATOMIC COUNTER %p  %d\n", n, *n);
-    glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);*/
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, lowImagePBOs[ready]);
+    unsigned int * lData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, 32 * 16 * 4 * 4, GL_MAP_READ_BIT);
 
-    /* Read pixels from ready pbo */
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[ready]); //Read pixel from ready pbo
-    int * data = (int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, 4096 * 4 * sizeof(int), GL_MAP_READ_BIT);
-
-    if (data)
+    if (hData)
     {
-        int i = 0;
-        for (; i < 4096; i++)
+        for (int i = 0; i < 16; i++)
         {
-            int idx = i * 4;
-            if (data[idx] == 0) { break; }
-            kps.push_back(cv::KeyPoint(cv::Point2f(data[idx], data[idx+1]), 1));
+            if (hData[(32 * i + 5)*4] > 0) //if more than 4 keypoints in the subimage
+            {
+                int j = 0;
+                for (; j < 32; j++)
+                {
+                    int idx = (i * 32 + j) * 4;
+                    int x = hData[idx];
+                    int y = hData[idx+1];
+                    if (x == 0)
+                        break;
+
+                    kps.push_back(cv::KeyPoint(cv::Point2f(x, y), 1));
+                }
+            }
+            else
+            {
+                int j = 0;
+                for (j = 0; j < 32; j++)
+                {
+                    int idx = (i * 32 + j) * 4;
+                    int x = lData[idx];
+                    int y = lData[idx+1];
+                    if (x == 0)
+                        break;
+                    kps.push_back(cv::KeyPoint(cv::Point2f(x, y), 1));
+                }
+            }
         }
     }
-    else
-        std::cout << "null data" << std::endl;
 
     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[ready]);
+    glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 }
 
