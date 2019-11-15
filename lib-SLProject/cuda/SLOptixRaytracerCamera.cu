@@ -25,5 +25,5 @@ extern "C" __global__ void __raygen__pinhole_camera()
     const float3 origin      = rtData->eye;
     const float3 direction   = normalize( d.x * rtData->U + d.y * rtData->V + rtData->W );
 
-    params.image[idx.y * params.width + idx.x] = make_color( traceRadianceRay(params.handle, origin, direction, 1.0f, false, 1) );
+    params.image[idx.y * params.width + idx.x] = make_color( tracePrimaryRay(params.handle, origin, direction) );
 }

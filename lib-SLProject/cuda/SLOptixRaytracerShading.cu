@@ -43,14 +43,16 @@ extern "C" __global__ void __closesthit__radiance() {
     const float3 ray_dir = optixGetWorldRayDirection();
 
     // calculate normal vector
-    float3 N_0;
+    float3 N;
     if (rt_data->normals && rt_data->indices) {
+        // Interpolate normal vector with barycentric coordinates
         const float2 barycentricCoordinates = optixGetTriangleBarycentrics();
         const float u = barycentricCoordinates.x;
         const float v = barycentricCoordinates.y;
-        N_0 = (1.f-u-v) * rt_data->normals[rt_data->indices[idx].x]
+        N = (1.f-u-v) * rt_data->normals[rt_data->indices[idx].x]
               +         u * rt_data->normals[rt_data->indices[idx].y]
               +         v * rt_data->normals[rt_data->indices[idx].z];
+        N = normalize( optixTransformNormalFromObjectToWorldSpace( N ) );
     } else {
         OptixTraversableHandle gas = optixGetGASTraversableHandle();
         float3 vertex[3] = { make_float3(0.0f), make_float3(0.0f), make_float3(0.0f)};
@@ -59,15 +61,14 @@ extern "C" __global__ void __closesthit__radiance() {
                                    rt_data->sbtIndex,
                                    0,
                                    vertex);
-        N_0 = normalize(cross(vertex[1] - vertex[0], vertex[2] - vertex[0]));
+        N = normalize(cross(vertex[1] - vertex[0], vertex[2] - vertex[0]));
     }
 
-
-    // calculate normal vector and hit point
-    float3 N = normalize( optixTransformNormalFromObjectToWorldSpace( N_0) );
+    // if a back face was hit then the normal vector is in the opposite direction
     if (optixIsTriangleBackFaceHit()) {
         N = N * -1;
     }
+    // calculate hit point
     const float3 P = optixGetWorldRayOrigin() + optixGetRayTmax() * ray_dir;
 
     float4 color = make_float4(0.0f);
@@ -152,11 +153,6 @@ extern "C" __global__ void __closesthit__radiance() {
     // Add emissive and ambient to current color
     color += rt_data->material.emissive_color;
 //    color += rt_data->material.ambient_color;
-
-    // Make sure the color value does not exceed 1
-    color.x = min(color.x, 1.0f);
-    color.y = min(color.y, 1.0f);
-    color.z = min(color.z, 1.0f);
 
     // Set color to payload
     setColor(color);
