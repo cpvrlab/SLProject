@@ -1233,7 +1233,11 @@ void SLNode::createInstanceAccelerationStructure() {
         memcpy(instance.transform, transform, sizeof(float)*12);
 
         instance.instanceId         = 0;
-        instance.visibilityMask     = 255;
+        if (mesh->mat()->emissive().length() > 0) {
+            instance.visibilityMask     = 253;
+        } else {
+            instance.visibilityMask     = 255;
+        }
         instance.flags              = OPTIX_INSTANCE_FLAG_NONE;
         instance.traversableHandle  = mesh->optixTraversableHandle();
         instance.sbtOffset          = mesh->sbtIndex();

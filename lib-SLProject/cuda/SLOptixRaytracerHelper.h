@@ -65,7 +65,7 @@ static __device__ __inline__ float4 tracePrimaryRay(
             1.e-4f,  // tmin
             1e16f,  // tmax
             0.0f,                // rayTime
-            OptixVisibilityMask(1),
+            OptixVisibilityMask( 255 ),
             OPTIX_RAY_FLAG_DISABLE_ANYHIT | OPTIX_RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
             RAY_TYPE_RADIANCE,                   // SBT offset
             RAY_TYPE_COUNT,                   // SBT stride
@@ -101,7 +101,7 @@ static __device__ __inline__ float4 traceRadianceRay(
             1.e-4f,  // tmin
             1e16f,  // tmax
             0.0f,                // rayTime
-            OptixVisibilityMask(1),
+            OptixVisibilityMask( 2 ),
             OPTIX_RAY_FLAG_DISABLE_ANYHIT,
             RAY_TYPE_RADIANCE,                   // SBT offset
             RAY_TYPE_COUNT,                   // SBT stride
