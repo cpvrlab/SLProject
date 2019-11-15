@@ -41,6 +41,7 @@ struct Params
 
     Light*                  lights;
     unsigned int            numLights;
+    float4                  globalAmbientColor;
 
     float3*                  debug;
 };

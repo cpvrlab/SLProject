@@ -325,6 +325,7 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
     _lightBuffer.alloc_and_upload(lights);
     _params.lights = reinterpret_cast<Light *>(_lightBuffer.devicePointer());
     _params.numLights = light_count;
+    _params.globalAmbientColor = make_float4(scene->globalAmbiLight());
 
     _paramsBuffer.upload(&_params);
 }

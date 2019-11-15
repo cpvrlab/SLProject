@@ -78,8 +78,12 @@ extern "C" __global__ void __closesthit__radiance() {
         const float3 L = normalize(params.lights[i].position - P);
         const float nDl = dot(L, N);
 
-        const float3 R = normalize(reflect(-L, N));
-        const float3 V = normalize(-ray_dir);
+        // Phong specular reflection
+//        const float3 R = normalize(reflect(-L, N));
+//        const float3 V = normalize(-ray_dir);
+//        powf( max(dot(R, V), 0.0), rt_data->material.shininess )
+        // Blinn specular reflection
+        const float3 H = normalize(L - ray_dir); // half vector between light & eye
 
         uint32_t p0 = float_as_int( 0.0f );
         uint32_t p1 = float_as_int( 0.0f );
@@ -111,12 +115,13 @@ extern "C" __global__ void __closesthit__radiance() {
 
         // Shading like whitted
         if (occlusion < 1) {
-            color += (rt_data->material.specular_color * powf( max(dot(R, V), 0.0), rt_data->material.shininess ) // specular
-                     + rt_data->material.diffuse_color * max(nDl, 0.0f)) * (1.0f - occlusion)                     // diffuse
-                    * light_color                                                                                 // multiply with light color
-                    * lightAttenuation(params.lights[i], Ldist);                                                  // multiply with light attenuation
-            color += rt_data->material.ambient_color * lightAttenuation(params.lights[i], Ldist);
+            color += (rt_data->material.specular_color * powf( max(dot(N, H), 0.0), rt_data->material.shininess )   // specular
+                     + rt_data->material.diffuse_color * max(nDl, 0.0f))                                            // diffuse
+                    * (1.0f - occlusion)                                                                            // occlusion
+                    * light_color                                                                                   // multiply with light color
+                    * lightAttenuation(params.lights[i], Ldist);                                                    // multiply with light attenuation
         }
+        color += rt_data->material.ambient_color * lightAttenuation(params.lights[i], Ldist);
     }
 
     // Send reflection ray
@@ -152,7 +157,7 @@ extern "C" __global__ void __closesthit__radiance() {
 
     // Add emissive and ambient to current color
     color += rt_data->material.emissive_color;
-//    color += rt_data->material.ambient_color;
+    color += (rt_data->material.ambient_color * params.globalAmbientColor);
 
     // Set color to payload
     setColor(color);
