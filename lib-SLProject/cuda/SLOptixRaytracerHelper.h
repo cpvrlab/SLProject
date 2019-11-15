@@ -16,12 +16,8 @@ static __forceinline__ __device__ float getRefractionIndex() {
     return int_as_float(optixGetPayload_4());
 }
 
-static __forceinline__ __device__ bool isInside() {
-    return optixGetPayload_5();
-}
-
 static __forceinline__ __device__ unsigned int getDepth() {
-    return optixGetPayload_6();
+    return optixGetPayload_5();
 }
 
 static __forceinline__ __device__ void setOcclusion(float occlusion) {
@@ -50,14 +46,13 @@ static __device__ __inline__ float4 tracePrimaryRay(
         float3 origin,
         float3 direction) {
     float4 payload_rgb = make_float4(0.5f, 0.5f, 0.5f, 1.0f);
-    uint32_t p0, p1, p2, p3, p4, p5, p6;
+    uint32_t p0, p1, p2, p3, p4, p5;
     p0 = float_as_int(payload_rgb.x);
     p1 = float_as_int(payload_rgb.y);
     p2 = float_as_int(payload_rgb.z);
     p3 = float_as_int(payload_rgb.w);
     p4 = float_as_int(1.0f);
-    p5 = false;
-    p6 = 1;
+    p5 = 1;
     optixTrace(
             handle,
             origin,
@@ -70,7 +65,7 @@ static __device__ __inline__ float4 tracePrimaryRay(
             RAY_TYPE_RADIANCE,                   // SBT offset
             RAY_TYPE_COUNT,                   // SBT stride
             RAY_TYPE_RADIANCE,                   // missSBTIndex
-            p0, p1, p2, p3, p4, p5, p6);
+            p0, p1, p2, p3, p4, p5);
     payload_rgb.x = int_as_float(p0);
     payload_rgb.y = int_as_float(p1);
     payload_rgb.z = int_as_float(p2);
@@ -84,7 +79,6 @@ static __device__ __inline__ float4 traceRadianceRay(
         float3 origin,
         float3 direction,
         float refractionIndex,
-        bool isInside,
         unsigned int depth) {
     float4 payload_rgb = make_float4(0.5f, 0.5f, 0.5f, 1.0f);
     uint32_t p0, p1, p2, p3, p4, p5;
@@ -93,7 +87,6 @@ static __device__ __inline__ float4 traceRadianceRay(
     p2 = float_as_int(payload_rgb.z);
     p3 = float_as_int(payload_rgb.w);
     p4 = float_as_int(refractionIndex);
-    p5 = isInside;
     optixTrace(
             handle,
             origin,
@@ -106,7 +99,7 @@ static __device__ __inline__ float4 traceRadianceRay(
             RAY_TYPE_RADIANCE,                   // SBT offset
             RAY_TYPE_COUNT,                   // SBT stride
             RAY_TYPE_RADIANCE,                   // missSBTIndex
-            p0, p1, p2, p3, p4, p5, reinterpret_cast<uint32_t &>(depth));
+            p0, p1, p2, p3, p4, reinterpret_cast<uint32_t &>(depth));
     payload_rgb.x = int_as_float(p0);
     payload_rgb.y = int_as_float(p1);
     payload_rgb.z = int_as_float(p2);

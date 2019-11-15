@@ -85,10 +85,10 @@ extern "C" __global__ void __closesthit__radiance() {
         // Blinn specular reflection
         const float3 H = normalize(L - ray_dir); // half vector between light & eye
 
-        uint32_t p0 = float_as_int( 0.0f );
-        uint32_t p1 = float_as_int( 0.0f );
-        uint32_t p2 = float_as_int( 0.0f );
-        uint32_t p3 = float_as_int( 0.0f );
+        uint32_t p0 = float_as_int( 1.0f );
+        uint32_t p1 = float_as_int( 1.0f );
+        uint32_t p2 = float_as_int( 1.0f );
+        uint32_t p3 = float_as_int( 1.0f );
         uint32_t p4 = float_as_int( 0.0f );
         if ( nDl > 0.0f)
         {
@@ -126,7 +126,7 @@ extern "C" __global__ void __closesthit__radiance() {
 
     // Send reflection ray
     if(getDepth() < params.max_depth && rt_data->material.kr > 0.0f) {
-        color += (traceRadianceRay(params.handle, P, reflect(ray_dir, N), getRefractionIndex(), isInside(), getDepth() + 1) * rt_data->material.kr);
+        color += (traceRadianceRay(params.handle, P, reflect(ray_dir, N), getRefractionIndex(), getDepth() + 1) * rt_data->material.kr);
     }
 
     // The color value so far is only as strong as the light that does not pass through the object
@@ -138,8 +138,8 @@ extern "C" __global__ void __closesthit__radiance() {
         float refractionIndex = rt_data->material.kn;
         float eta = getRefractionIndex() / rt_data->material.kn;
         if (optixIsTriangleBackFaceHit()) {
-            refractionIndex = getRefractionIndex();
-            eta = rt_data->material.kn / getRefractionIndex();
+            refractionIndex = 1.0f;
+            eta = rt_data->material.kn / 1.0f;
         }
 
         // calculate transmission vector T
@@ -152,7 +152,7 @@ extern "C" __global__ void __closesthit__radiance() {
         } else {
             T = 2.0f * (dot(-ray_dir, N)) * N  + ray_dir;
         }
-        color += (traceRadianceRay(params.handle, P, T, refractionIndex, isInside(), getDepth() + 1) * rt_data->material.kt);
+        color += (traceRadianceRay(params.handle, P, T, refractionIndex, getDepth() + 1) * rt_data->material.kt);
     }
 
     // Add emissive and ambient to current color
