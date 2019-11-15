@@ -113,7 +113,7 @@ extern "C" __global__ void __closesthit__radiance() {
         float occlusion = int_as_float( p4 );
         occlusion = min(occlusion, 1.0f);
 
-        // Shading like whitted
+        // Phong shading
         if (occlusion < 1) {
             color += (rt_data->material.specular_color * powf( max(dot(N, H), 0.0), rt_data->material.shininess )   // specular
                      + rt_data->material.diffuse_color * max(nDl, 0.0f))                                            // diffuse
@@ -130,7 +130,7 @@ extern "C" __global__ void __closesthit__radiance() {
     }
 
     // The color value so far is only as strong as the light that does not pass through the object
-    color *= (1.0f - rt_data->material.kt);
+//    color *= (1.0f - rt_data->material.kt);
 
     // Send refraction ray
     if(getDepth() < params.max_depth && rt_data->material.kt > 0.0f) {
