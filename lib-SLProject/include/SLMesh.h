@@ -196,6 +196,7 @@ class SLMesh : public SLObject, public SLOptixAccelerationStructure
 
     SLCudaBuffer<SLVec3f>   _vertexBuffer;
     SLCudaBuffer<SLVec3f>   _normalBuffer;
+    SLCudaBuffer<SLVec2f>   _textureBuffer;
     SLCudaBuffer<SLushort>  _indexShortBuffer;
     SLCudaBuffer<SLuint>    _indexIntBuffer;
     unsigned int            _sbtIndex;

@@ -20,6 +20,7 @@
 #include <Utils.h>
 #include <cudaGL.h>
 #include <SLOptixHelper.h>
+#include <cuda.h>
 
 //-----------------------------------------------------------------------------
 //! Default path for texture files used when only filename is passed in load.
@@ -53,6 +54,7 @@ SLGLTexture::SLGLTexture()
     _bytesOnGPU   = 0;
     _needsUpdate  = false;
     _cudaGraphicsResource = nullptr;
+    _cudaTextureObject = 0;
 }
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
@@ -82,6 +84,7 @@ SLGLTexture::SLGLTexture(const SLstring& filename,
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
     _cudaGraphicsResource = nullptr;
+    _cudaTextureObject = 0;
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->textures().push_back(this);
@@ -115,6 +118,7 @@ SLGLTexture::SLGLTexture(const SLVstring& files,
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
     _cudaGraphicsResource = nullptr;
+    _cudaTextureObject = 0;
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->textures().push_back(this);
@@ -148,6 +152,7 @@ SLGLTexture::SLGLTexture(const SLVCol4f& colors,
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
     _cudaGraphicsResource = nullptr;
+    _cudaTextureObject = 0;
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->textures().push_back(this);
@@ -192,6 +197,7 @@ SLGLTexture::SLGLTexture(const SLstring& filenameXPos,
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
     _cudaGraphicsResource = nullptr;
+    _cudaTextureObject = 0;
 
     SLApplication::scene->textures().push_back(this);
 }
@@ -218,6 +224,10 @@ void SLGLTexture::clearData()
     _texName    = 0;
     _bytesOnGPU = 0;
     _vaoSprite.clearAttribs();
+
+    if (_cudaGraphicsResource) {
+        CUDA_CHECK( cuGraphicsUnregisterResource(_cudaGraphicsResource) );
+    }
 }
 //-----------------------------------------------------------------------------
 //! Loads the texture, converts color depth & applies vertical mirroring
@@ -529,12 +539,44 @@ void SLGLTexture::build(SLint texID)
     //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
     //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
 
-    if (_cudaGraphicsResource) {
-        CUDA_CHECK(cuGraphicsUnregisterResource(_cudaGraphicsResource));
-    }
-    CUDA_CHECK(cuGraphicsGLRegisterImage(&_cudaGraphicsResource, _texName, _target, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD));
-
     GET_GL_ERROR;
+}
+void SLGLTexture::buildCudaTexture() {
+    if (!_cudaTextureObject) {
+        CUarray texture_ptr;
+
+        CUDA_CHECK( cuGraphicsMapResources(1, &_cudaGraphicsResource, SLApplication::stream) );
+        CUDA_CHECK( cuGraphicsSubResourceGetMappedArray(&texture_ptr, _cudaGraphicsResource, 0, 0) );
+
+        CUDA_RESOURCE_DESC res_desc = {};
+
+        res_desc.resType          = CU_RESOURCE_TYPE_ARRAY;
+        res_desc.res.array.hArray = texture_ptr;
+
+        CUDA_TEXTURE_DESC tex_desc     = {};
+        tex_desc.addressMode[0]      = CU_TR_ADDRESS_MODE_WRAP;
+        tex_desc.addressMode[1]      = CU_TR_ADDRESS_MODE_WRAP;
+        tex_desc.filterMode          = CU_TR_FILTER_MODE_LINEAR;
+        tex_desc.maxAnisotropy       = maxAnisotropy;
+        tex_desc.maxMipmapLevelClamp = 99;
+        tex_desc.minMipmapLevelClamp = 0;
+        tex_desc.borderColor[0]      = 1.0f;
+
+//        CUDA_RESOURCE_VIEW_DESC view_desc = {};
+//        view_desc.format = CU_RES_VIEW_FORMAT_UINT_4X8;
+//        view_desc.width = width();
+//        view_desc.height = height();
+
+        CUDA_CHECK( cuTexObjectCreate(&_cudaTextureObject, &res_desc, &tex_desc, nullptr) );
+
+        CUDA_RESOURCE_VIEW_DESC rs;
+        cuTexObjectGetResourceViewDesc(&rs, _cudaTextureObject);
+
+        CUDA_ARRAY_DESCRIPTOR ar;
+        cuArrayGetDescriptor(&ar, texture_ptr);
+
+        CUDA_CHECK( cuGraphicsUnmapResources(1, &_cudaGraphicsResource, SLApplication::stream) );
+    }
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -548,8 +590,10 @@ void SLGLTexture::bindActive(SLint texID)
     assert(texID >= 0 && texID < 32);
 
     // if texture not exists build it
-    if (!_texName)
+    if (!_texName) {
         build(texID);
+        CUDA_CHECK( cuGraphicsGLRegisterImage(&_cudaGraphicsResource, _texName, _target, CU_GRAPHICS_REGISTER_FLAGS_NONE) );
+    }
 
     if (_texName)
     {

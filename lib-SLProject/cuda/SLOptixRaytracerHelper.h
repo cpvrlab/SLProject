@@ -81,7 +81,7 @@ static __device__ __inline__ float4 traceRadianceRay(
         float refractionIndex,
         unsigned int depth) {
     float4 payload_rgb = make_float4(0.5f, 0.5f, 0.5f, 1.0f);
-    uint32_t p0, p1, p2, p3, p4, p5;
+    uint32_t p0, p1, p2, p3, p4;
     p0 = float_as_int(payload_rgb.x);
     p1 = float_as_int(payload_rgb.y);
     p2 = float_as_int(payload_rgb.z);

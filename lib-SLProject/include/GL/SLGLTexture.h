@@ -105,6 +105,7 @@ class SLGLTexture : public SLObject
     void clearData();
     void build(SLint texID = 0);
     void bindActive(SLint texID = 0);
+    void buildCudaTexture();
     void fullUpdate();
     void drawSprite(SLbool doUpdate = false);
     void cubeUV2XYZ(SLint index, SLfloat u, SLfloat v, SLfloat& x, SLfloat& y, SLfloat& z);
@@ -136,7 +137,7 @@ class SLGLTexture : public SLObject
     SLbool        autoCalcTM3D() { return _autoCalcTM3D; }
     SLbool        needsUpdate() { return _needsUpdate; }
     SLstring      typeName();
-    CUgraphicsResource getCudaGraphicsResource() { return _cudaGraphicsResource; }
+    CUtexObject   getCudaTextureObject() { buildCudaTexture();return _cudaTextureObject; }
 
     // Misc
     SLTextureType detectType(SLstring filename);
@@ -184,6 +185,7 @@ class SLGLTexture : public SLObject
     SLGLVertexArray _vaoSprite;     //!< Vertex array object for sprite rendering
     atomic<bool>    _needsUpdate{}; //!< Flag if image needs an single update
     CUgraphicsResource  _cudaGraphicsResource; //!< Cuda Graphics object
+    CUtexObject         _cudaTextureObject;
 };
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLTexture pointers

@@ -13,7 +13,6 @@
 #include <SLOptixDefinitions.h>
 
 #include <optix.h>
-#include <cuda_runtime.h>
 #include <optix_stubs.h>
 #include <utility>
 #include <optix_stack_size.h>
@@ -62,7 +61,7 @@ void SLOptixRaytracer::setupOptix() {
     _module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
     _module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
 
-    _pipeline_compile_options.exceptionFlags     = OPTIX_EXCEPTION_FLAG_DEBUG;
+    _pipeline_compile_options.exceptionFlags     = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_USER;
 #endif
 
     _pipeline_compile_options.usesMotionBlur        = false;
@@ -361,12 +360,10 @@ SLbool SLOptixRaytracer::renderClassic() {
 }
 
 void SLOptixRaytracer::renderImage() {
-    CUstream stream = SLApplication::stream;
-
     SLGLTexture::bindActive(0);
 
     CUarray texture_ptr;
-    CUDA_CHECK( cuGraphicsMapResources(1, &_cudaGraphicsResource, stream) );
+    CUDA_CHECK( cuGraphicsMapResources(1, &_cudaGraphicsResource, SLApplication::stream) );
     CUDA_CHECK( cuGraphicsSubResourceGetMappedArray(&texture_ptr, _cudaGraphicsResource, 0, 0) );
 
     CUDA_ARRAY_DESCRIPTOR des;
@@ -386,7 +383,7 @@ void SLOptixRaytracer::renderImage() {
     memcpy2D.Height = des.Height;
     CUDA_CHECK(cuMemcpy2D(&memcpy2D) );
 
-    CUDA_CHECK( cuGraphicsUnmapResources(1, &_cudaGraphicsResource, stream) );
+    CUDA_CHECK( cuGraphicsUnmapResources(1, &_cudaGraphicsResource, SLApplication::stream) );
 
     SLfloat w = (SLfloat)_sv->scrW();
     SLfloat h = (SLfloat)_sv->scrH();
@@ -408,6 +405,6 @@ void SLOptixRaytracer::renderImage() {
     GET_GL_ERROR;
 
     float3* debug = reinterpret_cast<float3 *>( malloc(_debugBuffer.size()) );
-    _debugBuffer.download(debug);;
+    _debugBuffer.download(debug);
     free(debug);
 }

@@ -7,25 +7,26 @@
 
 #include <vector_types.h>
 #include <optix_types.h>
+#include <cuda.h>
 
 struct Material
 {
-    float4 diffuse_color;
-    float4 ambient_color;
-    float4 specular_color;
-    float4 emissive_color;
-    float shininess;
-    float kr;
-    float kt;
-    float kn;
+    float4  diffuse_color;
+    float4  ambient_color;
+    float4  specular_color;
+    float4  emissive_color;
+    float   shininess;
+    float   kr;
+    float   kt;
+    float   kn;
 };
 
 struct Light
 {
-    float3 position;
-    float kc;
-    float kl;
-    float kq;
+    float3  position;
+    float   kc;
+    float   kl;
+    float   kq;
 };
 
 struct Params
@@ -43,12 +44,12 @@ struct Params
     unsigned int            numLights;
     float4                  globalAmbientColor;
 
-    float3*                  debug;
+    float3*                 debug;
 };
 
 enum RayType
 {
-    RAY_TYPE_RADIANCE  = 0,
+    RAY_TYPE_RADIANCE   = 0,
     RAY_TYPE_OCCLUSION  = 1,
     RAY_TYPE_COUNT
 };
@@ -68,11 +69,13 @@ struct MissData
 
 struct HitData
 {
-    Material material;
+    Material    material;
+    CUtexObject textureObject;
 
-    int sbtIndex;
-    float3* normals;
-    short3* indices;
+    int         sbtIndex;
+    float3*     normals;
+    short3*     indices;
+    float2*     texCords;
 };
 
 template <typename T>

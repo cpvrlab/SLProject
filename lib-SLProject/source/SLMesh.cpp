@@ -1280,6 +1280,10 @@ void SLMesh::uploadData() {
 
     _normalBuffer.alloc_and_upload(N);
 
+    if (Tc.data()) {
+        _textureBuffer.alloc_and_upload(Tc);
+    }
+
     if (!I16.empty()) {
         _indexShortBuffer.alloc_and_upload(I16);
     } else {
@@ -1323,6 +1327,10 @@ HitData SLMesh::createHitData() {
     hitData.sbtIndex = 0;
     hitData.normals = reinterpret_cast<float3 *>(_normalBuffer.devicePointer());
     hitData.indices = reinterpret_cast<short3 *>(_indexShortBuffer.devicePointer());
+    hitData.texCords = reinterpret_cast<float2 *>(_textureBuffer.devicePointer());
+    if (!mat()->textures().empty()) {
+        hitData.textureObject = mat()->textures()[0]->getCudaTextureObject();
+    }
     hitData.material.kn = mat()->kn();
     hitData.material.kt = mat()->kt();
     hitData.material.kr = mat()->kr();
