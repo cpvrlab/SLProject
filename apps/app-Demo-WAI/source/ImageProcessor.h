@@ -50,23 +50,34 @@ public:
     GLint nmszGxxLoc;
     GLint nmszGyyLoc;
     GLint nmszGxyLoc;
+
     GLint extractorWLoc;
     GLint extractorHLoc;
     GLint extractorTexLoc;
-    GLint extractorAtomicCounterLoc;
-    GLint extractorKpBufferLoc;
+    GLint extractorOffsetLoc;
+    GLint extractorSizeLoc;
+    GLint extractorIdxLoc;
+    GLint extractorLowCountersLoc;
+    GLint extractorHighCountersLoc;
+    GLint extractorLowImageLoc;
+    GLint extractorHighImageLoc;
 
     GLuint renderTextures[12];
     GLuint renderFBO[12];
-    GLuint outFBO[2];
-    GLuint atomicCounters[2];
-    GLuint kpBuffer;
+
+    GLuint atomicCounter;
+    GLuint highImagesFB[2];
+    GLuint lowImagesFB[2];
+
+    GLuint highImages[2];
+    GLuint lowImages[2];
+
+    GLuint highImagePBOs[2];
+    GLuint lowImagePBOs[2];
 
     GLuint vao;
     GLuint vbo;
     GLuint vboi;
-    GLuint outTexture[2];
-    GLuint pbo[2];
     int curr;
     int ready;
     int m_w, m_h;
@@ -75,13 +86,13 @@ public:
     ImageProcessor();
     ImageProcessor(int w, int h);
 
-    void resetAtomicCounter();
     void init(int w, int h);
-    void initAtomicCounters();
     void initShaders();
     void initVBO();
     void initTextureBuffers(int width, int height);
-    void initKeypointBuffers(int nb_elements);
+
+    void clearCounterBuffer();
+    void initKeypointBuffers();
     void initFBO();
     void setTextureParameters();
 

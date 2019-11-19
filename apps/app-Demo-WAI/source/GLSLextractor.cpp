@@ -1171,27 +1171,7 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     imgProc.gpu_kp();
     imgProc.readResult(_keypoints);
 
-    /*
-    mutex mymutex;
 
-    parallel_for_(Range(0, m.rows * m.cols), [&](const Range& range) {
-        for (int r = range.start; r < range.end; r++)
-        {
-            int            i  = r / m.cols;
-            int            j  = r % m.cols;
-            if (i >= 15 && j >= 15 && i < m.rows - 15 && j < m.cols - 15 && m.ptr<uchar>(i)[j] > 0)
-            {
-                mymutex.lock();
-                _keypoints.push_back(KeyPoint(Point2f(j, i), 1));
-                mymutex.unlock();
-            }
-        }
-    });
-    */
-
-    AVERAGE_TIMING_STOP("Get Keypoint");
-
-    AVERAGE_TIMING_START("DESC");
     if (_keypoints.size() == 0)
     {
         _descriptors.release();
@@ -1212,6 +1192,6 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     old2 = old.clone();
     old = image.clone();
 
-    AVERAGE_TIMING_STOP("DESC");
+    AVERAGE_TIMING_STOP("Get Keypoint");
 }
 
