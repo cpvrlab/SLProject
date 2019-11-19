@@ -114,6 +114,7 @@ public: //! Public static instance getter for singleton pattern
     void moveCapturePosition(int n);
 
     CVMat       lastFrame;          //!< last frame grabbed in RGB
+    CVMat       lastFrameFull;      //!< last frame grabbed in RGB and full resolution
     CVMat       lastFrameGray;      //!< last frame in grayscale
     CVPixFormat format;             //!< GL pixel format
     CVSize      captureSize;        //!< size of captured frame

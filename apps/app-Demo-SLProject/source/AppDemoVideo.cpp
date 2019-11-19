@@ -81,8 +81,7 @@ bool onUpdateVideo()
                 sv->camera()->fov(ac->cameraFovVDeg());
             }
         }
-        else //..............................................................
-          if (ac->state() == CS_calibrateStream || ac->state() == CS_calibrateGrab)
+        else if (ac->state() == CS_calibrateStream || ac->state() == CS_calibrateGrab)
         {
             ac->findChessboard(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, true);
             int imgsToCap = ac->numImgsToCapture();
@@ -99,8 +98,7 @@ bool onUpdateVideo()
             }
             s->info(ss.str());
         }
-        else //..............................................................
-          if (ac->state() == CS_startCalculating)
+        else if (ac->state() == CS_startCalculating)
         {
             if (ac->calculate())
             {
@@ -197,6 +195,7 @@ bool onUpdateVideo()
         CVTracked::trackingTimesMS.set(SLApplication::timeMS() - trackingTimeStartMS);
         return true;
     }
+
     return false;
 }
 //-----------------------------------------------------------------------------

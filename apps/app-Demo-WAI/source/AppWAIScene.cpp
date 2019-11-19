@@ -35,17 +35,18 @@ void AppWAIScene::rebuild()
     SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
     SLfloat     l = 0.593f, b = 0.466f, h = 0.257f;
     //SLBox*      box1     = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
-    SLBox*  box1     = new SLBox(0.0f, 0.0f, 0.0f, 0.355f, 0.2f, 0.1f, "Box 1", yellow);
+    //SLBox*  box1     = new SLBox(0.0f, 0.0f, 0.0f, 0.355f, 0.2f, 0.1f, "Box 1", yellow);
+    SLBox*  box1     = new SLBox(0.0f, 0.0f, 0.0f, 10.0f, 5.0f, 3.0f, "Box 1", yellow);
     SLNode* boxNode1 = new SLNode(box1, "boxNode1");
     //boxNode1->rotate(-45.0f, 1.0f, 0.0f, 0.0f);
-    //boxNode1->translate(10.0f, -5.0f, -0.1f);
-    boxNode1->translate(0.316, -1.497f, -0.1f);
-    SLBox*  box2     = new SLBox(0.0f, 0.0f, 0.0f, 0.355f, 0.2f, 0.1f, "Box 2", yellow);
-    SLNode* boxNode2 = new SLNode(box2, "boxNode2");
+    boxNode1->translate(10.0f, -5.0f, 15.0f);
+    //boxNode1->translate(0.316, -1.497f, -0.1f);
+    //SLBox*  box2     = new SLBox(0.0f, 0.0f, 0.0f, 0.355f, 0.2f, 0.1f, "Box 2", yellow);
+    //SLNode* boxNode2 = new SLNode(box2, "boxNode2");
     SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
-    SLBox*  box3     = new SLBox(0.0f, 0.0f, 0.0f, 1.745f, 0.745, 0.81, "Box 2", yellow);
-    SLNode* boxNode3 = new SLNode(box3, "boxNode3");
-    boxNode3->translate(2.561f, -5.147f, -0.06f);
+    //SLBox*  box3     = new SLBox(0.0f, 0.0f, 0.0f, 1.745f, 0.745, 0.81, "Box 3", yellow);
+    //SLNode* boxNode3 = new SLNode(box3, "boxNode3");
+    //boxNode3->translate(2.561f, -5.147f, -0.06f);
 
     //boxNode->addChild(axisNode);
 
@@ -81,7 +82,8 @@ void AppWAIScene::rebuild()
     //setup scene
     rootNode->addChild(light1);
     rootNode->addChild(boxNode1);
-    rootNode->addChild(boxNode2);
-    rootNode->addChild(boxNode3);
+    rootNode->addChild(axisNode);
+    //rootNode->addChild(boxNode2);
+    //rootNode->addChild(boxNode3);
     rootNode->addChild(mapNode);
 }

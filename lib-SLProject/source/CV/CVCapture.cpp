@@ -454,7 +454,9 @@ void CVCapture::adjustForSL(float viewportWdivH)
 
     // Reset calibrated image size
     if (lastFrame.size() != activeCalib->imageSize())
-        activeCalib->imageSize(lastFrame.size());
+    {
+        activeCalib->adaptForNewResolution(lastFrame.size());
+    }
 
     _captureTimesMS.set(_timer.elapsedTimeInMilliSec() - startCaptureTimeMS);
 }

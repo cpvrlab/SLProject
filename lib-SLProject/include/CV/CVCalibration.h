@@ -73,7 +73,7 @@ selfie camera (our secondary) and the back camera is the our main camera.
 */
 class CVCalibration
 {
-    public:
+public:
     CVCalibration();
 
     bool load(const string& calibDir,
@@ -115,8 +115,10 @@ class CVCalibration
         if (newSize != _imageSize)
         {
             //if (_state == CS_calibrated)
+            //{
             //    adaptForNewResolution(newSize);
-            //save();
+            //    save();
+            //}
             //else
             {
                 clear();
@@ -207,7 +209,7 @@ class CVCalibration
         }
     }
 
-    private:
+private:
     void calcCameraFov();
 
     ///////////////////////////////////////////////////////////////////////////////////

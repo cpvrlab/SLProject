@@ -34,6 +34,7 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
     _extractors.push_back("SURF extractor th = 2000");
     _extractors.push_back("ORB extractor nf = 1000");
     _extractors.push_back("ORB extractor nf = 2000");
+    _extractors.push_back("ORB extractor nf = 4000");
     _extractors.push_back("GLSL Hessian extractor");
 
     _currentId       = 2;
@@ -84,6 +85,8 @@ KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
         case 7:
             return orbExtractor(2000);
         case 8:
+            return orbExtractor(4000);
+        case 9:
             return glslExtractor();
     }
     return surfExtractor(1000);
