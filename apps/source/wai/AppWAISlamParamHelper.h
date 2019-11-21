@@ -59,6 +59,8 @@ static bool extractSlamMapInfosFromFileName(std::string   fileName,
 {
     bool result = false;
 
+    fileName = Utils::getFileNameWOExt(fileName);
+
     std::vector<std::string> stringParts;
     Utils::splitString(fileName, '_', stringParts);
 
@@ -114,6 +116,13 @@ static std::string constructSlamVideoDir(std::string locationsRootDir, std::stri
 static std::string constructSlamMapFileName(std::string location, std::string area, std::string dateTime = "")
 {
     std::string result = constructSlamMapIdentifierString(location, area, dateTime) + ".json";
+
+    return result;
+}
+
+static std::string constructSlamMarkerDir(std::string locationsRootDir, std::string location, std::string area)
+{
+    std::string result = constructSlamAreaDir(locationsRootDir, location, area) + "markers/";
 
     return result;
 }
