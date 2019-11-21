@@ -557,24 +557,12 @@ void SLGLTexture::buildCudaTexture() {
         tex_desc.addressMode[0]      = CU_TR_ADDRESS_MODE_WRAP;
         tex_desc.addressMode[1]      = CU_TR_ADDRESS_MODE_WRAP;
         tex_desc.filterMode          = CU_TR_FILTER_MODE_LINEAR;
+        tex_desc.flags               = CU_TRSF_NORMALIZED_COORDINATES;
         tex_desc.maxAnisotropy       = maxAnisotropy;
         tex_desc.maxMipmapLevelClamp = 99;
         tex_desc.minMipmapLevelClamp = 0;
-        tex_desc.borderColor[0]      = 1.0f;
-
-//        CUDA_RESOURCE_VIEW_DESC view_desc = {};
-//        view_desc.format = CU_RES_VIEW_FORMAT_UINT_4X8;
-//        view_desc.width = width();
-//        view_desc.height = height();
 
         CUDA_CHECK( cuTexObjectCreate(&_cudaTextureObject, &res_desc, &tex_desc, nullptr) );
-
-        CUDA_RESOURCE_VIEW_DESC rs;
-        cuTexObjectGetResourceViewDesc(&rs, _cudaTextureObject);
-
-        CUDA_ARRAY_DESCRIPTOR ar;
-        cuArrayGetDescriptor(&ar, texture_ptr);
-
         CUDA_CHECK( cuGraphicsUnmapResources(1, &_cudaGraphicsResource, SLApplication::stream) );
     }
 }

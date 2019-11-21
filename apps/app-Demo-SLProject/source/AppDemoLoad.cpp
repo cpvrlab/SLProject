@@ -100,7 +100,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Minimal texture mapping example with one light source.");
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture("Testmap_0512_C.png");
+        SLGLTexture* texC = new SLGLTexture("earth1024_C.jpg");
         SLMaterial*  m1   = new SLMaterial("m1", texC);
 
         // Create a scene group node
