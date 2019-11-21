@@ -22,17 +22,12 @@ extern "C" __global__ void __anyhit__radiance()
 extern "C" __global__ void __anyhit__occlusion()
 {
     auto *rt_data = reinterpret_cast<HitData *>( optixGetSbtDataPointer());
+    float lighted = getLighted();
     if (length(rt_data->material.emissive_color) > 0.0f) {
-        // If the hit material is emissive set this as the light color
-        setColor(rt_data->material.emissive_color);
+        setLighted(lighted + 1.0f);
     } else {
         // Add the kt value of the hit material to the occlusion value
-        float occlusion = getOcclusion() + (1.0f - rt_data->material.kt);
-        setOcclusion(occlusion);
-        // If the occlusion reaches one then we can terminate the ray
-        if(occlusion >= 1) {
-            optixTerminateRay();
-        }
+        setLighted(lighted - (1.0f - rt_data->material.kt));
     }
 }
 
@@ -82,9 +77,8 @@ extern "C" __global__ void __closesthit__radiance() {
     // calculate hit point
     const float3 P = optixGetWorldRayOrigin() + optixGetRayTmax() * ray_dir;
 
-    //initialize color
+    // initialize color
     float4 color = make_float4(0.0f);
-
     {
         float4 local_color      = make_float4(0.0f);
         float4 specular_color   = make_float4(0.0f);;
@@ -106,11 +100,7 @@ extern "C" __global__ void __closesthit__radiance() {
             // Blinn specular reflection
             const float3 H = normalize(L - ray_dir); // half vector between light & eye
 
-            uint32_t p0 = float_as_int( 1.0f );
-            uint32_t p1 = float_as_int( 1.0f );
-            uint32_t p2 = float_as_int( 1.0f );
-            uint32_t p3 = float_as_int( 1.0f );
-            uint32_t p4 = float_as_int( 0.0f );
+            uint32_t p0 = float_as_int( 0.0f );
             if ( nDl > 0.0f)
             {
                 // Send shadow ray
@@ -126,28 +116,28 @@ extern "C" __global__ void __closesthit__radiance() {
                         RAY_TYPE_OCCLUSION,        // SBT offset
                         RAY_TYPE_COUNT,            // SBT stride
                         RAY_TYPE_OCCLUSION,     // missSBTIndex
-                        p0, p1, p2, p3, p4 // payload
+                        p0 // payload
                 );
             }
 
-            float4 light_color = make_float4(int_as_float( p0 ), int_as_float( p1 ), int_as_float( p2 ), int_as_float( p3 ));
-            float occlusion = int_as_float( p4 );
-            occlusion = min(occlusion, 1.0f);
+            float lighted = int_as_float( p0 );
+            lighted = max(lighted, 0.0f);
 
             // Phong shading
-            if (occlusion < 1) {
-                local_color += (rt_data->material.diffuse_color * max(nDl, 0.0f))                                       // diffuse
-                         * (1.0f - occlusion)                                                                            // occlusion
-                         * light_color                                                                                   // multiply with light color
-                         * lightAttenuation(params.lights[i], Ldist);                                                    // multiply with light attenuation
-                specular_color += (rt_data->material.specular_color * powf( max(dot(N, H), 0.0), rt_data->material.shininess))    // specular
-                         * (1.0f - occlusion)                                                                            // occlusion
-                         * light_color                                                                                   // multiply with light color
-                         * lightAttenuation(params.lights[i], Ldist);                                                    // multiply with light attenuation
+            if (lighted > 0) {
+                local_color += (rt_data->material.diffuse_color * max(nDl, 0.0f))                                               // diffuse
+                         * lighted                                                                                              // lighted
+                         * params.lights[i].diffuse_color                                                                       // multiply with diffuse light color
+                         * lightAttenuation(params.lights[i], Ldist);                                                           // multiply with light attenuation
+                specular_color += (rt_data->material.specular_color * powf( max(dot(N, H), 0.0), rt_data->material.shininess))  // specular
+                         * lighted                                                                                              // lighted
+                         * params.lights[i].specular_color                                                                      // multiply with specular light color
+                         * lightAttenuation(params.lights[i], Ldist);                                                           // multiply with light attenuation
             }
-            local_color += rt_data->material.ambient_color * lightAttenuation(params.lights[i], Ldist);
+            local_color += rt_data->material.ambient_color * lightAttenuation(params.lights[i], Ldist) * params.lights[i].ambient_color;
         }
 
+        // multiply local color with texture color and add specular color afterwards
         color += (local_color * texture_color) + specular_color;
     }
 
@@ -155,9 +145,6 @@ extern "C" __global__ void __closesthit__radiance() {
     if(getDepth() < params.max_depth && rt_data->material.kr > 0.0f) {
         color += (traceRadianceRay(params.handle, P, reflect(ray_dir, N), getRefractionIndex(), getDepth() + 1) * rt_data->material.kr);
     }
-
-    // The color value so far is only as strong as the light that does not pass through the object
-//    color *= (1.0f - rt_data->material.kt);
 
     // Send refraction ray
     if(getDepth() < params.max_depth && rt_data->material.kt > 0.0f) {

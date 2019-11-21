@@ -20,12 +20,12 @@ static __forceinline__ __device__ unsigned int getDepth() {
     return optixGetPayload_5();
 }
 
-static __forceinline__ __device__ void setOcclusion(float occlusion) {
-    optixSetPayload_4(float_as_int(occlusion));
+static __forceinline__ __device__ void setLighted(float lighted) {
+    optixSetPayload_0(float_as_int(lighted));
 }
 
-static __forceinline__ __device__ float getOcclusion() {
-    return int_as_float(optixGetPayload_4());
+static __forceinline__ __device__ float getLighted() {
+    return int_as_float(optixGetPayload_0());
 }
 
 static __forceinline__ __device__ float lightAttenuation(Light light, float dist) {

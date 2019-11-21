@@ -313,10 +313,13 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
         if(light->isOn()) {
             SLVec3f position = { light->positionWS().x, light->positionWS().y, light->positionWS().z};
             lights.push_back({
-                                     make_float3(position),
-                                     light->kc(),
-                                     light->kl(),
-                                     light->kq()
+                                    make_float4(light->diffuse()),
+                                    make_float4(light->ambient()),
+                                    make_float4(light->specular()),
+                                    make_float3(position),
+                                    light->kc(),
+                                    light->kl(),
+                                    light->kq()
             });
             light_count++;
         }

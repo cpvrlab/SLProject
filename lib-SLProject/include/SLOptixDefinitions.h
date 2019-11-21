@@ -23,6 +23,9 @@ struct Material
 
 struct Light
 {
+    float4  diffuse_color;
+    float4  ambient_color;
+    float4  specular_color;
     float3  position;
     float   kc;
     float   kl;
