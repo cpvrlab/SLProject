@@ -108,7 +108,7 @@ extern "C" __global__ void __closesthit__radiance() {
                         params.handle,
                         P,
                         L,
-                        1e-3f,                         // tmin
+                        -1e-3f,                         // tmin
                         Ldist,                               // tmax
                         0.0f,                       // rayTime
                         OptixVisibilityMask( 1 ),
@@ -121,7 +121,6 @@ extern "C" __global__ void __closesthit__radiance() {
             }
 
             float lighted = int_as_float( p0 );
-            lighted = max(lighted, 0.0f);
 
             // Phong shading
             if (lighted > 0) {
@@ -143,7 +142,8 @@ extern "C" __global__ void __closesthit__radiance() {
 
     // Send reflection ray
     if(getDepth() < params.max_depth && rt_data->material.kr > 0.0f) {
-        color += (traceRadianceRay(params.handle, P, reflect(ray_dir, N), getRefractionIndex(), getDepth() + 1) * rt_data->material.kr);
+        float3 R = reflect(ray_dir, N);
+        color += (traceReflectionRay(params.handle, P, R, getDepth() + 1) * rt_data->material.kr);
     }
 
     // Send refraction ray
@@ -166,7 +166,7 @@ extern "C" __global__ void __closesthit__radiance() {
         } else {
             T = 2.0f * (dot(-ray_dir, N)) * N  + ray_dir;
         }
-        color += (traceRadianceRay(params.handle, P, T, refractionIndex, getDepth() + 1) * rt_data->material.kt);
+        color += (traceRefractionRay(params.handle, P, T, refractionIndex, getDepth() + 1) * rt_data->material.kt);
     }
 
     // Set color to payload
