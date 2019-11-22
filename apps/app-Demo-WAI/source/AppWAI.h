@@ -24,7 +24,6 @@
 #include <AppDemoGuiPrefs.h>
 #include <AppDemoGuiAbout.h>
 #include <AppDemoGuiError.h>
-#include "ImageProcessor.h"
 
 struct OrbSlamStartResult
 {
@@ -90,7 +89,6 @@ public:
     static SLGLTexture*       videoImage;
     static SLGLTexture*       testTexture;
     static ofstream           gpsDataStream;
-    static ImageProcessor     imgProc;
 
     static SlamParams* currentSlamParams;
 
