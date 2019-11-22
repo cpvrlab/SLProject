@@ -317,6 +317,10 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
                                     make_float4(light->ambient()),
                                     make_float4(light->specular()),
                                     make_float3(position),
+                                    light->spotCutOffDEG(),
+                                    light->spotExponent(),
+                                    light->spotCosCut(),
+                                    make_float3(light->spotDirWS()),
                                     light->kc(),
                                     light->kl(),
                                     light->kq()

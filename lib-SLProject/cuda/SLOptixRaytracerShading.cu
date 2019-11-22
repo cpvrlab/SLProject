@@ -89,8 +89,9 @@ extern "C" __global__ void __closesthit__radiance() {
 
         // calculate local illumination for every light source
         for (int i = 0; i < params.numLights; i++) {
-            const float Ldist = length(params.lights[i].position - P);
-            const float3 L = normalize(params.lights[i].position - P);
+            const Light light = params.lights[i];
+            const float Ldist = length(light.position - P);
+            const float3 L = normalize(light.position - P);
             const float nDl = dot(L, N);
 
             // Phong specular reflection
@@ -109,7 +110,7 @@ extern "C" __global__ void __closesthit__radiance() {
                         P,
                         L,
                         -1e-3f,                         // tmin
-                        Ldist,                               // tmax
+                        Ldist + 1e-3f,                               // tmax
                         0.0f,                       // rayTime
                         OptixVisibilityMask( 1 ),
                         OPTIX_RAY_FLAG_DISABLE_CLOSESTHIT | OPTIX_RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
@@ -118,22 +119,43 @@ extern "C" __global__ void __closesthit__radiance() {
                         RAY_TYPE_OCCLUSION,     // missSBTIndex
                         p0 // payload
                 );
-            }
+                float lighted = int_as_float( p0 );
 
-            float lighted = int_as_float( p0 );
+                // calculate spot effect if light is a spotlight
+                float spotEffect = 1.0f;;
+                if (lighted > 0.0f && light.spotCutOffDEG < 180.0f)
+                {
+                    float LdS = max(dot(-L, light.spotDirWS), 0.0f);
 
-            // Phong shading
-            if (lighted > 0) {
-                local_color += (rt_data->material.diffuse_color * max(nDl, 0.0f))                                               // diffuse
-                         * lighted                                                                                              // lighted
-                         * params.lights[i].diffuse_color                                                                       // multiply with diffuse light color
-                         * lightAttenuation(params.lights[i], Ldist);                                                           // multiply with light attenuation
-                specular_color += (rt_data->material.specular_color * powf( max(dot(N, H), 0.0), rt_data->material.shininess))  // specular
-                         * lighted                                                                                              // lighted
-                         * params.lights[i].specular_color                                                                      // multiply with specular light color
-                         * lightAttenuation(params.lights[i], Ldist);                                                           // multiply with light attenuation
+                    // check if point is in spot cone
+                    if (LdS > light.spotCosCut)
+                    {
+                        spotEffect = pow(LdS, light.spotExponent);
+                    }
+                    else
+                    {
+                        lighted    = 0.0f;
+                        spotEffect = 0.0f;
+                    }
+                }
+
+                // Phong shading
+                if (lighted > 0) {
+                    local_color += (rt_data->material.diffuse_color * max(nDl, 0.0f))                                               // diffuse
+                                   * lighted                                                                                              // lighted
+                                   * light.diffuse_color                                                                       // multiply with diffuse light color
+                                   * lightAttenuation(light, Ldist)                                                             // multiply with light attenuation
+                                   * spotEffect;
+                    specular_color += (rt_data->material.specular_color * powf( max(dot(N, H), 0.0), rt_data->material.shininess))  // specular
+                                      * lighted                                                                                              // lighted
+                                      * light.specular_color                                                                      // multiply with specular light color
+                                      * lightAttenuation(light, Ldist)                                                          // multiply with light attenuation
+                                      * spotEffect;
+                }
             }
-            local_color += rt_data->material.ambient_color * lightAttenuation(params.lights[i], Ldist) * params.lights[i].ambient_color;
+            local_color += rt_data->material.ambient_color
+                    * lightAttenuation(light, Ldist)
+                    * light.ambient_color;
         }
 
         // multiply local color with texture color and add specular color afterwards

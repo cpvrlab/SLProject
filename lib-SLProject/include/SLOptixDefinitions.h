@@ -27,6 +27,10 @@ struct Light
     float4  ambient_color;
     float4  specular_color;
     float3  position;
+    float   spotCutOffDEG;
+    float   spotExponent;
+    float   spotCosCut;
+    float3  spotDirWS;
     float   kc;
     float   kl;
     float   kq;
