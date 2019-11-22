@@ -1207,7 +1207,7 @@ void SLNode::createInstanceAccelerationStructure() {
         if (child->optixTraversableHandle()) {
             OptixInstance instance;
 
-            const SLMat4f mat4x4 = updateAndGetWM();
+            const SLMat4f mat4x4 = om();
             float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
                                    mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
                                    mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
@@ -1226,7 +1226,7 @@ void SLNode::createInstanceAccelerationStructure() {
     for(auto mesh : meshes()) {
         OptixInstance instance;
 
-        const SLMat4f& mat4x4 = updateAndGetWM();
+        const SLMat4f& mat4x4 = om();
         float transform[12] = {mat4x4.m(0), mat4x4.m(4), mat4x4.m(8), mat4x4.m(12),
                                mat4x4.m(1), mat4x4.m(5), mat4x4.m(9), mat4x4.m(13),
                                mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
