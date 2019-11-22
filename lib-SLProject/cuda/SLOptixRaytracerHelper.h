@@ -79,13 +79,6 @@ static __device__ __inline__ float4 traceReflectionRay(
         float3 origin,
         float3 direction,
         unsigned int depth) {
-    unsigned int ray_flags;
-    if (optixIsTriangleBackFaceHit()) {
-        ray_flags = OPTIX_RAY_FLAG_DISABLE_ANYHIT | OPTIX_RAY_FLAG_CULL_FRONT_FACING_TRIANGLES;
-    } else {
-        ray_flags = OPTIX_RAY_FLAG_DISABLE_ANYHIT | OPTIX_RAY_FLAG_CULL_BACK_FACING_TRIANGLES;
-    }
-
     float4 payload_rgb = make_float4(0.5f, 0.5f, 0.5f, 1.0f);
     uint32_t p0, p1, p2, p3, p4;
     p0 = float_as_int(payload_rgb.x);
@@ -97,11 +90,11 @@ static __device__ __inline__ float4 traceReflectionRay(
             handle,
             origin,
             direction,
-            0.1f,  // tmin
+            1.e-4f,  // tmin
             1e16f,  // tmax
             0.0f,                // rayTime
             OptixVisibilityMask( 2 ),
-            ray_flags,
+            OPTIX_RAY_FLAG_DISABLE_ANYHIT,
             RAY_TYPE_RADIANCE,                   // SBT offset
             RAY_TYPE_COUNT,                   // SBT stride
             RAY_TYPE_RADIANCE,                   // missSBTIndex
