@@ -254,9 +254,10 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv) {
         mesh->createMeshAccelerationStructure();
     }
 
-    scene->root3D()->createInstanceAccelerationStructure();
-
     _sbt = _createShaderBindingTable(meshes);
+
+    scene->root3D()->createInstanceAccelerationStructureTree();
+//    scene->root3D()->createInstanceAccelerationStructureFlat();
 
     OptixStackSizes stack_sizes = {};
     OPTIX_CHECK( optixUtilAccumulateStackSizes( _raygen_prog_group,    &stack_sizes ) );
@@ -278,7 +279,8 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv) {
                               directCallableStackSizeFromTraversal,
                               directCallableStackSizeFromState,
                               continuationStackSize,
-                              scene->maxTreeDepth()) );
+                              scene->maxTreeDepth()
+                              ) );
 }
 
 void SLOptixRaytracer::updateScene(SLSceneView *sv) {

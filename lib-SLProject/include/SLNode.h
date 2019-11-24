@@ -152,7 +152,8 @@ class SLNode
     virtual void      dumpRec();
     void              setDrawBitsRec(SLuint bit, SLbool state);
     void              setPrimitiveTypeRec(SLGLPrimitiveType primitiveType);
-    void              createInstanceAccelerationStructure();
+    void              createInstanceAccelerationStructureTree();
+    void              createInstanceAccelerationStructureFlat();
 
     // Mesh methods (see impl. for details)
     SLint        numMeshes() { return (SLint)_meshes.size(); }
@@ -308,6 +309,7 @@ class SLNode
     void findChildrenHelper(SLuint           drawbit,
                             vector<SLNode*>& list,
                             SLbool           findRecursive);
+    void createOptixInstances(std::vector<OptixInstance>&);
 
     protected:
     SLNode*         _parent;         //!< pointer to the parent node

@@ -26,7 +26,7 @@ extern "C" __global__ void __anyhit__occlusion()
     if (length(rt_data->material.emissive_color) > 0.0f) {
         setLighted(lighted + 1.0f);
     } else {
-        // Add the kt value of the hit material to the occlusion value
+        // Subtract the kt value of the hit material from the lighted value
         setLighted(lighted - (1.0f - rt_data->material.kt));
     }
 }
@@ -101,9 +101,9 @@ extern "C" __global__ void __closesthit__radiance() {
             // Blinn specular reflection
             const float3 H = normalize(L - ray_dir); // half vector between light & eye
 
-            uint32_t p0 = float_as_int( 0.0f );
             if ( nDl > 0.0f)
             {
+                uint32_t p0 = float_as_int( 0.0f );
                 // Send shadow ray
                 optixTrace(
                         params.handle,
