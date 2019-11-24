@@ -17,7 +17,9 @@ void SLOptixAccelerationStructure::buildAccelerationStructure(OptixBuildInput bu
     OptixDeviceContext context = SLApplication::context;
 
     OptixAccelBuildOptions accel_options = {};
-    accel_options.buildFlags             = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_ALLOW_RANDOM_VERTEX_ACCESS;
+    accel_options.buildFlags             =  OPTIX_BUILD_FLAG_ALLOW_COMPACTION |
+                                            OPTIX_BUILD_FLAG_ALLOW_RANDOM_VERTEX_ACCESS |
+                                            OPTIX_BUILD_FLAG_PREFER_FAST_TRACE;
     accel_options.operation              = OPTIX_BUILD_OPERATION_BUILD;
 
     OptixAccelBufferSizes accel_buffer_sizes;

@@ -25,6 +25,8 @@
 
 #include <utility>
 
+unsigned int SLNode::instanceIndex = 0;
+
 //-----------------------------------------------------------------------------
 // Static update counter
 SLuint SLNode::numWMUpdates = 0;
@@ -1213,7 +1215,7 @@ void SLNode::createInstanceAccelerationStructureTree() {
                                    mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
             memcpy(instance.transform, transform, sizeof(float)*12);
 
-            instance.instanceId         = 0;
+            instance.instanceId         = instanceIndex++;
             instance.visibilityMask     = 255;
             instance.flags              = OPTIX_INSTANCE_FLAG_NONE;
             instance.traversableHandle  = child->optixTraversableHandle();
@@ -1232,7 +1234,7 @@ void SLNode::createInstanceAccelerationStructureTree() {
                                mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
         memcpy(instance.transform, transform, sizeof(float)*12);
 
-        instance.instanceId         = 0;
+        instance.instanceId         = instanceIndex++;
         if (mesh->mat()->emissive().length() > 0) {
             instance.visibilityMask     = 253;
         } else {
@@ -1294,7 +1296,7 @@ void SLNode::createOptixInstances(std::vector<OptixInstance>& instances) {
                                mat4x4.m(2), mat4x4.m(6), mat4x4.m(10), mat4x4.m(14)};
         memcpy(instance.transform, transform, sizeof(float)*12);
 
-        instance.instanceId         = 0;
+        instance.instanceId         = instanceIndex++;
         if (mesh->mat()->emissive().length() > 0) {
             instance.visibilityMask     = 253;
         } else {

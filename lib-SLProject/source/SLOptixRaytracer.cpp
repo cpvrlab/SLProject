@@ -65,7 +65,8 @@ void SLOptixRaytracer::setupOptix() {
 #endif
 
     _pipeline_compile_options.usesMotionBlur        = false;
-    _pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
+//    _pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
+    _pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
     _pipeline_compile_options.numPayloadValues      = 7;
     _pipeline_compile_options.numAttributeValues    = 2;
     _pipeline_compile_options.pipelineLaunchParamsVariableName = "params";
@@ -103,6 +104,8 @@ void SLOptixRaytracer::setupOptix() {
     occlusion_hitgroup_prog_group_desc.kind                          = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
     occlusion_hitgroup_prog_group_desc.hitgroup.moduleAH             = _shadingModule;
     occlusion_hitgroup_prog_group_desc.hitgroup.entryFunctionNameAH  = "__anyhit__occlusion";
+    occlusion_hitgroup_prog_group_desc.hitgroup.moduleCH             = nullptr;
+    occlusion_hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH  = nullptr;
     _occlusion_hit_group = _createProgram(occlusion_hitgroup_prog_group_desc);
 
     OptixProgramGroup program_groups[] = {
@@ -256,31 +259,32 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv) {
 
     _sbt = _createShaderBindingTable(meshes);
 
-    scene->root3D()->createInstanceAccelerationStructureTree();
-//    scene->root3D()->createInstanceAccelerationStructureFlat();
+    SLNode::instanceIndex = 0;
+//    scene->root3D()->createInstanceAccelerationStructureTree();
+    scene->root3D()->createInstanceAccelerationStructureFlat();
 
-    OptixStackSizes stack_sizes = {};
-    OPTIX_CHECK( optixUtilAccumulateStackSizes( _raygen_prog_group,    &stack_sizes ) );
-    OPTIX_CHECK( optixUtilAccumulateStackSizes( _radiance_miss_group,  &stack_sizes ) );
-    OPTIX_CHECK( optixUtilAccumulateStackSizes( _occlusion_miss_group, &stack_sizes ) );
-    OPTIX_CHECK( optixUtilAccumulateStackSizes( _radiance_hit_group,   &stack_sizes ) );
-    OPTIX_CHECK( optixUtilAccumulateStackSizes( _occlusion_hit_group,  &stack_sizes ) );
-    unsigned int directCallableStackSizeFromTraversal;
-    unsigned int directCallableStackSizeFromState;
-    unsigned int continuationStackSize;
-    OPTIX_CHECK( optixUtilComputeStackSizes(&stack_sizes,
-            _maxDepth,
-            0,
-            0,
-            &directCallableStackSizeFromTraversal,
-            &directCallableStackSizeFromState,
-            &continuationStackSize) );
-    OPTIX_CHECK( optixPipelineSetStackSize(_pipeline,
-                              directCallableStackSizeFromTraversal,
-                              directCallableStackSizeFromState,
-                              continuationStackSize,
-                              scene->maxTreeDepth()
-                              ) );
+//    OptixStackSizes stack_sizes = {};
+//    OPTIX_CHECK( optixUtilAccumulateStackSizes( _raygen_prog_group,    &stack_sizes ) );
+//    OPTIX_CHECK( optixUtilAccumulateStackSizes( _radiance_miss_group,  &stack_sizes ) );
+//    OPTIX_CHECK( optixUtilAccumulateStackSizes( _occlusion_miss_group, &stack_sizes ) );
+//    OPTIX_CHECK( optixUtilAccumulateStackSizes( _radiance_hit_group,   &stack_sizes ) );
+//    OPTIX_CHECK( optixUtilAccumulateStackSizes( _occlusion_hit_group,  &stack_sizes ) );
+//    unsigned int directCallableStackSizeFromTraversal;
+//    unsigned int directCallableStackSizeFromState;
+//    unsigned int continuationStackSize;
+//    OPTIX_CHECK( optixUtilComputeStackSizes(&stack_sizes,
+//            _maxDepth,
+//            0,
+//            0,
+//            &directCallableStackSizeFromTraversal,
+//            &directCallableStackSizeFromState,
+//            &continuationStackSize) );
+//    OPTIX_CHECK( optixPipelineSetStackSize(_pipeline,
+//                              directCallableStackSizeFromTraversal,
+//                              directCallableStackSizeFromState,
+//                              continuationStackSize,
+//                              scene->maxTreeDepth()
+//                              ) );
 }
 
 void SLOptixRaytracer::updateScene(SLSceneView *sv) {

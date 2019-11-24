@@ -1315,6 +1315,9 @@ void SLMesh::createMeshAccelerationStructure() {
     triangle_input.triangleArray.numVertices                 = P.size();
     triangle_input.triangleArray.flags                       = triangle_input_flags;
     triangle_input.triangleArray.numSbtRecords               = 1;
+    triangle_input.triangleArray.sbtIndexOffsetBuffer        = 0;
+    triangle_input.triangleArray.sbtIndexOffsetSizeInBytes   = 0;
+    triangle_input.triangleArray.sbtIndexOffsetStrideInBytes = 0;
 
     _sbtIndex = RAY_TYPE_COUNT * meshIndex++;
 

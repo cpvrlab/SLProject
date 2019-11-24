@@ -29,6 +29,7 @@ extern "C" __global__ void __anyhit__occlusion()
         // Subtract the kt value of the hit material from the lighted value
         setLighted(lighted - (1.0f - rt_data->material.kt));
     }
+    optixIgnoreIntersection();
 }
 
 extern "C" __global__ void __closesthit__radiance() {
@@ -119,28 +120,28 @@ extern "C" __global__ void __closesthit__radiance() {
                         RAY_TYPE_OCCLUSION,     // missSBTIndex
                         p0 // payload
                 );
-                float lighted = int_as_float( p0 );
-
-                // calculate spot effect if light is a spotlight
-                float spotEffect = 1.0f;;
-                if (lighted > 0.0f && light.spotCutOffDEG < 180.0f)
-                {
-                    float LdS = max(dot(-L, light.spotDirWS), 0.0f);
-
-                    // check if point is in spot cone
-                    if (LdS > light.spotCosCut)
-                    {
-                        spotEffect = pow(LdS, light.spotExponent);
-                    }
-                    else
-                    {
-                        lighted    = 0.0f;
-                        spotEffect = 0.0f;
-                    }
-                }
+                float lighted = min(int_as_float( p0 ), 1.0f);
 
                 // Phong shading
                 if (lighted > 0) {
+                    // calculate spot effect if light is a spotlight
+                    float spotEffect = 1.0f;;
+                    if (lighted > 0.0f && light.spotCutOffDEG < 180.0f)
+                    {
+                        float LdS = max(dot(-L, light.spotDirWS), 0.0f);
+
+                        // check if point is in spot cone
+                        if (LdS > light.spotCosCut)
+                        {
+                            spotEffect = powf(LdS, light.spotExponent);
+                        }
+                        else
+                        {
+                            lighted    = 0.0f;
+                            spotEffect = 0.0f;
+                        }
+                    }
+
                     local_color += (rt_data->material.diffuse_color * max(nDl, 0.0f))                                               // diffuse
                                    * lighted                                                                                              // lighted
                                    * light.diffuse_color                                                                       // multiply with diffuse light color

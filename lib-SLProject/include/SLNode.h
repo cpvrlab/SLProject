@@ -296,6 +296,8 @@ class SLNode
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 
+    static unsigned int instanceIndex;
+
     private:
     void updateWM() const;
     template<typename T>
