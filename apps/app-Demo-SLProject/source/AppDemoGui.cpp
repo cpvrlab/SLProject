@@ -549,6 +549,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "p1,p2        : %4.2f,%4.2f\n", c->p1(), c->p2());
             sprintf(m + strlen(m), "Calib. time  : %s\n", c->calibrationTime().c_str());
             sprintf(m + strlen(m), "Calib. state : %s\n", c->stateStr().c_str());
+            sprintf(m + strlen(m), "Num. caps    : %d\n", c->numCapturedImgs());
 
             if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
             {

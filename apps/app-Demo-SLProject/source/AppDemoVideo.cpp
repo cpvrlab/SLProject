@@ -160,7 +160,8 @@ bool onUpdateVideo()
                     ss << "Not calibrated. FOVH guessed: " << fovH << " degrees.";
                 s->info(ss.str());
             }
-        } //...................................................................
+        }
+        //...................................................................
 
         //copy image to video texture
         if (videoTexture)

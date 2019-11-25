@@ -33,6 +33,7 @@ void AppDemoGuiStatsVideo::buildInfos(SLScene* s, SLSceneView* sv)
         sprintf(m + strlen(m), "k1,k2,p1,p2   : %4.2f,%4.2f,%4.2f,%4.2f\n", _calib->k1(), _calib->k2(), _calib->p1(), _calib->p2());
         sprintf(m + strlen(m), "Calib. file   : %s\n", (_calib->calibDir() + _calib->calibFileName()).c_str());
         sprintf(m + strlen(m), "Calib. state  : %s\n", _calib->stateStr().c_str());
+        sprintf(m + strlen(m), "Num. caps     : %d\n", _calib->numCapturedImgs());
     }
 
     // Switch to fixed font
