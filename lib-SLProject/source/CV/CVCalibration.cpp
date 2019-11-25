@@ -745,18 +745,27 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
     if (_state != CS_calibrated) return;
 
     // new center and focal length in pixels not mm
-    float cx = (float)newSize.width * 0.5f;
-    float cy = (float)newSize.height * 0.5f;
-    float fx = cx / tanf(_cameraFovHDeg * 0.5f * Utils::DEG2RAD);
-    float fy = fx;
+    float scaleFactor     = (float)newSize.width / (float)_imageSize.width;
+    float oldHeightScaled = _imageSize.height * scaleFactor;
+    float heightDiff      = (oldHeightScaled - newSize.height) * 0.5f;
 
-    _imageSize.width  = newSize.width;
-    _imageSize.height = newSize.height;
-    _cameraMat        = (Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
+    float cx = this->cx() * scaleFactor;
+    float cy = this->cy() * scaleFactor - heightDiff;
+    float fx = this->fx() * scaleFactor;
+    float fy = this->fy() * scaleFactor;
+
+    _cameraMat = (Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
     //_distortion remains unchanged
     _calibrationTime = Utils::getDateTime2String();
 
-    save();
+    _imageSize.width  = newSize.width;
+    _imageSize.height = newSize.height;
+
+    std::cout << "_cameraMat: " << _cameraMat << std::endl;
+
+    calcCameraFov();
+
+    //save();
 }
 //-----------------------------------------------------------------------------
 //! Uploads the active calibration to the ftp server

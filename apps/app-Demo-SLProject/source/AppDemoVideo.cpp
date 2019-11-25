@@ -196,6 +196,7 @@ bool onUpdateVideo()
         CVTracked::trackingTimesMS.set(SLApplication::timeMS() - trackingTimeStartMS);
         return true;
     }
+
     return false;
 }
 //-----------------------------------------------------------------------------

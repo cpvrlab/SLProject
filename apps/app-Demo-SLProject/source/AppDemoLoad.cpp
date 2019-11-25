@@ -42,7 +42,7 @@
 #include <SLTransferFunction.h>
 
 //-----------------------------------------------------------------------------
-// Global pointers declared in AppDemoTracking
+// Global pointers declared in AppDemoVideo
 extern SLGLTexture* videoTexture;
 extern CVTracked*   tracker;
 extern SLNode*      trackedNode;
@@ -1523,7 +1523,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         k3->translation(SLVec3f(0.3f, 0.2f, -0.3f));
 
         SLMaterial* pink = new SLMaterial("cream", SLCol4f(1, 0.35f, 0.65f), SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
- 
+
         // create wall polygons
         SLfloat pL = -0.99f, pR = 0.99f; // left/right
         SLfloat pB = -0.99f, pT = 0.99f; // bottom/top
@@ -2070,7 +2070,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
         sv->viewportSameAsVideo(true);
 
-        // Create video texture on global pointer updated in AppDemoTracking
+        // Create video texture on global pointer updated in AppDemoVideo
         videoTexture   = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
         SLMaterial* m1 = new SLMaterial("VideoMat", videoTexture);
 
@@ -2118,14 +2118,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
              SLApplication::sceneID == SID_VideoCalibrateScnd) //........................................
     {
         /*
-        The tracking of markers is done in AppDemoTracking::onUpdateTracking by calling the specific
+        The tracking of markers is done in AppDemoVideo::onUpdateTracking by calling the specific
         CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
         The chessboard marker used in these scenes is also used for the camera
         calibration. The different calibration state changes are also handled in
-        AppDemoTracking::onUpdateVideo.
+        AppDemoVideo::onUpdateVideo.
         */
 
         // Setup here only the requested scene.
@@ -2157,7 +2157,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             s->name("Calibrate Scnd Cam.");
         }
 
-        // Create video texture on global pointer updated in AppDemoTracking
+        // Create video texture on global pointer updated in AppDemoVideo
         videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
@@ -2219,7 +2219,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
              SLApplication::sceneID == SID_VideoTrackArucoScnd) //.......................................
     {
         /*
-        The tracking of markers is done in AppDemoTracking::onUpdateVideo by calling the specific
+        The tracking of markers is done in AppDemoVideo::onUpdateVideo by calling the specific
         CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
@@ -2239,7 +2239,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
             s->info("Hold the Aruco board dictionary 0 into the field of view of the secondary camera. You can find the Aruco markers in the file data/Calibrations. If not all markers are tracked you may have the mirror the video horizontally.");
         }
 
-        // Create video texture on global pointer updated in AppDemoTracking
+        // Create video texture on global pointer updated in AppDemoVideo
         videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
@@ -2295,7 +2295,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_VideoTrackFeature2DMain) //...................................
     {
         /*
-        The tracking of markers is done in AppDemoTracking::onUpdateVideo by calling the specific
+        The tracking of markers is done in AppDemoVideo::onUpdateVideo by calling the specific
         CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
@@ -2305,7 +2305,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Track 2D Features");
         s->info("Augmented Reality 2D Feature Tracking: You need to print out the stones image target from the file data/calibrations/vuforia_markers.pdf");
 
-        // Create video texture on global pointer updated in AppDemoTracking
+        // Create video texture on global pointer updated in AppDemoVideo
         videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -2370,7 +2370,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
              SLApplication::sceneID == SID_VideoTrackFaceScnd) //........................................
     {
         /*
-        The tracking of markers is done in AppDemoTracking::onUpdateVideo by calling the specific
+        The tracking of markers is done in AppDemoVideo::onUpdateVideo by calling the specific
         CVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
@@ -2389,7 +2389,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
         s->info("Face and facial landmark detection.");
 
-        // Create video texture on global pointer updated in AppDemoTracking
+        // Create video texture on global pointer updated in AppDemoVideo
         videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -2438,7 +2438,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Video Sensor AR");
         s->info("Minimal scene to test the devices IMU and GPS Sensors. See the sensor information. GPS needs a few sec. to improve the accuracy.");
 
-        // Create video texture on global pointer updated in AppDemoTracking
+        // Create video texture on global pointer updated in AppDemoVideo
         videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -2503,7 +2503,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Christoffel Tower AR");
         s->info("Augmented Reality Christoffel Tower");
 
-        // Create video texture on global pointer updated in AppDemoTracking
+        // Create video texture on global pointer updated in AppDemoVideo
         videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         SLCamera* cam1 = new SLCamera("Camera 1");

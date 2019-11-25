@@ -30,11 +30,12 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
     _extractors.push_back("SURF extractor th = 800");
     _extractors.push_back("SURF extractor th = 1000");
     _extractors.push_back("SURF extractor th = 1200");
-    _extractors.push_back("SURF extractor th = 1500");
-    _extractors.push_back("SURF extractor th = 2000");
     _extractors.push_back("ORB extractor nf = 1000");
     _extractors.push_back("ORB extractor nf = 2000");
-    _extractors.push_back("GLSL Hessian");
+    _extractors.push_back("ORB extractor nf = 4000");
+    _extractors.push_back("GLSL Hessian nb kp = 64x16");
+    _extractors.push_back("GLSL Hessian nb kp = 128x16");
+    _extractors.push_back("GLSL Hessian nb kp = 256x16");
 
     _currentId       = 2;
     _iniCurrentId    = 1;
@@ -58,9 +59,9 @@ KPextractor* AppDemoGuiSlamParam::surfExtractor(int th)
     return new ORB_SLAM2::SURFextractor(th);
 }
 
-KPextractor* AppDemoGuiSlamParam::glslExtractor()
+KPextractor* AppDemoGuiSlamParam::glslExtractor(int nb_kp, float lowThrs, float highThrs)
 {
-    return new GLSLextractor(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
+    return new GLSLextractor(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows, nb_kp, lowThrs, highThrs);
 }
 
 KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
@@ -76,18 +77,21 @@ KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
         case 3:
             return surfExtractor(1200);
         case 4:
-            return surfExtractor(1500);
-        case 5:
-            return surfExtractor(2000);
-        case 6:
             return orbExtractor(1000);
-        case 7:
+        case 5:
             return orbExtractor(2000);
+        case 6:
+            return orbExtractor(4000);
+        case 7:
+            return glslExtractor(64, 0.002, 0.003);
         case 8:
-            return glslExtractor();
+            return glslExtractor(128, 0.0015, 0.002);
+        case 9:
+            return glslExtractor(256, 0.00075, 0.0015);
     }
     return surfExtractor(1000);
 }
+
 
 void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
 {
@@ -147,7 +151,7 @@ void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
         if (ImGui::Button("Change features", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
         {
             _current       = kpExtractor(_currentId);
-            _iniCurrent    = _current;//kpExtractor(_iniCurrentId);
+            _iniCurrent    = kpExtractor(_iniCurrentId);
             _markerCurrent = kpExtractor(_markerCurrentId);
             mode->setExtractor(_current, _iniCurrent, _markerCurrent);
         }

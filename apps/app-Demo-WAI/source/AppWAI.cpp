@@ -275,15 +275,9 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         return result;
     }
 
-    float videoAspectRatio = (float)videoFrameSize.width / (float)videoFrameSize.height;
-    float epsilon          = 0.01f;
-    if (cap->activeCalib->imageAspectRatio() > videoAspectRatio + epsilon ||
-        cap->activeCalib->imageAspectRatio() < videoAspectRatio - epsilon)
+    if (cap->activeCalib->imageSize() != videoFrameSize)
     {
-        result.errorString = "Calibration aspect ratio does not fit video aspect ratio.\nCalib file: " +
-                             calibrationFile + "\nVideo file: " +
-                             (!videoFile.empty() ? videoFile : "Live Video");
-        return result;
+        cap->activeCalib->adaptForNewResolution(videoFrameSize);
     }
 
     // 3. Adjust FOV of camera node according to new calibration

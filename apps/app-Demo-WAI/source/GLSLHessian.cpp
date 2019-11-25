@@ -346,11 +346,11 @@ static std::string removeEdge = "#ifdef GL_ES\n"
                                 "            pixel = det;\n"
                                 "        }\n"
                                 "    }\n"
-                               // "    else\n"
-                               // "    {\n"
-                               // "        if (r < 6.0 && fast(0.4))\n"
-                               // "            pixel = 1.0;\n"
-                               // "    }\n"
+                                /*"    else\n"
+                                "    {\n"
+                                "        if (r < 6.0 && fast(0.4))\n"
+                                "            pixel = 1.0;\n"
+                                "    }\n"*/
                                 "}\n";
 
 static std::string screenQuadOffsetVs = "layout (location = 0) in vec3 vcoords;\n"
@@ -385,24 +385,24 @@ static std::string extractorFS = "#ifdef GL_ES\n"
                                  "    ivec4 pos = ivec4(int(w * texcoords.x), int(h * texcoords.y), 0, 0);\n"
                                  "\n"
                                  "    float r = texture(tex, texcoords).r;\n"
-                                 "    if (r > 0.003)\n"
+                                 "    if (r > $HIGH_THRESHOLD)\n"
                                  "    {\n"
                                  "         int ih = int(atomicCounterIncrement(highCounter));\n"
                                  "         int il = int(atomicCounterIncrement(lowCounter));\n"
-                                 "         if (il < 64)\n"
+                                 "         if (il < $NB_KEYPOINTS)\n"
                                  "         {\n"
                                  "             imageStore(highImage, ivec2(ih, idx), pos);\n"
                                  "             imageStore(lowImage, ivec2(il, idx), pos);\n"
                                  "         }\n"
-                                 "         if (ih < 64)\n"
+                                 "         if (ih < $NB_KEYPOINTS)\n"
                                  "         {\n"
                                  "             imageStore(highImage, ivec2(ih, idx), pos);\n"
                                  "         }\n"
                                  "    }\n"
-                                 "    else if (r > 0.0025)\n"
+                                 "    else if (r > $LOW_THRESHOLD)\n"
                                  "    {\n"
                                  "         int il = int(atomicCounterIncrement(lowCounter));\n"
-                                 "         if (il < 64)\n"
+                                 "         if (il < $NB_KEYPOINTS)\n"
                                  "         {\n"
                                  "             imageStore(lowImage, ivec2(il, idx), pos);\n"
                                  "         }\n"
@@ -429,6 +429,9 @@ GLuint GLSLHessian::buildShaderFromSource(string source, GLenum shaderType)
     string completeSrc = version + source;
 
     Utils::replaceString(completeSrc, "#include texOffsets", textureOfstFct);
+    Utils::replaceString(completeSrc, "$NB_KEYPOINTS", nbKeypointsStr);
+    Utils::replaceString(completeSrc, "$HIGH_THRESHOLD", highThresholdStr);
+    Utils::replaceString(completeSrc, "$LOW_THRESHOLD", lowThresholdStr);
 
     const char* src         = completeSrc.c_str();
 
@@ -678,22 +681,22 @@ void GLSLHessian::initKeypointBuffers()
     for (int i = 0; i < 2; i++)
     {
         glBindTexture(GL_TEXTURE_2D, highImages[i]);
-        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, 64, 16);
+        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, mNbKeypoints, 16);
         glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, highImages[i], 0);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glBindTexture(GL_TEXTURE_2D, lowImages[i]);
-        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, 64, 16);
+        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, mNbKeypoints, 16);
         glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lowImages[i], 0);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[i]);
-        glBufferData(GL_PIXEL_PACK_BUFFER, 64 * 16 * 4 * 4, 0, GL_DYNAMIC_READ);
+        glBufferData(GL_PIXEL_PACK_BUFFER, mNbKeypoints * 16 * 4 * 4, 0, GL_DYNAMIC_READ);
 
         glBindBuffer(GL_PIXEL_PACK_BUFFER, lowImagePBOs[i]);
-        glBufferData(GL_PIXEL_PACK_BUFFER, 64 * 16 * 4 * 4, 0, GL_DYNAMIC_READ);
+        glBufferData(GL_PIXEL_PACK_BUFFER, mNbKeypoints * 16 * 4 * 4, 0, GL_DYNAMIC_READ);
     }
 }
 
@@ -863,12 +866,16 @@ void GLSLHessian::extract(int w, int h, int curr)
     }
 }
 
-void GLSLHessian::init(int w, int h)
+void GLSLHessian::init(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs)
 {
     m_w = w;
     m_h = h;
     curr = 1;
     ready = 0;
+    mNbKeypoints = nbKeypointsPerArea;
+    nbKeypointsStr = std::to_string(nbKeypointsPerArea);
+    lowThresholdStr = std::to_string(lowThrs);
+    highThresholdStr = std::to_string(highThrs);
     initShaders();
     initVBO();
     initTextureBuffers(w, h);
@@ -876,11 +883,11 @@ void GLSLHessian::init(int w, int h)
     initFBO();
 }
 
-GLSLHessian::GLSLHessian(){}
+GLSLHessian::GLSLHessian() { }
 
-GLSLHessian::GLSLHessian(int w, int h)
+GLSLHessian::GLSLHessian(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs)
 {
-    init(w, h);
+    init(w, h, nbKeypointsPerArea, lowThrs, highThrs);
 }
 
 GLSLHessian::~GLSLHessian()
@@ -944,28 +951,28 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB[ready]);
     glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[curr]);
-    glReadPixels(0, 0, 64, 16, GL_RGBA_INTEGER, GL_INT, 0);
+    glReadPixels(0, 0, mNbKeypoints, 16, GL_RGBA_INTEGER, GL_INT, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB[ready]);
     glBindBuffer(GL_PIXEL_PACK_BUFFER, lowImagePBOs[curr]);
-    glReadPixels(0, 0, 64, 16, GL_RGBA_INTEGER, GL_INT, 0);
+    glReadPixels(0, 0, mNbKeypoints, 16, GL_RGBA_INTEGER, GL_INT, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[ready]);
-    unsigned int * hData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, 64 * 16 * 4 * 4, GL_MAP_READ_BIT);
+    unsigned int * hData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypoints * 16 * 4 * 4, GL_MAP_READ_BIT);
 
     glBindBuffer(GL_PIXEL_PACK_BUFFER, lowImagePBOs[ready]);
-    unsigned int * lData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, 64 * 16 * 4 * 4, GL_MAP_READ_BIT);
+    unsigned int * lData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypoints * 16 * 4 * 4, GL_MAP_READ_BIT);
 
     if (hData)
     {
         for (int i = 0; i < 16; i++)
         {
-            if (hData[(64 * i)*4] > 0) //if there is keypoint in the subimage
+            if (hData[(mNbKeypoints * i + 5)*4] > 0) //if there is keypoint in the subimage
             {
-                for (int j = 0; j < 64; j++)
+                for (int j = 0; j < mNbKeypoints; j++)
                 {
-                    int idx = (i * 64 + j) * 4;
+                    int idx = (i * mNbKeypoints + j) * 4;
                     int x = hData[idx];
                     int y = hData[idx+1];
                     if (x == 0)
@@ -982,9 +989,9 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
             }
             else if (lData)
             {
-                for (int j = 0; j < 64; j++)
+                for (int j = 0; j < mNbKeypoints; j++)
                 {
-                    int idx = (i * 64 + j) * 4;
+                    int idx = (i * mNbKeypoints + j) * 4;
                     int x = lData[idx];
                     int y = lData[idx+1];
                     if (x == 0)

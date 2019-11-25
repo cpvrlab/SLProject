@@ -117,8 +117,10 @@ public:
         if (newSize != _imageSize)
         {
             //if (_state == CS_calibrated)
+            //{
             //    adaptForNewResolution(newSize);
-            //save();
+            //    save();
+            //}
             //else
             {
                 clear();
