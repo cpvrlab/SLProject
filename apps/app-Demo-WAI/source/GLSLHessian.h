@@ -84,12 +84,16 @@ public:
     int curr;
     int ready;
     int m_w, m_h;
+    int mNbKeypoints;
+    string lowThresholdStr;
+    string highThresholdStr;
+    std::string nbKeypointsStr;
 
     ~GLSLHessian();
     GLSLHessian();
-    GLSLHessian(int w, int h);
+    GLSLHessian(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs);
 
-    void init(int w, int h);
+    void init(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs);
     void initShaders();
     void initVBO();
     void initTextureBuffers(int width, int height);

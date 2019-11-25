@@ -32,8 +32,9 @@ public:
 private:
     KPextractor* orbExtractor(int nf);
     KPextractor* surfExtractor(int th);
-    KPextractor* glslExtractor();
+    KPextractor* glslExtractor(int nb_kp, float lowThrs, float highThrs);
     KPextractor* kpExtractor(int id);
+    KPextractor* kpInitExtractor(int id);
 
     KPextractor* _current;
     KPextractor* _iniCurrent;
