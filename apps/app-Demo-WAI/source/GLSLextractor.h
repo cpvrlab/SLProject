@@ -5,7 +5,7 @@
 #include <list>
 #include <KPextractor.h>
 #include <WAIHelper.h>
-#include <ImageProcessor.h>
+#include <GLSLHessian.h>
 
 class GLSLextractor : public ORB_SLAM2::KPextractor
 {
@@ -25,7 +25,7 @@ class GLSLextractor : public ORB_SLAM2::KPextractor
     std::vector<cv::Point> pattern;
     cv::Mat old;
     cv::Mat old2;
-    ImageProcessor imgProc;
+    GLSLHessian imgProc;
 };
 
 #endif

@@ -37,7 +37,7 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestWrite.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAI.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ImageProcessor.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppDirectories.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.h
@@ -73,7 +73,7 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestOpen.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestWrite.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ImageProcessor.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAI.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
