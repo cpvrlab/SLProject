@@ -22,6 +22,7 @@ for a good top down information.
 
 #include <CVTypedefs.h>
 #include <ftplib.h>
+#include <future>
 
 using namespace std;
 //-----------------------------------------------------------------------------
@@ -71,9 +72,10 @@ one and is set by the CVCapture::videoType (VT_NONE, VT_MAIN, VT_SCND) during th
 scene assembly in AppDemoLoad. On mobile devices the front camera is the
 selfie camera (our secondary) and the back camera is the our main camera.
 */
+
 class CVCalibration
 {
-    public:
+public:
     CVCalibration();
 
     bool load(const string& calibDir,
@@ -207,8 +209,9 @@ class CVCalibration
         }
     }
 
-    private:
+private:
     void calcCameraFov();
+    bool calibrateAsync();
 
     ///////////////////////////////////////////////////////////////////////////////////
     CVMat _cameraMat;  //!< 3x3 Matrix for intrinsic camera matrix
@@ -244,6 +247,9 @@ class CVCalibration
     float        _devSensorSizeW;         //!< Androids DeviceSensorPhysicalSizeW
     float        _devSensorSizeH;         //!< Androids DeviceSensorPhysicalSizeH
     string       _computerInfos;
+
+    std::vector<cv::Mat> _calibrationImgs; //!< Images captured for calibration
+    std::future<bool>    _calibrationTask; //!< future object for calculation of calibration in async task
 
     static const int    _CALIBFILEVERSION; //!< Global const file format version
     static const string _FTP_HOST;         //!< ftp host for calibration up and download
