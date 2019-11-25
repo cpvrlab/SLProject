@@ -16,7 +16,7 @@
 #include <Utils.h>
 #include <AppDemoGuiSlamLoad.h>
 #include <CVCapture.h>
-#include <AppWaiSlamParamHelper.h>
+#include <AppWAISlamParamHelper.h>
 #include <WAIMapStorage.h>
 
 AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
