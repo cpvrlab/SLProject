@@ -35,18 +35,42 @@ void AppWAIScene::rebuild()
     SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
     SLfloat     l = 0.593f, b = 0.466f, h = 0.257f;
     //SLBox*      box1     = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
-    //SLBox*  box1     = new SLBox(0.0f, 0.0f, 0.0f, 0.355f, 0.2f, 0.1f, "Box 1", yellow);
-    SLBox*  box1     = new SLBox(0.0f, 0.0f, 0.0f, 10.0f, 5.0f, 3.0f, "Box 1", yellow);
+    SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, 0.355f, 0.2f, 0.1f, "Box 1", yellow);
+    //SLBox*  box1     = new SLBox(0.0f, 0.0f, 0.0f, 10.0f, 5.0f, 3.0f, "Box 1", yellow);
     SLNode* boxNode1 = new SLNode(box1, "boxNode1");
     //boxNode1->rotate(-45.0f, 1.0f, 0.0f, 0.0f);
-    boxNode1->translate(10.0f, -5.0f, 15.0f);
-    //boxNode1->translate(0.316, -1.497f, -0.1f);
-    //SLBox*  box2     = new SLBox(0.0f, 0.0f, 0.0f, 0.355f, 0.2f, 0.1f, "Box 2", yellow);
-    //SLNode* boxNode2 = new SLNode(box2, "boxNode2");
+    //boxNode1->translate(10.0f, -5.0f, 15.0f);
+    boxNode1->translate(0.316, -1.497f, -0.1f);
+    SLBox*  box2     = new SLBox(0.0f, 0.0f, 0.0f, 0.355f, 0.2f, 0.1f, "Box 2", yellow);
+    SLNode* boxNode2 = new SLNode(box2, "boxNode2");
     SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
-    //SLBox*  box3     = new SLBox(0.0f, 0.0f, 0.0f, 1.745f, 0.745, 0.81, "Box 3", yellow);
-    //SLNode* boxNode3 = new SLNode(box3, "boxNode3");
-    //boxNode3->translate(2.561f, -5.147f, -0.06f);
+    SLBox*  box3     = new SLBox(0.0f, 0.0f, 0.0f, 1.745f, 0.745, 0.81, "Box 3", yellow);
+    SLNode* boxNode3 = new SLNode(box3, "boxNode3");
+    boxNode3->translate(2.561f, -5.147f, -0.06f);
+#if 0
+    SLBox*  box2     = new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "Box 2", yellow);
+    SLNode* boxNode2 = new SLNode(box2, "boxNode2");
+    boxNode2->translation(79.7f, -3.26f, 2.88f);
+    boxNode2->scale(1.0f, 8.95f, 1.0f);
+    boxNode2->rotate(1.39f, SLVec3f(1.0f, 0.0f, 0.0f), TS_parent);
+    boxNode2->rotate(3.88f, SLVec3f(0.0f, 1.0f, 0.0f), TS_parent);
+    boxNode2->rotate(-0.1f, SLVec3f(0.0f, 0.0f, 1.0f), TS_parent);
+
+    SLBox*  box3     = new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "Box 3", yellow);
+    SLNode* boxNode3 = new SLNode(box3, "boxNode3");
+    boxNode3->translation(83.54f, -3.26f, 23.64f);
+    boxNode3->scale(1.0f, 8.95f, 1.0f);
+    boxNode3->rotate(1.39f, SLVec3f(1.0f, 0.0f, 0.0f), TS_parent);
+    boxNode3->rotate(3.88f, SLVec3f(0.0f, 1.0f, 0.0f), TS_parent);
+    boxNode3->rotate(-0.1f, SLVec3f(0.0f, 0.0f, 1.0f), TS_parent);
+
+    SLBox*  box4     = new SLBox(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 21.11f, "Box 4", yellow);
+    SLNode* boxNode4 = new SLNode(box4, "boxNode4");
+    boxNode4->translation(79.38f, 0.74f, 3.0f);
+    boxNode4->rotate(-0.19f, SLVec3f(1.0f, 0.0f, 0.0f), TS_parent);
+    boxNode4->rotate(9.91f, SLVec3f(0.0f, 1.0f, 0.0f), TS_parent);
+    boxNode4->rotate(-0.95f, SLVec3f(0.0f, 0.0f, 1.0f), TS_parent);
+#endif
 
     //boxNode->addChild(axisNode);
 
@@ -83,7 +107,8 @@ void AppWAIScene::rebuild()
     rootNode->addChild(light1);
     rootNode->addChild(boxNode1);
     rootNode->addChild(axisNode);
-    //rootNode->addChild(boxNode2);
-    //rootNode->addChild(boxNode3);
+    rootNode->addChild(boxNode2);
+    rootNode->addChild(boxNode3);
+    //rootNode->addChild(boxNode4);
     rootNode->addChild(mapNode);
 }

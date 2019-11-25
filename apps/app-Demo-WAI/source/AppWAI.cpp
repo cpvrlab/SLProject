@@ -58,7 +58,6 @@ WAI::ModeOrbSlam2* WAIApp::mode            = nullptr;
 bool               WAIApp::loaded          = false;
 ofstream           WAIApp::gpsDataStream;
 SLGLTexture*       WAIApp::testTexture;
-ImageProcessor     WAIApp::imgProc;
 
 SlamParams* WAIApp::currentSlamParams = nullptr;
 

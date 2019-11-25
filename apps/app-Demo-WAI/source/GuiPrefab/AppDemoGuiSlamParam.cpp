@@ -35,7 +35,7 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
     _extractors.push_back("ORB extractor nf = 1000");
     _extractors.push_back("ORB extractor nf = 2000");
     _extractors.push_back("ORB extractor nf = 4000");
-    _extractors.push_back("GLSL Hessian extractor");
+    _extractors.push_back("GLSL Hessian");
 
     _currentId       = 2;
     _iniCurrentId    = 1;
@@ -150,7 +150,7 @@ void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
         if (ImGui::Button("Change features", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
         {
             _current       = kpExtractor(_currentId);
-            _iniCurrent    = kpExtractor(_iniCurrentId);
+            _iniCurrent    = _current; //kpExtractor(_iniCurrentId);
             _markerCurrent = kpExtractor(_markerCurrentId);
             mode->setExtractor(_current, _iniCurrent, _markerCurrent);
         }

@@ -1,12 +1,12 @@
-#ifndef IMAGE_PROCESSOR
-#define IMAGE_PROCESSOR
+#ifndef GLSL_HESSIAN
+#define GLSL_HESSIAN
 
 #include <SLSceneView.h>
 #include <SLPoints.h>
 #include <SLPolyline.h>
 #include <CVCalibration.h>
 
-class ImageProcessor
+class GLSLHessian
 {
 public:
 
@@ -22,7 +22,7 @@ public:
     GLuint detH;
     GLuint nmsx;
     GLuint nmsy;
-    GLuint nmsz;
+    GLuint edge;
     GLuint extractor;
 
     GLint d2Gdx2WLoc;
@@ -46,10 +46,13 @@ public:
     GLint detHGxyLoc;
     GLint nmsxTexLoc;
     GLint nmsyTexLoc;
-    GLint nmszTexLoc;
-    GLint nmszGxxLoc;
-    GLint nmszGyyLoc;
-    GLint nmszGxyLoc;
+    GLint edgeWLoc;
+    GLint edgeHLoc;
+    GLint edgeTexLoc;
+    GLint edgeDetLoc;
+    GLint edgeGxxLoc;
+    GLint edgeGyyLoc;
+    GLint edgeGxyLoc;
 
     GLint extractorWLoc;
     GLint extractorHLoc;
@@ -82,9 +85,9 @@ public:
     int ready;
     int m_w, m_h;
 
-    ~ImageProcessor();
-    ImageProcessor();
-    ImageProcessor(int w, int h);
+    ~GLSLHessian();
+    GLSLHessian();
+    GLSLHessian(int w, int h);
 
     void init(int w, int h);
     void initShaders();
@@ -96,6 +99,7 @@ public:
     void initFBO();
     void setTextureParameters();
 
+    void textureRGBAF(int w, int h);
     void textureRGBAI(int w, int h);
     void textureRGBF(int w, int h);
     void textureRF(int w, int h);
@@ -109,7 +113,6 @@ public:
     void nms(int w, int h);
     void extract(int w, int h, int curr);
     void gpu_kp();
-    //void readResult(cv::Mat * tex);
     void readResult(std::vector<cv::KeyPoint> &kps);
 
     void initComputeShader();
