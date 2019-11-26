@@ -36,7 +36,7 @@
 #include <AppDemoGuiSlamParam.h>
 #include <AppWAI.h>
 #include <AppDirectories.h>
-#include <AppWaiSlamParamHelper.h>
+#include <AppWAISlamParamHelper.h>
 
 AppDemoGuiAbout* WAIApp::aboutDial = nullptr;
 AppDemoGuiError* WAIApp::errorDial = nullptr;
@@ -467,6 +467,11 @@ bool WAIApp::update()
 
     if (!loaded)
         return false;
+
+    float yaw = SLApplication::devRot.yawRAD();
+    float pitch = SLApplication::devRot.pitchRAD();
+    float roll = SLApplication::devRot.rollRAD();
+    Utils::log("BBBB yaw : %f   pitch : %f   roll : %f\n", yaw, pitch, roll);
 
     if (CVCapture::instance()->lastFrame.empty() ||
         CVCapture::instance()->lastFrame.cols == 0 && CVCapture::instance()->lastFrame.rows == 0)
