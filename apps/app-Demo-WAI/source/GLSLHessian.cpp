@@ -408,7 +408,7 @@ static std::string removeEdge = "#ifdef GL_ES\n"
                                 "    }\n"
                                 "    else\n"
                                 "    {\n"
-                                "        if (r < 6.0 && fast(0.3))\n"
+                                "        if (fast(0.2))\n"
                                 "            pixel = 1.0;\n"
                                 "    }\n"
                                 "}\n";
