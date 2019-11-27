@@ -85,13 +85,12 @@ KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
         case 7:
             return glslExtractor(64, 0.002, 0.003);
         case 8:
-            return glslExtractor(128, 0.0015, 0.002);
+            return glslExtractor(128, 0.001, 0.0015);
         case 9:
-            return glslExtractor(256, 0.00075, 0.0015);
+            return glslExtractor(256, 0.001, 0.0015);
     }
     return surfExtractor(1000);
 }
-
 
 void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
 {

@@ -18,6 +18,7 @@ struct SlamMapInfos
     std::string dateTime;
     std::string location;
     std::string area;
+    std::string extractorType;
 };
 
 static bool extractSlamVideoInfosFromFileName(std::string     fileName,
@@ -42,7 +43,10 @@ static bool extractSlamVideoInfosFromFileName(std::string     fileName,
     return result;
 }
 
-static std::string constructSlamMapIdentifierString(std::string location, std::string area, std::string dateTime = "")
+static std::string constructSlamMapIdentifierString(std::string location,
+                                                    std::string area,
+                                                    std::string extractorType,
+                                                    std::string dateTime = "")
 {
     if (dateTime.empty())
     {
@@ -59,16 +63,25 @@ static bool extractSlamMapInfosFromFileName(std::string   fileName,
 {
     bool result = false;
 
+    *slamMapInfos = {};
+
+    fileName = Utils::getFileNameWOExt(fileName);
+
     std::vector<std::string> stringParts;
     Utils::splitString(fileName, '_', stringParts);
 
-    if (stringParts.size() == 4)
+    if (stringParts.size() >= 4)
     {
         slamMapInfos->dateTime = stringParts[1];
         slamMapInfos->location = stringParts[2];
         slamMapInfos->area     = stringParts[3];
 
         result = true;
+    }
+
+    if (stringParts.size() == 5)
+    {
+        slamMapInfos->extractorType = stringParts[4];
     }
 
     return result;
@@ -111,9 +124,19 @@ static std::string constructSlamVideoDir(std::string locationsRootDir, std::stri
     return result;
 }
 
-static std::string constructSlamMapFileName(std::string location, std::string area, std::string dateTime = "")
+static std::string constructSlamMapFileName(std::string location,
+                                            std::string area,
+                                            std::string extractorType,
+                                            std::string dateTime = "")
 {
     std::string result = constructSlamMapIdentifierString(location, area, dateTime) + ".json";
+
+    return result;
+}
+
+static std::string constructSlamMarkerDir(std::string locationsRootDir, std::string location, std::string area)
+{
+    std::string result = constructSlamAreaDir(locationsRootDir, location, area) + "markers/";
 
     return result;
 }

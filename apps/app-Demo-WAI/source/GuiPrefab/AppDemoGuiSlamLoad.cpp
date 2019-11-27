@@ -16,7 +16,7 @@
 #include <Utils.h>
 #include <AppDemoGuiSlamLoad.h>
 #include <CVCapture.h>
-#include <AppWaiSlamParamHelper.h>
+#include <AppWAISlamParamHelper.h>
 #include <WAIMapStorage.h>
 
 AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
@@ -180,7 +180,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 if (!Utils::dirExists(mapDir))
                     Utils::makeDir(mapDir);
 
-                std::string filename = constructSlamMapFileName(_currentLocation, _currentArea);
+                std::string filename = constructSlamMapFileName(_currentLocation, _currentArea, WAIApp::mode->getKPextractor()->GetName());
                 std::string imgDir   = constructSlamMapImgDir(mapDir, filename);
 
                 if (WAIApp::mode->retainImage())

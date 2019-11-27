@@ -38,6 +38,7 @@ file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
+    ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     )
 
 file(GLOB sources
@@ -75,7 +76,6 @@ file(GLOB sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoWAIAndroidJNI.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
-    ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     )
 
 

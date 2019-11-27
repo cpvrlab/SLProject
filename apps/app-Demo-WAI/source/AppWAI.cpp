@@ -36,7 +36,7 @@
 #include <AppDemoGuiSlamParam.h>
 #include <AppWAI.h>
 #include <AppDirectories.h>
-#include <AppWaiSlamParamHelper.h>
+#include <AppWAISlamParamHelper.h>
 
 AppDemoGuiAbout* WAIApp::aboutDial = nullptr;
 AppDemoGuiError* WAIApp::errorDial = nullptr;

@@ -41,7 +41,6 @@ static std::string screenQuadVs = "layout (location = 0) in vec3 vcoords;\n"
                                   "    gl_Position = vec4(vcoords, 1.0);\n"
                                   "}\n";
 
-
 static std::string hGaussianFs = "#ifdef GL_ES\n"
                                  "precision highp float;\n"
                                  "#endif\n"
@@ -142,7 +141,6 @@ static std::string vGaussianDyFs = "#ifdef GL_ES\n"
                                    "    }\n"
                                    "    pixel = response;\n"
                                    "}\n";
-
 
 static std::string hGaussianDx2Fs = "#ifdef GL_ES\n"
                                     "precision highp float;\n"
@@ -346,25 +344,24 @@ static std::string removeEdge = "#ifdef GL_ES\n"
                                 "            pixel = det;\n"
                                 "        }\n"
                                 "    }\n"
-                                /*"    else\n"
+                                "    else\n"
                                 "    {\n"
                                 "        if (r < 6.0 && fast(0.4))\n"
                                 "            pixel = 1.0;\n"
-                                "    }\n"*/
+                                "    }\n"
                                 "}\n";
 
 static std::string screenQuadOffsetVs = "layout (location = 0) in vec3 vcoords;\n"
-                                       "out vec2 texcoords;\n"
-                                       "uniform vec2 ofst;\n"
-                                       "uniform vec2 s;\n"
-                                       "\n"
-                                       "void main()\n"
-                                       "{\n"
-                                       "    vec2 coords = 0.5 * (vcoords.xy + vec2(1.0));\n" //[0, 1]
-                                       "    texcoords = ofst + coords * s;\n" // offset + [0, s]
-                                       "    gl_Position = vec4((2.0 * texcoords) - vec2(1.0), 0.0, 1.0);\n"
-                                       "}\n"
-                                       ;
+                                        "out vec2 texcoords;\n"
+                                        "uniform vec2 ofst;\n"
+                                        "uniform vec2 s;\n"
+                                        "\n"
+                                        "void main()\n"
+                                        "{\n"
+                                        "    vec2 coords = 0.5 * (vcoords.xy + vec2(1.0));\n" //[0, 1]
+                                        "    texcoords = ofst + coords * s;\n"                // offset + [0, s]
+                                        "    gl_Position = vec4((2.0 * texcoords) - vec2(1.0), 0.0, 1.0);\n"
+                                        "}\n";
 
 static std::string extractorFS = "#ifdef GL_ES\n"
                                  "precision highp float;\n"
@@ -407,14 +404,13 @@ static std::string extractorFS = "#ifdef GL_ES\n"
                                  "             imageStore(lowImage, ivec2(il, idx), pos);\n"
                                  "         }\n"
                                  "    }\n"
-                                 "}\n"
-                                 ;
+                                 "}\n";
 
 GLuint GLSLHessian::buildShaderFromSource(string source, GLenum shaderType)
 {
     // Compile Shader code
-    GLuint      shaderHandle = glCreateShader(shaderType);
-    string version;
+    GLuint     shaderHandle = glCreateShader(shaderType);
+    string     version;
     SLGLState* state = SLGLState::instance();
 
     if (state->glIsES3())
@@ -433,7 +429,7 @@ GLuint GLSLHessian::buildShaderFromSource(string source, GLenum shaderType)
     Utils::replaceString(completeSrc, "$HIGH_THRESHOLD", highThresholdStr);
     Utils::replaceString(completeSrc, "$LOW_THRESHOLD", lowThresholdStr);
 
-    const char* src         = completeSrc.c_str();
+    const char* src = completeSrc.c_str();
 
     glShaderSource(shaderHandle, 1, &src, nullptr);
     glCompileShader(shaderHandle);
@@ -445,7 +441,7 @@ GLuint GLSLHessian::buildShaderFromSource(string source, GLenum shaderType)
     GLint logSize = 0;
     glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &logSize);
 
-    GLchar * log = new GLchar[logSize];
+    GLchar* log = new GLchar[logSize];
 
     glGetShaderInfoLog(shaderHandle, logSize, nullptr, log);
 
@@ -584,10 +580,7 @@ void GLSLHessian::initShaders()
 
 void GLSLHessian::initVBO()
 {
-    float vertices[12] = {-1, -1,  0,
-                           1, -1,  0,
-                           1,  1,  0,
-                          -1,  1,  0 };
+    float vertices[12] = {-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0};
 
     GLuint indices[6] = {0, 1, 2, 2, 3, 0};
 
@@ -848,8 +841,8 @@ void GLSLHessian::extract(int w, int h, int curr)
 
     float offsetx = 15.0 / (float)m_w;
     float offsety = 15.0 / (float)m_h;
-    float sizex = ((float)m_w - 30.0) / (4.0 * float(m_w));
-    float sizey = ((float)m_h - 30.0) / (4.0 * float(m_h));
+    float sizex   = ((float)m_w - 30.0) / (4.0 * float(m_w));
+    float sizey   = ((float)m_h - 30.0) / (4.0 * float(m_h));
 
     glUniform2f(extractorSizeLoc, sizex, sizey);
 
@@ -868,13 +861,13 @@ void GLSLHessian::extract(int w, int h, int curr)
 
 void GLSLHessian::init(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs)
 {
-    m_w = w;
-    m_h = h;
-    curr = 1;
-    ready = 0;
-    mNbKeypoints = nbKeypointsPerArea;
-    nbKeypointsStr = std::to_string(nbKeypointsPerArea);
-    lowThresholdStr = std::to_string(lowThrs);
+    m_w              = w;
+    m_h              = h;
+    curr             = 1;
+    ready            = 0;
+    mNbKeypoints     = nbKeypointsPerArea;
+    nbKeypointsStr   = std::to_string(nbKeypointsPerArea);
+    lowThresholdStr  = std::to_string(lowThrs);
     highThresholdStr = std::to_string(highThrs);
     initShaders();
     initVBO();
@@ -883,7 +876,7 @@ void GLSLHessian::init(int w, int h, int nbKeypointsPerArea, float lowThrs, floa
     initFBO();
 }
 
-GLSLHessian::GLSLHessian() { }
+GLSLHessian::GLSLHessian() {}
 
 GLSLHessian::GLSLHessian(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs)
 {
@@ -916,7 +909,7 @@ void GLSLHessian::gpu_kp()
     glDisable(GL_DEPTH_TEST);
 
     ready = curr;
-    curr = (curr+1) % 2; //Set rendering buffers
+    curr  = (curr + 1) % 2; //Set rendering buffers
 
     SLVec4i wp = SLGLState::instance()->getViewport();
     SLGLState::instance()->viewport(0, 0, m_w, m_h);
@@ -947,7 +940,7 @@ void GLSLHessian::gpu_kp()
     SLGLState::instance()->viewport(wp.x, wp.y, wp.z, wp.w);
 }
 
-void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
+void GLSLHessian::readResult(std::vector<cv::KeyPoint>& kps)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB[ready]);
     glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[curr]);
@@ -959,26 +952,26 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[ready]);
-    unsigned int * hData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypoints * 16 * 4 * 4, GL_MAP_READ_BIT);
+    unsigned int* hData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypoints * 16 * 4 * 4, GL_MAP_READ_BIT);
 
     glBindBuffer(GL_PIXEL_PACK_BUFFER, lowImagePBOs[ready]);
-    unsigned int * lData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypoints * 16 * 4 * 4, GL_MAP_READ_BIT);
+    unsigned int* lData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypoints * 16 * 4 * 4, GL_MAP_READ_BIT);
 
     if (hData)
     {
         for (int i = 0; i < 16; i++)
         {
-            if (hData[(mNbKeypoints * i + 5)*4] > 0) //if there is keypoint in the subimage
+            if (hData[(mNbKeypoints * i) * 4] > 0) //if there is keypoint in the subimage
             {
                 for (int j = 0; j < mNbKeypoints; j++)
                 {
                     int idx = (i * mNbKeypoints + j) * 4;
-                    int x = hData[idx];
-                    int y = hData[idx+1];
+                    int x   = hData[idx];
+                    int y   = hData[idx + 1];
                     if (x == 0)
                         break;
 
-                    if (x < 15 || x > m_w-15)
+                    if (x < 15 || x > m_w - 15)
                     {
                         Utils::log("AAAA Error reading the high thres texture\n");
                         break;
@@ -992,11 +985,11 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
                 for (int j = 0; j < mNbKeypoints; j++)
                 {
                     int idx = (i * mNbKeypoints + j) * 4;
-                    int x = lData[idx];
-                    int y = lData[idx+1];
+                    int x   = lData[idx];
+                    int y   = lData[idx + 1];
                     if (x == 0)
                         break;
-                    if (x < 15 || x > m_w-15)
+                    if (x < 15 || x > m_w - 15)
                     {
                         Utils::log("AAAA Error reading low thres texture\n");
                         break;
@@ -1015,4 +1008,3 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
 
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 }
-
