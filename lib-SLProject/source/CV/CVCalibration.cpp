@@ -65,9 +65,12 @@ CVCalibration::CVCalibration()
     _cameraFovVDeg(0.0f),
     _calibFileName(""), // is set in load
     _calibParamsFileName("calib_in_params.yml"),
-    _calibFixPrincipalPoint(true),
-    _calibFixAspectRatio(true),
-    _calibZeroTangentDist(true),
+    _calibFixPrincipalPoint(false),
+    _calibFixAspectRatio(false),
+    _calibZeroTangentDist(false),
+    _calibRationalModel(false),
+    _calibTiltedModel(false),
+    _calibThinPrismModel(false),
     _boardSize(0, 0),
     _boardSquareMM(0.0f),
     _numOfImgsToCapture(0),
@@ -97,6 +100,7 @@ void CVCalibration::clear()
     _undistortMapY.release();
     _state         = CS_uncalibrated;
     _computerInfos = SLApplication::getComputerInfos();
+    _calibrationImgs.clear();
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
@@ -144,6 +148,9 @@ bool CVCalibration::load(const string& calibDir,
         _calibFixAspectRatio    = true;
         _calibFixPrincipalPoint = true;
         _calibZeroTangentDist   = true;
+        _calibRationalModel     = false;
+        _calibTiltedModel       = false;
+        _calibThinPrismModel    = false;
         _reprojectionError      = -1;
         _calibrationTime        = "-";
         _state                  = CS_uncalibrated;
@@ -159,6 +166,9 @@ bool CVCalibration::load(const string& calibDir,
         fs["calibFixAspectRatio"] >> _calibFixAspectRatio;
         fs["calibFixPrincipalPoint"] >> _calibFixPrincipalPoint;
         fs["calibZeroTangentDist"] >> _calibZeroTangentDist;
+        fs["calibRationalModel"] >> _calibRationalModel;
+        fs["calibTiltedModel"] >> _calibTiltedModel;
+        fs["calibThinPrismModel"] >> _calibThinPrismModel;
         fs["cameraMat"] >> _cameraMat;
         fs["distortion"] >> _distortion;
         fs["reprojectionError"] >> _reprojectionError;
@@ -213,16 +223,16 @@ void CVCalibration::save(std::string forceSavePath)
     }
 
     char buf[1024];
-    if (_calibFlags)
-    {
-        sprintf(buf,
-                "flags:%s%s%s%s",
-                _calibFlags & CALIB_USE_INTRINSIC_GUESS ? " +use_intrinsic_guess" : "",
-                _calibFlags & CALIB_FIX_ASPECT_RATIO ? " +fix_aspectRatio" : "",
-                _calibFlags & CALIB_FIX_PRINCIPAL_POINT ? " +fix_principal_point" : "",
-                _calibFlags & CALIB_ZERO_TANGENT_DIST ? " +zero_tangent_dist" : "");
-        fs.writeComment(buf, 0);
-    }
+    sprintf(buf,
+            "flags:%s%s%s%s%s%s%s",
+            _calibFlags & CALIB_USE_INTRINSIC_GUESS ? " +use_intrinsic_guess" : "",
+            _calibFlags & CALIB_FIX_ASPECT_RATIO ? " +fix_aspectRatio" : "",
+            _calibFlags & CALIB_FIX_PRINCIPAL_POINT ? " +fix_principal_point" : "",
+            _calibFlags & CALIB_ZERO_TANGENT_DIST ? " +zero_tangent_dist" : "",
+            _calibFlags & CALIB_RATIONAL_MODEL ? " +rational_model" : "",
+            _calibFlags & CALIB_THIN_PRISM_MODEL ? " +thin_prism_model" : "",
+            _calibFlags & CALIB_TILTED_MODEL ? " +tilted_model" : "");
+    fs.writeComment(buf, 0);
 
     fs << "CALIBFILEVERSION" << _CALIBFILEVERSION;
     fs << "calibrationTime" << _calibrationTime;
@@ -238,6 +248,9 @@ void CVCalibration::save(std::string forceSavePath)
     fs << "calibFixAspectRatio" << _calibFixAspectRatio;
     fs << "calibFixPrincipalPoint" << _calibFixPrincipalPoint;
     fs << "calibZeroTangentDist" << _calibZeroTangentDist;
+    fs << "calibRationalModel" << _calibRationalModel;
+    fs << "calibTiltedModel" << _calibTiltedModel;
+    fs << "calibThinPrismModel" << _calibThinPrismModel;
     fs << "cameraMat" << _cameraMat;
     fs << "distortion" << _distortion;
     fs << "reprojectionError" << _reprojectionError;
@@ -380,9 +393,20 @@ bool CVCalibration::findChessboard(CVMat        imageColor,
 
     _imageSize = imageColor.size();
 
-    CVVPoint2f corners2D;
+    cv::Mat imageGrayExtract = imageGray;
+    //resize image so that we get fluent caputure workflow for high resolutions
+    double scale              = 1.0;
+    bool   doScale            = false;
+    int    targetExtractWidth = 640;
+    if (_imageSize.width > targetExtractWidth)
+    {
+        doScale = true;
+        scale   = (double)_imageSize.width / (double)targetExtractWidth;
+        cv::resize(imageGray, imageGrayExtract, cv::Size(), 1 / scale, 1 / scale);
+    }
 
-    bool found = cv::findChessboardCorners(imageGray,
+    CVVPoint2f corners2D;
+    bool       found = cv::findChessboardCorners(imageGrayExtract,
                                            _boardSize,
                                            corners2D,
                                            cv::CALIB_CB_FAST_CHECK);
@@ -391,41 +415,27 @@ bool CVCalibration::findChessboard(CVMat        imageColor,
     {
         if (_state == CS_calibrateGrab)
         {
-            CVVPoint2f preciseCorners2D;
-            int        flags = CALIB_CB_ADAPTIVE_THRESH |
-                        CALIB_CB_NORMALIZE_IMAGE |
-                        CALIB_CB_FAST_CHECK;
-            bool foundPrecisely = cv::findChessboardCorners(imageGray,
-                                                            _boardSize,
-                                                            preciseCorners2D,
-                                                            flags);
+            //save a copy of this image
+            _calibrationImgs.push_back(imageGray.clone());
+            //increase number of capturings
+            _numCaptured++;
 
-            if (foundPrecisely)
-            {
-                cv::cornerSubPix(imageGray,
-                                 corners2D,
-                                 CVSize(11, 11),
-                                 CVSize(-1, -1),
-                                 TermCriteria(TermCriteria::EPS + TermCriteria::COUNT,
-                                              30,
-                                              0.1));
-
-                //add detected points
-                _imagePoints.push_back(corners2D);
-                _numCaptured++;
-
-                //simulate a snapshot
-                cv::bitwise_not(imageColor, imageColor);
-
-                _state = CS_calibrateStream;
-
-                //overwrite corners2D for visualization with precise corners
-                corners2D.swap(preciseCorners2D);
-            }
+            //simulate a snapshot
+            cv::bitwise_not(imageColor, imageColor);
+            _state = CS_calibrateStream;
         }
 
         if (drawCorners)
         {
+            if (doScale)
+            {
+                //scale corners into original image size
+                for (cv::Point2f& pt : corners2D)
+                {
+                    pt *= scale;
+                }
+            }
+
             cv::drawChessboardCorners(imageColor,
                                       _boardSize,
                                       CVMat(corners2D),
@@ -526,11 +536,37 @@ static bool calcCalibration(CVSize&            imageSize,
     return ok;
 }
 //-----------------------------------------------------------------------------
-//! Initiates the final calculation
-bool CVCalibration::calculate()
+bool CVCalibration::calibrateAsync()
 {
     _state         = CS_startCalculating;
     _computerInfos = SLApplication::getComputerInfos();
+
+    _numCaptured = 0;
+    //extract corners from captured images
+    for (cv::Mat img : _calibrationImgs)
+    {
+        CVVPoint2f preciseCorners2D;
+        int        flags          = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE;
+        bool       foundPrecisely = cv::findChessboardCorners(img,
+                                                        _boardSize,
+                                                        preciseCorners2D,
+                                                        flags);
+
+        if (foundPrecisely)
+        {
+            cv::cornerSubPix(img,
+                             preciseCorners2D,
+                             CVSize(11, 11),
+                             CVSize(-1, -1),
+                             TermCriteria(TermCriteria::EPS + TermCriteria::COUNT,
+                                          30000,
+                                          0.01));
+
+            //add detected points
+            _imagePoints.push_back(preciseCorners2D);
+            _numCaptured++;
+        }
+    }
 
     CVVMat        rvecs, tvecs;
     vector<float> reprojErrs;
@@ -539,7 +575,9 @@ bool CVCalibration::calculate()
     if (_calibFixPrincipalPoint) _calibFlags |= CALIB_FIX_PRINCIPAL_POINT;
     if (_calibZeroTangentDist) _calibFlags |= CALIB_ZERO_TANGENT_DIST;
     if (_calibFixAspectRatio) _calibFlags |= CALIB_FIX_ASPECT_RATIO;
-
+    if (_calibRationalModel) _calibFlags |= CALIB_RATIONAL_MODEL;
+    if (_calibTiltedModel) _calibFlags |= CALIB_TILTED_MODEL;
+    if (_calibThinPrismModel) _calibFlags |= CALIB_THIN_PRISM_MODEL;
     bool ok = calcCalibration(_imageSize,
                               _cameraMat,
                               _distortion,
@@ -551,7 +589,7 @@ bool CVCalibration::calculate()
                               _boardSize,
                               _boardSquareMM,
                               _calibFlags);
-
+    //correct number of caputured, extraction may have failed
     if (!rvecs.empty() || !reprojErrs.empty())
         _numCaptured = (int)std::max(rvecs.size(), reprojErrs.size());
     else
@@ -562,11 +600,6 @@ bool CVCalibration::calculate()
         buildUndistortionMaps();
         calcCameraFov();
         _calibrationTime = Utils::getDateTime2String();
-        _state           = CS_calibrated;
-        save();
-
-        Utils::log("Calibration succeeded.");
-        Utils::log("Reproj. error: %f\n", _reprojectionError);
     }
     else
     {
@@ -575,10 +608,41 @@ bool CVCalibration::calculate()
         _calibrationTime = "-";
         _undistortMapX.release();
         _undistortMapY.release();
-        _state = CS_uncalibrated;
-        Utils::log("Calibration failed.");
     }
+
+    _calibrationImgs.clear();
+
     return ok;
+}
+//-----------------------------------------------------------------------------
+//! Initiates the final calculation
+bool CVCalibration::calculate()
+{
+    bool calibrationSuccessful = false;
+#if 0
+    if (!_calibrationTask.valid())
+    {
+        _calibrationTask = std::async(std::launch::async, &CVCalibration::calibrateAsync, this);
+    }
+    else if (_calibrationTask.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
+    {
+        calibrationSuccessful = _calibrationTask.get();
+        if (calibrationSuccessful)
+        {
+            _state = CS_calibrated;
+            save();
+            Utils::log("Calibration succeeded.");
+            Utils::log("Reproj. error: %f\n", _reprojectionError);
+        }
+        else
+        {
+            _state = CS_uncalibrated;
+            Utils::log("Calibration failed.");
+        }
+    }
+#endif
+
+    return calibrationSuccessful;
 }
 //-----------------------------------------------------------------------------
 //! Builds undistortion maps after calibration or loading
@@ -586,7 +650,7 @@ void CVCalibration::buildUndistortionMaps()
 {
     // An alpha of 0 leads to no black borders
     // An alpha of 1 leads to black borders
-    double alpha = 0.5;
+    double alpha = 0.0;
 
     // Create optimal camera matrix for undistorted image
     _cameraMatUndistorted = cv::getOptimalNewCameraMatrix(_cameraMat,
@@ -715,6 +779,7 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
 
     calcCameraFov();
 
+    buildUndistortionMaps();
     //save();
 }
 //-----------------------------------------------------------------------------

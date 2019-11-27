@@ -545,10 +545,25 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "FOV H/V(deg.): %4.1f/%4.1f\n", c->cameraFovHDeg(), c->cameraFovVDeg());
             sprintf(m + strlen(m), "fx,fy        : %4.1f,%4.1f\n", c->fx(), c->fy());
             sprintf(m + strlen(m), "cx,cy        : %4.1f,%4.1f\n", c->cx(), c->cy());
-            sprintf(m + strlen(m), "k1,k2        : %4.2f,%4.2f\n", c->k1(), c->k2());
-            sprintf(m + strlen(m), "p1,p2        : %4.2f,%4.2f\n", c->p1(), c->p2());
+
+            int distortionSize = c->distortion().rows;
+            sprintf(m + strlen(m), "distortion (*10e-2)\n");
+            const float f = 100.f;
+            sprintf(m + strlen(m), "k1,k2        : %4.2f,%4.2f\n", c->k1() * f, c->k2() * f);
+            sprintf(m + strlen(m), "p1,p2        : %4.2f,%4.2f\n", c->p1() * f, c->p2() * f);
+            if (distortionSize >= 8)
+                sprintf(m + strlen(m), "k3,k4,k5,k6  : %4.2f,%4.2f,%4.2f,%4.2f\n", c->k3() * f, c->k4() * f, c->k5() * f, c->k6() * f);
+            else
+                sprintf(m + strlen(m), "k3           : %4.2f\n", c->k3() * f);
+
+            if (distortionSize >= 12)
+                sprintf(m + strlen(m), "s1,s2,s3,s4  : %4.2f,%4.2f,%4.2f,%4.2f\n", c->s1() * f, c->s2() * f, c->s3() * f, c->s4() * f);
+            if (distortionSize >= 14)
+                sprintf(m + strlen(m), "tauX,tauY    : %4.2f,%4.2f\n", c->tauX() * f, c->tauY() * f);
+
             sprintf(m + strlen(m), "Calib. time  : %s\n", c->calibrationTime().c_str());
             sprintf(m + strlen(m), "Calib. state : %s\n", c->stateStr().c_str());
+            sprintf(m + strlen(m), "Num. caps    : %d\n", c->numCapturedImgs());
 
             if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
             {
@@ -1317,14 +1332,14 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Start Calibration (Main Camera)"))
                     {
                         s->onLoad(s, sv, SID_VideoCalibrateMain);
-                        showHelpCalibration = true;
+                        showHelpCalibration = false;
                         showInfosScene      = true;
                     }
 
                     if (ImGui::MenuItem("Start Calibration (Scnd. Camera)", nullptr, false, capture->hasSecondaryCamera))
                     {
                         s->onLoad(s, sv, SID_VideoCalibrateScnd);
-                        showHelpCalibration = true;
+                        showHelpCalibration = false;
                         showInfosScene      = true;
                     }
 
@@ -1339,6 +1354,15 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                     if (ImGui::MenuItem("Fix Principal Point", nullptr, ac->calibFixPrincipalPoint()))
                         ac->toggleFixPrincipalPoint();
+
+                    if (ImGui::MenuItem("Use rational model", nullptr, ac->calibRationalModel()))
+                        ac->toggleRationalModel();
+
+                    if (ImGui::MenuItem("Use tilted model", nullptr, ac->calibTiltedModel()))
+                        ac->toggleTiltedModel();
+
+                    if (ImGui::MenuItem("Use thin prism model", nullptr, ac->calibThinPrismModel()))
+                        ac->toggleThinPrismModel();
 
                     ImGui::EndMenu();
                 }

@@ -22,6 +22,7 @@ for a good top down information.
 
 #include <CVTypedefs.h>
 #include <ftplib.h>
+#include <future>
 
 using namespace std;
 //-----------------------------------------------------------------------------
@@ -71,6 +72,7 @@ one and is set by the CVCapture::videoType (VT_NONE, VT_MAIN, VT_SCND) during th
 scene assembly in AppDemoLoad. On mobile devices the front camera is the
 selfie camera (our secondary) and the back camera is the our main camera.
 */
+
 class CVCalibration
 {
 public:
@@ -157,32 +159,62 @@ public:
         clear();
         _calibZeroTangentDist = !_calibZeroTangentDist;
     }
+    void toggleRationalModel()
+    {
+        clear();
+        _calibRationalModel = !_calibRationalModel;
+    }
+    void toggleTiltedModel()
+    {
+        clear();
+        _calibTiltedModel = !_calibTiltedModel;
+    }
+    void toggleThinPrismModel()
+    {
+        clear();
+        _calibThinPrismModel = !_calibThinPrismModel;
+    }
+
     void showUndistorted(bool su) { _showUndistorted = su; }
     void devFocalLength(float f) { _devFocalLength = f; }
     void devSensorSizeW(float w) { _devSensorSizeW = w; }
     void devSensorSizeH(float h) { _devSensorSizeH = h; }
 
     // Getters
-    CVSize       imageSize() { return _imageSize; }
-    int          camSizeIndex() { return _camSizeIndex; }
-    float        imageAspectRatio() { return (float)_imageSize.width / (float)_imageSize.height; }
-    CVMat&       cameraMat() { return _cameraMat; }
-    CVMat&       distortion() { return _distortion; }
-    float        cameraFovVDeg() { return _cameraFovVDeg; }
-    float        cameraFovHDeg() { return _cameraFovHDeg; }
-    bool         calibFixPrincipalPoint() { return _calibFixPrincipalPoint; }
-    bool         calibFixAspectRatio() { return _calibFixAspectRatio; }
-    bool         calibZeroTangentDist() { return _calibZeroTangentDist; }
-    bool         isMirroredH() { return _isMirroredH; }
-    bool         isMirroredV() { return _isMirroredV; }
-    float        fx() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(0, 0) : 0.0f; }
-    float        fy() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(1, 1) : 0.0f; }
-    float        cx() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(0, 2) : 0.0f; }
-    float        cy() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(1, 2) : 0.0f; }
-    float        k1() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(0, 0) : 0.0f; }
-    float        k2() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(1, 0) : 0.0f; }
-    float        p1() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(2, 0) : 0.0f; }
-    float        p2() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(3, 0) : 0.0f; }
+    CVSize imageSize() { return _imageSize; }
+    int    camSizeIndex() { return _camSizeIndex; }
+    float  imageAspectRatio() { return (float)_imageSize.width / (float)_imageSize.height; }
+    CVMat& cameraMat() { return _cameraMat; }
+    CVMat& distortion() { return _distortion; }
+    float  cameraFovVDeg() { return _cameraFovVDeg; }
+    float  cameraFovHDeg() { return _cameraFovHDeg; }
+    bool   calibFixPrincipalPoint() { return _calibFixPrincipalPoint; }
+    bool   calibFixAspectRatio() { return _calibFixAspectRatio; }
+    bool   calibZeroTangentDist() { return _calibZeroTangentDist; }
+    bool   calibRationalModel() { return _calibRationalModel; }
+    bool   calibTiltedModel() { return _calibTiltedModel; }
+    bool   calibThinPrismModel() { return _calibThinPrismModel; }
+    bool   isMirroredH() { return _isMirroredH; }
+    bool   isMirroredV() { return _isMirroredV; }
+    float  fx() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(0, 0) : 0.0f; }
+    float  fy() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(1, 1) : 0.0f; }
+    float  cx() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(0, 2) : 0.0f; }
+    float  cy() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(1, 2) : 0.0f; }
+    float  k1() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(0, 0) : 0.0f; }
+    float  k2() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(1, 0) : 0.0f; }
+    float  p1() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(2, 0) : 0.0f; }
+    float  p2() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(3, 0) : 0.0f; }
+    float  k3() { return _distortion.rows >= 5 ? (float)_distortion.at<double>(4, 0) : 0.0f; }
+    float  k4() { return _distortion.rows >= 6 ? (float)_distortion.at<double>(5, 0) : 0.0f; }
+    float  k5() { return _distortion.rows >= 7 ? (float)_distortion.at<double>(6, 0) : 0.0f; }
+    float  k6() { return _distortion.rows >= 8 ? (float)_distortion.at<double>(7, 0) : 0.0f; }
+    float  s1() { return _distortion.rows >= 9 ? (float)_distortion.at<double>(8, 0) : 0.0f; }
+    float  s2() { return _distortion.rows >= 10 ? (float)_distortion.at<double>(9, 0) : 0.0f; }
+    float  s3() { return _distortion.rows >= 11 ? (float)_distortion.at<double>(10, 0) : 0.0f; }
+    float  s4() { return _distortion.rows >= 12 ? (float)_distortion.at<double>(11, 0) : 0.0f; }
+    float  tauX() { return _distortion.rows >= 13 ? (float)_distortion.at<double>(12, 0) : 0.0f; }
+    float  tauY() { return _distortion.rows >= 14 ? (float)_distortion.at<double>(13, 0) : 0.0f; }
+
     CVCalibState state() { return _state; }
     int          numImgsToCapture() { return _numOfImgsToCapture; }
     int          numCapturedImgs() { return _numCaptured; }
@@ -211,6 +243,7 @@ public:
 
 private:
     void calcCameraFov();
+    bool calibrateAsync();
 
     ///////////////////////////////////////////////////////////////////////////////////
     CVMat _cameraMat;  //!< 3x3 Matrix for intrinsic camera matrix
@@ -227,6 +260,9 @@ private:
     bool         _calibFixPrincipalPoint; //!< Calib. flag for fix principal point
     bool         _calibFixAspectRatio;    //!< Calib. flag for fix aspect ratio
     bool         _calibZeroTangentDist;   //!< Calib. flag for zero tangent distortion
+    bool         _calibRationalModel;     //!< Calib. flag for rational model
+    bool         _calibTiltedModel;       //!< Calib. flag for tilted model
+    bool         _calibThinPrismModel;    //!< Calib. flag for prism model
     bool         _isMirroredH = false;    //!< Flag if image must be horizontally mirrored
     bool         _isMirroredV = false;    //!< Flag if image must be vertically mirrored
     CVSize       _boardSize;              //!< NO. of inner chessboard corners.
@@ -246,6 +282,9 @@ private:
     float        _devSensorSizeW;         //!< Androids DeviceSensorPhysicalSizeW
     float        _devSensorSizeH;         //!< Androids DeviceSensorPhysicalSizeH
     string       _computerInfos;
+
+    std::vector<cv::Mat> _calibrationImgs; //!< Images captured for calibration
+    //std::future<bool>    _calibrationTask; //!< future object for calculation of calibration in async task
 
     static const int    _CALIBFILEVERSION; //!< Global const file format version
     static const string _FTP_HOST;         //!< ftp host for calibration up and download

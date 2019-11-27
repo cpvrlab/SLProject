@@ -83,11 +83,11 @@ KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
         case 6:
             return orbExtractor(4000);
         case 7:
-            return glslExtractor(64, 0.002, 0.003);
+            return glslExtractor(64, 0.003, 0.004);
         case 8:
-            return glslExtractor(128, 0.001, 0.0015);
+            return glslExtractor(128, 0.002, 0.003);
         case 9:
-            return glslExtractor(256, 0.001, 0.0015);
+            return glslExtractor(256, 0.0015, 0.002);
     }
     return surfExtractor(1000);
 }

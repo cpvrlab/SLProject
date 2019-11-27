@@ -47,9 +47,9 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
                                       SLfloat quatZ,
                                       SLfloat quatW)
 {
-    SLQuat4f quat(quatX, quatY, quatZ, quatW);
-    _rotation = quat.toMat3();
-    quat.toEulerAnglesXYZ(_rollRAD, _pitchRAD, _yawRAD);
+    _quaternion = SLQuat4f(quatX, quatY, quatZ, quatW);
+    _rotation = _quaternion.toMat3();
+    _quaternion.toEulerAnglesXYZ(_rollRAD, _pitchRAD, _yawRAD);
 
     //_rotation.print("Rotation:\n");
 
