@@ -1275,7 +1275,7 @@ void SLMesh::notifyParentNodesAABBUpdate() const
         node->needAABBUpdate();
 }
 
-void SLMesh::uploadData() {
+void SLMesh::allocAndUploadData() {
     _vertexBuffer.alloc_and_upload(P);
 
     _normalBuffer.alloc_and_upload(N);
@@ -1291,37 +1291,54 @@ void SLMesh::uploadData() {
     }
 }
 
+void SLMesh::uploadData() {
+    _vertexBuffer.upload(*_finalP);
+    _normalBuffer.upload(*_finalN);
+}
+
 void SLMesh::createMeshAccelerationStructure() {
     if (!_vertexBuffer.isAllocated()) {
-        uploadData();
+        allocAndUploadData();
     }
 
     // Build triangle GAS
-    uint32_t triangle_input_flags[1] = { OPTIX_GEOMETRY_FLAG_NONE };
-
-    OptixBuildInput triangle_input                           = {};
-    triangle_input.type                                      = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
+    uint32_t _buildInput_flags[1] = { OPTIX_GEOMETRY_FLAG_NONE };
+    
+    _buildInput.type                                      = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
     if (!I16.empty()) {
-        triangle_input.triangleArray.indexFormat             = OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3;
-        triangle_input.triangleArray.numIndexTriplets        = I16.size() / 3;
-        triangle_input.triangleArray.indexBuffer             = _indexShortBuffer.devicePointer();
+        _buildInput.triangleArray.indexFormat             = OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3;
+        _buildInput.triangleArray.numIndexTriplets        = I16.size() / 3;
+        _buildInput.triangleArray.indexBuffer             = _indexShortBuffer.devicePointer();
     } else {
-        triangle_input.triangleArray.indexFormat             = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
-        triangle_input.triangleArray.numIndexTriplets        = I32.size() / 3;
-        triangle_input.triangleArray.indexBuffer             = _indexIntBuffer.devicePointer();
+        _buildInput.triangleArray.indexFormat             = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
+        _buildInput.triangleArray.numIndexTriplets        = I32.size() / 3;
+        _buildInput.triangleArray.indexBuffer             = _indexIntBuffer.devicePointer();
     }
-    triangle_input.triangleArray.vertexFormat                = OPTIX_VERTEX_FORMAT_FLOAT3;
-    triangle_input.triangleArray.vertexBuffers               = _vertexBuffer.devicePointerPointer();
-    triangle_input.triangleArray.numVertices                 = P.size();
-    triangle_input.triangleArray.flags                       = triangle_input_flags;
-    triangle_input.triangleArray.numSbtRecords               = 1;
-    triangle_input.triangleArray.sbtIndexOffsetBuffer        = 0;
-    triangle_input.triangleArray.sbtIndexOffsetSizeInBytes   = 0;
-    triangle_input.triangleArray.sbtIndexOffsetStrideInBytes = 0;
+    _buildInput.triangleArray.vertexFormat                = OPTIX_VERTEX_FORMAT_FLOAT3;
+    _buildInput.triangleArray.vertexBuffers               = _vertexBuffer.devicePointerPointer();
+    _buildInput.triangleArray.numVertices                 = P.size();
+    _buildInput.triangleArray.flags                       = _buildInput_flags;
+    _buildInput.triangleArray.numSbtRecords               = 1;
+    _buildInput.triangleArray.sbtIndexOffsetBuffer        = 0;
+    _buildInput.triangleArray.sbtIndexOffsetSizeInBytes   = 0;
+    _buildInput.triangleArray.sbtIndexOffsetStrideInBytes = 0;
 
     _sbtIndex = RAY_TYPE_COUNT * meshIndex++;
 
-    buildAccelerationStructure(triangle_input);
+    buildAccelerationStructure();
+}
+
+void SLMesh::updateMeshAccelerationStructure() {
+    if (!_accelStructOutOfDate)
+        return;
+
+    uploadData();
+
+    // Build triangle GAS
+    uint32_t _buildInput_flags[1] = { OPTIX_GEOMETRY_FLAG_NONE };
+    _buildInput.triangleArray.flags                       = _buildInput_flags;
+
+    updateAccelerationStructure();
 }
 
 HitData SLMesh::createHitData() {

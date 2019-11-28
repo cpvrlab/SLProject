@@ -16,9 +16,14 @@ public:
 
     OptixTraversableHandle optixTraversableHandle() { return _handle; }
 protected:
-    void buildAccelerationStructure(OptixBuildInput);
+    void buildAccelerationStructure();
+    void updateAccelerationStructure();
+
+    OptixBuildInput         _buildInput = {};
+    OptixAccelBuildOptions  _accelBuildOptions = {};
+    OptixAccelBufferSizes   _accelBufferSizes = {};
     OptixTraversableHandle  _handle = 0;         //!< Handle for generated geometry acceleration structure
-    SLCudaBuffer<void>*     _buffer = nullptr;
+    SLCudaBuffer<void>*     _buffer;
 };
 
 #endif //SLPROJECT_SLOPTIXACCELERATIONSTRUCTURE_H

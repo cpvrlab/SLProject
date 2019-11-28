@@ -1226,6 +1226,7 @@ void SLNode::createInstanceAccelerationStructureTree() {
     }
 
     for(auto mesh : meshes()) {
+        mesh->updateMeshAccelerationStructure();
         OptixInstance instance;
 
         const SLMat4f& mat4x4 = om();
@@ -1253,13 +1254,12 @@ void SLNode::createInstanceAccelerationStructureTree() {
 
     SLCudaBuffer<OptixInstance> instanceBuffer = SLCudaBuffer<OptixInstance>();
     instanceBuffer.alloc_and_upload(instances);
+    
+    _buildInput.type                         = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
+    _buildInput.instanceArray.instances      = instanceBuffer.devicePointer();
+    _buildInput.instanceArray.numInstances   = instances.size();
 
-    OptixBuildInput instance_input              = {};
-    instance_input.type                         = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
-    instance_input.instanceArray.instances      = instanceBuffer.devicePointer();
-    instance_input.instanceArray.numInstances   = instances.size();
-
-    buildAccelerationStructure(instance_input);
+    buildAccelerationStructure();
 }
 
 void SLNode::createInstanceAccelerationStructureFlat() {
@@ -1273,13 +1273,12 @@ void SLNode::createInstanceAccelerationStructureFlat() {
 
     SLCudaBuffer<OptixInstance> instanceBuffer = SLCudaBuffer<OptixInstance>();
     instanceBuffer.alloc_and_upload(instances);
+    
+    _buildInput.type                         = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
+    _buildInput.instanceArray.instances      = instanceBuffer.devicePointer();
+    _buildInput.instanceArray.numInstances   = instances.size();
 
-    OptixBuildInput instance_input              = {};
-    instance_input.type                         = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
-    instance_input.instanceArray.instances      = instanceBuffer.devicePointer();
-    instance_input.instanceArray.numInstances   = instances.size();
-
-    buildAccelerationStructure(instance_input);
+    buildAccelerationStructure();
 }
 
 void SLNode::createOptixInstances(std::vector<OptixInstance>& instances) {
@@ -1288,6 +1287,7 @@ void SLNode::createOptixInstances(std::vector<OptixInstance>& instances) {
     }
 
     for(auto mesh : meshes()) {
+        mesh->updateMeshAccelerationStructure();
         OptixInstance instance;
 
         const SLMat4f& mat4x4 = updateAndGetWM();

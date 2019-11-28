@@ -143,8 +143,10 @@ class SLMesh : public SLObject, public SLOptixAccelerationStructure
 
     void transformSkin();
 
+    void    allocAndUploadData();
     void    uploadData();
     void    createMeshAccelerationStructure();
+    void    updateMeshAccelerationStructure();
     HitData createHitData();
 
     // Getters
