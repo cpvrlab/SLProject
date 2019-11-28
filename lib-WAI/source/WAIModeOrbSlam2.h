@@ -110,16 +110,6 @@ public:
     std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> getMatchedCorrespondances();
     std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> getCorrespondances();
 
-    void showKeyPointsMatched(const bool flag)
-    {
-        _showKeyPointsMatched = flag;
-    }
-
-    void showKeyPoints(const bool flag)
-    {
-        _showKeyPoints = flag;
-    }
-
     KPextractor* getKPextractor()
     {
         return mpExtractor;
@@ -142,6 +132,9 @@ public:
     WAIFrame getCurrentFrame();
 
     bool doMarkerMapPreprocessing(std::string markerFile, cv::Mat& nodeTransform, float markerWidthInM);
+
+    void decorateVideoWithKeyPoints(cv::Mat& image);
+    void decorateVideoWithKeyPointMatches(cv::Mat& image);
 
 private:
     enum TrackingType
@@ -267,13 +260,9 @@ private:
     void decorate(cv::Mat& image);
     void calculateMeanReprojectionError();
     void calculatePoseDifference();
-    void decorateVideoWithKeyPoints(cv::Mat& image);
-    void decorateVideoWithKeyPointMatches(cv::Mat& image);
 
     double _meanReprojectionError = -1.0;
     double _poseDifference        = -1.0;
-    bool   _showKeyPoints         = false;
-    bool   _showKeyPointsMatched  = true;
     bool   _showMapPC             = true;
     bool   _showMatchesPC         = true;
     bool   _showLocalMapPC        = false;

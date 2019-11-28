@@ -153,6 +153,14 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
                         sv->raytracer()->state(rtReady);
                 }
 
+                if (ImGui::MenuItem("Intrinsic", "5", proj == P_monoIntrinsic))
+                {
+                    cam->projection(P_monoIntrinsic);
+                    if (sv->renderType() == RT_rt && !sv->raytracer()->doContinuous() &&
+                        sv->raytracer()->state() == rtFinished)
+                        sv->raytracer()->state(rtReady);
+                }
+
                 if (ImGui::MenuItem("Orthographic", "5", proj == P_monoOrthographic))
                 {
                     cam->projection(P_monoOrthographic);

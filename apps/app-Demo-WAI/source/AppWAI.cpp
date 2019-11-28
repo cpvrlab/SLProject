@@ -280,8 +280,19 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         cap->activeCalib->adaptForNewResolution(videoFrameSize);
     }
 
-    // 3. Adjust FOV of camera node according to new calibration
+    // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective mode)
     waiScene->cameraNode->fov(cap->activeCalib->cameraFovVDeg());
+    // Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
+    cv::Mat scMat = cap->activeCalib->cameraMatUndistorted();
+    std::cout << "scMat: " << scMat << std::endl;
+    waiScene->cameraNode->intrinsics(scMat.at<double>(0, 0),
+                                     scMat.at<double>(1, 1),
+                                     scMat.at<double>(0, 2),
+                                     scMat.at<double>(1, 2));
+    //enable projection -> intrinsics mode
+    waiScene->cameraNode->projection(P_monoIntrinsic);
+    //enable image undistortion
+    cap->activeCalib->showUndistorted(true);
 
     // 4. Create new mode ORBSlam
     if (!markerFile.empty())
@@ -468,10 +479,10 @@ bool WAIApp::update()
     if (!loaded)
         return false;
 
-    float yaw = SLApplication::devRot.yawRAD();
+    float yaw   = SLApplication::devRot.yawRAD();
     float pitch = SLApplication::devRot.pitchRAD();
-    float roll = SLApplication::devRot.rollRAD();
-    Utils::log("BBBB yaw : %f   pitch : %f   roll : %f\n", yaw, pitch, roll);
+    float roll  = SLApplication::devRot.rollRAD();
+    //Utils::log("BBBB yaw : %f   pitch : %f   roll : %f\n", yaw, pitch, roll);
 
     if (CVCapture::instance()->lastFrame.empty() ||
         CVCapture::instance()->lastFrame.cols == 0 && CVCapture::instance()->lastFrame.rows == 0)
@@ -554,8 +565,6 @@ bool WAIApp::update()
 
     AVERAGE_TIMING_STOP("WAIAppUpdate");
 
-    //we can undistort the image now
-
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -599,37 +608,32 @@ bool WAIApp::updateTracking()
 void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
     CVCapture* cap = CVCapture::instance();
-    //copy image to video texture
+    //undistort image and copy image to video texture
     if (videoImage && cap->activeCalib)
     {
+        //decorate distorted image with distorted keypoints
+        if (uiPrefs.showKeyPoints)
+            mode->decorateVideoWithKeyPoints(cap->lastFrame);
+        if (uiPrefs.showKeyPointsMatched)
+            mode->decorateVideoWithKeyPointMatches(cap->lastFrame);
+
+        CVMat undistortedLastFrame;
         if (cap->activeCalib->state() == CS_calibrated && cap->activeCalib->showUndistorted())
         {
-            CVMat undistorted;
-            cap->activeCalib->remap(cap->lastFrame, undistorted);
-
-            videoImage->copyVideoImage(undistorted.cols,
-                                       undistorted.rows,
-                                       cap->format,
-                                       undistorted.data,
-                                       undistorted.isContinuous(),
-                                       true);
+            cap->activeCalib->remap(cap->lastFrame, undistortedLastFrame);
         }
         else
         {
-            //cap->videoTexture()->copyVideoImage(cap->lastFrame.cols,
-            videoImage->copyVideoImage(cap->lastFrame.cols,
-                                       cap->lastFrame.rows,
-                                       cap->format,
-                                       cap->lastFrame.data,
-                                       cap->lastFrame.isContinuous(),
-                                       true);
+            undistortedLastFrame = cap->lastFrame;
         }
-    }
 
-    //update keypoints visualization (2d image points):
-    //TODO: 2d visualization is still done in mode... do we want to keep it there?
-    mode->showKeyPoints(uiPrefs.showKeyPoints);
-    mode->showKeyPointsMatched(uiPrefs.showKeyPointsMatched);
+        videoImage->copyVideoImage(undistortedLastFrame.cols,
+                                   undistortedLastFrame.rows,
+                                   cap->format,
+                                   undistortedLastFrame.data,
+                                   undistortedLastFrame.isContinuous(),
+                                   true);
+    }
 
     //update map point visualization:
     //if we still want to visualize the point cloud

@@ -98,7 +98,6 @@ public:
     bool   findChessboard(CVMat        imageColor,
                           const CVMat& imageGray,
                           bool         drawCorners = true);
-    void   buildUndistortionMaps();
     void   remap(CVMat& inDistorted,
                  CVMat& outUndistorted);
     void   createFromGuessedFOV(int imageWidthPX,
@@ -185,6 +184,7 @@ public:
     int    camSizeIndex() { return _camSizeIndex; }
     float  imageAspectRatio() { return (float)_imageSize.width / (float)_imageSize.height; }
     CVMat& cameraMat() { return _cameraMat; }
+    CVMat& cameraMatUndistorted() { return _cameraMatUndistorted; }
     CVMat& distortion() { return _distortion; }
     float  cameraFovVDeg() { return _cameraFovVDeg; }
     float  cameraFovHDeg() { return _cameraFovHDeg; }
@@ -242,8 +242,11 @@ public:
     }
 
 private:
-    void calcCameraFov();
+    void calcCameraFovFromUndistortedCameraMat();
     bool calibrateAsync();
+    //! Calculate a camera matrix that we use for the scene graph and for the reprojection of the undistored image
+    void calculateUndistortedCameraMat();
+    void buildUndistortionMaps();
 
     ///////////////////////////////////////////////////////////////////////////////////
     CVMat _cameraMat;  //!< 3x3 Matrix for intrinsic camera matrix
@@ -276,7 +279,7 @@ private:
     bool         _showUndistorted;        //!< Flag if image should be undistorted
     CVMat        _undistortMapX;          //!< Undistortion float map in x-direction
     CVMat        _undistortMapY;          //!< Undistortion float map in y-direction
-    CVMat        _cameraMatUndistorted;   //!< Camera matrix for undistorted image
+    CVMat        _cameraMatUndistorted;   //!< Camera matrix that defines scene camera and may also be used for reprojection of undistorted image
     string       _calibrationTime;        //!< Time stamp string of calibration
     float        _devFocalLength;         //!< Androids DeviceLensFocalLength
     float        _devSensorSizeW;         //!< Androids DeviceSensorPhysicalSizeW
@@ -284,7 +287,7 @@ private:
     string       _computerInfos;
 
     std::vector<cv::Mat> _calibrationImgs; //!< Images captured for calibration
-    std::future<bool>    _calibrationTask; //!< future object for calculation of calibration in async task
+    //std::future<bool>    _calibrationTask; //!< future object for calculation of calibration in async task
 
     static const int    _CALIBFILEVERSION; //!< Global const file format version
     static const string _FTP_HOST;         //!< ftp host for calibration up and download

@@ -213,7 +213,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
 
             _vao.generateVertexPos(&P);
         }
-        else if (_projection == P_monoPerspective)
+        else if (_projection == P_monoPerspective || _projection == P_monoIntrinsic)
         {
             SLVVec3f P;
             SLfloat  aspect = sv->scrWdivH();
@@ -464,6 +464,10 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     {
         case P_monoPerspective:
             stateGL->projectionMatrix.perspective(_fov, _viewportRatio, _clipNear, _clipFar);
+            break;
+
+        case P_monoIntrinsic:
+            stateGL->projectionMatrix.perspective(_viewportW, _viewportH, _fx, _fy, _cx, _cy, _clipNear, _clipFar);
             break;
 
         case P_monoOrthographic:

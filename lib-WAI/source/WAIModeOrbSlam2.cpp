@@ -2276,9 +2276,6 @@ void WAI::ModeOrbSlam2::decorate(cv::Mat& image)
     calculateMeanReprojectionError();
     //calculate pose difference
     calculatePoseDifference();
-    //show rectangle for key points in video that where matched to map points
-    decorateVideoWithKeyPoints(image);
-    decorateVideoWithKeyPointMatches(image);
     //decorate scene with matched map points, local map points and matched map points
     //decorateScene();
 }
@@ -2365,52 +2362,46 @@ void WAI::ModeOrbSlam2::calculatePoseDifference()
 void WAI::ModeOrbSlam2::decorateVideoWithKeyPoints(cv::Mat& image)
 {
     //show rectangle for all keypoints in current image
-    if (_showKeyPoints)
+    for (size_t i = 0; i < mCurrentFrame.N; i++)
     {
-        for (size_t i = 0; i < mCurrentFrame.N; i++)
-        {
-            //Use distorted points because we have to undistort the image later
-            //const auto& pt = mCurrentFrame.mvKeys[i].pt;
-            const auto& pt = mCurrentFrame.mvKeys[i].pt;
-            cv::rectangle(image,
-                          cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
-                          cv::Scalar(0, 0, 255));
-        }
+        //Use distorted points because we have to undistort the image later
+        //const auto& pt = mCurrentFrame.mvKeys[i].pt;
+        const auto& pt = mCurrentFrame.mvKeys[i].pt;
+        cv::rectangle(image,
+                      cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
+                      cv::Scalar(0, 0, 255));
     }
 }
 
 void WAI::ModeOrbSlam2::decorateVideoWithKeyPointMatches(cv::Mat& image)
 {
     //show rectangle for key points in video that where matched to map points
-    if (_showKeyPointsMatched)
+    if (_optFlowOK)
     {
-        if (_optFlowOK)
+        for (size_t i = 0; i < _optFlowKeyPtsLastFrame.size(); i++)
         {
-            for (size_t i = 0; i < _optFlowKeyPtsLastFrame.size(); i++)
-            {
-                //Use distorted points because we have to undistort the image later
-                const auto& pt = _optFlowKeyPtsLastFrame[i].pt;
-                cv::rectangle(image,
-                              cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
-                              cv::Scalar(0, 255, 0));
-            }
+            //Use distorted points because we have to undistort the image later
+            const auto& pt = _optFlowKeyPtsLastFrame[i].pt;
+            cv::rectangle(image,
+                          cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
+                          cv::Scalar(0, 255, 0));
         }
-        else
+    }
+    else
+    {
+        for (size_t i = 0; i < mCurrentFrame.N; i++)
         {
-            for (size_t i = 0; i < mCurrentFrame.N; i++)
+            if (mCurrentFrame.mvpMapPoints[i])
             {
-                if (mCurrentFrame.mvpMapPoints[i])
+                if (!mCurrentFrame.mvbOutlier[i])
                 {
-                    if (!mCurrentFrame.mvbOutlier[i])
+                    if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
                     {
-                        if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
-                        {
-                            //Use distorted points because we have to undistort the image later
-                            const auto& pt = mCurrentFrame.mvKeys[i].pt;
-                            cv::rectangle(image,
-                                          cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
-                                          cv::Scalar(0, 255, 0));
-                        }
+                        //Use distorted points because we have to undistort the image later
+                        const auto& pt = mCurrentFrame.mvKeys[i].pt;
+                        cv::rectangle(image,
+                                      cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
+                                      cv::Scalar(0, 255, 0));
                     }
                 }
             }

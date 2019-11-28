@@ -194,7 +194,9 @@ bool CVCalibration::load(const string& calibDir,
     //calculate FOV and undistortion maps
     if (_state == CS_calibrated)
     {
-        calcCameraFov();
+        //calcCameraFov();
+        calculateUndistortedCameraMat();
+        calcCameraFovFromUndistortedCameraMat();
         buildUndistortionMaps();
     }
 
@@ -311,18 +313,18 @@ bool CVCalibration::loadCalibParams()
 }
 //-----------------------------------------------------------------------------
 //! Calculates the vertical field of view angle in degrees
-void CVCalibration::calcCameraFov()
+void CVCalibration::calcCameraFovFromUndistortedCameraMat()
 {
-    if (_cameraMat.rows != 3 || _cameraMat.cols != 3)
-        Utils::exitMsg("CVCalibration::calcCameraFovV: No intrinsic parameter available",
+    if (_cameraMatUndistorted.rows != 3 || _cameraMatUndistorted.cols != 3)
+        Utils::exitMsg("CVCalibration::calcCameraFovFromSceneCameraMat: No _cameraMatUndistorted available",
                        __LINE__,
                        __FILE__);
 
     //calculate vertical field of view
-    float fx       = (float)_cameraMat.at<double>(0, 0);
-    float fy       = (float)_cameraMat.at<double>(1, 1);
-    float cx       = (float)_cameraMat.at<double>(0, 2);
-    float cy       = (float)_cameraMat.at<double>(1, 2);
+    float fx       = (float)_cameraMatUndistorted.at<double>(0, 0);
+    float fy       = (float)_cameraMatUndistorted.at<double>(1, 1);
+    float cx       = (float)_cameraMatUndistorted.at<double>(0, 2);
+    float cy       = (float)_cameraMatUndistorted.at<double>(1, 2);
     _cameraFovHDeg = 2.0f * (float)atan2(cx, fx) * Utils::RAD2DEG;
     _cameraFovVDeg = 2.0f * (float)atan2(cy, fy) * Utils::RAD2DEG;
 }
@@ -597,8 +599,9 @@ bool CVCalibration::calibrateAsync()
 
     if (ok)
     {
+        calculateUndistortedCameraMat();
+        calcCameraFovFromUndistortedCameraMat();
         buildUndistortionMaps();
-        calcCameraFov();
         _calibrationTime = Utils::getDateTime2String();
     }
     else
@@ -619,45 +622,111 @@ bool CVCalibration::calibrateAsync()
 bool CVCalibration::calculate()
 {
     bool calibrationSuccessful = false;
-    if (!_calibrationTask.valid())
+    //if (!_calibrationTask.valid())
+    //{
+    //    _calibrationTask = std::async(std::launch::async, &CVCalibration::calibrateAsync, this);
+    //}
+    //else if (_calibrationTask.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
+    //{
+    //    calibrationSuccessful = _calibrationTask.get();
+    //    if (calibrationSuccessful)
+    //    {
+    //        _state = CS_calibrated;
+    //        save();
+    //        Utils::log("Calibration succeeded.");
+    //        Utils::log("Reproj. error: %f\n", _reprojectionError);
+    //    }
+    //    else
+    //    {
+    //        _state = CS_uncalibrated;
+    //        Utils::log("Calibration failed.");
+    //    }
+    //}
+
+    return calibrationSuccessful;
+}
+//-----------------------------------------------------------------------------
+//! Calculate a camera matrix that we use for the scene graph and for the reprojection of the undistored image
+//! (This is a manipulated version of cv::getOptimalNewCameraMatrix but with equal focal lengths in x and y)
+
+//! get inscribed and circumscribed rectangle
+void getInnerAndOuterRectangles(const cv::Mat&    cameraMatrix,
+                                const cv::Mat&    distCoeffs,
+                                const cv::Mat&    R,
+                                const cv::Mat&    newCameraMatrix,
+                                cv::Size          imgSize,
+                                cv::Rect_<float>& inner,
+                                cv::Rect_<float>& outer)
+{
+    const int N = 9;
+    // Fill matrix with N * N sampling points
+    cv::Mat pts(N * N, 2, CV_32F);
+    for (int y = 0, k = 0; y < N; y++)
     {
-        _calibrationTask = std::async(std::launch::async, &CVCalibration::calibrateAsync, this);
-    }
-    else if (_calibrationTask.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
-    {
-        calibrationSuccessful = _calibrationTask.get();
-        if (calibrationSuccessful)
+        for (int x = 0; x < N; x++)
         {
-            _state = CS_calibrated;
-            save();
-            Utils::log("Calibration succeeded.");
-            Utils::log("Reproj. error: %f\n", _reprojectionError);
-        }
-        else
-        {
-            _state = CS_uncalibrated;
-            Utils::log("Calibration failed.");
+            pts.at<float>(k, 0) = (float)x * imgSize.width / (N - 1);
+            pts.at<float>(k, 1) = (float)y * imgSize.height / (N - 1);
+            k++;
         }
     }
 
-    return calibrationSuccessful;
+    pts = pts.reshape(2);
+    cv::undistortPoints(pts, pts, cameraMatrix, distCoeffs, R, newCameraMatrix);
+    pts = pts.reshape(1);
+
+    float iX0 = -FLT_MAX, iX1 = FLT_MAX, iY0 = -FLT_MAX, iY1 = FLT_MAX;
+    float oX0 = FLT_MAX, oX1 = -FLT_MAX, oY0 = FLT_MAX, oY1 = -FLT_MAX;
+    // find the inscribed rectangle.
+    // the code will likely not work with extreme rotation matrices (R) (>45%)
+    for (int y = 0, k = 0; y < N; y++)
+        for (int x = 0; x < N; x++)
+        {
+            cv::Point2f p = {pts.at<float>(k, 0), pts.at<float>(k, 1)};
+            oX0           = MIN(oX0, p.x);
+            oX1           = MAX(oX1, p.x);
+            oY0           = MIN(oY0, p.y);
+            oY1           = MAX(oY1, p.y);
+
+            if (x == 0)
+                iX0 = MAX(iX0, p.x);
+            if (x == N - 1)
+                iX1 = MIN(iX1, p.x);
+            if (y == 0)
+                iY0 = MAX(iY0, p.y);
+            if (y == N - 1)
+                iY1 = MIN(iY1, p.y);
+            k++;
+        }
+    inner = cv::Rect_<float>(iX0, iY0, iX1 - iX0, iY1 - iY0);
+    outer = cv::Rect_<float>(oX0, oY0, oX1 - oX0, oY1 - oY0);
+}
+
+void CVCalibration::calculateUndistortedCameraMat()
+{
+    if (_cameraMat.rows != 3 || _cameraMat.cols != 3)
+        Utils::exitMsg("CVCalibration::calculateUndistortedCameraMat: No intrinsic parameter available",
+                       __LINE__,
+                       __FILE__);
+
+    // An alpha of 0 leads to no black borders
+    // An alpha of 1 leads to black borders
+    // (with alpha equaly zero the augmentation fits best)
+    double alpha = 1.0;
+    //Attention: the principle point has to be centered because for the projection matrix we assume that image plane is "symmetrically arranged wrt the focal plane"
+    //(see http://kgeorge.github.io/2014/03/08/calculating-opengl-perspective-matrix-from-opencv-intrinsic-matrix)
+    bool centerPrinciplePoint = true;
+    _cameraMatUndistorted     = cv::getOptimalNewCameraMatrix(_cameraMat, _distortion, _imageSize, alpha, _imageSize, nullptr, centerPrinciplePoint);
 }
 //-----------------------------------------------------------------------------
 //! Builds undistortion maps after calibration or loading
 void CVCalibration::buildUndistortionMaps()
 {
-    // An alpha of 0 leads to no black borders
-    // An alpha of 1 leads to black borders
-    double alpha = 0.0;
+    if (_cameraMatUndistorted.rows != 3 || _cameraMatUndistorted.cols != 3)
+        Utils::exitMsg("CVCalibration::buildUndistortionMaps: No _cameraMatUndistorted available",
+                       __LINE__,
+                       __FILE__);
 
-    // Create optimal camera matrix for undistorted image
-    _cameraMatUndistorted = cv::getOptimalNewCameraMatrix(_cameraMat,
-                                                          _distortion,
-                                                          _imageSize,
-                                                          alpha,
-                                                          _imageSize,
-                                                          nullptr,
-                                                          true);
     // Create undistortion maps
     _undistortMapX.release();
     _undistortMapY.release();
@@ -667,7 +736,7 @@ void CVCalibration::buildUndistortionMaps()
                                 cv::Mat(), // Identity matrix R
                                 _cameraMatUndistorted,
                                 _imageSize,
-                                CV_32FC1,
+                                CV_16SC2, //before we had CV_32FC1 but in all tutorials they use CV_16SC2.. is there a reason?
                                 _undistortMapX,
                                 _undistortMapY);
 
@@ -756,15 +825,27 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
     // allow adaptation only for calibrated cameras
     if (_state != CS_calibrated) return;
 
+    float scaleFactor = (float)newSize.width / (float)_imageSize.width;
     // new center and focal length in pixels not mm
-    float scaleFactor     = (float)newSize.width / (float)_imageSize.width;
-    float oldHeightScaled = _imageSize.height * scaleFactor;
-    float heightDiff      = (oldHeightScaled - newSize.height) * 0.5f;
-
-    float cx = this->cx() * scaleFactor;
-    float cy = this->cy() * scaleFactor - heightDiff;
     float fx = this->fx() * scaleFactor;
     float fy = this->fy() * scaleFactor;
+    float cy, cx;
+    if ((newSize.width / newSize.height) > (_imageSize.width / _imageSize.height))
+    {
+        float oldHeightScaled = _imageSize.height * scaleFactor;
+        float heightDiff      = (oldHeightScaled - newSize.height) * 0.5f;
+
+        cx = this->cx() * scaleFactor;
+        cy = this->cy() * scaleFactor - heightDiff;
+    }
+    else
+    {
+        float oldWidthScaled = _imageSize.width * scaleFactor;
+        float widthDiff      = (oldWidthScaled - newSize.width) * 0.5f;
+
+        cx = this->cx() * scaleFactor - widthDiff;
+        cy = this->cy() * scaleFactor;
+    }
 
     _cameraMat = (Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
     //_distortion remains unchanged
@@ -775,8 +856,8 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
 
     std::cout << "_cameraMat: " << _cameraMat << std::endl;
 
-    calcCameraFov();
-
+    calculateUndistortedCameraMat();
+    calcCameraFovFromUndistortedCameraMat();
     buildUndistortionMaps();
     //save();
 }
