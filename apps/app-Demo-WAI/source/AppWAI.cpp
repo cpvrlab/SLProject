@@ -47,11 +47,10 @@ SLGLTexture*       WAIApp::videoImage = nullptr;
 AppWAIDirectories* WAIApp::dirs       = nullptr;
 AppWAIScene*       WAIApp::waiScene   = nullptr;
 
-int                WAIApp::scrWidth;
-int                WAIApp::scrHeight;
-int                WAIApp::defaultScrWidth;
-int                WAIApp::defaultScrHeight;
-float              WAIApp::scrWdivH;
+int WAIApp::liveVideoTargetWidth;
+int WAIApp::liveVideoTargetHeight;
+int WAIApp::trackingImgWidth;
+
 cv::VideoWriter*   WAIApp::videoWriter     = nullptr;
 cv::VideoWriter*   WAIApp::videoWriterInfo = nullptr;
 WAI::ModeOrbSlam2* WAIApp::mode            = nullptr;
@@ -67,6 +66,14 @@ std::string WAIApp::mapDir         = "";
 std::string WAIApp::vocDir         = "";
 std::string WAIApp::experimentsDir = "";
 
+//basic information
+//-the sceen has a fixed size on android and also a fixed aspect ratio on desktop to simulate android behaviour on desktop
+//-the viewport gets adjusted according to the target video aspect ratio (for live video WAIApp::liveVideoTargetWidth and WAIApp::liveVideoTargetHeight are used and for video file the video frame size is used)
+//-the live video gets cropped according to the viewport aspect ratio on android and according to WAIApp::videoFrameWdivH on desktop (which is also used to define the viewport aspect ratio)
+//-the calibration gets adjusted according to the video (live and file)
+//-the live video gets cropped to the aspect ratio that is defined by the transferred values in load(..) and assigned to liveVideoTargetWidth and liveVideoTargetHeight
+
+float      WAIApp::videoFrameWdivH;
 cv::Size2i WAIApp::videoFrameSize;
 
 bool WAIApp::resizeWindow = false;
@@ -74,10 +81,10 @@ bool WAIApp::resizeWindow = false;
 bool WAIApp::pauseVideo           = false;
 int  WAIApp::videoCursorMoveIndex = 0;
 
-int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* directories)
+int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* directories)
 {
-    defaultScrWidth  = width;
-    defaultScrHeight = height;
+    liveVideoTargetWidth  = liveVideoTargetW;
+    liveVideoTargetHeight = liveVideoTargetH;
 
     dirs = directories;
 
@@ -111,8 +118,8 @@ int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, A
     uiPrefs.setDPI(dpi);
     uiPrefs.load();
 
-    int svIndex = slCreateSceneView((int)(width * scr2fbX),
-                                    (int)(height * scr2fbY),
+    int svIndex = slCreateSceneView((int)(scrWidth * scr2fbX),
+                                    (int)(scrHeight * scr2fbY),
                                     dpi,
                                     (SLSceneID)0,
                                     nullptr,
@@ -259,13 +266,13 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         cap->videoType(VT_MAIN);
         //open(0) only has an effect on desktop. On Android it just returns {0,0}
         cap->open(0);
-
-        videoFrameSize = cv::Size2i(defaultScrWidth, defaultScrHeight);
+        videoFrameSize = cv::Size2i(liveVideoTargetWidth, liveVideoTargetHeight);
     }
+    videoFrameWdivH = (float)videoFrameSize.width / (float)videoFrameSize.height;
 
-    scrWidth  = videoFrameSize.width;
-    scrHeight = videoFrameSize.height;
-    scrWdivH  = (float)scrWidth / (float)scrHeight;
+    //scrWidth  = videoFrameSize.width;
+    //scrHeight = videoFrameSize.height;
+    //scrWdivH  = (float)scrWidth / (float)scrHeight;
 
     // 2. Load Calibration
     if (!cap->activeCalib->load(calibDir, Utils::getFileName(calibrationFile), 0, 0))
@@ -339,8 +346,8 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     }
 
     // 6. resize window
-
-    resizeWindow = true;
+    // resizeWindow = true;
+    //ghm1: I do it outside of this function after viewport change now
 
     currentSlamParams->calibrationFile  = calibrationFile;
     currentSlamParams->mapFile          = mapFile;
@@ -465,7 +472,10 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
 
     ////setup gui at last because ui elements depend on other instances
     //setupGUI();
-    sv->setViewportFromRatio(SLVec2i(WAIApp::scrWidth, WAIApp::scrHeight), SLViewportAlign::VA_center, true);
+    sv->setViewportFromRatio(SLVec2i(WAIApp::liveVideoTargetWidth, WAIApp::liveVideoTargetHeight), SLViewportAlign::VA_center, true);
+    float wdh = sv->scrWdivH();
+    //do once an onResize in update loop so that everything is aligned correctly
+    WAIApp::resizeWindow = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -487,15 +497,17 @@ bool WAIApp::update()
     if (CVCapture::instance()->lastFrame.empty() ||
         CVCapture::instance()->lastFrame.cols == 0 && CVCapture::instance()->lastFrame.rows == 0)
     {
-        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+        //this only has an influence on desktop or video file
+        CVCapture::instance()->grabAndAdjustForSL(videoFrameWdivH);
         return false;
     }
 
     bool iKnowWhereIAm = (mode->getTrackingState() == WAI::TrackingState_TrackingOK);
     while (videoCursorMoveIndex < 0)
     {
+        //this only has an influence on desktop or video file
         CVCapture::instance()->moveCapturePosition(-2);
-        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+        CVCapture::instance()->grabAndAdjustForSL(videoFrameWdivH);
         iKnowWhereIAm = updateTracking();
 
         videoCursorMoveIndex++;
@@ -503,7 +515,8 @@ bool WAIApp::update()
 
     while (videoCursorMoveIndex > 0)
     {
-        CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+        //this only has an influence on desktop or video file
+        CVCapture::instance()->grabAndAdjustForSL(videoFrameWdivH);
         iKnowWhereIAm = updateTracking();
 
         videoCursorMoveIndex--;
@@ -511,9 +524,10 @@ bool WAIApp::update()
 
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
+        //this only has an influence on desktop or video file
         if (CVCapture::instance()->videoType() != VT_FILE || !pauseVideo)
         {
-            CVCapture::instance()->grabAndAdjustForSL(scrWdivH);
+            CVCapture::instance()->grabAndAdjustForSL(videoFrameWdivH);
             iKnowWhereIAm = updateTracking();
         }
     }

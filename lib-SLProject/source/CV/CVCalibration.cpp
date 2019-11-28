@@ -846,13 +846,14 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
     // allow adaptation only for calibrated cameras
     if (_state != CS_calibrated) return;
 
-    float scaleFactor = (float)newSize.width / (float)_imageSize.width;
     // new center and focal length in pixels not mm
-    float fx = this->fx() * scaleFactor;
-    float fy = this->fy() * scaleFactor;
-    float cy, cx;
-    if ((newSize.width / newSize.height) > (_imageSize.width / _imageSize.height))
+    float fx, fy, cy, cx;
+    if (((float)newSize.width / (float)newSize.height) > ((float)_imageSize.width / (float)_imageSize.height))
     {
+        float scaleFactor = (float)newSize.width / (float)_imageSize.width;
+
+        fx                    = this->fx() * scaleFactor;
+        fy                    = this->fy() * scaleFactor;
         float oldHeightScaled = _imageSize.height * scaleFactor;
         float heightDiff      = (oldHeightScaled - newSize.height) * 0.5f;
 
@@ -861,6 +862,9 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
     }
     else
     {
+        float scaleFactor    = (float)newSize.height / (float)_imageSize.height;
+        fx                   = this->fx() * scaleFactor;
+        fy                   = this->fy() * scaleFactor;
         float oldWidthScaled = _imageSize.width * scaleFactor;
         float widthDiff      = (oldWidthScaled - newSize.width) * 0.5f;
 
@@ -868,6 +872,7 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
         cy = this->cy() * scaleFactor;
     }
 
+    std::cout << "adaptForNewResolution: _cameraMat before: " << _cameraMat << std::endl;
     _cameraMat = (Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
     //_distortion remains unchanged
     _calibrationTime = Utils::getDateTime2String();
@@ -875,7 +880,7 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
     _imageSize.width  = newSize.width;
     _imageSize.height = newSize.height;
 
-    std::cout << "_cameraMat: " << _cameraMat << std::endl;
+    std::cout << "adaptForNewResolution: _cameraMat after: " << _cameraMat << std::endl;
 
     calculateUndistortedCameraMat();
     calcCameraFovFromUndistortedCameraMat();
