@@ -1552,9 +1552,7 @@ SLbool SLSceneView::draw3DOptixRT()
     {
         SLScene* s = SLApplication::scene;
 
-        // Update transforms and aabbs
-        // @Todo: causes multithreading bug in RT
-        //s->root3D()->needUpdate();
+        s->root3D()->needUpdate();
 
         // Do software skinning on all changed skeletons
 //        for (auto mesh : s->meshes())

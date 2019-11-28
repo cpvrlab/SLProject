@@ -74,7 +74,7 @@ void SLOptixRaytracer::setupOptix() {
     _cameraModule = _createModule("SLOptixRaytracerCamera.cu");
     _shadingModule = _createModule("SLOptixRaytracerShading.cu");
 
-    OptixProgramGroupDesc raygen_prog_group_desc  = {}; //
+    OptixProgramGroupDesc raygen_prog_group_desc  = {};
     raygen_prog_group_desc.kind                                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
     raygen_prog_group_desc.raygen.module                            = _cameraModule;
     raygen_prog_group_desc.raygen.entryFunctionName                 = "__raygen__pinhole_camera";
@@ -259,10 +259,6 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv) {
 
     _sbt = _createShaderBindingTable(meshes);
 
-    SLNode::instanceIndex = 0;
-//    scene->root3D()->createInstanceAccelerationStructureTree();
-    scene->root3D()->createInstanceAccelerationStructureFlat();
-
 //    OptixStackSizes stack_sizes = {};
 //    OPTIX_CHECK( optixUtilAccumulateStackSizes( _raygen_prog_group,    &stack_sizes ) );
 //    OPTIX_CHECK( optixUtilAccumulateStackSizes( _radiance_miss_group,  &stack_sizes ) );
@@ -291,6 +287,10 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
     SLScene* scene = SLApplication::scene;
     SLCamera* camera = sv->camera();
     _sv = sv;
+
+    SLNode::instanceIndex = 0;
+//    scene->root3D()->createInstanceAccelerationStructureTree();
+    scene->root3D()->createInstanceAccelerationStructureFlat();
 
     RayGenSbtRecord rayGenSbtRecord;
     _rayGenBuffer.download(&rayGenSbtRecord);
