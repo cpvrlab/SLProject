@@ -230,7 +230,6 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMes
             occlusion_hg_sbt.data.material.kt = mesh->mat()->kt();
             occlusion_hg_sbt.data.material.emissive_color = make_float4(mesh->mat()->emissive());
             hitRecords.push_back(occlusion_hg_sbt);
-
         }
         _hitBuffer.alloc_and_upload(hitRecords);
 
