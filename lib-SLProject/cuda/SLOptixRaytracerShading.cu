@@ -22,14 +22,8 @@ extern "C" __global__ void __anyhit__radiance()
 extern "C" __global__ void __anyhit__occlusion()
 {
     auto *rt_data = reinterpret_cast<HitData *>( optixGetSbtDataPointer());
-    float lighted = getLighted();
-    if (length(rt_data->material.emissive_color) > 0.0f) {
-        setLighted(lighted + 1.0f);
-    } else {
-        // Subtract the kt value of the hit material from the lighted value
-        setLighted(lighted - (1.0f - rt_data->material.kt));
-    }
-    optixIgnoreIntersection();
+    setLighted(getLighted() - (1.0f - rt_data->material.kt));
+//    optixIgnoreIntersection();
 }
 
 extern "C" __global__ void __closesthit__radiance() {
@@ -104,14 +98,14 @@ extern "C" __global__ void __closesthit__radiance() {
 
             if ( nDl > 0.0f)
             {
-                uint32_t p0 = float_as_int( 0.0f );
+                uint32_t p0 = float_as_int( 1.0f );
                 // Send shadow ray
                 optixTrace(
                         params.handle,
                         P,
                         L,
                         -1e-3f,                         // tmin
-                        Ldist + 1e-3f,                               // tmax
+                        Ldist,                // tmax
                         0.0f,                       // rayTime
                         OptixVisibilityMask( 1 ),
                         OPTIX_RAY_FLAG_DISABLE_CLOSESTHIT | OPTIX_RAY_FLAG_CULL_BACK_FACING_TRIANGLES,

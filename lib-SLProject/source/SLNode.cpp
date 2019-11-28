@@ -1298,7 +1298,7 @@ void SLNode::createOptixInstances(std::vector<OptixInstance>& instances) {
 
         instance.instanceId         = instanceIndex++;
         if (mesh->mat()->emissive().length() > 0) {
-            instance.visibilityMask     = 253;
+            instance.visibilityMask     = 252;
         } else {
             instance.visibilityMask     = 255;
         }
