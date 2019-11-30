@@ -250,6 +250,15 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv) {
     SLVMesh meshes = scene->meshes();
     _sv = sv;
 
+    _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(uchar4));
+    _debugBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float3));
+
+    _params.image = reinterpret_cast<uchar4 *>(_imageBuffer.devicePointer());
+    _params.debug = reinterpret_cast<float3 *>(_debugBuffer.devicePointer());
+    _params.width = _sv->scrW();
+    _params.height = _sv->scrH();
+    _params.max_depth = _maxDepth;
+
     // Iterate over all meshes
     SLMesh::meshIndex = 0;
     for(auto mesh : meshes) {
@@ -291,6 +300,8 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
 //    scene->root3D()->createInstanceAccelerationStructureTree();
     scene->root3D()->createInstanceAccelerationStructureFlat();
 
+    _params.handle = scene->root3D()->optixTraversableHandle();
+
     RayGenSbtRecord rayGenSbtRecord;
     _rayGenBuffer.download(&rayGenSbtRecord);
     SLVec3f eye, u, v, w;
@@ -300,16 +311,6 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
     rayGenSbtRecord.data.V = make_float3(v);
     rayGenSbtRecord.data.W = make_float3(w);
     _rayGenBuffer.upload(&rayGenSbtRecord);
-
-    _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(uchar4));
-    _debugBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float3));
-
-    _params.image = reinterpret_cast<uchar4 *>(_imageBuffer.devicePointer());
-    _params.debug = reinterpret_cast<float3 *>(_debugBuffer.devicePointer());
-    _params.width = _sv->scrW();
-    _params.height = _sv->scrH();
-    _params.handle = scene->root3D()->optixTraversableHandle();
-    _params.max_depth = _maxDepth;
 
     std::vector<Light> lights;
     _lightBuffer.free();
