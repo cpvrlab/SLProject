@@ -19,6 +19,14 @@
 #define REMOVEEDGE 10
 #define EXTRACTOR 11
 
+/*
+static std::string gaussianKernel   = "const float kernel[15] = float[15](0.0031742033144480037, 0.008980510024247402, 0.02165110898093487, 0.04448075733770272, 0.07787123866346017, 0.11617023707406768, 0.1476813151730447, 0.15998125886418896, 0.14768131517304472, 0.11617023707406769, 0.07787123866346018, 0.04448075733770272, 0.02165110898093487, 0.008980510024247402, 0.0031742033144480037);\n";
+static std::string gaussianD1Kernel = "const float kernel[15] = float[15](0.00888776928045441, 0.021553224058193758, 0.04330221796186974, 0.07116921174032437, 0.09344548639615223, 0.09293618965925417, 0.0590725260692179, 0.0, -0.059072526069217875, -0.09293618965925415, -0.09344548639615223, -0.07116921174032437, -0.04330221796186974, -0.021553224058193758, -0.00888776928045441);\n";
+static std::string gaussianD2Kernel = "const float kernel[15] = float[15](0.021711550670824344, 0.04274722771541763, 0.0649533269428046, 0.06938998144681627, 0.034263345011922505, -0.04182128534666434, -0.12405230474535753, -0.15998125886418896, -0.12405230474535757, -0.041821285346664384, 0.03426334501192248, 0.06938998144681627, 0.0649533269428046, 0.04274722771541763, 0.021711550670824344);\n";
+static std::string kernelSize       = "const float kHalfSize = 7.0;\nconst float kSize = 15.0;\n";
+*/
+
+
 static std::string textureOfstFct = "\n"
                                     "float Ix(float ofst)\n"
                                     "{\n"
@@ -51,16 +59,16 @@ static std::string hGaussianFs = "#ifdef GL_ES\n"
                                  "uniform sampler2D tex;\n"
                                  "\n"
                                  "#include texOffsets\n"
-                                 "\n"
-                                 "const float kernel[15] = float[15]("
-                                 "0.0031742033144480037, 0.008980510024247402, 0.02165110898093487, 0.04448075733770272, 0.07787123866346017, 0.11617023707406768, 0.1476813151730447, 0.15998125886418896, 0.14768131517304472, 0.11617023707406769, 0.07787123866346018, 0.04448075733770272, 0.02165110898093487, 0.008980510024247402, 0.0031742033144480037);\n"
+                                 "#include kernelSize\n"
+                                 "#include gaussianKernel\n"
+                                 ""
                                  "void main()\n"
                                  "{\n"
                                  "    \n"
                                  "    float response = 0.0;\n"
-                                 "    for (int i = 0; i < 15; i++)\n"
+                                 "    for (int i = 0; i < kSize; i++)\n"
                                  "    {\n"
-                                 "        float v = Ix((float(i) - 7.0) / w);\n"
+                                 "        float v = Ix((float(i) - kHalfSize) / w);\n"
                                  "        response += kernel[i] * v;\n"
                                  "    }\n"
 
@@ -76,18 +84,17 @@ static std::string vGaussianFs = "#ifdef GL_ES\n"
                                  "uniform sampler2D tex;\n"
                                  "\n"
                                  "#include texOffsets\n"
-                                 "\n"
-                                 "const float kernel[15] = float[15]("
-                                 "0.0031742033144480037, 0.008980510024247402, 0.02165110898093487, 0.04448075733770272, 0.07787123866346017, 0.11617023707406768, 0.1476813151730447, 0.15998125886418896, 0.14768131517304472, 0.11617023707406769, 0.07787123866346018, 0.04448075733770272, 0.02165110898093487, 0.008980510024247402, 0.0031742033144480037);\n"
+                                 "#include kernelSize\n"
+                                 "#include gaussianKernel\n"
                                  "\n"
                                  "void main()\n"
                                  "{\n"
                                  "\n"
                                  "    \n"
                                  "    float response = 0.0;\n"
-                                 "    for (int i = 0; i < 15; i++)\n"
+                                 "    for (int i = 0; i < kSize; i++)\n"
                                  "    {\n"
-                                 "        float v = Iy((float(i) - 7.0) / w);\n"
+                                 "        float v = Iy((float(i) - kHalfSize) / w);\n"
                                  "        response += kernel[i] * v;\n"
                                  "    }\n"
                                  "    pixel = response;\n"
@@ -102,17 +109,17 @@ static std::string hGaussianDxFs = "#ifdef GL_ES\n"
                                    "uniform sampler2D tex;\n"
                                    "\n"
                                    "#include texOffsets\n"
+                                   "#include kernelSize\n"
+                                   "#include gaussianD1Kernel\n"
                                    "\n"
-                                   "const float kernel[15] = float[15]("
-                                   "0.00888776928045441, 0.021553224058193758, 0.04330221796186974, 0.07116921174032437, 0.09344548639615223, 0.09293618965925417, 0.0590725260692179, 0.0, -0.059072526069217875, -0.09293618965925415, -0.09344548639615223, -0.07116921174032437, -0.04330221796186974, -0.021553224058193758, -0.00888776928045441);\n"
                                    "\n"
                                    "void main()\n"
                                    "{\n"
                                    "    \n"
                                    "    float response = 0.0;\n"
-                                   "    for (int i = 0; i < 15; i++)\n"
+                                   "    for (int i = 0; i < kSize; i++)\n"
                                    "    {\n"
-                                   "        float v = Ix((float(i) - 7.0) / w);\n"
+                                   "        float v = Ix((float(i) - kHalfSize) / w);\n"
                                    "        response += kernel[i] * v;\n"
                                    "    }\n"
                                    "    pixel = response;\n"
@@ -127,17 +134,16 @@ static std::string vGaussianDyFs = "#ifdef GL_ES\n"
                                    "uniform sampler2D tex;\n"
                                    "\n"
                                    "#include texOffsets\n"
-                                   "\n"
-                                   "const float kernel[15] = float[15]("
-                                   "0.00888776928045441, 0.021553224058193758, 0.04330221796186974, 0.07116921174032437, 0.09344548639615223, 0.09293618965925417, 0.0590725260692179, 0.0, -0.059072526069217875, -0.09293618965925415, -0.09344548639615223, -0.07116921174032437, -0.04330221796186974, -0.021553224058193758, -0.00888776928045441);\n"
+                                   "#include kernelSize\n"
+                                   "#include gaussianD1Kernel\n"
                                    "\n"
                                    "void main()\n"
                                    "{\n"
                                    "    \n"
                                    "    float response = 0.0;\n"
-                                   "    for (int i = 0; i < 15; i++)\n"
+                                   "    for (int i = 0; i < kSize; i++)\n"
                                    "    {\n"
-                                   "        float v = Iy((float(i) - 7.0) / w);\n"
+                                   "        float v = Iy((float(i) - kHalfSize) / w);\n"
                                    "        response += kernel[i] * v;\n"
                                    "    }\n"
                                    "    pixel = response;\n"
@@ -153,17 +159,17 @@ static std::string hGaussianDx2Fs = "#ifdef GL_ES\n"
                                     "uniform sampler2D tex;\n"
                                     "\n"
                                     "#include texOffsets\n"
+                                    "#include kernelSize\n"
+                                    "#include gaussianD2Kernel\n"
                                     "\n"
-                                    "const float kernel[15] = float[15]("
-                                    "0.021711550670824344, 0.04274722771541763, 0.0649533269428046, 0.06938998144681627, 0.034263345011922505, -0.04182128534666434, -0.12405230474535753, -0.15998125886418896, -0.12405230474535757, -0.041821285346664384, 0.03426334501192248, 0.06938998144681627, 0.0649533269428046, 0.04274722771541763, 0.021711550670824344);\n"
                                     "\n"
                                     "void main()\n"
                                     "{\n"
                                     "    \n"
                                     "    float response = 0.0;\n"
-                                    "    for (int i = 0; i < 15; i++)\n"
+                                    "    for (int i = 0; i < kSize; i++)\n"
                                     "    {\n"
-                                    "        float v = Ix((float(i) - 7.0) / w);\n"
+                                    "        float v = Ix((float(i) - kHalfSize) / w);\n"
                                     "        response += kernel[i] * v;\n"
                                     "    }\n"
                                     "    pixel = response;\n"
@@ -178,17 +184,16 @@ static std::string vGaussianDy2Fs = "#ifdef GL_ES\n"
                                     "uniform sampler2D tex;\n"
                                     "\n"
                                     "#include texOffsets\n"
-                                    "\n"
-                                    "const float kernel[15] = float[15]("
-                                    "0.021711550670824344, 0.04274722771541763, 0.0649533269428046, 0.06938998144681627, 0.034263345011922505, -0.04182128534666434, -0.12405230474535753, -0.15998125886418896, -0.12405230474535757, -0.041821285346664384, 0.03426334501192248, 0.06938998144681627, 0.0649533269428046, 0.04274722771541763, 0.021711550670824344);\n"
+                                    "#include kernelSize\n"
+                                    "#include gaussianD2Kernel\n"
                                     "\n"
                                     "void main()\n"
                                     "{\n"
                                     "    \n"
                                     "    float response = 0.0;\n"
-                                    "    for (int i = 0; i < 15; i++)\n"
+                                    "    for (int i = 0; i < kSize; i++)\n"
                                     "    {\n"
-                                    "        float v = Iy((float(i) - 7.0) / w);\n"
+                                    "        float v = Iy((float(i) - kHalfSize) / w);\n"
                                     "        response += kernel[i] * v;\n"
                                     "    }\n"
                                     "    pixel = response;\n"
@@ -209,8 +214,7 @@ static std::string detHFs = "#ifdef GL_ES\n"
                             "    float gxx = texture(tgxx, texcoords).r;\n"
                             "    float gyy = texture(tgyy, texcoords).r;\n"
                             "    float gxy = texture(tgxy, texcoords).r;\n"
-                            "    float det = gxx * gyy - gxy * gxy;\n"
-                            "    pixel = det;\n"
+                            "    pixel = gxx*gyy - gxy*gxy;\n"
                             "}\n";
 
 static std::string nmsxFs = "#ifdef GL_ES\n"
@@ -254,6 +258,127 @@ static std::string nmsyFs = "#ifdef GL_ES\n"
                             "    }\n"
                             "}\n";
 
+
+static std::string fast =  "bool fast(float t)\n"
+                           "{\n"
+                           "    float p[16];\n"
+                           "    float o = texture(gray, texcoords).r;\n"
+                           "    p[0 ] = texture(gray, texcoords + vec2( 0.0 / w, 3.0 / h)).r - o;\n"
+                           "    p[4 ] = texture(gray, texcoords + vec2( 3.0 / w, 0.0 / h)).r - o;\n"
+                           "    p[8 ] = texture(gray, texcoords + vec2( 0.0 / w,-3.0 / h)).r - o;\n"
+                           "    p[12] = texture(gray, texcoords + vec2(-3.0 / w, 0.0 / h)).r - o;\n"
+                           "\n"
+                           "    int n;\n"
+                           "    if (p[0] > t || p[1] > t)\n"
+                           "    {\n"
+                           "        n = 0;\n"
+                           "        if (p[0] > t)\n"
+                           "        {\n"
+                           "            n++;\n"
+                           "        }\n"
+                           "        if (p[4] > t)\n"
+                           "        {\n"
+                           "            n++;\n"
+                           "        }\n"
+                           "        if (p[8] > t)\n"
+                           "        {\n"
+                           "            n++;\n"
+                           "        }\n"
+                           "        if (p[12] > t)\n"
+                           "        {\n"
+                           "            n++;\n"
+                           "        }\n"
+                           "    }\n"
+                           "\n"
+                           "    if (n < 3)\n"
+                           "        return false;\n"
+                           "\n"
+                           "    if (p[0] < -t || p[1] < -t)\n"
+                           "    {\n"
+                           "        n = 0;\n"
+                           "        if (p[0] < -t)\n"
+                           "        {\n"
+                           "            n++;\n"
+                           "        }\n"
+                           "        if (p[4] < -t)\n"
+                           "        {\n"
+                           "            n++;\n"
+                           "        }\n"
+                           "        if (p[8] < -t)\n"
+                           "        {\n"
+                           "            n++;\n"
+                           "        }\n"
+                           "        if (p[12] < -t)\n"
+                           "        {\n"
+                           "            n++;\n"
+                           "        }\n"
+                           "    }\n"
+                           "\n"
+                           "    if (n < 3)\n"
+                           "        return false;\n"
+                           "\n"
+                           "    p[1 ] = texture(gray, texcoords + vec2( 1.0 / w, 3.0 / h)).r - o;\n"
+                           "    p[2 ] = texture(gray, texcoords + vec2( 2.0 / w, 2.0 / h)).r - o;\n"
+                           "    p[3 ] = texture(gray, texcoords + vec2( 3.0 / w, 1.0 / h)).r - o;\n"
+                           "    p[5 ] = texture(gray, texcoords + vec2( 3.0 / w,-1.0 / h)).r - o;\n"
+                           "    p[6 ] = texture(gray, texcoords + vec2( 2.0 / w,-2.0 / h)).r - o;\n"
+                           "    p[7 ] = texture(gray, texcoords + vec2( 1.0 / w,-3.0 / h)).r - o;\n"
+                           "    p[9 ] = texture(gray, texcoords + vec2(-1.0 / w,-3.0 / h)).r - o;\n"
+                           "    p[10] = texture(gray, texcoords + vec2(-2.0 / w,-2.0 / h)).r - o;\n"
+                           "    p[11] = texture(gray, texcoords + vec2(-3.0 / w,-1.0 / h)).r - o;\n"
+                           "    p[13] = texture(gray, texcoords + vec2(-3.0 / w, 1.0 / h)).r - o;\n"
+                           "    p[14] = texture(gray, texcoords + vec2(-2.0 / w, 2.0 / h)).r - o;\n"
+                           "    p[15] = texture(gray, texcoords + vec2(-1.0 / w, 3.0 / h)).r - o;\n"
+                           "    \n"
+                           "    n = 0;\n"
+                           "    bool sup = true;\n"
+                           "    for (int i = 0; i < 24; i++)\n\n"
+                           "    {\n"
+                           "         int idx = i % 16;\n"
+                           "         if (sup)\n"
+                           "         {\n"
+                           "              if (p[idx] > t)\n"
+                           "              {\n"
+                           "                   n++;\n"
+                           "              }\n"
+                           "              else if(p[idx] < -t)\n"
+                           "              {\n"
+                           "                   n = 1;\n"
+                           "                   sup = false;\n"
+                           "              }\n"
+                           "              else\n"
+                           "              {\n"
+                           "                   n = 0;\n"
+                           "                   sup = false;\n"
+                           "              }\n"
+                           "         }\n"
+                           "         else\n"
+                           "         {\n"
+                           "              if (p[idx] < -t)\n"
+                           "              {\n"
+                           "                   n++;\n"
+                           "              }\n"
+                           "              else if(p[idx] > t)\n"
+                           "              {\n"
+                           "                   n = 1;\n"
+                           "                   sup = true;\n"
+                           "              }\n"
+                           "              else\n"
+                           "              {\n"
+                           "                   n = 0;\n"
+                           "                   sup = true;\n"
+                           "              }\n"
+                           "         }\n"
+                           "         if (n >= 8)\n"
+                           "         {\n"
+                           "               return true;\n"
+                           "         }\n"
+                           "    }\n"
+                           "    return false;\n"
+                           "    \n"
+                           "}\n"
+                           "\n";
+
 static std::string removeEdge = "#ifdef GL_ES\n"
                                 "precision highp float;\n"
                                 "#endif\n"
@@ -267,126 +392,7 @@ static std::string removeEdge = "#ifdef GL_ES\n"
                                 "uniform sampler2D tgyy;\n"
                                 "uniform sampler2D tgxy;\n"
                                 "\n"
-                                "\n"
-                                "bool fast(float t)\n"
-                                "{\n"
-                                "    float p[16];\n"
-                                "    float o = texture(gray, texcoords).r;\n"
-                                "    p[0 ] = texture(gray, texcoords + vec2( 0.0 / w, 3.0 / h)).r - o;\n"
-                                "    p[4 ] = texture(gray, texcoords + vec2( 3.0 / w, 0.0 / h)).r - o;\n"
-                                "    p[8 ] = texture(gray, texcoords + vec2( 0.0 / w,-3.0 / h)).r - o;\n"
-                                "    p[12] = texture(gray, texcoords + vec2(-3.0 / w, 0.0 / h)).r - o;\n"
-                                "\n"
-                                "    int n;\n"
-                                "    if (p[0] > t || p[1] > t)\n"
-                                "    {\n"
-                                "        n = 0;\n"
-                                "        if (p[0] > t)\n"
-                                "        {\n"
-                                "            n++;\n"
-                                "        }\n"
-                                "        if (p[4] > t)\n"
-                                "        {\n"
-                                "            n++;\n"
-                                "        }\n"
-                                "        if (p[8] > t)\n"
-                                "        {\n"
-                                "            n++;\n"
-                                "        }\n"
-                                "        if (p[12] > t)\n"
-                                "        {\n"
-                                "            n++;\n"
-                                "        }\n"
-                                "    }\n"
-                                "\n"
-                                "    if (n < 3)\n"
-                                "        return false;\n"
-                                "\n"
-                                "    if (p[0] < -t || p[1] < -t)\n"
-                                "    {\n"
-                                "        n = 0;\n"
-                                "        if (p[0] < -t)\n"
-                                "        {\n"
-                                "            n++;\n"
-                                "        }\n"
-                                "        if (p[4] < -t)\n"
-                                "        {\n"
-                                "            n++;\n"
-                                "        }\n"
-                                "        if (p[8] < -t)\n"
-                                "        {\n"
-                                "            n++;\n"
-                                "        }\n"
-                                "        if (p[12] < -t)\n"
-                                "        {\n"
-                                "            n++;\n"
-                                "        }\n"
-                                "    }\n"
-                                "\n"
-                                "    if (n < 3)\n"
-                                "        return false;\n"
-                                "\n"
-                                "    p[1 ] = texture(gray, texcoords + vec2( 1.0 / w, 3.0 / h)).r - o;\n"
-                                "    p[2 ] = texture(gray, texcoords + vec2( 2.0 / w, 2.0 / h)).r - o;\n"
-                                "    p[3 ] = texture(gray, texcoords + vec2( 3.0 / w, 1.0 / h)).r - o;\n"
-                                "    p[5 ] = texture(gray, texcoords + vec2( 3.0 / w,-1.0 / h)).r - o;\n"
-                                "    p[6 ] = texture(gray, texcoords + vec2( 2.0 / w,-2.0 / h)).r - o;\n"
-                                "    p[7 ] = texture(gray, texcoords + vec2( 1.0 / w,-3.0 / h)).r - o;\n"
-                                "    p[9 ] = texture(gray, texcoords + vec2(-1.0 / w,-3.0 / h)).r - o;\n"
-                                "    p[10] = texture(gray, texcoords + vec2(-2.0 / w,-2.0 / h)).r - o;\n"
-                                "    p[11] = texture(gray, texcoords + vec2(-3.0 / w,-1.0 / h)).r - o;\n"
-                                "    p[13] = texture(gray, texcoords + vec2(-3.0 / w, 1.0 / h)).r - o;\n"
-                                "    p[14] = texture(gray, texcoords + vec2(-2.0 / w, 2.0 / h)).r - o;\n"
-                                "    p[15] = texture(gray, texcoords + vec2(-1.0 / w, 3.0 / h)).r - o;\n"
-                                "    \n"
-                                "    n = 0;\n"
-                                "    bool sup = true;\n"
-                                "    for (int i = 0; i < 24; i++)\n\n"
-                                "    {\n"
-                                "         int idx = i % 16;\n"
-                                "         if (sup)\n"
-                                "         {\n"
-                                "              if (p[idx] > t)\n"
-                                "              {\n"
-                                "                   n++;\n"
-                                "              }\n"
-                                "              else if(p[idx] < -t)\n"
-                                "              {\n"
-                                "                   n = 1;\n"
-                                "                   sup = false;\n"
-                                "              }\n"
-                                "              else\n"
-                                "              {\n"
-                                "                   n = 0;\n"
-                                "                   sup = false;\n"
-                                "              }\n"
-                                "         }\n"
-                                "         else\n"
-                                "         {\n"
-                                "              if (p[idx] < -t)\n"
-                                "              {\n"
-                                "                   n++;\n"
-                                "              }\n"
-                                "              else if(p[idx] > t)\n"
-                                "              {\n"
-                                "                   n = 1;\n"
-                                "                   sup = true;\n"
-                                "              }\n"
-                                "              else\n"
-                                "              {\n"
-                                "                   n = 0;\n"
-                                "                   sup = true;\n"
-                                "              }\n"
-                                "         }\n"
-                                "         if (n >= 8)\n"
-                                "         {\n"
-                                "               return true;\n"
-                                "         }\n"
-                                "    }\n"
-                                "    return false;\n"
-                                "    \n"
-                                "}\n"
-                                "\n"
+                                "#include fast\n"
                                 "\n"
                                 "void main()\n"
                                 "{\n"
@@ -395,22 +401,22 @@ static std::string removeEdge = "#ifdef GL_ES\n"
                                 "    float gxx = texture(tgxx, texcoords).r;\n"
                                 "    float gyy = texture(tgyy, texcoords).r;\n"
                                 "    float gxy = texture(tgxy, texcoords).r;\n"
-                                "    float det = gxx * gyy - gxy * gxy;\n"
                                 "    float tr = gxx + gyy;\n"
-                                "    float r = tr * tr / det;\n"
+                                "    float r = tr*tr / nms_det;\n"
                                 "    pixel = 0.0;\n"
-                                "    if (nms_det > 0.0)\n"
+                                "    if (r < 5.0)\n"
                                 "    {\n"
-                                "        if (r < 6.0)\n"
-                                "        {\n"
-                                "            pixel = det;\n"
-                                "        }\n"
+                                "        pixel = max(nms_det, 0.0);\n"
                                 "    }\n"
+                                /*
                                 "    else\n"
                                 "    {\n"
-                                "        if (fast(0.2))\n"
-                                "            pixel = 1.0;\n"
+                                "        if (fast(50.0 * $HIGH_THRESHOLD))\n"
+                                "            pixel = $HIGH_THRESHOLD;\n"
+                                "        else if (fast(50.0 * $LOW_THRESHOLD))\n"
+                                "            pixel = $LOW_THRESHOLD;\n"
                                 "    }\n"
+                                */
                                 "}\n";
 
 static std::string screenQuadOffsetVs = "layout (location = 0) in vec3 vcoords;\n"
@@ -489,6 +495,11 @@ GLuint GLSLHessian::buildShaderFromSource(string source, GLenum shaderType)
     string completeSrc = version + source;
 
     Utils::replaceString(completeSrc, "#include texOffsets", textureOfstFct);
+    Utils::replaceString(completeSrc, "#include gaussianKernel", gaussianKernelStr);
+    Utils::replaceString(completeSrc, "#include gaussianD1Kernel", gaussianD1KernelStr);
+    Utils::replaceString(completeSrc, "#include gaussianD2Kernel", gaussianD2KernelStr);
+    Utils::replaceString(completeSrc, "#include kernelSize", kernelSizeStr);
+    Utils::replaceString(completeSrc, "#include fast", fast);
     Utils::replaceString(completeSrc, "$NB_KEYPOINTS", nbKeypointsStr);
     Utils::replaceString(completeSrc, "$HIGH_THRESHOLD", highThresholdStr);
     Utils::replaceString(completeSrc, "$LOW_THRESHOLD", lowThresholdStr);
@@ -512,7 +523,7 @@ GLuint GLSLHessian::buildShaderFromSource(string source, GLenum shaderType)
     if (!compileSuccess)
     {
         Utils::log("AAAA Cannot compile shader %s\n", log);
-        Utils::log("AAAA %s\n", completeSrc);
+        Utils::log("AAAA %s\n", src);
         exit(1);
     }
     return shaderHandle;
@@ -926,7 +937,59 @@ void GLSLHessian::extract(int w, int h, int curr)
     }
 }
 
-void GLSLHessian::init(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs)
+/* These function are scaled such that the value after all filters are about between 0-1 */
+string GLSLHessian::gaussian(int size, int half_size, float sigma)
+{
+    float v = 2.0 * (1.0 / sigma) * exp(-(half_size*half_size) / (2.0 * sigma*sigma));
+
+    string fctStr = std::to_string(v);
+
+    for (int i = 1; i < size; i++)
+    {
+        float x = (float)(i - half_size);
+        float v = 2.0 * (1.0 / sigma) * exp(-(x*x) / (2.0 * sigma*sigma));
+
+        fctStr = fctStr + ", ";
+        fctStr = fctStr + std::to_string(v);
+    }
+    return fctStr;
+}
+
+string GLSLHessian::gaussianD1(int size, int half_size, float sigma)
+{
+    float v = -2.0 * (half_size / (sigma*sigma*sigma)) * exp(-(half_size*half_size) / (2.0 * sigma*sigma));
+
+    string fctStr = std::to_string(v);
+
+    for (int i = 1; i < size; i++)
+    {
+        float x = (float)(i - half_size);
+        float v = -2.0 * (x / (sigma*sigma*sigma)) * exp(-(x*x) / (2.0 * sigma*sigma));
+
+        fctStr = fctStr + ", ";
+        fctStr = fctStr + std::to_string(v);
+    }
+    return fctStr;
+}
+
+string GLSLHessian::gaussianD2(int size, int half_size, float sigma)
+{
+    float v = 2.0 * (half_size*half_size - sigma*sigma) / (sigma*sigma*sigma*sigma*sigma) * exp(-(half_size*half_size) / (2.0 * sigma*sigma));
+
+    string fctStr = std::to_string(v);
+
+    for (int i = 1; i < size; i++)
+    {
+        float x = (float)(i - half_size);
+        float v = 2.0 * (x*x - sigma*sigma) / (sigma*sigma*sigma*sigma*sigma) * exp(-(x*x) / (2.0 * sigma*sigma));
+
+        fctStr = fctStr + ", ";
+        fctStr = fctStr + std::to_string(v);
+    }
+    return fctStr;
+}
+
+void GLSLHessian::init(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs, float sigma)
 {
     m_w = w;
     m_h = h;
@@ -936,6 +999,18 @@ void GLSLHessian::init(int w, int h, int nbKeypointsPerArea, float lowThrs, floa
     nbKeypointsStr = std::to_string(nbKeypointsPerArea);
     lowThresholdStr = std::to_string(lowThrs);
     highThresholdStr = std::to_string(highThrs);
+
+    //At a radius of 3 sigma from the center, we keep ~97% of the gaussian fct.
+    // | 0x1 to ensure this is a odd number (not divisible per 2)
+    int size = ((int)floor(sigma * 6.0)) | 0x1;
+    int half_size = size >> 1;
+    string sz_s = to_string(size);
+
+    gaussianKernelStr   = "const float kernel[" + sz_s + "] = float[" + sz_s + "](" + gaussian(size, half_size, sigma) + ");\n";
+    gaussianD1KernelStr = "const float kernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD1(size, half_size, sigma) + ");\n";
+    gaussianD2KernelStr = "const float kernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD2(size, half_size, sigma) + ");\n";
+    kernelSizeStr       = "const float kHalfSize = " + to_string((float)half_size) + ";\nconst int kSize = " + sz_s + ";\n";
+
     initShaders();
     initVBO();
     initTextureBuffers(w, h);

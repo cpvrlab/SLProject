@@ -87,13 +87,23 @@ public:
     int mNbKeypoints;
     string lowThresholdStr;
     string highThresholdStr;
+
+    std::string gaussianKernelStr;
+    std::string gaussianD1KernelStr;
+    std::string gaussianD2KernelStr;
+    std::string kernelSizeStr;
+
     std::string nbKeypointsStr;
 
     ~GLSLHessian();
     GLSLHessian();
     GLSLHessian(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs);
 
-    void init(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs);
+    string gaussian(int size, int half_size, float sigma);
+    string gaussianD1(int size, int half_size, float sigma);
+    string gaussianD2(int size, int half_size, float sigma);
+
+    void init(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs, float sigma = 1.5);
     void initShaders();
     void initVBO();
     void initTextureBuffers(int width, int height);
