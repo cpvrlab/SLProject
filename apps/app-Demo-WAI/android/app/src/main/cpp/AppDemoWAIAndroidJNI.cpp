@@ -96,7 +96,7 @@ extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onInit(JNIEnv* env, 
     //                                        dirs.writableDir + "/calibrations/", // for calibInitPath
     //                                        dirs.writableDir + "/videos/");      // for videos
 
-    svIndex = WAIApp::load(300, 480, 1.0, 1.0, dpi, &dirs);
+    svIndex = WAIApp::load(640, 480, width, height, 1.0, 1.0, dpi, &dirs);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onTerminate(JNIEnv* env, jclass obj)
