@@ -710,32 +710,42 @@ void CVCalibration::calculateUndistortedCameraMat()
     // An alpha of 0 leads to no black borders
     // An alpha of 1 leads to black borders
     // (with alpha equaly zero the augmentation fits best)
-    double alpha = 0.0;
-    //Attention: the principle point has to be centered because for the projection matrix we assume that image plane is "symmetrically arranged wrt the focal plane"
-    //(see http://kgeorge.github.io/2014/03/08/calculating-opengl-perspective-matrix-from-opencv-intrinsic-matrix)
-    //bool centerPrinciplePoint = true;
-    //_cameraMatUndistorted     = cv::getOptimalNewCameraMatrix(_cameraMat, _distortion, _imageSize, alpha, _imageSize, nullptr, centerPrinciplePoint);
+    double alpha = 1.0;
 
-    double cx0 = _cameraMat.at<double>(0, 2);
-    double cy0 = _cameraMat.at<double>(1, 2);
-    double cx  = (_imageSize.width) * 0.5;
-    double cy  = (_imageSize.height) * 0.5;
+    bool centerPrinciplePoint = true;
+    if (centerPrinciplePoint)
+    {
+        //Attention: the principle point has to be centered because for the projection matrix we assume that image plane is "symmetrically arranged wrt the focal plane"
+        //(see http://kgeorge.github.io/2014/03/08/calculating-opengl-perspective-matrix-from-opencv-intrinsic-matrix)
+        //bool centerPrinciplePoint = true;
+        //_cameraMatUndistorted     = cv::getOptimalNewCameraMatrix(_cameraMat, _distortion, _imageSize, alpha, _imageSize, nullptr, centerPrinciplePoint);
 
-    cv::Rect_<float> inner, outer;
-    getInnerAndOuterRectangles(_cameraMat, _distortion, cv::Mat(), _cameraMat, _imageSize, inner, outer);
-    double s0 = std::max(std::max(std::max((double)cx / (cx0 - inner.x), (double)cy / (cy0 - inner.y)),
-                                  (double)cx / (inner.x + inner.width - cx0)),
-                         (double)cy / (inner.y + inner.height - cy0));
-    double s1 = std::min(std::min(std::min((double)cx / (cx0 - outer.x), (double)cy / (cy0 - outer.y)),
-                                  (double)cx / (outer.x + outer.width - cx0)),
-                         (double)cy / (outer.y + outer.height - cy0));
-    double s  = s0 * (1 - alpha) + s1 * alpha;
+        double cx0 = _cameraMat.at<double>(0, 2);
+        double cy0 = _cameraMat.at<double>(1, 2);
+        double cx  = (_imageSize.width) * 0.5;
+        double cy  = (_imageSize.height) * 0.5;
 
-    _cameraMatUndistorted = _cameraMat.clone();
-    _cameraMatUndistorted.at<double>(0, 0) *= s;
-    _cameraMatUndistorted.at<double>(1, 1) *= s;
-    _cameraMatUndistorted.at<double>(0, 2) = cx;
-    _cameraMatUndistorted.at<double>(1, 2) = cy;
+        cv::Rect_<float> inner, outer;
+        getInnerAndOuterRectangles(_cameraMat, _distortion, cv::Mat(), _cameraMat, _imageSize, inner, outer);
+        double s0 = std::max(std::max(std::max((double)cx / (cx0 - inner.x), (double)cy / (cy0 - inner.y)),
+                                      (double)cx / (inner.x + inner.width - cx0)),
+                             (double)cy / (inner.y + inner.height - cy0));
+        double s1 = std::min(std::min(std::min((double)cx / (cx0 - outer.x), (double)cy / (cy0 - outer.y)),
+                                      (double)cx / (outer.x + outer.width - cx0)),
+                             (double)cy / (outer.y + outer.height - cy0));
+        double s  = s0 * (1 - alpha) + s1 * alpha;
+
+        _cameraMatUndistorted = _cameraMat.clone();
+        _cameraMatUndistorted.at<double>(0, 0) *= s;
+        _cameraMatUndistorted.at<double>(1, 1) *= s;
+        _cameraMatUndistorted.at<double>(0, 2) = cx;
+        _cameraMatUndistorted.at<double>(1, 2) = cy;
+    }
+    else
+    {
+        _cameraMatUndistorted = cv::getOptimalNewCameraMatrix(_cameraMat, _distortion, _imageSize, alpha, _imageSize, nullptr, centerPrinciplePoint);
+    }
+
     std::cout << "_cameraMatUndistorted: " << _cameraMatUndistorted << std::endl;
     std::cout << "_cameraMat: " << _cameraMat << std::endl;
 }
