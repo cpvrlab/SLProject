@@ -14,6 +14,7 @@
 
 #include <SL.h>
 #include <SLMat3.h>
+#include <SLQuat4.h>
 
 //-----------------------------------------------------------------------------
 //! Encapsulation of a mobile device rotation set by the device's IMU sensor
@@ -42,8 +43,10 @@ class SLDeviceRotation
     void zeroYawAtStart(SLbool zeroYaw) { _zeroYawAtStart = zeroYaw; }
 
     // Getters
+
     SLbool  isUsed() const { return _isUsed; }
     SLMat3f rotation() const { return _rotation; }
+    SLQuat4f quaternion() const { return _quaternion; }
     SLfloat pitchRAD() const { return _pitchRAD; }
     SLfloat yawRAD() const { return _yawRAD; }
     SLfloat rollRAD() const { return _rollRAD; }
@@ -56,7 +59,8 @@ class SLDeviceRotation
     SLfloat _rollRAD;            //!< Device roll angle in radians
     SLfloat _pitchRAD;           //!< Device pitch angle in radians
     SLfloat _yawRAD;             //!< Device yaw angle in radians
-    SLMat3f _rotation;           //!< Mobile device rotation as quaternion
+    SLMat3f _rotation;           //!< Mobile device rotation as matrix
+    SLQuat4f _quaternion;
     SLbool  _zeroYawAtStart;     //!< Flag if yaw angle should be zeroed at sensor start
     SLfloat _startYawRAD;        //!< Initial yaw angle after _zeroYawAfterSec in radians
 };

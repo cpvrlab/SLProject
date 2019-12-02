@@ -16,6 +16,7 @@
 #include "AppWAIScene.h"
 #include <SLSceneView.h>
 #include <SLPoints.h>
+#include <SLQuat4.h>
 #include <SLPolyline.h>
 
 #include <CVCalibration.h>
@@ -89,6 +90,10 @@ public:
     static SLGLTexture*       videoImage;
     static SLGLTexture*       testTexture;
     static ofstream           gpsDataStream;
+    static SLQuat4f           lastKnowPoseQuaternion;
+    static SLQuat4f           IMUQuaternion;
+    static SLVec3f            lastKnowPosePosition;
+    static SLVec3f            IMUPosition;
 
     static SlamParams* currentSlamParams;
 

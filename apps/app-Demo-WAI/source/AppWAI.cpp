@@ -57,6 +57,10 @@ WAI::ModeOrbSlam2* WAIApp::mode            = nullptr;
 bool               WAIApp::loaded          = false;
 ofstream           WAIApp::gpsDataStream;
 SLGLTexture*       WAIApp::testTexture;
+SLQuat4f           WAIApp::lastKnowPoseQuaternion;
+SLQuat4f           WAIApp::IMUQuaternion;
+SLVec3f            WAIApp::lastKnowPosePosition;
+SLVec3f            WAIApp::IMUPosition;
 
 SlamParams* WAIApp::currentSlamParams = nullptr;
 
@@ -489,11 +493,6 @@ bool WAIApp::update()
     if (!loaded)
         return false;
 
-    float yaw   = SLApplication::devRot.yawRAD();
-    float pitch = SLApplication::devRot.pitchRAD();
-    float roll  = SLApplication::devRot.rollRAD();
-    //Utils::log("BBBB yaw : %f   pitch : %f   roll : %f\n", yaw, pitch, roll);
-
     if (CVCapture::instance()->lastFrame.empty() ||
         CVCapture::instance()->lastFrame.cols == 0 && CVCapture::instance()->lastFrame.rows == 0)
     {
@@ -537,6 +536,8 @@ bool WAIApp::update()
 
     if (iKnowWhereIAm)
     {
+        lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
+        IMUQuaternion = SLQuat4f(0, 0, 0, 1);
         // TODO(dgj1): maybe make this API cleaner
         cv::Mat pose = cv::Mat(4, 4, CV_32F);
         if (!mode->getPose(&pose))
@@ -575,6 +576,20 @@ bool WAIApp::update()
                      PoseInv.at<float>(3, 3));
 
         waiScene->cameraNode->om(om);
+    }
+    else
+    {
+        SLQuat4f q1 = lastKnowPoseQuaternion;
+        SLQuat4f q2 = SLApplication::devRot.quaternion();
+        q1.invert();
+        SLQuat4f q = q1 * q2;
+        IMUQuaternion = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
+        SLMat4f imuRot = IMUQuaternion.toMat4();
+
+        SLMat4f cameraMat = waiScene->cameraNode->om();
+
+        waiScene->cameraNode->om(cameraMat * imuRot);
+        lastKnowPoseQuaternion = q2;
     }
 
     AVERAGE_TIMING_STOP("WAIAppUpdate");
