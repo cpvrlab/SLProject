@@ -24,11 +24,26 @@ using namespace cv;
 CVTrackedChessboard::CVTrackedChessboard()
 {
     CVCalibration* calib = CVCapture::instance()->activeCalib;
-    CVCalibration::calcBoardCorners3D(calib->boardSize(),
-                                      calib->boardSquareM(),
-                                      _boardPoints3D);
+    calcBoardCorners3D(calib->boardSize(),
+                       calib->boardSquareM(),
+                       _boardPoints3D);
     _solved = false;
 }
+//-----------------------------------------------------------------------------
+void CVTrackedChessboard::calcBoardCorners3D(const CVSize& boardSize,
+                                             float         squareSize,
+                                             CVVPoint3f&   objectPoints3D)
+{
+    // Because OpenCV image coords are top-left we define the according
+    // 3D coords also top-left.
+    objectPoints3D.clear();
+    for (int y = boardSize.height - 1; y >= 0; --y)
+        for (int x = 0; x < boardSize.width; ++x)
+            objectPoints3D.push_back(CVPoint3f((float)x * squareSize,
+                                               (float)y * squareSize,
+                                               0));
+}
+
 //-----------------------------------------------------------------------------
 //! Tracks the chessboard image in the given image for the first sceneview
 bool CVTrackedChessboard::track(CVMat          imageGray,

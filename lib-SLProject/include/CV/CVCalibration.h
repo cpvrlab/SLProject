@@ -22,19 +22,16 @@ for a good top down information.
 
 #include <CVTypedefs.h>
 #include <ftplib.h>
-#include <future>
 
 using namespace std;
+
 //-----------------------------------------------------------------------------
 //! OpenCV Calibration state
 enum CVCalibState
 {
-    CS_uncalibrated,     //!< The camera is not calibrated (no calibration found)
-    CS_calibrateStream,  //!< The calibration is running with live video stream
-    CS_calibrateGrab,    //!< The calibration is running and an image should be grabbed
-    CS_startCalculating, //!< The calibration starts during the next frame
-    CS_calibrated,       //!< The camera is calibrated
-    CS_guessed           //!< The camera intrinsics where estimated from FOV
+    CS_uncalibrated, //!< The camera is not calibrated (no calibration found)
+    CS_calibrated,   //!< The camera is calibrated
+    CS_guessed       //!< The camera intrinsics where estimated from FOV
 };
 
 //-----------------------------------------------------------------------------
@@ -76,7 +73,18 @@ selfie camera (our secondary) and the back camera is the our main camera.
 class CVCalibration
 {
 public:
+    //default constructor with uncalibrated state
     CVCalibration();
+    //creates a fully defined calibration
+    CVCalibration(cv::Mat            cameraMat,
+                  cv::Mat            distortion,
+                  cv::Mat            cameraMatUndistorted,
+                  cv::Size           boardSize,
+                  float              reprojectionError,
+                  int                numCaptured,
+                  const std::string& calibrationTime);
+    //create a guessed calibration using image size and fov angle
+    CVCalibration(cv::Size imageSize);
 
     bool load(const string& calibDir,
               const string& calibFileName,
@@ -84,30 +92,17 @@ public:
               bool          mirrorVertically);
     void save(std::string forceSavePath = "");
 
-    bool   loadCalibParams();
-    bool   calculate();
-    void   clear();
     void   uploadCalibration(const string& fullPathAndFilename);
     void   downloadCalibration(const string& fullPathAndFilename);
     string getLatestCalibFilename(ftplib& ftp, const string& calibFileWOExt);
     int    getVersionInCalibFilename(const string& calibFilename);
-    float  calcReprojectionErr(const CVVVPoint3f& objectPoints,
-                               const CVVMat&      rvecs,
-                               const CVVMat&      tvecs,
-                               vector<float>&     perViewErrors);
-    bool   findChessboard(CVMat        imageColor,
-                          const CVMat& imageGray,
-                          bool         drawCorners = true);
-    void   remap(CVMat& inDistorted,
-                 CVMat& outUndistorted);
-    void   createFromGuessedFOV(int imageWidthPX,
-                                int imageHeightPX);
-    void   adaptForNewResolution(const CVSize& newSize);
+
+    void remap(CVMat& inDistorted,
+               CVMat& outUndistorted);
+
+    void adaptForNewResolution(const CVSize& newSize);
 
     static string calibIniPath; //!< calibration init parameters file path
-    static void   calcBoardCorners3D(const CVSize& boardSize,
-                                     float         squareSize,
-                                     CVVPoint3f&   objectPoints3D);
 
     // Setters
     void state(CVCalibState s) { _state = s; }
@@ -115,16 +110,8 @@ public:
     {
         if (newSize != _imageSize)
         {
-            //if (_state == CS_calibrated)
-            //{
-            //    adaptForNewResolution(newSize);
-            //    save();
-            //}
-            //else
-            {
-                clear();
-                _imageSize = newSize;
-            }
+            clear();
+            _imageSize = newSize;
         }
     }
     void camSizeIndex(int index)
@@ -146,32 +133,32 @@ public:
     void toggleFixPrincipalPoint()
     {
         clear();
-        _calibFixPrincipalPoint = !_calibFixPrincipalPoint;
+        _calibFlags |= cv::CALIB_FIX_PRINCIPAL_POINT;
     }
     void toggleFixAspectRatio()
     {
         clear();
-        _calibFixAspectRatio = !_calibFixAspectRatio;
+        _calibFlags |= cv::CALIB_FIX_ASPECT_RATIO;
     }
     void toggleZeroTangentDist()
     {
         clear();
-        _calibZeroTangentDist = !_calibZeroTangentDist;
+        _calibFlags |= cv::CALIB_ZERO_TANGENT_DIST;
     }
     void toggleRationalModel()
     {
         clear();
-        _calibRationalModel = !_calibRationalModel;
+        _calibFlags |= cv::CALIB_RATIONAL_MODEL;
     }
     void toggleTiltedModel()
     {
         clear();
-        _calibTiltedModel = !_calibTiltedModel;
+        _calibFlags |= cv::CALIB_TILTED_MODEL;
     }
     void toggleThinPrismModel()
     {
         clear();
-        _calibThinPrismModel = !_calibThinPrismModel;
+        _calibFlags |= cv::CALIB_THIN_PRISM_MODEL;
     }
 
     void showUndistorted(bool su) { _showUndistorted = su; }
@@ -188,106 +175,94 @@ public:
     CVMat& distortion() { return _distortion; }
     float  cameraFovVDeg() { return _cameraFovVDeg; }
     float  cameraFovHDeg() { return _cameraFovHDeg; }
-    bool   calibFixPrincipalPoint() { return _calibFixPrincipalPoint; }
-    bool   calibFixAspectRatio() { return _calibFixAspectRatio; }
-    bool   calibZeroTangentDist() { return _calibZeroTangentDist; }
-    bool   calibRationalModel() { return _calibRationalModel; }
-    bool   calibTiltedModel() { return _calibTiltedModel; }
-    bool   calibThinPrismModel() { return _calibThinPrismModel; }
-    bool   isMirroredH() { return _isMirroredH; }
-    bool   isMirroredV() { return _isMirroredV; }
-    float  fx() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(0, 0) : 0.0f; }
-    float  fy() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(1, 1) : 0.0f; }
-    float  cx() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(0, 2) : 0.0f; }
-    float  cy() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(1, 2) : 0.0f; }
-    float  k1() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(0, 0) : 0.0f; }
-    float  k2() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(1, 0) : 0.0f; }
-    float  p1() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(2, 0) : 0.0f; }
-    float  p2() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(3, 0) : 0.0f; }
-    float  k3() { return _distortion.rows >= 5 ? (float)_distortion.at<double>(4, 0) : 0.0f; }
-    float  k4() { return _distortion.rows >= 6 ? (float)_distortion.at<double>(5, 0) : 0.0f; }
-    float  k5() { return _distortion.rows >= 7 ? (float)_distortion.at<double>(6, 0) : 0.0f; }
-    float  k6() { return _distortion.rows >= 8 ? (float)_distortion.at<double>(7, 0) : 0.0f; }
-    float  s1() { return _distortion.rows >= 9 ? (float)_distortion.at<double>(8, 0) : 0.0f; }
-    float  s2() { return _distortion.rows >= 10 ? (float)_distortion.at<double>(9, 0) : 0.0f; }
-    float  s3() { return _distortion.rows >= 11 ? (float)_distortion.at<double>(10, 0) : 0.0f; }
-    float  s4() { return _distortion.rows >= 12 ? (float)_distortion.at<double>(11, 0) : 0.0f; }
-    float  tauX() { return _distortion.rows >= 13 ? (float)_distortion.at<double>(12, 0) : 0.0f; }
-    float  tauY() { return _distortion.rows >= 14 ? (float)_distortion.at<double>(13, 0) : 0.0f; }
+
+    int  calibrationFlags() { return _calibFlags; }
+    bool calibFixPrincipalPoint() { return _calibFlags & cv::CALIB_FIX_PRINCIPAL_POINT; }
+    bool calibFixAspectRatio() { return _calibFlags & cv::CALIB_FIX_ASPECT_RATIO; }
+    bool calibZeroTangentDist() { return _calibFlags & cv::CALIB_ZERO_TANGENT_DIST; }
+    bool calibRationalModel() { return _calibFlags & cv::CALIB_RATIONAL_MODEL; }
+    bool calibTiltedModel() { return _calibFlags & cv::CALIB_TILTED_MODEL; }
+    bool calibThinPrismModel() { return _calibFlags & cv::CALIB_THIN_PRISM_MODEL; }
+    bool isMirroredH() { return _isMirroredH; }
+    bool isMirroredV() { return _isMirroredV; }
+
+    float fx() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(0, 0) : 0.0f; }
+    float fy() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(1, 1) : 0.0f; }
+    float cx() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(0, 2) : 0.0f; }
+    float cy() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(1, 2) : 0.0f; }
+    float k1() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(0, 0) : 0.0f; }
+    float k2() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(1, 0) : 0.0f; }
+    float p1() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(2, 0) : 0.0f; }
+    float p2() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(3, 0) : 0.0f; }
+    float k3() { return _distortion.rows >= 5 ? (float)_distortion.at<double>(4, 0) : 0.0f; }
+    float k4() { return _distortion.rows >= 6 ? (float)_distortion.at<double>(5, 0) : 0.0f; }
+    float k5() { return _distortion.rows >= 7 ? (float)_distortion.at<double>(6, 0) : 0.0f; }
+    float k6() { return _distortion.rows >= 8 ? (float)_distortion.at<double>(7, 0) : 0.0f; }
+    float s1() { return _distortion.rows >= 9 ? (float)_distortion.at<double>(8, 0) : 0.0f; }
+    float s2() { return _distortion.rows >= 10 ? (float)_distortion.at<double>(9, 0) : 0.0f; }
+    float s3() { return _distortion.rows >= 11 ? (float)_distortion.at<double>(10, 0) : 0.0f; }
+    float s4() { return _distortion.rows >= 12 ? (float)_distortion.at<double>(11, 0) : 0.0f; }
+    float tauX() { return _distortion.rows >= 13 ? (float)_distortion.at<double>(12, 0) : 0.0f; }
+    float tauY() { return _distortion.rows >= 14 ? (float)_distortion.at<double>(13, 0) : 0.0f; }
 
     CVCalibState state() { return _state; }
-    int          numImgsToCapture() { return _numOfImgsToCapture; }
-    int          numCapturedImgs() { return _numCaptured; }
-    float        reprojectionError() { return _reprojectionError; }
-    bool         showUndistorted() { return _showUndistorted; }
-    CVSize       boardSize() { return _boardSize; }
-    float        boardSquareMM() { return _boardSquareMM; }
-    float        boardSquareM() { return _boardSquareMM * 0.001f; }
-    string       calibrationTime() { return _calibrationTime; }
-    string       calibDir() { return _calibDir; }
-    string       calibFileName() { return _calibFileName; }
-    string       computerInfos() { return _computerInfos; }
-    string       stateStr()
+    //int          numImgsToCapture() { return _numOfImgsToCapture; }
+    int    numCapturedImgs() { return _numCaptured; }
+    float  reprojectionError() { return _reprojectionError; }
+    bool   showUndistorted() { return _showUndistorted; }
+    CVSize boardSize() { return _boardSize; }
+    float  boardSquareMM() { return _boardSquareMM; }
+    float  boardSquareM() { return _boardSquareMM * 0.001f; }
+    string calibrationTime() { return _calibrationTime; }
+    string calibDir() { return _calibDir; }
+    string calibFileName() { return _calibFileName; }
+    string computerInfos() { return _computerInfos; }
+    string stateStr()
     {
         switch (_state)
         {
             case CS_uncalibrated: return "CS_uncalibrated";
             case CS_calibrated: return "CS_calibrated";
             case CS_guessed: return "CS_guessed";
-            case CS_calibrateStream: return "CS_calibrateStream";
-            case CS_calibrateGrab: return "CS_calibrateGrab";
-            case CS_startCalculating: return "CS_startCalculating";
             default: return "unknown";
         }
     }
 
 private:
     void calcCameraFovFromUndistortedCameraMat();
-    bool calibrateAsync();
-    //! Calculate a camera matrix that we use for the scene graph and for the reprojection of the undistored image
     void calculateUndistortedCameraMat();
     void buildUndistortionMaps();
-
+    void createFromGuessedFOV(int imageWidthPX, int imageHeightPX);
+    void clear();
     ///////////////////////////////////////////////////////////////////////////////////
     CVMat _cameraMat;  //!< 3x3 Matrix for intrinsic camera matrix
     CVMat _distortion; //!< 4x1 Matrix for intrinsic distortion
     ///////////////////////////////////////////////////////////////////////////////////
 
-    CVCalibState _state;                  //!< calibration state enumeration
-    float        _cameraFovVDeg;          //!< Vertical field of view in degrees
-    float        _cameraFovHDeg;          //!< Horizontal field of view in degrees
-    string       _calibDir;               //!< directory of calibration file
-    string       _calibFileName;          //!< name for calibration file
-    string       _calibParamsFileName;    //!< name of calibration paramters file
-    int          _calibFlags;             //!< OpenCV calibration flags
-    bool         _calibFixPrincipalPoint; //!< Calib. flag for fix principal point
-    bool         _calibFixAspectRatio;    //!< Calib. flag for fix aspect ratio
-    bool         _calibZeroTangentDist;   //!< Calib. flag for zero tangent distortion
-    bool         _calibRationalModel;     //!< Calib. flag for rational model
-    bool         _calibTiltedModel;       //!< Calib. flag for tilted model
-    bool         _calibThinPrismModel;    //!< Calib. flag for prism model
-    bool         _isMirroredH = false;    //!< Flag if image must be horizontally mirrored
-    bool         _isMirroredV = false;    //!< Flag if image must be vertically mirrored
-    CVSize       _boardSize;              //!< NO. of inner chessboard corners.
-    float        _boardSquareMM;          //!< Size of chessboard square in mm
-    int          _numOfImgsToCapture;     //!< NO. of images to capture
-    int          _numCaptured;            //!< NO. of images captured
-    float        _reprojectionError;      //!< Reprojection error after calibration
-    CVVVPoint2f  _imagePoints;            //!< 2D vector of corner points in chessboard
-    CVSize       _imageSize;              //!< Input image size in pixels (after cropping)
-    int          _camSizeIndex;           //!< The requested camera size index
-    bool         _showUndistorted;        //!< Flag if image should be undistorted
-    CVMat        _undistortMapX;          //!< Undistortion float map in x-direction
-    CVMat        _undistortMapY;          //!< Undistortion float map in y-direction
-    CVMat        _cameraMatUndistorted;   //!< Camera matrix that defines scene camera and may also be used for reprojection of undistorted image
-    string       _calibrationTime;        //!< Time stamp string of calibration
-    float        _devFocalLength;         //!< Androids DeviceLensFocalLength
-    float        _devSensorSizeW;         //!< Androids DeviceSensorPhysicalSizeW
-    float        _devSensorSizeH;         //!< Androids DeviceSensorPhysicalSizeH
-    string       _computerInfos;
+    CVCalibState _state;               //!< calibration state enumeration
+    float        _cameraFovVDeg;       //!< Vertical field of view in degrees
+    float        _cameraFovHDeg;       //!< Horizontal field of view in degrees
+    string       _calibDir;            //!< directory of calibration file
+    string       _calibFileName;       //!< name for calibration file
+    int          _calibFlags;          //!< OpenCV calibration flags
+    bool         _isMirroredH = false; //!< Flag if image must be horizontally mirrored
+    bool         _isMirroredV = false; //!< Flag if image must be vertically mirrored
 
-    std::vector<cv::Mat> _calibrationImgs; //!< Images captured for calibration
-    //std::future<bool>    _calibrationTask; //!< future object for calculation of calibration in async task
+    int    _numCaptured;          //!< NO. of images captured
+    CVSize _boardSize;            //!< NO. of inner chessboard corners.
+    float  _boardSquareMM;        //!< Size of chessboard square in mm
+    float  _reprojectionError;    //!< Reprojection error after calibration
+    CVSize _imageSize;            //!< Input image size in pixels (after cropping)
+    int    _camSizeIndex;         //!< The requested camera size index
+    bool   _showUndistorted;      //!< Flag if image should be undistorted
+    CVMat  _undistortMapX;        //!< Undistortion float map in x-direction
+    CVMat  _undistortMapY;        //!< Undistortion float map in y-direction
+    CVMat  _cameraMatUndistorted; //!< Camera matrix that defines scene camera and may also be used for reprojection of undistorted image
+    string _calibrationTime;      //!< Time stamp string of calibration
+    float  _devFocalLength;       //!< Androids DeviceLensFocalLength
+    float  _devSensorSizeW;       //!< Androids DeviceSensorPhysicalSizeW
+    float  _devSensorSizeH;       //!< Androids DeviceSensorPhysicalSizeH
+    string _computerInfos;
 
     static const int    _CALIBFILEVERSION; //!< Global const file format version
     static const string _FTP_HOST;         //!< ftp host for calibration up and download
@@ -296,4 +271,5 @@ private:
     static const string _FTP_DIR;          //!< ftp directory for calibration up and download
 };
 //-----------------------------------------------------------------------------
+
 #endif // CVCalibration_H

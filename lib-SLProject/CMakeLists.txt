@@ -10,6 +10,7 @@ set(platform_specific_include_dirs)
 file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTypedefs.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibration.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibrationEstimator.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCapture.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVFeatureManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVImage.h
@@ -116,6 +117,7 @@ file(GLOB headers
 
 file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCalibration.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCalibrationEstimator.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCapture.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVFeatureManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVImage.cpp

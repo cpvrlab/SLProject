@@ -31,14 +31,17 @@ core tracking implementation.
 */
 class CVTrackedChessboard : public CVTracked
 {
-    public:
+public:
     explicit CVTrackedChessboard();
 
     bool track(CVMat          imageGray,
                CVMat          imageRgb,
                CVCalibration* calib) final;
 
-    private:
+private:
+    void       calcBoardCorners3D(const CVSize& boardSize,
+                                  float         squareSize,
+                                  CVVPoint3f&   objectPoints3D);
     float      _edgeLengthM{}; //<! Length of chessboard square in meters
     CVVPoint3f _boardPoints3D; //<! chessboard corners in world coordinate system
     CVSize     _boardSize;     //<! NO. of inner chessboard corners

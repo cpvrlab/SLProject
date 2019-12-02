@@ -843,7 +843,6 @@ void CVCapture::loadCalibrations(const string& computerInfo,
     // load opencv camera calibration for main and secondary camera
 #if defined(APP_USES_CVCAPTURE)
     calibMainCam.load(configPath, mainCalibFilename, true, false);
-    calibMainCam.loadCalibParams();
     activeCalib        = &calibMainCam;
     hasSecondaryCamera = false;
 #else
