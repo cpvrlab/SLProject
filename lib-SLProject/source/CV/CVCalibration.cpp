@@ -85,6 +85,7 @@ CVCalibration::CVCalibration(cv::Mat            cameraMat,
                              cv::Mat            distortion,
                              cv::Size           imageSize,
                              cv::Size           boardSize,
+                             float              boardSquareMM,
                              float              reprojectionError,
                              int                numCaptured,
                              const std::string& calibrationTime)
@@ -92,6 +93,7 @@ CVCalibration::CVCalibration(cv::Mat            cameraMat,
     _distortion(distortion.clone()),
     _imageSize(imageSize),
     _boardSize(boardSize),
+    _boardSquareMM(boardSquareMM),
     _reprojectionError(reprojectionError),
     _numCaptured(numCaptured),
     _calibrationTime(calibrationTime)
@@ -184,6 +186,7 @@ bool CVCalibration::load(const string& calibDir,
         fs["camSizeIndex"] >> _camSizeIndex;
         fs["boardSizeWidth"] >> _boardSize.width;
         fs["boardSizeHeight"] >> _boardSize.height;
+        fs["boardSquareMM"] >> _boardSquareMM;
         _state = _numCaptured ? CS_calibrated : CS_uncalibrated;
     }
 

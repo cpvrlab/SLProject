@@ -80,6 +80,7 @@ public:
                   cv::Mat            distortion,
                   cv::Size           imageSize,
                   cv::Size           boardSize,
+                  float              boardSquareMM,
                   float              reprojectionError,
                   int                numCaptured,
                   const std::string& calibrationTime);

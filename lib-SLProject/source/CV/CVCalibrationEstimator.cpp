@@ -138,6 +138,7 @@ bool CVCalibrationEstimator::calibrateAsync()
                                      distortion,
                                      _imageSize,
                                      _boardSize,
+                                     _boardSquareMM,
                                      _reprojectionError,
                                      _numCaptured,
                                      Utils::getDateTime2String());
