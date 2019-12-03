@@ -78,7 +78,7 @@ public:
     //creates a fully defined calibration
     CVCalibration(cv::Mat            cameraMat,
                   cv::Mat            distortion,
-                  cv::Mat            cameraMatUndistorted,
+                  cv::Size           imageSize,
                   cv::Size           boardSize,
                   float              reprojectionError,
                   int                numCaptured,

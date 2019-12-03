@@ -32,10 +32,10 @@ class CVCalibrationEstimator
 public:
     enum class State
     {
-        Stream = 0,     //!< The calibration is running with live video stream
-        Calculating,    //!< The calibration starts during the next frame
-        BusyExtracting, //!< The estimator is busy an can not caputure additional images
-        Done,
+        Streaming = 0,  //!< Estimator waits for new frames
+        Calculating,    //!< Estimator is currently calculating the calibration
+        BusyExtracting, //!< Estimator is busy extracting the corners of a frame
+        Done            //!< Estimator finished
     };
 
     CVCalibrationEstimator(int calibFlags);
@@ -45,18 +45,26 @@ public:
                            bool         grabFrame,
                            bool         drawCorners = true);
 
-    State state() { return _state; }
-    int   numImgsToCapture() { return _numOfImgsToCapture; }
-    int   numCapturedImgs() { return _numCaptured; }
+    State state()
+    {
+        return _state;
+    }
+    int numImgsToCapture() { return _numOfImgsToCapture; }
+    int numCapturedImgs() { return _numCaptured; }
 
+    bool calibrationSuccessful() { return _calibrationSuccessful; }
     //!Get resulting calibration
     CVCalibration getCalibration() { return _calibration; }
-    bool          isBusy() { return _state == State::BusyExtracting; }
+    bool          isBusyExtracting() { return _state == State::BusyExtracting; }
+    bool          isCalculating() { return _state == State::Calculating; }
+    bool          isStreaming() { return _state == State::Streaming; }
     bool          isDone() { return _state == State::Done; }
 
 private:
     bool calibrateAsync();
+    bool extractAsync();
     bool loadCalibParams();
+    void update(bool found, bool grabFrame, cv::Mat imageGray);
 
     static bool   calcCalibration(CVSize&            imageSize,
                                   CVMat&             cameraMatrix,
@@ -80,20 +88,21 @@ private:
                                      float         squareSize,
                                      CVVPoint3f&   objectPoints3D);
 
-    State             _state;
+    State             _state                 = State::Streaming;
+    bool              _calibrationSuccessful = false;
     CVCalibration     _calibration;         //!< estimated calibration
     std::future<bool> _calibrationTask;     //!< future object for calculation of calibration in async task
     int               _calibFlags = 0;      //!< OpenCV calibration flags
     std::string       _calibParamsFileName; //!< name of calibration paramters file
 
-    std::vector<cv::Mat> _calibrationImgs;           //!< Images captured for calibration
-    CVVVPoint2f          _imagePoints;               //!< 2D vector of corner points in chessboard
-    CVSize               _boardSize;                 //!< NO. of inner chessboard corners.
-    float                _boardSquareMM      = 10.f; //!< Size of chessboard square in mm
-    int                  _numOfImgsToCapture = 20;   //!< NO. of images to capture
-    int                  _numCaptured        = 0;    //!< NO. of images captured
-    CVSize               _imageSize;                 //!< Input image size in pixels (after cropping)
-    float                _reprojectionError = -1.f;  //!< Reprojection error after calibration
+    cv::Mat     _currentImgToExtract;
+    CVVVPoint2f _imagePoints;               //!< 2D vector of corner points in chessboard
+    CVSize      _boardSize;                 //!< NO. of inner chessboard corners.
+    float       _boardSquareMM      = 10.f; //!< Size of chessboard square in mm
+    int         _numOfImgsToCapture = 20;   //!< NO. of images to capture
+    int         _numCaptured        = 0;    //!< NO. of images captured
+    CVSize      _imageSize;                 //!< Input image size in pixels (after cropping)
+    float       _reprojectionError = -1.f;  //!< Reprojection error after calibration
 };
 
 #endif // CVCALIBRATIONESTIMATOR_H

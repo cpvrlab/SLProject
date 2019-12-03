@@ -83,19 +83,20 @@ CVCalibration::CVCalibration()
 //creates a fully defined calibration
 CVCalibration::CVCalibration(cv::Mat            cameraMat,
                              cv::Mat            distortion,
-                             cv::Mat            cameraMatUndistorted,
+                             cv::Size           imageSize,
                              cv::Size           boardSize,
                              float              reprojectionError,
                              int                numCaptured,
                              const std::string& calibrationTime)
   : _cameraMat(cameraMat.clone()),
     _distortion(distortion.clone()),
-    _cameraMatUndistorted(cameraMatUndistorted.clone()),
+    _imageSize(imageSize),
     _boardSize(boardSize),
     _reprojectionError(reprojectionError),
     _numCaptured(numCaptured),
     _calibrationTime(calibrationTime)
 {
+    _computerInfos = SLApplication::getComputerInfos();
     calculateUndistortedCameraMat();
     calcCameraFovFromUndistortedCameraMat();
     buildUndistortionMaps();

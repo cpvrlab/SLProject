@@ -37,8 +37,6 @@ CVCalibrationEstimator::CVCalibrationEstimator(int calibFlags)
                        __LINE__,
                        __FILE__);
     }
-
-    _state = State::Stream;
 }
 //-----------------------------------------------------------------------------
 //! Initiates the final calculation
@@ -72,39 +70,45 @@ bool CVCalibrationEstimator::calculate()
     return calibrationSuccessful;
 }
 //-----------------------------------------------------------------------------
-bool CVCalibrationEstimator::calibrateAsync()
+bool CVCalibrationEstimator::extractAsync()
 {
-    _state = State::Calculating;
-    //todo
-    //_computerInfos = SLApplication::getComputerInfos();
-
-    _numCaptured = 0;
-    //extract corners from captured images
-    for (cv::Mat img : _calibrationImgs)
+    if (_imageSize.width == 0 && _imageSize.height == 0)
+        _imageSize = _currentImgToExtract.size();
+    else if (_imageSize.width != _currentImgToExtract.size().width || _imageSize.height != _currentImgToExtract.size().height)
     {
-        CVVPoint2f preciseCorners2D;
-        int        flags          = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE;
-        bool       foundPrecisely = cv::findChessboardCorners(img,
-                                                        _boardSize,
-                                                        preciseCorners2D,
-                                                        flags);
-
-        if (foundPrecisely)
-        {
-            cv::cornerSubPix(img,
-                             preciseCorners2D,
-                             CVSize(11, 11),
-                             CVSize(-1, -1),
-                             TermCriteria(TermCriteria::EPS + TermCriteria::COUNT,
-                                          30000,
-                                          0.01));
-
-            //add detected points
-            _imagePoints.push_back(preciseCorners2D);
-            _numCaptured++;
-        }
+        Utils::exitMsg("CVCalibrationEstimator::extractAsync: image size changed during calibration",
+                       __LINE__,
+                       __FILE__);
     }
 
+    CVVPoint2f preciseCorners2D;
+    int        flags          = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE;
+    bool       foundPrecisely = cv::findChessboardCorners(_currentImgToExtract,
+                                                    _boardSize,
+                                                    preciseCorners2D,
+                                                    flags);
+
+    if (foundPrecisely)
+    {
+        cv::cornerSubPix(_currentImgToExtract,
+                         preciseCorners2D,
+                         CVSize(11, 11),
+                         CVSize(-1, -1),
+                         TermCriteria(TermCriteria::EPS + TermCriteria::COUNT,
+                                      30000,
+                                      0.01));
+
+        //add detected points
+        _imagePoints.push_back(preciseCorners2D);
+        _numCaptured++;
+    }
+
+    return foundPrecisely;
+}
+//-----------------------------------------------------------------------------
+bool CVCalibrationEstimator::calibrateAsync()
+{
+    _numCaptured = 0;
     CVVMat        rvecs, tvecs;
     vector<float> reprojErrs;
     cv::Mat       cameraMat;
@@ -129,7 +133,14 @@ bool CVCalibrationEstimator::calibrateAsync()
 
     if (ok)
     {
-        std::string calibrationTime = Utils::getDateTime2String();
+        //instantiate calibration
+        _calibration = CVCalibration(cameraMat,
+                                     distortion,
+                                     _imageSize,
+                                     _boardSize,
+                                     _reprojectionError,
+                                     _numCaptured,
+                                     Utils::getDateTime2String());
     }
 
     return ok;
@@ -248,6 +259,64 @@ bool CVCalibrationEstimator::loadCalibParams()
     return true;
 }
 //-----------------------------------------------------------------------------
+void CVCalibrationEstimator::update(bool found, bool grabFrame, cv::Mat imageGray)
+{
+    switch (_state)
+    {
+        case State::Streaming: {
+            if (grabFrame && found)
+            {
+                _currentImgToExtract = imageGray.clone();
+                //start async extraction
+                if (!_calibrationTask.valid())
+                {
+                    _calibrationTask = std::async(std::launch::async, &CVCalibrationEstimator::extractAsync, this);
+                }
+
+                _state = State::BusyExtracting;
+            }
+            break;
+        }
+        case State::BusyExtracting: {
+            //check if async task is ready
+            if (_calibrationTask.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
+            {
+                bool extractionSuccessful = _calibrationTask.get();
+
+                if (_numCaptured >= _numOfImgsToCapture)
+                {
+                    //if ready and number of capturings exceed number of required start calculation
+                    _calibrationTask = std::async(std::launch::async, &CVCalibrationEstimator::calibrateAsync, this);
+                    _state           = State::Calculating;
+                }
+                else
+                {
+                    _state = State::Streaming;
+                }
+            }
+            break;
+        }
+        case State::Calculating: {
+            if (_calibrationTask.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
+            {
+                _calibrationSuccessful = _calibrationTask.get();
+                _state                 = State::Done;
+                if (_calibrationSuccessful)
+                {
+                    Utils::log("Calibration succeeded.");
+                    Utils::log("Reproj. error: %f\n", _reprojectionError);
+                }
+                else
+                {
+                    Utils::log("Calibration failed.");
+                }
+            }
+            break;
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
 //!< Finds the inner chessboard corners in the given image
 bool CVCalibrationEstimator::updateAndDecorate(CVMat        imageColor,
                                                const CVMat& imageGray,
@@ -288,16 +357,10 @@ bool CVCalibrationEstimator::updateAndDecorate(CVMat        imageColor,
 
     if (found)
     {
-        if (grabFrame)
+        if (grabFrame && _state == State::Streaming)
         {
-            //save a copy of this image
-            _calibrationImgs.push_back(imageGray.clone());
-            //increase number of capturings
-            _numCaptured++;
-
             //simulate a snapshot
             cv::bitwise_not(imageColor, imageColor);
-            _state = State::Stream;
         }
 
         if (drawCorners)
@@ -317,6 +380,10 @@ bool CVCalibrationEstimator::updateAndDecorate(CVMat        imageColor,
                                       found);
         }
     }
+
+    //update extraction and calculation
+    update(found, grabFrame, imageGray);
+
     return found;
 }
 //-----------------------------------------------------------------------------
