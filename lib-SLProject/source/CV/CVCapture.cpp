@@ -847,9 +847,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
     hasSecondaryCamera = false;
 #else
     calibMainCam.load(configPath, mainCalibFilename, false, false);
-    calibMainCam.loadCalibParams();
     calibScndCam.load(configPath, scndCalibFilename, true, false);
-    calibScndCam.loadCalibParams();
     activeCalib        = &calibMainCam;
     hasSecondaryCamera = true;
 #endif
