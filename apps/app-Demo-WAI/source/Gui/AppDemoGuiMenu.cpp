@@ -65,30 +65,19 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
         {
             CVCamera* ac = CVCapture::instance()->activeCamera;
 
-            CVCalibration* mc = &CVCapture::instance()->mainCam;
-            CVCalibration* sc = &CVCapture::instance()->scndCam;
+            //CVCalibration* mc = &CVCapture::instance()->mainCam;
+            //CVCalibration* sc = &CVCapture::instance()->scndCam;
 
             ImGui::MenuItem("Video Storage", nullptr, &prefs->showVideoStorage);
             ImGui::MenuItem("Video Controls", nullptr, &prefs->showVideoControls);
 
-            if (ImGui::BeginMenu("Mirror Main Camera"))
+            if (ImGui::BeginMenu("Mirror Camera"))
             {
-                if (ImGui::MenuItem("Horizontally", nullptr, mc->isMirroredH()))
-                    mc->toggleMirrorH();
+                if (ImGui::MenuItem("Horizontally", nullptr, ac->mirrorH()))
+                    ac->toggleMirrorH();
 
-                if (ImGui::MenuItem("Vertically", nullptr, mc->isMirroredV()))
-                    mc->toggleMirrorV();
-
-                ImGui::EndMenu();
-            }
-
-            if (ImGui::BeginMenu("Mirror Scnd. Camera", CVCapture::instance()->hasSecondaryCamera))
-            {
-                if (ImGui::MenuItem("Horizontally", nullptr, sc->isMirroredH()))
-                    sc->toggleMirrorH();
-
-                if (ImGui::MenuItem("Vertically", nullptr, sc->isMirroredV()))
-                    sc->toggleMirrorV();
+                if (ImGui::MenuItem("Vertically", nullptr, ac->mirrorV()))
+                    ac->toggleMirrorV();
 
                 ImGui::EndMenu();
             }
@@ -96,7 +85,7 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             CVCapture* cap = CVCapture::instance();
             if (cap->activeCamera)
             {
-                if (ImGui::MenuItem("Undistort Image", nullptr, cap->activeCamera->showUndistorted(), cap->activeCamera->state() == CS_calibrated))
+                if (ImGui::MenuItem("Undistort Image", nullptr, cap->activeCamera->showUndistorted(), ac->calibration.state() == CS_calibrated))
                     cap->activeCamera->showUndistorted(!cap->activeCamera->showUndistorted());
             }
 

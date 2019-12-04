@@ -467,7 +467,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
             break;
 
         case P_monoIntrinsic:
-            stateGL->projectionMatrix.perspectiveUncenteredPP(_viewportW, _viewportH, _fx, _fy, _cx, _cy, _clipNear, _clipFar);
+            stateGL->projectionMatrix.perspectiveCenteredPP(_viewportW, _viewportH, _fx, _fy, _cx, _cy, _clipNear, _clipFar);
             break;
 
         case P_monoOrthographic:

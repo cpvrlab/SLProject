@@ -104,7 +104,7 @@ void AppDemoGuiTestWrite::saveCalibration(std::string calib)
 
     if (_calib->state() == CS_calibrated)
     {
-        _calib->save(calib);
+        _calib->save("", calib);
     }
     else
     {

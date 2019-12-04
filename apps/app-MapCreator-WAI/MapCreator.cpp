@@ -1,5 +1,6 @@
 #include "MapCreator.h"
 #include <memory>
+#include <CVCamera.h>
 
 MapCreator::MapCreator(std::string erlebARDir, std::string configFile)
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
@@ -86,7 +87,7 @@ void MapCreator::loadSites(const std::string& erlebARDir, const std::string& con
                         throw std::runtime_error("Calibration file does not exist: " + _calibrationsDir + calibFile);
 
                     //load calibration file and check for aspect ratio
-                    if (!videoAndCalib.calibration.load(_calibrationsDir, calibFile, false, false))
+                    if (!videoAndCalib.calibration.load(_calibrationsDir, calibFile))
                         throw std::runtime_error("Could not load calibration file: " + _calibrationsDir + calibFile);
 
                     std::vector<std::string> size;
@@ -182,19 +183,19 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
         //initialze capture
         CVCapture* cap = CVCapture::instance();
         cap->videoType(CVVideoType::VT_FILE);
-        cap->videoFilename    = videos[videoIdx].videoFile;
-        cap->activeCamera     = &videos[videoIdx].calibration;
-        cap->videoLoops       = true;
-        cv::Size capturedSize = cap->openFile();
+        cap->videoFilename             = videos[videoIdx].videoFile;
+        cap->activeCamera->calibration = videos[videoIdx].calibration;
+        cap->videoLoops                = true;
+        cv::Size capturedSize          = cap->openFile();
         //check if resolution of captured frame fits to calibration
-        if (capturedSize.width != cap->activeCamera->imageSize().width ||
-            capturedSize.height != cap->activeCamera->imageSize().height)
+        if (capturedSize.width != cap->activeCamera->calibration.imageSize().width ||
+            capturedSize.height != cap->activeCamera->calibration.imageSize().height)
             throw std::runtime_error("MapCreator::createWaiMap: Resolution of captured frame does not fit to calibration: " + videos[videoIdx].videoFile);
 
         //instantiate wai mode
         std::unique_ptr<WAI::ModeOrbSlam2> waiMode =
-          std::make_unique<WAI::ModeOrbSlam2>(cap->activeCamera->cameraMat(),
-                                              cap->activeCamera->distortion(),
+          std::make_unique<WAI::ModeOrbSlam2>(cap->activeCamera->calibration.cameraMat(),
+                                              cap->activeCamera->calibration.distortion(),
                                               modeParams,
                                               _vocFile);
 
@@ -227,7 +228,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
                 break;
             }
 
-            if (!cap->grabAndAdjustForSL(cap->activeCamera->imageAspectRatio()))
+            if (!cap->grabAndAdjustForSL(cap->activeCamera->calibration.imageAspectRatio()))
                 break;
 
             //update wai

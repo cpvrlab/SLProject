@@ -279,22 +279,22 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     //scrWdivH  = (float)scrWidth / (float)scrHeight;
 
     // 2. Load Calibration
-    if (!cap->activeCamera->load(calibDir, Utils::getFileName(calibrationFile), 0, 0))
+    if (!cap->activeCamera->calibration.load(calibDir, Utils::getFileName(calibrationFile)))
     {
         result.errorString = "Error when loading calibration from file: " +
                              calibrationFile;
         return result;
     }
 
-    if (cap->activeCamera->imageSize() != videoFrameSize)
+    if (cap->activeCamera->calibration.imageSize() != videoFrameSize)
     {
-        cap->activeCamera->adaptForNewResolution(videoFrameSize);
+        cap->activeCamera->calibration.adaptForNewResolution(videoFrameSize);
     }
 
     // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective mode)
-    waiScene->cameraNode->fov(cap->activeCamera->cameraFovVDeg());
+    waiScene->cameraNode->fov(cap->activeCamera->calibration.cameraFovVDeg());
     // Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
-    cv::Mat scMat = cap->activeCamera->cameraMatUndistorted();
+    cv::Mat scMat = cap->activeCamera->calibration.cameraMatUndistorted();
     std::cout << "scMat: " << scMat << std::endl;
     waiScene->cameraNode->intrinsics(scMat.at<double>(0, 0),
                                      scMat.at<double>(1, 1),
@@ -311,8 +311,8 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         params.cullRedundantPerc = 0.99f;
     }
 
-    mode = new WAI::ModeOrbSlam2(cap->activeCamera->cameraMat(),
-                                 cap->activeCamera->distortion(),
+    mode = new WAI::ModeOrbSlam2(cap->activeCamera->calibration.cameraMat(),
+                                 cap->activeCamera->calibration.distortion(),
                                  params,
                                  vocFile,
                                  markerFile);
@@ -366,8 +366,8 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
 
 bool WAIApp::checkCalibration(const std::string& calibDir, const std::string& calibFileName)
 {
-    CVCalibration testCalib;
-    testCalib.load(calibDir, calibFileName, false, false);
+    CVCalibration testCalib(CVCameraType::FRONTFACING);
+    testCalib.load(calibDir, calibFileName);
     if (testCalib.cameraMat().empty() || testCalib.distortion().empty()) //app will crash if distortion is empty
         return false;
     if (testCalib.numCapturedImgs() == 0) //if this is 0 then the calibration is automatically invalidated in load()
@@ -400,7 +400,7 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiSceneGraph("scene graph", &uiPrefs.showSceneGraph));
     AppDemoGui::addInfoDialog(new AppDemoGuiStatsDebugTiming("debug timing", &uiPrefs.showStatsDebugTiming));
     AppDemoGui::addInfoDialog(new AppDemoGuiStatsTiming("timing", &uiPrefs.showStatsTiming));
-    AppDemoGui::addInfoDialog(new AppDemoGuiStatsVideo("video", CVCapture::instance()->activeCamera, &uiPrefs.showStatsVideo));
+    AppDemoGui::addInfoDialog(new AppDemoGuiStatsVideo("video", &CVCapture::instance()->activeCamera->calibration, &uiPrefs.showStatsVideo));
     AppDemoGui::addInfoDialog(new AppDemoGuiTrackedMapping("tracked mapping", &uiPrefs.showTrackedMapping));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTransform("transform", &uiPrefs.showTransform));
@@ -414,7 +414,7 @@ void WAIApp::setupGUI()
                                                      &uiPrefs.showTestSettings));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTestWrite("Test Writer",
-                                                      CVCapture::instance()->activeCamera,
+                                                      &CVCapture::instance()->activeCamera->calibration,
                                                       waiScene->mapNode,
                                                       videoWriter,
                                                       videoWriterInfo,
@@ -647,9 +647,9 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
             mode->decorateVideoWithKeyPointMatches(cap->lastFrame);
 
         CVMat undistortedLastFrame;
-        if (cap->activeCamera->state() == CS_calibrated && cap->activeCamera->showUndistorted())
+        if (cap->activeCamera->calibration.state() == CS_calibrated && cap->activeCamera->showUndistorted())
         {
-            cap->activeCamera->remap(cap->lastFrame, undistortedLastFrame);
+            cap->activeCamera->calibration.remap(cap->lastFrame, undistortedLastFrame);
         }
         else
         {
