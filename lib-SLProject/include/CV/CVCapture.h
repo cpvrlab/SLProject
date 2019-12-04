@@ -104,7 +104,6 @@ public: //! Public static instance getter for singleton pattern
     AvgFloat& captureTimesMS() { return _captureTimesMS; }
     void      loadCalibrations(const string& computerInfo,
                                const string& configPath,
-                               const string& calibInitPath,
                                const string& videoPath);
     void      setCameraSize(int sizeIndex,
                             int sizeIndexMax,

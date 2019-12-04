@@ -118,8 +118,6 @@ public:
     //! Adapts an already calibrated camera to a new resolution (cropping and scaling)
     void adaptForNewResolution(const CVSize& newSize);
 
-    static string calibIniPath; //!< calibration init parameters file path
-
     // Setters
     void state(CVCalibState s) { _state = s; }
 

@@ -86,6 +86,8 @@ public:
     static atomic<bool>                jobIsRunning;       //!< True if a parallel job is running
 
     static CVCalibrationEstimatorParams calibrationEstimatorParams;
+    static SLstring                     calibIniPath;  //!<thats where data/calibrations folder is located
+    static SLstring                     calibFilePath; //!<thats where calibrations are stored and loaded from
 
 private:
     static HighResTimer _timer;          //!< high precision timer

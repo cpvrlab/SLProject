@@ -71,8 +71,8 @@ CVSize2i CVCapture::open(int deviceNum)
             return CVSize2i(0, 0);
 
         Utils::log("Capture devices created.\n");
-        _captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
-        _captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, 1024);
+        //_captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
+        //_captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, 1024);
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
         //Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
@@ -834,12 +834,10 @@ void CVCapture::videoType(CVVideoType vt)
 //-----------------------------------------------------------------------------
 void CVCapture::loadCalibrations(const string& computerInfo,
                                  const string& configPath,
-                                 const string& calibInitPath,
                                  const string& videoPath)
 {
 
-    videoDefaultPath            = videoPath;
-    CVCalibration::calibIniPath = calibInitPath;
+    videoDefaultPath = videoPath;
 
     string mainCalibFilename = "camCalib_" + computerInfo + "_main.xml";
     string scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";

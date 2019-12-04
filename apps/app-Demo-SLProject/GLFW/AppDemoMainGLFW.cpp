@@ -567,11 +567,12 @@ int main(int argc, char* argv[])
     SLstring configDir   = Utils::getAppsWritableDir();
     slSetupExternalDir("../data");
 
-    CVImage::defaultPath = projectRoot + "/data/images/textures/";
+    SLApplication::calibFilePath = configDir;
+    CVImage::defaultPath         = projectRoot + "/data/images/textures/";
+    SLApplication::calibIniPath  = projectRoot + "/data/calibrations/"; // for calibInitPath
     CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(),
-                                            configDir,                           // for calibrations made
-                                            projectRoot + "/data/calibrations/", // for calibInitPath
-                                            projectRoot + "/data/videos/");      // for videos
+                                            SLApplication::calibFilePath,   // for calibrations made
+                                            projectRoot + "/data/videos/"); // for videos
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,

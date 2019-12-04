@@ -82,7 +82,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
             std::string computerInfo      = SLApplication::getComputerInfos();
             string      mainCalibFilename = "camCalib_" + computerInfo + "_main.xml";
             string      scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";
-            ac->calibration.save(mainCalibFilename, mainCalibFilename);
+            ac->calibration.save(SLApplication::calibFilePath, mainCalibFilename);
             //update scene camera
             sv->camera()->fov(ac->calibration.cameraFovVDeg());
             cv::Mat scMat = ac->calibration.cameraMatUndistorted();

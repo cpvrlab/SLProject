@@ -255,7 +255,7 @@ double CVCalibrationEstimator::calcReprojectionErrors(const CVVVPoint3f& objectP
 bool CVCalibrationEstimator::loadCalibParams()
 {
     FileStorage fs;
-    string      fullCalibIniFile = CVCalibration::calibIniPath + _calibParamsFileName;
+    string      fullCalibIniFile = SLApplication::calibIniPath + _calibParamsFileName;
 
     fs.open(fullCalibIniFile, FileStorage::READ);
     if (!fs.isOpened())

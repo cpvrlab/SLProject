@@ -19,6 +19,7 @@ for a good top down information.
 #include <CVCapture.h>
 #include <CVTrackedChessboard.h>
 #include <Utils.h>
+#include <SLApplication.h>
 
 using namespace cv;
 //-----------------------------------------------------------------------------
@@ -41,7 +42,7 @@ CVTrackedChessboard::CVTrackedChessboard()
 bool CVTrackedChessboard::loadCalibParams()
 {
     FileStorage fs;
-    string      fullCalibIniFile = CVCalibration::calibIniPath + _calibParamsFileName;
+    string      fullCalibIniFile = SLApplication::calibIniPath + _calibParamsFileName;
 
     fs.open(fullCalibIniFile, FileStorage::READ);
     if (!fs.isOpened())
