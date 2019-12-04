@@ -11,9 +11,29 @@
 #ifndef CVTYPES_H
 #define CVTYPES_H
 
+#include <opencv2/calib3d.hpp>
+
 class CVCalibrationEstimatorParams
 {
 public:
+    int calibrationFlags()
+    {
+        int flags = 0;
+        if (fixPrincipalPoint)
+            flags |= cv::CALIB_FIX_PRINCIPAL_POINT;
+        if (fixAspectRatio)
+            flags |= cv::CALIB_FIX_ASPECT_RATIO;
+        if (zeroTangentDistortion)
+            flags |= cv::CALIB_ZERO_TANGENT_DIST;
+        if (calibRationalModel)
+            flags |= cv::CALIB_RATIONAL_MODEL;
+        if (calibTiltedModel)
+            flags |= cv::CALIB_TILTED_MODEL;
+        if (calibThinPrismModel)
+            flags |= cv::CALIB_THIN_PRISM_MODEL;
+
+        return flags;
+    }
     void toggleFixPrincipalPoint() { fixPrincipalPoint = !fixPrincipalPoint; }
     void toggleFixAspectRatio() { fixAspectRatio = !fixAspectRatio; }
     void toggleZeroTangentDist() { zeroTangentDistortion = !zeroTangentDistortion; }

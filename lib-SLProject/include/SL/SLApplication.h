@@ -34,8 +34,8 @@ class SLScene;
  At the moment only one scene can be open at the time.
  <br>
  SLApplication holds two static video camera calibrations, one for a main camera
- (calibMainCam) and one for the selfie camera on mobile devices (calibScndCam).
- The pointer activeCalib points to the active one.
+ (mainCam) and one for the selfie camera on mobile devices (scndCam).
+ The pointer activeCamera points to the active one.
 */
 class SLApplication
 {

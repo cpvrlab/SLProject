@@ -61,8 +61,8 @@ If doesn't exist a simple calibration from a default field of view angle is
 estimated.
 \n
 The CVCapture instance has two video camera calibrations, one for a main camera
-(CVCapture::calibMainCam) and one for the selfie camera on mobile devices
-(CVCapture::calibScndCam). The member CVCapture::activeCalib points to the active
+(CVCapture::mainCam) and one for the selfie camera on mobile devices
+(CVCapture::scndCam). The member CVCapture::activeCamera points to the active
 one and is set by the CVCapture::videoType (VT_NONE, VT_MAIN, VT_SCND) during the
 scene assembly in AppDemoLoad. On mobile devices the front camera is the
 selfie camera (our secondary) and the back camera is the our main camera.
@@ -129,8 +129,6 @@ public:
         _camSizeIndex = index;
     }
 
-    void showUndistorted(bool su) { _showUndistorted = su; }
-
     // Getters
     CVSize imageSize() { return _imageSize; }
     int    camSizeIndex()
@@ -178,7 +176,6 @@ public:
     //int          numImgsToCapture() { return _numOfImgsToCapture; }
     int    numCapturedImgs() { return _numCaptured; }
     float  reprojectionError() { return _reprojectionError; }
-    bool   showUndistorted() { return _showUndistorted; }
     CVSize boardSize() { return _boardSize; }
     float  boardSquareMM() { return _boardSquareMM; }
     float  boardSquareM() { return _boardSquareMM * 0.001f; }
@@ -217,17 +214,17 @@ private:
     bool         _isMirroredH = false;             //!< Flag if image must be horizontally mirrored
     bool         _isMirroredV = false;             //!< Flag if image must be vertically mirrored
 
-    int          _numCaptured = 0;           //!< NO. of images captured
-    CVSize       _boardSize;                 //!< NO. of inner chessboard corners.
-    float        _boardSquareMM     = 20.f;  //!< Size of chessboard square in mm
-    float        _reprojectionError = -1.0f; //!< Reprojection error after calibration
-    CVSize       _imageSize;                 //!< Input image size in pixels (after cropping)
-    int          _camSizeIndex    = -1;      //!< The requested camera size index
-    bool         _showUndistorted = false;   //!< Flag if image should be undistorted
-    CVMat        _undistortMapX;             //!< Undistortion float map in x-direction
-    CVMat        _undistortMapY;             //!< Undistortion float map in y-direction
-    CVMat        _cameraMatUndistorted;      //!< Camera matrix that defines scene camera and may also be used for reprojection of undistorted image
-    string       _calibrationTime = "-";     //!< Time stamp string of calibration
+    int    _numCaptured = 0;           //!< NO. of images captured
+    CVSize _boardSize;                 //!< NO. of inner chessboard corners.
+    float  _boardSquareMM     = 20.f;  //!< Size of chessboard square in mm
+    float  _reprojectionError = -1.0f; //!< Reprojection error after calibration
+    CVSize _imageSize;                 //!< Input image size in pixels (after cropping)
+    int    _camSizeIndex = -1;         //!< The requested camera size index
+
+    CVMat        _undistortMapX;         //!< Undistortion float map in x-direction
+    CVMat        _undistortMapY;         //!< Undistortion float map in y-direction
+    CVMat        _cameraMatUndistorted;  //!< Camera matrix that defines scene camera and may also be used for reprojection of undistorted image
+    string       _calibrationTime = "-"; //!< Time stamp string of calibration
     string       _computerInfos;
     CVCameraType _camType = CVCameraType::FRONTFACING;
 

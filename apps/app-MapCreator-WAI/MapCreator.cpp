@@ -183,18 +183,18 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
         CVCapture* cap = CVCapture::instance();
         cap->videoType(CVVideoType::VT_FILE);
         cap->videoFilename    = videos[videoIdx].videoFile;
-        cap->activeCalib      = &videos[videoIdx].calibration;
+        cap->activeCamera     = &videos[videoIdx].calibration;
         cap->videoLoops       = true;
         cv::Size capturedSize = cap->openFile();
         //check if resolution of captured frame fits to calibration
-        if (capturedSize.width != cap->activeCalib->imageSize().width ||
-            capturedSize.height != cap->activeCalib->imageSize().height)
+        if (capturedSize.width != cap->activeCamera->imageSize().width ||
+            capturedSize.height != cap->activeCamera->imageSize().height)
             throw std::runtime_error("MapCreator::createWaiMap: Resolution of captured frame does not fit to calibration: " + videos[videoIdx].videoFile);
 
         //instantiate wai mode
         std::unique_ptr<WAI::ModeOrbSlam2> waiMode =
-          std::make_unique<WAI::ModeOrbSlam2>(cap->activeCalib->cameraMat(),
-                                              cap->activeCalib->distortion(),
+          std::make_unique<WAI::ModeOrbSlam2>(cap->activeCamera->cameraMat(),
+                                              cap->activeCamera->distortion(),
                                               modeParams,
                                               _vocFile);
 
@@ -227,7 +227,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
                 break;
             }
 
-            if (!cap->grabAndAdjustForSL(cap->activeCalib->imageAspectRatio()))
+            if (!cap->grabAndAdjustForSL(cap->activeCamera->imageAspectRatio()))
                 break;
 
             //update wai

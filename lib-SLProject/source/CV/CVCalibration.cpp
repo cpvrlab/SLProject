@@ -70,7 +70,6 @@ CVCalibration::CVCalibration(CVCameraType type)
     _numCaptured(0),
     _reprojectionError(-1.0f),
     _camSizeIndex(-1),
-    _showUndistorted(false),
     _calibrationTime("-"),
     _isMirroredH(false),
     _isMirroredV(false),

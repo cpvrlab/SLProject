@@ -18,7 +18,7 @@ See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <CVCalibration.h>
+#include <CVCamera.h>
 #include <CVCapture.h>
 #include <CVImage.h>
 #include <Utils.h>
@@ -29,9 +29,9 @@ CVCapture* CVCapture::_instance = nullptr;
 //-----------------------------------------------------------------------------
 //! Private constructor
 CVCapture::CVCapture()
-  : calibMainCam(CVCameraType::FRONTFACING),
-    calibScndCam(CVCameraType::BACKFACING),
-    calibVideoFile(CVCameraType::VIDEOFILE)
+  : mainCam(CVCameraType::FRONTFACING),
+    scndCam(CVCameraType::BACKFACING),
+    videoFileCam(CVCameraType::VIDEOFILE)
 {
     startCaptureTimeMS = 0.0f;
     hasSecondaryCamera = true;
@@ -41,7 +41,7 @@ CVCapture::CVCapture()
     fps                = 1.0f;
     frameCount         = 0;
     activeCamSizeIndex = -1;
-    activeCalib        = nullptr;
+    activeCamera       = nullptr;
     _captureTimesMS.init(60, 0);
 }
 //-----------------------------------------------------------------------------
@@ -427,19 +427,19 @@ void CVCapture::adjustForSL(float viewportWdivH)
     // Mirroring is done for most selfie cameras.
     // So this is Android image copy loop #3
 
-    if (activeCalib->isMirroredH())
+    if (activeCamera->calibration.isMirroredH())
     {
         CVMat mirrored;
-        if (activeCalib->isMirroredV())
+        if (activeCamera->calibration.isMirroredV())
             cv::flip(lastFrame, mirrored, -1);
         else
             cv::flip(lastFrame, mirrored, 1);
         lastFrame = mirrored;
     }
-    else if (activeCalib->isMirroredV())
+    else if (activeCamera->calibration.isMirroredV())
     {
         CVMat mirrored;
-        if (activeCalib->isMirroredH())
+        if (activeCamera->calibration.isMirroredH())
             cv::flip(lastFrame, mirrored, -1);
         else
             cv::flip(lastFrame, mirrored, 0);
@@ -457,9 +457,9 @@ void CVCapture::adjustForSL(float viewportWdivH)
     cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_BGR2GRAY);
 
     // Reset calibrated image size
-    if (lastFrame.size() != activeCalib->imageSize())
+    if (lastFrame.size() != activeCamera->calibration.imageSize())
     {
-        activeCalib->adaptForNewResolution(lastFrame.size());
+        activeCamera->calibration.adaptForNewResolution(lastFrame.size());
     }
 
     _captureTimesMS.set(_timer.elapsedTimeInMilliSec() - startCaptureTimeMS);
@@ -678,8 +678,8 @@ void CVCapture::copyYUVPlanes(float  scrWdivH,
     }
 
     // Get the infos if the destination image must be mirrored
-    bool mirrorH = CVCapture::activeCalib->isMirroredH();
-    bool mirrorV = CVCapture::activeCalib->isMirroredV();
+    bool mirrorH = CVCapture::activeCamera->mirrorH();
+    bool mirrorV = CVCapture::activeCamera->mirrorV();
 
     // Create output color (BGR) and grayscale images
     lastFrame     = CVMat(dstH, dstW, CV_8UC(3));
@@ -799,9 +799,9 @@ void CVCapture::copyYUVPlanes(float  scrWdivH,
 //-----------------------------------------------------------------------------
 //! Setter for video type also sets the active calibration
 /*! The CVCapture instance has up to three video camera calibrations, one
-for a main camera (CVCapture::calibMainCam), one for the selfie camera on
-mobile devices (CVCapture::calibScndCam) and one for video file simulation
-(CVCapture::calibVideoFile). The member CVCapture::activeCalib
+for a main camera (CVCapture::mainCam), one for the selfie camera on
+mobile devices (CVCapture::scndCam) and one for video file simulation
+(CVCapture::videoFileCam). The member CVCapture::activeCamera
 references the active one.
 */
 void CVCapture::videoType(CVVideoType vt)
@@ -812,18 +812,18 @@ void CVCapture::videoType(CVVideoType vt)
     if (vt == VT_SCND)
     {
         if (hasSecondaryCamera)
-            activeCalib = &calibScndCam;
+            activeCamera = &scndCam;
         else //fallback if there is no secondary camera we use main setup
         {
-            _videoType  = VT_MAIN;
-            activeCalib = &calibMainCam;
+            _videoType   = VT_MAIN;
+            activeCamera = &mainCam;
         }
     }
     else if (vt == VT_FILE)
-        activeCalib = &calibVideoFile;
+        activeCamera = &videoFileCam;
     else
     {
-        activeCalib = &calibMainCam;
+        activeCamera = &mainCam;
         if (vt == VT_NONE)
         {
             release();
@@ -846,13 +846,13 @@ void CVCapture::loadCalibrations(const string& computerInfo,
 
     // load opencv camera calibration for main and secondary camera
 #if defined(APP_USES_CVCAPTURE)
-    calibMainCam.load(configPath, mainCalibFilename);
-    activeCalib        = &calibMainCam;
+    mainCam.calibration.load(configPath, mainCalibFilename);
+    activeCamera       = &mainCam;
     hasSecondaryCamera = false;
 #else
-    calibMainCam.load(configPath, mainCalibFilename);
-    calibScndCam.load(configPath, scndCalibFilename);
-    activeCalib        = &calibMainCam;
+    mainCam.calibration.load(configPath, mainCalibFilename);
+    scndCam.calibration.load(configPath, scndCalibFilename);
+    activeCamera       = &mainCam;
     hasSecondaryCamera = true;
 #endif
 }

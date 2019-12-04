@@ -63,8 +63,10 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Video"))
         {
-            CVCalibration* mc = &CVCapture::instance()->calibMainCam;
-            CVCalibration* sc = &CVCapture::instance()->calibScndCam;
+            CVCamera* ac = CVCapture::instance()->activeCamera;
+
+            CVCalibration* mc = &CVCapture::instance()->mainCam;
+            CVCalibration* sc = &CVCapture::instance()->scndCam;
 
             ImGui::MenuItem("Video Storage", nullptr, &prefs->showVideoStorage);
             ImGui::MenuItem("Video Controls", nullptr, &prefs->showVideoControls);
@@ -80,13 +82,6 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
 
-            CVCapture* cap = CVCapture::instance();
-            if (cap->activeCalib)
-            {
-                if (ImGui::MenuItem("Undistort Image", nullptr, cap->activeCalib->showUndistorted(), cap->activeCalib->state() == CS_calibrated))
-                    cap->activeCalib->showUndistorted(!cap->activeCalib->showUndistorted());
-            }
-
             if (ImGui::BeginMenu("Mirror Scnd. Camera", CVCapture::instance()->hasSecondaryCamera))
             {
                 if (ImGui::MenuItem("Horizontally", nullptr, sc->isMirroredH()))
@@ -96,6 +91,13 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
                     sc->toggleMirrorV();
 
                 ImGui::EndMenu();
+            }
+
+            CVCapture* cap = CVCapture::instance();
+            if (cap->activeCamera)
+            {
+                if (ImGui::MenuItem("Undistort Image", nullptr, cap->activeCamera->showUndistorted(), cap->activeCamera->state() == CS_calibrated))
+                    cap->activeCamera->showUndistorted(!cap->activeCamera->showUndistorted());
             }
 
             ImGui::EndMenu();

@@ -279,22 +279,22 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     //scrWdivH  = (float)scrWidth / (float)scrHeight;
 
     // 2. Load Calibration
-    if (!cap->activeCalib->load(calibDir, Utils::getFileName(calibrationFile), 0, 0))
+    if (!cap->activeCamera->load(calibDir, Utils::getFileName(calibrationFile), 0, 0))
     {
         result.errorString = "Error when loading calibration from file: " +
                              calibrationFile;
         return result;
     }
 
-    if (cap->activeCalib->imageSize() != videoFrameSize)
+    if (cap->activeCamera->imageSize() != videoFrameSize)
     {
-        cap->activeCalib->adaptForNewResolution(videoFrameSize);
+        cap->activeCamera->adaptForNewResolution(videoFrameSize);
     }
 
     // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective mode)
-    waiScene->cameraNode->fov(cap->activeCalib->cameraFovVDeg());
+    waiScene->cameraNode->fov(cap->activeCamera->cameraFovVDeg());
     // Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
-    cv::Mat scMat = cap->activeCalib->cameraMatUndistorted();
+    cv::Mat scMat = cap->activeCamera->cameraMatUndistorted();
     std::cout << "scMat: " << scMat << std::endl;
     waiScene->cameraNode->intrinsics(scMat.at<double>(0, 0),
                                      scMat.at<double>(1, 1),
@@ -303,7 +303,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     //enable projection -> intrinsics mode
     waiScene->cameraNode->projection(P_monoIntrinsic);
     //enable image undistortion
-    cap->activeCalib->showUndistorted(true);
+    cap->activeCamera->showUndistorted(true);
 
     // 4. Create new mode ORBSlam
     if (!markerFile.empty())
@@ -311,8 +311,8 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         params.cullRedundantPerc = 0.99f;
     }
 
-    mode = new WAI::ModeOrbSlam2(cap->activeCalib->cameraMat(),
-                                 cap->activeCalib->distortion(),
+    mode = new WAI::ModeOrbSlam2(cap->activeCamera->cameraMat(),
+                                 cap->activeCamera->distortion(),
                                  params,
                                  vocFile,
                                  markerFile);
@@ -400,7 +400,7 @@ void WAIApp::setupGUI()
     AppDemoGui::addInfoDialog(new AppDemoGuiSceneGraph("scene graph", &uiPrefs.showSceneGraph));
     AppDemoGui::addInfoDialog(new AppDemoGuiStatsDebugTiming("debug timing", &uiPrefs.showStatsDebugTiming));
     AppDemoGui::addInfoDialog(new AppDemoGuiStatsTiming("timing", &uiPrefs.showStatsTiming));
-    AppDemoGui::addInfoDialog(new AppDemoGuiStatsVideo("video", CVCapture::instance()->activeCalib, &uiPrefs.showStatsVideo));
+    AppDemoGui::addInfoDialog(new AppDemoGuiStatsVideo("video", CVCapture::instance()->activeCamera, &uiPrefs.showStatsVideo));
     AppDemoGui::addInfoDialog(new AppDemoGuiTrackedMapping("tracked mapping", &uiPrefs.showTrackedMapping));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTransform("transform", &uiPrefs.showTransform));
@@ -414,7 +414,7 @@ void WAIApp::setupGUI()
                                                      &uiPrefs.showTestSettings));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTestWrite("Test Writer",
-                                                      CVCapture::instance()->activeCalib,
+                                                      CVCapture::instance()->activeCamera,
                                                       waiScene->mapNode,
                                                       videoWriter,
                                                       videoWriterInfo,
@@ -537,7 +537,7 @@ bool WAIApp::update()
     if (iKnowWhereIAm)
     {
         lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
-        IMUQuaternion = SLQuat4f(0, 0, 0, 1);
+        IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
         // TODO(dgj1): maybe make this API cleaner
         cv::Mat pose = cv::Mat(4, 4, CV_32F);
         if (!mode->getPose(&pose))
@@ -582,8 +582,8 @@ bool WAIApp::update()
         SLQuat4f q1 = lastKnowPoseQuaternion;
         SLQuat4f q2 = SLApplication::devRot.quaternion();
         q1.invert();
-        SLQuat4f q = q1 * q2;
-        IMUQuaternion = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
+        SLQuat4f q     = q1 * q2;
+        IMUQuaternion  = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
         SLMat4f imuRot = IMUQuaternion.toMat4();
 
         SLMat4f cameraMat = waiScene->cameraNode->om();
@@ -638,7 +638,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
     CVCapture* cap = CVCapture::instance();
     //undistort image and copy image to video texture
-    if (videoImage && cap->activeCalib)
+    if (videoImage && cap->activeCamera)
     {
         //decorate distorted image with distorted keypoints
         if (uiPrefs.showKeyPoints)
@@ -647,9 +647,9 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
             mode->decorateVideoWithKeyPointMatches(cap->lastFrame);
 
         CVMat undistortedLastFrame;
-        if (cap->activeCalib->state() == CS_calibrated && cap->activeCalib->showUndistorted())
+        if (cap->activeCamera->state() == CS_calibrated && cap->activeCamera->showUndistorted())
         {
-            cap->activeCalib->remap(cap->lastFrame, undistortedLastFrame);
+            cap->activeCamera->remap(cap->lastFrame, undistortedLastFrame);
         }
         else
         {
