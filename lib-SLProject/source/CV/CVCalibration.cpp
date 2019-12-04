@@ -30,20 +30,20 @@ off64_t ftpUploadSizeMax = 0;
 
 //-----------------------------------------------------------------------------
 //! Calibration Upload callback for progress feedback
-int ftpCallbackUpload(off64_t xfered, void* arg)
-{
-    if (ftpUploadSizeMax)
-    {
-        int xferedPC = (int)((float)xfered / (float)ftpUploadSizeMax * 100.0f);
-        cout << "Bytes saved: " << xfered << " (" << xferedPC << ")" << endl;
-        //SLApplication::jobProgressNum(xferedPC);
-    }
-    else
-    {
-        cout << "Bytes saved: " << xfered << endl;
-    }
-    return xfered ? 1 : 0;
-}
+//int ftpCallbackUpload(off64_t xfered, void* arg)
+//{
+//    if (ftpUploadSizeMax)
+//    {
+//        int xferedPC = (int)((float)xfered / (float)ftpUploadSizeMax * 100.0f);
+//        cout << "Bytes saved: " << xfered << " (" << xferedPC << ")" << endl;
+//        //SLApplication::jobProgressNum(xferedPC);
+//    }
+//    else
+//    {
+//        cout << "Bytes saved: " << xfered << endl;
+//    }
+//    return xfered ? 1 : 0;
+//}
 
 //-----------------------------------------------------------------------------
 //! FTP credentials for calibration up- and download
@@ -143,20 +143,6 @@ CVCalibration::CVCalibration(float        sensorWMM,
         //if not between
         createFromGuessedFOV(imageSize.width, imageSize.height, 65.0);
     }
-}
-//-----------------------------------------------------------------------------
-//! Resets the calibration to the uncalibrated state
-void CVCalibration::clear()
-{
-    _numCaptured       = 0;
-    _reprojectionError = -1.0f;
-    _cameraFovHDeg     = 0.0f;
-    _cameraFovVDeg     = 0.0f;
-    _calibrationTime   = "-";
-    _undistortMapX.release();
-    _undistortMapY.release();
-    _state         = CS_uncalibrated;
-    _computerInfos = SLApplication::getComputerInfos();
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file

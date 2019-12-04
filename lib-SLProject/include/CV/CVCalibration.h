@@ -118,9 +118,6 @@ public:
     //! Adapts an already calibrated camera to a new resolution (cropping and scaling)
     void adaptForNewResolution(const CVSize& newSize);
 
-    // Setters
-    void state(CVCalibState s) { _state = s; }
-
     //todo: move to slcamera
     void camSizeIndex(int index)
     {
@@ -197,7 +194,6 @@ private:
     void calculateUndistortedCameraMat();
     void buildUndistortionMaps();
     void createFromGuessedFOV(int imageWidthPX, int imageHeightPX, float fovH);
-    void clear();
     ///////////////////////////////////////////////////////////////////////////////////
     CVMat _cameraMat;  //!< 3x3 Matrix for intrinsic camera matrix
     CVMat _distortion; //!< 4x1 Matrix for intrinsic distortion
