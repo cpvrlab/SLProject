@@ -1346,23 +1346,23 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Undistort Image", nullptr, ac->showUndistorted(), ac->state() == CS_calibrated))
                         ac->showUndistorted(!ac->showUndistorted());
 
-                    if (ImGui::MenuItem("No Tangent Distortion", nullptr, ac->calibZeroTangentDist()))
-                        ac->toggleZeroTangentDist();
+                    if (ImGui::MenuItem("No Tangent Distortion", nullptr, SLApplication::calibrationEstimatorParams.zeroTangentDistortion))
+                        SLApplication::calibrationEstimatorParams.toggleZeroTangentDist();
 
-                    if (ImGui::MenuItem("Fix Aspect Ratio", nullptr, ac->calibFixAspectRatio()))
-                        ac->toggleFixAspectRatio();
+                    if (ImGui::MenuItem("Fix Aspect Ratio", nullptr, SLApplication::calibrationEstimatorParams.fixAspectRatio))
+                        SLApplication::calibrationEstimatorParams.toggleFixAspectRatio();
 
-                    if (ImGui::MenuItem("Fix Principal Point", nullptr, ac->calibFixPrincipalPoint()))
-                        ac->toggleFixPrincipalPoint();
+                    if (ImGui::MenuItem("Fix Principal Point", nullptr, SLApplication::calibrationEstimatorParams.fixPrincipalPoint))
+                        SLApplication::calibrationEstimatorParams.toggleFixPrincipalPoint();
 
-                    if (ImGui::MenuItem("Use rational model", nullptr, ac->calibRationalModel()))
-                        ac->toggleRationalModel();
+                    if (ImGui::MenuItem("Use rational model", nullptr, SLApplication::calibrationEstimatorParams.calibRationalModel))
+                        SLApplication::calibrationEstimatorParams.toggleRationalModel();
 
-                    if (ImGui::MenuItem("Use tilted model", nullptr, ac->calibTiltedModel()))
-                        ac->toggleTiltedModel();
+                    if (ImGui::MenuItem("Use tilted model", nullptr, SLApplication::calibrationEstimatorParams.calibTiltedModel))
+                        SLApplication::calibrationEstimatorParams.toggleTiltedModel();
 
-                    if (ImGui::MenuItem("Use thin prism model", nullptr, ac->calibThinPrismModel()))
-                        ac->toggleThinPrismModel();
+                    if (ImGui::MenuItem("Use thin prism model", nullptr, SLApplication::calibrationEstimatorParams.calibThinPrismModel))
+                        SLApplication::calibrationEstimatorParams.toggleThinPrismModel();
 
                     ImGui::EndMenu();
                 }

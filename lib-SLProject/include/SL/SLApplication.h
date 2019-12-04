@@ -11,6 +11,7 @@
 #ifndef SLAPPLICATION_H
 #define SLAPPLICATION_H
 
+#include <CVTypes.h>
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
 #include <SLInputManager.h>
@@ -83,6 +84,8 @@ public:
     static deque<function<void(void)>> jobsToBeThreaded;   //!< queue of functions to be executed in a thread
     static deque<function<void(void)>> jobsToFollowInMain; //!< queue of function to follow in the main thread
     static atomic<bool>                jobIsRunning;       //!< True if a parallel job is running
+
+    static CVCalibrationEstimatorParams calibrationEstimatorParams;
 
 private:
     static HighResTimer _timer;          //!< high precision timer

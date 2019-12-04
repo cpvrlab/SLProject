@@ -29,6 +29,9 @@ CVCapture* CVCapture::_instance = nullptr;
 //-----------------------------------------------------------------------------
 //! Private constructor
 CVCapture::CVCapture()
+  : calibMainCam(CVCameraType::FRONTFACING),
+    calibScndCam(CVCameraType::BACKFACING),
+    calibVideoFile(CVCameraType::VIDEOFILE)
 {
     startCaptureTimeMS = 0.0f;
     hasSecondaryCamera = true;
@@ -68,7 +71,8 @@ CVSize2i CVCapture::open(int deviceNum)
             return CVSize2i(0, 0);
 
         Utils::log("Capture devices created.\n");
-
+        _captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
+        _captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, 1024);
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
         //Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
@@ -842,12 +846,12 @@ void CVCapture::loadCalibrations(const string& computerInfo,
 
     // load opencv camera calibration for main and secondary camera
 #if defined(APP_USES_CVCAPTURE)
-    calibMainCam.load(configPath, mainCalibFilename, true, false);
+    calibMainCam.load(configPath, mainCalibFilename);
     activeCalib        = &calibMainCam;
     hasSecondaryCamera = false;
 #else
-    calibMainCam.load(configPath, mainCalibFilename, false, false);
-    calibScndCam.load(configPath, scndCalibFilename, true, false);
+    calibMainCam.load(configPath, mainCalibFilename);
+    calibScndCam.load(configPath, scndCalibFilename);
     activeCalib        = &calibMainCam;
     hasSecondaryCamera = true;
 #endif

@@ -60,7 +60,7 @@ const string CVCalibration::_FTP_DIR  = "calibrations";
 // Version 6, Date: 6.JUL.2019: Added device parameter from Android
 const int CVCalibration::_CALIBFILEVERSION = 6;
 //-----------------------------------------------------------------------------
-CVCalibration::CVCalibration()
+CVCalibration::CVCalibration(CVCameraType type)
   : _state(CS_uncalibrated),
     _cameraFovHDeg(0.0f),
     _cameraFovVDeg(0.0f),
@@ -72,12 +72,11 @@ CVCalibration::CVCalibration()
     _camSizeIndex(-1),
     _showUndistorted(false),
     _calibrationTime("-"),
-    _devFocalLength(0.0f),
-    _devSensorSizeW(0.0f),
-    _devSensorSizeH(0.0f),
     _isMirroredH(false),
-    _isMirroredV(false)
+    _isMirroredV(false),
+    _camType(type)
 {
+    _computerInfos = SLApplication::getComputerInfos();
 }
 //-----------------------------------------------------------------------------
 //creates a fully defined calibration
@@ -88,7 +87,11 @@ CVCalibration::CVCalibration(cv::Mat            cameraMat,
                              float              boardSquareMM,
                              float              reprojectionError,
                              int                numCaptured,
-                             const std::string& calibrationTime)
+                             const std::string& calibrationTime,
+                             int                camSizeIndex,
+                             bool               mirroredH,
+                             bool               mirroredV,
+                             CVCameraType       camType)
   : _cameraMat(cameraMat.clone()),
     _distortion(distortion.clone()),
     _imageSize(imageSize),
@@ -96,7 +99,11 @@ CVCalibration::CVCalibration(cv::Mat            cameraMat,
     _boardSquareMM(boardSquareMM),
     _reprojectionError(reprojectionError),
     _numCaptured(numCaptured),
-    _calibrationTime(calibrationTime)
+    _calibrationTime(calibrationTime),
+    _camSizeIndex(camSizeIndex),
+    _isMirroredH(mirroredH),
+    _isMirroredV(mirroredV),
+    _camType(camType)
 {
     _computerInfos = SLApplication::getComputerInfos();
     calculateUndistortedCameraMat();
@@ -105,10 +112,42 @@ CVCalibration::CVCalibration(cv::Mat            cameraMat,
     _state = CS_calibrated;
 }
 //-----------------------------------------------------------------------------
-//create a guessed calibration using image size and fov angle
-CVCalibration::CVCalibration(cv::Size imageSize)
+//create a guessed calibration using image size and horizontal fov angle
+CVCalibration::CVCalibration(cv::Size     imageSize,
+                             float        fovH,
+                             bool         mirroredH,
+                             bool         mirroredV,
+                             CVCameraType camType)
+  : _isMirroredH(mirroredH),
+    _isMirroredV(mirroredV),
+    _camType(camType)
 {
-    createFromGuessedFOV(imageSize.width, imageSize.height);
+    createFromGuessedFOV(imageSize.width, imageSize.height, fovH);
+}
+//-----------------------------------------------------------------------------
+//create a guessed calibration using sensor size, camera focal length and captured image size
+CVCalibration::CVCalibration(float        sensorWMM,
+                             float        sensorHMM,
+                             float        focalLengthMM,
+                             cv::Size     imageSize,
+                             bool         mirroredH,
+                             bool         mirroredV,
+                             CVCameraType camType)
+  : _isMirroredH(mirroredH),
+    _isMirroredV(mirroredV),
+    _camType(camType)
+{
+    // aspect ratio
+    float devFovH = 2.0f * atan(sensorWMM / (2.0f * focalLengthMM)) * Utils::RAD2DEG;
+    if (devFovH > 60.0f && devFovH < 70.0f)
+    {
+        createFromGuessedFOV(imageSize.width, imageSize.height, devFovH);
+    }
+    else
+    {
+        //if not between
+        createFromGuessedFOV(imageSize.width, imageSize.height, 65.0);
+    }
 }
 //-----------------------------------------------------------------------------
 //! Resets the calibration to the uncalibrated state
@@ -127,14 +166,10 @@ void CVCalibration::clear()
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
 bool CVCalibration::load(const string& calibDir,
-                         const string& calibFileName,
-                         bool          mirrorHorizontally,
-                         bool          mirrorVertically)
+                         const string& calibFileName)
 {
     _calibDir      = Utils::unifySlashes(calibDir);
     _calibFileName = calibFileName;
-    _isMirroredH   = mirrorHorizontally;
-    _isMirroredV   = mirrorVertically;
 
     //load camera parameter
     string fullPathAndFilename = _calibDir + _calibFileName;
@@ -150,8 +185,8 @@ bool CVCalibration::load(const string& calibDir,
         Utils::log("Calibration     : %s\n", calibFileName.c_str());
         Utils::log("Calib. created  : No. Calib. will be estimated\n");
         _numCaptured       = 0;
-        _isMirroredH       = mirrorHorizontally;
-        _isMirroredV       = mirrorVertically;
+        _isMirroredH       = false;
+        _isMirroredV       = false;
         _reprojectionError = 0;
         _calibrationTime   = "-";
         _state             = CS_uncalibrated;
@@ -165,8 +200,6 @@ bool CVCalibration::load(const string& calibDir,
     if (calibFileVersion < _CALIBFILEVERSION)
     {
         _numCaptured       = 0;
-        _isMirroredH       = mirrorHorizontally;
-        _isMirroredV       = mirrorVertically;
         _reprojectionError = -1;
         _calibrationTime   = "-";
         _state             = CS_uncalibrated;
@@ -221,13 +254,12 @@ bool CVCalibration::load(const string& calibDir,
 }
 //-----------------------------------------------------------------------------
 //! Saves the camera calibration parameters to the config file
-void CVCalibration::save(std::string forceSavePath)
+void CVCalibration::save(const string& calibDir,
+                         const string& calibFileName)
 {
-    string fullPathAndFilename;
-    if (forceSavePath.empty())
-        fullPathAndFilename = _calibDir + _calibFileName;
-    else
-        fullPathAndFilename = forceSavePath;
+    _calibDir                       = Utils::unifySlashes(calibDir);
+    _calibFileName                  = calibFileName;
+    std::string fullPathAndFilename = _calibDir + _calibFileName;
 
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 
@@ -272,9 +304,6 @@ void CVCalibration::save(std::string forceSavePath)
     fs << "cameraFovVDeg" << _cameraFovVDeg;
     fs << "cameraFovHDeg" << _cameraFovHDeg;
     fs << "camSizeIndex" << _camSizeIndex;
-    fs << "DeviceLensFocalLength" << _devFocalLength;
-    fs << "DeviceSensorPhysicalSizeW" << _devSensorSizeW;
-    fs << "DeviceSensorPhysicalSizeH" << _devSensorSizeW;
     fs << "computerInfos" << _computerInfos;
     /*
     SLGLState* stateGL = SLGLState::instance();
@@ -409,30 +438,17 @@ other parameters are set as if the lens would be perfect: No lens distortion
 and the view axis goes through the center of the image.
 If the focal length and sensor size is provided by the device we deduce the
 the fov from it.
+ @param fovH average horizontal view angle in degrees
 */
-void CVCalibration::createFromGuessedFOV(int imageWidthPX,
-                                         int imageHeightPX)
+void CVCalibration::createFromGuessedFOV(int   imageWidthPX,
+                                         int   imageHeightPX,
+                                         float fovH)
 {
     // aspect ratio
     float withOverHeight = (float)imageWidthPX / (float)imageHeightPX;
 
-    // average horizontal view angle in degrees
-    float fovH = 65.0f;
-
     // the vertical fov is derived from the width because it could be cropped
     float fovV = fovH / withOverHeight;
-
-    // overwrite if device lens and sensor information exist and are reasonable
-    if (_devFocalLength > 0.0f && _devSensorSizeW > 0.0f && _devSensorSizeH > 0.0f)
-    {
-        float devFovH = 2.0f * atan(_devSensorSizeW / (2.0f * _devFocalLength)) * Utils::RAD2DEG;
-        float devFovV = devFovH / withOverHeight;
-        if (devFovH > 60.0f && devFovH < 70.0f)
-        {
-            fovH = devFovH;
-            fovV = devFovV;
-        }
-    }
 
     // Create standard camera matrix
     // fx, fx, cx, cy are all in pixel values not mm
@@ -454,13 +470,13 @@ void CVCalibration::createFromGuessedFOV(int imageWidthPX,
     _cameraFovVDeg    = fovV;
     _calibrationTime  = Utils::getDateTime2String();
     _state            = CS_guessed;
+    _computerInfos    = SLApplication::getComputerInfos();
 }
 //-----------------------------------------------------------------------------
-//! Adapts an allready calibrated camera to a new resolution
+//! Adapts an already calibrated camera to a new resolution (cropping and scaling)
 void CVCalibration::adaptForNewResolution(const CVSize& newSize)
 {
-    // allow adaptation only for calibrated cameras
-    if (_state != CS_calibrated)
+    if (_state == CS_uncalibrated)
         return;
 
     // new center and focal length in pixels not mm
@@ -502,7 +518,6 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
     calculateUndistortedCameraMat();
     calcCameraFovFromUndistortedCameraMat();
     buildUndistortionMaps();
-    //save();
 }
 //-----------------------------------------------------------------------------
 //! Uploads the active calibration to the ftp server

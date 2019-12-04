@@ -47,6 +47,8 @@ SLstring            SLApplication::gitDate       = SL_GIT_DATE;
 SLint               SLApplication::dpi           = 0;
 map<string, string> SLApplication::deviceParameter;
 
+CVCalibrationEstimatorParams SLApplication::calibrationEstimatorParams;
+
 //! SLApplication::configPath is overwritten in slCreateAppAndScene.
 SLstring                    SLApplication::configPath   = SLstring(SL_PROJECT_ROOT) + "/data/config/";
 SLstring                    SLApplication::externalPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";

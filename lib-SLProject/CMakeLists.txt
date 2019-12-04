@@ -7,10 +7,12 @@ set(target lib-SLProject)
 set(compile_definitions GLEW_NO_GLU)
 set(platform_specific_include_dirs)
 
-file(GLOB headers
+set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTypedefs.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCamera.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibration.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibrationEstimator.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTypes.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCapture.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVFeatureManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVImage.h
@@ -51,13 +53,11 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SL.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLApplication.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAssimpImporter.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAverageTiming.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLImporter.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInterface.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLSkybox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLTexFont.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/stdafx.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/EulerAngles.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAABBox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAccelStruct.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimation.h
@@ -115,7 +115,8 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/TriangleBoxIntersect.h
         )
 
-file(GLOB sources
+set(sources
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCamera.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCalibration.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCalibrationEstimator.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCapture.cpp
@@ -145,7 +146,6 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLApplication.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAverageTiming.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLImporter.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInterface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTexFont.cpp

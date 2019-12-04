@@ -27,8 +27,17 @@ using namespace cv;
 using namespace std;
 
 //-----------------------------------------------------------------------------
-CVCalibrationEstimator::CVCalibrationEstimator(int calibFlags)
+CVCalibrationEstimator::CVCalibrationEstimator(int          calibFlags,
+                                               int          camSizeIndex,
+                                               bool         mirroredH,
+                                               bool         mirroredV,
+                                               CVCameraType camType)
   : _calibFlags(calibFlags),
+    _camSizeIndex(camSizeIndex),
+    _mirroredH(mirroredH),
+    _mirroredV(mirroredV),
+    _camType(camType),
+    _calibration(_camType),
     _calibParamsFileName("calib_in_params.yml")
 {
     if (!loadCalibParams())
@@ -141,7 +150,11 @@ bool CVCalibrationEstimator::calibrateAsync()
                                      _boardSquareMM,
                                      _reprojectionError,
                                      _numCaptured,
-                                     Utils::getDateTime2String());
+                                     Utils::getDateTime2String(),
+                                     _camSizeIndex,
+                                     _mirroredH,
+                                     _mirroredV,
+                                     _camType);
     }
 
     return ok;

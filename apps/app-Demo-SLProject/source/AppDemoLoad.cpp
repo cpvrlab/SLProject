@@ -2146,14 +2146,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         else if (SLApplication::sceneID == SID_VideoCalibrateMain)
         {
             CVCapture::instance()->videoType(VT_MAIN);
-            *activeCalib = CVCalibration();
+            *activeCalib = CVCalibration(CVCamera::Type::BACKFACING);
 
             s->name("Calibrate Main Cam.");
         }
         else if (SLApplication::sceneID == SID_VideoCalibrateScnd)
         {
             CVCapture::instance()->videoType(VT_SCND);
-            *activeCalib = CVCalibration();
+            *activeCalib = CVCalibration(CVCamera::Type::FRONTFACING);
             s->name("Calibrate Scnd Cam.");
         }
 

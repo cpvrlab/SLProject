@@ -20,9 +20,10 @@ See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
+#include <future>
 #include <CVCalibration.h>
 #include <CVTypedefs.h>
-#include <future>
+#include <CVTypes.h>
 
 using namespace std;
 
@@ -38,7 +39,11 @@ public:
         Done            //!< Estimator finished
     };
 
-    CVCalibrationEstimator(int calibFlags);
+    CVCalibrationEstimator(int          calibFlags,
+                           int          camSizeIndex,
+                           bool         mirroredH,
+                           bool         mirroredV,
+                           CVCameraType camType);
     bool calculate();
     bool updateAndDecorate(CVMat        imageColor,
                            const CVMat& imageGray,
@@ -88,12 +93,10 @@ private:
                                      float         squareSize,
                                      CVVPoint3f&   objectPoints3D);
 
-    State             _state                 = State::Streaming;
-    bool              _calibrationSuccessful = false;
-    CVCalibration     _calibration;         //!< estimated calibration
-    std::future<bool> _calibrationTask;     //!< future object for calculation of calibration in async task
-    int               _calibFlags = 0;      //!< OpenCV calibration flags
-    std::string       _calibParamsFileName; //!< name of calibration paramters file
+    State _state                 = State::Streaming;
+    bool  _calibrationSuccessful = false;
+
+    std::future<bool> _calibrationTask; //!< future object for calculation of calibration in async task
 
     cv::Mat     _currentImgToExtract;
     CVVVPoint2f _imagePoints;               //!< 2D vector of corner points in chessboard
@@ -103,6 +106,15 @@ private:
     int         _numCaptured        = 0;    //!< NO. of images captured
     CVSize      _imageSize;                 //!< Input image size in pixels (after cropping)
     float       _reprojectionError = -1.f;  //!< Reprojection error after calibration
+
+    //constructor transfer parameter
+    int           _calibFlags   = 0; //!< OpenCV calibration flags
+    int           _camSizeIndex = -1;
+    bool          _mirroredH    = false;
+    bool          _mirroredV    = false;
+    CVCameraType  _camType      = CVCameraType::FRONTFACING;
+    CVCalibration _calibration;         //!< estimated calibration
+    std::string   _calibParamsFileName; //!< name of calibration paramters file
 };
 
 #endif // CVCALIBRATIONESTIMATOR_H

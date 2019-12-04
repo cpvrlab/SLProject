@@ -506,7 +506,7 @@ int main(int argc, char* argv[])
     scrWidth       = 640;
     scrHeight      = 480;
     scrWdivH       = (float)scrWidth / (float)scrHeight;
-    fixAspectRatio = false; //we want to fix aspect ratio for some video apps
+    fixAspectRatio = true; //we want to fix aspect ratio for some video apps
     touch2.set(-1, -1);
     touchDelta.set(-1, -1);
 
@@ -569,9 +569,9 @@ int main(int argc, char* argv[])
 
     CVImage::defaultPath = projectRoot + "/data/images/textures/";
     CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(),
-                                              configDir,                            // for calibrations made
-                                              projectRoot + "/data/calibrations/",  // for calibInitPath
-                                              projectRoot + "/data/videos/");       // for videos
+                                            configDir,                           // for calibrations made
+                                            projectRoot + "/data/calibrations/", // for calibInitPath
+                                            projectRoot + "/data/videos/");      // for videos
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
