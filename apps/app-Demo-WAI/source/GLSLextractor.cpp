@@ -1117,9 +1117,9 @@ static int bit_pattern_31_[256 * 4] =
     -11 /*mean (0.127148), correlation (0.547401)*/
 };
 
-GLSLextractor::GLSLextractor(int w, int h, int nbKeyPointPerArea, float lowThrs, float highThrs)
+GLSLextractor::GLSLextractor(int w, int h, int nbKeyPointPerArea, float lowThrs, float highThrs, float sigma)
   : KPextractor("GLSL"),
-    imgProc(w, h, nbKeyPointPerArea, lowThrs, highThrs)
+    imgProc(w, h, nbKeyPointPerArea, lowThrs, highThrs, sigma)
 {
     mvScaleFactor.resize(1);
     mvLevelSigma2.resize(1);
@@ -1133,7 +1133,7 @@ GLSLextractor::GLSLextractor(int w, int h, int nbKeyPointPerArea, float lowThrs,
     nlevels             = 1;
     scaleFactor         = 1.0;
 
-    old = cv::Mat(w, h, CV_8UC1);
+    old  = cv::Mat(w, h, CV_8UC1);
     old2 = cv::Mat(w, h, CV_8UC1);
 
     const int    npoints  = 512;
@@ -1171,7 +1171,6 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     imgProc.gpu_kp();
     imgProc.readResult(_keypoints);
 
-
     if (_keypoints.size() == 0)
     {
         _descriptors.release();
@@ -1190,8 +1189,7 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     Mat desc = descriptors.rowRange(0, _keypoints.size());
     computeDescriptors(workingMat, _keypoints, desc, pattern);
     old2 = old.clone();
-    old = image.clone();
+    old  = image.clone();
 
     AVERAGE_TIMING_STOP("GLSL Hessian");
 }
-

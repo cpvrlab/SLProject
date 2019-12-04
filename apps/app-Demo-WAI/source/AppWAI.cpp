@@ -59,8 +59,6 @@ ofstream           WAIApp::gpsDataStream;
 SLGLTexture*       WAIApp::testTexture;
 SLQuat4f           WAIApp::lastKnowPoseQuaternion;
 SLQuat4f           WAIApp::IMUQuaternion;
-SLVec3f            WAIApp::lastKnowPosePosition;
-SLVec3f            WAIApp::IMUPosition;
 
 SlamParams* WAIApp::currentSlamParams = nullptr;
 
@@ -274,10 +272,6 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     }
     videoFrameWdivH = (float)videoFrameSize.width / (float)videoFrameSize.height;
 
-    //scrWidth  = videoFrameSize.width;
-    //scrHeight = videoFrameSize.height;
-    //scrWdivH  = (float)scrWidth / (float)scrHeight;
-
     // 2. Load Calibration
     if (!cap->activeCamera->load(calibDir, Utils::getFileName(calibrationFile), 0, 0))
     {
@@ -349,10 +343,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         mode->setInitialized(true);
     }
 
-    // 6. resize window
-    // resizeWindow = true;
-    //ghm1: I do it outside of this function after viewport change now
-
+    // 6. save current params
     currentSlamParams->calibrationFile  = calibrationFile;
     currentSlamParams->mapFile          = mapFile;
     currentSlamParams->params.retainImg = params.retainImg;
@@ -538,6 +529,7 @@ bool WAIApp::update()
     {
         lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
         IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
+
         // TODO(dgj1): maybe make this API cleaner
         cv::Mat pose = cv::Mat(4, 4, CV_32F);
         if (!mode->getPose(&pose))
@@ -582,14 +574,13 @@ bool WAIApp::update()
         SLQuat4f q1 = lastKnowPoseQuaternion;
         SLQuat4f q2 = SLApplication::devRot.quaternion();
         q1.invert();
-        SLQuat4f q     = q1 * q2;
-        IMUQuaternion  = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
-        SLMat4f imuRot = IMUQuaternion.toMat4();
+        SLQuat4f q             = q1 * q2;
+        IMUQuaternion          = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
+        SLMat4f imuRot         = IMUQuaternion.toMat4();
+        lastKnowPoseQuaternion = q2;
 
         SLMat4f cameraMat = waiScene->cameraNode->om();
-
         waiScene->cameraNode->om(cameraMat * imuRot);
-        lastKnowPoseQuaternion = q2;
     }
 
     AVERAGE_TIMING_STOP("WAIAppUpdate");
