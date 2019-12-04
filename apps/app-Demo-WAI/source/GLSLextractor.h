@@ -9,8 +9,8 @@
 
 class GLSLextractor : public ORB_SLAM2::KPextractor
 {
-    public:
-    GLSLextractor(int w, int h, int nbKeyPointPerArea, float lowThrs, float highThrs);
+public:
+    GLSLextractor(int w, int h, int nbKeyPointPerArea, float lowThrs, float highThrs, float sigma = 1.5);
 
     ~GLSLextractor() {}
 
@@ -21,11 +21,11 @@ class GLSLextractor : public ORB_SLAM2::KPextractor
                     std::vector<cv::KeyPoint>& keypoints,
                     cv::OutputArray            descriptors);
 
-    protected:
+protected:
     std::vector<cv::Point> pattern;
-    cv::Mat old;
-    cv::Mat old2;
-    GLSLHessian imgProc;
+    cv::Mat                old;
+    cv::Mat                old2;
+    GLSLHessian            imgProc;
 };
 
 #endif

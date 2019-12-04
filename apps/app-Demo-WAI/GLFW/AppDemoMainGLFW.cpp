@@ -554,10 +554,18 @@ int main(int argc, char* argv[])
     // Event loop
     while (!slShouldClose())
     {
-        if (WAIApp::resizeWindow)
+        // if video aspect ratio changed, change window size
+        float videoWdivH = (float)WAIApp::videoFrameSize.width / (float)WAIApp::videoFrameSize.height;
+        if (abs(WAIApp::scrWdivH - videoWdivH) > 0.01f)
         {
-            onResize(window, WAIApp::scrWidth, WAIApp::scrHeight);
-            WAIApp::resizeWindow = false;
+            int w, h;
+            glfwGetWindowSize(window, &w, &h);
+
+            float s          = (float)w / (float)WAIApp::videoFrameSize.width;
+            h                = WAIApp::videoFrameSize.height * s;
+            WAIApp::scrWdivH = (float)w / (float)h;
+
+            onResize(window, w, h);
         }
 
         WAIApp::update();

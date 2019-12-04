@@ -9,7 +9,6 @@
 class GLSLHessian
 {
 public:
-
     GLuint yuv422Converter;
     GLuint RGBTexture;
 
@@ -81,10 +80,10 @@ public:
     GLuint vao;
     GLuint vbo;
     GLuint vboi;
-    int curr;
-    int ready;
-    int m_w, m_h;
-    int mNbKeypoints;
+    int    curr;
+    int    ready;
+    int    m_w, m_h;
+    int    mNbKeypoints;
     string lowThresholdStr;
     string highThresholdStr;
 
@@ -97,7 +96,7 @@ public:
 
     ~GLSLHessian();
     GLSLHessian();
-    GLSLHessian(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs);
+    GLSLHessian(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs, float sigma = 1.5);
 
     string gaussian(int size, int half_size, float sigma);
     string gaussianD1(int size, int half_size, float sigma);
@@ -113,11 +112,11 @@ public:
     void initFBO();
     void setTextureParameters();
 
-    void textureRGBAF(int w, int h);
-    void textureRGBAI(int w, int h);
-    void textureRGBF(int w, int h);
-    void textureRF(int w, int h);
-    void textureRB(int w, int h);
+    void   textureRGBAF(int w, int h);
+    void   textureRGBAI(int w, int h);
+    void   textureRGBF(int w, int h);
+    void   textureRF(int w, int h);
+    void   textureRB(int w, int h);
     GLuint buildShaderFromSource(string source, GLenum shaderType);
 
     void gxx(int w, int h);
@@ -127,7 +126,7 @@ public:
     void nms(int w, int h);
     void extract(int w, int h, int curr);
     void gpu_kp();
-    void readResult(std::vector<cv::KeyPoint> &kps);
+    void readResult(std::vector<cv::KeyPoint>& kps);
 
     void initComputeShader();
     void computeBRIEF();

@@ -34,6 +34,8 @@ void AppWAIScene::rebuild()
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
     SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
     SLfloat     l = 0.593f, b = 0.466f, h = 0.257f;
+
+#if 0 // office table boxes scene
     //SLBox*      box1     = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
     SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, 0.355f, 0.2f, 0.1f, "Box 1", yellow);
     //SLBox*  box1     = new SLBox(0.0f, 0.0f, 0.0f, 10.0f, 5.0f, 3.0f, "Box 1", yellow);
@@ -47,6 +49,23 @@ void AppWAIScene::rebuild()
     SLBox*  box3     = new SLBox(0.0f, 0.0f, 0.0f, 1.745f, 0.745, 0.81, "Box 3", yellow);
     SLNode* boxNode3 = new SLNode(box3, "boxNode3");
     boxNode3->translate(2.561f, -5.147f, -0.06f);
+#endif
+
+#if 1 // augst temple hill
+    SLBox*  box1     = new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "TempleBox", yellow);
+    SLNode* boxNode1 = new SLNode(box1, "Temple");
+    boxNode1->translate(26.04f, -14.77f, 6.93f);
+    boxNode1->scale(30.0f, 12.0f, 5.0f);
+    boxNode1->rotate(-31.93f, 1.0f, 0.0f, 0.0f, TS_parent);
+    boxNode1->rotate(2.55f, 0.0f, 1.0f, 0.0f, TS_parent);
+    boxNode1->rotate(2.78f, 0.0f, 0.0f, 1.0f, TS_parent);
+
+    SLBox*  box2     = new SLBox(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, "MarkerBox", yellow);
+    SLNode* boxNode2 = new SLNode(box2, "boxNode2");
+    boxNode2->scale(0.75f, 0.42f, 0.1f);
+    SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
+#endif
+
 #if 0
     SLBox*  box2     = new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "Box 2", yellow);
     SLNode* boxNode2 = new SLNode(box2, "boxNode2");
@@ -108,7 +127,7 @@ void AppWAIScene::rebuild()
     rootNode->addChild(boxNode1);
     rootNode->addChild(axisNode);
     rootNode->addChild(boxNode2);
-    rootNode->addChild(boxNode3);
+    //rootNode->addChild(boxNode3);
     //rootNode->addChild(boxNode4);
     rootNode->addChild(mapNode);
 }

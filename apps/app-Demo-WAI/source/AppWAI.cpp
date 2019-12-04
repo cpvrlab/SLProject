@@ -49,8 +49,6 @@ AppWAIScene*       WAIApp::waiScene   = nullptr;
 
 int                WAIApp::scrWidth;
 int                WAIApp::scrHeight;
-int                WAIApp::defaultScrWidth;
-int                WAIApp::defaultScrHeight;
 float              WAIApp::scrWdivH;
 cv::VideoWriter*   WAIApp::videoWriter     = nullptr;
 cv::VideoWriter*   WAIApp::videoWriterInfo = nullptr;
@@ -78,8 +76,12 @@ int  WAIApp::videoCursorMoveIndex = 0;
 
 int WAIApp::load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* directories)
 {
-    defaultScrWidth  = width;
-    defaultScrHeight = height;
+    // TODO(dgj1): would be cool if we were able to remove scrWidth and scrHeight,
+    // but unfortunately we need them for the viewport in SLProject...
+    // maybe there is another way to pass these?
+    scrWidth  = width;
+    scrHeight = height;
+    scrWdivH  = (float)width / (float)height;
 
     dirs = directories;
 
@@ -262,12 +264,8 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         //open(0) only has an effect on desktop. On Android it just returns {0,0}
         cap->open(0);
 
-        videoFrameSize = cv::Size2i(defaultScrWidth, defaultScrHeight);
+        videoFrameSize = cv::Size2i(scrWidth, scrHeight);
     }
-
-    scrWidth  = videoFrameSize.width;
-    scrHeight = videoFrameSize.height;
-    scrWdivH  = (float)scrWidth / (float)scrHeight;
 
     // 2. Load Calibration
     if (!cap->activeCalib->load(calibDir, Utils::getFileName(calibrationFile), 0, 0))
@@ -329,10 +327,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         mode->setInitialized(true);
     }
 
-    // 6. resize window
-
-    resizeWindow = true;
-
+    // 6. save current params
     currentSlamParams->calibrationFile  = calibrationFile;
     currentSlamParams->mapFile          = mapFile;
     currentSlamParams->params.retainImg = params.retainImg;
@@ -510,7 +505,7 @@ bool WAIApp::update()
     if (iKnowWhereIAm)
     {
         lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
-        IMUQuaternion = SLQuat4f(0, 0, 0, 1);
+        IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
 
         // TODO(dgj1): maybe make this API cleaner
         cv::Mat pose = cv::Mat(4, 4, CV_32F);
@@ -556,9 +551,9 @@ bool WAIApp::update()
         SLQuat4f q1 = lastKnowPoseQuaternion;
         SLQuat4f q2 = SLApplication::devRot.quaternion();
         q1.invert();
-        SLQuat4f q = q1 * q2;
-        IMUQuaternion = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
-        SLMat4f imuRot = IMUQuaternion.toMat4();
+        SLQuat4f q             = q1 * q2;
+        IMUQuaternion          = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
+        SLMat4f imuRot         = IMUQuaternion.toMat4();
         lastKnowPoseQuaternion = q2;
 
         SLMat4f cameraMat = waiScene->cameraNode->om();

@@ -368,30 +368,18 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
 
         //check if public external directory is available
         if (isExternalStorageWritable()) {
-            File path = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOCUMENTS), slProjectDirName);
-            if(!path.exists()) {
-                if (!path.mkdirs()) {
-                    Log.e(TAG, "External public directory not created!");
-                }
-            }
-
-            if(path.exists()) {
-                 externalPublicDirCreated = true;
-                 slProjectDataPath = path.getAbsolutePath();
-            }
-        }
-
-        if(!externalPublicDirCreated) {
-            //if public external directory is not available, we use the private external directory
-            File[] Dirs = ActivityCompat.getExternalFilesDirs(GLES3Activity.this, null);
+            File[] Dirs = this.getExternalFilesDirs(null);
             if(Dirs.length != 0) {
                 File path = new File(Dirs[0], slProjectDirName);
-                if (!path.mkdirs()) {
-                    Log.e(TAG, "External private directory not created!");
+                if(!path.exists()) {
+                    if (!path.mkdirs()) {
+                        Log.e(TAG, "External public directory not created!");
+                    }
                 }
-                else {
-                    slProjectDataPath = Dirs[0].getAbsolutePath();
+
+                if(path.exists()) {
+                    externalPublicDirCreated = true;
+                    slProjectDataPath = path.getAbsolutePath();
                 }
             }
         }

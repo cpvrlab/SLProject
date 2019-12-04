@@ -26,7 +26,6 @@ static std::string gaussianD2Kernel = "const float kernel[15] = float[15](0.0217
 static std::string kernelSize       = "const float kHalfSize = 7.0;\nconst float kSize = 15.0;\n";
 */
 
-
 static std::string textureOfstFct = "\n"
                                     "float Ix(float ofst)\n"
                                     "{\n"
@@ -256,126 +255,125 @@ static std::string nmsyFs = "#ifdef GL_ES\n"
                             "    }\n"
                             "}\n";
 
-
-static std::string fast =  "bool fast(float t)\n"
-                           "{\n"
-                           "    float p[16];\n"
-                           "    float o = texture(gray, texcoords).r;\n"
-                           "    p[0 ] = texture(gray, texcoords + vec2( 0.0 / w, 3.0 / h)).r - o;\n"
-                           "    p[4 ] = texture(gray, texcoords + vec2( 3.0 / w, 0.0 / h)).r - o;\n"
-                           "    p[8 ] = texture(gray, texcoords + vec2( 0.0 / w,-3.0 / h)).r - o;\n"
-                           "    p[12] = texture(gray, texcoords + vec2(-3.0 / w, 0.0 / h)).r - o;\n"
-                           "\n"
-                           "    int n;\n"
-                           "    if (p[0] > t || p[1] > t)\n"
-                           "    {\n"
-                           "        n = 0;\n"
-                           "        if (p[0] > t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "        if (p[4] > t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "        if (p[8] > t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "        if (p[12] > t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "    }\n"
-                           "\n"
-                           "    if (n < 3)\n"
-                           "        return false;\n"
-                           "\n"
-                           "    if (p[0] < -t || p[1] < -t)\n"
-                           "    {\n"
-                           "        n = 0;\n"
-                           "        if (p[0] < -t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "        if (p[4] < -t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "        if (p[8] < -t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "        if (p[12] < -t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "    }\n"
-                           "\n"
-                           "    if (n < 3)\n"
-                           "        return false;\n"
-                           "\n"
-                           "    p[1 ] = texture(gray, texcoords + vec2( 1.0 / w, 3.0 / h)).r - o;\n"
-                           "    p[2 ] = texture(gray, texcoords + vec2( 2.0 / w, 2.0 / h)).r - o;\n"
-                           "    p[3 ] = texture(gray, texcoords + vec2( 3.0 / w, 1.0 / h)).r - o;\n"
-                           "    p[5 ] = texture(gray, texcoords + vec2( 3.0 / w,-1.0 / h)).r - o;\n"
-                           "    p[6 ] = texture(gray, texcoords + vec2( 2.0 / w,-2.0 / h)).r - o;\n"
-                           "    p[7 ] = texture(gray, texcoords + vec2( 1.0 / w,-3.0 / h)).r - o;\n"
-                           "    p[9 ] = texture(gray, texcoords + vec2(-1.0 / w,-3.0 / h)).r - o;\n"
-                           "    p[10] = texture(gray, texcoords + vec2(-2.0 / w,-2.0 / h)).r - o;\n"
-                           "    p[11] = texture(gray, texcoords + vec2(-3.0 / w,-1.0 / h)).r - o;\n"
-                           "    p[13] = texture(gray, texcoords + vec2(-3.0 / w, 1.0 / h)).r - o;\n"
-                           "    p[14] = texture(gray, texcoords + vec2(-2.0 / w, 2.0 / h)).r - o;\n"
-                           "    p[15] = texture(gray, texcoords + vec2(-1.0 / w, 3.0 / h)).r - o;\n"
-                           "    \n"
-                           "    n = 0;\n"
-                           "    bool sup = true;\n"
-                           "    for (int i = 0; i < 24; i++)\n\n"
-                           "    {\n"
-                           "         int idx = i % 16;\n"
-                           "         if (sup)\n"
-                           "         {\n"
-                           "              if (p[idx] > t)\n"
-                           "              {\n"
-                           "                   n++;\n"
-                           "              }\n"
-                           "              else if(p[idx] < -t)\n"
-                           "              {\n"
-                           "                   n = 1;\n"
-                           "                   sup = false;\n"
-                           "              }\n"
-                           "              else\n"
-                           "              {\n"
-                           "                   n = 0;\n"
-                           "                   sup = false;\n"
-                           "              }\n"
-                           "         }\n"
-                           "         else\n"
-                           "         {\n"
-                           "              if (p[idx] < -t)\n"
-                           "              {\n"
-                           "                   n++;\n"
-                           "              }\n"
-                           "              else if(p[idx] > t)\n"
-                           "              {\n"
-                           "                   n = 1;\n"
-                           "                   sup = true;\n"
-                           "              }\n"
-                           "              else\n"
-                           "              {\n"
-                           "                   n = 0;\n"
-                           "                   sup = true;\n"
-                           "              }\n"
-                           "         }\n"
-                           "         if (n >= 8)\n"
-                           "         {\n"
-                           "               return true;\n"
-                           "         }\n"
-                           "    }\n"
-                           "    return false;\n"
-                           "    \n"
-                           "}\n"
-                           "\n";
+static std::string fast = "bool fast(float t)\n"
+                          "{\n"
+                          "    float p[16];\n"
+                          "    float o = texture(gray, texcoords).r;\n"
+                          "    p[0 ] = texture(gray, texcoords + vec2( 0.0 / w, 3.0 / h)).r - o;\n"
+                          "    p[4 ] = texture(gray, texcoords + vec2( 3.0 / w, 0.0 / h)).r - o;\n"
+                          "    p[8 ] = texture(gray, texcoords + vec2( 0.0 / w,-3.0 / h)).r - o;\n"
+                          "    p[12] = texture(gray, texcoords + vec2(-3.0 / w, 0.0 / h)).r - o;\n"
+                          "\n"
+                          "    int n;\n"
+                          "    if (p[0] > t || p[1] > t)\n"
+                          "    {\n"
+                          "        n = 0;\n"
+                          "        if (p[0] > t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "        if (p[4] > t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "        if (p[8] > t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "        if (p[12] > t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "    }\n"
+                          "\n"
+                          "    if (n < 3)\n"
+                          "        return false;\n"
+                          "\n"
+                          "    if (p[0] < -t || p[1] < -t)\n"
+                          "    {\n"
+                          "        n = 0;\n"
+                          "        if (p[0] < -t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "        if (p[4] < -t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "        if (p[8] < -t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "        if (p[12] < -t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "    }\n"
+                          "\n"
+                          "    if (n < 3)\n"
+                          "        return false;\n"
+                          "\n"
+                          "    p[1 ] = texture(gray, texcoords + vec2( 1.0 / w, 3.0 / h)).r - o;\n"
+                          "    p[2 ] = texture(gray, texcoords + vec2( 2.0 / w, 2.0 / h)).r - o;\n"
+                          "    p[3 ] = texture(gray, texcoords + vec2( 3.0 / w, 1.0 / h)).r - o;\n"
+                          "    p[5 ] = texture(gray, texcoords + vec2( 3.0 / w,-1.0 / h)).r - o;\n"
+                          "    p[6 ] = texture(gray, texcoords + vec2( 2.0 / w,-2.0 / h)).r - o;\n"
+                          "    p[7 ] = texture(gray, texcoords + vec2( 1.0 / w,-3.0 / h)).r - o;\n"
+                          "    p[9 ] = texture(gray, texcoords + vec2(-1.0 / w,-3.0 / h)).r - o;\n"
+                          "    p[10] = texture(gray, texcoords + vec2(-2.0 / w,-2.0 / h)).r - o;\n"
+                          "    p[11] = texture(gray, texcoords + vec2(-3.0 / w,-1.0 / h)).r - o;\n"
+                          "    p[13] = texture(gray, texcoords + vec2(-3.0 / w, 1.0 / h)).r - o;\n"
+                          "    p[14] = texture(gray, texcoords + vec2(-2.0 / w, 2.0 / h)).r - o;\n"
+                          "    p[15] = texture(gray, texcoords + vec2(-1.0 / w, 3.0 / h)).r - o;\n"
+                          "    \n"
+                          "    n = 0;\n"
+                          "    bool sup = true;\n"
+                          "    for (int i = 0; i < 24; i++)\n\n"
+                          "    {\n"
+                          "         int idx = i % 16;\n"
+                          "         if (sup)\n"
+                          "         {\n"
+                          "              if (p[idx] > t)\n"
+                          "              {\n"
+                          "                   n++;\n"
+                          "              }\n"
+                          "              else if(p[idx] < -t)\n"
+                          "              {\n"
+                          "                   n = 1;\n"
+                          "                   sup = false;\n"
+                          "              }\n"
+                          "              else\n"
+                          "              {\n"
+                          "                   n = 0;\n"
+                          "                   sup = false;\n"
+                          "              }\n"
+                          "         }\n"
+                          "         else\n"
+                          "         {\n"
+                          "              if (p[idx] < -t)\n"
+                          "              {\n"
+                          "                   n++;\n"
+                          "              }\n"
+                          "              else if(p[idx] > t)\n"
+                          "              {\n"
+                          "                   n = 1;\n"
+                          "                   sup = true;\n"
+                          "              }\n"
+                          "              else\n"
+                          "              {\n"
+                          "                   n = 0;\n"
+                          "                   sup = true;\n"
+                          "              }\n"
+                          "         }\n"
+                          "         if (n >= 8)\n"
+                          "         {\n"
+                          "               return true;\n"
+                          "         }\n"
+                          "    }\n"
+                          "    return false;\n"
+                          "    \n"
+                          "}\n"
+                          "\n";
 
 static std::string removeEdge = "#ifdef GL_ES\n"
                                 "precision highp float;\n"
@@ -409,9 +407,9 @@ static std::string removeEdge = "#ifdef GL_ES\n"
                                 /*
                                 "    else\n"
                                 "    {\n"
-                                "        if (fast(50.0 * $HIGH_THRESHOLD))\n"
+                                "        if (fast($HIGH_THRESHOLD))\n"
                                 "            pixel = $HIGH_THRESHOLD;\n"
-                                "        else if (fast(50.0 * $LOW_THRESHOLD))\n"
+                                "        else if (fast($LOW_THRESHOLD))\n"
                                 "            pixel = $LOW_THRESHOLD;\n"
                                 "    }\n"
                                 */
@@ -933,14 +931,14 @@ void GLSLHessian::extract(int w, int h, int curr)
 /* These function are scaled such that the value after all filters are about between 0-1 */
 string GLSLHessian::gaussian(int size, int half_size, float sigma)
 {
-    float v = 2.0 * (1.0 / sigma) * exp(-(half_size*half_size) / (2.0 * sigma*sigma));
+    float v = 2.0 * (1.0 / sigma) * exp(-(half_size * half_size) / (2.0 * sigma * sigma));
 
     string fctStr = std::to_string(v);
 
     for (int i = 1; i < size; i++)
     {
         float x = (float)(i - half_size);
-        float v = 2.0 * (1.0 / sigma) * exp(-(x*x) / (2.0 * sigma*sigma));
+        float v = 2.0 * (1.0 / sigma) * exp(-(x * x) / (2.0 * sigma * sigma));
 
         fctStr = fctStr + ", ";
         fctStr = fctStr + std::to_string(v);
@@ -950,14 +948,14 @@ string GLSLHessian::gaussian(int size, int half_size, float sigma)
 
 string GLSLHessian::gaussianD1(int size, int half_size, float sigma)
 {
-    float v = -2.0 * (half_size / (sigma*sigma*sigma)) * exp(-(half_size*half_size) / (2.0 * sigma*sigma));
+    float v = -2.0 * (half_size / (sigma * sigma * sigma)) * exp(-(half_size * half_size) / (2.0 * sigma * sigma));
 
     string fctStr = std::to_string(v);
 
     for (int i = 1; i < size; i++)
     {
         float x = (float)(i - half_size);
-        float v = -2.0 * (x / (sigma*sigma*sigma)) * exp(-(x*x) / (2.0 * sigma*sigma));
+        float v = -2.0 * (x / (sigma * sigma * sigma)) * exp(-(x * x) / (2.0 * sigma * sigma));
 
         fctStr = fctStr + ", ";
         fctStr = fctStr + std::to_string(v);
@@ -967,14 +965,14 @@ string GLSLHessian::gaussianD1(int size, int half_size, float sigma)
 
 string GLSLHessian::gaussianD2(int size, int half_size, float sigma)
 {
-    float v = 2.0 * (half_size*half_size - sigma*sigma) / (sigma*sigma*sigma*sigma*sigma) * exp(-(half_size*half_size) / (2.0 * sigma*sigma));
+    float v = 2.0 * (half_size * half_size - sigma * sigma) / (sigma * sigma * sigma * sigma * sigma) * exp(-(half_size * half_size) / (2.0 * sigma * sigma));
 
     string fctStr = std::to_string(v);
 
     for (int i = 1; i < size; i++)
     {
         float x = (float)(i - half_size);
-        float v = 2.0 * (x*x - sigma*sigma) / (sigma*sigma*sigma*sigma*sigma) * exp(-(x*x) / (2.0 * sigma*sigma));
+        float v = 2.0 * (x * x - sigma * sigma) / (sigma * sigma * sigma * sigma * sigma) * exp(-(x * x) / (2.0 * sigma * sigma));
 
         fctStr = fctStr + ", ";
         fctStr = fctStr + std::to_string(v);
@@ -995,9 +993,9 @@ void GLSLHessian::init(int w, int h, int nbKeypointsPerArea, float lowThrs, floa
 
     //At a radius of 3 sigma from the center, we keep ~97% of the gaussian fct.
     // | 0x1 to ensure this is a odd number (not divisible per 2)
-    int size = ((int)floor(sigma * 6.0)) | 0x1;
-    int half_size = size >> 1;
-    string sz_s = to_string(size);
+    int    size      = ((int)floor(sigma * 6.0)) | 0x1;
+    int    half_size = size >> 1;
+    string sz_s      = to_string(size);
 
     gaussianKernelStr   = "const float kernel[" + sz_s + "] = float[" + sz_s + "](" + gaussian(size, half_size, sigma) + ");\n";
     gaussianD1KernelStr = "const float kernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD1(size, half_size, sigma) + ");\n";
@@ -1013,9 +1011,9 @@ void GLSLHessian::init(int w, int h, int nbKeypointsPerArea, float lowThrs, floa
 
 GLSLHessian::GLSLHessian() {}
 
-GLSLHessian::GLSLHessian(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs)
+GLSLHessian::GLSLHessian(int w, int h, int nbKeypointsPerArea, float lowThrs, float highThrs, float sigma)
 {
-    init(w, h, nbKeypointsPerArea, lowThrs, highThrs);
+    init(w, h, nbKeypointsPerArea, lowThrs, highThrs, sigma);
 }
 
 GLSLHessian::~GLSLHessian()
