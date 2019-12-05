@@ -38,13 +38,14 @@ CVCalibrationEstimator::CVCalibrationEstimator(int          calibFlags,
     _mirroredV(mirroredV),
     _camType(camType),
     _calibration(_camType),
-    _calibParamsFileName("calib_in_params.yml")
+    _calibParamsFileName("calib_in_params.yml"),
+    _exception("Undefined error", 0, __FILE__)
 {
     if (!loadCalibParams())
     {
-        Utils::exitMsg("CVCalibrationEstimator: could not load calibration parameter",
-                       __LINE__,
-                       __FILE__);
+        throw CVCalibrationEstimatorException("Could not load calibration parameter!",
+                                              __LINE__,
+                                              __FILE__);
     }
 }
 //-----------------------------------------------------------------------------
@@ -85,31 +86,49 @@ bool CVCalibrationEstimator::extractAsync()
         _imageSize = _currentImgToExtract.size();
     else if (_imageSize.width != _currentImgToExtract.size().width || _imageSize.height != _currentImgToExtract.size().height)
     {
-        Utils::exitMsg("CVCalibrationEstimator::extractAsync: image size changed during calibration",
-                       __LINE__,
-                       __FILE__);
+        _hasAsyncError = true;
+        _exception     = CVCalibrationEstimatorException("Image size changed during capturing process!",
+                                                     __LINE__,
+                                                     __FILE__);
+        return false;
     }
 
-    CVVPoint2f preciseCorners2D;
-    int        flags          = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE;
-    bool       foundPrecisely = cv::findChessboardCorners(_currentImgToExtract,
-                                                    _boardSize,
-                                                    preciseCorners2D,
-                                                    flags);
-
-    if (foundPrecisely)
+    bool foundPrecisely = false;
+    try
     {
-        cv::cornerSubPix(_currentImgToExtract,
-                         preciseCorners2D,
-                         CVSize(11, 11),
-                         CVSize(-1, -1),
-                         TermCriteria(TermCriteria::EPS + TermCriteria::COUNT,
-                                      30000,
-                                      0.01));
+        CVVPoint2f preciseCorners2D;
+        int        flags          = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE;
+        bool       foundPrecisely = cv::findChessboardCorners(_currentImgToExtract,
+                                                        _boardSize,
+                                                        preciseCorners2D,
+                                                        flags);
 
-        //add detected points
-        _imagePoints.push_back(preciseCorners2D);
-        _numCaptured++;
+        if (foundPrecisely)
+        {
+            cv::cornerSubPix(_currentImgToExtract,
+                             preciseCorners2D,
+                             CVSize(11, 11),
+                             CVSize(-1, -1),
+                             TermCriteria(TermCriteria::EPS + TermCriteria::COUNT,
+                                          30000,
+                                          0.01));
+
+            //add detected points
+            _imagePoints.push_back(preciseCorners2D);
+            _numCaptured++;
+        }
+    }
+    catch (std::exception& e)
+    {
+        _hasAsyncError = true;
+        _exception     = CVCalibrationEstimatorException(e.what(), __LINE__, __FILE__);
+        return false;
+    }
+    catch (...)
+    {
+        _hasAsyncError = true;
+        _exception     = CVCalibrationEstimatorException("Unknown exception during calibration!", __LINE__, __FILE__);
+        return false;
     }
 
     return foundPrecisely;
@@ -117,44 +136,60 @@ bool CVCalibrationEstimator::extractAsync()
 //-----------------------------------------------------------------------------
 bool CVCalibrationEstimator::calibrateAsync()
 {
-    _numCaptured = 0;
-    CVVMat        rvecs, tvecs;
-    vector<float> reprojErrs;
-    cv::Mat       cameraMat;
-    cv::Mat       distortion;
-
-    bool ok = calcCalibration(_imageSize,
-                              cameraMat,
-                              distortion,
-                              _imagePoints,
-                              rvecs,
-                              tvecs,
-                              reprojErrs,
-                              _reprojectionError,
-                              _boardSize,
-                              _boardSquareMM,
-                              _calibFlags);
-    //correct number of caputured, extraction may have failed
-    if (!rvecs.empty() || !reprojErrs.empty())
-        _numCaptured = (int)std::max(rvecs.size(), reprojErrs.size());
-    else
-        _numCaptured = 0;
-
-    if (ok)
+    bool ok = false;
+    try
     {
-        //instantiate calibration
-        _calibration = CVCalibration(cameraMat,
-                                     distortion,
-                                     _imageSize,
-                                     _boardSize,
-                                     _boardSquareMM,
-                                     _reprojectionError,
-                                     _numCaptured,
-                                     Utils::getDateTime2String(),
-                                     _camSizeIndex,
-                                     _mirroredH,
-                                     _mirroredV,
-                                     _camType);
+        _numCaptured = 0;
+        CVVMat        rvecs, tvecs;
+        vector<float> reprojErrs;
+        cv::Mat       cameraMat;
+        cv::Mat       distortion;
+
+        bool ok = calcCalibration(_imageSize,
+                                  cameraMat,
+                                  distortion,
+                                  _imagePoints,
+                                  rvecs,
+                                  tvecs,
+                                  reprojErrs,
+                                  _reprojectionError,
+                                  _boardSize,
+                                  _boardSquareMM,
+                                  _calibFlags);
+        //correct number of caputured, extraction may have failed
+        if (!rvecs.empty() || !reprojErrs.empty())
+            _numCaptured = (int)std::max(rvecs.size(), reprojErrs.size());
+        else
+            _numCaptured = 0;
+
+        if (ok)
+        {
+            //instantiate calibration
+            _calibration = CVCalibration(cameraMat,
+                                         distortion,
+                                         _imageSize,
+                                         _boardSize,
+                                         _boardSquareMM,
+                                         _reprojectionError,
+                                         _numCaptured,
+                                         Utils::getDateTime2String(),
+                                         _camSizeIndex,
+                                         _mirroredH,
+                                         _mirroredV,
+                                         _camType);
+        }
+    }
+    catch (std::exception& e)
+    {
+        _hasAsyncError = true;
+        _exception     = CVCalibrationEstimatorException(e.what(), __LINE__, __FILE__);
+        return false;
+    }
+    catch (...)
+    {
+        _hasAsyncError = true;
+        _exception     = CVCalibrationEstimatorException("Unknown exception during calibration!", __LINE__, __FILE__);
+        return false;
     }
 
     return ok;
@@ -297,7 +332,11 @@ void CVCalibrationEstimator::update(bool found, bool grabFrame, cv::Mat imageGra
             {
                 bool extractionSuccessful = _calibrationTask.get();
 
-                if (_numCaptured >= _numOfImgsToCapture)
+                if (_hasAsyncError)
+                {
+                    throw _exception;
+                }
+                else if (_numCaptured >= _numOfImgsToCapture)
                 {
                     //if ready and number of capturings exceed number of required start calculation
                     _calibrationTask = std::async(std::launch::async, &CVCalibrationEstimator::calibrateAsync, this);
@@ -323,6 +362,10 @@ void CVCalibrationEstimator::update(bool found, bool grabFrame, cv::Mat imageGra
                 else
                 {
                     Utils::log("Calibration failed.");
+                    if (_hasAsyncError)
+                    {
+                        throw _exception;
+                    }
                 }
             }
             break;

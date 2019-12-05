@@ -28,6 +28,24 @@ for a good top down information.
 using namespace std;
 
 //-----------------------------------------------------------------------------
+//!special exception that informs about errors during calibration process
+class CVCalibrationEstimatorException : public std::runtime_error
+{
+public:
+    CVCalibrationEstimatorException(const std::string& msg, const int line, const std::string& file)
+      : std::runtime_error(toMessage(msg, line, file).c_str())
+    {
+    }
+
+private:
+    std::string toMessage(const std::string& msg, const int line, const std::string& file)
+    {
+        std::stringstream ss;
+        ss << msg << ": Exception thrown at line " << line << " in " << file << std::endl;
+        return ss.str();
+    }
+};
+//-----------------------------------------------------------------------------
 class CVCalibrationEstimator
 {
 public:
@@ -115,6 +133,10 @@ private:
     CVCameraType  _camType      = CVCameraType::FRONTFACING;
     CVCalibration _calibration;         //!< estimated calibration
     std::string   _calibParamsFileName; //!< name of calibration paramters file
+
+    //exception handling from async thread
+    bool                            _hasAsyncError = false;
+    CVCalibrationEstimatorException _exception;
 };
 
 #endif // CVCALIBRATIONESTIMATOR_H

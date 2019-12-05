@@ -57,60 +57,77 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
 {
     AppDemoSceneView* adSv = static_cast<AppDemoSceneView*>(sv);
 
-    if (!calibrationEstimator)
+    try
     {
-        calibrationEstimator = new CVCalibrationEstimator(SLApplication::calibrationEstimatorParams.calibrationFlags(),
-                                                          CVCapture::instance()->activeCamSizeIndex,
-                                                          ac->mirrorH(),
-                                                          ac->mirrorV(),
-                                                          ac->type());
-        //clear grab request from sceneview
-        adSv->grab = false;
-    }
-
-    if (calibrationEstimator->isStreaming())
-    {
-        calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, adSv->grab);
-        //reset grabbing switch
-        adSv->grab = false;
-
-        stringstream ss;
-        ss << "Click on the screen to create a calibration photo. Created "
-           << calibrationEstimator->numCapturedImgs() << " of " << calibrationEstimator->numImgsToCapture();
-        s->info(ss.str());
-    }
-    else if (calibrationEstimator->isBusyExtracting())
-    {
-        //also reset grabbing, user has to click again
-        adSv->grab = false;
-        calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
-        s->info("Busy extracting corners, please wait with grabbing ...");
-    }
-    else if (calibrationEstimator->isCalculating())
-    {
-        calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
-        s->info("Calculating calibration, please wait ...");
-    }
-    else if (calibrationEstimator->isDone())
-    {
-        //overwrite current calibration
-        if (calibrationEstimator->calibrationSuccessful())
+        if (!calibrationEstimator)
         {
-            ac->calibration = calibrationEstimator->getCalibration();
+            calibrationEstimator = new CVCalibrationEstimator(SLApplication::calibrationEstimatorParams.calibrationFlags(),
+                                                              CVCapture::instance()->activeCamSizeIndex,
+                                                              ac->mirrorH(),
+                                                              ac->mirrorV(),
+                                                              ac->type());
 
-            std::string computerInfo      = SLApplication::getComputerInfos();
-            string      mainCalibFilename = "camCalib_" + computerInfo + "_main.xml";
-            string      scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";
-            ac->calibration.save(SLApplication::calibFilePath, mainCalibFilename);
-
-            s->info("Calibration successful.");
-        }
-        else
-        {
-            s->info("Calibration failed!");
+            //clear grab request from sceneview
+            adSv->grab = false;
         }
 
-        //free estimator instance
+        if (calibrationEstimator->isStreaming())
+        {
+            calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, adSv->grab);
+            //reset grabbing switch
+            adSv->grab = false;
+
+            stringstream ss;
+            ss << "Click on the screen to create a calibration photo. Created "
+               << calibrationEstimator->numCapturedImgs() << " of " << calibrationEstimator->numImgsToCapture();
+            s->info(ss.str());
+        }
+        else if (calibrationEstimator->isBusyExtracting())
+        {
+            //also reset grabbing, user has to click again
+            adSv->grab = false;
+            calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
+            s->info("Busy extracting corners, please wait with grabbing ...");
+        }
+        else if (calibrationEstimator->isCalculating())
+        {
+            calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
+            s->info("Calculating calibration, please wait ...");
+        }
+        else if (calibrationEstimator->isDone())
+        {
+            //overwrite current calibration
+            if (calibrationEstimator->calibrationSuccessful())
+            {
+                ac->calibration = calibrationEstimator->getCalibration();
+
+                std::string computerInfo      = SLApplication::getComputerInfos();
+                string      mainCalibFilename = "camCalib_" + computerInfo + "_main.xml";
+                string      scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";
+                ac->calibration.save(SLApplication::calibFilePath, mainCalibFilename);
+
+                s->info("Calibration successful.");
+            }
+            else
+            {
+                s->info("Calibration failed!");
+            }
+
+            //free estimator instance
+            delete calibrationEstimator;
+            calibrationEstimator = nullptr;
+
+            if (SLApplication::sceneID == SID_VideoCalibrateMain)
+                s->onLoad(s, sv, SID_VideoTrackChessMain);
+            else
+                s->onLoad(s, sv, SID_VideoTrackChessScnd);
+        }
+    }
+    catch (CVCalibrationEstimatorException& e)
+    {
+        log(e.what());
+        s->info("Exception during calibration!");
+
         delete calibrationEstimator;
         calibrationEstimator = nullptr;
 
