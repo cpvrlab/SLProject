@@ -100,6 +100,9 @@ CVCalibration::CVCalibration(cv::Mat            cameraMat,
     _isMirroredV(mirroredV),
     _camType(camType)
 {
+    _cameraMatOrig = _cameraMat.clone();
+    _imageSizeOrig = _imageSize;
+
     _computerInfos = SLApplication::getComputerInfos();
     calculateUndistortedCameraMat();
     calcCameraFovFromUndistortedCameraMat();
@@ -118,6 +121,8 @@ CVCalibration::CVCalibration(cv::Size     imageSize,
     _camType(camType)
 {
     createFromGuessedFOV(imageSize.width, imageSize.height, fovH);
+    _cameraMatOrig = _cameraMat.clone();
+    _imageSizeOrig = _imageSize;
 }
 //-----------------------------------------------------------------------------
 //create a guessed calibration using sensor size, camera focal length and captured image size
@@ -143,6 +148,8 @@ CVCalibration::CVCalibration(float        sensorWMM,
         //if not between
         createFromGuessedFOV(imageSize.width, imageSize.height, 65.0);
     }
+    _cameraMatOrig = _cameraMat.clone();
+    _imageSizeOrig = _imageSize;
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
@@ -230,6 +237,9 @@ bool CVCalibration::load(const string& calibDir,
     Utils::log("Calib. loaded  : %s\n", fullPathAndFilename.c_str());
     Utils::log("Calib. created : %s\n", _calibrationTime.c_str());
     Utils::log("Camera FOV H/V : %3.1f/%3.1f\n", _cameraFovVDeg, _cameraFovHDeg);
+
+    _cameraMatOrig = _cameraMat.clone();
+    _imageSizeOrig = _imageSize;
 
     return true;
 }
@@ -462,40 +472,45 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
 
     // new center and focal length in pixels not mm
     float fx, fy, cy, cx;
-    if (((float)newSize.width / (float)newSize.height) > ((float)_imageSize.width / (float)_imageSize.height))
+    //use original camera matrix for adaptions. Otherwise we get rounding errors after too many adaptions.
+    float fxOrig = _cameraMatOrig.at<double>(0, 0);
+    float fyOrig = _cameraMatOrig.at<double>(1, 1);
+    float cxOrig = _cameraMatOrig.at<double>(0, 2);
+    float cyOrig = _cameraMatOrig.at<double>(1, 2);
+    if (((float)newSize.width / (float)newSize.height) > ((float)_imageSizeOrig.width / (float)_imageSizeOrig.height))
     {
-        float scaleFactor = (float)newSize.width / (float)_imageSize.width;
+        float scaleFactor = (float)newSize.width / (float)_imageSizeOrig.width;
 
-        fx                    = this->fx() * scaleFactor;
-        fy                    = this->fy() * scaleFactor;
-        float oldHeightScaled = _imageSize.height * scaleFactor;
+        fx                    = fxOrig * scaleFactor;
+        fy                    = fyOrig * scaleFactor;
+        float oldHeightScaled = _imageSizeOrig.height * scaleFactor;
         float heightDiff      = (oldHeightScaled - newSize.height) * 0.5f;
 
-        cx = this->cx() * scaleFactor;
-        cy = this->cy() * scaleFactor - heightDiff;
+        cx = cxOrig * scaleFactor;
+        cy = cyOrig * scaleFactor - heightDiff;
     }
     else
     {
-        float scaleFactor    = (float)newSize.height / (float)_imageSize.height;
-        fx                   = this->fx() * scaleFactor;
-        fy                   = this->fy() * scaleFactor;
-        float oldWidthScaled = _imageSize.width * scaleFactor;
+        float scaleFactor    = (float)newSize.height / (float)_imageSizeOrig.height;
+        fx                   = fxOrig * scaleFactor;
+        fy                   = fyOrig * scaleFactor;
+        float oldWidthScaled = _imageSizeOrig.width * scaleFactor;
         float widthDiff      = (oldWidthScaled - newSize.width) * 0.5f;
 
-        cx = this->cx() * scaleFactor - widthDiff;
-        cy = this->cy() * scaleFactor;
+        cx = cxOrig * scaleFactor - widthDiff;
+        cy = cyOrig * scaleFactor;
     }
 
-    std::cout << "adaptForNewResolution: _cameraMat before: " << _cameraMat << std::endl;
+    //std::cout << "adaptForNewResolution: _cameraMat before: " << _cameraMat << std::endl;
     _cameraMat = (Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
-    std::cout << "adaptForNewResolution: _cameraMat after: " << _cameraMat << std::endl;
+    //std::cout << "adaptForNewResolution: _cameraMat after: " << _cameraMat << std::endl;
     //_distortion remains unchanged
     _calibrationTime = Utils::getDateTime2String();
 
-    std::cout << "adaptForNewResolution: _imageSize before: " << _imageSize << std::endl;
+    //std::cout << "adaptForNewResolution: _imageSize before: " << _imageSize << std::endl;
     _imageSize.width  = newSize.width;
     _imageSize.height = newSize.height;
-    std::cout << "adaptForNewResolution: _imageSize after: " << _imageSize << std::endl;
+    //std::cout << "adaptForNewResolution: _imageSize after: " << _imageSize << std::endl;
 
     calculateUndistortedCameraMat();
     calcCameraFovFromUndistortedCameraMat();
@@ -669,7 +684,6 @@ int CVCalibration::getVersionInCalibFilename(const string& calibFilename)
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 //! Calculate a camera matrix that we use for the scene graph and for the reprojection of the undistored image
-//! (This is a manipulated version of cv::getOptimalNewCameraMatrix but with equal focal lengths in x and y)
 void CVCalibration::calculateUndistortedCameraMat()
 {
     if (_cameraMat.rows != 3 || _cameraMat.cols != 3)
@@ -687,8 +701,8 @@ void CVCalibration::calculateUndistortedCameraMat()
     {
         //Attention: the principle point has to be centered because for the projection matrix we assume that image plane is "symmetrically arranged wrt the focal plane"
         //(see http://kgeorge.github.io/2014/03/08/calculating-opengl-perspective-matrix-from-opencv-intrinsic-matrix)
-        //bool centerPrinciplePoint = true;
         //_cameraMatUndistorted     = cv::getOptimalNewCameraMatrix(_cameraMat, _distortion, _imageSize, alpha, _imageSize, nullptr, centerPrinciplePoint);
+        //! (The following is the algorithm from cv::getOptimalNewCameraMatrix and the code is here for understanding (it does the same))
 
         double cx0 = _cameraMat.at<double>(0, 2);
         double cy0 = _cameraMat.at<double>(1, 2);
@@ -716,8 +730,8 @@ void CVCalibration::calculateUndistortedCameraMat()
         _cameraMatUndistorted = cv::getOptimalNewCameraMatrix(_cameraMat, _distortion, _imageSize, alpha, _imageSize, nullptr, centerPrinciplePoint);
     }
 
-    std::cout << "_cameraMatUndistorted: " << _cameraMatUndistorted << std::endl;
-    std::cout << "_cameraMat: " << _cameraMat << std::endl;
+    //std::cout << "_cameraMatUndistorted: " << _cameraMatUndistorted << std::endl;
+    //std::cout << "_cameraMat: " << _cameraMat << std::endl;
 }
 //-----------------------------------------------------------------------------
 //! Calculates the vertical field of view angle in degrees

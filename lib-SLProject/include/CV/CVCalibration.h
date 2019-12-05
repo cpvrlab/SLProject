@@ -120,6 +120,8 @@ public:
 
     // Getters
     CVSize imageSize() { return _imageSize; }
+    CVSize imageSizeOriginal() { return _imageSizeOrig; }
+
     //int    camSizeIndex() { return _camSizeIndex;}
     float  imageAspectRatio() { return (float)_imageSize.width / (float)_imageSize.height; }
     CVMat& cameraMat() { return _cameraMat; }
@@ -189,6 +191,9 @@ private:
     CVMat _cameraMat;  //!< 3x3 Matrix for intrinsic camera matrix
     CVMat _distortion; //!< 4x1 Matrix for intrinsic distortion
     ///////////////////////////////////////////////////////////////////////////////////
+    //original data used for adaption:
+    CVMat  _cameraMatOrig; //!< 3x3 Matrix for intrinsic camera matrix (original from loading or calibration estimation)
+    CVSize _imageSizeOrig; //!< original image size (original from loading or calibration estimation)
 
     CVCalibState _state         = CS_uncalibrated; //!< calibration state enumeration
     float        _cameraFovVDeg = 0.0f;            //!< Vertical field of view in degrees
