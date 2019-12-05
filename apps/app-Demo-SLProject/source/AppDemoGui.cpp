@@ -539,7 +539,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera" : vt == VT_FILE ? "File" : "Secondary Camera");
             sprintf(m + strlen(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
             sprintf(m + strlen(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
-            sprintf(m + strlen(m), "Size Index   : %d\n", c->camSizeIndex());
+            sprintf(m + strlen(m), "Size Index   : %d\n", ac->camSizeIndex());
             sprintf(m + strlen(m), "Mirrored     : %s\n", mirrored.c_str());
             sprintf(m + strlen(m), "Chessboard   : %dx%d (%3.1fmm)\n", c->boardSize().width, c->boardSize().height, c->boardSquareMM());
             sprintf(m + strlen(m), "Undistorted  : %s\n", ac->showUndistorted() ? "Yes" : "No");
@@ -1303,7 +1303,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                 capture->camSizes[(uint)i].height);
                         if (ImGui::MenuItem(menuStr, nullptr, i == capture->activeCamSizeIndex))
                             if (i != capture->activeCamSizeIndex)
-                                ac->calibration.camSizeIndex(i);
+                                ac->camSizeIndex(i);
                     }
                     ImGui::EndMenu();
                 }

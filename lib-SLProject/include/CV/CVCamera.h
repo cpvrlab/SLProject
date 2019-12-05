@@ -18,21 +18,29 @@ class CVCamera
 {
 public:
     CVCamera(CVCameraType type);
-    void         toggleMirrorH() { _mirrorH = !_mirrorH; }
-    void         toggleMirrorV() { _mirrorV = !_mirrorV; }
+
     bool         mirrorH() { return _mirrorH; }
     bool         mirrorV() { return _mirrorV; }
     CVCameraType type() { return _type; }
     void         showUndistorted(bool su) { _showUndistorted = su; }
     bool         showUndistorted() { return _showUndistorted; }
+    int          camSizeIndex() { return _camSizeIndex; }
+
+    void camSizeIndex(int index)
+    {
+        _camSizeIndex = index;
+    }
+    void toggleMirrorH() { _mirrorH = !_mirrorH; }
+    void toggleMirrorV() { _mirrorV = !_mirrorV; }
 
     CVCalibration calibration;
 
 private:
     bool         _showUndistorted = false; //!< Flag if image should be undistorted
     CVCameraType _type;
-    bool         _mirrorH = false;
-    bool         _mirrorV = false;
+    bool         _mirrorH      = false;
+    bool         _mirrorV      = false;
+    int          _camSizeIndex = -1;
 };
 
 #endif // CVCAMERA_H

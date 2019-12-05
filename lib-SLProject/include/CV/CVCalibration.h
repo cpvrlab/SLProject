@@ -118,18 +118,9 @@ public:
     //! Adapts an already calibrated camera to a new resolution (cropping and scaling)
     void adaptForNewResolution(const CVSize& newSize);
 
-    //todo: move to slcamera
-    void camSizeIndex(int index)
-    {
-        _camSizeIndex = index;
-    }
-
     // Getters
     CVSize imageSize() { return _imageSize; }
-    int    camSizeIndex()
-    {
-        return _camSizeIndex;
-    }
+    //int    camSizeIndex() { return _camSizeIndex;}
     float  imageAspectRatio() { return (float)_imageSize.width / (float)_imageSize.height; }
     CVMat& cameraMat() { return _cameraMat; }
     CVMat& cameraMatUndistorted() { return _cameraMatUndistorted; }

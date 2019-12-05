@@ -255,7 +255,7 @@ jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoType(JNIEnv *env, jclass obj)
 extern "C" JNIEXPORT
 jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoSizeIndex(JNIEnv *env, jclass obj)
 {
-    return CVCapture::instance()->activeCamera->calibration.camSizeIndex();
+    return CVCapture::instance()->activeCamera->camSizeIndex();
 }
 //-----------------------------------------------------------------------------
 //! Grabs a frame from a video file using OpenCV
