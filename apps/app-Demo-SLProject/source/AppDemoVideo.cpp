@@ -32,6 +32,25 @@ CVTracked* tracker = nullptr;
 SLNode* trackedNode = nullptr;
 
 //-----------------------------------------------------------------------------
+//always update scene camera fov from calibration because the calibration may have
+//been adapted in adjustForSL after a change of aspect ratio!
+//Attention: The active scene view camera may be a different one that the tracking camera
+//but we have to update the tracking camera only!
+void updateTrackingSceneCamera(CVCamera* ac)
+{
+    if (trackedNode && typeid(*trackedNode) == typeid(SLCamera))
+    {
+        SLCamera* trackingCam = static_cast<SLCamera*>(trackedNode);
+        trackingCam->fov(ac->calibration.cameraFovVDeg());
+        cv::Mat scMat = ac->calibration.cameraMatUndistorted();
+        //intrinsics used for intrinsics projection type
+        trackingCam->intrinsics((float)scMat.at<double>(0, 0),
+                                (float)scMat.at<double>(1, 1),
+                                (float)scMat.at<double>(0, 2),
+                                (float)scMat.at<double>(1, 2));
+    }
+}
+//-----------------------------------------------------------------------------
 CVCalibrationEstimator* calibrationEstimator = nullptr;
 
 void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
@@ -83,13 +102,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
             string      mainCalibFilename = "camCalib_" + computerInfo + "_main.xml";
             string      scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";
             ac->calibration.save(SLApplication::calibFilePath, mainCalibFilename);
-            //update scene camera
-            sv->camera()->fov(ac->calibration.cameraFovVDeg());
-            cv::Mat scMat = ac->calibration.cameraMatUndistorted();
-            sv->camera()->intrinsics((float)scMat.at<double>(0, 0),
-                                     (float)scMat.at<double>(1, 1),
-                                     (float)scMat.at<double>(0, 2),
-                                     (float)scMat.at<double>(1, 2));
+
             s->info("Calibration successful.");
         }
         else
@@ -107,6 +120,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
             s->onLoad(s, sv, SID_VideoTrackChessScnd);
     }
 }
+
 //-----------------------------------------------------------------------------
 //! logic that ensures that we have a valid calibration state
 void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
@@ -177,9 +191,11 @@ bool onUpdateVideo()
         else
         {
             ensureValidCalibration(ac, sv);
-            //always update scene camera fov from calibration because the calibration may have
-            //been adapted in adjustForSL after a change of aspect ratio
-            sv->camera()->fov(ac->calibration.cameraFovVDeg());
+            //Attention: Always update scene camera fov from calibration because the calibration may have
+            //been adapted in adjustForSL after a change of aspect ratio!
+            //The active scene view camera may be a different one that the tracking camera
+            //but we have to update the tracking camera only!
+            updateTrackingSceneCamera(ac);
 
             if (tracker && trackedNode)
             {

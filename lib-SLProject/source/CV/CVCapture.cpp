@@ -71,8 +71,8 @@ CVSize2i CVCapture::open(int deviceNum)
             return CVSize2i(0, 0);
 
         Utils::log("Capture devices created.\n");
-        //_captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
-        //_captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, 1024);
+        //_captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, 1440);
+        //_captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
         //Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
@@ -208,7 +208,6 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
                 else
                     return false;
             }
-
 #if defined(ANDROID)
             // Convert BGR to RGB on mobile phones
             cvtColor(CVCapture::lastFrame, CVCapture::lastFrame, cv::COLOR_BGR2RGB, 3);
@@ -370,7 +369,6 @@ void CVCapture::adjustForSL(float viewportWdivH)
     // So this is Android image copy loop #2
 
     float inWdivH = (float)lastFrame.cols / (float)lastFrame.rows;
-
     // viewportWdivH is negative the viewport aspect will be the same
     float outWdivH = viewportWdivH < 0.0f ? inWdivH : viewportWdivH;
 

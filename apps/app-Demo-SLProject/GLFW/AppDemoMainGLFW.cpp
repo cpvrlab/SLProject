@@ -506,7 +506,7 @@ int main(int argc, char* argv[])
     scrWidth       = 640;
     scrHeight      = 480;
     scrWdivH       = (float)scrWidth / (float)scrHeight;
-    fixAspectRatio = true; //we want to fix aspect ratio for some video apps
+    fixAspectRatio = false;
     touch2.set(-1, -1);
     touchDelta.set(-1, -1);
 
