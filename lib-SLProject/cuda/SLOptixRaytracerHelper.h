@@ -131,7 +131,7 @@ static __device__ __inline__ float4 traceRefractionRay(
             handle,
             origin,
             direction,
-            -1.e-4f,  // tmin
+            1.e-4f,  // tmin
             1e16f,  // tmax
             0.0f,                // rayTime
             OptixVisibilityMask( 2 ),
