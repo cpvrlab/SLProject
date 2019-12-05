@@ -89,9 +89,10 @@ public:
     std::string   getPrintableState();
     TrackingState getTrackingState() { return _state; }
     std::string   getPrintableType();
-    uint32_t      getMapPointCount();
-    uint32_t      getMapPointMatchesCount();
-    uint32_t      getKeyFrameCount();
+    int           getKeyPointCount();
+    int           getMapPointCount();
+    int           getMapPointMatchesCount();
+    int           getKeyFrameCount();
     int           getNMapMatches();
     int           getNumKeyFrames();
     float         poseDifference();
@@ -99,8 +100,8 @@ public:
     void          findMatches(std::vector<cv::Point2f>& vP2D, std::vector<cv::Point3f>& vP3Dw);
 
     std::string getLoopCloseStatus();
-    uint32_t    getLoopCloseCount();
-    uint32_t    getKeyFramesInLoopCloseQueueCount();
+    int         getLoopCloseCount();
+    int         getKeyFramesInLoopCloseQueueCount();
 
     std::vector<WAIMapPoint*>                                 getMapPoints();
     std::vector<WAIMapPoint*>                                 getMatchedMapPoints();
@@ -133,8 +134,9 @@ public:
 
     bool doMarkerMapPreprocessing(std::string markerFile, cv::Mat& nodeTransform, float markerWidthInM);
 
-    void decorateVideoWithKeyPoints(cv::Mat& image);
-    void decorateVideoWithKeyPointMatches(cv::Mat& image);
+    // marker correction stuff
+    WAIFrame createMarkerFrame(std::string  markerFile,
+                               KPextractor* markerExtractor);
 
 private:
     enum TrackingType
@@ -274,12 +276,10 @@ private:
     bool   _allowKfsAsActiveCam   = false;
 
     // marker correction stuff
-    WAIFrame createMarkerFrame(std::string  markerFile,
-                               KPextractor* markerExtractor);
-    bool     findMarkerHomography(WAIFrame&    markerFrame,
-                                  WAIKeyFrame* kfCand,
-                                  cv::Mat&     homography,
-                                  int          minMatches);
+    bool findMarkerHomography(WAIFrame&    markerFrame,
+                              WAIKeyFrame* kfCand,
+                              cv::Mat&     homography,
+                              int          minMatches);
 
     bool _createMarkerMap;
 

@@ -92,8 +92,6 @@ public:
     static ofstream           gpsDataStream;
     static SLQuat4f           lastKnowPoseQuaternion;
     static SLQuat4f           IMUQuaternion;
-    static SLVec3f            lastKnowPosePosition;
-    static SLVec3f            IMUPosition;
 
     static SlamParams* currentSlamParams;
 

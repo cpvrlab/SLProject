@@ -19,7 +19,12 @@ class MapCreator
         CVCalibration calibration = {CVCameraType::VIDEOFILE};
     };
     typedef std::vector<VideoAndCalib> Videos;
-    typedef std::map<Area, Videos>     Areas;
+    typedef struct AreaConfig
+    {
+        Videos      videos;
+        std::string markerFile;
+    };
+    typedef std::map<Area, AreaConfig> Areas;
 
 public:
     MapCreator(std::string erlebARDir, std::string configFile);
@@ -29,7 +34,7 @@ public:
     //! check that all files (video and calibration) exist.
     void loadSites(const std::string& erlebARDir, const std::string& configFile);
     //! create dense map using all videos for this location/area and thin out overall resulting map using keyframe culling
-    void createNewWaiMap(const Location& location, const Area& area, Videos& videos);
+    void createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig);
 
     bool createNewDenseWaiMap(Videos&            videos,
                               const std::string& mapFile,
@@ -43,8 +48,15 @@ public:
                           const float        cullRedundantPerc);
     void cullKeyframes(std::vector<WAIKeyFrame*>& kfs, const float cullRedundantPerc);
     void decorateDebug(WAI::ModeOrbSlam2* waiMode, CVCapture* cap, const int currentFrameIndex, const int videoLength, const int numOfKfs);
-    void saveMap(WAI::ModeOrbSlam2* waiMode, const std::string& mapDir, const std::string& currentMapFileName);
-    void loadMap(WAI::ModeOrbSlam2* waiMode, const std::string& mapDir, const std::string& currentMapFileName, bool fixKfsForLBA);
+    void saveMap(WAI::ModeOrbSlam2* waiMode, const std::string& mapDir, const std::string& currentMapFileName, SLNode* mapNode = nullptr);
+    void loadMap(WAI::ModeOrbSlam2* waiMode, const std::string& mapDir, const std::string& currentMapFileName, bool fixKfsForLBA, SLNode* mapNode);
+
+    WAIFrame createMarkerFrame(std::string  markerFile,
+                               KPextractor* markerExtractor);
+    bool     findMarkerHomography(WAIFrame&    markerFrame,
+                                  WAIKeyFrame* kfCand,
+                                  cv::Mat&     homography,
+                                  int          minMatches);
 
 private:
     MapCreator() {}
@@ -53,6 +65,18 @@ private:
     std::string               _vocFile;
     std::string               _calibrationsDir;
     std::string               _outputDir;
+
+    bool doMarkerMapPreprocessing(const std::string& mapDir,
+                                  const std::string& inputMapFile,
+                                  std::string        markerFile,
+                                  float              markerWidthInM,
+                                  CVCalibration&     calib,
+                                  const float        cullRedundantPerc);
+
+    WAIMapPoint* _mpUL;
+    WAIMapPoint* _mpUR;
+    WAIMapPoint* _mpLL;
+    WAIMapPoint* _mpLR;
 };
 
 #endif //MAP_CREATOR_H

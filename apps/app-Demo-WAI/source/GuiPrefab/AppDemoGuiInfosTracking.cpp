@@ -55,6 +55,8 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
         //keypoints infos
         if (ImGui::CollapsingHeader("KeyPoints"))
         {
+            //number of keypoints
+            ImGui::Text("Count : %d ", WAIApp::mode->getKeyPointCount());
             //show 2D key points in video image
             b = _prefs.showKeyPoints;
             if (ImGui::Checkbox("KeyPts", &b))
