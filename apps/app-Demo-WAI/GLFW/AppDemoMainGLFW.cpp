@@ -465,7 +465,7 @@ void GLFWInit()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     //we have to fix aspect ratio, because the video image is initialized with this ratio
-    fixAspectRatio = true;
+    fixAspectRatio = false;
 
     touch2.set(-1, -1);
     touchDelta.set(-1, -1);
@@ -545,16 +545,14 @@ int main(int argc, char* argv[])
     dirs.slDataRoot  = SLstring(SL_PROJECT_ROOT) + "/data";
     dirs.writableDir = Utils::getAppsWritableDir();
 
-    svIndex = WAIApp::load(640, 360, scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, &dirs);
+    svIndex = WAIApp::load(640, 480, scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, &dirs);
 
     HighResTimer hrt;
 
     // Event loop
     while (!slShouldClose())
     {
-        // if video aspect ratio changed, change window size
-        float videoWdivH = (float)WAIApp::videoFrameSize.width / (float)WAIApp::videoFrameSize.height;
-        if (abs(WAIApp::scrWdivH - videoWdivH) > 0.01f)
+        if (WAIApp::resizeWindow)
         {
             onResize(window, scrWidth, scrHeight);
             WAIApp::resizeWindow = false;

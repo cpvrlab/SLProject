@@ -133,6 +133,8 @@ public:
     WAIFrame getCurrentFrame();
 
     bool doMarkerMapPreprocessing(std::string markerFile, cv::Mat& nodeTransform, float markerWidthInM);
+    void decorateVideoWithKeyPoints(cv::Mat& image);
+    void decorateVideoWithKeyPointMatches(cv::Mat& image);
 
     // marker correction stuff
     WAIFrame createMarkerFrame(std::string  markerFile,
