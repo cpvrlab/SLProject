@@ -74,6 +74,32 @@ static __device__ __inline__ float4 tracePrimaryRay(
     return payload_rgb;
 }
 
+static __device__ __inline__ float traceShadowRay(
+        OptixTraversableHandle handle,
+        float3 origin,
+        float3 direction,
+        float dist) {
+    uint32_t p0 = float_as_int( 1.0f );
+    // Send shadow ray
+    optixTrace(
+            handle,
+            origin,
+            direction,
+            1e-3f,                         // tmin
+            dist,                // tmax
+            0.0f,                       // rayTime
+            OptixVisibilityMask( 1 ),
+            OPTIX_RAY_FLAG_DISABLE_CLOSESTHIT | OPTIX_RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
+            RAY_TYPE_OCCLUSION,        // SBT offset
+            RAY_TYPE_COUNT,            // SBT stride
+            RAY_TYPE_OCCLUSION,     // missSBTIndex
+            p0 // payload
+    );
+    float lighted = min(int_as_float( p0 ), 1.0f);
+
+    return lighted;
+}
+
 static __device__ __inline__ float4 traceReflectionRay(
         OptixTraversableHandle handle,
         float3 origin,
