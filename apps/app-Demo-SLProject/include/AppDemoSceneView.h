@@ -17,9 +17,9 @@
 */
 class AppDemoSceneView : public SLSceneView
 {
-    public:
-
+public:
     // From SLSceneView overwritten
     SLbool onMouseDown(SLMouseButton button, SLint x, SLint y, SLKey mod) final;
+    SLbool grab = false;
 };
 //-----------------------------------------------------------------------------

@@ -15,7 +15,7 @@ AppDemoGuiStatsVideo::AppDemoGuiStatsVideo(std::string name, CVCalibration* cali
 //-----------------------------------------------------------------------------
 void AppDemoGuiStatsVideo::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    _calib = CVCapture::instance()->activeCalib;
+    _calib = &CVCapture::instance()->activeCamera->calibration;
 
     SLchar m[2550]; // message character array
     m[0] = 0;       // set zero length

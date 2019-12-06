@@ -8,12 +8,15 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <SLApplication.h>
+//#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <CVCapture.h>
 #include <CVTrackedAruco.h>
 #include <SLGLTexture.h>
+#include <CVCalibrationEstimator.h>
+#include <AppDemoSceneView.h>
+#include <SLApplication.h>
 
 //-----------------------------------------------------------------------------
 /*! Global pointer for the video texture defined in AppDemoLoad for video scenes
@@ -29,6 +32,158 @@ CVTracked* tracker = nullptr;
 SLNode* trackedNode = nullptr;
 
 //-----------------------------------------------------------------------------
+//always update scene camera fov from calibration because the calibration may have
+//been adapted in adjustForSL after a change of aspect ratio!
+//Attention: The active scene view camera may be a different one that the tracking camera
+//but we have to update the tracking camera only!
+void updateTrackingSceneCamera(CVCamera* ac)
+{
+    if (trackedNode && typeid(*trackedNode) == typeid(SLCamera))
+    {
+        SLCamera* trackingCam = static_cast<SLCamera*>(trackedNode);
+        trackingCam->fov(ac->calibration.cameraFovVDeg());
+        cv::Mat scMat = ac->calibration.cameraMatUndistorted();
+        //intrinsics used for intrinsics projection type
+        trackingCam->intrinsics((float)scMat.at<double>(0, 0),
+                                (float)scMat.at<double>(1, 1),
+                                (float)scMat.at<double>(0, 2),
+                                (float)scMat.at<double>(1, 2));
+    }
+}
+//-----------------------------------------------------------------------------
+CVCalibrationEstimator* calibrationEstimator = nullptr;
+
+void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
+{
+    AppDemoSceneView* adSv = static_cast<AppDemoSceneView*>(sv);
+
+    try
+    {
+        if (!calibrationEstimator)
+        {
+            calibrationEstimator = new CVCalibrationEstimator(SLApplication::calibrationEstimatorParams.calibrationFlags(),
+                                                              CVCapture::instance()->activeCamSizeIndex,
+                                                              ac->mirrorH(),
+                                                              ac->mirrorV(),
+                                                              ac->type());
+
+            //clear grab request from sceneview
+            adSv->grab = false;
+        }
+
+        if (calibrationEstimator->isStreaming())
+        {
+            calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, adSv->grab);
+            //reset grabbing switch
+            adSv->grab = false;
+
+            stringstream ss;
+            ss << "Click on the screen to create a calibration photo. Created "
+               << calibrationEstimator->numCapturedImgs() << " of " << calibrationEstimator->numImgsToCapture();
+            s->info(ss.str());
+        }
+        else if (calibrationEstimator->isBusyExtracting())
+        {
+            //also reset grabbing, user has to click again
+            adSv->grab = false;
+            calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
+            s->info("Busy extracting corners, please wait with grabbing ...");
+        }
+        else if (calibrationEstimator->isCalculating())
+        {
+            calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
+            s->info("Calculating calibration, please wait ...");
+        }
+        else if (calibrationEstimator->isDone())
+        {
+            //overwrite current calibration
+            if (calibrationEstimator->calibrationSuccessful())
+            {
+                ac->calibration = calibrationEstimator->getCalibration();
+
+                std::string computerInfo      = SLApplication::getComputerInfos();
+                string      mainCalibFilename = "camCalib_" + computerInfo + "_main.xml";
+                string      scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";
+                ac->calibration.save(SLApplication::calibFilePath, mainCalibFilename);
+
+                s->info("Calibration successful.");
+            }
+            else
+            {
+                s->info("Calibration failed!");
+            }
+
+            //free estimator instance
+            delete calibrationEstimator;
+            calibrationEstimator = nullptr;
+
+            if (SLApplication::sceneID == SID_VideoCalibrateMain)
+                s->onLoad(s, sv, SID_VideoTrackChessMain);
+            else
+                s->onLoad(s, sv, SID_VideoTrackChessScnd);
+        }
+    }
+    catch (CVCalibrationEstimatorException& e)
+    {
+        log(e.what());
+        s->info("Exception during calibration!");
+
+        delete calibrationEstimator;
+        calibrationEstimator = nullptr;
+
+        if (SLApplication::sceneID == SID_VideoCalibrateMain)
+            s->onLoad(s, sv, SID_VideoTrackChessMain);
+        else
+            s->onLoad(s, sv, SID_VideoTrackChessScnd);
+    }
+}
+
+//-----------------------------------------------------------------------------
+//! logic that ensures that we have a valid calibration state
+void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
+{
+    //we have to make sure calibration process is stopped if someone stopps calibrating
+    if (calibrationEstimator)
+    {
+        delete calibrationEstimator;
+        calibrationEstimator = nullptr;
+    }
+
+    if (ac->calibration.state() == CS_uncalibrated)
+    {
+        // Try to read device lens and sensor information
+        string strF = SLApplication::deviceParameter["DeviceLensFocalLength"];
+        string strW = SLApplication::deviceParameter["DeviceSensorPhysicalSizeW"];
+        string strH = SLApplication::deviceParameter["DeviceSensorPhysicalSizeH"];
+        if (!strF.empty() && !strW.empty() && !strH.empty())
+        {
+            float devF = strF.empty() ? 0.0f : stof(strF);
+            float devW = strW.empty() ? 0.0f : stof(strW);
+            float devH = strH.empty() ? 0.0f : stof(strH);
+
+            // Changes the state to CS_guessed
+            ac->calibration = CVCalibration(devW,
+                                            devH,
+                                            devF,
+                                            cv::Size(CVCapture::instance()->lastFrame.cols,
+                                                     CVCapture::instance()->lastFrame.rows),
+                                            ac->mirrorH(),
+                                            ac->mirrorV(),
+                                            ac->type());
+        }
+        else
+        {
+            //make a guess using frame size and a guessed field of view
+            ac->calibration = CVCalibration(cv::Size(CVCapture::instance()->lastFrame.cols,
+                                                     CVCapture::instance()->lastFrame.rows),
+                                            60.0,
+                                            ac->mirrorH(),
+                                            ac->mirrorV(),
+                                            ac->type());
+        }
+    }
+}
+//-----------------------------------------------------------------------------
 //! Implements the update per frame for video update and feature tracking
 /*! This routine is called once per frame before any other update within the
  the main rendering loop (see: AppDemoMainGLFW::onPaint or GLES3View::onDrawFrame).
@@ -41,81 +196,29 @@ bool onUpdateVideo()
 
     if (CVCapture::instance()->videoType() != VT_NONE && !CVCapture::instance()->lastFrame.empty())
     {
-        SLfloat        trackingTimeStartMS = SLApplication::timeMS();
-        CVCalibration* ac                  = CVCapture::instance()->activeCalib;
+        SLfloat trackingTimeStartMS = SLApplication::timeMS();
 
-        // Invalidate calibration if viewport aspect doesn't match calibration aspect ratio
-        SLfloat calibWdivH              = ac->imageAspectRatio();
-        SLbool  aspectRatioDoesNotMatch = Utils::abs(sv->viewportWdivH() - calibWdivH) > 0.01f;
-        if (aspectRatioDoesNotMatch && ac->state() == CS_calibrated)
+        CVCamera* ac = CVCapture::instance()->activeCamera;
+
+        if (SLApplication::sceneID == SID_VideoCalibrateMain ||
+            SLApplication::sceneID == SID_VideoCalibrateScnd)
         {
-            ac->clear();
+            runCalibrationEstimator(ac, s, sv);
         }
-
-        stringstream ss; // info line text
-
-        //.....................................................................
-        if (ac->state() == CS_uncalibrated)
+        else
         {
-            if (SLApplication::sceneID == SID_VideoCalibrateMain ||
-                SLApplication::sceneID == SID_VideoCalibrateScnd)
-            {
-                ac->state(CS_calibrateStream);
-            }
-            else
-            {
-                // Try to read device lens and sensor information
-                string strF = SLApplication::deviceParameter["DeviceLensFocalLength"];
-                string strW = SLApplication::deviceParameter["DeviceSensorPhysicalSizeW"];
-                string strH = SLApplication::deviceParameter["DeviceSensorPhysicalSizeH"];
-                float  devF = strF.empty() ? 0.0f : stof(strF);
-                float  devW = strW.empty() ? 0.0f : stof(strW);
-                float  devH = strH.empty() ? 0.0f : stof(strH);
-                ac->devFocalLength(devF);
-                ac->devSensorSizeW(devW);
-                ac->devSensorSizeH(devH);
+            ensureValidCalibration(ac, sv);
+            //Attention: Always update scene camera fov from calibration because the calibration may have
+            //been adapted in adjustForSL after a change of aspect ratio!
+            //The active scene view camera may be a different one that the tracking camera
+            //but we have to update the tracking camera only!
+            updateTrackingSceneCamera(ac);
 
-                // Changes the state to CS_guessed
-                ac->createFromGuessedFOV(CVCapture::instance()->lastFrame.cols,
-                                         CVCapture::instance()->lastFrame.rows);
-                sv->camera()->fov(ac->cameraFovVDeg());
-            }
-        }
-        else if (ac->state() == CS_calibrateStream || ac->state() == CS_calibrateGrab)
-        {
-            ac->findChessboard(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, true);
-            int imgsToCap = ac->numImgsToCapture();
-            int imgsCaped = ac->numCapturedImgs();
-
-            //update info line
-            if (imgsCaped < imgsToCap)
-                ss << "Click on the screen to create a calibration photo. Created "
-                   << imgsCaped << " of " << imgsToCap;
-            else
-            {
-                ss << "Calculating calibration, please wait ...";
-                ac->state(CS_startCalculating);
-            }
-            s->info(ss.str());
-        }
-        else if (ac->state() == CS_startCalculating)
-        {
-            if (ac->calculate())
-            {
-                sv->camera()->fov(ac->cameraFovVDeg());
-                if (SLApplication::sceneID == SID_VideoCalibrateMain)
-                    s->onLoad(s, sv, SID_VideoTrackChessMain);
-                else
-                    s->onLoad(s, sv, SID_VideoTrackChessScnd);
-            }
-        }
-        else if (ac->state() == CS_calibrated || ac->state() == CS_guessed) //......
-        {
             if (tracker && trackedNode)
             {
                 bool foundPose = tracker->track(CVCapture::instance()->lastFrameGray,
                                                 CVCapture::instance()->lastFrame,
-                                                ac);
+                                                &ac->calibration);
                 if (foundPose)
                 {
                     // clang-format off
@@ -151,25 +254,26 @@ bool onUpdateVideo()
                 SLApplication::sceneID == SID_VideoTrackChessMain ||
                 SLApplication::sceneID == SID_VideoTrackChessScnd)
             {
-                SLfloat fovH = ac->cameraFovHDeg();
-                SLfloat err  = ac->reprojectionError();
+                SLfloat      fovH = ac->calibration.cameraFovHDeg();
+                SLfloat      err  = ac->calibration.reprojectionError();
+                stringstream ss; // info line text
                 ss << "Tracking Chessboard on " << (CVCapture::instance()->videoType() == VT_MAIN ? "main " : "scnd. ") << "camera. ";
-                if (ac->state() == CS_calibrated)
+                if (ac->calibration.state() == CS_calibrated)
                     ss << "FOVH: " << fovH << ", error: " << err;
                 else
                     ss << "Not calibrated. FOVH guessed: " << fovH << " degrees.";
                 s->info(ss.str());
             }
         }
-        //...................................................................
 
+        //...................................................................
         //copy image to video texture
         if (videoTexture)
         {
-            if (ac->state() == CS_calibrated && ac->showUndistorted())
+            if (ac->calibration.state() == CS_calibrated && ac->showUndistorted())
             {
                 CVMat undistorted;
-                ac->remap(CVCapture::instance()->lastFrame, undistorted);
+                ac->calibration.remap(CVCapture::instance()->lastFrame, undistorted);
 
                 //CVCapture::instance()->videoTexture()->copyVideoImage(undistorted.cols,
                 videoTexture->copyVideoImage(undistorted.cols,

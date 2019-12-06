@@ -183,6 +183,7 @@ enum SLCamAnim
 enum SLProjection
 {
     P_monoPerspective,      //!< standard mono pinhole perspective projection
+    P_monoIntrinsic,        //!< standard mono pinhole perspective projection from intrinsic calibration
     P_monoOrthographic,     //!< standard mono orthographic projection
     P_stereoSideBySide,     //!< side-by-side
     P_stereoSideBySideP,    //!< side-by-side proportional for mirror stereoscopes

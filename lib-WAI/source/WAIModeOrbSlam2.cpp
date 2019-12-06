@@ -63,9 +63,9 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat       cameraMat,
 
     if (_createMarkerMap)
     {
-        KPextractor* markerExtractor = new ORB_SLAM2::SURFextractor(800); // TODO(dgj1): markerInitialization - adjust nFeatures
+        _markerExtractor = new ORB_SLAM2::SURFextractor(800); // TODO(dgj1): markerInitialization - adjust nFeatures
 
-        _markerFrame = createMarkerFrame(markerFile, markerExtractor);
+        _markerFrame = createMarkerFrame(markerFile, _markerExtractor);
     }
 
     _mpUL = nullptr;
@@ -175,23 +175,23 @@ bool WAI::ModeOrbSlam2::update(cv::Mat& imageGray, cv::Mat& imageRGB)
     return _poseSet;
 }
 
-uint32_t WAI::ModeOrbSlam2::getMapPointCount()
+int WAI::ModeOrbSlam2::getMapPointCount()
 {
-    uint32_t result = _map->MapPointsInMap();
+    int result = _map->MapPointsInMap();
 
     return result;
 }
 
-uint32_t WAI::ModeOrbSlam2::getMapPointMatchesCount()
+int WAI::ModeOrbSlam2::getMapPointMatchesCount()
 {
-    uint32_t result = mnMatchesInliers;
+    int result = mnMatchesInliers;
 
     return result;
 }
 
-uint32_t WAI::ModeOrbSlam2::getKeyFrameCount()
+int WAI::ModeOrbSlam2::getKeyFrameCount()
 {
-    uint32_t result = _map->KeyFramesInMap();
+    int result = _map->KeyFramesInMap();
 
     return result;
 }
@@ -203,16 +203,16 @@ std::string WAI::ModeOrbSlam2::getLoopCloseStatus()
     return result;
 }
 
-uint32_t WAI::ModeOrbSlam2::getLoopCloseCount()
+int WAI::ModeOrbSlam2::getLoopCloseCount()
 {
-    uint32_t result = _map->getNumLoopClosings();
+    int result = _map->getNumLoopClosings();
 
     return result;
 }
 
-uint32_t WAI::ModeOrbSlam2::getKeyFramesInLoopCloseQueueCount()
+int WAI::ModeOrbSlam2::getKeyFramesInLoopCloseQueueCount()
 {
-    uint32_t result = mpLoopCloser->numOfKfsInQueue();
+    int result = mpLoopCloser->numOfKfsInQueue();
 
     return result;
 }
@@ -572,9 +572,10 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
 
     if (!mpInitializer)
     {
-        // NOTE(dgj1): find matches with marker if necessary
-        // We only initialize if the first frame has enough matches to the marker
-        // TODO(dgj1): rethink this constraint
+// NOTE(dgj1): find matches with marker if necessary
+// We only initialize if the first frame has enough matches to the marker
+// TODO(dgj1): rethink this constraint
+#if 0
         if (_createMarkerMap)
         {
             ORBmatcher               matcher(0.9, true);
@@ -590,6 +591,7 @@ void WAI::ModeOrbSlam2::initialize(cv::Mat& imageGray, cv::Mat& imageRGB)
                 return;
             }
         }
+#endif
 
         // Set Reference Frame
         if (mCurrentFrame.mvKeys.size() > matchesNeeded)
@@ -2276,9 +2278,6 @@ void WAI::ModeOrbSlam2::decorate(cv::Mat& image)
     calculateMeanReprojectionError();
     //calculate pose difference
     calculatePoseDifference();
-    //show rectangle for key points in video that where matched to map points
-    decorateVideoWithKeyPoints(image);
-    decorateVideoWithKeyPointMatches(image);
     //decorate scene with matched map points, local map points and matched map points
     //decorateScene();
 }
@@ -2365,52 +2364,46 @@ void WAI::ModeOrbSlam2::calculatePoseDifference()
 void WAI::ModeOrbSlam2::decorateVideoWithKeyPoints(cv::Mat& image)
 {
     //show rectangle for all keypoints in current image
-    if (_showKeyPoints)
+    for (size_t i = 0; i < mCurrentFrame.N; i++)
     {
-        for (size_t i = 0; i < mCurrentFrame.N; i++)
-        {
-            //Use distorted points because we have to undistort the image later
-            //const auto& pt = mCurrentFrame.mvKeys[i].pt;
-            const auto& pt = mCurrentFrame.mvKeys[i].pt;
-            cv::rectangle(image,
-                          cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
-                          cv::Scalar(0, 0, 255));
-        }
+        //Use distorted points because we have to undistort the image later
+        //const auto& pt = mCurrentFrame.mvKeys[i].pt;
+        const auto& pt = mCurrentFrame.mvKeys[i].pt;
+        cv::rectangle(image,
+                      cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
+                      cv::Scalar(0, 0, 255));
     }
 }
 
 void WAI::ModeOrbSlam2::decorateVideoWithKeyPointMatches(cv::Mat& image)
 {
     //show rectangle for key points in video that where matched to map points
-    if (_showKeyPointsMatched)
+    if (_optFlowOK)
     {
-        if (_optFlowOK)
+        for (size_t i = 0; i < _optFlowKeyPtsLastFrame.size(); i++)
         {
-            for (size_t i = 0; i < _optFlowKeyPtsLastFrame.size(); i++)
-            {
-                //Use distorted points because we have to undistort the image later
-                const auto& pt = _optFlowKeyPtsLastFrame[i].pt;
-                cv::rectangle(image,
-                              cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
-                              cv::Scalar(0, 255, 0));
-            }
+            //Use distorted points because we have to undistort the image later
+            const auto& pt = _optFlowKeyPtsLastFrame[i].pt;
+            cv::rectangle(image,
+                          cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
+                          cv::Scalar(0, 255, 0));
         }
-        else
+    }
+    else
+    {
+        for (size_t i = 0; i < mCurrentFrame.N; i++)
         {
-            for (size_t i = 0; i < mCurrentFrame.N; i++)
+            if (mCurrentFrame.mvpMapPoints[i])
             {
-                if (mCurrentFrame.mvpMapPoints[i])
+                if (!mCurrentFrame.mvbOutlier[i])
                 {
-                    if (!mCurrentFrame.mvbOutlier[i])
+                    if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
                     {
-                        if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
-                        {
-                            //Use distorted points because we have to undistort the image later
-                            const auto& pt = mCurrentFrame.mvKeys[i].pt;
-                            cv::rectangle(image,
-                                          cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
-                                          cv::Scalar(0, 255, 0));
-                        }
+                        //Use distorted points because we have to undistort the image later
+                        const auto& pt = mCurrentFrame.mvKeys[i].pt;
+                        cv::rectangle(image,
+                                      cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
+                                      cv::Scalar(0, 255, 0));
                     }
                 }
             }
@@ -2459,11 +2452,8 @@ bool WAI::ModeOrbSlam2::findMarkerHomography(WAIFrame&    markerFrame,
     return result;
 }
 
-WAIFrame WAI::ModeOrbSlam2::createMarkerFrame(std::string  markerFile,
-                                              KPextractor* markerExtractor)
+WAIFrame WAI::ModeOrbSlam2::createMarkerFrame(std::string markerFile, KPextractor* markerExtractor)
 {
-    _markerExtractor = markerExtractor;
-
     cv::Mat markerImgGray = cv::imread(markerFile, cv::IMREAD_GRAYSCALE);
 
     float fyCam = _cameraMat.at<float>(1, 1);
@@ -2479,7 +2469,9 @@ WAIFrame WAI::ModeOrbSlam2::createMarkerFrame(std::string  markerFile,
     cv::Mat markerCameraMat     = (cv::Mat_<float>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
     cv::Mat markerDistortionMat = cv::Mat::zeros(4, 1, CV_32F);
 
-    WAIFrame result = WAIFrame(markerImgGray, 0.0f, _markerExtractor, markerCameraMat, markerDistortionMat, mpVocabulary, true);
+    WAIFrame result = WAIFrame(markerImgGray, 0.0f, markerExtractor, markerCameraMat, markerDistortionMat, mpVocabulary, true);
+    result          = WAIFrame(markerImgGray, 0.0f, markerExtractor, markerCameraMat, markerDistortionMat, mpVocabulary, true);
+    result          = WAIFrame(markerImgGray, 0.0f, markerExtractor, markerCameraMat, markerDistortionMat, mpVocabulary, true);
     return result;
 }
 
@@ -2801,4 +2793,11 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile,
     _mpLR = new WAIMapPoint(0, lr3D, nullptr, false);
 
     return true;
+}
+
+int WAI::ModeOrbSlam2::getKeyPointCount()
+{
+    int result = mCurrentFrame.N;
+
+    return result;
 }

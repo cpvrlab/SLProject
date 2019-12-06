@@ -20,7 +20,7 @@ file(GLOB sources
         ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoSceneView.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
     )
-	
+
 # Group source files
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})

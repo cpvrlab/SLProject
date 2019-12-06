@@ -91,12 +91,12 @@ extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onInit(JNIEnv* env, 
     env->ReleaseStringUTFChars(filePath, nativeString);
 
     CVImage::defaultPath = dirs.slDataRoot + "/images/textures/";
-    CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(),   // deviceInfo string
-                                            dirs.writableDir + "/calibrations/", // for calibrations made
-                                            dirs.writableDir + "/calibrations/", // for calibInitPath
-                                            dirs.writableDir + "/videos/");      // for videos
+    //CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(),   // deviceInfo string
+    //                                        dirs.writableDir + "/calibrations/", // for calibrations made
+    //                                        dirs.writableDir + "/calibrations/", // for calibInitPath
+    //                                        dirs.writableDir + "/videos/");      // for videos
 
-    svIndex = WAIApp::load(640, 360, 1.0, 1.0, dpi, &dirs);
+    svIndex = WAIApp::load(640, 480, width, height, 1.0, 1.0, dpi, &dirs);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onTerminate(JNIEnv* env, jclass obj)
@@ -221,7 +221,7 @@ extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_copyVideoImage(JNIEn
     if (srcLumaPtr == nullptr)
         SL_EXIT_MSG("copyVideoImage: No image data pointer passed!");
 
-    float scrWdivH = SLApplication::scene->sceneView(0)->scrWdivH();
+    float scrWdivH = SLApplication::scene->sceneView(0)->viewportWdivH();
     CVCapture::instance()->loadIntoLastFrame(scrWdivH, imgWidth, imgHeight, PF_yuv_420_888, srcLumaPtr, true);
 }
 //-----------------------------------------------------------------------------

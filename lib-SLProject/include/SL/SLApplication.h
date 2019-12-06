@@ -11,6 +11,7 @@
 #ifndef SLAPPLICATION_H
 #define SLAPPLICATION_H
 
+#include <CVTypes.h>
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
 #include <SLInputManager.h>
@@ -33,8 +34,8 @@ class SLScene;
  At the moment only one scene can be open at the time.
  <br>
  SLApplication holds two static video camera calibrations, one for a main camera
- (calibMainCam) and one for the selfie camera on mobile devices (calibScndCam).
- The pointer activeCalib points to the active one.
+ (mainCam) and one for the selfie camera on mobile devices (scndCam).
+ The pointer activeCamera points to the active one.
 */
 class SLApplication
 {
@@ -83,6 +84,10 @@ public:
     static deque<function<void(void)>> jobsToBeThreaded;   //!< queue of functions to be executed in a thread
     static deque<function<void(void)>> jobsToFollowInMain; //!< queue of function to follow in the main thread
     static atomic<bool>                jobIsRunning;       //!< True if a parallel job is running
+
+    static CVCalibrationEstimatorParams calibrationEstimatorParams;
+    static SLstring                     calibIniPath;  //!<thats where data/calibrations folder is located
+    static SLstring                     calibFilePath; //!<thats where calibrations are stored and loaded from
 
 private:
     static HighResTimer _timer;          //!< high precision timer

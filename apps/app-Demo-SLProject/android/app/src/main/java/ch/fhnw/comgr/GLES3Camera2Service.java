@@ -344,8 +344,8 @@ public class GLES3Camera2Service extends Service {
             CaptureRequest.Builder builder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
 
             // Turn off auto focus. We want to calibrate with the focus on infinty.
-            //builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF);
-            //builder.set(CaptureRequest.LENS_FOCUS_DISTANCE,0.0f);
+            builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF);
+            builder.set(CaptureRequest.LENS_FOCUS_DISTANCE,0.0f);
 
             builder.addTarget(imageReader.getSurface());
             return builder.build();

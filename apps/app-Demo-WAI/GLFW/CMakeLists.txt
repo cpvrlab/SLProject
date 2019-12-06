@@ -44,8 +44,8 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.h
-    ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
+    ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     )
 
 set(sources
@@ -102,11 +102,11 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
+    PUBLIC
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/
     ${SL_PROJECT_ROOT}/apps/source/wai/
-    PUBLIC
 
     INTERFACE
     )

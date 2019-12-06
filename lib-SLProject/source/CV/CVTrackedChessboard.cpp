@@ -18,17 +18,64 @@ for a good top down information.
 */
 #include <CVCapture.h>
 #include <CVTrackedChessboard.h>
+#include <Utils.h>
+#include <SLApplication.h>
 
 using namespace cv;
 //-----------------------------------------------------------------------------
 CVTrackedChessboard::CVTrackedChessboard()
+  : _calibParamsFileName("calib_in_params.yml")
 {
-    CVCalibration* calib = CVCapture::instance()->activeCalib;
-    CVCalibration::calcBoardCorners3D(calib->boardSize(),
-                                      calib->boardSquareM(),
-                                      _boardPoints3D);
+    if (!loadCalibParams())
+    {
+        Utils::exitMsg("CVTrackedChessboard: could not load calibration parameter",
+                       __LINE__,
+                       __FILE__);
+    }
+
+    calcBoardCorners3D(_boardSize,
+                       _edgeLengthM,
+                       _boardPoints3D);
     _solved = false;
 }
+//-----------------------------------------------------------------------------
+bool CVTrackedChessboard::loadCalibParams()
+{
+    FileStorage fs;
+    string      fullCalibIniFile = SLApplication::calibIniPath + _calibParamsFileName;
+
+    fs.open(fullCalibIniFile, FileStorage::READ);
+    if (!fs.isOpened())
+    {
+        Utils::log("Could not open the calibration parameter file: %s\n", fullCalibIniFile.c_str());
+        return false;
+    }
+
+    //assign paramters
+    fs["numInnerCornersWidth"] >> _boardSize.width;
+    fs["numInnerCornersHeight"] >> _boardSize.height;
+    //load edge length in MM
+    fs["squareSizeMM"] >> _edgeLengthM;
+    //convert to M
+    _edgeLengthM *= 0.001f;
+
+    return true;
+}
+//-----------------------------------------------------------------------------
+void CVTrackedChessboard::calcBoardCorners3D(const CVSize& boardSize,
+                                             float         squareSize,
+                                             CVVPoint3f&   objectPoints3D)
+{
+    // Because OpenCV image coords are top-left we define the according
+    // 3D coords also top-left.
+    objectPoints3D.clear();
+    for (int y = boardSize.height - 1; y >= 0; --y)
+        for (int x = 0; x < boardSize.width; ++x)
+            objectPoints3D.push_back(CVPoint3f((float)x * squareSize,
+                                               (float)y * squareSize,
+                                               0));
+}
+
 //-----------------------------------------------------------------------------
 //! Tracks the chessboard image in the given image for the first sceneview
 bool CVTrackedChessboard::track(CVMat          imageGray,
@@ -46,14 +93,12 @@ bool CVTrackedChessboard::track(CVMat          imageGray,
     float startMS = _timer.elapsedTimeInMilliSec();
 
     //detect chessboard corners
-    int flags = //CALIB_CB_ADAPTIVE_THRESH |
-      //CALIB_CB_NORMALIZE_IMAGE |
-      CALIB_CB_FAST_CHECK;
+    int flags = CALIB_CB_FAST_CHECK;
 
     CVVPoint2f corners2D;
 
     _isVisible = cv::findChessboardCorners(imageGray,
-                                           calib->boardSize(),
+                                           _boardSize,
                                            corners2D,
                                            flags);
 
@@ -64,7 +109,7 @@ bool CVTrackedChessboard::track(CVMat          imageGray,
 
         if (_drawDetection)
         {
-            cv::drawChessboardCorners(imageRgb, calib->boardSize(), corners2D, true);
+            cv::drawChessboardCorners(imageRgb, _boardSize, corners2D, true);
         }
 
         /////////////////////
