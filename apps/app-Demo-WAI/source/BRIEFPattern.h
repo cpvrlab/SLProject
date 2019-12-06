@@ -1,5 +1,5 @@
 
-static int bit_pattern_31_[256 * 4] =
+static char bit_pattern_31[256 * 4] =
   {
     8,
     -3,
