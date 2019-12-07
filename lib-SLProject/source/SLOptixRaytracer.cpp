@@ -35,7 +35,7 @@ SLOptixRaytracer::~SLOptixRaytracer()
 {
     SL_LOG("Destructor      : ~SLOptixRaytracer\n");
 
-    OPTIX_CHECK( optixPipelineDestroy(_pinhole_pipeline ) );
+    OPTIX_CHECK( optixPipelineDestroy(_classic_pipeline ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _radiance_hit_group ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_hit_group ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _radiance_miss_group ) );
@@ -80,6 +80,12 @@ void SLOptixRaytracer::setupOptix() {
     pinhole_raygen_prog_group_desc.raygen.entryFunctionName                 = "__raygen__pinhole_camera";
     _pinhole_raygen_prog_group = _createProgram(pinhole_raygen_prog_group_desc);
 
+    OptixProgramGroupDesc lens_raygen_prog_group_desc  = {};
+    lens_raygen_prog_group_desc.kind                                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+    lens_raygen_prog_group_desc.raygen.module                            = _cameraModule;
+    lens_raygen_prog_group_desc.raygen.entryFunctionName                 = "__raygen__lens_camera";
+    _lens_raygen_prog_group = _createProgram(lens_raygen_prog_group_desc);
+
     OptixProgramGroupDesc orthographic_raygen_prog_group_desc  = {};
     orthographic_raygen_prog_group_desc.kind                                = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
     orthographic_raygen_prog_group_desc.raygen.module                       = _cameraModule;
@@ -114,14 +120,23 @@ void SLOptixRaytracer::setupOptix() {
     occlusion_hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH  = nullptr;
     _occlusion_hit_group = _createProgram(occlusion_hitgroup_prog_group_desc);
 
-    OptixProgramGroup pinhole_program_groups[] = {
-            _orthographic_raygen_prog_group,
+    OptixProgramGroup classic_program_groups[] = {
+            _pinhole_raygen_prog_group,
             _radiance_miss_group,
             _occlusion_miss_group,
             _radiance_hit_group,
             _occlusion_hit_group,
     };
-    _pinhole_pipeline       = _createPipeline(pinhole_program_groups, 5);
+    _classic_pipeline       = _createPipeline(classic_program_groups, 5);
+
+    OptixProgramGroup distributed_program_groups[] = {
+            _lens_raygen_prog_group,
+            _radiance_miss_group,
+            _occlusion_miss_group,
+            _radiance_hit_group,
+            _occlusion_hit_group,
+    };
+    _distributed_pipeline       = _createPipeline(distributed_program_groups, 5);
 
     _paramsBuffer.alloc(sizeof(Params));
 }
@@ -198,14 +213,19 @@ OptixPipeline SLOptixRaytracer::_createPipeline(OptixProgramGroup * program_grou
     return pipeline;
 }
 
-OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMesh& meshes) {
+OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMesh& meshes, const bool doDistributed) {
     SLCamera* camera = _sv->camera();
 
     OptixShaderBindingTable sbt = {};
     {
         // Setup ray generation records
-        RayGenSbtRecord rg_sbt;
-        _rayGenBuffer.alloc_and_upload(&rg_sbt, 1);
+        if (doDistributed) {
+            RayGenDistributedSbtRecord rg_sbt;
+            _rayGenDistributedBuffer.alloc_and_upload(&rg_sbt, 1);
+        } else {
+            RayGenClassicSbtRecord rg_sbt;
+            _rayGenClassicBuffer.alloc_and_upload(&rg_sbt, 1);
+        }
 
         // Setup miss records
         std::vector<MissSbtRecord> missRecords;
@@ -238,7 +258,11 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMes
         }
         _hitBuffer.alloc_and_upload(hitRecords);
 
-        sbt.raygenRecord                = _rayGenBuffer.devicePointer();
+        if (doDistributed) {
+            sbt.raygenRecord                = _rayGenDistributedBuffer.devicePointer();
+        } else {
+            sbt.raygenRecord                = _rayGenClassicBuffer.devicePointer();
+        }
         sbt.missRecordBase              = _missBuffer.devicePointer();
         sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
         sbt.missRecordCount             = RAY_TYPE_COUNT;
@@ -270,7 +294,8 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv) {
         mesh->createMeshAccelerationStructure();
     }
 
-    _sbt = _createShaderBindingTable(meshes);
+    _sbtClassic     = _createShaderBindingTable(meshes, false);
+    _sbtDistributed = _createShaderBindingTable(meshes, true);
 
 //    OptixStackSizes stack_sizes = {};
 //    OPTIX_CHECK( optixUtilAccumulateStackSizes( _raygen_prog_group,    &stack_sizes ) );
@@ -307,20 +332,34 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
 
     _params.handle = scene->root3D()->optixTraversableHandle();
 
-    RayGenSbtRecord rayGenSbtRecord;
-    _rayGenBuffer.download(&rayGenSbtRecord);
-    if (camera->projection() == P_monoPerspective) {
-        OPTIX_CHECK( optixSbtRecordPackHeader(_pinhole_raygen_prog_group, &rayGenSbtRecord ) );
-    } else {
-        OPTIX_CHECK( optixSbtRecordPackHeader(_orthographic_raygen_prog_group, &rayGenSbtRecord ) );
-    }
     SLVec3f eye, u, v, w;
     camera->UVWFrame(eye, u, v, w);
-    rayGenSbtRecord.data.eye = make_float3(eye);
-    rayGenSbtRecord.data.U = make_float3(u);
-    rayGenSbtRecord.data.V = make_float3(v);
-    rayGenSbtRecord.data.W = make_float3(w);
-    _rayGenBuffer.upload(&rayGenSbtRecord);
+    CameraData cameraData{};
+    cameraData.eye = make_float3(eye);
+    cameraData.U = make_float3(u);
+    cameraData.V = make_float3(v);
+    cameraData.W = make_float3(w);
+
+    if (doDistributed()) {
+        RayGenDistributedSbtRecord rayGenSbtRecord;
+        _rayGenDistributedBuffer.download(&rayGenSbtRecord);
+        OPTIX_CHECK( optixSbtRecordPackHeader(_lens_raygen_prog_group, &rayGenSbtRecord ) );
+        rayGenSbtRecord.data.lensDiameter = camera->lensDiameter();
+        rayGenSbtRecord.data.samplesX = camera->lensSamples()->samplesX();
+        rayGenSbtRecord.data.samplesY = camera->lensSamples()->samplesY();
+        rayGenSbtRecord.data.camera = cameraData;
+        _rayGenDistributedBuffer.upload(&rayGenSbtRecord);
+    } else {
+        RayGenClassicSbtRecord rayGenSbtRecord;
+        _rayGenClassicBuffer.download(&rayGenSbtRecord);
+        if (camera->projection() == P_monoPerspective) {
+            OPTIX_CHECK( optixSbtRecordPackHeader(_pinhole_raygen_prog_group, &rayGenSbtRecord ) );
+        } else {
+            OPTIX_CHECK( optixSbtRecordPackHeader(_orthographic_raygen_prog_group, &rayGenSbtRecord ) );
+        }
+        rayGenSbtRecord.data = cameraData;
+        _rayGenClassicBuffer.upload(&rayGenSbtRecord);
+    }
 
     std::vector<Light> lights;
     _lightBuffer.free();
@@ -358,18 +397,17 @@ SLbool SLOptixRaytracer::renderClassic() {
     _renderSec  = 0.0f;   // reset time
 
     initStats(_maxDepth); // init statistics
-    prepareImage();       // Setup image & precalculations
 
     // Measure time
     double t1     = SLApplication::timeS();
     double tStart = t1;
 
     OPTIX_CHECK(optixLaunch(
-            _pinhole_pipeline,
+            _classic_pipeline,
             SLApplication::stream,
             _paramsBuffer.devicePointer(),
             _paramsBuffer.size(),
-            &_sbt,
+            &_sbtClassic,
             _sv->scrW(),
             _sv->scrH(),
             /*depth=*/1));
@@ -382,7 +420,22 @@ SLbool SLOptixRaytracer::renderClassic() {
     return true;
 }
 
+SLbool SLOptixRaytracer::renderDistrib() {
+    OPTIX_CHECK(optixLaunch(
+            _distributed_pipeline,
+            SLApplication::stream,
+            _paramsBuffer.devicePointer(),
+            _paramsBuffer.size(),
+            &_sbtDistributed,
+            _sv->scrW(),
+            _sv->scrH(),
+            /*depth=*/1));
+    CUDA_SYNC_CHECK(SLApplication::stream);
+    return true;
+}
+
 void SLOptixRaytracer::renderImage() {
+    prepareImage();       // Setup image & precalculations
     SLGLTexture::bindActive(0);
 
     CUarray texture_ptr;

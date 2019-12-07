@@ -36,19 +36,20 @@ public:
 
     // ray tracer functions
     SLbool  renderClassic();
-    void renderImage() override;
+    SLbool  renderDistrib();
+    void    renderImage() override;
 
 protected:
     OptixModule _createModule(std::string);
     OptixProgramGroup _createProgram(OptixProgramGroupDesc);
     OptixPipeline _createPipeline(OptixProgramGroup *, unsigned int);
-    OptixShaderBindingTable _createShaderBindingTable(const SLVMesh&);
-
+    OptixShaderBindingTable _createShaderBindingTable(const SLVMesh&, const bool);
     SLCudaBuffer<uchar4>            _imageBuffer = SLCudaBuffer<uchar4>();
     SLCudaBuffer<float3>            _debugBuffer = SLCudaBuffer<float3>();
     SLCudaBuffer<Params>            _paramsBuffer = SLCudaBuffer<Params>();
     SLCudaBuffer<Light>             _lightBuffer = SLCudaBuffer<Light>();
-    SLCudaBuffer<RayGenSbtRecord>   _rayGenBuffer = SLCudaBuffer<RayGenSbtRecord>();
+    SLCudaBuffer<RayGenClassicSbtRecord>       _rayGenClassicBuffer     = SLCudaBuffer<RayGenClassicSbtRecord>();
+    SLCudaBuffer<RayGenDistributedSbtRecord>   _rayGenDistributedBuffer = SLCudaBuffer<RayGenDistributedSbtRecord>();
     SLCudaBuffer<MissSbtRecord>     _missBuffer = SLCudaBuffer<MissSbtRecord>();
     SLCudaBuffer<HitSbtRecord>      _hitBuffer = SLCudaBuffer<HitSbtRecord>();
 
@@ -56,16 +57,19 @@ protected:
     OptixModule                 _shadingModule{};
     OptixModuleCompileOptions   _module_compile_options{};
     OptixPipelineCompileOptions _pipeline_compile_options{};
-    OptixPipeline               _pinhole_pipeline{};
+    OptixPipeline               _classic_pipeline{};
+    OptixPipeline               _distributed_pipeline{};
 
     OptixProgramGroup           _pinhole_raygen_prog_group{};
+    OptixProgramGroup           _lens_raygen_prog_group{};
     OptixProgramGroup           _orthographic_raygen_prog_group{};
     OptixProgramGroup           _radiance_miss_group{};
     OptixProgramGroup           _occlusion_miss_group{};
     OptixProgramGroup           _radiance_hit_group{};
     OptixProgramGroup           _occlusion_hit_group{};
 
-    OptixShaderBindingTable     _sbt{};
+    OptixShaderBindingTable     _sbtClassic{};
+    OptixShaderBindingTable     _sbtDistributed{};
     OptixTraversableHandle      _handle{};
     Params                      _params{};
 };

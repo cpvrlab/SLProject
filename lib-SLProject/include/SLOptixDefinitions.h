@@ -69,6 +69,14 @@ struct CameraData
     float3       W;
 };
 
+struct LensCameraData
+{
+    CameraData camera;
+    unsigned int samplesX;
+    unsigned int samplesY;
+    float lensDiameter;
+};
+
 struct MissData
 {
     float4 bg_color;
@@ -92,8 +100,9 @@ struct SbtRecord
     T data;
 };
 
-typedef SbtRecord<CameraData>   RayGenSbtRecord;
-typedef SbtRecord<MissData>     MissSbtRecord;
-typedef SbtRecord<HitData>      HitSbtRecord;
+typedef SbtRecord<CameraData>       RayGenClassicSbtRecord;
+typedef SbtRecord<LensCameraData>   RayGenDistributedSbtRecord;
+typedef SbtRecord<MissData>         MissSbtRecord;
+typedef SbtRecord<HitData>          HitSbtRecord;
 
 #endif //SLPROJECT_SLOPTIXDEFINITIONS_H

@@ -1408,6 +1408,70 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
         }
+        else if (rType == RT_optix_rt) {
+            if (ImGui::BeginMenu("RT"))
+            {
+                SLOptixRaytracer* rt_optix = sv->optixRaytracer();
+
+                if (ImGui::MenuItem("Parallel distributed", nullptr, rt_optix->doDistributed()))
+                {
+                    rt_optix->doDistributed(!rt_optix->doDistributed());
+                    sv->startOptixRaytracing(rt_optix->maxDepth());
+                }
+
+//                if (ImGui::MenuItem("Fresnel Reflection", nullptr, rt->doFresnel()))
+//                {
+//                    rt->doFresnel(!rt->doFresnel());
+//                    sv->startRaytracing(rt->maxDepth());
+//                }
+
+                if (ImGui::BeginMenu("Max. Depth"))
+                {
+                    if (ImGui::MenuItem("1", nullptr, rt_optix->maxDepth() == 1))
+                        sv->startOptixRaytracing(1);
+                    if (ImGui::MenuItem("2", nullptr, rt_optix->maxDepth() == 2))
+                        sv->startOptixRaytracing(2);
+                    if (ImGui::MenuItem("3", nullptr, rt_optix->maxDepth() == 3))
+                        sv->startOptixRaytracing(3);
+                    if (ImGui::MenuItem("5", nullptr, rt_optix->maxDepth() == 5))
+                        sv->startOptixRaytracing(5);
+                    if (ImGui::MenuItem("Max. Contribution", nullptr, rt_optix->maxDepth() == 0))
+                        sv->startOptixRaytracing(0);
+
+                    ImGui::EndMenu();
+                }
+
+//                if (ImGui::BeginMenu("Anti-Aliasing Samples"))
+//                {
+//                    if (ImGui::MenuItem("Off", nullptr, rt->aaSamples() == 1))
+//                        rt->aaSamples(1);
+//                    if (ImGui::MenuItem("3x3", nullptr, rt->aaSamples() == 3))
+//                        rt->aaSamples(3);
+//                    if (ImGui::MenuItem("5x5", nullptr, rt->aaSamples() == 5))
+//                        rt->aaSamples(5);
+//                    if (ImGui::MenuItem("7x7", nullptr, rt->aaSamples() == 7))
+//                        rt->aaSamples(7);
+//                    if (ImGui::MenuItem("9x9", nullptr, rt->aaSamples() == 9))
+//                        rt->aaSamples(9);
+//
+//                    ImGui::EndMenu();
+//                }
+
+//                if (ImGui::MenuItem("Save Rendered Image"))
+//                    rt->saveImage();
+
+//                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
+//                SLfloat gamma = rt->gamma();
+//                if (ImGui::SliderFloat("Gamma", &gamma, 0.1f, 3.0f, "%.1f"))
+//                {
+//                    rt->gamma(gamma);
+//                    sv->startRaytracing(5);
+//                }
+//                ImGui::PopItemWidth();
+
+                ImGui::EndMenu();
+            }
+        }
         else if (rType == RT_pt)
         {
             if (ImGui::BeginMenu("PT"))
