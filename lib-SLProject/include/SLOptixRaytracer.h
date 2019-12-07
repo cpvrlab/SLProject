@@ -56,9 +56,10 @@ protected:
     OptixModule                 _shadingModule{};
     OptixModuleCompileOptions   _module_compile_options{};
     OptixPipelineCompileOptions _pipeline_compile_options{};
-    OptixPipeline               _pipeline{};
+    OptixPipeline               _pinhole_pipeline{};
 
-    OptixProgramGroup           _raygen_prog_group{};
+    OptixProgramGroup           _pinhole_raygen_prog_group{};
+    OptixProgramGroup           _orthographic_raygen_prog_group{};
     OptixProgramGroup           _radiance_miss_group{};
     OptixProgramGroup           _occlusion_miss_group{};
     OptixProgramGroup           _radiance_hit_group{};

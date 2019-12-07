@@ -35,12 +35,12 @@ SLOptixRaytracer::~SLOptixRaytracer()
 {
     SL_LOG("Destructor      : ~SLOptixRaytracer\n");
 
-    OPTIX_CHECK( optixPipelineDestroy( _pipeline ) );
+    OPTIX_CHECK( optixPipelineDestroy(_pinhole_pipeline ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _radiance_hit_group ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_hit_group ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _radiance_miss_group ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_miss_group ) );
-    OPTIX_CHECK( optixProgramGroupDestroy( _raygen_prog_group ) );
+    OPTIX_CHECK( optixProgramGroupDestroy(_pinhole_raygen_prog_group ) );
     OPTIX_CHECK( optixModuleDestroy( _cameraModule ) );
     OPTIX_CHECK( optixModuleDestroy( _shadingModule ) );
 
@@ -71,14 +71,20 @@ void SLOptixRaytracer::setupOptix() {
     _pipeline_compile_options.numAttributeValues    = 2;
     _pipeline_compile_options.pipelineLaunchParamsVariableName = "params";
 
-    _cameraModule = _createModule("SLOptixRaytracerCamera.cu");
-    _shadingModule = _createModule("SLOptixRaytracerShading.cu");
+    _cameraModule   = _createModule("SLOptixRaytracerCamera.cu");
+    _shadingModule  = _createModule("SLOptixRaytracerShading.cu");
 
-    OptixProgramGroupDesc raygen_prog_group_desc  = {};
-    raygen_prog_group_desc.kind                                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
-    raygen_prog_group_desc.raygen.module                            = _cameraModule;
-    raygen_prog_group_desc.raygen.entryFunctionName                 = "__raygen__pinhole_camera";
-    _raygen_prog_group = _createProgram(raygen_prog_group_desc);
+    OptixProgramGroupDesc pinhole_raygen_prog_group_desc  = {};
+    pinhole_raygen_prog_group_desc.kind                                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+    pinhole_raygen_prog_group_desc.raygen.module                            = _cameraModule;
+    pinhole_raygen_prog_group_desc.raygen.entryFunctionName                 = "__raygen__pinhole_camera";
+    _pinhole_raygen_prog_group = _createProgram(pinhole_raygen_prog_group_desc);
+
+    OptixProgramGroupDesc orthographic_raygen_prog_group_desc  = {};
+    orthographic_raygen_prog_group_desc.kind                                = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+    orthographic_raygen_prog_group_desc.raygen.module                       = _cameraModule;
+    orthographic_raygen_prog_group_desc.raygen.entryFunctionName            = "__raygen__orthographic_camera";
+    _orthographic_raygen_prog_group = _createProgram(orthographic_raygen_prog_group_desc);
 
     OptixProgramGroupDesc radiance_miss_prog_group_desc = {};
     radiance_miss_prog_group_desc.kind                              = OPTIX_PROGRAM_GROUP_KIND_MISS;
@@ -108,14 +114,14 @@ void SLOptixRaytracer::setupOptix() {
     occlusion_hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH  = nullptr;
     _occlusion_hit_group = _createProgram(occlusion_hitgroup_prog_group_desc);
 
-    OptixProgramGroup program_groups[] = {
-            _raygen_prog_group,
+    OptixProgramGroup pinhole_program_groups[] = {
+            _orthographic_raygen_prog_group,
             _radiance_miss_group,
             _occlusion_miss_group,
             _radiance_hit_group,
             _occlusion_hit_group,
     };
-    _pipeline = _createPipeline(program_groups, 5);
+    _pinhole_pipeline       = _createPipeline(pinhole_program_groups, 5);
 
     _paramsBuffer.alloc(sizeof(Params));
 }
@@ -199,7 +205,6 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMes
     {
         // Setup ray generation records
         RayGenSbtRecord rg_sbt;
-        OPTIX_CHECK( optixSbtRecordPackHeader( _raygen_prog_group, &rg_sbt ) );
         _rayGenBuffer.alloc_and_upload(&rg_sbt, 1);
 
         // Setup miss records
@@ -304,6 +309,11 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
 
     RayGenSbtRecord rayGenSbtRecord;
     _rayGenBuffer.download(&rayGenSbtRecord);
+    if (camera->projection() == P_monoPerspective) {
+        OPTIX_CHECK( optixSbtRecordPackHeader(_pinhole_raygen_prog_group, &rayGenSbtRecord ) );
+    } else {
+        OPTIX_CHECK( optixSbtRecordPackHeader(_orthographic_raygen_prog_group, &rayGenSbtRecord ) );
+    }
     SLVec3f eye, u, v, w;
     camera->UVWFrame(eye, u, v, w);
     rayGenSbtRecord.data.eye = make_float3(eye);
@@ -355,7 +365,7 @@ SLbool SLOptixRaytracer::renderClassic() {
     double tStart = t1;
 
     OPTIX_CHECK(optixLaunch(
-            _pipeline,
+            _pinhole_pipeline,
             SLApplication::stream,
             _paramsBuffer.devicePointer(),
             _paramsBuffer.size(),

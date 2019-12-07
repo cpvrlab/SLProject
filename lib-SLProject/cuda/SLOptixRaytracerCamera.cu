@@ -27,3 +27,20 @@ extern "C" __global__ void __raygen__pinhole_camera()
 
     params.image[idx.y * params.width + idx.x] = make_color( tracePrimaryRay(params.handle, origin, direction) );
 }
+
+extern "C" __global__ void __raygen__orthographic_camera()
+{
+    const uint3 idx = optixGetLaunchIndex();
+    const uint3 dim = optixGetLaunchDimensions();
+
+    const CameraData* rtData = (CameraData*)optixGetSbtDataPointer();
+    const float2      d = 2.0f * make_float2(
+            static_cast<float>( idx.x ) / static_cast<float>( dim.x ),
+            static_cast<float>( idx.y ) / static_cast<float>( dim.y )
+    ) - 1.0f;
+
+    const float3 origin     = d.x * rtData->U + d.y * rtData->V + rtData->eye;;
+    const float3 direction  = normalize(rtData->W);
+
+    params.image[idx.y * params.width + idx.x] = make_color( tracePrimaryRay(params.handle, origin, direction) );
+}
