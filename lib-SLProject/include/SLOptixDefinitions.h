@@ -9,6 +9,12 @@
 #include <optix_types.h>
 #include <cuda.h>
 
+struct Samples
+{
+    unsigned int samplesX;
+    unsigned int samplesY;
+};
+
 struct Material
 {
     float4  diffuse_color;
@@ -34,6 +40,8 @@ struct Light
     float   kc;
     float   kl;
     float   kq;
+    Samples samples;
+    float   radius;
 };
 
 struct Params
@@ -72,8 +80,7 @@ struct CameraData
 struct LensCameraData
 {
     CameraData camera;
-    unsigned int samplesX;
-    unsigned int samplesY;
+    Samples samples;
     float lensDiameter;
 };
 

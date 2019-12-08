@@ -1,5 +1,6 @@
 #include <SLOptixRaytracerHelper.h>
 #include <SLOptixDefinitions.h>
+#include <math_functions.h>
 
 extern "C" {
 __constant__ Params params;
@@ -98,7 +99,34 @@ extern "C" __global__ void __closesthit__radiance() {
 
             if ( nDl > 0.0f)
             {
-                float lighted = traceShadowRay(params.handle, P, L, Ldist);
+                float radius = light.radius;
+                float lighted = 0.0f;
+                unsigned int samples = 0;
+
+                float3 lightDiscX = cross(L, make_float3(0, 1, 1));
+                float3 lightDiscY = cross(L, lightDiscX);
+
+                for (unsigned int r = 1; r <= light.samples.samplesX; r++) {
+                    bool same = true;
+                    float previousSample = -100.0f;
+                    for (unsigned int q = 1; q <= light.samples.samplesY; q++) {
+                        const float phi = (2.0f / light.samples.samplesY) * q;
+                        const float3 discPoint      = light.position +
+                                                   (normalize(lightDiscX) * cospif(phi) * ((radius / light.samples.samplesX) * r)) +
+                                                   (normalize(lightDiscY) * sinpif(phi) * ((radius / light.samples.samplesX) * r));
+                        const float3 direction   = normalize(discPoint - P);
+                        const float discDist = length(discPoint - P);
+
+                        samples++;
+                        float sampleLighted = traceShadowRay(params.handle, P, direction, discDist);
+                        same = previousSample == -100.0f || previousSample == sampleLighted;
+                        lighted += sampleLighted;
+                    }
+                    if (same) {
+                        break;
+                    }
+                }
+                lighted = lighted / samples;
 
                 // Phong shading
                 if (lighted > 0) {

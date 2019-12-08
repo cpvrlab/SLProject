@@ -227,6 +227,7 @@ void SLGLTexture::clearData()
 
     if (_cudaGraphicsResource) {
         CUDA_CHECK( cuGraphicsUnregisterResource(_cudaGraphicsResource) );
+        _cudaGraphicsResource = nullptr;
     }
 }
 //-----------------------------------------------------------------------------
@@ -340,9 +341,6 @@ void SLGLTexture::build(SLint texID)
         glBindTexture(_target, 0);
         _texName = 0;
         numBytesInTextures -= _bytesOnGPU;
-        if (_cudaGraphicsResource) {
-            CUDA_CHECK( cuGraphicsUnregisterResource(_cudaGraphicsResource) );
-        }
     }
 
     // get max texture size

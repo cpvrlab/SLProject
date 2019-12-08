@@ -45,12 +45,12 @@ extern "C" __global__ void __raygen__lens_camera()
     float radius = rtData->lensDiameter / 2.0f;
     float4 color = make_float4(0.0f);
 
-    for (unsigned int r = 1; r <= rtData->samplesX; r++) {
-        for (unsigned int q = 1; q <= rtData->samplesY; q++) {
-            const float phi = (2.0f / rtData->samplesY) * q;
+    for (unsigned int r = 1; r <= rtData->samples.samplesX; r++) {
+        for (unsigned int q = 1; q <= rtData->samples.samplesY; q++) {
+            const float phi = (2.0f / rtData->samples.samplesY) * q;
             const float3 origin      = rtData->camera.eye +
-                    (normalize(rtData->camera.U) * cospif(phi) * ((radius / rtData->samplesX) * r)) +
-                    (normalize(rtData->camera.V) * sinpif(phi) * ((radius / rtData->samplesX) * r));
+                    (normalize(rtData->camera.U) * cospif(phi) * ((radius / rtData->samples.samplesX) * r)) +
+                    (normalize(rtData->camera.V) * sinpif(phi) * ((radius / rtData->samples.samplesX) * r));
             const float3 direction   = normalize(pixel_pos - origin);
 
             color += tracePrimaryRay(params.handle, origin, direction);
@@ -58,7 +58,7 @@ extern "C" __global__ void __raygen__lens_camera()
     }
 
 
-    params.image[idx.y * params.width + idx.x] = make_color( color / (rtData->samplesX * rtData->samplesY) );
+    params.image[idx.y * params.width + idx.x] = make_color( color / (rtData->samples.samplesX * rtData->samples.samplesY) );
 }
 
 

@@ -810,6 +810,9 @@ void SLRaytracer::prepareImage()
         // Delete the OpenGL Texture if it already exists
         if (_texName)
         {
+            if (_cudaGraphicsResource) {
+                CUDA_CHECK( cuGraphicsUnregisterResource(_cudaGraphicsResource) );
+            }
             glDeleteTextures(1, &_texName);
             _texName = 0;
         }

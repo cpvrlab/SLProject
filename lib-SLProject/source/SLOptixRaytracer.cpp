@@ -345,8 +345,8 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
         _rayGenDistributedBuffer.download(&rayGenSbtRecord);
         OPTIX_CHECK( optixSbtRecordPackHeader(_lens_raygen_prog_group, &rayGenSbtRecord ) );
         rayGenSbtRecord.data.lensDiameter = camera->lensDiameter();
-        rayGenSbtRecord.data.samplesX = camera->lensSamples()->samplesX();
-        rayGenSbtRecord.data.samplesY = camera->lensSamples()->samplesY();
+        rayGenSbtRecord.data.samples.samplesX = camera->lensSamples()->samplesX();
+        rayGenSbtRecord.data.samples.samplesY = camera->lensSamples()->samplesY();
         rayGenSbtRecord.data.camera = cameraData;
         _rayGenDistributedBuffer.upload(&rayGenSbtRecord);
     } else {
@@ -366,20 +366,7 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
     unsigned int light_count = 0;
     for(auto light : scene->lights()) {
         if(light->isOn()) {
-            SLVec3f position = { light->positionWS().x, light->positionWS().y, light->positionWS().z};
-            lights.push_back({
-                                    make_float4(light->diffuse()),
-                                    make_float4(light->ambient()),
-                                    make_float4(light->specular()),
-                                    make_float3(position),
-                                    light->spotCutOffDEG(),
-                                    light->spotExponent(),
-                                    light->spotCosCut(),
-                                    make_float3(light->spotDirWS()),
-                                    light->kc(),
-                                    light->kl(),
-                                    light->kq()
-            });
+            lights.push_back(light->optixLight(doDistributed()));
             light_count++;
         }
     }
