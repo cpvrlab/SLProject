@@ -2729,7 +2729,7 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile,
             mp->SetBadFlag();
         }
     }
-
+#if 1
     for (int i = 0; i < kfs.size(); i++)
     {
         WAIKeyFrame* kf = kfs[i];
@@ -2754,6 +2754,76 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile,
         }
     }
 
+#else
+
+    // Cull redundant keyframes
+    float cullRedundantPerc = 0.95f; //TODO(dgj1): make parametrizable
+    for (int i = 0; i < kfs.size(); i++)
+    {
+        WAIKeyFrame* kf = kfs[i];
+
+        vector<WAIKeyFrame*> vpLocalKeyFrames = kf->GetVectorCovisibleKeyFrames();
+
+        for (vector<WAIKeyFrame*>::iterator vit = vpLocalKeyFrames.begin(), vend = vpLocalKeyFrames.end(); vit != vend; vit++)
+        {
+            WAIKeyFrame* pKF = *vit;
+            //do not cull the first keyframe
+            if (pKF->mnId == 0)
+                continue;
+            //do not cull fixed keyframes
+            if (pKF->isFixed())
+                continue;
+
+            const vector<WAIMapPoint*> vpMapPoints = pKF->GetMapPointMatches();
+
+            const int thObs                  = 3;
+            int       nRedundantObservations = 0;
+            int       nMPs                   = 0;
+            for (size_t i = 0, iend = vpMapPoints.size(); i < iend; i++)
+            {
+                WAIMapPoint* pMP = vpMapPoints[i];
+                if (pMP)
+                {
+                    if (!pMP->isBad())
+                    {
+                        nMPs++;
+                        if (pMP->Observations() > thObs)
+                        {
+                            const int&                           scaleLevel   = pKF->mvKeysUn[i].octave;
+                            const std::map<WAIKeyFrame*, size_t> observations = pMP->GetObservations();
+                            int                                  nObs         = 0;
+                            for (std::map<WAIKeyFrame*, size_t>::const_iterator mit = observations.begin(), mend = observations.end(); mit != mend; mit++)
+                            {
+                                WAIKeyFrame* pKFi = mit->first;
+                                if (pKFi == pKF)
+                                    continue;
+                                const int& scaleLeveli = pKFi->mvKeysUn[mit->second].octave;
+
+                                if (scaleLeveli <= scaleLevel + 1)
+                                {
+                                    nObs++;
+                                    if (nObs >= thObs)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                            if (nObs >= thObs)
+                            {
+                                nRedundantObservations++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (nMPs == 0 || nRedundantObservations > cullRedundantPerc * nMPs)
+            {
+                pKF->SetBadFlag();
+            }
+        }
+    }
+#endif
     cv::Mat systemNorm               = cv::Mat::zeros(3, 3, CV_32F);
     systemNorm.rowRange(0, 3).col(0) = system.rowRange(0, 3).col(1) / cv::norm(AB);
     systemNorm.rowRange(0, 3).col(1) = system.rowRange(0, 3).col(0) / cv::norm(AC);

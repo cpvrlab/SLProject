@@ -51,7 +51,7 @@ void AppWAIScene::rebuild()
     boxNode3->translate(2.561f, -5.147f, -0.06f);
 #endif
 
-#if 1 // augst temple hill
+#if 0 // augst temple hill
     SLBox*  box1     = new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "TempleBox", yellow);
     SLNode* boxNode1 = new SLNode(box1, "Temple");
     boxNode1->translate(26.04f, -14.77f, 6.93f);
@@ -66,7 +66,7 @@ void AppWAIScene::rebuild()
     SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
 #endif
 
-#if 0
+#if 0 // locsim scene
     SLBox*  box2     = new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "Box 2", yellow);
     SLNode* boxNode2 = new SLNode(box2, "boxNode2");
     boxNode2->translation(79.7f, -3.26f, 2.88f);
@@ -89,6 +89,19 @@ void AppWAIScene::rebuild()
     boxNode4->rotate(-0.19f, SLVec3f(1.0f, 0.0f, 0.0f), TS_parent);
     boxNode4->rotate(9.91f, SLVec3f(0.0f, 1.0f, 0.0f), TS_parent);
     boxNode4->rotate(-0.95f, SLVec3f(0.0f, 0.0f, 1.0f), TS_parent);
+#endif
+
+#if 1
+    SLBox*  box1     = new SLBox(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, "Box 1", yellow);
+    SLNode* boxNode1 = new SLNode(box1, "boxNode1");
+    boxNode1->translation(0.07f, 0.25f, 0.74f);
+    boxNode1->scale(0.355f, 0.1f, 0.08f);
+    //boxNode1->translate(1.0f, 0.0f, 8.0f);
+
+    /*SLBox*  box2     = new SLBox(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, "MarkerBox", yellow);
+    SLNode* boxNode2 = new SLNode(box2, "boxNode2");
+    boxNode2->scale(0.75f, 0.42f, 0.1f);
+    SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");*/
 #endif
 
     //boxNode->addChild(axisNode);
@@ -125,8 +138,8 @@ void AppWAIScene::rebuild()
     //setup scene
     rootNode->addChild(light1);
     rootNode->addChild(boxNode1);
-    rootNode->addChild(axisNode);
-    rootNode->addChild(boxNode2);
+    //rootNode->addChild(axisNode);
+    //rootNode->addChild(boxNode2);
     //rootNode->addChild(boxNode3);
     //rootNode->addChild(boxNode4);
     rootNode->addChild(mapNode);

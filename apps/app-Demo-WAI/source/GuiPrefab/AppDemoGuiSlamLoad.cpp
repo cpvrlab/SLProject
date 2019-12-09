@@ -192,7 +192,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 if (!_currentMarker.empty())
                 {
                     cv::Mat nodeTransform;
-                    if (!WAIApp::mode->doMarkerMapPreprocessing(constructSlamMarkerDir(_slamRootDir, _currentLocation, _currentArea) + _currentMarker, nodeTransform, 0.75f))
+                    if (!WAIApp::mode->doMarkerMapPreprocessing(constructSlamMarkerDir(_slamRootDir, _currentLocation, _currentArea) + _currentMarker, nodeTransform, 0.355f))
                     {
                         WAIApp::errorDial->setErrorMsg("Failed to do marker map preprocessing");
                         WAIApp::uiPrefs.showError = true;

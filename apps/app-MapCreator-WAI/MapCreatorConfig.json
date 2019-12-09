@@ -25,7 +25,8 @@
 				{ "area": "jakobRosius", "enabled": false },
 				{ "area": "leubringenbahn", "enabled": false },
 				{ "area": "ring", "enabled": false },
-				{ "area": "southWall", "enabled": false }
+				{ "area": "southWall", "enabled": false },
+				{ "area": "citymap-marker", "enabled": true, "marker": "20191119-084002_ASUSAR-1.jpg" }
 			]
 		}
 	],
@@ -175,6 +176,13 @@
 				"20191001-164748_rainy_ASUSAR-1_relocalization_640x360.mp4",
 				"20191001-164844_rainy_ASUSAR-1_relocalization_640x360.mp4",
 				"20191001-165120_rainy_NOKIA6-1_relocalization_640x360.mp4"
+			]
+		},
+		{
+			"location": "biel",
+			"area": "citymap-marker",
+			"videos": [
+				"20191119-084036_sunny_ASUSAR-1_markerMap_640x360.mp4"
 			]
 		}
 	]

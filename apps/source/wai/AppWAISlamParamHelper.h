@@ -53,7 +53,7 @@ static std::string constructSlamMapIdentifierString(std::string location,
         dateTime = Utils::getDateTime2String();
     }
 
-    std::string result = "DEVELOPMENT-map_" + dateTime + "_" + location + "_" + Utils::getFileNameWOExt(area);
+    std::string result = "DEVELOPMENT-map_" + dateTime + "_" + location + "_" + area + "_" + extractorType;
 
     return result;
 }
@@ -129,7 +129,7 @@ static std::string constructSlamMapFileName(std::string location,
                                             std::string extractorType,
                                             std::string dateTime = "")
 {
-    std::string result = constructSlamMapIdentifierString(location, area, dateTime) + ".json";
+    std::string result = constructSlamMapIdentifierString(location, area, extractorType, dateTime) + ".json";
 
     return result;
 }
