@@ -39,24 +39,25 @@
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
-static GLFWwindow* window;                     //!< The global glfw window handle
-static SLint       svIndex;                    //!< SceneView index
-static SLint       scrWidth;                   //!< Window width at start up
-static SLint       scrHeight;                  //!< Window height at start up
-static SLbool      fixAspectRatio;             //!< Flag if aspect ratio should be fixed
-static SLfloat     scr2fbX;                    //!< Factor from screen to framebuffer coords
-static SLfloat     scr2fbY;                    //!< Factor from screen to framebuffer coords
-static SLint       startX;                     //!< start position x in pixels
-static SLint       startY;                     //!< start position y in pixels
-static SLint       mouseX;                     //!< Last mouse position x in pixels
-static SLint       mouseY;                     //!< Last mouse position y in pixels
-static SLVec2i     touch2;                     //!< Last finger touch 2 position in pixels
-static SLVec2i     touchDelta;                 //!< Delta between two fingers in x
-static SLint       lastWidth;                  //!< Last window width in pixels
-static SLint       lastHeight;                 //!< Last window height in pixels
-static SLfloat     lastMouseDownTime = 0.0f;   //!< Last mouse press time
-static SLKey       modifiers         = K_none; //!< last modifier keys
-static SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mode
+static GLFWwindow* window;                                         //!< The global glfw window handle
+static SLint       svIndex;                                        //!< SceneView index
+static SLint       scrWidth  = 640;                                //!< Window width at start up
+static SLint       scrHeight = 480;                                //!< Window height at start up
+static SLfloat     scrWdivH  = (float)scrWidth / (float)scrHeight; //!< aspect ratio screen width divided by height
+static SLbool      fixAspectRatio;                                 //!< Flag if aspect ratio should be fixed
+static SLfloat     scr2fbX;                                        //!< Factor from screen to framebuffer coords
+static SLfloat     scr2fbY;                                        //!< Factor from screen to framebuffer coords
+static SLint       startX;                                         //!< start position x in pixels
+static SLint       startY;                                         //!< start position y in pixels
+static SLint       mouseX;                                         //!< Last mouse position x in pixels
+static SLint       mouseY;                                         //!< Last mouse position y in pixels
+static SLVec2i     touch2;                                         //!< Last finger touch 2 position in pixels
+static SLVec2i     touchDelta;                                     //!< Delta between two fingers in x
+static SLint       lastWidth;                                      //!< Last window width in pixels
+static SLint       lastHeight;                                     //!< Last window height in pixels
+static SLfloat     lastMouseDownTime = 0.0f;                       //!< Last mouse press time
+static SLKey       modifiers         = K_none;                     //!< last modifier keys
+static SLbool      fullscreen        = false;                      //!< flag if window is in fullscreen mode
 static int         dpi;
 
 //-----------------------------------------------------------------------------
@@ -138,15 +139,15 @@ void onResize(GLFWwindow* window, int width, int height)
     if (fixAspectRatio)
     {
         //correct target width and height
-        if (height * WAIApp::scrWdivH <= width)
+        if (height * scrWdivH <= width)
         {
-            width  = (int)(height * WAIApp::scrWdivH);
-            height = (int)(width / WAIApp::scrWdivH);
+            width  = (int)(height * scrWdivH);
+            height = (int)(width / scrWdivH);
         }
         else
         {
-            height = (int)(width / WAIApp::scrWdivH);
-            width  = (int)(height * WAIApp::scrWdivH);
+            height = (int)(width / scrWdivH);
+            width  = (int)(height * scrWdivH);
         }
     }
 
@@ -463,11 +464,8 @@ void GLFWInit()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    scrWidth  = 640;
-    scrHeight = 480;
-
     //we have to fix aspect ratio, because the video image is initialized with this ratio
-    fixAspectRatio = true;
+    fixAspectRatio = false;
 
     touch2.set(-1, -1);
     touchDelta.set(-1, -1);
@@ -547,25 +545,17 @@ int main(int argc, char* argv[])
     dirs.slDataRoot  = SLstring(SL_PROJECT_ROOT) + "/data";
     dirs.writableDir = Utils::getAppsWritableDir();
 
-    svIndex = WAIApp::load(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, &dirs);
+    svIndex = WAIApp::load(640, 480, scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, &dirs);
 
     HighResTimer hrt;
 
     // Event loop
     while (!slShouldClose())
     {
-        // if video aspect ratio changed, change window size
-        float videoWdivH = (float)WAIApp::videoFrameSize.width / (float)WAIApp::videoFrameSize.height;
-        if (abs(WAIApp::scrWdivH - videoWdivH) > 0.01f)
+        if (WAIApp::resizeWindow)
         {
-            int w, h;
-            glfwGetWindowSize(window, &w, &h);
-
-            float s          = (float)w / (float)WAIApp::videoFrameSize.width;
-            h                = WAIApp::videoFrameSize.height * s;
-            WAIApp::scrWdivH = (float)w / (float)h;
-
-            onResize(window, w, h);
+            onResize(window, scrWidth, scrHeight);
+            WAIApp::resizeWindow = false;
         }
 
         WAIApp::update();

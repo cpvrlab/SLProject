@@ -27,27 +27,24 @@ using namespace cv;
 using namespace std;
 //-----------------------------------------------------------------------------
 off64_t ftpUploadSizeMax = 0;
-//-----------------------------------------------------------------------------
-//! Calibration Upload callback for progress feedback
-int ftpCallbackUpload(off64_t xfered, void* arg)
-{
-    if (ftpUploadSizeMax)
-    {
-        int xferedPC = (int)((float)xfered / (float)ftpUploadSizeMax * 100.0f);
-        cout << "Bytes saved: " << xfered << " (" << xferedPC << ")" << endl;
-        //SLApplication::jobProgressNum(xferedPC);
-    }
-    else
-    {
-        cout << "Bytes saved: " << xfered << endl;
-    }
-    return xfered ? 1 : 0;
-}
 
 //-----------------------------------------------------------------------------
-//! Default path for calibration files
-//! Is overwritten in slCreateAppAndScene.
-string CVCalibration::calibIniPath;
+//! Calibration Upload callback for progress feedback
+//int ftpCallbackUpload(off64_t xfered, void* arg)
+//{
+//    if (ftpUploadSizeMax)
+//    {
+//        int xferedPC = (int)((float)xfered / (float)ftpUploadSizeMax * 100.0f);
+//        cout << "Bytes saved: " << xfered << " (" << xferedPC << ")" << endl;
+//        //SLApplication::jobProgressNum(xferedPC);
+//    }
+//    else
+//    {
+//        cout << "Bytes saved: " << xfered << endl;
+//    }
+//    return xfered ? 1 : 0;
+//}
+
 //-----------------------------------------------------------------------------
 //! FTP credentials for calibration up- and download
 const string CVCalibration::_FTP_HOST = "pallas.bfh.ch:21";
@@ -59,60 +56,108 @@ const string CVCalibration::_FTP_DIR  = "calibrations";
 // Version 6, Date: 6.JUL.2019: Added device parameter from Android
 const int CVCalibration::_CALIBFILEVERSION = 6;
 //-----------------------------------------------------------------------------
-CVCalibration::CVCalibration()
+CVCalibration::CVCalibration(CVCameraType type)
   : _state(CS_uncalibrated),
     _cameraFovHDeg(0.0f),
     _cameraFovVDeg(0.0f),
     _calibFileName(""), // is set in load
-    _calibParamsFileName("calib_in_params.yml"),
-    _calibFixPrincipalPoint(false),
-    _calibFixAspectRatio(false),
-    _calibZeroTangentDist(false),
-    _calibRationalModel(false),
-    _calibTiltedModel(false),
-    _calibThinPrismModel(false),
     _boardSize(0, 0),
     _boardSquareMM(0.0f),
-    _numOfImgsToCapture(0),
     _numCaptured(0),
     _reprojectionError(-1.0f),
     _camSizeIndex(-1),
-    _showUndistorted(false),
     _calibrationTime("-"),
-    _devFocalLength(0.0f),
-    _devSensorSizeW(0.0f),
-    _devSensorSizeH(0.0f),
     _isMirroredH(false),
-    _isMirroredV(false)
+    _isMirroredV(false),
+    _camType(type)
 {
+    _computerInfos = SLApplication::getComputerInfos();
 }
 //-----------------------------------------------------------------------------
-//! Resets the calibration to the uncalibrated state
-void CVCalibration::clear()
+//creates a fully defined calibration
+CVCalibration::CVCalibration(cv::Mat            cameraMat,
+                             cv::Mat            distortion,
+                             cv::Size           imageSize,
+                             cv::Size           boardSize,
+                             float              boardSquareMM,
+                             float              reprojectionError,
+                             int                numCaptured,
+                             const std::string& calibrationTime,
+                             int                camSizeIndex,
+                             bool               mirroredH,
+                             bool               mirroredV,
+                             CVCameraType       camType)
+  : _cameraMat(cameraMat.clone()),
+    _distortion(distortion.clone()),
+    _imageSize(imageSize),
+    _boardSize(boardSize),
+    _boardSquareMM(boardSquareMM),
+    _reprojectionError(reprojectionError),
+    _numCaptured(numCaptured),
+    _calibrationTime(calibrationTime),
+    _camSizeIndex(camSizeIndex),
+    _isMirroredH(mirroredH),
+    _isMirroredV(mirroredV),
+    _camType(camType)
 {
-    _numCaptured       = 0;
-    _reprojectionError = -1.0f;
-    _imagePoints.clear();
-    _cameraFovHDeg   = 0.0f;
-    _cameraFovVDeg   = 0.0f;
-    _calibrationTime = "-";
-    _undistortMapX.release();
-    _undistortMapY.release();
-    _state         = CS_uncalibrated;
+    _cameraMatOrig = _cameraMat.clone();
+    _imageSizeOrig = _imageSize;
+
     _computerInfos = SLApplication::getComputerInfos();
-    _calibrationImgs.clear();
+    calculateUndistortedCameraMat();
+    calcCameraFovFromUndistortedCameraMat();
+    buildUndistortionMaps();
+    _state = CS_calibrated;
+}
+//-----------------------------------------------------------------------------
+//create a guessed calibration using image size and horizontal fov angle
+CVCalibration::CVCalibration(cv::Size     imageSize,
+                             float        fovH,
+                             bool         mirroredH,
+                             bool         mirroredV,
+                             CVCameraType camType)
+  : _isMirroredH(mirroredH),
+    _isMirroredV(mirroredV),
+    _camType(camType)
+{
+    createFromGuessedFOV(imageSize.width, imageSize.height, fovH);
+    _cameraMatOrig = _cameraMat.clone();
+    _imageSizeOrig = _imageSize;
+}
+//-----------------------------------------------------------------------------
+//create a guessed calibration using sensor size, camera focal length and captured image size
+CVCalibration::CVCalibration(float        sensorWMM,
+                             float        sensorHMM,
+                             float        focalLengthMM,
+                             cv::Size     imageSize,
+                             bool         mirroredH,
+                             bool         mirroredV,
+                             CVCameraType camType)
+  : _isMirroredH(mirroredH),
+    _isMirroredV(mirroredV),
+    _camType(camType)
+{
+    // aspect ratio
+    float devFovH = 2.0f * atan(sensorWMM / (2.0f * focalLengthMM)) * Utils::RAD2DEG;
+    if (devFovH > 60.0f && devFovH < 70.0f)
+    {
+        createFromGuessedFOV(imageSize.width, imageSize.height, devFovH);
+    }
+    else
+    {
+        //if not between
+        createFromGuessedFOV(imageSize.width, imageSize.height, 65.0);
+    }
+    _cameraMatOrig = _cameraMat.clone();
+    _imageSizeOrig = _imageSize;
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
 bool CVCalibration::load(const string& calibDir,
-                         const string& calibFileName,
-                         bool          mirrorHorizontally,
-                         bool          mirrorVertically)
+                         const string& calibFileName)
 {
     _calibDir      = Utils::unifySlashes(calibDir);
     _calibFileName = calibFileName;
-    _isMirroredH   = mirrorHorizontally;
-    _isMirroredV   = mirrorVertically;
 
     //load camera parameter
     string fullPathAndFilename = _calibDir + _calibFileName;
@@ -128,8 +173,8 @@ bool CVCalibration::load(const string& calibDir,
         Utils::log("Calibration     : %s\n", calibFileName.c_str());
         Utils::log("Calib. created  : No. Calib. will be estimated\n");
         _numCaptured       = 0;
-        _isMirroredH       = mirrorHorizontally;
-        _isMirroredV       = mirrorVertically;
+        _isMirroredH       = false;
+        _isMirroredV       = false;
         _reprojectionError = 0;
         _calibrationTime   = "-";
         _state             = CS_uncalibrated;
@@ -142,19 +187,11 @@ bool CVCalibration::load(const string& calibDir,
     fs["CALIBFILEVERSION"] >> calibFileVersion;
     if (calibFileVersion < _CALIBFILEVERSION)
     {
-        _numCaptured            = 0;
-        _isMirroredH            = mirrorHorizontally;
-        _isMirroredV            = mirrorVertically;
-        _calibFixAspectRatio    = true;
-        _calibFixPrincipalPoint = true;
-        _calibZeroTangentDist   = true;
-        _calibRationalModel     = false;
-        _calibTiltedModel       = false;
-        _calibThinPrismModel    = false;
-        _reprojectionError      = -1;
-        _calibrationTime        = "-";
-        _state                  = CS_uncalibrated;
-        _camSizeIndex           = -1;
+        _numCaptured       = 0;
+        _reprojectionError = -1;
+        _calibrationTime   = "-";
+        _state             = CS_uncalibrated;
+        _camSizeIndex      = -1;
     }
     else
     {
@@ -163,17 +200,14 @@ bool CVCalibration::load(const string& calibDir,
         fs["numCaptured"] >> _numCaptured;
         fs["isMirroredH"] >> _isMirroredH;
         fs["isMirroredV"] >> _isMirroredV;
-        fs["calibFixAspectRatio"] >> _calibFixAspectRatio;
-        fs["calibFixPrincipalPoint"] >> _calibFixPrincipalPoint;
-        fs["calibZeroTangentDist"] >> _calibZeroTangentDist;
-        fs["calibRationalModel"] >> _calibRationalModel;
-        fs["calibTiltedModel"] >> _calibTiltedModel;
-        fs["calibThinPrismModel"] >> _calibThinPrismModel;
         fs["cameraMat"] >> _cameraMat;
         fs["distortion"] >> _distortion;
         fs["reprojectionError"] >> _reprojectionError;
         fs["calibrationTime"] >> _calibrationTime;
         fs["camSizeIndex"] >> _camSizeIndex;
+        fs["boardSizeWidth"] >> _boardSize.width;
+        fs["boardSizeHeight"] >> _boardSize.height;
+        fs["boardSquareMM"] >> _boardSquareMM;
         _state = _numCaptured ? CS_calibrated : CS_uncalibrated;
     }
 
@@ -194,7 +228,9 @@ bool CVCalibration::load(const string& calibDir,
     //calculate FOV and undistortion maps
     if (_state == CS_calibrated)
     {
-        calcCameraFov();
+        //calcCameraFov();
+        calculateUndistortedCameraMat();
+        calcCameraFovFromUndistortedCameraMat();
         buildUndistortionMaps();
     }
 
@@ -202,17 +238,19 @@ bool CVCalibration::load(const string& calibDir,
     Utils::log("Calib. created : %s\n", _calibrationTime.c_str());
     Utils::log("Camera FOV H/V : %3.1f/%3.1f\n", _cameraFovVDeg, _cameraFovHDeg);
 
+    _cameraMatOrig = _cameraMat.clone();
+    _imageSizeOrig = _imageSize;
+
     return true;
 }
 //-----------------------------------------------------------------------------
 //! Saves the camera calibration parameters to the config file
-void CVCalibration::save(std::string forceSavePath)
+void CVCalibration::save(const string& calibDir,
+                         const string& calibFileName)
 {
-    string fullPathAndFilename;
-    if (forceSavePath.empty())
-        fullPathAndFilename = _calibDir + _calibFileName;
-    else
-        fullPathAndFilename = forceSavePath;
+    _calibDir                       = Utils::unifySlashes(calibDir);
+    _calibFileName                  = calibFileName;
+    std::string fullPathAndFilename = _calibDir + _calibFileName;
 
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 
@@ -245,21 +283,18 @@ void CVCalibration::save(std::string forceSavePath)
     fs << "calibFlags" << _calibFlags;
     fs << "isMirroredH" << _isMirroredH;
     fs << "isMirroredV" << _isMirroredV;
-    fs << "calibFixAspectRatio" << _calibFixAspectRatio;
-    fs << "calibFixPrincipalPoint" << _calibFixPrincipalPoint;
-    fs << "calibZeroTangentDist" << _calibZeroTangentDist;
-    fs << "calibRationalModel" << _calibRationalModel;
-    fs << "calibTiltedModel" << _calibTiltedModel;
-    fs << "calibThinPrismModel" << _calibThinPrismModel;
+    fs << "calibFixAspectRatio" << (_calibFlags & CALIB_FIX_ASPECT_RATIO);
+    fs << "calibFixPrincipalPoint" << (_calibFlags & CALIB_FIX_PRINCIPAL_POINT);
+    fs << "calibZeroTangentDist" << (_calibFlags & CALIB_ZERO_TANGENT_DIST);
+    fs << "calibRationalModel" << (_calibFlags & CALIB_RATIONAL_MODEL);
+    fs << "calibTiltedModel" << (_calibFlags & CALIB_TILTED_MODEL);
+    fs << "calibThinPrismModel" << (_calibFlags & CALIB_THIN_PRISM_MODEL);
     fs << "cameraMat" << _cameraMat;
     fs << "distortion" << _distortion;
     fs << "reprojectionError" << _reprojectionError;
     fs << "cameraFovVDeg" << _cameraFovVDeg;
     fs << "cameraFovHDeg" << _cameraFovHDeg;
     fs << "camSizeIndex" << _camSizeIndex;
-    fs << "DeviceLensFocalLength" << _devFocalLength;
-    fs << "DeviceSensorPhysicalSizeW" << _devSensorSizeW;
-    fs << "DeviceSensorPhysicalSizeH" << _devSensorSizeW;
     fs << "computerInfos" << _computerInfos;
     /*
     SLGLState* stateGL = SLGLState::instance();
@@ -287,379 +322,68 @@ void CVCalibration::save(std::string forceSavePath)
     uploadCalibration(fullPathAndFilename);
 }
 //-----------------------------------------------------------------------------
-//! Loads the chessboard calibration pattern parameters
-bool CVCalibration::loadCalibParams()
+//! get inscribed and circumscribed rectangle
+void getInnerAndOuterRectangles(const cv::Mat&    cameraMatrix,
+                                const cv::Mat&    distCoeffs,
+                                const cv::Mat&    R,
+                                const cv::Mat&    newCameraMatrix,
+                                cv::Size          imgSize,
+                                cv::Rect_<float>& inner,
+                                cv::Rect_<float>& outer)
 {
-    FileStorage fs;
-    string      fullCalibIniFile = calibIniPath + _calibParamsFileName;
-
-    fs.open(fullCalibIniFile, FileStorage::READ);
-    if (!fs.isOpened())
+    const int N = 9;
+    // Fill matrix with N * N sampling points
+    cv::Mat pts(N * N, 2, CV_32F);
+    for (int y = 0, k = 0; y < N; y++)
     {
-        Utils::log("Could not open the calibration parameter file: %s\n", fullCalibIniFile.c_str());
-        _state = CS_uncalibrated;
-        return false;
-    }
-
-    //assign paramters
-    fs["numInnerCornersWidth"] >> _boardSize.width;
-    fs["numInnerCornersHeight"] >> _boardSize.height;
-    fs["squareSizeMM"] >> _boardSquareMM;
-    fs["numOfImgsToCapture"] >> _numOfImgsToCapture;
-
-    return true;
-}
-//-----------------------------------------------------------------------------
-//! Calculates the vertical field of view angle in degrees
-void CVCalibration::calcCameraFov()
-{
-    if (_cameraMat.rows != 3 || _cameraMat.cols != 3)
-        Utils::exitMsg("CVCalibration::calcCameraFovV: No intrinsic parameter available",
-                       __LINE__,
-                       __FILE__);
-
-    //calculate vertical field of view
-    float fx       = (float)_cameraMat.at<double>(0, 0);
-    float fy       = (float)_cameraMat.at<double>(1, 1);
-    float cx       = (float)_cameraMat.at<double>(0, 2);
-    float cy       = (float)_cameraMat.at<double>(1, 2);
-    _cameraFovHDeg = 2.0f * (float)atan2(cx, fx) * Utils::RAD2DEG;
-    _cameraFovVDeg = 2.0f * (float)atan2(cy, fy) * Utils::RAD2DEG;
-}
-
-//-----------------------------------------------------------------------------
-//! Calculates the 3D positions of the chessboard corners
-void CVCalibration::calcBoardCorners3D(const CVSize& boardSize,
-                                       float         squareSize,
-                                       CVVPoint3f&   objectPoints3D)
-{
-    // Because OpenCV image coords are top-left we define the according
-    // 3D coords also top-left.
-    objectPoints3D.clear();
-    for (int y = boardSize.height - 1; y >= 0; --y)
-        for (int x = 0; x < boardSize.width; ++x)
-            objectPoints3D.push_back(CVPoint3f((float)x * squareSize,
-                                               (float)y * squareSize,
-                                               0));
-}
-//-----------------------------------------------------------------------------
-//! Calculates the reprojection error of the calibration
-float CVCalibration::calcReprojectionErr(const CVVVPoint3f& objectPoints,
-                                         const CVVMat&      rvecs,
-                                         const CVVMat&      tvecs,
-                                         vector<float>&     perViewErrors)
-{
-    CVVPoint2f imagePoints2;
-    size_t     totalPoints = 0;
-    double     totalErr    = 0, err;
-    perViewErrors.resize(objectPoints.size());
-
-    for (size_t i = 0; i < objectPoints.size(); ++i)
-    {
-        cv::projectPoints(objectPoints[i],
-                          rvecs[i],
-                          tvecs[i],
-                          _cameraMat,
-                          _distortion,
-                          imagePoints2);
-
-        err = norm(_imagePoints[i], imagePoints2, NORM_L2);
-
-        size_t n         = objectPoints[i].size();
-        perViewErrors[i] = (float)std::sqrt(err * err / n);
-        totalErr += err * err;
-        totalPoints += n;
-    }
-
-    return (float)std::sqrt(totalErr / totalPoints);
-}
-//-----------------------------------------------------------------------------
-//!< Finds the inner chessboard corners in the given image
-bool CVCalibration::findChessboard(CVMat        imageColor,
-                                   const CVMat& imageGray,
-                                   bool         drawCorners)
-{
-    assert(!imageGray.empty() &&
-           "CVCalibration::findChessboard: imageGray is empty!");
-    assert(!imageColor.empty() &&
-           "CVCalibration::findChessboard: imageColor is empty!");
-    assert(_boardSize.width && _boardSize.height &&
-           "CVCalibration::findChessboard: _boardSize is not set!");
-
-    //debug save image
-    //stringstream ss;
-    //ss << "imageIn_" << _numCaptured << ".png";
-    //cv::imwrite(ss.str(), imageColor);
-
-    _imageSize = imageColor.size();
-
-    cv::Mat imageGrayExtract = imageGray;
-    //resize image so that we get fluent caputure workflow for high resolutions
-    double scale              = 1.0;
-    bool   doScale            = false;
-    int    targetExtractWidth = 640;
-    if (_imageSize.width > targetExtractWidth)
-    {
-        doScale = true;
-        scale   = (double)_imageSize.width / (double)targetExtractWidth;
-        cv::resize(imageGray, imageGrayExtract, cv::Size(), 1 / scale, 1 / scale);
-    }
-
-    CVVPoint2f corners2D;
-    bool       found = cv::findChessboardCorners(imageGrayExtract,
-                                           _boardSize,
-                                           corners2D,
-                                           cv::CALIB_CB_FAST_CHECK);
-
-    if (found)
-    {
-        if (_state == CS_calibrateGrab)
+        for (int x = 0; x < N; x++)
         {
-            //save a copy of this image
-            _calibrationImgs.push_back(imageGray.clone());
-            //increase number of capturings
-            _numCaptured++;
-
-            //simulate a snapshot
-            cv::bitwise_not(imageColor, imageColor);
-            _state = CS_calibrateStream;
-        }
-
-        if (drawCorners)
-        {
-            if (doScale)
-            {
-                //scale corners into original image size
-                for (cv::Point2f& pt : corners2D)
-                {
-                    pt *= scale;
-                }
-            }
-
-            cv::drawChessboardCorners(imageColor,
-                                      _boardSize,
-                                      CVMat(corners2D),
-                                      found);
-        }
-    }
-    return found;
-}
-//-----------------------------------------------------------------------------
-//! Calculates the reprojection error of the calibration
-static double calcReprojectionErrors(const CVVVPoint3f& objectPoints,
-                                     const CVVVPoint2f& imagePoints,
-                                     const CVVMat&      rvecs,
-                                     const CVVMat&      tvecs,
-                                     const CVMat&       cameraMatrix,
-                                     const CVMat&       distCoeffs,
-                                     vector<float>&     perViewErrors)
-{
-    CVVPoint2f imagePoints2;
-    size_t     totalPoints = 0;
-    double     totalErr    = 0, err;
-    perViewErrors.resize(objectPoints.size());
-
-    for (size_t i = 0; i < objectPoints.size(); ++i)
-    {
-        cv::projectPoints(objectPoints[i],
-                          rvecs[i],
-                          tvecs[i],
-                          cameraMatrix,
-                          distCoeffs,
-                          imagePoints2);
-
-        err = norm(imagePoints[i], imagePoints2, NORM_L2);
-
-        size_t n         = objectPoints[i].size();
-        perViewErrors[i] = (float)std::sqrt(err * err / n);
-        totalErr += err * err;
-        totalPoints += n;
-    }
-
-    return std::sqrt(totalErr / totalPoints);
-}
-//-----------------------------------------------------------------------------
-//! Calculates the calibration with the given set of image points
-static bool calcCalibration(CVSize&            imageSize,
-                            CVMat&             cameraMatrix,
-                            CVMat&             distCoeffs,
-                            const CVVVPoint2f& imagePoints,
-                            CVVMat&            rvecs,
-                            CVVMat&            tvecs,
-                            vector<float>&     reprojErrs,
-                            float&             totalAvgErr,
-                            CVSize&            boardSize,
-                            float              squareSize,
-                            int                flag)
-{
-    // Init camera matrix with the eye setter
-    cameraMatrix = CVMat::eye(3, 3, CV_64F);
-
-    // We need to set eleme at 0,0 to 1 if we want a fix aspect ratio
-    if (flag & CALIB_FIX_ASPECT_RATIO)
-        cameraMatrix.at<double>(0, 0) = 1.0;
-
-    // init the distortion coeffitients to zero
-    distCoeffs = CVMat::zeros(8, 1, CV_64F);
-
-    CVVVPoint3f objectPoints(1);
-
-    CVCalibration::calcBoardCorners3D(boardSize,
-                                      squareSize,
-                                      objectPoints[0]);
-
-    objectPoints.resize(imagePoints.size(), objectPoints[0]);
-
-    ////////////////////////////////////////////////
-    //Find intrinsic and extrinsic camera parameters
-    double rms = cv::calibrateCamera(objectPoints,
-                                     imagePoints,
-                                     imageSize,
-                                     cameraMatrix,
-                                     distCoeffs,
-                                     rvecs,
-                                     tvecs,
-                                     flag);
-    ////////////////////////////////////////////////
-
-    Utils::log("Re-projection error reported by calibrateCamera: %f\n", rms);
-
-    bool ok = cv::checkRange(cameraMatrix) && cv::checkRange(distCoeffs);
-
-    totalAvgErr = (float)calcReprojectionErrors(objectPoints,
-                                                imagePoints,
-                                                rvecs,
-                                                tvecs,
-                                                cameraMatrix,
-                                                distCoeffs,
-                                                reprojErrs);
-    return ok;
-}
-//-----------------------------------------------------------------------------
-bool CVCalibration::calibrateAsync()
-{
-    _state         = CS_startCalculating;
-    _computerInfos = SLApplication::getComputerInfos();
-
-    _numCaptured = 0;
-    //extract corners from captured images
-    for (cv::Mat img : _calibrationImgs)
-    {
-        CVVPoint2f preciseCorners2D;
-        int        flags          = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE;
-        bool       foundPrecisely = cv::findChessboardCorners(img,
-                                                        _boardSize,
-                                                        preciseCorners2D,
-                                                        flags);
-
-        if (foundPrecisely)
-        {
-            cv::cornerSubPix(img,
-                             preciseCorners2D,
-                             CVSize(11, 11),
-                             CVSize(-1, -1),
-                             TermCriteria(TermCriteria::EPS + TermCriteria::COUNT,
-                                          30000,
-                                          0.01));
-
-            //add detected points
-            _imagePoints.push_back(preciseCorners2D);
-            _numCaptured++;
+            pts.at<float>(k, 0) = (float)x * imgSize.width / (N - 1);
+            pts.at<float>(k, 1) = (float)y * imgSize.height / (N - 1);
+            k++;
         }
     }
 
-    CVVMat        rvecs, tvecs;
-    vector<float> reprojErrs;
+    pts = pts.reshape(2);
+    cv::undistortPoints(pts, pts, cameraMatrix, distCoeffs, R, newCameraMatrix);
+    pts = pts.reshape(1);
 
-    _calibFlags = 0;
-    if (_calibFixPrincipalPoint) _calibFlags |= CALIB_FIX_PRINCIPAL_POINT;
-    if (_calibZeroTangentDist) _calibFlags |= CALIB_ZERO_TANGENT_DIST;
-    if (_calibFixAspectRatio) _calibFlags |= CALIB_FIX_ASPECT_RATIO;
-    if (_calibRationalModel) _calibFlags |= CALIB_RATIONAL_MODEL;
-    if (_calibTiltedModel) _calibFlags |= CALIB_TILTED_MODEL;
-    if (_calibThinPrismModel) _calibFlags |= CALIB_THIN_PRISM_MODEL;
-    bool ok = calcCalibration(_imageSize,
-                              _cameraMat,
-                              _distortion,
-                              _imagePoints,
-                              rvecs,
-                              tvecs,
-                              reprojErrs,
-                              _reprojectionError,
-                              _boardSize,
-                              _boardSquareMM,
-                              _calibFlags);
-    //correct number of caputured, extraction may have failed
-    if (!rvecs.empty() || !reprojErrs.empty())
-        _numCaptured = (int)std::max(rvecs.size(), reprojErrs.size());
-    else
-        _numCaptured = 0;
-
-    if (ok)
-    {
-        buildUndistortionMaps();
-        calcCameraFov();
-        _calibrationTime = Utils::getDateTime2String();
-    }
-    else
-    {
-        _cameraFovVDeg   = 0.0f;
-        _cameraFovHDeg   = 0.0f;
-        _calibrationTime = "-";
-        _undistortMapX.release();
-        _undistortMapY.release();
-    }
-
-    _calibrationImgs.clear();
-
-    return ok;
-}
-//-----------------------------------------------------------------------------
-//! Initiates the final calculation
-bool CVCalibration::calculate()
-{
-    bool calibrationSuccessful = false;
-#if 0
-    if (!_calibrationTask.valid())
-    {
-        _calibrationTask = std::async(std::launch::async, &CVCalibration::calibrateAsync, this);
-    }
-    else if (_calibrationTask.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
-    {
-        calibrationSuccessful = _calibrationTask.get();
-        if (calibrationSuccessful)
+    float iX0 = -FLT_MAX, iX1 = FLT_MAX, iY0 = -FLT_MAX, iY1 = FLT_MAX;
+    float oX0 = FLT_MAX, oX1 = -FLT_MAX, oY0 = FLT_MAX, oY1 = -FLT_MAX;
+    // find the inscribed rectangle.
+    // the code will likely not work with extreme rotation matrices (R) (>45%)
+    for (int y = 0, k = 0; y < N; y++)
+        for (int x = 0; x < N; x++)
         {
-            _state = CS_calibrated;
-            save();
-            Utils::log("Calibration succeeded.");
-            Utils::log("Reproj. error: %f\n", _reprojectionError);
-        }
-        else
-        {
-            _state = CS_uncalibrated;
-            Utils::log("Calibration failed.");
-        }
-    }
-#endif
+            cv::Point2f p = {pts.at<float>(k, 0), pts.at<float>(k, 1)};
+            oX0           = MIN(oX0, p.x);
+            oX1           = MAX(oX1, p.x);
+            oY0           = MIN(oY0, p.y);
+            oY1           = MAX(oY1, p.y);
 
-    return calibrationSuccessful;
+            if (x == 0)
+                iX0 = MAX(iX0, p.x);
+            if (x == N - 1)
+                iX1 = MIN(iX1, p.x);
+            if (y == 0)
+                iY0 = MAX(iY0, p.y);
+            if (y == N - 1)
+                iY1 = MIN(iY1, p.y);
+            k++;
+        }
+    inner = cv::Rect_<float>(iX0, iY0, iX1 - iX0, iY1 - iY0);
+    outer = cv::Rect_<float>(oX0, oY0, oX1 - oX0, oY1 - oY0);
 }
+
 //-----------------------------------------------------------------------------
 //! Builds undistortion maps after calibration or loading
 void CVCalibration::buildUndistortionMaps()
 {
-    // An alpha of 0 leads to no black borders
-    // An alpha of 1 leads to black borders
-    double alpha = 0.0;
+    if (_cameraMatUndistorted.rows != 3 || _cameraMatUndistorted.cols != 3)
+        Utils::exitMsg("CVCalibration::buildUndistortionMaps: No _cameraMatUndistorted available",
+                       __LINE__,
+                       __FILE__);
 
-    // Create optimal camera matrix for undistorted image
-    _cameraMatUndistorted = cv::getOptimalNewCameraMatrix(_cameraMat,
-                                                          _distortion,
-                                                          _imageSize,
-                                                          alpha,
-                                                          _imageSize,
-                                                          nullptr,
-                                                          true);
     // Create undistortion maps
     _undistortMapX.release();
     _undistortMapY.release();
@@ -669,7 +393,7 @@ void CVCalibration::buildUndistortionMaps()
                                 cv::Mat(), // Identity matrix R
                                 _cameraMatUndistorted,
                                 _imageSize,
-                                CV_32FC1,
+                                CV_16SC2, //before we had CV_32FC1 but in all tutorials they use CV_16SC2.. is there a reason?
                                 _undistortMapX,
                                 _undistortMapY);
 
@@ -705,30 +429,17 @@ other parameters are set as if the lens would be perfect: No lens distortion
 and the view axis goes through the center of the image.
 If the focal length and sensor size is provided by the device we deduce the
 the fov from it.
+ @param fovH average horizontal view angle in degrees
 */
-void CVCalibration::createFromGuessedFOV(int imageWidthPX,
-                                         int imageHeightPX)
+void CVCalibration::createFromGuessedFOV(int   imageWidthPX,
+                                         int   imageHeightPX,
+                                         float fovH)
 {
     // aspect ratio
     float withOverHeight = (float)imageWidthPX / (float)imageHeightPX;
 
-    // average horizontal view angle in degrees
-    float fovH = 65.0f;
-
     // the vertical fov is derived from the width because it could be cropped
     float fovV = fovH / withOverHeight;
-
-    // overwrite if device lens and sensor information exist and are reasonable
-    if (_devFocalLength > 0.0f && _devSensorSizeW > 0.0f && _devSensorSizeH > 0.0f)
-    {
-        float devFovH = 2.0f * atan(_devSensorSizeW / (2.0f * _devFocalLength)) * Utils::RAD2DEG;
-        float devFovV = devFovH / withOverHeight;
-        if (devFovH > 60.0f && devFovH < 70.0f)
-        {
-            fovH = devFovH;
-            fovV = devFovV;
-        }
-    }
 
     // Create standard camera matrix
     // fx, fx, cx, cy are all in pixel values not mm
@@ -750,37 +461,60 @@ void CVCalibration::createFromGuessedFOV(int imageWidthPX,
     _cameraFovVDeg    = fovV;
     _calibrationTime  = Utils::getDateTime2String();
     _state            = CS_guessed;
+    _computerInfos    = SLApplication::getComputerInfos();
 }
 //-----------------------------------------------------------------------------
-//! Adapts an allready calibrated camera to a new resolution
+//! Adapts an already calibrated camera to a new resolution (cropping and scaling)
 void CVCalibration::adaptForNewResolution(const CVSize& newSize)
 {
-    // allow adaptation only for calibrated cameras
-    if (_state != CS_calibrated) return;
+    if (_state == CS_uncalibrated)
+        return;
 
     // new center and focal length in pixels not mm
-    float scaleFactor     = (float)newSize.width / (float)_imageSize.width;
-    float oldHeightScaled = _imageSize.height * scaleFactor;
-    float heightDiff      = (oldHeightScaled - newSize.height) * 0.5f;
+    float fx, fy, cy, cx;
+    //use original camera matrix for adaptions. Otherwise we get rounding errors after too many adaptions.
+    float fxOrig = _cameraMatOrig.at<double>(0, 0);
+    float fyOrig = _cameraMatOrig.at<double>(1, 1);
+    float cxOrig = _cameraMatOrig.at<double>(0, 2);
+    float cyOrig = _cameraMatOrig.at<double>(1, 2);
+    if (((float)newSize.width / (float)newSize.height) > ((float)_imageSizeOrig.width / (float)_imageSizeOrig.height))
+    {
+        float scaleFactor = (float)newSize.width / (float)_imageSizeOrig.width;
 
-    float cx = this->cx() * scaleFactor;
-    float cy = this->cy() * scaleFactor - heightDiff;
-    float fx = this->fx() * scaleFactor;
-    float fy = this->fy() * scaleFactor;
+        fx                    = fxOrig * scaleFactor;
+        fy                    = fyOrig * scaleFactor;
+        float oldHeightScaled = _imageSizeOrig.height * scaleFactor;
+        float heightDiff      = (oldHeightScaled - newSize.height) * 0.5f;
 
+        cx = cxOrig * scaleFactor;
+        cy = cyOrig * scaleFactor - heightDiff;
+    }
+    else
+    {
+        float scaleFactor    = (float)newSize.height / (float)_imageSizeOrig.height;
+        fx                   = fxOrig * scaleFactor;
+        fy                   = fyOrig * scaleFactor;
+        float oldWidthScaled = _imageSizeOrig.width * scaleFactor;
+        float widthDiff      = (oldWidthScaled - newSize.width) * 0.5f;
+
+        cx = cxOrig * scaleFactor - widthDiff;
+        cy = cyOrig * scaleFactor;
+    }
+
+    //std::cout << "adaptForNewResolution: _cameraMat before: " << _cameraMat << std::endl;
     _cameraMat = (Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
+    //std::cout << "adaptForNewResolution: _cameraMat after: " << _cameraMat << std::endl;
     //_distortion remains unchanged
     _calibrationTime = Utils::getDateTime2String();
 
+    //std::cout << "adaptForNewResolution: _imageSize before: " << _imageSize << std::endl;
     _imageSize.width  = newSize.width;
     _imageSize.height = newSize.height;
+    //std::cout << "adaptForNewResolution: _imageSize after: " << _imageSize << std::endl;
 
-    std::cout << "_cameraMat: " << _cameraMat << std::endl;
-
-    calcCameraFov();
-
+    calculateUndistortedCameraMat();
+    calcCameraFovFromUndistortedCameraMat();
     buildUndistortionMaps();
-    //save();
 }
 //-----------------------------------------------------------------------------
 //! Uploads the active calibration to the ftp server
@@ -946,5 +680,74 @@ int CVCalibration::getVersionInCalibFilename(const string& calibFilename)
         }
     }
     return versionNO;
+}
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//! Calculate a camera matrix that we use for the scene graph and for the reprojection of the undistored image
+void CVCalibration::calculateUndistortedCameraMat()
+{
+    if (_cameraMat.rows != 3 || _cameraMat.cols != 3)
+        Utils::exitMsg("CVCalibration::calculateUndistortedCameraMat: No intrinsic parameter available",
+                       __LINE__,
+                       __FILE__);
+
+    // An alpha of 0 leads to no black borders
+    // An alpha of 1 leads to black borders
+    // (with alpha equaly zero the augmentation fits best)
+    double alpha = 1.0;
+
+    bool centerPrinciplePoint = true;
+    if (centerPrinciplePoint)
+    {
+        //Attention: the principle point has to be centered because for the projection matrix we assume that image plane is "symmetrically arranged wrt the focal plane"
+        //(see http://kgeorge.github.io/2014/03/08/calculating-opengl-perspective-matrix-from-opencv-intrinsic-matrix)
+        //_cameraMatUndistorted     = cv::getOptimalNewCameraMatrix(_cameraMat, _distortion, _imageSize, alpha, _imageSize, nullptr, centerPrinciplePoint);
+        //! (The following is the algorithm from cv::getOptimalNewCameraMatrix and the code is here for understanding (it does the same))
+
+        double cx0 = _cameraMat.at<double>(0, 2);
+        double cy0 = _cameraMat.at<double>(1, 2);
+        double cx  = (_imageSize.width) * 0.5;
+        double cy  = (_imageSize.height) * 0.5;
+
+        cv::Rect_<float> inner, outer;
+        getInnerAndOuterRectangles(_cameraMat, _distortion, cv::Mat(), _cameraMat, _imageSize, inner, outer);
+        double s0 = std::max(std::max(std::max((double)cx / (cx0 - inner.x), (double)cy / (cy0 - inner.y)),
+                                      (double)cx / (inner.x + inner.width - cx0)),
+                             (double)cy / (inner.y + inner.height - cy0));
+        double s1 = std::min(std::min(std::min((double)cx / (cx0 - outer.x), (double)cy / (cy0 - outer.y)),
+                                      (double)cx / (outer.x + outer.width - cx0)),
+                             (double)cy / (outer.y + outer.height - cy0));
+        double s  = s0 * (1 - alpha) + s1 * alpha;
+
+        _cameraMatUndistorted = _cameraMat.clone();
+        _cameraMatUndistorted.at<double>(0, 0) *= s;
+        _cameraMatUndistorted.at<double>(1, 1) *= s;
+        _cameraMatUndistorted.at<double>(0, 2) = cx;
+        _cameraMatUndistorted.at<double>(1, 2) = cy;
+    }
+    else
+    {
+        _cameraMatUndistorted = cv::getOptimalNewCameraMatrix(_cameraMat, _distortion, _imageSize, alpha, _imageSize, nullptr, centerPrinciplePoint);
+    }
+
+    //std::cout << "_cameraMatUndistorted: " << _cameraMatUndistorted << std::endl;
+    //std::cout << "_cameraMat: " << _cameraMat << std::endl;
+}
+//-----------------------------------------------------------------------------
+//! Calculates the vertical field of view angle in degrees
+void CVCalibration::calcCameraFovFromUndistortedCameraMat()
+{
+    if (_cameraMatUndistorted.rows != 3 || _cameraMatUndistorted.cols != 3)
+        Utils::exitMsg("CVCalibration::calcCameraFovFromSceneCameraMat: No _cameraMatUndistorted available",
+                       __LINE__,
+                       __FILE__);
+
+    //calculate vertical field of view
+    float fx       = (float)_cameraMatUndistorted.at<double>(0, 0);
+    float fy       = (float)_cameraMatUndistorted.at<double>(1, 1);
+    float cx       = (float)_cameraMatUndistorted.at<double>(0, 2);
+    float cy       = (float)_cameraMatUndistorted.at<double>(1, 2);
+    _cameraFovHDeg = 2.0f * (float)atan2(cx, fx) * Utils::RAD2DEG;
+    _cameraFovVDeg = 2.0f * (float)atan2(cy, fy) * Utils::RAD2DEG;
 }
 //-----------------------------------------------------------------------------

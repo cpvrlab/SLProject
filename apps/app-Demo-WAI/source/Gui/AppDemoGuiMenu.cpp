@@ -63,39 +63,30 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Video"))
         {
-            CVCalibration* mc = &CVCapture::instance()->calibMainCam;
-            CVCalibration* sc = &CVCapture::instance()->calibScndCam;
+            CVCamera* ac = CVCapture::instance()->activeCamera;
+
+            //CVCalibration* mc = &CVCapture::instance()->mainCam;
+            //CVCalibration* sc = &CVCapture::instance()->scndCam;
 
             ImGui::MenuItem("Video Storage", nullptr, &prefs->showVideoStorage);
             ImGui::MenuItem("Video Controls", nullptr, &prefs->showVideoControls);
 
-            if (ImGui::BeginMenu("Mirror Main Camera"))
+            if (ImGui::BeginMenu("Mirror Camera"))
             {
-                if (ImGui::MenuItem("Horizontally", nullptr, mc->isMirroredH()))
-                    mc->toggleMirrorH();
+                if (ImGui::MenuItem("Horizontally", nullptr, ac->mirrorH()))
+                    ac->toggleMirrorH();
 
-                if (ImGui::MenuItem("Vertically", nullptr, mc->isMirroredV()))
-                    mc->toggleMirrorV();
+                if (ImGui::MenuItem("Vertically", nullptr, ac->mirrorV()))
+                    ac->toggleMirrorV();
 
                 ImGui::EndMenu();
             }
 
             CVCapture* cap = CVCapture::instance();
-            if (cap->activeCalib)
+            if (cap->activeCamera)
             {
-                if (ImGui::MenuItem("Undistort Image", nullptr, cap->activeCalib->showUndistorted(), cap->activeCalib->state() == CS_calibrated))
-                    cap->activeCalib->showUndistorted(!cap->activeCalib->showUndistorted());
-            }
-
-            if (ImGui::BeginMenu("Mirror Scnd. Camera", CVCapture::instance()->hasSecondaryCamera))
-            {
-                if (ImGui::MenuItem("Horizontally", nullptr, sc->isMirroredH()))
-                    sc->toggleMirrorH();
-
-                if (ImGui::MenuItem("Vertically", nullptr, sc->isMirroredV()))
-                    sc->toggleMirrorV();
-
-                ImGui::EndMenu();
+                if (ImGui::MenuItem("Undistort Image", nullptr, cap->activeCamera->showUndistorted(), ac->calibration.state() == CS_calibrated))
+                    cap->activeCamera->showUndistorted(!cap->activeCamera->showUndistorted());
             }
 
             ImGui::EndMenu();
@@ -148,6 +139,14 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Perspective", "5", proj == P_monoPerspective))
                 {
                     cam->projection(P_monoPerspective);
+                    if (sv->renderType() == RT_rt && !sv->raytracer()->doContinuous() &&
+                        sv->raytracer()->state() == rtFinished)
+                        sv->raytracer()->state(rtReady);
+                }
+
+                if (ImGui::MenuItem("Intrinsic", "5", proj == P_monoIntrinsic))
+                {
+                    cam->projection(P_monoIntrinsic);
                     if (sv->renderType() == RT_rt && !sv->raytracer()->doContinuous() &&
                         sv->raytracer()->state() == rtFinished)
                         sv->raytracer()->state(rtReady);

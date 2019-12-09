@@ -32,10 +32,10 @@ SLbool AppDemoSceneView::onMouseDown(SLMouseButton button,
     bool baseClassResult = SLSceneView::onMouseDown(button, x, y, mod);
 
     // Grab image during calibration if calibration stream is running
-    if (CVCapture::instance()->activeCalib->state() == CS_calibrateStream)
+    if (SLApplication::sceneID == SID_VideoCalibrateMain ||
+        SLApplication::sceneID == SID_VideoCalibrateScnd)
     {
-        CVCapture::instance()->activeCalib->state(CS_calibrateGrab);
-        return true;
+        grab = true;
     }
 
     return baseClassResult;

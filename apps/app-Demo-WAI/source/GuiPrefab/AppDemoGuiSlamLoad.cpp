@@ -424,6 +424,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
                 OrbSlamStartResult startResult = WAIApp::startOrbSlam(&slamParams);
                 sv->setViewportFromRatio(SLVec2i(WAIApp::videoFrameSize.width, WAIApp::videoFrameSize.height), SLViewportAlign::VA_center, true);
+                WAIApp::resizeWindow = true;
 
                 if (!startResult.wasSuccessful)
                 {

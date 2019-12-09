@@ -31,20 +31,26 @@ core tracking implementation.
 */
 class CVTrackedChessboard : public CVTracked
 {
-    public:
+public:
     explicit CVTrackedChessboard();
 
     bool track(CVMat          imageGray,
                CVMat          imageRgb,
                CVCalibration* calib) final;
 
-    private:
-    float      _edgeLengthM{}; //<! Length of chessboard square in meters
-    CVVPoint3f _boardPoints3D; //<! chessboard corners in world coordinate system
-    CVSize     _boardSize;     //<! NO. of inner chessboard corners
-    bool       _solved;        //<! Flag if last solvePnP was solved
-    CVMat      _rVec;          //<! rotation angle vector from solvePnP
-    CVMat      _tVec;          //<! translation vector from solvePnP
+private:
+    void calcBoardCorners3D(const CVSize& boardSize,
+                            float         squareSize,
+                            CVVPoint3f&   objectPoints3D);
+    bool loadCalibParams();
+
+    std::string _calibParamsFileName;
+    float       _edgeLengthM;   //<! Length of chessboard square in meters
+    CVVPoint3f  _boardPoints3D; //<! chessboard corners in world coordinate system
+    CVSize      _boardSize;     //<! NO. of inner chessboard corners
+    bool        _solved;        //<! Flag if last solvePnP was solved
+    CVMat       _rVec;          //<! rotation angle vector from solvePnP
+    CVMat       _tVec;          //<! translation vector from solvePnP
 };
 //-----------------------------------------------------------------------------
 

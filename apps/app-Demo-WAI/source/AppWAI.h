@@ -46,7 +46,7 @@ struct SlamParams
 class WAIApp
 {
 public:
-    static int                load(int width, int height, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* dirs);
+    static int                load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* dirs);
     static void               close();
     static OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);
 
@@ -76,9 +76,11 @@ public:
     static GUIPreferences     uiPrefs;
     static AppWAIDirectories* dirs;
 
-    static int                scrWidth;
-    static int                scrHeight;
-    static float              scrWdivH;
+    static int                liveVideoTargetWidth;
+    static int                liveVideoTargetHeight;
+    static int                trackingImgWidth;
+    static cv::Size2i         videoFrameSize;
+    static float              videoFrameWdivH;
     static cv::VideoWriter*   videoWriter;
     static cv::VideoWriter*   videoWriterInfo;
     static WAI::ModeOrbSlam2* mode;
@@ -101,9 +103,8 @@ public:
     static std::string vocDir;
     static std::string experimentsDir;
 
-    static cv::Size2i videoFrameSize;
-    static bool       pauseVideo; // pause video file
-    static int        videoCursorMoveIndex;
+    static bool pauseVideo; // pause video file
+    static int  videoCursorMoveIndex;
 };
 
 #endif

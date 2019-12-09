@@ -48,7 +48,7 @@ drawn on the far clipping plane of the visualized view frustum.
 */
 class SLCamera : public SLNode
 {
-    public:
+public:
     SLCamera(const SLstring& name = "Camera");
     ~SLCamera() { ; }
 
@@ -108,6 +108,13 @@ class SLCamera : public SLNode
         _camAnim         = ca;
         currentAnimation = ca;
     }
+    void intrinsics(const SLfloat fx, const SLfloat fy, const SLfloat cx, const SLfloat cy)
+    {
+        _fx = fx;
+        _fy = fy;
+        _cx = cx;
+        _cy = cy;
+    }
     void clipNear(const SLfloat cNear) { _clipNear = cNear; }
     void clipFar(const SLfloat cFar) { _clipFar = cFar; }
     void lookFrom(const SLVec3f& fromDir,
@@ -155,7 +162,7 @@ class SLCamera : public SLNode
     static SLint        currentDevRotation;
     static SLstring     projectionToStr(SLProjection p);
 
-    protected:
+protected:
     // projection parameters
     SLProjection _projection;    //!< projection type
     SLfloat      _fov;           //!< Current field of view (view angle)
@@ -166,6 +173,11 @@ class SLCamera : public SLNode
     SLint        _viewportW;     //!< screen width in pixels
     SLint        _viewportH;     //!< screen height in pixels
     SLfloat      _viewportRatio; //!< _scrW /_srcH = screen ratio
+    SLfloat      _fx;
+    SLfloat      _fy;
+    SLfloat      _cx;
+    SLfloat      _cy;
+
     enum
     {
         T = 0,

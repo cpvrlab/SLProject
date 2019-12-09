@@ -137,6 +137,11 @@ class SLMat4
         // Defines a perspective projection matrix with a field of view angle 
         void        perspective (const T fov, const T aspect, 
                                  const T n, const T f);
+        //! Defines a projection matrix for a calibrated camera (from intrinsics matrix)
+        //! Attention: The principle point has to be centered
+        void        perspectiveCenteredPP(const T w, const T h, const T fx, const T fy,
+                                 const T cx, const T cy, const T n, const T f);
+
         // Defines a orthographic projection matrix with a field of view angle 
         void        ortho       (const T l, const T r, const T b, const T t, 
                                  const T n, const T f);
@@ -854,6 +859,22 @@ void SLMat4<T>::perspective(const T fov, const T aspect,
    T r = t*aspect;
    T l = -r;
    frustum(l,r,b,t,n,f);
+}
+//---------------------------------------------------------------------------
+//! Defines a projection matrix for a calibrated camera, the principle point has to be centered (from intrinsics matrix)
+/*! This should give an exact result.
+http://kgeorge.github.io/2014/03/08/calculating-opengl-perspective-matrix-from-opencv-intrinsic-matrix
+(see also https://stackoverflow.com/questions/22064084/how-to-create-perspective-projection-matrix-given-focal-points-and-camera-princ
+but the other solutions did not work as well)
+*/
+template<class T>
+void SLMat4<T>::perspectiveCenteredPP(const T w, const T h, const T fx, const T fy, 
+    const T cx, const T cy, const T n, const T f)
+{
+    _m[0]=fx/cx;     _m[4]=0;          _m[8] = 0;           _m[12]=0;
+    _m[1]=0;          _m[5]=fy/cy;     _m[9] = 0;           _m[13]=0;
+    _m[2]=0;          _m[6]=0;         _m[10]=-(f+n)/(f-n); _m[14]=(-2*f*n)/(f-n);
+    _m[3]=0;          _m[7]=0;         _m[11]=-1;           _m[15]=0;
 }
 //---------------------------------------------------------------------------
 //! Defines a ortographic projection matrix equivalent to OpenGL's glOrtho
