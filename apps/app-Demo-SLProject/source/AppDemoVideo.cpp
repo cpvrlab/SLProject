@@ -17,6 +17,7 @@
 #include <CVCalibrationEstimator.h>
 #include <AppDemoSceneView.h>
 #include <SLApplication.h>
+#include <FtpUtils.h>
 
 //-----------------------------------------------------------------------------
 /*! Global pointer for the video texture defined in AppDemoLoad for video scenes
@@ -42,99 +43,98 @@ void updateTrackingSceneCamera(CVCamera* ac)
     {
         SLCamera* trackingCam = static_cast<SLCamera*>(trackedNode);
         trackingCam->fov(ac->calibration.cameraFovVDeg());
-        cv::Mat scMat = ac->calibration.cameraMatUndistorted();
-        //intrinsics used for intrinsics projection type
-        trackingCam->intrinsics((float)scMat.at<double>(0, 0),
-                                (float)scMat.at<double>(1, 1),
-                                (float)scMat.at<double>(0, 2),
-                                (float)scMat.at<double>(1, 2));
     }
 }
 //-----------------------------------------------------------------------------
-CVCalibrationEstimator* calibrationEstimator = nullptr;
+//CVCalibrationEstimator* calibrationEstimator = nullptr;
 
 void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
 {
-    AppDemoSceneView* adSv = static_cast<AppDemoSceneView*>(sv);
-
+    AppDemoSceneView* adSv                 = static_cast<AppDemoSceneView*>(sv);
+    static bool       processedCalibResult = false;
     try
     {
-        if (!calibrationEstimator)
+        if (!SLApplication::calibrationEstimator)
         {
-            calibrationEstimator = new CVCalibrationEstimator(SLApplication::calibrationEstimatorParams.calibrationFlags(),
-                                                              CVCapture::instance()->activeCamSizeIndex,
-                                                              ac->mirrorH(),
-                                                              ac->mirrorV(),
-                                                              ac->type());
+            SLApplication::calibrationEstimator = new CVCalibrationEstimator(SLApplication::calibrationEstimatorParams.calibrationFlags(),
+                                                                             CVCapture::instance()->activeCamSizeIndex,
+                                                                             ac->mirrorH(),
+                                                                             ac->mirrorV(),
+                                                                             ac->type());
 
             //clear grab request from sceneview
-            adSv->grab = false;
+            adSv->grab           = false;
+            processedCalibResult = false;
         }
 
-        if (calibrationEstimator->isStreaming())
+        if (SLApplication::calibrationEstimator->isStreaming())
         {
-            calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, adSv->grab);
+            SLApplication::calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, adSv->grab);
             //reset grabbing switch
             adSv->grab = false;
 
             stringstream ss;
             ss << "Click on the screen to create a calibration photo. Created "
-               << calibrationEstimator->numCapturedImgs() << " of " << calibrationEstimator->numImgsToCapture();
+               << SLApplication::calibrationEstimator->numCapturedImgs() << " of " << SLApplication::calibrationEstimator->numImgsToCapture();
             s->info(ss.str());
         }
-        else if (calibrationEstimator->isBusyExtracting())
+        else if (SLApplication::calibrationEstimator->isBusyExtracting())
         {
             //also reset grabbing, user has to click again
             adSv->grab = false;
-            calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
+            SLApplication::calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
             s->info("Busy extracting corners, please wait with grabbing ...");
         }
-        else if (calibrationEstimator->isCalculating())
+        else if (SLApplication::calibrationEstimator->isCalculating())
         {
-            calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
+            SLApplication::calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
             s->info("Calculating calibration, please wait ...");
         }
-        else if (calibrationEstimator->isDone())
+        else if (SLApplication::calibrationEstimator->isDone())
         {
-            //overwrite current calibration
-            if (calibrationEstimator->calibrationSuccessful())
+            if (!processedCalibResult)
             {
-                ac->calibration = calibrationEstimator->getCalibration();
+                if (SLApplication::calibrationEstimator->calibrationSuccessful())
+                {
+                    processedCalibResult = true;
+                    ac->calibration      = SLApplication::calibrationEstimator->getCalibration();
 
-                std::string computerInfo      = SLApplication::getComputerInfos();
-                string      mainCalibFilename = "camCalib_" + computerInfo + "_main.xml";
-                string      scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";
-                ac->calibration.save(SLApplication::calibFilePath, mainCalibFilename);
+                    std::string computerInfo      = SLApplication::getComputerInfos();
+                    string      mainCalibFilename = "camCalib_" + computerInfo + "_main.xml";
+                    string      scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";
+                    std::string errorMsg;
+                    if (ac->calibration.save(SLApplication::calibFilePath, mainCalibFilename))
+                    {
 
-                s->info("Calibration successful.");
+                        if (!FtpUtils::uploadFile(SLApplication::calibFilePath,
+                                                  mainCalibFilename,
+                                                  SLApplication::CALIB_FTP_HOST,
+                                                  SLApplication::CALIB_FTP_USER,
+                                                  SLApplication::CALIB_FTP_PWD,
+                                                  SLApplication::CALIB_FTP_DIR,
+                                                  errorMsg))
+                        {
+                            Utils::log(errorMsg.c_str());
+                        }
+                    }
+                    else
+                    {
+                        errorMsg += " Saving calibration failed!";
+                    }
+
+                    s->info("Calibration successful." + errorMsg);
+                }
+                else
+                {
+                    s->info(("Calibration failed!"));
+                }
             }
-            else
-            {
-                s->info("Calibration failed!");
-            }
-
-            //free estimator instance
-            delete calibrationEstimator;
-            calibrationEstimator = nullptr;
-
-            if (SLApplication::sceneID == SID_VideoCalibrateMain)
-                s->onLoad(s, sv, SID_VideoTrackChessMain);
-            else
-                s->onLoad(s, sv, SID_VideoTrackChessScnd);
         }
     }
     catch (CVCalibrationEstimatorException& e)
     {
         log(e.what());
-        s->info("Exception during calibration!");
-
-        delete calibrationEstimator;
-        calibrationEstimator = nullptr;
-
-        if (SLApplication::sceneID == SID_VideoCalibrateMain)
-            s->onLoad(s, sv, SID_VideoTrackChessMain);
-        else
-            s->onLoad(s, sv, SID_VideoTrackChessScnd);
+        s->info("Exception during calibration! Please restart!");
     }
 }
 
@@ -143,10 +143,10 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
 void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
 {
     //we have to make sure calibration process is stopped if someone stopps calibrating
-    if (calibrationEstimator)
+    if (SLApplication::calibrationEstimator)
     {
-        delete calibrationEstimator;
-        calibrationEstimator = nullptr;
+        delete SLApplication::calibrationEstimator;
+        SLApplication::calibrationEstimator = nullptr;
     }
 
     if (ac->calibration.state() == CS_uncalibrated)

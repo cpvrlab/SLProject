@@ -49,6 +49,13 @@ CVCalibrationEstimator::CVCalibrationEstimator(int          calibFlags,
     }
 }
 //-----------------------------------------------------------------------------
+CVCalibrationEstimator::~CVCalibrationEstimator()
+{
+    //wait for the async task to finish
+    if (_calibrationTask.valid())
+        _calibrationTask.wait();
+}
+//-----------------------------------------------------------------------------
 //! Initiates the final calculation
 bool CVCalibrationEstimator::calculate()
 {
@@ -145,17 +152,17 @@ bool CVCalibrationEstimator::calibrateAsync()
         cv::Mat       cameraMat;
         cv::Mat       distortion;
 
-        bool ok = calcCalibration(_imageSize,
-                                  cameraMat,
-                                  distortion,
-                                  _imagePoints,
-                                  rvecs,
-                                  tvecs,
-                                  reprojErrs,
-                                  _reprojectionError,
-                                  _boardSize,
-                                  _boardSquareMM,
-                                  _calibFlags);
+        ok = calcCalibration(_imageSize,
+                             cameraMat,
+                             distortion,
+                             _imagePoints,
+                             rvecs,
+                             tvecs,
+                             reprojErrs,
+                             _reprojectionError,
+                             _boardSize,
+                             _boardSquareMM,
+                             _calibFlags);
         //correct number of caputured, extraction may have failed
         if (!rvecs.empty() || !reprojErrs.empty())
             _numCaptured = (int)std::max(rvecs.size(), reprojErrs.size());
@@ -334,6 +341,7 @@ void CVCalibrationEstimator::update(bool found, bool grabFrame, cv::Mat imageGra
 
                 if (_hasAsyncError)
                 {
+                    _state = State::Error;
                     throw _exception;
                 }
                 else if (_numCaptured >= _numOfImgsToCapture)
@@ -353,9 +361,10 @@ void CVCalibrationEstimator::update(bool found, bool grabFrame, cv::Mat imageGra
             if (_calibrationTask.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
             {
                 _calibrationSuccessful = _calibrationTask.get();
-                _state                 = State::Done;
+
                 if (_calibrationSuccessful)
                 {
+                    _state = State::Done;
                     Utils::log("Calibration succeeded.");
                     Utils::log("Reproj. error: %f\n", _reprojectionError);
                 }
@@ -364,8 +373,11 @@ void CVCalibrationEstimator::update(bool found, bool grabFrame, cv::Mat imageGra
                     Utils::log("Calibration failed.");
                     if (_hasAsyncError)
                     {
+                        _state = State::Error;
                         throw _exception;
                     }
+                    else
+                        _state = State::Done;
                 }
             }
             break;
@@ -386,11 +398,6 @@ bool CVCalibrationEstimator::updateAndDecorate(CVMat        imageColor,
            "CVCalibration::findChessboard: imageColor is empty!");
     assert(_boardSize.width && _boardSize.height &&
            "CVCalibration::findChessboard: _boardSize is not set!");
-
-    //debug save image
-    //stringstream ss;
-    //ss << "imageIn_" << _numCaptured << ".png";
-    //cv::imwrite(ss.str(), imageColor);
 
     cv::Size imageSize = imageColor.size();
 

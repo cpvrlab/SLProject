@@ -19,10 +19,12 @@ for a good top down information.
 */
 
 #include <CVCamera.h>
+#include <algorithm> // std::max
 #include <CVCapture.h>
 #include <CVImage.h>
 #include <Utils.h>
-#include <algorithm> // std::max
+#include <FtpUtils.h>
+#include <SLApplication.h>
 
 //-----------------------------------------------------------------------------
 CVCapture* CVCapture::_instance = nullptr;
@@ -842,10 +844,54 @@ void CVCapture::loadCalibrations(const string& computerInfo,
 
     // load opencv camera calibration for main and secondary camera
 #if defined(APP_USES_CVCAPTURE)
-    mainCam.calibration.load(configPath, mainCalibFilename);
+    // try to download from ftp if no calibration exists locally
+    string fullPathAndFilename = Utils::unifySlashes(configPath) + mainCalibFilename;
+    if (!Utils::fileExists(fullPathAndFilename))
+    {
+        //todo: move this download call out of cvcaputure (during refactoring of this class)
+        std::string errorMsg;
+        if (!FtpUtils::downloadFile(SLApplication::calibFilePath,
+                                    mainCalibFilename,
+                                    SLApplication::CALIB_FTP_HOST,
+                                    SLApplication::CALIB_FTP_USER,
+                                    SLApplication::CALIB_FTP_PWD,
+                                    SLApplication::CALIB_FTP_DIR,
+                                    errorMsg))
+        {
+            Utils::log(errorMsg.c_str());
+        }
+    }
+    if (!mainCam.calibration.load(configPath, mainCalibFilename))
+    {
+        //instantiate a guessed calibration
+        //mainCam.calibration = CVCalibration()
+    }
     activeCamera       = &mainCam;
     hasSecondaryCamera = false;
 #else
+    //todo: move this download call out of cvcaputure (during refactoring of this class)
+    std::string errorMsg;
+    if (!FtpUtils::downloadFile(SLApplication::calibFilePath,
+                                mainCalibFilename,
+                                SLApplication::CALIB_FTP_HOST,
+                                SLApplication::CALIB_FTP_USER,
+                                SLApplication::CALIB_FTP_PWD,
+                                SLApplication::CALIB_FTP_DIR,
+                                errorMsg))
+    {
+        Utils::log(errorMsg.c_str());
+    }
+    //todo: move this download call out of cvcaputure (during refactoring of this class)
+    if (!FtpUtils::downloadFile(SLApplication::calibFilePath,
+                                scndCalibFilename,
+                                SLApplication::CALIB_FTP_HOST,
+                                SLApplication::CALIB_FTP_USER,
+                                SLApplication::CALIB_FTP_PWD,
+                                SLApplication::CALIB_FTP_DIR,
+                                errorMsg))
+    {
+        Utils::log(errorMsg.c_str());
+    }
     mainCam.calibration.load(configPath, mainCalibFilename);
     scndCam.calibration.load(configPath, scndCalibFilename);
     activeCamera       = &mainCam;

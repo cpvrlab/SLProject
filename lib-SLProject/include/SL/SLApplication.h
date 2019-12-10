@@ -23,7 +23,7 @@
 using namespace std;
 
 class SLScene;
-
+class CVCalibrationEstimator;
 //-----------------------------------------------------------------------------
 //! Top level class for an SLProject application.
 /*!      
@@ -86,8 +86,14 @@ public:
     static atomic<bool>                jobIsRunning;       //!< True if a parallel job is running
 
     static CVCalibrationEstimatorParams calibrationEstimatorParams;
+    static CVCalibrationEstimator*      calibrationEstimator;
     static SLstring                     calibIniPath;  //!<thats where data/calibrations folder is located
     static SLstring                     calibFilePath; //!<thats where calibrations are stored and loaded from
+
+    static const string CALIB_FTP_HOST; //!< ftp host for calibration up and download
+    static const string CALIB_FTP_USER; //!< ftp login user for calibration up and download
+    static const string CALIB_FTP_PWD;  //!< ftp login pwd for calibration up and download
+    static const string CALIB_FTP_DIR;  //!< ftp directory for calibration up and download
 
 private:
     static HighResTimer _timer;          //!< high precision timer

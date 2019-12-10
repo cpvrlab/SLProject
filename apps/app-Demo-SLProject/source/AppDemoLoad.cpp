@@ -2139,11 +2139,21 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
         else if (SLApplication::sceneID == SID_VideoCalibrateMain)
         {
+            if (SLApplication::calibrationEstimator)
+            {
+                delete SLApplication::calibrationEstimator;
+                SLApplication::calibrationEstimator = nullptr;
+            }
             CVCapture::instance()->videoType(VT_MAIN);
             s->name("Calibrate Main Cam.");
         }
         else if (SLApplication::sceneID == SID_VideoCalibrateScnd)
         {
+            if (SLApplication::calibrationEstimator)
+            {
+                delete SLApplication::calibrationEstimator;
+                SLApplication::calibrationEstimator = nullptr;
+            }
             CVCapture::instance()->videoType(VT_SCND);
             s->name("Calibrate Scnd Cam.");
         }

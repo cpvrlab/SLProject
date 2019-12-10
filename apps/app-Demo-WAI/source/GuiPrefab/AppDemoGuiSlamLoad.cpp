@@ -20,11 +20,12 @@
 #include <WAIMapStorage.h>
 
 AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
-                                       std::string        slamRootDir,
-                                       std::string        calibrationsDir,
-                                       std::string        vocabulariesDir,
-                                       SLNode*            mapNode,
-                                       bool*              activator)
+
+                                       std::string slamRootDir,
+                                       std::string calibrationsDir,
+                                       std::string vocabulariesDir,
+                                       SLNode*     mapNode,
+                                       bool*       activator)
   : AppDemoGuiInfosDialog(name, activator),
     _slamRootDir(slamRootDir),
     _calibrationsDir(calibrationsDir),

@@ -54,7 +54,8 @@ public:
         Streaming = 0,  //!< Estimator waits for new frames
         Calculating,    //!< Estimator is currently calculating the calibration
         BusyExtracting, //!< Estimator is busy extracting the corners of a frame
-        Done            //!< Estimator finished
+        Done,           //!< Estimator finished
+        Error
     };
 
     CVCalibrationEstimator(int          calibFlags,
@@ -62,6 +63,8 @@ public:
                            bool         mirroredH,
                            bool         mirroredV,
                            CVCameraType camType);
+    ~CVCalibrationEstimator();
+
     bool calculate();
     bool updateAndDecorate(CVMat        imageColor,
                            const CVMat& imageGray,

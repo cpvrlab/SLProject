@@ -41,10 +41,10 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppDirectories.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
+    ${SL_PROJECT_ROOT}/apps/source/wai/WAICalibrationMgr.h
     )
 
 set(sources
@@ -77,8 +77,8 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAI.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
+    ${SL_PROJECT_ROOT}/apps/source/wai/WAICalibrationMgr.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
     )
 

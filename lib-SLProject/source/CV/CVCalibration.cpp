@@ -19,38 +19,12 @@ for a good top down information.
 
 #include <CVCalibration.h>
 #include <Utils.h>
-#include <ftplib.h>
-#include <algorithm> // std::max
+//#include <algorithm> // std::max
 #include <SLApplication.h>
 
 using namespace cv;
 using namespace std;
-//-----------------------------------------------------------------------------
-off64_t ftpUploadSizeMax = 0;
 
-//-----------------------------------------------------------------------------
-//! Calibration Upload callback for progress feedback
-//int ftpCallbackUpload(off64_t xfered, void* arg)
-//{
-//    if (ftpUploadSizeMax)
-//    {
-//        int xferedPC = (int)((float)xfered / (float)ftpUploadSizeMax * 100.0f);
-//        cout << "Bytes saved: " << xfered << " (" << xferedPC << ")" << endl;
-//        //SLApplication::jobProgressNum(xferedPC);
-//    }
-//    else
-//    {
-//        cout << "Bytes saved: " << xfered << endl;
-//    }
-//    return xfered ? 1 : 0;
-//}
-
-//-----------------------------------------------------------------------------
-//! FTP credentials for calibration up- and download
-const string CVCalibration::_FTP_HOST = "pallas.bfh.ch:21";
-const string CVCalibration::_FTP_USER = "upload";
-const string CVCalibration::_FTP_PWD  = "FaAdbD3F2a";
-const string CVCalibration::_FTP_DIR  = "calibrations";
 //-----------------------------------------------------------------------------
 //! Increase the _CALIBFILEVERSION each time you change the file format
 // Version 6, Date: 6.JUL.2019: Added device parameter from Android
@@ -156,15 +130,8 @@ CVCalibration::CVCalibration(float        sensorWMM,
 bool CVCalibration::load(const string& calibDir,
                          const string& calibFileName)
 {
-    _calibDir      = Utils::unifySlashes(calibDir);
-    _calibFileName = calibFileName;
-
     //load camera parameter
-    string fullPathAndFilename = _calibDir + _calibFileName;
-
-    // try to download from ftp if no calibration exists locally
-    if (!Utils::fileExists(fullPathAndFilename))
-        downloadCalibration(fullPathAndFilename);
+    string fullPathAndFilename = Utils::unifySlashes(calibDir) + calibFileName;
 
     // try to open the local calibration file
     FileStorage fs(fullPathAndFilename, FileStorage::READ);
@@ -217,7 +184,7 @@ bool CVCalibration::load(const string& calibDir,
     else
     {
         std::vector<std::string> stringParts;
-        Utils::splitString(Utils::getFileNameWOExt(_calibFileName), '_', stringParts);
+        Utils::splitString(Utils::getFileNameWOExt(calibFileName), '_', stringParts);
         if (stringParts.size() >= 3)
             _computerInfos = stringParts[1];
     }
@@ -245,19 +212,17 @@ bool CVCalibration::load(const string& calibDir,
 }
 //-----------------------------------------------------------------------------
 //! Saves the camera calibration parameters to the config file
-void CVCalibration::save(const string& calibDir,
+bool CVCalibration::save(const string& calibDir,
                          const string& calibFileName)
 {
-    _calibDir                       = Utils::unifySlashes(calibDir);
-    _calibFileName                  = calibFileName;
-    std::string fullPathAndFilename = _calibDir + _calibFileName;
+    std::string fullPathAndFilename = Utils::unifySlashes(calibDir) + calibFileName;
 
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 
     if (!fs.isOpened())
     {
         Utils::log("Failed to write calib. %s\n", fullPathAndFilename.c_str());
-        return;
+        return false;
     }
 
     char buf[1024];
@@ -319,7 +284,8 @@ void CVCalibration::save(const string& calibDir,
     // close file
     fs.release();
     Utils::log("Calib. saved    : %s\n", fullPathAndFilename.c_str());
-    uploadCalibration(fullPathAndFilename);
+    return true;
+    //uploadCalibration(fullPathAndFilename);
 }
 //-----------------------------------------------------------------------------
 //! get inscribed and circumscribed rectangle
@@ -518,169 +484,169 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
 }
 //-----------------------------------------------------------------------------
 //! Uploads the active calibration to the ftp server
-void CVCalibration::uploadCalibration(const string& fullPathAndFilename)
-{
-    if (!Utils::fileExists(fullPathAndFilename))
-    {
-        Utils::log("Calib. file doesn't exist: %s\n", fullPathAndFilename.c_str());
-        return;
-    }
-
-    if (state() != CS_calibrated)
-    {
-        Utils::log("Camera is not calibrated.");
-        return;
-    }
-
-    ftplib ftp;
-
-    if (ftp.Connect(_FTP_HOST.c_str()))
-    {
-        if (ftp.Login(_FTP_USER.c_str(), _FTP_PWD.c_str()))
-        {
-            if (ftp.Chdir(_FTP_DIR.c_str()))
-            {
-                // Get the latest calibration filename on the ftp
-                string latestCalibFile = getLatestCalibFilename(ftp, fullPathAndFilename);
-
-                // Set the calibfile version
-                int versionNO = 0;
-                if (!latestCalibFile.empty())
-                {
-                    versionNO = getVersionInCalibFilename(latestCalibFile);
-                }
-
-                // Increase the version
-                versionNO++;
-                stringstream versionSS;
-                versionSS << "(" << versionNO << ")";
-                versionSS.str();
-
-                // Build new filename on ftp with version number
-                string fileWOExt          = Utils::getFileNameWOExt(fullPathAndFilename);
-                string newVersionFilename = fileWOExt + versionSS.str() + ".xml";
-
-                // Upload
-                if (!ftp.Put(fullPathAndFilename.c_str(),
-                             newVersionFilename.c_str(),
-                             ftplib::transfermode::image))
-                    Utils::log("*** ERROR: ftp.Put failed. ***\n");
-            }
-            else
-                Utils::log("*** ERROR: ftp.Chdir failed. ***\n");
-        }
-        else
-            Utils::log("*** ERROR: ftp.Login failed. ***\n");
-    }
-    else
-        Utils::log("*** ERROR: ftp.Connect failed. ***\n");
-
-    ftp.Quit();
-}
+//void CVCalibration::uploadCalibration(const string& fullPathAndFilename)
+//{
+//    if (!Utils::fileExists(fullPathAndFilename))
+//    {
+//        Utils::log("Calib. file doesn't exist: %s\n", fullPathAndFilename.c_str());
+//        return;
+//    }
+//
+//    if (state() != CS_calibrated)
+//    {
+//        Utils::log("Camera is not calibrated.");
+//        return;
+//    }
+//
+//    ftplib ftp;
+//
+//    if (ftp.Connect(_FTP_HOST.c_str()))
+//    {
+//        if (ftp.Login(_FTP_USER.c_str(), _FTP_PWD.c_str()))
+//        {
+//            if (ftp.Chdir(_FTP_DIR.c_str()))
+//            {
+//                // Get the latest calibration filename on the ftp
+//                string latestCalibFile = getLatestCalibFilename(ftp, fullPathAndFilename);
+//
+//                // Set the calibfile version
+//                int versionNO = 0;
+//                if (!latestCalibFile.empty())
+//                {
+//                    versionNO = getVersionInCalibFilename(latestCalibFile);
+//                }
+//
+//                // Increase the version
+//                versionNO++;
+//                stringstream versionSS;
+//                versionSS << "(" << versionNO << ")";
+//                versionSS.str();
+//
+//                // Build new filename on ftp with version number
+//                string fileWOExt          = Utils::getFileNameWOExt(fullPathAndFilename);
+//                string newVersionFilename = fileWOExt + versionSS.str() + ".xml";
+//
+//                // Upload
+//                if (!ftp.Put(fullPathAndFilename.c_str(),
+//                             newVersionFilename.c_str(),
+//                             ftplib::transfermode::image))
+//                    Utils::log("*** ERROR: ftp.Put failed. ***\n");
+//            }
+//            else
+//                Utils::log("*** ERROR: ftp.Chdir failed. ***\n");
+//        }
+//        else
+//            Utils::log("*** ERROR: ftp.Login failed. ***\n");
+//    }
+//    else
+//        Utils::log("*** ERROR: ftp.Connect failed. ***\n");
+//
+//    ftp.Quit();
+//}
 //-----------------------------------------------------------------------------
 //! Uploads the active calibration to the ftp server
-void CVCalibration::downloadCalibration(const string& fullPathAndFilename)
-{
-    ftplib ftp;
-
-    if (ftp.Connect(_FTP_HOST.c_str()))
-    {
-        if (ftp.Login(_FTP_USER.c_str(), _FTP_PWD.c_str()))
-        {
-            if (ftp.Chdir(_FTP_DIR.c_str()))
-            {
-                // Get the latest calibration filename on the ftp
-                string latestCalibFile = getLatestCalibFilename(ftp, fullPathAndFilename);
-                int    remoteSize      = 0;
-                ftp.Size(latestCalibFile.c_str(),
-                         &remoteSize,
-                         ftplib::transfermode::image);
-
-                if (remoteSize > 0)
-                {
-                    string targetFilename = Utils::getFileName(fullPathAndFilename);
-                    if (!ftp.Get(fullPathAndFilename.c_str(),
-                                 latestCalibFile.c_str(),
-                                 ftplib::transfermode::image))
-                        Utils::log("*** ERROR: ftp.Get failed. ***\n");
-                }
-                else
-                    Utils::log("*** No calibration to download ***\n");
-            }
-            else
-                Utils::log("*** ERROR: ftp.Chdir failed. ***\n");
-        }
-        else
-            Utils::log("*** ERROR: ftp.Login failed. ***\n");
-    }
-    else
-        Utils::log("*** ERROR: ftp.Connect failed. ***\n");
-
-    ftp.Quit();
-}
+//void CVCalibration::downloadCalibration(const string& fullPathAndFilename)
+//{
+//    ftplib ftp;
+//
+//    if (ftp.Connect(_FTP_HOST.c_str()))
+//    {
+//        if (ftp.Login(_FTP_USER.c_str(), _FTP_PWD.c_str()))
+//        {
+//            if (ftp.Chdir(_FTP_DIR.c_str()))
+//            {
+//                // Get the latest calibration filename on the ftp
+//                string latestCalibFile = getLatestCalibFilename(ftp, fullPathAndFilename);
+//                int    remoteSize      = 0;
+//                ftp.Size(latestCalibFile.c_str(),
+//                         &remoteSize,
+//                         ftplib::transfermode::image);
+//
+//                if (remoteSize > 0)
+//                {
+//                    string targetFilename = Utils::getFileName(fullPathAndFilename);
+//                    if (!ftp.Get(fullPathAndFilename.c_str(),
+//                                 latestCalibFile.c_str(),
+//                                 ftplib::transfermode::image))
+//                        Utils::log("*** ERROR: ftp.Get failed. ***\n");
+//                }
+//                else
+//                    Utils::log("*** No calibration to download ***\n");
+//            }
+//            else
+//                Utils::log("*** ERROR: ftp.Chdir failed. ***\n");
+//        }
+//        else
+//            Utils::log("*** ERROR: ftp.Login failed. ***\n");
+//    }
+//    else
+//        Utils::log("*** ERROR: ftp.Connect failed. ***\n");
+//
+//    ftp.Quit();
+//}
 //-----------------------------------------------------------------------------
 //! Returns the latest calibration filename of the same fullPathAndFilename
-string CVCalibration::getLatestCalibFilename(ftplib&       ftp,
-                                             const string& fullPathAndFilename)
-{
-    // Get a list of calibrations of the same device
-    string dirResult         = _calibDir + "dirResult.txt";
-    string filenameWOExt     = Utils::getFileNameWOExt(fullPathAndFilename);
-    string filenameWOExtStar = filenameWOExt + "*";
-
-    // Get result of ftp.Dir into the textfile dirResult
-    if (ftp.Dir(dirResult.c_str(), filenameWOExtStar.c_str()))
-    {
-        vector<string> vecFilesInDir;
-        vector<string> strippedFiles;
-
-        if (Utils::getFileContent(dirResult, vecFilesInDir))
-        {
-            for (string& fileInfoLine : vecFilesInDir)
-            {
-                size_t foundAt = fileInfoLine.find(filenameWOExt);
-                if (foundAt != string::npos)
-                {
-                    string fileWExt  = fileInfoLine.substr(foundAt);
-                    string fileWOExt = Utils::getFileNameWOExt(fileWExt);
-                    strippedFiles.push_back(fileWOExt);
-                }
-            }
-        }
-
-        if (!strippedFiles.empty())
-        {
-            // sort filename naturally as many file systems do.
-            std::sort(strippedFiles.begin(), strippedFiles.end(), Utils::compareNatural);
-            string latest = strippedFiles.back() + ".xml";
-            return latest;
-        }
-        else
-            return "";
-    }
-
-    // Return empty for not found
-    return "";
-}
+//string CVCalibration::getLatestCalibFilename(ftplib&       ftp,
+//                                             const string& fullPathAndFilename)
+//{
+//    // Get a list of calibrations of the same device
+//    string dirResult         = _calibDir + "dirResult.txt";
+//    string filenameWOExt     = Utils::getFileNameWOExt(fullPathAndFilename);
+//    string filenameWOExtStar = filenameWOExt + "*";
+//
+//    // Get result of ftp.Dir into the textfile dirResult
+//    if (ftp.Dir(dirResult.c_str(), filenameWOExtStar.c_str()))
+//    {
+//        vector<string> vecFilesInDir;
+//        vector<string> strippedFiles;
+//
+//        if (Utils::getFileContent(dirResult, vecFilesInDir))
+//        {
+//            for (string& fileInfoLine : vecFilesInDir)
+//            {
+//                size_t foundAt = fileInfoLine.find(filenameWOExt);
+//                if (foundAt != string::npos)
+//                {
+//                    string fileWExt  = fileInfoLine.substr(foundAt);
+//                    string fileWOExt = Utils::getFileNameWOExt(fileWExt);
+//                    strippedFiles.push_back(fileWOExt);
+//                }
+//            }
+//        }
+//
+//        if (!strippedFiles.empty())
+//        {
+//            // sort filename naturally as many file systems do.
+//            std::sort(strippedFiles.begin(), strippedFiles.end(), Utils::compareNatural);
+//            string latest = strippedFiles.back() + ".xml";
+//            return latest;
+//        }
+//        else
+//            return "";
+//    }
+//
+//    // Return empty for not found
+//    return "";
+//}
 //-----------------------------------------------------------------------------
 //! Returns the version number at the end of the calibration filename
-int CVCalibration::getVersionInCalibFilename(const string& calibFilename)
-{
-    string calibFilenameWOExt = Utils::getFileNameWOExt(calibFilename);
-
-    int versionNO = 0;
-    if (!calibFilenameWOExt.empty())
-    {
-        size_t len = calibFilenameWOExt.length();
-        if (calibFilenameWOExt.at(len - 1) == ')')
-        {
-            size_t leftPos = calibFilenameWOExt.rfind('(');
-            string verStr  = calibFilenameWOExt.substr(leftPos + 1, len - leftPos - 2);
-            versionNO      = stoi(verStr);
-        }
-    }
-    return versionNO;
-}
+//int CVCalibration::getVersionInCalibFilename(const string& calibFilename)
+//{
+//    string calibFilenameWOExt = Utils::getFileNameWOExt(calibFilename);
+//
+//    int versionNO = 0;
+//    if (!calibFilenameWOExt.empty())
+//    {
+//        size_t len = calibFilenameWOExt.length();
+//        if (calibFilenameWOExt.at(len - 1) == ')')
+//        {
+//            size_t leftPos = calibFilenameWOExt.rfind('(');
+//            string verStr  = calibFilenameWOExt.substr(leftPos + 1, len - leftPos - 2);
+//            versionNO      = stoi(verStr);
+//        }
+//    }
+//    return versionNO;
+//}
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 //! Calculate a camera matrix that we use for the scene graph and for the reprojection of the undistored image

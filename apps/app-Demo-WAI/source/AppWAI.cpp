@@ -37,6 +37,7 @@
 #include <AppWAI.h>
 #include <AppDirectories.h>
 #include <AppWAISlamParamHelper.h>
+#include <WAICalibrationMgr.h>
 
 AppDemoGuiAbout* WAIApp::aboutDial = nullptr;
 AppDemoGuiError* WAIApp::errorDial = nullptr;
@@ -119,6 +120,12 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
     // This load the GUI configs that are locally stored
     uiPrefs.setDPI(dpi);
     uiPrefs.load();
+    if (uiPrefs.firstAppRun)
+    {
+        //download calibration files
+        WAICalibrationMgr calibMgr(calibDir, "pallas.bfh.ch:21", "upload", "FaAdbD3F2a", "calibrations");
+        //calibMgr.downloadCalibrationsFromFtp();
+    }
 
     int svIndex = slCreateSceneView((int)(scrWidth * scr2fbX),
                                     (int)(scrHeight * scr2fbY),
@@ -133,7 +140,42 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
     SLApplication::devRot.isUsed(true);
     SLApplication::devLoc.isUsed(true);
 
+    setupDefaultErlebARDir();
+
     return svIndex;
+}
+
+void WAIApp::setupDefaultErlebARDir()
+{
+    std::string dir = Utils::unifySlashes(dirs->writableDir);
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
+
+    dir += "erleb-AR/";
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
+
+    dir += "locations/";
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
+
+    dir += "default/";
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
+
+    dir += "default/";
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
 }
 
 void WAIApp::close()
