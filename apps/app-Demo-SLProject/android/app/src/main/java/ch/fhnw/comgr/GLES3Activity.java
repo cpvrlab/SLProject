@@ -34,7 +34,11 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class GLES3Activity extends Activity implements View.OnTouchListener, SensorEventListener {
     GLES3View                   myView;             // OpenGL view
@@ -271,11 +275,11 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                     grantResults[3] == PackageManager.PERMISSION_GRANTED ) {
                 Log.i(TAG, "onRequestPermissionsResult: Permission WRITE_EXTERNAL_STORAGE granted.");
                 _permissionWriteStorageGranted = true;
+                setupExternalDirectories();
             } else {
                 Log.i(TAG, "onRequestPermissionsResult: Permission WRITE_EXTERNAL_STORAGE refused.");
                 _permissionWriteStorageGranted = false;
             }
-
             //4: permission.READ_EXTERNAL_STORAGE
             if (grantResults.length > 4 &&
                     grantResults[4] == PackageManager.PERMISSION_GRANTED ) {
