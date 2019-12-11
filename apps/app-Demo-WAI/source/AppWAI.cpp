@@ -38,6 +38,7 @@
 #include <AppDirectories.h>
 #include <AppWAISlamParamHelper.h>
 #include <WAICalibrationMgr.h>
+#include <FtpUtils.h>
 
 AppDemoGuiAbout* WAIApp::aboutDial = nullptr;
 AppDemoGuiError* WAIApp::errorDial = nullptr;
@@ -123,8 +124,10 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
     if (uiPrefs.firstAppRun)
     {
         //download calibration files
-        WAICalibrationMgr calibMgr(calibDir, "pallas.bfh.ch:21", "upload", "FaAdbD3F2a", "calibrations");
+        //WAICalibrationMgr calibMgr(calibDir, "pallas.bfh.ch:21", "upload", "FaAdbD3F2a", "calibrations");
         //calibMgr.downloadCalibrationsFromFtp();
+
+        //FtpUtils::downloadFile()
     }
 
     int svIndex = slCreateSceneView((int)(scrWidth * scr2fbX),

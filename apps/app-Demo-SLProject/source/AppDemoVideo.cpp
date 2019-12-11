@@ -56,12 +56,14 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
     {
         if (!SLApplication::calibrationEstimator)
         {
-            SLApplication::calibrationEstimator = new CVCalibrationEstimator(SLApplication::calibrationEstimatorParams.calibrationFlags(),
+            SLApplication::calibrationEstimator = new CVCalibrationEstimator(SLApplication::calibrationEstimatorParams,
                                                                              CVCapture::instance()->activeCamSizeIndex,
                                                                              ac->mirrorH(),
                                                                              ac->mirrorV(),
                                                                              ac->type(),
-                                                                             SLApplication::getComputerInfos());
+                                                                             SLApplication::getComputerInfos(),
+                                                                             SLApplication::calibIniPath,
+                                                                             SLApplication::externalPath);
 
             //clear grab request from sceneview
             adSv->grab           = false;
@@ -130,6 +132,10 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
                     s->info(("Calibration failed!"));
                 }
             }
+        }
+        else if (SLApplication::calibrationEstimator->isDoneCaptureAndSave())
+        {
+            s->info(("Capturing done!"));
         }
     }
     catch (CVCalibrationEstimatorException& e)

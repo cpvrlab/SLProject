@@ -11,15 +11,6 @@
 #ifndef CVCALIBRATIONESTIMATOR_H
 #define CVCALIBRATIONESTIMATOR_H
 
-/*
-The OpenCV library version 3.4 or above with extra module must be present.
-If the application captures the live video stream with OpenCV you have
-to define in addition the constant APP_USES_CVCAPTURE.
-All classes that use OpenCV begin with CV.
-See also the class docs for CVCapture, CVCalibration and CVTracked
-for a good top down information.
-*/
-
 #include <future>
 #include <CVCalibration.h>
 #include <CVTypedefs.h>
@@ -51,19 +42,22 @@ class CVCalibrationEstimator
 public:
     enum class State
     {
-        Streaming = 0,  //!< Estimator waits for new frames
-        Calculating,    //!< Estimator is currently calculating the calibration
-        BusyExtracting, //!< Estimator is busy extracting the corners of a frame
-        Done,           //!< Estimator finished
+        Streaming = 0,      //!< Estimator waits for new frames
+        Calculating,        //!< Estimator is currently calculating the calibration
+        BusyExtracting,     //!< Estimator is busy extracting the corners of a frame
+        Done,               //!< Estimator finished
+        DoneCaptureAndSave, //!< All images are captured in
         Error
     };
 
-    CVCalibrationEstimator(int          calibFlags,
-                           int          camSizeIndex,
-                           bool         mirroredH,
-                           bool         mirroredV,
-                           CVCameraType camType,
-                           std::string  computerInfos);
+    CVCalibrationEstimator(CVCalibrationEstimatorParams params,
+                           int                          camSizeIndex,
+                           bool                         mirroredH,
+                           bool                         mirroredV,
+                           CVCameraType                 camType,
+                           std::string                  computerInfos,
+                           std::string                  calibDataPath,
+                           std::string                  imageOutputPath);
     ~CVCalibrationEstimator();
 
     bool calculate();
@@ -86,12 +80,15 @@ public:
     bool          isCalculating() { return _state == State::Calculating; }
     bool          isStreaming() { return _state == State::Streaming; }
     bool          isDone() { return _state == State::Done; }
+    bool          isDoneCaptureAndSave() { return _state == State::DoneCaptureAndSave; }
 
 private:
     bool calibrateAsync();
     bool extractAsync();
     bool loadCalibParams();
-    void update(bool found, bool grabFrame, cv::Mat imageGray);
+    void updateExtractAndCalc(bool found, bool grabFrame, cv::Mat imageGray);
+    void updateOnlyCapture(bool found, bool grabFrame, cv::Mat imageGray);
+    void saveImage(cv::Mat imageGray);
 
     static bool   calcCalibration(CVSize&            imageSize,
                                   CVMat&             cameraMatrix,
@@ -130,15 +127,16 @@ private:
     float       _reprojectionError = -1.f;  //!< Reprojection error after calibration
 
     //constructor transfer parameter
-    int           _calibFlags   = 0; //!< OpenCV calibration flags
-    int           _camSizeIndex = -1;
-    bool          _mirroredH    = false;
-    bool          _mirroredV    = false;
-    CVCameraType  _camType      = CVCameraType::FRONTFACING;
-    CVCalibration _calibration;         //!< estimated calibration
-    std::string   _calibParamsFileName; //!< name of calibration paramters file
-    std::string   _computerInfos;
-
+    CVCalibrationEstimatorParams _params;
+    int                          _camSizeIndex = -1;
+    bool                         _mirroredH    = false;
+    bool                         _mirroredV    = false;
+    CVCameraType                 _camType      = CVCameraType::FRONTFACING;
+    CVCalibration                _calibration;         //!< estimated calibration
+    std::string                  _calibParamsFileName; //!< name of calibration paramters file
+    std::string                  _computerInfos;
+    std::string                  _calibDataPath;
+    std::string                  _calibImgOutputDir;
     //exception handling from async thread
     bool                            _hasAsyncError = false;
     CVCalibrationEstimatorException _exception;
