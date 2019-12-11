@@ -31,15 +31,17 @@ CVCalibrationEstimator::CVCalibrationEstimator(int          calibFlags,
                                                int          camSizeIndex,
                                                bool         mirroredH,
                                                bool         mirroredV,
-                                               CVCameraType camType)
+                                               CVCameraType camType,
+                                               std::string  computerInfos)
   : _calibFlags(calibFlags),
     _camSizeIndex(camSizeIndex),
     _mirroredH(mirroredH),
     _mirroredV(mirroredV),
     _camType(camType),
-    _calibration(_camType),
+    _calibration(_camType, ""),
     _calibParamsFileName("calib_in_params.yml"),
-    _exception("Undefined error", 0, __FILE__)
+    _exception("Undefined error", 0, __FILE__),
+    _computerInfos(computerInfos)
 {
     if (!loadCalibParams())
     {
@@ -183,7 +185,8 @@ bool CVCalibrationEstimator::calibrateAsync()
                                          _camSizeIndex,
                                          _mirroredH,
                                          _mirroredV,
-                                         _camType);
+                                         _camType,
+                                         _computerInfos);
         }
     }
     catch (std::exception& e)

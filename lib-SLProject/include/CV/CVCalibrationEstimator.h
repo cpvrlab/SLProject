@@ -62,7 +62,8 @@ public:
                            int          camSizeIndex,
                            bool         mirroredH,
                            bool         mirroredV,
-                           CVCameraType camType);
+                           CVCameraType camType,
+                           std::string  computerInfos);
     ~CVCalibrationEstimator();
 
     bool calculate();
@@ -136,6 +137,7 @@ private:
     CVCameraType  _camType      = CVCameraType::FRONTFACING;
     CVCalibration _calibration;         //!< estimated calibration
     std::string   _calibParamsFileName; //!< name of calibration paramters file
+    std::string   _computerInfos;
 
     //exception handling from async thread
     bool                            _hasAsyncError = false;

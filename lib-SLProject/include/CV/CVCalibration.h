@@ -72,7 +72,8 @@ class CVCalibration
 public:
     //default constructor with uncalibrated state (this is not good because
     //it is not a valid state so everybody who uses it has to check the calibration state first)
-    CVCalibration(CVCameraType camType);
+    CVCalibration(CVCameraType camType,
+                  std::string  computerInfos);
     //creates a fully defined calibration
     CVCalibration(cv::Mat            cameraMat,
                   cv::Mat            distortion,
@@ -85,13 +86,15 @@ public:
                   int                camSizeIndex,
                   bool               mirroredH,
                   bool               mirroredV,
-                  CVCameraType       camType);
+                  CVCameraType       camType,
+                  std::string        computerInfos);
     //creates a guessed calibration using image size and fov angle
     CVCalibration(cv::Size     imageSize,
                   float        fovH,
                   bool         mirroredH,
                   bool         mirroredV,
-                  CVCameraType type);
+                  CVCameraType type,
+                  std::string  computerInfos);
     //create a guessed calibration using sensor size, camera focal length and captured image size
     CVCalibration(float        sensorWMM,
                   float        sensorHMM,
@@ -99,7 +102,8 @@ public:
                   cv::Size     imageSize,
                   bool         mirroredH,
                   bool         mirroredV,
-                  CVCameraType camType);
+                  CVCameraType camType,
+                  std::string  computerInfos);
 
     bool load(const string& calibDir,
               const string& calibFileName);

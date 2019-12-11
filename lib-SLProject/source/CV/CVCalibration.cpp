@@ -19,8 +19,6 @@ for a good top down information.
 
 #include <CVCalibration.h>
 #include <Utils.h>
-//#include <algorithm> // std::max
-#include <SLApplication.h>
 
 using namespace cv;
 using namespace std;
@@ -30,7 +28,7 @@ using namespace std;
 // Version 6, Date: 6.JUL.2019: Added device parameter from Android
 const int CVCalibration::_CALIBFILEVERSION = 6;
 //-----------------------------------------------------------------------------
-CVCalibration::CVCalibration(CVCameraType type)
+CVCalibration::CVCalibration(CVCameraType type, std::string computerInfos)
   : _state(CS_uncalibrated),
     _cameraFovHDeg(0.0f),
     _cameraFovVDeg(0.0f),
@@ -43,9 +41,9 @@ CVCalibration::CVCalibration(CVCameraType type)
     _calibrationTime("-"),
     _isMirroredH(false),
     _isMirroredV(false),
-    _camType(type)
+    _camType(type),
+    _computerInfos(computerInfos)
 {
-    _computerInfos = SLApplication::getComputerInfos();
 }
 //-----------------------------------------------------------------------------
 //creates a fully defined calibration
@@ -60,7 +58,8 @@ CVCalibration::CVCalibration(cv::Mat            cameraMat,
                              int                camSizeIndex,
                              bool               mirroredH,
                              bool               mirroredV,
-                             CVCameraType       camType)
+                             CVCameraType       camType,
+                             std::string        computerInfos)
   : _cameraMat(cameraMat.clone()),
     _distortion(distortion.clone()),
     _imageSize(imageSize),
@@ -72,12 +71,12 @@ CVCalibration::CVCalibration(cv::Mat            cameraMat,
     _camSizeIndex(camSizeIndex),
     _isMirroredH(mirroredH),
     _isMirroredV(mirroredV),
-    _camType(camType)
+    _camType(camType),
+    _computerInfos(computerInfos)
 {
     _cameraMatOrig = _cameraMat.clone();
     _imageSizeOrig = _imageSize;
 
-    _computerInfos = SLApplication::getComputerInfos();
     calculateUndistortedCameraMat();
     calcCameraFovFromUndistortedCameraMat();
     buildUndistortionMaps();
@@ -89,10 +88,12 @@ CVCalibration::CVCalibration(cv::Size     imageSize,
                              float        fovH,
                              bool         mirroredH,
                              bool         mirroredV,
-                             CVCameraType camType)
+                             CVCameraType camType,
+                             std::string  computerInfos)
   : _isMirroredH(mirroredH),
     _isMirroredV(mirroredV),
-    _camType(camType)
+    _camType(camType),
+    _computerInfos(computerInfos)
 {
     createFromGuessedFOV(imageSize.width, imageSize.height, fovH);
     _cameraMatOrig = _cameraMat.clone();
@@ -106,10 +107,12 @@ CVCalibration::CVCalibration(float        sensorWMM,
                              cv::Size     imageSize,
                              bool         mirroredH,
                              bool         mirroredV,
-                             CVCameraType camType)
+                             CVCameraType camType,
+                             std::string  computerInfos)
   : _isMirroredH(mirroredH),
     _isMirroredV(mirroredV),
-    _camType(camType)
+    _camType(camType),
+    _computerInfos(computerInfos)
 {
     // aspect ratio
     float devFovH = 2.0f * atan(sensorWMM / (2.0f * focalLengthMM)) * Utils::RAD2DEG;
@@ -427,7 +430,6 @@ void CVCalibration::createFromGuessedFOV(int   imageWidthPX,
     _cameraFovVDeg    = fovV;
     _calibrationTime  = Utils::getDateTime2String();
     _state            = CS_guessed;
-    _computerInfos    = SLApplication::getComputerInfos();
 }
 //-----------------------------------------------------------------------------
 //! Adapts an already calibrated camera to a new resolution (cropping and scaling)
@@ -482,172 +484,6 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
     calcCameraFovFromUndistortedCameraMat();
     buildUndistortionMaps();
 }
-//-----------------------------------------------------------------------------
-//! Uploads the active calibration to the ftp server
-//void CVCalibration::uploadCalibration(const string& fullPathAndFilename)
-//{
-//    if (!Utils::fileExists(fullPathAndFilename))
-//    {
-//        Utils::log("Calib. file doesn't exist: %s\n", fullPathAndFilename.c_str());
-//        return;
-//    }
-//
-//    if (state() != CS_calibrated)
-//    {
-//        Utils::log("Camera is not calibrated.");
-//        return;
-//    }
-//
-//    ftplib ftp;
-//
-//    if (ftp.Connect(_FTP_HOST.c_str()))
-//    {
-//        if (ftp.Login(_FTP_USER.c_str(), _FTP_PWD.c_str()))
-//        {
-//            if (ftp.Chdir(_FTP_DIR.c_str()))
-//            {
-//                // Get the latest calibration filename on the ftp
-//                string latestCalibFile = getLatestCalibFilename(ftp, fullPathAndFilename);
-//
-//                // Set the calibfile version
-//                int versionNO = 0;
-//                if (!latestCalibFile.empty())
-//                {
-//                    versionNO = getVersionInCalibFilename(latestCalibFile);
-//                }
-//
-//                // Increase the version
-//                versionNO++;
-//                stringstream versionSS;
-//                versionSS << "(" << versionNO << ")";
-//                versionSS.str();
-//
-//                // Build new filename on ftp with version number
-//                string fileWOExt          = Utils::getFileNameWOExt(fullPathAndFilename);
-//                string newVersionFilename = fileWOExt + versionSS.str() + ".xml";
-//
-//                // Upload
-//                if (!ftp.Put(fullPathAndFilename.c_str(),
-//                             newVersionFilename.c_str(),
-//                             ftplib::transfermode::image))
-//                    Utils::log("*** ERROR: ftp.Put failed. ***\n");
-//            }
-//            else
-//                Utils::log("*** ERROR: ftp.Chdir failed. ***\n");
-//        }
-//        else
-//            Utils::log("*** ERROR: ftp.Login failed. ***\n");
-//    }
-//    else
-//        Utils::log("*** ERROR: ftp.Connect failed. ***\n");
-//
-//    ftp.Quit();
-//}
-//-----------------------------------------------------------------------------
-//! Uploads the active calibration to the ftp server
-//void CVCalibration::downloadCalibration(const string& fullPathAndFilename)
-//{
-//    ftplib ftp;
-//
-//    if (ftp.Connect(_FTP_HOST.c_str()))
-//    {
-//        if (ftp.Login(_FTP_USER.c_str(), _FTP_PWD.c_str()))
-//        {
-//            if (ftp.Chdir(_FTP_DIR.c_str()))
-//            {
-//                // Get the latest calibration filename on the ftp
-//                string latestCalibFile = getLatestCalibFilename(ftp, fullPathAndFilename);
-//                int    remoteSize      = 0;
-//                ftp.Size(latestCalibFile.c_str(),
-//                         &remoteSize,
-//                         ftplib::transfermode::image);
-//
-//                if (remoteSize > 0)
-//                {
-//                    string targetFilename = Utils::getFileName(fullPathAndFilename);
-//                    if (!ftp.Get(fullPathAndFilename.c_str(),
-//                                 latestCalibFile.c_str(),
-//                                 ftplib::transfermode::image))
-//                        Utils::log("*** ERROR: ftp.Get failed. ***\n");
-//                }
-//                else
-//                    Utils::log("*** No calibration to download ***\n");
-//            }
-//            else
-//                Utils::log("*** ERROR: ftp.Chdir failed. ***\n");
-//        }
-//        else
-//            Utils::log("*** ERROR: ftp.Login failed. ***\n");
-//    }
-//    else
-//        Utils::log("*** ERROR: ftp.Connect failed. ***\n");
-//
-//    ftp.Quit();
-//}
-//-----------------------------------------------------------------------------
-//! Returns the latest calibration filename of the same fullPathAndFilename
-//string CVCalibration::getLatestCalibFilename(ftplib&       ftp,
-//                                             const string& fullPathAndFilename)
-//{
-//    // Get a list of calibrations of the same device
-//    string dirResult         = _calibDir + "dirResult.txt";
-//    string filenameWOExt     = Utils::getFileNameWOExt(fullPathAndFilename);
-//    string filenameWOExtStar = filenameWOExt + "*";
-//
-//    // Get result of ftp.Dir into the textfile dirResult
-//    if (ftp.Dir(dirResult.c_str(), filenameWOExtStar.c_str()))
-//    {
-//        vector<string> vecFilesInDir;
-//        vector<string> strippedFiles;
-//
-//        if (Utils::getFileContent(dirResult, vecFilesInDir))
-//        {
-//            for (string& fileInfoLine : vecFilesInDir)
-//            {
-//                size_t foundAt = fileInfoLine.find(filenameWOExt);
-//                if (foundAt != string::npos)
-//                {
-//                    string fileWExt  = fileInfoLine.substr(foundAt);
-//                    string fileWOExt = Utils::getFileNameWOExt(fileWExt);
-//                    strippedFiles.push_back(fileWOExt);
-//                }
-//            }
-//        }
-//
-//        if (!strippedFiles.empty())
-//        {
-//            // sort filename naturally as many file systems do.
-//            std::sort(strippedFiles.begin(), strippedFiles.end(), Utils::compareNatural);
-//            string latest = strippedFiles.back() + ".xml";
-//            return latest;
-//        }
-//        else
-//            return "";
-//    }
-//
-//    // Return empty for not found
-//    return "";
-//}
-//-----------------------------------------------------------------------------
-//! Returns the version number at the end of the calibration filename
-//int CVCalibration::getVersionInCalibFilename(const string& calibFilename)
-//{
-//    string calibFilenameWOExt = Utils::getFileNameWOExt(calibFilename);
-//
-//    int versionNO = 0;
-//    if (!calibFilenameWOExt.empty())
-//    {
-//        size_t len = calibFilenameWOExt.length();
-//        if (calibFilenameWOExt.at(len - 1) == ')')
-//        {
-//            size_t leftPos = calibFilenameWOExt.rfind('(');
-//            string verStr  = calibFilenameWOExt.substr(leftPos + 1, len - leftPos - 2);
-//            versionNO      = stoi(verStr);
-//        }
-//    }
-//    return versionNO;
-//}
-//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 //! Calculate a camera matrix that we use for the scene graph and for the reprojection of the undistored image
 void CVCalibration::calculateUndistortedCameraMat()

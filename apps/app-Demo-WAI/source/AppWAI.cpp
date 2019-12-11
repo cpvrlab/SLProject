@@ -399,7 +399,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
 
 bool WAIApp::checkCalibration(const std::string& calibDir, const std::string& calibFileName)
 {
-    CVCalibration testCalib(CVCameraType::FRONTFACING);
+    CVCalibration testCalib(CVCameraType::FRONTFACING, "");
     testCalib.load(calibDir, calibFileName);
     if (testCalib.cameraMat().empty() || testCalib.distortion().empty()) //app will crash if distortion is empty
         return false;

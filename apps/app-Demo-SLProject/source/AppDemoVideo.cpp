@@ -60,7 +60,8 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
                                                                              CVCapture::instance()->activeCamSizeIndex,
                                                                              ac->mirrorH(),
                                                                              ac->mirrorV(),
-                                                                             ac->type());
+                                                                             ac->type(),
+                                                                             SLApplication::getComputerInfos());
 
             //clear grab request from sceneview
             adSv->grab           = false;
@@ -169,7 +170,8 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
                                                      CVCapture::instance()->lastFrame.rows),
                                             ac->mirrorH(),
                                             ac->mirrorV(),
-                                            ac->type());
+                                            ac->type(),
+                                            SLApplication::getComputerInfos());
         }
         else
         {
@@ -179,7 +181,8 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
                                             60.0,
                                             ac->mirrorH(),
                                             ac->mirrorV(),
-                                            ac->type());
+                                            ac->type(),
+                                            SLApplication::getComputerInfos());
         }
     }
 }
