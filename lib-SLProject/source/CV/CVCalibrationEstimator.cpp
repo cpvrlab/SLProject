@@ -131,8 +131,8 @@ bool CVCalibrationEstimator::extractAsync()
                              CVSize(11, 11),
                              CVSize(-1, -1),
                              TermCriteria(TermCriteria::EPS + TermCriteria::COUNT,
-                                          30000,
-                                          0.01));
+                                          30,
+                                          0.0001));
 
             //add detected points
             _imagePoints.push_back(preciseCorners2D);
@@ -198,7 +198,8 @@ bool CVCalibrationEstimator::calibrateAsync()
                                          _mirroredH,
                                          _mirroredV,
                                          _camType,
-                                         _computerInfos);
+                                         _computerInfos,
+                                         _params.calibrationFlags());
         }
     }
     catch (std::exception& e)

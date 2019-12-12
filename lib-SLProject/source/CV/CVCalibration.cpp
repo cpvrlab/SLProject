@@ -59,7 +59,8 @@ CVCalibration::CVCalibration(cv::Mat            cameraMat,
                              bool               mirroredH,
                              bool               mirroredV,
                              CVCameraType       camType,
-                             std::string        computerInfos)
+                             std::string        computerInfos,
+                             int                calibFlags)
   : _cameraMat(cameraMat.clone()),
     _distortion(distortion.clone()),
     _imageSize(imageSize),
@@ -72,7 +73,8 @@ CVCalibration::CVCalibration(cv::Mat            cameraMat,
     _isMirroredH(mirroredH),
     _isMirroredV(mirroredV),
     _camType(camType),
-    _computerInfos(computerInfos)
+    _computerInfos(computerInfos),
+    _calibFlags(calibFlags)
 {
     _cameraMatOrig = _cameraMat.clone();
     _imageSizeOrig = _imageSize;

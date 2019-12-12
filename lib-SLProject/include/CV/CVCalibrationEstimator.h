@@ -82,6 +82,18 @@ public:
     bool          isDone() { return _state == State::Done; }
     bool          isDoneCaptureAndSave() { return _state == State::DoneCaptureAndSave; }
 
+    static bool calcCalibration(CVSize&            imageSize,
+                                CVMat&             cameraMatrix,
+                                CVMat&             distCoeffs,
+                                const CVVVPoint2f& imagePoints,
+                                CVVMat&            rvecs,
+                                CVVMat&            tvecs,
+                                vector<float>&     reprojErrs,
+                                float&             totalAvgErr,
+                                CVSize&            boardSize,
+                                float              squareSize,
+                                int                flag);
+
 private:
     bool calibrateAsync();
     bool extractAsync();
@@ -90,17 +102,6 @@ private:
     void updateOnlyCapture(bool found, bool grabFrame, cv::Mat imageGray);
     void saveImage(cv::Mat imageGray);
 
-    static bool   calcCalibration(CVSize&            imageSize,
-                                  CVMat&             cameraMatrix,
-                                  CVMat&             distCoeffs,
-                                  const CVVVPoint2f& imagePoints,
-                                  CVVMat&            rvecs,
-                                  CVVMat&            tvecs,
-                                  vector<float>&     reprojErrs,
-                                  float&             totalAvgErr,
-                                  CVSize&            boardSize,
-                                  float              squareSize,
-                                  int                flag);
     static double calcReprojectionErrors(const CVVVPoint3f& objectPoints,
                                          const CVVVPoint2f& imagePoints,
                                          const CVVMat&      rvecs,

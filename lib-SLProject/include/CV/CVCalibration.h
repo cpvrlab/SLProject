@@ -87,7 +87,8 @@ public:
                   bool               mirroredH,
                   bool               mirroredV,
                   CVCameraType       camType,
-                  std::string        computerInfos);
+                  std::string        computerInfos,
+                  int                calibFlags);
     //creates a guessed calibration using image size and fov angle
     CVCalibration(cv::Size     imageSize,
                   float        fovH,
