@@ -50,7 +50,7 @@ public:
     static void               close();
     static OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);
 
-    static void onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid);
+    static void onLoadWAISceneView(SLScene* s, SLSceneView* sv);
     static bool update();
     static bool updateTracking();
 

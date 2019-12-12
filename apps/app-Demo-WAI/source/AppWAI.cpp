@@ -40,6 +40,9 @@
 #include <WAICalibrationMgr.h>
 #include <FtpUtils.h>
 
+//move
+#include <SLAssimpImporter.h>
+
 AppDemoGuiAbout* WAIApp::aboutDial = nullptr;
 AppDemoGuiError* WAIApp::errorDial = nullptr;
 
@@ -109,14 +112,50 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
 
     SLVstring empty;
     empty.push_back("WAI APP");
-    slCreateAppAndScene(empty,
-                        dirs->slDataRoot + "/shaders/",
-                        dirs->slDataRoot + "/models/",
-                        dirs->slDataRoot + "/images/textures/",
-                        dirs->slDataRoot + "/images/fonts/",
-                        dirs->writableDir,
-                        "WAI Demo App",
-                        (void*)WAIApp::onLoadWAISceneView);
+    //slCreateAppAndScene(empty,
+    //                    dirs->slDataRoot + "/shaders/",
+    //                    dirs->slDataRoot + "/models/",
+    //                    dirs->slDataRoot + "/images/textures/",
+    //                    dirs->slDataRoot + "/images/fonts/",
+    //                    dirs->writableDir,
+    //                    "WAI Demo App",
+    //                    (void*)WAIApp::onLoadWAISceneView);
+    {
+        assert(SLApplication::scene == nullptr && "SLScene is already created!");
+
+        // Default paths for all loaded resources
+        SLGLProgram::defaultPath      = dirs->slDataRoot + "/shaders/";
+        SLGLTexture::defaultPath      = dirs->slDataRoot + "/images/textures/";
+        SLGLTexture::defaultPathFonts = dirs->slDataRoot + "/images/fonts/";
+        SLAssimpImporter::defaultPath = dirs->slDataRoot + "/models/";
+        SLApplication::configPath     = dirs->writableDir;
+
+        SLGLState* stateGL = SLGLState::instance();
+
+        //logAppName = "SLProject";
+        //SL_LOG("Path to Models  : %s\n", modelPath.c_str());
+        //SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
+        //SL_LOG("Path to Textures: %s\n", texturePath.c_str());
+        //SL_LOG("Path to Fonts   : %s\n", fontPath.c_str());
+        //SL_LOG("Path to Config. : %s\n", configPath.c_str());
+        //SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
+        //SL_LOG("CV has OpenCL   : %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");
+        //SL_LOG("OpenGL Version  : %s\n", stateGL->glVersion().c_str());
+        //SL_LOG("Vendor          : %s\n", stateGL->glVendor().c_str());
+        //SL_LOG("Renderer        : %s\n", stateGL->glRenderer().c_str());
+        //SL_LOG("GLSL Version    : %s (%s) \n", stateGL->glSLVersion().c_str(), stateGL->getSLVersionNO().c_str());
+        //SL_LOG("------------------------------------------------------------------\n");
+
+        //SLApplication::createAppAndScene("WAI Demo App", (void*)WAIApp::onLoadWAISceneView);
+        {
+            assert(SLApplication::scene == nullptr &&
+                   "You can create only one SLApplication");
+
+            SLApplication::name  = std::move("WAI Demo App");
+            SLApplication::scene = new SLScene("WAI Demo App", (cbOnSceneLoad)WAIApp::onLoadWAISceneView);
+            //_timer.start();
+        }
+    }
 
     // This load the GUI configs that are locally stored
     uiPrefs.setDPI(dpi);
@@ -130,14 +169,62 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
         //FtpUtils::downloadFile()
     }
 
-    int svIndex = slCreateSceneView((int)(scrWidth * scr2fbX),
-                                    (int)(scrHeight * scr2fbY),
-                                    dpi,
-                                    (SLSceneID)0,
-                                    nullptr,
-                                    nullptr,
-                                    nullptr,
-                                    (void*)buildGUI);
+    //int svIndex = slCreateSceneView((int)(scrWidth * scr2fbX),
+    //                                (int)(scrHeight * scr2fbY),
+    //                                dpi,
+    //                                (SLSceneID)0,
+    //                                nullptr,
+    //                                nullptr,
+    //                                nullptr,
+    //                                (void*)buildGUI);
+
+    int svIndex = 0;
+    {
+        int screenWidth  = (int)(scrWidth * scr2fbX);
+        int screenHeight = (int)(scrHeight * scr2fbY);
+        assert(SLApplication::scene && "No SLApplication::scene!");
+
+        // Use our own sceneview creator callback or the the passed one.
+        //cbOnNewSceneView newSVCallback;
+        //if (onNewSceneViewCallback == nullptr)
+        //    newSVCallback = &slNewSceneView;
+        //else
+        //    newSVCallback = (cbOnNewSceneView)onNewSceneViewCallback;
+
+        // Create the sceneview & get the pointer with the sceneview index
+        //SLuint       index = (SLuint)newSVCallback();
+        //SLSceneView* sv    = SLApplication::scene->sceneView(index);
+        SLSceneView* sv = new SLSceneView();
+        sv->init("SceneView",
+                 screenWidth,
+                 screenHeight,
+                 nullptr,
+                 nullptr,
+                 (void*)buildGUI);
+
+        // Set default font sizes depending on the dpi no matter if ImGui is used
+        if (!SLApplication::dpi)
+            SLApplication::dpi = dpi;
+
+        // Load GUI fonts depending on the resolution
+        sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+
+        //// Set active sceneview and load scene. This is done for the first sceneview
+        //if (!SLApplication::scene->root3D())
+        //{
+        //    if (SLApplication::sceneID == SID_Empty)
+        //        SLApplication::scene->onLoad(SLApplication::scene, sv, initScene);
+        //    else
+        //        SLApplication::scene->onLoad(SLApplication::scene, sv, SLApplication::sceneID);
+        //}
+        //else
+        //    sv->onInitialize();
+        onLoadWAISceneView(SLApplication::scene, sv);
+
+        // return the identifier index
+        //return (SLint)sv->index();
+        svIndex = (SLint)sv->index();
+    }
 
     loaded = true;
     SLApplication::devRot.isUsed(true);
@@ -477,7 +564,7 @@ void WAIApp::buildGUI(SLScene* s, SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
-void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
+void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv)
 {
     s->init();
     waiScene->rebuild();
@@ -518,119 +605,128 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv, SLSceneID sid)
     WAIApp::resizeWindow = true;
 }
 
+bool updateSceneViews()
+{
+    bool needUpdate = false;
+
+    for (auto sv : SLApplication::scene->sceneViews())
+        if (sv->onPaint() && !needUpdate)
+            needUpdate = true;
+
+    return needUpdate;
+}
+
 //-----------------------------------------------------------------------------
 bool WAIApp::update()
 {
     AVERAGE_TIMING_START("WAIAppUpdate");
     //resetAllTexture();
-    if (!mode)
-        return false;
-
-    if (!loaded)
-        return false;
-
-    if (CVCapture::instance()->lastFrame.empty() ||
-        CVCapture::instance()->lastFrame.cols == 0 && CVCapture::instance()->lastFrame.rows == 0)
+    if (mode && loaded)
     {
-        //this only has an influence on desktop or video file
-        CVCapture::instance()->grabAndAdjustForSL(videoFrameWdivH);
-        return false;
-    }
-
-    bool iKnowWhereIAm = (mode->getTrackingState() == WAI::TrackingState_TrackingOK);
-    while (videoCursorMoveIndex < 0)
-    {
-        //this only has an influence on desktop or video file
-        CVCapture::instance()->moveCapturePosition(-2);
-        CVCapture::instance()->grabAndAdjustForSL(videoFrameWdivH);
-        iKnowWhereIAm = updateTracking();
-
-        videoCursorMoveIndex++;
-    }
-
-    while (videoCursorMoveIndex > 0)
-    {
-        //this only has an influence on desktop or video file
-        CVCapture::instance()->grabAndAdjustForSL(videoFrameWdivH);
-        iKnowWhereIAm = updateTracking();
-
-        videoCursorMoveIndex--;
-    }
-
-    if (CVCapture::instance()->videoType() != VT_NONE)
-    {
-        //this only has an influence on desktop or video file
-        if (CVCapture::instance()->videoType() != VT_FILE || !pauseVideo)
+        if (CVCapture::instance()->lastFrame.empty() ||
+            CVCapture::instance()->lastFrame.cols == 0 && CVCapture::instance()->lastFrame.rows == 0)
         {
+            //this only has an influence on desktop or video file
             CVCapture::instance()->grabAndAdjustForSL(videoFrameWdivH);
-            iKnowWhereIAm = updateTracking();
-        }
-    }
-
-    //update tracking infos visualization
-    updateTrackingVisualization(iKnowWhereIAm);
-
-    if (iKnowWhereIAm)
-    {
-        lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
-        IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
-
-        // TODO(dgj1): maybe make this API cleaner
-        cv::Mat pose = cv::Mat(4, 4, CV_32F);
-        if (!mode->getPose(&pose))
-        {
             return false;
         }
 
-        // update camera node position
-        cv::Mat Rwc(3, 3, CV_32F);
-        cv::Mat twc(3, 1, CV_32F);
+        bool iKnowWhereIAm = (mode->getTrackingState() == WAI::TrackingState_TrackingOK);
+        while (videoCursorMoveIndex < 0)
+        {
+            //this only has an influence on desktop or video file
+            CVCapture::instance()->moveCapturePosition(-2);
+            CVCapture::instance()->grabAndAdjustForSL(videoFrameWdivH);
+            iKnowWhereIAm = updateTracking();
 
-        Rwc = (pose.rowRange(0, 3).colRange(0, 3)).t();
-        twc = -Rwc * pose.rowRange(0, 3).col(3);
+            videoCursorMoveIndex++;
+        }
 
-        cv::Mat PoseInv = cv::Mat::eye(4, 4, CV_32F);
+        while (videoCursorMoveIndex > 0)
+        {
+            //this only has an influence on desktop or video file
+            CVCapture::instance()->grabAndAdjustForSL(videoFrameWdivH);
+            iKnowWhereIAm = updateTracking();
 
-        Rwc.copyTo(PoseInv.colRange(0, 3).rowRange(0, 3));
-        twc.copyTo(PoseInv.rowRange(0, 3).col(3));
-        SLMat4f om;
+            videoCursorMoveIndex--;
+        }
 
-        om.setMatrix(PoseInv.at<float>(0, 0),
-                     -PoseInv.at<float>(0, 1),
-                     -PoseInv.at<float>(0, 2),
-                     PoseInv.at<float>(0, 3),
-                     PoseInv.at<float>(1, 0),
-                     -PoseInv.at<float>(1, 1),
-                     -PoseInv.at<float>(1, 2),
-                     PoseInv.at<float>(1, 3),
-                     PoseInv.at<float>(2, 0),
-                     -PoseInv.at<float>(2, 1),
-                     -PoseInv.at<float>(2, 2),
-                     PoseInv.at<float>(2, 3),
-                     PoseInv.at<float>(3, 0),
-                     -PoseInv.at<float>(3, 1),
-                     -PoseInv.at<float>(3, 2),
-                     PoseInv.at<float>(3, 3));
+        if (CVCapture::instance()->videoType() != VT_NONE)
+        {
+            //this only has an influence on desktop or video file
+            if (CVCapture::instance()->videoType() != VT_FILE || !pauseVideo)
+            {
+                CVCapture::instance()->grabAndAdjustForSL(videoFrameWdivH);
+                iKnowWhereIAm = updateTracking();
+            }
+        }
 
-        waiScene->cameraNode->om(om);
+        //update tracking infos visualization
+        updateTrackingVisualization(iKnowWhereIAm);
+
+        if (iKnowWhereIAm)
+        {
+            lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
+            IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
+
+            // TODO(dgj1): maybe make this API cleaner
+            cv::Mat pose = cv::Mat(4, 4, CV_32F);
+            if (!mode->getPose(&pose))
+            {
+                return false;
+            }
+
+            // update camera node position
+            cv::Mat Rwc(3, 3, CV_32F);
+            cv::Mat twc(3, 1, CV_32F);
+
+            Rwc = (pose.rowRange(0, 3).colRange(0, 3)).t();
+            twc = -Rwc * pose.rowRange(0, 3).col(3);
+
+            cv::Mat PoseInv = cv::Mat::eye(4, 4, CV_32F);
+
+            Rwc.copyTo(PoseInv.colRange(0, 3).rowRange(0, 3));
+            twc.copyTo(PoseInv.rowRange(0, 3).col(3));
+            SLMat4f om;
+
+            om.setMatrix(PoseInv.at<float>(0, 0),
+                         -PoseInv.at<float>(0, 1),
+                         -PoseInv.at<float>(0, 2),
+                         PoseInv.at<float>(0, 3),
+                         PoseInv.at<float>(1, 0),
+                         -PoseInv.at<float>(1, 1),
+                         -PoseInv.at<float>(1, 2),
+                         PoseInv.at<float>(1, 3),
+                         PoseInv.at<float>(2, 0),
+                         -PoseInv.at<float>(2, 1),
+                         -PoseInv.at<float>(2, 2),
+                         PoseInv.at<float>(2, 3),
+                         PoseInv.at<float>(3, 0),
+                         -PoseInv.at<float>(3, 1),
+                         -PoseInv.at<float>(3, 2),
+                         PoseInv.at<float>(3, 3));
+
+            waiScene->cameraNode->om(om);
+        }
+        else
+        {
+            SLQuat4f q1 = lastKnowPoseQuaternion;
+            SLQuat4f q2 = SLApplication::devRot.quaternion();
+            q1.invert();
+            SLQuat4f q             = q1 * q2;
+            IMUQuaternion          = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
+            SLMat4f imuRot         = IMUQuaternion.toMat4();
+            lastKnowPoseQuaternion = q2;
+
+            SLMat4f cameraMat = waiScene->cameraNode->om();
+            waiScene->cameraNode->om(cameraMat * imuRot);
+        }
+
+        AVERAGE_TIMING_STOP("WAIAppUpdate");
     }
-    else
-    {
-        SLQuat4f q1 = lastKnowPoseQuaternion;
-        SLQuat4f q2 = SLApplication::devRot.quaternion();
-        q1.invert();
-        SLQuat4f q             = q1 * q2;
-        IMUQuaternion          = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
-        SLMat4f imuRot         = IMUQuaternion.toMat4();
-        lastKnowPoseQuaternion = q2;
-
-        SLMat4f cameraMat = waiScene->cameraNode->om();
-        waiScene->cameraNode->om(cameraMat * imuRot);
-    }
-
-    AVERAGE_TIMING_STOP("WAIAppUpdate");
-
-    return true;
+    //update scene (before it was slUpdateScene)
+    SLApplication::scene->onUpdate();
+    return updateSceneViews();
 }
 //-----------------------------------------------------------------------------
 bool WAIApp::updateTracking()

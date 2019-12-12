@@ -64,11 +64,11 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
     assert(SLApplication::scene == nullptr && "SLScene is already created!");
 
     // Default paths for all loaded resources
-    SLGLProgram::defaultPath                  = shaderPath;
-    SLGLTexture::defaultPath                  = texturePath;
-    SLGLTexture::defaultPathFonts             = fontPath;
-    SLAssimpImporter::defaultPath             = modelPath;
-    SLApplication::configPath                 = configPath;
+    SLGLProgram::defaultPath      = shaderPath;
+    SLGLTexture::defaultPath      = texturePath;
+    SLGLTexture::defaultPathFonts = fontPath;
+    SLAssimpImporter::defaultPath = modelPath;
+    SLApplication::configPath     = configPath;
 
     SLGLState* stateGL = SLGLState::instance();
 
@@ -460,7 +460,7 @@ void slSetupExternalDir(const SLstring& externalPath)
 //-----------------------------------------------------------------------------
 //! Adds a value to the applications device parameter map
 void slSetDeviceParameter(const SLstring& parameter,
-                          SLstring value)
+                          SLstring        value)
 {
     SLApplication::deviceParameter[parameter] = std::move(value);
 }

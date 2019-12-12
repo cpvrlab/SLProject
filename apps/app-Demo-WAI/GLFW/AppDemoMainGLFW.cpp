@@ -558,10 +558,11 @@ int main(int argc, char* argv[])
             WAIApp::resizeWindow = false;
         }
 
-        WAIApp::update();
-        slUpdateScene();
+        SLbool doRepaint = WAIApp::update();
 
-        SLbool doRepaint = slPaintAllViews();
+        //slUpdateScene();
+
+        //SLbool doRepaint = slPaintAllViews();
 
         glfwSwapBuffers(window);
         glfwSetWindowTitle(window, slGetWindowTitle(svIndex).c_str());
