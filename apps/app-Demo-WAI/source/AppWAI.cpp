@@ -112,50 +112,6 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
 
     SLVstring empty;
     empty.push_back("WAI APP");
-    //slCreateAppAndScene(empty,
-    //                    dirs->slDataRoot + "/shaders/",
-    //                    dirs->slDataRoot + "/models/",
-    //                    dirs->slDataRoot + "/images/textures/",
-    //                    dirs->slDataRoot + "/images/fonts/",
-    //                    dirs->writableDir,
-    //                    "WAI Demo App",
-    //                    (void*)WAIApp::onLoadWAISceneView);
-    {
-        assert(SLApplication::scene == nullptr && "SLScene is already created!");
-
-        // Default paths for all loaded resources
-        SLGLProgram::defaultPath      = dirs->slDataRoot + "/shaders/";
-        SLGLTexture::defaultPath      = dirs->slDataRoot + "/images/textures/";
-        SLGLTexture::defaultPathFonts = dirs->slDataRoot + "/images/fonts/";
-        SLAssimpImporter::defaultPath = dirs->slDataRoot + "/models/";
-        SLApplication::configPath     = dirs->writableDir;
-
-        SLGLState* stateGL = SLGLState::instance();
-
-        //logAppName = "SLProject";
-        //SL_LOG("Path to Models  : %s\n", modelPath.c_str());
-        //SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
-        //SL_LOG("Path to Textures: %s\n", texturePath.c_str());
-        //SL_LOG("Path to Fonts   : %s\n", fontPath.c_str());
-        //SL_LOG("Path to Config. : %s\n", configPath.c_str());
-        //SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
-        //SL_LOG("CV has OpenCL   : %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");
-        //SL_LOG("OpenGL Version  : %s\n", stateGL->glVersion().c_str());
-        //SL_LOG("Vendor          : %s\n", stateGL->glVendor().c_str());
-        //SL_LOG("Renderer        : %s\n", stateGL->glRenderer().c_str());
-        //SL_LOG("GLSL Version    : %s (%s) \n", stateGL->glSLVersion().c_str(), stateGL->getSLVersionNO().c_str());
-        //SL_LOG("------------------------------------------------------------------\n");
-
-        //SLApplication::createAppAndScene("WAI Demo App", (void*)WAIApp::onLoadWAISceneView);
-        {
-            assert(SLApplication::scene == nullptr &&
-                   "You can create only one SLApplication");
-
-            SLApplication::name  = std::move("WAI Demo App");
-            SLApplication::scene = new SLScene("WAI Demo App", (cbOnSceneLoad)WAIApp::onLoadWAISceneView);
-            //_timer.start();
-        }
-    }
 
     // This load the GUI configs that are locally stored
     uiPrefs.setDPI(dpi);
@@ -169,31 +125,25 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
         //FtpUtils::downloadFile()
     }
 
-    //int svIndex = slCreateSceneView((int)(scrWidth * scr2fbX),
-    //                                (int)(scrHeight * scr2fbY),
-    //                                dpi,
-    //                                (SLSceneID)0,
-    //                                nullptr,
-    //                                nullptr,
-    //                                nullptr,
-    //                                (void*)buildGUI);
-
     int svIndex = 0;
+    {
+        assert(SLApplication::scene == nullptr && "SLScene is already created!");
+
+        // Default paths for all loaded resources
+        SLGLProgram::defaultPath      = dirs->slDataRoot + "/shaders/";
+        SLGLTexture::defaultPath      = dirs->slDataRoot + "/images/textures/";
+        SLGLTexture::defaultPathFonts = dirs->slDataRoot + "/images/fonts/";
+        SLAssimpImporter::defaultPath = dirs->slDataRoot + "/models/";
+        SLApplication::configPath     = dirs->writableDir;
+
+        SLApplication::name  = "WAI Demo App";
+        SLApplication::scene = new SLScene("WAI Demo App", (cbOnSceneLoad)WAIApp::onLoadWAISceneView);
+    }
     {
         int screenWidth  = (int)(scrWidth * scr2fbX);
         int screenHeight = (int)(scrHeight * scr2fbY);
         assert(SLApplication::scene && "No SLApplication::scene!");
 
-        // Use our own sceneview creator callback or the the passed one.
-        //cbOnNewSceneView newSVCallback;
-        //if (onNewSceneViewCallback == nullptr)
-        //    newSVCallback = &slNewSceneView;
-        //else
-        //    newSVCallback = (cbOnNewSceneView)onNewSceneViewCallback;
-
-        // Create the sceneview & get the pointer with the sceneview index
-        //SLuint       index = (SLuint)newSVCallback();
-        //SLSceneView* sv    = SLApplication::scene->sceneView(index);
         SLSceneView* sv = new SLSceneView();
         sv->init("SceneView",
                  screenWidth,
@@ -209,20 +159,7 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
         // Load GUI fonts depending on the resolution
         sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
 
-        //// Set active sceneview and load scene. This is done for the first sceneview
-        //if (!SLApplication::scene->root3D())
-        //{
-        //    if (SLApplication::sceneID == SID_Empty)
-        //        SLApplication::scene->onLoad(SLApplication::scene, sv, initScene);
-        //    else
-        //        SLApplication::scene->onLoad(SLApplication::scene, sv, SLApplication::sceneID);
-        //}
-        //else
-        //    sv->onInitialize();
         onLoadWAISceneView(SLApplication::scene, sv);
-
-        // return the identifier index
-        //return (SLint)sv->index();
         svIndex = (SLint)sv->index();
     }
 
@@ -724,6 +661,7 @@ bool WAIApp::update()
 
         AVERAGE_TIMING_STOP("WAIAppUpdate");
     }
+
     //update scene (before it was slUpdateScene)
     SLApplication::scene->onUpdate();
     return updateSceneViews();
