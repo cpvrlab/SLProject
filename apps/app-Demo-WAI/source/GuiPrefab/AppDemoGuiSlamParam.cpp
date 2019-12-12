@@ -59,9 +59,9 @@ KPextractor* AppDemoGuiSlamParam::surfExtractor(int th)
     return new ORB_SLAM2::SURFextractor(th);
 }
 
-KPextractor* AppDemoGuiSlamParam::glslExtractor(int nb_kp, float lowThrs, float highThrs, float sigma)
+KPextractor* AppDemoGuiSlamParam::glslExtractor(int nb_kp_low, int nb_kp_medium, int nb_kp_high, float thrs, float lowSigma, float mediumSigma, float highSigma)
 {
-    return new GLSLextractor(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows, nb_kp, lowThrs, highThrs, sigma);
+    return new GLSLextractor(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows, nb_kp_low, nb_kp_medium, nb_kp_high, thrs, lowSigma, mediumSigma, highSigma);
 }
 
 KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
@@ -83,11 +83,11 @@ KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
         case 6:
             return orbExtractor(4000);
         case 7:
-            return glslExtractor(64, 0.3, 0.6);
+            return glslExtractor(8, 8, 8, 0.50, 1.9, 1.6, 1.3);
         case 8:
-            return glslExtractor(128, 0.2, 0.4);
+            return glslExtractor(16, 16, 16, 0.25, 1.8, 1.5, 1.2);
         case 9:
-            return glslExtractor(512, 0.15, 0.3, 1.2);
+            return glslExtractor(32, 32, 32, 0.1, 1.8, 1.5, 1.2);
     }
     return surfExtractor(1000);
 }

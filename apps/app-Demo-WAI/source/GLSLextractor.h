@@ -10,7 +10,7 @@
 class GLSLextractor : public ORB_SLAM2::KPextractor
 {
 public:
-    GLSLextractor(int w, int h, int nbKeyPointPerArea, float lowThrs, float highThrs, float sigma = 1.5);
+    GLSLextractor(int w, int h, int nbKeypointsLow, int nbKeypointsMedium, int nbKeypointsHigh, float thrs, float lowSigma, float mediumSigma, float highSigma);
 
     ~GLSLextractor() {}
 

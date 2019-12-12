@@ -1117,9 +1117,9 @@ static int bit_pattern_31_[256 * 4] =
     -11 /*mean (0.127148), correlation (0.547401)*/
 };
 
-GLSLextractor::GLSLextractor(int w, int h, int nbKeyPointPerArea, float lowThrs, float highThrs, float sigma)
+GLSLextractor::GLSLextractor(int w, int h, int nbKeypointsLow, int nbKeypointsMedium, int nbKeypointsHigh, float thrs, float lowSigma, float mediumSigma, float highSigma)
   : KPextractor("GLSL"),
-    imgProc(w, h, nbKeyPointPerArea, lowThrs, highThrs, sigma)
+    imgProc(w, h, nbKeypointsLow, nbKeypointsMedium, nbKeypointsHigh, thrs, lowSigma, mediumSigma, highSigma)
 {
     mvScaleFactor.resize(1);
     mvLevelSigma2.resize(1);
@@ -1155,19 +1155,9 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
 
     AVERAGE_TIMING_START("GLSL Hessian");
 
-    glBindTexture(GL_TEXTURE_2D, imgProc.renderTextures[0]);
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 GL_R8,
-                 image.cols,
-                 image.rows,
-                 0,
-                 GL_RED,
-                 GL_UNSIGNED_BYTE,
-                 image.data);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
     _keypoints.clear();
+
+    imgProc.setInputTexture(image);
     imgProc.gpu_kp();
     imgProc.readResult(_keypoints);
 
