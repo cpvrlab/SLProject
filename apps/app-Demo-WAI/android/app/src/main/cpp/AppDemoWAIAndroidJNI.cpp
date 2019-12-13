@@ -24,6 +24,7 @@
 JNIEnv*           environment; //! Pointer to JAVA environment used in ray tracing callback
 int               svIndex;     //!< SceneView index
 AppWAIDirectories dirs;
+WAIApp waiApp;
 //-----------------------------------------------------------------------------
 /*! Java Native Interface (JNI) function declarations. These functions are
 called by the Java interface class GLES3Lib. The function name follows the pattern
@@ -96,12 +97,12 @@ extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onInit(JNIEnv* env, 
     //                                        dirs.writableDir + "/calibrations/", // for calibInitPath
     //                                        dirs.writableDir + "/videos/");      // for videos
 
-    svIndex = WAIApp::load(640, 480, width, height, 1.0, 1.0, dpi, &dirs);
+    svIndex = waiApp.load(640, 480, width, height, 1.0, 1.0, dpi, &dirs);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onTerminate(JNIEnv* env, jclass obj)
 {
-    WAIApp::close();
+    //WAIApp::close();
     slTerminate();
 }
 //-----------------------------------------------------------------------------
@@ -109,7 +110,7 @@ extern "C" JNIEXPORT
   jboolean JNICALL
   Java_ch_cpvr_wai_GLES3Lib_onUpdateTracking(JNIEnv* env, jclass obj)
 {
-    return WAIApp::update();
+    return waiApp.update();
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT
@@ -176,7 +177,7 @@ extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onClose(JNIEnv* env,
     SL_LOG("onClose\n ");
 
     // This saves the GUI configs
-    WAIApp::close();
+    //WAIApp::close();
 
     slTerminate();
 }
@@ -186,7 +187,7 @@ extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onStop(JNIEnv* env, 
     SL_LOG("onStop\n ");
 
     // This saves the GUI configs
-    WAIApp::close();
+    //WAIApp::close();
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT jboolean JNICALL Java_ch_cpvr_wai_GLES3Lib_usesRotation(JNIEnv* env, jclass obj)

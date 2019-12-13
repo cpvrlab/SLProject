@@ -532,6 +532,7 @@ void GLFWInit()
     glfwSetWindowCloseCallback(window, onClose);
 }
 
+WAIApp waiApp;
 /*!
 The C main procedure running the GLFW GUI application.
 */
@@ -545,7 +546,7 @@ int main(int argc, char* argv[])
     dirs.slDataRoot  = SLstring(SL_PROJECT_ROOT) + "/data";
     dirs.writableDir = Utils::getAppsWritableDir();
 
-    svIndex = WAIApp::load(640, 480, scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, &dirs);
+    svIndex = waiApp.load(640, 480, scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, &dirs);
 
     HighResTimer hrt;
 
@@ -558,7 +559,7 @@ int main(int argc, char* argv[])
             WAIApp::resizeWindow = false;
         }
 
-        SLbool doRepaint = WAIApp::update();
+        SLbool doRepaint = waiApp.update();
 
         //slUpdateScene();
 
@@ -574,7 +575,7 @@ int main(int argc, char* argv[])
             glfwPollEvents();
     }
 
-    WAIApp::close();
+    //waiApp.close();
 
     slTerminate();
     glfwDestroyWindow(window);

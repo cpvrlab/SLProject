@@ -360,8 +360,11 @@ void SLGLImGui::onResize(SLint scrW, SLint scrH)
 }
 //-----------------------------------------------------------------------------
 //! Callback for main rendering for the ImGui GUI system
-void SLGLImGui::onPaint(ImDrawData* draw_data, const SLRecti& viewportRect)
+void SLGLImGui::onPaint(const SLRecti& viewportRect)
 {
+    ImGui::Render();
+    ImDrawData* draw_data = ImGui::GetDrawData();
+
     ImGuiIO& io = ImGui::GetIO();
 
     // Avoid rendering when minimized, scale coordinates for retina displays
@@ -548,8 +551,9 @@ void SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
 //! Callback on mouse button up event
 void SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
 {
-    ImGuiIO& io = ImGui::GetIO();
-    io.MousePos = ImVec2((SLfloat)x, (SLfloat)y);
+    ImGui::GetIO().MousePos = ImVec2((SLfloat)x, (SLfloat)y);
+    ImGuiIO& io             = ImGui::GetIO();
+    io.MousePos             = ImVec2((SLfloat)x, (SLfloat)y);
     if (button == MB_left) io.MouseDown[0] = false;
     if (button == MB_middle) io.MouseDown[1] = false;
     if (button == MB_right) io.MouseDown[2] = false;
@@ -614,7 +618,7 @@ void SLGLImGui::renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLin
         ImGui::GetIO().MousePos = ImVec2((SLfloat)mouseX, (SLfloat)mouseY);
         onInitNewFrame(s, sv);
         ImGui::Render();
-        onPaint(ImGui::GetDrawData(), sv->viewportRect());
+        onPaint(sv->viewportRect());
     }
 }
 //-----------------------------------------------------------------------------

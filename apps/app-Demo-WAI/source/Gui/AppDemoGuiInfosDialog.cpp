@@ -10,6 +10,7 @@
 
 #include <stdafx.h>
 #include <AppDemoGuiInfosDialog.h>
+#include <SLGLImGui.h>
 
 ImVec2 AppDemoGuiInfosDialog::_initMinDialogSize = ImVec2(SLGLImGui::fontFixedDots * 10, SLGLImGui::fontFixedDots * 5);
 

@@ -46,34 +46,35 @@ struct SlamParams
 class WAIApp
 {
 public:
-    static int                load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* dirs);
-    static void               close();
-    static OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);
+    ~WAIApp();
+    int load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* dirs);
 
-    static void onLoadWAISceneView(SLScene* s, SLSceneView* sv);
-    static bool update();
-    static bool updateTracking();
+    OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);
 
-    static void updateTrackingVisualization(const bool iKnowWhereIAm);
+    void onLoadWAISceneView(SLScene* s, SLSceneView* sv);
+    bool update();
+    bool updateTracking();
 
-    static void renderMapPoints(std::string                      name,
-                                const std::vector<WAIMapPoint*>& pts,
-                                SLNode*&                         node,
-                                SLPoints*&                       mesh,
-                                SLMaterial*&                     material);
+    void updateTrackingVisualization(const bool iKnowWhereIAm);
 
-    static void renderKeyframes();
-    static void renderGraphs();
+    void renderMapPoints(std::string                      name,
+                         const std::vector<WAIMapPoint*>& pts,
+                         SLNode*&                         node,
+                         SLPoints*&                       mesh,
+                         SLMaterial*&                     material);
 
-    static void             setupGUI();
-    static void             buildGUI(SLScene* s, SLSceneView* sv);
-    static void             openTest(std::string path);
-    static bool             checkCalibration(const std::string& calibDir, const std::string& calibFileName);
-    static void             setupDefaultErlebARDir();
-    static AppDemoGuiAbout* aboutDial;
-    static AppDemoGuiError* errorDial;
+    void renderKeyframes();
+    void renderGraphs();
 
-    static GUIPreferences     uiPrefs;
+    void        setupGUI();
+    static void buildGUI(SLScene* s, SLSceneView* sv);
+    void        openTest(std::string path);
+    bool        checkCalibration(const std::string& calibDir, const std::string& calibFileName);
+    void        setupDefaultErlebARDir();
+    //static AppDemoGuiAbout* aboutDial;
+
+    AppDemoGuiError*          errorDial;
+    GUIPreferences            uiPrefs;
     static AppWAIDirectories* dirs;
 
     static int                liveVideoTargetWidth;
@@ -105,6 +106,9 @@ public:
 
     static bool pauseVideo; // pause video file
     static int  videoCursorMoveIndex;
+
+private:
+    void close();
 };
 
 #endif

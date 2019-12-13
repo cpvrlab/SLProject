@@ -39,14 +39,15 @@
 #include <AppWAISlamParamHelper.h>
 #include <WAICalibrationMgr.h>
 #include <FtpUtils.h>
+#include <SLGLImGui.h>
 
 //move
 #include <SLAssimpImporter.h>
 
-AppDemoGuiAbout* WAIApp::aboutDial = nullptr;
-AppDemoGuiError* WAIApp::errorDial = nullptr;
+//AppDemoGuiAbout* WAIApp::aboutDial = nullptr;
+//AppDemoGuiError* WAIApp::errorDial = nullptr;
 
-GUIPreferences     WAIApp::uiPrefs;
+//GUIPreferences     WAIApp::uiPrefs;
 SLGLTexture*       WAIApp::cpvrLogo   = nullptr;
 SLGLTexture*       WAIApp::videoImage = nullptr;
 AppWAIDirectories* WAIApp::dirs       = nullptr;
@@ -87,6 +88,11 @@ bool WAIApp::resizeWindow = false;
 
 bool WAIApp::pauseVideo           = false;
 int  WAIApp::videoCursorMoveIndex = 0;
+
+WAIApp::~WAIApp()
+{
+    close();
+}
 
 int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* directories)
 {
@@ -137,12 +143,16 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
         SLApplication::configPath     = dirs->writableDir;
 
         SLApplication::name  = "WAI Demo App";
-        SLApplication::scene = new SLScene("WAI Demo App", (cbOnSceneLoad)WAIApp::onLoadWAISceneView);
-    }
-    {
+        SLApplication::scene = new SLScene("WAI Demo App", nullptr);
+
         int screenWidth  = (int)(scrWidth * scr2fbX);
         int screenHeight = (int)(scrHeight * scr2fbY);
         assert(SLApplication::scene && "No SLApplication::scene!");
+
+        SLGLImGui* gui = new SLGLImGui();
+        // Load GUI fonts depending on the resolution
+        gui->loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+        gui->build = (cbOnImGuiBuild)buildGUI;
 
         SLSceneView* sv = new SLSceneView();
         sv->init("SceneView",
@@ -150,14 +160,14 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
                  screenHeight,
                  nullptr,
                  nullptr,
-                 (void*)buildGUI);
+                 gui);
 
         // Set default font sizes depending on the dpi no matter if ImGui is used
         if (!SLApplication::dpi)
             SLApplication::dpi = dpi;
 
         // Load GUI fonts depending on the resolution
-        sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+        //sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
 
         onLoadWAISceneView(SLApplication::scene, sv);
         svIndex = (SLint)sv->index();
@@ -440,7 +450,7 @@ bool WAIApp::checkCalibration(const std::string& calibDir, const std::string& ca
 
 void WAIApp::setupGUI()
 {
-    aboutDial = new AppDemoGuiAbout("about", cpvrLogo, &uiPrefs.showAbout);
+    //aboutDial = new AppDemoGuiAbout("about", cpvrLogo, &uiPrefs.showAbout);
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosFrameworks("frameworks", &uiPrefs.showInfosFrameworks));
     AppDemoGui::addInfoDialog(new AppDemoGuiInfosMapNodeTransform("map node",
                                                                   waiScene->mapNode,
@@ -454,7 +464,8 @@ void WAIApp::setupGUI()
                                                      dirs->writableDir + "calibrations/",
                                                      dirs->writableDir + "voc/",
                                                      waiScene->mapNode,
-                                                     &uiPrefs.showSlamLoad));
+                                                     &uiPrefs.showSlamLoad,
+                                                     *this));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiProperties("properties", &uiPrefs.showProperties));
     AppDemoGui::addInfoDialog(new AppDemoGuiSceneGraph("scene graph", &uiPrefs.showSceneGraph));
@@ -471,7 +482,8 @@ void WAIApp::setupGUI()
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTestOpen("Tests Settings",
                                                      waiScene->mapNode,
-                                                     &uiPrefs.showTestSettings));
+                                                     &uiPrefs.showTestSettings,
+                                                     *this));
 
     AppDemoGui::addInfoDialog(new AppDemoGuiTestWrite("Test Writer",
                                                       &CVCapture::instance()->activeCamera->calibration,
@@ -490,15 +502,15 @@ void WAIApp::setupGUI()
 
 void WAIApp::buildGUI(SLScene* s, SLSceneView* sv)
 {
-    if (uiPrefs.showAbout)
-    {
-        aboutDial->buildInfos(s, sv);
-    }
-    else
-    {
-        AppDemoGui::buildInfosDialogs(s, sv);
-        AppDemoGuiMenu::build(&uiPrefs, s, sv);
-    }
+    //if (uiPrefs.showAbout)
+    //{
+    //    aboutDial->buildInfos(s, sv);
+    //}
+    //else
+    //{
+    //AppDemoGui::buildInfosDialogs(s, sv);
+    //AppDemoGuiMenu::build(&uiPrefs, s, sv);
+    //}
 }
 //-----------------------------------------------------------------------------
 void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv)

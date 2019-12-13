@@ -26,7 +26,8 @@ public:
                        std::string        calibrationsDir,
                        std::string        vocabulariesDir,
                        SLNode*            mapNode,
-                       bool*              activator);
+                       bool*              activator,
+                       WAIApp&            waiApp);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
@@ -65,6 +66,7 @@ private:
     bool fixLoadedKfs;
 
     SLNode* _mapNode;
+    WAIApp& _waiApp;
 };
 
 #endif

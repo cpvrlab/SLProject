@@ -21,9 +21,11 @@
 
 AppDemoGuiTestOpen::AppDemoGuiTestOpen(const std::string& name,
                                        SLNode*            mapNode,
-                                       bool*              activator)
+                                       bool*              activator,
+                                       WAIApp&            waiApp)
   : AppDemoGuiInfosDialog(name, activator),
-    _mapNode(mapNode)
+    _mapNode(mapNode),
+    _waiApp(waiApp)
 {
     _currentItem = 0;
 
@@ -86,11 +88,11 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
         slamParams.params.trackOptFlow = false;
         slamParams.params.onlyTracking = false;
         slamParams.params.serial       = false;
-        OrbSlamStartResult result      = WAIApp::startOrbSlam(&slamParams);
+        OrbSlamStartResult result      = _waiApp.startOrbSlam(&slamParams);
         if (!result.wasSuccessful)
         {
-            WAIApp::errorDial->setErrorMsg(result.errorString);
-            WAIApp::uiPrefs.showError = true;
+            _waiApp.errorDial->setErrorMsg(result.errorString);
+            _waiApp.uiPrefs.showError = true;
         }
     }
 

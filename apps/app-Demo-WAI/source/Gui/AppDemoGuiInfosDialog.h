@@ -15,12 +15,13 @@
 #include <set>
 #include <SLSceneView.h>
 #include <SLScene.h>
+#include <imgui.h>
 
 //-----------------------------------------------------------------------------
 //! ImGui UI interface to show scene specific infos in an imgui dialogue
 class AppDemoGuiInfosDialog
 {
-    public:
+public:
     AppDemoGuiInfosDialog(std::string name, bool* activator);
 
     virtual ~AppDemoGuiInfosDialog() {}
@@ -32,7 +33,7 @@ class AppDemoGuiInfosDialog
     bool  show() { return *_activator; }
     bool* activator() { return _activator; }
 
-    protected:
+protected:
     bool* _activator;
     //! initial minimum dialog size
     static ImVec2 _initMinDialogSize;

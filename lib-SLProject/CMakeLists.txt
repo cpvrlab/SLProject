@@ -58,6 +58,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLSkybox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLTexFont.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/stdafx.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLUiInterface.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAABBox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAccelStruct.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimation.h
