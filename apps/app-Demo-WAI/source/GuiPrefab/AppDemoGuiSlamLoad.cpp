@@ -12,7 +12,7 @@
 #include <imgui_internal.h>
 #include <stdio.h>
 
-#include <AppWAI.h>
+#include <WAIApp.h>
 #include <Utils.h>
 #include <AppDemoGuiSlamLoad.h>
 #include <CVCapture.h>
@@ -196,8 +196,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                     cv::Mat nodeTransform;
                     if (!WAIApp::mode->doMarkerMapPreprocessing(constructSlamMarkerDir(_slamRootDir, _currentLocation, _currentArea) + _currentMarker, nodeTransform, 0.75f))
                     {
-                        _waiApp.errorDial->setErrorMsg("Failed to do marker map preprocessing");
-                        _waiApp.uiPrefs.showError = true;
+                        //_waiApp.errorDial->setErrorMsg("Failed to do marker map preprocessing");
+                        //_waiApp.uiPrefs.showError = true;
                     }
                     else
                     {
@@ -208,8 +208,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                                                     mapDir + filename,
                                                     imgDir))
                         {
-                            _waiApp.errorDial->setErrorMsg("Failed to save map " + mapDir + filename);
-                            _waiApp.uiPrefs.showError = true;
+                            //_waiApp.errorDial->setErrorMsg("Failed to save map " + mapDir + filename);
+                            //_waiApp.uiPrefs.showError = true;
                         }
                     }
                 }
@@ -220,15 +220,15 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                                                 mapDir + filename,
                                                 imgDir))
                     {
-                        _waiApp.errorDial->setErrorMsg("Failed to save map " + mapDir + filename);
-                        _waiApp.uiPrefs.showError = true;
+                        //_waiApp.errorDial->setErrorMsg("Failed to save map " + mapDir + filename);
+                        //_waiApp.uiPrefs.showError = true;
                     }
                 }
             }
             else
             {
-                _waiApp.errorDial->setErrorMsg("Failed to save map - No location and/or area selected.");
-                _waiApp.uiPrefs.showError = true;
+                //_waiApp.errorDial->setErrorMsg("Failed to save map - No location and/or area selected.");
+                //_waiApp.uiPrefs.showError = true;
             }
 
             WAIApp::mode->resume();
@@ -407,8 +407,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         {
             if (_currentLocation.empty() || _currentArea.empty())
             {
-                _waiApp.errorDial->setErrorMsg("Choose location and area");
-                _waiApp.uiPrefs.showError = true;
+                //_waiApp.errorDial->setErrorMsg("Choose location and area");
+                //_waiApp.uiPrefs.showError = true;
             }
             else
             {
@@ -430,8 +430,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
                 if (!startResult.wasSuccessful)
                 {
-                    _waiApp.errorDial->setErrorMsg(startResult.errorString);
-                    _waiApp.uiPrefs.showError = true;
+                    //_waiApp.errorDial->setErrorMsg(startResult.errorString);
+                    //_waiApp.uiPrefs.showError = true;
                 }
                 else
                 {

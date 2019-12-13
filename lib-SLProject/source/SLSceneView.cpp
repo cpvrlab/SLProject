@@ -64,7 +64,6 @@ SLSceneView::~SLSceneView()
     if (_gui)
     {
         _gui->onClose();
-        delete _gui;
     }
 
     SL_LOG("Destructor      : ~SLSceneView\n");

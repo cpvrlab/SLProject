@@ -22,9 +22,10 @@
 #include <CVCalibration.h>
 #include <WAIAutoCalibration.h>
 #include <AppDirectories.h>
-#include <AppDemoGuiPrefs.h>
+#include <GUIPreferences.h>
 #include <AppDemoGuiAbout.h>
 #include <AppDemoGuiError.h>
+#include <AppDemoWaiGui.h>
 
 struct OrbSlamStartResult
 {
@@ -66,15 +67,14 @@ public:
     void renderKeyframes();
     void renderGraphs();
 
-    void        setupGUI();
-    static void buildGUI(SLScene* s, SLSceneView* sv);
-    void        openTest(std::string path);
-    bool        checkCalibration(const std::string& calibDir, const std::string& calibFileName);
-    void        setupDefaultErlebARDir();
+    void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
+    //void buildGUI(SLScene* s, SLSceneView* sv);
+    //void openTest(std::string path);
+    bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
+    void setupDefaultErlebARDir();
     //static AppDemoGuiAbout* aboutDial;
 
-    AppDemoGuiError*          errorDial;
-    GUIPreferences            uiPrefs;
+    //AppDemoGuiError*          errorDial;
     static AppWAIDirectories* dirs;
 
     static int                liveVideoTargetWidth;
@@ -108,7 +108,8 @@ public:
     static int  videoCursorMoveIndex;
 
 private:
-    void close();
+    void                           close();
+    std::unique_ptr<AppDemoWaiGui> _gui;
 };
 
 #endif

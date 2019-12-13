@@ -17,13 +17,13 @@
 
 #include <SLMat4.h>
 #include <SLNode.h>
-#include <AppWAI.h>
+#include <WAIApp.h>
 #include <CVCalibration.h>
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
 {
-    public:
+public:
     AppDemoGuiTestWrite(const std::string& name,
                         CVCalibration*     calib,
                         SLNode*            mapNode,
@@ -34,7 +34,7 @@ class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
-    private:
+private:
     void prepareExperiment(std::string testScene, std::string weather);
 
     void recordExperiment();

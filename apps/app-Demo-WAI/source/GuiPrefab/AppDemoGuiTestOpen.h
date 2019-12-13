@@ -14,7 +14,7 @@
 #include <opencv2/core.hpp>
 #include <AppDemoGuiInfosDialog.h>
 
-#include <AppWAI.h>
+#include <WAIApp.h>
 
 #include <SLMat4.h>
 #include <SLNode.h>

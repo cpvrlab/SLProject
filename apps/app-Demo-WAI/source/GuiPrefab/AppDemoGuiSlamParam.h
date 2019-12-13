@@ -16,7 +16,7 @@
 
 #include <SLMat4.h>
 #include <SLNode.h>
-#include <AppWAI.h>
+#include <WAIApp.h>
 #include <WAICalibration.h>
 #include <vector>
 

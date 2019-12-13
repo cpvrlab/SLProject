@@ -1,15 +1,15 @@
 #ifndef GUI_PREFERENCES_H
 #define GUI_PREFERENCES_H
-#include <SL.h>
+
+class ImGuiStyle;
 
 class GUIPreferences
 {
 public:
-    GUIPreferences();
-    void setDPI(int dotsPerInch);
+    GUIPreferences(int dotsPerInch);
 
-    void load();
-    void save();
+    void load(std::string fileName, ImGuiStyle& style);
+    void save(std::string fileName, ImGuiStyle& style);
 
     //slam menu
     bool showSlamParam      = false;
@@ -55,17 +55,16 @@ public:
     bool showSpanningTree      = true;
     bool showLoopEdges         = true;
 
-    //tracks if this is the first start of application after a new install
-    //todo: maybe move to a better place
-    bool firstAppRun = true;
-
-    SLstring configTime;
+    std::string configTime;
 
     //error dialog
     bool showError = false;
 
+    float fontPropDots  = 16.0f; //!< Default font size of proportional font
+    float fontFixedDots = 13.0f; //!< Default font size of fixed size font
+
 private:
-    int dpi = 200;
+    int _dpi = 200;
 };
 
 #endif

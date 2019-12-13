@@ -12,7 +12,7 @@
 #include <imgui_internal.h>
 #include <stdio.h>
 
-#include <AppWAI.h>
+#include <WAIApp.h>
 #include <Utils.h>
 #include <AppDemoGuiVideoStorage.h>
 #include <SLApplication.h>

@@ -1,5 +1,5 @@
 #include <AppDemoGuiVideoControls.h>
-#include <AppWAI.h>
+#include <WAIApp.h>
 #include <CVCapture.h>
 
 AppDemoGuiVideoControls::AppDemoGuiVideoControls(const std::string& name, bool* activator)

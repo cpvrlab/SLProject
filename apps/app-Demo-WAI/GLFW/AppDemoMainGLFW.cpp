@@ -16,26 +16,10 @@
 
 #include <GLFW/glfw3.h>
 
-#include <AppDemoGui.h>
-#include <AppWAI.h>
-#include <WAIModeOrbSlam2.h>
-#include <WAIAutoCalibration.h>
-
-#include <CVCapture.h>
-#include <CVCalibration.h>
-#include <SLKeyframeCamera.h>
-
-#include <SLBox.h>
-#include <SLCoordAxis.h>
-#include <SLRectangle.h>
-#include <SLEnums.h>
+#include <WAIApp.h>
 #include <SLInterface.h>
-#include <SLSceneView.h>
-#include <SLApplication.h>
-#include <SLLightSpot.h>
-#include <SLMaterial.h>
-#include <SLPoints.h>
 #include <Utils.h>
+#include <HighResTimer.h>
 
 //-----------------------------------------------------------------------------
 // GLobal application variables

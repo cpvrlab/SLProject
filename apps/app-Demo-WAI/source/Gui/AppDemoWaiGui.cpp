@@ -1,14 +1,89 @@
-#include <SL.h>
-#include <SLInterface.h>
-#include <SLApplication.h>
-#include <CVCapture.h>
-#include <SLCamera.h>
-#include <SLGLImGui.h>
-#include <AverageTiming.h>
-#include <AppDemoGuiMenu.h>
-#include <Utils.h>
+//#############################################################################
+//  File:      AppDemoWaiGui.cpp
+//  Purpose:   UI with the ImGUI framework fully rendered in OpenGL 3+
+//  Author:    Marcus Hudritsch
+//  Date:      Summer 2017
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
-void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
+#    include <debug_new.h> // memory leak detector
+#endif
+
+#include <AppDemoWaiGui.h>
+#include <SLAnimPlayback.h>
+#include <SLApplication.h>
+#include <SLInterface.h>
+#include <AverageTiming.h>
+#include <CVCapture.h>
+#include <CVImage.h>
+#include <CVTrackedFeatures.h>
+#include <SLGLProgram.h>
+#include <SLGLShader.h>
+#include <SLGLTexture.h>
+#include <AppDemoGuiInfosDialog.h>
+#include <AppDemoGuiTrackedMapping.h>
+#include <SLImporter.h>
+#include <SLInterface.h>
+#include <SLMaterial.h>
+#include <SLMesh.h>
+#include <SLNode.h>
+#include <SLScene.h>
+#include <SLSceneView.h>
+#include <SLGLImGui.h>
+#include <imgui.h>
+#include <imgui_internal.h>
+
+//map<string, AppDemoGuiInfosDialog*> AppDemoWaiGui::_infoDialogs;
+
+//-----------------------------------------------------------------------------
+AppDemoWaiGui::AppDemoWaiGui(std::string appName, std::string configDir, int dotsPerInch)
+{
+    //load preferences
+    uiPrefs        = std::make_unique<GUIPreferences>(dotsPerInch);
+    _prefsFileName = Utils::unifySlashes(configDir) + appName + ".yml";
+    uiPrefs->load(_prefsFileName, ImGui::GetStyle());
+    //load fonts
+    loadFonts(uiPrefs->fontPropDots, uiPrefs->fontFixedDots);
+}
+//-----------------------------------------------------------------------------
+AppDemoWaiGui::~AppDemoWaiGui()
+{
+    //save preferences
+    uiPrefs->save(_prefsFileName, ImGui::GetStyle());
+}
+//-----------------------------------------------------------------------------
+void AppDemoWaiGui::addInfoDialog(AppDemoGuiInfosDialog* dialog)
+{
+    string name = string(dialog->getName());
+    if (_infoDialogs.find(name) == _infoDialogs.end())
+    {
+        _infoDialogs[name] = dialog;
+    }
+}
+//-----------------------------------------------------------------------------
+void AppDemoWaiGui::clearInfoDialogs()
+{
+    _infoDialogs.clear();
+}
+//-----------------------------------------------------------------------------
+void AppDemoWaiGui::buildInfosDialogs(SLScene* s, SLSceneView* sv)
+{
+    for (auto dialog : _infoDialogs)
+    {
+        if (dialog.second->show())
+        {
+            dialog.second->buildInfos(s, sv);
+        }
+    }
+}
+//-----------------------------------------------------------------------------
+void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 {
     if (ImGui::BeginMainMenuBar())
     {
@@ -54,9 +129,9 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Slam"))
         {
-            ImGui::MenuItem("Start", nullptr, &prefs->showSlamLoad);
-            ImGui::MenuItem("Tracked Mapping", nullptr, &prefs->showTrackedMapping);
-            ImGui::MenuItem("Params", nullptr, &prefs->showSlamParam);
+            ImGui::MenuItem("Start", nullptr, uiPrefs->showSlamLoad);
+            ImGui::MenuItem("Tracked Mapping", nullptr, uiPrefs->showTrackedMapping);
+            ImGui::MenuItem("Params", nullptr, uiPrefs->showSlamParam);
 
             ImGui::EndMenu();
         }
@@ -68,8 +143,8 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
             //CVCalibration* mc = &CVCapture::instance()->mainCam;
             //CVCalibration* sc = &CVCapture::instance()->scndCam;
 
-            ImGui::MenuItem("Video Storage", nullptr, &prefs->showVideoStorage);
-            ImGui::MenuItem("Video Controls", nullptr, &prefs->showVideoControls);
+            ImGui::MenuItem("Video Storage", nullptr, uiPrefs->showVideoStorage);
+            ImGui::MenuItem("Video Controls", nullptr, uiPrefs->showVideoControls);
 
             if (ImGui::BeginMenu("Mirror Camera"))
             {
@@ -94,7 +169,7 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Map"))
         {
-            ImGui::MenuItem("Infos Map Node Transform", nullptr, &prefs->showInfosMapNodeTransform);
+            ImGui::MenuItem("Infos Map Node Transform", nullptr, uiPrefs->showInfosMapNodeTransform);
             ImGui::EndMenu();
         }
 
@@ -203,29 +278,29 @@ void AppDemoGuiMenu::build(GUIPreferences* prefs, SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Experiments"))
         {
-            ImGui::MenuItem("Load Experiment", nullptr, &prefs->showTestSettings);
-            ImGui::MenuItem("New Experiment", nullptr, &prefs->showTestWriter);
+            ImGui::MenuItem("Load Experiment", nullptr, uiPrefs->showTestSettings);
+            ImGui::MenuItem("New Experiment", nullptr, uiPrefs->showTestWriter);
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("Infos"))
         {
-            ImGui::MenuItem("Infos on Scene", nullptr, &prefs->showInfosScene);
-            ImGui::MenuItem("Stats on Timing", nullptr, &prefs->showStatsTiming);
+            ImGui::MenuItem("Infos on Scene", nullptr, uiPrefs->showInfosScene);
+            ImGui::MenuItem("Stats on Timing", nullptr, uiPrefs->showStatsTiming);
 
-            ImGui::MenuItem("Stats on Debug Time", nullptr, &prefs->showStatsDebugTiming);
+            ImGui::MenuItem("Stats on Debug Time", nullptr, uiPrefs->showStatsDebugTiming);
 
-            ImGui::MenuItem("Stats on Video", nullptr, &prefs->showStatsVideo);
+            ImGui::MenuItem("Stats on Video", nullptr, uiPrefs->showStatsVideo);
             ImGui::Separator();
-            ImGui::MenuItem("Show Scenegraph", nullptr, &prefs->showSceneGraph);
-            ImGui::MenuItem("Show Properties", nullptr, &prefs->showProperties);
-            ImGui::MenuItem("Show Transform", nullptr, &prefs->showTransform);
+            ImGui::MenuItem("Show Scenegraph", nullptr, uiPrefs->showSceneGraph);
+            ImGui::MenuItem("Show Properties", nullptr, uiPrefs->showProperties);
+            ImGui::MenuItem("Show Transform", nullptr, uiPrefs->showTransform);
             ImGui::Separator();
-            ImGui::MenuItem("Infos on Sensors", nullptr, &prefs->showInfosSensors);
-            ImGui::MenuItem("Infos on Frameworks", nullptr, &prefs->showInfosFrameworks);
-            ImGui::MenuItem("Infos on Tracking", nullptr, &prefs->showInfosTracking);
-            ImGui::MenuItem("UI Preferences", nullptr, &prefs->showUIPrefs);
-            ImGui::MenuItem("About WAI-Demo", nullptr, &prefs->showAbout);
+            ImGui::MenuItem("Infos on Sensors", nullptr, uiPrefs->showInfosSensors);
+            ImGui::MenuItem("Infos on Frameworks", nullptr, uiPrefs->showInfosFrameworks);
+            ImGui::MenuItem("Infos on Tracking", nullptr, uiPrefs->showInfosTracking);
+            ImGui::MenuItem("UI Preferences", nullptr, uiPrefs->showUIPrefs);
+            ImGui::MenuItem("About WAI-Demo", nullptr, uiPrefs->showAbout);
 
             ImGui::EndMenu();
         }

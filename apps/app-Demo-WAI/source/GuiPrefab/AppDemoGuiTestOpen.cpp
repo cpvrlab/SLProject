@@ -91,8 +91,8 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
         OrbSlamStartResult result      = _waiApp.startOrbSlam(&slamParams);
         if (!result.wasSuccessful)
         {
-            _waiApp.errorDial->setErrorMsg(result.errorString);
-            _waiApp.uiPrefs.showError = true;
+            //_waiApp.errorDial->setErrorMsg(result.errorString);
+            //_waiApp.uiPrefs.showError = true;
         }
     }
 

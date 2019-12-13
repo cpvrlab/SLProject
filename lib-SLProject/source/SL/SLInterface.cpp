@@ -17,6 +17,7 @@
 #include <SLInputManager.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
+#include <SLGLImGui.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -122,18 +123,23 @@ int slCreateSceneView(int       screenWidth,
     SLuint       index = (SLuint)newSVCallback();
     SLSceneView* sv    = SLApplication::scene->sceneView(index);
 
+    SLGLImGui* gui = new SLGLImGui();
+    // Load GUI fonts depending on the resolution
+    gui->loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+    gui->build = (cbOnImGuiBuild)onImGuiBuild;
+
     sv->init("SceneView",
              screenWidth,
              screenHeight,
              onWndUpdateCallback,
              onSelectNodeMeshCallback,
-             onImGuiBuild);
+             gui);
 
     // Set default font sizes depending on the dpi no matter if ImGui is used
     if (!SLApplication::dpi) SLApplication::dpi = dotsPerInch;
 
     // Load GUI fonts depending on the resolution
-    sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+    //sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
 
     // Set active sceneview and load scene. This is done for the first sceneview
     if (!SLApplication::scene->root3D())

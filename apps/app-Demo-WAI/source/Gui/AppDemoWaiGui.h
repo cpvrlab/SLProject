@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppDemoGui.h
+//  File:      AppDemoWaiGui.h
 //  Author:    Marcus Hudritsch
 //  Date:      Summer 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef APPDEMO_GUI_H
-#define APPDEMO_GUI_H
+#ifndef APPWAIDEMOGUI_H
+#define APPWAIDEMOGUI_H
 
 #include <SL.h>
 #include <string>
@@ -17,7 +17,8 @@
 #include <memory>
 #include <AppDemoGuiInfosDialog.h>
 #include <WAICalibration.h>
-#include <AppDemoGuiPrefs.h>
+#include <GUIPreferences.h>
+#include <ImGuiWrapper.h>
 
 class SLScene;
 class SLSceneView;
@@ -42,20 +43,31 @@ The entire UI is configured and built on every frame. That is why it is called
 "Im" for immediate. See also the SLGLImGui class to see how it minimaly
 integrated in the SLProject.<br>
 */
-class AppDemoGui
+class AppDemoWaiGui : public ImGuiWrapper
 {
-    public:
+public:
+    AppDemoWaiGui(std::string appName, std::string configDir, int dotsPerInch);
+    ~AppDemoWaiGui();
     //!< Checks, if a dialog with this name already exists, and adds it if not
-    static void addInfoDialog(AppDemoGuiInfosDialog* dialog);
-    static void clearInfoDialogs();
-    static void buildInfosDialogs(SLScene* s, SLSceneView* sv);
+    void addInfoDialog(AppDemoGuiInfosDialog* dialog);
+    void clearInfoDialogs();
 
-    static void saveConfig();
-    static void loadConfig(SLint dotsPerInch);
+    void build(SLScene* s, SLSceneView* sv) override
+    {
+        buildInfosDialogs(s, sv);
+        buildMenu(s, sv);
+    }
 
-    private:
+    std::unique_ptr<GUIPreferences> uiPrefs;
+
+private:
+    void buildInfosDialogs(SLScene* s, SLSceneView* sv);
+    void buildMenu(SLScene* s, SLSceneView* sv);
+
+    std::string _prefsFileName;
+
     //! Vector containing all info dialogs, that belong to special scenes
-    static std::map<std::string, AppDemoGuiInfosDialog*> _infoDialogs;
+    std::map<std::string, AppDemoGuiInfosDialog*> _infoDialogs;
 };
 //-----------------------------------------------------------------------------
 #endif

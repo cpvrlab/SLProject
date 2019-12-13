@@ -12,7 +12,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include <AppWAI.h>
+#include <WAIApp.h>
 #include <AppDemoGuiInfosTracking.h>
 
 //-----------------------------------------------------------------------------

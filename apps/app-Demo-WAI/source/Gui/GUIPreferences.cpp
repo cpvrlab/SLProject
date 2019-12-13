@@ -1,7 +1,7 @@
 #include <SL.h>
 
 #include <SLApplication.h>
-#include <AppDemoGuiPrefs.h>
+#include <GUIPreferences.h>
 #include <opencv2/core/core.hpp>
 #include <Utils.h>
 #include <imgui.h>

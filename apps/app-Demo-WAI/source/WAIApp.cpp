@@ -11,8 +11,7 @@
 #include <WAIMapStorage.h>
 #include <WAICalibration.h>
 #include <AppWAIScene.h>
-#include <AppDemoGui.h>
-#include <AppDemoGuiMenu.h>
+#include <AppDemoWaiGui.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiAbout.h>
 #include <AppDemoGuiInfosFrameworks.h>
@@ -34,12 +33,11 @@
 #include <AppDemoGuiTestOpen.h>
 #include <AppDemoGuiTestWrite.h>
 #include <AppDemoGuiSlamParam.h>
-#include <AppWAI.h>
+#include <WAIApp.h>
 #include <AppDirectories.h>
 #include <AppWAISlamParamHelper.h>
-#include <WAICalibrationMgr.h>
 #include <FtpUtils.h>
-#include <SLGLImGui.h>
+#include <GUIPreferences.h>
 
 //move
 #include <SLAssimpImporter.h>
@@ -120,16 +118,16 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
     empty.push_back("WAI APP");
 
     // This load the GUI configs that are locally stored
-    uiPrefs.setDPI(dpi);
-    uiPrefs.load();
-    if (uiPrefs.firstAppRun)
-    {
-        //download calibration files
-        //WAICalibrationMgr calibMgr(calibDir, "pallas.bfh.ch:21", "upload", "FaAdbD3F2a", "calibrations");
-        //calibMgr.downloadCalibrationsFromFtp();
+    //_gui->uiPrefs->setDPI(dpi);
+    //_gui->uiPrefs->load();
+    //if (_gui->uiPrefs->firstAppRun)
+    //{
+    //    //download calibration files
+    //    //WAICalibrationMgr calibMgr(calibDir, "pallas.bfh.ch:21", "upload", "FaAdbD3F2a", "calibrations");
+    //    //calibMgr.downloadCalibrationsFromFtp();
 
-        //FtpUtils::downloadFile()
-    }
+    //    //FtpUtils::downloadFile()
+    //}
 
     int svIndex = 0;
     {
@@ -149,10 +147,13 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
         int screenHeight = (int)(scrHeight * scr2fbY);
         assert(SLApplication::scene && "No SLApplication::scene!");
 
-        SLGLImGui* gui = new SLGLImGui();
+        //SLGLImGui* gui = new SLGLImGui();
         // Load GUI fonts depending on the resolution
-        gui->loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
-        gui->build = (cbOnImGuiBuild)buildGUI;
+        //gui->loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+        //gui->build = (cbOnImGuiBuild*)WAIApp::buildGUI;
+        setupGUI(SLApplication::name, SLApplication::configPath, dpi);
+
+        //_gui = std::make_unique<AppDemoWaiGui>(SLApplication::name, SLApplication::configPath, dpi);
 
         SLSceneView* sv = new SLSceneView();
         sv->init("SceneView",
@@ -160,7 +161,7 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
                  screenHeight,
                  nullptr,
                  nullptr,
-                 gui);
+                 _gui.get());
 
         // Set default font sizes depending on the dpi no matter if ImGui is used
         if (!SLApplication::dpi)
@@ -217,7 +218,7 @@ void WAIApp::setupDefaultErlebARDir()
 
 void WAIApp::close()
 {
-    uiPrefs.save();
+    //_gui->uiPrefs->save();
     //ATTENTION: Other imgui stuff is automatically saved every 5 seconds
 }
 
@@ -229,7 +230,8 @@ mapFile: path to a map or empty if no map should be used
 OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
 {
     OrbSlamStartResult result = {};
-    uiPrefs.showError         = false;
+    //TODO:find other solution
+    _gui->uiPrefs->showError = false;
 
     std::string               videoFile       = "";
     std::string               calibrationFile = "";
@@ -448,77 +450,78 @@ bool WAIApp::checkCalibration(const std::string& calibDir, const std::string& ca
     return true;
 }
 
-void WAIApp::setupGUI()
+void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInch)
 {
+    _gui = std::make_unique<AppDemoWaiGui>(SLApplication::name, SLApplication::configPath, dotsPerInch);
     //aboutDial = new AppDemoGuiAbout("about", cpvrLogo, &uiPrefs.showAbout);
-    AppDemoGui::addInfoDialog(new AppDemoGuiInfosFrameworks("frameworks", &uiPrefs.showInfosFrameworks));
-    AppDemoGui::addInfoDialog(new AppDemoGuiInfosMapNodeTransform("map node",
-                                                                  waiScene->mapNode,
-                                                                  &uiPrefs.showInfosMapNodeTransform));
+    _gui->addInfoDialog(new AppDemoGuiInfosFrameworks("frameworks", &_gui->uiPrefs->showInfosFrameworks));
+    _gui->addInfoDialog(new AppDemoGuiInfosMapNodeTransform("map node",
+                                                            waiScene->mapNode,
+                                                            &_gui->uiPrefs->showInfosMapNodeTransform));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiInfosScene("scene", &uiPrefs.showInfosScene));
-    AppDemoGui::addInfoDialog(new AppDemoGuiInfosSensors("sensors", &uiPrefs.showInfosSensors));
-    AppDemoGui::addInfoDialog(new AppDemoGuiInfosTracking("tracking", uiPrefs));
-    AppDemoGui::addInfoDialog(new AppDemoGuiSlamLoad("slam load",
-                                                     dirs->writableDir + "erleb-AR/locations/",
-                                                     dirs->writableDir + "calibrations/",
-                                                     dirs->writableDir + "voc/",
-                                                     waiScene->mapNode,
-                                                     &uiPrefs.showSlamLoad,
-                                                     *this));
+    _gui->addInfoDialog(new AppDemoGuiInfosScene("scene", &_gui->uiPrefs->showInfosScene));
+    _gui->addInfoDialog(new AppDemoGuiInfosSensors("sensors", &_gui->uiPrefs->showInfosSensors));
+    _gui->addInfoDialog(new AppDemoGuiInfosTracking("tracking", *_gui->uiPrefs.get()));
+    _gui->addInfoDialog(new AppDemoGuiSlamLoad("slam load",
+                                               dirs->writableDir + "erleb-AR/locations/",
+                                               dirs->writableDir + "calibrations/",
+                                               dirs->writableDir + "voc/",
+                                               waiScene->mapNode,
+                                               &_gui->uiPrefs->showSlamLoad,
+                                               *this));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiProperties("properties", &uiPrefs.showProperties));
-    AppDemoGui::addInfoDialog(new AppDemoGuiSceneGraph("scene graph", &uiPrefs.showSceneGraph));
-    AppDemoGui::addInfoDialog(new AppDemoGuiStatsDebugTiming("debug timing", &uiPrefs.showStatsDebugTiming));
-    AppDemoGui::addInfoDialog(new AppDemoGuiStatsTiming("timing", &uiPrefs.showStatsTiming));
-    AppDemoGui::addInfoDialog(new AppDemoGuiStatsVideo("video", &CVCapture::instance()->activeCamera->calibration, &uiPrefs.showStatsVideo));
-    AppDemoGui::addInfoDialog(new AppDemoGuiTrackedMapping("tracked mapping", &uiPrefs.showTrackedMapping));
+    _gui->addInfoDialog(new AppDemoGuiProperties("properties", &_gui->uiPrefs->showProperties));
+    _gui->addInfoDialog(new AppDemoGuiSceneGraph("scene graph", &_gui->uiPrefs->showSceneGraph));
+    _gui->addInfoDialog(new AppDemoGuiStatsDebugTiming("debug timing", &_gui->uiPrefs->showStatsDebugTiming));
+    _gui->addInfoDialog(new AppDemoGuiStatsTiming("timing", &_gui->uiPrefs->showStatsTiming));
+    _gui->addInfoDialog(new AppDemoGuiStatsVideo("video", &CVCapture::instance()->activeCamera->calibration, &_gui->uiPrefs->showStatsVideo));
+    _gui->addInfoDialog(new AppDemoGuiTrackedMapping("tracked mapping", &_gui->uiPrefs->showTrackedMapping));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiTransform("transform", &uiPrefs.showTransform));
-    AppDemoGui::addInfoDialog(new AppDemoGuiUIPrefs("prefs", &uiPrefs, &uiPrefs.showUIPrefs));
+    _gui->addInfoDialog(new AppDemoGuiTransform("transform", &_gui->uiPrefs->showTransform));
+    _gui->addInfoDialog(new AppDemoGuiUIPrefs("prefs", _gui->uiPrefs.get(), &_gui->uiPrefs->showUIPrefs));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiVideoStorage("video storage", videoWriter, videoWriterInfo, &gpsDataStream, &uiPrefs.showVideoStorage));
-    AppDemoGui::addInfoDialog(new AppDemoGuiVideoControls("video load", &uiPrefs.showVideoControls));
+    _gui->addInfoDialog(new AppDemoGuiVideoStorage("video storage", videoWriter, videoWriterInfo, &gpsDataStream, &_gui->uiPrefs->showVideoStorage));
+    _gui->addInfoDialog(new AppDemoGuiVideoControls("video load", &_gui->uiPrefs->showVideoControls));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiTestOpen("Tests Settings",
-                                                     waiScene->mapNode,
-                                                     &uiPrefs.showTestSettings,
-                                                     *this));
+    _gui->addInfoDialog(new AppDemoGuiTestOpen("Tests Settings",
+                                               waiScene->mapNode,
+                                               &_gui->uiPrefs->showTestSettings,
+                                               *this));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiTestWrite("Test Writer",
-                                                      &CVCapture::instance()->activeCamera->calibration,
-                                                      waiScene->mapNode,
-                                                      videoWriter,
-                                                      videoWriterInfo,
-                                                      &gpsDataStream,
-                                                      &uiPrefs.showTestWriter));
+    _gui->addInfoDialog(new AppDemoGuiTestWrite("Test Writer",
+                                                &CVCapture::instance()->activeCamera->calibration,
+                                                waiScene->mapNode,
+                                                videoWriter,
+                                                videoWriterInfo,
+                                                &gpsDataStream,
+                                                &_gui->uiPrefs->showTestWriter));
 
-    AppDemoGui::addInfoDialog(new AppDemoGuiSlamParam("Slam Param", &uiPrefs.showSlamParam));
-    errorDial = new AppDemoGuiError("Error", &uiPrefs.showError);
+    _gui->addInfoDialog(new AppDemoGuiSlamParam("Slam Param", &_gui->uiPrefs->showSlamParam));
+    //errorDial = new AppDemoGuiError("Error", &_gui->uiPrefs->showError);
 
-    AppDemoGui::addInfoDialog(errorDial);
+    //_gui->addInfoDialog(errorDial);
     //TODO: AppDemoGuiInfosDialog are never deleted. Why not use smart pointer when the reponsibility for an object is not clear?
 }
 
-void WAIApp::buildGUI(SLScene* s, SLSceneView* sv)
-{
-    //if (uiPrefs.showAbout)
-    //{
-    //    aboutDial->buildInfos(s, sv);
-    //}
-    //else
-    //{
-    //AppDemoGui::buildInfosDialogs(s, sv);
-    //AppDemoGuiMenu::build(&uiPrefs, s, sv);
-    //}
-}
+//void WAIApp::buildGUI(SLScene* s, SLSceneView* sv)
+//{
+//    //if (_gui->uiPrefs->showAbout)
+//    //{
+//    //    aboutDial->buildInfos(s, sv);
+//    //}
+//    //else
+//    //{
+//_gui->buildInfosDialogs(s, sv);
+//AppDemoGuiMenu::build(&uiPrefs, s, sv);
+//    //}
+//}
 //-----------------------------------------------------------------------------
 void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv)
 {
     s->init();
     waiScene->rebuild();
     //setup gui at last because ui elements depend on other instances
-    setupGUI();
+    //setupGUI();
 
     // Set scene name and info string
     s->name("Track Keyframe based Features");
@@ -543,7 +546,7 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv)
     if (!orbSlamStartResult.wasSuccessful)
     {
         errorDial->setErrorMsg(orbSlamStartResult.errorString);
-        uiPrefs.showError = true;
+        _gui->uiPrefs->showError = true;
     }*/
 
     ////setup gui at last because ui elements depend on other instances
@@ -723,9 +726,9 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
     if (videoImage && cap->activeCamera)
     {
         //decorate distorted image with distorted keypoints
-        if (uiPrefs.showKeyPoints)
+        if (_gui->uiPrefs->showKeyPoints)
             mode->decorateVideoWithKeyPoints(cap->lastFrame);
-        if (uiPrefs.showKeyPointsMatched)
+        if (_gui->uiPrefs->showKeyPointsMatched)
             mode->decorateVideoWithKeyPointMatches(cap->lastFrame);
 
         CVMat undistortedLastFrame;
@@ -748,7 +751,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 
     //update map point visualization:
     //if we still want to visualize the point cloud
-    if (uiPrefs.showMapPC)
+    if (_gui->uiPrefs->showMapPC)
     {
         //get new points and add them
         renderMapPoints("MapPoints",
@@ -780,7 +783,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 
     //update visualization of local map points:
     //only update them with a valid pose from WAI
-    if (uiPrefs.showLocalMapPC && iKnowWhereIAm)
+    if (_gui->uiPrefs->showLocalMapPC && iKnowWhereIAm)
     {
         renderMapPoints("LocalMapPoints",
                         mode->getLocalMapPoints(),
@@ -796,7 +799,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 
     //update visualization of matched map points
     //only update them with a valid pose from WAI
-    if (uiPrefs.showMatchesPC && iKnowWhereIAm)
+    if (_gui->uiPrefs->showMatchesPC && iKnowWhereIAm)
     {
         renderMapPoints("MatchedMapPoints",
                         mode->getMatchedMapPoints(),
@@ -812,7 +815,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 
     //update keyframe visualization
     waiScene->keyFrameNode->deleteChildren();
-    if (uiPrefs.showKeyFrames)
+    if (_gui->uiPrefs->showKeyFrames)
     {
         renderKeyframes();
     }
@@ -922,7 +925,7 @@ void WAIApp::renderGraphs()
         cv::Mat Ow = kf->GetCameraCenter();
 
         //covisibility graph
-        const std::vector<WAIKeyFrame*> vCovKFs = kf->GetBestCovisibilityKeyFrames(uiPrefs.minNumOfCovisibles);
+        const std::vector<WAIKeyFrame*> vCovKFs = kf->GetBestCovisibilityKeyFrames(_gui->uiPrefs->minNumOfCovisibles);
 
         if (!vCovKFs.empty())
         {
@@ -961,7 +964,7 @@ void WAIApp::renderGraphs()
     if (waiScene->covisibilityGraphMesh)
         waiScene->covisibilityGraph->deleteMesh(waiScene->covisibilityGraphMesh);
 
-    if (covisGraphPts.size() && uiPrefs.showCovisibilityGraph)
+    if (covisGraphPts.size() && _gui->uiPrefs->showCovisibilityGraph)
     {
         waiScene->covisibilityGraphMesh = new SLPolyline(covisGraphPts, false, "CovisibilityGraph", waiScene->covisibilityGraphMat);
         waiScene->covisibilityGraph->addMesh(waiScene->covisibilityGraphMesh);
@@ -971,7 +974,7 @@ void WAIApp::renderGraphs()
     if (waiScene->spanningTreeMesh)
         waiScene->spanningTree->deleteMesh(waiScene->spanningTreeMesh);
 
-    if (spanningTreePts.size() && uiPrefs.showSpanningTree)
+    if (spanningTreePts.size() && _gui->uiPrefs->showSpanningTree)
     {
         waiScene->spanningTreeMesh = new SLPolyline(spanningTreePts, false, "SpanningTree", waiScene->spanningTreeMat);
         waiScene->spanningTree->addMesh(waiScene->spanningTreeMesh);
@@ -981,7 +984,7 @@ void WAIApp::renderGraphs()
     if (waiScene->loopEdgesMesh)
         waiScene->loopEdges->deleteMesh(waiScene->loopEdgesMesh);
 
-    if (loopEdgesPts.size() && uiPrefs.showLoopEdges)
+    if (loopEdgesPts.size() && _gui->uiPrefs->showLoopEdges)
     {
         waiScene->loopEdgesMesh = new SLPolyline(loopEdgesPts, false, "LoopEdges", waiScene->loopEdgesMat);
         waiScene->loopEdges->addMesh(waiScene->loopEdgesMesh);
