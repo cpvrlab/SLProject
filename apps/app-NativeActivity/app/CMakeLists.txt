@@ -6,10 +6,14 @@ set(target native-lib)
 
 file(GLOB headers
     ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeCameraInterface.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeSensorsInterface.h
     )
 
 file(GLOB sources
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeWAIMain.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeCameraInterface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeSensorsInterface.cpp
     )
 
 set(CMAKE_SHARED_LINKER_FLAGS
@@ -27,7 +31,7 @@ add_library(${target}
 target_include_directories(${target}
     PRIVATE
     ${ANDROID_NDK}/sources/android/native_app_glue/
-
+    ${CMAKE_CURRENT_SOURCE_DIR}//src/main/cpp/
     PUBLIC
     )
 
