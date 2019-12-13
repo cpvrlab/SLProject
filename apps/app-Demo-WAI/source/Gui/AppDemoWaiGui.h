@@ -16,7 +16,6 @@
 #include <map>
 #include <memory>
 #include <AppDemoGuiInfosDialog.h>
-#include <WAICalibration.h>
 #include <GUIPreferences.h>
 #include <ImGuiWrapper.h>
 

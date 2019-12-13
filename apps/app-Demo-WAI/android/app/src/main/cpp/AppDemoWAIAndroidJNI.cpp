@@ -15,9 +15,8 @@
 #include <SLScene.h>
 #include <SLApplication.h>
 #include <CVCapture.h>
-#include <AppDemoGui.h>
-#include <AppDemoGui.h>
-#include <AppWAI.h>
+#include <AppDemoWaiGui.h>
+#include <WAIApp.h>
 
 //-----------------------------------------------------------------------------
 // Some global variable for the JNI interface
