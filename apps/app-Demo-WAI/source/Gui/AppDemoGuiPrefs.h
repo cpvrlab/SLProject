@@ -55,6 +55,10 @@ public:
     bool showSpanningTree      = true;
     bool showLoopEdges         = true;
 
+    //tracks if this is the first start of application after a new install
+    //todo: maybe move to a better place
+    bool firstAppRun = true;
+
     SLstring configTime;
 
     //error dialog

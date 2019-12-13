@@ -46,7 +46,7 @@ void AppDemoGuiStatsVideo::buildInfos(SLScene* s, SLSceneView* sv)
         if (distortionSize >= 14)
             sprintf(m + strlen(m), "tauX,tauY    : %4.2f,%4.2f\n", _calib->tauX() * f, _calib->tauY() * f);
 
-        sprintf(m + strlen(m), "Calib. file   : %s\n", (_calib->calibDir() + _calib->calibFileName()).c_str());
+        //sprintf(m + strlen(m), "Calib. file   : %s\n", (_calib->calibDir() + _calib->calibFileName()).c_str());
         sprintf(m + strlen(m), "Calib. time  : %s\n", _calib->calibrationTime().c_str());
         sprintf(m + strlen(m), "Calib. state  : %s\n", _calib->stateStr().c_str());
         sprintf(m + strlen(m), "Num. caps     : %d\n", _calib->numCapturedImgs());

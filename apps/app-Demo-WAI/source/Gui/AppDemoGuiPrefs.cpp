@@ -153,6 +153,9 @@ void GUIPreferences::load()
             if (!fs["showLoopEdges"].empty())
                 fs["showLoopEdges"] >> showLoopEdges;
 
+            if (!fs["firstAppRun"].empty())
+                fs["firstAppRun"] >> firstAppRun;
+
             fs.release();
             SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
             SL_LOG("Config. date    : %s\n", configTime.c_str());
@@ -251,6 +254,9 @@ void GUIPreferences::save()
     fs << "showCovisibilityGraph" << showCovisibilityGraph;
     fs << "showSpanningTree" << showSpanningTree;
     fs << "showLoopEdges" << showLoopEdges;
+
+    //always store false because app has already run once
+    fs << "firstAppRun" << false;
 
     fs.release();
     SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());

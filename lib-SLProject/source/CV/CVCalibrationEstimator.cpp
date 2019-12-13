@@ -8,38 +8,32 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-/*
-The OpenCV library version 3.4 or above with extra module must be present.
-If the application captures the live video stream with OpenCV you have
-to define in addition the constant APP_USES_CVCAPTURE.
-All classes that use OpenCV begin with CV.
-See also the class docs for CVCapture, CVCalibration and CVTracked
-for a good top down information.
-*/
-
 #include <CVCalibrationEstimator.h>
 #include <CVCalibration.h>
 #include <Utils.h>
-#include <algorithm> // std::max
-#include <SLApplication.h>
 
 using namespace cv;
 using namespace std;
 
 //-----------------------------------------------------------------------------
-CVCalibrationEstimator::CVCalibrationEstimator(int          calibFlags,
-                                               int          camSizeIndex,
-                                               bool         mirroredH,
-                                               bool         mirroredV,
-                                               CVCameraType camType)
-  : _calibFlags(calibFlags),
+CVCalibrationEstimator::CVCalibrationEstimator(CVCalibrationEstimatorParams params,
+                                               int                          camSizeIndex,
+                                               bool                         mirroredH,
+                                               bool                         mirroredV,
+                                               CVCameraType                 camType,
+                                               std::string                  computerInfos,
+                                               std::string                  calibDataPath,
+                                               std::string                  imageOutputPath)
+  : _params(params),
     _camSizeIndex(camSizeIndex),
     _mirroredH(mirroredH),
     _mirroredV(mirroredV),
     _camType(camType),
-    _calibration(_camType),
+    _calibration(_camType, ""),
     _calibParamsFileName("calib_in_params.yml"),
-    _exception("Undefined error", 0, __FILE__)
+    _exception("Undefined error", 0, __FILE__),
+    _computerInfos(computerInfos),
+    _calibDataPath(calibDataPath)
 {
     if (!loadCalibParams())
     {
@@ -47,6 +41,39 @@ CVCalibrationEstimator::CVCalibrationEstimator(int          calibFlags,
                                               __LINE__,
                                               __FILE__);
     }
+
+    if (params.mode == CVCalibrationEstimatorParams::EstimatorMode::OnlyCaptureAndSave)
+    {
+        if (!Utils::dirExists(imageOutputPath))
+        {
+            std::stringstream ss;
+            ss << "Image output directory does not exist: " << imageOutputPath;
+            throw CVCalibrationEstimatorException(ss.str(),
+                                                  __LINE__,
+                                                  __FILE__);
+        }
+        else
+        {
+            //make subdirectory where images are stored to
+            _calibImgOutputDir = Utils::unifySlashes(imageOutputPath) + "calibimages/";
+            Utils::makeDir(_calibImgOutputDir);
+            if (!Utils::dirExists(_calibImgOutputDir))
+            {
+                std::stringstream ss;
+                ss << "Could not create image output directory: " << _calibImgOutputDir;
+                throw CVCalibrationEstimatorException(ss.str(),
+                                                      __LINE__,
+                                                      __FILE__);
+            }
+        }
+    }
+}
+//-----------------------------------------------------------------------------
+CVCalibrationEstimator::~CVCalibrationEstimator()
+{
+    //wait for the async task to finish
+    if (_calibrationTask.valid())
+        _calibrationTask.wait();
 }
 //-----------------------------------------------------------------------------
 //! Initiates the final calculation
@@ -62,17 +89,11 @@ bool CVCalibrationEstimator::calculate()
         calibrationSuccessful = _calibrationTask.get();
         if (calibrationSuccessful)
         {
-            //todo: transfer calibration to mainCalib
-            //_state = CVCalibEstimState::Calculating;
-
-            //save();
             Utils::log("Calibration succeeded.");
             Utils::log("Reproj. error: %f\n", _reprojectionError);
         }
         else
         {
-            //todo
-            //_state = CS_uncalibrated;
             Utils::log("Calibration failed.");
         }
     }
@@ -110,8 +131,8 @@ bool CVCalibrationEstimator::extractAsync()
                              CVSize(11, 11),
                              CVSize(-1, -1),
                              TermCriteria(TermCriteria::EPS + TermCriteria::COUNT,
-                                          30000,
-                                          0.01));
+                                          30,
+                                          0.0001));
 
             //add detected points
             _imagePoints.push_back(preciseCorners2D);
@@ -145,17 +166,17 @@ bool CVCalibrationEstimator::calibrateAsync()
         cv::Mat       cameraMat;
         cv::Mat       distortion;
 
-        bool ok = calcCalibration(_imageSize,
-                                  cameraMat,
-                                  distortion,
-                                  _imagePoints,
-                                  rvecs,
-                                  tvecs,
-                                  reprojErrs,
-                                  _reprojectionError,
-                                  _boardSize,
-                                  _boardSquareMM,
-                                  _calibFlags);
+        ok = calcCalibration(_imageSize,
+                             cameraMat,
+                             distortion,
+                             _imagePoints,
+                             rvecs,
+                             tvecs,
+                             reprojErrs,
+                             _reprojectionError,
+                             _boardSize,
+                             _boardSquareMM,
+                             _params.calibrationFlags());
         //correct number of caputured, extraction may have failed
         if (!rvecs.empty() || !reprojErrs.empty())
             _numCaptured = (int)std::max(rvecs.size(), reprojErrs.size());
@@ -176,7 +197,9 @@ bool CVCalibrationEstimator::calibrateAsync()
                                          _camSizeIndex,
                                          _mirroredH,
                                          _mirroredV,
-                                         _camType);
+                                         _camType,
+                                         _computerInfos,
+                                         _params.calibrationFlags());
         }
     }
     catch (std::exception& e)
@@ -290,7 +313,7 @@ double CVCalibrationEstimator::calcReprojectionErrors(const CVVVPoint3f& objectP
 bool CVCalibrationEstimator::loadCalibParams()
 {
     FileStorage fs;
-    string      fullCalibIniFile = SLApplication::calibIniPath + _calibParamsFileName;
+    string      fullCalibIniFile = _calibDataPath + _calibParamsFileName;
 
     fs.open(fullCalibIniFile, FileStorage::READ);
     if (!fs.isOpened())
@@ -308,7 +331,14 @@ bool CVCalibrationEstimator::loadCalibParams()
     return true;
 }
 //-----------------------------------------------------------------------------
-void CVCalibrationEstimator::update(bool found, bool grabFrame, cv::Mat imageGray)
+void CVCalibrationEstimator::saveImage(cv::Mat imageGray)
+{
+    std::stringstream ss;
+    ss << _calibImgOutputDir << "CalibImage" << _numCaptured << ".jpg";
+    cv::imwrite(ss.str(), imageGray);
+}
+//-----------------------------------------------------------------------------
+void CVCalibrationEstimator::updateExtractAndCalc(bool found, bool grabFrame, cv::Mat imageGray)
 {
     switch (_state)
     {
@@ -334,6 +364,7 @@ void CVCalibrationEstimator::update(bool found, bool grabFrame, cv::Mat imageGra
 
                 if (_hasAsyncError)
                 {
+                    _state = State::Error;
                     throw _exception;
                 }
                 else if (_numCaptured >= _numOfImgsToCapture)
@@ -353,9 +384,10 @@ void CVCalibrationEstimator::update(bool found, bool grabFrame, cv::Mat imageGra
             if (_calibrationTask.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
             {
                 _calibrationSuccessful = _calibrationTask.get();
-                _state                 = State::Done;
+
                 if (_calibrationSuccessful)
                 {
+                    _state = State::Done;
                     Utils::log("Calibration succeeded.");
                     Utils::log("Reproj. error: %f\n", _reprojectionError);
                 }
@@ -364,15 +396,38 @@ void CVCalibrationEstimator::update(bool found, bool grabFrame, cv::Mat imageGra
                     Utils::log("Calibration failed.");
                     if (_hasAsyncError)
                     {
+                        _state = State::Error;
                         throw _exception;
                     }
+                    else
+                        _state = State::Done;
                 }
             }
             break;
         }
     }
 }
+//-----------------------------------------------------------------------------
+void CVCalibrationEstimator::updateOnlyCapture(bool found, bool grabFrame, cv::Mat imageGray)
+{
+    switch (_state)
+    {
+        case State::Streaming: {
+            if (grabFrame && found)
+            {
+                saveImage(imageGray);
+                _numCaptured++;
+            }
 
+            if (_numCaptured >= _numOfImgsToCapture)
+            {
+                _state                 = State::DoneCaptureAndSave;
+                _calibrationSuccessful = true;
+            }
+            break;
+        }
+    }
+}
 //-----------------------------------------------------------------------------
 //!< Finds the inner chessboard corners in the given image
 bool CVCalibrationEstimator::updateAndDecorate(CVMat        imageColor,
@@ -386,11 +441,6 @@ bool CVCalibrationEstimator::updateAndDecorate(CVMat        imageColor,
            "CVCalibration::findChessboard: imageColor is empty!");
     assert(_boardSize.width && _boardSize.height &&
            "CVCalibration::findChessboard: _boardSize is not set!");
-
-    //debug save image
-    //stringstream ss;
-    //ss << "imageIn_" << _numCaptured << ".png";
-    //cv::imwrite(ss.str(), imageColor);
 
     cv::Size imageSize = imageColor.size();
 
@@ -438,8 +488,15 @@ bool CVCalibrationEstimator::updateAndDecorate(CVMat        imageColor,
         }
     }
 
-    //update extraction and calculation
-    update(found, grabFrame, imageGray);
+    if (_params.mode == CVCalibrationEstimatorParams::EstimatorMode::ExtractAndCalculate)
+    {
+        //update state machine for extraction and calculation
+        updateExtractAndCalc(found, grabFrame, imageGray);
+    }
+    else // CVCalibrationEstimatorParams::EstimatorMode::OnlyCaptureAndSave
+    {
+        updateOnlyCapture(found, grabFrame, imageGray);
+    }
 
     return found;
 }

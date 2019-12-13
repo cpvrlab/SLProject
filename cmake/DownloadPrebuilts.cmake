@@ -68,7 +68,7 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     #we stay on 3.4.1 on windows because the CVVideoCapture does not work correctly with opencv 4 (at least with Logitec C920)
-    set(OpenCV_VERSION "3.4.1")
+    set(OpenCV_VERSION "4.1.1")
     set(OpenCV_PREBUILT_DIR "win64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
