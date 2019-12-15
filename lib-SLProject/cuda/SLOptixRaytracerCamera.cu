@@ -14,33 +14,28 @@ extern "C" __global__ void __raygen__draw_solid_color()
 
 extern "C" __global__ void __raygen__pinhole_camera()
 {
+    // Get ray generation data
     const uint3 idx = optixGetLaunchIndex();
-    const uint3 dim = optixGetLaunchDimensions();
-
     const CameraData* rtData = (CameraData*)optixGetSbtDataPointer();
-    const float2      d = 2.0f * make_float2(
-            static_cast<float>( idx.x ) / static_cast<float>( dim.x ),
-            static_cast<float>( idx.y ) / static_cast<float>( dim.y )
-    ) - 1.0f;
 
+    const float2 pixel_offset = getPixelOffset(idx);
+
+    // Calculate ray origin and direction
     const float3 origin      = rtData->eye;
-    const float3 direction   = normalize( d.x * rtData->U + d.y * rtData->V + rtData->W );
+    const float3 direction   = normalize( pixel_offset.x * rtData->U + pixel_offset.y * rtData->V + rtData->W );
 
+    // Set pixel color
     params.image[idx.y * params.width + idx.x] = make_color( tracePrimaryRay(params.handle, origin, direction) );
 }
 
 extern "C" __global__ void __raygen__lens_camera()
 {
     const uint3 idx = optixGetLaunchIndex();
-    const uint3 dim = optixGetLaunchDimensions();
 
     const LensCameraData* rtData = (LensCameraData*)optixGetSbtDataPointer();
-    const float2      d = 2.0f * make_float2(
-            static_cast<float>( idx.x ) / static_cast<float>( dim.x ),
-            static_cast<float>( idx.y ) / static_cast<float>( dim.y )
-    ) - 1.0f;
+    const float2 pixel_offset = getPixelOffset(idx);
 
-    const float3 pixel_pos = d.x * rtData->camera.U + d.y * rtData->camera.V + rtData->camera.W + rtData->camera.eye;
+    const float3 pixel_pos = pixel_offset.x * rtData->camera.U + pixel_offset.y * rtData->camera.V + rtData->camera.W + rtData->camera.eye;
 
     float radius = rtData->lensDiameter / 2.0f;
     float4 color = make_float4(0.0f);
@@ -65,15 +60,11 @@ extern "C" __global__ void __raygen__lens_camera()
 extern "C" __global__ void __raygen__orthographic_camera()
 {
     const uint3 idx = optixGetLaunchIndex();
-    const uint3 dim = optixGetLaunchDimensions();
 
     const CameraData* rtData = (CameraData*)optixGetSbtDataPointer();
-    const float2      d = 2.0f * make_float2(
-            static_cast<float>( idx.x ) / static_cast<float>( dim.x ),
-            static_cast<float>( idx.y ) / static_cast<float>( dim.y )
-    ) - 1.0f;
+    const float2 pixel_offset = getPixelOffset(idx);
 
-    const float3 origin     = d.x * rtData->U + d.y * rtData->V + rtData->eye;;
+    const float3 origin     = pixel_offset.x * rtData->U + pixel_offset.y * rtData->V + rtData->eye;;
     const float3 direction  = normalize(rtData->W);
 
     params.image[idx.y * params.width + idx.x] = make_color( tracePrimaryRay(params.handle, origin, direction) );

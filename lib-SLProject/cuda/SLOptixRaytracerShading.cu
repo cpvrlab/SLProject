@@ -6,22 +6,18 @@ extern "C" {
 __constant__ Params params;
 }
 
-extern "C" __global__ void __miss__radiance()
-{
-    auto* rt_data  = reinterpret_cast<MissData*>( optixGetSbtDataPointer() );
+extern "C" __global__ void __miss__radiance() {
+    auto *rt_data = reinterpret_cast<MissData *>( optixGetSbtDataPointer());
     setColor(rt_data->bg_color);
 }
 
-extern "C" __global__ void __miss__occlusion()
-{
+extern "C" __global__ void __miss__occlusion() {
 }
 
-extern "C" __global__ void __anyhit__radiance()
-{
+extern "C" __global__ void __anyhit__radiance() {
 }
 
-extern "C" __global__ void __anyhit__occlusion()
-{
+extern "C" __global__ void __anyhit__occlusion() {
     auto *rt_data = reinterpret_cast<HitData *>( optixGetSbtDataPointer());
     setLighted(getLighted() - (1.0f - rt_data->material.kt));
     optixIgnoreIntersection();
@@ -42,13 +38,13 @@ extern "C" __global__ void __closesthit__radiance() {
         const float v = barycentricCoordinates.y;
         if (rt_data->normals && rt_data->indices) {
             // Interpolate normal vector with barycentric coordinates
-            N = (1.f-u-v) * rt_data->normals[rt_data->indices[idx].x]
-                +         u * rt_data->normals[rt_data->indices[idx].y]
-                +         v * rt_data->normals[rt_data->indices[idx].z];
-            N = normalize( optixTransformNormalFromObjectToWorldSpace( N ) );
+            N = (1.f - u - v) * rt_data->normals[rt_data->indices[idx].x]
+                + u * rt_data->normals[rt_data->indices[idx].y]
+                + v * rt_data->normals[rt_data->indices[idx].z];
+            N = normalize(optixTransformNormalFromObjectToWorldSpace(N));
         } else {
             OptixTraversableHandle gas = optixGetGASTraversableHandle();
-            float3 vertex[3] = { make_float3(0.0f), make_float3(0.0f), make_float3(0.0f)};
+            float3 vertex[3] = {make_float3(0.0f), make_float3(0.0f), make_float3(0.0f)};
             optixGetTriangleVertexData(gas,
                                        idx,
                                        rt_data->sbtIndex,
@@ -59,9 +55,9 @@ extern "C" __global__ void __closesthit__radiance() {
 
         if (rt_data->textureObject) {
             const float2 tc
-                    = (1.f-u-v) * rt_data->texCords[rt_data->indices[idx].x]
-                      +         u * rt_data->texCords[rt_data->indices[idx].y]
-                      +         v * rt_data->texCords[rt_data->indices[idx].z];
+                    = (1.f - u - v) * rt_data->texCords[rt_data->indices[idx].x]
+                      + u * rt_data->texCords[rt_data->indices[idx].y]
+                      + v * rt_data->texCords[rt_data->indices[idx].z];
             texture_color = tex2D<float4>(rt_data->textureObject, tc.x, tc.y);
         }
     }
@@ -76,8 +72,8 @@ extern "C" __global__ void __closesthit__radiance() {
     // initialize color
     float4 color = make_float4(0.0f);
     {
-        float4 local_color      = make_float4(0.0f);
-        float4 specular_color   = make_float4(0.0f);;
+        float4 local_color = make_float4(0.0f);
+        float4 specular_color = make_float4(0.0f);;
 
         // Add emissive and ambient to current color
         local_color += rt_data->material.emissive_color;
@@ -97,34 +93,37 @@ extern "C" __global__ void __closesthit__radiance() {
             // Blinn specular reflection
             const float3 H = normalize(L - ray_dir); // half vector between light & eye
 
-            if ( nDl > 0.0f)
-            {
-                float radius = light.radius;
+            if (nDl > 0.0f) {
                 float lighted = 0.0f;
                 unsigned int samples = 0;
 
-                float3 lightDiscX = cross(L, make_float3(0, 1, 1));
+                float3 lightDiscX = cross(L, make_float3(0, 0, 1));
                 float3 lightDiscY = cross(L, lightDiscX);
 
+                bool  outerCircleIsLighting    = true;
+                bool  innerCircleIsNotLighting = true;
+
                 for (unsigned int r = 1; r <= light.samples.samplesX; r++) {
-                    bool same = true;
-                    float previousSample = -100.0f;
                     for (unsigned int q = 1; q <= light.samples.samplesY; q++) {
                         const float phi = (2.0f / light.samples.samplesY) * q;
                         const float3 discPoint      = light.position +
-                                                   (normalize(lightDiscX) * cospif(phi) * ((radius / light.samples.samplesX) * r)) +
-                                                   (normalize(lightDiscY) * sinpif(phi) * ((radius / light.samples.samplesX) * r));
+                                                   (normalize(lightDiscX) * cospif(phi) * (light.radius / light.samples.samplesX) * r) +
+                                                   (normalize(lightDiscY) * sinpif(phi) * (light.radius / light.samples.samplesX) * r);
                         const float3 direction   = normalize(discPoint - P);
                         const float discDist = length(discPoint - P);
 
-                        samples++;
-                        float sampleLighted = traceShadowRay(params.handle, P, direction, discDist);
-                        same = previousSample == -100.0f || previousSample == sampleLighted;
-                        lighted += sampleLighted;
+                        const float sample = traceShadowRay(params.handle, P, direction, discDist);
+                        if (sample > 0) {
+                            lighted += sample;
+                            innerCircleIsNotLighting = false;
+                        } else {
+                            outerCircleIsLighting = false;
+                        }
                     }
-                    if (same) {
-                        break;
-                    }
+                    samples += light.samples.samplesY;
+                    if (outerCircleIsLighting) break;
+//                    if (innerCircleIsNotLighting) break;
+                    innerCircleIsNotLighting = true;
                 }
                 lighted = lighted / samples;
 
@@ -132,18 +131,14 @@ extern "C" __global__ void __closesthit__radiance() {
                 if (lighted > 0) {
                     // calculate spot effect if light is a spotlight
                     float spotEffect = 1.0f;;
-                    if (lighted > 0.0f && light.spotCutOffDEG < 180.0f)
-                    {
+                    if (lighted > 0.0f && light.spotCutOffDEG < 180.0f) {
                         float LdS = max(dot(-L, light.spotDirWS), 0.0f);
 
                         // check if point is in spot cone
-                        if (LdS > light.spotCosCut)
-                        {
+                        if (LdS > light.spotCosCut) {
                             spotEffect = powf(LdS, light.spotExponent);
-                        }
-                        else
-                        {
-                            lighted    = 0.0f;
+                        } else {
+                            lighted = 0.0f;
                             spotEffect = 0.0f;
                         }
                     }
@@ -161,8 +156,8 @@ extern "C" __global__ void __closesthit__radiance() {
                 }
             }
             local_color += rt_data->material.ambient_color
-                    * lightAttenuation(light, Ldist)
-                    * light.ambient_color;
+                           * lightAttenuation(light, Ldist)
+                           * light.ambient_color;
         }
 
         // multiply local color with texture color and add specular color afterwards
@@ -170,13 +165,13 @@ extern "C" __global__ void __closesthit__radiance() {
     }
 
     // Send reflection ray
-    if(getDepth() < params.max_depth && rt_data->material.kr > 0.0f) {
+    if (getDepth() < params.max_depth && rt_data->material.kr > 0.0f) {
         float3 R = reflect(ray_dir, N);
         color += (traceReflectionRay(params.handle, P, R, getDepth() + 1) * rt_data->material.kr);
     }
 
     // Send refraction ray
-    if(getDepth() < params.max_depth && rt_data->material.kt > 0.0f) {
+    if (getDepth() < params.max_depth && rt_data->material.kt > 0.0f) {
         // calculate eta
         float refractionIndex = rt_data->material.kn;
         float eta = getRefractionIndex() / rt_data->material.kn;
@@ -190,10 +185,10 @@ extern "C" __global__ void __closesthit__radiance() {
         float c1 = dot(N, -ray_dir);
         float w = eta * c1;
         float c2 = 1.0f + (w - eta) * (w + eta);
-        if(c2 >= 0.0f) {
+        if (c2 >= 0.0f) {
             T = eta * ray_dir + (w - sqrtf(c2)) * N;
         } else {
-            T = 2.0f * (dot(-ray_dir, N)) * N  + ray_dir;
+            T = 2.0f * (dot(-ray_dir, N)) * N + ray_dir;
         }
         color += (traceRefractionRay(params.handle, P, T, refractionIndex, getDepth() + 1) * rt_data->material.kt);
     }

@@ -22,7 +22,6 @@ using namespace std::chrono;
 #include <optix_stubs.h>
 
 #define OPTIX_CHECK( call )                                                    \
-    do                                                                         \
     {                                                                          \
         OptixResult res = call;                                                \
         if( res != OPTIX_SUCCESS )                                             \
@@ -32,11 +31,10 @@ using namespace std::chrono;
                << __LINE__ << ")\n";                                           \
             throw SLOptixException( res, ss.str().c_str() );                   \
         }                                                                      \
-    } while( 0 )
+    }
 
 
 #define OPTIX_CHECK_LOG( call )                                                \
-    do                                                                         \
     {                                                                          \
         OptixResult res = call;                                                \
         if( res != OPTIX_SUCCESS )                                             \
@@ -48,7 +46,7 @@ using namespace std::chrono;
                << "\n";                                                        \
             throw SLOptixException( res, ss.str().c_str() );                   \
         }                                                                      \
-    } while( 0 )
+    }
 
 
 //------------------------------------------------------------------------------
@@ -58,7 +56,6 @@ using namespace std::chrono;
 //------------------------------------------------------------------------------
 
 #define CUDA_CHECK( call )                                                     \
-    do                                                                         \
     {                                                                          \
         CUresult result = call;                                                \
         if( result != CUDA_SUCCESS )                                           \
@@ -72,11 +69,10 @@ using namespace std::chrono;
                << result << "\n";                                              \
             throw SLOptixException( ss.str().c_str() );                        \
         }                                                                      \
-    } while( 0 )
+    }
 
 
 #define CUDA_SYNC_CHECK( call )                                                \
-    do                                                                         \
     {                                                                          \
         CUstream stream = call;                                                \
         CUresult result = cuStreamSynchronize(stream);                         \
@@ -90,7 +86,7 @@ using namespace std::chrono;
                << "' (" __FILE__ << ":" << __LINE__ << ")\n";                  \
             throw SLOptixException( ss.str().c_str() );                        \
         }                                                                      \
-    } while( 0 )
+    }
 
 class SLOptixException : public std::runtime_error
 {

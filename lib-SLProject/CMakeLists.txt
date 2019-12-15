@@ -258,7 +258,7 @@ if(index EQUAL -1)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    list(APPEND CUDA_NVCC_FLAGS -g -G)
+    list(APPEND CUDA_NVCC_FLAGS -lineinfo)
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
 endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
