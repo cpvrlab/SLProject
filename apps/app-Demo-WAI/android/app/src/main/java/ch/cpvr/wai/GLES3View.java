@@ -111,7 +111,7 @@ public class GLES3View extends GLSurfaceView
                 GLES3Lib.grabVideoFileFrame();
 
             //////////////////////////////////////////////////////
-            Boolean doRepaint = GLES3Lib.onUpdateTracking();
+            Boolean doRepaint = GLES3Lib.onUpdate();
             //Boolean sceneUpdated    = GLES3Lib.onUpdateScene();
             //Boolean viewUpdated     = GLES3Lib.onPaintAllViews();
             //////////////////////////////////////////////////////

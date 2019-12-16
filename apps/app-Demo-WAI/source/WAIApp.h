@@ -69,10 +69,29 @@ public:
 
     //todo: replace when we are independent of SLApplication
     std::string name();
-    //bool        resizeWindow() { return _resizeWindow; }
-    //void        windowResized() { _resizeWindow = false; }
+    void        setDeviceParameter(const std::string& parameter,
+                                   std::string        value);
 
-    WAI::ModeOrbSlam2* mode() { return _mode; }
+    //sensor stuff (todo: move out of waiapp?)
+    void setRotationQuat(float quatX,
+                         float quatY,
+                         float quatZ,
+                         float quatW);
+    void setLocationLLA(float latitudeDEG,
+                        float longitudeDEG,
+                        float altitudeM,
+                        float accuracyM);
+    bool usesRotationSensor();
+    bool usesLocationSensor();
+
+    //set path for external writable directory for mobile devices
+    //todo: is this still needed?
+    void initExternalDataDirectory(std::string path);
+
+    WAI::ModeOrbSlam2* mode()
+    {
+        return _mode;
+    }
 
     std::string videoDir;
     std::string calibDir;
@@ -111,6 +130,7 @@ private:
     SlamParams     _currentSlamParams;
     AppDirectories _dirs;
 
+    //sensor stuff
     ofstream _gpsDataStream;
     SLQuat4f _lastKnowPoseQuaternion;
     SLQuat4f _IMUQuaternion;

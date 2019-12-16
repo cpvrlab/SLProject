@@ -452,6 +452,59 @@ std::string WAIApp::name()
 }
 
 //-----------------------------------------------------------------------------
+void WAIApp::setDeviceParameter(const std::string& parameter,
+                                std::string        value)
+{
+    SLApplication::deviceParameter[parameter] = std::move(value);
+}
+//-----------------------------------------------------------------------------
+void WAIApp::setRotationQuat(float quatX,
+                             float quatY,
+                             float quatZ,
+                             float quatW)
+{
+    //todo: replace
+    SLApplication::devRot.onRotationQUAT(quatX, quatY, quatZ, quatW);
+}
+
+//-----------------------------------------------------------------------------
+bool WAIApp::usesRotationSensor()
+{
+    //todo: replace
+    return SLApplication::devRot.isUsed();
+}
+
+//-----------------------------------------------------------------------------
+void WAIApp::setLocationLLA(float latitudeDEG, float longitudeDEG, float altitudeM, float accuracyM)
+{
+    //todo: replace
+    SLApplication::devLoc.onLocationLLA(latitudeDEG,
+                                        longitudeDEG,
+                                        altitudeM,
+                                        accuracyM);
+}
+//-----------------------------------------------------------------------------
+bool WAIApp::usesLocationSensor()
+{
+    //todo: replace
+    return SLApplication::devLoc.isUsed();
+}
+
+//-----------------------------------------------------------------------------
+void WAIApp::initExternalDataDirectory(std::string path)
+{
+    if (Utils::dirExists(path))
+    {
+        Utils::log("External directory: %s\n", path.c_str());
+        SLApplication::externalPath = path;
+    }
+    else
+    {
+        Utils::log("ERROR: external directory does not exists: %s\n", path.c_str());
+    }
+}
+
+//-----------------------------------------------------------------------------
 bool WAIApp::updateTracking()
 {
     bool iKnowWhereIAm = false;
