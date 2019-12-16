@@ -145,17 +145,17 @@ bool CVCalibrationEstimator::calibrateAsync()
         cv::Mat       cameraMat;
         cv::Mat       distortion;
 
-        bool ok = calcCalibration(_imageSize,
-                                  cameraMat,
-                                  distortion,
-                                  _imagePoints,
-                                  rvecs,
-                                  tvecs,
-                                  reprojErrs,
-                                  _reprojectionError,
-                                  _boardSize,
-                                  _boardSquareMM,
-                                  _calibFlags);
+        ok = calcCalibration(_imageSize,
+                             cameraMat,
+                             distortion,
+                             _imagePoints,
+                             rvecs,
+                             tvecs,
+                             reprojErrs,
+                             _reprojectionError,
+                             _boardSize,
+                             _boardSquareMM,
+                             _calibFlags);
         //correct number of caputured, extraction may have failed
         if (!rvecs.empty() || !reprojErrs.empty())
             _numCaptured = (int)std::max(rvecs.size(), reprojErrs.size());
