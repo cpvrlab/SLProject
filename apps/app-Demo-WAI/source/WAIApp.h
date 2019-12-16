@@ -21,6 +21,7 @@
 #include <AppDirectories.h>
 #include <WAIModeOrbSlam2.h>
 #include <AppDemoWaiGui.h>
+#include <SLInputEventInterface.h>
 
 class SLMaterial;
 class SLPoints;
@@ -44,9 +45,10 @@ struct SlamParams
 };
 
 //-----------------------------------------------------------------------------
-class WAIApp
+class WAIApp : public SLInputEventInterface
 {
 public:
+    WAIApp();
     ~WAIApp();
     //call load to correctly initialize wai app
     int load(int            liveVideoTargetW,
@@ -59,12 +61,16 @@ public:
              AppDirectories dirs);
     //call update to update the frame, wai and visualization
     bool update();
+    void close();
+
     //initialize wai orb slam with transferred parameters
     OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);
     void               showErrorMsg(std::string msg);
 
-    bool resizeWindow() { return _resizeWindow; }
-    void windowResized() { _resizeWindow = false; }
+    //todo: replace when we are independent of SLApplication
+    std::string name();
+    //bool        resizeWindow() { return _resizeWindow; }
+    //void        windowResized() { _resizeWindow = false; }
 
     WAI::ModeOrbSlam2* mode() { return _mode; }
 
@@ -111,7 +117,7 @@ private:
 
     bool _loaded = false;
 
-    bool _resizeWindow;
+    // bool _resizeWindow;
     //todo: do we need a pointer
     cv::VideoWriter* _videoWriter     = nullptr;
     cv::VideoWriter* _videoWriterInfo = nullptr;

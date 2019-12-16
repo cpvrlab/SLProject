@@ -312,7 +312,7 @@ bool SLScene::onUpdate()
     //////////////////////////////
 
     // Process queued up system events and poll custom input devices
-    SLbool sceneHasChanged = SLApplication::inputManager.pollAndProcessEvents();
+    SLbool sceneHasChanged = SLApplication::inputManager.pollAndProcessEvents(this);
 
     //////////////////////////////
     // 3) Update all animations //

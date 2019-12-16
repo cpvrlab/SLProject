@@ -100,8 +100,7 @@ extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onInit(JNIEnv* env, 
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onTerminate(JNIEnv* env, jclass obj)
 {
-    //WAIApp::close();
-    slTerminate();
+    waiApp.close();
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT

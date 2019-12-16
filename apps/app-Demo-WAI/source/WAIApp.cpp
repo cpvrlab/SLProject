@@ -56,6 +56,11 @@
 //-the live video gets cropped to the aspect ratio that is defined by the transferred values in load(..) and assigned to liveVideoTargetWidth and liveVideoTargetHeight
 
 //-----------------------------------------------------------------------------
+WAIApp::WAIApp()
+  : SLInputEventInterface(SLApplication::inputManager) //todo: local input manager
+{
+}
+//-----------------------------------------------------------------------------
 WAIApp::~WAIApp()
 {
     //todo: destructor is not called on android (at the right position)
@@ -204,6 +209,13 @@ bool WAIApp::update()
     //update scene (before it was slUpdateScene)
     SLApplication::scene->onUpdate();
     return updateSceneViews();
+}
+
+//-----------------------------------------------------------------------------
+void WAIApp::close()
+{
+    // Deletes all remaining sceneviews the current scene instance
+    SLApplication::deleteAppAndScene();
 }
 
 //-----------------------------------------------------------------------------
@@ -419,7 +431,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     result.wasSuccessful = true;
 
     _sv->setViewportFromRatio(SLVec2i(_videoFrameSize.width, _videoFrameSize.height), SLViewportAlign::VA_center, true);
-    _resizeWindow = true;
+    //_resizeWindow = true;
 
     return result;
 }
@@ -431,6 +443,12 @@ void WAIApp::showErrorMsg(std::string msg)
 
     _errorDial->setErrorMsg(msg);
     _gui->uiPrefs->showError = true;
+}
+
+//-----------------------------------------------------------------------------
+std::string WAIApp::name()
+{
+    return SLApplication::name;
 }
 
 //-----------------------------------------------------------------------------
@@ -540,9 +558,9 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv)
     }*/
 
     sv->setViewportFromRatio(SLVec2i(_liveVideoTargetWidth, _liveVideoTargetHeight), SLViewportAlign::VA_center, true);
-    float wdh = sv->scrWdivH();
+
     //do once an onResize in update loop so that everything is aligned correctly
-    _resizeWindow = true;
+    //_resizeWindow = true;
 }
 
 //-----------------------------------------------------------------------------

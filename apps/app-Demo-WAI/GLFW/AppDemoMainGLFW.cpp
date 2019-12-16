@@ -17,9 +17,10 @@
 #include <GLFW/glfw3.h>
 
 #include <WAIApp.h>
-#include <SLInterface.h>
 #include <Utils.h>
 #include <HighResTimer.h>
+
+WAIApp waiApp;
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -28,7 +29,6 @@ static SLint       svIndex;                                        //!< SceneVie
 static SLint       scrWidth  = 640;                                //!< Window width at start up
 static SLint       scrHeight = 480;                                //!< Window height at start up
 static SLfloat     scrWdivH  = (float)scrWidth / (float)scrHeight; //!< aspect ratio screen width divided by height
-static SLbool      fixAspectRatio;                                 //!< Flag if aspect ratio should be fixed
 static SLfloat     scr2fbX;                                        //!< Factor from screen to framebuffer coords
 static SLfloat     scr2fbY;                                        //!< Factor from screen to framebuffer coords
 static SLint       startX;                                         //!< start position x in pixels
@@ -43,7 +43,7 @@ static SLfloat     lastMouseDownTime = 0.0f;                       //!< Last mou
 static SLKey       modifiers         = K_none;                     //!< last modifier keys
 static SLbool      fullscreen        = false;                      //!< flag if window is in fullscreen mode
 static int         dpi;
-
+bool               appShouldClose = false;
 //-----------------------------------------------------------------------------
 /*!
 onClose event handler for deallocation of the scene & sceneview. onClose is
@@ -51,7 +51,7 @@ called glfwPollEvents, glfwWaitEvents or glfwSwapBuffers.
 */
 void onClose(GLFWwindow* window)
 {
-    slShouldClose(true);
+    appShouldClose = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -120,21 +120,6 @@ should called once before the onPaint event.
 */
 void onResize(GLFWwindow* window, int width, int height)
 {
-    if (fixAspectRatio)
-    {
-        //correct target width and height
-        if (height * scrWdivH <= width)
-        {
-            width  = (int)(height * scrWdivH);
-            height = (int)(width / scrWdivH);
-        }
-        else
-        {
-            height = (int)(width / scrWdivH);
-            width  = (int)(height * scrWdivH);
-        }
-    }
-
     lastWidth  = width;
     lastHeight = height;
 
@@ -148,7 +133,7 @@ void onResize(GLFWwindow* window, int width, int height)
 
     // width & height are in screen coords.
     // We need to scale them to framebuffer coords.
-    slResize(svIndex, (int)(width * scr2fbX), (int)(height * scr2fbY));
+    waiApp.resize(svIndex, (int)(width * scr2fbX), (int)(height * scr2fbY));
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -158,7 +143,9 @@ void onLongTouch()
 {
     // forward the long touch only if the mouse or touch hasn't moved.
     if (Utils::abs(mouseX - startX) < 2 && Utils::abs(mouseY - startY) < 2)
-        slLongTouch(svIndex, mouseX, mouseY);
+    {
+        waiApp.longTouch(svIndex, mouseX, mouseY);
+    }
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -198,11 +185,11 @@ static void onMouseButton(GLFWwindow* window,
             // Do parallel double finger move
             if (modifiers & K_shift)
             {
-                slTouch2Down(svIndex, x, y, x - touchDelta.x, y - touchDelta.y);
+                waiApp.touch2Down(svIndex, x, y, x - touchDelta.x, y - touchDelta.y);
             }
             else // Do concentric double finger pinch
             {
-                slTouch2Down(svIndex, x, y, touch2.x, touch2.y);
+                waiApp.touch2Down(svIndex, x, y, touch2.x, touch2.y);
             }
         }
         else // Do standard mouse down
@@ -216,13 +203,13 @@ static void onMouseButton(GLFWwindow* window,
                 switch (button)
                 {
                     case GLFW_MOUSE_BUTTON_LEFT:
-                        slDoubleClick(svIndex, MB_left, x, y, modifiers);
+                        waiApp.doubleClick(svIndex, MB_left, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_RIGHT:
-                        slDoubleClick(svIndex, MB_right, x, y, modifiers);
+                        waiApp.doubleClick(svIndex, MB_right, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_MIDDLE:
-                        slDoubleClick(svIndex, MB_middle, x, y, modifiers);
+                        waiApp.doubleClick(svIndex, MB_middle, x, y, modifiers);
                         break;
                 }
             }
@@ -234,13 +221,13 @@ static void onMouseButton(GLFWwindow* window,
                 switch (button)
                 {
                     case GLFW_MOUSE_BUTTON_LEFT:
-                        slMouseDown(svIndex, MB_left, x, y, modifiers);
+                        waiApp.mouseDown(svIndex, MB_left, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_RIGHT:
-                        slMouseDown(svIndex, MB_right, x, y, modifiers);
+                        waiApp.mouseDown(svIndex, MB_right, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_MIDDLE:
-                        slMouseDown(svIndex, MB_middle, x, y, modifiers);
+                        waiApp.mouseDown(svIndex, MB_middle, x, y, modifiers);
                         break;
                 }
             }
@@ -257,11 +244,11 @@ static void onMouseButton(GLFWwindow* window,
             // Do parallel double finger move
             if (modifiers & K_shift)
             {
-                slTouch2Up(svIndex, x, y, x - (touch2.x - x), y - (touch2.y - y));
+                waiApp.touch2Up(svIndex, x, y, x - (touch2.x - x), y - (touch2.y - y));
             }
             else // Do concentric double finger pinch
             {
-                slTouch2Up(svIndex, x, y, touch2.x, touch2.y);
+                waiApp.touch2Up(svIndex, x, y, touch2.x, touch2.y);
             }
         }
         else // Do standard mouse down
@@ -269,13 +256,13 @@ static void onMouseButton(GLFWwindow* window,
             switch (button)
             {
                 case GLFW_MOUSE_BUTTON_LEFT:
-                    slMouseUp(svIndex, MB_left, x, y, modifiers);
+                    waiApp.mouseUp(svIndex, MB_left, x, y, modifiers);
                     break;
                 case GLFW_MOUSE_BUTTON_RIGHT:
-                    slMouseUp(svIndex, MB_right, x, y, modifiers);
+                    waiApp.mouseUp(svIndex, MB_right, x, y, modifiers);
                     break;
                 case GLFW_MOUSE_BUTTON_MIDDLE:
-                    slMouseUp(svIndex, MB_middle, x, y, modifiers);
+                    waiApp.mouseUp(svIndex, MB_middle, x, y, modifiers);
                     break;
             }
         }
@@ -304,7 +291,7 @@ static void onMouseMove(GLFWwindow* window,
         // Do parallel double finger move
         if (modifiers & K_shift)
         {
-            slTouch2Move(svIndex, (int)x, (int)y, (int)x - touchDelta.x, (int)y - touchDelta.y);
+            waiApp.touch2Move(svIndex, (int)x, (int)y, (int)x - touchDelta.x, (int)y - touchDelta.y);
         }
         else // Do concentric double finger pinch
         {
@@ -314,12 +301,12 @@ static void onMouseMove(GLFWwindow* window,
             touch2.y     = scrH2 - ((int)y - scrH2);
             touchDelta.x = (int)x - touch2.x;
             touchDelta.y = (int)y - touch2.y;
-            slTouch2Move(svIndex, (int)x, (int)y, touch2.x, touch2.y);
+            waiApp.touch2Move(svIndex, (int)x, (int)y, touch2.x, touch2.y);
         }
     }
     else // Do normal mouse move
     {
-        slMouseMove(svIndex, (int)x, (int)y);
+        waiApp.mouseMove(svIndex, (int)x, (int)y);
     }
 }
 //-----------------------------------------------------------------------------
@@ -334,7 +321,7 @@ static void onMouseWheel(GLFWwindow* window,
     int dY = (int)yscroll;
     if (dY == 0) dY = (int)(Utils::sign(yscroll));
 
-    slMouseWheel(svIndex, dY, modifiers);
+    waiApp.mouseWheel(svIndex, dY, modifiers);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -381,7 +368,7 @@ static void onKeyPress(GLFWwindow* window,
         }
         else
         {
-            slKeyPress(svIndex, key, modifiers);
+            waiApp.keyPress(svIndex, key, modifiers);
             onClose(window);
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
@@ -408,16 +395,16 @@ static void onKeyPress(GLFWwindow* window,
     else
     {
         if (action == GLFW_PRESS)
-            slKeyPress(svIndex, key, modifiers);
+            waiApp.keyPress(svIndex, key, modifiers);
         else if (action == GLFW_RELEASE)
-            slKeyRelease(svIndex, key, modifiers);
+            waiApp.keyRelease(svIndex, key, modifiers);
     }
 }
 //-----------------------------------------------------------------------------
 //! Event handler for GLFW character input
 void onCharInput(GLFWwindow*, SLuint c)
 {
-    slCharInput(svIndex, c);
+    waiApp.charInput(svIndex, c);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -447,9 +434,6 @@ void GLFWInit()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    //we have to fix aspect ratio, because the video image is initialized with this ratio
-    fixAspectRatio = false;
 
     touch2.set(-1, -1);
     touchDelta.set(-1, -1);
@@ -516,7 +500,6 @@ void GLFWInit()
     glfwSetWindowCloseCallback(window, onClose);
 }
 
-WAIApp waiApp;
 /*!
 The C main procedure running the GLFW GUI application.
 */
@@ -532,25 +515,13 @@ int main(int argc, char* argv[])
 
     svIndex = waiApp.load(640, 480, scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
 
-    HighResTimer hrt;
-
     // Event loop
-    while (!slShouldClose())
+    while (!appShouldClose)
     {
-        if (waiApp.resizeWindow())
-        {
-            onResize(window, scrWidth, scrHeight);
-            waiApp.windowResized();
-        }
-
         SLbool doRepaint = waiApp.update();
 
-        //slUpdateScene();
-
-        //SLbool doRepaint = slPaintAllViews();
-
         glfwSwapBuffers(window);
-        glfwSetWindowTitle(window, slGetWindowTitle(svIndex).c_str());
+        glfwSetWindowTitle(window, waiApp.name().c_str());
 
         // if no updated occurred wait for the next event (power saving)
         if (!doRepaint)
@@ -559,9 +530,9 @@ int main(int argc, char* argv[])
             glfwPollEvents();
     }
 
-    //waiApp.close();
+    waiApp.close();
 
-    slTerminate();
+    //slTerminate();
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
