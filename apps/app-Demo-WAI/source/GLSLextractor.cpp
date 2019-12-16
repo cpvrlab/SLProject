@@ -1133,8 +1133,8 @@ GLSLextractor::GLSLextractor(int w, int h, int nbKeypointsLow, int nbKeypointsMe
     nlevels             = 1;
     scaleFactor         = 1.0;
 
-    old  = cv::Mat(w, h, CV_8UC1);
-    old2 = cv::Mat(w, h, CV_8UC1);
+    idx = 0;
+    images[1] = cv::Mat(w, h, CV_8UC1);
 
     const int    npoints  = 512;
     const Point* pattern0 = (const Point*)bit_pattern_31_;
@@ -1149,7 +1149,7 @@ static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Ma
 
 void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, OutputArray _descriptors)
 {
-    Mat image = _image.getMat();
+    images[idx] = _image.getMat();
     Mat m;
     Mat descriptors;
 
@@ -1157,7 +1157,7 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
 
     _keypoints.clear();
 
-    imgProc.setInputTexture(image);
+    imgProc.setInputTexture(images[idx]);
     imgProc.gpu_kp();
     imgProc.readResult(_keypoints);
 
@@ -1172,14 +1172,13 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
         descriptors = _descriptors.getMat();
     }
 
+    idx = (idx+1)%2;
     Mat workingMat;
-    GaussianBlur(old2, workingMat, Size(7, 7), 2, 2, BORDER_REFLECT_101);
+    GaussianBlur(images[idx], workingMat, Size(7, 7), 2, 2, BORDER_REFLECT_101);
 
     // Compute the descriptors
     Mat desc = descriptors.rowRange(0, _keypoints.size());
     computeDescriptors(workingMat, _keypoints, desc, pattern);
-    old2 = old.clone();
-    old  = image.clone();
 
     AVERAGE_TIMING_STOP("GLSL Hessian");
 }

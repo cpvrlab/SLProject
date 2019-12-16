@@ -23,8 +23,8 @@ public:
 
 protected:
     std::vector<cv::Point> pattern;
-    cv::Mat                old;
-    cv::Mat                old2;
+    cv::Mat                images[2];
+    int idx;
     GLSLHessian            imgProc;
 };
 
