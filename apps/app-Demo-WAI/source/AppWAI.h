@@ -65,11 +65,11 @@ public:
     static void renderKeyframes();
     static void renderGraphs();
 
-    static void setupGUI();
-    static void buildGUI(SLScene* s, SLSceneView* sv);
-    static void openTest(std::string path);
-    static bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
-
+    static void             setupGUI();
+    static void             buildGUI(SLScene* s, SLSceneView* sv);
+    static void             openTest(std::string path);
+    static bool             checkCalibration(const std::string& calibDir, const std::string& calibFileName);
+    static void             setupDefaultErlebARDir();
     static AppDemoGuiAbout* aboutDial;
     static AppDemoGuiError* errorDial;
 

@@ -3,6 +3,7 @@
 #include <SLLightSpot.h>
 #include <SLCoordAxis.h>
 #include <SLPoints.h>
+#include <SLAssimpImporter.h>
 
 AppWAIScene::AppWAIScene()
 {
@@ -49,9 +50,23 @@ void AppWAIScene::rebuild()
     SLBox*  box3     = new SLBox(0.0f, 0.0f, 0.0f, 1.745f, 0.745, 0.81, "Box 3", yellow);
     SLNode* boxNode3 = new SLNode(box3, "boxNode3");
     boxNode3->translate(2.561f, -5.147f, -0.06f);
+
+    rootNode->addChild(boxNode1);
+    rootNode->addChild(axisNode);
+    rootNode->addChild(boxNode2);
+    rootNode->addChild(boxNode3);
 #endif
 
-#if 0 // augst temple hill
+#if 1 // augst temple hill
+    SLAssimpImporter importer;
+    SLNode*          temple = importer.load("FBX/AugustaRaurica/Temple_no_sock.fbx");
+    temple->translate(24.97f, -17.6f, 8.8f);
+    temple->scale(0.01f);
+    temple->rotate(57.11f, 1.0f, 0.0f, 0.0f);
+    temple->rotate(1.72f, 0.0f, 1.0f, 0.0f);
+    temple->rotate(177.35f, 0.0f, 0.0f, 1.0f);
+
+    /*
     SLBox*  box1     = new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "TempleBox", yellow);
     SLNode* boxNode1 = new SLNode(box1, "Temple");
     boxNode1->translate(26.04f, -14.77f, 6.93f);
@@ -64,6 +79,10 @@ void AppWAIScene::rebuild()
     SLNode* boxNode2 = new SLNode(box2, "boxNode2");
     boxNode2->scale(0.75f, 0.42f, 0.1f);
     SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
+    */
+
+    //rootNode->addChild(boxNode1);
+    rootNode->addChild(temple);
 #endif
 
 #if 0 // locsim scene
@@ -89,9 +108,14 @@ void AppWAIScene::rebuild()
     boxNode4->rotate(-0.19f, SLVec3f(1.0f, 0.0f, 0.0f), TS_parent);
     boxNode4->rotate(9.91f, SLVec3f(0.0f, 1.0f, 0.0f), TS_parent);
     boxNode4->rotate(-0.95f, SLVec3f(0.0f, 0.0f, 1.0f), TS_parent);
+
+    rootNode->addChild(boxNode1);
+    rootNode->addChild(boxNode2);
+    rootNode->addChild(boxNode3);
+    rootNode->addChild(boxNode4);
 #endif
 
-#if 1
+#if 0
     SLBox*  box1     = new SLBox(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, "Box 1", yellow);
     SLNode* boxNode1 = new SLNode(box1, "boxNode1");
     boxNode1->translation(0.07f, 0.25f, 0.74f);
@@ -102,6 +126,8 @@ void AppWAIScene::rebuild()
     SLNode* boxNode2 = new SLNode(box2, "boxNode2");
     boxNode2->scale(0.75f, 0.42f, 0.1f);
     SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");*/
+
+    rootNode->addChild(boxNode1);
 #endif
 
     //boxNode->addChild(axisNode);
@@ -137,10 +163,5 @@ void AppWAIScene::rebuild()
 
     //setup scene
     rootNode->addChild(light1);
-    rootNode->addChild(boxNode1);
-    //rootNode->addChild(axisNode);
-    //rootNode->addChild(boxNode2);
-    //rootNode->addChild(boxNode3);
-    //rootNode->addChild(boxNode4);
     rootNode->addChild(mapNode);
 }

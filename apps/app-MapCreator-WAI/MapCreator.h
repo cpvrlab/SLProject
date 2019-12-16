@@ -16,7 +16,7 @@ class MapCreator
     {
         std::string videoFile;
         //std::string calibFile;
-        CVCalibration calibration = {CVCameraType::VIDEOFILE};
+        CVCalibration calibration = {CVCameraType::VIDEOFILE, ""};
     };
     typedef std::vector<VideoAndCalib> Videos;
     typedef struct AreaConfig

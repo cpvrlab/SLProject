@@ -16,6 +16,12 @@
 class CVCalibrationEstimatorParams
 {
 public:
+    enum class EstimatorMode
+    {
+        ExtractAndCalculate,
+        OnlyCaptureAndSave
+    };
+
     int calibrationFlags()
     {
         int flags = 0;
@@ -47,6 +53,8 @@ public:
     bool calibRationalModel    = false;
     bool calibTiltedModel      = false;
     bool calibThinPrismModel   = false;
+
+    EstimatorMode mode = EstimatorMode::ExtractAndCalculate;
 };
 
 enum class CVCameraType

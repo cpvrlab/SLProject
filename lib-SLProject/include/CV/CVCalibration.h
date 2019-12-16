@@ -21,7 +21,6 @@ for a good top down information.
 */
 
 #include <CVTypedefs.h>
-#include <ftplib.h>
 #include <CVTypes.h>
 
 using namespace std;
@@ -73,7 +72,8 @@ class CVCalibration
 public:
     //default constructor with uncalibrated state (this is not good because
     //it is not a valid state so everybody who uses it has to check the calibration state first)
-    CVCalibration(CVCameraType camType);
+    CVCalibration(CVCameraType camType,
+                  std::string  computerInfos);
     //creates a fully defined calibration
     CVCalibration(cv::Mat            cameraMat,
                   cv::Mat            distortion,
@@ -86,13 +86,16 @@ public:
                   int                camSizeIndex,
                   bool               mirroredH,
                   bool               mirroredV,
-                  CVCameraType       camType);
+                  CVCameraType       camType,
+                  std::string        computerInfos,
+                  int                calibFlags);
     //creates a guessed calibration using image size and fov angle
     CVCalibration(cv::Size     imageSize,
                   float        fovH,
                   bool         mirroredH,
                   bool         mirroredV,
-                  CVCameraType type);
+                  CVCameraType type,
+                  std::string  computerInfos);
     //create a guessed calibration using sensor size, camera focal length and captured image size
     CVCalibration(float        sensorWMM,
                   float        sensorHMM,
@@ -100,17 +103,13 @@ public:
                   cv::Size     imageSize,
                   bool         mirroredH,
                   bool         mirroredV,
-                  CVCameraType camType);
+                  CVCameraType camType,
+                  std::string  computerInfos);
 
     bool load(const string& calibDir,
               const string& calibFileName);
-    void save(const string& calibDir,
+    bool save(const string& calibDir,
               const string& calibFileName);
-
-    void   uploadCalibration(const string& fullPathAndFilename);
-    void   downloadCalibration(const string& fullPathAndFilename);
-    string getLatestCalibFilename(ftplib& ftp, const string& calibFileWOExt);
-    int    getVersionInCalibFilename(const string& calibFilename);
 
     void remap(CVMat& inDistorted,
                CVMat& outUndistorted);
@@ -161,17 +160,15 @@ public:
 
     CVCameraType camType() { return _camType; }
     CVCalibState state() { return _state; }
-    //int          numImgsToCapture() { return _numOfImgsToCapture; }
-    int    numCapturedImgs() { return _numCaptured; }
-    float  reprojectionError() { return _reprojectionError; }
-    CVSize boardSize() { return _boardSize; }
-    float  boardSquareMM() { return _boardSquareMM; }
-    float  boardSquareM() { return _boardSquareMM * 0.001f; }
-    string calibrationTime() { return _calibrationTime; }
-    string calibDir() { return _calibDir; }
-    string calibFileName() { return _calibFileName; }
-    string computerInfos() { return _computerInfos; }
-    string stateStr()
+    int          numCapturedImgs() { return _numCaptured; }
+    float        reprojectionError() { return _reprojectionError; }
+    CVSize       boardSize() { return _boardSize; }
+    float        boardSquareMM() { return _boardSquareMM; }
+    float        boardSquareM() { return _boardSquareMM * 0.001f; }
+    string       calibrationTime() { return _calibrationTime; }
+    string       calibFileName() { return _calibFileName; }
+    string       computerInfos() { return _computerInfos; }
+    string       stateStr()
     {
         switch (_state)
         {
@@ -198,7 +195,6 @@ private:
     CVCalibState _state         = CS_uncalibrated; //!< calibration state enumeration
     float        _cameraFovVDeg = 0.0f;            //!< Vertical field of view in degrees
     float        _cameraFovHDeg = 0.0f;            //!< Horizontal field of view in degrees
-    string       _calibDir;                        //!< directory of calibration file
     string       _calibFileName;                   //!< name for calibration file
     int          _calibFlags  = 0;                 //!< OpenCV calibration flags
     bool         _isMirroredH = false;             //!< Flag if image must be horizontally mirrored
@@ -218,11 +214,7 @@ private:
     string       _computerInfos;
     CVCameraType _camType = CVCameraType::FRONTFACING;
 
-    static const int    _CALIBFILEVERSION; //!< Global const file format version
-    static const string _FTP_HOST;         //!< ftp host for calibration up and download
-    static const string _FTP_USER;         //!< ftp login user for calibration up and download
-    static const string _FTP_PWD;          //!< ftp login pwd for calibration up and download
-    static const string _FTP_DIR;          //!< ftp directory for calibration up and download
+    static const int _CALIBFILEVERSION; //!< Global const file format version
 };
 //-----------------------------------------------------------------------------
 
