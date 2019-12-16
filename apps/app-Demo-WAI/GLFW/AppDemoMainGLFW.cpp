@@ -530,17 +530,17 @@ int main(int argc, char* argv[])
     dirs.slDataRoot  = SLstring(SL_PROJECT_ROOT) + "/data";
     dirs.writableDir = Utils::getAppsWritableDir();
 
-    svIndex = waiApp.load(640, 480, scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, &dirs);
+    svIndex = waiApp.load(640, 480, scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
 
     HighResTimer hrt;
 
     // Event loop
     while (!slShouldClose())
     {
-        if (WAIApp::resizeWindow)
+        if (waiApp.resizeWindow())
         {
             onResize(window, scrWidth, scrHeight);
-            WAIApp::resizeWindow = false;
+            waiApp.windowResized();
         }
 
         SLbool doRepaint = waiApp.update();

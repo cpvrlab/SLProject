@@ -25,13 +25,15 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
                                        std::string        vocabulariesDir,
                                        SLNode*            mapNode,
                                        bool*              activator,
-                                       WAIApp&            waiApp)
+                                       WAIApp&            waiApp,
+                                       SlamParams&        currentSlamParams)
   : AppDemoGuiInfosDialog(name, activator),
     _slamRootDir(slamRootDir),
     _calibrationsDir(calibrationsDir),
     _vocabulariesDir(vocabulariesDir),
     _mapNode(mapNode),
-    _waiApp(waiApp)
+    _waiApp(waiApp),
+    _currentSlamParams(currentSlamParams)
 {
     _changeSlamParams   = true;
     _storeKeyFrameImage = true;
@@ -124,10 +126,10 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
         ImGui::Separator();
 
-        if (!WAIApp::currentSlamParams->videoFile.empty())
+        if (!_currentSlamParams.videoFile.empty())
         {
             SlamVideoInfos slamVideoInfos;
-            std::string    videoFileName = Utils::getFileNameWOExt(WAIApp::currentSlamParams->videoFile);
+            std::string    videoFileName = Utils::getFileNameWOExt(_currentSlamParams.videoFile);
             extractSlamVideoInfosFromFileName(videoFileName,
                                               &slamVideoInfos);
 
@@ -146,10 +148,10 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
         ImGui::Separator();
 
-        if (!WAIApp::currentSlamParams->mapFile.empty())
+        if (!_currentSlamParams.mapFile.empty())
         {
             SlamMapInfos slamMapInfos;
-            std::string  mapFileName = Utils::getFileNameWOExt(WAIApp::currentSlamParams->mapFile);
+            std::string  mapFileName = Utils::getFileNameWOExt(_currentSlamParams.mapFile);
             extractSlamMapInfosFromFileName(mapFileName,
                                             &slamMapInfos);
 
@@ -164,7 +166,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
         ImGui::Separator();
 
-        ImGui::Text("Calibration: %s", Utils::getFileName(WAIApp::currentSlamParams->calibrationFile).c_str());
+        ImGui::Text("Calibration: %s", Utils::getFileName(_currentSlamParams.calibrationFile).c_str());
 
         ImGui::Separator();
 
@@ -425,8 +427,6 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 slamParams.params.fixOldKfs    = fixLoadedKfs;
 
                 OrbSlamStartResult startResult = _waiApp.startOrbSlam(&slamParams);
-                sv->setViewportFromRatio(SLVec2i(WAIApp::videoFrameSize.width, WAIApp::videoFrameSize.height), SLViewportAlign::VA_center, true);
-                WAIApp::resizeWindow = true;
 
                 if (!startResult.wasSuccessful)
                 {

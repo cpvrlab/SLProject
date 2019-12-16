@@ -48,7 +48,7 @@ class WAIApp
 {
 public:
     ~WAIApp();
-    int load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories* dirs);
+    int load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories dirs);
 
     OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);
 
@@ -68,35 +68,19 @@ public:
     void renderGraphs();
 
     void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
-    //void buildGUI(SLScene* s, SLSceneView* sv);
-    //void openTest(std::string path);
+
     bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
     void setupDefaultErlebARDir();
+    bool resizeWindow() { return _resizeWindow; }
+    void windowResized() { _resizeWindow = false; }
     //static AppDemoGuiAbout* aboutDial;
 
     //AppDemoGuiError*          errorDial;
-    static AppDirectories* dirs;
 
-    static int                liveVideoTargetWidth;
-    static int                liveVideoTargetHeight;
-    static int                trackingImgWidth;
-    static cv::Size2i         videoFrameSize;
-    static float              videoFrameWdivH;
-    static cv::VideoWriter*   videoWriter;
-    static cv::VideoWriter*   videoWriterInfo;
     static WAI::ModeOrbSlam2* mode;
-    static AppWAIScene*       waiScene;
-    static bool               loaded;
-    static SLGLTexture*       cpvrLogo;
-    static SLGLTexture*       videoImage;
-    static SLGLTexture*       testTexture;
-    static ofstream           gpsDataStream;
-    static SLQuat4f           lastKnowPoseQuaternion;
-    static SLQuat4f           IMUQuaternion;
 
-    static SlamParams* currentSlamParams;
-
-    static bool resizeWindow;
+    static SLGLTexture* videoImage;
+    static SLGLTexture* testTexture;
 
     static std::string videoDir;
     static std::string calibDir;
@@ -108,8 +92,33 @@ public:
     static int  videoCursorMoveIndex;
 
 private:
+    AppDirectories _dirs;
+
+    ofstream _gpsDataStream;
+    SLQuat4f _lastKnowPoseQuaternion;
+    SLQuat4f _IMUQuaternion;
+
+    bool       _loaded = false;
+    SlamParams _currentSlamParams;
+
+    bool _resizeWindow;
+    //todo: do we need a pointer
+    cv::VideoWriter* _videoWriter     = nullptr;
+    cv::VideoWriter* _videoWriterInfo = nullptr;
+
+    //todo: we dont need a pointer
+    std::unique_ptr<AppWAIScene> _waiScene;
+
+    int _liveVideoTargetWidth;
+    int _liveVideoTargetHeight;
+
+    cv::Size2i _videoFrameSize;
+    float      _videoFrameWdivH;
+
     void                           close();
     std::unique_ptr<AppDemoWaiGui> _gui;
+
+    SLSceneView* _sv = nullptr;
 };
 
 #endif

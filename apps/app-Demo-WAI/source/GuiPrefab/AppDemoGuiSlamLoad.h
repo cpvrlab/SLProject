@@ -28,7 +28,8 @@ public:
                        std::string        vocabulariesDir,
                        SLNode*            mapNode,
                        bool*              activator,
-                       WAIApp&            waiApp);
+                       WAIApp&            waiApp,
+                       SlamParams&        currentSlamParams);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
@@ -66,8 +67,9 @@ private:
     bool _trackingOnly;
     bool fixLoadedKfs;
 
-    SLNode* _mapNode;
-    WAIApp& _waiApp;
+    SLNode*     _mapNode;
+    WAIApp&     _waiApp;
+    SlamParams& _currentSlamParams;
 };
 
 #endif
