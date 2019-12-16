@@ -55,6 +55,7 @@ AppDemoWaiGui::AppDemoWaiGui(std::string appName, std::string configDir, int dot
 AppDemoWaiGui::~AppDemoWaiGui()
 {
     //save preferences
+    //todo: destructor not callled on android as expected (too late)
     uiPrefs->save(_prefsFileName, ImGui::GetStyle());
 }
 //-----------------------------------------------------------------------------
@@ -129,9 +130,9 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Slam"))
         {
-            ImGui::MenuItem("Start", nullptr, uiPrefs->showSlamLoad);
-            ImGui::MenuItem("Tracked Mapping", nullptr, uiPrefs->showTrackedMapping);
-            ImGui::MenuItem("Params", nullptr, uiPrefs->showSlamParam);
+            ImGui::MenuItem("Start", nullptr, &uiPrefs->showSlamLoad);
+            ImGui::MenuItem("Tracked Mapping", nullptr, &uiPrefs->showTrackedMapping);
+            ImGui::MenuItem("Params", nullptr, &uiPrefs->showSlamParam);
 
             ImGui::EndMenu();
         }
@@ -143,8 +144,8 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
             //CVCalibration* mc = &CVCapture::instance()->mainCam;
             //CVCalibration* sc = &CVCapture::instance()->scndCam;
 
-            ImGui::MenuItem("Video Storage", nullptr, uiPrefs->showVideoStorage);
-            ImGui::MenuItem("Video Controls", nullptr, uiPrefs->showVideoControls);
+            ImGui::MenuItem("Video Storage", nullptr, &uiPrefs->showVideoStorage);
+            ImGui::MenuItem("Video Controls", nullptr, &uiPrefs->showVideoControls);
 
             if (ImGui::BeginMenu("Mirror Camera"))
             {
@@ -169,7 +170,7 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Map"))
         {
-            ImGui::MenuItem("Infos Map Node Transform", nullptr, uiPrefs->showInfosMapNodeTransform);
+            ImGui::MenuItem("Infos Map Node Transform", nullptr, &uiPrefs->showInfosMapNodeTransform);
             ImGui::EndMenu();
         }
 
@@ -278,29 +279,29 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Experiments"))
         {
-            ImGui::MenuItem("Load Experiment", nullptr, uiPrefs->showTestSettings);
-            ImGui::MenuItem("New Experiment", nullptr, uiPrefs->showTestWriter);
+            ImGui::MenuItem("Load Experiment", nullptr, &uiPrefs->showTestSettings);
+            ImGui::MenuItem("New Experiment", nullptr, &uiPrefs->showTestWriter);
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("Infos"))
         {
-            ImGui::MenuItem("Infos on Scene", nullptr, uiPrefs->showInfosScene);
-            ImGui::MenuItem("Stats on Timing", nullptr, uiPrefs->showStatsTiming);
+            ImGui::MenuItem("Infos on Scene", nullptr, &uiPrefs->showInfosScene);
+            ImGui::MenuItem("Stats on Timing", nullptr, &uiPrefs->showStatsTiming);
 
-            ImGui::MenuItem("Stats on Debug Time", nullptr, uiPrefs->showStatsDebugTiming);
+            ImGui::MenuItem("Stats on Debug Time", nullptr, &uiPrefs->showStatsDebugTiming);
 
-            ImGui::MenuItem("Stats on Video", nullptr, uiPrefs->showStatsVideo);
+            ImGui::MenuItem("Stats on Video", nullptr, &uiPrefs->showStatsVideo);
             ImGui::Separator();
-            ImGui::MenuItem("Show Scenegraph", nullptr, uiPrefs->showSceneGraph);
-            ImGui::MenuItem("Show Properties", nullptr, uiPrefs->showProperties);
-            ImGui::MenuItem("Show Transform", nullptr, uiPrefs->showTransform);
+            ImGui::MenuItem("Show Scenegraph", nullptr, &uiPrefs->showSceneGraph);
+            ImGui::MenuItem("Show Properties", nullptr, &uiPrefs->showProperties);
+            ImGui::MenuItem("Show Transform", nullptr, &uiPrefs->showTransform);
             ImGui::Separator();
-            ImGui::MenuItem("Infos on Sensors", nullptr, uiPrefs->showInfosSensors);
-            ImGui::MenuItem("Infos on Frameworks", nullptr, uiPrefs->showInfosFrameworks);
-            ImGui::MenuItem("Infos on Tracking", nullptr, uiPrefs->showInfosTracking);
-            ImGui::MenuItem("UI Preferences", nullptr, uiPrefs->showUIPrefs);
-            ImGui::MenuItem("About WAI-Demo", nullptr, uiPrefs->showAbout);
+            ImGui::MenuItem("Infos on Sensors", nullptr, &uiPrefs->showInfosSensors);
+            ImGui::MenuItem("Infos on Frameworks", nullptr, &uiPrefs->showInfosFrameworks);
+            ImGui::MenuItem("Infos on Tracking", nullptr, &uiPrefs->showInfosTracking);
+            ImGui::MenuItem("UI Preferences", nullptr, &uiPrefs->showUIPrefs);
+            ImGui::MenuItem("About WAI-Demo", nullptr, &uiPrefs->showAbout);
 
             ImGui::EndMenu();
         }
