@@ -58,19 +58,27 @@ struct saved_state
     int32_t y;
 };
 
-static float quad[4 * 3]
-{
-    -1, -1, 0,
-     1, -1, 0,
-     1,  1, 0,
-    -1,  1, 0
-};
+static float quad[4 * 3]{
+  -1,
+  -1,
+  0,
+  1,
+  -1,
+  0,
+  1,
+  1,
+  0,
+  -1,
+  1,
+  0};
 
-static int  quadi[6]
-{
-    0, 1, 2,
-    0, 2, 3
-};
+static int quadi[6]{
+  0,
+  1,
+  2,
+  0,
+  2,
+  3};
 
 /**
  * Shared state for our app.
@@ -92,8 +100,8 @@ struct engine
     struct saved_state state;
     GLuint             programId;
 
-    GLuint             texID;
-    GLuint             vaoID;
+    GLuint texID;
+    GLuint vaoID;
 };
 
 static std::string vertexShaderSource = "#version 320 es\n"
@@ -293,7 +301,6 @@ static int engine_init_display(struct engine* engine)
 
     glBindVertexArray(0);
 
-
     glViewport(0, 0, 960, 1920);
 
     return 0;
@@ -398,7 +405,6 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 #include <dlfcn.h>
 ASensorManager* AcquireASensorManagerInstance(android_app* app)
 {
-
     if (!app)
         return nullptr;
 
@@ -476,8 +482,9 @@ ACameraDevice* setupCamera()
     {
         ACameraMetadata* characteristics;
         if (ACameraManager_getCameraCharacteristics(manager,
-                cameraList->cameraIds[i],
-                &characteristics) == ACAMERA_OK) {
+                                                    cameraList->cameraIds[i],
+                                                    &characteristics) == ACAMERA_OK)
+        {
 
             ACameraMetadata_const_entry lensFacing;
             ACameraMetadata_getConstEntry(characteristics, ACAMERA_LENS_FACING, &lensFacing);
@@ -488,7 +495,7 @@ ACameraDevice* setupCamera()
 
                 ACameraDevice_StateCallbacks callbacks;
                 callbacks.onDisconnected = cameraDisconnected;
-                callbacks.onError = cameraError;
+                callbacks.onError        = cameraError;
 
                 ACameraDevice* device;
 
@@ -497,7 +504,9 @@ ACameraDevice* setupCamera()
                     LOGI("opened camera %s", cameraList->cameraIds[i]);
                     return device;
                 }
-            } else {
+            }
+            else
+            {
                 LOGI("camera %i: %s is front facing\n", i, cameraList->cameraIds[i]);
             }
         }
@@ -506,25 +515,28 @@ ACameraDevice* setupCamera()
     return nullptr;
 }
 
-void onSessionClosed(void* ctx, ACameraCaptureSession* ses) {
+void onSessionClosed(void* ctx, ACameraCaptureSession* ses)
+{
     LOGW("session closed");
 }
-void onSessionReady(void* ctx, ACameraCaptureSession* ses) {
+void onSessionReady(void* ctx, ACameraCaptureSession* ses)
+{
     LOGW("session ready");
 }
-void onSessionActive(void* ctx, ACameraCaptureSession* ses) {
+void onSessionActive(void* ctx, ACameraCaptureSession* ses)
+{
     LOGW("session active");
 }
 
 void onNewCameraFrame(void* context, AImageReader* reader)
 {
-    AImage * image;
+    AImage* image;
     AImageReader_acquireNextImage(reader, &image);
 }
 
-AImageReader * cameraCapture(ACameraDevice* device)
+AImageReader* cameraCapture(ACameraDevice* device)
 {
-    AImageReader * reader;
+    AImageReader* reader;
     if (AImageReader_new(640, 360, AIMAGE_FORMAT_YUV_420_888, 2, &reader) != AMEDIA_OK)
     {
         LOGW("Could not create image reader\n");
@@ -536,7 +548,6 @@ AImageReader * cameraCapture(ACameraDevice* device)
 
     // Avoid native window to be deleted
     ANativeWindow_acquire(outputNativeWindow);
-
 
     ACaptureSessionOutput* output;
     ACaptureSessionOutput_create(outputNativeWindow, &output);
@@ -554,10 +565,10 @@ AImageReader * cameraCapture(ACameraDevice* device)
 
     ACameraCaptureSession_stateCallbacks capSessionCallbacks;
     capSessionCallbacks.onActive = onSessionActive;
-    capSessionCallbacks.onReady = onSessionReady;
+    capSessionCallbacks.onReady  = onSessionReady;
     capSessionCallbacks.onClosed = onSessionClosed;
 
-    ACameraCaptureSession *captureSession;
+    ACameraCaptureSession* captureSession;
     if (ACameraDevice_createCaptureSession(device, outputContainer, &capSessionCallbacks, &captureSession) != AMEDIA_OK)
     {
         LOGW("Could not create capture session\n");
@@ -570,7 +581,8 @@ AImageReader * cameraCapture(ACameraDevice* device)
 
 static const int kMaxChannelValue = 262143;
 
-static inline uint32_t YUV2RGB(int nY, int nU, int nV) {
+static inline uint32_t YUV2RGB(int nY, int nU, int nV)
+{
     nY -= 16;
     nU -= 128;
     nV -= 128;
@@ -597,13 +609,13 @@ static inline uint32_t YUV2RGB(int nY, int nU, int nV) {
     return 0xff000000 | (nR << 16) | (nG << 8) | nB;
 }
 
-void imageConverter(uint8_t *buf, AImage *image)
+void imageConverter(uint8_t* buf, AImage* image)
 {
     AImageCropRect srcRect;
     AImage_getCropRect(image, &srcRect);
-    int32_t yStride, uvStride;
+    int32_t  yStride, uvStride;
     uint8_t *yPixel, *uPixel, *vPixel;
-    int32_t yLen, uLen, vLen;
+    int32_t  yLen, uLen, vLen;
     AImage_getPlaneRowStride(image, 0, &yStride);
     AImage_getPlaneRowStride(image, 1, &uvStride);
     AImage_getPlaneData(image, 0, &yPixel, &yLen);
@@ -617,17 +629,19 @@ void imageConverter(uint8_t *buf, AImage *image)
     AImage_getHeight(image, &height);
     AImage_getWidth(image, &width);
 
-    uint32_t *out = (uint32_t*)(buf);
-    for (int32_t row = 0; row < height; row++) {
-        const uint8_t *pY = yPixel + srcRect.left + yStride * (row + srcRect.top);
+    uint32_t* out = (uint32_t*)(buf);
+    for (int32_t row = 0; row < height; row++)
+    {
+        const uint8_t* pY = yPixel + srcRect.left + yStride * (row + srcRect.top);
 
-        int32_t uv_row_start = uvStride * ((row + srcRect.top) >> 1);
-        const uint8_t *pU = uPixel + uv_row_start + (srcRect.left >> 1);
-        const uint8_t *pV = vPixel + uv_row_start + (srcRect.left >> 1);
+        int32_t        uv_row_start = uvStride * ((row + srcRect.top) >> 1);
+        const uint8_t* pU           = uPixel + uv_row_start + (srcRect.left >> 1);
+        const uint8_t* pV           = vPixel + uv_row_start + (srcRect.left >> 1);
 
-        for (int32_t x = 0; x < width; x++) {
+        for (int32_t x = 0; x < width; x++)
+        {
             const int32_t uv_offset = (x >> 1) * uvPixelStride;
-            out[x] = YUV2RGB(pY[x], pU[uv_offset], pV[uv_offset]);
+            out[x]                  = YUV2RGB(pY[x], pU[uv_offset], pV[uv_offset]);
         }
         out += width;
     }
@@ -667,14 +681,14 @@ void android_main(struct android_app* state)
     }
 
     ACameraDevice* cameraDevice = setupCamera();
-    AImageReader* reader = cameraCapture(cameraDevice);
+    AImageReader*  reader       = cameraCapture(cameraDevice);
     if (reader == nullptr)
     {
         LOGW("Could not create reader\n");
         return;
     }
 
-    uint8_t * imageBuffer = (uint8_t*)malloc(sizeof(int) * 640 * 360);
+    uint8_t* imageBuffer = (uint8_t*)malloc(sizeof(int) * 640 * 360);
 
     while (1)
     {
@@ -697,7 +711,7 @@ void android_main(struct android_app* state)
 
             if (engine.display != nullptr)
             {
-                AImage * image;
+                AImage* image;
                 if (AImageReader_acquireLatestImage(reader, &image) == AMEDIA_OK)
                 {
                     int32_t format;
@@ -708,7 +722,7 @@ void android_main(struct android_app* state)
                     AImage_getHeight(image, &width);
 
                     imageConverter(imageBuffer, image);
-                    uint8_t * ptr = imageBuffer + ((320 + 640 * 180) * 4);
+                    uint8_t* ptr = imageBuffer + ((320 + 640 * 180) * 4);
                     LOGW("%d %d %d", ptr[0], ptr[1], ptr[2]);
 
                     AImage_delete(image);
@@ -748,8 +762,6 @@ void android_main(struct android_app* state)
                     }
                 }
             }
-
-
 
             // Check if we are exiting.
             if (state->destroyRequested != 0)
