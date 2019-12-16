@@ -26,6 +26,7 @@
 
 #include <android/sensor.h>
 #include <android_native_app_glue.h>
+#include <AppDemoNativeSensorsInterface.h>
 
 struct savedState
 {
@@ -34,15 +35,6 @@ struct savedState
     int32_t y;
 };
 
-struct SensorsCallbacks
-{
-    void(*onSaveState)(void * usrPtr);
-    void(*onInit)(void * usrPtr);
-    void(*onClose)(void * usrPtr);
-    void(*onGainedFocus)(void * usrPtr);
-    void(*onLostFocus)(void * usrPtr);
-    void(*onAcceleration)(void * usrPtr, float x, float y, float z);
-};
 
 struct SensorsHandler
 {
@@ -101,10 +93,10 @@ static void sensorsHandler_handle_cmd(struct android_app* app, int32_t cmd)
             sensorsHandler->callbacks.onSaveState(sensorsHandler->usrPtr);
             break;
         case APP_CMD_INIT_WINDOW:
-            sensorsHandler->callbacks.onInit(sensorsHandler->usrPtr);
+            sensorsHandler->callbacks.onInit(sensorsHandler->usrPtr, sensorsHandler->_app);
             break;
         case APP_CMD_TERM_WINDOW:
-            sensorsHandler->callbacks.onClose(sensorsHandler->usrPtr);
+            sensorsHandler->callbacks.onClose(sensorsHandler->usrPtr, sensorsHandler->_app);
             break;
         case APP_CMD_GAINED_FOCUS:
             sensorsHandler->callbacks.onGainedFocus(sensorsHandler->usrPtr);
@@ -203,7 +195,7 @@ void sensorsHandler_processEvent(SensorsHandler * handler, void * usrPtr)
         // Check if we are exiting.
         if (handler->_app->destroyRequested != 0)
         {
-            handler->callbacks.onClose(handler->usrPtr);
+            handler->callbacks.onClose(handler->usrPtr, handler->_app);
             return;
         }
     }

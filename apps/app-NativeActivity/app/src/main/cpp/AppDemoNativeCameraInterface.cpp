@@ -63,8 +63,6 @@ struct Camera
     ACaptureRequest* _request;
     int _status;
     int _format;
-    int _w;
-    int _h;
 };
 
 
@@ -189,8 +187,6 @@ int cameraCaptureSession(struct Camera * cam, int w, int h)
     {
         return CAMERA_ERROR;
     }
-    cam->_w = w;
-    cam->_h = h;
     AImageReader_getWindow(cam->_reader, &cam->_outputNativeWindow);
 
     // Avoid native window to be deleted
