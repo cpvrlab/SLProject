@@ -15,14 +15,13 @@
 #include <SLScene.h>
 #include <SLApplication.h>
 #include <CVCapture.h>
-#include <AppDemoWaiGui.h>
 #include <WAIApp.h>
 
 //-----------------------------------------------------------------------------
 // Some global variable for the JNI interface
 JNIEnv*           environment; //! Pointer to JAVA environment used in ray tracing callback
 int               svIndex;     //!< SceneView index
-AppWAIDirectories dirs;
+AppDirectories dirs;
 WAIApp waiApp;
 //-----------------------------------------------------------------------------
 /*! Java Native Interface (JNI) function declarations. These functions are

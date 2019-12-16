@@ -1,3 +1,4 @@
+#include <WAIApp.h>
 #include <atomic>
 
 #include <SLApplication.h>
@@ -33,11 +34,17 @@
 #include <AppDemoGuiTestOpen.h>
 #include <AppDemoGuiTestWrite.h>
 #include <AppDemoGuiSlamParam.h>
-#include <WAIApp.h>
+#include <AppDemoGuiError.h>
+
 #include <AppDirectories.h>
 #include <AppWAISlamParamHelper.h>
 #include <FtpUtils.h>
 #include <GUIPreferences.h>
+
+#include <SLSceneView.h>
+#include <SLPoints.h>
+#include <SLQuat4.h>
+#include <SLPolyline.h>
 
 //move
 #include <SLAssimpImporter.h>
@@ -46,10 +53,10 @@
 //AppDemoGuiError* WAIApp::errorDial = nullptr;
 
 //GUIPreferences     WAIApp::uiPrefs;
-SLGLTexture*       WAIApp::cpvrLogo   = nullptr;
-SLGLTexture*       WAIApp::videoImage = nullptr;
-AppWAIDirectories* WAIApp::dirs       = nullptr;
-AppWAIScene*       WAIApp::waiScene   = nullptr;
+SLGLTexture*    WAIApp::cpvrLogo   = nullptr;
+SLGLTexture*    WAIApp::videoImage = nullptr;
+AppDirectories* WAIApp::dirs       = nullptr;
+AppWAIScene*    WAIApp::waiScene   = nullptr;
 
 int WAIApp::liveVideoTargetWidth;
 int WAIApp::liveVideoTargetHeight;
@@ -92,7 +99,7 @@ WAIApp::~WAIApp()
     close();
 }
 
-int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* directories)
+int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories* directories)
 {
     liveVideoTargetWidth  = liveVideoTargetW;
     liveVideoTargetHeight = liveVideoTargetH;
@@ -497,6 +504,7 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
                                                 &_gui->uiPrefs->showTestWriter));
 
     _gui->addInfoDialog(new AppDemoGuiSlamParam("Slam Param", &_gui->uiPrefs->showSlamParam));
+
     //errorDial = new AppDemoGuiError("Error", &_gui->uiPrefs->showError);
 
     //_gui->addInfoDialog(errorDial);

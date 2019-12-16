@@ -524,7 +524,7 @@ int main(int argc, char* argv[])
 {
     GLFWInit();
 
-    AppWAIDirectories dirs;
+    AppDirectories dirs;
 
     dirs.waiDataRoot = SLstring(SL_PROJECT_ROOT) + "/data";
     dirs.slDataRoot  = SLstring(SL_PROJECT_ROOT) + "/data";

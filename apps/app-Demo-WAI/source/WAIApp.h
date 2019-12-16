@@ -13,19 +13,19 @@
 #ifndef APP_WAI_SCENE_VIEW
 #define APP_WAI_SCENE_VIEW
 
+#include <vector>
 #include "AppWAIScene.h"
-#include <SLSceneView.h>
-#include <SLPoints.h>
-#include <SLQuat4.h>
-#include <SLPolyline.h>
 
 #include <CVCalibration.h>
 #include <WAIAutoCalibration.h>
 #include <AppDirectories.h>
-#include <GUIPreferences.h>
-#include <AppDemoGuiAbout.h>
-#include <AppDemoGuiError.h>
+#include <WAIModeOrbSlam2.h>
 #include <AppDemoWaiGui.h>
+
+class AppDemoWaiGui;
+class SLMaterial;
+class SLPoints;
+class SLNode;
 
 struct OrbSlamStartResult
 {
@@ -48,7 +48,7 @@ class WAIApp
 {
 public:
     ~WAIApp();
-    int load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppWAIDirectories* dirs);
+    int load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories* dirs);
 
     OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);
 
@@ -75,7 +75,7 @@ public:
     //static AppDemoGuiAbout* aboutDial;
 
     //AppDemoGuiError*          errorDial;
-    static AppWAIDirectories* dirs;
+    static AppDirectories* dirs;
 
     static int                liveVideoTargetWidth;
     static int                liveVideoTargetHeight;
