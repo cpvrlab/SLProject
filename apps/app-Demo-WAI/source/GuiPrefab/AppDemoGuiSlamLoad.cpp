@@ -199,8 +199,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                     cv::Mat nodeTransform;
                     if (!mode->doMarkerMapPreprocessing(constructSlamMarkerDir(_slamRootDir, _currentLocation, _currentArea) + _currentMarker, nodeTransform, 0.75f))
                     {
-                        //_waiApp.errorDial->setErrorMsg("Failed to do marker map preprocessing");
-                        //_waiApp.uiPrefs.showError = true;
+                        _waiApp.showErrorMsg("Failed to do marker map preprocessing");
                     }
                     else
                     {
@@ -211,8 +210,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                                                     mapDir + filename,
                                                     imgDir))
                         {
-                            //_waiApp.errorDial->setErrorMsg("Failed to save map " + mapDir + filename);
-                            //_waiApp.uiPrefs.showError = true;
+                            _waiApp.showErrorMsg("Failed to save map " + mapDir + filename);
                         }
                     }
                 }
@@ -223,15 +221,13 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                                                 mapDir + filename,
                                                 imgDir))
                     {
-                        //_waiApp.errorDial->setErrorMsg("Failed to save map " + mapDir + filename);
-                        //_waiApp.uiPrefs.showError = true;
+                        _waiApp.showErrorMsg("Failed to save map " + mapDir + filename);
                     }
                 }
             }
             else
             {
-                //_waiApp.errorDial->setErrorMsg("Failed to save map - No location and/or area selected.");
-                //_waiApp.uiPrefs.showError = true;
+                _waiApp.showErrorMsg("Failed to save map - No location and/or area selected.");
             }
 
             mode->resume();
@@ -410,8 +406,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         {
             if (_currentLocation.empty() || _currentArea.empty())
             {
-                //_waiApp.errorDial->setErrorMsg("Choose location and area");
-                //_waiApp.uiPrefs.showError = true;
+                _waiApp.showErrorMsg("Choose location and area");
             }
             else
             {
@@ -431,8 +426,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
                 if (!startResult.wasSuccessful)
                 {
-                    //_waiApp.errorDial->setErrorMsg(startResult.errorString);
-                    //_waiApp.uiPrefs.showError = true;
+                    _waiApp.showErrorMsg(startResult.errorString);
                 }
                 else
                 {

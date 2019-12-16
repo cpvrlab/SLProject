@@ -85,11 +85,11 @@ void AppDemoGuiTestWrite::recordExperiment()
     if (_videoWriterInfo->isOpened())
         _videoWriterInfo->release();
 
-    _videoWriter->open((WAIApp::videoDir + videoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
-    _videoWriterInfo->open((WAIApp::videoDir + runvideoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
-    saveTestSettings(WAIApp::experimentsDir + settingname);
-    saveGPSData(WAIApp::videoDir + gpsname);
-    saveCalibration(WAIApp::calibDir + calibrationname);
+    _videoWriter->open((_waiApp.videoDir + videoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
+    _videoWriterInfo->open((_waiApp.videoDir + runvideoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
+    saveTestSettings(_waiApp.experimentsDir + settingname);
+    saveGPSData(_waiApp.videoDir + gpsname);
+    saveCalibration(_waiApp.calibDir + calibrationname);
 }
 
 void AppDemoGuiTestWrite::stopRecording()
@@ -97,7 +97,7 @@ void AppDemoGuiTestWrite::stopRecording()
     _videoWriter->release();
     _videoWriterInfo->release();
     _gpsDataFile->close();
-    saveMap(WAIApp::mapDir + mapname);
+    saveMap(_waiApp.mapDir + mapname);
 }
 
 void AppDemoGuiTestWrite::saveCalibration(std::string calib)

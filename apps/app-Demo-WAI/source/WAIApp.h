@@ -22,10 +22,10 @@
 #include <WAIModeOrbSlam2.h>
 #include <AppDemoWaiGui.h>
 
-class AppDemoWaiGui;
 class SLMaterial;
 class SLPoints;
 class SLNode;
+class AppDemoGuiError;
 
 struct OrbSlamStartResult
 {
@@ -48,67 +48,73 @@ class WAIApp
 {
 public:
     ~WAIApp();
-    int load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories dirs);
-
-    OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);
-
-    void onLoadWAISceneView(SLScene* s, SLSceneView* sv);
+    //call load to correctly initialize wai app
+    int load(int            liveVideoTargetW,
+             int            liveVideoTargetH,
+             int            scrWidth,
+             int            scrHeight,
+             float          scr2fbX,
+             float          scr2fbY,
+             int            dpi,
+             AppDirectories dirs);
+    //call update to update the frame, wai and visualization
     bool update();
+    //initialize wai orb slam with transferred parameters
+    OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);
+    void               showErrorMsg(std::string msg);
+
+    bool resizeWindow() { return _resizeWindow; }
+    void windowResized() { _resizeWindow = false; }
+
+    WAI::ModeOrbSlam2* mode() { return _mode; }
+
+    std::string videoDir;
+    std::string calibDir;
+    std::string mapDir;
+    std::string vocDir;
+    std::string experimentsDir;
+    //video file editing
+    bool pauseVideo           = false;
+    int  videoCursorMoveIndex = 0;
+
+private:
     bool updateTracking();
+    bool initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
+    void onLoadWAISceneView(SLScene* s, SLSceneView* sv);
+
+    void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
+    void setupDefaultErlebARDir();
+    bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
+    bool updateSceneViews();
 
     void updateTrackingVisualization(const bool iKnowWhereIAm);
-
     void renderMapPoints(std::string                      name,
                          const std::vector<WAIMapPoint*>& pts,
                          SLNode*&                         node,
                          SLPoints*&                       mesh,
                          SLMaterial*&                     material);
-
     void renderKeyframes();
     void renderGraphs();
 
-    void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
+    //todo: we dont need a pointer
+    std::unique_ptr<AppWAIScene> _waiScene;
+    WAI::ModeOrbSlam2*           _mode;
+    SLSceneView*                 _sv         = nullptr;
+    SLGLTexture*                 _videoImage = nullptr;
 
-    bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
-    void setupDefaultErlebARDir();
-    bool resizeWindow() { return _resizeWindow; }
-    void windowResized() { _resizeWindow = false; }
-    //static AppDemoGuiAbout* aboutDial;
-
-    //AppDemoGuiError*          errorDial;
-
-    static std::string videoDir;
-    static std::string calibDir;
-    static std::string mapDir;
-    static std::string vocDir;
-    static std::string experimentsDir;
-
-    WAI::ModeOrbSlam2* mode() { return _mode; }
-
-    bool pauseVideo           = false; // pause video file
-    int  videoCursorMoveIndex = 0;
-
-private:
-    SLGLTexture* _videoImage = nullptr;
-
-    WAI::ModeOrbSlam2* _mode;
-
+    SlamParams     _currentSlamParams;
     AppDirectories _dirs;
 
     ofstream _gpsDataStream;
     SLQuat4f _lastKnowPoseQuaternion;
     SLQuat4f _IMUQuaternion;
 
-    bool       _loaded = false;
-    SlamParams _currentSlamParams;
+    bool _loaded = false;
 
     bool _resizeWindow;
     //todo: do we need a pointer
     cv::VideoWriter* _videoWriter     = nullptr;
     cv::VideoWriter* _videoWriterInfo = nullptr;
-
-    //todo: we dont need a pointer
-    std::unique_ptr<AppWAIScene> _waiScene;
 
     int _liveVideoTargetWidth;
     int _liveVideoTargetHeight;
@@ -116,10 +122,8 @@ private:
     cv::Size2i _videoFrameSize;
     float      _videoFrameWdivH;
 
-    void                           close();
     std::unique_ptr<AppDemoWaiGui> _gui;
-
-    SLSceneView* _sv = nullptr;
+    AppDemoGuiError*               _errorDial = nullptr;
 };
 
 #endif

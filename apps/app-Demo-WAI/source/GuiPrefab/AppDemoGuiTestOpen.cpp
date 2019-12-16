@@ -29,7 +29,7 @@ AppDemoGuiTestOpen::AppDemoGuiTestOpen(const std::string& name,
 {
     _currentItem = 0;
 
-    std::vector<std::string> content = Utils::getFileNamesInDir(WAIApp::experimentsDir);
+    std::vector<std::string> content = Utils::getFileNamesInDir(_waiApp.experimentsDir);
     for (std::string path : content)
     {
         _infos.push_back(openTestSettings(path));
@@ -69,7 +69,7 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
 
     if (_infos.size() == 0)
     {
-        ImGui::Text(std::string("There are no experiments in: " + WAIApp::experimentsDir).c_str());
+        ImGui::Text(std::string("There are no experiments in: " + _waiApp.experimentsDir).c_str());
         ImGui::End();
         return;
     }
@@ -91,8 +91,7 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
         OrbSlamStartResult result      = _waiApp.startOrbSlam(&slamParams);
         if (!result.wasSuccessful)
         {
-            //_waiApp.errorDial->setErrorMsg(result.errorString);
-            //_waiApp.uiPrefs.showError = true;
+            _waiApp.showErrorMsg(result.errorString);
         }
     }
 

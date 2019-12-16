@@ -1,5 +1,4 @@
 #include <WAIApp.h>
-#include <atomic>
 
 #include <SLApplication.h>
 #include <SLInterface.h>
@@ -12,7 +11,7 @@
 #include <WAIMapStorage.h>
 #include <WAICalibration.h>
 #include <AppWAIScene.h>
-#include <AppDemoWaiGui.h>
+
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiAbout.h>
 #include <AppDemoGuiInfosFrameworks.h>
@@ -49,25 +48,6 @@
 //move
 #include <SLAssimpImporter.h>
 
-//AppDemoGuiAbout* WAIApp::aboutDial = nullptr;
-//AppDemoGuiError* WAIApp::errorDial = nullptr;
-
-//SLGLTexture* WAIApp::videoImage = nullptr;
-//WAI::ModeOrbSlam2* WAIApp::mode       = nullptr;
-
-//ofstream     WAIApp::gpsDataStream;
-//SLGLTexture* WAIApp::_testTexture;
-//SLQuat4f     WAIApp::lastKnowPoseQuaternion;
-//SLQuat4f     WAIApp::IMUQuaternion;
-
-//SlamParams* WAIApp::currentSlamParams = nullptr;
-
-std::string WAIApp::videoDir       = "";
-std::string WAIApp::calibDir       = "";
-std::string WAIApp::mapDir         = "";
-std::string WAIApp::vocDir         = "";
-std::string WAIApp::experimentsDir = "";
-
 //basic information
 //-the sceen has a fixed size on android and also a fixed aspect ratio on desktop to simulate android behaviour on desktop
 //-the viewport gets adjusted according to the target video aspect ratio (for live video WAIApp::liveVideoTargetWidth and WAIApp::_liveVideoTargetHeight are used and for video file the video frame size is used)
@@ -75,22 +55,17 @@ std::string WAIApp::experimentsDir = "";
 //-the calibration gets adjusted according to the video (live and file)
 //-the live video gets cropped to the aspect ratio that is defined by the transferred values in load(..) and assigned to liveVideoTargetWidth and liveVideoTargetHeight
 
-//float WAIApp::videoFrameWdivH;
-//cv::Size2i WAIApp::videoFrameSize;
-
-//bool WAIApp::pauseVideo           = false;
-//int  WAIApp::videoCursorMoveIndex = 0;
-
+//-----------------------------------------------------------------------------
 WAIApp::~WAIApp()
 {
-    close();
-    //todo: is this ever called on android
+    //todo: destructor is not called on android (at the right position)
     if (_videoWriter)
         delete _videoWriter;
     if (_videoWriterInfo)
         delete _videoWriterInfo;
 }
 
+//-----------------------------------------------------------------------------
 int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories)
 {
     _liveVideoTargetWidth  = liveVideoTargetW;
@@ -101,8 +76,6 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
     SLApplication::devRot.isUsed(true);
     SLApplication::devLoc.isUsed(true);
 
-    //currentSlamParams = new SlamParams;
-
     videoDir       = _dirs.writableDir + "erleb-AR/locations/";
     calibDir       = _dirs.writableDir + "calibrations/";
     mapDir         = _dirs.writableDir + "maps/";
@@ -112,115 +85,128 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
     _waiScene        = std::make_unique<AppWAIScene>();
     _videoWriter     = new cv::VideoWriter();
     _videoWriterInfo = new cv::VideoWriter();
-
-    SLVstring empty;
-    empty.push_back("WAI APP");
-
-    // This load the GUI configs that are locally stored
-    //_gui->uiPrefs->setDPI(dpi);
-    //_gui->uiPrefs->load();
-    //if (_gui->uiPrefs->firstAppRun)
-    //{
-    //    //download calibration files
-    //    //WAICalibrationMgr calibMgr(calibDir, "pallas.bfh.ch:21", "upload", "FaAdbD3F2a", "calibrations");
-    //    //calibMgr.downloadCalibrationsFromFtp();
-
-    //    //FtpUtils::downloadFile()
-    //}
-
-    int svIndex = 0;
-    {
-        assert(SLApplication::scene == nullptr && "SLScene is already created!");
-
-        // Default paths for all loaded resources
-        SLGLProgram::defaultPath      = _dirs.slDataRoot + "/shaders/";
-        SLGLTexture::defaultPath      = _dirs.slDataRoot + "/images/textures/";
-        SLGLTexture::defaultPathFonts = _dirs.slDataRoot + "/images/fonts/";
-        SLAssimpImporter::defaultPath = _dirs.slDataRoot + "/models/";
-        SLApplication::configPath     = _dirs.writableDir;
-
-        SLApplication::name  = "WAI Demo App";
-        SLApplication::scene = new SLScene("WAI Demo App", nullptr);
-
-        int screenWidth  = (int)(scrWidth * scr2fbX);
-        int screenHeight = (int)(scrHeight * scr2fbY);
-        assert(SLApplication::scene && "No SLApplication::scene!");
-
-        //SLGLImGui* gui = new SLGLImGui();
-        // Load GUI fonts depending on the resolution
-        //gui->loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
-        //gui->build = (cbOnImGuiBuild*)WAIApp::buildGUI;
-        setupGUI(SLApplication::name, SLApplication::configPath, dpi);
-
-        //_gui = std::make_unique<AppDemoWaiGui>(SLApplication::name, SLApplication::configPath, dpi);
-
-        _sv = new SLSceneView();
-        _sv->init("SceneView",
-                  screenWidth,
-                  screenHeight,
-                  nullptr,
-                  nullptr,
-                  _gui.get());
-
-        // Set default font sizes depending on the dpi no matter if ImGui is used
-        if (!SLApplication::dpi)
-            SLApplication::dpi = dpi;
-
-        // Load GUI fonts depending on the resolution
-        //sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
-
-        onLoadWAISceneView(SLApplication::scene, _sv);
-        svIndex = (SLint)_sv->index();
-    }
-
-    _loaded = true;
-    SLApplication::devRot.isUsed(true);
-    SLApplication::devLoc.isUsed(true);
+    _loaded          = true;
 
     setupDefaultErlebARDir();
-
+    int svIndex = initSLProject(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi);
     return svIndex;
 }
 
-void WAIApp::setupDefaultErlebARDir()
+//-----------------------------------------------------------------------------
+bool WAIApp::update()
 {
-    std::string dir = Utils::unifySlashes(_dirs.writableDir);
-    if (!Utils::dirExists(dir))
+    AVERAGE_TIMING_START("WAIAppUpdate");
+    //resetAllTexture();
+    if (_mode && _loaded)
     {
-        Utils::makeDir(dir);
+        if (CVCapture::instance()->lastFrame.empty() ||
+            CVCapture::instance()->lastFrame.cols == 0 && CVCapture::instance()->lastFrame.rows == 0)
+        {
+            //this only has an influence on desktop or video file
+            CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
+            return false;
+        }
+
+        bool iKnowWhereIAm = (_mode->getTrackingState() == WAI::TrackingState_TrackingOK);
+        while (videoCursorMoveIndex < 0)
+        {
+            //this only has an influence on desktop or video file
+            CVCapture::instance()->moveCapturePosition(-2);
+            CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
+            iKnowWhereIAm = updateTracking();
+
+            videoCursorMoveIndex++;
+        }
+
+        while (videoCursorMoveIndex > 0)
+        {
+            //this only has an influence on desktop or video file
+            CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
+            iKnowWhereIAm = updateTracking();
+
+            videoCursorMoveIndex--;
+        }
+
+        if (CVCapture::instance()->videoType() != VT_NONE)
+        {
+            //this only has an influence on desktop or video file
+            if (CVCapture::instance()->videoType() != VT_FILE || !pauseVideo)
+            {
+                CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
+                iKnowWhereIAm = updateTracking();
+            }
+        }
+
+        //update tracking infos visualization
+        updateTrackingVisualization(iKnowWhereIAm);
+
+        if (iKnowWhereIAm)
+        {
+            _lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
+            _IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
+
+            // TODO(dgj1): maybe make this API cleaner
+            cv::Mat pose = cv::Mat(4, 4, CV_32F);
+            if (!_mode->getPose(&pose))
+            {
+                return false;
+            }
+
+            // update camera node position
+            cv::Mat Rwc(3, 3, CV_32F);
+            cv::Mat twc(3, 1, CV_32F);
+
+            Rwc = (pose.rowRange(0, 3).colRange(0, 3)).t();
+            twc = -Rwc * pose.rowRange(0, 3).col(3);
+
+            cv::Mat PoseInv = cv::Mat::eye(4, 4, CV_32F);
+
+            Rwc.copyTo(PoseInv.colRange(0, 3).rowRange(0, 3));
+            twc.copyTo(PoseInv.rowRange(0, 3).col(3));
+            SLMat4f om;
+
+            om.setMatrix(PoseInv.at<float>(0, 0),
+                         -PoseInv.at<float>(0, 1),
+                         -PoseInv.at<float>(0, 2),
+                         PoseInv.at<float>(0, 3),
+                         PoseInv.at<float>(1, 0),
+                         -PoseInv.at<float>(1, 1),
+                         -PoseInv.at<float>(1, 2),
+                         PoseInv.at<float>(1, 3),
+                         PoseInv.at<float>(2, 0),
+                         -PoseInv.at<float>(2, 1),
+                         -PoseInv.at<float>(2, 2),
+                         PoseInv.at<float>(2, 3),
+                         PoseInv.at<float>(3, 0),
+                         -PoseInv.at<float>(3, 1),
+                         -PoseInv.at<float>(3, 2),
+                         PoseInv.at<float>(3, 3));
+
+            _waiScene->cameraNode->om(om);
+        }
+        else
+        {
+            SLQuat4f q1 = _lastKnowPoseQuaternion;
+            SLQuat4f q2 = SLApplication::devRot.quaternion();
+            q1.invert();
+            SLQuat4f q              = q1 * q2;
+            _IMUQuaternion          = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
+            SLMat4f imuRot          = _IMUQuaternion.toMat4();
+            _lastKnowPoseQuaternion = q2;
+
+            SLMat4f cameraMat = _waiScene->cameraNode->om();
+            _waiScene->cameraNode->om(cameraMat * imuRot);
+        }
+
+        AVERAGE_TIMING_STOP("WAIAppUpdate");
     }
 
-    dir += "erleb-AR/";
-    if (!Utils::dirExists(dir))
-    {
-        Utils::makeDir(dir);
-    }
-
-    dir += "locations/";
-    if (!Utils::dirExists(dir))
-    {
-        Utils::makeDir(dir);
-    }
-
-    dir += "default/";
-    if (!Utils::dirExists(dir))
-    {
-        Utils::makeDir(dir);
-    }
-
-    dir += "default/";
-    if (!Utils::dirExists(dir))
-    {
-        Utils::makeDir(dir);
-    }
+    //update scene (before it was slUpdateScene)
+    SLApplication::scene->onUpdate();
+    return updateSceneViews();
 }
 
-void WAIApp::close()
-{
-    //_gui->uiPrefs->save();
-    //ATTENTION: Other imgui stuff is automatically saved every 5 seconds
-}
-
+//-----------------------------------------------------------------------------
 /*
 videoFile: path to a video or empty if live video should be used
 calibrationFile: path to a calibration or empty if calibration should be searched automatically
@@ -438,236 +424,15 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     return result;
 }
 
-bool WAIApp::checkCalibration(const std::string& calibDir, const std::string& calibFileName)
-{
-    CVCalibration testCalib(CVCameraType::FRONTFACING, "");
-    testCalib.load(calibDir, calibFileName);
-    if (testCalib.cameraMat().empty() || testCalib.distortion().empty()) //app will crash if distortion is empty
-        return false;
-    if (testCalib.numCapturedImgs() == 0) //if this is 0 then the calibration is automatically invalidated in load()
-        return false;
-    if (testCalib.imageSize() == cv::Size(0, 0))
-        return false;
-
-    return true;
-}
-
-void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInch)
-{
-    _gui = std::make_unique<AppDemoWaiGui>(SLApplication::name, SLApplication::configPath, dotsPerInch);
-    //aboutDial = new AppDemoGuiAbout("about", cpvrLogo, &uiPrefs.showAbout);
-    _gui->addInfoDialog(new AppDemoGuiInfosFrameworks("frameworks", &_gui->uiPrefs->showInfosFrameworks));
-    _gui->addInfoDialog(new AppDemoGuiInfosMapNodeTransform("map node",
-                                                            _waiScene->mapNode,
-                                                            &_gui->uiPrefs->showInfosMapNodeTransform));
-
-    _gui->addInfoDialog(new AppDemoGuiInfosScene("scene", &_gui->uiPrefs->showInfosScene));
-    _gui->addInfoDialog(new AppDemoGuiInfosSensors("sensors", &_gui->uiPrefs->showInfosSensors));
-    _gui->addInfoDialog(new AppDemoGuiInfosTracking("tracking", *_gui->uiPrefs.get(), *this));
-    _gui->addInfoDialog(new AppDemoGuiSlamLoad("slam load",
-                                               _dirs.writableDir + "erleb-AR/locations/",
-                                               _dirs.writableDir + "calibrations/",
-                                               _dirs.writableDir + "voc/",
-                                               _waiScene->mapNode,
-                                               &_gui->uiPrefs->showSlamLoad,
-                                               *this,
-                                               this->_currentSlamParams));
-
-    _gui->addInfoDialog(new AppDemoGuiProperties("properties", &_gui->uiPrefs->showProperties));
-    _gui->addInfoDialog(new AppDemoGuiSceneGraph("scene graph", &_gui->uiPrefs->showSceneGraph));
-    _gui->addInfoDialog(new AppDemoGuiStatsDebugTiming("debug timing", &_gui->uiPrefs->showStatsDebugTiming));
-    _gui->addInfoDialog(new AppDemoGuiStatsTiming("timing", &_gui->uiPrefs->showStatsTiming));
-    _gui->addInfoDialog(new AppDemoGuiStatsVideo("video", &CVCapture::instance()->activeCamera->calibration, &_gui->uiPrefs->showStatsVideo));
-    _gui->addInfoDialog(new AppDemoGuiTrackedMapping("tracked mapping", &_gui->uiPrefs->showTrackedMapping, *this));
-
-    _gui->addInfoDialog(new AppDemoGuiTransform("transform", &_gui->uiPrefs->showTransform));
-    _gui->addInfoDialog(new AppDemoGuiUIPrefs("prefs", _gui->uiPrefs.get(), &_gui->uiPrefs->showUIPrefs));
-
-    _gui->addInfoDialog(new AppDemoGuiVideoStorage("video storage", _videoWriter, _videoWriterInfo, &_gpsDataStream, &_gui->uiPrefs->showVideoStorage));
-    _gui->addInfoDialog(new AppDemoGuiVideoControls("video load", &_gui->uiPrefs->showVideoControls, *this));
-
-    _gui->addInfoDialog(new AppDemoGuiTestOpen("Tests Settings",
-                                               _waiScene->mapNode,
-                                               &_gui->uiPrefs->showTestSettings,
-                                               *this));
-
-    _gui->addInfoDialog(new AppDemoGuiTestWrite("Test Writer",
-                                                &CVCapture::instance()->activeCamera->calibration,
-                                                _waiScene->mapNode,
-                                                _videoWriter,
-                                                _videoWriterInfo,
-                                                &_gpsDataStream,
-                                                &_gui->uiPrefs->showTestWriter,
-                                                *this));
-
-    _gui->addInfoDialog(new AppDemoGuiSlamParam("Slam Param", &_gui->uiPrefs->showSlamParam, *this));
-
-    //errorDial = new AppDemoGuiError("Error", &_gui->uiPrefs->showError);
-
-    //_gui->addInfoDialog(errorDial);
-    //TODO: AppDemoGuiInfosDialog are never deleted. Why not use smart pointer when the reponsibility for an object is not clear?
-}
 //-----------------------------------------------------------------------------
-void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv)
+void WAIApp::showErrorMsg(std::string msg)
 {
-    s->init();
-    _waiScene->rebuild();
+    assert(_errorDial && "errorDial is not initialized");
 
-    // Set scene name and info string
-    s->name("Track Keyframe based Features");
-    s->info("Example for loading an existing pose graph with map points.");
-
-    // Save no energy
-    sv->doWaitOnIdle(false); //for constant video feed
-    sv->camera(_waiScene->cameraNode);
-
-    _videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    //_testTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    _waiScene->cameraNode->background().texture(_videoImage);
-
-    s->root3D(_waiScene->rootNode);
-
-    sv->onInitialize();
-    sv->doWaitOnIdle(false);
-
-    /*OrbSlamStartResult orbSlamStartResult = startOrbSlam();
-
-    if (!orbSlamStartResult.wasSuccessful)
-    {
-        errorDial->setErrorMsg(orbSlamStartResult.errorString);
-        _gui->uiPrefs->showError = true;
-    }*/
-
-    sv->setViewportFromRatio(SLVec2i(_liveVideoTargetWidth, _liveVideoTargetHeight), SLViewportAlign::VA_center, true);
-    float wdh = sv->scrWdivH();
-    //do once an onResize in update loop so that everything is aligned correctly
-    _resizeWindow = true;
+    _errorDial->setErrorMsg(msg);
+    _gui->uiPrefs->showError = true;
 }
 
-bool updateSceneViews()
-{
-    bool needUpdate = false;
-
-    for (auto sv : SLApplication::scene->sceneViews())
-        if (sv->onPaint() && !needUpdate)
-            needUpdate = true;
-
-    return needUpdate;
-}
-
-//-----------------------------------------------------------------------------
-bool WAIApp::update()
-{
-    AVERAGE_TIMING_START("WAIAppUpdate");
-    //resetAllTexture();
-    if (_mode && _loaded)
-    {
-        if (CVCapture::instance()->lastFrame.empty() ||
-            CVCapture::instance()->lastFrame.cols == 0 && CVCapture::instance()->lastFrame.rows == 0)
-        {
-            //this only has an influence on desktop or video file
-            CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
-            return false;
-        }
-
-        bool iKnowWhereIAm = (_mode->getTrackingState() == WAI::TrackingState_TrackingOK);
-        while (videoCursorMoveIndex < 0)
-        {
-            //this only has an influence on desktop or video file
-            CVCapture::instance()->moveCapturePosition(-2);
-            CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
-            iKnowWhereIAm = updateTracking();
-
-            videoCursorMoveIndex++;
-        }
-
-        while (videoCursorMoveIndex > 0)
-        {
-            //this only has an influence on desktop or video file
-            CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
-            iKnowWhereIAm = updateTracking();
-
-            videoCursorMoveIndex--;
-        }
-
-        if (CVCapture::instance()->videoType() != VT_NONE)
-        {
-            //this only has an influence on desktop or video file
-            if (CVCapture::instance()->videoType() != VT_FILE || !pauseVideo)
-            {
-                CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
-                iKnowWhereIAm = updateTracking();
-            }
-        }
-
-        //update tracking infos visualization
-        updateTrackingVisualization(iKnowWhereIAm);
-
-        if (iKnowWhereIAm)
-        {
-            _lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
-            _IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
-
-            // TODO(dgj1): maybe make this API cleaner
-            cv::Mat pose = cv::Mat(4, 4, CV_32F);
-            if (!_mode->getPose(&pose))
-            {
-                return false;
-            }
-
-            // update camera node position
-            cv::Mat Rwc(3, 3, CV_32F);
-            cv::Mat twc(3, 1, CV_32F);
-
-            Rwc = (pose.rowRange(0, 3).colRange(0, 3)).t();
-            twc = -Rwc * pose.rowRange(0, 3).col(3);
-
-            cv::Mat PoseInv = cv::Mat::eye(4, 4, CV_32F);
-
-            Rwc.copyTo(PoseInv.colRange(0, 3).rowRange(0, 3));
-            twc.copyTo(PoseInv.rowRange(0, 3).col(3));
-            SLMat4f om;
-
-            om.setMatrix(PoseInv.at<float>(0, 0),
-                         -PoseInv.at<float>(0, 1),
-                         -PoseInv.at<float>(0, 2),
-                         PoseInv.at<float>(0, 3),
-                         PoseInv.at<float>(1, 0),
-                         -PoseInv.at<float>(1, 1),
-                         -PoseInv.at<float>(1, 2),
-                         PoseInv.at<float>(1, 3),
-                         PoseInv.at<float>(2, 0),
-                         -PoseInv.at<float>(2, 1),
-                         -PoseInv.at<float>(2, 2),
-                         PoseInv.at<float>(2, 3),
-                         PoseInv.at<float>(3, 0),
-                         -PoseInv.at<float>(3, 1),
-                         -PoseInv.at<float>(3, 2),
-                         PoseInv.at<float>(3, 3));
-
-            _waiScene->cameraNode->om(om);
-        }
-        else
-        {
-            SLQuat4f q1 = _lastKnowPoseQuaternion;
-            SLQuat4f q2 = SLApplication::devRot.quaternion();
-            q1.invert();
-            SLQuat4f q              = q1 * q2;
-            _IMUQuaternion          = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
-            SLMat4f imuRot          = _IMUQuaternion.toMat4();
-            _lastKnowPoseQuaternion = q2;
-
-            SLMat4f cameraMat = _waiScene->cameraNode->om();
-            _waiScene->cameraNode->om(cameraMat * imuRot);
-        }
-
-        AVERAGE_TIMING_STOP("WAIAppUpdate");
-    }
-
-    //update scene (before it was slUpdateScene)
-    SLApplication::scene->onUpdate();
-    return updateSceneViews();
-}
 //-----------------------------------------------------------------------------
 bool WAIApp::updateTracking()
 {
@@ -705,6 +470,198 @@ bool WAIApp::updateTracking()
 
     return iKnowWhereIAm;
 }
+
+//-----------------------------------------------------------------------------
+bool WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi)
+{
+    assert(SLApplication::scene == nullptr && "SLScene is already created!");
+
+    // Default paths for all loaded resources
+    SLGLProgram::defaultPath      = _dirs.slDataRoot + "/shaders/";
+    SLGLTexture::defaultPath      = _dirs.slDataRoot + "/images/textures/";
+    SLGLTexture::defaultPathFonts = _dirs.slDataRoot + "/images/fonts/";
+    SLAssimpImporter::defaultPath = _dirs.slDataRoot + "/models/";
+    SLApplication::configPath     = _dirs.writableDir;
+
+    SLApplication::name  = "WAI Demo App";
+    SLApplication::scene = new SLScene("WAI Demo App", nullptr);
+
+    int screenWidth  = (int)(scrWidth * scr2fbX);
+    int screenHeight = (int)(scrHeight * scr2fbY);
+    assert(SLApplication::scene && "No SLApplication::scene!");
+
+    setupGUI(SLApplication::name, SLApplication::configPath, dpi);
+    // Set default font sizes depending on the dpi no matter if ImGui is used
+    //todo: is this still needed?
+    if (!SLApplication::dpi)
+        SLApplication::dpi = dpi;
+
+    _sv = new SLSceneView();
+    _sv->init("SceneView",
+              screenWidth,
+              screenHeight,
+              nullptr,
+              nullptr,
+              _gui.get());
+
+    onLoadWAISceneView(SLApplication::scene, _sv);
+    return (SLint)_sv->index();
+}
+
+//-----------------------------------------------------------------------------
+void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv)
+{
+    s->init();
+    _waiScene->rebuild();
+
+    // Set scene name and info string
+    s->name("Track Keyframe based Features");
+    s->info("Example for loading an existing pose graph with map points.");
+
+    // Save no energy
+    sv->doWaitOnIdle(false); //for constant video feed
+    sv->camera(_waiScene->cameraNode);
+
+    _videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+    //_testTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+    _waiScene->cameraNode->background().texture(_videoImage);
+
+    s->root3D(_waiScene->rootNode);
+
+    sv->onInitialize();
+    sv->doWaitOnIdle(false);
+
+    /*OrbSlamStartResult orbSlamStartResult = startOrbSlam();
+
+    if (!orbSlamStartResult.wasSuccessful)
+    {
+        errorDial->setErrorMsg(orbSlamStartResult.errorString);
+        _gui->uiPrefs->showError = true;
+    }*/
+
+    sv->setViewportFromRatio(SLVec2i(_liveVideoTargetWidth, _liveVideoTargetHeight), SLViewportAlign::VA_center, true);
+    float wdh = sv->scrWdivH();
+    //do once an onResize in update loop so that everything is aligned correctly
+    _resizeWindow = true;
+}
+
+//-----------------------------------------------------------------------------
+void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInch)
+{
+    _gui = std::make_unique<AppDemoWaiGui>(SLApplication::name, SLApplication::configPath, dotsPerInch);
+    //aboutDial = new AppDemoGuiAbout("about", cpvrLogo, &uiPrefs.showAbout);
+    _gui->addInfoDialog(new AppDemoGuiInfosFrameworks("frameworks", &_gui->uiPrefs->showInfosFrameworks));
+    _gui->addInfoDialog(new AppDemoGuiInfosMapNodeTransform("map node",
+                                                            _waiScene->mapNode,
+                                                            &_gui->uiPrefs->showInfosMapNodeTransform));
+
+    _gui->addInfoDialog(new AppDemoGuiInfosScene("scene", &_gui->uiPrefs->showInfosScene));
+    _gui->addInfoDialog(new AppDemoGuiInfosSensors("sensors", &_gui->uiPrefs->showInfosSensors));
+    _gui->addInfoDialog(new AppDemoGuiInfosTracking("tracking", *_gui->uiPrefs.get(), *this));
+    _gui->addInfoDialog(new AppDemoGuiSlamLoad("slam load",
+                                               _dirs.writableDir + "erleb-AR/locations/",
+                                               _dirs.writableDir + "calibrations/",
+                                               _dirs.writableDir + "voc/",
+                                               _waiScene->mapNode,
+                                               &_gui->uiPrefs->showSlamLoad,
+                                               *this,
+                                               this->_currentSlamParams));
+
+    _gui->addInfoDialog(new AppDemoGuiProperties("properties", &_gui->uiPrefs->showProperties));
+    _gui->addInfoDialog(new AppDemoGuiSceneGraph("scene graph", &_gui->uiPrefs->showSceneGraph));
+    _gui->addInfoDialog(new AppDemoGuiStatsDebugTiming("debug timing", &_gui->uiPrefs->showStatsDebugTiming));
+    _gui->addInfoDialog(new AppDemoGuiStatsTiming("timing", &_gui->uiPrefs->showStatsTiming));
+    _gui->addInfoDialog(new AppDemoGuiStatsVideo("video", &CVCapture::instance()->activeCamera->calibration, &_gui->uiPrefs->showStatsVideo));
+    _gui->addInfoDialog(new AppDemoGuiTrackedMapping("tracked mapping", &_gui->uiPrefs->showTrackedMapping, *this));
+
+    _gui->addInfoDialog(new AppDemoGuiTransform("transform", &_gui->uiPrefs->showTransform));
+    _gui->addInfoDialog(new AppDemoGuiUIPrefs("prefs", _gui->uiPrefs.get(), &_gui->uiPrefs->showUIPrefs));
+
+    _gui->addInfoDialog(new AppDemoGuiVideoStorage("video storage", _videoWriter, _videoWriterInfo, &_gpsDataStream, &_gui->uiPrefs->showVideoStorage, *this));
+    _gui->addInfoDialog(new AppDemoGuiVideoControls("video load", &_gui->uiPrefs->showVideoControls, *this));
+
+    _gui->addInfoDialog(new AppDemoGuiTestOpen("Tests Settings",
+                                               _waiScene->mapNode,
+                                               &_gui->uiPrefs->showTestSettings,
+                                               *this));
+
+    _gui->addInfoDialog(new AppDemoGuiTestWrite("Test Writer",
+                                                &CVCapture::instance()->activeCamera->calibration,
+                                                _waiScene->mapNode,
+                                                _videoWriter,
+                                                _videoWriterInfo,
+                                                &_gpsDataStream,
+                                                &_gui->uiPrefs->showTestWriter,
+                                                *this));
+
+    _gui->addInfoDialog(new AppDemoGuiSlamParam("Slam Param", &_gui->uiPrefs->showSlamParam, *this));
+
+    _errorDial = new AppDemoGuiError("Error", &_gui->uiPrefs->showError);
+    _gui->addInfoDialog(_errorDial);
+    //TODO: AppDemoGuiInfosDialog are never deleted. Why not use smart pointer when the reponsibility for an object is not clear?
+}
+
+//-----------------------------------------------------------------------------
+void WAIApp::setupDefaultErlebARDir()
+{
+    std::string dir = Utils::unifySlashes(_dirs.writableDir);
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
+
+    dir += "erleb-AR/";
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
+
+    dir += "locations/";
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
+
+    dir += "default/";
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
+
+    dir += "default/";
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool WAIApp::checkCalibration(const std::string& calibDir, const std::string& calibFileName)
+{
+    CVCalibration testCalib(CVCameraType::FRONTFACING, "");
+    testCalib.load(calibDir, calibFileName);
+    if (testCalib.cameraMat().empty() || testCalib.distortion().empty()) //app will crash if distortion is empty
+        return false;
+    if (testCalib.numCapturedImgs() == 0) //if this is 0 then the calibration is automatically invalidated in load()
+        return false;
+    if (testCalib.imageSize() == cv::Size(0, 0))
+        return false;
+
+    return true;
+}
+
+//-----------------------------------------------------------------------------
+bool WAIApp::updateSceneViews()
+{
+    bool needUpdate = false;
+
+    for (auto sv : SLApplication::scene->sceneViews())
+        if (sv->onPaint() && !needUpdate)
+            needUpdate = true;
+
+    return needUpdate;
+}
+
 //-----------------------------------------------------------------------------
 void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
