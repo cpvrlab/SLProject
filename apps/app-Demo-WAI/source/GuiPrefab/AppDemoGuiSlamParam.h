@@ -16,16 +16,17 @@
 
 #include <SLMat4.h>
 #include <SLNode.h>
-#include <WAIApp.h>
 #include <WAICalibration.h>
 #include <vector>
 
+class WAIApp;
 //-----------------------------------------------------------------------------
 class AppDemoGuiSlamParam : public AppDemoGuiInfosDialog
 {
 public:
     AppDemoGuiSlamParam(const std::string& name,
-                        bool*              activator);
+                        bool*              activator,
+                        WAIApp&            waiApp);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
@@ -45,6 +46,7 @@ private:
     int _markerCurrentId;
 
     std::vector<std::string> _extractors;
+    WAIApp&                  _waiApp;
 };
 
 #endif

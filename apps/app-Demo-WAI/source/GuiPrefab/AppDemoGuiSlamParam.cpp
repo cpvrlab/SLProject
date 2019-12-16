@@ -20,11 +20,13 @@
 #include <Utils.h>
 #include <CVCapture.h>
 #include <GLSLextractor.h>
-
+#include <WAIApp.h>
 //-----------------------------------------------------------------------------
 AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
-                                         bool*              activator)
-  : AppDemoGuiInfosDialog(name, activator)
+                                         bool*              activator,
+                                         WAIApp&            waiApp)
+  : AppDemoGuiInfosDialog(name, activator),
+    _waiApp(waiApp)
 {
     _extractors.push_back("SURF extractor th = 500");
     _extractors.push_back("SURF extractor th = 800");
@@ -94,7 +96,7 @@ KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
 
 void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    WAI::ModeOrbSlam2* mode = WAIApp::mode;
+    WAI::ModeOrbSlam2* mode = _waiApp.mode();
 
     ImGui::Begin("Slam Param", _activator, ImGuiWindowFlags_AlwaysAutoResize);
     if (!mode)

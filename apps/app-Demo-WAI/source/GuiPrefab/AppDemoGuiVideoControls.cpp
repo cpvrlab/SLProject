@@ -2,8 +2,9 @@
 #include <WAIApp.h>
 #include <CVCapture.h>
 
-AppDemoGuiVideoControls::AppDemoGuiVideoControls(const std::string& name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiVideoControls::AppDemoGuiVideoControls(const std::string& name, bool* activator, WAIApp& waiApp)
+  : AppDemoGuiInfosDialog(name, activator),
+    _waiApp(waiApp)
 {
 }
 
@@ -19,49 +20,49 @@ void AppDemoGuiVideoControls::buildInfos(SLScene* s, SLSceneView* sv)
 
     ImGui::Separator();
 
-    if (ImGui::Button((WAIApp::pauseVideo ? "Play" : "Pause"),
+    if (ImGui::Button((_waiApp.pauseVideo ? "Play" : "Pause"),
                       ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
-        WAIApp::pauseVideo = !WAIApp::pauseVideo;
+        _waiApp.pauseVideo = !_waiApp.pauseVideo;
     }
 
     ImGui::Text("Frame control");
     if (ImGui::Button("<", ImVec2(0, 0)))
     {
-        WAIApp::videoCursorMoveIndex = -1;
+        _waiApp.videoCursorMoveIndex = -1;
     }
     ImGui::SameLine();
     if (ImGui::Button("<<", ImVec2(0, 0)))
     {
-        WAIApp::videoCursorMoveIndex = -10;
+        _waiApp.videoCursorMoveIndex = -10;
     }
     ImGui::SameLine();
     if (ImGui::Button("<<<", ImVec2(0, 0)))
     {
-        WAIApp::videoCursorMoveIndex = -100;
+        _waiApp.videoCursorMoveIndex = -100;
     }
     ImGui::SameLine();
     if (ImGui::Button(">>>", ImVec2(0, 0)))
     {
-        WAIApp::videoCursorMoveIndex = 100;
+        _waiApp.videoCursorMoveIndex = 100;
     }
     ImGui::SameLine();
     if (ImGui::Button(">>", ImVec2(0, 0)))
     {
-        WAIApp::videoCursorMoveIndex = 10;
+        _waiApp.videoCursorMoveIndex = 10;
     }
     ImGui::SameLine();
     if (ImGui::Button(">", ImVec2(0, 0)))
     {
-        WAIApp::videoCursorMoveIndex = 1;
+        _waiApp.videoCursorMoveIndex = 1;
     }
 
 #if 0
     if (ImGui::Button("Save current frame with candidates", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
-        if (WAIApp::mode != nullptr && WAIApp::mode->retainImage())
+        if (_waiApp.mode() != nullptr && _waiApp.mode()->retainImage())
         {
-            WAIFrame     frame = WAIApp::mode->getCurrentFrame();
+            WAIFrame     frame = _waiApp.mode()->getCurrentFrame();
             WAIKeyFrame* ref   = frame.mpReferenceKF;
 
             // TODO(dgj1): Save image from frame and its reference keyframe

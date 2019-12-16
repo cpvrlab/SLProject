@@ -52,11 +52,11 @@
 //AppDemoGuiAbout* WAIApp::aboutDial = nullptr;
 //AppDemoGuiError* WAIApp::errorDial = nullptr;
 
-SLGLTexture*       WAIApp::videoImage = nullptr;
-WAI::ModeOrbSlam2* WAIApp::mode       = nullptr;
+//SLGLTexture* WAIApp::videoImage = nullptr;
+//WAI::ModeOrbSlam2* WAIApp::mode       = nullptr;
 
 //ofstream     WAIApp::gpsDataStream;
-SLGLTexture* WAIApp::testTexture;
+//SLGLTexture* WAIApp::_testTexture;
 //SLQuat4f     WAIApp::lastKnowPoseQuaternion;
 //SLQuat4f     WAIApp::IMUQuaternion;
 
@@ -78,8 +78,8 @@ std::string WAIApp::experimentsDir = "";
 //float WAIApp::videoFrameWdivH;
 //cv::Size2i WAIApp::videoFrameSize;
 
-bool WAIApp::pauseVideo           = false;
-int  WAIApp::videoCursorMoveIndex = 0;
+//bool WAIApp::pauseVideo           = false;
+//int  WAIApp::videoCursorMoveIndex = 0;
 
 WAIApp::~WAIApp()
 {
@@ -254,15 +254,15 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     bool useMapFile               = !mapFile.empty();
 
     // reset stuff
-    if (mode)
+    if (_mode)
     {
-        mode->requestStateIdle();
-        while (!mode->hasStateIdle())
+        _mode->requestStateIdle();
+        while (!_mode->hasStateIdle())
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        delete mode;
-        mode = nullptr;
+        delete _mode;
+        _mode = nullptr;
     }
 
     // Check that files exist
@@ -365,7 +365,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         cap->activeCamera->calibration.adaptForNewResolution(_videoFrameSize);
     }
 
-    // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective mode)
+    // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
     _waiScene->cameraNode->fov(cap->activeCamera->calibration.cameraFovVDeg());
     // Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
     cv::Mat scMat = cap->activeCamera->calibration.cameraMatUndistorted();
@@ -385,42 +385,42 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
         params.cullRedundantPerc = 0.99f;
     }
 
-    mode = new WAI::ModeOrbSlam2(cap->activeCamera->calibration.cameraMat(),
-                                 cap->activeCamera->calibration.distortion(),
-                                 params,
-                                 vocFile,
-                                 markerFile);
+    _mode = new WAI::ModeOrbSlam2(cap->activeCamera->calibration.cameraMat(),
+                                  cap->activeCamera->calibration.distortion(),
+                                  params,
+                                  vocFile,
+                                  markerFile);
 
     // 5. Load map data
     if (useMapFile)
     {
-        mode->requestStateIdle();
-        while (!mode->hasStateIdle())
+        _mode->requestStateIdle();
+        while (!_mode->hasStateIdle())
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        mode->reset();
+        _mode->reset();
 
         // TODO(dgj1): extract feature type
-        // TODO(dgj1): check that map feature type matches with mode feature type
-        bool mapLoadingSuccess = WAIMapStorage::loadMap(mode->getMap(),
-                                                        mode->getKfDB(),
+        // TODO(dgj1): check that map feature type matches with _mode feature type
+        bool mapLoadingSuccess = WAIMapStorage::loadMap(_mode->getMap(),
+                                                        _mode->getKfDB(),
                                                         _waiScene->mapNode,
                                                         mapFile,
-                                                        WAIApp::mode->retainImage(),
+                                                        _mode->retainImage(),
                                                         params.fixOldKfs);
 
         if (!mapLoadingSuccess)
         {
-            delete mode;
-            mode = nullptr;
+            delete _mode;
+            _mode = nullptr;
 
             result.errorString = "Could not load map from file " + mapFile;
             return result;
         }
 
-        mode->resume();
-        mode->setInitialized(true);
+        _mode->resume();
+        _mode->setInitialized(true);
     }
 
     // 6. save current params
@@ -463,7 +463,7 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
 
     _gui->addInfoDialog(new AppDemoGuiInfosScene("scene", &_gui->uiPrefs->showInfosScene));
     _gui->addInfoDialog(new AppDemoGuiInfosSensors("sensors", &_gui->uiPrefs->showInfosSensors));
-    _gui->addInfoDialog(new AppDemoGuiInfosTracking("tracking", *_gui->uiPrefs.get()));
+    _gui->addInfoDialog(new AppDemoGuiInfosTracking("tracking", *_gui->uiPrefs.get(), *this));
     _gui->addInfoDialog(new AppDemoGuiSlamLoad("slam load",
                                                _dirs.writableDir + "erleb-AR/locations/",
                                                _dirs.writableDir + "calibrations/",
@@ -478,13 +478,13 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
     _gui->addInfoDialog(new AppDemoGuiStatsDebugTiming("debug timing", &_gui->uiPrefs->showStatsDebugTiming));
     _gui->addInfoDialog(new AppDemoGuiStatsTiming("timing", &_gui->uiPrefs->showStatsTiming));
     _gui->addInfoDialog(new AppDemoGuiStatsVideo("video", &CVCapture::instance()->activeCamera->calibration, &_gui->uiPrefs->showStatsVideo));
-    _gui->addInfoDialog(new AppDemoGuiTrackedMapping("tracked mapping", &_gui->uiPrefs->showTrackedMapping));
+    _gui->addInfoDialog(new AppDemoGuiTrackedMapping("tracked mapping", &_gui->uiPrefs->showTrackedMapping, *this));
 
     _gui->addInfoDialog(new AppDemoGuiTransform("transform", &_gui->uiPrefs->showTransform));
     _gui->addInfoDialog(new AppDemoGuiUIPrefs("prefs", _gui->uiPrefs.get(), &_gui->uiPrefs->showUIPrefs));
 
     _gui->addInfoDialog(new AppDemoGuiVideoStorage("video storage", _videoWriter, _videoWriterInfo, &_gpsDataStream, &_gui->uiPrefs->showVideoStorage));
-    _gui->addInfoDialog(new AppDemoGuiVideoControls("video load", &_gui->uiPrefs->showVideoControls));
+    _gui->addInfoDialog(new AppDemoGuiVideoControls("video load", &_gui->uiPrefs->showVideoControls, *this));
 
     _gui->addInfoDialog(new AppDemoGuiTestOpen("Tests Settings",
                                                _waiScene->mapNode,
@@ -497,9 +497,10 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
                                                 _videoWriter,
                                                 _videoWriterInfo,
                                                 &_gpsDataStream,
-                                                &_gui->uiPrefs->showTestWriter));
+                                                &_gui->uiPrefs->showTestWriter,
+                                                *this));
 
-    _gui->addInfoDialog(new AppDemoGuiSlamParam("Slam Param", &_gui->uiPrefs->showSlamParam));
+    _gui->addInfoDialog(new AppDemoGuiSlamParam("Slam Param", &_gui->uiPrefs->showSlamParam, *this));
 
     //errorDial = new AppDemoGuiError("Error", &_gui->uiPrefs->showError);
 
@@ -520,10 +521,9 @@ void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv)
     sv->doWaitOnIdle(false); //for constant video feed
     sv->camera(_waiScene->cameraNode);
 
-    videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    //testTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    _waiScene->cameraNode->background().texture(videoImage);
-    //waiScene->cameraNode->background().texture(testTexture);
+    _videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+    //_testTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+    _waiScene->cameraNode->background().texture(_videoImage);
 
     s->root3D(_waiScene->rootNode);
 
@@ -560,7 +560,7 @@ bool WAIApp::update()
 {
     AVERAGE_TIMING_START("WAIAppUpdate");
     //resetAllTexture();
-    if (mode && _loaded)
+    if (_mode && _loaded)
     {
         if (CVCapture::instance()->lastFrame.empty() ||
             CVCapture::instance()->lastFrame.cols == 0 && CVCapture::instance()->lastFrame.rows == 0)
@@ -570,7 +570,7 @@ bool WAIApp::update()
             return false;
         }
 
-        bool iKnowWhereIAm = (mode->getTrackingState() == WAI::TrackingState_TrackingOK);
+        bool iKnowWhereIAm = (_mode->getTrackingState() == WAI::TrackingState_TrackingOK);
         while (videoCursorMoveIndex < 0)
         {
             //this only has an influence on desktop or video file
@@ -610,7 +610,7 @@ bool WAIApp::update()
 
             // TODO(dgj1): maybe make this API cleaner
             cv::Mat pose = cv::Mat(4, 4, CV_32F);
-            if (!mode->getPose(&pose))
+            if (!_mode->getPose(&pose))
             {
                 return false;
             }
@@ -681,8 +681,8 @@ bool WAIApp::updateTracking()
             _videoWriter->write(cap->lastFrame);
         }
 
-        iKnowWhereIAm = mode->update(cap->lastFrameGray,
-                                     cap->lastFrame);
+        iKnowWhereIAm = _mode->update(cap->lastFrameGray,
+                                      cap->lastFrame);
 
         if (_videoWriterInfo->isOpened())
         {
@@ -710,13 +710,13 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
     CVCapture* cap = CVCapture::instance();
     //undistort image and copy image to video texture
-    if (videoImage && cap->activeCamera)
+    if (_videoImage && cap->activeCamera)
     {
         //decorate distorted image with distorted keypoints
         if (_gui->uiPrefs->showKeyPoints)
-            mode->decorateVideoWithKeyPoints(cap->lastFrame);
+            _mode->decorateVideoWithKeyPoints(cap->lastFrame);
         if (_gui->uiPrefs->showKeyPointsMatched)
-            mode->decorateVideoWithKeyPointMatches(cap->lastFrame);
+            _mode->decorateVideoWithKeyPointMatches(cap->lastFrame);
 
         CVMat undistortedLastFrame;
         if (cap->activeCamera->calibration.state() == CS_calibrated && cap->activeCamera->showUndistorted())
@@ -728,12 +728,12 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
             undistortedLastFrame = cap->lastFrame;
         }
 
-        videoImage->copyVideoImage(undistortedLastFrame.cols,
-                                   undistortedLastFrame.rows,
-                                   cap->format,
-                                   undistortedLastFrame.data,
-                                   undistortedLastFrame.isContinuous(),
-                                   true);
+        _videoImage->copyVideoImage(undistortedLastFrame.cols,
+                                    undistortedLastFrame.rows,
+                                    cap->format,
+                                    undistortedLastFrame.data,
+                                    undistortedLastFrame.isContinuous(),
+                                    true);
     }
 
     //update map point visualization:
@@ -742,14 +742,14 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
     {
         //get new points and add them
         renderMapPoints("MapPoints",
-                        mode->getMapPoints(),
+                        _mode->getMapPoints(),
                         _waiScene->mapPC,
                         _waiScene->mappointsMesh,
                         _waiScene->redMat);
 
         //get new points and add them
         renderMapPoints("MarkerCornerMapPoints",
-                        mode->getMarkerCornerMapPoints(),
+                        _mode->getMarkerCornerMapPoints(),
                         _waiScene->mapMarkerCornerPC,
                         _waiScene->mappointsMarkerCornerMesh,
                         _waiScene->blueMat);
@@ -773,7 +773,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
     if (_gui->uiPrefs->showLocalMapPC && iKnowWhereIAm)
     {
         renderMapPoints("LocalMapPoints",
-                        mode->getLocalMapPoints(),
+                        _mode->getLocalMapPoints(),
                         _waiScene->mapLocalPC,
                         _waiScene->mappointsLocalMesh,
                         _waiScene->blueMat);
@@ -789,7 +789,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
     if (_gui->uiPrefs->showMatchesPC && iKnowWhereIAm)
     {
         renderMapPoints("MatchedMapPoints",
-                        mode->getMatchedMapPoints(),
+                        _mode->getMatchedMapPoints(),
                         _waiScene->mapMatchedPC,
                         _waiScene->mappointsMatchedMesh,
                         _waiScene->greenMat);
@@ -843,7 +843,7 @@ void WAIApp::renderMapPoints(std::string                      name,
 //-----------------------------------------------------------------------------
 void WAIApp::renderKeyframes()
 {
-    std::vector<WAIKeyFrame*> keyframes = mode->getKeyFrames();
+    std::vector<WAIKeyFrame*> keyframes = _mode->getKeyFrames();
 
     // TODO(jan): delete keyframe textures
     for (WAIKeyFrame* kf : keyframes)
@@ -902,7 +902,7 @@ void WAIApp::renderKeyframes()
 //-----------------------------------------------------------------------------
 void WAIApp::renderGraphs()
 {
-    std::vector<WAIKeyFrame*> kfs = mode->getKeyFrames();
+    std::vector<WAIKeyFrame*> kfs = _mode->getKeyFrames();
 
     SLVVec3f covisGraphPts;
     SLVVec3f spanningTreePts;

@@ -176,18 +176,19 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         }
         if (ImGui::Button("Save map"))
         {
-            WAIApp::mode->pause();
+            WAI::ModeOrbSlam2* mode = _waiApp.mode();
+            mode->pause();
 
-            if (!_currentLocation.empty() && !_currentArea.empty() && WAIApp::mode)
+            if (!_currentLocation.empty() && !_currentArea.empty() && mode)
             {
                 std::string mapDir = constructSlamMapDir(_slamRootDir, _currentLocation, _currentArea);
                 if (!Utils::dirExists(mapDir))
                     Utils::makeDir(mapDir);
 
-                std::string filename = constructSlamMapFileName(_currentLocation, _currentArea, WAIApp::mode->getKPextractor()->GetName());
+                std::string filename = constructSlamMapFileName(_currentLocation, _currentArea, _waiApp.mode()->getKPextractor()->GetName());
                 std::string imgDir   = constructSlamMapImgDir(mapDir, filename);
 
-                if (WAIApp::mode->retainImage())
+                if (_waiApp.mode()->retainImage())
                 {
                     if (!Utils::dirExists(imgDir))
                         Utils::makeDir(imgDir);
@@ -196,7 +197,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 if (!_currentMarker.empty())
                 {
                     cv::Mat nodeTransform;
-                    if (!WAIApp::mode->doMarkerMapPreprocessing(constructSlamMarkerDir(_slamRootDir, _currentLocation, _currentArea) + _currentMarker, nodeTransform, 0.75f))
+                    if (!mode->doMarkerMapPreprocessing(constructSlamMarkerDir(_slamRootDir, _currentLocation, _currentArea) + _currentMarker, nodeTransform, 0.75f))
                     {
                         //_waiApp.errorDial->setErrorMsg("Failed to do marker map preprocessing");
                         //_waiApp.uiPrefs.showError = true;
@@ -205,7 +206,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                     {
                         std::cout << "nodeTransform: " << nodeTransform << std::endl;
                         _mapNode->om(WAIMapStorage::convertToSLMat(nodeTransform));
-                        if (!WAIMapStorage::saveMap(WAIApp::mode->getMap(),
+                        if (!WAIMapStorage::saveMap(mode->getMap(),
                                                     _mapNode,
                                                     mapDir + filename,
                                                     imgDir))
@@ -217,7 +218,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 }
                 else
                 {
-                    if (!WAIMapStorage::saveMap(WAIApp::mode->getMap(),
+                    if (!WAIMapStorage::saveMap(mode->getMap(),
                                                 _mapNode,
                                                 mapDir + filename,
                                                 imgDir))
@@ -233,7 +234,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 //_waiApp.uiPrefs.showError = true;
             }
 
-            WAIApp::mode->resume();
+            mode->resume();
         }
     }
     else

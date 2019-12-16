@@ -3,14 +3,17 @@
 
 #include <AppDemoGuiInfosDialog.h>
 
+class WAIApp;
+
 class AppDemoGuiVideoControls : public AppDemoGuiInfosDialog
 {
-    public:
-    AppDemoGuiVideoControls(const std::string& name, bool* activator);
+public:
+    AppDemoGuiVideoControls(const std::string& name, bool* activator, WAIApp& waiApp);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
-    private:
+private:
+    WAIApp& _waiApp;
 };
 
 #endif

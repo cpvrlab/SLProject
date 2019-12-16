@@ -25,9 +25,9 @@
 class AppDemoGuiInfosTracking : public AppDemoGuiInfosDialog
 {
 public:
-    AppDemoGuiInfosTracking(std::string name,
-                            //WAI::ModeOrbSlam2* mode,
-                            GUIPreferences& preferences);
+    AppDemoGuiInfosTracking(std::string     name,
+                            GUIPreferences& preferences,
+                            WAIApp&         waiApp);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
@@ -35,7 +35,8 @@ private:
     //WAI::ModeOrbSlam2* _mode = nullptr;
     GUIPreferences& _prefs;
 
-    int _minNumCovisibleMapPts = 0;
+    WAIApp& _waiApp;
+    int     _minNumCovisibleMapPts = 0;
 };
 
 #endif

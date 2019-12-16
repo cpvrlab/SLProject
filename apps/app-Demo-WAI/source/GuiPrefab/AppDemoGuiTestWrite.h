@@ -17,8 +17,10 @@
 
 #include <SLMat4.h>
 #include <SLNode.h>
-#include <WAIApp.h>
+
 #include <CVCalibration.h>
+
+class WAIApp;
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
@@ -30,7 +32,8 @@ public:
                         cv::VideoWriter*   writer1,
                         cv::VideoWriter*   writer2,
                         std::ofstream*     gpsDataStream,
-                        bool*              activator);
+                        bool*              activator,
+                        WAIApp&            waiApp);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
@@ -66,6 +69,8 @@ private:
 
     int _currentSceneId;
     int _currentConditionId;
+
+    WAIApp& _waiApp;
 };
 
 #endif

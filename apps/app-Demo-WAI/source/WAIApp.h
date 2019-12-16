@@ -77,21 +77,22 @@ public:
 
     //AppDemoGuiError*          errorDial;
 
-    static WAI::ModeOrbSlam2* mode;
-
-    static SLGLTexture* videoImage;
-    static SLGLTexture* testTexture;
-
     static std::string videoDir;
     static std::string calibDir;
     static std::string mapDir;
     static std::string vocDir;
     static std::string experimentsDir;
 
-    static bool pauseVideo; // pause video file
-    static int  videoCursorMoveIndex;
+    WAI::ModeOrbSlam2* mode() { return _mode; }
+
+    bool pauseVideo           = false; // pause video file
+    int  videoCursorMoveIndex = 0;
 
 private:
+    SLGLTexture* _videoImage = nullptr;
+
+    WAI::ModeOrbSlam2* _mode;
+
     AppDirectories _dirs;
 
     ofstream _gpsDataStream;
