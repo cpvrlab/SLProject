@@ -45,54 +45,48 @@
 #include <AppDemoNativeCameraInterface.h>
 #include <string>
 
-
 struct CameraHandler
 {
     ACameraManager* _manager;
-
 };
 
 struct Camera
 {
-    ACameraDevice* _device;
-    AImageReader* _reader;
-    ANativeWindow* _outputNativeWindow;
-    ACaptureSessionOutput* _sessionOutput;
+    ACameraDevice*                  _device;
+    AImageReader*                   _reader;
+    ANativeWindow*                  _outputNativeWindow;
+    ACaptureSessionOutput*          _sessionOutput;
     ACaptureSessionOutputContainer* _outputContainer;
-    ACameraOutputTarget* _target;
-    ACaptureRequest* _request;
-    int _status;
-    int _format;
-    int _w;
-    int _h;
+    ACameraOutputTarget*            _target;
+    ACaptureRequest*                _request;
+    int                             _status;
+    int                             _format;
 };
 
-
-void initCameraHandler(struct CameraHandler ** handlerp)
+void initCameraHandler(struct CameraHandler** handlerp)
 {
-    CameraHandler * handler = (CameraHandler*)malloc(sizeof(struct CameraHandler));
-    handler->_manager = ACameraManager_create();
-    *handlerp = handler;
+    CameraHandler* handler = (CameraHandler*)malloc(sizeof(struct CameraHandler));
+    handler->_manager      = ACameraManager_create();
+    *handlerp              = handler;
 }
 
-unsigned int getCameraList(struct CameraHandler ** handlerp, struct CameraInfo ** cameraInfop)
+unsigned int getCameraList(struct CameraHandler** handlerp, struct CameraInfo** cameraInfop)
 {
-    ACameraIdList*  cameraList = nullptr;
+    ACameraIdList* cameraList = nullptr;
 
-    CameraHandler * handler = (struct CameraHandler*)malloc (sizeof(struct CameraHandler));
-    *handlerp = handler;
+    CameraHandler* handler = (struct CameraHandler*)malloc(sizeof(struct CameraHandler));
+    *handlerp              = handler;
 
     if (ACameraManager_getCameraIdList(handler->_manager, &cameraList) != ACAMERA_OK)
         return 0;
 
-
-    struct CameraInfo * cameraInfo = (CameraInfo*)malloc(sizeof(CameraInfo) * cameraList->numCameras);
-    *cameraInfop = cameraInfo;
+    struct CameraInfo* cameraInfo = (CameraInfo*)malloc(sizeof(CameraInfo) * cameraList->numCameras);
+    *cameraInfop                  = cameraInfo;
 
     for (int i = 0; i < cameraList->numCameras; i++)
     {
         cameraInfo[i]._id = cameraList->cameraIds[i];
-        ACameraMetadata *characteristics;
+        ACameraMetadata* characteristics;
         if (ACameraManager_getCameraCharacteristics(handler->_manager, cameraList->cameraIds[i], &characteristics) == ACAMERA_OK)
         {
             ACameraMetadata_const_entry lensFacing;
@@ -114,22 +108,21 @@ unsigned int getCameraList(struct CameraHandler ** handlerp, struct CameraInfo *
     return n;
 }
 
-
-unsigned int getBackFacingCameraList(struct CameraHandler * handler, struct CameraInfo ** cameraInfop)
+unsigned int getBackFacingCameraList(struct CameraHandler* handler, struct CameraInfo** cameraInfop)
 {
-    ACameraIdList*  cameraList = nullptr;
+    ACameraIdList* cameraList = nullptr;
 
     if (handler == nullptr || cameraInfop == nullptr || ACameraManager_getCameraIdList(handler->_manager, &cameraList) != ACAMERA_OK)
         return 0;
 
-    struct CameraInfo * cameraInfo = (CameraInfo*)malloc(sizeof(CameraInfo) * cameraList->numCameras);
-    *cameraInfop = cameraInfo;
+    struct CameraInfo* cameraInfo = (CameraInfo*)malloc(sizeof(CameraInfo) * cameraList->numCameras);
+    *cameraInfop                  = cameraInfo;
 
     unsigned int n = 0;
     for (int i = 0; i < cameraList->numCameras; i++)
     {
         cameraInfo[n]._id = cameraList->cameraIds[i];
-        ACameraMetadata *characteristics;
+        ACameraMetadata* characteristics;
         if (ACameraManager_getCameraCharacteristics(handler->_manager, cameraList->cameraIds[i], &characteristics) == ACAMERA_OK)
         {
             ACameraMetadata_const_entry lensFacing;
@@ -148,25 +141,25 @@ unsigned int getBackFacingCameraList(struct CameraHandler * handler, struct Came
 
 void cameraDisconnected(void* context, ACameraDevice* device)
 {
-    struct Camera * c = (struct Camera*) context;
+    struct Camera* c = (struct Camera*)context;
     ACameraDevice_close(device);
     c->_status = CAMERA_DISCONECTED;
 }
 
 void cameraError(void* context, ACameraDevice* device, int error)
 {
-    struct Camera * c = (struct Camera*) context;
+    struct Camera* c = (struct Camera*)context;
     ACameraDevice_close(device);
     c->_status = CAMERA_ERROR;
 }
 
-int initCamera(struct CameraHandler * handler, struct CameraInfo * info, struct Camera ** camp)
+int initCamera(struct CameraHandler* handler, struct CameraInfo* info, struct Camera** camp)
 {
-    struct Camera * cam = (struct Camera *)malloc (sizeof(struct Camera));
-    *camp = cam;
+    struct Camera* cam = (struct Camera*)malloc(sizeof(struct Camera));
+    *camp              = cam;
     ACameraDevice_StateCallbacks callbacks;
     callbacks.onDisconnected = cameraDisconnected;
-    callbacks.onError = cameraError;
+    callbacks.onError        = cameraError;
 
     if (ACameraManager_openCamera(handler->_manager, info->_id, &callbacks, &cam->_device) == ACAMERA_OK)
     {
@@ -176,21 +169,22 @@ int initCamera(struct CameraHandler * handler, struct CameraInfo * info, struct 
     return CAMERA_ERROR;
 }
 
-void onSessionClosed(void* ctx, ACameraCaptureSession* ses) {
+void onSessionClosed(void* ctx, ACameraCaptureSession* ses)
+{
 }
-void onSessionReady(void* ctx, ACameraCaptureSession* ses) {
+void onSessionReady(void* ctx, ACameraCaptureSession* ses)
+{
 }
-void onSessionActive(void* ctx, ACameraCaptureSession* ses) {
+void onSessionActive(void* ctx, ACameraCaptureSession* ses)
+{
 }
 
-int cameraCaptureSession(struct Camera * cam, int w, int h)
+int cameraCaptureSession(struct Camera* cam, int w, int h)
 {
     if (AImageReader_new(w, h, AIMAGE_FORMAT_YUV_420_888, 2, &cam->_reader) != AMEDIA_OK)
     {
         return CAMERA_ERROR;
     }
-    cam->_w = w;
-    cam->_h = h;
     AImageReader_getWindow(cam->_reader, &cam->_outputNativeWindow);
 
     // Avoid native window to be deleted
@@ -207,11 +201,12 @@ int cameraCaptureSession(struct Camera * cam, int w, int h)
 
     ACameraCaptureSession_stateCallbacks capSessionCallbacks;
     capSessionCallbacks.onActive = onSessionActive;
-    capSessionCallbacks.onReady = onSessionReady;
+    capSessionCallbacks.onReady  = onSessionReady;
     capSessionCallbacks.onClosed = onSessionClosed;
 
-    ACameraCaptureSession *captureSession;
-    if (ACameraDevice_createCaptureSession(cam->_device, cam->_outputContainer, &capSessionCallbacks, &captureSession) != AMEDIA_OK) {
+    ACameraCaptureSession* captureSession;
+    if (ACameraDevice_createCaptureSession(cam->_device, cam->_outputContainer, &capSessionCallbacks, &captureSession) != AMEDIA_OK)
+    {
         cam->_status = CAMERA_ERROR;
         return CAMERA_ERROR;
     }
@@ -221,7 +216,8 @@ int cameraCaptureSession(struct Camera * cam, int w, int h)
 
 static const int kMaxChannelValue = 262143;
 
-static inline uint32_t YUV2RGB(int nY, int nU, int nV) {
+static inline uint32_t YUV2RGB(int nY, int nU, int nV)
+{
     nY -= 16;
     nU -= 128;
     nV -= 128;
@@ -242,13 +238,13 @@ static inline uint32_t YUV2RGB(int nY, int nU, int nV) {
     return 0xff000000 | (nR << 16) | (nG << 8) | nB;
 }
 
-static void imageConverter(uint8_t *buf, AImage *image)
+static void imageConverter(uint8_t* buf, AImage* image)
 {
     AImageCropRect srcRect;
     AImage_getCropRect(image, &srcRect);
-    int32_t yStride, uvStride;
+    int32_t  yStride, uvStride;
     uint8_t *yPixel, *uPixel, *vPixel;
-    int32_t yLen, uLen, vLen;
+    int32_t  yLen, uLen, vLen;
     AImage_getPlaneRowStride(image, 0, &yStride);
     AImage_getPlaneRowStride(image, 1, &uvStride);
     AImage_getPlaneData(image, 0, &yPixel, &yLen);
@@ -262,26 +258,28 @@ static void imageConverter(uint8_t *buf, AImage *image)
     AImage_getHeight(image, &height);
     AImage_getWidth(image, &width);
 
-    uint32_t *out = (uint32_t*)(buf);
-    for (int32_t row = 0; row < height; row++) {
-        int32_t invrow = height - row - 1;
-        const uint8_t *pY = yPixel + srcRect.left + yStride * (invrow + srcRect.top);
+    uint32_t* out = (uint32_t*)(buf);
+    for (int32_t row = 0; row < height; row++)
+    {
+        int32_t        invrow = height - row - 1;
+        const uint8_t* pY     = yPixel + srcRect.left + yStride * (invrow + srcRect.top);
 
-        int32_t uv_row_start = uvStride * ((invrow + srcRect.top) >> 1);
-        const uint8_t *pU = uPixel + uv_row_start + (srcRect.left >> 1);
-        const uint8_t *pV = vPixel + uv_row_start + (srcRect.left >> 1);
+        int32_t        uv_row_start = uvStride * ((invrow + srcRect.top) >> 1);
+        const uint8_t* pU           = uPixel + uv_row_start + (srcRect.left >> 1);
+        const uint8_t* pV           = vPixel + uv_row_start + (srcRect.left >> 1);
 
-        for (int32_t x = 0; x < width; x++) {
+        for (int32_t x = 0; x < width; x++)
+        {
             const int32_t uv_offset = (x >> 1) * uvPixelStride;
-            out[x] = YUV2RGB(pY[x], pU[uv_offset], pV[uv_offset]);
+            out[x]                  = YUV2RGB(pY[x], pU[uv_offset], pV[uv_offset]);
         }
         out += width;
     }
 }
 
-int cameraLastFrame(struct Camera * cam, unsigned char * imageBuffer)
+int cameraLastFrame(struct Camera* cam, unsigned char* imageBuffer)
 {
-    AImage * image;
+    AImage* image;
     if (AImageReader_acquireLatestImage(cam->_reader, &image) == AMEDIA_OK)
     {
         int32_t format;
@@ -297,7 +295,7 @@ int cameraLastFrame(struct Camera * cam, unsigned char * imageBuffer)
     return CAMERA_ERROR;
 }
 
-void destroyCamera(Camera ** cam)
+void destroyCamera(Camera** cam)
 {
     ACameraDevice_close((*cam)->_device);
     AImageReader_delete((*cam)->_reader);
@@ -309,7 +307,7 @@ void destroyCamera(Camera ** cam)
     *cam = nullptr;
 }
 
-void destroyCameraHandler(CameraHandler ** handler)
+void destroyCameraHandler(CameraHandler** handler)
 {
     ACameraManager_delete((*handler)->_manager);
     free(*handler);

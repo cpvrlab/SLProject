@@ -842,13 +842,13 @@ void GLSLHessian::clearCounterBuffer()
 void GLSLHessian::initKeypointBuffers()
 {
     /* Buffers to store keypoints */
-    glGenTextures(2, highImages);
-    glGenTextures(2, mediumImages);
-    glGenTextures(2, lowImages);
+    glGenTextures(1, &highImages);
+    glGenTextures(1, &mediumImages);
+    glGenTextures(1, &lowImages);
 
-    glGenFramebuffers(2, highImagesFB);
-    glGenFramebuffers(2, mediumImagesFB);
-    glGenFramebuffers(2, lowImagesFB);
+    glGenFramebuffers(1, &highImagesFB);
+    glGenFramebuffers(1, &mediumImagesFB);
+    glGenFramebuffers(1, &lowImagesFB);
 
     glGenBuffers(2, highImagePBOs);
     glGenBuffers(2, mediumImagePBOs);
@@ -862,26 +862,26 @@ void GLSLHessian::initKeypointBuffers()
 
     glClearColor(0, 0, 0, 0);
 
+    glBindTexture(GL_TEXTURE_2D, highImages);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, mNbKeypointsHigh, 64);
+    glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, highImages, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glBindTexture(GL_TEXTURE_2D, mediumImages);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, mNbKeypointsMedium, 64);
+    glBindFramebuffer(GL_FRAMEBUFFER, mediumImagesFB);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mediumImages, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glBindTexture(GL_TEXTURE_2D, lowImages);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, mNbKeypointsLow, 64);
+    glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lowImages, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     for (int i = 0; i < 2; i++)
     {
-        glBindTexture(GL_TEXTURE_2D, highImages[i]);
-        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, mNbKeypointsHigh, 64);
-        glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB[i]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, highImages[i], 0);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glBindTexture(GL_TEXTURE_2D, mediumImages[i]);
-        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, mNbKeypointsMedium, 64);
-        glBindFramebuffer(GL_FRAMEBUFFER, mediumImagesFB[i]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mediumImages[i], 0);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glBindTexture(GL_TEXTURE_2D, lowImages[i]);
-        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, mNbKeypointsLow, 64);
-        glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB[i]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lowImages[i], 0);
-        glClear(GL_COLOR_BUFFER_BIT);
-
         glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[i]);
         glBufferData(GL_PIXEL_PACK_BUFFER, mNbKeypointsHigh * 64 * 4 * 4, 0, GL_DYNAMIC_READ);
 
@@ -1040,11 +1040,8 @@ void GLSLHessian::extract(int w, int h, int curr)
     glUniform1f(extractorWLoc, (float)w);
     glUniform1f(extractorHLoc, (float)h);
     glUniform1i(extractorTexLoc, REMOVEEDGE);
-    glBindImageTexture(0, lowImages[curr], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
     glUniform1i(extractorLowImageLoc, 0);
-    glBindImageTexture(1, mediumImages[curr], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
     glUniform1i(extractorMediumImageLoc, 1);
-    glBindImageTexture(2, highImages[curr], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
     glUniform1i(extractorHighImageLoc, 2);
 
     glBindVertexArray(vao);
@@ -1165,6 +1162,7 @@ void GLSLHessian::init(int w, int h, int nbKeypointsLow, int nbKeypointsMedium, 
     initTextureBuffers(w, h);
     initKeypointBuffers();
     initFBO();
+
 }
 
 GLSLHessian::GLSLHessian() { }
@@ -1187,20 +1185,22 @@ GLSLHessian::~GLSLHessian()
 
     glDeleteFramebuffers(12, renderFBO);
 
-    glDeleteFramebuffers(2, lowImagesFB);
-    glDeleteFramebuffers(2, mediumImagesFB);
-    glDeleteFramebuffers(2, highImagesFB);
+    glDeleteBuffers(1, &atomicCounter);
+    glDeleteFramebuffers(1, &lowImagesFB);
+    glDeleteFramebuffers(1, &mediumImagesFB);
+    glDeleteFramebuffers(1, &highImagesFB);
 
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
-    glDeleteBuffers(1, &vboi);
+    glDeleteTextures(1, &lowImages);
+    glDeleteTextures(1, &mediumImages);
+    glDeleteTextures(1, &highImages);
+
     glDeleteBuffers(2, lowImagePBOs);
     glDeleteBuffers(2, mediumImagePBOs);
     glDeleteBuffers(2, highImagePBOs);
 
-    glDeleteTextures(2, lowImages);
-    glDeleteTextures(2, mediumImages);
-    glDeleteTextures(2, highImages);
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &vboi);
 
     glDeleteProgram(d2Gdx2);
     glDeleteProgram(d2Gdy2);
@@ -1261,12 +1261,16 @@ void GLSLHessian::gpu_kp()
 
     glClearColor(0, 0, 0, 0);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB[curr]);
+    glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB);
     glClear(GL_COLOR_BUFFER_BIT);
-    glBindFramebuffer(GL_FRAMEBUFFER, mediumImagesFB[curr]);
+    glBindFramebuffer(GL_FRAMEBUFFER, mediumImagesFB);
     glClear(GL_COLOR_BUFFER_BIT);
-    glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB[curr]);
+    glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    glBindImageTexture(0, lowImages, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
+    glBindImageTexture(1, mediumImages, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
+    glBindImageTexture(2, highImages, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
 
     gxx(m_w, m_h);
     gyy(m_w, m_h);
@@ -1284,15 +1288,18 @@ void GLSLHessian::gpu_kp()
 
 void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB[ready]);
+    glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB);
+    glFlush();
     glBindBuffer(GL_PIXEL_PACK_BUFFER, lowImagePBOs[curr]);
     glReadPixels(0, 0, mNbKeypointsLow, 64, GL_RGBA_INTEGER, GL_INT, 0);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, mediumImagesFB[ready]);
+    glBindFramebuffer(GL_FRAMEBUFFER, mediumImagesFB);
+    glFlush();
     glBindBuffer(GL_PIXEL_PACK_BUFFER, mediumImagePBOs[curr]);
     glReadPixels(0, 0, mNbKeypointsMedium, 64, GL_RGBA_INTEGER, GL_INT, 0);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB[ready]);
+    glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB);
+    glFlush();
     glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[curr]);
     glReadPixels(0, 0, mNbKeypointsHigh, 64, GL_RGBA_INTEGER, GL_INT, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1345,7 +1352,6 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
                         Utils::log("AAAA Error reading low thres texture\n");
                         break;
                     }
-
                     kps.push_back(cv::KeyPoint(cv::Point2f(x, y), 1));
                 }
             }

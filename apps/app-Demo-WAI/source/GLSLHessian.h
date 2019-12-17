@@ -53,7 +53,6 @@ public:
     GLint edgeDetLoc;
     GLint edgeGxxLoc;
     GLint edgeGyyLoc;
-
     GLint extractorWLoc;
     GLint extractorHLoc;
     GLint extractorTexLoc;
@@ -73,13 +72,13 @@ public:
     GLuint renderFBO[12];
 
     GLuint atomicCounter;
-    GLuint highImagesFB[2];
-    GLuint mediumImagesFB[2];
-    GLuint lowImagesFB[2];
+    GLuint lowImagesFB;
+    GLuint mediumImagesFB;
+    GLuint highImagesFB;
 
-    GLuint highImages[2];
-    GLuint mediumImages[2];
-    GLuint lowImages[2];
+    GLuint lowImages;
+    GLuint mediumImages;
+    GLuint highImages;
 
     GLuint highImagePBOs[2];
     GLuint mediumImagePBOs[2];

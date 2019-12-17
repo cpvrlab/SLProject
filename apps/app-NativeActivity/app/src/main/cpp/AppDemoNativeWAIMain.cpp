@@ -65,15 +65,13 @@ static int quadi[6]{
  */
 struct engine
 {
-    struct android_app* app;
-    SensorsHandler*     sensorsHandler;
-    int                 animating;
-    EGLDisplay          display;
-    EGLSurface          surface;
-    EGLContext          context;
-    int32_t             width;
-    int32_t             height;
-    GLuint              programId;
+    SensorsHandler* sensorsHandler;
+    EGLDisplay      display;
+    EGLSurface      surface;
+    EGLContext      context;
+    int32_t         width;
+    int32_t         height;
+    GLuint          programId;
 
     GLuint texID;
     GLuint vaoID;
@@ -131,7 +129,7 @@ GLuint buildShaderFromSource(std::string source, GLenum shaderType)
     return shaderHandle;
 }
 
-static void onInit(void* usrPtr)
+static void onInit(void* usrPtr, struct android_app* app)
 {
     struct engine* engine = (struct engine*)usrPtr;
     /*
@@ -194,7 +192,7 @@ static void onInit(void* usrPtr)
      * As soon as we picked a EGLConfig, we can safely reconfigure the
      * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
     eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
-    surface = eglCreateWindowSurface(display, config, engine->app->window, NULL);
+    surface = eglCreateWindowSurface(display, config, app->window, NULL);
 
     EGLint contextArgs[] = {
       EGL_CONTEXT_MAJOR_VERSION,
@@ -250,10 +248,6 @@ static void onInit(void* usrPtr)
 
     int texLoc = glGetUniformLocation(engine->programId, "tex");
 
-    LOGW("texLoc = %d\n", texLoc);
-
-    // loop waiting for stuff to do.
-
     glGenVertexArrays(1, &engine->vaoID);
     glBindVertexArray(engine->vaoID);
 
@@ -272,13 +266,10 @@ static void onInit(void* usrPtr)
     glEnableVertexAttribArray(0);
 
     glBindVertexArray(0);
-
     glViewport(0, 0, w, h);
-
-    return;
 }
 
-static void onClose(void* usrPtr)
+static void onClose(void* usrPtr, struct android_app* app)
 {
     struct engine* engine = (struct engine*)usrPtr;
 
@@ -339,8 +330,8 @@ void android_main(struct android_app* app)
     callbacks.onGainedFocus  = onGainedFocus;
     callbacks.onSaveState    = onSaveState;
     callbacks.onAcceleration = onAcceleration;
+    callbacks.usrPtr         = &engine;
 
-    engine.app = app;
     initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
 
     CameraHandler* handler;
@@ -362,7 +353,7 @@ void android_main(struct android_app* app)
 
     while (engine.run)
     {
-        sensorsHandler_processEvent(engine.sensorsHandler, &engine);
+        sensorsHandler_processEvent(engine.sensorsHandler);
 
         if (engine.display != nullptr)
         {
@@ -384,4 +375,3 @@ void android_main(struct android_app* app)
     }
     destroyCamera(&camera);
 }
-//END_INCLUDE(all)
