@@ -54,8 +54,8 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat       cameraMat,
     if (!_params.serial)
     {
         mptLocalMapping = new std::thread(&LocalMapping::Run, mpLocalMapper);
-        if (!_params.fixOldKfs)
-            mptLoopClosing = new std::thread(&LoopClosing::Run, mpLoopCloser);
+        //if (!_params.fixOldKfs)
+        mptLoopClosing = new std::thread(&LoopClosing::Run, mpLoopCloser);
     }
 
     _state = TrackingState_Initializing;
@@ -117,8 +117,8 @@ WAI::ModeOrbSlam2::~ModeOrbSlam2()
     if (!_params.serial)
     {
         mpLocalMapper->RequestFinish();
-        if (!_params.fixOldKfs)
-            mpLoopCloser->RequestFinish();
+        //if (!_params.fixOldKfs)
+        mpLoopCloser->RequestFinish();
 
         // Wait until all thread have effectively stopped
         mptLocalMapping->join();
@@ -962,8 +962,8 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
                 //mpKeyFrameDatabase->add(mpLastKeyFrame);
 
                 //loop closing
-                if (!_params.fixOldKfs)
-                    mpLoopCloser->RunOnce();
+                //if (!_params.fixOldKfs)
+                mpLoopCloser->RunOnce();
             }
 
             //update visualization of map, it may have changed because of global bundle adjustment.
@@ -1240,8 +1240,8 @@ void WAI::ModeOrbSlam2::reset()
     //// Reset Loop Closing
     if (!_params.serial)
     {
-        if (!_params.fixOldKfs)
-            mpLoopCloser->RequestReset();
+        //if (!_params.fixOldKfs)
+        mpLoopCloser->RequestReset();
     }
     else
     {
@@ -1273,6 +1273,7 @@ void WAI::ModeOrbSlam2::reset()
     mlFrameTimes.clear();
     mlbLost.clear();
 
+    mCurrentFrame  = WAIFrame();
     mpLastKeyFrame = nullptr;
     mpReferenceKF  = nullptr;
     mvpLocalMapPoints.clear();
@@ -2278,6 +2279,8 @@ void WAI::ModeOrbSlam2::decorate(cv::Mat& image)
     calculateMeanReprojectionError();
     //calculate pose difference
     calculatePoseDifference();
+    //decorateVideoWithKeyPoints(image);
+    //decorateVideoWithKeyPointMatches(image);
     //decorate scene with matched map points, local map points and matched map points
     //decorateScene();
 }

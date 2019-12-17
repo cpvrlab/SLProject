@@ -60,11 +60,11 @@ void AppWAIScene::rebuild()
 #if 1 // augst temple hill
     SLAssimpImporter importer;
     SLNode*          temple = importer.load("FBX/AugustaRaurica/Temple_no_sock.fbx");
-    temple->translate(24.97f, -17.6f, 8.8f);
-    temple->scale(0.01f);
-    temple->rotate(57.11f, 1.0f, 0.0f, 0.0f);
-    temple->rotate(1.72f, 0.0f, 1.0f, 0.0f);
-    temple->rotate(177.35f, 0.0f, 0.0f, 1.0f);
+    temple->translate(13.67, -6.98, 5.07);
+    temple->scale(0.04f);
+    temple->rotate(53.05f, 1.0f, 0.0f, 0.0f);
+    temple->rotate(-5.61f, 0.0f, 1.0f, 0.0f);
+    temple->rotate(-179.37f, 0.0f, 0.0f, 1.0f);
 
     /*
     SLBox*  box1     = new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "TempleBox", yellow);

@@ -676,11 +676,14 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
     //undistort image and copy image to video texture
     if (videoImage && cap->activeCamera)
     {
-        //decorate distorted image with distorted keypoints
-        if (uiPrefs.showKeyPoints)
-            mode->decorateVideoWithKeyPoints(cap->lastFrame);
-        if (uiPrefs.showKeyPointsMatched)
-            mode->decorateVideoWithKeyPointMatches(cap->lastFrame);
+        if (mode->isInitialized())
+        {
+            //decorate distorted image with distorted keypoints
+            if (uiPrefs.showKeyPoints)
+                mode->decorateVideoWithKeyPoints(cap->lastFrame);
+            if (uiPrefs.showKeyPointsMatched)
+                mode->decorateVideoWithKeyPointMatches(cap->lastFrame);
+        }
 
         CVMat undistortedLastFrame;
         if (cap->activeCamera->calibration.state() == CS_calibrated && cap->activeCamera->showUndistorted())
