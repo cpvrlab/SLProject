@@ -108,7 +108,9 @@ private:
     void onLoadWAISceneView(SLScene* s, SLSceneView* sv);
 
     void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
-    void setupDefaultErlebARDir();
+    void setupDefaultErlebARDirTo(std::string dir);
+    //!download all remote files to transferred directory
+    void downloadCalibratinFilesTo(std::string dir);
     bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
     bool updateSceneViews();
 

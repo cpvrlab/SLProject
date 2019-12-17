@@ -92,8 +92,13 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
     _videoWriterInfo = new cv::VideoWriter();
     _loaded          = true;
 
-    setupDefaultErlebARDir();
+    //init scene as soon as possible to allow visualization of error msgs
     int svIndex = initSLProject(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi);
+
+    setupDefaultErlebARDirTo(_dirs.writableDir);
+    //todo: only do this, when the app is installed (on android and ios, maybe by a function call when permissions are given)
+    downloadCalibratinFilesTo(calibDir);
+
     return svIndex;
 }
 
@@ -673,12 +678,17 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
 }
 
 //-----------------------------------------------------------------------------
-void WAIApp::setupDefaultErlebARDir()
+void WAIApp::setupDefaultErlebARDirTo(std::string dir)
 {
-    std::string dir = Utils::unifySlashes(_dirs.writableDir);
+    dir = Utils::unifySlashes(dir);
     if (!Utils::dirExists(dir))
     {
         Utils::makeDir(dir);
+    }
+    //calibrations directory
+    if (!Utils::dirExists(dir + "calibrations/"))
+    {
+        Utils::makeDir(dir + "calibrations/");
     }
 
     dir += "erleb-AR/";
@@ -705,7 +715,25 @@ void WAIApp::setupDefaultErlebARDir()
         Utils::makeDir(dir);
     }
 }
-
+//-----------------------------------------------------------------------------
+void WAIApp::downloadCalibratinFilesTo(std::string dir)
+{
+    const std::string ftpHost = "pallas.bfh.ch:21";
+    const std::string ftpUser = "upload";
+    const std::string ftpPwd  = "FaAdbD3F2a";
+    const std::string ftpDir  = "erleb-AR/calibrations/";
+    std::string       errorMsg;
+    if (!FtpUtils::downloadAllFilesFromDir(dir,
+                                           ftpHost,
+                                           ftpUser,
+                                           ftpPwd,
+                                           ftpDir,
+                                           errorMsg))
+    {
+        errorMsg = "Failed to download calibration files. Error: " + errorMsg;
+        this->showErrorMsg(errorMsg);
+    }
+}
 //-----------------------------------------------------------------------------
 bool WAIApp::checkCalibration(const std::string& calibDir, const std::string& calibFileName)
 {

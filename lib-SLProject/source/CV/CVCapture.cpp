@@ -850,13 +850,13 @@ void CVCapture::loadCalibrations(const string& computerInfo,
     {
         //todo: move this download call out of cvcaputure (during refactoring of this class)
         std::string errorMsg;
-        if (!FtpUtils::downloadFile(SLApplication::calibFilePath,
-                                    mainCalibFilename,
-                                    SLApplication::CALIB_FTP_HOST,
-                                    SLApplication::CALIB_FTP_USER,
-                                    SLApplication::CALIB_FTP_PWD,
-                                    SLApplication::CALIB_FTP_DIR,
-                                    errorMsg))
+        if (!FtpUtils::downloadFileLatestVersion(SLApplication::calibFilePath,
+                                                 mainCalibFilename,
+                                                 SLApplication::CALIB_FTP_HOST,
+                                                 SLApplication::CALIB_FTP_USER,
+                                                 SLApplication::CALIB_FTP_PWD,
+                                                 SLApplication::CALIB_FTP_DIR,
+                                                 errorMsg))
         {
             Utils::log(errorMsg.c_str());
         }
