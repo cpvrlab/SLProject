@@ -14,7 +14,7 @@
 #include <SLAABBox.h>
 #include <SLDrawBits.h>
 #include <SLEventHandler.h>
-#include <SLGLImGui.h>
+//#include <SLGLImGui.h>
 #include <SLGLOculusFB.h>
 #include <SLGLVertexArrayExt.h>
 #include <SLNode.h>
@@ -24,6 +24,7 @@
 #include <SLScene.h>
 #include <SLSkybox.h>
 #include <SLRect.h>
+#include <SLUiInterface.h>
 
 //-----------------------------------------------------------------------------
 class SLCamera;
@@ -71,12 +72,12 @@ public:
     SLSceneView();
     ~SLSceneView() override;
 
-    void init(SLstring name,
-              SLint    screenWidth,
-              SLint    screenHeight,
-              void*    onWndUpdateCallback,
-              void*    onSelectNodeMeshCallback,
-              void*    onImGuiBBuild);
+    void init(SLstring       name,
+              SLint          screenWidth,
+              SLint          screenHeight,
+              void*          onWndUpdateCallback,
+              void*          onSelectNodeMeshCallback,
+              SLUiInterface* gui);
 
     // Not overridable event handlers
     void   onInitialize();
@@ -164,7 +165,7 @@ public:
     SLint           viewportH() const { return _viewportRect.height; }
     SLViewportAlign viewportAlign() const { return _viewportAlign; }
     SLbool          viewportSameAsVideo() const { return _viewportSameAsVideo; }
-    SLGLImGui&      gui() { return _gui; }
+    SLUiInterface*  gui() { return _gui; }
     SLbool          gotPainted() const { return _gotPainted; }
     SLbool          doFrustumCulling() const { return _doFrustumCulling; }
     SLbool          doMultiSampling() const { return _doMultiSampling; }
@@ -189,15 +190,15 @@ public:
     static const SLint LONGTOUCH_MS; //!< Milliseconds duration of a long touch event
 
 protected:
-    SLuint       _index;           //!< index of this pointer in SLScene::sceneView vector
-    SLCamera*    _camera;          //!< Pointer to the _active camera
-    SLCamera     _sceneViewCamera; //!< Default camera for this SceneView (default cam not in scenegraph)
-    SLGLImGui    _gui;             //!< ImGui instance
-    SLSkybox*    _skybox;          //!< pointer to skybox
-    SLNodeStats  _stats2D;         //!< Statistic numbers for 2D nodes
-    SLNodeStats  _stats3D;         //!< Statistic numbers for 3D nodes
-    SLbool       _gotPainted;      //!< flag if this sceneview got painted
-    SLRenderType _renderType;      //!< rendering type (GL,RT,PT)
+    SLuint         _index;           //!< index of this pointer in SLScene::sceneView vector
+    SLCamera*      _camera;          //!< Pointer to the _active camera
+    SLCamera       _sceneViewCamera; //!< Default camera for this SceneView (default cam not in scenegraph)
+    SLUiInterface* _gui = nullptr;   //!< ImGui instance
+    SLSkybox*      _skybox;          //!< pointer to skybox
+    SLNodeStats    _stats2D;         //!< Statistic numbers for 2D nodes
+    SLNodeStats    _stats3D;         //!< Statistic numbers for 3D nodes
+    SLbool         _gotPainted;      //!< flag if this sceneview got painted
+    SLRenderType   _renderType;      //!< rendering type (GL,RT,PT)
 
     SLbool     _doDepthTest;      //!< Flag if depth test is turned on
     SLbool     _doMultiSampling;  //!< Flag if multisampling is on

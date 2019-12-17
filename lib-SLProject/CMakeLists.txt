@@ -55,9 +55,11 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAssimpImporter.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLImporter.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInterface.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInputEventInterface.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLSkybox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLTexFont.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/stdafx.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLUiInterface.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAABBox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAccelStruct.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimation.h
@@ -148,6 +150,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLImporter.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInterface.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInputEventInterface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTexFont.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAABBox.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimation.cpp

@@ -18,6 +18,7 @@
 #include <AppDemoGuiTestWrite.h>
 #include <CVCapture.h>
 #include <Utils.h>
+#include <WAIApp.h>
 
 //-----------------------------------------------------------------------------
 
@@ -27,13 +28,15 @@ AppDemoGuiTestWrite::AppDemoGuiTestWrite(const std::string& name,
                                          cv::VideoWriter*   writer1,
                                          cv::VideoWriter*   writer2,
                                          std::ofstream*     gpsDataStream,
-                                         bool*              activator)
+                                         bool*              activator,
+                                         WAIApp&            waiApp)
   : AppDemoGuiInfosDialog(name, activator),
     _calib(calib),
     _mapNode(mapNode),
     _videoWriter(writer1),
     _videoWriterInfo(writer2),
-    _gpsDataFile(gpsDataStream)
+    _gpsDataFile(gpsDataStream),
+    _waiApp(waiApp)
 {
     _testScenes.push_back("Garage");
     _testScenes.push_back("Northwall");
@@ -55,7 +58,7 @@ AppDemoGuiTestWrite::AppDemoGuiTestWrite(const std::string& name,
 
 void AppDemoGuiTestWrite::prepareExperiment(std::string testScene, std::string weather)
 {
-    WAI::ModeOrbSlam2* mode = WAIApp::mode;
+    WAI::ModeOrbSlam2* mode = _waiApp.mode();
 
     _date = Utils::getDateTime2String();
 
@@ -82,11 +85,11 @@ void AppDemoGuiTestWrite::recordExperiment()
     if (_videoWriterInfo->isOpened())
         _videoWriterInfo->release();
 
-    _videoWriter->open((WAIApp::videoDir + videoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
-    _videoWriterInfo->open((WAIApp::videoDir + runvideoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
-    saveTestSettings(WAIApp::experimentsDir + settingname);
-    saveGPSData(WAIApp::videoDir + gpsname);
-    saveCalibration(WAIApp::calibDir + calibrationname);
+    _videoWriter->open((_waiApp.videoDir + videoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
+    _videoWriterInfo->open((_waiApp.videoDir + runvideoname), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _size, true);
+    saveTestSettings(_waiApp.experimentsDir + settingname);
+    saveGPSData(_waiApp.videoDir + gpsname);
+    saveCalibration(_waiApp.calibDir + calibrationname);
 }
 
 void AppDemoGuiTestWrite::stopRecording()
@@ -94,7 +97,7 @@ void AppDemoGuiTestWrite::stopRecording()
     _videoWriter->release();
     _videoWriterInfo->release();
     _gpsDataFile->close();
-    saveMap(WAIApp::mapDir + mapname);
+    saveMap(_waiApp.mapDir + mapname);
 }
 
 void AppDemoGuiTestWrite::saveCalibration(std::string calib)
@@ -117,7 +120,7 @@ void AppDemoGuiTestWrite::saveTestSettings(std::string path)
     if (Utils::fileExists(path))
         return;
 
-    WAI::ModeOrbSlam2* mode = WAIApp::mode;
+    WAI::ModeOrbSlam2* mode = _waiApp.mode();
 
     cv::FileStorage fs(path, cv::FileStorage::WRITE);
     fs << "Date" << _date;
@@ -133,7 +136,7 @@ void AppDemoGuiTestWrite::saveTestSettings(std::string path)
 
 void AppDemoGuiTestWrite::saveMap(std::string map)
 {
-    WAI::ModeOrbSlam2* mode = WAIApp::mode;
+    WAI::ModeOrbSlam2* mode = _waiApp.mode();
 
     mode->pause();
 
@@ -180,7 +183,7 @@ void AppDemoGuiTestWrite::buildInfos(SLScene* s, SLSceneView* sv)
 
     ImGui::Separator();
 
-    if (!WAIApp::mode)
+    if (!_waiApp.mode())
     {
         ImGui::Text("SLAM not running.");
     }

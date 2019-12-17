@@ -12,7 +12,7 @@
 #include <imgui_internal.h>
 #include <stdio.h>
 
-#include <AppWAI.h>
+#include <WAIApp.h>
 #include <Utils.h>
 #include <AppDemoGuiVideoStorage.h>
 #include <SLApplication.h>
@@ -20,24 +20,25 @@
 
 //-----------------------------------------------------------------------------
 
-AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string& name, cv::VideoWriter* videoWriter, cv::VideoWriter* videoWriterInfo, std::ofstream* gpsDataStream, bool* activator)
+AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string& name, cv::VideoWriter* videoWriter, cv::VideoWriter* videoWriterInfo, std::ofstream* gpsDataStream, bool* activator, WAIApp& waiApp)
   : AppDemoGuiInfosDialog(name, activator),
     _videoWriter(videoWriter),
     _videoWriterInfo(videoWriterInfo),
-    _gpsDataFile(gpsDataStream)
+    _gpsDataFile(gpsDataStream),
+    _waiApp(waiApp)
 {
 }
 //-----------------------------------------------------------------------------
 
 void AppDemoGuiVideoStorage::saveVideo(std::string filename)
 {
-    std::string infoDir  = WAIApp::videoDir + "info/";
+    std::string infoDir  = _waiApp.videoDir + "info/";
     std::string infoPath = infoDir + filename;
-    std::string path     = WAIApp::videoDir + filename;
+    std::string path     = _waiApp.videoDir + filename;
 
-    if (!Utils::dirExists(WAIApp::videoDir))
+    if (!Utils::dirExists(_waiApp.videoDir))
     {
-        Utils::makeDir(WAIApp::videoDir);
+        Utils::makeDir(_waiApp.videoDir);
     }
     else
     {
@@ -78,7 +79,7 @@ void AppDemoGuiVideoStorage::saveVideo(std::string filename)
 void AppDemoGuiVideoStorage::saveGPSData(std::string videofile)
 {
     std::string filename = Utils::getFileNameWOExt(videofile) + ".txt";
-    std::string path     = WAIApp::videoDir + filename;
+    std::string path     = _waiApp.videoDir + filename;
     _gpsDataFile->open(path);
 }
 
