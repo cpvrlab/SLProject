@@ -9,6 +9,8 @@ struct SensorsCallbacks
     void(*onGainedFocus)(void * usrPtr);
     void(*onLostFocus)(void * usrPtr);
     void(*onAcceleration)(void * usrPtr, float x, float y, float z);
+
+    void* usrPtr;
 };
 
 typedef struct SensorsHandler;
@@ -19,7 +21,7 @@ void sensorsHandler_disableAccelerometer(SensorsHandler * handler);
 
 void initSensorsHandler(struct android_app* app, SensorsCallbacks *cb, SensorsHandler ** handlerp);
 
-void sensorsHandler_processEvent(SensorsHandler * handler, void * usrPtr);
+void sensorsHandler_processEvent(SensorsHandler * handler);
 
 #endif
 

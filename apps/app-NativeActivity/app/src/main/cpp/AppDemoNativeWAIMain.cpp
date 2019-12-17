@@ -330,6 +330,7 @@ void android_main(struct android_app* app)
     callbacks.onGainedFocus  = onGainedFocus;
     callbacks.onSaveState    = onSaveState;
     callbacks.onAcceleration = onAcceleration;
+    callbacks.usrPtr = &engine;
 
     initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
 
@@ -352,7 +353,7 @@ void android_main(struct android_app* app)
 
     while (engine.run)
     {
-        sensorsHandler_processEvent(engine.sensorsHandler, &engine);
+        sensorsHandler_processEvent(engine.sensorsHandler);
 
         if (engine.display != nullptr)
         {
