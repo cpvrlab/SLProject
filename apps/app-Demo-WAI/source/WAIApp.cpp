@@ -230,6 +230,9 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     //TODO:find other solution
     _gui->uiPrefs->showError = false;
 
+    lastFrameIdx = 0;
+    doubleBufferedOutput = false;
+
     std::string               videoFile       = "";
     std::string               calibrationFile = "";
     std::string               mapFile         = "";
@@ -432,6 +435,8 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
 
     _sv->setViewportFromRatio(SLVec2i(_videoFrameSize.width, _videoFrameSize.height), SLViewportAlign::VA_center, true);
     //_resizeWindow = true;
+    undistortedLastFrame[0] = cv::Mat(_videoFrameSize.width, _videoFrameSize.height, CV_8UC1);
+    undistortedLastFrame[1] = cv::Mat(_videoFrameSize.width, _videoFrameSize.height, CV_8UC1);
 
     return result;
 }
@@ -749,21 +754,25 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
                 _mode->decorateVideoWithKeyPointMatches(cap->lastFrame);
         }
 
-        CVMat undistortedLastFrame;
         if (cap->activeCamera->calibration.state() == CS_calibrated && cap->activeCamera->showUndistorted())
         {
-            cap->activeCamera->calibration.remap(cap->lastFrame, undistortedLastFrame);
+            cap->activeCamera->calibration.remap(cap->lastFrame, undistortedLastFrame[lastFrameIdx]);
         }
         else
         {
-            undistortedLastFrame = cap->lastFrame;
+            undistortedLastFrame[lastFrameIdx] = cap->lastFrame;
         }
 
-        _videoImage->copyVideoImage(undistortedLastFrame.cols,
-                                    undistortedLastFrame.rows,
+        if (doubleBufferedOutput)
+        {
+            lastFrameIdx = (lastFrameIdx + 1) % 2;
+        }
+
+        _videoImage->copyVideoImage(undistortedLastFrame[lastFrameIdx].cols,
+                                    undistortedLastFrame[lastFrameIdx].rows,
                                     cap->format,
-                                    undistortedLastFrame.data,
-                                    undistortedLastFrame.isContinuous(),
+                                    undistortedLastFrame[lastFrameIdx].data,
+                                    undistortedLastFrame[lastFrameIdx].isContinuous(),
                                     true);
     }
 

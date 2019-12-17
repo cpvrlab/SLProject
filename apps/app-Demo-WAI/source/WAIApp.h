@@ -101,6 +101,7 @@ public:
     //video file editing
     bool pauseVideo           = false;
     int  videoCursorMoveIndex = 0;
+    bool doubleBufferedOutput;
 
 private:
     bool updateTracking();
@@ -120,6 +121,8 @@ private:
                          SLMaterial*&                     material);
     void renderKeyframes();
     void renderGraphs();
+
+
 
     //todo: we dont need a pointer
     std::unique_ptr<AppWAIScene> _waiScene;
@@ -150,6 +153,9 @@ private:
 
     std::unique_ptr<AppDemoWaiGui> _gui;
     AppDemoGuiError*               _errorDial = nullptr;
+
+    int lastFrameIdx;
+    CVMat undistortedLastFrame[2];
 };
 
 #endif

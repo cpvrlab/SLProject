@@ -880,8 +880,6 @@ void GLSLHessian::initKeypointBuffers()
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lowImages, 0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-
-
     for (int i = 0; i < 2; i++)
     {
         glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[i]);
@@ -1291,14 +1289,17 @@ void GLSLHessian::gpu_kp()
 void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB);
+    glFlush();
     glBindBuffer(GL_PIXEL_PACK_BUFFER, lowImagePBOs[curr]);
     glReadPixels(0, 0, mNbKeypointsLow, 64, GL_RGBA_INTEGER, GL_INT, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, mediumImagesFB);
+    glFlush();
     glBindBuffer(GL_PIXEL_PACK_BUFFER, mediumImagePBOs[curr]);
     glReadPixels(0, 0, mNbKeypointsMedium, 64, GL_RGBA_INTEGER, GL_INT, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB);
+    glFlush();
     glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[curr]);
     glReadPixels(0, 0, mNbKeypointsHigh, 64, GL_RGBA_INTEGER, GL_INT, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1351,7 +1352,6 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
                         Utils::log("AAAA Error reading low thres texture\n");
                         break;
                     }
-
                     kps.push_back(cv::KeyPoint(cv::Point2f(x, y), 1));
                 }
             }
