@@ -65,13 +65,13 @@ static int quadi[6]{
  */
 struct engine
 {
-    SensorsHandler*     sensorsHandler;
-    EGLDisplay          display;
-    EGLSurface          surface;
-    EGLContext          context;
-    int32_t             width;
-    int32_t             height;
-    GLuint              programId;
+    SensorsHandler* sensorsHandler;
+    EGLDisplay      display;
+    EGLSurface      surface;
+    EGLContext      context;
+    int32_t         width;
+    int32_t         height;
+    GLuint          programId;
 
     GLuint texID;
     GLuint vaoID;
@@ -129,7 +129,7 @@ GLuint buildShaderFromSource(std::string source, GLenum shaderType)
     return shaderHandle;
 }
 
-static void onInit(void * usrPtr, struct android_app* app)
+static void onInit(void* usrPtr, struct android_app* app)
 {
     struct engine* engine = (struct engine*)usrPtr;
     /*
@@ -269,7 +269,7 @@ static void onInit(void * usrPtr, struct android_app* app)
     glViewport(0, 0, w, h);
 }
 
-static void onClose(void * usrPtr, struct android_app* app)
+static void onClose(void* usrPtr, struct android_app* app)
 {
     struct engine* engine = (struct engine*)usrPtr;
 
@@ -330,7 +330,7 @@ void android_main(struct android_app* app)
     callbacks.onGainedFocus  = onGainedFocus;
     callbacks.onSaveState    = onSaveState;
     callbacks.onAcceleration = onAcceleration;
-    callbacks.usrPtr = &engine;
+    callbacks.usrPtr         = &engine;
 
     initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
 
@@ -375,4 +375,3 @@ void android_main(struct android_app* app)
     }
     destroyCamera(&camera);
 }
-

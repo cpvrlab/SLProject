@@ -45,7 +45,7 @@ struct SensorsHandler
     struct SensorsCallbacks callbacks;
 };
 
-void sensorsHandler_enableAccelerometer(SensorsHandler * handler)
+void sensorsHandler_enableAccelerometer(SensorsHandler* handler)
 {
     if (handler->_accelerometerSensor == NULL)
     {
@@ -59,7 +59,7 @@ void sensorsHandler_enableAccelerometer(SensorsHandler * handler)
     ASensorEventQueue_setEventRate(handler->_sensorEventQueue, handler->_accelerometerSensor, (1000L / 60) * 1000);
 }
 
-void sensorsHandler_disableAccelerometer(SensorsHandler * handler)
+void sensorsHandler_disableAccelerometer(SensorsHandler* handler)
 {
     if (handler->_accelerometerSensor != NULL)
     {
@@ -72,8 +72,8 @@ static int32_t sensorsHandler_handle_input(struct android_app* app, AInputEvent*
     struct SensorsHandler* sensorsHandler = (struct SensorsHandler*)app->userData;
     if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
     {
-        sensorsHandler->state.x   = AMotionEvent_getX(event, 0);
-        sensorsHandler->state.y   = AMotionEvent_getY(event, 0);
+        sensorsHandler->state.x = AMotionEvent_getX(event, 0);
+        sensorsHandler->state.y = AMotionEvent_getY(event, 0);
         return 1;
     }
     return 0;
@@ -102,12 +102,12 @@ static void sensorsHandler_handle_cmd(struct android_app* app, int32_t cmd)
     }
 }
 
-void initSensorsHandler(struct android_app* app, SensorsCallbacks *cb, SensorsHandler ** handlerp)
+void initSensorsHandler(struct android_app* app, SensorsCallbacks* cb, SensorsHandler** handlerp)
 {
-    SensorsHandler * handler = (SensorsHandler*)malloc (sizeof(SensorsHandler));
+    SensorsHandler* handler = (SensorsHandler*)malloc(sizeof(SensorsHandler));
     memset(handler, 0, sizeof(SensorsHandler));
 
-    *handlerp =  handler;
+    *handlerp = handler;
 
     app->userData     = handler;
     app->onAppCmd     = sensorsHandler_handle_cmd;
@@ -118,13 +118,13 @@ void initSensorsHandler(struct android_app* app, SensorsCallbacks *cb, SensorsHa
         handler->state = *(struct savedState*)app->savedState;
     }
 
-    handler->_app = app;
-    handler->_sensorManager = ASensorManager_getInstance();//AcquireASensorManagerInstance(app);
+    handler->_app              = app;
+    handler->_sensorManager    = ASensorManager_getInstance(); //AcquireASensorManagerInstance(app);
     handler->_sensorEventQueue = ASensorManager_createEventQueue(handler->_sensorManager, app->looper, LOOPER_ID_USER, NULL, NULL);
-    handler->callbacks = *cb;
+    handler->callbacks         = *cb;
 }
 
-void sensorsHandler_processEvent(SensorsHandler * handler)
+void sensorsHandler_processEvent(SensorsHandler* handler)
 {
     int                         ident;
     int                         events;
