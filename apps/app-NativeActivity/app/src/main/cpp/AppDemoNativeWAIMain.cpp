@@ -38,19 +38,27 @@
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
 
-static float quad[4 * 3]
-        {
-                -1, -1, 0,
-                1, -1, 0,
-                1,  1, 0,
-                -1,  1, 0
-        };
+static float quad[4 * 3]{
+  -1,
+  -1,
+  0,
+  1,
+  -1,
+  0,
+  1,
+  1,
+  0,
+  -1,
+  1,
+  0};
 
-static int  quadi[6]
-        {
-                0, 1, 2,
-                0, 2, 3
-        };
+static int quadi[6]{
+  0,
+  1,
+  2,
+  0,
+  2,
+  3};
 
 /**
  * Shared state for our app.
@@ -65,9 +73,9 @@ struct engine
     int32_t             height;
     GLuint              programId;
 
-    GLuint              texID;
-    GLuint              vaoID;
-    int                 run;
+    GLuint texID;
+    GLuint vaoID;
+    int    run;
 };
 
 static std::string vertexShaderSource = "#version 320 es\n"
@@ -123,7 +131,7 @@ GLuint buildShaderFromSource(std::string source, GLenum shaderType)
 
 static void onInit(void * usrPtr, struct android_app* app)
 {
-    struct engine* engine = (struct engine *)usrPtr;
+    struct engine* engine = (struct engine*)usrPtr;
     /*
      * Here specify the attributes of the desired configuration.
      * Below, we select an EGLConfig with at least 8 bits per color
@@ -141,11 +149,11 @@ static void onInit(void * usrPtr, struct android_app* app)
                               0,
                               EGL_NONE};
 
-    EGLint       w, h, format;
-    EGLint       numConfigs;
-    EGLConfig    config;
-    EGLSurface   surface;
-    EGLContext   context;
+    EGLint     w, h, format;
+    EGLint     numConfigs;
+    EGLConfig  config;
+    EGLSurface surface;
+    EGLContext context;
 
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
@@ -187,11 +195,11 @@ static void onInit(void * usrPtr, struct android_app* app)
     surface = eglCreateWindowSurface(display, config, app->window, NULL);
 
     EGLint contextArgs[] = {
-            EGL_CONTEXT_MAJOR_VERSION,
-            3,
-            EGL_CONTEXT_MINOR_VERSION,
-            1,
-            EGL_NONE};
+      EGL_CONTEXT_MAJOR_VERSION,
+      3,
+      EGL_CONTEXT_MINOR_VERSION,
+      1,
+      EGL_NONE};
     context = eglCreateContext(display, config, NULL, contextArgs);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
@@ -203,12 +211,12 @@ static void onInit(void * usrPtr, struct android_app* app)
     eglQuerySurface(display, surface, EGL_WIDTH, &w);
     eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
-    engine->display     = display;
-    engine->context     = context;
-    engine->surface     = surface;
-    engine->width       = w;
-    engine->height      = h;
-    engine->run         = 1;
+    engine->display = display;
+    engine->context = context;
+    engine->surface = surface;
+    engine->width   = w;
+    engine->height  = h;
+    engine->run     = 1;
 
     // Check openGL on the system
     auto opengl_info = {GL_VENDOR, GL_RENDERER, GL_VERSION, GL_EXTENSIONS};
@@ -263,7 +271,7 @@ static void onInit(void * usrPtr, struct android_app* app)
 
 static void onClose(void * usrPtr, struct android_app* app)
 {
-    struct engine* engine = (struct engine *)usrPtr;
+    struct engine* engine = (struct engine*)usrPtr;
 
     if (engine->display != EGL_NO_DISPLAY)
     {
@@ -279,25 +287,25 @@ static void onClose(void * usrPtr, struct android_app* app)
         eglTerminate(engine->display);
     }
 
-    engine->display   = EGL_NO_DISPLAY;
-    engine->context   = EGL_NO_CONTEXT;
-    engine->surface   = EGL_NO_SURFACE;
-    engine->run       = 0;
+    engine->display = EGL_NO_DISPLAY;
+    engine->context = EGL_NO_CONTEXT;
+    engine->surface = EGL_NO_SURFACE;
+    engine->run     = 0;
 }
 
-static void onSaveState(void * usrPtr)
+static void onSaveState(void* usrPtr)
 {
 }
 
 static void onGainedFocus(void* usrPtr)
 {
-    struct engine* engine = (struct engine *)usrPtr;
+    struct engine* engine = (struct engine*)usrPtr;
     sensorsHandler_enableAccelerometer(engine->sensorsHandler);
 }
 
 static void onLostFocus(void* usrPtr)
 {
-    struct engine* engine = (struct engine *)usrPtr;
+    struct engine* engine = (struct engine*)usrPtr;
     sensorsHandler_disableAccelerometer(engine->sensorsHandler);
 }
 
@@ -325,9 +333,9 @@ void android_main(struct android_app* app)
 
     initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
 
-    CameraHandler * handler;
-    CameraInfo * camerasInfo;
-    Camera * camera;
+    CameraHandler* handler;
+    CameraInfo*    camerasInfo;
+    Camera*        camera;
 
     initCameraHandler(&handler);
     if (getBackFacingCameraList(handler, &camerasInfo) == 0)
@@ -337,10 +345,10 @@ void android_main(struct android_app* app)
 
     initCamera(handler, &camerasInfo[0], &camera);
     free(camerasInfo);
-    cameraCaptureSession(camera,640, 360);
+    cameraCaptureSession(camera, 640, 360);
     destroyCameraHandler(&handler);
 
-    uint8_t * imageBuffer = (uint8_t*)malloc(sizeof(int) * 640 * 360);
+    uint8_t* imageBuffer = (uint8_t*)malloc(sizeof(int) * 640 * 360);
 
     while (engine.run)
     {

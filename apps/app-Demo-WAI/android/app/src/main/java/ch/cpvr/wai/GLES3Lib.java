@@ -51,9 +51,7 @@ public class GLES3Lib {
     public static final int VIDEO_TYPE_FILE = 3;    // Maps to Androids front facing camera
 
     public static native void    onInit             (int width, int height, int dotsPerInch, String FilePath);
-    public static native boolean onUpdateTracking   ();
-    public static native boolean onUpdateScene      ();
-    public static native boolean onPaintAllViews    ();
+    public static native boolean onUpdate           ();
     public static native void    onResize           (int width, int height);
     public static native void    onMouseDown        (int button, int x, int y);
     public static native void    onMouseUp          (int button, int x, int y);
@@ -79,23 +77,6 @@ public class GLES3Lib {
     public static native void    onSetupExternalDir (String externalDirPath);
     public static native void    setCameraSize      (int sizeIndex, int sizeIndexMax, int width, int height);
     public static native void    setDeviceParameter (String parameter, String value);
-
-    /**
-     * The RaytracingCallback function is used to repaint the ray tracing image during the
-     * ray tracing process. Only the GUI bound OpenGL context can call the swap the buffer
-     * for the OpenGL display. This is an example for a native C++ callback into managed
-     * Java. See also the Java_renderRaytracingCallback in SLInterface that calls this
-     * function.
-     */
-    public static boolean RaytracingCallback() {
-        // calls the OpenGL rendering to display the RT image on a simple rectangle
-        boolean stopSignal = GLES3Lib.onPaintAllViews();
-
-        // Do the OpenGL back to front buffer swap
-        EGL10 mEgl = (EGL10) EGLContext.getEGL();
-        mEgl.eglSwapBuffers(mEgl.eglGetCurrentDisplay(), mEgl.eglGetCurrentSurface(EGL10.EGL_READ));
-        return RTIsRunning;
-    }
 
     /**
      * Extracts the relevant folders from the assets in our private storage on the device

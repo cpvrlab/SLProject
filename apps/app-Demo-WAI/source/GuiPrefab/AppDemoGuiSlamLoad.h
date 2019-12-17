@@ -13,9 +13,10 @@
 
 #include <opencv2/core.hpp>
 #include <AppDemoGuiInfosDialog.h>
-#include <WAICalibration.h>
 #include <SLMat4.h>
 #include <SLNode.h>
+
+class WAIApp;
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
@@ -26,7 +27,9 @@ public:
                        std::string        calibrationsDir,
                        std::string        vocabulariesDir,
                        SLNode*            mapNode,
-                       bool*              activator);
+                       bool*              activator,
+                       WAIApp&            waiApp,
+                       SlamParams&        currentSlamParams);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
@@ -64,7 +67,9 @@ private:
     bool _trackingOnly;
     bool fixLoadedKfs;
 
-    SLNode* _mapNode;
+    SLNode*     _mapNode;
+    WAIApp&     _waiApp;
+    SlamParams& _currentSlamParams;
 };
 
 #endif

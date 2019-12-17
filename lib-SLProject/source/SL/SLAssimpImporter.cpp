@@ -271,7 +271,7 @@ materials within the file are ignored.
 SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path or on default path
                                SLbool      loadMeshesOnly, //!< Only load nodes with meshes
                                SLMaterial* overrideMat,    //!< Override material
-                               SLuint      flags)          //!< Import flags (see postprocess.h)
+                               SLuint      flags)               //!< Import flags (see postprocess.h)
 {
     // clear the intermediate data
     clear();
@@ -863,7 +863,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh* mesh)
         if (numTriangles)
         {
             m->I16.resize(numTriangles * 3);
-            for (SLushort i = 0; i < mesh->mNumFaces; ++i)
+            for (int i = 0; i < mesh->mNumFaces; ++i)
             {
                 if (mesh->mFaces[i].mNumIndices == 3)
                 {

@@ -17,6 +17,7 @@
 #include <SLInputManager.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
+#include <SLGLImGui.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -64,11 +65,11 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
     assert(SLApplication::scene == nullptr && "SLScene is already created!");
 
     // Default paths for all loaded resources
-    SLGLProgram::defaultPath                  = shaderPath;
-    SLGLTexture::defaultPath                  = texturePath;
-    SLGLTexture::defaultPathFonts             = fontPath;
-    SLAssimpImporter::defaultPath             = modelPath;
-    SLApplication::configPath                 = configPath;
+    SLGLProgram::defaultPath      = shaderPath;
+    SLGLTexture::defaultPath      = texturePath;
+    SLGLTexture::defaultPathFonts = fontPath;
+    SLAssimpImporter::defaultPath = modelPath;
+    SLApplication::configPath     = configPath;
 
     SLGLState* stateGL = SLGLState::instance();
 
@@ -122,18 +123,23 @@ int slCreateSceneView(int       screenWidth,
     SLuint       index = (SLuint)newSVCallback();
     SLSceneView* sv    = SLApplication::scene->sceneView(index);
 
+    SLGLImGui* gui = new SLGLImGui();
+    // Load GUI fonts depending on the resolution
+    gui->loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+    gui->build = (cbOnImGuiBuild)onImGuiBuild;
+
     sv->init("SceneView",
              screenWidth,
              screenHeight,
              onWndUpdateCallback,
              onSelectNodeMeshCallback,
-             onImGuiBuild);
+             gui);
 
     // Set default font sizes depending on the dpi no matter if ImGui is used
     if (!SLApplication::dpi) SLApplication::dpi = dotsPerInch;
 
     // Load GUI fonts depending on the resolution
-    sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+    //sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
 
     // Set active sceneview and load scene. This is done for the first sceneview
     if (!SLApplication::scene->root3D())
@@ -460,7 +466,7 @@ void slSetupExternalDir(const SLstring& externalPath)
 //-----------------------------------------------------------------------------
 //! Adds a value to the applications device parameter map
 void slSetDeviceParameter(const SLstring& parameter,
-                          SLstring value)
+                          SLstring        value)
 {
     SLApplication::deviceParameter[parameter] = std::move(value);
 }

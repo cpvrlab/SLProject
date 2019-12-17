@@ -12,7 +12,7 @@
 #include <imgui_internal.h>
 #include <stdio.h>
 
-#include <AppWAI.h>
+#include <WAIApp.h>
 #include <Utils.h>
 #include <AppDemoGuiSlamLoad.h>
 #include <CVCapture.h>
@@ -20,17 +20,20 @@
 #include <WAIMapStorage.h>
 
 AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
-
-                                       std::string slamRootDir,
-                                       std::string calibrationsDir,
-                                       std::string vocabulariesDir,
-                                       SLNode*     mapNode,
-                                       bool*       activator)
+                                       std::string        slamRootDir,
+                                       std::string        calibrationsDir,
+                                       std::string        vocabulariesDir,
+                                       SLNode*            mapNode,
+                                       bool*              activator,
+                                       WAIApp&            waiApp,
+                                       SlamParams&        currentSlamParams)
   : AppDemoGuiInfosDialog(name, activator),
     _slamRootDir(slamRootDir),
     _calibrationsDir(calibrationsDir),
     _vocabulariesDir(vocabulariesDir),
-    _mapNode(mapNode)
+    _mapNode(mapNode),
+    _waiApp(waiApp),
+    _currentSlamParams(currentSlamParams)
 {
     _changeSlamParams   = true;
     _storeKeyFrameImage = true;
@@ -123,10 +126,10 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
         ImGui::Separator();
 
-        if (!WAIApp::currentSlamParams->videoFile.empty())
+        if (!_currentSlamParams.videoFile.empty())
         {
             SlamVideoInfos slamVideoInfos;
-            std::string    videoFileName = Utils::getFileNameWOExt(WAIApp::currentSlamParams->videoFile);
+            std::string    videoFileName = Utils::getFileNameWOExt(_currentSlamParams.videoFile);
             extractSlamVideoInfosFromFileName(videoFileName,
                                               &slamVideoInfos);
 
@@ -145,10 +148,10 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
         ImGui::Separator();
 
-        if (!WAIApp::currentSlamParams->mapFile.empty())
+        if (!_currentSlamParams.mapFile.empty())
         {
             SlamMapInfos slamMapInfos;
-            std::string  mapFileName = Utils::getFileNameWOExt(WAIApp::currentSlamParams->mapFile);
+            std::string  mapFileName = Utils::getFileNameWOExt(_currentSlamParams.mapFile);
             extractSlamMapInfosFromFileName(mapFileName,
                                             &slamMapInfos);
 
@@ -163,7 +166,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
         ImGui::Separator();
 
-        ImGui::Text("Calibration: %s", Utils::getFileName(WAIApp::currentSlamParams->calibrationFile).c_str());
+        ImGui::Text("Calibration: %s", Utils::getFileName(_currentSlamParams.calibrationFile).c_str());
 
         ImGui::Separator();
 
@@ -173,18 +176,19 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         }
         if (ImGui::Button("Save map"))
         {
-            WAIApp::mode->pause();
+            WAI::ModeOrbSlam2* mode = _waiApp.mode();
+            mode->pause();
 
-            if (!_currentLocation.empty() && !_currentArea.empty() && WAIApp::mode)
+            if (!_currentLocation.empty() && !_currentArea.empty() && mode)
             {
                 std::string mapDir = constructSlamMapDir(_slamRootDir, _currentLocation, _currentArea);
                 if (!Utils::dirExists(mapDir))
                     Utils::makeDir(mapDir);
 
-                std::string filename = constructSlamMapFileName(_currentLocation, _currentArea, WAIApp::mode->getKPextractor()->GetName());
+                std::string filename = constructSlamMapFileName(_currentLocation, _currentArea, _waiApp.mode()->getKPextractor()->GetName());
                 std::string imgDir   = constructSlamMapImgDir(mapDir, filename);
 
-                if (WAIApp::mode->retainImage())
+                if (_waiApp.mode()->retainImage())
                 {
                     if (!Utils::dirExists(imgDir))
                         Utils::makeDir(imgDir);
@@ -193,44 +197,40 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 if (!_currentMarker.empty())
                 {
                     cv::Mat nodeTransform;
-                    if (!WAIApp::mode->doMarkerMapPreprocessing(constructSlamMarkerDir(_slamRootDir, _currentLocation, _currentArea) + _currentMarker, nodeTransform, 0.75f))
+                    if (!mode->doMarkerMapPreprocessing(constructSlamMarkerDir(_slamRootDir, _currentLocation, _currentArea) + _currentMarker, nodeTransform, 0.75f))
                     {
-                        WAIApp::errorDial->setErrorMsg("Failed to do marker map preprocessing");
-                        WAIApp::uiPrefs.showError = true;
+                        _waiApp.showErrorMsg("Failed to do marker map preprocessing");
                     }
                     else
                     {
                         std::cout << "nodeTransform: " << nodeTransform << std::endl;
                         _mapNode->om(WAIMapStorage::convertToSLMat(nodeTransform));
-                        if (!WAIMapStorage::saveMap(WAIApp::mode->getMap(),
+                        if (!WAIMapStorage::saveMap(mode->getMap(),
                                                     _mapNode,
                                                     mapDir + filename,
                                                     imgDir))
                         {
-                            WAIApp::errorDial->setErrorMsg("Failed to save map " + mapDir + filename);
-                            WAIApp::uiPrefs.showError = true;
+                            _waiApp.showErrorMsg("Failed to save map " + mapDir + filename);
                         }
                     }
                 }
                 else
                 {
-                    if (!WAIMapStorage::saveMap(WAIApp::mode->getMap(),
+                    if (!WAIMapStorage::saveMap(mode->getMap(),
                                                 _mapNode,
                                                 mapDir + filename,
                                                 imgDir))
                     {
-                        WAIApp::errorDial->setErrorMsg("Failed to save map " + mapDir + filename);
-                        WAIApp::uiPrefs.showError = true;
+                        _waiApp.showErrorMsg("Failed to save map " + mapDir + filename);
                     }
                 }
             }
             else
             {
-                WAIApp::errorDial->setErrorMsg("Failed to save map - No location and/or area selected.");
-                WAIApp::uiPrefs.showError = true;
+                _waiApp.showErrorMsg("Failed to save map - No location and/or area selected.");
             }
 
-            WAIApp::mode->resume();
+            mode->resume();
         }
     }
     else
@@ -406,8 +406,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         {
             if (_currentLocation.empty() || _currentArea.empty())
             {
-                WAIApp::errorDial->setErrorMsg("Choose location and area");
-                WAIApp::uiPrefs.showError = true;
+                _waiApp.showErrorMsg("Choose location and area");
             }
             else
             {
@@ -423,14 +422,11 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 slamParams.params.serial       = _serial;
                 slamParams.params.fixOldKfs    = fixLoadedKfs;
 
-                OrbSlamStartResult startResult = WAIApp::startOrbSlam(&slamParams);
-                sv->setViewportFromRatio(SLVec2i(WAIApp::videoFrameSize.width, WAIApp::videoFrameSize.height), SLViewportAlign::VA_center, true);
-                WAIApp::resizeWindow = true;
+                OrbSlamStartResult startResult = _waiApp.startOrbSlam(&slamParams);
 
                 if (!startResult.wasSuccessful)
                 {
-                    WAIApp::errorDial->setErrorMsg(startResult.errorString);
-                    WAIApp::uiPrefs.showError = true;
+                    _waiApp.showErrorMsg(startResult.errorString);
                 }
                 else
                 {

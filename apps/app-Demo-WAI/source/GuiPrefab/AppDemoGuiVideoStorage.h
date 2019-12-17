@@ -20,22 +20,24 @@
 //-----------------------------------------------------------------------------
 class AppDemoGuiVideoStorage : public AppDemoGuiInfosDialog
 {
-    public:
+public:
     AppDemoGuiVideoStorage(const std::string& name,
                            cv::VideoWriter*   videoWriter,
                            cv::VideoWriter*   videoWriterInfo,
                            std::ofstream*     gpsDataStream,
-                           bool*              activator);
+                           bool*              activator,
+                           WAIApp&            waiApp);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
-    private:
+private:
     void saveVideo(std::string filename);
     void saveGPSData(std::string videofile);
 
     ofstream*        _gpsDataFile;
     cv::VideoWriter* _videoWriter;
     cv::VideoWriter* _videoWriterInfo;
+    WAIApp&          _waiApp;
 };
 
 #endif //SL_IMGUI_VIDEOSTORAGE_H

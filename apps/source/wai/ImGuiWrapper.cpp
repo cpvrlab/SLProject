@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      GL/SLGLImGui.cpp
+//  File:      ImGuiWrapper.cpp
 //  Purpose:   Wrapper Class around the external ImGui GUI-framework
 //             See also: https://github.com/ocornut/imgui
 //  Author:    Marcus Hudritsch
@@ -18,21 +18,22 @@
 
 #include <SLApplication.h>
 #include <SLSceneView.h>
-#include <SLGLImGui.h>
+#include <ImGuiWrapper.h>
 #include <SLScene.h>
 
 //-----------------------------------------------------------------------------
-SLfloat SLGLImGui::fontPropDots  = 16.0f;
-SLfloat SLGLImGui::fontFixedDots = 13.0f;
-//-----------------------------------------------------------------------------
-SLGLImGui::SLGLImGui()
+ImGuiWrapper::ImGuiWrapper()
 {
-    // init build function pointer to zero
-    build = nullptr;
+}
+//-----------------------------------------------------------------------------
+ImGuiWrapper::ImGuiWrapper(SLfloat fontPropDots, SLfloat fontFixedDots)
+  : _fontPropDots(fontPropDots),
+    _fontFixedDots(fontFixedDots)
+{
 }
 //-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
-void SLGLImGui::init()
+void ImGuiWrapper::init()
 {
     _fontTexture       = 0;
     _progHandle        = 0;
@@ -88,7 +89,7 @@ void SLGLImGui::init()
 }
 //-----------------------------------------------------------------------------
 //! Loads the proportional and fixed size font depending on the passed DPI
-void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
+void ImGuiWrapper::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
 {
     _fontPropDots  = fontPropDots;
     _fontFixedDots = fontFixedDots;
@@ -101,7 +102,7 @@ void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
     if (Utils::fileExists(DroidSans))
     {
         io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
-        SL_LOG("SLGLImGui::loadFonts: %f\n", fontPropDots);
+        SL_LOG("ImGuiWrapper::loadFonts: %f\n", fontPropDots);
     }
     else
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n", DroidSans.c_str());
@@ -111,7 +112,7 @@ void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
     if (Utils::fileExists(ProggyClean))
     {
         io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
-        SL_LOG("SLGLImGui::loadFonts: %f\n", fontFixedDots);
+        SL_LOG("ImGuiWrapper::loadFonts: %f\n", fontFixedDots);
     }
     else
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n", ProggyClean.c_str());
@@ -121,7 +122,7 @@ void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
 }
 //-----------------------------------------------------------------------------
 //! Creates all OpenGL objects for drawing the imGui
-void SLGLImGui::createOpenGLObjects()
+void ImGuiWrapper::createOpenGLObjects()
 {
     // Backup GL state
     GLint last_texture, last_array_buffer, last_vertex_array;
@@ -268,7 +269,7 @@ void SLGLImGui::createOpenGLObjects()
 }
 //-----------------------------------------------------------------------------
 //! Deletes all OpenGL objects for drawing the imGui
-void SLGLImGui::deleteOpenGLObjects()
+void ImGuiWrapper::deleteOpenGLObjects()
 {
     if (_vaoHandle) glDeleteVertexArrays(1, &_vaoHandle);
     if (_vboHandle) glDeleteBuffers(1, &_vboHandle);
@@ -297,7 +298,7 @@ void SLGLImGui::deleteOpenGLObjects()
 }
 //-----------------------------------------------------------------------------
 //! Prints the compile errors in case of a GLSL compile failure
-void SLGLImGui::printCompileErrors(SLint shaderHandle, const SLchar* src)
+void ImGuiWrapper::printCompileErrors(SLint shaderHandle, const SLchar* src)
 {
     // Check compiler log
     SLint compileSuccess = 0;
@@ -316,14 +317,14 @@ void SLGLImGui::printCompileErrors(SLint shaderHandle, const SLchar* src)
 }
 //-----------------------------------------------------------------------------
 //! Inits a new frame for the ImGui system
-void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
+void ImGuiWrapper::onInitNewFrame(SLScene* s, SLSceneView* sv)
 {
     // If no build function is provided there is no ImGui
-    if (!build) return;
+    //if (!build) return;
 
-    if ((SLint)SLGLImGui::fontPropDots != (SLint)_fontPropDots ||
-        (SLint)SLGLImGui::fontFixedDots != (SLint)_fontFixedDots)
-        loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+    //if ((SLint)ImGuiWrapper::fontPropDots != (SLint)_fontPropDots ||
+    //    (SLint)ImGuiWrapper::fontFixedDots != (SLint)_fontFixedDots)
+    //    loadFonts(ImGuiWrapper::fontPropDots, ImGuiWrapper::fontFixedDots);
 
     if (!_fontTexture)
         createOpenGLObjects();
@@ -346,21 +347,21 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
     // This function is provided by the top-level project.
     // For the SLProject demo apps this build function is implemented in the
     // class SLDemoGui.
-    if (build)
-        build(s, sv);
+    //if (build)
+    build(s, sv);
 
     //SL_LOG(".");
 }
 //-----------------------------------------------------------------------------
 //! Callback if window got resized
-void SLGLImGui::onResize(SLint scrW, SLint scrH)
+void ImGuiWrapper::onResize(SLint scrW, SLint scrH)
 {
     ImGuiIO& io    = ImGui::GetIO();
     io.DisplaySize = ImVec2((SLfloat)scrW, (SLfloat)scrH);
 }
 //-----------------------------------------------------------------------------
 //! Callback for main rendering for the ImGui GUI system
-void SLGLImGui::onPaint(const SLRecti& viewportRect)
+void ImGuiWrapper::onPaint(const SLRecti& viewportRect)
 {
     ImGui::Render();
     ImDrawData* draw_data = ImGui::GetDrawData();
@@ -538,7 +539,7 @@ void SLGLImGui::onPaint(const SLRecti& viewportRect)
 }
 //-----------------------------------------------------------------------------
 //! Callback on mouse button down event
-void SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
+void ImGuiWrapper::onMouseDown(SLMouseButton button, SLint x, SLint y)
 {
     ImGuiIO& io = ImGui::GetIO();
     io.MousePos = ImVec2((SLfloat)x, (SLfloat)y);
@@ -549,7 +550,7 @@ void SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
 }
 //-----------------------------------------------------------------------------
 //! Callback on mouse button up event
-void SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
+void ImGuiWrapper::onMouseUp(SLMouseButton button, SLint x, SLint y)
 {
     ImGui::GetIO().MousePos = ImVec2((SLfloat)x, (SLfloat)y);
     ImGuiIO& io             = ImGui::GetIO();
@@ -561,21 +562,21 @@ void SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
 }
 //-----------------------------------------------------------------------------
 //! Updates the mouse cursor position
-void SLGLImGui::onMouseMove(SLint xPos, SLint yPos)
+void ImGuiWrapper::onMouseMove(SLint xPos, SLint yPos)
 {
     ImGui::GetIO().MousePos = ImVec2((SLfloat)xPos, (SLfloat)yPos);
     //SL_LOG("M\n");
 }
 //-----------------------------------------------------------------------------
 //! Callback for the mouse scroll movement
-void SLGLImGui::onMouseWheel(SLfloat yoffset)
+void ImGuiWrapper::onMouseWheel(SLfloat yoffset)
 {
     // Use fractional mouse wheel, 1.0 unit 5 lines.
     _mouseWheel += yoffset;
 }
 //-----------------------------------------------------------------------------
 //! Callback on key press event
-void SLGLImGui::onKeyPress(SLKey key, SLKey mod)
+void ImGuiWrapper::onKeyPress(SLKey key, SLKey mod)
 {
     ImGuiIO& io      = ImGui::GetIO();
     io.KeysDown[key] = true;
@@ -585,7 +586,7 @@ void SLGLImGui::onKeyPress(SLKey key, SLKey mod)
 }
 //-----------------------------------------------------------------------------
 //! Callback on key release event
-void SLGLImGui::onKeyRelease(SLKey key, SLKey mod)
+void ImGuiWrapper::onKeyRelease(SLKey key, SLKey mod)
 {
     ImGuiIO& io      = ImGui::GetIO();
     io.KeysDown[key] = false;
@@ -595,7 +596,7 @@ void SLGLImGui::onKeyRelease(SLKey key, SLKey mod)
 }
 //-----------------------------------------------------------------------------
 //! Callback on character input
-void SLGLImGui::onCharInput(SLuint c)
+void ImGuiWrapper::onCharInput(SLuint c)
 {
     ImGuiIO& io = ImGui::GetIO();
     if (c > 0 && c < 0x10000)
@@ -603,22 +604,19 @@ void SLGLImGui::onCharInput(SLuint c)
 }
 //-----------------------------------------------------------------------------
 //! Callback on closing the application
-void SLGLImGui::onClose()
+void ImGuiWrapper::onClose()
 {
     deleteOpenGLObjects();
     ImGui::Shutdown();
 }
 //-----------------------------------------------------------------------------
 //! Renders an extra frame with the current mouse position
-void SLGLImGui::renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY)
+void ImGuiWrapper::renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY)
 {
     // If ImGui build function exists render the ImGui
-    if (build)
-    {
-        ImGui::GetIO().MousePos = ImVec2((SLfloat)mouseX, (SLfloat)mouseY);
-        onInitNewFrame(s, sv);
-        ImGui::Render();
-        onPaint(sv->viewportRect());
-    }
+    ImGui::GetIO().MousePos = ImVec2((SLfloat)mouseX, (SLfloat)mouseY);
+    onInitNewFrame(s, sv);
+    ImGui::Render();
+    onPaint(sv->viewportRect());
 }
 //-----------------------------------------------------------------------------

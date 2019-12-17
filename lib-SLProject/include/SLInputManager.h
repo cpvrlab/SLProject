@@ -14,6 +14,7 @@
 #include <SLInputDevice.h>
 #include <SLInputEvent.h>
 
+class SLScene;
 //-----------------------------------------------------------------------------
 //! SLInputManager. manages system input and custom input devices.
 /*!  One static instance of SLInputManager is used in SLApplication. Every user
@@ -29,18 +30,18 @@ class SLInputManager
 {
     friend class SLInputDevice;
 
-    public:
+public:
     SLInputManager() { ; }
 
-    SLbool          pollAndProcessEvents();
+    SLbool          pollAndProcessEvents(SLScene* s);
     void            queueEvent(const SLInputEvent* e);
     SLVInputDevice& devices() { return _devices; }
 
-    private:
+private:
     SLQInputEvent  _systemEvents; //!< queue for known system events
     SLVInputDevice _devices;      //!< list of activated SLInputDevices
 
-    SLbool processQueuedEvents();
+    SLbool processQueuedEvents(SLScene* s);
 };
 //-----------------------------------------------------------------------------
 #endif
