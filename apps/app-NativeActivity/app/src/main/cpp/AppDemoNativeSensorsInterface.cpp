@@ -35,20 +35,17 @@ struct savedState
     int32_t y;
 };
 
-
 struct SensorsHandler
 {
     struct android_app*     _app;
     ASensorManager*         _sensorManager;
     const ASensor*          _accelerometerSensor;
     ASensorEventQueue*      _sensorEventQueue;
-    int                     animating;
     struct savedState       state;
     struct SensorsCallbacks callbacks;
-    void*                   usrPtr;
 };
 
-void sensorsHandler_enableAccelerometer(SensorsHandler * handler)
+void sensorsHandler_enableAccelerometer(SensorsHandler* handler)
 {
     if (handler->_accelerometerSensor == NULL)
     {
@@ -62,13 +59,12 @@ void sensorsHandler_enableAccelerometer(SensorsHandler * handler)
     ASensorEventQueue_setEventRate(handler->_sensorEventQueue, handler->_accelerometerSensor, (1000L / 60) * 1000);
 }
 
-void sensorsHandler_disableAccelerometer(SensorsHandler * handler)
+void sensorsHandler_disableAccelerometer(SensorsHandler* handler)
 {
     if (handler->_accelerometerSensor != NULL)
     {
         ASensorEventQueue_disableSensor(handler->_sensorEventQueue, handler->_accelerometerSensor);
     }
-    handler->animating = 0;
 }
 
 static int32_t sensorsHandler_handle_input(struct android_app* app, AInputEvent* event)
@@ -76,9 +72,8 @@ static int32_t sensorsHandler_handle_input(struct android_app* app, AInputEvent*
     struct SensorsHandler* sensorsHandler = (struct SensorsHandler*)app->userData;
     if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
     {
-        sensorsHandler->animating = 1;
-        sensorsHandler->state.x   = AMotionEvent_getX(event, 0);
-        sensorsHandler->state.y   = AMotionEvent_getY(event, 0);
+        sensorsHandler->state.x = AMotionEvent_getX(event, 0);
+        sensorsHandler->state.y = AMotionEvent_getY(event, 0);
         return 1;
     }
     return 0;
@@ -90,65 +85,29 @@ static void sensorsHandler_handle_cmd(struct android_app* app, int32_t cmd)
     switch (cmd)
     {
         case APP_CMD_SAVE_STATE:
-            sensorsHandler->callbacks.onSaveState(sensorsHandler->usrPtr);
+            sensorsHandler->callbacks.onSaveState(sensorsHandler->callbacks.usrPtr);
             break;
         case APP_CMD_INIT_WINDOW:
-            sensorsHandler->callbacks.onInit(sensorsHandler->usrPtr, sensorsHandler->_app);
+            sensorsHandler->callbacks.onInit(sensorsHandler->callbacks.usrPtr, sensorsHandler->_app);
             break;
         case APP_CMD_TERM_WINDOW:
-            sensorsHandler->callbacks.onClose(sensorsHandler->usrPtr, sensorsHandler->_app);
+            sensorsHandler->callbacks.onClose(sensorsHandler->callbacks.usrPtr, sensorsHandler->_app);
             break;
         case APP_CMD_GAINED_FOCUS:
-            sensorsHandler->callbacks.onGainedFocus(sensorsHandler->usrPtr);
+            sensorsHandler->callbacks.onGainedFocus(sensorsHandler->callbacks.usrPtr);
             break;
         case APP_CMD_LOST_FOCUS:
-            sensorsHandler->callbacks.onLostFocus(sensorsHandler->usrPtr);
+            sensorsHandler->callbacks.onLostFocus(sensorsHandler->callbacks.usrPtr);
             break;
     }
 }
 
-#include <dlfcn.h>
-static ASensorManager* AcquireASensorManagerInstance(android_app* app)
+void initSensorsHandler(struct android_app* app, SensorsCallbacks* cb, SensorsHandler** handlerp)
 {
-    if (!app)
-        return nullptr;
+    SensorsHandler* handler = (SensorsHandler*)malloc(sizeof(SensorsHandler));
+    memset(handler, 0, sizeof(SensorsHandler));
 
-    typedef ASensorManager* (*PF_GETINSTANCEFORPACKAGE)(const char* name);
-    void*                    androidHandle             = dlopen("libandroid.so", RTLD_NOW);
-    PF_GETINSTANCEFORPACKAGE getInstanceForPackageFunc = (PF_GETINSTANCEFORPACKAGE) dlsym(androidHandle, "ASensorManager_getInstanceForPackage");
-    if (getInstanceForPackageFunc)
-    {
-        JNIEnv* env = nullptr;
-        app->activity->vm->AttachCurrentThread(&env, NULL);
-
-        jclass    android_content_Context = env->GetObjectClass(app->activity->clazz);
-        jmethodID midGetPackageName       = env->GetMethodID(android_content_Context, "getPackageName", "()Ljava/lang/String;");
-        jstring   packageName             = (jstring)env->CallObjectMethod(app->activity->clazz, midGetPackageName);
-
-        const char*     nativePackageName = env->GetStringUTFChars(packageName, 0);
-        ASensorManager* mgr               = getInstanceForPackageFunc(nativePackageName);
-        env->ReleaseStringUTFChars(packageName, nativePackageName);
-        app->activity->vm->DetachCurrentThread();
-        if (mgr)
-        {
-            dlclose(androidHandle);
-            return mgr;
-        }
-    }
-
-    typedef ASensorManager* (*PF_GETINSTANCE)();
-    PF_GETINSTANCE getInstanceFunc = (PF_GETINSTANCE) dlsym(androidHandle, "ASensorManager_getInstance");
-    // by all means at this point, ASensorManager_getInstance should be available
-    assert(getInstanceFunc);
-    dlclose(androidHandle);
-
-    return getInstanceFunc();
-}
-
-void initSensorsHandler(struct android_app* app, SensorsCallbacks *cb, SensorsHandler ** handlerp)
-{
-    SensorsHandler * handler = (SensorsHandler*)malloc (sizeof(SensorsHandler));
-    *handlerp =  handler;
+    *handlerp = handler;
 
     app->userData     = handler;
     app->onAppCmd     = sensorsHandler_handle_cmd;
@@ -159,21 +118,19 @@ void initSensorsHandler(struct android_app* app, SensorsCallbacks *cb, SensorsHa
         handler->state = *(struct savedState*)app->savedState;
     }
 
-    memset(&handler->state, 0, sizeof(struct savedState));
-    handler->_app = app;
-    handler->_sensorManager = AcquireASensorManagerInstance(app);
+    handler->_app              = app;
+    handler->_sensorManager    = ASensorManager_getInstance(); //AcquireASensorManagerInstance(app);
     handler->_sensorEventQueue = ASensorManager_createEventQueue(handler->_sensorManager, app->looper, LOOPER_ID_USER, NULL, NULL);
-    handler->callbacks = *cb;
+    handler->callbacks         = *cb;
 }
 
-void sensorsHandler_processEvent(SensorsHandler * handler, void * usrPtr)
+void sensorsHandler_processEvent(SensorsHandler* handler)
 {
     int                         ident;
     int                         events;
     struct android_poll_source* source;
-    handler->usrPtr = usrPtr;
 
-    while ((ident = ALooper_pollAll(handler->animating ? 0 : -1, NULL, &events, (void**)&source)) >= 0)
+    while ((ident = ALooper_pollAll(0, NULL, &events, (void**)&source)) >= 0)
     {
         if (source != NULL)
         {
@@ -187,7 +144,7 @@ void sensorsHandler_processEvent(SensorsHandler * handler, void * usrPtr)
                 ASensorEvent event;
                 while (ASensorEventQueue_getEvents(handler->_sensorEventQueue, &event, 1) > 0)
                 {
-                    handler->callbacks.onAcceleration(handler->usrPtr, event.acceleration.x, event.acceleration.y, event.acceleration.z);
+                    handler->callbacks.onAcceleration(handler->callbacks.usrPtr, event.acceleration.x, event.acceleration.y, event.acceleration.z);
                 }
             }
         }
@@ -195,7 +152,7 @@ void sensorsHandler_processEvent(SensorsHandler * handler, void * usrPtr)
         // Check if we are exiting.
         if (handler->_app->destroyRequested != 0)
         {
-            handler->callbacks.onClose(handler->usrPtr, handler->_app);
+            handler->callbacks.onClose(handler->callbacks.usrPtr, handler->_app);
             return;
         }
     }
