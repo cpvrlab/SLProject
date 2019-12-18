@@ -55,11 +55,13 @@ if (SL_BUILD_APPS)
 	add_subdirectory(apps)
 endif()
 
-add_subdirectory(externals)
+if (NOT "${SL_APP}" MATCHES "SL_APP_NATIVEWAI")
+	add_subdirectory(externals)
 
-if (SL_BUILD_WAI)
-	add_subdirectory(lib-WAI)
+	if (SL_BUILD_WAI)
+		add_subdirectory(lib-WAI)
+	endif()
+
+	add_subdirectory(lib-SLProject)
+	#add_subdirectory(experimental)
 endif()
-
-add_subdirectory(lib-SLProject)
-#add_subdirectory(experimental)

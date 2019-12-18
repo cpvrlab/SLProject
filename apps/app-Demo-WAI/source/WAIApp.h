@@ -101,6 +101,7 @@ public:
     //video file editing
     bool pauseVideo           = false;
     int  videoCursorMoveIndex = 0;
+    bool doubleBufferedOutput;
 
     void updateVideoImage();
 
@@ -110,7 +111,9 @@ private:
     void onLoadWAISceneView(SLScene* s, SLSceneView* sv);
 
     void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
-    void setupDefaultErlebARDir();
+    void setupDefaultErlebARDirTo(std::string dir);
+    //!download all remote files to transferred directory
+    void downloadCalibratinFilesTo(std::string dir);
     bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
     bool updateSceneViews();
 
@@ -122,6 +125,8 @@ private:
                          SLMaterial*&                     material);
     void renderKeyframes();
     void renderGraphs();
+
+
 
     //todo: we dont need a pointer
     std::unique_ptr<AppWAIScene> _waiScene;
@@ -152,6 +157,9 @@ private:
 
     std::unique_ptr<AppDemoWaiGui> _gui;
     AppDemoGuiError*               _errorDial = nullptr;
+
+    int lastFrameIdx;
+    CVMat undistortedLastFrame[2];
 };
 
 #endif

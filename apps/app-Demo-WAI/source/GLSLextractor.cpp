@@ -1149,7 +1149,7 @@ static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Ma
 
 void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, OutputArray _descriptors)
 {
-    images[idx] = _image.getMat();
+    images[idx] = _image.getMat().clone();
     Mat m;
     Mat descriptors;
 
