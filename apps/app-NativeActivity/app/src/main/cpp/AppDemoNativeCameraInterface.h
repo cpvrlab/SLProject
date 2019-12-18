@@ -9,8 +9,8 @@
 #define CAMERA_DISCONECTED 2
 #define CAMERA_ERROR 3
 
-#define BACKFACING 1
-#define FRONTFACING 2
+#define CAMERA_BACKFACING 1
+#define CAMERA_FRONTFACING 2
 
 typedef struct CameraHandler;
 typedef struct Camera;

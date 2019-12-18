@@ -102,6 +102,8 @@ public:
     bool pauseVideo           = false;
     int  videoCursorMoveIndex = 0;
 
+    void updateVideoImage();
+
 private:
     bool updateTracking();
     bool initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);

@@ -28,12 +28,9 @@
 #include <android_native_app_glue.h>
 #include <AppDemoNativeSensorsInterface.h>
 
-struct savedState
-{
-    float   angle;
-    int32_t x;
-    int32_t y;
-};
+#include <WAIApp.h>
+
+#include <SLEnums.h>
 
 struct SensorsHandler
 {
@@ -41,7 +38,6 @@ struct SensorsHandler
     ASensorManager*         _sensorManager;
     const ASensor*          _accelerometerSensor;
     ASensorEventQueue*      _sensorEventQueue;
-    struct savedState       state;
     struct SensorsCallbacks callbacks;
 };
 
@@ -67,56 +63,12 @@ void sensorsHandler_disableAccelerometer(SensorsHandler* handler)
     }
 }
 
-static int32_t sensorsHandler_handle_input(struct android_app* app, AInputEvent* event)
-{
-    struct SensorsHandler* sensorsHandler = (struct SensorsHandler*)app->userData;
-    if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
-    {
-        sensorsHandler->state.x = AMotionEvent_getX(event, 0);
-        sensorsHandler->state.y = AMotionEvent_getY(event, 0);
-        return 1;
-    }
-    return 0;
-}
-
-static void sensorsHandler_handle_cmd(struct android_app* app, int32_t cmd)
-{
-    struct SensorsHandler* sensorsHandler = (struct SensorsHandler*)app->userData;
-    switch (cmd)
-    {
-        case APP_CMD_SAVE_STATE:
-            sensorsHandler->callbacks.onSaveState(sensorsHandler->callbacks.usrPtr);
-            break;
-        case APP_CMD_INIT_WINDOW:
-            sensorsHandler->callbacks.onInit(sensorsHandler->callbacks.usrPtr, sensorsHandler->_app);
-            break;
-        case APP_CMD_TERM_WINDOW:
-            sensorsHandler->callbacks.onClose(sensorsHandler->callbacks.usrPtr, sensorsHandler->_app);
-            break;
-        case APP_CMD_GAINED_FOCUS:
-            sensorsHandler->callbacks.onGainedFocus(sensorsHandler->callbacks.usrPtr);
-            break;
-        case APP_CMD_LOST_FOCUS:
-            sensorsHandler->callbacks.onLostFocus(sensorsHandler->callbacks.usrPtr);
-            break;
-    }
-}
-
 void initSensorsHandler(struct android_app* app, SensorsCallbacks* cb, SensorsHandler** handlerp)
 {
     SensorsHandler* handler = (SensorsHandler*)malloc(sizeof(SensorsHandler));
     memset(handler, 0, sizeof(SensorsHandler));
 
     *handlerp = handler;
-
-    app->userData     = handler;
-    app->onAppCmd     = sensorsHandler_handle_cmd;
-    app->onInputEvent = sensorsHandler_handle_input;
-
-    if (app->savedState != NULL)
-    {
-        handler->state = *(struct savedState*)app->savedState;
-    }
 
     handler->_app              = app;
     handler->_sensorManager    = ASensorManager_getInstance(); //AcquireASensorManagerInstance(app);
@@ -126,34 +78,12 @@ void initSensorsHandler(struct android_app* app, SensorsCallbacks* cb, SensorsHa
 
 void sensorsHandler_processEvent(SensorsHandler* handler)
 {
-    int                         ident;
-    int                         events;
-    struct android_poll_source* source;
-
-    while ((ident = ALooper_pollAll(0, NULL, &events, (void**)&source)) >= 0)
+    if (handler->_accelerometerSensor != NULL)
     {
-        if (source != NULL)
+        ASensorEvent event;
+        while (ASensorEventQueue_getEvents(handler->_sensorEventQueue, &event, 1) > 0)
         {
-            source->process(handler->_app, source);
-        }
-
-        if (ident == LOOPER_ID_USER)
-        {
-            if (handler->_accelerometerSensor != NULL)
-            {
-                ASensorEvent event;
-                while (ASensorEventQueue_getEvents(handler->_sensorEventQueue, &event, 1) > 0)
-                {
-                    handler->callbacks.onAcceleration(handler->callbacks.usrPtr, event.acceleration.x, event.acceleration.y, event.acceleration.z);
-                }
-            }
-        }
-
-        // Check if we are exiting.
-        if (handler->_app->destroyRequested != 0)
-        {
-            handler->callbacks.onClose(handler->callbacks.usrPtr, handler->_app);
-            return;
+            handler->callbacks.onAcceleration(handler->callbacks.usrPtr, event.acceleration.x, event.acceleration.y, event.acceleration.z);
         }
     }
 }
