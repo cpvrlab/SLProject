@@ -341,7 +341,7 @@ bool CVCalibrationEstimator::loadCalibParams()
 void CVCalibrationEstimator::saveImage(cv::Mat imageGray)
 {
     std::stringstream ss;
-    ss << _calibImgOutputDir << "CalibImage" << _numCaptured << ".jpg";
+    ss << _calibImgOutputDir << "CalibImge_" << Utils::getDateTime2String() << ".jpg";
     cv::imwrite(ss.str(), imageGray);
 }
 //-----------------------------------------------------------------------------

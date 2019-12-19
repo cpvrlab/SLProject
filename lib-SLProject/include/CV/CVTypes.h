@@ -54,7 +54,7 @@ public:
     bool calibTiltedModel      = false;
     bool calibThinPrismModel   = false;
 
-    EstimatorMode mode                   = EstimatorMode::OnlyCaptureAndSave;
+    EstimatorMode mode                   = EstimatorMode::ExtractAndCalculate;
     bool          useReleaseObjectMethod = false;
 };
 
