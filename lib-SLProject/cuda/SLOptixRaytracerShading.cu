@@ -95,7 +95,6 @@ extern "C" __global__ void __closesthit__radiance() {
 
             if (nDl > 0.0f) {
                 float lighted = 0.0f;
-                unsigned int samples = 0;
 
                 float3 lightDiscX = cross(L, make_float3(0, 0, 1));
                 float3 lightDiscY = cross(L, lightDiscX);
@@ -114,18 +113,20 @@ extern "C" __global__ void __closesthit__radiance() {
 
                         const float sample = traceShadowRay(params.handle, P, direction, discDist);
                         if (sample > 0) {
-                            lighted += sample;
+                            lighted += sample / (light.samples.samplesX * light.samples.samplesY);
                             innerCircleIsNotLighting = false;
-                        } else {
+                        }
+                        if (sample < 1.0f) {
                             outerCircleIsLighting = false;
                         }
                     }
-                    samples += light.samples.samplesY;
-                    if (outerCircleIsLighting) break;
+//                    if (outerCircleIsLighting) {
+//                        lighted = 1.0f;
+//                        break;
+//                    }
 //                    if (innerCircleIsNotLighting) break;
                     innerCircleIsNotLighting = true;
                 }
-                lighted = lighted / samples;
 
                 // Phong shading
                 if (lighted > 0) {
