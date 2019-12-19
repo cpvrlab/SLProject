@@ -36,6 +36,7 @@ float squareLength = 0.168f;
 //float squareLength = 20.4f / 6.f;
 int defaultNumberOfPictures = 30;
 //cv::Size chessboardSize(8, 5);
+bool useReleaseObjectsMethod = true;
 
 std::unique_ptr<CamCalibrationManager> calibMgr;
 bool                                   calibrated = false;
@@ -386,7 +387,11 @@ int main(int argc, char* argv[])
                 if (!frame.empty())
                 {
                     if (!calibMgr)
-                        calibMgr = std::make_unique<CamCalibrationManager>(chessboardSize, frame.size(), squareLength, namesInDir.size());
+                        calibMgr = std::make_unique<CamCalibrationManager>(chessboardSize,
+                                                                           frame.size(),
+                                                                           squareLength,
+                                                                           namesInDir.size(),
+                                                                           useReleaseObjectsMethod);
 
                     //extract corners and add them to manager
                     extractCorners(frame, outputDir);
@@ -424,7 +429,7 @@ int main(int argc, char* argv[])
         else //we use opencv capture
         {
             //initialize calibration manager with default image size
-            calibMgr = std::make_unique<CamCalibrationManager>(chessboardSize, defaultCamResolution, squareLength, defaultNumberOfPictures);
+            calibMgr = std::make_unique<CamCalibrationManager>(chessboardSize, defaultCamResolution, squareLength, defaultNumberOfPictures, useReleaseObjectsMethod);
 
             //try to instantiate video caputure tool with read arguments
             if (!initCaptureTool())

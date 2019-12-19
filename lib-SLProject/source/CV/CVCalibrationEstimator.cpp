@@ -176,7 +176,8 @@ bool CVCalibrationEstimator::calibrateAsync()
                              _reprojectionError,
                              _boardSize,
                              _boardSquareMM,
-                             _params.calibrationFlags());
+                             _params.calibrationFlags(),
+                             _params.useReleaseObjectMethod);
         //correct number of caputured, extraction may have failed
         if (!rvecs.empty() || !reprojErrs.empty())
             _numCaptured = (int)std::max(rvecs.size(), reprojErrs.size());
@@ -229,7 +230,8 @@ bool CVCalibrationEstimator::calcCalibration(CVSize&            imageSize,
                                              float&             totalAvgErr,
                                              CVSize&            boardSize,
                                              float              squareSize,
-                                             int                flag)
+                                             int                flag,
+                                             bool               useReleaseObjectMethod)
 {
     // Init camera matrix with the eye setter
     cameraMatrix = CVMat::eye(3, 3, CV_64F);
@@ -251,14 +253,19 @@ bool CVCalibrationEstimator::calcCalibration(CVSize&            imageSize,
 
     ////////////////////////////////////////////////
     //Find intrinsic and extrinsic camera parameters
-    double rms = cv::calibrateCamera(objectPoints,
-                                     imagePoints,
-                                     imageSize,
-                                     cameraMatrix,
-                                     distCoeffs,
-                                     rvecs,
-                                     tvecs,
-                                     flag);
+    int iFixedPoint = -1;
+    if (useReleaseObjectMethod)
+        iFixedPoint = boardSize.width - 1;
+    double rms = cv::calibrateCameraRO(objectPoints,
+                                       imagePoints,
+                                       imageSize,
+                                       iFixedPoint,
+                                       cameraMatrix,
+                                       distCoeffs,
+                                       rvecs,
+                                       tvecs,
+                                       cv::noArray(),
+                                       flag);
     ////////////////////////////////////////////////
 
     Utils::log("Re-projection error reported by calibrateCamera: %f\n", rms);
