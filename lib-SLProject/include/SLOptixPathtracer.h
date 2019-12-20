@@ -17,7 +17,7 @@ class SLOptixPathtracer : public SLOptixRaytracer
 {
 public:
     SLOptixPathtracer();
-    ~SLOptixPathtracer() override;
+    ~SLOptixPathtracer();
 
     // setup path tracer
     void setupOptix() override;
@@ -27,6 +27,16 @@ public:
     // path tracer functions
     SLbool  render();
     void    renderImage() override;
+
+private:
+    OptixShaderBindingTable     _createShaderBindingTable(const SLVMesh&);
+
+    OptixPipeline _path_tracer_pipeline;
+    OptixProgramGroup _sample_raygen_prog_group;
+    OptixProgramGroup _sample_miss_group;
+    OptixProgramGroup _sample_hit_group;
+    SLCudaBuffer<RayGenPathtracerSbtRecord>  _rayGenPathtracerBuffer;
+    OptixShaderBindingTable _sbtPathtracer;
 };
 
 #endif //SLPROJECT_SLOPTIXPATHTRACER_H

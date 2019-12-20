@@ -121,6 +121,9 @@ void SLApplication::deleteAppAndScene()
 
     delete scene;
     scene = nullptr;
+
+    OPTIX_CHECK( optixDeviceContextDestroy( SLApplication::context ) );
+    CUDA_CHECK( cuStreamDestroy( SLApplication::stream ) );
 }
 //-----------------------------------------------------------------------------
 //! Starts parallel job if one is queued.

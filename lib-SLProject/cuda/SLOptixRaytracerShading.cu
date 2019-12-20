@@ -1,6 +1,6 @@
-#include "SLOptixHelper.h"
+#include <SLOptixHelper.h>
 #include <SLOptixDefinitions.h>
-#include <math_functions.h>
+#include <cuda_runtime_api.h>
 
 extern "C" {
 __constant__ Params params;

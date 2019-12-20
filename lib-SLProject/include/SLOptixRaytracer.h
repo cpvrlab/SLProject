@@ -37,9 +37,11 @@ public:
     // ray tracer functions
     SLbool  renderClassic();
     SLbool  renderDistrib();
-    virtual void    renderImage() override;
+    virtual void renderImage() override;
 
 protected:
+    void initCompileOptions();
+
     OptixModule                     _createModule(std::string);
     OptixProgramGroup               _createProgram(OptixProgramGroupDesc);
     OptixPipeline                   _createPipeline(OptixProgramGroup *, unsigned int);
@@ -54,11 +56,15 @@ protected:
     OptixModule                 _shadingModule{};
     OptixModuleCompileOptions   _module_compile_options{};
     OptixPipelineCompileOptions _pipeline_compile_options{};
+
+    OptixTraversableHandle      _handle{};
+    Params                      _params{};
+
+    SLCudaBuffer<MissSbtRecord>     _missBuffer = SLCudaBuffer<MissSbtRecord>();
+    SLCudaBuffer<HitSbtRecord>      _hitBuffer = SLCudaBuffer<HitSbtRecord>();
 private:
     SLCudaBuffer<RayGenClassicSbtRecord>       _rayGenClassicBuffer     = SLCudaBuffer<RayGenClassicSbtRecord>();
     SLCudaBuffer<RayGenDistributedSbtRecord>   _rayGenDistributedBuffer = SLCudaBuffer<RayGenDistributedSbtRecord>();
-    SLCudaBuffer<MissSbtRecord>     _missBuffer = SLCudaBuffer<MissSbtRecord>();
-    SLCudaBuffer<HitSbtRecord>      _hitBuffer = SLCudaBuffer<HitSbtRecord>();
 
     OptixPipeline               _classic_pipeline{};
     OptixPipeline               _distributed_pipeline{};
@@ -73,7 +79,5 @@ private:
 
     OptixShaderBindingTable     _sbtClassic{};
     OptixShaderBindingTable     _sbtDistributed{};
-    OptixTraversableHandle      _handle{};
-    Params                      _params{};
 };
 #endif //SLPROJECT_SLOPTIXRAYTRACER_H

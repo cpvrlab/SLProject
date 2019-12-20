@@ -8,37 +8,154 @@
 //#############################################################################
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
+#include <SLApplication.h>
+#include <SLSceneView.h>
 #include <SLOptixPathtracer.h>
 
 #ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
 #    include <debug_new.h> // memory leak detector
 #endif
 
-SLOptixPathtracer::SLOptixPathtracer(): SLOptixRaytracer() {
-//    name("OptiX path tracer");
+SLOptixPathtracer::SLOptixPathtracer() {
+    name("OptiX path tracer");
 }
 
 SLOptixPathtracer::~SLOptixPathtracer() {
-
+    SL_LOG("Destructor      : ~SLOptixPathtracer\n");
 }
 
 void SLOptixPathtracer::setupOptix() {
-    SLOptixRaytracer::setupOptix();
-
     _cameraModule   = _createModule("SLOptixPathtracerCamera.cu");
     _shadingModule  = _createModule("SLOptixPathtracerShading.cu");
+
+    OptixProgramGroupDesc sample_raygen_prog_group_desc  = {};
+    sample_raygen_prog_group_desc.kind                                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+    sample_raygen_prog_group_desc.raygen.module                            = _cameraModule;
+    sample_raygen_prog_group_desc.raygen.entryFunctionName                 = "__raygen__sample_camera";
+    _sample_raygen_prog_group = _createProgram(sample_raygen_prog_group_desc);
+
+    OptixProgramGroupDesc sample_miss_prog_group_desc = {};
+    sample_miss_prog_group_desc.kind                              = OPTIX_PROGRAM_GROUP_KIND_MISS;
+    sample_miss_prog_group_desc.miss.module                       = _shadingModule;
+    sample_miss_prog_group_desc.miss.entryFunctionName            = "__miss__sample";
+    _sample_miss_group = _createProgram(sample_miss_prog_group_desc);
+
+    OptixProgramGroupDesc sample_hit_prog_group_desc = {};
+    sample_hit_prog_group_desc.kind                              = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    _sample_hit_group = _createProgram(sample_hit_prog_group_desc);
+
+    OptixProgramGroup path_tracer_program_groups[] = {
+            _sample_raygen_prog_group,
+            _sample_miss_group,
+            _sample_hit_group
+    };
+    _path_tracer_pipeline       = _createPipeline(path_tracer_program_groups, 3);
+}
+
+OptixShaderBindingTable SLOptixPathtracer::_createShaderBindingTable(const SLVMesh &meshes) {
+    SLCamera* camera = _sv->camera();
+
+    OptixShaderBindingTable sbt = {};
+    {
+        // Setup ray generation records
+        RayGenPathtracerSbtRecord rg_sbt;
+        _rayGenPathtracerBuffer.alloc_and_upload(&rg_sbt, 1);
+
+        // Setup miss records
+        std::vector<MissSbtRecord> missRecords;
+
+        MissSbtRecord radiance_ms_sbt;
+        OPTIX_CHECK( optixSbtRecordPackHeader( _sample_miss_group , &radiance_ms_sbt ) );
+        radiance_ms_sbt.data.bg_color = make_float4(camera->background().colors()[0]);
+        missRecords.push_back(radiance_ms_sbt);
+
+        _missBuffer.alloc_and_upload(missRecords);
+
+        // Setup hit records
+        std::vector<HitSbtRecord> hitRecords;
+
+        for(auto mesh : meshes) {
+            HitSbtRecord sample_hg_sbt;
+            OPTIX_CHECK( optixSbtRecordPackHeader( _sample_hit_group, &sample_hg_sbt ) );
+            hitRecords.push_back(sample_hg_sbt);
+        }
+        _hitBuffer.alloc_and_upload(hitRecords);
+
+        sbt.raygenRecord                = _rayGenPathtracerBuffer.devicePointer();
+        sbt.missRecordBase              = _missBuffer.devicePointer();
+        sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
+        sbt.missRecordCount             = 1;
+        sbt.hitgroupRecordBase          = _hitBuffer.devicePointer();
+        sbt.hitgroupRecordStrideInBytes = sizeof( HitSbtRecord );
+        sbt.hitgroupRecordCount         = meshes.size();
+    }
+
+    return sbt;
 }
 
 void SLOptixPathtracer::setupScene(SLSceneView *sv) {
-    SLOptixRaytracer::setupScene(sv);
+    SLScene* scene = SLApplication::scene;
+    SLVMesh meshes = scene->meshes();
+    _sv = sv;
+
+    _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(uchar4));
+    _debugBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float3));
+
+    _params.image = reinterpret_cast<uchar4 *>(_imageBuffer.devicePointer());
+    _params.debug = reinterpret_cast<float3 *>(_debugBuffer.devicePointer());
+    _params.width = _sv->scrW();
+    _params.height = _sv->scrH();
+    _params.max_depth = _maxDepth;
+
+    // Iterate over all meshes
+    SLMesh::meshIndex = 0;
+    for(auto mesh : meshes) {
+        mesh->createMeshAccelerationStructure();
+    }
+
+    _sbtPathtracer = _createShaderBindingTable(meshes);
 }
 
 void SLOptixPathtracer::updateScene(SLSceneView *sv) {
-    SLOptixRaytracer::updateScene(sv);
+    SLScene* scene = SLApplication::scene;
+    SLCamera* camera = sv->camera();
+    _sv = sv;
+
+    SLNode::instanceIndex = 0;
+//    scene->root3D()->createInstanceAccelerationStructureTree();
+    scene->root3D()->createInstanceAccelerationStructureFlat();
+
+    _params.handle = scene->root3D()->optixTraversableHandle();
+
+    SLVec3f eye, u, v, w;
+    camera->UVWFrame(eye, u, v, w);
+    CameraData cameraData{};
+    cameraData.eye = make_float3(eye);
+    cameraData.U = make_float3(u);
+    cameraData.V = make_float3(v);
+    cameraData.W = make_float3(w);
+
+    RayGenPathtracerSbtRecord rayGenSbtRecord;
+    _rayGenPathtracerBuffer.download(&rayGenSbtRecord);
+    OPTIX_CHECK( optixSbtRecordPackHeader(_sample_raygen_prog_group, &rayGenSbtRecord ) );
+    rayGenSbtRecord.data = cameraData;
+    _rayGenPathtracerBuffer.upload(&rayGenSbtRecord);
+
+    _paramsBuffer.upload(&_params);
 }
 
 SLbool SLOptixPathtracer::render() {
-    return 0;
+    OPTIX_CHECK(optixLaunch(
+            _path_tracer_pipeline,
+            SLApplication::stream,
+            _paramsBuffer.devicePointer(),
+            _paramsBuffer.size(),
+            &_sbtPathtracer,
+            _sv->scrW(),
+            _sv->scrH(),
+            /*depth=*/1));
+    CUDA_SYNC_CHECK(SLApplication::stream);
+    return true;
 }
 
 void SLOptixPathtracer::renderImage() {

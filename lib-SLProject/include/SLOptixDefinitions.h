@@ -112,4 +112,6 @@ typedef SbtRecord<LensCameraData>   RayGenDistributedSbtRecord;
 typedef SbtRecord<MissData>         MissSbtRecord;
 typedef SbtRecord<HitData>          HitSbtRecord;
 
+typedef SbtRecord<CameraData>       RayGenPathtracerSbtRecord;
+
 #endif //SLPROJECT_SLOPTIXDEFINITIONS_H

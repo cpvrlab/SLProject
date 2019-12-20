@@ -22,7 +22,8 @@
 #include <SLRaytracer.h>
 #include <SLScene.h>
 #include <SLSkybox.h>
-#include "SLOptixRaytracer.h"
+#include <SLOptixRaytracer.h>
+#include <SLOptixPathtracer.h>
 
 //-----------------------------------------------------------------------------
 class SLCamera;
@@ -113,6 +114,7 @@ class SLSceneView : public SLObject
     SLbool draw3DRT();
     SLbool draw3DPT();
     SLbool draw3DOptixRT();
+    SLbool draw3DOptixPT();
 
     // SceneView camera
     void   initSceneViewCamera(const SLVec3f& dir  = -SLVec3f::AXISZ,
@@ -126,6 +128,7 @@ class SLSceneView : public SLObject
     void     startRaytracing(SLint maxDepth);
     void     startOptixRaytracing(SLint maxDepth);
     void     startPathtracing(SLint maxDepth, SLint samples);
+    void     startOptixPathtracing(SLint maxDepth, SLint samples);
     void     printStats() { _stats3D.print(); }
 
     // Callback routines
@@ -225,7 +228,9 @@ class SLSceneView : public SLObject
     SLRaytracer         _raytracer;  //!< Whitted style raytracer
     SLbool              _stopRT;     //!< Flag to stop the RT
     SLOptixRaytracer    _optixRaytracer;  //!< Whitted style raytracer with Optix
+    SLOptixPathtracer   _optixPathtracer;  //!< Path tracer with Optix
     SLbool              _stopOptixRT;     //!< Flag to stop the Optix RT
+    SLbool              _stopOptixPT;     //!< Flag to stop the Optix PT
     SLPathtracer        _pathtracer; //!< Pathtracer
     SLbool              _stopPT;     //!< Flag to stop the PT
 };

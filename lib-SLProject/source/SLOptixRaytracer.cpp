@@ -29,28 +29,29 @@ SLOptixRaytracer::SLOptixRaytracer()
     name("OptiX ray tracer");
 
     _params = {};
-    setupOptix();
+    _paramsBuffer.alloc(sizeof(Params));
+
+    initCompileOptions();
 }
 //-----------------------------------------------------------------------------
 SLOptixRaytracer::~SLOptixRaytracer()
 {
     SL_LOG("Destructor      : ~SLOptixRaytracer\n");
 
-    OPTIX_CHECK( optixPipelineDestroy(_classic_pipeline ) );
-    OPTIX_CHECK( optixPipelineDestroy(_distributed_pipeline ) );
-    OPTIX_CHECK( optixProgramGroupDestroy( _radiance_hit_group ) );
-    OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_hit_group ) );
-    OPTIX_CHECK( optixProgramGroupDestroy( _radiance_miss_group ) );
-    OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_miss_group ) );
-    OPTIX_CHECK( optixProgramGroupDestroy(_pinhole_raygen_prog_group ) );
+    if (_classic_pipeline) {
+        OPTIX_CHECK( optixPipelineDestroy(_classic_pipeline ) );
+        OPTIX_CHECK( optixPipelineDestroy(_distributed_pipeline ) );
+        OPTIX_CHECK( optixProgramGroupDestroy( _radiance_hit_group ) );
+        OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_hit_group ) );
+        OPTIX_CHECK( optixProgramGroupDestroy( _radiance_miss_group ) );
+        OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_miss_group ) );
+        OPTIX_CHECK( optixProgramGroupDestroy(_pinhole_raygen_prog_group ) );
+    }
     OPTIX_CHECK( optixModuleDestroy( _cameraModule ) );
     OPTIX_CHECK( optixModuleDestroy( _shadingModule ) );
-
-    OPTIX_CHECK( optixDeviceContextDestroy( SLApplication::context ) );
-    CUDA_CHECK( cuStreamDestroy( SLApplication::stream ) );
 }
 
-void SLOptixRaytracer::setupOptix() {
+void SLOptixRaytracer::initCompileOptions() {
     // Set compile options for modules and pipelines
     _module_compile_options = {};
     _module_compile_options.maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
@@ -72,7 +73,9 @@ void SLOptixRaytracer::setupOptix() {
     _pipeline_compile_options.numPayloadValues      = 7;
     _pipeline_compile_options.numAttributeValues    = 2;
     _pipeline_compile_options.pipelineLaunchParamsVariableName = "params";
+}
 
+void SLOptixRaytracer::setupOptix() {
     _cameraModule   = _createModule("SLOptixRaytracerCamera.cu");
     _shadingModule  = _createModule("SLOptixRaytracerShading.cu");
 
@@ -139,8 +142,6 @@ void SLOptixRaytracer::setupOptix() {
             _occlusion_hit_group,
     };
     _distributed_pipeline       = _createPipeline(distributed_program_groups, 5);
-
-    _paramsBuffer.alloc(sizeof(Params));
 }
 
 OptixModule SLOptixRaytracer::_createModule(std::string filename) {

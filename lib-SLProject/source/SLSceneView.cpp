@@ -301,6 +301,9 @@ void SLSceneView::onInitialize()
     _renderType   = RT_gl;
     _isFirstFrame = true;
 
+    _optixRaytracer.setupOptix();
+    _optixPathtracer.setupOptix();
+
     // init 3D scene with initial depth 1
     if (s->root3D() && s->root3D()->aabb()->radiusOS() < 0.0001f)
     {
@@ -406,6 +409,7 @@ SLbool SLSceneView::onPaint()
             case RT_rt: camUpdated = draw3DRT(); break;
             case RT_pt: camUpdated = draw3DPT(); break;
             case RT_optix_rt: camUpdated = draw3DOptixRT(); break;
+            case RT_optix_pt: camUpdated = draw3DOptixPT(); break;
         }
     }
 
@@ -1536,7 +1540,7 @@ SLbool SLSceneView::draw3DPT()
 
     return updated;
 }
-
+//-----------------------------------------------------------------------------
 void SLSceneView::startOptixRaytracing(SLint maxDepth) {
     _renderType     = RT_optix_rt;
     _stopOptixRT    = false;
@@ -1554,10 +1558,6 @@ SLbool SLSceneView::draw3DOptixRT()
 
         s->root3D()->needUpdate();
 
-        // Do software skinning on all changed skeletons
-//        for (auto mesh : s->meshes())
-//            mesh->updateAccelStruct();
-
 //         Start raytracing
         _optixRaytracer.updateScene(this);
         if (_optixRaytracer.doDistributed())
@@ -1572,6 +1572,41 @@ SLbool SLSceneView::draw3DOptixRT()
 
     // React on the stop flag (e.g. ESC)
     if (_stopOptixRT)
+    {
+        _renderType = RT_gl;
+        updated     = true;
+    }
+
+    return updated;
+}
+//-----------------------------------------------------------------------------
+void SLSceneView::startOptixPathtracing(SLint maxDepth, SLint samples) {
+    _renderType     = RT_optix_pt;
+    _stopOptixPT    = false;
+    _optixPathtracer.maxDepth(maxDepth);
+    _optixPathtracer.setupScene(this);
+}
+SLbool SLSceneView::draw3DOptixPT()
+{
+    SLbool updated = false;
+
+    // if the path tracer not yet got started
+    if (_optixPathtracer.state() == rtReady)
+    {
+        SLScene* s = SLApplication::scene;
+
+        s->root3D()->needUpdate();
+
+//         Start path tracing
+        _optixPathtracer.updateScene(this);
+        _optixPathtracer.render();
+    }
+
+    // Refresh the render image during RT
+    _optixPathtracer.renderImage();
+
+    // React on the stop flag (e.g. ESC)
+    if (_stopOptixPT)
     {
         _renderType = RT_gl;
         updated     = true;

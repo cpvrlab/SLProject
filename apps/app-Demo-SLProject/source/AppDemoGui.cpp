@@ -1288,6 +1288,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Ray Tracing with OptiX (RT)", nullptr, rType == RT_optix_rt))
                 sv->startOptixRaytracing(5);
 
+            if (ImGui::MenuItem("Path Tracing with OptiX (PT)", nullptr, rType == RT_optix_pt))
+                sv->startOptixPathtracing(5, 10);
+
             ImGui::EndMenu();
         }
 
