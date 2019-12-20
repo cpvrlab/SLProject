@@ -1,4 +1,4 @@
-#include <SLOptixRaytracerHelper.h>
+#include "SLOptixHelper.h"
 #include <SLOptixDefinitions.h>
 #include <math_functions.h>
 
@@ -167,31 +167,12 @@ extern "C" __global__ void __closesthit__radiance() {
 
     // Send reflection ray
     if (getDepth() < params.max_depth && rt_data->material.kr > 0.0f) {
-        float3 R = reflect(ray_dir, N);
-        color += (traceReflectionRay(params.handle, P, R, getDepth() + 1) * rt_data->material.kr);
+        color += (traceReflectionRay(params.handle, P, N, ray_dir, getDepth() + 1) * rt_data->material.kr);
     }
 
     // Send refraction ray
     if (getDepth() < params.max_depth && rt_data->material.kt > 0.0f) {
-        // calculate eta
-        float refractionIndex = rt_data->material.kn;
-        float eta = getRefractionIndex() / rt_data->material.kn;
-        if (optixIsTriangleBackFaceHit()) {
-            refractionIndex = 1.0f;
-            eta = rt_data->material.kn / 1.0f;
-        }
-
-        // calculate transmission vector T
-        float3 T;
-        float c1 = dot(N, -ray_dir);
-        float w = eta * c1;
-        float c2 = 1.0f + (w - eta) * (w + eta);
-        if (c2 >= 0.0f) {
-            T = eta * ray_dir + (w - sqrtf(c2)) * N;
-        } else {
-            T = 2.0f * (dot(-ray_dir, N)) * N + ray_dir;
-        }
-        color += (traceRefractionRay(params.handle, P, T, refractionIndex, getDepth() + 1) * rt_data->material.kt);
+        color += (traceRefractionRay(params.handle, P, N, ray_dir, rt_data->material.kn, getDepth() + 1) * rt_data->material.kt);
     }
 
     // Set color to payload

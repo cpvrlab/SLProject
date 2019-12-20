@@ -6,6 +6,8 @@
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
 #include <SLApplication.h>
 #include <SLLightRect.h>
 #include <SLSceneView.h>
@@ -13,9 +15,8 @@
 #include <SLOptixDefinitions.h>
 
 #include <optix.h>
-#include <optix_stubs.h>
 #include <utility>
-#include <optix_stack_size.h>
+#include <SLOptixHelper.h>
 
 #ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
 #    include <debug_new.h> // memory leak detector
@@ -25,7 +26,7 @@
 SLOptixRaytracer::SLOptixRaytracer()
 : SLRaytracer()
 {
-    name("myCoolRaytracer");
+    name("OptiX ray tracer");
 
     _params = {};
     setupOptix();
@@ -36,6 +37,7 @@ SLOptixRaytracer::~SLOptixRaytracer()
     SL_LOG("Destructor      : ~SLOptixRaytracer\n");
 
     OPTIX_CHECK( optixPipelineDestroy(_classic_pipeline ) );
+    OPTIX_CHECK( optixPipelineDestroy(_distributed_pipeline ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _radiance_hit_group ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_hit_group ) );
     OPTIX_CHECK( optixProgramGroupDestroy( _radiance_miss_group ) );

@@ -12,12 +12,14 @@ find_package(CUDA 10 REQUIRED)
 find_package(OptiX REQUIRED VERSION 7.0)
 
 file(GLOB cuda
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixPathtracerCamera.cu
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixPathtracerShading.cu
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerCamera.cu
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerShading.cu
         )
 
 file(GLOB headers
-        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerHelper.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixHelper.h
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixVectorMath.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTypedefs.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibration.h
@@ -105,6 +107,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixAccelerationStructure.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixDefinitions.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixHelper.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixPathtracer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixRaytracer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLObject.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPathtracer.h
@@ -188,6 +191,7 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLNode.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixAccelerationStructure.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixHelper.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixPathtracer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixRaytracer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPathtracer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPoints.cpp

@@ -1,5 +1,5 @@
 #include <SLOptixDefinitions.h>
-#include <SLOptixRaytracerHelper.h>
+#include "SLOptixHelper.h"
 #include <math_functions.h>
 
 extern "C" {

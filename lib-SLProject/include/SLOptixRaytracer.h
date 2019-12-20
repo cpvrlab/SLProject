@@ -6,14 +6,14 @@
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
-
 #ifndef SLPROJECT_SLOPTIXRAYTRACER_H
 #define SLPROJECT_SLOPTIXRAYTRACER_H
-#include <SLEventHandler.h>
-#include <SLGLTexture.h>
 #include <optix_types.h>
 #include <cuda.h>
 #include <SLOptixDefinitions.h>
+#include <SLRaytracer.h>
+#include <SLCudaBuffer.h>
+#include <SLMesh.h>
 
 class SLScene;
 class SLSceneView;
@@ -30,33 +30,36 @@ public:
     ~SLOptixRaytracer() override;
 
     // setup raytracer
-    void setupOptix();
-    void setupScene(SLSceneView* sv);
-    void updateScene(SLSceneView* sv);
+    virtual void setupOptix();
+    virtual void setupScene(SLSceneView* sv);
+    virtual void updateScene(SLSceneView* sv);
 
     // ray tracer functions
     SLbool  renderClassic();
     SLbool  renderDistrib();
-    void    renderImage() override;
+    virtual void    renderImage() override;
 
 protected:
-    OptixModule _createModule(std::string);
-    OptixProgramGroup _createProgram(OptixProgramGroupDesc);
-    OptixPipeline _createPipeline(OptixProgramGroup *, unsigned int);
-    OptixShaderBindingTable _createShaderBindingTable(const SLVMesh&, const bool);
+    OptixModule                     _createModule(std::string);
+    OptixProgramGroup               _createProgram(OptixProgramGroupDesc);
+    OptixPipeline                   _createPipeline(OptixProgramGroup *, unsigned int);
+    OptixShaderBindingTable         _createShaderBindingTable(const SLVMesh&, const bool);
+
     SLCudaBuffer<uchar4>            _imageBuffer = SLCudaBuffer<uchar4>();
     SLCudaBuffer<float3>            _debugBuffer = SLCudaBuffer<float3>();
     SLCudaBuffer<Params>            _paramsBuffer = SLCudaBuffer<Params>();
     SLCudaBuffer<Light>             _lightBuffer = SLCudaBuffer<Light>();
-    SLCudaBuffer<RayGenClassicSbtRecord>       _rayGenClassicBuffer     = SLCudaBuffer<RayGenClassicSbtRecord>();
-    SLCudaBuffer<RayGenDistributedSbtRecord>   _rayGenDistributedBuffer = SLCudaBuffer<RayGenDistributedSbtRecord>();
-    SLCudaBuffer<MissSbtRecord>     _missBuffer = SLCudaBuffer<MissSbtRecord>();
-    SLCudaBuffer<HitSbtRecord>      _hitBuffer = SLCudaBuffer<HitSbtRecord>();
 
     OptixModule                 _cameraModule{};
     OptixModule                 _shadingModule{};
     OptixModuleCompileOptions   _module_compile_options{};
     OptixPipelineCompileOptions _pipeline_compile_options{};
+private:
+    SLCudaBuffer<RayGenClassicSbtRecord>       _rayGenClassicBuffer     = SLCudaBuffer<RayGenClassicSbtRecord>();
+    SLCudaBuffer<RayGenDistributedSbtRecord>   _rayGenDistributedBuffer = SLCudaBuffer<RayGenDistributedSbtRecord>();
+    SLCudaBuffer<MissSbtRecord>     _missBuffer = SLCudaBuffer<MissSbtRecord>();
+    SLCudaBuffer<HitSbtRecord>      _hitBuffer = SLCudaBuffer<HitSbtRecord>();
+
     OptixPipeline               _classic_pipeline{};
     OptixPipeline               _distributed_pipeline{};
 

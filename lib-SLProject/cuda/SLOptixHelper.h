@@ -116,8 +116,11 @@ static __device__ __inline__ float traceShadowRay(
 static __device__ __inline__ float4 traceReflectionRay(
         OptixTraversableHandle handle,
         float3 origin,
-        float3 direction,
+        float3 N,
+        float3 ray_dir,
         unsigned int depth) {
+    float3 R = reflect(ray_dir, N);
+
     float4 payload_rgb = make_float4(0.5f, 0.5f, 0.5f, 1.0f);
     uint32_t p0, p1, p2, p3, p4;
     p0 = float_as_int(payload_rgb.x);
@@ -128,7 +131,7 @@ static __device__ __inline__ float4 traceReflectionRay(
     optixTrace(
             handle,
             origin,
-            direction,
+            R,
             1.e-4f,  // tmin
             1e16f,  // tmax
             0.0f,                // rayTime
@@ -149,9 +152,29 @@ static __device__ __inline__ float4 traceReflectionRay(
 static __device__ __inline__ float4 traceRefractionRay(
         OptixTraversableHandle handle,
         float3 origin,
-        float3 direction,
-        float refractionIndex,
+        float3 N,
+        float3 ray_dir,
+        float kn,
         unsigned int depth) {
+    // calculate eta
+    float refractionIndex = kn;
+    float eta = getRefractionIndex() / kn;
+    if (optixIsTriangleBackFaceHit()) {
+        refractionIndex = 1.0f;
+        eta = kn / 1.0f;
+    }
+
+    // calculate transmission vector T
+    float3 T;
+    float c1 = dot(N, -ray_dir);
+    float w = eta * c1;
+    float c2 = 1.0f + (w - eta) * (w + eta);
+    if (c2 >= 0.0f) {
+        T = eta * ray_dir + (w - sqrtf(c2)) * N;
+    } else {
+        T = 2.0f * (dot(-ray_dir, N)) * N + ray_dir;
+    }
+
     unsigned int ray_flags;
     if (optixIsTriangleBackFaceHit()) {
         ray_flags = OPTIX_RAY_FLAG_DISABLE_ANYHIT | OPTIX_RAY_FLAG_CULL_BACK_FACING_TRIANGLES;
@@ -169,7 +192,7 @@ static __device__ __inline__ float4 traceRefractionRay(
     optixTrace(
             handle,
             origin,
-            direction,
+            T,
             1.e-4f,  // tmin
             1e16f,  // tmax
             0.0f,                // rayTime
