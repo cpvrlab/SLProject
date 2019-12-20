@@ -55,9 +55,18 @@ struct Params
 
     OptixTraversableHandle  handle;
 
-    Light*                  lights;
-    unsigned int            numLights;
-    float4                  globalAmbientColor;
+    union {
+        struct {
+            Light*                  lights;
+            unsigned int            numLights;
+            float4                  globalAmbientColor;
+        };
+
+        struct {
+            unsigned int samples;
+            unsigned int seed;
+        };
+    };
 
     float3*                 debug;
 };

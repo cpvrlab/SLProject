@@ -1584,6 +1584,7 @@ void SLSceneView::startOptixPathtracing(SLint maxDepth, SLint samples) {
     _renderType     = RT_optix_pt;
     _stopOptixPT    = false;
     _optixPathtracer.maxDepth(maxDepth);
+    _optixPathtracer.samples(samples);
     _optixPathtracer.setupScene(this);
 }
 SLbool SLSceneView::draw3DOptixPT()

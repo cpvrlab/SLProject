@@ -42,6 +42,10 @@ void SLOptixPathtracer::setupOptix() {
 
     OptixProgramGroupDesc sample_hit_prog_group_desc = {};
     sample_hit_prog_group_desc.kind                              = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    sample_hit_prog_group_desc.hitgroup.moduleAH             = _shadingModule;
+    sample_hit_prog_group_desc.hitgroup.entryFunctionNameAH  = "__anyhit__radiance";
+    sample_hit_prog_group_desc.hitgroup.moduleCH             = _shadingModule;
+    sample_hit_prog_group_desc.hitgroup.entryFunctionNameCH  = "__closesthit__radiance";
     _sample_hit_group = _createProgram(sample_hit_prog_group_desc);
 
     OptixProgramGroup path_tracer_program_groups[] = {
@@ -77,6 +81,9 @@ OptixShaderBindingTable SLOptixPathtracer::_createShaderBindingTable(const SLVMe
         for(auto mesh : meshes) {
             HitSbtRecord sample_hg_sbt;
             OPTIX_CHECK( optixSbtRecordPackHeader( _sample_hit_group, &sample_hg_sbt ) );
+            sample_hg_sbt.data = mesh->createHitData();
+            hitRecords.push_back(sample_hg_sbt);
+
             hitRecords.push_back(sample_hg_sbt);
         }
         _hitBuffer.alloc_and_upload(hitRecords);
@@ -84,10 +91,10 @@ OptixShaderBindingTable SLOptixPathtracer::_createShaderBindingTable(const SLVMe
         sbt.raygenRecord                = _rayGenPathtracerBuffer.devicePointer();
         sbt.missRecordBase              = _missBuffer.devicePointer();
         sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
-        sbt.missRecordCount             = 1;
+        sbt.missRecordCount             = missRecords.size();
         sbt.hitgroupRecordBase          = _hitBuffer.devicePointer();
         sbt.hitgroupRecordStrideInBytes = sizeof( HitSbtRecord );
-        sbt.hitgroupRecordCount         = meshes.size();
+        sbt.hitgroupRecordCount         = hitRecords.size();
     }
 
     return sbt;
@@ -106,6 +113,7 @@ void SLOptixPathtracer::setupScene(SLSceneView *sv) {
     _params.width = _sv->scrW();
     _params.height = _sv->scrH();
     _params.max_depth = _maxDepth;
+    _params.samples = _samples;
 
     // Iterate over all meshes
     SLMesh::meshIndex = 0;
@@ -140,6 +148,8 @@ void SLOptixPathtracer::updateScene(SLSceneView *sv) {
     OPTIX_CHECK( optixSbtRecordPackHeader(_sample_raygen_prog_group, &rayGenSbtRecord ) );
     rayGenSbtRecord.data = cameraData;
     _rayGenPathtracerBuffer.upload(&rayGenSbtRecord);
+
+    _params.seed = time(NULL);
 
     _paramsBuffer.upload(&_params);
 }

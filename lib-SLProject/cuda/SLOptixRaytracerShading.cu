@@ -129,10 +129,10 @@ extern "C" __global__ void __closesthit__radiance() {
                 }
 
                 // Phong shading
-                if (lighted > 0) {
+                if (lighted > 0.0f) {
                     // calculate spot effect if light is a spotlight
                     float spotEffect = 1.0f;;
-                    if (lighted > 0.0f && light.spotCutOffDEG < 180.0f) {
+                    if (light.spotCutOffDEG < 180.0f) {
                         float LdS = max(dot(-L, light.spotDirWS), 0.0f);
 
                         // check if point is in spot cone

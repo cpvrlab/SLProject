@@ -19,6 +19,8 @@ public:
     SLOptixPathtracer();
     ~SLOptixPathtracer();
 
+    void samples(SLint samples){ _samples = samples; }
+
     // setup path tracer
     void setupOptix() override;
     void setupScene(SLSceneView* sv) override;
@@ -27,6 +29,9 @@ public:
     // path tracer functions
     SLbool  render();
     void    renderImage() override;
+
+protected:
+    SLint        _samples;
 
 private:
     OptixShaderBindingTable     _createShaderBindingTable(const SLVMesh&);
