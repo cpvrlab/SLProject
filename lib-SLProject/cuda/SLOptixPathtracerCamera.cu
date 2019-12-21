@@ -15,8 +15,9 @@ extern "C" __global__ void __raygen__sample_camera()
     const CameraData* rtData = (CameraData*)optixGetSbtDataPointer();
 
     curandState_t state;
-    curand_init(params.seed + idx.y * dim.x + idx.x, 0,0, &state);
+    curand_init(idx.y * dim.x + idx.x, 0,0, &state);
 
+    float4 color = make_float4(0.0f);
     for (int i = 0; i < params.samples; i++) {
         const float2 subpixel_jitter = make_float2( curand_uniform(&state) - 0.5f, curand_uniform(&state) - 0.5f );
 
@@ -29,7 +30,9 @@ extern "C" __global__ void __raygen__sample_camera()
         const float3 origin      = rtData->eye;
         const float3 direction   = normalize( pixel_offset.x * rtData->U + pixel_offset.y * rtData->V + rtData->W );
 
-        // Set pixel color
-        params.image[idx.y * params.width + idx.x] = make_color( tracePrimaryRay(params.handle, origin, direction) );
+        color += tracePrimaryRay(params.handle, origin, direction) / params.samples;
     }
+
+    // Set pixel color
+    params.image[idx.y * params.width + idx.x] = make_color( color );
 }

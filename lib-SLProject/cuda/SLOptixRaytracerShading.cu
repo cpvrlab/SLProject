@@ -26,46 +26,13 @@ extern "C" __global__ void __anyhit__occlusion() {
 extern "C" __global__ void __closesthit__radiance() {
     // Get all data for the hit point
     auto *rt_data = reinterpret_cast<HitData *>( optixGetSbtDataPointer());
-    unsigned int idx = optixGetPrimitiveIndex();
     const float3 ray_dir = optixGetWorldRayDirection();
 
     // calculate normal vector
-    float3 N;
-    float4 texture_color = make_float4(1.0);
-    {
-        const float2 barycentricCoordinates = optixGetTriangleBarycentrics();
-        const float u = barycentricCoordinates.x;
-        const float v = barycentricCoordinates.y;
-        if (rt_data->normals && rt_data->indices) {
-            // Interpolate normal vector with barycentric coordinates
-            N = (1.f - u - v) * rt_data->normals[rt_data->indices[idx].x]
-                + u * rt_data->normals[rt_data->indices[idx].y]
-                + v * rt_data->normals[rt_data->indices[idx].z];
-            N = normalize(optixTransformNormalFromObjectToWorldSpace(N));
-        } else {
-            OptixTraversableHandle gas = optixGetGASTraversableHandle();
-            float3 vertex[3] = {make_float3(0.0f), make_float3(0.0f), make_float3(0.0f)};
-            optixGetTriangleVertexData(gas,
-                                       idx,
-                                       rt_data->sbtIndex,
-                                       0,
-                                       vertex);
-            N = normalize(cross(vertex[1] - vertex[0], vertex[2] - vertex[0]));
-        }
+    float3 N = getNormalVector();
+    // calculate texture color
+    float4 texture_color = getTextureColor();
 
-        if (rt_data->textureObject) {
-            const float2 tc
-                    = (1.f - u - v) * rt_data->texCords[rt_data->indices[idx].x]
-                      + u * rt_data->texCords[rt_data->indices[idx].y]
-                      + v * rt_data->texCords[rt_data->indices[idx].z];
-            texture_color = tex2D<float4>(rt_data->textureObject, tc.x, tc.y);
-        }
-    }
-
-    // if a back face was hit then the normal vector is in the opposite direction
-    if (optixIsTriangleBackFaceHit()) {
-        N = N * -1;
-    }
     // calculate hit point
     const float3 P = optixGetWorldRayOrigin() + optixGetRayTmax() * ray_dir;
 

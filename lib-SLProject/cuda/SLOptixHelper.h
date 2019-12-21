@@ -50,6 +50,60 @@ __forceinline__ __device__ uchar4 make_color(const float4 &c) {
     );
 }
 
+static __device__ __inline__ float3 getNormalVector() {
+    float3 N;
+
+    auto *rt_data = reinterpret_cast<HitData *>( optixGetSbtDataPointer());
+    unsigned int idx = optixGetPrimitiveIndex();
+    const float2 barycentricCoordinates = optixGetTriangleBarycentrics();
+    const float u = barycentricCoordinates.x;
+    const float v = barycentricCoordinates.y;
+
+    if (rt_data->normals && rt_data->indices) {
+        // Interpolate normal vector with barycentric coordinates
+        N = (1.f - u - v) * rt_data->normals[rt_data->indices[idx].x]
+            + u * rt_data->normals[rt_data->indices[idx].y]
+            + v * rt_data->normals[rt_data->indices[idx].z];
+        N = normalize(optixTransformNormalFromObjectToWorldSpace(N));
+    } else {
+        OptixTraversableHandle gas = optixGetGASTraversableHandle();
+        float3 vertex[3] = {make_float3(0.0f), make_float3(0.0f), make_float3(0.0f)};
+        optixGetTriangleVertexData(gas,
+                                   idx,
+                                   rt_data->sbtIndex,
+                                   0,
+                                   vertex);
+        N = normalize(cross(vertex[1] - vertex[0], vertex[2] - vertex[0]));
+    }
+
+    // if a back face was hit then the normal vector is in the opposite direction
+    if (optixIsTriangleBackFaceHit()) {
+        N = N * -1;
+    }
+
+    return N;
+}
+
+static __device__ __inline__ float4 getTextureColor() {
+    float4 texture_color = make_float4(1.0);
+
+    auto *rt_data = reinterpret_cast<HitData *>( optixGetSbtDataPointer());
+    unsigned int idx = optixGetPrimitiveIndex();
+    const float2 barycentricCoordinates = optixGetTriangleBarycentrics();
+    const float u = barycentricCoordinates.x;
+    const float v = barycentricCoordinates.y;
+
+    if (rt_data->textureObject) {
+        const float2 tc
+                = (1.f - u - v) * rt_data->texCords[rt_data->indices[idx].x]
+                  + u * rt_data->texCords[rt_data->indices[idx].y]
+                  + v * rt_data->texCords[rt_data->indices[idx].z];
+        texture_color = tex2D<float4>(rt_data->textureObject, tc.x, tc.y);
+    }
+
+    return texture_color;
+}
+
 static __device__ __inline__ float4 tracePrimaryRay(
         OptixTraversableHandle handle,
         float3 origin,
