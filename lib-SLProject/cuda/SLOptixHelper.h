@@ -141,6 +141,43 @@ static __device__ __inline__ float4 tracePrimaryRay(
     return payload_rgb;
 }
 
+static __device__ __inline__ float4 traceSecondaryRay(
+        OptixTraversableHandle handle,
+        float3 origin,
+        float3 direction) {
+    float4 payload_rgb = make_float4(0.5f, 0.5f, 0.5f, 1.0f);
+    uint32_t p0, p1, p2, p3, p4, p5;
+    // Color payload
+    p0 = float_as_int(payload_rgb.x);
+    p1 = float_as_int(payload_rgb.y);
+    p2 = float_as_int(payload_rgb.z);
+    p3 = float_as_int(payload_rgb.w);
+    // Current refraction index
+    p4 = float_as_int(1.0f);
+    // Current depth
+    p5 = getDepth() + 1;
+    optixTrace(
+            handle,
+            origin,
+            direction,
+            1.e-4f,  // tmin
+            1e16f,  // tmax
+            0.0f,                // rayTime
+            OptixVisibilityMask(255),
+            OPTIX_RAY_FLAG_DISABLE_ANYHIT | OPTIX_RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
+            RAY_TYPE_RADIANCE,                   // SBT offset
+            RAY_TYPE_COUNT,                   // SBT stride
+            RAY_TYPE_RADIANCE,                   // missSBTIndex
+            p0, p1, p2, p3, p4, p5);
+    // Write the resulting color back to local floating point values
+    payload_rgb.x = int_as_float(p0);
+    payload_rgb.y = int_as_float(p1);
+    payload_rgb.z = int_as_float(p2);
+    payload_rgb.w = int_as_float(p3);
+
+    return payload_rgb;
+}
+
 static __device__ __inline__ float traceShadowRay(
         OptixTraversableHandle handle,
         float3 origin,
@@ -171,17 +208,17 @@ static __device__ __inline__ float4 traceReflectionRay(
         OptixTraversableHandle handle,
         float3 origin,
         float3 N,
-        float3 ray_dir,
-        unsigned int depth) {
+        float3 ray_dir) {
     float3 R = reflect(ray_dir, N);
 
     float4 payload_rgb = make_float4(0.5f, 0.5f, 0.5f, 1.0f);
-    uint32_t p0, p1, p2, p3, p4;
+    uint32_t p0, p1, p2, p3, p4, p5;
     p0 = float_as_int(payload_rgb.x);
     p1 = float_as_int(payload_rgb.y);
     p2 = float_as_int(payload_rgb.z);
     p3 = float_as_int(payload_rgb.w);
     p4 = float_as_int(getRefractionIndex());
+    p5 = getDepth() + 1;
     optixTrace(
             handle,
             origin,
@@ -194,7 +231,7 @@ static __device__ __inline__ float4 traceReflectionRay(
             RAY_TYPE_RADIANCE,                   // SBT offset
             RAY_TYPE_COUNT,                   // SBT stride
             RAY_TYPE_RADIANCE,                   // missSBTIndex
-            p0, p1, p2, p3, p4, reinterpret_cast<uint32_t &>(depth));
+            p0, p1, p2, p3, p4, p5);
     payload_rgb.x = int_as_float(p0);
     payload_rgb.y = int_as_float(p1);
     payload_rgb.z = int_as_float(p2);
@@ -208,8 +245,7 @@ static __device__ __inline__ float4 traceRefractionRay(
         float3 origin,
         float3 N,
         float3 ray_dir,
-        float kn,
-        unsigned int depth) {
+        float kn) {
     // calculate eta
     float refractionIndex = kn;
     float eta = getRefractionIndex() / kn;
@@ -237,12 +273,13 @@ static __device__ __inline__ float4 traceRefractionRay(
     }
 
     float4 payload_rgb = make_float4(0.5f, 0.5f, 0.5f, 1.0f);
-    uint32_t p0, p1, p2, p3, p4;
+    uint32_t p0, p1, p2, p3, p4, p5;
     p0 = float_as_int(payload_rgb.x);
     p1 = float_as_int(payload_rgb.y);
     p2 = float_as_int(payload_rgb.z);
     p3 = float_as_int(payload_rgb.w);
     p4 = float_as_int(refractionIndex);
+    p5 = getDepth() + 1;
     optixTrace(
             handle,
             origin,
@@ -255,7 +292,7 @@ static __device__ __inline__ float4 traceRefractionRay(
             RAY_TYPE_RADIANCE,                   // SBT offset
             RAY_TYPE_COUNT,                   // SBT stride
             RAY_TYPE_RADIANCE,                   // missSBTIndex
-            p0, p1, p2, p3, p4, reinterpret_cast<uint32_t &>(depth));
+            p0, p1, p2, p3, p4, p5);
     payload_rgb.x = int_as_float(p0);
     payload_rgb.y = int_as_float(p1);
     payload_rgb.z = int_as_float(p2);

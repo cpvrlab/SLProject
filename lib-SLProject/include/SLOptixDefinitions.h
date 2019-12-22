@@ -8,6 +8,7 @@
 #include <vector_types.h>
 #include <optix_types.h>
 #include <cuda.h>
+#include <curand_kernel.h>
 
 struct Samples
 {
@@ -65,6 +66,7 @@ struct Params
         struct {
             unsigned int samples;
             unsigned int seed;
+            curandState*    states;
         };
     };
 

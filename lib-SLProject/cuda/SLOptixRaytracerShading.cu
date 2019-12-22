@@ -134,12 +134,12 @@ extern "C" __global__ void __closesthit__radiance() {
 
     // Send reflection ray
     if (getDepth() < params.max_depth && rt_data->material.kr > 0.0f) {
-        color += (traceReflectionRay(params.handle, P, N, ray_dir, getDepth() + 1) * rt_data->material.kr);
+        color += (traceReflectionRay(params.handle, P, N, ray_dir) * rt_data->material.kr);
     }
 
     // Send refraction ray
     if (getDepth() < params.max_depth && rt_data->material.kt > 0.0f) {
-        color += (traceRefractionRay(params.handle, P, N, ray_dir, rt_data->material.kn, getDepth() + 1) * rt_data->material.kt);
+        color += (traceRefractionRay(params.handle, P, N, ray_dir, rt_data->material.kn) * rt_data->material.kt);
     }
 
     // Set color to payload

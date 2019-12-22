@@ -106,9 +106,11 @@ void SLOptixPathtracer::setupScene(SLSceneView *sv) {
     _sv = sv;
 
     _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(uchar4));
+    _curandBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(curandState));
     _debugBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float3));
 
     _params.image = reinterpret_cast<uchar4 *>(_imageBuffer.devicePointer());
+    _params.states = reinterpret_cast<curandState *>(_curandBuffer.devicePointer());
     _params.debug = reinterpret_cast<float3 *>(_debugBuffer.devicePointer());
     _params.width = _sv->scrW();
     _params.height = _sv->scrH();

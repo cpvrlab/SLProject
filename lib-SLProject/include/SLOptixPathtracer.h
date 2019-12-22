@@ -6,6 +6,7 @@
 #define SLPROJECT_SLOPTIXPATHTRACER_H
 
 #include <SLOptixRaytracer.h>
+#include <curand_kernel.h>
 
 class SLScene;
 class SLSceneView;
@@ -31,7 +32,8 @@ public:
     void    renderImage() override;
 
 protected:
-    SLint        _samples;
+    SLint                     _samples;
+    SLCudaBuffer<curandState> _curandBuffer = SLCudaBuffer<curandState>();
 
 private:
     OptixShaderBindingTable     _createShaderBindingTable(const SLVMesh&);

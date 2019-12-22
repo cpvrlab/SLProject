@@ -14,8 +14,9 @@ extern "C" __global__ void __raygen__sample_camera()
 
     const CameraData* rtData = (CameraData*)optixGetSbtDataPointer();
 
-    curandState_t state;
+    curandState state;
     curand_init(idx.y * dim.x + idx.x, 0,0, &state);
+    params.states[idx.y * dim.x + idx.x] = state;
 
     float4 color = make_float4(0.0f);
     for (int i = 0; i < params.samples; i++) {
@@ -34,5 +35,5 @@ extern "C" __global__ void __raygen__sample_camera()
     }
 
     // Set pixel color
-    params.image[idx.y * params.width + idx.x] = make_color( color );
+    params.image[idx.y * dim.x + idx.x] = make_color( color );
 }
