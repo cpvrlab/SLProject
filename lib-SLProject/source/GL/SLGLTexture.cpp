@@ -581,7 +581,6 @@ void SLGLTexture::bindActive(SLint texID)
     // if texture not exists build it
     if (!_texName) {
         build(texID);
-        CUDA_CHECK( cuGraphicsGLRegisterImage(&_cudaGraphicsResource, _texName, _target, CU_GRAPHICS_REGISTER_FLAGS_NONE) );
     }
 
     if (_texName)
@@ -601,6 +600,10 @@ void SLGLTexture::bindActive(SLint texID)
             fullUpdate();
             _needsUpdate = false;
         }
+    }
+
+    if (!_cudaGraphicsResource) {
+        CUDA_CHECK( cuGraphicsGLRegisterImage(&_cudaGraphicsResource, _texName, _target, CU_GRAPHICS_REGISTER_FLAGS_NONE) );
     }
 
     GET_GL_ERROR;

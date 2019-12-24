@@ -36,6 +36,11 @@ protected:
     SLCudaBuffer<curandState> _curandBuffer = SLCudaBuffer<curandState>();
 
 private:
+    OptixDenoiser _optixDenoiser;
+    OptixDenoiserSizes _denoiserSizes;
+    SLCudaBuffer<void> _denoserState;
+    SLCudaBuffer<void> _scratch;
+
     OptixShaderBindingTable     _createShaderBindingTable(const SLVMesh&);
 
     OptixPipeline _path_tracer_pipeline;
