@@ -21,6 +21,7 @@ struct Material
     float4  diffuse_color;
     float4  ambient_color;
     float4  specular_color;
+    float4  transmissiv_color;
     float4  emissive_color;
     float   shininess;
     float   kr;

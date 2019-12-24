@@ -17,7 +17,7 @@ extern "C" __global__ void __anyhit__radiance() {
 static __forceinline__ __device__ void cosine_sample_hemisphere(const float u1, const float u2, float3& p)
 {
     // Uniformly sample disk.
-    const float r   = sqrtf( u1 );
+    const float r   = u1;
     const float phi = 2.0f*M_PIf * u2;
     p.x = r * cosf( phi );
     p.y = r * sinf( phi );
@@ -49,14 +49,23 @@ extern "C" __global__ void __closesthit__radiance() {
         setColor(rt_data->material.emissive_color);
     } else {
         // initialize color
-        float4 local_color = (texture_color * rt_data->material.diffuse_color);
-
-        float3 direction;
-        cosine_sample_hemisphere( curand_uniform(state), curand_uniform(state), direction );
-
-        float4 incoming_color = make_float4(0.0f);
+        float4 local_color;
+        float4 incoming_color;
         if (getDepth() < params.max_depth) {
-            incoming_color = traceSecondaryRay(params.handle, P, direction);
+            if (rt_data->material.kr > curand_uniform(state)) {
+                incoming_color = traceReflectionRay(params.handle, P, N, ray_dir);
+                local_color = rt_data->material.specular_color;
+            } else if (rt_data->material.kt > curand_uniform(state)) {
+                incoming_color = traceRefractionRay(params.handle, P, N, ray_dir, rt_data->material.kn);
+                local_color = rt_data->material.transmissiv_color;
+            } else {
+//                float3 direction = make_float3((curand_uniform(state) * 2) - 1.0f, (curand_uniform(state) * 2) - 1.0f, (curand_uniform(state) * 2) - 1.0f);
+                float3 direction;
+                cosine_sample_hemisphere( curand_uniform(state), curand_uniform(state), direction );
+                incoming_color = traceSecondaryRay(params.handle, P, direction);
+                local_color = rt_data->material.diffuse_color;
+            }
+            local_color *= texture_color;
         }
 
         // Set color to payload
