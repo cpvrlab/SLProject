@@ -569,8 +569,8 @@ void SLGLTexture::buildCudaTexture() {
 }
 //-----------------------------------------------------------------------------
 /*!
-SLGLTexture::bindActive binds the active texture. This method must be called 
-by the object that uses the texture every time BEFORE the its rendering. 
+SLGLTexture::bindActive binds the active texture. This method must be called
+by the object that uses the texture every time BEFORE the its rendering.
 The texID is only used for multi texturing. Before the first time the texture
 is passed to OpenGL.
 */
@@ -610,7 +610,7 @@ void SLGLTexture::bindActive(SLint texID)
 }
 //-----------------------------------------------------------------------------
 /*!
-Fully updates the OpenGL internal texture data by the image data 
+Fully updates the OpenGL internal texture data by the image data
 */
 void SLGLTexture::fullUpdate()
 {
@@ -747,7 +747,7 @@ SLCol4f SLGLTexture::getTexelf(SLVec3f cubemapDir)
     return getTexelf(u, v, (SLuint)index);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 dsdt calculates the partial derivation (gray value slope) at s,t for bump
 mapping either from a height map or a normal map
 */

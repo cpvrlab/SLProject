@@ -64,9 +64,8 @@ extern "C" __global__ void __closesthit__radiance() {
                 float3 direction;
                 cosine_sample_hemisphere( curand_uniform(state), curand_uniform(state), N, direction );
                 incoming_color = traceSecondaryRay(params.handle, P, direction);
-                local_color = rt_data->material.diffuse_color;
+                local_color = rt_data->material.diffuse_color * texture_color;
             }
-            local_color *= texture_color;
         }
 
         // Set color to payload
