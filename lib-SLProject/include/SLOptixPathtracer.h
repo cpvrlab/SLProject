@@ -20,8 +20,6 @@ public:
     SLOptixPathtracer();
     ~SLOptixPathtracer();
 
-    void samples(SLint samples){ _samples = samples; }
-
     // setup path tracer
     void setupOptix() override;
     void setupScene(SLSceneView* sv) override;
@@ -30,6 +28,12 @@ public:
     // path tracer functions
     SLbool  render();
     void    renderImage() override;
+
+    SLbool getDenoiserEnabled() const {return _denoiserEnabled;}
+    SLint samples() const { return _samples;}
+
+    void setDenoiserEnabled(SLbool denoiserEnabled) {_denoiserEnabled = denoiserEnabled;}
+    void samples(SLint samples){ _samples = samples; }
 
 protected:
     SLint                     _samples;
@@ -49,6 +53,9 @@ private:
     OptixProgramGroup _sample_hit_group;
     SLCudaBuffer<RayGenPathtracerSbtRecord>  _rayGenPathtracerBuffer;
     OptixShaderBindingTable _sbtPathtracer;
+
+    //Settings
+    SLbool _denoiserEnabled = true;
 };
 
 #endif //SLPROJECT_SLOPTIXPATHTRACER_H

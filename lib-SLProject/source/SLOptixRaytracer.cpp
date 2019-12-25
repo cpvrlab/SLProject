@@ -282,10 +282,10 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv) {
     SLVMesh meshes = scene->meshes();
     _sv = sv;
 
-    _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(uchar4));
+    _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float4));
     _debugBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float3));
 
-    _params.image = reinterpret_cast<uchar4 *>(_imageBuffer.devicePointer());
+    _params.image = reinterpret_cast<float4 *>(_imageBuffer.devicePointer());
     _params.debug = reinterpret_cast<float3 *>(_debugBuffer.devicePointer());
     _params.width = _sv->scrW();
     _params.height = _sv->scrH();
@@ -424,6 +424,30 @@ SLbool SLOptixRaytracer::renderDistrib() {
     return true;
 }
 
+void SLOptixRaytracer::prepareImage()
+{
+    // Create the image for the first time
+    if (_images.empty())
+        _images.push_back(new CVImage(_sv->scrW(), _sv->scrH(), PF_rgb, "Optix Raytracer"));
+
+    // Allocate image of the inherited texture class
+    if (_sv->scrW() != (SLint)_images[0]->width() ||
+        _sv->scrH() != (SLint)_images[0]->height())
+    {
+        // Delete the OpenGL Texture if it already exists
+        if (_texName)
+        {
+            if (_cudaGraphicsResource) {
+                CUDA_CHECK( cuGraphicsUnregisterResource(_cudaGraphicsResource) );
+            }
+            glDeleteTextures(1, &_texName);
+            _texName = 0;
+        }
+
+        _images[0]->allocate(_sv->scrW(), _sv->scrH(), PF_rgb);
+    }
+}
+
 void SLOptixRaytracer::renderImage() {
     prepareImage();       // Setup image & precalculations
     SLGLTexture::bindActive(0);
@@ -445,7 +469,7 @@ void SLOptixRaytracer::renderImage() {
     memcpy2D.dstXInBytes = 0;
     memcpy2D.dstY = 0;
     memcpy2D.dstPitch = 0;
-    memcpy2D.WidthInBytes = des.Width * des.NumChannels;
+    memcpy2D.WidthInBytes = des.Width * des.NumChannels * sizeof(float);
     memcpy2D.Height = des.Height;
     CUDA_CHECK(cuMemcpy2D(&memcpy2D) );
 

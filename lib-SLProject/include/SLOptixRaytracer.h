@@ -34,6 +34,8 @@ public:
     virtual void setupScene(SLSceneView* sv);
     virtual void updateScene(SLSceneView* sv);
 
+    void prepareImage() override ;
+
     // ray tracer functions
     SLbool  renderClassic();
     SLbool  renderDistrib();
@@ -47,7 +49,7 @@ protected:
     OptixPipeline                   _createPipeline(OptixProgramGroup *, unsigned int);
     OptixShaderBindingTable         _createShaderBindingTable(const SLVMesh&, const bool);
 
-    SLCudaBuffer<uchar4>            _imageBuffer = SLCudaBuffer<uchar4>();
+    SLCudaBuffer<float4>            _imageBuffer = SLCudaBuffer<float4>();
     SLCudaBuffer<float3>            _debugBuffer = SLCudaBuffer<float3>();
     SLCudaBuffer<Params>            _paramsBuffer = SLCudaBuffer<Params>();
     SLCudaBuffer<Light>             _lightBuffer = SLCudaBuffer<Light>();

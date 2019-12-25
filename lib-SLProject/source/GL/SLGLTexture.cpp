@@ -442,6 +442,8 @@ void SLGLTexture::build(SLint texID)
     SLint internalFormat = _images[0]->format();
     if (internalFormat == PF_red)
         internalFormat = GL_R8;
+    if (_images[0]->name() == "Optix Raytracer")
+        internalFormat = GL_RGB32F;
 
     // Build textures
     if (_target == GL_TEXTURE_2D)

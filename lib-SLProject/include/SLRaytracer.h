@@ -120,7 +120,7 @@ class SLRaytracer : public SLGLTexture
     SLfloat   oneOverGamma() { return _oneOverGamma; }
 
     // Render target image
-    void prepareImage();
+    virtual void prepareImage();
 
     virtual void renderImage();
     void saveImage();

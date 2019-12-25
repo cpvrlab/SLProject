@@ -9,7 +9,7 @@ __constant__ Params params;
 extern "C" __global__ void __raygen__draw_solid_color()
 {
     uint3 launch_index = optixGetLaunchIndex();
-    params.image[launch_index.y * params.width + launch_index.x] = make_uchar4( 255, 0, 0, 255 );
+    params.image[launch_index.y * params.width + launch_index.x] = make_float4( 255, 0, 0, 255 );
 }
 
 extern "C" __global__ void __raygen__pinhole_camera()
@@ -25,7 +25,7 @@ extern "C" __global__ void __raygen__pinhole_camera()
     const float3 direction   = normalize( pixel_offset.x * rtData->U + pixel_offset.y * rtData->V + rtData->W );
 
     // Set pixel color
-    params.image[idx.y * params.width + idx.x] = make_color( tracePrimaryRay(params.handle, origin, direction) );
+    params.image[idx.y * params.width + idx.x] = tracePrimaryRay(params.handle, origin, direction);
 }
 
 extern "C" __global__ void __raygen__lens_camera()
@@ -53,7 +53,7 @@ extern "C" __global__ void __raygen__lens_camera()
     }
 
 
-    params.image[idx.y * params.width + idx.x] = make_color( color / (rtData->samples.samplesX * rtData->samples.samplesY) );
+    params.image[idx.y * params.width + idx.x] = color / (rtData->samples.samplesX * rtData->samples.samplesY);
 }
 
 
@@ -67,5 +67,5 @@ extern "C" __global__ void __raygen__orthographic_camera()
     const float3 origin     = pixel_offset.x * rtData->U + pixel_offset.y * rtData->V + rtData->eye;;
     const float3 direction  = normalize(rtData->W);
 
-    params.image[idx.y * params.width + idx.x] = make_color( tracePrimaryRay(params.handle, origin, direction) );
+    params.image[idx.y * params.width + idx.x] = tracePrimaryRay(params.handle, origin, direction);
 }

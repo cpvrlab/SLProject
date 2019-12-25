@@ -1524,6 +1524,37 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
         }
+        else if (rType == RT_optix_pt)
+        {
+            if (ImGui::BeginMenu("PT"))
+            {
+                SLOptixPathtracer* pt = sv->optixPathtracer();
+
+                if (ImGui::BeginMenu("NO. of Samples"))
+                {
+                    if (ImGui::MenuItem("1", nullptr, pt->samples() == 1))
+                        sv->startOptixPathtracing(5, 1);
+                    if (ImGui::MenuItem("10", nullptr, pt->samples() == 10))
+                        sv->startOptixPathtracing(5, 10);
+                    if (ImGui::MenuItem("100", nullptr, pt->samples() == 100))
+                        sv->startOptixPathtracing(5, 100);
+                    if (ImGui::MenuItem("1000", nullptr, pt->samples() == 1000))
+                        sv->startOptixPathtracing(5, 1000);
+                    if (ImGui::MenuItem("10000", nullptr, pt->samples() == 10000))
+                        sv->startOptixPathtracing(5, 10000);
+
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::MenuItem("Denoiser", nullptr, pt->getDenoiserEnabled()))
+                {
+                    pt->setDenoiserEnabled(!pt->getDenoiserEnabled());
+                    sv->startOptixPathtracing(5, pt->samples());
+                }
+
+                ImGui::EndMenu();
+            }
+        }
 
         if (ImGui::BeginMenu("Camera"))
         {

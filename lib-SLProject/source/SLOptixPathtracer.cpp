@@ -120,11 +120,11 @@ void SLOptixPathtracer::setupScene(SLSceneView *sv) {
     SLVMesh meshes = scene->meshes();
     _sv = sv;
 
-    _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(uchar4));
+    _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float4));
     _curandBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(curandState));
     _debugBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float3));
 
-    _params.image = reinterpret_cast<uchar4 *>(_imageBuffer.devicePointer());
+    _params.image = reinterpret_cast<float4 *>(_imageBuffer.devicePointer());
     _params.states = reinterpret_cast<curandState *>(_curandBuffer.devicePointer());
     _params.debug = reinterpret_cast<float3 *>(_debugBuffer.devicePointer());
     _params.width = _sv->scrW();
@@ -179,7 +179,7 @@ void SLOptixPathtracer::updateScene(SLSceneView *sv) {
     rayGenSbtRecord.data = cameraData;
     _rayGenPathtracerBuffer.upload(&rayGenSbtRecord);
 
-    _params.seed = time(NULL);
+    _params.seed = time(nullptr);
 
     _paramsBuffer.upload(&_params);
 }
@@ -196,31 +196,35 @@ SLbool SLOptixPathtracer::render() {
             /*depth=*/1));
     CUDA_SYNC_CHECK(SLApplication::stream);
 
-    OptixImage2D optixImage2D;
-    optixImage2D.data = _imageBuffer.devicePointer();
-    optixImage2D.width = _sv->scrW();
-    optixImage2D.height = _sv->scrH();
-    optixImage2D.rowStrideInBytes = 0;
-    optixImage2D.pixelStrideInBytes = 0;
-    optixImage2D.format = OPTIX_PIXEL_FORMAT_FLOAT4;
+    if (_denoiserEnabled) {
+        OptixImage2D optixImage2D;
+        optixImage2D.data = _imageBuffer.devicePointer();
+        optixImage2D.width = _sv->scrW();
+        optixImage2D.height = _sv->scrH();
+        optixImage2D.rowStrideInBytes = _sv->scrW() * 4 * sizeof(float); // 4 channels
+        optixImage2D.pixelStrideInBytes = 0;
+        optixImage2D.format = OPTIX_PIXEL_FORMAT_FLOAT4;
 
-    OptixDenoiserParams denoiserParams;
-    denoiserParams.denoiseAlpha = 0;
-    denoiserParams.hdrIntensity = 0;
+        OptixDenoiserParams denoiserParams;
+        denoiserParams.denoiseAlpha = 0;
+        denoiserParams.blendFactor = 0.0f;
+        denoiserParams.hdrIntensity = 0;
 
-    OPTIX_CHECK( optixDenoiserInvoke(
-            _optixDenoiser,
-            SLApplication::stream,
-            &denoiserParams,
-            _denoserState.devicePointer(),
-            _denoiserSizes.stateSizeInBytes,
-            &optixImage2D,
-            1,
-            0,
-            0,
-            &optixImage2D,
-            _scratch.devicePointer(),
-            _denoiserSizes.recommendedScratchSizeInBytes) );
+        OPTIX_CHECK( optixDenoiserInvoke(
+                _optixDenoiser,
+                SLApplication::stream,
+                &denoiserParams,
+                _denoserState.devicePointer(),
+                _denoiserSizes.stateSizeInBytes,
+                &optixImage2D,
+                1,
+                0,
+                0,
+                &optixImage2D,
+                _scratch.devicePointer(),
+                _denoiserSizes.recommendedScratchSizeInBytes) );
+        CUDA_SYNC_CHECK(SLApplication::stream);
+    }
 
     return true;
 }

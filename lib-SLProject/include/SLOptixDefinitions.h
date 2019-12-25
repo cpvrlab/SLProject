@@ -48,7 +48,7 @@ struct Light
 
 struct Params
 {
-    uchar4*                 image;
+    float4*                 image;
     unsigned int            width;
     unsigned int            height;
 

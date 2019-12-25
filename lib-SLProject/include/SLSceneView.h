@@ -168,6 +168,7 @@ class SLSceneView : public SLObject
     SLVNode*            nodesBlended() { return &_nodesBlended; }
     SLRaytracer*        raytracer() { return &_raytracer; }
     SLOptixRaytracer*   optixRaytracer() { return &_optixRaytracer; }
+    SLOptixPathtracer*  optixPathtracer() { return &_optixPathtracer; }
     SLPathtracer*       pathtracer() { return &_pathtracer; }
     SLRenderType        renderType() const { return _renderType; }
     SLGLOculusFB*       oculusFB() { return &_oculusFB; }

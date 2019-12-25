@@ -35,5 +35,5 @@ extern "C" __global__ void __raygen__sample_camera()
     }
 
     // Set pixel color
-    params.image[idx.y * dim.x + idx.x] = make_color( color );
+    params.image[idx.y * dim.x + idx.x] = color;
 }
