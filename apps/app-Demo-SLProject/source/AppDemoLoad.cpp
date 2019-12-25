@@ -2609,6 +2609,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         f->translate(0, 0, pF, TS_object);
         scene->addChild(f);
 
+//        // near plane
+//        SLNode* n = new SLNode(new SLRectangle(SLVec2f(pL, pT), SLVec2f(pR, pB), 6, 6, "near", cream));
+//        n->translate(0, 0, pN, TS_object);
+//        scene->addChild(n);
+
         // left plane
         SLNode* l = new SLNode(new SLRectangle(SLVec2f(-pN, pB), SLVec2f(-pF, pT), 6, 6, "left", red));
         l->rotate(90, 0, 1, 0);
