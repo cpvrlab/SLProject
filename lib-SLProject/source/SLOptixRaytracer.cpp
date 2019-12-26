@@ -117,6 +117,16 @@ void SLOptixRaytracer::setupOptix() {
     radiance_hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH  = "__closesthit__radiance";
     _radiance_hit_group = _createProgram(radiance_hitgroup_prog_group_desc);
 
+    OptixProgramGroupDesc radiance_hitgroup_line_prog_group_desc = {};
+    radiance_hitgroup_line_prog_group_desc.kind                          = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleIS             = _shadingModule;
+    radiance_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameIS  = "__intersection__line";
+    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleAH             = _shadingModule;
+    radiance_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameAH  = "__anyhit__line_radiance";
+    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleCH             = _shadingModule;
+    radiance_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameCH  = "__closesthit__line_radiance";
+    _radiance_line_hit_group = _createProgram(radiance_hitgroup_line_prog_group_desc);
+
     OptixProgramGroupDesc occlusion_hitgroup_prog_group_desc = {};
     occlusion_hitgroup_prog_group_desc.kind                          = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
     occlusion_hitgroup_prog_group_desc.hitgroup.moduleAH             = _shadingModule;
@@ -125,12 +135,24 @@ void SLOptixRaytracer::setupOptix() {
     occlusion_hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH  = nullptr;
     _occlusion_hit_group = _createProgram(occlusion_hitgroup_prog_group_desc);
 
+    OptixProgramGroupDesc occlusion_hitgroup_line_prog_group_desc = {};
+    occlusion_hitgroup_line_prog_group_desc.kind                          = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    occlusion_hitgroup_line_prog_group_desc.hitgroup.moduleIS             = _shadingModule;
+    occlusion_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameIS  = "__intersection__line";
+    occlusion_hitgroup_line_prog_group_desc.hitgroup.moduleAH             = _shadingModule;
+    occlusion_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameAH  = "__anyhit__line_occlusion";
+    occlusion_hitgroup_line_prog_group_desc.hitgroup.moduleCH             = nullptr;
+    occlusion_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameCH  = nullptr;
+    _occlusion_line_hit_group = _createProgram(occlusion_hitgroup_line_prog_group_desc);
+
     OptixProgramGroup classic_program_groups[] = {
             _pinhole_raygen_prog_group,
             _radiance_miss_group,
             _occlusion_miss_group,
             _radiance_hit_group,
+            _radiance_line_hit_group,
             _occlusion_hit_group,
+            _occlusion_line_hit_group,
     };
     _classic_pipeline       = _createPipeline(classic_program_groups, 5);
 
@@ -139,7 +161,9 @@ void SLOptixRaytracer::setupOptix() {
             _radiance_miss_group,
             _occlusion_miss_group,
             _radiance_hit_group,
+            _radiance_line_hit_group,
             _occlusion_hit_group,
+            _occlusion_line_hit_group,
     };
     _distributed_pipeline       = _createPipeline(distributed_program_groups, 5);
 }
@@ -248,13 +272,19 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMes
         std::vector<HitSbtRecord> hitRecords;
 
         for(auto mesh : meshes) {
+            OptixProgramGroup hitgroup_radicance = _radiance_hit_group;
+            OptixProgramGroup hitgroup_occlusion = _occlusion_hit_group;
+            if (mesh->name() == "line") {
+                hitgroup_radicance = _radiance_line_hit_group;
+                hitgroup_occlusion = _occlusion_line_hit_group;
+            }
             HitSbtRecord radiance_hg_sbt;
-            OPTIX_CHECK( optixSbtRecordPackHeader( _radiance_hit_group, &radiance_hg_sbt ) );
+            OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_radicance, &radiance_hg_sbt ) );
             radiance_hg_sbt.data = mesh->createHitData();
             hitRecords.push_back(radiance_hg_sbt);
 
             HitSbtRecord occlusion_hg_sbt;
-            OPTIX_CHECK( optixSbtRecordPackHeader( _occlusion_hit_group, &occlusion_hg_sbt ) );
+            OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_occlusion, &occlusion_hg_sbt ) );
             occlusion_hg_sbt.data.material.kt = mesh->mat()->kt();
             occlusion_hg_sbt.data.material.emissive_color = make_float4(mesh->mat()->emissive());
             hitRecords.push_back(occlusion_hg_sbt);

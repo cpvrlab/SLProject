@@ -77,7 +77,9 @@ private:
     OptixProgramGroup           _radiance_miss_group{};
     OptixProgramGroup           _occlusion_miss_group{};
     OptixProgramGroup           _radiance_hit_group{};
+    OptixProgramGroup           _radiance_line_hit_group;
     OptixProgramGroup           _occlusion_hit_group{};
+    OptixProgramGroup           _occlusion_line_hit_group;
 
     OptixShaderBindingTable     _sbtClassic{};
     OptixShaderBindingTable     _sbtDistributed{};

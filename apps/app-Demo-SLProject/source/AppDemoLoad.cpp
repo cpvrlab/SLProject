@@ -40,6 +40,7 @@
 #include <SLSphere.h>
 #include <SLText.h>
 #include <SLTransferFunction.h>
+#include <SLLine.h>
 
 //-----------------------------------------------------------------------------
 // Global pointers declared in AppDemoTracking
@@ -2625,6 +2626,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         r->rotate(90, 0, -1, 0);
         r->translate(0, 0, -pR, TS_object);
         scene->addChild(r);
+
+//        SLNode* line = new SLNode(new SLLine(SLVec3f(pL, pB, pF), SLVec3f(pR,pT, pN), red));
+//        scene->addChild(line);
 
         scene->addChild(balls);
 

@@ -145,9 +145,9 @@ class SLMesh : public SLObject, public SLOptixAccelerationStructure
 
     void    allocAndUploadData();
     void    uploadData();
-    void    createMeshAccelerationStructure();
-    void    updateMeshAccelerationStructure();
-    HitData createHitData();
+    virtual void    createMeshAccelerationStructure();
+    virtual void    updateMeshAccelerationStructure();
+    virtual HitData createHitData();
 
     // Getters
     SLMaterial*       mat() const { return _mat; }

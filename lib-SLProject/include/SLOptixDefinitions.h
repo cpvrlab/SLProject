@@ -101,8 +101,19 @@ struct MissData
     float4 bg_color;
 };
 
+struct Line
+{
+    float3 p1;
+    float3 p2;
+};
+
 struct HitData
 {
+    union
+    {
+        Line    line;
+    } geometry;
+
     Material    material;
     CUtexObject textureObject;
 
