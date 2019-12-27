@@ -43,6 +43,8 @@ public:
 
     void saveImage() override;
 
+    void drawRay(unsigned int, unsigned int);
+
 protected:
     void initCompileOptions();
 
@@ -52,7 +54,7 @@ protected:
     OptixShaderBindingTable         _createShaderBindingTable(const SLVMesh&, const bool);
 
     SLCudaBuffer<float4>            _imageBuffer = SLCudaBuffer<float4>();
-    SLCudaBuffer<float3>            _debugBuffer = SLCudaBuffer<float3>();
+    SLCudaBuffer<Line>              _lineBuffer = SLCudaBuffer<Line>();
     SLCudaBuffer<Params>            _paramsBuffer = SLCudaBuffer<Params>();
     SLCudaBuffer<Light>             _lightBuffer = SLCudaBuffer<Light>();
 

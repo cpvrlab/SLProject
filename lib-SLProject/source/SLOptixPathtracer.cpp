@@ -116,11 +116,9 @@ void SLOptixPathtracer::setupScene(SLSceneView *sv) {
 
     _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float4));
     _curandBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(curandState));
-    _debugBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float3));
 
     _params.image = reinterpret_cast<float4 *>(_imageBuffer.devicePointer());
     _params.states = reinterpret_cast<curandState *>(_curandBuffer.devicePointer());
-    _params.debug = reinterpret_cast<float3 *>(_debugBuffer.devicePointer());
     _params.width = _sv->scrW();
     _params.height = _sv->scrH();
     _params.max_depth = _maxDepth;
@@ -167,7 +165,7 @@ void SLOptixPathtracer::updateScene(SLSceneView *sv) {
     cameraData.V = make_float3(v);
     cameraData.W = make_float3(w);
 
-    RayGenPathtracerSbtRecord rayGenSbtRecord;
+    RayGenClassicSbtRecord rayGenSbtRecord;
     _rayGenClassicBuffer.download(&rayGenSbtRecord);
     OPTIX_CHECK( optixSbtRecordPackHeader(_pinhole_raygen_prog_group, &rayGenSbtRecord ) );
     rayGenSbtRecord.data = cameraData;

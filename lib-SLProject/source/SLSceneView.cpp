@@ -982,6 +982,10 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
         }
     }
 
+    if (_mouseDownR) {
+        _optixRaytracer.drawRay(x, y);
+    }
+
     return result;
 }
 //-----------------------------------------------------------------------------

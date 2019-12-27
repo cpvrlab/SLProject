@@ -24,6 +24,9 @@ extern "C" __global__ void __anyhit__occlusion() {
 }
 
 extern "C" __global__ void __closesthit__radiance() {
+    uint3 idx = optixGetLaunchIndex();
+    const uint3 dim = optixGetLaunchDimensions();
+
     // Get all data for the hit point
     auto *rt_data = reinterpret_cast<HitData *>( optixGetSbtDataPointer());
     const float3 ray_dir = optixGetWorldRayDirection();
@@ -35,6 +38,11 @@ extern "C" __global__ void __closesthit__radiance() {
 
     // calculate hit point
     const float3 P = optixGetWorldRayOrigin() + optixGetRayTmax() * ray_dir;
+
+    params.rays[(idx.y * dim.x + idx.x) * params.max_depth + (getDepth() - 1)] = {
+            optixGetWorldRayOrigin(),
+            P,
+    };
 
     // initialize color
     float4 color = make_float4(0.0f);

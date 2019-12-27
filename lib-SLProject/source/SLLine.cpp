@@ -25,8 +25,8 @@ void SLLine::createMeshAccelerationStructure() {
     uint32_t _buildInput_flags[1] = { OPTIX_GEOMETRY_FLAG_NONE };
 
     OptixAabb aabb = {
-            _p1.x, _p1.y, _p1.z,
-            _p2.x, _p2.y, _p2.z
+            min(_p1.x, _p2.x), min(_p1.y, _p2.y), min(_p1.z, _p2.z),
+            max(_p1.x, _p2.x), max(_p1.y, _p2.y), max(_p1.z, _p2.z),
     };
 
     _aabb.alloc_and_upload(&aabb, 1);

@@ -20,7 +20,7 @@ extern "C" __global__ void __intersection__line()
         float3 p1 = ray_orig + ray_dir * u;
         float3 p2 = line_orig + line_dir * v;
 
-        if (length(p2 - p1) <= 0.01f) {
+        if (abs(length(p2 - p1)) <= 0.01f) {
             optixReportIntersection( length(p1 - ray_orig), 0);
         }
     }

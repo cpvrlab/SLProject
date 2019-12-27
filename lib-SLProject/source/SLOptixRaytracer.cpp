@@ -17,6 +17,7 @@
 #include <optix.h>
 #include <utility>
 #include <SLOptixHelper.h>
+#include <SLLine.h>
 
 #ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
 #    include <debug_new.h> // memory leak detector
@@ -301,10 +302,10 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv) {
     _sv = sv;
 
     _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float4));
-    _debugBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float3));
+    _lineBuffer.resize(_sv->scrW() * _sv->scrH() *_maxDepth * sizeof(Line));
 
     _params.image = reinterpret_cast<float4 *>(_imageBuffer.devicePointer());
-    _params.debug = reinterpret_cast<float3 *>(_debugBuffer.devicePointer());
+    _params.rays = reinterpret_cast<Line *>(_lineBuffer.devicePointer());
     _params.width = _sv->scrW();
     _params.height = _sv->scrH();
     _params.max_depth = _maxDepth;
@@ -511,14 +512,10 @@ void SLOptixRaytracer::renderImage() {
 
     stateGL->depthTest(true);
     GET_GL_ERROR;
-
-    float3* debug = reinterpret_cast<float3 *>( malloc(_debugBuffer.size()) );
-    _debugBuffer.download(debug);
-    free(debug);
 }
 
 void SLOptixRaytracer::saveImage() {
-    float4* image = static_cast<float4 *>(malloc(sizeof(float4) * _sv->scrW() * _sv->scrH()));
+    float4* image = static_cast<float4 *>(malloc(_imageBuffer.size()));
     _imageBuffer.download(image);
 
     for (int i = 0; i < _sv->scrH(); i++) {
@@ -529,4 +526,21 @@ void SLOptixRaytracer::saveImage() {
     }
 
     SLRaytracer::saveImage();
+}
+
+void SLOptixRaytracer::drawRay(unsigned int x, unsigned int y) {
+    y = _sv->scrH() - y;
+    SLScene* scene = SLApplication::scene;
+
+    Line* rays = static_cast<Line *>(malloc(_lineBuffer.size()));
+    _lineBuffer.download(rays);
+
+    auto* red   = new SLMaterial("red", SLCol4f(0.75f, 0.25f, 0.25f), SLCol4f::BLACK, 0);
+    for (int i = 0; i < _maxDepth; i++) {
+        Line ray = rays[(y * _sv->scrW() + x) * _maxDepth + i];
+
+        auto* line = new SLNode(new SLLine(SLVec3f(ray.p1.x, ray.p1.y, ray.p1.z), SLVec3f(ray.p2.x, ray.p2.y, ray.p2.z), red));
+        scene->root3D()->addChild(line);
+    }
+    setupScene(_sv);
 }

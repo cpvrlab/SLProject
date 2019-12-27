@@ -10,6 +10,12 @@
 #include <cuda.h>
 #include <curand_kernel.h>
 
+struct Line
+{
+    float3 p1;
+    float3 p2;
+};
+
 struct Samples
 {
     unsigned int samplesX;
@@ -71,7 +77,7 @@ struct Params
         };
     };
 
-    float3*                 debug;
+    Line*   rays;
 };
 
 enum RayType
@@ -101,12 +107,6 @@ struct MissData
     float4 bg_color;
 };
 
-struct Line
-{
-    float3 p1;
-    float3 p2;
-};
-
 struct HitData
 {
     union
@@ -134,7 +134,5 @@ typedef SbtRecord<CameraData>       RayGenClassicSbtRecord;
 typedef SbtRecord<LensCameraData>   RayGenDistributedSbtRecord;
 typedef SbtRecord<MissData>         MissSbtRecord;
 typedef SbtRecord<HitData>          HitSbtRecord;
-
-typedef SbtRecord<CameraData>       RayGenPathtracerSbtRecord;
 
 #endif //SLPROJECT_SLOPTIXDEFINITIONS_H
