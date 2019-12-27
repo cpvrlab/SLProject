@@ -58,6 +58,7 @@ protected:
 
     OptixModule                 _cameraModule{};
     OptixModule                 _shadingModule{};
+    OptixModule                 _traceModule{};
     OptixModuleCompileOptions   _module_compile_options{};
     OptixPipelineCompileOptions _pipeline_compile_options{};
 
@@ -66,12 +67,10 @@ protected:
 
     SLCudaBuffer<MissSbtRecord>     _missBuffer = SLCudaBuffer<MissSbtRecord>();
     SLCudaBuffer<HitSbtRecord>      _hitBuffer = SLCudaBuffer<HitSbtRecord>();
-private:
     SLCudaBuffer<RayGenClassicSbtRecord>       _rayGenClassicBuffer     = SLCudaBuffer<RayGenClassicSbtRecord>();
     SLCudaBuffer<RayGenDistributedSbtRecord>   _rayGenDistributedBuffer = SLCudaBuffer<RayGenDistributedSbtRecord>();
 
-    OptixPipeline               _classic_pipeline{};
-    OptixPipeline               _distributed_pipeline{};
+    OptixPipeline               _pipeline{};
 
     OptixProgramGroup           _pinhole_raygen_prog_group{};
     OptixProgramGroup           _lens_raygen_prog_group{};

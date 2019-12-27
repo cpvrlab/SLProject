@@ -45,15 +45,6 @@ private:
     SLCudaBuffer<void> _denoserState;
     SLCudaBuffer<void> _scratch;
 
-    OptixShaderBindingTable     _createShaderBindingTable(const SLVMesh&);
-
-    OptixPipeline _path_tracer_pipeline;
-    OptixProgramGroup _sample_raygen_prog_group;
-    OptixProgramGroup _sample_miss_group;
-    OptixProgramGroup _sample_hit_group;
-    SLCudaBuffer<RayGenPathtracerSbtRecord>  _rayGenPathtracerBuffer;
-    OptixShaderBindingTable _sbtPathtracer;
-
     //Settings
     SLbool _denoiserEnabled = true;
 };

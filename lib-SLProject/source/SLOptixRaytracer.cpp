@@ -38,17 +38,15 @@ SLOptixRaytracer::~SLOptixRaytracer()
 {
     SL_LOG("Destructor      : ~SLOptixRaytracer\n");
 
-    if (_classic_pipeline) {
-        OPTIX_CHECK( optixPipelineDestroy(_classic_pipeline ) );
-        OPTIX_CHECK( optixPipelineDestroy(_distributed_pipeline ) );
-        OPTIX_CHECK( optixProgramGroupDestroy( _radiance_hit_group ) );
-        OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_hit_group ) );
-        OPTIX_CHECK( optixProgramGroupDestroy( _radiance_miss_group ) );
-        OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_miss_group ) );
-        OPTIX_CHECK( optixProgramGroupDestroy(_pinhole_raygen_prog_group ) );
-    }
+    OPTIX_CHECK( optixPipelineDestroy(_pipeline ) );
+    OPTIX_CHECK( optixProgramGroupDestroy( _radiance_hit_group ) );
+    OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_hit_group ) );
+    OPTIX_CHECK( optixProgramGroupDestroy( _radiance_miss_group ) );
+    OPTIX_CHECK( optixProgramGroupDestroy( _occlusion_miss_group ) );
+    OPTIX_CHECK( optixProgramGroupDestroy(_pinhole_raygen_prog_group ) );
     OPTIX_CHECK( optixModuleDestroy( _cameraModule ) );
     OPTIX_CHECK( optixModuleDestroy( _shadingModule ) );
+    OPTIX_CHECK( optixModuleDestroy( _traceModule ) );
 }
 
 void SLOptixRaytracer::initCompileOptions() {
@@ -78,6 +76,7 @@ void SLOptixRaytracer::initCompileOptions() {
 void SLOptixRaytracer::setupOptix() {
     _cameraModule   = _createModule("SLOptixRaytracerCamera.cu");
     _shadingModule  = _createModule("SLOptixRaytracerShading.cu");
+    _traceModule    = _createModule("SLOptixTrace.cu");
 
     OptixProgramGroupDesc pinhole_raygen_prog_group_desc  = {};
     pinhole_raygen_prog_group_desc.kind                                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
@@ -119,11 +118,11 @@ void SLOptixRaytracer::setupOptix() {
 
     OptixProgramGroupDesc radiance_hitgroup_line_prog_group_desc = {};
     radiance_hitgroup_line_prog_group_desc.kind                          = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleIS             = _shadingModule;
+    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleIS             = _traceModule;
     radiance_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameIS  = "__intersection__line";
-    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleAH             = _shadingModule;
+    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleAH             = _traceModule;
     radiance_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameAH  = "__anyhit__line_radiance";
-    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleCH             = _shadingModule;
+    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleCH             = _traceModule;
     radiance_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameCH  = "__closesthit__line_radiance";
     _radiance_line_hit_group = _createProgram(radiance_hitgroup_line_prog_group_desc);
 
@@ -137,15 +136,15 @@ void SLOptixRaytracer::setupOptix() {
 
     OptixProgramGroupDesc occlusion_hitgroup_line_prog_group_desc = {};
     occlusion_hitgroup_line_prog_group_desc.kind                          = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-    occlusion_hitgroup_line_prog_group_desc.hitgroup.moduleIS             = _shadingModule;
+    occlusion_hitgroup_line_prog_group_desc.hitgroup.moduleIS             = _traceModule;
     occlusion_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameIS  = "__intersection__line";
-    occlusion_hitgroup_line_prog_group_desc.hitgroup.moduleAH             = _shadingModule;
+    occlusion_hitgroup_line_prog_group_desc.hitgroup.moduleAH             = _traceModule;
     occlusion_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameAH  = "__anyhit__line_occlusion";
     occlusion_hitgroup_line_prog_group_desc.hitgroup.moduleCH             = nullptr;
     occlusion_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameCH  = nullptr;
     _occlusion_line_hit_group = _createProgram(occlusion_hitgroup_line_prog_group_desc);
 
-    OptixProgramGroup classic_program_groups[] = {
+    OptixProgramGroup program_groups[] = {
             _pinhole_raygen_prog_group,
             _radiance_miss_group,
             _occlusion_miss_group,
@@ -154,18 +153,7 @@ void SLOptixRaytracer::setupOptix() {
             _occlusion_hit_group,
             _occlusion_line_hit_group,
     };
-    _classic_pipeline       = _createPipeline(classic_program_groups, 5);
-
-    OptixProgramGroup distributed_program_groups[] = {
-            _lens_raygen_prog_group,
-            _radiance_miss_group,
-            _occlusion_miss_group,
-            _radiance_hit_group,
-            _radiance_line_hit_group,
-            _occlusion_hit_group,
-            _occlusion_line_hit_group,
-    };
-    _distributed_pipeline       = _createPipeline(distributed_program_groups, 5);
+    _pipeline       = _createPipeline(program_groups, 7);
 }
 
 OptixModule SLOptixRaytracer::_createModule(std::string filename) {
@@ -423,7 +411,7 @@ SLbool SLOptixRaytracer::renderClassic() {
     double tStart = t1;
 
     OPTIX_CHECK(optixLaunch(
-            _classic_pipeline,
+            _pipeline,
             SLApplication::stream,
             _paramsBuffer.devicePointer(),
             _paramsBuffer.size(),
@@ -442,7 +430,7 @@ SLbool SLOptixRaytracer::renderClassic() {
 
 SLbool SLOptixRaytracer::renderDistrib() {
     OPTIX_CHECK(optixLaunch(
-            _distributed_pipeline,
+            _pipeline,
             SLApplication::stream,
             _paramsBuffer.devicePointer(),
             _paramsBuffer.size(),
