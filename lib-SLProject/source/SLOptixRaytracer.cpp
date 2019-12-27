@@ -302,10 +302,10 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv) {
     _sv = sv;
 
     _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float4));
-    _lineBuffer.resize(_sv->scrW() * _sv->scrH() *_maxDepth * sizeof(Line));
+    _lineBuffer.resize(_sv->scrW() * _sv->scrH() *_maxDepth * sizeof(Ray));
 
     _params.image = reinterpret_cast<float4 *>(_imageBuffer.devicePointer());
-    _params.rays = reinterpret_cast<Line *>(_lineBuffer.devicePointer());
+    _params.rays = reinterpret_cast<Ray *>(_lineBuffer.devicePointer());
     _params.width = _sv->scrW();
     _params.height = _sv->scrH();
     _params.max_depth = _maxDepth;
@@ -532,14 +532,14 @@ void SLOptixRaytracer::drawRay(unsigned int x, unsigned int y) {
     y = _sv->scrH() - y;
     SLScene* scene = SLApplication::scene;
 
-    Line* rays = static_cast<Line *>(malloc(_lineBuffer.size()));
+    Ray* rays = static_cast<Ray *>(malloc(_lineBuffer.size()));
     _lineBuffer.download(rays);
 
-    auto* red   = new SLMaterial("red", SLCol4f(0.75f, 0.25f, 0.25f), SLCol4f::BLACK, 0);
     for (int i = 0; i < _maxDepth; i++) {
-        Line ray = rays[(y * _sv->scrW() + x) * _maxDepth + i];
+        Ray ray = rays[(y * _sv->scrW() + x) * _maxDepth + i];
 
-        auto* line = new SLNode(new SLLine(SLVec3f(ray.p1.x, ray.p1.y, ray.p1.z), SLVec3f(ray.p2.x, ray.p2.y, ray.p2.z), red));
+        auto* mat   = new SLMaterial("mat", SLCol4f(ray.color.x, ray.color.y, ray.color.z), SLCol4f::BLACK, 0);
+        auto* line = new SLNode(new SLLine(SLVec3f(ray.line.p1.x, ray.line.p1.y, ray.line.p1.z), SLVec3f(ray.line.p2.x, ray.line.p2.y, ray.line.p2.z), mat));
         scene->root3D()->addChild(line);
     }
     setupScene(_sv);

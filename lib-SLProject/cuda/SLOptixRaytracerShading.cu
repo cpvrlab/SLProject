@@ -39,11 +39,6 @@ extern "C" __global__ void __closesthit__radiance() {
     // calculate hit point
     const float3 P = optixGetWorldRayOrigin() + optixGetRayTmax() * ray_dir;
 
-    params.rays[(idx.y * dim.x + idx.x) * params.max_depth + (getDepth() - 1)] = {
-            optixGetWorldRayOrigin(),
-            P,
-    };
-
     // initialize color
     float4 color = make_float4(0.0f);
     {
@@ -149,6 +144,15 @@ extern "C" __global__ void __closesthit__radiance() {
     if (getDepth() < params.max_depth && rt_data->material.kt > 0.0f) {
         color += (traceRefractionRay(params.handle, P, N, ray_dir, rt_data->material.kn) * rt_data->material.kt);
     }
+
+    // Collect ray information
+    Ray ray;
+    ray.line = {
+            optixGetWorldRayOrigin(),
+            P,
+    };
+    ray.color = color;
+    params.rays[(idx.y * dim.x + idx.x) * params.max_depth + (getDepth() - 1)] = ray;
 
     // Set color to payload
     setColor(color);

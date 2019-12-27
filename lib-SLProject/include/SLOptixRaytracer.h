@@ -54,7 +54,7 @@ protected:
     OptixShaderBindingTable         _createShaderBindingTable(const SLVMesh&, const bool);
 
     SLCudaBuffer<float4>            _imageBuffer = SLCudaBuffer<float4>();
-    SLCudaBuffer<Line>              _lineBuffer = SLCudaBuffer<Line>();
+    SLCudaBuffer<Ray>               _lineBuffer = SLCudaBuffer<Ray>();
     SLCudaBuffer<Params>            _paramsBuffer = SLCudaBuffer<Params>();
     SLCudaBuffer<Light>             _lightBuffer = SLCudaBuffer<Light>();
 

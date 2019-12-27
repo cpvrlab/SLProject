@@ -16,6 +16,12 @@ struct Line
     float3 p2;
 };
 
+struct Ray
+{
+    Line line;
+    float4 color;
+};
+
 struct Samples
 {
     unsigned int samplesX;
@@ -77,7 +83,7 @@ struct Params
         };
     };
 
-    Line*   rays;
+    Ray*   rays;
 };
 
 enum RayType
