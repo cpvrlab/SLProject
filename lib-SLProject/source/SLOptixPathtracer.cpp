@@ -27,12 +27,11 @@ SLOptixPathtracer::~SLOptixPathtracer() {
 }
 
 void SLOptixPathtracer::setupOptix() {
-    SLOptixRaytracer::setupOptix();
-
     OptixDeviceContext context = SLApplication::context;
 
     _cameraModule   = _createModule("SLOptixPathtracerCamera.cu");
     _shadingModule  = _createModule("SLOptixPathtracerShading.cu");
+    _traceModule    = _createModule("SLOptixTrace.cu");
 
     OptixProgramGroupDesc sample_raygen_prog_group_desc  = {};
     sample_raygen_prog_group_desc.kind                                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
@@ -54,6 +53,40 @@ void SLOptixPathtracer::setupOptix() {
     sample_hit_prog_group_desc.hitgroup.entryFunctionNameCH  = "__closesthit__radiance";
     _radiance_hit_group = _createProgram(sample_hit_prog_group_desc);
 
+    OptixProgramGroupDesc occlusion_miss_prog_group_desc = {};
+    occlusion_miss_prog_group_desc.kind                             = OPTIX_PROGRAM_GROUP_KIND_MISS;
+    occlusion_miss_prog_group_desc.miss.module                      = nullptr;
+    occlusion_miss_prog_group_desc.miss.entryFunctionName           = nullptr;
+    _occlusion_miss_group = _createProgram(occlusion_miss_prog_group_desc);
+
+    OptixProgramGroupDesc radiance_hitgroup_line_prog_group_desc = {};
+    radiance_hitgroup_line_prog_group_desc.kind                          = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleIS             = _traceModule;
+    radiance_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameIS  = "__intersection__line";
+    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleAH             = _traceModule;
+    radiance_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameAH  = "__anyhit__line_radiance";
+    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleCH             = _traceModule;
+    radiance_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameCH  = "__closesthit__line_radiance";
+    _radiance_line_hit_group = _createProgram(radiance_hitgroup_line_prog_group_desc);
+
+    OptixProgramGroupDesc occlusion_hitgroup_prog_group_desc = {};
+    occlusion_hitgroup_prog_group_desc.kind                          = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    occlusion_hitgroup_prog_group_desc.hitgroup.moduleAH             = nullptr;
+    occlusion_hitgroup_prog_group_desc.hitgroup.entryFunctionNameAH  = nullptr;
+    occlusion_hitgroup_prog_group_desc.hitgroup.moduleCH             = nullptr;
+    occlusion_hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH  = nullptr;
+    _occlusion_hit_group = _createProgram(occlusion_hitgroup_prog_group_desc);
+
+    OptixProgramGroupDesc occlusion_hitgroup_line_prog_group_desc = {};
+    occlusion_hitgroup_line_prog_group_desc.kind                          = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    occlusion_hitgroup_line_prog_group_desc.hitgroup.moduleIS             = _traceModule;
+    occlusion_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameIS  = "__intersection__line";
+    occlusion_hitgroup_line_prog_group_desc.hitgroup.moduleAH             = _traceModule;
+    occlusion_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameAH  = "__anyhit__line_occlusion";
+    occlusion_hitgroup_line_prog_group_desc.hitgroup.moduleCH             = nullptr;
+    occlusion_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameCH  = nullptr;
+    _occlusion_line_hit_group = _createProgram(occlusion_hitgroup_line_prog_group_desc);
+
     OptixProgramGroup path_tracer_program_groups[] = {
             _pinhole_raygen_prog_group,
             _radiance_miss_group,
@@ -70,7 +103,6 @@ void SLOptixPathtracer::setupOptix() {
     denoiserOptions.pixelFormat = OPTIX_PIXEL_FORMAT_FLOAT4;
 
     OPTIX_CHECK( optixDenoiserCreate(context, &denoiserOptions, &_optixDenoiser) );
-
     OPTIX_CHECK( optixDenoiserSetModel(
             _optixDenoiser,
             OPTIX_DENOISER_MODEL_KIND_LDR,
