@@ -123,7 +123,7 @@ class SLRaytracer : public SLGLTexture
     virtual void prepareImage();
 
     virtual void renderImage();
-    void saveImage();
+    virtual void saveImage();
 
     protected:
     SLSceneView* _sv;            //!< Parent sceneview

@@ -201,7 +201,7 @@ SLbool SLOptixPathtracer::render() {
         optixImage2D.data = _imageBuffer.devicePointer();
         optixImage2D.width = _sv->scrW();
         optixImage2D.height = _sv->scrH();
-        optixImage2D.rowStrideInBytes = _sv->scrW() * 4 * sizeof(float); // 4 channels
+        optixImage2D.rowStrideInBytes = _sv->scrW() * sizeof(float4);
         optixImage2D.pixelStrideInBytes = 0;
         optixImage2D.format = OPTIX_PIXEL_FORMAT_FLOAT4;
 

@@ -41,6 +41,8 @@ public:
     SLbool  renderDistrib();
     virtual void renderImage() override;
 
+    void saveImage() override;
+
 protected:
     void initCompileOptions();
 

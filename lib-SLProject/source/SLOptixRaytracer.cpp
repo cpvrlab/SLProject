@@ -528,3 +528,17 @@ void SLOptixRaytracer::renderImage() {
     _debugBuffer.download(debug);
     free(debug);
 }
+
+void SLOptixRaytracer::saveImage() {
+    float4* image = static_cast<float4 *>(malloc(sizeof(float4) * _sv->scrW() * _sv->scrH()));
+    _imageBuffer.download(image);
+
+    for (int i = 0; i < _sv->scrH(); i++) {
+        for (int j = 0; j < _sv->scrW(); j++) {
+            float4 pixel = image[i * _sv->scrW() + j];
+            _images[0]->setPixeli(j, i, CVVec4f(pixel.x, pixel.y, pixel.z));
+        }
+    }
+
+    SLRaytracer::saveImage();
+}

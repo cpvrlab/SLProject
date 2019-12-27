@@ -1460,8 +1460,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 //                    ImGui::EndMenu();
 //                }
 
-//                if (ImGui::MenuItem("Save Rendered Image"))
-//                    rt->saveImage();
+                if (ImGui::MenuItem("Save Rendered Image"))
+                    rt_optix->saveImage();
 
 //                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
 //                SLfloat gamma = rt->gamma();
@@ -1551,6 +1551,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     pt->setDenoiserEnabled(!pt->getDenoiserEnabled());
                     sv->startOptixPathtracing(5, pt->samples());
                 }
+
+                if (ImGui::MenuItem("Save Rendered Image"))
+                    pt->saveImage();
+
 
                 ImGui::EndMenu();
             }
