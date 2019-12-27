@@ -11,6 +11,9 @@ extern "C" __global__ void __miss__sample() {
     setColor(rt_data->bg_color);
 }
 
+extern "C" __global__ void __miss__occlusion() {
+}
+
 extern "C" __global__ void __anyhit__radiance() {
 }
 
@@ -52,8 +55,8 @@ extern "C" __global__ void __closesthit__radiance() {
         // initialize color
         float4 local_color;
         float4 incoming_color;
+        float random = curand_uniform(state);
         if (getDepth() < params.max_depth) {
-            float random = curand_uniform(state);
             if (rt_data->material.kr > random) {
                 incoming_color = traceReflectionRay(params.handle, P, N, ray_dir);
                 local_color = rt_data->material.specular_color;
@@ -66,9 +69,20 @@ extern "C" __global__ void __closesthit__radiance() {
                 incoming_color = traceSecondaryRay(params.handle, P, direction);
                 local_color = rt_data->material.diffuse_color * texture_color;
             }
-        }
 
-        // Set color to payload
-        setColor(local_color * incoming_color);
+            // Set color to payload
+            setColor(local_color * incoming_color);
+        } else {
+            if (rt_data->material.kr > random) {
+                local_color = rt_data->material.specular_color;
+            } else if ((rt_data->material.kr + rt_data->material.kt) > random) {
+                local_color = rt_data->material.transmissiv_color;
+            } else {
+                local_color = rt_data->material.diffuse_color * texture_color;
+            }
+
+            // Set color to payload
+            setColor(local_color);
+        }
     }
 }
