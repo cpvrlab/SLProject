@@ -60,29 +60,26 @@ public:
     GLint extractorOffsetLoc;
     GLint extractorSizeLoc;
     GLint extractorIdxLoc;
-    GLint extractorLowCountersLoc;
+    GLint extractorBigSigmaCountersLoc;
     GLint extractorMediumCountersLoc;
-    GLint extractorHighCountersLoc;
-    GLint extractorLowImageLoc;
+    GLint extractorSmallSigmaCountersLoc;
+    GLint extractorBigSigmaImageLoc;
     GLint extractorMediumImageLoc;
-    GLint extractorHighImageLoc;
+    GLint extractorSmallSigmaImageLoc;
 
     bool externalTexture;
     GLuint renderTextures[12];
     GLuint renderFBO[12];
 
     GLuint atomicCounter;
-    GLuint lowImagesFB;
-    GLuint mediumImagesFB;
-    GLuint highImagesFB;
+    GLuint bigSigmaImagesFB;
+    GLuint smallSigmaImagesFB;
 
-    GLuint lowImages;
-    GLuint mediumImages;
-    GLuint highImages;
+    GLuint bigSigmaImages;
+    GLuint smallSigmaImages;
 
-    GLuint highImagePBOs[2];
-    GLuint mediumImagePBOs[2];
-    GLuint lowImagePBOs[2];
+    GLuint smallSigmaImagePBOs[2];
+    GLuint bigSigmaImagePBOs[2];
 
     GLuint vao;
     GLuint vbo;
@@ -90,29 +87,30 @@ public:
     int curr;
     int ready;
     int m_w, m_h;
-    int mNbKeypointsLow;
+    int mNbKeypointsBigSigma;
     int mNbKeypointsMedium;
-    int mNbKeypointsHigh;
-    string thresholdStr;
+    int mNbKeypointsSmallSigma;
+    string highThresholdStr;
+    string lowThresholdStr;
 
     std::string gaussianKernelStr;
     std::string gaussianD1KernelStr;
     std::string gaussianD2KernelStr;
     std::string kernelSizeStr;
 
-    std::string nbKeypointsLowStr;
+    std::string nbKeypointsBigSigmaStr;
     std::string nbKeypointsMediumStr;
-    std::string nbKeypointsHighStr;
+    std::string nbKeypointsSmallSigmaStr;
 
     ~GLSLHessian();
     GLSLHessian();
-    GLSLHessian(int w, int h, int nbKeypointsLow, int nbKeypointsMedium, int nbKeypointsHigh, float thrs, float lowSigma, float mediumSigma, float highSigma);
+    GLSLHessian(int w, int h, int nbKeypointsBigSigma, int nbKeypointsMedium, int nbKeypointsSmallSigma, float thrs, float bigSigmaSigma, float mediumSigma, float smallSigmaSigma);
 
     string gaussian(int size, int halfSize, float sigma);
     string gaussianD1(int size, int halfSize, float sigma);
     string gaussianD2(int size, int halfSize, float sigma);
 
-    void init(int w, int h, int nbKeypointsLow, int nbKeypointsMedium, int nbKeypointsHigh, float thrs, float lowSigma, float mediumSigma, float highSigma);
+    void init(int w, int h, int nbKeypointsBigSigma, int nbKeypointsMedium, int nbKeypointsSmallSigma, float thrs, float bigSigmaSigma, float mediumSigma, float smallSigmaSigma);
     void initShaders();
     void initVBO();
     void initTextureBuffers(int width, int height);

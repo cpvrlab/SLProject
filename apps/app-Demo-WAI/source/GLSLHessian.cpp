@@ -21,14 +21,14 @@
 #define PATTERN 12
 
 static std::string textureOfstFct = "\n"
-                                    "vec3 Ix(float ofst)\n"
+                                    "vec2 Ix(float ofst)\n"
                                     "{\n"
-                                    "    return texture(tex, texcoords + vec2(ofst, 0.0)).rgb;\n"
+                                    "    return texture(tex, texcoords + vec2(ofst, 0.0)).rg;\n"
                                     "}\n"
                                     "\n"
-                                    "vec3 Iy(float ofst)\n"
+                                    "vec2 Iy(float ofst)\n"
                                     "{\n"
-                                    "    return texture(tex, texcoords + vec2(0.0, ofst)).rgb;\n"
+                                    "    return texture(tex, texcoords + vec2(0.0, ofst)).rg;\n"
                                     "}\n"
                                     "\n";
 
@@ -43,9 +43,9 @@ static std::string screenQuadVs = "layout (location = 0) in vec3 vcoords;\n"
                                   "}\n";
 
 static std::string hGaussianFs = "#ifdef GL_ES\n"
-                                 "precision highp float;\n"
+                                 "precision smallSigmap float;\n"
                                  "#endif\n"
-                                 "out vec3 pixel;\n"
+                                 "out vec2 pixel;\n"
                                  "in vec2 texcoords;\n"
                                  "uniform float w;\n"
                                  "uniform sampler2D tex;\n"
@@ -57,21 +57,20 @@ static std::string hGaussianFs = "#ifdef GL_ES\n"
                                  "void main()\n"
                                  "{\n"
                                  "    \n"
-                                 "    vec3 response = vec3(0.0);\n"
+                                 "    vec2 response = vec2(0.0);\n"
                                  "    for (int i = 0; i < kSize; i++)\n"
                                  "    {\n"
-                                 "        vec3 v = Ix((float(i) - kHalfSize) / w);\n"
-                                 "        response.r += lowKernel[i] * v.r;\n"
-                                 "        response.g += mediumKernel[i] * v.g;\n"
-                                 "        response.b += highKernel[i] * v.b;\n"
+                                 "        vec2 v = Ix((float(i) - kHalfSize) / w);\n"
+                                 "        response.r += bigSigmaKernel[i] * v.r;\n"
+                                 "        response.g += smallSigmaKernel[i] * v.g;\n"
                                  "    }\n"
                                  "    pixel = response;\n"
                                  "}\n";
 
 static std::string vGaussianFs = "#ifdef GL_ES\n"
-                                 "precision highp float;\n"
+                                 "precision smallSigmap float;\n"
                                  "#endif\n"
-                                 "out vec3 pixel;\n"
+                                 "out vec2 pixel;\n"
                                  "in vec2 texcoords;\n"
                                  "uniform float w;\n"
                                  "uniform sampler2D tex;\n"
@@ -84,21 +83,20 @@ static std::string vGaussianFs = "#ifdef GL_ES\n"
                                  "{\n"
                                  "\n"
                                  "    \n"
-                                 "    vec3 response = vec3(0.0);\n"
+                                 "    vec2 response = vec2(0.0);\n"
                                  "    for (int i = 0; i < kSize; i++)\n"
                                  "    {\n"
-                                 "        vec3 v = Iy((float(i) - kHalfSize) / w);\n"
-                                 "        response.r += lowKernel[i] * v.r;\n"
-                                 "        response.g += mediumKernel[i] * v.g;\n"
-                                 "        response.b += highKernel[i] * v.b;\n"
+                                 "        vec2 v = Iy((float(i) - kHalfSize) / w);\n"
+                                 "        response.r += bigSigmaKernel[i] * v.r;\n"
+                                 "        response.g += smallSigmaKernel[i] * v.g;\n"
                                  "    }\n"
                                  "    pixel = response;\n"
                                  "}\n";
 
 static std::string hGaussianDxFs = "#ifdef GL_ES\n"
-                                   "precision highp float;\n"
+                                   "precision smallSigmap float;\n"
                                    "#endif\n"
-                                   "out vec3 pixel;\n"
+                                   "out vec2 pixel;\n"
                                    "in vec2 texcoords;\n"
                                    "uniform float w;\n"
                                    "uniform sampler2D tex;\n"
@@ -111,21 +109,20 @@ static std::string hGaussianDxFs = "#ifdef GL_ES\n"
                                    "void main()\n"
                                    "{\n"
                                    "    \n"
-                                   "    vec3 response = vec3(0.0);\n"
+                                   "    vec2 response = vec2(0.0);\n"
                                    "    for (int i = 0; i < kSize; i++)\n"
                                    "    {\n"
-                                   "        vec3 v = Ix((float(i) - kHalfSize) / w);\n"
-                                   "        response.r += lowKernel[i] * v.r;\n"
-                                   "        response.g += mediumKernel[i] * v.r;\n"
-                                   "        response.b += highKernel[i] * v.r;\n"
+                                   "        vec2 v = Ix((float(i) - kHalfSize) / w);\n"
+                                   "        response.r += bigSigmaKernel[i] * v.r;\n"
+                                   "        response.g += smallSigmaKernel[i] * v.r;\n"
                                    "    }\n"
                                    "    pixel = response;\n"
                                    "}\n";
 
 static std::string vGaussianDyFs = "#ifdef GL_ES\n"
-                                   "precision highp float;\n"
+                                   "precision smallSigmap float;\n"
                                    "#endif\n"
-                                   "out vec3 pixel;\n"
+                                   "out vec2 pixel;\n"
                                    "in vec2 texcoords;\n"
                                    "uniform float w;\n"
                                    "uniform sampler2D tex;\n"
@@ -137,22 +134,21 @@ static std::string vGaussianDyFs = "#ifdef GL_ES\n"
                                    "void main()\n"
                                    "{\n"
                                    "    \n"
-                                   "    vec3 response = vec3(0.0);\n"
+                                   "    vec2 response = vec2(0.0);\n"
                                    "    for (int i = 0; i < kSize; i++)\n"
                                    "    {\n"
-                                   "        vec3 v = Iy((float(i) - kHalfSize) / w);\n"
-                                   "        response.r += lowKernel[i] * v.r;\n"
-                                   "        response.g += mediumKernel[i] * v.g;\n"
-                                   "        response.b += highKernel[i] * v.b;\n"
+                                   "        vec2 v = Iy((float(i) - kHalfSize) / w);\n"
+                                   "        response.r += bigSigmaKernel[i] * v.r;\n"
+                                   "        response.g += smallSigmaKernel[i] * v.g;\n"
                                    "    }\n"
                                    "    pixel = response;\n"
                                    "}\n";
 
 
 static std::string hGaussianDx2Fs = "#ifdef GL_ES\n"
-                                    "precision highp float;\n"
+                                    "precision smallSigmap float;\n"
                                     "#endif\n"
-                                    "out vec3 pixel;\n"
+                                    "out vec2 pixel;\n"
                                     "in vec2 texcoords;\n"
                                     "uniform float w;\n"
                                     "uniform sampler2D tex;\n"
@@ -165,21 +161,20 @@ static std::string hGaussianDx2Fs = "#ifdef GL_ES\n"
                                     "void main()\n"
                                     "{\n"
                                     "    \n"
-                                    "    vec3 response = vec3(0.0);\n"
+                                    "    vec2 response = vec2(0.0);\n"
                                     "    for (int i = 0; i < kSize; i++)\n"
                                     "    {\n"
-                                    "        vec3 v = Ix((float(i) - kHalfSize) / w);\n"
-                                    "        response.r += lowKernel[i] * v.r;\n"
-                                    "        response.g += mediumKernel[i] * v.r;\n"
-                                    "        response.b += highKernel[i] * v.r;\n"
+                                    "        vec2 v = Ix((float(i) - kHalfSize) / w);\n"
+                                    "        response.r += bigSigmaKernel[i] * v.r;\n"
+                                    "        response.g += smallSigmaKernel[i] * v.r;\n"
                                     "    }\n"
                                     "    pixel = response;\n"
                                     "}\n";
 
 static std::string vGaussianDy2Fs = "#ifdef GL_ES\n"
-                                    "precision highp float;\n"
+                                    "precision smallSigmap float;\n"
                                     "#endif\n"
-                                    "out vec3 pixel;\n"
+                                    "out vec2 pixel;\n"
                                     "in vec2 texcoords;\n"
                                     "uniform float w;\n"
                                     "uniform sampler2D tex;\n"
@@ -191,21 +186,20 @@ static std::string vGaussianDy2Fs = "#ifdef GL_ES\n"
                                     "void main()\n"
                                     "{\n"
                                     "    \n"
-                                    "    vec3 response = vec3(0.0);\n"
+                                    "    vec2 response = vec2(0.0);\n"
                                     "    for (int i = 0; i < kSize; i++)\n"
                                     "    {\n"
-                                    "        vec3 v = Iy((float(i) - kHalfSize) / w);\n"
-                                    "        response.r += lowKernel[i] * v.r;\n"
-                                    "        response.g += mediumKernel[i] * v.r;\n"
-                                    "        response.b += highKernel[i] * v.r;\n"
+                                    "        vec2 v = Iy((float(i) - kHalfSize) / w);\n"
+                                    "        response.r += bigSigmaKernel[i] * v.r;\n"
+                                    "        response.g += smallSigmaKernel[i] * v.r;\n"
                                     "    }\n"
                                     "    pixel = response;\n"
                                     "}\n";
 
 static std::string detHFs = "#ifdef GL_ES\n"
-                            "precision highp float;\n"
+                            "precision smallSigmap float;\n"
                             "#endif\n"
-                            "out vec3 pixel;\n"
+                            "out vec2 pixel;\n"
                             "in vec2 texcoords;\n"
                             "uniform sampler2D tgxx;\n"
                             "uniform sampler2D tgyy;\n"
@@ -214,25 +208,25 @@ static std::string detHFs = "#ifdef GL_ES\n"
                             "void main()\n"
                             "{\n"
                             "    \n"
-                            "    vec3 gxx = texture(tgxx, texcoords).rgb;\n"
-                            "    vec3 gyy = texture(tgyy, texcoords).rgb;\n"
-                            "    vec3 gxy = texture(tgxy, texcoords).rgb;\n"
+                            "    vec2 gxx = texture(tgxx, texcoords).rg;\n"
+                            "    vec2 gyy = texture(tgyy, texcoords).rg;\n"
+                            "    vec2 gxy = texture(tgxy, texcoords).rg;\n"
                             "    pixel = gxx*gyy - gxy*gxy;\n"
                             "}\n";
 
 static std::string nmsxFs = "#ifdef GL_ES\n"
-                            "precision highp float;\n"
+                            "precision smallSigmap float;\n"
                             "#endif\n"
-                            "out vec3 pixel;\n"
+                            "out vec2 pixel;\n"
                             "in vec2 texcoords;\n"
                             "uniform sampler2D tex;\n"
                             "uniform float w;\n"
                             "\n"
                             "void main()\n"
                             "{\n"
-                            "    vec3 o = texture(tex, texcoords).rgb;\n"
-                            "    vec3 px = texture(tex, texcoords + vec2(1.0/w, 0.0f)).rgb;\n"
-                            "    vec3 nx = texture(tex, texcoords - vec2(1.0/w, 0.0f)).rgb;\n"
+                            "    vec2 o = texture(tex, texcoords).rg;\n"
+                            "    vec2 px = texture(tex, texcoords + vec2(1.0/w, 0.0f)).rg;\n"
+                            "    vec2 nx = texture(tex, texcoords - vec2(1.0/w, 0.0f)).rg;\n"
                             "    pixel = o;\n"
                             "    if (o.r <= nx.r || o.r <= px.r)\n"
                             "    {\n"
@@ -242,16 +236,12 @@ static std::string nmsxFs = "#ifdef GL_ES\n"
                             "    {\n"
                             "        pixel.g = 0.0;\n"
                             "    }\n"
-                            "    if (o.b <= nx.b || o.b <= px.b)\n"
-                            "    {\n"
-                            "        pixel.b = 0.0;\n"
-                            "    }\n"
                             "}\n";
 
 static std::string nmsyFs = "#ifdef GL_ES\n"
-                            "precision highp float;\n"
+                            "precision smallSigmap float;\n"
                             "#endif\n"
-                            "out vec3 pixel;\n"
+                            "out vec2 pixel;\n"
                             "in vec2 texcoords;\n"
                             "uniform sampler2D tex;\n"
                             "uniform float w;\n"
@@ -259,9 +249,9 @@ static std::string nmsyFs = "#ifdef GL_ES\n"
                             "void main()\n"
                             "{\n"
                             "    \n"
-                            "    vec3 o = texture(tex, texcoords).rgb;\n"
-                            "    vec3 py = texture(tex, texcoords + vec2(0.0f, 1.0/w)).rgb;\n"
-                            "    vec3 ny = texture(tex, texcoords - vec2(0.0f, 1.0/w)).rgb;\n"
+                            "    vec2 o = texture(tex, texcoords).rg;\n"
+                            "    vec2 py = texture(tex, texcoords + vec2(0.0f, 1.0/w)).rg;\n"
+                            "    vec2 ny = texture(tex, texcoords - vec2(0.0f, 1.0/w)).rg;\n"
                             "    pixel = o;"
                             "    if (o.r <= ny.r || o.r <= py.r)\n"
                             "    {\n"
@@ -270,10 +260,6 @@ static std::string nmsyFs = "#ifdef GL_ES\n"
                             "    if (o.g <= ny.g || o.g <= py.g)\n"
                             "    {\n"
                             "        pixel.g = 0.0;\n"
-                            "    }\n"
-                            "    if (o.b <= ny.b || o.b <= py.g)\n"
-                            "    {\n"
-                            "        pixel.b = 0.0;\n"
                             "    }\n"
                             "}\n";
 
@@ -399,9 +385,9 @@ static std::string fast =  "bool fast(float t)\n"
                            "\n";
 
 static std::string removeEdge = "#ifdef GL_ES\n"
-                                "precision highp float;\n"
+                                "precision smallSigmap float;\n"
                                 "#endif\n"
-                                "out vec3 pixel;\n"
+                                "out vec2 pixel;\n"
                                 "in vec2 texcoords;\n"
                                 "uniform float w;\n"
                                 "uniform float h;\n"
@@ -413,12 +399,12 @@ static std::string removeEdge = "#ifdef GL_ES\n"
                                 "void main()\n"
                                 "{\n"
                                 "    \n"
-                                "    vec3 nms_det = texture(det, texcoords).rgb;\n"
-                                "    vec3 gxx = texture(tgxx, texcoords).rgb;\n"
-                                "    vec3 gyy = texture(tgyy, texcoords).rgb;\n"
-                                "    vec3 tr = gxx + gyy;\n"
-                                "    vec3 r = tr*tr / nms_det;\n"
-                                "    pixel = vec3(0.0);\n"
+                                "    vec2 nms_det = texture(det, texcoords).rg;\n"
+                                "    vec2 gxx = texture(tgxx, texcoords).rg;\n"
+                                "    vec2 gyy = texture(tgyy, texcoords).rg;\n"
+                                "    vec2 tr = gxx + gyy;\n"
+                                "    vec2 r = tr*tr / nms_det;\n"
+                                "    pixel = vec2(0.0);\n"
                                 "    if (r.r < 5.0)\n"
                                 "    {\n"
                                 "        pixel.r = nms_det.r;\n"
@@ -426,10 +412,6 @@ static std::string removeEdge = "#ifdef GL_ES\n"
                                 "    if (r.g < 5.0)\n"
                                 "    {\n"
                                 "        pixel.g = nms_det.g;\n"
-                                "    }\n"
-                                "    if (r.b < 5.0)\n"
-                                "    {\n"
-                                "        pixel.b = nms_det.b;\n"
                                 "    }\n"
                                 "}\n";
 
@@ -447,16 +429,16 @@ static std::string screenQuadOffsetVs = "layout (location = 0) in vec3 vcoords;\
                                        ;
 
 static std::string extractorFS = "#ifdef GL_ES\n"
-                                 "precision highp float;\n"
-                                 "precision highp iimage2D;\n"
+                                 "precision smallSigmap float;\n"
+                                 "precision smallSigmap iimage2D;\n"
                                  "#endif\n"
-                                 "layout (binding = 0, offset = 0) uniform atomic_uint lowCounter;\n"
-                                 "layout (binding = 0, offset = 4) uniform atomic_uint mediumCounter;\n"
-                                 "layout (binding = 0, offset = 8) uniform atomic_uint highCounter;\n"
-                                 "layout (rgba32i) uniform writeonly iimage2D lowImage;\n"
-                                 "layout (rgba32i) uniform writeonly iimage2D mediumImage;\n"
-                                 "layout (rgba32i) uniform writeonly iimage2D highImage;\n"
-                                 "uniform sampler2D tex;\n"
+                                 "layout (binding = 0, offset = 0) uniform atomic_uint bigSigmaCounterLowThrs;\n"
+                                 "layout (binding = 0, offset = 4) uniform atomic_uint bigSigmaCounterHighThrs;\n"
+                                 "layout (binding = 0, offset = 8) uniform atomic_uint smallSigmaCounterLowThrs;\n"
+                                 "layout (binding = 0, offset = 12) uniform atomic_uint smallSigmaCounterHighThrs;\n"
+                                 "layout (rgba32i) uniform coherent iimage2D bigSigmaImage;\n"
+                                 "layout (rgba32i) uniform coherent iimage2D smallSigmaImage;\n"
+                                 "uniform sampler2D tex;\n" //r big sigma, b big sigma
                                  "uniform float w;\n"
                                  "uniform float h;\n"
                                  "uniform int idx;\n"
@@ -464,31 +446,53 @@ static std::string extractorFS = "#ifdef GL_ES\n"
                                  "\n"
                                  "void main()\n"
                                  "{\n"
-                                 "    ivec4 pos = ivec4(int(w * texcoords.x), int(h * texcoords.y), 0, 0);\n"
+                                 "    ivec2 pos = ivec2(int(w * texcoords.x), int(h * texcoords.y));\n"
+                                 "    ivec4 pos_low = ivec4(0, 0, pos);\n"
                                  "\n"
-                                 "    vec3 p = texture(tex, texcoords).rgb;\n"
-                                 "    if (p.r > $THRESHOLD)\n"
+                                 "    vec2 p = texture(tex, texcoords).rg;\n"
+                                 "    if (p.r > $THRESHOLD_HIGH)\n" //big sigma, high thrs 
                                  "    {\n"
-                                 "         int i = int(atomicCounterIncrement(lowCounter));\n"
-                                 "         if (i < $NB_KEYPOINTS_LOW)\n"
+                                 "         int i = int(atomicCounterIncrement(bigSigmaCounterHighThrs));\n"
+                                 "         int j = int(atomicCounterIncrement(bigSigmaCounterLowThrs));\n"
+                                 "         if (j < $NB_MAX_KEYPOINTS)\n"
+                                 "             imageStore(bigSigmaImage, ivec2(j, idx), pos_low);\n"
+                                 "         \n"
+                                 "         if (i < $NB_MAX_KEYPOINTS)\n"
                                  "         {\n"
-                                 "             imageStore(lowImage, ivec2(i, idx), pos);\n"
+                                 "             ivec4 lastSave = imageLoad(bigSigmaImage, ivec2(i, idx));\n" //A low thrs kp may be already saved at this position
+                                 "             lastSave.rg = pos;\n" //{b,a} should be already set as low thrs point
+                                 "             imageStore(bigSigmaImage, ivec2(i, idx), lastSave);\n"
                                  "         }\n"
                                  "    }\n"
-                                 "    else if (p.g > $THRESHOLD)\n"
+                                 "    else if (p.r > $THRESHOLD_LOW)\n"
                                  "    {\n"
-                                 "         int i = int(atomicCounterIncrement(mediumCounter));\n"
-                                 "         if (i < $NB_KEYPOINTS_MEDIUM)\n"
+                                 "         int i = int(atomicCounterIncrement(bigSigmaCounterLowThrs));\n"
+                                 "         if (i < $NB_MAX_KEYPOINTS)\n"
                                  "         {\n"
-                                 "             imageStore(mediumImage, ivec2(i, idx), pos);\n"
+                                 "             imageStore(bigSigmaImage, ivec2(i, idx), pos_low);\n"
                                  "         }\n"
                                  "    }\n"
-                                 "    else if (p.b > $THRESHOLD)\n"
+                                 "    \n"
+                                 "    if (p.g > $THRESHOLD_HIGH)\n" //big sigma, high thrs 
                                  "    {\n"
-                                 "         int i = int(atomicCounterIncrement(highCounter));\n"
-                                 "         if (i < $NB_KEYPOINTS_HIGH)\n"
+                                 "         int i = int(atomicCounterIncrement(smallSigmaCounterHighThrs));\n"
+                                 "         int j = int(atomicCounterIncrement(smallSigmaCounterLowThrs));\n"
+                                 "         if (j < $NB_MAX_KEYPOINTS)\n"
+                                 "             imageStore(smallSigmaImage, ivec2(j, idx), pos_low);\n"
+                                 "         \n"
+                                 "         if (i < $NB_MAX_KEYPOINTS)\n"
                                  "         {\n"
-                                 "             imageStore(highImage, ivec2(i, idx), pos);\n"
+                                 "             ivec4 lastSave = imageLoad(smallSigmaImage, ivec2(i, idx));\n" //A low thrs kp may be already saved at this position
+                                 "             lastSave.rg = pos;\n" //{b,a} should be already set as low thrs point
+                                 "             imageStore(smallSigmaImage, ivec2(i, idx), lastSave);\n"
+                                 "         }\n"
+                                 "    }\n"
+                                 "    else if (p.g > $THRESHOLD_LOW)\n"
+                                 "    {\n"
+                                 "         int i = int(atomicCounterIncrement(smallSigmaCounterLowThrs));\n"
+                                 "         if (i < $NB_MAX_KEYPOINTS)\n"
+                                 "         {\n"
+                                 "             imageStore(smallSigmaImage, ivec2(i, idx), pos_low);\n"
                                  "         }\n"
                                  "    }\n"
                                  "}\n"
@@ -534,13 +538,13 @@ static std::string descriptors = ""
                                  ;
 
  static std::string extractorFS = "#ifdef GL_ES\n"
-                                 "precision highp float;\n"
-                                 "precision highp iimage2D;\n"
+                                 "precision smallSigmap float;\n"
+                                 "precision smallSigmap iimage2D;\n"
                                  "#endif\n"
-                                 "layout (binding = 0, offset = 0) uniform atomic_uint highCounter;\n"
-                                 "layout (binding = 0, offset = 4) uniform atomic_uint lowCounter;\n"
-                                 "layout (rgba32i) uniform writeonly iimage2D lowImage;\n"
-                                 "layout (rgba32i) uniform writeonly iimage2D highImage;\n"
+                                 "layout (binding = 0, offset = 0) uniform atomic_uint smallSigmaCounter;\n"
+                                 "layout (binding = 0, offset = 4) uniform atomic_uint bigSigmaCounter;\n"
+                                 "layout (rgba32i) uniform writeonly iimage2D bigSigmaImage;\n"
+                                 "layout (rgba32i) uniform writeonly iimage2D smallSigmaImage;\n"
                                  "uniform sampler2D tex;\n"
                                  "uniform float w;\n"
                                  "uniform float h;\n"
@@ -554,24 +558,24 @@ static std::string descriptors = ""
                                  "    float r = texture(tex, texcoords).r;\n"
                                  "    if (r > $HIGH_THRESHOLD)\n"
                                  "    {\n"
-                                 "         int ih = int(atomicCounterIncrement(highCounter));\n"
-                                 "         int il = int(atomicCounterIncrement(lowCounter));\n"
+                                 "         int ih = int(atomicCounterIncrement(smallSigmaCounter));\n"
+                                 "         int il = int(atomicCounterIncrement(bigSigmaCounter));\n"
                                  "         if (il < $NB_KEYPOINTS)\n"
                                  "         {\n"
-                                 "             imageStore(highImage, ivec2(ih, idx), pos);\n"
-                                 "             imageStore(lowImage, ivec2(il, idx), pos);\n"
+                                 "             imageStore(smallSigmaImage, ivec2(ih, idx), pos);\n"
+                                 "             imageStore(bigSigmaImage, ivec2(il, idx), pos);\n"
                                  "         }\n"
                                  "         if (ih < $NB_KEYPOINTS)\n"
                                  "         {\n"
-                                 "             imageStore(highImage, ivec2(ih, idx), pos);\n"
+                                 "             imageStore(smallSigmaImage, ivec2(ih, idx), pos);\n"
                                  "         }\n"
                                  "    }\n"
                                  "    else if (r > $LOW_THRESHOLD)\n"
                                  "    {\n"
-                                 "         int il = int(atomicCounterIncrement(lowCounter));\n"
+                                 "         int il = int(atomicCounterIncrement(bigSigmaCounter));\n"
                                  "         if (il < $NB_KEYPOINTS)\n"
                                  "         {\n"
-                                 "             imageStore(lowImage, ivec2(il, idx), pos);\n"
+                                 "             imageStore(bigSigmaImage, ivec2(il, idx), pos);\n"
                                  "         }\n"
                                  "    }\n"
                                  "}\n"
@@ -602,10 +606,9 @@ GLuint GLSLHessian::buildShaderFromSource(string source, GLenum shaderType)
     Utils::replaceString(completeSrc, "#include gaussianD2Kernel", gaussianD2KernelStr);
     Utils::replaceString(completeSrc, "#include kernelSize", kernelSizeStr);
     Utils::replaceString(completeSrc, "#include fast", fast);
-    Utils::replaceString(completeSrc, "$NB_KEYPOINTS_LOW", nbKeypointsLowStr);
-    Utils::replaceString(completeSrc, "$NB_KEYPOINTS_MEDIUM", nbKeypointsMediumStr);
-    Utils::replaceString(completeSrc, "$NB_KEYPOINTS_HIGH", nbKeypointsHighStr);
-    Utils::replaceString(completeSrc, "$THRESHOLD", thresholdStr);
+    Utils::replaceString(completeSrc, "$NB_MAX_KEYPOINTS", nbKeypointsBigSigmaStr);
+    Utils::replaceString(completeSrc, "$THRESHOLD_HIGH", highThresholdStr);
+    Utils::replaceString(completeSrc, "$THRESHOLD_LOW", lowThresholdStr);
 
     const char* src         = completeSrc.c_str();
 
@@ -750,12 +753,12 @@ void GLSLHessian::initShaders()
     extractorIdxLoc            = glGetUniformLocation(extractor, "idx");
     extractorWLoc              = glGetUniformLocation(extractor, "w");
     extractorHLoc              = glGetUniformLocation(extractor, "h");
-    extractorLowCountersLoc    = glGetUniformLocation(extractor, "lowCounters");
+    extractorBigSigmaCountersLoc    = glGetUniformLocation(extractor, "bigSigmaCounters");
     extractorMediumCountersLoc = glGetUniformLocation(extractor, "mediumCounters");
-    extractorHighCountersLoc   = glGetUniformLocation(extractor, "highCounters");
-    extractorLowImageLoc       = glGetUniformLocation(extractor, "lowImage");
+    extractorSmallSigmaCountersLoc   = glGetUniformLocation(extractor, "smallSigmaCounters");
+    extractorBigSigmaImageLoc       = glGetUniformLocation(extractor, "bigSigmaImage");
     extractorMediumImageLoc    = glGetUniformLocation(extractor, "mediumImage");
-    extractorHighImageLoc      = glGetUniformLocation(extractor, "highImage");
+    extractorSmallSigmaImageLoc      = glGetUniformLocation(extractor, "smallSigmaImage");
 }
 
 void GLSLHessian::initVBO()
@@ -833,63 +836,51 @@ void GLSLHessian::initTextureBuffers(int width, int height)
 
 void GLSLHessian::clearCounterBuffer()
 {
-    int i[3] = {0};
+    int i[4] = {0};
     glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicCounter);
-    glBufferData(GL_ATOMIC_COUNTER_BUFFER, 12, i, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ATOMIC_COUNTER_BUFFER, 16, i, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 }
 
 void GLSLHessian::initKeypointBuffers()
 {
     /* Buffers to store keypoints */
-    glGenTextures(1, &highImages);
-    glGenTextures(1, &mediumImages);
-    glGenTextures(1, &lowImages);
+    glGenTextures(1, &smallSigmaImages);
+    glGenTextures(1, &bigSigmaImages);
 
-    glGenFramebuffers(1, &highImagesFB);
-    glGenFramebuffers(1, &mediumImagesFB);
-    glGenFramebuffers(1, &lowImagesFB);
+    glGenFramebuffers(1, &smallSigmaImagesFB);
+    glGenFramebuffers(1, &bigSigmaImagesFB);
 
-    glGenBuffers(2, highImagePBOs);
-    glGenBuffers(2, mediumImagePBOs);
-    glGenBuffers(2, lowImagePBOs);
+    glGenBuffers(2, smallSigmaImagePBOs);
+    glGenBuffers(2, bigSigmaImagePBOs);
 
-    int i[3] = {0};
+    int i[4] = {0};
     glGenBuffers(1, &atomicCounter);
     glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicCounter);
-    glBufferData(GL_ATOMIC_COUNTER_BUFFER, 12, i, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ATOMIC_COUNTER_BUFFER, 16, i, GL_DYNAMIC_DRAW);
     glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
 
     glClearColor(0, 0, 0, 0);
 
-    glBindTexture(GL_TEXTURE_2D, highImages);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, mNbKeypointsHigh, 64);
-    glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, highImages, 0);
+    glBindTexture(GL_TEXTURE_2D, smallSigmaImages);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, mNbKeypointsSmallSigma, 64);
+    glBindFramebuffer(GL_FRAMEBUFFER, smallSigmaImagesFB);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, smallSigmaImages, 0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glBindTexture(GL_TEXTURE_2D, mediumImages);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, mNbKeypointsMedium, 64);
-    glBindFramebuffer(GL_FRAMEBUFFER, mediumImagesFB);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mediumImages, 0);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glBindTexture(GL_TEXTURE_2D, lowImages);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, mNbKeypointsLow, 64);
-    glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lowImages, 0);
+    glBindTexture(GL_TEXTURE_2D, bigSigmaImages);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, mNbKeypointsBigSigma, 64);
+    glBindFramebuffer(GL_FRAMEBUFFER, bigSigmaImagesFB);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bigSigmaImages, 0);
     glClear(GL_COLOR_BUFFER_BIT);
 
     for (int i = 0; i < 2; i++)
     {
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[i]);
-        glBufferData(GL_PIXEL_PACK_BUFFER, mNbKeypointsHigh * 64 * 4 * 4, 0, GL_DYNAMIC_READ);
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, smallSigmaImagePBOs[i]);
+        glBufferData(GL_PIXEL_PACK_BUFFER, mNbKeypointsSmallSigma * 64 * 4 * 4, 0, GL_DYNAMIC_READ);
 
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, mediumImagePBOs[i]);
-        glBufferData(GL_PIXEL_PACK_BUFFER, mNbKeypointsMedium * 64 * 4 * 4, 0, GL_DYNAMIC_READ);
-
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, lowImagePBOs[i]);
-        glBufferData(GL_PIXEL_PACK_BUFFER, mNbKeypointsLow * 64 * 4 * 4, 0, GL_DYNAMIC_READ);
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, bigSigmaImagePBOs[i]);
+        glBufferData(GL_PIXEL_PACK_BUFFER, mNbKeypointsBigSigma * 64 * 4 * 4, 0, GL_DYNAMIC_READ);
     }
 }
 
@@ -1040,9 +1031,9 @@ void GLSLHessian::extract(int w, int h, int curr)
     glUniform1f(extractorWLoc, (float)w);
     glUniform1f(extractorHLoc, (float)h);
     glUniform1i(extractorTexLoc, REMOVEEDGE);
-    glUniform1i(extractorLowImageLoc, 0);
+    glUniform1i(extractorBigSigmaImageLoc, 0);
     glUniform1i(extractorMediumImageLoc, 1);
-    glUniform1i(extractorHighImageLoc, 2);
+    glUniform1i(extractorSmallSigmaImageLoc, 2);
 
     glBindVertexArray(vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboi);
@@ -1119,41 +1110,38 @@ string GLSLHessian::gaussianD2(int size, int half_size, float sigma)
     return fctStr;
 }
 
-void GLSLHessian::init(int w, int h, int nbKeypointsLow, int nbKeypointsMedium, int nbKeypointsHigh, float thrs, float lowSigma, float mediumSigma, float highSigma)
+void GLSLHessian::init(int w, int h, int nbKeypointsBigSigma, int nbKeypointsMedium, int nbKeypointsSmallSigma, float thrs, float bigSigmaSigma, float mediumSigma, float smallSigmaSigma)
 {
     m_w = w;
     m_h = h;
     curr = 1;
     ready = 0;
-    mNbKeypointsLow = nbKeypointsLow;
+    mNbKeypointsBigSigma = nbKeypointsBigSigma;
     mNbKeypointsMedium = nbKeypointsMedium;
-    mNbKeypointsHigh = nbKeypointsHigh;
-    nbKeypointsLowStr = std::to_string(nbKeypointsLow);
+    mNbKeypointsSmallSigma = nbKeypointsSmallSigma;
+    nbKeypointsBigSigmaStr = std::to_string(nbKeypointsBigSigma);
     nbKeypointsMediumStr = std::to_string(nbKeypointsMedium);
-    nbKeypointsHighStr = std::to_string(nbKeypointsHigh);
-    thresholdStr = std::to_string(thrs);
+    nbKeypointsSmallSigmaStr = std::to_string(nbKeypointsSmallSigma);
+    highThresholdStr = std::to_string(thrs);
+    lowThresholdStr = std::to_string(thrs * 0.3333);
 
     //At a radius of 3 sigma from the center, we keep ~97% of the gaussian fct.
     // | 0x1 to ensure this is a odd number (not divisible per 2)
-    int size = ((int)floor(lowSigma * 6.0)) | 0x1;
+    int size = ((int)floor(bigSigmaSigma * 6.0)) | 0x1;
     int halfSize = size >> 1;
     string sz_s = to_string(size);
 
-    std::string gaussianLowKernelStr   = "const float lowKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussian(size, halfSize, lowSigma) + ");\n";
-    std::string gaussianD1LowKernelStr = "const float lowKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD1(size, halfSize, lowSigma) + ");\n";
-    std::string gaussianD2LowKernelStr = "const float lowKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD2(size, halfSize, lowSigma) + ");\n";
+    std::string gaussianBigSigmaKernelStr   = "const float bigSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussian(size, halfSize, bigSigmaSigma) + ");\n";
+    std::string gaussianD1BigSigmaKernelStr = "const float bigSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD1(size, halfSize, bigSigmaSigma) + ");\n";
+    std::string gaussianD2BigSigmaKernelStr = "const float bigSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD2(size, halfSize, bigSigmaSigma) + ");\n";
 
-    std::string gaussianMediumKernelStr   = "const float mediumKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussian(size, halfSize, mediumSigma) + ");\n";
-    std::string gaussianD1MediumKernelStr = "const float mediumKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD1(size, halfSize, mediumSigma) + ");\n";
-    std::string gaussianD2MediumKernelStr = "const float mediumKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD2(size, halfSize, mediumSigma) + ");\n";
+    std::string gaussianSmallSigmaKernelStr   = "const float smallSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussian(size, halfSize, smallSigmaSigma) + ");\n";
+    std::string gaussianD1SmallSigmaKernelStr = "const float smallSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD1(size, halfSize, smallSigmaSigma) + ");\n";
+    std::string gaussianD2SmallSigmaKernelStr = "const float smallSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD2(size, halfSize, smallSigmaSigma) + ");\n";
 
-    std::string gaussianHighKernelStr   = "const float highKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussian(size, halfSize, highSigma) + ");\n";
-    std::string gaussianD1HighKernelStr = "const float highKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD1(size, halfSize, highSigma) + ");\n";
-    std::string gaussianD2HighKernelStr = "const float highKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD2(size, halfSize, highSigma) + ");\n";
-
-    gaussianKernelStr = gaussianLowKernelStr + gaussianMediumKernelStr + gaussianHighKernelStr;
-    gaussianD1KernelStr = gaussianD1LowKernelStr + gaussianD1MediumKernelStr + gaussianD1HighKernelStr;
-    gaussianD2KernelStr = gaussianD2LowKernelStr  + gaussianD2MediumKernelStr + gaussianD2HighKernelStr;
+    gaussianKernelStr = gaussianBigSigmaKernelStr + gaussianSmallSigmaKernelStr;
+    gaussianD1KernelStr = gaussianD1BigSigmaKernelStr + gaussianD1SmallSigmaKernelStr;
+    gaussianD2KernelStr = gaussianD2BigSigmaKernelStr  + gaussianD2SmallSigmaKernelStr;
 
     kernelSizeStr       = "const float kHalfSize = " + to_string((float)halfSize) + ";\nconst int kSize = " + sz_s + ";\n";
 
@@ -1167,9 +1155,9 @@ void GLSLHessian::init(int w, int h, int nbKeypointsLow, int nbKeypointsMedium, 
 
 GLSLHessian::GLSLHessian() { }
 
-GLSLHessian::GLSLHessian(int w, int h, int nbKeypointsLow, int nbKeypointsMedium, int nbKeypointsHigh, float thrs, float lowSigma, float mediumSigma, float highSigma)
+GLSLHessian::GLSLHessian(int w, int h, int nbKeypointsBigSigma, int nbKeypointsMedium, int nbKeypointsSmallSigma, float thrs, float bigSigmaSigma, float mediumSigma, float smallSigmaSigma)
 {
-    init(w, h, nbKeypointsLow, nbKeypointsMedium, nbKeypointsHigh, thrs, lowSigma, mediumSigma, highSigma);
+    init(w, h, nbKeypointsBigSigma, nbKeypointsMedium, nbKeypointsSmallSigma, thrs, bigSigmaSigma, mediumSigma, smallSigmaSigma);
 }
 
 GLSLHessian::~GLSLHessian()
@@ -1186,17 +1174,14 @@ GLSLHessian::~GLSLHessian()
     glDeleteFramebuffers(12, renderFBO);
 
     glDeleteBuffers(1, &atomicCounter);
-    glDeleteFramebuffers(1, &lowImagesFB);
-    glDeleteFramebuffers(1, &mediumImagesFB);
-    glDeleteFramebuffers(1, &highImagesFB);
+    glDeleteFramebuffers(1, &bigSigmaImagesFB);
+    glDeleteFramebuffers(1, &smallSigmaImagesFB);
 
-    glDeleteTextures(1, &lowImages);
-    glDeleteTextures(1, &mediumImages);
-    glDeleteTextures(1, &highImages);
+    glDeleteTextures(1, &bigSigmaImages);
+    glDeleteTextures(1, &smallSigmaImages);
 
-    glDeleteBuffers(2, lowImagePBOs);
-    glDeleteBuffers(2, mediumImagePBOs);
-    glDeleteBuffers(2, highImagePBOs);
+    glDeleteBuffers(2, bigSigmaImagePBOs);
+    glDeleteBuffers(2, smallSigmaImagePBOs);
 
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
@@ -1261,16 +1246,13 @@ void GLSLHessian::gpu_kp()
 
     glClearColor(0, 0, 0, 0);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB);
+    glBindFramebuffer(GL_FRAMEBUFFER, bigSigmaImagesFB);
     glClear(GL_COLOR_BUFFER_BIT);
-    glBindFramebuffer(GL_FRAMEBUFFER, mediumImagesFB);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB);
+    glBindFramebuffer(GL_FRAMEBUFFER, smallSigmaImagesFB);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glBindImageTexture(0, lowImages, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
-    glBindImageTexture(1, mediumImages, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
-    glBindImageTexture(2, highImages, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
+    glBindImageTexture(0, bigSigmaImages, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
+    glBindImageTexture(1, smallSigmaImages, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
 
     gxx(m_w, m_h);
     gyy(m_w, m_h);
@@ -1288,91 +1270,89 @@ void GLSLHessian::gpu_kp()
 
 void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, lowImagesFB);
+    glBindFramebuffer(GL_FRAMEBUFFER, bigSigmaImagesFB);
     glFlush();
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, lowImagePBOs[curr]);
-    glReadPixels(0, 0, mNbKeypointsLow, 64, GL_RGBA_INTEGER, GL_INT, 0);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, bigSigmaImagePBOs[curr]);
+    glReadPixels(0, 0, mNbKeypointsBigSigma, 64, GL_RGBA_INTEGER, GL_INT, 0);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, mediumImagesFB);
+    glBindFramebuffer(GL_FRAMEBUFFER, smallSigmaImagesFB);
     glFlush();
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, mediumImagePBOs[curr]);
-    glReadPixels(0, 0, mNbKeypointsMedium, 64, GL_RGBA_INTEGER, GL_INT, 0);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, highImagesFB);
-    glFlush();
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[curr]);
-    glReadPixels(0, 0, mNbKeypointsHigh, 64, GL_RGBA_INTEGER, GL_INT, 0);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, smallSigmaImagePBOs[curr]);
+    glReadPixels(0, 0, mNbKeypointsSmallSigma, 64, GL_RGBA_INTEGER, GL_INT, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, lowImagePBOs[ready]);
-    unsigned int * lData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypointsLow * 64 * 4 * 4, GL_MAP_READ_BIT);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, bigSigmaImagePBOs[ready]);
+    unsigned int * bigSigmaData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypointsBigSigma * 64 * 4 * 4, GL_MAP_READ_BIT);
 
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, mediumImagePBOs[ready]);
-    unsigned int * mData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypointsMedium * 64 * 4 * 4, GL_MAP_READ_BIT);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, smallSigmaImagePBOs[ready]);
+    unsigned int * smallSigmaData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypointsSmallSigma * 64 * 4 * 4, GL_MAP_READ_BIT);
 
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, highImagePBOs[ready]);
-    unsigned int * hData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypointsHigh * 64 * 4 * 4, GL_MAP_READ_BIT);
-
-    if (hData && mData && lData)
+    if (bigSigmaData && smallSigmaData)
     {
         for (int i = 0; i < 64; i++)
         {
             int n = 0;
             int j = 0;
-            for (j = 0; j < mNbKeypointsLow; j++)
-            {
-                int idx = (i * mNbKeypointsLow + j) * 4;
-                int x   = lData[idx];
-                int y   = lData[idx + 1];
-                if (x == 0)
-                {
-                    break;
-                }
-                if (x < 15 || x > m_w - 15)
-                {
-                    Utils::log("AAAA Error reading the low thres texture\n");
-                    break;
-                }
 
-                kps.push_back(cv::KeyPoint(cv::Point2f(x, y), 1));
+            if (bigSigmaData[8] & 0x00FF) //If there are more than 8 keypoints with high threshold, take high threshold points
+            {
+                for (j = 0; j < mNbKeypointsBigSigma; j++)
+                {
+                    int idx       = (i * mNbKeypointsBigSigma + j) * 4;
+                    int highThrsX = bigSigmaData[idx + 0];
+                    int highThrsY = bigSigmaData[idx + 1];
+                    if (highThrsX == 0)
+                    {
+                        break;
+                    }
+                    kps.push_back(cv::KeyPoint(cv::Point2f(highThrsX, highThrsY), 1));
+                }
             }
+            else
+            {
+                for (j = 0; j < mNbKeypointsBigSigma; j++)
+                {
+                    int idx       = (i * mNbKeypointsBigSigma + j) * 4;
+                    int lowThrsX = bigSigmaData[idx + 2];
+                    int lowThrsY = bigSigmaData[idx + 3];
+                    if (lowThrsX == 0)
+                    {
+                        break;
+                    }
+                    kps.push_back(cv::KeyPoint(cv::Point2f(lowThrsX, lowThrsY), 1));
+                }
+            }
+            
             n = j;
             if (n < 8)
             {
-                for (int j = 0; j < mNbKeypointsMedium; j++)
+                if (smallSigmaData[8] & 0x00FF) //If there are more than 8 keypoints with high threshold, take high threshold points
                 {
-                    int idx = (i * mNbKeypointsMedium + j) * 4;
-                    int x = mData[idx];
-                    int y = mData[idx+1];
-                    if (x == 0)
-                        break;
-
-                    if (x < 15 || x > m_w - 15)
+                    for (j = 0; j < mNbKeypointsSmallSigma; j++)
                     {
-                        Utils::log("AAAA Error reading low thres texture\n");
-                        break;
+                        int idx       = (i * mNbKeypointsSmallSigma + j) * 4;
+                        int highThrsX = smallSigmaData[idx + 0];
+                        int highThrsY = smallSigmaData[idx + 1];
+                        if (highThrsX == 0)
+                        {
+                            break;
+                        }
+                        kps.push_back(cv::KeyPoint(cv::Point2f(highThrsX, highThrsY), 1));
                     }
-                    kps.push_back(cv::KeyPoint(cv::Point2f(x, y), 1));
                 }
-            }
-            n += j;
-            if (n < 8)
-            {
-                for (int j = 0; j < mNbKeypointsHigh; j++)
+                else
                 {
-                    int idx = (i * mNbKeypointsHigh + j) * 4;
-                    int x = hData[idx];
-                    int y = hData[idx+1];
-                    if (x == 0)
-                        break;
-
-                    if (x < 15 || x > m_w - 15)
+                    for (j = 0; j < mNbKeypointsSmallSigma; j++)
                     {
-                        Utils::log("AAAA Error reading low thres texture\n");
-                        break;
+                        int idx      = (i * mNbKeypointsSmallSigma + j) * 4;
+                        int lowThrsX = smallSigmaData[idx + 2];
+                        int lowThrsY = smallSigmaData[idx + 3];
+                        if (lowThrsX == 0)
+                        {
+                            break;
+                        }
+                        kps.push_back(cv::KeyPoint(cv::Point2f(lowThrsX, lowThrsY), 1));
                     }
-
-                    kps.push_back(cv::KeyPoint(cv::Point2f(x, y), 1));
                 }
             }
         }
@@ -1380,10 +1360,7 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
 
     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
 
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, mediumImagePBOs[ready]);
-    glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, lowImagePBOs[ready]);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, bigSigmaImagePBOs[ready]);
     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
 
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
