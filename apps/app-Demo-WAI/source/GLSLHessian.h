@@ -60,11 +60,11 @@ public:
     GLint extractorOffsetLoc;
     GLint extractorSizeLoc;
     GLint extractorIdxLoc;
-    GLint extractorBigSigmaCountersLoc;
-    GLint extractorMediumCountersLoc;
-    GLint extractorSmallSigmaCountersLoc;
+    GLint extractorBigSigmaCountersHighThrsLoc;
+    GLint extractorBigSigmaCountersLowThrsLoc;
+    GLint extractorSmallSigmaCountersHighThrsLoc;
+    GLint extractorSmallSigmaCountersLowThrsLoc;
     GLint extractorBigSigmaImageLoc;
-    GLint extractorMediumImageLoc;
     GLint extractorSmallSigmaImageLoc;
 
     bool externalTexture;
@@ -104,13 +104,13 @@ public:
 
     ~GLSLHessian();
     GLSLHessian();
-    GLSLHessian(int w, int h, int nbKeypointsBigSigma, int nbKeypointsMedium, int nbKeypointsSmallSigma, float thrs, float bigSigmaSigma, float mediumSigma, float smallSigmaSigma);
+    GLSLHessian(int w, int h, int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma);
 
     string gaussian(int size, int halfSize, float sigma);
     string gaussianD1(int size, int halfSize, float sigma);
     string gaussianD2(int size, int halfSize, float sigma);
 
-    void init(int w, int h, int nbKeypointsBigSigma, int nbKeypointsMedium, int nbKeypointsSmallSigma, float thrs, float bigSigmaSigma, float mediumSigma, float smallSigmaSigma);
+    void init(int w, int h, int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma);
     void initShaders();
     void initVBO();
     void initTextureBuffers(int width, int height);

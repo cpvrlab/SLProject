@@ -610,6 +610,8 @@ GLuint GLSLHessian::buildShaderFromSource(string source, GLenum shaderType)
     Utils::replaceString(completeSrc, "$THRESHOLD_HIGH", highThresholdStr);
     Utils::replaceString(completeSrc, "$THRESHOLD_LOW", lowThresholdStr);
 
+    std::cout << "nb keypoints " << nbKeypointsBigSigmaStr << "  high thrs " << highThresholdStr << "  low thrs " << lowThresholdStr << std::endl;
+
     const char* src         = completeSrc.c_str();
 
     glShaderSource(shaderHandle, 1, &src, nullptr);
@@ -752,13 +754,14 @@ void GLSLHessian::initShaders()
     extractorSizeLoc           = glGetUniformLocation(extractor, "s");
     extractorIdxLoc            = glGetUniformLocation(extractor, "idx");
     extractorWLoc              = glGetUniformLocation(extractor, "w");
-    extractorHLoc              = glGetUniformLocation(extractor, "h");
-    extractorBigSigmaCountersLoc    = glGetUniformLocation(extractor, "bigSigmaCounters");
-    extractorMediumCountersLoc = glGetUniformLocation(extractor, "mediumCounters");
-    extractorSmallSigmaCountersLoc   = glGetUniformLocation(extractor, "smallSigmaCounters");
+    extractorHLoc              = glGetUniformLocation(extractor, "h"); 
+
+    extractorBigSigmaCountersLowThrsLoc    = glGetUniformLocation(extractor, "bigSigmaCounterLowThrs");
+    extractorBigSigmaCountersHighThrsLoc   = glGetUniformLocation(extractor, "bigSigmaCounterHighThrs");
+    extractorSmallSigmaCountersLowThrsLoc  = glGetUniformLocation(extractor, "smallSigmaCountersLowThrs");
+    extractorSmallSigmaCountersHighThrsLoc = glGetUniformLocation(extractor, "smallSigmaCountersHighThrs");
     extractorBigSigmaImageLoc       = glGetUniformLocation(extractor, "bigSigmaImage");
-    extractorMediumImageLoc    = glGetUniformLocation(extractor, "mediumImage");
-    extractorSmallSigmaImageLoc      = glGetUniformLocation(extractor, "smallSigmaImage");
+    extractorSmallSigmaImageLoc     = glGetUniformLocation(extractor, "smallSigmaImage");
 }
 
 void GLSLHessian::initVBO()
@@ -1032,8 +1035,7 @@ void GLSLHessian::extract(int w, int h, int curr)
     glUniform1f(extractorHLoc, (float)h);
     glUniform1i(extractorTexLoc, REMOVEEDGE);
     glUniform1i(extractorBigSigmaImageLoc, 0);
-    glUniform1i(extractorMediumImageLoc, 1);
-    glUniform1i(extractorSmallSigmaImageLoc, 2);
+    glUniform1i(extractorSmallSigmaImageLoc, 1);
 
     glBindVertexArray(vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboi);
@@ -1110,34 +1112,32 @@ string GLSLHessian::gaussianD2(int size, int half_size, float sigma)
     return fctStr;
 }
 
-void GLSLHessian::init(int w, int h, int nbKeypointsBigSigma, int nbKeypointsMedium, int nbKeypointsSmallSigma, float thrs, float bigSigmaSigma, float mediumSigma, float smallSigmaSigma)
+void GLSLHessian::init(int w, int h, int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma)
 {
     m_w = w;
     m_h = h;
     curr = 1;
     ready = 0;
     mNbKeypointsBigSigma = nbKeypointsBigSigma;
-    mNbKeypointsMedium = nbKeypointsMedium;
     mNbKeypointsSmallSigma = nbKeypointsSmallSigma;
     nbKeypointsBigSigmaStr = std::to_string(nbKeypointsBigSigma);
-    nbKeypointsMediumStr = std::to_string(nbKeypointsMedium);
     nbKeypointsSmallSigmaStr = std::to_string(nbKeypointsSmallSigma);
-    highThresholdStr = std::to_string(thrs);
-    lowThresholdStr = std::to_string(thrs * 0.3333);
+    highThresholdStr = std::to_string(highThrs);
+    lowThresholdStr = std::to_string(lowThrs);
 
     //At a radius of 3 sigma from the center, we keep ~97% of the gaussian fct.
     // | 0x1 to ensure this is a odd number (not divisible per 2)
-    int size = ((int)floor(bigSigmaSigma * 6.0)) | 0x1;
+    int size = ((int)floor(bigSigma * 6.0)) | 0x1;
     int halfSize = size >> 1;
     string sz_s = to_string(size);
 
-    std::string gaussianBigSigmaKernelStr   = "const float bigSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussian(size, halfSize, bigSigmaSigma) + ");\n";
-    std::string gaussianD1BigSigmaKernelStr = "const float bigSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD1(size, halfSize, bigSigmaSigma) + ");\n";
-    std::string gaussianD2BigSigmaKernelStr = "const float bigSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD2(size, halfSize, bigSigmaSigma) + ");\n";
+    std::string gaussianBigSigmaKernelStr   = "const float bigSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussian(size, halfSize, bigSigma) + ");\n";
+    std::string gaussianD1BigSigmaKernelStr = "const float bigSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD1(size, halfSize, bigSigma) + ");\n";
+    std::string gaussianD2BigSigmaKernelStr = "const float bigSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD2(size, halfSize, bigSigma) + ");\n";
 
-    std::string gaussianSmallSigmaKernelStr   = "const float smallSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussian(size, halfSize, smallSigmaSigma) + ");\n";
-    std::string gaussianD1SmallSigmaKernelStr = "const float smallSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD1(size, halfSize, smallSigmaSigma) + ");\n";
-    std::string gaussianD2SmallSigmaKernelStr = "const float smallSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD2(size, halfSize, smallSigmaSigma) + ");\n";
+    std::string gaussianSmallSigmaKernelStr   = "const float smallSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussian(size, halfSize, smallSigma) + ");\n";
+    std::string gaussianD1SmallSigmaKernelStr = "const float smallSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD1(size, halfSize, smallSigma) + ");\n";
+    std::string gaussianD2SmallSigmaKernelStr = "const float smallSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD2(size, halfSize, smallSigma) + ");\n";
 
     gaussianKernelStr = gaussianBigSigmaKernelStr + gaussianSmallSigmaKernelStr;
     gaussianD1KernelStr = gaussianD1BigSigmaKernelStr + gaussianD1SmallSigmaKernelStr;
@@ -1155,9 +1155,9 @@ void GLSLHessian::init(int w, int h, int nbKeypointsBigSigma, int nbKeypointsMed
 
 GLSLHessian::GLSLHessian() { }
 
-GLSLHessian::GLSLHessian(int w, int h, int nbKeypointsBigSigma, int nbKeypointsMedium, int nbKeypointsSmallSigma, float thrs, float bigSigmaSigma, float mediumSigma, float smallSigmaSigma)
+GLSLHessian::GLSLHessian(int w, int h, int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma)
 {
-    init(w, h, nbKeypointsBigSigma, nbKeypointsMedium, nbKeypointsSmallSigma, thrs, bigSigmaSigma, mediumSigma, smallSigmaSigma);
+    init(w, h, nbKeypointsBigSigma, nbKeypointsSmallSigma, highThrs, lowThrs, bigSigma, smallSigma);
 }
 
 GLSLHessian::~GLSLHessian()
@@ -1241,9 +1241,6 @@ void GLSLHessian::gpu_kp()
         glBindTexture(GL_TEXTURE_2D, renderTextures[i]);
     }
 
-    glActiveTexture(GL_TEXTURE12);
-    glBindTexture(GL_TEXTURE_2D, patternTexture);
-
     glClearColor(0, 0, 0, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, bigSigmaImagesFB);
@@ -1301,6 +1298,8 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
                     int idx       = (i * mNbKeypointsBigSigma + j) * 4;
                     int highThrsX = bigSigmaData[idx + 0];
                     int highThrsY = bigSigmaData[idx + 1];
+                    std::cout << "x " << highThrsX << "  y " << highThrsY << std::endl;
+
                     if (highThrsX == 0)
                     {
                         break;
@@ -1315,6 +1314,7 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
                     int idx       = (i * mNbKeypointsBigSigma + j) * 4;
                     int lowThrsX = bigSigmaData[idx + 2];
                     int lowThrsY = bigSigmaData[idx + 3];
+                    std::cout << "x " << lowThrsX << "  y " << lowThrsY << std::endl;
                     if (lowThrsX == 0)
                     {
                         break;
@@ -1333,6 +1333,7 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
                         int idx       = (i * mNbKeypointsSmallSigma + j) * 4;
                         int highThrsX = smallSigmaData[idx + 0];
                         int highThrsY = smallSigmaData[idx + 1];
+                        std::cout << "x " << highThrsX << "  y " << highThrsY << std::endl;
                         if (highThrsX == 0)
                         {
                             break;
@@ -1347,6 +1348,7 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
                         int idx      = (i * mNbKeypointsSmallSigma + j) * 4;
                         int lowThrsX = smallSigmaData[idx + 2];
                         int lowThrsY = smallSigmaData[idx + 3];
+                        std::cout << "x " << lowThrsX << "  y " << lowThrsY << std::endl;
                         if (lowThrsX == 0)
                         {
                             break;

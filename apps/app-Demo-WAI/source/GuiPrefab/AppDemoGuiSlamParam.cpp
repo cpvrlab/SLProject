@@ -61,9 +61,10 @@ KPextractor* AppDemoGuiSlamParam::surfExtractor(int th)
     return new ORB_SLAM2::SURFextractor(th);
 }
 
-KPextractor* AppDemoGuiSlamParam::glslExtractor(int nb_kp_low, int nb_kp_medium, int nb_kp_high, float thrs, float lowSigma, float mediumSigma, float highSigma)
+KPextractor* AppDemoGuiSlamParam::glslExtractor(int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma)
 {
-    return new GLSLextractor(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows, nb_kp_low, nb_kp_medium, nb_kp_high, thrs, lowSigma, mediumSigma, highSigma);
+    // int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma
+    return new GLSLextractor(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows, nbKeypointsBigSigma, nbKeypointsSmallSigma, highThrs, lowThrs, bigSigma, smallSigma);
 }
 
 KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
@@ -87,13 +88,13 @@ KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
             return orbExtractor(4000);
         case 7:
             _waiApp.doubleBufferedOutput = true;
-            return glslExtractor(8, 8, 8, 0.50, 1.9, 1.6, 1.3);
+            return glslExtractor(8, 8, 0.4, 0.2, 1.9, 1.2);
         case 8:
             _waiApp.doubleBufferedOutput = true;
-            return glslExtractor(16, 16, 16, 0.25, 1.8, 1.5, 1.2);
+            return glslExtractor(16, 16, 0.3, 0.1, 1.9, 1.2);
         case 9:
             _waiApp.doubleBufferedOutput = true;
-            return glslExtractor(32, 32, 32, 0.1, 1.8, 1.5, 1.2);
+            return glslExtractor(16, 16, 0.2, 0.1, 1.9, 1.2);
     }
     return surfExtractor(1000);
 }
