@@ -1297,13 +1297,13 @@ void SLNode::createOptixInstances(std::vector<OptixInstance>& instances) {
         memcpy(instance.transform, transform, sizeof(float)*12);
 
         instance.instanceId         = instanceIndex++;
-        if (mesh->mat()->emissive().x != 0 ||
-            mesh->mat()->emissive().y != 0 ||
-            mesh->mat()->emissive().z != 0 ||
+        if (mesh->name().find("LightSpot") != -1 ||
             mesh->name() == "line") {
-            instance.visibilityMask     = 252;
+            instance.visibilityMask = 252;
+        } else if(mesh->name().find("LightRect") != -1) {
+            instance.visibilityMask = 254;
         } else {
-            instance.visibilityMask     = 255;
+            instance.visibilityMask = 255;
         }
         instance.flags              = OPTIX_INSTANCE_FLAG_NONE;
         instance.traversableHandle  = mesh->optixTraversableHandle();

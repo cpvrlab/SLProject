@@ -357,7 +357,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         revG.push_back(SLVec3f(2.05f, 6.00f));
         SLuint  res   = 30;
         SLNode* glass = new SLNode(new SLRevolver(revG, SLVec3f(0, 1, 0), res, true, false, "GlassRev", mat5));
-        glass->translate(0.0f, -3.5f, 0.0f, TS_object);
+        glass->translate(0.0f, -3.49f, 0.0f, TS_object);
 
         // wine 2D polyline definition for revolution with two sided material
         SLVVec3f revW;
