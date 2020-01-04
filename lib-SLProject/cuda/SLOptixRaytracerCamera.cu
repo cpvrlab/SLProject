@@ -40,9 +40,12 @@ extern "C" __global__ void __raygen__lens_camera()
     float radius = rtData->lensDiameter / 2.0f;
     float4 color = make_float4(0.0f);
 
+    // Loop over radius
     for (unsigned int r = 1; r <= rtData->samples.samplesX; r++) {
+        // Loop over angle
         for (unsigned int q = 1; q <= rtData->samples.samplesY; q++) {
             const float phi = (2.0f / rtData->samples.samplesY) * q;
+            // Set displacement on the disc
             const float3 origin      = rtData->camera.eye +
                     (normalize(rtData->camera.U) * cospif(phi) * ((radius / rtData->samples.samplesX) * r)) +
                     (normalize(rtData->camera.V) * sinpif(phi) * ((radius / rtData->samples.samplesX) * r));
@@ -52,10 +55,9 @@ extern "C" __global__ void __raygen__lens_camera()
         }
     }
 
-
+    // Divide the final color by the number of samples
     params.image[idx.y * params.width + idx.x] = color / (rtData->samples.samplesX * rtData->samples.samplesY);
 }
-
 
 extern "C" __global__ void __raygen__orthographic_camera()
 {

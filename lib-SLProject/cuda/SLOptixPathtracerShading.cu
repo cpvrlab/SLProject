@@ -25,7 +25,8 @@ static __forceinline__ __device__ void cosine_sample_hemisphere(const float u1, 
     // Uniformly sample disk.
     const float r   = sqrtf(u1);
     const float phi = 2.0f * M_PIf * u2;
-    p = r * cosf( phi ) * discX + r * sinf( phi ) * discY;
+    p = r * cosf( phi ) * discX +
+        r * sinf( phi ) * discY;
     float l = sqrtf( fmaxf( 0.0f, 1.0f - length(p) * length(p) ) );
     p += l * N;
 }
@@ -34,6 +35,11 @@ extern "C" __global__ void __closesthit__radiance() {
     // Get all data for the hit point
     auto *rt_data = reinterpret_cast<HitData *>( optixGetSbtDataPointer());
     const float3 ray_dir = optixGetWorldRayDirection();
+
+    if (getDepth() >= params.max_depth) {
+        setColor(make_float4(0.0f));
+        return;
+    }
 
     uint3 idx = optixGetLaunchIndex();
     const uint3 dim = optixGetLaunchDimensions();
@@ -56,33 +62,20 @@ extern "C" __global__ void __closesthit__radiance() {
         float4 local_color;
         float4 incoming_color;
         float random = curand_uniform(state);
-        if (getDepth() < params.max_depth) {
-            if (rt_data->material.kr > random) {
-                incoming_color = traceReflectionRay(params.handle, P, N, ray_dir);
-                local_color = rt_data->material.specular_color;
-            } else if ((rt_data->material.kr + rt_data->material.kt) > random) {
-                incoming_color = traceRefractionRay(params.handle, P, N, ray_dir, rt_data->material.kn);
-                local_color = rt_data->material.transmissiv_color;
-            } else {
-                float3 direction;
-                cosine_sample_hemisphere( curand_uniform(state), curand_uniform(state), N, direction );
-                incoming_color = traceSecondaryRay(params.handle, P, direction);
-                local_color = rt_data->material.diffuse_color * texture_color;
-            }
-
-            // Set color to payload
-            setColor(local_color * incoming_color);
+        if (rt_data->material.kr > random) {
+            incoming_color = traceReflectionRay(params.handle, P, N, ray_dir);
+            local_color = rt_data->material.specular_color;
+        } else if ((rt_data->material.kr + rt_data->material.kt) > random) {
+            incoming_color = traceRefractionRay(params.handle, P, N, ray_dir, rt_data->material.kn);
+            local_color = rt_data->material.transmissiv_color;
         } else {
-            if (rt_data->material.kr > random) {
-                local_color = rt_data->material.specular_color;
-            } else if ((rt_data->material.kr + rt_data->material.kt) > random) {
-                local_color = rt_data->material.transmissiv_color;
-            } else {
-                local_color = rt_data->material.diffuse_color * texture_color;
-            }
-
-            // Set color to payload
-            setColor(local_color);
+            float3 direction;
+            cosine_sample_hemisphere( curand_uniform(state), curand_uniform(state), N, direction );
+            incoming_color = traceSecondaryRay(params.handle, P, direction);
+            local_color = rt_data->material.diffuse_color * texture_color;
         }
+
+        // Set color to payload
+        setColor(local_color * incoming_color);
     }
 }

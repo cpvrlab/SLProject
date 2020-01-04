@@ -456,9 +456,10 @@ void SLOptixRaytracer::prepareImage()
         // Delete the OpenGL Texture if it already exists
         if (_texName)
         {
-            if (_cudaGraphicsResource) {
-                CUDA_CHECK( cuGraphicsUnregisterResource(_cudaGraphicsResource) );
-            }
+//            if (_cudaGraphicsResource) {
+//                CUDA_CHECK( cuGraphicsUnregisterResource(_cudaGraphicsResource) );
+//                _cudaGraphicsResource = nullptr;
+//            }
             glDeleteTextures(1, &_texName);
             _texName = 0;
         }
