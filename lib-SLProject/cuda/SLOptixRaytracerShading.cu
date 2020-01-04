@@ -114,16 +114,18 @@ extern "C" __global__ void __closesthit__radiance() {
                         }
                     }
 
-                    local_color += (rt_data->material.diffuse_color * max(nDl, 0.0f))                                               // diffuse
-                                   * lighted                                                                                              // lighted
-                                   * light.diffuse_color                                                                       // multiply with diffuse light color
-                                   * lightAttenuation(light, Ldist)                                                             // multiply with light attenuation
-                                   * spotEffect;
-                    specular_color += (rt_data->material.specular_color * powf( max(dot(N, H), 0.0), rt_data->material.shininess))  // specular
-                                      * lighted                                                                                              // lighted
-                                      * light.specular_color                                                                      // multiply with specular light color
-                                      * lightAttenuation(light, Ldist)                                                          // multiply with light attenuation
-                                      * spotEffect;
+                    local_color +=
+                            (rt_data->material.diffuse_color * max(nDl, 0.0f)) // diffuse
+                            * lighted // lighted
+                            * light.diffuse_color // multiply with diffuse light color
+                            * lightAttenuation(light, Ldist) // multiply with light attenuation
+                            * spotEffect;
+                    specular_color +=
+                            (rt_data->material.specular_color * powf( max(dot(N, H), 0.0), rt_data->material.shininess))  // specular
+                            * lighted // lighted
+                            * light.specular_color // multiply with specular light color
+                            * lightAttenuation(light, Ldist) // multiply with light attenuation
+                            * spotEffect;
                 }
             }
             local_color += rt_data->material.ambient_color
