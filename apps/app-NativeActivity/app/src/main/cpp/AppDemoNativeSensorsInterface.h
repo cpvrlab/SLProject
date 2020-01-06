@@ -3,11 +3,6 @@
 
 struct SensorsCallbacks
 {
-    void (*onSaveState)(void* usrPtr);
-    void (*onInit)(void* usrPtr, struct android_app* app);
-    void (*onClose)(void* usrPtr, struct android_app* app);
-    void (*onGainedFocus)(void* usrPtr);
-    void (*onLostFocus)(void* usrPtr);
     void (*onAcceleration)(void* usrPtr, float x, float y, float z);
 
     void* usrPtr;

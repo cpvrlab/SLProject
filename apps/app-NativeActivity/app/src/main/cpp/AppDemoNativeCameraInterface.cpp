@@ -94,11 +94,11 @@ unsigned int getCameraList(struct CameraHandler** handlerp, struct CameraInfo** 
 
             if (*lensFacing.data.u8 == ACAMERA_LENS_FACING_BACK)
             {
-                cameraInfo[i].prop = BACKFACING;
+                cameraInfo[i].prop = CAMERA_BACKFACING;
             }
             else
             {
-                cameraInfo[i].prop = FRONTFACING;
+                cameraInfo[i].prop = CAMERA_FRONTFACING;
             }
             ACameraMetadata_free(characteristics);
         }
@@ -130,7 +130,7 @@ unsigned int getBackFacingCameraList(struct CameraHandler* handler, struct Camer
 
             if (*lensFacing.data.u8 == ACAMERA_LENS_FACING_BACK)
             {
-                cameraInfo[n++].prop = BACKFACING;
+                cameraInfo[n++].prop = CAMERA_BACKFACING;
             }
             ACameraMetadata_free(characteristics);
         }
@@ -161,12 +161,15 @@ int initCamera(struct CameraHandler* handler, struct CameraInfo* info, struct Ca
     callbacks.onDisconnected = cameraDisconnected;
     callbacks.onError        = cameraError;
 
-    if (ACameraManager_openCamera(handler->_manager, info->_id, &callbacks, &cam->_device) == ACAMERA_OK)
+    camera_status_t openResult = ACameraManager_openCamera(handler->_manager, info->_id, &callbacks, &cam->_device);
+
+    int result = false;
+    if (openResult == ACAMERA_OK)
     {
-        return CAMERA_OK;
+        result = true;
     }
 
-    return CAMERA_ERROR;
+    return result;
 }
 
 void onSessionClosed(void* ctx, ACameraCaptureSession* ses)
@@ -238,6 +241,27 @@ static inline uint32_t YUV2RGB(int nY, int nU, int nV)
     return 0xff000000 | (nR << 16) | (nG << 8) | nB;
 }
 
+static void copyToBuffer(uint8_t* buf, AImage* image)
+{
+    AImageCropRect srcRect;
+    AImage_getCropRect(image, &srcRect);
+    int32_t  yStride, uvStride;
+    uint8_t *yPixel, *uPixel, *vPixel;
+    int32_t  yLen, uLen, vLen;
+    AImage_getPlaneRowStride(image, 0, &yStride);
+    AImage_getPlaneRowStride(image, 1, &uvStride);
+    AImage_getPlaneData(image, 0, &yPixel, &yLen);
+    AImage_getPlaneData(image, 1, &uPixel, &uLen);
+    AImage_getPlaneData(image, 2, &vPixel, &vLen);
+    int32_t uvPixelStride;
+    AImage_getPlanePixelStride(image, 1, &uvPixelStride);
+
+    //buf = malloc(yLen + uLen + vLen);
+    memcpy(buf, yPixel, yLen);
+    memcpy(buf + yLen, uPixel, uLen);
+    memcpy(buf + yLen + uLen, vPixel, vLen);
+}
+
 static void imageConverter(uint8_t* buf, AImage* image)
 {
     AImageCropRect srcRect;
@@ -288,7 +312,8 @@ int cameraLastFrame(struct Camera* cam, unsigned char* imageBuffer)
         AImage_getFormat(image, &format);
         AImage_getHeight(image, &height);
         AImage_getHeight(image, &width);
-        imageConverter(imageBuffer, image);
+        //imageConverter(imageBuffer, image);
+        copyToBuffer(imageBuffer, image);
         AImage_delete(image);
         return CAMERA_OK;
     }
