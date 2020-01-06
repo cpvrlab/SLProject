@@ -386,6 +386,120 @@ std::string getExternalDir(android_app* app)
     return path;
 }
 
+jstring androidPermissionName(JNIEnv* env, const char* permissionName)
+{
+    jclass   classManifestPermission = env->FindClass("android/Manifest$permission");
+    jfieldID idPermission            = env->GetStaticFieldID(classManifestPermission, permissionName, "Ljava/lang/String;");
+    jstring  result                  = (jstring)(env->GetStaticObjectField(classManifestPermission, idPermission));
+
+    return result;
+}
+
+bool isPermissionGranted(struct android_app* app, const char* permissionName)
+{
+    JavaVM* jvm            = app->activity->vm;
+    JNIEnv* env            = nullptr;
+    bool    threadAttached = false;
+
+    switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
+    {
+        case JNI_OK: {
+        }
+        break;
+        case JNI_EDETACHED: {
+            jint result = jvm->AttachCurrentThread(&env, nullptr);
+            if (result == JNI_ERR)
+            {
+                //TODO(dgj1): error handling
+                LOGW("Could not attach thread to jvm\n");
+                return "";
+            }
+            threadAttached = true;
+        }
+        break;
+        case JNI_EVERSION: {
+            //TODO(dgj1): error handling
+            LOGW("unsupported java version\n");
+            return "";
+        }
+    }
+
+    jstring stringPermission = androidPermissionName(env, permissionName);
+
+    jclass   classPackageManager    = env->FindClass("android/content/pm/PackageManager");
+    jfieldID idPermissionGranted    = env->GetStaticFieldID(classPackageManager, "PERMISSION_GRANTED", "I");
+    jint     permissionGrantedValue = env->GetStaticIntField(classPackageManager, idPermissionGranted);
+
+    jobject   activity                  = app->activity->clazz;
+    jclass    classContext              = env->FindClass("android/app/Activity");
+    jmethodID methodCheckSelfPermission = env->GetMethodID(classContext, "checkSelfPermission", "(Ljava/lang/String;)I");
+    jint      checkResult               = env->CallIntMethod(activity, methodCheckSelfPermission, stringPermission);
+
+    bool result = (checkResult == permissionGrantedValue);
+
+    if (threadAttached)
+    {
+        jvm->DetachCurrentThread();
+    }
+
+    return result;
+}
+
+void requestPermission(struct android_app* app)
+{
+
+    JavaVM* jvm            = app->activity->vm;
+    JNIEnv* env            = nullptr;
+    bool    threadAttached = false;
+
+    switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
+    {
+        case JNI_OK: {
+        }
+        break;
+        case JNI_EDETACHED: {
+            jint result = jvm->AttachCurrentThread(&env, nullptr);
+            if (result == JNI_ERR)
+            {
+                //TODO(dgj1): error handling
+                LOGW("Could not attach thread to jvm\n");
+                return "";
+            }
+            threadAttached = true;
+        }
+        break;
+        case JNI_EVERSION: {
+            //TODO(dgj1): error handling
+            LOGW("unsupported java version\n");
+            return "";
+        }
+    }
+
+    jobjectArray permissionArray = env->NewObjectArray(2, env->FindClass("java/lang/String"), env->NewStringUTF(""));
+    env->SetObjectArrayElement(permissionArray, 0, androidPermissionName(env, "CAMERA"));
+    env->SetObjectArrayElement(permissionArray, 0, androidPermissionName(env, "INTERNET"));
+
+    jobject   activity                = app->activity->clazz;
+    jclass    classContext            = env->FindClass("android/app/Activity");
+    jmethodID methodRequestPermission = env->GetMethodID(classContext, "requestPermissions", "([Ljava/lang/String;I)V");
+
+    env->CallVoidMethod(activity, methodRequestPermission, permissionArray, 0);
+
+    if (threadAttached)
+    {
+        jvm->DetachCurrentThread();
+    }
+}
+
+void checkAndRequestAndroidPermissions(struct android_app* app)
+{
+    bool hasPermission = isPermissionGranted(app, "CAMERA") && isPermissionGranted(app, "INTERNET");
+    if (!hasPermission)
+    {
+        requestPermission(app);
+    }
+}
+
 static void onInit(void* usrPtr, struct android_app* app)
 {
     Engine* engine = (Engine*)usrPtr;
@@ -538,6 +652,7 @@ static void onInit(void* usrPtr, struct android_app* app)
     AppDirectories dirs;
     dirs.slDataRoot  = path;
     dirs.waiDataRoot = path;
+    dirs.writableDir = path + "/";
 
     CVImage::defaultPath = dirs.slDataRoot + "/images/textures/";
 
@@ -776,6 +891,8 @@ void android_main(struct android_app* app)
     app->onAppCmd     = handleLifecycleEvent;
     app->onInputEvent = handleInput;
     app->userData     = &engine;
+
+    checkAndRequestAndroidPermissions(app);
 
     initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
 
