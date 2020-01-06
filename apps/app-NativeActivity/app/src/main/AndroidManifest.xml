@@ -2,6 +2,7 @@
     package="ch.cpvr.nativewai">
 
     <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="false"
@@ -12,6 +13,7 @@
         android:theme="@style/AppTheme"
         android:hasCode="false">
         <activity android:name="android.app.NativeActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:label="@string/app_name"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="landscape">

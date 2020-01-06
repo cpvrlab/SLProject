@@ -53,7 +53,7 @@ public:
         //keyframe culling strategy params:
         // A keyframe is considered redundant if _cullRedundantPerc of the MapPoints it sees, are seen
         // in at least other 3 keyframes (in the same or finer scale)
-        float cullRedundantPerc = 0.9f; //originally it was 0.9
+        float cullRedundantPerc = 0.95f; //originally it was 0.9
     };
 
     ModeOrbSlam2(cv::Mat       cameraMat,

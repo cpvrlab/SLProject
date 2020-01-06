@@ -27,11 +27,19 @@
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 
+#include <android/input.h>
 #include <android/sensor.h>
+#include <android/asset_manager.h>
 #include <android/log.h>
 #include <android_native_app_glue.h>
+
 #include <AppDemoNativeCameraInterface.h>
 #include <AppDemoNativeSensorsInterface.h>
+
+#include <Utils.h>
+
+#include <WAIApp.h>
+#include <CVCapture.h>
 
 #include <string>
 
@@ -63,7 +71,7 @@ static int quadi[6]{
 /**
  * Shared state for our app.
  */
-struct engine
+struct Engine
 {
     SensorsHandler* sensorsHandler;
     EGLDisplay      display;
@@ -76,6 +84,12 @@ struct engine
     GLuint texID;
     GLuint vaoID;
     int    run;
+
+    WAIApp waiApp;
+
+    // input stuff
+    int32_t  pointersDown;
+    uint64_t lastTouchMS;
 };
 
 static std::string vertexShaderSource = "#version 320 es\n"
@@ -129,9 +143,366 @@ GLuint buildShaderFromSource(std::string source, GLenum shaderType)
     return shaderHandle;
 }
 
+std::string getInternalDir(android_app* app)
+{
+    JavaVM* jvm            = app->activity->vm;
+    JNIEnv* env            = nullptr;
+    bool    threadAttached = false;
+
+    switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
+    {
+        case JNI_OK: {
+        }
+        break;
+        case JNI_EDETACHED: {
+            jint result = jvm->AttachCurrentThread(&env, nullptr);
+            if (result == JNI_ERR)
+            {
+                //TODO(dgj1): error handling
+                LOGW("Could not attach thread to jvm\n");
+                return "";
+            }
+            threadAttached = true;
+        }
+        break;
+        case JNI_EVERSION: {
+            //TODO(dgj1): error handling
+            LOGW("unsupported java version\n");
+            return "";
+        }
+    }
+
+    jobject objectActivity = app->activity->clazz;
+    // Get File object for the external storage directory.
+    jclass classContext = env->FindClass("android/app/Activity");
+    if (!classContext)
+    {
+        //TODO(dgj1): error handling
+        LOGW("could not get classContext\n");
+        return "";
+    }
+    jmethodID methodIDgetFilesDir = env->GetMethodID(classContext, "getFilesDir", "()Ljava/io/File;");
+    if (!methodIDgetFilesDir)
+    {
+        //TODO(dgj1): error handling
+        LOGW("could not get methodIDgetExternalFilesDir\n");
+        return "";
+    }
+    jobject    objectFile = env->CallObjectMethod(objectActivity, methodIDgetFilesDir);
+    jthrowable exception  = env->ExceptionOccurred();
+    if (exception)
+    {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+
+    // Call method on File object to retrieve String object.
+    jclass classFile = env->GetObjectClass(objectFile);
+    if (!classFile)
+    {
+        //TODO(dgj1): error handling
+        LOGW("could not get classFile\n");
+        return "";
+    }
+    jmethodID methodIDgetAbsolutePath = env->GetMethodID(classFile, "getAbsolutePath", "()Ljava/lang/String;");
+    if (!methodIDgetAbsolutePath)
+    {
+        //TODO(dgj1): error handling
+        LOGW("could not get methodIDgetAbsolutePath\n");
+        return "";
+    }
+    jstring stringPath = (jstring)env->CallObjectMethod(objectFile, methodIDgetAbsolutePath);
+    exception          = env->ExceptionOccurred();
+    if (exception)
+    {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+
+    jboolean    isCopy;
+    const char* absPath = env->GetStringUTFChars(stringPath, &isCopy);
+    std::string path    = std::string(absPath);
+
+    env->ReleaseStringUTFChars(stringPath, absPath);
+
+    if (threadAttached)
+    {
+        jvm->DetachCurrentThread();
+    }
+
+    return path;
+}
+
+void extractAPKFolder(android_app* app, std::string internalPath, std::string assetDirPath)
+{
+    JavaVM* jvm            = app->activity->vm;
+    JNIEnv* env            = nullptr;
+    bool    threadAttached = false;
+
+    switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
+    {
+        case JNI_OK: {
+        }
+        break;
+        case JNI_EDETACHED: {
+            jint result = jvm->AttachCurrentThread(&env, nullptr);
+            if (result == JNI_ERR)
+            {
+                //TODO(dgj1): error handling
+                LOGW("Could not attach thread to jvm\n");
+                return;
+            }
+            threadAttached = true;
+        }
+        break;
+        case JNI_EVERSION: {
+            //TODO(dgj1): error handling
+            LOGW("unsupported java version\n");
+            return;
+        }
+    }
+
+    std::string outputPath = Utils::unifySlashes(internalPath + "/" + assetDirPath + "/");
+    if (!Utils::dirExists(outputPath))
+    {
+        Utils::makeDir(outputPath);
+    }
+
+    AAssetManager* mgr      = app->activity->assetManager;
+    AAssetDir*     assetDir = AAssetManager_openDir(mgr, assetDirPath.c_str());
+    const char*    filename = (const char*)NULL;
+    while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL)
+    {
+        std::string inputFilename = assetDirPath + "/" + std::string(filename);
+        AAsset*     asset         = AAssetManager_open(mgr, inputFilename.c_str(), AASSET_MODE_STREAMING);
+        int         nb_read       = 0;
+        char        buf[BUFSIZ];
+        std::string outputFilename = outputPath + std::string(filename);
+        FILE*       out            = fopen(outputFilename.c_str(), "w");
+        while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
+        {
+            fwrite(buf, nb_read, 1, out);
+        }
+        fclose(out);
+        AAsset_close(asset);
+    }
+    AAssetDir_close(assetDir);
+
+    if (threadAttached)
+    {
+        jvm->DetachCurrentThread();
+    }
+}
+
+std::string getExternalDir(android_app* app)
+{
+    JavaVM* jvm            = app->activity->vm;
+    JNIEnv* env            = nullptr;
+    bool    threadAttached = false;
+
+    switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
+    {
+        case JNI_OK: {
+        }
+        break;
+        case JNI_EDETACHED: {
+            jint result = jvm->AttachCurrentThread(&env, nullptr);
+            if (result == JNI_ERR)
+            {
+                //TODO(dgj1): error handling
+                LOGW("Could not attach thread to jvm\n");
+                return "";
+            }
+            threadAttached = true;
+        }
+        break;
+        case JNI_EVERSION: {
+            //TODO(dgj1): error handling
+            LOGW("unsupported java version\n");
+            return "";
+        }
+    }
+
+    jobject objectActivity = app->activity->clazz;
+    // Get File object for the external storage directory.
+    jclass classContext = env->FindClass("android/app/Activity");
+    if (!classContext)
+    {
+        //TODO(dgj1): error handling
+        LOGW("could not get classContext\n");
+        return "";
+    }
+    jmethodID methodIDgetExternalFilesDir = env->GetMethodID(classContext, "getExternalFilesDir", "(Ljava/lang/String;)Ljava/io/File;");
+    if (!methodIDgetExternalFilesDir)
+    {
+        //TODO(dgj1): error handling
+        LOGW("could not get methodIDgetExternalFilesDir\n");
+        return "";
+    }
+    std::string s;
+    jstring     jS         = env->NewStringUTF(s.c_str());
+    jobject     objectFile = env->CallObjectMethod(objectActivity, methodIDgetExternalFilesDir, jS);
+    jthrowable  exception  = env->ExceptionOccurred();
+    if (exception)
+    {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+
+    // Call method on File object to retrieve String object.
+    jclass classFile = env->GetObjectClass(objectFile);
+    if (!classFile)
+    {
+        //TODO(dgj1): error handling
+        LOGW("could not get classFile\n");
+        return "";
+    }
+    jmethodID methodIDgetAbsolutePath = env->GetMethodID(classFile, "getAbsolutePath", "()Ljava/lang/String;");
+    if (!methodIDgetAbsolutePath)
+    {
+        //TODO(dgj1): error handling
+        LOGW("could not get methodIDgetAbsolutePath\n");
+        return "";
+    }
+    jstring stringPath = (jstring)env->CallObjectMethod(objectFile, methodIDgetAbsolutePath);
+    exception          = env->ExceptionOccurred();
+    if (exception)
+    {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+
+    jboolean    isCopy;
+    const char* absPath = env->GetStringUTFChars(stringPath, &isCopy);
+    std::string path    = std::string(absPath);
+
+    env->ReleaseStringUTFChars(stringPath, absPath);
+
+    if (threadAttached)
+    {
+        jvm->DetachCurrentThread();
+    }
+
+    return path;
+}
+
+jstring androidPermissionName(JNIEnv* env, const char* permissionName)
+{
+    jclass   classManifestPermission = env->FindClass("android/Manifest$permission");
+    jfieldID idPermission            = env->GetStaticFieldID(classManifestPermission, permissionName, "Ljava/lang/String;");
+    jstring  result                  = (jstring)(env->GetStaticObjectField(classManifestPermission, idPermission));
+
+    return result;
+}
+
+bool isPermissionGranted(struct android_app* app, const char* permissionName)
+{
+    JavaVM* jvm            = app->activity->vm;
+    JNIEnv* env            = nullptr;
+    bool    threadAttached = false;
+
+    switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
+    {
+        case JNI_OK: {
+        }
+        break;
+        case JNI_EDETACHED: {
+            jint result = jvm->AttachCurrentThread(&env, nullptr);
+            if (result == JNI_ERR)
+            {
+                //TODO(dgj1): error handling
+                LOGW("Could not attach thread to jvm\n");
+                return "";
+            }
+            threadAttached = true;
+        }
+        break;
+        case JNI_EVERSION: {
+            //TODO(dgj1): error handling
+            LOGW("unsupported java version\n");
+            return "";
+        }
+    }
+
+    jstring stringPermission = androidPermissionName(env, permissionName);
+
+    jclass   classPackageManager    = env->FindClass("android/content/pm/PackageManager");
+    jfieldID idPermissionGranted    = env->GetStaticFieldID(classPackageManager, "PERMISSION_GRANTED", "I");
+    jint     permissionGrantedValue = env->GetStaticIntField(classPackageManager, idPermissionGranted);
+
+    jobject   activity                  = app->activity->clazz;
+    jclass    classContext              = env->FindClass("android/app/Activity");
+    jmethodID methodCheckSelfPermission = env->GetMethodID(classContext, "checkSelfPermission", "(Ljava/lang/String;)I");
+    jint      checkResult               = env->CallIntMethod(activity, methodCheckSelfPermission, stringPermission);
+
+    bool result = (checkResult == permissionGrantedValue);
+
+    if (threadAttached)
+    {
+        jvm->DetachCurrentThread();
+    }
+
+    return result;
+}
+
+void requestPermission(struct android_app* app)
+{
+
+    JavaVM* jvm            = app->activity->vm;
+    JNIEnv* env            = nullptr;
+    bool    threadAttached = false;
+
+    switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
+    {
+        case JNI_OK: {
+        }
+        break;
+        case JNI_EDETACHED: {
+            jint result = jvm->AttachCurrentThread(&env, nullptr);
+            if (result == JNI_ERR)
+            {
+                //TODO(dgj1): error handling
+                LOGW("Could not attach thread to jvm\n");
+                return "";
+            }
+            threadAttached = true;
+        }
+        break;
+        case JNI_EVERSION: {
+            //TODO(dgj1): error handling
+            LOGW("unsupported java version\n");
+            return "";
+        }
+    }
+
+    jobjectArray permissionArray = env->NewObjectArray(2, env->FindClass("java/lang/String"), env->NewStringUTF(""));
+    env->SetObjectArrayElement(permissionArray, 0, androidPermissionName(env, "CAMERA"));
+    env->SetObjectArrayElement(permissionArray, 0, androidPermissionName(env, "INTERNET"));
+
+    jobject   activity                = app->activity->clazz;
+    jclass    classContext            = env->FindClass("android/app/Activity");
+    jmethodID methodRequestPermission = env->GetMethodID(classContext, "requestPermissions", "([Ljava/lang/String;I)V");
+
+    env->CallVoidMethod(activity, methodRequestPermission, permissionArray, 0);
+
+    if (threadAttached)
+    {
+        jvm->DetachCurrentThread();
+    }
+}
+
+void checkAndRequestAndroidPermissions(struct android_app* app)
+{
+    bool hasPermission = isPermissionGranted(app, "CAMERA") && isPermissionGranted(app, "INTERNET");
+    if (!hasPermission)
+    {
+        requestPermission(app);
+    }
+}
+
 static void onInit(void* usrPtr, struct android_app* app)
 {
-    struct engine* engine = (struct engine*)usrPtr;
+    Engine* engine = (Engine*)usrPtr;
     /*
      * Here specify the attributes of the desired configuration.
      * Below, we select an EGLConfig with at least 8 bits per color
@@ -267,11 +638,36 @@ static void onInit(void* usrPtr, struct android_app* app)
 
     glBindVertexArray(0);
     glViewport(0, 0, w, h);
+
+    std::string path = getInternalDir(app);
+    extractAPKFolder(app, path, "images");
+    extractAPKFolder(app, path, "images/fonts");
+    extractAPKFolder(app, path, "images/textures");
+    extractAPKFolder(app, path, "videos");
+    extractAPKFolder(app, path, "models");
+    extractAPKFolder(app, path, "shaders");
+    extractAPKFolder(app, path, "calibrations");
+    extractAPKFolder(app, path, "config");
+
+    AppDirectories dirs;
+    dirs.slDataRoot  = path;
+    dirs.waiDataRoot = path;
+    dirs.writableDir = path + "/";
+
+    CVImage::defaultPath = dirs.slDataRoot + "/images/textures/";
+
+    AConfiguration* appConfig = AConfiguration_new();
+    AConfiguration_fromAssetManager(appConfig, app->activity->assetManager);
+    int32_t dpi = AConfiguration_getDensity(appConfig);
+    AConfiguration_delete(appConfig);
+    engine->waiApp.load(640, 360, w, h, 1.0, 1.0, dpi, dirs);
+
+    CVCapture::instance()->videoType(VT_MAIN);
 }
 
 static void onClose(void* usrPtr, struct android_app* app)
 {
-    struct engine* engine = (struct engine*)usrPtr;
+    Engine* engine = (Engine*)usrPtr;
 
     if (engine->display != EGL_NO_DISPLAY)
     {
@@ -299,19 +695,184 @@ static void onSaveState(void* usrPtr)
 
 static void onGainedFocus(void* usrPtr)
 {
-    struct engine* engine = (struct engine*)usrPtr;
+    Engine* engine = (Engine*)usrPtr;
     sensorsHandler_enableAccelerometer(engine->sensorsHandler);
 }
 
 static void onLostFocus(void* usrPtr)
 {
-    struct engine* engine = (struct engine*)usrPtr;
+    Engine* engine = (Engine*)usrPtr;
     sensorsHandler_disableAccelerometer(engine->sensorsHandler);
 }
 
 static void onAcceleration(void* usrPtr, float x, float y, float z)
 {
-    LOGI("accel = %f %f %f\n", x, y, z);
+    //LOGI("accel = %f %f %f\n", x, y, z);
+}
+
+static uint64_t millisecondsSinceEpoch()
+{
+    std::chrono::milliseconds ms = duration_cast<milliseconds>(
+      system_clock::now().time_since_epoch());
+    uint64_t result = ms.count();
+
+    return result;
+}
+
+static void handleTouchDown(Engine* engine, AInputEvent* event)
+{
+    int     sceneViewIndex = 0; //TODO(dgj1): get this from SLProject
+    int32_t x0             = AMotionEvent_getX(event, 0);
+    int32_t y0             = AMotionEvent_getY(event, 0);
+    int32_t touchCount     = AMotionEvent_getPointerCount(event);
+
+    // just got a new single touch
+    if (touchCount == 1)
+    {
+        // get time to detect double taps
+        uint64_t touchNowMS   = millisecondsSinceEpoch();
+        uint64_t touchDeltaMS = touchNowMS - engine->lastTouchMS;
+        engine->lastTouchMS   = touchNowMS;
+
+        if (touchDeltaMS < 250)
+        {
+            LOGI("double click");
+            engine->waiApp.doubleClick(sceneViewIndex, MB_left, x0, y0, K_none);
+        }
+        else
+        {
+            LOGI("mouse down");
+            engine->waiApp.mouseDown(sceneViewIndex, MB_left, x0, y0, K_none);
+        }
+    }
+
+    // it's two fingers but one delayed (already executed mouse down)
+    else if (touchCount == 2 && engine->pointersDown == 1)
+    {
+        LOGI("mouse up + touch 2 down");
+        int x1 = AMotionEvent_getX(event, 1);
+        int y1 = AMotionEvent_getY(event, 1);
+        engine->waiApp.mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
+        engine->waiApp.touch2Down(sceneViewIndex, x0, y0, x1, y1);
+    }
+
+    // it's two fingers at the same time
+    else if (touchCount == 2)
+    {
+        // get time to detect double taps
+        uint64_t touchNowMS   = millisecondsSinceEpoch();
+        uint64_t touchDeltaMS = touchNowMS - engine->lastTouchMS;
+        engine->lastTouchMS   = touchNowMS;
+
+        int x1 = AMotionEvent_getX(event, 1);
+        int y1 = AMotionEvent_getY(event, 1);
+
+        LOGI("touch 2 down");
+        engine->waiApp.touch2Down(sceneViewIndex, x0, y0, x1, y1);
+    }
+
+    engine->pointersDown = touchCount;
+}
+
+static void handleTouchUp(Engine* engine, AInputEvent* event)
+{
+    int     sceneViewIndex = 0; //TODO(dgj1): get this from SLProject
+    int32_t x0             = AMotionEvent_getX(event, 0);
+    int32_t y0             = AMotionEvent_getY(event, 0);
+    int32_t touchCount     = AMotionEvent_getPointerCount(event);
+
+    if (touchCount == 1)
+    {
+        LOGI("mouse up");
+        engine->waiApp.mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
+    }
+    else if (touchCount == 2)
+    {
+        int32_t x1 = AMotionEvent_getX(event, 1);
+        int32_t y1 = AMotionEvent_getY(event, 1);
+
+        LOGI("touch 2 up");
+        engine->waiApp.touch2Up(sceneViewIndex, x0, y0, x1, y1);
+    }
+
+    engine->pointersDown = touchCount;
+}
+
+static void handleTouchMove(Engine* engine, AInputEvent* event)
+{
+    int     sceneViewIndex = 0; //TODO(dgj1): get this from SLProject
+    int32_t x0             = AMotionEvent_getX(event, 0);
+    int32_t y0             = AMotionEvent_getY(event, 0);
+    int32_t touchCount     = AMotionEvent_getPointerCount(event);
+
+    if (touchCount == 1)
+    {
+        LOGI("mouse move");
+        engine->waiApp.mouseMove(sceneViewIndex, x0, y0);
+    }
+    else if (touchCount == 2)
+    {
+        int32_t x1 = AMotionEvent_getX(event, 1);
+        int32_t y1 = AMotionEvent_getY(event, 1);
+
+        LOGI("touch 2 move");
+        engine->waiApp.touch2Move(sceneViewIndex, x0, y0, x1, y1);
+    }
+}
+
+static int32_t handleInput(struct android_app* app, AInputEvent* event)
+{
+    Engine* engine = (Engine*)app->userData;
+    if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
+    {
+        int action     = AMotionEvent_getAction(event);
+        int actionCode = action & AMOTION_EVENT_ACTION_MASK;
+
+        switch (actionCode)
+        {
+            case AMOTION_EVENT_ACTION_DOWN:
+            case AMOTION_EVENT_ACTION_POINTER_DOWN: {
+                handleTouchDown(engine, event);
+            }
+            break;
+
+            case AMOTION_EVENT_ACTION_UP:
+            case AMOTION_EVENT_ACTION_POINTER_UP: {
+                handleTouchUp(engine, event);
+            }
+            break;
+
+            case AMOTION_EVENT_ACTION_MOVE: {
+                handleTouchMove(engine, event);
+            }
+        }
+
+        return 1;
+    }
+    return 0;
+}
+
+static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
+{
+    Engine* engine = (Engine*)app->userData;
+    switch (cmd)
+    {
+        case APP_CMD_SAVE_STATE:
+            onSaveState(engine);
+            break;
+        case APP_CMD_INIT_WINDOW:
+            onInit(engine, app);
+            break;
+        case APP_CMD_TERM_WINDOW:
+            onClose(engine, app);
+            break;
+        case APP_CMD_GAINED_FOCUS:
+            onGainedFocus(engine);
+            break;
+        case APP_CMD_LOST_FOCUS:
+            onLostFocus(engine);
+            break;
+    }
 }
 
 /**
@@ -321,16 +882,17 @@ static void onAcceleration(void* usrPtr, float x, float y, float z)
  */
 void android_main(struct android_app* app)
 {
-    struct engine engine;
+    Engine engine = {};
 
     SensorsCallbacks callbacks;
-    callbacks.onInit         = onInit;
-    callbacks.onClose        = onClose;
-    callbacks.onLostFocus    = onLostFocus;
-    callbacks.onGainedFocus  = onGainedFocus;
-    callbacks.onSaveState    = onSaveState;
     callbacks.onAcceleration = onAcceleration;
     callbacks.usrPtr         = &engine;
+
+    app->onAppCmd     = handleLifecycleEvent;
+    app->onInputEvent = handleInput;
+    app->userData     = &engine;
+
+    checkAndRequestAndroidPermissions(app);
 
     initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
 
@@ -342,36 +904,77 @@ void android_main(struct android_app* app)
     if (getBackFacingCameraList(handler, &camerasInfo) == 0)
     {
         LOGW("Can't open camera\n");
+        exit(1);
     }
 
-    initCamera(handler, &camerasInfo[0], &camera);
+    if (!initCamera(handler, &camerasInfo[0], &camera))
+    {
+        LOGW("Could not initialize camera");
+        exit(1);
+    }
     free(camerasInfo);
     cameraCaptureSession(camera, 640, 360);
     destroyCameraHandler(&handler);
 
-    uint8_t* imageBuffer = (uint8_t*)malloc(sizeof(int) * 640 * 360);
+    //uint8_t* imageBuffer = (uint8_t*)malloc(4 * 640 * 360);
+    uint8_t* imageBuffer = (uint8_t*)malloc(3 * 640 * 360);
 
+    engine.run = true;
     while (engine.run)
     {
-        sensorsHandler_processEvent(engine.sensorsHandler);
+        int                         ident;
+        int                         events;
+        struct android_poll_source* source;
+
+        while ((ident = ALooper_pollAll(0, NULL, &events, (void**)&source)) >= 0)
+        {
+            if (source != NULL)
+            {
+                source->process(app, source);
+            }
+
+            if (ident == LOOPER_ID_USER)
+            {
+                sensorsHandler_processEvent(engine.sensorsHandler);
+            }
+
+            // Check if we are exiting.
+            if (app->destroyRequested != 0)
+            {
+                onClose(&engine, app);
+                return;
+            }
+        }
 
         if (engine.display != nullptr)
         {
             if (cameraLastFrame(camera, imageBuffer))
             {
+                CVCapture::instance()->loadIntoLastFrame(640.0f / 360.0f, 640, 360, PF_yuv_420_888, imageBuffer, true);
+            }
+            engine.waiApp.updateVideoImage();
+
+            /*
+            if (cameraLastFrame(camera, imageBuffer))
+            {
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, engine.texID);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 640, 360, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer);
             }
 
             // Just fill the screen with a color.
-            glClearColor(0.25f, 0.78f, 0.31f, 1.0f);
+            glClearColor(0.25f, 0.0f, 0.31f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
             glUseProgram(engine.programId);
             glBindVertexArray(engine.vaoID);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+             */
 
             eglSwapBuffers(engine.display, engine.surface);
         }
     }
+
+    engine.waiApp.close();
     destroyCamera(&camera);
 }

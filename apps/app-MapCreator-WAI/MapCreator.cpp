@@ -5,7 +5,7 @@
 MapCreator::MapCreator(std::string erlebARDir, std::string configFile)
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
-    _calibrationsDir = _erlebARDir + "../calibrations/";
+    _calibrationsDir = _erlebARDir + "calibrations/";
     _vocFile         = _erlebARDir + "../voc/ORBvoc.bin";
     _outputDir       = _erlebARDir + "MapCreator/";
     if (!Utils::dirExists(_outputDir))

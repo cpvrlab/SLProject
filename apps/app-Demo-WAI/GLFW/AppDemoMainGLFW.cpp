@@ -20,7 +20,7 @@
 #include <Utils.h>
 #include <HighResTimer.h>
 
-WAIApp waiApp;
+static WAIApp waiApp;
 
 //-----------------------------------------------------------------------------
 // GLobal application variables

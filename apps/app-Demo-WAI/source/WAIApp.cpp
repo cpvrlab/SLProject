@@ -766,6 +766,31 @@ bool WAIApp::updateSceneViews()
     return needUpdate;
 }
 
+void WAIApp::updateVideoImage()
+{
+    CVCapture* cap = CVCapture::instance();
+
+    CVMat undistortedLastFrame;
+    if (cap->activeCamera->calibration.state() == CS_calibrated && cap->activeCamera->showUndistorted())
+    {
+        cap->activeCamera->calibration.remap(cap->lastFrame, undistortedLastFrame);
+    }
+    else
+    {
+        undistortedLastFrame = cap->lastFrame;
+    }
+
+    _videoImage->copyVideoImage(undistortedLastFrame.cols,
+                                undistortedLastFrame.rows,
+                                cap->format,
+                                undistortedLastFrame.data,
+                                undistortedLastFrame.isContinuous(),
+                                true);
+
+    //update scene (before it was slUpdateScene)
+    SLApplication::scene->onUpdate();
+    updateSceneViews();
+}
 //-----------------------------------------------------------------------------
 void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm)
 {

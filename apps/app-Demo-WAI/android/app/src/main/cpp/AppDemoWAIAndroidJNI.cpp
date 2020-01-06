@@ -18,10 +18,10 @@
 
 //-----------------------------------------------------------------------------
 // Some global variable for the JNI interface
-JNIEnv*           environment; //! Pointer to JAVA environment used in ray tracing callback
-int               svIndex;     //!< SceneView index
+JNIEnv*        environment; //! Pointer to JAVA environment used in ray tracing callback
+int            svIndex;     //!< SceneView index
 AppDirectories dirs;
-WAIApp waiApp;
+WAIApp         waiApp;
 //-----------------------------------------------------------------------------
 /*! Java Native Interface (JNI) function declarations. These functions are
 called by the Java interface class GLES3Lib. The function name follows the pattern

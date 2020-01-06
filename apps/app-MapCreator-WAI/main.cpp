@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
 
         //initialize logger
         std::string cwd = Utils::getCurrentWorkingDir();
-        Logger::initFileLog(cwd, true);
+        Logger::initFileLog(Utils::unifySlashes(config.erlebARDir) + "MapCreator/", true);
         WAI_INFO("WAI MapCreator");
 
         //init map creator
