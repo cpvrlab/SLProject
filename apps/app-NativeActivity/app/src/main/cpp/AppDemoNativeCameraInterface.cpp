@@ -121,7 +121,6 @@ unsigned int getBackFacingCameraList(struct CameraHandler* handler, struct Camer
     unsigned int n = 0;
     for (int i = 0; i < cameraList->numCameras; i++)
     {
-        cameraInfo[n]._id = cameraList->cameraIds[i];
         ACameraMetadata* characteristics;
         if (ACameraManager_getCameraCharacteristics(handler->_manager, cameraList->cameraIds[i], &characteristics) == ACAMERA_OK)
         {
@@ -130,6 +129,7 @@ unsigned int getBackFacingCameraList(struct CameraHandler* handler, struct Camer
 
             if (*lensFacing.data.u8 == ACAMERA_LENS_FACING_BACK)
             {
+                cameraInfo[n]._id = cameraList->cameraIds[i];
                 cameraInfo[n++].prop = CAMERA_BACKFACING;
             }
             ACameraMetadata_free(characteristics);
