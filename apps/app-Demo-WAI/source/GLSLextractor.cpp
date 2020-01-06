@@ -1144,7 +1144,9 @@ GLSLextractor::GLSLextractor(int w, int h, int nbKeypointsBigSigma, int nbKeypoi
 static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Mat& descriptors, const vector<Point>& pattern)
 {
     for (size_t i = 0; i < keypoints.size(); i++)
+    {
         computeBRIEFDescriptor(keypoints[i], image, &pattern[0], descriptors.ptr((int)i));
+    }
 }
 
 void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, OutputArray _descriptors)

@@ -64,8 +64,10 @@ public:
     GLint extractorBigSigmaCountersLowThrsLoc;
     GLint extractorSmallSigmaCountersHighThrsLoc;
     GLint extractorSmallSigmaCountersLowThrsLoc;
-    GLint extractorBigSigmaImageLoc;
-    GLint extractorSmallSigmaImageLoc;
+    GLint extractorBigSigmaImageRLoc;
+    GLint extractorBigSigmaImageWLoc;
+    GLint extractorSmallSigmaImageRLoc;
+    GLint extractorSmallSigmaImageWLoc;
 
     bool externalTexture;
     GLuint renderTextures[12];
