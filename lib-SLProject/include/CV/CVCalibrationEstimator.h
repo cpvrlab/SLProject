@@ -92,7 +92,8 @@ public:
                                 float&             totalAvgErr,
                                 CVSize&            boardSize,
                                 float              squareSize,
-                                int                flag);
+                                int                flag,
+                                bool               useReleaseObjectMethod);
 
 private:
     bool calibrateAsync();

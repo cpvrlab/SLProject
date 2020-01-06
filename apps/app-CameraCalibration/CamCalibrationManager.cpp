@@ -7,8 +7,16 @@
 #include <CVCalibrationEstimator.h>
 #include "Utils.h"
 
-CamCalibrationManager::CamCalibrationManager(cv::Size boardSize, cv::Size imgSize, float squareSize, int numOfImgs)
-  : _boardSize(boardSize), _imageSize(imgSize), _squareSize(squareSize), _minNumImgs(numOfImgs)
+CamCalibrationManager::CamCalibrationManager(cv::Size boardSize,
+                                             cv::Size imgSize,
+                                             float    squareSize,
+                                             int      numOfImgs,
+                                             bool     useReleaseObjectMethod)
+  : _boardSize(boardSize),
+    _imageSize(imgSize),
+    _squareSize(squareSize),
+    _minNumImgs(numOfImgs),
+    _useReleaseObjectMethod(useReleaseObjectMethod)
 {
 }
 
@@ -48,7 +56,18 @@ CVCalibration CamCalibrationManager::calculateCalibration(
     float                totalAvgErr = 0;
     vector<cv::Point3f>  newObjPoints;
 
-    bool          ok = CVCalibrationEstimator::calcCalibration(_imageSize, cameraMat, distortion, _calibCorners, rvecs, tvecs, reprojErrs, totalAvgErr, _boardSize, _squareSize, flags);
+    bool          ok = CVCalibrationEstimator::calcCalibration(_imageSize,
+                                                      cameraMat,
+                                                      distortion,
+                                                      _calibCorners,
+                                                      rvecs,
+                                                      tvecs,
+                                                      reprojErrs,
+                                                      totalAvgErr,
+                                                      _boardSize,
+                                                      _squareSize,
+                                                      flags,
+                                                      _useReleaseObjectMethod);
     CVCalibration calibration(cameraMat,
                               distortion,
                               _imageSize,

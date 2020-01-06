@@ -10,10 +10,11 @@
 class CamCalibrationManager
 {
 public:
-    CamCalibrationManager(cv::Size boardSize  = cv::Size(16, 9),
-                          cv::Size imgSize    = cv::Size(1920, 1080),
-                          float    squareSize = 0.285f,
-                          int      numOfImgs  = 10);
+    CamCalibrationManager(cv::Size boardSize,
+                          cv::Size imgSize,
+                          float    squareSize,
+                          int      numOfImgs,
+                          bool     useReleaseObjectMethod);
     void addCorners(const std::vector<cv::Point2f>& corners);
     bool readyForCalibration() const
     {
@@ -33,10 +34,11 @@ public:
 
 private:
     std::vector<std::vector<cv::Point2f>> _calibCorners;
-    int                                   _minNumImgs = 10;
-    cv::Size                              _boardSize  = cv::Size(8, 5);
-    float                                 _squareSize = 0.285f;
-    cv::Size                              _imageSize  = cv::Size(1920, 1080);
+    int                                   _minNumImgs             = 10;
+    cv::Size                              _boardSize              = cv::Size(8, 5);
+    float                                 _squareSize             = 0.285f;
+    cv::Size                              _imageSize              = cv::Size(1920, 1080);
+    bool                                  _useReleaseObjectMethod = false;
 };
 
 #endif //CAM_CALIBRATION_MANAGER_H
