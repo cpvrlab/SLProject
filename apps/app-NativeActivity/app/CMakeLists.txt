@@ -4,7 +4,7 @@
 
 set(target native-lib)
 
-file(GLOB headers
+set(headers
     ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeCameraInterface.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeSensorsInterface.h
@@ -42,9 +42,13 @@ file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENS.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
+	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.h
     )
 
-file(GLOB sources
+set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeWAIMain.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeCameraInterface.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeSensorsInterface.cpp
@@ -79,6 +83,7 @@ file(GLOB sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.cpp
     )
 
 set(CMAKE_SHARED_LINKER_FLAGS
@@ -98,7 +103,7 @@ target_include_directories(${target}
         ${ANDROID_NDK}/sources/android/native_app_glue/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/
         ${SL_PROJECT_ROOT}/apps/source/wai/
-
+		${SL_PROJECT_ROOT}/apps/source/sens
     PUBLIC
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui

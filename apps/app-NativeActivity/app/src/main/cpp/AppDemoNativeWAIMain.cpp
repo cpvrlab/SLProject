@@ -43,6 +43,8 @@
 
 #include <string>
 
+#include <android/SENSNdkCamera.h>
+
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
 
@@ -882,99 +884,127 @@ static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
  */
 void android_main(struct android_app* app)
 {
-    Engine engine = {};
+    try {
+        Engine engine = {};
 
-    SensorsCallbacks callbacks;
-    callbacks.onAcceleration = onAcceleration;
-    callbacks.usrPtr         = &engine;
+        SensorsCallbacks callbacks;
+        callbacks.onAcceleration = onAcceleration;
+        callbacks.usrPtr         = &engine;
 
-    app->onAppCmd     = handleLifecycleEvent;
-    app->onInputEvent = handleInput;
-    app->userData     = &engine;
+        app->onAppCmd     = handleLifecycleEvent;
+        app->onInputEvent = handleInput;
+        app->userData     = &engine;
 
-    checkAndRequestAndroidPermissions(app);
+        checkAndRequestAndroidPermissions(app);
 
-    initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
+        initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
 
-    CameraHandler* handler;
-    CameraInfo*    camerasInfo;
-    Camera*        camera;
+        //get display size
+        //get sensor size
 
-    initCameraHandler(&handler);
-    if (getBackFacingCameraList(handler, &camerasInfo) == 0)
-    {
-        LOGW("Can't open camera\n");
-        exit(1);
-    }
+        //get all information about available cameras
+        SENSNdkCamera ndkCamera(SENSCamera::Facing::BACK);
+        //start continious captureing request with certain configuration
+        int width = 640;
+        int height = 360;
+        ndkCamera.start(width, height);
 
-    if (!initCamera(handler, &camerasInfo[0], &camera))
-    {
-        LOGW("Could not initialize camera");
-        exit(1);
-    }
-    free(camerasInfo);
-    cameraCaptureSession(camera, 640, 360);
-    destroyCameraHandler(&handler);
 
-    //uint8_t* imageBuffer = (uint8_t*)malloc(4 * 640 * 360);
-    uint8_t* imageBuffer = (uint8_t*)malloc(3 * 640 * 360);
+        /*
+        CameraHandler* handler;
+        CameraInfo*    camerasInfo;
+        Camera*        camera;
 
-    engine.run = true;
-    while (engine.run)
-    {
-        int                         ident;
-        int                         events;
-        struct android_poll_source* source;
-
-        while ((ident = ALooper_pollAll(0, NULL, &events, (void**)&source)) >= 0)
+        initCameraHandler(&handler);
+        if (getBackFacingCameraList(handler, &camerasInfo) == 0)
         {
-            if (source != NULL)
+            LOGW("Can't open camera\n");
+            exit(1);
+        }
+
+        if (!initCamera(handler, &camerasInfo[0], &camera))
+        {
+            LOGW("Could not initialize camera");
+            exit(1);
+        }
+        free(camerasInfo);
+        cameraCaptureSession(camera, 640, 360);
+        destroyCameraHandler(&handler);
+
+        //uint8_t* imageBuffer = (uint8_t*)malloc(4 * 640 * 360);
+        uint8_t* imageBuffer = (uint8_t*)malloc(3 * 640 * 360);
+
+        */
+
+        engine.run = true;
+        while (engine.run)
+        {
+            int                         ident;
+            int                         events;
+            struct android_poll_source* source;
+
+            while ((ident = ALooper_pollAll(0, NULL, &events, (void**)&source)) >= 0)
             {
-                source->process(app, source);
+                if (source != NULL)
+                {
+                    source->process(app, source);
+                }
+
+                if (ident == LOOPER_ID_USER)
+                {
+                    sensorsHandler_processEvent(engine.sensorsHandler);
+                }
+
+                // Check if we are exiting.
+                if (app->destroyRequested != 0)
+                {
+                    onClose(&engine, app);
+                    return;
+                }
             }
 
-            if (ident == LOOPER_ID_USER)
+            if (engine.display != nullptr)
             {
-                sensorsHandler_processEvent(engine.sensorsHandler);
-            }
+                cv::Mat lastFrame = ndkCamera.getLatestFrame();
+                //if(!lastFrame.empty()) {
+                    engine.waiApp.updateVideoImage(lastFrame);
+                //}
+/*
+                if (cameraLastFrame(camera, imageBuffer))
+                {
+                    CVCapture::instance()->loadIntoLastFrame(640.0f / 360.0f, 640, 360, PF_yuv_420_888, imageBuffer, true);
+                }
+                engine.waiApp.updateVideoImage();
+*/
 
-            // Check if we are exiting.
-            if (app->destroyRequested != 0)
-            {
-                onClose(&engine, app);
-                return;
+                /*
+                if (cameraLastFrame(camera, imageBuffer))
+                {
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, engine.texID);
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 640, 360, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer);
+                }
+
+                // Just fill the screen with a color.
+                glClearColor(0.25f, 0.0f, 0.31f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+
+                glUseProgram(engine.programId);
+                glBindVertexArray(engine.vaoID);
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                 */
+
+                eglSwapBuffers(engine.display, engine.surface);
             }
         }
 
-        if (engine.display != nullptr)
-        {
-            if (cameraLastFrame(camera, imageBuffer))
-            {
-                CVCapture::instance()->loadIntoLastFrame(640.0f / 360.0f, 640, 360, PF_yuv_420_888, imageBuffer, true);
-            }
-            engine.waiApp.updateVideoImage();
+        engine.waiApp.close();
 
-            /*
-            if (cameraLastFrame(camera, imageBuffer))
-            {
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, engine.texID);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 640, 360, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer);
-            }
-
-            // Just fill the screen with a color.
-            glClearColor(0.25f, 0.0f, 0.31f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            glUseProgram(engine.programId);
-            glBindVertexArray(engine.vaoID);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-             */
-
-            eglSwapBuffers(engine.display, engine.surface);
-        }
     }
-
-    engine.waiApp.close();
-    destroyCamera(&camera);
+    catch (std::exception& e)
+    {
+        //todo: what do we do then?
+        LOGI(e.what());
+    }
+    //destroyCamera(&camera);
 }

@@ -103,7 +103,7 @@ public:
     int  videoCursorMoveIndex = 0;
     bool doubleBufferedOutput;
 
-    void updateVideoImage();
+    void updateVideoImage(cv::Mat frame);
 
 private:
     bool updateTracking();
