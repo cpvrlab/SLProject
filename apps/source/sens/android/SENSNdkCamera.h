@@ -48,7 +48,7 @@ private:
     ACameraManager_AvailabilityCallbacks* getManagerListener();
     ACameraCaptureSession_stateCallbacks* getSessionListener();
 
-    //void adjust(float viewportWdivH);
+    void adjust(cv::Mat frame, float viewportWdivH);
 
     ACameraManager* _cameraManager = nullptr;
 

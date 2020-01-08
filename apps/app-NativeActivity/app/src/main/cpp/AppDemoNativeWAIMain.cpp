@@ -910,7 +910,7 @@ void android_main(struct android_app* app)
         ndkCamera.start(width, height);
 
 
-        /*
+/*
         CameraHandler* handler;
         CameraInfo*    camerasInfo;
         Camera*        camera;
@@ -933,8 +933,8 @@ void android_main(struct android_app* app)
 
         //uint8_t* imageBuffer = (uint8_t*)malloc(4 * 640 * 360);
         uint8_t* imageBuffer = (uint8_t*)malloc(3 * 640 * 360);
+*/
 
-        */
 
         engine.run = true;
         while (engine.run)
@@ -965,11 +965,13 @@ void android_main(struct android_app* app)
 
             if (engine.display != nullptr)
             {
+
                 cv::Mat lastFrame = ndkCamera.getLatestFrame();
-                //if(!lastFrame.empty()) {
-                    engine.waiApp.updateVideoImage(lastFrame);
-                //}
-/*
+                engine.waiApp.updateVideoImage(lastFrame);
+
+
+
+                /*
                 if (cameraLastFrame(camera, imageBuffer))
                 {
                     CVCapture::instance()->loadIntoLastFrame(640.0f / 360.0f, 640, 360, PF_yuv_420_888, imageBuffer, true);
@@ -1000,11 +1002,12 @@ void android_main(struct android_app* app)
 
         engine.waiApp.close();
 
+        //destroyCamera(&camera);
     }
     catch (std::exception& e)
     {
         //todo: what do we do then?
         LOGI(e.what());
     }
-    //destroyCamera(&camera);
+
 }

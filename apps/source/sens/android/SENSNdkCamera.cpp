@@ -6,6 +6,7 @@
 #include <android/log.h>
 #include <opencv2/opencv.hpp>
 #include <CV/CVCapture.h>
+#include <Utils.h>
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
@@ -136,19 +137,20 @@ image should be mirrored or not is stored in CVCalibration::_isMirroredH
 3) Many of the further processing steps are faster done on grayscale images.
 We therefore create a copy that is grayscale converted.
 */
-/*
-void SENSNdkCamera::adjust(float viewportWdivH)
+
+void SENSNdkCamera::adjust(cv::Mat frame, float viewportWdivH)
 {
-    _format = CVImage::cv2glPixelFormat(lastFrame.type());
+    _format = CVImage::cv2glPixelFormat(frame.type());
 
     //////////////////////////////////////
     // 1) Check if capture size changed //
     //////////////////////////////////////
 
     // Get capture size before cropping
-    captureSize = lastFrame.size();
+    //cv::Size captureSize = frame.size();
 
     // Determine active size index if unset or changed
+    /*
     if (!camSizes.empty())
     {
         CVSize activeSize(0, 0);
@@ -168,6 +170,7 @@ void SENSNdkCamera::adjust(float viewportWdivH)
             }
         }
     }
+     */
 
     //////////////////////////////////////////////////////////////////
     // 2) Crop Video image to the aspect ratio of OpenGL background //
@@ -176,7 +179,7 @@ void SENSNdkCamera::adjust(float viewportWdivH)
     // Cropping is done almost always.
     // So this is Android image copy loop #2
 
-    float inWdivH = (float)lastFrame.cols / (float)lastFrame.rows;
+    float inWdivH = (float)frame.cols / (float)frame.rows;
     // viewportWdivH is negative the viewport aspect will be the same
     float outWdivH = viewportWdivH < 0.0f ? inWdivH : viewportWdivH;
 
@@ -191,9 +194,9 @@ void SENSNdkCamera::adjust(float viewportWdivH)
 
         if (inWdivH > outWdivH) // crop input image left & right
         {
-            width  = (int)((float)lastFrame.rows * outWdivH);
-            height = lastFrame.rows;
-            cropW  = (int)((float)(lastFrame.cols - width) * 0.5f);
+            width  = (int)((float)frame.rows * outWdivH);
+            height = frame.rows;
+            cropW  = (int)((float)(frame.cols - width) * 0.5f);
 
             // Width must be devidable by 4
             wModulo4 = width % 4;
@@ -207,9 +210,9 @@ void SENSNdkCamera::adjust(float viewportWdivH)
         }
         else // crop input image at top & bottom
         {
-            width  = lastFrame.cols;
-            height = (int)((float)lastFrame.cols / outWdivH);
-            cropH  = (int)((float)(lastFrame.rows - height) * 0.5f);
+            width  = frame.cols;
+            height = (int)((float)frame.cols / outWdivH);
+            cropH  = (int)((float)(frame.rows - height) * 0.5f);
 
             // Height must be devidable by 4
             hModulo4 = height % 4;
@@ -222,7 +225,7 @@ void SENSNdkCamera::adjust(float viewportWdivH)
             if (hModulo4 == 3) height++;
         }
 
-        lastFrame(CVRect(cropW, cropH, width, height)).copyTo(lastFrame);
+        frame(CVRect(cropW, cropH, width, height)).copyTo(frame);
         //imwrite("AfterCropping.bmp", lastFrame);
     }
 
@@ -233,6 +236,7 @@ void SENSNdkCamera::adjust(float viewportWdivH)
     // Mirroring is done for most selfie cameras.
     // So this is Android image copy loop #3
 
+    /*
     if (activeCamera->calibration.isMirroredH())
     {
         CVMat mirrored;
@@ -251,7 +255,7 @@ void SENSNdkCamera::adjust(float viewportWdivH)
             cv::flip(lastFrame, mirrored, 0);
         lastFrame = mirrored;
     }
-
+    */
     /////////////////////////
     // 4) Create grayscale //
     /////////////////////////
@@ -260,7 +264,8 @@ void SENSNdkCamera::adjust(float viewportWdivH)
     // We just could take the Y channel.
     // Android image copy loop #4
 
-    cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_BGR2GRAY);
+    /*
+    cv::cvtColor(frame, lastFrameGray, cv::COLOR_BGR2GRAY);
 
     // Reset calibrated image size
     if (lastFrame.size() != activeCamera->calibration.imageSize())
@@ -269,8 +274,8 @@ void SENSNdkCamera::adjust(float viewportWdivH)
     }
 
     _captureTimesMS.set(_timer.elapsedTimeInMilliSec() - startCaptureTimeMS);
+     */
 }
-*/
 
 void SENSNdkCamera::copyToBuffer(uint8_t* buf, AImage* image)
 {
@@ -295,26 +300,11 @@ void SENSNdkCamera::copyToBuffer(uint8_t* buf, AImage* image)
 
 cv::Mat SENSNdkCamera::getLatestFrame()
 {
-
     cv::Mat frame;
     AImage* image;
-    if (AImageReader_acquireLatestImage(_imageReader, &image) == AMEDIA_OK)
+    media_status_t status = AImageReader_acquireLatestImage(_imageReader, &image);
+    if (status == AMEDIA_OK)
     {
-        //todo:
-        /*
-        ANativeWindow_acquire(_surface);
-        ANativeWindow_Buffer buf;
-        if (ANativeWindow_lock(_surface, &buf, nullptr) < 0) {
-            AImage_delete(image);
-            return cv::Mat();
-        }
-         ....
-         finally
-
-         ANativeWindow_unlockAndPost(app_->window);
-         ANativeWindow_release(_surface);
-        */
-
         int32_t format;
         int32_t height;
         int32_t width;
@@ -325,19 +315,20 @@ cv::Mat SENSNdkCamera::getLatestFrame()
         copyToBuffer(_imageBuffer, image);
         AImage_delete(image);
 
+        //make yuv conversion
+        cv::Mat yuv(height + height / 2, width, CV_8UC1, (void*)_imageBuffer);
+        cv::cvtColor(yuv, frame, cv::COLOR_YUV2RGB_NV21, 3);
 
-        CVCapture::instance()->loadIntoLastFrame(640.0f / 360.0f, 640, 360, PF_yuv_420_888, _imageBuffer, true);
-
-        //cv::Mat yuv(height + height / 2, width, CV_8UC1, (void*)_imageBuffer);
-
-        // Android image copy loop #1
-        //cv::cvtColor(yuv, frame, cv::COLOR_YUV2RGB_NV21, 3);
+        //make cropping, scaling and mirroring
+        adjust(frame, (float)640 / (float)360);
+        if(frame.empty())
+        {
+            throw SENSException(SENSType::CAM, "Frame is empty!", __LINE__, __FILE__);
+        }
+    } else
+    {
+        LOGI("Not valid");
     }
-
-    //make yuv conversion
-
-    //make cropping, scaling and mirroring
-
 
     return frame;
 }
