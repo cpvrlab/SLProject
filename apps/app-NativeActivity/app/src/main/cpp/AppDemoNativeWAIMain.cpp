@@ -47,31 +47,6 @@
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
 
-static float quad[4 * 3]{
-  -1,
-  -1,
-  0,
-  1,
-  -1,
-  0,
-  1,
-  1,
-  0,
-  -1,
-  1,
-  0};
-
-static int quadi[6]{
-  0,
-  1,
-  2,
-  0,
-  2,
-  3};
-
-/**
- * Shared state for our app.
- */
 struct Engine
 {
     SensorsHandler* sensorsHandler;
@@ -80,11 +55,8 @@ struct Engine
     EGLContext      context;
     int32_t         width;
     int32_t         height;
-    GLuint          programId;
 
-    GLuint texID;
-    GLuint vaoID;
-    int    run;
+    int run;
 
     WAIApp waiApp;
 
@@ -92,57 +64,6 @@ struct Engine
     int32_t  pointersDown;
     uint64_t lastTouchMS;
 };
-
-static std::string vertexShaderSource = "#version 320 es\n"
-                                        "layout (location = 0) in vec3 vcoords;\n"
-                                        "out vec2 texcoords;\n"
-                                        "\n"
-                                        "void main()\n"
-                                        "{\n"
-                                        "    texcoords = 0.5 * (vcoords.xy + vec2(1.0));\n"
-                                        "    gl_Position = vec4(vcoords, 1.0);\n"
-                                        "}\n";
-static std::string fragShaderSource = "#version 320 es\n"
-                                      "precision highp float;\n"
-                                      "in vec2 texcoords;\n"
-                                      "uniform sampler2D tex;\n"
-                                      "out vec4 color;\n"
-                                      "\n"
-                                      "void main()\n"
-                                      "{\n"
-                                      "     color = texture(tex, texcoords);\n"
-                                      "}\n";
-
-GLuint buildShaderFromSource(std::string source, GLenum shaderType)
-{
-    // Compile Shader code
-    GLuint shaderHandle = glCreateShader(shaderType);
-
-    const char* src = source.c_str();
-
-    glShaderSource(shaderHandle, 1, &src, nullptr);
-    glCompileShader(shaderHandle);
-
-    // Check compile success
-    GLint compileSuccess;
-    glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &compileSuccess);
-
-    GLint logSize = 0;
-    glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &logSize);
-
-    GLchar* log = new GLchar[logSize];
-
-    glGetShaderInfoLog(shaderHandle, logSize, nullptr, log);
-
-    if (!compileSuccess)
-    {
-        LOGW("AAAA Cannot compile shader %s\n", log);
-        LOGW("AAAA %s\n", src);
-        exit(1);
-    }
-
-    return shaderHandle;
-}
 
 std::string getInternalDir(android_app* app)
 {
@@ -588,7 +509,7 @@ static void onInit(void* usrPtr, struct android_app* app)
     engine->surface = surface;
     engine->width   = w;
     engine->height  = h;
-    engine->run     = 1;
+    engine->run     = true;
 
     // Check openGL on the system
     auto opengl_info = {GL_VENDOR, GL_RENDERER, GL_VERSION, GL_EXTENSIONS};
@@ -598,46 +519,6 @@ static void onInit(void* usrPtr, struct android_app* app)
         LOGI("OpenGL Info: %s", info);
     }
 
-    GLuint vertexShaderId = buildShaderFromSource(vertexShaderSource, GL_VERTEX_SHADER);
-    GLuint fragShaderId   = buildShaderFromSource(fragShaderSource, GL_FRAGMENT_SHADER);
-
-    GLuint programId = glCreateProgram();
-    glAttachShader(programId, vertexShaderId);
-    glAttachShader(programId, fragShaderId);
-    glLinkProgram(programId);
-
-    glDeleteShader(vertexShaderId);
-    glDeleteShader(fragShaderId);
-
-    engine->programId = programId;
-
-    glGenTextures(1, &engine->texID);
-    glBindTexture(GL_TEXTURE_2D, engine->texID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    int texLoc = glGetUniformLocation(engine->programId, "tex");
-
-    glGenVertexArrays(1, &engine->vaoID);
-    glBindVertexArray(engine->vaoID);
-
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
-
-    GLuint vboI;
-    glGenBuffers(1, &vboI);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboI);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadi), quadi, GL_STATIC_DRAW);
-
-    int loc = 0;
-    glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-
-    glBindVertexArray(0);
     glViewport(0, 0, w, h);
 
     std::string path = getInternalDir(app);
@@ -687,7 +568,7 @@ static void onClose(void* usrPtr, struct android_app* app)
     engine->display = EGL_NO_DISPLAY;
     engine->context = EGL_NO_CONTEXT;
     engine->surface = EGL_NO_SURFACE;
-    engine->run     = 0;
+    engine->run     = false;
 }
 
 static void onSaveState(void* usrPtr)

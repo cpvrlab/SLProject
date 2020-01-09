@@ -1117,9 +1117,9 @@ static int bit_pattern_31_[256 * 4] =
     -11 /*mean (0.127148), correlation (0.547401)*/
 };
 
-GLSLextractor::GLSLextractor(int w, int h, int nbKeypointsLow, int nbKeypointsMedium, int nbKeypointsHigh, float thrs, float lowSigma, float mediumSigma, float highSigma)
+GLSLextractor::GLSLextractor(int w, int h, int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma)
   : KPextractor("GLSL"),
-    imgProc(w, h, nbKeypointsLow, nbKeypointsMedium, nbKeypointsHigh, thrs, lowSigma, mediumSigma, highSigma)
+    imgProc(w, h, nbKeypointsBigSigma, nbKeypointsSmallSigma, highThrs, lowThrs, bigSigma, smallSigma)
 {
     mvScaleFactor.resize(1);
     mvLevelSigma2.resize(1);
@@ -1144,7 +1144,9 @@ GLSLextractor::GLSLextractor(int w, int h, int nbKeypointsLow, int nbKeypointsMe
 static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Mat& descriptors, const vector<Point>& pattern)
 {
     for (size_t i = 0; i < keypoints.size(); i++)
+    {
         computeBRIEFDescriptor(keypoints[i], image, &pattern[0], descriptors.ptr((int)i));
+    }
 }
 
 void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, OutputArray _descriptors)
