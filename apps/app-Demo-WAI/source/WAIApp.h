@@ -127,6 +127,7 @@ private:
     void renderGraphs();
 
 
+    cv::Ptr<cv::CLAHE> clahe;
 
     //todo: we dont need a pointer
     std::unique_ptr<AppWAIScene> _waiScene;

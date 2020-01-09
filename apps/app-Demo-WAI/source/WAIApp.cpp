@@ -44,6 +44,7 @@
 #include <SLPoints.h>
 #include <SLQuat4.h>
 #include <SLPolyline.h>
+#include <opencv2/imgproc/imgproc.hpp>
 
 //move
 #include <SLAssimpImporter.h>
@@ -91,6 +92,11 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
     _videoWriter     = new cv::VideoWriter();
     _videoWriterInfo = new cv::VideoWriter();
     _loaded          = true;
+
+    clahe = cv::createCLAHE();
+    clahe->setClipLimit(2.0);
+    clahe->setTilesGridSize(cv::Size(8, 8));
+
 
     //init scene as soon as possible to allow visualization of error msgs
     int svIndex = initSLProject(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi);
@@ -527,8 +533,9 @@ bool WAIApp::updateTracking()
             _videoWriter->write(cap->lastFrame);
         }
 
-        iKnowWhereIAm = _mode->update(cap->lastFrameGray,
-                                      cap->lastFrame);
+        cv::Mat m;
+        clahe->apply(cap->lastFrameGray, m);
+        iKnowWhereIAm = _mode->update(m, cap->lastFrame);
 
         if (_videoWriterInfo->isOpened())
         {
