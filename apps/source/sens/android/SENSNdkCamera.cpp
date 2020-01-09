@@ -20,10 +20,9 @@ SENSNdkCamera::SENSNdkCamera(SENSCamera::Facing facing)
     if (!_cameraManager)
         throw SENSException(SENSType::CAM, "Could not instantiate camera manager!", __LINE__, __FILE__);
 
-    PrintCameras(_cameraManager);
+    //PrintCameras(_cameraManager);
 
     //find camera device that fits our needs and retrieve required camera charakteristics
-    //todo: depending on facing... retrieve all resolutions and sensor size and fov
     initOptimalCamera(facing);
 
     //open the camera
@@ -78,6 +77,7 @@ SENSNdkCamera::~SENSNdkCamera()
 //todo: add callback for image available and/or completely started
 void SENSNdkCamera::start(int width, int height, FocusMode focusMode)
 {
+    //todo: wrap transfer parameters in a config struct
     _targetWidth   = width;
     _targetHeight  = height;
     _targetWdivH   = (float)width / (float)height;
@@ -85,6 +85,7 @@ void SENSNdkCamera::start(int width, int height, FocusMode focusMode)
     _mirrorV       = false;
     _convertToGray = true;
 
+    //todo: find best fitting image format in _availableStreamConfig
     //create request with necessary parameters
 
     //create image reader with 2 surfaces (a surface is the like a ring buffer for images)
@@ -120,13 +121,11 @@ void SENSNdkCamera::start(int width, int height, FocusMode focusMode)
 
     //install repeating request
     ACameraCaptureSession_setRepeatingRequest(_captureSession, nullptr, 1, &_captureRequest, nullptr);
-
-    //todo
-    _imageBuffer = (uint8_t*)malloc(3 * width * height);
 }
 
 void SENSNdkCamera::stop()
 {
+    //todo
 }
 
 //-----------------------------------------------------------------------------
@@ -387,16 +386,39 @@ void SENSNdkCamera::initOptimalCamera(SENSCamera::Facing facing)
         {
             if (ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo) == ACAMERA_OK)
             {
-                _physicalSensorSizeMM.width = lensInfo.data.f[0];
+                _physicalSensorSizeMM.width  = lensInfo.data.f[0];
                 _physicalSensorSizeMM.height = lensInfo.data.f[1];
+            }
+        }
+        else if (tags[tagIdx] == ACAMERA_SCALER_AVAILABLE_STREAM_CONFIGURATIONS)
+        {
+            if (ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo) == ACAMERA_OK)
+            {
+                if (lensInfo.count & 0x3)
+                    throw SENSException(SENSType::CAM,
+                                        "STREAM_CONFIGURATION (%d) should multiple of 4",
+                                        __LINE__,
+                                        __FILE__);
+
+                if (lensInfo.type != ACAMERA_TYPE_INT32)
+                    throw SENSException(SENSType::CAM,
+                                        "STREAM_CONFIGURATION TYPE(%d) is not ACAMERA_TYPE_INT32(1)",
+                                        __LINE__,
+                                        __FILE__);
+
+                for (uint32_t i = 0; i < lensInfo.count; i += 4)
+                {
+                    StreamConfig config;
+                    config.format = GetFormatStr(lensInfo.data.i32[i]);
+                    config.width = lensInfo.data.i32[i + 1];
+                    config.height = lensInfo.data.i32[i + 2];
+                    config.direction = lensInfo.data.i32[i + 3] ? "INPUT" : "OUTPUT";
+                    _availableStreamConfig.push_back(config);
+                }
             }
         }
     }
     ACameraMetadata_free(camCharacteristics);
-
-    //focal length: ACAMERA_LENS_INFO_AVAILABLE_FOCAL_LENGTHS
-    //physical sensor size: ACAMERA_SENSOR_INFO_PHYSICAL_SIZE
-    //
 }
 /*
  * CameraDevice callbacks

@@ -22,6 +22,14 @@ enum class CaptureSessionState
 class SENSNdkCamera : public SENSCamera
 {
 public:
+    struct StreamConfig
+    {
+        std::string format;
+        std::string direction;
+        int width;
+        int height;
+    };
+
     SENSNdkCamera(SENSCamera::Facing facing);
     ~SENSNdkCamera();
 
@@ -50,6 +58,7 @@ private:
     bool           _cameraAvailable = false; // free to use ( no other apps are using )
     std::vector<float> _focalLenghts;
     cv::Size2f _physicalSensorSizeMM;
+    std::vector<StreamConfig> _availableStreamConfig;
 
     //std::map<std::string, CameraId> _cameras;
     AImageReader*                   _imageReader = nullptr;
@@ -63,8 +72,6 @@ private:
 
     volatile bool _valid = false;
 
-    unsigned char* _imageBuffer;
-
     //image properties
     int   _targetWidth   = -1;
     int   _targetHeight  = -1;
@@ -74,23 +81,4 @@ private:
     bool  _convertToGray = true;
 };
 
-// helper classes to hold enumerated camera
-/*
-class CameraId
-{
-public:
-    explicit CameraId(const char* camId)
-      : device(nullptr),
-        facing(ACAMERA_LENS_FACING_FRONT),
-        available(false)
-    {
-        id = camId;
-    }
-    explicit CameraId(void) { CameraId(""); }
-
-    std::string                                 id;
-    acamera_metadata_enum_android_lens_facing_t facing;
-    bool                                        available; // free to use ( no other apps are using
-};
-*/
 #endif //SENS_NDKCAMERA_H
