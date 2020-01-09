@@ -121,7 +121,6 @@ unsigned int getBackFacingCameraList(struct CameraHandler* handler, struct Camer
     unsigned int n = 0;
     for (int i = 0; i < cameraList->numCameras; i++)
     {
-        cameraInfo[n]._id = cameraList->cameraIds[i];
         ACameraMetadata* characteristics;
         if (ACameraManager_getCameraCharacteristics(handler->_manager, cameraList->cameraIds[i], &characteristics) == ACAMERA_OK)
         {
@@ -130,6 +129,7 @@ unsigned int getBackFacingCameraList(struct CameraHandler* handler, struct Camer
 
             if (*lensFacing.data.u8 == ACAMERA_LENS_FACING_BACK)
             {
+                cameraInfo[n]._id    = cameraList->cameraIds[i];
                 cameraInfo[n++].prop = CAMERA_BACKFACING;
             }
             ACameraMetadata_free(characteristics);
@@ -164,7 +164,7 @@ int initCamera(struct CameraHandler* handler, struct CameraInfo* info, struct Ca
     camera_status_t openResult = ACameraManager_openCamera(handler->_manager, info->_id, &callbacks, &cam->_device);
 
     int result = false;
-    if (openResult == ACAMERA_OK)
+    if (openResult != ACAMERA_ERROR_PERMISSION_DENIED)
     {
         result = true;
     }
@@ -172,6 +172,7 @@ int initCamera(struct CameraHandler* handler, struct CameraInfo* info, struct Ca
     return result;
 }
 
+/*
 void onSessionClosed(void* ctx, ACameraCaptureSession* ses)
 {
 }
@@ -181,7 +182,7 @@ void onSessionReady(void* ctx, ACameraCaptureSession* ses)
 void onSessionActive(void* ctx, ACameraCaptureSession* ses)
 {
 }
-
+*/
 int cameraCaptureSession(struct Camera* cam, int w, int h)
 {
     if (AImageReader_new(w, h, AIMAGE_FORMAT_YUV_420_888, 2, &cam->_reader) != AMEDIA_OK)
@@ -200,12 +201,14 @@ int cameraCaptureSession(struct Camera* cam, int w, int h)
 
     ACameraOutputTarget_create(cam->_outputNativeWindow, &cam->_target);
     ACameraDevice_createCaptureRequest(cam->_device, TEMPLATE_PREVIEW, &cam->_request);
+    //todo change focus
+
     ACaptureRequest_addTarget(cam->_request, cam->_target);
 
     ACameraCaptureSession_stateCallbacks capSessionCallbacks;
-    capSessionCallbacks.onActive = onSessionActive;
-    capSessionCallbacks.onReady  = onSessionReady;
-    capSessionCallbacks.onClosed = onSessionClosed;
+    //capSessionCallbacks.onActive = onSessionActive;
+    //capSessionCallbacks.onReady  = onSessionReady;
+    //capSessionCallbacks.onClosed = onSessionClosed;
 
     ACameraCaptureSession* captureSession;
     if (ACameraDevice_createCaptureSession(cam->_device, cam->_outputContainer, &capSessionCallbacks, &captureSession) != AMEDIA_OK)
@@ -311,7 +314,7 @@ int cameraLastFrame(struct Camera* cam, unsigned char* imageBuffer)
         int32_t width;
         AImage_getFormat(image, &format);
         AImage_getHeight(image, &height);
-        AImage_getHeight(image, &width);
+        AImage_getWidth(image, &width);
         //imageConverter(imageBuffer, image);
         copyToBuffer(imageBuffer, image);
         AImage_delete(image);

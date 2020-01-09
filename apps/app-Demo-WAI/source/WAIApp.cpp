@@ -766,10 +766,23 @@ bool WAIApp::updateSceneViews()
     return needUpdate;
 }
 
-void WAIApp::updateVideoImage()
+void WAIApp::updateVideoImage(cv::Mat frame)
 {
     CVCapture* cap = CVCapture::instance();
 
+
+    if(!frame.empty()) {
+        CVMat undistortedLastFrame = frame;
+        _videoImage->copyVideoImage(undistortedLastFrame.cols,
+                                    undistortedLastFrame.rows,
+                                    CVImage::cv2glPixelFormat(undistortedLastFrame.type()),
+                                    undistortedLastFrame.data,
+                                    undistortedLastFrame.isContinuous(),
+                                    true);
+    }
+
+
+/*
     CVMat undistortedLastFrame;
     if (cap->activeCamera->calibration.state() == CS_calibrated && cap->activeCamera->showUndistorted())
     {
@@ -780,12 +793,15 @@ void WAIApp::updateVideoImage()
         undistortedLastFrame = cap->lastFrame;
     }
 
+
     _videoImage->copyVideoImage(undistortedLastFrame.cols,
                                 undistortedLastFrame.rows,
                                 cap->format,
                                 undistortedLastFrame.data,
                                 undistortedLastFrame.isContinuous(),
                                 true);
+*/
+
 
     //update scene (before it was slUpdateScene)
     SLApplication::scene->onUpdate();

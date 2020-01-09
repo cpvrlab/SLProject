@@ -38,9 +38,10 @@ public:
 private:
     bool         _showUndistorted = false; //!< Flag if image should be undistorted
     CVCameraType _type;
-    bool         _mirrorH      = false;
-    bool         _mirrorV      = false;
-    int          _camSizeIndex = -1;
+    bool         _mirrorH = false;
+    bool         _mirrorV = false;
+
+    int _camSizeIndex = -1;
 };
 
 #endif // CVCAMERA_H

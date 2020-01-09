@@ -26,6 +26,7 @@
 
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
+#include <chrono>
 
 #include <android/input.h>
 #include <android/sensor.h>
@@ -33,15 +34,15 @@
 #include <android/log.h>
 #include <android_native_app_glue.h>
 
-#include <AppDemoNativeCameraInterface.h>
 #include <AppDemoNativeSensorsInterface.h>
 
 #include <Utils.h>
 
 #include <WAIApp.h>
-#include <CVCapture.h>
 
 #include <string>
+
+#include <android/SENSNdkCamera.h>
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
@@ -72,10 +73,12 @@ std::string getInternalDir(android_app* app)
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK: {
+        case JNI_OK:
+        {
         }
         break;
-        case JNI_EDETACHED: {
+        case JNI_EDETACHED:
+        {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -86,7 +89,8 @@ std::string getInternalDir(android_app* app)
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION: {
+        case JNI_EVERSION:
+        {
             //TODO(dgj1): error handling
             LOGW("unsupported java version\n");
             return "";
@@ -162,10 +166,12 @@ void extractAPKFolder(android_app* app, std::string internalPath, std::string as
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK: {
+        case JNI_OK:
+        {
         }
         break;
-        case JNI_EDETACHED: {
+        case JNI_EDETACHED:
+        {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -176,7 +182,8 @@ void extractAPKFolder(android_app* app, std::string internalPath, std::string as
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION: {
+        case JNI_EVERSION:
+        {
             //TODO(dgj1): error handling
             LOGW("unsupported java version\n");
             return;
@@ -223,10 +230,12 @@ std::string getExternalDir(android_app* app)
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK: {
+        case JNI_OK:
+        {
         }
         break;
-        case JNI_EDETACHED: {
+        case JNI_EDETACHED:
+        {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -237,7 +246,8 @@ std::string getExternalDir(android_app* app)
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION: {
+        case JNI_EVERSION:
+        {
             //TODO(dgj1): error handling
             LOGW("unsupported java version\n");
             return "";
@@ -324,10 +334,12 @@ bool isPermissionGranted(struct android_app* app, const char* permissionName)
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK: {
+        case JNI_OK:
+        {
         }
         break;
-        case JNI_EDETACHED: {
+        case JNI_EDETACHED:
+        {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -338,7 +350,8 @@ bool isPermissionGranted(struct android_app* app, const char* permissionName)
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION: {
+        case JNI_EVERSION:
+        {
             //TODO(dgj1): error handling
             LOGW("unsupported java version\n");
             return "";
@@ -375,10 +388,12 @@ void requestPermission(struct android_app* app)
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK: {
+        case JNI_OK:
+        {
         }
         break;
-        case JNI_EDETACHED: {
+        case JNI_EDETACHED:
+        {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -389,7 +404,8 @@ void requestPermission(struct android_app* app)
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION: {
+        case JNI_EVERSION:
+        {
             //TODO(dgj1): error handling
             LOGW("unsupported java version\n");
             return "";
@@ -542,8 +558,6 @@ static void onInit(void* usrPtr, struct android_app* app)
     int32_t dpi = AConfiguration_getDensity(appConfig);
     AConfiguration_delete(appConfig);
     engine->waiApp.load(640, 360, w, h, 1.0, 1.0, dpi, dirs);
-
-    CVCapture::instance()->videoType(VT_MAIN);
 }
 
 static void onClose(void* usrPtr, struct android_app* app)
@@ -593,8 +607,8 @@ static void onAcceleration(void* usrPtr, float x, float y, float z)
 
 static uint64_t millisecondsSinceEpoch()
 {
-    std::chrono::milliseconds ms = duration_cast<milliseconds>(
-      system_clock::now().time_since_epoch());
+    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch());
     uint64_t result = ms.count();
 
     return result;
@@ -712,18 +726,21 @@ static int32_t handleInput(struct android_app* app, AInputEvent* event)
         switch (actionCode)
         {
             case AMOTION_EVENT_ACTION_DOWN:
-            case AMOTION_EVENT_ACTION_POINTER_DOWN: {
+            case AMOTION_EVENT_ACTION_POINTER_DOWN:
+            {
                 handleTouchDown(engine, event);
             }
             break;
 
             case AMOTION_EVENT_ACTION_UP:
-            case AMOTION_EVENT_ACTION_POINTER_UP: {
+            case AMOTION_EVENT_ACTION_POINTER_UP:
+            {
                 handleTouchUp(engine, event);
             }
             break;
 
-            case AMOTION_EVENT_ACTION_MOVE: {
+            case AMOTION_EVENT_ACTION_MOVE:
+            {
                 handleTouchMove(engine, event);
             }
         }
@@ -763,82 +780,73 @@ static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
  */
 void android_main(struct android_app* app)
 {
-    Engine engine = {};
-
-    SensorsCallbacks callbacks;
-    callbacks.onAcceleration = onAcceleration;
-    callbacks.usrPtr         = &engine;
-
-    app->onAppCmd     = handleLifecycleEvent;
-    app->onInputEvent = handleInput;
-    app->userData     = &engine;
-
-    checkAndRequestAndroidPermissions(app);
-
-    initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
-
-    CameraHandler* handler;
-    CameraInfo*    camerasInfo;
-    Camera*        camera;
-
-    initCameraHandler(&handler);
-    if (getBackFacingCameraList(handler, &camerasInfo) == 0)
+    try
     {
-        LOGW("Can't open camera\n");
-        exit(1);
-    }
+        Engine engine = {};
 
-    if (!initCamera(handler, &camerasInfo[0], &camera))
-    {
-        LOGW("Could not initialize camera");
-        exit(1);
-    }
-    free(camerasInfo);
-    cameraCaptureSession(camera, 640, 360);
-    destroyCameraHandler(&handler);
+        SensorsCallbacks callbacks;
+        callbacks.onAcceleration = onAcceleration;
+        callbacks.usrPtr         = &engine;
 
-    //uint8_t* imageBuffer = (uint8_t*)malloc(4 * 640 * 360);
-    uint8_t* imageBuffer = (uint8_t*)malloc(3 * 640 * 360);
+        app->onAppCmd     = handleLifecycleEvent;
+        app->onInputEvent = handleInput;
+        app->userData     = &engine;
 
-    engine.run = true;
-    while (engine.run)
-    {
-        int                         ident;
-        int                         events;
-        struct android_poll_source* source;
+        checkAndRequestAndroidPermissions(app);
 
-        while ((ident = ALooper_pollAll(0, NULL, &events, (void**)&source)) >= 0)
+        initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
+
+        //get all information about available cameras
+        SENSNdkCamera ndkCamera(SENSCamera::Facing::BACK);
+        //start continious captureing request with certain configuration
+        int width  = 640;
+        int height = 360;
+        ndkCamera.start(width, height, SENSCamera::FocusMode::FIXED_INFINITY_FOCUS);
+
+        engine.run = true;
+        while (engine.run)
         {
-            if (source != NULL)
+            int                         ident;
+            int                         events;
+            struct android_poll_source* source;
+
+            while ((ident = ALooper_pollAll(0, NULL, &events, (void**)&source)) >= 0)
             {
-                source->process(app, source);
+                if (source != NULL)
+                {
+                    source->process(app, source);
+                }
+
+                if (ident == LOOPER_ID_USER)
+                {
+                    sensorsHandler_processEvent(engine.sensorsHandler);
+                }
+
+                // Check if we are exiting.
+                if (app->destroyRequested != 0)
+                {
+                    onClose(&engine, app);
+                    return;
+                }
             }
 
-            if (ident == LOOPER_ID_USER)
+            if (engine.display != nullptr)
             {
-                sensorsHandler_processEvent(engine.sensorsHandler);
-            }
+                SENSFramePtr sensFrame = ndkCamera.getLatestFrame();
+                if (sensFrame)
+                    engine.waiApp.updateVideoImage(sensFrame->imgRGB);
+                else
+                    engine.waiApp.updateVideoImage(cv::Mat());
 
-            // Check if we are exiting.
-            if (app->destroyRequested != 0)
-            {
-                onClose(&engine, app);
-                return;
+                eglSwapBuffers(engine.display, engine.surface);
             }
         }
 
-        if (engine.display != nullptr)
-        {
-            if (cameraLastFrame(camera, imageBuffer))
-            {
-                CVCapture::instance()->loadIntoLastFrame(640.0f / 360.0f, 640, 360, PF_yuv_420_888, imageBuffer, true);
-            }
-            engine.waiApp.updateVideoImage();
-
-            eglSwapBuffers(engine.display, engine.surface);
-        }
+        engine.waiApp.close();
     }
-
-    engine.waiApp.close();
-    destroyCamera(&camera);
+    catch (std::exception& e)
+    {
+        //todo: what do we do then?
+        LOGI(e.what());
+    }
 }
