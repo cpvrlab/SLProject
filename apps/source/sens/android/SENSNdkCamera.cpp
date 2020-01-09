@@ -6,6 +6,7 @@
 #include <android/log.h>
 #include <opencv2/opencv.hpp>
 #include <Utils.h>
+#include "SENSNdkCameraUtils.h"
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
@@ -19,12 +20,14 @@ SENSNdkCamera::SENSNdkCamera(SENSCamera::Facing facing)
     if (!_cameraManager)
         throw SENSException(SENSType::CAM, "Could not instantiate camera manager!", __LINE__, __FILE__);
 
+    PrintCameras(_cameraManager);
+
     //find camera device that fits our needs and retrieve required camera charakteristics
     //todo: depending on facing... retrieve all resolutions and sensor size and fov
     initOptimalCamera(facing);
 
     //open the camera
-    camera_status_t openResult = ACameraManager_openCamera(_cameraManager, _activeCameraId.c_str(), getDeviceListener(), &_cameras[_activeCameraId]._device);
+    camera_status_t openResult = ACameraManager_openCamera(_cameraManager, _cameraId.c_str(), getDeviceListener(), &_cameraDevice);
     if (openResult != ACAMERA_OK)
     {
         throw SENSException(SENSType::CAM, "Could not open camera! Check the camera permissions!", __LINE__, __FILE__);
@@ -54,7 +57,8 @@ SENSNdkCamera::~SENSNdkCamera()
     ACaptureSessionOutputContainer_free(_captureSessionOutputContainer);
 
     //close camera
-    ACameraDevice_close(_cameras[_activeCameraId]._device);
+    ACameraDevice_close(_cameraDevice);
+    _cameraDevice = nullptr;
 
     //delete camera manager
     if (_cameraManager)
@@ -74,11 +78,11 @@ SENSNdkCamera::~SENSNdkCamera()
 //todo: add callback for image available and/or completely started
 void SENSNdkCamera::start(int width, int height, FocusMode focusMode)
 {
-    _targetWidth  = width;
-    _targetHeight = height;
-    _targetWdivH  = (float)width / (float)height;
-    _mirrorH = false;
-    _mirrorV = false;
+    _targetWidth   = width;
+    _targetHeight  = height;
+    _targetWdivH   = (float)width / (float)height;
+    _mirrorH       = false;
+    _mirrorV       = false;
     _convertToGray = true;
 
     //create request with necessary parameters
@@ -102,12 +106,12 @@ void SENSNdkCamera::start(int width, int height, FocusMode focusMode)
         ACaptureSessionOutputContainer_add(_captureSessionOutputContainer, _captureSessionOutput);
 
         ACameraOutputTarget_create(_surface, &_cameraOutputTarget);
-        ACameraDevice_createCaptureRequest(_cameras[_activeCameraId]._device, TEMPLATE_PREVIEW, &_captureRequest);
+        ACameraDevice_createCaptureRequest(_cameraDevice, TEMPLATE_PREVIEW, &_captureRequest);
         //todo change focus
 
         ACaptureRequest_addTarget(_captureRequest, _cameraOutputTarget);
 
-        if (ACameraDevice_createCaptureSession(_cameras[_activeCameraId]._device,
+        if (ACameraDevice_createCaptureSession(_cameraDevice,
                                                _captureSessionOutputContainer,
                                                getSessionListener(),
                                                &_captureSession) != AMEDIA_OK)
@@ -159,8 +163,8 @@ SENSFramePtr SENSNdkCamera::adjust(cv::Mat frame)
     // viewportWdivH is negative the viewport aspect will be the same
     float outWdivH = _targetWdivH < 0.0f ? inWdivH : _targetWdivH;
 
-    int cropH  = 0; // crop height in pixels of the source image
-    int cropW  = 0; // crop width in pixels of the source image
+    int cropH = 0; // crop height in pixels of the source image
+    int cropW = 0; // crop width in pixels of the source image
     if (Utils::abs(inWdivH - outWdivH) > 0.01f)
     {
         int width  = 0; // width in pixels of the destination image
@@ -238,7 +242,7 @@ SENSFramePtr SENSNdkCamera::adjust(cv::Mat frame)
     // We just could take the Y channel.
     // Android image copy loop #4
     cv::Mat grayImg;
-    if(_convertToGray)
+    if (_convertToGray)
     {
         cv::cvtColor(frame, grayImg, cv::COLOR_BGR2GRAY);
 
@@ -248,7 +252,7 @@ SENSFramePtr SENSNdkCamera::adjust(cv::Mat frame)
         //}
     }
 
-    SENSFramePtr sensFrame = std::make_shared<SENSFrame>(frame, grayImg, inputSize.width, inputSize.height, cropW, cropH, _mirrorH, _mirrorV );
+    SENSFramePtr sensFrame = std::make_shared<SENSFrame>(frame, grayImg, inputSize.width, inputSize.height, cropW, cropH, _mirrorH, _mirrorV);
     return sensFrame;
 }
 
@@ -306,120 +310,100 @@ void SENSNdkCamera::initOptimalCamera(SENSCamera::Facing facing)
     if (ACameraManager_getCameraIdList(_cameraManager, &cameraIds) != ACAMERA_OK)
         throw SENSException(SENSType::CAM, "Could not retrieve camera list!", __LINE__, __FILE__);
 
+    //find correctly facing cameras
+    std::vector<std::string> cameras;
+
     for (int i = 0; i < cameraIds->numCameras; ++i)
     {
         const char* id = cameraIds->cameraIds[i];
 
-        ACameraMetadata* metadataObj;
-        ACameraManager_getCameraCharacteristics(_cameraManager, id, &metadataObj);
+        ACameraMetadata* camCharacteristics;
+        ACameraManager_getCameraCharacteristics(_cameraManager, id, &camCharacteristics);
 
-        int32_t         count = 0;
-        const uint32_t* tags  = nullptr;
-        ACameraMetadata_getAllTags(metadataObj, &count, &tags);
-        for (int tagIdx = 0; tagIdx < count; ++tagIdx)
+        int32_t         numEntries = 0; //will be filled by getAllTags with number of entries
+        const uint32_t* tags       = nullptr;
+        ACameraMetadata_getAllTags(camCharacteristics, &numEntries, &tags);
+        for (int tagIdx = 0; tagIdx < numEntries; ++tagIdx)
         {
+            //first check that ACAMERA_LENS_FACING is contained at all
             if (ACAMERA_LENS_FACING == tags[tagIdx])
             {
-                ACameraMetadata_const_entry lensInfo = {
-                  0,
-                };
-                ACameraMetadata_getConstEntry(metadataObj, tags[tagIdx], &lensInfo);
-                CameraId cam(id);
-                cam.facing_ = static_cast<acamera_metadata_enum_android_lens_facing_t>(
-                  lensInfo.data.u8[0]);
-                cam.owner_        = false;
-                cam._device       = nullptr;
-                _cameras[cam._id] = cam;
-                if (cam.facing_ == ACAMERA_LENS_FACING_BACK)
+                ACameraMetadata_const_entry lensInfo = {0};
+                ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo);
+                acamera_metadata_enum_android_lens_facing_t androidFacing = static_cast<acamera_metadata_enum_android_lens_facing_t>(lensInfo.data.u8[0]);
+                if (facing == SENSCamera::Facing::BACK && androidFacing == ACAMERA_LENS_FACING_BACK ||
+                    facing == SENSCamera::Facing::FRONT && androidFacing == ACAMERA_LENS_FACING_FRONT)
                 {
-                    _activeCameraId = cam._id;
+                    cameras.push_back(id);
                 }
+
                 break;
             }
         }
-        ACameraMetadata_free(metadataObj);
+        ACameraMetadata_free(camCharacteristics);
     }
 
-    if (_cameras.size() == 0)
-        throw SENSException(SENSType::CAM, "No Camera Available on the device", __LINE__, __FILE__);
-
-    if (_activeCameraId.length() == 0)
+    if (cameras.size() == 0)
     {
-        // if no back facing camera found, pick up the first one to use...
-        _activeCameraId = _cameras.begin()->second._id;
+        throw SENSException(SENSType::CAM, "No Camera Available on the device", __LINE__, __FILE__);
     }
+    else if (cameras.size() == 1)
+    {
+        _cameraId = cameras[0];
+    }
+    else
+    {
+        //todo: select best fitting camera and assign cameraId. Select the one with standard focal length (no macro or fishy lens).
+        throw SENSException(SENSType::CAM,
+                            "Multiple camera devices with the same facing available! Implement selection logic!",
+                            __LINE__,
+                            __FILE__);
+    }
+
     ACameraManager_deleteCameraIdList(cameraIds);
 
-    //find cameras with this facing
+    //retrieve camera characteristics
+    ACameraMetadata* camCharacteristics;
+    ACameraManager_getCameraCharacteristics(_cameraManager, _cameraId.c_str(), &camCharacteristics);
 
-    //select the one with standard focal length (no macro or fishy lens)
+    int32_t         numEntries = 0; //will be filled by getAllTags with number of entries
+    const uint32_t* tags       = nullptr;
+    ACameraMetadata_getAllTags(camCharacteristics, &numEntries, &tags);
+    for (int tagIdx = 0; tagIdx < numEntries; ++tagIdx)
+    {
+        ACameraMetadata_const_entry lensInfo = {0};
 
-    //retrieve camera charakteristics
+        if (tags[tagIdx] == ACAMERA_LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+        {
+            if (ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo) == ACAMERA_OK)
+            {
+                for (int i = 0; i < lensInfo.count; ++i)
+                {
+                    _focalLenghts.push_back(lensInfo.data.f[i]);
+                }
+            }
+        }
+        else if (tags[tagIdx] == ACAMERA_SENSOR_INFO_PHYSICAL_SIZE)
+        {
+            if (ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo) == ACAMERA_OK)
+            {
+                _physicalSensorSizeMM.width = lensInfo.data.f[0];
+                _physicalSensorSizeMM.height = lensInfo.data.f[1];
+            }
+        }
+    }
+    ACameraMetadata_free(camCharacteristics);
+
     //focal length: ACAMERA_LENS_INFO_AVAILABLE_FOCAL_LENGTHS
     //physical sensor size: ACAMERA_SENSOR_INFO_PHYSICAL_SIZE
     //
 }
-
-void SENSNdkCamera::getBackFacingCameraList()
-{
-    if (_cameraManager == nullptr)
-        throw SENSException(SENSType::CAM, "Camera manager is invalid!", __LINE__, __FILE__);
-
-    ACameraIdList* cameraIds = nullptr;
-    if (ACameraManager_getCameraIdList(_cameraManager, &cameraIds) != ACAMERA_OK)
-        throw SENSException(SENSType::CAM, "Could not retrieve camera list!", __LINE__, __FILE__);
-
-    for (int i = 0; i < cameraIds->numCameras; ++i)
-    {
-        const char* id = cameraIds->cameraIds[i];
-
-        ACameraMetadata* metadataObj;
-        ACameraManager_getCameraCharacteristics(_cameraManager, id, &metadataObj);
-
-        int32_t         count = 0;
-        const uint32_t* tags  = nullptr;
-        ACameraMetadata_getAllTags(metadataObj, &count, &tags);
-        for (int tagIdx = 0; tagIdx < count; ++tagIdx)
-        {
-            if (ACAMERA_LENS_FACING == tags[tagIdx])
-            {
-                ACameraMetadata_const_entry lensInfo = {
-                  0,
-                };
-                ACameraMetadata_getConstEntry(metadataObj, tags[tagIdx], &lensInfo);
-                CameraId cam(id);
-                cam.facing_ = static_cast<acamera_metadata_enum_android_lens_facing_t>(
-                  lensInfo.data.u8[0]);
-                cam.owner_        = false;
-                cam._device       = nullptr;
-                _cameras[cam._id] = cam;
-                if (cam.facing_ == ACAMERA_LENS_FACING_BACK)
-                {
-                    _activeCameraId = cam._id;
-                }
-                break;
-            }
-        }
-        ACameraMetadata_free(metadataObj);
-    }
-
-    if (_cameras.size() == 0)
-        throw SENSException(SENSType::CAM, "No Camera Available on the device", __LINE__, __FILE__);
-
-    if (_activeCameraId.length() == 0)
-    {
-        // if no back facing camera found, pick up the first one to use...
-        _activeCameraId = _cameras.begin()->second._id;
-    }
-    ACameraManager_deleteCameraIdList(cameraIds);
-}
-
 /*
  * CameraDevice callbacks
  */
-void onDeviceStateChanges(void* ctx, ACameraDevice* dev)
+void onDeviceDisconnected(void* ctx, ACameraDevice* dev)
 {
-    reinterpret_cast<SENSNdkCamera*>(ctx)->onDeviceState(dev);
+    reinterpret_cast<SENSNdkCamera*>(ctx)->onDeviceDisconnected(dev);
 }
 
 void onDeviceErrorChanges(void* ctx, ACameraDevice* dev, int err)
@@ -431,7 +415,7 @@ ACameraDevice_stateCallbacks* SENSNdkCamera::getDeviceListener()
 {
     static ACameraDevice_stateCallbacks cameraDeviceListener = {
       .context        = this,
-      .onDisconnected = ::onDeviceStateChanges,
+      .onDisconnected = ::onDeviceDisconnected,
       .onError        = ::onDeviceErrorChanges,
     };
     return &cameraDeviceListener;
@@ -441,14 +425,13 @@ ACameraDevice_stateCallbacks* SENSNdkCamera::getDeviceListener()
  * Handle Camera DeviceStateChanges msg, notify device is disconnected
  * simply close the camera
  */
-void SENSNdkCamera::onDeviceState(ACameraDevice* dev)
+void SENSNdkCamera::onDeviceDisconnected(ACameraDevice* dev)
 {
-    std::string id(ACameraDevice_getId(dev));
-    LOGW("device %s is disconnected", id.c_str());
+    LOGW("device %s is disconnected");
 
-    _cameras[id].available_ = false;
-    ACameraDevice_close(_cameras[id]._device);
-    _cameras.erase(id);
+    _cameraAvailable = false;
+    ACameraDevice_close(_cameraDevice);
+    _cameraDevice = nullptr;
 }
 /**
  * Handles Camera's deviceErrorChanges message, no action;
@@ -458,28 +441,24 @@ void SENSNdkCamera::onDeviceState(ACameraDevice* dev)
  */
 void SENSNdkCamera::onDeviceError(ACameraDevice* dev, int err)
 {
-    std::string id(ACameraDevice_getId(dev));
-
-    LOGI("CameraDevice %s is in error %#x", id.c_str(), err);
-    //PrintCameraDeviceError(err);
-
-    CameraId& cam = _cameras[id];
-
-    switch (err)
+    if (dev == _cameraDevice)
     {
-        case ERROR_CAMERA_IN_USE:
-            cam.available_ = false;
-            cam.owner_     = false;
-            break;
-        case ERROR_CAMERA_SERVICE:
-        case ERROR_CAMERA_DEVICE:
-        case ERROR_CAMERA_DISABLED:
-        case ERROR_MAX_CAMERAS_IN_USE:
-            cam.available_ = false;
-            cam.owner_     = false;
-            break;
-        default:
-            std::cout << "Unknown Camera Device Error: %#x" << std::endl;
+        std::string id(ACameraDevice_getId(dev));
+        LOGI("CameraDevice %s is in error %#x", id.c_str(), err);
+        switch (err)
+        {
+            case ERROR_CAMERA_IN_USE:
+                _cameraAvailable = false;
+                break;
+            case ERROR_CAMERA_SERVICE:
+            case ERROR_CAMERA_DEVICE:
+            case ERROR_CAMERA_DISABLED:
+            case ERROR_MAX_CAMERAS_IN_USE:
+                _cameraAvailable = false;
+                break;
+            default:
+                std::cout << "Unknown Camera Device Error: %#x" << std::endl;
+        }
     }
 }
 
@@ -516,9 +495,9 @@ ACameraManager_AvailabilityCallbacks* SENSNdkCamera::getManagerListener()
  */
 void SENSNdkCamera::onCameraStatusChanged(const char* id, bool available)
 {
-    if (_valid)
+    if (_valid && std::string(id) == _cameraId)
     {
-        _cameras[std::string(id)].available_ = available ? true : false;
+        _cameraAvailable = available ? true : false;
     }
 }
 

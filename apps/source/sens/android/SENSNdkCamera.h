@@ -19,26 +19,23 @@ enum class CaptureSessionState
     MAX_STATE
 };
 
-
-
 class SENSNdkCamera : public SENSCamera
 {
 public:
     SENSNdkCamera(SENSCamera::Facing facing);
     ~SENSNdkCamera();
 
-    void    start(int width, int height, FocusMode focusMode) override;
-    void    stop() override;
+    void         start(int width, int height, FocusMode focusMode) override;
+    void         stop() override;
     SENSFramePtr getLatestFrame() override;
 
     //callbacks
-    void onDeviceState(ACameraDevice* dev);
+    void onDeviceDisconnected(ACameraDevice* dev);
     void onDeviceError(ACameraDevice* dev, int err);
     void onCameraStatusChanged(const char* id, bool available);
     void onSessionState(ACameraCaptureSession* ses, CaptureSessionState state);
 
 private:
-    void                                  getBackFacingCameraList();
     void                                  initOptimalCamera(SENSCamera::Facing facing);
     ACameraDevice_stateCallbacks*         getDeviceListener();
     ACameraManager_AvailabilityCallbacks* getManagerListener();
@@ -48,9 +45,13 @@ private:
 
     ACameraManager* _cameraManager = nullptr;
 
-    std::map<std::string, CameraId> _cameras;
-    std::string                     _activeCameraId;
+    std::string    _cameraId;
+    ACameraDevice* _cameraDevice = nullptr;
+    bool           _cameraAvailable = false; // free to use ( no other apps are using )
+    std::vector<float> _focalLenghts;
+    cv::Size2f _physicalSensorSizeMM;
 
+    //std::map<std::string, CameraId> _cameras;
     AImageReader*                   _imageReader = nullptr;
     ANativeWindow*                  _surface;
     ACaptureSessionOutput*          _captureSessionOutput;
@@ -65,33 +66,31 @@ private:
     unsigned char* _imageBuffer;
 
     //image properties
-    int   _targetWidth  = -1;
-    int   _targetHeight = -1;
-    float _targetWdivH  = -1.0f;
-    bool _mirrorH = false;
-    bool _mirrorV = false;
-    bool _convertToGray = true;
+    int   _targetWidth   = -1;
+    int   _targetHeight  = -1;
+    float _targetWdivH   = -1.0f;
+    bool  _mirrorH       = false;
+    bool  _mirrorV       = false;
+    bool  _convertToGray = true;
 };
 
 // helper classes to hold enumerated camera
+/*
 class CameraId
 {
 public:
-    ACameraDevice*                              _device;
-    std::string                                 _id;
-    acamera_metadata_enum_android_lens_facing_t facing_;
-    bool                                        available_; // free to use ( no other apps are using
-    bool                                        owner_;     // we are the owner of the camera
-    explicit CameraId(const char* id)
-      : _device(nullptr),
-        facing_(ACAMERA_LENS_FACING_FRONT),
-        available_(false),
-        owner_(false)
+    explicit CameraId(const char* camId)
+      : device(nullptr),
+        facing(ACAMERA_LENS_FACING_FRONT),
+        available(false)
     {
-        _id = id;
+        id = camId;
     }
-
     explicit CameraId(void) { CameraId(""); }
-};
 
+    std::string                                 id;
+    acamera_metadata_enum_android_lens_facing_t facing;
+    bool                                        available; // free to use ( no other apps are using
+};
+*/
 #endif //SENS_NDKCAMERA_H

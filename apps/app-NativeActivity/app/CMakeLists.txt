@@ -45,6 +45,7 @@ set(headers
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
 	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.h
+	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.h
     )
 
 set(sources
@@ -82,6 +83,7 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.cpp
     )
 
 set(CMAKE_SHARED_LINKER_FLAGS
