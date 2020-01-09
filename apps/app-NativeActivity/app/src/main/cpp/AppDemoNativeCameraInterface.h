@@ -17,7 +17,7 @@ typedef struct Camera;
 
 typedef struct CameraInfo
 {
-    int         prop;
+    int prop;
     const char* _id;
 } CameraInfo;
 
