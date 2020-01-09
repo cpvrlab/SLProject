@@ -6,7 +6,6 @@ set(target native-lib)
 
 set(headers
     ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeCameraInterface.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeSensorsInterface.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.h
@@ -50,7 +49,6 @@ set(headers
 
 set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeWAIMain.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeCameraInterface.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeSensorsInterface.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.cpp

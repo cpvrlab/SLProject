@@ -12,16 +12,46 @@
 
 class CameraId;
 
-enum class CaptureSessionState : int32_t {
-    READY = 0,  // session is ready
-    ACTIVE,     // session is busy
-    CLOSED,     // session is closed(by itself or a new session evicts)
+enum class CaptureSessionState : int32_t
+{
+    READY = 0, // session is ready
+    ACTIVE,    // session is busy
+    CLOSED,    // session is closed(by itself or a new session evicts)
     MAX_STATE
 };
 
-enum class FocusMode : int32_t {
-    CONTINIOUS_AUTO_FOCUS = 0,
-    FIXED_INFINITY_FOCUS
+class SENSFrame
+{
+public:
+    SENSFrame(cv::Mat imgBGR,
+              cv::Mat imgGray,
+              int     captureWidth,
+              int     captureHeight,
+              int     cropLR,
+              int     cropTB,
+              bool    mirroredH,
+              bool    mirroredV)
+      : _imgBGR(imgBGR),
+        _imgGray(imgGray),
+        _captureWidth(captureWidth),
+        _captureHeight(captureHeight),
+        _cropLR(cropLR),
+        _cropTB(cropTB),
+        _mirroredH(mirroredH),
+        _mirroredV(mirroredV)
+    {
+    }
+
+private:
+    cv::Mat _imgBGR;
+    cv::Mat _imgGray;
+
+    int  _captureWidth;
+    int  _captureHeight;
+    int  _cropLR;
+    int  _cropTB;
+    bool _mirroredH;
+    bool _mirroredV;
 };
 
 class SENSNdkCamera : public SENSCamera
@@ -29,22 +59,20 @@ class SENSNdkCamera : public SENSCamera
 public:
     SENSNdkCamera(SENSCamera::Facing facing);
     ~SENSNdkCamera();
-	
-	void start(int width, int height) override;
-    void stop() override;
+
+    void    start(int width, int height, FocusMode focusMode) override;
+    void    stop() override;
     cv::Mat getLatestFrame() override;
 
-	//callbacks
+    //callbacks
     void onDeviceState(ACameraDevice* dev);
     void onDeviceError(ACameraDevice* dev, int err);
     void onCameraStatusChanged(const char* id, bool available);
     void onSessionState(ACameraCaptureSession* ses, CaptureSessionState state);
 
 private:
-    static void copyToBuffer(uint8_t* buf, AImage* image);
-
-    void getBackFacingCameraList();
-    ACameraDevice_stateCallbacks* getDeviceListener();
+    void                                  getBackFacingCameraList();
+    ACameraDevice_stateCallbacks*         getDeviceListener();
     ACameraManager_AvailabilityCallbacks* getManagerListener();
     ACameraCaptureSession_stateCallbacks* getSessionListener();
 
@@ -53,9 +81,9 @@ private:
     ACameraManager* _cameraManager = nullptr;
 
     std::map<std::string, CameraId> _cameras;
-    std::string _activeCameraId;
+    std::string                     _activeCameraId;
 
-    AImageReader* _imageReader = nullptr;
+    AImageReader*                   _imageReader = nullptr;
     ANativeWindow*                  _surface;
     ACaptureSessionOutput*          _captureSessionOutput;
     ACaptureSessionOutputContainer* _captureSessionOutputContainer;
@@ -68,22 +96,29 @@ private:
 
     unsigned char* _imageBuffer;
 
-    CVPixFormat _format = PF_unknown;             //!< GL pixel format
+    CVPixFormat _format = PF_unknown; //!< GL pixel format
+
+    //image properties
+    int   _targetWidth  = -1;
+    int   _targetHeight = -1;
+    float _targetWdivH  = -1.0f;
 };
 
 // helper classes to hold enumerated camera
-class CameraId {
+class CameraId
+{
 public:
-    ACameraDevice* _device;
-    std::string _id;
+    ACameraDevice*                              _device;
+    std::string                                 _id;
     acamera_metadata_enum_android_lens_facing_t facing_;
-    bool available_;  // free to use ( no other apps are using
-    bool owner_;      // we are the owner of the camera
+    bool                                        available_; // free to use ( no other apps are using
+    bool                                        owner_;     // we are the owner of the camera
     explicit CameraId(const char* id)
-            : _device(nullptr),
-              facing_(ACAMERA_LENS_FACING_FRONT),
-              available_(false),
-              owner_(false) {
+      : _device(nullptr),
+        facing_(ACAMERA_LENS_FACING_FRONT),
+        available_(false),
+        owner_(false)
+    {
         _id = id;
     }
 

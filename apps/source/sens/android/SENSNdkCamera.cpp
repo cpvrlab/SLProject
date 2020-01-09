@@ -70,12 +70,16 @@ SENSNdkCamera::~SENSNdkCamera()
 }
 
 //todo: add callback for image available and/or completely started
-void SENSNdkCamera::start(int width, int height)
+void SENSNdkCamera::start(int width, int height, FocusMode focusMode)
 {
+    _targetWidth = width;
+    _targetHeight = height;
+    _targetWdivH = (float)width / (float)height;
+
     //create request with necessary parameters
 
     //create image reader with 2 surfaces (a surface is the like a ring buffer for images)
-    if (AImageReader_new(width, height, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK)
+    if (AImageReader_new(_targetWidth, _targetHeight, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK)
         throw SENSException(SENSType::CAM, "Could not create image reader!", __LINE__, __FILE__);
     //todo: register onImageAvailable listener
 
@@ -277,27 +281,6 @@ void SENSNdkCamera::adjust(cv::Mat frame, float viewportWdivH)
      */
 }
 
-void SENSNdkCamera::copyToBuffer(uint8_t* buf, AImage* image)
-{
-    AImageCropRect srcRect;
-    AImage_getCropRect(image, &srcRect);
-    int32_t  yStride, uvStride;
-    uint8_t *yPixel, *uPixel, *vPixel;
-    int32_t  yLen, uLen, vLen;
-    AImage_getPlaneRowStride(image, 0, &yStride);
-    AImage_getPlaneRowStride(image, 1, &uvStride);
-    AImage_getPlaneData(image, 0, &yPixel, &yLen);
-    AImage_getPlaneData(image, 1, &uPixel, &uLen);
-    AImage_getPlaneData(image, 2, &vPixel, &vLen);
-    int32_t uvPixelStride;
-    AImage_getPlanePixelStride(image, 1, &uvPixelStride);
-
-    //buf = malloc(yLen + uLen + vLen);
-    memcpy(buf, yPixel, yLen);
-    memcpy(buf + yLen, uPixel, uLen);
-    memcpy(buf + yLen + uLen, vPixel, vLen);
-}
-
 cv::Mat SENSNdkCamera::getLatestFrame()
 {
     cv::Mat frame;
@@ -312,15 +295,30 @@ cv::Mat SENSNdkCamera::getLatestFrame()
         AImage_getHeight(image, &height);
         AImage_getWidth(image, &width);
 
-        copyToBuffer(_imageBuffer, image);
+        //copy image data to yuv image
+        //pointers to yuv data planes
+        uint8_t *yPixel, *uPixel, *vPixel;
+        //length of yuv data planes in byte
+        int32_t  yLen, uLen, vLen;
+        AImage_getPlaneData(image, 0, &yPixel, &yLen);
+        AImage_getPlaneData(image, 1, &uPixel, &uLen);
+        AImage_getPlaneData(image, 2, &vPixel, &vLen);
+
+        unsigned char* imageBuffer = (uint8_t*)malloc(yLen + uLen + vLen);
+        memcpy(imageBuffer, yPixel, yLen);
+        memcpy(imageBuffer + yLen, uPixel, uLen);
+        memcpy(imageBuffer + yLen + uLen, vPixel, vLen);
+
+        //now that the data is copied we have to delete the image
         AImage_delete(image);
 
+        //todo: measure time for yuv conversion and adjustment and move to other thread
         //make yuv conversion
-        cv::Mat yuv(height + height / 2, width, CV_8UC1, (void*)_imageBuffer);
+        cv::Mat yuv(height + height / 2, width, CV_8UC1, (void*)imageBuffer);
         cv::cvtColor(yuv, frame, cv::COLOR_YUV2RGB_NV21, 3);
 
         //make cropping, scaling and mirroring
-        adjust(frame, (float)640 / (float)360);
+        adjust(frame, (float)_targetWidth / (float)_targetHeight);
         if(frame.empty())
         {
             throw SENSException(SENSType::CAM, "Frame is empty!", __LINE__, __FILE__);

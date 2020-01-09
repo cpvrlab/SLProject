@@ -33,7 +33,6 @@
 #include <android/log.h>
 #include <android_native_app_glue.h>
 
-#include <AppDemoNativeCameraInterface.h>
 #include <AppDemoNativeSensorsInterface.h>
 
 #include <Utils.h>
@@ -899,42 +898,12 @@ void android_main(struct android_app* app)
 
         initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
 
-        //get display size
-        //get sensor size
-
         //get all information about available cameras
         SENSNdkCamera ndkCamera(SENSCamera::Facing::BACK);
         //start continious captureing request with certain configuration
         int width = 640;
         int height = 360;
-        ndkCamera.start(width, height);
-
-
-/*
-        CameraHandler* handler;
-        CameraInfo*    camerasInfo;
-        Camera*        camera;
-
-        initCameraHandler(&handler);
-        if (getBackFacingCameraList(handler, &camerasInfo) == 0)
-        {
-            LOGW("Can't open camera\n");
-            exit(1);
-        }
-
-        if (!initCamera(handler, &camerasInfo[0], &camera))
-        {
-            LOGW("Could not initialize camera");
-            exit(1);
-        }
-        free(camerasInfo);
-        cameraCaptureSession(camera, 640, 360);
-        destroyCameraHandler(&handler);
-
-        //uint8_t* imageBuffer = (uint8_t*)malloc(4 * 640 * 360);
-        uint8_t* imageBuffer = (uint8_t*)malloc(3 * 640 * 360);
-*/
-
+        ndkCamera.start(width, height, SENSCamera::FocusMode::FIXED_INFINITY_FOCUS);
 
         engine.run = true;
         while (engine.run)
@@ -965,44 +934,14 @@ void android_main(struct android_app* app)
 
             if (engine.display != nullptr)
             {
-
                 cv::Mat lastFrame = ndkCamera.getLatestFrame();
                 engine.waiApp.updateVideoImage(lastFrame);
-
-
-
-                /*
-                if (cameraLastFrame(camera, imageBuffer))
-                {
-                    CVCapture::instance()->loadIntoLastFrame(640.0f / 360.0f, 640, 360, PF_yuv_420_888, imageBuffer, true);
-                }
-                engine.waiApp.updateVideoImage();
-*/
-
-                /*
-                if (cameraLastFrame(camera, imageBuffer))
-                {
-                    glActiveTexture(GL_TEXTURE0);
-                    glBindTexture(GL_TEXTURE_2D, engine.texID);
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 640, 360, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer);
-                }
-
-                // Just fill the screen with a color.
-                glClearColor(0.25f, 0.0f, 0.31f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
-
-                glUseProgram(engine.programId);
-                glBindVertexArray(engine.vaoID);
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-                 */
 
                 eglSwapBuffers(engine.display, engine.surface);
             }
         }
 
         engine.waiApp.close();
-
-        //destroyCamera(&camera);
     }
     catch (std::exception& e)
     {
