@@ -88,13 +88,13 @@ KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
             return orbExtractor(4000);
         case 7:
             _waiApp.doubleBufferedOutput = true;
-            return glslExtractor(8, 8, 0.4, 0.1, 1.9, 1.2);
+            return glslExtractor(16, 16, 0.5, 0.25, 1.9, 1.4);
         case 8:
             _waiApp.doubleBufferedOutput = true;
-            return glslExtractor(16, 16, 0.3, 0.08, 1.9, 1.2);
+            return glslExtractor(16, 16, 0.5, 0.25, 1.8, 1.2);
         case 9:
             _waiApp.doubleBufferedOutput = true;
-            return glslExtractor(16, 16, 0.2, 0.05, 1.9, 1.2);
+            return glslExtractor(16, 16, 0.5, 0.25, 1.6, 1.0);
     }
     return surfExtractor(1000);
 }
