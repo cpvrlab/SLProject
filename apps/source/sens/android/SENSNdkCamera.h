@@ -8,11 +8,10 @@
 #include <camera/NdkCameraDevice.h>
 #include <camera/NdkCameraManager.h>
 #include <media/NdkImageReader.h>
-#include <CVImage.h>
 
 class CameraId;
 
-enum class CaptureSessionState : int32_t
+enum class CaptureSessionState
 {
     READY = 0, // session is ready
     ACTIVE,    // session is busy
@@ -20,39 +19,7 @@ enum class CaptureSessionState : int32_t
     MAX_STATE
 };
 
-class SENSFrame
-{
-public:
-    SENSFrame(cv::Mat imgBGR,
-              cv::Mat imgGray,
-              int     captureWidth,
-              int     captureHeight,
-              int     cropLR,
-              int     cropTB,
-              bool    mirroredH,
-              bool    mirroredV)
-      : _imgBGR(imgBGR),
-        _imgGray(imgGray),
-        _captureWidth(captureWidth),
-        _captureHeight(captureHeight),
-        _cropLR(cropLR),
-        _cropTB(cropTB),
-        _mirroredH(mirroredH),
-        _mirroredV(mirroredV)
-    {
-    }
 
-private:
-    cv::Mat _imgBGR;
-    cv::Mat _imgGray;
-
-    int  _captureWidth;
-    int  _captureHeight;
-    int  _cropLR;
-    int  _cropTB;
-    bool _mirroredH;
-    bool _mirroredV;
-};
 
 class SENSNdkCamera : public SENSCamera
 {
@@ -62,7 +29,7 @@ public:
 
     void    start(int width, int height, FocusMode focusMode) override;
     void    stop() override;
-    cv::Mat getLatestFrame() override;
+    SENSFramePtr getLatestFrame() override;
 
     //callbacks
     void onDeviceState(ACameraDevice* dev);
@@ -72,11 +39,12 @@ public:
 
 private:
     void                                  getBackFacingCameraList();
+    void                                  initOptimalCamera(SENSCamera::Facing facing);
     ACameraDevice_stateCallbacks*         getDeviceListener();
     ACameraManager_AvailabilityCallbacks* getManagerListener();
     ACameraCaptureSession_stateCallbacks* getSessionListener();
 
-    void adjust(cv::Mat frame, float viewportWdivH);
+    SENSFramePtr adjust(cv::Mat frame);
 
     ACameraManager* _cameraManager = nullptr;
 
@@ -96,12 +64,13 @@ private:
 
     unsigned char* _imageBuffer;
 
-    CVPixFormat _format = PF_unknown; //!< GL pixel format
-
     //image properties
     int   _targetWidth  = -1;
     int   _targetHeight = -1;
     float _targetWdivH  = -1.0f;
+    bool _mirrorH = false;
+    bool _mirrorV = false;
+    bool _convertToGray = true;
 };
 
 // helper classes to hold enumerated camera

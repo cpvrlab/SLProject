@@ -5,7 +5,6 @@
 
 #include <android/log.h>
 #include <opencv2/opencv.hpp>
-#include <CV/CVCapture.h>
 #include <Utils.h>
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
@@ -22,7 +21,7 @@ SENSNdkCamera::SENSNdkCamera(SENSCamera::Facing facing)
 
     //find camera device that fits our needs and retrieve required camera charakteristics
     //todo: depending on facing... retrieve all resolutions and sensor size and fov
-    getBackFacingCameraList();
+    initOptimalCamera(facing);
 
     //open the camera
     camera_status_t openResult = ACameraManager_openCamera(_cameraManager, _activeCameraId.c_str(), getDeviceListener(), &_cameras[_activeCameraId]._device);
@@ -78,6 +77,9 @@ void SENSNdkCamera::start(int width, int height, FocusMode focusMode)
     _targetWidth  = width;
     _targetHeight = height;
     _targetWdivH  = (float)width / (float)height;
+    _mirrorH = false;
+    _mirrorV = false;
+    _convertToGray = true;
 
     //create request with necessary parameters
 
@@ -143,42 +145,11 @@ image should be mirrored or not is stored in CVCalibration::_isMirroredH
 We therefore create a copy that is grayscale converted.
 */
 
-void SENSNdkCamera::adjust(cv::Mat frame, float viewportWdivH)
+SENSFramePtr SENSNdkCamera::adjust(cv::Mat frame)
 {
-    _format = CVImage::cv2glPixelFormat(frame.type());
-
-    //////////////////////////////////////
-    // 1) Check if capture size changed //
-    //////////////////////////////////////
-
-    // Get capture size before cropping
-    //cv::Size captureSize = frame.size();
-
-    // Determine active size index if unset or changed
-    /*
-    if (!camSizes.empty())
-    {
-        CVSize activeSize(0, 0);
-
-        if (activeCamSizeIndex >= 0 && activeCamSizeIndex < (int)camSizes.size())
-            activeSize = camSizes[(uint)activeCamSizeIndex];
-
-        if (activeCamSizeIndex == -1 || captureSize != activeSize)
-        {
-            for (unsigned long i = 0; i < camSizes.size(); ++i)
-            {
-                if (camSizes[i] == captureSize)
-                {
-                    activeCamSizeIndex = (int)i;
-                    break;
-                }
-            }
-        }
-    }
-     */
-
+    cv::Size inputSize = frame.size();
     //////////////////////////////////////////////////////////////////
-    // 2) Crop Video image to the aspect ratio of OpenGL background //
+    // Crop Video image to the aspect ratio of OpenGL background //
     //////////////////////////////////////////////////////////////////
 
     // Cropping is done almost always.
@@ -186,14 +157,14 @@ void SENSNdkCamera::adjust(cv::Mat frame, float viewportWdivH)
 
     float inWdivH = (float)frame.cols / (float)frame.rows;
     // viewportWdivH is negative the viewport aspect will be the same
-    float outWdivH = viewportWdivH < 0.0f ? inWdivH : viewportWdivH;
+    float outWdivH = _targetWdivH < 0.0f ? inWdivH : _targetWdivH;
 
+    int cropH  = 0; // crop height in pixels of the source image
+    int cropW  = 0; // crop width in pixels of the source image
     if (Utils::abs(inWdivH - outWdivH) > 0.01f)
     {
         int width  = 0; // width in pixels of the destination image
         int height = 0; // height in pixels of the destination image
-        int cropH  = 0; // crop height in pixels of the source image
-        int cropW  = 0; // crop width in pixels of the source image
         int wModulo4;
         int hModulo4;
 
@@ -230,64 +201,65 @@ void SENSNdkCamera::adjust(cv::Mat frame, float viewportWdivH)
             if (hModulo4 == 3) height++;
         }
 
-        frame(CVRect(cropW, cropH, width, height)).copyTo(frame);
+        frame(cv::Rect(cropW, cropH, width, height)).copyTo(frame);
         //imwrite("AfterCropping.bmp", lastFrame);
     }
 
     //////////////////
-    // 3) Mirroring //
+    // Mirroring //
     //////////////////
 
     // Mirroring is done for most selfie cameras.
     // So this is Android image copy loop #3
+    if (_mirrorH)
+    {
+        cv::Mat mirrored;
+        if (_mirrorH)
+            cv::flip(frame, mirrored, -1);
+        else
+            cv::flip(frame, mirrored, 1);
+        frame = mirrored;
+    }
+    else if (_mirrorV)
+    {
+        cv::Mat mirrored;
+        if (_mirrorH)
+            cv::flip(frame, mirrored, -1);
+        else
+            cv::flip(frame, mirrored, 0);
+        frame = mirrored;
+    }
 
-    /*
-    if (activeCamera->calibration.isMirroredH())
-    {
-        CVMat mirrored;
-        if (activeCamera->calibration.isMirroredV())
-            cv::flip(lastFrame, mirrored, -1);
-        else
-            cv::flip(lastFrame, mirrored, 1);
-        lastFrame = mirrored;
-    }
-    else if (activeCamera->calibration.isMirroredV())
-    {
-        CVMat mirrored;
-        if (activeCamera->calibration.isMirroredH())
-            cv::flip(lastFrame, mirrored, -1);
-        else
-            cv::flip(lastFrame, mirrored, 0);
-        lastFrame = mirrored;
-    }
-    */
     /////////////////////////
-    // 4) Create grayscale //
+    // Create grayscale //
     /////////////////////////
 
     // Creating a grayscale version from an YUV input source is stupid.
     // We just could take the Y channel.
     // Android image copy loop #4
-
-    /*
-    cv::cvtColor(frame, lastFrameGray, cv::COLOR_BGR2GRAY);
-
-    // Reset calibrated image size
-    if (lastFrame.size() != activeCamera->calibration.imageSize())
+    cv::Mat grayImg;
+    if(_convertToGray)
     {
-        activeCamera->calibration.adaptForNewResolution(lastFrame.size());
+        cv::cvtColor(frame, grayImg, cv::COLOR_BGR2GRAY);
+
+        // Reset calibrated image size
+        //if (frame.size() != activeCamera->calibration.imageSize()) {
+        //    activeCamera->calibration.adaptForNewResolution(lastFrame.size());
+        //}
     }
 
-    _captureTimesMS.set(_timer.elapsedTimeInMilliSec() - startCaptureTimeMS);
-     */
+    SENSFramePtr sensFrame = std::make_shared<SENSFrame>(frame, grayImg, inputSize.width, inputSize.height, cropW, cropH, _mirrorH, _mirrorV );
+    return sensFrame;
 }
 
-cv::Mat SENSNdkCamera::getLatestFrame()
+SENSFramePtr SENSNdkCamera::getLatestFrame()
 {
+    SENSFramePtr sensFrame;
+
     cv::Mat        frame;
     AImage*        image;
     media_status_t status = AImageReader_acquireLatestImage(_imageReader, &image);
-    if (status == AMEDIA_OK)
+    if (status == AMEDIA_OK) //status may be unequal to media_ok if there is no new frame available, what is ok if we are very fast
     {
         int32_t format;
         int32_t height;
@@ -319,18 +291,73 @@ cv::Mat SENSNdkCamera::getLatestFrame()
         cv::cvtColor(yuv, frame, cv::COLOR_YUV2RGB_NV21, 3);
 
         //make cropping, scaling and mirroring
-        adjust(frame, (float)_targetWidth / (float)_targetHeight);
-        if (frame.empty())
-        {
-            throw SENSException(SENSType::CAM, "Frame is empty!", __LINE__, __FILE__);
-        }
-    }
-    else
-    {
-        LOGI("Not valid");
+        sensFrame = adjust(frame);
     }
 
-    return frame;
+    return sensFrame;
+}
+
+void SENSNdkCamera::initOptimalCamera(SENSCamera::Facing facing)
+{
+    if (_cameraManager == nullptr)
+        throw SENSException(SENSType::CAM, "Camera manager is invalid!", __LINE__, __FILE__);
+
+    ACameraIdList* cameraIds = nullptr;
+    if (ACameraManager_getCameraIdList(_cameraManager, &cameraIds) != ACAMERA_OK)
+        throw SENSException(SENSType::CAM, "Could not retrieve camera list!", __LINE__, __FILE__);
+
+    for (int i = 0; i < cameraIds->numCameras; ++i)
+    {
+        const char* id = cameraIds->cameraIds[i];
+
+        ACameraMetadata* metadataObj;
+        ACameraManager_getCameraCharacteristics(_cameraManager, id, &metadataObj);
+
+        int32_t         count = 0;
+        const uint32_t* tags  = nullptr;
+        ACameraMetadata_getAllTags(metadataObj, &count, &tags);
+        for (int tagIdx = 0; tagIdx < count; ++tagIdx)
+        {
+            if (ACAMERA_LENS_FACING == tags[tagIdx])
+            {
+                ACameraMetadata_const_entry lensInfo = {
+                  0,
+                };
+                ACameraMetadata_getConstEntry(metadataObj, tags[tagIdx], &lensInfo);
+                CameraId cam(id);
+                cam.facing_ = static_cast<acamera_metadata_enum_android_lens_facing_t>(
+                  lensInfo.data.u8[0]);
+                cam.owner_        = false;
+                cam._device       = nullptr;
+                _cameras[cam._id] = cam;
+                if (cam.facing_ == ACAMERA_LENS_FACING_BACK)
+                {
+                    _activeCameraId = cam._id;
+                }
+                break;
+            }
+        }
+        ACameraMetadata_free(metadataObj);
+    }
+
+    if (_cameras.size() == 0)
+        throw SENSException(SENSType::CAM, "No Camera Available on the device", __LINE__, __FILE__);
+
+    if (_activeCameraId.length() == 0)
+    {
+        // if no back facing camera found, pick up the first one to use...
+        _activeCameraId = _cameras.begin()->second._id;
+    }
+    ACameraManager_deleteCameraIdList(cameraIds);
+
+    //find cameras with this facing
+
+    //select the one with standard focal length (no macro or fishy lens)
+
+    //retrieve camera charakteristics
+    //focal length: ACAMERA_LENS_INFO_AVAILABLE_FOCAL_LENGTHS
+    //physical sensor size: ACAMERA_SENSOR_INFO_PHYSICAL_SIZE
+    //
 }
 
 void SENSNdkCamera::getBackFacingCameraList()

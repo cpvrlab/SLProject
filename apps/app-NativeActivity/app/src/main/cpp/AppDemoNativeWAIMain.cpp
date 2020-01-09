@@ -26,6 +26,7 @@
 
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
+#include <chrono>
 
 #include <android/input.h>
 #include <android/sensor.h>
@@ -38,7 +39,6 @@
 #include <Utils.h>
 
 #include <WAIApp.h>
-#include <CVCapture.h>
 
 #include <string>
 
@@ -558,8 +558,6 @@ static void onInit(void* usrPtr, struct android_app* app)
     int32_t dpi = AConfiguration_getDensity(appConfig);
     AConfiguration_delete(appConfig);
     engine->waiApp.load(640, 360, w, h, 1.0, 1.0, dpi, dirs);
-
-    CVCapture::instance()->videoType(VT_MAIN);
 }
 
 static void onClose(void* usrPtr, struct android_app* app)
@@ -609,8 +607,8 @@ static void onAcceleration(void* usrPtr, float x, float y, float z)
 
 static uint64_t millisecondsSinceEpoch()
 {
-    std::chrono::milliseconds ms = duration_cast<milliseconds>(
-      system_clock::now().time_since_epoch());
+    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch());
     uint64_t result = ms.count();
 
     return result;
@@ -834,8 +832,11 @@ void android_main(struct android_app* app)
 
             if (engine.display != nullptr)
             {
-                cv::Mat lastFrame = ndkCamera.getLatestFrame();
-                engine.waiApp.updateVideoImage(lastFrame);
+                SENSFramePtr sensFrame = ndkCamera.getLatestFrame();
+                if (sensFrame)
+                    engine.waiApp.updateVideoImage(sensFrame->imgRGB);
+                else
+                    engine.waiApp.updateVideoImage(cv::Mat());
 
                 eglSwapBuffers(engine.display, engine.surface);
             }
