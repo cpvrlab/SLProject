@@ -5,10 +5,12 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat       cameraMat,
                                 cv::Mat       distortionMat,
                                 const Params& params,
                                 std::string   orbVocFile,
+                                bool          applyMinAccScoreFilter,
                                 std::string   markerFile)
   : _params(params),
     _markerFile(markerFile),
-    _markerExtractor(nullptr)
+    _markerExtractor(nullptr),
+    _applyMinAccScoreFilter(applyMinAccScoreFilter)
 {
     //we have to reset global static stuff here
     WAIKeyFrame::nNextId = 0; //will be updated when a map is loaded
@@ -432,7 +434,6 @@ std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> WAI::ModeOrbSlam2::get
 std::vector<WAIMapPoint*> WAI::ModeOrbSlam2::getLocalMapPoints()
 {
     std::lock_guard<std::mutex> guard(_mapLock);
-
     std::vector<WAIMapPoint*> result = mvpLocalMapPoints;
 
     return result;
@@ -441,7 +442,6 @@ std::vector<WAIMapPoint*> WAI::ModeOrbSlam2::getLocalMapPoints()
 std::vector<WAIKeyFrame*> WAI::ModeOrbSlam2::getKeyFrames()
 {
     std::lock_guard<std::mutex> guard(_mapLock);
-
     std::vector<WAIKeyFrame*> result = _map->GetAllKeyFrames();
 
     return result;
@@ -782,16 +782,15 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
         }
         else
         {
-            _bOK = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId, *_map);
+            _bOK = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId, *_map, _applyMinAccScoreFilter);
         }
     }
     else
     {
         // Localization Mode: Local Mapping is deactivated
-
         if (_state == TrackingState_TrackingLost)
         {
-            _bOK       = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId, *_map);
+            _bOK       = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId, *_map, _applyMinAccScoreFilter);
             _optFlowOK = false;
             //cout << "Relocalization: " << bOK << endl;
         }
@@ -836,7 +835,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
                     vbOutMM = mCurrentFrame.mvbOutlier;
                     TcwMM   = mCurrentFrame.mTcw.clone();
                 }
-                bOKReloc = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId, *_map);
+                bOKReloc = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId, *_map, _applyMinAccScoreFilter);
                 //relocalization method is not valid but the velocity model method
                 if (bOKMM && !bOKReloc)
                 {
@@ -1407,6 +1406,7 @@ bool WAI::ModeOrbSlam2::relocalization(WAIFrame&      currentFrame,
                                        WAIKeyFrameDB* keyFrameDB,
                                        unsigned int*  lastRelocFrameId,
                                        WAIMap&        waiMap,
+                                       bool           applyMinAccScoreFilter,
                                        bool           relocWithAllKFs)
 {
     AVERAGE_TIMING_START("relocalization");
@@ -1423,7 +1423,8 @@ bool WAI::ModeOrbSlam2::relocalization(WAIFrame&      currentFrame,
     }
     else
     {
-        vpCandidateKFs = keyFrameDB->DetectRelocalizationCandidates(&currentFrame);
+        //TODO(luc): test with 2nd argument to true
+        vpCandidateKFs = keyFrameDB->DetectRelocalizationCandidates(&currentFrame, applyMinAccScoreFilter);
     }
 
     //std::cout << "N after DetectRelocalizationCandidates: " << vpCandidateKFs.size() << std::endl;

@@ -401,6 +401,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
                                   cap->activeCamera->calibration.distortion(),
                                   params,
                                   vocFile,
+                                  true,
                                   markerFile);
 
     // 5. Load map data
