@@ -25,7 +25,7 @@ extern "C" __global__ void __raygen__pinhole_camera()
     const float3 direction   = normalize( pixel_offset.x * rtData->U + pixel_offset.y * rtData->V + rtData->W );
 
     // Set pixel color
-    params.image[idx.y * params.width + idx.x] = tracePrimaryRay(params.handle, origin, direction);
+    params.image[idx.y * params.width + idx.x] = make_color( tracePrimaryRay(params.handle, origin, direction) );
 }
 
 extern "C" __global__ void __raygen__lens_camera()

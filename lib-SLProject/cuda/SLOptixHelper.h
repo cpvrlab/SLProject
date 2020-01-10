@@ -41,12 +41,21 @@ static __forceinline__ __device__ float lightAttenuation(Light light, float dist
     return 1.0f / (light.kc + light.kl * dist + light.kq * dist * dist);
 }
 
-__forceinline__ __device__ uchar4 make_color(const float4 &c) {
-    return make_uchar4(
-            static_cast<uint8_t>( clamp(c.x, 0.0f, 1.0f) * 255.0f ),
-            static_cast<uint8_t>( clamp(c.y, 0.0f, 1.0f) * 255.0f ),
-            static_cast<uint8_t>( clamp(c.z, 0.0f, 1.0f) * 255.0f ),
-            static_cast<uint8_t>( clamp(c.w, 0.0f, 1.0f) * 255.0f )
+__forceinline__ __device__ float4 make_color(const float4 &c) {
+    return make_float4(
+            clamp(c.x, 0.0f, 1.0f),
+            clamp(c.y, 0.0f, 1.0f),
+            clamp(c.z, 0.0f, 1.0f),
+            clamp(c.w, 0.0f, 1.0f)
+    );
+}
+
+__forceinline__ __device__ float4 gamma_correction(const float4 &c, const float gamma) {
+    return make_float4(
+            powf(c.x, gamma),
+            powf(c.y, gamma),
+            powf(c.z, gamma),
+            powf(c.w, gamma)
     );
 }
 
