@@ -177,6 +177,8 @@ void SLOptixPathtracer::updateScene(SLSceneView *sv) {
 }
 
 SLbool SLOptixPathtracer::render() {
+    _state      = rtBusy; // From here we state the RT as busy
+
     OPTIX_CHECK(optixLaunch(
             _pipeline,
             SLApplication::stream,
@@ -217,6 +219,8 @@ SLbool SLOptixPathtracer::render() {
                 _denoiserSizes.recommendedScratchSizeInBytes) );
         CUDA_SYNC_CHECK(SLApplication::stream);
     }
+
+    _state = rtFinished;
 
     return true;
 }

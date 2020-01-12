@@ -2543,7 +2543,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         refl->program(sp1);
 
         // Material for glass sphere
-        SLMaterial* refr = new SLMaterial("refr", blackRGB, blackRGB, 100, 0.05f, 0.95f, 1.5f);
+        SLMaterial* refr = new SLMaterial("refr", blackRGB, SLCol4f::WHITE, 100, 0.05f, 0.95f, 1.5f);
         refr->translucency(1000);
         refr->transmissiv(SLCol4f::WHITE);
         refr->textures().push_back(tex1);
