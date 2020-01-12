@@ -1463,14 +1463,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Save Rendered Image"))
                     rt_optix->saveImage();
 
-//                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
-//                SLfloat gamma = rt->gamma();
-//                if (ImGui::SliderFloat("Gamma", &gamma, 0.1f, 3.0f, "%.1f"))
-//                {
-//                    rt->gamma(gamma);
-//                    sv->startRaytracing(5);
-//                }
-//                ImGui::PopItemWidth();
+                if (ImGui::MenuItem("Remove Rays"))
+                    rt_optix->removeRays();
 
                 ImGui::EndMenu();
             }

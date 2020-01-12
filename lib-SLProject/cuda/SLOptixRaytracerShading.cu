@@ -154,7 +154,7 @@ extern "C" __global__ void __closesthit__radiance() {
             P,
     };
     ray.color = color;
-    params.rays[(idx.y * dim.x + idx.x) * params.max_depth + (getDepth() - 1)] = ray;
+    params.rays[(idx.y * dim.x + idx.x) * params.max_depth * 2 + (getDepth() - 1) + getRayType()] = ray;
 
     // Set color to payload
     setColor(color);

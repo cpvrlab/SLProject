@@ -44,6 +44,7 @@ public:
     void saveImage() override;
 
     void drawRay(unsigned int, unsigned int);
+    void removeRays();
 
 protected:
     void initCompileOptions();
