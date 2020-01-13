@@ -60,6 +60,7 @@ public:
                  cv::Mat       distortionMat,
                  const Params& params,
                  std::string   orbVocFile,
+                 bool          applyMinAccScoreFilter = false,
                  std::string   markerFile = "");
     ~ModeOrbSlam2();
     bool getPose(cv::Mat* pose);
@@ -69,6 +70,7 @@ public:
                                WAIKeyFrameDB* keyFrameDB,
                                unsigned int*  lastRelocFrameId,
                                WAIMap&        waiMap,
+                               bool           applyMinAccScoreFilter = true,
                                bool           relocWithAllKFs = false);
 
     void reset();
@@ -175,6 +177,7 @@ private:
 
     cv::Mat _pose;
 
+    bool   _applyMinAccScoreFilter;
     bool   _poseSet = false;
     bool   _initialized;
     Params _params;

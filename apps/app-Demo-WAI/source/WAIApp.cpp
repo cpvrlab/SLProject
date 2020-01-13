@@ -44,6 +44,7 @@
 #include <SLPoints.h>
 #include <SLQuat4.h>
 #include <SLPolyline.h>
+#include <opencv2/imgproc/imgproc.hpp>
 
 //move
 #include <SLAssimpImporter.h>
@@ -90,6 +91,11 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
     _videoWriter     = new cv::VideoWriter();
     _videoWriterInfo = new cv::VideoWriter();
     _loaded          = true;
+
+    clahe = cv::createCLAHE();
+    clahe->setClipLimit(2.0);
+    clahe->setTilesGridSize(cv::Size(8, 8));
+
 
     //init scene as soon as possible to allow visualization of error msgs
     int svIndex = initSLProject(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi);
@@ -397,6 +403,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
                                   cap->activeCamera->calibration.distortion(),
                                   params,
                                   vocFile,
+                                  true,
                                   markerFile);
 
     // 5. Load map data
@@ -529,8 +536,9 @@ bool WAIApp::updateTracking()
             _videoWriter->write(cap->lastFrame);
         }
 
-        iKnowWhereIAm = _mode->update(cap->lastFrameGray,
-                                      cap->lastFrame);
+        cv::Mat m;
+        clahe->apply(cap->lastFrameGray, m);
+        iKnowWhereIAm = _mode->update(m, cap->lastFrame);
 
         if (_videoWriterInfo->isOpened())
         {
@@ -753,10 +761,23 @@ bool WAIApp::updateSceneViews()
     return needUpdate;
 }
 
-void WAIApp::updateVideoImage()
+void WAIApp::updateVideoImage(cv::Mat frame)
 {
     CVCapture* cap = CVCapture::instance();
 
+
+    if(!frame.empty()) {
+        CVMat undistortedLastFrame = frame;
+        _videoImage->copyVideoImage(undistortedLastFrame.cols,
+                                    undistortedLastFrame.rows,
+                                    CVImage::cv2glPixelFormat(undistortedLastFrame.type()),
+                                    undistortedLastFrame.data,
+                                    undistortedLastFrame.isContinuous(),
+                                    true);
+    }
+
+
+/*
     CVMat undistortedLastFrame;
     if (cap->activeCamera->calibration.state() == CS_calibrated && cap->activeCamera->showUndistorted())
     {
@@ -767,12 +788,15 @@ void WAIApp::updateVideoImage()
         undistortedLastFrame = cap->lastFrame;
     }
 
+
     _videoImage->copyVideoImage(undistortedLastFrame.cols,
                                 undistortedLastFrame.rows,
                                 cap->format,
                                 undistortedLastFrame.data,
                                 undistortedLastFrame.isContinuous(),
                                 true);
+*/
+
 
     //update scene (before it was slUpdateScene)
     SLApplication::scene->onUpdate();
