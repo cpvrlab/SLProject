@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <utility>
+#include <algorithm>
 #include "SENSNdkCamera.h"
 #include "SENSException.h"
 
@@ -10,6 +12,47 @@
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
+
+//searches for best machting size and returns it
+cv::Size AvailableStreamConfigs::findBestMatchingSize(cv::Size requiredSize)
+{
+    if (_streamSizes.size() == 0)
+        throw SENSException(SENSType::CAM, "No stream configuration available!", __LINE__, __FILE__);
+
+    std::vector<std::pair<float, int>> matchingSizes;
+
+    //calculate score for
+    for (int i = 0; i < _streamSizes.size(); ++i)
+    {
+        //stream size has to have minimum the size of the required size
+        if (_streamSizes[i].width >= requiredSize.width && _streamSizes[i].height >= requiredSize.height)
+        {
+            float crop = 0.f;
+            //calculate necessary crop to adjust stream image to required size
+            if (((float)requiredSize.width / (float)requiredSize.height) > ((float)_streamSizes[i].width / (float)_streamSizes[i].height))
+            {
+                float scaleFactor  = (float)requiredSize.width / (float)_streamSizes[i].width;
+                float heightScaled = _streamSizes[i].height * scaleFactor;
+                crop += heightScaled - requiredSize.height;
+                crop += (float)_streamSizes[i].width - (float)requiredSize.width;
+            }
+            else
+            {
+                float scaleFactor = (float)requiredSize.height / (float)_streamSizes[i].height;
+                float widthScaled = _streamSizes[i].width * scaleFactor;
+                crop += widthScaled - requiredSize.width;
+                crop += (float)_streamSizes[i].height - (float)requiredSize.height;
+            }
+
+            float cropScaleScore = crop;
+            matchingSizes.push_back(std::make_pair(cropScaleScore, i));
+        }
+    }
+    //sort by crop
+    std::sort(matchingSizes.begin(), matchingSizes.end());
+
+    return _streamSizes[matchingSizes.front().second];
+}
 
 SENSNdkCamera::SENSNdkCamera(SENSCamera::Facing facing)
   : SENSCamera(facing)
@@ -74,23 +117,19 @@ SENSNdkCamera::~SENSNdkCamera()
     }
 }
 
-//todo: add callback for image available and/or completely started
-void SENSNdkCamera::start(int width, int height, FocusMode focusMode)
+void SENSNdkCamera::start(const SENSCamera::Config config)
 {
-    //todo: wrap transfer parameters in a config struct
-    _targetWidth   = width;
-    _targetHeight  = height;
-    _targetWdivH   = (float)width / (float)height;
-    _mirrorH       = false;
-    _mirrorV       = false;
-    _convertToGray = true;
+    _camConfig = config;
+    _targetWdivH   = (float)_camConfig.targetWidth / (float)_camConfig.targetHeight;
 
     //todo: find best fitting image format in _availableStreamConfig
+    cv::Size captureSize = _availableStreamConfig.findBestMatchingSize({_camConfig.targetWidth, _camConfig.targetHeight});
+
     //create request with necessary parameters
 
     //create image reader with 2 surfaces (a surface is the like a ring buffer for images)
-    if (AImageReader_new(_targetWidth, _targetHeight, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK)
-        throw SENSException(SENSType::CAM, "Could not create image reader!", __LINE__, __FILE__);
+    if (AImageReader_new(captureSize.width, captureSize.height, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK) throw SENSException(SENSType::CAM, "Could not create image reader!", __LINE__, __FILE__);
+
     //todo: register onImageAvailable listener
 
     //create session
@@ -108,7 +147,6 @@ void SENSNdkCamera::start(int width, int height, FocusMode focusMode)
 
         ACameraOutputTarget_create(_surface, &_cameraOutputTarget);
         ACameraDevice_createCaptureRequest(_cameraDevice, TEMPLATE_PREVIEW, &_captureRequest);
-        //todo change focus
 
         ACaptureRequest_addTarget(_captureRequest, _cameraOutputTarget);
 
@@ -117,10 +155,33 @@ void SENSNdkCamera::start(int width, int height, FocusMode focusMode)
                                                getSessionListener(),
                                                &_captureSession) != AMEDIA_OK)
             throw SENSException(SENSType::CAM, "Could not create capture session!", __LINE__, __FILE__);
+
+        //adjust capture request properties
+        if (_camConfig.focusMode == FocusMode::FIXED_INFINITY_FOCUS)
+        {
+            uint8_t afMode = ACAMERA_CONTROL_AF_MODE_OFF;
+            ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_AF_MODE, 1, &afMode);
+            float focusDistance = 0.0f;
+            ACaptureRequest_setEntry_float(_captureRequest, ACAMERA_LENS_FOCUS_DISTANCE, 1, &focusDistance);
+        }
+        else
+        {
+            uint8_t afMode = ACAMERA_CONTROL_AF_MODE_CONTINUOUS_VIDEO;
+            ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_AF_MODE, 1, &afMode);
+        }
     }
 
     //install repeating request
     ACameraCaptureSession_setRepeatingRequest(_captureSession, nullptr, 1, &_captureRequest, nullptr);
+}
+
+//todo: add callback for image available and/or completely started
+void SENSNdkCamera::start(int width, int height)
+{
+    _camConfig.targetWidth = width;
+    _camConfig.targetHeight = height;
+    _targetWdivH   = (float)width / (float)height;
+    start(_camConfig);
 }
 
 void SENSNdkCamera::stop()
@@ -214,19 +275,19 @@ SENSFramePtr SENSNdkCamera::adjust(cv::Mat frame)
 
     // Mirroring is done for most selfie cameras.
     // So this is Android image copy loop #3
-    if (_mirrorH)
+    if (_camConfig.mirrorH)
     {
         cv::Mat mirrored;
-        if (_mirrorH)
+        if (_camConfig.mirrorV)
             cv::flip(frame, mirrored, -1);
         else
             cv::flip(frame, mirrored, 1);
         frame = mirrored;
     }
-    else if (_mirrorV)
+    else if (_camConfig.mirrorV)
     {
         cv::Mat mirrored;
-        if (_mirrorH)
+        if (_camConfig.mirrorH)
             cv::flip(frame, mirrored, -1);
         else
             cv::flip(frame, mirrored, 0);
@@ -241,7 +302,7 @@ SENSFramePtr SENSNdkCamera::adjust(cv::Mat frame)
     // We just could take the Y channel.
     // Android image copy loop #4
     cv::Mat grayImg;
-    if (_convertToGray)
+    if (_camConfig.convertToGray)
     {
         cv::cvtColor(frame, grayImg, cv::COLOR_BGR2GRAY);
 
@@ -251,7 +312,7 @@ SENSFramePtr SENSNdkCamera::adjust(cv::Mat frame)
         //}
     }
 
-    SENSFramePtr sensFrame = std::make_shared<SENSFrame>(frame, grayImg, inputSize.width, inputSize.height, cropW, cropH, _mirrorH, _mirrorV);
+    SENSFramePtr sensFrame = std::make_shared<SENSFrame>(frame, grayImg, inputSize.width, inputSize.height, cropW, cropH, _camConfig.mirrorH, _camConfig.mirrorV);
     return sensFrame;
 }
 
@@ -406,14 +467,20 @@ void SENSNdkCamera::initOptimalCamera(SENSCamera::Facing facing)
                                         __LINE__,
                                         __FILE__);
 
+                int width = 0, height = 0;
                 for (uint32_t i = 0; i < lensInfo.count; i += 4)
                 {
-                    StreamConfig config;
-                    config.format = GetFormatStr(lensInfo.data.i32[i]);
-                    config.width = lensInfo.data.i32[i + 1];
-                    config.height = lensInfo.data.i32[i + 2];
-                    config.direction = lensInfo.data.i32[i + 3] ? "INPUT" : "OUTPUT";
-                    _availableStreamConfig.push_back(config);
+                    //example for content interpretation:
+                    //std::string format direction = lensInfo.data.i32[i + 3] ? "INPUT" : "OUTPUT";
+                    //std::string format = GetFormatStr(lensInfo.data.i32[i]);
+
+                    //OUTPUT format and AIMAGE_FORMAT_YUV_420_888 image format
+                    if (!lensInfo.data.i32[i + 3] && lensInfo.data.i32[i] == AIMAGE_FORMAT_YUV_420_888)
+                    {
+                        width  = lensInfo.data.i32[i + 1];
+                        height = lensInfo.data.i32[i + 2];
+                        _availableStreamConfig.add({width, height});
+                    }
                 }
             }
         }

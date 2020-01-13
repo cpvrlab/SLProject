@@ -799,9 +799,11 @@ void android_main(struct android_app* app)
         //get all information about available cameras
         SENSNdkCamera ndkCamera(SENSCamera::Facing::BACK);
         //start continious captureing request with certain configuration
-        int width  = 640;
-        int height = 360;
-        ndkCamera.start(width, height, SENSCamera::FocusMode::FIXED_INFINITY_FOCUS);
+        SENSCamera::Config camConfig;
+        camConfig.targetWidth = 640;
+        camConfig.targetHeight = 360;
+        camConfig.focusMode = SENSCamera::FocusMode::FIXED_INFINITY_FOCUS;
+        ndkCamera.start(camConfig);
 
         engine.run = true;
         while (engine.run)
