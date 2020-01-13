@@ -401,14 +401,9 @@ void SLOptixRaytracer::updateScene(SLSceneView *sv) {
 }
 
 SLbool SLOptixRaytracer::renderClassic() {
-    _state      = rtBusy; // From here we state the RT as busy
-    _pcRendered = 0;      // % rendered
     _renderSec  = 0.0f;   // reset time
-
-    initStats(_maxDepth); // init statistics
-
     // Measure time
-    double t1     = SLApplication::timeS();
+    double t1     = SLApplication::timeMS();
     double tStart = t1;
 
     OPTIX_CHECK(optixLaunch(
@@ -422,14 +417,17 @@ SLbool SLOptixRaytracer::renderClassic() {
             /*depth=*/1));
     CUDA_SYNC_CHECK(SLApplication::stream);
 
-    _renderSec  = (SLfloat)(SLApplication::timeS() - tStart);
-    _pcRendered = 100;
+    _renderSec  = (SLfloat)(SLApplication::timeMS() - tStart) / 1000;
 
-    _state = rtReady;
     return true;
 }
 
 SLbool SLOptixRaytracer::renderDistrib() {
+    _renderSec  = 0.0f;   // reset time
+    // Measure time
+    double t1     = SLApplication::timeMS();
+    double tStart = t1;
+
     OPTIX_CHECK(optixLaunch(
             _pipeline,
             SLApplication::stream,
@@ -440,6 +438,9 @@ SLbool SLOptixRaytracer::renderDistrib() {
             _sv->scrH(),
             /*depth=*/1));
     CUDA_SYNC_CHECK(SLApplication::stream);
+
+    _renderSec  = (SLfloat)(SLApplication::timeMS() - tStart) / 1000;
+
     return true;
 }
 

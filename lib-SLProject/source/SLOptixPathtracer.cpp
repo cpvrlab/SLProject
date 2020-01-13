@@ -177,6 +177,10 @@ void SLOptixPathtracer::updateScene(SLSceneView *sv) {
 }
 
 SLbool SLOptixPathtracer::render() {
+    _renderSec  = 0.0f;   // reset time
+    // Measure time
+    double t1     = SLApplication::timeMS();
+    double tStart = t1;
     _state      = rtBusy; // From here we state the RT as busy
 
     OPTIX_CHECK(optixLaunch(
@@ -221,6 +225,7 @@ SLbool SLOptixPathtracer::render() {
     }
 
     _state = rtFinished;
+    _renderSec  = (SLfloat)(SLApplication::timeMS() - tStart) / 1000;
 
     return true;
 }

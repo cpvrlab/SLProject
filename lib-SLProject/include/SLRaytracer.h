@@ -70,8 +70,8 @@ class SLRaytracer : public SLGLTexture
     void    setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay);
     void    getAAPixels();
     SLCol4f fogBlend(SLfloat z, SLCol4f color);
-    void    printStats(SLfloat sec);
-    void    initStats(SLint depth);
+    virtual void    printStats(SLfloat sec);
+    virtual void    initStats(SLint depth);
 
     // Setters
     void state(SLRTState state)

@@ -375,6 +375,23 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
                 sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
             }
+            else if (rType == RT_optix_rt)
+            {
+                SLOptixRaytracer* rt           = sv->optixRaytracer();
+
+                sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / rt->renderSec());
+                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", rt->renderSec());
+            }
+            else if (rType == RT_optix_pt)
+            {
+                SLOptixPathtracer* rt           = sv->optixPathtracer();
+
+                sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", rt->renderSec());
+            }
 
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
             ImGui::Begin("Timing", &showStatsTiming, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
