@@ -44,6 +44,63 @@ struct SlamParams
     WAI::ModeOrbSlam2::Params params;
 };
 
+enum WAIEventType
+{
+    WAIEventType_None,
+    WAIEventType_StartOrbSlam,
+    WAIEventType_SaveMap,
+    WAIEventType_VideoControl,
+    WAIEventType_VideoRecording,
+    WAIEventType_MapNodeTransform
+    //TODO(dgj1): rest of events
+};
+
+struct WAIEvent
+{
+    WAIEventType type;
+};
+
+struct WAIEventStartOrbSlam : WAIEvent
+{
+    WAIEventStartOrbSlam() { type = WAIEventType_StartOrbSlam; }
+
+    SlamParams params;
+};
+
+struct WAIEventSaveMap : WAIEvent
+{
+    WAIEventSaveMap() { type = WAIEventType_SaveMap; }
+
+    std::string location;
+    std::string area;
+    std::string marker;
+};
+
+struct WAIEventVideoControl : WAIEvent
+{
+    WAIEventVideoControl() { type = WAIEventType_VideoControl; }
+
+    bool pauseVideo;
+    int  videoCursorMoveIndex;
+};
+
+struct WAIEventVideoRecording : WAIEvent
+{
+    WAIEventVideoRecording() { type = WAIEventType_VideoRecording; }
+
+    std::string filename;
+};
+
+struct WAIEventMapNodeTransform : WAIEvent
+{
+    WAIEventMapNodeTransform() { type = WAIEventType_MapNodeTransform; }
+
+    SLTransformSpace tSpace;
+    SLVec3f          rotation;
+    SLVec3f          translation;
+    float            scale;
+};
+
 //-----------------------------------------------------------------------------
 class WAIApp : public SLInputEventInterface
 {
@@ -97,10 +154,8 @@ public:
     std::string calibDir;
     std::string mapDir;
     std::string vocDir;
-    std::string experimentsDir;
+
     //video file editing
-    bool pauseVideo           = false;
-    int  videoCursorMoveIndex = 0;
     bool doubleBufferedOutput;
 
     void updateVideoImage();
@@ -125,8 +180,12 @@ private:
                          SLMaterial*&                     material);
     void renderKeyframes();
     void renderGraphs();
-
-
+    void saveMap(std::string location, std::string area, std::string marker);
+    void transformMapNode(SLTransformSpace tSpace,
+                          SLVec3f          rotation,
+                          SLVec3f          translation,
+                          float            scale);
+    void handleEvents();
 
     //todo: we dont need a pointer
     std::unique_ptr<AppWAIScene> _waiScene;
@@ -158,8 +217,19 @@ private:
     std::unique_ptr<AppDemoWaiGui> _gui;
     AppDemoGuiError*               _errorDial = nullptr;
 
-    int lastFrameIdx;
+    int   lastFrameIdx;
     CVMat undistortedLastFrame[2];
+
+    // video controls
+    bool _pauseVideo           = false;
+    int  _videoCursorMoveIndex = 0;
+
+    // video writer
+    void saveVideo(std::string filename);
+    void saveGPSData(std::string videofile);
+
+    // event queue
+    std::queue<WAIEvent*> eventQueue;
 };
 
 #endif

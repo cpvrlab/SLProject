@@ -14,6 +14,7 @@ public:
     //slam menu
     bool showSlamParam      = false;
     bool showTrackedMapping = false;
+    bool showSlamLoad       = false;
 
     //video menu
     bool showVideoControls = false;
@@ -21,11 +22,6 @@ public:
 
     //map menu
     bool showInfosMapNodeTransform = false;
-
-    //experiments menu
-    bool showSlamLoad     = false;
-    bool showTestSettings = false;
-    bool showTestWriter   = false;
 
     //infos menu
     bool showInfosScene       = false; //!< Flag if scene info should be shown

@@ -94,7 +94,7 @@ KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
             return glslExtractor(16, 16, 0.3, 0.08, 1.9, 1.2);
         case 9:
             _waiApp.doubleBufferedOutput = true;
-            return glslExtractor(16, 16, 0.2, 0.05, 1.9, 1.2);
+            return glslExtractor(32, 32, 0.2, 0.05, 1.9, 1.0);
     }
     return surfExtractor(1000);
 }

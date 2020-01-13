@@ -19,24 +19,25 @@
 #include <SLNode.h>
 
 #include <WAIModeOrbSlam2.h>
+#include <WAIApp.h>
 
 //-----------------------------------------------------------------------------
 class WAI_API AppDemoGuiInfosMapNodeTransform : public AppDemoGuiInfosDialog
 {
-    public:
+public:
     AppDemoGuiInfosMapNodeTransform(
-      std::string name,
-      SLNode*     mapNode,
-      bool*       activator);
+      std::string            name,
+      bool*                  activator,
+      std::queue<WAIEvent*>* eventQueue);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
-    private:
+private:
     float _transformationRotValue   = 10.0f;
     float _transformationTransValue = 1.0f;
     float _transformationScaleValue = 1.2f;
 
-    SLNode* _mapNode = nullptr;
+    std::queue<WAIEvent*>* _eventQueue;
 };
 
 #endif

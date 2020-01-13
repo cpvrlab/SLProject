@@ -22,14 +22,13 @@ class WAIApp;
 class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {
 public:
-    AppDemoGuiSlamLoad(const std::string& name,
-                       std::string        slamRootDir,
-                       std::string        calibrationsDir,
-                       std::string        vocabulariesDir,
-                       SLNode*            mapNode,
-                       bool*              activator,
-                       WAIApp&            waiApp,
-                       SlamParams&        currentSlamParams);
+    AppDemoGuiSlamLoad(const std::string&      name,
+                       std ::queue<WAIEvent*>* eventQueue,
+                       std::string             slamRootDir,
+                       std::string             calibrationsDir,
+                       std::string             vocabulariesDir,
+                       bool*                   activator,
+                       SlamParams&             currentSlamParams);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
@@ -67,9 +66,9 @@ private:
     bool _trackingOnly;
     bool fixLoadedKfs;
 
-    SLNode*     _mapNode;
-    WAIApp&     _waiApp;
     SlamParams& _currentSlamParams;
+
+    std::queue<WAIEvent*>* _eventQueue;
 };
 
 #endif

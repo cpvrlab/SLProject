@@ -81,11 +81,10 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
     SLApplication::devRot.isUsed(true);
     SLApplication::devLoc.isUsed(true);
 
-    videoDir       = _dirs.writableDir + "erleb-AR/locations/";
-    calibDir       = _dirs.writableDir + "calibrations/";
-    mapDir         = _dirs.writableDir + "maps/";
-    vocDir         = _dirs.writableDir + "voc/";
-    experimentsDir = _dirs.writableDir + "experiments/";
+    videoDir = _dirs.writableDir + "erleb-AR/locations/";
+    calibDir = _dirs.writableDir + "calibrations/";
+    mapDir   = _dirs.writableDir + "maps/";
+    vocDir   = _dirs.writableDir + "voc/";
 
     _waiScene        = std::make_unique<AppWAIScene>();
     _videoWriter     = new cv::VideoWriter();
@@ -106,6 +105,9 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
 bool WAIApp::update()
 {
     AVERAGE_TIMING_START("WAIAppUpdate");
+
+    handleEvents();
+
     //resetAllTexture();
     if (_mode && _loaded)
     {
@@ -118,29 +120,29 @@ bool WAIApp::update()
         }
 
         bool iKnowWhereIAm = (_mode->getTrackingState() == WAI::TrackingState_TrackingOK);
-        while (videoCursorMoveIndex < 0)
+        while (_videoCursorMoveIndex < 0)
         {
             //this only has an influence on desktop or video file
             CVCapture::instance()->moveCapturePosition(-2);
             CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
             iKnowWhereIAm = updateTracking();
 
-            videoCursorMoveIndex++;
+            _videoCursorMoveIndex++;
         }
 
-        while (videoCursorMoveIndex > 0)
+        while (_videoCursorMoveIndex > 0)
         {
             //this only has an influence on desktop or video file
             CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
             iKnowWhereIAm = updateTracking();
 
-            videoCursorMoveIndex--;
+            _videoCursorMoveIndex--;
         }
 
         if (CVCapture::instance()->videoType() != VT_NONE)
         {
             //this only has an influence on desktop or video file
-            if (CVCapture::instance()->videoType() != VT_FILE || !pauseVideo)
+            if (CVCapture::instance()->videoType() != VT_FILE || !_pauseVideo)
             {
                 CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
                 iKnowWhereIAm = updateTracking();
@@ -235,7 +237,7 @@ OrbSlamStartResult WAIApp::startOrbSlam(SlamParams* slamParams)
     //TODO:find other solution
     _gui->uiPrefs->showError = false;
 
-    lastFrameIdx = 0;
+    lastFrameIdx         = 0;
     doubleBufferedOutput = false;
 
     std::string               videoFile       = "";
@@ -633,19 +635,18 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
     //aboutDial = new AppDemoGuiAbout("about", cpvrLogo, &uiPrefs.showAbout);
     _gui->addInfoDialog(new AppDemoGuiInfosFrameworks("frameworks", &_gui->uiPrefs->showInfosFrameworks));
     _gui->addInfoDialog(new AppDemoGuiInfosMapNodeTransform("map node",
-                                                            _waiScene->mapNode,
-                                                            &_gui->uiPrefs->showInfosMapNodeTransform));
+                                                            &_gui->uiPrefs->showInfosMapNodeTransform,
+                                                            &eventQueue));
 
     _gui->addInfoDialog(new AppDemoGuiInfosScene("scene", &_gui->uiPrefs->showInfosScene));
     _gui->addInfoDialog(new AppDemoGuiInfosSensors("sensors", &_gui->uiPrefs->showInfosSensors));
     _gui->addInfoDialog(new AppDemoGuiInfosTracking("tracking", *_gui->uiPrefs.get(), *this));
     _gui->addInfoDialog(new AppDemoGuiSlamLoad("slam load",
+                                               &eventQueue,
                                                _dirs.writableDir + "erleb-AR/locations/",
                                                _dirs.writableDir + "calibrations/",
                                                _dirs.writableDir + "voc/",
-                                               _waiScene->mapNode,
                                                &_gui->uiPrefs->showSlamLoad,
-                                               *this,
                                                this->_currentSlamParams));
 
     _gui->addInfoDialog(new AppDemoGuiProperties("properties", &_gui->uiPrefs->showProperties));
@@ -658,22 +659,8 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
     _gui->addInfoDialog(new AppDemoGuiTransform("transform", &_gui->uiPrefs->showTransform));
     _gui->addInfoDialog(new AppDemoGuiUIPrefs("prefs", _gui->uiPrefs.get(), &_gui->uiPrefs->showUIPrefs));
 
-    _gui->addInfoDialog(new AppDemoGuiVideoStorage("video storage", _videoWriter, _videoWriterInfo, &_gpsDataStream, &_gui->uiPrefs->showVideoStorage, *this));
-    _gui->addInfoDialog(new AppDemoGuiVideoControls("video load", &_gui->uiPrefs->showVideoControls, *this));
-
-    _gui->addInfoDialog(new AppDemoGuiTestOpen("Tests Settings",
-                                               _waiScene->mapNode,
-                                               &_gui->uiPrefs->showTestSettings,
-                                               *this));
-
-    _gui->addInfoDialog(new AppDemoGuiTestWrite("Test Writer",
-                                                &CVCapture::instance()->activeCamera->calibration,
-                                                _waiScene->mapNode,
-                                                _videoWriter,
-                                                _videoWriterInfo,
-                                                &_gpsDataStream,
-                                                &_gui->uiPrefs->showTestWriter,
-                                                *this));
+    _gui->addInfoDialog(new AppDemoGuiVideoStorage("video storage", &_gui->uiPrefs->showVideoStorage, &eventQueue));
+    _gui->addInfoDialog(new AppDemoGuiVideoControls("video load", &_gui->uiPrefs->showVideoControls, &eventQueue));
 
     _gui->addInfoDialog(new AppDemoGuiSlamParam("Slam Param", &_gui->uiPrefs->showSlamParam, *this));
 
@@ -1069,5 +1056,194 @@ void WAIApp::renderGraphs()
         _waiScene->loopEdgesMesh = new SLPolyline(loopEdgesPts, false, "LoopEdges", _waiScene->loopEdgesMat);
         _waiScene->loopEdges->addMesh(_waiScene->loopEdgesMesh);
         _waiScene->loopEdges->updateAABBRec();
+    }
+}
+
+void WAIApp::saveMap(std::string location,
+                     std::string area,
+                     std::string marker)
+{
+    _mode->pause();
+
+    std::string slamRootDir = _dirs.writableDir + "erleb-AR/locations/";
+    std::string mapDir      = constructSlamMapDir(slamRootDir, location, area);
+    if (!Utils::dirExists(mapDir))
+        Utils::makeDir(mapDir);
+
+    std::string filename = constructSlamMapFileName(location, area, _mode->getKPextractor()->GetName());
+    std::string imgDir   = constructSlamMapImgDir(mapDir, filename);
+
+    if (_mode->retainImage())
+    {
+        if (!Utils::dirExists(imgDir))
+            Utils::makeDir(imgDir);
+    }
+
+    if (!marker.empty())
+    {
+        cv::Mat nodeTransform;
+        if (!_mode->doMarkerMapPreprocessing(constructSlamMarkerDir(slamRootDir, location, area) + marker, nodeTransform, 0.75f))
+        {
+            showErrorMsg("Failed to do marker map preprocessing");
+        }
+        else
+        {
+            std::cout << "nodeTransform: " << nodeTransform << std::endl;
+            _waiScene->mapNode->om(WAIMapStorage::convertToSLMat(nodeTransform));
+            if (!WAIMapStorage::saveMap(_mode->getMap(),
+                                        _waiScene->mapNode,
+                                        mapDir + filename,
+                                        imgDir))
+            {
+                showErrorMsg("Failed to save map " + mapDir + filename);
+            }
+        }
+    }
+    else
+    {
+        if (!WAIMapStorage::saveMap(_mode->getMap(),
+                                    _waiScene->mapNode,
+                                    mapDir + filename,
+                                    imgDir))
+        {
+            showErrorMsg("Failed to save map " + mapDir + filename);
+        }
+    }
+
+    _mode->resume();
+}
+void WAIApp::saveVideo(std::string filename)
+{
+    std::string infoDir  = videoDir + "info/";
+    std::string infoPath = infoDir + filename;
+    std::string path     = videoDir + filename;
+
+    if (!Utils::dirExists(videoDir))
+    {
+        Utils::makeDir(videoDir);
+    }
+    else
+    {
+        if (Utils::fileExists(path))
+        {
+            Utils::deleteFile(path);
+        }
+    }
+
+    if (!Utils::dirExists(infoDir))
+    {
+        Utils::makeDir(infoDir);
+    }
+    else
+    {
+        if (Utils::fileExists(infoPath))
+        {
+            Utils::deleteFile(infoPath);
+        }
+    }
+
+    if (_videoWriter->isOpened())
+    {
+        _videoWriter->release();
+    }
+    if (_videoWriterInfo->isOpened())
+    {
+        _videoWriterInfo->release();
+    }
+
+    cv::Size size = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
+
+    bool ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
+
+    ret = _videoWriterInfo->open(infoPath, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
+}
+
+void WAIApp::saveGPSData(std::string videofile)
+{
+    std::string filename = Utils::getFileNameWOExt(videofile) + ".txt";
+    std::string path     = videoDir + filename;
+    _gpsDataStream.open(path);
+}
+
+void WAIApp::transformMapNode(SLTransformSpace tSpace,
+                              SLVec3f          rotation,
+                              SLVec3f          translation,
+                              float            scale)
+{
+    _waiScene->mapNode->rotate(rotation.x, 1, 0, 0, tSpace);
+    _waiScene->mapNode->rotate(rotation.y, 0, 1, 0, tSpace);
+    _waiScene->mapNode->rotate(rotation.z, 0, 0, 1, tSpace);
+    _waiScene->mapNode->translate(translation.x, 0, 0, tSpace);
+    _waiScene->mapNode->translate(0, translation.y, 0, tSpace);
+    _waiScene->mapNode->translate(0, 0, translation.z, tSpace);
+    _waiScene->mapNode->scale(scale);
+}
+
+void WAIApp::handleEvents()
+{
+    WAIEvent* event = nullptr;
+    while (event = eventQueue.front())
+    {
+        eventQueue.pop();
+
+        switch (event->type)
+        {
+            case WAIEventType_StartOrbSlam: {
+                WAIEventStartOrbSlam* startOrbSlamEvent = (WAIEventStartOrbSlam*)event;
+                startOrbSlam(&startOrbSlamEvent->params);
+
+                delete startOrbSlamEvent;
+            }
+            break;
+
+            case WAIEventType_SaveMap: {
+                WAIEventSaveMap* saveMapEvent = (WAIEventSaveMap*)event;
+                saveMap(saveMapEvent->location, saveMapEvent->area, saveMapEvent->marker);
+
+                delete saveMapEvent;
+            }
+            break;
+
+            case WAIEventType_VideoControl: {
+                WAIEventVideoControl* videoControlEvent = (WAIEventVideoControl*)event;
+                _pauseVideo                             = videoControlEvent->pauseVideo;
+                _videoCursorMoveIndex                   = videoControlEvent->videoCursorMoveIndex;
+
+                delete videoControlEvent;
+            }
+            break;
+
+            case WAIEventType_VideoRecording: {
+                WAIEventVideoRecording* videoRecordingEvent = (WAIEventVideoRecording*)event;
+
+                if (_videoWriter->isOpened())
+                {
+                    _videoWriter->release();
+                    _gpsDataStream.close();
+                }
+                else
+                {
+                    saveVideo(videoRecordingEvent->filename);
+                    saveGPSData(videoRecordingEvent->filename);
+                }
+
+                delete videoRecordingEvent;
+            }
+            break;
+
+            case WAIEventType_MapNodeTransform: {
+                WAIEventMapNodeTransform* mapNodeTransformEvent = (WAIEventMapNodeTransform*)event;
+
+                transformMapNode(mapNodeTransformEvent->tSpace, mapNodeTransformEvent->rotation, mapNodeTransformEvent->translation, mapNodeTransformEvent->scale);
+
+                delete mapNodeTransformEvent;
+            }
+            break;
+
+            case WAIEventType_None:
+            default: {
+            }
+            break;
+        }
     }
 }

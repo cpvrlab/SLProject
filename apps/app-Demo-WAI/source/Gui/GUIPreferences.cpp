@@ -80,6 +80,8 @@ void GUIPreferences::load(std::string fileName, ImGuiStyle& style)
                 fs["showSlamParam"] >> showSlamParam;
             if (!fs["showTrackedMapping"].empty())
                 fs["showTrackedMapping"] >> showTrackedMapping;
+            if (!fs["showSlamLoad"].empty())
+                fs["showSlamLoad"] >> showSlamLoad;
 
             //video menu
             if (!fs["showVideoControls"].empty())
@@ -90,14 +92,6 @@ void GUIPreferences::load(std::string fileName, ImGuiStyle& style)
             //map menu
             if (!fs["showInfosMapNodeTransform"].empty())
                 fs["showInfosMapNodeTransform"] >> showInfosMapNodeTransform;
-
-            //experiments menu
-            if (!fs["showSlamLoad"].empty())
-                fs["showSlamLoad"] >> showSlamLoad;
-            if (!fs["showTestSettings"].empty())
-                fs["showTestSettings"] >> showTestSettings;
-            if (!fs["showTestWriter"].empty())
-                fs["showTestWriter"] >> showTestWriter;
 
             //infos menu
             if (!fs["showInfosScene"].empty())
@@ -209,6 +203,7 @@ void GUIPreferences::save(std::string fileName, ImGuiStyle& style)
     //slam menu
     fs << "showSlamParam" << showSlamParam;
     fs << "showTrackedMapping" << showTrackedMapping;
+    fs << "showSlamLoad" << showSlamLoad;
 
     //video menu
     fs << "showVideoControls" << showVideoControls;
@@ -218,9 +213,6 @@ void GUIPreferences::save(std::string fileName, ImGuiStyle& style)
     fs << "showInfosMapNodeTransform" << showInfosMapNodeTransform;
 
     //experiments menu
-    fs << "showSlamLoad" << showSlamLoad;
-    fs << "showTestSettings" << showTestSettings;
-    fs << "showTestWriter" << showTestWriter;
 
     //infos menu
     fs << "showInfosScene" << showInfosScene;

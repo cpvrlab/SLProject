@@ -277,13 +277,6 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Experiments"))
-        {
-            ImGui::MenuItem("Load Experiment", nullptr, &uiPrefs->showTestSettings);
-            ImGui::MenuItem("New Experiment", nullptr, &uiPrefs->showTestWriter);
-            ImGui::EndMenu();
-        }
-
         if (ImGui::BeginMenu("Infos"))
         {
             ImGui::MenuItem("Infos on Scene", nullptr, &uiPrefs->showInfosScene);

@@ -352,7 +352,7 @@ bool isPermissionGranted(struct android_app* app, const char* permissionName)
     jint     permissionGrantedValue = env->GetStaticIntField(classPackageManager, idPermissionGranted);
 
     jobject   activity                  = app->activity->clazz;
-    jclass    classContext              = env->FindClass("android/app/Activity");
+    jclass    classContext              = env->FindClass("android/content/Context");
     jmethodID methodCheckSelfPermission = env->GetMethodID(classContext, "checkSelfPermission", "(Ljava/lang/String;)I");
     jint      checkResult               = env->CallIntMethod(activity, methodCheckSelfPermission, stringPermission);
 
