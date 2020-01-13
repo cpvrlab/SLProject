@@ -15,7 +15,10 @@
 #include <SLGLVertexArray.h>
 #include <SLMat4.h>
 #include <atomic>
-#include <cuda.h>
+
+#ifdef SL_HAS_OPTIX
+#    include <cuda.h>
+#endif
 
 class SLGLState;
 
@@ -137,7 +140,14 @@ class SLGLTexture : public SLObject
     SLbool        autoCalcTM3D() { return _autoCalcTM3D; }
     SLbool        needsUpdate() { return _needsUpdate; }
     SLstring      typeName();
-    CUtexObject   getCudaTextureObject() { buildCudaTexture();return _cudaTextureObject; }
+
+#ifdef SL_HAS_OPTIX
+    CUtexObject getCudaTextureObject()
+    {
+        buildCudaTexture();
+        return _cudaTextureObject;
+    }
+#endif
 
     // Misc
     SLTextureType detectType(SLstring filename);
@@ -184,8 +194,11 @@ class SLGLTexture : public SLObject
     SLbool          _resizeToPow2;  //!< Flag if image should be resized to n^2
     SLGLVertexArray _vaoSprite;     //!< Vertex array object for sprite rendering
     atomic<bool>    _needsUpdate{}; //!< Flag if image needs an single update
-    CUgraphicsResource  _cudaGraphicsResource; //!< Cuda Graphics object
-    CUtexObject         _cudaTextureObject;
+
+#ifdef SL_HAS_OPTIX
+    CUgraphicsResource _cudaGraphicsResource; //!< Cuda Graphics object
+    CUtexObject        _cudaTextureObject;
+#endif
 };
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLTexture pointers

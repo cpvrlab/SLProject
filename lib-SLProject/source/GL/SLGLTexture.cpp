@@ -18,9 +18,12 @@
 #include <SLGLTexture.h>
 #include <SLScene.h>
 #include <Utils.h>
-#include <cudaGL.h>
-#include <SLOptixHelper.h>
-#include <cuda.h>
+
+#ifdef SL_HAS_OPTIX
+#    include <cudaGL.h>
+#    include <SLOptixHelper.h>
+#    include <cuda.h>
+#endif
 
 //-----------------------------------------------------------------------------
 //! Default path for texture files used when only filename is passed in load.
@@ -53,8 +56,11 @@ SLGLTexture::SLGLTexture()
     _autoCalcTM3D = false;
     _bytesOnGPU   = 0;
     _needsUpdate  = false;
+
+#ifdef SL_HAS_OPTIX
     _cudaGraphicsResource = nullptr;
-    _cudaTextureObject = 0;
+    _cudaTextureObject    = 0;
+#endif
 }
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
@@ -83,8 +89,11 @@ SLGLTexture::SLGLTexture(const SLstring& filename,
     _autoCalcTM3D = false;
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
+
+#ifdef SL_HAS_OPTIX
     _cudaGraphicsResource = nullptr;
-    _cudaTextureObject = 0;
+    _cudaTextureObject    = 0;
+#endif
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->textures().push_back(this);
@@ -117,8 +126,11 @@ SLGLTexture::SLGLTexture(const SLVstring& files,
     _autoCalcTM3D = true;
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
+
+#ifdef SL_HAS_OPTIX
     _cudaGraphicsResource = nullptr;
-    _cudaTextureObject = 0;
+    _cudaTextureObject    = 0;
+#endif
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->textures().push_back(this);
@@ -151,8 +163,11 @@ SLGLTexture::SLGLTexture(const SLVCol4f& colors,
     _autoCalcTM3D = true;
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
+
+#ifdef SL_HAS_OPTIX
     _cudaGraphicsResource = nullptr;
-    _cudaTextureObject = 0;
+    _cudaTextureObject    = 0;
+#endif
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->textures().push_back(this);
@@ -196,8 +211,11 @@ SLGLTexture::SLGLTexture(const SLstring& filenameXPos,
     _autoCalcTM3D = false;
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
+
+#ifdef SL_HAS_OPTIX
     _cudaGraphicsResource = nullptr;
-    _cudaTextureObject = 0;
+    _cudaTextureObject    = 0;
+#endif
 
     SLApplication::scene->textures().push_back(this);
 }
@@ -225,10 +243,13 @@ void SLGLTexture::clearData()
     _bytesOnGPU = 0;
     _vaoSprite.clearAttribs();
 
-    if (_cudaGraphicsResource) {
-        CUDA_CHECK( cuGraphicsUnregisterResource(_cudaGraphicsResource) );
+#ifdef SL_HAS_OPTIX
+    if (_cudaGraphicsResource)
+    {
+        CUDA_CHECK(cuGraphicsUnregisterResource(_cudaGraphicsResource));
         _cudaGraphicsResource = nullptr;
     }
+#endif
 }
 //-----------------------------------------------------------------------------
 //! Loads the texture, converts color depth & applies vertical mirroring
@@ -424,7 +445,7 @@ void SLGLTexture::build(SLint texID)
             anisotropy = maxAnisotropy;
         else
             anisotropy = std::min((SLfloat)(_min_filter - GL_LINEAR_MIPMAP_LINEAR),
-                                    maxAnisotropy);
+                                  maxAnisotropy);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
     }
     else
@@ -544,19 +565,23 @@ void SLGLTexture::build(SLint texID)
 
     GET_GL_ERROR;
 }
-void SLGLTexture::buildCudaTexture() {
-    if (!_cudaTextureObject) {
+//-----------------------------------------------------------------------------
+#ifdef SL_HAS_OPTIX
+void SLGLTexture::buildCudaTexture()
+{
+    if (!_cudaTextureObject)
+    {
         CUarray texture_ptr;
 
-        CUDA_CHECK( cuGraphicsMapResources(1, &_cudaGraphicsResource, SLApplication::stream) );
-        CUDA_CHECK( cuGraphicsSubResourceGetMappedArray(&texture_ptr, _cudaGraphicsResource, 0, 0) );
+        CUDA_CHECK(cuGraphicsMapResources(1, &_cudaGraphicsResource, SLApplication::stream));
+        CUDA_CHECK(cuGraphicsSubResourceGetMappedArray(&texture_ptr, _cudaGraphicsResource, 0, 0));
 
         CUDA_RESOURCE_DESC res_desc = {};
 
         res_desc.resType          = CU_RESOURCE_TYPE_ARRAY;
         res_desc.res.array.hArray = texture_ptr;
 
-        CUDA_TEXTURE_DESC tex_desc     = {};
+        CUDA_TEXTURE_DESC tex_desc   = {};
         tex_desc.addressMode[0]      = CU_TR_ADDRESS_MODE_WRAP;
         tex_desc.addressMode[1]      = CU_TR_ADDRESS_MODE_WRAP;
         tex_desc.filterMode          = CU_TR_FILTER_MODE_LINEAR;
@@ -565,10 +590,11 @@ void SLGLTexture::buildCudaTexture() {
         tex_desc.maxMipmapLevelClamp = 99;
         tex_desc.minMipmapLevelClamp = 0;
 
-        CUDA_CHECK( cuTexObjectCreate(&_cudaTextureObject, &res_desc, &tex_desc, nullptr) );
-        CUDA_CHECK( cuGraphicsUnmapResources(1, &_cudaGraphicsResource, SLApplication::stream) );
+        CUDA_CHECK(cuTexObjectCreate(&_cudaTextureObject, &res_desc, &tex_desc, nullptr));
+        CUDA_CHECK(cuGraphicsUnmapResources(1, &_cudaGraphicsResource, SLApplication::stream));
     }
 }
+#endif
 //-----------------------------------------------------------------------------
 /*!
 SLGLTexture::bindActive binds the active texture. This method must be called
@@ -581,7 +607,8 @@ void SLGLTexture::bindActive(SLint texID)
     assert(texID >= 0 && texID < 32);
 
     // if texture not exists build it
-    if (!_texName) {
+    if (!_texName)
+    {
         build(texID);
     }
 
@@ -604,9 +631,15 @@ void SLGLTexture::bindActive(SLint texID)
         }
     }
 
-    if (!_cudaGraphicsResource) {
-        CUDA_CHECK( cuGraphicsGLRegisterImage(&_cudaGraphicsResource, _texName, _target, CU_GRAPHICS_REGISTER_FLAGS_NONE) );
+#ifdef SL_HAS_OPTIX
+    if (!_cudaGraphicsResource)
+    {
+        CUDA_CHECK(cuGraphicsGLRegisterImage(&_cudaGraphicsResource,
+                                             _texName,
+                                             _target,
+                                             CU_GRAPHICS_REGISTER_FLAGS_NONE));
     }
+#endif
 
     GET_GL_ERROR;
 }

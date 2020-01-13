@@ -132,7 +132,9 @@ SLNode.
 class SLNode
   : public SLObject
   , public SLEventHandler
+#ifdef SL_HAS_OPTIX
   , public SLOptixAccelerationStructure
+#endif
 {
     friend class SLSceneView;
 
@@ -311,7 +313,9 @@ class SLNode
     void findChildrenHelper(SLuint           drawbit,
                             vector<SLNode*>& list,
                             SLbool           findRecursive);
+#ifdef SL_HAS_OPTIX
     void createOptixInstances(std::vector<OptixInstance>&);
+#endif
 
     protected:
     SLNode*         _parent;         //!< pointer to the parent node
@@ -328,7 +332,6 @@ class SLNode
     SLDrawBits      _drawBits;       //!< node level drawing flags
     SLAABBox        _aabb;           //!< axis aligned bounding box
     SLAnimation*    _animation;      //!< animation of the node
-    //CVTracked*    _tracker;        //!< OpenCV Augmented Reality Tracker
 };
 
 ////////////////////////

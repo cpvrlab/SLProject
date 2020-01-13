@@ -91,10 +91,12 @@ void SLMesh::deleteData()
     _vaoN.deleteGL();
     _vaoT.deleteGL();
 
+#ifdef SL_HAS_OPTIX
     _vertexBuffer.free();
     _normalBuffer.free();
     _indexShortBuffer.free();
     _indexIntBuffer.free();
+#endif
 }
 //-----------------------------------------------------------------------------
 //! Deletes the rectangle selected vertices and the dependend triangles.
@@ -204,7 +206,7 @@ void SLMesh::deleteUnused()
 
     // A boolean for each vertex to flag it as used or not
     SLVbool used(P.size());
-    for (auto && u : used)
+    for (auto&& u : used)
         u = false;
 
     // Loop over all indexes and mark them as used
@@ -645,7 +647,7 @@ bounding sphere. Code by Jack Ritter from Graphic Gems.
 */
 void SLMesh::calcCenterRad(SLVec3f& center, SLfloat& radius)
 {
-    SLulong  i;
+    SLulong i;
     SLfloat dx, dy, dz;
     SLfloat radius2, xspan, yspan, zspan, maxspan;
     SLfloat old_to_p, old_to_p_sq, old_to_new;
@@ -1274,45 +1276,51 @@ void SLMesh::notifyParentNodesAABBUpdate() const
     for (auto node : nodes)
         node->needAABBUpdate();
 }
-
-void SLMesh::allocAndUploadData() {
+//-----------------------------------------------------------------------------
+#ifdef SL_HAS_OPTIX
+void SLMesh::allocAndUploadData()
+{
     _vertexBuffer.alloc_and_upload(P);
 
     _normalBuffer.alloc_and_upload(N);
 
-    if (Tc.data()) {
+    if (Tc.data())
         _textureBuffer.alloc_and_upload(Tc);
-    }
 
-    if (!I16.empty()) {
+    if (!I16.empty())
         _indexShortBuffer.alloc_and_upload(I16);
-    } else {
+    else
         _indexIntBuffer.alloc_and_upload(I32);
-    }
 }
-
-void SLMesh::uploadData() {
+//-----------------------------------------------------------------------------
+void SLMesh::uploadData()
+{
     _vertexBuffer.upload(*_finalP);
     _normalBuffer.upload(*_finalN);
 }
-
-void SLMesh::createMeshAccelerationStructure() {
-    if (!_vertexBuffer.isAllocated()) {
+//-----------------------------------------------------------------------------
+void SLMesh::createMeshAccelerationStructure()
+{
+    if (!_vertexBuffer.isAllocated())
+    {
         allocAndUploadData();
     }
 
     // Build triangle GAS
-    uint32_t _buildInput_flags[1] = { OPTIX_GEOMETRY_FLAG_NONE };
-    
-    _buildInput.type                                      = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
-    if (!I16.empty()) {
-        _buildInput.triangleArray.indexFormat             = OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3;
-        _buildInput.triangleArray.numIndexTriplets        = I16.size() / 3;
-        _buildInput.triangleArray.indexBuffer             = _indexShortBuffer.devicePointer();
-    } else {
-        _buildInput.triangleArray.indexFormat             = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
-        _buildInput.triangleArray.numIndexTriplets        = I32.size() / 3;
-        _buildInput.triangleArray.indexBuffer             = _indexIntBuffer.devicePointer();
+    uint32_t _buildInput_flags[1] = {OPTIX_GEOMETRY_FLAG_NONE};
+
+    _buildInput.type = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
+    if (!I16.empty())
+    {
+        _buildInput.triangleArray.indexFormat      = OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3;
+        _buildInput.triangleArray.numIndexTriplets = I16.size() / 3;
+        _buildInput.triangleArray.indexBuffer      = _indexShortBuffer.devicePointer();
+    }
+    else
+    {
+        _buildInput.triangleArray.indexFormat      = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
+        _buildInput.triangleArray.numIndexTriplets = I32.size() / 3;
+        _buildInput.triangleArray.indexBuffer      = _indexIntBuffer.devicePointer();
     }
     _buildInput.triangleArray.vertexFormat                = OPTIX_VERTEX_FORMAT_FLOAT3;
     _buildInput.triangleArray.vertexBuffers               = _vertexBuffer.devicePointerPointer();
@@ -1327,40 +1335,44 @@ void SLMesh::createMeshAccelerationStructure() {
 
     buildAccelerationStructure();
 }
-
-void SLMesh::updateMeshAccelerationStructure() {
+//-----------------------------------------------------------------------------
+void SLMesh::updateMeshAccelerationStructure()
+{
     if (!_accelStructOutOfDate)
         return;
 
     uploadData();
 
     // Build triangle GAS
-    uint32_t _buildInput_flags[1] = { OPTIX_GEOMETRY_FLAG_NONE };
-    _buildInput.triangleArray.flags                       = _buildInput_flags;
+    uint32_t _buildInput_flags[1]   = {OPTIX_GEOMETRY_FLAG_NONE};
+    _buildInput.triangleArray.flags = _buildInput_flags;
 
     updateAccelerationStructure();
 }
-
-HitData SLMesh::createHitData() {
+//-----------------------------------------------------------------------------
+HitData SLMesh::createHitData()
+{
     HitData hitData = {};
 
     hitData.sbtIndex = 0;
-    hitData.normals = reinterpret_cast<float3 *>(_normalBuffer.devicePointer());
-    hitData.indices = reinterpret_cast<short3 *>(_indexShortBuffer.devicePointer());
-    hitData.texCords = reinterpret_cast<float2 *>(_textureBuffer.devicePointer());
-    if (!mat()->textures().empty()) {
+    hitData.normals  = reinterpret_cast<float3*>(_normalBuffer.devicePointer());
+    hitData.indices  = reinterpret_cast<short3*>(_indexShortBuffer.devicePointer());
+    hitData.texCords = reinterpret_cast<float2*>(_textureBuffer.devicePointer());
+    if (!mat()->textures().empty())
+    {
         hitData.textureObject = mat()->textures()[0]->getCudaTextureObject();
     }
-    hitData.material.kn = mat()->kn();
-    hitData.material.kt = mat()->kt();
-    hitData.material.kr = mat()->kr();
-    hitData.material.shininess = mat()->shininess();
-    hitData.material.ambient_color = make_float4(mat()->ambient());
-    hitData.material.specular_color = make_float4(mat()->specular());
+    hitData.material.kn                = mat()->kn();
+    hitData.material.kt                = mat()->kt();
+    hitData.material.kr                = mat()->kr();
+    hitData.material.shininess         = mat()->shininess();
+    hitData.material.ambient_color     = make_float4(mat()->ambient());
+    hitData.material.specular_color    = make_float4(mat()->specular());
     hitData.material.transmissiv_color = make_float4(mat()->transmissiv());
-    hitData.material.diffuse_color = make_float4(mat()->diffuse());
-    hitData.material.emissive_color = make_float4(mat()->emissive());
+    hitData.material.diffuse_color     = make_float4(mat()->diffuse());
+    hitData.material.emissive_color    = make_float4(mat()->emissive());
 
     return hitData;
 }
+#endif
 //-----------------------------------------------------------------------------

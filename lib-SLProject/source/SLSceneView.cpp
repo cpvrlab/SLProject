@@ -178,7 +178,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 
         SLMat4f vm = _sceneViewCamera.updateAndGetWMI();
 
-        for (auto & vsCorner : vsCorners)
+        for (auto& vsCorner : vsCorners)
         {
             vsCorner = vm * vsCorner;
 
@@ -301,8 +301,10 @@ void SLSceneView::onInitialize()
     _renderType   = RT_gl;
     _isFirstFrame = true;
 
+#ifdef SL_HAS_OPTIX
     _optixRaytracer.setupOptix();
     _optixPathtracer.setupOptix();
+#endif
 
     // init 3D scene with initial depth 1
     if (s->root3D() && s->root3D()->aabb()->radiusOS() < 0.0001f)
@@ -408,8 +410,11 @@ SLbool SLSceneView::onPaint()
             case RT_gl: camUpdated = draw3DGL(s->elapsedTimeMS()); break;
             case RT_rt: camUpdated = draw3DRT(); break;
             case RT_pt: camUpdated = draw3DPT(); break;
+
+#ifdef SL_HAS_OPTIX
             case RT_optix_rt: camUpdated = draw3DOptixRT(); break;
             case RT_optix_pt: camUpdated = draw3DOptixPT(); break;
+#endif
         }
     }
 
@@ -856,7 +861,7 @@ SLSceneView::draw2DGLNodes draws 2D nodes from root2D in ortho projection.
 */
 void SLSceneView::draw2DGLNodes()
 {
-    SLfloat    depth   = 1.0f;                         // Render depth between -1 & 1
+    SLfloat    depth   = 1.0f;                           // Render depth between -1 & 1
     SLfloat    cs      = std::min(_scrW, _scrH) * 0.01f; // center size
     SLGLState* stateGL = SLGLState::instance();
 
@@ -982,9 +987,10 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
         }
     }
 
-    if (_mouseDownR) {
+#ifdef SL_HAS_OPTIX
+    if (_mouseDownR)
         _optixRaytracer.drawRay(x, y);
-    }
+#endif
 
     return result;
 }
@@ -1545,12 +1551,15 @@ SLbool SLSceneView::draw3DPT()
     return updated;
 }
 //-----------------------------------------------------------------------------
-void SLSceneView::startOptixRaytracing(SLint maxDepth) {
-    _renderType     = RT_optix_rt;
-    _stopOptixRT    = false;
+#ifdef SL_HAS_OPTIX
+void SLSceneView::startOptixRaytracing(SLint maxDepth)
+{
+    _renderType  = RT_optix_rt;
+    _stopOptixRT = false;
     _optixRaytracer.maxDepth(maxDepth);
     _optixRaytracer.setupScene(this);
 }
+//-----------------------------------------------------------------------------
 SLbool SLSceneView::draw3DOptixRT()
 {
     SLbool updated = false;
@@ -1562,11 +1571,12 @@ SLbool SLSceneView::draw3DOptixRT()
 
         s->root3D()->needUpdate();
 
-//         Start raytracing
+        //         Start raytracing
         _optixRaytracer.updateScene(this);
         if (_optixRaytracer.doDistributed())
             _optixRaytracer.renderDistrib();
-        else {
+        else
+        {
             _optixRaytracer.renderClassic();
         }
     }
@@ -1584,13 +1594,15 @@ SLbool SLSceneView::draw3DOptixRT()
     return updated;
 }
 //-----------------------------------------------------------------------------
-void SLSceneView::startOptixPathtracing(SLint maxDepth, SLint samples) {
-    _renderType     = RT_optix_pt;
-    _stopOptixPT    = false;
+void SLSceneView::startOptixPathtracing(SLint maxDepth, SLint samples)
+{
+    _renderType  = RT_optix_pt;
+    _stopOptixPT = false;
     _optixPathtracer.maxDepth(maxDepth);
     _optixPathtracer.samples(samples);
     _optixPathtracer.setupScene(this);
 }
+//-----------------------------------------------------------------------------
 SLbool SLSceneView::draw3DOptixPT()
 {
     SLbool updated = false;
@@ -1602,7 +1614,7 @@ SLbool SLSceneView::draw3DOptixPT()
 
         s->root3D()->needUpdate();
 
-//         Start path tracing
+        // Start path tracing
         _optixPathtracer.updateScene(this);
         _optixPathtracer.render();
     }
@@ -1619,4 +1631,5 @@ SLbool SLSceneView::draw3DOptixPT()
 
     return updated;
 }
+#endif
 //-----------------------------------------------------------------------------

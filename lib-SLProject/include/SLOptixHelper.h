@@ -1,26 +1,29 @@
-//
-// Created by nic on 24.10.19.
-//
+//#############################################################################
+//  File:      SLOptixHelper.h
+//  Author:    Nic Dorner
+//  Date:      October 2019
+//  Copyright: Nic Dorner
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
-#ifndef SLPROJECT_SLOPTIXHELPER_H
-#define SLPROJECT_SLOPTIXHELPER_H
+#ifdef SL_HAS_OPTIX
+#    ifndef SLPROJECT_SLOPTIXHELPER_H
+#        define SLPROJECT_SLOPTIXHELPER_H
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
+#        include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 using namespace std::placeholders;
 using namespace std::chrono;
 
-
 // Optix error-checking and CUDA error-checking are copied from nvidia optix sutil
 //------------------------------------------------------------------------------
-//
 // OptiX error-checking
-//
 //------------------------------------------------------------------------------
 
-#include <optix_stubs.h>
-
+#        include <optix_stubs.h>
+// clang-format off
+//------------------------------------------------------------------------------
 #define OPTIX_CHECK( call )                                                    \
     {                                                                          \
         OptixResult res = call;                                                \
@@ -32,8 +35,7 @@ using namespace std::chrono;
             throw SLOptixException( res, ss.str().c_str() );                   \
         }                                                                      \
     }
-
-
+//------------------------------------------------------------------------------
 #define OPTIX_CHECK_LOG( call )                                                \
     {                                                                          \
         OptixResult res = call;                                                \
@@ -47,12 +49,8 @@ using namespace std::chrono;
             throw SLOptixException( res, ss.str().c_str() );                   \
         }                                                                      \
     }
-
-
 //------------------------------------------------------------------------------
-//
 // CUDA error-checking
-//
 //------------------------------------------------------------------------------
 
 #define CUDA_CHECK( call )                                                     \
@@ -70,8 +68,7 @@ using namespace std::chrono;
             throw SLOptixException( ss.str().c_str() );                        \
         }                                                                      \
     }
-
-
+//------------------------------------------------------------------------------
 #define CUDA_SYNC_CHECK( call )                                                \
     {                                                                          \
         CUstream stream = call;                                                \
@@ -87,34 +84,38 @@ using namespace std::chrono;
             throw SLOptixException( ss.str().c_str() );                        \
         }                                                                      \
     }
-
+//------------------------------------------------------------------------------
+// clang-format on
 class SLOptixException : public std::runtime_error
 {
-public:
-    SLOptixException( const char* msg )
-            : std::runtime_error( msg )
-    { }
+    public:
+    SLOptixException(const char* msg)
+      : std::runtime_error(msg)
+    {
+    }
 
-    SLOptixException( OptixResult res, const char* msg )
-            : std::runtime_error( createMessage( res, msg ).c_str() )
-    { }
+    SLOptixException(OptixResult res, const char* msg)
+      : std::runtime_error(createMessage(res, msg).c_str())
+    {
+    }
 
-private:
-    std::string createMessage( OptixResult res, const char* msg )
+    private:
+    std::string createMessage(OptixResult res, const char* msg)
     {
         std::ostringstream out;
-        out << optixGetErrorName( res ) << ": " << msg;
+        out << optixGetErrorName(res) << ": " << msg;
         return out.str();
     }
 };
-
+//------------------------------------------------------------------------------
 // Get PTX string from File
 std::string getPtxStringFromFile(
-        std::string filename,               // Cuda C input file name
-        const char** log = NULL );          // (Optional) pointer to compiler log string. If *log == NULL there is no output.
-
+  std::string  filename,    // Cuda C input file name
+  const char** log = NULL); // (Optional) pointer to compiler log string. If *log == NULL there is no output.
+//------------------------------------------------------------------------------
 float4 make_float4(const SLVec4f& f);
-
+//------------------------------------------------------------------------------
 float3 make_float3(const SLVec3f& f);
-
-#endif //SLPROJECT_SLOPTIXHELPER_H
+//------------------------------------------------------------------------------
+#    endif // SLOPTIXHELPER_H
+#endif     // SL_HAS_OPTIX

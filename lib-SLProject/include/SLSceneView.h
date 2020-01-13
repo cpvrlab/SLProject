@@ -113,8 +113,6 @@ class SLSceneView : public SLObject
     void   draw2DGLNodes();
     SLbool draw3DRT();
     SLbool draw3DPT();
-    SLbool draw3DOptixRT();
-    SLbool draw3DOptixPT();
 
     // SceneView camera
     void   initSceneViewCamera(const SLVec3f& dir  = -SLVec3f::AXISZ,
@@ -125,11 +123,9 @@ class SLSceneView : public SLObject
 
     // Misc.
     SLstring windowTitle();
-    void     startRaytracing(SLint maxDepth);
-    void     startOptixRaytracing(SLint maxDepth);
-    void     startPathtracing(SLint maxDepth, SLint samples);
-    void     startOptixPathtracing(SLint maxDepth, SLint samples);
     void     printStats() { _stats3D.print(); }
+    void     startRaytracing(SLint maxDepth);
+    void     startPathtracing(SLint maxDepth, SLint samples);
 
     // Callback routines
     cbOnWndUpdate      onWndUpdate;        //!< C-Callback for app for intermediate window repaint
@@ -148,37 +144,51 @@ class SLSceneView : public SLObject
     void renderType(SLRenderType rt) { _renderType = rt; }
 
     // Getters
-    SLuint              index() const { return _index; }
-    SLCamera*           camera() { return _camera; }
-    SLCamera*           sceneViewCamera() { return &_sceneViewCamera; }
-    SLSkybox*           skybox() { return _skybox; }
-    SLint               scrW() const { return _scrW; }
-    SLint               scrH() const { return _scrH; }
-    SLint               scrWdiv2() const { return _scrWdiv2; }
-    SLint               scrHdiv2() const { return _scrHdiv2; }
-    SLfloat             scrWdivH() const { return _scrWdivH; }
-    SLGLImGui&          gui() { return _gui; }
-    SLbool              gotPainted() const { return _gotPainted; }
-    SLbool              doFrustumCulling() const { return _doFrustumCulling; }
-    SLbool              doMultiSampling() const { return _doMultiSampling; }
-    SLbool              doDepthTest() const { return _doDepthTest; }
-    SLbool              doWaitOnIdle() const { return _doWaitOnIdle; }
-    SLVNode*            nodesVisible() { return &_nodesVisible; }
-    SLVNode*            nodesVisible2D() { return &_nodesVisible2D; }
-    SLVNode*            nodesBlended() { return &_nodesBlended; }
-    SLRaytracer*        raytracer() { return &_raytracer; }
-    SLOptixRaytracer*   optixRaytracer() { return &_optixRaytracer; }
-    SLOptixPathtracer*  optixPathtracer() { return &_optixPathtracer; }
-    SLPathtracer*       pathtracer() { return &_pathtracer; }
-    SLRenderType        renderType() const { return _renderType; }
-    SLGLOculusFB*       oculusFB() { return &_oculusFB; }
-    SLDrawBits*         drawBits() { return &_drawBits; }
-    SLbool              drawBit(SLuint bit) { return _drawBits.get(bit); }
-    SLfloat             cullTimeMS() const { return _cullTimeMS; }
-    SLfloat             draw3DTimeMS() const { return _draw3DTimeMS; }
-    SLfloat             draw2DTimeMS() const { return _draw2DTimeMS; }
-    SLNodeStats&        stats2D() { return _stats2D; }
-    SLNodeStats&        stats3D() { return _stats3D; }
+    SLuint        index() const { return _index; }
+    SLCamera*     camera() { return _camera; }
+    SLCamera*     sceneViewCamera() { return &_sceneViewCamera; }
+    SLSkybox*     skybox() { return _skybox; }
+    SLint         scrW() const { return _scrW; }
+    SLint         scrH() const { return _scrH; }
+    SLint         scrWdiv2() const { return _scrWdiv2; }
+    SLint         scrHdiv2() const { return _scrHdiv2; }
+    SLfloat       scrWdivH() const { return _scrWdivH; }
+    SLGLImGui&    gui() { return _gui; }
+    SLbool        gotPainted() const { return _gotPainted; }
+    SLbool        doFrustumCulling() const { return _doFrustumCulling; }
+    SLbool        doMultiSampling() const { return _doMultiSampling; }
+    SLbool        doDepthTest() const { return _doDepthTest; }
+    SLbool        doWaitOnIdle() const { return _doWaitOnIdle; }
+    SLVNode*      nodesVisible() { return &_nodesVisible; }
+    SLVNode*      nodesVisible2D() { return &_nodesVisible2D; }
+    SLVNode*      nodesBlended() { return &_nodesBlended; }
+    SLRaytracer*  raytracer() { return &_raytracer; }
+    SLPathtracer* pathtracer() { return &_pathtracer; }
+
+#ifdef SL_HAS_OPTIX
+    SLOptixRaytracer* optixRaytracer()
+    {
+        return &_optixRaytracer;
+    }
+    SLOptixPathtracer* optixPathtracer() { return &_optixPathtracer; }
+    SLbool             draw3DOptixRT();
+    SLbool             draw3DOptixPT();
+    void               startOptixRaytracing(SLint maxDepth);
+    void               startOptixPathtracing(SLint maxDepth, SLint samples);
+#endif
+
+    SLRenderType renderType() const
+    {
+        return _renderType;
+    }
+    SLGLOculusFB* oculusFB() { return &_oculusFB; }
+    SLDrawBits*   drawBits() { return &_drawBits; }
+    SLbool        drawBit(SLuint bit) { return _drawBits.get(bit); }
+    SLfloat       cullTimeMS() const { return _cullTimeMS; }
+    SLfloat       draw3DTimeMS() const { return _draw3DTimeMS; }
+    SLfloat       draw2DTimeMS() const { return _draw2DTimeMS; }
+    SLNodeStats&  stats2D() { return _stats2D; }
+    SLNodeStats&  stats3D() { return _stats3D; }
 
     static const SLint LONGTOUCH_MS; //!< Milliseconds duration of a long touch event
 
@@ -226,14 +236,17 @@ class SLSceneView : public SLObject
     SLVNode _nodesVisible2D; //!< Vector of all visible 2D nodes drawn in ortho projection
     SLVNode _nodesBlended;   //!< Vector of visible and blended nodes
 
-    SLRaytracer         _raytracer;  //!< Whitted style raytracer
-    SLbool              _stopRT;     //!< Flag to stop the RT
-    SLOptixRaytracer    _optixRaytracer;  //!< Whitted style raytracer with Optix
-    SLOptixPathtracer   _optixPathtracer;  //!< Path tracer with Optix
-    SLbool              _stopOptixRT;     //!< Flag to stop the Optix RT
-    SLbool              _stopOptixPT;     //!< Flag to stop the Optix PT
-    SLPathtracer        _pathtracer; //!< Pathtracer
-    SLbool              _stopPT;     //!< Flag to stop the PT
+    SLRaytracer  _raytracer;  //!< Whitted style raytracer
+    SLbool       _stopRT;     //!< Flag to stop the RT
+    SLPathtracer _pathtracer; //!< Pathtracer
+    SLbool       _stopPT;     //!< Flag to stop the PT
+
+#ifdef SL_HAS_OPTIX
+    SLOptixRaytracer  _optixRaytracer;  //!< Whitted style raytracer with Optix
+    SLOptixPathtracer _optixPathtracer; //!< Path tracer with Optix
+    SLbool            _stopOptixRT;     //!< Flag to stop the Optix RT
+    SLbool            _stopOptixPT;     //!< Flag to stop the Optix PT
+#endif
 };
 //-----------------------------------------------------------------------------
 #endif

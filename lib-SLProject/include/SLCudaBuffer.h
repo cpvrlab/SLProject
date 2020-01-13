@@ -2,8 +2,9 @@
 // Created by nic on 25.10.19.
 //
 
-#ifndef SLPROJECT_SLCUDABUFFER_H
-#define SLPROJECT_SLCUDABUFFER_H
+#ifdef SL_HAS_OPTIX
+#ifndef SLCUDABUFFER_H
+#define SLCUDABUFFER_H
 
 #include <cstdio>
 #include <vector>
@@ -118,4 +119,5 @@ void SLCudaBuffer<T>::download(T *t) {
             _size));
 }
 
-#endif //SLPROJECT_SLCUDABUFFER_H
+#endif // SLCUDABUFFER_H
+#endif // SL_HAS_OPTIX
