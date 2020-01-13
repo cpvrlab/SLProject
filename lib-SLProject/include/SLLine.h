@@ -2,8 +2,9 @@
 // Created by nic on 26.12.19.
 //
 
-#ifndef SLPROJECT_SLLINE_H
-#define SLPROJECT_SLLINE_H
+#ifdef SL_HAS_OPTIX
+#ifndef SLLINE_H
+#define SLLINE_H
 
 #include <SLEnums.h>
 #include <SLMesh.h>
@@ -28,4 +29,5 @@ private:
     SLCudaBuffer<OptixAabb> _aabb = SLCudaBuffer<OptixAabb>();
 };
 
-#endif //SLPROJECT_SLLINE_H
+#endif // SLLINE_H
+#endif // SL_HAS_OPTIX

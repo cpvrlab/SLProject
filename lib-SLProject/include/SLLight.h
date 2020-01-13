@@ -70,23 +70,26 @@ class SLLight
     SLfloat kq() { return _kq; }
     SLbool  isAttenuated() { return _isAttenuated; }
     SLfloat attenuation(SLfloat dist) { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
-    virtual Light optixLight(bool) {
+
+#ifdef SL_HAS_OPTIX
+    virtual Light optixLight(bool)
+    {
         return {
-                                                    make_float4(diffuse()),
-                                                    make_float4(ambient()),
-                                                    make_float4(specular()),
-                                                    make_float3({ positionWS().x, positionWS().y, positionWS().z}),
-                                                    spotCutOffDEG(),
-                                                    spotExponent(),
-                                                    spotCosCut(),
-                                                    make_float3(spotDirWS()),
-                                                    kc(),
-                                                    kl(),
-                                                    kq(),
-                                                    { 1, 1},
-                                                    0.0f
-        };
+          make_float4(diffuse()),
+          make_float4(ambient()),
+          make_float4(specular()),
+          make_float3({positionWS().x, positionWS().y, positionWS().z}),
+          spotCutOffDEG(),
+          spotExponent(),
+          spotCosCut(),
+          make_float3(spotDirWS()),
+          kc(),
+          kl(),
+          kq(),
+          {1, 1},
+          0.0f};
     }
+#endif
 
     // some virtuals needed for ray tracing
     virtual SLVec4f positionWS()                          = 0;

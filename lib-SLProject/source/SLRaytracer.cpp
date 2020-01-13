@@ -89,7 +89,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
 
             SLRay::avgDepth += SLRay::depthReached;
             SLRay::maxDepthReached = std::max(SLRay::depthReached,
-                                            SLRay::maxDepthReached);
+                                              SLRay::maxDepthReached);
         }
 
         // Update image after 500 ms
@@ -223,7 +223,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
 
                 SLRay::avgDepth += SLRay::depthReached;
                 SLRay::maxDepthReached = std::max(SLRay::depthReached,
-                                                SLRay::maxDepthReached);
+                                                  SLRay::maxDepthReached);
             }
 
             // Update image after 500 ms
@@ -303,7 +303,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
 
                         SLRay::avgDepth += SLRay::depthReached;
                         SLRay::maxDepthReached = std::max(SLRay::depthReached,
-                                                        SLRay::maxDepthReached);
+                                                          SLRay::maxDepthReached);
                     }
                 }
                 color /= (SLfloat)_cam->lensSamples()->samples();
@@ -810,9 +810,11 @@ void SLRaytracer::prepareImage()
         // Delete the OpenGL Texture if it already exists
         if (_texName)
         {
-            if (_cudaGraphicsResource) {
-                CUDA_CHECK( cuGraphicsUnregisterResource(_cudaGraphicsResource) );
-            }
+
+#ifdef SL_HAS_OPTIX
+            if (_cudaGraphicsResource)
+                CUDA_CHECK(cuGraphicsUnregisterResource(_cudaGraphicsResource));
+#endif
             glDeleteTextures(1, &_texName);
             _texName = 0;
         }

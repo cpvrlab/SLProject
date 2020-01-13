@@ -1,12 +1,18 @@
-//
-// Created by nic on 19.12.19.
-//
+//#############################################################################
+//  File:      SLOptixPathtracer.h
+//  Author:    Nic Dorner
+//  Date:      October 2019
+//  Copyright: Nic Dorner
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
-#ifndef SLPROJECT_SLOPTIXPATHTRACER_H
-#define SLPROJECT_SLOPTIXPATHTRACER_H
+#ifdef SL_HAS_OPTIX
 
-#include <SLOptixRaytracer.h>
-#include <curand_kernel.h>
+#    ifndef SLOPTIXPATHTRACER_H
+#        define SLOPTIXPATHTRACER_H
+#        include <SLOptixRaytracer.h>
+#        include <curand_kernel.h>
 
 class SLScene;
 class SLSceneView;
@@ -14,9 +20,10 @@ class SLRay;
 class SLMaterial;
 class SLCamera;
 
+//-----------------------------------------------------------------------------
 class SLOptixPathtracer : public SLOptixRaytracer
 {
-public:
+    public:
     SLOptixPathtracer();
     ~SLOptixPathtracer();
 
@@ -26,21 +33,21 @@ public:
     void updateScene(SLSceneView* sv) override;
 
     // path tracer functions
-    SLbool  render();
-    void    renderImage() override;
+    SLbool render();
+    void   renderImage() override;
 
-    SLbool getDenoiserEnabled() const {return _denoiserEnabled;}
-    SLint samples() const { return _samples;}
+    SLbool getDenoiserEnabled() const { return _denoiserEnabled; }
+    SLint  samples() const { return _samples; }
 
-    void setDenoiserEnabled(SLbool denoiserEnabled) {_denoiserEnabled = denoiserEnabled;}
-    void samples(SLint samples){ _samples = samples; }
+    void setDenoiserEnabled(SLbool denoiserEnabled) { _denoiserEnabled = denoiserEnabled; }
+    void samples(SLint samples) { _samples = samples; }
 
-protected:
+    protected:
     SLint                     _samples;
     SLCudaBuffer<curandState> _curandBuffer = SLCudaBuffer<curandState>();
 
-private:
-    OptixDenoiser _optixDenoiser;
+    private:
+    OptixDenoiser      _optixDenoiser;
     OptixDenoiserSizes _denoiserSizes;
     SLCudaBuffer<void> _denoserState;
     SLCudaBuffer<void> _scratch;
@@ -48,5 +55,6 @@ private:
     //Settings
     SLbool _denoiserEnabled = true;
 };
-
-#endif //SLPROJECT_SLOPTIXPATHTRACER_H
+//-----------------------------------------------------------------------------
+#    endif // SLOPTIXPATHTRACER_H
+#endif     // SL_HAS_OPTIX

@@ -117,7 +117,11 @@ called skinning and is done in CPU in the method transformSkin. The final
 transformed vertices and normals are stored in _finalP and _finalN.
 */
 
-class SLMesh : public SLObject, public SLOptixAccelerationStructure
+class SLMesh : public SLObject
+#ifdef SL_HAS_OPTIX
+  , public SLOptixAccelerationStructure
+#endif
+
 {
     public:
     explicit SLMesh(const SLstring& name = "Mesh");
@@ -143,11 +147,14 @@ class SLMesh : public SLObject, public SLOptixAccelerationStructure
 
     void transformSkin();
 
-    void    allocAndUploadData();
-    void    uploadData();
+#ifdef SL_HAS_OPTIX
+    void            allocAndUploadData();
+    void            uploadData();
     virtual void    createMeshAccelerationStructure();
     virtual void    updateMeshAccelerationStructure();
     virtual HitData createHitData();
+    unsigned int    sbtIndex() const { return _sbtIndex; }
+#endif
 
     // Getters
     SLMaterial*       mat() const { return _mat; }
@@ -155,7 +162,6 @@ class SLMesh : public SLObject, public SLOptixAccelerationStructure
     SLGLPrimitiveType primitive() const { return _primitive; }
     const SLSkeleton* skeleton() const { return _skeleton; }
     SLuint            numI() { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
-    unsigned int      sbtIndex() const { return _sbtIndex;}
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }
@@ -196,12 +202,14 @@ class SLMesh : public SLObject, public SLOptixAccelerationStructure
     SLGLVertexArrayExt _vaoT;      //!< OpenGL VAO for optional tangent drawing
     SLGLVertexArrayExt _vaoS;      //!< OpenGL VAO for optional selection drawing
 
-    SLCudaBuffer<SLVec3f>   _vertexBuffer;
-    SLCudaBuffer<SLVec3f>   _normalBuffer;
-    SLCudaBuffer<SLVec2f>   _textureBuffer;
-    SLCudaBuffer<SLushort>  _indexShortBuffer;
-    SLCudaBuffer<SLuint>    _indexIntBuffer;
-    unsigned int            _sbtIndex;
+#ifdef SL_HAS_OPTIX
+    SLCudaBuffer<SLVec3f>  _vertexBuffer;
+    SLCudaBuffer<SLVec3f>  _normalBuffer;
+    SLCudaBuffer<SLVec2f>  _textureBuffer;
+    SLCudaBuffer<SLushort> _indexShortBuffer;
+    SLCudaBuffer<SLuint>   _indexIntBuffer;
+    unsigned int           _sbtIndex;
+#endif
 
     SLbool         _isVolume;             //!< Flag for RT if mesh is a closed volume
     SLAccelStruct* _accelStruct;          //!< KD-tree or uniform grid

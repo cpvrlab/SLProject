@@ -56,8 +56,10 @@ atomic<int>  SLApplication::_jobProgressMax(0);
 mutex        SLApplication::_jobMutex;
 HighResTimer SLApplication::_timer;
 
-OptixDeviceContext SLApplication::context   = {};
-CUstream           SLApplication::stream    = {};
+#ifdef SL_HAS_OPTIX
+OptixDeviceContext SLApplication::context = {};
+CUstream           SLApplication::stream  = {};
+#endif
 
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function
@@ -85,14 +87,16 @@ void SLApplication::createAppAndScene(SLstring appName,
 }
 //-----------------------------------------------------------------------------
 //! callback function for optix
-static void context_log_cb( unsigned int level, const char* tag, const char* message, void* /*cbdata */)
+static void context_log_cb(unsigned int level, const char* tag, const char* message, void* /*cbdata */)
 {
-    std::cerr << "[" << std::setw( 2 ) << level << "][" << std::setw( 12 ) << tag << "]: "
+    std::cerr << "[" << std::setw(2) << level << "][" << std::setw(12) << tag << "]: "
               << message << "\n";
 }
-
+//-----------------------------------------------------------------------------
+#ifdef SL_HAS_OPTIX
 //! creates the optix and cuda context for the application
-void SLApplication::createOptixContext() {
+void SLApplication::createOptixContext()
+{
     // Initialize CUDA
     CUcontext cu_ctx;
     CUDA_CHECK(cuInit(0));
@@ -103,10 +107,11 @@ void SLApplication::createOptixContext() {
     // Initialize OptiX
     OPTIX_CHECK(optixInit());
     OptixDeviceContextOptions options = {};
-    options.logCallbackFunction = &context_log_cb;
-    options.logCallbackLevel = 4;
+    options.logCallbackFunction       = &context_log_cb;
+    options.logCallbackLevel          = 4;
     OPTIX_CHECK(optixDeviceContextCreate(cu_ctx, &options, &context));
 }
+#endif
 //-----------------------------------------------------------------------------
 //! Calls the destructor of the single scene instance.
 /*! Destroys all data by calling the destructor of the single scene instance.
@@ -122,8 +127,10 @@ void SLApplication::deleteAppAndScene()
     delete scene;
     scene = nullptr;
 
-    OPTIX_CHECK( optixDeviceContextDestroy( SLApplication::context ) );
-    CUDA_CHECK( cuStreamDestroy( SLApplication::stream ) );
+#ifdef SL_HAS_OPTIX
+    OPTIX_CHECK(optixDeviceContextDestroy(SLApplication::context));
+    CUDA_CHECK(cuStreamDestroy(SLApplication::stream));
+#endif
 }
 //-----------------------------------------------------------------------------
 //! Starts parallel job if one is queued.

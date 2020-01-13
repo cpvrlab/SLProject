@@ -7,9 +7,18 @@ set(target lib-SLProject)
 set(compile_definitions GLEW_NO_GLU)
 set(platform_specific_include_dirs)
 
-project(LANGUAGES CUDA)
-find_package(CUDA 10 REQUIRED)
-find_package(OptiX REQUIRED VERSION 7.0)
+#project(LANGUAGES CUDA)
+
+if (DEFINED ENV{CUDA_PATH})
+    message("CUDA_PATH is defined")
+    find_package(CUDA 10 REQUIRED)
+    find_package(OptiX REQUIRED VERSION 7.0)
+    if (${OptiX_FOUND})
+        set(DEFAULT_COMPILE_DEFINITIONS SL_HAS_OPTIX)
+    endif()
+else()
+    message("No CUDA - No OptiX")
+endif()
 
 file(GLOB cuda
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixPathtracerCamera.cu
@@ -252,39 +261,44 @@ endif ()
 #==============================================================================
 
 #==============================================================================
-list(FIND CUDA_NVCC_FLAGS "-arch" index)
-if(index EQUAL -1)
-    list(APPEND CUDA_NVCC_FLAGS -arch sm_30)
-    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
+
+if (${SL_HAS_OPTIX})
+    list(FIND CUDA_NVCC_FLAGS "-arch" index)
+    if(index EQUAL -1)
+        list(APPEND CUDA_NVCC_FLAGS -arch sm_30)
+        set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
+    endif()
+    set(flag "--use_fast_math")
+    list(FIND CUDA_NVCC_FLAGS ${flag} index)
+    if(index EQUAL -1)
+        list(APPEND CUDA_NVCC_FLAGS ${flag})
+        set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
+    endif()
+
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        list(APPEND CUDA_NVCC_FLAGS -lineinfo)
+        set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
+    endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+
+    cuda_include_directories(ptx
+            ${OptiX_INCLUDE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/cuda
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+            )
+
+    cuda_compile_ptx(ptx
+            ${cuda}
+            )
+
+    add_custom_target(ptx ALL
+            DEPENDS ${cuda}
+            SOURCES ${cuda}
+            )
+
+    add_dependencies(${target} ptx)
 endif()
-set(flag "--use_fast_math")
-list(FIND CUDA_NVCC_FLAGS ${flag} index)
-if(index EQUAL -1)
-    list(APPEND CUDA_NVCC_FLAGS ${flag})
-    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
-endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    list(APPEND CUDA_NVCC_FLAGS -lineinfo)
-    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
-endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-
-cuda_include_directories(ptx
-        ${OptiX_INCLUDE}
-        ${CMAKE_CURRENT_SOURCE_DIR}/cuda
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        )
-
-cuda_compile_ptx(ptx
-        ${cuda}
-        )
 #==============================================================================
-
-add_custom_target(ptx ALL
-        DEPENDS ${cuda}
-        SOURCES ${cuda}
-        )
-
 add_library(${target}
         ${headers}
         ${sources}
@@ -364,5 +378,3 @@ target_link_libraries(${target}
         ${DEFAULT_LINKER_OPTIONS}
         INTERFACE
         )
-
-add_dependencies(${target} ptx)

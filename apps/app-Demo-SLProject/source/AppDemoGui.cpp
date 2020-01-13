@@ -375,6 +375,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
                 sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
             }
+#ifdef SL_HAS_OPTIX
             else if (rType == RT_optix_rt)
             {
                 SLOptixRaytracer* rt           = sv->optixRaytracer();
@@ -392,6 +393,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
                 sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", rt->renderSec());
             }
+#endif
 
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
             ImGui::Begin("Timing", &showStatsTiming, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
@@ -1293,21 +1295,22 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Renderer"))
         {
-            if (ImGui::MenuItem("OpenGL (GL)", "G", rType == RT_gl))
+            if (ImGui::MenuItem("OpenGL", "G", rType == RT_gl))
                 sv->renderType(RT_gl);
 
-            if (ImGui::MenuItem("Ray Tracing (RT)", "R", rType == RT_rt))
+            if (ImGui::MenuItem("Ray Tracing", "R", rType == RT_rt))
                 sv->startRaytracing(5);
 
-            if (ImGui::MenuItem("Path Tracing (PT)", nullptr, rType == RT_pt))
+            if (ImGui::MenuItem("Path Tracing", nullptr, rType == RT_pt))
                 sv->startPathtracing(5, 10);
 
-            if (ImGui::MenuItem("Ray Tracing with OptiX (RT)", nullptr, rType == RT_optix_rt))
+#ifdef SL_HAS_OPTIX
+            if (ImGui::MenuItem("Ray Tracing with OptiX", nullptr, rType == RT_optix_rt))
                 sv->startOptixRaytracing(5);
 
-            if (ImGui::MenuItem("Path Tracing with OptiX (PT)", nullptr, rType == RT_optix_pt))
+            if (ImGui::MenuItem("Path Tracing with OptiX", nullptr, rType == RT_optix_pt))
                 sv->startOptixPathtracing(5, 10);
-
+#endif
             ImGui::EndMenu();
         }
 
@@ -1428,7 +1431,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
         }
-        else if (rType == RT_optix_rt) {
+
+#ifdef SL_HAS_OPTIX
+        else if (rType == RT_optix_rt)
+        {
             if (ImGui::BeginMenu("RT"))
             {
                 SLOptixRaytracer* rt_optix = sv->optixRaytracer();
@@ -1439,11 +1445,11 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     sv->startOptixRaytracing(rt_optix->maxDepth());
                 }
 
-//                if (ImGui::MenuItem("Fresnel Reflection", nullptr, rt->doFresnel()))
-//                {
-//                    rt->doFresnel(!rt->doFresnel());
-//                    sv->startRaytracing(rt->maxDepth());
-//                }
+                //                if (ImGui::MenuItem("Fresnel Reflection", nullptr, rt->doFresnel()))
+                //                {
+                //                    rt->doFresnel(!rt->doFresnel());
+                //                    sv->startRaytracing(rt->maxDepth());
+                //                }
 
                 if (ImGui::BeginMenu("Max. Depth"))
                 {
@@ -1461,21 +1467,21 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-//                if (ImGui::BeginMenu("Anti-Aliasing Samples"))
-//                {
-//                    if (ImGui::MenuItem("Off", nullptr, rt->aaSamples() == 1))
-//                        rt->aaSamples(1);
-//                    if (ImGui::MenuItem("3x3", nullptr, rt->aaSamples() == 3))
-//                        rt->aaSamples(3);
-//                    if (ImGui::MenuItem("5x5", nullptr, rt->aaSamples() == 5))
-//                        rt->aaSamples(5);
-//                    if (ImGui::MenuItem("7x7", nullptr, rt->aaSamples() == 7))
-//                        rt->aaSamples(7);
-//                    if (ImGui::MenuItem("9x9", nullptr, rt->aaSamples() == 9))
-//                        rt->aaSamples(9);
-//
-//                    ImGui::EndMenu();
-//                }
+                //                if (ImGui::BeginMenu("Anti-Aliasing Samples"))
+                //                {
+                //                    if (ImGui::MenuItem("Off", nullptr, rt->aaSamples() == 1))
+                //                        rt->aaSamples(1);
+                //                    if (ImGui::MenuItem("3x3", nullptr, rt->aaSamples() == 3))
+                //                        rt->aaSamples(3);
+                //                    if (ImGui::MenuItem("5x5", nullptr, rt->aaSamples() == 5))
+                //                        rt->aaSamples(5);
+                //                    if (ImGui::MenuItem("7x7", nullptr, rt->aaSamples() == 7))
+                //                        rt->aaSamples(7);
+                //                    if (ImGui::MenuItem("9x9", nullptr, rt->aaSamples() == 9))
+                //                        rt->aaSamples(9);
+                //
+                //                    ImGui::EndMenu();
+                //                }
 
                 if (ImGui::MenuItem("Save Rendered Image"))
                     rt_optix->saveImage();
@@ -1486,6 +1492,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
         }
+#endif
         else if (rType == RT_pt)
         {
             if (ImGui::BeginMenu("PT"))
@@ -1535,6 +1542,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
         }
+
+#ifdef SL_HAS_OPTIX
         else if (rType == RT_optix_pt)
         {
             if (ImGui::BeginMenu("PT"))
@@ -1566,10 +1575,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Save Rendered Image"))
                     pt->saveImage();
 
-
                 ImGui::EndMenu();
             }
         }
+#endif
 
         if (ImGui::BeginMenu("Camera"))
         {
