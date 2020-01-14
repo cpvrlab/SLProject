@@ -1331,7 +1331,7 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
             }
 
             n = j;
-            if (n < 8)
+            if (n < 8) // if there are less than 8 keypoints with THICK corners, take the one with higher granularity
             {
                 if (smallSigmaData[8*4] > 0) //If there are more than 8 keypoints with high threshold, take high threshold points
                 {

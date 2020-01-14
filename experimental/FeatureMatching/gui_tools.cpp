@@ -216,16 +216,32 @@ void draw_main(App& app)
             cv::putText(out, "ORB keypoint, ORB descrptor", pos, font, fontScale, cv::Scalar(255, 255, 255), thick, cv::LINE_AA);
             break;
 
+        case STOCK_ORBSLAM_CLAHE:
+            cv::putText(out, "ORB keypoint, ORB descrptor CLAHE", pos, font, fontScale, cv::Scalar(255, 255, 255), thick, cv::LINE_AA);
+            break;
+
         case TILDE_BRIEF:
             cv::putText(out, "TILDE keypoint, BRIEF descrptor", pos, font, fontScale, cv::Scalar(255, 255, 255), thick, cv::LINE_AA);
+            break;
+
+        case TILDE_BRIEF_CLAHE:
+            cv::putText(out, "TILDE keypoint, BRIEF descrptor CLAHE", pos, font, fontScale, cv::Scalar(255, 255, 255), thick, cv::LINE_AA);
             break;
 
         case SURF_BRIEF:
             cv::putText(out, "SURF keypoint, BRIEF descrptor", pos, font, fontScale, cv::Scalar(255, 255, 255), thick, cv::LINE_AA);
             break;
 
+        case SURF_BRIEF_CLAHE:
+            cv::putText(out, "SURF keypoint, BRIEF descrptor CLAHE", pos, font, fontScale, cv::Scalar(255, 255, 255), thick, cv::LINE_AA);
+            break;
+
         case SURF_ORB:
             cv::putText(out, "SURF keypoint, ORB descrptor", pos, font, fontScale, cv::Scalar(255, 255, 255), thick, cv::LINE_AA);
+            break;
+
+        case SURF_ORB_CLAHE:
+            cv::putText(out, "SURF keypoint, ORB descrptor CLAHE", pos, font, fontScale, cv::Scalar(255, 255, 255), thick, cv::LINE_AA);
             break;
     }
 
