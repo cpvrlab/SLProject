@@ -803,6 +803,7 @@ void android_main(struct android_app* app)
         camConfig.targetWidth = 640;
         camConfig.targetHeight = 360;
         camConfig.focusMode = SENSCamera::FocusMode::FIXED_INFINITY_FOCUS;
+        camConfig.adjustAsynchronously = true;
         ndkCamera.start(camConfig);
 
         engine.run = true;

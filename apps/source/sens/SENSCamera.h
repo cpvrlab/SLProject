@@ -70,6 +70,8 @@ public:
         bool provideScaledImage = false;
         //! provide gray version of small image
         bool convertToGray = false;
+        //! adjust image in asynchronous thread
+        bool adjustAsynchronously = false;
     };
 
     SENSCamera(SENSCamera::Facing facing)

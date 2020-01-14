@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <thread>
 
 #include <SENSCamera.h>
 #include <camera/NdkCameraDevice.h>
@@ -50,6 +51,7 @@ public:
     void onDeviceError(ACameraDevice* dev, int err);
     void onCameraStatusChanged(const char* id, bool available);
     void onSessionState(ACameraCaptureSession* ses, CaptureSessionState state);
+    void imageCallback(AImageReader* reader);
 
 private:
     void                                  initOptimalCamera(SENSCamera::Facing facing);
@@ -57,7 +59,10 @@ private:
     ACameraManager_AvailabilityCallbacks* getManagerListener();
     ACameraCaptureSession_stateCallbacks* getSessionListener();
 
-    SENSFramePtr adjust(cv::Mat frame);
+    static cv::Mat convertToYuv(AImage* image);
+    SENSFramePtr   processNewYuvImg(cv::Mat yuvImg);
+    //run routine for asynchronous adjustment
+    void run();
 
     ACameraManager* _cameraManager = nullptr;
 
@@ -81,14 +86,19 @@ private:
     volatile bool _valid = false;
 
     //image properties
-    //int   _targetWidth   = -1;
-    //int   _targetHeight  = -1;
-    float _targetWdivH   = -1.0f;
-    //bool  _mirrorH       = false;
-    //bool  _mirrorV       = false;
-    //bool  _convertToGray = true;
-
+    float              _targetWdivH = -1.0f;
     SENSCamera::Config _camConfig;
+
+    std::condition_variable      _waitCondition;
+    cv::Mat                      _yuvImgToProcess;
+    std::mutex                   _threadInputMutex;
+    SENSFramePtr                 _processedFrame;
+    std::mutex                   _threadOutputMutex;
+    std::unique_ptr<std::thread> _thread;
+    std::atomic<bool>            _stopThread;
+
+    std::exception _threadException;
+    bool           _threadHasException;
 };
 
 #endif //SENS_NDKCAMERA_H
