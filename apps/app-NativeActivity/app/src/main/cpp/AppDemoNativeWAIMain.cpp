@@ -23,25 +23,21 @@
 #include <jni.h>
 #include <errno.h>
 #include <cassert>
+#include <chrono>
+#include <string>
 
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
-#include <chrono>
 
 #include <android/input.h>
 #include <android/sensor.h>
 #include <android/asset_manager.h>
 #include <android/log.h>
+
 #include <android_native_app_glue.h>
-
 #include <AppDemoNativeSensorsInterface.h>
-
 #include <Utils.h>
-
 #include <WAIApp.h>
-
-#include <string>
-
 #include <android/SENSNdkCamera.h>
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
@@ -864,7 +860,7 @@ void android_main(struct android_app* app)
                 eglSwapBuffers(engine.display, engine.surface);
             }
 
-            std::this_thread::sleep_for(10ms);
+            //std::this_thread::sleep_for(10ms);
         }
 
         engine.waiApp.close();
