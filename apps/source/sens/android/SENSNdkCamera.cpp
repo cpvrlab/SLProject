@@ -358,14 +358,15 @@ cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
     AImage_getPlaneData(image, 1, &uPixel, &uLen);
     AImage_getPlaneData(image, 2, &vPixel, &vLen);
 
-    unsigned char* imageBuffer = (uint8_t*)malloc(yLen + uLen + vLen);
-    memcpy(imageBuffer, yPixel, yLen);
-    memcpy(imageBuffer + yLen, uPixel, uLen);
-    memcpy(imageBuffer + yLen + uLen, vPixel, vLen);
+    cv::Mat yuv(height + (height / 2), width, CV_8UC1);
+    size_t yubBytes = yuv.total();
+    size_t origBytes = yLen + uLen + vLen;
+    LOGI("yubBytes %d origBytes %d", yubBytes, origBytes);
+    memcpy(yuv.data, yPixel, yLen);
+    memcpy(yuv.data + yLen, uPixel, uLen);
+    //We do not have to copy the v plane. The u plane contains the interleaved u and v data!
+    //memcpy(yuv.data + yLen + uLen, vPixel, vLen);
 
-    //todo: measure time for yuv conversion and adjustment and move to other thread
-    //make yuv conversion
-    cv::Mat yuv(height + height / 2, width, CV_8UC1, (void*)imageBuffer);
     return yuv;
 }
 
@@ -422,7 +423,7 @@ void SENSNdkCamera::run()
                 if (_stopThread)
                     return;
 
-                yuv = std::move(_yuvImgToProcess);
+                yuv = _yuvImgToProcess;
             }
 
             //do the processing
