@@ -826,19 +826,6 @@ void android_main(struct android_app* app)
 
         initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
 
-<<<<<<< HEAD
-=======
-        //get all information about available cameras
-        SENSNdkCamera ndkCamera(SENSCamera::Facing::BACK);
-        //start continious captureing request with certain configuration
-        SENSCamera::Config camConfig;
-        camConfig.targetWidth          = 640;
-        camConfig.targetHeight         = 360;
-        camConfig.focusMode            = SENSCamera::FocusMode::FIXED_INFINITY_FOCUS;
-        camConfig.adjustAsynchronously = true;
-        ndkCamera.start(camConfig);
-
->>>>>>> aecb5e3074020434b689c6dd982571459c5cb11a
         engine.run = true;
         while (engine.run)
         {
