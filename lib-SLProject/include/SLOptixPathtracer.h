@@ -9,10 +9,10 @@
 
 #ifdef SL_HAS_OPTIX
 
-#    ifndef SLOPTIXPATHTRACER_H
-#        define SLOPTIXPATHTRACER_H
-#        include <SLOptixRaytracer.h>
-#        include <curand_kernel.h>
+#ifndef SLOPTIXPATHTRACER_H
+#define SLOPTIXPATHTRACER_H
+#include <SLOptixRaytracer.h>
+#include <curand_kernel.h>
 
 class SLScene;
 class SLSceneView;
@@ -56,5 +56,5 @@ class SLOptixPathtracer : public SLOptixRaytracer
     SLbool _denoiserEnabled = true;
 };
 //-----------------------------------------------------------------------------
-#    endif // SLOPTIXPATHTRACER_H
-#endif     // SL_HAS_OPTIX
+#endif // SLOPTIXPATHTRACER_H
+#endif // SL_HAS_OPTIX

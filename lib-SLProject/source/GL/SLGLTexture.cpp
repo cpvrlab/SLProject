@@ -10,8 +10,8 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
+#ifdef SL_MEMLEAKDETECT // set in SL.h for debug config only
+#include <debug_new.h>  // memory leak detector
 #endif
 
 #include <SLApplication.h>
@@ -20,9 +20,9 @@
 #include <Utils.h>
 
 #ifdef SL_HAS_OPTIX
-#    include <cudaGL.h>
-#    include <SLOptixHelper.h>
-#    include <cuda.h>
+#include <cudaGL.h>
+#include <SLOptixHelper.h>
+#include <cuda.h>
 #endif
 
 //-----------------------------------------------------------------------------
@@ -573,8 +573,13 @@ void SLGLTexture::buildCudaTexture()
     {
         CUarray texture_ptr;
 
-        CUDA_CHECK(cuGraphicsMapResources(1, &_cudaGraphicsResource, SLApplication::stream));
-        CUDA_CHECK(cuGraphicsSubResourceGetMappedArray(&texture_ptr, _cudaGraphicsResource, 0, 0));
+        CUDA_CHECK(cuGraphicsMapResources(1,
+                                          &_cudaGraphicsResource,
+                                          SLApplication::stream));
+        CUDA_CHECK(cuGraphicsSubResourceGetMappedArray(&texture_ptr,
+                                                       _cudaGraphicsResource,
+                                                       0,
+                                                       0));
 
         CUDA_RESOURCE_DESC res_desc = {};
 
@@ -586,12 +591,17 @@ void SLGLTexture::buildCudaTexture()
         tex_desc.addressMode[1]      = CU_TR_ADDRESS_MODE_WRAP;
         tex_desc.filterMode          = CU_TR_FILTER_MODE_LINEAR;
         tex_desc.flags               = CU_TRSF_NORMALIZED_COORDINATES;
-        tex_desc.maxAnisotropy       = maxAnisotropy;
+        tex_desc.maxAnisotropy       = (SLuint)maxAnisotropy;
         tex_desc.maxMipmapLevelClamp = 99;
         tex_desc.minMipmapLevelClamp = 0;
 
-        CUDA_CHECK(cuTexObjectCreate(&_cudaTextureObject, &res_desc, &tex_desc, nullptr));
-        CUDA_CHECK(cuGraphicsUnmapResources(1, &_cudaGraphicsResource, SLApplication::stream));
+        CUDA_CHECK(cuTexObjectCreate(&_cudaTextureObject,
+                                     &res_desc,
+                                     &tex_desc,
+                                     nullptr));
+        CUDA_CHECK(cuGraphicsUnmapResources(1,
+                                            &_cudaGraphicsResource,
+                                            SLApplication::stream));
     }
 }
 #endif

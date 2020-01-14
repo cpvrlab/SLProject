@@ -9,14 +9,14 @@
 
 #ifdef SL_HAS_OPTIX
 
-#    ifndef SLOPTIXRAYTRACER_H
-#        define SLOPTIXRAYTRACER_H
-#        include <optix_types.h>
-#        include <cuda.h>
-#        include <SLOptixDefinitions.h>
-#        include <SLRaytracer.h>
-#        include <SLCudaBuffer.h>
-#        include <SLMesh.h>
+#ifndef SLOPTIXRAYTRACER_H
+#define SLOPTIXRAYTRACER_H
+#include <optix_types.h>
+#include <cuda.h>
+#include <SLOptixDefinitions.h>
+#include <SLRaytracer.h>
+#include <SLCudaBuffer.h>
+#include <SLMesh.h>
 
 class SLScene;
 class SLSceneView;
@@ -91,5 +91,5 @@ class SLOptixRaytracer : public SLRaytracer
     OptixShaderBindingTable _sbtClassic{};
     OptixShaderBindingTable _sbtDistributed{};
 };
-#    endif // SLOPTIXRAYTRACER_H
-#endif     // SL_HAS_OPTIX
+#endif // SLOPTIXRAYTRACER_H
+#endif // SL_HAS_OPTIX

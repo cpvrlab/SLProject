@@ -11,8 +11,8 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
+#ifdef SL_MEMLEAKDETECT // set in SL.h for debug config only
+#include <debug_new.h>  // memory leak detector
 #endif
 
 #include <AppDemoGui.h>
@@ -378,7 +378,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 #ifdef SL_HAS_OPTIX
             else if (rType == RT_optix_rt)
             {
-                SLOptixRaytracer* rt           = sv->optixRaytracer();
+                SLOptixRaytracer* rt = sv->optixRaytracer();
 
                 sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
@@ -387,7 +387,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             }
             else if (rType == RT_optix_pt)
             {
-                SLOptixPathtracer* rt           = sv->optixPathtracer();
+                SLOptixPathtracer* rt = sv->optixPathtracer();
 
                 sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());

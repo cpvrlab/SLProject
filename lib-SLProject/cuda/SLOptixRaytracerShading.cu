@@ -1,28 +1,39 @@
+//#############################################################################
+//  File:      SLOptixRaytracerShading.cu
+//  Purpose:   CUDA Shader file used in Optix Tracing
+//  Author:    Nic Dorner
+//  Date:      October 2019
+//  Copyright: Nic Dorner
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #include <SLOptixHelper.h>
 #include <SLOptixDefinitions.h>
 #include <cuda_runtime_api.h>
 
+//-----------------------------------------------------------------------------
 extern "C" {
 __constant__ Params params;
 }
-
+//-----------------------------------------------------------------------------
 extern "C" __global__ void __miss__radiance() {
     auto *rt_data = reinterpret_cast<MissData *>( optixGetSbtDataPointer());
     setColor(rt_data->bg_color);
 }
-
+//-----------------------------------------------------------------------------
 extern "C" __global__ void __miss__occlusion() {
 }
 
 extern "C" __global__ void __anyhit__radiance() {
 }
-
+//-----------------------------------------------------------------------------
 extern "C" __global__ void __anyhit__occlusion() {
     auto *rt_data = reinterpret_cast<HitData *>( optixGetSbtDataPointer());
     setLighted(getLighted() - (1.0f - rt_data->material.kt));
     optixIgnoreIntersection();
 }
-
+//-----------------------------------------------------------------------------
 extern "C" __global__ void __closesthit__radiance() {
     uint3 idx = optixGetLaunchIndex();
     const uint3 dim = optixGetLaunchDimensions();
@@ -159,3 +170,4 @@ extern "C" __global__ void __closesthit__radiance() {
     // Set color to payload
     setColor(color);
 }
+//-----------------------------------------------------------------------------

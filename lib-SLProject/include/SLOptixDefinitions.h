@@ -8,13 +8,13 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
-#    ifndef SLOPTIXDEFINITIONS_H
-#        define SLOPTIXDEFINITIONS_H
+#ifndef SLOPTIXDEFINITIONS_H
+#define SLOPTIXDEFINITIONS_H
 
-#        include <vector_types.h>
-#        include <optix_types.h>
-#        include <cuda.h>
-#        include <curand_kernel.h>
+#include <vector_types.h>
+#include <optix_types.h>
+#include <cuda.h>
+#include <curand_kernel.h>
 
 //------------------------------------------------------------------------------
 struct Line
@@ -151,5 +151,5 @@ typedef SbtRecord<LensCameraData> RayGenDistributedSbtRecord;
 typedef SbtRecord<MissData>       MissSbtRecord;
 typedef SbtRecord<HitData>        HitSbtRecord;
 //------------------------------------------------------------------------------
-#    endif // SLOPTIXDEFINITIONS_H
-#endif     // SL_HAS_OPTIX
+#endif // SLOPTIXDEFINITIONS_H
+#endif // SL_HAS_OPTIX

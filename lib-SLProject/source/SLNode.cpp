@@ -1285,7 +1285,7 @@ void SLNode::createInstanceAccelerationStructureTree()
 
     _buildInput.type                       = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
     _buildInput.instanceArray.instances    = instanceBuffer.devicePointer();
-    _buildInput.instanceArray.numInstances = instances.size();
+    _buildInput.instanceArray.numInstances = (SLuint)instances.size();
 
     buildAccelerationStructure();
 }
@@ -1306,7 +1306,7 @@ void SLNode::createInstanceAccelerationStructureFlat()
 
     _buildInput.type                       = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
     _buildInput.instanceArray.instances    = instanceBuffer.devicePointer();
-    _buildInput.instanceArray.numInstances = instances.size();
+    _buildInput.instanceArray.numInstances = (SLuint)instances.size();
 
     buildAccelerationStructure();
 }

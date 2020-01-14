@@ -1313,18 +1313,18 @@ void SLMesh::createMeshAccelerationStructure()
     if (!I16.empty())
     {
         _buildInput.triangleArray.indexFormat      = OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3;
-        _buildInput.triangleArray.numIndexTriplets = I16.size() / 3;
+        _buildInput.triangleArray.numIndexTriplets = (SLuint)(I16.size() / 3);
         _buildInput.triangleArray.indexBuffer      = _indexShortBuffer.devicePointer();
     }
     else
     {
         _buildInput.triangleArray.indexFormat      = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
-        _buildInput.triangleArray.numIndexTriplets = I32.size() / 3;
+        _buildInput.triangleArray.numIndexTriplets = (SLuint)(I32.size() / 3);
         _buildInput.triangleArray.indexBuffer      = _indexIntBuffer.devicePointer();
     }
     _buildInput.triangleArray.vertexFormat                = OPTIX_VERTEX_FORMAT_FLOAT3;
     _buildInput.triangleArray.vertexBuffers               = _vertexBuffer.devicePointerPointer();
-    _buildInput.triangleArray.numVertices                 = P.size();
+    _buildInput.triangleArray.numVertices                 = (SLuint)P.size();
     _buildInput.triangleArray.flags                       = _buildInput_flags;
     _buildInput.triangleArray.numSbtRecords               = 1;
     _buildInput.triangleArray.sbtIndexOffsetBuffer        = 0;

@@ -10,7 +10,6 @@
 #ifdef SL_HAS_OPTIX
 #include <cuda_runtime.h>
 #include <optix.h>
-#include <optix_device.h>
 #include <optix_types.h>
 #include <SLOptixDefinitions.h>
 #include <SLOptixVectorMath.h>

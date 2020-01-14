@@ -1,5 +1,5 @@
 # 
-# CMake congifuration for lib-SLProject
+# CMake configuration for lib-SLProject
 #
 
 set(target lib-SLProject)
@@ -7,15 +7,11 @@ set(target lib-SLProject)
 set(compile_definitions GLEW_NO_GLU)
 set(platform_specific_include_dirs)
 
-#project(LANGUAGES CUDA)
-
 if (DEFINED ENV{CUDA_PATH})
     message("CUDA_PATH is defined")
     find_package(CUDA 10 REQUIRED)
     find_package(OptiX REQUIRED VERSION 7.0)
-    if (${OptiX_FOUND})
-        set(DEFAULT_COMPILE_DEFINITIONS SL_HAS_OPTIX)
-    endif()
+    set(DEFAULT_COMPILE_DEFINITIONS ${DEFAULT_COMPILE_DEFINITIONS} SL_HAS_OPTIX)
 else()
     message("No CUDA - No OptiX")
 endif()
@@ -262,7 +258,10 @@ endif ()
 
 #==============================================================================
 
-if (${SL_HAS_OPTIX})
+if (DEFINED ENV{CUDA_PATH})
+
+    message("Has-Optics: " "${OptiX_INCLUDE}")
+
     list(FIND CUDA_NVCC_FLAGS "-arch" index)
     if(index EQUAL -1)
         list(APPEND CUDA_NVCC_FLAGS -arch sm_30)
@@ -280,8 +279,11 @@ if (${SL_HAS_OPTIX})
         set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
     endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} "-DSL_HAS_OPTIX")
+
     cuda_include_directories(ptx
             ${OptiX_INCLUDE}
+            ${CUDA_INCLUDE_DIRS}
             ${CMAKE_CURRENT_SOURCE_DIR}/cuda
             ${CMAKE_CURRENT_SOURCE_DIR}/include
             )
@@ -294,8 +296,6 @@ if (${SL_HAS_OPTIX})
             DEPENDS ${cuda}
             SOURCES ${cuda}
             )
-
-    add_dependencies(${target} ptx)
 endif()
 
 #==============================================================================
@@ -338,8 +338,8 @@ target_include_directories(${target}
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
         ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
         ${OpenCV_INCLUDE_DIR}
-        ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
         ${OptiX_INCLUDE}
+        ${CUDA_INCLUDE_DIRS}
         ${DEFAULT_INCLUDE_DIRECTORIES}
 
         INTERFACE
@@ -378,3 +378,10 @@ target_link_libraries(${target}
         ${DEFAULT_LINKER_OPTIONS}
         INTERFACE
         )
+
+
+if (DEFINED ENV{CUDA_PATH})
+    add_dependencies(${target} ptx)
+endif()
+
+

@@ -184,7 +184,7 @@ void SLOptixPathtracer::updateScene(SLSceneView* sv)
     rayGenSbtRecord.data = cameraData;
     _rayGenClassicBuffer.upload(&rayGenSbtRecord);
 
-    _params.seed = time(nullptr);
+    _params.seed = (SLuint)time(nullptr);
 
     _paramsBuffer.upload(&_params);
 }
