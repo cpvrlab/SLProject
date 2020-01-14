@@ -72,19 +72,23 @@ void startNdkCamera(jboolean permission)
     if (permission != JNI_FALSE && !ndkCamera)
     {
         //get all information about available cameras
-        SENSNdkCamera* cam = new SENSNdkCamera(SENSCamera::Facing::BACK);
+        SENSNdkCamera ndkCamera(SENSCamera::Facing::BACK);
         //start continious captureing request with certain configuration
-        int width  = 640;
-        int height = 360;
-        cam->start(width, height, SENSCamera::FocusMode::FIXED_INFINITY_FOCUS);
-
-        ndkCamera = cam;
+        SENSCamera::Config camConfig;
+        camConfig.targetWidth          = 640;
+        camConfig.targetHeight         = 360;
+        camConfig.focusMode            = SENSCamera::FocusMode::FIXED_INFINITY_FOCUS;
+        camConfig.adjustAsynchronously = true;
+        ndkCamera.start(camConfig);
     }
 }
 
 extern "C" JNIEXPORT void JNICALL
 Java_ch_cpvr_nativewai_WAIActivity_notifyCameraPermission(
-        JNIEnv *env, jclass type, jboolean permission) {
+  JNIEnv*  env,
+  jclass   type,
+  jboolean permission)
+{
     std::thread permissionHandler(&startNdkCamera, permission);
     permissionHandler.detach();
 }
@@ -97,12 +101,10 @@ std::string getInternalDir(android_app* app)
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK:
-        {
+        case JNI_OK: {
         }
         break;
-        case JNI_EDETACHED:
-        {
+        case JNI_EDETACHED: {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -113,8 +115,7 @@ std::string getInternalDir(android_app* app)
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION:
-        {
+        case JNI_EVERSION: {
             //TODO(dgj1): error handling
             LOGW("unsupported java version\n");
             return "";
@@ -190,12 +191,10 @@ void extractAPKFolder(android_app* app, std::string internalPath, std::string as
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK:
-        {
+        case JNI_OK: {
         }
         break;
-        case JNI_EDETACHED:
-        {
+        case JNI_EDETACHED: {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -206,8 +205,7 @@ void extractAPKFolder(android_app* app, std::string internalPath, std::string as
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION:
-        {
+        case JNI_EVERSION: {
             //TODO(dgj1): error handling
             LOGW("unsupported java version\n");
             return;
@@ -254,12 +252,10 @@ std::string getExternalDir(android_app* app)
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK:
-        {
+        case JNI_OK: {
         }
         break;
-        case JNI_EDETACHED:
-        {
+        case JNI_EDETACHED: {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -270,8 +266,7 @@ std::string getExternalDir(android_app* app)
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION:
-        {
+        case JNI_EVERSION: {
             //TODO(dgj1): error handling
             LOGW("unsupported java version\n");
             return "";
@@ -358,12 +353,10 @@ bool isPermissionGranted(struct android_app* app, const char* permissionName)
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK:
-        {
+        case JNI_OK: {
         }
         break;
-        case JNI_EDETACHED:
-        {
+        case JNI_EDETACHED: {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -374,8 +367,7 @@ bool isPermissionGranted(struct android_app* app, const char* permissionName)
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION:
-        {
+        case JNI_EVERSION: {
             //TODO(dgj1): error handling
             LOGW("unsupported java version\n");
             return "";
@@ -411,12 +403,10 @@ void requestPermission(struct android_app* app)
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK:
-        {
+        case JNI_OK: {
         }
         break;
-        case JNI_EDETACHED:
-        {
+        case JNI_EDETACHED: {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -427,8 +417,7 @@ void requestPermission(struct android_app* app)
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION:
-        {
+        case JNI_EVERSION: {
             //TODO(dgj1): error handling
             LOGW("unsupported java version\n");
             return;
@@ -453,14 +442,14 @@ void requestPermission(struct android_app* app)
 
 void checkAndRequestAndroidPermissions(struct android_app* app, Engine* engine)
 {
-    JNIEnv* env;
+    JNIEnv*          env;
     ANativeActivity* activity = app->activity;
     activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
 
     activity->vm->AttachCurrentThread(&env, NULL);
 
     jobject activityObj = env->NewGlobalRef(activity->clazz);
-    jclass clz = env->GetObjectClass(activityObj);
+    jclass  clz         = env->GetObjectClass(activityObj);
     env->CallVoidMethod(activityObj,
                         env->GetMethodID(clz, "RequestCamera", "()V"));
     env->DeleteGlobalRef(activityObj);
@@ -764,21 +753,18 @@ static int32_t handleInput(struct android_app* app, AInputEvent* event)
         switch (actionCode)
         {
             case AMOTION_EVENT_ACTION_DOWN:
-            case AMOTION_EVENT_ACTION_POINTER_DOWN:
-            {
+            case AMOTION_EVENT_ACTION_POINTER_DOWN: {
                 handleTouchDown(engine, event);
             }
             break;
 
             case AMOTION_EVENT_ACTION_UP:
-            case AMOTION_EVENT_ACTION_POINTER_UP:
-            {
+            case AMOTION_EVENT_ACTION_POINTER_UP: {
                 handleTouchUp(engine, event);
             }
             break;
 
-            case AMOTION_EVENT_ACTION_MOVE:
-            {
+            case AMOTION_EVENT_ACTION_MOVE: {
                 handleTouchMove(engine, event);
             }
         }
@@ -797,7 +783,8 @@ static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
             onSaveState(engine);
             break;
         case APP_CMD_INIT_WINDOW:
-            if (app->window != NULL) {
+            if (app->window != NULL)
+            {
                 onInit(engine, app);
             }
             break;
@@ -839,6 +826,19 @@ void android_main(struct android_app* app)
 
         initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
 
+<<<<<<< HEAD
+=======
+        //get all information about available cameras
+        SENSNdkCamera ndkCamera(SENSCamera::Facing::BACK);
+        //start continious captureing request with certain configuration
+        SENSCamera::Config camConfig;
+        camConfig.targetWidth          = 640;
+        camConfig.targetHeight         = 360;
+        camConfig.focusMode            = SENSCamera::FocusMode::FIXED_INFINITY_FOCUS;
+        camConfig.adjustAsynchronously = true;
+        ndkCamera.start(camConfig);
+
+>>>>>>> aecb5e3074020434b689c6dd982571459c5cb11a
         engine.run = true;
         while (engine.run)
         {

@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <utility>
+#include <algorithm>
 #include "SENSNdkCamera.h"
 #include "SENSException.h"
 
@@ -10,6 +12,47 @@
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
+
+//searches for best machting size and returns it
+cv::Size AvailableStreamConfigs::findBestMatchingSize(cv::Size requiredSize)
+{
+    if (_streamSizes.size() == 0)
+        throw SENSException(SENSType::CAM, "No stream configuration available!", __LINE__, __FILE__);
+
+    std::vector<std::pair<float, int>> matchingSizes;
+
+    //calculate score for
+    for (int i = 0; i < _streamSizes.size(); ++i)
+    {
+        //stream size has to have minimum the size of the required size
+        if (_streamSizes[i].width >= requiredSize.width && _streamSizes[i].height >= requiredSize.height)
+        {
+            float crop = 0.f;
+            //calculate necessary crop to adjust stream image to required size
+            if (((float)requiredSize.width / (float)requiredSize.height) > ((float)_streamSizes[i].width / (float)_streamSizes[i].height))
+            {
+                float scaleFactor  = (float)requiredSize.width / (float)_streamSizes[i].width;
+                float heightScaled = _streamSizes[i].height * scaleFactor;
+                crop += heightScaled - requiredSize.height;
+                crop += (float)_streamSizes[i].width - (float)requiredSize.width;
+            }
+            else
+            {
+                float scaleFactor = (float)requiredSize.height / (float)_streamSizes[i].height;
+                float widthScaled = _streamSizes[i].width * scaleFactor;
+                crop += widthScaled - requiredSize.width;
+                crop += (float)_streamSizes[i].height - (float)requiredSize.height;
+            }
+
+            float cropScaleScore = crop;
+            matchingSizes.push_back(std::make_pair(cropScaleScore, i));
+        }
+    }
+    //sort by crop
+    std::sort(matchingSizes.begin(), matchingSizes.end());
+
+    return _streamSizes[matchingSizes.front().second];
+}
 
 SENSNdkCamera::SENSNdkCamera(SENSCamera::Facing facing)
   : SENSCamera(facing)
@@ -72,26 +115,60 @@ SENSNdkCamera::~SENSNdkCamera()
     {
         AImageReader_delete(_imageReader);
     }
+
+    //terminate the thread
+    if (_thread)
+    {
+        _stopThread = true;
+        _waitCondition.notify_all();
+        if (_thread->joinable())
+            _thread->join();
+        _thread.release();
+    }
 }
 
-//todo: add callback for image available and/or completely started
-void SENSNdkCamera::start(int width, int height, FocusMode focusMode)
+/**
+ * ImageReader listener: called by AImageReader for every frame captured
+ * We pass the event to ImageReader class, so it could do some housekeeping
+ * about
+ * the loaded queue. For example, we could keep a counter to track how many
+ * buffers are full and idle in the queue. If camera almost has no buffer to
+ * capture
+ * we could release ( skip ) some frames by AImageReader_getNextImage() and
+ * AImageReader_delete().
+ */
+void onImageCallback(void* ctx, AImageReader* reader)
 {
-    //todo: wrap transfer parameters in a config struct
-    _targetWidth   = width;
-    _targetHeight  = height;
-    _targetWdivH   = (float)width / (float)height;
-    _mirrorH       = false;
-    _mirrorV       = false;
-    _convertToGray = true;
+    reinterpret_cast<SENSNdkCamera*>(ctx)->imageCallback(reader);
+}
+
+void SENSNdkCamera::start(const SENSCamera::Config config)
+{
+    _camConfig   = config;
+    _targetWdivH = (float)_camConfig.targetWidth / (float)_camConfig.targetHeight;
 
     //todo: find best fitting image format in _availableStreamConfig
+    cv::Size captureSize = _availableStreamConfig.findBestMatchingSize({_camConfig.targetWidth, _camConfig.targetHeight});
+
     //create request with necessary parameters
 
     //create image reader with 2 surfaces (a surface is the like a ring buffer for images)
-    if (AImageReader_new(_targetWidth, _targetHeight, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK)
+    if (AImageReader_new(captureSize.width, captureSize.height, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK)
         throw SENSException(SENSType::CAM, "Could not create image reader!", __LINE__, __FILE__);
-    //todo: register onImageAvailable listener
+
+    //make the adjustments in an asynchronous thread
+    if (_camConfig.adjustAsynchronously)
+    {
+        //register onImageAvailable listener
+        AImageReader_ImageListener listener{
+          .context          = this,
+          .onImageAvailable = onImageCallback,
+        };
+        AImageReader_setImageListener(_imageReader, &listener);
+
+        //start the thread
+        _thread = std::make_unique<std::thread>(&SENSNdkCamera::run, this);
+    }
 
     //create session
     {
@@ -108,7 +185,6 @@ void SENSNdkCamera::start(int width, int height, FocusMode focusMode)
 
         ACameraOutputTarget_create(_surface, &_cameraOutputTarget);
         ACameraDevice_createCaptureRequest(_cameraDevice, TEMPLATE_PREVIEW, &_captureRequest);
-        //todo change focus
 
         ACaptureRequest_addTarget(_captureRequest, _cameraOutputTarget);
 
@@ -117,10 +193,33 @@ void SENSNdkCamera::start(int width, int height, FocusMode focusMode)
                                                getSessionListener(),
                                                &_captureSession) != AMEDIA_OK)
             throw SENSException(SENSType::CAM, "Could not create capture session!", __LINE__, __FILE__);
+
+        //adjust capture request properties
+        if (_camConfig.focusMode == FocusMode::FIXED_INFINITY_FOCUS)
+        {
+            uint8_t afMode = ACAMERA_CONTROL_AF_MODE_OFF;
+            ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_AF_MODE, 1, &afMode);
+            float focusDistance = 0.0f;
+            ACaptureRequest_setEntry_float(_captureRequest, ACAMERA_LENS_FOCUS_DISTANCE, 1, &focusDistance);
+        }
+        else
+        {
+            uint8_t afMode = ACAMERA_CONTROL_AF_MODE_CONTINUOUS_VIDEO;
+            ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_AF_MODE, 1, &afMode);
+        }
     }
 
     //install repeating request
     ACameraCaptureSession_setRepeatingRequest(_captureSession, nullptr, 1, &_captureRequest, nullptr);
+}
+
+//todo: add callback for image available and/or completely started
+void SENSNdkCamera::start(int width, int height)
+{
+    _camConfig.targetWidth  = width;
+    _camConfig.targetHeight = height;
+    _targetWdivH            = (float)width / (float)height;
+    start(_camConfig);
 }
 
 void SENSNdkCamera::stop()
@@ -129,36 +228,22 @@ void SENSNdkCamera::stop()
 }
 
 //-----------------------------------------------------------------------------
-//! Does all adjustments needed for the videoTexture
-/*! CVCapture::adjustForSL processes the following adjustments for all input
-images no matter with what they where captured:
-\n
-1) Crops the input image if it doesn't match the screens aspect ratio. The
-input image mostly does't fit the aspect of the output screen aspect. If the
-input image is too high we crop it on top and bottom, if it is too wide we
-crop it on the sides.
-If viewportWdivH is negative the viewport aspect will be adapted to the video
-aspect ratio. No cropping will be applied.
-\n
-2) Some cameras toward a face mirror the image and some do not. If a input
-image should be mirrored or not is stored in CVCalibration::_isMirroredH
-(H for horizontal) and CVCalibration::_isMirroredV (V for vertical).
-\n
-3) Many of the further processing steps are faster done on grayscale images.
-We therefore create a copy that is grayscale converted.
-*/
-
-SENSFramePtr SENSNdkCamera::adjust(cv::Mat frame)
+//! Does all adjustments needed
+SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
 {
-    cv::Size inputSize = frame.size();
+    //concert yuv to rgb
+    cv::Mat rgbImg;
+    cv::cvtColor(yuvImg, rgbImg, cv::COLOR_YUV2RGB_NV21, 3);
+
+    cv::Size inputSize = rgbImg.size();
     //////////////////////////////////////////////////////////////////
-    // Crop Video image to the aspect ratio of OpenGL background //
+    // Crop Video image to required aspect ratio //
     //////////////////////////////////////////////////////////////////
 
     // Cropping is done almost always.
     // So this is Android image copy loop #2
 
-    float inWdivH = (float)frame.cols / (float)frame.rows;
+    float inWdivH = (float)rgbImg.cols / (float)rgbImg.rows;
     // viewportWdivH is negative the viewport aspect will be the same
     float outWdivH = _targetWdivH < 0.0f ? inWdivH : _targetWdivH;
 
@@ -173,9 +258,9 @@ SENSFramePtr SENSNdkCamera::adjust(cv::Mat frame)
 
         if (inWdivH > outWdivH) // crop input image left & right
         {
-            width  = (int)((float)frame.rows * outWdivH);
-            height = frame.rows;
-            cropW  = (int)((float)(frame.cols - width) * 0.5f);
+            width  = (int)((float)rgbImg.rows * outWdivH);
+            height = rgbImg.rows;
+            cropW  = (int)((float)(rgbImg.cols - width) * 0.5f);
 
             // Width must be devidable by 4
             wModulo4 = width % 4;
@@ -189,9 +274,9 @@ SENSFramePtr SENSNdkCamera::adjust(cv::Mat frame)
         }
         else // crop input image at top & bottom
         {
-            width  = frame.cols;
-            height = (int)((float)frame.cols / outWdivH);
-            cropH  = (int)((float)(frame.rows - height) * 0.5f);
+            width  = rgbImg.cols;
+            height = (int)((float)rgbImg.cols / outWdivH);
+            cropH  = (int)((float)(rgbImg.rows - height) * 0.5f);
 
             // Height must be devidable by 4
             hModulo4 = height % 4;
@@ -204,7 +289,7 @@ SENSFramePtr SENSNdkCamera::adjust(cv::Mat frame)
             if (hModulo4 == 3) height++;
         }
 
-        frame(cv::Rect(cropW, cropH, width, height)).copyTo(frame);
+        rgbImg(cv::Rect(cropW, cropH, width, height)).copyTo(rgbImg);
         //imwrite("AfterCropping.bmp", lastFrame);
     }
 
@@ -214,23 +299,23 @@ SENSFramePtr SENSNdkCamera::adjust(cv::Mat frame)
 
     // Mirroring is done for most selfie cameras.
     // So this is Android image copy loop #3
-    if (_mirrorH)
+    if (_camConfig.mirrorH)
     {
         cv::Mat mirrored;
-        if (_mirrorH)
-            cv::flip(frame, mirrored, -1);
+        if (_camConfig.mirrorV)
+            cv::flip(rgbImg, mirrored, -1);
         else
-            cv::flip(frame, mirrored, 1);
-        frame = mirrored;
+            cv::flip(rgbImg, mirrored, 1);
+        rgbImg = mirrored;
     }
-    else if (_mirrorV)
+    else if (_camConfig.mirrorV)
     {
         cv::Mat mirrored;
-        if (_mirrorH)
-            cv::flip(frame, mirrored, -1);
+        if (_camConfig.mirrorH)
+            cv::flip(rgbImg, mirrored, -1);
         else
-            cv::flip(frame, mirrored, 0);
-        frame = mirrored;
+            cv::flip(rgbImg, mirrored, 0);
+        rgbImg = mirrored;
     }
 
     /////////////////////////
@@ -241,9 +326,9 @@ SENSFramePtr SENSNdkCamera::adjust(cv::Mat frame)
     // We just could take the Y channel.
     // Android image copy loop #4
     cv::Mat grayImg;
-    if (_convertToGray)
+    if (_camConfig.convertToGray)
     {
-        cv::cvtColor(frame, grayImg, cv::COLOR_BGR2GRAY);
+        cv::cvtColor(rgbImg, grayImg, cv::COLOR_BGR2GRAY);
 
         // Reset calibrated image size
         //if (frame.size() != activeCamera->calibration.imageSize()) {
@@ -251,53 +336,142 @@ SENSFramePtr SENSNdkCamera::adjust(cv::Mat frame)
         //}
     }
 
-    SENSFramePtr sensFrame = std::make_shared<SENSFrame>(frame, grayImg, inputSize.width, inputSize.height, cropW, cropH, _mirrorH, _mirrorV);
-    return sensFrame;
+    SENSFramePtr sensFrame = std::make_shared<SENSFrame>(rgbImg, grayImg, inputSize.width, inputSize.height, cropW, cropH, _camConfig.mirrorH, _camConfig.mirrorV);
+    return std::move(sensFrame);
+}
+
+cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
+{
+    //int32_t format;
+    int32_t height;
+    int32_t width;
+    //AImage_getFormat(image, &format);
+    AImage_getHeight(image, &height);
+    AImage_getWidth(image, &width);
+
+    //copy image data to yuv image
+    //pointers to yuv data planes
+    uint8_t *yPixel, *uPixel, *vPixel;
+    //length of yuv data planes in byte
+    int32_t yLen, uLen, vLen;
+    AImage_getPlaneData(image, 0, &yPixel, &yLen);
+    AImage_getPlaneData(image, 1, &uPixel, &uLen);
+    AImage_getPlaneData(image, 2, &vPixel, &vLen);
+
+    cv::Mat yuv(height + (height / 2), width, CV_8UC1);
+    size_t yubBytes = yuv.total();
+    size_t origBytes = yLen + uLen + vLen;
+    LOGI("yubBytes %d origBytes %d", yubBytes, origBytes);
+    memcpy(yuv.data, yPixel, yLen);
+    memcpy(yuv.data + yLen, uPixel, uLen);
+    //We do not have to copy the v plane. The u plane contains the interleaved u and v data!
+    //memcpy(yuv.data + yLen + uLen, vPixel, vLen);
+
+    return yuv;
 }
 
 SENSFramePtr SENSNdkCamera::getLatestFrame()
 {
     SENSFramePtr sensFrame;
 
-    cv::Mat        frame;
-    AImage*        image;
-    media_status_t status = AImageReader_acquireLatestImage(_imageReader, &image);
-    if (status == AMEDIA_OK) //status may be unequal to media_ok if there is no new frame available, what is ok if we are very fast
+    if (_camConfig.adjustAsynchronously)
     {
-        int32_t format;
-        int32_t height;
-        int32_t width;
-        AImage_getFormat(image, &format);
-        AImage_getHeight(image, &height);
-        AImage_getWidth(image, &width);
+        std::unique_lock<std::mutex> lock(_threadOutputMutex);
+        if (_processedFrame)
+        {
+            //move: its faster because shared_ptr has atomic reference counting and we are the only ones using the object
+            sensFrame = std::move(_processedFrame);
+        }
+        if (_threadHasException)
+        {
+            throw _threadException;
+        }
+    }
+    else
+    {
+        AImage*        image;
+        media_status_t status = AImageReader_acquireLatestImage(_imageReader, &image);
+        if (status == AMEDIA_OK) //status may be unequal to media_ok if there is no new frame available, what is ok if we are very fast
+        {
+            static int newImage = 0;
+            LOGI("new image %d", newImage++);
+            cv::Mat yuv = convertToYuv(image);
+            //now that the data is copied we have to delete the image
+            AImage_delete(image);
 
-        //copy image data to yuv image
-        //pointers to yuv data planes
-        uint8_t *yPixel, *uPixel, *vPixel;
-        //length of yuv data planes in byte
-        int32_t yLen, uLen, vLen;
-        AImage_getPlaneData(image, 0, &yPixel, &yLen);
-        AImage_getPlaneData(image, 1, &uPixel, &uLen);
-        AImage_getPlaneData(image, 2, &vPixel, &vLen);
-
-        unsigned char* imageBuffer = (uint8_t*)malloc(yLen + uLen + vLen);
-        memcpy(imageBuffer, yPixel, yLen);
-        memcpy(imageBuffer + yLen, uPixel, uLen);
-        memcpy(imageBuffer + yLen + uLen, vPixel, vLen);
-
-        //now that the data is copied we have to delete the image
-        AImage_delete(image);
-
-        //todo: measure time for yuv conversion and adjustment and move to other thread
-        //make yuv conversion
-        cv::Mat yuv(height + height / 2, width, CV_8UC1, (void*)imageBuffer);
-        cv::cvtColor(yuv, frame, cv::COLOR_YUV2RGB_NV21, 3);
-
-        //make cropping, scaling and mirroring
-        sensFrame = adjust(frame);
+            //make cropping, scaling and mirroring
+            sensFrame = processNewYuvImg(yuv);
+        }
     }
 
-    return sensFrame;
+    return std::move(sensFrame);
+}
+
+void SENSNdkCamera::run()
+{
+    try
+    {
+        while (!_stopThread)
+        {
+            cv::Mat yuv;
+            {
+                std::unique_lock<std::mutex> lock(_threadInputMutex);
+                //wait until _yuvImgToProcess is valid or stop thread is required
+                auto condition = [&] { return (!_yuvImgToProcess.empty() || _stopThread); };
+                _waitCondition.wait(lock, condition);
+                //stop processing
+                if (_stopThread)
+                    return;
+
+                yuv = _yuvImgToProcess;
+            }
+
+            //do the processing
+            SENSFramePtr sensFrame;
+            //make yuv to rgb conversion, cropping, scaling, mirroring, gray conversion
+            sensFrame = processNewYuvImg(yuv);
+
+            //move processing result to worker thread output
+            {
+                std::unique_lock<std::mutex> lock(_threadOutputMutex);
+                _processedFrame = std::move(sensFrame);
+            }
+        }
+    }
+    catch (std::exception& e)
+    {
+        std::unique_lock<std::mutex> lock(_threadOutputMutex);
+        _threadException    = e;
+        _threadHasException = true;
+    }
+    catch (...)
+    {
+        std::unique_lock<std::mutex> lock(_threadOutputMutex);
+        _threadException    = SENSException(SENSType::CAM, "Exception in worker thread!", __LINE__, __FILE__);
+        _threadHasException = true;
+    }
+}
+
+void SENSNdkCamera::imageCallback(AImageReader* reader)
+{
+    AImage*        image  = nullptr;
+    media_status_t status = AImageReader_acquireLatestImage(reader, &image);
+    if (status == AMEDIA_OK && image)
+    {
+        static int newImage = 0;
+        LOGI("new image %d", newImage++);
+
+        cv::Mat yuv = convertToYuv(image);
+
+        AImage_delete(image);
+
+        //move yuv image to worker thread input
+        {
+            std::unique_lock<std::mutex> lock(_threadInputMutex);
+            _yuvImgToProcess = yuv;
+        }
+        _waitCondition.notify_all();
+    }
 }
 
 void SENSNdkCamera::initOptimalCamera(SENSCamera::Facing facing)
@@ -406,14 +580,20 @@ void SENSNdkCamera::initOptimalCamera(SENSCamera::Facing facing)
                                         __LINE__,
                                         __FILE__);
 
+                int width = 0, height = 0;
                 for (uint32_t i = 0; i < lensInfo.count; i += 4)
                 {
-                    StreamConfig config;
-                    config.format = GetFormatStr(lensInfo.data.i32[i]);
-                    config.width = lensInfo.data.i32[i + 1];
-                    config.height = lensInfo.data.i32[i + 2];
-                    config.direction = lensInfo.data.i32[i + 3] ? "INPUT" : "OUTPUT";
-                    _availableStreamConfig.push_back(config);
+                    //example for content interpretation:
+                    //std::string format direction = lensInfo.data.i32[i + 3] ? "INPUT" : "OUTPUT";
+                    //std::string format = GetFormatStr(lensInfo.data.i32[i]);
+
+                    //OUTPUT format and AIMAGE_FORMAT_YUV_420_888 image format
+                    if (!lensInfo.data.i32[i + 3] && lensInfo.data.i32[i] == AIMAGE_FORMAT_YUV_420_888)
+                    {
+                        width  = lensInfo.data.i32[i + 1];
+                        height = lensInfo.data.i32[i + 2];
+                        _availableStreamConfig.add({width, height});
+                    }
                 }
             }
         }
