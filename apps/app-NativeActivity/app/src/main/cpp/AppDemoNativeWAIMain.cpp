@@ -47,6 +47,8 @@
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
 
+SENSNdkCamera* ndkCamera = nullptr;
+
 struct Engine
 {
     SensorsHandler* sensorsHandler;
@@ -64,6 +66,28 @@ struct Engine
     int32_t  pointersDown;
     uint64_t lastTouchMS;
 };
+
+void startNdkCamera(jboolean permission)
+{
+    if (permission != JNI_FALSE && !ndkCamera)
+    {
+        //get all information about available cameras
+        SENSNdkCamera* cam = new SENSNdkCamera(SENSCamera::Facing::BACK);
+        //start continious captureing request with certain configuration
+        int width  = 640;
+        int height = 360;
+        cam->start(width, height, SENSCamera::FocusMode::FIXED_INFINITY_FOCUS);
+
+        ndkCamera = cam;
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_ch_cpvr_nativewai_WAIActivity_notifyCameraPermission(
+        JNIEnv *env, jclass type, jboolean permission) {
+    std::thread permissionHandler(&startNdkCamera, permission);
+    permissionHandler.detach();
+}
 
 std::string getInternalDir(android_app* app)
 {
@@ -381,7 +405,6 @@ bool isPermissionGranted(struct android_app* app, const char* permissionName)
 
 void requestPermission(struct android_app* app)
 {
-
     JavaVM* jvm            = app->activity->vm;
     JNIEnv* env            = nullptr;
     bool    threadAttached = false;
@@ -399,7 +422,7 @@ void requestPermission(struct android_app* app)
             {
                 //TODO(dgj1): error handling
                 LOGW("Could not attach thread to jvm\n");
-                return "";
+                return;
             }
             threadAttached = true;
         }
@@ -408,7 +431,7 @@ void requestPermission(struct android_app* app)
         {
             //TODO(dgj1): error handling
             LOGW("unsupported java version\n");
-            return "";
+            return;
         }
     }
 
@@ -428,18 +451,33 @@ void requestPermission(struct android_app* app)
     }
 }
 
-void checkAndRequestAndroidPermissions(struct android_app* app)
+void checkAndRequestAndroidPermissions(struct android_app* app, Engine* engine)
 {
-    bool hasPermission = isPermissionGranted(app, "CAMERA") && isPermissionGranted(app, "INTERNET");
+    JNIEnv* env;
+    ANativeActivity* activity = app->activity;
+    activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
+
+    activity->vm->AttachCurrentThread(&env, NULL);
+
+    jobject activityObj = env->NewGlobalRef(activity->clazz);
+    jclass clz = env->GetObjectClass(activityObj);
+    env->CallVoidMethod(activityObj,
+                        env->GetMethodID(clz, "RequestCamera", "()V"));
+    env->DeleteGlobalRef(activityObj);
+
+    activity->vm->DetachCurrentThread();
+
+    /*bool hasPermission = isPermissionGranted(app, "CAMERA") && isPermissionGranted(app, "INTERNET");
     if (!hasPermission)
     {
         requestPermission(app);
-    }
+    }*/
 }
 
 static void onInit(void* usrPtr, struct android_app* app)
 {
     Engine* engine = (Engine*)usrPtr;
+    checkAndRequestAndroidPermissions(app, engine);
     /*
      * Here specify the attributes of the desired configuration.
      * Below, we select an EGLConfig with at least 8 bits per color
@@ -759,7 +797,9 @@ static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
             onSaveState(engine);
             break;
         case APP_CMD_INIT_WINDOW:
-            onInit(engine, app);
+            if (app->window != NULL) {
+                onInit(engine, app);
+            }
             break;
         case APP_CMD_TERM_WINDOW:
             onClose(engine, app);
@@ -769,6 +809,9 @@ static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
             break;
         case APP_CMD_LOST_FOCUS:
             onLostFocus(engine);
+            break;
+        case APP_CMD_CONFIG_CHANGED:
+            checkAndRequestAndroidPermissions(app, engine);
             break;
     }
 }
@@ -792,16 +835,9 @@ void android_main(struct android_app* app)
         app->onInputEvent = handleInput;
         app->userData     = &engine;
 
-        checkAndRequestAndroidPermissions(app);
+        //checkAndRequestAndroidPermissions(app);
 
         initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
-
-        //get all information about available cameras
-        SENSNdkCamera ndkCamera(SENSCamera::Facing::BACK);
-        //start continious captureing request with certain configuration
-        int width  = 640;
-        int height = 360;
-        ndkCamera.start(width, height, SENSCamera::FocusMode::FIXED_INFINITY_FOCUS);
 
         engine.run = true;
         while (engine.run)
@@ -830,9 +866,9 @@ void android_main(struct android_app* app)
                 }
             }
 
-            if (engine.display != nullptr)
+            if (engine.display != nullptr && ndkCamera != nullptr)
             {
-                SENSFramePtr sensFrame = ndkCamera.getLatestFrame();
+                SENSFramePtr sensFrame = ndkCamera->getLatestFrame();
                 if (sensFrame)
                     engine.waiApp.updateVideoImage(sensFrame->imgRGB);
                 else
