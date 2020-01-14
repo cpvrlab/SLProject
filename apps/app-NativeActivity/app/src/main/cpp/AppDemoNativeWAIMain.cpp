@@ -72,14 +72,14 @@ void startNdkCamera(jboolean permission)
     if (permission != JNI_FALSE && !ndkCamera)
     {
         //get all information about available cameras
-        SENSNdkCamera ndkCamera(SENSCamera::Facing::BACK);
+        ndkCamera = new SENSNdkCamera(SENSCamera::Facing::BACK);
         //start continious captureing request with certain configuration
         SENSCamera::Config camConfig;
         camConfig.targetWidth          = 640;
         camConfig.targetHeight         = 360;
         camConfig.focusMode            = SENSCamera::FocusMode::FIXED_INFINITY_FOCUS;
         camConfig.adjustAsynchronously = true;
-        ndkCamera.start(camConfig);
+        ndkCamera->start(camConfig);
     }
 }
 
@@ -863,6 +863,8 @@ void android_main(struct android_app* app)
 
                 eglSwapBuffers(engine.display, engine.surface);
             }
+
+            std::this_thread::sleep_for(10ms);
         }
 
         engine.waiApp.close();
