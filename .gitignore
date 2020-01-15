@@ -23,6 +23,7 @@
 *.lnk
 *.xcuserstate
 *~
+data/models/PLY/xyzrgb_dragon.ply
 data/images/sequences/rgbd_dataset_freiburg1_desk
 data/calibrations/orb-slam-state-*
 data/calibrations/street*

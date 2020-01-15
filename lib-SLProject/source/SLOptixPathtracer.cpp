@@ -8,15 +8,15 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
-#    include <stdafx.h> // Must be the 1st include followed by  an empty line
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#    include <SLApplication.h>
-#    include <SLSceneView.h>
-#    include <SLOptixPathtracer.h>
+#include <SLApplication.h>
+#include <SLSceneView.h>
+#include <SLOptixPathtracer.h>
 
-#    ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#        include <debug_new.h> // memory leak detector
-#    endif
+#ifdef SL_MEMLEAKDETECT // set in SL.h for debug config only
+#include <debug_new.h>  // memory leak detector
+#endif
 
 //-----------------------------------------------------------------------------
 SLOptixPathtracer::SLOptixPathtracer()
@@ -191,11 +191,11 @@ void SLOptixPathtracer::updateScene(SLSceneView* sv)
 //-----------------------------------------------------------------------------
 SLbool SLOptixPathtracer::render()
 {
-    _renderSec = 0.0f;   // reset time
+    _renderSec = 0.0f; // reset time
     // Measure time
-    double t1 = SLApplication::timeMS();
+    double t1     = SLApplication::timeMS();
     double tStart = t1;
-    _state = rtBusy; // From here we state the RT as busy
+    _state        = rtBusy; // From here we state the RT as busy
 
     OPTIX_CHECK(optixLaunch(
       _pipeline,
@@ -239,7 +239,7 @@ SLbool SLOptixPathtracer::render()
         CUDA_SYNC_CHECK(SLApplication::stream);
     }
 
-    _state = rtFinished;
+    _state     = rtFinished;
     _renderSec = (SLfloat)(SLApplication::timeMS() - tStart) / 1000;
 
     return true;

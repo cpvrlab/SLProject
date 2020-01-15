@@ -12,6 +12,7 @@
 #include <SLOptixDefinitions.h>
 #include <cuda_runtime_api.h>
 
+//-----------------------------------------------------------------------------
 extern "C" __global__ void __intersection__line()
 {
     auto*      rt_data = reinterpret_cast<HitData*>(optixGetSbtDataPointer());
@@ -23,7 +24,12 @@ extern "C" __global__ void __intersection__line()
     const float3 line_orig = line.p1;
     const float3 line_dir  = line.p2 - line.p1;
 
-    float u = (ray_orig.y * line_dir.x + line_dir.y * line_orig.x - line_orig.y * line_dir.x - line_dir.y * ray_orig.x) / (ray_dir.x * line_dir.y - ray_dir.y * line_dir.x);
+    float u = (ray_orig.y * line_dir.x +
+               line_dir.y * line_orig.x -
+               line_orig.y * line_dir.x -
+               line_dir.y * ray_orig.x) /
+              (ray_dir.x * line_dir.y - ray_dir.y * line_dir.x);
+
     float v = (ray_orig.x + ray_dir.x * u - line_orig.x) / line_dir.x;
 
     if (u >= 0.0f && v >= 0.0f && v <= 1.0f)
@@ -37,15 +43,15 @@ extern "C" __global__ void __intersection__line()
         }
     }
 }
-
+//-----------------------------------------------------------------------------
 extern "C" __global__ void __anyhit__line_radiance()
 {
 }
-
+//-----------------------------------------------------------------------------
 extern "C" __global__ void __anyhit__line_occlusion()
 {
 }
-
+//-----------------------------------------------------------------------------
 extern "C" __global__ void __closesthit__line_radiance()
 {
     auto* rt_data = reinterpret_cast<HitData*>(optixGetSbtDataPointer());
@@ -53,3 +59,4 @@ extern "C" __global__ void __closesthit__line_radiance()
     // Set color to payload
     setColor(rt_data->material.diffuse_color);
 }
+//-----------------------------------------------------------------------------

@@ -35,10 +35,13 @@ extern "C" __global__ void __raygen__pinhole_camera()
 
     // Calculate ray origin and direction
     const float3 origin    = rtData->eye;
-    const float3 direction = normalize(pixel_offset.x * rtData->U + pixel_offset.y * rtData->V + rtData->W);
+    const float3 direction = normalize(pixel_offset.x * rtData->U +
+                                       pixel_offset.y * rtData->V + rtData->W);
 
     // Set pixel color
-    params.image[idx.y * params.width + idx.x] = make_color(tracePrimaryRay(params.handle, origin, direction));
+    params.image[idx.y * params.width + idx.x] = make_color(tracePrimaryRay(params.handle,
+                                                                            origin,
+                                                                            direction));
 }
 //-----------------------------------------------------------------------------
 extern "C" __global__ void __raygen__lens_camera()
@@ -83,7 +86,8 @@ extern "C" __global__ void __raygen__orthographic_camera()
     const CameraData* rtData       = (CameraData*)optixGetSbtDataPointer();
     const float2      pixel_offset = getPixelOffset(idx);
 
-    const float3 origin = pixel_offset.x * rtData->U + pixel_offset.y * rtData->V + rtData->eye;
+    const float3 origin = pixel_offset.x * rtData->U +
+                          pixel_offset.y * rtData->V + rtData->eye;
     ;
     const float3 direction = normalize(rtData->W);
 

@@ -66,6 +66,7 @@ extern "C" __global__ void __closesthit__radiance()
 
     // calculate normal vector
     float3 N = getNormalVector();
+
     // calculate texture color
     float4 texture_color = getTextureColor();
 
@@ -86,19 +87,33 @@ extern "C" __global__ void __closesthit__radiance()
         float  random = curand_uniform(state);
         if (rt_data->material.kr > random)
         {
-            incoming_color = traceReflectionRay(params.handle, P, N, ray_dir);
+            incoming_color = traceReflectionRay(params.handle,
+                                                P,
+                                                N,
+                                                ray_dir);
             local_color    = rt_data->material.specular_color;
         }
         else if ((rt_data->material.kr + rt_data->material.kt) > random)
         {
-            incoming_color = traceRefractionRay(params.handle, P, N, ray_dir, rt_data->material.kn);
+            incoming_color = traceRefractionRay(params.handle,
+                                                P,
+                                                N,
+                                                ray_dir,
+                                                rt_data->material.kn);
             local_color    = rt_data->material.transmissiv_color;
         }
         else
         {
             float3 direction;
-            cosine_sample_hemisphere(curand_uniform(state), curand_uniform(state), N, direction);
-            incoming_color = traceSecondaryRay(params.handle, P, direction);
+            cosine_sample_hemisphere(curand_uniform(state),
+                                     curand_uniform(state),
+                                     N,
+                                     direction);
+
+            incoming_color = traceSecondaryRay(params.handle,
+                                               P,
+                                               direction);
+
             local_color    = rt_data->material.diffuse_color * texture_color;
         }
 
