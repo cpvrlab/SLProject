@@ -66,5 +66,5 @@ SENSFramePtr SENSWebCamera::getLatestFrame()
           _config.mirrorH,
           _config.mirrorV);
     }
-    return sensFrame;
+    return std::move(sensFrame);
 }

@@ -23,6 +23,7 @@
 #include <AppDemoWaiGui.h>
 #include <SLInputEventInterface.h>
 #include <SENSCamera.h>
+#include <SENSVideoStream.h>
 
 class SLMaterial;
 class SLPoints;
@@ -103,7 +104,8 @@ public:
     WAIApp();
     ~WAIApp();
     //call load to correctly initialize wai app
-    int load(int            liveVideoTargetW,
+    int load(SENSCamera*    camera,
+             int            liveVideoTargetW,
              int            liveVideoTargetH,
              int            scrWidth,
              int            scrHeight,
@@ -113,7 +115,6 @@ public:
              AppDirectories dirs);
     //call update to update the frame, wai and visualization
     bool update();
-    bool update(SENSFramePtr frame);
     void close();
 
     //initialize wai orb slam with transferred parameters
@@ -139,7 +140,8 @@ public:
 
     //set path for external writable directory for mobile devices
     //todo: is this still needed?
-    void initExternalDataDirectory(std::string path);
+    void                   initExternalDataDirectory(std::string path);
+    const SENSVideoStream* getVideoFileStream() const { return _videoFileStream.get(); }
 
     WAI::ModeOrbSlam2* mode()
     {
@@ -154,10 +156,8 @@ public:
     //video file editing
     bool doubleBufferedOutput;
 
-    void updateVideoImage(cv::Mat frame);
-
 private:
-    bool updateTracking();
+    //bool updateTracking();
     bool updateTracking(SENSFramePtr frame);
     bool initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
     void onLoadWAISceneView(SLScene* s, SLSceneView* sv);
@@ -182,9 +182,16 @@ private:
                           SLVec3f          rotation,
                           SLVec3f          translation,
                           float            scale);
+    // video writer
+    void saveVideo(std::string filename);
+    void saveGPSData(std::string videofile);
+
     void handleEvents();
 
-    cv::Ptr<cv::CLAHE> clahe;
+    //get new frame from live video or video file stream
+    SENSFramePtr updateVideoOrCamera();
+
+    cv::Ptr<cv::CLAHE> _clahe;
 
     //todo: we dont need a pointer
     std::unique_ptr<AppWAIScene> _waiScene;
@@ -204,8 +211,10 @@ private:
 
     // bool _resizeWindow;
     //todo: do we need a pointer
-    cv::VideoWriter* _videoWriter     = nullptr;
-    cv::VideoWriter* _videoWriterInfo = nullptr;
+    cv::VideoWriter*                 _videoWriter     = nullptr;
+    cv::VideoWriter*                 _videoWriterInfo = nullptr;
+    std::unique_ptr<SENSVideoStream> _videoFileStream;
+    SENSCamera*                      _camera = nullptr;
 
     int _liveVideoTargetWidth;
     int _liveVideoTargetHeight;
@@ -223,12 +232,8 @@ private:
     bool _pauseVideo           = false;
     int  _videoCursorMoveIndex = 0;
 
-    // video writer
-    void saveVideo(std::string filename);
-    void saveGPSData(std::string videofile);
-
     // event queue
-    std::queue<WAIEvent*> eventQueue;
+    std::queue<WAIEvent*> _eventQueue;
 
     CVCalibration _calibration     = {CVCameraType::FRONTFACING, ""};
     bool          _showUndistorted = true;

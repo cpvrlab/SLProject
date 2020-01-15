@@ -9,13 +9,14 @@ class WAIApp;
 class AppDemoGuiVideoControls : public AppDemoGuiInfosDialog
 {
 public:
-    AppDemoGuiVideoControls(const std::string& name, bool* activator, std::queue<WAIEvent*>* eventQueue);
+    AppDemoGuiVideoControls(const std::string& name, bool* activator, std::queue<WAIEvent*>* eventQueue, WAIApp& waiApp);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
 private:
     bool                   _pauseVideo;
     std::queue<WAIEvent*>* _eventQueue;
+    const WAIApp&          _waiApp;
 };
 
 #endif

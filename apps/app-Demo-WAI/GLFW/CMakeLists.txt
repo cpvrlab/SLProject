@@ -45,8 +45,10 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.h
     ${SL_PROJECT_ROOT}/apps/source/sens/SENS.h
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSFrame.h
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
     ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.h
     )
 
@@ -80,6 +82,7 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
     ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
     )

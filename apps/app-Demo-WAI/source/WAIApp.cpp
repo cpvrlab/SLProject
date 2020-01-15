@@ -3,7 +3,6 @@
 #include <SLApplication.h>
 #include <SLInterface.h>
 #include <SLKeyframeCamera.h>
-#include <CVCapture.h>
 #include <Utils.h>
 #include <AverageTiming.h>
 
@@ -72,8 +71,9 @@ WAIApp::~WAIApp()
 }
 
 //-----------------------------------------------------------------------------
-int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories)
+int WAIApp::load(SENSCamera* camera, int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories)
 {
+    _camera                = camera;
     _liveVideoTargetWidth  = liveVideoTargetW;
     _liveVideoTargetHeight = liveVideoTargetH;
 
@@ -92,9 +92,9 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
     _videoWriterInfo = new cv::VideoWriter();
     _loaded          = true;
 
-    clahe = cv::createCLAHE();
-    clahe->setClipLimit(2.0);
-    clahe->setTilesGridSize(cv::Size(8, 8));
+    _clahe = cv::createCLAHE();
+    _clahe->setClipLimit(2.0);
+    _clahe->setTilesGridSize(cv::Size(8, 8));
 
     //init scene as soon as possible to allow visualization of error msgs
     int svIndex = initSLProject(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi);
@@ -106,57 +106,65 @@ int WAIApp::load(int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int s
     return svIndex;
 }
 
-//-----------------------------------------------------------------------------
-bool WAIApp::update()
+SENSFramePtr WAIApp::updateVideoOrCamera()
 {
-    AVERAGE_TIMING_START("WAIAppUpdate");
+    SENSFramePtr frame;
 
-    handleEvents();
-
-    //resetAllTexture();
-    if (_mode && _loaded)
+    if (_videoFileStream)
     {
-        if (CVCapture::instance()->lastFrame.empty() ||
-            CVCapture::instance()->lastFrame.cols == 0 && CVCapture::instance()->lastFrame.rows == 0)
-        {
-            //this only has an influence on desktop or video file
-            CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
-            return false;
-        }
-
-        bool iKnowWhereIAm = (_mode->getTrackingState() == WAI::TrackingState_TrackingOK);
         while (_videoCursorMoveIndex < 0)
         {
-            //this only has an influence on desktop or video file
-            CVCapture::instance()->moveCapturePosition(-2);
-            CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
-            iKnowWhereIAm = updateTracking();
+            frame = _videoFileStream->grabPreviousFrame();
+            if (frame)
+                updateTracking(frame);
 
             _videoCursorMoveIndex++;
         }
 
         while (_videoCursorMoveIndex > 0)
         {
-            //this only has an influence on desktop or video file
-            CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
-            iKnowWhereIAm = updateTracking();
+            frame = _videoFileStream->grabNextFrame();
+            if (frame)
+                updateTracking(frame);
 
             _videoCursorMoveIndex--;
         }
 
-        if (CVCapture::instance()->videoType() != VT_NONE)
+        if (!_pauseVideo)
         {
-            //this only has an influence on desktop or video file
-            if (CVCapture::instance()->videoType() != VT_FILE || !_pauseVideo)
-            {
-                CVCapture::instance()->grabAndAdjustForSL(_videoFrameWdivH);
-                iKnowWhereIAm = updateTracking();
-            }
+            frame = _videoFileStream->grabNextFrame();
         }
+    }
 
-        //update tracking infos visualization
-        cv::Mat mat;
-        updateTrackingVisualization(iKnowWhereIAm, mat);
+    else if (_camera)
+    {
+        frame = _camera->getLatestFrame();
+    }
+    else
+    {
+        WAI_WARN("WAIApp::updateVideoOrCamera: No active video stream or camera available!");
+    }
+
+    return frame;
+}
+
+bool WAIApp::update()
+{
+    handleEvents();
+
+    if (_mode && _loaded)
+    {
+        bool iKnowWhereIAm = false;
+        //get new frame: in case of video this may already call updateTracking several times
+        SENSFramePtr frame = updateVideoOrCamera();
+
+        if (frame)
+        {
+            iKnowWhereIAm = updateTracking(frame);
+
+            //update tracking infos visualization
+            updateTrackingVisualization(iKnowWhereIAm, frame->imgRGB);
+        }
 
         if (iKnowWhereIAm)
         {
@@ -224,96 +232,6 @@ bool WAIApp::update()
     return updateSceneViews();
 }
 
-bool WAIApp::update(SENSFramePtr frame)
-{
-    handleEvents();
-
-    if (frame)
-    {
-        cv::Mat undistortedLastFrame = frame->imgRGB;
-        _videoImage->copyVideoImage(undistortedLastFrame.cols,
-                                    undistortedLastFrame.rows,
-                                    CVImage::cv2glPixelFormat(undistortedLastFrame.type()),
-                                    undistortedLastFrame.data,
-                                    undistortedLastFrame.isContinuous(),
-                                    true);
-
-        //resetAllTexture();
-        if (_mode && _loaded)
-        {
-            bool iKnowWhereIAm = false;
-            iKnowWhereIAm      = updateTracking(frame);
-
-            //update tracking infos visualization
-            updateTrackingVisualization(iKnowWhereIAm, frame->imgRGB);
-
-            if (iKnowWhereIAm)
-            {
-                _lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
-                _IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
-
-                // TODO(dgj1): maybe make this API cleaner
-                cv::Mat pose = cv::Mat(4, 4, CV_32F);
-                if (!_mode->getPose(&pose))
-                {
-                    return false;
-                }
-
-                // update camera node position
-                cv::Mat Rwc(3, 3, CV_32F);
-                cv::Mat twc(3, 1, CV_32F);
-
-                Rwc = (pose.rowRange(0, 3).colRange(0, 3)).t();
-                twc = -Rwc * pose.rowRange(0, 3).col(3);
-
-                cv::Mat PoseInv = cv::Mat::eye(4, 4, CV_32F);
-
-                Rwc.copyTo(PoseInv.colRange(0, 3).rowRange(0, 3));
-                twc.copyTo(PoseInv.rowRange(0, 3).col(3));
-                SLMat4f om;
-
-                om.setMatrix(PoseInv.at<float>(0, 0),
-                             -PoseInv.at<float>(0, 1),
-                             -PoseInv.at<float>(0, 2),
-                             PoseInv.at<float>(0, 3),
-                             PoseInv.at<float>(1, 0),
-                             -PoseInv.at<float>(1, 1),
-                             -PoseInv.at<float>(1, 2),
-                             PoseInv.at<float>(1, 3),
-                             PoseInv.at<float>(2, 0),
-                             -PoseInv.at<float>(2, 1),
-                             -PoseInv.at<float>(2, 2),
-                             PoseInv.at<float>(2, 3),
-                             PoseInv.at<float>(3, 0),
-                             -PoseInv.at<float>(3, 1),
-                             -PoseInv.at<float>(3, 2),
-                             PoseInv.at<float>(3, 3));
-
-                _waiScene->cameraNode->om(om);
-            }
-            else
-            {
-                SLQuat4f q1 = _lastKnowPoseQuaternion;
-                SLQuat4f q2 = SLApplication::devRot.quaternion();
-                q1.invert();
-                SLQuat4f q              = q1 * q2;
-                _IMUQuaternion          = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
-                SLMat4f imuRot          = _IMUQuaternion.toMat4();
-                _lastKnowPoseQuaternion = q2;
-
-                SLMat4f cameraMat = _waiScene->cameraNode->om();
-                _waiScene->cameraNode->om(cameraMat * imuRot);
-            }
-
-            AVERAGE_TIMING_STOP("WAIAppUpdate");
-        }
-    }
-
-    //update scene (before it was slUpdateScene)
-    SLApplication::scene->onUpdate();
-    return updateSceneViews();
-}
-
 //-----------------------------------------------------------------------------
 void WAIApp::close()
 {
@@ -331,6 +249,8 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
 {
     lastFrameIdx         = 0;
     doubleBufferedOutput = false;
+    if (_videoFileStream)
+        _videoFileStream.release();
 
     std::string               videoFile       = "";
     std::string               calibrationFile = "";
@@ -433,21 +353,14 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
         return;
     }
 
-    CVCapture* cap = CVCapture::instance();
-
-    // 1. Initialize CVCapture with either video file or live video
+    // 1. Initialize video stream
     if (useVideoFile)
     {
-        cap->videoType(VT_FILE);
-        cap->videoFilename = videoFile;
-        cap->videoLoops    = true;
-        _videoFrameSize    = cap->openFile();
+        _videoFileStream = std::make_unique<SENSVideoStream>(videoFile, true, false, false);
+        _videoFrameSize  = _videoFileStream->getFrameSize();
     }
     else
     {
-        cap->videoType(VT_MAIN);
-        //open(0) only has an effect on desktop. On Android it just returns {0,0}
-        cap->open(0);
         _videoFrameSize = cv::Size2i(_liveVideoTargetWidth, _liveVideoTargetHeight);
     }
     _videoFrameWdivH = (float)_videoFrameSize.width / (float)_videoFrameSize.height;
@@ -456,7 +369,7 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
     if (!_calibration.load(calibDir, Utils::getFileName(calibrationFile)))
     {
         showErrorMsg("Error when loading calibration from file: " +
-                             calibrationFile);
+                     calibrationFile);
         return;
     }
 
@@ -476,8 +389,6 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
                                       scMat.at<double>(1, 2));
     //enable projection -> intrinsics mode
     _waiScene->cameraNode->projection(P_monoIntrinsic);
-    //enable image undistortion
-    cap->activeCamera->showUndistorted(true);
 
     // 4. Create new mode ORBSlam
     if (!markerFile.empty())
@@ -606,44 +517,6 @@ void WAIApp::initExternalDataDirectory(std::string path)
 }
 
 //-----------------------------------------------------------------------------
-bool WAIApp::updateTracking()
-{
-    bool iKnowWhereIAm = false;
-
-    CVCapture* cap = CVCapture::instance();
-    if (cap->videoType() != VT_NONE && !cap->lastFrame.empty())
-    {
-        if (_videoWriter->isOpened())
-        {
-            _videoWriter->write(cap->lastFrame);
-        }
-
-        cv::Mat m;
-        clahe->apply(cap->lastFrameGray, m);
-        iKnowWhereIAm = _mode->update(m, cap->lastFrame);
-
-        if (_videoWriterInfo->isOpened())
-        {
-            _videoWriterInfo->write(cap->lastFrame);
-        }
-
-        if (_gpsDataStream.is_open())
-        {
-            if (SLApplication::devLoc.isUsed())
-            {
-                SLVec3d v = SLApplication::devLoc.locLLA();
-                _gpsDataStream << SLApplication::devLoc.locAccuracyM();
-                _gpsDataStream << std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
-                _gpsDataStream << std::to_string(SLApplication::devRot.yawRAD());
-                _gpsDataStream << std::to_string(SLApplication::devRot.pitchRAD());
-                _gpsDataStream << std::to_string(SLApplication::devRot.rollRAD());
-            }
-        }
-    }
-
-    return iKnowWhereIAm;
-}
-//-----------------------------------------------------------------------------
 bool WAIApp::updateTracking(SENSFramePtr frame)
 {
     bool iKnowWhereIAm = false;
@@ -654,7 +527,7 @@ bool WAIApp::updateTracking(SENSFramePtr frame)
     }
 
     cv::Mat m;
-    clahe->apply(frame->imgGray, m);
+    _clahe->apply(frame->imgGray, m);
     iKnowWhereIAm = _mode->update(m, frame->imgRGB);
 
     if (_videoWriterInfo->isOpened())
@@ -759,13 +632,13 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
     _gui->addInfoDialog(new AppDemoGuiInfosFrameworks("frameworks", &_gui->uiPrefs->showInfosFrameworks));
     _gui->addInfoDialog(new AppDemoGuiInfosMapNodeTransform("map node",
                                                             &_gui->uiPrefs->showInfosMapNodeTransform,
-                                                            &eventQueue));
+                                                            &_eventQueue));
 
     _gui->addInfoDialog(new AppDemoGuiInfosScene("scene", &_gui->uiPrefs->showInfosScene));
     _gui->addInfoDialog(new AppDemoGuiInfosSensors("sensors", &_gui->uiPrefs->showInfosSensors));
     _gui->addInfoDialog(new AppDemoGuiInfosTracking("tracking", *_gui->uiPrefs.get(), *this));
     _gui->addInfoDialog(new AppDemoGuiSlamLoad("slam load",
-                                               &eventQueue,
+                                               &_eventQueue,
                                                _dirs.writableDir + "erleb-AR/locations/",
                                                _dirs.writableDir + "calibrations/",
                                                _dirs.writableDir + "voc/",
@@ -782,8 +655,8 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
     _gui->addInfoDialog(new AppDemoGuiTransform("transform", &_gui->uiPrefs->showTransform));
     _gui->addInfoDialog(new AppDemoGuiUIPrefs("prefs", _gui->uiPrefs.get(), &_gui->uiPrefs->showUIPrefs));
 
-    _gui->addInfoDialog(new AppDemoGuiVideoStorage("video storage", &_gui->uiPrefs->showVideoStorage, &eventQueue));
-    _gui->addInfoDialog(new AppDemoGuiVideoControls("video load", &_gui->uiPrefs->showVideoControls, &eventQueue));
+    _gui->addInfoDialog(new AppDemoGuiVideoStorage("video storage", &_gui->uiPrefs->showVideoStorage, &_eventQueue));
+    _gui->addInfoDialog(new AppDemoGuiVideoControls("video load", &_gui->uiPrefs->showVideoControls, &_eventQueue, *this));
 
     _gui->addInfoDialog(new AppDemoGuiSlamParam("Slam Param", &_gui->uiPrefs->showSlamParam, *this));
 
@@ -876,45 +749,6 @@ bool WAIApp::updateSceneViews()
     return needUpdate;
 }
 
-void WAIApp::updateVideoImage(cv::Mat frame)
-{
-    CVCapture* cap = CVCapture::instance();
-
-    if (!frame.empty())
-    {
-        CVMat undistortedLastFrame = frame;
-        _videoImage->copyVideoImage(undistortedLastFrame.cols,
-                                    undistortedLastFrame.rows,
-                                    CVImage::cv2glPixelFormat(undistortedLastFrame.type()),
-                                    undistortedLastFrame.data,
-                                    undistortedLastFrame.isContinuous(),
-                                    true);
-    }
-
-    /*
-    CVMat undistortedLastFrame;
-    if (cap->activeCamera->calibration.state() == CS_calibrated && cap->activeCamera->showUndistorted())
-    {
-        cap->activeCamera->calibration.remap(cap->lastFrame, undistortedLastFrame);
-    }
-    else
-    {
-        undistortedLastFrame = cap->lastFrame;
-    }
-
-
-    _videoImage->copyVideoImage(undistortedLastFrame.cols,
-                                undistortedLastFrame.rows,
-                                cap->format,
-                                undistortedLastFrame.data,
-                                undistortedLastFrame.isContinuous(),
-                                true);
-*/
-
-    //update scene (before it was slUpdateScene)
-    SLApplication::scene->onUpdate();
-    updateSceneViews();
-}
 //-----------------------------------------------------------------------------
 void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB)
 {
@@ -1249,6 +1083,7 @@ void WAIApp::saveMap(std::string location,
 
     _mode->resume();
 }
+
 void WAIApp::saveVideo(std::string filename)
 {
     std::string infoDir  = videoDir + "info/";
@@ -1288,11 +1123,13 @@ void WAIApp::saveVideo(std::string filename)
         _videoWriterInfo->release();
     }
 
-    cv::Size size = cv::Size(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
-
-    bool ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
-
-    ret = _videoWriterInfo->open(infoPath, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, size, true);
+    bool ret = false;
+    if (_videoFileStream)
+        ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _videoFileStream->getFrameSize(), true);
+    else if (_camera)
+        ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _camera->getFrameSize(), true);
+    else
+        WAI_WARN("WAIApp::saveVideo: No active video stream or camera available!");
 }
 
 void WAIApp::saveGPSData(std::string videofile)
@@ -1318,15 +1155,14 @@ void WAIApp::transformMapNode(SLTransformSpace tSpace,
 
 void WAIApp::handleEvents()
 {
-    while (eventQueue.size())
+    while (_eventQueue.size())
     {
-        WAIEvent* event = eventQueue.front();
-        eventQueue.pop();
+        WAIEvent* event = _eventQueue.front();
+        _eventQueue.pop();
 
         switch (event->type)
         {
-            case WAIEventType_StartOrbSlam:
-            {
+            case WAIEventType_StartOrbSlam: {
                 WAIEventStartOrbSlam* startOrbSlamEvent = (WAIEventStartOrbSlam*)event;
                 startOrbSlam(&startOrbSlamEvent->params);
 
@@ -1334,8 +1170,7 @@ void WAIApp::handleEvents()
             }
             break;
 
-            case WAIEventType_SaveMap:
-            {
+            case WAIEventType_SaveMap: {
                 WAIEventSaveMap* saveMapEvent = (WAIEventSaveMap*)event;
                 saveMap(saveMapEvent->location, saveMapEvent->area, saveMapEvent->marker);
 
@@ -1343,8 +1178,7 @@ void WAIApp::handleEvents()
             }
             break;
 
-            case WAIEventType_VideoControl:
-            {
+            case WAIEventType_VideoControl: {
                 WAIEventVideoControl* videoControlEvent = (WAIEventVideoControl*)event;
                 _pauseVideo                             = videoControlEvent->pauseVideo;
                 _videoCursorMoveIndex                   = videoControlEvent->videoCursorMoveIndex;
@@ -1353,8 +1187,7 @@ void WAIApp::handleEvents()
             }
             break;
 
-            case WAIEventType_VideoRecording:
-            {
+            case WAIEventType_VideoRecording: {
                 WAIEventVideoRecording* videoRecordingEvent = (WAIEventVideoRecording*)event;
 
                 if (_videoWriter->isOpened())
@@ -1372,8 +1205,7 @@ void WAIApp::handleEvents()
             }
             break;
 
-            case WAIEventType_MapNodeTransform:
-            {
+            case WAIEventType_MapNodeTransform: {
                 WAIEventMapNodeTransform* mapNodeTransformEvent = (WAIEventMapNodeTransform*)event;
 
                 transformMapNode(mapNodeTransformEvent->tSpace, mapNodeTransformEvent->rotation, mapNodeTransformEvent->translation, mapNodeTransformEvent->scale);
@@ -1383,8 +1215,7 @@ void WAIApp::handleEvents()
             break;
 
             case WAIEventType_None:
-            default:
-            {
+            default: {
             }
             break;
         }

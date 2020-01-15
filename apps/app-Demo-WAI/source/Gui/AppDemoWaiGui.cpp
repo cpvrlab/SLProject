@@ -139,13 +139,14 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Video"))
         {
-            CVCamera* ac = CVCapture::instance()->activeCamera;
-
             //CVCalibration* mc = &CVCapture::instance()->mainCam;
             //CVCalibration* sc = &CVCapture::instance()->scndCam;
 
             ImGui::MenuItem("Video Storage", nullptr, &uiPrefs->showVideoStorage);
             ImGui::MenuItem("Video Controls", nullptr, &uiPrefs->showVideoControls);
+
+            /*
+            CVCamera* ac = CVCapture::instance()->activeCamera;
 
             if (ImGui::BeginMenu("Mirror Camera"))
             {
@@ -164,6 +165,7 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Undistort Image", nullptr, cap->activeCamera->showUndistorted(), ac->calibration.state() == CS_calibrated))
                     cap->activeCamera->showUndistorted(!cap->activeCamera->showUndistorted());
             }
+            */
 
             ImGui::EndMenu();
         }

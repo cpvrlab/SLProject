@@ -521,13 +521,12 @@ int main(int argc, char* argv[])
     dirs.slDataRoot  = SLstring(SL_PROJECT_ROOT) + "/data";
     dirs.writableDir = Utils::getAppsWritableDir();
 
-    svIndex = waiApp.load(config.targetWidth, config.targetHeight, scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
+    svIndex = waiApp.load(camera.get(), config.targetWidth, config.targetHeight, scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
 
     // Event loop
     while (!appShouldClose)
     {
-        SENSFramePtr frame     = camera->getLatestFrame();
-        SLbool       doRepaint = waiApp.update(frame);
+        SLbool doRepaint = waiApp.update();
 
         glfwSwapBuffers(window);
         glfwSetWindowTitle(window, waiApp.name().c_str());
