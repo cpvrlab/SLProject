@@ -37,6 +37,12 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
 	${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENS.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
+	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.h
+	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.h
     )
 
 set(sources
@@ -70,6 +76,9 @@ set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoWAIAndroidJNI.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
 	${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.cpp
     )
 
 
@@ -91,14 +100,20 @@ target_include_directories(${target}
     ${g2o_INCLUDE_DIR}
     ${SL_PROJECT_ROOT}/externals/eigen
     ${SL_PROJECT_ROOT}/externals/DBoW2
+	${SL_PROJECT_ROOT}/apps/source/sens/
+	${SL_PROJECT_ROOT}/apps/source/sens/android
     ${DEFAULT_INCLUDE_DIRECTORIES}
     )
 
 target_link_libraries(${target}
     PRIVATE
+		android
+		log
+		camera2ndk
+		mediandk
+
         lib-WAI
         lib-SLProject
-
     PUBLIC
         libc++_shared.so
         ${log-lib}

@@ -15,13 +15,14 @@
 #include <SLApplication.h>
 #include <CVCapture.h>
 #include <WAIApp.h>
-
+#include <android/SENSNdkCamera.h>
 //-----------------------------------------------------------------------------
 // Some global variable for the JNI interface
 JNIEnv*        environment; //! Pointer to JAVA environment used in ray tracing callback
 int            svIndex;     //!< SceneView index
 AppDirectories dirs;
 WAIApp         waiApp;
+std::unique_ptr<SENSNdkCamera> ndkCamera;
 //-----------------------------------------------------------------------------
 /*! Java Native Interface (JNI) function declarations. These functions are
 called by the Java interface class GLES3Lib. The function name follows the pattern
@@ -30,30 +31,30 @@ The functions mostly forward to the C-Interface functions of SLProject declared
 in SLInterface.h.
 */
 extern "C" {
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_onInit(JNIEnv* env, jclass obj, jint width, jint height, jint dpi, jstring filePath);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_onTerminate(JNIEnv* env, jclass obj);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onInit(JNIEnv* env, jclass obj, jint width, jint height, jint dpi, jstring filePath);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onTerminate(JNIEnv* env, jclass obj);
 JNIEXPORT jboolean JNICALL Java_ch_cpvr_wai_GLES3Lib_onUpdate(JNIEnv* env, jclass obj);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_onResize(JNIEnv* env, jclass obj, jint width, jint height);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_onMouseDown(JNIEnv* env, jclass obj, jint button, jint x, jint y);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_onMouseUp(JNIEnv* env, jclass obj, jint button, jint x, jint y);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_onMouseMove(JNIEnv* env, jclass obj, jint x, jint y);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_onTouch2Up(JNIEnv* env, jclass obj, jint x1, jint y1, jint x2, jint y2);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_onTouch2Down(JNIEnv* env, jclass obj, jint x1, jint y1, jint x2, jint y2);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_onTouch2Move(JNIEnv* env, jclass obj, jint x1, jint y1, jint x2, jint y2);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_onDoubleClick(JNIEnv* env, jclass obj, jint button, jint x, jint y);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_onClose(JNIEnv* env, jclass obj);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onResize(JNIEnv* env, jclass obj, jint width, jint height);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onMouseDown(JNIEnv* env, jclass obj, jint button, jint x, jint y);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onMouseUp(JNIEnv* env, jclass obj, jint button, jint x, jint y);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onMouseMove(JNIEnv* env, jclass obj, jint x, jint y);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onTouch2Up(JNIEnv* env, jclass obj, jint x1, jint y1, jint x2, jint y2);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onTouch2Down(JNIEnv* env, jclass obj, jint x1, jint y1, jint x2, jint y2);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onTouch2Move(JNIEnv* env, jclass obj, jint x1, jint y1, jint x2, jint y2);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onDoubleClick(JNIEnv* env, jclass obj, jint button, jint x, jint y);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onClose(JNIEnv* env, jclass obj);
 JNIEXPORT jboolean JNICALL Java_ch_cpvr_wai_GLES3Lib_usesRotation(JNIEnv* env, jclass obj);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_onRotationQUAT(JNIEnv* env, jclass obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onRotationQUAT(JNIEnv* env, jclass obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW);
 JNIEXPORT jboolean JNICALL Java_ch_cpvr_wai_GLES3Lib_usesLocation(JNIEnv* env, jclass obj);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_onLocationLLA(JNIEnv* env, jclass obj, jdouble latitudeDEG, jdouble longitudeDEG, jdouble altitudeM, jfloat accuracyM);
-JNIEXPORT jint JNICALL     Java_ch_cpvr_wai_GLES3Lib_getVideoType(JNIEnv* env, jclass obj);
-JNIEXPORT jint JNICALL     Java_ch_cpvr_wai_GLES3Lib_getVideoSizeIndex(JNIEnv* env, jclass obj);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_grabVideoFileFrame(JNIEnv* env, jclass obj);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_copyVideoImage(JNIEnv* env, jclass obj, jint imgWidth, jint imgHeight, jbyteArray srcBuffer);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_onSetupExternalDir(JNIEnv* env, jclass obj, jstring externalDirPath);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_copyVideoYUVPlanes(JNIEnv* env, jclass obj, jint srcW, jint srcH, jbyteArray yBuf, jint ySize, jint yPixStride, jint yLineStride, jbyteArray uBuf, jint uSize, jint uPixStride, jint uLineStride, jbyteArray vBuf, jint vSize, jint vPixStride, jint vLineStride);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_setCameraSize(JNIEnv* env, jclass obj, jint sizeIndex, jint sizeIndexMax, jint width, jint height);
-JNIEXPORT void JNICALL     Java_ch_cpvr_wai_GLES3Lib_setDeviceParameter(JNIEnv* env, jclass obj, jstring parameter, jstring value);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onLocationLLA(JNIEnv* env, jclass obj, jdouble latitudeDEG, jdouble longitudeDEG, jdouble altitudeM, jfloat accuracyM);
+JNIEXPORT jint JNICALL Java_ch_cpvr_wai_GLES3Lib_getVideoType(JNIEnv* env, jclass obj);
+JNIEXPORT jint JNICALL Java_ch_cpvr_wai_GLES3Lib_getVideoSizeIndex(JNIEnv* env, jclass obj);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_grabVideoFileFrame(JNIEnv* env, jclass obj);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_copyVideoImage(JNIEnv* env, jclass obj, jint imgWidth, jint imgHeight, jbyteArray srcBuffer);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onSetupExternalDir(JNIEnv* env, jclass obj, jstring externalDirPath);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_copyVideoYUVPlanes(JNIEnv* env, jclass obj, jint srcW, jint srcH, jbyteArray yBuf, jint ySize, jint yPixStride, jint yLineStride, jbyteArray uBuf, jint uSize, jint uPixStride, jint uLineStride, jbyteArray vBuf, jint vSize, jint vPixStride, jint vLineStride);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_setCameraSize(JNIEnv* env, jclass obj, jint sizeIndex, jint sizeIndexMax, jint width, jint height);
+JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_setDeviceParameter(JNIEnv* env, jclass obj, jstring parameter, jstring value);
 };
 
 //-----------------------------------------------------------------------------
@@ -85,6 +86,15 @@ extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onInit(JNIEnv* env, 
     CVImage::defaultPath = dirs.slDataRoot + "/images/textures/";
 
     svIndex = waiApp.load(640, 480, width, height, 1.0, 1.0, dpi, dirs);
+
+    SENSCamera::Config config;
+    config.targetWidth = 640;
+    config.targetHeight = 480;
+    config.adjustAsynchronously = true;
+    config.convertToGray = true;
+
+    ndkCamera = std::make_unique<SENSNdkCamera>(SENSCamera::Facing::BACK);
+    ndkCamera->start(config);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onTerminate(JNIEnv* env, jclass obj)
@@ -96,7 +106,8 @@ extern "C" JNIEXPORT
   jboolean JNICALL
   Java_ch_cpvr_wai_GLES3Lib_onUpdate(JNIEnv* env, jclass obj)
 {
-    return waiApp.update();
+    SENSFramePtr sensFrame = ndkCamera->getLatestFrame();
+    return waiApp.update(sensFrame);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onResize(JNIEnv* env, jclass obj, jint width, jint height)

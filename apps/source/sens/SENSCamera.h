@@ -79,13 +79,16 @@ public:
     {
     }
 
-    virtual void         start(const Config config)              = 0;
+    virtual void         start(const Config config)   = 0;
     virtual void         start(int width, int height) = 0;
     virtual void         stop(){};
     virtual SENSFramePtr getLatestFrame() = 0;
 
-private:
+protected:
     SENSCamera::Facing _facing;
+
+    float              _targetWdivH = -1.0f;
+    Config             _config;
 };
 
 #endif //SENS_CAMERA_H

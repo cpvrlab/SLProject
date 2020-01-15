@@ -19,6 +19,7 @@
 #include <WAIApp.h>
 #include <Utils.h>
 #include <HighResTimer.h>
+#include <GLFW/SENSWebCamera.h>
 
 static WAIApp waiApp;
 
@@ -507,18 +508,26 @@ int main(int argc, char* argv[])
 {
     GLFWInit();
 
+    std::unique_ptr<SENSWebCamera> camera = std::make_unique<SENSWebCamera>(SENSCamera::Facing::BACK);
+    SENSCamera::Config             config;
+    config.targetWidth   = 640;
+    config.targetHeight  = 480;
+    config.convertToGray = true;
+    camera->start(config);
+
     AppDirectories dirs;
 
     dirs.waiDataRoot = SLstring(SL_PROJECT_ROOT) + "/data";
     dirs.slDataRoot  = SLstring(SL_PROJECT_ROOT) + "/data";
     dirs.writableDir = Utils::getAppsWritableDir();
 
-    svIndex = waiApp.load(640, 480, scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
+    svIndex = waiApp.load(config.targetWidth, config.targetHeight, scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
 
     // Event loop
     while (!appShouldClose)
     {
-        SLbool doRepaint = waiApp.update();
+        SENSFramePtr frame     = camera->getLatestFrame();
+        SLbool       doRepaint = waiApp.update(frame);
 
         glfwSwapBuffers(window);
         glfwSetWindowTitle(window, waiApp.name().c_str());

@@ -22,17 +22,12 @@
 #include <WAIModeOrbSlam2.h>
 #include <AppDemoWaiGui.h>
 #include <SLInputEventInterface.h>
+#include <SENSCamera.h>
 
 class SLMaterial;
 class SLPoints;
 class SLNode;
 class AppDemoGuiError;
-
-struct OrbSlamStartResult
-{
-    bool        wasSuccessful;
-    std::string errorString;
-};
 
 struct SlamParams
 {
@@ -118,11 +113,12 @@ public:
              AppDirectories dirs);
     //call update to update the frame, wai and visualization
     bool update();
+    bool update(SENSFramePtr frame);
     void close();
 
     //initialize wai orb slam with transferred parameters
-    OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);
-    void               showErrorMsg(std::string msg);
+    void startOrbSlam(SlamParams* slamParams = nullptr);
+    void showErrorMsg(std::string msg);
 
     //todo: replace when we are independent of SLApplication
     std::string name();
@@ -162,6 +158,7 @@ public:
 
 private:
     bool updateTracking();
+    bool updateTracking(SENSFramePtr frame);
     bool initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
     void onLoadWAISceneView(SLScene* s, SLSceneView* sv);
 
@@ -172,7 +169,7 @@ private:
     bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
     bool updateSceneViews();
 
-    void updateTrackingVisualization(const bool iKnowWhereIAm);
+    void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
     void renderMapPoints(std::string                      name,
                          const std::vector<WAIMapPoint*>& pts,
                          SLNode*&                         node,
@@ -219,8 +216,8 @@ private:
     std::unique_ptr<AppDemoWaiGui> _gui;
     AppDemoGuiError*               _errorDial = nullptr;
 
-    int   lastFrameIdx;
-    CVMat undistortedLastFrame[2];
+    int     lastFrameIdx;
+    cv::Mat undistortedLastFrame[2];
 
     // video controls
     bool _pauseVideo           = false;
@@ -232,6 +229,9 @@ private:
 
     // event queue
     std::queue<WAIEvent*> eventQueue;
+
+    CVCalibration _calibration     = {CVCameraType::FRONTFACING, ""};
+    bool          _showUndistorted = true;
 };
 
 #endif

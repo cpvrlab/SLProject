@@ -36,7 +36,7 @@ void AppWAIScene::rebuild()
     SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
     SLfloat     l = 0.593f, b = 0.466f, h = 0.257f;
 
-#if 0 // office table boxes scene
+#if 1 // office table boxes scene
     //SLBox*      box1     = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
     SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, 0.355f, 0.2f, 0.1f, "Box 1", yellow);
     //SLBox*  box1     = new SLBox(0.0f, 0.0f, 0.0f, 10.0f, 5.0f, 3.0f, "Box 1", yellow);
@@ -57,7 +57,7 @@ void AppWAIScene::rebuild()
     rootNode->addChild(boxNode3);
 #endif
 
-#if 1 // augst temple hill
+#if 0 // augst temple hill
     SLAssimpImporter importer;
     SLNode*          temple = importer.load("FBX/AugustaRaurica/Temple_no_sock.fbx");
     /*temple->translate(13.67, -6.98, 5.07);
