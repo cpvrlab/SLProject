@@ -444,8 +444,8 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
 
     _sv->setViewportFromRatio(SLVec2i(_videoFrameSize.width, _videoFrameSize.height), SLViewportAlign::VA_center, true);
     //_resizeWindow = true;
-    undistortedLastFrame[0] = cv::Mat(_videoFrameSize.width, _videoFrameSize.height, CV_8UC1);
-    undistortedLastFrame[1] = cv::Mat(_videoFrameSize.width, _videoFrameSize.height, CV_8UC1);
+    undistortedLastFrame[0] = cv::Mat(_videoFrameSize.height, _videoFrameSize.width, CV_8UC3);
+    undistortedLastFrame[1] = cv::Mat(_videoFrameSize.height, _videoFrameSize.width, CV_8UC3);
 }
 
 //-----------------------------------------------------------------------------

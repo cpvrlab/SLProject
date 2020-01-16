@@ -64,7 +64,8 @@ KPextractor* AppDemoGuiSlamParam::surfExtractor(int th)
 KPextractor* AppDemoGuiSlamParam::glslExtractor(int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma)
 {
     // int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma
-    return new GLSLextractor(CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows, nbKeypointsBigSigma, nbKeypointsSmallSigma, highThrs, lowThrs, bigSigma, smallSigma);
+    const cv::Size& size = _waiApp.getFrameSize();
+    return new GLSLextractor(size.width, size.height, nbKeypointsBigSigma, nbKeypointsSmallSigma, highThrs, lowThrs, bigSigma, smallSigma);
 }
 
 KPextractor* AppDemoGuiSlamParam::kpExtractor(int id)
