@@ -8,10 +8,9 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
-#ifndef SLPROJECT_SLOPTIXHELPER_H
-#define SLPROJECT_SLOPTIXHELPER_H
-
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
+#    ifndef SLOPTIXHELPER_H
+#        define SLOPTIXHELPER_H
+#        include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 using namespace std::placeholders;
 using namespace std::chrono;
@@ -21,7 +20,7 @@ using namespace std::chrono;
 // OptiX error-checking
 //------------------------------------------------------------------------------
 
-#include <optix_stubs.h>
+#        include <optix_stubs.h>
 // clang-format off
 //------------------------------------------------------------------------------
 #define OPTIX_CHECK( call )                                                    \
@@ -117,5 +116,5 @@ float4 make_float4(const SLVec4f& f);
 //------------------------------------------------------------------------------
 float3 make_float3(const SLVec3f& f);
 //------------------------------------------------------------------------------
-#endif // SLOPTIXHELPER_H
-#endif // SL_HAS_OPTIX
+#    endif // SLOPTIXHELPER_H
+#endif     // SL_HAS_OPTIX

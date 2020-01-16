@@ -8,10 +8,10 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
-#ifndef SLOPTIXACCELERATIONSTRUCTURE_H
-#define SLOPTIXACCELERATIONSTRUCTURE_H
-#include <optix_types.h>
-#include <SLCudaBuffer.h>
+#    ifndef SLOPTIXACCELERATIONSTRUCTURE_H
+#        define SLOPTIXACCELERATIONSTRUCTURE_H
+#        include <optix_types.h>
+#        include <SLCudaBuffer.h>
 
 //------------------------------------------------------------------------------
 class SLOptixAccelerationStructure
@@ -33,5 +33,5 @@ class SLOptixAccelerationStructure
     SLCudaBuffer<void>*    _buffer;
 };
 //------------------------------------------------------------------------------
-#endif // SLOPTIXACCELERATIONSTRUCTURE_H
-#endif // SL_HAS_OPTIX
+#    endif // SLOPTIXACCELERATIONSTRUCTURE_H
+#endif     // SL_HAS_OPTIX
