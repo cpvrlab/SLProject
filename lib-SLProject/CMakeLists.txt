@@ -284,6 +284,8 @@ if (DEFINED ENV{CUDA_PATH})
     cuda_include_directories(ptx
             ${OptiX_INCLUDE}
             ${CUDA_INCLUDE_DIRS}
+            ${SL_PROJECT_ROOT}/lib-SLProject/cuda
+            ${SL_PROJECT_ROOT}/lib-SLProject/include
             ${CMAKE_CURRENT_SOURCE_DIR}/cuda
             ${CMAKE_CURRENT_SOURCE_DIR}/include
             )

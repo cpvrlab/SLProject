@@ -10,6 +10,7 @@
 
 #include <SLOptixDefinitions.h>
 #include <SLOptixHelper.h>
+#include <SLOptixVectorMath.h>
 #include <cuda_runtime_api.h>
 
 //-----------------------------------------------------------------------------
