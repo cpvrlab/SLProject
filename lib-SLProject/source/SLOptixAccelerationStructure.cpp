@@ -8,7 +8,6 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
-
 #    include <SLOptixAccelerationStructure.h>
 #    include <SL/SLApplication.h>
 

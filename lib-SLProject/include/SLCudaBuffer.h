@@ -8,15 +8,14 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
-#ifndef SLCUDABUFFER_H
-#define SLCUDABUFFER_H
-
-#include <cstdio>
-#include <vector>
-#include <cuda.h>
-#include <driver_types.h>
-#include <cuda_runtime_api.h>
-#include <SLOptixHelper.h>
+#    ifndef SLCUDABUFFER_H
+#        define SLCUDABUFFER_H
+#        include <cstdio>
+#        include <vector>
+#        include <cuda.h>
+#        include <driver_types.h>
+#        include <cuda_runtime_api.h>
+#        include <SLOptixHelper.h>
 
 //-----------------------------------------------------------------------------
 template<typename T>
@@ -137,5 +136,5 @@ void SLCudaBuffer<T>::download(T* t)
                             _size));
 }
 //-----------------------------------------------------------------------------
-#endif // SLCUDABUFFER_H
-#endif // SL_HAS_OPTIX
+#    endif // SLCUDABUFFER_H
+#endif     // SL_HAS_OPTIX

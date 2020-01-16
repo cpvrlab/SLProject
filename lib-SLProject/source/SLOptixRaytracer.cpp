@@ -9,7 +9,6 @@
 
 #ifdef SL_HAS_OPTIX
 #    include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #    include <SLApplication.h>
 #    include <SLLightRect.h>
 #    include <SLSceneView.h>
@@ -185,8 +184,7 @@ OptixModule SLOptixRaytracer::_createModule(std::string filename)
 //-----------------------------------------------------------------------------
 OptixProgramGroup SLOptixRaytracer::_createProgram(OptixProgramGroupDesc prog_group_desc)
 {
-    OptixDeviceContext context = SLApplication::context;
-
+    OptixDeviceContext       context               = SLApplication::context;
     OptixProgramGroup        program_group         = {};
     OptixProgramGroupOptions program_group_options = {};
 
@@ -445,16 +443,16 @@ SLbool SLOptixRaytracer::renderClassic()
       /*depth=*/1));
     CUDA_SYNC_CHECK(SLApplication::stream);
 
-    _renderSec  = (SLfloat)(SLApplication::timeMS() - tStart) / 1000;
+    _renderSec = (SLfloat)(SLApplication::timeMS() - tStart) / 1000;
 
     return true;
 }
 //-----------------------------------------------------------------------------
 SLbool SLOptixRaytracer::renderDistrib()
 {
-    _renderSec = 0.0f;   // reset time
+    _renderSec = 0.0f; // reset time
     // Measure time
-    double t1 = SLApplication::timeMS();
+    double t1     = SLApplication::timeMS();
     double tStart = t1;
 
     OPTIX_CHECK(optixLaunch(
@@ -468,7 +466,7 @@ SLbool SLOptixRaytracer::renderDistrib()
       /*depth=*/1));
     CUDA_SYNC_CHECK(SLApplication::stream);
 
-    _renderSec  = (SLfloat)(SLApplication::timeMS() - tStart) / 1000;
+    _renderSec = (SLfloat)(SLApplication::timeMS() - tStart) / 1000;
 
     return true;
 }
