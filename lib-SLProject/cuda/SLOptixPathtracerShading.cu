@@ -54,7 +54,7 @@ extern "C" __global__ void __closesthit__radiance()
     auto*        rt_data = reinterpret_cast<HitData*>(optixGetSbtDataPointer());
     const float3 ray_dir = optixGetWorldRayDirection();
 
-    if (getDepth() >= params.max_depth)
+    if (getDepth() > params.max_depth)
     {
         setColor(make_float4(0.0f));
         return;
