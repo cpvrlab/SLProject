@@ -516,7 +516,6 @@ int main(int argc, char* argv[])
     camera->start(config);
 
     AppDirectories dirs;
-
     dirs.waiDataRoot = SLstring(SL_PROJECT_ROOT) + "/data";
     dirs.slDataRoot  = SLstring(SL_PROJECT_ROOT) + "/data";
     dirs.writableDir = Utils::getAppsWritableDir();

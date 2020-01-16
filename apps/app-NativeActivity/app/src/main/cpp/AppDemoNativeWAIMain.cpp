@@ -584,6 +584,7 @@ static void onInit(void* usrPtr, struct android_app* app)
     extractAPKFolder(app, path, "shaders");
     extractAPKFolder(app, path, "calibrations");
     extractAPKFolder(app, path, "config");
+    extractAPKFolder(app, path, "voc");
 
     AppDirectories dirs;
     dirs.slDataRoot  = path;
@@ -596,7 +597,7 @@ static void onInit(void* usrPtr, struct android_app* app)
     AConfiguration_fromAssetManager(appConfig, app->activity->assetManager);
     int32_t dpi = AConfiguration_getDensity(appConfig);
     AConfiguration_delete(appConfig);
-    engine->waiApp.load(640, 360, w, h, 1.0, 1.0, dpi, dirs);
+    engine->waiApp.load(ndkCamera.get(), 640, 360, w, h, 1.0, 1.0, dpi, dirs);
 }
 
 static void onClose(void* usrPtr, struct android_app* app)
@@ -870,8 +871,7 @@ void android_main(struct android_app* app)
 
             if (engine.display != nullptr && ndkCamera != nullptr)
             {
-                SENSFramePtr sensFrame = ndkCamera->getLatestFrame();
-                if (engine.waiApp.update(sensFrame))
+                if (engine.waiApp.update())
                     eglSwapBuffers(engine.display, engine.surface);
             }
 

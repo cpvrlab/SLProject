@@ -85,7 +85,7 @@ int WAIApp::load(SENSCamera* camera, int liveVideoTargetW, int liveVideoTargetH,
     videoDir = _dirs.writableDir + "erleb-AR/locations/";
     calibDir = _dirs.writableDir + "calibrations/";
     mapDir   = _dirs.writableDir + "maps/";
-    vocDir   = _dirs.writableDir + "voc/";
+    vocDir   = _dirs.writableDir + "calibrations/";
 
     _waiScene        = std::make_unique<AppWAIScene>();
     _videoWriter     = new cv::VideoWriter();
