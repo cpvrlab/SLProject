@@ -1,5 +1,5 @@
-# For more information about using CMake with Android Studio, read the
-# documentation: https://d.android.com/studio/projects/add-native-code.html
+#For more information about using CMake with Android Studio, read the
+#documentation : https: //d.android.com/studio/projects/add-native-code.html
 #find_package(OpenCV REQUIRED)
 
 set(target native-lib)
@@ -38,9 +38,11 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
 	${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENS.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSFrame.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
 	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.h
 	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.h
     )
@@ -77,6 +79,7 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
 	${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.cpp
     )
@@ -123,7 +126,7 @@ target_link_libraries(${target}
     )
 
 #
-# Copy APK contents
+#Copy APK contents
 #
 file(GLOB_RECURSE TEXTURES
     ${SL_PROJECT_ROOT}/data/images/textures/CompileError.png

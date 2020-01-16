@@ -85,8 +85,6 @@ extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onInit(JNIEnv* env, 
 
     CVImage::defaultPath = dirs.slDataRoot + "/images/textures/";
 
-    svIndex = waiApp.load(640, 480, width, height, 1.0, 1.0, dpi, dirs);
-
     SENSCamera::Config config;
     config.targetWidth = 640;
     config.targetHeight = 480;
@@ -95,6 +93,8 @@ extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onInit(JNIEnv* env, 
 
     ndkCamera = std::make_unique<SENSNdkCamera>(SENSCamera::Facing::BACK);
     ndkCamera->start(config);
+
+    svIndex = waiApp.load(ndkCamera.get(), 640, 480, width, height, 1.0, 1.0, dpi, dirs);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onTerminate(JNIEnv* env, jclass obj)
@@ -106,8 +106,7 @@ extern "C" JNIEXPORT
   jboolean JNICALL
   Java_ch_cpvr_wai_GLES3Lib_onUpdate(JNIEnv* env, jclass obj)
 {
-    SENSFramePtr sensFrame = ndkCamera->getLatestFrame();
-    return waiApp.update(sensFrame);
+    return waiApp.update();
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onResize(JNIEnv* env, jclass obj, jint width, jint height)
