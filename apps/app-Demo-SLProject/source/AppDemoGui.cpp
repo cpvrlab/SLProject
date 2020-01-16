@@ -392,6 +392,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
                 sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", rt->renderSec());
+                sprintf(m + strlen(m), "Denoiser Time :%0.0f ms.\n", rt->denoiserMS());
             }
 #endif
 

@@ -208,6 +208,11 @@ SLbool SLOptixPathtracer::render()
       /*depth=*/1));
     CUDA_SYNC_CHECK(SLApplication::stream);
 
+    _renderSec = (SLfloat)(SLApplication::timeMS() - tStart) / 1000;
+
+    // Measure denoiser time
+    double t2     = SLApplication::timeMS();
+
     if (_denoiserEnabled)
     {
         OptixImage2D optixImage2D;
@@ -239,9 +244,9 @@ SLbool SLOptixPathtracer::render()
         CUDA_SYNC_CHECK(SLApplication::stream);
     }
 
-    _state     = rtFinished;
-    _renderSec = (SLfloat)(SLApplication::timeMS() - tStart) / 1000;
+    _denoiserMS = (SLfloat)(SLApplication::timeMS() - t2);
 
+    _state     = rtFinished;
     return true;
 }
 //-----------------------------------------------------------------------------

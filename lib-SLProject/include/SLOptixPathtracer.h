@@ -42,6 +42,8 @@ class SLOptixPathtracer : public SLOptixRaytracer
     void setDenoiserEnabled(SLbool denoiserEnabled) { _denoiserEnabled = denoiserEnabled; }
     void samples(SLint samples) { _samples = samples; }
 
+    SLfloat   denoiserMS() const { return _denoiserMS; }
+
     protected:
     SLint                     _samples;
     SLCudaBuffer<curandState> _curandBuffer = SLCudaBuffer<curandState>();
@@ -54,6 +56,8 @@ class SLOptixPathtracer : public SLOptixRaytracer
 
     //Settings
     SLbool _denoiserEnabled = true;
+
+    SLfloat _denoiserMS;     //!< Denoiser time in ms
 };
 //-----------------------------------------------------------------------------
 #endif // SLOPTIXPATHTRACER_H
