@@ -14,18 +14,20 @@
 #include <ftplib.h>
 #include "Utils.h"
 
+using namespace std;
+
 namespace FtpUtils
 {
 //! Uploads the file to the ftp server. checks if the filename already exists and adds a version number
-bool uploadFileLatestVersion(const std::string& fileDir,
-                             const std::string& fileName,
-                             const std::string  ftpHost,
-                             const std::string  ftpUser,
-                             const std::string  ftpPwd,
-                             const std::string  ftpDir,
-                             std::string&       errorMsg)
+bool uploadFileLatestVersion(const string& fileDir,
+                             const string& fileName,
+                             const string  ftpHost,
+                             const string  ftpUser,
+                             const string  ftpPwd,
+                             const string  ftpDir,
+                             string&       errorMsg)
 {
-    std::string fullPathAndFilename = fileDir + fileName;
+    string fullPathAndFilename = fileDir + fileName;
     if (!Utils::fileExists(fullPathAndFilename))
     {
         errorMsg = "File doesn't exist: %s\n", fullPathAndFilename.c_str();
@@ -42,7 +44,7 @@ bool uploadFileLatestVersion(const std::string& fileDir,
             if (ftp.Chdir(ftpDir.c_str()))
             {
                 // Get the latest fileName on the ftp
-                std::string latestFile = getLatestFilename(ftp, fileDir, fileName);
+                string latestFile = getLatestFilename(ftp, fileDir, fileName);
 
                 // Set the file version
                 int versionNO = 0;
@@ -55,11 +57,10 @@ bool uploadFileLatestVersion(const std::string& fileDir,
                 versionNO++;
                 stringstream versionSS;
                 versionSS << "(" << versionNO << ")";
-                versionSS.str();
 
                 // Build new fileName on ftp with version number
-                std::string fileWOExt          = Utils::getFileNameWOExt(fullPathAndFilename);
-                std::string newVersionFilename = fileWOExt + versionSS.str() + ".xml";
+                string fileWOExt          = Utils::getFileNameWOExt(fullPathAndFilename);
+                string newVersionFilename = fileWOExt + versionSS.str() + ".xml";
 
                 // Upload
                 if (!ftp.Put(fullPathAndFilename.c_str(),
@@ -93,13 +94,13 @@ bool uploadFileLatestVersion(const std::string& fileDir,
 }
 //-----------------------------------------------------------------------------
 //! Downlad the file from the ftp server which has the latest version and store it as fileName locally
-bool downloadFileLatestVersion(const std::string& fileDir,
-                               const std::string  fileName,
-                               const std::string  ftpHost,
-                               const std::string  ftpUser,
-                               const std::string  ftpPwd,
-                               const std::string  ftpDir,
-                               std::string&       errorMsg)
+bool downloadFileLatestVersion(const string& fileDir,
+                               const string  fileName,
+                               const string  ftpHost,
+                               const string  ftpUser,
+                               const string  ftpPwd,
+                               const string  ftpDir,
+                               string&       errorMsg)
 {
     bool   success = true;
     ftplib ftp;
@@ -111,9 +112,9 @@ bool downloadFileLatestVersion(const std::string& fileDir,
             if (ftp.Chdir(ftpDir.c_str()))
             {
                 // Get the latest fileName on the ftp
-                std::string fullPathAndFilename = fileDir + fileName;
-                std::string latestFile          = getLatestFilename(ftp, fileDir, fileName);
-                int         remoteSize          = 0;
+                string fullPathAndFilename = fileDir + fileName;
+                string latestFile          = getLatestFilename(ftp, fileDir, fileName);
+                int    remoteSize          = 0;
                 ftp.Size(latestFile.c_str(),
                          &remoteSize,
                          ftplib::transfermode::image);
@@ -157,15 +158,15 @@ bool downloadFileLatestVersion(const std::string& fileDir,
 }
 //-----------------------------------------------------------------------------
 //! Uploads file to the ftp server
-bool uploadFile(const std::string& fileDir,
-                const std::string& fileName,
-                const std::string  ftpHost,
-                const std::string  ftpUser,
-                const std::string  ftpPwd,
-                const std::string  ftpDir,
-                std::string&       errorMsg)
+bool uploadFile(const string& fileDir,
+                const string& fileName,
+                const string  ftpHost,
+                const string  ftpUser,
+                const string  ftpPwd,
+                const string  ftpDir,
+                string&       errorMsg)
 {
-    std::string fullPathAndFilename = fileDir + fileName;
+    string fullPathAndFilename = fileDir + fileName;
     if (!Utils::fileExists(fullPathAndFilename))
     {
         errorMsg = "File doesn't exist: %s\n", fullPathAndFilename.c_str();
@@ -213,13 +214,13 @@ bool uploadFile(const std::string& fileDir,
 }
 //-----------------------------------------------------------------------------
 //! Download file from the ftp server
-bool downloadFile(const std::string& fileDir,
-                  const std::string  fileName,
-                  const std::string  ftpHost,
-                  const std::string  ftpUser,
-                  const std::string  ftpPwd,
-                  const std::string  ftpDir,
-                  std::string&       errorMsg)
+bool downloadFile(const string& fileDir,
+                  const string  fileName,
+                  const string  ftpHost,
+                  const string  ftpUser,
+                  const string  ftpPwd,
+                  const string  ftpDir,
+                  string&       errorMsg)
 {
     bool   success = true;
     ftplib ftp;
@@ -231,8 +232,8 @@ bool downloadFile(const std::string& fileDir,
             if (ftp.Chdir(ftpDir.c_str()))
             {
                 // Get the latest fileName on the ftp
-                std::string fullPathAndFilename = fileDir + fileName;
-                int         remoteSize          = 0;
+                string fullPathAndFilename = fileDir + fileName;
+                int    remoteSize          = 0;
                 ftp.Size(fileName.c_str(),
                          &remoteSize,
                          ftplib::transfermode::image);
@@ -275,12 +276,12 @@ bool downloadFile(const std::string& fileDir,
     return success;
 }
 //-----------------------------------------------------------------------------
-bool downloadAllFilesFromDir(const std::string& fileDir,
-                             const std::string  ftpHost,
-                             const std::string  ftpUser,
-                             const std::string  ftpPwd,
-                             const std::string  ftpDir,
-                             std::string&       errorMsg)
+bool downloadAllFilesFromDir(const string& fileDir,
+                             const string  ftpHost,
+                             const string  ftpUser,
+                             const string  ftpPwd,
+                             const string  ftpDir,
+                             string&       errorMsg)
 {
     bool   success = true;
     ftplib ftp;
@@ -292,7 +293,7 @@ bool downloadAllFilesFromDir(const std::string& fileDir,
             if (ftp.Chdir(ftpDir.c_str()))
             {
                 //get all names in directory
-                std::vector<std::string> retrievedFileNames;
+                vector<string> retrievedFileNames;
                 if (success = getAllFileNamesWithTag(ftp, fileDir, "xml", retrievedFileNames, errorMsg))
                 {
                     for (auto it = retrievedFileNames.begin(); it != retrievedFileNames.end(); ++it)
@@ -304,7 +305,7 @@ bool downloadAllFilesFromDir(const std::string& fileDir,
 
                         if (remoteSize > 0)
                         {
-                            std::string targetFilename = fileDir + *it;
+                            string targetFilename = fileDir + *it;
                             if (!ftp.Get(targetFilename.c_str(),
                                          it->c_str(),
                                          ftplib::transfermode::image))
@@ -338,32 +339,32 @@ bool downloadAllFilesFromDir(const std::string& fileDir,
     return success;
 }
 //-----------------------------------------------------------------------------
-bool getAllFileNamesWithTag(ftplib&                   ftp,
-                            std::string               localDir,
-                            const std::string         searchFileTag,
-                            std::vector<std::string>& retrievedFileNames,
-                            std::string&              errorMsg)
+bool getAllFileNamesWithTag(ftplib&         ftp,
+                            string          localDir,
+                            const string    searchFileTag,
+                            vector<string>& retrievedFileNames,
+                            string&         errorMsg)
 {
-    bool        success              = true;
-    std::string ftpDirResult         = localDir + "ftpDirResult.txt";
-    std::string searchDirAndFileType = "*." + searchFileTag;
+    bool   success              = true;
+    string ftpDirResult         = localDir + "ftpDirResult.txt";
+    string searchDirAndFileType = "*." + searchFileTag;
     // Get result of ftp.Dir into the textfile ftpDirResult
     if (ftp.Dir(ftpDirResult.c_str(), searchDirAndFileType.c_str()))
     {
         //analyse ftpDirResult content
-        std::vector<std::string> vecFilesInDir;
-        std::vector<std::string> strippedFiles;
+        vector<string> vecFilesInDir;
+        vector<string> strippedFiles;
 
         if (Utils::getFileContent(ftpDirResult, vecFilesInDir))
         {
-            for (std::string& fileInfoLine : vecFilesInDir)
+            for (string& fileInfoLine : vecFilesInDir)
             {
                 //split info line at doublepoint because it is unique (?)
-                std::vector<std::string> splits;
+                vector<string> splits;
                 Utils::splitString(fileInfoLine, ':', splits);
                 if (splits.size() == 2)
                 {
-                    std::string name = splits.at(1);
+                    string name = splits.at(1);
                     //remove first 3 characters which should be minutes fraction of time string and one whitespace
                     name.erase(0, 3);
                     retrievedFileNames.push_back(name);
@@ -394,31 +395,31 @@ bool getAllFileNamesWithTag(ftplib&                   ftp,
 }
 //-----------------------------------------------------------------------------
 //! Returns the latest fileName of the same fullPathAndFilename
-std::string getLatestFilename(ftplib&            ftp,
-                              const std::string& fileDir,
-                              const std::string& fileName)
+string getLatestFilename(ftplib&       ftp,
+                         const string& fileDir,
+                         const string& fileName)
 {
     // Get a list of files
-    std::string fullPathAndFilename = fileDir + fileName;
-    std::string ftpDirResult        = fileDir + "ftpDirResult.txt";
-    std::string filenameWOExt       = Utils::getFileNameWOExt(fullPathAndFilename);
-    std::string filenameWOExtStar   = filenameWOExt + "*";
+    string fullPathAndFilename = fileDir + fileName;
+    string ftpDirResult        = fileDir + "ftpDirResult.txt";
+    string filenameWOExt       = Utils::getFileNameWOExt(fullPathAndFilename);
+    string filenameWOExtStar   = filenameWOExt + "*";
 
     // Get result of ftp.Dir into the textfile ftpDirResult
     if (ftp.Dir(ftpDirResult.c_str(), filenameWOExtStar.c_str()))
     {
-        vector<std::string> vecFilesInDir;
-        vector<std::string> strippedFiles;
+        vector<string> vecFilesInDir;
+        vector<string> strippedFiles;
 
         if (Utils::getFileContent(ftpDirResult, vecFilesInDir))
         {
-            for (std::string& fileInfoLine : vecFilesInDir)
+            for (string& fileInfoLine : vecFilesInDir)
             {
                 size_t foundAt = fileInfoLine.find(filenameWOExt);
-                if (foundAt != std::string::npos)
+                if (foundAt != string::npos)
                 {
-                    std::string fileWExt  = fileInfoLine.substr(foundAt);
-                    std::string fileWOExt = Utils::getFileNameWOExt(fileWExt);
+                    string fileWExt  = fileInfoLine.substr(foundAt);
+                    string fileWOExt = Utils::getFileNameWOExt(fileWExt);
                     strippedFiles.push_back(fileWOExt);
                 }
             }
@@ -427,8 +428,8 @@ std::string getLatestFilename(ftplib&            ftp,
         if (!strippedFiles.empty())
         {
             // sort fileName naturally as many file systems do.
-            std::sort(strippedFiles.begin(), strippedFiles.end(), Utils::compareNatural);
-            std::string latest = strippedFiles.back() + ".xml";
+            sort(strippedFiles.begin(), strippedFiles.end(), Utils::compareNatural);
+            string latest = strippedFiles.back() + ".xml";
             return latest;
         }
         else
@@ -440,9 +441,9 @@ std::string getLatestFilename(ftplib&            ftp,
 }
 //-----------------------------------------------------------------------------
 //! Returns the version number at the end of the fileName
-int getVersionInFilename(const std::string& filename)
+int getVersionInFilename(const string& filename)
 {
-    std::string filenameWOExt = Utils::getFileNameWOExt(filename);
+    string filenameWOExt = Utils::getFileNameWOExt(filename);
 
     int versionNO = 0;
     if (!filenameWOExt.empty())
@@ -450,9 +451,9 @@ int getVersionInFilename(const std::string& filename)
         size_t len = filenameWOExt.length();
         if (filenameWOExt.at(len - 1) == ')')
         {
-            size_t      leftPos = filenameWOExt.rfind('(');
-            std::string verStr  = filenameWOExt.substr(leftPos + 1, len - leftPos - 2);
-            versionNO           = stoi(verStr);
+            size_t leftPos = filenameWOExt.rfind('(');
+            string verStr  = filenameWOExt.substr(leftPos + 1, len - leftPos - 2);
+            versionNO      = stoi(verStr);
         }
     }
     return versionNO;

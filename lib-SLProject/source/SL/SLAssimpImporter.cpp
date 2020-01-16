@@ -863,7 +863,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh* mesh)
         if (numTriangles)
         {
             m->I16.resize(numTriangles * 3);
-            for (int i = 0; i < mesh->mNumFaces; ++i)
+            for (SLuint i = 0; i < mesh->mNumFaces; ++i)
             {
                 if (mesh->mFaces[i].mNumIndices == 3)
                 {
