@@ -26,27 +26,31 @@
 #include <asio/ip/tcp.hpp>
 
 #if defined(_WIN32)
-#    if _MSC_VER >= 1912
-#        include <filesystem>
-#        define USE_STD_FILESYSTEM
+#if _MSC_VER >= 1912
+#include <filesystem>
+#define USE_STD_FILESYSTEM
+#if _MSC_VER >= 1923
+namespace fs = std::filesystem;
+#else
 namespace fs = std::experimental::filesystem;
-#    else
-#        include <direct.h> //_getcwd
-#    endif
+#endif
+#else
+#include <direct.h> //_getcwd
+#endif
 #elif defined(__APPLE__)
-#    include <dirent.h>
-#    include <unistd.h>   //getcwd
-#    include <sys/stat.h> //dirent
+#include <dirent.h>
+#include <unistd.h>   //getcwd
+#include <sys/stat.h> //dirent
 #elif defined(ANDROID) || defined(ANDROID_NDK)
-#    include <android/log.h>
-#    include <dirent.h>
-#    include <unistd.h> //getcwd
-#    include <sys/stat.h>
+#include <android/log.h>
+#include <dirent.h>
+#include <unistd.h> //getcwd
+#include <sys/stat.h>
 #elif defined(linux) || defined(__linux) || defined(__linux__)
-#    include <dirent.h>
-#    include <unistd.h> //getcwd
-#    include <sys/types.h>
-#    include <sys/stat.h>
+#include <dirent.h>
+#include <unistd.h> //getcwd
+#include <sys/types.h>
+#include <sys/stat.h>
 #endif
 
 using namespace std;
@@ -566,13 +570,13 @@ bool makeDir(const string& path)
 #if defined(USE_STD_FILESYSTEM)
     return fs::create_directories(path);
 #else
-#    if defined(_WIN32)
+#if defined(_WIN32)
     return _mkdir(path.c_str());
-#    else
+#else
     int  failed = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     bool result = !failed;
     return result;
-#    endif
+#endif
 #endif
 }
 //-----------------------------------------------------------------------------
@@ -583,7 +587,7 @@ void removeDir(const string& path)
 #if defined(USE_STD_FILESYSTEM)
     fs::remove_all(path);
 #else
-#    if defined(_WIN32)
+#if defined(_WIN32)
     int ret = _rmdir(path.c_str());
     if (ret != 0)
     {
@@ -591,9 +595,9 @@ void removeDir(const string& path)
         _get_errno(&err);
         log("Could not remove directory: %s\nErrno: %s\n", path.c_str(), strerror(errno));
     }
-#    else
+#else
     rmdir(path.c_str());
-#    endif
+#endif
 #endif
 }
 //-----------------------------------------------------------------------------
@@ -655,7 +659,7 @@ string getAppsWritableDir()
         mkdir(configDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
     return configDir + "/";
 #else
-#    error "No port to this OS"
+#error "No port to this OS"
 #endif
 }
 //-----------------------------------------------------------------------------
@@ -663,9 +667,9 @@ string getAppsWritableDir()
 string getCurrentWorkingDir()
 {
 #if defined(_WIN32)
-#    if defined(USE_STD_FILESYSTEM)
+#if defined(USE_STD_FILESYSTEM)
     return fs::current_path().u8string();
-#    else
+#else
     int   size   = 256;
     char* buffer = (char*)malloc(size);
     if (_getcwd(buffer, size) == buffer)
@@ -677,7 +681,7 @@ string getCurrentWorkingDir()
 
     free(buffer);
     return "";
-#    endif
+#endif
 #else
     size_t size   = 256;
     char*  buffer = (char*)malloc(size);
