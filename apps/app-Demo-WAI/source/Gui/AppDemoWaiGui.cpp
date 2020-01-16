@@ -20,7 +20,6 @@
 #include <SLApplication.h>
 #include <SLInterface.h>
 #include <AverageTiming.h>
-#include <CVCapture.h>
 #include <CVImage.h>
 #include <CVTrackedFeatures.h>
 #include <SLGLProgram.h>
@@ -139,33 +138,8 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Video"))
         {
-            //CVCalibration* mc = &CVCapture::instance()->mainCam;
-            //CVCalibration* sc = &CVCapture::instance()->scndCam;
-
             ImGui::MenuItem("Video Storage", nullptr, &uiPrefs->showVideoStorage);
             ImGui::MenuItem("Video Controls", nullptr, &uiPrefs->showVideoControls);
-
-            /*
-            CVCamera* ac = CVCapture::instance()->activeCamera;
-
-            if (ImGui::BeginMenu("Mirror Camera"))
-            {
-                if (ImGui::MenuItem("Horizontally", nullptr, ac->mirrorH()))
-                    ac->toggleMirrorH();
-
-                if (ImGui::MenuItem("Vertically", nullptr, ac->mirrorV()))
-                    ac->toggleMirrorV();
-
-                ImGui::EndMenu();
-            }
-
-            CVCapture* cap = CVCapture::instance();
-            if (cap->activeCamera)
-            {
-                if (ImGui::MenuItem("Undistort Image", nullptr, cap->activeCamera->showUndistorted(), ac->calibration.state() == CS_calibrated))
-                    cap->activeCamera->showUndistorted(!cap->activeCamera->showUndistorted());
-            }
-            */
 
             ImGui::EndMenu();
         }

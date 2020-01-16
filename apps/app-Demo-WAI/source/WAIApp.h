@@ -142,6 +142,7 @@ public:
     //todo: is this still needed?
     void                   initExternalDataDirectory(std::string path);
     const SENSVideoStream* getVideoFileStream() const { return _videoFileStream.get(); }
+    const CVCalibration&   getCalibration() const { return _calibration; }
     const cv::Size&        getFrameSize() const { return _videoFrameSize; }
 
     WAI::ModeOrbSlam2* mode()

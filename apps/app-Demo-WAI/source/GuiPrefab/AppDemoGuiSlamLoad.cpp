@@ -15,7 +15,6 @@
 #include <WAIApp.h>
 #include <Utils.h>
 #include <AppDemoGuiSlamLoad.h>
-#include <CVCapture.h>
 #include <AppWAISlamParamHelper.h>
 #include <WAIMapStorage.h>
 

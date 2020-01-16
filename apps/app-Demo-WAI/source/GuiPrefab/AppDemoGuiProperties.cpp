@@ -7,7 +7,6 @@
 #include <SLApplication.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiProperties.h>
-//#include <CVCapture.h>
 #include <SLTransferFunction.h>
 #include <SLGLShader.h>
 #include <Utils.h>

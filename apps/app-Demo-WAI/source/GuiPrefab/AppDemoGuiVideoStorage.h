@@ -17,19 +17,23 @@
 #include <SLMat4.h>
 #include <SLNode.h>
 
+class WAIApp;
+
 //-----------------------------------------------------------------------------
 class AppDemoGuiVideoStorage : public AppDemoGuiInfosDialog
 {
 public:
     AppDemoGuiVideoStorage(const std::string&     name,
                            bool*                  activator,
-                           std::queue<WAIEvent*>* eventQueue);
+                           std::queue<WAIEvent*>* eventQueue,
+                           WAIApp&                waiApp);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
 private:
     bool                   _recording = false;
     std::queue<WAIEvent*>* _eventQueue;
+    WAIApp&                _waiApp;
 };
 
 #endif //SL_IMGUI_VIDEOSTORAGE_H

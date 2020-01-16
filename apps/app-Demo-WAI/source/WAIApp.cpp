@@ -649,13 +649,13 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
     _gui->addInfoDialog(new AppDemoGuiSceneGraph("scene graph", &_gui->uiPrefs->showSceneGraph));
     _gui->addInfoDialog(new AppDemoGuiStatsDebugTiming("debug timing", &_gui->uiPrefs->showStatsDebugTiming));
     _gui->addInfoDialog(new AppDemoGuiStatsTiming("timing", &_gui->uiPrefs->showStatsTiming));
-    _gui->addInfoDialog(new AppDemoGuiStatsVideo("video", &_calibration, &_gui->uiPrefs->showStatsVideo));
+    _gui->addInfoDialog(new AppDemoGuiStatsVideo("video", &_gui->uiPrefs->showStatsVideo, *this));
     _gui->addInfoDialog(new AppDemoGuiTrackedMapping("tracked mapping", &_gui->uiPrefs->showTrackedMapping, *this));
 
     _gui->addInfoDialog(new AppDemoGuiTransform("transform", &_gui->uiPrefs->showTransform));
     _gui->addInfoDialog(new AppDemoGuiUIPrefs("prefs", _gui->uiPrefs.get(), &_gui->uiPrefs->showUIPrefs));
 
-    _gui->addInfoDialog(new AppDemoGuiVideoStorage("video storage", &_gui->uiPrefs->showVideoStorage, &_eventQueue));
+    _gui->addInfoDialog(new AppDemoGuiVideoStorage("video storage", &_gui->uiPrefs->showVideoStorage, &_eventQueue, *this));
     _gui->addInfoDialog(new AppDemoGuiVideoControls("video load", &_gui->uiPrefs->showVideoControls, &_eventQueue, *this));
 
     _gui->addInfoDialog(new AppDemoGuiSlamParam("Slam Param", &_gui->uiPrefs->showSlamParam, *this));
@@ -752,7 +752,6 @@ bool WAIApp::updateSceneViews()
 //-----------------------------------------------------------------------------
 void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB)
 {
-    //CVCapture* cap = CVCapture::instance();
     //undistort image and copy image to video texture
     if (_videoImage)
     {
