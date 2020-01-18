@@ -36,7 +36,7 @@ static __forceinline__ __device__ void cosine_sample_hemisphere(const float  u1,
                                                                 const float3 N,
                                                                 float3&      p)
 {
-    float3 discX = normalize(cross(N, make_float3(1, 1, 1)));
+    float3 discX = normalize(make_float3(1, 1, (-1 * (N.x + N.y) / N.z)));
     float3 discY = normalize(cross(N, discX));
 
     // Uniformly sample disk.

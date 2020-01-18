@@ -86,7 +86,7 @@ extern "C" __global__ void __closesthit__radiance()
             {
                 float lighted = 0.0f;
 
-                float3 lightDiscX = cross(L, make_float3(1, 1, 1));
+                float3 lightDiscX = normalize(make_float3(1, 1, (-1 * (L.x + L.y) / L.z)));
                 float3 lightDiscY = cross(L, lightDiscX);
 
                 bool outerCircleIsLighting    = true;
