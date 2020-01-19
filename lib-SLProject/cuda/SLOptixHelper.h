@@ -142,6 +142,25 @@ static __device__ __inline__ float4 getTextureColor()
     return texture_color;
 }
 //-----------------------------------------------------------------------------
+static __forceinline__ __device__ void cosine_sample_hemisphere(const float  u1,
+                                                                const float  u2,
+                                                                const float3 N,
+                                                                float3&      p)
+{
+    float3 discX = normalize(make_float3(1, 1, (-1 * (N.x + N.y) / N.z)));
+    float3 discY = normalize(cross(N, discX));
+
+    // Uniformly sample disk.
+    const float r   = sqrtf(u1);
+    const float phi = 2.0f * M_PIf * u2;
+    p               = r * cosf(phi) * discX +
+                      r * sinf(phi) * discY;
+
+    // Project up to hemisphere.
+    float l = sqrtf(fmaxf(0.0f, 1.0f - length(p) * length(p)));
+    p += l * N;
+}
+//-----------------------------------------------------------------------------
 static __device__ __inline__ float4 tracePrimaryRay(
   OptixTraversableHandle handle,
   float3                 origin,
