@@ -1,15 +1,16 @@
 #include <WAIModeOrbSlam2.h>
 #include <AverageTiming.h>
 
-WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat       cameraMat,
-                                cv::Mat       distortionMat,
-                                const Params& params,
-                                std::string   orbVocFile,
-                                bool          applyMinAccScoreFilter,
-                                std::string   markerFile)
-  : _params(params),
-    _markerFile(markerFile),
-    _markerExtractor(nullptr),
+WAI::ModeOrbSlam2::ModeOrbSlam2(ORB_SLAM2::KPextractor* kpExtractor,
+                                ORB_SLAM2::KPextractor* kpIniExtractor,
+                                cv::Mat                 cameraMat,
+                                cv::Mat                 distortionMat,
+                                const Params&           params,
+                                std::string             orbVocFile,
+                                bool                    applyMinAccScoreFilter)
+  : mpExtractor(kpExtractor),
+    mpIniExtractor(kpIniExtractor),
+    _params(params),
     _applyMinAccScoreFilter(applyMinAccScoreFilter)
 {
     //we have to reset global static stuff here
@@ -19,7 +20,63 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat       cameraMat,
     // Tell WAIFrame to compute image bounds on first instantiation
     WAIFrame::mbInitialComputations = true;
 
-    _createMarkerMap = !markerFile.empty();
+    cameraMat.convertTo(_cameraMat, CV_32F);
+    distortionMat.convertTo(_distortionMat, CV_32F);
+
+    //load visual vocabulary for relocalization
+    if (!WAIOrbVocabulary::initialize(orbVocFile))
+        throw std::runtime_error("ModeOrbSlam2: could not find vocabulary file: " + orbVocFile);
+    mpVocabulary = WAIOrbVocabulary::get();
+
+    //instantiate and load slam map
+    mpKeyFrameDatabase = new WAIKeyFrameDB(*mpVocabulary);
+
+    _map = new WAIMap("Map");
+
+    if (_map->KeyFramesInMap())
+        _initialized = true;
+    else
+        _initialized = false;
+
+    //instantiate local mapping
+    mpLocalMapper = new ORB_SLAM2::LocalMapping(_map, 1, mpVocabulary, _params.cullRedundantPerc);
+    mpLoopCloser  = new ORB_SLAM2::LoopClosing(_map, mpKeyFrameDatabase, mpVocabulary, false, false);
+
+    mpLocalMapper->SetLoopCloser(mpLoopCloser);
+    mpLoopCloser->SetLocalMapper(mpLocalMapper);
+
+    if (!_params.serial)
+    {
+        mptLocalMapping = new std::thread(&LocalMapping::Run, mpLocalMapper);
+        //if (!_params.fixOldKfs)
+        mptLoopClosing = new std::thread(&LoopClosing::Run, mpLoopCloser);
+    }
+
+    _state = TrackingState_Initializing;
+    _pose  = cv::Mat(4, 4, CV_32F);
+}
+
+WAI::ModeOrbSlam2::ModeOrbSlam2(ORB_SLAM2::KPextractor* kpExtractor,
+                                ORB_SLAM2::KPextractor* kpIniExtractor,
+                                ORB_SLAM2::KPextractor* kpMarkerExtractor,
+                                std::string             markerFile,
+                                cv::Mat                 cameraMat,
+                                cv::Mat                 distortionMat,
+                                const Params&           params,
+                                std::string             orbVocFile,
+                                bool                    applyMinAccScoreFilter)
+  : mpExtractor(kpExtractor),
+    mpIniExtractor(kpIniExtractor),
+    _markerExtractor(kpMarkerExtractor),
+    _params(params),
+    _applyMinAccScoreFilter(applyMinAccScoreFilter)
+{
+    //we have to reset global static stuff here
+    WAIKeyFrame::nNextId = 0; //will be updated when a map is loaded
+    WAIFrame::nNextId    = 0;
+    WAIMapPoint::nNextId = 0;
+    // Tell WAIFrame to compute image bounds on first instantiation
+    WAIFrame::mbInitialComputations = true;
 
     cameraMat.convertTo(_cameraMat, CV_32F);
     distortionMat.convertTo(_distortionMat, CV_32F);
@@ -41,8 +98,8 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat       cameraMat,
 
     //instantiate feature extractor
     // TODO(dgj1): we need to find a good value for the extractor threshold
-    mpExtractor    = new ORB_SLAM2::SURFextractor(1000);
-    mpIniExtractor = new ORB_SLAM2::SURFextractor(800);
+    //mpExtractor    = new ORB_SLAM2::SURFextractor(1000);
+    //mpIniExtractor = new ORB_SLAM2::SURFextractor(800);
     //mpExtractor    = new ORB_SLAM2::ORBextractor(1000, 1.2, 8, 20, 7);
     //mpIniExtractor = new ORB_SLAM2::ORBextractor(2000, 1.2, 8, 20, 7);
 
@@ -63,42 +120,29 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(cv::Mat       cameraMat,
     _state = TrackingState_Initializing;
     _pose  = cv::Mat(4, 4, CV_32F);
 
-    if (_createMarkerMap)
-    {
-        _markerExtractor = new ORB_SLAM2::SURFextractor(800); // TODO(dgj1): markerInitialization - adjust nFeatures
-
+    if (_markerExtractor)
         _markerFrame = createMarkerFrame(markerFile, _markerExtractor);
-    }
-
-    _mpUL = nullptr;
-    _mpUR = nullptr;
-    _mpLL = nullptr;
-    _mpLR = nullptr;
 }
 
 // TODO : Verify that this is really thread safe
 // TODO(dgj1): should this even be possible when the system is running?
-void WAI::ModeOrbSlam2::setExtractor(KPextractor* extractor,
-                                     KPextractor* iniExtractor,
-                                     KPextractor* markerExtractor)
-{
-    requestStateIdle();
-
-    if (mpExtractor) delete mpExtractor;
-    if (mpIniExtractor) delete mpIniExtractor;
-    if (_markerExtractor) delete _markerExtractor;
-
-    mpExtractor      = extractor;
-    mpIniExtractor   = iniExtractor;
-    _markerExtractor = markerExtractor;
-
-    if (_markerExtractor && _createMarkerMap)
-    {
-        _markerFrame = createMarkerFrame(_markerFile, _markerExtractor);
-    }
-
-    resume();
-}
+//void WAI::ModeOrbSlam2::setExtractor(KPextractor* extractor,
+//                                     KPextractor* iniExtractor,
+//                                     KPextractor* markerExtractor)
+//{
+//    requestStateIdle();
+//
+//    mpExtractor      = extractor;
+//    mpIniExtractor   = iniExtractor;
+//    _markerExtractor = markerExtractor;
+//
+//    if (_markerExtractor && _createMarkerMap)
+//    {
+//        _markerFrame = createMarkerFrame(_markerFile, _markerExtractor);
+//    }
+//
+//    resume();
+//}
 
 void WAI::ModeOrbSlam2::setVocabulary(std::string orbVocFile)
 {
@@ -128,9 +172,6 @@ WAI::ModeOrbSlam2::~ModeOrbSlam2()
             mptLoopClosing->join();
     }
 
-    if (mpExtractor) delete mpExtractor;
-    if (mpIniExtractor) delete mpIniExtractor;
-    if (_markerExtractor) delete _markerExtractor;
     if (mpLocalMapper) delete mpLocalMapper;
     if (mpLoopCloser) delete mpLoopCloser;
 }
@@ -434,7 +475,7 @@ std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> WAI::ModeOrbSlam2::get
 std::vector<WAIMapPoint*> WAI::ModeOrbSlam2::getLocalMapPoints()
 {
     std::lock_guard<std::mutex> guard(_mapLock);
-    std::vector<WAIMapPoint*> result = mvpLocalMapPoints;
+    std::vector<WAIMapPoint*>   result = mvpLocalMapPoints;
 
     return result;
 }
@@ -442,7 +483,7 @@ std::vector<WAIMapPoint*> WAI::ModeOrbSlam2::getLocalMapPoints()
 std::vector<WAIKeyFrame*> WAI::ModeOrbSlam2::getKeyFrames()
 {
     std::lock_guard<std::mutex> guard(_mapLock);
-    std::vector<WAIKeyFrame*> result = _map->GetAllKeyFrames();
+    std::vector<WAIKeyFrame*>   result = _map->GetAllKeyFrames();
 
     return result;
 }
@@ -782,7 +823,7 @@ void WAI::ModeOrbSlam2::track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB)
         }
         else
         {
-            _bOK = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId, *_map, _applyMinAccScoreFilter);
+            _bOK = relocalization(mCurrentFrame, mpKeyFrameDatabase, &mnLastRelocFrameId, *_map, _applyMinAccScoreFilter, false);
         }
     }
     else
@@ -1425,6 +1466,11 @@ bool WAI::ModeOrbSlam2::relocalization(WAIFrame&      currentFrame,
     {
         //TODO(luc): test with 2nd argument to true
         vpCandidateKFs = keyFrameDB->DetectRelocalizationCandidates(&currentFrame, applyMinAccScoreFilter);
+    }
+
+    if (!vpCandidateKFs.size() && waiMap.KeyFramesInMap() < 5)
+    {
+        vpCandidateKFs = waiMap.GetAllKeyFrames();
     }
 
     //std::cout << "N after DetectRelocalizationCandidates: " << vpCandidateKFs.size() << std::endl;

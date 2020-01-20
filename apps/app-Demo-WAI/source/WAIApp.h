@@ -239,6 +239,10 @@ private:
 
     CVCalibration _calibration     = {CVCameraType::FRONTFACING, ""};
     bool          _showUndistorted = true;
+
+    std::unique_ptr<KPextractor> _extractor;
+    std::unique_ptr<KPextractor> _iniExtractor;
+    std::unique_ptr<KPextractor> _markerExtractor;
 };
 
 #endif

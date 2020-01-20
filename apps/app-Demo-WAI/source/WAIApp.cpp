@@ -396,12 +396,15 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
         params.cullRedundantPerc = 0.99f;
     }
 
-    _mode = new WAI::ModeOrbSlam2(_calibration.cameraMat(),
+    _mode = new WAI::ModeOrbSlam2(_extractor.get(),
+                                  _iniExtractor.get(),
+                                  _markerExtractor.get(),
+                                  markerFile,
+                                  _calibration.cameraMat(),
                                   _calibration.distortion(),
                                   params,
                                   vocFile,
-                                  true,
-                                  markerFile);
+                                  true);
 
     // 5. Load map data
     if (useMapFile)

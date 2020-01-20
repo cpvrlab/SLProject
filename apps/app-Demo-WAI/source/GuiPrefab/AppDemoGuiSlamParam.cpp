@@ -159,7 +159,7 @@ void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
             _current       = kpExtractor(_currentId);
             _iniCurrent    = kpExtractor(_iniCurrentId);
             _markerCurrent = kpExtractor(_markerCurrentId);
-            mode->setExtractor(_current, _iniCurrent, _markerCurrent);
+            //mode->setExtractor(_current, _iniCurrent, _markerCurrent);
         }
     }
 
