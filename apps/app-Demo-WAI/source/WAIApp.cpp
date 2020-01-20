@@ -134,6 +134,8 @@ bool WAIApp::update()
 
     handleEvents();
 
+    cv::Mat pose = cv::Mat(4, 4, CV_32F);
+
     //resetAllTexture();
     if (_mode && _loaded)
     {
@@ -145,7 +147,7 @@ bool WAIApp::update()
             return false;
         }
 
-        bool iKnowWhereIAm = (_mode->getTrackingState() == WAI::TrackingState_TrackingOK);
+        bool iKnowWhereIAm = (_mode->state == TrackingState_TrackingOK);
         while (_videoCursorMoveIndex < 0)
         {
             //this only has an influence on desktop or video file
@@ -184,7 +186,6 @@ bool WAIApp::update()
             _IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
 
             // TODO(dgj1): maybe make this API cleaner
-            cv::Mat pose = cv::Mat(4, 4, CV_32F);
             if (!_mode->getPose(&pose))
             {
                 return false;
@@ -557,7 +558,7 @@ void WAIApp::initExternalDataDirectory(std::string path)
 }
 
 //-----------------------------------------------------------------------------
-bool WAIApp::updateTracking()
+bool WAIApp::updateTracking(cv::Mat& pose)
 {
     bool iKnowWhereIAm = false;
 
@@ -569,9 +570,9 @@ bool WAIApp::updateTracking()
             _videoWriter->write(cap->lastFrame);
         }
 
-        cv::Mat m;
-        clahe->apply(cap->lastFrameGray, m);
-        iKnowWhereIAm = _mode->update(m, cap->lastFrame);
+        cv::Mat equalizedImage;
+        clahe->apply(cap->lastFrameGray, equalizedImage);
+        iKnowWhereIAm = _mode->update(pose, testCalib.distortion(), equalizedImage, cap->lastFrame);
 
         if (_videoWriterInfo->isOpened())
         {

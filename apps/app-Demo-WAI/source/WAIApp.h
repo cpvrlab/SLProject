@@ -22,6 +22,7 @@
 #include <WAIModeOrbSlam2.h>
 #include <AppDemoWaiGui.h>
 #include <SLInputEventInterface.h>
+#include <LuluSlam.h>
 
 class SLMaterial;
 class SLPoints;
@@ -164,7 +165,7 @@ public:
     //todo: is this still needed?
     void initExternalDataDirectory(std::string path);
 
-    WAI::ModeOrbSlam2* mode()
+    LuluSLAM* mode()
     {
         return _mode;
     }
@@ -180,7 +181,7 @@ public:
     void updateVideoImage(cv::Mat frame);
 
 private:
-    bool updateTracking();
+    bool updateTracking(cv::Mat &pose);
     bool initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
     void loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location, std::string area);
 
@@ -210,7 +211,8 @@ private:
 
     //todo: we dont need a pointer
     std::unique_ptr<AppWAIScene> _waiScene;
-    WAI::ModeOrbSlam2*           _mode;
+    //WAI::ModeOrbSlam2*           _mode;
+    LuluSLAM *_mode;
     SLSceneView*                 _sv         = nullptr;
     SLGLTexture*                 _videoImage = nullptr;
 

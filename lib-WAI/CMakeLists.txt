@@ -14,6 +14,7 @@ set(headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIOrbVocabulary.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMath.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/LuluSlam.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Initializer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/LocalMapping.h
@@ -43,6 +44,7 @@ set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMapPoint.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIOrbVocabulary.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIModeOrbSlam2.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/LuluSlam.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Initializer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/LocalMapping.cpp
@@ -61,7 +63,7 @@ set(sources
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
 
-add_library(${target} 
+add_library(${target}
 #SHARED
     ${headers}
     ${sources}
