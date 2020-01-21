@@ -26,13 +26,11 @@
 #define FTPLIB_H
 
 #if defined(_WIN32)
-
 #    if BUILDING_DLL
 #        define DLLIMPORT __declspec(dllexport)
 #    else /* Not BUILDING_DLL */
 #        define DLLIMPORT __declspec(dllimport)
 #    endif /* Not BUILDING_DLL */
-
 #    include <time.h>
 #    include <winsock.h>
 #endif
@@ -40,6 +38,7 @@
 #ifndef _WIN32
 #    include <unistd.h>
 #    include <sys/time.h>
+typedef int SOCKET;
 #endif
 
 #ifdef NOLFS
@@ -87,7 +86,7 @@ typedef bool (*FtpCallbackCert)(void* arg, X509* cert);
 struct ftphandle
 {
     char *          cput, *cget;
-    int             handle;
+    SOCKET          handle;
     int             cavail, cleft;
     char*           buf;
     int             dir;
@@ -121,7 +120,7 @@ struct ftphandle
 class ftplib
 {
     //#endif
-    public:
+public:
     enum accesstype
     {
         dir = 1,
@@ -196,7 +195,7 @@ class ftplib
     int  NegotiateEncryption();
     void SetCallbackCertFunction(FtpCallbackCert pointer);
 
-    private:
+private:
     ftphandle* mp_ftphandle;
 
     int  FtpXfer(const char* localfile, const char* path, ftphandle* nControl, accesstype type, transfermode mode);

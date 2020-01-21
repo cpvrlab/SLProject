@@ -14,16 +14,18 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
-#include <SLAssimpImporter.h>
-#include <SLScene.h>
-#include <SLSceneView.h>
-#include <SLBox.h>
 #include <CVCapture.h>
 #include <CVTrackedAruco.h>
 #include <CVTrackedChessboard.h>
 #include <CVTrackedFaces.h>
 #include <CVTrackedFeatures.h>
+#include <CVCalibrationEstimator.h>
+
+#include <SLApplication.h>
+#include <SLAssimpImporter.h>
+#include <SLScene.h>
+#include <SLSceneView.h>
+#include <SLBox.h>
 #include <SLCone.h>
 #include <SLCoordAxis.h>
 #include <SLCylinder.h>

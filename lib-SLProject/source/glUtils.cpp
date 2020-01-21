@@ -64,14 +64,13 @@ string glUtils::loadShader(const string& filename)
 }
 //-----------------------------------------------------------------------------
 /*!
-buildShader load the shader file, creates an OpenGL shader object, compiles the
-source code and returns the handle to the internal shader object. If the
-compilation fails the compiler log is sent to the stdout before the app exits
-with code 1.
-All shaders are written with the initial GLSL version 110 without version number
-in the code and are therefore backwards compatible with the compatibility
-profile from OpenGL 2.1 and OpenGL ES 2 that runs on most mobile devices.
-To be upwards compatible some modification have to be done.
+ buildShaderFromSource compiles the source code string and returns the handle
+ to the internal shader object. If the compilation fails the compiler log is
+ sent to the stdout before the app exits with code 1.
+ All shaders are written with the initial GLSL version 110 without version number
+ in the code and are therefore backwards compatible with the compatibility
+ profile from OpenGL 2.1 and OpenGL ES 2 that runs on most mobile devices.
+ To be upwards compatible some modification have to be done.
 */
 GLuint glUtils::buildShaderFromSource(string source,
                                       GLenum shaderType,
@@ -141,13 +140,16 @@ GLuint glUtils::buildShaderFromSource(string source,
 
     return shaderHandle;
 }
-
+//-----------------------------------------------------------------------------
+/*!
+ buildShader loads the shader file and calls buildShaderFromSource.
+*/
 GLuint glUtils::buildShader(const string& shaderFile,
                             GLenum        shaderType)
 {
-    bool success;
+    bool   success;
     string source = loadShader(shaderFile);
-    GLuint pid = buildShaderFromSource(source, shaderType, success);
+    GLuint pid    = buildShaderFromSource(source, shaderType, success);
 
     if (success == GL_FALSE)
     {
@@ -163,6 +165,7 @@ GLuint glUtils::buildShader(const string& shaderFile,
     }
 
     GETGLERROR;
+    return pid;
 }
 //-----------------------------------------------------------------------------
 /*!

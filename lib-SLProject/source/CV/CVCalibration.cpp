@@ -442,12 +442,16 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
 
     // new center and focal length in pixels not mm
     float fx, fy, cy, cx;
-    //use original camera matrix for adaptions. Otherwise we get rounding errors after too many adaptions.
-    float fxOrig = _cameraMatOrig.at<double>(0, 0);
-    float fyOrig = _cameraMatOrig.at<double>(1, 1);
-    float cxOrig = _cameraMatOrig.at<double>(0, 2);
-    float cyOrig = _cameraMatOrig.at<double>(1, 2);
-    if (((float)newSize.width / (float)newSize.height) > ((float)_imageSizeOrig.width / (float)_imageSizeOrig.height))
+
+    // use original camera matrix for adaptions.
+    // Otherwise we get rounding errors after too many adaptions.
+    float fxOrig = (float)_cameraMatOrig.at<double>(0, 0);
+    float fyOrig = (float)_cameraMatOrig.at<double>(1, 1);
+    float cxOrig = (float)_cameraMatOrig.at<double>(0, 2);
+    float cyOrig = (float)_cameraMatOrig.at<double>(1, 2);
+
+    if (((float)newSize.width / (float)newSize.height) >
+        ((float)_imageSizeOrig.width / (float)_imageSizeOrig.height))
     {
         float scaleFactor = (float)newSize.width / (float)_imageSizeOrig.width;
 
@@ -514,14 +518,25 @@ void CVCalibration::calculateUndistortedCameraMat()
         double cy  = (_imageSize.height) * 0.5;
 
         cv::Rect_<float> inner, outer;
-        getInnerAndOuterRectangles(_cameraMat, _distortion, cv::Mat(), _cameraMat, _imageSize, inner, outer);
-        double s0 = std::max(std::max(std::max((double)cx / (cx0 - inner.x), (double)cy / (cy0 - inner.y)),
+        getInnerAndOuterRectangles(_cameraMat,
+                                   _distortion,
+                                   cv::Mat(),
+                                   _cameraMat,
+                                   _imageSize,
+                                   inner,
+                                   outer);
+
+        double s0 = std::max(std::max(std::max((double)cx / (cx0 - inner.x),
+                                               (double)cy / (cy0 - inner.y)),
                                       (double)cx / (inner.x + inner.width - cx0)),
                              (double)cy / (inner.y + inner.height - cy0));
-        double s1 = std::min(std::min(std::min((double)cx / (cx0 - outer.x), (double)cy / (cy0 - outer.y)),
+
+        double s1 = std::min(std::min(std::min((double)cx / (cx0 - outer.x),
+                                               (double)cy / (cy0 - outer.y)),
                                       (double)cx / (outer.x + outer.width - cx0)),
                              (double)cy / (outer.y + outer.height - cy0));
-        double s  = s0 * (1 - alpha) + s1 * alpha;
+
+        double s = s0 * (1 - alpha) + s1 * alpha;
 
         _cameraMatUndistorted = _cameraMat.clone();
         _cameraMatUndistorted.at<double>(0, 0) *= s;
@@ -531,7 +546,13 @@ void CVCalibration::calculateUndistortedCameraMat()
     }
     else
     {
-        _cameraMatUndistorted = cv::getOptimalNewCameraMatrix(_cameraMat, _distortion, _imageSize, alpha, _imageSize, nullptr, centerPrinciplePoint);
+        _cameraMatUndistorted = cv::getOptimalNewCameraMatrix(_cameraMat,
+                                                              _distortion,
+                                                              _imageSize,
+                                                              alpha,
+                                                              _imageSize,
+                                                              nullptr,
+                                                              centerPrinciplePoint);
     }
 
     //std::cout << "_cameraMatUndistorted: " << _cameraMatUndistorted << std::endl;
