@@ -4,7 +4,6 @@
 #include <Utils.h>
 #include <AverageTiming.h>
 #include <SLApplication.h>
-#include <CVCapture.h>
 #include <AppDemoGuiStatsDebugTiming.h>
 #include <Utils.h>
 //-----------------------------------------------------------------------------

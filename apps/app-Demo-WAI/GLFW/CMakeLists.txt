@@ -43,6 +43,14 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.h
+    ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENS.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSFrame.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.h
     )
 
 set(sources
@@ -74,6 +82,10 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
+    ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
+    ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
     )
 
@@ -101,7 +113,7 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/
     ${SL_PROJECT_ROOT}/apps/source/wai/
-
+    ${SL_PROJECT_ROOT}/apps/source/sens/
     INTERFACE
     )
 

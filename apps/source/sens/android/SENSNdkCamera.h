@@ -85,10 +85,6 @@ private:
 
     volatile bool _valid = false;
 
-    //image properties
-    float              _targetWdivH = -1.0f;
-    SENSCamera::Config _camConfig;
-
     std::condition_variable      _waitCondition;
     cv::Mat                      _yuvImgToProcess;
     std::mutex                   _threadInputMutex;

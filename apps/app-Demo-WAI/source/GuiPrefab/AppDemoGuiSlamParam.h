@@ -25,10 +25,10 @@ class WAIApp;
 class AppDemoGuiSlamParam : public AppDemoGuiInfosDialog
 {
 public:
-    AppDemoGuiSlamParam(const std::string&                name,
-                        bool*                             activator,
-                        std::queue<WAIEvent*>*            eventQueue,
-                        const std::map<int, std::string>* extractorIdToNames);
+    AppDemoGuiSlamParam(const std::string&              name,
+                        bool*                           activator,
+                        std::queue<WAIEvent*>*          eventQueue,
+                        const std::vector<std::string>& extractorIdToNames);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
@@ -37,8 +37,8 @@ private:
     int _iniCurrentId;
     int _markerCurrentId;
 
-    const std::map<int, std::string>* _extractorIdToNames;
-    std::queue<WAIEvent*>*            _eventQueue;
+    const std::vector<std::string>& _extractorIdToNames;
+    std::queue<WAIEvent*>*          _eventQueue;
 };
 
 #endif

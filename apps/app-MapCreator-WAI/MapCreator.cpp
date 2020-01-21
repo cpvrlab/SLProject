@@ -1,6 +1,7 @@
 #include "MapCreator.h"
 #include <memory>
 #include <CVCamera.h>
+#include <GLSLextractor.h>
 
 MapCreator::MapCreator(std::string erlebARDir, std::string configFile)
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
@@ -19,6 +20,21 @@ MapCreator::MapCreator(std::string erlebARDir, std::string configFile)
     //scan erlebar directory and config file, collect everything that is enabled in the config file and
     //check that all files (video and calibration) exist.
     loadSites(erlebARDir, configFile);
+
+    //init keypoint extractors
+    _kpExtractor       = new GLSLextractor(640, 360, 16, 16, 0.5, 0.25, 1.8, 1.2);
+    _kpIniExtractor    = new GLSLextractor(640, 360, 16, 16, 0.5, 0.25, 1.8, 1.2);
+    _kpMarkerExtractor = new GLSLextractor(640, 360, 16, 16, 0.5, 0.25, 1.8, 1.2);
+    //_kpMarkerExtractor = new ORB_SLAM2::SURFextractor(800);
+}
+
+MapCreator::~MapCreator()
+{
+    if (_kpMarkerExtractor)
+    {
+        delete _kpMarkerExtractor;
+        _kpMarkerExtractor = nullptr;
+    }
 }
 
 void MapCreator::loadSites(const std::string& erlebARDir, const std::string& configFile)
@@ -149,9 +165,8 @@ void MapCreator::loadSites(const std::string& erlebARDir, const std::string& con
 void MapCreator::createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig)
 {
     WAI_INFO("Starting map creation for area: %s", area.c_str());
-
     //the lastly saved map file (only valid if initialized is true)
-    std::string mapFile     = constructSlamMapFileName(location, area, "SURF", Utils::getDateTime2String()); // TODO(dgj1): replace SURF with actual extractor type
+    std::string mapFile     = constructSlamMapFileName(location, area, _kpExtractor->GetName(), Utils::getDateTime2String());
     std::string mapDir      = _outputDir + area + "/";
     bool        initialized = false;
     std::string currentMapFileName;
@@ -225,10 +240,13 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
 
         //instantiate wai mode
         std::unique_ptr<WAI::ModeOrbSlam2> waiMode =
-          std::make_unique<WAI::ModeOrbSlam2>(cap->activeCamera->calibration.cameraMat(),
+          std::make_unique<WAI::ModeOrbSlam2>(_kpExtractor,
+                                              _kpExtractor,
+                                              cap->activeCamera->calibration.cameraMat(),
                                               cap->activeCamera->calibration.distortion(),
                                               modeParams,
-                                              _vocFile);
+                                              _vocFile,
+                                              false);
 
         //if we have an active map from one of the previously processed videos for this area then load it
         SLNode mapNode = SLNode();
@@ -236,6 +254,8 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
         {
             loadMap(waiMode.get(), mapDir, lastMapFileName, modeParams.fixOldKfs, &mapNode);
         }
+
+        int firstRun = true;
 
         //frame with which map was initialized (we want to run the previous frames again)
         int  videoLength     = cap->videoLength();
@@ -265,7 +285,10 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
 
             //update wai
             waiMode->update(cap->lastFrameGray, cap->lastFrame);
-
+            if (firstRun)
+            {
+                firstRun = false;
+            }
             //check if it relocalized once
             if (!relocalizedOnce && waiMode->getTrackingState() == WAI::TrackingState::TrackingState_TrackingOK)
             {
@@ -392,8 +415,7 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
     // Additional steps to save marker map
     // 1. Find matches to marker on two keyframes
     // 1.a Extract features from marker image
-    KPextractor* markerExtractor = new ORB_SLAM2::SURFextractor(800); //TODO(dgj1): delete this somewhere
-    WAIFrame     markerFrame     = waiMode->createMarkerFrame(markerFile, markerExtractor);
+    WAIFrame markerFrame = waiMode->createMarkerFrame(markerFile, _kpMarkerExtractor);
 
     // 1.b Find keyframes with enough matches to marker image
     WAIMap*                   map = waiMode->getMap();

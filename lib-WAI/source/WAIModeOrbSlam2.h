@@ -56,12 +56,24 @@ public:
         float cullRedundantPerc = 0.95f; //originally it was 0.9
     };
 
-    ModeOrbSlam2(cv::Mat       cameraMat,
-                 cv::Mat       distortionMat,
-                 const Params& params,
-                 std::string   orbVocFile,
-                 bool          applyMinAccScoreFilter = false,
-                 std::string   markerFile = "");
+    ModeOrbSlam2(ORB_SLAM2::KPextractor* kpExtractor,
+                 ORB_SLAM2::KPextractor* kpIniExtractor,
+                 cv::Mat                 cameraMat,
+                 cv::Mat                 distortionMat,
+                 const Params&           params,
+                 std::string             orbVocFile,
+                 bool                    applyMinAccScoreFilter = false);
+
+    ModeOrbSlam2(ORB_SLAM2::KPextractor* kpExtractor,
+                 ORB_SLAM2::KPextractor* kpIniExtractor,
+                 ORB_SLAM2::KPextractor* kpMarkerExtractor,
+                 std::string             markerFile,
+                 cv::Mat                 cameraMat,
+                 cv::Mat                 distortionMat,
+                 const Params&           params,
+                 std::string             orbVocFile,
+                 bool                    applyMinAccScoreFilter = false);
+
     ~ModeOrbSlam2();
     bool getPose(cv::Mat* pose);
     bool update(cv::Mat& imageGray, cv::Mat& imageRGB);
@@ -71,7 +83,7 @@ public:
                                unsigned int*  lastRelocFrameId,
                                WAIMap&        waiMap,
                                bool           applyMinAccScoreFilter = true,
-                               bool           relocWithAllKFs = false);
+                               bool           relocWithAllKFs        = false);
 
     void reset();
     bool isInitialized();
@@ -129,7 +141,6 @@ public:
     bool retainImage() { return _params.retainImg; }
     void setInitialized(bool initialized) { _initialized = initialized; }
 
-    void setExtractor(KPextractor* extractor, KPextractor* iniExtractor, KPextractor* markerExtractor = nullptr);
     void setVocabulary(std::string orbVocFile);
 
     WAIFrame getCurrentFrame();
@@ -286,16 +297,17 @@ private:
                               cv::Mat&     homography,
                               int          minMatches);
 
-    bool _createMarkerMap;
+    //bool        _createMarkerMap;
+    //std::string _markerFile;
 
-    std::string             _markerFile;
+    //std::string             _markerFile;
     WAIFrame                _markerFrame;
-    ORB_SLAM2::KPextractor* _markerExtractor;
+    ORB_SLAM2::KPextractor* _markerExtractor = nullptr;
 
-    WAIMapPoint* _mpUL;
-    WAIMapPoint* _mpUR;
-    WAIMapPoint* _mpLL;
-    WAIMapPoint* _mpLR;
+    WAIMapPoint* _mpUL = nullptr;
+    WAIMapPoint* _mpUR = nullptr;
+    WAIMapPoint* _mpLL = nullptr;
+    WAIMapPoint* _mpLR = nullptr;
 };
 }
 

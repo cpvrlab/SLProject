@@ -32,9 +32,10 @@ namespace ORB_SLAM2
 class WAI_API KPextractor
 {
 public:
-    KPextractor(std::string name)
+    KPextractor(std::string name, bool doubleBufferOutput)
+      : mname(name),
+        _doubleBufferOutput(doubleBufferOutput)
     {
-        mname = name;
     }
     // Compute the ORB features and descriptors on an image.
     // ORB are dispersed on the image using an octree.
@@ -78,6 +79,11 @@ public:
         return mvInvLevelSigma2;
     }
 
+    bool doubleBufferedOutput() const
+    {
+        return _doubleBufferOutput;
+    }
+
     std::vector<cv::Mat> mvImagePyramid;
 
 protected:
@@ -91,6 +97,7 @@ protected:
     std::vector<float> mvInvScaleFactor;
     std::vector<float> mvLevelSigma2;
     std::vector<float> mvInvLevelSigma2;
+    bool               _doubleBufferOutput;
 };
 
 } //namespace ORB_SLAM

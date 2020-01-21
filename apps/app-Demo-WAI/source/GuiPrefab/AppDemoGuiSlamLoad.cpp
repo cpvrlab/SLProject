@@ -15,23 +15,24 @@
 #include <WAIApp.h>
 #include <Utils.h>
 #include <AppDemoGuiSlamLoad.h>
-#include <CVCapture.h>
 #include <AppWAISlamParamHelper.h>
 #include <WAIMapStorage.h>
 
-AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&      name,
-                                       std ::queue<WAIEvent*>* eventQueue,
-                                       std::string             slamRootDir,
-                                       std::string             calibrationsDir,
-                                       std::string             vocabulariesDir,
-                                       bool*                   activator,
-                                       SlamParams&             currentSlamParams)
+AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&              name,
+                                       std ::queue<WAIEvent*>*         eventQueue,
+                                       std::string                     slamRootDir,
+                                       std::string                     calibrationsDir,
+                                       std::string                     vocabulariesDir,
+                                       const std::vector<std::string>& extractorIdToNames,
+                                       bool*                           activator,
+                                       SlamParams&                     currentSlamParams)
   : AppDemoGuiInfosDialog(name, activator),
     _eventQueue(eventQueue),
     _slamRootDir(slamRootDir),
     _calibrationsDir(calibrationsDir),
     _vocabulariesDir(vocabulariesDir),
-    _currentSlamParams(currentSlamParams)
+    _currentSlamParams(currentSlamParams),
+    _extractorIdToNames(extractorIdToNames)
 {
     _changeSlamParams   = true;
     _storeKeyFrameImage = true;
@@ -53,6 +54,10 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&      name,
     _calibExtensions.push_back(".xml");
     _vocExtensions.push_back(".bin");
     _markerExtensions.push_back(".jpg");
+
+    _trackingExtractorId = 8;
+    _initExtractorId     = 8;
+    _markerExtractorId   = 8;
 }
 
 void AppDemoGuiSlamLoad::loadDirNamesInVector(std::string               directory,
@@ -344,6 +349,49 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             }
             ImGui::EndCombo();
         }
+        if (ImGui::BeginCombo("Extractor", _extractorIdToNames.at(_trackingExtractorId).c_str()))
+        {
+            for (int i = 0; i < _extractorIdToNames.size(); i++)
+            {
+                bool isSelected = (_trackingExtractorId == i); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
+                    _trackingExtractorId = i;
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+            }
+            ImGui::EndCombo();
+        }
+
+        if (ImGui::BeginCombo("Init extractor", _extractorIdToNames.at(_initExtractorId).c_str()))
+        {
+            for (int i = 0; i < _extractorIdToNames.size(); i++)
+            {
+                bool isSelected = (_initExtractorId == i); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
+                {
+                    _initExtractorId = i;
+                }
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+            }
+            ImGui::EndCombo();
+        }
+
+        // TODO(dgj1): display this only if a markerfile has been selected
+        if (ImGui::BeginCombo("Marker extractor", _extractorIdToNames.at(_markerExtractorId).c_str()))
+        {
+            for (int i = 0; i < _extractorIdToNames.size(); i++)
+            {
+                bool isSelected = (_markerExtractorId == i); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
+                {
+                    _markerExtractorId = i;
+                }
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+            }
+            ImGui::EndCombo();
+        }
 
         ImGui::Checkbox("store/load keyframes image", &_storeKeyFrameImage);
         ImGui::Checkbox("track optical flow", &_trackOpticalFlow);
@@ -373,6 +421,10 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 event->params.params.onlyTracking = _trackingOnly;
                 event->params.params.serial       = _serial;
                 event->params.params.fixOldKfs    = fixLoadedKfs;
+
+                event->params.extractorIds.trackingExtractorId       = _trackingExtractorId;
+                event->params.extractorIds.initializationExtractorId = _initExtractorId;
+                event->params.extractorIds.markerExtractorId         = _markerExtractorId;
 
                 _eventQueue->push(event);
 

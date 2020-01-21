@@ -9,6 +9,7 @@
 #include <opencv2/opencv.hpp>
 #include <Utils.h>
 #include "SENSNdkCameraUtils.h"
+#include "SENSUtils.h"
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
@@ -144,11 +145,11 @@ void onImageCallback(void* ctx, AImageReader* reader)
 
 void SENSNdkCamera::start(const SENSCamera::Config config)
 {
-    _camConfig   = config;
-    _targetWdivH = (float)_camConfig.targetWidth / (float)_camConfig.targetHeight;
+    _config      = config;
+    _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
 
     //todo: find best fitting image format in _availableStreamConfig
-    cv::Size captureSize = _availableStreamConfig.findBestMatchingSize({_camConfig.targetWidth, _camConfig.targetHeight});
+    cv::Size captureSize = _availableStreamConfig.findBestMatchingSize({_config.targetWidth, _config.targetHeight});
 
     //create request with necessary parameters
 
@@ -157,7 +158,7 @@ void SENSNdkCamera::start(const SENSCamera::Config config)
         throw SENSException(SENSType::CAM, "Could not create image reader!", __LINE__, __FILE__);
 
     //make the adjustments in an asynchronous thread
-    if (_camConfig.adjustAsynchronously)
+    if (_config.adjustAsynchronously)
     {
         //register onImageAvailable listener
         AImageReader_ImageListener listener{
@@ -195,7 +196,7 @@ void SENSNdkCamera::start(const SENSCamera::Config config)
             throw SENSException(SENSType::CAM, "Could not create capture session!", __LINE__, __FILE__);
 
         //adjust capture request properties
-        if (_camConfig.focusMode == FocusMode::FIXED_INFINITY_FOCUS)
+        if (_config.focusMode == FocusMode::FIXED_INFINITY_FOCUS)
         {
             uint8_t afMode = ACAMERA_CONTROL_AF_MODE_OFF;
             ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_AF_MODE, 1, &afMode);
@@ -216,10 +217,10 @@ void SENSNdkCamera::start(const SENSCamera::Config config)
 //todo: add callback for image available and/or completely started
 void SENSNdkCamera::start(int width, int height)
 {
-    _camConfig.targetWidth  = width;
-    _camConfig.targetHeight = height;
-    _targetWdivH            = (float)width / (float)height;
-    start(_camConfig);
+    Config config;
+    config.targetWidth  = width;
+    config.targetHeight = height;
+    start(config);
 }
 
 void SENSNdkCamera::stop()
@@ -242,56 +243,8 @@ SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
 
     // Cropping is done almost always.
     // So this is Android image copy loop #2
-
-    float inWdivH = (float)rgbImg.cols / (float)rgbImg.rows;
-    // viewportWdivH is negative the viewport aspect will be the same
-    float outWdivH = _targetWdivH < 0.0f ? inWdivH : _targetWdivH;
-
-    int cropH = 0; // crop height in pixels of the source image
-    int cropW = 0; // crop width in pixels of the source image
-    if (Utils::abs(inWdivH - outWdivH) > 0.01f)
-    {
-        int width  = 0; // width in pixels of the destination image
-        int height = 0; // height in pixels of the destination image
-        int wModulo4;
-        int hModulo4;
-
-        if (inWdivH > outWdivH) // crop input image left & right
-        {
-            width  = (int)((float)rgbImg.rows * outWdivH);
-            height = rgbImg.rows;
-            cropW  = (int)((float)(rgbImg.cols - width) * 0.5f);
-
-            // Width must be devidable by 4
-            wModulo4 = width % 4;
-            if (wModulo4 == 1) width--;
-            if (wModulo4 == 2)
-            {
-                cropW++;
-                width -= 2;
-            }
-            if (wModulo4 == 3) width++;
-        }
-        else // crop input image at top & bottom
-        {
-            width  = rgbImg.cols;
-            height = (int)((float)rgbImg.cols / outWdivH);
-            cropH  = (int)((float)(rgbImg.rows - height) * 0.5f);
-
-            // Height must be devidable by 4
-            hModulo4 = height % 4;
-            if (hModulo4 == 1) height--;
-            if (hModulo4 == 2)
-            {
-                cropH++;
-                height -= 2;
-            }
-            if (hModulo4 == 3) height++;
-        }
-
-        rgbImg(cv::Rect(cropW, cropH, width, height)).copyTo(rgbImg);
-        //imwrite("AfterCropping.bmp", lastFrame);
-    }
+    int cropW = 0, cropH = 0;
+    SENS::cropImage(rgbImg, _targetWdivH, cropW, cropH);
 
     //////////////////
     // Mirroring //
@@ -299,24 +252,7 @@ SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
 
     // Mirroring is done for most selfie cameras.
     // So this is Android image copy loop #3
-    if (_camConfig.mirrorH)
-    {
-        cv::Mat mirrored;
-        if (_camConfig.mirrorV)
-            cv::flip(rgbImg, mirrored, -1);
-        else
-            cv::flip(rgbImg, mirrored, 1);
-        rgbImg = mirrored;
-    }
-    else if (_camConfig.mirrorV)
-    {
-        cv::Mat mirrored;
-        if (_camConfig.mirrorH)
-            cv::flip(rgbImg, mirrored, -1);
-        else
-            cv::flip(rgbImg, mirrored, 0);
-        rgbImg = mirrored;
-    }
+    SENS::mirrorImage(rgbImg, _config.mirrorH, _config.mirrorV);
 
     /////////////////////////
     // Create grayscale //
@@ -326,7 +262,7 @@ SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
     // We just could take the Y channel.
     // Android image copy loop #4
     cv::Mat grayImg;
-    if (_camConfig.convertToGray)
+    if (_config.convertToGray)
     {
         cv::cvtColor(rgbImg, grayImg, cv::COLOR_BGR2GRAY);
 
@@ -336,7 +272,7 @@ SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
         //}
     }
 
-    SENSFramePtr sensFrame = std::make_shared<SENSFrame>(rgbImg, grayImg, inputSize.width, inputSize.height, cropW, cropH, _camConfig.mirrorH, _camConfig.mirrorV);
+    SENSFramePtr sensFrame = std::make_shared<SENSFrame>(rgbImg, grayImg, inputSize.width, inputSize.height, cropW, cropH, _config.mirrorH, _config.mirrorV);
     return std::move(sensFrame);
 }
 
@@ -359,8 +295,8 @@ cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
     AImage_getPlaneData(image, 2, &vPixel, &vLen);
 
     cv::Mat yuv(height + (height / 2), width, CV_8UC1);
-    size_t yubBytes = yuv.total();
-    size_t origBytes = yLen + uLen + vLen;
+    size_t  yubBytes  = yuv.total();
+    size_t  origBytes = yLen + uLen + vLen;
     LOGI("yubBytes %d origBytes %d", yubBytes, origBytes);
     memcpy(yuv.data, yPixel, yLen);
     memcpy(yuv.data + yLen, uPixel, uLen);
@@ -374,7 +310,7 @@ SENSFramePtr SENSNdkCamera::getLatestFrame()
 {
     SENSFramePtr sensFrame;
 
-    if (_camConfig.adjustAsynchronously)
+    if (_config.adjustAsynchronously)
     {
         std::unique_lock<std::mutex> lock(_threadOutputMutex);
         if (_processedFrame)

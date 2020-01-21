@@ -4,7 +4,6 @@
 #include <SLApplication.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiUIPrefs.h>
-#include <CVCapture.h>
 #include <SLGLImGui.h>
 #include <imgui.h>
 #include <imgui_internal.h>
