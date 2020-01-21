@@ -11,18 +11,17 @@ AppWAIScene::AppWAIScene()
 
 void AppWAIScene::rebuild(std::string location, std::string area)
 {
-    rootNode            = new SLNode("scene");
-    cameraNode          = new SLCamera("Camera 1");
-    mapNode             = new SLNode("map");
-    mapPC               = new SLNode("MapPC");
-    mapMatchedPC        = new SLNode("MapMatchedPC");
-    mapLocalPC          = new SLNode("MapLocalPC");
-    mapMarkerCornerPC   = new SLNode("MapMarkerCornerPC");
-    keyFrameNode        = new SLNode("KeyFrames");
-    covisibilityGraph   = new SLNode("CovisibilityGraph");
-    spanningTree        = new SLNode("SpanningTree");
-    loopEdges           = new SLNode("LoopEdges");
-    SLLightSpot* light1 = new SLLightSpot(1, 1, 1, 0.3f);
+    rootNode          = new SLNode("scene");
+    cameraNode        = new SLCamera("Camera 1");
+    mapNode           = new SLNode("map");
+    mapPC             = new SLNode("MapPC");
+    mapMatchedPC      = new SLNode("MapMatchedPC");
+    mapLocalPC        = new SLNode("MapLocalPC");
+    mapMarkerCornerPC = new SLNode("MapMarkerCornerPC");
+    keyFrameNode      = new SLNode("KeyFrames");
+    covisibilityGraph = new SLNode("CovisibilityGraph");
+    spanningTree      = new SLNode("SpanningTree");
+    loopEdges         = new SLNode("LoopEdges");
 
     redMat = new SLMaterial(SLCol4f::RED, "Red");
     redMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
@@ -41,17 +40,55 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         if (area == "templeHill-marker")
         {
             SLAssimpImporter importer;
-            SLNode*          temple = importer.load("FBX/AugustaRaurica/Meshroom_Temple.fbx");
+            SLNode*          temple = importer.load("FBX/AugustaRaurica/Temple.fbx");
+
+#if 0
+            for (SLNode* child : temple->children())
+            {
+                for (SLMesh* mesh : child->meshes())
+                {
+                    mesh->mat()->kt(0.5f);
+                    mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+                    mesh->init(child);
+                }
+            }
+#endif
+
+            SLLightSpot* light1 = new SLLightSpot(121, 230, 231, 0.3f);
+            light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
+            light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
+            light1->specular(SLCol4f(1, 1, 1));
+            light1->attenuation(1, 0, 0);
 
             rootNode->addChild(temple);
+            rootNode->addChild(light1);
         }
         else if (area == "templeHillTheaterBottom")
         {
             SLAssimpImporter importer;
-            SLNode*          temple = importer.load("FBX/AugustaRaurica/Theater.fbx");
-            temple->scale(0.1f);
+            SLNode*          theater = importer.load("FBX/AugustaRaurica/Theater.fbx");
+            theater->scale(0.01f);
 
-            rootNode->addChild(temple);
+            /*
+            for (SLNode* child : theater->children())
+            {
+                for (SLMesh* mesh : child->meshes())
+                {
+                    mesh->mat()->kt(0.5f);
+                    mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+                    mesh->init(child);
+                }
+            }
+            */
+
+            SLLightSpot* light1 = new SLLightSpot(1, 10, 1, 0.3f);
+            light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
+            light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
+            light1->specular(SLCol4f(1, 1, 1));
+            light1->attenuation(1, 0, 0);
+
+            rootNode->addChild(theater);
+            rootNode->addChild(light1);
         }
     }
 #if 0 // office table boxes scene
@@ -160,12 +197,6 @@ void AppWAIScene::loadScene(std::string location, std::string area)
     spanningTreeMat      = new SLMaterial("GreenLines", SLCol4f::GREEN);
     loopEdgesMat         = new SLMaterial("RedLines", SLCol4f::RED);
 
-    //make some light
-    light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-    light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
-    light1->specular(SLCol4f(1, 1, 1));
-    light1->attenuation(1, 0, 0);
-
     cameraNode->translation(0, 0, 0.1f);
     cameraNode->lookAt(0, 0, 0);
     //for tracking we have to use the field of view from calibration
@@ -186,6 +217,5 @@ void AppWAIScene::loadScene(std::string location, std::string area)
     mapNode->rotate(180, 1, 0, 0);
 
     //setup scene
-    rootNode->addChild(light1);
     rootNode->addChild(mapNode);
 }

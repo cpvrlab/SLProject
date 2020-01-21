@@ -224,7 +224,7 @@ bool WAIApp::update()
             _waiScene->cameraNode->om(cameraMat * imuRot);
         }
 
-        AVERAGE_TIMING_STOP("WAIAppUpdate");
+        //AVERAGE_TIMING_STOP("WAIAppUpdate");
     }
 
     //update scene (before it was slUpdateScene)
