@@ -30,6 +30,13 @@ class SLPoints;
 class SLNode;
 class AppDemoGuiError;
 
+struct ExtractorIds
+{
+    int trackingExtractorId;
+    int initializationExtractorId;
+    int markerExtractorId;
+};
+
 struct SlamParams
 {
     std::string               videoFile;
@@ -37,7 +44,11 @@ struct SlamParams
     std::string               calibrationFile;
     std::string               vocabularyFile;
     std::string               markerFile;
+    std::string               location;
+    std::string               area;
+    std::string               extractorID;
     WAI::ModeOrbSlam2::Params params;
+    ExtractorIds              extractorIds;
 };
 
 enum WAIEventType
@@ -47,7 +58,8 @@ enum WAIEventType
     WAIEventType_SaveMap,
     WAIEventType_VideoControl,
     WAIEventType_VideoRecording,
-    WAIEventType_MapNodeTransform
+    WAIEventType_MapNodeTransform,
+    WAIEventType_SetExtractors
     //TODO(dgj1): rest of events
 };
 
@@ -95,6 +107,13 @@ struct WAIEventMapNodeTransform : WAIEvent
     SLVec3f          rotation;
     SLVec3f          translation;
     float            scale;
+};
+
+struct WAIEventSetExtractors : WAIEvent
+{
+    WAIEventSetExtractors() { type = WAIEventType_SetExtractors; }
+
+    ExtractorIds extractorIds;
 };
 
 //-----------------------------------------------------------------------------
@@ -162,7 +181,7 @@ private:
     //bool updateTracking();
     bool updateTracking(SENSFramePtr frame);
     bool initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
-    void onLoadWAISceneView(SLScene* s, SLSceneView* sv);
+    void loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location, std::string area);
 
     void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
     void setupDefaultErlebARDirTo(std::string dir);
@@ -234,6 +253,15 @@ private:
     bool _pauseVideo           = false;
     int  _videoCursorMoveIndex = 0;
 
+
+    // slam params
+    void                       setModeExtractors(ExtractorIds& extractorIds);
+    KPextractor*               orbExtractor(int nf);
+    KPextractor*               surfExtractor(int th);
+    KPextractor*               glslExtractor(int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma);
+    KPextractor*               kpExtractor(int id);
+    std::map<int, std::string> extractorIdToNames;
+    std::map<std::string, int> extractorNamesToIds;
     // event queue
     std::queue<WAIEvent*> _eventQueue;
 

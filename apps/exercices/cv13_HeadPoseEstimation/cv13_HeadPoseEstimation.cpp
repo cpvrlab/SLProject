@@ -28,21 +28,21 @@ int main()
 
     // 2D image points. If you change the image, you need to change vector
     std::vector<Point2d> image_points;
-    image_points.push_back(Point2d(359, 391)); // Nose tip
-    image_points.push_back(Point2d(399, 561)); // Chin
-    image_points.push_back(Point2d(337, 297)); // Left eye left corner
-    image_points.push_back(Point2d(513, 301)); // Right eye right corner
-    image_points.push_back(Point2d(345, 465)); // Left Mouth corner
-    image_points.push_back(Point2d(453, 469)); // Right mouth corner
+    image_points.emplace_back(359, 391); // Nose tip
+    image_points.emplace_back(Point2d(399, 561)); // Chin
+    image_points.emplace_back(Point2d(337, 297)); // Left eye left corner
+    image_points.emplace_back(Point2d(513, 301)); // Right eye right corner
+    image_points.emplace_back(Point2d(345, 465)); // Left Mouth corner
+    image_points.emplace_back(Point2d(453, 469)); // Right mouth corner
 
     // 3D model points with a unknown scale factor in it
     vector<Point3d> model_points;
-    model_points.push_back(Point3d(0.0f, 0.0f, 0.0f));          // Nose tip
-    model_points.push_back(Point3d(0.0f, -330.0f, -65.0f));     // Chin
-    model_points.push_back(Point3d(-225.0f, 170.0f, -135.0f));  // Left eye left corner
-    model_points.push_back(Point3d(225.0f, 170.0f, -135.0f));   // Right eye right corner
-    model_points.push_back(Point3d(-150.0f, -150.0f, -125.0f)); // Left Mouth corner
-    model_points.push_back(Point3d(150.0f, -150.0f, -125.0f));  // Right mouth corner
+    model_points.emplace_back(0.0f, 0.0f, 0.0f);          // Nose tip
+    model_points.emplace_back(Point3d(0.0f, -330.0f, -65.0f));     // Chin
+    model_points.emplace_back(Point3d(-225.0f, 170.0f, -135.0f));  // Left eye left corner
+    model_points.emplace_back(Point3d(225.0f, 170.0f, -135.0f));   // Right eye right corner
+    model_points.emplace_back(Point3d(-150.0f, -150.0f, -125.0f)); // Left Mouth corner
+    model_points.emplace_back(Point3d(150.0f, -150.0f, -125.0f));  // Right mouth corner
 
     // Camera intrinsic matrix
     double  f             = image.cols;                              // Approximate focal length of fov of 60 deg.
@@ -74,7 +74,7 @@ int main()
     // We use this to draw a line sticking out of the nose
     vector<Point3d> nose_end_point3D;
     vector<Point2d> nose_end_point2D;
-    nose_end_point3D.push_back(Point3d(0, 0, 1000.0));
+    nose_end_point3D.emplace_back(Point3d(0, 0, 1000.0));
 
     projectPoints(nose_end_point3D,
                   rotation_vector,
@@ -84,8 +84,8 @@ int main()
                   nose_end_point2D);
 
     // Draw red dots on all image points
-    for (uint i = 0; i < image_points.size(); i++)
-        circle(image, image_points[i], 3, Scalar(0, 0, 255), -1);
+    for (auto & image_point : image_points)
+        circle(image, image_point, 3, Scalar(0, 0, 255), -1);
 
     // Draw blue nose line
     line(image,

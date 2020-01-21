@@ -290,7 +290,7 @@ vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame* F, 
             {
                 nscores++;
                 float si = mpVoc->score(F->mBowVec, pKFi->mBowVec);
-                std::cout << "si: " << si << std::endl;
+                //std::cout << "si: " << si << std::endl;
                 pKFi->mRelocScore = si;
                 lScoreAndMatch.push_back(make_pair(si, pKFi));
             }
@@ -311,7 +311,7 @@ vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame* F, 
             float        bestScore = it->first;
             float        accScore  = bestScore;
             WAIKeyFrame* pBestKF   = pKFi;
-            std::cout << "vpNeighs: " << vpNeighs.size() << std::endl;
+            //std::cout << "vpNeighs: " << vpNeighs.size() << std::endl;
             for (vector<WAIKeyFrame*>::iterator vit = vpNeighs.begin(), vend = vpNeighs.end(); vit != vend; vit++)
             {
                 WAIKeyFrame* pKF2 = *vit;
@@ -333,19 +333,19 @@ vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame* F, 
                 bestAccScore = accScore;
         }
 
-        std::cout << "lAccScoreAndMatch: " << lAccScoreAndMatch.size() << std::endl;
+        //std::cout << "lAccScoreAndMatch: " << lAccScoreAndMatch.size() << std::endl;
 
         // Return all those keyframes with a score higher than 0.75*bestScore
         // This ensures that all the neighbours are also
         float minScoreToRetain = 0.75f * bestAccScore;
-        std::cout << "minScoreToRetain: " << minScoreToRetain << std::endl;
+        //std::cout << "minScoreToRetain: " << minScoreToRetain << std::endl;
         set<WAIKeyFrame*>    spAlreadyAddedKF;
         vector<WAIKeyFrame*> vpRelocCandidates;
         vpRelocCandidates.reserve(lAccScoreAndMatch.size());
         for (list<pair<float, WAIKeyFrame*>>::iterator it = lAccScoreAndMatch.begin(), itend = lAccScoreAndMatch.end(); it != itend; it++)
         {
             const float& si = it->first;
-            std::cout << "final si: " << si << std::endl;
+            //std::cout << "final si: " << si << std::endl;
 
             if (si > minScoreToRetain)
             {

@@ -360,6 +360,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             else
             {
                 WAIEventStartOrbSlam* event       = new WAIEventStartOrbSlam();
+                event->params.area                = _currentArea;
+                event->params.location            = _currentLocation;
                 event->params.videoFile           = _currentVideo.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/videos/" + _currentVideo;
                 event->params.mapFile             = _currentMap.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/maps/" + _currentMap;
                 event->params.calibrationFile     = _currentCalibration.empty() ? "" : _calibrationsDir + _currentCalibration;
@@ -374,17 +376,6 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 _eventQueue->push(event);
 
                 _changeSlamParams = false;
-
-                /*OrbSlamStartResult startResult = _waiApp.startOrbSlam(&slamParams);
-
-                if (!startResult.wasSuccessful)
-                {
-                    _waiApp.showErrorMsg(startResult.errorString);
-                }
-                else
-                {
-                    _changeSlamParams = false;
-                }*/
             }
         }
         if (ImGui::Button("Cancel", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))

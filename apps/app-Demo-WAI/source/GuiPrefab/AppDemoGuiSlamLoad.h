@@ -16,8 +16,6 @@
 #include <SLMat4.h>
 #include <SLNode.h>
 
-class WAIApp;
-
 //-----------------------------------------------------------------------------
 class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {

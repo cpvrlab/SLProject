@@ -9,7 +9,7 @@
 
 class AppWAIScene
 {
-    public:
+public:
     AppWAIScene();
     SLNode*   rootNode          = nullptr;
     SLCamera* cameraNode        = nullptr;
@@ -26,6 +26,7 @@ class AppWAIScene
     SLMaterial* redMat               = nullptr;
     SLMaterial* greenMat             = nullptr;
     SLMaterial* blueMat              = nullptr;
+    SLMaterial* yellowMat            = nullptr;
     SLMaterial* covisibilityGraphMat = nullptr;
     SLMaterial* spanningTreeMat      = nullptr;
     SLMaterial* loopEdgesMat         = nullptr;
@@ -38,7 +39,7 @@ class AppWAIScene
     SLPolyline* spanningTreeMesh          = nullptr;
     SLPolyline* loopEdgesMesh             = nullptr;
 
-    void rebuild();
+    void rebuild(std::string location, std::string area);
 };
 
 #endif

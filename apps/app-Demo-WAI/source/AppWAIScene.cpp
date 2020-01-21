@@ -9,7 +9,7 @@ AppWAIScene::AppWAIScene()
 {
 }
 
-void AppWAIScene::rebuild()
+void AppWAIScene::rebuild(std::string location, std::string area)
 {
     rootNode            = new SLNode("scene");
     cameraNode          = new SLCamera("Camera 1");
@@ -33,10 +33,27 @@ void AppWAIScene::rebuild()
     blueMat = new SLMaterial(SLCol4f::BLUE, "Blue");
     blueMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-    SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-    SLfloat     l = 0.593f, b = 0.466f, h = 0.257f;
+    yellowMat = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+    //SLfloat     l = 0.593f, b = 0.466f, h = 0.257f;
 
-#if 1 // office table boxes scene
+    if (location == "augst")
+    {
+        if (area == "templeHill-marker")
+        {
+            SLAssimpImporter importer;
+            SLNode*          temple = importer.load("FBX/AugustaRaurica/Meshroom_Temple.fbx");
+
+            rootNode->addChild(temple);
+        }
+        else if (area == "templeHillTheaterBottom")
+        {
+            SLAssimpImporter importer;
+            SLNode*          temple = importer.load("FBX/AugustaRaurica/Theater.fbx");
+
+            rootNode->addChild(temple);
+        }
+    }
+#if 0 // office table boxes scene
     //SLBox*      box1     = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
     SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, 0.355f, 0.2f, 0.1f, "Box 1", yellow);
     //SLBox*  box1     = new SLBox(0.0f, 0.0f, 0.0f, 10.0f, 5.0f, 3.0f, "Box 1", yellow);
@@ -57,34 +74,31 @@ void AppWAIScene::rebuild()
     rootNode->addChild(boxNode3);
 #endif
 
-#if 0 // augst temple hill
+#if 0 // augst temple hill for map 20200117 with ORB
     SLAssimpImporter importer;
-    SLNode*          temple = importer.load("FBX/AugustaRaurica/Temple_no_sock.fbx");
+    SLNode*          temple = importer.load("FBX/AugustaRaurica/Meshroom_Temple.fbx");
+    temple->translate(22.74, -15.53, 14.12);
+    temple->scale(0.10f);
+    temple->rotate(-126.6f, 1.0f, 0.0f, 0.0f);
+    temple->rotate(-86.53f, 0.0f, 1.0f, 0.0f);
+    temple->rotate(1.68f, 0.0f, 0.0f, 1.0f);
+
+    rootNode->addChild(temple);
+#endif
+
+#if 0 // augst temple hill for map 20200114 with GLSL
+    SLAssimpImporter importer;
+    SLNode*          temple = importer.load("FBX/AugustaRaurica/Meshroom_Temple.fbx");
     /*temple->translate(13.67, -6.98, 5.07);
     temple->scale(0.04f);
     temple->rotate(53.05f, 1.0f, 0.0f, 0.0f);
     temple->rotate(-5.61f, 0.0f, 1.0f, 0.0f);
     temple->rotate(-179.37f, 0.0f, 0.0f, 1.0f);*/
-    temple->translate(28.35, -14.48, 11.07);
-    temple->scale(0.08f);
-    temple->rotate(51.24f, 1.0f, 0.0f, 0.0f);
-    temple->rotate(-4.3f, 0.0f, 1.0f, 0.0f);
-    temple->rotate(-179.37f, 0.0f, 0.0f, 1.0f);
-
-    /*
-    SLBox*  box1     = new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "TempleBox", yellow);
-    SLNode* boxNode1 = new SLNode(box1, "Temple");
-    boxNode1->translate(26.04f, -14.77f, 6.93f);
-    boxNode1->scale(30.0f, 12.0f, 5.0f);
-    boxNode1->rotate(-31.93f, 1.0f, 0.0f, 0.0f, TS_parent);
-    boxNode1->rotate(2.55f, 0.0f, 1.0f, 0.0f, TS_parent);
-    boxNode1->rotate(2.78f, 0.0f, 0.0f, 1.0f, TS_parent);
-
-    SLBox*  box2     = new SLBox(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, "MarkerBox", yellow);
-    SLNode* boxNode2 = new SLNode(box2, "boxNode2");
-    boxNode2->scale(0.75f, 0.42f, 0.1f);
-    SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
-    */
+    temple->translate(22.17, -15.18, 11.9);
+    temple->scale(0.10f);
+    temple->rotate(-127.07f, 1.0f, 0.0f, 0.0f);
+    temple->rotate(-85.53f, 0.0f, 1.0f, 0.0f);
+    temple->rotate(-2.97, 0.0f, 0.0f, 1.0f);
 
     //rootNode->addChild(boxNode1);
     rootNode->addChild(temple);
@@ -122,7 +136,11 @@ void AppWAIScene::rebuild()
 
 #if 0
     SLBox*  box1     = new SLBox(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, "Box 1", yellow);
-    SLNode* boxNode1 = new SLNode(box1, "boxNode1");
+    SLNode*
+void AppWAIScene::loadScene(std::string location, std::string area)
+{
+}
+ boxNode1 = new SLNode(box1, "boxNode1");
     boxNode1->translation(0.07f, 0.25f, 0.74f);
     boxNode1->scale(0.355f, 0.1f, 0.08f);
     //boxNode1->translate(1.0f, 0.0f, 8.0f);

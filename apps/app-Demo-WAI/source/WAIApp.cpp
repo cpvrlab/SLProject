@@ -39,6 +39,7 @@
 #include <FtpUtils.h>
 #include <GUIPreferences.h>
 
+#include <GLSLextractor.h>
 #include <SLSceneView.h>
 #include <SLPoints.h>
 #include <SLQuat4.h>
@@ -102,6 +103,26 @@ int WAIApp::load(SENSCamera* camera, int liveVideoTargetW, int liveVideoTargetH,
     setupDefaultErlebARDirTo(_dirs.writableDir);
     //todo: only do this, when the app is installed (on android and ios, maybe by a function call when permissions are given)
     downloadCalibratinFilesTo(calibDir);
+
+    extractorIdToNames[0] = "SURF-BRIEF-500";
+    extractorIdToNames[1] = "SURF-BRIEF-800";
+    extractorIdToNames[2] = "SURF-BRIEF-1000";
+    extractorIdToNames[3] = "SURF-BRIEF-1200";
+    extractorIdToNames[4] = "FAST-ORBS-1000";
+    extractorIdToNames[5] = "FAST-ORBS-2000";
+    extractorIdToNames[6] = "FAST-ORBS-4000";
+    extractorIdToNames[7] = "GLSL-1";
+    extractorIdToNames[8] = "GLSL";
+
+    extractorNamesToIds["SURF-BRIEF-500"]  = 0;
+    extractorNamesToIds["SURF-BRIEF-800"]  = 1;
+    extractorNamesToIds["SURF-BRIEF-1000"] = 2;
+    extractorNamesToIds["SURF-BRIEF-1200"] = 3;
+    extractorNamesToIds["FAST-ORBS-1000"]  = 4;
+    extractorNamesToIds["FAST-ORBS-2000"]  = 5;
+    extractorNamesToIds["FAST-ORBS-4000"]  = 6;
+    extractorNamesToIds["GLSL-1"]          = 7;
+    extractorNamesToIds["GLSL"]            = 8;
 
     return svIndex;
 }
@@ -416,8 +437,6 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
         }
         _mode->reset();
 
-        // TODO(dgj1): extract feature type
-        // TODO(dgj1): check that map feature type matches with _mode feature type
         bool mapLoadingSuccess = WAIMapStorage::loadMap(_mode->getMap(),
                                                         _mode->getKfDB(),
                                                         _waiScene->mapNode,
@@ -432,6 +451,19 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
 
             showErrorMsg("Could not load map from file " + mapFile);
             return;
+        }
+
+        SlamMapInfos slamMapInfos = {};
+        extractSlamMapInfosFromFileName(mapFile, &slamMapInfos);
+
+        if (extractorNamesToIds.find(slamMapInfos.extractorType) != extractorNamesToIds.end())
+        {
+            ExtractorIds extractorIds              = {};
+            extractorIds.trackingExtractorId       = extractorNamesToIds[slamMapInfos.extractorType];
+            extractorIds.initializationExtractorId = extractorNamesToIds[slamMapInfos.extractorType];
+            extractorIds.markerExtractorId         = extractorNamesToIds[slamMapInfos.extractorType];
+
+            setModeExtractors(extractorIds);
         }
 
         _mode->resume();
@@ -586,15 +618,15 @@ bool WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr
               nullptr,
               _gui.get());
 
-    onLoadWAISceneView(SLApplication::scene, _sv);
+    loadWAISceneView(SLApplication::scene, _sv, "default", "default");
     return (SLint)_sv->index();
 }
 
 //-----------------------------------------------------------------------------
-void WAIApp::onLoadWAISceneView(SLScene* s, SLSceneView* sv)
+void WAIApp::loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location, std::string area)
 {
     s->init();
-    _waiScene->rebuild();
+    _waiScene->rebuild(location, area);
 
     // Set scene name and info string
     s->name("Track Keyframe based Features");
@@ -661,7 +693,7 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
     _gui->addInfoDialog(new AppDemoGuiVideoStorage("video storage", &_gui->uiPrefs->showVideoStorage, &_eventQueue, *this));
     _gui->addInfoDialog(new AppDemoGuiVideoControls("video load", &_gui->uiPrefs->showVideoControls, &_eventQueue, *this));
 
-    _gui->addInfoDialog(new AppDemoGuiSlamParam("Slam Param", &_gui->uiPrefs->showSlamParam, *this));
+    _gui->addInfoDialog(new AppDemoGuiSlamParam("Slam Param", &_gui->uiPrefs->showSlamParam, &_eventQueue, &extractorIdToNames));
 
     _errorDial = new AppDemoGuiError("Error", &_gui->uiPrefs->showError);
     _gui->addInfoDialog(_errorDial);
@@ -1062,7 +1094,7 @@ void WAIApp::saveMap(std::string location,
         else
         {
             std::cout << "nodeTransform: " << nodeTransform << std::endl;
-            _waiScene->mapNode->om(WAIMapStorage::convertToSLMat(nodeTransform));
+            //_waiScene->mapNode->om(WAIMapStorage::convertToSLMat(nodeTransform));
             if (!WAIMapStorage::saveMap(_mode->getMap(),
                                         _waiScene->mapNode,
                                         mapDir + filename,
@@ -1155,9 +1187,67 @@ void WAIApp::transformMapNode(SLTransformSpace tSpace,
     _waiScene->mapNode->scale(scale);
 }
 
+KPextractor* WAIApp::orbExtractor(int nf)
+{
+    float fScaleFactor = 1.2;
+    int   nLevels      = 8;
+    int   fIniThFAST   = 20;
+    int   fMinThFAST   = 7;
+    return new ORB_SLAM2::ORBextractor(nf, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+}
+
+KPextractor* WAIApp::surfExtractor(int th)
+{
+    return new ORB_SLAM2::SURFextractor(th);
+}
+
+KPextractor* WAIApp::glslExtractor(int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma)
+{
+    // int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma
+    return new GLSLextractor(_videoFrameSize.width, _videoFrameSize.height, nbKeypointsBigSigma, nbKeypointsSmallSigma, highThrs, lowThrs, bigSigma, smallSigma);
+}
+
+KPextractor* WAIApp::kpExtractor(int id)
+{
+    doubleBufferedOutput = false;
+    switch (id)
+    {
+        case 0:
+            return surfExtractor(500);
+        case 1:
+            return surfExtractor(800);
+        case 2:
+            return surfExtractor(1000);
+        case 3:
+            return surfExtractor(1200);
+        case 4:
+            return orbExtractor(1000);
+        case 5:
+            return orbExtractor(2000);
+        case 6:
+            return orbExtractor(4000);
+        case 7:
+            doubleBufferedOutput = true;
+            return glslExtractor(16, 16, 0.5, 0.25, 1.9, 1.4);
+        case 8:
+            doubleBufferedOutput = true;
+            return glslExtractor(16, 16, 0.5, 0.25, 1.8, 1.2);
+    }
+    return surfExtractor(1000);
+}
+
+void WAIApp::setModeExtractors(ExtractorIds& extractorIds)
+{
+    KPextractor* trackingExtractor       = kpExtractor(extractorIds.trackingExtractorId);
+    KPextractor* initializationExtractor = kpExtractor(extractorIds.initializationExtractorId);
+    KPextractor* markerExtractor         = kpExtractor(extractorIds.markerExtractorId);
+
+    _mode->setExtractor(trackingExtractor, initializationExtractor, markerExtractor);
+}
+
 void WAIApp::handleEvents()
 {
-    while (_eventQueue.size())
+    while (!_eventQueue.empty())
     {
         WAIEvent* event = _eventQueue.front();
         _eventQueue.pop();
@@ -1166,6 +1256,7 @@ void WAIApp::handleEvents()
         {
             case WAIEventType_StartOrbSlam: {
                 WAIEventStartOrbSlam* startOrbSlamEvent = (WAIEventStartOrbSlam*)event;
+                loadWAISceneView(SLApplication::scene, _sv, startOrbSlamEvent->params.location, startOrbSlamEvent->params.area);
                 startOrbSlam(&startOrbSlamEvent->params);
 
                 delete startOrbSlamEvent;
@@ -1213,6 +1304,15 @@ void WAIApp::handleEvents()
                 transformMapNode(mapNodeTransformEvent->tSpace, mapNodeTransformEvent->rotation, mapNodeTransformEvent->translation, mapNodeTransformEvent->scale);
 
                 delete mapNodeTransformEvent;
+            }
+            break;
+
+            case WAIEventType_SetExtractors: {
+                WAIEventSetExtractors* setExtractorsEvent = (WAIEventSetExtractors*)event;
+
+                setModeExtractors(setExtractorsEvent->extractorIds);
+
+                delete setExtractorsEvent;
             }
             break;
 

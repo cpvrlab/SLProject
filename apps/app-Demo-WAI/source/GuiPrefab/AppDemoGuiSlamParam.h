@@ -18,35 +18,27 @@
 #include <SLNode.h>
 #include <WAICalibration.h>
 #include <vector>
+#include <WAIApp.h>
 
 class WAIApp;
 //-----------------------------------------------------------------------------
 class AppDemoGuiSlamParam : public AppDemoGuiInfosDialog
 {
 public:
-    AppDemoGuiSlamParam(const std::string& name,
-                        bool*              activator,
-                        WAIApp&            waiApp);
+    AppDemoGuiSlamParam(const std::string&                name,
+                        bool*                             activator,
+                        std::queue<WAIEvent*>*            eventQueue,
+                        const std::map<int, std::string>* extractorIdToNames);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
 private:
-    KPextractor* orbExtractor(int nf);
-    KPextractor* surfExtractor(int th);
-    KPextractor* glslExtractor(int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma);
-    KPextractor* kpExtractor(int id);
-    KPextractor* kpInitExtractor(int id);
-
-    KPextractor* _current;
-    KPextractor* _iniCurrent;
-    KPextractor* _markerCurrent;
-
     int _currentId;
     int _iniCurrentId;
     int _markerCurrentId;
 
-    std::vector<std::string> _extractors;
-    WAIApp&                  _waiApp;
+    const std::map<int, std::string>* _extractorIdToNames;
+    std::queue<WAIEvent*>*            _eventQueue;
 };
 
 #endif
