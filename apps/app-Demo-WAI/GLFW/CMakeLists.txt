@@ -43,6 +43,7 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.h
+    ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
     ${SL_PROJECT_ROOT}/apps/source/sens/SENS.h
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSFrame.h
@@ -81,6 +82,7 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
+    ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
     ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.cpp
