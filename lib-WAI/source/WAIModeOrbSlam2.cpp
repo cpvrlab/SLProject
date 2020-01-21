@@ -96,13 +96,6 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(ORB_SLAM2::KPextractor* kpExtractor,
     else
         _initialized = false;
 
-    //instantiate feature extractor
-    // TODO(dgj1): we need to find a good value for the extractor threshold
-    //mpExtractor    = new ORB_SLAM2::SURFextractor(1000);
-    //mpIniExtractor = new ORB_SLAM2::SURFextractor(800);
-    //mpExtractor    = new ORB_SLAM2::ORBextractor(1000, 1.2, 8, 20, 7);
-    //mpIniExtractor = new ORB_SLAM2::ORBextractor(2000, 1.2, 8, 20, 7);
-
     //instantiate local mapping
     mpLocalMapper = new ORB_SLAM2::LocalMapping(_map, 1, mpVocabulary, _params.cullRedundantPerc);
     mpLoopCloser  = new ORB_SLAM2::LoopClosing(_map, mpKeyFrameDatabase, mpVocabulary, false, false);
@@ -120,29 +113,9 @@ WAI::ModeOrbSlam2::ModeOrbSlam2(ORB_SLAM2::KPextractor* kpExtractor,
     _state = TrackingState_Initializing;
     _pose  = cv::Mat(4, 4, CV_32F);
 
-    if (_markerExtractor)
+    if (_markerExtractor && !markerFile.empty())
         _markerFrame = createMarkerFrame(markerFile, _markerExtractor);
 }
-
-// TODO : Verify that this is really thread safe
-// TODO(dgj1): should this even be possible when the system is running?
-//void WAI::ModeOrbSlam2::setExtractor(KPextractor* extractor,
-//                                     KPextractor* iniExtractor,
-//                                     KPextractor* markerExtractor)
-//{
-//    requestStateIdle();
-//
-//    mpExtractor      = extractor;
-//    mpIniExtractor   = iniExtractor;
-//    _markerExtractor = markerExtractor;
-//
-//    if (_markerExtractor && _createMarkerMap)
-//    {
-//        _markerFrame = createMarkerFrame(_markerFile, _markerExtractor);
-//    }
-//
-//    resume();
-//}
 
 void WAI::ModeOrbSlam2::setVocabulary(std::string orbVocFile)
 {

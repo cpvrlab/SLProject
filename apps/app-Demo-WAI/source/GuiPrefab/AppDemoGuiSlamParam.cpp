@@ -22,10 +22,10 @@
 #include <GLSLextractor.h>
 #include <WAIApp.h>
 //-----------------------------------------------------------------------------
-AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string&                name,
-                                         bool*                             activator,
-                                         std::queue<WAIEvent*>*            eventQueue,
-                                         const std::map<int, std::string>* extractorIdToNames)
+AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string&              name,
+                                         bool*                           activator,
+                                         std::queue<WAIEvent*>*          eventQueue,
+                                         const std::vector<std::string>& extractorIdToNames)
   : AppDemoGuiInfosDialog(name, activator),
     _eventQueue(eventQueue),
     _extractorIdToNames(extractorIdToNames)
@@ -38,12 +38,12 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string&                name,
 void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
 {
     ImGui::Begin("Slam Param", _activator, ImGuiWindowFlags_AlwaysAutoResize);
-    if (ImGui::BeginCombo("Extractor", _extractorIdToNames->at(_currentId).c_str()))
+    if (ImGui::BeginCombo("Extractor", _extractorIdToNames.at(_currentId).c_str()))
     {
-        for (int i = 0; i < _extractorIdToNames->size(); i++)
+        for (int i = 0; i < _extractorIdToNames.size(); i++)
         {
             bool isSelected = (_currentId == i); // You can store your selection however you want, outside or inside your objects
-            if (ImGui::Selectable(_extractorIdToNames->at(i).c_str(), isSelected))
+            if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
                 _currentId = i;
             if (isSelected)
                 ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
@@ -51,12 +51,12 @@ void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
         ImGui::EndCombo();
     }
 
-    if (ImGui::BeginCombo("Init extractor", _extractorIdToNames->at(_iniCurrentId).c_str()))
+    if (ImGui::BeginCombo("Init extractor", _extractorIdToNames.at(_iniCurrentId).c_str()))
     {
-        for (int i = 0; i < _extractorIdToNames->size(); i++)
+        for (int i = 0; i < _extractorIdToNames.size(); i++)
         {
             bool isSelected = (_iniCurrentId == i); // You can store your selection however you want, outside or inside your objects
-            if (ImGui::Selectable(_extractorIdToNames->at(i).c_str(), isSelected))
+            if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
             {
                 _iniCurrentId = i;
             }
@@ -67,12 +67,12 @@ void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
     }
 
     // TODO(dgj1): display this only if a markerfile has been selected
-    if (ImGui::BeginCombo("Marker extractor", _extractorIdToNames->at(_markerCurrentId).c_str()))
+    if (ImGui::BeginCombo("Marker extractor", _extractorIdToNames.at(_markerCurrentId).c_str()))
     {
-        for (int i = 0; i < _extractorIdToNames->size(); i++)
+        for (int i = 0; i < _extractorIdToNames.size(); i++)
         {
             bool isSelected = (_markerCurrentId == i); // You can store your selection however you want, outside or inside your objects
-            if (ImGui::Selectable(_extractorIdToNames->at(i).c_str(), isSelected))
+            if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
             {
                 _markerCurrentId = i;
             }
@@ -82,15 +82,15 @@ void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
         ImGui::EndCombo();
     }
 
-    if (ImGui::Button("Change features", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
-    {
-        WAIEventSetExtractors* event                  = new WAIEventSetExtractors();
-        event->extractorIds.trackingExtractorId       = _currentId;
-        event->extractorIds.initializationExtractorId = _iniCurrentId;
-        event->extractorIds.markerExtractorId         = _markerCurrentId;
+    //if (ImGui::Button("Change features", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    //{
+    //    WAIEventSetExtractors* event                  = new WAIEventSetExtractors();
+    //    event->extractorIds.trackingExtractorId       = _currentId;
+    //    event->extractorIds.initializationExtractorId = _iniCurrentId;
+    //    event->extractorIds.markerExtractorId         = _markerCurrentId;
 
-        _eventQueue->push(event);
-    }
+    //    _eventQueue->push(event);
+    //}
 
     ImGui::End();
 }

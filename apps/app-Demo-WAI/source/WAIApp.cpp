@@ -31,7 +31,6 @@
 #include <AppDemoGuiSlamLoad.h>
 #include <AppDemoGuiTestOpen.h>
 #include <AppDemoGuiTestWrite.h>
-#include <AppDemoGuiSlamParam.h>
 #include <AppDemoGuiError.h>
 
 #include <AppDirectories.h>
@@ -103,26 +102,6 @@ int WAIApp::load(SENSCamera* camera, int liveVideoTargetW, int liveVideoTargetH,
     setupDefaultErlebARDirTo(_dirs.writableDir);
     //todo: only do this, when the app is installed (on android and ios, maybe by a function call when permissions are given)
     downloadCalibratinFilesTo(calibDir);
-
-    extractorIdToNames[0] = "SURF-BRIEF-500";
-    extractorIdToNames[1] = "SURF-BRIEF-800";
-    extractorIdToNames[2] = "SURF-BRIEF-1000";
-    extractorIdToNames[3] = "SURF-BRIEF-1200";
-    extractorIdToNames[4] = "FAST-ORBS-1000";
-    extractorIdToNames[5] = "FAST-ORBS-2000";
-    extractorIdToNames[6] = "FAST-ORBS-4000";
-    extractorIdToNames[7] = "GLSL-1";
-    extractorIdToNames[8] = "GLSL";
-
-    extractorNamesToIds["SURF-BRIEF-500"]  = 0;
-    extractorNamesToIds["SURF-BRIEF-800"]  = 1;
-    extractorNamesToIds["SURF-BRIEF-1000"] = 2;
-    extractorNamesToIds["SURF-BRIEF-1200"] = 3;
-    extractorNamesToIds["FAST-ORBS-1000"]  = 4;
-    extractorNamesToIds["FAST-ORBS-2000"]  = 5;
-    extractorNamesToIds["FAST-ORBS-4000"]  = 6;
-    extractorNamesToIds["GLSL-1"]          = 7;
-    extractorNamesToIds["GLSL"]            = 8;
 
     return svIndex;
 }
@@ -268,8 +247,8 @@ mapFile: path to a map or empty if no map should be used
 */
 void WAIApp::startOrbSlam(SlamParams* slamParams)
 {
-    lastFrameIdx         = 0;
-    doubleBufferedOutput = false;
+    _lastFrameIdx         = 0;
+    _doubleBufferedOutput = false;
     if (_videoFileStream)
         _videoFileStream.release();
 
@@ -417,8 +396,13 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
         params.cullRedundantPerc = 0.99f;
     }
 
-    _mode = new WAI::ModeOrbSlam2(_extractor.get(),
-                                  _iniExtractor.get(),
+    _trackingExtractor       = _featureExtractorFactory.make(slamParams->extractorIds.trackingExtractorId, _videoFrameSize);
+    _initializationExtractor = _featureExtractorFactory.make(slamParams->extractorIds.initializationExtractorId, _videoFrameSize);
+    _markerExtractor         = _featureExtractorFactory.make(slamParams->extractorIds.markerExtractorId, _videoFrameSize);
+    _doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
+
+    _mode = new WAI::ModeOrbSlam2(_trackingExtractor.get(),
+                                  _initializationExtractor.get(),
                                   _markerExtractor.get(),
                                   markerFile,
                                   _calibration.cameraMat(),
@@ -456,16 +440,6 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
         SlamMapInfos slamMapInfos = {};
         extractSlamMapInfosFromFileName(mapFile, &slamMapInfos);
 
-        if (extractorNamesToIds.find(slamMapInfos.extractorType) != extractorNamesToIds.end())
-        {
-            ExtractorIds extractorIds              = {};
-            extractorIds.trackingExtractorId       = extractorNamesToIds[slamMapInfos.extractorType];
-            extractorIds.initializationExtractorId = extractorNamesToIds[slamMapInfos.extractorType];
-            extractorIds.markerExtractorId         = extractorNamesToIds[slamMapInfos.extractorType];
-
-            setModeExtractors(extractorIds);
-        }
-
         _mode->resume();
         _mode->setInitialized(true);
     }
@@ -479,8 +453,8 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
 
     _sv->setViewportFromRatio(SLVec2i(_videoFrameSize.width, _videoFrameSize.height), SLViewportAlign::VA_center, true);
     //_resizeWindow = true;
-    undistortedLastFrame[0] = cv::Mat(_videoFrameSize.height, _videoFrameSize.width, CV_8UC3);
-    undistortedLastFrame[1] = cv::Mat(_videoFrameSize.height, _videoFrameSize.width, CV_8UC3);
+    _undistortedLastFrame[0] = cv::Mat(_videoFrameSize.height, _videoFrameSize.width, CV_8UC3);
+    _undistortedLastFrame[1] = cv::Mat(_videoFrameSize.height, _videoFrameSize.width, CV_8UC3);
 }
 
 //-----------------------------------------------------------------------------
@@ -677,6 +651,7 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
                                                _dirs.writableDir + "erleb-AR/locations/",
                                                _dirs.writableDir + "calibrations/",
                                                _dirs.writableDir + "voc/",
+                                               _featureExtractorFactory.getExtractorIdToNames(),
                                                &_gui->uiPrefs->showSlamLoad,
                                                this->_currentSlamParams));
 
@@ -692,8 +667,6 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
 
     _gui->addInfoDialog(new AppDemoGuiVideoStorage("video storage", &_gui->uiPrefs->showVideoStorage, &_eventQueue, *this));
     _gui->addInfoDialog(new AppDemoGuiVideoControls("video load", &_gui->uiPrefs->showVideoControls, &_eventQueue, *this));
-
-    _gui->addInfoDialog(new AppDemoGuiSlamParam("Slam Param", &_gui->uiPrefs->showSlamParam, &_eventQueue, &extractorIdToNames));
 
     _errorDial = new AppDemoGuiError("Error", &_gui->uiPrefs->showError);
     _gui->addInfoDialog(_errorDial);
@@ -801,23 +774,23 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
 
         if (_calibration.state() == CS_calibrated && _showUndistorted)
         {
-            _calibration.remap(imgRGB, undistortedLastFrame[lastFrameIdx]);
+            _calibration.remap(imgRGB, _undistortedLastFrame[_lastFrameIdx]);
         }
         else
         {
-            undistortedLastFrame[lastFrameIdx] = imgRGB;
+            _undistortedLastFrame[_lastFrameIdx] = imgRGB;
         }
 
-        if (doubleBufferedOutput)
+        if (_doubleBufferedOutput)
         {
-            lastFrameIdx = (lastFrameIdx + 1) % 2;
+            _lastFrameIdx = (_lastFrameIdx + 1) % 2;
         }
 
-        _videoImage->copyVideoImage(undistortedLastFrame[lastFrameIdx].cols,
-                                    undistortedLastFrame[lastFrameIdx].rows,
-                                    CVImage::cv2glPixelFormat(undistortedLastFrame[lastFrameIdx].type()),
-                                    undistortedLastFrame[lastFrameIdx].data,
-                                    undistortedLastFrame[lastFrameIdx].isContinuous(),
+        _videoImage->copyVideoImage(_undistortedLastFrame[_lastFrameIdx].cols,
+                                    _undistortedLastFrame[_lastFrameIdx].rows,
+                                    CVImage::cv2glPixelFormat(_undistortedLastFrame[_lastFrameIdx].type()),
+                                    _undistortedLastFrame[_lastFrameIdx].data,
+                                    _undistortedLastFrame[_lastFrameIdx].isContinuous(),
                                     true);
     }
 
@@ -1187,64 +1160,6 @@ void WAIApp::transformMapNode(SLTransformSpace tSpace,
     _waiScene->mapNode->scale(scale);
 }
 
-KPextractor* WAIApp::orbExtractor(int nf)
-{
-    float fScaleFactor = 1.2;
-    int   nLevels      = 8;
-    int   fIniThFAST   = 20;
-    int   fMinThFAST   = 7;
-    return new ORB_SLAM2::ORBextractor(nf, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
-}
-
-KPextractor* WAIApp::surfExtractor(int th)
-{
-    return new ORB_SLAM2::SURFextractor(th);
-}
-
-KPextractor* WAIApp::glslExtractor(int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma)
-{
-    // int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma
-    return new GLSLextractor(_videoFrameSize.width, _videoFrameSize.height, nbKeypointsBigSigma, nbKeypointsSmallSigma, highThrs, lowThrs, bigSigma, smallSigma);
-}
-
-KPextractor* WAIApp::kpExtractor(int id)
-{
-    doubleBufferedOutput = false;
-    switch (id)
-    {
-        case 0:
-            return surfExtractor(500);
-        case 1:
-            return surfExtractor(800);
-        case 2:
-            return surfExtractor(1000);
-        case 3:
-            return surfExtractor(1200);
-        case 4:
-            return orbExtractor(1000);
-        case 5:
-            return orbExtractor(2000);
-        case 6:
-            return orbExtractor(4000);
-        case 7:
-            doubleBufferedOutput = true;
-            return glslExtractor(16, 16, 0.5, 0.25, 1.9, 1.4);
-        case 8:
-            doubleBufferedOutput = true;
-            return glslExtractor(16, 16, 0.5, 0.25, 1.8, 1.2);
-    }
-    return surfExtractor(1000);
-}
-
-void WAIApp::setModeExtractors(ExtractorIds& extractorIds)
-{
-    KPextractor* trackingExtractor       = kpExtractor(extractorIds.trackingExtractorId);
-    KPextractor* initializationExtractor = kpExtractor(extractorIds.initializationExtractorId);
-    KPextractor* markerExtractor         = kpExtractor(extractorIds.markerExtractorId);
-
-    _mode->setExtractor(trackingExtractor, initializationExtractor, markerExtractor);
-}
-
 void WAIApp::handleEvents()
 {
     while (!_eventQueue.empty())
@@ -1304,15 +1219,6 @@ void WAIApp::handleEvents()
                 transformMapNode(mapNodeTransformEvent->tSpace, mapNodeTransformEvent->rotation, mapNodeTransformEvent->translation, mapNodeTransformEvent->scale);
 
                 delete mapNodeTransformEvent;
-            }
-            break;
-
-            case WAIEventType_SetExtractors: {
-                WAIEventSetExtractors* setExtractorsEvent = (WAIEventSetExtractors*)event;
-
-                setModeExtractors(setExtractorsEvent->extractorIds);
-
-                delete setExtractorsEvent;
             }
             break;
 

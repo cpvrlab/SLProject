@@ -141,7 +141,6 @@ public:
     bool retainImage() { return _params.retainImg; }
     void setInitialized(bool initialized) { _initialized = initialized; }
 
-    //void setExtractor(KPextractor* extractor, KPextractor* iniExtractor, KPextractor* markerExtractor = nullptr);
     void setVocabulary(std::string orbVocFile);
 
     WAIFrame getCurrentFrame();

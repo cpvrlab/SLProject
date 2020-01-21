@@ -24,6 +24,7 @@
 #include <SLInputEventInterface.h>
 #include <SENSCamera.h>
 #include <SENSVideoStream.h>
+#include <GLSLextractor.h>
 
 class SLMaterial;
 class SLPoints;
@@ -46,7 +47,6 @@ struct SlamParams
     std::string               markerFile;
     std::string               location;
     std::string               area;
-    std::string               extractorID;
     WAI::ModeOrbSlam2::Params params;
     ExtractorIds              extractorIds;
 };
@@ -59,8 +59,6 @@ enum WAIEventType
     WAIEventType_VideoControl,
     WAIEventType_VideoRecording,
     WAIEventType_MapNodeTransform,
-    WAIEventType_SetExtractors
-    //TODO(dgj1): rest of events
 };
 
 struct WAIEvent
@@ -109,11 +107,80 @@ struct WAIEventMapNodeTransform : WAIEvent
     float            scale;
 };
 
-struct WAIEventSetExtractors : WAIEvent
+class FeatureExtractorFactory
 {
-    WAIEventSetExtractors() { type = WAIEventType_SetExtractors; }
 
-    ExtractorIds extractorIds;
+public:
+    FeatureExtractorFactory()
+    {
+        _extractorIdToNames.push_back("SURF-BRIEF-500");
+        _extractorIdToNames.push_back("SURF-BRIEF-800");
+        _extractorIdToNames.push_back("SURF-BRIEF-1000");
+        _extractorIdToNames.push_back("SURF-BRIEF-1200");
+        _extractorIdToNames.push_back("FAST-ORBS-1000");
+        _extractorIdToNames.push_back("FAST-ORBS-2000");
+        _extractorIdToNames.push_back("FAST-ORBS-4000");
+        _extractorIdToNames.push_back("GLSL-1");
+        _extractorIdToNames.push_back("GLSL");
+    }
+
+    std::unique_ptr<KPextractor> make(int id, cv::Size videoFrameSize)
+    {
+        switch (id)
+        {
+            case 0:
+                return std::move(surfExtractor(500));
+            case 1:
+                return std::move(surfExtractor(800));
+            case 2:
+                return std::move(surfExtractor(1000));
+            case 3:
+                return std::move(surfExtractor(1200));
+            case 4:
+                return std::move(orbExtractor(1000));
+            case 5:
+                return std::move(orbExtractor(2000));
+            case 6:
+                return std::move(orbExtractor(4000));
+            case 7:
+                return std::move(glslExtractor(videoFrameSize, 16, 16, 0.5, 0.25, 1.9, 1.4));
+            case 8:
+                return std::move(glslExtractor(videoFrameSize, 16, 16, 0.5, 0.25, 1.8, 1.2));
+            default:
+                return std::move(surfExtractor(1000));
+        }
+    }
+
+    const std::vector<std::string>& getExtractorIdToNames() const
+    {
+        return _extractorIdToNames;
+    }
+
+private:
+    std::unique_ptr<KPextractor> orbExtractor(int nf)
+    {
+        float fScaleFactor = 1.2;
+        int   nLevels      = 8;
+        int   fIniThFAST   = 20;
+        int   fMinThFAST   = 7;
+        return std::move(
+          std::make_unique<ORB_SLAM2::ORBextractor>(nf, fScaleFactor, nLevels, fIniThFAST, fMinThFAST));
+    }
+
+    std::unique_ptr<KPextractor> surfExtractor(int th)
+    {
+        return std::move(
+          std::make_unique<ORB_SLAM2::SURFextractor>(th));
+    }
+
+    std::unique_ptr<KPextractor> glslExtractor(const cv::Size& videoFrameSize, int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma)
+    {
+        // int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma
+        return std::move(
+          std::make_unique<GLSLextractor>(videoFrameSize.width, videoFrameSize.height, nbKeypointsBigSigma, nbKeypointsSmallSigma, highThrs, lowThrs, bigSigma, smallSigma));
+    }
+
+    std::vector<std::string> _extractorIdToNames;
 };
 
 //-----------------------------------------------------------------------------
@@ -173,9 +240,6 @@ public:
     std::string calibDir;
     std::string mapDir;
     std::string vocDir;
-
-    //video file editing
-    bool doubleBufferedOutput;
 
 private:
     //bool updateTracking();
@@ -246,30 +310,23 @@ private:
     std::unique_ptr<AppDemoWaiGui> _gui;
     AppDemoGuiError*               _errorDial = nullptr;
 
-    int     lastFrameIdx;
-    cv::Mat undistortedLastFrame[2];
+    int     _lastFrameIdx;
+    cv::Mat _undistortedLastFrame[2];
+    bool    _doubleBufferedOutput;
 
     // video controls
     bool _pauseVideo           = false;
     int  _videoCursorMoveIndex = 0;
 
-
-    // slam params
-    void                       setModeExtractors(ExtractorIds& extractorIds);
-    KPextractor*               orbExtractor(int nf);
-    KPextractor*               surfExtractor(int th);
-    KPextractor*               glslExtractor(int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma);
-    KPextractor*               kpExtractor(int id);
-    std::map<int, std::string> extractorIdToNames;
-    std::map<std::string, int> extractorNamesToIds;
     // event queue
     std::queue<WAIEvent*> _eventQueue;
 
     CVCalibration _calibration     = {CVCameraType::FRONTFACING, ""};
     bool          _showUndistorted = true;
 
-    std::unique_ptr<KPextractor> _extractor;
-    std::unique_ptr<KPextractor> _iniExtractor;
+    FeatureExtractorFactory      _featureExtractorFactory;
+    std::unique_ptr<KPextractor> _trackingExtractor;
+    std::unique_ptr<KPextractor> _initializationExtractor;
     std::unique_ptr<KPextractor> _markerExtractor;
 };
 
