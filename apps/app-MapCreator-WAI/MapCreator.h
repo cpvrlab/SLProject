@@ -79,9 +79,9 @@ private:
     WAIMapPoint* _mpLL;
     WAIMapPoint* _mpLR;
 
-    KPextractor* _kpIniExtractor    = nullptr;
-    KPextractor* _kpExtractor       = nullptr;
-    KPextractor* _kpMarkerExtractor = nullptr;
+    std::unique_ptr<KPextractor> _kpIniExtractor    = nullptr;
+    std::unique_ptr<KPextractor> _kpExtractor       = nullptr;
+    std::unique_ptr<KPextractor> _kpMarkerExtractor = nullptr;
 };
 
 #endif //MAP_CREATOR_H

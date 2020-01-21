@@ -11,6 +11,7 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/MapCreator.h
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
+    ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/BRIEFPattern.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
@@ -20,6 +21,7 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/main.cpp
     ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/MapCreator.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
+    ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
     )
