@@ -2,6 +2,7 @@
 #include <memory>
 #include <CVCamera.h>
 #include <GLSLextractor.h>
+#include <FeatureExtractorFactory.h>
 
 MapCreator::MapCreator(std::string erlebARDir, std::string configFile)
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
@@ -22,19 +23,14 @@ MapCreator::MapCreator(std::string erlebARDir, std::string configFile)
     loadSites(erlebARDir, configFile);
 
     //init keypoint extractors
-    _kpExtractor       = new GLSLextractor(640, 360, 16, 16, 0.5, 0.25, 1.8, 1.2);
-    _kpIniExtractor    = new GLSLextractor(640, 360, 16, 16, 0.5, 0.25, 1.8, 1.2);
-    _kpMarkerExtractor = new GLSLextractor(640, 360, 16, 16, 0.5, 0.25, 1.8, 1.2);
-    //_kpMarkerExtractor = new ORB_SLAM2::SURFextractor(800);
+    FeatureExtractorFactory factory;
+    _kpExtractor       = factory.make(8, {640, 360});
+    _kpIniExtractor    = factory.make(8, {640, 360});
+    _kpMarkerExtractor = factory.make(8, {640, 360});
 }
 
 MapCreator::~MapCreator()
 {
-    if (_kpMarkerExtractor)
-    {
-        delete _kpMarkerExtractor;
-        _kpMarkerExtractor = nullptr;
-    }
 }
 
 void MapCreator::loadSites(const std::string& erlebARDir, const std::string& configFile)
@@ -240,8 +236,8 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
 
         //instantiate wai mode
         std::unique_ptr<WAI::ModeOrbSlam2> waiMode =
-          std::make_unique<WAI::ModeOrbSlam2>(_kpExtractor,
-                                              _kpExtractor,
+          std::make_unique<WAI::ModeOrbSlam2>(_kpExtractor.get(),
+                                              _kpExtractor.get(),
                                               cap->activeCamera->calibration.cameraMat(),
                                               cap->activeCamera->calibration.distortion(),
                                               modeParams,
@@ -330,7 +326,9 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
 
     //instantiate wai mode
     std::unique_ptr<WAI::ModeOrbSlam2> waiMode =
-      std::make_unique<WAI::ModeOrbSlam2>(calib.cameraMat(),
+      std::make_unique<WAI::ModeOrbSlam2>(_kpExtractor.get(),
+                                          _kpIniExtractor.get(),
+                                          calib.cameraMat(),
                                           calib.distortion(),
                                           modeParams,
                                           _vocFile);
@@ -404,7 +402,11 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
 
     //instantiate wai mode
     std::unique_ptr<WAI::ModeOrbSlam2> waiMode =
-      std::make_unique<WAI::ModeOrbSlam2>(calib.cameraMat(),
+      std::make_unique<WAI::ModeOrbSlam2>(_kpExtractor.get(),
+                                          _kpIniExtractor.get(),
+                                          _kpMarkerExtractor.get(),
+                                          markerFile,
+                                          calib.cameraMat(),
                                           calib.distortion(),
                                           modeParams,
                                           _vocFile);
@@ -415,7 +417,7 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
     // Additional steps to save marker map
     // 1. Find matches to marker on two keyframes
     // 1.a Extract features from marker image
-    WAIFrame markerFrame = waiMode->createMarkerFrame(markerFile, _kpMarkerExtractor);
+    WAIFrame markerFrame = waiMode->createMarkerFrame(markerFile, _kpMarkerExtractor.get());
 
     // 1.b Find keyframes with enough matches to marker image
     WAIMap*                   map = waiMode->getMap();
