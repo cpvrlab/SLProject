@@ -256,6 +256,7 @@ bool CVCalibrationEstimator::calcCalibration(CVSize&            imageSize,
     int iFixedPoint = -1;
     if (useReleaseObjectMethod)
         iFixedPoint = boardSize.width - 1;
+#if 0
     double rms = cv::calibrateCameraRO(objectPoints,
                                        imagePoints,
                                        imageSize,
@@ -266,6 +267,18 @@ bool CVCalibrationEstimator::calcCalibration(CVSize&            imageSize,
                                        tvecs,
                                        cv::noArray(),
                                        flag);
+#else
+    double rms = cv::calibrateCamera(objectPoints,
+                                     imagePoints,
+                                     imageSize,
+                                     //iFixedPoint,
+                                     cameraMatrix,
+                                     distCoeffs,
+                                     rvecs,
+                                     tvecs,
+                                     //cv::noArray(),
+                                     flag);
+#endif
     ////////////////////////////////////////////////
 
     Utils::log("Re-projection error reported by calibrateCamera: %f\n", rms);

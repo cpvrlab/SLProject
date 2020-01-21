@@ -49,6 +49,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         {
             SLAssimpImporter importer;
             SLNode*          temple = importer.load("FBX/AugustaRaurica/Theater.fbx");
+            temple->scale(0.1f);
 
             rootNode->addChild(temple);
         }
