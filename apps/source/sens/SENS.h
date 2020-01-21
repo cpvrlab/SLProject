@@ -3,9 +3,10 @@
 
 enum class SENSType
 {
-	CAM,
-	GPS,
-	ORIENTATION
+    CAM,
+    VIDEO,
+    GPS,
+    ORIENTATION
 };
 
 #endif //SENS_H

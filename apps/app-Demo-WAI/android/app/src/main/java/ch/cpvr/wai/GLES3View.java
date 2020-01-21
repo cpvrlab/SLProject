@@ -90,14 +90,8 @@ public class GLES3View extends GLSurfaceView
                 _initialized = true;
             }
 
-            int videoType = GLES3Lib.getVideoType();
-            int sizeIndex = GLES3Lib.getVideoSizeIndex();
             boolean usesRotation = GLES3Lib.usesRotation();
             boolean usesLocation = GLES3Lib.usesLocation();
-
-            if (videoType==VT_MAIN || videoType==VT_SCND)
-                 mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStart(videoType, sizeIndex);}});
-            else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStop();}});
 
             if (usesRotation)
                  mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.rotationSensorStart();}});
@@ -107,24 +101,8 @@ public class GLES3View extends GLSurfaceView
                  mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.locationSensorStart();}});
             else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.locationSensorStop();}});
 
-            if (videoType==VT_FILE)
-                GLES3Lib.grabVideoFileFrame();
-
-            //////////////////////////////////////////////////////
-            Boolean doRepaint = GLES3Lib.onUpdate();
-            //Boolean sceneUpdated    = GLES3Lib.onUpdateScene();
-            //Boolean viewUpdated     = GLES3Lib.onPaintAllViews();
-            //////////////////////////////////////////////////////
-
-            //Boolean doRepaint = trackingUpdated || sceneUpdated || viewUpdated;
-
-            // Only request new rendering for non-live video
-            // For live video the camera service will call requestRenderer
-            if (doRepaint && (videoType==VT_NONE || videoType==VT_FILE))
-                GLES3Lib.view.requestRender();
-
-            if (videoType!=VT_NONE)
-                GLES3Lib.lastVideoImageIsConsumed.set(true);
+            GLES3Lib.onUpdate();
+            GLES3Lib.view.requestRender();
         }
     }
 }

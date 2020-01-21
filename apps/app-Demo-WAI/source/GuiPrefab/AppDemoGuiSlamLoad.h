@@ -20,13 +20,14 @@
 class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {
 public:
-    AppDemoGuiSlamLoad(const std::string&      name,
-                       std ::queue<WAIEvent*>* eventQueue,
-                       std::string             slamRootDir,
-                       std::string             calibrationsDir,
-                       std::string             vocabulariesDir,
-                       bool*                   activator,
-                       SlamParams&             currentSlamParams);
+    AppDemoGuiSlamLoad(const std::string&              name,
+                       std ::queue<WAIEvent*>*         eventQueue,
+                       std::string                     slamRootDir,
+                       std::string                     calibrationsDir,
+                       std::string                     vocabulariesDir,
+                       const std::vector<std::string>& extractorIdToNames,
+                       bool*                           activator,
+                       SlamParams&                     currentSlamParams);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
@@ -63,6 +64,12 @@ private:
     bool _serial;
     bool _trackingOnly;
     bool fixLoadedKfs;
+
+    int _trackingExtractorId;
+    int _initExtractorId;
+    int _markerExtractorId;
+
+    const std::vector<std::string>& _extractorIdToNames;
 
     SlamParams& _currentSlamParams;
 

@@ -39,9 +39,13 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.h
+    ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENS.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSFrame.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
 	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.h
 	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.h
     )
@@ -78,6 +82,9 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
+    ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.cpp
     )
@@ -164,8 +171,11 @@ file(GLOB_RECURSE CALIBRATIONS
     ${SL_PROJECT_ROOT}/data/calibrations/calib_in_params.yml
     ${SL_PROJECT_ROOT}/data/calibrations/aruco_detector_params.yml
     ${SL_PROJECT_ROOT}/data/calibrations/cam_calibration_main.xml
-    ${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
     )
+
+file(GLOB_RECURSE VOC
+	${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
+	)
 
 set(APK_ASSETS
     ${CMAKE_CURRENT_LIST_DIR}/src/main/assets)
@@ -179,6 +189,7 @@ file(MAKE_DIRECTORY
     ${APK_ASSETS}/shaders
     ${APK_ASSETS}/calibrations
     ${APK_ASSETS}/config
+	${APK_ASSETS}/voc
     )
 
 file(COPY ${FONTS}          DESTINATION ${APK_ASSETS}/images/fonts)
@@ -188,3 +199,4 @@ file(COPY ${MODELS}         DESTINATION ${APK_ASSETS}/models)
 file(COPY ${SHADERS}        DESTINATION ${APK_ASSETS}/shaders)
 file(COPY ${CALIBRATIONS}   DESTINATION ${APK_ASSETS}/calibrations)
 file(COPY ${CONFIG}         DESTINATION ${APK_ASSETS}/config)
+file(COPY ${VOC}         	DESTINATION ${APK_ASSETS}/voc)

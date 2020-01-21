@@ -122,12 +122,12 @@ public:
     CVSize imageSizeOriginal() { return _imageSizeOrig; }
 
     //int    camSizeIndex() { return _camSizeIndex;}
-    float  imageAspectRatio() { return (float)_imageSize.width / (float)_imageSize.height; }
-    CVMat& cameraMat() { return _cameraMat; }
-    CVMat& cameraMatUndistorted() { return _cameraMatUndistorted; }
-    CVMat& distortion() { return _distortion; }
-    float  cameraFovVDeg() { return _cameraFovVDeg; }
-    float  cameraFovHDeg() { return _cameraFovHDeg; }
+    float        imageAspectRatio() const { return (float)_imageSize.width / (float)_imageSize.height; }
+    const CVMat& cameraMat() const { return _cameraMat; }
+    const CVMat& cameraMatUndistorted() const { return _cameraMatUndistorted; }
+    const CVMat& distortion() const { return _distortion; }
+    float        cameraFovVDeg() const { return _cameraFovVDeg; }
+    float        cameraFovHDeg() const { return _cameraFovHDeg; }
 
     int  calibrationFlags() { return _calibFlags; }
     bool calibFixPrincipalPoint() { return _calibFlags & cv::CALIB_FIX_PRINCIPAL_POINT; }
@@ -139,36 +139,36 @@ public:
     bool isMirroredH() { return _isMirroredH; }
     bool isMirroredV() { return _isMirroredV; }
 
-    float fx() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(0, 0) : 0.0f; }
-    float fy() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(1, 1) : 0.0f; }
-    float cx() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(0, 2) : 0.0f; }
-    float cy() { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(1, 2) : 0.0f; }
-    float k1() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(0, 0) : 0.0f; }
-    float k2() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(1, 0) : 0.0f; }
-    float p1() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(2, 0) : 0.0f; }
-    float p2() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(3, 0) : 0.0f; }
-    float k3() { return _distortion.rows >= 5 ? (float)_distortion.at<double>(4, 0) : 0.0f; }
-    float k4() { return _distortion.rows >= 6 ? (float)_distortion.at<double>(5, 0) : 0.0f; }
-    float k5() { return _distortion.rows >= 7 ? (float)_distortion.at<double>(6, 0) : 0.0f; }
-    float k6() { return _distortion.rows >= 8 ? (float)_distortion.at<double>(7, 0) : 0.0f; }
-    float s1() { return _distortion.rows >= 9 ? (float)_distortion.at<double>(8, 0) : 0.0f; }
-    float s2() { return _distortion.rows >= 10 ? (float)_distortion.at<double>(9, 0) : 0.0f; }
-    float s3() { return _distortion.rows >= 11 ? (float)_distortion.at<double>(10, 0) : 0.0f; }
-    float s4() { return _distortion.rows >= 12 ? (float)_distortion.at<double>(11, 0) : 0.0f; }
-    float tauX() { return _distortion.rows >= 13 ? (float)_distortion.at<double>(12, 0) : 0.0f; }
-    float tauY() { return _distortion.rows >= 14 ? (float)_distortion.at<double>(13, 0) : 0.0f; }
+    float fx() const { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(0, 0) : 0.0f; }
+    float fy() const { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(1, 1) : 0.0f; }
+    float cx() const { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(0, 2) : 0.0f; }
+    float cy() const { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(1, 2) : 0.0f; }
+    float k1() const { return _distortion.rows >= 4 ? (float)_distortion.at<double>(0, 0) : 0.0f; }
+    float k2() const { return _distortion.rows >= 4 ? (float)_distortion.at<double>(1, 0) : 0.0f; }
+    float p1() const { return _distortion.rows >= 4 ? (float)_distortion.at<double>(2, 0) : 0.0f; }
+    float p2() const { return _distortion.rows >= 4 ? (float)_distortion.at<double>(3, 0) : 0.0f; }
+    float k3() const { return _distortion.rows >= 5 ? (float)_distortion.at<double>(4, 0) : 0.0f; }
+    float k4() const { return _distortion.rows >= 6 ? (float)_distortion.at<double>(5, 0) : 0.0f; }
+    float k5() const { return _distortion.rows >= 7 ? (float)_distortion.at<double>(6, 0) : 0.0f; }
+    float k6() const { return _distortion.rows >= 8 ? (float)_distortion.at<double>(7, 0) : 0.0f; }
+    float s1() const { return _distortion.rows >= 9 ? (float)_distortion.at<double>(8, 0) : 0.0f; }
+    float s2() const { return _distortion.rows >= 10 ? (float)_distortion.at<double>(9, 0) : 0.0f; }
+    float s3() const { return _distortion.rows >= 11 ? (float)_distortion.at<double>(10, 0) : 0.0f; }
+    float s4() const { return _distortion.rows >= 12 ? (float)_distortion.at<double>(11, 0) : 0.0f; }
+    float tauX() const { return _distortion.rows >= 13 ? (float)_distortion.at<double>(12, 0) : 0.0f; }
+    float tauY() const { return _distortion.rows >= 14 ? (float)_distortion.at<double>(13, 0) : 0.0f; }
 
-    CVCameraType camType() { return _camType; }
-    CVCalibState state() { return _state; }
-    int          numCapturedImgs() { return _numCaptured; }
-    float        reprojectionError() { return _reprojectionError; }
-    CVSize       boardSize() { return _boardSize; }
-    float        boardSquareMM() { return _boardSquareMM; }
-    float        boardSquareM() { return _boardSquareMM * 0.001f; }
-    string       calibrationTime() { return _calibrationTime; }
-    string       calibFileName() { return _calibFileName; }
-    string       computerInfos() { return _computerInfos; }
-    string       stateStr()
+    CVCameraType camType() const { return _camType; }
+    CVCalibState state() const { return _state; }
+    int          numCapturedImgs() const { return _numCaptured; }
+    float        reprojectionError() const { return _reprojectionError; }
+    CVSize       boardSize() const { return _boardSize; }
+    float        boardSquareMM() const { return _boardSquareMM; }
+    float        boardSquareM() const { return _boardSquareMM * 0.001f; }
+    string       calibrationTime() const { return _calibrationTime; }
+    string       calibFileName() const { return _calibFileName; }
+    string       computerInfos() const { return _computerInfos; }
+    string       stateStr() const
     {
         switch (_state)
         {
