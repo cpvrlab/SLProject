@@ -810,6 +810,7 @@ void MapCreator::decorateDebug(WAI::ModeOrbSlam2* waiMode, CVCapture* cap, const
     {
         cv::Mat            decoImg      = cap->lastFrame.clone();
         WAI::TrackingState waiModeState = waiMode->getTrackingState();
+        waiMode->decorateVideoWithKeyPointMatches(decoImg);
 
         double     fontScale = 0.5;
         cv::Point  stateOff(10, 25);

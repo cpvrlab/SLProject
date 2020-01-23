@@ -1139,6 +1139,10 @@ GLSLextractor::GLSLextractor(int w, int h, int nbKeypointsBigSigma, int nbKeypoi
     const int    npoints  = 512;
     const Point* pattern0 = (const Point*)bit_pattern_31_;
     std::copy(pattern0, pattern0 + npoints, std::back_inserter(pattern));
+
+    _clahe = cv::createCLAHE();
+    _clahe->setClipLimit(2.0);
+    _clahe->setTilesGridSize(cv::Size(8, 8));
 }
 
 static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Mat& descriptors, const vector<Point>& pattern)
@@ -1152,6 +1156,18 @@ static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Ma
 void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, OutputArray _descriptors)
 {
     images[idx] = _image.getMat().clone();
+
+    if (_clahe)
+    {
+        //cv::imwrite("claheBefore.png", images[idx]);
+        AVERAGE_TIMING_START("clahe");
+        _clahe->apply(images[idx], images[idx]);
+        AVERAGE_TIMING_STOP("clahe");
+        //std::cout << "clahe time: " << AverageTiming::getTime("clahe") << std::endl;
+
+        //cv::imwrite("claheAfter.png", images[idx]);
+    }
+
     Mat m;
     Mat descriptors;
 

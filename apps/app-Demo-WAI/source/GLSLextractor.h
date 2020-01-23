@@ -24,8 +24,9 @@ public:
 protected:
     std::vector<cv::Point> pattern;
     cv::Mat                images[2];
-    int idx;
+    int                    idx;
     GLSLHessian            imgProc;
+    cv::Ptr<cv::CLAHE>     _clahe;
 };
 
 #endif

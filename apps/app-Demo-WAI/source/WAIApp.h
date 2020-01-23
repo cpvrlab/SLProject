@@ -201,8 +201,6 @@ private:
     //get new frame from live video or video file stream
     SENSFramePtr updateVideoOrCamera();
 
-    cv::Ptr<cv::CLAHE> _clahe;
-
     //todo: we dont need a pointer
     std::unique_ptr<AppWAIScene> _waiScene;
     WAI::ModeOrbSlam2*           _mode       = nullptr;

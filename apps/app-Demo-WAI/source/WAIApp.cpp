@@ -92,10 +92,6 @@ int WAIApp::load(SENSCamera* camera, int liveVideoTargetW, int liveVideoTargetH,
     _videoWriterInfo = new cv::VideoWriter();
     _loaded          = true;
 
-    _clahe = cv::createCLAHE();
-    _clahe->setClipLimit(2.0);
-    _clahe->setTilesGridSize(cv::Size(8, 8));
-
     //init scene as soon as possible to allow visualization of error msgs
     int svIndex = initSLProject(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi);
 
@@ -535,9 +531,7 @@ bool WAIApp::updateTracking(SENSFramePtr frame)
         _videoWriter->write(frame->imgRGB);
     }
 
-    cv::Mat m;
-    _clahe->apply(frame->imgGray, m);
-    iKnowWhereIAm = _mode->update(m, frame->imgRGB);
+    iKnowWhereIAm = _mode->update(frame->imgGray, frame->imgRGB);
 
     if (_videoWriterInfo->isOpened())
     {
