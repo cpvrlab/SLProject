@@ -43,6 +43,7 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
         //add tracking state
         ImGui::Text("Tracking State : %s ", mode->getPrintableState().c_str());
         //tracking type
+        /*
         ImGui::Text("Tracking Type : %s ", mode->getPrintableType().c_str());
         //mean reprojection error
         ImGui::Text("Mean Reproj. Error : %f ", mode->getMeanReprojectionError());
@@ -50,6 +51,7 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
         ImGui::Text("Num Map Matches : %d ", mode->getNMapMatches());
         //L2 norm of the difference between the last and the current camera pose
         ImGui::Text("Pose Difference : %f ", mode->poseDifference());
+        */
         ImGui::Separator();
 
         bool b;

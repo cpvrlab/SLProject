@@ -24,7 +24,7 @@ void AppDemoGuiTrackedMapping::buildInfos(SLScene* s, SLSceneView* sv)
     }
     else
     {
-        WAI::ModeOrbSlam2* mode = _waiApp.mode();
+        LuluSLAM* mode = _waiApp.mode();
         if (!mode)
             return;
 
@@ -33,6 +33,7 @@ void AppDemoGuiTrackedMapping::buildInfos(SLScene* s, SLSceneView* sv)
             mode->reset();
         }
 
+        /*
         if (ImGui::Button("Disable Mapping", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
         {
             mode->disableMapping();
@@ -57,13 +58,16 @@ void AppDemoGuiTrackedMapping::buildInfos(SLScene* s, SLSceneView* sv)
         //ImGui::Text("Number of LoopClosings : %d ", _wai->mpLoopCloser->numOfLoopClosings());
         ImGui::Text("Loop closing status : %s ", mode->getLoopCloseStatus().c_str());
         ImGui::Text("Keyframes in Loop closing queue : %d", mode->getKeyFramesInLoopCloseQueueCount());
+        */
 
+        /*
         //show 2D key points in video image
         bool b = mode->getTrackOptFlow();
         if (ImGui::Checkbox("Track optical flow", &b))
         {
             mode->setTrackOptFlow(b);
         }
+        */
     }
 
     ImGui::End();
