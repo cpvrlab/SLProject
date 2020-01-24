@@ -59,26 +59,36 @@ public:
     WAIKeyFrameDB*  keyFrameDatabase;
     KPextractor*    extractor;
     ORBVocabulary*  voc;
+    cv::Mat         distortion;
+    cv::Mat         cameraIntrinsic;
+    cv::Mat         cameraExtrinsic;
     std::thread*    localMappingThread = nullptr;
     std::thread*    loopClosingThread  = nullptr;
+    std::mutex      mutexStates;
+    bool initialized;
+    WAIFrame lastFrame;
 
-    LuluSLAM(std::string orbVocFile, KPextractor* extractorp);
+    LuluSLAM(cv::Mat intrinsic, cv::Mat distortion, std::string orbVocFile, KPextractor* extractorp);
 
-    bool update(cv::Mat camera, cv::Mat dist, cv::Mat imageGray, cv::Mat imageRGB);
+    WAIFrame genFrame(cv::Mat imageGray);
+    bool update(cv::Mat imageGray, cv::Mat imageRGB);
+
+    cv::Mat getExtrinsic();
 
     static void drawInitInfo(initializerData& iniData, WAIFrame& newFrame, cv::Mat& imageRGB);
 
-    static bool initialize(initializerData  iniData,
-                           cv::Mat&         camera,
-                           cv::Mat&         distortion,
-                           ORBVocabulary*   voc,
-                           WAIMap*          map,
-                           WAIKeyFrameDB*   keyFrameDatabase,
-                           localMap&        lmap,
-                           LocalMapping*    lmapper,
-                           SLAMLatestState& last,
-                           WAIFrame&        frame,
-                           list<cv::Mat>&   relativeFramePoses);
+    static bool initialize(initializerData iniData,
+                          cv::Mat &camera,
+                          cv::Mat &distortion,
+                          ORBVocabulary *voc,
+                          WAIMap *map,
+                          WAIKeyFrameDB* keyFrameDatabase,
+                          localMap &lmap,
+                          LocalMapping *lmapper,
+                          LoopClosing *loopClosing,
+                          SLAMLatestState& last,
+                          WAIFrame &frame,
+                          list<cv::Mat> &relativeFramePoses);
 
     static bool relocalization(WAIFrame&        currentFrame,
                                SLAMLatestState& last,
@@ -93,7 +103,8 @@ public:
                                    localMap&        localMap,
                                    LocalMapping*    localMapper,
                                    WAIFrame&        frame,
-                                   list<cv::Mat>&   relativeFramePoses);
+                                   list<cv::Mat>&   relativeFramePoses,
+                                   cv::Mat&         pose);
 
     static bool track(WAIFrame& frame, SLAMLatestState& last, localMap& localMap, list<cv::Mat>& relativeFramePoses);
 
@@ -115,16 +126,17 @@ public:
                                 WAIFrame&        frame,
                                 int              nInliners);
 
-    static bool createInitialMapMonocular(initializerData& iniData,
-                                          SLAMLatestState& last,
-                                          ORBVocabulary*   voc,
-                                          WAIMap*          map,
-                                          LocalMapping*    lmapper,
-                                          localMap&        lmap,
-                                          int              mapPointsNeeded,
-                                          WAIKeyFrameDB*   keyFrameDatabase,
-                                          WAIFrame&        frame,
-                                          list<cv::Mat>&   relativeFramePoses);
+    static bool createInitialMapMonocular(initializerData &iniData,
+                                         SLAMLatestState &last,
+                                         ORBVocabulary *voc,
+                                         WAIMap *map,
+                                         LocalMapping *lmapper,
+                                         LoopClosing *loopCloser,
+                                         localMap &lmap,
+                                         int mapPointsNeeded,
+                                         WAIKeyFrameDB*    keyFrameDatabase,
+                                         WAIFrame &frame,
+                                         list<cv::Mat>&    relativeFramePoses);
 
     static void createNewKeyFrame(LocalMapping*    localMapper,
                                   localMap&        lmap,
@@ -132,5 +144,41 @@ public:
                                   WAIKeyFrameDB*   keyFrameDatabase,
                                   SLAMLatestState& last,
                                   WAIFrame&        frame);
-    ;
+
+
+    bool hasStateIdle();
+
+    void requestStateIdle();
+
+    WAIMap* getMap();
+
+    WAIKeyFrameDB* getKfDB();
+
+    bool retainImage();
+
+    void resume();
+    void reset();
+    void setInitialized(bool b);
+    bool isInitialized();
+
+    KPextractor * getKPextractor();
+    WAIFrame* getLastFrame();
+    std::vector<WAIMapPoint*> getMapPoints();
+    std::vector<WAIKeyFrame*> getKeyFrames();
+    std::vector<WAIMapPoint*> getLocalMapPoints();
+    std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> getMatchedCorrespondances(WAIFrame& frame);
+
+    static void drawKeyPointInfo(WAIFrame &frame, cv::Mat& image);
+
+    static void drawKeyPointMatches(WAIFrame &frame, cv::Mat& image);
+
+    static std::vector<WAIMapPoint*> getMatchedMapPoints(WAIFrame* frame);
+
+    std::string getPrintableState();
+
+    int getKeyPointCount();
+
+    int getKeyFrameCount();
+
+    int getMapPointCount();
 };
