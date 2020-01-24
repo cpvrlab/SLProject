@@ -48,36 +48,36 @@ struct initializerData
 class LuluSLAM
 {
 public:
-    initializerData iniData;
-    localMap        lmap;
-    WAIMap*         globalMap;
-    SLAMLatestState last;
-    TrackingState   state;
-    LocalMapping*   localMapping;
-    LoopClosing*    loopClosing;
-    list<cv::Mat>   relativeFramePoses;
-    WAIKeyFrameDB*  keyFrameDatabase;
-    KPextractor*    extractor;
-    ORBVocabulary*  voc;
-    cv::Mat         distortion;
-    cv::Mat         cameraIntrinsic;
-    cv::Mat         cameraExtrinsic;
-    std::thread*    localMappingThread = nullptr;
-    std::thread*    loopClosingThread  = nullptr;
-    std::mutex      mutexStates;
-    bool initialized;
-    WAIFrame lastFrame;
+    initializerData mIniData;
+    localMap        mLmap;
+    WAIMap*         mGlobalMap;
+    SLAMLatestState mLast;
+    TrackingState   mState;
+    LocalMapping*   mLocalMapping;
+    LoopClosing*    mLoopClosing;
+    list<cv::Mat>   mRelativeFramePoses;
+    WAIKeyFrameDB*  mKeyFrameDatabase;
+    KPextractor*    mExtractor;
+    ORBVocabulary*  mVoc;
+    cv::Mat         mDistortion;
+    cv::Mat         mCameraIntrinsic;
+    cv::Mat         mCameraExtrinsic;
+    std::thread*    mLocalMappingThread = nullptr;
+    std::thread*    mLoopClosingThread  = nullptr;
+    std::mutex      mMutexStates;
+    bool            mInitialized;
+    WAIFrame        mLastFrame;
 
     LuluSLAM(cv::Mat intrinsic, cv::Mat distortion, std::string orbVocFile, KPextractor* extractorp);
 
     WAIFrame genFrame(cv::Mat imageGray);
-    bool update(cv::Mat imageGray, cv::Mat imageRGB);
+    bool update(cv::Mat &imageGray, cv::Mat &imageRGB);
 
     cv::Mat getExtrinsic();
 
     static void drawInitInfo(initializerData& iniData, WAIFrame& newFrame, cv::Mat& imageRGB);
 
-    static bool initialize(initializerData iniData,
+    static bool initialize(initializerData &iniData,
                           cv::Mat &camera,
                           cv::Mat &distortion,
                           ORBVocabulary *voc,
@@ -181,4 +181,6 @@ public:
     int getKeyFrameCount();
 
     int getMapPointCount();
+
+    cv::Mat getPose();
 };

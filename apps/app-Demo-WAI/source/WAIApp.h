@@ -23,17 +23,15 @@
 #include <AppDemoWaiGui.h>
 #include <SLInputEventInterface.h>
 #include <LuluSlam.h>
+#include <SENSCamera.h>
+#include <SENSVideoStream.h>
+#include <GLSLextractor.h>
+#include <FeatureExtractorFactory.h>
 
 class SLMaterial;
 class SLPoints;
 class SLNode;
 class AppDemoGuiError;
-
-struct OrbSlamStartResult
-{
-    bool        wasSuccessful;
-    std::string errorString;
-};
 
 struct ExtractorIds
 {
@@ -51,7 +49,6 @@ struct SlamParams
     std::string               markerFile;
     std::string               location;
     std::string               area;
-    std::string               extractorID;
     WAI::ModeOrbSlam2::Params params;
     ExtractorIds              extractorIds;
 };
@@ -64,8 +61,6 @@ enum WAIEventType
     WAIEventType_VideoControl,
     WAIEventType_VideoRecording,
     WAIEventType_MapNodeTransform,
-    WAIEventType_SetExtractors
-    //TODO(dgj1): rest of events
 };
 
 struct WAIEvent
@@ -114,13 +109,6 @@ struct WAIEventMapNodeTransform : WAIEvent
     float            scale;
 };
 
-struct WAIEventSetExtractors : WAIEvent
-{
-    WAIEventSetExtractors() { type = WAIEventType_SetExtractors; }
-
-    ExtractorIds extractorIds;
-};
-
 //-----------------------------------------------------------------------------
 class WAIApp : public SLInputEventInterface
 {
@@ -128,7 +116,8 @@ public:
     WAIApp();
     ~WAIApp();
     //call load to correctly initialize wai app
-    int load(int            liveVideoTargetW,
+    int load(SENSCamera*    camera,
+             int            liveVideoTargetW,
              int            liveVideoTargetH,
              int            scrWidth,
              int            scrHeight,
@@ -141,8 +130,8 @@ public:
     void close();
 
     //initialize wai orb slam with transferred parameters
-    OrbSlamStartResult startOrbSlam(SlamParams* slamParams = nullptr);
-    void               showErrorMsg(std::string msg);
+    void startOrbSlam(SlamParams* slamParams = nullptr);
+    void showErrorMsg(std::string msg);
 
     //todo: replace when we are independent of SLApplication
     std::string name();
@@ -163,7 +152,10 @@ public:
 
     //set path for external writable directory for mobile devices
     //todo: is this still needed?
-    void initExternalDataDirectory(std::string path);
+    void                   initExternalDataDirectory(std::string path);
+    const SENSVideoStream* getVideoFileStream() const { return _videoFileStream.get(); }
+    const CVCalibration&   getCalibration() const { return _calibration; }
+    const cv::Size&        getFrameSize() const { return _videoFrameSize; }
 
     LuluSLAM* mode()
     {
@@ -175,13 +167,8 @@ public:
     std::string mapDir;
     std::string vocDir;
 
-    //video file editing
-    bool doubleBufferedOutput;
-
-    void updateVideoImage(cv::Mat frame);
-
 private:
-    bool updateTracking(cv::Mat &pose);
+    bool updateTracking(SENSFramePtr frame);
     bool initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
     void loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location, std::string area);
 
@@ -192,7 +179,7 @@ private:
     bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
     bool updateSceneViews();
 
-    void updateTrackingVisualization(const bool iKnowWhereIAm);
+    void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
     void renderMapPoints(std::string                      name,
                          const std::vector<WAIMapPoint*>& pts,
                          SLNode*&                         node,
@@ -205,9 +192,16 @@ private:
                           SLVec3f          rotation,
                           SLVec3f          translation,
                           float            scale);
+    // video writer
+    void saveVideo(std::string filename);
+    void saveGPSData(std::string videofile);
+
     void handleEvents();
 
-    cv::Ptr<cv::CLAHE> clahe;
+    //get new frame from live video or video file stream
+    SENSFramePtr updateVideoOrCamera();
+
+    cv::Ptr<cv::CLAHE> _clahe;
 
     //todo: we dont need a pointer
     std::unique_ptr<AppWAIScene> _waiScene;
@@ -228,8 +222,10 @@ private:
 
     // bool _resizeWindow;
     //todo: do we need a pointer
-    cv::VideoWriter* _videoWriter     = nullptr;
-    cv::VideoWriter* _videoWriterInfo = nullptr;
+    cv::VideoWriter*                 _videoWriter     = nullptr;
+    cv::VideoWriter*                 _videoWriterInfo = nullptr;
+    std::unique_ptr<SENSVideoStream> _videoFileStream;
+    SENSCamera*                      _camera = nullptr;
 
     int _liveVideoTargetWidth;
     int _liveVideoTargetHeight;
@@ -240,28 +236,24 @@ private:
     std::unique_ptr<AppDemoWaiGui> _gui;
     AppDemoGuiError*               _errorDial = nullptr;
 
-    int   lastFrameIdx;
-    CVMat undistortedLastFrame[2];
+    int     _lastFrameIdx;
+    cv::Mat _undistortedLastFrame[2];
+    bool    _doubleBufferedOutput;
 
     // video controls
     bool _pauseVideo           = false;
     int  _videoCursorMoveIndex = 0;
 
-    // video writer
-    void saveVideo(std::string filename);
-    void saveGPSData(std::string videofile);
-
-    // slam params
-    void                       setModeExtractors(ExtractorIds& extractorIds);
-    KPextractor*               orbExtractor(int nf);
-    KPextractor*               surfExtractor(int th);
-    KPextractor*               glslExtractor(int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma);
-    KPextractor*               kpExtractor(int id);
-    std::map<int, std::string> extractorIdToNames;
-    std::map<std::string, int> extractorNamesToIds;
-
     // event queue
-    std::queue<WAIEvent*> eventQueue;
+    std::queue<WAIEvent*> _eventQueue;
+
+    CVCalibration _calibration     = {CVCameraType::FRONTFACING, ""};
+    bool          _showUndistorted = true;
+
+    FeatureExtractorFactory      _featureExtractorFactory;
+    std::unique_ptr<KPextractor> _trackingExtractor;
+    std::unique_ptr<KPextractor> _initializationExtractor;
+    std::unique_ptr<KPextractor> _markerExtractor;
 };
 
 #endif

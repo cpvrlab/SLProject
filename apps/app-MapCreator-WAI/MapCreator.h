@@ -28,6 +28,7 @@ class MapCreator
 
 public:
     MapCreator(std::string erlebARDir, std::string configFile);
+    ~MapCreator();
     //! execute map creation
     void execute();
     //! Scan erlebar directory and config file, collect everything that is enabled in the config file and
@@ -77,6 +78,10 @@ private:
     WAIMapPoint* _mpUR;
     WAIMapPoint* _mpLL;
     WAIMapPoint* _mpLR;
+
+    std::unique_ptr<KPextractor> _kpIniExtractor    = nullptr;
+    std::unique_ptr<KPextractor> _kpExtractor       = nullptr;
+    std::unique_ptr<KPextractor> _kpMarkerExtractor = nullptr;
 };
 
 #endif //MAP_CREATOR_H

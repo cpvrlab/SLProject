@@ -51,7 +51,7 @@ using namespace std;
 */
 class WAI_API WAIMap
 {
-    public:
+public:
     enum TransformType
     {
         ROT_X = 0,
@@ -107,7 +107,7 @@ class WAI_API WAIMap
     void setNumLoopClosings(int n);
     int  getNumLoopClosings();
 
-    protected:
+protected:
     std::set<WAIMapPoint*> mspMapPoints;
     std::set<WAIKeyFrame*> mspKeyFrames;
 
@@ -122,6 +122,7 @@ class WAI_API WAIMap
 
     std::mutex _mutexLoopClosings;
     int        _numberOfLoopClosings = 0;
+    int        _numOfKeyframes;
 };
 
 #endif // !WAIMAP_H

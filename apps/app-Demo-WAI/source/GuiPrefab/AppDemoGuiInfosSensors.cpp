@@ -5,7 +5,7 @@
 #include <SLApplication.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiInfosSensors.h>
-#include <CVCapture.h>
+
 //-----------------------------------------------------------------------------
 AppDemoGuiInfosSensors::AppDemoGuiInfosSensors(std::string name, bool* activator)
   : AppDemoGuiInfosDialog(name, activator)
@@ -36,8 +36,7 @@ void AppDemoGuiInfosSensors::buildInfos(SLScene* s, SLSceneView* sv)
     sprintf(m + strlen(m), "Sun Zenit (deg)     : %6.1f sec.\n", SLApplication::devLoc.originSolarZenit());
     sprintf(m + strlen(m), "Sun Azimut (deg)    : %6.1f sec.\n", SLApplication::devLoc.originSolarAzimut());
     sprintf(m + strlen(m), "---------------------\n");
-    CVCapture* cap = CVCapture::instance();
-    sprintf(m + strlen(m), "Uses Camera         : %s\n", cap->videoType() == CVVideoType::VT_MAIN || cap->videoType() == CVVideoType::VT_SCND ? "yes" : "no");
+
     for (auto it = SLApplication::deviceParameter.begin(); it != SLApplication::deviceParameter.end(); ++it)
         sprintf(m + strlen(m), "%s : %s\n", it->first.c_str(), it->second.c_str());
 
