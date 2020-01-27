@@ -91,7 +91,6 @@ public:
                           list<cv::Mat> &relativeFramePoses);
 
     static bool relocalization(WAIFrame&        currentFrame,
-                               SLAMLatestState& last,
                                WAIMap*          waiMap,
                                WAIKeyFrameDB*   keyFrameDatabase);
 

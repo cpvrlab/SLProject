@@ -36,6 +36,7 @@ LuluSLAM::LuluSLAM(cv::Mat intrinsic,
 
     mState = TrackingState_Initializing;
     mIniData.initializer = nullptr;
+    mCameraExtrinsic = cv::Mat::eye(4, 4, CV_32F);
 }
 
 void LuluSLAM::drawInitInfo(initializerData& iniData, WAIFrame &newFrame, cv::Mat& imageRGB)
@@ -73,9 +74,11 @@ bool LuluSLAM::update(cv::Mat &imageGray, cv::Mat &imageRGB)
             if (initialize(mIniData, mCameraIntrinsic, mDistortion, mVoc, mGlobalMap, mKeyFrameDatabase, mLmap, mLocalMapping, mLoopClosing, mLast, frame, mRelativeFramePoses))
             {
                 mState = TrackingState_TrackingOK;
+                std::cout << "finish initialization" << std::endl;
                 mInitialized = true;
             }
-            drawInitInfo(mIniData, frame, imageRGB);
+            else
+                drawInitInfo(mIniData, frame, imageRGB);
             break;
         case TrackingState_TrackingOK:
             if (!trackingAndMapping(mCameraIntrinsic, mDistortion, mGlobalMap, mKeyFrameDatabase, mLast, mLmap, mLocalMapping, frame, mRelativeFramePoses, mCameraExtrinsic))
@@ -85,10 +88,15 @@ bool LuluSLAM::update(cv::Mat &imageGray, cv::Mat &imageRGB)
             drawKeyPointMatches(frame, imageRGB);
             break;
         case TrackingState_TrackingLost:
-            if (relocalization(frame, mLast, mGlobalMap, mKeyFrameDatabase))
+            if (relocalization(frame, mGlobalMap, mKeyFrameDatabase))
+            {
+                std::cout << "relocalization" << std::endl;
+                mLast.lastRelocFrameId = frame.mnId;
                 mState = TrackingState_TrackingOK;
+            }
             break;
     }
+
     return (mState == TrackingState_TrackingOK);
 }
 
@@ -201,6 +209,7 @@ bool LuluSLAM::initialize(initializerData &iniData,
                 {
                     relativeFramePoses.push_back(relativeFramePoses.back());
                 }
+
                 return true;
             }
         }
@@ -234,6 +243,7 @@ bool LuluSLAM::createInitialMapMonocular(initializerData &iniData,
     pKFcur->ComputeBoW(voc);
 
     // Insert KFs in the map
+
     map->AddKeyFrame(pKFini);
     map->AddKeyFrame(pKFcur);
 
@@ -268,8 +278,6 @@ bool LuluSLAM::createInitialMapMonocular(initializerData &iniData,
     // Update Connections
     pKFini->UpdateConnections();
     pKFcur->UpdateConnections();
-
-    //cout << "New Map created with " << _map->MapPointsInMap() << " points" << endl;
 
     // Bundle Adjustment
     Optimizer::GlobalBundleAdjustemnt(map, 20);
@@ -360,20 +368,24 @@ bool LuluSLAM::trackingAndMapping(cv::Mat &camera,
 
     int inliner = 0;
 
-    if (track(frame, last, localMap, relativeFramePoses) || relocalization(frame, last, map, keyFrameDatabase))
+    if (!track(frame, last, localMap, relativeFramePoses))
     {
-        updateLocalMap(frame, localMap);
-        if (!localMap.keyFrames.empty())
-        {
-            frame.mpReferenceKF = localMap.refKF;
-
-            inliner = matchLocalMapPoints(localMap, last, frame);
-            if (frame.mnId < last.lastRelocFrameId + MAX_FRAMES && inliner < 50 || inliner < 30)
-            {
-                return false;
-            }
-        }
+        if (relocalization(frame, map, keyFrameDatabase))
+            last.lastRelocFrameId = frame.mnId;
+        else
+            return false;
     }
+
+    updateLocalMap(frame, localMap);
+    if (!localMap.keyFrames.empty())
+    {
+        frame.mpReferenceKF = localMap.refKF;
+        inliner             = matchLocalMapPoints(localMap, last, frame);
+        if (inliner < 50)
+            return false;
+    }
+    else
+        return false;
 
     // Update motion model
     if (!last.lastFrame.mTcw.empty())
@@ -433,6 +445,7 @@ bool LuluSLAM::trackingAndMapping(cv::Mat &camera,
         // This can happen if tracking is lost
         relativeFramePoses.push_back(relativeFramePoses.back());
     }
+    return true;
 }
 
 void LuluSLAM::createNewKeyFrame(LocalMapping* localMapper,
@@ -442,6 +455,7 @@ void LuluSLAM::createNewKeyFrame(LocalMapping* localMapper,
                                  SLAMLatestState& last,
                                  WAIFrame& frame)
 {
+    std::cout << "createNewKeyFrame" << std::endl;
     if (!localMapper->SetNotStop(true))
         return;
 
@@ -449,6 +463,10 @@ void LuluSLAM::createNewKeyFrame(LocalMapping* localMapper,
 
     lmap.refKF = pKF;
     frame.mpReferenceKF = pKF;
+
+    //Normally loopCloser add keyframe
+    keyFrameDatabase->add(pKF);
+
     localMapper->InsertKeyFrame(pKF);
     localMapper->SetNotStop(false);
 
@@ -510,23 +528,22 @@ bool LuluSLAM::needNewKeyFrame(WAIMap *map, localMap &lmap, LocalMapping* lmappe
 
 //Assume state is already tracking and map is already updated
 bool LuluSLAM::track(WAIFrame &frame,
-                     SLAMLatestState &slam,
+                     SLAMLatestState &last,
                      localMap &localMap,
                      list<cv::Mat>& relativeFramePoses)
 {
-    if (!trackWithMotionModel(slam, frame, relativeFramePoses))
+    if (!trackWithMotionModel(last, frame, relativeFramePoses))
     {
-        return trackReferenceKeyFrame(slam, localMap, frame);
+        return trackReferenceKeyFrame(last, localMap, frame);
     }
     return true;
 }
 
-bool LuluSLAM::relocalization(WAIFrame& currentFrame, SLAMLatestState &slam, WAIMap* waiMap, WAIKeyFrameDB* keyFrameDatabase)
+bool LuluSLAM::relocalization(WAIFrame& currentFrame, WAIMap* waiMap, WAIKeyFrameDB* keyFrameDatabase)
 {
     AVERAGE_TIMING_START("relocalization");
     // Compute Bag of Words Vector
     currentFrame.ComputeBoW();
-
     // Relocalization is performed when tracking is lost
     // Track Lost: Query WAIKeyFrame Database for keyframe candidates for relocalisation
     vector<WAIKeyFrame*> vpCandidateKFs;
@@ -700,6 +717,7 @@ bool LuluSLAM::trackReferenceKeyFrame(SLAMLatestState &last, localMap &map, WAIF
     //7. If there are more than 10 valid matches the reference frame tracking was successful.
 
     AVERAGE_TIMING_START("trackReferenceKeyFrame");
+
     // Compute Bag of Words vector
     frame.ComputeBoW();
 
@@ -1022,6 +1040,7 @@ void LuluSLAM::requestStateIdle()
 
 bool LuluSLAM::hasStateIdle()
 {
+    std::unique_lock<std::mutex> guard(mMutexStates);
     return (mState == TrackingState_Idle);
 }
 
