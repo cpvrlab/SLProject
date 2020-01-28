@@ -1,24 +1,22 @@
 #include <LuluSlam.h>
 #include <AverageTiming.h>
 
+#define MIN_FRAMES 0
+#define MAX_FRAMES 30
 
-#define MIN_FRAMES  0
-#define MAX_FRAMES  30
-
-
-LuluSLAM::LuluSLAM(cv::Mat intrinsic,
-                   cv::Mat distortion,
-                   std::string orbVocFile,
+LuluSLAM::LuluSLAM(cv::Mat      intrinsic,
+                   cv::Mat      distortion,
+                   std::string  orbVocFile,
                    KPextractor* extractorp)
 {
     mIniData.initializer = nullptr;
 
-    WAIKeyFrame::nNextId = 0;
-    WAIFrame::nNextId    = 0;
-    WAIMapPoint::nNextId = 0;
+    WAIKeyFrame::nNextId            = 0;
+    WAIFrame::nNextId               = 0;
+    WAIMapPoint::nNextId            = 0;
     WAIFrame::mbInitialComputations = true;
 
-    mDistortion = distortion.clone();
+    mDistortion      = distortion.clone();
     mCameraIntrinsic = intrinsic.clone();
 
     if (!WAIOrbVocabulary::initialize(orbVocFile))
@@ -26,23 +24,23 @@ LuluSLAM::LuluSLAM(cv::Mat intrinsic,
     mVoc = WAIOrbVocabulary::get();
 
     mKeyFrameDatabase = new WAIKeyFrameDB(*mVoc);
-    mGlobalMap = new WAIMap("Map");
-    mExtractor = extractorp;
-    mLocalMapping = new ORB_SLAM2::LocalMapping(mGlobalMap, 1, mVoc, 0.95);
-    mLoopClosing = new ORB_SLAM2::LoopClosing(mGlobalMap, mKeyFrameDatabase, mVoc, false, false);
+    mGlobalMap        = new WAIMap("Map");
+    mExtractor        = extractorp;
+    mLocalMapping     = new ORB_SLAM2::LocalMapping(mGlobalMap, 1, mVoc, 0.95);
+    mLoopClosing      = new ORB_SLAM2::LoopClosing(mGlobalMap, mKeyFrameDatabase, mVoc, false, false);
 
     mLocalMapping->SetLoopCloser(mLoopClosing);
     mLoopClosing->SetLocalMapper(mLocalMapping);
 
     mLocalMappingThread = new std::thread(&LocalMapping::Run, mLocalMapping);
-    mLoopClosingThread = new std::thread(&LoopClosing::Run, mLoopClosing);
+    mLoopClosingThread  = new std::thread(&LoopClosing::Run, mLoopClosing);
 
-    mState = TrackingState_Initializing;
+    mState               = TrackingState_Initializing;
     mIniData.initializer = nullptr;
-    mCameraExtrinsic = cv::Mat::eye(4, 4, CV_32F);
+    mCameraExtrinsic     = cv::Mat::eye(4, 4, CV_32F);
 }
 
-void LuluSLAM::drawInitInfo(initializerData& iniData, WAIFrame &newFrame, cv::Mat& imageRGB)
+void LuluSLAM::drawInitInfo(initializerData& iniData, WAIFrame& newFrame, cv::Mat& imageRGB)
 {
     for (unsigned int i = 0; i < iniData.initialFrame.mvKeys.size(); i++)
     {
@@ -64,14 +62,14 @@ void LuluSLAM::drawInitInfo(initializerData& iniData, WAIFrame &newFrame, cv::Ma
     }
 }
 
-bool LuluSLAM::update(cv::Mat &imageGray, cv::Mat &imageRGB)
+bool LuluSLAM::update(cv::Mat& imageGray, cv::Mat& imageRGB)
 {
     WAIFrame frame = WAIFrame(imageGray, 0.0, mExtractor, mCameraIntrinsic, mDistortion, mVoc, false);
-    mLastFrame = frame;
+    mLastFrame     = frame;
 
     std::unique_lock<std::mutex> guard(mMutexStates);
 
-    switch(mState)
+    switch (mState)
     {
         case TrackingState_Initializing:
             if (initialize(mIniData, mCameraIntrinsic, mDistortion, mVoc, mGlobalMap, mKeyFrameDatabase, mLmap, mLocalMapping, mLoopClosing, mLast, frame, mRelativeFramePoses))
@@ -98,7 +96,7 @@ bool LuluSLAM::update(cv::Mat &imageGray, cv::Mat &imageRGB)
             {
                 std::cout << "TrackingState_TrackingOK" << std::endl;
                 mLast.lastRelocFrameId = frame.mnId;
-                mState = TrackingState_TrackingOK;
+                mState                 = TrackingState_TrackingOK;
             }
             break;
     }
@@ -111,18 +109,18 @@ cv::Mat LuluSLAM::getExtrinsic()
     return mCameraExtrinsic;
 }
 
-bool LuluSLAM::initialize(initializerData &iniData,
-                          cv::Mat &camera,
-                          cv::Mat &distortion,
-                          ORBVocabulary *voc,
-                          WAIMap *map,
-                          WAIKeyFrameDB* keyFrameDatabase,
-                          localMap &lmap,
-                          LocalMapping *lmapper,
-                          LoopClosing *loopClosing,
+bool LuluSLAM::initialize(initializerData& iniData,
+                          cv::Mat&         camera,
+                          cv::Mat&         distortion,
+                          ORBVocabulary*   voc,
+                          WAIMap*          map,
+                          WAIKeyFrameDB*   keyFrameDatabase,
+                          localMap&        lmap,
+                          LocalMapping*    lmapper,
+                          LoopClosing*     loopClosing,
                           SLAMLatestState& last,
-                          WAIFrame &frame,
-                          list<cv::Mat> &relativeFramePoses)
+                          WAIFrame&        frame,
+                          list<cv::Mat>&   relativeFramePoses)
 {
     int matchesNeeded = 100;
 
@@ -135,7 +133,7 @@ bool LuluSLAM::initialize(initializerData &iniData,
         if (frame.mvKeys.size() > matchesNeeded)
         {
             iniData.initialFrame = WAIFrame(frame);
-            WAIFrame mLastFrame = WAIFrame(frame);
+            WAIFrame mLastFrame  = WAIFrame(frame);
             iniData.prevMatched.resize(frame.mvKeysUn.size());
             //ghm1: we store the undistorted keypoints of the initial frame in an extra vector
             //todo: why not using mInitialFrame.mvKeysUn????
@@ -156,7 +154,7 @@ bool LuluSLAM::initialize(initializerData &iniData,
         delete iniData.initializer;
         iniData.initializer = static_cast<Initializer*>(NULL);
         fill(iniData.iniMatches.begin(), iniData.iniMatches.end(), -1);
-        return;
+        return false;
     }
 
     // Find correspondences
@@ -168,9 +166,8 @@ bool LuluSLAM::initialize(initializerData &iniData,
     {
         delete iniData.initializer;
         iniData.initializer = static_cast<Initializer*>(NULL);
-        return;
+        return false;
     }
-
 
     cv::Mat      Rcw;            // Current Camera Rotation
     cv::Mat      tcw;            // Current Camera Translation
@@ -194,14 +191,7 @@ bool LuluSLAM::initialize(initializerData &iniData,
         tcw.copyTo(Tcw.rowRange(0, 3).col(3));
         frame.SetPose(Tcw);
 
-        bool mapInitializedSuccessfully = createInitialMapMonocular(iniData, last, voc, map,
-                                                                    lmapper,
-                                                                    loopClosing,
-                                                                    lmap,
-                                                                    matchesNeeded,
-                                                                    keyFrameDatabase,
-                                                                    frame,
-                                                                    relativeFramePoses);
+        bool mapInitializedSuccessfully = createInitialMapMonocular(iniData, last, voc, map, lmapper, loopClosing, lmap, matchesNeeded, keyFrameDatabase, frame, relativeFramePoses);
 
         if (mapInitializedSuccessfully)
         {
@@ -220,17 +210,17 @@ bool LuluSLAM::initialize(initializerData &iniData,
     return false;
 }
 
-bool LuluSLAM::createInitialMapMonocular(initializerData &iniData,
-                                         SLAMLatestState &last,
-                                         ORBVocabulary *voc,
-                                         WAIMap *map,
-                                         LocalMapping *lmapper,
-                                         LoopClosing *loopCloser,
-                                         localMap &lmap,
-                                         int mapPointsNeeded,
-                                         WAIKeyFrameDB*    keyFrameDatabase,
-                                         WAIFrame &frame,
-                                         list<cv::Mat>&    relativeFramePoses)
+bool LuluSLAM::createInitialMapMonocular(initializerData& iniData,
+                                         SLAMLatestState& last,
+                                         ORBVocabulary*   voc,
+                                         WAIMap*          map,
+                                         LocalMapping*    lmapper,
+                                         LoopClosing*     loopCloser,
+                                         localMap&        lmap,
+                                         int              mapPointsNeeded,
+                                         WAIKeyFrameDB*   keyFrameDatabase,
+                                         WAIFrame&        frame,
+                                         list<cv::Mat>&   relativeFramePoses)
 {
 
     //ghm1: reset nNextId to 0! This is important otherwise the first keyframe cannot be identified via its id and a lot of stuff gets messed up!
@@ -305,9 +295,9 @@ bool LuluSLAM::createInitialMapMonocular(initializerData &iniData,
         WAIFrame::nNextId               = 0;
         WAIFrame::mbInitialComputations = true;
         WAIMapPoint::nNextId            = 0;
-        last.lastFrame = WAIFrame();
-        last.lastFrameId = 0;
-        last.lastRelocFrameId = 0;
+        last.lastFrame                  = WAIFrame();
+        last.lastFrameId                = 0;
+        last.lastRelocFrameId           = 0;
 
         relativeFramePoses.clear();
 
@@ -334,7 +324,7 @@ bool LuluSLAM::createInitialMapMonocular(initializerData &iniData,
     lmapper->InsertKeyFrame(pKFcur);
 
     frame.SetPose(pKFcur->GetPose());
-    last.lastFrameId = frame.mnId;
+    last.lastFrameId  = frame.mnId;
     last.lastKeyFrame = pKFcur;
 
     lmap.keyFrames.push_back(pKFcur);
@@ -353,19 +343,17 @@ bool LuluSLAM::createInitialMapMonocular(initializerData &iniData,
     return true;
 }
 
-
-
 //Assume state is already tracking and map is already updated
-bool LuluSLAM::trackingAndMapping(cv::Mat &camera,
-                                  cv::Mat &distortion,
-                                  WAIMap *map,
-                                  WAIKeyFrameDB* keyFrameDatabase,
-                                  SLAMLatestState &last,
-                                  localMap &localMap,
-                                  LocalMapping *localMapper,
-                                  WAIFrame &frame,
-                                  list<cv::Mat>& relativeFramePoses,
-                                  cv::Mat &pose)
+bool LuluSLAM::trackingAndMapping(cv::Mat&         camera,
+                                  cv::Mat&         distortion,
+                                  WAIMap*          map,
+                                  WAIKeyFrameDB*   keyFrameDatabase,
+                                  SLAMLatestState& last,
+                                  localMap&        localMap,
+                                  LocalMapping*    localMapper,
+                                  WAIFrame&        frame,
+                                  list<cv::Mat>&   relativeFramePoses,
+                                  cv::Mat&         pose)
 {
     std::unique_lock<std::mutex> lock(map->mMutexMapUpdate, std::defer_lock);
     lock.lock();
@@ -396,7 +384,7 @@ bool LuluSLAM::trackingAndMapping(cv::Mat &camera,
     {
         cv::Mat LastTwc = cv::Mat::eye(4, 4, CV_32F);
         last.lastFrame.GetRotationInverse().copyTo(LastTwc.rowRange(0, 3).colRange(0, 3)); //mRwc
-        const auto& cc = last.lastFrame.GetCameraCenter(); //this is the translation of the frame w.r.t the world
+        const auto& cc = last.lastFrame.GetCameraCenter();                                 //this is the translation of the frame w.r.t the world
         cc.copyTo(LastTwc.rowRange(0, 3).col(3));
         last.velocity = frame.mTcw * LastTwc;
 
@@ -452,19 +440,19 @@ bool LuluSLAM::trackingAndMapping(cv::Mat &camera,
     return true;
 }
 
-void LuluSLAM::createNewKeyFrame(LocalMapping* localMapper,
-                                 localMap& lmap,
-                                 WAIMap* map,
-                                 WAIKeyFrameDB* keyFrameDatabase,
+void LuluSLAM::createNewKeyFrame(LocalMapping*    localMapper,
+                                 localMap&        lmap,
+                                 WAIMap*          map,
+                                 WAIKeyFrameDB*   keyFrameDatabase,
                                  SLAMLatestState& last,
-                                 WAIFrame& frame)
+                                 WAIFrame&        frame)
 {
     if (!localMapper->SetNotStop(true))
         return;
 
     WAIKeyFrame* pKF = new WAIKeyFrame(frame, map, keyFrameDatabase);
 
-    lmap.refKF = pKF;
+    lmap.refKF          = pKF;
     frame.mpReferenceKF = pKF;
 
     //Normally loopCloser add keyframe
@@ -476,7 +464,7 @@ void LuluSLAM::createNewKeyFrame(LocalMapping* localMapper,
     last.lastKeyFrame = pKF;
 }
 
-bool LuluSLAM::needNewKeyFrame(WAIMap *map, localMap &lmap, LocalMapping* lmapper, SLAMLatestState &last, WAIFrame &frame, int nInliners)
+bool LuluSLAM::needNewKeyFrame(WAIMap* map, localMap& lmap, LocalMapping* lmapper, SLAMLatestState& last, WAIFrame& frame, int nInliners)
 {
     // If Local Mapping is freezed by a Loop Closure do not insert keyframes
     if (lmapper->isStopped() || lmapper->stopRequested())
@@ -530,10 +518,10 @@ bool LuluSLAM::needNewKeyFrame(WAIMap *map, localMap &lmap, LocalMapping* lmappe
 }
 
 //Assume state is already tracking and map is already updated
-bool LuluSLAM::track(WAIFrame &frame,
-                     SLAMLatestState &last,
-                     localMap &localMap,
-                     list<cv::Mat>& relativeFramePoses)
+bool LuluSLAM::track(WAIFrame&        frame,
+                     SLAMLatestState& last,
+                     localMap&        localMap,
+                     list<cv::Mat>&   relativeFramePoses)
 {
     if (localMap.refKF == nullptr)
     {
@@ -713,8 +701,7 @@ bool LuluSLAM::relocalization(WAIFrame& currentFrame, WAIMap* waiMap, WAIKeyFram
     return bMatch;
 }
 
-
-bool LuluSLAM::trackReferenceKeyFrame(SLAMLatestState &last, localMap &map, WAIFrame &frame)
+bool LuluSLAM::trackReferenceKeyFrame(SLAMLatestState& last, localMap& map, WAIFrame& frame)
 {
     //This routine is called if current tracking state is OK but we have NO valid motion model
     //1. Berechnung des BoW-Vectors für den current frame
@@ -735,7 +722,7 @@ bool LuluSLAM::trackReferenceKeyFrame(SLAMLatestState &last, localMap &map, WAIF
     ORBmatcher           matcher(0.7, true);
     vector<WAIMapPoint*> vpMapPointMatches;
 
-//TODO: check why it can be nullptr
+    //TODO: check why it can be nullptr
     if (map.refKF == nullptr)
     {
         std::cout << "trackReferenceKeyFrame" << std::endl;
@@ -780,7 +767,7 @@ bool LuluSLAM::trackReferenceKeyFrame(SLAMLatestState &last, localMap &map, WAIF
     return nmatchesMap >= 10;
 }
 
-int LuluSLAM::matchLocalMapPoints(localMap &lmap, SLAMLatestState &last, WAIFrame &frame)
+int LuluSLAM::matchLocalMapPoints(localMap& lmap, SLAMLatestState& last, WAIFrame& frame)
 {
     // Do not search map points already matched
     for (vector<WAIMapPoint*>::iterator vit = frame.mvpMapPoints.begin(), vend = frame.mvpMapPoints.end(); vit != vend; vit++)
@@ -811,7 +798,7 @@ int LuluSLAM::matchLocalMapPoints(localMap &lmap, SLAMLatestState &last, WAIFram
             continue;
         if (pMP->isBad())
             continue;
-            //TOTO(LULUC) add viewing angle parameter
+        //TOTO(LULUC) add viewing angle parameter
         if (frame.isInFrustum(pMP, 0.5))
         {
             pMP->IncreaseVisible();
@@ -824,7 +811,7 @@ int LuluSLAM::matchLocalMapPoints(localMap &lmap, SLAMLatestState &last, WAIFram
         ORBmatcher matcher(0.8);
         int        th = 1;
         // If the camera has been relocalised recently, perform a coarser search
-        if (frame.mnId -1 == last.lastRelocFrameId)
+        if (frame.mnId - 1 == last.lastRelocFrameId)
             th = 5;
         matcher.SearchByProjection(frame, lmap.mapPoints, th);
     }
@@ -852,8 +839,8 @@ int LuluSLAM::matchLocalMapPoints(localMap &lmap, SLAMLatestState &last, WAIFram
     return matchesInliers;
 }
 
-void LuluSLAM::updateLocalMap(WAIFrame&     frame,
-                              localMap&     lmap)
+void LuluSLAM::updateLocalMap(WAIFrame& frame,
+                              localMap& lmap)
 {
 
     // Each map point vote for the keyframes in which it has been observed
@@ -879,7 +866,7 @@ void LuluSLAM::updateLocalMap(WAIFrame&     frame,
     if (keyframeCounter.empty())
         return;
 
-    int          max    = 0;
+    int max    = 0;
     lmap.refKF = static_cast<WAIKeyFrame*>(NULL);
 
     lmap.keyFrames.clear();
@@ -893,9 +880,9 @@ void LuluSLAM::updateLocalMap(WAIFrame&     frame,
         if (pKF->isBad())
             continue;
 
-        if (it->second > max)   //Should be computed with parent and child added to localmap
+        if (it->second > max) //Should be computed with parent and child added to localmap
         {
-            max    = it->second;
+            max        = it->second;
             lmap.refKF = pKF;
         }
 
@@ -988,9 +975,8 @@ bool LuluSLAM::trackWithMotionModel(SLAMLatestState& last, WAIFrame& frame, list
 
     // Update last frame pose according to its reference keyframe
     // Create "visual odometry" points if in Localization Mode
-    WAIKeyFrame * pRef = last.lastFrame.mpReferenceKF;
+    WAIKeyFrame* pRef = last.lastFrame.mpReferenceKF;
     last.lastFrame.SetPose(relativeFramePoses.back() * pRef->GetPose());
-
 
     //this adds the motion differnce between the last and the before-last frame to the pose of the last frame to estimate the position of the current frame
     frame.SetPose(last.velocity * last.lastFrame.mTcw);
@@ -1085,14 +1071,13 @@ void LuluSLAM::resume()
 void LuluSLAM::setInitialized(bool b)
 {
     mInitialized = true;
-    mState = TrackingState_TrackingLost;
+    mState       = TrackingState_TrackingLost;
 }
 
 bool LuluSLAM::isInitialized()
 {
     return mInitialized;
 }
-
 
 void LuluSLAM::reset()
 {
@@ -1101,7 +1086,6 @@ void LuluSLAM::reset()
     mLocalMapping->RequestReset();
 
     mLoopClosing->RequestReset();
-
 
     // Clear BoW Database
     mKeyFrameDatabase->clear();
@@ -1122,9 +1106,9 @@ void LuluSLAM::reset()
 
     mRelativeFramePoses.clear();
 
-    mLast.lastKeyFrame = nullptr;
+    mLast.lastKeyFrame     = nullptr;
     mLast.lastRelocFrameId = 0;
-    mLast.lastFrameId = 0;
+    mLast.lastFrameId      = 0;
 
     mLmap.refKF = nullptr;
     mLmap.mapPoints.clear();
@@ -1143,7 +1127,7 @@ WAIFrame* LuluSLAM::getLastFrame()
     return &mLastFrame;
 }
 
-void LuluSLAM::drawKeyPointInfo(WAIFrame &frame, cv::Mat& image)
+void LuluSLAM::drawKeyPointInfo(WAIFrame& frame, cv::Mat& image)
 {
     //show rectangle for all keypoints in current image
     for (size_t i = 0; i < frame.N; i++)
@@ -1157,8 +1141,7 @@ void LuluSLAM::drawKeyPointInfo(WAIFrame &frame, cv::Mat& image)
     }
 }
 
-
-void LuluSLAM::drawKeyPointMatches(WAIFrame &frame, cv::Mat& image)
+void LuluSLAM::drawKeyPointMatches(WAIFrame& frame, cv::Mat& image)
 {
     for (size_t i = 0; i < frame.N; i++)
     {
@@ -1242,8 +1225,8 @@ std::vector<WAIMapPoint*> LuluSLAM::getMatchedMapPoints(WAIFrame* frame)
     return result;
 }
 
-        //numbers
-        //add tracking state
+//numbers
+//add tracking state
 std::string LuluSLAM::getPrintableState()
 {
     switch (mState)
