@@ -23,13 +23,16 @@ LuluSLAM::LuluSLAM(cv::Mat intrinsic,
 
     if (!WAIOrbVocabulary::initialize(orbVocFile))
         throw std::runtime_error("ModeOrbSlam2: could not find vocabulary file: " + orbVocFile);
-
     mVoc = WAIOrbVocabulary::get();
+
     mKeyFrameDatabase = new WAIKeyFrameDB(*mVoc);
     mGlobalMap = new WAIMap("Map");
     mExtractor = extractorp;
     mLocalMapping = new ORB_SLAM2::LocalMapping(mGlobalMap, 1, mVoc, 0.95);
     mLoopClosing = new ORB_SLAM2::LoopClosing(mGlobalMap, mKeyFrameDatabase, mVoc, false, false);
+
+    mLocalMapping->SetLoopCloser(mLoopClosing);
+    mLoopClosing->SetLocalMapper(mLocalMapping);
 
     mLocalMappingThread = new std::thread(&LocalMapping::Run, mLocalMapping);
     mLoopClosingThread = new std::thread(&LoopClosing::Run, mLoopClosing);
@@ -74,7 +77,7 @@ bool LuluSLAM::update(cv::Mat &imageGray, cv::Mat &imageRGB)
             if (initialize(mIniData, mCameraIntrinsic, mDistortion, mVoc, mGlobalMap, mKeyFrameDatabase, mLmap, mLocalMapping, mLoopClosing, mLast, frame, mRelativeFramePoses))
             {
                 mState = TrackingState_TrackingOK;
-                std::cout << "finish initialization" << std::endl;
+                std::cout << "TrackingState_TrackingOK" << std::endl;
                 mInitialized = true;
             }
             else
@@ -82,15 +85,18 @@ bool LuluSLAM::update(cv::Mat &imageGray, cv::Mat &imageRGB)
             break;
         case TrackingState_TrackingOK:
             if (!trackingAndMapping(mCameraIntrinsic, mDistortion, mGlobalMap, mKeyFrameDatabase, mLast, mLmap, mLocalMapping, frame, mRelativeFramePoses, mCameraExtrinsic))
+            {
                 mState = TrackingState_TrackingLost;
 
+                std::cout << "TrackingState_TrackingLost" << std::endl;
+            }
             drawKeyPointInfo(frame, imageRGB);
             drawKeyPointMatches(frame, imageRGB);
             break;
         case TrackingState_TrackingLost:
             if (relocalization(frame, mGlobalMap, mKeyFrameDatabase))
             {
-                std::cout << "relocalization" << std::endl;
+                std::cout << "TrackingState_TrackingOK" << std::endl;
                 mLast.lastRelocFrameId = frame.mnId;
                 mState = TrackingState_TrackingOK;
             }
@@ -139,79 +145,76 @@ bool LuluSLAM::initialize(initializerData &iniData,
             iniData.initializer = new ORB_SLAM2::Initializer(frame, 1.0, 200);
             //ghm1: clear mvIniMatches. it contains the index of the matched keypoint in the current frame
             fill(iniData.iniMatches.begin(), iniData.iniMatches.end(), -1);
-
-            return false;
         }
+
+        return false;
     }
-    else
+
+    // Try to initialize
+    if ((int)frame.mvKeys.size() <= matchesNeeded)
     {
-        // Try to initialize
-        if ((int)frame.mvKeys.size() <= matchesNeeded)
+        delete iniData.initializer;
+        iniData.initializer = static_cast<Initializer*>(NULL);
+        fill(iniData.iniMatches.begin(), iniData.iniMatches.end(), -1);
+        return;
+    }
+
+    // Find correspondences
+    ORBmatcher matcher(0.9, true);
+    int        nmatches = matcher.SearchForInitialization(iniData.initialFrame, frame, iniData.prevMatched, iniData.iniMatches, 100);
+
+    // Check if there are enough correspondences
+    if (nmatches < matchesNeeded)
+    {
+        delete iniData.initializer;
+        iniData.initializer = static_cast<Initializer*>(NULL);
+        return;
+    }
+
+
+    cv::Mat      Rcw;            // Current Camera Rotation
+    cv::Mat      tcw;            // Current Camera Translation
+    vector<bool> vbTriangulated; // Triangulated Correspondences (mvIniMatches)
+
+    if (iniData.initializer->Initialize(frame, iniData.iniMatches, Rcw, tcw, iniData.iniPoint3D, vbTriangulated))
+    {
+        for (size_t i = 0, iend = iniData.iniMatches.size(); i < iend; i++)
         {
-            delete iniData.initializer;
-            iniData.initializer = static_cast<Initializer*>(NULL);
-            fill(iniData.iniMatches.begin(), iniData.iniMatches.end(), -1);
-            return;
+            if (iniData.iniMatches[i] >= 0 && !vbTriangulated[i])
+            {
+                iniData.iniMatches[i] = -1;
+                nmatches--;
+            }
         }
 
-        // Find correspondences
-        ORBmatcher matcher(0.9, true);
-        int        nmatches = matcher.SearchForInitialization(iniData.initialFrame, frame, iniData.prevMatched, iniData.iniMatches, 100);
+        // Set Frame Poses
+        iniData.initialFrame.SetPose(cv::Mat::eye(4, 4, CV_32F));
+        cv::Mat Tcw = cv::Mat::eye(4, 4, CV_32F);
+        Rcw.copyTo(Tcw.rowRange(0, 3).colRange(0, 3));
+        tcw.copyTo(Tcw.rowRange(0, 3).col(3));
+        frame.SetPose(Tcw);
 
-        // Check if there are enough correspondences
-        if (nmatches < matchesNeeded)
+        bool mapInitializedSuccessfully = createInitialMapMonocular(iniData, last, voc, map,
+                                                                    lmapper,
+                                                                    loopClosing,
+                                                                    lmap,
+                                                                    matchesNeeded,
+                                                                    keyFrameDatabase,
+                                                                    frame,
+                                                                    relativeFramePoses);
+
+        if (mapInitializedSuccessfully)
         {
-            delete iniData.initializer;
-            iniData.initializer = static_cast<Initializer*>(NULL);
-            return;
-        }
-
-
-        cv::Mat      Rcw;            // Current Camera Rotation
-        cv::Mat      tcw;            // Current Camera Translation
-        vector<bool> vbTriangulated; // Triangulated Correspondences (mvIniMatches)
-
-        if (iniData.initializer->Initialize(frame, iniData.iniMatches, Rcw, tcw, iniData.iniPoint3D, vbTriangulated))
-        {
-            for (size_t i = 0, iend = iniData.iniMatches.size(); i < iend; i++)
+            if (!frame.mTcw.empty() && frame.mpReferenceKF)
             {
-                if (iniData.iniMatches[i] >= 0 && !vbTriangulated[i])
-                {
-                    iniData.iniMatches[i] = -1;
-                    nmatches--;
-                }
+                cv::Mat Tcr = frame.mTcw * frame.mpReferenceKF->GetPoseInverse();
+                relativeFramePoses.push_back(Tcr);
             }
-
-            // Set Frame Poses
-            iniData.initialFrame.SetPose(cv::Mat::eye(4, 4, CV_32F));
-            cv::Mat Tcw = cv::Mat::eye(4, 4, CV_32F);
-            Rcw.copyTo(Tcw.rowRange(0, 3).colRange(0, 3));
-            tcw.copyTo(Tcw.rowRange(0, 3).col(3));
-            frame.SetPose(Tcw);
-
-            bool mapInitializedSuccessfully = createInitialMapMonocular(iniData, last, voc, map,
-                                                                        lmapper,
-                                                                        loopClosing,
-                                                                        lmap,
-                                                                        matchesNeeded,
-                                                                        keyFrameDatabase,
-                                                                        frame,
-                                                                        relativeFramePoses);
-
-            if (mapInitializedSuccessfully)
+            else if (relativeFramePoses.size())
             {
-                if (!frame.mTcw.empty() && frame.mpReferenceKF)
-                {
-                    cv::Mat Tcr = frame.mTcw * frame.mpReferenceKF->GetPoseInverse();
-                    relativeFramePoses.push_back(Tcr);
-                }
-                else if (relativeFramePoses.size())
-                {
-                    relativeFramePoses.push_back(relativeFramePoses.back());
-                }
-
-                return true;
+                relativeFramePoses.push_back(relativeFramePoses.back());
             }
+            return true;
         }
     }
     return false;
@@ -229,6 +232,7 @@ bool LuluSLAM::createInitialMapMonocular(initializerData &iniData,
                                          WAIFrame &frame,
                                          list<cv::Mat>&    relativeFramePoses)
 {
+
     //ghm1: reset nNextId to 0! This is important otherwise the first keyframe cannot be identified via its id and a lot of stuff gets messed up!
     //One problem we identified is in UpdateConnections: the first one is not allowed to have a parent,
     //because the second will set the first as a parent too. We get problems later during culling.
@@ -455,7 +459,6 @@ void LuluSLAM::createNewKeyFrame(LocalMapping* localMapper,
                                  SLAMLatestState& last,
                                  WAIFrame& frame)
 {
-    std::cout << "createNewKeyFrame" << std::endl;
     if (!localMapper->SetNotStop(true))
         return;
 
@@ -465,7 +468,7 @@ void LuluSLAM::createNewKeyFrame(LocalMapping* localMapper,
     frame.mpReferenceKF = pKF;
 
     //Normally loopCloser add keyframe
-    keyFrameDatabase->add(pKF);
+    //keyFrameDatabase->add(pKF);
 
     localMapper->InsertKeyFrame(pKF);
     localMapper->SetNotStop(false);
@@ -532,6 +535,12 @@ bool LuluSLAM::track(WAIFrame &frame,
                      localMap &localMap,
                      list<cv::Mat>& relativeFramePoses)
 {
+    if (localMap.refKF == nullptr)
+    {
+        std::cout << "track" << std::endl;
+        std::cout << "localMap.refKF == nullptr" << std::endl;
+    }
+
     if (!trackWithMotionModel(last, frame, relativeFramePoses))
     {
         return trackReferenceKeyFrame(last, localMap, frame);
@@ -726,6 +735,14 @@ bool LuluSLAM::trackReferenceKeyFrame(SLAMLatestState &last, localMap &map, WAIF
     ORBmatcher           matcher(0.7, true);
     vector<WAIMapPoint*> vpMapPointMatches;
 
+//TODO: check why it can be nullptr
+    if (map.refKF == nullptr)
+    {
+        std::cout << "trackReferenceKeyFrame" << std::endl;
+        std::cout << "refKF nullptr" << std::endl;
+        return false;
+    }
+
     int nmatches = matcher.SearchByBoW(map.refKF, frame, vpMapPointMatches);
 
     if (nmatches < 15)
@@ -832,13 +849,13 @@ int LuluSLAM::matchLocalMapPoints(localMap &lmap, SLAMLatestState &last, WAIFram
         }
     }
 
-    AVERAGE_TIMING_STOP("trackLocalMap");
     return matchesInliers;
 }
 
 void LuluSLAM::updateLocalMap(WAIFrame&     frame,
                               localMap&     lmap)
 {
+
     // Each map point vote for the keyframes in which it has been observed
     map<WAIKeyFrame*, int> keyframeCounter;
     for (int i = 0; i < frame.N; i++)

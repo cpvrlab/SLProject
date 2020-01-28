@@ -117,7 +117,7 @@ void LocalMapping::Run()
             }
 
             //(LuluSLAM refactor) Must be change back or move somewhere else later
-            //mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
+            mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
 
             if (stopRequested())
                 break;
