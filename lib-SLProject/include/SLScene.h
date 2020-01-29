@@ -29,7 +29,7 @@ class SLSceneView;
 class SLCamera;
 
 //-----------------------------------------------------------------------------
-typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
+typedef vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
 //-----------------------------------------------------------------------------
 //! C-Callback function typedef for scene load function
 typedef void(SL_STDCALL* cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint sceneID);

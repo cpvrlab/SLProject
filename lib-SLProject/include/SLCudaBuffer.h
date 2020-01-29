@@ -35,10 +35,10 @@ class SLCudaBuffer
     //! free allocated memory
     void free();
 
-    void alloc_and_upload(std::vector<T>&);
+    void alloc_and_upload(vector<T>&);
     void alloc_and_upload(T*, unsigned int);
 
-    void upload(std::vector<T>&);
+    void upload(vector<T>&);
     void upload(T*);
 
     void download(T*);
@@ -97,7 +97,7 @@ void SLCudaBuffer<T>::free()
 }
 //-----------------------------------------------------------------------------
 template<typename T>
-void SLCudaBuffer<T>::alloc_and_upload(std::vector<T>& vt)
+void SLCudaBuffer<T>::alloc_and_upload(vector<T>& vt)
 {
     alloc(sizeof(T) * vt.size());
     upload(vt);
@@ -111,7 +111,7 @@ void SLCudaBuffer<T>::alloc_and_upload(T* t, unsigned int count)
 }
 //-----------------------------------------------------------------------------
 template<typename T>
-void SLCudaBuffer<T>::upload(std::vector<T>& vt)
+void SLCudaBuffer<T>::upload(vector<T>& vt)
 {
     assert(_size == sizeof(T) * vt.size());
     CUDA_CHECK(cuMemcpyHtoD(_devicePointer,

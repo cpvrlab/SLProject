@@ -35,7 +35,7 @@ CVCapture::CVCapture()
     videoDefaultPath   = "../data/videos/";
     videoFilename      = "";
     videoLoops         = true;
-    fps                = 1.0f;
+    fps                = 1;
     frameCount         = 0;
     activeCamSizeIndex = -1;
     activeCalib        = nullptr;
@@ -75,7 +75,7 @@ CVSize2i CVCapture::open(int deviceNum)
         //Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
-        fps                = _captureDevice.get(cv::CAP_PROP_FPS);
+        fps                = (int)_captureDevice.get(cv::CAP_PROP_FPS);
         frameCount         = 0;
 
         // Set one camera size entry
@@ -87,7 +87,7 @@ CVSize2i CVCapture::open(int deviceNum)
     }
     catch (exception& e)
     {
-        Utils::log("Exception during OpenCV video capture creation\n");
+        Utils::log("Exception during OpenCV video capture creation: %s\n", e.what());
     }
     return CVSize2i(0, 0);
 }
@@ -126,14 +126,15 @@ CVSize2i CVCapture::openFile()
         //Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
-        fps                = _captureDevice.get(cv::CAP_PROP_FPS);
-        frameCount         = _captureDevice.get(cv::CAP_PROP_FRAME_COUNT);
+        fps                = (int)_captureDevice.get(cv::CAP_PROP_FPS);
+        frameCount         = (int)_captureDevice.get(cv::CAP_PROP_FRAME_COUNT);
 
         return CVSize2i(w, h);
     }
     catch (exception& e)
     {
-        Utils::log("CVCapture::openFile: Exception during OpenCV video capture creation with video file\n");
+        Utils::log("CVCapture::openFile: Exception during OpenCV video capture creation with video file: %s\n",
+                   e.what());
     }
     return CVSize2i(0, 0);
 }
@@ -218,7 +219,7 @@ bool CVCapture::grabAndAdjustForSL(float scrWdivH)
     }
     catch (exception& e)
     {
-        Utils::log("Exception during OpenCV video capture creation\n");
+        Utils::log("Exception during OpenCV video capture creation: %s\n", e.what());
         return false;
     }
 
@@ -407,32 +408,27 @@ void CVCapture::loadIntoLastFrame(const float       scrWdivH,
 
         switch (format)
         {
-            case PF_luminance:
-            {
+            case PF_luminance: {
                 cvType = CV_8UC1;
                 bpp    = 1;
                 break;
             }
-            case PF_bgr:
-            {
+            case PF_bgr: {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_rgb:
-            {
+            case PF_rgb: {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_bgra:
-            {
+            case PF_bgra: {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
             }
-            case PF_rgba:
-            {
+            case PF_rgba: {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
@@ -864,14 +860,12 @@ void CVCapture::setCameraSize(int sizeIndex,
     camSizes[(uint)sizeIndex].height = height;
 }
 //-----------------------------------------------------------------------------
-/*
-Moves the current frame position in a video file.
-*/
+//! Moves the current frame position in a video file.
 void CVCapture::moveCapturePosition(int n)
 {
     if (_videoType != VT_FILE) return;
 
-    int frameIndex = _captureDevice.get(cv::CAP_PROP_POS_FRAMES);
+    int frameIndex = (int)_captureDevice.get(cv::CAP_PROP_POS_FRAMES);
     frameIndex += n;
 
     if (frameIndex < 0) frameIndex = 0;
@@ -880,14 +874,14 @@ void CVCapture::moveCapturePosition(int n)
     _captureDevice.set(cv::CAP_PROP_POS_FRAMES, frameIndex);
 }
 //-----------------------------------------------------------------------------
+//! Returns the next frame index number
 int CVCapture::nextFrameIndex()
 {
     int result = 0;
 
     if (_videoType == VT_FILE)
-    {
-        result = _captureDevice.get(cv::CAP_PROP_POS_FRAMES);
-    }
+        result = (int)_captureDevice.get(cv::CAP_PROP_POS_FRAMES);
 
     return result;
 }
+//-----------------------------------------------------------------------------

@@ -1571,14 +1571,12 @@ SLbool SLSceneView::draw3DOptixRT()
 
         s->root3D()->needUpdate();
 
-        //         Start raytracing
         _optixRaytracer.updateScene(this);
+
         if (_optixRaytracer.doDistributed())
             _optixRaytracer.renderDistrib();
         else
-        {
             _optixRaytracer.renderClassic();
-        }
     }
 
     // Refresh the render image during RT

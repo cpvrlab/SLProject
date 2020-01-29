@@ -21,7 +21,7 @@
 //-----------------------------------------------------------------------------
 //! Template class for dynamic vector
 /*!
-Implements a minimal dynamic sized array like the STL std::vector.
+Implements a minimal dynamic sized array like the STL vector.
 The array can be of a class type T and can have the max. size of type U.
 Compatibility is given as long no iterators are used. Bounds checks are only
 done in _DEBUG mode within the access methods and operators.

@@ -1484,7 +1484,7 @@ typedef SLMat4<SLfloat>  SLMat4f;
 #ifdef SL_HAS_DOUBLE
 typedef SLMat4<SLdouble> SLMat4d;
 #endif
-typedef std::vector<SLMat4f>  SLVMat4f;
+typedef vector<SLMat4f>  SLVMat4f;
 typedef std::stack<SLMat4f> SLSMat4f;
 //-----------------------------------------------------------------------------
 #endif
