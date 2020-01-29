@@ -99,9 +99,17 @@ bool LuluSLAM::update(cv::Mat& imageGray, cv::Mat& imageRGB)
             }
             break;
         case TrackingState_TrackingOK:
-            if (!trackingAndMapping(mCameraIntrinsic, mDistortion, mGlobalMap, mKeyFrameDatabase, mLmap, mLocalMapping, frame, mLastFrame, mLastRelocId, &mLastKeyFrame, mVelocity, mCameraExtrinsic))
             {
-                mState = TrackingState_TrackingLost;
+                int inliner = tracking(mGlobalMap, mKeyFrameDatabase, mLmap, frame, mLastFrame, mLastRelocId, mVelocity);
+                if (inliner < 50)
+                {
+                    mState = TrackingState_TrackingLost;
+                }
+                else 
+                {
+                    motionModel(frame, mLastFrame, mVelocity, mCameraExtrinsic);
+                    mapping(mGlobalMap, mKeyFrameDatabase, mLmap, mLocalMapping, frame, &mLastKeyFrame, inliner);
+                }
             }
             break;
         case TrackingState_TrackingLost:
@@ -347,19 +355,13 @@ bool LuluSLAM::createInitialMapMonocular(initializerData& iniData,
     return true;
 }
 
-//Assume state is already tracking and map is already updated
-bool LuluSLAM::trackingAndMapping(cv::Mat&         camera,
-                                  cv::Mat&         distortion,
-                                  WAIMap*          map,
-                                  WAIKeyFrameDB*   keyFrameDatabase,
-                                  localMap&        localMap,
-                                  LocalMapping*    localMapper,
-                                  WAIFrame&        frame,
-                                  WAIFrame&        lastFrame,
-                                  int              lastRelocFrameId,
-                                  WAIKeyFrame**    lastKf,
-                                  cv::Mat&         velocity,
-                                  cv::Mat&         pose)
+int LuluSLAM::tracking(WAIMap*          map,
+                       WAIKeyFrameDB*   keyFrameDatabase,
+                       localMap&        localMap,
+                       WAIFrame&        frame,
+                       WAIFrame&        lastFrame,
+                       int              lastRelocFrameId,
+                       cv::Mat&         velocity)
 {
     std::unique_lock<std::mutex> lock(map->mMutexMapUpdate, std::defer_lock);
     lock.lock();
@@ -373,7 +375,7 @@ bool LuluSLAM::trackingAndMapping(cv::Mat&         camera,
             if (relocalization(frame, map, keyFrameDatabase))
                 lastRelocFrameId = frame.mnId;
             else
-                return false;
+                return 0;
         }
     }
 
@@ -381,58 +383,55 @@ bool LuluSLAM::trackingAndMapping(cv::Mat&         camera,
     if (!localMap.keyFrames.empty())
     {
         frame.mpReferenceKF = localMap.refKF;
-        inliner             = matchLocalMapPoints(localMap, lastRelocFrameId, frame);
-        if (inliner < 50)
-            return false;
+        return matchLocalMapPoints(localMap, lastRelocFrameId, frame);
     }
-    else
-        return false;
 
-    // Update motion model
+    return 0;
+}
+
+void LuluSLAM::mapping(WAIMap*        map,
+                       WAIKeyFrameDB* keyFrameDatabase,
+                       localMap&      localMap,
+                       LocalMapping*  localMapper,
+                       WAIFrame&      frame,
+                       WAIKeyFrame**  lastKf,
+                       int            inliners)
+{
+    if (needNewKeyFrame(map, localMap, localMapper, *lastKf, frame, inliners))
+    {
+        *lastKf = createNewKeyFrame(localMapper, localMap, map, keyFrameDatabase, frame);
+    }
+    for (int i = 0; i < frame.N; i++)
+    {
+        if (frame.mvpMapPoints[i] && frame.mvbOutlier[i])
+        {
+            frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
+        }
+    }
+}
+
+void LuluSLAM::motionModel(WAIFrame& frame,
+                           WAIFrame& lastFrame,
+                           cv::Mat&  velocity,
+                           cv::Mat&  pose)
+{
     if (!lastFrame.mTcw.empty())
     {
         cv::Mat LastTwc = cv::Mat::eye(4, 4, CV_32F);
         lastFrame.GetRotationInverse().copyTo(LastTwc.rowRange(0, 3).colRange(0, 3)); //mRwc
-        const auto& cc = lastFrame.GetCameraCenter();                                 //this is the translation of the frame w.r.t the world
-        cc.copyTo(LastTwc.rowRange(0, 3).col(3));
-        velocity = frame.mTcw * LastTwc;
-
-        pose = frame.mTcw.clone();
-        //Keep pose in an other var?
-
-        // Clean MapPoint without matches
-        for (int i = 0; i < frame.N; i++)
-        {
-            WAIMapPoint* pMP = frame.mvpMapPoints[i];
-            if (pMP)
-            {
-                if (pMP->Observations() < 1)
-                {
-                    frame.mvbOutlier[i]   = false;
-                    frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
-                }
-            }
-        }
         
-        if (needNewKeyFrame(map, localMap, localMapper, *lastKf, frame, inliner))
-        {
-            *lastKf = createNewKeyFrame(localMapper, localMap, map, keyFrameDatabase, frame);
-        }
+        //this is the translation of the frame w.r.t the world
+        const auto& cc = lastFrame.GetCameraCenter();
 
-        for (int i = 0; i < frame.N; i++)
-        {
-            if (frame.mvpMapPoints[i] && frame.mvbOutlier[i])
-            {
-                frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
-            }
-        }
+        cc.copyTo(LastTwc.rowRange(0, 3).col(3));
+
+        velocity = frame.mTcw * LastTwc;
+        pose = frame.mTcw.clone();
     }
     else
     {
         velocity = cv::Mat();
     }
-
-    return true;
 }
 
 WAIKeyFrame* LuluSLAM::createNewKeyFrame(LocalMapping*  localMapper,
@@ -804,10 +803,31 @@ int LuluSLAM::matchLocalMapPoints(localMap& lmap, int lastRelocFrameId, WAIFrame
                 {
                     matchesInliers++;
                 }
+                else
+                {
+                    frame.mvbOutlier[i] = true;
+                    frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
+                }
+                
             }
         }
     }
 
+    //TOTO(LULUC) check why that is done after "matchLocalMapPoint" in modOrbSlam2
+    /*
+    for (int i = 0; i < frame.N; i++)
+    {
+        WAIMapPoint* pMP = frame.mvpMapPoints[i];
+        if (pMP)
+        {
+            if (pMP->Observations() < 1)
+            {
+                frame.mvbOutlier[i]   = false;
+                frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
+            }
+        }
+    }
+    */
     return matchesInliers;
 }
 

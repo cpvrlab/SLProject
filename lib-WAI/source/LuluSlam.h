@@ -117,18 +117,27 @@ public:
                                WAIMap*          waiMap,
                                WAIKeyFrameDB*   keyFrameDatabase);
 
-    static bool trackingAndMapping(cv::Mat&         camera,
-                                   cv::Mat&         distortion,
-                                   WAIMap*          map,
-                                   WAIKeyFrameDB*   keyFrameDatabase,
-                                   localMap&        localMap,
-                                   LocalMapping*    localMapper,
-                                   WAIFrame&        frame,
-                                   WAIFrame&        lastFrame,
-                                   int              lastRelocFrameId,
-                                   WAIKeyFrame**    lastKf,
-                                   cv::Mat&         velocity,
-                                   cv::Mat&         pose);
+    static int tracking(WAIMap*          map,
+                        WAIKeyFrameDB*   keyFrameDatabase,
+                        localMap&        localMap,
+                        WAIFrame&        frame,
+                        WAIFrame&        lastFrame,
+                        int              lastRelocFrameId,
+                        cv::Mat&         velocity);
+
+
+    static void mapping(WAIMap*        map,
+                        WAIKeyFrameDB* keyFrameDatabase,
+                        localMap&      localMap,
+                        LocalMapping*  localMapper,
+                        WAIFrame&      frame,
+                        WAIKeyFrame**  lastKf,
+                        int            inliners);
+
+    static void motionModel(WAIFrame& frame,
+                            WAIFrame& lastFrame,
+                            cv::Mat&  velocity,
+                            cv::Mat&  pose);
 
     static bool trackReferenceKeyFrame(localMap& map, WAIFrame& lastFrame, WAIFrame& frame);
 
