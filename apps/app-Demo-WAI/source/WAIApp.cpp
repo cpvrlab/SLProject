@@ -174,11 +174,6 @@ bool WAIApp::update()
             // TODO(dgj1): maybe make this API cleaner
             cv::Mat pose = cv::Mat(4, 4, CV_32F);
             pose = _mode->getPose();
-            /*if (!_mode->getPose(&pose))
-            {
-                return false;
-            }
-            */
 
             // update camera node position
             cv::Mat Rwc(3, 3, CV_32F);
@@ -761,16 +756,6 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
     //undistort image and copy image to video texture
     if (_videoImage)
     {
-        if (_mode->isInitialized())
-        {
-            //decorate distorted image with distorted keypoints
-            /*
-            if (_gui->uiPrefs->showKeyPoints)
-                _mode->decorateVideoWithKeyPoints(imgRGB);
-            if (_gui->uiPrefs->showKeyPointsMatched)
-                _mode->decorateVideoWithKeyPointMatches(imgRGB);
-                */
-        }
 
         if (_calibration.state() == CS_calibrated && _showUndistorted)
         {
@@ -785,6 +770,8 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
         {
             _lastFrameIdx = (_lastFrameIdx + 1) % 2;
         }
+
+        _mode->drawInfo(_undistortedLastFrame[_lastFrameIdx], true, _gui->uiPrefs->showKeyPoints, _gui->uiPrefs->showKeyPointsMatched);
 
         _videoImage->copyVideoImage(_undistortedLastFrame[_lastFrameIdx].cols,
                                     _undistortedLastFrame[_lastFrameIdx].rows,
