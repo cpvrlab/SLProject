@@ -76,7 +76,6 @@ public:
 
     bool retainImage();
     void resume();
-    void reset();
     void setInitialized(bool b);
     bool isInitialized();
 
@@ -93,6 +92,7 @@ public:
     cv::Mat getPose();
     bool update(cv::Mat &imageGray, cv::Mat &imageRGB);
     cv::Mat getExtrinsic();
+    void reset();
 
 
     static void drawKeyPointInfo(WAIFrame &frame, cv::Mat& image);
@@ -129,8 +129,6 @@ public:
                                    WAIKeyFrame**    lastKf,
                                    cv::Mat&         velocity,
                                    cv::Mat&         pose);
-
-    static bool track(WAIFrame& lastFrame, WAIFrame& frame, cv::Mat velocity, localMap& localMap);
 
     static bool trackReferenceKeyFrame(localMap& map, WAIFrame& lastFrame, WAIFrame& frame);
 
