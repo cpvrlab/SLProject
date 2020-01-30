@@ -586,10 +586,12 @@ static void onInit(void* usrPtr, struct android_app* app)
     extractAPKFolder(app, path, "config");
     extractAPKFolder(app, path, "voc");
 
+    std::string externalPath = getExternalDir(app);
+
     AppDirectories dirs;
     dirs.slDataRoot  = path;
     dirs.waiDataRoot = path;
-    dirs.writableDir = path + "/";
+    dirs.writableDir = externalPath + "/";
 
     CVImage::defaultPath = dirs.slDataRoot + "/images/textures/";
 
@@ -597,7 +599,7 @@ static void onInit(void* usrPtr, struct android_app* app)
     AConfiguration_fromAssetManager(appConfig, app->activity->assetManager);
     int32_t dpi = AConfiguration_getDensity(appConfig);
     AConfiguration_delete(appConfig);
-    engine->waiApp.load(ndkCamera.get(), 640, 360, w, h, 1.0, 1.0, dpi, dirs);
+    engine->waiApp.load(ndkCamera.get(), 640, 480, w, h, 1.0, 1.0, dpi, dirs);
 }
 
 static void onClose(void* usrPtr, struct android_app* app)
