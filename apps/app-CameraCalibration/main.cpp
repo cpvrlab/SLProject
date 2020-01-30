@@ -473,6 +473,8 @@ int main(int argc, char* argv[])
                 //display video image
                 cv::imshow(windowName, frame);
             }
+
+            cv::destroyWindow(windowName);
         }
     }
     catch (cv::Exception& e)
@@ -488,6 +490,5 @@ int main(int argc, char* argv[])
         std::cout << "Unknown exception!" << std::endl;
     }
 
-    cv::destroyWindow(windowName);
     return 0;
 }
