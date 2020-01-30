@@ -41,7 +41,7 @@ CVTrackedFaces::CVTrackedFaces(int    smoothLenght,
         if (!Utils::fileExists(faceClassifierFilename))
         {
             string msg = "CVTrackedFaces: File not found: " + faceClassifierFilename;
-            Utils::exitMsg(msg.c_str(), __LINE__, __FILE__);
+            Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
         }
     }
     _faceDetector = new CVCascadeClassifier(faceClassifierFilename);
@@ -53,7 +53,7 @@ CVTrackedFaces::CVTrackedFaces(int    smoothLenght,
         if (!Utils::fileExists(faceMarkModelFilename))
         {
             string msg = "CVTrackedFaces: File not found: " + faceMarkModelFilename;
-            Utils::exitMsg(msg.c_str(), __LINE__, __FILE__);
+            Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
         }
     }
 

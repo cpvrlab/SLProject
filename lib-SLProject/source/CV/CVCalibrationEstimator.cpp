@@ -89,12 +89,12 @@ bool CVCalibrationEstimator::calculate()
         calibrationSuccessful = _calibrationTask.get();
         if (calibrationSuccessful)
         {
-            Utils::log("Calibration succeeded.");
-            Utils::log("Reproj. error: %f\n", _reprojectionError);
+            Utils::log("SLProject", "Calibration succeeded.");
+            Utils::log("SLProject", "Reproj. error: %f\n", _reprojectionError);
         }
         else
         {
-            Utils::log("Calibration failed.");
+            Utils::log("SLProject", "Calibration failed.");
         }
     }
 
@@ -281,7 +281,7 @@ bool CVCalibrationEstimator::calcCalibration(CVSize&            imageSize,
 #endif
     ////////////////////////////////////////////////
 
-    Utils::log("Re-projection error reported by calibrateCamera: %f\n", rms);
+    Utils::log("SLProject", "Re-projection error reported by calibrateCamera: %f\n", rms);
 
     bool ok = cv::checkRange(cameraMatrix) && cv::checkRange(distCoeffs);
 
@@ -338,7 +338,7 @@ bool CVCalibrationEstimator::loadCalibParams()
     fs.open(fullCalibIniFile, FileStorage::READ);
     if (!fs.isOpened())
     {
-        Utils::log("Could not open the calibration parameter file: %s\n", fullCalibIniFile.c_str());
+        Utils::log("SLProject", "Could not open the calibration parameter file: %s\n", fullCalibIniFile.c_str());
         return false;
     }
 
@@ -408,12 +408,12 @@ void CVCalibrationEstimator::updateExtractAndCalc(bool found, bool grabFrame, cv
                 if (_calibrationSuccessful)
                 {
                     _state = State::Done;
-                    Utils::log("Calibration succeeded.");
-                    Utils::log("Reproj. error: %f\n", _reprojectionError);
+                    Utils::log("SLProject", "Calibration succeeded.");
+                    Utils::log("SLProject", "Reproj. error: %f\n", _reprojectionError);
                 }
                 else
                 {
-                    Utils::log("Calibration failed.");
+                    Utils::log("SLProject", "Calibration failed.");
                     if (_hasAsyncError)
                     {
                         _state = State::Error;
