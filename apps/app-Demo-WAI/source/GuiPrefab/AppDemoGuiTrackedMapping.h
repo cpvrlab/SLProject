@@ -1,8 +1,6 @@
 #ifndef APP_DEMO_GUI_TRACKED_MAPPING
 #define APP_DEMO_GUI_TRACKED_MAPPING
 
-#include <WAIModeOrbSlam2.h>
-
 #include <AppDemoGuiInfosDialog.h>
 
 class WAIApp;

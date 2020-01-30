@@ -22,7 +22,7 @@
 #include <WAIModeOrbSlam2.h>
 #include <AppDemoWaiGui.h>
 #include <SLInputEventInterface.h>
-#include <LuluSlam.h>
+#include <WAISlam.h>
 #include <SENSCamera.h>
 #include <SENSVideoStream.h>
 #include <GLSLextractor.h>
@@ -157,7 +157,7 @@ public:
     const CVCalibration&   getCalibration() const { return _calibration; }
     const cv::Size&        getFrameSize() const { return _videoFrameSize; }
 
-    LuluSLAM* mode()
+    WAISlam* mode()
     {
         return _mode;
     }
@@ -206,7 +206,7 @@ private:
     //todo: we dont need a pointer
     std::unique_ptr<AppWAIScene> _waiScene;
     //WAI::ModeOrbSlam2*           _mode;
-    LuluSLAM *_mode;
+    WAISlam *_mode;
     SLSceneView*                 _sv         = nullptr;
     SLGLTexture*                 _videoImage = nullptr;
 

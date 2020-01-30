@@ -398,10 +398,10 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
     */
     _doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
 
-    _mode = new LuluSLAM(_calibration.cameraMat(),
-                         _calibration.distortion(),
-                         vocFile,
-                         _trackingExtractor.get());
+    _mode = new WAISlam(_calibration.cameraMat(),
+                        _calibration.distortion(),
+                        vocFile,
+                        _trackingExtractor.get());
 
     // 5. Load map data
     if (useMapFile)

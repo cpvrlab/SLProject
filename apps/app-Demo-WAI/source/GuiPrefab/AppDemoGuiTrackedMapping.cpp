@@ -24,7 +24,7 @@ void AppDemoGuiTrackedMapping::buildInfos(SLScene* s, SLSceneView* sv)
     }
     else
     {
-        LuluSLAM* mode = _waiApp.mode();
+        WAISlam* mode = _waiApp.mode();
         if (!mode)
             return;
 
