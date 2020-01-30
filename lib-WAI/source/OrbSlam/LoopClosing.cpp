@@ -582,7 +582,10 @@ void LoopClosing::doCorrectLoop()
                 WAIMapPoint* pLoopMP = mvpCurrentMatchedPoints[i];
                 WAIMapPoint* pCurMP  = mpCurrentKF->GetMapPoint(i);
                 if (pCurMP)
+                {
                     pCurMP->Replace(pLoopMP);
+                    mpMap->EraseMapPoint(pCurMP);
+                }
                 else
                 {
                     mpCurrentKF->AddMapPoint(pLoopMP, i);
@@ -695,6 +698,7 @@ void LoopClosing::SearchAndFuse(const KeyFrameAndPose& CorrectedPosesMap)
             if (pRep)
             {
                 pRep->Replace(mvpLoopMapPoints[i]);
+                mpMap->EraseMapPoint(pRep);
             }
         }
     }

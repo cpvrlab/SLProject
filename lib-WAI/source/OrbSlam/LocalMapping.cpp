@@ -283,12 +283,14 @@ void LocalMapping::MapPointCulling()
         else if (pMP->GetFoundRatio() < 0.25f)
         {
             pMP->SetBadFlag();
+            mpMap->EraseMapPoint(pMP);
             lit = mlpRecentAddedMapPoints.erase(lit);
             mapPointsCulled++;
         }
         else if (((int)nCurrentKFid - (int)pMP->mnFirstKFid) >= 2 && pMP->Observations() <= cnThObs)
         {
             pMP->SetBadFlag();
+            mpMap->EraseMapPoint(pMP);
             lit = mlpRecentAddedMapPoints.erase(lit);
             mapPointsCulled++;
         }
@@ -532,7 +534,7 @@ void LocalMapping::CreateNewMapPoints()
                 continue;
 
             // Triangulation is succesfull
-            WAIMapPoint* pMP = new WAIMapPoint(x3D, mpCurrentKeyFrame, mpMap);
+            WAIMapPoint* pMP = new WAIMapPoint(x3D, mpCurrentKeyFrame);
 
             mpCurrentKeyFrame->AddMapPoint(pMP, idx1);
             pKF2->AddMapPoint(pMP, idx2);
@@ -588,7 +590,7 @@ void LocalMapping::SearchInNeighbors()
     {
         WAIKeyFrame* pKFi = *vit;
 
-        matcher.Fuse(pKFi, vpMapPointMatches);
+        matcher.Fuse(mpMap, pKFi, vpMapPointMatches);
     }
 
     // Search matches by projection from target KFs in current KF
@@ -613,7 +615,7 @@ void LocalMapping::SearchInNeighbors()
         }
     }
 
-    matcher.Fuse(mpCurrentKeyFrame, vpFuseCandidates);
+    matcher.Fuse(mpMap, mpCurrentKeyFrame, vpFuseCandidates);
 
     // Update points
     vpMapPointMatches = mpCurrentKeyFrame->GetMapPointMatches();
@@ -804,6 +806,7 @@ void LocalMapping::KeyFrameCulling()
         if (nRedundantObservations > _cullRedundantPerc * nMPs)
         {
             pKF->SetBadFlag();
+            mpMap->EraseKeyFrame(pKF);
         }
     }
 }

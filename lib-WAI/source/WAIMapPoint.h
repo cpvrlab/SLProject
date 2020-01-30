@@ -32,8 +32,8 @@ class WAI_API WAIMapPoint
 {
 public:
     //!constructor used during map loading
-    WAIMapPoint(int id, const cv::Mat& Pos, WAIMap* pMap, bool fixMp);
-    WAIMapPoint(const cv::Mat& Pos, WAIKeyFrame* pRefKF, WAIMap* pMap);
+    WAIMapPoint(int id, const cv::Mat& Pos, bool fixMp);
+    WAIMapPoint(const cv::Mat& Pos, WAIKeyFrame* pRefKF);
 
     //ghm1: getters for scene object position initialization
     WAI::V3 worldPosVec();
@@ -157,8 +157,6 @@ protected:
     // Scale invariance distances
     float mfMinDistance = 0.f;
     float mfMaxDistance = 0.f;
-
-    WAIMap* mpMap = NULL;
 
     std::mutex mMutexPos;
     std::mutex mMutexFeatures;

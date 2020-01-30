@@ -75,7 +75,7 @@ class ORBmatcher
     int SearchBySim3(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, std::vector<WAIMapPoint*>& vpMatches12, const float& s12, const cv::Mat& R12, const cv::Mat& t12, const float th);
 
     // Project MapPoints into KeyFrame and search for duplicated MapPoints.
-    int Fuse(WAIKeyFrame* pKF, const vector<WAIMapPoint*>& vpMapPoints, const float th = 3.0);
+    int Fuse(WAIMap * map, WAIKeyFrame* pKF, const vector<WAIMapPoint*>& vpMapPoints, const float th = 3.0);
 
     // Project MapPoints into KeyFrame using a given Sim3 and search for duplicated MapPoints.
     int Fuse(WAIKeyFrame* pKF, cv::Mat Scw, const std::vector<WAIMapPoint*>& vpPoints, float th, vector<WAIMapPoint*>& vpReplacePoint);

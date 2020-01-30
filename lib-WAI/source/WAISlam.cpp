@@ -7,9 +7,11 @@
 WAISlam::WAISlam(cv::Mat      intrinsic,
                  cv::Mat      distortion,
                  std::string  orbVocFile,
-                 KPextractor* extractorp)
+                 KPextractor* extractorp,
+                 bool         serial)
 {
     _iniData.initializer = nullptr;
+    _serial = serial;
 
     WAIKeyFrame::nNextId            = 0;
     WAIFrame::nNextId               = 0;
@@ -32,8 +34,11 @@ WAISlam::WAISlam(cv::Mat      intrinsic,
     _localMapping->SetLoopCloser(_loopClosing);
     _loopClosing->SetLocalMapper(_localMapping);
 
-    _localMappingThread = new std::thread(&LocalMapping::Run, _localMapping);
-    _loopClosingThread  = new std::thread(&LoopClosing::Run, _loopClosing);
+    if (!serial)
+    {
+        _localMappingThread = new std::thread(&LocalMapping::Run, _localMapping);
+        _loopClosingThread  = new std::thread(&LoopClosing::Run, _loopClosing);
+    }
 
     _state               = TrackingState_Initializing;
     _iniData.initializer = nullptr;
@@ -86,30 +91,33 @@ void WAISlam::drawInfo(cv::Mat& imageRGB,
 bool WAISlam::update(cv::Mat& imageGray, cv::Mat& imageRGB)
 {
     WAIFrame frame = WAIFrame(imageGray, 0.0, _extractor, _cameraIntrinsic, _distortion, _voc, false);
-
     std::unique_lock<std::mutex> guard(_mutexStates);
 
     switch (_state)
     {
         case TrackingState_Initializing:
-            if (initialize(_iniData, _cameraIntrinsic, _distortion, _voc, _globalMap, _keyFrameDatabase, _localMap, _localMapping, _loopClosing, &_lastKeyFrame, frame))
+            if (initialize(_iniData, frame, _voc, _localMap, 100, _keyFrameDatabase))
             {
-                _state       = TrackingState_TrackingOK;
-                _initialized = true;
+                if (genInitialMap(_globalMap, _localMapping, _loopClosing, _localMap, _serial))
+                {
+                    _state       = TrackingState_TrackingOK;
+                    _initialized = true;
+                }
             }
             break;
         case TrackingState_TrackingOK:
         {
             int inlier = tracking(_globalMap, _keyFrameDatabase, _localMap, frame, _lastFrame, _lastRelocId, _velocity);
-            if (inlier < 50)
-            {
-                _state = TrackingState_TrackingLost;
-            }
-            else
+            if (inlier > 50)
             {
                 motionModel(frame, _lastFrame, _velocity, _cameraExtrinsic);
-                mapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, frame, &_lastKeyFrame, inlier);
+                if (_serial)
+                    serialMapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, _loopClosing, frame, inlier);
+                else
+                    mapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, frame, inlier);
             }
+            else
+                _state = TrackingState_TrackingLost;
         }
         break;
         case TrackingState_TrackingLost:
@@ -131,21 +139,13 @@ cv::Mat WAISlam::getExtrinsic()
 }
 
 bool WAISlam::initialize(InitializerData& iniData,
-                         cv::Mat&         camera,
-                         cv::Mat&         distortion,
+                         WAIFrame&        frame,
                          ORBVocabulary*   voc,
-                         WAIMap*          map,
-                         WAIKeyFrameDB*   keyFrameDatabase,
-                         LocalMap&        lmap,
-                         LocalMapping*    lmapper,
-                         LoopClosing*     loopClosing,
-                         WAIKeyFrame**    lastKeyFrame,
-                         WAIFrame&        frame)
+                         LocalMap&        localMap,
+                         int              mapPointsNeeded,
+                         WAIKeyFrameDB*   keyFrameDatabase)
 {
     int matchesNeeded = 100;
-
-    std::unique_lock<std::mutex> lock(map->mMutexMapUpdate, std::defer_lock);
-    lock.lock();
 
     if (!iniData.initializer)
     {
@@ -210,19 +210,111 @@ bool WAISlam::initialize(InitializerData& iniData,
         tcw.copyTo(Tcw.rowRange(0, 3).col(3));
         frame.SetPose(Tcw);
 
-        return createInitialMapMonocular(iniData, voc, map, lmapper, loopClosing, lmap, matchesNeeded, keyFrameDatabase, lastKeyFrame, frame);
+        //ghm1: reset nNextId to 0! This is important otherwise the first keyframe cannot be identified via its id and a lot of stuff gets messed up!
+        //One problem we identified is in UpdateConnections: the first one is not allowed to have a parent,
+        //because the second will set the first as a parent too. We get problems later during culling.
+        //This also fixes a problem in first GlobalBundleAdjustment which messed up the map after a reset.
+        WAIKeyFrame::nNextId = 0;
+
+        // Create KeyFrames
+        WAIKeyFrame* pKFini = new WAIKeyFrame(iniData.initialFrame, keyFrameDatabase);
+        WAIKeyFrame* pKFcur = new WAIKeyFrame(frame, keyFrameDatabase);
+
+        pKFini->ComputeBoW(voc);
+        pKFcur->ComputeBoW(voc);
+
+        // Create MapPoints and associate to keyframes
+        for (size_t i = 0; i < iniData.iniMatches.size(); i++)
+        {
+            if (iniData.iniMatches[i] < 0)
+                continue;
+
+            //Create MapPoint.
+            cv::Mat worldPos(iniData.iniPoint3D[i]);
+
+            WAIMapPoint* pMP = new WAIMapPoint(worldPos, pKFcur);
+
+            pKFini->AddMapPoint(pMP, i);
+            pKFcur->AddMapPoint(pMP, iniData.iniMatches[i]);
+
+            pMP->AddObservation(pKFini, i);
+            pMP->AddObservation(pKFcur, iniData.iniMatches[i]);
+
+            pMP->ComputeDistinctiveDescriptors();
+            pMP->UpdateNormalAndDepth();
+
+            //Fill Current Frame structure
+            frame.mvpMapPoints[iniData.iniMatches[i]] = pMP;
+            frame.mvbOutlier[iniData.iniMatches[i]]   = false;
+        }
+
+        // Update Connections
+        pKFini->UpdateConnections();
+        pKFcur->UpdateConnections();
+
+        // Set median depth to 1
+        float medianDepth    = pKFini->ComputeSceneMedianDepth(2);
+        float invMedianDepth = 1.0f / medianDepth;
+
+        if (medianDepth < 0 || pKFcur->TrackedMapPoints(1) < mapPointsNeeded)
+        {
+            WAI_LOG("Wrong initialization, reseting...");
+            keyFrameDatabase->clear();
+            WAIKeyFrame::nNextId            = 0;
+            WAIFrame::nNextId               = 0;
+            WAIFrame::mbInitialComputations = true;
+            WAIMapPoint::nNextId            = 0;
+
+            return false;
+        }
+
+        localMap.keyFrames.push_back(pKFcur);
+        localMap.keyFrames.push_back(pKFini);
+        // Scale initial baseline
+        cv::Mat Tc2w               = pKFcur->GetPose();
+        Tc2w.col(3).rowRange(0, 3) = Tc2w.col(3).rowRange(0, 3) * invMedianDepth;
+        pKFcur->SetPose(Tc2w);
+
+        // Scale points
+        vector<WAIMapPoint*> vpAllMapPoints = pKFini->GetMapPointMatches();
+        for (size_t iMP = 0; iMP < vpAllMapPoints.size(); iMP++)
+        {
+            if (vpAllMapPoints[iMP])
+            {
+                WAIMapPoint* pMP = vpAllMapPoints[iMP];
+                pMP->SetWorldPos(pMP->GetWorldPos() * invMedianDepth);
+                localMap.mapPoints.push_back(pMP);
+            }
+        }
+
+        frame.SetPose(pKFcur->GetPose());
+        localMap.lastKF     = pKFcur;
+        localMap.refKF      = pKFcur;
+        frame.mpReferenceKF = pKFcur;
+
+        return true;
     }
     return false;
 }
 
 void WAISlam::reset()
 {
-    _localMapping->RequestReset();
-    _loopClosing->RequestReset();
+    if (!_serial)
+    {
+        _localMapping->RequestReset();
+        _loopClosing->RequestReset();
+    }
+    else
+    {
+        _localMapping->reset();
+        _loopClosing->reset();
+    }
+    
     _keyFrameDatabase->clear();
     _globalMap->clear();
     _localMap.keyFrames.clear();
     _localMap.mapPoints.clear();
+    _localMap.refKF = nullptr;
 
     WAIKeyFrame::nNextId            = 0;
     WAIFrame::nNextId               = 0;
@@ -231,126 +323,46 @@ void WAISlam::reset()
     _state                          = TrackingState_Initializing;
 }
 
-bool WAISlam::createInitialMapMonocular(InitializerData& iniData,
-                                        ORBVocabulary*   voc,
-                                        WAIMap*          map,
-                                        LocalMapping*    lmapper,
-                                        LoopClosing*     loopCloser,
-                                        LocalMap&        lmap,
-                                        int              mapPointsNeeded,
-                                        WAIKeyFrameDB*   keyFrameDatabase,
-                                        WAIKeyFrame**    lastKeyFrame,
-                                        WAIFrame&        frame)
+bool WAISlam::genInitialMap(WAIMap*          map,
+                            LocalMapping*    localMapper,
+                            LoopClosing*     loopCloser,
+                            LocalMap&        localMap,
+                            bool             serial)
 {
-
-    //ghm1: reset nNextId to 0! This is important otherwise the first keyframe cannot be identified via its id and a lot of stuff gets messed up!
-    //One problem we identified is in UpdateConnections: the first one is not allowed to have a parent,
-    //because the second will set the first as a parent too. We get problems later during culling.
-    //This also fixes a problem in first GlobalBundleAdjustment which messed up the map after a reset.
-    WAIKeyFrame::nNextId = 0;
-
-    // Create KeyFrames
-    WAIKeyFrame* pKFini = new WAIKeyFrame(iniData.initialFrame, map, keyFrameDatabase);
-    WAIKeyFrame* pKFcur = new WAIKeyFrame(frame, map, keyFrameDatabase);
-
-    pKFini->ComputeBoW(voc);
-    pKFcur->ComputeBoW(voc);
-
-    // Insert KFs in the map
-
-    map->AddKeyFrame(pKFini);
-    map->AddKeyFrame(pKFcur);
-
-    // Create MapPoints and asscoiate to keyframes
-    for (size_t i = 0; i < iniData.iniMatches.size(); i++)
+    if (localMap.keyFrames.size() != 2)
     {
-        if (iniData.iniMatches[i] < 0)
-            continue;
-
-        //Create MapPoint.
-        cv::Mat worldPos(iniData.iniPoint3D[i]);
-
-        WAIMapPoint* pMP = new WAIMapPoint(worldPos, pKFcur, map);
-
-        pKFini->AddMapPoint(pMP, i);
-        pKFcur->AddMapPoint(pMP, iniData.iniMatches[i]);
-
-        pMP->AddObservation(pKFini, i);
-        pMP->AddObservation(pKFcur, iniData.iniMatches[i]);
-
-        pMP->ComputeDistinctiveDescriptors();
-        pMP->UpdateNormalAndDepth();
-
-        //Fill Current Frame structure
-        frame.mvpMapPoints[iniData.iniMatches[i]] = pMP;
-        frame.mvbOutlier[iniData.iniMatches[i]]   = false;
-
-        //Add to Map
-        map->AddMapPoint(pMP);
+        std::cout << "DERP" << std::endl;
+        return false;
     }
 
-    // Update Connections
-    pKFini->UpdateConnections();
-    pKFcur->UpdateConnections();
+    std::unique_lock<std::mutex> lock(map->mMutexMapUpdate, std::defer_lock);
+    lock.lock();
+    // Insert KFs in the map
+    map->AddKeyFrame(localMap.keyFrames[0]);
+    map->AddKeyFrame(localMap.keyFrames[1]);
+
+    //Add to Map
+    for (size_t i = 0; i < localMap.mapPoints.size(); i++)
+    {
+        WAIMapPoint* pMP = localMap.mapPoints[i];
+        if (pMP)
+            map->AddMapPoint(pMP);
+    }
 
     // Bundle Adjustment
     Optimizer::GlobalBundleAdjustemnt(map, 20);
 
-    // Set median depth to 1
-    float medianDepth    = pKFini->ComputeSceneMedianDepth(2);
-    float invMedianDepth = 1.0f / medianDepth;
+    localMapper->InsertKeyFrame(localMap.keyFrames[0]);
+    localMapper->InsertKeyFrame(localMap.keyFrames[1]);
 
-    if (medianDepth < 0 || pKFcur->TrackedMapPoints(1) < mapPointsNeeded)
+    map->SetReferenceMapPoints(localMap.mapPoints);
+    map->mvpKeyFrameOrigins.push_back(localMap.keyFrames[0]);
+
+    if (serial)
     {
-        WAI_LOG("Wrong initialization, reseting...");
-        //reset();
-        lmapper->RequestReset();
-        loopCloser->RequestReset();
-        keyFrameDatabase->clear();
-        map->clear();
-        lmap.keyFrames.clear();
-        lmap.mapPoints.clear();
-
-        WAIKeyFrame::nNextId            = 0;
-        WAIFrame::nNextId               = 0;
-        WAIFrame::mbInitialComputations = true;
-        WAIMapPoint::nNextId            = 0;
-
-        return false;
+        localMapper->RunOnce();
+        localMapper->RunOnce();
     }
-
-    // Scale initial baseline
-    cv::Mat Tc2w               = pKFcur->GetPose();
-    Tc2w.col(3).rowRange(0, 3) = Tc2w.col(3).rowRange(0, 3) * invMedianDepth;
-    pKFcur->SetPose(Tc2w);
-
-    // Scale points
-    vector<WAIMapPoint*> vpAllMapPoints = pKFini->GetMapPointMatches();
-    for (size_t iMP = 0; iMP < vpAllMapPoints.size(); iMP++)
-    {
-        if (vpAllMapPoints[iMP])
-        {
-            WAIMapPoint* pMP = vpAllMapPoints[iMP];
-            pMP->SetWorldPos(pMP->GetWorldPos() * invMedianDepth);
-        }
-    }
-
-    lmapper->InsertKeyFrame(pKFini);
-    lmapper->InsertKeyFrame(pKFcur);
-
-    frame.SetPose(pKFcur->GetPose());
-    *lastKeyFrame = pKFcur;
-
-    lmap.keyFrames.push_back(pKFcur);
-    lmap.keyFrames.push_back(pKFini);
-    lmap.mapPoints = map->GetAllMapPoints();
-
-    lmap.refKF          = pKFcur;
-    frame.mpReferenceKF = pKFcur;
-
-    map->SetReferenceMapPoints(lmap.mapPoints);
-
-    map->mvpKeyFrameOrigins.push_back(pKFini);
 
     return true;
 }
@@ -392,12 +404,11 @@ void WAISlam::mapping(WAIMap*        map,
                       LocalMap&      localMap,
                       LocalMapping*  localMapper,
                       WAIFrame&      frame,
-                      WAIKeyFrame**  lastKf,
-                      int            inliners)
+                      int            inliers)
 {
-    if (needNewKeyFrame(map, localMap, localMapper, *lastKf, frame, inliners))
+    if (needNewKeyFrame(map, localMap, localMapper, frame, inliers))
     {
-        *lastKf = createNewKeyFrame(localMapper, localMap, map, keyFrameDatabase, frame);
+        createNewKeyFrame(localMapper, localMap, map, keyFrameDatabase, frame);
         //TODO: test if should be here of outside the if statement
         for (int i = 0; i < frame.N; i++)
         {
@@ -406,6 +417,32 @@ void WAISlam::mapping(WAIMap*        map,
                 frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
             }
         }
+    }
+}
+
+void WAISlam::serialMapping(WAIMap*        map,
+                            WAIKeyFrameDB* keyFrameDatabase,
+                            LocalMap&      localMap,
+                            LocalMapping*  localMapper,
+                            LoopClosing*   loopCloser,
+                            WAIFrame&      frame,
+                            int            inliers)
+{
+    if (needNewKeyFrame(map, localMap, localMapper, frame, inliers))
+    {
+        createNewKeyFrame(localMapper, localMap, map, keyFrameDatabase, frame);
+        //TODO: test if should be here of outside the if statement
+        for (int i = 0; i < frame.N; i++)
+        {
+            if (frame.mvpMapPoints[i] && frame.mvbOutlier[i])
+            {
+                frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
+            }
+        }
+
+
+        localMapper->RunOnce();
+        loopCloser->RunOnce();
     }
 }
 
@@ -433,46 +470,45 @@ void WAISlam::motionModel(WAIFrame& frame,
     }
 }
 
-WAIKeyFrame* WAISlam::createNewKeyFrame(LocalMapping*  localMapper,
-                                        LocalMap&      lmap,
-                                        WAIMap*        map,
-                                        WAIKeyFrameDB* keyFrameDatabase,
-                                        WAIFrame&      frame)
+void WAISlam::createNewKeyFrame(LocalMapping*  localMapper,
+                                LocalMap&      lmap,
+                                WAIMap*        map,
+                                WAIKeyFrameDB* keyFrameDatabase,
+                                WAIFrame&      frame)
 {
     if (!localMapper->SetNotStop(true))
         return;
 
-    WAIKeyFrame* pKF = new WAIKeyFrame(frame, map, keyFrameDatabase);
+    WAIKeyFrame* pKF = new WAIKeyFrame(frame, keyFrameDatabase);
 
+    lmap.lastKF         = pKF;
     lmap.refKF          = pKF;
     frame.mpReferenceKF = pKF;
 
     localMapper->InsertKeyFrame(pKF);
     localMapper->SetNotStop(false);
-
-    return pKF;
 }
 
-bool WAISlam::needNewKeyFrame(WAIMap* map, LocalMap& lmap, LocalMapping* lmapper, WAIKeyFrame* lastKeyFrame, WAIFrame& frame, int nInliners)
+bool WAISlam::needNewKeyFrame(WAIMap* map, LocalMap& localMap, LocalMapping* localMapper, WAIFrame& frame, int nInliners)
 {
     // If Local Mapping is freezed by a Loop Closure do not insert keyframes
-    if (lmapper->isStopped() || lmapper->stopRequested())
+    if (localMapper->isStopped() || localMapper->stopRequested())
         return false;
 
     const int nKFs = map->KeyFramesInMap();
 
     // Do not insert keyframes if not enough frames have passed from last relocalisation
-    if (frame.mnId < lastKeyFrame->mnId + MAX_FRAMES && nKFs > MAX_FRAMES)
+    if (frame.mnId < localMap.lastKF->mnId + MAX_FRAMES && nKFs > MAX_FRAMES)
         return false;
 
     // Tracked MapPoints in the reference keyframe
     int nMinObs = 3;
     if (nKFs <= 2)
         nMinObs = 2;
-    int nRefMatches = lmap.refKF->TrackedMapPoints(nMinObs);
+    int nRefMatches = localMap.refKF->TrackedMapPoints(nMinObs);
 
     // Local Mapping accept keyframes?
-    bool bLocalMappingIdle = lmapper->AcceptKeyFrames();
+    bool bLocalMappingIdle = localMapper->AcceptKeyFrames();
 
     // Thresholds
     float thRefRatio = 0.9f;
@@ -480,9 +516,9 @@ bool WAISlam::needNewKeyFrame(WAIMap* map, LocalMap& lmap, LocalMapping* lmapper
         thRefRatio = 0.4f;
 
     // Condition 1a: More than "MaxFrames" have passed from last keyframe insertion
-    const bool c1a = frame.mnId >= lastKeyFrame->mnId + MAX_FRAMES;
+    const bool c1a = frame.mnId >= localMap.lastKF->mnId + MAX_FRAMES;
     // Condition 1b: More than "MinFrames" have passed and Local Mapping is idle
-    const bool c1b = (frame.mnId >= lastKeyFrame->mnId + MIN_FRAMES && bLocalMappingIdle);
+    const bool c1b = (frame.mnId >= localMap.lastKF->mnId + MIN_FRAMES && bLocalMappingIdle);
     // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
     const bool c2 = ((nInliners < nRefMatches * thRefRatio) && nInliners > 15);
 
@@ -496,7 +532,7 @@ bool WAISlam::needNewKeyFrame(WAIMap* map, LocalMap& lmap, LocalMapping* lmapper
         }
         else
         {
-            lmapper->InterruptBA();
+            localMapper->InterruptBA();
             return false;
         }
     }

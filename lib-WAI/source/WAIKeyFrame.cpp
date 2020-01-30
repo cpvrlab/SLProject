@@ -58,8 +58,7 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
                          int                              nMaxX,
                          int                              nMaxY,
                          const cv::Mat&                   K,
-                         WAIKeyFrameDB*                   pKFDB,
-                         WAIMap*                          pMap)
+                         WAIKeyFrameDB*                   pKFDB)
   : mnId(id),
     mnFrameId(0),
     mTimeStamp(0),
@@ -102,8 +101,7 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
     mpParent(NULL),
     mbNotErase(false),
     mbToBeErased(false),
-    mbBad(false),
-    mpMap(pMap)
+    mbBad(false)
 {
     //Update next id so we never have twice the same id and especially only one with 0 (this is important)
     if (id >= nNextId)
@@ -120,7 +118,7 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
     AssignFeaturesToGrid();
 }
 //-----------------------------------------------------------------------------
-WAIKeyFrame::WAIKeyFrame(WAIFrame& F, WAIMap* pMap, WAIKeyFrameDB* pKFDB, bool retainImg)
+WAIKeyFrame::WAIKeyFrame(WAIFrame& F, WAIKeyFrameDB* pKFDB, bool retainImg)
   : mnFrameId(F.mnId),
     mTimeStamp(F.mTimeStamp),
     mnGridCols(FRAME_GRID_COLS),
@@ -165,8 +163,7 @@ WAIKeyFrame::WAIKeyFrame(WAIFrame& F, WAIMap* pMap, WAIKeyFrameDB* pKFDB, bool r
     mpParent(NULL),
     mbNotErase(false),
     mbToBeErased(false),
-    mbBad(false) /*, mHalfBaseline(F.mb / 2)*/,
-    mpMap(pMap)
+    mbBad(false) /*, mHalfBaseline(F.mb / 2)*/
 {
     mnId = nNextId++;
 
@@ -705,8 +702,6 @@ void WAIKeyFrame::SetBadFlag()
         mbBad = true;
     }
 
-    //ghm1: map pointer is only used to erase key frames here
-    mpMap->EraseKeyFrame(this);
     _kfDb->erase(this);
 }
 //-----------------------------------------------------------------------------

@@ -342,8 +342,7 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
                                              nMaxX,
                                              nMaxY,
                                              K,
-                                             kfDB,
-                                             waiMap);
+                                             kfDB);
 
         if (imgDir != "")
         {
@@ -418,7 +417,7 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
         cv::Mat mWorldPos; //has to be here!
         (*it)["mWorldPos"] >> mWorldPos;
 
-        WAIMapPoint* newPt = new WAIMapPoint(id, mWorldPos, waiMap, fixKfsAndMPts);
+        WAIMapPoint* newPt = new WAIMapPoint(id, mWorldPos, fixKfsAndMPts);
         vector<int>  observingKfIds;
         (*it)["observingKfIds"] >> observingKfIds;
         vector<int> corrKpIndices;

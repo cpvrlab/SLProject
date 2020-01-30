@@ -339,7 +339,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
 
     //cull keyframes
     std::vector<WAIKeyFrame*> kfs = waiMode->getMap()->GetAllKeyFrames();
-    cullKeyframes(kfs, modeParams.cullRedundantPerc);
+    cullKeyframes(waiMode.get(), kfs, modeParams.cullRedundantPerc);
 
     //save map again (we use the map file name without index because this is the final map)
     saveMap(waiMode.get(), mapDir, outputMapFile, &mapNode);
@@ -654,6 +654,7 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
             sol.at<float>(2, 0) < -0.1f || sol.at<float>(2, 0) > 0.1f)
         {
             mp->SetBadFlag();
+            map->EraseMapPoint(mp);
         }
     }
 
@@ -678,6 +679,7 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
         if (mpCount <= 0)
         {
             kf->SetBadFlag();
+            map->EraseKeyFrame(kf);
         }
     }
 
@@ -723,10 +725,10 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
         _mpLR = nullptr;
     }
 
-    _mpUL = new WAIMapPoint(0, ul3D, nullptr, false);
-    _mpUR = new WAIMapPoint(0, ur3D, nullptr, false);
-    _mpLL = new WAIMapPoint(0, ll3D, nullptr, false);
-    _mpLR = new WAIMapPoint(0, lr3D, nullptr, false);
+    _mpUL = new WAIMapPoint(0, ul3D, false);
+    _mpUR = new WAIMapPoint(0, ur3D, false);
+    _mpLL = new WAIMapPoint(0, ll3D, false);
+    _mpLR = new WAIMapPoint(0, lr3D, false);
 
     mapNode.om(WAIMapStorage::convertToSLMat(nodeTransform));
 
@@ -735,7 +737,7 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
     return true;
 }
 
-void MapCreator::cullKeyframes(std::vector<WAIKeyFrame*>& kfs, const float cullRedundantPerc)
+void MapCreator::cullKeyframes(WAI::ModeOrbSlam2* waiMode, std::vector<WAIKeyFrame*>& kfs, const float cullRedundantPerc)
 {
     for (auto itKF = kfs.begin(); itKF != kfs.end(); ++itKF)
     {
@@ -798,6 +800,7 @@ void MapCreator::cullKeyframes(std::vector<WAIKeyFrame*>& kfs, const float cullR
             if (nRedundantObservations > cullRedundantPerc * nMPs)
             {
                 pKF->SetBadFlag();
+                waiMode->getMap()->EraseKeyFrame(pKF);
             }
         }
     }

@@ -22,6 +22,7 @@ enum TrackingState
 struct LocalMap
 {
     WAIKeyFrame*              refKF;
+    WAIKeyFrame*              lastKF;
     std::vector<WAIKeyFrame*> keyFrames;
     std::vector<WAIMapPoint*> mapPoints;
 };
@@ -30,6 +31,7 @@ struct InitializerData
 {
     Initializer*             initializer;
     WAIFrame                 initialFrame;
+    WAIFrame                 secondFrame;
     std::vector<cv::Point2f> prevMatched;
     std::vector<cv::Point3f> iniPoint3D;
     std::vector<int>         iniMatches;
@@ -38,7 +40,7 @@ struct InitializerData
 class WAISlam
 {
 public:
-    WAISlam(cv::Mat intrinsic, cv::Mat distortion, std::string orbVocFile, KPextractor* extractorp);
+    WAISlam(cv::Mat intrinsic, cv::Mat distortion, std::string orbVocFile, KPextractor* extractorp, bool serial = false);
 
     void drawInfo(cv::Mat& imageRGB,
                   bool     showInitLine,
@@ -76,17 +78,12 @@ public:
 
     static void drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv::Mat& imageRGB);
 
-    static bool initialize(InitializerData& iniData,
-                           cv::Mat&         camera,
-                           cv::Mat&         distortion,
-                           ORBVocabulary*   voc,
-                           WAIMap*          map,
-                           WAIKeyFrameDB*   keyFrameDatabase,
-                           LocalMap&        lmap,
-                           LocalMapping*    lmapper,
-                           LoopClosing*     loopClosing,
-                           WAIKeyFrame**    lastKeyFrame,
-                           WAIFrame&        frame);
+    static bool initialize(InitializerData& iniData, 
+                           WAIFrame& frame, 
+                           ORBVocabulary* voc, 
+                           LocalMap& localMap, 
+                           int mapPointsNeeded, 
+                           WAIKeyFrameDB* keyFrameDatabase);
 
     static bool relocalization(WAIFrame&      currentFrame,
                                WAIMap*        waiMap,
@@ -105,8 +102,15 @@ public:
                         LocalMap&      localMap,
                         LocalMapping*  localMapper,
                         WAIFrame&      frame,
-                        WAIKeyFrame**  lastKf,
-                        int            inliners);
+                        int            inliers);
+
+    static void serialMapping(WAIMap*        map,
+                              WAIKeyFrameDB* keyFrameDatabase,
+                              LocalMap&      localMap,
+                              LocalMapping*  localMapper,
+                              LoopClosing*   loopCloser,
+                              WAIFrame&      frame,
+                              int            inliers);
 
     static void motionModel(WAIFrame& frame,
                             WAIFrame& lastFrame,
@@ -123,28 +127,22 @@ public:
     static int matchLocalMapPoints(LocalMap& lmap, int lastRelocFrameId, WAIFrame& frame);
 
     static bool needNewKeyFrame(WAIMap*       map,
-                                LocalMap&     lmap,
+                                LocalMap&     localMap,
                                 LocalMapping* lmapper,
-                                WAIKeyFrame*  lastKeyFrame,
                                 WAIFrame&     frame,
                                 int           nInliners);
 
-    static bool createInitialMapMonocular(InitializerData& iniData,
-                                          ORBVocabulary*   voc,
-                                          WAIMap*          map,
-                                          LocalMapping*    lmapper,
-                                          LoopClosing*     loopCloser,
-                                          LocalMap&        lmap,
-                                          int              mapPointsNeeded,
-                                          WAIKeyFrameDB*   keyFrameDatabase,
-                                          WAIKeyFrame**    lastKeyFrame,
-                                          WAIFrame&        frame);
+    static bool genInitialMap(WAIMap*          map,
+                              LocalMapping*    localMapper,
+                              LoopClosing*     loopCloser,
+                              LocalMap&        localMap,
+                              bool             serial);
 
-    static WAIKeyFrame* createNewKeyFrame(LocalMapping*  localMapper,
-                                          LocalMap&      lmap,
-                                          WAIMap*        map,
-                                          WAIKeyFrameDB* keyFrameDatabase,
-                                          WAIFrame&      frame);
+    static void createNewKeyFrame(LocalMapping*  localMapper,
+                                  LocalMap&      lmap,
+                                  WAIMap*        map,
+                                  WAIKeyFrameDB* keyFrameDatabase,
+                                  WAIFrame&      frame);
 
 private:
     InitializerData _iniData;
@@ -163,8 +161,8 @@ private:
     std::thread*    _loopClosingThread  = nullptr;
     std::mutex      _mutexStates;
     WAIFrame        _lastFrame;
-    WAIKeyFrame*    _lastKeyFrame;
     bool            _initialized;
     int             _lastRelocId;
     cv::Mat         _velocity;
+    bool            _serial;
 };

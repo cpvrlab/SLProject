@@ -1035,8 +1035,8 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
     WAIKeyFrame::nNextId = 0;
 
     // Create KeyFrames
-    WAIKeyFrame* pKFini = new WAIKeyFrame(mInitialFrame, _map, mpKeyFrameDatabase);
-    WAIKeyFrame* pKFcur = new WAIKeyFrame(mCurrentFrame, _map, mpKeyFrameDatabase);
+    WAIKeyFrame* pKFini = new WAIKeyFrame(mInitialFrame, mpKeyFrameDatabase);
+    WAIKeyFrame* pKFcur = new WAIKeyFrame(mCurrentFrame, mpKeyFrameDatabase);
 
     pKFini->ComputeBoW(mpVocabulary);
     pKFcur->ComputeBoW(mpVocabulary);
@@ -1054,7 +1054,7 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
         //Create MapPoint.
         cv::Mat worldPos(mvIniP3D[i]);
 
-        WAIMapPoint* pMP = new WAIMapPoint(worldPos, pKFcur, _map);
+        WAIMapPoint* pMP = new WAIMapPoint(worldPos, pKFcur);
 
         pKFini->AddMapPoint(pMP, i);
         pKFcur->AddMapPoint(pMP, mvIniMatches[i]);
@@ -1224,7 +1224,7 @@ void WAI::ModeOrbSlam2::createNewKeyFrame()
     if (!mpLocalMapper->SetNotStop(true))
         return;
 
-    WAIKeyFrame* pKF = new WAIKeyFrame(mCurrentFrame, _map, mpKeyFrameDatabase);
+    WAIKeyFrame* pKF = new WAIKeyFrame(mCurrentFrame, mpKeyFrameDatabase);
 
     mpReferenceKF               = pKF;
     mCurrentFrame.mpReferenceKF = pKF;
@@ -2880,10 +2880,10 @@ bool WAI::ModeOrbSlam2::doMarkerMapPreprocessing(std::string markerFile,
         _mpLR = nullptr;
     }
 
-    _mpUL = new WAIMapPoint(0, ul3D, nullptr, false);
-    _mpUR = new WAIMapPoint(0, ur3D, nullptr, false);
-    _mpLL = new WAIMapPoint(0, ll3D, nullptr, false);
-    _mpLR = new WAIMapPoint(0, lr3D, nullptr, false);
+    _mpUL = new WAIMapPoint(0, ul3D, false);
+    _mpUR = new WAIMapPoint(0, ur3D, false);
+    _mpLL = new WAIMapPoint(0, ll3D, false);
+    _mpLR = new WAIMapPoint(0, lr3D, false);
 
     return true;
 }

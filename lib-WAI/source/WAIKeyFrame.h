@@ -80,10 +80,10 @@ public:
                 int                              nMaxX,
                 int                              nMaxY,
                 const cv::Mat&                   K,
-                WAIKeyFrameDB*                   pKFDB,
-                WAIMap*                          pMap);
+                WAIKeyFrameDB*                   pKFDB);
+
     //!keyframe generation from frame
-    WAIKeyFrame(WAIFrame& F, WAIMap* pMap, WAIKeyFrameDB* pKFDB, bool retainImg = true);
+    WAIKeyFrame(WAIFrame& F, WAIKeyFrameDB* pKFDB, bool retainImg = true);
 
     // Pose functions
     void    SetPose(const cv::Mat& Tcw);
@@ -279,8 +279,6 @@ protected:
     bool mbNotErase;
     bool mbToBeErased;
     bool mbBad;
-
-    WAIMap* mpMap;
 
     std::mutex mMutexPose;
     std::mutex mMutexConnections;
