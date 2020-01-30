@@ -9,6 +9,7 @@
 #include <camera/NdkCameraDevice.h>
 #include <camera/NdkCameraManager.h>
 #include <media/NdkImageReader.h>
+#include <SENSException.h>
 
 class CameraId;
 
@@ -93,8 +94,8 @@ private:
     std::unique_ptr<std::thread> _thread;
     std::atomic<bool>            _stopThread;
 
-    std::exception _threadException;
-    bool           _threadHasException;
+    std::runtime_error _threadException;
+    bool               _threadHasException = false;
 };
 
 #endif //SENS_NDKCAMERA_H
