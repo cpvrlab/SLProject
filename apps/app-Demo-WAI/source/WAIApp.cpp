@@ -92,10 +92,6 @@ int WAIApp::load(SENSCamera* camera, int liveVideoTargetW, int liveVideoTargetH,
     _videoWriterInfo = new cv::VideoWriter();
     _loaded          = true;
 
-    _clahe = cv::createCLAHE();
-    _clahe->setClipLimit(2.0);
-    _clahe->setTilesGridSize(cv::Size(8, 8));
-
     //init scene as soon as possible to allow visualization of error msgs
     int svIndex = initSLProject(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi);
 
@@ -150,76 +146,89 @@ SENSFramePtr WAIApp::updateVideoOrCamera()
 
 bool WAIApp::update()
 {
-    handleEvents();
-
-    if (_mode && _loaded)
+    try
     {
-        bool iKnowWhereIAm = false;
-        //get new frame: in case of video this may already call updateTracking several times
-        SENSFramePtr frame = updateVideoOrCamera();
+        handleEvents();
 
-        if (frame)
+        if (_mode && _loaded)
         {
-            iKnowWhereIAm = updateTracking(frame);
+            bool iKnowWhereIAm = false;
+            //get new frame: in case of video this may already call updateTracking several times
+            SENSFramePtr frame = updateVideoOrCamera();
 
-            //update tracking infos visualization
-            updateTrackingVisualization(iKnowWhereIAm, frame->imgRGB);
+            if (frame)
+            {
+                iKnowWhereIAm = updateTracking(frame);
+
+                //update tracking infos visualization
+                updateTrackingVisualization(iKnowWhereIAm, frame->imgRGB);
+            }
+
+            if (iKnowWhereIAm)
+            {
+                _lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
+                _IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
+
+                // TODO(dgj1): maybe make this API cleaner
+                cv::Mat pose = cv::Mat(4, 4, CV_32F);
+                pose = _mode->getPose();
+
+                // update camera node position
+                cv::Mat Rwc(3, 3, CV_32F);
+                cv::Mat twc(3, 1, CV_32F);
+
+                Rwc = (pose.rowRange(0, 3).colRange(0, 3)).t();
+                twc = -Rwc * pose.rowRange(0, 3).col(3);
+
+                cv::Mat PoseInv = cv::Mat::eye(4, 4, CV_32F);
+
+                Rwc.copyTo(PoseInv.colRange(0, 3).rowRange(0, 3));
+                twc.copyTo(PoseInv.rowRange(0, 3).col(3));
+                SLMat4f om;
+
+                om.setMatrix(PoseInv.at<float>(0, 0),
+                             -PoseInv.at<float>(0, 1),
+                             -PoseInv.at<float>(0, 2),
+                             PoseInv.at<float>(0, 3),
+                             PoseInv.at<float>(1, 0),
+                             -PoseInv.at<float>(1, 1),
+                             -PoseInv.at<float>(1, 2),
+                             PoseInv.at<float>(1, 3),
+                             PoseInv.at<float>(2, 0),
+                             -PoseInv.at<float>(2, 1),
+                             -PoseInv.at<float>(2, 2),
+                             PoseInv.at<float>(2, 3),
+                             PoseInv.at<float>(3, 0),
+                             -PoseInv.at<float>(3, 1),
+                             -PoseInv.at<float>(3, 2),
+                             PoseInv.at<float>(3, 3));
+
+                _waiScene->cameraNode->om(om);
+            }
+            else
+            {
+                SLQuat4f q1 = _lastKnowPoseQuaternion;
+                SLQuat4f q2 = SLApplication::devRot.quaternion();
+                q1.invert();
+                SLQuat4f q              = q1 * q2;
+                _IMUQuaternion          = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
+                SLMat4f imuRot          = _IMUQuaternion.toMat4();
+                _lastKnowPoseQuaternion = q2;
+
+                SLMat4f cameraMat = _waiScene->cameraNode->om();
+                _waiScene->cameraNode->om(cameraMat * imuRot);
+            }
+
+            //AVERAGE_TIMING_STOP("WAIAppUpdate");
         }
-
-        if (iKnowWhereIAm)
-        {
-            _lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
-            _IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
-
-            // TODO(dgj1): maybe make this API cleaner
-            cv::Mat pose = cv::Mat(4, 4, CV_32F);
-            pose = _mode->getPose();
-
-            // update camera node position
-            cv::Mat Rwc(3, 3, CV_32F);
-            cv::Mat twc(3, 1, CV_32F);
-
-            Rwc = (pose.rowRange(0, 3).colRange(0, 3)).t();
-            twc = -Rwc * pose.rowRange(0, 3).col(3);
-
-            cv::Mat PoseInv = cv::Mat::eye(4, 4, CV_32F);
-
-            Rwc.copyTo(PoseInv.colRange(0, 3).rowRange(0, 3));
-            twc.copyTo(PoseInv.rowRange(0, 3).col(3));
-            SLMat4f om;
-
-            om.setMatrix(PoseInv.at<float>(0, 0),
-                         -PoseInv.at<float>(0, 1),
-                         -PoseInv.at<float>(0, 2),
-                         PoseInv.at<float>(0, 3),
-                         PoseInv.at<float>(1, 0),
-                         -PoseInv.at<float>(1, 1),
-                         -PoseInv.at<float>(1, 2),
-                         PoseInv.at<float>(1, 3),
-                         PoseInv.at<float>(2, 0),
-                         -PoseInv.at<float>(2, 1),
-                         -PoseInv.at<float>(2, 2),
-                         PoseInv.at<float>(2, 3),
-                         PoseInv.at<float>(3, 0),
-                         -PoseInv.at<float>(3, 1),
-                         -PoseInv.at<float>(3, 2),
-                         PoseInv.at<float>(3, 3));
-
-            _waiScene->cameraNode->om(om);
-        }
-        else
-        {
-            SLQuat4f q1 = _lastKnowPoseQuaternion;
-            SLQuat4f q2 = SLApplication::devRot.quaternion();
-            q1.invert();
-            SLQuat4f q              = q1 * q2;
-            _IMUQuaternion          = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
-            SLMat4f imuRot          = _IMUQuaternion.toMat4();
-            _lastKnowPoseQuaternion = q2;
-
-            SLMat4f cameraMat = _waiScene->cameraNode->om();
-            _waiScene->cameraNode->om(cameraMat * imuRot);
-        }
+    }
+    catch (std::exception& e)
+    {
+        Utils::log("WAIApp", "Std exception catched in update() %s", e.what());
+    }
+    catch (...)
+    {
+        Utils::log("WAIApp", "Unknown exception catched in update()");
     }
 
     //update scene (before it was slUpdateScene)
@@ -262,6 +271,7 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
         vocFile         = slamParams->vocabularyFile;
         markerFile      = slamParams->markerFile;
         params          = slamParams->params;
+
     }
 
     bool useVideoFile             = !videoFile.empty();
@@ -382,6 +392,7 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
                                       scMat.at<double>(1, 1),
                                       scMat.at<double>(0, 2),
                                       scMat.at<double>(1, 2));
+
     //enable projection -> intrinsics mode
     _waiScene->cameraNode->projection(P_monoIntrinsic);
 
@@ -401,7 +412,10 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
     _mode = new WAISlam(_calibration.cameraMat(),
                         _calibration.distortion(),
                         vocFile,
-                        _trackingExtractor.get());
+                        _trackingExtractor.get(),
+                        params.onlyTracking,
+                        params.serial,
+                        params.retainImg);
 
     // 5. Load map data
     if (useMapFile)
@@ -433,7 +447,7 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
         extractSlamMapInfosFromFileName(mapFile, &slamMapInfos);
 
         _mode->resume();
-        _mode->setInitialized(true);
+        _mode->setState(TrackingState_TrackingOK);
     }
 
     // 6. save current params
@@ -527,9 +541,7 @@ bool WAIApp::updateTracking(SENSFramePtr frame)
         _videoWriter->write(frame->imgRGB);
     }
 
-    cv::Mat m;
-    _clahe->apply(frame->imgGray, m);
-    iKnowWhereIAm = _mode->update(m, frame->imgRGB);
+    iKnowWhereIAm = _mode->update(frame->imgGray);
 
     /*
     if (_videoWriterInfo->isOpened())

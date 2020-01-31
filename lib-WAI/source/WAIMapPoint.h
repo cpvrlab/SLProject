@@ -125,6 +125,7 @@ public:
     long unsigned int mnBAGlobalForKF;
 
     static std::mutex mGlobalMutex;
+    static std::mutex mMutexMapPointCreation;
 
 protected:
     //flags if fixed, then

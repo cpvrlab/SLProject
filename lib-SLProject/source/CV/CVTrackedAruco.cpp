@@ -47,13 +47,15 @@ bool CVTrackedAruco::track(CVMat          imageGray,
     {
         paramsLoaded = params.loadFromFile();
         if (!paramsLoaded)
-            Utils::exitMsg("CVTrackedAruco::track: Failed to load Aruco parameters.",
+            Utils::exitMsg("SLProject",
+                           "CVTrackedAruco::track: Failed to load Aruco parameters.",
                            __LINE__,
                            __FILE__);
     }
     if (params.arucoParams.empty() || params.dictionary.empty())
     {
-        Utils::warnMsg("CVTrackedAruco::track: Aruco paramters are empty.",
+        Utils::warnMsg("SLProject",
+                       "CVTrackedAruco::track: Aruco paramters are empty.",
                        __LINE__,
                        __FILE__);
         return false;

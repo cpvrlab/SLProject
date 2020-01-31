@@ -37,53 +37,24 @@ struct InitializerData
     std::vector<int>         iniMatches;
 };
 
-class WAISlam
+/* 
+ * This class should not be instanciated. It contains only pure virtual methods
+ * and some variables with getter that are useful for slam in a subclass.
+ */
+
+class WAISlamTools
 {
 public:
-    WAISlam(cv::Mat intrinsic, cv::Mat distortion, std::string orbVocFile, KPextractor* extractorp, bool trackingOnly = false, bool serial = false);
+    static void drawKeyPointInfo(WAIFrame& frame, cv::Mat& image);
+    static void drawKeyPointMatches(WAIFrame& frame, cv::Mat& image);
+    static void drawInitInfo(InitializerData& iniData, WAIFrame& frame, cv::Mat& imageRGB);
 
-    void drawInfo(cv::Mat& imageRGB,
-                  bool     showInitLine,
-                  bool     showKeyPoints,
-                  bool     showKeyPointsMatched);
-
-    bool           hasStateIdle();
-    void           requestStateIdle();
-    WAIMap*        getMap();
-    WAIKeyFrameDB* getKfDB();
-
-    bool retainImage();
-    void resume();
-    void setInitialized(bool b);
-    bool isInitialized();
-
-    KPextractor*                                              getKPextractor();
-    WAIFrame*                                                 getLastFrame();
-    std::vector<WAIMapPoint*>                                 getMapPoints();
-    std::vector<WAIKeyFrame*>                                 getKeyFrames();
-    std::vector<WAIMapPoint*>                                 getLocalMapPoints();
-    std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> getMatchedCorrespondances(WAIFrame& frame);
-    std::string                                               getPrintableState();
-    int                                                       getKeyPointCount();
-    int                                                       getKeyFrameCount();
-    int                                                       getMapPointCount();
-    cv::Mat                                                   getPose();
-    bool                                                      update(cv::Mat& imageGray, cv::Mat& imageRGB);
-    cv::Mat                                                   getExtrinsic();
-    void                                                      reset();
-
-    static void                      drawKeyPointInfo(WAIFrame& frame, cv::Mat& image);
-    static void                      drawKeyPointMatches(WAIFrame& frame, cv::Mat& image);
-    static std::vector<WAIMapPoint*> getMatchedMapPoints(WAIFrame* frame);
-
-    static void drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv::Mat& imageRGB);
-
-    static bool initialize(InitializerData& iniData, 
-                           WAIFrame& frame, 
-                           ORBVocabulary* voc, 
-                           LocalMap& localMap, 
-                           int mapPointsNeeded, 
-                           WAIKeyFrameDB* keyFrameDatabase);
+    static bool initialize(InitializerData& iniData,
+                           WAIFrame&        frame,
+                           ORBVocabulary*   voc,
+                           LocalMap&        localMap,
+                           int              mapPointsNeeded,
+                           WAIKeyFrameDB*   keyFrameDatabase);
 
     static bool relocalization(WAIFrame&      currentFrame,
                                WAIMap*        waiMap,
@@ -122,49 +93,238 @@ public:
 
     static bool trackWithMotionModel(cv::Mat velocity, WAIFrame& previousFrame, WAIFrame& frame);
 
-    static void updateLocalMap(WAIFrame& frame,
-                               LocalMap& lmap);
+    static void updateLocalMap(WAIFrame& frame, LocalMap& localMap);
 
-    static int matchLocalMapPoints(LocalMap& lmap, int lastRelocFrameId, WAIFrame& frame);
+    static int matchLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, WAIFrame& frame);
 
-    static bool needNewKeyFrame(WAIMap*       map,
+    static bool needNewKeyFrame(WAIMap*       globalMap,
                                 LocalMap&     localMap,
-                                LocalMapping* lmapper,
+                                LocalMapping* localMapper,
                                 WAIFrame&     frame,
                                 int           nInliners);
 
-    static bool genInitialMap(WAIMap*          map,
+    static bool genInitialMap(WAIMap*          globalMap,
                               LocalMapping*    localMapper,
                               LoopClosing*     loopCloser,
                               LocalMap&        localMap,
                               bool             serial);
 
     static void createNewKeyFrame(LocalMapping*  localMapper,
-                                  LocalMap&      lmap,
-                                  WAIMap*        map,
+                                  LocalMap&      localMap,
+                                  WAIMap*        globalMap,
                                   WAIKeyFrameDB* keyFrameDatabase,
                                   WAIFrame&      frame);
 
-private:
-    InitializerData _iniData;
-    LocalMap        _localMap;
-    WAIMap*         _globalMap;
-    TrackingState   _state;
-    LocalMapping*   _localMapping;
-    LoopClosing*    _loopClosing;
-    WAIKeyFrameDB*  _keyFrameDatabase;
-    KPextractor*    _extractor;
-    ORBVocabulary*  _voc;
+    static std::vector<WAIMapPoint*>                                 getMatchedMapPoints(WAIFrame* frame);
+    static std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> getMatchedCorrespondances(WAIFrame* frame);
+
+    virtual void reset() = 0;
+    virtual bool update(cv::Mat& imageGray) = 0;
+    virtual void resume() = 0;
+    virtual KPextractor* getKPextractor() = 0;
+    virtual bool hasStateIdle() = 0;
+
+    virtual WAIMap* getMap()
+    {
+        return _globalMap;
+    }
+
+    virtual WAIKeyFrameDB* getKfDB()
+    {
+        return _keyFrameDatabase;
+    }
+
+    virtual WAIFrame* getLastFrame()
+    {
+        return &_lastFrame;
+    }
+
+    virtual std::vector<WAIMapPoint*> getMapPoints()
+    {
+        if (_globalMap != nullptr)
+            return _globalMap->GetAllMapPoints();
+        return std::vector<WAIMapPoint*>();
+    }
+
+    virtual std::vector<WAIKeyFrame*> getKeyFrames()
+    {
+        if (_globalMap != nullptr)
+            return _globalMap->GetAllKeyFrames();
+        return std::vector<WAIKeyFrame*>();
+    }
+
+    virtual std::vector<WAIMapPoint*> getLocalMapPoints()
+    {
+        return _localMap.mapPoints;
+    }
+
+    virtual std::string getPrintableState()
+    {
+        switch (_state)
+        {
+            case TrackingState_Idle:
+                return std::string("TrackingState_Idle\n");
+                break;
+            case TrackingState_Initializing:
+                return std::string("TrackingState_Initializing");
+                break;
+            case TrackingState_None:
+                return std::string("TrackingState_None");
+                break;
+            case TrackingState_TrackingLost:
+                return std::string("TrackingState_TrackingLost");
+                break;
+            case TrackingState_TrackingOK:
+                return std::string("TrackingState_TrackingOK");
+                break;
+        }
+    }
+
+    virtual int getKeyPointCount()
+    {
+        return _lastFrame.N;
+    }
+
+    virtual int getKeyFrameCount()
+    {
+        return _globalMap->KeyFramesInMap();
+    }
+
+    virtual int getMapPointCount()
+    {
+        return _globalMap->MapPointsInMap();
+    }
+
+    virtual cv::Mat getPose()
+    {
+        return _cameraExtrinsic;
+    }
+
+    virtual cv::Mat setState(TrackingState state)
+    {
+        _state = state;
+    }
+
+    virtual void drawInfo(cv::Mat& imageRGB,
+                          bool     showInitLine,
+                          bool     showKeyPoints,
+                          bool     showKeyPointsMatched);
+
+protected:
+    WAISlamTools(){};
+
+    TrackingState   _state = TrackingState_Idle;
     cv::Mat         _distortion;
     cv::Mat         _cameraIntrinsic;
     cv::Mat         _cameraExtrinsic;
+    InitializerData _iniData;
+    WAIFrame        _lastFrame;
+    LocalMap        _localMap;
+    WAIMap*         _globalMap;
+    WAIKeyFrameDB*  _keyFrameDatabase;
+    ORBVocabulary*  _voc;
+    cv::Mat         _velocity;
+
+    LocalMapping*   _localMapping;
+    LoopClosing*    _loopClosing;
     std::thread*    _localMappingThread = nullptr;
     std::thread*    _loopClosingThread  = nullptr;
-    std::mutex      _mutexStates;
-    WAIFrame        _lastFrame;
-    bool            _initialized;
-    int             _lastRelocId;
-    cv::Mat         _velocity;
-    bool            _serial;
-    bool            _trackingOnly;
+};
+
+
+
+
+
+class WAISlam : public WAISlamTools
+{
+public:
+    WAISlam(cv::Mat intrinsic, 
+            cv::Mat distortion, 
+            std::string orbVocFile, 
+            KPextractor* extractor);
+
+    WAISlam(cv::Mat intrinsic,
+            cv::Mat distortion, 
+            std::string orbVocFile, 
+            KPextractor* extractor, 
+            bool trackingOnly, 
+            bool serial = false, 
+            bool retainImg = false);
+
+    void reset();
+    bool update(cv::Mat& imageGray);
+    void resume();
+
+    bool hasStateIdle();
+    void requestStateIdle();
+    bool retainImage();
+
+    KPextractor* getKPextractor()
+    {
+        return _extractor;
+    };
+
+private:
+    std::mutex   _mutexStates;
+    bool         _retainImg;
+    int          _lastRelocId;
+    bool         _serial;
+    bool         _trackingOnly;
+    KPextractor* _extractor;
+};
+
+
+
+
+
+class WAISlamMarker : public WAISlamTools
+{
+public:
+    WAISlamMarker(cv::Mat      intrinsic,
+                  cv::Mat      distortion,
+                  std::string  orbVocFile,
+                  KPextractor* extractor,
+                  KPextractor* markerExtractor,
+                  std::string  markerFile,
+                  bool         serial    = false,
+                  bool         retainImg = false);
+
+    void reset();
+    WAIFrame createMarkerFrame(std::string markerFile, KPextractor* markerExtractor);
+    bool     doMarkerMapPreprocessing(std::string markerFile, 
+                                      cv::Mat& nodeTransform, 
+                                      float markerWidthInM);
+    bool     findMarkerHomography(WAIFrame&    markerFrame,
+                                  WAIKeyFrame* kfCand,
+                                  cv::Mat&     homography,
+                                  int          minMatches);
+
+    bool update(cv::Mat& imageGray);
+    void resume();
+
+    bool hasStateIdle();
+    void requestStateIdle();
+    bool retainImage();
+
+
+    std::vector<WAIMapPoint*> getMarkerCornerMapPoints();
+
+    KPextractor* getKPextractor()
+    {
+        return _extractor;
+    };
+
+private:
+    std::mutex   _mutexStates;
+    bool         _retainImg;
+    int          _lastRelocId;
+    bool         _serial;
+    KPextractor* _extractor;
+    WAIFrame     _markerFrame;
+    KPextractor* _markerExtractor = nullptr;
+
+    WAIMapPoint* _mpUL = nullptr;
+    WAIMapPoint* _mpUR = nullptr;
+    WAIMapPoint* _mpLL = nullptr;
+    WAIMapPoint* _mpLR = nullptr;
 };

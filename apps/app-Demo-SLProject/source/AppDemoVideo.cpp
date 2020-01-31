@@ -117,7 +117,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
                                                   SLApplication::CALIB_FTP_DIR,
                                                   errorMsg))
                         {
-                            Utils::log(errorMsg.c_str());
+                            Utils::log("WAIApp", errorMsg.c_str());
                         }
                     }
                     else
@@ -140,7 +140,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
     }
     catch (CVCalibrationEstimatorException& e)
     {
-        log(e.what());
+        log("WAIApp", e.what());
         s->info("Exception during calibration! Please restart!");
     }
 }

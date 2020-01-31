@@ -56,7 +56,8 @@ cv::Size AvailableStreamConfigs::findBestMatchingSize(cv::Size requiredSize)
 }
 
 SENSNdkCamera::SENSNdkCamera(SENSCamera::Facing facing)
-  : SENSCamera(facing)
+  : SENSCamera(facing),
+    _threadException("SENSNdkCamera: empty default exception")
 {
     _valid = false;
     //init camera manager
@@ -377,7 +378,7 @@ void SENSNdkCamera::run()
     catch (std::exception& e)
     {
         std::unique_lock<std::mutex> lock(_threadOutputMutex);
-        _threadException    = e;
+        _threadException    = std::runtime_error(e.what());
         _threadHasException = true;
     }
     catch (...)

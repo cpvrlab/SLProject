@@ -142,8 +142,8 @@ bool CVCalibration::load(const string& calibDir,
     FileStorage fs(fullPathAndFilename, FileStorage::READ);
     if (!fs.isOpened())
     {
-        Utils::log("Calibration     : %s\n", calibFileName.c_str());
-        Utils::log("Calib. created  : No. Calib. will be estimated\n");
+        Utils::log("SLProject", "Calibration     : %s\n", calibFileName.c_str());
+        Utils::log("SLProject", "Calib. created  : No. Calib. will be estimated\n");
         _numCaptured       = 0;
         _isMirroredH       = false;
         _isMirroredV       = false;
@@ -206,9 +206,9 @@ bool CVCalibration::load(const string& calibDir,
         buildUndistortionMaps();
     }
 
-    Utils::log("Calib. loaded  : %s\n", fullPathAndFilename.c_str());
-    Utils::log("Calib. created : %s\n", _calibrationTime.c_str());
-    Utils::log("Camera FOV H/V : %3.1f/%3.1f\n", _cameraFovVDeg, _cameraFovHDeg);
+    Utils::log("SLProject", "Calib. loaded  : %s\n", fullPathAndFilename.c_str());
+    Utils::log("SLProject", "Calib. created : %s\n", _calibrationTime.c_str());
+    Utils::log("SLProject", "Camera FOV H/V : %3.1f/%3.1f\n", _cameraFovVDeg, _cameraFovHDeg);
 
     _cameraMatOrig = _cameraMat.clone();
     _imageSizeOrig = _imageSize;
@@ -226,7 +226,7 @@ bool CVCalibration::save(const string& calibDir,
 
     if (!fs.isOpened())
     {
-        Utils::log("Failed to write calib. %s\n", fullPathAndFilename.c_str());
+        Utils::log("SLProject", "Failed to write calib. %s\n", fullPathAndFilename.c_str());
         return false;
     }
 
@@ -288,7 +288,7 @@ bool CVCalibration::save(const string& calibDir,
 
     // close file
     fs.release();
-    Utils::log("Calib. saved    : %s\n", fullPathAndFilename.c_str());
+    Utils::log("SLProject", "Calib. saved    : %s\n", fullPathAndFilename.c_str());
     return true;
     //uploadCalibration(fullPathAndFilename);
 }
@@ -351,9 +351,7 @@ void getInnerAndOuterRectangles(const cv::Mat&    cameraMatrix,
 void CVCalibration::buildUndistortionMaps()
 {
     if (_cameraMatUndistorted.rows != 3 || _cameraMatUndistorted.cols != 3)
-        Utils::exitMsg("CVCalibration::buildUndistortionMaps: No _cameraMatUndistorted available",
-                       __LINE__,
-                       __FILE__);
+        Utils::exitMsg("SLProject", "CVCalibration::buildUndistortionMaps: No _cameraMatUndistorted available", __LINE__, __FILE__);
 
     // Create undistortion maps
     _undistortMapX.release();
@@ -369,9 +367,7 @@ void CVCalibration::buildUndistortionMaps()
                                 _undistortMapY);
 
     if (_undistortMapX.empty() || _undistortMapY.empty())
-        Utils::exitMsg("CVCalibration::buildUndistortionMaps failed.",
-                       __LINE__,
-                       __FILE__);
+        Utils::exitMsg("SLProject", "CVCalibration::buildUndistortionMaps failed.", __LINE__, __FILE__);
 }
 //-----------------------------------------------------------------------------
 //! Undistorts the inDistorted image into the outUndistorted
@@ -495,9 +491,7 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
 void CVCalibration::calculateUndistortedCameraMat()
 {
     if (_cameraMat.rows != 3 || _cameraMat.cols != 3)
-        Utils::exitMsg("CVCalibration::calculateUndistortedCameraMat: No intrinsic parameter available",
-                       __LINE__,
-                       __FILE__);
+        Utils::exitMsg("SLProject", "CVCalibration::calculateUndistortedCameraMat: No intrinsic parameter available", __LINE__, __FILE__);
 
     // An alpha of 0 leads to no black borders
     // An alpha of 1 leads to black borders
@@ -563,9 +557,7 @@ void CVCalibration::calculateUndistortedCameraMat()
 void CVCalibration::calcCameraFovFromUndistortedCameraMat()
 {
     if (_cameraMatUndistorted.rows != 3 || _cameraMatUndistorted.cols != 3)
-        Utils::exitMsg("CVCalibration::calcCameraFovFromSceneCameraMat: No _cameraMatUndistorted available",
-                       __LINE__,
-                       __FILE__);
+        Utils::exitMsg("SLProject", "CVCalibration::calcCameraFovFromSceneCameraMat: No _cameraMatUndistorted available", __LINE__, __FILE__);
 
     //calculate vertical field of view
     float fx       = (float)_cameraMatUndistorted.at<double>(0, 0);

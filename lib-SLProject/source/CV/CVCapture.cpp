@@ -72,13 +72,13 @@ CVSize2i CVCapture::open(int deviceNum)
         if (!_captureDevice.isOpened())
             return CVSize2i(0, 0);
 
-        Utils::log("Capture devices created.\n");
+        Utils::log("SLProject", "Capture devices created.\n");
         //_captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, 1440);
         //_captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
-        //Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
-        //Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
+        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
+        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
         fps                = (float)_captureDevice.get(cv::CAP_PROP_FPS);
@@ -93,7 +93,7 @@ CVSize2i CVCapture::open(int deviceNum)
     }
     catch (exception& e)
     {
-        Utils::log("Exception during OpenCV video capture creation: %s\n", e.what());
+        Utils::log("SLProject", "Exception during OpenCV video capture creation: %s\n", e.what());
     }
     return CVSize2i(0, 0);
 }
@@ -112,7 +112,7 @@ CVSize2i CVCapture::openFile()
             if (!Utils::fileExists(videoFilename))
             {
                 string msg = "CVCapture::openFile: File not found: " + videoFilename;
-                Utils::exitMsg(msg.c_str(), __LINE__, __FILE__);
+                Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
             }
         }
 
@@ -120,16 +120,16 @@ CVSize2i CVCapture::openFile()
 
         if (!_captureDevice.isOpened())
         {
-            Utils::log("CVCapture::openFile: Failed to open video file.");
+            Utils::log("SLProject", "CVCapture::openFile: Failed to open video file.");
             return CVSize2i(0, 0);
         }
 
-        //Utils::log("Capture devices created with video.\n");
+        //Utils::log("SLProject", "Capture devices created with video.\n");
 
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
-        //Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
-        //Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
+        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
+        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
         fps                = (float)_captureDevice.get(cv::CAP_PROP_FPS);
@@ -139,7 +139,7 @@ CVSize2i CVCapture::openFile()
     }
     catch (exception& e)
     {
-        Utils::log("CVCapture::openFile: Exception during OpenCV video capture creation with video file: %s\n", e.what());
+        Utils::log("SLProject", "CVCapture::openFile: Exception during OpenCV video capture creation with video file: %s\n", e.what());
     }
     return CVSize2i(0, 0);
 }
@@ -221,7 +221,7 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
             static bool logOnce = true;
             if (logOnce)
             {
-                Utils::log("OpenCV: Capture device or video file is not open!\n");
+                Utils::log("SLProject", "OpenCV: Capture device or video file is not open!\n");
                 logOnce = false;
                 return false;
             }
@@ -229,7 +229,7 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
     }
     catch (exception& e)
     {
-        Utils::log("Exception during OpenCV video capture creation: %s\n", e.what());
+        Utils::log("SLProject", "Exception during OpenCV video capture creation: %s\n", e.what());
         return false;
     }
 
@@ -295,7 +295,7 @@ void CVCapture::loadIntoLastFrame(const float       viewportWdivH,
                 bpp    = 4;
                 break;
             }
-            default: Utils::exitMsg("Pixel format not supported", __LINE__, __FILE__);
+            default: Utils::exitMsg("SLProject", "Pixel format not supported", __LINE__, __FILE__);
         }
 
         // calculate padding NO. of bgrRowOffset bytes (= step in OpenCV terminology)
@@ -858,7 +858,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
                                                  SLApplication::CALIB_FTP_DIR,
                                                  errorMsg))
         {
-            Utils::log(errorMsg.c_str());
+            Utils::log("SLProject", errorMsg.c_str());
         }
     }
     if (!mainCam.calibration.load(configPath, mainCalibFilename))
@@ -879,7 +879,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
                                 SLApplication::CALIB_FTP_DIR,
                                 errorMsg))
     {
-        Utils::log(errorMsg.c_str());
+        Utils::log("SLProject", errorMsg.c_str());
     }
     //todo: move this download call out of cvcaputure (during refactoring of this class)
     if (!FtpUtils::downloadFile(SLApplication::calibFilePath,
@@ -890,7 +890,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
                                 SLApplication::CALIB_FTP_DIR,
                                 errorMsg))
     {
-        Utils::log(errorMsg.c_str());
+        Utils::log("SLProject", errorMsg.c_str());
     }
     mainCam.calibration.load(configPath, mainCalibFilename);
     scndCam.calibration.load(configPath, scndCalibFilename);

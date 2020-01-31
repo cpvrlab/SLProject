@@ -16,6 +16,7 @@
 
 long unsigned int WAIMapPoint::nNextId = 0;
 mutex             WAIMapPoint::mGlobalMutex;
+mutex             WAIMapPoint::mMutexMapPointCreation;
 
 //-----------------------------------------------------------------------------
 //!constructor used during map loading
@@ -74,9 +75,9 @@ WAIMapPoint::WAIMapPoint(const cv::Mat& Pos,
     //Pos.copyTo(mWorldPos);
     mNormalVector = cv::Mat::zeros(3, 1, CV_32F);
 
-    //TODO(Luluc) move Mutex here
+    //TODO(Luluc) remove mMutexPointCreaton on WAIMap
     // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
-    //unique_lock<mutex> lock(mpMap->mMutexPointCreation);
+    unique_lock<mutex> lock(mMutexMapPointCreation);
     mnId = nNextId++;
 
     refKfSource = RefKfSource_Constructor;

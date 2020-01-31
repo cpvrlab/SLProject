@@ -53,10 +53,6 @@ namespace fs = std::experimental::filesystem;
 using namespace std;
 using asio::ip::tcp;
 
-//-----------------------------------------------------------------------------
-string logAppName;
-//-----------------------------------------------------------------------------
-
 namespace Utils
 {
 ///////////////////////////////
@@ -792,7 +788,7 @@ bool deleteFile(string& pathfilename)
 
 //-----------------------------------------------------------------------------
 //! logs a formatted string platform independently
-void log(const char* format, ...)
+void log(const char* tag, const char* format, ...)
 {
     char    log[4096];
     va_list argptr;
@@ -801,27 +797,28 @@ void log(const char* format, ...)
     va_end(argptr);
 
 #if defined(ANDROID) || defined(ANDROID_NDK)
-    __android_log_print(ANDROID_LOG_INFO, logAppName.c_str(), log);
+    __android_log_print(ANDROID_LOG_INFO, tag, log);
 #else
     cout << log << std::flush;
 #endif
 }
 //-----------------------------------------------------------------------------
 //! Terminates the application with a message. No leak checking.
-void exitMsg(const char* msg,
+void exitMsg(const char* tag,
+             const char* msg,
              const int   line,
              const char* file)
 {
 #if defined(ANDROID) || defined(ANDROID_NDK)
     __android_log_print(ANDROID_LOG_INFO,
-                        logAppName.c_str(),
+                        tag,
                         "Exit %s at line %d in %s\n",
                         msg,
                         line,
                         file);
 #else
     log("%s: Exit %s at line %d in %s\n",
-        logAppName.c_str(),
+        tag,
         msg,
         line,
         file);
@@ -831,20 +828,21 @@ void exitMsg(const char* msg,
 }
 //-----------------------------------------------------------------------------
 //! Warn message output
-void warnMsg(const char* msg,
+void warnMsg(const char* tag,
+             const char* msg,
              const int   line,
              const char* file)
 {
 #if defined(ANDROID) || defined(ANDROID_NDK)
     __android_log_print(ANDROID_LOG_INFO,
-                        logAppName.c_str(),
+                        tag,
                         "Warning: %s at line %d in %s\n",
                         msg,
                         line,
                         file);
 #else
     log("%s: Warning %s at line %d in %s\n",
-        logAppName.c_str(),
+        tag,
         msg,
         line,
         file);
@@ -928,7 +926,8 @@ uint64_t httpGet(const string& httpURL, const string& outFolder)
         // Check HTTP response status (400 means bad request)
         if (statusCode != 200)
         {
-            log("httpGet: HTTP Response returned status code: %d (%s)\n",
+            log("httpGet",
+                "httpGet: HTTP Response returned status code: %d (%s)\n",
                 statusCode,
                 statusMsg.c_str());
             return 0;
@@ -963,7 +962,7 @@ uint64_t httpGet(const string& httpURL, const string& outFolder)
             else
             {
                 string msg = "Outfolder not found: " + outFolder;
-                exitMsg(msg.c_str(), __LINE__, __FILE__);
+                exitMsg("httpGet", msg.c_str(), __LINE__, __FILE__);
             }
         }
 

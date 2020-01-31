@@ -115,7 +115,7 @@ void CVTrackedFeatures::loadMarker(string markerFilename)
         if (!Utils::fileExists(markerFilename))
         {
             string msg = "CVTrackedFeatures::loadMarker: File not found: " + markerFilename;
-            Utils::exitMsg(msg.c_str(), __LINE__, __FILE__);
+            Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
         }
     }
 
