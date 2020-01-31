@@ -8,10 +8,12 @@ WAISlam::WAISlam(cv::Mat      intrinsic,
                  cv::Mat      distortion,
                  std::string  orbVocFile,
                  KPextractor* extractorp,
+                 bool         trackingOnly,
                  bool         serial)
 {
     _iniData.initializer = nullptr;
     _serial = serial;
+    _trackingOnly = trackingOnly;
 
     WAIKeyFrame::nNextId            = 0;
     WAIFrame::nNextId               = 0;
@@ -107,14 +109,17 @@ bool WAISlam::update(cv::Mat& imageGray, cv::Mat& imageRGB)
             break;
         case TrackingState_TrackingOK:
         {
-            int inlier = tracking(_globalMap, _keyFrameDatabase, _localMap, frame, _lastFrame, _lastRelocId, _velocity);
-            if (inlier > 50)
+            int inliers;
+            if (tracking(_globalMap, _keyFrameDatabase, _localMap, frame, _lastFrame, _lastRelocId, _velocity, inliers))
             {
                 motionModel(frame, _lastFrame, _velocity, _cameraExtrinsic);
-                if (_serial)
-                    serialMapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, _loopClosing, frame, inlier);
-                else
-                    mapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, frame, inlier);
+                if (!_trackingOnly)
+                {
+                    if (_serial)
+                        serialMapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, _loopClosing, frame, inliers);
+                    else
+                        mapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, frame, inliers);
+                }
             }
             else
                 _state = TrackingState_TrackingLost;
@@ -367,16 +372,18 @@ bool WAISlam::genInitialMap(WAIMap*          map,
     return true;
 }
 
-int WAISlam::tracking(WAIMap*        map,
+bool WAISlam::tracking(WAIMap*        map,
                       WAIKeyFrameDB* keyFrameDatabase,
                       LocalMap&      localMap,
                       WAIFrame&      frame,
                       WAIFrame&      lastFrame,
                       int            lastRelocFrameId,
-                      cv::Mat&       velocity)
+                      cv::Mat&       velocity,
+                      int&           inliers)
 {
-    std::unique_lock<std::mutex> lock(map->mMutexMapUpdate, std::defer_lock);
-    lock.lock();
+    //std::unique_lock<std::mutex> lock(map->mMutexMapUpdate, std::defer_lock);
+    //lock.lock();
+    inliers = 0;
 
     if (!trackWithMotionModel(velocity, lastFrame, frame))
     {
@@ -385,7 +392,7 @@ int WAISlam::tracking(WAIMap*        map,
             if (relocalization(frame, map, keyFrameDatabase))
                 lastRelocFrameId = frame.mnId;
             else
-                return 0;
+                return false;
         }
     }
 
@@ -393,10 +400,12 @@ int WAISlam::tracking(WAIMap*        map,
     if (!localMap.keyFrames.empty())
     {
         frame.mpReferenceKF = localMap.refKF;
-        return matchLocalMapPoints(localMap, lastRelocFrameId, frame);
+        inliers = matchLocalMapPoints(localMap, lastRelocFrameId, frame);
+        if (inliers > 50)
+            return true;
     }
 
-    return 0;
+    return false;
 }
 
 void WAISlam::mapping(WAIMap*        map,

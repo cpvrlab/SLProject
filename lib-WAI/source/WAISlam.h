@@ -40,7 +40,7 @@ struct InitializerData
 class WAISlam
 {
 public:
-    WAISlam(cv::Mat intrinsic, cv::Mat distortion, std::string orbVocFile, KPextractor* extractorp, bool serial = false);
+    WAISlam(cv::Mat intrinsic, cv::Mat distortion, std::string orbVocFile, KPextractor* extractorp, bool trackingOnly = false, bool serial = false);
 
     void drawInfo(cv::Mat& imageRGB,
                   bool     showInitLine,
@@ -89,13 +89,14 @@ public:
                                WAIMap*        waiMap,
                                WAIKeyFrameDB* keyFrameDatabase);
 
-    static int tracking(WAIMap*        map,
-                        WAIKeyFrameDB* keyFrameDatabase,
-                        LocalMap&      localMap,
-                        WAIFrame&      frame,
-                        WAIFrame&      lastFrame,
-                        int            lastRelocFrameId,
-                        cv::Mat&       velocity);
+    static bool tracking(WAIMap*        map,
+                         WAIKeyFrameDB* keyFrameDatabase,
+                         LocalMap&      localMap,
+                         WAIFrame&      frame,
+                         WAIFrame&      lastFrame,
+                         int            lastRelocFrameId,
+                         cv::Mat&       velocity,
+                         int&           inliers);
 
     static void mapping(WAIMap*        map,
                         WAIKeyFrameDB* keyFrameDatabase,
@@ -165,4 +166,5 @@ private:
     int             _lastRelocId;
     cv::Mat         _velocity;
     bool            _serial;
+    bool            _trackingOnly;
 };
