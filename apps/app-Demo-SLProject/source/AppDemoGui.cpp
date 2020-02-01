@@ -1487,9 +1487,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Save Rendered Image"))
                     rt_optix->saveImage();
 
-                if (ImGui::MenuItem("Remove Rays"))
-                    rt_optix->removeRays();
-
                 ImGui::EndMenu();
             }
         }

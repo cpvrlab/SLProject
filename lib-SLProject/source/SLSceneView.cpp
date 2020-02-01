@@ -987,11 +987,6 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
         }
     }
 
-#ifdef SL_HAS_OPTIX
-    if (_mouseDownR)
-        _optixRaytracer.drawRay(x, y);
-#endif
-
     return result;
 }
 //-----------------------------------------------------------------------------
