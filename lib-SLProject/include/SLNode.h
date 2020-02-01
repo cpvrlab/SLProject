@@ -25,7 +25,7 @@ class SLAnimation;
 
 //-----------------------------------------------------------------------------
 //! SLVNode typdef for a vector of SLNodes
-typedef std::vector<SLNode*> SLVNode;
+typedef vector<SLNode*> SLVNode;
 //-----------------------------------------------------------------------------
 //! Struct for scene graph statistics
 /*! The SLNodeStats struct holds some statistics that are set in the recursive
@@ -314,7 +314,7 @@ class SLNode
                             vector<SLNode*>& list,
                             SLbool           findRecursive);
 #ifdef SL_HAS_OPTIX
-    void createOptixInstances(std::vector<OptixInstance>&);
+    void createOptixInstances(vector<OptixInstance>&);
 #endif
 
     protected:

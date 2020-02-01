@@ -1201,7 +1201,7 @@ void SLNode::update()
 #ifdef SL_HAS_OPTIX
 void SLNode::createInstanceAccelerationStructureTree()
 {
-    std::vector<OptixInstance> instances;
+    vector<OptixInstance> instances;
 
     for (auto child : children())
     {
@@ -1292,7 +1292,7 @@ void SLNode::createInstanceAccelerationStructureTree()
 //-----------------------------------------------------------------------------
 void SLNode::createInstanceAccelerationStructureFlat()
 {
-    std::vector<OptixInstance> instances;
+    vector<OptixInstance> instances;
 
     createOptixInstances(instances);
 
@@ -1311,7 +1311,7 @@ void SLNode::createInstanceAccelerationStructureFlat()
     buildAccelerationStructure();
 }
 //-----------------------------------------------------------------------------
-void SLNode::createOptixInstances(std::vector<OptixInstance>& instances)
+void SLNode::createOptixInstances(vector<OptixInstance>& instances)
 {
     for (auto child : children())
     {

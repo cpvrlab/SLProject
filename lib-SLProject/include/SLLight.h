@@ -117,6 +117,6 @@ class SLLight
 };
 //-----------------------------------------------------------------------------
 //! STL vector of light pointers
-typedef std::vector<SLLight*> SLVLight;
+typedef vector<SLLight*> SLVLight;
 //-----------------------------------------------------------------------------
 #endif

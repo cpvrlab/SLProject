@@ -202,6 +202,6 @@ class SLGLTexture : public SLObject
 };
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLTexture pointers
-typedef std::vector<SLGLTexture*> SLVGLTexture;
+typedef vector<SLGLTexture*> SLVGLTexture;
 //-----------------------------------------------------------------------------
 #endif

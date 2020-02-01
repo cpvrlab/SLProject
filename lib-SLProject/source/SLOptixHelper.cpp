@@ -16,7 +16,7 @@
 #    include <SLOptixHelper.h>
 
 //-----------------------------------------------------------------------------
-static bool readSourceFile(std::string& str, const std::string& filename)
+static bool readSourceFile(string& str, const string& filename)
 {
     // Try to open file
     std::ifstream file(filename.c_str());
@@ -31,10 +31,9 @@ static bool readSourceFile(std::string& str, const std::string& filename)
     return false;
 }
 //-----------------------------------------------------------------------------
-static std::string getPtxFilename(
-  std::string filename)
+static string getPtxFilename(string filename)
 {
-    std::string ptxFilename;
+    string ptxFilename;
     ptxFilename += '/';
     ptxFilename += "cuda_compile_ptx_1";
     ptxFilename += "_generated_";
@@ -43,22 +42,22 @@ static std::string getPtxFilename(
     return ptxFilename;
 }
 //-----------------------------------------------------------------------------
-std::string getPtxStringFromFile(
-  std::string  filename,
+string getPtxStringFromFile(
+  string  filename,
   const char** log)
 {
     if (log)
         *log = NULL;
 
-    std::string *ptx, sourceFilePath;
+    string *ptx, sourceFilePath;
     sourceFilePath = "lib-SLProject/" + getPtxFilename(filename);
 
-    ptx = new std::string();
+    ptx = new string();
 
     // Try to open source PTX file
     if (!readSourceFile(*ptx, sourceFilePath))
     {
-        std::string err = "Couldn't open source file " + sourceFilePath;
+        string err = "Couldn't open source file " + sourceFilePath;
         throw std::runtime_error(err.c_str());
     }
 

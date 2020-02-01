@@ -81,71 +81,71 @@ void SLOptixRaytracer::setupOptix()
     _shadingModule = _createModule("SLOptixRaytracerShading.cu");
     _traceModule   = _createModule("SLOptixTrace.cu");
 
-    OptixProgramGroupDesc pinhole_raygen_prog_group_desc    = {};
-    pinhole_raygen_prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
-    pinhole_raygen_prog_group_desc.raygen.module            = _cameraModule;
-    pinhole_raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__pinhole_camera";
-    _pinhole_raygen_prog_group                              = _createProgram(pinhole_raygen_prog_group_desc);
+    OptixProgramGroupDesc pinhole_raygen_desc    = {};
+    pinhole_raygen_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+    pinhole_raygen_desc.raygen.module            = _cameraModule;
+    pinhole_raygen_desc.raygen.entryFunctionName = "__raygen__pinhole_camera";
+    _pinhole_raygen_prog_group                   = _createProgram(pinhole_raygen_desc);
 
-    OptixProgramGroupDesc lens_raygen_prog_group_desc    = {};
-    lens_raygen_prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
-    lens_raygen_prog_group_desc.raygen.module            = _cameraModule;
-    lens_raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__lens_camera";
-    _lens_raygen_prog_group                              = _createProgram(lens_raygen_prog_group_desc);
+    OptixProgramGroupDesc lens_raygen_desc    = {};
+    lens_raygen_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+    lens_raygen_desc.raygen.module            = _cameraModule;
+    lens_raygen_desc.raygen.entryFunctionName = "__raygen__lens_camera";
+    _lens_raygen_prog_group                   = _createProgram(lens_raygen_desc);
 
-    OptixProgramGroupDesc orthographic_raygen_prog_group_desc    = {};
-    orthographic_raygen_prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
-    orthographic_raygen_prog_group_desc.raygen.module            = _cameraModule;
-    orthographic_raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__orthographic_camera";
-    _orthographic_raygen_prog_group                              = _createProgram(orthographic_raygen_prog_group_desc);
+    OptixProgramGroupDesc orthographic_raygen_desc    = {};
+    orthographic_raygen_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+    orthographic_raygen_desc.raygen.module            = _cameraModule;
+    orthographic_raygen_desc.raygen.entryFunctionName = "__raygen__orthographic_camera";
+    _orthographic_raygen_prog_group                   = _createProgram(orthographic_raygen_desc);
 
-    OptixProgramGroupDesc radiance_miss_prog_group_desc  = {};
-    radiance_miss_prog_group_desc.kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
-    radiance_miss_prog_group_desc.miss.module            = _shadingModule;
-    radiance_miss_prog_group_desc.miss.entryFunctionName = "__miss__radiance";
-    _radiance_miss_group                                 = _createProgram(radiance_miss_prog_group_desc);
+    OptixProgramGroupDesc radiance_miss_desc  = {};
+    radiance_miss_desc.kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
+    radiance_miss_desc.miss.module            = _shadingModule;
+    radiance_miss_desc.miss.entryFunctionName = "__miss__radiance";
+    _radiance_miss_group                      = _createProgram(radiance_miss_desc);
 
-    OptixProgramGroupDesc occlusion_miss_prog_group_desc  = {};
-    occlusion_miss_prog_group_desc.kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
-    occlusion_miss_prog_group_desc.miss.module            = _shadingModule;
-    occlusion_miss_prog_group_desc.miss.entryFunctionName = "__miss__occlusion";
-    _occlusion_miss_group                                 = _createProgram(occlusion_miss_prog_group_desc);
+    OptixProgramGroupDesc occlusion_miss_desc  = {};
+    occlusion_miss_desc.kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
+    occlusion_miss_desc.miss.module            = _shadingModule;
+    occlusion_miss_desc.miss.entryFunctionName = "__miss__occlusion";
+    _occlusion_miss_group                      = _createProgram(occlusion_miss_desc);
 
-    OptixProgramGroupDesc radiance_hitgroup_prog_group_desc        = {};
-    radiance_hitgroup_prog_group_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-    radiance_hitgroup_prog_group_desc.hitgroup.moduleAH            = _shadingModule;
-    radiance_hitgroup_prog_group_desc.hitgroup.entryFunctionNameAH = "__anyhit__radiance";
-    radiance_hitgroup_prog_group_desc.hitgroup.moduleCH            = _shadingModule;
-    radiance_hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__radiance";
-    _radiance_hit_group                                            = _createProgram(radiance_hitgroup_prog_group_desc);
+    OptixProgramGroupDesc radiance_hitgroup_desc        = {};
+    radiance_hitgroup_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    radiance_hitgroup_desc.hitgroup.moduleAH            = _shadingModule;
+    radiance_hitgroup_desc.hitgroup.entryFunctionNameAH = "__anyhit__radiance";
+    radiance_hitgroup_desc.hitgroup.moduleCH            = _shadingModule;
+    radiance_hitgroup_desc.hitgroup.entryFunctionNameCH = "__closesthit__radiance";
+    _radiance_hit_group                                 = _createProgram(radiance_hitgroup_desc);
 
-    OptixProgramGroupDesc radiance_hitgroup_line_prog_group_desc        = {};
-    radiance_hitgroup_line_prog_group_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleIS            = _traceModule;
-    radiance_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameIS = "__intersection__line";
-    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleAH            = _traceModule;
-    radiance_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameAH = "__anyhit__line_radiance";
-    radiance_hitgroup_line_prog_group_desc.hitgroup.moduleCH            = _traceModule;
-    radiance_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__line_radiance";
-    _radiance_line_hit_group                                            = _createProgram(radiance_hitgroup_line_prog_group_desc);
+    OptixProgramGroupDesc radiance_hitgroup_line_desc        = {};
+    radiance_hitgroup_line_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    radiance_hitgroup_line_desc.hitgroup.moduleIS            = _traceModule;
+    radiance_hitgroup_line_desc.hitgroup.entryFunctionNameIS = "__intersection__line";
+    radiance_hitgroup_line_desc.hitgroup.moduleAH            = _traceModule;
+    radiance_hitgroup_line_desc.hitgroup.entryFunctionNameAH = "__anyhit__line_radiance";
+    radiance_hitgroup_line_desc.hitgroup.moduleCH            = _traceModule;
+    radiance_hitgroup_line_desc.hitgroup.entryFunctionNameCH = "__closesthit__line_radiance";
+    _radiance_line_hit_group                                 = _createProgram(radiance_hitgroup_line_desc);
 
-    OptixProgramGroupDesc occlusion_hitgroup_prog_group_desc        = {};
-    occlusion_hitgroup_prog_group_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-    occlusion_hitgroup_prog_group_desc.hitgroup.moduleAH            = _shadingModule;
-    occlusion_hitgroup_prog_group_desc.hitgroup.entryFunctionNameAH = "__anyhit__occlusion";
-    occlusion_hitgroup_prog_group_desc.hitgroup.moduleCH            = nullptr;
-    occlusion_hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = nullptr;
-    _occlusion_hit_group                                            = _createProgram(occlusion_hitgroup_prog_group_desc);
+    OptixProgramGroupDesc occlusion_hitgroup_desc        = {};
+    occlusion_hitgroup_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    occlusion_hitgroup_desc.hitgroup.moduleAH            = _shadingModule;
+    occlusion_hitgroup_desc.hitgroup.entryFunctionNameAH = "__anyhit__occlusion";
+    occlusion_hitgroup_desc.hitgroup.moduleCH            = nullptr;
+    occlusion_hitgroup_desc.hitgroup.entryFunctionNameCH = nullptr;
+    _occlusion_hit_group                                 = _createProgram(occlusion_hitgroup_desc);
 
-    OptixProgramGroupDesc occlusion_hitgroup_line_prog_group_desc        = {};
-    occlusion_hitgroup_line_prog_group_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-    occlusion_hitgroup_line_prog_group_desc.hitgroup.moduleIS            = _traceModule;
-    occlusion_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameIS = "__intersection__line";
-    occlusion_hitgroup_line_prog_group_desc.hitgroup.moduleAH            = _traceModule;
-    occlusion_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameAH = "__anyhit__line_occlusion";
-    occlusion_hitgroup_line_prog_group_desc.hitgroup.moduleCH            = nullptr;
-    occlusion_hitgroup_line_prog_group_desc.hitgroup.entryFunctionNameCH = nullptr;
-    _occlusion_line_hit_group                                            = _createProgram(occlusion_hitgroup_line_prog_group_desc);
+    OptixProgramGroupDesc occlusion_hitgroup_line_desc        = {};
+    occlusion_hitgroup_line_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    occlusion_hitgroup_line_desc.hitgroup.moduleIS            = _traceModule;
+    occlusion_hitgroup_line_desc.hitgroup.entryFunctionNameIS = "__intersection__line";
+    occlusion_hitgroup_line_desc.hitgroup.moduleAH            = _traceModule;
+    occlusion_hitgroup_line_desc.hitgroup.entryFunctionNameAH = "__anyhit__line_occlusion";
+    occlusion_hitgroup_line_desc.hitgroup.moduleCH            = nullptr;
+    occlusion_hitgroup_line_desc.hitgroup.entryFunctionNameCH = nullptr;
+    _occlusion_line_hit_group                                 = _createProgram(occlusion_hitgroup_line_desc);
 
     OptixProgramGroup program_groups[] = {
       _pinhole_raygen_prog_group,
@@ -159,15 +159,15 @@ void SLOptixRaytracer::setupOptix()
     _pipeline = _createPipeline(program_groups, 7);
 }
 //-----------------------------------------------------------------------------
-OptixModule SLOptixRaytracer::_createModule(std::string filename)
+OptixModule SLOptixRaytracer::_createModule(string filename)
 {
     OptixDeviceContext context = SLApplication::context;
 
     OptixModule module = nullptr;
     {
-        const std::string ptx = getPtxStringFromFile(std::move(filename));
-        char              log[2048];
-        size_t            sizeof_log = sizeof(log);
+        const string ptx = getPtxStringFromFile(std::move(filename));
+        char         log[2048];
+        size_t       sizeof_log = sizeof(log);
 
         OPTIX_CHECK_LOG(optixModuleCreateFromPTX(
           context,
@@ -182,7 +182,7 @@ OptixModule SLOptixRaytracer::_createModule(std::string filename)
     return module;
 }
 //-----------------------------------------------------------------------------
-OptixProgramGroup SLOptixRaytracer::_createProgram(OptixProgramGroupDesc prog_group_desc)
+OptixProgramGroup SLOptixRaytracer::_createProgram(OptixProgramGroupDesc desc)
 {
     OptixDeviceContext       context               = SLApplication::context;
     OptixProgramGroup        program_group         = {};
@@ -194,7 +194,7 @@ OptixProgramGroup SLOptixRaytracer::_createProgram(OptixProgramGroupDesc prog_gr
     {
         OPTIX_CHECK_LOG(optixProgramGroupCreate(
           context,
-          &prog_group_desc,
+          &desc,
           1, // num program groups
           &program_group_options,
           log,
@@ -251,7 +251,7 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMes
         }
 
         // Setup miss records
-        std::vector<MissSbtRecord> missRecords;
+        vector<MissSbtRecord> missRecords;
 
         MissSbtRecord radiance_ms_sbt;
         OPTIX_CHECK(optixSbtRecordPackHeader(_radiance_miss_group, &radiance_ms_sbt));
@@ -265,7 +265,7 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMes
         _missBuffer.alloc_and_upload(missRecords);
 
         // Setup hit records
-        std::vector<HitSbtRecord> hitRecords;
+        vector<HitSbtRecord> hitRecords;
 
         for (auto mesh : meshes)
         {
@@ -332,29 +332,6 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv)
 
     _sbtClassic     = _createShaderBindingTable(meshes, false);
     _sbtDistributed = _createShaderBindingTable(meshes, true);
-
-    //    OptixStackSizes stack_sizes = {};
-    //    OPTIX_CHECK( optixUtilAccumulateStackSizes( _raygen_prog_group,    &stack_sizes ) );
-    //    OPTIX_CHECK( optixUtilAccumulateStackSizes( _radiance_miss_group,  &stack_sizes ) );
-    //    OPTIX_CHECK( optixUtilAccumulateStackSizes( _occlusion_miss_group, &stack_sizes ) );
-    //    OPTIX_CHECK( optixUtilAccumulateStackSizes( _radiance_hit_group,   &stack_sizes ) );
-    //    OPTIX_CHECK( optixUtilAccumulateStackSizes( _occlusion_hit_group,  &stack_sizes ) );
-    //    unsigned int directCallableStackSizeFromTraversal;
-    //    unsigned int directCallableStackSizeFromState;
-    //    unsigned int continuationStackSize;
-    //    OPTIX_CHECK( optixUtilComputeStackSizes(&stack_sizes,
-    //            _maxDepth,
-    //            0,
-    //            0,
-    //            &directCallableStackSizeFromTraversal,
-    //            &directCallableStackSizeFromState,
-    //            &continuationStackSize) );
-    //    OPTIX_CHECK( optixPipelineSetStackSize(_pipeline,
-    //                              directCallableStackSizeFromTraversal,
-    //                              directCallableStackSizeFromState,
-    //                              continuationStackSize,
-    //                              scene->maxTreeDepth()
-    //                              ) );
 }
 //-----------------------------------------------------------------------------
 void SLOptixRaytracer::updateScene(SLSceneView* sv)
@@ -404,7 +381,7 @@ void SLOptixRaytracer::updateScene(SLSceneView* sv)
         _rayGenClassicBuffer.upload(&rayGenSbtRecord);
     }
 
-    std::vector<Light> lights;
+    vector<Light> lights;
     _lightBuffer.free();
     unsigned int light_count = 0;
     for (auto light : scene->lights())

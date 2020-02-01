@@ -223,6 +223,6 @@ class SLMesh : public SLObject
     void notifyParentNodesAABBUpdate() const;
 };
 //-----------------------------------------------------------------------------
-typedef std::vector<SLMesh*> SLVMesh;
+typedef vector<SLMesh*> SLVMesh;
 //-----------------------------------------------------------------------------
 #endif //SLMESH_H

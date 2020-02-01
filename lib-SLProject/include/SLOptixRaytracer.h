@@ -51,7 +51,7 @@ class SLOptixRaytracer : public SLRaytracer
     protected:
     void initCompileOptions();
 
-    OptixModule             _createModule(std::string);
+    OptixModule             _createModule(string);
     OptixProgramGroup       _createProgram(OptixProgramGroupDesc);
     OptixPipeline           _createPipeline(OptixProgramGroup*, unsigned int);
     OptixShaderBindingTable _createShaderBindingTable(const SLVMesh&, const bool);
@@ -90,5 +90,6 @@ class SLOptixRaytracer : public SLRaytracer
     OptixShaderBindingTable _sbtClassic{};
     OptixShaderBindingTable _sbtDistributed{};
 };
+//-----------------------------------------------------------------------------
 #    endif // SLOPTIXRAYTRACER_H
 #endif     // SL_HAS_OPTIX

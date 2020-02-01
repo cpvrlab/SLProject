@@ -99,7 +99,7 @@ class SLOptixException : public std::runtime_error
     }
 
     private:
-    std::string createMessage(OptixResult res, const char* msg)
+    string createMessage(OptixResult res, const char* msg)
     {
         std::ostringstream out;
         out << optixGetErrorName(res) << ": " << msg;
@@ -108,8 +108,8 @@ class SLOptixException : public std::runtime_error
 };
 //------------------------------------------------------------------------------
 // Get PTX string from File
-std::string getPtxStringFromFile(
-  std::string  filename,    // Cuda C input file name
+string getPtxStringFromFile(
+  string  filename,    // Cuda C input file name
   const char** log = NULL); // (Optional) pointer to compiler log string. If *log == NULL there is no output.
 //------------------------------------------------------------------------------
 float4 make_float4(const SLVec4f& f);

@@ -23,7 +23,7 @@ class SLGLState;
 
 //-----------------------------------------------------------------------------
 //! STL vector type for SLGLShader pointers
-typedef std::vector<SLGLShader*> SLVGLShader;
+typedef vector<SLGLShader*> SLVGLShader;
 
 #if defined(TARGET_OS_IOS)
 // The TR1 unordered_map or the hash_map is not yet available on iOS
@@ -133,6 +133,6 @@ class SLGLProgram : public SLObject
 };
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLProgram pointers
-typedef std::vector<SLGLProgram*> SLVGLProgram;
+typedef vector<SLGLProgram*> SLVGLProgram;
 //-----------------------------------------------------------------------------
 #endif // SLSHADERPROGRAM_H
