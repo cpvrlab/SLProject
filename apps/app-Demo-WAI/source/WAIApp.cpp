@@ -447,7 +447,7 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
         extractSlamMapInfosFromFileName(mapFile, &slamMapInfos);
 
         _mode->resume();
-        _mode->setState(TrackingState_TrackingOK);
+        _mode->setState(TrackingState_TrackingLost);
     }
 
     // 6. save current params

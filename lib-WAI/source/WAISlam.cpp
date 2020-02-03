@@ -61,74 +61,6 @@ void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv
     }
 }
 
-void WAISlamTools::drawInfo(cv::Mat& imageRGB,
-                            bool     showInitLine,
-                            bool     showKeyPoints,
-                            bool     showKeyPointsMatched)
-{
-    if (_state == TrackingState_Initializing)
-    {
-        if (showInitLine)
-            drawInitInfo(_iniData, _lastFrame, imageRGB);
-    }
-    else if (_state == TrackingState_TrackingOK)
-    {
-        if (showKeyPoints)
-            drawKeyPointInfo(_lastFrame, imageRGB);
-        if (showKeyPointsMatched)
-            drawKeyPointMatches(_lastFrame, imageRGB);
-    }
-}
-
-std::vector<WAIMapPoint*> WAISlamTools::getMatchedMapPoints(WAIFrame* frame)
-{
-    std::vector<WAIMapPoint*> result;
-
-    for (int i = 0; i < frame->N; i++)
-    {
-        if (frame->mvpMapPoints[i])
-        {
-            if (!frame->mvbOutlier[i])
-            {
-                if (frame->mvpMapPoints[i]->Observations() > 0)
-                    result.push_back(frame->mvpMapPoints[i]);
-            }
-        }
-    }
-
-    return result;
-}
-
-std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> WAISlamTools::getMatchedCorrespondances(WAIFrame* frame)
-{
-    std::vector<cv::Vec3f> points3d;
-    std::vector<cv::Vec2f> points2d;
-
-    for (int i = 0; i < frame->N; i++)
-    {
-        WAIMapPoint* mp = frame->mvpMapPoints[i];
-        if (mp)
-        {
-            if (!frame->mvbOutlier[i])
-            {
-                if (mp->Observations() > 0)
-                {
-                    WAI::V3   _v = mp->worldPosVec();
-                    cv::Vec3f v;
-                    v[0] = _v.x;
-                    v[1] = _v.y;
-                    v[2] = _v.z;
-                    points3d.push_back(v);
-                    points2d.push_back(frame->mvKeysUn[i].pt);
-                }
-            }
-        }
-    }
-
-    return std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>>(points3d, points2d);
-}
-
-
 
 bool WAISlamTools::initialize(InitializerData& iniData,
                               WAIFrame&        frame,
@@ -297,7 +229,6 @@ bool WAISlamTools::genInitialMap(WAIMap*       map,
 {
     if (localMap.keyFrames.size() != 2)
     {
-        std::cout << "DERP" << std::endl;
         return false;
     }
 
@@ -1117,6 +1048,7 @@ bool WAISlam::update(cv::Mat& imageGray)
                 if (genInitialMap(_globalMap, _localMapping, _loopClosing, _localMap, _serial))
                 {
                     _lastRelocId = 0;
+                    _initialized = true;
                     _state       = TrackingState_TrackingOK;
                 }
             }
@@ -1151,6 +1083,76 @@ bool WAISlam::update(cv::Mat& imageGray)
     _lastFrame = WAIFrame(frame);
     return (_state == TrackingState_TrackingOK);
 }
+
+
+void WAISlam::drawInfo(cv::Mat& imageRGB,
+                            bool     showInitLine,
+                            bool     showKeyPoints,
+                            bool     showKeyPointsMatched)
+{
+    if (_state == TrackingState_Initializing)
+    {
+        if (showInitLine)
+            drawInitInfo(_iniData, _lastFrame, imageRGB);
+    }
+    else if (_state == TrackingState_TrackingOK)
+    {
+        if (showKeyPoints)
+            drawKeyPointInfo(_lastFrame, imageRGB);
+        if (showKeyPointsMatched)
+            drawKeyPointMatches(_lastFrame, imageRGB);
+    }
+}
+
+std::vector<WAIMapPoint*> WAISlam::getMatchedMapPoints(WAIFrame* frame)
+{
+    std::vector<WAIMapPoint*> result;
+
+    for (int i = 0; i < frame->N; i++)
+    {
+        if (frame->mvpMapPoints[i])
+        {
+            if (!frame->mvbOutlier[i])
+            {
+                if (frame->mvpMapPoints[i]->Observations() > 0)
+                    result.push_back(frame->mvpMapPoints[i]);
+            }
+        }
+    }
+
+    return result;
+}
+
+std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> WAISlam::getMatchedCorrespondances(WAIFrame* frame)
+{
+    std::vector<cv::Vec3f> points3d;
+    std::vector<cv::Vec2f> points2d;
+
+    for (int i = 0; i < frame->N; i++)
+    {
+        WAIMapPoint* mp = frame->mvpMapPoints[i];
+        if (mp)
+        {
+            if (!frame->mvbOutlier[i])
+            {
+                if (mp->Observations() > 0)
+                {
+                    WAI::V3   _v = mp->worldPosVec();
+                    cv::Vec3f v;
+                    v[0] = _v.x;
+                    v[1] = _v.y;
+                    v[2] = _v.z;
+                    points3d.push_back(v);
+                    points2d.push_back(frame->mvKeysUn[i].pt);
+                }
+            }
+        }
+    }
+
+    return std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>>(points3d, points2d);
+}
+
+
 
 void WAISlam::requestStateIdle()
 {
@@ -1189,46 +1191,10 @@ WAISlamMarker::WAISlamMarker(cv::Mat      intrinsic,
                              std::string  markerFile,
                              bool         serial,
                              bool         retainImg)
+  :
+  WAISlam(intrinsic, distortion, orbVocFile, extractor, false, serial, retainImg)
+
 {
-    _iniData.initializer = nullptr;
-    _serial = serial;
-    _retainImg = retainImg;
-
-    WAIKeyFrame::nNextId            = 0;
-    WAIFrame::nNextId               = 0;
-    WAIMapPoint::nNextId            = 0;
-    WAIFrame::mbInitialComputations = true;
-
-    _distortion      = distortion.clone();
-    _cameraIntrinsic = intrinsic.clone();
-
-    if (!WAIOrbVocabulary::initialize(orbVocFile))
-        throw std::runtime_error("WAISlamMarker: could not find vocabulary file: " + orbVocFile);
-    _voc = WAIOrbVocabulary::get();
-
-    _keyFrameDatabase = new WAIKeyFrameDB(*_voc);
-    _globalMap        = new WAIMap("Map");
-    _extractor        = extractor;
-    _markerExtractor  = markerExtractor;
-
-    _localMapping     = new ORB_SLAM2::LocalMapping(_globalMap, 1, _voc, 0.95);
-    _loopClosing      = new ORB_SLAM2::LoopClosing(_globalMap, _keyFrameDatabase, _voc, false, false);
-
-    _localMapping->SetLoopCloser(_loopClosing);
-    _loopClosing->SetLocalMapper(_localMapping);
-
-    if (!serial)
-    {
-        _localMappingThread = new std::thread(&LocalMapping::Run, _localMapping);
-        _loopClosingThread  = new std::thread(&LoopClosing::Run, _loopClosing);
-    }
-
-    _state               = TrackingState_Initializing;
-    _iniData.initializer = nullptr;
-    _cameraExtrinsic     = cv::Mat::eye(4, 4, CV_32F);
-
-    _lastFrame = WAIFrame();
-
     if (!markerFile.empty())
         _markerFrame = createMarkerFrame(markerFile, _markerExtractor);
 }

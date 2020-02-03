@@ -813,7 +813,7 @@ int main()
                 //Create MapPoint.
                 cv::Mat worldPos(vP3De[i]);
 
-                WAIMapPoint* pMP = new WAIMapPoint(worldPos, pKFcur, map);
+                WAIMapPoint* pMP = new WAIMapPoint(worldPos, pKFcur);
 
                 pKFini->AddMapPoint(pMP, i);
                 pKFcur->AddMapPoint(pMP, matches[i]);
