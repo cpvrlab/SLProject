@@ -7,6 +7,7 @@ typedef struct AppDirectories
     std::string writableDir;
     std::string waiDataRoot;
     std::string slDataRoot;
+    std::string vocabularyDir;
 } AppDirectories;
 
 #endif

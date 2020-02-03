@@ -589,9 +589,10 @@ static void onInit(void* usrPtr, struct android_app* app)
     std::string externalPath = getExternalDir(app);
 
     AppDirectories dirs;
-    dirs.slDataRoot  = path;
-    dirs.waiDataRoot = path + "/";
-    dirs.writableDir = externalPath + "/";
+    dirs.slDataRoot    = path;
+    dirs.waiDataRoot   = path + "/";
+    dirs.writableDir   = externalPath + "/";
+    dirs.vocabularyDir = path + "/voc/";
 
     CVImage::defaultPath = dirs.slDataRoot + "/images/textures/";
 

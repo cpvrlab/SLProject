@@ -516,9 +516,10 @@ int main(int argc, char* argv[])
     camera->start(config);
 
     AppDirectories dirs;
-    dirs.waiDataRoot = SLstring(SL_PROJECT_ROOT) + "/data";
-    dirs.slDataRoot  = SLstring(SL_PROJECT_ROOT) + "/data";
-    dirs.writableDir = Utils::getAppsWritableDir();
+    dirs.waiDataRoot   = SLstring(SL_PROJECT_ROOT) + "/data";
+    dirs.slDataRoot    = SLstring(SL_PROJECT_ROOT) + "/data";
+    dirs.writableDir   = Utils::getAppsWritableDir();
+    dirs.vocabularyDir = dirs.writableDir + "voc/";
 
     svIndex = waiApp.load(camera.get(), config.targetWidth, config.targetHeight, scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
 

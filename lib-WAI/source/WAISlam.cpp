@@ -745,7 +745,6 @@ int WAISlamTools::trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, 
                 }
                 else
                 {
-                    frame.mvbOutlier[i]   = true;
                     frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
                 }
             }
@@ -898,7 +897,7 @@ bool WAISlamTools::trackWithMotionModel(cv::Mat velocity, WAIFrame& previousFram
 {
     AVERAGE_TIMING_START("trackWithMotionModel");
 
-    if (velocity.empty() || frame.mnId == previousFrame.mnId + 1)
+    if (velocity.empty() || frame.mnId > previousFrame.mnId + 1)
         return false;
 
     ORBmatcher matcher(0.9, true);
@@ -1048,7 +1047,7 @@ bool WAISlam::update(cv::Mat& imageGray)
 
     switch (_state)
     {
-        case TrackingState_Initializing:
+        case TrackingState_Initializing: {
             if (initialize(_iniData, frame, _voc, _localMap, 100, _keyFrameDatabase))
             {
                 if (genInitialMap(_globalMap, _localMapping, _loopClosing, _localMap, _serial))
@@ -1057,7 +1056,8 @@ bool WAISlam::update(cv::Mat& imageGray)
                     _state       = TrackingState_TrackingOK;
                 }
             }
-            break;
+        }
+        break;
         case TrackingState_TrackingOK: {
             int inliers;
             if (tracking(_globalMap, _keyFrameDatabase, _localMap, frame, _lastFrame, _lastRelocId, _velocity, inliers))
@@ -1072,7 +1072,7 @@ bool WAISlam::update(cv::Mat& imageGray)
                 _state = TrackingState_TrackingLost;
         }
         break;
-        case TrackingState_TrackingLost:
+        case TrackingState_TrackingLost: {
             int inliers;
             if (relocalization(frame, _globalMap, _keyFrameDatabase, _localMap, inliers))
             {
@@ -1085,7 +1085,8 @@ bool WAISlam::update(cv::Mat& imageGray)
 
                 _state = TrackingState_TrackingOK;
             }
-            break;
+        }
+        break;
     }
 
     _lastFrame = WAIFrame(frame);
