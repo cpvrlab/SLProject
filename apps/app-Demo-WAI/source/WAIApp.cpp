@@ -85,7 +85,6 @@ int WAIApp::load(SENSCamera* camera, int liveVideoTargetW, int liveVideoTargetH,
     videoDir = _dirs.writableDir + "erleb-AR/locations/";
     calibDir = _dirs.writableDir + "calibrations/";
     mapDir   = _dirs.writableDir + "maps/";
-    vocDir   = _dirs.writableDir + "calibrations/";
 
     _waiScene        = std::make_unique<AppWAIScene>();
     _videoWriter     = new cv::VideoWriter();
@@ -171,7 +170,7 @@ bool WAIApp::update()
 
                 // TODO(dgj1): maybe make this API cleaner
                 cv::Mat pose = cv::Mat(4, 4, CV_32F);
-                pose = _mode->getPose();
+                pose         = _mode->getPose();
 
                 // update camera node position
                 cv::Mat Rwc(3, 3, CV_32F);
@@ -271,7 +270,6 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
         vocFile         = slamParams->vocabularyFile;
         markerFile      = slamParams->markerFile;
         params          = slamParams->params;
-
     }
 
     bool useVideoFile             = !videoFile.empty();
@@ -343,7 +341,8 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
 
     if (vocFile.empty())
     {
-        vocFile = vocDir + "ORBvoc.bin";
+        showErrorMsg("Select a vocabulary file!");
+        return;
     }
 
     if (!Utils::fileExists(vocFile))
@@ -402,12 +401,12 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
         params.cullRedundantPerc = 0.99f;
     }
 
-    _trackingExtractor       = _featureExtractorFactory.make(slamParams->extractorIds.trackingExtractorId, _videoFrameSize);
+    _trackingExtractor = _featureExtractorFactory.make(slamParams->extractorIds.trackingExtractorId, _videoFrameSize);
     /*
     _initializationExtractor = _featureExtractorFactory.make(slamParams->extractorIds.initializationExtractorId, _videoFrameSize);
     _markerExtractor         = _featureExtractorFactory.make(slamParams->extractorIds.markerExtractorId, _videoFrameSize);
     */
-    _doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
+    _doubleBufferedOutput = _trackingExtractor->doubleBufferedOutput();
 
     _mode = new WAISlam(_calibration.cameraMat(),
                         _calibration.distortion(),
@@ -655,7 +654,7 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
                                                &_eventQueue,
                                                _dirs.writableDir + "erleb-AR/locations/",
                                                _dirs.writableDir + "calibrations/",
-                                               _dirs.waiDataRoot + "voc/",
+                                               _dirs.vocabularyDir,
                                                _featureExtractorFactory.getExtractorIdToNames(),
                                                &_gui->uiPrefs->showSlamLoad,
                                                this->_currentSlamParams));
@@ -768,6 +767,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
     //undistort image and copy image to video texture
     if (_videoImage)
     {
+        _mode->drawInfo(imgRGB, true, _gui->uiPrefs->showKeyPoints, _gui->uiPrefs->showKeyPointsMatched);
 
         if (_calibration.state() == CS_calibrated && _showUndistorted)
         {
@@ -782,8 +782,6 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
         {
             _lastFrameIdx = (_lastFrameIdx + 1) % 2;
         }
-
-        _mode->drawInfo(_undistortedLastFrame[_lastFrameIdx], true, _gui->uiPrefs->showKeyPoints, _gui->uiPrefs->showKeyPointsMatched);
 
         _videoImage->copyVideoImage(_undistortedLastFrame[_lastFrameIdx].cols,
                                     _undistortedLastFrame[_lastFrameIdx].rows,
@@ -1081,13 +1079,13 @@ void WAIApp::saveMap(std::string location,
     else
     {
         */
-        if (!WAIMapStorage::saveMap(_mode->getMap(),
-                                    _waiScene->mapNode,
-                                    mapDir + filename,
-                                    imgDir))
-        {
-            showErrorMsg("Failed to save map " + mapDir + filename);
-        }
+    if (!WAIMapStorage::saveMap(_mode->getMap(),
+                                _waiScene->mapNode,
+                                mapDir + filename,
+                                imgDir))
+    {
+        showErrorMsg("Failed to save map " + mapDir + filename);
+    }
     //}
 
     _mode->resume();
@@ -1171,8 +1169,7 @@ void WAIApp::handleEvents()
 
         switch (event->type)
         {
-            case WAIEventType_StartOrbSlam:
-            {
+            case WAIEventType_StartOrbSlam: {
                 WAIEventStartOrbSlam* startOrbSlamEvent = (WAIEventStartOrbSlam*)event;
                 loadWAISceneView(SLApplication::scene, _sv, startOrbSlamEvent->params.location, startOrbSlamEvent->params.area);
                 startOrbSlam(&startOrbSlamEvent->params);
@@ -1181,8 +1178,7 @@ void WAIApp::handleEvents()
             }
             break;
 
-            case WAIEventType_SaveMap:
-            {
+            case WAIEventType_SaveMap: {
                 WAIEventSaveMap* saveMapEvent = (WAIEventSaveMap*)event;
                 saveMap(saveMapEvent->location, saveMapEvent->area, saveMapEvent->marker);
 
@@ -1190,8 +1186,7 @@ void WAIApp::handleEvents()
             }
             break;
 
-            case WAIEventType_VideoControl:
-            {
+            case WAIEventType_VideoControl: {
                 WAIEventVideoControl* videoControlEvent = (WAIEventVideoControl*)event;
                 _pauseVideo                             = videoControlEvent->pauseVideo;
                 _videoCursorMoveIndex                   = videoControlEvent->videoCursorMoveIndex;
@@ -1200,8 +1195,7 @@ void WAIApp::handleEvents()
             }
             break;
 
-            case WAIEventType_VideoRecording:
-            {
+            case WAIEventType_VideoRecording: {
                 WAIEventVideoRecording* videoRecordingEvent = (WAIEventVideoRecording*)event;
 
                 if (_videoWriter->isOpened())
@@ -1219,8 +1213,7 @@ void WAIApp::handleEvents()
             }
             break;
 
-            case WAIEventType_MapNodeTransform:
-            {
+            case WAIEventType_MapNodeTransform: {
                 WAIEventMapNodeTransform* mapNodeTransformEvent = (WAIEventMapNodeTransform*)event;
 
                 transformMapNode(mapNodeTransformEvent->tSpace, mapNodeTransformEvent->rotation, mapNodeTransformEvent->translation, mapNodeTransformEvent->scale);
@@ -1230,8 +1223,7 @@ void WAIApp::handleEvents()
             break;
 
             case WAIEventType_None:
-            default:
-            {
+            default: {
             }
             break;
         }

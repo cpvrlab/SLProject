@@ -165,7 +165,6 @@ public:
     std::string videoDir;
     std::string calibDir;
     std::string mapDir;
-    std::string vocDir;
 
 private:
     bool updateTracking(SENSFramePtr frame);
@@ -204,9 +203,9 @@ private:
     //todo: we dont need a pointer
     std::unique_ptr<AppWAIScene> _waiScene;
     //WAI::ModeOrbSlam2*           _mode;
-    WAISlam *_mode;
-    SLSceneView*                 _sv         = nullptr;
-    SLGLTexture*                 _videoImage = nullptr;
+    WAISlam*     _mode;
+    SLSceneView* _sv         = nullptr;
+    SLGLTexture* _videoImage = nullptr;
 
     SlamParams     _currentSlamParams;
     AppDirectories _dirs;

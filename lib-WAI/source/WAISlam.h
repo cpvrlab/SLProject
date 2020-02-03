@@ -58,7 +58,9 @@ public:
 
     static bool relocalization(WAIFrame&      currentFrame,
                                WAIMap*        waiMap,
-                               WAIKeyFrameDB* keyFrameDatabase);
+                               WAIKeyFrameDB* keyFrameDatabase,
+                               LocalMap&      localMap,
+                               int&           inliers);
 
     static bool tracking(WAIMap*        map,
                          WAIKeyFrameDB* keyFrameDatabase,
@@ -68,6 +70,11 @@ public:
                          int            lastRelocFrameId,
                          cv::Mat&       velocity,
                          int&           inliers);
+
+    static bool trackLocalMap(LocalMap& localMap,
+                              WAIFrame& frame,
+                              int       lastRelocFrameId,
+                              int&      inliers);
 
     static void mapping(WAIMap*        map,
                         WAIKeyFrameDB* keyFrameDatabase,
@@ -95,7 +102,7 @@ public:
 
     static void updateLocalMap(WAIFrame& frame, LocalMap& localMap);
 
-    static int matchLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, WAIFrame& frame);
+    static int trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, WAIFrame& frame);
 
     static bool needNewKeyFrame(WAIMap*       globalMap,
                                 LocalMap&     localMap,
@@ -103,18 +110,17 @@ public:
                                 WAIFrame&     frame,
                                 int           nInliners);
 
-    static bool genInitialMap(WAIMap*          globalMap,
-                              LocalMapping*    localMapper,
-                              LoopClosing*     loopCloser,
-                              LocalMap&        localMap,
-                              bool             serial);
+    static bool genInitialMap(WAIMap*       globalMap,
+                              LocalMapping* localMapper,
+                              LoopClosing*  loopCloser,
+                              LocalMap&     localMap,
+                              bool          serial);
 
     static void createNewKeyFrame(LocalMapping*  localMapper,
                                   LocalMap&      localMap,
                                   WAIMap*        globalMap,
                                   WAIKeyFrameDB* keyFrameDatabase,
                                   WAIFrame&      frame);
-
 
 protected:
     WAISlamTools(){};
@@ -132,31 +138,27 @@ protected:
     cv::Mat         _velocity;
     bool            _initialized;
 
-    LocalMapping*   _localMapping;
-    LoopClosing*    _loopClosing;
-    std::thread*    _localMappingThread = nullptr;
-    std::thread*    _loopClosingThread  = nullptr;
+    LocalMapping* _localMapping;
+    LoopClosing*  _loopClosing;
+    std::thread*  _localMappingThread = nullptr;
+    std::thread*  _loopClosingThread  = nullptr;
 };
-
-
-
-
 
 class WAISlam : public WAISlamTools
 {
 public:
-    WAISlam(cv::Mat intrinsic, 
-            cv::Mat distortion, 
-            std::string orbVocFile, 
+    WAISlam(cv::Mat      intrinsic,
+            cv::Mat      distortion,
+            std::string  orbVocFile,
             KPextractor* extractor);
 
-    WAISlam(cv::Mat intrinsic,
-            cv::Mat distortion, 
-            std::string orbVocFile, 
-            KPextractor* extractor, 
-            bool trackingOnly, 
-            bool serial = false, 
-            bool retainImg = false);
+    WAISlam(cv::Mat      intrinsic,
+            cv::Mat      distortion,
+            std::string  orbVocFile,
+            KPextractor* extractor,
+            bool         trackingOnly,
+            bool         serial    = false,
+            bool         retainImg = false);
 
     virtual void reset();
     virtual bool update(cv::Mat& imageGray);
@@ -166,16 +168,15 @@ public:
     virtual void requestStateIdle();
     virtual bool retainImage();
 
-
     static std::vector<WAIMapPoint*>                                 getMatchedMapPoints(WAIFrame* frame);
     static std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> getMatchedCorrespondances(WAIFrame* frame);
 
-    virtual bool isInitialized() { return _initialized; }
-    virtual WAIMap* getMap() { return _globalMap; }
-    virtual WAIKeyFrameDB* getKfDB() { return _keyFrameDatabase; }
-    virtual WAIFrame* getLastFrame() { return &_lastFrame; }
+    virtual bool                      isInitialized() { return _initialized; }
+    virtual WAIMap*                   getMap() { return _globalMap; }
+    virtual WAIKeyFrameDB*            getKfDB() { return _keyFrameDatabase; }
+    virtual WAIFrame*                 getLastFrame() { return &_lastFrame; }
     virtual std::vector<WAIMapPoint*> getLocalMapPoints() { return _localMap.mapPoints; }
-    virtual int getNumKeyFrames() { return _globalMap->KeyFramesInMap(); }
+    virtual int                       getNumKeyFrames() { return _globalMap->KeyFramesInMap(); }
 
     virtual std::vector<WAIMapPoint*> getMapPoints()
     {
@@ -213,19 +214,19 @@ public:
         }
     }
 
-    virtual int getKeyPointCount() { return _lastFrame.N; }
-    virtual int getKeyFrameCount() { return _globalMap->KeyFramesInMap(); }
-    virtual int getMapPointCount() { return _globalMap->MapPointsInMap(); }
-    virtual cv::Mat getPose() { return _cameraExtrinsic; }
+    virtual int           getKeyPointCount() { return _lastFrame.N; }
+    virtual int           getKeyFrameCount() { return _globalMap->KeyFramesInMap(); }
+    virtual int           getMapPointCount() { return _globalMap->MapPointsInMap(); }
+    virtual cv::Mat       getPose() { return _cameraExtrinsic; }
     virtual TrackingState getTrackingState() { return _state; }
-    virtual void setState(TrackingState state) 
-    { 
+    virtual void          setState(TrackingState state)
+    {
         if (state == TrackingState_Initializing)
         {
             _initialized = false;
             reset();
         }
-        _state = state; 
+        _state = state;
     }
 
     virtual void drawInfo(cv::Mat& imageRGB,
@@ -247,7 +248,6 @@ protected:
     KPextractor* _extractor;
 };
 
-
 class WAISlamMarker : public WAISlam
 {
 public:
@@ -260,7 +260,7 @@ public:
                   bool         serial    = false,
                   bool         retainImg = false);
 
-    void reset();
+    void     reset();
     WAIFrame createMarkerFrame(std::string markerFile, KPextractor* markerExtractor);
 
     bool doMarkerMapPreprocessing(std::string markerFile,
@@ -278,7 +278,6 @@ public:
     bool hasStateIdle();
     void requestStateIdle();
     bool retainImage();
-
 
     std::vector<WAIMapPoint*> getMarkerCornerMapPoints();
 
