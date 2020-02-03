@@ -655,7 +655,7 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
                                                &_eventQueue,
                                                _dirs.writableDir + "erleb-AR/locations/",
                                                _dirs.writableDir + "calibrations/",
-                                               _dirs.writableDir + "voc/",
+                                               _dirs.waiDataRoot + "voc/",
                                                _featureExtractorFactory.getExtractorIdToNames(),
                                                &_gui->uiPrefs->showSlamLoad,
                                                this->_currentSlamParams));
@@ -1174,7 +1174,8 @@ void WAIApp::handleEvents()
 
         switch (event->type)
         {
-            case WAIEventType_StartOrbSlam: {
+            case WAIEventType_StartOrbSlam:
+            {
                 WAIEventStartOrbSlam* startOrbSlamEvent = (WAIEventStartOrbSlam*)event;
                 loadWAISceneView(SLApplication::scene, _sv, startOrbSlamEvent->params.location, startOrbSlamEvent->params.area);
                 startOrbSlam(&startOrbSlamEvent->params);
@@ -1183,7 +1184,8 @@ void WAIApp::handleEvents()
             }
             break;
 
-            case WAIEventType_SaveMap: {
+            case WAIEventType_SaveMap:
+            {
                 WAIEventSaveMap* saveMapEvent = (WAIEventSaveMap*)event;
                 saveMap(saveMapEvent->location, saveMapEvent->area, saveMapEvent->marker);
 
@@ -1191,7 +1193,8 @@ void WAIApp::handleEvents()
             }
             break;
 
-            case WAIEventType_VideoControl: {
+            case WAIEventType_VideoControl:
+            {
                 WAIEventVideoControl* videoControlEvent = (WAIEventVideoControl*)event;
                 _pauseVideo                             = videoControlEvent->pauseVideo;
                 _videoCursorMoveIndex                   = videoControlEvent->videoCursorMoveIndex;
@@ -1200,7 +1203,8 @@ void WAIApp::handleEvents()
             }
             break;
 
-            case WAIEventType_VideoRecording: {
+            case WAIEventType_VideoRecording:
+            {
                 WAIEventVideoRecording* videoRecordingEvent = (WAIEventVideoRecording*)event;
 
                 if (_videoWriter->isOpened())
@@ -1218,7 +1222,8 @@ void WAIApp::handleEvents()
             }
             break;
 
-            case WAIEventType_MapNodeTransform: {
+            case WAIEventType_MapNodeTransform:
+            {
                 WAIEventMapNodeTransform* mapNodeTransformEvent = (WAIEventMapNodeTransform*)event;
 
                 transformMapNode(mapNodeTransformEvent->tSpace, mapNodeTransformEvent->rotation, mapNodeTransformEvent->translation, mapNodeTransformEvent->scale);
@@ -1228,7 +1233,8 @@ void WAIApp::handleEvents()
             break;
 
             case WAIEventType_None:
-            default: {
+            default:
+            {
             }
             break;
         }
