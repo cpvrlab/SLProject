@@ -41,6 +41,8 @@ public:
     void static BundleAdjustment(const std::vector<WAIKeyFrame*>& vpKF, const std::vector<WAIMapPoint*>& vpMP, int nIterations = 5, bool* pbStopFlag = NULL, const unsigned long nLoopKF = 0, const bool bRobust = true);
     void static GlobalBundleAdjustemnt(WAIMap* pMap, int nIterations = 5, bool* pbStopFlag = NULL, const unsigned long nLoopKF = 0, const bool bRobust = true);
     void static LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap* pMap);
+
+    int static PoseOptimization(WAIFrame* pFrame, vector<bool> &vbOutliers);
     int static PoseOptimization(WAIFrame* pFrame);
 
     // if bFixScale is true, 6DoF optimization (stereo,rgbd), 7DoF otherwise (mono)
