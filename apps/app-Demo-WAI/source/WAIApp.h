@@ -203,7 +203,7 @@ private:
     //todo: we dont need a pointer
     std::unique_ptr<AppWAIScene> _waiScene;
     //WAI::ModeOrbSlam2*           _mode;
-    WAISlam*     _mode;
+    WAISlam*     _mode       = nullptr;
     SLSceneView* _sv         = nullptr;
     SLGLTexture* _videoImage = nullptr;
 

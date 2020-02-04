@@ -441,7 +441,6 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame, vector<bool> &vbOutliers)
 
     vector<g2o::EdgeSE3ProjectXYZOnlyPose*> vpEdgesMono;
     vector<size_t>                          vnIndexEdgeMono;
-    vector<bool>                            vbOutliers;
     vpEdgesMono.reserve(N);
     vnIndexEdgeMono.reserve(N);
     vbOutliers.reserve(N);
@@ -546,7 +545,7 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame, vector<bool> &vbOutliers)
     return nInitialCorrespondences - nBad;
 }
 
-int Optimizer::PoseOptimization(WAIFrame* pFrame, vector<bool> &vbOutliers)
+int Optimizer::PoseOptimization(WAIFrame* pFrame)
 {
     //ghm1: Attention, we add every map point assotiated to a keypoint to the optimizer
     g2o::SparseOptimizer                    optimizer;

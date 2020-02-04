@@ -24,16 +24,13 @@ void WAISlamTools::drawKeyPointMatches(WAIFrame& frame, cv::Mat& image)
     {
         if (frame.mvpMapPoints[i])
         {
-            if (!frame.mvbOutlier[i])
+            if (frame.mvpMapPoints[i]->Observations() > 0)
             {
-                if (frame.mvpMapPoints[i]->Observations() > 0)
-                {
-                    //Use distorted points because we have to undistort the image later
-                    const auto& pt = frame.mvKeys[i].pt;
-                    cv::rectangle(image,
-                                  cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
-                                  cv::Scalar(0, 255, 0));
-                }
+                //Use distorted points because we have to undistort the image later
+                const auto& pt = frame.mvKeys[i].pt;
+                cv::rectangle(image,
+                              cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
+                              cv::Scalar(0, 255, 0));
             }
         }
     }
@@ -168,7 +165,6 @@ bool WAISlamTools::initialize(InitializerData& iniData,
 
             //Fill Current Frame structure
             frame.mvpMapPoints[iniData.iniMatches[i]] = pMP;
-            frame.mvbOutlier[iniData.iniMatches[i]]   = false;
         }
 
         // Update Connections
@@ -314,6 +310,7 @@ void WAISlamTools::mapping(WAIMap*        map,
     {
         createNewKeyFrame(localMapper, localMap, map, keyFrameDatabase, frame);
         //TODO: test if should be here of outside the if statement
+        /*
         for (int i = 0; i < frame.N; i++)
         {
             if (frame.mvpMapPoints[i] && frame.mvbOutlier[i])
@@ -321,6 +318,7 @@ void WAISlamTools::mapping(WAIMap*        map,
                 frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
             }
         }
+        */
     }
 }
 
@@ -336,6 +334,7 @@ void WAISlamTools::serialMapping(WAIMap*        map,
     {
         createNewKeyFrame(localMapper, localMap, map, keyFrameDatabase, frame);
         //TODO: test if should be here of outside the if statement
+        /*
         for (int i = 0; i < frame.N; i++)
         {
             if (frame.mvpMapPoints[i] && frame.mvbOutlier[i])
@@ -343,6 +342,7 @@ void WAISlamTools::serialMapping(WAIMap*        map,
                 frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
             }
         }
+        */
 
         localMapper->RunOnce();
         loopCloser->RunOnce();
@@ -485,6 +485,8 @@ bool WAISlamTools::relocalization(WAIFrame&      currentFrame,
     vector<vector<WAIMapPoint*>> vvpMapPointMatches;
     vvpMapPointMatches.resize(nKFs);
 
+    std::vector<bool> outliers;
+
     vector<bool> vbDiscarded;
     vbDiscarded.resize(nKFs);
 
@@ -561,14 +563,16 @@ bool WAISlamTools::relocalization(WAIFrame&      currentFrame,
                         currentFrame.mvpMapPoints[j] = NULL;
                 }
 
-                int nGood = Optimizer::PoseOptimization(&currentFrame);
+                int nGood = Optimizer::PoseOptimization(&currentFrame, outliers);
 
                 if (nGood < 10)
                     continue;
 
+                /*
                 for (int io = 0; io < currentFrame.N; io++)
                     if (currentFrame.mvbOutlier[io])
                         currentFrame.mvpMapPoints[io] = static_cast<WAIMapPoint*>(NULL);
+                */
 
                 // If few inliers, search by projection in a coarse window and optimize again:
                 //ghm1: mappoints seen in the keyframe which was found as candidate via BoW-search are projected into
@@ -579,7 +583,7 @@ bool WAISlamTools::relocalization(WAIFrame&      currentFrame,
 
                     if (nadditional + nGood >= 50)
                     {
-                        nGood = Optimizer::PoseOptimization(&currentFrame);
+                        nGood = Optimizer::PoseOptimization(&currentFrame, outliers);
 
                         // If many inliers but still not enough, search by projection again in a narrower window
                         // the camera has been already optimized with many points
@@ -587,7 +591,7 @@ bool WAISlamTools::relocalization(WAIFrame&      currentFrame,
                         {
                             sFound.clear();
                             for (int ip = 0; ip < currentFrame.N; ip++)
-                                if (currentFrame.mvpMapPoints[ip])
+                                if (currentFrame.mvpMapPoints[ip] && !outliers[ip])
                                     sFound.insert(currentFrame.mvpMapPoints[ip]);
                             nadditional = matcher2.SearchByProjection(currentFrame, vpCandidateKFs[i], sFound, 3, 64);
 
@@ -595,10 +599,6 @@ bool WAISlamTools::relocalization(WAIFrame&      currentFrame,
                             if (nGood + nadditional >= 50)
                             {
                                 nGood = Optimizer::PoseOptimization(&currentFrame);
-
-                                for (int io = 0; io < currentFrame.N; io++)
-                                    if (currentFrame.mvbOutlier[io])
-                                        currentFrame.mvpMapPoints[io] = NULL;
                             }
                         }
                     }
@@ -607,14 +607,12 @@ bool WAISlamTools::relocalization(WAIFrame&      currentFrame,
                 // If the pose is supported by enough inliers stop ransacs and continue
                 if (nGood >= 50)
                 {
-                    bMatch = true;
+                    bMatch = trackLocalMap(localMap, currentFrame, currentFrame.mnId, inliers);;
                     break;
                 }
             }
         }
     }
-
-    bMatch = trackLocalMap(localMap, currentFrame, currentFrame.mnId, inliers);
 
     AVERAGE_TIMING_STOP("relocalization");
     return bMatch;
@@ -652,30 +650,28 @@ bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map, WAIFrame& lastFrame, WA
     frame.mvpMapPoints = vpMapPointMatches;
     frame.SetPose(lastFrame.mTcw);
 
-    Optimizer::PoseOptimization(&frame);
+    nmatches = Optimizer::PoseOptimization(&frame);
 
     // Discard outliers
+    /*
     int nmatchesMap = 0;
     for (int i = 0; i < frame.N; i++)
     {
         if (frame.mvpMapPoints[i])
         {
-            if (frame.mvbOutlier[i])
-            {
-                WAIMapPoint* pMP = frame.mvpMapPoints[i];
+            WAIMapPoint* pMP = frame.mvpMapPoints[i];
 
-                frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
-                frame.mvbOutlier[i]   = false;
-                pMP->mbTrackInView    = false;
-                pMP->mnLastFrameSeen  = frame.mnId;
-                nmatches--;
-            }
-            else if (frame.mvpMapPoints[i]->Observations() > 0)
-                nmatchesMap++;
+            frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
+            frame.mvbOutlier[i]   = false;
+            nmatches--;
         }
+        else if (frame.mvpMapPoints[i]->Observations() > 0)
+            nmatchesMap++;
     }
+    */
+
     AVERAGE_TIMING_STOP("trackReferenceKeyFrame");
-    return nmatchesMap >= 10;
+    return nmatches >= 10;//nmatchesMap >= 10;
 }
 
 int WAISlamTools::trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, WAIFrame& frame)
@@ -693,8 +689,8 @@ int WAISlamTools::trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, 
             else
             {
                 pMP->IncreaseVisible();
+                //These field is only used in this function
                 pMP->mnLastFrameSeen = frame.mnId;
-                pMP->mbTrackInView   = false;
             }
         }
     }
@@ -709,7 +705,7 @@ int WAISlamTools::trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, 
             continue;
         if (pMP->isBad())
             continue;
-        //TOTO(LULUC) add viewing angle parameter
+
         if (frame.isInFrustum(pMP, 0.5))
         {
             pMP->IncreaseVisible();
@@ -736,17 +732,10 @@ int WAISlamTools::trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, 
     {
         if (frame.mvpMapPoints[i])
         {
-            if (!frame.mvbOutlier[i])
+            frame.mvpMapPoints[i]->IncreaseFound();
+            if (frame.mvpMapPoints[i]->Observations() > 0)
             {
-                frame.mvpMapPoints[i]->IncreaseFound();
-                if (frame.mvpMapPoints[i]->Observations() > 0)
-                {
-                    matchesInliers++;
-                }
-                else
-                {
-                    frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
-                }
+                matchesInliers++;
             }
         }
     }
@@ -930,32 +919,11 @@ bool WAISlamTools::trackWithMotionModel(cv::Mat velocity, WAIFrame& previousFram
     }
 
     // Optimize frame pose with all matches
-    Optimizer::PoseOptimization(&frame);
-
-    // Discard outliers
-    int nmatchesMap = 0;
-    for (int i = 0; i < frame.N; i++)
-    {
-        if (frame.mvpMapPoints[i])
-        {
-            if (frame.mvbOutlier[i])
-            {
-                WAIMapPoint* pMP = frame.mvpMapPoints[i];
-
-                frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
-                frame.mvbOutlier[i]   = false;
-                pMP->mbTrackInView    = false;
-                pMP->mnLastFrameSeen  = frame.mnId;
-                nmatches--;
-            }
-            else if (frame.mvpMapPoints[i]->Observations() > 0)
-                nmatchesMap++;
-        }
-    }
+    nmatches = Optimizer::PoseOptimization(&frame);
 
     AVERAGE_TIMING_STOP("trackWithMotionModel");
 
-    return nmatchesMap >= 10;
+    return nmatches >= 10;
 }
 
 WAISlam::WAISlam(cv::Mat      intrinsic,
@@ -1120,11 +1088,8 @@ std::vector<WAIMapPoint*> WAISlam::getMatchedMapPoints(WAIFrame* frame)
     {
         if (frame->mvpMapPoints[i])
         {
-            if (!frame->mvbOutlier[i])
-            {
-                if (frame->mvpMapPoints[i]->Observations() > 0)
-                    result.push_back(frame->mvpMapPoints[i]);
-            }
+            if (frame->mvpMapPoints[i]->Observations() > 0)
+                result.push_back(frame->mvpMapPoints[i]);
         }
     }
 
@@ -1141,18 +1106,15 @@ std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> WAISlam::getMatchedCor
         WAIMapPoint* mp = frame->mvpMapPoints[i];
         if (mp)
         {
-            if (!frame->mvbOutlier[i])
+            if (mp->Observations() > 0)
             {
-                if (mp->Observations() > 0)
-                {
-                    WAI::V3   _v = mp->worldPosVec();
-                    cv::Vec3f v;
-                    v[0] = _v.x;
-                    v[1] = _v.y;
-                    v[2] = _v.z;
-                    points3d.push_back(v);
-                    points2d.push_back(frame->mvKeysUn[i].pt);
-                }
+                WAI::V3   _v = mp->worldPosVec();
+                cv::Vec3f v;
+                v[0] = _v.x;
+                v[1] = _v.y;
+                v[2] = _v.z;
+                points3d.push_back(v);
+                points2d.push_back(frame->mvKeysUn[i].pt);
             }
         }
     }

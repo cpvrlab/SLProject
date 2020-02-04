@@ -148,9 +148,6 @@ public:
     //mvpMapPoints[i] will contain the pointer to this associated mapPoint.
     std::vector<WAIMapPoint*> mvpMapPoints;
 
-    // Flag to identify outlier associations.
-    std::vector<bool> mvbOutlier;
-
     // Keypoints are assigned to cells in a grid to reduce matching complexity when projecting MapPoints.
     static float             mfGridElementWidthInv;
     static float             mfGridElementHeightInv;
