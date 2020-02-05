@@ -71,12 +71,8 @@ WAIApp::~WAIApp()
 }
 
 //-----------------------------------------------------------------------------
-int WAIApp::load(SENSCamera* camera, int liveVideoTargetW, int liveVideoTargetH, int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories)
+int WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories)
 {
-    _camera                = camera;
-    _liveVideoTargetWidth  = liveVideoTargetW;
-    _liveVideoTargetHeight = liveVideoTargetH;
-
     _dirs = directories;
 
     SLApplication::devRot.isUsed(true);
@@ -365,9 +361,13 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
     }
     else
     {
-        _videoFrameSize = cv::Size2i(_liveVideoTargetWidth, _liveVideoTargetHeight);
+        if (!_camera)
+        {
+            showErrorMsg("Camera pointer is not set!");
+            return;
+        }
+        _videoFrameSize = cv::Size2i(_camera->getFrameSize().width, _camera->getFrameSize().height);
     }
-    _videoFrameWdivH = (float)_videoFrameSize.width / (float)_videoFrameSize.height;
 
     // 2. Load Calibration
     if (!_calibration.load(calibDir, Utils::getFileName(calibrationFile)))
@@ -623,18 +623,8 @@ void WAIApp::loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location,
     sv->onInitialize();
     sv->doWaitOnIdle(false);
 
-    /*OrbSlamStartResult orbSlamStartResult = startOrbSlam();
-
-    if (!orbSlamStartResult.wasSuccessful)
-    {
-        errorDial->setErrorMsg(orbSlamStartResult.errorString);
-        _gui->uiPrefs->showError = true;
-    }*/
-
-    sv->setViewportFromRatio(SLVec2i(_liveVideoTargetWidth, _liveVideoTargetHeight), SLViewportAlign::VA_center, true);
-
-    //do once an onResize in update loop so that everything is aligned correctly
-    //_resizeWindow = true;
+    if (_camera)
+        sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
 }
 
 //-----------------------------------------------------------------------------

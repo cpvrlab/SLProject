@@ -116,15 +116,18 @@ public:
     WAIApp();
     ~WAIApp();
     //call load to correctly initialize wai app
-    int load(SENSCamera*    camera,
-             int            liveVideoTargetW,
-             int            liveVideoTargetH,
-             int            scrWidth,
-             int            scrHeight,
-             float          scr2fbX,
-             float          scr2fbY,
-             int            dpi,
-             AppDirectories dirs);
+    int  load(int            scrWidth,
+              int            scrHeight,
+              float          scr2fbX,
+              float          scr2fbY,
+              int            dpi,
+              AppDirectories dirs);
+    void setCamera(SENSCamera* camera)
+    {
+        _camera = camera;
+        if (_sv)
+            _sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
+    }
     //call update to update the frame, wai and visualization
     bool update();
     void close();
@@ -203,7 +206,7 @@ private:
     //todo: we dont need a pointer
     std::unique_ptr<AppWAIScene> _waiScene;
     //WAI::ModeOrbSlam2*           _mode;
-    WAISlam*     _mode;
+    WAISlam*     _mode       = nullptr;
     SLSceneView* _sv         = nullptr;
     SLGLTexture* _videoImage = nullptr;
 
@@ -224,11 +227,7 @@ private:
     std::unique_ptr<SENSVideoStream> _videoFileStream;
     SENSCamera*                      _camera = nullptr;
 
-    int _liveVideoTargetWidth;
-    int _liveVideoTargetHeight;
-
     cv::Size2i _videoFrameSize;
-    float      _videoFrameWdivH;
 
     std::unique_ptr<AppDemoWaiGui> _gui;
     AppDemoGuiError*               _errorDial = nullptr;

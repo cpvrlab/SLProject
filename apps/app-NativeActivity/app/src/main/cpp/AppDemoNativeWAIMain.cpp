@@ -43,7 +43,9 @@
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
 
-std::unique_ptr<SENSNdkCamera> ndkCamera;
+SENSNdkCamera*      ndkCamera     = nullptr;
+bool                cameraGranted = false;
+struct android_app* androidApp    = nullptr;
 
 struct Engine
 {
@@ -63,12 +65,41 @@ struct Engine
     uint64_t lastTouchMS;
 };
 
-void startNdkCamera(jboolean permission)
+void checkAndRequestAndroidPermissions(struct android_app* app)
 {
-    if (permission != JNI_FALSE && !ndkCamera)
+    JNIEnv*          env;
+    ANativeActivity* activity = app->activity;
+    activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
+
+    activity->vm->AttachCurrentThread(&env, NULL);
+
+    jobject activityObj = env->NewGlobalRef(activity->clazz);
+    jclass  clz         = env->GetObjectClass(activityObj);
+    env->CallVoidMethod(activityObj,
+                        env->GetMethodID(clz, "RequestCamera", "()V"));
+    env->DeleteGlobalRef(activityObj);
+
+    activity->vm->DetachCurrentThread();
+
+    /*bool hasPermission = isPermissionGranted(app, "CAMERA") && isPermissionGranted(app, "INTERNET");
+    if (!hasPermission)
     {
+        requestPermission(app);
+    }*/
+}
+
+void startNdkCamera()
+{
+    if (!androidApp)
+        return;
+
+    if (cameraGranted)
+    {
+        if (ndkCamera)
+            delete ndkCamera;
+
         //get all information about available cameras
-        ndkCamera = std::make_unique<SENSNdkCamera>(SENSCamera::Facing::BACK);
+        ndkCamera = new SENSNdkCamera(SENSCamera::Facing::BACK);
         //start continious captureing request with certain configuration
         SENSCamera::Config camConfig;
         camConfig.targetWidth          = 640;
@@ -77,6 +108,23 @@ void startNdkCamera(jboolean permission)
         camConfig.convertToGray        = true;
         camConfig.adjustAsynchronously = true;
         ndkCamera->start(camConfig);
+
+        Engine* engine = (Engine*)androidApp->userData;
+        engine->waiApp.setCamera(ndkCamera);
+    }
+    else
+    {
+        checkAndRequestAndroidPermissions(androidApp);
+    }
+}
+
+void onPermissionGranted(jboolean granted)
+{
+    cameraGranted = (granted != JNI_FALSE);
+
+    if (cameraGranted)
+    {
+        startNdkCamera();
     }
 }
 
@@ -86,7 +134,7 @@ Java_ch_cpvr_nativewai_WAIActivity_notifyCameraPermission(
   jclass   type,
   jboolean permission)
 {
-    std::thread permissionHandler(&startNdkCamera, permission);
+    std::thread permissionHandler(&onPermissionGranted, permission);
     permissionHandler.detach();
 }
 
@@ -452,33 +500,11 @@ void requestPermission(struct android_app* app)
     }
 }
 
-void checkAndRequestAndroidPermissions(struct android_app* app, Engine* engine)
-{
-    JNIEnv*          env;
-    ANativeActivity* activity = app->activity;
-    activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-
-    activity->vm->AttachCurrentThread(&env, NULL);
-
-    jobject activityObj = env->NewGlobalRef(activity->clazz);
-    jclass  clz         = env->GetObjectClass(activityObj);
-    env->CallVoidMethod(activityObj,
-                        env->GetMethodID(clz, "RequestCamera", "()V"));
-    env->DeleteGlobalRef(activityObj);
-
-    activity->vm->DetachCurrentThread();
-
-    /*bool hasPermission = isPermissionGranted(app, "CAMERA") && isPermissionGranted(app, "INTERNET");
-    if (!hasPermission)
-    {
-        requestPermission(app);
-    }*/
-}
-
 static void onInit(void* usrPtr, struct android_app* app)
 {
+    startNdkCamera();
+
     Engine* engine = (Engine*)usrPtr;
-    checkAndRequestAndroidPermissions(app, engine);
     /*
      * Here specify the attributes of the desired configuration.
      * Below, we select an EGLConfig with at least 8 bits per color
@@ -600,11 +626,16 @@ static void onInit(void* usrPtr, struct android_app* app)
     AConfiguration_fromAssetManager(appConfig, app->activity->assetManager);
     int32_t dpi = AConfiguration_getDensity(appConfig);
     AConfiguration_delete(appConfig);
-    engine->waiApp.load(ndkCamera.get(), ndkCamera->getFrameSize().width, ndkCamera->getFrameSize().height, w, h, 1.0, 1.0, dpi, dirs);
+    engine->waiApp.load(w, h, 1.0, 1.0, dpi, dirs);
 }
 
 static void onClose(void* usrPtr, struct android_app* app)
 {
+    if (ndkCamera)
+    {
+        delete ndkCamera;
+        ndkCamera = nullptr;
+    }
     Engine* engine = (Engine*)usrPtr;
 
     if (engine->display != EGL_NO_DISPLAY)
@@ -817,7 +848,7 @@ static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
             onLostFocus(engine);
             break;
         case APP_CMD_CONFIG_CHANGED:
-            checkAndRequestAndroidPermissions(app, engine);
+            checkAndRequestAndroidPermissions(app);
             break;
     }
 }
@@ -840,6 +871,7 @@ void android_main(struct android_app* app)
         app->onAppCmd     = handleLifecycleEvent;
         app->onInputEvent = handleInput;
         app->userData     = &engine;
+        androidApp        = app;
 
         //checkAndRequestAndroidPermissions(app);
 
