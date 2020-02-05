@@ -1,5 +1,6 @@
 #include <WAISlam.h>
 #include <AverageTiming.h>
+#include <Utils.h>
 
 #define MIN_FRAMES 0
 #define MAX_FRAMES 30
@@ -955,9 +956,11 @@ WAISlam::WAISlam(cv::Mat      intrinsic,
     _distortion      = distortion.clone();
     _cameraIntrinsic = intrinsic.clone();
 
+    HighResTimer t;
     if (!WAIOrbVocabulary::initialize(orbVocFile))
         throw std::runtime_error("ModeOrbSlam2: could not find vocabulary file: " + orbVocFile);
     _voc = WAIOrbVocabulary::get();
+    Utils::log("WAISlam", "WAIOrbVocabulary loading: %fms\n", t.elapsedTimeInMilliSec());
 
     _keyFrameDatabase = new WAIKeyFrameDB(*_voc);
     _globalMap        = new WAIMap("Map");

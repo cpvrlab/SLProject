@@ -178,7 +178,7 @@ private:
     void setupDefaultErlebARDirTo(std::string dir);
     //!download all remote files to transferred directory
     void downloadCalibratinFilesTo(std::string dir);
-    bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
+    //bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
     bool updateSceneViews();
 
     void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
@@ -204,7 +204,7 @@ private:
     SENSFramePtr updateVideoOrCamera();
 
     //todo: we dont need a pointer
-    std::unique_ptr<AppWAIScene> _waiScene;
+    AppWAIScene _waiScene;
     //WAI::ModeOrbSlam2*           _mode;
     WAISlam*     _mode       = nullptr;
     SLSceneView* _sv         = nullptr;
@@ -218,12 +218,10 @@ private:
     SLQuat4f _lastKnowPoseQuaternion;
     SLQuat4f _IMUQuaternion;
 
+    //load function has been called
     bool _loaded = false;
 
-    // bool _resizeWindow;
-    //todo: do we need a pointer
-    cv::VideoWriter*                 _videoWriter     = nullptr;
-    cv::VideoWriter*                 _videoWriterInfo = nullptr;
+    cv::VideoWriter*                 _videoWriter = nullptr;
     std::unique_ptr<SENSVideoStream> _videoFileStream;
     SENSCamera*                      _camera = nullptr;
 

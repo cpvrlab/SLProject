@@ -74,7 +74,7 @@ SENSNdkCamera::SENSNdkCamera(SENSCamera::Facing facing)
     camera_status_t openResult = ACameraManager_openCamera(_cameraManager, _cameraId.c_str(), getDeviceListener(), &_cameraDevice);
     if (openResult != ACAMERA_OK)
     {
-        throw SENSException(SENSType::CAM, "Could not open camera! Check the camera permissions!", __LINE__, __FILE__);
+        throw SENSException(SENSType::CAM, "Could not open camera! Already opened?", __LINE__, __FILE__);
     }
     //register callbacks
     ACameraManager_registerAvailabilityCallback(_cameraManager, getManagerListener());
@@ -298,7 +298,7 @@ cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
     cv::Mat yuv(height + (height / 2), width, CV_8UC1);
     size_t  yubBytes  = yuv.total();
     size_t  origBytes = yLen + uLen + vLen;
-    LOGI("yubBytes %d origBytes %d", yubBytes, origBytes);
+    //LOGI("yubBytes %d origBytes %d", yubBytes, origBytes);
     memcpy(yuv.data, yPixel, yLen);
     memcpy(yuv.data + yLen, uPixel, uLen);
     //We do not have to copy the v plane. The u plane contains the interleaved u and v data!
@@ -331,7 +331,7 @@ SENSFramePtr SENSNdkCamera::getLatestFrame()
         if (status == AMEDIA_OK) //status may be unequal to media_ok if there is no new frame available, what is ok if we are very fast
         {
             static int newImage = 0;
-            LOGI("new image %d", newImage++);
+            //LOGI("new image %d", newImage++);
             cv::Mat yuv = convertToYuv(image);
             //now that the data is copied we have to delete the image
             AImage_delete(image);
@@ -396,7 +396,7 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
     if (status == AMEDIA_OK && image)
     {
         static int newImage = 0;
-        LOGI("new image %d", newImage++);
+        //LOGI("new image %d", newImage++);
 
         cv::Mat yuv = convertToYuv(image);
 

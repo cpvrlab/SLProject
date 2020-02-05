@@ -56,8 +56,6 @@ struct Engine
     int32_t         width;
     int32_t         height;
 
-    int run;
-
     WAIApp waiApp;
 
     // input stuff
@@ -264,10 +262,13 @@ void extractAPKFolder(android_app* app, std::string internalPath, std::string as
     }
 
     std::string outputPath = Utils::unifySlashes(internalPath + "/" + assetDirPath + "/");
-    if (!Utils::dirExists(outputPath))
+    if (Utils::dirExists(outputPath))
     {
-        Utils::makeDir(outputPath);
+        //stop here, we assume everything is installed (uninstall the app if you added assets)
+        return;
     }
+
+    Utils::makeDir(outputPath);
 
     AAssetManager* mgr      = app->activity->assetManager;
     AAssetDir*     assetDir = AAssetManager_openDir(mgr, assetDirPath.c_str());
@@ -502,6 +503,14 @@ void requestPermission(struct android_app* app)
 
 static void onInit(void* usrPtr, struct android_app* app)
 {
+    LOGI("onInit start");
+    if (app->window == NULL)
+    {
+        LOGI("onInit handle return");
+        return;
+    }
+
+    LOGI("onInit startNdkCamera");
     startNdkCamera();
 
     Engine* engine = (Engine*)usrPtr;
@@ -577,7 +586,7 @@ static void onInit(void* usrPtr, struct android_app* app)
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
     {
-        LOGW("Unable to eglMakeCurrent");
+        LOGW("onInit Unable to eglMakeCurrent");
         return;
     }
 
@@ -589,7 +598,6 @@ static void onInit(void* usrPtr, struct android_app* app)
     engine->surface = surface;
     engine->width   = w;
     engine->height  = h;
-    engine->run     = true;
 
     // Check openGL on the system
     auto opengl_info = {GL_VENDOR, GL_RENDERER, GL_VERSION, GL_EXTENSIONS};
@@ -626,6 +634,7 @@ static void onInit(void* usrPtr, struct android_app* app)
     AConfiguration_fromAssetManager(appConfig, app->activity->assetManager);
     int32_t dpi = AConfiguration_getDensity(appConfig);
     AConfiguration_delete(appConfig);
+    LOGI("onInit waiApp.load");
     engine->waiApp.load(w, h, 1.0, 1.0, dpi, dirs);
 }
 
@@ -655,7 +664,9 @@ static void onClose(void* usrPtr, struct android_app* app)
     engine->display = EGL_NO_DISPLAY;
     engine->context = EGL_NO_CONTEXT;
     engine->surface = EGL_NO_SURFACE;
-    engine->run     = false;
+
+    //always completely close for now..
+    engine->waiApp.close();
 }
 
 static void onSaveState(void* usrPtr)
@@ -826,29 +837,33 @@ static int32_t handleInput(struct android_app* app, AInputEvent* event)
 
 static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
 {
+    LOGI("handleLifecycleEvent: called");
     Engine* engine = (Engine*)app->userData;
     switch (cmd)
     {
         case APP_CMD_SAVE_STATE:
+            LOGI("handleLifecycleEvent: APP_CMD_SAVE_STATE");
             onSaveState(engine);
             break;
         case APP_CMD_INIT_WINDOW:
-            if (app->window != NULL)
-            {
-                onInit(engine, app);
-            }
+            LOGI("handleLifecycleEvent: APP_CMD_INIT_WINDOW");
+            onInit(engine, app);
             break;
         case APP_CMD_TERM_WINDOW:
+            LOGI("handleLifecycleEvent: APP_CMD_TERM_WINDOW");
             onClose(engine, app);
             break;
         case APP_CMD_GAINED_FOCUS:
+            LOGI("handleLifecycleEvent: APP_CMD_GAINED_FOCUS");
             onGainedFocus(engine);
             break;
         case APP_CMD_LOST_FOCUS:
+            LOGI("handleLifecycleEvent: APP_CMD_LOST_FOCUS");
             onLostFocus(engine);
             break;
         case APP_CMD_CONFIG_CHANGED:
-            checkAndRequestAndroidPermissions(app);
+            LOGI("handleLifecycleEvent: APP_CMD_CONFIG_CHANGED");
+            //checkAndRequestAndroidPermissions(app);
             break;
     }
 }
@@ -862,6 +877,7 @@ void android_main(struct android_app* app)
 {
     try
     {
+        LOGI("handleLifecycleEvent: android_main");
         Engine engine = {};
 
         SensorsCallbacks callbacks;
@@ -877,8 +893,7 @@ void android_main(struct android_app* app)
 
         initSensorsHandler(app, &callbacks, &engine.sensorsHandler);
 
-        engine.run = true;
-        while (engine.run)
+        while (true)
         {
             int                         ident;
             int                         events;
@@ -886,6 +901,7 @@ void android_main(struct android_app* app)
 
             while ((ident = ALooper_pollAll(0, NULL, &events, (void**)&source)) >= 0)
             {
+                //LOGI("handleLifecycle while loop");
                 if (source != NULL)
                 {
                     source->process(app, source);
@@ -899,7 +915,8 @@ void android_main(struct android_app* app)
                 // Check if we are exiting.
                 if (app->destroyRequested != 0)
                 {
-                    onClose(&engine, app);
+                    LOGI("handleLifecycleEvent destroyRequested");
+                    //onClose(&engine, app);
                     return;
                 }
             }
@@ -913,7 +930,7 @@ void android_main(struct android_app* app)
             //std::this_thread::sleep_for(10ms);
         }
 
-        engine.waiApp.close();
+        //engine.waiApp.close();
     }
     catch (std::exception& e)
     {

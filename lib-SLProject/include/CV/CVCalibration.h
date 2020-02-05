@@ -88,7 +88,8 @@ public:
                   bool               mirroredV,
                   CVCameraType       camType,
                   std::string        computerInfos,
-                  int                calibFlags);
+                  int                calibFlags,
+                  bool               calcUndistortionMaps);
     //creates a guessed calibration using image size and fov angle
     CVCalibration(cv::Size     imageSize,
                   float        fovH,
@@ -107,7 +108,8 @@ public:
                   std::string  computerInfos);
 
     bool load(const string& calibDir,
-              const string& calibFileName);
+              const string& calibFileName,
+              bool          calcUndistortionMaps);
     bool save(const string& calibDir,
               const string& calibFileName);
 
@@ -115,7 +117,8 @@ public:
                CVMat& outUndistorted);
 
     //! Adapts an already calibrated camera to a new resolution (cropping and scaling)
-    void adaptForNewResolution(const CVSize& newSize);
+    void adaptForNewResolution(const CVSize& newSize, bool calcUndistortionMaps);
+    void buildUndistortionMaps();
 
     // Getters
     CVSize imageSize() { return _imageSize; }
@@ -182,7 +185,6 @@ public:
 private:
     void calcCameraFovFromUndistortedCameraMat();
     void calculateUndistortedCameraMat();
-    void buildUndistortionMaps();
     void createFromGuessedFOV(int imageWidthPX, int imageHeightPX, float fovH);
     ///////////////////////////////////////////////////////////////////////////////////
     CVMat _cameraMat;  //!< 3x3 Matrix for intrinsic camera matrix

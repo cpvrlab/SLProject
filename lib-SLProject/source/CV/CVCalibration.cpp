@@ -19,6 +19,7 @@ for a good top down information.
 
 #include <CVCalibration.h>
 #include <Utils.h>
+#include <HighResTimer.h>
 
 using namespace cv;
 using namespace std;
@@ -60,7 +61,8 @@ CVCalibration::CVCalibration(cv::Mat            cameraMat,
                              bool               mirroredV,
                              CVCameraType       camType,
                              std::string        computerInfos,
-                             int                calibFlags)
+                             int                calibFlags,
+                             bool               calcUndistortionMaps)
   : _cameraMat(cameraMat.clone()),
     _distortion(distortion.clone()),
     _imageSize(imageSize),
@@ -132,8 +134,12 @@ CVCalibration::CVCalibration(float        sensorWMM,
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
+/*! Added a flag to disable calculation of undistortion maps because this may take
+    a lot of time for big images on mobile devices
+*/
 bool CVCalibration::load(const string& calibDir,
-                         const string& calibFileName)
+                         const string& calibFileName,
+                         bool          calcUndistortionMaps)
 {
     //load camera parameter
     string fullPathAndFilename = Utils::unifySlashes(calibDir) + calibFileName;
@@ -203,7 +209,8 @@ bool CVCalibration::load(const string& calibDir,
         //calcCameraFov();
         calculateUndistortedCameraMat();
         calcCameraFovFromUndistortedCameraMat();
-        buildUndistortionMaps();
+        if (calcUndistortionMaps)
+            buildUndistortionMaps();
     }
 
     Utils::log("SLProject", "Calib. loaded  : %s\n", fullPathAndFilename.c_str());
@@ -357,6 +364,7 @@ void CVCalibration::buildUndistortionMaps()
     _undistortMapX.release();
     _undistortMapY.release();
 
+    HighResTimer t;
     cv::initUndistortRectifyMap(_cameraMat,
                                 _distortion,
                                 cv::Mat(), // Identity matrix R
@@ -365,6 +373,7 @@ void CVCalibration::buildUndistortionMaps()
                                 CV_16SC2, //before we had CV_32FC1 but in all tutorials they use CV_16SC2.. is there a reason?
                                 _undistortMapX,
                                 _undistortMapY);
+    Utils::log("CVCalibration", "initUndistortRectifyMap: %fms\n", t.elapsedTimeInMilliSec());
 
     if (_undistortMapX.empty() || _undistortMapY.empty())
         Utils::exitMsg("SLProject", "CVCalibration::buildUndistortionMaps failed.", __LINE__, __FILE__);
@@ -431,7 +440,7 @@ void CVCalibration::createFromGuessedFOV(int   imageWidthPX,
 }
 //-----------------------------------------------------------------------------
 //! Adapts an already calibrated camera to a new resolution (cropping and scaling)
-void CVCalibration::adaptForNewResolution(const CVSize& newSize)
+void CVCalibration::adaptForNewResolution(const CVSize& newSize, bool calcUndistortionMaps)
 {
     if (_state == CS_uncalibrated)
         return;
@@ -484,7 +493,8 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize)
 
     calculateUndistortedCameraMat();
     calcCameraFovFromUndistortedCameraMat();
-    buildUndistortionMaps();
+    if (calcUndistortionMaps)
+        buildUndistortionMaps();
 }
 //-----------------------------------------------------------------------------
 //! Calculate a camera matrix that we use for the scene graph and for the reprojection of the undistored image

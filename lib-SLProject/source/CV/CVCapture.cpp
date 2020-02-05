@@ -459,7 +459,7 @@ void CVCapture::adjustForSL(float viewportWdivH)
     // Reset calibrated image size
     if (lastFrame.size() != activeCamera->calibration.imageSize())
     {
-        activeCamera->calibration.adaptForNewResolution(lastFrame.size());
+        activeCamera->calibration.adaptForNewResolution(lastFrame.size(), true);
     }
 
     _captureTimesMS.set(_timer.elapsedTimeInMilliSec() - startCaptureTimeMS);
@@ -861,7 +861,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
             Utils::log("SLProject", errorMsg.c_str());
         }
     }
-    if (!mainCam.calibration.load(configPath, mainCalibFilename))
+    if (!mainCam.calibration.load(configPath, mainCalibFilename, true))
     {
         //instantiate a guessed calibration
         //mainCam.calibration = CVCalibration()
@@ -892,8 +892,8 @@ void CVCapture::loadCalibrations(const string& computerInfo,
     {
         Utils::log("SLProject", errorMsg.c_str());
     }
-    mainCam.calibration.load(configPath, mainCalibFilename);
-    scndCam.calibration.load(configPath, scndCalibFilename);
+    mainCam.calibration.load(configPath, mainCalibFilename, true);
+    scndCam.calibration.load(configPath, scndCalibFilename, true);
     activeCamera       = &mainCam;
     hasSecondaryCamera = true;
 #endif
