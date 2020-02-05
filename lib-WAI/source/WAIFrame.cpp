@@ -70,7 +70,6 @@ WAIFrame::WAIFrame(const WAIFrame& frame)
     mFeatVec(frame.mFeatVec),
     mDescriptors(frame.mDescriptors.clone()),
     mvpMapPoints(frame.mvpMapPoints),
-    mvbOutlier(frame.mvbOutlier),
     mnId(frame.mnId),
     mpReferenceKF(frame.mpReferenceKF),
     mnScaleLevels(frame.mnScaleLevels),
@@ -127,7 +126,6 @@ WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* 
     UndistortKeyPoints();
 
     mvpMapPoints = vector<WAIMapPoint*>(N, static_cast<WAIMapPoint*>(NULL));
-    mvbOutlier   = vector<bool>(N, false);
 
     // This is done only for the first Frame (or after a change in the calibration)
     if (mbInitialComputations)

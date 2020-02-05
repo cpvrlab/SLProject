@@ -1471,7 +1471,7 @@ int ORBmatcher::SearchByProjection(WAIFrame& CurrentFrame, const WAIFrame& LastF
 
         if (pMP)
         {
-            if (!LastFrame.mvbOutlier[i])
+            //if (!LastFrame.mvbOutlier[i])
             {
                 // Project
                 cv::Mat x3Dw = pMP->GetWorldPos();
