@@ -99,11 +99,19 @@ void WAIApp::setCamera(SENSCamera* camera)
     _camera = camera;
     if (_sv)
         _sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
+}
 
+void WAIApp::loadSlam()
+{
     if (_currentSlamParams.load(_dirs.writableDir + "SlamParams.json"))
     {
         startOrbSlam(_currentSlamParams);
         _guiSlamLoad->setSlamParams(_currentSlamParams);
+        _gui->uiPrefs->showSlamLoad = false;
+    }
+    else
+    {
+        _gui->uiPrefs->showSlamLoad = true;
     }
 }
 

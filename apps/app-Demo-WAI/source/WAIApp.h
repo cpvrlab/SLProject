@@ -254,6 +254,8 @@ public:
               int            dpi,
               AppDirectories dirs);
     void setCamera(SENSCamera* camera);
+    //try to load last slam configuration, else open loading dialog
+    void loadSlam();
 
     //call update to update the frame, wai and visualization
     bool update();

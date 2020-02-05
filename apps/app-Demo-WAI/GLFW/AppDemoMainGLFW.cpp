@@ -523,7 +523,7 @@ int main(int argc, char* argv[])
 
     svIndex = waiApp.load(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
     waiApp.setCamera(camera.get());
-
+    waiApp.loadSlam();
     // Event loop
     while (!appShouldClose)
     {

@@ -43,10 +43,10 @@
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
 
-SENSNdkCamera*      ndkCamera     = nullptr;
-bool                cameraGranted = false;
-struct android_app* androidApp    = nullptr;
-
+SENSNdkCamera*      ndkCamera         = nullptr;
+bool                cameraGranted     = false;
+struct android_app* androidApp        = nullptr;
+bool                defaultSlamLoaded = false;
 struct Engine
 {
     SensorsHandler* sensorsHandler;
@@ -923,6 +923,11 @@ void android_main(struct android_app* app)
 
             if (engine.display != nullptr && ndkCamera != nullptr)
             {
+                if (!defaultSlamLoaded)
+                {
+                    defaultSlamLoaded = true;
+                    engine.waiApp.loadSlam();
+                }
                 if (engine.waiApp.update())
                     eglSwapBuffers(engine.display, engine.surface);
             }
