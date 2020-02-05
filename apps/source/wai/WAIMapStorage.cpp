@@ -213,7 +213,6 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
 }
 
 bool WAIMapStorage::loadMap(WAIMap*        waiMap,
-                            WAIKeyFrameDB* kfDB,
                             SLNode*        mapNode,
                             std::string    path,
                             bool           loadImgs,
@@ -341,8 +340,7 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
                                              nMinY,
                                              nMaxX,
                                              nMaxY,
-                                             K,
-                                             kfDB);
+                                             K);
 
         if (imgDir != "")
         {
@@ -547,7 +545,6 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
     for (WAIKeyFrame* kf : keyFrames)
     {
         waiMap->AddKeyFrame(kf);
-        kfDB->add(kf);
 
         //Add keyframe with id 0 to this vector. Otherwise RunGlobalBundleAdjustment in LoopClosing after loop was detected crashes.
         if (kf->mnId == 0)

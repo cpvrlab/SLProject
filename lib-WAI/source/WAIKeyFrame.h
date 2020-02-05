@@ -79,11 +79,10 @@ public:
                 int                              nMinY,
                 int                              nMaxX,
                 int                              nMaxY,
-                const cv::Mat&                   K,
-                WAIKeyFrameDB*                   pKFDB);
+                const cv::Mat&                   KB);
 
     //!keyframe generation from frame
-    WAIKeyFrame(WAIFrame& F, WAIKeyFrameDB* pKFDB, bool retainImg = true);
+    WAIKeyFrame(WAIFrame& F, bool retainImg = true);
 
     // Pose functions
     void    SetPose(const cv::Mat& Tcw);
@@ -256,9 +255,6 @@ protected:
     // MapPoints associated to keypoints (this array contains NULL for every
     //unassociated keypoint from original frame)
     std::vector<WAIMapPoint*> mvpMapPoints;
-
-    //pointer to keyframe database
-    WAIKeyFrameDB* _kfDb = NULL;
 
     // Grid over the image to speed up feature matching
     std::vector<std::size_t> mGrid[FRAME_GRID_COLS][FRAME_GRID_ROWS];

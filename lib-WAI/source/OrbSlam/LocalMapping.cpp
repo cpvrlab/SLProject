@@ -253,6 +253,9 @@ void LocalMapping::ProcessNewKeyFrame()
 
     // Insert Keyframe in Map
     mpMap->AddKeyFrame(mpCurrentKeyFrame);
+    //TODO Now, when a keyframe is added to the map, it is added to the 
+    // keyFrameDatabase too. Before it was not the case. Why wasn't it added
+    // to the kfDB here?
 }
 
 void LocalMapping::MapPointCulling()
@@ -274,7 +277,6 @@ void LocalMapping::MapPointCulling()
     while (lit != mlpRecentAddedMapPoints.end())
     {
         WAIMapPoint* pMP = *lit;
-
         if (pMP->isBad())
         {
             lit = mlpRecentAddedMapPoints.erase(lit);
@@ -283,15 +285,15 @@ void LocalMapping::MapPointCulling()
         else if (pMP->GetFoundRatio() < 0.25f)
         {
             pMP->SetBadFlag();
-            mpMap->EraseMapPoint(pMP);
             lit = mlpRecentAddedMapPoints.erase(lit);
+            mpMap->EraseMapPoint(pMP);
             mapPointsCulled++;
         }
         else if (((int)nCurrentKFid - (int)pMP->mnFirstKFid) >= 2 && pMP->Observations() <= cnThObs)
         {
             pMP->SetBadFlag();
-            mpMap->EraseMapPoint(pMP);
             lit = mlpRecentAddedMapPoints.erase(lit);
+            mpMap->EraseMapPoint(pMP);
             mapPointsCulled++;
         }
         else if (((int)nCurrentKFid - (int)pMP->mnFirstKFid) >= 3)

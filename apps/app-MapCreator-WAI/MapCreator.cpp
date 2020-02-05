@@ -234,15 +234,16 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             capturedSize.height != cap->activeCamera->calibration.imageSize().height)
             throw std::runtime_error("MapCreator::createWaiMap: Resolution of captured frame does not fit to calibration: " + videos[videoIdx].videoFile);
 
+        ORBVocabulary* voc = new ORBVocabulary(_vocFile);
+        WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(*voc);
+        WAIMap* map = new WAIMap(kfdb);
         //instantiate wai mode
-        std::unique_ptr<WAI::ModeOrbSlam2> waiMode =
-          std::make_unique<WAI::ModeOrbSlam2>(_kpExtractor.get(),
-                                              _kpExtractor.get(),
-                                              cap->activeCamera->calibration.cameraMat(),
-                                              cap->activeCamera->calibration.distortion(),
-                                              modeParams,
-                                              _vocFile,
-                                              false);
+        std::unique_ptr<WAISlam> waiMode =
+          std::make_unique<WAISlam>(cap->activeCamera->calibration.cameraMat(),
+                                    cap->activeCamera->calibration.distortion(),
+                                    voc,
+                                    _kpExtractor.get(),
+                                    map);
 
         //if we have an active map from one of the previously processed videos for this area then load it
         SLNode mapNode = SLNode();
@@ -280,7 +281,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
                 break;
 
             //update wai
-            waiMode->update(cap->lastFrameGray, cap->lastFrame);
+            waiMode->update(cap->lastFrameGray);
             if (firstRun)
             {
                 firstRun = false;
@@ -324,14 +325,17 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = true;
 
+    ORBVocabulary* voc = new ORBVocabulary(_vocFile);
+    WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(*voc);
+    WAIMap* map = new WAIMap(kfdb);
+
     //instantiate wai mode
-    std::unique_ptr<WAI::ModeOrbSlam2> waiMode =
-      std::make_unique<WAI::ModeOrbSlam2>(_kpExtractor.get(),
-                                          _kpIniExtractor.get(),
-                                          calib.cameraMat(),
-                                          calib.distortion(),
-                                          modeParams,
-                                          _vocFile);
+    std::unique_ptr<WAISlam> waiMode =
+      std::make_unique<WAISlam>(calib.cameraMat(),
+                                calib.distortion(),
+                                voc,
+                                _kpExtractor.get(),
+                                map);
 
     //load the map (currentMapFileName is valid if initialized is true)
     SLNode mapNode = SLNode();
@@ -400,16 +404,17 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = true;
 
+    ORBVocabulary* voc = new ORBVocabulary(_vocFile);
+    WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(*voc);
+    WAIMap* map = new WAIMap(kfDB);
+
     //instantiate wai mode
-    std::unique_ptr<WAI::ModeOrbSlam2> waiMode =
-      std::make_unique<WAI::ModeOrbSlam2>(_kpExtractor.get(),
-                                          _kpIniExtractor.get(),
-                                          _kpMarkerExtractor.get(),
-                                          markerFile,
-                                          calib.cameraMat(),
-                                          calib.distortion(),
-                                          modeParams,
-                                          _vocFile);
+    std::unique_ptr<WAISlam> waiMode =
+      std::make_unique<WAISlam>(calib.cameraMat(),
+                                calib.distortion(),
+                                voc,
+                                _kpExtractor.get(),
+                                map);
 
     SLNode mapNode = SLNode();
     loadMap(waiMode.get(), mapDir, mapFile, modeParams.fixOldKfs, &mapNode);
@@ -420,7 +425,6 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
     WAIFrame markerFrame = waiMode->createMarkerFrame(markerFile, _kpMarkerExtractor.get());
 
     // 1.b Find keyframes with enough matches to marker image
-    WAIMap*                   map = waiMode->getMap();
     std::vector<WAIKeyFrame*> kfs = map->GetAllKeyFrames();
 
     WAIKeyFrame* matchedKf1 = nullptr;
@@ -680,6 +684,7 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
         {
             kf->SetBadFlag();
             map->EraseKeyFrame(kf);
+            //TODO Erase from KeyFrameDatabase
         }
     }
 
@@ -737,7 +742,7 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
     return true;
 }
 
-void MapCreator::cullKeyframes(WAI::ModeOrbSlam2* waiMode, std::vector<WAIKeyFrame*>& kfs, const float cullRedundantPerc)
+void MapCreator::cullKeyframes(WAISlam* waiMode, std::vector<WAIKeyFrame*>& kfs, const float cullRedundantPerc)
 {
     for (auto itKF = kfs.begin(); itKF != kfs.end(); ++itKF)
     {
@@ -806,26 +811,21 @@ void MapCreator::cullKeyframes(WAI::ModeOrbSlam2* waiMode, std::vector<WAIKeyFra
     }
 }
 
-void MapCreator::decorateDebug(WAI::ModeOrbSlam2* waiMode, CVCapture* cap, const int currentFrameIndex, const int videoLength, const int numOfKfs)
+void MapCreator::decorateDebug(WAISlam* waiMode, CVCapture* cap, const int currentFrameIndex, const int videoLength, const int numOfKfs)
 {
     //#ifdef _DEBUG
     if (!cap->lastFrame.empty())
     {
         cv::Mat            decoImg      = cap->lastFrame.clone();
-        WAI::TrackingState waiModeState = waiMode->getTrackingState();
-        waiMode->decorateVideoWithKeyPointMatches(decoImg);
+        std::string state = waiMode->getPrintableState();
+        waiMode->drawKeyPointMatches(*waiMode->getLastFrame(), decoImg);
 
         double     fontScale = 0.5;
         cv::Point  stateOff(10, 25);
         cv::Point  idxOff = stateOff + cv::Point(0, 20);
         cv::Point  kfsOff = idxOff + cv::Point(0, 20);
         cv::Scalar color  = CV_RGB(255, 0, 0);
-        if (waiModeState == WAI::TrackingState::TrackingState_Initializing)
-            cv::putText(decoImg, "Initializing", stateOff, 0, fontScale, color);
-        else if (waiModeState == WAI::TrackingState::TrackingState_TrackingLost)
-            cv::putText(decoImg, "Relocalizing", stateOff, 0, fontScale, color);
-        else if (waiModeState == WAI::TrackingState::TrackingState_TrackingOK)
-            cv::putText(decoImg, "Tracking", stateOff, 0, fontScale, color);
+        cv::putText(decoImg, state, stateOff, 0, fontScale, color);
 
         cv::putText(decoImg, "FrameId: (" + std::to_string(currentFrameIndex) + "/" + std::to_string(videoLength) + ")", idxOff, 0, fontScale, color);
         cv::putText(decoImg, "Num Kfs: " + std::to_string(numOfKfs), kfsOff, 0, fontScale, color);
@@ -835,7 +835,7 @@ void MapCreator::decorateDebug(WAI::ModeOrbSlam2* waiMode, CVCapture* cap, const
     //#endif
 }
 
-void MapCreator::saveMap(WAI::ModeOrbSlam2* waiMode,
+void MapCreator::saveMap(WAISlam*           waiMode,
                          const std::string& mapDir,
                          const std::string& currentMapFileName,
                          SLNode*            mapNode)
@@ -868,19 +868,20 @@ void MapCreator::saveMap(WAI::ModeOrbSlam2* waiMode,
     waiMode->resume();
 }
 
-void MapCreator::loadMap(WAI::ModeOrbSlam2* waiMode,
+void MapCreator::loadMap(WAISlam*           waiMode,
                          const std::string& mapDir,
                          const std::string& currentMapFileName,
                          bool               fixKfsForLBA,
                          SLNode*            mapNode)
 {
+    //TODO FIX NOW
+    /*
     waiMode->requestStateIdle();
     while (!waiMode->hasStateIdle())
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     waiMode->reset();
-
     bool mapLoadingSuccess = WAIMapStorage::loadMap(waiMode->getMap(),
                                                     waiMode->getKfDB(),
                                                     mapNode,
@@ -894,7 +895,7 @@ void MapCreator::loadMap(WAI::ModeOrbSlam2* waiMode,
     }
 
     waiMode->resume();
-    waiMode->setInitialized(true);
+    */
 }
 
 void MapCreator::execute()

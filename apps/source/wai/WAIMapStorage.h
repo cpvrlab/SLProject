@@ -16,7 +16,6 @@ public:
                         std::string imgDir = "");
 
     static bool loadMap(WAIMap*        waiMap,
-                        WAIKeyFrameDB* kfDB,
                         SLNode*        mapNode,
                         std::string    path,
                         bool           loadImgs,

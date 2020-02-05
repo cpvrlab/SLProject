@@ -5,7 +5,7 @@
 #include <WAIHelper.h>
 #include <Utils.h>
 #include <AppWAISlamParamHelper.h>
-#include <WAIModeOrbSlam2.h>
+#include <WAISlam.h>
 #include <WAIMapStorage.h>
 
 class MapCreator
@@ -47,10 +47,10 @@ public:
                           const std::string  outputMapFile,
                           CVCalibration&     calib,
                           const float        cullRedundantPerc);
-    void cullKeyframes(WAI::ModeOrbSlam2* waiMode, std::vector<WAIKeyFrame*>& kfs, const float cullRedundantPerc);
-    void decorateDebug(WAI::ModeOrbSlam2* waiMode, CVCapture* cap, const int currentFrameIndex, const int videoLength, const int numOfKfs);
-    void saveMap(WAI::ModeOrbSlam2* waiMode, const std::string& mapDir, const std::string& currentMapFileName, SLNode* mapNode = nullptr);
-    void loadMap(WAI::ModeOrbSlam2* waiMode, const std::string& mapDir, const std::string& currentMapFileName, bool fixKfsForLBA, SLNode* mapNode);
+    void cullKeyframes(WAISlam* waiMode, std::vector<WAIKeyFrame*>& kfs, const float cullRedundantPerc);
+    void decorateDebug(WAISlam* waiMode, CVCapture* cap, const int currentFrameIndex, const int videoLength, const int numOfKfs);
+    void saveMap(WAISlam* waiMode, const std::string& mapDir, const std::string& currentMapFileName, SLNode* mapNode = nullptr);
+    void loadMap(WAISlam* waiMode, const std::string& mapDir, const std::string& currentMapFileName, bool fixKfsForLBA, SLNode* mapNode);
 
     WAIFrame createMarkerFrame(std::string  markerFile,
                                KPextractor* markerExtractor);

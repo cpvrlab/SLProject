@@ -34,9 +34,10 @@
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-WAIMap::WAIMap(const string& name)
+WAIMap::WAIMap(WAIKeyFrameDB * kfDB)
   : mnMaxKFid(0), mnBigChangeIdx(0)
 {
+    mKfDB = kfDB;
 }
 //-----------------------------------------------------------------------------
 WAIMap::~WAIMap()
@@ -50,6 +51,7 @@ void WAIMap::AddKeyFrame(WAIKeyFrame* pKF)
     mspKeyFrames.insert(pKF);
     if (pKF->mnId > mnMaxKFid)
         mnMaxKFid = pKF->mnId;
+    mKfDB->add(pKF);
 }
 //-----------------------------------------------------------------------------
 void WAIMap::AddMapPoint(WAIMapPoint* pMP)
@@ -65,12 +67,14 @@ void WAIMap::EraseMapPoint(WAIMapPoint* pMP)
 
     // TODO: This only erase the pointer.
     // Delete the MapPoint
+    //delete pMP;
 }
 //-----------------------------------------------------------------------------
 void WAIMap::EraseKeyFrame(WAIKeyFrame* pKF)
 {
     unique_lock<mutex> lock(mMutexMap);
     mspKeyFrames.erase(pKF);
+    mKfDB->erase(pKF);
     // TODO: This only erase the pointer.
     // Delete the MapPoint
 }
@@ -141,6 +145,7 @@ void WAIMap::clear()
     mvpReferenceMapPoints.clear();
     mvpKeyFrameOrigins.clear();
     setNumLoopClosings(0);
+    mKfDB->clear();
 
     WAIKeyFrame::nNextId = 0;
     WAIFrame::nNextId    = 0;
