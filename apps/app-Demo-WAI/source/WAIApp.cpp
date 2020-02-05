@@ -88,9 +88,23 @@ int WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int 
     setupDefaultErlebARDirTo(_dirs.writableDir);
     //todo: only do this, when the app is installed (on android and ios, maybe by a function call when permissions are given)
     downloadCalibratinFilesTo(calibDir);
+
+    //if (_currentSlamParams.load(_dirs.writableDir + "SlamParams.json"))
+    //    startOrbSlam(_currentSlamParams);
+
     _loaded = true;
 
     return svIndex;
+}
+
+void WAIApp::setCamera(SENSCamera* camera)
+{
+    _camera = camera;
+    if (_sv)
+        _sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
+
+    if (_currentSlamParams.load(_dirs.writableDir + "SlamParams.json"))
+        startOrbSlam(_currentSlamParams);
 }
 
 SENSFramePtr WAIApp::updateVideoOrCamera()
@@ -232,6 +246,7 @@ void WAIApp::close()
 {
     // Deletes all remaining sceneviews the current scene instance
     SLApplication::deleteAppAndScene();
+    _currentSlamParams.save(_dirs.writableDir + "SlamParams.json");
 }
 
 //-----------------------------------------------------------------------------
@@ -240,7 +255,7 @@ videoFile: path to a video or empty if live video should be used
 calibrationFile: path to a calibration or empty if calibration should be searched automatically
 mapFile: path to a map or empty if no map should be used
 */
-void WAIApp::startOrbSlam(SlamParams* slamParams)
+void WAIApp::startOrbSlam(SlamParams slamParams)
 {
     _errorDial->setErrorMsg("");
     _gui->uiPrefs->showError = false;
@@ -249,26 +264,26 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
     if (_videoFileStream)
         _videoFileStream.release();
 
-    std::string               videoFile       = "";
-    std::string               calibrationFile = "";
-    std::string               mapFile         = "";
-    std::string               vocFile         = "";
-    std::string               markerFile      = "";
-    WAI::ModeOrbSlam2::Params params;
+    //std::string               videoFile       = "";
+    //std::string               calibrationFile = "";
+    //std::string               mapFile         = "";
+    //std::string               vocFile         = "";
+    //std::string               markerFile      = "";
+    //WAI::ModeOrbSlam2::Params params;
 
-    if (slamParams)
-    {
-        videoFile       = slamParams->videoFile;
-        calibrationFile = slamParams->calibrationFile;
-        mapFile         = slamParams->mapFile;
-        vocFile         = slamParams->vocabularyFile;
-        markerFile      = slamParams->markerFile;
-        params          = slamParams->params;
-    }
+    //if (slamParams)
+    //{
+    //    videoFile       = slamParams->videoFile;
+    //    calibrationFile = slamParams->calibrationFile;
+    //    mapFile         = slamParams->mapFile;
+    //    vocFile         = slamParams->vocabularyFile;
+    //    markerFile      = slamParams->markerFile;
+    //    params          = slamParams->params;
+    //}
 
-    bool useVideoFile             = !videoFile.empty();
-    bool detectCalibAutomatically = calibrationFile.empty();
-    bool useMapFile               = !mapFile.empty();
+    bool useVideoFile             = !slamParams.videoFile.empty();
+    bool detectCalibAutomatically = slamParams.calibrationFile.empty();
+    bool useMapFile               = !slamParams.mapFile.empty();
 
     // reset stuff
     if (_mode)
@@ -283,9 +298,9 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
     }
 
     // Check that files exist
-    if (useVideoFile && !Utils::fileExists(videoFile))
+    if (useVideoFile && !Utils::fileExists(slamParams.videoFile))
     {
-        showErrorMsg("Video file " + videoFile + " does not exist.");
+        showErrorMsg("Video file " + slamParams.videoFile + " does not exist.");
         return;
     }
 
@@ -298,7 +313,7 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
         if (useVideoFile)
         {
             SlamVideoInfos slamVideoInfos;
-            std::string    videoFileName = Utils::getFileNameWOExt(videoFile);
+            std::string    videoFileName = Utils::getFileNameWOExt(slamParams.videoFile);
 
             if (!extractSlamVideoInfosFromFileName(videoFileName, &slamVideoInfos))
             {
@@ -313,17 +328,17 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
             computerInfo = SLApplication::getComputerInfos();
         }
 
-        calibrationFileName = "camCalib_" + computerInfo + "_main.xml";
-        calibrationFile     = calibDir + calibrationFileName;
+        calibrationFileName        = "camCalib_" + computerInfo + "_main.xml";
+        slamParams.calibrationFile = calibDir + calibrationFileName;
     }
     else
     {
-        calibrationFileName = Utils::getFileName(calibrationFile);
+        calibrationFileName = Utils::getFileName(slamParams.calibrationFile);
     }
 
-    if (!Utils::fileExists(calibrationFile))
+    if (!Utils::fileExists(slamParams.calibrationFile))
     {
-        showErrorMsg("Calibration file " + calibrationFile + " does not exist.");
+        showErrorMsg("Calibration file " + slamParams.calibrationFile + " does not exist.");
         return;
     }
 
@@ -335,28 +350,28 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
     }
      */
 
-    if (vocFile.empty())
+    if (slamParams.vocabularyFile.empty())
     {
         showErrorMsg("Select a vocabulary file!");
         return;
     }
 
-    if (!Utils::fileExists(vocFile))
+    if (!Utils::fileExists(slamParams.vocabularyFile))
     {
-        showErrorMsg("Vocabulary file does not exist: " + vocFile);
+        showErrorMsg("Vocabulary file does not exist: " + slamParams.vocabularyFile);
         return;
     }
 
-    if (useMapFile && !Utils::fileExists(mapFile))
+    if (useMapFile && !Utils::fileExists(slamParams.mapFile))
     {
-        showErrorMsg("Map file " + mapFile + " does not exist.");
+        showErrorMsg("Map file " + slamParams.mapFile + " does not exist.");
         return;
     }
 
     // 1. Initialize video stream
     if (useVideoFile)
     {
-        _videoFileStream = std::make_unique<SENSVideoStream>(videoFile, true, false, false);
+        _videoFileStream = std::make_unique<SENSVideoStream>(slamParams.videoFile, true, false, false);
         _videoFrameSize  = _videoFileStream->getFrameSize();
     }
     else
@@ -371,10 +386,10 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
 
     // 2. Load Calibration
     //build undistortion maps after loading because it may take a lot of time for calibrations from large images on android
-    if (!_calibration.load(calibDir, Utils::getFileName(calibrationFile), false))
+    if (!_calibration.load(calibDir, Utils::getFileName(slamParams.calibrationFile), false))
     {
         showErrorMsg("Error when loading calibration from file: " +
-                     calibrationFile);
+                     slamParams.calibrationFile);
         return;
     }
 
@@ -399,12 +414,12 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
     _waiScene.cameraNode->projection(P_monoIntrinsic);
 
     // 4. Create new mode ORBSlam
-    if (!markerFile.empty())
+    if (!slamParams.markerFile.empty())
     {
-        params.cullRedundantPerc = 0.99f;
+        slamParams.params.cullRedundantPerc = 0.99f;
     }
 
-    _trackingExtractor = _featureExtractorFactory.make(slamParams->extractorIds.trackingExtractorId, _videoFrameSize);
+    _trackingExtractor = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize);
     /*
     _initializationExtractor = _featureExtractorFactory.make(slamParams->extractorIds.initializationExtractorId, _videoFrameSize);
     _markerExtractor         = _featureExtractorFactory.make(slamParams->extractorIds.markerExtractorId, _videoFrameSize);
@@ -413,11 +428,11 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
 
     _mode = new WAISlam(_calibration.cameraMat(),
                         _calibration.distortion(),
-                        vocFile,
+                        slamParams.vocabularyFile,
                         _trackingExtractor.get(),
-                        params.onlyTracking,
-                        params.serial,
-                        params.retainImg);
+                        slamParams.params.onlyTracking,
+                        slamParams.params.serial,
+                        slamParams.params.retainImg);
 
     // 5. Load map data
     if (useMapFile)
@@ -432,32 +447,28 @@ void WAIApp::startOrbSlam(SlamParams* slamParams)
         bool mapLoadingSuccess = WAIMapStorage::loadMap(_mode->getMap(),
                                                         _mode->getKfDB(),
                                                         _waiScene.mapNode,
-                                                        mapFile,
+                                                        slamParams.mapFile,
                                                         _mode->retainImage(),
-                                                        params.fixOldKfs);
+                                                        slamParams.params.fixOldKfs);
 
         if (!mapLoadingSuccess)
         {
             delete _mode;
             _mode = nullptr;
 
-            showErrorMsg("Could not load map from file " + mapFile);
+            showErrorMsg("Could not load map from file " + slamParams.mapFile);
             return;
         }
 
         SlamMapInfos slamMapInfos = {};
-        extractSlamMapInfosFromFileName(mapFile, &slamMapInfos);
+        extractSlamMapInfosFromFileName(slamParams.mapFile, &slamMapInfos);
 
         _mode->resume();
         _mode->setState(TrackingState_TrackingLost);
     }
 
     // 6. save current params
-    _currentSlamParams.calibrationFile  = calibrationFile;
-    _currentSlamParams.mapFile          = mapFile;
-    _currentSlamParams.params.retainImg = params.retainImg;
-    _currentSlamParams.videoFile        = videoFile;
-    _currentSlamParams.vocabularyFile   = vocFile;
+    _currentSlamParams = slamParams;
 
     _sv->setViewportFromRatio(SLVec2i(_videoFrameSize.width, _videoFrameSize.height), SLViewportAlign::VA_center, true);
     //_resizeWindow = true;
@@ -1159,7 +1170,7 @@ void WAIApp::handleEvents()
             case WAIEventType_StartOrbSlam: {
                 WAIEventStartOrbSlam* startOrbSlamEvent = (WAIEventStartOrbSlam*)event;
                 loadWAISceneView(SLApplication::scene, _sv, startOrbSlamEvent->params.location, startOrbSlamEvent->params.area);
-                startOrbSlam(&startOrbSlamEvent->params);
+                startOrbSlam(startOrbSlamEvent->params);
 
                 delete startOrbSlamEvent;
             }

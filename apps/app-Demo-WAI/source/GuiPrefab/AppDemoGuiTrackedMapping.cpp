@@ -16,7 +16,7 @@ AppDemoGuiTrackedMapping::AppDemoGuiTrackedMapping(string name, bool* activator,
 //-----------------------------------------------------------------------------
 void AppDemoGuiTrackedMapping::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    ImGui::Begin("Tracked Mapping", _activator, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("Tracked Mapping", _activator /*, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize*/);
 
     if (!_waiApp.mode())
     {

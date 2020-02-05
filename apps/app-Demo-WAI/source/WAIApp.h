@@ -42,6 +42,95 @@ struct ExtractorIds
 
 struct SlamParams
 {
+    //returns true if loading was successful. Otherwise there may have been no file.
+    bool load(std::string fileName)
+    {
+        cv::FileStorage fs;
+        try
+        {
+            fs.open(fileName, cv::FileStorage::READ);
+            if (fs.isOpened())
+            {
+                if (!fs["videoFile"].empty())
+                    fs["videoFile"] >> videoFile;
+                if (!fs["mapFile"].empty())
+                    fs["mapFile"] >> mapFile;
+                if (!fs["calibrationFile"].empty())
+                    fs["calibrationFile"] >> calibrationFile;
+                if (!fs["vocabularyFile"].empty())
+                    fs["vocabularyFile"] >> vocabularyFile;
+                if (!fs["markerFile"].empty())
+                    fs["markerFile"] >> markerFile;
+                if (!fs["location"].empty())
+                    fs["location"] >> location;
+                if (!fs["area"].empty())
+                    fs["area"] >> area;
+
+                if (!fs["cullRedundantPerc"].empty())
+                    fs["cullRedundantPerc"] >> params.cullRedundantPerc;
+                if (!fs["fixOldKfs"].empty())
+                    fs["fixOldKfs"] >> params.fixOldKfs;
+                if (!fs["onlyTracking"].empty())
+                    fs["onlyTracking"] >> params.onlyTracking;
+                if (!fs["retainImg"].empty())
+                    fs["retainImg"] >> params.retainImg;
+                if (!fs["serial"].empty())
+                    fs["serial"] >> params.serial;
+                if (!fs["trackOptFlow"].empty())
+                    fs["trackOptFlow"] >> params.trackOptFlow;
+
+                if (!fs["initializationExtractorId"].empty())
+                    fs["initializationExtractorId"] >> extractorIds.initializationExtractorId;
+                if (!fs["markerExtractorId"].empty())
+                    fs["markerExtractorId"] >> extractorIds.markerExtractorId;
+                if (!fs["trackingExtractorId"].empty())
+                    fs["trackingExtractorId"] >> extractorIds.trackingExtractorId;
+
+                fs.release();
+
+                return true;
+            }
+        }
+        catch (...)
+        {
+            Utils::log("SlamParams: Parsing of file failed: %s", fileName.c_str());
+        }
+
+        return false;
+    }
+
+    void save(std::string fileName)
+    {
+        cv::FileStorage fs(fileName, cv::FileStorage::WRITE);
+
+        if (!fs.isOpened())
+        {
+            Utils::log("SlamParams: Failed to open file for writing: %s", fileName.c_str());
+            return;
+        }
+
+        fs << "videoFile" << videoFile;
+        fs << "mapFile" << mapFile;
+        fs << "calibrationFile" << calibrationFile;
+        fs << "vocabularyFile" << vocabularyFile;
+        fs << "markerFile" << markerFile;
+        fs << "location" << location;
+        fs << "area" << area;
+
+        fs << "cullRedundantPerc" << params.cullRedundantPerc;
+        fs << "fixOldKfs" << params.fixOldKfs;
+        fs << "onlyTracking" << params.onlyTracking;
+        fs << "retainImg" << params.retainImg;
+        fs << "serial" << params.serial;
+        fs << "trackOptFlow" << params.trackOptFlow;
+
+        fs << "initializationExtractorId" << extractorIds.initializationExtractorId;
+        fs << "markerExtractorId" << extractorIds.markerExtractorId;
+        fs << "trackingExtractorId" << extractorIds.trackingExtractorId;
+
+        fs.release();
+    }
+
     std::string               videoFile;
     std::string               mapFile;
     std::string               calibrationFile;
@@ -109,6 +198,47 @@ struct WAIEventMapNodeTransform : WAIEvent
     float            scale;
 };
 
+class WAIAppConfig
+{
+public:
+    void load(std::string fileName)
+    {
+        cv::FileStorage fs;
+        try
+        {
+            fs.open(fileName, cv::FileStorage::READ);
+            if (fs.isOpened())
+            {
+                if (!fs["serialMapping"].empty())
+                    fs["serialMapping"] >> serialMapping;
+            }
+        }
+        catch (...)
+        {
+            Utils::log("WAIAppConfig: Parsing of file failed: %s", fileName.c_str());
+        }
+    }
+
+    void save(std::string fileName)
+    {
+        cv::FileStorage fs(fileName, cv::FileStorage::WRITE);
+
+        if (!fs.isOpened())
+        {
+            Utils::log("WAIAppConfig: Failed to open file for writing: %s", fileName.c_str());
+            return;
+        }
+
+        fs << "serialMapping" << serialMapping;
+
+        fs.release();
+    }
+
+    bool serialMapping = false;
+
+private:
+};
+
 //-----------------------------------------------------------------------------
 class WAIApp : public SLInputEventInterface
 {
@@ -122,18 +252,14 @@ public:
               float          scr2fbY,
               int            dpi,
               AppDirectories dirs);
-    void setCamera(SENSCamera* camera)
-    {
-        _camera = camera;
-        if (_sv)
-            _sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
-    }
+    void setCamera(SENSCamera* camera);
+
     //call update to update the frame, wai and visualization
     bool update();
     void close();
 
     //initialize wai orb slam with transferred parameters
-    void startOrbSlam(SlamParams* slamParams = nullptr);
+    void startOrbSlam(SlamParams slamParams);
     void showErrorMsg(std::string msg);
 
     //todo: replace when we are independent of SLApplication
