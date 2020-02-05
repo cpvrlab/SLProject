@@ -58,7 +58,7 @@ AppDemoWaiGui::~AppDemoWaiGui()
     uiPrefs->save(_prefsFileName, ImGui::GetStyle());
 }
 //-----------------------------------------------------------------------------
-void AppDemoWaiGui::addInfoDialog(AppDemoGuiInfosDialog* dialog)
+void AppDemoWaiGui::addInfoDialog(std::shared_ptr<AppDemoGuiInfosDialog> dialog)
 {
     string name = string(dialog->getName());
     if (_infoDialogs.find(name) == _infoDialogs.end())

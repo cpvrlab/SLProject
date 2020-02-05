@@ -32,6 +32,7 @@ class SLMaterial;
 class SLPoints;
 class SLNode;
 class AppDemoGuiError;
+class AppDemoGuiSlamLoad;
 
 struct ExtractorIds
 {
@@ -353,12 +354,12 @@ private:
 
     cv::Size2i _videoFrameSize;
 
-    std::unique_ptr<AppDemoWaiGui> _gui;
-    AppDemoGuiError*               _errorDial = nullptr;
-
-    int     _lastFrameIdx;
-    cv::Mat _undistortedLastFrame[2];
-    bool    _doubleBufferedOutput;
+    std::unique_ptr<AppDemoWaiGui>      _gui;
+    std::shared_ptr<AppDemoGuiError>    _errorDial;
+    std::shared_ptr<AppDemoGuiSlamLoad> _guiSlamLoad;
+    int                                 _lastFrameIdx;
+    cv::Mat                             _undistortedLastFrame[2];
+    bool                                _doubleBufferedOutput;
 
     // video controls
     bool _pauseVideo           = false;

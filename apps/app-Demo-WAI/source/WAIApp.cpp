@@ -104,7 +104,10 @@ void WAIApp::setCamera(SENSCamera* camera)
         _sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
 
     if (_currentSlamParams.load(_dirs.writableDir + "SlamParams.json"))
+    {
         startOrbSlam(_currentSlamParams);
+        _guiSlamLoad->setSlamParams(_currentSlamParams);
+    }
 }
 
 SENSFramePtr WAIApp::updateVideoOrCamera()
@@ -641,37 +644,38 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
 {
     _gui = std::make_unique<AppDemoWaiGui>(SLApplication::name, SLApplication::configPath, dotsPerInch);
     //aboutDial = new AppDemoGuiAbout("about", cpvrLogo, &uiPrefs.showAbout);
-    _gui->addInfoDialog(new AppDemoGuiInfosFrameworks("frameworks", &_gui->uiPrefs->showInfosFrameworks));
-    _gui->addInfoDialog(new AppDemoGuiInfosMapNodeTransform("map node",
-                                                            &_gui->uiPrefs->showInfosMapNodeTransform,
-                                                            &_eventQueue));
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiInfosFrameworks>("frameworks", &_gui->uiPrefs->showInfosFrameworks));
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiInfosMapNodeTransform>("map node",
+                                                                          &_gui->uiPrefs->showInfosMapNodeTransform,
+                                                                          &_eventQueue));
 
-    _gui->addInfoDialog(new AppDemoGuiInfosScene("scene", &_gui->uiPrefs->showInfosScene));
-    _gui->addInfoDialog(new AppDemoGuiInfosSensors("sensors", &_gui->uiPrefs->showInfosSensors));
-    _gui->addInfoDialog(new AppDemoGuiInfosTracking("tracking", *_gui->uiPrefs.get(), *this));
-    _gui->addInfoDialog(new AppDemoGuiSlamLoad("slam load",
-                                               &_eventQueue,
-                                               _dirs.writableDir + "erleb-AR/locations/",
-                                               _dirs.writableDir + "calibrations/",
-                                               _dirs.vocabularyDir,
-                                               _featureExtractorFactory.getExtractorIdToNames(),
-                                               &_gui->uiPrefs->showSlamLoad,
-                                               this->_currentSlamParams));
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiInfosScene>("scene", &_gui->uiPrefs->showInfosScene));
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiInfosSensors>("sensors", &_gui->uiPrefs->showInfosSensors));
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiInfosTracking>("tracking", *_gui->uiPrefs.get(), *this));
 
-    _gui->addInfoDialog(new AppDemoGuiProperties("properties", &_gui->uiPrefs->showProperties));
-    _gui->addInfoDialog(new AppDemoGuiSceneGraph("scene graph", &_gui->uiPrefs->showSceneGraph));
-    _gui->addInfoDialog(new AppDemoGuiStatsDebugTiming("debug timing", &_gui->uiPrefs->showStatsDebugTiming));
-    _gui->addInfoDialog(new AppDemoGuiStatsTiming("timing", &_gui->uiPrefs->showStatsTiming));
-    _gui->addInfoDialog(new AppDemoGuiStatsVideo("video", &_gui->uiPrefs->showStatsVideo, *this));
-    _gui->addInfoDialog(new AppDemoGuiTrackedMapping("tracked mapping", &_gui->uiPrefs->showTrackedMapping, *this));
+    _guiSlamLoad = std::make_shared<AppDemoGuiSlamLoad>("slam load",
+                                                        &_eventQueue,
+                                                        _dirs.writableDir + "erleb-AR/locations/",
+                                                        _dirs.writableDir + "calibrations/",
+                                                        _dirs.vocabularyDir,
+                                                        _featureExtractorFactory.getExtractorIdToNames(),
+                                                        &_gui->uiPrefs->showSlamLoad);
+    _gui->addInfoDialog(_guiSlamLoad);
 
-    _gui->addInfoDialog(new AppDemoGuiTransform("transform", &_gui->uiPrefs->showTransform));
-    _gui->addInfoDialog(new AppDemoGuiUIPrefs("prefs", _gui->uiPrefs.get(), &_gui->uiPrefs->showUIPrefs));
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiProperties>("properties", &_gui->uiPrefs->showProperties));
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiSceneGraph>("scene graph", &_gui->uiPrefs->showSceneGraph));
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiStatsDebugTiming>("debug timing", &_gui->uiPrefs->showStatsDebugTiming));
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiStatsTiming>("timing", &_gui->uiPrefs->showStatsTiming));
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiStatsVideo>("video", &_gui->uiPrefs->showStatsVideo, *this));
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiTrackedMapping>("tracked mapping", &_gui->uiPrefs->showTrackedMapping, *this));
 
-    _gui->addInfoDialog(new AppDemoGuiVideoStorage("video/gps storage", &_gui->uiPrefs->showVideoStorage, &_eventQueue, *this));
-    _gui->addInfoDialog(new AppDemoGuiVideoControls("video load", &_gui->uiPrefs->showVideoControls, &_eventQueue, *this));
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiTransform>("transform", &_gui->uiPrefs->showTransform));
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiUIPrefs>("prefs", _gui->uiPrefs.get(), &_gui->uiPrefs->showUIPrefs));
 
-    _errorDial = new AppDemoGuiError("Error", &_gui->uiPrefs->showError);
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiVideoStorage>("video/gps storage", &_gui->uiPrefs->showVideoStorage, &_eventQueue, *this));
+    _gui->addInfoDialog(std::make_shared<AppDemoGuiVideoControls>("video load", &_gui->uiPrefs->showVideoControls, &_eventQueue, *this));
+
+    _errorDial = std::make_shared<AppDemoGuiError>("Error", &_gui->uiPrefs->showError);
     _gui->addInfoDialog(_errorDial);
     //TODO: AppDemoGuiInfosDialog are never deleted. Why not use smart pointer when the reponsibility for an object is not clear?
 }

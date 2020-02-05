@@ -26,16 +26,17 @@ public:
                        std::string                     calibrationsDir,
                        std::string                     vocabulariesDir,
                        const std::vector<std::string>& extractorIdToNames,
-                       bool*                           activator,
-                       SlamParams&                     currentSlamParams);
+                       bool*                           activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
+    void setSlamParams(const SlamParams& params)
+    {
+        _p                = params;
+        _changeSlamParams = false;
+    }
 
 private:
-    void loadFileNamesInVector(std::string               directory,
-                               std::vector<std::string>& fileNames,
-                               std::vector<std::string>& extensions,
-                               bool                      addEmpty);
+    void loadFileNamesInVector(std::string directory, std::vector<std::string>& fileNames, std::vector<std::string>& extensions, bool addEmpty);
     void loadDirNamesInVector(std::string               directory,
                               std::vector<std::string>& dirNames);
 
@@ -51,27 +52,9 @@ private:
     std::vector<std::string> _calibExtensions;
     std::vector<std::string> _vocExtensions;
 
-    std::string _currentLocation;
-    std::string _currentArea;
-    std::string _currentVideo;
-    std::string _currentCalibration;
-    std::string _currentMap;
-    std::string _currentVoc;
-    std::string _currentMarker;
-
-    bool _storeKeyFrameImage;
-    bool _trackOpticalFlow;
-    bool _serial;
-    bool _trackingOnly;
-    bool fixLoadedKfs;
-
-    int _trackingExtractorId;
-    int _initExtractorId;
-    int _markerExtractorId;
-
     const std::vector<std::string>& _extractorIdToNames;
 
-    SlamParams& _currentSlamParams;
+    SlamParams _p;
 
     std::queue<WAIEvent*>* _eventQueue;
 };
