@@ -607,14 +607,12 @@ bool WAISlamTools::relocalization(WAIFrame&      currentFrame,
                 // If the pose is supported by enough inliers stop ransacs and continue
                 if (nGood >= 50)
                 {
-                    bMatch = true;
+                    bMatch = trackLocalMap(localMap, currentFrame, currentFrame.mnId, inliers);
                     break;
                 }
             }
         }
     }
-
-    bMatch = trackLocalMap(localMap, currentFrame, currentFrame.mnId, inliers);
 
     AVERAGE_TIMING_STOP("relocalization");
     return bMatch;
