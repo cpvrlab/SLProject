@@ -404,6 +404,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
                 event->params.area                = _p.area;
                 event->params.location            = _p.location;
+
                 event->params.videoFile           = _p.videoFile.empty() ? "" : _slamRootDir + _p.location + "/" + _p.area + "/videos/" + _p.videoFile;
                 event->params.mapFile             = _p.mapFile.empty() ? "" : _slamRootDir + _p.location + "/" + _p.area + "/maps/" + _p.mapFile;
                 event->params.calibrationFile     = _p.calibrationFile.empty() ? "" : _calibrationsDir + _p.calibrationFile;
@@ -432,4 +433,16 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
     }
 
     ImGui::End();
+}
+
+void AppDemoGuiSlamLoad::setSlamParams(const SlamParams& params)
+{
+    _p                 = params;
+    _p.videoFile       = _p.videoFile.empty() ? "" : Utils::getFileName(_p.videoFile);
+    _p.mapFile         = _p.mapFile.empty() ? "" : Utils::getFileName(_p.mapFile);
+    _p.calibrationFile = _p.calibrationFile.empty() ? "" : Utils::getFileName(_p.calibrationFile);
+    _p.vocabularyFile  = _p.vocabularyFile.empty() ? "" : Utils::getFileName(_p.vocabularyFile);
+    _p.markerFile      = _p.markerFile.empty() ? "" : Utils::getFileName(_p.markerFile);
+
+    _changeSlamParams = false;
 }

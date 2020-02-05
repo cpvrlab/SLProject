@@ -29,11 +29,7 @@ public:
                        bool*                           activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
-    void setSlamParams(const SlamParams& params)
-    {
-        _p                = params;
-        _changeSlamParams = false;
-    }
+    void setSlamParams(const SlamParams& params);
 
 private:
     void loadFileNamesInVector(std::string directory, std::vector<std::string>& fileNames, std::vector<std::string>& extensions, bool addEmpty);

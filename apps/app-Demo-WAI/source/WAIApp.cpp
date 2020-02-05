@@ -89,9 +89,6 @@ int WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int 
     //todo: only do this, when the app is installed (on android and ios, maybe by a function call when permissions are given)
     downloadCalibratinFilesTo(calibDir);
 
-    //if (_currentSlamParams.load(_dirs.writableDir + "SlamParams.json"))
-    //    startOrbSlam(_currentSlamParams);
-
     _loaded = true;
 
     return svIndex;
@@ -266,23 +263,6 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
     _doubleBufferedOutput    = false;
     if (_videoFileStream)
         _videoFileStream.release();
-
-    //std::string               videoFile       = "";
-    //std::string               calibrationFile = "";
-    //std::string               mapFile         = "";
-    //std::string               vocFile         = "";
-    //std::string               markerFile      = "";
-    //WAI::ModeOrbSlam2::Params params;
-
-    //if (slamParams)
-    //{
-    //    videoFile       = slamParams->videoFile;
-    //    calibrationFile = slamParams->calibrationFile;
-    //    mapFile         = slamParams->mapFile;
-    //    vocFile         = slamParams->vocabularyFile;
-    //    markerFile      = slamParams->markerFile;
-    //    params          = slamParams->params;
-    //}
 
     bool useVideoFile             = !slamParams.videoFile.empty();
     bool detectCalibAutomatically = slamParams.calibrationFile.empty();
