@@ -58,7 +58,7 @@ AppDemoWaiGui::~AppDemoWaiGui()
     uiPrefs->save(_prefsFileName, ImGui::GetStyle());
 }
 //-----------------------------------------------------------------------------
-void AppDemoWaiGui::addInfoDialog(AppDemoGuiInfosDialog* dialog)
+void AppDemoWaiGui::addInfoDialog(std::shared_ptr<AppDemoGuiInfosDialog> dialog)
 {
     string name = string(dialog->getName());
     if (_infoDialogs.find(name) == _infoDialogs.end())
@@ -135,9 +135,9 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Video"))
+        if (ImGui::BeginMenu("Video/GPS"))
         {
-            ImGui::MenuItem("Video Storage", nullptr, &uiPrefs->showVideoStorage);
+            ImGui::MenuItem("Video/GPS Storage", nullptr, &uiPrefs->showVideoStorage);
             ImGui::MenuItem("Video Controls", nullptr, &uiPrefs->showVideoControls);
 
             ImGui::EndMenu();

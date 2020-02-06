@@ -1,5 +1,6 @@
 #include <WAISlam.h>
 #include <AverageTiming.h>
+#include <Utils.h>
 
 #define MIN_FRAMES 0
 #define MAX_FRAMES 30
@@ -600,7 +601,7 @@ bool WAISlamTools::relocalization(WAIFrame&      currentFrame,
                 // If the pose is supported by enough inliers stop ransacs and continue
                 if (nGood >= 50)
                 {
-                    bMatch = trackLocalMap(localMap, currentFrame, currentFrame.mnId, inliers);;
+                    bMatch = trackLocalMap(localMap, currentFrame, currentFrame.mnId, inliers);
                     break;
                 }
             }

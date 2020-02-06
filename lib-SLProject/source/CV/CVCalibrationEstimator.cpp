@@ -200,7 +200,8 @@ bool CVCalibrationEstimator::calibrateAsync()
                                          _mirroredV,
                                          _camType,
                                          _computerInfos,
-                                         _params.calibrationFlags());
+                                         _params.calibrationFlags(),
+                                         true);
         }
     }
     catch (std::exception& e)

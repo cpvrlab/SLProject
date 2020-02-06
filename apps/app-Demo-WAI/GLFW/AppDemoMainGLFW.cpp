@@ -521,8 +521,9 @@ int main(int argc, char* argv[])
     dirs.writableDir   = Utils::getAppsWritableDir();
     dirs.vocabularyDir = dirs.writableDir + "voc/";
 
-    svIndex = waiApp.load(camera.get(), config.targetWidth, config.targetHeight, scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
-
+    svIndex = waiApp.load(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
+    waiApp.setCamera(camera.get());
+    waiApp.loadSlam();
     // Event loop
     while (!appShouldClose)
     {

@@ -81,7 +81,8 @@ CVCalibration CamCalibrationManager::calculateCalibration(
                               0,
                               CVCameraType::FRONTFACING,
                               "",
-                              flags);
+                              flags,
+                              true);
     return calibration;
 }
 

@@ -48,7 +48,7 @@ public:
     AppDemoWaiGui(std::string appName, std::string configDir, int dotsPerInch);
     ~AppDemoWaiGui();
     //!< Checks, if a dialog with this name already exists, and adds it if not
-    void addInfoDialog(AppDemoGuiInfosDialog* dialog);
+    void addInfoDialog(std::shared_ptr<AppDemoGuiInfosDialog> dialog);
     void clearInfoDialogs();
 
     void build(SLScene* s, SLSceneView* sv) override
@@ -66,7 +66,7 @@ private:
     std::string _prefsFileName;
 
     //! Vector containing all info dialogs, that belong to special scenes
-    std::map<std::string, AppDemoGuiInfosDialog*> _infoDialogs;
+    std::map<std::string, std::shared_ptr<AppDemoGuiInfosDialog>> _infoDialogs;
 };
 //-----------------------------------------------------------------------------
 #endif

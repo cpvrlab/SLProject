@@ -32,7 +32,7 @@ AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string&     name,
 //-----------------------------------------------------------------------------
 void AppDemoGuiVideoStorage::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    ImGui::Begin("Video storage", _activator, 0);
+    ImGui::Begin("Video/GPS storage", _activator, 0);
     ImGui::Separator();
     if (ImGui::Button(_recording ? "Stop recording" : "Start recording", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
     {
