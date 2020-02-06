@@ -869,8 +869,7 @@ finish our UI and end OpenGL rendering properly.
 */
 void SLRaytracer::renderUIBeforeUpdate()
 {
-    //ImGui::Render();
-    SL_EXIT_MSG("Please find another solution for ImGui::Render() here!");
+    _sv->gui()->onPaint(_sv->viewportRect());
     SLGLState::instance()->unbindAnythingAndFlush();
 }
 //-----------------------------------------------------------------------------
