@@ -88,13 +88,14 @@ struct SlamParams
                     fs["trackingExtractorId"] >> extractorIds.trackingExtractorId;
 
                 fs.release();
+                Utils::log("WAIApp", "SlamParams loaded from %s", fileName.c_str());
 
                 return true;
             }
         }
         catch (...)
         {
-            Utils::log("SlamParams: Parsing of file failed: %s", fileName.c_str());
+            Utils::log("WAIApp", "SlamParams: Parsing of file failed: %s", fileName.c_str());
         }
 
         return false;
@@ -106,7 +107,7 @@ struct SlamParams
 
         if (!fs.isOpened())
         {
-            Utils::log("SlamParams: Failed to open file for writing: %s", fileName.c_str());
+            Utils::log("WAIApp", "SlamParams: Failed to open file for writing: %s", fileName.c_str());
             return;
         }
 
@@ -130,6 +131,7 @@ struct SlamParams
         fs << "trackingExtractorId" << extractorIds.trackingExtractorId;
 
         fs.release();
+        Utils::log("WAIApp", "SlamParams saved to %s", fileName.c_str());
     }
 
     std::string               videoFile;
@@ -197,47 +199,6 @@ struct WAIEventMapNodeTransform : WAIEvent
     SLVec3f          rotation;
     SLVec3f          translation;
     float            scale;
-};
-
-class WAIAppConfig
-{
-public:
-    void load(std::string fileName)
-    {
-        cv::FileStorage fs;
-        try
-        {
-            fs.open(fileName, cv::FileStorage::READ);
-            if (fs.isOpened())
-            {
-                if (!fs["serialMapping"].empty())
-                    fs["serialMapping"] >> serialMapping;
-            }
-        }
-        catch (...)
-        {
-            Utils::log("WAIAppConfig: Parsing of file failed: %s", fileName.c_str());
-        }
-    }
-
-    void save(std::string fileName)
-    {
-        cv::FileStorage fs(fileName, cv::FileStorage::WRITE);
-
-        if (!fs.isOpened())
-        {
-            Utils::log("WAIAppConfig: Failed to open file for writing: %s", fileName.c_str());
-            return;
-        }
-
-        fs << "serialMapping" << serialMapping;
-
-        fs.release();
-    }
-
-    bool serialMapping = false;
-
-private:
 };
 
 //-----------------------------------------------------------------------------
