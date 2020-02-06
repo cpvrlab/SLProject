@@ -939,18 +939,18 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     WAIMapPoint::nNextId            = 0;
     WAIFrame::mbInitialComputations = true;
 
-    _distortion      = distortion.clone();
-    _cameraIntrinsic = intrinsic.clone();
-
-    _voc = voc;
+    _distortion       = distortion.clone();
+    _cameraIntrinsic  = intrinsic.clone();
+    _voc              = voc;
+    _extractor        = extractor;
 
     if (globalMap == nullptr)
     {
         WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(*voc);
         _globalMap = new WAIMap(kfDB);
     }
-
-    _extractor        = extractor;
+    else
+        _globalMap = globalMap;
 
     _localMapping = new ORB_SLAM2::LocalMapping(_globalMap, 1, _voc, 0.95);
     _loopClosing  = new ORB_SLAM2::LoopClosing(_globalMap, _voc, false, false);
