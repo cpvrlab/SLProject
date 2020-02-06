@@ -63,7 +63,7 @@ public:
         SCALE
     };
 
-    WAIMap(const string& name);
+    WAIMap(WAIKeyFrameDB* kfDB);
     ~WAIMap();
 
     void AddKeyFrame(WAIKeyFrame* pKF);
@@ -76,6 +76,7 @@ public:
 
     std::vector<WAIKeyFrame*> GetAllKeyFrames();
     std::vector<WAIMapPoint*> GetAllMapPoints();
+    WAIKeyFrameDB* GetKeyFrameDB() { return mKfDB; }
 
     long unsigned int MapPointsInMap();
     long unsigned int KeyFramesInMap();
@@ -110,6 +111,7 @@ public:
 protected:
     std::set<WAIMapPoint*> mspMapPoints;
     std::set<WAIKeyFrame*> mspKeyFrames;
+    WAIKeyFrameDB*         mKfDB;
 
     std::vector<WAIMapPoint*> mvpReferenceMapPoints;
 

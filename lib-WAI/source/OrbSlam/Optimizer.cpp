@@ -442,7 +442,7 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame, vector<bool>& vbOutliers)
     vector<size_t>                          vnIndexEdgeMono;
     vpEdgesMono.reserve(N);
     vnIndexEdgeMono.reserve(N);
-    vbOutliers.reserve(N);
+    vbOutliers.resize(N);
 
     const float deltaMono = sqrt(5.991);
     {
@@ -574,7 +574,7 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
     vector<bool>                            vbOutliers;
     vpEdgesMono.reserve(N);
     vnIndexEdgeMono.reserve(N);
-    vbOutliers.reserve(N);
+    vbOutliers.resize(N);
 
     const float deltaMono = sqrt(5.991);
     {

@@ -63,8 +63,7 @@ bool WAISlamTools::initialize(InitializerData& iniData,
                               WAIFrame&        frame,
                               ORBVocabulary*   voc,
                               LocalMap&        localMap,
-                              int              mapPointsNeeded,
-                              WAIKeyFrameDB*   keyFrameDatabase)
+                              int              mapPointsNeeded)
 {
     int matchesNeeded = 100;
 
@@ -138,8 +137,8 @@ bool WAISlamTools::initialize(InitializerData& iniData,
         WAIKeyFrame::nNextId = 0;
 
         // Create KeyFrames
-        WAIKeyFrame* pKFini = new WAIKeyFrame(iniData.initialFrame, keyFrameDatabase);
-        WAIKeyFrame* pKFcur = new WAIKeyFrame(frame, keyFrameDatabase);
+        WAIKeyFrame* pKFini = new WAIKeyFrame(iniData.initialFrame);
+        WAIKeyFrame* pKFcur = new WAIKeyFrame(frame);
 
         pKFini->ComputeBoW(voc);
         pKFcur->ComputeBoW(voc);
@@ -179,7 +178,6 @@ bool WAISlamTools::initialize(InitializerData& iniData,
         if (medianDepth < 0 || pKFcur->TrackedMapPoints(1) < mapPointsNeeded)
         {
             Utils::log("WAI", "Wrong initialization, reseting...");
-            keyFrameDatabase->clear();
             WAIKeyFrame::nNextId            = 0;
             WAIFrame::nNextId               = 0;
             WAIFrame::mbInitialComputations = true;
@@ -261,7 +259,6 @@ bool WAISlamTools::genInitialMap(WAIMap*       map,
 }
 
 bool WAISlamTools::tracking(WAIMap*        map,
-                            WAIKeyFrameDB* keyFrameDatabase,
                             LocalMap&      localMap,
                             WAIFrame&      frame,
                             WAIFrame&      lastFrame,
@@ -301,7 +298,6 @@ bool WAISlamTools::trackLocalMap(LocalMap& localMap,
 }
 
 void WAISlamTools::mapping(WAIMap*        map,
-                           WAIKeyFrameDB* keyFrameDatabase,
                            LocalMap&      localMap,
                            LocalMapping*  localMapper,
                            WAIFrame&      frame,
@@ -309,7 +305,7 @@ void WAISlamTools::mapping(WAIMap*        map,
 {
     if (needNewKeyFrame(map, localMap, localMapper, frame, inliers))
     {
-        createNewKeyFrame(localMapper, localMap, map, keyFrameDatabase, frame);
+        createNewKeyFrame(localMapper, localMap, map, frame);
         //TODO: test if should be here of outside the if statement
         /*
         for (int i = 0; i < frame.N; i++)
@@ -324,7 +320,6 @@ void WAISlamTools::mapping(WAIMap*        map,
 }
 
 void WAISlamTools::serialMapping(WAIMap*        map,
-                                 WAIKeyFrameDB* keyFrameDatabase,
                                  LocalMap&      localMap,
                                  LocalMapping*  localMapper,
                                  LoopClosing*   loopCloser,
@@ -333,7 +328,7 @@ void WAISlamTools::serialMapping(WAIMap*        map,
 {
     if (needNewKeyFrame(map, localMap, localMapper, frame, inliers))
     {
-        createNewKeyFrame(localMapper, localMap, map, keyFrameDatabase, frame);
+        createNewKeyFrame(localMapper, localMap, map, frame);
         //TODO: test if should be here of outside the if statement
         /*
         for (int i = 0; i < frame.N; i++)
@@ -377,13 +372,12 @@ void WAISlamTools::motionModel(WAIFrame& frame,
 void WAISlamTools::createNewKeyFrame(LocalMapping*  localMapper,
                                      LocalMap&      lmap,
                                      WAIMap*        map,
-                                     WAIKeyFrameDB* keyFrameDatabase,
                                      WAIFrame&      frame)
 {
     if (!localMapper->SetNotStop(true))
         return;
 
-    WAIKeyFrame* pKF = new WAIKeyFrame(frame, keyFrameDatabase);
+    WAIKeyFrame* pKF = new WAIKeyFrame(frame);
 
     lmap.lastKF         = pKF;
     lmap.refKF          = pKF;
@@ -452,7 +446,6 @@ bool WAISlamTools::needNewKeyFrame(WAIMap*       map,
 
 bool WAISlamTools::relocalization(WAIFrame&      currentFrame,
                                   WAIMap*        waiMap,
-                                  WAIKeyFrameDB* keyFrameDatabase,
                                   LocalMap&      localMap,
                                   int&           inliers)
 {
@@ -462,7 +455,7 @@ bool WAISlamTools::relocalization(WAIFrame&      currentFrame,
     // Relocalization is performed when tracking is lost
     // Track Lost: Query WAIKeyFrame Database for keyframe candidates for relocalisation
     vector<WAIKeyFrame*> vpCandidateKFs;
-    vpCandidateKFs = keyFrameDatabase->DetectRelocalizationCandidates(&currentFrame, true); //put boolean to argument
+    vpCandidateKFs = waiMap->GetKeyFrameDB()->DetectRelocalizationCandidates(&currentFrame, true); //put boolean to argument
 
     //std::cout << "N after DetectRelocalizationCandidates: " << vpCandidateKFs.size() << std::endl;
 
@@ -927,21 +920,14 @@ bool WAISlamTools::trackWithMotionModel(cv::Mat velocity, WAIFrame& previousFram
     return nmatches >= 10;
 }
 
-WAISlam::WAISlam(cv::Mat      intrinsic,
-                 cv::Mat      distortion,
-                 std::string  orbVocFile,
-                 KPextractor* extractor)
-{
-    WAISlam(intrinsic, distortion, orbVocFile, extractor, false, false, false);
-}
-
-WAISlam::WAISlam(cv::Mat      intrinsic,
-                 cv::Mat      distortion,
-                 std::string  orbVocFile,
-                 KPextractor* extractor,
-                 bool         trackingOnly,
-                 bool         serial,
-                 bool         retainImg)
+WAISlam::WAISlam(cv::Mat        intrinsic,
+                 cv::Mat        distortion,
+                 ORBVocabulary* voc,
+                 KPextractor*   extractor,
+                 WAIMap*        globalMap,
+                 bool           trackingOnly,
+                 bool           serial,
+                 bool           retainImg)
 {
     _iniData.initializer = nullptr;
     _serial              = serial;
@@ -956,18 +942,18 @@ WAISlam::WAISlam(cv::Mat      intrinsic,
     _distortion      = distortion.clone();
     _cameraIntrinsic = intrinsic.clone();
 
-    HighResTimer t;
-    if (!WAIOrbVocabulary::initialize(orbVocFile))
-        throw std::runtime_error("ModeOrbSlam2: could not find vocabulary file: " + orbVocFile);
-    _voc = WAIOrbVocabulary::get();
-    Utils::log("WAISlam", "WAIOrbVocabulary loading: %fms", t.elapsedTimeInMilliSec());
+    _voc = voc;
 
-    _keyFrameDatabase = new WAIKeyFrameDB(*_voc);
-    _globalMap        = new WAIMap("Map");
+    if (globalMap == nullptr)
+    {
+        WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(*voc);
+        _globalMap = new WAIMap(kfDB);
+    }
+
     _extractor        = extractor;
 
     _localMapping = new ORB_SLAM2::LocalMapping(_globalMap, 1, _voc, 0.95);
-    _loopClosing  = new ORB_SLAM2::LoopClosing(_globalMap, _keyFrameDatabase, _voc, false, false);
+    _loopClosing  = new ORB_SLAM2::LoopClosing(_globalMap, _voc, false, false);
 
     _localMapping->SetLoopCloser(_loopClosing);
     _loopClosing->SetLocalMapper(_localMapping);
@@ -998,7 +984,6 @@ void WAISlam::reset()
         _loopClosing->reset();
     }
 
-    _keyFrameDatabase->clear();
     _globalMap->clear();
     _localMap.keyFrames.clear();
     _localMap.mapPoints.clear();
@@ -1019,7 +1004,7 @@ bool WAISlam::update(cv::Mat& imageGray)
     switch (_state)
     {
         case TrackingState_Initializing: {
-            if (initialize(_iniData, frame, _voc, _localMap, 100, _keyFrameDatabase))
+            if (initialize(_iniData, frame, _voc, _localMap, 100))
             {
                 if (genInitialMap(_globalMap, _localMapping, _loopClosing, _localMap, _serial))
                 {
@@ -1031,13 +1016,13 @@ bool WAISlam::update(cv::Mat& imageGray)
         break;
         case TrackingState_TrackingOK: {
             int inliers;
-            if (tracking(_globalMap, _keyFrameDatabase, _localMap, frame, _lastFrame, _lastRelocId, _velocity, inliers))
+            if (tracking(_globalMap, _localMap, frame, _lastFrame, _lastRelocId, _velocity, inliers))
             {
                 motionModel(frame, _lastFrame, _velocity, _cameraExtrinsic);
                 if (_serial)
-                    serialMapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, _loopClosing, frame, inliers);
+                    serialMapping(_globalMap, _localMap, _localMapping, _loopClosing, frame, inliers);
                 else
-                    mapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, frame, inliers);
+                    mapping(_globalMap, _localMap, _localMapping, frame, inliers);
             }
             else
                 _state = TrackingState_TrackingLost;
@@ -1045,14 +1030,14 @@ bool WAISlam::update(cv::Mat& imageGray)
         break;
         case TrackingState_TrackingLost: {
             int inliers;
-            if (relocalization(frame, _globalMap, _keyFrameDatabase, _localMap, inliers))
+            if (relocalization(frame, _globalMap, _localMap, inliers))
             {
                 _lastRelocId = frame.mnId;
                 motionModel(frame, _lastFrame, _velocity, _cameraExtrinsic);
                 if (_serial)
-                    serialMapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, _loopClosing, frame, inliers);
+                    serialMapping(_globalMap, _localMap, _localMapping, _loopClosing, frame, inliers);
                 else
-                    mapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, frame, inliers);
+                    mapping(_globalMap, _localMap, _localMapping, frame, inliers);
 
                 _state = TrackingState_TrackingOK;
             }
@@ -1154,22 +1139,16 @@ void WAISlam::resume()
     _state = TrackingState_TrackingLost;
 }
 
-WAISlamMarker::WAISlamMarker(cv::Mat      intrinsic,
-                             cv::Mat      distortion,
-                             std::string  orbVocFile,
-                             KPextractor* extractor,
-                             KPextractor* markerExtractor,
-                             std::string  markerFile,
-                             bool         serial,
-                             bool         retainImg)
-  : WAISlam(intrinsic, distortion, orbVocFile, extractor, false, serial, retainImg)
-
+void WAISlam::setMap(WAIMap* globalMap)
 {
-    if (!markerFile.empty())
-        _markerFrame = createMarkerFrame(markerFile, _markerExtractor);
+    requestStateIdle();
+    reset();
+    _globalMap = globalMap;
+    _initialized = true;
+    resume();
 }
 
-WAIFrame WAISlamMarker::createMarkerFrame(std::string markerFile, KPextractor* markerExtractor)
+WAIFrame WAISlam::createMarkerFrame(std::string markerFile, KPextractor* markerExtractor)
 {
     cv::Mat markerImgGray = cv::imread(markerFile, cv::IMREAD_GRAYSCALE);
 
@@ -1190,583 +1169,4 @@ WAIFrame WAISlamMarker::createMarkerFrame(std::string markerFile, KPextractor* m
     result          = WAIFrame(markerImgGray, 0.0f, markerExtractor, markerCameraMat, markerDistortionMat, _voc, true);
     result          = WAIFrame(markerImgGray, 0.0f, markerExtractor, markerCameraMat, markerDistortionMat, _voc, true);
     return result;
-}
-
-bool WAISlamMarker::doMarkerMapPreprocessing(std::string markerFile,
-                                             cv::Mat&    nodeTransform,
-                                             float       markerWidthInM)
-{
-    // Additional steps to save marker map
-    // 1. Find matches to marker on two keyframes
-    // 1.a Extract features from marker image
-    WAIFrame markerFrame = createMarkerFrame(markerFile, _markerExtractor);
-
-    // 1.b Find keyframes with enough matches to marker image
-    std::vector<WAIKeyFrame*> kfs = _globalMap->GetAllKeyFrames();
-
-    WAIKeyFrame* matchedKf1 = nullptr;
-    WAIKeyFrame* matchedKf2 = nullptr;
-
-    cv::Mat ul = cv::Mat(cv::Point3f(0, 0, 1));
-    cv::Mat ur = cv::Mat(cv::Point3f(markerFrame.imgGray.cols, 0, 1));
-    cv::Mat ll = cv::Mat(cv::Point3f(0, markerFrame.imgGray.rows, 1));
-    cv::Mat lr = cv::Mat(cv::Point3f(markerFrame.imgGray.cols, markerFrame.imgGray.rows, 1));
-
-    cv::Mat ulKf1, urKf1, llKf1, lrKf1, ulKf2, urKf2, llKf2, lrKf2;
-    cv::Mat ul3D, ur3D, ll3D, lr3D;
-    cv::Mat AC, AB, n;
-
-    for (int i1 = 0; i1 < kfs.size() - 1; i1++)
-    {
-        WAIKeyFrame* kfCand1 = kfs[i1];
-
-        if (kfCand1->isBad()) continue;
-
-        // 2. Calculate homography between the keyframes and marker
-        cv::Mat homography1;
-        if (findMarkerHomography(markerFrame, kfCand1, homography1, 50))
-        {
-            // 3.a Calculate position of the markers cornerpoints on first keyframe in 2D
-            // NOTE(dgj1): assumption that intrinsic camera parameters are the same
-            // TODO(dgj1): think about this assumption
-            ulKf1 = homography1 * ul;
-            ulKf1 /= ulKf1.at<float>(2, 0);
-            urKf1 = homography1 * ur;
-            urKf1 /= urKf1.at<float>(2, 0);
-            llKf1 = homography1 * ll;
-            llKf1 /= llKf1.at<float>(2, 0);
-            lrKf1 = homography1 * lr;
-            lrKf1 /= lrKf1.at<float>(2, 0);
-
-            for (int i2 = i1 + 1; i2 < kfs.size(); i2++)
-            {
-                WAIKeyFrame* kfCand2 = kfs[i2];
-
-                if (kfCand2->isBad()) continue;
-
-                cv::Mat homography2;
-                if (findMarkerHomography(markerFrame, kfCand2, homography2, 50))
-                {
-                    // 3.b Calculate position of the markers cornerpoints on second keyframe in 2D
-                    // NOTE(dgj1): assumption that intrinsic camera parameters are the same
-                    // TODO(dgj1): think about this assumption
-                    ulKf2 = homography2 * ul;
-                    ulKf2 /= ulKf2.at<float>(2, 0);
-                    urKf2 = homography2 * ur;
-                    urKf2 /= urKf2.at<float>(2, 0);
-                    llKf2 = homography2 * ll;
-                    llKf2 /= llKf2.at<float>(2, 0);
-                    lrKf2 = homography2 * lr;
-                    lrKf2 /= lrKf2.at<float>(2, 0);
-
-                    // 4. Triangulate position of the markers cornerpoints
-                    cv::Mat Rcw1 = kfCand1->GetRotation();
-                    cv::Mat Rwc1 = Rcw1.t();
-                    cv::Mat tcw1 = kfCand1->GetTranslation();
-                    cv::Mat Tcw1(3, 4, CV_32F);
-                    Rcw1.copyTo(Tcw1.colRange(0, 3));
-                    tcw1.copyTo(Tcw1.col(3));
-
-                    const float& fx1    = kfCand1->fx;
-                    const float& fy1    = kfCand1->fy;
-                    const float& cx1    = kfCand1->cx;
-                    const float& cy1    = kfCand1->cy;
-                    const float& invfx1 = kfCand1->invfx;
-                    const float& invfy1 = kfCand1->invfy;
-
-                    cv::Mat Rcw2 = kfCand2->GetRotation();
-                    cv::Mat Rwc2 = Rcw2.t();
-                    cv::Mat tcw2 = kfCand2->GetTranslation();
-                    cv::Mat Tcw2(3, 4, CV_32F);
-                    Rcw2.copyTo(Tcw2.colRange(0, 3));
-                    tcw2.copyTo(Tcw2.col(3));
-
-                    const float& fx2    = kfCand2->fx;
-                    const float& fy2    = kfCand2->fy;
-                    const float& cx2    = kfCand2->cx;
-                    const float& cy2    = kfCand2->cy;
-                    const float& invfx2 = kfCand2->invfx;
-                    const float& invfy2 = kfCand2->invfy;
-
-                    {
-                        cv::Mat ul1 = (cv::Mat_<float>(3, 1) << (ulKf1.at<float>(0, 0) - cx1) * invfx1, (ulKf1.at<float>(1, 0) - cy1) * invfy1, 1.0);
-                        cv::Mat ul2 = (cv::Mat_<float>(3, 1) << (ulKf2.at<float>(0, 0) - cx2) * invfx2, (ulKf2.at<float>(1, 0) - cy2) * invfy2, 1.0);
-
-                        // Linear Triangulation Method
-                        cv::Mat A(4, 4, CV_32F);
-                        A.row(0) = ul1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
-                        A.row(1) = ul1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
-                        A.row(2) = ul2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
-                        A.row(3) = ul2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
-
-                        cv::Mat w, u, vt;
-                        cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
-
-                        ul3D = vt.row(3).t();
-
-                        if (ul3D.at<float>(3) != 0)
-                        {
-                            // Euclidean coordinates
-                            ul3D = ul3D.rowRange(0, 3) / ul3D.at<float>(3);
-                        }
-                    }
-
-                    {
-                        cv::Mat ur1 = (cv::Mat_<float>(3, 1) << (urKf1.at<float>(0, 0) - cx1) * invfx1, (urKf1.at<float>(1, 0) - cy1) * invfy1, 1.0);
-                        cv::Mat ur2 = (cv::Mat_<float>(3, 1) << (urKf2.at<float>(0, 0) - cx2) * invfx2, (urKf2.at<float>(1, 0) - cy2) * invfy2, 1.0);
-
-                        // Linear Triangulation Method
-                        cv::Mat A(4, 4, CV_32F);
-                        A.row(0) = ur1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
-                        A.row(1) = ur1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
-                        A.row(2) = ur2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
-                        A.row(3) = ur2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
-
-                        cv::Mat w, u, vt;
-                        cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
-
-                        ur3D = vt.row(3).t();
-
-                        if (ur3D.at<float>(3) != 0)
-                        {
-                            // Euclidean coordinates
-                            ur3D = ur3D.rowRange(0, 3) / ur3D.at<float>(3);
-                        }
-                    }
-
-                    {
-                        cv::Mat ll1 = (cv::Mat_<float>(3, 1) << (llKf1.at<float>(0, 0) - cx1) * invfx1, (llKf1.at<float>(1, 0) - cy1) * invfy1, 1.0);
-                        cv::Mat ll2 = (cv::Mat_<float>(3, 1) << (llKf2.at<float>(0, 0) - cx2) * invfx2, (llKf2.at<float>(1, 0) - cy2) * invfy2, 1.0);
-
-                        // Linear Triangulation Method
-                        cv::Mat A(4, 4, CV_32F);
-                        A.row(0) = ll1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
-                        A.row(1) = ll1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
-                        A.row(2) = ll2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
-                        A.row(3) = ll2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
-
-                        cv::Mat w, u, vt;
-                        cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
-
-                        ll3D = vt.row(3).t();
-
-                        if (ll3D.at<float>(3) != 0)
-                        {
-                            // Euclidean coordinates
-                            ll3D = ll3D.rowRange(0, 3) / ll3D.at<float>(3);
-                        }
-                    }
-
-                    {
-                        cv::Mat lr1 = (cv::Mat_<float>(3, 1) << (lrKf1.at<float>(0, 0) - cx1) * invfx1, (lrKf1.at<float>(1, 0) - cy1) * invfy1, 1.0);
-                        cv::Mat lr2 = (cv::Mat_<float>(3, 1) << (lrKf2.at<float>(0, 0) - cx2) * invfx2, (lrKf2.at<float>(1, 0) - cy2) * invfy2, 1.0);
-
-                        // Linear Triangulation Method
-                        cv::Mat A(4, 4, CV_32F);
-                        A.row(0) = lr1.at<float>(0) * Tcw1.row(2) - Tcw1.row(0);
-                        A.row(1) = lr1.at<float>(1) * Tcw1.row(2) - Tcw1.row(1);
-                        A.row(2) = lr2.at<float>(0) * Tcw2.row(2) - Tcw2.row(0);
-                        A.row(3) = lr2.at<float>(1) * Tcw2.row(2) - Tcw2.row(1);
-
-                        cv::Mat w, u, vt;
-                        cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
-
-                        lr3D = vt.row(3).t();
-
-                        if (lr3D.at<float>(3) != 0)
-                        {
-                            // Euclidean coordinates
-                            lr3D = lr3D.rowRange(0, 3) / lr3D.at<float>(3);
-                        }
-                    }
-
-                    AC = ll3D - ul3D;
-                    AB = ur3D - ul3D;
-
-                    cv::Vec3f vAC = AC;
-                    cv::Vec3f vAB = AB;
-
-                    cv::Vec3f vn = vAB.cross(vAC);
-                    n            = cv::Mat(vn);
-
-                    cv::Mat   AD  = lr3D - ul3D;
-                    cv::Vec3f vAD = AD;
-
-                    float d = cv::norm(vn.dot(vAD)) / cv::norm(vn);
-                    if (d < 0.01f)
-                    {
-                        matchedKf1 = kfCand1;
-                        matchedKf2 = kfCand2;
-
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (matchedKf2) break;
-    }
-
-    if (!matchedKf1 || !matchedKf2)
-    {
-        return false;
-    }
-
-    // 5. Cull mappoints outside of marker
-    std::vector<WAIMapPoint*> mapPoints = _globalMap->GetAllMapPoints();
-
-    cv::Mat system = cv::Mat::zeros(3, 3, CV_32F);
-    AC.copyTo(system.rowRange(0, 3).col(0));
-    AB.copyTo(system.rowRange(0, 3).col(1));
-    n.copyTo(system.rowRange(0, 3).col(2));
-
-    cv::Mat systemInv = system.inv();
-
-    for (int i = 0; i < mapPoints.size(); i++)
-    {
-        WAIMapPoint* mp = mapPoints[i];
-
-        if (mp->isBad()) continue;
-
-        cv::Mat sol = systemInv * (mp->GetWorldPos() - ul3D);
-
-        if (sol.at<float>(0, 0) < 0 || sol.at<float>(0, 0) > 1 ||
-            sol.at<float>(1, 0) < 0 || sol.at<float>(1, 0) > 1 ||
-            sol.at<float>(2, 0) < -0.1f || sol.at<float>(2, 0) > 0.1f)
-        {
-            mp->SetBadFlag();
-        }
-    }
-#if 1
-    for (int i = 0; i < kfs.size(); i++)
-    {
-        WAIKeyFrame* kf = kfs[i];
-
-        if (kf->mnId == 0 || kf->isBad()) continue;
-
-        int mpCount = 0;
-
-        std::vector<WAIMapPoint*> mps = kf->GetMapPointMatches();
-        for (int j = 0; j < mps.size(); j++)
-        {
-            WAIMapPoint* mp = mps[j];
-
-            if (!mp || mp->isBad()) continue;
-
-            mpCount++;
-        }
-
-        if (mpCount <= 0)
-        {
-            kf->SetBadFlag();
-        }
-    }
-
-#else
-
-    // Cull redundant keyframes
-    float cullRedundantPerc = 0.95f; //TODO(dgj1): make parametrizable
-    for (int i = 0; i < kfs.size(); i++)
-    {
-        WAIKeyFrame* kf = kfs[i];
-
-        vector<WAIKeyFrame*> vpLocalKeyFrames = kf->GetVectorCovisibleKeyFrames();
-
-        for (vector<WAIKeyFrame*>::iterator vit = vpLocalKeyFrames.begin(), vend = vpLocalKeyFrames.end(); vit != vend; vit++)
-        {
-            WAIKeyFrame* pKF = *vit;
-            //do not cull the first keyframe
-            if (pKF->mnId == 0)
-                continue;
-            //do not cull fixed keyframes
-            if (pKF->isFixed())
-                continue;
-
-            const vector<WAIMapPoint*> vpMapPoints = pKF->GetMapPointMatches();
-
-            const int thObs                  = 3;
-            int       nRedundantObservations = 0;
-            int       nMPs                   = 0;
-            for (size_t i = 0, iend = vpMapPoints.size(); i < iend; i++)
-            {
-                WAIMapPoint* pMP = vpMapPoints[i];
-                if (pMP)
-                {
-                    if (!pMP->isBad())
-                    {
-                        nMPs++;
-                        if (pMP->Observations() > thObs)
-                        {
-                            const int&                           scaleLevel   = pKF->mvKeysUn[i].octave;
-                            const std::map<WAIKeyFrame*, size_t> observations = pMP->GetObservations();
-                            int                                  nObs         = 0;
-                            for (std::map<WAIKeyFrame*, size_t>::const_iterator mit = observations.begin(), mend = observations.end(); mit != mend; mit++)
-                            {
-                                WAIKeyFrame* pKFi = mit->first;
-                                if (pKFi == pKF)
-                                    continue;
-                                const int& scaleLeveli = pKFi->mvKeysUn[mit->second].octave;
-
-                                if (scaleLeveli <= scaleLevel + 1)
-                                {
-                                    nObs++;
-                                    if (nObs >= thObs)
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                            if (nObs >= thObs)
-                            {
-                                nRedundantObservations++;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (nMPs == 0 || nRedundantObservations > cullRedundantPerc * nMPs)
-            {
-                pKF->SetBadFlag();
-            }
-        }
-    }
-#endif
-    cv::Mat systemNorm               = cv::Mat::zeros(3, 3, CV_32F);
-    systemNorm.rowRange(0, 3).col(0) = system.rowRange(0, 3).col(1) / cv::norm(AB);
-    systemNorm.rowRange(0, 3).col(1) = system.rowRange(0, 3).col(0) / cv::norm(AC);
-    systemNorm.rowRange(0, 3).col(2) = system.rowRange(0, 3).col(2) / cv::norm(n);
-
-    cv::Mat systemNormInv = systemNorm.inv();
-
-    nodeTransform   = cv::Mat::eye(4, 4, CV_32F);
-    cv::Mat ul3Dinv = -systemNormInv * ul3D;
-    ul3Dinv.copyTo(nodeTransform.rowRange(0, 3).col(3));
-    systemNormInv.copyTo(nodeTransform.rowRange(0, 3).colRange(0, 3));
-
-    cv::Mat scaleMat         = cv::Mat::eye(4, 4, CV_32F);
-    float   markerWidthInRef = cv::norm(ul3D - ur3D);
-    float   scaleFactor      = markerWidthInM / markerWidthInRef;
-    scaleMat.at<float>(0, 0) = scaleFactor;
-    scaleMat.at<float>(1, 1) = scaleFactor;
-    scaleMat.at<float>(2, 2) = scaleFactor;
-
-    nodeTransform = scaleMat * nodeTransform;
-
-    if (_mpUL)
-    {
-        delete _mpUL;
-        _mpUL = nullptr;
-    }
-    if (_mpUR)
-    {
-        delete _mpUR;
-        _mpUR = nullptr;
-    }
-    if (_mpLL)
-    {
-        delete _mpLL;
-        _mpLL = nullptr;
-    }
-    if (_mpLR)
-    {
-        delete _mpLR;
-        _mpLR = nullptr;
-    }
-
-    _mpUL = new WAIMapPoint(0, ul3D, false);
-    _mpUR = new WAIMapPoint(0, ur3D, false);
-    _mpLL = new WAIMapPoint(0, ll3D, false);
-    _mpLR = new WAIMapPoint(0, lr3D, false);
-
-    return true;
-}
-
-bool WAISlamMarker::findMarkerHomography(WAIFrame&    markerFrame,
-                                         WAIKeyFrame* kfCand,
-                                         cv::Mat&     homography,
-                                         int          minMatches)
-{
-    bool result = false;
-
-    ORBmatcher matcher(0.9, true);
-
-    std::vector<int> markerMatchesToCurrentFrame;
-    int              nmatches = matcher.SearchForMarkerMap(markerFrame, *kfCand, markerMatchesToCurrentFrame);
-
-    if (nmatches > minMatches)
-    {
-        std::vector<cv::Point2f> markerPoints;
-        std::vector<cv::Point2f> framePoints;
-
-        for (int j = 0; j < markerMatchesToCurrentFrame.size(); j++)
-        {
-            if (markerMatchesToCurrentFrame[j] >= 0)
-            {
-                markerPoints.push_back(markerFrame.mvKeysUn[j].pt);
-                framePoints.push_back(kfCand->mvKeysUn[markerMatchesToCurrentFrame[j]].pt);
-            }
-        }
-
-        homography = cv::findHomography(markerPoints,
-                                        framePoints,
-                                        cv::RANSAC);
-
-        if (!homography.empty())
-        {
-            homography.convertTo(homography, CV_32F);
-
-            result = true;
-        }
-    }
-
-    return result;
-}
-
-void WAISlamMarker::reset()
-{
-    if (!_serial)
-    {
-        _localMapping->RequestReset();
-        _loopClosing->RequestReset();
-    }
-    else
-    {
-        _localMapping->reset();
-        _loopClosing->reset();
-    }
-
-    _keyFrameDatabase->clear();
-    _globalMap->clear();
-    _localMap.keyFrames.clear();
-    _localMap.mapPoints.clear();
-    _localMap.refKF = nullptr;
-
-    WAIKeyFrame::nNextId            = 0;
-    WAIFrame::nNextId               = 0;
-    WAIFrame::mbInitialComputations = true;
-    WAIMapPoint::nNextId            = 0;
-    _state                          = TrackingState_Initializing;
-}
-
-bool WAISlamMarker::update(cv::Mat& imageGray)
-{
-    WAIFrame                     frame;
-    std::unique_lock<std::mutex> guard(_mutexStates);
-
-    switch (_state)
-    {
-        case TrackingState_Initializing:
-            frame = WAIFrame(imageGray, 0.0, _markerExtractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
-            if (initialize(_iniData, frame, _voc, _localMap, 100, _keyFrameDatabase))
-            {
-                if (genInitialMap(_globalMap, _localMapping, _loopClosing, _localMap, _serial))
-                {
-                    _lastRelocId = 0;
-                    _state       = TrackingState_TrackingOK;
-                }
-            }
-            break;
-        case TrackingState_TrackingOK: {
-            frame = WAIFrame(imageGray, 0.0, _extractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
-            int inliers;
-            if (tracking(_globalMap, _keyFrameDatabase, _localMap, frame, _lastFrame, _lastRelocId, _velocity, inliers))
-            {
-                motionModel(frame, _lastFrame, _velocity, _cameraExtrinsic);
-                if (_serial)
-                    serialMapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, _loopClosing, frame, inliers);
-                else
-                    mapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, frame, inliers);
-            }
-            else
-                _state = TrackingState_TrackingLost;
-        }
-        break;
-        case TrackingState_TrackingLost:
-            int inliers;
-            if (relocalization(frame, _globalMap, _keyFrameDatabase, _localMap, inliers))
-            {
-                _lastRelocId = frame.mnId;
-                motionModel(frame, _lastFrame, _velocity, _cameraExtrinsic);
-                if (_serial)
-                    serialMapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, _loopClosing, frame, inliers);
-                else
-                    mapping(_globalMap, _keyFrameDatabase, _localMap, _localMapping, frame, inliers);
-
-                _state = TrackingState_TrackingOK;
-            }
-            break;
-    }
-
-    _lastFrame = WAIFrame(frame);
-    return (_state == TrackingState_TrackingOK);
-}
-
-std::vector<WAIMapPoint*> WAISlamMarker::getMarkerCornerMapPoints()
-{
-    std::vector<WAIMapPoint*> result;
-
-    if (_mpUL)
-    {
-        if (_mpUL->isBad())
-        {
-            Utils::log("WAI", "_mpUL->isBad()!!!");
-        }
-        result.push_back(_mpUL);
-    }
-    if (_mpUR)
-    {
-        if (_mpUR->isBad())
-        {
-            Utils::log("WAI", "_mpUR->isBad()!!!");
-        }
-        result.push_back(_mpUR);
-    }
-    if (_mpLL)
-    {
-        if (_mpLL->isBad())
-        {
-            Utils::log("WAI", "_mpLL->isBad()!!!");
-        }
-        result.push_back(_mpLL);
-    }
-    if (_mpLR)
-    {
-        if (_mpLR->isBad())
-        {
-            Utils::log("WAI", "_mpLR->isBad()!!!");
-        }
-        result.push_back(_mpLR);
-    }
-
-    return result;
-}
-
-void WAISlamMarker::requestStateIdle()
-{
-    std::unique_lock<std::mutex> guard(_mutexStates);
-    _localMapping->RequestStop();
-    while (!_localMapping->isStopped())
-    {
-        std::this_thread::sleep_for(std::chrono::microseconds(10));
-    }
-
-    _state = TrackingState_Idle;
-}
-
-bool WAISlamMarker::hasStateIdle()
-{
-    std::unique_lock<std::mutex> guard(_mutexStates);
-    return (_state == TrackingState_Idle);
-}
-
-bool WAISlamMarker::retainImage()
-{
-    return false;
-}
-
-void WAISlamMarker::resume()
-{
-    _localMapping->Release();
-    _state = TrackingState_TrackingLost;
 }

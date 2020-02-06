@@ -57,8 +57,7 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
                          int                              nMinY,
                          int                              nMaxX,
                          int                              nMaxY,
-                         const cv::Mat&                   K,
-                         WAIKeyFrameDB*                   pKFDB)
+                         const cv::Mat&                   K)
   : mnId(id),
     mnFrameId(0),
     mTimeStamp(0),
@@ -96,7 +95,6 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
     mnMaxX(nMaxX),
     mnMaxY(nMaxY),
     mK(K.clone()),
-    _kfDb(pKFDB),
     mbFirstConnection(true),
     mpParent(NULL),
     mbNotErase(false),
@@ -118,7 +116,7 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
     AssignFeaturesToGrid();
 }
 //-----------------------------------------------------------------------------
-WAIKeyFrame::WAIKeyFrame(WAIFrame& F, WAIKeyFrameDB* pKFDB, bool retainImg)
+WAIKeyFrame::WAIKeyFrame(WAIFrame& F, bool retainImg)
   : mnFrameId(F.mnId),
     mTimeStamp(F.mTimeStamp),
     mnGridCols(FRAME_GRID_COLS),
@@ -158,7 +156,6 @@ WAIKeyFrame::WAIKeyFrame(WAIFrame& F, WAIKeyFrameDB* pKFDB, bool retainImg)
     mnMaxY(F.mnMaxY),
     mK(F.mK),
     mvpMapPoints(F.mvpMapPoints),
-    _kfDb(pKFDB),
     /*mpORBvocabulary(F.mpORBvocabulary),*/ mbFirstConnection(true),
     mpParent(NULL),
     mbNotErase(false),
@@ -702,7 +699,7 @@ void WAIKeyFrame::SetBadFlag()
         mbBad = true;
     }
 
-    _kfDb->erase(this);
+    //_kfDb->erase(this);
 }
 //-----------------------------------------------------------------------------
 bool WAIKeyFrame::findChildRecursive(WAIKeyFrame* kf)

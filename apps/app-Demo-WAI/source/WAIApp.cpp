@@ -419,26 +419,16 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
     */
     _doubleBufferedOutput = _trackingExtractor->doubleBufferedOutput();
 
-    _mode = new WAISlam(_calibration.cameraMat(),
-                        _calibration.distortion(),
-                        slamParams.vocabularyFile,
-                        _trackingExtractor.get(),
-                        slamParams.params.onlyTracking,
-                        slamParams.params.serial,
-                        slamParams.params.retainImg);
-
+    ORBVocabulary* voc = new ORB_SLAM2::ORBVocabulary();
+    voc->loadFromBinaryFile(slamParams.vocabularyFile);
+    WAIMap* map = nullptr;
+    
     // 5. Load map data
     if (useMapFile)
     {
-        _mode->requestStateIdle();
-        while (!_mode->hasStateIdle())
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
-        _mode->reset();
-
-        bool mapLoadingSuccess = WAIMapStorage::loadMap(_mode->getMap(),
-                                                        _mode->getKfDB(),
+        WAIKeyFrameDB * kfdb = new WAIKeyFrameDB(*voc);
+        map = new WAIMap(kfdb);
+        bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
                                                         _waiScene.mapNode,
                                                         slamParams.mapFile,
                                                         _mode->retainImage(),
@@ -446,19 +436,22 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
 
         if (!mapLoadingSuccess)
         {
-            delete _mode;
-            _mode = nullptr;
-
             showErrorMsg("Could not load map from file " + slamParams.mapFile);
             return;
         }
 
         SlamMapInfos slamMapInfos = {};
         extractSlamMapInfosFromFileName(slamParams.mapFile, &slamMapInfos);
-
-        _mode->resume();
-        _mode->setState(TrackingState_TrackingLost);
     }
+
+    _mode = new WAISlam(_calibration.cameraMat(),
+                        _calibration.distortion(),
+                        voc,
+                        _trackingExtractor.get(),
+                        map,
+                        slamParams.params.onlyTracking,
+                        slamParams.params.serial,
+                        slamParams.params.retainImg);
 
     // 6. save current params
     _currentSlamParams = slamParams;

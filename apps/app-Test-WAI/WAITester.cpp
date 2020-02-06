@@ -66,6 +66,8 @@ RelocalizationTestResult runRelocalizationTest(std::string videoFile,
 {
     RelocalizationTestResult result = {};
 
+    //TODO FIX NOW
+    /*
     // TODO(dgj1): this is kind of a hack... improve (maybe separate function call??)
     WAIFrame::mbInitialComputations = true;
 
@@ -74,8 +76,8 @@ RelocalizationTestResult runRelocalizationTest(std::string videoFile,
     ORB_SLAM2::KPextractor*   extractor  = new ORB_SLAM2::SURFextractor(800);
     WAIKeyFrameDB*            keyFrameDB = new WAIKeyFrameDB(*orbVoc);
 
-    WAIMap* map = new WAIMap("map");
-    WAIMapStorage::loadMap(map, keyFrameDB, nullptr, mapFile, false, true);
+    WAIMap* map = new WAIMap(keyFrameDB);
+    WAIMapStorage::loadMap(map, nullptr, mapFile, false, true);
 
     CVCapture::instance()->videoType(VT_FILE);
     CVCapture::instance()->videoFilename = videoFile;
@@ -100,7 +102,7 @@ RelocalizationTestResult runRelocalizationTest(std::string videoFile,
                                          orbVoc,
                                          false);
 
-        if (WAI::ModeOrbSlam2::relocalization(currentFrame, keyFrameDB, &lastRelocFrameId, *map, false))
+        if (WAISlam::relocalization(currentFrame, keyFrameDB, &lastRelocFrameId, *map, false))
         {
             relocalizationFrameCount++;
         }
@@ -112,6 +114,7 @@ RelocalizationTestResult runRelocalizationTest(std::string videoFile,
     result.relocalizationFrameCount = relocalizationFrameCount;
     result.ratio                    = ((float)relocalizationFrameCount / (float)frameCount);
     result.wasSuccessful            = true;
+    */
 
     return result;
 }
