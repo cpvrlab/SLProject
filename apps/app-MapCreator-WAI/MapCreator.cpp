@@ -234,9 +234,28 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             capturedSize.height != cap->activeCamera->calibration.imageSize().height)
             throw std::runtime_error("MapCreator::createWaiMap: Resolution of captured frame does not fit to calibration: " + videos[videoIdx].videoFile);
 
-        ORBVocabulary* voc = new ORBVocabulary(_vocFile);
+        ORBVocabulary* voc = new ORBVocabulary();
+        voc->loadFromBinaryFile(_vocFile);
         WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(*voc);
         WAIMap* map = new WAIMap(kfdb);
+
+        //if we have an active map from one of the previously processed videos for this area then load it
+        SLNode mapNode = SLNode();
+        if (initialized)
+        {
+            bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
+                                                            &mapNode,
+                                                            mapDir + "/" + mapFile,
+                                                            false,
+                                                            modeParams.fixOldKfs);
+            //loadMap(waiMode.get(), mapDir, lastMapFileName, modeParams.fixOldKfs, &mapNode);
+            if (!mapLoadingSuccess)
+            {
+                std::cout << ("Could not load map from file " + mapDir + "/" + mapFile) << std::endl;
+                return;
+            }
+        }
+
         //instantiate wai mode
         std::unique_ptr<WAISlam> waiMode =
           std::make_unique<WAISlam>(cap->activeCamera->calibration.cameraMat(),
@@ -244,13 +263,6 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
                                     voc,
                                     _kpExtractor.get(),
                                     map);
-
-        //if we have an active map from one of the previously processed videos for this area then load it
-        SLNode mapNode = SLNode();
-        if (initialized)
-        {
-            loadMap(waiMode.get(), mapDir, lastMapFileName, modeParams.fixOldKfs, &mapNode);
-        }
 
         int firstRun = true;
 
@@ -325,10 +337,25 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = true;
 
-    ORBVocabulary* voc = new ORBVocabulary(_vocFile);
+    ORBVocabulary* voc = new ORBVocabulary();
+    voc->loadFromBinaryFile(_vocFile);
     WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(*voc);
     WAIMap* map = new WAIMap(kfdb);
 
+    //load the map (currentMapFileName is valid if initialized is true)
+    SLNode mapNode = SLNode();
+
+    bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
+                                                    &mapNode,
+                                                    inputMapFile,
+                                                    false,
+                                                    modeParams.fixOldKfs);
+    //loadMap(waiMode.get(), mapDir, lastMapFileName, modeParams.fixOldKfs, &mapNode);
+    if (!mapLoadingSuccess)
+    {
+        std::cout << ("Could not load map from file " + inputMapFile) << std::endl;
+        return;
+    }
     //instantiate wai mode
     std::unique_ptr<WAISlam> waiMode =
       std::make_unique<WAISlam>(calib.cameraMat(),
@@ -336,10 +363,6 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
                                 voc,
                                 _kpExtractor.get(),
                                 map);
-
-    //load the map (currentMapFileName is valid if initialized is true)
-    SLNode mapNode = SLNode();
-    loadMap(waiMode.get(), mapDir, inputMapFile, modeParams.fixOldKfs, &mapNode);
 
     //cull keyframes
     std::vector<WAIKeyFrame*> kfs = waiMode->getMap()->GetAllKeyFrames();
@@ -404,9 +427,24 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = true;
 
-    ORBVocabulary* voc = new ORBVocabulary(_vocFile);
+    ORBVocabulary* voc = new ORBVocabulary();
+    voc->loadFromBinaryFile(_vocFile);
     WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(*voc);
     WAIMap* map = new WAIMap(kfDB);
+    SLNode mapNode = SLNode();
+
+    bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
+                                                    &mapNode,
+                                                    mapDir + "/" + mapFile,
+                                                    false,
+                                                    modeParams.fixOldKfs);
+
+    //loadMap(waiMode.get(), mapDir, lastMapFileName, modeParams.fixOldKfs, &mapNode);
+    if (!mapLoadingSuccess)
+    {
+        std::cout << ("Could not load map from file " + mapDir + "/" + mapFile) << std::endl;
+        return;
+    }
 
     //instantiate wai mode
     std::unique_ptr<WAISlam> waiMode =
@@ -415,9 +453,6 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
                                 voc,
                                 _kpExtractor.get(),
                                 map);
-
-    SLNode mapNode = SLNode();
-    loadMap(waiMode.get(), mapDir, mapFile, modeParams.fixOldKfs, &mapNode);
 
     // Additional steps to save marker map
     // 1. Find matches to marker on two keyframes
@@ -826,7 +861,6 @@ void MapCreator::decorateDebug(WAISlam* waiMode, CVCapture* cap, const int curre
         cv::Point  kfsOff = idxOff + cv::Point(0, 20);
         cv::Scalar color  = CV_RGB(255, 0, 0);
         cv::putText(decoImg, state, stateOff, 0, fontScale, color);
-
         cv::putText(decoImg, "FrameId: (" + std::to_string(currentFrameIndex) + "/" + std::to_string(videoLength) + ")", idxOff, 0, fontScale, color);
         cv::putText(decoImg, "Num Kfs: " + std::to_string(numOfKfs), kfsOff, 0, fontScale, color);
         cv::imshow("lastFrame", decoImg);
@@ -866,36 +900,6 @@ void MapCreator::saveMap(WAISlam*           waiMode,
     }
 
     waiMode->resume();
-}
-
-void MapCreator::loadMap(WAISlam*           waiMode,
-                         const std::string& mapDir,
-                         const std::string& currentMapFileName,
-                         bool               fixKfsForLBA,
-                         SLNode*            mapNode)
-{
-    //TODO FIX NOW
-    /*
-    waiMode->requestStateIdle();
-    while (!waiMode->hasStateIdle())
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    waiMode->reset();
-    bool mapLoadingSuccess = WAIMapStorage::loadMap(waiMode->getMap(),
-                                                    waiMode->getKfDB(),
-                                                    mapNode,
-                                                    mapDir + currentMapFileName,
-                                                    waiMode->retainImage(),
-                                                    fixKfsForLBA);
-
-    if (!mapLoadingSuccess)
-    {
-        throw std::runtime_error("Could not load map from file: " + mapDir + currentMapFileName);
-    }
-
-    waiMode->resume();
-    */
 }
 
 void MapCreator::execute()
