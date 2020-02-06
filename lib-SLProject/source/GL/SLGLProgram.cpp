@@ -49,7 +49,7 @@ SLGLProgram::SLGLProgram(SLstring vertShaderFile,
 //! The destructor detaches all shader objects and deletes them
 SLGLProgram::~SLGLProgram()
 {
-    //SL_LOG("~SLGLProgram\n");
+    //SL_LOG("~SLGLProgram");
 
     for (auto shader : _shaders)
     {
@@ -215,11 +215,11 @@ void SLGLProgram::init()
     {
         SLchar log[256];
         glGetProgramInfoLog(_progID, sizeof(log), nullptr, &log[0]);
-        SL_LOG("*** LINKER ERROR ***\n");
-        SL_LOG("Source files: \n");
+        SL_LOG("*** LINKER ERROR ***");
+        SL_LOG("Source files: ");
         for (auto shader : _shaders)
-            SL_LOG("%s\n", shader->name().c_str());
-        SL_LOG("%s\n", log);
+            SL_LOG("%s", shader->name().c_str());
+        SL_LOG("%s", log);
         SL_EXIT_MSG("GLSL linker error");
     }
 }

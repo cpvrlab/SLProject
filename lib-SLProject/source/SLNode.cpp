@@ -75,7 +75,7 @@ Nodes that are not in the scenegraph will not be deleted at scene destruction.
 */
 SLNode::~SLNode()
 {
-    //SL_LOG("~SLNode: %s\n", name().c_str());
+    //SL_LOG("~SLNode: %s", name().c_str());
 
     for (auto child : _children)
         delete child;

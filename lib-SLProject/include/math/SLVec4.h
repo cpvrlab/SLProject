@@ -165,8 +165,8 @@ class SLVec4
                                                          z= pow(z,oneOverGamma);}
 
             void    print       (const SLchar* str=nullptr)
-            {   if (str) SL_LOG("%s\n",str);
-                SL_LOG("% 3.3f, % 3.3f, % 3.3f, % 3.3f\n",x, y, z, w);
+            {   if (str) SL_LOG("%s",str);
+                SL_LOG("% 3.3f, % 3.3f, % 3.3f, % 3.3f",x, y, z, w);
             }
 
             //! Conversion to string

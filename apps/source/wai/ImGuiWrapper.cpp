@@ -102,20 +102,20 @@ void ImGuiWrapper::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
     if (Utils::fileExists(DroidSans))
     {
         io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
-        SL_LOG("ImGuiWrapper::loadFonts: %f\n", fontPropDots);
+        SL_LOG("ImGuiWrapper::loadFonts: %f", fontPropDots);
     }
     else
-        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n", DroidSans.c_str());
+        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
 
     // Load fixed size font for statistics windows
     SLstring ProggyClean = SLGLTexture::defaultPathFonts + "ProggyClean.ttf";
     if (Utils::fileExists(ProggyClean))
     {
         io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
-        SL_LOG("ImGuiWrapper::loadFonts: %f\n", fontFixedDots);
+        SL_LOG("ImGuiWrapper::loadFonts: %f", fontFixedDots);
     }
     else
-        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n", ProggyClean.c_str());
+        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
 
     deleteOpenGLObjects();
     createOpenGLObjects();
@@ -310,9 +310,9 @@ void ImGuiWrapper::printCompileErrors(SLint shaderHandle, const SLchar* src)
                            sizeof(log),
                            nullptr,
                            &log[0]);
-        SL_LOG("*** COMPILER ERROR ***\n");
-        SL_LOG("%s\n---\n", log);
-        SL_LOG("%s\n", src);
+        SL_LOG("*** COMPILER ERROR ***");
+        SL_LOG("%s\n---", log);
+        SL_LOG("%s", src);
     }
 }
 //-----------------------------------------------------------------------------
@@ -546,7 +546,7 @@ void ImGuiWrapper::onMouseDown(SLMouseButton button, SLint x, SLint y)
     if (button == MB_left) io.MouseDown[0] = true;
     if (button == MB_middle) io.MouseDown[1] = true;
     if (button == MB_right) io.MouseDown[2] = true;
-    //SL_LOG("D\n");
+    //SL_LOG("D");
 }
 //-----------------------------------------------------------------------------
 //! Callback on mouse button up event
@@ -558,14 +558,14 @@ void ImGuiWrapper::onMouseUp(SLMouseButton button, SLint x, SLint y)
     if (button == MB_left) io.MouseDown[0] = false;
     if (button == MB_middle) io.MouseDown[1] = false;
     if (button == MB_right) io.MouseDown[2] = false;
-    //SL_LOG("U\n");
+    //SL_LOG("U");
 }
 //-----------------------------------------------------------------------------
 //! Updates the mouse cursor position
 void ImGuiWrapper::onMouseMove(SLint xPos, SLint yPos)
 {
     ImGui::GetIO().MousePos = ImVec2((SLfloat)xPos, (SLfloat)yPos);
-    //SL_LOG("M\n");
+    //SL_LOG("M");
 }
 //-----------------------------------------------------------------------------
 //! Callback for the mouse scroll movement

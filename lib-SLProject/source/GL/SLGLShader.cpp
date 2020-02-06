@@ -56,7 +56,7 @@ void SLGLShader::load(const SLstring& filename)
 
     if (!shaderFile.is_open())
     {
-        SL_LOG("File open failed in SLGLShader::load: %s\n", filename.c_str());
+        SL_LOG("File open failed in SLGLShader::load: %s", filename.c_str());
         exit(1);
     }
 
@@ -75,7 +75,7 @@ void SLGLShader::loadFromMemory(const SLstring& shaderSource)
 //-----------------------------------------------------------------------------
 SLGLShader::~SLGLShader()
 {
-    //SL_LOG("~SLGLShader(%s)\n", name().c_str());
+    //SL_LOG("~SLGLShader(%s)", name().c_str());
     if (_shaderID)
         glDeleteShader(_shaderID);
     GET_GL_ERROR;
@@ -117,10 +117,10 @@ SLbool SLGLShader::createAndCompileSimple()
     {
         GLchar log[256];
         glGetShaderInfoLog(_shaderID, sizeof(log), nullptr, &log[0]);
-        SL_LOG("*** COMPILER ERROR ***\n");
-        SL_LOG("Source file: %s\n", _file.c_str());
-        SL_LOG("%s\n---\n", log);
-        SL_LOG("%s\n", src);
+        SL_LOG("*** COMPILER ERROR ***");
+        SL_LOG("Source file: %s", _file.c_str());
+        SL_LOG("%s\n---", log);
+        SL_LOG("%s", src);
         return false;
     }
     return true;
@@ -219,10 +219,10 @@ SLbool SLGLShader::createAndCompile()
         {
             GLchar log[256];
             glGetShaderInfoLog(_shaderID, sizeof(log), nullptr, &log[0]);
-            SL_LOG("*** COMPILER ERROR ***\n");
+            SL_LOG("*** COMPILER ERROR ***");
             SL_LOG("Source file: %s\n", _file.c_str());
-            SL_LOG("%s\n---\n", log);
-            SL_LOG("%s\n", src);
+            SL_LOG("%s---", log);
+            SL_LOG("%s", src);
             return false;
         }
         return true;

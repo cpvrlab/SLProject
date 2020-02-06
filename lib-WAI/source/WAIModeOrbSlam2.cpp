@@ -1,5 +1,6 @@
 #include <WAIModeOrbSlam2.h>
 #include <AverageTiming.h>
+#include <Utils.h>
 
 WAI::ModeOrbSlam2::ModeOrbSlam2(ORB_SLAM2::KPextractor* kpExtractor,
                                 ORB_SLAM2::KPextractor* kpIniExtractor,
@@ -329,7 +330,7 @@ std::vector<WAIMapPoint*> WAI::ModeOrbSlam2::getMarkerCornerMapPoints()
     {
         if (_mpUL->isBad())
         {
-            WAI_LOG("_mpUL->isBad()!!!");
+            Utils::log("WAI", "_mpUL->isBad()!!!");
         }
         result.push_back(_mpUL);
     }
@@ -337,7 +338,7 @@ std::vector<WAIMapPoint*> WAI::ModeOrbSlam2::getMarkerCornerMapPoints()
     {
         if (_mpUR->isBad())
         {
-            WAI_LOG("_mpUR->isBad()!!!");
+            Utils::log("WAI", "_mpUR->isBad()!!!");
         }
         result.push_back(_mpUR);
     }
@@ -345,7 +346,7 @@ std::vector<WAIMapPoint*> WAI::ModeOrbSlam2::getMarkerCornerMapPoints()
     {
         if (_mpLL->isBad())
         {
-            WAI_LOG("_mpLL->isBad()!!!");
+            Utils::log("WAI", "_mpLL->isBad()!!!");
         }
         result.push_back(_mpLL);
     }
@@ -353,7 +354,7 @@ std::vector<WAIMapPoint*> WAI::ModeOrbSlam2::getMarkerCornerMapPoints()
     {
         if (_mpLR->isBad())
         {
-            WAI_LOG("_mpLR->isBad()!!!");
+            Utils::log("WAI", "_mpLR->isBad()!!!");
         }
         result.push_back(_mpLR);
     }
@@ -1084,7 +1085,7 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
 
     if (medianDepth < 0 || pKFcur->TrackedMapPoints(1) < mapPointsNeeded)
     {
-        WAI_LOG("Wrong initialization, reseting...");
+        Utils::log("WAI", "Wrong initialization, reseting...");
         reset();
         return false;
     }
@@ -1134,7 +1135,7 @@ bool WAI::ModeOrbSlam2::createInitialMapMonocular(int mapPointsNeeded)
     }
 
     // Bundle Adjustment
-    //WAI_LOG("Number of Map points after local mapping: %i", _map->MapPointsInMap());
+    //Utils::log("WAI","Number of Map points after local mapping: %i", _map->MapPointsInMap());
 
     //ghm1: add keyframe to scene graph. this position is wrong after bundle adjustment!
     //set map dirty, the map will be updated in next decoration
@@ -1234,7 +1235,7 @@ void WAI::ModeOrbSlam2::createNewKeyFrame()
 
 void WAI::ModeOrbSlam2::reset()
 {
-    WAI_LOG("System Reseting");
+    Utils::log("WAI", "System Reseting");
 
     // Reset Local Mapping
     if (!_params.serial)

@@ -88,13 +88,14 @@ struct SlamParams
                     fs["trackingExtractorId"] >> extractorIds.trackingExtractorId;
 
                 fs.release();
+                Utils::log("WAIApp", "SlamParams loaded from %s", fileName.c_str());
 
                 return true;
             }
         }
         catch (...)
         {
-            Utils::log("SlamParams: Parsing of file failed: %s", fileName.c_str());
+            Utils::log("WAIApp", "SlamParams: Parsing of file failed: %s", fileName.c_str());
         }
 
         return false;
@@ -106,7 +107,7 @@ struct SlamParams
 
         if (!fs.isOpened())
         {
-            Utils::log("SlamParams: Failed to open file for writing: %s", fileName.c_str());
+            Utils::log("WAIApp", "SlamParams: Failed to open file for writing: %s", fileName.c_str());
             return;
         }
 
@@ -130,6 +131,7 @@ struct SlamParams
         fs << "trackingExtractorId" << extractorIds.trackingExtractorId;
 
         fs.release();
+        Utils::log("WAIApp", "SlamParams saved to %s", fileName.c_str());
     }
 
     std::string               videoFile;
@@ -151,6 +153,7 @@ enum WAIEventType
     WAIEventType_VideoControl,
     WAIEventType_VideoRecording,
     WAIEventType_MapNodeTransform,
+    WAIEventType_DownloadCalibrationFiles,
 };
 
 struct WAIEvent
@@ -199,45 +202,9 @@ struct WAIEventMapNodeTransform : WAIEvent
     float            scale;
 };
 
-class WAIAppConfig
+struct WAIEventDownloadCalibrationFiles : WAIEvent
 {
-public:
-    void load(std::string fileName)
-    {
-        cv::FileStorage fs;
-        try
-        {
-            fs.open(fileName, cv::FileStorage::READ);
-            if (fs.isOpened())
-            {
-                if (!fs["serialMapping"].empty())
-                    fs["serialMapping"] >> serialMapping;
-            }
-        }
-        catch (...)
-        {
-            Utils::log("WAIAppConfig: Parsing of file failed: %s", fileName.c_str());
-        }
-    }
-
-    void save(std::string fileName)
-    {
-        cv::FileStorage fs(fileName, cv::FileStorage::WRITE);
-
-        if (!fs.isOpened())
-        {
-            Utils::log("WAIAppConfig: Failed to open file for writing: %s", fileName.c_str());
-            return;
-        }
-
-        fs << "serialMapping" << serialMapping;
-
-        fs.release();
-    }
-
-    bool serialMapping = false;
-
-private:
+    WAIEventDownloadCalibrationFiles() { type = WAIEventType_DownloadCalibrationFiles; }
 };
 
 //-----------------------------------------------------------------------------
@@ -295,7 +262,6 @@ public:
     }
 
     std::string videoDir;
-    std::string calibDir;
     std::string mapDir;
 
 private:
@@ -306,7 +272,7 @@ private:
     void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
     void setupDefaultErlebARDirTo(std::string dir);
     //!download all remote files to transferred directory
-    void downloadCalibratinFilesTo(std::string dir);
+    void downloadCalibrationFilesTo(std::string dir);
     //bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
     bool updateSceneViews();
 
@@ -341,6 +307,7 @@ private:
 
     SlamParams     _currentSlamParams;
     AppDirectories _dirs;
+    std::string    _calibDir;
 
     //sensor stuff
     ofstream _gpsDataStream;

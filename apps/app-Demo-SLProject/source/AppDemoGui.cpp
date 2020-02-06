@@ -979,19 +979,19 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                                 if (!ftp.Get(outFile.c_str(),
                                                              "xyzrgb_dragon.ply",
                                                              ftplib::transfermode::image))
-                                                    SL_LOG("*** ERROR: ftp.Get failed. ***\n");
+                                                    SL_LOG("*** ERROR: ftp.Get failed. ***");
                                             }
                                             else
-                                                SL_LOG("*** ERROR: Utils::makeDir %s failed. ***\n", plyDir.c_str());
+                                                SL_LOG("*** ERROR: Utils::makeDir %s failed. ***", plyDir.c_str());
                                         }
                                         else
-                                            SL_LOG("*** ERROR: ftp.Chdir failed. ***\n");
+                                            SL_LOG("*** ERROR: ftp.Chdir failed. ***");
                                     }
                                     else
-                                        SL_LOG("*** ERROR: ftp.Login failed. ***\n");
+                                        SL_LOG("*** ERROR: ftp.Login failed. ***");
                                 }
                                 else
-                                    SL_LOG("*** ERROR: ftp.Connect failed. ***\n");
+                                    SL_LOG("*** ERROR: ftp.Connect failed. ***");
 
                                 ftp.Quit();
                                 SLApplication::jobIsRunning = false;
@@ -1149,7 +1149,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     SLApplication::jobProgressMax(100);
                     for (uint i = 0; i < maxIter; ++i)
                     {
-                        SL_LOG("%u\n", i);
+                        SL_LOG("%u", i);
                         int progressPC = (int)((float)i / (float)maxIter * 100.0f);
                         SLApplication::jobProgressNum(progressPC);
                     }
@@ -1162,15 +1162,15 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     SLApplication::jobProgressMax(100);
                     for (uint i = 0; i < maxIter; ++i)
                     {
-                        SL_LOG("%u\n", i);
+                        SL_LOG("%u", i);
                         int progressPC = (int)((float)i / (float)maxIter * 100.0f);
                         SLApplication::jobProgressNum(progressPC);
                     }
                     SLApplication::jobIsRunning = false;
                 };
 
-                auto jobToFollow1 = []() { SL_LOG("JobToFollow1\n"); };
-                auto jobToFollow2 = []() { SL_LOG("JobToFollow2\n"); };
+                auto jobToFollow1 = []() { SL_LOG("JobToFollow1"); };
+                auto jobToFollow2 = []() { SL_LOG("JobToFollow2"); };
 
                 SLApplication::jobsToBeThreaded.emplace_back(job1);
                 SLApplication::jobsToBeThreaded.emplace_back(job2);
@@ -2474,10 +2474,10 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             // clang-format on
 
             fs.release();
-            SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
-            SL_LOG("Config. date    : %s\n", AppDemoGui::configTime.c_str());
-            SL_LOG("fontPropDots    : %f\n", SLGLImGui::fontPropDots);
-            SL_LOG("fontFixedDots   : %f\n", SLGLImGui::fontFixedDots);
+            SL_LOG("Config. loaded  : %s", fullPathAndFilename.c_str());
+            SL_LOG("Config. date    : %s", AppDemoGui::configTime.c_str());
+            SL_LOG("fontPropDots    : %f", SLGLImGui::fontPropDots);
+            SL_LOG("fontFixedDots   : %f", SLGLImGui::fontFixedDots);
         }
         else
         {
@@ -2514,14 +2514,14 @@ void AppDemoGui::saveConfig()
                                    SLApplication::name + ".yml";
 
     if (!Utils::fileExists(fullPathAndFilename))
-        SL_LOG("New config file will be written: %s\n",
+        SL_LOG("New config file will be written: %s",
                fullPathAndFilename.c_str());
 
     CVFileStorage fs(fullPathAndFilename, CVFileStorage::WRITE);
 
     if (!fs.isOpened())
     {
-        SL_LOG("Failed to open file for writing: %s\n",
+        SL_LOG("Failed to open file for writing: %s",
                fullPathAndFilename.c_str());
         SL_EXIT_MSG("Exit in AppDemoGui::saveConfig");
     }
@@ -2546,6 +2546,6 @@ void AppDemoGui::saveConfig()
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;
 
     fs.release();
-    SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());
+    SL_LOG("Config. saved   : %s", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------

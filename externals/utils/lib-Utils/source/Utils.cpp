@@ -785,21 +785,38 @@ bool deleteFile(string& pathfilename)
 ///////////////////////
 // Logging Functions //
 ///////////////////////
+//-----------------------------------------------------------------------------
+void initFileLog(const std::string logDir, bool forceFlush)
+{
+    fileLog = std::make_unique<FileLog>(logDir, forceFlush);
+}
 
 //-----------------------------------------------------------------------------
 //! logs a formatted string platform independently
 void log(const char* tag, const char* format, ...)
 {
-    char    log[4096];
+    char log[4096];
+
     va_list argptr;
     va_start(argptr, format);
     vsprintf(log, format, argptr);
     va_end(argptr);
 
+    char msg[4096];
+    strcpy(msg, tag);
+    strcat(msg, ": ");
+    strcat(msg, log);
+    strcat(msg, "\n");
+
+    if (fileLog)
+    {
+        fileLog->post(msg);
+    }
+
 #if defined(ANDROID) || defined(ANDROID_NDK)
-    __android_log_print(ANDROID_LOG_INFO, tag, log);
+    __android_log_print(ANDROID_LOG_INFO, tag, msg);
 #else
-    cout << log << std::flush;
+    cout << msg << std::flush;
 #endif
 }
 //-----------------------------------------------------------------------------
@@ -810,15 +827,16 @@ void exitMsg(const char* tag,
              const char* file)
 {
 #if defined(ANDROID) || defined(ANDROID_NDK)
-    __android_log_print(ANDROID_LOG_INFO,
+    __android_log_print(ANDROID_LOG_FATAL,
                         tag,
                         "Exit %s at line %d in %s\n",
                         msg,
                         line,
                         file);
 #else
-    log("%s: Exit %s at line %d in %s\n",
-        tag,
+
+    log(tag,
+        "Exit %s at line %d in %s\n",
         msg,
         line,
         file);
@@ -834,15 +852,37 @@ void warnMsg(const char* tag,
              const char* file)
 {
 #if defined(ANDROID) || defined(ANDROID_NDK)
-    __android_log_print(ANDROID_LOG_INFO,
+    __android_log_print(ANDROID_LOG_WARN,
                         tag,
                         "Warning: %s at line %d in %s\n",
                         msg,
                         line,
                         file);
 #else
-    log("%s: Warning %s at line %d in %s\n",
-        tag,
+    log(tag,
+        "Warning %s at line %d in %s\n",
+        msg,
+        line,
+        file);
+#endif
+}
+//-----------------------------------------------------------------------------
+//! Error message output (same as warn but with another tag for android)
+void errorMsg(const char* tag,
+              const char* msg,
+              const int   line,
+              const char* file)
+{
+#if defined(ANDROID) || defined(ANDROID_NDK)
+    __android_log_print(ANDROID_LOG_ERROR,
+                        tag,
+                        "Error: %s at line %d in %s\n",
+                        msg,
+                        line,
+                        file);
+#else
+    log(tag,
+        "Error %s at line %d in %s\n",
         msg,
         line,
         file);

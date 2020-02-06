@@ -177,7 +177,7 @@ bool WAISlamTools::initialize(InitializerData& iniData,
 
         if (medianDepth < 0 || pKFcur->TrackedMapPoints(1) < mapPointsNeeded)
         {
-            WAI_LOG("Wrong initialization, reseting...");
+            Utils::log("WAI", "Wrong initialization, reseting...");
             WAIKeyFrame::nNextId            = 0;
             WAIFrame::nNextId               = 0;
             WAIFrame::mbInitialComputations = true;
@@ -665,7 +665,7 @@ bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map, WAIFrame& lastFrame, WA
     */
 
     AVERAGE_TIMING_STOP("trackReferenceKeyFrame");
-    return nmatches >= 10;//nmatchesMap >= 10;
+    return nmatches >= 10; //nmatchesMap >= 10;
 }
 
 int WAISlamTools::trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, WAIFrame& frame)

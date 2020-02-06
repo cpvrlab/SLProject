@@ -188,10 +188,9 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
     tm lt;
     memcpy(&lt, std::localtime(&t), sizeof(tm));
 
-    SL_LOG("\n");
-    SL_LOG("Universal time  : %02d.%02d.%02d %02d:%02d:%02d\n", ut.tm_mday, ut.tm_mon, ut.tm_year + 1900, ut.tm_hour, ut.tm_min, ut.tm_sec);
-    SL_LOG("Local time      : %02d.%02d.%02d %02d:%02d:%02d\n", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min, lt.tm_sec);
-    SL_LOG("Timezone        : %d\n", lt.tm_hour - ut.tm_hour);
+    SL_LOG("\nUniversal time  : %02d.%02d.%02d %02d:%02d:%02d", ut.tm_mday, ut.tm_mon, ut.tm_year + 1900, ut.tm_hour, ut.tm_min, ut.tm_sec);
+    SL_LOG("Local time      : %02d.%02d.%02d %02d:%02d:%02d", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min, lt.tm_sec);
+    SL_LOG("Timezone        : %d", lt.tm_hour - ut.tm_hour);
 
     spa_data spa; //declare the SPA structure
     SLint    result;
@@ -231,14 +230,13 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
         SLfloat minSS = (SLfloat)(60.0 * (spa.sunset - (int)(spa.sunset)));
         SLfloat secSS = (SLfloat)(60.0 * (minSS - (int)minSS));
 
-        SL_LOG("Zenith          : %.6f degrees\n", _originSolarZenit);
-        SL_LOG("Azimuth         : %.6f degrees\n", _originSolarAzimut);
-        SL_LOG("Sunrise         : %02d:%02d:%02d Local Time\n", (int)(spa.sunrise), (int)minSR, (int)secSR);
+        SL_LOG("Zenith          : %.6f degrees", _originSolarZenit);
+        SL_LOG("Azimuth         : %.6f degrees", _originSolarAzimut);
+        SL_LOG("Sunrise         : %02d:%02d:%02d Local Time", (int)(spa.sunrise), (int)minSR, (int)secSR);
         SL_LOG("Sunset          : %02d:%02d:%02d Local Time\n", (int)(spa.sunset), (int)minSS, (int)secSS);
-        SL_LOG("\n");
     }
     else
-        SL_LOG("SPA Error Code: %d\n", result);
+        SL_LOG("SPA Error Code: %d", result);
 
     if (_sunLightNode)
     {

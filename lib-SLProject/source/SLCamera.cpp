@@ -726,7 +726,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                 SLfloat rotX, rotY, rotZ;
                 rotation.toMat4().toEulerAnglesZYX(rotZ, rotY, rotX);
                 /*
-                SL_LOG("rotx : %3.1f, roty: %3.1f, rotz: %3.1f\n",
+                SL_LOG("rotx : %3.1f, roty: %3.1f, rotz: %3.1f",
                        rotX * SL_RAD2DEG,
                        rotY * SL_RAD2DEG,
                        rotZ * SL_RAD2DEG);

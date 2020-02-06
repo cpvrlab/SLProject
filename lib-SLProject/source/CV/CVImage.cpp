@@ -89,7 +89,7 @@ CVImage::CVImage(const CVVVec4f& colors)
 //-----------------------------------------------------------------------------
 CVImage::~CVImage()
 {
-    //Utils::log("CVImages)\n", name().c_str());
+    //Utils::log("CVImages)", name().c_str());
     clearData();
 }
 //-----------------------------------------------------------------------------

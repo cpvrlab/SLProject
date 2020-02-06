@@ -8,6 +8,14 @@
 #include <WAISlam.h>
 #include <WAIMapStorage.h>
 
+#define WAI_DEBUG(...) Utils::log("[DEBUG]", __VA_ARGS__)
+#define WAI_INFO(...) Utils::log("[INFO ]", __VA_ARGS__)
+#define WAI_WARN(...) Utils::log("[WARN ]", __VA_ARGS__)
+
+//#define WAI_DEBUG(...) // nothing
+//#define WAI_INFO(...)  // nothing
+//#define WAI_WARN(...)  // nothing
+
 class MapCreator
 {
     typedef std::string Location;

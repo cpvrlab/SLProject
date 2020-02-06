@@ -72,13 +72,13 @@ CVSize2i CVCapture::open(int deviceNum)
         if (!_captureDevice.isOpened())
             return CVSize2i(0, 0);
 
-        Utils::log("SLProject", "Capture devices created.\n");
+        Utils::log("SLProject", "Capture devices created.");
         //_captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, 1440);
         //_captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
-        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
-        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
+        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_WIDTH : %d", w);
+        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_HEIGHT: %d", h);
 
         hasSecondaryCamera = false;
         fps                = (float)_captureDevice.get(cv::CAP_PROP_FPS);
@@ -93,7 +93,7 @@ CVSize2i CVCapture::open(int deviceNum)
     }
     catch (exception& e)
     {
-        Utils::log("SLProject", "Exception during OpenCV video capture creation: %s\n", e.what());
+        Utils::log("SLProject", "Exception during OpenCV video capture creation: %s", e.what());
     }
     return CVSize2i(0, 0);
 }
@@ -124,12 +124,12 @@ CVSize2i CVCapture::openFile()
             return CVSize2i(0, 0);
         }
 
-        //Utils::log("SLProject", "Capture devices created with video.\n");
+        //Utils::log("SLProject", "Capture devices created with video.");
 
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
-        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
-        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
+        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_WIDTH : %d", w);
+        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_HEIGHT: %d", h);
 
         hasSecondaryCamera = false;
         fps                = (float)_captureDevice.get(cv::CAP_PROP_FPS);
@@ -139,7 +139,7 @@ CVSize2i CVCapture::openFile()
     }
     catch (exception& e)
     {
-        Utils::log("SLProject", "CVCapture::openFile: Exception during OpenCV video capture creation with video file: %s\n", e.what());
+        Utils::log("SLProject", "CVCapture::openFile: Exception during OpenCV video capture creation with video file: %s", e.what());
     }
     return CVSize2i(0, 0);
 }
@@ -221,7 +221,7 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
             static bool logOnce = true;
             if (logOnce)
             {
-                Utils::log("SLProject", "OpenCV: Capture device or video file is not open!\n");
+                Utils::log("SLProject", "OpenCV: Capture device or video file is not open!");
                 logOnce = false;
                 return false;
             }
@@ -229,7 +229,7 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
     }
     catch (exception& e)
     {
-        Utils::log("SLProject", "Exception during OpenCV video capture creation: %s\n", e.what());
+        Utils::log("SLProject", "Exception during OpenCV video capture creation: %s", e.what());
         return false;
     }
 
