@@ -181,6 +181,11 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
     }
     else
     {
+        if (ImGui::Button("Download calibration files", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+        {
+            _eventQueue->push(new WAIEventDownloadCalibrationFiles());
+        }
+
         if (ImGui::BeginCombo("Location", _p.location.c_str())) // The second parameter is the label previewed before opening the combo.
         {
             std::vector<std::string> availableLocations;
@@ -402,8 +407,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             {
                 WAIEventStartOrbSlam* event = new WAIEventStartOrbSlam();
 
-                event->params.area                = _p.area;
-                event->params.location            = _p.location;
+                event->params.area     = _p.area;
+                event->params.location = _p.location;
 
                 event->params.videoFile           = _p.videoFile.empty() ? "" : _slamRootDir + _p.location + "/" + _p.area + "/videos/" + _p.videoFile;
                 event->params.mapFile             = _p.mapFile.empty() ? "" : _slamRootDir + _p.location + "/" + _p.area + "/maps/" + _p.mapFile;

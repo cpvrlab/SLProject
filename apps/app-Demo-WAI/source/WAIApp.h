@@ -153,6 +153,7 @@ enum WAIEventType
     WAIEventType_VideoControl,
     WAIEventType_VideoRecording,
     WAIEventType_MapNodeTransform,
+    WAIEventType_DownloadCalibrationFiles,
 };
 
 struct WAIEvent
@@ -199,6 +200,11 @@ struct WAIEventMapNodeTransform : WAIEvent
     SLVec3f          rotation;
     SLVec3f          translation;
     float            scale;
+};
+
+struct WAIEventDownloadCalibrationFiles : WAIEvent
+{
+    WAIEventDownloadCalibrationFiles() { type = WAIEventType_DownloadCalibrationFiles; }
 };
 
 //-----------------------------------------------------------------------------
@@ -256,7 +262,6 @@ public:
     }
 
     std::string videoDir;
-    std::string calibDir;
     std::string mapDir;
 
 private:
@@ -267,7 +272,7 @@ private:
     void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
     void setupDefaultErlebARDirTo(std::string dir);
     //!download all remote files to transferred directory
-    void downloadCalibratinFilesTo(std::string dir);
+    void downloadCalibrationFilesTo(std::string dir);
     //bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
     bool updateSceneViews();
 
@@ -302,6 +307,7 @@ private:
 
     SlamParams     _currentSlamParams;
     AppDirectories _dirs;
+    std::string    _calibDir;
 
     //sensor stuff
     ofstream _gpsDataStream;

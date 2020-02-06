@@ -80,16 +80,14 @@ int WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int 
     SLApplication::devRot.isUsed(true);
     SLApplication::devLoc.isUsed(true);
 
-    videoDir = _dirs.writableDir + "erleb-AR/locations/";
-    calibDir = _dirs.writableDir + "calibrations/";
-    mapDir   = _dirs.writableDir + "maps/";
+    videoDir  = _dirs.writableDir + "erleb-AR/locations/";
+    _calibDir = _dirs.writableDir + "calibrations/";
+    mapDir    = _dirs.writableDir + "maps/";
 
     //init scene as soon as possible to allow visualization of error msgs
     int svIndex = initSLProject(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi);
 
     setupDefaultErlebARDirTo(_dirs.writableDir);
-    //todo: only do this, when the app is installed (on android and ios, maybe by a function call when permissions are given)
-    downloadCalibratinFilesTo(calibDir);
 
     _loaded = true;
 
@@ -161,11 +159,14 @@ SENSFramePtr WAIApp::updateVideoOrCamera()
 
 bool WAIApp::update()
 {
+    if (!_loaded)
+        return false;
+
     try
     {
         handleEvents();
 
-        if (_mode && _loaded)
+        if (_mode)
         {
             bool iKnowWhereIAm = false;
             //get new frame: in case of video this may already call updateTracking several times
@@ -322,7 +323,7 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
         }
 
         calibrationFileName        = "camCalib_" + computerInfo + "_main.xml";
-        slamParams.calibrationFile = calibDir + calibrationFileName;
+        slamParams.calibrationFile = _calibDir + calibrationFileName;
     }
     else
     {
@@ -379,7 +380,7 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
 
     // 2. Load Calibration
     //build undistortion maps after loading because it may take a lot of time for calibrations from large images on android
-    if (!_calibration.load(calibDir, Utils::getFileName(slamParams.calibrationFile), false))
+    if (!_calibration.load(_calibDir, Utils::getFileName(slamParams.calibrationFile), false))
     {
         showErrorMsg("Error when loading calibration from file: " +
                      slamParams.calibrationFile);
@@ -422,12 +423,12 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
     ORBVocabulary* voc = new ORB_SLAM2::ORBVocabulary();
     voc->loadFromBinaryFile(slamParams.vocabularyFile);
     WAIMap* map = nullptr;
-    
+
     // 5. Load map data
     if (useMapFile)
     {
-        WAIKeyFrameDB * kfdb = new WAIKeyFrameDB(*voc);
-        map = new WAIMap(kfdb);
+        WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(*voc);
+        map                    = new WAIMap(kfdb);
         bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
                                                         _waiScene.mapNode,
                                                         slamParams.mapFile,
@@ -702,7 +703,7 @@ void WAIApp::setupDefaultErlebARDirTo(std::string dir)
     }
 }
 //-----------------------------------------------------------------------------
-void WAIApp::downloadCalibratinFilesTo(std::string dir)
+void WAIApp::downloadCalibrationFilesTo(std::string dir)
 {
     const std::string ftpHost = "pallas.bfh.ch:21";
     const std::string ftpUser = "upload";
@@ -1207,6 +1208,13 @@ void WAIApp::handleEvents()
                 transformMapNode(mapNodeTransformEvent->tSpace, mapNodeTransformEvent->rotation, mapNodeTransformEvent->translation, mapNodeTransformEvent->scale);
 
                 delete mapNodeTransformEvent;
+            }
+            break;
+
+            case WAIEventType_DownloadCalibrationFiles: {
+                WAIEventDownloadCalibrationFiles* downloadEvent = (WAIEventDownloadCalibrationFiles*)event;
+                delete downloadEvent;
+                downloadCalibrationFilesTo(_calibDir);
             }
             break;
 

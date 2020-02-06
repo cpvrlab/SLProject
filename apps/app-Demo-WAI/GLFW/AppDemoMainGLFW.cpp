@@ -121,6 +121,10 @@ should called once before the onPaint event.
 */
 void onResize(GLFWwindow* window, int width, int height)
 {
+    //on windows minimizing gives callback with (0,0)
+    if (width == 0 && height == 0)
+        return;
+
     lastWidth  = width;
     lastHeight = height;
 
